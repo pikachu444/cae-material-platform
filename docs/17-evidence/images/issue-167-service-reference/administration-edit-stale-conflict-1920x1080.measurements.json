@@ -1,0 +1,465 @@
+{
+  "target": "administration-edit-stale-conflict-1920x1080",
+  "role": "administrator",
+  "state": "stale-conflict",
+  "viewport": "1920x1080",
+  "image": "docs/17-evidence/images/issue-167-service-reference/administration-edit-stale-conflict-1920x1080.png",
+  "sha256": "52d5a5da1bd26fefe02ee4d597859c07f55896fdf35c02113e8d4f14d70a13ce",
+  "dimensions": {
+    "width": 1920,
+    "height": 1080
+  },
+  "snapshot": {
+    "role": "administrator",
+    "state": "stale-conflict",
+    "viewport": {
+      "width": 1920,
+      "height": 1080,
+      "deviceScaleFactor": 1
+    },
+    "overflow": {
+      "documentScrollWidth": 0,
+      "bodyScrollWidth": 0,
+      "documentScrollHeight": 0,
+      "bodyScrollHeight": 0
+    },
+    "geometry": {
+      "workspace": {
+        "x": 13,
+        "y": 113,
+        "width": 1894,
+        "height": 930
+      },
+      "navigator": {
+        "x": 13,
+        "y": 113,
+        "width": 260,
+        "height": 930
+      },
+      "list": {
+        "x": 280,
+        "y": 113,
+        "width": 364,
+        "height": 930
+      },
+      "editorPane": {
+        "x": 651,
+        "y": 113,
+        "width": 1256,
+        "height": 930
+      },
+      "editor": {
+        "x": 651,
+        "y": 125,
+        "width": 820,
+        "height": 597.46875
+      },
+      "content": {
+        "x": 12,
+        "y": 54,
+        "width": 1896,
+        "height": 1018
+      }
+    },
+    "splitters": [
+      {
+        "key": "navigator",
+        "min": 220,
+        "max": 272,
+        "value": 260,
+        "rect": {
+          "x": 273,
+          "y": 113,
+          "width": 7,
+          "height": 930
+        }
+      },
+      {
+        "key": "list",
+        "min": 292,
+        "max": 384,
+        "value": 364,
+        "rect": {
+          "x": 644,
+          "y": 113,
+          "width": 7,
+          "height": 930
+        }
+      }
+    ],
+    "rows": [
+      {
+        "id": "materials",
+        "selected": true,
+        "width": 352,
+        "height": 26,
+        "clipped": false
+      },
+      {
+        "id": "conditions",
+        "selected": false,
+        "width": 352,
+        "height": 26,
+        "clipped": false
+      },
+      {
+        "id": "sources",
+        "selected": false,
+        "width": 352,
+        "height": 26,
+        "clipped": false
+      },
+      {
+        "id": "aliases",
+        "selected": false,
+        "width": 352,
+        "height": 26,
+        "clipped": false
+      },
+      {
+        "id": "batches",
+        "selected": false,
+        "width": 352,
+        "height": 26,
+        "clipped": false
+      }
+    ],
+    "controls": [
+      {
+        "tag": "a",
+        "name": "Skip to database design",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "CAE Material Platform home",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Materials",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Modeling",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Activity",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Administration",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Refresh",
+        "disabled": false,
+        "action": "refresh"
+      },
+      {
+        "tag": "button",
+        "name": "Preview datasheet",
+        "disabled": false,
+        "action": "preview"
+      },
+      {
+        "tag": "button",
+        "name": "Tables5",
+        "disabled": false,
+        "action": "tables"
+      },
+      {
+        "tag": "button",
+        "name": "Attributes18",
+        "disabled": false,
+        "action": "attributes"
+      },
+      {
+        "tag": "button",
+        "name": "Layouts3",
+        "disabled": false,
+        "action": "layouts"
+      },
+      {
+        "tag": "button",
+        "name": "Subsets4",
+        "disabled": false,
+        "action": "subsets"
+      },
+      {
+        "tag": "button",
+        "name": "Link Types2",
+        "disabled": false,
+        "action": "links"
+      },
+      {
+        "tag": "select",
+        "name": "Materials master Test conditions Source references Solver aliases Batch runs",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "div",
+        "name": "Resize Schema objects pane",
+        "disabled": false,
+        "action": "navigator"
+      },
+      {
+        "tag": "button",
+        "name": "Materials master",
+        "disabled": false,
+        "action": "materials"
+      },
+      {
+        "tag": "button",
+        "name": "Test conditions",
+        "disabled": false,
+        "action": "conditions"
+      },
+      {
+        "tag": "button",
+        "name": "Source references",
+        "disabled": false,
+        "action": "sources"
+      },
+      {
+        "tag": "button",
+        "name": "Solver aliases",
+        "disabled": false,
+        "action": "aliases"
+      },
+      {
+        "tag": "button",
+        "name": "Batch runs",
+        "disabled": false,
+        "action": "batches"
+      },
+      {
+        "tag": "div",
+        "name": "Resize Object list pane",
+        "disabled": false,
+        "action": "list"
+      },
+      {
+        "tag": "button",
+        "name": "Reload current",
+        "disabled": false,
+        "action": "reload-current"
+      },
+      {
+        "tag": "button",
+        "name": "Keep local as new revision",
+        "disabled": false,
+        "action": "keep-local"
+      },
+      {
+        "tag": "button",
+        "name": "Cancel",
+        "disabled": false,
+        "action": "cancel-conflict"
+      },
+      {
+        "tag": "input",
+        "name": "Table name *",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "input",
+        "name": "Reference key",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "textarea",
+        "name": "Published material definitions available to governed catalog users.",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "input",
+        "name": "Change reason *",
+        "disabled": false,
+        "action": ""
+      }
+    ],
+    "nestedInteractive": [],
+    "panes": {
+      "navigatorOverflowY": "hidden",
+      "listOverflowY": "auto",
+      "editorOverflowY": "auto"
+    },
+    "localScroll": {
+      "list": {
+        "scrollHeight": 894,
+        "clientHeight": 894,
+        "scrollTop": 0,
+        "scrollWidth": 352,
+        "clientWidth": 352,
+        "overflowY": "auto",
+        "scrollbarGutter": "stable"
+      },
+      "editor": {
+        "scrollHeight": 930,
+        "clientHeight": 930,
+        "scrollTop": 0,
+        "scrollWidth": 1244,
+        "clientWidth": 1244,
+        "overflowY": "auto",
+        "scrollbarGutter": "stable"
+      }
+    },
+    "editorMode": "table-draft",
+    "fields": [
+      {
+        "name": "tableName",
+        "value": "Materials master",
+        "type": "text",
+        "disabled": false,
+        "readonly": false,
+        "invalid": false
+      },
+      {
+        "name": "tableReference",
+        "value": "Materials master",
+        "type": "text",
+        "disabled": false,
+        "readonly": true,
+        "invalid": false
+      },
+      {
+        "name": "tableDescription",
+        "value": "Published material definitions available to governed catalog users.",
+        "type": "textarea",
+        "disabled": false,
+        "readonly": false,
+        "invalid": false
+      },
+      {
+        "name": "tableReason",
+        "value": "",
+        "type": "text",
+        "disabled": false,
+        "readonly": false,
+        "invalid": false
+      }
+    ],
+    "errors": [
+      "Newer Table definition detectedYour local draft is preserved. Resolve the conflict before sending another revision request.Reload currentKeep local as new revisionCancel"
+    ],
+    "buttons": [
+      {
+        "name": "Refresh",
+        "action": "refresh",
+        "disabled": false
+      },
+      {
+        "name": "Preview datasheet",
+        "action": "preview",
+        "disabled": false
+      },
+      {
+        "name": "Add Table",
+        "action": "add-table",
+        "disabled": false
+      },
+      {
+        "name": "Tables5",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Attributes18",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Layouts3",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Subsets4",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Link Types2",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Materials masterEngineering material data\n        Published material definitions available to governed catalog users.\n        12",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Test conditionsMeasurement context\n        Temperature, environment and test-method context for a result.\n        8",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Source referencesTraceable provenance\n        References that explain where an imported or entered value came from.\n        4",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Solver aliasesDelivery vocabulary\n        Stable names used when building a solver card for a model.\n        3",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Batch runsImport and review work\n        Governed batch activity associated with a set of records.\n        2",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Reload current",
+        "action": "reload-current",
+        "disabled": false
+      },
+      {
+        "name": "Keep local as new revision",
+        "action": "keep-local",
+        "disabled": false
+      },
+      {
+        "name": "Cancel",
+        "action": "cancel-conflict",
+        "disabled": false
+      }
+    ],
+    "conditional": {
+      "hasQuantity": false,
+      "hasStandardUnit": false,
+      "hasMinMax": false,
+      "hasAllowedChoices": false,
+      "hasRelatedTable": false,
+      "hasTextLimits": false
+    },
+    "announcements": {
+      "alert": true,
+      "status": true
+    },
+    "bodyCss": {
+      "overflowX": "hidden",
+      "overflowY": "hidden",
+      "rootOverflowX": "visible",
+      "rootOverflowY": "visible"
+    },
+    "pageText": "Skip to database design CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator \u00b7 Atlas workspace Database design Atlas workspace \u00b7 materials catalog Resolve revision conflict Refresh Preview datasheet Schema objects 5 types Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 2 Current table Materials master Test conditions Source references Solver aliases Batch runs Scopes Attributes, Layouts and Subsets. Selection retained on refresh Tables 5 items Name Definition Rev Materials master Engineering material data Published material definitions available to governed catalog users. 12 Test conditions Measurement context Temperature, environment and test-method context for a result. 8 Source references Traceable provenance References that explain where an imported or entered value came from. 4 Solver aliases Delivery vocabulary Stable names used when building a solver card for a model. 3 Batch runs Import and review work Governed batch activity associated with a set of records. 2 Newer Table definition detected Your local draft is preserved. Resolve the conflict before sending another revision request. Reload current Keep local as new revision Cancel Edit Materials master Table draft \u00b7 fields are local until a new revision is saved Draft changes Table name * Shown to catalog users and in Table selectors. Reference key Stable identity; it does not change when a revision is saved. Description Describe the decision or record scope in plain language. Change reason * Required to explain why this immutable revision is needed. Based on current revision. Saving appends a new revision and leaves existing Records and history intact. Advanced revision details Tables \u00b7 Materials master Table-scoped definitions Local pane scrolling Online"
+  },
+  "console_errors": [],
+  "page_errors": []
+}

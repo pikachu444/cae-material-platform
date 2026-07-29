@@ -1,0 +1,554 @@
+{
+  "target": "administration-attribute-conditional-number-1920x1080",
+  "role": "administrator",
+  "state": "attribute-draft",
+  "viewport": "1920x1080",
+  "image": "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-number-1920x1080.png",
+  "sha256": "228757c2613d8dc552ec10db510780bb0ed0bae45a400c2122d0e0035117de32",
+  "dimensions": {
+    "width": 1920,
+    "height": 1080
+  },
+  "snapshot": {
+    "role": "administrator",
+    "state": "attribute-draft",
+    "viewport": {
+      "width": 1920,
+      "height": 1080,
+      "deviceScaleFactor": 1
+    },
+    "overflow": {
+      "documentScrollWidth": 0,
+      "bodyScrollWidth": 0,
+      "documentScrollHeight": 0,
+      "bodyScrollHeight": 0
+    },
+    "geometry": {
+      "workspace": {
+        "x": 13,
+        "y": 113,
+        "width": 1894,
+        "height": 930
+      },
+      "navigator": {
+        "x": 13,
+        "y": 113,
+        "width": 260,
+        "height": 930
+      },
+      "list": {
+        "x": 280,
+        "y": 113,
+        "width": 364,
+        "height": 930
+      },
+      "editorPane": {
+        "x": 651,
+        "y": 113,
+        "width": 1256,
+        "height": 930
+      },
+      "editor": {
+        "x": 651,
+        "y": 113,
+        "width": 820,
+        "height": 780.75
+      },
+      "content": {
+        "x": 12,
+        "y": 54,
+        "width": 1896,
+        "height": 1018
+      }
+    },
+    "splitters": [
+      {
+        "key": "navigator",
+        "min": 220,
+        "max": 272,
+        "value": 260,
+        "rect": {
+          "x": 273,
+          "y": 113,
+          "width": 7,
+          "height": 930
+        }
+      },
+      {
+        "key": "list",
+        "min": 292,
+        "max": 384,
+        "value": 364,
+        "rect": {
+          "x": 644,
+          "y": 113,
+          "width": 7,
+          "height": 930
+        }
+      }
+    ],
+    "rows": [
+      {
+        "id": "density",
+        "selected": true,
+        "width": 352,
+        "height": 26,
+        "clipped": false
+      },
+      {
+        "id": "yield-strength",
+        "selected": false,
+        "width": 352,
+        "height": 26,
+        "clipped": false
+      },
+      {
+        "id": "material-condition",
+        "selected": false,
+        "width": 352,
+        "height": 26,
+        "clipped": false
+      },
+      {
+        "id": "source-reference",
+        "selected": false,
+        "width": 352,
+        "height": 26,
+        "clipped": false
+      },
+      {
+        "id": "test-method",
+        "selected": false,
+        "width": 352,
+        "height": 26,
+        "clipped": false
+      },
+      {
+        "id": "measurement-date",
+        "selected": false,
+        "width": 352,
+        "height": 26,
+        "clipped": false
+      }
+    ],
+    "controls": [
+      {
+        "tag": "a",
+        "name": "Skip to database design",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "CAE Material Platform home",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Materials",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Modeling",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Activity",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Administration",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Refresh",
+        "disabled": false,
+        "action": "refresh"
+      },
+      {
+        "tag": "button",
+        "name": "Preview datasheet",
+        "disabled": false,
+        "action": "preview"
+      },
+      {
+        "tag": "button",
+        "name": "Tables5",
+        "disabled": false,
+        "action": "tables"
+      },
+      {
+        "tag": "button",
+        "name": "Attributes18",
+        "disabled": false,
+        "action": "attributes"
+      },
+      {
+        "tag": "button",
+        "name": "Layouts3",
+        "disabled": false,
+        "action": "layouts"
+      },
+      {
+        "tag": "button",
+        "name": "Subsets4",
+        "disabled": false,
+        "action": "subsets"
+      },
+      {
+        "tag": "button",
+        "name": "Link Types2",
+        "disabled": false,
+        "action": "links"
+      },
+      {
+        "tag": "select",
+        "name": "Materials master Test conditions Source references Solver aliases Batch runs",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "div",
+        "name": "Resize Schema objects pane",
+        "disabled": false,
+        "action": "navigator"
+      },
+      {
+        "tag": "button",
+        "name": "Density",
+        "disabled": false,
+        "action": "density"
+      },
+      {
+        "tag": "button",
+        "name": "Yield strength",
+        "disabled": false,
+        "action": "yield-strength"
+      },
+      {
+        "tag": "button",
+        "name": "Material condition",
+        "disabled": false,
+        "action": "material-condition"
+      },
+      {
+        "tag": "button",
+        "name": "Source reference",
+        "disabled": false,
+        "action": "source-reference"
+      },
+      {
+        "tag": "button",
+        "name": "Test method",
+        "disabled": false,
+        "action": "test-method"
+      },
+      {
+        "tag": "button",
+        "name": "Measurement date",
+        "disabled": false,
+        "action": "measurement-date"
+      },
+      {
+        "tag": "div",
+        "name": "Resize Object list pane",
+        "disabled": false,
+        "action": "list"
+      },
+      {
+        "tag": "input",
+        "name": "Attribute name *",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "input",
+        "name": "Reference key",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "input",
+        "name": "Value type",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "input",
+        "name": "Required when creating a record",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "input",
+        "name": "Quantity / meaning *",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "input",
+        "name": "Standard unit *",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "input",
+        "name": "Minimum",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "input",
+        "name": "Maximum",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "textarea",
+        "name": "Enter the measured mass density at the selected test condition.",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "input",
+        "name": "Change reason *",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Save new revision",
+        "disabled": false,
+        "action": "save-attribute"
+      },
+      {
+        "tag": "button",
+        "name": "Discard draft",
+        "disabled": false,
+        "action": "discard-draft"
+      }
+    ],
+    "nestedInteractive": [],
+    "panes": {
+      "navigatorOverflowY": "hidden",
+      "listOverflowY": "auto",
+      "editorOverflowY": "auto"
+    },
+    "localScroll": {
+      "list": {
+        "scrollHeight": 894,
+        "clientHeight": 894,
+        "scrollTop": 0,
+        "scrollWidth": 352,
+        "clientWidth": 352,
+        "overflowY": "auto",
+        "scrollbarGutter": "stable"
+      },
+      "editor": {
+        "scrollHeight": 930,
+        "clientHeight": 930,
+        "scrollTop": 0,
+        "scrollWidth": 1244,
+        "clientWidth": 1244,
+        "overflowY": "auto",
+        "scrollbarGutter": "stable"
+      }
+    },
+    "editorMode": "attribute-draft",
+    "fields": [
+      {
+        "name": "attributeName",
+        "value": "Density",
+        "type": "text",
+        "disabled": false,
+        "readonly": false,
+        "invalid": false
+      },
+      {
+        "name": "attributeReference",
+        "value": "Density",
+        "type": "text",
+        "disabled": false,
+        "readonly": true,
+        "invalid": false
+      },
+      {
+        "name": "attributeType",
+        "value": "Number",
+        "type": "text",
+        "disabled": false,
+        "readonly": true,
+        "invalid": false
+      },
+      {
+        "name": "required",
+        "value": "on",
+        "type": "checkbox",
+        "disabled": false,
+        "readonly": false,
+        "invalid": false
+      },
+      {
+        "name": "quantity",
+        "value": "mass per volume",
+        "type": "text",
+        "disabled": false,
+        "readonly": false,
+        "invalid": false
+      },
+      {
+        "name": "standardUnit",
+        "value": "kg/m\u00b3",
+        "type": "text",
+        "disabled": false,
+        "readonly": false,
+        "invalid": false
+      },
+      {
+        "name": "minimum",
+        "value": "500",
+        "type": "number",
+        "disabled": false,
+        "readonly": false,
+        "invalid": false
+      },
+      {
+        "name": "maximum",
+        "value": "9000",
+        "type": "number",
+        "disabled": false,
+        "readonly": false,
+        "invalid": false
+      },
+      {
+        "name": "entryGuidance",
+        "value": "Enter the measured mass density at the selected test condition.",
+        "type": "textarea",
+        "disabled": false,
+        "readonly": false,
+        "invalid": false
+      },
+      {
+        "name": "attributeReason",
+        "value": "",
+        "type": "text",
+        "disabled": false,
+        "readonly": false,
+        "invalid": false
+      }
+    ],
+    "errors": [],
+    "buttons": [
+      {
+        "name": "Refresh",
+        "action": "refresh",
+        "disabled": false
+      },
+      {
+        "name": "Preview datasheet",
+        "action": "preview",
+        "disabled": false
+      },
+      {
+        "name": "Add Table",
+        "action": "add-table",
+        "disabled": false
+      },
+      {
+        "name": "Tables5",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Attributes18",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Layouts3",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Subsets4",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Link Types2",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Densitynumber \u00b7 mass per volume\n        Mass density used in the selected material model.\n        5",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Yield strengthnumber \u00b7 stress\n        Onset of plastic response at the recorded condition.\n        7",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Material conditiondiscrete \u00b7 controlled choice\n        Controlled condition label for a material record.\n        3",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Source referencerecord reference\n        Provenance reference associated with the current value.\n        4",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Test methodtext\n        Method identifier supplied by the test engineer.\n        4",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Measurement datedate\n        Date on which the test measurement was recorded.\n        2",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Save new revision",
+        "action": "save-attribute",
+        "disabled": false
+      },
+      {
+        "name": "Discard draft",
+        "action": "discard-draft",
+        "disabled": false
+      }
+    ],
+    "conditional": {
+      "hasQuantity": true,
+      "hasStandardUnit": true,
+      "hasMinMax": true,
+      "hasAllowedChoices": false,
+      "hasRelatedTable": false,
+      "hasTextLimits": false
+    },
+    "announcements": {
+      "alert": false,
+      "status": true
+    },
+    "bodyCss": {
+      "overflowX": "hidden",
+      "overflowY": "hidden",
+      "rootOverflowX": "visible",
+      "rootOverflowY": "visible"
+    },
+    "pageText": "Skip to database design CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator \u00b7 Atlas workspace Database design Atlas workspace \u00b7 materials catalog Ready Refresh Preview datasheet Schema objects 5 types Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 2 Current table Materials master Test conditions Source references Solver aliases Batch runs Scopes Attributes, Layouts and Subsets. Selection retained on refresh Attributes 6 items Name Definition Rev Density number \u00b7 mass per volume Mass density used in the selected material model. 5 Yield strength number \u00b7 stress Onset of plastic response at the recorded condition. 7 Material condition discrete \u00b7 controlled choice Controlled condition label for a material record. 3 Source reference record reference Provenance reference associated with the current value. 4 Test method text Method identifier supplied by the test engineer. 4 Measurement date date Date on which the test measurement was recorded. 2 Edit Density Attribute draft \u00b7 typed fields follow the existing definition Draft changes Attribute name * Visible label for a Record entry field. Reference key Stable identity; immutable revisions share this key. Value type Existing definitions keep their value type. Required when creating a record Required for new records Controls whether a new Record can be saved without this value. Quantity / meaning * Engineering quantity represented by the number. Standard unit * Original unit text is retained with the normalized unit. Valid range Minimum Optional lower bound. Maximum Optional upper bound. Entry guidance Short guidance appears beside the Record field. Change reason * Required before saving a new immutable revision. Save new revision Discard draft Advanced definition details Attributes \u00b7 Density Scoped to Materials master Local pane scrolling Online"
+  },
+  "console_errors": [],
+  "page_errors": []
+}

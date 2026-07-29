@@ -1,0 +1,452 @@
+{
+  "target": "administration-table-edit-draft-1440x900",
+  "role": "administrator",
+  "state": "table-draft",
+  "viewport": "1440x900",
+  "image": "docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1440x900.png",
+  "sha256": "91edbc0bc8913832ee5f48f495e38d570a725407baaf76fa5bcb278b7d17c34f",
+  "dimensions": {
+    "width": 1440,
+    "height": 900
+  },
+  "snapshot": {
+    "role": "administrator",
+    "state": "table-draft",
+    "viewport": {
+      "width": 1440,
+      "height": 900,
+      "deviceScaleFactor": 1
+    },
+    "overflow": {
+      "documentScrollWidth": 0,
+      "bodyScrollWidth": 0,
+      "documentScrollHeight": 0,
+      "bodyScrollHeight": 0
+    },
+    "geometry": {
+      "workspace": {
+        "x": 9,
+        "y": 109,
+        "width": 1422,
+        "height": 754
+      },
+      "navigator": {
+        "x": 9,
+        "y": 109,
+        "width": 232,
+        "height": 754
+      },
+      "list": {
+        "x": 248,
+        "y": 109,
+        "width": 312,
+        "height": 754
+      },
+      "editorPane": {
+        "x": 567,
+        "y": 109,
+        "width": 864,
+        "height": 754
+      },
+      "editor": {
+        "x": 567,
+        "y": 109,
+        "width": 760,
+        "height": 537.671875
+      },
+      "content": {
+        "x": 8,
+        "y": 54,
+        "width": 1424,
+        "height": 838
+      }
+    },
+    "splitters": [
+      {
+        "key": "navigator",
+        "min": 220,
+        "max": 272,
+        "value": 232,
+        "rect": {
+          "x": 241,
+          "y": 109,
+          "width": 7,
+          "height": 754
+        }
+      },
+      {
+        "key": "list",
+        "min": 292,
+        "max": 384,
+        "value": 312,
+        "rect": {
+          "x": 560,
+          "y": 109,
+          "width": 7,
+          "height": 754
+        }
+      }
+    ],
+    "rows": [
+      {
+        "id": "materials",
+        "selected": true,
+        "width": 300,
+        "height": 26,
+        "clipped": false
+      },
+      {
+        "id": "conditions",
+        "selected": false,
+        "width": 300,
+        "height": 26,
+        "clipped": false
+      },
+      {
+        "id": "sources",
+        "selected": false,
+        "width": 300,
+        "height": 26,
+        "clipped": false
+      },
+      {
+        "id": "aliases",
+        "selected": false,
+        "width": 300,
+        "height": 26,
+        "clipped": false
+      },
+      {
+        "id": "batches",
+        "selected": false,
+        "width": 300,
+        "height": 26,
+        "clipped": false
+      }
+    ],
+    "controls": [
+      {
+        "tag": "a",
+        "name": "Skip to database design",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "CAE Material Platform home",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Materials",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Modeling",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Activity",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Administration",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Refresh",
+        "disabled": false,
+        "action": "refresh"
+      },
+      {
+        "tag": "button",
+        "name": "Preview datasheet",
+        "disabled": false,
+        "action": "preview"
+      },
+      {
+        "tag": "button",
+        "name": "Tables5",
+        "disabled": false,
+        "action": "tables"
+      },
+      {
+        "tag": "button",
+        "name": "Attributes18",
+        "disabled": false,
+        "action": "attributes"
+      },
+      {
+        "tag": "button",
+        "name": "Layouts3",
+        "disabled": false,
+        "action": "layouts"
+      },
+      {
+        "tag": "button",
+        "name": "Subsets4",
+        "disabled": false,
+        "action": "subsets"
+      },
+      {
+        "tag": "button",
+        "name": "Link Types2",
+        "disabled": false,
+        "action": "links"
+      },
+      {
+        "tag": "select",
+        "name": "Materials master Test conditions Source references Solver aliases Batch runs",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "div",
+        "name": "Resize Schema objects pane",
+        "disabled": false,
+        "action": "navigator"
+      },
+      {
+        "tag": "button",
+        "name": "Materials master",
+        "disabled": false,
+        "action": "materials"
+      },
+      {
+        "tag": "button",
+        "name": "Test conditions",
+        "disabled": false,
+        "action": "conditions"
+      },
+      {
+        "tag": "button",
+        "name": "Source references",
+        "disabled": false,
+        "action": "sources"
+      },
+      {
+        "tag": "button",
+        "name": "Solver aliases",
+        "disabled": false,
+        "action": "aliases"
+      },
+      {
+        "tag": "button",
+        "name": "Batch runs",
+        "disabled": false,
+        "action": "batches"
+      },
+      {
+        "tag": "div",
+        "name": "Resize Object list pane",
+        "disabled": false,
+        "action": "list"
+      },
+      {
+        "tag": "input",
+        "name": "Table name *",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "input",
+        "name": "Reference key",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "textarea",
+        "name": "Published material definitions available to governed catalog users.",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "input",
+        "name": "Change reason *",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Save new revision",
+        "disabled": false,
+        "action": "save-table"
+      },
+      {
+        "tag": "button",
+        "name": "Discard draft",
+        "disabled": false,
+        "action": "discard-draft"
+      }
+    ],
+    "nestedInteractive": [],
+    "panes": {
+      "navigatorOverflowY": "hidden",
+      "listOverflowY": "auto",
+      "editorOverflowY": "auto"
+    },
+    "localScroll": {
+      "list": {
+        "scrollHeight": 718,
+        "clientHeight": 718,
+        "scrollTop": 0,
+        "scrollWidth": 300,
+        "clientWidth": 300,
+        "overflowY": "auto",
+        "scrollbarGutter": "stable"
+      },
+      "editor": {
+        "scrollHeight": 754,
+        "clientHeight": 754,
+        "scrollTop": 0,
+        "scrollWidth": 852,
+        "clientWidth": 852,
+        "overflowY": "auto",
+        "scrollbarGutter": "stable"
+      }
+    },
+    "editorMode": "table-draft",
+    "fields": [
+      {
+        "name": "tableName",
+        "value": "Materials master",
+        "type": "text",
+        "disabled": false,
+        "readonly": false,
+        "invalid": false
+      },
+      {
+        "name": "tableReference",
+        "value": "Materials master",
+        "type": "text",
+        "disabled": false,
+        "readonly": true,
+        "invalid": false
+      },
+      {
+        "name": "tableDescription",
+        "value": "Published material definitions available to governed catalog users.",
+        "type": "textarea",
+        "disabled": false,
+        "readonly": false,
+        "invalid": false
+      },
+      {
+        "name": "tableReason",
+        "value": "",
+        "type": "text",
+        "disabled": false,
+        "readonly": false,
+        "invalid": false
+      }
+    ],
+    "errors": [],
+    "buttons": [
+      {
+        "name": "Refresh",
+        "action": "refresh",
+        "disabled": false
+      },
+      {
+        "name": "Preview datasheet",
+        "action": "preview",
+        "disabled": false
+      },
+      {
+        "name": "Add Table",
+        "action": "add-table",
+        "disabled": false
+      },
+      {
+        "name": "Tables5",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Attributes18",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Layouts3",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Subsets4",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Link Types2",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Materials masterEngineering material data\n        Published material definitions available to governed catalog users.\n        12",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Test conditionsMeasurement context\n        Temperature, environment and test-method context for a result.\n        8",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Source referencesTraceable provenance\n        References that explain where an imported or entered value came from.\n        4",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Solver aliasesDelivery vocabulary\n        Stable names used when building a solver card for a model.\n        3",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Batch runsImport and review work\n        Governed batch activity associated with a set of records.\n        2",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Save new revision",
+        "action": "save-table",
+        "disabled": false
+      },
+      {
+        "name": "Discard draft",
+        "action": "discard-draft",
+        "disabled": false
+      }
+    ],
+    "conditional": {
+      "hasQuantity": false,
+      "hasStandardUnit": false,
+      "hasMinMax": false,
+      "hasAllowedChoices": false,
+      "hasRelatedTable": false,
+      "hasTextLimits": false
+    },
+    "announcements": {
+      "alert": false,
+      "status": true
+    },
+    "bodyCss": {
+      "overflowX": "hidden",
+      "overflowY": "hidden",
+      "rootOverflowX": "visible",
+      "rootOverflowY": "visible"
+    },
+    "pageText": "Skip to database design CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator \u00b7 Atlas workspace Database design Atlas workspace \u00b7 materials catalog Ready Refresh Preview datasheet Schema objects 5 types Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 2 Current table Materials master Test conditions Source references Solver aliases Batch runs Scopes Attributes, Layouts and Subsets. Selection retained on refresh Tables 5 items Name Definition Rev Materials master Engineering material data Published material definitions available to governed catalog users. 12 Test conditions Measurement context Temperature, environment and test-method context for a result. 8 Source references Traceable provenance References that explain where an imported or entered value came from. 4 Solver aliases Delivery vocabulary Stable names used when building a solver card for a model. 3 Batch runs Import and review work Governed batch activity associated with a set of records. 2 Edit Materials master Table draft \u00b7 fields are local until a new revision is saved Draft changes Table name * Shown to catalog users and in Table selectors. Reference key Stable identity; it does not change when a revision is saved. Description Describe the decision or record scope in plain language. Change reason * Required to explain why this immutable revision is needed. Based on current revision. Saving appends a new revision and leaves existing Records and history intact. Save new revision Discard draft Advanced revision details Tables \u00b7 Materials master Table-scoped definitions Local pane scrolling Online"
+  },
+  "console_errors": [],
+  "page_errors": []
+}

@@ -1,0 +1,414 @@
+{
+  "target": "administration-selection-continuity-1920x1080",
+  "role": "administrator",
+  "state": "catalog-error",
+  "viewport": "1920x1080",
+  "image": "docs/17-evidence/images/issue-167-service-reference/administration-selection-continuity-1920x1080.png",
+  "sha256": "d8f36481471e153b4edd43569a07e4d248dd95ea19699dbc8b22c013fe522852",
+  "dimensions": {
+    "width": 1920,
+    "height": 1080
+  },
+  "snapshot": {
+    "role": "administrator",
+    "state": "catalog-error",
+    "viewport": {
+      "width": 1920,
+      "height": 1080,
+      "deviceScaleFactor": 1
+    },
+    "overflow": {
+      "documentScrollWidth": 0,
+      "bodyScrollWidth": 0,
+      "documentScrollHeight": 0,
+      "bodyScrollHeight": 0
+    },
+    "geometry": {
+      "workspace": {
+        "x": 13,
+        "y": 113,
+        "width": 1894,
+        "height": 930
+      },
+      "navigator": {
+        "x": 13,
+        "y": 113,
+        "width": 260,
+        "height": 930
+      },
+      "list": {
+        "x": 280,
+        "y": 113,
+        "width": 364,
+        "height": 930
+      },
+      "editorPane": {
+        "x": 651,
+        "y": 113,
+        "width": 1256,
+        "height": 930
+      },
+      "editor": {
+        "x": 651,
+        "y": 167,
+        "width": 820,
+        "height": 387.703125
+      },
+      "content": {
+        "x": 12,
+        "y": 54,
+        "width": 1896,
+        "height": 1018
+      }
+    },
+    "splitters": [
+      {
+        "key": "navigator",
+        "min": 220,
+        "max": 272,
+        "value": 260,
+        "rect": {
+          "x": 273,
+          "y": 113,
+          "width": 7,
+          "height": 930
+        }
+      },
+      {
+        "key": "list",
+        "min": 292,
+        "max": 384,
+        "value": 364,
+        "rect": {
+          "x": 644,
+          "y": 113,
+          "width": 7,
+          "height": 930
+        }
+      }
+    ],
+    "rows": [
+      {
+        "id": "materials",
+        "selected": true,
+        "width": 352,
+        "height": 26,
+        "clipped": false
+      },
+      {
+        "id": "conditions",
+        "selected": false,
+        "width": 352,
+        "height": 26,
+        "clipped": false
+      },
+      {
+        "id": "sources",
+        "selected": false,
+        "width": 352,
+        "height": 26,
+        "clipped": false
+      },
+      {
+        "id": "aliases",
+        "selected": false,
+        "width": 352,
+        "height": 26,
+        "clipped": false
+      },
+      {
+        "id": "batches",
+        "selected": false,
+        "width": 352,
+        "height": 26,
+        "clipped": false
+      }
+    ],
+    "controls": [
+      {
+        "tag": "a",
+        "name": "Skip to database design",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "CAE Material Platform home",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Materials",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Modeling",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Activity",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Administration",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Refresh",
+        "disabled": false,
+        "action": "refresh"
+      },
+      {
+        "tag": "button",
+        "name": "Preview datasheet",
+        "disabled": false,
+        "action": "preview"
+      },
+      {
+        "tag": "button",
+        "name": "Add Table",
+        "disabled": false,
+        "action": "add-table"
+      },
+      {
+        "tag": "button",
+        "name": "Tables5",
+        "disabled": false,
+        "action": "tables"
+      },
+      {
+        "tag": "button",
+        "name": "Attributes18",
+        "disabled": false,
+        "action": "attributes"
+      },
+      {
+        "tag": "button",
+        "name": "Layouts3",
+        "disabled": false,
+        "action": "layouts"
+      },
+      {
+        "tag": "button",
+        "name": "Subsets4",
+        "disabled": false,
+        "action": "subsets"
+      },
+      {
+        "tag": "button",
+        "name": "Link Types2",
+        "disabled": false,
+        "action": "links"
+      },
+      {
+        "tag": "select",
+        "name": "Materials master Test conditions Source references Solver aliases Batch runs",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "div",
+        "name": "Resize Schema objects pane",
+        "disabled": false,
+        "action": "navigator"
+      },
+      {
+        "tag": "button",
+        "name": "Materials master",
+        "disabled": false,
+        "action": "materials"
+      },
+      {
+        "tag": "button",
+        "name": "Test conditions",
+        "disabled": false,
+        "action": "conditions"
+      },
+      {
+        "tag": "button",
+        "name": "Source references",
+        "disabled": false,
+        "action": "sources"
+      },
+      {
+        "tag": "button",
+        "name": "Solver aliases",
+        "disabled": false,
+        "action": "aliases"
+      },
+      {
+        "tag": "button",
+        "name": "Batch runs",
+        "disabled": false,
+        "action": "batches"
+      },
+      {
+        "tag": "div",
+        "name": "Resize Object list pane",
+        "disabled": false,
+        "action": "list"
+      },
+      {
+        "tag": "button",
+        "name": "Retry",
+        "disabled": false,
+        "action": "retry-catalog"
+      },
+      {
+        "tag": "button",
+        "name": "Edit Table",
+        "disabled": false,
+        "action": "edit-table"
+      },
+      {
+        "tag": "button",
+        "name": "Preview datasheet",
+        "disabled": false,
+        "action": "preview"
+      }
+    ],
+    "nestedInteractive": [],
+    "panes": {
+      "navigatorOverflowY": "hidden",
+      "listOverflowY": "auto",
+      "editorOverflowY": "auto"
+    },
+    "localScroll": {
+      "list": {
+        "scrollHeight": 894,
+        "clientHeight": 894,
+        "scrollTop": 0,
+        "scrollWidth": 352,
+        "clientWidth": 352,
+        "overflowY": "auto",
+        "scrollbarGutter": "stable"
+      },
+      "editor": {
+        "scrollHeight": 930,
+        "clientHeight": 930,
+        "scrollTop": 0,
+        "scrollWidth": 1244,
+        "clientWidth": 1244,
+        "overflowY": "auto",
+        "scrollbarGutter": "stable"
+      }
+    },
+    "editorMode": "table-readonly",
+    "fields": [],
+    "errors": [
+      "Catalog refresh failed. The last valid rows and selection remain available.Retry"
+    ],
+    "buttons": [
+      {
+        "name": "Refresh",
+        "action": "refresh",
+        "disabled": false
+      },
+      {
+        "name": "Preview datasheet",
+        "action": "preview",
+        "disabled": false
+      },
+      {
+        "name": "Add Table",
+        "action": "add-table",
+        "disabled": false
+      },
+      {
+        "name": "Tables5",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Attributes18",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Layouts3",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Subsets4",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Link Types2",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Materials masterEngineering material data\n        Published material definitions available to governed catalog users.\n        12",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Test conditionsMeasurement context\n        Temperature, environment and test-method context for a result.\n        8",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Source referencesTraceable provenance\n        References that explain where an imported or entered value came from.\n        4",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Solver aliasesDelivery vocabulary\n        Stable names used when building a solver card for a model.\n        3",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Batch runsImport and review work\n        Governed batch activity associated with a set of records.\n        2",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Retry",
+        "action": "retry-catalog",
+        "disabled": false
+      },
+      {
+        "name": "Edit Table",
+        "action": "edit-table",
+        "disabled": false
+      },
+      {
+        "name": "Preview datasheet",
+        "action": "preview",
+        "disabled": false
+      }
+    ],
+    "conditional": {
+      "hasQuantity": false,
+      "hasStandardUnit": false,
+      "hasMinMax": false,
+      "hasAllowedChoices": false,
+      "hasRelatedTable": false,
+      "hasTextLimits": false
+    },
+    "announcements": {
+      "alert": true,
+      "status": true
+    },
+    "bodyCss": {
+      "overflowX": "hidden",
+      "overflowY": "hidden",
+      "rootOverflowX": "visible",
+      "rootOverflowY": "visible"
+    },
+    "pageText": "Skip to database design CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator \u00b7 Atlas workspace Database design Atlas workspace \u00b7 materials catalog Needs attention Refresh Preview datasheet Add Table Schema objects 5 types Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 2 Current table Materials master Test conditions Source references Solver aliases Batch runs Scopes Attributes, Layouts and Subsets. Selection retained on refresh Tables 5 items Name Definition Rev Materials master Engineering material data Published material definitions available to governed catalog users. 12 Test conditions Measurement context Temperature, environment and test-method context for a result. 8 Source references Traceable provenance References that explain where an imported or entered value came from. 4 Solver aliases Delivery vocabulary Stable names used when building a solver card for a model. 3 Batch runs Import and review work Governed batch activity associated with a set of records. 2 Catalog refresh failed. The last valid rows and selection remain available. Retry Materials master Current Table definition Current definition Purpose Published material definitions available to governed catalog users. Attributes 12 defined fields Layouts 1 entry layout Subsets 2 scoped subsets Inspect the current definition or edit it as a new immutable revision. Edit Table Preview datasheet Advanced definition details Tables \u00b7 Materials master Table-scoped definitions Local pane scrolling Online"
+  },
+  "console_errors": [],
+  "page_errors": []
+}

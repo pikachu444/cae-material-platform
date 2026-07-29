@@ -1,0 +1,288 @@
+{
+  "target": "administration-database-empty-1366x768",
+  "role": "administrator",
+  "state": "empty",
+  "viewport": "1366x768",
+  "image": "docs/17-evidence/images/issue-167-service-reference/administration-database-empty-1366x768.png",
+  "sha256": "759a382662d127c065a6dd77edafaee88ddd585f665d1df9474809f4e8afa13b",
+  "dimensions": {
+    "width": 1366,
+    "height": 768
+  },
+  "snapshot": {
+    "role": "administrator",
+    "state": "empty",
+    "viewport": {
+      "width": 1366,
+      "height": 768,
+      "deviceScaleFactor": 1
+    },
+    "overflow": {
+      "documentScrollWidth": 0,
+      "bodyScrollWidth": 0,
+      "documentScrollHeight": 0,
+      "bodyScrollHeight": 0
+    },
+    "geometry": {
+      "workspace": {
+        "x": 9,
+        "y": 109,
+        "width": 1348,
+        "height": 622
+      },
+      "navigator": {
+        "x": 9,
+        "y": 109,
+        "width": 226,
+        "height": 622
+      },
+      "list": {
+        "x": 242,
+        "y": 109,
+        "width": 304,
+        "height": 622
+      },
+      "editorPane": {
+        "x": 553,
+        "y": 109,
+        "width": 804,
+        "height": 622
+      },
+      "editor": null,
+      "content": {
+        "x": 8,
+        "y": 54,
+        "width": 1350,
+        "height": 706
+      }
+    },
+    "splitters": [
+      {
+        "key": "navigator",
+        "min": 220,
+        "max": 272,
+        "value": 226,
+        "rect": {
+          "x": 235,
+          "y": 109,
+          "width": 7,
+          "height": 622
+        }
+      },
+      {
+        "key": "list",
+        "min": 292,
+        "max": 384,
+        "value": 304,
+        "rect": {
+          "x": 546,
+          "y": 109,
+          "width": 7,
+          "height": 622
+        }
+      }
+    ],
+    "rows": [],
+    "controls": [
+      {
+        "tag": "a",
+        "name": "Skip to database design",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "CAE Material Platform home",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Materials",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Modeling",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Activity",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Administration",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Refresh",
+        "disabled": false,
+        "action": "refresh"
+      },
+      {
+        "tag": "button",
+        "name": "Preview datasheet",
+        "disabled": false,
+        "action": "preview"
+      },
+      {
+        "tag": "button",
+        "name": "Add Table",
+        "disabled": false,
+        "action": "add-table"
+      },
+      {
+        "tag": "button",
+        "name": "Tables5",
+        "disabled": false,
+        "action": "tables"
+      },
+      {
+        "tag": "button",
+        "name": "Attributes18",
+        "disabled": false,
+        "action": "attributes"
+      },
+      {
+        "tag": "button",
+        "name": "Layouts3",
+        "disabled": false,
+        "action": "layouts"
+      },
+      {
+        "tag": "button",
+        "name": "Subsets4",
+        "disabled": false,
+        "action": "subsets"
+      },
+      {
+        "tag": "button",
+        "name": "Link Types2",
+        "disabled": false,
+        "action": "links"
+      },
+      {
+        "tag": "div",
+        "name": "Resize Schema objects pane",
+        "disabled": false,
+        "action": "navigator"
+      },
+      {
+        "tag": "div",
+        "name": "Resize Object list pane",
+        "disabled": false,
+        "action": "list"
+      },
+      {
+        "tag": "button",
+        "name": "Add Table",
+        "disabled": false,
+        "action": "add-table"
+      }
+    ],
+    "nestedInteractive": [],
+    "panes": {
+      "navigatorOverflowY": "hidden",
+      "listOverflowY": "auto",
+      "editorOverflowY": "auto"
+    },
+    "localScroll": {
+      "list": {
+        "scrollHeight": 586,
+        "clientHeight": 586,
+        "scrollTop": 0,
+        "scrollWidth": 292,
+        "clientWidth": 292,
+        "overflowY": "auto",
+        "scrollbarGutter": "stable"
+      },
+      "editor": {
+        "scrollHeight": 622,
+        "clientHeight": 622,
+        "scrollTop": 0,
+        "scrollWidth": 792,
+        "clientWidth": 792,
+        "overflowY": "auto",
+        "scrollbarGutter": "stable"
+      }
+    },
+    "editorMode": "",
+    "fields": [],
+    "errors": [],
+    "buttons": [
+      {
+        "name": "Refresh",
+        "action": "refresh",
+        "disabled": false
+      },
+      {
+        "name": "Preview datasheet",
+        "action": "preview",
+        "disabled": false
+      },
+      {
+        "name": "Add Table",
+        "action": "add-table",
+        "disabled": false
+      },
+      {
+        "name": "Tables5",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Attributes18",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Layouts3",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Subsets4",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Link Types2",
+        "action": "",
+        "disabled": false
+      },
+      {
+        "name": "Add Table",
+        "action": "add-table",
+        "disabled": false
+      }
+    ],
+    "conditional": {
+      "hasQuantity": false,
+      "hasStandardUnit": false,
+      "hasMinMax": false,
+      "hasAllowedChoices": false,
+      "hasRelatedTable": false,
+      "hasTextLimits": false
+    },
+    "announcements": {
+      "alert": false,
+      "status": true
+    },
+    "bodyCss": {
+      "overflowX": "hidden",
+      "overflowY": "hidden",
+      "rootOverflowX": "visible",
+      "rootOverflowY": "visible"
+    },
+    "pageText": "Skip to database design CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator \u00b7 Atlas workspace Database design Atlas workspace \u00b7 materials catalog Ready Refresh Preview datasheet Add Table Schema objects 5 types Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 2 Selection retained on refresh Tables 0 items Name Definition Rev No Tables yet Add a Table to define the catalog shape. No Table selected Choose a Table when one is available. Waiting for a Table Use Add Table to define the first governed Table in this workspace. Add Table Tables \u00b7 Materials master Table-scoped definitions Local pane scrolling Online"
+  },
+  "console_errors": [],
+  "page_errors": []
+}

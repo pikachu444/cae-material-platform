@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#eef2f4" />
+    <title>Administration · Database design · CAE Material Platform</title>
+    <link rel="stylesheet" href="administration-schema-core.css" />
+  </head>
+  <body data-role="administrator" data-state="normal">
+    <a class="skip-link" href="#admin-main">Skip to database design</a>
+    <div class="app-frame">
+      <header class="app-topbar" data-region="global-shell">
+        <a class="brand-lockup" href="#admin-main" aria-label="CAE Material Platform home">
+          <span class="brand-mark" aria-hidden="true">CMP</span>
+          <span class="brand-copy"><strong>CAE Material Platform</strong><small>Material data and solver delivery</small></span>
+        </a>
+        <nav class="workspace-nav" aria-label="Primary workspace navigation">
+          <a href="#materials">Materials</a>
+          <a href="#modeling">Modeling</a>
+          <a href="#activity">Activity</a>
+          <a class="is-active" aria-current="page" href="#admin-main">Administration</a>
+        </nav>
+        <div class="topbar-context">Administrator · Atlas workspace</div>
+      </header>
+
+      <main id="admin-main" class="admin-page" data-region="main-content">
+        <section class="admin-shell">
+          <header class="task-bar" data-region="administration-context">
+            <div class="task-context">
+              <h1>Database design</h1>
+              <span>Atlas workspace · materials catalog</span>
+            </div>
+            <div class="task-actions" data-region="task-commands">
+              <span class="task-status" role="status" aria-live="polite" data-task-status>Ready</span>
+              <button type="button" class="button quiet" data-action="refresh">Refresh</button>
+              <button type="button" class="button quiet" data-action="preview">Preview datasheet</button>
+              <button type="button" class="button primary" data-action="add-table">Add Table</button>
+            </div>
+          </header>
+
+          <section class="workspace" data-workspace aria-label="Database design workspace">
+            <aside class="pane navigator-pane" id="navigator-pane" data-pane="navigator">
+              <header class="pane-heading sticky-heading"><h2>Schema objects</h2><span data-nav-count>5 types</span></header>
+              <div class="object-family-list" role="list" aria-label="Schema object families">
+                <button type="button" class="object-family is-selected" role="listitem" data-object-kind="tables" aria-pressed="true"><span>Tables</span><span class="family-count">5</span></button>
+                <button type="button" class="object-family" role="listitem" data-object-kind="attributes" aria-pressed="false"><span>Attributes</span><span class="family-count">18</span></button>
+                <button type="button" class="object-family" role="listitem" data-object-kind="layouts" aria-pressed="false"><span>Layouts</span><span class="family-count">3</span></button>
+                <button type="button" class="object-family" role="listitem" data-object-kind="subsets" aria-pressed="false"><span>Subsets</span><span class="family-count">4</span></button>
+                <button type="button" class="object-family" role="listitem" data-object-kind="links" aria-pressed="false"><span>Link Types</span><span class="family-count">2</span></button>
+              </div>
+              <div class="current-table-wrap" data-current-table-wrap>
+                <label for="current-table">Current table</label>
+                <select id="current-table" data-current-table aria-describedby="current-table-help">
+                  <option value="materials">Materials master</option>
+                  <option value="conditions">Test conditions</option>
+                  <option value="sources">Source references</option>
+                  <option value="aliases">Solver aliases</option>
+                  <option value="batches">Batch runs</option>
+                </select>
+                <span id="current-table-help">Scopes Attributes, Layouts and Subsets.</span>
+              </div>
+              <footer class="pane-foot"><span data-nav-foot>Selection retained on refresh</span></footer>
+            </aside>
+
+            <div class="splitter" role="separator" aria-orientation="vertical" aria-label="Resize Schema objects pane" aria-controls="navigator-pane" tabindex="0" data-splitter="navigator" aria-valuemin="220" aria-valuemax="272" aria-valuenow="232"><span aria-hidden="true"></span></div>
+
+            <section class="pane object-list-pane" id="object-list-pane" data-pane="list">
+              <header class="pane-heading sticky-heading"><h2 data-list-heading>Tables</h2><span data-list-count>5 items</span></header>
+              <div class="list-scroll" data-list-scroll tabindex="0" aria-label="Schema object list">
+                <div class="list-columns" aria-hidden="true"><span>Name</span><span>Definition</span><span>Rev</span></div>
+                <div class="object-list" role="list" data-object-list></div>
+                <div class="list-empty" role="status" data-list-empty hidden><strong>No Tables yet</strong><span>Add a Table to define the catalog shape.</span></div>
+                <div class="list-loading" aria-busy="true" data-list-loading hidden><span></span><span></span><span></span><span></span></div>
+              </div>
+            </section>
+
+            <div class="splitter" role="separator" aria-orientation="vertical" aria-label="Resize Object list pane" aria-controls="object-list-pane" tabindex="0" data-splitter="list" aria-valuemin="292" aria-valuemax="384" aria-valuenow="312"><span aria-hidden="true"></span></div>
+
+            <section class="pane editor-pane" id="editor-pane" data-pane="editor" aria-label="Property editor">
+              <div class="editor-scroll" data-editor-scroll tabindex="0"></div>
+            </section>
+          </section>
+
+          <footer class="status-bar" data-region="status-bar">
+            <span data-status-selection>Tables · Materials master</span>
+            <span data-status-scope>Table-scoped definitions</span>
+            <span data-status-scroll>Local pane scrolling</span>
+            <span data-status-connection>Online</span>
+          </footer>
+        </section>
+      </main>
+    </div>
+    <script src="administration-schema-core.js"></script>
+  </body>
+</html>
