@@ -75,7 +75,7 @@ long-invalid selected-row name never overlaps Definition or Rev.
 Run without recapturing or modifying files:
 
 ```text
-uv run python docs/00-research/ux-service-reference/validate_administration_schema_core_wave05.py --all-packet-targets --expect-main-agent-status pending
+python docs/00-research/ux-service-reference/validate_administration_schema_core_wave05.py --all-packet-targets --expect-main-agent-status pending
 uv run python docs/00-research/ux-service-reference/validate_service_reference_inventory.py
 uv run ruff check docs/00-research/ux-service-reference/capture_administration_schema_core_wave05.py docs/00-research/ux-service-reference/validate_administration_schema_core_wave05.py
 node --check docs/00-research/ux-service-reference/administration-schema-core.js
