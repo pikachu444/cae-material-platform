@@ -4,7 +4,7 @@
   "state": "attribute-reference",
   "viewport": "1440x900",
   "image": "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-record-reference-1440x900.png",
-  "sha256": "75e1ad11c5b96443f4de87dd7a56e38f1be94a0c41a5f6564c2d93362dd3278a",
+  "sha256": "412d2b5e9fd418350b0740fba2dd66eb237c06a4d73f63fd0f1390a9100be57a",
   "dimensions": {
     "width": 1440,
     "height": 900
@@ -296,7 +296,7 @@
       },
       {
         "tag": "textarea",
-        "name": "Enter the measured mass density at the selected test condition.",
+        "name": "Link the Source references Record that supports this entered value.",
         "disabled": false,
         "action": ""
       },
@@ -346,10 +346,42 @@
       }
     },
     "editorMode": "attribute-draft",
+    "editorTitle": "Edit Source reference",
+    "selectedRow": {
+      "id": "source-reference",
+      "name": "Source reference",
+      "cells": {
+        "name": {
+          "x": 262,
+          "y": 254.71875,
+          "width": 133.875,
+          "height": 17.5625
+        },
+        "definition": {
+          "x": 395.875,
+          "y": 255.734375,
+          "width": 107.109375,
+          "height": 15.515625
+        },
+        "revision": {
+          "x": 502.984375,
+          "y": 255.734375,
+          "width": 34,
+          "height": 15.515625
+        },
+        "primaryName": {
+          "clientWidth": 104,
+          "scrollWidth": 104,
+          "overflow": "hidden",
+          "textOverflow": "ellipsis",
+          "whiteSpace": "nowrap"
+        }
+      }
+    },
     "fields": [
       {
         "name": "attributeName",
-        "value": "Density",
+        "value": "Source reference",
         "type": "text",
         "disabled": false,
         "readonly": false,
@@ -389,7 +421,7 @@
       },
       {
         "name": "entryGuidance",
-        "value": "Enter the measured mass density at the selected test condition.",
+        "value": "Link the Source references Record that supports this entered value.",
         "type": "textarea",
         "disabled": false,
         "readonly": false,

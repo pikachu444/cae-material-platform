@@ -24,7 +24,7 @@ draft.
 - Issue: <https://github.com/pikachu444/cae-material-platform/issues/167>
 - Inventory: `docs/01-product/service-reference-inventory.yaml`
 - Manifest: `docs/01-product/service-reference-manifest.yaml`
-- Main evidence: `docs/17-evidence/reports/issue-167-service-reference-freeze.md`, section 46
+- Main evidence: `docs/17-evidence/reports/issue-167-service-reference-freeze.md`, sections 46–47
 - Implementer packet:
   `docs/17-evidence/reports/issue-167-implementer-packet-adm-schema-core-wave-05.md`
 - Canonical qualitative checklist:
@@ -63,10 +63,12 @@ Open every image at original resolution and independently verify the SHA-256:
 | `docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1440x900.png` | `e0f2ee98460f5ef5d5669aa37f26391763e3fc09085a314d85b2448dc3f02d11` |
 | `docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1920x1080.png` | `228757c2613d8dc552ec10db510780bb0ed0bae45a400c2122d0e0035117de32` |
 | `docs/17-evidence/images/issue-167-service-reference/administration-edit-stale-conflict-1440x900.png` | `7a6befe06cf47a5eacbbe552658258d88e87336c57957832908a45b9a58b9d9e` |
-| `docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1440x900.png` | `ec0c979d5479db58785e19048ee96baa528e59c0ac8b9c89321e84bdd10714c7` |
+| `docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1440x900.png` | `eaf1e78c4be5e5c488f81f494144ff4d8464cd962768a969bc58a18d3a9ce766` |
 
-Also sample all 54 evidence-only captures registered by the staging manifest, and inspect all three
-responsive siblings for stale-conflict and long-invalid.
+Open all 54 evidence-only captures registered by the staging manifest, including all three
+responsive siblings for stale-conflict and long-invalid. Explicitly verify that conditional
+discrete, Record-reference and text states do not leak Density values or guidance, and that the
+long-invalid selected-row name never overlaps Definition or Rev.
 
 ## Required independent checks
 

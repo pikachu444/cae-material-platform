@@ -17,13 +17,73 @@ ROOT = HERE.parents[2]
 EVIDENCE_DIR = ROOT / "docs/17-evidence/images/issue-167-service-reference"
 STAGING_PATH = ROOT / "docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json"
 sys.path.insert(0, str(HERE))
-from capture_administration_schema_core_wave05 import (  # noqa: E402
+from capture_administration_schema_core_wave05 import (  # noqa: E402, I001
     STATE_EVIDENCE,
     TARGETS,
     VIEWPORTS,
     dom_snapshot,
     open_page,
 )
+
+
+ATTRIBUTE_STATE_CONTRACTS = {
+    "attribute-draft": {
+        "id": "density",
+        "name": "Density",
+        "value_type": "Number",
+        "entry_guidance": "Enter the measured mass density at the selected test condition.",
+        "conditional": {
+            "hasQuantity": True,
+            "hasStandardUnit": True,
+            "hasMinMax": True,
+            "hasAllowedChoices": False,
+            "hasRelatedTable": False,
+            "hasTextLimits": False,
+        },
+    },
+    "attribute-discrete": {
+        "id": "material-condition",
+        "name": "Material condition",
+        "value_type": "Discrete choice",
+        "entry_guidance": "Choose the controlled material condition recorded for this material.",
+        "conditional": {
+            "hasQuantity": False,
+            "hasStandardUnit": False,
+            "hasMinMax": False,
+            "hasAllowedChoices": True,
+            "hasRelatedTable": False,
+            "hasTextLimits": False,
+        },
+    },
+    "attribute-reference": {
+        "id": "source-reference",
+        "name": "Source reference",
+        "value_type": "Record reference",
+        "entry_guidance": "Link the Source references Record that supports this entered value.",
+        "conditional": {
+            "hasQuantity": False,
+            "hasStandardUnit": False,
+            "hasMinMax": False,
+            "hasAllowedChoices": False,
+            "hasRelatedTable": True,
+            "hasTextLimits": False,
+        },
+    },
+    "attribute-text": {
+        "id": "test-method",
+        "name": "Test method",
+        "value_type": "Text",
+        "entry_guidance": "Enter the method identifier used by the test engineer.",
+        "conditional": {
+            "hasQuantity": False,
+            "hasStandardUnit": False,
+            "hasMinMax": False,
+            "hasAllowedChoices": False,
+            "hasRelatedTable": False,
+            "hasTextLimits": True,
+        },
+    },
+}
 
 
 def parse_args() -> argparse.Namespace:
@@ -45,6 +105,37 @@ def sha256(path: Path) -> str:
         for chunk in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def validate_attribute_state_semantics(snapshot: dict[str, Any], state: str, target: str) -> None:
+    contract = ATTRIBUTE_STATE_CONTRACTS.get(state)
+    if contract is None:
+        return
+    fields = {field["name"]: field["value"] for field in snapshot["fields"]}
+    selected = snapshot["selectedRow"]
+    require(selected and selected["id"] == contract["id"] and selected["name"] == contract["name"], f"selected Attribute drifted for {target}: {selected}")
+    require(snapshot["editorTitle"] == f"Edit {contract['name']}", f"Attribute editor title drifted for {target}: {snapshot['editorTitle']}")
+    require(fields.get("attributeName") == contract["name"], f"Attribute name drifted for {target}: {fields.get('attributeName')}")
+    require(fields.get("attributeReference") == contract["name"], f"Attribute reference drifted for {target}: {fields.get('attributeReference')}")
+    require(fields.get("attributeType") == contract["value_type"], f"Attribute value type drifted for {target}: {fields.get('attributeType')}")
+    require(fields.get("entryGuidance") == contract["entry_guidance"], f"Attribute entry guidance drifted for {target}: {fields.get('entryGuidance')}")
+    require(snapshot["conditional"] == contract["conditional"], f"Attribute conditional fields drifted for {target}: {snapshot['conditional']}")
+
+
+def validate_long_attribute_row_containment(snapshot: dict[str, Any], target: str) -> None:
+    if snapshot["state"] != "attribute-long-invalid":
+        return
+    selected = snapshot["selectedRow"]
+    require(selected and selected["id"] == "material-condition", f"long Attribute selection drifted for {target}: {selected}")
+    cells = selected["cells"]
+    name = cells["name"]
+    definition = cells["definition"]
+    revision = cells["revision"]
+    primary_name = cells["primaryName"]
+    require(name["x"] + name["width"] <= definition["x"] + 0.5, f"long Attribute name overlaps Definition for {target}: {cells}")
+    require(definition["x"] + definition["width"] <= revision["x"] + 0.5, f"long Attribute Definition overlaps Rev for {target}: {cells}")
+    require(primary_name["scrollWidth"] > primary_name["clientWidth"], f"long Attribute name is not ellipsized for {target}: {primary_name}")
+    require(primary_name["overflow"] == "hidden" and primary_name["textOverflow"] == "ellipsis" and primary_name["whiteSpace"] == "nowrap", f"long Attribute name ellipsis contract drifted for {target}: {primary_name}")
 
 
 def png_dimensions(path: Path) -> tuple[int, int]:
@@ -101,6 +192,8 @@ def validate_target(browser: Browser, target: str, staged: dict[str, Any]) -> No
         snapshot = dom_snapshot(page)
         require(snapshot["role"] == spec["role"] and snapshot["state"] == spec["state"], f"role/state mismatch for {target}")
         viewport_contract(snapshot, spec["viewport"], target)
+        validate_attribute_state_semantics(snapshot, spec["state"], target)
+        validate_long_attribute_row_containment(snapshot, target)
         if spec["state"] == "normal":
             require(snapshot["editorMode"] == "table-readonly", f"normal editor mode changed for {target}")
             require(any(button["name"] == "Edit Table" for button in snapshot["buttons"]), f"normal Table action missing for {target}")
@@ -151,6 +244,8 @@ def validate_state(browser: Browser, state_target: str, staged: dict[str, Any]) 
             snapshot = dom_snapshot(page)
             require(snapshot["role"] == role and snapshot["state"] == state, f"state role/state mismatch for {state_target}")
             viewport_contract(snapshot, viewport_name, state_target)
+            validate_attribute_state_semantics(snapshot, state, f"{state_target}-{viewport_name}")
+            validate_long_attribute_row_containment(snapshot, f"{state_target}-{viewport_name}")
             if state == "empty":
                 require(len(snapshot["rows"]) == 0 and any(button["name"] == "Add Table" for button in snapshot["buttons"]), f"empty state contract failed for {state_target}")
             elif state == "catalog-loading":

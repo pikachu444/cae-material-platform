@@ -4,7 +4,7 @@
   "state": "attribute-reference",
   "viewport": "1920x1080",
   "image": "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-record-reference-1920x1080.png",
-  "sha256": "f2bdf883225a0f9792678f1bbedd9b0b0fa8346ad360ce77314249056b1ca75e",
+  "sha256": "1a562be7a2eb692162dfa2d761ebe84717fffc1692d872b60fe8902414794bd8",
   "dimensions": {
     "width": 1920,
     "height": 1080
@@ -296,7 +296,7 @@
       },
       {
         "tag": "textarea",
-        "name": "Enter the measured mass density at the selected test condition.",
+        "name": "Link the Source references Record that supports this entered value.",
         "disabled": false,
         "action": ""
       },
@@ -346,10 +346,42 @@
       }
     },
     "editorMode": "attribute-draft",
+    "editorTitle": "Edit Source reference",
+    "selectedRow": {
+      "id": "source-reference",
+      "name": "Source reference",
+      "cells": {
+        "name": {
+          "x": 294,
+          "y": 258.71875,
+          "width": 162.765625,
+          "height": 17.5625
+        },
+        "definition": {
+          "x": 456.765625,
+          "y": 259.734375,
+          "width": 130.234375,
+          "height": 15.515625
+        },
+        "revision": {
+          "x": 587,
+          "y": 259.734375,
+          "width": 34,
+          "height": 15.515625
+        },
+        "primaryName": {
+          "clientWidth": 104,
+          "scrollWidth": 104,
+          "overflow": "hidden",
+          "textOverflow": "ellipsis",
+          "whiteSpace": "nowrap"
+        }
+      }
+    },
     "fields": [
       {
         "name": "attributeName",
-        "value": "Density",
+        "value": "Source reference",
         "type": "text",
         "disabled": false,
         "readonly": false,
@@ -389,7 +421,7 @@
       },
       {
         "name": "entryGuidance",
-        "value": "Enter the measured mass density at the selected test condition.",
+        "value": "Link the Source references Record that supports this entered value.",
         "type": "textarea",
         "disabled": false,
         "readonly": false,

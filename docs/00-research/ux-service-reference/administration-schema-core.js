@@ -16,6 +16,56 @@
     { id: "test-method", name: "Test method", detail: "text", type: "text", revision: "4", description: "Method identifier supplied by the test engineer." },
     { id: "measurement-date", name: "Measurement date", detail: "date", type: "date", revision: "2", description: "Date on which the test measurement was recorded." }
   ];
+  const ATTRIBUTE_DRAFTS = {
+    density: {
+      attributeName: "Density",
+      quantity: "mass per volume",
+      standardUnit: "kg/m³",
+      minimum: "500",
+      maximum: "9000",
+      entryGuidance: "Enter the measured mass density at the selected test condition.",
+      allowedChoices: "Annealed\nNormalized\nQuenched and tempered",
+      relatedTable: "Source references",
+      maxLength: "120",
+      pattern: ""
+    },
+    "material-condition": {
+      attributeName: "Material condition",
+      quantity: "",
+      standardUnit: "",
+      minimum: "",
+      maximum: "",
+      entryGuidance: "Choose the controlled material condition recorded for this material.",
+      allowedChoices: "Annealed\nNormalized\nQuenched and tempered",
+      relatedTable: "Source references",
+      maxLength: "",
+      pattern: ""
+    },
+    "source-reference": {
+      attributeName: "Source reference",
+      quantity: "",
+      standardUnit: "",
+      minimum: "",
+      maximum: "",
+      entryGuidance: "Link the Source references Record that supports this entered value.",
+      allowedChoices: "",
+      relatedTable: "Source references",
+      maxLength: "",
+      pattern: ""
+    },
+    "test-method": {
+      attributeName: "Test method",
+      quantity: "",
+      standardUnit: "",
+      minimum: "",
+      maximum: "",
+      entryGuidance: "Enter the method identifier used by the test engineer.",
+      allowedChoices: "",
+      relatedTable: "Source references",
+      maxLength: "120",
+      pattern: ""
+    }
+  };
   const GENERIC_OBJECTS = {
     layouts: [
       { id: "material-layout", name: "Material datasheet", detail: "read and edit layout", revision: "6", description: "Record entry layout for materials master." },
@@ -64,18 +114,9 @@
       tableName: "Materials master",
       tableDescription: "Published material definitions available to governed catalog users.",
       tableReason: "",
-      attributeName: "Density",
       attributeReason: "",
-      quantity: "mass per volume",
-      standardUnit: "kg/m³",
-      minimum: "500",
-      maximum: "9000",
-      entryGuidance: "Enter the measured mass density at the selected test condition.",
       required: true,
-      allowedChoices: "Annealed\nNormalized\nQuenched and tempered",
-      relatedTable: "Source references",
-      maxLength: "120",
-      pattern: ""
+      ...ATTRIBUTE_DRAFTS.density
     },
     saving: state === "table-saving" || state === "attribute-saving",
     dirty: ["table-draft", "table-save-error", "attribute-draft", "attribute-save-error", "attribute-long-invalid", "stale-conflict"].includes(state),
@@ -83,6 +124,10 @@
   };
   if (state === "table-save-error") model.errors.tableSave = true;
   if (state === "attribute-save-error") model.errors.attributeSave = true;
+  if (state === "attribute-long-invalid" || state === "attribute-discrete") model.selectedObject = "material-condition";
+  if (state === "attribute-reference") model.selectedObject = "source-reference";
+  if (state === "attribute-text") model.selectedObject = "test-method";
+  if (ATTRIBUTE_DRAFTS[model.selectedObject]) Object.assign(model.draft, ATTRIBUTE_DRAFTS[model.selectedObject]);
   if (state === "attribute-long-invalid") {
     model.selectedObject = "material-condition";
     model.draft.attributeName = "Material condition — controlled vocabulary for heat treatment, processing route and test-stage context";
@@ -93,9 +138,6 @@
     model.errors.entryGuidance = "Entry guidance must be 240 characters or fewer.";
     model.errors.attributeReason = "Change reason is required before saving.";
   }
-  if (state === "attribute-discrete") model.selectedObject = "material-condition";
-  if (state === "attribute-reference") model.selectedObject = "source-reference";
-  if (state === "attribute-text") model.selectedObject = "test-method";
 
   function escapeHtml(value) {
     return String(value).replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character]));
@@ -134,7 +176,7 @@
       const selected = object.id === model.selectedObject;
       const displayName = state === "attribute-long-invalid" && object.id === "material-condition" ? model.draft.attributeName : object.name;
       return `<button type="button" class="object-row${selected ? " is-selected" : ""}" role="listitem" data-object-id="${escapeHtml(object.id)}" aria-pressed="${selected}" title="${escapeHtml(displayName)}" aria-label="${escapeHtml(displayName)}">
-        <span class="object-name"><span>${escapeHtml(displayName)}</span><small>${escapeHtml(object.detail)}</small></span>
+        <span class="object-name"><span class="object-primary-name" title="${escapeHtml(displayName)}" style="flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(displayName)}</span><small style="flex:1 1 0;">${escapeHtml(object.detail)}</small></span>
         <span class="object-definition">${escapeHtml(object.description)}</span>
         <span class="object-revision" aria-label="revision ${escapeHtml(object.revision)}">${escapeHtml(object.revision)}</span>
       </button>`;

@@ -4452,7 +4452,37 @@ Current approval candidates:
 | `administration-attribute-edit-draft-1440x900.png` | `e0f2ee98460f5ef5d5669aa37f26391763e3fc09085a314d85b2448dc3f02d11` |
 | `administration-attribute-edit-draft-1920x1080.png` | `228757c2613d8dc552ec10db510780bb0ed0bae45a400c2122d0e0035117de32` |
 | `administration-edit-stale-conflict-1440x900.png` | `7a6befe06cf47a5eacbbe552658258d88e87336c57957832908a45b9a58b9d9e` |
-| `administration-attribute-long-invalid-1440x900.png` | `ec0c979d5479db58785e19048ee96baa528e59c0ac8b9c89321e84bdd10714c7` |
+| `administration-attribute-long-invalid-1440x900.png` | `eaf1e78c4be5e5c488f81f494144ff4d8464cd962768a969bc58a18d3a9ce766` |
 
 The candidates remain `pending` with product-owner approval `absent`. A bounded reviewer packet and
 one fresh read-only Terra High review are still required before product-owner handoff.
+
+## 47. WAVE-05 ADM-SCHEMA-CORE main-agent correction gate
+
+Date: 2026-07-29
+
+The main agent continued the required original-resolution review across all 54 evidence-only
+captures and rejected two issues that had passed the first deterministic run:
+
+- conditional discrete, Record-reference and text states leaked Density draft values into the
+  selected Attribute editor;
+- the long-invalid Attribute name crossed its Name cell and collided with Definition text.
+
+The sole configured Terra High correction writer received the persisted correction packet at
+`docs/17-evidence/reports/issue-167-correction-packet-wave-05-adm-typed-state-semantics.md`.
+The correction initializes every visible draft from the selected Attribute and deterministically
+binds the selected row, editor title, name, reference key, value type, typed fields and guidance.
+Long names now ellipsize inside the Name cell, with measured non-overlap through Definition and Rev.
+
+The main agent opened the nine corrected typed-state images, all three corrected long-invalid
+responsive images and all three identical long-scroll evidence images at original resolution.
+The Database, Table and ordinary Attribute approval targets remain byte-for-byte unchanged. The
+required containment correction changes only the long-invalid approval candidate:
+
+| Corrected pending reference | SHA-256 |
+| --- | --- |
+| `administration-attribute-long-invalid-1440x900.png` | `eaf1e78c4be5e5c488f81f494144ff4d8464cd962768a969bc58a18d3a9ce766` |
+
+The full ADM validator, inventory validator, focused user-guide tests, Ruff, JavaScript syntax,
+structured image registration and `git diff --check` must pass again before the fresh reviewer is
+started. Product-owner approval remains absent.

@@ -1496,7 +1496,7 @@ references:
       - docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1440x900.png
       - docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1920x1080.png
     family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: ec0c979d5479db58785e19048ee96baa528e59c0ac8b9c89321e84bdd10714c7
+    image_sha256: eaf1e78c4be5e5c488f81f494144ff4d8464cd962768a969bc58a18d3a9ce766
     date: 2026-07-29
     status: pending
     main_agent_evaluation:

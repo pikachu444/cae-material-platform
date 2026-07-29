@@ -4,7 +4,7 @@
   "state": "attribute-long-invalid",
   "viewport": "1440x900",
   "image": "docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1440x900.png",
-  "sha256": "ec0c979d5479db58785e19048ee96baa528e59c0ac8b9c89321e84bdd10714c7",
+  "sha256": "eaf1e78c4be5e5c488f81f494144ff4d8464cd962768a969bc58a18d3a9ce766",
   "dimensions": {
     "width": 1440,
     "height": 900
@@ -346,6 +346,38 @@
       }
     },
     "editorMode": "attribute-draft",
+    "editorTitle": "Review long Attribute definition",
+    "selectedRow": {
+      "id": "material-condition",
+      "name": "Material condition \u2014 controlled vocabulary for heat treatment, processing route and test-stage context",
+      "cells": {
+        "name": {
+          "x": 262,
+          "y": 228.71875,
+          "width": 133.875,
+          "height": 17.5625
+        },
+        "definition": {
+          "x": 395.875,
+          "y": 229.734375,
+          "width": 107.109375,
+          "height": 15.515625
+        },
+        "revision": {
+          "x": 502.984375,
+          "y": 229.734375,
+          "width": 34,
+          "height": 15.515625
+        },
+        "primaryName": {
+          "clientWidth": 128,
+          "scrollWidth": 648,
+          "overflow": "hidden",
+          "textOverflow": "ellipsis",
+          "whiteSpace": "nowrap"
+        }
+      }
+    },
     "fields": [
       {
         "name": "attributeName",

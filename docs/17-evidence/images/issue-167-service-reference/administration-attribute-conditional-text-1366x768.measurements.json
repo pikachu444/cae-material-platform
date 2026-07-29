@@ -4,7 +4,7 @@
   "state": "attribute-text",
   "viewport": "1366x768",
   "image": "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-text-1366x768.png",
-  "sha256": "7876e7f37d85607861f200ca0d4eea13dcf9e4ebaab21785ed14a10f0bf7aacf",
+  "sha256": "afa930a40d49a888c5d58005a287396ffe9e92262a3803363cc84e74eb0dd2fe",
   "dimensions": {
     "width": 1366,
     "height": 768
@@ -302,7 +302,7 @@
       },
       {
         "tag": "textarea",
-        "name": "Enter the measured mass density at the selected test condition.",
+        "name": "Enter the method identifier used by the test engineer.",
         "disabled": false,
         "action": ""
       },
@@ -352,10 +352,42 @@
       }
     },
     "editorMode": "attribute-draft",
+    "editorTitle": "Edit Test method",
+    "selectedRow": {
+      "id": "test-method",
+      "name": "Test method",
+      "cells": {
+        "name": {
+          "x": 256,
+          "y": 280.71875,
+          "width": 129.4375,
+          "height": 17.5625
+        },
+        "definition": {
+          "x": 385.4375,
+          "y": 281.734375,
+          "width": 103.5625,
+          "height": 15.515625
+        },
+        "revision": {
+          "x": 489,
+          "y": 281.734375,
+          "width": 34,
+          "height": 15.515625
+        },
+        "primaryName": {
+          "clientWidth": 77,
+          "scrollWidth": 77,
+          "overflow": "hidden",
+          "textOverflow": "ellipsis",
+          "whiteSpace": "nowrap"
+        }
+      }
+    },
     "fields": [
       {
         "name": "attributeName",
-        "value": "Density",
+        "value": "Test method",
         "type": "text",
         "disabled": false,
         "readonly": false,
@@ -403,7 +435,7 @@
       },
       {
         "name": "entryGuidance",
-        "value": "Enter the measured mass density at the selected test condition.",
+        "value": "Enter the method identifier used by the test engineer.",
         "type": "textarea",
         "disabled": false,
         "readonly": false,

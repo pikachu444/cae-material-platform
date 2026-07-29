@@ -103,11 +103,19 @@ def dom_snapshot(page: Page) -> dict[str, Any]:
     return page.evaluate(
         r"""
         () => {
-          const rect = (selector) => { const node = document.querySelector(selector); if (!node) return null; const r = node.getBoundingClientRect(); return {x:r.x, y:r.y, width:r.width, height:r.height}; };
+          const box = (node) => { if (!node) return null; const r = node.getBoundingClientRect(); return {x:r.x, y:r.y, width:r.width, height:r.height}; };
+          const rect = (selector) => box(document.querySelector(selector));
           const computed = (selector) => { const node = document.querySelector(selector); return node ? getComputedStyle(node) : null; };
           const controls = [...document.querySelectorAll('button, a, input, select, textarea, [role="separator"]')].filter((node) => !node.hidden && node.getBoundingClientRect().width > 0 && node.getBoundingClientRect().height > 0).map((node) => ({ tag: node.tagName.toLowerCase(), name: (node.getAttribute('aria-label') || node.textContent || node.getAttribute('placeholder') || node.labels?.[0]?.textContent || '').trim().replace(/\s+/g, ' '), disabled: Boolean(node.disabled), action: node.dataset.action || node.dataset.objectId || node.dataset.objectKind || node.dataset.splitter || '' }));
           const nestedInteractive = [...document.querySelectorAll('button, a')].filter((node) => node.querySelector('button, a, input, select, textarea')).map((node) => node.outerHTML.slice(0, 120));
           const editor = document.querySelector('[data-editor-mode]');
+          const selectedRow = document.querySelector('.object-row.is-selected');
+          const selectedRowCells = selectedRow ? {
+            name: selectedRow.querySelector('.object-name'),
+            primaryName: selectedRow.querySelector('.object-primary-name'),
+            definition: selectedRow.querySelector('.object-definition'),
+            revision: selectedRow.querySelector('.object-revision')
+          } : null;
           const fields = [...document.querySelectorAll('.property-form input, .property-form textarea, .property-form select')].map((node) => ({ name: node.name, value: node.value, type: node.type, disabled: Boolean(node.disabled), readonly: Boolean(node.readOnly), invalid: Boolean(node.closest('.has-error')) }));
           const errorTexts = [...document.querySelectorAll('[role="alert"], .form-error')].map((node) => node.textContent.trim()).filter(Boolean);
           const splitters = [...document.querySelectorAll('[data-splitter]')].map((node) => ({ key: node.dataset.splitter, min: Number(node.getAttribute('aria-valuemin')), max: Number(node.getAttribute('aria-valuemax')), value: Number(node.getAttribute('aria-valuenow')), rect: rect(`[data-splitter="${node.dataset.splitter}"]`) }));
@@ -124,7 +132,25 @@ def dom_snapshot(page: Page) -> dict[str, Any]:
             splitters, rows, controls, nestedInteractive,
             panes: { navigatorOverflowY: computed('#navigator-pane')?.overflowY, listOverflowY: computed('[data-list-scroll]')?.overflowY, editorOverflowY: computed('[data-editor-scroll]')?.overflowY },
             localScroll: { list: listScroll ? { scrollHeight: listScroll.scrollHeight, clientHeight: listScroll.clientHeight, scrollTop: listScroll.scrollTop, scrollWidth: listScroll.scrollWidth, clientWidth: listScroll.clientWidth, overflowY: getComputedStyle(listScroll).overflowY, scrollbarGutter: getComputedStyle(listScroll).scrollbarGutter } : null, editor: editorScroll ? { scrollHeight: editorScroll.scrollHeight, clientHeight: editorScroll.clientHeight, scrollTop: editorScroll.scrollTop, scrollWidth: editorScroll.scrollWidth, clientWidth: editorScroll.clientWidth, overflowY: getComputedStyle(editorScroll).overflowY, scrollbarGutter: getComputedStyle(editorScroll).scrollbarGutter } : null },
-            editorMode: editor?.dataset.editorMode || '', fields, errors: errorTexts,
+            editorMode: editor?.dataset.editorMode || '',
+            editorTitle: editor?.querySelector('h2')?.textContent.trim() || '',
+            selectedRow: selectedRow ? {
+              id: selectedRow.dataset.objectId || '',
+              name: selectedRow.querySelector('.object-name > span')?.textContent.trim() || '',
+              cells: {
+                name: box(selectedRowCells.name),
+                definition: box(selectedRowCells.definition),
+                revision: box(selectedRowCells.revision),
+                primaryName: selectedRowCells.primaryName ? {
+                  clientWidth: selectedRowCells.primaryName.clientWidth,
+                  scrollWidth: selectedRowCells.primaryName.scrollWidth,
+                  overflow: getComputedStyle(selectedRowCells.primaryName).overflow,
+                  textOverflow: getComputedStyle(selectedRowCells.primaryName).textOverflow,
+                  whiteSpace: getComputedStyle(selectedRowCells.primaryName).whiteSpace
+                } : null
+              }
+            } : null,
+            fields, errors: errorTexts,
             buttons: [...document.querySelectorAll('button')].filter((node) => !node.hidden).map((node) => ({ name: node.textContent.trim(), action: node.dataset.action || '', disabled: Boolean(node.disabled) })),
             conditional: { hasQuantity: Boolean(document.querySelector('[name="quantity"]')), hasStandardUnit: Boolean(document.querySelector('[name="standardUnit"]')), hasMinMax: Boolean(document.querySelector('[name="minimum"]')) && Boolean(document.querySelector('[name="maximum"]')), hasAllowedChoices: Boolean(document.querySelector('[name="allowedChoices"]')), hasRelatedTable: Boolean(document.querySelector('[name="relatedTable"]')), hasTextLimits: Boolean(document.querySelector('[name="maxLength"]')) || Boolean(document.querySelector('[name="pattern"]')) },
             announcements: { alert: Boolean(document.querySelector('[role="alert"]')), status: Boolean(document.querySelector('[role="status"]')) },

@@ -4,7 +4,7 @@
   "state": "attribute-discrete",
   "viewport": "1920x1080",
   "image": "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-discrete-1920x1080.png",
-  "sha256": "273b539f018ae7a0bdd88c36bb121eebd36ace7ba19e7ffe567b56bdbb716ec3",
+  "sha256": "d11417ae06be3a67bc77be77a958349c711d220ad75dc7e51a6058ed36ae2a1c",
   "dimensions": {
     "width": 1920,
     "height": 1080
@@ -296,7 +296,7 @@
       },
       {
         "tag": "textarea",
-        "name": "Enter the measured mass density at the selected test condition.",
+        "name": "Choose the controlled material condition recorded for this material.",
         "disabled": false,
         "action": ""
       },
@@ -346,10 +346,42 @@
       }
     },
     "editorMode": "attribute-draft",
+    "editorTitle": "Edit Material condition",
+    "selectedRow": {
+      "id": "material-condition",
+      "name": "Material condition",
+      "cells": {
+        "name": {
+          "x": 294,
+          "y": 232.71875,
+          "width": 162.765625,
+          "height": 17.5625
+        },
+        "definition": {
+          "x": 456.765625,
+          "y": 233.734375,
+          "width": 130.234375,
+          "height": 15.515625
+        },
+        "revision": {
+          "x": 587,
+          "y": 233.734375,
+          "width": 34,
+          "height": 15.515625
+        },
+        "primaryName": {
+          "clientWidth": 114,
+          "scrollWidth": 114,
+          "overflow": "hidden",
+          "textOverflow": "ellipsis",
+          "whiteSpace": "nowrap"
+        }
+      }
+    },
     "fields": [
       {
         "name": "attributeName",
-        "value": "Density",
+        "value": "Material condition",
         "type": "text",
         "disabled": false,
         "readonly": false,
@@ -389,7 +421,7 @@
       },
       {
         "name": "entryGuidance",
-        "value": "Enter the measured mass density at the selected test condition.",
+        "value": "Choose the controlled material condition recorded for this material.",
         "type": "textarea",
         "disabled": false,
         "readonly": false,

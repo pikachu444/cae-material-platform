@@ -4,7 +4,7 @@
   "state": "attribute-reference",
   "viewport": "1366x768",
   "image": "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-record-reference-1366x768.png",
-  "sha256": "284cdab10a86d2d747c3f11af8263015078630df0e78ba5345773a2cb6d8f6f4",
+  "sha256": "79d0b52b2f6c987c5e35246fca3adf261dff985f8cd8614468d7acaf4fabcc21",
   "dimensions": {
     "width": 1366,
     "height": 768
@@ -296,7 +296,7 @@
       },
       {
         "tag": "textarea",
-        "name": "Enter the measured mass density at the selected test condition.",
+        "name": "Link the Source references Record that supports this entered value.",
         "disabled": false,
         "action": ""
       },
@@ -346,10 +346,42 @@
       }
     },
     "editorMode": "attribute-draft",
+    "editorTitle": "Edit Source reference",
+    "selectedRow": {
+      "id": "source-reference",
+      "name": "Source reference",
+      "cells": {
+        "name": {
+          "x": 256,
+          "y": 254.71875,
+          "width": 129.4375,
+          "height": 17.5625
+        },
+        "definition": {
+          "x": 385.4375,
+          "y": 255.734375,
+          "width": 103.5625,
+          "height": 15.515625
+        },
+        "revision": {
+          "x": 489,
+          "y": 255.734375,
+          "width": 34,
+          "height": 15.515625
+        },
+        "primaryName": {
+          "clientWidth": 104,
+          "scrollWidth": 104,
+          "overflow": "hidden",
+          "textOverflow": "ellipsis",
+          "whiteSpace": "nowrap"
+        }
+      }
+    },
     "fields": [
       {
         "name": "attributeName",
-        "value": "Density",
+        "value": "Source reference",
         "type": "text",
         "disabled": false,
         "readonly": false,
@@ -389,7 +421,7 @@
       },
       {
         "name": "entryGuidance",
-        "value": "Enter the measured mass density at the selected test condition.",
+        "value": "Link the Source references Record that supports this entered value.",
         "type": "textarea",
         "disabled": false,
         "readonly": false,
