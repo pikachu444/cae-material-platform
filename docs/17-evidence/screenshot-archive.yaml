@@ -1,7 +1,83 @@
-version: 34
-verified_at: 2026-07-23
+version: 35
+verified_at: 2026-07-29
 source_evidence: reports/t60-clean-demo.md
+allowed_duplicate_groups:
+  - rationale: The number editor's final conditional state is intentionally identical to its draft evidence; only the state-transition provenance differs.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-number-1366x768.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1366x768.png
+  - rationale: The number editor's final conditional state is intentionally identical to its draft evidence; only the state-transition provenance differs.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-number-1440x900.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1440x900.png
+  - rationale: The number editor's final conditional state is intentionally identical to its draft evidence; only the state-transition provenance differs.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-number-1920x1080.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1920x1080.png
+  - rationale: The long-invalid assertion preserves the same final administrative layout as the long-scroll containment evidence.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1366x768.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-long-scroll-1366x768.png
+  - rationale: The long-invalid assertion preserves the same final administrative layout as the long-scroll containment evidence.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1440x900.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-long-scroll-1440x900.png
+  - rationale: The long-invalid assertion preserves the same final administrative layout as the long-scroll containment evidence.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1920x1080.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-long-scroll-1920x1080.png
+  - rationale: The database error capture preserves the same selected record as the selection-continuity-after-error evidence.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-database-error-1366x768.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-selection-continuity-1366x768.png
+  - rationale: The database error capture preserves the same selected record as the selection-continuity-after-error evidence.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-database-error-1440x900.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-selection-continuity-1440x900.png
+  - rationale: The database error capture preserves the same selected record as the selection-continuity-after-error evidence.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-database-error-1920x1080.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-selection-continuity-1920x1080.png
+  - rationale: The loading capture and stale-response suppression evidence intentionally retain the same pending administrative view.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-database-loading-1366x768.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-stale-response-suppression-1366x768.png
+  - rationale: The loading capture and stale-response suppression evidence intentionally retain the same pending administrative view.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-database-loading-1440x900.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-stale-response-suppression-1440x900.png
+  - rationale: The loading capture and stale-response suppression evidence intentionally retain the same pending administrative view.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-database-loading-1920x1080.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-stale-response-suppression-1920x1080.png
+  - rationale: Normal, normal-scroll, and restored-splitter evidence share one deliberate final database workspace at this viewport.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1366x768.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-normal-scroll-1366x768.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-splitter-behavior-1366x768.png
+  - rationale: Normal, normal-scroll, and restored-splitter evidence share one deliberate final database workspace at this viewport.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1440x900.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-normal-scroll-1440x900.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-splitter-behavior-1440x900.png
+  - rationale: Normal, normal-scroll, and restored-splitter evidence share one deliberate final database workspace at this viewport.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1920x1080.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-normal-scroll-1920x1080.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-splitter-behavior-1920x1080.png
+  - rationale: The successful Materials card error-recovery workflow intentionally returns to the identical normal 1366 viewport.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1366x768.png
+      - docs/17-evidence/images/issue-167-service-reference/materials-card-state-error-recovery-1366x768.png
 captures:
+  - id: issue-167-modeling-export-layout-concept
+    route: static-reference
+    workflow: issue-167-modeling-export-layout-concept-before-product-rework
+    fixture: deterministic synthetic solver-card export layout sketch retained as superseded design evidence
+    source_evidence: reports/issue-167-product-owner-rework-packet-wave-04-mod-export.md
+    image: images/issue-167-service-reference/modeling-export-layout-concept-1440x900.png
+    width: 1440
+    height: 900
   - id: t60-guided-dashboard
     route: /
     workflow: clean-compose-three-family-guided-demo
