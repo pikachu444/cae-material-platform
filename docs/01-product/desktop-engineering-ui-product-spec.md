@@ -480,6 +480,16 @@ Needs attention | In progress | Recent outcomes
   or actor names. The normal row therefore states task type, request reason, state and time; exact
   identifiers remain in Advanced evidence until a readable projection exists.
 
+The role-aware default and large-screen density are contractual. A User opens `In progress`, where
+their own pending review requests appear with the browser-local Modeling session. A Reviewer or
+Administrator opens `Needs attention`, where requests they may decide appear. The normal reference
+uses a representative page from the existing `listReviewRequests(..., { limit: 50 })` contract
+instead of an intentionally under-filled one-row fixture. The queue remains one flat, locally
+scrolling work table with `Task | Request reason | Status | Updated | Action`; it does not fabricate
+Material or Owner display names that the response does not supply. At 1920×1080, 2560×1440 and
+3840×2160, additional height exposes more complete rows at the same compact density rather than
+stretching rows, adding explanatory cards or leaving an avoidable dominant blank region.
+
 Advanced disclosure:
 
 - Recipe/Batch execution details;

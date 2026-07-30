@@ -35,7 +35,7 @@ ZIP. Both scenarios passed and recomputed the committed SHA-256 values.
 
 ## GUI evidence
 
-![T-65 exact governed downloads](../images/t65-clean-demo-downloads.png)
+![T-65 exact governed downloads](../images/historical-task-screenshots/t65-clean-demo-downloads.png)
 
 The reproducible capture script is
 `docs/17-evidence/capture-scripts/capture_t65_demo.mjs`; the user procedure is

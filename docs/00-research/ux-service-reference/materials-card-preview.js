@@ -11,11 +11,16 @@ const tabList = document.querySelector("[role='tablist']");
 const tabButtons = [...document.querySelectorAll("[role='tab']")];
 const downloadButton = document.querySelector("#download-card");
 const acknowledgement = document.querySelector("#approximation-ack");
+const previewScrollShell = document.querySelector("#preview-scroll-shell");
 const previewScroll = document.querySelector("#preview-scroll");
+const previewScrollRail = document.querySelector("#preview-scroll-rail");
+const previewScrollThumb = document.querySelector("#preview-scroll-thumb");
 const nativeText = document.querySelector("#native-text");
 const previewLoading = document.querySelector("#preview-loading");
 const previewError = document.querySelector("#preview-error");
 const previewUnavailable = document.querySelector("#preview-unavailable");
+const responsePlotBand = document.querySelector("#response-plot-band");
+const responsePlot = document.querySelector("#response-plot");
 const approximationRow = document.querySelector("#approximation-row");
 const unsupportedRow = document.querySelector("#unsupported-row");
 const compactMappingRows = [...document.querySelectorAll("#mapping-list .mapping-row")].filter((row) => row !== approximationRow && row !== unsupportedRow).slice(1);
@@ -23,6 +28,25 @@ const compactMappingRows = [...document.querySelectorAll("#mapping-list .mapping
 const setStatus = (message) => {
   if (status) status.textContent = message;
 };
+
+const updatePreviewScrollRail = () => {
+  if (!previewScroll || !previewScrollRail || !previewScrollThumb) return;
+  const scrollable = previewScroll.scrollHeight > previewScroll.clientHeight + 1;
+  previewScrollRail.dataset.scrollable = String(scrollable);
+  if (!scrollable) {
+    previewScrollThumb.style.height = "0px";
+    previewScrollThumb.style.transform = "translateY(0px)";
+    return;
+  }
+  const trackHeight = Math.max(0, previewScrollRail.clientHeight);
+  const thumbHeight = Math.min(trackHeight, Math.max(22, trackHeight * (previewScroll.clientHeight / previewScroll.scrollHeight)));
+  const travel = Math.max(0, trackHeight - thumbHeight);
+  const range = Math.max(1, previewScroll.scrollHeight - previewScroll.clientHeight);
+  previewScrollThumb.style.height = `${thumbHeight}px`;
+  previewScrollThumb.style.transform = `translateY(${travel * (previewScroll.scrollTop / range)}px)`;
+};
+
+previewScroll?.addEventListener("scroll", updatePreviewScrollRail, { passive: true });
 
 const focusTreeRow = (row) => {
   if (!row) return;
@@ -97,6 +121,10 @@ const setNavigatorBounds = () => {
 
 setNavigatorBounds();
 window.addEventListener("resize", setNavigatorBounds);
+window.addEventListener("resize", () => {
+  renderResponsePlot(nativeText?.textContent ?? normalText);
+  updatePreviewScrollRail();
+});
 
 navigatorDivider?.addEventListener("keydown", (event) => {
   if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
@@ -184,6 +212,92 @@ const longText = `${normalText}\n${Array.from({ length: 90 }, (_, index) => {
   return `** LONG EVIDENCE POINT ${point} · synthetic response continuation · ${((index + 1) * 0.005).toFixed(3)} strain`;
 }).join("\n")}`;
 
+const parseNativePlasticRows = (text) => {
+  const lines = text.split(/\r?\n/);
+  const marker = lines.findIndex((line) => /^\s*\*PLASTIC\b/i.test(line));
+  if (marker < 0) return [];
+  const rows = [];
+  for (const sourceLine of lines.slice(marker + 1)) {
+    const line = sourceLine.trim();
+    if (!line || /^\s*\*/.test(line)) break;
+    const values = line.replace(/,$/, "").split(/[\s,]+/).filter(Boolean).map(Number);
+    if (values.length < 2 || values.slice(0, 2).some((value) => !Number.isFinite(value))) continue;
+    rows.push({ stress: values[0], strain: values[1] });
+  }
+  return rows;
+};
+
+const formatPlotTick = (value, axis) => {
+  if (axis === "x") {
+    if (Math.abs(value) < 1e-9) return "0";
+    return value.toFixed(3).replace(/0+$/, "").replace(/\.$/, "");
+  }
+  return value.toFixed(0);
+};
+
+const renderResponsePlot = (sourceText = normalText) => {
+  const rows = parseNativePlasticRows(sourceText);
+  const wide = window.innerWidth >= 1800;
+  const state = body.dataset.state ?? "normal";
+  const showPlot = wide && state !== "loading" && state !== "unsupported" && rows.length >= 2;
+  if (responsePlotBand) responsePlotBand.hidden = !showPlot;
+  if (!showPlot || !responsePlot) return;
+
+  const frame = responsePlot.parentElement;
+  const frameRect = frame?.getBoundingClientRect();
+  if (!frameRect || frameRect.width < 1 || frameRect.height < 1) return;
+  const width = frameRect.width;
+  const height = frameRect.height;
+  const margin = { left: 68, right: 28, top: 24, bottom: 48 };
+  const plotWidth = Math.max(1, width - margin.left - margin.right);
+  const plotHeight = Math.max(1, height - margin.top - margin.bottom);
+  const strainValues = rows.map((row) => row.strain);
+  const stressValues = rows.map((row) => row.stress);
+  const strainMin = Math.min(...strainValues);
+  const strainMax = Math.max(...strainValues);
+  const stressMin = Math.min(...stressValues);
+  const stressMax = Math.max(...stressValues);
+  const strainSpan = Math.max(strainMax - strainMin, 0.01);
+  const stressSpan = Math.max(stressMax - stressMin, 1);
+  const strainPad = Math.max(strainSpan * 0.05, 0.005);
+  const stressPad = Math.max(stressSpan * 0.05, 10);
+  const xDomain = [Math.floor((strainMin - strainPad) / 0.005) * 0.005, Math.ceil((strainMax + strainPad) / 0.005) * 0.005];
+  const yDomain = [Math.floor((stressMin - stressPad) / 10) * 10, Math.ceil((stressMax + stressPad) / 10) * 10];
+  const scaleX = (value) => margin.left + ((value - xDomain[0]) / (xDomain[1] - xDomain[0])) * plotWidth;
+  const scaleY = (value) => margin.top + (1 - (value - yDomain[0]) / (yDomain[1] - yDomain[0])) * plotHeight;
+  const xTicks = [0, 0.025, 0.05, 0.075, 0.1].filter((value) => value >= xDomain[0] && value <= xDomain[1]);
+  const yTicks = [];
+  for (let value = Math.ceil(yDomain[0] / 50) * 50; value <= yDomain[1] + 0.01; value += 50) yTicks.push(value);
+  const points = rows.map((row) => `${scaleX(row.strain).toFixed(2)},${scaleY(row.stress).toFixed(2)}`).join(" ");
+  const gridX = xTicks.map((value) => `<line x1="${scaleX(value).toFixed(2)}" y1="${margin.top}" x2="${scaleX(value).toFixed(2)}" y2="${(margin.top + plotHeight).toFixed(2)}" />`).join("");
+  const gridY = yTicks.map((value) => `<line x1="${margin.left}" y1="${scaleY(value).toFixed(2)}" x2="${(margin.left + plotWidth).toFixed(2)}" y2="${scaleY(value).toFixed(2)}" />`).join("");
+  const labelsX = xTicks.map((value) => `<g><line class="plot-tick" x1="${scaleX(value).toFixed(2)}" y1="${(margin.top + plotHeight).toFixed(2)}" x2="${scaleX(value).toFixed(2)}" y2="${(margin.top + plotHeight + 5).toFixed(2)}" /><text class="plot-tick-label" x="${scaleX(value).toFixed(2)}" y="${(height - 24).toFixed(2)}" text-anchor="middle">${formatPlotTick(value, "x")}</text></g>`).join("");
+  const labelsY = yTicks.map((value) => `<g><line class="plot-tick" x1="${(margin.left - 5).toFixed(2)}" y1="${scaleY(value).toFixed(2)}" x2="${margin.left}" y2="${scaleY(value).toFixed(2)}" /><text class="plot-tick-label" x="${(margin.left - 10).toFixed(2)}" y="${(scaleY(value) + 4).toFixed(2)}" text-anchor="end">${formatPlotTick(value, "y")}</text></g>`).join("");
+  const legendX = Math.max(margin.left + 10, width - 190);
+  const legendY = margin.top + 16;
+  responsePlot.setAttribute("viewBox", `0 0 ${width.toFixed(2)} ${height.toFixed(2)}`);
+  responsePlot.setAttribute("data-series-rows", String(rows.length));
+  responsePlot.setAttribute("data-series", JSON.stringify(rows));
+  responsePlot.setAttribute("data-x-domain", JSON.stringify(xDomain));
+  responsePlot.setAttribute("data-y-domain", JSON.stringify(yDomain));
+  responsePlot.setAttribute("data-x-label", "True plastic strain [1]");
+  responsePlot.setAttribute("data-y-label", "True stress (MPa)");
+  responsePlot.innerHTML = `<title id="response-plot-description">True stress versus true plastic strain from the selected native card.</title>
+    <g class="plot-grid" aria-hidden="true">${gridX}${gridY}</g>
+    <path class="plot-axis" d="M ${margin.left} ${margin.top} V ${margin.top + plotHeight} H ${margin.left + plotWidth}" aria-hidden="true" />
+    <g class="plot-labels">${labelsX}${labelsY}
+      <text class="plot-axis-title" x="${(margin.left + plotWidth / 2).toFixed(2)}" y="${(height - 7).toFixed(2)}" text-anchor="middle">True plastic strain [1]</text>
+      <text class="plot-axis-title" transform="translate(17 ${(margin.top + plotHeight / 2).toFixed(2)}) rotate(-90)" text-anchor="middle">True stress (MPa)</text>
+    </g>
+    <polyline class="response-line" points="${points}" data-series-line="true" />
+    <g class="response-points" aria-hidden="true">${rows.map((row) => `<circle class="response-point" cx="${scaleX(row.strain).toFixed(2)}" cy="${scaleY(row.stress).toFixed(2)}" r="3" />`).join("")}</g>
+    <g class="plot-legend" transform="translate(${legendX.toFixed(2)} ${legendY.toFixed(2)})"><line class="plot-legend-line" x1="0" y1="-4" x2="18" y2="-4" /><text class="plot-legend-text" x="26" y="0">Card hardening data</text></g>`;
+};
+
+if (typeof ResizeObserver !== "undefined" && responsePlotBand) {
+  new ResizeObserver(() => renderResponsePlot(nativeText?.textContent ?? normalText)).observe(responsePlotBand);
+}
+
 const setField = (selector, value) => {
   const element = document.querySelector(selector);
   if (element) element.textContent = value;
@@ -234,6 +348,7 @@ const applyState = (requestedState) => {
   if (previewLoading) previewLoading.hidden = state !== "loading";
   if (previewUnavailable) previewUnavailable.hidden = mode !== "unsupported";
   if (previewScroll) previewScroll.hidden = mode === "unsupported" || state === "loading";
+  if (previewScrollShell) previewScrollShell.hidden = mode === "unsupported" || state === "loading";
   if (nativeText) nativeText.textContent = mode === "approximation" ? radText : state === "long" ? longText : normalText;
   const cardState = document.querySelector("#card-state-label");
   if (mode === "normal") {
@@ -296,6 +411,8 @@ const applyState = (requestedState) => {
       deliveryStatus.textContent = "No native artifact was created · inspect the unsupported field in Modeling.";
     }
   }
+  renderResponsePlot(mode === "normal" ? nativeText?.textContent ?? normalText : "");
+  requestAnimationFrame(updatePreviewScrollRail);
 };
 
 acknowledgement?.addEventListener("change", () => {

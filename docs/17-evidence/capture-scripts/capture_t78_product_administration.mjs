@@ -18,18 +18,18 @@ try {
 
   await page.goto(`${webUrl}/administration`);
   await page.getByRole("heading", { name: "Configure the material workspace" }).waitFor();
-  await page.screenshot({ path: "docs/17-evidence/images/t78-administration-overview.png", fullPage: true });
+  await page.screenshot({ path: "docs/17-evidence/images/historical-task-screenshots/t78-administration-overview.png", fullPage: true });
 
   await page.getByRole("button", { name: /Design the database/ }).click();
   await page.getByRole("heading", { name: "Tables, Attributes and relationships" }).waitFor();
   await page.getByRole("button", { name: /Demo Material Records/ }).waitFor();
   await page.getByText("8 Attributes", { exact: true }).waitFor();
-  await page.screenshot({ path: "docs/17-evidence/images/t78-database-design.png", fullPage: true });
+  await page.screenshot({ path: "docs/17-evidence/images/historical-task-screenshots/t78-database-design.png", fullPage: true });
 
   await page.getByRole("button", { name: /Users & access/ }).click();
   await page.getByRole("heading", { name: "Choose what each team can do" }).waitFor();
   await page.getByText("cmp-demo-material-team", { exact: true }).waitFor();
-  await page.screenshot({ path: "docs/17-evidence/images/t78-users-access.png", fullPage: true });
+  await page.screenshot({ path: "docs/17-evidence/images/historical-task-screenshots/t78-users-access.png", fullPage: true });
 } finally {
   await browser.close();
 }

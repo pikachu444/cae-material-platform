@@ -4,7 +4,7 @@
   "family": "MAT-CARD",
   "kind": "unsupported",
   "state": "unsupported",
-  "capture_date": "2026-07-29",
+  "capture_date": "2026-07-30",
   "viewport": {
     "width": 1366,
     "height": 768,
@@ -278,6 +278,36 @@
         "width": 0,
         "height": 0
       },
+      "preview_scroll_rail": {
+        "left": 0,
+        "top": 0,
+        "width": 0,
+        "height": 0
+      },
+      "preview_scroll_thumb": {
+        "left": 0,
+        "top": 0,
+        "width": 0,
+        "height": 0
+      },
+      "response_plot_band": {
+        "left": 0,
+        "top": 0,
+        "width": 0,
+        "height": 0
+      },
+      "response_plot_frame": {
+        "left": 0,
+        "top": 0,
+        "width": 0,
+        "height": 0
+      },
+      "response_plot_svg": {
+        "left": 0,
+        "top": 0,
+        "width": 0,
+        "height": 0
+      },
       "delivery_sheet": {
         "left": 1046,
         "top": 245,
@@ -285,6 +315,7 @@
         "height": 499
       }
     },
+    "card_content_child_count": 2,
     "native_width": 789,
     "delivery_width": 312,
     "preview_scroll_width": 0,
@@ -294,6 +325,45 @@
     "preview_available_height": 734,
     "preview_rendered_height": 0,
     "preview_fills_available_height": false,
+    "preview_scroll_range": 0,
+    "preview_scroll_rail_visible": false,
+    "preview_scroll_gutter_width": 0,
+    "preview_scroll_thumb_ratio": 0,
+    "preview_scroll_text_clearance": 38,
+    "preview_surface": "rgb(247, 249, 250)",
+    "preview_ink": "rgb(37, 52, 61)",
+    "preview_border": "rgb(170, 181, 187)",
+    "preview_scroll_track": "rgb(220, 231, 236)",
+    "preview_scroll_divider": "rgb(182, 201, 210)",
+    "preview_scroll_thumb": "rgb(78, 129, 149)",
+    "native_surface_ratio": 0,
+    "response_plot_ratio": 0,
+    "response_plot_visible": false,
+    "response_plot_rows": 0,
+    "response_plot_series": [],
+    "response_plot_first_point": null,
+    "response_plot_x_domain": null,
+    "response_plot_y_domain": null,
+    "response_plot_line_bbox": null,
+    "response_plot_line_has_frame_headroom": false,
+    "response_plot_x_label": "",
+    "response_plot_y_label": "",
+    "response_plot_svg_aspect": {
+      "render_width": 0,
+      "render_height": 0,
+      "viewbox_width": 0,
+      "viewbox_height": 0,
+      "render_aspect": 0,
+      "viewbox_aspect": 0,
+      "mismatch": 0
+    },
+    "response_plot_preserve_aspect_ratio": "xMidYMid meet",
+    "response_plot_tick_font_px": null,
+    "response_plot_title_font_px": null,
+    "response_plot_frame_size": {
+      "width": 0,
+      "height": 0
+    },
     "native_text_visible": false,
     "native_text_length": 683,
     "unavailable_visible": true,
@@ -324,6 +394,7 @@
     "tree_keyboard": true,
     "tabs": true,
     "advanced_disclosure": true,
+    "native_scroll_wheel": true,
     "state_command": true
   },
   "forbidden_visible_terms": [],

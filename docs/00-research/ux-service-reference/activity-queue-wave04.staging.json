@@ -1,7 +1,7 @@
 {
   "family": "ACT-QUEUE",
   "status": "pending",
-  "capture_date": "2026-07-29",
+  "capture_date": "2026-07-30",
   "static": {
     "html": "docs/00-research/ux-service-reference/activity-queue-normal.html",
     "css": "docs/00-research/ux-service-reference/activity-queue.css",
@@ -20,7 +20,7 @@
       },
       "image": "docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1366x768.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1366x768.measurements.json",
-      "sha256": "45ecff451bdd3b3f7d11cf8b6afb1f25cda17be19a4118c68ba5d4c37745e523"
+      "sha256": "489d66c6d1d1e80d2d0ae11c94dcf71d27a9c56b0cdcbb59c3623330d562f4d3"
     },
     "activity-user-normal-1440x900": {
       "role": "user",
@@ -32,7 +32,7 @@
       },
       "image": "docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1440x900.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1440x900.measurements.json",
-      "sha256": "12b9cb7bd6d16ae57521ac69ac5dd61160d8ce3423d13e00ee66361cedfcc2aa"
+      "sha256": "b96554fa362cd301079881ef7503a8822171e34059ba972f17ab7e2c08ed8de8"
     },
     "activity-user-normal-1920x1080": {
       "role": "user",
@@ -44,7 +44,7 @@
       },
       "image": "docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1920x1080.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1920x1080.measurements.json",
-      "sha256": "46cfb14e2a1ca9c8953d408004e9eff47d25c1fc7c4c311ff761509c4bd652ce"
+      "sha256": "730b7144803decf282bb190373cc44c15151e74f028b7b9cfb15f1627c370bbe"
     },
     "activity-reviewer-normal-1366x768": {
       "role": "reviewer",
@@ -56,7 +56,7 @@
       },
       "image": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1366x768.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1366x768.measurements.json",
-      "sha256": "8139b08582acb9ff1595490a88486f6b4eff684271f5775a14b357c125f0b29b"
+      "sha256": "1f4d25511fa1dc307839271a132a7c24ef51cf4200cac6a0462d660ec47465f4"
     },
     "activity-reviewer-normal-1440x900": {
       "role": "reviewer",
@@ -68,7 +68,7 @@
       },
       "image": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1440x900.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1440x900.measurements.json",
-      "sha256": "daf7a2bacafaf0ae2f3c254a8a055fd4e57f6eb3dda05480726a90e9521fef3b"
+      "sha256": "e8c7877dbd7d6191ee4d3d68d29f55be9604f537f38c5ff85f20ff59b510694f"
     },
     "activity-reviewer-normal-1920x1080": {
       "role": "reviewer",
@@ -80,7 +80,7 @@
       },
       "image": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1920x1080.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1920x1080.measurements.json",
-      "sha256": "517ffdde4f5b1c49da291acd97c2f6abab9a8318e7793f05ceebeabb9db50c7b"
+      "sha256": "8c27fa20576d259be8bd84ff215cdc64ab122a497d3f27f57872be843e4fbaf6"
     },
     "activity-reviewer-long-decision-error-1440x900": {
       "role": "reviewer",
@@ -92,7 +92,55 @@
       },
       "image": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-long-decision-error-1440x900.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-long-decision-error-1440x900.measurements.json",
-      "sha256": "bbcfcadd5555273afd030973f1f9e0da5ea18494722e975de3796eb0a90baaaa"
+      "sha256": "82147fecd36a049d4982ae787b903f71c8c95849658467950ae2b18ffaff4f6d"
+    },
+    "activity-user-normal-2560x1440": {
+      "role": "user",
+      "state": "normal",
+      "viewport": {
+        "width": 2560,
+        "height": 1440,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/activity-user-normal-2560x1440.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-user-normal-2560x1440.measurements.json",
+      "sha256": "04b6b8ad59a29832d7e1342aa2afba5f095bf5ae177c8490cc7fadf189c61ff1"
+    },
+    "activity-user-normal-3840x2160": {
+      "role": "user",
+      "state": "normal",
+      "viewport": {
+        "width": 3840,
+        "height": 2160,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/activity-user-normal-3840x2160.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-user-normal-3840x2160.measurements.json",
+      "sha256": "2745cd0eb3f26adcb3eb9cde6bf687378b918a52747f69cdf55f9af4fc8a9e20"
+    },
+    "activity-reviewer-normal-2560x1440": {
+      "role": "reviewer",
+      "state": "normal",
+      "viewport": {
+        "width": 2560,
+        "height": 1440,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-2560x1440.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-2560x1440.measurements.json",
+      "sha256": "3558eda18c9c1275eb84ff3921ce0753865e152808dd1dc9c3aba2565aa1e3c6"
+    },
+    "activity-reviewer-normal-3840x2160": {
+      "role": "reviewer",
+      "state": "normal",
+      "viewport": {
+        "width": 3840,
+        "height": 2160,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-3840x2160.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-3840x2160.measurements.json",
+      "sha256": "0fe966a1ed2d0fa3c2beb5dc7e236d58407bb9324296aac6b8e702eaf62c7db2"
     }
   },
   "evidence_only_states": {

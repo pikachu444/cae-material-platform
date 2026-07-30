@@ -129,8 +129,9 @@
                 <div id="preview-loading" class="preview-loading" role="status" hidden>
                   <strong>Loading exact evidence…</strong><span>Native text and mapping checks are being fetched.</span>
                 </div>
-                <div id="preview-scroll" class="preview-scroll" tabindex="0" aria-label="Scrollable native solver card text">
-                  <pre id="native-text" aria-label="Native solver card text">*HEADING
+                <div id="preview-scroll-shell" class="preview-scroll-shell">
+                  <div id="preview-scroll" class="preview-scroll" tabindex="0" aria-label="Scrollable native solver card text">
+                    <pre id="native-text" aria-label="Native solver card text">*HEADING
 ** CMP synthetic reference · DP780 exact card
 *MATERIAL, NAME=DP780_SYNTHETIC_R1
 ** Source Record: DP780-REF · r1
@@ -151,10 +152,26 @@
 ** Unit convention: kg-m-s · values emitted in native syntax
 ** End of exact synthetic card preview
 </pre>
+                  </div>
+                  <div id="preview-scroll-rail" class="preview-scroll-rail" aria-hidden="true"><span id="preview-scroll-thumb" class="preview-scroll-thumb"></span></div>
                 </div>
                 <p id="preview-unavailable" class="preview-unavailable" hidden>
                   <strong>Native preview unavailable</strong><span>Preflight stopped before artifact creation because <b id="unsupported-field">damage initiation · GISSMO</b> cannot be represented by this target.</span>
                 </p>
+                <section id="response-plot-band" class="response-plot-band" data-region="linked-response-plot" aria-labelledby="response-plot-title" hidden>
+                  <header class="response-plot-heading">
+                    <div>
+                      <h4 id="response-plot-title">Linked response</h4>
+                      <p id="response-plot-summary">Same exact <code>*PLASTIC</code> rows as the native card preview.</p>
+                    </div>
+                    <span class="response-plot-note">Card evidence · read only</span>
+                  </header>
+                  <div class="response-plot-frame">
+                    <svg id="response-plot" class="response-plot" role="img" aria-labelledby="response-plot-title response-plot-description" preserveAspectRatio="xMidYMid meet">
+                      <title id="response-plot-description">True stress versus true plastic strain from the selected native card.</title>
+                    </svg>
+                  </div>
+                </section>
               </section>
 
               <aside class="delivery-sheet" aria-label="Delivery and mapping properties">

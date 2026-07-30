@@ -13,6 +13,7 @@ from playwright.sync_api import Browser, Page, sync_playwright
 ROOT = Path(__file__).resolve().parents[3]
 HTML_PATH = ROOT / "docs/00-research/ux-service-reference/modeling-data-normal.html"
 EVIDENCE_DIR = ROOT / "docs/17-evidence/images/issue-167-service-reference"
+STAGING_PATH = ROOT / "docs/00-research/ux-service-reference/modeling-data-wide-correction.staging.json"
 
 TARGETS: dict[str, dict[str, Any]] = {
     "modeling-data-normal-1366x768": {
@@ -30,6 +31,16 @@ TARGETS: dict[str, dict[str, Any]] = {
         "viewport": {"width": 1920, "height": 1080, "device_scale_factor": 1},
         "image": EVIDENCE_DIR / "modeling-data-normal-1920x1080.png",
     },
+    "modeling-data-normal-2560x1440": {
+        "state": "normal",
+        "viewport": {"width": 2560, "height": 1440, "device_scale_factor": 1},
+        "image": EVIDENCE_DIR / "modeling-data-normal-2560x1440.png",
+    },
+    "modeling-data-normal-3840x2160": {
+        "state": "normal",
+        "viewport": {"width": 3840, "height": 2160, "device_scale_factor": 1},
+        "image": EVIDENCE_DIR / "modeling-data-normal-3840x2160.png",
+    },
     "modeling-data-empty-new-session-1440x900": {
         "state": "empty",
         "viewport": {"width": 1440, "height": 900, "device_scale_factor": 1},
@@ -41,6 +52,14 @@ TARGETS: dict[str, dict[str, Any]] = {
         "image": EVIDENCE_DIR / "modeling-data-long-invalid-mapping-blocked-1440x900.png",
     },
 }
+
+CANONICAL_TARGETS = [
+    "modeling-data-normal-1366x768",
+    "modeling-data-normal-1440x900",
+    "modeling-data-normal-1920x1080",
+    "modeling-data-empty-new-session-1440x900",
+    "modeling-data-long-invalid-mapping-blocked-1440x900",
+]
 
 RESPONSIVE_STATES = {
     "empty": "modeling-data-empty-new-session",
@@ -67,7 +86,7 @@ LOADING_ERROR_STATES = [
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Capture the MOD-DATA static service reference family.")
     parser.add_argument("--target", choices=sorted(TARGETS), help="Capture one registered target.")
-    parser.add_argument("--all-packet-targets", action="store_true", help="Capture all five packet targets and evidence states.")
+    parser.add_argument("--all-packet-targets", action="store_true", help="Capture all five packet targets, two wide normal supports and evidence states.")
     parser.add_argument("--responsive-evidence", action="store_true", help="Also save same-topology exceptional-state evidence at all three viewports.")
     return parser.parse_args()
 
@@ -98,8 +117,51 @@ def geometry_snapshot(page: Page, target: str, viewport: dict[str, int], state: 
           const divider = document.querySelector('[data-region="navigator-divider"]');
           const rule = divider ? getComputedStyle(divider, '::before') : null;
           const plot = document.querySelector('.source-plot');
+          const plotRect = plot ? plot.getBoundingClientRect() : null;
+          const canvasRect = document.querySelector('.graph-canvas')?.getBoundingClientRect() || null;
           const plotPath = plot?.querySelector('.curve-one');
-          const plotBox = plotPath ? plotPath.getBBox() : null;
+          const safeBox = (element) => {
+            if (!element) return null;
+            try {
+              const rect = element.getBBox();
+              return {x: rect.x, y: rect.y, right: rect.x + rect.width, bottom: rect.y + rect.height,
+                width: rect.width, height: rect.height};
+            } catch (_) { return null; }
+          };
+          const plotBox = safeBox(plotPath);
+          const seriesBoxes = [...(plot?.querySelectorAll('.curve') || [])].map(safeBox).filter(Boolean);
+          const seriesBounds = seriesBoxes.length ? {
+            x: Math.min(...seriesBoxes.map((item) => item.x)),
+            y: Math.min(...seriesBoxes.map((item) => item.y)),
+            right: Math.max(...seriesBoxes.map((item) => item.right)),
+            bottom: Math.max(...seriesBoxes.map((item) => item.bottom)),
+          } : null;
+          const viewBox = plot?.viewBox?.baseVal;
+          const renderedRatio = plotRect && plotRect.height ? plotRect.width / plotRect.height : 0;
+          const viewBoxRatio = viewBox && viewBox.height ? viewBox.width / viewBox.height : 0;
+          const plotData = (name, fallback) => Number(plot?.dataset?.[name] ?? fallback);
+          const plotArea = {
+            left: plotData('plotLeft', 80), right: plotData('plotRight', plotRect?.width || 0),
+            top: plotData('plotTop', 24), bottom: plotData('plotBottom', plotRect?.height || 0),
+          };
+          const labelMetrics = [...(plot?.querySelectorAll('.plot-labels text') || [])].map((text) => {
+            const rect = text.getBoundingClientRect();
+            const style = getComputedStyle(text);
+            const inside = !plotRect || (rect.left >= plotRect.left - 0.6 && rect.right <= plotRect.right + 0.6
+              && rect.top >= plotRect.top - 0.6 && rect.bottom <= plotRect.bottom + 0.6);
+            return {text: text.textContent.trim(), fontSize: Number.parseFloat(style.fontSize),
+              x: rect.x, y: rect.y, width: rect.width, height: rect.height, inside};
+          });
+          const strokeMetrics = [...(plot?.querySelectorAll('.plot-grid line,.plot-axis line,.curve') || [])]
+            .map((element) => Number.parseFloat(getComputedStyle(element).strokeWidth))
+            .filter(Number.isFinite);
+          const taskTextContainment = [...document.querySelectorAll('.stage-button,.source-tab,.ribbon-heading h2,.graph-heading h2')]
+            .filter(visible).map((element) => ({text: element.textContent.trim(), clipped: element.scrollWidth > element.clientWidth + 0.6}));
+          const legendRect = document.querySelector('.plot-legend')?.getBoundingClientRect() || null;
+          const xTitleMetric = labelMetrics.find((item) => item.text.startsWith('Engineering strain'));
+          const legendOverlapWithAxisTitle = Boolean(legendRect && xTitleMetric
+            && xTitleMetric.right >= legendRect.left - 0.6 && xTitleMetric.x <= legendRect.right + 0.6
+            && xTitleMetric.y <= legendRect.bottom + 0.6 && xTitleMetric.y + xTitleMetric.height >= legendRect.top - 0.6);
           const tableContainment = (selector) => {
             const table = document.querySelector(selector);
             if (!table) return {present: false, rows: 0, overflow: 0, cells: []};
@@ -155,14 +217,36 @@ def geometry_snapshot(page: Page, target: str, viewport: dict[str, int], state: 
               visibleWidth: divider ? Math.round(divider.getBoundingClientRect().width) : -1,
               ruleWidth: rule ? Number.parseFloat(rule.width) : -1,
             },
-            plot: {
-              present: !!plot,
-              width: plot ? Math.round(plot.getBoundingClientRect().width) : 0,
-              height: plot ? Math.round(plot.getBoundingClientRect().height) : 0,
-              seriesPath: plotBox ? {x: plotBox.x, y: plotBox.y, right: plotBox.x + plotBox.width, bottom: plotBox.y + plotBox.height} : null,
-              plotArea: {left: 70, right: 960, top: 30, bottom: 430},
-              axes: [...(plot?.querySelectorAll('.plot-labels text') || [])].map((text) => text.textContent.trim()),
-            },
+              plot: {
+                present: !!plot,
+                width: plot ? Math.round(plotRect.width) : 0,
+                height: plot ? Math.round(plotRect.height) : 0,
+                renderWidth: plot ? viewBox?.width || 0 : 0,
+                renderHeight: plot ? viewBox?.height || 0 : 0,
+                renderedRatio,
+                viewBoxRatio,
+                ratioDelta: Math.abs(renderedRatio - viewBoxRatio),
+                preserveAspectRatio: plot?.getAttribute('preserveAspectRatio') || '',
+                seriesPath: seriesBounds || (plotBox ? {x: plotBox.x, y: plotBox.y, right: plotBox.x + plotBox.width, bottom: plotBox.y + plotBox.height} : null),
+                seriesPaths: seriesBoxes,
+                plotArea,
+                dataBounds: {
+                  observedMinStrain: plotData('seriesMinStrain', 0), observedMaxStrain: plotData('seriesMaxStrain', 0),
+                  observedMinStressMpa: plotData('seriesMinStressMpa', 0), observedMaxStressMpa: plotData('seriesMaxStressMpa', 0),
+                  axisMinStrain: plotData('axisMinStrain', 0), axisMaxStrain: plotData('axisMaxStrain', 0),
+                  axisMinStressMpa: plotData('axisMinStressMpa', 0), axisMaxStressMpa: plotData('axisMaxStressMpa', 0),
+                },
+                headroom: seriesBounds ? {
+                  left: seriesBounds.x - plotArea.left, right: plotArea.right - seriesBounds.right,
+                  top: seriesBounds.y - plotArea.top, bottom: plotArea.bottom - seriesBounds.bottom,
+                } : null,
+                axes: [...(plot?.querySelectorAll('.plot-labels text') || [])].map((text) => text.textContent.trim()),
+                labelMetrics,
+                strokeMetrics,
+              },
+              devicePixelRatio: window.devicePixelRatio,
+              taskTextContainment,
+              legendOverlapWithAxisTitle,
             visibleContent: {
               sourceTabs: [...document.querySelectorAll('.source-tab')].filter(visible).map((tab) => tab.textContent.trim()),
               stageLabels: [...document.querySelectorAll('.stage-button')].filter(visible).map((stage) => stage.textContent.trim()),
@@ -213,33 +297,48 @@ def open_page(browser: Browser, state: str, viewport: dict[str, int]) -> tuple[P
 
 
 def exercise_normal(page: Page) -> dict[str, Any]:
+    def settle() -> None:
+        page.wait_for_timeout(40)
     page.locator(".saved-dataset").nth(1).click()
+    settle()
     selected_dataset = page.locator(".saved-dataset.selected").get_attribute("data-dataset")
     page.locator(".source-tab[data-source='local']").click()
+    settle()
     local_visible = page.locator("#local-panel").is_visible()
     page.locator(".source-tab[data-source='json']").click()
+    settle()
     json_visible = page.locator("#json-panel").is_visible()
     page.locator(".source-tab[data-source='library']").click()
+    settle()
     library_visible = page.locator("#library-panel").is_visible()
     page.locator(".graph-control[data-graph-view='points']").click()
+    settle()
     points_view = page.locator(".graph-control[data-graph-view='points']").get_attribute("aria-pressed") == "true"
     page.locator(".graph-advanced summary").click()
+    settle()
     disclosure_open = page.locator(".graph-advanced").get_attribute("open") is not None
     page.locator(".graph-advanced summary").click()
+    settle()
     page.locator(".curve-row[data-curve='Specimen 02']").click()
+    settle()
     selected_curve = page.locator(".curve-row.selected").get_attribute("data-curve")
     divider = page.locator("[data-region='navigator-divider']")
     divider.focus()
     initial = geometry_snapshot(page, "normal-interaction", {"width": page.viewport_size["width"], "height": page.viewport_size["height"]}, "normal")
     page.keyboard.press("ArrowRight")
+    settle()
     arrow_right = geometry_snapshot(page, "normal-arrow-right", {"width": page.viewport_size["width"], "height": page.viewport_size["height"]}, "normal")
     page.keyboard.press("Home")
+    settle()
     home = geometry_snapshot(page, "normal-home", {"width": page.viewport_size["width"], "height": page.viewport_size["height"]}, "normal")
     page.keyboard.press("End")
+    settle()
     end = geometry_snapshot(page, "normal-end", {"width": page.viewport_size["width"], "height": page.viewport_size["height"]}, "normal")
     page.locator("[data-region='navigator-divider'] button").click()
+    settle()
     collapsed = geometry_snapshot(page, "normal-collapsed", {"width": page.viewport_size["width"], "height": page.viewport_size["height"]}, "normal")
     page.locator("[data-region='navigator-divider'] button").click()
+    settle()
     restored = geometry_snapshot(page, "normal-restored", {"width": page.viewport_size["width"], "height": page.viewport_size["height"]}, "normal")
     return {
         "selected_dataset": selected_dataset,
@@ -294,7 +393,7 @@ def capture_target(browser: Browser, target: str, config: dict[str, Any], write_
         geometry = canonical_geometry
         digest = hashlib.sha256(config["image"].read_bytes()).hexdigest() if write_image else ""
         measurements = {
-            "capture_date": "2026-07-29",
+            "capture_date": "2026-07-30",
             "target": target,
             "state": state,
             "viewport": viewport,
@@ -381,6 +480,48 @@ def capture_loading_error_evidence(browser: Browser) -> dict[str, Any]:
     return {"states": evidence}
 
 
+def write_staging(selected: list[str], evidence_path: Path) -> None:
+    references: list[dict[str, Any]] = []
+    wide_support: list[dict[str, Any]] = []
+    for target in selected:
+        config = TARGETS[target]
+        image = config["image"]
+        entry = {
+            "id": target,
+            "kind": config["state"],
+            "viewport": config["viewport"],
+            "html": str(HTML_PATH.relative_to(ROOT)).replace("\\", "/"),
+            "css": "docs/00-research/ux-service-reference/modeling-data.css",
+            "javascript": "docs/00-research/ux-service-reference/modeling-data.js",
+            "capture": str(Path(__file__).relative_to(ROOT)).replace("\\", "/"),
+            "validation": "docs/00-research/ux-service-reference/validate_modeling_data.py",
+            "image": str(image.relative_to(ROOT)).replace("\\", "/"),
+            "measurements": str(image.with_suffix(".measurements.json").relative_to(ROOT)).replace("\\", "/"),
+            "image_sha256": hashlib.sha256(image.read_bytes()).hexdigest(),
+            "status": "pending",
+            "main_agent_evaluation": {"status": "pending"},
+            "product_owner_approval": {"status": "absent"},
+        }
+        (references if target in CANONICAL_TARGETS else wide_support).append(entry)
+    staging = {
+        "schema_version": 1,
+        "generated": "2026-07-30",
+        "family": "MOD-DATA",
+        "status": "pending",
+        "static": {
+            "html": str(HTML_PATH.relative_to(ROOT)).replace("\\", "/"),
+            "css": "docs/00-research/ux-service-reference/modeling-data.css",
+            "javascript": "docs/00-research/ux-service-reference/modeling-data.js",
+            "capture": str(Path(__file__).relative_to(ROOT)).replace("\\", "/"),
+            "validation": "docs/00-research/ux-service-reference/validate_modeling_data.py",
+        },
+        "references": references,
+        "wide_support": wide_support,
+        "state_evidence": str(evidence_path.relative_to(ROOT)).replace("\\", "/"),
+    }
+    STAGING_PATH.write_text(json.dumps(staging, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
 def main() -> None:
     args = parse_args()
     if not args.all_packet_targets and not args.target:
@@ -406,11 +547,15 @@ def main() -> None:
             browser.close()
     evidence_path = EVIDENCE_DIR / "modeling-data-state-evidence.json"
     evidence_path.write_text(json.dumps(all_measurements, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    if args.all_packet_targets:
+        write_staging(selected, evidence_path)
     for target in selected:
         image = TARGETS[target]["image"]
         digest = hashlib.sha256(image.read_bytes()).hexdigest()
         print(f"{target}: {image.relative_to(ROOT)} sha256={digest}")
     print(f"state evidence: {evidence_path.relative_to(ROOT)}")
+    if args.all_packet_targets:
+        print(f"staging index: {STAGING_PATH.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":

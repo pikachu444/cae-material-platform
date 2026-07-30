@@ -13,7 +13,7 @@ The clean seed also created the immutable `DP780 workflow records` Subset
 retains `text=DP780`, then independently verified the eight-node graph and the complete 13-component
 Material-to-card package.
 
-![Catalog search and exact Workflow graph on one surface](../images/t71-explorer-search-workflow.jpg)
+![Catalog search and exact Workflow graph on one surface](../images/historical-task-screenshots/t71-explorer-search-workflow.jpg)
 
 During the reseed regression, the seed previously chose the first tabulated-plasticity model after a
 processed IR had been added. It now selects the direct Dataset-derived model by the exact Dataset

@@ -25,7 +25,7 @@ numerical evidence is likewise collapsed below the plot so it remains auditable 
 the curve-comparison workflow. Preview never creates a promotable revision; only explicit commit
 recomputes on the server and appends an immutable Processing Output.
 
-![Exact Test Data, published Recipe, hardening candidates and structured step options](../images/t79-material-modeling-workspace.png)
+![Exact Test Data, published Recipe, hardening candidates and structured step options](../images/historical-task-screenshots/t79-material-modeling-workspace.png)
 
 Verification before merge:
 

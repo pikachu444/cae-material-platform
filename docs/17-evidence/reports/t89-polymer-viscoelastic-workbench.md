@@ -35,17 +35,17 @@ than list order. Its `polymer_dma_journey` gate verifies the canonical Test JSON
 published Recipe, successful Batch, immutable Output, promoted IR, DMA Neutral source mode and both
 native card downloads with SHA-256 digests.
 
-![DMA storage/loss candidate workbench](../images/t89-polymer-dma-workbench.jpg)
+![DMA storage/loss candidate workbench](../images/historical-task-screenshots/t89-polymer-dma-workbench.jpg)
 
-![DMA-derived Abaqus card](../images/t89-polymer-dma-abaqus-card.jpg)
+![DMA-derived Abaqus card](../images/historical-task-screenshots/t89-polymer-dma-abaqus-card.jpg)
 
-![DMA-derived OpenRadioss card](../images/t89-polymer-dma-openradioss-card.jpg)
+![DMA-derived OpenRadioss card](../images/historical-task-screenshots/t89-polymer-dma-openradioss-card.jpg)
 
 Multi-temperature relaxation and the relaxation-derived card path are recorded separately:
 
-![WLF shift evidence and master curve](../images/t89-polymer-master-curve.jpg)
+![WLF shift evidence and master curve](../images/historical-task-screenshots/t89-polymer-master-curve.jpg)
 
-![Relaxation-derived Abaqus card](../images/t89-polymer-abaqus-card.jpg)
+![Relaxation-derived Abaqus card](../images/historical-task-screenshots/t89-polymer-abaqus-card.jpg)
 
 ## Boundary
 

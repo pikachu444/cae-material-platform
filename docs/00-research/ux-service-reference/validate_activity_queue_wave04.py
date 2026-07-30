@@ -28,7 +28,8 @@ from capture_activity_queue_wave04 import (  # noqa: E402
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Validate the WAVE-04 ACT-QUEUE static Activity service-reference bundle.")
     parser.add_argument("--target", choices=sorted(TARGETS), help="Validate one approval target.")
-    parser.add_argument("--all-packet-targets", action="store_true", help="Validate all seven approval targets and evidence-only states.")
+    parser.add_argument("--all-packet-targets", action="store_true", help="Validate all canonical and wide-support approval targets plus evidence-only states.")
+    parser.add_argument("--wide-support", action="store_true", help="Validate only the four 2560x1440 and 3840x2160 normal wide-support targets.")
     parser.add_argument("--expect-main-agent-status", choices=("pending", "accepted"), required=True, help="Expected lifecycle status in the writer staging file.")
     return parser.parse_args()
 
@@ -77,6 +78,23 @@ def validate_contract(snapshot: dict[str, Any], target: str, role: str, state: s
     require(all(control["name"] for control in snapshot["controls"]), f"unnamed visible control for {target}")
     require(snapshot["typography"]["body"] >= 13 and snapshot["typography"]["task"] >= 13 and snapshot["typography"]["metadata"] >= 12, f"compact typography below contract for {target}: {snapshot['typography']}")
     require(":focus-visible" in (HERE / "activity-queue.css").read_text(encoding="utf-8"), f"focus-visible rule missing for {target}")
+    require(snapshot["tableCount"] == 3, f"semantic queue tables missing for {target}")
+    require(snapshot["tableHeaders"] == ["Task", "Request reason", "Status", "Updated", "Action"], f"queue headers changed for {target}: {snapshot['tableHeaders']}")
+    require(not any(header.lower() in {"material", "owner", "id", "uuid", "hash"} for header in snapshot["tableHeaders"]), f"invented technical columns present for {target}")
+    require(snapshot["activeTab"] == snapshot["contract"]["roleDefaultView"], f"role default view mismatch for {target}: {snapshot['activeTab']} != {snapshot['contract']['roleDefaultView']}")
+    require(sum(1 for section in snapshot["sections"] if section["visible"]) == 1, f"inactive tabpanel is visible for {target}")
+    if snapshot["rows"]:
+        require(snapshot["rowHeightRange"]["min"] >= 38 and snapshot["rowHeightRange"]["max"] <= 80, f"row-height range outside compact contract for {target}: {snapshot['rowHeightRange']}")
+    if state == "normal":
+        require(snapshot["contract"]["serverRequestCount"] == 50, f"normal fixture does not expose 50 server requests for {target}")
+        require(snapshot["contract"]["pendingCount"] == 40 and snapshot["contract"]["decidedCount"] == 10, f"normal pending/decided split changed for {target}: {snapshot['contract']}")
+        require(snapshot["contract"]["localHistoryCount"] == 2, f"normal local history count changed for {target}")
+        require(snapshot["queueScroll"]["hasOverflow"], f"normal queue does not overflow locally for {target}")
+        require(snapshot["overflowRail"]["reserved"], f"normal queue rail is not perceptually reserved for {target}")
+        require(snapshot["overflowRail"]["trackHeight"] > snapshot["overflowRail"]["thumbHeight"] >= 42, f"normal queue thumb is not proportional for {target}: {snapshot['overflowRail']}")
+        require(snapshot["contract"]["pendingRows"] == 40 and snapshot["contract"]["decidedRows"] == 10, f"normal rows do not retain lifecycle split for {target}: {snapshot['contract']}")
+        if viewport_name in {"2560x1440", "3840x2160"}:
+            require(snapshot["queueScroll"]["scrollHeight"] >= snapshot["queueScroll"]["clientHeight"] * 0.95, f"wide queue leaves avoidable blank area for {target}: {snapshot['queueScroll']}")
     if state in {"queue-error", "decision-error", "stale-unauthorized", "long-decision-error"}:
         require(snapshot["announcements"]["alert"], f"local live alert missing for {target}")
     if state in {"decision-error", "stale-unauthorized", "long-decision-error"}:
@@ -84,6 +102,21 @@ def validate_contract(snapshot: dict[str, Any], target: str, role: str, state: s
         require(len(selected_choices) == 1 and selected_choices[0]["chosen"], f"selected decision choice is not perceptually clear for {target}: {selected_choices}")
     if state == "loading":
         require(snapshot["announcements"]["loading"], f"busy announcement missing for {target}")
+
+    for row in snapshot["allRows"]:
+        if row["actionKind"] == "state":
+            require(row["passiveAction"], f"passive action is missing its visible marker for {target}: {row['id']}")
+            require(row["actionText"] == "—", f"passive action is not an em dash for {target}: {row['id']}={row['actionText']!r}")
+            require(row["actionAccessibleName"] == "No available action", f"passive action lacks its accessible name for {target}: {row['id']}")
+            require(row["actionText"] != row["status"], f"passive action repeats lifecycle status for {target}: {row['id']}")
+            require(not row["command"], f"passive action exposes an unsupported command for {target}: {row['id']}={row['command']}")
+        elif row["actionKind"] == "review":
+            require(role == "reviewer" and row["source"] == "server" and row["status"] == "Needs a decision", f"Review command is exposed outside its supported reviewer pending row for {target}: {row}")
+            require(row["command"] == "review" and not row["passiveAction"], f"Review command is not exclusive for {target}: {row['id']}")
+        elif row["actionKind"] == "resume":
+            require(row["id"] == "modeling-session-local" and row["source"] == "browser-local" and row["command"] == "resume" and not row["passiveAction"], f"Resume Modeling command changed scope for {target}: {row}")
+        elif row["actionKind"] == "open-card":
+            require(row["id"] == "solver-card-local" and row["source"] == "browser-local" and row["command"] == "open-card" and not row["passiveAction"], f"Open card command changed scope for {target}: {row}")
 
     buttons = [control["name"] for control in snapshot["controls"] if control["tag"] == "button"]
     forbidden_user = [name for name in buttons if name.startswith("Review") or name in {"Approve", "Request changes", "Record decision"}]
@@ -148,15 +181,15 @@ def validate_state(browser: Browser, state_target: str, state_spec: dict[str, An
                 require(any(control["name"] == "Start Modeling" for control in snapshot["controls"]), f"empty state lacks one next command: {state_target}")
             elif state == "loading":
                 require(snapshot["announcements"]["loading"], f"loading state lacks busy row: {state_target}")
-                require(any(row["id"] == "modeling-session-local" for row in snapshot["rows"]), f"loading state lost local Modeling session: {state_target}")
-                require(any(row["id"] == "solver-card-local" for row in snapshot["rows"]), f"loading state lost solver-card history: {state_target}")
+                require(any(row["id"] == "modeling-session-local" for row in snapshot["allRows"]), f"loading state lost local Modeling session: {state_target}")
+                require(any(row["id"] == "solver-card-local" for row in snapshot["allRows"]), f"loading state lost solver-card history: {state_target}")
             elif state == "long-row":
                 require(any(len(row["reason"]) > 100 for row in snapshot["rows"]), f"long row evidence is not long: {state_target}")
                 require(any(row["reasonClipped"] is False for row in snapshot["rows"]), f"long row was clipped: {state_target}")
             elif state == "queue-error":
                 require(snapshot["announcements"]["alert"], f"queue error alert missing: {state_target}")
                 require(any(control["name"] == "Retry activity queue" for control in snapshot["controls"]), f"queue error Retry missing: {state_target}")
-                require(any(row["id"] == "modeling-session-local" for row in snapshot["rows"]), f"queue error lost local row: {state_target}")
+                require(any(row["id"] == "modeling-session-local" for row in snapshot["allRows"]), f"queue error lost local row: {state_target}")
             elif state == "decision-blocked":
                 require(role == "user" and not snapshot["decision"]["visible"], f"user-role decision block topology wrong: {state_target}")
                 require("Reviewer or Administrator" in snapshot.get("pageText", ""), f"decision block context missing: {state_target}")
@@ -197,12 +230,15 @@ def validate_interactions() -> None:
     require(retry.get("reason_preserved") is True and retry.get("error_preserved") is True and retry.get("same_decision_retried") is True and retry.get("retry_status") == "Decision not recorded", "retry did not resubmit and preserve selected request/reason")
     access = interactions.get("access_recovery", {})
     require(access.get("status") == "Review access needs refresh" and access.get("decision_sent") is False, "stale access recovery implied a successful retry")
-    require(not interactions.get("user_console_errors") and not interactions.get("user_page_errors") and not interactions.get("reviewer_console_errors") and not interactions.get("reviewer_page_errors") and not interactions.get("error_console_errors") and not interactions.get("error_page_errors") and not interactions.get("access_console_errors") and not interactions.get("access_page_errors"), "interaction page errors present")
+    settled = interactions.get("settled_decision_passive_action", {})
+    require(settled.get("status") in {"Approved", "Changes requested"} and settled.get("visible_dash") is True and settled.get("accessible_name") == "No available action" and settled.get("review_removed") is True, f"recorded reviewer decision did not become a passive Action cell: {settled}")
+    require(not interactions.get("user_console_errors") and not interactions.get("user_page_errors") and not interactions.get("reviewer_console_errors") and not interactions.get("reviewer_page_errors") and not interactions.get("error_console_errors") and not interactions.get("error_page_errors") and not interactions.get("settled_decision_console_errors") and not interactions.get("settled_decision_page_errors") and not interactions.get("access_console_errors") and not interactions.get("access_page_errors"), "interaction page errors present")
     print("PASS deterministic pointer/keyboard/recovery interaction evidence")
 
 
 def main() -> None:
     args = parse_args()
+    require(not (args.wide_support and (args.target or args.all_packet_targets)), "--wide-support cannot be combined with another target selector")
     require(STAGING_PATH.exists(), f"missing staging file: {STAGING_PATH}")
     staging = json.loads(STAGING_PATH.read_text(encoding="utf-8"))
     require(staging.get("family") == "ACT-QUEUE", f"wrong staging family: {staging.get('family')}")
@@ -210,14 +246,17 @@ def main() -> None:
     static = staging.get("static", {})
     for key in ("html", "css", "js", "capture", "validator"):
         require((ROOT / static[key]).exists(), f"missing static source {key}: {static.get(key)}")
-    selected = [args.target] if args.target else list(TARGETS)
-    if not args.target and not args.all_packet_targets:
-        raise SystemExit("choose --target or --all-packet-targets")
+    if not args.target and not args.all_packet_targets and not args.wide_support:
+        raise SystemExit("choose --target, --wide-support, or --all-packet-targets")
     targets = staging.get("targets", {})
     if args.all_packet_targets:
         require(set(targets) == set(TARGETS), f"staging targets are incomplete: {sorted(targets)}")
+    elif args.wide_support:
+        from capture_activity_queue_wave04 import WIDE_TARGETS
+        require(set(WIDE_TARGETS).issubset(targets), "wide-support targets are not staged")
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=True)
+        selected = [args.target] if args.target else (list(TARGETS) if args.all_packet_targets else list(WIDE_TARGETS) if args.wide_support else [])
         for target in selected:
             require(target in targets, f"target not staged: {target}")
             validate_target(browser, target, targets[target])

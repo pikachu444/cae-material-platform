@@ -25,8 +25,8 @@ No proprietary optimizer, parameter database or UI asset is reproduced.
 
 ## Browser evidence
 
-- [candidate, observed evidence and bounded extrapolation](../images/t87-metal-fit-candidate-comparison.png)
-- [candidate residual comparison](../images/t87-metal-fit-residual.png)
+- [candidate, observed evidence and bounded extrapolation](../images/historical-task-screenshots/t87-metal-fit-candidate-comparison.png)
+- [candidate residual comparison](../images/historical-task-screenshots/t87-metal-fit-residual.png)
 
 The capture script fails unless the live Docker page exposes the hardening graph, observed workup,
 candidate evidence, explicit unobserved marker and residual axis. Both images use the three exact

@@ -312,22 +312,19 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/modeling-data-normal-1366x768.png
     measurements: docs/17-evidence/images/issue-167-service-reference/modeling-data-normal-1366x768.measurements.json
     family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-data-state-evidence.json
-    image_sha256: 07ca35cd91a01b10616d171ff2f7efb68f1f0adb4e73fa77e381cf6853693e95
-    date: 2026-07-29
-    status: approved
+    image_sha256: a5a61b1f960575ed5f266d218bc5ff748a4fb986dcc53807604c8e17d0d0e64c
+    date: 2026-07-30
+    status: pending
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted 32/32 after direct original-resolution inspection, complete registered gates and
-        independent native Playwright. The 184 px rail and one 5 px divider leave an 1177 px
-        persistent graph, keep three exact Test Data curves with two included, and separate
-        inclusion from plot visibility. Library/Local/JSON, exact-revision selection, unsaved
-        preview, data-relative axes, disclosure and keyboard splitter consequences all pass with
-        zero browser errors or overflow.
+        Replacement accepted 32/32 after direct original-resolution inspection, complete registered
+        gates and fresh independent review. The render-sized SVG preserves stable 11–12 px graph
+        text and non-scaling strokes while the 184 px rail leaves a dominant graph. Parenthesized
+        stress units, dimensionless strain, data-relative nice bounds, headroom, exact revisions,
+        inclusion/visibility separation and keyboard splitter consequences pass without overflow.
     product_owner_approval:
-      status: approved
-      date: 2026-07-29
-      evidence: WAVE-01 batch approval in conversation.
+      status: absent
   - id: modeling-data-normal-1440x900
     screen: modeling-data
     state: normal
@@ -339,21 +336,19 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/modeling-data-normal-1440x900.png
     measurements: docs/17-evidence/images/issue-167-service-reference/modeling-data-normal-1440x900.measurements.json
     family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-data-state-evidence.json
-    image_sha256: fa4c2bbae72a56fcbeac21e7b62a7471be44fb7f602058c155d0a128cb5bdb6f
-    date: 2026-07-29
-    status: approved
+    image_sha256: 5e831b9ea26489f44d6b8ef263d104951968f0107aecb983f0cd9ed0ebcefe54
+    date: 2026-07-30
+    status: pending
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted 32/32 after direct original-resolution inspection, complete registered gates and
-        independent native Playwright. The 192 px rail and dominant 1243 px graph follow the
-        approved Modeling control-band grammar. Three exact Test Data curves, three saved revisions,
-        source switching, in-place selection, explicit unsaved preview, data-relative plot headroom,
-        disclosure and truthful splitter behavior pass with zero browser errors or overflow.
+        Replacement accepted 32/32 after direct original-resolution inspection, complete registered
+        gates and fresh independent review. The 192 px rail and dominant graph retain the approved
+        Modeling grammar. Render-sized SVG geometry, compact parenthesized stress units,
+        dimensionless strain, stable glyphs/strokes and data-derived plot headroom remain readable;
+        exact revisions, source switching and truthful splitter behavior are preserved.
     product_owner_approval:
-      status: approved
-      date: 2026-07-29
-      evidence: WAVE-01 batch approval in conversation.
+      status: absent
   - id: modeling-data-normal-1920x1080
     screen: modeling-data
     state: normal
@@ -364,22 +359,23 @@ references:
     sources: *modeling_data_sources
     image: docs/17-evidence/images/issue-167-service-reference/modeling-data-normal-1920x1080.png
     measurements: docs/17-evidence/images/issue-167-service-reference/modeling-data-normal-1920x1080.measurements.json
+    wide_evidence:
+      - docs/17-evidence/images/issue-167-service-reference/modeling-data-normal-2560x1440.png
+      - docs/17-evidence/images/issue-167-service-reference/modeling-data-normal-3840x2160.png
     family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-data-state-evidence.json
-    image_sha256: b75163296be31a39b567943ccecd8a85005647ae692272f2cdf7d134b0ea27f5
-    date: 2026-07-29
-    status: approved
+    image_sha256: fc3fc35693718f5aa5e3902d6b7ade39f8f2009f33c6507fadc6733b517a0fbe
+    date: 2026-07-30
+    status: pending
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted 32/32 after direct original-resolution inspection, complete registered gates and
-        independent native Playwright. The restrained 208 px rail gives the persistent graph 1707
-        px and preserves the shallow Data ribbon instead of adding an inspector. Exact revisions,
-        three curves/two included, unsaved preview, axes/legend, source and graph interactions and
-        keyboard divider states remain readable and contained with zero browser errors or overflow.
+        Replacement accepted 32/32 after direct original-resolution inspection at 1920, 2560 and
+        3840, complete registered gates and fresh independent review. The restrained 208 px rail
+        preserves the shallow Data ribbon while the responsive graph expands without stretching
+        text or strokes. Compact engineering axes use Engineering stress (MPa) and Engineering
+        strain [1], with data-derived nice bounds and visible headroom at every wide viewport.
     product_owner_approval:
-      status: approved
-      date: 2026-07-29
-      evidence: WAVE-01 batch approval in conversation.
+      status: absent
   - id: modeling-data-empty-new-session-1440x900
     screen: modeling-data
     state: empty-new-session
@@ -395,21 +391,19 @@ references:
       - docs/17-evidence/images/issue-167-service-reference/modeling-data-empty-new-session-1440x900.png
       - docs/17-evidence/images/issue-167-service-reference/modeling-data-empty-new-session-responsive-1920x1080.png
     family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-data-state-evidence.json
-    image_sha256: d646d6bca74671114f46504d43a86f6115b6163607cbb0c9cb124962a31cf668
-    date: 2026-07-29
-    status: approved
+    image_sha256: c6b7949a32019ef3dc29a3c4dd27444c5a4e466798360c1f76fb650242a105e8
+    date: 2026-07-30
+    status: pending
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted 32/32 after direct original-resolution inspection, complete responsive/state gates
-        and independent native Playwright. The new session retains the curve-rail/ribbon/persistent-
-        graph topology but exposes no curve, saved Test Data, Mapping Profile, Recipe, selected
-        model or downstream pointer. One Local file primary consequence opens real intake controls;
-        the graph remains a truthful preparation surface with zero browser errors or overflow.
+        Replacement accepted 32/32 after direct original-resolution inspection, complete
+        responsive/state gates and fresh independent review. The new session keeps the same
+        curve-rail/ribbon/graph topology without fabricating a curve or saved downstream state.
+        Render-sized SVG geometry and compact axis typography remain stable while Local file stays
+        the single truthful intake consequence.
     product_owner_approval:
-      status: approved
-      date: 2026-07-29
-      evidence: WAVE-01 batch approval in conversation.
+      status: absent
   - id: modeling-data-long-invalid-mapping-blocked-1440x900
     screen: modeling-data
     state: long-invalid-mapping-blocked
@@ -425,23 +419,19 @@ references:
       - docs/17-evidence/images/issue-167-service-reference/modeling-data-long-invalid-mapping-blocked-1440x900.png
       - docs/17-evidence/images/issue-167-service-reference/modeling-data-long-invalid-mapping-blocked-responsive-1920x1080.png
     family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-data-state-evidence.json
-    image_sha256: 9ea42420431f3b220ce94d6dbe33c23548a589fc4fda68f63129e021f09e53f1
-    date: 2026-07-29
-    status: approved
+    image_sha256: 0c661147014fecdb5ad290a9c9ead01d9a389c84f12eb9fe87f6548cbe362356
+    date: 2026-07-30
+    status: pending
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted after the sole MOD-DATA correction and direct original-resolution inspection at
-        all three responsive viewports. The Local-file state keeps raw source samples beside two
-        explicit axis/quantity/raw-unit/normalized-unit mapping rows while allocating the
-        last-valid graph 42%, 52% and 63% of the main workspace at 1366, 1440 and 1920. The adjacent
-        same-column conflict, change reason and disabled Update preview/Save dataset boundary remain
-        complete. Long content and the stale/not-updated boundary stay contained with zero browser
-        errors or horizontal overflow.
+        Replacement accepted after direct original-resolution inspection, complete responsive/state
+        gates and fresh independent review. The Local-file conflict preserves the last-valid graph,
+        source samples, axis/quantity/raw-unit/normalized-unit mapping rows and the disabled Update
+        preview/Save dataset boundary. The responsive graph retains compact engineering axes and
+        data-relative headroom with no clipping, page overflow or false update claim.
     product_owner_approval:
-      status: approved
-      date: 2026-07-29
-      evidence: WAVE-01 batch approval in conversation.
+      status: absent
   - id: materials-card-preview-normal-1366x768
     screen: materials-card
     state: normal
@@ -458,24 +448,19 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1366x768.png
     measurements: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1366x768.measurements.json
     family_state_evidence: docs/00-research/ux-service-reference/materials-card-wave02.state-evidence.json
-    image_sha256: 60497b5fef2239cd17a468b4e8fcf1316e0bccca5b753600aff5f240b21a4372
-    date: 2026-07-29
-    status: approved
+    image_sha256: 1cdbb5cc46f04116f5c97f66266869669d407e8be1d9ceed4d3211570a589cb2
+    date: 2026-07-30
+    status: pending
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted after the user-authorized main Sol High direct completion, original-resolution
-        inspection and complete family validation. The active route records zero legacy selectors,
-        every topology-preserving state is bound to a persisted PNG/hash, and computed body/data
-        typography remains 12–13 px. The approved Materials navigator, selected DP780 Record,
-        identity header and CAE Cards tab persist. Exact Abaqus native text is the dominant
-        independently scrollable region, the delivery sheet stays 311 px, Download .inp is the
-        sole filled action and exact/transformed mapping evidence remains readable with no
-        acknowledgement, clipping or page overflow.
+        Replacement accepted after the product-owner light-surface correction, direct
+        original-resolution inspection, complete family gates and fresh independent review. The
+        exact Abaqus native bytes now use the established light document/code surface without a
+        false scroll rail. Monospace data, selected Record, 312 px delivery sheet, Download .inp,
+        mapping evidence and compact 1366 topology remain readable without clipping or overflow.
     product_owner_approval:
-      status: approved
-      date: 2026-07-29
-      evidence: WAVE-02 batch approval in conversation.
+      status: absent
   - id: materials-search-long-1440x900
     screen: materials-search
     state: long
@@ -498,7 +483,7 @@ references:
     family_state_evidence: docs/17-evidence/images/issue-167-service-reference/materials-search-wave03.state-evidence.json
     image_sha256: 43f146e60baf2d933265d952e22fce5cd0c1e2ca0e9145eea0e72a9677da2484
     date: 2026-07-29
-    status: pending
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
@@ -508,7 +493,11 @@ references:
         application scroll rails make the tree's vertical/horizontal and the result's vertical
         overflow visibly discoverable without covering concise stored identities.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-30
+      evidence: >-
+        Product-owner batch approval in conversation after the final nine-image MAT-EXP
+        exceptional and ACT-QUEUE handoff.
   - id: materials-search-empty-1440x900
     screen: materials-search
     state: empty
@@ -526,7 +515,7 @@ references:
     family_state_evidence: docs/17-evidence/images/issue-167-service-reference/materials-search-wave03.state-evidence.json
     image_sha256: d9e4fed1d8c17ca86b7c14dfe57909591b44ff8ec300286bb49f3a940fb5e1b1
     date: 2026-07-29
-    status: pending
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
@@ -536,7 +525,11 @@ references:
         clearing result, tree and context selection; the non-overflowing result pane has no fake
         scrollbar.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-30
+      evidence: >-
+        Product-owner batch approval in conversation after the final nine-image MAT-EXP
+        exceptional and ACT-QUEUE handoff.
   - id: modeling-fit-normal-1366x768
     screen: modeling-fit
     state: normal
@@ -665,23 +658,19 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1440x900.png
     measurements: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1440x900.measurements.json
     family_state_evidence: docs/00-research/ux-service-reference/materials-card-wave02.state-evidence.json
-    image_sha256: 74f06d51955b1d7b8f95fed9aaa8f17af147ca00435d7e04f619638c977b2f21
-    date: 2026-07-29
-    status: approved
+    image_sha256: 07359c9cfb4d8c1429f6e046c9b22e8481c5abed9fde06f4b4c0dd535d8f6760
+    date: 2026-07-30
+    status: pending
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted after the user-authorized main Sol High direct completion, original-resolution
-        inspection and complete family validation. Persisted long/loading/error/recovery evidence,
-        zero active-route legacy selectors and computed 12–13 px body/data typography are
-        independently validated. The exact native preview fills the available 569 px content
-        height, while the restrained delivery sheet keeps solver, version, unit, revision,
-        lifecycle, mapping summary, Download and closed Advanced evidence visible without clipping
-        or nested-card styling.
+        Replacement accepted after the product-owner light-surface correction, direct
+        original-resolution inspection, complete family gates and fresh independent review. The
+        native preview fills the available normal-height pane on a light engineering-document
+        surface with no false rail. Solver, version, unit, revision, lifecycle, mapping summary,
+        Download and closed Advanced evidence remain readable and unchanged in meaning.
     product_owner_approval:
-      status: approved
-      date: 2026-07-29
-      evidence: WAVE-02 batch approval in conversation.
+      status: absent
   - id: materials-card-preview-normal-1920x1080
     screen: materials-card
     state: normal
@@ -692,24 +681,24 @@ references:
     sources: *materials_card_sources
     image: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1920x1080.png
     measurements: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1920x1080.measurements.json
+    wide_evidence:
+      - docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-2560x1440.png
+      - docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-3840x2160.png
     family_state_evidence: docs/00-research/ux-service-reference/materials-card-wave02.state-evidence.json
-    image_sha256: 8b9758160f441197c440aa11c8c5886cae75ce5e07e001a2aa4cf2fee60a1513
-    date: 2026-07-29
-    status: approved
+    image_sha256: 5003ea1628f12d5d9001a705af2f79e338a1acbf84be410d58dbbfe81d47b07c
+    date: 2026-07-30
+    status: pending
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted after the user-authorized main Sol High direct completion, original-resolution
-        inspection and complete family validation. Persisted long/loading/error/recovery evidence,
-        zero active-route legacy selectors and computed 12–13 px body/data typography are
-        independently validated. The navigator and 311 px delivery sheet remain restrained while
-        the native preview expands to the full 749 px available height and dominant width. Exact
-        task fields, mapping states, Download and Advanced evidence retain the same topology with
-        no widened inspector, clipping, body overflow or unreadable text.
+        Replacement accepted 32/32 after the product-owner light-surface correction,
+        original-resolution inspection at 1920, 2560 and 3840, complete family gates and fresh
+        independent review. Exact native text uses the established light code surface in a bounded
+        320 px region with a visible light local rail only when it overflows. The linked response,
+        compact legend, true stress/plastic-strain axes, headroom, 312 px delivery sheet and every
+        mapping/state contract remain unchanged and undistorted.
     product_owner_approval:
-      status: approved
-      date: 2026-07-29
-      evidence: WAVE-02 batch approval in conversation.
+      status: absent
   - id: materials-card-approximation-blocked-1440x900
     screen: materials-card
     state: approximation-blocked
@@ -725,23 +714,20 @@ references:
       - docs/17-evidence/images/issue-167-service-reference/materials-card-approximation-blocked-1440x900.png
       - docs/17-evidence/images/issue-167-service-reference/materials-card-approximation-blocked-1440x900.responsive-1920x1080.png
     family_state_evidence: docs/00-research/ux-service-reference/materials-card-wave02.state-evidence.json
-    image_sha256: 2ea15b1bb5d0984296bab458a7d8572111f816c12f87ba5830ec3cbef7d7be92
-    date: 2026-07-29
-    status: approved
+    image_sha256: 52235f10f98b4694a7124609d2aae9f6836e14ebe5415e04b24fe20814597697
+    date: 2026-07-30
+    status: pending
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted after the user-authorized main Sol High direct completion, original-resolution
-        inspection and complete responsive/state validation. Persisted state PNG/hash bindings,
-        zero active-route legacy selectors and computed 12–13 px typography pass at every required
-        viewport. The named post-necking approximation is adjacent to an unchecked acknowledgement,
-        Download .rad is visibly blocked until that local decision, and the native preview and
-        selected Record remain complete. No redundant clipped status, review/release claim, hidden
-        mapping consequence or page overflow remains.
+        Replacement accepted after the product-owner light-surface correction, direct
+        original-resolution inspection, complete responsive/state gates and fresh independent
+        review. The OpenRadioss native bytes use the same light engineering-document grammar while
+        the named approximation, unchecked acknowledgement, blocked Download .rad and selected
+        Record remain complete. No false rail, clipped status, hidden consequence or overflow is
+        introduced.
     product_owner_approval:
-      status: approved
-      date: 2026-07-29
-      evidence: WAVE-02 batch approval in conversation.
+      status: absent
   - id: materials-card-unsupported-blocked-1440x900
     screen: materials-card
     state: unsupported-blocked
@@ -909,18 +895,22 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1366x768.png
     measurements: docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1366x768.measurements.json
     family_state_evidence: docs/17-evidence/images/issue-167-service-reference/activity-queue-wave04-state-evidence.json
-    image_sha256: 45ecff451bdd3b3f7d11cf8b6afb1f25cda17be19a4118c68ba5d4c37745e523
-    date: 2026-07-29
-    status: pending
+    image_sha256: 489d66c6d1d1e80d2d0ae11c94dcf71d27a9c56b0cdcbb59c3623330d562f4d3
+    date: 2026-07-30
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted by the main Sol XHigh agent after original-resolution review of the seven approval
-        images and all twenty-one responsive state images. The User view retains one own pending
-        review request, browser-local Modeling resume and browser-local solver-card history without
-        exposing reviewer controls or fabricating a receipt, release or readable person.
+        Accepted after the wide-density rework and passive-action correction. User defaults to
+        In progress with 40 pending server requests plus one browser-local Modeling session. Compact
+        table rows, an independent proportional scroll rail and a non-interactive dash in passive
+        Action cells preserve role truth without repeated status text, clipping or page overflow.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-30
+      evidence: >-
+        Product-owner batch approval in conversation after the final nine-image MAT-EXP
+        exceptional and ACT-QUEUE handoff.
   - id: activity-user-normal-1440x900
     screen: activity-user
     state: normal
@@ -932,18 +922,21 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1440x900.png
     measurements: docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1440x900.measurements.json
     family_state_evidence: docs/17-evidence/images/issue-167-service-reference/activity-queue-wave04-state-evidence.json
-    image_sha256: 12b9cb7bd6d16ae57521ac69ac5dd61160d8ce3423d13e00ee66361cedfcc2aa
-    date: 2026-07-29
-    status: pending
+    image_sha256: b96554fa362cd301079881ef7503a8822171e34059ba972f17ab7e2c08ed8de8
+    date: 2026-07-30
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted by the main Sol XHigh agent after original-resolution review and complete family
-        validation. The flat queue gives submitted work, browser-local work and outcomes clear
-        hierarchy without KPI cards, decorative badges or unsupported server data. Empty, loading,
-        long-row and error evidence preserve the same shell and safe recovery.
+        Accepted with the corrected role-aware 50-request Activity family. At 1440 the flat semantic
+        table exposes more compact rows without stretching, keeps truthful lifecycle state separate
+        from Action and retains a visible local overflow rail with no body/page overflow.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-30
+      evidence: >-
+        Product-owner batch approval in conversation after the final nine-image MAT-EXP
+        exceptional and ACT-QUEUE handoff.
   - id: activity-user-normal-1920x1080
     screen: activity-user
     state: normal
@@ -954,19 +947,25 @@ references:
     sources: *activity_queue_sources
     image: docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1920x1080.png
     measurements: docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1920x1080.measurements.json
+    wide_evidence:
+      - docs/17-evidence/images/issue-167-service-reference/activity-user-normal-2560x1440.png
+      - docs/17-evidence/images/issue-167-service-reference/activity-user-normal-3840x2160.png
     family_state_evidence: docs/17-evidence/images/issue-167-service-reference/activity-queue-wave04-state-evidence.json
-    image_sha256: 46cfb14e2a1ca9c8953d408004e9eff47d25c1fc7c4c311ff761509c4bd652ce
-    date: 2026-07-29
-    status: pending
+    image_sha256: 730b7144803decf282bb190373cc44c15151e74f028b7b9cfb15f1627c370bbe
+    date: 2026-07-30
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted by the main Sol XHigh agent after original-resolution review and complete family
-        validation. The queue expands to workspace width while preserving the same compact row
-        density, local-history truth boundary and one task-level command per row, with no oversized
-        cards, clipping or page overflow.
+        Accepted after original-resolution inspection at 1920 plus 2560/3840 support. A representative
+        50-request page uses increased height for complete rows at fixed density, avoids the prior
+        dominant blank region and invents no Material/Owner identities, receipts or release records.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-30
+      evidence: >-
+        Product-owner batch approval in conversation after the final nine-image MAT-EXP
+        exceptional and ACT-QUEUE handoff.
   - id: activity-reviewer-normal-1366x768
     screen: activity-reviewer
     state: normal
@@ -978,18 +977,21 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1366x768.png
     measurements: docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1366x768.measurements.json
     family_state_evidence: docs/17-evidence/images/issue-167-service-reference/activity-queue-wave04-state-evidence.json
-    image_sha256: 8139b08582acb9ff1595490a88486f6b4eff684271f5775a14b357c125f0b29b
-    date: 2026-07-29
-    status: pending
+    image_sha256: 1f4d25511fa1dc307839271a132a7c24ef51cf4200cac6a0462d660ec47465f4
+    date: 2026-07-30
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted by the main Sol XHigh agent after original-resolution review and complete family
-        validation. The Reviewer queue retains generic request/task/state/time projection, one
-        row-level Review action and a visible independent local queue scrollbar at the compact
-        viewport without inventing requester identities or release state.
+        Accepted after the role-correct rework. Reviewer defaults to Needs attention with 40 pending
+        server requests, one Review command per row and no permanently open decision form. The
+        compact table and independent local scroll keep all task/reason/status/action access usable.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-30
+      evidence: >-
+        Product-owner batch approval in conversation after the final nine-image MAT-EXP
+        exceptional and ACT-QUEUE handoff.
   - id: activity-reviewer-normal-1440x900
     screen: activity-reviewer
     state: normal
@@ -1001,18 +1003,21 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1440x900.png
     measurements: docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1440x900.measurements.json
     family_state_evidence: docs/17-evidence/images/issue-167-service-reference/activity-queue-wave04-state-evidence.json
-    image_sha256: daf7a2bacafaf0ae2f3c254a8a055fd4e57f6eb3dda05480726a90e9521fef3b
-    date: 2026-07-29
-    status: pending
+    image_sha256: e8c7877dbd7d6191ee4d3d68d29f55be9604f537f38c5ff85f20ff59b510694f
+    date: 2026-07-30
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted by the main Sol XHigh agent after original-resolution review and complete family
-        validation. Needs-attention work carries the visual emphasis, while in-progress and recent
-        browser-local outcomes remain subordinate. Role, selection and recovery boundaries are
-        explicit without a permanent inspector or nested-card treatment.
+        Accepted with the corrected ACT-QUEUE family. Needs attention remains the Reviewer default;
+        the 50-request contract produces a compact flat queue with real Review commands, stable
+        columns, proportional local scrolling and no nested cards or fabricated display identities.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-30
+      evidence: >-
+        Product-owner batch approval in conversation after the final nine-image MAT-EXP
+        exceptional and ACT-QUEUE handoff.
   - id: activity-reviewer-normal-1920x1080
     screen: activity-reviewer
     state: normal
@@ -1023,19 +1028,25 @@ references:
     sources: *activity_queue_sources
     image: docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1920x1080.png
     measurements: docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1920x1080.measurements.json
+    wide_evidence:
+      - docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-2560x1440.png
+      - docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-3840x2160.png
     family_state_evidence: docs/17-evidence/images/issue-167-service-reference/activity-queue-wave04-state-evidence.json
-    image_sha256: 517ffdde4f5b1c49da291acd97c2f6abab9a8318e7793f05ceebeabb9db50c7b
-    date: 2026-07-29
-    status: pending
+    image_sha256: 8c27fa20576d259be8bd84ff215cdc64ab122a497d3f27f57872be843e4fbaf6
+    date: 2026-07-30
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted by the main Sol XHigh agent after original-resolution review and complete family
-        validation. Full-width queue rows remain dense and readable rather than widening into
-        feature cards; the same Reviewer task/action grammar, local-context truth boundary and
-        restrained status treatment persist without clipping or overflow.
+        Accepted after direct inspection at 1920 plus 2560/3840 support. The available height reveals
+        more of the same fixed-density 40-item decision queue; Review remains a row command, the
+        decision form remains closed by default and no dominant avoidable blank region remains.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-30
+      evidence: >-
+        Product-owner batch approval in conversation after the final nine-image MAT-EXP
+        exceptional and ACT-QUEUE handoff.
   - id: activity-reviewer-long-decision-error-1440x900
     screen: activity-reviewer
     state: long-decision-error
@@ -1051,19 +1062,22 @@ references:
       - docs/17-evidence/images/issue-167-service-reference/activity-reviewer-decision-error-with-reason-and-request-preserved-1440x900.png
       - docs/17-evidence/images/issue-167-service-reference/activity-reviewer-decision-error-with-reason-and-request-preserved-1920x1080.png
     family_state_evidence: docs/17-evidence/images/issue-167-service-reference/activity-queue-wave04-state-evidence.json
-    image_sha256: bbcfcadd5555273afd030973f1f9e0da5ea18494722e975de3796eb0a90baaaa
-    date: 2026-07-29
-    status: pending
+    image_sha256: 82147fecd36a049d4982ae787b903f71c8c95849658467950ae2b18ffaff4f6d
+    date: 2026-07-30
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted by the main Sol XHigh agent after rejecting and correcting the initially
-        contradictory recovery state. The final expanded form preserves one request, selected
-        decision and non-empty reason, reports Decision not recorded, and offers one Retry decision
-        that resubmits the same choice. Stale authorization separately exposes Refresh access and
-        cannot submit a decision.
+        Accepted with the corrected ACT-QUEUE family. The state preserves one request, the selected
+        decision and non-empty reason, reports Decision not recorded and exposes only Retry decision.
+        Stale authorization remains a separate Refresh access path; the expanded queue does not leak
+        into the focused recovery state.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-30
+      evidence: >-
+        Product-owner batch approval in conversation after the final nine-image MAT-EXP
+        exceptional and ACT-QUEUE handoff.
   - id: modeling-export-normal-1366x768
     screen: modeling-export
     state: normal

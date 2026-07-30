@@ -23,9 +23,9 @@ axes, engineering ticks, legend, per-mode and holdout roles, point tooltips, res
 zoom and reset. Long Plan editing, promotion and recovery controls remain below the primary graph or
 inside progressive disclosure.
 
-![Four public hyperelastic families and exact multi-mode response](../images/t90-elastomer-multimode-workbench.jpg)
+![Four public hyperelastic families and exact multi-mode response](../images/historical-task-screenshots/t90-elastomer-multimode-workbench.jpg)
 
-![Exact residual view for the selected family](../images/t90-elastomer-residual.jpg)
+![Exact residual view for the selected family](../images/historical-task-screenshots/t90-elastomer-residual.jpg)
 
 ## Solver delivery evidence
 
@@ -36,9 +36,9 @@ OpenRadioss incompressibility remains an explicit `approximated` mapping. A mapp
 contains `approximated` or `ignored` items now requires a visible review acknowledgement before a new
 card can be generated.
 
-![Abaqus Ogden and Prony native ASCII preview](../images/t90-elastomer-abaqus-card.jpg)
+![Abaqus Ogden and Prony native ASCII preview](../images/historical-task-screenshots/t90-elastomer-abaqus-card.jpg)
 
-![OpenRadioss LAW62 native ASCII preview](../images/t90-elastomer-openradioss-card.jpg)
+![OpenRadioss LAW62 native ASCII preview](../images/historical-task-screenshots/t90-elastomer-openradioss-card.jpg)
 
 This is reference/non-production engineering functionality. It does not claim actual solver-run
 correlation or production material qualification.

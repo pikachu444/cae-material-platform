@@ -26,7 +26,7 @@ The PostgreSQL model revision pins the same Recipe revision and digest, Batch, M
 Output revision. The browser shows the published Recipe and successful Attempt directly on the
 selected IR and provides a deep link back to the Recipe library and Batch monitor.
 
-![Exact Recipe and successful Batch evidence on the promoted metal IR](../images/t70-metal-recipe-batch-evidence.png)
+![Exact Recipe and successful Batch evidence on the promoted metal IR](../images/historical-task-screenshots/t70-metal-recipe-batch-evidence.png)
 
 The protected verifier checked the exact Recipe/Batch/Output chain, Neutral Recipe pin, both native
 card digests and the 13-component package representation set. The isolated PostgreSQL integration

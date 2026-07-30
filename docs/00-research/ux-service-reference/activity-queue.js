@@ -6,6 +6,10 @@
   const requestedState = params.get("state");
   const role = requestedRole === "reviewer" ? "reviewer" : "user";
   const state = requestedState || "normal";
+  const NORMAL_REQUEST_COUNT = 50;
+  const NORMAL_PENDING_COUNT = 40;
+  const NORMAL_DECIDED_COUNT = 10;
+  const LOCAL_HISTORY_COUNT = 2;
 
   document.body.dataset.role = role;
   document.body.dataset.state = state;
@@ -17,6 +21,7 @@
     state: "Local session",
     time: "Today · 09:18",
     action: "resume",
+    local: true,
   };
 
   const sharedCard = {
@@ -26,21 +31,41 @@
     state: "Delivered",
     time: "27 Jul · 16:42",
     action: "open-card",
+    local: true,
   };
 
-  const userPending = [
-    { id: "user-review-1", task: "Material data review", reason: "Check the uploaded tensile data", state: "Waiting for review", time: "Today · 09:24", action: "state" },
+  const taskTypes = [
+    "Material data review",
+    "Test data review",
+    "Model selection review",
+    "Processing output review",
+    "Solver card review",
+    "Import provenance review",
+    "Curve selection review",
+    "Fit result review",
+    "Mapping review",
+    "Evidence review",
   ];
 
-  const reviewerPending = [
-    { id: "review-1", task: "Material data review", reason: "Check the uploaded tensile data", state: "Needs a decision", time: "Today · 09:24", action: "review" },
-    { id: "review-2", task: "Test data review", reason: "Confirm units and test condition", state: "Needs a decision", time: "Yesterday · 14:10", action: "review" },
-    { id: "review-3", task: "Solver card review", reason: "Confirm solver mapping before delivery", state: "Needs a decision", time: "27 Jul · 11:06", action: "review" },
-    { id: "review-4", task: "Material data review", reason: "Verify the selected model context", state: "Needs a decision", time: "26 Jul · 17:32", action: "review" },
+  const reasonFamilies = [
+    "Check the uploaded tensile data",
+    "Confirm units and test condition",
+    "Verify the selected model context",
+    "Confirm processing output before review",
+    "Check solver mapping before delivery",
+    "Keep source provenance with the request",
+    "Confirm the included curves and scope",
+    "Review the fit result against source data",
+    "Check exact field mappings and exceptions",
+    "Keep evidence attached to the immutable revision",
   ];
 
-  const reviewerOutcomes = [
-    { id: "outcome-1", task: "Material data review", reason: "Approved · Units and source are complete", state: "Approved", time: "27 Jul · 09:12", action: "state" },
+  const reasonDetails = [
+    "for the first specimen set",
+    "for the repeat curve set",
+    "before the next modeling session",
+    "against the submitted source file",
+    "before a reviewer decision",
   ];
 
   const longReasons = [
@@ -64,6 +89,8 @@
     queue: document.querySelector("[data-region='queue-scroll']"),
     status: document.querySelector("[data-queue-status]"),
     activityMain: document.querySelector("#activity-main"),
+    region: document.querySelector("[data-region='queue-region']"),
+    thumb: document.querySelector(".queue-scroll-thumb"),
   };
 
   function setText(selector, value) {
@@ -82,6 +109,84 @@
     return `${count} ${count === 1 ? "item" : "items"}`;
   }
 
+  function normalRequests() {
+    return Array.from({ length: NORMAL_REQUEST_COUNT }, (_, index) => {
+      const pending = index < NORMAL_PENDING_COUNT;
+      const decision = index % 4 === 0 ? "Changes requested" : "Approved";
+      const day = index < 3 ? "Today" : `${27 - Math.floor((index - 3) / 3)} Jul`;
+      const hour = String(8 + (index % 10)).padStart(2, "0");
+      const minute = String((index * 7) % 60).padStart(2, "0");
+      return {
+        id: role === "reviewer" && pending ? `review-${index + 1}` : `review-request-${String(index + 1).padStart(2, "0")}`,
+        task: taskTypes[index % taskTypes.length],
+        reason: `${reasonFamilies[index % reasonFamilies.length]} ${reasonDetails[Math.floor(index / reasonFamilies.length)]}`,
+        state: pending ? "Needs a decision" : decision,
+        time: `${day} · ${hour}:${minute}`,
+        action: pending ? (role === "reviewer" ? "review" : "state") : "state",
+        pending,
+        server: true,
+      };
+    });
+  }
+
+  function requestFixturesForState(section) {
+    if (state === "empty") return [];
+    if (state === "loading") {
+      if (section === "in-progress") return [sharedSession];
+      if (section === "recent-outcomes") return [sharedCard];
+      return [];
+    }
+    if (state === "long-row") {
+      if (section === "needs-attention") {
+        return [
+          { id: "long-request-1", task: "Material data review", reason: longReasons[0], state: "Waiting for review", time: "Today · 09:24", action: "state", server: true },
+          { id: "long-request-2", task: "Test data review", reason: longReasons[1], state: "Waiting for review", time: "Yesterday · 15:02", action: "state", server: true },
+        ];
+      }
+      if (section === "in-progress") return [sharedSession];
+      if (section === "recent-outcomes") return [sharedCard];
+      return [];
+    }
+    if (state === "queue-error") {
+      if (section === "in-progress") return [{ id: "queue-error-current", task: "Material data review", reason: "Current request remains available while the queue retries", state: "Waiting for review", time: "Today · 09:24", action: "state", server: true }, sharedSession];
+      if (section === "recent-outcomes") return [sharedCard];
+      return [];
+    }
+    if (state === "decision-blocked") {
+      if (section === "needs-attention") return [{ id: "blocked-request", task: "Material data review", reason: "Review access is governed by the Reviewer or Administrator role", state: "Waiting for review", time: "Today · 09:24", action: "state", server: true }];
+      return section === "in-progress" ? [sharedSession] : section === "recent-outcomes" ? [sharedCard] : [];
+    }
+    if (state === "decision-error" || state === "stale-unauthorized") {
+      if (section === "needs-attention") return [{ id: "review-1", task: "Material data review", reason: "Check the uploaded tensile data", state: "Needs a decision", time: "Today · 09:24", action: "review", server: true }];
+      return section === "in-progress" ? [sharedSession] : section === "recent-outcomes" ? [sharedCard] : [];
+    }
+    if (state === "long-decision-error") {
+      if (section !== "needs-attention") return section === "in-progress" ? [sharedSession] : section === "recent-outcomes" ? [sharedCard] : [];
+      const rows = [
+        { id: "review-1", task: "Material data review", reason: "Check the uploaded tensile data", state: "Needs a decision", time: "Today · 09:24", action: "review", server: true },
+        { id: "review-2", task: "Test data review", reason: "Confirm units and test condition", state: "Needs a decision", time: "Yesterday · 14:10", action: "review", server: true },
+        { id: "review-3", task: "Solver card review", reason: "Confirm solver mapping before delivery", state: "Needs a decision", time: "27 Jul · 11:06", action: "review", server: true },
+        { id: "review-4", task: "Material data review", reason: "Verify the selected model context", state: "Needs a decision", time: "26 Jul · 17:32", action: "review", server: true },
+      ];
+      longReasons.forEach((reason, index) => rows.push({ id: `review-long-${index + 1}`, task: taskTypes[(index + 4) % taskTypes.length], reason, state: "Needs a decision", time: `${25 - index} Jul · ${String(8 + index).padStart(2, "0")}:2${index}`, action: "review", server: true }));
+      return rows;
+    }
+    return [];
+  }
+
+  function requestsFor(section) {
+    if (state !== "normal") return requestFixturesForState(section);
+    const requests = normalRequests();
+    if (section === "needs-attention") return role === "reviewer" ? requests.filter((item) => item.pending) : [];
+    if (section === "in-progress") return role === "user" ? [...requests.filter((item) => item.pending), sharedSession] : [sharedSession];
+    if (section === "recent-outcomes") return [...requests.filter((item) => !item.pending), sharedCard];
+    return [];
+  }
+
+  function allFixtureRows() {
+    return ["needs-attention", "in-progress", "recent-outcomes"].flatMap((section) => requestsFor(section));
+  }
+
   function makeActionButton(label, action, row) {
     const button = createElement("button", `queue-button ${action === "review" ? "primary" : ""}`, label);
     button.type = "button";
@@ -91,22 +196,31 @@
     return button;
   }
 
+  function makePassiveAction() {
+    const passiveAction = createElement("span", "row-state", "—");
+    passiveAction.dataset.passiveAction = "true";
+    passiveAction.setAttribute("role", "img");
+    passiveAction.setAttribute("aria-label", "No available action");
+    return passiveAction;
+  }
+
   function renderRow(item, section) {
-    const row = createElement("li", "queue-row");
+    const row = createElement("tr", "queue-row");
     row.dataset.rowId = item.id;
     row.dataset.section = section;
     row.dataset.actionKind = item.action;
+    if (item.server) row.dataset.source = "server";
+    if (item.local) row.dataset.source = "browser-local";
 
-    const main = createElement("span", "row-main");
-    main.append(createElement("strong", "row-task", item.task));
-    main.append(createElement("span", "row-reason", item.reason));
-
-    const status = createElement("span", "row-status");
+    const task = createElement("td", "row-main");
+    task.append(createElement("strong", "row-task", item.task));
+    const reason = createElement("td", "row-reason", item.reason);
+    const status = createElement("td", "row-status");
     status.append(createElement("strong", "row-state-label", item.state));
-    const time = createElement("time", "row-time", item.time);
-    status.append(time);
-
-    const action = createElement("span", "row-action");
+    const updated = createElement("td", "row-time");
+    const time = createElement("time", "", item.time);
+    updated.append(time);
+    const action = createElement("td", "row-action");
     if (item.action === "review" && role === "reviewer") {
       const button = makeActionButton("Review", "review", item);
       if (item.id !== "review-1") button.classList.remove("primary");
@@ -117,38 +231,10 @@
     } else if (item.action === "open-card") {
       action.append(makeActionButton("Open card", "open-card", item));
     } else {
-      action.append(createElement("span", "row-state", item.state));
+      action.append(makePassiveAction());
     }
-
-    row.append(main, status, action);
+    row.append(task, reason, status, updated, action);
     return row;
-  }
-
-  function requestsFor(section) {
-    if (state === "empty") return [];
-    if (section === "needs-attention") {
-      if (role === "reviewer") {
-        const rows = [...reviewerPending];
-        if (state === "long-decision-error") {
-          longReasons.forEach((reason, index) => rows.push({ id: `review-long-${index + 1}`, task: index % 2 ? "Test data review" : "Material data review", reason, state: "Needs a decision", time: `${25 - index} Jul · ${String(8 + index).padStart(2, "0")}:2${index}`, action: "review" }));
-        }
-        return rows;
-      }
-      if (state === "decision-blocked") return userPending;
-      if (state === "long-row") return [{ ...userPending[0], reason: longReasons[0] }, { ...userPending[0], id: "user-review-2", task: "Test data review", reason: longReasons[1], time: "Yesterday · 15:02" }];
-      return userPending;
-    }
-    if (section === "in-progress") {
-      if (state === "empty") return [];
-      if (state === "loading") return [sharedSession];
-      return [sharedSession];
-    }
-    if (section === "recent-outcomes") {
-      if (state === "empty") return [];
-      if (role === "reviewer") return [sharedCard, ...reviewerOutcomes];
-      return [sharedCard];
-    }
-    return [];
   }
 
   function sectionList(section) {
@@ -157,22 +243,19 @@
 
   function renderSection(section) {
     const list = sectionList(section);
+    const table = document.querySelector(`[data-table="${section}"]`);
     const empty = document.querySelector(`[data-empty="${section}"]`);
     const loading = document.querySelector(`[data-loading="${section}"]`);
-    if (!list || !empty || !loading) return;
+    if (!list || !table || !empty || !loading) return;
     list.replaceChildren();
     const rows = requestsFor(section);
     rows.forEach((item) => list.append(renderRow(item, section)));
     const count = document.querySelector(`[data-section-count="${section}"]`);
     if (count) count.textContent = state === "loading" ? "Loading…" : countLabel(rows.length);
-    list.hidden = rows.length === 0;
+    table.hidden = rows.length === 0;
     empty.hidden = rows.length !== 0 || (section === "in-progress" && state === "loading");
-    loading.classList.toggle("is-visible", state === "loading" && section !== "needs-attention");
-    if (state === "loading" && section === "needs-attention") {
-      list.hidden = true;
-      empty.hidden = true;
-      loading.classList.add("is-visible");
-    }
+    loading.classList.toggle("is-visible", state === "loading" && section === defaultViewForState());
+    loading.setAttribute("aria-busy", String(state === "loading" && section === defaultViewForState()));
     if (section === "in-progress" && state === "empty") empty.hidden = false;
   }
 
@@ -207,7 +290,7 @@
   }
 
   function openDecision(row, item, initial = false) {
-    if (role !== "reviewer" || row.querySelector(".decision-panel")) return;
+    if (role !== "reviewer" || row.nextElementSibling?.classList.contains("decision-row")) return;
     row.classList.add("is-selected");
     const reviewButton = row.querySelector("[data-action='review']");
     if (reviewButton) {
@@ -215,6 +298,10 @@
       reviewButton.classList.remove("primary");
     }
 
+    const decisionRow = createElement("tr", "decision-row");
+    decisionRow.dataset.rowId = item.id;
+    const decisionCell = createElement("td", "decision-cell");
+    decisionCell.colSpan = 5;
     const panel = createElement("div", "decision-panel");
     panel.dataset.rowId = item.id;
     panel.setAttribute("role", "region");
@@ -293,7 +380,9 @@
 
     form.append(label, choices, message, footer);
     panel.append(heading, context, form);
-    row.append(panel);
+    decisionCell.append(panel);
+    decisionRow.append(decisionCell);
+    row.after(decisionRow);
 
     if (initial && (state === "decision-error" || state === "stale-unauthorized" || state === "long-decision-error")) {
       const failure = isAccessFailure
@@ -341,6 +430,8 @@
         row.dataset.decision = selectedDecision;
         row.querySelector(".row-state-label").textContent = statusText;
         row.querySelector(".row-reason").textContent = `${statusText} · ${reason}`;
+        row.dataset.actionKind = "state";
+        row.querySelector(".row-action")?.replaceChildren(makePassiveAction());
         closeDecision(row);
         refs.status.textContent = "Decision recorded";
       }, 120);
@@ -360,11 +451,40 @@
 
   function closeDecision(row) {
     const button = row.querySelector("[data-action='review']");
-    row.querySelector(".decision-panel")?.remove();
+    const decisionRow = row.nextElementSibling;
+    if (decisionRow?.classList.contains("decision-row") && decisionRow.dataset.rowId === row.dataset.rowId) decisionRow.remove();
     row.classList.remove("is-selected");
     if (button) button.setAttribute("aria-expanded", "false");
     refs.status.textContent = "Activity queue";
     button?.focus();
+    syncOverflowRail();
+  }
+
+  function defaultViewForState() {
+    if (state === "normal") return role === "reviewer" ? "needs-attention" : "in-progress";
+    if (state === "empty") return "in-progress";
+    if (state === "loading" || state === "queue-error") return "in-progress";
+    return "needs-attention";
+  }
+
+  function activateView(viewName, focus = false) {
+    const selected = document.querySelector(`[data-view="${viewName}"]`);
+    if (!selected) return;
+    document.querySelectorAll("[data-view]").forEach((button) => {
+      const active = button === selected;
+      button.classList.toggle("is-active", active);
+      button.setAttribute("aria-selected", String(active));
+      button.tabIndex = active ? 0 : -1;
+    });
+    document.querySelectorAll("[data-section]").forEach((section) => {
+      const active = section.dataset.section === viewName;
+      section.hidden = !active;
+      section.setAttribute("aria-hidden", String(!active));
+    });
+    if (refs.queue) refs.queue.scrollTop = 0;
+    if (refs.status) refs.status.textContent = `${selected.textContent} view`;
+    syncOverflowRail();
+    if (focus) selected.focus();
   }
 
   function updateRoleChrome() {
@@ -379,20 +499,40 @@
 
   function setEmptyStateCopy() {
     if (state !== "empty") return;
-    setText("[data-empty='needs-attention']", role === "reviewer" ? "Nothing needs your attention." : "Nothing needs your attention.");
+    setText("[data-empty='needs-attention']", "Nothing needs your attention.");
     setText("[data-empty='recent-outcomes']", "No recent outcomes yet.");
+  }
+
+  function setContractMetadata() {
+    if (!refs.region) return;
+    const serverRows = allFixtureRows().filter((item) => item.server);
+    const pendingRows = serverRows.filter((item) => item.pending || item.state === "Needs a decision" || item.state === "Waiting for review");
+    const decidedRows = serverRows.filter((item) => item.state === "Approved" || item.state === "Changes requested");
+    refs.region.dataset.serverRequestCount = String(state === "normal" ? NORMAL_REQUEST_COUNT : serverRows.length);
+    refs.region.dataset.pendingCount = String(state === "normal" ? NORMAL_PENDING_COUNT : pendingRows.length);
+    refs.region.dataset.decidedCount = String(state === "normal" ? NORMAL_DECIDED_COUNT : decidedRows.length);
+    refs.region.dataset.localHistoryCount = String(LOCAL_HISTORY_COUNT);
+    refs.region.dataset.roleDefaultView = defaultViewForState();
   }
 
   function render() {
     updateRoleChrome();
     setEmptyStateCopy();
     ["needs-attention", "in-progress", "recent-outcomes"].forEach(renderSection);
+    setContractMetadata();
+    activateView(defaultViewForState());
     if (state === "queue-error") showQueueError("Activity service is unavailable. Current and browser-local rows are preserved.");
     if (state === "decision-blocked") {
       const list = sectionList("needs-attention");
-      const notice = createElement("li", "queue-row queue-notice-row");
+      const notice = createElement("tr", "queue-row queue-notice-row");
       notice.dataset.rowId = "decision-blocked-notice";
-      notice.append(createElement("span", "row-main", "Decision access"), createElement("span", "row-status", "User role"), createElement("span", "row-action row-state", "Reviewer or Administrator required"));
+      notice.append(
+        createElement("td", "row-main", "Decision access"),
+        createElement("td", "row-reason", "Role-gated review command"),
+        createElement("td", "row-status", "User role"),
+        createElement("td", "row-time", "Now"),
+        createElement("td", "row-action row-state", "Reviewer or Administrator required"),
+      );
       list?.append(notice);
     }
     if (state === "empty") {
@@ -403,7 +543,6 @@
       const item = { id: row?.dataset.rowId || "review-1", task: row?.querySelector(".row-task")?.textContent || "Material data review", reason: row?.querySelector(".row-reason")?.textContent || "Check the uploaded tensile data" };
       if (row) openDecision(row, item, true);
     }
-    if (state === "long-decision-error") refs.queue?.classList.add("is-long");
     if (refs.status && state === "loading") refs.status.textContent = "Loading activity queue…";
     if (refs.status && state === "queue-error") refs.status.textContent = "Queue error";
     if (refs.status && state === "decision-blocked") refs.status.textContent = "Decision blocked by role";
@@ -414,10 +553,25 @@
   }
 
   function syncOverflowRail() {
-    const region = document.querySelector(".queue-region");
+    const region = refs.region;
     const queue = refs.queue;
-    if (!region || !queue) return;
-    region.classList.toggle("has-overflow", queue.scrollHeight > queue.clientHeight + 1);
+    const thumb = refs.thumb;
+    if (!region || !queue || !thumb) return;
+    const overflow = queue.scrollHeight > queue.clientHeight + 1;
+    region.classList.toggle("has-overflow", overflow);
+    if (!overflow) {
+      thumb.style.height = "0px";
+      thumb.style.transform = "translateY(0)";
+      return;
+    }
+    const track = thumb.parentElement;
+    const trackHeight = track?.clientHeight || queue.clientHeight;
+    const ratio = Math.min(1, queue.clientHeight / Math.max(queue.scrollHeight, 1));
+    const thumbHeight = Math.max(42, Math.round(trackHeight * ratio));
+    const travel = Math.max(0, trackHeight - thumbHeight);
+    const progress = queue.scrollTop / Math.max(queue.scrollHeight - queue.clientHeight, 1);
+    thumb.style.height = `${thumbHeight}px`;
+    thumb.style.transform = `translateY(${Math.round(travel * progress)}px)`;
   }
 
   document.addEventListener("click", (event) => {
@@ -425,14 +579,7 @@
     if (!(target instanceof HTMLElement)) return;
     const view = target.closest("[data-view]");
     if (view instanceof HTMLButtonElement) {
-      document.querySelectorAll("[data-view]").forEach((button) => {
-        const active = button === view;
-        button.classList.toggle("is-active", active);
-        button.setAttribute("aria-selected", String(active));
-      });
-      const section = document.querySelector(`[data-section='${view.dataset.view}']`);
-      section?.scrollIntoView({ block: "start", behavior: "auto" });
-      refs.status.textContent = `${view.textContent} view`;
+      activateView(view.dataset.view || defaultViewForState());
       return;
     }
     const action = target.closest("[data-action]");
@@ -469,6 +616,15 @@
   });
 
   document.addEventListener("keydown", (event) => {
+    const target = event.target;
+    if (target instanceof HTMLButtonElement && target.matches("[data-view]") && (event.key === "ArrowRight" || event.key === "ArrowLeft")) {
+      const views = [...document.querySelectorAll("[data-view]")];
+      const current = views.indexOf(target);
+      const next = event.key === "ArrowRight" ? (current + 1) % views.length : (current - 1 + views.length) % views.length;
+      event.preventDefault();
+      activateView(views[next].dataset.view || defaultViewForState(), true);
+      return;
+    }
     if (event.key !== "Escape") return;
     const row = document.querySelector(".queue-row.is-selected");
     if (row) {
@@ -477,6 +633,7 @@
     }
   });
 
+  refs.queue?.addEventListener("scroll", syncOverflowRail, { passive: true });
   window.addEventListener("resize", syncOverflowRail);
 
   render();

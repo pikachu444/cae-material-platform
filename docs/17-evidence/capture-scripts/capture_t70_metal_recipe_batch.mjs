@@ -3,7 +3,7 @@ import { chromium } from "@playwright/test";
 const webUrl = process.env.CMP_DEMO_WEB_URL ?? "http://127.0.0.1:5173";
 const output =
   process.env.CMP_T70_METAL_RECIPE_SCREENSHOT ??
-  "docs/17-evidence/images/t70-metal-recipe-batch-evidence.png";
+  "docs/17-evidence/images/historical-task-screenshots/t70-metal-recipe-batch-evidence.png";
 
 const browser = await chromium.launch();
 try {

@@ -4,7 +4,7 @@
   "family": "MAT-CARD",
   "kind": "normal",
   "state": "normal",
-  "capture_date": "2026-07-29",
+  "capture_date": "2026-07-30",
   "viewport": {
     "width": 1920,
     "height": 1080,
@@ -274,9 +274,39 @@
       },
       "preview_scroll": {
         "left": 305,
-        "top": 297,
+        "top": 305,
         "width": 1285,
-        "height": 749
+        "height": 320
+      },
+      "preview_scroll_rail": {
+        "left": 1579,
+        "top": 310,
+        "width": 6,
+        "height": 310
+      },
+      "preview_scroll_thumb": {
+        "left": 1581,
+        "top": 310,
+        "width": 4,
+        "height": 248
+      },
+      "response_plot_band": {
+        "left": 305,
+        "top": 633,
+        "width": 1285,
+        "height": 413
+      },
+      "response_plot_frame": {
+        "left": 305,
+        "top": 668,
+        "width": 1285,
+        "height": 378
+      },
+      "response_plot_svg": {
+        "left": 306,
+        "top": 669,
+        "width": 1283,
+        "height": 376
       },
       "delivery_sheet": {
         "left": 1600,
@@ -285,15 +315,94 @@
         "height": 807
       }
     },
+    "card_content_child_count": 2,
     "native_width": 1307,
     "delivery_width": 312,
-    "preview_scroll_width": 1283,
-    "preview_scroll_height": 747,
-    "preview_client_width": 1283,
-    "preview_client_height": 747,
-    "preview_available_height": 749,
-    "preview_rendered_height": 749,
+    "preview_scroll_width": 1268,
+    "preview_scroll_height": 398,
+    "preview_client_width": 1268,
+    "preview_client_height": 318,
+    "preview_available_height": 320,
+    "preview_rendered_height": 320,
     "preview_fills_available_height": true,
+    "preview_scroll_range": 80,
+    "preview_scroll_rail_visible": true,
+    "preview_scroll_gutter_width": 11,
+    "preview_scroll_thumb_ratio": 0.7989919354838709,
+    "preview_scroll_text_clearance": 32,
+    "preview_surface": "rgb(247, 249, 250)",
+    "preview_ink": "rgb(37, 52, 61)",
+    "preview_border": "rgb(170, 181, 187)",
+    "preview_scroll_track": "rgb(220, 231, 236)",
+    "preview_scroll_divider": "rgb(182, 201, 210)",
+    "preview_scroll_thumb": "rgb(78, 129, 149)",
+    "native_surface_ratio": 0.3965303593556382,
+    "response_plot_ratio": 0.5117719950433705,
+    "response_plot_visible": true,
+    "response_plot_rows": 6,
+    "response_plot_series": [
+      {
+        "stress": 450,
+        "strain": 0
+      },
+      {
+        "stress": 500,
+        "strain": 0.01
+      },
+      {
+        "stress": 560,
+        "strain": 0.025
+      },
+      {
+        "stress": 620,
+        "strain": 0.05
+      },
+      {
+        "stress": 650,
+        "strain": 0.075
+      },
+      {
+        "stress": 680,
+        "strain": 0.1
+      }
+    ],
+    "response_plot_first_point": {
+      "stress": 450,
+      "strain": 0
+    },
+    "response_plot_x_domain": [
+      -0.01,
+      0.105
+    ],
+    "response_plot_y_domain": [
+      430,
+      700
+    ],
+    "response_plot_line_bbox": {
+      "x": 171.38999938964844,
+      "y": 46.66999816894531,
+      "width": 1033.9100341796875,
+      "height": 260.6600036621094
+    },
+    "response_plot_line_has_frame_headroom": true,
+    "response_plot_x_label": "True plastic strain [1]",
+    "response_plot_y_label": "True stress (MPa)",
+    "response_plot_svg_aspect": {
+      "render_width": 1283,
+      "render_height": 376,
+      "viewbox_width": 1285,
+      "viewbox_height": 378,
+      "render_aspect": 3.4122340425531914,
+      "viewbox_aspect": 3.3994708994708995,
+      "mismatch": 0.0037404067022149216
+    },
+    "response_plot_preserve_aspect_ratio": "xMidYMid meet",
+    "response_plot_tick_font_px": 11,
+    "response_plot_title_font_px": 12,
+    "response_plot_frame_size": {
+      "width": 1285,
+      "height": 378
+    },
     "native_text_visible": true,
     "native_text_length": 683,
     "unavailable_visible": false,
@@ -326,6 +435,7 @@
     "tree_keyboard": true,
     "tabs": true,
     "advanced_disclosure": true,
+    "native_scroll_wheel": true,
     "state_command": true
   },
   "forbidden_visible_terms": [],
@@ -358,7 +468,7 @@
     "result": "pass"
   },
   "image": "docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1920x1080.png",
-  "image_sha256": "8b9758160f441197c440aa11c8c5886cae75ce5e07e001a2aa4cf2fee60a1513",
+  "image_sha256": "5003ea1628f12d5d9001a705af2f79e338a1acbf84be410d58dbbfe81d47b07c",
   "screenshot_dimensions": {
     "width": 1920,
     "height": 1080

@@ -576,10 +576,22 @@ Current visible-field contracts:
 Default view is a compact work queue:
 
 ```text
-Status | Task | Material | Owner | Updated | Action
+Task | Request reason | Status | Updated | Action
 ```
 
 Reviews, jobs and releases are tabs or saved views. No dashboard cards or large summary tiles in the normal view.
+
+The current review response does not provide readable Material or Owner names. Those columns are not
+filled with identifiers, hashes or invented labels; the table uses the request task type and supplied
+human reason until a readable projection exists. User-owned pending requests belong in `In progress`;
+Reviewer/Administrator decision work belongs in `Needs attention`. The role-appropriate view is the
+default selected tab.
+
+The normal reference exercises a representative page from the existing 50-request list contract.
+The table body scrolls locally with a visible reserved track only when rows overflow. Row height and
+type remain compact at every viewport; larger displays reveal more complete rows and do not stretch
+the table, repeat prose, introduce KPI cards or fabricate receipt/release history. Browser-local
+Modeling resume and solver-card history stay distinguishable from immutable server review requests.
 
 ### 8.1 Review request entry (DUI-08B)
 

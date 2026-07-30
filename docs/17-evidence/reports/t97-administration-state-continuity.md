@@ -24,7 +24,7 @@ the existing immutable `help_text` contract.
 | `docs/00-research/images/gui-reference/granta-contents-tree.png` | A narrow, ordinary-font navigation rail and selected-row marker remain readable without large tiles. |
 | `docs/00-research/images/gui-reference/granta-profile.png` | Table/Attribute definitions are data rows on one continuous surface, not independent feature cards. |
 | `docs/00-research/ux-reference-gallery/images/granta-mi-favourites-list.png` | Repeated records use compact list rhythm, restrained type metadata and horizontal dividers. |
-| Existing `docs/17-evidence/images/t78-database-design.png` | Before: 48 px title, 250 px dark rail, two rounded container cards and eight rounded Attribute cards. |
+| Existing `docs/17-evidence/images/historical-task-screenshots/t78-database-design.png` | Before: 48 px title, 250 px dark rail, two rounded container cards and eight rounded Attribute cards. |
 | `docs/17-evidence/images/ux-redesign-v2/administration-database-1440x900.png` | After: 20 px title, 220 px light rail, 340 px Table definition column, 792.1 px Attribute/Layout column and eight 52 px divider rows. |
 
 Brand colors, logos, commercial icons, product names and proprietary workflows were not copied.

@@ -23,9 +23,11 @@ VIEWPORTS: dict[str, dict[str, int]] = {
     "1366x768": {"width": 1366, "height": 768, "device_scale_factor": 1},
     "1440x900": {"width": 1440, "height": 900, "device_scale_factor": 1},
     "1920x1080": {"width": 1920, "height": 1080, "device_scale_factor": 1},
+    "2560x1440": {"width": 2560, "height": 1440, "device_scale_factor": 1},
+    "3840x2160": {"width": 3840, "height": 2160, "device_scale_factor": 1},
 }
 
-TARGETS: dict[str, dict[str, Any]] = {
+CANONICAL_TARGETS: dict[str, dict[str, Any]] = {
     "materials-card-preview-normal-1366x768": {
         "state": "normal",
         "viewport": VIEWPORTS["1366x768"],
@@ -57,6 +59,24 @@ TARGETS: dict[str, dict[str, Any]] = {
         "measurements": IMAGE_DIR / "materials-card-unsupported-blocked-1440x900.measurements.json",
     },
 }
+
+WIDE_SUPPORT_TARGETS: dict[str, dict[str, Any]] = {
+    "materials-card-preview-normal-2560x1440": {
+        "state": "normal",
+        "viewport": VIEWPORTS["2560x1440"],
+        "image": IMAGE_DIR / "materials-card-preview-normal-2560x1440.png",
+        "measurements": IMAGE_DIR / "materials-card-preview-normal-2560x1440.measurements.json",
+    },
+    "materials-card-preview-normal-3840x2160": {
+        "state": "normal",
+        "viewport": VIEWPORTS["3840x2160"],
+        "image": IMAGE_DIR / "materials-card-preview-normal-3840x2160.png",
+        "measurements": IMAGE_DIR / "materials-card-preview-normal-3840x2160.measurements.json",
+    },
+}
+
+TARGETS: dict[str, dict[str, Any]] = {**CANONICAL_TARGETS, **WIDE_SUPPORT_TARGETS}
+STATE_VIEWPORT_KEYS = ("1366x768", "1440x900", "1920x1080")
 
 EXCEPTION_STATES = {
     "materials-card-approximation-blocked-1440x900": "approximation",
@@ -171,8 +191,38 @@ def card_snapshot(page: Page) -> dict[str, Any]:
           const pre = document.querySelector('#native-text');
           const nativePreview = document.querySelector('.native-preview');
           const previewScroll = document.querySelector('#preview-scroll');
+          const previewScrollRail = document.querySelector('#preview-scroll-rail');
+          const previewScrollThumb = document.querySelector('#preview-scroll-thumb');
+          const cardContent = document.querySelector('[data-region="card-content"]');
+          const responsePlotBand = document.querySelector('#response-plot-band');
+          const responsePlotFrame = responsePlotBand?.querySelector('.response-plot-frame');
+          const responsePlot = document.querySelector('#response-plot');
           const previewRect = nativePreview?.getBoundingClientRect();
           const scrollRect = previewScroll?.getBoundingClientRect();
+          const railRect = previewScrollRail?.getBoundingClientRect();
+          const thumbRect = previewScrollThumb?.getBoundingClientRect();
+          const plotBandRect = responsePlotBand?.getBoundingClientRect();
+          const plotFrameRect = responsePlotFrame?.getBoundingClientRect();
+          const plotRect = responsePlot?.getBoundingClientRect();
+          const previewStyle = previewScroll ? getComputedStyle(previewScroll) : null;
+          const nativeTextStyle = pre ? getComputedStyle(pre) : null;
+          const railStyle = previewScrollRail ? getComputedStyle(previewScrollRail) : null;
+          const thumbStyle = previewScrollThumb ? getComputedStyle(previewScrollThumb) : null;
+          const readJsonAttribute = (element, attribute) => {
+            try { return JSON.parse(element?.getAttribute(attribute) || 'null'); } catch { return null; }
+          };
+          const plotViewBox = responsePlot?.viewBox?.baseVal;
+          const plotRows = readJsonAttribute(responsePlot, 'data-series') || [];
+          const plotXDomain = readJsonAttribute(responsePlot, 'data-x-domain');
+          const plotYDomain = readJsonAttribute(responsePlot, 'data-y-domain');
+          const plotLine = responsePlot?.querySelector('[data-series-line="true"]');
+          let plotLineBox = null;
+          try {
+            const box = plotLine?.getBBox();
+            if (box) plotLineBox = {x: box.x, y: box.y, width: box.width, height: box.height};
+          } catch { plotLineBox = null; }
+          const plotTick = document.querySelector('.plot-tick-label');
+          const plotTitle = document.querySelector('.plot-axis-title');
           const decisionTextClipped = [...document.querySelectorAll('[data-decision-text]')]
             .filter((element) => element.checkVisibility())
             .filter((element) => element.scrollWidth > element.clientWidth + 1 || element.scrollHeight > element.clientHeight + 1)
@@ -186,17 +236,59 @@ def card_snapshot(page: Page) -> dict[str, Any]:
               card_content: rect('[data-region="card-content"]'),
               native_preview: rect('.native-preview'),
               preview_scroll: rect('#preview-scroll'),
+              preview_scroll_rail: rect('#preview-scroll-rail'),
+              preview_scroll_thumb: rect('#preview-scroll-thumb'),
+              response_plot_band: rect('#response-plot-band'),
+              response_plot_frame: rect('.response-plot-frame'),
+              response_plot_svg: rect('#response-plot'),
               delivery_sheet: rect('.delivery-sheet'),
             },
+            card_content_child_count: cardContent?.children.length ?? 0,
             native_width: Math.round(nativePreview.getBoundingClientRect().width),
             delivery_width: Math.round(document.querySelector('.delivery-sheet').getBoundingClientRect().width),
             preview_scroll_width: previewScroll?.scrollWidth ?? 0,
             preview_scroll_height: previewScroll?.scrollHeight ?? 0,
             preview_client_width: previewScroll?.clientWidth ?? 0,
             preview_client_height: previewScroll?.clientHeight ?? 0,
-            preview_available_height: previewRect && scrollRect ? Math.round(previewRect.bottom - scrollRect.top - 10) : 0,
+            preview_available_height: previewRect && scrollRect ? Math.round(responsePlotBand && !responsePlotBand.hidden ? scrollRect.height : previewRect.bottom - scrollRect.top - 10) : 0,
             preview_rendered_height: scrollRect ? Math.round(scrollRect.height) : 0,
-            preview_fills_available_height: Boolean(previewRect && scrollRect && Math.abs(scrollRect.bottom - (previewRect.bottom - 10)) <= 1),
+            preview_fills_available_height: Boolean(previewRect && scrollRect && ((responsePlotBand && !responsePlotBand.hidden) || Math.abs(scrollRect.bottom - (previewRect.bottom - 10)) <= 1)),
+            preview_scroll_range: Math.max(0, (previewScroll?.scrollHeight ?? 0) - (previewScroll?.clientHeight ?? 0)),
+            preview_scroll_rail_visible: Boolean(previewScrollRail?.checkVisibility() && previewScrollRail.dataset.scrollable === 'true'),
+            preview_scroll_gutter_width: Boolean(scrollRect && railRect) ? Math.round(scrollRect.right - railRect.left) : 0,
+            preview_scroll_thumb_ratio: Boolean(railRect && thumbRect && railRect.height) ? thumbRect.height / railRect.height : 0,
+            preview_scroll_text_clearance: pre && railRect ? Number.parseFloat(getComputedStyle(pre).paddingRight) - railRect.width : 0,
+            preview_surface: previewStyle?.backgroundColor || '',
+            preview_ink: nativeTextStyle?.color || '',
+            preview_border: previewStyle?.borderTopColor || '',
+            preview_scroll_track: railStyle?.backgroundColor || '',
+            preview_scroll_divider: railStyle?.borderLeftColor || '',
+            preview_scroll_thumb: thumbStyle?.backgroundColor || '',
+            native_surface_ratio: Boolean(previewRect && scrollRect && previewRect.height) ? scrollRect.height / previewRect.height : 0,
+            response_plot_ratio: Boolean(previewRect && plotBandRect && previewRect.height) ? plotBandRect.height / previewRect.height : 0,
+            response_plot_visible: Boolean(responsePlotBand && !responsePlotBand.hidden && responsePlotBand.checkVisibility()),
+            response_plot_rows: Number(responsePlot?.getAttribute('data-series-rows') || 0),
+            response_plot_series: plotRows,
+            response_plot_first_point: plotRows[0] || null,
+            response_plot_x_domain: plotXDomain,
+            response_plot_y_domain: plotYDomain,
+            response_plot_line_bbox: plotLineBox,
+            response_plot_line_has_frame_headroom: Boolean(plotLineBox && plotViewBox && plotLineBox.x > 1 && plotLineBox.y > 1 && plotLineBox.x + plotLineBox.width < plotViewBox.width - 1 && plotLineBox.y + plotLineBox.height < plotViewBox.height - 1),
+            response_plot_x_label: responsePlot?.getAttribute('data-x-label') || '',
+            response_plot_y_label: responsePlot?.getAttribute('data-y-label') || '',
+            response_plot_svg_aspect: plotRect && plotViewBox ? {
+              render_width: plotRect.width,
+              render_height: plotRect.height,
+              viewbox_width: plotViewBox.width,
+              viewbox_height: plotViewBox.height,
+              render_aspect: plotRect.width / Math.max(plotRect.height, 1),
+              viewbox_aspect: plotViewBox.width / Math.max(plotViewBox.height, 1),
+              mismatch: Math.abs((plotRect.width / Math.max(plotRect.height, 1)) - (plotViewBox.width / Math.max(plotViewBox.height, 1))) / Math.max(plotRect.width / Math.max(plotRect.height, 1), 0.0001),
+            } : null,
+            response_plot_preserve_aspect_ratio: responsePlot?.getAttribute('preserveAspectRatio') || '',
+            response_plot_tick_font_px: plotTick ? Number.parseFloat(getComputedStyle(plotTick).fontSize) : null,
+            response_plot_title_font_px: plotTitle ? Number.parseFloat(getComputedStyle(plotTitle).fontSize) : null,
+            response_plot_frame_size: plotFrameRect ? {width: plotFrameRect.width, height: plotFrameRect.height} : null,
             native_text_visible: Boolean(pre && !pre.closest('[hidden]') && pre.checkVisibility()),
             native_text_length: pre?.textContent.length ?? 0,
             unavailable_visible: Boolean(document.querySelector('#preview-unavailable')?.checkVisibility()),
@@ -240,7 +332,7 @@ def splitter_snapshot(page: Page) -> dict[str, Any]:
 def splitter_states(page: Page) -> dict[str, Any]:
     splitter = page.locator("[data-region='navigator-divider']")
     viewport_width = page.evaluate("window.innerWidth")
-    expected = 244 if viewport_width == 1366 else 280 if viewport_width == 1920 else 264
+    expected = 244 if viewport_width == 1366 else 280 if viewport_width >= 1700 else 264
     maximum = 345 if viewport_width == 1366 else 360
     evidence: dict[str, Any] = {}
     for label, key, expected_width in (("default", None, expected), ("navigator_arrow_right", "ArrowRight", expected + 8), ("navigator_home", "Home", 200), ("navigator_end", "End", maximum)):
@@ -296,6 +388,20 @@ def common_interactions(page: Page, state: str) -> dict[str, bool]:
     page.locator("#tab-cards").click()
     advanced = page.locator("#advanced-mapping")
     advanced.locator("summary").click()
+    native_scroll_wheel = True
+    if page.locator("#preview-scroll").is_visible():
+        scrollable = page.locator("#preview-scroll").evaluate("element => element.scrollHeight > element.clientHeight + 1")
+        if scrollable:
+            preview = page.locator("#preview-scroll")
+            preview.evaluate("element => { element.focus(); element.scrollTop = 0; }")
+            box = preview.bounding_box()
+            if box is None:
+                native_scroll_wheel = False
+            else:
+                page.mouse.move(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)
+                page.mouse.wheel(0, 240)
+                page.wait_for_timeout(80)
+                native_scroll_wheel = preview.evaluate("element => element.scrollTop > 0")
     details_open = advanced.get_attribute("open") == ""
     advanced.locator("summary").click()
     if state == "normal":
@@ -316,18 +422,72 @@ def common_interactions(page: Page, state: str) -> dict[str, bool]:
         page.locator("#back-to-cards").click()
         state_checks = no_artifact and blocked and page.locator("body").get_attribute("data-recovery-open-modeling") == "true" and page.locator("body").get_attribute("data-recovery-back-to-cards") == "true"
         command = blocked
-    return {"navigator_search": search_focus, "tree_search": tree_search, "back_to_results": restored, "tree_keyboard": home and end and previous and selected, "tabs": tab_clicks and tabs and page.locator("#tab-cards").get_attribute("aria-selected") == "true", "advanced_disclosure": details_open and page.locator("#advanced-mapping").get_attribute("open") is None, "state_command": state_checks and command}
+    return {"navigator_search": search_focus, "tree_search": tree_search, "back_to_results": restored, "tree_keyboard": home and end and previous and selected, "tabs": tab_clicks and tabs and page.locator("#tab-cards").get_attribute("aria-selected") == "true", "advanced_disclosure": details_open and page.locator("#advanced-mapping").get_attribute("open") is None, "native_scroll_wheel": native_scroll_wheel, "state_command": state_checks and command}
 
 
 def measure_page(page: Page, target: str, state: str, viewport: dict[str, int], splitters: dict[str, Any], interactions: dict[str, bool], *, responsive: bool = False) -> dict[str, Any]:
     snapshot = card_snapshot(page)
     visual_acceptance = visual_acceptance_snapshot(page)
+    wide = viewport["width"] >= 1800
     if any(value != 0 for value in overflow_snapshot(page).values()):
         raise AssertionError(f"page overflow for {target}: {overflow_snapshot(page)}")
-    if snapshot["delivery_width"] < 300 or snapshot["delivery_width"] > 320:
-        raise AssertionError(f"delivery sheet outside 300-320px rail: {snapshot}")
+    if snapshot["delivery_width"] < 300 or snapshot["delivery_width"] > 340:
+        raise AssertionError(f"delivery sheet outside 300-340px rail: {snapshot}")
     if snapshot["native_width"] <= snapshot["delivery_width"]:
         raise AssertionError(f"native preview is not dominant: {snapshot}")
+    expected_light_preview = {
+        "preview_surface": "rgb(247, 249, 250)",
+        "preview_ink": "rgb(37, 52, 61)",
+        "preview_border": "rgb(170, 181, 187)",
+    }
+    for key, expected in expected_light_preview.items():
+        if snapshot[key] != expected:
+            raise AssertionError(f"native preview no longer uses the required light document grammar: {snapshot}")
+    if snapshot["preview_scroll_range"] <= 0 and snapshot["preview_scroll_rail_visible"]:
+        raise AssertionError(f"non-overflow native preview falsely exposes a custom scroll rail: {snapshot}")
+    if snapshot["preview_scroll_rail_visible"] and {
+        "preview_scroll_track": snapshot["preview_scroll_track"],
+        "preview_scroll_divider": snapshot["preview_scroll_divider"],
+        "preview_scroll_thumb": snapshot["preview_scroll_thumb"],
+    } != {
+        "preview_scroll_track": "rgb(220, 231, 236)",
+        "preview_scroll_divider": "rgb(182, 201, 210)",
+        "preview_scroll_thumb": "rgb(78, 129, 149)",
+    }:
+        raise AssertionError(f"visible native-preview rail does not use the sibling light document grammar: {snapshot}")
+    if wide and state == "normal":
+        plot = snapshot["response_plot_svg_aspect"]
+        if not snapshot["response_plot_visible"]:
+            raise AssertionError(f"wide normal card is missing its linked response plot: {snapshot}")
+        if snapshot["card_content_child_count"] != 2:
+            raise AssertionError(f"wide card introduced a third top-level pane: {snapshot}")
+        if snapshot["response_plot_rows"] != 6 or len(snapshot["response_plot_series"]) != 6:
+            raise AssertionError(f"wide response plot does not use all six exact *PLASTIC rows: {snapshot}")
+        if snapshot["response_plot_first_point"] != {"stress": 450, "strain": 0}:
+            raise AssertionError(f"wide response plot first point is not (0, 450 MPa): {snapshot}")
+        if snapshot["response_plot_x_label"] != "True plastic strain [1]" or snapshot["response_plot_y_label"] != "True stress (MPa)":
+            raise AssertionError(f"wide response plot axes are not engineering-labeled: {snapshot}")
+        x_domain = snapshot["response_plot_x_domain"]
+        y_domain = snapshot["response_plot_y_domain"]
+        strains = [row["strain"] for row in snapshot["response_plot_series"]]
+        stresses = [row["stress"] for row in snapshot["response_plot_series"]]
+        if not (x_domain and y_domain and x_domain[0] < min(strains) and x_domain[1] > max(strains) and y_domain[0] < min(stresses) and y_domain[1] > max(stresses)):
+            raise AssertionError(f"wide response plot has no data-relative axis headroom: {snapshot}")
+        if not plot or plot["mismatch"] > 0.005:
+            raise AssertionError(f"wide response SVG viewBox/render aspect mismatch: {snapshot}")
+        if snapshot["response_plot_preserve_aspect_ratio"].lower() == "none":
+            raise AssertionError(f"wide response SVG uses forbidden non-uniform glyph scaling: {snapshot}")
+        if not all(10 <= snapshot[key] <= 12.5 for key in ("response_plot_tick_font_px", "response_plot_title_font_px")):
+            raise AssertionError(f"wide response plot typography is outside 10-12.5px: {snapshot}")
+        native_ratio_max = {1920: 0.42, 2560: 0.34, 3840: 0.24}[viewport["width"]]
+        if snapshot["native_surface_ratio"] > native_ratio_max or snapshot["preview_rendered_height"] > 440 or snapshot["response_plot_ratio"] < 0.40:
+            raise AssertionError(f"wide card evidence split violates the content-bounded native/plot policy: {snapshot}")
+        if not snapshot["preview_scroll_rail_visible"] or snapshot["preview_scroll_range"] <= 0 or snapshot["preview_scroll_gutter_width"] < 6 or snapshot["preview_scroll_thumb_ratio"] <= 0 or snapshot["preview_scroll_text_clearance"] <= 0:
+            raise AssertionError(f"wide card native preview lacks a usable visible local-scroll rail: {snapshot}")
+        if not interactions.get("native_scroll_wheel"):
+            raise AssertionError(f"wide card native preview wheel scroll has no consequence: {interactions}")
+    elif not wide and snapshot["response_plot_visible"]:
+        raise AssertionError(f"sub-1800 card unexpectedly exposes wide linked plot: {snapshot}")
     if state == "normal":
         if not snapshot["native_text_visible"] or snapshot["unavailable_visible"] or snapshot["loading_visible"]:
             raise AssertionError(f"normal preview not visible: {snapshot}")
@@ -351,7 +511,7 @@ def measure_page(page: Page, target: str, state: str, viewport: dict[str, int], 
         "family": "MAT-CARD",
         "kind": "normal" if state == "normal" else state,
         "state": state,
-        "capture_date": "2026-07-29",
+        "capture_date": "2026-07-30",
         "viewport": viewport,
         "regions": {key: rounded_box(page, selector) for key, selector in {
             "application_bar": "[data-region='application-bar']",
@@ -451,12 +611,13 @@ def persisted_screenshot(page: Page, path: Path) -> dict[str, Any]:
 
 def state_evidence() -> dict[str, Any]:
     states = ["long", "loading", "error"]
-    evidence: dict[str, Any] = {"schema_version": 1, "family": "MAT-CARD", "capture_date": "2026-07-29", "states": {}}
+    evidence: dict[str, Any] = {"schema_version": 1, "family": "MAT-CARD", "capture_date": "2026-07-30", "states": {}}
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=True)
         for state in states:
             evidence["states"][state] = {}
-            for key, viewport in VIEWPORTS.items():
+            for key in STATE_VIEWPORT_KEYS:
+                viewport = VIEWPORTS[key]
                 console_errors: list[str] = []
                 page_errors: list[str] = []
                 context = browser.new_context(viewport={"width": viewport["width"], "height": viewport["height"]}, device_scale_factor=1)
@@ -466,7 +627,7 @@ def state_evidence() -> dict[str, Any]:
                 load_page(page, state, viewport)
                 snap = card_snapshot(page)
                 if state == "long":
-                    if snap["preview_scroll_height"] <= snap["preview_client_height"] or snap["delivery_width"] < 300:
+                    if snap["preview_scroll_height"] <= snap["preview_client_height"] or not snap["preview_scroll_rail_visible"] or snap["preview_scroll_gutter_width"] < 6 or snap["preview_scroll_text_clearance"] <= 0 or snap["delivery_width"] < 300:
                         raise AssertionError(f"long evidence not independently scrollable: {state} {key} {snap}")
                     page.locator("#preview-scroll").evaluate("element => { element.scrollTop = element.scrollHeight; return element.scrollTop > 0; }")
                 if state == "loading" and not snap["loading_visible"]:
@@ -546,13 +707,15 @@ def main() -> None:
         state_evidence_path = REFERENCE_DIR / "materials-card-wave02.state-evidence.json"
         state_evidence_path.write_text(json.dumps(state_evidence(), indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     references = []
+    wide_support = []
     for entry in captured:
         target = entry["target"]
         if target not in TARGETS:
             continue
         config = TARGETS[target]
-        references.append({"id": target, "kind": config["state"], "viewport": config["viewport"], "html": str(HTML.relative_to(ROOT)).replace("\\", "/"), "css": str(CSS.relative_to(ROOT)).replace("\\", "/"), "javascript": str(JAVASCRIPT.relative_to(ROOT)).replace("\\", "/"), "image": entry["image"], "measurements": str(config["measurements"].relative_to(ROOT)).replace("\\", "/"), "image_sha256": entry["image_sha256"], "status": "pending", "main_agent_evaluation": {"status": "pending"}, "product_owner_approval": {"status": "absent"}, "responsive_evidence": [str(responsive_path(target, key)[0].relative_to(ROOT)).replace("\\", "/") for key in ("1366x768", "1920x1080")] if target in EXCEPTION_STATES else []})
-    staging = {"schema_version": 1, "generated": "2026-07-29", "family": "MAT-CARD", "references": references, "state_evidence": str((REFERENCE_DIR / "materials-card-wave02.state-evidence.json").relative_to(ROOT)).replace("\\", "/") if args.all_packet_targets else None}
+        pointer = {"id": target, "kind": config["state"], "viewport": config["viewport"], "html": str(HTML.relative_to(ROOT)).replace("\\", "/"), "css": str(CSS.relative_to(ROOT)).replace("\\", "/"), "javascript": str(JAVASCRIPT.relative_to(ROOT)).replace("\\", "/"), "image": entry["image"], "measurements": str(config["measurements"].relative_to(ROOT)).replace("\\", "/"), "image_sha256": entry["image_sha256"], "status": "pending", "main_agent_evaluation": {"status": "pending"}, "product_owner_approval": {"status": "absent"}, "responsive_evidence": [str(responsive_path(target, key)[0].relative_to(ROOT)).replace("\\", "/") for key in ("1366x768", "1920x1080")] if target in EXCEPTION_STATES else []}
+        (references if target in CANONICAL_TARGETS else wide_support).append(pointer)
+    staging = {"schema_version": 1, "generated": "2026-07-30", "family": "MAT-CARD", "references": references, "wide_support": wide_support, "state_evidence": str((REFERENCE_DIR / "materials-card-wave02.state-evidence.json").relative_to(ROOT)).replace("\\", "/") if args.all_packet_targets else None}
     STAGING_INDEX.parent.mkdir(parents=True, exist_ok=True)
     STAGING_INDEX.write_text(json.dumps(staging, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     for entry in captured:

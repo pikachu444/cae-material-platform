@@ -2,9 +2,9 @@ import { chromium } from "@playwright/test";
 
 const webUrl = process.env.CMP_DEMO_WEB_URL ?? "http://127.0.0.1:5173";
 const responseOutput = process.env.CMP_T87_RESPONSE_SCREENSHOT
-  ?? "docs/17-evidence/images/t87-metal-fit-candidate-comparison.png";
+  ?? "docs/17-evidence/images/historical-task-screenshots/t87-metal-fit-candidate-comparison.png";
 const residualOutput = process.env.CMP_T87_RESIDUAL_SCREENSHOT
-  ?? "docs/17-evidence/images/t87-metal-fit-residual.png";
+  ?? "docs/17-evidence/images/historical-task-screenshots/t87-metal-fit-residual.png";
 
 const browser = await chromium.launch();
 try {

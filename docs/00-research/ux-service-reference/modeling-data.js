@@ -9,6 +9,193 @@ const sourcePanels = [...document.querySelectorAll(".source-panel")];
 const savedDatasets = [...document.querySelectorAll(".saved-dataset")];
 const curveRows = [...document.querySelectorAll(".curve-row")];
 const graphControls = [...document.querySelectorAll(".graph-control")];
+const graphCanvas = document.querySelector(".graph-canvas");
+const graphPlot = document.querySelector(".source-plot");
+const graphLegend = document.querySelector(".plot-legend");
+const SVG_NS = "http://www.w3.org/2000/svg";
+const PLOT_MARGIN = {left: 80, right: 24, top: 24, bottom: 52};
+const PLOT_NICE_FACTORS = [1, 2, 2.5, 5, 10];
+const SOURCE_STRAIN = [0, 0.005, 0.01, 0.02, 0.04, 0.07, 0.1, 0.14, 0.17, 0.2];
+const SOURCE_SERIES = [
+  {className: "curve-one", values: [0, 155, 288, 432, 560, 660, 725, 780, 820, 850]},
+  {className: "curve-two", values: [0, 148, 278, 420, 550, 651, 717, 773, 814, 843]},
+  {className: "curve-three", values: [0, 141, 268, 407, 536, 638, 705, 762, 803, 835]},
+];
+
+function svgElement(name, attributes = {}) {
+  const element = document.createElementNS(SVG_NS, name);
+  Object.entries(attributes).forEach(([key, value]) => element.setAttribute(key, String(value)));
+  return element;
+}
+
+function niceUpperBound(observedMaximum, targetIntervals, headroomRatio) {
+  const desired = Math.max(observedMaximum, 1e-9) * (1 + headroomRatio);
+  const rawStep = desired / targetIntervals;
+  const exponent = 10 ** Math.floor(Math.log10(rawStep));
+  const normalized = rawStep / exponent;
+  const factor = PLOT_NICE_FACTORS.find((candidate) => candidate >= normalized) || 10;
+  const step = factor * exponent;
+  return Math.max(step, Math.ceil((desired - Number.EPSILON) / step) * step);
+}
+
+function axisTicks(minimum, maximum, count) {
+  const interval = (maximum - minimum) / count;
+  return Array.from({length: count + 1}, (_, index) => minimum + interval * index);
+}
+
+function formatStrain(value) {
+  if (Math.abs(value) < 1e-9) return "0";
+  return value.toFixed(2);
+}
+
+function formatStress(value) {
+  return Math.round(value).toLocaleString("en-US");
+}
+
+function smoothPath(points) {
+  if (!points.length) return "";
+  if (points.length === 1) return `M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`;
+  let path = `M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`;
+  for (let index = 0; index < points.length - 1; index += 1) {
+    const previous = points[index - 1] || points[index];
+    const current = points[index];
+    const next = points[index + 1];
+    const afterNext = points[index + 2] || next;
+    const controlOne = {
+      x: current.x + (next.x - previous.x) / 6,
+      y: current.y + (next.y - previous.y) / 6,
+    };
+    const controlTwo = {
+      x: next.x - (afterNext.x - current.x) / 6,
+      y: next.y - (afterNext.y - current.y) / 6,
+    };
+    path += ` C ${controlOne.x.toFixed(2)} ${controlOne.y.toFixed(2)}, ${controlTwo.x.toFixed(2)} ${controlTwo.y.toFixed(2)}, ${next.x.toFixed(2)} ${next.y.toFixed(2)}`;
+  }
+  return path;
+}
+
+function chooseAxisTitleX(width, plotLeft, plotRight, titleWidth, canvasRect) {
+  const candidates = [0.5, 0.38, 0.26];
+  const legendRect = graphLegend?.getBoundingClientRect();
+  const titleY = canvasRect.bottom - 18;
+  const titleTop = titleY - 13;
+  const titleBottom = titleY + 3;
+  for (const fraction of candidates) {
+    const x = plotLeft + (plotRight - plotLeft) * fraction;
+    const left = canvasRect.left + x - titleWidth / 2;
+    const right = canvasRect.left + x + titleWidth / 2;
+    const collides = legendRect
+      && titleBottom >= legendRect.top
+      && titleTop <= legendRect.bottom
+      && right >= legendRect.left
+      && left <= legendRect.right;
+    if (!collides) return x;
+  }
+  return plotLeft + (plotRight - plotLeft) * 0.5;
+}
+
+let lastPlotSize = null;
+function renderResponsivePlot(force = false) {
+  if (!graphCanvas || !graphPlot) return;
+  const rectangle = graphCanvas.getBoundingClientRect();
+  const width = Math.max(1, rectangle.width);
+  const height = Math.max(1, rectangle.height);
+  if (!force && lastPlotSize && Math.abs(lastPlotSize.width - width) < 0.25 && Math.abs(lastPlotSize.height - height) < 0.25) return;
+  lastPlotSize = {width, height};
+  graphPlot.setAttribute("viewBox", `0 0 ${width.toFixed(2)} ${height.toFixed(2)}`);
+  graphPlot.setAttribute("width", width.toFixed(2));
+  graphPlot.setAttribute("height", height.toFixed(2));
+  graphPlot.dataset.renderWidth = width.toFixed(2);
+  graphPlot.dataset.renderHeight = height.toFixed(2);
+
+  const plotLeft = PLOT_MARGIN.left;
+  const plotRight = Math.max(plotLeft + 1, width - PLOT_MARGIN.right);
+  const plotTop = PLOT_MARGIN.top;
+  const plotBottom = Math.max(plotTop + 1, height - PLOT_MARGIN.bottom);
+  const plotWidth = plotRight - plotLeft;
+  const plotHeight = plotBottom - plotTop;
+  const headroomRatio = Number(graphPlot.dataset.axisHeadroomRatio || 0.1);
+  const observedMaxStrain = Math.max(...SOURCE_STRAIN);
+  const observedMaxStress = Math.max(...SOURCE_SERIES.flatMap((series) => series.values));
+  const observedMinStrain = Math.min(...SOURCE_STRAIN);
+  const observedMinStress = Math.min(...SOURCE_SERIES.flatMap((series) => series.values));
+  const xMin = observedMinStrain >= 0 ? 0 : observedMinStrain;
+  const yMin = observedMinStress >= 0 ? 0 : observedMinStress;
+  const xMax = niceUpperBound(observedMaxStrain, Number(graphPlot.dataset.axisTargetIntervalsStrain || 5), headroomRatio);
+  const yMax = niceUpperBound(observedMaxStress, Number(graphPlot.dataset.axisTargetIntervalsStress || 4), headroomRatio);
+  const xTicks = axisTicks(xMin, xMax, Number(graphPlot.dataset.axisTargetIntervalsStrain || 5));
+  const yTicks = axisTicks(yMin, yMax, Number(graphPlot.dataset.axisTargetIntervalsStress || 4));
+  const toX = (value) => plotLeft + ((value - xMin) / (xMax - xMin || 1)) * plotWidth;
+  const toY = (value) => plotBottom - ((value - yMin) / (yMax - yMin || 1)) * plotHeight;
+  graphPlot.dataset.seriesMinStrain = String(observedMinStrain);
+  graphPlot.dataset.seriesMaxStrain = String(observedMaxStrain);
+  graphPlot.dataset.seriesMinStressMpa = String(observedMinStress);
+  graphPlot.dataset.seriesMaxStressMpa = String(observedMaxStress);
+  graphPlot.dataset.axisMinStrain = String(xMin);
+  graphPlot.dataset.axisMaxStrain = String(xMax);
+  graphPlot.dataset.axisMinStressMpa = String(yMin);
+  graphPlot.dataset.axisMaxStressMpa = String(yMax);
+  graphPlot.dataset.plotLeft = String(plotLeft);
+  graphPlot.dataset.plotRight = String(plotRight);
+  graphPlot.dataset.plotTop = String(plotTop);
+  graphPlot.dataset.plotBottom = String(plotBottom);
+
+  const background = graphPlot.querySelector(".plot-background");
+  background?.setAttribute("x", String(plotLeft));
+  background?.setAttribute("y", String(plotTop));
+  background?.setAttribute("width", String(plotWidth));
+  background?.setAttribute("height", String(plotHeight));
+  const grid = graphPlot.querySelector(".plot-grid");
+  const axis = graphPlot.querySelector(".plot-axis");
+  const labels = graphPlot.querySelector(".plot-labels");
+  grid?.replaceChildren();
+  axis?.replaceChildren();
+  labels?.replaceChildren();
+
+  xTicks.forEach((tick, index) => {
+    const x = toX(tick);
+    grid?.append(svgElement("line", {x1: x, y1: plotTop, x2: x, y2: plotBottom, "vector-effect": "non-scaling-stroke"}));
+    const label = svgElement("text", {x, y: plotBottom + 18, "text-anchor": index === 0 ? "start" : index === xTicks.length - 1 ? "end" : "middle"});
+    label.textContent = formatStrain(tick);
+    labels?.append(label);
+  });
+  yTicks.forEach((tick) => {
+    const y = toY(tick);
+    grid?.append(svgElement("line", {x1: plotLeft, y1: y, x2: plotRight, y2: y, "vector-effect": "non-scaling-stroke"}));
+    const label = svgElement("text", {x: plotLeft - 10, y: y + 4, "text-anchor": "end"});
+    label.textContent = formatStress(tick);
+    labels?.append(label);
+  });
+  axis?.append(svgElement("line", {x1: plotLeft, y1: plotBottom, x2: plotRight, y2: plotBottom, "vector-effect": "non-scaling-stroke"}));
+  axis?.append(svgElement("line", {x1: plotLeft, y1: plotTop, x2: plotLeft, y2: plotBottom, "vector-effect": "non-scaling-stroke"}));
+
+  SOURCE_SERIES.forEach((series) => {
+    const path = graphPlot.querySelector(`.${series.className}`);
+    if (!path) return;
+    const points = SOURCE_STRAIN.map((strain, index) => ({x: toX(strain), y: toY(series.values[index])}));
+    path.setAttribute("d", smoothPath(points));
+    path.setAttribute("vector-effect", "non-scaling-stroke");
+  });
+
+  const xTitle = svgElement("text", {class: "axis-title", y: height - 10, "text-anchor": "middle"});
+  xTitle.textContent = "Engineering strain [1]";
+  labels?.append(xTitle);
+  const estimatedTitleWidth = Math.max(108, xTitle.textContent.length * 6.2);
+  xTitle.setAttribute("x", chooseAxisTitleX(width, plotLeft, plotRight, estimatedTitleWidth, rectangle));
+  const yTitle = svgElement("text", {class: "axis-title", transform: `translate(18 ${(plotTop + plotBottom) / 2}) rotate(-90)`, "text-anchor": "middle"});
+  yTitle.textContent = "Engineering stress (MPa)";
+  labels?.append(yTitle);
+}
+
+function startResponsivePlot() {
+  renderResponsivePlot(true);
+  if (graphCanvas && typeof ResizeObserver !== "undefined") {
+    const observer = new ResizeObserver(() => renderResponsivePlot());
+    observer.observe(graphCanvas);
+  }
+  window.addEventListener("resize", () => renderResponsivePlot());
+  window.renderModelingDataPlot = () => renderResponsivePlot(true);
+}
 
 const setInteractionStatus = (message) => {
   if (interactionStatus) interactionStatus.textContent = message;
@@ -368,6 +555,7 @@ updateIncludedCount();
 syncNavigatorAria();
 if (requestedState === "empty") setupEmptyState();
 else setupExceptionalState(requestedState);
+startResponsivePlot();
 
 // The static reference intentionally leaves loading/error commands read-only; these hooks let
 // the deterministic capture exercise recovery states without mutating a saved revision.

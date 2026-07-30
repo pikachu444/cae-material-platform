@@ -26,15 +26,15 @@ No prior demo aggregate or object artifact was retained.
 
 ## Browser evidence
 
-![Clean product Dashboard](../images/t93-clean-dashboard.jpg)
+![Clean product Dashboard](../images/historical-task-screenshots/t93-clean-dashboard.jpg)
 
-![Clean Material Database](../images/t93-clean-database.jpg)
+![Clean Material Database](../images/historical-task-screenshots/t93-clean-database.jpg)
 
-![Clean Metal Modeling](../images/t93-clean-metal-modeling.jpg)
+![Clean Metal Modeling](../images/historical-task-screenshots/t93-clean-metal-modeling.jpg)
 
-![Clean Polymer Modeling](../images/t93-clean-polymer-modeling.jpg)
+![Clean Polymer Modeling](../images/historical-task-screenshots/t93-clean-polymer-modeling.jpg)
 
-![Clean Elastomer Modeling](../images/t93-clean-elastomer-modeling.jpg)
+![Clean Elastomer Modeling](../images/historical-task-screenshots/t93-clean-elastomer-modeling.jpg)
 
 ## Regression evidence
 

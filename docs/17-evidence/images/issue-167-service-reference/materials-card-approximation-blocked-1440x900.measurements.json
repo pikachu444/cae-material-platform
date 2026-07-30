@@ -4,7 +4,7 @@
   "family": "MAT-CARD",
   "kind": "approximation",
   "state": "approximation",
-  "capture_date": "2026-07-29",
+  "capture_date": "2026-07-30",
   "viewport": {
     "width": 1440,
     "height": 900,
@@ -278,6 +278,36 @@
         "width": 821,
         "height": 569
       },
+      "preview_scroll_rail": {
+        "left": 1099,
+        "top": 302,
+        "width": 6,
+        "height": 559
+      },
+      "preview_scroll_thumb": {
+        "left": 1101,
+        "top": 302,
+        "width": 4,
+        "height": 22
+      },
+      "response_plot_band": {
+        "left": 0,
+        "top": 0,
+        "width": 0,
+        "height": 0
+      },
+      "response_plot_frame": {
+        "left": 0,
+        "top": 0,
+        "width": 0,
+        "height": 0
+      },
+      "response_plot_svg": {
+        "left": 0,
+        "top": 0,
+        "width": 0,
+        "height": 0
+      },
       "delivery_sheet": {
         "left": 1120,
         "top": 249,
@@ -285,15 +315,55 @@
         "height": 627
       }
     },
+    "card_content_child_count": 2,
     "native_width": 843,
     "delivery_width": 312,
-    "preview_scroll_width": 819,
+    "preview_scroll_width": 804,
     "preview_scroll_height": 567,
-    "preview_client_width": 819,
+    "preview_client_width": 804,
     "preview_client_height": 567,
     "preview_available_height": 569,
     "preview_rendered_height": 569,
     "preview_fills_available_height": true,
+    "preview_scroll_range": 0,
+    "preview_scroll_rail_visible": false,
+    "preview_scroll_gutter_width": 11,
+    "preview_scroll_thumb_ratio": 0.03935599284436494,
+    "preview_scroll_text_clearance": 32,
+    "preview_surface": "rgb(247, 249, 250)",
+    "preview_ink": "rgb(37, 52, 61)",
+    "preview_border": "rgb(170, 181, 187)",
+    "preview_scroll_track": "rgb(220, 231, 236)",
+    "preview_scroll_divider": "rgb(182, 201, 210)",
+    "preview_scroll_thumb": "rgb(78, 129, 149)",
+    "native_surface_ratio": 0.9074960127591707,
+    "response_plot_ratio": 0,
+    "response_plot_visible": false,
+    "response_plot_rows": 0,
+    "response_plot_series": [],
+    "response_plot_first_point": null,
+    "response_plot_x_domain": null,
+    "response_plot_y_domain": null,
+    "response_plot_line_bbox": null,
+    "response_plot_line_has_frame_headroom": false,
+    "response_plot_x_label": "",
+    "response_plot_y_label": "",
+    "response_plot_svg_aspect": {
+      "render_width": 0,
+      "render_height": 0,
+      "viewbox_width": 0,
+      "viewbox_height": 0,
+      "render_aspect": 0,
+      "viewbox_aspect": 0,
+      "mismatch": 0
+    },
+    "response_plot_preserve_aspect_ratio": "xMidYMid meet",
+    "response_plot_tick_font_px": null,
+    "response_plot_title_font_px": null,
+    "response_plot_frame_size": {
+      "width": 0,
+      "height": 0
+    },
     "native_text_visible": true,
     "native_text_length": 671,
     "unavailable_visible": false,
@@ -324,6 +394,7 @@
     "tree_keyboard": true,
     "tabs": true,
     "advanced_disclosure": true,
+    "native_scroll_wheel": true,
     "state_command": true
   },
   "forbidden_visible_terms": [],
@@ -356,7 +427,7 @@
     "result": "pass"
   },
   "image": "docs/17-evidence/images/issue-167-service-reference/materials-card-approximation-blocked-1440x900.png",
-  "image_sha256": "2ea15b1bb5d0984296bab458a7d8572111f816c12f87ba5830ec3cbef7d7be92",
+  "image_sha256": "52235f10f98b4694a7124609d2aae9f6836e14ebe5415e04b24fe20814597697",
   "screenshot_dimensions": {
     "width": 1440,
     "height": 900

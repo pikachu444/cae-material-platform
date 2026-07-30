@@ -1,0 +1,4849 @@
+{
+  "capture_date": "2026-07-30",
+  "target": "modeling-data-normal-2560x1440",
+  "state": "normal",
+  "viewport": {
+    "width": 2560,
+    "height": 1440,
+    "device_scale_factor": 1
+  },
+  "image_sha256": "598c842321ff880fecceda86c2b53849e11a704e3d1faa511045c5bb3957ae49",
+  "console_errors": [],
+  "page_errors": [],
+  "geometry": {
+    "target": "modeling-data-normal-2560x1440",
+    "state": "normal",
+    "viewport": {
+      "width": 2560,
+      "height": 1440,
+      "device_scale_factor": 1
+    },
+    "overflow": {
+      "documentHorizontal": 0,
+      "documentVertical": 0,
+      "bodyHorizontal": 0,
+      "bodyVertical": 0
+    },
+    "regions": {
+      "applicationBar": {
+        "x": 0,
+        "y": 0,
+        "width": 2560,
+        "height": 46,
+        "right": 2560,
+        "bottom": 46
+      },
+      "context": {
+        "x": 0,
+        "y": 46,
+        "width": 2560,
+        "height": 42,
+        "right": 2560,
+        "bottom": 88
+      },
+      "stageStrip": {
+        "x": 0,
+        "y": 88,
+        "width": 2560,
+        "height": 34,
+        "right": 2560,
+        "bottom": 122
+      },
+      "navigator": {
+        "x": 0,
+        "y": 122,
+        "width": 208,
+        "height": 1294,
+        "right": 208,
+        "bottom": 1416
+      },
+      "divider": {
+        "x": 208,
+        "y": 122,
+        "width": 5,
+        "height": 1294,
+        "right": 213,
+        "bottom": 1416
+      },
+      "main": {
+        "x": 213,
+        "y": 122,
+        "width": 2347,
+        "height": 1294,
+        "right": 2560,
+        "bottom": 1416
+      },
+      "ribbon": {
+        "x": 213,
+        "y": 122,
+        "width": 2347,
+        "height": 204,
+        "right": 2560,
+        "bottom": 326
+      },
+      "graph": {
+        "x": 213,
+        "y": 326,
+        "width": 2347,
+        "height": 1065,
+        "right": 2560,
+        "bottom": 1391
+      },
+      "graphCanvas": {
+        "x": 222,
+        "y": 364,
+        "width": 2329,
+        "height": 1020,
+        "right": 2551,
+        "bottom": 1384
+      },
+      "statusBar": {
+        "x": 0,
+        "y": 1416,
+        "width": 2560,
+        "height": 24,
+        "right": 2560,
+        "bottom": 1440
+      }
+    },
+    "divider": {
+      "ariaMin": 180,
+      "ariaMax": 240,
+      "ariaNow": 208,
+      "ariaExpanded": true,
+      "visibleWidth": 5,
+      "ruleWidth": 1
+    },
+    "plot": {
+      "present": true,
+      "width": 2329,
+      "height": 1020,
+      "renderWidth": 2329,
+      "renderHeight": 1020,
+      "renderedRatio": 2.283333333333333,
+      "viewBoxRatio": 2.283333333333333,
+      "ratioDelta": 0,
+      "preserveAspectRatio": "xMidYMid meet",
+      "seriesPath": {
+        "x": 80,
+        "y": 165.60000610351562,
+        "right": 1860,
+        "bottom": 968.0000305175781
+      },
+      "seriesPaths": [
+        {
+          "x": 80,
+          "y": 165.60000610351562,
+          "right": 1860,
+          "bottom": 968.0000305175781,
+          "width": 1780,
+          "height": 802.4000244140625
+        },
+        {
+          "x": 80,
+          "y": 172.2100067138672,
+          "right": 1860,
+          "bottom": 967.9999847412109,
+          "width": 1780,
+          "height": 795.7899780273438
+        },
+        {
+          "x": 80,
+          "y": 179.75999450683594,
+          "right": 1860,
+          "bottom": 967.9999847412109,
+          "width": 1780,
+          "height": 788.239990234375
+        }
+      ],
+      "plotArea": {
+        "left": 80,
+        "right": 2305,
+        "top": 24,
+        "bottom": 968
+      },
+      "dataBounds": {
+        "observedMinStrain": 0,
+        "observedMaxStrain": 0.2,
+        "observedMinStressMpa": 0,
+        "observedMaxStressMpa": 850,
+        "axisMinStrain": 0,
+        "axisMaxStrain": 0.25,
+        "axisMinStressMpa": 0,
+        "axisMaxStressMpa": 1000
+      },
+      "headroom": {
+        "left": 0,
+        "right": 445,
+        "top": 141.60000610351562,
+        "bottom": -3.0517578125e-05
+      },
+      "axes": [
+        "0",
+        "0.05",
+        "0.10",
+        "0.15",
+        "0.20",
+        "0.25",
+        "0",
+        "250",
+        "500",
+        "750",
+        "1,000",
+        "Engineering strain [1]",
+        "Engineering stress (MPa)"
+      ],
+      "labelMetrics": [
+        {
+          "text": "0",
+          "fontSize": 11,
+          "x": 302,
+          "y": 1338,
+          "width": 6,
+          "height": 15,
+          "inside": true
+        },
+        {
+          "text": "0.05",
+          "fontSize": 11,
+          "x": 736.90625,
+          "y": 1338,
+          "width": 20.244140625,
+          "height": 15,
+          "inside": true
+        },
+        {
+          "text": "0.10",
+          "fontSize": 11,
+          "x": 1181.90625,
+          "y": 1338,
+          "width": 20.244140625,
+          "height": 15,
+          "inside": true
+        },
+        {
+          "text": "0.15",
+          "fontSize": 11,
+          "x": 1626.90625,
+          "y": 1338,
+          "width": 20.244140625,
+          "height": 15,
+          "inside": true
+        },
+        {
+          "text": "0.20",
+          "fontSize": 11,
+          "x": 2071.90625,
+          "y": 1338,
+          "width": 20.244140625,
+          "height": 15,
+          "inside": true
+        },
+        {
+          "text": "0.25",
+          "fontSize": 11,
+          "x": 2506.8125,
+          "y": 1338,
+          "width": 20.244140625,
+          "height": 15,
+          "inside": true
+        },
+        {
+          "text": "0",
+          "fontSize": 11,
+          "x": 286.0625,
+          "y": 1324,
+          "width": 6,
+          "height": 15,
+          "inside": true
+        },
+        {
+          "text": "250",
+          "fontSize": 11,
+          "x": 274.203125,
+          "y": 1088,
+          "width": 17.859375,
+          "height": 15,
+          "inside": true
+        },
+        {
+          "text": "500",
+          "fontSize": 11,
+          "x": 274.203125,
+          "y": 852,
+          "width": 17.859375,
+          "height": 15,
+          "inside": true
+        },
+        {
+          "text": "750",
+          "fontSize": 11,
+          "x": 274.203125,
+          "y": 616,
+          "width": 17.859375,
+          "height": 15,
+          "inside": true
+        },
+        {
+          "text": "1,000",
+          "fontSize": 11,
+          "x": 265.890625,
+          "y": 380,
+          "width": 26.173828125,
+          "height": 15,
+          "inside": true
+        },
+        {
+          "text": "Engineering strain [1]",
+          "fontSize": 12,
+          "x": 1358.234375,
+          "y": 1361,
+          "width": 112.53125,
+          "height": 16,
+          "inside": true
+        },
+        {
+          "text": "Engineering stress (MPa)",
+          "fontSize": 12,
+          "x": 227,
+          "y": 794.673828125,
+          "width": 16,
+          "height": 130.287109375,
+          "inside": true
+        }
+      ],
+      "strokeMetrics": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1.2,
+        1.2,
+        2.6,
+        2.1,
+        2
+      ]
+    },
+    "devicePixelRatio": 1,
+    "taskTextContainment": [
+      {
+        "text": "Data",
+        "clipped": false
+      },
+      {
+        "text": "Process",
+        "clipped": false
+      },
+      {
+        "text": "Fit",
+        "clipped": false
+      },
+      {
+        "text": "Export",
+        "clipped": false
+      },
+      {
+        "text": "Data source",
+        "clipped": false
+      },
+      {
+        "text": "Library",
+        "clipped": false
+      },
+      {
+        "text": "Local file",
+        "clipped": false
+      },
+      {
+        "text": "Test Data JSON",
+        "clipped": false
+      },
+      {
+        "text": "Source preview",
+        "clipped": false
+      }
+    ],
+    "legendOverlapWithAxisTitle": false,
+    "visibleContent": {
+      "sourceTabs": [
+        "Library",
+        "Local file",
+        "Test Data JSON"
+      ],
+      "stageLabels": [
+        "Data",
+        "Process",
+        "Fit",
+        "Export"
+      ],
+      "curveRows": [
+        "Specimen 01",
+        "Specimen 02",
+        "Specimen 03"
+      ],
+      "savedDatasets": [
+        "CMP-DEMO-DP780-TEST-JSON-03 · r1",
+        "CMP-DEMO-DP780-TEST-JSON-02 · r1",
+        "CMP-DEMO-DP780-TEST-JSON-01 · r2"
+      ],
+      "rawInspector": false,
+      "mappingTable": false,
+      "graphEmpty": false,
+      "graphBlocked": false,
+      "graphContext": "CMP-DEMO-DP780-TEST-JSON-03 · r1 · preview only",
+      "visiblePlotCurves": 3,
+      "plotLegendVisible": true,
+      "updatePreviewDisabled": true,
+      "saveDatasetDisabled": true
+    },
+    "tableContainment": {
+      "raw": {
+        "present": true,
+        "rows": 3,
+        "overflow": 0,
+        "cells": [
+          {
+            "text": "Engineering strain measurement long channel name",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          },
+          {
+            "text": "True stress MPa observed channel label",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          },
+          {
+            "text": "Specimen identifier from test record",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          },
+          {
+            "text": "0.0000",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          },
+          {
+            "text": "0",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          },
+          {
+            "text": "DP780-S01",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          },
+          {
+            "text": "0.0125",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          },
+          {
+            "text": "318.4",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          },
+          {
+            "text": "DP780-S01",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          },
+          {
+            "text": "0.0250",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          },
+          {
+            "text": "455.9",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          },
+          {
+            "text": "DP780-S01",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          }
+        ],
+        "allInside": true,
+        "allContained": true
+      },
+      "mapping": {
+        "present": true,
+        "rows": 2,
+        "overflow": 0,
+        "cells": [
+          {
+            "text": "Axis",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          },
+          {
+            "text": "Source column",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          },
+          {
+            "text": "Quantity semantics",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          },
+          {
+            "text": "Raw unit",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          },
+          {
+            "text": "Normalized unit",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          },
+          {
+            "text": "Status",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          },
+          {
+            "text": "Independent",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          },
+          {
+            "text": "Engineering strain measurement long channel nameTrue stress MPa observed channel label",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          },
+          {
+            "text": "Engineering strain",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          },
+          {
+            "text": "%1",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          },
+          {
+            "text": "1",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          },
+          {
+            "text": "Proposed",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          },
+          {
+            "text": "Dependent",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          },
+          {
+            "text": "Engineering strain measurement long channel nameTrue stress MPa observed channel label",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          },
+          {
+            "text": "Engineering stress",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          },
+          {
+            "text": "%MPa",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          },
+          {
+            "text": "MPa",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          },
+          {
+            "text": "Conflict · choose a different source column",
+            "left": 0,
+            "right": 0,
+            "clientWidth": 0,
+            "scrollWidth": 0,
+            "inside": true,
+            "contained": true
+          }
+        ],
+        "allInside": true,
+        "allContained": true
+      }
+    },
+    "datasetOptions": 3,
+    "includedCurves": 2,
+    "visibleCurveCount": 3,
+    "nestedPersistentCards": 0
+  },
+  "overflow": {
+    "documentHorizontal": 0,
+    "documentVertical": 0,
+    "bodyHorizontal": 0,
+    "bodyVertical": 0
+  },
+  "exercise": {
+    "selected_dataset": "CMP-DEMO-DP780-TEST-JSON-02 · r1",
+    "selected_curve": "Specimen 02",
+    "source_controls": {
+      "library": true,
+      "local": true,
+      "json": true
+    },
+    "points_view": true,
+    "disclosure_open": true,
+    "splitter": {
+      "initial": {
+        "target": "normal-interaction",
+        "state": "normal",
+        "viewport": {
+          "width": 2560,
+          "height": 1440
+        },
+        "overflow": {
+          "documentHorizontal": 0,
+          "documentVertical": 0,
+          "bodyHorizontal": 0,
+          "bodyVertical": 0
+        },
+        "regions": {
+          "applicationBar": {
+            "x": 0,
+            "y": 0,
+            "width": 2560,
+            "height": 46,
+            "right": 2560,
+            "bottom": 46
+          },
+          "context": {
+            "x": 0,
+            "y": 46,
+            "width": 2560,
+            "height": 42,
+            "right": 2560,
+            "bottom": 88
+          },
+          "stageStrip": {
+            "x": 0,
+            "y": 88,
+            "width": 2560,
+            "height": 34,
+            "right": 2560,
+            "bottom": 122
+          },
+          "navigator": {
+            "x": 0,
+            "y": 122,
+            "width": 208,
+            "height": 1294,
+            "right": 208,
+            "bottom": 1416
+          },
+          "divider": {
+            "x": 208,
+            "y": 122,
+            "width": 5,
+            "height": 1294,
+            "right": 213,
+            "bottom": 1416
+          },
+          "main": {
+            "x": 213,
+            "y": 122,
+            "width": 2347,
+            "height": 1294,
+            "right": 2560,
+            "bottom": 1416
+          },
+          "ribbon": {
+            "x": 213,
+            "y": 122,
+            "width": 2347,
+            "height": 204,
+            "right": 2560,
+            "bottom": 326
+          },
+          "graph": {
+            "x": 213,
+            "y": 326,
+            "width": 2347,
+            "height": 1065,
+            "right": 2560,
+            "bottom": 1391
+          },
+          "graphCanvas": {
+            "x": 222,
+            "y": 364,
+            "width": 2329,
+            "height": 1020,
+            "right": 2551,
+            "bottom": 1384
+          },
+          "statusBar": {
+            "x": 0,
+            "y": 1416,
+            "width": 2560,
+            "height": 24,
+            "right": 2560,
+            "bottom": 1440
+          }
+        },
+        "divider": {
+          "ariaMin": 180,
+          "ariaMax": 240,
+          "ariaNow": 208,
+          "ariaExpanded": true,
+          "visibleWidth": 5,
+          "ruleWidth": 1
+        },
+        "plot": {
+          "present": true,
+          "width": 2329,
+          "height": 1020,
+          "renderWidth": 2329,
+          "renderHeight": 1020,
+          "renderedRatio": 2.283333333333333,
+          "viewBoxRatio": 2.283333333333333,
+          "ratioDelta": 0,
+          "preserveAspectRatio": "xMidYMid meet",
+          "seriesPath": {
+            "x": 80,
+            "y": 165.60000610351562,
+            "right": 1860,
+            "bottom": 968.0000305175781
+          },
+          "seriesPaths": [
+            {
+              "x": 80,
+              "y": 165.60000610351562,
+              "right": 1860,
+              "bottom": 968.0000305175781,
+              "width": 1780,
+              "height": 802.4000244140625
+            },
+            {
+              "x": 80,
+              "y": 172.2100067138672,
+              "right": 1860,
+              "bottom": 967.9999847412109,
+              "width": 1780,
+              "height": 795.7899780273438
+            },
+            {
+              "x": 80,
+              "y": 179.75999450683594,
+              "right": 1860,
+              "bottom": 967.9999847412109,
+              "width": 1780,
+              "height": 788.239990234375
+            }
+          ],
+          "plotArea": {
+            "left": 80,
+            "right": 2305,
+            "top": 24,
+            "bottom": 968
+          },
+          "dataBounds": {
+            "observedMinStrain": 0,
+            "observedMaxStrain": 0.2,
+            "observedMinStressMpa": 0,
+            "observedMaxStressMpa": 850,
+            "axisMinStrain": 0,
+            "axisMaxStrain": 0.25,
+            "axisMinStressMpa": 0,
+            "axisMaxStressMpa": 1000
+          },
+          "headroom": {
+            "left": 0,
+            "right": 445,
+            "top": 141.60000610351562,
+            "bottom": -3.0517578125e-05
+          },
+          "axes": [
+            "0",
+            "0.05",
+            "0.10",
+            "0.15",
+            "0.20",
+            "0.25",
+            "0",
+            "250",
+            "500",
+            "750",
+            "1,000",
+            "Engineering strain [1]",
+            "Engineering stress (MPa)"
+          ],
+          "labelMetrics": [
+            {
+              "text": "0",
+              "fontSize": 11,
+              "x": 302,
+              "y": 1338,
+              "width": 6,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.05",
+              "fontSize": 11,
+              "x": 736.90625,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.10",
+              "fontSize": 11,
+              "x": 1181.90625,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.15",
+              "fontSize": 11,
+              "x": 1626.90625,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.20",
+              "fontSize": 11,
+              "x": 2071.90625,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.25",
+              "fontSize": 11,
+              "x": 2506.8125,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0",
+              "fontSize": 11,
+              "x": 286.0625,
+              "y": 1324,
+              "width": 6,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "250",
+              "fontSize": 11,
+              "x": 274.203125,
+              "y": 1088,
+              "width": 17.859375,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "500",
+              "fontSize": 11,
+              "x": 274.203125,
+              "y": 852,
+              "width": 17.859375,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "750",
+              "fontSize": 11,
+              "x": 274.203125,
+              "y": 616,
+              "width": 17.859375,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "1,000",
+              "fontSize": 11,
+              "x": 265.890625,
+              "y": 380,
+              "width": 26.173828125,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "Engineering strain [1]",
+              "fontSize": 12,
+              "x": 1358.234375,
+              "y": 1361,
+              "width": 112.53125,
+              "height": 16,
+              "inside": true
+            },
+            {
+              "text": "Engineering stress (MPa)",
+              "fontSize": 12,
+              "x": 227,
+              "y": 794.673828125,
+              "width": 16,
+              "height": 130.287109375,
+              "inside": true
+            }
+          ],
+          "strokeMetrics": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1.2,
+            1.2,
+            2.6,
+            2.1,
+            2
+          ]
+        },
+        "devicePixelRatio": 1,
+        "taskTextContainment": [
+          {
+            "text": "Data",
+            "clipped": false
+          },
+          {
+            "text": "Process",
+            "clipped": false
+          },
+          {
+            "text": "Fit",
+            "clipped": false
+          },
+          {
+            "text": "Export",
+            "clipped": false
+          },
+          {
+            "text": "Data source",
+            "clipped": false
+          },
+          {
+            "text": "Library",
+            "clipped": false
+          },
+          {
+            "text": "Local file",
+            "clipped": false
+          },
+          {
+            "text": "Test Data JSON",
+            "clipped": false
+          },
+          {
+            "text": "Source preview",
+            "clipped": false
+          }
+        ],
+        "legendOverlapWithAxisTitle": false,
+        "visibleContent": {
+          "sourceTabs": [
+            "Library",
+            "Local file",
+            "Test Data JSON"
+          ],
+          "stageLabels": [
+            "Data",
+            "Process",
+            "Fit",
+            "Export"
+          ],
+          "curveRows": [
+            "Specimen 01",
+            "Specimen 02",
+            "Specimen 03"
+          ],
+          "savedDatasets": [
+            "CMP-DEMO-DP780-TEST-JSON-03 · r1",
+            "CMP-DEMO-DP780-TEST-JSON-02 · r1",
+            "CMP-DEMO-DP780-TEST-JSON-01 · r2"
+          ],
+          "rawInspector": false,
+          "mappingTable": false,
+          "graphEmpty": false,
+          "graphBlocked": false,
+          "graphContext": "CMP-DEMO-DP780-TEST-JSON-02 · r1 · preview only",
+          "visiblePlotCurves": 3,
+          "plotLegendVisible": true,
+          "updatePreviewDisabled": true,
+          "saveDatasetDisabled": true
+        },
+        "tableContainment": {
+          "raw": {
+            "present": true,
+            "rows": 3,
+            "overflow": 0,
+            "cells": [
+              {
+                "text": "Engineering strain measurement long channel name",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "True stress MPa observed channel label",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Specimen identifier from test record",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "0.0000",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "0",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "DP780-S01",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "0.0125",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "318.4",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "DP780-S01",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "0.0250",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "455.9",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "DP780-S01",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              }
+            ],
+            "allInside": true,
+            "allContained": true
+          },
+          "mapping": {
+            "present": true,
+            "rows": 2,
+            "overflow": 0,
+            "cells": [
+              {
+                "text": "Axis",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Source column",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Quantity semantics",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Raw unit",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Normalized unit",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Status",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Independent",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Engineering strain measurement long channel nameTrue stress MPa observed channel label",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Engineering strain",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "%1",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "1",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Proposed",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Dependent",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Engineering strain measurement long channel nameTrue stress MPa observed channel label",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Engineering stress",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "%MPa",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "MPa",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Conflict · choose a different source column",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              }
+            ],
+            "allInside": true,
+            "allContained": true
+          }
+        },
+        "datasetOptions": 3,
+        "includedCurves": 2,
+        "visibleCurveCount": 3,
+        "nestedPersistentCards": 0
+      },
+      "arrow_right": {
+        "target": "normal-arrow-right",
+        "state": "normal",
+        "viewport": {
+          "width": 2560,
+          "height": 1440
+        },
+        "overflow": {
+          "documentHorizontal": 0,
+          "documentVertical": 0,
+          "bodyHorizontal": 0,
+          "bodyVertical": 0
+        },
+        "regions": {
+          "applicationBar": {
+            "x": 0,
+            "y": 0,
+            "width": 2560,
+            "height": 46,
+            "right": 2560,
+            "bottom": 46
+          },
+          "context": {
+            "x": 0,
+            "y": 46,
+            "width": 2560,
+            "height": 42,
+            "right": 2560,
+            "bottom": 88
+          },
+          "stageStrip": {
+            "x": 0,
+            "y": 88,
+            "width": 2560,
+            "height": 34,
+            "right": 2560,
+            "bottom": 122
+          },
+          "navigator": {
+            "x": 0,
+            "y": 122,
+            "width": 216,
+            "height": 1294,
+            "right": 216,
+            "bottom": 1416
+          },
+          "divider": {
+            "x": 216,
+            "y": 122,
+            "width": 5,
+            "height": 1294,
+            "right": 221,
+            "bottom": 1416
+          },
+          "main": {
+            "x": 221,
+            "y": 122,
+            "width": 2339,
+            "height": 1294,
+            "right": 2560,
+            "bottom": 1416
+          },
+          "ribbon": {
+            "x": 221,
+            "y": 122,
+            "width": 2339,
+            "height": 204,
+            "right": 2560,
+            "bottom": 326
+          },
+          "graph": {
+            "x": 221,
+            "y": 326,
+            "width": 2339,
+            "height": 1065,
+            "right": 2560,
+            "bottom": 1391
+          },
+          "graphCanvas": {
+            "x": 230,
+            "y": 364,
+            "width": 2321,
+            "height": 1020,
+            "right": 2551,
+            "bottom": 1384
+          },
+          "statusBar": {
+            "x": 0,
+            "y": 1416,
+            "width": 2560,
+            "height": 24,
+            "right": 2560,
+            "bottom": 1440
+          }
+        },
+        "divider": {
+          "ariaMin": 180,
+          "ariaMax": 240,
+          "ariaNow": 216,
+          "ariaExpanded": true,
+          "visibleWidth": 5,
+          "ruleWidth": 1
+        },
+        "plot": {
+          "present": true,
+          "width": 2321,
+          "height": 1020,
+          "renderWidth": 2321,
+          "renderHeight": 1020,
+          "renderedRatio": 2.2754901960784313,
+          "viewBoxRatio": 2.2754901960784313,
+          "ratioDelta": 0,
+          "preserveAspectRatio": "xMidYMid meet",
+          "seriesPath": {
+            "x": 80,
+            "y": 165.60000610351562,
+            "right": 1853.5999755859375,
+            "bottom": 968.0000305175781
+          },
+          "seriesPaths": [
+            {
+              "x": 80,
+              "y": 165.60000610351562,
+              "right": 1853.5999755859375,
+              "bottom": 968.0000305175781,
+              "width": 1773.5999755859375,
+              "height": 802.4000244140625
+            },
+            {
+              "x": 80,
+              "y": 172.2100067138672,
+              "right": 1853.5999755859375,
+              "bottom": 967.9999847412109,
+              "width": 1773.5999755859375,
+              "height": 795.7899780273438
+            },
+            {
+              "x": 80,
+              "y": 179.75999450683594,
+              "right": 1853.5999755859375,
+              "bottom": 967.9999847412109,
+              "width": 1773.5999755859375,
+              "height": 788.239990234375
+            }
+          ],
+          "plotArea": {
+            "left": 80,
+            "right": 2297,
+            "top": 24,
+            "bottom": 968
+          },
+          "dataBounds": {
+            "observedMinStrain": 0,
+            "observedMaxStrain": 0.2,
+            "observedMinStressMpa": 0,
+            "observedMaxStressMpa": 850,
+            "axisMinStrain": 0,
+            "axisMaxStrain": 0.25,
+            "axisMinStressMpa": 0,
+            "axisMaxStressMpa": 1000
+          },
+          "headroom": {
+            "left": 0,
+            "right": 443.4000244140625,
+            "top": 141.60000610351562,
+            "bottom": -3.0517578125e-05
+          },
+          "axes": [
+            "0",
+            "0.05",
+            "0.10",
+            "0.15",
+            "0.20",
+            "0.25",
+            "0",
+            "250",
+            "500",
+            "750",
+            "1,000",
+            "Engineering strain [1]",
+            "Engineering stress (MPa)"
+          ],
+          "labelMetrics": [
+            {
+              "text": "0",
+              "fontSize": 11,
+              "x": 310,
+              "y": 1338,
+              "width": 6,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.05",
+              "fontSize": 11,
+              "x": 743.3062744140625,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.10",
+              "fontSize": 11,
+              "x": 1186.706298828125,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.15",
+              "fontSize": 11,
+              "x": 1630.106201171875,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.20",
+              "fontSize": 11,
+              "x": 2073.50634765625,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.25",
+              "fontSize": 11,
+              "x": 2506.8125,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0",
+              "fontSize": 11,
+              "x": 294.0625,
+              "y": 1324,
+              "width": 6,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "250",
+              "fontSize": 11,
+              "x": 282.203125,
+              "y": 1088,
+              "width": 17.859375,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "500",
+              "fontSize": 11,
+              "x": 282.203125,
+              "y": 852,
+              "width": 17.859375,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "750",
+              "fontSize": 11,
+              "x": 282.203125,
+              "y": 616,
+              "width": 17.859375,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "1,000",
+              "fontSize": 11,
+              "x": 273.890625,
+              "y": 380,
+              "width": 26.173828125,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "Engineering strain [1]",
+              "fontSize": 12,
+              "x": 1362.234375,
+              "y": 1361,
+              "width": 112.53125,
+              "height": 16,
+              "inside": true
+            },
+            {
+              "text": "Engineering stress (MPa)",
+              "fontSize": 12,
+              "x": 235,
+              "y": 794.673828125,
+              "width": 16,
+              "height": 130.287109375,
+              "inside": true
+            }
+          ],
+          "strokeMetrics": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1.2,
+            1.2,
+            2.6,
+            2.1,
+            2
+          ]
+        },
+        "devicePixelRatio": 1,
+        "taskTextContainment": [
+          {
+            "text": "Data",
+            "clipped": false
+          },
+          {
+            "text": "Process",
+            "clipped": false
+          },
+          {
+            "text": "Fit",
+            "clipped": false
+          },
+          {
+            "text": "Export",
+            "clipped": false
+          },
+          {
+            "text": "Data source",
+            "clipped": false
+          },
+          {
+            "text": "Library",
+            "clipped": false
+          },
+          {
+            "text": "Local file",
+            "clipped": false
+          },
+          {
+            "text": "Test Data JSON",
+            "clipped": false
+          },
+          {
+            "text": "Source preview",
+            "clipped": false
+          }
+        ],
+        "legendOverlapWithAxisTitle": false,
+        "visibleContent": {
+          "sourceTabs": [
+            "Library",
+            "Local file",
+            "Test Data JSON"
+          ],
+          "stageLabels": [
+            "Data",
+            "Process",
+            "Fit",
+            "Export"
+          ],
+          "curveRows": [
+            "Specimen 01",
+            "Specimen 02",
+            "Specimen 03"
+          ],
+          "savedDatasets": [
+            "CMP-DEMO-DP780-TEST-JSON-03 · r1",
+            "CMP-DEMO-DP780-TEST-JSON-02 · r1",
+            "CMP-DEMO-DP780-TEST-JSON-01 · r2"
+          ],
+          "rawInspector": false,
+          "mappingTable": false,
+          "graphEmpty": false,
+          "graphBlocked": false,
+          "graphContext": "CMP-DEMO-DP780-TEST-JSON-02 · r1 · preview only",
+          "visiblePlotCurves": 3,
+          "plotLegendVisible": true,
+          "updatePreviewDisabled": true,
+          "saveDatasetDisabled": true
+        },
+        "tableContainment": {
+          "raw": {
+            "present": true,
+            "rows": 3,
+            "overflow": 0,
+            "cells": [
+              {
+                "text": "Engineering strain measurement long channel name",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "True stress MPa observed channel label",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Specimen identifier from test record",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "0.0000",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "0",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "DP780-S01",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "0.0125",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "318.4",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "DP780-S01",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "0.0250",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "455.9",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "DP780-S01",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              }
+            ],
+            "allInside": true,
+            "allContained": true
+          },
+          "mapping": {
+            "present": true,
+            "rows": 2,
+            "overflow": 0,
+            "cells": [
+              {
+                "text": "Axis",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Source column",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Quantity semantics",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Raw unit",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Normalized unit",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Status",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Independent",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Engineering strain measurement long channel nameTrue stress MPa observed channel label",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Engineering strain",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "%1",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "1",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Proposed",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Dependent",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Engineering strain measurement long channel nameTrue stress MPa observed channel label",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Engineering stress",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "%MPa",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "MPa",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Conflict · choose a different source column",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              }
+            ],
+            "allInside": true,
+            "allContained": true
+          }
+        },
+        "datasetOptions": 3,
+        "includedCurves": 2,
+        "visibleCurveCount": 3,
+        "nestedPersistentCards": 0
+      },
+      "home": {
+        "target": "normal-home",
+        "state": "normal",
+        "viewport": {
+          "width": 2560,
+          "height": 1440
+        },
+        "overflow": {
+          "documentHorizontal": 0,
+          "documentVertical": 0,
+          "bodyHorizontal": 0,
+          "bodyVertical": 0
+        },
+        "regions": {
+          "applicationBar": {
+            "x": 0,
+            "y": 0,
+            "width": 2560,
+            "height": 46,
+            "right": 2560,
+            "bottom": 46
+          },
+          "context": {
+            "x": 0,
+            "y": 46,
+            "width": 2560,
+            "height": 42,
+            "right": 2560,
+            "bottom": 88
+          },
+          "stageStrip": {
+            "x": 0,
+            "y": 88,
+            "width": 2560,
+            "height": 34,
+            "right": 2560,
+            "bottom": 122
+          },
+          "navigator": {
+            "x": 0,
+            "y": 122,
+            "width": 180,
+            "height": 1294,
+            "right": 180,
+            "bottom": 1416
+          },
+          "divider": {
+            "x": 180,
+            "y": 122,
+            "width": 5,
+            "height": 1294,
+            "right": 185,
+            "bottom": 1416
+          },
+          "main": {
+            "x": 185,
+            "y": 122,
+            "width": 2375,
+            "height": 1294,
+            "right": 2560,
+            "bottom": 1416
+          },
+          "ribbon": {
+            "x": 185,
+            "y": 122,
+            "width": 2375,
+            "height": 204,
+            "right": 2560,
+            "bottom": 326
+          },
+          "graph": {
+            "x": 185,
+            "y": 326,
+            "width": 2375,
+            "height": 1065,
+            "right": 2560,
+            "bottom": 1391
+          },
+          "graphCanvas": {
+            "x": 194,
+            "y": 364,
+            "width": 2357,
+            "height": 1020,
+            "right": 2551,
+            "bottom": 1384
+          },
+          "statusBar": {
+            "x": 0,
+            "y": 1416,
+            "width": 2560,
+            "height": 24,
+            "right": 2560,
+            "bottom": 1440
+          }
+        },
+        "divider": {
+          "ariaMin": 180,
+          "ariaMax": 240,
+          "ariaNow": 180,
+          "ariaExpanded": true,
+          "visibleWidth": 5,
+          "ruleWidth": 1
+        },
+        "plot": {
+          "present": true,
+          "width": 2357,
+          "height": 1020,
+          "renderWidth": 2357,
+          "renderHeight": 1020,
+          "renderedRatio": 2.31078431372549,
+          "viewBoxRatio": 2.31078431372549,
+          "ratioDelta": 0,
+          "preserveAspectRatio": "xMidYMid meet",
+          "seriesPath": {
+            "x": 80,
+            "y": 165.60000610351562,
+            "right": 1882.4000244140625,
+            "bottom": 968.0000305175781
+          },
+          "seriesPaths": [
+            {
+              "x": 80,
+              "y": 165.60000610351562,
+              "right": 1882.4000244140625,
+              "bottom": 968.0000305175781,
+              "width": 1802.4000244140625,
+              "height": 802.4000244140625
+            },
+            {
+              "x": 80,
+              "y": 172.2100067138672,
+              "right": 1882.4000244140625,
+              "bottom": 967.9999847412109,
+              "width": 1802.4000244140625,
+              "height": 795.7899780273438
+            },
+            {
+              "x": 80,
+              "y": 179.75999450683594,
+              "right": 1882.4000244140625,
+              "bottom": 967.9999847412109,
+              "width": 1802.4000244140625,
+              "height": 788.239990234375
+            }
+          ],
+          "plotArea": {
+            "left": 80,
+            "right": 2333,
+            "top": 24,
+            "bottom": 968
+          },
+          "dataBounds": {
+            "observedMinStrain": 0,
+            "observedMaxStrain": 0.2,
+            "observedMinStressMpa": 0,
+            "observedMaxStressMpa": 850,
+            "axisMinStrain": 0,
+            "axisMaxStrain": 0.25,
+            "axisMinStressMpa": 0,
+            "axisMaxStressMpa": 1000
+          },
+          "headroom": {
+            "left": 0,
+            "right": 450.5999755859375,
+            "top": 141.60000610351562,
+            "bottom": -3.0517578125e-05
+          },
+          "axes": [
+            "0",
+            "0.05",
+            "0.10",
+            "0.15",
+            "0.20",
+            "0.25",
+            "0",
+            "250",
+            "500",
+            "750",
+            "1,000",
+            "Engineering strain [1]",
+            "Engineering stress (MPa)"
+          ],
+          "labelMetrics": [
+            {
+              "text": "0",
+              "fontSize": 11,
+              "x": 274,
+              "y": 1338,
+              "width": 6,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.05",
+              "fontSize": 11,
+              "x": 714.5062255859375,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.10",
+              "fontSize": 11,
+              "x": 1165.106201171875,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.15",
+              "fontSize": 11,
+              "x": 1615.706298828125,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.20",
+              "fontSize": 11,
+              "x": 2066.30615234375,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.25",
+              "fontSize": 11,
+              "x": 2506.8125,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0",
+              "fontSize": 11,
+              "x": 258.0625,
+              "y": 1324,
+              "width": 6,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "250",
+              "fontSize": 11,
+              "x": 246.203125,
+              "y": 1088,
+              "width": 17.859375,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "500",
+              "fontSize": 11,
+              "x": 246.203125,
+              "y": 852,
+              "width": 17.859375,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "750",
+              "fontSize": 11,
+              "x": 246.203125,
+              "y": 616,
+              "width": 17.859375,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "1,000",
+              "fontSize": 11,
+              "x": 237.890625,
+              "y": 380,
+              "width": 26.173828125,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "Engineering strain [1]",
+              "fontSize": 12,
+              "x": 1344.234375,
+              "y": 1361,
+              "width": 112.53125,
+              "height": 16,
+              "inside": true
+            },
+            {
+              "text": "Engineering stress (MPa)",
+              "fontSize": 12,
+              "x": 199,
+              "y": 794.673828125,
+              "width": 16,
+              "height": 130.287109375,
+              "inside": true
+            }
+          ],
+          "strokeMetrics": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1.2,
+            1.2,
+            2.6,
+            2.1,
+            2
+          ]
+        },
+        "devicePixelRatio": 1,
+        "taskTextContainment": [
+          {
+            "text": "Data",
+            "clipped": false
+          },
+          {
+            "text": "Process",
+            "clipped": false
+          },
+          {
+            "text": "Fit",
+            "clipped": false
+          },
+          {
+            "text": "Export",
+            "clipped": false
+          },
+          {
+            "text": "Data source",
+            "clipped": false
+          },
+          {
+            "text": "Library",
+            "clipped": false
+          },
+          {
+            "text": "Local file",
+            "clipped": false
+          },
+          {
+            "text": "Test Data JSON",
+            "clipped": false
+          },
+          {
+            "text": "Source preview",
+            "clipped": false
+          }
+        ],
+        "legendOverlapWithAxisTitle": false,
+        "visibleContent": {
+          "sourceTabs": [
+            "Library",
+            "Local file",
+            "Test Data JSON"
+          ],
+          "stageLabels": [
+            "Data",
+            "Process",
+            "Fit",
+            "Export"
+          ],
+          "curveRows": [
+            "Specimen 01",
+            "Specimen 02",
+            "Specimen 03"
+          ],
+          "savedDatasets": [
+            "CMP-DEMO-DP780-TEST-JSON-03 · r1",
+            "CMP-DEMO-DP780-TEST-JSON-02 · r1",
+            "CMP-DEMO-DP780-TEST-JSON-01 · r2"
+          ],
+          "rawInspector": false,
+          "mappingTable": false,
+          "graphEmpty": false,
+          "graphBlocked": false,
+          "graphContext": "CMP-DEMO-DP780-TEST-JSON-02 · r1 · preview only",
+          "visiblePlotCurves": 3,
+          "plotLegendVisible": true,
+          "updatePreviewDisabled": true,
+          "saveDatasetDisabled": true
+        },
+        "tableContainment": {
+          "raw": {
+            "present": true,
+            "rows": 3,
+            "overflow": 0,
+            "cells": [
+              {
+                "text": "Engineering strain measurement long channel name",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "True stress MPa observed channel label",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Specimen identifier from test record",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "0.0000",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "0",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "DP780-S01",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "0.0125",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "318.4",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "DP780-S01",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "0.0250",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "455.9",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "DP780-S01",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              }
+            ],
+            "allInside": true,
+            "allContained": true
+          },
+          "mapping": {
+            "present": true,
+            "rows": 2,
+            "overflow": 0,
+            "cells": [
+              {
+                "text": "Axis",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Source column",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Quantity semantics",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Raw unit",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Normalized unit",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Status",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Independent",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Engineering strain measurement long channel nameTrue stress MPa observed channel label",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Engineering strain",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "%1",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "1",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Proposed",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Dependent",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Engineering strain measurement long channel nameTrue stress MPa observed channel label",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Engineering stress",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "%MPa",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "MPa",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Conflict · choose a different source column",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              }
+            ],
+            "allInside": true,
+            "allContained": true
+          }
+        },
+        "datasetOptions": 3,
+        "includedCurves": 2,
+        "visibleCurveCount": 3,
+        "nestedPersistentCards": 0
+      },
+      "end": {
+        "target": "normal-end",
+        "state": "normal",
+        "viewport": {
+          "width": 2560,
+          "height": 1440
+        },
+        "overflow": {
+          "documentHorizontal": 0,
+          "documentVertical": 0,
+          "bodyHorizontal": 0,
+          "bodyVertical": 0
+        },
+        "regions": {
+          "applicationBar": {
+            "x": 0,
+            "y": 0,
+            "width": 2560,
+            "height": 46,
+            "right": 2560,
+            "bottom": 46
+          },
+          "context": {
+            "x": 0,
+            "y": 46,
+            "width": 2560,
+            "height": 42,
+            "right": 2560,
+            "bottom": 88
+          },
+          "stageStrip": {
+            "x": 0,
+            "y": 88,
+            "width": 2560,
+            "height": 34,
+            "right": 2560,
+            "bottom": 122
+          },
+          "navigator": {
+            "x": 0,
+            "y": 122,
+            "width": 240,
+            "height": 1294,
+            "right": 240,
+            "bottom": 1416
+          },
+          "divider": {
+            "x": 240,
+            "y": 122,
+            "width": 5,
+            "height": 1294,
+            "right": 245,
+            "bottom": 1416
+          },
+          "main": {
+            "x": 245,
+            "y": 122,
+            "width": 2315,
+            "height": 1294,
+            "right": 2560,
+            "bottom": 1416
+          },
+          "ribbon": {
+            "x": 245,
+            "y": 122,
+            "width": 2315,
+            "height": 204,
+            "right": 2560,
+            "bottom": 326
+          },
+          "graph": {
+            "x": 245,
+            "y": 326,
+            "width": 2315,
+            "height": 1065,
+            "right": 2560,
+            "bottom": 1391
+          },
+          "graphCanvas": {
+            "x": 254,
+            "y": 364,
+            "width": 2297,
+            "height": 1020,
+            "right": 2551,
+            "bottom": 1384
+          },
+          "statusBar": {
+            "x": 0,
+            "y": 1416,
+            "width": 2560,
+            "height": 24,
+            "right": 2560,
+            "bottom": 1440
+          }
+        },
+        "divider": {
+          "ariaMin": 180,
+          "ariaMax": 240,
+          "ariaNow": 240,
+          "ariaExpanded": true,
+          "visibleWidth": 5,
+          "ruleWidth": 1
+        },
+        "plot": {
+          "present": true,
+          "width": 2297,
+          "height": 1020,
+          "renderWidth": 2297,
+          "renderHeight": 1020,
+          "renderedRatio": 2.2519607843137255,
+          "viewBoxRatio": 2.2519607843137255,
+          "ratioDelta": 0,
+          "preserveAspectRatio": "xMidYMid meet",
+          "seriesPath": {
+            "x": 80,
+            "y": 165.60000610351562,
+            "right": 1834.4000244140625,
+            "bottom": 968.0000305175781
+          },
+          "seriesPaths": [
+            {
+              "x": 80,
+              "y": 165.60000610351562,
+              "right": 1834.4000244140625,
+              "bottom": 968.0000305175781,
+              "width": 1754.4000244140625,
+              "height": 802.4000244140625
+            },
+            {
+              "x": 80,
+              "y": 172.2100067138672,
+              "right": 1834.4000244140625,
+              "bottom": 967.9999847412109,
+              "width": 1754.4000244140625,
+              "height": 795.7899780273438
+            },
+            {
+              "x": 80,
+              "y": 179.75999450683594,
+              "right": 1834.4000244140625,
+              "bottom": 967.9999847412109,
+              "width": 1754.4000244140625,
+              "height": 788.239990234375
+            }
+          ],
+          "plotArea": {
+            "left": 80,
+            "right": 2273,
+            "top": 24,
+            "bottom": 968
+          },
+          "dataBounds": {
+            "observedMinStrain": 0,
+            "observedMaxStrain": 0.2,
+            "observedMinStressMpa": 0,
+            "observedMaxStressMpa": 850,
+            "axisMinStrain": 0,
+            "axisMaxStrain": 0.25,
+            "axisMinStressMpa": 0,
+            "axisMaxStressMpa": 1000
+          },
+          "headroom": {
+            "left": 0,
+            "right": 438.5999755859375,
+            "top": 141.60000610351562,
+            "bottom": -3.0517578125e-05
+          },
+          "axes": [
+            "0",
+            "0.05",
+            "0.10",
+            "0.15",
+            "0.20",
+            "0.25",
+            "0",
+            "250",
+            "500",
+            "750",
+            "1,000",
+            "Engineering strain [1]",
+            "Engineering stress (MPa)"
+          ],
+          "labelMetrics": [
+            {
+              "text": "0",
+              "fontSize": 11,
+              "x": 334,
+              "y": 1338,
+              "width": 6,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.05",
+              "fontSize": 11,
+              "x": 762.5062255859375,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.10",
+              "fontSize": 11,
+              "x": 1201.106201171875,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.15",
+              "fontSize": 11,
+              "x": 1639.706298828125,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.20",
+              "fontSize": 11,
+              "x": 2078.30615234375,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.25",
+              "fontSize": 11,
+              "x": 2506.8125,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0",
+              "fontSize": 11,
+              "x": 318.0625,
+              "y": 1324,
+              "width": 6,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "250",
+              "fontSize": 11,
+              "x": 306.203125,
+              "y": 1088,
+              "width": 17.859375,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "500",
+              "fontSize": 11,
+              "x": 306.203125,
+              "y": 852,
+              "width": 17.859375,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "750",
+              "fontSize": 11,
+              "x": 306.203125,
+              "y": 616,
+              "width": 17.859375,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "1,000",
+              "fontSize": 11,
+              "x": 297.890625,
+              "y": 380,
+              "width": 26.173828125,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "Engineering strain [1]",
+              "fontSize": 12,
+              "x": 1374.234375,
+              "y": 1361,
+              "width": 112.53125,
+              "height": 16,
+              "inside": true
+            },
+            {
+              "text": "Engineering stress (MPa)",
+              "fontSize": 12,
+              "x": 259,
+              "y": 794.673828125,
+              "width": 16,
+              "height": 130.287109375,
+              "inside": true
+            }
+          ],
+          "strokeMetrics": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1.2,
+            1.2,
+            2.6,
+            2.1,
+            2
+          ]
+        },
+        "devicePixelRatio": 1,
+        "taskTextContainment": [
+          {
+            "text": "Data",
+            "clipped": false
+          },
+          {
+            "text": "Process",
+            "clipped": false
+          },
+          {
+            "text": "Fit",
+            "clipped": false
+          },
+          {
+            "text": "Export",
+            "clipped": false
+          },
+          {
+            "text": "Data source",
+            "clipped": false
+          },
+          {
+            "text": "Library",
+            "clipped": false
+          },
+          {
+            "text": "Local file",
+            "clipped": false
+          },
+          {
+            "text": "Test Data JSON",
+            "clipped": false
+          },
+          {
+            "text": "Source preview",
+            "clipped": false
+          }
+        ],
+        "legendOverlapWithAxisTitle": false,
+        "visibleContent": {
+          "sourceTabs": [
+            "Library",
+            "Local file",
+            "Test Data JSON"
+          ],
+          "stageLabels": [
+            "Data",
+            "Process",
+            "Fit",
+            "Export"
+          ],
+          "curveRows": [
+            "Specimen 01",
+            "Specimen 02",
+            "Specimen 03"
+          ],
+          "savedDatasets": [
+            "CMP-DEMO-DP780-TEST-JSON-03 · r1",
+            "CMP-DEMO-DP780-TEST-JSON-02 · r1",
+            "CMP-DEMO-DP780-TEST-JSON-01 · r2"
+          ],
+          "rawInspector": false,
+          "mappingTable": false,
+          "graphEmpty": false,
+          "graphBlocked": false,
+          "graphContext": "CMP-DEMO-DP780-TEST-JSON-02 · r1 · preview only",
+          "visiblePlotCurves": 3,
+          "plotLegendVisible": true,
+          "updatePreviewDisabled": true,
+          "saveDatasetDisabled": true
+        },
+        "tableContainment": {
+          "raw": {
+            "present": true,
+            "rows": 3,
+            "overflow": 0,
+            "cells": [
+              {
+                "text": "Engineering strain measurement long channel name",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "True stress MPa observed channel label",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Specimen identifier from test record",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "0.0000",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "0",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "DP780-S01",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "0.0125",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "318.4",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "DP780-S01",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "0.0250",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "455.9",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "DP780-S01",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              }
+            ],
+            "allInside": true,
+            "allContained": true
+          },
+          "mapping": {
+            "present": true,
+            "rows": 2,
+            "overflow": 0,
+            "cells": [
+              {
+                "text": "Axis",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Source column",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Quantity semantics",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Raw unit",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Normalized unit",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Status",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Independent",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Engineering strain measurement long channel nameTrue stress MPa observed channel label",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Engineering strain",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "%1",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "1",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Proposed",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Dependent",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Engineering strain measurement long channel nameTrue stress MPa observed channel label",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Engineering stress",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "%MPa",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "MPa",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Conflict · choose a different source column",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              }
+            ],
+            "allInside": true,
+            "allContained": true
+          }
+        },
+        "datasetOptions": 3,
+        "includedCurves": 2,
+        "visibleCurveCount": 3,
+        "nestedPersistentCards": 0
+      },
+      "collapsed": {
+        "target": "normal-collapsed",
+        "state": "normal",
+        "viewport": {
+          "width": 2560,
+          "height": 1440
+        },
+        "overflow": {
+          "documentHorizontal": 0,
+          "documentVertical": 0,
+          "bodyHorizontal": 0,
+          "bodyVertical": 0
+        },
+        "regions": {
+          "applicationBar": {
+            "x": 0,
+            "y": 0,
+            "width": 2560,
+            "height": 46,
+            "right": 2560,
+            "bottom": 46
+          },
+          "context": {
+            "x": 0,
+            "y": 46,
+            "width": 2560,
+            "height": 42,
+            "right": 2560,
+            "bottom": 88
+          },
+          "stageStrip": {
+            "x": 0,
+            "y": 88,
+            "width": 2560,
+            "height": 34,
+            "right": 2560,
+            "bottom": 122
+          },
+          "navigator": {
+            "x": 0,
+            "y": 122,
+            "width": 0,
+            "height": 1294,
+            "right": 0,
+            "bottom": 1416
+          },
+          "divider": {
+            "x": 0,
+            "y": 122,
+            "width": 5,
+            "height": 1294,
+            "right": 5,
+            "bottom": 1416
+          },
+          "main": {
+            "x": 5,
+            "y": 122,
+            "width": 2555,
+            "height": 1294,
+            "right": 2560,
+            "bottom": 1416
+          },
+          "ribbon": {
+            "x": 5,
+            "y": 122,
+            "width": 2555,
+            "height": 204,
+            "right": 2560,
+            "bottom": 326
+          },
+          "graph": {
+            "x": 5,
+            "y": 326,
+            "width": 2555,
+            "height": 1065,
+            "right": 2560,
+            "bottom": 1391
+          },
+          "graphCanvas": {
+            "x": 14,
+            "y": 364,
+            "width": 2537,
+            "height": 1020,
+            "right": 2551,
+            "bottom": 1384
+          },
+          "statusBar": {
+            "x": 0,
+            "y": 1416,
+            "width": 2560,
+            "height": 24,
+            "right": 2560,
+            "bottom": 1440
+          }
+        },
+        "divider": {
+          "ariaMin": 180,
+          "ariaMax": 240,
+          "ariaNow": 0,
+          "ariaExpanded": false,
+          "visibleWidth": 5,
+          "ruleWidth": 1
+        },
+        "plot": {
+          "present": true,
+          "width": 2537,
+          "height": 1020,
+          "renderWidth": 2537,
+          "renderHeight": 1020,
+          "renderedRatio": 2.4872549019607844,
+          "viewBoxRatio": 2.4872549019607844,
+          "ratioDelta": 0,
+          "preserveAspectRatio": "xMidYMid meet",
+          "seriesPath": {
+            "x": 80,
+            "y": 165.60000610351562,
+            "right": 2026.4000244140625,
+            "bottom": 968.0000305175781
+          },
+          "seriesPaths": [
+            {
+              "x": 80,
+              "y": 165.60000610351562,
+              "right": 2026.4000244140625,
+              "bottom": 968.0000305175781,
+              "width": 1946.4000244140625,
+              "height": 802.4000244140625
+            },
+            {
+              "x": 80,
+              "y": 172.2100067138672,
+              "right": 2026.4000244140625,
+              "bottom": 967.9999847412109,
+              "width": 1946.4000244140625,
+              "height": 795.7899780273438
+            },
+            {
+              "x": 80,
+              "y": 179.75999450683594,
+              "right": 2026.4000244140625,
+              "bottom": 967.9999847412109,
+              "width": 1946.4000244140625,
+              "height": 788.239990234375
+            }
+          ],
+          "plotArea": {
+            "left": 80,
+            "right": 2513,
+            "top": 24,
+            "bottom": 968
+          },
+          "dataBounds": {
+            "observedMinStrain": 0,
+            "observedMaxStrain": 0.2,
+            "observedMinStressMpa": 0,
+            "observedMaxStressMpa": 850,
+            "axisMinStrain": 0,
+            "axisMaxStrain": 0.25,
+            "axisMinStressMpa": 0,
+            "axisMaxStressMpa": 1000
+          },
+          "headroom": {
+            "left": 0,
+            "right": 486.5999755859375,
+            "top": 141.60000610351562,
+            "bottom": -3.0517578125e-05
+          },
+          "axes": [
+            "0",
+            "0.05",
+            "0.10",
+            "0.15",
+            "0.20",
+            "0.25",
+            "0",
+            "250",
+            "500",
+            "750",
+            "1,000",
+            "Engineering strain [1]",
+            "Engineering stress (MPa)"
+          ],
+          "labelMetrics": [
+            {
+              "text": "0",
+              "fontSize": 11,
+              "x": 94,
+              "y": 1338,
+              "width": 6,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.05",
+              "fontSize": 11,
+              "x": 570.5062255859375,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.10",
+              "fontSize": 11,
+              "x": 1057.106201171875,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.15",
+              "fontSize": 11,
+              "x": 1543.706298828125,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.20",
+              "fontSize": 11,
+              "x": 2030.3062744140625,
+              "y": 1338,
+              "width": 20.2440185546875,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.25",
+              "fontSize": 11,
+              "x": 2506.8125,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0",
+              "fontSize": 11,
+              "x": 78.0625,
+              "y": 1324,
+              "width": 6,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "250",
+              "fontSize": 11,
+              "x": 66.203125,
+              "y": 1088,
+              "width": 17.859375,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "500",
+              "fontSize": 11,
+              "x": 66.203125,
+              "y": 852,
+              "width": 17.859375,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "750",
+              "fontSize": 11,
+              "x": 66.203125,
+              "y": 616,
+              "width": 17.859375,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "1,000",
+              "fontSize": 11,
+              "x": 57.890625,
+              "y": 380,
+              "width": 26.173828125,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "Engineering strain [1]",
+              "fontSize": 12,
+              "x": 1254.234375,
+              "y": 1361,
+              "width": 112.53125,
+              "height": 16,
+              "inside": true
+            },
+            {
+              "text": "Engineering stress (MPa)",
+              "fontSize": 12,
+              "x": 19,
+              "y": 794.673828125,
+              "width": 16,
+              "height": 130.287109375,
+              "inside": true
+            }
+          ],
+          "strokeMetrics": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1.2,
+            1.2,
+            2.6,
+            2.1,
+            2
+          ]
+        },
+        "devicePixelRatio": 1,
+        "taskTextContainment": [
+          {
+            "text": "Data",
+            "clipped": false
+          },
+          {
+            "text": "Process",
+            "clipped": false
+          },
+          {
+            "text": "Fit",
+            "clipped": false
+          },
+          {
+            "text": "Export",
+            "clipped": false
+          },
+          {
+            "text": "Data source",
+            "clipped": false
+          },
+          {
+            "text": "Library",
+            "clipped": false
+          },
+          {
+            "text": "Local file",
+            "clipped": false
+          },
+          {
+            "text": "Test Data JSON",
+            "clipped": false
+          },
+          {
+            "text": "Source preview",
+            "clipped": false
+          }
+        ],
+        "legendOverlapWithAxisTitle": false,
+        "visibleContent": {
+          "sourceTabs": [
+            "Library",
+            "Local file",
+            "Test Data JSON"
+          ],
+          "stageLabels": [
+            "Data",
+            "Process",
+            "Fit",
+            "Export"
+          ],
+          "curveRows": [],
+          "savedDatasets": [
+            "CMP-DEMO-DP780-TEST-JSON-03 · r1",
+            "CMP-DEMO-DP780-TEST-JSON-02 · r1",
+            "CMP-DEMO-DP780-TEST-JSON-01 · r2"
+          ],
+          "rawInspector": false,
+          "mappingTable": false,
+          "graphEmpty": false,
+          "graphBlocked": false,
+          "graphContext": "CMP-DEMO-DP780-TEST-JSON-02 · r1 · preview only",
+          "visiblePlotCurves": 3,
+          "plotLegendVisible": true,
+          "updatePreviewDisabled": true,
+          "saveDatasetDisabled": true
+        },
+        "tableContainment": {
+          "raw": {
+            "present": true,
+            "rows": 3,
+            "overflow": 0,
+            "cells": [
+              {
+                "text": "Engineering strain measurement long channel name",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "True stress MPa observed channel label",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Specimen identifier from test record",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "0.0000",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "0",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "DP780-S01",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "0.0125",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "318.4",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "DP780-S01",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "0.0250",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "455.9",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "DP780-S01",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              }
+            ],
+            "allInside": true,
+            "allContained": true
+          },
+          "mapping": {
+            "present": true,
+            "rows": 2,
+            "overflow": 0,
+            "cells": [
+              {
+                "text": "Axis",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Source column",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Quantity semantics",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Raw unit",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Normalized unit",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Status",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Independent",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Engineering strain measurement long channel nameTrue stress MPa observed channel label",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Engineering strain",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "%1",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "1",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Proposed",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Dependent",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Engineering strain measurement long channel nameTrue stress MPa observed channel label",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Engineering stress",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "%MPa",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "MPa",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Conflict · choose a different source column",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              }
+            ],
+            "allInside": true,
+            "allContained": true
+          }
+        },
+        "datasetOptions": 3,
+        "includedCurves": 0,
+        "visibleCurveCount": 0,
+        "nestedPersistentCards": 0
+      },
+      "restored": {
+        "target": "normal-restored",
+        "state": "normal",
+        "viewport": {
+          "width": 2560,
+          "height": 1440
+        },
+        "overflow": {
+          "documentHorizontal": 0,
+          "documentVertical": 0,
+          "bodyHorizontal": 0,
+          "bodyVertical": 0
+        },
+        "regions": {
+          "applicationBar": {
+            "x": 0,
+            "y": 0,
+            "width": 2560,
+            "height": 46,
+            "right": 2560,
+            "bottom": 46
+          },
+          "context": {
+            "x": 0,
+            "y": 46,
+            "width": 2560,
+            "height": 42,
+            "right": 2560,
+            "bottom": 88
+          },
+          "stageStrip": {
+            "x": 0,
+            "y": 88,
+            "width": 2560,
+            "height": 34,
+            "right": 2560,
+            "bottom": 122
+          },
+          "navigator": {
+            "x": 0,
+            "y": 122,
+            "width": 240,
+            "height": 1294,
+            "right": 240,
+            "bottom": 1416
+          },
+          "divider": {
+            "x": 240,
+            "y": 122,
+            "width": 5,
+            "height": 1294,
+            "right": 245,
+            "bottom": 1416
+          },
+          "main": {
+            "x": 245,
+            "y": 122,
+            "width": 2315,
+            "height": 1294,
+            "right": 2560,
+            "bottom": 1416
+          },
+          "ribbon": {
+            "x": 245,
+            "y": 122,
+            "width": 2315,
+            "height": 204,
+            "right": 2560,
+            "bottom": 326
+          },
+          "graph": {
+            "x": 245,
+            "y": 326,
+            "width": 2315,
+            "height": 1065,
+            "right": 2560,
+            "bottom": 1391
+          },
+          "graphCanvas": {
+            "x": 254,
+            "y": 364,
+            "width": 2297,
+            "height": 1020,
+            "right": 2551,
+            "bottom": 1384
+          },
+          "statusBar": {
+            "x": 0,
+            "y": 1416,
+            "width": 2560,
+            "height": 24,
+            "right": 2560,
+            "bottom": 1440
+          }
+        },
+        "divider": {
+          "ariaMin": 180,
+          "ariaMax": 240,
+          "ariaNow": 240,
+          "ariaExpanded": true,
+          "visibleWidth": 5,
+          "ruleWidth": 1
+        },
+        "plot": {
+          "present": true,
+          "width": 2297,
+          "height": 1020,
+          "renderWidth": 2297,
+          "renderHeight": 1020,
+          "renderedRatio": 2.2519607843137255,
+          "viewBoxRatio": 2.2519607843137255,
+          "ratioDelta": 0,
+          "preserveAspectRatio": "xMidYMid meet",
+          "seriesPath": {
+            "x": 80,
+            "y": 165.60000610351562,
+            "right": 1834.4000244140625,
+            "bottom": 968.0000305175781
+          },
+          "seriesPaths": [
+            {
+              "x": 80,
+              "y": 165.60000610351562,
+              "right": 1834.4000244140625,
+              "bottom": 968.0000305175781,
+              "width": 1754.4000244140625,
+              "height": 802.4000244140625
+            },
+            {
+              "x": 80,
+              "y": 172.2100067138672,
+              "right": 1834.4000244140625,
+              "bottom": 967.9999847412109,
+              "width": 1754.4000244140625,
+              "height": 795.7899780273438
+            },
+            {
+              "x": 80,
+              "y": 179.75999450683594,
+              "right": 1834.4000244140625,
+              "bottom": 967.9999847412109,
+              "width": 1754.4000244140625,
+              "height": 788.239990234375
+            }
+          ],
+          "plotArea": {
+            "left": 80,
+            "right": 2273,
+            "top": 24,
+            "bottom": 968
+          },
+          "dataBounds": {
+            "observedMinStrain": 0,
+            "observedMaxStrain": 0.2,
+            "observedMinStressMpa": 0,
+            "observedMaxStressMpa": 850,
+            "axisMinStrain": 0,
+            "axisMaxStrain": 0.25,
+            "axisMinStressMpa": 0,
+            "axisMaxStressMpa": 1000
+          },
+          "headroom": {
+            "left": 0,
+            "right": 438.5999755859375,
+            "top": 141.60000610351562,
+            "bottom": -3.0517578125e-05
+          },
+          "axes": [
+            "0",
+            "0.05",
+            "0.10",
+            "0.15",
+            "0.20",
+            "0.25",
+            "0",
+            "250",
+            "500",
+            "750",
+            "1,000",
+            "Engineering strain [1]",
+            "Engineering stress (MPa)"
+          ],
+          "labelMetrics": [
+            {
+              "text": "0",
+              "fontSize": 11,
+              "x": 334,
+              "y": 1338,
+              "width": 6,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.05",
+              "fontSize": 11,
+              "x": 762.5062255859375,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.10",
+              "fontSize": 11,
+              "x": 1201.106201171875,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.15",
+              "fontSize": 11,
+              "x": 1639.706298828125,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.20",
+              "fontSize": 11,
+              "x": 2078.30615234375,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0.25",
+              "fontSize": 11,
+              "x": 2506.8125,
+              "y": 1338,
+              "width": 20.244140625,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "0",
+              "fontSize": 11,
+              "x": 318.0625,
+              "y": 1324,
+              "width": 6,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "250",
+              "fontSize": 11,
+              "x": 306.203125,
+              "y": 1088,
+              "width": 17.859375,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "500",
+              "fontSize": 11,
+              "x": 306.203125,
+              "y": 852,
+              "width": 17.859375,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "750",
+              "fontSize": 11,
+              "x": 306.203125,
+              "y": 616,
+              "width": 17.859375,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "1,000",
+              "fontSize": 11,
+              "x": 297.890625,
+              "y": 380,
+              "width": 26.173828125,
+              "height": 15,
+              "inside": true
+            },
+            {
+              "text": "Engineering strain [1]",
+              "fontSize": 12,
+              "x": 1374.234375,
+              "y": 1361,
+              "width": 112.53125,
+              "height": 16,
+              "inside": true
+            },
+            {
+              "text": "Engineering stress (MPa)",
+              "fontSize": 12,
+              "x": 259,
+              "y": 794.673828125,
+              "width": 16,
+              "height": 130.287109375,
+              "inside": true
+            }
+          ],
+          "strokeMetrics": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1.2,
+            1.2,
+            2.6,
+            2.1,
+            2
+          ]
+        },
+        "devicePixelRatio": 1,
+        "taskTextContainment": [
+          {
+            "text": "Data",
+            "clipped": false
+          },
+          {
+            "text": "Process",
+            "clipped": false
+          },
+          {
+            "text": "Fit",
+            "clipped": false
+          },
+          {
+            "text": "Export",
+            "clipped": false
+          },
+          {
+            "text": "Data source",
+            "clipped": false
+          },
+          {
+            "text": "Library",
+            "clipped": false
+          },
+          {
+            "text": "Local file",
+            "clipped": false
+          },
+          {
+            "text": "Test Data JSON",
+            "clipped": false
+          },
+          {
+            "text": "Source preview",
+            "clipped": false
+          }
+        ],
+        "legendOverlapWithAxisTitle": false,
+        "visibleContent": {
+          "sourceTabs": [
+            "Library",
+            "Local file",
+            "Test Data JSON"
+          ],
+          "stageLabels": [
+            "Data",
+            "Process",
+            "Fit",
+            "Export"
+          ],
+          "curveRows": [
+            "Specimen 01",
+            "Specimen 02",
+            "Specimen 03"
+          ],
+          "savedDatasets": [
+            "CMP-DEMO-DP780-TEST-JSON-03 · r1",
+            "CMP-DEMO-DP780-TEST-JSON-02 · r1",
+            "CMP-DEMO-DP780-TEST-JSON-01 · r2"
+          ],
+          "rawInspector": false,
+          "mappingTable": false,
+          "graphEmpty": false,
+          "graphBlocked": false,
+          "graphContext": "CMP-DEMO-DP780-TEST-JSON-02 · r1 · preview only",
+          "visiblePlotCurves": 3,
+          "plotLegendVisible": true,
+          "updatePreviewDisabled": true,
+          "saveDatasetDisabled": true
+        },
+        "tableContainment": {
+          "raw": {
+            "present": true,
+            "rows": 3,
+            "overflow": 0,
+            "cells": [
+              {
+                "text": "Engineering strain measurement long channel name",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "True stress MPa observed channel label",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Specimen identifier from test record",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "0.0000",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "0",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "DP780-S01",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "0.0125",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "318.4",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "DP780-S01",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "0.0250",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "455.9",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "DP780-S01",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              }
+            ],
+            "allInside": true,
+            "allContained": true
+          },
+          "mapping": {
+            "present": true,
+            "rows": 2,
+            "overflow": 0,
+            "cells": [
+              {
+                "text": "Axis",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Source column",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Quantity semantics",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Raw unit",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Normalized unit",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Status",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Independent",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Engineering strain measurement long channel nameTrue stress MPa observed channel label",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Engineering strain",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "%1",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "1",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Proposed",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Dependent",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Engineering strain measurement long channel nameTrue stress MPa observed channel label",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Engineering stress",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "%MPa",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "MPa",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              },
+              {
+                "text": "Conflict · choose a different source column",
+                "left": 0,
+                "right": 0,
+                "clientWidth": 0,
+                "scrollWidth": 0,
+                "inside": true,
+                "contained": true
+              }
+            ],
+            "allInside": true,
+            "allContained": true
+          }
+        },
+        "datasetOptions": 3,
+        "includedCurves": 2,
+        "visibleCurveCount": 3,
+        "nestedPersistentCards": 0
+      }
+    }
+  },
+  "web_interface_guidelines_audit": {
+    "result": "pass",
+    "checked": [
+      "semantic buttons, links, tabs and associated labels",
+      "visible keyboard focus",
+      "no fake controls or non-dialog ellipsis labels",
+      "no render-time layout loop",
+      "deliberate containment and truncation"
+    ],
+    "source": "vercel-labs/web-interface-guidelines/command.md"
+  }
+}

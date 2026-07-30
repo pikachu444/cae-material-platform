@@ -5514,3 +5514,291 @@ three explicitly registered normal viewports whose five final original-resolutio
 were reported together: 1366×768, 1440×900 and 1920×1080, with 2560×1440 and 3840×2160 supporting
 wide evidence. All three normal references are now `approved`; issue #167 progress is 32 of 72
 approved with 40 remaining.
+
+## 72. Follow-up audit — ACT-QUEUE wide-density rejection and implementer handoff
+
+Date: 2026-07-30
+
+After the product owner authorized continuation, the active main agent first revalidated the next
+pending MAT-EXP exceptional pair and ACT-QUEUE family. Both family validators and every registered
+image hash passed. The MAT-EXP long/empty pair remains eligible for a later combined owner handoff.
+
+The active main agent then opened the pending Activity images at original resolution under the
+current Q-20 large-display rule. The old ACT-QUEUE acceptance is no longer valid. At 1920×1080, User
+normal renders only one pending request, one local session and one local card history row, leaving
+most of the workspace as an avoidable blank region even though production already calls
+`listReviewRequests(..., { limit: 50 })`. The User reference also places the User's own pending
+request under `Needs attention`, while the current product contract places it under `In progress`.
+Reviewer normal uses more rows but inherits the same deliberately under-filled fixture and has not
+been reviewed at 2560×1440 or 3840×2160.
+
+This is a Q-20 failure plus a role/state placement failure. It does not authorize fabricated
+Material/Owner names, receipts, releases, duplicate local sessions, stretched rows or explanatory
+cards. The main agent chose a contract-backed correction: a compact five-column queue table using a
+representative 50-request page, role-correct default views, independent local scrolling and normal
+wide-support evidence at 2560 and 3840.
+
+[The bounded ACT-QUEUE implementer packet](issue-167-implementer-packet-wide-act-queue-density.md)
+defines the exact writer-owned files, preserved immutable review/recovery contracts and deterministic
+gates. One configured Luna Max implementer may now perform the isolated static-reference rework. No
+common manifest/inventory integration, subsequent dependent family, production React/CSS, commit,
+push, PR or merge is authorized before the new main/reviewer/owner gates.
+
+## 73. ACT-QUEUE wide-density main-agent qualitative rejection
+
+Date: 2026-07-30
+
+The configured Luna Max implementer completed the bounded wide-density rework. The active main agent
+independently reran JavaScript syntax, Python compilation, Ruff, the complete family validator, the
+wide-support validator, inventory validation and the whitespace gate; all passed. The resulting
+normal fixture contains 50 server review requests, split into 40 pending and 10 decided records.
+User defaults to `In progress`; Reviewer defaults to `Needs attention`. At 1366, 1440, 1920, 2560
+and 3840, compact rows and an independent proportional scroll rail use the available height without
+stretching rows or fabricating Material/Owner identities.
+
+The active main agent opened all eleven approval and wide-support images at original resolution.
+The wide-density and role-placement failures recorded in section 72 are resolved, but the final
+qualitative gate found one remaining workflow-semantic failure: User pending rows repeat
+`Needs a decision` in both `Status` and `Action`. A User has no decision command for those rows, so
+the second value is neither an action nor new information. This contradicts the canonical rule that
+a normal visible field must have a user decision or workflow consequence.
+
+[The bounded passive-action correction packet](issue-167-correction-packet-act-queue-passive-action.md)
+requires passive action cells to render a compact, accessible no-action marker while preserving
+Reviewer `Review`, browser-local `Resume Modeling` / `Open card`, the 50-request data contract and
+all responsive/recovery evidence. The seven registered candidates remain `pending`, main-agent
+`rejected` and product-owner approval absent. No later family, production React/CSS, commit, push,
+PR or merge is authorized before correction, deterministic gates, fresh read-only re-review and
+final owner confirmation.
+
+## 74. ACT-QUEUE passive-action correction and main-agent acceptance
+
+Date: 2026-07-30
+
+One fresh configured Terra High correction writer loaded successfully and completed the bounded
+passive-action correction without model substitution. Passive rows now expose a visible em dash
+with accessible name `No available action`; lifecycle state remains solely in `Status`. Reviewer
+`Review`, browser-local `Resume Modeling` and `Open card`, and governed recovery commands remain
+unchanged. The validator also proves that a successful Reviewer decision removes `Review`, exposes
+the passive marker and does not duplicate its new lifecycle state.
+
+The active main agent independently reran JavaScript syntax, Python compilation, Ruff, the complete
+family validator, the wide-support validator, inventory validation and `git diff --check`; all pass.
+All eleven candidate/support hashes match the staging index. Seven responsive state bundles and
+pointer/keyboard/recovery evidence pass. The active main agent then reopened all eleven images at
+original resolution.
+
+The final main-agent qualitative disposition is `accepted`. Q-02 passes because overflowing queues
+have an independent visible proportional rail while non-overflow states do not invent one. Q-09
+passes because the queue remains a flat role-aware work table with coherent real commands and
+accessible passive cells. Q-20 passes because a contract-backed 50-request page fills increasing
+height at stable density through 3840×2160 without stretched rows, fabricated identities or a
+dominant avoidable blank region. Q-01, Q-03–Q-08 and Q-10–Q-19 are not applicable to this Activity
+topology. All seven registered references remain `pending` with product-owner approval absent.
+
+Fresh read-only re-review now uses
+[the bounded ACT-QUEUE wide-density reviewer packet](issue-167-rereviewer-packet-act-queue-wide-density.md).
+No subsequent family, production React/CSS, commit, push, PR or merge has started.
+
+## 75. ACT-QUEUE fresh re-review and final internal judgment
+
+Date: 2026-07-30
+
+One fresh configured read-only Terra High reviewer loaded successfully without model substitution.
+The reviewer opened all eleven candidate/support images and all twenty-one responsive state images
+at original resolution, reran the bounded deterministic gates and returned `approve` with no
+actionable finding. Q-02, Q-09 and Q-20 pass; Q-01, Q-03–Q-08 and Q-10–Q-19 are not applicable to
+the Activity topology.
+
+After receiving that disposition, the active main agent reopened all eleven final images at original
+resolution and repeated the complete qualitative judgment. The final internal disposition remains
+`accepted`. User pending work is correctly in `In progress`, Reviewer decisions are in
+`Needs attention`, lifecycle status is not repeated as an action, and every actual command belongs
+to the supported role and row. Fixed-density rows and the proportional local rail remain coherent
+from 1366×768 through 3840×2160; the 50-request contract removes the prior dominant blank region
+without stretching rows or inventing identities. The long decision failure still preserves request,
+choice and non-empty reason and exposes only `Retry decision`.
+
+The seven registered ACT-QUEUE candidates remain `pending`, main-agent `accepted` and
+product-owner approval absent. Their final hashes are recorded in the common manifest and staging
+index. The independent pending MAT-EXP long/empty pair also remains internally accepted and is
+eligible for the same product-owner batch decision. No later family, production React/CSS, commit,
+push, PR or merge has started.
+
+## 76. Product-owner batch approval and prior-reference wide audit
+
+Date: 2026-07-30
+
+The product owner approved the nine explicitly handed-off images: MAT-EXP long and empty at
+1440×900; ACT-QUEUE User normal at 1366×768, 1440×900 and 1920×1080; ACT-QUEUE Reviewer normal at
+1366×768, 1440×900 and 1920×1080; and the Reviewer long-decision-error state at 1440×900. Each
+manifest entry now has its own approved lifecycle. Issue #167 progress is 41 of 72 approved with 31
+remaining.
+
+The owner then asked whether all 32 references approved before this batch had also been resolved at
+high resolution. A direct manifest and evidence-directory audit found that only the six normal
+references in MAT-EXP and MAT-DETAIL had explicit original-resolution 2560×1440 and 3840×2160
+support evidence. The remaining 26 references were accepted under the canonical responsive contract
+through 1920×1080 and must not be represented as 2560/3840-complete.
+
+This does not multiply every same-topology exceptional state into extra approval images. The
+wide-screen follow-up remains family-based: each normal family needs representative 2560×1440 and
+3840×2160 support evidence under Q-20; an exceptional state needs an additional wide approval image
+only when measured topology changes. Existing product-owner approvals remain valid for their
+recorded canonical viewports, but wide completion is a separate, finite re-audit backlog.
+
+## 77. Existing-approved-family 2560/3840 direct audit
+
+Date: 2026-07-30
+
+The active main agent captured and opened the five previously approved normal families that lacked
+wide evidence at 2560×1440 and 3840×2160. All ten temporary audit captures had viewport-sized
+documents, no page overflow and no console or page errors. Those deterministic facts were not
+treated as visual acceptance.
+
+| Family | Wide disposition | Original-resolution finding |
+| --- | --- | --- |
+| MOD-DATA | rejected | Its fixed `0 0 1000 500` SVG uses `preserveAspectRatio="none"` inside a 3609×1740 rendered box. Axis text and strokes scale differently from the stable application typography and become visually oversized at 3840. |
+| MAT-CARD | rejected | The short exact native card is placed in a full-height preview surface. At 3840 the few source lines remain at the upper-left while a dominant dark empty region consumes the meaningful workspace. |
+| MOD-PROCESS | rejected | It repeats the fixed `0 0 1000 500` / `preserveAspectRatio="none"` graph contract in a 3609×1723 box, creating the same non-uniform engineering-plot typography and stroke scaling. |
+| MOD-FIT | accepted for wide geometry | Its generated SVG viewBox exactly matches the 3627×1797 render box, keeps 11–11.5 px graph text, preserves the plot-internal legend and uses the expanded area for the persistent graph without a dominant blank panel. Persistent registered wide evidence is still required. |
+| MOD-EXPORT | rejected | The short solver-card preview stretches across most of a 3840×2160 workspace while Mapping details and the linked Fit graph remain trapped in a narrow rail, leaving a dominant empty preview region instead of useful mapped/source information. |
+
+The correction backlog is therefore four families, not all 26 previously approved references.
+MOD-DATA and MAT-CARD are independent and may form the first bounded two-writer correction batch.
+MOD-PROCESS follows the corrected Modeling graph contract. MOD-EXPORT can then reuse the corrected
+wide result/preview density without reopening the already accepted Fit geometry. Every changed
+family must recapture its canonical 1366/1440/1920 images and obtain fresh main/reviewer/owner
+approval; MOD-FIT needs only deterministic persistent 2560/3840 support evidence if its canonical
+sources remain byte-identical.
+
+## 78. MOD-DATA and MAT-CARD wide correction, fresh review and owner handoff
+
+Date: 2026-07-30
+
+The active main agent authored and persisted the bounded implementer packets before loading the two
+configured Luna Max writers. The families had disjoint source/capture/image ownership. The active
+main agent then ran every deterministic family gate and opened all fourteen candidate/support
+images at original resolution. It rejected the first MAT-CARD result because the 1920 preview still
+used a dominant empty native-text region, then rejected the first correction because its overflowing
+native text had no discoverable local scroll rail. The sole configured Terra High correction pass
+resolved both findings. A separate sole MOD-DATA correction restored the agreed parenthesized
+`Engineering stress (MPa)` axis notation after the first reviewer missed that qualitative contract.
+
+Final MOD-DATA approval candidates:
+
+| Target | SHA-256 |
+| --- | --- |
+| normal 1366×768 | `a5a61b1f960575ed5f266d218bc5ff748a4fb986dcc53807604c8e17d0d0e64c` |
+| normal 1440×900 | `5e831b9ea26489f44d6b8ef263d104951968f0107aecb983f0cd9ed0ebcefe54` |
+| normal 1920×1080 | `fc3fc35693718f5aa5e3902d6b7ade39f8f2009f33c6507fadc6733b517a0fbe` |
+| empty new session 1440×900 | `c6b7949a32019ef3dc29a3c4dd27444c5a4e466798360c1f76fb650242a105e8` |
+| invalid mapping blocked 1440×900 | `0c661147014fecdb5ad290a9c9ead01d9a389c84f12eb9fe87f6548cbe362356` |
+
+MOD-DATA wide support:
+
+| Viewport | SHA-256 |
+| --- | --- |
+| 2560×1440 | `598c842321ff880fecceda86c2b53849e11a704e3d1faa511045c5bb3957ae49` |
+| 3840×2160 | `1130be05d5567adaeed71f8460a7161826942bc6fa44902d6bc440937e9866be` |
+
+The graph now derives its SVG coordinate system from the rendered CSS-pixel geometry instead of
+stretching a fixed `1000×500` viewBox. Graph text remains 11–12 px, strokes remain stable, and
+data-derived nice bounds preserve top/right headroom through 3840. The axes read
+`Engineering stress (MPa)` and `Engineering strain [1]`; exact revisions, curve inclusion versus
+visibility, invalid-mapping recovery, stale-preview semantics and keyboard splitter consequences
+remain intact.
+
+Final MAT-CARD approval candidates and preserved approvals:
+
+| Target | SHA-256 | Lifecycle consequence |
+| --- | --- | --- |
+| normal 1366×768 | `60497b5fef2239cd17a468b4e8fcf1316e0bccca5b753600aff5f240b21a4372` | byte-identical; prior approval retained |
+| normal 1440×900 | `74f06d51955b1d7b8f95fed9aaa8f17af147ca00435d7e04f619638c977b2f21` | byte-identical; prior approval retained |
+| normal 1920×1080 | `63c0947178da30fadaf16401b780234c6731551e4bf1a54bd1719bbca235eaaa` | replacement; owner approval pending |
+| approximation blocked 1440×900 | `2ea15b1bb5d0984296bab458a7d8572111f816c12f87ba5830ec3cbef7d7be92` | byte-identical; prior approval retained |
+| unsupported blocked 1440×900 | `688a0fd8bd9d4d72042f2ad21813df3b8f7ede78b128f75d3cfb1a6c63466d6d` | byte-identical; prior approval retained |
+
+MAT-CARD wide support:
+
+| Viewport | SHA-256 |
+| --- | --- |
+| 2560×1440 | `8544204ba6d4508ad6c041ae8ea80ba0cfdb0687d5514d273903b661a77ea427` |
+| 3840×2160 | `8b2ef53ee04164b42a5ce343cb886027d319063b9545f16307e148685e3e96f2` |
+
+At 1920 and wider, the exact native card is capped at 320 CSS px and exposes a reserved 11 px local
+scroll gutter with a proportional thumb and wheel consequence. The remaining height is used by a
+linked engineering response parsed from the same six `*PLASTIC` rows, not by fabricated or
+reprocessed data. Its `True stress (MPa)` versus `True plastic strain [1]` plot begins at
+`(0, 450 MPa)`, uses data-relative headroom, stable typography and a compact curve-free in-plot
+legend. The bounded delivery sheet remains 312 px.
+
+Two fresh configured read-only Terra High reviewers loaded successfully without model substitution.
+Each reviewer returned `approve`, V-01–V-16 at 32/32, no hard-gate failure and no actionable
+finding. The active main agent then repeated the original-resolution qualitative owner checklist
+and retained `accepted` for both families. Q-05–Q-07, Q-15 and Q-20 pass for MOD-DATA; Q-03,
+Q-05–Q-09, Q-15, Q-16 and Q-20 pass for MAT-CARD. All non-applicable checklist items are explained
+in the bounded reviewer packets.
+
+Five changed MOD-DATA references and the changed MAT-CARD 1920 reference are now `pending` with
+main-agent evaluation `accepted` and product-owner approval `absent`. Four byte-identical MAT-CARD
+references retain their prior approval. The temporary manifest total is therefore 35 of 72 approved;
+approval of these six replacements restores 41 of 72 before the dependent MOD-PROCESS correction.
+No production React/CSS, commit, push, PR or merge has started.
+
+## 79. Product-owner MAT-CARD light-preview correction and fresh re-review
+
+Date: 2026-07-30
+
+During the pending owner review, the product owner rejected the MAT-CARD native preview's near-black
+console surface. The active main agent compared it directly with the established Modeling Export
+Solver Card preview and the canonical `E-07a` UI-spec entry, which explicitly requires a light code
+surface. A Solver Card preview is a read-only engineering document rather than a terminal; the dark
+surface had no state meaning, over-dominated the page and broke cross-route consistency.
+
+The product owner explicitly directed an additional bounded correction, inspection, report and
+stop. The main agent persisted
+[the product-owner correction packet](issue-167-product-owner-correction-packet-mat-card-light-preview.md).
+One configured fresh Terra High correction writer changed only MAT-CARD styling and its
+capture/validation evidence. The final native-preview grammar is:
+
+- surface `#f7f9fa`;
+- text `#25343d`;
+- border `#aab5bb`;
+- overflow-only track `#dce7ec`, divider `#b6c9d2` and thumb `#4e8195`.
+
+Exact native bytes, monospace typography, font size/line height, 312 px delivery sheet, 320 px wide
+native cap, linked six-row `*PLASTIC` response, graph axes/legend/headroom, selected Record, mapping
+semantics and recovery behavior remain unchanged. Normal 1366/1440 and non-overflow blocked states
+show no false rail; 1920/2560/3840 retain an 80 px scroll range, visible proportional rail, text
+clearance and wheel consequence.
+
+Final approval/support hashes:
+
+| Target | SHA-256 |
+| --- | --- |
+| normal 1366×768 | `1cdbb5cc46f04116f5c97f66266869669d407e8be1d9ceed4d3211570a589cb2` |
+| normal 1440×900 | `07359c9cfb4d8c1429f6e046c9b22e8481c5abed9fde06f4b4c0dd535d8f6760` |
+| normal 1920×1080 | `5003ea1628f12d5d9001a705af2f79e338a1acbf84be410d58dbbfe81d47b07c` |
+| approximation blocked 1440×900 | `52235f10f98b4694a7124609d2aae9f6836e14ebe5415e04b24fe20814597697` |
+| unsupported blocked 1440×900 | `688a0fd8bd9d4d72042f2ad21813df3b8f7ede78b128f75d3cfb1a6c63466d6d` |
+| 2560×1440 support | `e3f4e699756a7d989fd339efbcee7a83d2a69784e59d14547b812f0c7e2da7fa` |
+| 3840×2160 support | `f120376f1433eadf781465bcc131f47e786ead77006c369c1fe2fdf466e67926` |
+
+The active main agent independently reran the full family validator, inventory validator, Ruff,
+Node syntax, staging hash check and whitespace gate; all passed. It opened all seven final images at
+original resolution and accepted the correction. The light preview is coherent with Modeling
+Export, readable at every viewport, does not obscure exact text and preserves the graph-first use of
+wide height.
+
+One fresh configured read-only Terra High reviewer then opened all seven images, verified every hash,
+reran the non-mutating gates and returned `approve`, V-01–V-16 at 32/32, with no hard-gate failure,
+actionable finding or residual concern. Q-03, Q-05, Q-07–Q-09, Q-15 and Q-20 pass; remaining items
+are not applicable for the reasons recorded in
+[the final reviewer packet](issue-167-reviewer-packet-mat-card-light-preview.md).
+
+The unsupported image is byte-identical and retains its prior approval. Normal 1366/1440/1920 and
+approximation-blocked changed and are now `pending`, main-agent `accepted`, product-owner approval
+`absent`. Together with the five pending MOD-DATA replacements, the temporary manifest total is
+32 of 72 approved with 40 remaining. Work stops here as directed: no next family, production
+React/CSS, commit, push, PR or merge has started.

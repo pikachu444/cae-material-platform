@@ -1,0 +1,478 @@
+{
+  "schema_version": 1,
+  "target": "materials-card-preview-normal-2560x1440",
+  "family": "MAT-CARD",
+  "kind": "normal",
+  "state": "normal",
+  "capture_date": "2026-07-30",
+  "viewport": {
+    "width": 2560,
+    "height": 1440,
+    "device_scale_factor": 1
+  },
+  "regions": {
+    "application_bar": {
+      "x": 0,
+      "y": 0,
+      "width": 2560,
+      "height": 46
+    },
+    "command_bar": {
+      "x": 8,
+      "y": 46,
+      "width": 2544,
+      "height": 38
+    },
+    "workspace": {
+      "x": 8,
+      "y": 84,
+      "width": 2544,
+      "height": 1332
+    },
+    "navigator": {
+      "x": 8,
+      "y": 84,
+      "width": 280,
+      "height": 1332
+    },
+    "navigator_divider": {
+      "x": 288,
+      "y": 84,
+      "width": 5,
+      "height": 1332
+    },
+    "datasheet": {
+      "x": 293,
+      "y": 84,
+      "width": 2259,
+      "height": 1332
+    },
+    "record_header": {
+      "x": 293,
+      "y": 84,
+      "width": 2259,
+      "height": 76
+    },
+    "tabs": {
+      "x": 293,
+      "y": 160,
+      "width": 2259,
+      "height": 36
+    },
+    "card_panel": {
+      "x": 293,
+      "y": 196,
+      "width": 2259,
+      "height": 1220
+    },
+    "card_heading": {
+      "x": 293,
+      "y": 196,
+      "width": 2259,
+      "height": 53
+    },
+    "card_content": {
+      "x": 293,
+      "y": 249,
+      "width": 2259,
+      "height": 1167
+    },
+    "native_preview": {
+      "x": 293,
+      "y": 249,
+      "width": 1947,
+      "height": 1167
+    },
+    "delivery_sheet": {
+      "x": 2240,
+      "y": 249,
+      "width": 312,
+      "height": 1167
+    },
+    "status_bar": {
+      "x": 0,
+      "y": 1416,
+      "width": 2560,
+      "height": 24
+    }
+  },
+  "tree": {
+    "horizontal_overflow": 0,
+    "kinds_inside": true,
+    "labels_match": true,
+    "labels_have_title": true,
+    "labels": [
+      {
+        "expected": "Database",
+        "actual": "Database",
+        "title": "Materials Database"
+      },
+      {
+        "expected": "Profile",
+        "actual": "Profile",
+        "title": "Engineering Materials"
+      },
+      {
+        "expected": "Table",
+        "actual": "Table",
+        "title": "Demo Material Records"
+      },
+      {
+        "expected": "Folder",
+        "actual": "Folder",
+        "title": "Synthetic metals"
+      },
+      {
+        "expected": "Folder",
+        "actual": "Folder",
+        "title": "Demo steels"
+      },
+      {
+        "expected": "Record",
+        "actual": "Record",
+        "title": "DP780 synthetic demo steel"
+      },
+      {
+        "expected": "Record",
+        "actual": "Record",
+        "title": "DP600 synthetic demo steel"
+      }
+    ]
+  },
+  "selected_record": true,
+  "tabs": {
+    "count": 6,
+    "labels": [
+      "Overview",
+      "Properties",
+      "Curves",
+      "CAE Cards",
+      "Related",
+      "Evidence"
+    ],
+    "active": "CAE Cards"
+  },
+  "overflow": {
+    "document_horizontal": 0,
+    "document_vertical": 0,
+    "body_horizontal": 0,
+    "body_vertical": 0
+  },
+  "splitter_evidence": {
+    "default": {
+      "widths": {
+        "navigator": 280,
+        "divider": 5,
+        "datasheet": 2259,
+        "native": 1947,
+        "delivery": 312
+      },
+      "aria": {
+        "minimum": 200,
+        "maximum": 360,
+        "now": 280
+      },
+      "overflow": {
+        "document_horizontal": 0,
+        "document_vertical": 0,
+        "body_horizontal": 0,
+        "body_vertical": 0
+      },
+      "selected_record_visible": true
+    },
+    "navigator_arrow_right": {
+      "widths": {
+        "navigator": 288,
+        "divider": 5,
+        "datasheet": 2251,
+        "native": 1939,
+        "delivery": 312
+      },
+      "aria": {
+        "minimum": 200,
+        "maximum": 360,
+        "now": 288
+      },
+      "overflow": {
+        "document_horizontal": 0,
+        "document_vertical": 0,
+        "body_horizontal": 0,
+        "body_vertical": 0
+      },
+      "selected_record_visible": true
+    },
+    "navigator_home": {
+      "widths": {
+        "navigator": 200,
+        "divider": 5,
+        "datasheet": 2339,
+        "native": 2027,
+        "delivery": 312
+      },
+      "aria": {
+        "minimum": 200,
+        "maximum": 360,
+        "now": 200
+      },
+      "overflow": {
+        "document_horizontal": 0,
+        "document_vertical": 0,
+        "body_horizontal": 0,
+        "body_vertical": 0
+      },
+      "selected_record_visible": true
+    },
+    "navigator_end": {
+      "widths": {
+        "navigator": 360,
+        "divider": 5,
+        "datasheet": 2179,
+        "native": 1867,
+        "delivery": 312
+      },
+      "aria": {
+        "minimum": 200,
+        "maximum": 360,
+        "now": 360
+      },
+      "overflow": {
+        "document_horizontal": 0,
+        "document_vertical": 0,
+        "body_horizontal": 0,
+        "body_vertical": 0
+      },
+      "selected_record_visible": true
+    }
+  },
+  "card": {
+    "state": "normal",
+    "mode": "normal",
+    "regions": {
+      "card_panel": {
+        "left": 293,
+        "top": 196,
+        "width": 2259,
+        "height": 1220
+      },
+      "card_heading": {
+        "left": 293,
+        "top": 196,
+        "width": 2259,
+        "height": 53
+      },
+      "card_content": {
+        "left": 293,
+        "top": 249,
+        "width": 2259,
+        "height": 1167
+      },
+      "native_preview": {
+        "left": 293,
+        "top": 249,
+        "width": 1947,
+        "height": 1167
+      },
+      "preview_scroll": {
+        "left": 305,
+        "top": 305,
+        "width": 1925,
+        "height": 320
+      },
+      "preview_scroll_rail": {
+        "left": 2219,
+        "top": 310,
+        "width": 6,
+        "height": 310
+      },
+      "preview_scroll_thumb": {
+        "left": 2221,
+        "top": 310,
+        "width": 4,
+        "height": 248
+      },
+      "response_plot_band": {
+        "left": 305,
+        "top": 633,
+        "width": 1925,
+        "height": 773
+      },
+      "response_plot_frame": {
+        "left": 305,
+        "top": 668,
+        "width": 1925,
+        "height": 738
+      },
+      "response_plot_svg": {
+        "left": 306,
+        "top": 669,
+        "width": 1923,
+        "height": 736
+      },
+      "delivery_sheet": {
+        "left": 2240,
+        "top": 249,
+        "width": 312,
+        "height": 1167
+      }
+    },
+    "card_content_child_count": 2,
+    "native_width": 1947,
+    "delivery_width": 312,
+    "preview_scroll_width": 1908,
+    "preview_scroll_height": 398,
+    "preview_client_width": 1908,
+    "preview_client_height": 318,
+    "preview_available_height": 320,
+    "preview_rendered_height": 320,
+    "preview_fills_available_height": true,
+    "preview_scroll_range": 80,
+    "preview_scroll_rail_visible": true,
+    "preview_scroll_gutter_width": 11,
+    "preview_scroll_thumb_ratio": 0.7989919354838709,
+    "preview_scroll_text_clearance": 32,
+    "preview_surface": "rgb(247, 249, 250)",
+    "preview_ink": "rgb(37, 52, 61)",
+    "preview_border": "rgb(170, 181, 187)",
+    "preview_scroll_track": "rgb(220, 231, 236)",
+    "preview_scroll_divider": "rgb(182, 201, 210)",
+    "preview_scroll_thumb": "rgb(78, 129, 149)",
+    "native_surface_ratio": 0.27420736932305056,
+    "response_plot_ratio": 0.662382176520994,
+    "response_plot_visible": true,
+    "response_plot_rows": 6,
+    "response_plot_series": [
+      {
+        "stress": 450,
+        "strain": 0
+      },
+      {
+        "stress": 500,
+        "strain": 0.01
+      },
+      {
+        "stress": 560,
+        "strain": 0.025
+      },
+      {
+        "stress": 620,
+        "strain": 0.05
+      },
+      {
+        "stress": 650,
+        "strain": 0.075
+      },
+      {
+        "stress": 680,
+        "strain": 0.1
+      }
+    ],
+    "response_plot_first_point": {
+      "stress": 450,
+      "strain": 0
+    },
+    "response_plot_x_domain": [
+      -0.01,
+      0.105
+    ],
+    "response_plot_y_domain": [
+      430,
+      700
+    ],
+    "response_plot_line_bbox": {
+      "x": 227.0399932861328,
+      "y": 73.33000183105469,
+      "width": 1590.43994140625,
+      "height": 567.3399658203125
+    },
+    "response_plot_line_has_frame_headroom": true,
+    "response_plot_x_label": "True plastic strain [1]",
+    "response_plot_y_label": "True stress (MPa)",
+    "response_plot_svg_aspect": {
+      "render_width": 1923,
+      "render_height": 736,
+      "viewbox_width": 1925,
+      "viewbox_height": 738,
+      "render_aspect": 2.6127717391304346,
+      "viewbox_aspect": 2.6084010840108403,
+      "mismatch": 0.0016728040395327256
+    },
+    "response_plot_preserve_aspect_ratio": "xMidYMid meet",
+    "response_plot_tick_font_px": 11,
+    "response_plot_title_font_px": 12,
+    "response_plot_frame_size": {
+      "width": 1925,
+      "height": 738
+    },
+    "native_text_visible": true,
+    "native_text_length": 683,
+    "unavailable_visible": false,
+    "loading_visible": false,
+    "error_visible": false,
+    "retry_visible": false,
+    "mapping_rows": [
+      "EXACTdensitySI density is emitted unchanged.",
+      "EXACTisotropic elasticityYoung's modulus and Poisson ratio map directly.",
+      "TRANSFORMEDinitial yieldThe zero-plastic-strain anchor becomes the first hardening row.",
+      "TRANSFORMEDisotropic hardening curveNeutral curve stages are rendered as native rows."
+    ],
+    "approximation_acknowledged": false,
+    "download": {
+      "text": "Download .inp",
+      "disabled": false,
+      "primary": true
+    },
+    "open_modeling_visible": false,
+    "back_to_cards_visible": false,
+    "advanced_open": false,
+    "delivery_summary_present": false,
+    "decision_text_clipped": [],
+    "status": "Exact mapping · download is available without acknowledgement."
+  },
+  "interactions": {
+    "navigator_search": true,
+    "tree_search": true,
+    "back_to_results": true,
+    "tree_keyboard": true,
+    "tabs": true,
+    "advanced_disclosure": true,
+    "native_scroll_wheel": true,
+    "state_command": true
+  },
+  "forbidden_visible_terms": [],
+  "nested_persistent_card_count": 0,
+  "responsive_evidence": false,
+  "typography": {
+    "body_px": 13,
+    "tree_row_px": 12.5,
+    "native_preview_data_px": 12.5,
+    "mapping_primary_px": 12.5,
+    "delivery_value_px": 12
+  },
+  "legacy_selector_report": {
+    "page-stack": 0,
+    "page-heading": 0,
+    "content-card": 0,
+    "module-material-card": 0,
+    "hero-actions": 0,
+    "eyebrow": 0,
+    "status-badge": 0,
+    "count-chip": 0
+  },
+  "web_interface_guidelines_audit": {
+    "checked": [
+      "semantic buttons, links, tabs and associated labels",
+      "visible keyboard focus",
+      "deliberate text containment and native scrolling",
+      "no decorative nested cards"
+    ],
+    "result": "pass"
+  },
+  "image": "docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-2560x1440.png",
+  "image_sha256": "e3f4e699756a7d989fd339efbcee7a83d2a69784e59d14547b812f0c7e2da7fa",
+  "screenshot_dimensions": {
+    "width": 2560,
+    "height": 1440
+  },
+  "console_errors": [],
+  "page_errors": []
+}

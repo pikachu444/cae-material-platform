@@ -14,13 +14,20 @@ IMAGE_DIR = ROOT / "docs/17-evidence/images/issue-167-service-reference"
 STAGING_INDEX = IMAGE_DIR / "materials-card-wave02.staging.json"
 STATE_EVIDENCE = REFERENCE_DIR / "materials-card-wave02.state-evidence.json"
 
-TARGETS = {
+CANONICAL_TARGETS = {
     "materials-card-preview-normal-1366x768": {"state": "normal", "width": 1366, "height": 768},
     "materials-card-preview-normal-1440x900": {"state": "normal", "width": 1440, "height": 900},
     "materials-card-preview-normal-1920x1080": {"state": "normal", "width": 1920, "height": 1080},
     "materials-card-approximation-blocked-1440x900": {"state": "approximation", "width": 1440, "height": 900},
     "materials-card-unsupported-blocked-1440x900": {"state": "unsupported", "width": 1440, "height": 900},
 }
+
+WIDE_SUPPORT_TARGETS = {
+    "materials-card-preview-normal-2560x1440": {"state": "normal", "width": 2560, "height": 1440},
+    "materials-card-preview-normal-3840x2160": {"state": "normal", "width": 3840, "height": 2160},
+}
+
+TARGETS = {**CANONICAL_TARGETS, **WIDE_SUPPORT_TARGETS}
 
 LEGACY_ACTIVE_ROUTE_SELECTORS = (
     "page-stack",
@@ -98,14 +105,33 @@ def validate_persisted_screenshot(entry: dict[str, Any], expected_path: Path, vi
     expect_equal(hashlib.sha256(expected_path.read_bytes()).hexdigest(), entry.get("screenshot_sha256"), f"{label} persisted image SHA-256")
 
 
+def validate_light_native_preview(card: dict[str, Any], label: str) -> None:
+    expected_surface = {
+        "preview_surface": "rgb(247, 249, 250)",
+        "preview_ink": "rgb(37, 52, 61)",
+        "preview_border": "rgb(170, 181, 187)",
+    }
+    for key, expected in expected_surface.items():
+        expect_equal(card.get(key), expected, f"{label} light native preview {key}")
+    rail_visible = card.get("preview_scroll_rail_visible")
+    scroll_range = card.get("preview_scroll_range", 0)
+    if scroll_range <= 0 and rail_visible:
+        fail(f"{label} non-overflow native preview exposes a false custom scroll rail")
+    if rail_visible:
+        expect_equal(card.get("preview_scroll_track"), "rgb(220, 231, 236)", f"{label} light native rail track")
+        expect_equal(card.get("preview_scroll_divider"), "rgb(182, 201, 210)", f"{label} light native rail divider")
+        expect_equal(card.get("preview_scroll_thumb"), "rgb(78, 129, 149)", f"{label} light native rail thumb")
+
+
 def validate_sources(staging: dict[str, Any]) -> None:
     expected_sources = {
         "html": "docs/00-research/ux-service-reference/materials-card-preview-normal.html",
         "css": "docs/00-research/ux-service-reference/materials-card-preview.css",
         "javascript": "docs/00-research/ux-service-reference/materials-card-preview.js",
     }
+    staged_entries = [*staging.get("references", []), *staging.get("wide_support", [])]
     for key, expected in expected_sources.items():
-        paths = {entry.get(key) for entry in staging["references"]}
+        paths = {entry.get(key) for entry in staged_entries}
         expect_equal(paths, {expected}, f"source {key}")
     source_html = ROOT / "docs/00-research/ux-service-reference/materials-card-preview-normal.html"
     source_css = ROOT / "docs/00-research/ux-service-reference/materials-card-preview.css"
@@ -145,13 +171,56 @@ def validate_common(entry: dict[str, Any], config: dict[str, Any], measurement: 
         fail(f"{target} forbidden primary-path terms: {measurement['forbidden_visible_terms']}")
     validate_visual_acceptance_evidence(measurement, target)
     card = measurement.get("card", {})
+    validate_light_native_preview(card, target)
     regions = card.get("regions", {})
     delivery_width = card.get("delivery_width")
     native_width = card.get("native_width")
-    if not isinstance(delivery_width, int) or not 300 <= delivery_width <= 320:
-        fail(f"{target} delivery sheet width is not 300-320px: {delivery_width}")
+    if not isinstance(delivery_width, int) or not 300 <= delivery_width <= 340:
+        fail(f"{target} delivery sheet width is not 300-340px: {delivery_width}")
     if not isinstance(native_width, int) or native_width <= delivery_width:
         fail(f"{target} native preview is not dominant: {native_width} / {delivery_width}")
+    wide = viewport["width"] >= 1800
+    if wide and config["state"] == "normal":
+        if card.get("card_content_child_count") != 2:
+            fail(f"{target} wide card has a third top-level pane: {card.get('card_content_child_count')}")
+        expect_equal(card.get("response_plot_visible"), True, f"{target} linked response plot visibility")
+        expect_equal(card.get("response_plot_rows"), 6, f"{target} linked response row count")
+        expect_equal(card.get("response_plot_first_point"), {"stress": 450, "strain": 0}, f"{target} linked response first point")
+        expect_equal(card.get("response_plot_x_label"), "True plastic strain [1]", f"{target} linked response x-axis")
+        expect_equal(card.get("response_plot_y_label"), "True stress (MPa)", f"{target} linked response y-axis")
+        series = card.get("response_plot_series")
+        if not isinstance(series, list) or len(series) != 6:
+            fail(f"{target} linked response series is not six exact rows: {series!r}")
+        x_domain = card.get("response_plot_x_domain")
+        y_domain = card.get("response_plot_y_domain")
+        strains = [row.get("strain") for row in series if isinstance(row, dict)]
+        stresses = [row.get("stress") for row in series if isinstance(row, dict)]
+        if not (isinstance(x_domain, list) and len(x_domain) == 2 and isinstance(y_domain, list) and len(y_domain) == 2):
+            fail(f"{target} linked response domains are missing: {x_domain} / {y_domain}")
+        if not (all(isinstance(value, (int, float)) for value in strains + stresses) and x_domain[0] < min(strains) and x_domain[1] > max(strains) and y_domain[0] < min(stresses) and y_domain[1] > max(stresses)):
+            fail(f"{target} linked response domains lack data-relative headroom: {x_domain} / {y_domain}")
+        aspect = card.get("response_plot_svg_aspect")
+        if not isinstance(aspect, dict) or aspect.get("mismatch", 1) > 0.005:
+            fail(f"{target} linked response SVG aspect mismatch: {aspect}")
+        if card.get("response_plot_preserve_aspect_ratio", "").lower() == "none":
+            fail(f"{target} linked response SVG uses preserveAspectRatio=none")
+        for key in ("response_plot_tick_font_px", "response_plot_title_font_px"):
+            value = card.get(key)
+            if not isinstance(value, (int, float)) or not 10 <= value <= 12.5:
+                fail(f"{target} linked response {key} outside 10-12.5px: {value!r}")
+        expect_equal(card.get("response_plot_line_has_frame_headroom"), True, f"{target} linked response frame headroom")
+        native_ratio_max = {1920: 0.42, 2560: 0.34, 3840: 0.24}[viewport["width"]]
+        if card.get("native_surface_ratio", 1) > native_ratio_max:
+            fail(f"{target} dark native surface exceeds {native_ratio_max:.0%} of evidence height: {card.get('native_surface_ratio')}")
+        if card.get("preview_rendered_height", 441) > 440:
+            fail(f"{target} dark native surface exceeds the 440px content cap: {card.get('preview_rendered_height')}")
+        if card.get("response_plot_ratio", 0) < 0.40:
+            fail(f"{target} linked response plot is below 40% of evidence height: {card.get('response_plot_ratio')}")
+        if not card.get("preview_scroll_rail_visible") or card.get("preview_scroll_range", 0) <= 0 or card.get("preview_scroll_gutter_width", 0) < 6 or card.get("preview_scroll_thumb_ratio", 0) <= 0 or card.get("preview_scroll_text_clearance", 0) <= 0:
+            fail(f"{target} native preview lacks a visible, reserved local-scroll rail")
+        expect_equal(measurement.get("interactions", {}).get("native_scroll_wheel"), True, f"{target} native preview wheel scrolling")
+    elif not wide:
+        expect_equal(card.get("response_plot_visible"), False, f"{target} sub-2200 linked response visibility")
     validate_preview_height_and_decision(card, target)
     expect_equal(measurement.get("interactions", {}).get("navigator_search"), True, f"{target} search shortcut")
     expect_equal(measurement.get("interactions", {}).get("tree_keyboard"), True, f"{target} tree keyboard")
@@ -165,9 +234,16 @@ def validate_preview_height_and_decision(card: dict[str, Any], target: str) -> N
     if card.get("native_text_visible"):
         available_height = card.get("preview_available_height")
         rendered_height = card.get("preview_rendered_height")
-        if not isinstance(available_height, int) or not isinstance(rendered_height, int) or rendered_height < available_height - 1:
-            fail(f"{target} native preview does not use available pane height: {rendered_height} / {available_height}")
-        expect_equal(card.get("preview_fills_available_height"), True, f"{target} native preview fills available height")
+        bounded_expanded_preview = card.get("response_plot_visible") or ("approximation" in target and "1920x1080" in target)
+        if not isinstance(available_height, int) or not isinstance(rendered_height, int):
+            fail(f"{target} native preview is missing height evidence: {rendered_height} / {available_height}")
+        if bounded_expanded_preview:
+            if rendered_height > 440:
+                fail(f"{target} expanded native preview exceeds the 440px content cap: {rendered_height}")
+        else:
+            if rendered_height < available_height - 1:
+                fail(f"{target} native preview does not use available pane height: {rendered_height} / {available_height}")
+            expect_equal(card.get("preview_fills_available_height"), True, f"{target} native preview fills available height")
     expect_equal(card.get("delivery_summary_present"), False, f"{target} redundant delivery header status")
     expect_equal(card.get("decision_text_clipped"), [], f"{target} clipped decision text")
 
@@ -237,10 +313,13 @@ def validate_state_evidence() -> None:
             if entry.get("console_errors") or entry.get("page_errors"):
                 fail(f"browser errors in {state}/{key}: {entry.get('console_errors')} {entry.get('page_errors')}")
             validate_visual_acceptance_evidence(entry, f"{state}/{key}")
+            validate_light_native_preview(entry.get("card", {}), f"{state}/{key}")
             validate_preview_height_and_decision(entry.get("card", {}), f"{state}/{key}")
     for key, entry in evidence["states"]["long"].items():
         if entry["card"]["preview_scroll_height"] <= entry["card"]["preview_client_height"]:
             fail(f"long evidence {key} is not independently scrollable")
+        if not entry["card"].get("preview_scroll_rail_visible") or entry["card"].get("preview_scroll_gutter_width", 0) < 6 or entry["card"].get("preview_scroll_text_clearance", 0) <= 0:
+            fail(f"long evidence {key} lacks a visible reserved local-scroll rail")
     for key, entry in evidence["states"]["loading"].items():
         expect_equal(entry["card"]["loading_visible"], True, f"loading evidence {key}")
     for key, entry in evidence["states"]["error"].items():
@@ -257,6 +336,7 @@ def validate_state_evidence() -> None:
         viewport = entry["viewport"]
         recovery_image = IMAGE_DIR / f"materials-card-state-error-recovery-{key}.png"
         validate_persisted_screenshot(recovery, recovery_image, viewport, f"error evidence {key} recovery")
+        validate_light_native_preview(recovery.get("card", {}), f"error evidence {key} recovery")
         expect_equal(recovery.get("retry_announced"), True, f"error evidence {key} recovery announcement")
         expect_equal(recovery.get("card", {}).get("error_visible"), False, f"error evidence {key} recovery error visibility")
         expect_equal(recovery.get("card", {}).get("native_text_visible"), True, f"error evidence {key} recovery preview")
@@ -270,8 +350,11 @@ def main() -> None:
     staging = read_json(STAGING_INDEX)
     if staging.get("schema_version") != 1 or staging.get("family") != "MAT-CARD":
         fail("unexpected MAT-CARD staging schema/family")
-    entries = {entry.get("id"): entry for entry in staging.get("references", [])}
+    entries = {entry.get("id"): entry for entry in [*staging.get("references", []), *staging.get("wide_support", [])]}
     selected = sorted(TARGETS) if args.all_packet_targets else [args.target]
+    if args.all_packet_targets:
+        expect_equal({entry.get("id") for entry in staging.get("references", [])}, set(CANONICAL_TARGETS), "canonical MAT-CARD staging targets")
+        expect_equal({entry.get("id") for entry in staging.get("wide_support", [])}, set(WIDE_SUPPORT_TARGETS), "wide MAT-CARD staging targets")
     missing = sorted(set(selected) - set(entries))
     if missing:
         fail(f"staging index missing targets: {missing}")

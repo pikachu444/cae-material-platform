@@ -18,6 +18,6 @@ Docker Compose의 PostgreSQL 16, API 및 Vite web을 사용해 실제 저장·�
 typed value 제약, full-text/Attribute text 검색, discrete facet, normalized number range, revision 비교를
 검증한다. 같은 테스트 파일에서 10,000개 Record의 bounded 100개 page와 정확한 검색 결과도 검증한다.
 
-![Catalog Record 검색 및 datasheet](../images/t50-configurable-catalog-records.jpg)
+![Catalog Record 검색 및 datasheet](../images/historical-task-screenshots/t50-configurable-catalog-records.jpg)
 
-![Record revision 비교](../images/t50-configurable-catalog-revision-compare.jpg)
+![Record revision 비교](../images/historical-task-screenshots/t50-configurable-catalog-revision-compare.jpg)

@@ -22,8 +22,8 @@ two exact revisions by default so **Add mean & band** is immediately demonstrabl
 
 ## Browser evidence
 
-- [guided Metal Prepare workbench](../images/t86-metal-prepare-workbench.png)
-- [replicate mean and confidence band](../images/t86-metal-replicate-statistics.png)
+- [guided Metal Prepare workbench](../images/historical-task-screenshots/t86-metal-prepare-workbench.png)
+- [replicate mean and confidence band](../images/historical-task-screenshots/t86-metal-replicate-statistics.png)
 
 The Docker browser journey selected an elastic stage and an x-domain, then calculated two exact replicate
 curves on a 21-point observed-domain intersection. Both members, their mean and the confidence band were

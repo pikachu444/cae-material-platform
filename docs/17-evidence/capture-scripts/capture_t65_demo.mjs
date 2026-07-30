@@ -2,7 +2,7 @@ import { chromium } from "@playwright/test";
 
 const webUrl = process.env.CMP_DEMO_WEB_URL ?? "http://127.0.0.1:5173";
 const output =
-  process.env.CMP_DEMO_SCREENSHOT ?? "docs/17-evidence/images/t65-clean-demo-downloads.png";
+  process.env.CMP_DEMO_SCREENSHOT ?? "docs/17-evidence/images/historical-task-screenshots/t65-clean-demo-downloads.png";
 
 const browser = await chromium.launch();
 try {

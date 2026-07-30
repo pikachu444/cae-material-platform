@@ -15,21 +15,21 @@ pages. Its navigation has three areas:
    backend resource/action/scope enforcement remains the extension point for future granular
    permissions, but is not product-screen vocabulary.
 
-![Task-oriented Administration overview](../images/t78-administration-overview.png)
+![Task-oriented Administration overview](../images/historical-task-screenshots/t78-administration-overview.png)
 
 The clean demo proves that the Administration UI reads the same configurable definitions used by
 the T-77 Material Datasheet: one Table, eight typed Attributes, one Layout, one Subset and one
 workflow Link Type. New definitions use the existing protected API and immutable revision engine;
 this is not a static settings mock.
 
-![Database design with typed Attributes and exact Record Link Type](../images/t78-database-design.png)
+![Database design with typed Attributes and exact Record Link Type](../images/historical-task-screenshots/t78-database-design.png)
 
 The access screen displays the effective Administrator assignment, human-readable capability names
 and a simple User/team assignment form. Advanced issuer, principal UUID, classification scope and
 legacy compatibility fields remain available to deployment integrations and protected contracts,
 not to normal product users.
 
-![Administrator/User and product capability assignment](../images/t78-users-access.png)
+![Administrator/User and product capability assignment](../images/historical-task-screenshots/t78-users-access.png)
 
 Verification completed before merge:
 

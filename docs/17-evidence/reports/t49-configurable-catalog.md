@@ -15,4 +15,4 @@ Docker Compose의 PostgreSQL 16, API와 Vite web을 사용해 다음 흐름을 �
 Layout revision history, typed number metadata guard와 immutable child rows를 검증한다. 실제 record
 form/search/facet/compare는 T-50이며 T-49 완료로 주장하지 않는다.
 
-![Catalog schema designer](../images/t49-configurable-catalog.jpg)
+![Catalog schema designer](../images/historical-task-screenshots/t49-configurable-catalog.jpg)

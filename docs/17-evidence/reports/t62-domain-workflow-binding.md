@@ -8,7 +8,7 @@ seeded `DP780 synthetic demo steel`. The Record revision is bound to the exact g
 identity and revision. The Workflow Explorer shows both revision pins and offers `Open governed
 object`, which resolves to the existing Material workbench rather than a second copy of the data.
 
-![Catalog Record bound to the exact governed Material revision](../images/t62-domain-workflow-binding.png)
+![Catalog Record bound to the exact governed Material revision](../images/historical-task-screenshots/t62-domain-workflow-binding.png)
 
 Verification included:
 

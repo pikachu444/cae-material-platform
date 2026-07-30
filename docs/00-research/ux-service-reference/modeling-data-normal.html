@@ -164,20 +164,18 @@
               </div>
             </header>
             <div class="graph-canvas">
-              <svg class="source-plot" viewBox="0 0 1000 500" preserveAspectRatio="none" role="img" aria-labelledby="plot-title plot-description" data-series-min-strain="0" data-series-max-strain="0.20" data-series-min-stress-mpa="0" data-series-max-stress-mpa="850" data-axis-headroom-ratio="0.10" data-axis-target-intervals-strain="5" data-axis-target-intervals-stress="4" data-axis-nice-step-factors="1,2,2.5,5,10" data-axis-max-strain="0.25" data-axis-max-stress-mpa="1000">
+              <svg class="source-plot" width="100%" height="100%" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="plot-title plot-description" data-renderer="responsive-css-pixel" data-series-min-strain="0" data-series-max-strain="0.20" data-series-min-stress-mpa="0" data-series-max-stress-mpa="850" data-axis-headroom-ratio="0.10" data-axis-target-intervals-strain="5" data-axis-target-intervals-stress="4" data-axis-nice-step-factors="1,2,2.5,5,10">
                 <title id="plot-title">DP780 synthetic Test Data stress-strain source preview</title>
                 <desc id="plot-description">Three observed specimen curves with engineering strain on the horizontal axis and engineering stress on the vertical axis. The displayed range has headroom beyond the source extrema.</desc>
-                <rect class="plot-background" x="70" y="30" width="890" height="400"></rect>
-                <g class="plot-grid" aria-hidden="true"><line x1="70" y1="30" x2="960" y2="30"></line><line x1="70" y1="130" x2="960" y2="130"></line><line x1="70" y1="230" x2="960" y2="230"></line><line x1="70" y1="330" x2="960" y2="330"></line><line x1="70" y1="430" x2="960" y2="430"></line><line x1="70" y1="30" x2="70" y2="430"></line><line x1="248" y1="30" x2="248" y2="430"></line><line x1="426" y1="30" x2="426" y2="430"></line><line x1="604" y1="30" x2="604" y2="430"></line><line x1="782" y1="30" x2="782" y2="430"></line><line x1="960" y1="30" x2="960" y2="430"></line></g>
-                <g class="plot-axis" aria-hidden="true"><line x1="70" y1="430" x2="960" y2="430"></line><line x1="70" y1="30" x2="70" y2="430"></line></g>
-                <path class="curve curve-one" d="M70 430 C91 310, 120 237, 170 188 C250 140, 370 112, 500 93 C640 76, 760 65, 851 57"></path>
-                <path class="curve curve-two" d="M70 430 C93 314, 121 242, 173 191 C253 144, 371 116, 505 96 C645 78, 763 67, 850 60"></path>
-                <path class="curve curve-three" d="M70 430 C92 319, 123 245, 175 194 C256 148, 374 119, 509 99 C648 81, 765 70, 851 62"></path>
-                <g class="plot-labels"><text x="70" y="454" text-anchor="start">0</text><text x="426" y="454" text-anchor="middle">0.10</text><text x="782" y="454" text-anchor="middle">0.20</text><text x="960" y="454" text-anchor="end">0.25</text><text x="58" y="434" text-anchor="end">0</text><text x="58" y="234" text-anchor="end">500</text><text x="58" y="34" text-anchor="end">1,000 MPa</text><text class="axis-title" x="515" y="482" text-anchor="middle">Engineering strain</text><text class="axis-title" transform="translate(17 230) rotate(-90)" text-anchor="middle">Engineering stress</text></g>
+                <rect class="plot-background" x="0" y="0" width="1" height="1"></rect>
+                <g class="plot-grid" aria-hidden="true"></g>
+                <g class="plot-axis" aria-hidden="true"></g>
+                <g class="plot-series" aria-hidden="true"><path class="curve curve-one"></path><path class="curve curve-two"></path><path class="curve curve-three"></path></g>
+                <g class="plot-labels"></g>
               </svg>
               <div class="graph-empty" role="status" hidden><strong>No Test Data in this session</strong><p>Choose an exact saved revision or inspect a Local file to prepare the first preview.</p><button class="button primary-action" type="button" data-action="choose-local">Local file</button></div>
               <div class="graph-blocked" role="status" hidden><strong>Preview held at the last valid source</strong><p>Mapping is invalid, so Update preview and Save dataset remain blocked. Correct the adjacent mapping decision to continue.</p></div>
-              <div class="plot-legend" aria-label="Source preview legend"><span><i class="legend-line blue" aria-hidden="true"></i>Specimen 01 · observed</span><span><i class="legend-line orange" aria-hidden="true"></i>Specimen 02 · observed</span><span><i class="legend-line purple" aria-hidden="true"></i>Specimen 03 · observed</span><span class="legend-note" data-legend-note>Axes include data-relative headroom · preview is not saved</span></div>
+              <div class="plot-legend" aria-label="Source preview legend"><span><i class="legend-line blue" aria-hidden="true"></i>Specimen 01 · observed</span><span><i class="legend-line orange" aria-hidden="true"></i>Specimen 02 · observed</span><span><i class="legend-line purple" aria-hidden="true"></i>Specimen 03 · observed</span><span class="legend-note" data-legend-note>Headroom · preview not saved</span></div>
             </div>
           </section>
           <details class="graph-advanced advanced-settings"><summary>Advanced graph evidence</summary><div><span>Mapping Profile</span><code>Engineering tension · r1</code><span>Preview provenance</span><code>Source arrays only · non-authoritative</code></div></details>
