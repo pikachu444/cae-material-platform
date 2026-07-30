@@ -1,0 +1,1093 @@
+{
+  "target": "administration-attribute-add-draft-1440x900",
+  "role": "administrator",
+  "state": "attribute-add",
+  "viewport": "1440x900",
+  "image": "docs/17-evidence/images/issue-167-service-reference/administration-attribute-add-draft-1440x900.png",
+  "sha256": "46bf5927fab3e8a2b45d3b067cd3b3c6ec39397f8970480e8da9e450c01bc451",
+  "dimensions": {
+    "width": 1440,
+    "height": 900
+  },
+  "snapshot": {
+    "role": "administrator",
+    "state": "attribute-add",
+    "viewport": {
+      "width": 1440,
+      "height": 900,
+      "deviceScaleFactor": 1
+    },
+    "overflow": {
+      "documentScrollWidth": 0,
+      "bodyScrollWidth": 0,
+      "documentScrollHeight": 0,
+      "bodyScrollHeight": 0
+    },
+    "geometry": {
+      "workspace": {
+        "x": 9,
+        "y": 109,
+        "width": 1422,
+        "height": 754
+      },
+      "navigator": {
+        "x": 9,
+        "y": 109,
+        "width": 232,
+        "height": 754
+      },
+      "list": {
+        "x": 248,
+        "y": 109,
+        "width": 312,
+        "height": 754
+      },
+      "editorPane": {
+        "x": 567,
+        "y": 109,
+        "width": 864,
+        "height": 754
+      },
+      "editorScroll": {
+        "x": 567,
+        "y": 109,
+        "width": 864,
+        "height": 754
+      },
+      "preview": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "statusBar": {
+        "x": 9,
+        "y": 863,
+        "width": 1422,
+        "height": 28
+      },
+      "editor": {
+        "x": 567,
+        "y": 109,
+        "width": 760,
+        "height": 751.0625
+      },
+      "content": {
+        "x": 8,
+        "y": 54,
+        "width": 1424,
+        "height": 838
+      }
+    },
+    "splitters": [
+      {
+        "key": "navigator",
+        "min": 220,
+        "max": 272,
+        "value": 232,
+        "rect": {
+          "x": 241,
+          "y": 109,
+          "width": 7,
+          "height": 754
+        }
+      },
+      {
+        "key": "list",
+        "min": 292,
+        "max": 384,
+        "value": 312,
+        "rect": {
+          "x": 560,
+          "y": 109,
+          "width": 7,
+          "height": 754
+        }
+      }
+    ],
+    "rows": [
+      {
+        "id": "density",
+        "selected": true,
+        "width": 300,
+        "height": 26,
+        "clipped": false
+      },
+      {
+        "id": "yield-strength",
+        "selected": false,
+        "width": 300,
+        "height": 26,
+        "clipped": false
+      },
+      {
+        "id": "material-condition",
+        "selected": false,
+        "width": 300,
+        "height": 26,
+        "clipped": false
+      },
+      {
+        "id": "source-reference",
+        "selected": false,
+        "width": 300,
+        "height": 26,
+        "clipped": false
+      },
+      {
+        "id": "test-method",
+        "selected": false,
+        "width": 300,
+        "height": 26,
+        "clipped": false
+      },
+      {
+        "id": "measurement-date",
+        "selected": false,
+        "width": 300,
+        "height": 26,
+        "clipped": false
+      }
+    ],
+    "controls": [
+      {
+        "tag": "a",
+        "name": "Skip to database design",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "CAE Material Platform home",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Materials",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Modeling",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Activity",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Administration",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Refresh",
+        "disabled": false,
+        "action": "refresh"
+      },
+      {
+        "tag": "button",
+        "name": "Show datasheet preview",
+        "disabled": false,
+        "action": "preview"
+      },
+      {
+        "tag": "button",
+        "name": "Tables5",
+        "disabled": false,
+        "action": "tables"
+      },
+      {
+        "tag": "button",
+        "name": "Attributes18",
+        "disabled": false,
+        "action": "attributes"
+      },
+      {
+        "tag": "button",
+        "name": "Layouts3",
+        "disabled": false,
+        "action": "layouts"
+      },
+      {
+        "tag": "button",
+        "name": "Subsets4",
+        "disabled": false,
+        "action": "subsets"
+      },
+      {
+        "tag": "button",
+        "name": "Link Types2",
+        "disabled": false,
+        "action": "links"
+      },
+      {
+        "tag": "select",
+        "name": "Materials master Test conditions Source references Solver aliases Batch runs",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "div",
+        "name": "Resize Schema objects pane",
+        "disabled": false,
+        "action": "navigator"
+      },
+      {
+        "tag": "button",
+        "name": "Density",
+        "disabled": false,
+        "action": "density"
+      },
+      {
+        "tag": "button",
+        "name": "Yield strength",
+        "disabled": false,
+        "action": "yield-strength"
+      },
+      {
+        "tag": "button",
+        "name": "Material condition",
+        "disabled": false,
+        "action": "material-condition"
+      },
+      {
+        "tag": "button",
+        "name": "Source reference",
+        "disabled": false,
+        "action": "source-reference"
+      },
+      {
+        "tag": "button",
+        "name": "Test method",
+        "disabled": false,
+        "action": "test-method"
+      },
+      {
+        "tag": "button",
+        "name": "Measurement date",
+        "disabled": false,
+        "action": "measurement-date"
+      },
+      {
+        "tag": "div",
+        "name": "Resize Object list pane",
+        "disabled": false,
+        "action": "list"
+      },
+      {
+        "tag": "input",
+        "name": "Attribute name *",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "input",
+        "name": "Reference key *",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "select",
+        "name": "NumberIntegerTextBooleanDateDiscrete choiceFile artifactCurve / table artifactRecord reference",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "input",
+        "name": "Required when creating a record",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "textarea",
+        "name": "Swift Voce Swift / Voce blend",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "textarea",
+        "name": "Choose the method used for this saved model branch.",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "input",
+        "name": "Change reason *",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Save new Attribute",
+        "disabled": false,
+        "action": "save-new-attribute"
+      },
+      {
+        "tag": "button",
+        "name": "Cancel",
+        "disabled": false,
+        "action": "cancel-add"
+      }
+    ],
+    "nestedInteractive": [],
+    "listColumns": [
+      "Name",
+      "Value type",
+      "Rev"
+    ],
+    "listRows": [
+      {
+        "id": "density",
+        "name": "Density",
+        "metadata": "Number",
+        "revision": "5",
+        "columnCount": 3
+      },
+      {
+        "id": "yield-strength",
+        "name": "Yield strength",
+        "metadata": "Number",
+        "revision": "7",
+        "columnCount": 3
+      },
+      {
+        "id": "material-condition",
+        "name": "Material condition",
+        "metadata": "Discrete choice",
+        "revision": "3",
+        "columnCount": 3
+      },
+      {
+        "id": "source-reference",
+        "name": "Source reference",
+        "metadata": "Record reference",
+        "revision": "4",
+        "columnCount": 3
+      },
+      {
+        "id": "test-method",
+        "name": "Test method",
+        "metadata": "Text",
+        "revision": "4",
+        "columnCount": 3
+      },
+      {
+        "id": "measurement-date",
+        "name": "Measurement date",
+        "metadata": "Date",
+        "revision": "2",
+        "columnCount": 3
+      }
+    ],
+    "objectNameSecondaryCount": 0,
+    "panes": {
+      "navigatorOverflowY": "hidden",
+      "listOverflowY": "auto",
+      "editorOverflowY": "auto"
+    },
+    "localScroll": {
+      "list": {
+        "scrollHeight": 718,
+        "clientHeight": 718,
+        "scrollTop": 0,
+        "scrollWidth": 300,
+        "clientWidth": 300,
+        "overflowY": "auto",
+        "scrollbarGutter": "stable",
+        "reservedScrollbarWidth": 12
+      },
+      "editor": {
+        "scrollHeight": 754,
+        "clientHeight": 754,
+        "scrollTop": 0,
+        "scrollWidth": 852,
+        "clientWidth": 852,
+        "overflowY": "auto",
+        "scrollbarGutter": "stable",
+        "scrollbarColor": "auto",
+        "reservedScrollbarWidth": 12
+      },
+      "preview": {
+        "scrollHeight": 0,
+        "clientHeight": 0,
+        "scrollTop": 0,
+        "scrollWidth": 0,
+        "clientWidth": 0,
+        "overflowY": "auto",
+        "scrollbarGutter": "stable",
+        "reservedScrollbarWidth": 0
+      },
+      "previewTables": [
+        {
+          "scrollHeight": 0,
+          "clientHeight": 0,
+          "overflowY": "visible",
+          "scrollbarGutter": "auto",
+          "partialRows": 0,
+          "rail": {
+            "hidden": true,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0
+            },
+            "thumbRect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0
+            },
+            "ariaMin": 0,
+            "ariaMax": 0,
+            "ariaNow": 0
+          }
+        },
+        {
+          "scrollHeight": 0,
+          "clientHeight": 0,
+          "overflowY": "visible",
+          "scrollbarGutter": "auto",
+          "partialRows": 0,
+          "rail": {
+            "hidden": true,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0
+            },
+            "thumbRect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0
+            },
+            "ariaMin": 0,
+            "ariaMax": 0,
+            "ariaNow": 0
+          }
+        }
+      ],
+      "editorRail": {
+        "hidden": true,
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "thumbRect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "ariaMin": 0,
+        "ariaMax": 0,
+        "ariaNow": 0
+      }
+    },
+    "editorMode": "attribute-add",
+    "editorTitle": "New Attribute for Materials master",
+    "selectedRow": {
+      "id": "density",
+      "name": "Density",
+      "cells": {
+        "name": {
+          "x": 262,
+          "y": 176.71875,
+          "width": 143.4375,
+          "height": 17.546875
+        },
+        "definition": {
+          "x": 405.4375,
+          "y": 177.734375,
+          "width": 97.546875,
+          "height": 15.515625
+        },
+        "revision": {
+          "x": 502.984375,
+          "y": 177.734375,
+          "width": 34,
+          "height": 15.515625
+        },
+        "primaryName": {
+          "clientWidth": 143,
+          "scrollWidth": 143,
+          "overflow": "hidden",
+          "textOverflow": "ellipsis",
+          "whiteSpace": "nowrap"
+        }
+      }
+    },
+    "fields": [
+      {
+        "name": "newAttributeName",
+        "value": "Fit method",
+        "type": "text",
+        "disabled": false,
+        "readonly": false,
+        "invalid": false
+      },
+      {
+        "name": "newAttributeKey",
+        "value": "fit_method",
+        "type": "text",
+        "disabled": false,
+        "readonly": false,
+        "invalid": false
+      },
+      {
+        "name": "newAttributeType",
+        "value": "Discrete choice",
+        "type": "select-one",
+        "disabled": false,
+        "readonly": false,
+        "invalid": false
+      },
+      {
+        "name": "required",
+        "value": "on",
+        "type": "checkbox",
+        "disabled": false,
+        "readonly": false,
+        "invalid": false
+      },
+      {
+        "name": "newAttributeChoices",
+        "value": "Swift\nVoce\nSwift / Voce blend",
+        "type": "textarea",
+        "disabled": false,
+        "readonly": false,
+        "invalid": false
+      },
+      {
+        "name": "newAttributeGuidance",
+        "value": "Choose the method used for this saved model branch.",
+        "type": "textarea",
+        "disabled": false,
+        "readonly": false,
+        "invalid": false
+      },
+      {
+        "name": "newAttributeReason",
+        "value": "Capture the selected fitting method on each saved record.",
+        "type": "text",
+        "disabled": false,
+        "readonly": false,
+        "invalid": false
+      }
+    ],
+    "errors": [],
+    "preview": {
+      "visible": false,
+      "open": false,
+      "commandLabel": "Preview datasheet",
+      "title": "Material datasheet",
+      "subtitle": "Layout \u00b7 Material datasheet \u00b7 revision 6",
+      "record": "DP780 synthetic demo steel",
+      "table": "Materials master",
+      "selection": "",
+      "note": "Saved response remains linked to this Layout. Return to the read-only Table view to inspect the complete response graph.",
+      "sections": [
+        {
+          "heading": "Record values",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "heading": "Layout fields",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        }
+      ],
+      "valueRows": [
+        {
+          "id": "density",
+          "selected": false,
+          "revisionId": "11111111-1111-4111-8111-111111111111",
+          "artifactId": "",
+          "artifactSha256": "",
+          "value": "7,800 kg/m\u00b3",
+          "condition": "Ambient \u00b7 as received",
+          "text": "DensityAttribute revision 57,800 kg/m\u00b3Ambient \u00b7 as received"
+        },
+        {
+          "id": "youngs-modulus",
+          "selected": false,
+          "revisionId": "22222222-2222-4222-8222-222222222222",
+          "artifactId": "",
+          "artifactSha256": "",
+          "value": "210,000 MPa",
+          "condition": "Ambient \u00b7 as received",
+          "text": "Young's modulusAttribute revision 6210,000 MPaAmbient \u00b7 as received"
+        },
+        {
+          "id": "yield-strength",
+          "selected": false,
+          "revisionId": "33333333-3333-4333-8333-333333333333",
+          "artifactId": "",
+          "artifactSha256": "",
+          "value": "450 MPa",
+          "condition": "Ambient \u00b7 as received",
+          "text": "Yield strengthAttribute revision 7450 MPaAmbient \u00b7 as received"
+        },
+        {
+          "id": "poisson-ratio",
+          "selected": false,
+          "revisionId": "44444444-4444-4444-8444-444444444444",
+          "artifactId": "",
+          "artifactSha256": "",
+          "value": "0.30",
+          "condition": "Ambient \u00b7 as received",
+          "text": "Poisson ratioAttribute revision 40.30Ambient \u00b7 as received"
+        },
+        {
+          "id": "material-condition",
+          "selected": false,
+          "revisionId": "55555555-5555-4555-8555-555555555555",
+          "artifactId": "",
+          "artifactSha256": "",
+          "value": "As received",
+          "condition": "Recorded condition",
+          "text": "Material conditionAttribute revision 3As receivedRecorded condition"
+        },
+        {
+          "id": "test-method",
+          "selected": false,
+          "revisionId": "66666666-6666-4666-8666-666666666666",
+          "artifactId": "",
+          "artifactSha256": "",
+          "value": "Ambient tensile reference",
+          "condition": "Method identifier",
+          "text": "Test methodAttribute revision 4Ambient tensile referenceMethod identifier"
+        },
+        {
+          "id": "measurement-date",
+          "selected": false,
+          "revisionId": "77777777-7777-4777-8777-777777777777",
+          "artifactId": "",
+          "artifactSha256": "",
+          "value": "2026-07-24",
+          "condition": "Recorded date",
+          "text": "Measurement dateAttribute revision 22026-07-24Recorded date"
+        },
+        {
+          "id": "hardness",
+          "selected": false,
+          "revisionId": "abababab-abab-4aba-8aba-abababababab",
+          "artifactId": "",
+          "artifactSha256": "",
+          "value": "220 HV",
+          "condition": "Ambient \u00b7 as received",
+          "text": "HardnessAttribute revision 2220 HVAmbient \u00b7 as received"
+        },
+        {
+          "id": "test-temperature",
+          "selected": false,
+          "revisionId": "99999999-9999-4999-8999-999999999999",
+          "artifactId": "",
+          "artifactSha256": "",
+          "value": "23 \u00b0C",
+          "condition": "Ambient \u00b7 as received",
+          "text": "Test temperatureAttribute revision 323 \u00b0CAmbient \u00b7 as received"
+        },
+        {
+          "id": "test-direction",
+          "selected": false,
+          "revisionId": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+          "artifactId": "",
+          "artifactSha256": "",
+          "value": "Rolling direction",
+          "condition": "Specimen orientation",
+          "text": "Test directionAttribute revision 2Rolling directionSpecimen orientation"
+        },
+        {
+          "id": "specimen-thickness",
+          "selected": false,
+          "revisionId": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+          "artifactId": "",
+          "artifactSha256": "",
+          "value": "1.20 mm",
+          "condition": "Nominal specimen",
+          "text": "Specimen thicknessAttribute revision 31.20 mmNominal specimen"
+        },
+        {
+          "id": "representative-response",
+          "selected": false,
+          "revisionId": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+          "artifactId": "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+          "artifactSha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "value": "Saved linked Artifact Engineering strain / stressSaved linked Artifact \u00b7 read-only",
+          "condition": "Ambient \u00b7 as received",
+          "text": "Representative responseAttribute revision 2Saved linked Artifact Engineering strain / stressSaved linked Artifact \u00b7 read-onlyAmbient \u00b7 as received"
+        }
+      ],
+      "layoutRows": [
+        {
+          "id": "density",
+          "selected": false,
+          "ordinal": 0,
+          "revisionId": "11111111-1111-4111-8111-111111111111",
+          "artifactId": "",
+          "artifactSha256": "",
+          "text": "1DensityDefinition revision 5Number"
+        },
+        {
+          "id": "youngs-modulus",
+          "selected": false,
+          "ordinal": 1,
+          "revisionId": "22222222-2222-4222-8222-222222222222",
+          "artifactId": "",
+          "artifactSha256": "",
+          "text": "2Young's modulusDefinition revision 6Number"
+        },
+        {
+          "id": "yield-strength",
+          "selected": false,
+          "ordinal": 2,
+          "revisionId": "33333333-3333-4333-8333-333333333333",
+          "artifactId": "",
+          "artifactSha256": "",
+          "text": "3Yield strengthDefinition revision 7Number"
+        },
+        {
+          "id": "poisson-ratio",
+          "selected": false,
+          "ordinal": 3,
+          "revisionId": "44444444-4444-4444-8444-444444444444",
+          "artifactId": "",
+          "artifactSha256": "",
+          "text": "4Poisson ratioDefinition revision 4Number"
+        },
+        {
+          "id": "material-condition",
+          "selected": false,
+          "ordinal": 4,
+          "revisionId": "55555555-5555-4555-8555-555555555555",
+          "artifactId": "",
+          "artifactSha256": "",
+          "text": "5Material conditionDefinition revision 3Discrete choice"
+        },
+        {
+          "id": "test-method",
+          "selected": false,
+          "ordinal": 5,
+          "revisionId": "66666666-6666-4666-8666-666666666666",
+          "artifactId": "",
+          "artifactSha256": "",
+          "text": "6Test methodDefinition revision 4Text"
+        },
+        {
+          "id": "measurement-date",
+          "selected": false,
+          "ordinal": 6,
+          "revisionId": "77777777-7777-4777-8777-777777777777",
+          "artifactId": "",
+          "artifactSha256": "",
+          "text": "7Measurement dateDefinition revision 2Date"
+        },
+        {
+          "id": "hardness",
+          "selected": false,
+          "ordinal": 7,
+          "revisionId": "abababab-abab-4aba-8aba-abababababab",
+          "artifactId": "",
+          "artifactSha256": "",
+          "text": "8HardnessDefinition revision 2Number"
+        },
+        {
+          "id": "test-temperature",
+          "selected": false,
+          "ordinal": 8,
+          "revisionId": "99999999-9999-4999-8999-999999999999",
+          "artifactId": "",
+          "artifactSha256": "",
+          "text": "9Test temperatureDefinition revision 3Number"
+        },
+        {
+          "id": "test-direction",
+          "selected": false,
+          "ordinal": 9,
+          "revisionId": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+          "artifactId": "",
+          "artifactSha256": "",
+          "text": "10Test directionDefinition revision 2Discrete choice"
+        },
+        {
+          "id": "specimen-thickness",
+          "selected": false,
+          "ordinal": 10,
+          "revisionId": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+          "artifactId": "",
+          "artifactSha256": "",
+          "text": "11Specimen thicknessDefinition revision 3Number"
+        },
+        {
+          "id": "representative-response",
+          "selected": false,
+          "ordinal": 11,
+          "revisionId": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+          "artifactId": "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+          "artifactSha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "text": "12Representative responseDefinition revision 2Curve / table artifact"
+        }
+      ],
+      "graph": {
+        "visible": false,
+        "section": null,
+        "frame": null,
+        "plotBox": null,
+        "title": "",
+        "description": "",
+        "axisTitles": [],
+        "ticks": [],
+        "viewBox": [
+          0
+        ],
+        "rendered": {
+          "width": 0,
+          "height": 0
+        },
+        "plotArea": {
+          "left": 0,
+          "right": 0,
+          "top": 0,
+          "bottom": 0
+        },
+        "path": {
+          "d": "",
+          "left": 0,
+          "right": 0,
+          "top": 0,
+          "bottom": 0
+        },
+        "series": {
+          "minStrain": 0,
+          "maxStrain": 0,
+          "minStressMpa": 0,
+          "maxStressMpa": 0
+        },
+        "axis": {
+          "headroomRatio": 0,
+          "maxStrain": 0,
+          "maxStressMpa": 0
+        },
+        "artifactId": "",
+        "artifactSha256": "",
+        "curveSelected": false
+      },
+      "layoutRevisionId": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+      "recordRevisionId": "ffffffff-ffff-4fff-8fff-ffffffffffff",
+      "recordTableRevisionId": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+      "toggleLabel": "",
+      "projectionState": "saved",
+      "text": "Record previewMaterial datasheetLayout \u00b7 Material datasheet \u00b7 revision 6RecordDP780 synthetic demo steelTableMaterials masterSaved response remains linked to this Layout. Return to the read-only Table view to inspect the complete response graph.Record valuesSaved Record \u00b7 revision 1AttributeValueConditionDensityAttribute revision 57,800 kg/m\u00b3Ambient \u00b7 as receivedYoung's modulusAttribute revision 6210,000 MPaAmbient \u00b7 as receivedYield strengthAttribute revision 7450 MPaAmbient \u00b7 as receivedPoisson ratioAttribute revision 40.30Ambient \u00b7 as receivedMaterial conditionAttribute revision 3As receivedRecorded conditionTest methodAttribute revision 4Ambient tensile referenceMethod identifierMeasurement dateAttribute revision 22026-07-24Recorded dateHardnessAttribute revision 2220 HVAmbient \u00b7 as receivedTest temperatureAttribute revision 323 \u00b0CAmbient \u00b7 as receivedTest directionAttribute revision 2Rolling directionSpecimen orientationSpecimen thicknessAttribute revision 31.20 mmNominal specimenRepresentative responseAttribute revision 2Saved linked Artifact Engineering strain / stressSaved linked Artifact \u00b7 read-onlyAmbient \u00b7 as receivedLayout fieldsOrdered \u00b7 exact revisions#AttributeType1DensityDefinition revision 5Number2Young's modulusDefinition revision 6Number3Yield strengthDefinition revision 7Number4Poisson ratioDefinition revision 4Number5Material conditionDefinition revision 3Discrete choice6Test methodDefinition revision 4Text7Measurement dateDefinition revision 2Date8HardnessDefinition revision 2Number9Test temperatureDefinition revision 3Number10Test directionDefinition revision 2Discrete choice11Specimen thicknessDefinition revision 3Number12Representative responseDefinition revision 2Curve / table artifact"
+    },
+    "buttons": [
+      {
+        "name": "Refresh",
+        "action": "refresh",
+        "disabled": false,
+        "rect": {
+          "x": 1216.828125,
+          "y": 66.5,
+          "width": 65.46875,
+          "height": 30
+        }
+      },
+      {
+        "name": "Preview datasheet",
+        "action": "preview",
+        "disabled": false,
+        "rect": {
+          "x": 1290.296875,
+          "y": 66.5,
+          "width": 126.703125,
+          "height": 30
+        }
+      },
+      {
+        "name": "Tables5",
+        "action": "",
+        "disabled": false,
+        "rect": {
+          "x": 9,
+          "y": 149,
+          "width": 232,
+          "height": 28
+        }
+      },
+      {
+        "name": "Attributes18",
+        "action": "",
+        "disabled": false,
+        "rect": {
+          "x": 9,
+          "y": 177,
+          "width": 232,
+          "height": 28
+        }
+      },
+      {
+        "name": "Layouts3",
+        "action": "",
+        "disabled": false,
+        "rect": {
+          "x": 9,
+          "y": 205,
+          "width": 232,
+          "height": 28
+        }
+      },
+      {
+        "name": "Subsets4",
+        "action": "",
+        "disabled": false,
+        "rect": {
+          "x": 9,
+          "y": 233,
+          "width": 232,
+          "height": 28
+        }
+      },
+      {
+        "name": "Link Types2",
+        "action": "",
+        "disabled": false,
+        "rect": {
+          "x": 9,
+          "y": 261,
+          "width": 232,
+          "height": 28
+        }
+      },
+      {
+        "name": "Density\n        Number\n        5",
+        "action": "",
+        "disabled": false,
+        "rect": {
+          "x": 248,
+          "y": 173,
+          "width": 300,
+          "height": 26
+        }
+      },
+      {
+        "name": "Yield strength\n        Number\n        7",
+        "action": "",
+        "disabled": false,
+        "rect": {
+          "x": 248,
+          "y": 199,
+          "width": 300,
+          "height": 26
+        }
+      },
+      {
+        "name": "Material condition\n        Discrete choice\n        3",
+        "action": "",
+        "disabled": false,
+        "rect": {
+          "x": 248,
+          "y": 225,
+          "width": 300,
+          "height": 26
+        }
+      },
+      {
+        "name": "Source reference\n        Record reference\n        4",
+        "action": "",
+        "disabled": false,
+        "rect": {
+          "x": 248,
+          "y": 251,
+          "width": 300,
+          "height": 26
+        }
+      },
+      {
+        "name": "Test method\n        Text\n        4",
+        "action": "",
+        "disabled": false,
+        "rect": {
+          "x": 248,
+          "y": 277,
+          "width": 300,
+          "height": 26
+        }
+      },
+      {
+        "name": "Measurement date\n        Date\n        2",
+        "action": "",
+        "disabled": false,
+        "rect": {
+          "x": 248,
+          "y": 303,
+          "width": 300,
+          "height": 26
+        }
+      },
+      {
+        "name": "Save new Attribute",
+        "action": "save-new-attribute",
+        "disabled": false,
+        "rect": {
+          "x": 585,
+          "y": 755.546875,
+          "width": 138.125,
+          "height": 30
+        }
+      },
+      {
+        "name": "Cancel",
+        "action": "cancel-add",
+        "disabled": false,
+        "rect": {
+          "x": 731.125,
+          "y": 755.546875,
+          "width": 62.78125,
+          "height": 30
+        }
+      }
+    ],
+    "conditional": {
+      "hasQuantity": false,
+      "hasStandardUnit": false,
+      "hasMinMax": false,
+      "hasAllowedChoices": true,
+      "hasRelatedTable": false,
+      "hasTextLimits": false
+    },
+    "announcements": {
+      "alert": false,
+      "status": true
+    },
+    "bodyCss": {
+      "overflowX": "hidden",
+      "overflowY": "hidden",
+      "rootOverflowX": "visible",
+      "rootOverflowY": "visible"
+    },
+    "pageText": "Skip to database design CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator \u00b7 Atlas workspace Database design Atlas workspace \u00b7 materials catalog New Attribute draft Refresh Preview datasheet Schema objects 5 types Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 2 Current table Materials master Test conditions Source references Solver aliases Batch runs Scopes Attributes, Layouts and Subsets. Selection retained on refresh Attributes 6 items Name Value type Rev Density Number 5 Yield strength Number 7 Material condition Discrete choice 3 Source reference Record reference 4 Test method Text 4 Measurement date Date 2 New Attribute for Materials master User-selected field \u00b7 fields follow the chosen value type New definition Attribute name * Visible label used in Record entry and datasheets. Reference key * Stable key for this new Attribute identity. Value type * Number Integer Text Boolean Date Discrete choice File artifact Curve / table artifact Record reference Choose the stored value and validation behavior. Required when creating a record Required for new records Controls whether a new Record can be saved without this value. Allowed choices * One stored choice per line. Entry guidance Short help shown when a person enters this value. Change reason * Recorded with immutable revision 1. Creates revision 1. Add this Attribute to a Layout to make it visible in Record entry and the datasheet. Save new Attribute Cancel Advanced definition details Attributes \u00b7 Density Scoped to Materials master Local pane scrolling Online"
+  },
+  "console_errors": [],
+  "page_errors": []
+}

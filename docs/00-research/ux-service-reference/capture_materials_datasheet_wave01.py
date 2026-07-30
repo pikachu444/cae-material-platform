@@ -26,6 +26,30 @@ EMPTY_JS = REFERENCE_DIR / "materials-datasheet-empty-1440x900.js"
 STAGING_INDEX = IMAGE_DIR / "materials-datasheet-wave01.staging.json"
 
 TARGETS: dict[str, dict[str, Any]] = {
+    "materials-datasheet-overview-normal-1366x768": {
+        "kind": "normal",
+        "html": BASE_HTML,
+        "css": COMPACT_CSS,
+        "javascript": COMPACT_JS,
+        "viewport": {"width": 1366, "height": 768, "device_scale_factor": 1},
+        "navigator_width": 244,
+        "compact_max": 345,
+        "image": IMAGE_DIR / "materials-datasheet-overview-normal-1366x768.png",
+        "measurements": IMAGE_DIR
+        / "materials-datasheet-overview-normal-1366x768.measurements.json",
+    },
+    "materials-datasheet-overview-normal-1440x900": {
+        "kind": "normal",
+        "html": BASE_HTML,
+        "css": None,
+        "javascript": None,
+        "viewport": {"width": 1440, "height": 900, "device_scale_factor": 1},
+        "navigator_width": 264,
+        "compact_max": 360,
+        "image": IMAGE_DIR / "materials-datasheet-overview-normal-1440x900.png",
+        "measurements": IMAGE_DIR
+        / "materials-datasheet-overview-normal-1440x900.measurements.json",
+    },
     "materials-datasheet-overview-normal-1920x1080": {
         "kind": "normal",
         "html": BASE_HTML,
@@ -44,7 +68,9 @@ TARGETS: dict[str, dict[str, Any]] = {
                 "datasheet": 1619,
                 "main": 1319,
                 "aside": 300,
-                "plot": 1295,
+                "plot": 953,
+                "response_layout": 1295,
+                "grid": 340,
             },
             "navigator_arrow_right": {
                 "navigator": 288,
@@ -52,7 +78,9 @@ TARGETS: dict[str, dict[str, Any]] = {
                 "datasheet": 1611,
                 "main": 1311,
                 "aside": 300,
-                "plot": 1287,
+                "plot": 945,
+                "response_layout": 1287,
+                "grid": 340,
             },
             "navigator_home": {
                 "navigator": 200,
@@ -60,7 +88,9 @@ TARGETS: dict[str, dict[str, Any]] = {
                 "datasheet": 1699,
                 "main": 1399,
                 "aside": 300,
-                "plot": 1375,
+                "plot": 1016,
+                "response_layout": 1375,
+                "grid": 357,
             },
             "navigator_end": {
                 "navigator": 360,
@@ -68,7 +98,9 @@ TARGETS: dict[str, dict[str, Any]] = {
                 "datasheet": 1539,
                 "main": 1239,
                 "aside": 300,
-                "plot": 1215,
+                "plot": 873,
+                "response_layout": 1215,
+                "grid": 340,
             },
         },
         "splitter_states": {
@@ -80,6 +112,7 @@ TARGETS: dict[str, dict[str, Any]] = {
         "image": IMAGE_DIR / "materials-datasheet-overview-normal-1920x1080.png",
         "measurements": IMAGE_DIR
         / "materials-datasheet-overview-normal-1920x1080.measurements.json",
+        "wide_evidence": ((2560, 1440), (3840, 2160)),
     },
     "materials-datasheet-related-long-1440x900": {
         "kind": "related",
@@ -128,7 +161,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--all-packet-targets",
         action="store_true",
-        help="Capture all three canonical targets and Related/Empty responsive evidence.",
+        help="Capture all normal targets and Related/Empty responsive evidence.",
     )
     args = parser.parse_args()
     if not args.target and not args.all_packet_targets:
@@ -173,23 +206,79 @@ def tree_snapshot(page: Page) -> dict[str, Any]:
     return page.locator(".tree-scroll").evaluate(
         """(element) => {
           const right = element.getBoundingClientRect().right;
-          const labels = [...element.querySelectorAll('[role="treeitem"]')].map((row) => ({
-            expected: row.dataset.kind,
-            actual: row.querySelector('.tree-kind')?.textContent.trim(),
-          }));
+          const rows = [...element.querySelectorAll('[role="treeitem"]')];
+          const labels = rows.map((row) => {
+            const label = row.querySelector('.tree-label');
+            const kind = row.querySelector('.tree-kind');
+            return {
+              expected: row.dataset.kind,
+              actual: kind?.textContent.trim(),
+              identity: label?.textContent || '',
+              title: label?.title || '',
+              accessible_name: row.getAttribute('aria-label') || '',
+              glyph_kind: kind?.dataset.kind || '',
+              glyph_title: kind?.title || '',
+              glyph_font_size: kind ? getComputedStyle(kind).fontSize : '',
+            };
+          });
+          const alignment = rows.map((row) => {
+            const components = {
+              disclosure: row.querySelector('.tree-disclosure'),
+              kind: row.querySelector('.tree-kind'),
+              label: row.querySelector('.tree-label'),
+            };
+            const boxCenter = (child) => {
+              if (!child) return null;
+              const box = child.getBoundingClientRect();
+              return {
+                x: (box.left + box.right) / 2,
+                y: (box.top + box.bottom) / 2,
+              };
+            };
+            const centers = Object.fromEntries(
+              Object.entries(components).map(([name, child]) => [name, boxCenter(child)])
+            );
+            const gridRows = Object.fromEntries(
+              Object.entries(components).map(([name, child]) => [
+                name,
+                child ? getComputedStyle(child).gridRowStart : '',
+              ])
+            );
+            const yCenters = Object.values(centers)
+              .filter((center) => center !== null)
+              .map((center) => center.y);
+            const gridRowValues = Object.values(gridRows);
+            return {
+              id: row.id,
+              dom_child_class_order: [...row.children].map((child) => child.className || ''),
+              box_centers: centers,
+              maximum_center_delta:
+                yCenters.length === 3 ? Math.max(...yCenters) - Math.min(...yCenters) : null,
+              css_grid_rows: gridRows,
+              all_three_same_css_grid_row:
+                gridRowValues.length === 3 && gridRowValues.every((value) => value === gridRowValues[0]),
+            };
+          });
           const kindBoxes = [...element.querySelectorAll('.tree-kind')].map((kind) => kind.getBoundingClientRect());
           return {
             horizontal_overflow: element.scrollWidth - element.clientWidth,
+            vertical_overflow: element.scrollHeight - element.clientHeight,
             all_tree_kind_right_edges_within_content: kindBoxes.every((box) => box.right <= right + 0.01),
             tree_kind_labels: labels.map((label) => label.actual),
             tree_kind_labels_match: labels.every((label) => label.expected === label.actual),
+            identities: labels,
+            row_alignment: alignment,
+            rails: {
+              horizontal: !document.querySelector('#tree-scrollbar-x').hidden,
+              vertical: !document.querySelector('#tree-scrollbar-y').hidden,
+            },
           };
         }"""
     )
 
 
 def splitter_snapshot(page: Page) -> dict[str, Any]:
-    return page.evaluate(
+    snapshot = page.evaluate(
         """() => {
           const width = (selector) => Math.round(document.querySelector(selector).getBoundingClientRect().width);
           const separator = document.querySelector('[data-region="navigator-divider"]');
@@ -206,6 +295,9 @@ def splitter_snapshot(page: Page) -> dict[str, Any]:
               main: document.querySelector('.overview-main') ? width('.overview-main') : null,
               aside: document.querySelector('.overview-aside') ? width('.overview-aside') : null,
               plot: document.querySelector('.plot-frame') ? width('.plot-frame') : null,
+              response_layout: document.querySelector('.response-layout') ? width('.response-layout') : null,
+              grid: document.querySelector('.response-grid-panel') ? width('.response-grid-panel') : null,
+              plot_height: document.querySelector('.response-plot') ? Math.round(document.querySelector('.response-plot').getBoundingClientRect().height) : null,
             },
             aria: {
               minimum: Number(separator.getAttribute('aria-valuemin')),
@@ -219,10 +311,15 @@ def splitter_snapshot(page: Page) -> dict[str, Any]:
               const kinds = [...element.querySelectorAll('.tree-kind')].map((kind) => kind.getBoundingClientRect());
               return {
                 horizontal_overflow: element.scrollWidth - element.clientWidth,
+                vertical_overflow: element.scrollHeight - element.clientHeight,
                 all_tree_kind_right_edges_within_content: kinds.every((box) => box.right <= right + 0.01),
                 tree_kind_labels_match: [...element.querySelectorAll('[role="treeitem"]')].every(
                   (row) => row.dataset.kind === row.querySelector('.tree-kind')?.textContent.trim()
                 ),
+                rails: {
+                  horizontal: !document.querySelector('#tree-scrollbar-x').hidden,
+                  vertical: !document.querySelector('#tree-scrollbar-y').hidden,
+                },
               };
             })(),
             overflow: {
@@ -235,6 +332,8 @@ def splitter_snapshot(page: Page) -> dict[str, Any]:
           };
         }"""
     )
+    snapshot["tree"] = tree_snapshot(page)
+    return snapshot
 
 
 def splitter_states(page: Page, config: dict[str, Any]) -> dict[str, Any]:
@@ -258,6 +357,7 @@ def splitter_states(page: Page, config: dict[str, Any]) -> dict[str, Any]:
         if key:
             splitter.focus()
             page.keyboard.press(key)
+            page.wait_for_timeout(60)
         evidence[label] = splitter_snapshot(page)
         expected = (
             expected_navigator
@@ -279,6 +379,22 @@ def splitter_states(page: Page, config: dict[str, Any]) -> dict[str, Any]:
         if actual["aria"]["minimum"] != 200 or actual["aria"]["maximum"] != expected_max:
             raise AssertionError(f"{label} splitter range mismatch: {actual}")
         expected_layout = config.get("splitter_layouts", {}).get(label)
+        if expected_layout and viewport_width != config["viewport"]["width"]:
+            expected_datasheet = viewport_width - 16 - expected - 5
+            expected_aside = config.get("aside_width", 300)
+            expected_main = expected_datasheet - expected_aside
+            expected_layout_width = expected_main - 24
+            expected_grid = max(340, min(500, round(expected_layout_width * 0.26)))
+            expected_layout = {
+                "navigator": expected,
+                "divider": 5,
+                "datasheet": expected_datasheet,
+                "main": expected_main,
+                "aside": expected_aside,
+                "plot": expected_layout_width - expected_grid - 2,
+                "response_layout": expected_layout_width,
+                "grid": expected_grid,
+            }
         if expected_layout and any(
             actual["widths"].get(key) != value for key, value in expected_layout.items()
         ):
@@ -287,8 +403,15 @@ def splitter_states(page: Page, config: dict[str, Any]) -> dict[str, Any]:
             raise AssertionError(f"{label} datasheet is below 720px: {actual}")
         if any(value != 0 for value in actual["overflow"].values()):
             raise AssertionError(f"{label} page overflow: {actual}")
+        expected_tree_horizontal_overflow = (
+            41 if config["kind"] == "normal" and expected == 200 else 0
+        )
+        expected_horizontal_rail = expected_tree_horizontal_overflow > 0
         if (
-            actual["tree"]["horizontal_overflow"] != 0
+            actual["tree"]["horizontal_overflow"] != expected_tree_horizontal_overflow
+            or actual["tree"]["vertical_overflow"] != 0
+            or actual["tree"]["rails"]["horizontal"] != expected_horizontal_rail
+            or actual["tree"]["rails"]["vertical"]
             or not actual["tree"]["all_tree_kind_right_edges_within_content"]
             or not actual["tree"]["tree_kind_labels_match"]
         ):
@@ -333,6 +456,8 @@ def plot_snapshot(page: Page) -> dict[str, Any]:
           const box = path.getBBox();
           const start = path.getPointAtLength(0);
           const endpoint = path.getPointAtLength(path.getTotalLength());
+          const viewBox = (plot.getAttribute('viewBox') || '0 0 0 0').split(/\\s+/).map(Number);
+          const rendered = plot.getBoundingClientRect();
           const plotArea = {
             left: Math.min(...vertical.map((line) => number(line, 'x1'))),
             right: Math.max(...vertical.map((line) => number(line, 'x1'))),
@@ -340,6 +465,33 @@ def plot_snapshot(page: Page) -> dict[str, Any]:
             bottom: Math.max(...horizontal.map((line) => number(line, 'y1'))),
           };
           const response = {x: box.x, y: box.y, right: box.x + box.width, bottom: box.y + box.height};
+          const intersects = (first, second) => (
+            first.left < second.right - 0.01 && first.right > second.left + 0.01 &&
+            first.top < second.bottom - 0.01 && first.bottom > second.top + 0.01
+          );
+          const scaleX = viewBox[2] / rendered.width;
+          const scaleY = viewBox[3] / rendered.height;
+          const textBoxes = [...plot.querySelectorAll('.plot-labels text')].map((text) => {
+            const cssBox = text.getBoundingClientRect();
+            const box = {
+              x: (cssBox.left - rendered.left) * scaleX,
+              y: (cssBox.top - rendered.top) * scaleY,
+              width: cssBox.width * scaleX,
+              height: cssBox.height * scaleY,
+            };
+            return {
+              text: text.textContent.trim(),
+              role: text.dataset.axisTitle ? `axis-title-${text.dataset.axisTitle}` : `tick-${text.dataset.tick}`,
+              box: {left: box.x, top: box.y, right: box.x + box.width, bottom: box.y + box.height, width: box.width, height: box.height},
+            };
+          });
+          const frame = {left: plotArea.left, top: plotArea.top, right: plotArea.right, bottom: plotArea.bottom};
+          const titleBoxes = textBoxes.filter((entry) => entry.role.startsWith('axis-title-')).map((entry) => entry.box);
+          const tickBoxes = textBoxes.filter((entry) => entry.role.startsWith('tick-')).map((entry) => entry.box);
+          const insideViewBox = (entry) => entry.box.left >= -0.01 && entry.box.top >= -0.01 && entry.box.right <= viewBox[2] + 0.01 && entry.box.bottom <= viewBox[3] + 0.01;
+          const noTextCollisions = textBoxes.every((entry, index) => textBoxes.slice(index + 1).every((other) => !intersects(entry.box, other.box)));
+          const noFrameCollisions = [...titleBoxes, ...tickBoxes].every((entry) => !intersects(entry, frame));
+          const legend = document.querySelector('.plot-legend')?.getBoundingClientRect();
           return {
             declared_series: {
               strain: {minimum: Number(plot.dataset.seriesMinStrain), maximum: Number(plot.dataset.seriesMaxStrain)},
@@ -351,14 +503,54 @@ def plot_snapshot(page: Page) -> dict[str, Any]:
               nice_step_factors: plot.dataset.axisNiceStepFactors.split(',').map(Number),
             },
             declared_axis_maxima: {strain: Number(plot.dataset.axisMaxStrain), stress_mpa: Number(plot.dataset.axisMaxStressMpa)},
+            recomputed_domain: (() => {
+              const factors = plot.dataset.axisNiceStepFactors.split(',').map(Number);
+              const axis = (minimum, maximum, ratio, intervals) => {
+                const paddedMaximum = maximum + (maximum - minimum) * ratio;
+                const roughStep = (paddedMaximum - minimum) / intervals;
+                const exponent = Math.floor(Math.log10(roughStep));
+                const candidates = [];
+                for (let power = exponent - 1; power <= exponent + 3; power += 1) {
+                  factors.forEach((factor) => candidates.push(factor * 10 ** power));
+                }
+                const nice = Math.min(...candidates.filter((candidate) => candidate >= roughStep - 1e-12));
+                return {padded_maximum: paddedMaximum, rough_step: roughStep, nice_step: nice, domain_maximum: Math.ceil(paddedMaximum / nice - 1e-12) * nice};
+              };
+              return {
+                axes: {
+                  strain: axis(Number(plot.dataset.seriesMinStrain), Number(plot.dataset.seriesMaxStrain), Number(plot.dataset.axisHeadroomRatio), Number(plot.dataset.axisTargetIntervalsStrain)),
+                  stress_mpa: axis(Number(plot.dataset.seriesMinStressMpa), Number(plot.dataset.seriesMaxStressMpa), Number(plot.dataset.axisHeadroomRatio), Number(plot.dataset.axisTargetIntervalsStress)),
+                },
+              };
+            })(),
             plot_area: plotArea,
+            svg: {
+              rendered_box: {width: rendered.width, height: rendered.height},
+              view_box: {x: viewBox[0], y: viewBox[1], width: viewBox[2], height: viewBox[3]},
+              rendered_aspect_ratio: rendered.width / rendered.height,
+              view_box_aspect_ratio: viewBox[2] / viewBox[3],
+              aspect_ratio_delta: Math.abs((rendered.width / rendered.height) - (viewBox[2] / viewBox[3])),
+            },
             response_path: {
               bounding_box: {...response, width: box.width, height: box.height},
               start: {x: start.x, y: start.y},
               endpoint: {x: endpoint.x, y: endpoint.y},
-              fully_inside_plot: response.x >= plotArea.left && response.right <= plotArea.right && response.y >= plotArea.top && response.bottom <= plotArea.bottom,
+              fully_inside_plot:
+                response.x >= plotArea.left - 0.01
+                && response.right <= plotArea.right + 0.01
+                && response.y >= plotArea.top - 0.01
+                && response.bottom <= plotArea.bottom + 0.01,
             },
             headroom: {right: plotArea.right - response.right, top: response.y - plotArea.top},
+            text_boxes: textBoxes,
+            legend_box: legend ? {left: legend.left, top: legend.top, right: legend.right, bottom: legend.bottom, width: legend.width, height: legend.height} : null,
+            collision_checks: {
+              text_inside_view_box: textBoxes.every(insideViewBox),
+              no_text_collisions: noTextCollisions,
+              no_text_frame_collisions: noFrameCollisions,
+              titles: textBoxes.filter((entry) => entry.role.startsWith('axis-title-')).map((entry) => entry.text),
+              tick_values: textBoxes.filter((entry) => entry.role.startsWith('tick-')).map((entry) => entry.text),
+            },
             visible_text: {
               plot: [...plot.querySelectorAll('text')].map((text) => text.textContent.trim()),
               legend: [...document.querySelectorAll('.plot-legend')].map((legend) => legend.textContent.trim()),
@@ -366,6 +558,138 @@ def plot_snapshot(page: Page) -> dict[str, Any]:
           };
         }"""
     )
+
+
+def response_grid_snapshot(page: Page) -> dict[str, Any]:
+    return page.evaluate(
+        """() => {
+          const box = (selector) => {
+            const element = document.querySelector(selector);
+            if (!element) return null;
+            const rect = element.getBoundingClientRect();
+            return {left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom, width: rect.width, height: rect.height};
+          };
+          const panel = document.querySelector('.response-grid-panel');
+          const plot = document.querySelector('.response-plot');
+          const table = document.querySelector('.response-point-grid');
+          const scroll = document.querySelector('#response-grid-scroll');
+          const rail = document.querySelector('#response-grid-scrollbar-y');
+          const thumb = document.querySelector('.response-grid-scrollbar-thumb');
+          const sourceElement = plot?.dataset.seriesSource ? document.querySelector(plot.dataset.seriesSource) : null;
+          let source = [];
+          try { source = JSON.parse(sourceElement?.textContent || '[]'); } catch { source = []; }
+          const rows = [...document.querySelectorAll('#response-point-rows tr')].map((row) => {
+            const cells = [...row.children].map((cell) => cell.textContent.trim());
+            return {point: Number(cells[0]), strain: Number(cells[1]), stress_mpa: Number(cells[2].replaceAll(',', ''))};
+          });
+          const scrollOverflow = scroll ? scroll.scrollHeight - scroll.clientHeight : 0;
+          const railVisible = Boolean(rail && !rail.hidden);
+          const railBox = railVisible ? rail.getBoundingClientRect() : null;
+          const thumbBox = railVisible ? thumb?.getBoundingClientRect() : null;
+          return {
+            visible: Boolean(panel && getComputedStyle(panel).display !== 'none' && panel.checkVisibility?.() !== false),
+            source,
+            source_point_count: source.length,
+            rows,
+            row_count: rows.length,
+            headers: table ? [...table.querySelectorAll('thead th')].map((cell) => cell.textContent.trim()) : [],
+            table_header_position: table ? getComputedStyle(table.querySelector('thead th')).position : null,
+            table_series_source: table?.dataset.seriesSource || null,
+            table_series_point_count: Number(table?.dataset.seriesPointCount || 0),
+            graph_series_source: plot?.dataset.seriesSource || null,
+            graph_point_count: Number(plot?.querySelector('.response-line')?.dataset.pointCount || 0),
+            graph_element: plot?.querySelector('.response-line')?.tagName.toLowerCase() || null,
+            topology: {
+              layout_display: document.querySelector('.response-layout') ? getComputedStyle(document.querySelector('.response-layout')).display : null,
+              layout_columns: document.querySelector('.response-layout') ? getComputedStyle(document.querySelector('.response-layout')).gridTemplateColumns : null,
+              layout: box('.response-layout'),
+              graph: box('.response-plot-column'),
+              plot_frame: box('.plot-frame'),
+              grid: box('.response-grid-panel'),
+              context: box('.overview-aside'),
+            },
+            scroll: {
+              scroll_height: scroll?.scrollHeight || 0,
+              client_height: scroll?.clientHeight || 0,
+              overflow: scrollOverflow,
+              rail_visible: railVisible,
+              rail_max: Number(rail?.getAttribute('aria-valuemax') || 0),
+              rail_now: Number(rail?.getAttribute('aria-valuenow') || 0),
+              track_length: railBox?.height || 0,
+              thumb_length: thumbBox?.height || 0,
+              thumb_proportion: railBox && thumbBox ? thumbBox.height / railBox.height : 0,
+              no_fake_rail: railVisible === (scrollOverflow > 1),
+            },
+            shared_source: JSON.stringify(source) === JSON.stringify(rows.map((row) => ({point: row.point, strain: row.strain, stress_mpa: row.stress_mpa})))
+              && Number(plot?.querySelector('.response-line')?.dataset.pointCount || 0) === source.length
+              && table?.dataset.seriesSource === plot?.dataset.seriesSource,
+          };
+        }"""
+    )
+
+
+def response_grid_interactions(page: Page) -> dict[str, bool]:
+    page.wait_for_timeout(80)
+    grid = page.locator("#response-grid-scroll")
+    panel = page.locator(".response-grid-panel")
+    visible = panel.evaluate("(element) => getComputedStyle(element).display !== 'none'")
+    if not visible:
+        return {
+            "response_grid_topology_checked": True,
+            "response_grid_scroll_inputs": True,
+            "response_grid_pointer": True,
+        }
+
+    rail = page.locator("#response-grid-scrollbar-y")
+    scroll_state = page.evaluate(
+        """() => {
+          const scroll = document.querySelector('#response-grid-scroll');
+          const rail = document.querySelector('#response-grid-scrollbar-y');
+          return {overflow: scroll.scrollHeight - scroll.clientHeight, rail_visible: !rail.hidden};
+        }"""
+    )
+    if scroll_state["overflow"] <= 1 or not scroll_state["rail_visible"]:
+        return {
+            "response_grid_topology_checked": True,
+            "response_grid_scroll_inputs": True,
+            "response_grid_pointer": True,
+        }
+
+    grid.focus()
+    page.keyboard.press("End")
+    end = page.evaluate("document.querySelector('#response-grid-scroll').scrollTop") > 0
+    page.keyboard.press("Home")
+    home = page.evaluate("document.querySelector('#response-grid-scroll').scrollTop") == 0
+    page.keyboard.press("ArrowDown")
+    arrow = page.evaluate("document.querySelector('#response-grid-scroll').scrollTop") > 0
+    page.keyboard.press("Home")
+    page.keyboard.press("PageDown")
+    page_down = page.evaluate("document.querySelector('#response-grid-scroll').scrollTop") > 0
+    page.keyboard.press("PageUp")
+    page_up = page.evaluate("document.querySelector('#response-grid-scroll').scrollTop") == 0
+    grid_box = grid.bounding_box()
+    if grid_box:
+        page.mouse.move(grid_box["x"] + grid_box["width"] / 2, grid_box["y"] + grid_box["height"] / 2)
+    page.mouse.wheel(0, 140)
+    wheel = page.evaluate("document.querySelector('#response-grid-scroll').scrollTop") > 0
+    page.evaluate("window.MaterialsResponseGrid?.scrollTo(0)")
+    rail_box = rail.bounding_box()
+    thumb = page.locator(".response-grid-scrollbar-thumb").bounding_box()
+    pointer = False
+    if rail_box and thumb:
+        start_x = thumb["x"] + thumb["width"] / 2
+        start_y = thumb["y"] + thumb["height"] / 2
+        page.mouse.move(start_x, start_y)
+        page.mouse.down()
+        page.mouse.move(start_x, rail_box["y"] + rail_box["height"] - 4, steps=4)
+        page.mouse.up()
+        pointer = page.evaluate("document.querySelector('#response-grid-scroll').scrollTop") > 0
+    page.evaluate("window.MaterialsResponseGrid?.scrollTo(0)")
+    return {
+        "response_grid_topology_checked": True,
+        "response_grid_scroll_inputs": end and home and arrow and page_down and page_up and wheel,
+        "response_grid_pointer": pointer,
+    }
 
 
 def normal_interactions(page: Page) -> dict[str, bool]:
@@ -405,6 +729,7 @@ def normal_interactions(page: Page) -> dict[str, bool]:
     preview = page.locator("body").get_attribute("data-card-preview") == "OpenRadioss:.rad"
     page.locator("#download-rad").click()
     download = page.locator("body").get_attribute("data-card-download") == "OpenRadioss:.rad"
+    grid_interactions = response_grid_interactions(page)
     return {
         "navigator_search_shortcut": search_focus,
         "tree_search": tree_search,
@@ -413,6 +738,7 @@ def normal_interactions(page: Page) -> dict[str, bool]:
         "tabs_click_keyboard": click_tabs and tab_keys and overview,
         "card_preview": preview,
         "card_download": download,
+        **grid_interactions,
     }
 
 
@@ -465,17 +791,18 @@ def load_page(
         page.goto(config["html"].as_uri(), wait_until="load")
     if config.get("css"):
         page.add_style_tag(path=str(config["css"]))
-    if viewport["width"] == 1920:
+    if viewport["width"] >= 1920 and config.get("css") != WIDE_CSS:
         page.add_style_tag(path=str(WIDE_CSS))
     if viewport["width"] == 1366 and config.get("kind") in {"related", "empty"}:
         page.add_style_tag(path=str(COMPACT_CSS))
     if config.get("javascript"):
         page.add_script_tag(path=str(config["javascript"]))
-    if viewport["width"] == 1920:
+    if viewport["width"] >= 1920 and config.get("javascript") != WIDE_JS:
         page.add_script_tag(path=str(WIDE_JS))
     if viewport["width"] == 1366 and config.get("kind") in {"related", "empty"}:
         page.add_script_tag(path=str(COMPACT_JS))
     page.evaluate("document.fonts.ready")
+    page.wait_for_timeout(40)
 
 
 def common_measurements(
@@ -499,7 +826,7 @@ def common_measurements(
     ]
     return {
         "target": target,
-        "capture_date": "2026-07-29",
+        "capture_date": "2026-07-30",
         "viewport": viewport,
         "regions": {
             "application_bar": rounded_box(page, "[data-region='application-bar']"),
@@ -571,6 +898,10 @@ def normal_measurements(
                 "datasheet_main": rounded_box(page, ".overview-main"),
                 "datasheet_aside": rounded_box(page, ".overview-aside"),
             },
+            "plot_frame": rounded_box(page, ".plot-frame"),
+            "plot_box": rounded_box(page, ".response-plot"),
+            "plot_legend": rounded_box(page, ".plot-legend"),
+            "response_grid": response_grid_snapshot(page),
             "row_density": {
                 "tree": {
                     "count": len(tree_heights),
@@ -716,6 +1047,7 @@ def capture_one(
     measurement_path: Path,
     *,
     responsive: bool = False,
+    evidence_kind: str = "canonical",
 ) -> dict[str, Any]:
     image_path.parent.mkdir(parents=True, exist_ok=True)
     measurement_path.parent.mkdir(parents=True, exist_ok=True)
@@ -728,6 +1060,22 @@ def capture_one(
             device_scale_factor=viewport["device_scale_factor"],
         )
         page = context.new_page()
+        if config["kind"] != "normal":
+            page.add_init_script(
+                """(() => {
+                    const disable = () => {
+                        if (!document.documentElement) return false;
+                        document.documentElement.dataset.materialsNavigatorDisabled = 'true';
+                        return true;
+                    };
+                    if (!disable()) {
+                        const observer = new MutationObserver(() => {
+                            if (disable()) observer.disconnect();
+                        });
+                        observer.observe(document, {childList: true});
+                    }
+                })();"""
+            )
         page.on(
             "console",
             lambda message: (
@@ -766,6 +1114,8 @@ def capture_one(
     measurement["image"] = str(image_path.relative_to(ROOT)).replace("\\", "/")
     measurement["image_sha256"] = digest
     measurement["responsive_evidence"] = responsive
+    measurement["evidence_kind"] = evidence_kind
+    measurement["wide_evidence"] = evidence_kind == "wide"
     measurement["console_errors"] = console_errors
     measurement["page_errors"] = page_errors
     measurement_path.write_text(
@@ -777,6 +1127,12 @@ def capture_one(
 def responsive_path(config: dict[str, Any], width: int, height: int) -> tuple[Path, Path]:
     stem = config["image"].stem
     suffix = f"responsive-{width}x{height}"
+    return IMAGE_DIR / f"{stem}.{suffix}.png", IMAGE_DIR / f"{stem}.{suffix}.measurements.json"
+
+
+def wide_evidence_path(config: dict[str, Any], width: int, height: int) -> tuple[Path, Path]:
+    stem = config["image"].stem
+    suffix = f"wide-evidence-{width}x{height}"
     return IMAGE_DIR / f"{stem}.{suffix}.png", IMAGE_DIR / f"{stem}.{suffix}.measurements.json"
 
 
@@ -794,6 +1150,18 @@ def main() -> None:
         captured.append(
             capture_one(target, config, config["viewport"], config["image"], config["measurements"])
         )
+        for width, height in config.get("wide_evidence", ()):
+            image, measurements = wide_evidence_path(config, width, height)
+            captured.append(
+                capture_one(
+                    target,
+                    config,
+                    {"width": width, "height": height, "device_scale_factor": 1},
+                    image,
+                    measurements,
+                    evidence_kind="wide",
+                )
+            )
         if config.get("responsive"):
             for width, height in ((1366, 768), (1920, 1080)):
                 image, measurements = responsive_path(config, width, height)
@@ -807,37 +1175,61 @@ def main() -> None:
                         responsive=True,
                     )
                 )
+    captured_canonical = {
+        entry["target"]: {
+            "id": entry["target"],
+            "kind": entry["kind"],
+            "viewport": entry["viewport"],
+            "image": entry["image"],
+            "measurements": entry["target"] + ".measurements.json",
+            "image_sha256": entry["image_sha256"],
+            "status": "pending",
+            "main_agent_evaluation": {
+                "status": "rejected" if entry["kind"] == "normal" else "pending"
+            },
+            "product_owner_approval": {"status": "absent"},
+            "responsive_evidence": (
+                [
+                    str(responsive_path(TARGETS[entry["target"]], 1366, 768)[0].relative_to(ROOT))
+                    .replace("\\", "/"),
+                    entry["image"],
+                    str(
+                        responsive_path(TARGETS[entry["target"]], 1920, 1080)[0].relative_to(ROOT)
+                    ).replace("\\", "/"),
+                ]
+                if TARGETS[entry["target"]].get("responsive")
+                else []
+            ),
+            "wide_evidence": [
+                str(wide_evidence_path(TARGETS[entry["target"]], width, height)[0].relative_to(ROOT))
+                .replace("\\", "/")
+                for width, height in TARGETS[entry["target"]].get("wide_evidence", ())
+            ],
+        }
+        for entry in captured
+        if entry.get("evidence_kind") == "canonical" and not entry.get("responsive_evidence")
+    }
+    existing_staging: dict[str, Any] = {}
+    if STAGING_INDEX.is_file():
+        existing_staging = json.loads(STAGING_INDEX.read_text(encoding="utf-8"))
+    existing_references = existing_staging.get("references", [])
+    references: list[dict[str, Any]] = []
+    seen_targets: set[str] = set()
+    for entry in existing_references:
+        target = entry.get("id")
+        if target in captured_canonical:
+            references.append(captured_canonical[target])
+            seen_targets.add(target)
+        else:
+            references.append(entry)
+    references.extend(
+        entry for target, entry in captured_canonical.items() if target not in seen_targets
+    )
     staging = {
         "schema_version": 1,
-        "generated": "2026-07-29",
+        "generated": "2026-07-30",
         "family": "MAT-DETAIL",
-        "references": [
-            {
-                "id": entry["target"],
-                "kind": entry["kind"],
-                "viewport": entry["viewport"],
-                "image": entry["image"],
-                "measurements": entry["target"] + ".measurements.json",
-                "image_sha256": entry["image_sha256"],
-                "status": "pending",
-                "main_agent_evaluation": {"status": "pending"},
-                "product_owner_approval": {"status": "absent"},
-                "responsive_evidence": (
-                    [
-                        str(responsive_path(TARGETS[entry["target"]], 1366, 768)[0].relative_to(ROOT))
-                        .replace("\\", "/"),
-                        entry["image"],
-                        str(
-                            responsive_path(TARGETS[entry["target"]], 1920, 1080)[0].relative_to(ROOT)
-                        ).replace("\\", "/"),
-                    ]
-                    if TARGETS[entry["target"]].get("responsive")
-                    else []
-                ),
-            }
-            for entry in captured
-            if not entry.get("responsive_evidence")
-        ],
+        "references": references,
     }
     STAGING_INDEX.parent.mkdir(parents=True, exist_ok=True)
     STAGING_INDEX.write_text(

@@ -7,9 +7,11 @@
     <title>Material Datasheet Reference</title>
     <link rel="stylesheet" href="reference.css">
     <link rel="stylesheet" href="materials-datasheet.css">
+    <link rel="stylesheet" href="materials-navigator.css">
     <script src="materials-datasheet.js" defer></script>
+    <script src="materials-navigator.js" defer></script>
   </head>
-  <body>
+  <body data-materials-navigator="normal">
     <a class="skip-link" href="#main-content">Skip to material datasheet</a>
 
     <header class="application-bar" data-region="application-bar">
@@ -94,7 +96,8 @@
             >
           </form>
 
-          <div class="tree-scroll">
+          <div class="scroll-shell tree-scroll-shell" data-scroll-shell>
+            <div id="tree-scroll" class="tree-scroll scroll-viewport" tabindex="0" aria-label="Scrollable material database hierarchy">
             <div
               id="material-tree"
               class="material-tree"
@@ -109,10 +112,11 @@
                 aria-expanded="true"
                 tabindex="-1"
                 data-kind="Database"
+                aria-label="Database: Materials Database"
               >
                 <span class="tree-disclosure" aria-hidden="true">▾</span>
                 <span class="tree-label" title="Materials Database">Materials Database</span>
-                <span class="tree-kind">Database</span>
+                <span class="tree-kind" data-kind="Database" title="Database" aria-hidden="true">Database</span>
               </div>
               <div
                 id="tree-profile"
@@ -122,10 +126,11 @@
                 aria-expanded="true"
                 tabindex="-1"
                 data-kind="Profile"
+                aria-label="Profile: Engineering Materials"
               >
                 <span class="tree-disclosure" aria-hidden="true">▾</span>
                 <span class="tree-label" title="Engineering Materials">Engineering Materials</span>
-                <span class="tree-kind">Profile</span>
+                <span class="tree-kind" data-kind="Profile" title="Profile" aria-hidden="true">Profile</span>
               </div>
               <div
                 id="tree-table"
@@ -135,10 +140,11 @@
                 aria-expanded="true"
                 tabindex="-1"
                 data-kind="Table"
+                aria-label="Table: Demo Material Records"
               >
                 <span class="tree-disclosure" aria-hidden="true">▾</span>
                 <span class="tree-label" title="Demo Material Records">Demo Material Records</span>
-                <span class="tree-kind">Table</span>
+                <span class="tree-kind" data-kind="Table" title="Table" aria-hidden="true">Table</span>
               </div>
               <div
                 id="tree-metals"
@@ -148,10 +154,11 @@
                 aria-expanded="true"
                 tabindex="-1"
                 data-kind="Folder"
+                aria-label="Folder: Synthetic metals"
               >
                 <span class="tree-disclosure" aria-hidden="true">▾</span>
                 <span class="tree-label" title="Synthetic metals">Synthetic metals</span>
-                <span class="tree-kind">Folder</span>
+                <span class="tree-kind" data-kind="Folder" title="Folder" aria-hidden="true">Folder</span>
               </div>
               <div
                 id="tree-steels"
@@ -161,10 +168,11 @@
                 aria-expanded="true"
                 tabindex="-1"
                 data-kind="Folder"
+                aria-label="Folder: Demo steels"
               >
                 <span class="tree-disclosure" aria-hidden="true">▾</span>
                 <span class="tree-label" title="Demo steels">Demo steels</span>
-                <span class="tree-kind">Folder</span>
+                <span class="tree-kind" data-kind="Folder" title="Folder" aria-hidden="true">Folder</span>
               </div>
               <div
                 id="tree-dp780"
@@ -174,10 +182,11 @@
                 aria-selected="true"
                 tabindex="0"
                 data-kind="Record"
+                aria-label="Record: DP780 synthetic demo steel"
               >
                 <span class="tree-disclosure" aria-hidden="true"></span>
                 <span class="tree-label" title="DP780 synthetic demo steel">DP780 synthetic demo steel</span>
-                <span class="tree-kind">Record</span>
+                <span class="tree-kind" data-kind="Record" title="Record" aria-hidden="true">Record</span>
               </div>
               <div
                 id="tree-dp600"
@@ -187,12 +196,17 @@
                 aria-selected="false"
                 tabindex="-1"
                 data-kind="Record"
+                aria-label="Record: DP600 synthetic demo steel"
               >
                 <span class="tree-disclosure" aria-hidden="true"></span>
                 <span class="tree-label" title="DP600 synthetic demo steel">DP600 synthetic demo steel</span>
-                <span class="tree-kind">Record</span>
+                <span class="tree-kind" data-kind="Record" title="Record" aria-hidden="true">Record</span>
               </div>
             </div>
+            </div>
+            <div id="tree-scrollbar-y" class="app-scrollbar app-scrollbar-y" role="scrollbar" aria-label="Scroll material hierarchy vertically" aria-controls="tree-scroll" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" tabindex="0" hidden><span class="app-scrollbar-thumb"></span></div>
+            <div id="tree-scrollbar-x" class="app-scrollbar app-scrollbar-x" role="scrollbar" aria-label="Scroll long material identities horizontally" aria-controls="tree-scroll" aria-orientation="horizontal" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" tabindex="0" hidden><span class="app-scrollbar-thumb"></span></div>
+            <span class="app-scrollbar-corner" aria-hidden="true"></span>
           </div>
         </aside>
 
@@ -363,62 +377,109 @@
                     </div>
                     <span class="section-context">Tension · monotonic</span>
                   </div>
-                  <div class="plot-frame">
-                    <svg
-                      class="response-plot"
-                      viewBox="0 0 760 226"
-                      role="img"
-                      aria-labelledby="plot-title plot-description"
-                      data-series-min-strain="0.00"
-                      data-series-max-strain="0.20"
-                      data-series-min-stress-mpa="0"
-                      data-series-max-stress-mpa="850"
-                      data-axis-headroom-ratio="0.10"
-                      data-axis-target-intervals-strain="5"
-                      data-axis-target-intervals-stress="4"
-                      data-axis-nice-step-factors="1,2,2.5,5,10"
-                      data-axis-max-strain="0.25"
-                      data-axis-max-stress-mpa="1000"
-                    >
-                      <title id="plot-title">DP780 representative stress-strain response</title>
-                      <desc id="plot-description">A synthetic response curve rises steeply then hardens gradually, ending near 0.20 engineering strain while the displayed axes extend to 0.25 strain and 1,000 MPa.</desc>
-                      <g class="plot-grid" aria-hidden="true">
-                        <line x1="64" y1="27" x2="732" y2="27"></line>
-                        <line x1="64" y1="68" x2="732" y2="68"></line>
-                        <line x1="64" y1="109" x2="732" y2="109"></line>
-                        <line x1="64" y1="150" x2="732" y2="150"></line>
-                        <line x1="64" y1="191" x2="732" y2="191"></line>
-                        <line x1="64" y1="27" x2="64" y2="191"></line>
-                        <line x1="197.6" y1="27" x2="197.6" y2="191"></line>
-                        <line x1="331.2" y1="27" x2="331.2" y2="191"></line>
-                        <line x1="464.8" y1="27" x2="464.8" y2="191"></line>
-                        <line x1="598.4" y1="27" x2="598.4" y2="191"></line>
-                        <line x1="732" y1="27" x2="732" y2="191"></line>
-                      </g>
-                      <g class="plot-axis" aria-hidden="true">
-                        <line x1="64" y1="191" x2="732" y2="191"></line>
-                        <line x1="64" y1="27" x2="64" y2="191"></line>
-                      </g>
-                      <path
-                        class="response-line"
-                        d="M 64 191 C 76 123, 94.4 95.8, 128 83.8 C 175.2 67.8, 241.6 63, 313.6 59.8 C 407.2 55.8, 505.6 53.4, 598.4 51.6"
-                      ></path>
-                      <g class="plot-labels">
-                        <text x="64" y="213" text-anchor="start">0</text>
-                        <text x="331.2" y="213" text-anchor="middle">0.10</text>
-                        <text x="598.4" y="213" text-anchor="middle">0.20</text>
-                        <text x="732" y="213" text-anchor="end">0.25</text>
-                        <text x="52" y="194" text-anchor="end">0</text>
-                        <text x="52" y="111" text-anchor="end">500</text>
-                        <text x="52" y="30" text-anchor="end">1,000 MPa</text>
-                        <text class="axis-title" x="398" y="224" text-anchor="middle">Engineering strain</text>
-                        <text class="axis-title" transform="translate(15 111) rotate(-90)" text-anchor="middle">Engineering stress</text>
-                      </g>
-                    </svg>
-                    <div class="plot-legend" aria-label="Plot legend">
-                      <span class="legend-item"><span class="legend-swatch response-swatch" aria-hidden="true"></span>Representative response</span>
-                      <span class="legend-context">Condition: Ambient · as received</span>
+                  <script id="response-series" type="application/json">[
+                    {"point":1,"strain":0.000,"stress_mpa":0},
+                    {"point":2,"strain":0.001,"stress_mpa":210},
+                    {"point":3,"strain":0.002,"stress_mpa":420},
+                    {"point":4,"strain":0.003,"stress_mpa":560},
+                    {"point":5,"strain":0.004,"stress_mpa":578},
+                    {"point":6,"strain":0.006,"stress_mpa":596},
+                    {"point":7,"strain":0.008,"stress_mpa":608},
+                    {"point":8,"strain":0.010,"stress_mpa":620},
+                    {"point":9,"strain":0.015,"stress_mpa":638},
+                    {"point":10,"strain":0.020,"stress_mpa":655},
+                    {"point":11,"strain":0.025,"stress_mpa":668},
+                    {"point":12,"strain":0.030,"stress_mpa":680},
+                    {"point":13,"strain":0.040,"stress_mpa":700},
+                    {"point":14,"strain":0.050,"stress_mpa":718},
+                    {"point":15,"strain":0.060,"stress_mpa":735},
+                    {"point":16,"strain":0.070,"stress_mpa":750},
+                    {"point":17,"strain":0.080,"stress_mpa":765},
+                    {"point":18,"strain":0.090,"stress_mpa":778},
+                    {"point":19,"strain":0.100,"stress_mpa":790},
+                    {"point":20,"strain":0.110,"stress_mpa":801},
+                    {"point":21,"strain":0.120,"stress_mpa":810},
+                    {"point":22,"strain":0.130,"stress_mpa":818},
+                    {"point":23,"strain":0.140,"stress_mpa":826},
+                    {"point":24,"strain":0.150,"stress_mpa":832},
+                    {"point":25,"strain":0.160,"stress_mpa":838},
+                    {"point":26,"strain":0.170,"stress_mpa":842},
+                    {"point":27,"strain":0.180,"stress_mpa":846},
+                    {"point":28,"strain":0.190,"stress_mpa":849},
+                    {"point":29,"strain":0.200,"stress_mpa":850}
+                  ]</script>
+                  <div class="response-layout">
+                    <div class="response-plot-column">
+                      <div class="plot-frame">
+                        <svg
+                          class="response-plot"
+                          viewBox="0 0 760 226"
+                          role="img"
+                          aria-labelledby="plot-title plot-description"
+                          data-series-source="#response-series"
+                          data-series-min-strain="0.00"
+                          data-series-max-strain="0.20"
+                          data-series-min-stress-mpa="0"
+                          data-series-max-stress-mpa="850"
+                          data-axis-headroom-ratio="0.10"
+                          data-axis-target-intervals-strain="5"
+                          data-axis-target-intervals-stress="4"
+                          data-axis-nice-step-factors="1,2,2.5,5,10"
+                          data-axis-max-strain="0.25"
+                          data-axis-max-stress-mpa="1000"
+                        >
+                          <title id="plot-title">DP780 representative stress-strain response</title>
+                          <desc id="plot-description">A synthetic response curve rises steeply then hardens gradually, ending near 0.20 engineering strain while the displayed axes extend to 0.25 strain and 1,000 MPa.</desc>
+                        </svg>
+                        <div class="plot-legend" aria-label="Plot legend">
+                          <span class="legend-item"><span class="legend-swatch response-swatch" aria-hidden="true"></span>Representative response</span>
+                          <span class="legend-context">Condition: Ambient · as received</span>
+                        </div>
+                      </div>
                     </div>
+                    <section class="response-grid-panel" aria-labelledby="response-grid-title">
+                      <div class="response-grid-heading">
+                        <div>
+                          <h4 id="response-grid-title">Response points</h4>
+                          <span class="section-subtitle">Exact ordered series · 29 points</span>
+                        </div>
+                        <span class="section-context">Engineering units</span>
+                      </div>
+                      <div class="response-grid-scroll-shell" data-response-grid-scroll-shell>
+                        <div
+                          id="response-grid-scroll"
+                          class="response-grid-scroll"
+                          tabindex="0"
+                          role="region"
+                          aria-label="Scrollable representative response points"
+                        >
+                          <table class="response-point-grid">
+                            <caption class="sr-only">DP780 representative response points</caption>
+                            <thead>
+                              <tr>
+                                <th scope="col">Point</th>
+                                <th scope="col">Engineering strain</th>
+                                <th scope="col">Engineering stress (MPa)</th>
+                              </tr>
+                            </thead>
+                            <tbody id="response-point-rows"></tbody>
+                          </table>
+                        </div>
+                        <div
+                          id="response-grid-scrollbar-y"
+                          class="response-grid-scrollbar"
+                          role="scrollbar"
+                          aria-label="Scroll representative response points"
+                          aria-controls="response-grid-scroll"
+                          aria-orientation="vertical"
+                          aria-valuemin="0"
+                          aria-valuemax="0"
+                          aria-valuenow="0"
+                          tabindex="0"
+                          hidden
+                        ><span class="response-grid-scrollbar-thumb"></span></div>
+                      </div>
+                    </section>
                   </div>
                 </section>
               </div>

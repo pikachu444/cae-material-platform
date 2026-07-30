@@ -54,7 +54,7 @@ qualitative checklist blocks handoff regardless of score.
 This is the canonical record of the cumulative product-owner findings. Every visual
 implementer packet links it. After deterministic gates, both the main agent and fresh read-only
 reviewer independently open every target/state image at original resolution and record `pass`,
-`fail`, or `not-applicable` plus direct image/path evidence for Q-01–Q-16. `Not-applicable` requires
+`fail`, or `not-applicable` plus direct image/path evidence for Q-01–Q-20. `Not-applicable` requires
 a screen-topology reason. A generic web-guideline audit supplements this checklist but cannot replace
 it. After reviewer disposition, the main agent repeats the full-screen judgment and the product owner
 makes the final visual approval.
@@ -63,7 +63,7 @@ makes the final visual approval.
 | --- | --- |
 | Q-01 | Long navigator trees expose a visible, independent local scrollbar. |
 | Q-02 | Long result lists expose a visible, independent local scrollbar; empty results show no fake result scrollbar. |
-| Q-03 | Materials navigation uses compact 24–26 px rows, economical indentation/type glyphs, reachable complete identities and no scrollbar/text collision. |
+| Q-03 | Materials navigation uses compact 24–26 px rows, economical indentation/type glyphs, reachable complete identities and no scrollbar/text collision. Disclosure, type glyph and label share one grid row and vertical center; implicit auto-placement onto a second line fails. |
 | Q-04 | Fit controls and status do not squeeze the graph; the ribbon stays shallow and candidate parameters use a bounded on-demand drawer while preserving a useful graph. |
 | Q-05 | Engineering axes use compact, consistent typography; values, titles and frame do not collide, the x title is not detached, units appear in titles and unused whitespace is materially minimized. |
 | Q-06 | Multiple curve identities do not form a wide footer or compete with decision status; the curve legend remains compact and semantically separate. |
@@ -77,8 +77,12 @@ makes the final visual approval.
 | Q-14 | Export readiness is expressed once as `Ready to create`, `Review required`, or `Cannot create`, followed by the exact blocker/review/action. The same state is not restated with competing colors or repeated in setup, preview and Mapping details. |
 | Q-15 | Compact engineering plots derive domain headroom from the displayed data span, preserve a physically meaningful zero anchor where applicable, and keep curves clear of the frame. Family-specific axes, units, glyph proportions and legend placement remain correct at every viewport. |
 | Q-16 | Export keeps the native solver-card preview dominant. Mapping details and Fit source share a bounded read-only context column; normal content does not show fake scroll rails, while genuine long mapping/native content exposes independent local scrolling without shrinking or obscuring the graph. |
+| Q-17 | Administration Object lists use identity-first, family-specific columns. The Name cell contains only the complete/reachable identity; clipped descriptions, quantity/help sentences and duplicated property prose are forbidden. Tables use `Name | Rev`; Attributes use `Name | Value type | Rev`, with full semantics in the adjacent editor. |
+| Q-18 | Administration Add commands open a real new-definition draft in the right pane without replacing the navigator, current Table scope or list. Add Table and Add Attribute are exercised; Attribute type changes expose only applicable fields, and a later Layout/Record preview proves that user-selected Attribute revisions drive stored Record values. |
+| Q-19 | Administration Link Type and Related/workflow evidence preserve configured `one`/`many` endpoint cardinality and exact revision pins. The UI must support visible one-to-many/many-to-many branching where allowed and must not flatten Material/Test Data/Processing Output/model/Neutral/Solver Card lineage into an implied one-to-one or `latest` chain. |
+| Q-20 | At 1920×1080, 2560×1440 and 3840×2160, bounded rails and forms keep readable widths while elastic graph/grid/native-preview or contract-backed Layout/Record/mapping context uses the remaining region. Large avoidable blank regions, uniformly stretched rows/prose, fabricated filler and non-uniform SVG geometry fail; sparse states may remain sparse only when no truthful projection exists. A deliberately under-filled normal search fixture fails when the scoped API already supplies a fuller server page. A sparse Datasheet curve also fails when it expands indefinitely although the same linked response already supplies exact points for a synchronized compact grid. |
 
-An `approve` disposition must include the completed Q-01–Q-16 result. Automated measurements support
+An `approve` disposition must include the completed Q-01–Q-20 result. Automated measurements support
 the evidence but do not prove visual quality. Any unresolved applicable `fail` requires
 `changes_requested`.
 

@@ -4512,3 +4512,1005 @@ After the reviewer disposition, the main `/root` agent reopened all eleven appro
 original resolution and repeated the product/UX gate. It accepts the complete ADM-SCHEMA-CORE
 bundle for product-owner review. All eleven manifest entries remain individually `pending` with
 product-owner approval `absent`; no dependent Administration bundle is authorized until approval.
+
+## 49. WAVE-05 ADM-SCHEMA-CORE product-owner list/Add correction and main gate
+
+Date: 2026-07-30
+
+The product owner accepted the overall three-pane Administration layout and rejected the center
+Object list's information economy. Small purpose/quantity/help phrases inside Name and a clipped
+Definition sentence duplicated the adjacent editor and made the list harder to scan. The product
+owner also required proof that an Administrator can add Tables and user-selected typed Attributes,
+and required later Link Type evidence to preserve non-one-to-one exact-revision branches.
+
+The canonical product/UI policy and Mandatory qualitative owner checklist now record:
+
+- Table lists as `Name | Rev` and Attribute lists as `Name | Value type | Rev`;
+- no clipped description or helper prose inside Name;
+- Add Table/Add Attribute as right-pane new-definition drafts that retain navigator, current Table
+  and Object list context;
+- user-selected Attribute revisions as the source of later Record-entry and datasheet fields;
+- one/many Link Type cardinality and exact revision pins as a gate for the dependent relations
+  bundle, with no implied universal one-to-one or `latest` chain.
+
+The primary `/root` agent applied this product-owner correction directly because the configured
+writer/correction cycle had already used its sole correction. No substitute writer was used. The
+static reference now provides full-width identity-first rows, an explicit `Add Table` command and
+draft, and an explicit `Add Attribute` command whose editable Value type controls applicable fields.
+The Add states remain evidence-only because they do not change the approved three-pane topology, so
+the authoritative target denominator remains 72.
+
+During the first original-resolution pass, the main agent rejected a row-width regression introduced
+while removing the secondary list prose: row backgrounds shrank to their content width. The row was
+corrected to fill its list pane and all images were recaptured. The main agent then opened and
+evaluated all 60 registered images at original resolution, including every viewport and all six Add
+captures. It found no remaining overlap, clipped control, page overflow, hidden task action,
+cross-type value leakage or broken recovery state.
+
+Deterministic results before independent review:
+
+- eleven approval targets and twenty evidence states at all three viewports passed;
+- Add Table/Add Attribute interactions retained selection, Table scope and Object list;
+- new Attribute Value type was editable and exposed only its applicable fields;
+- Table rows had two columns, Attribute rows had three, and `.object-name small` count was zero;
+- splitter, local-scroll, duplicate-submit, conflict recovery, hash/dimension and zero-browser-error
+  assertions passed.
+
+Main-agent Q-01–Q-19 result:
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Q-01 | not-applicable | This is Administration, not a Materials graph/result workspace. |
+| Q-02 | pass | List/editor overflow is local; 1366 long-invalid retains shell and selection. |
+| Q-03–Q-16 | not-applicable | The checks are scoped to Materials, Modeling or Export topology absent from this bundle. |
+| Q-17 | pass | Tables show `Name | Rev`; Attributes show `Name | Value type | Rev`; no clipped secondary prose remains. |
+| Q-18 | pass for current-core scope | Add Table and Add Attribute preserve context and exercise conditional typed fields. Layout/Record preview remains a named dependency gate for the later bundle. |
+| Q-19 | not-applicable | Link Type/Related belongs to ADM-SCHEMA-RELATIONS; current-core contains no one-to-one or `latest` claim. |
+
+Corrected pending approval candidates:
+
+| Pending reference | SHA-256 |
+| --- | --- |
+| `administration-database-normal-1366x768.png` | `9995b53dae3a9907fe95f33ad9eed0b4a96a19fe1d7e7d19f61f89249f313724` |
+| `administration-database-normal-1440x900.png` | `1b2491632ca17a96bbcd32efeac6d8d4cc5555b5ee43eaaa016085538828a2bf` |
+| `administration-database-normal-1920x1080.png` | `a8b088bcf69f6047e9bc85558415c585825cede677ef4e4114a8d821155cc56d` |
+| `administration-table-edit-draft-1366x768.png` | `9de662dd7dfa2453a66c0b0da830193b4061c25796406b3d88803f8ec5fc8c69` |
+| `administration-table-edit-draft-1440x900.png` | `2390d47c2b9828f9aa4ae2a0d47d1829b2b4567c2584f13aac5863d0561cb284` |
+| `administration-table-edit-draft-1920x1080.png` | `eace016ff08a9b76577ba30761e35e99a43eee3d525b39f66c65e7c2d6fc6909` |
+| `administration-attribute-edit-draft-1366x768.png` | `e5c3c38265828ef22054ae5b99b41dec34bec8c9c5d32c926ff9abd603cfcf6c` |
+| `administration-attribute-edit-draft-1440x900.png` | `268d91e523b73fc39feba7cd05e32eeea0c02515f5a90cbb4908df0974b3c63e` |
+| `administration-attribute-edit-draft-1920x1080.png` | `b853473a282ee2c93dc7fe158afd06222809fdb4bead211078c784145aecb349` |
+| `administration-edit-stale-conflict-1440x900.png` | `e64c034fb1ad3fd6428ca319d91bde6ec7c675b95b5332d7cb2db49a9552cd21` |
+| `administration-attribute-long-invalid-1440x900.png` | `0f103bfa1b19b90e60aca2a90be2a1ea7070d7666bd45a47e437e65a2d4c823f` |
+
+Product-owner approval remains absent. A fresh configured Terra High read-only review is required
+before the corrected bundle is handed back for approval.
+
+## 50. WAVE-05 ADM-SCHEMA-CORE visible-scroll correction and main re-gate
+
+Date: 2026-07-30
+
+The fresh read-only reviewer rejected the preceding bundle on Q-09 even though all deterministic
+overflow assertions passed. The editor genuinely scrolled and reserved native scrollbar width, but
+the 1366/1440/1920 images did not paint a perceptually distinct track and proportional thumb.
+V-01–V-16, Q-17 and Q-18 passed; Q-19 remained correctly not applicable.
+
+The primary `/root` agent applied the bounded correction directly. The property editor now exposes
+one accessible scrollbar control only when actual content exceeds its local pane. Its thumb height
+and position are computed from `clientHeight`, `scrollHeight` and `scrollTop`; Home, End,
+ArrowUp/Down, PageUp/Down, wheel, track click and thumb drag operate the real editor rather than a
+decorative proxy. Redundant outer bottom padding was removed so trivial padding does not create a
+false rail.
+
+The capture records track/thumb geometry and ARIA range/position. The validator requires the rail
+visibility to match genuine overflow, verifies a 12–16 px track, a proportional contained thumb,
+and checks ARIA-to-scroll synchronization. Interaction evidence exercises End, Home and ArrowDown.
+
+The main agent reopened all fifteen images that now contain a rail at original resolution, including
+all responsive long-invalid and long-scroll images. It verified that every thumb is proportional,
+fields remain unobscured, short states do not gain padding-only rails, and the shell, navigator,
+selection and status remain fixed. Q-09 now passes the main qualitative gate.
+
+Final pending approval candidates:
+
+| Pending reference | SHA-256 |
+| --- | --- |
+| `administration-database-normal-1366x768.png` | `9995b53dae3a9907fe95f33ad9eed0b4a96a19fe1d7e7d19f61f89249f313724` |
+| `administration-database-normal-1440x900.png` | `1b2491632ca17a96bbcd32efeac6d8d4cc5555b5ee43eaaa016085538828a2bf` |
+| `administration-database-normal-1920x1080.png` | `a8b088bcf69f6047e9bc85558415c585825cede677ef4e4114a8d821155cc56d` |
+| `administration-table-edit-draft-1366x768.png` | `9de662dd7dfa2453a66c0b0da830193b4061c25796406b3d88803f8ec5fc8c69` |
+| `administration-table-edit-draft-1440x900.png` | `2390d47c2b9828f9aa4ae2a0d47d1829b2b4567c2584f13aac5863d0561cb284` |
+| `administration-table-edit-draft-1920x1080.png` | `eace016ff08a9b76577ba30761e35e99a43eee3d525b39f66c65e7c2d6fc6909` |
+| `administration-attribute-edit-draft-1366x768.png` | `e6682346823355eb99da5eb72eb5c795a31b4847a025d5f554a572e607d7dfd0` |
+| `administration-attribute-edit-draft-1440x900.png` | `3db6cd5a26221bf62d13bcedd07c7d3a309df3984ef81914a5828da47f9a1a62` |
+| `administration-attribute-edit-draft-1920x1080.png` | `b853473a282ee2c93dc7fe158afd06222809fdb4bead211078c784145aecb349` |
+| `administration-edit-stale-conflict-1440x900.png` | `e64c034fb1ad3fd6428ca319d91bde6ec7c675b95b5332d7cb2db49a9552cd21` |
+| `administration-attribute-long-invalid-1440x900.png` | `51157e7802a56e093d228a74770cd43b6ad85bc7cb4be2161eca1859087f3994` |
+
+All eleven manifest entries remain `pending` with product-owner approval `absent`. A new fresh
+read-only Terra High re-review is required before product-owner handoff.
+
+## 51. WAVE-05 ADM-SCHEMA-CORE fresh re-review and final internal gate
+
+Date: 2026-07-30
+
+The new fresh read-only configured Terra High reviewer returned `approve` with no actionable
+finding, hard-gate failure or material residual concern. It independently reran all packet gates,
+verified the eleven approval hashes, opened the registered regression images at original resolution
+and focused on all fifteen visible-rail states.
+
+V-01–V-16 passed. Q-09 passed because the track and proportional thumb are perceptually distinct,
+right-gutter-reserved, state-bound to genuine overflow and connected to real keyboard, wheel and
+pointer consequences. Q-17 and Q-18 remained intact. Q-19 passed as a dependency-boundary check:
+the current bundle does not imply universal one-to-one or `latest`, and the dependent relations
+packet still owns explicit cardinality and exact-revision evidence.
+
+Independent runtime values were:
+
+- 1366×768: actual and ARIA maximum 354; End 354, Home 0, ArrowDown 36;
+- 1440×900: actual and ARIA maximum 222; End 222, Home 0, ArrowDown 36;
+- 1920×1080: actual and ARIA maximum 46; End 46, Home 0, ArrowDown 36;
+- normal 1440×900: no editor overflow and no visible rail.
+
+After that disposition, the main `/root` agent repeated its final product/UX judgment against the
+eleven approval candidates and the fifteen changed original-resolution images. It accepts the
+bundle for product-owner review. All manifest lifecycles correctly remain individually `pending`
+with product-owner approval `absent`; dependent Administration reference work remains blocked until
+the product owner approves this bundle.
+
+## 52. Wide-screen semantic-allocation correction start
+
+Date: 2026-07-30
+
+The product owner authorized a correction of references that leave avoidable blank regions or
+compress engineering results on the expected 1920×1080, 2560×1440 and 3840×2160 user displays. The
+main `/root` agent re-opened GitHub #167, the manifest and evidence handoff, the original reference
+images, current static sources and the corresponding React/API/state contracts before defining the
+change.
+
+The active project configuration is loaded as written:
+
+```text
+main                    gpt-5.6-sol / xhigh
+initial implementer     gpt-5.6-luna / max
+sole correction         gpt-5.6-terra / high
+independent reviewer    gpt-5.6-terra / high / read-only
+```
+
+The cumulative policy now records wide-screen semantic elasticity and Q-20. Bounded navigator/list/
+form rails retain readable widths; graphs, native/data results and real Layout/Record previews use
+the remaining region. Wide-only content must project the same current record, layout, mapping, curve
+or workflow contract. Fabricated filler, stretched prose and non-uniform SVG geometry are forbidden.
+The registered inventory remains 18 families and 72 images; 2560×1440 and 3840×2160 are supporting
+evidence unless they introduce a materially different topology.
+
+Two dependency-ready, source-disjoint #167 correction packets are persisted:
+
+- [MAT-DETAIL wide correction](issue-167-implementer-packet-wide-mat-detail.md)
+- [ADM-SCHEMA-CORE wide correction](issue-167-implementer-packet-wide-adm-schema-core.md)
+
+MAT-DETAIL owns only its 1920 override, family capture/validator/staging and corrected/wide image
+evidence. The approved 1366 and 1440 references are frozen. ADM-SCHEMA-CORE builds on the current
+uncommitted handoff and owns only its family source/capture/validator/staging/images; its 1366 and
+1440 candidates are frozen. Neither writer may edit common policy, manifest, this report or
+production React/CSS. Common lifecycle integration remains serial and owned by `/root`.
+
+## 53. MAT-DETAIL wide correction and main-agent gate
+
+Date: 2026-07-30
+
+The configured Luna Max implementer corrected only the MAT-DETAIL 1920 override and its bounded
+capture/validation evidence. The approved 1366×768 and 1440×900 images remain byte-identical at
+`362b5ad430f7e10ef9533589e34186c42bce28cca6d9bbf799c91e5538ca5a98` and
+`c54bcab3b473ea0b6a451cb5def06b672d88efde8d7007c185d26d94802b54c8`.
+
+The main agent rejected an initial 3840 capture that left roughly 750 px of avoidable blank space
+below a fixed-height plot. The corrected implementation derives the plot height from the container
+and viewport, then recomputes one matching SVG coordinate system for the viewBox, frame, axes, ticks,
+titles, response path and legend. Final SVG heights are 480 px at 1920, 840 px at 2560 and
+1,542.23 px at 3840. Rendered-box/viewBox aspect deltas are zero. The data contract remains
+engineering strain `0–0.20`, engineering stress `0–850 MPa`, with data-span-relative padding to
+`0–0.25` and `0–1,000 MPa`.
+
+The main agent opened all three final wide images at original resolution. The graph is dominant
+without stretching text or strokes, both titles remain attached and compact, the endpoint retains
+material top/right headroom, and the compact legend and 300 px application/delivery rail do not
+compete with the result. No filler, duplicated prose, clipping, collision, overflow or browser error
+was found.
+
+Main-agent Q-01–Q-20 result:
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Q-01 | not-applicable | The selected short tree does not overflow; existing navigator keyboard/splitter behavior and approved lower pixels are preserved. |
+| Q-02 | not-applicable | The target is a datasheet, not a result-list state. |
+| Q-03 | pass | The compact Materials tree rhythm, reachable selected identity and reserved pane boundary remain unchanged. |
+| Q-04 | not-applicable | No Fit ribbon or candidate drawer exists in this screen. |
+| Q-05 | pass | Compact numeric ticks, centered `Engineering strain`, `Engineering stress (MPa)` and the plot frame remain separated at 1920/2560/3840. |
+| Q-06 | pass | The single-series legend remains one compact line below the plot and does not become a wide competing footer. |
+| Q-07 | pass | ViewBox and rendered-box ratios match; geometry is recomputed rather than non-uniformly stretched. |
+| Q-08 | not-applicable | This is the existing engineering stress–engineering strain response, not a true-plastic-strain hardening plot. |
+| Q-09 | not-applicable | This short normal state has no genuine local overflow requiring a visible rail. |
+| Q-10–Q-14 | not-applicable | These checks apply to Fit or Export topology absent here. |
+| Q-15 | pass | The existing data-span-relative domain and zero anchors remain exact, with visible top/right headroom. |
+| Q-16–Q-19 | not-applicable | Export and Administration topology is absent. |
+| Q-20 | pass | Bounded rails retain readable widths while the existing engineering result consumes the useful wide region; no fabricated filler is added. |
+
+Deterministic capture, complete family validation, frozen-hash assertions, Ruff, Python compilation,
+JavaScript syntax and `git diff --check` passed. Final pending candidate/evidence hashes:
+
+| Viewport | Path | SHA-256 |
+| --- | --- | --- |
+| 1920×1080 approval target | `materials-datasheet-overview-normal-1920x1080.png` | `4ceec3f13fc2a6ef5731ccaf46c90ba25e793fc6ccb9831c0b96caaeddde4220` |
+| 2560×1440 evidence | `materials-datasheet-overview-normal-1920x1080.wide-evidence-2560x1440.png` | `3018b68b21b1e545cd86f7ccc7678070623173ee9659ec92e7b4dadda8f86460` |
+| 3840×2160 evidence | `materials-datasheet-overview-normal-1920x1080.wide-evidence-3840x2160.png` | `7d6906e275912e50951529182c83e9c5b800ea69f6b72bc147ce6888c35ce9aa` |
+
+Because the 1920 image replaces a previously approved pixel artifact, its lifecycle is reopened as
+`pending` with product-owner approval `absent`. The authoritative progress is temporarily 31/72
+until the replacement is approved.
+
+## 54. ADM-SCHEMA-CORE wide correction, state-truth correction and main-agent re-gate
+
+Date: 2026-07-30
+
+The configured Luna Max implementer added a contract-backed, Layout-driven saved Record preview
+inside the existing third Administration pane at 1920×1080 and above. Schema objects and Object list
+remain bounded; the property editor and preview are adjacent subregions separated by an internal
+content divider. At 2560 and 3840, Record values and ordered Layout fields use the available width
+side-by-side rather than stretching one prose column. The command row has one preview toggle, and
+the preview contains compact identity/value/type tables instead of duplicated explanatory copy.
+
+The initial deterministic gate passed, but the main agent opened all changed 1920 state images at
+original resolution and rejected two state-contract errors that the first assertions missed:
+
+- the zero-Table state still showed the previous `Materials master` Layout fields;
+- the new unsaved Table draft still showed the previous Table's Layout fields.
+
+The sole configured Terra High correction removed those stale projections and added explicit
+regression assertions. `No Table yet` now shows only the concise prerequisite to create a Table and
+configure its Layout. A new Table draft states that no saved Record or Layout projection exists
+until the Table is saved/configured. Neither state displays `Materials master`, the DP780 Record,
+`Material datasheet`, or inherited ordered fields. Normal, edit, loading-with-stale-context,
+error-with-stale-context, saving, save-error, conflict and Attribute states retain the synchronized
+saved projection.
+
+The main agent opened the three corrected 1920 approval targets, all twenty 1920 state captures, both
+wide evidence images and the two corrected empty/new-Table images at original resolution. It found
+no remaining stale projection, conflicting toggle, fourth-pane topology, clipped Object identity,
+scrollbar/text collision, duplicated field explanation, document overflow or hidden recovery
+action. The large vertical remainder on a sparse Administration definition remains intentionally
+empty where no further truthful projection exists; no synthetic filler is introduced.
+
+Main-agent Q-01–Q-20 result:
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Q-01 | not-applicable | Administration has no Materials navigator tree in this bundle. |
+| Q-02 | pass | Object lists retain independent local scrolling; the zero-item state shows no fake result rail. |
+| Q-03–Q-08 | not-applicable | Materials and Modeling graph topology is absent. |
+| Q-09 | pass | Genuine long editor states retain the previously approved reserved track, proportional thumb and keyboard/wheel/pointer consequences without covering preview text. |
+| Q-10–Q-16 | not-applicable | Fit and Export topology is absent. |
+| Q-17 | pass | Table rows remain `Name | Rev`; Attribute rows remain `Name | Value type | Rev`; definition prose stays in the editor. |
+| Q-18 | pass | Add Table/Add Attribute retain scope and list context; typed fields remain conditional; the saved Record preview is driven by four explicit ordered Layout fields, while a new Table exposes no inherited projection. |
+| Q-19 | not-applicable | This core bundle does not configure Link Types or flatten lineage; explicit cardinality remains owned by ADM-SCHEMA-RELATIONS. |
+| Q-20 | pass | At 1920/2560/3840, bounded rails/forms are paired with the current Layout/Record projection. Empty/new-Table states remain truthfully sparse instead of showing fabricated or stale filler. |
+
+The complete eleven-target/sixty-state/two-wide capture matrix passed deterministic validation,
+including keyboard splitters, conditional Attribute fields, local scroll, duplicate-submit,
+selection continuity, stale-response suppression, conflict recovery, exact dimensions/hashes and
+zero browser errors. Ruff, Python compilation, JavaScript syntax and `git diff --check` passed.
+All frozen 1366/1440 approval hashes remain exact.
+
+Pending 1920 approval candidates and wide supporting evidence:
+
+| Viewport/state | Path | SHA-256 |
+| --- | --- | --- |
+| 1920 normal | `administration-database-normal-1920x1080.png` | `3dd9ac42672cdbea66595621af3ac6080c8bcb10d8bc4e4bef15339502d933a8` |
+| 1920 Table draft | `administration-table-edit-draft-1920x1080.png` | `125a9540afe217eef599c6770d086f6c041a1e6046fe1a78c27db8e013fa5207` |
+| 1920 Attribute draft | `administration-attribute-edit-draft-1920x1080.png` | `2ccda7d4191368d788d8f740c10c205092e30a91fde613845531e2ca57663791` |
+| 2560 normal evidence | `administration-database-normal-wide-2560x1440.png` | `3c5137f5b9e101968259dc983eead9dc11feaf3789e5bc0324db9f7e0e02c1e6` |
+| 3840 normal evidence | `administration-database-normal-wide-3840x2160.png` | `85b2d8011d2d2c5d19331a629ec756b8dc84090e67e448d47d7544d8c6a86358` |
+
+The three changed approval images remain `pending` with product-owner approval `absent`. The other
+eight ADM-SCHEMA-CORE approval candidates remain byte-identical and pending.
+
+## 55. Wide-screen fresh reviews and final disposition
+
+Date: 2026-07-30
+
+The fresh configured Terra High read-only MAT-DETAIL reviewer opened the 1920 approval target and
+both 2560/3840 supporting images, together with the frozen 1366/1440 references, at original
+resolution. It independently reran the bounded validator and syntax gates and returned `approve`,
+V-01–V-16 `32/32`, with no hard-gate failure or actionable finding. Q-20 passed: the two rails stay
+bounded, the graph consumes the elastic region, its rendered box and SVG coordinate system retain
+the same aspect ratio, and no filler, collision, clipping or overflow appears.
+
+After that disposition, the main `/root` agent reopened the final 1920, 2560 and 3840 MAT-DETAIL
+images at original resolution. It confirms the reviewer result and accepts the 1920 replacement for
+product-owner review. The approval lifecycle remains `pending` with product-owner approval
+`absent`.
+
+The fresh configured Terra High read-only ADM-SCHEMA-CORE reviewer opened all eleven approval
+captures, all sixty state captures and both wide captures at original resolution. It independently
+reran the complete family validator, Ruff, Python compilation, JavaScript syntax and whitespace
+gates; all deterministic checks and registered hashes passed. It nevertheless returned
+`changes_requested` on Q-20:
+
+- the 2560 workspace is 1,290 px high while its normal editor content remains 388 px high;
+- the 3840 workspace is 2,010 px high while the same content remains 388 px high;
+- two four-row preview sections stretch to roughly 1,134.5 px each at 3840, then leave a dominant
+  avoidable blank lower region.
+
+V-01–V-16 passed `32/32`, Q-02, Q-09, Q-17 and Q-18 passed, and the corrected zero-Table/new-Table
+state truth passed. The failure is qualitative rather than deterministic. The main agent accepts
+the finding and withdraws the Administration images from product-owner handoff. The bundle has
+already consumed its one permitted correction on the stale-projection state-contract defect, so no
+second writer or silent correction is started. The Administration lifecycle remains pending until
+a separately authorized correction cycle can replace the rejected wide composition and receive a
+fresh review.
+
+The final non-mutating re-gate passed the MAT-DETAIL wide/frozen-hash validator, the complete
+ADM-SCHEMA-CORE target/state/interaction validator, the 18-family/72-image inventory validator,
+Ruff, Python compilation, JavaScript syntax, user-guide/documentation-impact checks and
+`git diff --check`. The authoritative inventory remains 31/72 approved because the replaced
+MAT-DETAIL 1920 artifact is awaiting renewed product-owner approval.
+
+## 56. Product-owner-authorized navigator and Administration correction cycle
+
+Date: 2026-07-30
+
+The product owner authorized another bounded correction cycle and identified that the just-submitted
+MAT-DETAIL navigator did not carry forward the later Materials tree/browser decisions. The main
+agent compared the normal search/datasheet sources and images with the long MAT-EXP evidence and
+confirmed the inconsistency: normal trees still use trailing visible
+`Database/Profile/Table/Folder/Record` words and ellipsize the DP780 identity, while the cumulative
+long-tree treatment uses economical indentation, one compact kind glyph and conditional reserved
+vertical/horizontal scroll controls.
+
+The correction therefore covers all six normal MAT-EXP/MAT-DETAIL viewports so the same navigator
+grammar is not fixed only on one route. Existing exceptional long/empty pixels remain frozen.
+Because this deliberately changes five previously approved normal images plus the already-pending
+MAT-DETAIL 1920 image, every changed image will return through its individual lifecycle before
+product-owner approval.
+
+The main agent also inspected the rejected Administration wide composition against the configurable
+catalog contracts. `curve` is a valid Attribute data type; Layout items pin exact Attribute
+Definition revisions; a saved Record curve value pins an Artifact. A `Representative response`
+field and linked DP780 response graph can therefore use the large region truthfully without adding
+decorative filler or inventing a fourth pane.
+
+Two source-disjoint packets are persisted:
+
+- [Materials navigator coherence](issue-167-implementer-packet-materials-navigator-coherence.md);
+- [Administration Layout/Record curve preview](issue-167-implementer-packet-wide-adm-schema-curve-preview.md).
+
+The configured implementation writers may run concurrently under the #167 bounded two-family rule.
+They may not edit common policy, manifest, inventory or this report; serial lifecycle integration,
+original-resolution inspection, reviewer packets and final judgment remain owned by `/root`.
+
+## 57. Shared Materials navigator correction and main-agent gate
+
+Date: 2026-07-30
+
+The configured Luna Max implementer applied one shared static navigator primitive to the six normal
+MAT-EXP/MAT-DETAIL references. The active main agent opened all six approval images and all four
+2560/3840 supporting images at original resolution. The visible trailing
+`Database/Profile/Table/Folder/Record` words are replaced by one aligned compact kind glyph before
+each stored identity. DP780 and DP600 identities are complete at default widths, short normal trees
+show no fake rail, and the 200 px splitter minimum exposes genuine horizontal overflow instead of
+clipping.
+
+An injected long-content fixture records both reserved scroll rails, proportional thumbs, text/rail
+separation, ARIA min/max/now and pointer/wheel/Arrow/Page/Home/End consequences. The approved
+MAT-EXP long/empty and MAT-DETAIL Related/empty canonical/responsive pixels remain byte-identical.
+A post-manifest deterministic gate found only stale lifecycle assumptions in the validators. The
+sole fresh Terra High correction updated those validation contracts without changing any image.
+
+Final pending approval candidates:
+
+| Family | Viewport | Path | SHA-256 |
+| --- | --- | --- | --- |
+| MAT-EXP | 1366×768 | `materials-search-normal-1366x768.png` | `cca897729caeb457bc19635b55a1ae55a56525b6ffd1ab76fcce0ad72c35f53e` |
+| MAT-EXP | 1440×900 | `materials-search-normal-1440x900.png` | `9315da065f39e4ca9d92b1b8192c171aae3595a5bcc82ce49607f0398ec00ecc` |
+| MAT-EXP | 1920×1080 | `materials-search-normal-1920x1080.png` | `b8f515eccb3b3a85798edd20302d7d517969262eec25e4711af686f852060486` |
+| MAT-DETAIL | 1366×768 | `materials-datasheet-overview-normal-1366x768.png` | `67c296ad84bce9cb67195c09d6356efa9139d7c509255edc4bb969e13337529b` |
+| MAT-DETAIL | 1440×900 | `materials-datasheet-overview-normal-1440x900.png` | `fb3a6ccd943f83ac872d27c7f1736597e1c74e964b0cdb99a7e36479106bea4c` |
+| MAT-DETAIL | 1920×1080 | `materials-datasheet-overview-normal-1920x1080.png` | `dc67582b5218f9f65602820d0c336097f1d3a4e28b8dbd237581eef8484031ac` |
+
+Wide supporting hashes:
+
+- MAT-EXP 2560/3840:
+  `ac8009b61eadbbb0555434396d13c438d3696f9bcaff841adb3ac021d7fd9703` /
+  `87f5ac36ae52cb43184f02ead70305645c7b3a94a931cc1282189c4b2cf00a44`;
+- MAT-DETAIL 2560/3840:
+  `0bc0f08cce179d32275c5b226674351628c372c900cf2298171b78ed4ade019d` /
+  `640c78e719af4f2feea98aee999732133506ce7efa3f9076e0435fb2176af9fa`.
+
+Main-agent Q-01–Q-20 result:
+
+| Check | MAT-EXP | MAT-DETAIL |
+| --- | --- | --- |
+| Q-01 | pass — injected long tree exposes both reserved rails and complete identity access | pass — the same shared navigator contract and minimum-width evidence apply |
+| Q-02 | pass — six truthful results retain independent result scrolling and no fake default rail | not-applicable — this target is a selected Record datasheet |
+| Q-03 | pass — compact glyph/identity rhythm matches the approved long reference | pass — search and datasheet now use the same tree/browser grammar |
+| Q-04 | not-applicable | not-applicable |
+| Q-05–Q-07 | not-applicable | pass — compact axes/legend, proportional SVG and complete wide graph remain intact |
+| Q-08 | not-applicable | not-applicable — this is engineering stress/strain, not plastic hardening input |
+| Q-09 | pass — genuine overflow alone exposes external proportional rails | pass — genuine overflow alone exposes external proportional rails |
+| Q-10–Q-14 | not-applicable | not-applicable |
+| Q-15 | not-applicable | pass — data-span-relative `0.25 / 1,000 MPa` domains retain top/right headroom |
+| Q-16–Q-19 | not-applicable | not-applicable |
+| Q-20 | pass — result grid remains dominant; wide blank cells reflect the truthful six-row query | pass — the graph consumes the elastic region without filler or stretched glyphs |
+
+The active main agent independently reran 176/141/192 MAT-EXP checks, the complete MAT-DETAIL
+packet/wide/frozen-hash checks, Ruff, Python compilation, JavaScript syntax and the inventory
+validator. No non-mutating gate changed an image hash. Because five formerly approved normal images
+changed, they re-entered individual pending lifecycles together with the already-pending MAT-DETAIL
+1920 target. Inventory progress is therefore 26/72 approved and 46 remaining before owner review.
+
+## 58. Administration wide-graph correction rejected at the main-agent state gate
+
+Date: 2026-07-30
+
+The fresh Terra High sole correction successfully recomposed the normal Administration preview:
+the saved linked response graph spans the lower editor region, remains complete at
+1920/2560/3840, and eliminates the earlier dominant blank wide area. Record values and Layout fields
+use bounded independent rails; Attribute edit states no longer show a graph heading without a plot;
+zero-Table/new-Table states contain no stale projection.
+
+The active main agent nevertheless rejected the bundle after opening every 1920 state image at
+original resolution. In:
+
+- `administration-table-saving-1920x1080.png`;
+- `administration-table-save-error-1920x1080.png`;
+
+the status/error banner increases the table form to 600/592 px while the editor client remains
+490 px. At initial scroll position the lower `Save new revision` / `Discard draft` action row is
+only partially visible immediately above the plot band. The available scroll rail is at the far
+right edge of the entire editor/preview pane rather than adjacent to the clipped form, so the
+composition reads as a broken boundary rather than a deliberate local continuation. This fails the
+mandatory qualitative no-clipping/recovery judgment even though the deterministic validator marks
+the controls reachable.
+
+The three 1920 manifest entries now register the actual corrected hashes but carry
+`main_agent_evaluation.status: rejected`:
+
+- normal:
+  `6f07e6a7bf59c28107fd21aaeecf72c1cfbc94effb011b67104e3adcd51bc672`;
+- Table draft:
+  `fdee83cea91e0375bc59eb5594972cf096e642f7a293ff947e49812226f28ad0`;
+- Attribute draft:
+  `2ab1f05490239ff9a77c7495af90fdb65d21df951c9eb0657171e0684dab21ae`.
+
+The complete wide normal images are retained only as unapproved evidence:
+
+- 2560:
+  `78f89bd0754c374c9fc80f2b40e5e04b664537c69c18e3208503819f7dc29f27`;
+- 3840:
+  `4860aac93d0f6d27f7c03f843e122f1ed7a43e2ddd019045aac9083423130bb0`.
+
+No reviewer was invoked for the rejected Administration bundle and no owner approval is requested.
+The authorized cycle has consumed its sole correction, so the main agent did not start another
+writer or silently alter the images.
+
+## 59. Fresh Materials reviews and final rejection
+
+Date: 2026-07-30
+
+Both fresh configured Terra High read-only reviewers opened every packet-named image at original
+resolution and independently exercised the browser contracts. Both returned
+`changes_requested`.
+
+MAT-EXP findings:
+
+1. Selecting the DP600 Record in the tree changes only tree `aria-selected`; the selected-material
+   context remains on DP780. `reference.js` updates context only from result-row selection. This
+   violates the required tree Record → selected context consequence even though result selection
+   works.
+2. `validate_materials_search_wave03.py` still hard-codes the superseded normal-image hashes as
+   frozen and fails `--all-packet-targets`. The three current normal validators pass; the
+   exceptional validator must freeze only the approved exceptional bundle.
+
+The MAT-EXP reviewer scored V-01–V-16 at 31/32 with V-12 partial. All applicable visual Q checks
+passed, but the interaction contract and failed deterministic family gate block approval. The active
+main agent inspected the source paths and confirms both findings.
+
+MAT-DETAIL findings:
+
+1. The 1366 and 1440 graph boxes non-uniformly stretch the 760×226 SVG because base CSS combines
+   fluid width with fixed 190 px height. Recorded rendered/viewBox aspect deltas are 0.8214 and
+   1.0003; 1920/2560/3840 are zero because only the 1920 override recomputes geometry.
+2. The same 1366/1440 images label the Y axis `Engineering stress` rather than
+   `Engineering stress (MPa)`. Only the 1920 override supplies the required unit-labelled title.
+
+The MAT-DETAIL reviewer scored 78/100: Q-05, Q-07 and Q-15 fail while the V hard gates and all
+deterministic checks pass. The active main agent reopened both affected originals, confirms the
+visible horizontal distortion and missing unit, and rejects the family.
+
+All six changed normal manifest entries remain `status: pending` but now carry
+`main_agent_evaluation.status: rejected`; product-owner approval is absent. Their images are retained
+as rejected evidence and are not submitted for approval. The Materials cycle already used its one
+fresh correction on the post-integration lifecycle-validator failure, so the main agent did not
+start an additional visual/interaction correction or re-review without new product-owner authority.
+
+Together with the Administration state-gate failure in section 58, no image from this cycle is
+eligible for product-owner approval.
+
+## 60. Product-owner-authorized direct correction and main-agent acceptance
+
+Date: 2026-07-30
+
+The product owner authorized one additional bounded correction for the three failures in sections
+58–59 and directed the active main agent to perform it. The authority and exact boundary are
+persisted in
+`docs/17-evidence/reports/issue-167-main-sol-direct-correction-packet-materials-admin.md`.
+No production React/CSS, commit, push, PR or later family work was started.
+
+The inspectable project configuration specifies `gpt-5.6-sol` with `xhigh` reasoning for the active
+main agent. The configured Luna implementer, Terra correction writer and Terra read-only reviewer
+definitions remain present in `.codex/agents/`; this direct correction did not invoke or substitute
+another writer.
+
+### MAT-EXP correction
+
+Tree `Record` pointer and Enter selection now synchronize the matching result row, selected-material
+identity, grade, description, family, status and status-bar context. Selecting a folder or other
+non-Record preserves the current material. Result-row selection still synchronizes the corresponding
+visible Record and Open datasheet behavior remains intact. The exceptional validator now freezes
+only the approved long/empty canonical and responsive images.
+
+The visible normal pixels remain byte-identical:
+
+| Viewport | Path | SHA-256 |
+| --- | --- | --- |
+| 1366×768 | `materials-search-normal-1366x768.png` | `cca897729caeb457bc19635b55a1ae55a56525b6ffd1ab76fcce0ad72c35f53e` |
+| 1440×900 | `materials-search-normal-1440x900.png` | `9315da065f39e4ca9d92b1b8192c171aae3595a5bcc82ce49607f0398ec00ecc` |
+| 1920×1080 | `materials-search-normal-1920x1080.png` | `b8f515eccb3b3a85798edd20302d7d517969262eec25e4711af686f852060486` |
+
+The 2560/3840 support hashes remain
+`ac8009b61eadbbb0555434396d13c438d3696f9bcaff841adb3ac021d7fd9703` and
+`87f5ac36ae52cb43184f02ead70305645c7b3a94a931cc1282189c4b2cf00a44`.
+
+### MAT-DETAIL correction
+
+All normal viewports now derive the SVG viewBox, axes, ticks and response path from the same rendered
+box. The graph uses complete `Engineering strain` and `Engineering stress (MPa)` titles, unit-free
+tick values and data-derived 10% headroom that resolves to the nice displayed domains `0.25` and
+`1,000 MPa`. The 1366 and 1440 references use previously empty vertical workspace without clipping
+the legend, delivery actions or status bar.
+
+| Viewport | Path | SHA-256 |
+| --- | --- | --- |
+| 1366×768 | `materials-datasheet-overview-normal-1366x768.png` | `ac9e1b781974062688a12771c1c26d8b9b388ef20522f62030cb2fd19aca3d37` |
+| 1440×900 | `materials-datasheet-overview-normal-1440x900.png` | `4015b2b014e895d0e990987af820b236f4c090d155aa6817abcb35f6ab75f69a` |
+| 1920×1080 | `materials-datasheet-overview-normal-1920x1080.png` | `dc67582b5218f9f65602820d0c336097f1d3a4e28b8dbd237581eef8484031ac` |
+
+The 2560/3840 support hashes remain
+`0bc0f08cce179d32275c5b226674351628c372c900cf2298171b78ed4ade019d` and
+`640c78e719af4f2feea98aee999732133506ce7efa3f9076e0435fb2176af9fa`.
+All approved Related/empty canonical and responsive hashes remain exact.
+
+### ADM-SCHEMA-CORE correction
+
+At 1920×1080, Table saving and save-error use the complete editor row for the transient/recovery
+task. The full form, feedback or retry action, Save new revision and Discard draft are visible in
+the initial view. The saved response graph is suppressed only in these two states; the synchronized
+saved Record and Layout preview remains. Normal and draft graph behavior is unchanged.
+
+The two corrected evidence hashes are:
+
+- `administration-table-saving-1920x1080.png`:
+  `8f2acc66981be5ed9df16c5815d866d83a4443aca2aaf5168a983aa3315861e3`;
+- `administration-table-save-error-1920x1080.png`:
+  `6254b8265d43f29a6f48e8288233358514d1f1ecc53ec9267290ef33aaf75f8d`.
+
+All eleven approval candidates and the two wide support images retain their registered hashes.
+The complete eleven-target, sixty-state and two-wide validator passed, including action containment,
+local scrolling, keyboard splitters, conditional fields, selection continuity, duplicate-submit,
+stale-response and recovery evidence.
+
+### Main-agent original-resolution qualitative gate
+
+The active main agent opened the five MAT-EXP normal/wide images, five MAT-DETAIL normal/wide images,
+all eleven Administration approval images, both Administration wide images and both corrected Table
+state images at original resolution.
+
+| Check | Result |
+| --- | --- |
+| Q-01–Q-03 | pass where applicable: complete navigator identities, conditional local rails, truthful result selection and matching Materials grammar |
+| Q-04 | not-applicable: these three bundles do not contain Modeling process steps |
+| Q-05–Q-07 | pass for MAT-DETAIL and Administration graphs: compact professional axes/legend, proportional SVG geometry, complete curve and domain visibility |
+| Q-08 | not-applicable: the plotted response is engineering stress/strain, not a plastic-strain hardening input |
+| Q-09 | pass: genuine overflow alone exposes reserved proportional local rails without covering content |
+| Q-10–Q-14 | not-applicable: no Fit candidate ribbon or Export readiness surface is in these bundles |
+| Q-15 | pass: graph domains use declared-series span plus proportional headroom rather than fixed per-image maxima |
+| Q-16 | not-applicable: no solver mapping state is shown |
+| Q-17–Q-19 | pass where applicable: Administration lists retain useful Name/Value type/Rev fields, configured Record/Layout links stay truthful, and no lineage is flattened |
+| Q-20 | pass: wide regions carry truthful results, graph or linked preview; transient recovery prioritizes complete actions and does not add filler |
+
+No topology, dominant-area, nested-card, clipping, overlap, graph-distortion or missing-recovery hard
+gate remains. JavaScript syntax, Python compilation, Ruff, exact image dimensions/hashes, inventory,
+user-guide, documentation-impact and whitespace checks passed. The Windows environment does not
+provide the `make` wrapper, so its exact `cmp-check-user-guide` and `cmp-check-doc-impact` commands
+were run directly and passed. The latest Web Interface Guidelines audit produced no actionable
+finding; JavaScript spread syntax was the only textual `...` match.
+
+All affected manifest entries are `pending` with `main_agent_evaluation.status: accepted` and
+product-owner approval `absent`. Fresh configured read-only review is the next gate.
+
+## 61. Fresh review disposition and final main-agent judgment
+
+Date: 2026-07-30
+
+Three fresh read-only reviews were requested through the configured `reviewer_terra_high` role. The
+role loaded successfully for every family; no model substitution occurred. The Administration
+review began after an occupied collaboration slot became available.
+
+### Materials search/explorer
+
+The reviewer returned `approve`, with V-01–V-16 at 32/32 and no qualitative finding. Pointer and
+keyboard Record selection now update the result selection and selected-material context, while
+non-Record tree selection preserves that context. The normal images remain byte-identical and the
+exceptional frozen hashes are unchanged. After the reviewer disposition, the active main agent
+reopened all three normal and both wide images at original resolution and accepts the family for
+product-owner handoff.
+
+### Materials datasheet
+
+The reviewer returned `approve`, with V-01–V-16 at 32/32 and no qualitative finding. The graph keeps
+one proportional rendered geometry at every viewport, complete engineering axis titles, compact
+labels and data-span-relative headroom. Related and empty approved evidence remains unchanged. After
+the reviewer disposition, the active main agent reopened all three normal and both wide images at
+original resolution and accepts the family for product-owner handoff.
+
+### Administration schema core
+
+The reviewer returned `changes_requested`. In
+`administration-attribute-long-invalid-1440x900.png`, the center Name row displays the descriptive
+draft text `Material condition …` because the editor draft value is substituted into the object
+list. This violates the accumulated Name-column rule: the governed identity must remain
+`Material condition`, while the long descriptive draft belongs only in the editor field. The
+reviewer otherwise passed V-01–V-16 at 32/32 and found no other qualitative failure.
+
+The active main agent inspected the image and implementation path, confirms the finding and changes
+that manifest target to `main_agent_evaluation.status: rejected`. The complete Administration family
+is withheld. The authorized direct-correction packet did not permit changing this previously frozen
+1440 candidate, so no further correction was made without product-owner authority.
+
+### Handoff disposition
+
+The three MAT-EXP and three MAT-DETAIL normal targets remain individually `pending`, main-agent
+accepted and product-owner unapproved. They are eligible for one batch product-owner decision. No
+Administration image is eligible in this handoff. No production React/CSS, commit, push, PR, merge
+or later dependent family work has started.
+
+## 62. Product-owner correction of the active wide-screen objective
+
+Date: 2026-07-30
+
+The product owner rejected the framing of section 61: this cycle was not an isolated interaction and
+axis correction. Administration's avoidable large-display blank regions had triggered a
+cross-family review of existing #167 references at 1920×1080, 2560×1440 and 3840×2160. Each family
+must minimize awkward unassigned regions and use the display for truthful engineering results or
+contract-backed companion information without stretched rows, prose or fabricated filler.
+
+The active main agent withdrew the six-image Search/Datasheet approval request and reopened all ten
+normal/wide Materials images at original resolution.
+
+MAT-EXP now fails Q-20. Six rows occupy only 216 px while the result workspace grows to
+932 px at 1920 and substantially more at 2560/3840. This is not a valid sparse-state exception:
+production `MaterialSearchPage` requests up to 50 rows from the same server-scoped query, renders
+pagination and explicitly avoids per-row enrichment. All three normal Search manifest entries are
+therefore `main_agent_evaluation.status: rejected`.
+
+MAT-DETAIL remains withheld rather than owner-submitted. Its graph uses the elastic region and
+passes geometry/headroom checks, but the dependent family will be reconsidered after MAT-EXP
+approval for whether 2560/3840 should pair the graph with response data already available from the
+same curve/Record contract.
+
+The bounded MAT-EXP correction is persisted in
+[the wide result-density implementer packet](issue-167-implementer-packet-wide-mat-exp-density.md).
+No Datasheet, Administration or production change is authorized by that packet.
+
+## 63. MAT-EXP wide result-density implementation and main-agent gate
+
+Date: 2026-07-30
+
+The configured `implementer_luna_max` role loaded successfully for the bounded packet in
+[the wide result-density implementer packet](issue-167-implementer-packet-wide-mat-exp-density.md).
+No model substitution occurred. The writer changed only the packet-owned Search reference,
+capture/validation and evidence paths; the active main agent retained sole ownership of the common
+manifest and evidence report.
+
+The normal fixture now represents one deterministic synthetic 50-row response out of 10,000
+server-scoped matches. It retains the existing projected columns and selected-context contract
+without row-detail enrichment. The sticky result header and fixed page footer remain visible while
+the result body scrolls independently. A reserved proportional rail appears only when the 50 rows
+overflow and is hidden at 3840×2160, where all rows fit.
+
+During the active writer turn, the main agent opened the first capture set at original resolution
+and rejected partial bottom rows at 1440, 1920 and 2560. Before writer handoff, the layout and
+validator were tightened so every initially visible row is fully contained above the fixed footer.
+The final complete-row counts are 14, 18, 23, 33 and 50 at 1366, 1440, 1920, 2560 and 3840
+respectively.
+
+Final evidence:
+
+| Viewport | Path | SHA-256 |
+| --- | --- | --- |
+| 1366×768 | `materials-search-normal-1366x768.png` | `bd400b2f913a0d2c8c1e5dba6565c05b12055118ffbbaac1b9e5845cf6bfff89` |
+| 1440×900 | `materials-search-normal-1440x900.png` | `7f96a68d0ff03eb20b95abf831354e6a1052e34f0246871c9318ede0cce367a0` |
+| 1920×1080 | `materials-search-normal-1920x1080.png` | `57f136268f52386c99cb13970f694cf40a30bdb57a6bc3badcab0b70a24ed3ae` |
+| 2560×1440 support | `materials-search-normal-1920x1080.wide-evidence-2560x1440.png` | `004b040f7045f7889f0264b3d418bccef605d6158d6b8dbe6bc12e62977dd50d` |
+| 3840×2160 support | `materials-search-normal-1920x1080.wide-evidence-3840x2160.png` | `fec578d690b4573a2d049e7c2fd50d24540e866b20a71c89c40ccd8bc69784df` |
+
+The active main agent opened all five final images at original resolution. Q-01–Q-03, Q-09 and Q-20
+pass: complete navigator identities remain readable; result/context synchronization and the
+dominant result workspace are preserved; the local rail never covers row text; no row, prose or
+font is stretched to occupy a larger display; and the limited residual space at 3840 follows the
+complete 50-row page rather than an under-filled fixture. No topology, clipping, overlap,
+nested-card or avoidable dominant-blank hard gate remains.
+
+The complete capture set passed, including distinct-row/range, visible-row containment,
+sticky-header/fixed-footer, pointer/wheel/keyboard scrolling, selection synchronization, frozen
+exceptional hashes, JavaScript syntax, Python compilation, Ruff and whitespace checks. After the
+main agent registered the new image hashes, fresh configured read-only review is the next gate.
+
+## 64. MAT-EXP fresh review and final internal judgment
+
+Date: 2026-07-30
+
+One fresh read-only reviewer was invoked through the configured `reviewer_terra_high` role using
+[the bounded reviewer packet](issue-167-reviewer-packet-wide-mat-exp-density.md). The role loaded
+successfully and no model substitution occurred.
+
+The reviewer returned `approve` with V-01–V-16 at 32/32, no hard-gate failure and no actionable
+finding. It independently matched all five image hashes, confirmed that the approved long/empty
+comparison hashes remain unchanged and reran the six packet commands. Q-01–Q-03, Q-09 and Q-20
+passed; Q-04–Q-08 and Q-10–Q-19 were not applicable to this Search surface.
+
+After the reviewer disposition, the active main agent reopened all five final images at original
+resolution and repeated the product/UX judgment. The 1366, 1440, 1920 and 2560 captures show
+14/18/23/33 complete rows with a reserved proportional result rail. The 3840 capture shows the
+complete 50-row page and correctly hides the unnecessary rail. The tree and selected-material
+context remain bounded; cell text and scrollbar do not collide; header, range and paging context
+remain fixed; and neither horizontal space nor residual 3840 height is filled with invented fields,
+stretched rows or prose.
+
+The final main-agent disposition is accepted for product-owner review. The three normal manifest
+entries remain individually `pending`, `main_agent_evaluation.status: accepted` and
+`product_owner_approval.status: absent`. Datasheet, Administration and every later family remain
+withheld until this dependency receives the product-owner decision. No production React/CSS,
+commit, push, PR or merge has started.
+
+## 65. Product-owner approval — MAT-EXP normal wide-density bundle
+
+Date: 2026-07-30
+
+The product owner approved the submitted Materials Search normal correction after the handoff
+identified it as the three-viewport Search bundle, displayed the representative 1920×1080 image and
+stated that 1366, 1440, 1920, 2560 and 3840 had passed deterministic, main-agent and fresh-reviewer
+gates. The three registered normal references therefore advance together to `approved`:
+
+| Viewport | SHA-256 |
+| --- | --- |
+| 1366×768 | `bd400b2f913a0d2c8c1e5dba6565c05b12055118ffbbaac1b9e5845cf6bfff89` |
+| 1440×900 | `7f96a68d0ff03eb20b95abf831354e6a1052e34f0246871c9318ede0cce367a0` |
+| 1920×1080 | `57f136268f52386c99cb13970f694cf40a30bdb57a6bc3badcab0b70a24ed3ae` |
+
+The 2560/3840 images remain supporting evidence rather than separate manifest lifecycle entries.
+The finite inventory advances to 29/72 approved and 43 remaining. MAT-DETAIL Datasheet is now the
+next permitted dependent family for the same wide-screen semantic-density review. No commit, push,
+PR, merge or production React/CSS work has started.
+
+## 66. MAT-DETAIL wide response-density rejection and implementation packet
+
+Date: 2026-07-30
+
+After the MAT-EXP dependency was approved, the active main agent reopened the MAT-DETAIL normal
+1366/1440/1920 targets and 2560/3840 supporting images at original resolution. The compact
+navigator, property table, axes, legend, Application condition and CAE delivery remain coherent.
+The plot uses proportional geometry, complete quantity/unit labels and data-span-relative headroom.
+
+The family nevertheless fails Q-20 at the wide evidence gate. At 2560 and especially 3840, one
+sparse response curve expands into a very large plot even though the same linked representative
+series already supplies exact ordered points that can provide useful engineering detail. This is not
+a truthful sparse-state exception. The three normal manifest evaluations are reopened as `rejected`
+so the responsive bundle cannot pass on the compact images alone.
+
+The product and UI specifications plus Q-20 now make the screen-specific consequence explicit:
+1920 and wider pair the still-dominant graph with a compact synchronized point grid from one exact
+ordered source; 1366/1440 retain the graph without a squeezed companion. Interpolation, resampling,
+smoothing, fabricated metadata and decorative wide-screen filler remain forbidden.
+
+The bounded authoring contract is persisted in
+[the MAT-DETAIL wide response-density implementer packet](issue-167-implementer-packet-wide-mat-detail-response-grid.md).
+It owns only the Datasheet reference/capture/validation and image evidence paths. The common
+manifest, inventory and this evidence report remain main-agent-owned. One configured Luna Max writer
+is the next gate; no production React/CSS, commit, push, PR or merge is authorized.
+
+## 67. MAT-DETAIL wide response-density implementation and main-agent gate
+
+Date: 2026-07-30
+
+The configured `implementer_luna_max` role loaded successfully for
+[the bounded MAT-DETAIL packet](issue-167-implementer-packet-wide-mat-detail-response-grid.md).
+No model substitution occurred. The writer changed only the packet-owned Datasheet reference,
+capture/validation and image/staging paths; the active main agent retained ownership of common
+policy, manifest and evidence integration.
+
+The corrected reference stores one explicit ordered 29-point synthetic Engineering strain /
+Engineering stress (MPa) response. The SVG polyline and point-grid rows both read that source;
+neither path interpolation, resampling nor smoothing populates the table. The displayed domains
+remain derived from the data span with 10% upper headroom and resolve to 0.25 strain and 1,000 MPa.
+
+The compact 1366/1440 targets keep the graph-first topology and hide the companion grid. At
+1920/2560/3840, the same `Representative response` region becomes a flat graph-plus-grid workspace
+while the Application/CAE rail remains bounded at 300 px. The grid scrolls independently at
+1920/2560 with a visible proportional rail and pointer/wheel/Arrow/Page/Home/End consequences. All
+29 rows fit at 3840, so the fake rail disappears.
+
+Final image evidence:
+
+| Viewport | Path | SHA-256 |
+| --- | --- | --- |
+| 1366×768 | `materials-datasheet-overview-normal-1366x768.png` | `89fafcd8245fec6742d48ad32d0a8ac9909265554eac5cbe3d74c7d869b6a4d0` |
+| 1440×900 | `materials-datasheet-overview-normal-1440x900.png` | `afa1c12b73b06223955a62b2ca937484be27d76a9cfc203190abd63081c353eb` |
+| 1920×1080 | `materials-datasheet-overview-normal-1920x1080.png` | `ac1785993e00de1972826019aafe9b907ae0821676464310624c10e9dac4be4a` |
+| 2560×1440 support | `materials-datasheet-overview-normal-1920x1080.wide-evidence-2560x1440.png` | `df5155fbecb6384558e22a83ea987d50cee9676e1deed910b173e8dad6ab72e7` |
+| 3840×2160 support | `materials-datasheet-overview-normal-1920x1080.wide-evidence-3840x2160.png` | `86d4879f6b19cc4d91760862cba98d63f89527bde3b9ad25c943ccfa6d385156` |
+
+The active main agent opened all five images at original resolution. The 1366/1440 graph remains
+readable and dominant without a squeezed companion. The 1920/2560 layouts give exact numeric
+inspection enough width without turning it into a third application pane. The 3840 view uses the
+large region for a proportional plot plus the complete response table, keeps ordinary text/rows
+unstretched and introduces no explanatory or technical filler. Property values, selected Record,
+navigator, tabs, Application condition, CAE actions and status context remain intact.
+
+Main-agent mandatory qualitative checklist:
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Q-01 | not-applicable | The selected normal tree is short; approved long-tree and shared navigator scroll behavior remain frozen. |
+| Q-02 | not-applicable | This target is a Datasheet, not a result-list state. |
+| Q-03 | pass | Compact 24–26 px Materials hierarchy, reachable identities and reserved pane boundary remain readable at all five viewports. |
+| Q-04 | not-applicable | No Fit control ribbon or candidate drawer exists. |
+| Q-05 | pass | Complete compact axis titles, ticks and frame are contained with no collision or detached x title. |
+| Q-06 | pass | The single response identity stays in a compact legend and does not create a wide footer. |
+| Q-07 | pass | Every rendered SVG box and viewBox has the same aspect ratio; glyphs and strokes are not non-uniformly stretched. |
+| Q-08 | not-applicable | This is total Engineering strain/stress with an intentional zero/zero origin, not true plastic strain. |
+| Q-09 | pass | The wide point grid shows a distinct reserved proportional rail only on real overflow, with complete input consequences and no text collision. |
+| Q-10 | not-applicable | This is not the multi-candidate Fit legend-placement contract. |
+| Q-11 | not-applicable | No Fit rail exists. |
+| Q-12 | not-applicable | No Export setup exists. |
+| Q-13 | not-applicable | No Export setup/result-column grammar exists. |
+| Q-14 | not-applicable | No Export readiness state exists. |
+| Q-15 | pass | The 10% data-span headroom keeps the exact curve clear of the 0.25 / 1,000 display frame at every viewport. |
+| Q-16 | not-applicable | No Export native preview or Mapping details exists. |
+| Q-17 | not-applicable | No Administration Object list exists. |
+| Q-18 | not-applicable | No Administration definition draft exists. |
+| Q-19 | not-applicable | No Administration Link Type editor exists; existing Related evidence remains frozen. |
+| Q-20 | pass | Wide viewports pair the elastic graph with exact synchronized data while rails remain bounded; no avoidable dominant blank, stretched prose or fabricated filler remains. |
+
+The writer and active main agent reran the complete normal/exceptional and wide validators, Node
+syntax, Python compilation, Ruff and whitespace gates. All passed; all six approved Related/empty
+canonical/responsive hashes remain byte-identical. The three normal manifest entries are `pending`,
+main-agent `accepted` and owner approval `absent`.
+
+Fresh configured read-only review now uses
+[the bounded MAT-DETAIL reviewer packet](issue-167-reviewer-packet-wide-mat-detail-response-grid.md).
+No production React/CSS, commit, push, PR or merge has started.
+
+## 68. MAT-DETAIL fresh review and final internal judgment
+
+Date: 2026-07-30
+
+One fresh configured read-only `reviewer_terra_high` role independently reviewed the bounded
+MAT-DETAIL packet. The configured role loaded successfully and no model substitution occurred. The
+review disposition is `approve`: all 32 deterministic acceptance assertions passed, no hard gate or
+actionable finding remains, every current image hash and all six frozen Related/empty hashes match,
+and the accessibility and current Web Interface Guidelines checks pass.
+
+The reviewer recorded Q-03, Q-05, Q-06, Q-07, Q-09, Q-15 and Q-20 as pass. Q-01, Q-02, Q-04,
+Q-08, Q-10–Q-14 and Q-16–Q-19 are not applicable for this normal Datasheet target for the reasons
+already recorded in the main-agent table above. In particular, the plotted quantity is total
+Engineering strain/stress with an intentional zero/zero origin; it is not true plastic strain.
+
+After the reviewer disposition, the active main agent reopened all five final images at original
+resolution and repeated the full qualitative owner checklist. The final internal judgment is
+`accepted`. At 1366/1440 the compact graph remains legible and dominant. At 1920 the graph and
+340 px exact-point grid use the expanded workspace; at 2560 the graph and 500 px grid expand
+proportionally; at 3840 all 29 exact rows fit without a false scrollbar. The 300 px CAE rail remains
+bounded, graph geometry is undistorted, axis titles and values do not collide, the curve preserves
+data-relative headroom, and no avoidable dominant blank area or fabricated explanatory filler
+remains.
+
+The three registered normal references remain `pending`, with main-agent evaluation `accepted` and
+product-owner approval `absent`. The representative 1920×1080 image is the only image submitted for
+this product-owner decision. No subsequent reference family, production React/CSS, commit, push,
+PR or merge may start before that decision.
+
+## 69. Product-owner rejection — MAT-DETAIL navigator row alignment
+
+Date: 2026-07-30
+
+The product owner rejected the submitted MAT-DETAIL 1920×1080 representative image because the left
+navigator identity text and type glyph do not share one line. The active main agent reproduced the
+failure in Chromium. There is no newline in the label; the Datasheet DOM order places the label
+before the type glyph while the normal navigator CSS assigns them to columns 3 and 2. Sparse grid
+auto-placement therefore moves the later glyph to a second implicit row.
+
+Every row remains 25 px high, so the previous density/containment checks passed even though all 7
+label/glyph centers differ by 12.5 px. This is an applicable Q-03 failure and invalidates the prior
+main-agent and reviewer acceptance for the three pending normal targets. The cumulative product,
+UI and qualitative specifications now require disclosure, type glyph and identity to occupy one
+grid row with a shared vertical center.
+
+[The bounded sole-correction packet](issue-167-correction-packet-mat-detail-tree-row-alignment.md)
+requires one fresh configured Terra High correction writer, an explicit shared grid-row rule rather
+than an optical nudge or HTML reorder, executable alignment evidence, recapture of the five normal
+viewports and byte-identical preservation of approved Search and Datasheet Related/Empty evidence.
+No subsequent reference family, production React/CSS, commit, push, PR or merge is authorized.
+
+## 70. MAT-DETAIL tree-row correction and main-agent gate
+
+Date: 2026-07-30
+
+The fresh configured `correction_terra_high` role loaded successfully and completed the sole bounded
+correction. No model substitution occurred. The shared normal navigator CSS now assigns
+`grid-row: 1` to disclosure, type glyph and identity while retaining their existing columns. The
+shared Datasheet HTML order, exceptional-state grammar, row heights, indentation, glyphs and
+overflow behavior remain unchanged; no transform, positional nudge or line-height change was used.
+
+The corrected measurements record 7 rows at each of 1366, 1440, 1920, 2560 and 3840. All components
+resolve to CSS rows `1,1,1`, every splitter-width snapshot satisfies the same contract, and the
+maximum vertical center delta is 0 px. Final image evidence:
+
+| Viewport | SHA-256 |
+| --- | --- |
+| 1366×768 | `d7b0ff64903b655882987ce4feefb9beb456e6cf5709ff8726ec8e293de9f43d` |
+| 1440×900 | `c12ab49d173016db7119f0fc8a898cb66495f0424f3b5629480cd91185c3876b` |
+| 1920×1080 | `8ac1d48195a233d385743d3d9d936bcea8047f25967a63f0cff9a8a984ab06f0` |
+| 2560×1440 support | `2bfca07faeb1648b681b52af0fd64a84d10768262418176297db301ea514a8ff` |
+| 3840×2160 support | `357fe5e127a3ec80d2b7857bb2e85d5b66970ef74b11ed05b7e85fed72f3ef68` |
+
+The active main agent independently reran the complete normal/exceptional validator, wide validator,
+Node syntax, Python compilation, Ruff and whitespace gates; all passed. All six approved
+Related/Empty images remain byte-identical. Direct SHA-256 checks also prove that the three approved
+Search normal images remain byte-identical.
+
+The active main agent opened all five corrected images at original resolution. Q-03 now passes:
+disclosures, type glyphs and identities read as one compact aligned row at every viewport, including
+the selected DP780 and sibling DP600 Records. The compact and wide plot/grid layouts, graph
+headroom, axes, point-grid scrolling, bounded CAE rail and full-screen hierarchy show no regression.
+The three registered normal entries remain `pending`, main-agent `accepted` and owner approval
+`absent`.
+
+Fresh configured read-only re-review now uses
+[the bounded MAT-DETAIL alignment re-review packet](issue-167-rereviewer-packet-mat-detail-tree-row-alignment.md).
+No subsequent reference family, production React/CSS, commit, push, PR or merge has started.
+
+## 71. MAT-DETAIL alignment fresh re-review and final internal judgment
+
+Date: 2026-07-30
+
+One fresh configured read-only `reviewer_terra_high` role independently reviewed the corrected
+MAT-DETAIL packet. The configured role loaded successfully and no model substitution occurred. The
+review disposition is `approve`: all 32 deterministic acceptance assertions passed, no hard gate or
+actionable finding remains, and every current and preserved image hash matches.
+
+The reviewer recorded Q-03, Q-05, Q-06, Q-07, Q-09, Q-15 and Q-20 as pass. Q-01, Q-02, Q-04,
+Q-08, Q-10–Q-14 and Q-16–Q-19 remain not applicable for this normal Datasheet target. In
+particular, Q-03 now passes because the disclosure, type glyph and identity share one explicit grid
+row and one vertical center at every viewport and splitter-width snapshot.
+
+After the reviewer disposition, the active main agent reopened all five final images at original
+resolution and repeated the full qualitative owner checklist. The final internal judgment is
+`accepted`. The corrected tree reads as compact aligned rows at 1366, 1440, 1920, 2560 and 3840,
+with no new clipping, overlap, scrollbar collision or graph/grid regression.
+
+The product owner approved the corrected representative in conversation. The approval covers the
+three explicitly registered normal viewports whose five final original-resolution images and hashes
+were reported together: 1366×768, 1440×900 and 1920×1080, with 2560×1440 and 3840×2160 supporting
+wide evidence. All three normal references are now `approved`; issue #167 progress is 32 of 72
+approved with 40 remaining.

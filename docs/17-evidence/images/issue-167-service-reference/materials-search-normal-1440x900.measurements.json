@@ -1,15 +1,101 @@
 {
   "capture_date": "2026-07-28",
   "console_errors": [],
+  "context_content": {
+    "open_datasheet": true,
+    "selected_summary": true
+  },
+  "context_state": "visible",
   "divider_visual_widths": [
     1,
     1
   ],
-  "image_sha256": "8f99dba3ec20cc75f29ab938dfa42682ff741ef624fcdd495b89fd673e49c53b",
+  "image_sha256": "7f96a68d0ff03eb20b95abf831354e6a1052e34f0246871c9318ede0cce367a0",
   "interactions": {
     "result_enter": true,
     "search_shortcut": true,
-    "tree_keyboard": true
+    "tree_keyboard": true,
+    "tree_keyboard_record_sync": true,
+    "tree_non_record_preserves_context": true,
+    "tree_pointer_record_sync": true
+  },
+  "navigator_fixture": {
+    "horizontal_arrow_moved": true,
+    "horizontal_end_reached": true,
+    "horizontal_pointer_moved": true,
+    "identity_reachable_at_horizontal_end": true,
+    "initial": {
+      "client_height": 509,
+      "client_width": 251,
+      "horizontal": {
+        "aria_max": 425,
+        "aria_min": 0,
+        "aria_now": 0,
+        "orientation": "horizontal",
+        "thumb": {
+          "background": "rgb(109, 133, 145)",
+          "bottom": 874,
+          "height": 8,
+          "left": 10,
+          "right": 102,
+          "top": 866,
+          "width": 92
+        },
+        "track": {
+          "background": "rgb(231, 237, 239)",
+          "bottom": 876,
+          "height": 13,
+          "left": 8,
+          "right": 259,
+          "top": 863,
+          "width": 251
+        },
+        "visible": true
+      },
+      "identity": {
+        "right": 676.140625,
+        "text": "DP780 synthetic demo steel \u2014 exact governed identity with an extended local qualification label for review",
+        "title": "DP780 synthetic demo steel \u2014 exact governed identity with an extended local qualification label for review"
+      },
+      "scroll_height": 1233,
+      "scroll_left": 0,
+      "scroll_top": 0,
+      "scroll_width": 676,
+      "shell_scroll_x": true,
+      "shell_scroll_y": true,
+      "vertical": {
+        "aria_max": 724,
+        "aria_min": 0,
+        "aria_now": 0,
+        "orientation": "vertical",
+        "thumb": {
+          "background": "rgb(109, 133, 145)",
+          "bottom": 564,
+          "height": 208,
+          "left": 262,
+          "right": 270,
+          "top": 356,
+          "width": 8
+        },
+        "track": {
+          "background": "rgb(231, 237, 239)",
+          "bottom": 863,
+          "height": 509,
+          "left": 259,
+          "right": 272,
+          "top": 354,
+          "width": 13
+        },
+        "visible": true
+      }
+    },
+    "page_down_moved": true,
+    "proportional_thumbs": true,
+    "rails_outside_text": true,
+    "vertical_arrow_moved": true,
+    "vertical_end_reached": true,
+    "vertical_pointer_moved": true,
+    "wheel_moved": true
   },
   "nested_persistent_card_count": 0,
   "overflow": {
@@ -82,9 +168,399 @@
       "y": 124
     }
   },
+  "result_count": "1\u201350 of 10,000 matches",
+  "result_fixture": {
+    "at_end": {
+      "client_height": 680,
+      "client_width": 857,
+      "footer": {
+        "bottom": 876,
+        "top": 836
+      },
+      "footer_range": "Rows 1\u201350 of 10,000 matches",
+      "header": {
+        "bottom": 188,
+        "top": 156
+      },
+      "horizontal": {
+        "aria_max": 0,
+        "aria_now": 0,
+        "thumb": {
+          "background": "rgb(109, 133, 145)",
+          "bottom": 0,
+          "height": 0,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+          "width": 0
+        },
+        "track": {
+          "background": "rgb(231, 237, 239)",
+          "bottom": 0,
+          "height": 0,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+          "width": 0
+        },
+        "visible": false
+      },
+      "horizontal_overflow": 0,
+      "next_page_visible": true,
+      "rows": {
+        "count": 50,
+        "first": {
+          "grade": "DP780-REF",
+          "name": "DP780 synthetic demo steel",
+          "text": "DP780 synthetic demo steel"
+        },
+        "last": {
+          "grade": "STEEL-DEMO-50",
+          "name": "Synthetic steel demo record 50",
+          "text": "Synthetic steel demo record 50"
+        }
+      },
+      "scroll_height": 1833,
+      "scroll_left": 0,
+      "scroll_top": 1153,
+      "scroll_width": 857,
+      "selected_row_visible": false,
+      "sticky_header_position": "sticky",
+      "vertical": {
+        "aria_max": 1153,
+        "aria_now": 1153,
+        "thumb": {
+          "background": "rgb(109, 133, 145)",
+          "bottom": 834,
+          "height": 251,
+          "left": 1137,
+          "right": 1145,
+          "top": 583,
+          "width": 8
+        },
+        "track": {
+          "background": "rgb(231, 237, 239)",
+          "bottom": 836,
+          "height": 680,
+          "left": 1134,
+          "right": 1147,
+          "top": 156,
+          "width": 13
+        },
+        "visible": true
+      },
+      "vertical_overflow": 1153,
+      "viewport": {
+        "bottom": 836,
+        "left": 277,
+        "right": 1134,
+        "top": 156
+      },
+      "visible_row_count": 19,
+      "visible_rows_fully_contained": false
+    },
+    "footer_fixed_at_end": true,
+    "initial": {
+      "client_height": 680,
+      "client_width": 857,
+      "footer": {
+        "bottom": 876,
+        "top": 836
+      },
+      "footer_range": "Rows 1\u201350 of 10,000 matches",
+      "header": {
+        "bottom": 188,
+        "top": 156
+      },
+      "horizontal": {
+        "aria_max": 0,
+        "aria_now": 0,
+        "thumb": {
+          "background": "rgb(109, 133, 145)",
+          "bottom": 0,
+          "height": 0,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+          "width": 0
+        },
+        "track": {
+          "background": "rgb(231, 237, 239)",
+          "bottom": 0,
+          "height": 0,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+          "width": 0
+        },
+        "visible": false
+      },
+      "horizontal_overflow": 0,
+      "next_page_visible": true,
+      "rows": {
+        "count": 50,
+        "first": {
+          "grade": "DP780-REF",
+          "name": "DP780 synthetic demo steel",
+          "text": "DP780 synthetic demo steel"
+        },
+        "last": {
+          "grade": "STEEL-DEMO-50",
+          "name": "Synthetic steel demo record 50",
+          "text": "Synthetic steel demo record 50"
+        }
+      },
+      "scroll_height": 1833,
+      "scroll_left": 0,
+      "scroll_top": 0,
+      "scroll_width": 857,
+      "selected_row_visible": true,
+      "sticky_header_position": "sticky",
+      "vertical": {
+        "aria_max": 1153,
+        "aria_now": 0,
+        "thumb": {
+          "background": "rgb(109, 133, 145)",
+          "bottom": 409,
+          "height": 251,
+          "left": 1137,
+          "right": 1145,
+          "top": 158,
+          "width": 8
+        },
+        "track": {
+          "background": "rgb(231, 237, 239)",
+          "bottom": 836,
+          "height": 680,
+          "left": 1134,
+          "right": 1147,
+          "top": 156,
+          "width": 13
+        },
+        "visible": true
+      },
+      "vertical_overflow": 1153,
+      "viewport": {
+        "bottom": 836,
+        "left": 277,
+        "right": 1134,
+        "top": 156
+      },
+      "visible_row_count": 18,
+      "visible_rows_fully_contained": true
+    },
+    "overflowing": true,
+    "page_down_moved": true,
+    "proportional_thumbs": true,
+    "rails_outside_text": true,
+    "restored": {
+      "client_height": 680,
+      "client_width": 857,
+      "footer": {
+        "bottom": 876,
+        "top": 836
+      },
+      "footer_range": "Rows 1\u201350 of 10,000 matches",
+      "header": {
+        "bottom": 188,
+        "top": 156
+      },
+      "horizontal": {
+        "aria_max": 0,
+        "aria_now": 0,
+        "thumb": {
+          "background": "rgb(109, 133, 145)",
+          "bottom": 0,
+          "height": 0,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+          "width": 0
+        },
+        "track": {
+          "background": "rgb(231, 237, 239)",
+          "bottom": 0,
+          "height": 0,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+          "width": 0
+        },
+        "visible": false
+      },
+      "horizontal_overflow": 0,
+      "next_page_visible": true,
+      "rows": {
+        "count": 50,
+        "first": {
+          "grade": "DP780-REF",
+          "name": "DP780 synthetic demo steel",
+          "text": "DP780 synthetic demo steel"
+        },
+        "last": {
+          "grade": "STEEL-DEMO-50",
+          "name": "Synthetic steel demo record 50",
+          "text": "Synthetic steel demo record 50"
+        }
+      },
+      "scroll_height": 1833,
+      "scroll_left": 0,
+      "scroll_top": 0,
+      "scroll_width": 857,
+      "selected_row_visible": true,
+      "sticky_header_position": "sticky",
+      "vertical": {
+        "aria_max": 1153,
+        "aria_now": 0,
+        "thumb": {
+          "background": "rgb(82, 107, 120)",
+          "bottom": 409,
+          "height": 251,
+          "left": 1137,
+          "right": 1145,
+          "top": 158,
+          "width": 8
+        },
+        "track": {
+          "background": "rgb(231, 237, 239)",
+          "bottom": 836,
+          "height": 680,
+          "left": 1134,
+          "right": 1147,
+          "top": 156,
+          "width": 13
+        },
+        "visible": true
+      },
+      "vertical_overflow": 1153,
+      "viewport": {
+        "bottom": 836,
+        "left": 277,
+        "right": 1134,
+        "top": 156
+      },
+      "visible_row_count": 18,
+      "visible_rows_fully_contained": true
+    },
+    "sticky_header_at_end": true,
+    "vertical_arrow_moved": true,
+    "vertical_end_reached": true,
+    "vertical_pointer_moved": true,
+    "wheel_moved": true
+  },
+  "result_range": "Rows 1\u201350 of 10,000 matches",
+  "result_scroller": {
+    "client_height": 680,
+    "client_width": 857,
+    "footer": {
+      "bottom": 876,
+      "height": 40,
+      "left": 277,
+      "right": 1147,
+      "top": 836,
+      "width": 870
+    },
+    "footer_range": "Rows 1\u201350 of 10,000 matches",
+    "header": {
+      "bottom": 188,
+      "height": 32,
+      "left": 278.5,
+      "right": 342.5,
+      "top": 156,
+      "width": 64
+    },
+    "horizontal_overflow": 0,
+    "next_page_visible": true,
+    "rails": {
+      "horizontal": {
+        "aria_max": 0,
+        "aria_min": 0,
+        "aria_now": 0,
+        "orientation": "horizontal",
+        "thumb": {
+          "background": "rgb(109, 133, 145)",
+          "bottom": 0,
+          "height": 0,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+          "width": 0
+        },
+        "track": {
+          "background": "rgb(231, 237, 239)",
+          "bottom": 0,
+          "height": 0,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+          "width": 0
+        },
+        "visible": false
+      },
+      "vertical": {
+        "aria_max": 1153,
+        "aria_min": 0,
+        "aria_now": 0,
+        "orientation": "vertical",
+        "thumb": {
+          "background": "rgb(82, 107, 120)",
+          "bottom": 409,
+          "height": 251,
+          "left": 1137,
+          "right": 1145,
+          "top": 158,
+          "width": 8
+        },
+        "track": {
+          "background": "rgb(231, 237, 239)",
+          "bottom": 836,
+          "height": 680,
+          "left": 1134,
+          "right": 1147,
+          "top": 156,
+          "width": 13
+        },
+        "visible": true
+      }
+    },
+    "rows": {
+      "count": 50,
+      "first": {
+        "grade": "DP780-REF",
+        "name": "DP780 synthetic demo steel",
+        "text": "DP780 synthetic demo steel",
+        "title": "DP780 synthetic demo steel \u00b7 DP780-REF"
+      },
+      "last": {
+        "grade": "STEEL-DEMO-50",
+        "name": "Synthetic steel demo record 50",
+        "text": "Synthetic steel demo record 50",
+        "title": "Synthetic steel demo record 50 \u00b7 STEEL-DEMO-50"
+      }
+    },
+    "scroll_height": 1833,
+    "scroll_left": 0,
+    "scroll_top": 0,
+    "scroll_width": 857,
+    "selected_row_visible": true,
+    "shell_scroll_x": false,
+    "shell_scroll_y": true,
+    "sticky_header_position": "sticky",
+    "vertical_overflow": 1153,
+    "viewport": {
+      "bottom": 836,
+      "height": 680,
+      "left": 277,
+      "right": 1134,
+      "top": 156,
+      "width": 857
+    },
+    "visible_row_count": 18,
+    "visible_rows_fully_contained": true
+  },
   "row_density": {
     "results": {
-      "count": 6,
+      "count": 50,
       "maximum": 36,
       "minimum": 36
     },
@@ -96,6 +572,188 @@
   },
   "selected_result_rows": 1,
   "selected_tree_rows": 1,
+  "splitter_evidence": {
+    "default": {
+      "aria": {
+        "context": {
+          "maximum": 480,
+          "minimum": 260,
+          "now": 280
+        },
+        "navigator": {
+          "maximum": 360,
+          "minimum": 200,
+          "now": 264
+        }
+      },
+      "overflow": {
+        "bodyHorizontal": 0,
+        "bodyVertical": 0,
+        "documentHorizontal": 0,
+        "documentVertical": 0
+      },
+      "selected_context_visible": true,
+      "tree_scroller": {
+        "all_tree_kind_right_edges_within_content": true,
+        "content_right": 272,
+        "horizontal_overflow": 0,
+        "rails": {
+          "horizontal": false,
+          "vertical": false
+        },
+        "tree_kind_right_edges": [
+          41,
+          50,
+          59,
+          68,
+          77,
+          89,
+          86
+        ],
+        "vertical_overflow": 0
+      },
+      "widths": {
+        "context": 280,
+        "navigator": 264,
+        "results": 870
+      }
+    },
+    "navigator_arrow_right": {
+      "aria": {
+        "context": {
+          "maximum": 480,
+          "minimum": 260,
+          "now": 280
+        },
+        "navigator": {
+          "maximum": 360,
+          "minimum": 200,
+          "now": 272
+        }
+      },
+      "overflow": {
+        "bodyHorizontal": 0,
+        "bodyVertical": 0,
+        "documentHorizontal": 0,
+        "documentVertical": 0
+      },
+      "selected_context_visible": true,
+      "tree_scroller": {
+        "all_tree_kind_right_edges_within_content": true,
+        "content_right": 280,
+        "horizontal_overflow": 0,
+        "rails": {
+          "horizontal": false,
+          "vertical": false
+        },
+        "tree_kind_right_edges": [
+          41,
+          50,
+          59,
+          68,
+          77,
+          89,
+          86
+        ],
+        "vertical_overflow": 0
+      },
+      "widths": {
+        "context": 280,
+        "navigator": 272,
+        "results": 862
+      }
+    },
+    "navigator_end": {
+      "aria": {
+        "context": {
+          "maximum": 480,
+          "minimum": 260,
+          "now": 280
+        },
+        "navigator": {
+          "maximum": 360,
+          "minimum": 200,
+          "now": 360
+        }
+      },
+      "overflow": {
+        "bodyHorizontal": 0,
+        "bodyVertical": 0,
+        "documentHorizontal": 0,
+        "documentVertical": 0
+      },
+      "selected_context_visible": true,
+      "tree_scroller": {
+        "all_tree_kind_right_edges_within_content": true,
+        "content_right": 368,
+        "horizontal_overflow": 0,
+        "rails": {
+          "horizontal": false,
+          "vertical": false
+        },
+        "tree_kind_right_edges": [
+          41,
+          50,
+          59,
+          68,
+          77,
+          89,
+          86
+        ],
+        "vertical_overflow": 0
+      },
+      "widths": {
+        "context": 280,
+        "navigator": 360,
+        "results": 774
+      }
+    },
+    "navigator_home": {
+      "aria": {
+        "context": {
+          "maximum": 480,
+          "minimum": 260,
+          "now": 280
+        },
+        "navigator": {
+          "maximum": 360,
+          "minimum": 200,
+          "now": 200
+        }
+      },
+      "overflow": {
+        "bodyHorizontal": 0,
+        "bodyVertical": 0,
+        "documentHorizontal": 0,
+        "documentVertical": 0
+      },
+      "selected_context_visible": true,
+      "tree_scroller": {
+        "all_tree_kind_right_edges_within_content": true,
+        "content_right": 208,
+        "horizontal_overflow": 41,
+        "rails": {
+          "horizontal": true,
+          "vertical": false
+        },
+        "tree_kind_right_edges": [
+          41,
+          50,
+          59,
+          68,
+          77,
+          89,
+          86
+        ],
+        "vertical_overflow": 0
+      },
+      "widths": {
+        "context": 280,
+        "navigator": 200,
+        "results": 934
+      }
+    }
+  },
   "table_header_position": "sticky",
   "table_headers": [
     "Compare",
@@ -105,10 +763,149 @@
     "Status"
   ],
   "target": "materials-search-normal-1440x900",
+  "tree_scroller": {
+    "all_tree_kind_right_edges_within_content": true,
+    "client_height": 522,
+    "client_width": 264,
+    "content_right": 272,
+    "horizontal_overflow": 0,
+    "identities": [
+      {
+        "accessible_name": "Database: Materials Database",
+        "glyph_font_size": "0px",
+        "glyph_kind": "Database",
+        "glyph_title": "Database",
+        "identity": "Materials Database",
+        "kind": "Database",
+        "title": "Materials Database"
+      },
+      {
+        "accessible_name": "Profile: Engineering Materials",
+        "glyph_font_size": "0px",
+        "glyph_kind": "Profile",
+        "glyph_title": "Profile",
+        "identity": "Engineering Materials",
+        "kind": "Profile",
+        "title": "Engineering Materials"
+      },
+      {
+        "accessible_name": "Table: Demo Material Records",
+        "glyph_font_size": "0px",
+        "glyph_kind": "Table",
+        "glyph_title": "Table",
+        "identity": "Demo Material Records",
+        "kind": "Table",
+        "title": "Demo Material Records"
+      },
+      {
+        "accessible_name": "Folder: Synthetic metals",
+        "glyph_font_size": "0px",
+        "glyph_kind": "Folder",
+        "glyph_title": "Folder",
+        "identity": "Synthetic metals",
+        "kind": "Folder",
+        "title": "Synthetic metals"
+      },
+      {
+        "accessible_name": "Folder: Demo steels",
+        "glyph_font_size": "0px",
+        "glyph_kind": "Folder",
+        "glyph_title": "Folder",
+        "identity": "Demo steels",
+        "kind": "Folder",
+        "title": "Demo steels"
+      },
+      {
+        "accessible_name": "Record: DP780 synthetic demo steel",
+        "glyph_font_size": "0px",
+        "glyph_kind": "Record",
+        "glyph_title": "Record",
+        "identity": "DP780 synthetic demo steel",
+        "kind": "Record",
+        "title": "DP780 synthetic demo steel"
+      },
+      {
+        "accessible_name": "Record: DP600 synthetic demo steel",
+        "glyph_font_size": "0px",
+        "glyph_kind": "Record",
+        "glyph_title": "Record",
+        "identity": "DP600 synthetic demo steel",
+        "kind": "Record",
+        "title": "DP600 synthetic demo steel"
+      }
+    ],
+    "rails": {
+      "horizontal": {
+        "aria_max": 0,
+        "aria_min": 0,
+        "aria_now": 0,
+        "orientation": "horizontal",
+        "thumb": {
+          "background": "rgb(109, 133, 145)",
+          "bottom": 0,
+          "height": 0,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+          "width": 0
+        },
+        "track": {
+          "background": "rgb(231, 237, 239)",
+          "bottom": 0,
+          "height": 0,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+          "width": 0
+        },
+        "visible": false
+      },
+      "vertical": {
+        "aria_max": 0,
+        "aria_min": 0,
+        "aria_now": 0,
+        "orientation": "vertical",
+        "thumb": {
+          "background": "rgb(109, 133, 145)",
+          "bottom": 0,
+          "height": 0,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+          "width": 0
+        },
+        "track": {
+          "background": "rgb(231, 237, 239)",
+          "bottom": 0,
+          "height": 0,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+          "width": 0
+        },
+        "visible": false
+      }
+    },
+    "scroll_height": 522,
+    "scroll_width": 264,
+    "shell_scroll_x": false,
+    "shell_scroll_y": false,
+    "tree_kind_right_edges": [
+      41,
+      50,
+      59,
+      68,
+      77,
+      89,
+      86
+    ],
+    "vertical_overflow": 0
+  },
   "viewport": {
     "device_scale_factor": 1,
     "height": 900,
     "width": 1440
   },
-  "visible_selected_context": true
+  "visible_selected_context": true,
+  "visible_splitter_count": 2
 }

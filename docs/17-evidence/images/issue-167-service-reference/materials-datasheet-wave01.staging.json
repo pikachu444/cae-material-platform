@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated": "2026-07-29",
+  "generated": "2026-07-30",
   "family": "MAT-DETAIL",
   "references": [
     {
@@ -13,15 +13,21 @@
       },
       "image": "docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1920x1080.png",
       "measurements": "materials-datasheet-overview-normal-1920x1080.measurements.json",
-      "image_sha256": "eda9da6037d7dec12fd4c4c5ce5fa77e993a1faa37f5853b3da5c2203bd35849",
-      "status": "pending",
+      "image_sha256": "8ac1d48195a233d385743d3d9d936bcea8047f25967a63f0cff9a8a984ab06f0",
+      "status": "approved",
       "main_agent_evaluation": {
-        "status": "pending"
+        "status": "accepted"
       },
       "product_owner_approval": {
-        "status": "absent"
+        "status": "approved",
+        "date": "2026-07-30",
+        "evidence": "Product-owner approval in conversation after corrected representative handoff."
       },
-      "responsive_evidence": []
+      "responsive_evidence": [],
+      "wide_evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1920x1080.wide-evidence-2560x1440.png",
+        "docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1920x1080.wide-evidence-3840x2160.png"
+      ]
     },
     {
       "id": "materials-datasheet-related-long-1440x900",
@@ -45,7 +51,8 @@
         "docs/17-evidence/images/issue-167-service-reference/materials-datasheet-related-long-1440x900.responsive-1366x768.png",
         "docs/17-evidence/images/issue-167-service-reference/materials-datasheet-related-long-1440x900.png",
         "docs/17-evidence/images/issue-167-service-reference/materials-datasheet-related-long-1440x900.responsive-1920x1080.png"
-      ]
+      ],
+      "wide_evidence": []
     },
     {
       "id": "materials-datasheet-empty-1440x900",
@@ -69,7 +76,54 @@
         "docs/17-evidence/images/issue-167-service-reference/materials-datasheet-empty-1440x900.responsive-1366x768.png",
         "docs/17-evidence/images/issue-167-service-reference/materials-datasheet-empty-1440x900.png",
         "docs/17-evidence/images/issue-167-service-reference/materials-datasheet-empty-1440x900.responsive-1920x1080.png"
-      ]
+      ],
+      "wide_evidence": []
+    },
+    {
+      "id": "materials-datasheet-overview-normal-1366x768",
+      "kind": "normal",
+      "viewport": {
+        "width": 1366,
+        "height": 768,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1366x768.png",
+      "measurements": "materials-datasheet-overview-normal-1366x768.measurements.json",
+      "image_sha256": "d7b0ff64903b655882987ce4feefb9beb456e6cf5709ff8726ec8e293de9f43d",
+      "status": "approved",
+      "main_agent_evaluation": {
+        "status": "accepted"
+      },
+      "product_owner_approval": {
+        "status": "approved",
+        "date": "2026-07-30",
+        "evidence": "Product-owner approval in conversation after corrected representative handoff."
+      },
+      "responsive_evidence": [],
+      "wide_evidence": []
+    },
+    {
+      "id": "materials-datasheet-overview-normal-1440x900",
+      "kind": "normal",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1440x900.png",
+      "measurements": "materials-datasheet-overview-normal-1440x900.measurements.json",
+      "image_sha256": "c12ab49d173016db7119f0fc8a898cb66495f0424f3b5629480cd91185c3876b",
+      "status": "approved",
+      "main_agent_evaluation": {
+        "status": "accepted"
+      },
+      "product_owner_approval": {
+        "status": "approved",
+        "date": "2026-07-30",
+        "evidence": "Product-owner approval in conversation after corrected representative handoff."
+      },
+      "responsive_evidence": [],
+      "wide_evidence": []
     }
   ]
 }

@@ -13,25 +13,30 @@ references:
     sources:
       html: docs/00-research/ux-service-reference/materials-search-normal.html
       css: docs/00-research/ux-service-reference/reference.css
+      css_navigator: docs/00-research/ux-service-reference/materials-navigator.css
       javascript: docs/00-research/ux-service-reference/reference.js
+      javascript_navigator: docs/00-research/ux-service-reference/materials-navigator.js
       capture: docs/00-research/ux-service-reference/capture_reference.py
       validation: docs/00-research/ux-service-reference/validate_reference.py
     image: docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1440x900.png
     measurements: docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1440x900.measurements.json
-    image_sha256: 8f99dba3ec20cc75f29ab938dfa42682ff741ef624fcdd495b89fd673e49c53b
-    date: 2026-07-28
+    image_sha256: 7f96a68d0ff03eb20b95abf831354e6a1052e34f0246871c9318ede0cce367a0
+    date: 2026-07-30
     status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted 32/32 after direct original-resolution inspection: continuous three-pane topology,
-        dominant 870 px result grid, restrained 264 px navigator and 280 px selected context, dense
-        readable rows, flat dividers, one primary command, no clipping or page overflow, and verified
-        search, tree-keyboard, row-selection, datasheet-consequence, and keyboard-resize behavior.
+        Accepted after direct original-resolution review of the corrected 50-row server-scoped
+        result page. Eighteen complete fixed-height rows occupy the initial result body, the
+        reserved local rail remains outside cell text, and the sticky header plus fixed range/footer
+        preserve selection and paging context. No stretched row, filler panel, clipping or
+        avoidable dominant blank region remains.
     product_owner_approval:
       status: approved
-      date: 2026-07-28
-      evidence: Conversation approval after first-image submission.
+      date: 2026-07-30
+      evidence: >-
+        Materials Search normal wide-density bundle approval in conversation after representative
+        1920 handoff and explicit confirmation that 1366/1440/1920 plus 2560/3840 evidence passed.
   - id: materials-search-normal-1366x768
     screen: materials-search
     state: normal
@@ -42,32 +47,32 @@ references:
     sources:
       html: docs/00-research/ux-service-reference/materials-search-normal.html
       css: docs/00-research/ux-service-reference/reference.css
+      css_navigator: docs/00-research/ux-service-reference/materials-navigator.css
       css_override: docs/00-research/ux-service-reference/materials-search-normal-1366x768.css
       javascript: docs/00-research/ux-service-reference/reference.js
+      javascript_navigator: docs/00-research/ux-service-reference/materials-navigator.js
       javascript_override: docs/00-research/ux-service-reference/materials-search-normal-1366x768.js
       capture: docs/00-research/ux-service-reference/capture_reference.py
       validation: docs/00-research/ux-service-reference/validate_reference.py
     image: docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1366x768.png
     measurements: docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1366x768.measurements.json
-    image_sha256: b1fc0cfeaaa0734e22d6678eef3ef6ca03cecdbce3d6588d8bee18f4a9572065
-    date: 2026-07-28
+    image_sha256: bd400b2f913a0d2c8c1e5dba6565c05b12055118ffbbaac1b9e5845cf6bfff89
+    date: 2026-07-30
     status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted 32/32 after product-owner-authorized splitter correction, independent 148-check
-        validation and direct original-resolution comparison with the approved 1440 reference. The
-        default 244/816/280 navigator/results/context topology resolves the selected-context and
-        tree-kind clipping findings. Both visible separators now resize actual panes on arrows,
-        Home and End, keep aria-valuenow and dynamic maxima synchronized, preserve a minimum 720 px
-        result grid and produce zero page/tree overflow. Governed default columns, dense rows,
-        selected context, keyboard task consequences, one primary command and source isolation pass.
+        Accepted after direct original-resolution review of the corrected 50-row server-scoped
+        result page. Fourteen complete fixed-height rows remain visible above the fixed range/footer;
+        the compact navigator, selected context and result grid preserve their priority, and the
+        reserved local rail is discoverable without covering names or values. No partial row,
+        clipping, overlap or topology failure remains.
     product_owner_approval:
       status: approved
-      date: 2026-07-28
+      date: 2026-07-30
       evidence: >-
-        Conversation approval after correction 02-C image submission and fresh 32/32 read-only
-        review.
+        Materials Search normal wide-density bundle approval in conversation after representative
+        1920 handoff and explicit confirmation that 1366/1440/1920 plus 2560/3840 evidence passed.
   - id: materials-search-normal-1920x1080
     screen: materials-search
     state: normal
@@ -78,33 +83,36 @@ references:
     sources:
       html: docs/00-research/ux-service-reference/materials-search-normal.html
       css: docs/00-research/ux-service-reference/reference.css
+      css_navigator: docs/00-research/ux-service-reference/materials-navigator.css
       css_override: docs/00-research/ux-service-reference/materials-search-normal-1920x1080.css
       javascript: docs/00-research/ux-service-reference/reference.js
+      javascript_navigator: docs/00-research/ux-service-reference/materials-navigator.js
       javascript_override: docs/00-research/ux-service-reference/materials-search-normal-1920x1080.js
       capture: docs/00-research/ux-service-reference/capture_reference.py
       validation: docs/00-research/ux-service-reference/validate_reference.py
     image: docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1920x1080.png
     measurements: docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1920x1080.measurements.json
-    image_sha256: b92757e5f80cbcd020f73d54af65cd700112497a76e40f412cfc0a60988ef191
-    date: 2026-07-28
+    wide_evidence:
+      - docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1920x1080.wide-evidence-2560x1440.png
+      - docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1920x1080.wide-evidence-3840x2160.png
+    image_sha256: 57f136268f52386c99cb13970f694cf40a30bdb57a6bc3badcab0b70a24ed3ae
+    date: 2026-07-30
     status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted 32/32 after the sole target-only containment correction, independent 162-check
-        validation, direct original-resolution comparison with both approved same-state references,
-        and a separate native Playwright exercise. The default 280/1314/300 topology keeps the
-        result grid dominant and the selected-material summary visible. All seven splitter states
-        synchronize actual and ARIA widths, keep results at least 1134 px, and have zero
-        document/body/tree horizontal overflow with every tree-kind label inside the navigator.
-        Supported default columns, dense rows, in-place selection, keyboard task consequences,
-        one primary command, no nested cards and the condition/unit information boundary pass.
+        Accepted after direct original-resolution review at 1920, 2560 and 3840. The reference now
+        exercises the production 50-row page contract: 23 and 33 complete rows fill the 1920 and
+        2560 initial result bodies with a reserved proportional rail, while all 50 rows fit at 3840
+        and the unnecessary rail is hidden. The remaining 3840 space follows the complete page
+        rather than stretched rows or fabricated content. Tree/result/context synchronization,
+        fixed paging context and dominant result priority remain intact.
     product_owner_approval:
       status: approved
-      date: 2026-07-28
+      date: 2026-07-30
       evidence: >-
-        Conversation approval after original-resolution clarification and explicit request to
-        continue to the next approval unit.
+        Materials Search normal wide-density bundle approval in conversation after representative
+        1920 handoff and explicit confirmation that 1366/1440/1920 plus 2560/3840 evidence passed.
   - id: materials-datasheet-overview-normal-1440x900
     screen: materials-datasheet-overview
     state: normal
@@ -116,30 +124,28 @@ references:
       html: docs/00-research/ux-service-reference/materials-datasheet-overview-normal.html
       css: docs/00-research/ux-service-reference/reference.css
       css_detail: docs/00-research/ux-service-reference/materials-datasheet.css
+      css_navigator: docs/00-research/ux-service-reference/materials-navigator.css
       javascript: docs/00-research/ux-service-reference/materials-datasheet.js
-      capture: docs/00-research/ux-service-reference/capture_materials_datasheet.py
-      validation: docs/00-research/ux-service-reference/validate_materials_datasheet.py
+      javascript_navigator: docs/00-research/ux-service-reference/materials-navigator.js
+      capture: docs/00-research/ux-service-reference/capture_materials_datasheet_wave01.py
+      validation: docs/00-research/ux-service-reference/validate_materials_datasheet_wave01.py
     image: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1440x900.png
     measurements: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1440x900.measurements.json
-    image_sha256: c54bcab3b473ea0b6a451cb5def06b672d88efde8d7007c185d26d94802b54c8
-    date: 2026-07-28
+    image_sha256: c12ab49d173016db7119f0fc8a898cb66495f0424f3b5629480cd91185c3876b
+    date: 2026-07-30
     status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted 32/32 after the sole correction's data-relative refinement, direct
-        original-resolution inspection, complete registered gates and an independent derivation/
-        Playwright test. The plot declares series extrema 0–0.20 strain and 0–850 MPa, applies 10%
-        of each data span as upper padding, then resolves nice steps for 5 horizontal and 4 vertical
-        intervals. The derived 0.25/1,000 domains and 598.4/51.6 endpoint match the serialized SVG,
-        leaving 133.6 right and 24.6 top units. Surrounding topology, tree readability, property/
-        condition semantics, card delivery, interactions and approved search authority remain intact.
+        Accepted after the sole bounded product-owner correction and active main-agent
+        original-resolution review. All 7 disclosure/type-glyph/label groups resolve to grid row 1
+        with 0 px center delta; the compact graph and exact response-source contracts remain intact.
     product_owner_approval:
       status: approved
-      date: 2026-07-28
+      date: 2026-07-30
       evidence: >-
-        Conversation approval after the data-relative 10% span headroom refinement, independent
-        derivation evidence and fresh 32/32 read-only re-review.
+        Product-owner approval in conversation after the corrected 1920×1080 representative
+        handoff and explicit confirmation that all five original-resolution checks passed.
   - id: materials-datasheet-overview-normal-1366x768
     screen: materials-datasheet-overview
     state: normal
@@ -151,34 +157,30 @@ references:
       html: docs/00-research/ux-service-reference/materials-datasheet-overview-normal.html
       css: docs/00-research/ux-service-reference/reference.css
       css_detail: docs/00-research/ux-service-reference/materials-datasheet.css
+      css_navigator: docs/00-research/ux-service-reference/materials-navigator.css
       css_override: docs/00-research/ux-service-reference/materials-datasheet-overview-normal-1366x768.css
       javascript: docs/00-research/ux-service-reference/materials-datasheet.js
+      javascript_navigator: docs/00-research/ux-service-reference/materials-navigator.js
       javascript_override: docs/00-research/ux-service-reference/materials-datasheet-overview-normal-1366x768.js
-      capture: docs/00-research/ux-service-reference/capture_materials_datasheet.py
-      validation: docs/00-research/ux-service-reference/validate_materials_datasheet.py
+      capture: docs/00-research/ux-service-reference/capture_materials_datasheet_wave01.py
+      validation: docs/00-research/ux-service-reference/validate_materials_datasheet_wave01.py
     image: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1366x768.png
     measurements: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1366x768.measurements.json
-    image_sha256: 362b5ad430f7e10ef9533589e34186c42bce28cca6d9bbf799c91e5538ca5a98
-    date: 2026-07-28
+    image_sha256: d7b0ff64903b655882987ce4feefb9beb456e6cf5709ff8726ec8e293de9f43d
+    date: 2026-07-30
     status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted 32/32 after the sole correction strengthened deterministic evidence without
-        changing the candidate image. Direct original-resolution comparison with the approved
-        1440 parent found preserved typography, topology, information priority and data-relative
-        plot headroom. Independent native Playwright reproduced navigator/default/right/home/end
-        states with main/aside/plot widths 821/280/797, 813/280/789, 865/280/841 and 720/280/696;
-        all 25 property cells remained contained with zero page/tree/table overflow. Every required
-        record/tab/property/graph/condition/delivery/action box stayed above the status bar, and
-        independent DOM derivation reproduced the 0.25 strain / 1,000 MPa axes and contained
-        598.4/51.6 response endpoint. All registered gates and frozen hashes passed.
+        Accepted after the sole bounded product-owner correction and active main-agent
+        original-resolution review. All 7 disclosure/type-glyph/label groups resolve to grid row 1
+        with 0 px center delta; the compact graph, response-source and delivery contracts remain intact.
     product_owner_approval:
       status: approved
-      date: 2026-07-28
+      date: 2026-07-30
       evidence: >-
-        Conversation approval after registered 1366 image submission and fresh 32/32 read-only
-        review.
+        Product-owner approval in conversation after the corrected 1920×1080 representative
+        handoff and explicit confirmation that all five original-resolution checks passed.
   - id: materials-datasheet-overview-normal-1920x1080
     screen: materials-datasheet-overview
     state: normal
@@ -190,29 +192,34 @@ references:
       html: docs/00-research/ux-service-reference/materials-datasheet-overview-normal.html
       css: docs/00-research/ux-service-reference/reference.css
       css_detail: docs/00-research/ux-service-reference/materials-datasheet.css
+      css_navigator: docs/00-research/ux-service-reference/materials-navigator.css
       css_override: docs/00-research/ux-service-reference/materials-datasheet-overview-normal-1920x1080.css
       javascript: docs/00-research/ux-service-reference/materials-datasheet.js
+      javascript_navigator: docs/00-research/ux-service-reference/materials-navigator.js
       javascript_override: docs/00-research/ux-service-reference/materials-datasheet-overview-normal-1920x1080.js
       capture: docs/00-research/ux-service-reference/capture_materials_datasheet_wave01.py
       validation: docs/00-research/ux-service-reference/validate_materials_datasheet_wave01.py
     image: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1920x1080.png
     measurements: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1920x1080.measurements.json
-    image_sha256: eda9da6037d7dec12fd4c4c5ce5fa77e993a1faa37f5853b3da5c2203bd35849
-    date: 2026-07-29
+    wide_evidence:
+      - docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1920x1080.wide-evidence-2560x1440.png
+      - docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1920x1080.wide-evidence-3840x2160.png
+    image_sha256: 8ac1d48195a233d385743d3d9d936bcea8047f25967a63f0cff9a8a984ab06f0
+    date: 2026-07-30
     status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted 32/32 after direct original-resolution comparison with both approved normal
-        parents, complete family capture/validation and an independent native Playwright exercise.
-        The 280/5/1619 navigator/divider/datasheet topology preserves a 1319 px dominant data
-        region and restrained 300 px condition/delivery context. Six tabs, four typed property rows,
-        the data-relative 0.25 strain/1,000 MPa plot domain, both native solver formats and every
-        Preview/Download consequence remain visible with truthful splitter ARIA and zero overflow.
+        Accepted after the sole bounded product-owner correction and active main-agent
+        original-resolution review at 1920/2560/3840. All 7 disclosure/type-glyph/label groups
+        resolve to grid row 1 with 0 px center delta. The dominant proportional graph, exact
+        synchronized point grid and local-scroll contracts remain intact.
     product_owner_approval:
       status: approved
-      date: 2026-07-29
-      evidence: WAVE-01 batch approval in conversation.
+      date: 2026-07-30
+      evidence: >-
+        Product-owner approval in conversation after the corrected 1920×1080 representative
+        handoff and explicit confirmation that all five original-resolution checks passed.
   - id: materials-datasheet-related-long-1440x900
     screen: materials-datasheet-related
     state: related-long
@@ -1267,16 +1274,16 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1366x768.png
     measurements: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1366x768.measurements.json
     family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: e0c2951b04d473c3d6b7e133c815446a22810037e7cfe1ae0b6664d9e0af07d6
-    date: 2026-07-29
+    image_sha256: 9995b53dae3a9907fe95f33ad9eed0b4a96a19fe1d7e7d19f61f89249f313724
+    date: 2026-07-30
     status: pending
     main_agent_evaluation:
       status: accepted
       notes: >-
         Accepted by the active main agent after deterministic validation and original-resolution
         review of all eleven approval images. The compact three-pane schema workspace keeps object
-        families, the selected object list and its property editor continuous, readable and free of
-        the redundant fourth setup column.
+        families, the identity-first Object list and its property editor continuous. Table rows expose
+        only Name and Rev; detailed prose remains in the editor instead of clipping inside Name.
     product_owner_approval:
       status: absent
   - id: administration-database-normal-1440x900
@@ -1290,8 +1297,8 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1440x900.png
     measurements: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1440x900.measurements.json
     family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: 901f13632255d95added7455eb539ff78c9e8cefaa115f9aaa23b043af088ea9
-    date: 2026-07-29
+    image_sha256: 1b2491632ca17a96bbcd32efeac6d8d4cc5555b5ee43eaaa016085538828a2bf
+    date: 2026-07-30
     status: pending
     main_agent_evaluation:
       status: accepted
@@ -1311,16 +1318,21 @@ references:
     sources: *administration_schema_core_sources
     image: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1920x1080.png
     measurements: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1920x1080.measurements.json
+    wide_evidence:
+      - docs/17-evidence/images/issue-167-service-reference/administration-database-normal-wide-2560x1440.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-database-normal-wide-3840x2160.png
     family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: b54ac84e90ea3dac980e8f7c0bc71fd10687d4777cffa11106ad519fac99e1f6
-    date: 2026-07-29
+    image_sha256: 6f07e6a7bf59c28107fd21aaeecf72c1cfbc94effb011b67104e3adcd51bc672
+    date: 2026-07-30
     status: pending
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted by the active main agent after original-resolution review. The wide viewport keeps
-        stable navigator and list widths rather than stretching labels into sparse technical prose;
-        the editor remains dominant and all task controls stay aligned in the compact command row.
+        Accepted by the active main agent after original-resolution review of the complete bundle.
+        The normal 1920/2560/3840 composition pairs saved Record/Layout values with the linked
+        response graph. Table saving and save-error now devote the first view to the complete form,
+        status or recovery action and both draft actions; the graph is suppressed only for those
+        transient states, so no control is clipped or hidden behind a distant rail.
     product_owner_approval:
       status: absent
   - id: administration-table-edit-draft-1366x768
@@ -1334,8 +1346,8 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1366x768.png
     measurements: docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1366x768.measurements.json
     family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: e95e21879f7877d4054a263005df835da8fb86a2d487e8375ccc463e751c758e
-    date: 2026-07-29
+    image_sha256: 9de662dd7dfa2453a66c0b0da830193b4061c25796406b3d88803f8ec5fc8c69
+    date: 2026-07-30
     status: pending
     main_agent_evaluation:
       status: accepted
@@ -1356,8 +1368,8 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1440x900.png
     measurements: docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1440x900.measurements.json
     family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: 91edbc0bc8913832ee5f48f495e38d570a725407baaf76fa5bcb278b7d17c34f
-    date: 2026-07-29
+    image_sha256: 2390d47c2b9828f9aa4ae2a0d47d1829b2b4567c2584f13aac5863d0561cb284
+    date: 2026-07-30
     status: pending
     main_agent_evaluation:
       status: accepted
@@ -1378,15 +1390,16 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1920x1080.png
     measurements: docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1920x1080.measurements.json
     family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: c8102c5e056a9848e7788aae183864fa65e774fad830eb96da62aad9a3cc46c3
-    date: 2026-07-29
+    image_sha256: fdee83cea91e0375bc59eb5594972cf096e642f7a293ff947e49812226f28ad0
+    date: 2026-07-30
     status: pending
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted by the active main agent after original-resolution review. The bounded form avoids
-        overlong controls at the wide viewport, preserves the same three-pane topology and leaves
-        deliberate working space without weakening field-to-action continuity.
+        Accepted by the active main agent after original-resolution review. The immutable-revision
+        form remains primary and the saved linked graph remains available in the normal draft.
+        During saving and save-error, the complete form, feedback, recovery and draft action rows fit
+        the first view while the synchronized Record/Layout preview remains truthful.
     product_owner_approval:
       status: absent
   - id: administration-attribute-edit-draft-1366x768
@@ -1400,15 +1413,16 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1366x768.png
     measurements: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1366x768.measurements.json
     family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: e037e9b409bd3a16bafa4e4287454c2a3a2372a06b6d92c47fd8b5fd80ab47b7
-    date: 2026-07-29
+    image_sha256: e6682346823355eb99da5eb72eb5c795a31b4847a025d5f554a572e607d7dfd0
+    date: 2026-07-30
     status: pending
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted by the active main agent after original-resolution review. Number semantics,
-        normalized unit, optional range, entry guidance and requiredness remain legible in one local
-        editor scroll region, with the selected Attribute and Table scope continuously visible.
+        Accepted by the active main agent after original-resolution review. The Attribute list exposes
+        only Name, canonical Value type and Rev while number semantics, normalized unit, optional
+        range, entry guidance and requiredness remain legible in the adjacent local editor. Genuine
+        overflow exposes a proportional, keyboard-operable scroll position without covering fields.
     product_owner_approval:
       status: absent
   - id: administration-attribute-edit-draft-1440x900
@@ -1422,15 +1436,16 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1440x900.png
     measurements: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1440x900.measurements.json
     family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: e0f2ee98460f5ef5d5669aa37f26391763e3fc09085a314d85b2448dc3f02d11
-    date: 2026-07-29
+    image_sha256: 3db6cd5a26221bf62d13bcedd07c7d3a309df3984ef81914a5828da47f9a1a62
+    date: 2026-07-30
     status: pending
     main_agent_evaluation:
       status: accepted
       notes: >-
         Accepted by the active main agent after original-resolution review. The typed Attribute
         editor uses compact row alignment and quiet helper text rather than technical badges or
-        card stacking, while Save new revision has one clear governed consequence.
+        card stacking, while Save new revision has one clear governed consequence. The local scroll
+        rail appears only where the complete form genuinely exceeds the available pane height.
     product_owner_approval:
       status: absent
   - id: administration-attribute-edit-draft-1920x1080
@@ -1444,15 +1459,16 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1920x1080.png
     measurements: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1920x1080.measurements.json
     family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: 228757c2613d8dc552ec10db510780bb0ed0bae45a400c2122d0e0035117de32
-    date: 2026-07-29
+    image_sha256: 2ab1f05490239ff9a77c7495af90fdb65d21df951c9eb0657171e0684dab21ae
+    date: 2026-07-30
     status: pending
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted by the active main agent after original-resolution review. The wide screen keeps a
-        disciplined 760 px editor measure and dense 12–13 px schema text, so engineering semantics
-        remain scan-friendly instead of expanding into a sparse dashboard.
+        Accepted by the active main agent after original-resolution review. The typed Attribute form
+        remains disciplined, its value type and unit semantics stay visible, and the saved
+        Record/Layout projection is clearly read-only. The corrected sibling Table recovery states
+        no longer clip actions, so the family-level state gate is satisfied.
     product_owner_approval:
       status: absent
   - id: administration-edit-stale-conflict-1440x900
@@ -1470,8 +1486,8 @@ references:
       - docs/17-evidence/images/issue-167-service-reference/administration-edit-stale-conflict-1440x900.png
       - docs/17-evidence/images/issue-167-service-reference/administration-edit-stale-conflict-1920x1080.png
     family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: 7a6befe06cf47a5eacbbe552658258d88e87336c57957832908a45b9a58b9d9e
-    date: 2026-07-29
+    image_sha256: e64c034fb1ad3fd6428ca319d91bde6ec7c675b95b5332d7cb2db49a9552cd21
+    date: 2026-07-30
     status: pending
     main_agent_evaluation:
       status: accepted
@@ -1496,15 +1512,16 @@ references:
       - docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1440x900.png
       - docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1920x1080.png
     family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: eaf1e78c4be5e5c488f81f494144ff4d8464cd962768a969bc58a18d3a9ce766
-    date: 2026-07-29
+    image_sha256: 51157e7802a56e093d228a74770cd43b6ad85bc7cb4be2161eca1859087f3994
+    date: 2026-07-30
     status: pending
     main_agent_evaluation:
-      status: accepted
+      status: rejected
       notes: >-
-        Accepted by the active main agent after original-resolution review. Long stored identities
-        remain available without covering the reserved pane rail, invalid fields are adjacent to
-        their recovery text, Save is truthfully disabled and only the editor scrolls while the
-        application shell, selected Attribute and status remain fixed.
+        Rejected after fresh read-only review and direct main-agent confirmation. The long invalid
+        draft description is incorrectly substituted into the center list's Name cell, where the
+        governed object identity must remain Material condition. The descriptive draft belongs only
+        in the editor field. Containment, recovery, disabled Save and local scrolling otherwise pass,
+        but this cumulative Name-column principle failure blocks the Administration family handoff.
     product_owner_approval:
       status: absent

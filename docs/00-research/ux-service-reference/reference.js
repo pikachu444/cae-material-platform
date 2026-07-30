@@ -5,6 +5,7 @@ const treeRows = [...document.querySelectorAll("#material-tree [role='treeitem']
 const resultRows = [...document.querySelectorAll("[data-result-row]")];
 const interactionStatus = document.querySelector("#interaction-status");
 const openDatasheet = document.querySelector("#open-datasheet");
+const resultsNextPage = document.querySelector("#results-next-page");
 const splitters = [...document.querySelectorAll(".splitter")];
 
 const setInteractionStatus = (message) => {
@@ -36,14 +37,58 @@ const focusTreeRow = (row) => {
   row.focus();
 };
 
-const selectTreeRow = (row) => {
-  if (!row) return;
+const setTreeSelection = (row) => {
   treeRows.forEach((candidate) => {
     const selected = candidate === row;
     candidate.classList.toggle("selected", selected);
     candidate.setAttribute("aria-selected", String(selected));
   });
-  document.body.dataset.selectedTreeId = row.id;
+  document.body.dataset.selectedTreeId = row?.id ?? "";
+};
+
+const updateSelectedContext = (row) => {
+  const fields = {
+    "#selected-name": row.dataset.name,
+    "#selected-grade": row.dataset.grade,
+    "#selected-description": row.dataset.description,
+    "#selected-family": row.dataset.family,
+    "#selected-status": row.dataset.status,
+    "#status-selection": `${row.dataset.name} · ${row.dataset.grade}`,
+  };
+
+  Object.entries(fields).forEach(([selector, value]) => {
+    const element = document.querySelector(selector);
+    if (element && value) element.textContent = value;
+  });
+};
+
+const selectResultRow = (row, { syncTree = true } = {}) => {
+  resultRows.forEach((candidate) => {
+    const selected = candidate === row;
+    candidate.classList.toggle("selected", selected);
+    candidate.setAttribute("aria-selected", String(selected));
+    candidate.tabIndex = selected ? 0 : -1;
+  });
+  updateSelectedContext(row);
+  document.body.dataset.selectedResult = row.dataset.grade ?? "";
+
+  if (syncTree) {
+    const matchingTreeRow = treeRows.find(
+      (candidate) => candidate.dataset.resultGrade === row.dataset.grade,
+    );
+    setTreeSelection(matchingTreeRow);
+  }
+};
+
+const selectTreeRow = (row) => {
+  if (!row) return;
+  setTreeSelection(row);
+  if (row.dataset.kind === "Record") {
+    const matchingResult = resultRows.find(
+      (candidate) => candidate.dataset.grade === row.dataset.resultGrade,
+    );
+    if (matchingResult) selectResultRow(matchingResult, { syncTree: false });
+  }
   setInteractionStatus(`${row.dataset.kind} ${row.querySelector(".tree-label")?.textContent ?? ""} selected`);
 };
 
@@ -79,33 +124,6 @@ treeRows.forEach((row) => {
   });
 });
 
-const updateSelectedContext = (row) => {
-  const fields = {
-    "#selected-name": row.dataset.name,
-    "#selected-grade": row.dataset.grade,
-    "#selected-description": row.dataset.description,
-    "#selected-family": row.dataset.family,
-    "#selected-status": row.dataset.status,
-    "#status-selection": `${row.dataset.name} · ${row.dataset.grade}`,
-  };
-
-  Object.entries(fields).forEach(([selector, value]) => {
-    const element = document.querySelector(selector);
-    if (element && value) element.textContent = value;
-  });
-};
-
-const selectResultRow = (row) => {
-  resultRows.forEach((candidate) => {
-    const selected = candidate === row;
-    candidate.classList.toggle("selected", selected);
-    candidate.setAttribute("aria-selected", String(selected));
-    candidate.tabIndex = selected ? 0 : -1;
-  });
-  updateSelectedContext(row);
-  document.body.dataset.selectedResult = row.dataset.grade ?? "";
-};
-
 const exposeDatasheetConsequence = (row) => {
   selectResultRow(row);
   document.body.dataset.datasheetConsequence = row.dataset.grade ?? "";
@@ -128,6 +146,11 @@ resultRows.forEach((row) => {
 openDatasheet?.addEventListener("click", () => {
   const selected = document.querySelector("[data-result-row][aria-selected='true']");
   if (selected) exposeDatasheetConsequence(selected);
+});
+
+resultsNextPage?.addEventListener("click", () => {
+  document.body.dataset.nextPageConsequence = "available-not-loaded";
+  setInteractionStatus("Next page available; page 2 is not loaded in this reference.");
 });
 
 splitters.forEach((splitter) => {

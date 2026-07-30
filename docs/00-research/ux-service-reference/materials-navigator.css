@@ -1,0 +1,216 @@
+/* Shared normal Materials navigator grammar.
+ *
+ * The exceptional MAT-EXP reference owns its own equivalent primitive.  This
+ * file is loaded only by the normal search and datasheet references so the two
+ * normal routes share one navigator treatment without changing frozen states.
+ */
+:root {
+  --navigator-scrollbar-size: 13px;
+  --navigator-tree-indent: 9px;
+}
+
+/* Added rails are layout-neutral for the frozen exceptional datasheet states. */
+html[data-materials-navigator-disabled="true"] .tree-scroll-shell {
+  display: contents;
+}
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] [hidden] {
+  display: none !important;
+}
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .scroll-shell {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .scroll-shell[data-scroll-y="true"] {
+  grid-template-columns: minmax(0, 1fr) var(--navigator-scrollbar-size);
+}
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .scroll-shell[data-scroll-x="true"] {
+  grid-template-rows: minmax(0, 1fr) var(--navigator-scrollbar-size);
+}
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .scroll-viewport {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  grid-row: 1;
+  grid-column: 1;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .scroll-viewport::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .app-scrollbar {
+  position: relative;
+  z-index: 4;
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid #c5d1d6;
+  background: #e7edef;
+  touch-action: none;
+  user-select: none;
+}
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .app-scrollbar-y {
+  grid-row: 1;
+  grid-column: 2;
+  border-width: 0 0 0 1px;
+}
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .app-scrollbar-x {
+  grid-row: 2;
+  grid-column: 1;
+  border-width: 1px 0 0;
+}
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .app-scrollbar-thumb {
+  position: absolute;
+  display: block;
+  border: 1px solid #526b78;
+  border-radius: 2px;
+  background: #6d8591;
+}
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .app-scrollbar-y .app-scrollbar-thumb {
+  top: 2px;
+  right: 2px;
+  left: 2px;
+  min-height: 36px;
+}
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .app-scrollbar-x .app-scrollbar-thumb {
+  top: 2px;
+  bottom: 2px;
+  left: 2px;
+  min-width: 36px;
+}
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .app-scrollbar:hover .app-scrollbar-thumb {
+  background: #526b78;
+}
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .app-scrollbar:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .app-scrollbar-corner {
+  display: none;
+  grid-row: 2;
+  grid-column: 2;
+  border-top: 1px solid #c5d1d6;
+  border-left: 1px solid #c5d1d6;
+  background: #e7edef;
+}
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .scroll-shell[data-scroll-x="true"][data-scroll-y="true"] .app-scrollbar-corner {
+  display: block;
+}
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-scroll-shell {
+  min-height: 0;
+}
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-scroll {
+  min-width: 0;
+  min-height: 0;
+}
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .material-tree {
+  /* The short normal tree fills the viewport without a fractional scrollbar;
+   * long identities still extend the row's max-content minimum and therefore
+   * produce the reserved horizontal rail when required. */
+  width: 100%;
+  min-width: 0;
+  padding: 3px 4px 5px 0;
+}
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-row {
+  width: 100%;
+  min-width: max-content;
+  grid-template-columns: 12px 14px max-content;
+  padding-right: 8px;
+}
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-disclosure {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-kind {
+  grid-row: 1;
+  grid-column: 2;
+}
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-label {
+  grid-row: 1;
+  grid-column: 3;
+}
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-row.depth-0 { padding-left: 6px; }
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-row.depth-1 { padding-left: 15px; }
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-row.depth-2 { padding-left: 24px; }
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-row.depth-3 { padding-left: 33px; }
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-row.depth-4 { padding-left: 42px; }
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-row.depth-5 { padding-left: 51px; }
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-row.depth-6 { padding-left: 60px; }
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-row.depth-7 { padding-left: 69px; }
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-kind {
+  display: grid;
+  width: 14px;
+  height: 14px;
+  margin-left: 1px;
+  place-items: center;
+  color: var(--muted);
+  font-size: 0;
+  line-height: 1;
+  text-align: center;
+}
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-kind::before {
+  font-size: 12px;
+  line-height: 1;
+}
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-kind[data-kind="Database"]::before { content: "▦"; }
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-kind[data-kind="Profile"]::before { content: "◇"; }
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-kind[data-kind="Table"]::before { content: "▤"; }
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-kind[data-kind="Folder"]::before { content: "▰"; font-size: 10px; }
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-kind[data-kind="Record"]::before { content: "▪"; font-size: 13px; }
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-label {
+  min-width: max-content;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+/* The selected state is carried by the row accent, never by a visible type prefix. */
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-row[aria-selected="true"] .tree-kind::before {
+  content: initial;
+}
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-row[aria-selected="true"] .tree-kind[data-kind="Database"]::before { content: "▦"; }
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-row[aria-selected="true"] .tree-kind[data-kind="Profile"]::before { content: "◇"; }
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-row[aria-selected="true"] .tree-kind[data-kind="Table"]::before { content: "▤"; }
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-row[aria-selected="true"] .tree-kind[data-kind="Folder"]::before { content: "▰"; font-size: 10px; }
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-row[aria-selected="true"] .tree-kind[data-kind="Record"]::before { content: "▪"; font-size: 13px; }
+
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-row:focus-visible,
+html:not([data-materials-navigator-disabled="true"]) body[data-materials-navigator="normal"] .tree-scroll:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}

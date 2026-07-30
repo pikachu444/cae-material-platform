@@ -4,7 +4,7 @@
   "state": "empty",
   "viewport": "1920x1080",
   "image": "docs/17-evidence/images/issue-167-service-reference/administration-database-empty-1920x1080.png",
-  "sha256": "b199830e8c5870b1775eb529b161fa0c99a326291037f67d7ae2ba7cef863474",
+  "sha256": "514bdd0e3256819eb606b0ad5aa9849ec840e000fd0aadfe628adc1a05360073",
   "dimensions": {
     "width": 1920,
     "height": 1080
@@ -47,6 +47,24 @@
         "y": 113,
         "width": 1256,
         "height": 930
+      },
+      "editorScroll": {
+        "x": 651,
+        "y": 113,
+        "width": 820,
+        "height": 360
+      },
+      "preview": {
+        "x": 1471,
+        "y": 113,
+        "width": 436,
+        "height": 360
+      },
+      "statusBar": {
+        "x": 13,
+        "y": 1043,
+        "width": 1894,
+        "height": 28
       },
       "editor": null,
       "content": {
@@ -128,15 +146,9 @@
       },
       {
         "tag": "button",
-        "name": "Preview datasheet",
+        "name": "Hide datasheet preview",
         "disabled": false,
         "action": "preview"
-      },
-      {
-        "tag": "button",
-        "name": "Add Table",
-        "disabled": false,
-        "action": "add-table"
       },
       {
         "tag": "button",
@@ -184,10 +196,16 @@
         "tag": "button",
         "name": "Add Table",
         "disabled": false,
-        "action": "add-table"
+        "action": "add-object"
       }
     ],
     "nestedInteractive": [],
+    "listColumns": [
+      "Name",
+      "Rev"
+    ],
+    "listRows": [],
+    "objectNameSecondaryCount": 0,
     "panes": {
       "navigatorOverflowY": "hidden",
       "listOverflowY": "auto",
@@ -201,66 +219,210 @@
         "scrollWidth": 352,
         "clientWidth": 352,
         "overflowY": "auto",
-        "scrollbarGutter": "stable"
+        "scrollbarGutter": "stable",
+        "reservedScrollbarWidth": 12
       },
       "editor": {
-        "scrollHeight": 930,
-        "clientHeight": 930,
+        "scrollHeight": 360,
+        "clientHeight": 360,
         "scrollTop": 0,
-        "scrollWidth": 1244,
-        "clientWidth": 1244,
+        "scrollWidth": 808,
+        "clientWidth": 808,
         "overflowY": "auto",
-        "scrollbarGutter": "stable"
+        "scrollbarGutter": "stable",
+        "scrollbarColor": "auto",
+        "reservedScrollbarWidth": 12
+      },
+      "preview": {
+        "scrollHeight": 360,
+        "clientHeight": 360,
+        "scrollTop": 0,
+        "scrollWidth": 406,
+        "clientWidth": 406,
+        "overflowY": "hidden",
+        "scrollbarGutter": "stable",
+        "reservedScrollbarWidth": 12
+      },
+      "previewTables": [
+        null,
+        null
+      ],
+      "editorRail": {
+        "hidden": true,
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "thumbRect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "ariaMin": 0,
+        "ariaMax": 0,
+        "ariaNow": 0
       }
     },
     "editorMode": "",
+    "editorTitle": "",
+    "selectedRow": null,
     "fields": [],
     "errors": [],
+    "preview": {
+      "visible": true,
+      "open": true,
+      "commandLabel": "Hide preview",
+      "title": "No preview available",
+      "subtitle": "",
+      "record": "",
+      "table": "",
+      "selection": "",
+      "note": "Create a Table, then configure its Layout to preview a saved Record.",
+      "sections": [],
+      "valueRows": [],
+      "layoutRows": [],
+      "graph": {
+        "visible": false,
+        "section": null,
+        "frame": null,
+        "plotBox": null,
+        "title": "",
+        "description": "",
+        "axisTitles": [],
+        "ticks": [],
+        "viewBox": [
+          0
+        ],
+        "rendered": {
+          "width": 0,
+          "height": 0
+        },
+        "plotArea": {
+          "left": 0,
+          "right": 0,
+          "top": 0,
+          "bottom": 0
+        },
+        "path": {
+          "d": "",
+          "left": 0,
+          "right": 0,
+          "top": 0,
+          "bottom": 0
+        },
+        "series": {
+          "minStrain": 0,
+          "maxStrain": 0,
+          "minStressMpa": 0,
+          "maxStressMpa": 0
+        },
+        "axis": {
+          "headroomRatio": 0,
+          "maxStrain": 0,
+          "maxStressMpa": 0
+        },
+        "artifactId": "",
+        "artifactSha256": "",
+        "curveSelected": false
+      },
+      "layoutRevisionId": "",
+      "recordRevisionId": "",
+      "recordTableRevisionId": "",
+      "toggleLabel": "",
+      "projectionState": "unavailable",
+      "text": "RECORD PREVIEW No preview available Create a Table, then configure its Layout to preview a saved Record."
+    },
     "buttons": [
       {
         "name": "Refresh",
         "action": "refresh",
-        "disabled": false
+        "disabled": false,
+        "rect": {
+          "x": 1717.28125,
+          "y": 68.5,
+          "width": 65.46875,
+          "height": 30
+        }
       },
       {
-        "name": "Preview datasheet",
+        "name": "Hide preview",
         "action": "preview",
-        "disabled": false
-      },
-      {
-        "name": "Add Table",
-        "action": "add-table",
-        "disabled": false
+        "disabled": false,
+        "rect": {
+          "x": 1790.75,
+          "y": 68.5,
+          "width": 98.25,
+          "height": 30
+        }
       },
       {
         "name": "Tables5",
         "action": "",
-        "disabled": false
+        "disabled": false,
+        "rect": {
+          "x": 13,
+          "y": 153,
+          "width": 260,
+          "height": 28
+        }
       },
       {
         "name": "Attributes18",
         "action": "",
-        "disabled": false
+        "disabled": false,
+        "rect": {
+          "x": 13,
+          "y": 181,
+          "width": 260,
+          "height": 28
+        }
       },
       {
         "name": "Layouts3",
         "action": "",
-        "disabled": false
+        "disabled": false,
+        "rect": {
+          "x": 13,
+          "y": 209,
+          "width": 260,
+          "height": 28
+        }
       },
       {
         "name": "Subsets4",
         "action": "",
-        "disabled": false
+        "disabled": false,
+        "rect": {
+          "x": 13,
+          "y": 237,
+          "width": 260,
+          "height": 28
+        }
       },
       {
         "name": "Link Types2",
         "action": "",
-        "disabled": false
+        "disabled": false,
+        "rect": {
+          "x": 13,
+          "y": 265,
+          "width": 260,
+          "height": 28
+        }
       },
       {
         "name": "Add Table",
-        "action": "add-table",
-        "disabled": false
+        "action": "add-object",
+        "disabled": false,
+        "rect": {
+          "x": 673,
+          "y": 235.1875,
+          "width": 83.875,
+          "height": 30
+        }
       }
     ],
     "conditional": {
@@ -281,7 +443,7 @@
       "rootOverflowX": "visible",
       "rootOverflowY": "visible"
     },
-    "pageText": "Skip to database design CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator \u00b7 Atlas workspace Database design Atlas workspace \u00b7 materials catalog Ready Refresh Preview datasheet Add Table Schema objects 5 types Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 2 Selection retained on refresh Tables 0 items Name Definition Rev No Tables yet Add a Table to define the catalog shape. No Table selected Choose a Table when one is available. Waiting for a Table Use Add Table to define the first governed Table in this workspace. Add Table Tables \u00b7 Materials master Table-scoped definitions Local pane scrolling Online"
+    "pageText": "Skip to database design CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator \u00b7 Atlas workspace Database design Atlas workspace \u00b7 materials catalog Ready Refresh Hide preview Schema objects 5 types Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 2 Selection retained on refresh Tables 0 items Name Rev No Tables yet Add a Table to define the catalog shape. No Table selected Choose a Table when one is available. Waiting for a Table Use Add Table to define the first governed Table in this workspace. Add Table RECORD PREVIEW No preview available Create a Table, then configure its Layout to preview a saved Record. Tables \u00b7 Materials master Table-scoped definitions Local pane scrolling Online"
   },
   "console_errors": [],
   "page_errors": []

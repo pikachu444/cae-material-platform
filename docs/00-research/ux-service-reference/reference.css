@@ -777,3 +777,65 @@ select {
     --context-width: 300px;
   }
 }
+
+/* The normal MAT-EXP page uses a complete scoped server page. Keep its rows in
+ * an independent viewport so the header, range and page consequence stay in
+ * view while the real data carries the vertical workspace. */
+body[data-materials-navigator="normal"] .results-pane {
+  grid-template-rows: 32px minmax(0, 1fr) 40px;
+}
+
+body[data-materials-navigator="normal"] .results-scroll-shell {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+body[data-materials-navigator="normal"] .results-table-scroll {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+body[data-materials-navigator="normal"] .results-table {
+  min-width: 0;
+}
+
+body[data-materials-navigator="normal"] .results-pagination {
+  display: flex;
+  min-width: 0;
+  height: 100%;
+  align-items: center;
+  gap: 10px;
+  padding: 0 10px;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+body[data-materials-navigator="normal"] .pagination-spacer {
+  flex: 1;
+}
+
+body[data-materials-navigator="normal"] #results-next-consequence {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+body[data-materials-navigator="normal"] .results-pagination .button {
+  flex: 0 0 auto;
+  height: 26px;
+  padding: 0 9px;
+  font-size: 11.5px;
+}
+
+@media (max-width: 1399px) {
+  body[data-materials-navigator="normal"] .results-pane {
+    grid-template-rows: 32px minmax(0, 1fr) 52px;
+  }
+}

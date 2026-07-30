@@ -223,6 +223,25 @@ Rules:
 - no nested persistent cards;
 - selection uses a flat background plus a 2–3 px accent edge.
 
+### 3.4 Wide-screen allocation
+
+Responsive layout uses semantic elasticity rather than uniform scaling:
+
+- `bounded rails`: navigator, object list, compact setup controls and property forms keep readable
+  widths and density;
+- `elastic results`: graph, data grid, native solver-card preview and real datasheet/Record preview
+  consume the useful remaining region;
+- `companion evidence`: a wide-only adjacent region is permitted only when it projects the current
+  Layout, Record, mapping, curve or workflow contract and remains synchronized with the selection;
+- `no filler`: repeated descriptions, decorative summaries and fabricated engineering fields never
+  occupy a wide region;
+- `plot geometry`: render width and height, viewBox, axes, ticks, paths and hit regions share one
+  recomputed coordinate system. CSS must not stretch an SVG differently on each axis.
+
+Registered normal targets remain 1366×768, 1440×900 and 1920×1080. Each materially expanding family
+also records deterministic 2560×1440 and 3840×2160 evidence; those evidence captures become separate
+approval targets only when the responsive topology changes beyond the registered 1920 target.
+
 ## 4. Materials workspace
 
 ### 4.1 Layout
@@ -267,7 +286,7 @@ Browse mode contains:
 - Database/Profile/Table selectors;
 - local tree search;
 - compact 24–26 px rows;
-- node glyph, disclosure, label;
+- node glyph, disclosure and label on one grid row with a shared vertical center;
 - full keyboard navigation;
 - independent scroll;
 - concise stored identities rather than qualification prose repeated in every node;
@@ -304,6 +323,11 @@ Behavior:
 
 No explanatory banner is displayed above the grid. Search state stays in the query bar and the
 server result count stays with the result grid.
+
+Large-display normal evidence uses a complete scoped server page when the response provides one.
+The current Material search page limit is 50 rows. A smaller genuinely returned final page may
+remain sparse, but a six-row synthetic fixture must not be used to excuse avoidable blank space at
+1920×1080, 2560×1440 or 3840×2160.
 
 ### 4.4 Inspector
 
@@ -352,7 +376,16 @@ Property | Value | Unit | Condition | Source
 - original and normalized unit/value can be toggled;
 - administrator-defined Layout order is preserved.
 
-### 5.4 Related and workflow
+### 5.4 Representative response
+
+The Overview response plot and any wide-screen point grid are two projections of one ordered linked
+series. The grid uses `Point | Engineering strain | Engineering stress (MPa)` for the current
+synthetic metal reference and changes its quantities and units with the response family. It appears
+at 1920×1080 and above only when it can sit beside a still-dominant plot. Its rows are exact source
+points, not sampled pixels or fitted/interpolated values. Real overflow gets an independent visible,
+proportional and keyboard-operable local scrollbar; when every row fits, no decorative rail remains.
+
+### 5.5 Related and workflow
 
 The Related tab contains two synchronized views:
 
@@ -509,6 +542,9 @@ Administration must resemble a schema/property editor, not a landing page with t
 
 - Table selection updates Attribute/Layout/Subset/Link Type lists in context;
 - Add/Edit/Duplicate/Delete are command-bar actions;
+- the Object list is a compact selector: its Name cell contains only identity, Table rows use
+  `Name | Rev`, Attribute rows use `Name | Value type | Rev`, and full description/quantity/unit/help
+  remains in the property editor;
 - Attribute editor is a structured property sheet;
 - Layout editor supports ordered rows and drag/reorder commands;
 - Link Type editor displays source table, target table, direction labels, cardinality and revision binding;
@@ -516,13 +552,14 @@ Administration must resemble a schema/property editor, not a landing page with t
 
 ### 7.3 Current DUI-07 capability boundary
 
-The current service can add Tables, typed Attributes, default Attribute-order Layouts, the initial
-saved Subset, and Link Types. Therefore the command bar shows only those **Add** commands and
-datasheet preview. Existing definitions are shown as read-only with their purpose and current
-decision-relevant properties; it must not show an Edit, Duplicate, Delete, or reorder command until
-the corresponding live API preserves the immutable revision contract. Attribute fields are conditional
-on the selected type: numeric meaning/unit, discrete choices, and related Table do not occupy the
-normal property sheet unless applicable.
+The service contracts can create Tables, typed Attributes, ordered Layouts, saved Subsets and Link
+Types, and can append immutable revisions to their stable identities. The current PR #156 product
+route wires the supported **Add** commands and datasheet preview but does not yet wire every revise
+operation. The #167 target reference may show a contract-backed Edit draft for the later React port,
+but the same bundle must also exercise Add Table and Add Attribute as real right-pane draft states.
+It must not show Duplicate, Delete, Publish or reorder commands until their complete live workflow is
+implemented. Attribute fields are conditional on the selected type: numeric meaning/unit, discrete
+choices, and related Table do not occupy the normal property sheet unless applicable.
 
 Current visible-field contracts:
 
@@ -530,6 +567,7 @@ Current visible-field contracts:
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Object navigator | change the schema object being inspected | 220–280 px left pane | Administrator in Database design | current Table and definition lists | readable Administration scope | changes the list/detail selection only | loading, empty, selected, error | retain Table selection; refresh |
 | Current table | scope Attributes, Layouts and Subsets to one Table | navigator footer | one or more Tables exist | configurable Table API | selected Table | replaces scoped lists and selected detail only | loading, selected, empty, error | restore last valid Table or choose another |
+| Object list row | identify and select one schema object without duplicating its property sheet | 280–420 px center pane | one or more objects exist for the selected family/scope | current definition list response | readable object identity | changes only selected detail | selected, unselected, long identity, empty | keep identity reachable; remove non-decision prose rather than compressing it |
 | Property sheet | inspect a definition or provide values for one supported new definition | flexible right pane | selected object or Add command | immutable definition revision and local draft | Administrator and required fields | unsaved draft affects preview only; save creates a new definition | read-only, draft, saving, saved, blocked, error | preserve draft and field error; close or retry |
 | Link Type direction | make a record relationship understandable before saving | Link Type property sheet | Link Type selected or being added | selected source/target Table revisions | both Tables and direction/cardinality values | saving creates a new Link Type; no existing relation changes | read-only, draft, saving, saved, error | keep entered labels and retry |
 

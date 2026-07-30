@@ -34,8 +34,8 @@
             <div class="task-actions" data-region="task-commands">
               <span class="task-status" role="status" aria-live="polite" data-task-status>Ready</span>
               <button type="button" class="button quiet" data-action="refresh">Refresh</button>
-              <button type="button" class="button quiet" data-action="preview">Preview datasheet</button>
-              <button type="button" class="button primary" data-action="add-table">Add Table</button>
+              <button type="button" class="button quiet" data-action="preview" data-preview-command aria-controls="datasheet-preview" aria-expanded="true">Preview datasheet</button>
+              <button type="button" class="button primary" data-action="add-object" data-add-object>Add Table</button>
             </div>
           </header>
 
@@ -68,7 +68,7 @@
             <section class="pane object-list-pane" id="object-list-pane" data-pane="list">
               <header class="pane-heading sticky-heading"><h2 data-list-heading>Tables</h2><span data-list-count>5 items</span></header>
               <div class="list-scroll" data-list-scroll tabindex="0" aria-label="Schema object list">
-                <div class="list-columns" aria-hidden="true"><span>Name</span><span>Definition</span><span>Rev</span></div>
+                <div class="list-columns is-identity-only" aria-hidden="true" data-list-columns><span>Name</span><span>Rev</span></div>
                 <div class="object-list" role="list" data-object-list></div>
                 <div class="list-empty" role="status" data-list-empty hidden><strong>No Tables yet</strong><span>Add a Table to define the catalog shape.</span></div>
                 <div class="list-loading" aria-busy="true" data-list-loading hidden><span></span><span></span><span></span><span></span></div>
@@ -78,7 +78,14 @@
             <div class="splitter" role="separator" aria-orientation="vertical" aria-label="Resize Object list pane" aria-controls="object-list-pane" tabindex="0" data-splitter="list" aria-valuemin="292" aria-valuemax="384" aria-valuenow="312"><span aria-hidden="true"></span></div>
 
             <section class="pane editor-pane" id="editor-pane" data-pane="editor" aria-label="Property editor">
-              <div class="editor-scroll" data-editor-scroll tabindex="0"></div>
+              <div class="editor-scroll" id="editor-scroll" data-editor-scroll tabindex="0"></div>
+              <div class="editor-scroll-rail" data-editor-scroll-rail role="scrollbar" aria-label="Scroll property editor" aria-controls="editor-scroll" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" tabindex="0" hidden>
+                <span class="editor-scroll-thumb" data-editor-scroll-thumb aria-hidden="true"></span>
+              </div>
+              <aside class="datasheet-preview" id="datasheet-preview" data-preview-panel aria-labelledby="datasheet-preview-title" hidden>
+                <div class="preview-scroll" data-preview-scroll tabindex="0"></div>
+              </aside>
+              <section class="editor-plot-band" data-preview-plot-band aria-label="Saved material response" hidden></section>
             </section>
           </section>
 

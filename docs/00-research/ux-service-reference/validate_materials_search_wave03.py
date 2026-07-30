@@ -50,10 +50,13 @@ LEGACY_SELECTORS = (
     "count-chip",
 )
 
-FROZEN_NORMAL_HASHES = {
-    "materials-search-normal-1366x768.png": "b1fc0cfeaaa0734e22d6678eef3ef6ca03cecdbce3d6588d8bee18f4a9572065",
-    "materials-search-normal-1440x900.png": "8f99dba3ec20cc75f29ab938dfa42682ff741ef624fcdd495b89fd673e49c53b",
-    "materials-search-normal-1920x1080.png": "b92757e5f80cbcd020f73d54af65cd700112497a76e40f412cfc0a60988ef191",
+FROZEN_APPROVED_EXCEPTIONAL_HASHES = {
+    "materials-search-long-1440x900.png": "43f146e60baf2d933265d952e22fce5cd0c1e2ca0e9145eea0e72a9677da2484",
+    "materials-search-long-1440x900.responsive-1366x768.png": "6e9b91ff80698c08d591b514bd491a682f618c4595ea7d9b11cb0f70bd66c504",
+    "materials-search-long-1440x900.responsive-1920x1080.png": "a8b387bf1dbc6327da02d494699d19022f89ac6e10c57e0b9922cae6fee96bb4",
+    "materials-search-empty-1440x900.png": "d9e4fed1d8c17ca86b7c14dfe57909591b44ff8ec300286bb49f3a940fb5e1b1",
+    "materials-search-empty-1440x900.responsive-1366x768.png": "2bb1798ab9a4d7438b4e2e274393e49cfe61b1329c2bc6e9dbe9a49624049025",
+    "materials-search-empty-1440x900.responsive-1920x1080.png": "9e1caed30c77fd8141fd64fe1a4b6dc3f2fa540841d791513a16c74753e71493",
 }
 
 
@@ -92,18 +95,15 @@ def load_measurement(target: str) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def validate_frozen_normals() -> None:
+def validate_frozen_approved_exceptional() -> None:
     expected_sizes = {"1366x768": (1366, 768), "1440x900": (1440, 900), "1920x1080": (1920, 1080)}
-    for name, expected_hash in FROZEN_NORMAL_HASHES.items():
+    for name, expected_hash in FROZEN_APPROVED_EXCEPTIONAL_HASHES.items():
         path = IMAGE_DIR / name
         if not path.is_file() or sha256(path) != expected_hash:
-            raise AssertionError(f"frozen normal image changed: {relative(path)}")
+            raise AssertionError(f"frozen approved exceptional image changed: {relative(path)}")
         token = name.rsplit("-", 1)[-1].removesuffix(".png")
         if png_dimensions(path) != expected_sizes[token]:
-            raise AssertionError(f"frozen normal dimensions changed: {relative(path)}")
-    for path in (REFERENCE_DIR / "materials-search-normal.html", REFERENCE_DIR / "reference.css", REFERENCE_DIR / "reference.js"):
-        if not path.is_file():
-            raise AssertionError(f"frozen normal source missing: {relative(path)}")
+            raise AssertionError(f"frozen approved exceptional dimensions changed: {relative(path)}")
 
 
 def validate_source() -> None:
@@ -266,7 +266,7 @@ def validate_all(expect_main_agent_status: str) -> None:
 
 def main() -> None:
     args = parse_args()
-    validate_frozen_normals()
+    validate_frozen_approved_exceptional()
     validate_source()
     if args.all_packet_targets:
         validate_all(args.expect_main_agent_status)

@@ -67,6 +67,30 @@ The application has four modes. These are workspaces, not separate mini-products
 - Data/control text: 13–13.5 px.
 - Metadata: 11.5–12 px.
 
+### 4.2.1 Wide-screen semantic elasticity
+
+The 1366×768 and 1440×900 references establish the compact safety topology; they are not a
+maximum-content template stretched across every larger display. At 1920×1080 and above, bounded
+navigator, list and form rails keep readable line lengths while the remaining space is assigned to
+the current engineering result or a contract-backed companion view.
+
+- Graphs, data grids, native previews and real Layout/Record previews may grow with the workspace.
+- Navigation rails, compact control bands and property forms remain bounded; their rows and prose
+  do not stretch merely to occupy pixels.
+- Additional wide-screen content must come from the same current record, layout, mapping, curve or
+  workflow projection. Explanatory filler, duplicated labels and invented technical metadata are not
+  accepted.
+- A large unassigned region is a qualitative failure when an existing contract-backed result or
+  companion view can use it. Sparse states may remain sparse when no truthful projection exists.
+- A normal pageable search reference uses a representative complete server page when that page is
+  already available from the scoped query. An intentionally under-filled demo fixture is not a
+  sparse-state exception and cannot justify a large empty result grid.
+- Responsive graph geometry is recomputed from the rendered plot box. SVG is acceptable when its
+  viewBox and marks use the same aspect ratio; non-uniform stretching is forbidden. Canvas or WebGL
+  is reserved for point density or interaction cost that SVG cannot meet, not for repairing layout.
+- 2560×1440 and 3840×2160 are deterministic wide-screen evidence viewports. They do not add approval
+  inventory items unless their topology differs materially from the registered 1920×1080 target.
+
 ### 4.3 Command hierarchy
 
 Commands are rendered according to scope.
@@ -122,8 +146,10 @@ A large bordered button is not the default representation for every action.
 - Breadcrumbs show hierarchy but do not replace the Tree.
 - Record selection must preserve exact revision context when opened from Evidence or a governed link.
 - A tree row shows the concise stored object identity. Database/Profile/Table/Folder/Record type is
-  conveyed by one aligned disclosure/glyph grammar; explanatory or qualification prose belongs in
-  adjacent context or a tooltip, not appended to every node name.
+  conveyed by one aligned disclosure/glyph grammar. Disclosure, type glyph and identity occupy the
+  same grid row and share one vertical center; implicit grid auto-placement must never put the glyph
+  on a second line. Explanatory or qualification prose belongs in adjacent context or a tooltip, not
+  appended to every node name.
 - A genuinely long stored identity remains one line and is reachable with a local horizontal
   scrollbar that appears only when the tree actually overflows. The vertical scrollbar appears when
   more rows exist than the local viewport can show. Both use reserved rails outside the text area.
@@ -182,6 +208,13 @@ Overview | Properties | Curves | CAE Cards | Evidence
 - Curves uses the engineering plot component and a compact curve list.
 - CAE Cards contains solver, law, version, unit system, mapping state and preview/download commands.
 - Evidence contains Related Records, workflow, revisions, provenance and technical identifiers.
+
+At 1920×1080 and above, a sparse representative curve does not expand indefinitely merely because
+the viewport is wider. When the exact current response points already exist in the same linked
+curve/Record projection, Overview pairs the dominant plot with a compact point grid. Plot and grid
+read one ordered point set; neither interpolates, resamples, smooths or invents a second series. The
+grid uses local scrolling only when its exact rows overflow and disappears as a separate companion
+when the compact viewport cannot preserve a useful plot.
 
 ## 6. Known Material to card flow
 
@@ -473,12 +506,25 @@ Administration must not use a card gallery for schema objects.
 
 ```text
 Select Table
-→ inspect/add Attribute Definition
+→ add or inspect an Attribute Definition
 → edit unit/quantity/value semantics
 → place Attribute in Layout
 → preview a real Record datasheet
 → publish revision
 ```
+
+The center Object list is a selector, not a second property sheet. Its `Name` cell contains only the
+schema-object identity. It never appends a clipped description, quantity sentence or help text to the
+name. Tables use `Name | Rev`; Attributes use `Name | Value type | Rev`. Full purpose, quantity,
+unit, entry guidance and validation remain in the adjacent property editor. A long identity may
+ellipsize inside the Name cell only when the complete value remains reachable.
+
+`Add Table` and `Add Attribute` replace only the right property editor with a new-definition draft;
+the object navigator, current Table scope and existing list remain visible. The new Attribute draft
+lets the Administrator choose its value type and exposes only the fields that apply to that type.
+After save, a configurable Record pins the exact Attribute Definition revisions used by its values.
+The Layout/Record preview must therefore demonstrate that administrator-selected Attributes, rather
+than a hard-coded default field set, determine the visible datasheet and entry fields.
 
 Link Type flow:
 
@@ -490,6 +536,13 @@ Select source/target Tables
 → publish
 → test through Related Records
 ```
+
+The link workflow must not imply a universal one-to-one chain. Link Types expose independently
+configured `one` or `many` cardinality at each endpoint, and each saved Record Link pins both exact
+Record revisions. The engineering workflow may branch from one exact Test Data/Processing Output
+into several independently saved fit/model/Neutral revisions, and one exact Neutral/model revision
+may produce several solver/version/unit-specific Solver Cards. The Related test and workflow graph
+must preserve and expose those branches without replacing exact links with `latest`.
 
 Draft edits stay local to the draft revision until Save/Publish. The property editor indicates dirty fields and validation errors at field level.
 

@@ -1,6 +1,6 @@
 {
   "target": "materials-datasheet-overview-normal-1920x1080",
-  "capture_date": "2026-07-29",
+  "capture_date": "2026-07-30",
   "viewport": {
     "width": 1920,
     "height": 1080,
@@ -68,6 +68,7 @@
   "visible_splitter_count": 1,
   "tree": {
     "horizontal_overflow": 0,
+    "vertical_overflow": 0,
     "all_tree_kind_right_edges_within_content": true,
     "tree_kind_labels": [
       "Database",
@@ -78,7 +79,288 @@
       "Record",
       "Record"
     ],
-    "tree_kind_labels_match": true
+    "tree_kind_labels_match": true,
+    "identities": [
+      {
+        "expected": "Database",
+        "actual": "Database",
+        "identity": "Materials Database",
+        "title": "Materials Database",
+        "accessible_name": "Database: Materials Database",
+        "glyph_kind": "Database",
+        "glyph_title": "Database",
+        "glyph_font_size": "0px"
+      },
+      {
+        "expected": "Profile",
+        "actual": "Profile",
+        "identity": "Engineering Materials",
+        "title": "Engineering Materials",
+        "accessible_name": "Profile: Engineering Materials",
+        "glyph_kind": "Profile",
+        "glyph_title": "Profile",
+        "glyph_font_size": "0px"
+      },
+      {
+        "expected": "Table",
+        "actual": "Table",
+        "identity": "Demo Material Records",
+        "title": "Demo Material Records",
+        "accessible_name": "Table: Demo Material Records",
+        "glyph_kind": "Table",
+        "glyph_title": "Table",
+        "glyph_font_size": "0px"
+      },
+      {
+        "expected": "Folder",
+        "actual": "Folder",
+        "identity": "Synthetic metals",
+        "title": "Synthetic metals",
+        "accessible_name": "Folder: Synthetic metals",
+        "glyph_kind": "Folder",
+        "glyph_title": "Folder",
+        "glyph_font_size": "0px"
+      },
+      {
+        "expected": "Folder",
+        "actual": "Folder",
+        "identity": "Demo steels",
+        "title": "Demo steels",
+        "accessible_name": "Folder: Demo steels",
+        "glyph_kind": "Folder",
+        "glyph_title": "Folder",
+        "glyph_font_size": "0px"
+      },
+      {
+        "expected": "Record",
+        "actual": "Record",
+        "identity": "DP780 synthetic demo steel",
+        "title": "DP780 synthetic demo steel",
+        "accessible_name": "Record: DP780 synthetic demo steel",
+        "glyph_kind": "Record",
+        "glyph_title": "Record",
+        "glyph_font_size": "0px"
+      },
+      {
+        "expected": "Record",
+        "actual": "Record",
+        "identity": "DP600 synthetic demo steel",
+        "title": "DP600 synthetic demo steel",
+        "accessible_name": "Record: DP600 synthetic demo steel",
+        "glyph_kind": "Record",
+        "glyph_title": "Record",
+        "glyph_font_size": "0px"
+      }
+    ],
+    "row_alignment": [
+      {
+        "id": "tree-database",
+        "dom_child_class_order": [
+          "tree-disclosure",
+          "tree-label",
+          "tree-kind"
+        ],
+        "box_centers": {
+          "disclosure": {
+            "x": 20,
+            "y": 329.5
+          },
+          "kind": {
+            "x": 34,
+            "y": 329.5
+          },
+          "label": {
+            "x": 92.5625,
+            "y": 329.5
+          }
+        },
+        "maximum_center_delta": 0,
+        "css_grid_rows": {
+          "disclosure": "1",
+          "kind": "1",
+          "label": "1"
+        },
+        "all_three_same_css_grid_row": true
+      },
+      {
+        "id": "tree-profile",
+        "dom_child_class_order": [
+          "tree-disclosure",
+          "tree-label",
+          "tree-kind"
+        ],
+        "box_centers": {
+          "disclosure": {
+            "x": 29,
+            "y": 354.5
+          },
+          "kind": {
+            "x": 43,
+            "y": 354.5
+          },
+          "label": {
+            "x": 108.796875,
+            "y": 354.5
+          }
+        },
+        "maximum_center_delta": 0,
+        "css_grid_rows": {
+          "disclosure": "1",
+          "kind": "1",
+          "label": "1"
+        },
+        "all_three_same_css_grid_row": true
+      },
+      {
+        "id": "tree-table",
+        "dom_child_class_order": [
+          "tree-disclosure",
+          "tree-label",
+          "tree-kind"
+        ],
+        "box_centers": {
+          "disclosure": {
+            "x": 38,
+            "y": 379.5
+          },
+          "kind": {
+            "x": 52,
+            "y": 379.5
+          },
+          "label": {
+            "x": 122.5625,
+            "y": 379.5
+          }
+        },
+        "maximum_center_delta": 0,
+        "css_grid_rows": {
+          "disclosure": "1",
+          "kind": "1",
+          "label": "1"
+        },
+        "all_three_same_css_grid_row": true
+      },
+      {
+        "id": "tree-metals",
+        "dom_child_class_order": [
+          "tree-disclosure",
+          "tree-label",
+          "tree-kind"
+        ],
+        "box_centers": {
+          "disclosure": {
+            "x": 47,
+            "y": 404.5
+          },
+          "kind": {
+            "x": 61,
+            "y": 404.5
+          },
+          "label": {
+            "x": 111.96875,
+            "y": 404.5
+          }
+        },
+        "maximum_center_delta": 0,
+        "css_grid_rows": {
+          "disclosure": "1",
+          "kind": "1",
+          "label": "1"
+        },
+        "all_three_same_css_grid_row": true
+      },
+      {
+        "id": "tree-steels",
+        "dom_child_class_order": [
+          "tree-disclosure",
+          "tree-label",
+          "tree-kind"
+        ],
+        "box_centers": {
+          "disclosure": {
+            "x": 56,
+            "y": 429.5
+          },
+          "kind": {
+            "x": 70,
+            "y": 429.5
+          },
+          "label": {
+            "x": 109.8828125,
+            "y": 429.5
+          }
+        },
+        "maximum_center_delta": 0,
+        "css_grid_rows": {
+          "disclosure": "1",
+          "kind": "1",
+          "label": "1"
+        },
+        "all_three_same_css_grid_row": true
+      },
+      {
+        "id": "tree-dp780",
+        "dom_child_class_order": [
+          "tree-disclosure",
+          "tree-label",
+          "tree-kind"
+        ],
+        "box_centers": {
+          "disclosure": {
+            "x": 68,
+            "y": 454.5
+          },
+          "kind": {
+            "x": 82,
+            "y": 454.5
+          },
+          "label": {
+            "x": 164.6015625,
+            "y": 454.5
+          }
+        },
+        "maximum_center_delta": 0,
+        "css_grid_rows": {
+          "disclosure": "1",
+          "kind": "1",
+          "label": "1"
+        },
+        "all_three_same_css_grid_row": true
+      },
+      {
+        "id": "tree-dp600",
+        "dom_child_class_order": [
+          "tree-disclosure",
+          "tree-label",
+          "tree-kind"
+        ],
+        "box_centers": {
+          "disclosure": {
+            "x": 65,
+            "y": 479.5
+          },
+          "kind": {
+            "x": 79,
+            "y": 479.5
+          },
+          "label": {
+            "x": 161.6015625,
+            "y": 479.5
+          }
+        },
+        "maximum_center_delta": 0,
+        "css_grid_rows": {
+          "disclosure": "1",
+          "kind": "1",
+          "label": "1"
+        },
+        "all_three_same_css_grid_row": true
+      }
+    ],
+    "rails": {
+      "horizontal": false,
+      "vertical": false
+    }
   },
   "selected_tree_rows": 1,
   "selected_record": true,
@@ -116,7 +398,10 @@
         "empty_context": null,
         "main": 1319,
         "aside": 300,
-        "plot": 1295
+        "plot": 953,
+        "response_layout": 1295,
+        "grid": 340,
+        "plot_height": 457
       },
       "aria": {
         "minimum": 200,
@@ -126,8 +411,299 @@
       "active_tab": "Overview",
       "tree": {
         "horizontal_overflow": 0,
+        "vertical_overflow": 0,
         "all_tree_kind_right_edges_within_content": true,
-        "tree_kind_labels_match": true
+        "tree_kind_labels": [
+          "Database",
+          "Profile",
+          "Table",
+          "Folder",
+          "Folder",
+          "Record",
+          "Record"
+        ],
+        "tree_kind_labels_match": true,
+        "identities": [
+          {
+            "expected": "Database",
+            "actual": "Database",
+            "identity": "Materials Database",
+            "title": "Materials Database",
+            "accessible_name": "Database: Materials Database",
+            "glyph_kind": "Database",
+            "glyph_title": "Database",
+            "glyph_font_size": "0px"
+          },
+          {
+            "expected": "Profile",
+            "actual": "Profile",
+            "identity": "Engineering Materials",
+            "title": "Engineering Materials",
+            "accessible_name": "Profile: Engineering Materials",
+            "glyph_kind": "Profile",
+            "glyph_title": "Profile",
+            "glyph_font_size": "0px"
+          },
+          {
+            "expected": "Table",
+            "actual": "Table",
+            "identity": "Demo Material Records",
+            "title": "Demo Material Records",
+            "accessible_name": "Table: Demo Material Records",
+            "glyph_kind": "Table",
+            "glyph_title": "Table",
+            "glyph_font_size": "0px"
+          },
+          {
+            "expected": "Folder",
+            "actual": "Folder",
+            "identity": "Synthetic metals",
+            "title": "Synthetic metals",
+            "accessible_name": "Folder: Synthetic metals",
+            "glyph_kind": "Folder",
+            "glyph_title": "Folder",
+            "glyph_font_size": "0px"
+          },
+          {
+            "expected": "Folder",
+            "actual": "Folder",
+            "identity": "Demo steels",
+            "title": "Demo steels",
+            "accessible_name": "Folder: Demo steels",
+            "glyph_kind": "Folder",
+            "glyph_title": "Folder",
+            "glyph_font_size": "0px"
+          },
+          {
+            "expected": "Record",
+            "actual": "Record",
+            "identity": "DP780 synthetic demo steel",
+            "title": "DP780 synthetic demo steel",
+            "accessible_name": "Record: DP780 synthetic demo steel",
+            "glyph_kind": "Record",
+            "glyph_title": "Record",
+            "glyph_font_size": "0px"
+          },
+          {
+            "expected": "Record",
+            "actual": "Record",
+            "identity": "DP600 synthetic demo steel",
+            "title": "DP600 synthetic demo steel",
+            "accessible_name": "Record: DP600 synthetic demo steel",
+            "glyph_kind": "Record",
+            "glyph_title": "Record",
+            "glyph_font_size": "0px"
+          }
+        ],
+        "row_alignment": [
+          {
+            "id": "tree-database",
+            "dom_child_class_order": [
+              "tree-disclosure",
+              "tree-label",
+              "tree-kind"
+            ],
+            "box_centers": {
+              "disclosure": {
+                "x": 20,
+                "y": 329.5
+              },
+              "kind": {
+                "x": 34,
+                "y": 329.5
+              },
+              "label": {
+                "x": 92.5625,
+                "y": 329.5
+              }
+            },
+            "maximum_center_delta": 0,
+            "css_grid_rows": {
+              "disclosure": "1",
+              "kind": "1",
+              "label": "1"
+            },
+            "all_three_same_css_grid_row": true
+          },
+          {
+            "id": "tree-profile",
+            "dom_child_class_order": [
+              "tree-disclosure",
+              "tree-label",
+              "tree-kind"
+            ],
+            "box_centers": {
+              "disclosure": {
+                "x": 29,
+                "y": 354.5
+              },
+              "kind": {
+                "x": 43,
+                "y": 354.5
+              },
+              "label": {
+                "x": 108.796875,
+                "y": 354.5
+              }
+            },
+            "maximum_center_delta": 0,
+            "css_grid_rows": {
+              "disclosure": "1",
+              "kind": "1",
+              "label": "1"
+            },
+            "all_three_same_css_grid_row": true
+          },
+          {
+            "id": "tree-table",
+            "dom_child_class_order": [
+              "tree-disclosure",
+              "tree-label",
+              "tree-kind"
+            ],
+            "box_centers": {
+              "disclosure": {
+                "x": 38,
+                "y": 379.5
+              },
+              "kind": {
+                "x": 52,
+                "y": 379.5
+              },
+              "label": {
+                "x": 122.5625,
+                "y": 379.5
+              }
+            },
+            "maximum_center_delta": 0,
+            "css_grid_rows": {
+              "disclosure": "1",
+              "kind": "1",
+              "label": "1"
+            },
+            "all_three_same_css_grid_row": true
+          },
+          {
+            "id": "tree-metals",
+            "dom_child_class_order": [
+              "tree-disclosure",
+              "tree-label",
+              "tree-kind"
+            ],
+            "box_centers": {
+              "disclosure": {
+                "x": 47,
+                "y": 404.5
+              },
+              "kind": {
+                "x": 61,
+                "y": 404.5
+              },
+              "label": {
+                "x": 111.96875,
+                "y": 404.5
+              }
+            },
+            "maximum_center_delta": 0,
+            "css_grid_rows": {
+              "disclosure": "1",
+              "kind": "1",
+              "label": "1"
+            },
+            "all_three_same_css_grid_row": true
+          },
+          {
+            "id": "tree-steels",
+            "dom_child_class_order": [
+              "tree-disclosure",
+              "tree-label",
+              "tree-kind"
+            ],
+            "box_centers": {
+              "disclosure": {
+                "x": 56,
+                "y": 429.5
+              },
+              "kind": {
+                "x": 70,
+                "y": 429.5
+              },
+              "label": {
+                "x": 109.8828125,
+                "y": 429.5
+              }
+            },
+            "maximum_center_delta": 0,
+            "css_grid_rows": {
+              "disclosure": "1",
+              "kind": "1",
+              "label": "1"
+            },
+            "all_three_same_css_grid_row": true
+          },
+          {
+            "id": "tree-dp780",
+            "dom_child_class_order": [
+              "tree-disclosure",
+              "tree-label",
+              "tree-kind"
+            ],
+            "box_centers": {
+              "disclosure": {
+                "x": 68,
+                "y": 454.5
+              },
+              "kind": {
+                "x": 82,
+                "y": 454.5
+              },
+              "label": {
+                "x": 164.6015625,
+                "y": 454.5
+              }
+            },
+            "maximum_center_delta": 0,
+            "css_grid_rows": {
+              "disclosure": "1",
+              "kind": "1",
+              "label": "1"
+            },
+            "all_three_same_css_grid_row": true
+          },
+          {
+            "id": "tree-dp600",
+            "dom_child_class_order": [
+              "tree-disclosure",
+              "tree-label",
+              "tree-kind"
+            ],
+            "box_centers": {
+              "disclosure": {
+                "x": 65,
+                "y": 479.5
+              },
+              "kind": {
+                "x": 79,
+                "y": 479.5
+              },
+              "label": {
+                "x": 161.6015625,
+                "y": 479.5
+              }
+            },
+            "maximum_center_delta": 0,
+            "css_grid_rows": {
+              "disclosure": "1",
+              "kind": "1",
+              "label": "1"
+            },
+            "all_three_same_css_grid_row": true
+          }
+        ],
+        "rails": {
+          "horizontal": false,
+          "vertical": false
+        }
       },
       "overflow": {
         "document_horizontal": 0,
@@ -148,7 +724,10 @@
         "empty_context": null,
         "main": 1311,
         "aside": 300,
-        "plot": 1287
+        "plot": 945,
+        "response_layout": 1287,
+        "grid": 340,
+        "plot_height": 454
       },
       "aria": {
         "minimum": 200,
@@ -158,8 +737,299 @@
       "active_tab": "Overview",
       "tree": {
         "horizontal_overflow": 0,
+        "vertical_overflow": 0,
         "all_tree_kind_right_edges_within_content": true,
-        "tree_kind_labels_match": true
+        "tree_kind_labels": [
+          "Database",
+          "Profile",
+          "Table",
+          "Folder",
+          "Folder",
+          "Record",
+          "Record"
+        ],
+        "tree_kind_labels_match": true,
+        "identities": [
+          {
+            "expected": "Database",
+            "actual": "Database",
+            "identity": "Materials Database",
+            "title": "Materials Database",
+            "accessible_name": "Database: Materials Database",
+            "glyph_kind": "Database",
+            "glyph_title": "Database",
+            "glyph_font_size": "0px"
+          },
+          {
+            "expected": "Profile",
+            "actual": "Profile",
+            "identity": "Engineering Materials",
+            "title": "Engineering Materials",
+            "accessible_name": "Profile: Engineering Materials",
+            "glyph_kind": "Profile",
+            "glyph_title": "Profile",
+            "glyph_font_size": "0px"
+          },
+          {
+            "expected": "Table",
+            "actual": "Table",
+            "identity": "Demo Material Records",
+            "title": "Demo Material Records",
+            "accessible_name": "Table: Demo Material Records",
+            "glyph_kind": "Table",
+            "glyph_title": "Table",
+            "glyph_font_size": "0px"
+          },
+          {
+            "expected": "Folder",
+            "actual": "Folder",
+            "identity": "Synthetic metals",
+            "title": "Synthetic metals",
+            "accessible_name": "Folder: Synthetic metals",
+            "glyph_kind": "Folder",
+            "glyph_title": "Folder",
+            "glyph_font_size": "0px"
+          },
+          {
+            "expected": "Folder",
+            "actual": "Folder",
+            "identity": "Demo steels",
+            "title": "Demo steels",
+            "accessible_name": "Folder: Demo steels",
+            "glyph_kind": "Folder",
+            "glyph_title": "Folder",
+            "glyph_font_size": "0px"
+          },
+          {
+            "expected": "Record",
+            "actual": "Record",
+            "identity": "DP780 synthetic demo steel",
+            "title": "DP780 synthetic demo steel",
+            "accessible_name": "Record: DP780 synthetic demo steel",
+            "glyph_kind": "Record",
+            "glyph_title": "Record",
+            "glyph_font_size": "0px"
+          },
+          {
+            "expected": "Record",
+            "actual": "Record",
+            "identity": "DP600 synthetic demo steel",
+            "title": "DP600 synthetic demo steel",
+            "accessible_name": "Record: DP600 synthetic demo steel",
+            "glyph_kind": "Record",
+            "glyph_title": "Record",
+            "glyph_font_size": "0px"
+          }
+        ],
+        "row_alignment": [
+          {
+            "id": "tree-database",
+            "dom_child_class_order": [
+              "tree-disclosure",
+              "tree-label",
+              "tree-kind"
+            ],
+            "box_centers": {
+              "disclosure": {
+                "x": 20,
+                "y": 329.5
+              },
+              "kind": {
+                "x": 34,
+                "y": 329.5
+              },
+              "label": {
+                "x": 92.5625,
+                "y": 329.5
+              }
+            },
+            "maximum_center_delta": 0,
+            "css_grid_rows": {
+              "disclosure": "1",
+              "kind": "1",
+              "label": "1"
+            },
+            "all_three_same_css_grid_row": true
+          },
+          {
+            "id": "tree-profile",
+            "dom_child_class_order": [
+              "tree-disclosure",
+              "tree-label",
+              "tree-kind"
+            ],
+            "box_centers": {
+              "disclosure": {
+                "x": 29,
+                "y": 354.5
+              },
+              "kind": {
+                "x": 43,
+                "y": 354.5
+              },
+              "label": {
+                "x": 108.796875,
+                "y": 354.5
+              }
+            },
+            "maximum_center_delta": 0,
+            "css_grid_rows": {
+              "disclosure": "1",
+              "kind": "1",
+              "label": "1"
+            },
+            "all_three_same_css_grid_row": true
+          },
+          {
+            "id": "tree-table",
+            "dom_child_class_order": [
+              "tree-disclosure",
+              "tree-label",
+              "tree-kind"
+            ],
+            "box_centers": {
+              "disclosure": {
+                "x": 38,
+                "y": 379.5
+              },
+              "kind": {
+                "x": 52,
+                "y": 379.5
+              },
+              "label": {
+                "x": 122.5625,
+                "y": 379.5
+              }
+            },
+            "maximum_center_delta": 0,
+            "css_grid_rows": {
+              "disclosure": "1",
+              "kind": "1",
+              "label": "1"
+            },
+            "all_three_same_css_grid_row": true
+          },
+          {
+            "id": "tree-metals",
+            "dom_child_class_order": [
+              "tree-disclosure",
+              "tree-label",
+              "tree-kind"
+            ],
+            "box_centers": {
+              "disclosure": {
+                "x": 47,
+                "y": 404.5
+              },
+              "kind": {
+                "x": 61,
+                "y": 404.5
+              },
+              "label": {
+                "x": 111.96875,
+                "y": 404.5
+              }
+            },
+            "maximum_center_delta": 0,
+            "css_grid_rows": {
+              "disclosure": "1",
+              "kind": "1",
+              "label": "1"
+            },
+            "all_three_same_css_grid_row": true
+          },
+          {
+            "id": "tree-steels",
+            "dom_child_class_order": [
+              "tree-disclosure",
+              "tree-label",
+              "tree-kind"
+            ],
+            "box_centers": {
+              "disclosure": {
+                "x": 56,
+                "y": 429.5
+              },
+              "kind": {
+                "x": 70,
+                "y": 429.5
+              },
+              "label": {
+                "x": 109.8828125,
+                "y": 429.5
+              }
+            },
+            "maximum_center_delta": 0,
+            "css_grid_rows": {
+              "disclosure": "1",
+              "kind": "1",
+              "label": "1"
+            },
+            "all_three_same_css_grid_row": true
+          },
+          {
+            "id": "tree-dp780",
+            "dom_child_class_order": [
+              "tree-disclosure",
+              "tree-label",
+              "tree-kind"
+            ],
+            "box_centers": {
+              "disclosure": {
+                "x": 68,
+                "y": 454.5
+              },
+              "kind": {
+                "x": 82,
+                "y": 454.5
+              },
+              "label": {
+                "x": 164.6015625,
+                "y": 454.5
+              }
+            },
+            "maximum_center_delta": 0,
+            "css_grid_rows": {
+              "disclosure": "1",
+              "kind": "1",
+              "label": "1"
+            },
+            "all_three_same_css_grid_row": true
+          },
+          {
+            "id": "tree-dp600",
+            "dom_child_class_order": [
+              "tree-disclosure",
+              "tree-label",
+              "tree-kind"
+            ],
+            "box_centers": {
+              "disclosure": {
+                "x": 65,
+                "y": 479.5
+              },
+              "kind": {
+                "x": 79,
+                "y": 479.5
+              },
+              "label": {
+                "x": 161.6015625,
+                "y": 479.5
+              }
+            },
+            "maximum_center_delta": 0,
+            "css_grid_rows": {
+              "disclosure": "1",
+              "kind": "1",
+              "label": "1"
+            },
+            "all_three_same_css_grid_row": true
+          }
+        ],
+        "rails": {
+          "horizontal": false,
+          "vertical": false
+        }
       },
       "overflow": {
         "document_horizontal": 0,
@@ -180,7 +1050,10 @@
         "empty_context": null,
         "main": 1399,
         "aside": 300,
-        "plot": 1375
+        "plot": 1016,
+        "response_layout": 1375,
+        "grid": 357,
+        "plot_height": 480
       },
       "aria": {
         "minimum": 200,
@@ -189,9 +1062,300 @@
       },
       "active_tab": "Overview",
       "tree": {
-        "horizontal_overflow": 0,
+        "horizontal_overflow": 41,
+        "vertical_overflow": 0,
         "all_tree_kind_right_edges_within_content": true,
-        "tree_kind_labels_match": true
+        "tree_kind_labels": [
+          "Database",
+          "Profile",
+          "Table",
+          "Folder",
+          "Folder",
+          "Record",
+          "Record"
+        ],
+        "tree_kind_labels_match": true,
+        "identities": [
+          {
+            "expected": "Database",
+            "actual": "Database",
+            "identity": "Materials Database",
+            "title": "Materials Database",
+            "accessible_name": "Database: Materials Database",
+            "glyph_kind": "Database",
+            "glyph_title": "Database",
+            "glyph_font_size": "0px"
+          },
+          {
+            "expected": "Profile",
+            "actual": "Profile",
+            "identity": "Engineering Materials",
+            "title": "Engineering Materials",
+            "accessible_name": "Profile: Engineering Materials",
+            "glyph_kind": "Profile",
+            "glyph_title": "Profile",
+            "glyph_font_size": "0px"
+          },
+          {
+            "expected": "Table",
+            "actual": "Table",
+            "identity": "Demo Material Records",
+            "title": "Demo Material Records",
+            "accessible_name": "Table: Demo Material Records",
+            "glyph_kind": "Table",
+            "glyph_title": "Table",
+            "glyph_font_size": "0px"
+          },
+          {
+            "expected": "Folder",
+            "actual": "Folder",
+            "identity": "Synthetic metals",
+            "title": "Synthetic metals",
+            "accessible_name": "Folder: Synthetic metals",
+            "glyph_kind": "Folder",
+            "glyph_title": "Folder",
+            "glyph_font_size": "0px"
+          },
+          {
+            "expected": "Folder",
+            "actual": "Folder",
+            "identity": "Demo steels",
+            "title": "Demo steels",
+            "accessible_name": "Folder: Demo steels",
+            "glyph_kind": "Folder",
+            "glyph_title": "Folder",
+            "glyph_font_size": "0px"
+          },
+          {
+            "expected": "Record",
+            "actual": "Record",
+            "identity": "DP780 synthetic demo steel",
+            "title": "DP780 synthetic demo steel",
+            "accessible_name": "Record: DP780 synthetic demo steel",
+            "glyph_kind": "Record",
+            "glyph_title": "Record",
+            "glyph_font_size": "0px"
+          },
+          {
+            "expected": "Record",
+            "actual": "Record",
+            "identity": "DP600 synthetic demo steel",
+            "title": "DP600 synthetic demo steel",
+            "accessible_name": "Record: DP600 synthetic demo steel",
+            "glyph_kind": "Record",
+            "glyph_title": "Record",
+            "glyph_font_size": "0px"
+          }
+        ],
+        "row_alignment": [
+          {
+            "id": "tree-database",
+            "dom_child_class_order": [
+              "tree-disclosure",
+              "tree-label",
+              "tree-kind"
+            ],
+            "box_centers": {
+              "disclosure": {
+                "x": 20,
+                "y": 329.5
+              },
+              "kind": {
+                "x": 34,
+                "y": 329.5
+              },
+              "label": {
+                "x": 92.5625,
+                "y": 329.5
+              }
+            },
+            "maximum_center_delta": 0,
+            "css_grid_rows": {
+              "disclosure": "1",
+              "kind": "1",
+              "label": "1"
+            },
+            "all_three_same_css_grid_row": true
+          },
+          {
+            "id": "tree-profile",
+            "dom_child_class_order": [
+              "tree-disclosure",
+              "tree-label",
+              "tree-kind"
+            ],
+            "box_centers": {
+              "disclosure": {
+                "x": 29,
+                "y": 354.5
+              },
+              "kind": {
+                "x": 43,
+                "y": 354.5
+              },
+              "label": {
+                "x": 108.796875,
+                "y": 354.5
+              }
+            },
+            "maximum_center_delta": 0,
+            "css_grid_rows": {
+              "disclosure": "1",
+              "kind": "1",
+              "label": "1"
+            },
+            "all_three_same_css_grid_row": true
+          },
+          {
+            "id": "tree-table",
+            "dom_child_class_order": [
+              "tree-disclosure",
+              "tree-label",
+              "tree-kind"
+            ],
+            "box_centers": {
+              "disclosure": {
+                "x": 38,
+                "y": 379.5
+              },
+              "kind": {
+                "x": 52,
+                "y": 379.5
+              },
+              "label": {
+                "x": 122.5625,
+                "y": 379.5
+              }
+            },
+            "maximum_center_delta": 0,
+            "css_grid_rows": {
+              "disclosure": "1",
+              "kind": "1",
+              "label": "1"
+            },
+            "all_three_same_css_grid_row": true
+          },
+          {
+            "id": "tree-metals",
+            "dom_child_class_order": [
+              "tree-disclosure",
+              "tree-label",
+              "tree-kind"
+            ],
+            "box_centers": {
+              "disclosure": {
+                "x": 47,
+                "y": 404.5
+              },
+              "kind": {
+                "x": 61,
+                "y": 404.5
+              },
+              "label": {
+                "x": 111.96875,
+                "y": 404.5
+              }
+            },
+            "maximum_center_delta": 0,
+            "css_grid_rows": {
+              "disclosure": "1",
+              "kind": "1",
+              "label": "1"
+            },
+            "all_three_same_css_grid_row": true
+          },
+          {
+            "id": "tree-steels",
+            "dom_child_class_order": [
+              "tree-disclosure",
+              "tree-label",
+              "tree-kind"
+            ],
+            "box_centers": {
+              "disclosure": {
+                "x": 56,
+                "y": 429.5
+              },
+              "kind": {
+                "x": 70,
+                "y": 429.5
+              },
+              "label": {
+                "x": 109.8828125,
+                "y": 429.5
+              }
+            },
+            "maximum_center_delta": 0,
+            "css_grid_rows": {
+              "disclosure": "1",
+              "kind": "1",
+              "label": "1"
+            },
+            "all_three_same_css_grid_row": true
+          },
+          {
+            "id": "tree-dp780",
+            "dom_child_class_order": [
+              "tree-disclosure",
+              "tree-label",
+              "tree-kind"
+            ],
+            "box_centers": {
+              "disclosure": {
+                "x": 68,
+                "y": 454.5
+              },
+              "kind": {
+                "x": 82,
+                "y": 454.5
+              },
+              "label": {
+                "x": 164.6015625,
+                "y": 454.5
+              }
+            },
+            "maximum_center_delta": 0,
+            "css_grid_rows": {
+              "disclosure": "1",
+              "kind": "1",
+              "label": "1"
+            },
+            "all_three_same_css_grid_row": true
+          },
+          {
+            "id": "tree-dp600",
+            "dom_child_class_order": [
+              "tree-disclosure",
+              "tree-label",
+              "tree-kind"
+            ],
+            "box_centers": {
+              "disclosure": {
+                "x": 65,
+                "y": 479.5
+              },
+              "kind": {
+                "x": 79,
+                "y": 479.5
+              },
+              "label": {
+                "x": 161.6015625,
+                "y": 479.5
+              }
+            },
+            "maximum_center_delta": 0,
+            "css_grid_rows": {
+              "disclosure": "1",
+              "kind": "1",
+              "label": "1"
+            },
+            "all_three_same_css_grid_row": true
+          }
+        ],
+        "rails": {
+          "horizontal": true,
+          "vertical": false
+        }
       },
       "overflow": {
         "document_horizontal": 0,
@@ -212,7 +1376,10 @@
         "empty_context": null,
         "main": 1239,
         "aside": 300,
-        "plot": 1215
+        "plot": 873,
+        "response_layout": 1215,
+        "grid": 340,
+        "plot_height": 450
       },
       "aria": {
         "minimum": 200,
@@ -222,8 +1389,299 @@
       "active_tab": "Overview",
       "tree": {
         "horizontal_overflow": 0,
+        "vertical_overflow": 0,
         "all_tree_kind_right_edges_within_content": true,
-        "tree_kind_labels_match": true
+        "tree_kind_labels": [
+          "Database",
+          "Profile",
+          "Table",
+          "Folder",
+          "Folder",
+          "Record",
+          "Record"
+        ],
+        "tree_kind_labels_match": true,
+        "identities": [
+          {
+            "expected": "Database",
+            "actual": "Database",
+            "identity": "Materials Database",
+            "title": "Materials Database",
+            "accessible_name": "Database: Materials Database",
+            "glyph_kind": "Database",
+            "glyph_title": "Database",
+            "glyph_font_size": "0px"
+          },
+          {
+            "expected": "Profile",
+            "actual": "Profile",
+            "identity": "Engineering Materials",
+            "title": "Engineering Materials",
+            "accessible_name": "Profile: Engineering Materials",
+            "glyph_kind": "Profile",
+            "glyph_title": "Profile",
+            "glyph_font_size": "0px"
+          },
+          {
+            "expected": "Table",
+            "actual": "Table",
+            "identity": "Demo Material Records",
+            "title": "Demo Material Records",
+            "accessible_name": "Table: Demo Material Records",
+            "glyph_kind": "Table",
+            "glyph_title": "Table",
+            "glyph_font_size": "0px"
+          },
+          {
+            "expected": "Folder",
+            "actual": "Folder",
+            "identity": "Synthetic metals",
+            "title": "Synthetic metals",
+            "accessible_name": "Folder: Synthetic metals",
+            "glyph_kind": "Folder",
+            "glyph_title": "Folder",
+            "glyph_font_size": "0px"
+          },
+          {
+            "expected": "Folder",
+            "actual": "Folder",
+            "identity": "Demo steels",
+            "title": "Demo steels",
+            "accessible_name": "Folder: Demo steels",
+            "glyph_kind": "Folder",
+            "glyph_title": "Folder",
+            "glyph_font_size": "0px"
+          },
+          {
+            "expected": "Record",
+            "actual": "Record",
+            "identity": "DP780 synthetic demo steel",
+            "title": "DP780 synthetic demo steel",
+            "accessible_name": "Record: DP780 synthetic demo steel",
+            "glyph_kind": "Record",
+            "glyph_title": "Record",
+            "glyph_font_size": "0px"
+          },
+          {
+            "expected": "Record",
+            "actual": "Record",
+            "identity": "DP600 synthetic demo steel",
+            "title": "DP600 synthetic demo steel",
+            "accessible_name": "Record: DP600 synthetic demo steel",
+            "glyph_kind": "Record",
+            "glyph_title": "Record",
+            "glyph_font_size": "0px"
+          }
+        ],
+        "row_alignment": [
+          {
+            "id": "tree-database",
+            "dom_child_class_order": [
+              "tree-disclosure",
+              "tree-label",
+              "tree-kind"
+            ],
+            "box_centers": {
+              "disclosure": {
+                "x": 20,
+                "y": 329.5
+              },
+              "kind": {
+                "x": 34,
+                "y": 329.5
+              },
+              "label": {
+                "x": 92.5625,
+                "y": 329.5
+              }
+            },
+            "maximum_center_delta": 0,
+            "css_grid_rows": {
+              "disclosure": "1",
+              "kind": "1",
+              "label": "1"
+            },
+            "all_three_same_css_grid_row": true
+          },
+          {
+            "id": "tree-profile",
+            "dom_child_class_order": [
+              "tree-disclosure",
+              "tree-label",
+              "tree-kind"
+            ],
+            "box_centers": {
+              "disclosure": {
+                "x": 29,
+                "y": 354.5
+              },
+              "kind": {
+                "x": 43,
+                "y": 354.5
+              },
+              "label": {
+                "x": 108.796875,
+                "y": 354.5
+              }
+            },
+            "maximum_center_delta": 0,
+            "css_grid_rows": {
+              "disclosure": "1",
+              "kind": "1",
+              "label": "1"
+            },
+            "all_three_same_css_grid_row": true
+          },
+          {
+            "id": "tree-table",
+            "dom_child_class_order": [
+              "tree-disclosure",
+              "tree-label",
+              "tree-kind"
+            ],
+            "box_centers": {
+              "disclosure": {
+                "x": 38,
+                "y": 379.5
+              },
+              "kind": {
+                "x": 52,
+                "y": 379.5
+              },
+              "label": {
+                "x": 122.5625,
+                "y": 379.5
+              }
+            },
+            "maximum_center_delta": 0,
+            "css_grid_rows": {
+              "disclosure": "1",
+              "kind": "1",
+              "label": "1"
+            },
+            "all_three_same_css_grid_row": true
+          },
+          {
+            "id": "tree-metals",
+            "dom_child_class_order": [
+              "tree-disclosure",
+              "tree-label",
+              "tree-kind"
+            ],
+            "box_centers": {
+              "disclosure": {
+                "x": 47,
+                "y": 404.5
+              },
+              "kind": {
+                "x": 61,
+                "y": 404.5
+              },
+              "label": {
+                "x": 111.96875,
+                "y": 404.5
+              }
+            },
+            "maximum_center_delta": 0,
+            "css_grid_rows": {
+              "disclosure": "1",
+              "kind": "1",
+              "label": "1"
+            },
+            "all_three_same_css_grid_row": true
+          },
+          {
+            "id": "tree-steels",
+            "dom_child_class_order": [
+              "tree-disclosure",
+              "tree-label",
+              "tree-kind"
+            ],
+            "box_centers": {
+              "disclosure": {
+                "x": 56,
+                "y": 429.5
+              },
+              "kind": {
+                "x": 70,
+                "y": 429.5
+              },
+              "label": {
+                "x": 109.8828125,
+                "y": 429.5
+              }
+            },
+            "maximum_center_delta": 0,
+            "css_grid_rows": {
+              "disclosure": "1",
+              "kind": "1",
+              "label": "1"
+            },
+            "all_three_same_css_grid_row": true
+          },
+          {
+            "id": "tree-dp780",
+            "dom_child_class_order": [
+              "tree-disclosure",
+              "tree-label",
+              "tree-kind"
+            ],
+            "box_centers": {
+              "disclosure": {
+                "x": 68,
+                "y": 454.5
+              },
+              "kind": {
+                "x": 82,
+                "y": 454.5
+              },
+              "label": {
+                "x": 164.6015625,
+                "y": 454.5
+              }
+            },
+            "maximum_center_delta": 0,
+            "css_grid_rows": {
+              "disclosure": "1",
+              "kind": "1",
+              "label": "1"
+            },
+            "all_three_same_css_grid_row": true
+          },
+          {
+            "id": "tree-dp600",
+            "dom_child_class_order": [
+              "tree-disclosure",
+              "tree-label",
+              "tree-kind"
+            ],
+            "box_centers": {
+              "disclosure": {
+                "x": 65,
+                "y": 479.5
+              },
+              "kind": {
+                "x": 79,
+                "y": 479.5
+              },
+              "label": {
+                "x": 161.6015625,
+                "y": 479.5
+              }
+            },
+            "maximum_center_delta": 0,
+            "css_grid_rows": {
+              "disclosure": "1",
+              "kind": "1",
+              "label": "1"
+            },
+            "all_three_same_css_grid_row": true
+          }
+        ],
+        "rails": {
+          "horizontal": false,
+          "vertical": false
+        }
       },
       "overflow": {
         "document_horizontal": 0,
@@ -241,7 +1699,10 @@
     "tree_keyboard": true,
     "tabs_click_keyboard": true,
     "card_preview": true,
-    "card_download": true
+    "card_download": true,
+    "response_grid_topology_checked": true,
+    "response_grid_scroll_inputs": true,
+    "response_grid_pointer": true
   },
   "web_interface_guidelines_audit": {
     "source": "vercel-labs/web-interface-guidelines/command.md",
@@ -255,6 +1716,391 @@
     "result": "pass"
   },
   "kind": "normal",
+  "plot_frame": {
+    "x": 306,
+    "y": 457,
+    "width": 953,
+    "height": 485
+  },
+  "plot_box": {
+    "x": 306,
+    "y": 457,
+    "width": 953,
+    "height": 457.44
+  },
+  "plot_legend": {
+    "x": 306,
+    "y": 914.44,
+    "width": 953,
+    "height": 27
+  },
+  "response_grid": {
+    "visible": true,
+    "source": [
+      {
+        "point": 1,
+        "strain": 0,
+        "stress_mpa": 0
+      },
+      {
+        "point": 2,
+        "strain": 0.001,
+        "stress_mpa": 210
+      },
+      {
+        "point": 3,
+        "strain": 0.002,
+        "stress_mpa": 420
+      },
+      {
+        "point": 4,
+        "strain": 0.003,
+        "stress_mpa": 560
+      },
+      {
+        "point": 5,
+        "strain": 0.004,
+        "stress_mpa": 578
+      },
+      {
+        "point": 6,
+        "strain": 0.006,
+        "stress_mpa": 596
+      },
+      {
+        "point": 7,
+        "strain": 0.008,
+        "stress_mpa": 608
+      },
+      {
+        "point": 8,
+        "strain": 0.01,
+        "stress_mpa": 620
+      },
+      {
+        "point": 9,
+        "strain": 0.015,
+        "stress_mpa": 638
+      },
+      {
+        "point": 10,
+        "strain": 0.02,
+        "stress_mpa": 655
+      },
+      {
+        "point": 11,
+        "strain": 0.025,
+        "stress_mpa": 668
+      },
+      {
+        "point": 12,
+        "strain": 0.03,
+        "stress_mpa": 680
+      },
+      {
+        "point": 13,
+        "strain": 0.04,
+        "stress_mpa": 700
+      },
+      {
+        "point": 14,
+        "strain": 0.05,
+        "stress_mpa": 718
+      },
+      {
+        "point": 15,
+        "strain": 0.06,
+        "stress_mpa": 735
+      },
+      {
+        "point": 16,
+        "strain": 0.07,
+        "stress_mpa": 750
+      },
+      {
+        "point": 17,
+        "strain": 0.08,
+        "stress_mpa": 765
+      },
+      {
+        "point": 18,
+        "strain": 0.09,
+        "stress_mpa": 778
+      },
+      {
+        "point": 19,
+        "strain": 0.1,
+        "stress_mpa": 790
+      },
+      {
+        "point": 20,
+        "strain": 0.11,
+        "stress_mpa": 801
+      },
+      {
+        "point": 21,
+        "strain": 0.12,
+        "stress_mpa": 810
+      },
+      {
+        "point": 22,
+        "strain": 0.13,
+        "stress_mpa": 818
+      },
+      {
+        "point": 23,
+        "strain": 0.14,
+        "stress_mpa": 826
+      },
+      {
+        "point": 24,
+        "strain": 0.15,
+        "stress_mpa": 832
+      },
+      {
+        "point": 25,
+        "strain": 0.16,
+        "stress_mpa": 838
+      },
+      {
+        "point": 26,
+        "strain": 0.17,
+        "stress_mpa": 842
+      },
+      {
+        "point": 27,
+        "strain": 0.18,
+        "stress_mpa": 846
+      },
+      {
+        "point": 28,
+        "strain": 0.19,
+        "stress_mpa": 849
+      },
+      {
+        "point": 29,
+        "strain": 0.2,
+        "stress_mpa": 850
+      }
+    ],
+    "source_point_count": 29,
+    "rows": [
+      {
+        "point": 1,
+        "strain": 0,
+        "stress_mpa": 0
+      },
+      {
+        "point": 2,
+        "strain": 0.001,
+        "stress_mpa": 210
+      },
+      {
+        "point": 3,
+        "strain": 0.002,
+        "stress_mpa": 420
+      },
+      {
+        "point": 4,
+        "strain": 0.003,
+        "stress_mpa": 560
+      },
+      {
+        "point": 5,
+        "strain": 0.004,
+        "stress_mpa": 578
+      },
+      {
+        "point": 6,
+        "strain": 0.006,
+        "stress_mpa": 596
+      },
+      {
+        "point": 7,
+        "strain": 0.008,
+        "stress_mpa": 608
+      },
+      {
+        "point": 8,
+        "strain": 0.01,
+        "stress_mpa": 620
+      },
+      {
+        "point": 9,
+        "strain": 0.015,
+        "stress_mpa": 638
+      },
+      {
+        "point": 10,
+        "strain": 0.02,
+        "stress_mpa": 655
+      },
+      {
+        "point": 11,
+        "strain": 0.025,
+        "stress_mpa": 668
+      },
+      {
+        "point": 12,
+        "strain": 0.03,
+        "stress_mpa": 680
+      },
+      {
+        "point": 13,
+        "strain": 0.04,
+        "stress_mpa": 700
+      },
+      {
+        "point": 14,
+        "strain": 0.05,
+        "stress_mpa": 718
+      },
+      {
+        "point": 15,
+        "strain": 0.06,
+        "stress_mpa": 735
+      },
+      {
+        "point": 16,
+        "strain": 0.07,
+        "stress_mpa": 750
+      },
+      {
+        "point": 17,
+        "strain": 0.08,
+        "stress_mpa": 765
+      },
+      {
+        "point": 18,
+        "strain": 0.09,
+        "stress_mpa": 778
+      },
+      {
+        "point": 19,
+        "strain": 0.1,
+        "stress_mpa": 790
+      },
+      {
+        "point": 20,
+        "strain": 0.11,
+        "stress_mpa": 801
+      },
+      {
+        "point": 21,
+        "strain": 0.12,
+        "stress_mpa": 810
+      },
+      {
+        "point": 22,
+        "strain": 0.13,
+        "stress_mpa": 818
+      },
+      {
+        "point": 23,
+        "strain": 0.14,
+        "stress_mpa": 826
+      },
+      {
+        "point": 24,
+        "strain": 0.15,
+        "stress_mpa": 832
+      },
+      {
+        "point": 25,
+        "strain": 0.16,
+        "stress_mpa": 838
+      },
+      {
+        "point": 26,
+        "strain": 0.17,
+        "stress_mpa": 842
+      },
+      {
+        "point": 27,
+        "strain": 0.18,
+        "stress_mpa": 846
+      },
+      {
+        "point": 28,
+        "strain": 0.19,
+        "stress_mpa": 849
+      },
+      {
+        "point": 29,
+        "strain": 0.2,
+        "stress_mpa": 850
+      }
+    ],
+    "row_count": 29,
+    "headers": [
+      "Point",
+      "Engineering strain",
+      "Engineering stress (MPa)"
+    ],
+    "table_header_position": "sticky",
+    "table_series_source": "#response-series",
+    "table_series_point_count": 29,
+    "graph_series_source": "#response-series",
+    "graph_point_count": 29,
+    "graph_element": "polyline",
+    "topology": {
+      "layout_display": "grid",
+      "layout_columns": "953px 340px",
+      "layout": {
+        "left": 305,
+        "top": 456,
+        "right": 1600,
+        "bottom": 943,
+        "width": 1295,
+        "height": 487
+      },
+      "graph": {
+        "left": 306,
+        "top": 457,
+        "right": 1259,
+        "bottom": 942,
+        "width": 953,
+        "height": 485
+      },
+      "plot_frame": {
+        "left": 306,
+        "top": 457,
+        "right": 1259,
+        "bottom": 942,
+        "width": 953,
+        "height": 485
+      },
+      "grid": {
+        "left": 1259,
+        "top": 457,
+        "right": 1599,
+        "bottom": 942,
+        "width": 340,
+        "height": 485
+      },
+      "context": {
+        "left": 1612,
+        "top": 196,
+        "right": 1912,
+        "bottom": 1056,
+        "width": 300,
+        "height": 860
+      }
+    },
+    "scroll": {
+      "scroll_height": 786,
+      "client_height": 439,
+      "overflow": 347,
+      "rail_visible": true,
+      "rail_max": 347,
+      "rail_now": 0,
+      "track_length": 439,
+      "thumb_length": 243,
+      "thumb_proportion": 0.5535307517084282,
+      "no_fake_rail": true
+    },
+    "shared_source": true
+  },
   "row_density": {
     "tree": {
       "count": 7,
@@ -347,49 +2193,272 @@
       "strain": 0.25,
       "stress_mpa": 1000
     },
+    "recomputed_domain": {
+      "axes": {
+        "strain": {
+          "padded_maximum": 0.22000000000000003,
+          "rough_step": 0.044000000000000004,
+          "nice_step": 0.05,
+          "domain_maximum": 0.25
+        },
+        "stress_mpa": {
+          "padded_maximum": 935,
+          "rough_step": 233.75,
+          "nice_step": 250,
+          "domain_maximum": 1000
+        }
+      }
+    },
     "plot_area": {
-      "left": 64,
-      "right": 732,
-      "top": 27,
-      "bottom": 191
+      "left": 78,
+      "right": 929,
+      "top": 28,
+      "bottom": 403.4375
+    },
+    "svg": {
+      "rendered_box": {
+        "width": 953,
+        "height": 457.4375
+      },
+      "view_box": {
+        "x": 0,
+        "y": 0,
+        "width": 953,
+        "height": 457.4375
+      },
+      "rendered_aspect_ratio": 2.0833447192239376,
+      "view_box_aspect_ratio": 2.0833447192239376,
+      "aspect_ratio_delta": 0
     },
     "response_path": {
       "bounding_box": {
-        "x": 64,
-        "y": 51.599998474121094,
-        "right": 598.4000244140625,
-        "bottom": 190.99999237060547,
-        "width": 534.4000244140625,
-        "height": 139.39999389648438
+        "x": 78,
+        "y": 84.31559753417969,
+        "right": 758.7999877929688,
+        "bottom": 403.43748474121094,
+        "width": 680.7999877929688,
+        "height": 319.12188720703125
       },
       "start": {
-        "x": 64,
-        "y": 191
+        "x": 78,
+        "y": 403.4375
       },
       "endpoint": {
-        "x": 598.4000244140625,
-        "y": 51.599998474121094
+        "x": 758.7999877929688,
+        "y": 84.31559753417969
       },
       "fully_inside_plot": true
     },
     "headroom": {
-      "right": 133.5999755859375,
-      "top": 24.599998474121094
+      "right": 170.20001220703125,
+      "top": 56.31559753417969
+    },
+    "text_boxes": [
+      {
+        "text": "0",
+        "role": "tick-x",
+        "box": {
+          "left": 78,
+          "top": 410.4375,
+          "right": 84,
+          "bottom": 424.4375,
+          "width": 6,
+          "height": 14
+        }
+      },
+      {
+        "text": "0.05",
+        "role": "tick-x",
+        "box": {
+          "left": 238.567138671875,
+          "top": 410.4375,
+          "right": 258.163818359375,
+          "bottom": 424.4375,
+          "width": 19.5966796875,
+          "height": 14
+        }
+      },
+      {
+        "text": "0.10",
+        "role": "tick-x",
+        "box": {
+          "left": 408.7672119140625,
+          "top": 410.4375,
+          "right": 428.3638916015625,
+          "bottom": 424.4375,
+          "width": 19.5966796875,
+          "height": 14
+        }
+      },
+      {
+        "text": "0.15",
+        "role": "tick-x",
+        "box": {
+          "left": 578.9671630859375,
+          "top": 410.4375,
+          "right": 598.5638427734375,
+          "bottom": 424.4375,
+          "width": 19.5966796875,
+          "height": 14
+        }
+      },
+      {
+        "text": "0.20",
+        "role": "tick-x",
+        "box": {
+          "left": 749.167236328125,
+          "top": 410.4375,
+          "right": 768.763916015625,
+          "bottom": 424.4375,
+          "width": 19.5966796875,
+          "height": 14
+        }
+      },
+      {
+        "text": "0.25",
+        "role": "tick-x",
+        "box": {
+          "left": 909.734375,
+          "top": 410.4375,
+          "right": 929.3310546875,
+          "bottom": 424.4375,
+          "width": 19.5966796875,
+          "height": 14
+        }
+      },
+      {
+        "text": "0",
+        "role": "tick-y",
+        "box": {
+          "left": 62.328125,
+          "top": 396.4375,
+          "right": 68.328125,
+          "bottom": 410.4375,
+          "width": 6,
+          "height": 14
+        }
+      },
+      {
+        "text": "250",
+        "role": "tick-y",
+        "box": {
+          "left": 51.015625,
+          "top": 302.578125,
+          "right": 68.3359375,
+          "bottom": 316.578125,
+          "width": 17.3203125,
+          "height": 14
+        }
+      },
+      {
+        "text": "500",
+        "role": "tick-y",
+        "box": {
+          "left": 51.015625,
+          "top": 208.71875,
+          "right": 68.3359375,
+          "bottom": 222.71875,
+          "width": 17.3203125,
+          "height": 14
+        }
+      },
+      {
+        "text": "750",
+        "role": "tick-y",
+        "box": {
+          "left": 51.015625,
+          "top": 114.859375,
+          "right": 68.3359375,
+          "bottom": 128.859375,
+          "width": 17.3203125,
+          "height": 14
+        }
+      },
+      {
+        "text": "1,000",
+        "role": "tick-y",
+        "box": {
+          "left": 43.078125,
+          "top": 21,
+          "right": 68.3349609375,
+          "bottom": 35,
+          "width": 25.2568359375,
+          "height": 14
+        }
+      },
+      {
+        "text": "Engineering strain",
+        "role": "axis-title-x",
+        "box": {
+          "left": 459.7109375,
+          "top": 434.4375,
+          "right": 547.2890625,
+          "bottom": 449.4375,
+          "width": 87.578125,
+          "height": 15
+        }
+      },
+      {
+        "text": "Engineering stress (MPa)",
+        "role": "axis-title-y",
+        "box": {
+          "left": 5,
+          "top": 156.171875,
+          "right": 20,
+          "bottom": 275.265625,
+          "width": 15,
+          "height": 119.09375
+        }
+      }
+    ],
+    "legend_box": {
+      "left": 306,
+      "top": 914.4375,
+      "right": 1259,
+      "bottom": 941.4375,
+      "width": 953,
+      "height": 27
+    },
+    "collision_checks": {
+      "text_inside_view_box": true,
+      "no_text_collisions": true,
+      "no_text_frame_collisions": true,
+      "titles": [
+        "Engineering strain",
+        "Engineering stress (MPa)"
+      ],
+      "tick_values": [
+        "0",
+        "0.05",
+        "0.10",
+        "0.15",
+        "0.20",
+        "0.25",
+        "0",
+        "250",
+        "500",
+        "750",
+        "1,000"
+      ]
     },
     "visible_text": {
       "plot": [
         "0",
+        "0.05",
         "0.10",
+        "0.15",
         "0.20",
         "0.25",
         "0",
+        "250",
         "500",
-        "1,000 MPa",
+        "750",
+        "1,000",
         "Engineering strain",
-        "Engineering stress"
+        "Engineering stress (MPa)"
       ],
       "legend": [
-        "Representative response\n                      Condition: Ambient · as received"
+        "Representative response\n                          Condition: Ambient · as received"
       ]
     }
   },
@@ -403,9 +2472,9 @@
       "selected_record": [
         {
           "left": 8,
-          "top": 443,
-          "right": 288,
-          "bottom": 468,
+          "top": 442,
+          "right": 284,
+          "bottom": 467,
           "inside": true
         }
       ],
@@ -522,10 +2591,10 @@
       ],
       "plot": [
         {
-          "left": 305,
-          "top": 456,
-          "right": 1600,
-          "bottom": 675,
+          "left": 306,
+          "top": 457,
+          "right": 1259,
+          "bottom": 942,
           "inside": true
         }
       ],
@@ -599,8 +2668,10 @@
     "all_inside": true
   },
   "image": "docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1920x1080.png",
-  "image_sha256": "eda9da6037d7dec12fd4c4c5ce5fa77e993a1faa37f5853b3da5c2203bd35849",
+  "image_sha256": "8ac1d48195a233d385743d3d9d936bcea8047f25967a63f0cff9a8a984ab06f0",
   "responsive_evidence": false,
+  "evidence_kind": "canonical",
+  "wide_evidence": false,
   "console_errors": [],
   "page_errors": []
 }

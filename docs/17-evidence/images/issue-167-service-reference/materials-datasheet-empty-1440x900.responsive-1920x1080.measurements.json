@@ -1,6 +1,6 @@
 {
   "target": "materials-datasheet-empty-1440x900",
-  "capture_date": "2026-07-29",
+  "capture_date": "2026-07-30",
   "viewport": {
     "width": 1920,
     "height": 1080,
@@ -56,6 +56,7 @@
   "visible_splitter_count": 1,
   "tree": {
     "horizontal_overflow": 0,
+    "vertical_overflow": 0,
     "all_tree_kind_right_edges_within_content": true,
     "tree_kind_labels": [
       "Database",
@@ -66,7 +67,83 @@
       "Record",
       "Record"
     ],
-    "tree_kind_labels_match": true
+    "tree_kind_labels_match": true,
+    "identities": [
+      {
+        "expected": "Database",
+        "actual": "Database",
+        "identity": "Materials Database",
+        "title": "Materials Database",
+        "accessible_name": "Database: Materials Database",
+        "glyph_kind": "Database",
+        "glyph_title": "Database",
+        "glyph_font_size": "11px"
+      },
+      {
+        "expected": "Profile",
+        "actual": "Profile",
+        "identity": "Engineering Materials",
+        "title": "Engineering Materials",
+        "accessible_name": "Profile: Engineering Materials",
+        "glyph_kind": "Profile",
+        "glyph_title": "Profile",
+        "glyph_font_size": "11px"
+      },
+      {
+        "expected": "Table",
+        "actual": "Table",
+        "identity": "Demo Material Records",
+        "title": "Demo Material Records",
+        "accessible_name": "Table: Demo Material Records",
+        "glyph_kind": "Table",
+        "glyph_title": "Table",
+        "glyph_font_size": "11px"
+      },
+      {
+        "expected": "Folder",
+        "actual": "Folder",
+        "identity": "Synthetic metals",
+        "title": "Synthetic metals",
+        "accessible_name": "Folder: Synthetic metals",
+        "glyph_kind": "Folder",
+        "glyph_title": "Folder",
+        "glyph_font_size": "11px"
+      },
+      {
+        "expected": "Folder",
+        "actual": "Folder",
+        "identity": "Demo steels",
+        "title": "Demo steels",
+        "accessible_name": "Folder: Demo steels",
+        "glyph_kind": "Folder",
+        "glyph_title": "Folder",
+        "glyph_font_size": "11px"
+      },
+      {
+        "expected": "Record",
+        "actual": "Record",
+        "identity": "DP780 synthetic demo steel",
+        "title": "DP780 synthetic demo steel",
+        "accessible_name": "Record: DP780 synthetic demo steel",
+        "glyph_kind": "Record",
+        "glyph_title": "Record",
+        "glyph_font_size": "11px"
+      },
+      {
+        "expected": "Record",
+        "actual": "Record",
+        "identity": "DP600 synthetic demo steel",
+        "title": "DP600 synthetic demo steel",
+        "accessible_name": "Record: DP600 synthetic demo steel",
+        "glyph_kind": "Record",
+        "glyph_title": "Record",
+        "glyph_font_size": "11px"
+      }
+    ],
+    "rails": {
+      "horizontal": false,
+      "vertical": false
+    }
   },
   "selected_tree_rows": 1,
   "selected_record": true,
@@ -104,7 +181,10 @@
         "empty_context": 300,
         "main": null,
         "aside": null,
-        "plot": null
+        "plot": null,
+        "response_layout": null,
+        "grid": null,
+        "plot_height": null
       },
       "aria": {
         "minimum": 200,
@@ -114,8 +194,13 @@
       "active_tab": "Overview",
       "tree": {
         "horizontal_overflow": 0,
+        "vertical_overflow": 0,
         "all_tree_kind_right_edges_within_content": true,
-        "tree_kind_labels_match": true
+        "tree_kind_labels_match": true,
+        "rails": {
+          "horizontal": false,
+          "vertical": false
+        }
       },
       "overflow": {
         "document_horizontal": 0,
@@ -136,7 +221,10 @@
         "empty_context": 300,
         "main": null,
         "aside": null,
-        "plot": null
+        "plot": null,
+        "response_layout": null,
+        "grid": null,
+        "plot_height": null
       },
       "aria": {
         "minimum": 200,
@@ -146,8 +234,13 @@
       "active_tab": "Overview",
       "tree": {
         "horizontal_overflow": 0,
+        "vertical_overflow": 0,
         "all_tree_kind_right_edges_within_content": true,
-        "tree_kind_labels_match": true
+        "tree_kind_labels_match": true,
+        "rails": {
+          "horizontal": false,
+          "vertical": false
+        }
       },
       "overflow": {
         "document_horizontal": 0,
@@ -168,7 +261,10 @@
         "empty_context": 300,
         "main": null,
         "aside": null,
-        "plot": null
+        "plot": null,
+        "response_layout": null,
+        "grid": null,
+        "plot_height": null
       },
       "aria": {
         "minimum": 200,
@@ -178,8 +274,13 @@
       "active_tab": "Overview",
       "tree": {
         "horizontal_overflow": 0,
+        "vertical_overflow": 0,
         "all_tree_kind_right_edges_within_content": true,
-        "tree_kind_labels_match": true
+        "tree_kind_labels_match": true,
+        "rails": {
+          "horizontal": false,
+          "vertical": false
+        }
       },
       "overflow": {
         "document_horizontal": 0,
@@ -200,7 +301,10 @@
         "empty_context": 300,
         "main": null,
         "aside": null,
-        "plot": null
+        "plot": null,
+        "response_layout": null,
+        "grid": null,
+        "plot_height": null
       },
       "aria": {
         "minimum": 200,
@@ -210,8 +314,13 @@
       "active_tab": "Overview",
       "tree": {
         "horizontal_overflow": 0,
+        "vertical_overflow": 0,
         "all_tree_kind_right_edges_within_content": true,
-        "tree_kind_labels_match": true
+        "tree_kind_labels_match": true,
+        "rails": {
+          "horizontal": false,
+          "vertical": false
+        }
       },
       "overflow": {
         "document_horizontal": 0,
@@ -274,6 +383,8 @@
   "image": "docs/17-evidence/images/issue-167-service-reference/materials-datasheet-empty-1440x900.responsive-1920x1080.png",
   "image_sha256": "958b8b7f228d6df776885ddcb3760b33881625b9fd1086a94db38fdb3bffa1d5",
   "responsive_evidence": true,
+  "evidence_kind": "canonical",
+  "wide_evidence": false,
   "console_errors": [],
   "page_errors": []
 }

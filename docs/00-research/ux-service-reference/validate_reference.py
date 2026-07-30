@@ -16,6 +16,7 @@ TARGET_ID_1440 = "materials-search-normal-1440x900"
 TARGET_ID_1366 = "materials-search-normal-1366x768"
 TARGET_ID_1920 = "materials-search-normal-1920x1080"
 ROOT = Path(__file__).resolve().parents[3]
+WIDE_VIEWPORTS = ((2560, 1440), (3840, 2160))
 MANIFEST_PATH = ROOT / "docs/01-product/service-reference-manifest.yaml"
 SHARED_SOURCES = {
     "html": "docs/00-research/ux-service-reference/materials-search-normal.html",
@@ -24,9 +25,14 @@ SHARED_SOURCES = {
     "capture": "docs/00-research/ux-service-reference/capture_reference.py",
     "validation": "docs/00-research/ux-service-reference/validate_reference.py",
 }
+NAVIGATOR_SOURCES = {
+    "css_navigator": "docs/00-research/ux-service-reference/materials-navigator.css",
+    "javascript_navigator": "docs/00-research/ux-service-reference/materials-navigator.js",
+}
 TARGETS = {
     TARGET_ID_1440: {
         **SHARED_SOURCES,
+        **NAVIGATOR_SOURCES,
         "image": (
             "docs/17-evidence/images/issue-167-service-reference/"
             "materials-search-normal-1440x900.png"
@@ -41,11 +47,38 @@ TARGETS = {
         "context_width": 280,
         "expected_divider_count": 2,
         "result_width": {"exact": 870},
+        "splitter_expectations": {
+            "default": {
+                "widths": [264, 870, 280],
+                "aria_now": [264, 280],
+                "aria_maximum": [360, 480],
+            },
+            "navigator_arrow_right": {
+                "widths": [272, 862, 280],
+                "aria_now": [272, 280],
+                "aria_maximum": [360, 480],
+            },
+            "navigator_home": {
+                "widths": [200, 934, 280],
+                "aria_now": [200, 280],
+                "aria_maximum": [360, 480],
+                "tree_horizontal_overflow": 41,
+                "tree_horizontal_rail": True,
+            },
+            "navigator_end": {
+                "widths": [360, 774, 280],
+                "aria_now": [360, 280],
+                "aria_maximum": [360, 480],
+            },
+        },
+        "date": "2026-07-30",
         "reference_status": "approved",
+        "approval_date": "2026-07-30",
         "evaluation_status": "accepted",
     },
     TARGET_ID_1366: {
         **SHARED_SOURCES,
+        **NAVIGATOR_SOURCES,
         "css_override": (
             "docs/00-research/ux-service-reference/materials-search-normal-1366x768.css"
         ),
@@ -81,6 +114,8 @@ TARGETS = {
                 "widths": [200, 860, 280],
                 "aria_now": [200, 280],
                 "aria_maximum": [340, 420],
+                "tree_horizontal_overflow": 41,
+                "tree_horizontal_rail": True,
             },
             "navigator_end": {
                 "widths": [340, 720, 280],
@@ -103,11 +138,14 @@ TARGETS = {
                 "aria_maximum": [244, 376],
             },
         },
+        "date": "2026-07-30",
         "reference_status": "approved",
+        "approval_date": "2026-07-30",
         "evaluation_status": "accepted",
     },
     TARGET_ID_1920: {
         **SHARED_SOURCES,
+        **NAVIGATOR_SOURCES,
         "css_override": (
             "docs/00-research/ux-service-reference/materials-search-normal-1920x1080.css"
         ),
@@ -143,6 +181,8 @@ TARGETS = {
                 "widths": [200, 1394, 300],
                 "aria_now": [200, 300],
                 "aria_maximum": [360, 480],
+                "tree_horizontal_overflow": 41,
+                "tree_horizontal_rail": True,
             },
             "navigator_end": {
                 "widths": [360, 1234, 300],
@@ -165,11 +205,17 @@ TARGETS = {
                 "aria_maximum": [360, 480],
             },
         },
+        "date": "2026-07-30",
         "reference_status": "approved",
+        "approval_date": "2026-07-30",
         "evaluation_status": "accepted",
     },
 }
 EXPECTED_COLUMNS = ["Compare", "Material / grade", "Family", "Description", "Status"]
+EXPECTED_RESULT_COUNT = "1\u201350 of 10,000 matches"
+EXPECTED_RESULT_RANGE = "Rows 1\u201350 of 10,000 matches"
+EXPECTED_FIRST_RESULT = ("DP780 synthetic demo steel", "DP780-REF")
+EXPECTED_LAST_RESULT = ("Synthetic steel demo record 50", "STEEL-DEMO-50")
 FORBIDDEN_VISIBLE_TERMS = [
     "provider",
     "manufacturer",
@@ -225,9 +271,16 @@ def parse_args() -> argparse.Namespace:
         choices=["pending", "accepted", "rejected"],
         help="Optional expected lifecycle status for the main-agent evaluation.",
     )
+    parser.add_argument(
+        "--wide-evidence",
+        action="store_true",
+        help="Validate 2560x1440 and 3840x2160 supporting evidence for the 1920 target.",
+    )
     args = parser.parse_args()
     if args.target is None and args.image is None:
         parser.error("provide --target or --image")
+    if args.wide_evidence and args.target != TARGET_ID_1920:
+        parser.error("--wide-evidence requires --target materials-search-normal-1920x1080")
     return args
 
 
@@ -259,7 +312,7 @@ def main() -> None:
 
     required_paths = [
         MANIFEST_PATH,
-        *(ROOT / expected[key] for key in SHARED_SOURCES),
+        *(ROOT / expected[key] for key in (*SHARED_SOURCES, *NAVIGATOR_SOURCES)),
         ROOT / expected["image"],
         ROOT / expected["measurements"],
     ]
@@ -289,7 +342,7 @@ def main() -> None:
     entry = matches[0]
 
     sources = entry.get("sources", {})
-    for key in ("html", "css", "javascript", "capture", "validation"):
+    for key in (*SHARED_SOURCES, *NAVIGATOR_SOURCES):
         check(
             sources.get(key) == expected[key],
             "manifest-source",
@@ -333,7 +386,11 @@ def main() -> None:
 
     digest = hashlib.sha256(image.read_bytes()).hexdigest()
     check(entry.get("image_sha256") == digest, "sha256", f"expected {digest}")
-    check(iso_date(entry.get("date")) == "2026-07-28", "date", f"got {entry.get('date')!r}")
+    check(
+        iso_date(entry.get("date")) == expected["date"],
+        "date",
+        f"expected {expected['date']!r}, got {entry.get('date')!r}",
+    )
 
     vocabulary = manifest.get("status_vocabulary", {})
     reference_statuses = vocabulary.get("reference", [])
@@ -387,9 +444,9 @@ def main() -> None:
     product_owner_approval = entry.get("product_owner_approval")
     if entry.get("status") == "pending":
         check(
-            product_owner_approval is None,
+            product_owner_approval == {"status": "absent"},
             "product-owner-approval",
-            "pending reference approval must be unset",
+            "pending reference must use the manifest's absent approval convention",
         )
     else:
         check(
@@ -404,7 +461,7 @@ def main() -> None:
                 "approval status must match the reference status",
             )
             check(
-                iso_date(product_owner_approval.get("date")) == "2026-07-28",
+                iso_date(product_owner_approval.get("date")) == expected["approval_date"],
                 "product-owner-approval",
                 f"unexpected approval date {product_owner_approval.get('date')!r}",
             )
@@ -436,14 +493,34 @@ def main() -> None:
 
     columns = re.findall(r'<th[^>]+data-column="([^"]+)"', html)
     check(columns == EXPECTED_COLUMNS, "result-columns", f"got {columns!r}")
-    check(html.count("data-result-row") == 6, "result-rows", "expected exactly 6 rows")
+    check(html.count("data-result-row") == 50, "result-rows", "expected exactly 50 rows")
+    result_names = re.findall(r'data-result-row[^>]+data-name="([^"]+)"', html)
+    result_grades = re.findall(r'data-result-row[^>]+data-grade="([^"]+)"', html)
+    check(
+        len(result_names) == 50 and len(set(result_names)) == 50,
+        "result-identities",
+        f"expected 50 distinct names, got {len(result_names)}",
+    )
+    check(
+        len(result_grades) == 50 and len(set(result_grades)) == 50,
+        "result-identities",
+        f"expected 50 distinct grades, got {len(result_grades)}",
+    )
+    check(
+        html.count("data-result-grade=") == 2,
+        "tree-result-binding",
+        "expected the two visible Record rows to declare exact result bindings",
+    )
     required_copy = [
         "steel",
         "Materials Database",
         "Engineering Materials",
         "Demo Material Records",
         "Find folder or record",
-        "1\u20136 of 6 matches",
+        EXPECTED_RESULT_COUNT,
+        EXPECTED_RESULT_RANGE,
+        "Next page available",
+        "Next page",
         "Enter opens · select up to 3 to compare",
         "DP780 synthetic demo steel",
         "DP780-REF",
@@ -565,12 +642,86 @@ def main() -> None:
         f"got {tree_density!r}",
     )
     check(
-        result_density.get("count") == 6
+        result_density.get("count") == 50
         and result_density.get("minimum") == 36
         and result_density.get("maximum") == 36,
         "result-density",
         f"got {result_density!r}",
     )
+    check(
+        measurements.get("result_count") == EXPECTED_RESULT_COUNT,
+        "result-count",
+        f"got {measurements.get('result_count')!r}",
+    )
+    check(
+        measurements.get("result_range") == EXPECTED_RESULT_RANGE,
+        "result-range",
+        f"got {measurements.get('result_range')!r}",
+    )
+    result_scroller = measurements.get("result_scroller", {})
+    result_rows = result_scroller.get("rows", {})
+    check(
+        result_rows.get("count") == 50,
+        "result-scroller-rows",
+        f"got {result_rows.get('count')!r}",
+    )
+    first_result = result_rows.get("first", {})
+    check(
+        (first_result.get("name"), first_result.get("grade")) == EXPECTED_FIRST_RESULT,
+        "result-first-identity",
+        f"got {first_result!r}",
+    )
+    last_result = result_rows.get("last", {})
+    check(
+        (last_result.get("name"), last_result.get("grade")) == EXPECTED_LAST_RESULT,
+        "result-last-identity",
+        f"got {last_result!r}",
+    )
+    check(
+        result_scroller.get("horizontal_overflow") == 0,
+        "result-scroller-horizontal-overflow",
+        f"got {result_scroller.get('horizontal_overflow')!r}",
+    )
+    check(
+        result_scroller.get("visible_rows_fully_contained") is True,
+        "result-row-containment",
+        f"got {result_scroller.get('visible_rows_fully_contained')!r}",
+    )
+    result_fixture = measurements.get("result_fixture") or {}
+    check(
+        result_fixture.get("overflowing") is not None
+        and result_fixture.get("sticky_header_at_end") is True
+        and result_fixture.get("footer_fixed_at_end") is True
+        and result_fixture.get("rails_outside_text") is True,
+        "result-scroll-fixture",
+        f"got {result_fixture!r}",
+    )
+    if result_fixture.get("overflowing"):
+        check(
+            all(
+                result_fixture.get(key)
+                for key in (
+                    "wheel_moved",
+                    "page_down_moved",
+                    "vertical_end_reached",
+                    "vertical_arrow_moved",
+                    "vertical_pointer_moved",
+                )
+            ),
+            "result-scroll-interactions",
+            f"got {result_fixture!r}",
+        )
+        check(
+            result_scroller.get("rails", {}).get("vertical", {}).get("visible") is True,
+            "result-scroll-rail",
+            f"got {result_scroller.get('rails', {}).get('vertical')!r}",
+        )
+    else:
+        check(
+            result_scroller.get("rails", {}).get("vertical", {}).get("visible") is False,
+            "result-scroll-rail",
+            f"fake rail got {result_scroller.get('rails', {}).get('vertical')!r}",
+        )
     check(
         measurements.get("table_headers") == EXPECTED_COLUMNS,
         "result-columns",
@@ -612,6 +763,46 @@ def main() -> None:
             tree_scroller.get("all_tree_kind_right_edges_within_content") is True,
             "tree-kind-containment",
             f"got {tree_scroller.get('tree_kind_right_edges')!r}",
+        )
+        check(
+            tree_scroller.get("vertical_overflow") == 0
+            and tree_scroller.get("rails", {}).get("horizontal", {}).get("visible") is False
+            and tree_scroller.get("rails", {}).get("vertical", {}).get("visible") is False,
+            "tree-scroller-rails",
+            f"got {tree_scroller.get('rails')!r}",
+        )
+        identities = tree_scroller.get("identities") or []
+        check(
+            len(identities) == 7
+            and all(
+                item.get("identity") == item.get("title")
+                and item.get("glyph_kind") == item.get("kind")
+                and item.get("glyph_title") == item.get("kind")
+                and item.get("glyph_font_size") == "0px"
+                and item.get("accessible_name", "").startswith(f"{item.get('kind')}: ")
+                for item in identities
+            ),
+            "tree-identity-glyphs",
+            f"got {identities!r}",
+        )
+        fixture = measurements.get("navigator_fixture") or {}
+        fixture_keys = (
+            "wheel_moved",
+            "page_down_moved",
+            "vertical_end_reached",
+            "vertical_arrow_moved",
+            "horizontal_end_reached",
+            "horizontal_arrow_moved",
+            "identity_reachable_at_horizontal_end",
+            "vertical_pointer_moved",
+            "horizontal_pointer_moved",
+            "rails_outside_text",
+            "proportional_thumbs",
+        )
+        check(
+            all(fixture.get(key) for key in fixture_keys),
+            "navigator-fixture",
+            f"got {fixture!r}",
         )
         context_content = measurements.get("context_content", {})
         check(
@@ -691,22 +882,143 @@ def main() -> None:
                     "splitter-evidence",
                     f"{label} page overflow {snapshot.get('overflow')!r}",
                 )
-                if target == TARGET_ID_1920:
-                    snapshot_tree_scroller = snapshot.get("tree_scroller", {})
-                    check(
-                        snapshot_tree_scroller.get("horizontal_overflow") == 0,
-                        "splitter-evidence",
-                        f"{label} tree horizontal overflow "
-                        f"{snapshot_tree_scroller.get('horizontal_overflow')!r}",
+                snapshot_tree_scroller = snapshot.get("tree_scroller", {})
+                expected_tree_overflow = expected_state.get("tree_horizontal_overflow", 0)
+                check(
+                    snapshot_tree_scroller.get("horizontal_overflow") == expected_tree_overflow,
+                    "splitter-evidence",
+                    f"{label} tree horizontal overflow expected {expected_tree_overflow}, "
+                    f"got {snapshot_tree_scroller.get('horizontal_overflow')!r}",
+                )
+                check(
+                    snapshot_tree_scroller.get("vertical_overflow") == 0
+                    and snapshot_tree_scroller.get("rails", {}).get("horizontal")
+                    is (expected_tree_overflow > 0)
+                    and snapshot_tree_scroller.get("rails", {}).get("vertical") is False,
+                    "splitter-evidence",
+                    f"{label} tree rail state {snapshot_tree_scroller.get('rails')!r}",
+                )
+                check(
+                    snapshot_tree_scroller.get("all_tree_kind_right_edges_within_content") is True,
+                    "splitter-evidence",
+                    f"{label} tree kind containment "
+                    f"{snapshot_tree_scroller.get('tree_kind_right_edges')!r}",
+                )
+
+    if args.wide_evidence:
+        for wide_width, wide_height in WIDE_VIEWPORTS:
+            wide_stem = (
+                f"{Path(expected['image']).stem}.wide-evidence-"
+                f"{wide_width}x{wide_height}"
+            )
+            wide_image = ROOT / Path(expected["image"]).with_name(f"{wide_stem}.png")
+            wide_measurements = ROOT / Path(expected["measurements"]).with_name(
+                f"{wide_stem}.measurements.json"
+            )
+            check(wide_image.is_file(), "wide-evidence-files", f"missing {wide_image}")
+            check(
+                wide_measurements.is_file(),
+                "wide-evidence-files",
+                f"missing {wide_measurements}",
+            )
+            if wide_image.is_file() and wide_measurements.is_file():
+                wide_data = json.loads(wide_measurements.read_text(encoding="utf-8"))
+                check(
+                    image_dimensions(wide_image) == (wide_width, wide_height),
+                    "wide-evidence-dimensions",
+                    f"got {image_dimensions(wide_image)}",
+                )
+                check(
+                    wide_data.get("target") == target
+                    and wide_data.get("wide_evidence") is True
+                    and wide_data.get("viewport") == {
+                        "width": wide_width,
+                        "height": wide_height,
+                        "device_scale_factor": 1,
+                    },
+                    "wide-evidence-measurement",
+                    f"unexpected metadata {wide_data.get('target')!r}/"
+                    f"{wide_data.get('viewport')!r}",
+                )
+                check(
+                    wide_data.get("image_sha256")
+                    == hashlib.sha256(wide_image.read_bytes()).hexdigest(),
+                    "wide-evidence-sha256",
+                    "measurement digest does not match PNG",
+                )
+                check(
+                    not wide_data.get("console_errors") and not wide_data.get("page_errors"),
+                    "wide-evidence-browser-errors",
+                    f"console={wide_data.get('console_errors')!r}, "
+                    f"page={wide_data.get('page_errors')!r}",
+                )
+                check(
+                    all(value == 0 for value in wide_data.get("overflow", {}).values()),
+                    "wide-evidence-page-overflow",
+                    f"got {wide_data.get('overflow')!r}",
+                )
+                wide_tree = wide_data.get("tree_scroller", {})
+                check(
+                    wide_tree.get("horizontal_overflow") == 0
+                    and wide_tree.get("vertical_overflow") == 0
+                    and wide_tree.get("rails", {}).get("horizontal", {}).get("visible") is False
+                    and wide_tree.get("rails", {}).get("vertical", {}).get("visible") is False
+                    and len(wide_tree.get("identities", [])) == 7,
+                    "wide-evidence-navigator",
+                    f"got {wide_tree!r}",
+                )
+                wide_result = wide_data.get("result_scroller", {})
+                wide_result_rows = wide_result.get("rows", {})
+                check(
+                    wide_result_rows.get("count") == 50
+                    and (
+                        wide_result_rows.get("first", {}).get("name"),
+                        wide_result_rows.get("first", {}).get("grade"),
                     )
+                    == EXPECTED_FIRST_RESULT
+                    and (
+                        wide_result_rows.get("last", {}).get("name"),
+                        wide_result_rows.get("last", {}).get("grade"),
+                    )
+                    == EXPECTED_LAST_RESULT
+                    and wide_result.get("horizontal_overflow") == 0,
+                    "wide-evidence-results",
+                    f"got {wide_result!r}",
+                )
+                check(
+                    wide_result.get("visible_rows_fully_contained") is True,
+                    "wide-evidence-result-containment",
+                    f"got {wide_result.get('visible_rows_fully_contained')!r}",
+                )
+                wide_fixture = wide_data.get("result_fixture") or {}
+                check(
+                    wide_fixture.get("overflowing") is not None
+                    and wide_fixture.get("sticky_header_at_end") is True
+                    and wide_fixture.get("footer_fixed_at_end") is True,
+                    "wide-evidence-result-fixture",
+                    f"got {wide_fixture!r}",
+                )
+                if wide_fixture.get("overflowing"):
                     check(
-                        snapshot_tree_scroller.get(
-                            "all_tree_kind_right_edges_within_content"
-                        )
-                        is True,
-                        "splitter-evidence",
-                        f"{label} tree kind containment "
-                        f"{snapshot_tree_scroller.get('tree_kind_right_edges')!r}",
+                        wide_result.get("rails", {}).get("vertical", {}).get("visible") is True
+                        and all(
+                            wide_fixture.get(key)
+                            for key in (
+                                "wheel_moved",
+                                "page_down_moved",
+                                "vertical_end_reached",
+                                "vertical_arrow_moved",
+                                "vertical_pointer_moved",
+                            )
+                        ),
+                        "wide-evidence-result-rail",
+                        f"got {wide_result.get('rails')!r}/{wide_fixture!r}",
+                    )
+                else:
+                    check(
+                        wide_result.get("rails", {}).get("vertical", {}).get("visible") is False,
+                        "wide-evidence-result-rail",
+                        f"fake rail got {wide_result.get('rails')!r}",
                     )
 
     if failures:
@@ -717,7 +1029,11 @@ def main() -> None:
     print(
         f"PNG {expected_viewport['width']}x{expected_viewport['height']} · SHA-256 {digest}"
     )
-    approval = "unset" if product_owner_approval is None else "recorded"
+    approval = (
+        "unset"
+        if product_owner_approval is None
+        else str(product_owner_approval.get("status", "recorded"))
+    )
     print(
         f"status {entry.get('status')} · "
         f"main-agent evaluation {evaluation.get('status')} · "
