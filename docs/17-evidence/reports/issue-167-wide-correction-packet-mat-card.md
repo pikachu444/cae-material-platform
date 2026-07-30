@@ -1,7 +1,7 @@
 # Issue #167 wide correction packet — MAT-CARD
 
-Date: 2026-07-30  
-Writer: configured `implementer_luna_max`, one bounded writer for this family  
+Date: 2026-07-30
+Writer: configured `implementer_luna_max`, one bounded writer for this family
 Issue: <https://github.com/pikachu444/cae-material-platform/issues/167>
 
 ## Bounded result

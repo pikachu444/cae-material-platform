@@ -1,7 +1,7 @@
 # Issue #167 reviewer packet — MAT-CARD light native preview
 
-Date: 2026-07-30  
-Reviewer: one fresh configured read-only Terra High reviewer  
+Date: 2026-07-30
+Reviewer: one fresh configured read-only Terra High reviewer
 Issue: <https://github.com/pikachu444/cae-material-platform/issues/167>
 
 ## Bounded acceptance
@@ -72,4 +72,3 @@ Read-only. Do not edit, recapture, update lifecycle, commit, push or touch GitHu
    `docs/01-product/visual-acceptance-matrix.md`, especially Q-03, Q-05–Q-09, Q-15, Q-16 and Q-20.
 6. Return `approve` or `changes_requested`, hard-gate failures, actionable findings and residual
    concerns.
-

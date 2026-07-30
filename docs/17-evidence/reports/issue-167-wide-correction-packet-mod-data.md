@@ -1,7 +1,7 @@
 # Issue #167 wide correction packet — MOD-DATA
 
-Date: 2026-07-30  
-Writer: configured `implementer_luna_max`, one bounded writer for this family  
+Date: 2026-07-30
+Writer: configured `implementer_luna_max`, one bounded writer for this family
 Issue: <https://github.com/pikachu444/cae-material-platform/issues/167>
 
 ## Bounded result
@@ -121,4 +121,3 @@ git diff --check
 ```
 
 Return exact changed paths, command results, all seven final image hashes and any residual risk.
-

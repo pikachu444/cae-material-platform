@@ -1,8 +1,8 @@
 # Issue #167 product-owner correction packet — MAT-CARD light native preview
 
-Date: 2026-07-30  
-Owner: active main agent `/root`  
-Writer: one configured fresh Terra High correction writer  
+Date: 2026-07-30
+Owner: active main agent `/root`
+Writer: one configured fresh Terra High correction writer
 Issue: <https://github.com/pikachu444/cae-material-platform/issues/167>
 
 ## Authorization and finding
@@ -99,4 +99,3 @@ git diff --check
 
 Open all seven approval/support images at original resolution before handoff. Report every resulting
 SHA-256, changed path, gate result and residual concern. Do not update the common lifecycle.
-

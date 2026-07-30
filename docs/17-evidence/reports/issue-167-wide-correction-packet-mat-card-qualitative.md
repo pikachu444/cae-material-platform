@@ -1,7 +1,7 @@
 # Issue #167 qualitative wide correction — MAT-CARD
 
-Date: 2026-07-30  
-Writer: configured fresh correction writer  
+Date: 2026-07-30
+Writer: configured fresh correction writer
 Issue: <https://github.com/pikachu444/cae-material-platform/issues/167>
 
 ## Why the first wide result is rejected

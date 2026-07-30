@@ -1,7 +1,7 @@
 # Issue #167 sole correction — MOD-DATA axis unit notation
 
-Date: 2026-07-30  
-Writer: configured fresh correction writer  
+Date: 2026-07-30
+Writer: configured fresh correction writer
 Issue: <https://github.com/pikachu444/cae-material-platform/issues/167>
 
 ## Main-agent override

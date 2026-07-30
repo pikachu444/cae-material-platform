@@ -1,7 +1,7 @@
 # Issue #167 reviewer packet — MAT-CARD wide correction
 
-Date: 2026-07-30  
-Reviewer: fresh configured read-only reviewer  
+Date: 2026-07-30
+Reviewer: fresh configured read-only reviewer
 Issue: <https://github.com/pikachu444/cae-material-platform/issues/167>
 
 ## Acceptance scope
