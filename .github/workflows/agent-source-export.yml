@@ -1,5 +1,6 @@
 name: Agent source export
 
+# Temporary review helper. Remove before the draft PR is considered complete.
 on:
   pull_request:
     types: [opened, synchronize, reopened]
