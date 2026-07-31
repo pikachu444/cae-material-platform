@@ -40,6 +40,29 @@ jobs:
         shell: bash
         run: |
           cat .agent/administration-wave06-payload.part-* | base64 --decode | tar -xz
+          python - <<'PY'
+          from pathlib import Path
+
+          finalize = Path("docs/00-research/ux-service-reference/finalize_administration_remaining_wave06.py")
+          text = finalize.read_text(encoding="utf-8")
+          text = text.replace(
+              "2560" + chr(0x00D7) + "1440 and 3840" + chr(0x00D7) + "2160",
+              "2560x1440 and 3840x2160",
+          )
+          finalize.write_text(text, encoding="utf-8")
+
+          validate = Path("docs/00-research/ux-service-reference/validate_administration_remaining_wave06.py")
+          text = validate.read_text(encoding="utf-8")
+          text = text.replace(
+              "from pathlib import Path\nfrom typing import Any, Iterable\n",
+              "from collections.abc import Iterable\nfrom pathlib import Path\nfrom typing import Any\n",
+          )
+          text = text.replace(
+              '"1' + chr(0x2013) + '8 of 24"',
+              '"1" + chr(0x2013) + "8 of 24"',
+          )
+          validate.write_text(text, encoding="utf-8")
+          PY
 
       - name: Capture the remaining Administration references
         run: |
