@@ -60,9 +60,8 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1440x900.png
       - docs/17-evidence/images/issue-167-service-reference/administration-normal-scroll-1440x900.png
       - docs/17-evidence/images/issue-167-service-reference/administration-splitter-behavior-1440x900.png
-  - rationale: Normal, normal-scroll, and restored-splitter evidence share one deliberate final database workspace at this viewport.
+  - rationale: Normal-scroll and restored-splitter evidence share one deliberate final database workspace at this viewport.
     images:
-      - docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1920x1080.png
       - docs/17-evidence/images/issue-167-service-reference/administration-normal-scroll-1920x1080.png
       - docs/17-evidence/images/issue-167-service-reference/administration-splitter-behavior-1920x1080.png
 captures:
