@@ -1,0 +1,407 @@
+{
+  "target": "administration-link-type-invalid-endpoint-or-cardinality-blocked-1440x900",
+  "family": "link",
+  "state": "link-invalid",
+  "viewport": "1440x900",
+  "width": 1440,
+  "height": 900,
+  "image": "docs/17-evidence/images/issue-167-service-reference/administration-link-type-invalid-endpoint-or-cardinality-blocked-1440x900.png",
+  "image_sha256": "3cf8fff03ead8dc3ac1a2ee3313a1a4c4e6b6f8cecfc5605eb5ca49da908bc67",
+  "snapshot": {
+    "ready": true,
+    "family": "link",
+    "state": "link-invalid",
+    "pageTitle": "Database design",
+    "topbarContext": "Administrator · Atlas workspace",
+    "activePrimary": [],
+    "controls": [
+      {
+        "tag": "a",
+        "name": "Skip to Administration workspace",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Materials",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Modeling",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Activity",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Administration",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Validate",
+        "disabled": false,
+        "action": "validate"
+      },
+      {
+        "tag": "button",
+        "name": "Test Related",
+        "disabled": false,
+        "action": "preview"
+      },
+      {
+        "tag": "button",
+        "name": "Save new revision",
+        "disabled": true,
+        "action": "save"
+      },
+      {
+        "tag": "button",
+        "name": "Tables5",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Attributes18",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Layouts3",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Subsets4",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Link Types3",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "select",
+        "name": "Current Table",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "div",
+        "name": "Resize navigator",
+        "disabled": false,
+        "action": "navigator"
+      },
+      {
+        "tag": "button",
+        "name": "Neutral model to solver cards1 → many5",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Test Data to materialmany → 13",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Related materialsmany ↔ many2",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "div",
+        "name": "Resize object list",
+        "disabled": false,
+        "action": "list"
+      },
+      {
+        "tag": "input",
+        "name": "Name",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "select",
+        "name": "Neutral materials",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "select",
+        "name": "Neutral materials",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "input",
+        "name": "Forward",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "input",
+        "name": "Reverse",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "select",
+        "name": "onemany",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "select",
+        "name": "manyone",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Save new revision",
+        "disabled": true,
+        "action": "save-link"
+      },
+      {
+        "tag": "button",
+        "name": "Validate and test",
+        "disabled": true,
+        "action": "validate-link"
+      },
+      {
+        "tag": "button",
+        "name": "Discard draft",
+        "disabled": false,
+        "action": "discard"
+      }
+    ],
+    "nestedInteractive": [],
+    "legacySelectors": [
+      {
+        "selector": ".page-stack",
+        "count": 0
+      },
+      {
+        "selector": ".page-heading",
+        "count": 0
+      },
+      {
+        "selector": ".content-card",
+        "count": 0
+      },
+      {
+        "selector": ".hero-actions",
+        "count": 0
+      },
+      {
+        "selector": ".eyebrow",
+        "count": 0
+      },
+      {
+        "selector": ".status-badge",
+        "count": 0
+      },
+      {
+        "selector": ".count-chip",
+        "count": 0
+      }
+    ],
+    "bodyFontPx": 13,
+    "maximumDataFontPx": 13,
+    "labels": [
+      "Current Table",
+      "Name",
+      "Source / target",
+      "Source Table",
+      "Target Table",
+      "Direction labels",
+      "Forward",
+      "Reverse",
+      "Cardinality",
+      "Sources allowed per target",
+      "Targets allowed per source"
+    ],
+    "fieldValues": [
+      {
+        "id": "current-table",
+        "value": "Materials master",
+        "disabled": false
+      },
+      {
+        "id": "link-name",
+        "value": "Neutral model to solver cards",
+        "disabled": false
+      },
+      {
+        "id": "source-table",
+        "value": "Neutral materials",
+        "disabled": false
+      },
+      {
+        "id": "target-table",
+        "value": "Neutral materials",
+        "disabled": false
+      },
+      {
+        "id": "forward-label",
+        "value": "Available solver cards",
+        "disabled": false
+      },
+      {
+        "id": "reverse-label",
+        "value": "Generated from neutral model",
+        "disabled": false
+      },
+      {
+        "id": "source-cardinality",
+        "value": "one",
+        "disabled": false
+      },
+      {
+        "id": "target-cardinality",
+        "value": "many",
+        "disabled": false
+      }
+    ],
+    "alerts": [
+      "Invalid endpointsSource and target cannot both be Neutral materials for this Link Type. Choose the governed Solver cards Table."
+    ],
+    "listRows": [
+      "Neutral model to solver cards1 → many5",
+      "Test Data to materialmany → 13",
+      "Related materialsmany ↔ many2"
+    ],
+    "tasks": [],
+    "readiness": [],
+    "related": [
+      "Neutral metal model · r4→Abaqus 2025 kg-m-s · r2r4",
+      "Neutral metal model · r4→OpenRadioss 2025 kg-m-s · r1r4",
+      "Neutral metal model · r4→LS-DYNA R15 mm-ms-tonne · r1r4",
+      "Neutral polymer model · r2→Abaqus 2025 kg-m-s · r1r2",
+      "Neutral polymer model · r2→OpenRadioss 2025 kg-m-s · r1r2"
+    ],
+    "orderedFields": [],
+    "filters": [],
+    "documentText": "Skip to Administration workspace CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator · Atlas workspace Database design Atlas workspace · Materials master Ready Validate Test Related Save new revision Schema objects 5 areas Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 3 Current Table Materials master Test records Solver cards Definitions pin this exact Table revision. Current Table scope retained Link Types 3 items Name Cardinality Rev Neutral model to solver cards 1 → many 5 Test Data to material many → 1 3 Related materials many ↔ many 2 Neutral model to solver cards Link Type revision 5 Blocked draft Invalid endpoints Source and target cannot both be Neutral materials for this Link Type. Choose the governed Solver cards Table. Name Source / target Source Table Neutral materials Target Table Neutral materials Current Table revisions are pinned when this Link Type revision is saved. Direction labels Forward Reverse Cardinality Sources allowed per target one many Targets allowed per source many one One exact Neutral revision may branch to several solver/version/unit-specific cards. Exact revision policy: each Record Link pins the source revision and target revision. There is no “latest” alias. Save new revision Validate and test Discard draft Branching relationship preview One-to-many and many-to-one are independently configured Read-only Related Records test Forward label: Available solver cards · exact Record revisions 5 links Neutral metal model · r4 → Abaqus 2025 kg-m-s · r2 r4 Neutral metal model · r4 → OpenRadioss 2025 kg-m-s · r1 r4 Neutral metal model · r4 → LS-DYNA R15 mm-ms-tonne · r1 r4 Neutral polymer model · r2 → Abaqus 2025 kg-m-s · r1 r2 Neutral polymer model · r2 → OpenRadioss 2025 kg-m-s · r1 r2 Link Type · Neutral model to solver cards Exact revision editing Ready Online",
+    "documentOverflow": {
+      "horizontal": 0,
+      "vertical": 0
+    },
+    "editorScroll": {
+      "scrollHeight": 754,
+      "clientHeight": 754,
+      "scrollTop": 0
+    },
+    "listScroll": {
+      "scrollHeight": 718,
+      "clientHeight": 718,
+      "scrollTop": 0
+    },
+    "editorTextClipped": false,
+    "publishButtons": [],
+    "selectedRowCount": 1,
+    "previewTables": 0,
+    "geometry": {
+      "application_bar": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 46,
+        "right": 1440,
+        "bottom": 46
+      },
+      "command_bar": {
+        "x": 9,
+        "y": 55,
+        "width": 1422,
+        "height": 54,
+        "right": 1431,
+        "bottom": 109
+      },
+      "workspace": {
+        "x": 9,
+        "y": 109,
+        "width": 1422,
+        "height": 754,
+        "right": 1431,
+        "bottom": 863
+      },
+      "navigator": {
+        "x": 9,
+        "y": 109,
+        "width": 220,
+        "height": 754,
+        "right": 229,
+        "bottom": 863
+      },
+      "object_list": {
+        "x": 236,
+        "y": 109,
+        "width": 292,
+        "height": 754,
+        "right": 528,
+        "bottom": 863
+      },
+      "editor": {
+        "x": 535,
+        "y": 109,
+        "width": 896,
+        "height": 754,
+        "right": 1431,
+        "bottom": 863
+      },
+      "editor_grid": {
+        "x": 549,
+        "y": 109,
+        "width": 856,
+        "height": 577.1875,
+        "right": 1405,
+        "bottom": 686.1875
+      },
+      "editor_column": {
+        "x": 549,
+        "y": 109,
+        "width": 447.859375,
+        "height": 577.1875,
+        "right": 996.859375,
+        "bottom": 686.1875
+      },
+      "preview_column": {
+        "x": 1010.859375,
+        "y": 121,
+        "width": 394.140625,
+        "height": 329.28125,
+        "right": 1405,
+        "bottom": 450.28125
+      },
+      "status_bar": {
+        "x": 9,
+        "y": 863,
+        "width": 1422,
+        "height": 28,
+        "right": 1431,
+        "bottom": 891
+      }
+    }
+  },
+  "interactions": {
+    "keyboard_splitter_delta": 12
+  },
+  "console_errors": [],
+  "page_errors": []
+}

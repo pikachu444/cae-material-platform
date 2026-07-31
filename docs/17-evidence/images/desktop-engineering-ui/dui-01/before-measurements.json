@@ -61,7 +61,7 @@
     },
     "statusBar": null,
     "url": "http://127.0.0.1:5173/materials?q=DP780&selected=0e916d48-2ab1-42be-ac23-4ec967b26e76",
-    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/before/materials-search-1366x768.jpg"
+    "file": "docs/17-evidence/images/desktop-engineering-ui/dui-01/before/materials-search-1366x768.jpg"
   },
   {
     "actual": {
@@ -131,7 +131,7 @@
     },
     "statusBar": null,
     "url": "http://127.0.0.1:5173/materials?q=DP780&selected=0e916d48-2ab1-42be-ac23-4ec967b26e76",
-    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/before/materials-search-1440x900.jpg"
+    "file": "docs/17-evidence/images/desktop-engineering-ui/dui-01/before/materials-search-1440x900.jpg"
   },
   {
     "actual": {
@@ -201,7 +201,7 @@
     },
     "statusBar": null,
     "url": "http://127.0.0.1:5173/materials?q=DP780&selected=0e916d48-2ab1-42be-ac23-4ec967b26e76",
-    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/before/materials-search-1920x1080.jpg"
+    "file": "docs/17-evidence/images/desktop-engineering-ui/dui-01/before/materials-search-1920x1080.jpg"
   },
   {
     "actual": {
@@ -272,7 +272,7 @@
     },
     "statusBar": null,
     "url": "http://127.0.0.1:5173/materials?q=DP780&mode=browse&selected=0e916d48-2ab1-42be-ac23-4ec967b26e76",
-    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/before/browse-tree-1366x768.jpg"
+    "file": "docs/17-evidence/images/desktop-engineering-ui/dui-01/before/browse-tree-1366x768.jpg"
   },
   {
     "actual": {
@@ -349,7 +349,7 @@
     },
     "statusBar": null,
     "url": "http://127.0.0.1:5173/materials?q=DP780&mode=browse&selected=0e916d48-2ab1-42be-ac23-4ec967b26e76",
-    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/before/browse-tree-1440x900.jpg"
+    "file": "docs/17-evidence/images/desktop-engineering-ui/dui-01/before/browse-tree-1440x900.jpg"
   },
   {
     "actual": {
@@ -426,7 +426,7 @@
     },
     "statusBar": null,
     "url": "http://127.0.0.1:5173/materials?q=DP780&mode=browse&selected=0e916d48-2ab1-42be-ac23-4ec967b26e76",
-    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/before/browse-tree-1920x1080.jpg"
+    "file": "docs/17-evidence/images/desktop-engineering-ui/dui-01/before/browse-tree-1920x1080.jpg"
   },
   {
     "actual": {
@@ -496,7 +496,7 @@
     },
     "statusBar": null,
     "url": "http://127.0.0.1:5173/materials/0e916d48-2ab1-42be-ac23-4ec967b26e76",
-    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/before/material-detail-1366x768.jpg"
+    "file": "docs/17-evidence/images/desktop-engineering-ui/dui-01/before/material-detail-1366x768.jpg"
   },
   {
     "actual": {
@@ -566,7 +566,7 @@
     },
     "statusBar": null,
     "url": "http://127.0.0.1:5173/materials/0e916d48-2ab1-42be-ac23-4ec967b26e76",
-    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/before/material-detail-1440x900.jpg"
+    "file": "docs/17-evidence/images/desktop-engineering-ui/dui-01/before/material-detail-1440x900.jpg"
   },
   {
     "actual": {
@@ -636,7 +636,7 @@
     },
     "statusBar": null,
     "url": "http://127.0.0.1:5173/materials/0e916d48-2ab1-42be-ac23-4ec967b26e76",
-    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/before/material-detail-1920x1080.jpg"
+    "file": "docs/17-evidence/images/desktop-engineering-ui/dui-01/before/material-detail-1920x1080.jpg"
   },
   {
     "actual": {
@@ -720,7 +720,7 @@
     },
     "statusBar": null,
     "url": "http://127.0.0.1:5173/modeling",
-    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/before/modeling-fit-1366x768.jpg"
+    "file": "docs/17-evidence/images/desktop-engineering-ui/dui-01/before/modeling-fit-1366x768.jpg"
   },
   {
     "actual": {
@@ -804,7 +804,7 @@
     },
     "statusBar": null,
     "url": "http://127.0.0.1:5173/modeling",
-    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/before/modeling-fit-1440x900.jpg"
+    "file": "docs/17-evidence/images/desktop-engineering-ui/dui-01/before/modeling-fit-1440x900.jpg"
   },
   {
     "actual": {
@@ -888,7 +888,7 @@
     },
     "statusBar": null,
     "url": "http://127.0.0.1:5173/modeling",
-    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/before/modeling-fit-1920x1080.jpg"
+    "file": "docs/17-evidence/images/desktop-engineering-ui/dui-01/before/modeling-fit-1920x1080.jpg"
   },
   {
     "actual": {
@@ -958,7 +958,7 @@
     },
     "statusBar": null,
     "url": "http://127.0.0.1:5173/activity",
-    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/before/activity-1366x768.jpg"
+    "file": "docs/17-evidence/images/desktop-engineering-ui/dui-01/before/activity-1366x768.jpg"
   },
   {
     "actual": {
@@ -1028,7 +1028,7 @@
     },
     "statusBar": null,
     "url": "http://127.0.0.1:5173/activity",
-    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/before/activity-1440x900.jpg"
+    "file": "docs/17-evidence/images/desktop-engineering-ui/dui-01/before/activity-1440x900.jpg"
   },
   {
     "actual": {
@@ -1098,7 +1098,7 @@
     },
     "statusBar": null,
     "url": "http://127.0.0.1:5173/activity",
-    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/before/activity-1920x1080.jpg"
+    "file": "docs/17-evidence/images/desktop-engineering-ui/dui-01/before/activity-1920x1080.jpg"
   },
   {
     "actual": {
@@ -1175,7 +1175,7 @@
     },
     "statusBar": null,
     "url": "http://127.0.0.1:5173/administration/database",
-    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/before/administration-1366x768.jpg"
+    "file": "docs/17-evidence/images/desktop-engineering-ui/dui-01/before/administration-1366x768.jpg"
   },
   {
     "actual": {
@@ -1252,7 +1252,7 @@
     },
     "statusBar": null,
     "url": "http://127.0.0.1:5173/administration/database",
-    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/before/administration-1440x900.jpg"
+    "file": "docs/17-evidence/images/desktop-engineering-ui/dui-01/before/administration-1440x900.jpg"
   },
   {
     "actual": {
@@ -1329,6 +1329,6 @@
     },
     "statusBar": null,
     "url": "http://127.0.0.1:5173/administration/database",
-    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/before/administration-1920x1080.jpg"
+    "file": "docs/17-evidence/images/desktop-engineering-ui/dui-01/before/administration-1920x1080.jpg"
   }
 ]

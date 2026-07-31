@@ -1,0 +1,319 @@
+{
+  "target": "administration-access-normal-wide-2560x1440",
+  "family": "access",
+  "state": "normal",
+  "viewport": "2560x1440",
+  "width": 2560,
+  "height": 1440,
+  "image": "docs/17-evidence/images/issue-167-service-reference/administration-access-normal-wide-2560x1440.png",
+  "image_sha256": "540615803e8c49f5044873bd40e8e80bed6be12db6cd6e5273593a1ea73879ff",
+  "snapshot": {
+    "ready": true,
+    "family": "access",
+    "state": "normal",
+    "pageTitle": "Users and access",
+    "topbarContext": "Administrator · Atlas workspace",
+    "activePrimary": [
+      "Add assignment"
+    ],
+    "controls": [
+      {
+        "tag": "a",
+        "name": "Skip to Administration workspace",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Materials",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Modeling",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Activity",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Administration",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Refresh",
+        "disabled": false,
+        "action": "refresh"
+      },
+      {
+        "tag": "button",
+        "name": "Add assignment",
+        "disabled": false,
+        "action": "add-assignment"
+      },
+      {
+        "tag": "button",
+        "name": "Assignments8",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Role presets3",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Access guidance1",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "div",
+        "name": "Resize navigator",
+        "disabled": false,
+        "action": "navigator"
+      },
+      {
+        "tag": "button",
+        "name": "material-reviewersReviewerActive",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "material-engineersUserActive",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "materials-adminsAdministratorActive",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "test-lab-usersUserActive",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "cae-card-reviewersReviewerActive",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "polymer-modelingUserActive",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "materials-auditorsReviewerActive",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "external-lab-readersUserExpires 30 d",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "div",
+        "name": "Resize object list",
+        "disabled": false,
+        "action": "list"
+      },
+      {
+        "tag": "button",
+        "name": "Edit assignment",
+        "disabled": false,
+        "action": "edit-assignment"
+      },
+      {
+        "tag": "button",
+        "name": "Revoke access…",
+        "disabled": false,
+        "action": "revoke"
+      }
+    ],
+    "nestedInteractive": [],
+    "legacySelectors": [
+      {
+        "selector": ".page-stack",
+        "count": 0
+      },
+      {
+        "selector": ".page-heading",
+        "count": 0
+      },
+      {
+        "selector": ".content-card",
+        "count": 0
+      },
+      {
+        "selector": ".hero-actions",
+        "count": 0
+      },
+      {
+        "selector": ".eyebrow",
+        "count": 0
+      },
+      {
+        "selector": ".status-badge",
+        "count": 0
+      },
+      {
+        "selector": ".count-chip",
+        "count": 0
+      }
+    ],
+    "bodyFontPx": 13,
+    "maximumDataFontPx": 13,
+    "labels": [],
+    "fieldValues": [],
+    "alerts": [],
+    "listRows": [
+      "material-reviewersReviewerActive",
+      "material-engineersUserActive",
+      "materials-adminsAdministratorActive",
+      "test-lab-usersUserActive",
+      "cae-card-reviewersReviewerActive",
+      "polymer-modelingUserActive",
+      "materials-auditorsReviewerActive",
+      "external-lab-readersUserExpires 30 d"
+    ],
+    "tasks": [
+      "Find, compare and download materialsIncluded",
+      "Upload, process and fit test dataIncluded",
+      "Review material and solver-card requestsIncluded",
+      "Create approved solver-card deliveriesIncluded",
+      "Configure schema and accessNot granted"
+    ],
+    "readiness": [],
+    "related": [],
+    "orderedFields": [],
+    "filters": [],
+    "documentText": "Skip to Administration workspace CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator · Atlas workspace Users and access Atlas workspace · task-based product roles Ready Refresh Add assignment Access administration 3 areas Assignments 8 Role presets 3 Access guidance 1 Organization and project scope Assignments 8 items User or team Role Status material-reviewers Reviewer Active material-engineers User Active materials-admins Administrator Active test-lab-users User Active cae-card-reviewers Reviewer Active polymer-modeling User Active materials-auditors Reviewer Active external-lab-readers User Expires 30 d material-reviewers Reviewer assignment · current project Active Subject Identity-provider group · material-reviewers Product role Reviewer Scope Atlas workspace · current project Classification Up to Confidential · export-controlled data excluded Valid from 2026-07-18 · no expiry Edit assignment Revoke access… Included Reviewer work Readable task preset backed by feature grants Read-only Find, compare and download materials Included Upload, process and fit test data Included Review material and solver-card requests Included Create approved solver-card deliveries Included Configure schema and access Not granted Enforcement: detailed service permissions and PostgreSQL row policies remain behind this task-based role. Assignment · material-reviewers Task-based access Ready Online",
+    "documentOverflow": {
+      "horizontal": 0,
+      "vertical": 0
+    },
+    "editorScroll": {
+      "scrollHeight": 1290,
+      "clientHeight": 1290,
+      "scrollTop": 0
+    },
+    "listScroll": {
+      "scrollHeight": 1254,
+      "clientHeight": 1254,
+      "scrollTop": 0
+    },
+    "editorTextClipped": false,
+    "publishButtons": [],
+    "selectedRowCount": 1,
+    "previewTables": 0,
+    "geometry": {
+      "application_bar": {
+        "x": 0,
+        "y": 0,
+        "width": 2560,
+        "height": 46,
+        "right": 2560,
+        "bottom": 46
+      },
+      "command_bar": {
+        "x": 13,
+        "y": 55,
+        "width": 2534,
+        "height": 58,
+        "right": 2547,
+        "bottom": 113
+      },
+      "workspace": {
+        "x": 13,
+        "y": 113,
+        "width": 2534,
+        "height": 1290,
+        "right": 2547,
+        "bottom": 1403
+      },
+      "navigator": {
+        "x": 13,
+        "y": 113,
+        "width": 232,
+        "height": 1290,
+        "right": 245,
+        "bottom": 1403
+      },
+      "object_list": {
+        "x": 252,
+        "y": 113,
+        "width": 430,
+        "height": 1290,
+        "right": 682,
+        "bottom": 1403
+      },
+      "editor": {
+        "x": 689,
+        "y": 113,
+        "width": 1858,
+        "height": 1290,
+        "right": 2547,
+        "bottom": 1403
+      },
+      "editor_grid": {
+        "x": 707,
+        "y": 113,
+        "width": 772,
+        "height": 301.21875,
+        "right": 1479,
+        "bottom": 414.21875
+      },
+      "editor_column": {
+        "x": 707,
+        "y": 113,
+        "width": 620,
+        "height": 299,
+        "right": 1327,
+        "bottom": 412
+      },
+      "preview_column": {
+        "x": 1345,
+        "y": 125,
+        "width": 480,
+        "height": 289.21875,
+        "right": 1825,
+        "bottom": 414.21875
+      },
+      "status_bar": {
+        "x": 13,
+        "y": 1403,
+        "width": 2534,
+        "height": 28,
+        "right": 2547,
+        "bottom": 1431
+      }
+    }
+  },
+  "interactions": {
+    "keyboard_splitter_delta": 12,
+    "revoke_confirmation_visible": true,
+    "revoke_reason_preserved": "Team membership moved to the consolidated CAE review group."
+  },
+  "console_errors": [],
+  "page_errors": []
+}

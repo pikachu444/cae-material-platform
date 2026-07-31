@@ -6827,3 +6827,31 @@ After reviewing the corrected 2560×1440 and 3840×2160 evidence, the product ow
 and push. This approves the three MOD-PROCESS normal lifecycle references and the canonical
 prerequisite-blocked reference. Each retains its registered SHA-256 and independent manifest
 lifecycle. The finite inventory advances from 51 to 55 approved references; 17 references remain.
+
+## 115. WAVE-06 remaining Administration references — product-owner handoff
+
+Date: 2026-07-31
+
+The main agent completed the finite remaining Administration reference scope on branch
+`agent/complete-167-and-157` without changing production React/CSS, backend, API, migrations or
+current product captures.
+
+- `ADM-SCHEMA-RELATIONS`: Layout, Subset and Link Type — 9 approval images.
+- `ADM-ACCESS`: normal, denied and revoke-confirm — 5 approval images.
+- `ADM-PUBLISH`: truthful Not configured boundary — 3 approval images.
+- Evidence-only states: 15 families / 45 canonical-viewport images.
+- Wide evidence: 10 images at 2560x1440 and 3840x2160.
+
+The new WAVE-06 validator passed 1,480 deterministic checks across all 72 new captures. Exact
+viewport dimensions and image hashes match, browser errors and document overflow are zero, legacy
+selectors and nested interactive controls are absent, keyboard pane resizing works, and every state
+uses at most one active filled primary command. Family-specific checks prove ordered Layout fields
+and saved Record preview, same-query Subset total/rows, exact-revision Link branching, safe access
+denial/revocation, and disabled non-fabricated Catalog publishing.
+
+The complete product-owner packet is
+[issue-167-administration-remaining-product-owner-packet.md](issue-167-administration-remaining-product-owner-packet.md).
+The manifest now contains all 72 finite approval targets: 55 remain approved and the 17 WAVE-06
+targets are `pending` with main-agent evaluation `accepted` and product-owner approval `absent`.
+A fresh configured Terra/Luna reviewer was not callable from this execution surface; no substitute
+review is claimed. No PR merge or production implementation has started.

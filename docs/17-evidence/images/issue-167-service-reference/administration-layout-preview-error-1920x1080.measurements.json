@@ -1,0 +1,404 @@
+{
+  "target": "administration-layout-preview-error-1920x1080",
+  "family": "layout",
+  "state": "preview-error",
+  "viewport": "1920x1080",
+  "width": 1920,
+  "height": 1080,
+  "image": "docs/17-evidence/images/issue-167-service-reference/administration-layout-preview-error-1920x1080.png",
+  "image_sha256": "0c147ff27ddc140749d2678f0e2527d5721320ad9e0c7447fe131fb8a471ee59",
+  "snapshot": {
+    "ready": true,
+    "family": "layout",
+    "state": "preview-error",
+    "pageTitle": "Database design",
+    "topbarContext": "Administrator · Atlas workspace",
+    "activePrimary": [
+      "Save new revision"
+    ],
+    "controls": [
+      {
+        "tag": "a",
+        "name": "Skip to Administration workspace",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Materials",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Modeling",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Activity",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Administration",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Validate",
+        "disabled": false,
+        "action": "validate"
+      },
+      {
+        "tag": "button",
+        "name": "Preview datasheet",
+        "disabled": false,
+        "action": "preview"
+      },
+      {
+        "tag": "button",
+        "name": "Save new revision",
+        "disabled": false,
+        "action": "save"
+      },
+      {
+        "tag": "button",
+        "name": "Tables5",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Attributes18",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Layouts3",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Subsets4",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Link Types3",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "select",
+        "name": "Current Table",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "div",
+        "name": "Resize navigator",
+        "disabled": false,
+        "action": "navigator"
+      },
+      {
+        "tag": "button",
+        "name": "Engineering datasheet9 fields7",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Solver delivery summary6 fields4",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Test evidence8 fields3",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "div",
+        "name": "Resize object list",
+        "disabled": false,
+        "action": "list"
+      },
+      {
+        "tag": "input",
+        "name": "Layout name",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "textarea",
+        "name": "Primary engineering datasheet for material identity, condition, properties, response curve and available solver cards.",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Add field",
+        "disabled": false,
+        "action": "add-field"
+      },
+      {
+        "tag": "button",
+        "name": "Move Material name",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Move Grade",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Move Material condition",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Move Density",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Move Young's modulus",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Move Poisson ratio",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Move Yield strength",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Move Stress–strain response",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Move Related solver cards",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Save new revision",
+        "disabled": false,
+        "action": "save-layout"
+      },
+      {
+        "tag": "button",
+        "name": "Discard draft",
+        "disabled": false,
+        "action": "discard"
+      }
+    ],
+    "nestedInteractive": [],
+    "legacySelectors": [
+      {
+        "selector": ".page-stack",
+        "count": 0
+      },
+      {
+        "selector": ".page-heading",
+        "count": 0
+      },
+      {
+        "selector": ".content-card",
+        "count": 0
+      },
+      {
+        "selector": ".hero-actions",
+        "count": 0
+      },
+      {
+        "selector": ".eyebrow",
+        "count": 0
+      },
+      {
+        "selector": ".status-badge",
+        "count": 0
+      },
+      {
+        "selector": ".count-chip",
+        "count": 0
+      }
+    ],
+    "bodyFontPx": 13,
+    "maximumDataFontPx": 13,
+    "labels": [
+      "Current Table",
+      "Layout name",
+      "Purpose"
+    ],
+    "fieldValues": [
+      {
+        "id": "current-table",
+        "value": "Materials master",
+        "disabled": false
+      },
+      {
+        "id": "layout-name",
+        "value": "Engineering datasheet",
+        "disabled": false
+      },
+      {
+        "id": "layout-desc",
+        "value": "Primary engineering datasheet for material identity, condition, properties, response curve and available solver cards.",
+        "disabled": false
+      }
+    ],
+    "alerts": [
+      "Preview refresh failedThe last valid saved Record remains visible. Retry without discarding the Layout draft."
+    ],
+    "listRows": [
+      "Engineering datasheet9 fields7",
+      "Solver delivery summary6 fields4",
+      "Test evidence8 fields3"
+    ],
+    "tasks": [],
+    "readiness": [],
+    "related": [],
+    "orderedFields": [
+      "1Material nameText↕",
+      "2GradeText↕",
+      "3Material conditionDiscrete↕",
+      "4DensityNumber↕",
+      "5Young's modulusNumber↕",
+      "6Poisson ratioNumber↕",
+      "7Yield strengthNumber↕",
+      "8Stress–strain responseCurve↕",
+      "9Related solver cardsRecord reference↕"
+    ],
+    "filters": [],
+    "documentText": "Skip to Administration workspace CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator · Atlas workspace Database design Atlas workspace · Materials master Attention required Validate Preview datasheet Save new revision Schema objects 5 areas Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 3 Current Table Materials master Test records Solver cards Definitions pin this exact Table revision. Current Table scope retained Layouts 3 items Name Fields Rev Engineering datasheet 9 fields 7 Solver delivery summary 6 fields 4 Test evidence 8 fields 3 Engineering datasheet Layout revision 7 · Materials master Unsaved draft Layout name Purpose Ordered fields Add field 1 Material name Text ↕ 2 Grade Text ↕ 3 Material condition Discrete ↕ 4 Density Number ↕ 5 Young's modulus Number ↕ 6 Poisson ratio Number ↕ 7 Yield strength Number ↕ 8 Stress–strain response Curve ↕ 9 Related solver cards Record reference ↕ Save new revision Discard draft Live datasheet preview Saved Record values in current Layout order Read-only Record preview Engineering datasheet · r7 · 9 saved fields DP780-REF · r3 Preview refresh failed The last valid saved Record remains visible. Retry without discarding the Layout draft. Property Value Condition Material name DP780 synthetic demo steel — Grade DP780-REF — Material condition As received 293 K Density 7.80e-9 tonne/mm³ Nominal Young's modulus 210,000 MPa 293 K Poisson ratio 0.30 293 K Yield strength 560 MPa Quasi-static Stress–strain response 1 saved curve Tensile Related solver cards 3 exact revisions Abaqus · OpenRadioss Layout · Engineering datasheet Exact revision editing Attention required Online",
+    "documentOverflow": {
+      "horizontal": 0,
+      "vertical": 0
+    },
+    "editorScroll": {
+      "scrollHeight": 930,
+      "clientHeight": 930,
+      "scrollTop": 0
+    },
+    "listScroll": {
+      "scrollHeight": 894,
+      "clientHeight": 894,
+      "scrollTop": 0
+    },
+    "editorTextClipped": false,
+    "publishButtons": [],
+    "selectedRowCount": 1,
+    "previewTables": 1,
+    "geometry": {
+      "application_bar": {
+        "x": 0,
+        "y": 0,
+        "width": 1920,
+        "height": 46,
+        "right": 1920,
+        "bottom": 46
+      },
+      "command_bar": {
+        "x": 13,
+        "y": 55,
+        "width": 1894,
+        "height": 58,
+        "right": 1907,
+        "bottom": 113
+      },
+      "workspace": {
+        "x": 13,
+        "y": 113,
+        "width": 1894,
+        "height": 930,
+        "right": 1907,
+        "bottom": 1043
+      },
+      "navigator": {
+        "x": 13,
+        "y": 113,
+        "width": 232,
+        "height": 930,
+        "right": 245,
+        "bottom": 1043
+      },
+      "object_list": {
+        "x": 252,
+        "y": 113,
+        "width": 312,
+        "height": 930,
+        "right": 564,
+        "bottom": 1043
+      },
+      "editor": {
+        "x": 571,
+        "y": 113,
+        "width": 1336,
+        "height": 930,
+        "right": 1907,
+        "bottom": 1043
+      },
+      "editor_grid": {
+        "x": 589,
+        "y": 113,
+        "width": 772,
+        "height": 616.34375,
+        "right": 1361,
+        "bottom": 729.34375
+      },
+      "editor_column": {
+        "x": 589,
+        "y": 113,
+        "width": 392.703125,
+        "height": 601.421875,
+        "right": 981.703125,
+        "bottom": 714.421875
+      },
+      "preview_column": {
+        "x": 999.703125,
+        "y": 125,
+        "width": 361.28125,
+        "height": 604.34375,
+        "right": 1360.984375,
+        "bottom": 729.34375
+      },
+      "status_bar": {
+        "x": 13,
+        "y": 1043,
+        "width": 1894,
+        "height": 28,
+        "right": 1907,
+        "bottom": 1071
+      }
+    }
+  },
+  "interactions": {
+    "keyboard_splitter_delta": 12
+  },
+  "console_errors": [],
+  "page_errors": []
+}

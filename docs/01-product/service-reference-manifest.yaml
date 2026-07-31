@@ -1691,3 +1691,406 @@ references:
       evidence: >-
         Product-owner approval in conversation after explicit review of the complete
         ADM-SCHEMA-CORE eleven-image bundle and the 1920/2560/3840 bounded-dimension check.
+  - id: administration-layout-edit-draft-1366x768
+    screen: administration-layout-edit
+    state: draft
+    viewport:
+      width: 1366
+      height: 768
+      device_scale_factor: 1
+    sources: &administration_remaining_sources
+      html: docs/00-research/ux-service-reference/administration-remaining.html
+      base_css: docs/00-research/ux-service-reference/administration-schema-core.css
+      css: docs/00-research/ux-service-reference/administration-remaining.css
+      javascript: docs/00-research/ux-service-reference/administration-remaining.js
+      capture: docs/00-research/ux-service-reference/capture_administration_remaining_wave06.py
+      validation: docs/00-research/ux-service-reference/validate_administration_remaining_wave06.py
+    image: docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1366x768.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1366x768.measurements.json
+    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
+    image_sha256: c82f9c7a43c0e086218816082eaf1881a2e4d672882d792fc4eb79aa33eaa7e7
+    date: 2026-07-31
+    status: pending
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted after direct original-resolution review. The ordered Layout editor and live saved-
+        Record preview remain connected in one flat three-pane Administration task; exact Attribute
+        revisions, local recovery and bounded wide composition are preserved.
+    product_owner_approval:
+      status: absent
+  - id: administration-layout-edit-draft-1440x900
+    screen: administration-layout-edit
+    state: draft
+    viewport:
+      width: 1440
+      height: 900
+      device_scale_factor: 1
+    sources: *administration_remaining_sources
+    image: docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1440x900.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1440x900.measurements.json
+    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
+    image_sha256: bf6377f0c9bd4ac9076fc5b6583a8671fea00cd941f06c6faabd6a5bd1d8f16f
+    date: 2026-07-31
+    status: pending
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted after direct original-resolution review. The ordered Layout editor and live saved-
+        Record preview remain connected in one flat three-pane Administration task; exact Attribute
+        revisions, local recovery and bounded wide composition are preserved.
+    product_owner_approval:
+      status: absent
+  - id: administration-layout-edit-draft-1920x1080
+    screen: administration-layout-edit
+    state: draft
+    viewport:
+      width: 1920
+      height: 1080
+      device_scale_factor: 1
+    sources: *administration_remaining_sources
+    image: docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1920x1080.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1920x1080.measurements.json
+    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
+    wide_evidence:
+      - docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-wide-2560x1440.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-wide-3840x2160.png
+    image_sha256: e4dbd3a0ebf01b2270dc9670d04963f22f728f00c4151dcdd39dd04f2527fd23
+    date: 2026-07-31
+    status: pending
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted after direct original-resolution review. The ordered Layout editor and live saved-
+        Record preview remain connected in one flat three-pane Administration task; exact Attribute
+        revisions, local recovery and bounded wide composition are preserved.
+    product_owner_approval:
+      status: absent
+  - id: administration-subset-edit-draft-1366x768
+    screen: administration-subset-edit
+    state: draft
+    viewport:
+      width: 1366
+      height: 768
+      device_scale_factor: 1
+    sources: *administration_remaining_sources
+    image: docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1366x768.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1366x768.measurements.json
+    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
+    image_sha256: d047fbf5204bae67681f0c4663f2732920a4b0a063680597695dcefc4a91137c
+    date: 2026-07-31
+    status: pending
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted after direct original-resolution review. The typed filter definition and result
+        preview use one server-scoped count/row contract, preserve the saved draft on failure and
+        remain compact at canonical and wide viewports.
+    product_owner_approval:
+      status: absent
+  - id: administration-subset-edit-draft-1440x900
+    screen: administration-subset-edit
+    state: draft
+    viewport:
+      width: 1440
+      height: 900
+      device_scale_factor: 1
+    sources: *administration_remaining_sources
+    image: docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1440x900.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1440x900.measurements.json
+    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
+    image_sha256: bf93f96d807e9a4766f9a2f645bda0ebfb83b08890c62bcc943d8b86894c2122
+    date: 2026-07-31
+    status: pending
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted after direct original-resolution review. The typed filter definition and result
+        preview use one server-scoped count/row contract, preserve the saved draft on failure and
+        remain compact at canonical and wide viewports.
+    product_owner_approval:
+      status: absent
+  - id: administration-subset-edit-draft-1920x1080
+    screen: administration-subset-edit
+    state: draft
+    viewport:
+      width: 1920
+      height: 1080
+      device_scale_factor: 1
+    sources: *administration_remaining_sources
+    image: docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1920x1080.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1920x1080.measurements.json
+    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
+    wide_evidence:
+      - docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-wide-2560x1440.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-wide-3840x2160.png
+    image_sha256: 6349535e69692c86a07a9d4424c5f97cf8fa093d431b754894cbd05fa871780b
+    date: 2026-07-31
+    status: pending
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted after direct original-resolution review. The typed filter definition and result
+        preview use one server-scoped count/row contract, preserve the saved draft on failure and
+        remain compact at canonical and wide viewports.
+    product_owner_approval:
+      status: absent
+  - id: administration-link-type-edit-draft-1366x768
+    screen: administration-link-type-edit
+    state: draft
+    viewport:
+      width: 1366
+      height: 768
+      device_scale_factor: 1
+    sources: *administration_remaining_sources
+    image: docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1366x768.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1366x768.measurements.json
+    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
+    image_sha256: d07cbd0f99f049ea01fc7acc9041cb12f3d059ed4513923dd9a8d383cfdb8e0b
+    date: 2026-07-31
+    status: pending
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted after direct original-resolution review. Source and target Tables, independent
+        cardinalities, forward/reverse labels and exact endpoint revisions are visible together with
+        a branching Related test; no latest alias or fabricated relation is used.
+    product_owner_approval:
+      status: absent
+  - id: administration-link-type-edit-draft-1440x900
+    screen: administration-link-type-edit
+    state: draft
+    viewport:
+      width: 1440
+      height: 900
+      device_scale_factor: 1
+    sources: *administration_remaining_sources
+    image: docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1440x900.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1440x900.measurements.json
+    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
+    image_sha256: 29cb0b45b2cbc418928860baf6ef6ec2f73422ef15ed2ac6b219186ec49b8421
+    date: 2026-07-31
+    status: pending
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted after direct original-resolution review. Source and target Tables, independent
+        cardinalities, forward/reverse labels and exact endpoint revisions are visible together with
+        a branching Related test; no latest alias or fabricated relation is used.
+    product_owner_approval:
+      status: absent
+  - id: administration-link-type-edit-draft-1920x1080
+    screen: administration-link-type-edit
+    state: draft
+    viewport:
+      width: 1920
+      height: 1080
+      device_scale_factor: 1
+    sources: *administration_remaining_sources
+    image: docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1920x1080.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1920x1080.measurements.json
+    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
+    wide_evidence:
+      - docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-wide-2560x1440.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-wide-3840x2160.png
+    image_sha256: c69ab99c8ed55ffcabc56b8cb2f23368c41e36b02c5b993074eb001fcf548450
+    date: 2026-07-31
+    status: pending
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted after direct original-resolution review. Source and target Tables, independent
+        cardinalities, forward/reverse labels and exact endpoint revisions are visible together with
+        a branching Related test; no latest alias or fabricated relation is used.
+    product_owner_approval:
+      status: absent
+  - id: administration-access-normal-1366x768
+    screen: administration-access
+    state: normal
+    viewport:
+      width: 1366
+      height: 768
+      device_scale_factor: 1
+    sources: *administration_remaining_sources
+    image: docs/17-evidence/images/issue-167-service-reference/administration-access-normal-1366x768.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/administration-access-normal-1366x768.measurements.json
+    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
+    image_sha256: b2562dbb6df24c19aa226d3f4bcb4fbc623b94a7d83f65973901ae4be36ef528
+    date: 2026-07-31
+    status: pending
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted after direct original-resolution review. Task-based User, Reviewer and
+        Administrator assignments remain readable in a dense three-pane workspace; denied and
+        revoke-confirm states preserve a safe return, exact selected context and required reason
+        without leaking restricted assignment data.
+    product_owner_approval:
+      status: absent
+  - id: administration-access-normal-1440x900
+    screen: administration-access
+    state: normal
+    viewport:
+      width: 1440
+      height: 900
+      device_scale_factor: 1
+    sources: *administration_remaining_sources
+    image: docs/17-evidence/images/issue-167-service-reference/administration-access-normal-1440x900.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/administration-access-normal-1440x900.measurements.json
+    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
+    image_sha256: 0b76852380eb166e335abbfd5945a00e506becf678757ce0c83898821c432806
+    date: 2026-07-31
+    status: pending
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted after direct original-resolution review. Task-based User, Reviewer and
+        Administrator assignments remain readable in a dense three-pane workspace; denied and
+        revoke-confirm states preserve a safe return, exact selected context and required reason
+        without leaking restricted assignment data.
+    product_owner_approval:
+      status: absent
+  - id: administration-access-normal-1920x1080
+    screen: administration-access
+    state: normal
+    viewport:
+      width: 1920
+      height: 1080
+      device_scale_factor: 1
+    sources: *administration_remaining_sources
+    image: docs/17-evidence/images/issue-167-service-reference/administration-access-normal-1920x1080.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/administration-access-normal-1920x1080.measurements.json
+    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
+    wide_evidence:
+      - docs/17-evidence/images/issue-167-service-reference/administration-access-normal-wide-2560x1440.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-access-normal-wide-3840x2160.png
+    image_sha256: 893745491e80309fd9fc7ae5623ba0778cc1f6072a3e8571f0706dab42243eaa
+    date: 2026-07-31
+    status: pending
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted after direct original-resolution review. Task-based User, Reviewer and
+        Administrator assignments remain readable in a dense three-pane workspace; denied and
+        revoke-confirm states preserve a safe return, exact selected context and required reason
+        without leaking restricted assignment data.
+    product_owner_approval:
+      status: absent
+  - id: administration-access-denied-1440x900
+    screen: administration-access
+    state: denied
+    viewport:
+      width: 1440
+      height: 900
+      device_scale_factor: 1
+    sources: *administration_remaining_sources
+    image: docs/17-evidence/images/issue-167-service-reference/administration-access-denied-1440x900.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/administration-access-denied-1440x900.measurements.json
+    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
+    image_sha256: 8981bed572ecc8f4757980a33a547e4c431634b1c3b5b7abc48976c23dc912e8
+    date: 2026-07-31
+    status: pending
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted after direct original-resolution review. Task-based User, Reviewer and
+        Administrator assignments remain readable in a dense three-pane workspace; denied and
+        revoke-confirm states preserve a safe return, exact selected context and required reason
+        without leaking restricted assignment data.
+    product_owner_approval:
+      status: absent
+  - id: administration-access-revoke-confirm-1440x900
+    screen: administration-access
+    state: revoke-confirm
+    viewport:
+      width: 1440
+      height: 900
+      device_scale_factor: 1
+    sources: *administration_remaining_sources
+    image: docs/17-evidence/images/issue-167-service-reference/administration-access-revoke-confirm-1440x900.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/administration-access-revoke-confirm-1440x900.measurements.json
+    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
+    image_sha256: 84bbb7af0d70832ef547a1e99269bce6242a565b629bb04d71481a96c5526d81
+    date: 2026-07-31
+    status: pending
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted after direct original-resolution review. Task-based User, Reviewer and
+        Administrator assignments remain readable in a dense three-pane workspace; denied and
+        revoke-confirm states preserve a safe return, exact selected context and required reason
+        without leaking restricted assignment data.
+    product_owner_approval:
+      status: absent
+  - id: administration-publish-blocked-1366x768
+    screen: administration-publish
+    state: not-configured
+    viewport:
+      width: 1366
+      height: 768
+      device_scale_factor: 1
+    sources: *administration_remaining_sources
+    image: docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1366x768.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1366x768.measurements.json
+    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
+    image_sha256: 3bdeb595aff942f0b560fe77101d611d3de5c1056cdb6293705828e3cdbd02ac
+    date: 2026-07-31
+    status: pending
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted after direct original-resolution review. The screen truthfully preserves saved
+        draft definitions and validation evidence while keeping every Publish command disabled
+        because no publication transition or policy endpoint exists; no success, release or receipt
+        is fabricated.
+    product_owner_approval:
+      status: absent
+  - id: administration-publish-blocked-1440x900
+    screen: administration-publish
+    state: not-configured
+    viewport:
+      width: 1440
+      height: 900
+      device_scale_factor: 1
+    sources: *administration_remaining_sources
+    image: docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1440x900.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1440x900.measurements.json
+    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
+    image_sha256: 9dfb80c19d2450a8c351e18f165ff37ecc7fb61a2574323ac704d9b472e251dc
+    date: 2026-07-31
+    status: pending
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted after direct original-resolution review. The screen truthfully preserves saved
+        draft definitions and validation evidence while keeping every Publish command disabled
+        because no publication transition or policy endpoint exists; no success, release or receipt
+        is fabricated.
+    product_owner_approval:
+      status: absent
+  - id: administration-publish-blocked-1920x1080
+    screen: administration-publish
+    state: not-configured
+    viewport:
+      width: 1920
+      height: 1080
+      device_scale_factor: 1
+    sources: *administration_remaining_sources
+    image: docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1920x1080.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1920x1080.measurements.json
+    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
+    wide_evidence:
+      - docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-wide-2560x1440.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-wide-3840x2160.png
+    image_sha256: b7da7e5f567fd77b4bbd54403bf7ae980dc0de3fe604c9c169da1e0f0c267f1b
+    date: 2026-07-31
+    status: pending
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted after direct original-resolution review. The screen truthfully preserves saved
+        draft definitions and validation evidence while keeping every Publish command disabled
+        because no publication transition or policy endpoint exists; no success, release or receipt
+        is fabricated.
+    product_owner_approval:
+      status: absent

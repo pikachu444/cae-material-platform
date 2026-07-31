@@ -1,5 +1,5 @@
-version: 35
-verified_at: 2026-07-29
+version: 36
+verified_at: 2026-07-31
 source_evidence: reports/t60-clean-demo.md
 allowed_duplicate_groups:
   - rationale: The number editor's final conditional state is intentionally identical to its draft evidence; only the state-transition provenance differs.
@@ -879,3 +879,579 @@ captures:
     image: images/uxc-00r-retired-modeling-validation/modeling-validation-1920x1080.png
     width: 1920
     height: 1080
+  - id: administration-layout-edit-draft-1366x768
+    route: static-reference
+    workflow: issue-167-layout-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-layout-edit-draft-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-layout-edit-draft-1440x900
+    route: static-reference
+    workflow: issue-167-layout-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-layout-edit-draft-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-layout-edit-draft-1920x1080
+    route: static-reference
+    workflow: issue-167-layout-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-layout-edit-draft-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-subset-edit-draft-1366x768
+    route: static-reference
+    workflow: issue-167-subset-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-subset-edit-draft-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-subset-edit-draft-1440x900
+    route: static-reference
+    workflow: issue-167-subset-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-subset-edit-draft-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-subset-edit-draft-1920x1080
+    route: static-reference
+    workflow: issue-167-subset-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-subset-edit-draft-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-link-type-edit-draft-1366x768
+    route: static-reference
+    workflow: issue-167-link-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-link-type-edit-draft-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-link-type-edit-draft-1440x900
+    route: static-reference
+    workflow: issue-167-link-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-link-type-edit-draft-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-link-type-edit-draft-1920x1080
+    route: static-reference
+    workflow: issue-167-link-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-link-type-edit-draft-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-access-normal-1366x768
+    route: static-reference
+    workflow: issue-167-access-normal
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-normal-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-access-normal-1440x900
+    route: static-reference
+    workflow: issue-167-access-normal
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-normal-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-access-normal-1920x1080
+    route: static-reference
+    workflow: issue-167-access-normal
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-normal-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-access-denied-1440x900
+    route: static-reference
+    workflow: issue-167-access-denied
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-denied-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-access-revoke-confirm-1440x900
+    route: static-reference
+    workflow: issue-167-access-revoke-confirm
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-revoke-confirm-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-publish-blocked-1366x768
+    route: static-reference
+    workflow: issue-167-publish-blocked
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-publish-blocked-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-publish-blocked-1440x900
+    route: static-reference
+    workflow: issue-167-publish-blocked
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-publish-blocked-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-publish-blocked-1920x1080
+    route: static-reference
+    workflow: issue-167-publish-blocked
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-publish-blocked-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-layout-missing-attribute-blocked-1366x768
+    route: static-reference
+    workflow: issue-167-layout-missing-attribute-blocked
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-layout-missing-attribute-blocked-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-layout-missing-attribute-blocked-1440x900
+    route: static-reference
+    workflow: issue-167-layout-missing-attribute-blocked
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-layout-missing-attribute-blocked-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-layout-missing-attribute-blocked-1920x1080
+    route: static-reference
+    workflow: issue-167-layout-missing-attribute-blocked
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-layout-missing-attribute-blocked-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-layout-preview-loading-1366x768
+    route: static-reference
+    workflow: issue-167-layout-preview-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-layout-preview-loading-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-layout-preview-loading-1440x900
+    route: static-reference
+    workflow: issue-167-layout-preview-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-layout-preview-loading-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-layout-preview-loading-1920x1080
+    route: static-reference
+    workflow: issue-167-layout-preview-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-layout-preview-loading-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-layout-preview-error-1366x768
+    route: static-reference
+    workflow: issue-167-layout-preview-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-layout-preview-error-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-layout-preview-error-1440x900
+    route: static-reference
+    workflow: issue-167-layout-preview-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-layout-preview-error-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-layout-preview-error-1920x1080
+    route: static-reference
+    workflow: issue-167-layout-preview-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-layout-preview-error-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-subset-invalid-filter-blocked-1366x768
+    route: static-reference
+    workflow: issue-167-subset-invalid-filter-blocked
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-subset-invalid-filter-blocked-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-subset-invalid-filter-blocked-1440x900
+    route: static-reference
+    workflow: issue-167-subset-invalid-filter-blocked
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-subset-invalid-filter-blocked-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-subset-invalid-filter-blocked-1920x1080
+    route: static-reference
+    workflow: issue-167-subset-invalid-filter-blocked
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-subset-invalid-filter-blocked-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-subset-preview-loading-1366x768
+    route: static-reference
+    workflow: issue-167-subset-preview-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-subset-preview-loading-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-subset-preview-loading-1440x900
+    route: static-reference
+    workflow: issue-167-subset-preview-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-subset-preview-loading-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-subset-preview-loading-1920x1080
+    route: static-reference
+    workflow: issue-167-subset-preview-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-subset-preview-loading-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-subset-preview-error-1366x768
+    route: static-reference
+    workflow: issue-167-subset-preview-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-subset-preview-error-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-subset-preview-error-1440x900
+    route: static-reference
+    workflow: issue-167-subset-preview-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-subset-preview-error-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-subset-preview-error-1920x1080
+    route: static-reference
+    workflow: issue-167-subset-preview-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-subset-preview-error-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-link-type-invalid-endpoint-or-cardinality-blocked-1366x768
+    route: static-reference
+    workflow: issue-167-link-link-invalid
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-link-type-invalid-endpoint-or-cardinality-blocked-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-link-type-invalid-endpoint-or-cardinality-blocked-1440x900
+    route: static-reference
+    workflow: issue-167-link-link-invalid
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-link-type-invalid-endpoint-or-cardinality-blocked-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-link-type-invalid-endpoint-or-cardinality-blocked-1920x1080
+    route: static-reference
+    workflow: issue-167-link-link-invalid
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-link-type-invalid-endpoint-or-cardinality-blocked-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-link-type-validation-loading-1366x768
+    route: static-reference
+    workflow: issue-167-link-validation-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-link-type-validation-loading-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-link-type-validation-loading-1440x900
+    route: static-reference
+    workflow: issue-167-link-validation-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-link-type-validation-loading-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-link-type-validation-loading-1920x1080
+    route: static-reference
+    workflow: issue-167-link-validation-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-link-type-validation-loading-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-link-type-related-test-error-1366x768
+    route: static-reference
+    workflow: issue-167-link-related-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-link-type-related-test-error-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-link-type-related-test-error-1440x900
+    route: static-reference
+    workflow: issue-167-link-related-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-link-type-related-test-error-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-link-type-related-test-error-1920x1080
+    route: static-reference
+    workflow: issue-167-link-related-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-link-type-related-test-error-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-access-empty-1366x768
+    route: static-reference
+    workflow: issue-167-access-empty
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-empty-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-access-empty-1440x900
+    route: static-reference
+    workflow: issue-167-access-empty
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-empty-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-access-empty-1920x1080
+    route: static-reference
+    workflow: issue-167-access-empty
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-empty-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-access-loading-1366x768
+    route: static-reference
+    workflow: issue-167-access-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-loading-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-access-loading-1440x900
+    route: static-reference
+    workflow: issue-167-access-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-loading-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-access-loading-1920x1080
+    route: static-reference
+    workflow: issue-167-access-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-loading-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-access-service-error-1366x768
+    route: static-reference
+    workflow: issue-167-access-service-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-service-error-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-access-service-error-1440x900
+    route: static-reference
+    workflow: issue-167-access-service-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-service-error-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-access-service-error-1920x1080
+    route: static-reference
+    workflow: issue-167-access-service-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-service-error-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-publish-validation-blocked-1366x768
+    route: static-reference
+    workflow: issue-167-publish-validation-blocked
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-publish-validation-blocked-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-publish-validation-blocked-1440x900
+    route: static-reference
+    workflow: issue-167-publish-validation-blocked
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-publish-validation-blocked-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-publish-validation-blocked-1920x1080
+    route: static-reference
+    workflow: issue-167-publish-validation-blocked
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-publish-validation-blocked-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-publish-validation-loading-1366x768
+    route: static-reference
+    workflow: issue-167-publish-validation-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-publish-validation-loading-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-publish-validation-loading-1440x900
+    route: static-reference
+    workflow: issue-167-publish-validation-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-publish-validation-loading-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-publish-validation-loading-1920x1080
+    route: static-reference
+    workflow: issue-167-publish-validation-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-publish-validation-loading-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-publish-error-1366x768
+    route: static-reference
+    workflow: issue-167-publish-publish-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-publish-error-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-publish-error-1440x900
+    route: static-reference
+    workflow: issue-167-publish-publish-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-publish-error-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-publish-error-1920x1080
+    route: static-reference
+    workflow: issue-167-publish-publish-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-publish-error-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-layout-edit-draft-wide-2560x1440
+    route: static-reference
+    workflow: issue-167-layout-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-layout-edit-draft-wide-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: administration-layout-edit-draft-wide-3840x2160
+    route: static-reference
+    workflow: issue-167-layout-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-layout-edit-draft-wide-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: administration-subset-edit-draft-wide-2560x1440
+    route: static-reference
+    workflow: issue-167-subset-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-subset-edit-draft-wide-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: administration-subset-edit-draft-wide-3840x2160
+    route: static-reference
+    workflow: issue-167-subset-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-subset-edit-draft-wide-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: administration-link-type-edit-draft-wide-2560x1440
+    route: static-reference
+    workflow: issue-167-link-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-link-type-edit-draft-wide-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: administration-link-type-edit-draft-wide-3840x2160
+    route: static-reference
+    workflow: issue-167-link-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-link-type-edit-draft-wide-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: administration-access-normal-wide-2560x1440
+    route: static-reference
+    workflow: issue-167-access-normal
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-normal-wide-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: administration-access-normal-wide-3840x2160
+    route: static-reference
+    workflow: issue-167-access-normal
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-normal-wide-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: administration-publish-blocked-wide-2560x1440
+    route: static-reference
+    workflow: issue-167-publish-blocked
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-publish-blocked-wide-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: administration-publish-blocked-wide-3840x2160
+    route: static-reference
+    workflow: issue-167-publish-blocked
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-publish-blocked-wide-3840x2160.png
+    width: 3840
+    height: 2160
