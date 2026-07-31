@@ -1,7 +1,7 @@
 # Issue #167 ADM-SCHEMA-CORE final cluster-chrome review packet
 
-Date: 2026-07-31  
-Reviewer role: fresh configured Terra High, read-only  
+Date: 2026-07-31
+Reviewer role: fresh configured Terra High, read-only
 Lifecycle: eleven approval targets `pending`; main-agent evaluation `accepted`; product-owner approval
 `absent`
 

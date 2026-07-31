@@ -1,7 +1,7 @@
 # Issue #167 ADM-SCHEMA-CORE owner-authorized extra correction — bounded preview chrome
 
-Date: 2026-07-31  
-Status: product-owner-authorized correction after final qualitative rejection  
+Date: 2026-07-31
+Status: product-owner-authorized correction after final qualitative rejection
 Prerequisite: `issue-167-reviewer-packet-adm-preview-bounded-composition-final.md`
 
 ## Why this correction exists

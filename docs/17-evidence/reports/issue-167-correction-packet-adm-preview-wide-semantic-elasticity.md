@@ -1,7 +1,7 @@
 # Issue #167 ADM-SCHEMA-CORE sole correction packet — wide semantic elasticity
 
-Date: 2026-07-31  
-Status: main-agent gate rejected; one configured Terra High correction authorized  
+Date: 2026-07-31
+Status: main-agent gate rejected; one configured Terra High correction authorized
 Prerequisite: `issue-167-owner-authorized-correction-packet-adm-preview-information-architecture.md`
 
 ## Why this correction exists

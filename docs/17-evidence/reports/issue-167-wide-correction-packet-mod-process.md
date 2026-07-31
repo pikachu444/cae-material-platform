@@ -1,7 +1,7 @@
 # Issue #167 wide correction packet — MOD-PROCESS
 
-Date: 2026-07-30  
-Writer role: configured `implementer_luna_max`, exactly one writer  
+Date: 2026-07-30
+Writer role: configured `implementer_luna_max`, exactly one writer
 Issue: <https://github.com/pikachu444/cae-material-platform/issues/167>
 
 ## Bounded outcome
