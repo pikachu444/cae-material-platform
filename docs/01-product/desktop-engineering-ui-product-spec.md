@@ -71,17 +71,21 @@ The application has four modes. These are workspaces, not separate mini-products
 
 The 1366×768 and 1440×900 references establish the compact safety topology; they are not a
 maximum-content template stretched across every larger display. At 1920×1080 and above, bounded
-navigator, list and form rails keep readable line lengths while the remaining space is assigned to
-the current engineering result or a contract-backed companion view.
+navigator, list, form, graph and preview regions keep readable dimensions. Related task components
+form one left- and top-aligned working cluster with only the normal divider or gutter between them.
+Unused space is permitted after that cluster, primarily at the far right and bottom.
 
-- Graphs, data grids, native previews and real Layout/Record previews may grow with the workspace.
+- Graphs, data grids, native previews and real Layout/Record previews grow only while additional
+  size improves reading, comparison or interaction; they stop at a useful bound rather than
+  stretching merely to fill the viewport.
 - Navigation rails, compact control bands and property forms remain bounded; their rows and prose
   do not stretch merely to occupy pixels.
 - Additional wide-screen content must come from the same current record, layout, mapping, curve or
   workflow projection. Explanatory filler, duplicated labels and invented technical metadata are not
   accepted.
-- A large unassigned region is a qualitative failure when an existing contract-backed result or
-  companion view can use it. Sparse states may remain sparse when no truthful projection exists.
+- A large void inside the working cluster is a qualitative failure when it separates related
+  components or hides an existing contract-backed result. Trailing right/bottom whitespace is not a
+  failure by itself; forced stretching or fabricated content used only to eliminate it is a failure.
 - A normal pageable search reference uses a representative complete server page when that page is
   already available from the scoped query. An intentionally under-filled demo fixture is not a
   sparse-state exception and cannot justify a large empty result grid.
@@ -208,6 +212,15 @@ Overview | Properties | Curves | CAE Cards | Evidence
 - Curves uses the engineering plot component and a compact curve list.
 - CAE Cards contains solver, law, version, unit system, mapping state and preview/download commands.
 - Evidence contains Related Records, workflow, revisions, provenance and technical identifiers.
+
+The CAE Card preview and Modeling Export reuse one Mapping details grammar because they project the
+same solver-mapping item contract. Each normal row contains one concise quantity title, one
+source-to-target value or representation, and one plain right-aligned user consequence such as
+`Exact`, `Converted`, `Review required`, `Reviewed` or `Not supported`. Uppercase status pills,
+route-specific badge systems and explanatory paragraphs inside every row are forbidden. Technical
+exact/transformed/approximated/ignored/unsupported counts, identifiers and checksums remain in
+Technical mapping details or Evidence. The routes may allocate different surrounding regions, but
+must not reinterpret the mapping state or invent a second component grammar.
 
 At 1920×1080 and above, a sparse representative curve does not expand indefinitely merely because
 the viewport is wider. When the exact current response points already exist in the same linked
@@ -344,6 +357,13 @@ Commands:
 - commit Processing Output.
 
 Every operation shows its effect as a graph overlay before commit. The source curve remains visible or recoverable.
+
+At 2560×1440 and 3840×2160, the Process graph does not grow indefinitely or introduce a separate
+response table merely to occupy the viewport. Its plot keeps the 1920 useful pixel size and aspect, while its
+right edge aligns with the bounded operation settings and `Save processed curves` action above.
+The graph and settings therefore read as one left/top task cluster; unused space remains only after
+that cluster at the far right and bottom. These wide viewports retain the 1920 topology and are
+deterministic support evidence rather than separate approval lifecycle targets.
 
 ### 7.5 Fit stage
 
@@ -535,6 +555,26 @@ lets the Administrator choose its value type and exposes only the fields that ap
 After save, a configurable Record pins the exact Attribute Definition revisions used by its values.
 The Layout/Record preview must therefore demonstrate that administrator-selected Attributes, rather
 than a hard-coded default field set, determine the visible datasheet and entry fields.
+
+`Record preview` and `Layout definition` are two views of that same saved contract, not two tiny
+tables that must remain visible together. The normal Database/Table/Attribute editor exposes one
+active preview surface:
+
+- `Record preview` is the default and shows the saved Record values in Layout order, including value,
+  unit and condition where applicable;
+- its header identifies the governing Layout name, immutable revision and field count;
+- `Layout definition` is an on-demand sibling view for the ordered exact Attribute Definition
+  revisions, and becomes the primary work surface in the later Layout editor;
+- each active table receives the available preview height and an independent, discoverable local
+  scrollbar only when its rows genuinely overflow;
+- at compact widths, opening preview replaces or overlays the right editor with an obvious return
+  action; at 1920 and above it may occupy a bounded companion pane without squeezing the property
+  sheet.
+
+A linked curve is secondary evidence inside `Record preview`. It appears only when the saved Layout
+contains a curve/table Artifact Attribute, remains synchronized to that exact saved Record value,
+and uses a bounded engineering-plot region. It must not appear beside an unrelated scalar Attribute
+edit or grow indefinitely at 2560/3840 while the Record and Layout content remain a thin strip.
 
 Link Type flow:
 

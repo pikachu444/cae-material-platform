@@ -4,7 +4,7 @@
   "state": "empty",
   "viewport": "1920x1080",
   "image": "docs/17-evidence/images/issue-167-service-reference/administration-database-empty-1920x1080.png",
-  "sha256": "514bdd0e3256819eb606b0ad5aa9849ec840e000fd0aadfe628adc1a05360073",
+  "sha256": "6ae03ea7a3bdfba3b6d6d4b9b5a5883f01bb2cd9ec267f26635885fac7db7e1d",
   "dimensions": {
     "width": 1920,
     "height": 1080
@@ -51,14 +51,26 @@
       "editorScroll": {
         "x": 651,
         "y": 113,
+        "width": 1256,
+        "height": 930
+      },
+      "editorContent": {
+        "x": 651,
+        "y": 113,
         "width": 820,
-        "height": 360
+        "height": 176.1875
       },
       "preview": {
-        "x": 1471,
-        "y": 113,
-        "width": 436,
-        "height": 360
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "previewContent": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
       },
       "statusBar": {
         "x": 13,
@@ -146,7 +158,7 @@
       },
       {
         "tag": "button",
-        "name": "Hide datasheet preview",
+        "name": "Preview datasheet",
         "disabled": false,
         "action": "preview"
       },
@@ -223,25 +235,25 @@
         "reservedScrollbarWidth": 12
       },
       "editor": {
-        "scrollHeight": 360,
-        "clientHeight": 360,
+        "scrollHeight": 930,
+        "clientHeight": 930,
         "scrollTop": 0,
-        "scrollWidth": 808,
-        "clientWidth": 808,
+        "scrollWidth": 1244,
+        "clientWidth": 1244,
         "overflowY": "auto",
         "scrollbarGutter": "stable",
         "scrollbarColor": "auto",
         "reservedScrollbarWidth": 12
       },
       "preview": {
-        "scrollHeight": 360,
-        "clientHeight": 360,
+        "scrollHeight": 0,
+        "clientHeight": 0,
         "scrollTop": 0,
-        "scrollWidth": 406,
-        "clientWidth": 406,
-        "overflowY": "hidden",
+        "scrollWidth": 0,
+        "clientWidth": 0,
+        "overflowY": "auto",
         "scrollbarGutter": "stable",
-        "reservedScrollbarWidth": 12
+        "reservedScrollbarWidth": 0
       },
       "previewTables": [
         null,
@@ -272,9 +284,9 @@
     "fields": [],
     "errors": [],
     "preview": {
-      "visible": true,
-      "open": true,
-      "commandLabel": "Hide preview",
+      "visible": false,
+      "open": false,
+      "commandLabel": "Preview datasheet",
       "title": "No preview available",
       "subtitle": "",
       "record": "",
@@ -282,6 +294,24 @@
       "selection": "",
       "note": "Create a Table, then configure its Layout to preview a saved Record.",
       "sections": [],
+      "activeProjection": "",
+      "projectionTabs": [
+        {
+          "name": "Record preview",
+          "selected": true,
+          "focusable": true
+        },
+        {
+          "name": "Layout definition",
+          "selected": false,
+          "focusable": true
+        }
+      ],
+      "activeTable": "",
+      "activeRowCount": 0,
+      "activeSectionRect": null,
+      "activeTableRegionRect": null,
+      "activeTableScrollRect": null,
       "valueRows": [],
       "layoutRows": [],
       "graph": {
@@ -333,7 +363,21 @@
       "recordTableRevisionId": "",
       "toggleLabel": "",
       "projectionState": "unavailable",
-      "text": "RECORD PREVIEW No preview available Create a Table, then configure its Layout to preview a saved Record."
+      "returnActions": [
+        {
+          "name": "Preview datasheet",
+          "action": "preview",
+          "disabled": false,
+          "rect": {
+            "x": 1762.296875,
+            "y": 68.5,
+            "width": 126.703125,
+            "height": 30
+          }
+        }
+      ],
+      "composition": null,
+      "text": "Preview datasheetNo preview availableBack to editorRecord previewLayout definitionCreate a Table, then configure its Layout to preview a saved Record."
     },
     "buttons": [
       {
@@ -341,20 +385,20 @@
         "action": "refresh",
         "disabled": false,
         "rect": {
-          "x": 1717.28125,
+          "x": 1688.828125,
           "y": 68.5,
           "width": 65.46875,
           "height": 30
         }
       },
       {
-        "name": "Hide preview",
+        "name": "Preview datasheet",
         "action": "preview",
         "disabled": false,
         "rect": {
-          "x": 1790.75,
+          "x": 1762.296875,
           "y": 68.5,
-          "width": 98.25,
+          "width": 126.703125,
           "height": 30
         }
       },
@@ -443,7 +487,7 @@
       "rootOverflowX": "visible",
       "rootOverflowY": "visible"
     },
-    "pageText": "Skip to database design CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator \u00b7 Atlas workspace Database design Atlas workspace \u00b7 materials catalog Ready Refresh Hide preview Schema objects 5 types Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 2 Selection retained on refresh Tables 0 items Name Rev No Tables yet Add a Table to define the catalog shape. No Table selected Choose a Table when one is available. Waiting for a Table Use Add Table to define the first governed Table in this workspace. Add Table RECORD PREVIEW No preview available Create a Table, then configure its Layout to preview a saved Record. Tables \u00b7 Materials master Table-scoped definitions Local pane scrolling Online"
+    "pageText": "Skip to database design CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator \u00b7 Atlas workspace Database design Atlas workspace \u00b7 materials catalog Ready Refresh Preview datasheet Schema objects 5 types Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 2 Selection retained on refresh Tables 0 items Name Rev No Tables yet Add a Table to define the catalog shape. No Table selected Choose a Table when one is available. Waiting for a Table Use Add Table to define the first governed Table in this workspace. Add Table Tables \u00b7 Materials master Table-scoped definitions Local pane scrolling Online"
   },
   "console_errors": [],
   "page_errors": []

@@ -54,7 +54,19 @@
         "width": 864,
         "height": 754
       },
+      "editorContent": {
+        "x": 567,
+        "y": 109,
+        "width": 760,
+        "height": 176.1875
+      },
       "preview": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "previewContent": {
         "x": 0,
         "y": 0,
         "width": 0,
@@ -146,7 +158,7 @@
       },
       {
         "tag": "button",
-        "name": "Show datasheet preview",
+        "name": "Preview datasheet",
         "disabled": false,
         "action": "preview"
       },
@@ -282,6 +294,24 @@
       "selection": "",
       "note": "Create a Table, then configure its Layout to preview a saved Record.",
       "sections": [],
+      "activeProjection": "",
+      "projectionTabs": [
+        {
+          "name": "Record preview",
+          "selected": true,
+          "focusable": true
+        },
+        {
+          "name": "Layout definition",
+          "selected": false,
+          "focusable": true
+        }
+      ],
+      "activeTable": "",
+      "activeRowCount": 0,
+      "activeSectionRect": null,
+      "activeTableRegionRect": null,
+      "activeTableScrollRect": null,
       "valueRows": [],
       "layoutRows": [],
       "graph": {
@@ -333,7 +363,21 @@
       "recordTableRevisionId": "",
       "toggleLabel": "",
       "projectionState": "unavailable",
-      "text": "Record previewNo preview availableCreate a Table, then configure its Layout to preview a saved Record."
+      "returnActions": [
+        {
+          "name": "Preview datasheet",
+          "action": "preview",
+          "disabled": false,
+          "rect": {
+            "x": 1290.296875,
+            "y": 66.5,
+            "width": 126.703125,
+            "height": 30
+          }
+        }
+      ],
+      "composition": null,
+      "text": "Preview datasheetNo preview availableBack to editorRecord previewLayout definitionCreate a Table, then configure its Layout to preview a saved Record."
     },
     "buttons": [
       {

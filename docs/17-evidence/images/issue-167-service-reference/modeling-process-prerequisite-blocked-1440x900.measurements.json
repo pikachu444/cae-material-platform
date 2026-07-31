@@ -1,5 +1,5 @@
 {
-  "capture_date": "2026-07-29",
+  "capture_date": "2026-07-31",
   "target": "modeling-process-prerequisite-blocked-1440x900",
   "state": "prerequisite-blocked",
   "viewport": {
@@ -8,7 +8,7 @@
     "device_scale_factor": 1
   },
   "image": "docs\\17-evidence\\images\\issue-167-service-reference\\modeling-process-prerequisite-blocked-1440x900.png",
-  "image_sha256": "9d71022e7c9bff6a5b88de70985a34aaf2e30d3bd1715a69a5e7c5bbd40b9868",
+  "image_sha256": "2f3ed351bbb22b604e6a7bed189b52cd7b9945f8620633d2442482654492ed30",
   "console_errors": [],
   "page_errors": [],
   "geometry": {
@@ -78,34 +78,43 @@
         "x": 197,
         "y": 122,
         "width": 1243,
-        "height": 228,
+        "height": 192,
         "right": 1440,
-        "bottom": 350
+        "bottom": 314
       },
       "settingsGrid": {
         "x": 197,
         "y": 153,
         "width": 1243,
-        "height": 145,
+        "height": 131,
         "right": 1440,
-        "bottom": 298
+        "bottom": 284
       },
       "graph": {
         "x": 197,
-        "y": 350,
+        "y": 314,
         "width": 1243,
-        "height": 501,
+        "height": 537,
         "right": 1440,
         "bottom": 851
       },
       "graphCanvas": {
         "x": 206,
-        "y": 388,
+        "y": 352,
         "width": 1225,
-        "height": 456,
+        "height": 492,
         "right": 1431,
         "bottom": 844
       },
+      "saveButton": {
+        "x": 1306.61,
+        "y": 248,
+        "width": 124.39,
+        "height": 30,
+        "right": 1431,
+        "bottom": 278
+      },
+      "processedResponse": null,
       "statusBar": {
         "x": 0,
         "y": 876,
@@ -125,7 +134,35 @@
     },
     "graph": {
       "width": 1225,
-      "height": 456,
+      "height": 492,
+      "svg": {
+        "x": 206,
+        "y": 352,
+        "width": 1225,
+        "height": 492,
+        "right": 1431,
+        "bottom": 844
+      },
+      "canvas": {
+        "x": 206,
+        "y": 352,
+        "width": 1225,
+        "height": 492,
+        "right": 1431,
+        "bottom": 844
+      },
+      "coordinateSystem": {
+        "viewBox": [
+          0,
+          0,
+          1225,
+          492
+        ],
+        "width": 1225,
+        "height": 492,
+        "widthDelta": 0,
+        "heightDelta": 0
+      },
       "pathBoxes": [
         {
           "className": "curve observed-one",
@@ -168,36 +205,146 @@
         "maxStrain": 0.188,
         "minStressMpa": 0,
         "maxStressMpa": 842,
-        "computedMaxStrain": 0.2068,
-        "computedMaxStressMpa": 926.2,
+        "computedMaxStrain": 0.25,
+        "computedMaxStressMpa": 1000,
         "headroomRatio": 0.1,
-        "derivation": "finite-plotted-span-plus-proportional-headroom"
+        "derivation": "finite-plotted-span-plus-proportional-headroom",
+        "niceStepStrain": 0.05,
+        "niceStepStressMpa": 250,
+        "ticksStrain": [
+          0,
+          0.05,
+          0.1,
+          0.15000000000000002,
+          0.2,
+          0.25
+        ],
+        "ticksStressMpa": [
+          0,
+          250,
+          500,
+          750,
+          1000
+        ],
+        "sourceStrain": [
+          0,
+          0.005,
+          0.01,
+          0.02,
+          0.04,
+          0.07,
+          0.1,
+          0.14,
+          0.17,
+          0.188
+        ],
+        "observedSeries": [
+          [
+            0,
+            155,
+            288,
+            432,
+            560,
+            660,
+            725,
+            780,
+            820,
+            842
+          ],
+          [
+            0,
+            148,
+            278,
+            420,
+            550,
+            651,
+            717,
+            773,
+            814,
+            836
+          ],
+          [
+            0,
+            141,
+            268,
+            407,
+            536,
+            638,
+            705,
+            762,
+            803,
+            829
+          ]
+        ],
+        "processedSeries": [
+          0,
+          152,
+          282,
+          430,
+          558,
+          658,
+          728,
+          785,
+          817,
+          840
+        ],
+        "elasticFit": [
+          0.0002,
+          0.002
+        ],
+        "pointFrameClearances": {
+          "left": 0,
+          "right": 278.504,
+          "top": 65.41200000000003,
+          "bottom": 0
+        }
+      },
+      "typography": {
+        "tickFontSizes": [
+          11
+        ],
+        "titleFontSizes": [
+          12
+        ],
+        "strokeWidths": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1.2,
+          1.2,
+          2,
+          2.1,
+          2,
+          3,
+          2.5
+        ],
+        "nonScalingStrokeCount": 18
       }
     },
-    "plotFooter": {
+    "plotContract": {
       "canvas": {
         "x": 206,
-        "y": 388,
+        "y": 352,
         "width": 1225,
-        "height": 456,
+        "height": 492,
         "right": 1431,
         "bottom": 844
       },
-      "footer": {
-        "x": 0,
-        "y": 0,
-        "width": 0,
-        "height": 0,
-        "right": 0,
-        "bottom": 0
-      },
-      "axis": {
-        "x": 0,
-        "y": 0,
-        "width": 0,
-        "height": 0,
-        "right": 0,
-        "bottom": 0
+      "svg": {
+        "x": 206,
+        "y": 352,
+        "width": 1225,
+        "height": 492,
+        "right": 1431,
+        "bottom": 844
       },
       "legend": {
         "x": 0,
@@ -207,11 +354,43 @@
         "right": 0,
         "bottom": 0
       },
-      "axisLegendIntersect": false,
-      "axisContained": false,
+      "legendLocal": {
+        "left": -206,
+        "right": -206,
+        "top": -352,
+        "bottom": -352
+      },
+      "legendPlacement": "",
+      "legendCollisionDataset": "",
       "legendContained": false,
-      "axisInFooter": true,
-      "legendInFooter": true
+      "legendInPlot": false,
+      "legendCurveIntersect": false,
+      "legendAxisIntersect": false,
+      "legendTitleIntersect": false,
+      "legendFrameClearance": {
+        "left": -284,
+        "right": 1407,
+        "top": -376,
+        "bottom": 790
+      },
+      "footerPresent": false
+    },
+    "processedResponse": {
+      "visible": false,
+      "rows": [],
+      "headers": [],
+      "overflow": null
+    },
+    "widePlotHeightComparison": null,
+    "productLanguage": {
+      "primaryWorkspaceText": "Skip to Modeling Process workspace CMPCAE Material Platform MaterialsModelingActivity Demo workspace Prepare observed curvesDP780 Dual-Phase Steel · Tensile · room temperature Test Data saved · Process draftAdvancedPreview changes DataProcessFitExport Process blocked · compatible source required Curves0 compatible curves Filter curves Tensile testsNo compatible revision ▾DP780 tensile · 293 K Specimen 01Observed · Revision 1◉ Specimen 02Observed · Revision 1◉ Specimen 03Observed · Revision 1◉ Replicate analysisTwo included curves are available for replicate checks. This secondary view never changes the processing steps. Processing operations 1Resolve duplicate x values 2Elastic modulus 3Offset proof stress 4Necking boundary 5Engineering → true / plastic Inclusion changes the processing scope; plot visibility is local.Processing details in Evidence ‹ Step 2 · Elastic modulusObserved input · calculated method · saved Test Data Blocked · preview unavailable Test DataEngineering strain [1] → Engineering stress [MPa]No compatible saved Test Data selected MethodRobust calculatedLinear regressionChordSecantCalculated method Start engineering strainMinimum finite source range End engineering strainMaximum finite source range Graph rangeFull source + headroomSelected rangeData-relative bounds · zero origin Calculated previewUnavailable · source requiredPreview only until saved Processed curve labelSaved with the processing result Save reasonRequired before Save processed curves Save processed curves Processing requires compatible saved Test Data. Processing blocked. Compatible saved Test Data is required. Elastic modulus previewNo compatible source · preview unavailable ResponseReset view DP780 tensile processing preview Observed input curves, processed preview and a calculated robust elastic-fit overlay. Axes use finite plotted span with proportional headroom. 00.050.10.150.20.2502505007501,000Engineering strain [1]Engineering stress (MPa) Processing preview unavailableReturn to Data and choose compatible saved Test Data before processing.Back to Data Observed inputProcessed previewCalculated elastic fit No compatible Test DataSaved Test Data requiredCalculation blocked1 unmet prerequisiteOnline",
+      "exactContracts": {
+        "sourceTestData": "CMP-DEMO-DP780-TEST-JSON-03",
+        "graphTestData": "CMP-DEMO-DP780-TEST-JSON-03",
+        "statusTestData": "CMP-DEMO-DP780-TEST-JSON-03",
+        "blockedTestData": "CMP-DEMO-DP780-TEST-JSON-03",
+        "blockedNoFallback": "true"
+      }
     },
     "visibleContent": {
       "stageLabels": [
@@ -222,6 +401,7 @@
       ],
       "activeStage": "Process",
       "curveRows": [],
+      "longRailTrack": false,
       "includedCurves": [],
       "operationLabels": [
         "1Resolve duplicate x values",
@@ -234,11 +414,40 @@
       "graphCurves": [],
       "graphBlocked": true,
       "plotLegend": false,
+      "plotLegendLabels": [
+        "Observed input",
+        "Processed preview",
+        "Calculated elastic fit"
+      ],
+      "axisTitles": [
+        "Engineering strain [1]",
+        "Engineering stress (MPa)"
+      ],
+      "tickLabels": [
+        "0",
+        "0.05",
+        "0.1",
+        "0.15",
+        "0.2",
+        "0.25",
+        "0",
+        "250",
+        "500",
+        "750",
+        "1,000"
+      ],
       "advancedOpen": false,
       "previewState": "blocked",
       "downstreamPointers": "",
       "processTitle": "Step 2 · Elastic modulus",
-      "blockedReason": "Prerequisite blocked. Missing exact saved Test Data revision CMP-DEMO-DP780-TEST-JSON-03 · r1 and compatible Mapping Profile. No first/latest fallback is selected."
+      "blockedReason": "Processing blocked. Compatible saved Test Data is required.",
+      "sourceRevision": "No compatible saved Test Data selected",
+      "downstreamStatus": "Processing requires compatible saved Test Data.",
+      "downstreamStatusVisible": false,
+      "blockedGraphCopy": "Return to Data and choose compatible saved Test Data before processing.",
+      "blockedAction": "Back to Data",
+      "statusSelection": "No compatible Test Data",
+      "statusRevision": "Saved Test Data required"
     },
     "controls": {
       "previewButtons": [
@@ -284,13 +493,13 @@
       "bodyPx": 13,
       "settingSmall": [
         {
-          "text": "Expected exact revision · CMP-DEMO-DP780-TEST-JSON-03 · r1 + Mapping Profile",
+          "text": "No compatible saved Test Data selected",
           "fontSizePx": 12,
           "lineHeightPx": 14,
           "clipped": false
         },
         {
-          "text": "Server method · robust_huber · 1.0.0",
+          "text": "Calculated method",
           "fontSizePx": 12,
           "lineHeightPx": 14,
           "clipped": false
@@ -314,13 +523,13 @@
           "clipped": false
         },
         {
-          "text": "Elastic-fit overlay · not authoritative until save",
+          "text": "Preview only until saved",
           "fontSizePx": 12,
           "lineHeightPx": 14,
           "clipped": false
         },
         {
-          "text": "Stored on immutable output revision",
+          "text": "Saved with the processing result",
           "fontSizePx": 12,
           "lineHeightPx": 14,
           "clipped": false
@@ -334,7 +543,7 @@
       ]
     },
     "ribbon": {
-      "height": 228
+      "height": 192
     },
     "nestedCards": 0
   },

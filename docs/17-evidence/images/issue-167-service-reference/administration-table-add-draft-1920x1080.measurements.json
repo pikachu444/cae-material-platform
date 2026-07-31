@@ -4,7 +4,7 @@
   "state": "table-add",
   "viewport": "1920x1080",
   "image": "docs/17-evidence/images/issue-167-service-reference/administration-table-add-draft-1920x1080.png",
-  "sha256": "024d58722ce338bfab65e778e8bcb28e1931adcf68210972334a7674a4fef226",
+  "sha256": "1ad2b1f222609dfe79548125da7dc4b4b47cdb513c9aa8d6e7a04e95748ac92c",
   "dimensions": {
     "width": 1920,
     "height": 1080
@@ -51,14 +51,26 @@
       "editorScroll": {
         "x": 651,
         "y": 113,
+        "width": 1256,
+        "height": 930
+      },
+      "editorContent": {
+        "x": 651,
+        "y": 113,
         "width": 820,
-        "height": 490
+        "height": 537.671875
       },
       "preview": {
-        "x": 1471,
-        "y": 113,
-        "width": 436,
-        "height": 490
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "previewContent": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
       },
       "statusBar": {
         "x": 13,
@@ -69,7 +81,7 @@
       "editor": {
         "x": 651,
         "y": 113,
-        "width": 808,
+        "width": 820,
         "height": 537.671875
       },
       "content": {
@@ -187,7 +199,7 @@
       },
       {
         "tag": "button",
-        "name": "Hide datasheet preview",
+        "name": "Preview datasheet",
         "disabled": false,
         "action": "preview"
       },
@@ -304,12 +316,6 @@
         "name": "Cancel",
         "disabled": false,
         "action": "cancel-add"
-      },
-      {
-        "tag": "div",
-        "name": "Scroll property editor",
-        "disabled": false,
-        "action": ""
       }
     ],
     "nestedInteractive": [],
@@ -372,46 +378,46 @@
         "reservedScrollbarWidth": 12
       },
       "editor": {
-        "scrollHeight": 538,
-        "clientHeight": 490,
+        "scrollHeight": 930,
+        "clientHeight": 930,
         "scrollTop": 0,
-        "scrollWidth": 808,
-        "clientWidth": 808,
+        "scrollWidth": 1244,
+        "clientWidth": 1244,
         "overflowY": "auto",
         "scrollbarGutter": "stable",
         "scrollbarColor": "auto",
         "reservedScrollbarWidth": 12
       },
       "preview": {
-        "scrollHeight": 490,
-        "clientHeight": 490,
+        "scrollHeight": 0,
+        "clientHeight": 0,
         "scrollTop": 0,
-        "scrollWidth": 406,
-        "clientWidth": 406,
-        "overflowY": "hidden",
+        "scrollWidth": 0,
+        "clientWidth": 0,
+        "overflowY": "auto",
         "scrollbarGutter": "stable",
-        "reservedScrollbarWidth": 12
+        "reservedScrollbarWidth": 0
       },
       "previewTables": [
         null,
         null
       ],
       "editorRail": {
-        "hidden": false,
+        "hidden": true,
         "rect": {
-          "x": 1892,
-          "y": 114,
-          "width": 14,
-          "height": 928
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
         },
         "thumbRect": {
-          "x": 1896,
-          "y": 114,
-          "width": 7,
-          "height": 845
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
         },
         "ariaMin": 0,
-        "ariaMax": 48,
+        "ariaMax": 0,
         "ariaNow": 0
       }
     },
@@ -479,9 +485,9 @@
     ],
     "errors": [],
     "preview": {
-      "visible": true,
-      "open": true,
-      "commandLabel": "Hide preview",
+      "visible": false,
+      "open": false,
+      "commandLabel": "Preview datasheet",
       "title": "No saved projection",
       "subtitle": "",
       "record": "",
@@ -489,6 +495,24 @@
       "selection": "",
       "note": "This new Table has no saved Record or Layout projection yet. Save the Table, then configure its Layout.",
       "sections": [],
+      "activeProjection": "",
+      "projectionTabs": [
+        {
+          "name": "Record preview",
+          "selected": true,
+          "focusable": true
+        },
+        {
+          "name": "Layout definition",
+          "selected": false,
+          "focusable": true
+        }
+      ],
+      "activeTable": "",
+      "activeRowCount": 0,
+      "activeSectionRect": null,
+      "activeTableRegionRect": null,
+      "activeTableScrollRect": null,
       "valueRows": [],
       "layoutRows": [],
       "graph": {
@@ -540,7 +564,21 @@
       "recordTableRevisionId": "",
       "toggleLabel": "",
       "projectionState": "unavailable",
-      "text": "RECORD PREVIEW No saved projection This new Table has no saved Record or Layout projection yet. Save the Table, then configure its Layout."
+      "returnActions": [
+        {
+          "name": "Preview datasheet",
+          "action": "preview",
+          "disabled": false,
+          "rect": {
+            "x": 1762.296875,
+            "y": 68.5,
+            "width": 126.703125,
+            "height": 30
+          }
+        }
+      ],
+      "composition": null,
+      "text": "Preview datasheetNo saved projectionBack to editorRecord previewLayout definitionThis new Table has no saved Record or Layout projection yet. Save the Table, then configure its Layout."
     },
     "buttons": [
       {
@@ -548,20 +586,20 @@
         "action": "refresh",
         "disabled": false,
         "rect": {
-          "x": 1717.28125,
+          "x": 1688.828125,
           "y": 68.5,
           "width": 65.46875,
           "height": 30
         }
       },
       {
-        "name": "Hide preview",
+        "name": "Preview datasheet",
         "action": "preview",
         "disabled": false,
         "rect": {
-          "x": 1790.75,
+          "x": 1762.296875,
           "y": 68.5,
-          "width": 98.25,
+          "width": 126.703125,
           "height": 30
         }
       },
@@ -716,7 +754,7 @@
       "rootOverflowX": "visible",
       "rootOverflowY": "visible"
     },
-    "pageText": "Skip to database design CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator \u00b7 Atlas workspace Database design Atlas workspace \u00b7 materials catalog New Table draft Refresh Hide preview Schema objects 5 types Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 2 Current table Materials master Test conditions Source references Solver aliases Batch runs Scopes Attributes, Layouts and Subsets. Selection retained on refresh Tables 5 items Name Rev Materials master 12 Test conditions 8 Source references 4 Solver aliases 3 Batch runs 2 New Table New governed record type \u00b7 existing Tables remain unchanged New definition Table name * Shown to people choosing where to store a Record. Reference key * Stable key for this new Table identity. Purpose State what records belong here; this appears in the property editor, not the Object list. Change reason * Recorded with immutable revision 1. Creates revision 1. The new Table becomes available for typed Attributes, Layouts and Records after save. Save new Table Cancel Advanced definition details RECORD PREVIEW No saved projection This new Table has no saved Record or Layout projection yet. Save the Table, then configure its Layout. Tables \u00b7 Materials master Table-scoped definitions Local pane scrolling Online"
+    "pageText": "Skip to database design CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator \u00b7 Atlas workspace Database design Atlas workspace \u00b7 materials catalog New Table draft Refresh Preview datasheet Schema objects 5 types Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 2 Current table Materials master Test conditions Source references Solver aliases Batch runs Scopes Attributes, Layouts and Subsets. Selection retained on refresh Tables 5 items Name Rev Materials master 12 Test conditions 8 Source references 4 Solver aliases 3 Batch runs 2 New Table New governed record type \u00b7 existing Tables remain unchanged New definition Table name * Shown to people choosing where to store a Record. Reference key * Stable key for this new Table identity. Purpose State what records belong here; this appears in the property editor, not the Object list. Change reason * Recorded with immutable revision 1. Creates revision 1. The new Table becomes available for typed Attributes, Layouts and Records after save. Save new Table Cancel Advanced definition details Tables \u00b7 Materials master Table-scoped definitions Local pane scrolling Online"
   },
   "console_errors": [],
   "page_errors": []

@@ -314,7 +314,7 @@ references:
     family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-data-state-evidence.json
     image_sha256: a5a61b1f960575ed5f266d218bc5ff748a4fb986dcc53807604c8e17d0d0e64c
     date: 2026-07-30
-    status: pending
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
@@ -324,7 +324,11 @@ references:
         stress units, dimensionless strain, data-relative nice bounds, headroom, exact revisions,
         inclusion/visibility separation and keyboard splitter consequences pass without overflow.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-30
+      evidence: >-
+        Product-owner approval in conversation after submission of the MOD-DATA wide-correction
+        representative and explicit five-reference bundle.
   - id: modeling-data-normal-1440x900
     screen: modeling-data
     state: normal
@@ -338,7 +342,7 @@ references:
     family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-data-state-evidence.json
     image_sha256: 5e831b9ea26489f44d6b8ef263d104951968f0107aecb983f0cd9ed0ebcefe54
     date: 2026-07-30
-    status: pending
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
@@ -348,7 +352,11 @@ references:
         dimensionless strain, stable glyphs/strokes and data-derived plot headroom remain readable;
         exact revisions, source switching and truthful splitter behavior are preserved.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-30
+      evidence: >-
+        Product-owner approval in conversation after submission of the MOD-DATA wide-correction
+        representative and explicit five-reference bundle.
   - id: modeling-data-normal-1920x1080
     screen: modeling-data
     state: normal
@@ -365,7 +373,7 @@ references:
     family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-data-state-evidence.json
     image_sha256: fc3fc35693718f5aa5e3902d6b7ade39f8f2009f33c6507fadc6733b517a0fbe
     date: 2026-07-30
-    status: pending
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
@@ -375,7 +383,11 @@ references:
         text or strokes. Compact engineering axes use Engineering stress (MPa) and Engineering
         strain [1], with data-derived nice bounds and visible headroom at every wide viewport.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-30
+      evidence: >-
+        Product-owner approval in conversation after submission of the MOD-DATA wide-correction
+        representative and explicit five-reference bundle.
   - id: modeling-data-empty-new-session-1440x900
     screen: modeling-data
     state: empty-new-session
@@ -393,7 +405,7 @@ references:
     family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-data-state-evidence.json
     image_sha256: c6b7949a32019ef3dc29a3c4dd27444c5a4e466798360c1f76fb650242a105e8
     date: 2026-07-30
-    status: pending
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
@@ -403,7 +415,11 @@ references:
         Render-sized SVG geometry and compact axis typography remain stable while Local file stays
         the single truthful intake consequence.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-30
+      evidence: >-
+        Product-owner approval in conversation after submission of the MOD-DATA wide-correction
+        representative and explicit five-reference bundle.
   - id: modeling-data-long-invalid-mapping-blocked-1440x900
     screen: modeling-data
     state: long-invalid-mapping-blocked
@@ -421,7 +437,7 @@ references:
     family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-data-state-evidence.json
     image_sha256: 0c661147014fecdb5ad290a9c9ead01d9a389c84f12eb9fe87f6548cbe362356
     date: 2026-07-30
-    status: pending
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
@@ -431,7 +447,11 @@ references:
         preview/Save dataset boundary. The responsive graph retains compact engineering axes and
         data-relative headroom with no clipping, page overflow or false update claim.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-30
+      evidence: >-
+        Product-owner approval in conversation after submission of the MOD-DATA wide-correction
+        representative and explicit five-reference bundle.
   - id: materials-card-preview-normal-1366x768
     screen: materials-card
     state: normal
@@ -448,19 +468,23 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1366x768.png
     measurements: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1366x768.measurements.json
     family_state_evidence: docs/00-research/ux-service-reference/materials-card-wave02.state-evidence.json
-    image_sha256: 1cdbb5cc46f04116f5c97f66266869669d407e8be1d9ceed4d3211570a589cb2
+    image_sha256: b4f38c0117c13f50b9cefbccf833d389b7a91c8c719961c66b9d2226cf3950a3
     date: 2026-07-30
-    status: pending
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Replacement accepted after the product-owner light-surface correction, direct
-        original-resolution inspection, complete family gates and fresh independent review. The
-        exact Abaqus native bytes now use the established light document/code surface without a
-        false scroll rail. Monospace data, selected Record, 312 px delivery sheet, Download .inp,
-        mapping evidence and compact 1366 topology remain readable without clipping or overflow.
+        Replacement accepted after direct original-resolution inspection, complete family gates
+        and fresh independent review. The exact Abaqus native bytes use the established light
+        document surface without a false rail. Mapping details use the shared compact
+        title/value/plain-status grammar; selected Record, Delivery properties and Download .inp
+        remain readable without clipping or overflow.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-30
+      evidence: >-
+        Product-owner approval in conversation after submission of the MAT-CARD shared Mapping
+        details representative and explicit five-reference bundle.
   - id: materials-search-long-1440x900
     screen: materials-search
     state: long
@@ -658,19 +682,23 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1440x900.png
     measurements: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1440x900.measurements.json
     family_state_evidence: docs/00-research/ux-service-reference/materials-card-wave02.state-evidence.json
-    image_sha256: 07359c9cfb4d8c1429f6e046c9b22e8481c5abed9fde06f4b4c0dd535d8f6760
+    image_sha256: 05b327f3741f27962bb6dc7ee961071ab3dedb2b840fedc5c94799ea6076c8db
     date: 2026-07-30
-    status: pending
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Replacement accepted after the product-owner light-surface correction, direct
-        original-resolution inspection, complete family gates and fresh independent review. The
-        native preview fills the available normal-height pane on a light engineering-document
-        surface with no false rail. Solver, version, unit, revision, lifecycle, mapping summary,
-        Download and closed Advanced evidence remain readable and unchanged in meaning.
+        Replacement accepted after direct original-resolution inspection, complete family gates
+        and fresh independent review. The native preview fills the available pane on a light
+        engineering-document surface with no false rail. Mapping details use the shared compact
+        title/value/plain-status grammar; solver, unit, revision, lifecycle, Download and the
+        technical disclosure remain readable and unchanged in meaning.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-30
+      evidence: >-
+        Product-owner approval in conversation after submission of the MAT-CARD shared Mapping
+        details representative and explicit five-reference bundle.
   - id: materials-card-preview-normal-1920x1080
     screen: materials-card
     state: normal
@@ -685,20 +713,23 @@ references:
       - docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-2560x1440.png
       - docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-3840x2160.png
     family_state_evidence: docs/00-research/ux-service-reference/materials-card-wave02.state-evidence.json
-    image_sha256: 5003ea1628f12d5d9001a705af2f79e338a1acbf84be410d58dbbfe81d47b07c
+    image_sha256: 963ac2613b244caadde2e9f576c9078ebbf6f6138177b8c25c30018797d77fb4
     date: 2026-07-30
-    status: pending
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Replacement accepted 32/32 after the product-owner light-surface correction,
-        original-resolution inspection at 1920, 2560 and 3840, complete family gates and fresh
-        independent review. Exact native text uses the established light code surface in a bounded
-        320 px region with a visible light local rail only when it overflows. The linked response,
-        compact legend, true stress/plastic-strain axes, headroom, 312 px delivery sheet and every
-        mapping/state contract remain unchanged and undistorted.
+        Replacement accepted after original-resolution inspection at 1920, 2560 and 3840, complete
+        family gates and fresh independent review. Exact native text uses the established light
+        document surface in a bounded 320 px region with a local rail only when it overflows. The
+        linked response, true stress/plastic-strain axes, data-relative headroom, bounded delivery
+        sheet and shared compact Mapping details remain undistorted and readable.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-30
+      evidence: >-
+        Product-owner approval in conversation after submission of the MAT-CARD shared Mapping
+        details representative and explicit five-reference bundle.
   - id: materials-card-approximation-blocked-1440x900
     screen: materials-card
     state: approximation-blocked
@@ -714,20 +745,23 @@ references:
       - docs/17-evidence/images/issue-167-service-reference/materials-card-approximation-blocked-1440x900.png
       - docs/17-evidence/images/issue-167-service-reference/materials-card-approximation-blocked-1440x900.responsive-1920x1080.png
     family_state_evidence: docs/00-research/ux-service-reference/materials-card-wave02.state-evidence.json
-    image_sha256: 52235f10f98b4694a7124609d2aae9f6836e14ebe5415e04b24fe20814597697
+    image_sha256: 6cfe99b8f20b4609c0fc509e79c8013ef13d764ba55166a617cc9b08c2402ec8
     date: 2026-07-30
-    status: pending
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Replacement accepted after the product-owner light-surface correction, direct
-        original-resolution inspection, complete responsive/state gates and fresh independent
-        review. The OpenRadioss native bytes use the same light engineering-document grammar while
-        the named approximation, unchecked acknowledgement, blocked Download .rad and selected
-        Record remain complete. No false rail, clipped status, hidden consequence or overflow is
-        introduced.
+        Replacement accepted after direct original-resolution inspection, complete responsive/state
+        gates and fresh independent review. The OpenRadioss native bytes use the same light
+        engineering-document grammar while compact Mapping details name the approximation and its
+        consequence. The unchecked acknowledgement, blocked Download .rad and selected Record
+        remain complete with no clipped status or hidden consequence.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-30
+      evidence: >-
+        Product-owner approval in conversation after submission of the MAT-CARD shared Mapping
+        details representative and explicit five-reference bundle.
   - id: materials-card-unsupported-blocked-1440x900
     screen: materials-card
     state: unsupported-blocked
@@ -743,23 +777,23 @@ references:
       - docs/17-evidence/images/issue-167-service-reference/materials-card-unsupported-blocked-1440x900.png
       - docs/17-evidence/images/issue-167-service-reference/materials-card-unsupported-blocked-1440x900.responsive-1920x1080.png
     family_state_evidence: docs/00-research/ux-service-reference/materials-card-wave02.state-evidence.json
-    image_sha256: 688a0fd8bd9d4d72042f2ad21813df3b8f7ede78b128f75d3cfb1a6c63466d6d
-    date: 2026-07-29
+    image_sha256: 8eba256b6a59e6c9d61a7a3b6574e4878952dd62e690703ce25a88764fd1afc6
+    date: 2026-07-30
     status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted after the user-authorized main Sol High direct completion, original-resolution
-        inspection and complete responsive/state validation. Persisted state PNG/hash bindings,
-        zero active-route legacy selectors and computed 12–13 px typography pass at every required
-        viewport. The dominant region truthfully says no native artifact was created, names the
-        unsupported damage initiation GISSMO field, and provides no acknowledgement bypass or fake
-        download. Open Modeling and Back to CAE Cards are safe recovery actions; selected Record
-        context and mapping evidence remain intact.
+        Replacement accepted after direct original-resolution inspection, complete responsive/state
+        validation and fresh independent review. The dominant region truthfully says no native
+        artifact was created, while shared compact Mapping details names damage initiation GISSMO
+        as not supported. No acknowledgement bypass or fake download is present; Open Modeling and
+        Back to CAE Cards remain safe recovery actions.
     product_owner_approval:
       status: approved
-      date: 2026-07-29
-      evidence: WAVE-02 batch approval in conversation.
+      date: 2026-07-30
+      evidence: >-
+        Product-owner approval in conversation after submission of the MAT-CARD shared Mapping
+        details representative and explicit five-reference bundle.
   - id: modeling-process-normal-1366x768
     screen: modeling-process
     state: normal
@@ -776,23 +810,21 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/modeling-process-normal-1366x768.png
     measurements: docs/17-evidence/images/issue-167-service-reference/modeling-process-normal-1366x768.measurements.json
     family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-process-state-evidence.json
-    image_sha256: c537c7caf60d668a82021e50cdc0307b185faf118d5091edc41c10d9c5ef0cad
-    date: 2026-07-29
+    image_sha256: 6722bd80c851b47c941cbac92c03e10a6106566fef940fabe9d8ab61c7fec825
+    date: 2026-07-31
     status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted after the user-authorized main Sol High direct correction, original-resolution
-        inspection and complete family validation. All decision metadata computes to 12 px/14 px,
-        wraps without clipping, and the 192 px-high settings ribbon leaves the graph dominant. The
-        184 px navigator keeps three curves/two included, separate include/visibility controls and
-        five ordered Process operations. Exact source, one title-row Preview and the sole filled
-        Save remain legible; observed, processed and elastic-fit curves use data-relative headroom
-        with separate non-overlapping axis and legend lanes.
+        Accepted after the owner-authorized 1920-cap correction, complete deterministic gates and
+        active-main-agent original-resolution review. The compact rail, shallow ribbon, stable
+        engineering typography, non-scaling strokes and data-derived graph headroom remain intact.
     product_owner_approval:
       status: approved
-      date: 2026-07-29
-      evidence: WAVE-02 batch approval in conversation.
+      date: 2026-07-31
+      evidence: >-
+        Product-owner approval in conversation after the corrected 2560/3840 wide evidence
+        preserved the exact 1920 graph size and the owner requested commit and push.
   - id: modeling-process-normal-1440x900
     screen: modeling-process
     state: normal
@@ -804,23 +836,21 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/modeling-process-normal-1440x900.png
     measurements: docs/17-evidence/images/issue-167-service-reference/modeling-process-normal-1440x900.measurements.json
     family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-process-state-evidence.json
-    image_sha256: 57d5c9e8f9ebbf21315ca94f76eb21e11ce116526afffc717973ebb514417461
-    date: 2026-07-29
+    image_sha256: 122cf29074eea18bfd0549ad40dc0d9143b1ee6bb2bd82df6266194645b5d3ae
+    date: 2026-07-31
     status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted after the user-authorized main Sol High direct correction, original-resolution
-        inspection and complete family validation. All decision metadata computes to 12 px/14 px
-        and wraps without clipping. The 192 px navigator and 198 px-high graph-adjacent operation
-        band leave the persistent before/after graph dominant. Exact Test Data, robust elastic
-        range, current preview, immutable-save consequence and stale downstream pointers are
-        explicit. The axis label and legend occupy distinct validated lanes with no collision or
-        duplicate Preview.
+        Accepted after complete recapture and original-resolution review. The 192 px navigator,
+        compact operation ribbon and dominant graph preserve their hierarchy without clipping;
+        engineering axes, numeric ticks and the internal legend remain readable and collision-free.
     product_owner_approval:
       status: approved
-      date: 2026-07-29
-      evidence: WAVE-02 batch approval in conversation.
+      date: 2026-07-31
+      evidence: >-
+        Product-owner approval in conversation after the corrected 2560/3840 wide evidence
+        preserved the exact 1920 graph size and the owner requested commit and push.
   - id: modeling-process-normal-1920x1080
     screen: modeling-process
     state: normal
@@ -831,23 +861,26 @@ references:
     sources: *modeling_process_sources
     image: docs/17-evidence/images/issue-167-service-reference/modeling-process-normal-1920x1080.png
     measurements: docs/17-evidence/images/issue-167-service-reference/modeling-process-normal-1920x1080.measurements.json
+    wide_evidence:
+      - docs/17-evidence/images/issue-167-service-reference/modeling-process-normal-2560x1440.png
+      - docs/17-evidence/images/issue-167-service-reference/modeling-process-normal-3840x2160.png
     family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-process-state-evidence.json
-    image_sha256: 154c21e6679b999ee63ca65c10ac6e7af8a8ebdb54b69490be67460078ce53c1
-    date: 2026-07-29
+    image_sha256: 87a861aa3e8822e4fe19645230f426f902ced609eea09e62b6fdae67f1a9cf09
+    date: 2026-07-31
     status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted after the user-authorized main Sol High direct correction, original-resolution
-        inspection and complete family validation. All decision metadata computes to 12 px/14 px
-        and wraps without clipping. The navigator remains restrained at 208 px while the persistent
-        graph expands, rather than creating an inspector. Operation decisions, exact source,
-        observed/processed/elastic-fit evidence, proportional range headroom and distinct
-        axis/legend lanes preserve the approved topology with zero clipping or body overflow.
+        Accepted after original-resolution inspection at 1920 and supporting 2560/3840. The
+        1920 graph remains 1689×680. At both wide evidence sizes, the graph preserves that exact
+        useful pixel size and its right edge exactly matches Save processed curves. The retired 3840
+        table is absent; unused space begins after the complete left/top task cluster.
     product_owner_approval:
       status: approved
-      date: 2026-07-29
-      evidence: WAVE-02 batch approval in conversation.
+      date: 2026-07-31
+      evidence: >-
+        Product-owner approval in conversation after the corrected 2560/3840 wide evidence
+        preserved the exact 1920 graph size and the owner requested commit and push.
   - id: modeling-process-prerequisite-blocked-1440x900
     screen: modeling-process
     state: prerequisite-blocked
@@ -863,22 +896,22 @@ references:
       - docs/17-evidence/images/issue-167-service-reference/modeling-process-prerequisite-blocked-1440x900.png
       - docs/17-evidence/images/issue-167-service-reference/modeling-process-prerequisite-blocked-responsive-1920x1080.png
     family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-process-state-evidence.json
-    image_sha256: 9d71022e7c9bff6a5b88de70985a34aaf2e30d3bd1715a69a5e7c5bbd40b9868
-    date: 2026-07-29
+    image_sha256: 2f3ed351bbb22b604e6a7bed189b52cd7b9945f8620633d2442482654492ed30
+    date: 2026-07-31
     status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted after the user-authorized main Sol High direct correction, original-resolution
-        inspection and complete responsive/state validation. Decision metadata computes to
-        12 px/14 px and wraps without clipping; the 228 px-high blocked ribbon and mounted graph
-        retain the same topology with zero page overflow. Process remains active, but no compatible
-        exact Test Data/Mapping Profile or fabricated result appears. Preview and Save are disabled,
-        the unmet prerequisite is adjacent, and one Back to Data recovery preserves the session.
+        Accepted after complete responsive/state validation and original-resolution review. No
+        fabricated curve appears; Preview and Save are disabled. The missing saved Test Data,
+        blocking requirement and sole Back to Data recovery remain clear without duplicate
+        implementation or provenance language.
     product_owner_approval:
       status: approved
-      date: 2026-07-29
-      evidence: WAVE-02 batch approval in conversation.
+      date: 2026-07-31
+      evidence: >-
+        Product-owner approval in conversation after the corrected 2560/3840 wide evidence
+        preserved the exact 1920 graph size and the owner requested commit and push.
   - id: activity-user-normal-1366x768
     screen: activity-user
     state: normal
@@ -1078,6 +1111,91 @@ references:
       evidence: >-
         Product-owner batch approval in conversation after the final nine-image MAT-EXP
         exceptional and ACT-QUEUE handoff.
+  - id: activity-recovery-blocked-1366x768
+    screen: activity-recovery
+    state: not-configured
+    viewport:
+      width: 1366
+      height: 768
+      device_scale_factor: 1
+    sources: &activity_recovery_sources
+      html: docs/00-research/ux-service-reference/activity-recovery-blocked.html
+      css: docs/00-research/ux-service-reference/activity-recovery.css
+      javascript: docs/00-research/ux-service-reference/activity-recovery.js
+      capture: docs/00-research/ux-service-reference/capture_activity_recovery.py
+      validation: docs/00-research/ux-service-reference/validate_activity_recovery.py
+    image: docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-1366x768.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-1366x768.measurements.json
+    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/activity-recovery-state-evidence.json
+    image_sha256: 66e93ab285651dcd0095b8f928836611ffbae84165fb6ccc765ed14c8e71c252
+    date: 2026-07-31
+    status: approved
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted after replacing internal workflow vocabulary with four user-recognizable review
+        tasks. The failed-calculation boundary states the capability limit once, the local Modeling
+        session remains a distinct first row, and the fixed-density queue exposes useful content
+        without clipping, stretched rows, fabricated outcomes or card stacking.
+    product_owner_approval:
+      status: approved
+      date: 2026-07-31
+      evidence: >-
+        Product-owner batch approval in conversation for all three ACT-RECOVERY lifecycle images.
+  - id: activity-recovery-blocked-1440x900
+    screen: activity-recovery
+    state: not-configured
+    viewport:
+      width: 1440
+      height: 900
+      device_scale_factor: 1
+    sources: *activity_recovery_sources
+    image: docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-1440x900.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-1440x900.measurements.json
+    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/activity-recovery-state-evidence.json
+    image_sha256: 03aa747651b1703b269d2d3fdb96b21572343a22a5aa57ba81b55d8dfd80057d
+    date: 2026-07-31
+    status: approved
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted after original-resolution review of normal, empty, loading and action-error
+        consequences. The flat queue preserves the approved Activity rhythm, keeps recovery local
+        to the saved Modeling session and uses the available height for complete fixed-density rows.
+    product_owner_approval:
+      status: approved
+      date: 2026-07-31
+      evidence: >-
+        Product-owner batch approval in conversation for all three ACT-RECOVERY lifecycle images.
+  - id: activity-recovery-blocked-1920x1080
+    screen: activity-recovery
+    state: not-configured
+    viewport:
+      width: 1920
+      height: 1080
+      device_scale_factor: 1
+    sources: *activity_recovery_sources
+    image: docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-1920x1080.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-1920x1080.measurements.json
+    wide_evidence:
+      - docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-2560x1440.png
+      - docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-3840x2160.png
+    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/activity-recovery-state-evidence.json
+    image_sha256: 254750dbfeb9eeedc3ac79b9c606ceb7dcc13eb9f83f34cf7f5c831bbb54aaf1
+    date: 2026-07-31
+    status: approved
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted after direct 1920, 2560 and 3840 comparison. Wider displays reveal more of the
+        existing request contract at stable typography and row density instead of enlarging one
+        graph or stretching prose. The local session, server requests and failed-calculation
+        boundary remain semantically distinct and no invented recovery feature fills the workspace.
+    product_owner_approval:
+      status: approved
+      date: 2026-07-31
+      evidence: >-
+        Product-owner batch approval in conversation for all three ACT-RECOVERY lifecycle images.
   - id: modeling-export-normal-1366x768
     screen: modeling-export
     state: normal
@@ -1290,16 +1408,19 @@ references:
     family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
     image_sha256: 9995b53dae3a9907fe95f33ad9eed0b4a96a19fe1d7e7d19f61f89249f313724
     date: 2026-07-30
-    status: pending
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted by the active main agent after deterministic validation and original-resolution
-        review of all eleven approval images. The compact three-pane schema workspace keeps object
-        families, the identity-first Object list and its property editor continuous. Table rows expose
-        only Name and Rev; detailed prose remains in the editor instead of clipping inside Name.
+        Accepted after the owner-authorized qualitative correction and original-resolution review.
+        Compact preview retains one in-preview return; the preview task remains bounded and no
+        duplicate wide action, overlap, clipping or artificial filler is present.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-31
+      evidence: >-
+        Product-owner approval in conversation after explicit review of the complete
+        ADM-SCHEMA-CORE eleven-image bundle and the 1920/2560/3840 bounded-dimension check.
   - id: administration-database-normal-1440x900
     screen: administration-database
     state: normal
@@ -1313,15 +1434,19 @@ references:
     family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
     image_sha256: 1b2491632ca17a96bbcd32efeac6d8d4cc5555b5ee43eaaa016085538828a2bf
     date: 2026-07-30
-    status: pending
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted by the active main agent after original-resolution review. Flat dividers and dense
-        rows carry the hierarchy without nested cards, while the selected Table definition and its
-        next edit/preview actions remain the visual and workflow consequence.
+        Accepted after direct original-resolution review. The compact database task preserves one
+        obvious return path, readable catalog structure and a bounded preview without duplicated
+        chrome or avoidable internal whitespace.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-31
+      evidence: >-
+        Product-owner approval in conversation after explicit review of the complete
+        ADM-SCHEMA-CORE eleven-image bundle and the 1920/2560/3840 bounded-dimension check.
   - id: administration-database-normal-1920x1080
     screen: administration-database
     state: normal
@@ -1336,19 +1461,21 @@ references:
       - docs/17-evidence/images/issue-167-service-reference/administration-database-normal-wide-2560x1440.png
       - docs/17-evidence/images/issue-167-service-reference/administration-database-normal-wide-3840x2160.png
     family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: 6f07e6a7bf59c28107fd21aaeecf72c1cfbc94effb011b67104e3adcd51bc672
+    image_sha256: dd5bc7fecbe53bf6e97c94e5da99e86a2085b4f4672dfe483a56b8cdd1050d7c
     date: 2026-07-30
-    status: pending
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted by the active main agent after original-resolution review of the complete bundle.
-        The normal 1920/2560/3840 composition pairs saved Record/Layout values with the linked
-        response graph. Table saving and save-error now devote the first view to the complete form,
-        status or recovery action and both draft actions; the graph is suppressed only for those
-        transient states, so no control is clipped or hidden behind a distant rail.
+        Accepted after direct review at 1920, 2560 and 3840. The complete preview chrome now ends
+        with the Record-plus-graph cluster, only the task-bar return remains on wide screens, and
+        legitimate unused space reads outside the bounded component at the right and bottom.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-31
+      evidence: >-
+        Product-owner approval in conversation after explicit review of the complete
+        ADM-SCHEMA-CORE eleven-image bundle and the 1920/2560/3840 bounded-dimension check.
   - id: administration-table-edit-draft-1366x768
     screen: administration-table-edit
     state: draft
@@ -1362,15 +1489,19 @@ references:
     family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
     image_sha256: 9de662dd7dfa2453a66c0b0da830193b4061c25796406b3d88803f8ec5fc8c69
     date: 2026-07-30
-    status: pending
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted by the active main agent after original-resolution review. The compact Table form
-        distinguishes stable identity from editable definition, requires a change reason and makes
-        the immutable new-revision consequence explicit without exposing hashes or ETags.
+        Accepted after direct original-resolution review. The Table draft, exact revision and
+        compact preview remain coherent, with one return action and no regression in saved
+        projection, overflow or focus-return behavior.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-31
+      evidence: >-
+        Product-owner approval in conversation after explicit review of the complete
+        ADM-SCHEMA-CORE eleven-image bundle and the 1920/2560/3840 bounded-dimension check.
   - id: administration-table-edit-draft-1440x900
     screen: administration-table-edit
     state: draft
@@ -1384,15 +1515,19 @@ references:
     family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
     image_sha256: 2390d47c2b9828f9aa4ae2a0d47d1829b2b4567c2584f13aac5863d0561cb284
     date: 2026-07-30
-    status: pending
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted by the active main agent after original-resolution review. Labels, inputs, help
-        text and revision actions form one restrained editing rhythm; selection context remains
-        mounted in the two left panes and Advanced holds exact technical identifiers.
+        Accepted after direct original-resolution review. The responsive preview retains one
+        discoverable return action, readable draft controls and a bounded result area without
+        duplicated chrome, clipping or filler.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-31
+      evidence: >-
+        Product-owner approval in conversation after explicit review of the complete
+        ADM-SCHEMA-CORE eleven-image bundle and the 1920/2560/3840 bounded-dimension check.
   - id: administration-table-edit-draft-1920x1080
     screen: administration-table-edit
     state: draft
@@ -1404,18 +1539,21 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1920x1080.png
     measurements: docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1920x1080.measurements.json
     family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: fdee83cea91e0375bc59eb5594972cf096e642f7a293ff947e49812226f28ad0
+    image_sha256: eace016ff08a9b76577ba30761e35e99a43eee3d525b39f66c65e7c2d6fc6909
     date: 2026-07-30
-    status: pending
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted by the active main agent after original-resolution review. The immutable-revision
-        form remains primary and the saved linked graph remains available in the normal draft.
-        During saving and save-error, the complete form, feedback, recovery and draft action rows fit
-        the first view while the synchronized Record/Layout preview remains truthful.
+        Accepted after direct original-resolution review. Immutable revision context, the active
+        projection and bounded linked curve remain intact; wide task chrome no longer expands
+        beyond the useful working cluster.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-31
+      evidence: >-
+        Product-owner approval in conversation after explicit review of the complete
+        ADM-SCHEMA-CORE eleven-image bundle and the 1920/2560/3840 bounded-dimension check.
   - id: administration-attribute-edit-draft-1366x768
     screen: administration-attribute-edit
     state: draft
@@ -1427,18 +1565,20 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1366x768.png
     measurements: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1366x768.measurements.json
     family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: e6682346823355eb99da5eb72eb5c795a31b4847a025d5f554a572e607d7dfd0
+    image_sha256: 6eeb19ed91e1ea343623ae16c837d514bb97b85c307157dfe56f53af6b0d6b1f
     date: 2026-07-30
-    status: pending
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted by the active main agent after original-resolution review. The Attribute list exposes
-        only Name, canonical Value type and Rev while number semantics, normalized unit, optional
-        range, entry guidance and requiredness remain legible in the adjacent local editor. Genuine
-        overflow exposes a proportional, keyboard-operable scroll position without covering fields.
+        Accepted after direct original-resolution review. Typed Attribute editing, compact preview,
+        genuine local overflow and one responsive return path remain legible and operational.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-31
+      evidence: >-
+        Product-owner approval in conversation after explicit review of the complete
+        ADM-SCHEMA-CORE eleven-image bundle and the 1920/2560/3840 bounded-dimension check.
   - id: administration-attribute-edit-draft-1440x900
     screen: administration-attribute-edit
     state: draft
@@ -1450,18 +1590,21 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1440x900.png
     measurements: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1440x900.measurements.json
     family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: 3db6cd5a26221bf62d13bcedd07c7d3a309df3984ef81914a5828da47f9a1a62
+    image_sha256: 8c4038ef03ae882ff8a099b12c78dba0affa4ef733ddec8a2f7fb9c68a341b97
     date: 2026-07-30
-    status: pending
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted by the active main agent after original-resolution review. The typed Attribute
-        editor uses compact row alignment and quiet helper text rather than technical badges or
-        card stacking, while Save new revision has one clear governed consequence. The local scroll
-        rail appears only where the complete form genuinely exceeds the available pane height.
+        Accepted after direct original-resolution review. The scalar Attribute task remains
+        graph-free, the saved projection remains distinct from the draft, and the compact preview
+        exposes one clear return without duplicated controls.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-31
+      evidence: >-
+        Product-owner approval in conversation after explicit review of the complete
+        ADM-SCHEMA-CORE eleven-image bundle and the 1920/2560/3840 bounded-dimension check.
   - id: administration-attribute-edit-draft-1920x1080
     screen: administration-attribute-edit
     state: draft
@@ -1473,18 +1616,21 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1920x1080.png
     measurements: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1920x1080.measurements.json
     family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: 2ab1f05490239ff9a77c7495af90fdb65d21df951c9eb0657171e0684dab21ae
+    image_sha256: da0965abe9a9d0627979b549a71ae6a5fcaa0c5483e6f395ae751b422578810e
     date: 2026-07-30
-    status: pending
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted by the active main agent after original-resolution review. The typed Attribute form
-        remains disciplined, its value type and unit semantics stay visible, and the saved
-        Record/Layout projection is clearly read-only. The corrected sibling Table recovery states
-        no longer clip actions, so the family-level state gate is satisfied.
+        Accepted after direct original-resolution review. One active projection, useful scan
+        height, local overflow and graph-free scalar editing remain coherent; unused wide space is
+        outside the bounded task rather than inside an unfinished component.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-31
+      evidence: >-
+        Product-owner approval in conversation after explicit review of the complete
+        ADM-SCHEMA-CORE eleven-image bundle and the 1920/2560/3840 bounded-dimension check.
   - id: administration-edit-stale-conflict-1440x900
     screen: administration-edit
     state: stale-conflict
@@ -1502,15 +1648,19 @@ references:
     family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
     image_sha256: e64c034fb1ad3fd6428ca319d91bde6ec7c675b95b5332d7cb2db49a9552cd21
     date: 2026-07-30
-    status: pending
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
-        Accepted by the active main agent after original-resolution review. The focused conflict
-        region preserves the local draft and offers reload, keep-as-new-revision and cancel without
-        mutating history or replacing the surrounding selection and form with a dead-end page.
+        Accepted after direct original-resolution review. Conflict recovery preserves the local
+        draft and exact saved revision, while the single responsive return path restores focus
+        without duplicating actions.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-31
+      evidence: >-
+        Product-owner approval in conversation after explicit review of the complete
+        ADM-SCHEMA-CORE eleven-image bundle and the 1920/2560/3840 bounded-dimension check.
   - id: administration-attribute-long-invalid-1440x900
     screen: administration-attribute-edit
     state: long-invalid
@@ -1526,16 +1676,18 @@ references:
       - docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1440x900.png
       - docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1920x1080.png
     family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: 51157e7802a56e093d228a74770cd43b6ad85bc7cb4be2161eca1859087f3994
-    date: 2026-07-30
-    status: pending
+    image_sha256: ac798d466063d9d0408f8f2e7d69ff39e92f6514fafdb4f4838b0582307cb898
+    date: 2026-07-31
+    status: approved
     main_agent_evaluation:
-      status: rejected
+      status: accepted
       notes: >-
-        Rejected after fresh read-only review and direct main-agent confirmation. The long invalid
-        draft description is incorrectly substituted into the center list's Name cell, where the
-        governed object identity must remain Material condition. The descriptive draft belongs only
-        in the editor field. Containment, recovery, disabled Save and local scrolling otherwise pass,
-        but this cumulative Name-column principle failure blocks the Administration family handoff.
+        Accepted after direct original-resolution review. The invalid draft remains separated from
+        saved Record/Layout projections; one active projection, realistic overflow and the bounded
+        preview task remain intact.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-07-31
+      evidence: >-
+        Product-owner approval in conversation after explicit review of the complete
+        ADM-SCHEMA-CORE eleven-image bundle and the 1920/2560/3840 bounded-dimension check.

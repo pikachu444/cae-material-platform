@@ -40,6 +40,16 @@ LEGACY_ACTIVE_ROUTE_SELECTORS = (
     "count-chip",
 )
 
+MAPPING_CONSEQUENCES = {"Exact", "Converted", "Review required", "Reviewed", "Not supported"}
+MAPPING_EXPECTATIONS = {
+    "density": ("Density", "7 800 kg/m³ → 7.8000E+03 kg/m³", "Exact"),
+    "isotropic-elasticity": ("Isotropic elasticity", "210 GPa, \N{GREEK SMALL LETTER NU} 0.30 → *ELASTIC", "Exact"),
+    "initial-yield": ("Initial yield", "450 MPa at εp = 0 → first *PLASTIC row", "Converted"),
+    "hardening-response": ("Hardening response", "5 points → native *PLASTIC rows", "Converted"),
+    "post-necking-extension": ("Post-necking extension", "Bounded extension → target behavior", "Review required"),
+    "damage-initiation-gissmo": ("Damage initiation · GISSMO", "No governed target representation", "Not supported"),
+}
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Validate the WAVE-02 MAT-CARD static-reference family.")
@@ -140,9 +150,50 @@ def validate_sources(staging: dict[str, Any]) -> None:
         if not path.is_file() or not path.read_text(encoding="utf-8").strip():
             fail(f"empty MAT-CARD source: {path}")
     html = source_html.read_text(encoding="utf-8")
-    for marker in ("data-region=\"navigator\"", "data-region=\"card-panel\"", "Native preview", "Delivery properties", "Advanced mapping evidence", "CAE Cards"):
+    for marker in ("data-region=\"navigator\"", "data-region=\"card-panel\"", "Native preview", "Delivery properties", "Mapping details", "Technical mapping details", "CAE Cards"):
         if marker not in html:
             fail(f"MAT-CARD HTML missing marker: {marker}")
+    if "Mapping summary" in html or "Advanced mapping evidence" in html:
+        fail("MAT-CARD HTML retains the superseded mapping grammar label")
+    css_text = source_css.read_text(encoding="utf-8")
+    if "grid-template-columns: minmax(0, 1fr) auto" not in css_text:
+        fail("MAT-CARD mapping rows do not use the shared minmax(0, 1fr) auto grammar")
+    if "padding: 0; border: 0; border-radius: 0" not in css_text:
+        fail("MAT-CARD mapping consequences retain badge silhouette styling")
+
+
+def validate_mapping_grammar(card: dict[str, Any], label: str, state: str) -> None:
+    expect_equal(card.get("mapping_title"), "Mapping details", f"{label} mapping title")
+    expect_equal(card.get("mapping_disclosure_title"), "Technical mapping details", f"{label} technical mapping disclosure")
+    mode = state if state in {"normal", "approximation", "unsupported"} else "normal"
+    expected_keys = {
+        "normal": {"density", "isotropic-elasticity", "initial-yield", "hardening-response"},
+        "approximation": {"density", "post-necking-extension"},
+        "unsupported": {"density", "damage-initiation-gissmo"},
+    }[mode]
+    details = card.get("mapping_row_details")
+    if not isinstance(details, list):
+        fail(f"{label} missing structured mapping row evidence")
+    expect_equal({row.get("key") for row in details}, expected_keys, f"{label} visible mapping row keys")
+    expect_equal(card.get("mapping_visible_count"), len(expected_keys), f"{label} visible mapping row count")
+    for row in details:
+        key = row.get("key")
+        if key not in MAPPING_EXPECTATIONS:
+            fail(f"{label} unexpected mapping row: {row!r}")
+        expected_title, expected_value, expected_consequence = MAPPING_EXPECTATIONS[key]
+        if (row.get("title"), row.get("value")) != (expected_title, expected_value):
+            fail(f"{label} mapping title/value mismatch: {row!r}")
+        if mode == "approximation" and row.get("key") == "post-necking-extension" and row.get("consequence") == "Reviewed":
+            expected_consequence = "Reviewed"
+        if row.get("consequence") not in MAPPING_CONSEQUENCES or row.get("consequence") != expected_consequence:
+            fail(f"{label} mapping consequence mismatch: {row!r}")
+        if row.get("clipped") or row.get("overlap"):
+            fail(f"{label} mapping row clipping/overlap: {row!r}")
+        expect_equal(row.get("status_border_width"), "0px", f"{label} {key} consequence border")
+        expect_equal(row.get("status_border_radius"), "0px", f"{label} {key} consequence radius")
+        expect_equal(row.get("status_padding"), "0px", f"{label} {key} consequence padding")
+        if row.get("status_text_transform") not in {"none", ""}:
+            fail(f"{label} {key} consequence is not sentence case: {row!r}")
 
 
 def validate_common(entry: dict[str, Any], config: dict[str, Any], measurement: dict[str, Any]) -> None:
@@ -172,6 +223,7 @@ def validate_common(entry: dict[str, Any], config: dict[str, Any], measurement: 
     validate_visual_acceptance_evidence(measurement, target)
     card = measurement.get("card", {})
     validate_light_native_preview(card, target)
+    validate_mapping_grammar(card, target, config["state"])
     regions = card.get("regions", {})
     delivery_width = card.get("delivery_width")
     native_width = card.get("native_width")
@@ -250,6 +302,7 @@ def validate_preview_height_and_decision(card: dict[str, Any], target: str) -> N
 
 def validate_state(measurement: dict[str, Any], state: str, target: str) -> None:
     card = measurement.get("card", {})
+    validate_mapping_grammar(card, target, state)
     validate_preview_height_and_decision(card, target)
     if state == "normal":
         expect_equal(card.get("native_text_visible"), True, f"{target} native text visible")
@@ -263,19 +316,20 @@ def validate_state(measurement: dict[str, Any], state: str, target: str) -> None
     elif state == "approximation":
         expect_equal(card.get("native_text_visible"), True, f"{target} approximation native text")
         expect_equal(card.get("approximation_acknowledged"), False, f"{target} canonical acknowledgement")
-        if not any("post-necking extension" in row for row in card.get("mapping_rows", [])):
+        if not any("post-necking extension" in row.casefold() for row in card.get("mapping_rows", [])):
             fail(f"{target} named approximation missing")
         expect_equal(card.get("download", {}).get("text"), "Download .rad", f"{target} approximation command label")
         expect_equal(card.get("download", {}).get("disabled"), True, f"{target} approximation command blocked")
         expect_equal(card.get("download", {}).get("primary"), True, f"{target} approximation primary command treatment")
         expect_equal(measurement.get("interactions", {}).get("state_command"), True, f"{target} acknowledgement interaction")
+        expect_equal(measurement.get("interactions", {}).get("mapping_acknowledgement"), True, f"{target} in-place acknowledgement consequence")
     elif state == "unsupported":
         expect_equal(card.get("native_text_visible"), False, f"{target} unsupported fake preview")
         expect_equal(card.get("unavailable_visible"), True, f"{target} unavailable explanation")
         expect_equal(card.get("download"), {"text": "Download blocked", "disabled": True, "primary": False}, f"{target} unsupported command")
         expect_equal(card.get("open_modeling_visible"), True, f"{target} Open Modeling recovery")
         expect_equal(card.get("back_to_cards_visible"), True, f"{target} Back to CAE Cards recovery")
-        if not any("damage initiation" in row for row in card.get("mapping_rows", [])):
+        if not any("damage initiation" in row.casefold() for row in card.get("mapping_rows", [])):
             fail(f"{target} unsupported field missing")
         expect_equal(measurement.get("interactions", {}).get("state_command"), True, f"{target} unsupported recovery interaction")
 

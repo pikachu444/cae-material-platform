@@ -370,10 +370,43 @@
     "loading_visible": false,
     "error_visible": false,
     "retry_visible": false,
+    "mapping_title": "Mapping details",
+    "mapping_disclosure_title": "Technical mapping details",
     "mapping_rows": [
-      "EXACTdensitySI density is emitted unchanged.",
-      "UNSUPPORTEDdamage initiation · GISSMOThe synthetic source has no governed target representation for this field."
+      "Density7 800 kg/m³ → 7.8000E+03 kg/m³Exact",
+      "Damage initiation · GISSMONo governed target representationNot supported"
     ],
+    "mapping_row_details": [
+      {
+        "key": "density",
+        "title": "Density",
+        "value": "7 800 kg/m³ → 7.8000E+03 kg/m³",
+        "consequence": "Exact",
+        "status_class": "mapping-status exact",
+        "grid_template_columns": "254.906px 26.0938px",
+        "status_border_width": "0px",
+        "status_border_radius": "0px",
+        "status_padding": "0px",
+        "status_text_transform": "none",
+        "clipped": false,
+        "overlap": false
+      },
+      {
+        "key": "damage-initiation-gissmo",
+        "title": "Damage initiation · GISSMO",
+        "value": "No governed target representation",
+        "consequence": "Not supported",
+        "status_class": "mapping-status not-supported",
+        "grid_template_columns": "207.234px 73.7656px",
+        "status_border_width": "0px",
+        "status_border_radius": "0px",
+        "status_padding": "0px",
+        "status_text_transform": "none",
+        "clipped": false,
+        "overlap": false
+      }
+    ],
+    "mapping_visible_count": 2,
     "approximation_acknowledged": false,
     "download": {
       "text": "Download blocked",
@@ -395,6 +428,7 @@
     "tabs": true,
     "advanced_disclosure": true,
     "native_scroll_wheel": true,
+    "mapping_acknowledgement": true,
     "state_command": true
   },
   "forbidden_visible_terms": [],
@@ -427,7 +461,7 @@
     "result": "pass"
   },
   "image": "docs/17-evidence/images/issue-167-service-reference/materials-card-unsupported-blocked-1440x900.responsive-1920x1080.png",
-  "image_sha256": "a8dc40d617650dad0b522bea7330c446c3d9bbc2c6ca59f0049437294eb272b7",
+  "image_sha256": "d17dd08b921afe83c74554ca1ffb234106f2da693f5e4fc1c23dce67710b5861",
   "screenshot_dimensions": {
     "width": 1920,
     "height": 1080

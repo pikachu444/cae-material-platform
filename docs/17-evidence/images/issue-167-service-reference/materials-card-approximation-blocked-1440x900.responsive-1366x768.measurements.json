@@ -370,10 +370,43 @@
     "loading_visible": false,
     "error_visible": false,
     "retry_visible": false,
+    "mapping_title": "Mapping details",
+    "mapping_disclosure_title": "Technical mapping details",
     "mapping_rows": [
-      "EXACTdensitySI density is emitted unchanged.",
-      "APPROXIMATEDpost-necking extensionThe bounded extension is emitted through its final point.Review this consequence before downloading the OpenRadioss card. I acknowledge this approximation for this exact card."
+      "Density7 800 kg/m³ → 7.8000E+03 kg/m³Exact",
+      "Post-necking extensionBounded extension → target behavior I acknowledge this approximation for this exact card.Review required"
     ],
+    "mapping_row_details": [
+      {
+        "key": "density",
+        "title": "Density",
+        "value": "7 800 kg/m³ → 7.8000E+03 kg/m³",
+        "consequence": "Exact",
+        "status_class": "mapping-status exact",
+        "grid_template_columns": "254.906px 26.0938px",
+        "status_border_width": "0px",
+        "status_border_radius": "0px",
+        "status_padding": "0px",
+        "status_text_transform": "none",
+        "clipped": false,
+        "overlap": false
+      },
+      {
+        "key": "post-necking-extension",
+        "title": "Post-necking extension",
+        "value": "Bounded extension → target behavior",
+        "consequence": "Review required",
+        "status_class": "mapping-status review-required",
+        "grid_template_columns": "200.766px 80.2344px",
+        "status_border_width": "0px",
+        "status_border_radius": "0px",
+        "status_padding": "0px",
+        "status_text_transform": "none",
+        "clipped": false,
+        "overlap": false
+      }
+    ],
+    "mapping_visible_count": 2,
     "approximation_acknowledged": false,
     "download": {
       "text": "Download .rad",
@@ -395,6 +428,7 @@
     "tabs": true,
     "advanced_disclosure": true,
     "native_scroll_wheel": true,
+    "mapping_acknowledgement": true,
     "state_command": true
   },
   "forbidden_visible_terms": [],
@@ -427,7 +461,7 @@
     "result": "pass"
   },
   "image": "docs/17-evidence/images/issue-167-service-reference/materials-card-approximation-blocked-1440x900.responsive-1366x768.png",
-  "image_sha256": "a7f11d72d9fb2d7c48bdb0188bfc6d5eeb58dfd32e1fb02437ddabd7b05c028e",
+  "image_sha256": "bc1566aabea7a94c63ca201f43225d013e9788cabb3356603838601bf0f7d52f",
   "screenshot_dimensions": {
     "width": 1366,
     "height": 768

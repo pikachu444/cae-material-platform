@@ -171,6 +171,7 @@ button[aria-disabled="true"] { cursor: not-allowed; }
 }
 .curve-navigator {
   display: grid;
+  position: relative;
   grid-template-rows: 34px 34px minmax(0, 1fr);
   min-width: 0;
   min-height: 0;
@@ -223,6 +224,32 @@ button[aria-disabled="true"] { cursor: not-allowed; }
   min-height: 0;
   overflow: auto;
   overscroll-behavior: contain;
+  scrollbar-color: #8a9aa2 #e7edef;
+  scrollbar-width: thin;
+}
+.curve-scroll::-webkit-scrollbar { width: 12px; height: 12px; }
+.curve-scroll::-webkit-scrollbar-track { background: #e7edef; }
+.curve-scroll::-webkit-scrollbar-thumb { min-height: 28px; border: 3px solid #e7edef; border-radius: 6px; background: #8a9aa2; }
+.state-long-rail .curve-scroll { padding-right: 12px; }
+.state-long-rail .long-rail-track {
+  position: absolute;
+  z-index: 3;
+  top: 68px;
+  right: 2px;
+  bottom: 0;
+  width: 10px;
+  border-left: 1px solid var(--modeling-line);
+  background: #e7edef;
+  pointer-events: none;
+}
+.state-long-rail .long-rail-track span {
+  position: absolute;
+  top: 42%;
+  right: 2px;
+  width: 6px;
+  height: 76px;
+  border-radius: 4px;
+  background: #8a9aa2;
 }
 .curve-group { padding-bottom: 5px; border-bottom: 1px solid var(--modeling-line); }
 .group-heading {
@@ -364,6 +391,8 @@ button[aria-disabled="true"] { cursor: not-allowed; }
 }
 .navigator-note a { color: var(--modeling-accent-dark); font-size: 10.5px; text-decoration: none; }
 .navigator-note a:hover { text-decoration: underline; }
+.long-rail-evidence { display: grid; gap: 4px; padding: 8px; border-top: 1px solid var(--modeling-line-soft); color: var(--modeling-muted); font-size: 10.5px; line-height: 14px; }
+.long-rail-evidence div { min-height: 20px; }
 .modeling-divider {
   display: grid;
   min-height: 0;
@@ -550,48 +579,31 @@ button[aria-disabled="true"] { cursor: not-allowed; }
 .graph-control.active { border-color: var(--modeling-accent); background: var(--modeling-accent); color: #fff; }
 .graph-canvas {
   position: relative;
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
   min-width: 0;
   min-height: 280px;
   overflow: hidden;
 }
-.source-plot { grid-row: 1; display: block; width: 100%; height: 100%; min-height: 0; }
+.source-plot { display: block; width: 100%; height: 100%; min-height: 0; }
 .plot-background { fill: #fbfcfc; }
-.plot-grid line { stroke: #e3e8eb; stroke-width: 1; }
-.plot-axis line { stroke: #7e9099; stroke-width: 1.2; }
+.plot-blocked-backdrop { display: none; fill: rgb(236 240 241 / 74%); pointer-events: none; }
+.plot-grid line { stroke: #e3e8eb; stroke-width: 1; vector-effect: non-scaling-stroke; }
+.plot-axis line { stroke: #7e9099; stroke-width: 1.2; vector-effect: non-scaling-stroke; }
 .curve { fill: none; stroke-linecap: round; }
-.observed-one { stroke: #8b969c; stroke-width: 2; }
-.observed-two { stroke: var(--curve-orange); stroke-width: 2.1; opacity: .84; }
-.observed-three { stroke: var(--curve-purple); stroke-width: 2; stroke-dasharray: 6 4; opacity: .8; }
-.processed-preview { stroke: var(--curve-blue); stroke-width: 3; }
-.elastic-fit { stroke: #1e6aa7; stroke-width: 2.5; stroke-dasharray: 8 4; }
+.observed-one { stroke: #8b969c; stroke-width: 2; vector-effect: non-scaling-stroke; }
+.observed-two { stroke: var(--curve-orange); stroke-width: 2.1; opacity: .84; vector-effect: non-scaling-stroke; }
+.observed-three { stroke: var(--curve-purple); stroke-width: 2; stroke-dasharray: 6 4; opacity: .8; vector-effect: non-scaling-stroke; }
+.processed-preview { stroke: var(--curve-blue); stroke-width: 3; vector-effect: non-scaling-stroke; }
+.elastic-fit { stroke: #1e6aa7; stroke-width: 2.5; stroke-dasharray: 8 4; vector-effect: non-scaling-stroke; }
 .plot-labels text { fill: var(--modeling-muted); font-family: "Segoe UI", Arial, sans-serif; font-size: 11px; }
 .plot-labels .axis-title { fill: var(--modeling-text); font-size: 12px; }
-.plot-footer {
-  display: grid;
-  grid-template-columns: minmax(180px, 1fr) minmax(0, auto);
-  min-width: 0;
-  min-height: 31px;
-  align-items: center;
-  gap: 12px;
-  padding: 3px 12px 7px;
-  border-top: 1px solid var(--modeling-line-soft);
-}
-.plot-x-axis-title {
-  min-width: 0;
-  color: var(--modeling-text);
-  font-size: 12px;
-  text-align: center;
-  white-space: nowrap;
-}
 .plot-legend {
-  grid-column: 2;
+  position: absolute;
+  z-index: 2;
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 5px 14px;
-  max-width: min(680px, 100%);
+  max-width: min(520px, calc(100% - 24px));
   padding: 5px 7px;
   border: 1px solid var(--modeling-line);
   background: rgb(255 255 255 / 93%);
@@ -602,7 +614,6 @@ button[aria-disabled="true"] { cursor: not-allowed; }
 .legend-line.input { border-color: #8b969c; }
 .legend-line.preview { border-color: var(--curve-blue); border-top-width: 3px; }
 .legend-line.fit { border-color: #1e6aa7; border-top-style: dashed; }
-.legend-note { color: var(--modeling-good); }
 .graph-blocked {
   position: absolute;
   top: 50%;
@@ -683,11 +694,12 @@ button[aria-disabled="true"] { cursor: not-allowed; }
 .state-blocked .curve-visibility-button { visibility: hidden; }
 .state-blocked .source-plot .curve { display: none; }
 .state-blocked .source-plot { opacity: .38; }
-.state-blocked .plot-footer { display: none; }
+.state-blocked .plot-blocked-backdrop { display: block; }
+.state-blocked .plot-legend { display: none; }
 .state-blocked .stage-status,
 .state-blocked .session-state,
 .state-blocked .ribbon-state { color: var(--modeling-error) !important; }
-.state-blocked .downstream-status { color: var(--modeling-error); }
+.state-blocked .downstream-status { display: none; }
 .state-loading .state-message,
 .state-error .state-message { display: block; }
 .state-message {
@@ -713,6 +725,8 @@ button[aria-disabled="true"] { cursor: not-allowed; }
   content: attr(data-state-overlay);
   font-size: 10px;
 }
+.state-loading .graph-canvas::after,
+.state-error .graph-canvas::after { display: none; }
 .state-loading .ribbon-state { color: var(--modeling-accent-dark) !important; }
 .state-error .ribbon-state { color: var(--modeling-error) !important; }
 .state-loading .button[data-action="save"],
@@ -735,6 +749,20 @@ button[aria-disabled="true"] { cursor: not-allowed; }
 @media (min-width: 1700px) {
   :root { --modeling-navigator-width: 208px; }
   .context-material { max-width: 700px; }
+}
+@media (min-width: 2200px) {
+  .settings-grid {
+    grid-template-columns: minmax(180px, 1.45fr) repeat(5, minmax(94px, 1fr));
+    width: min(1707px, 100%);
+    justify-content: start;
+  }
+  .settings-grid .setting small { max-width: 250px; }
+  .graph-panel {
+    grid-template-rows: 38px 680px;
+    width: 1707px;
+    height: 725px;
+    align-self: start;
+  }
 }
 @media (max-height: 800px) {
   .curve-row { min-height: 35px; }

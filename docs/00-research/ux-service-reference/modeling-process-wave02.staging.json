@@ -1,7 +1,7 @@
 {
   "family": "MOD-PROCESS",
-  "status": "pending",
-  "capture_date": "2026-07-29",
+  "status": "accepted",
+  "capture_date": "2026-07-31",
   "static": {
     "html": "docs\\00-research\\ux-service-reference\\modeling-process-normal.html",
     "css": "docs/00-research/ux-service-reference/modeling-process.css",
@@ -19,7 +19,7 @@
       },
       "image": "docs\\17-evidence\\images\\issue-167-service-reference\\modeling-process-normal-1366x768.png",
       "measurements": "docs\\17-evidence\\images\\issue-167-service-reference\\modeling-process-normal-1366x768.measurements.json",
-      "sha256": "c537c7caf60d668a82021e50cdc0307b185faf118d5091edc41c10d9c5ef0cad"
+      "sha256": "6722bd80c851b47c941cbac92c03e10a6106566fef940fabe9d8ab61c7fec825"
     },
     "modeling-process-normal-1440x900": {
       "state": "normal",
@@ -30,7 +30,7 @@
       },
       "image": "docs\\17-evidence\\images\\issue-167-service-reference\\modeling-process-normal-1440x900.png",
       "measurements": "docs\\17-evidence\\images\\issue-167-service-reference\\modeling-process-normal-1440x900.measurements.json",
-      "sha256": "57d5c9e8f9ebbf21315ca94f76eb21e11ce116526afffc717973ebb514417461"
+      "sha256": "122cf29074eea18bfd0549ad40dc0d9143b1ee6bb2bd82df6266194645b5d3ae"
     },
     "modeling-process-normal-1920x1080": {
       "state": "normal",
@@ -41,7 +41,7 @@
       },
       "image": "docs\\17-evidence\\images\\issue-167-service-reference\\modeling-process-normal-1920x1080.png",
       "measurements": "docs\\17-evidence\\images\\issue-167-service-reference\\modeling-process-normal-1920x1080.measurements.json",
-      "sha256": "154c21e6679b999ee63ca65c10ac6e7af8a8ebdb54b69490be67460078ce53c1"
+      "sha256": "87a861aa3e8822e4fe19645230f426f902ced609eea09e62b6fdae67f1a9cf09"
     },
     "modeling-process-prerequisite-blocked-1440x900": {
       "state": "prerequisite-blocked",
@@ -52,9 +52,34 @@
       },
       "image": "docs\\17-evidence\\images\\issue-167-service-reference\\modeling-process-prerequisite-blocked-1440x900.png",
       "measurements": "docs\\17-evidence\\images\\issue-167-service-reference\\modeling-process-prerequisite-blocked-1440x900.measurements.json",
-      "sha256": "9d71022e7c9bff6a5b88de70985a34aaf2e30d3bd1715a69a5e7c5bbd40b9868"
+      "sha256": "2f3ed351bbb22b604e6a7bed189b52cd7b9945f8620633d2442482654492ed30"
     }
   },
+  "support_targets": {
+    "modeling-process-normal-2560x1440": {
+      "state": "normal",
+      "viewport": {
+        "width": 2560,
+        "height": 1440,
+        "device_scale_factor": 1
+      },
+      "image": "docs\\17-evidence\\images\\issue-167-service-reference\\modeling-process-normal-2560x1440.png",
+      "measurements": "docs\\17-evidence\\images\\issue-167-service-reference\\modeling-process-normal-2560x1440.measurements.json",
+      "sha256": "0a979970f75705fe60ebd760270087d0787854f8f00fb04c93bf7d872314bada"
+    },
+    "modeling-process-normal-3840x2160": {
+      "state": "normal",
+      "viewport": {
+        "width": 3840,
+        "height": 2160,
+        "device_scale_factor": 1
+      },
+      "image": "docs\\17-evidence\\images\\issue-167-service-reference\\modeling-process-normal-3840x2160.png",
+      "measurements": "docs\\17-evidence\\images\\issue-167-service-reference\\modeling-process-normal-3840x2160.measurements.json",
+      "sha256": "d11712d6153b767a8840450f1c8a97917c8079fb2e9efc3caf4e1087e12bf49e"
+    }
+  },
+  "lifecycle_candidates": {},
   "evidence": {
     "blocked_responsive": "docs/17-evidence/images/issue-167-service-reference/modeling-process-responsive-evidence.json",
     "state_evidence": "docs/17-evidence/images/issue-167-service-reference/modeling-process-state-evidence.json"

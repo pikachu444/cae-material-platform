@@ -21,6 +21,7 @@ def expanded_family_targets(
     normal = family["normal"]
     targets = [f"{normal['target_base']}-{key}" for key in viewport_keys]
     targets.extend(item["id"] for item in family.get("exceptions", []))
+    targets.extend(item["id"] for item in family.get("topology_variants", []))
     return targets
 
 
@@ -50,7 +51,7 @@ def assert_acyclic(bundles: list[dict[str, Any]]) -> None:
 def main() -> None:
     inventory = yaml.safe_load(INVENTORY_PATH.read_text(encoding="utf-8"))
     manifest = yaml.safe_load(MANIFEST_PATH.read_text(encoding="utf-8"))
-    if inventory.get("schema_version") != 1 or inventory.get("issue") != 167:
+    if inventory.get("schema_version") != 2 or inventory.get("issue") != 167:
         fail("unexpected inventory schema or issue")
 
     policy = inventory["policy"]
@@ -83,7 +84,16 @@ def main() -> None:
         exceptions = family.get("exceptions", [])
         if any(not item["id"].endswith(f"-{exceptional_key}") for item in exceptions):
             fail(f"{family['id']} exceptional target is not canonical 1440x900")
-        expected_count = normal["images"] + len(exceptions)
+        topology_variants = family.get("topology_variants", [])
+        for item in topology_variants:
+            viewport = item.get("viewport")
+            if viewport not in {"2560x1440", "3840x2160"}:
+                fail(f"{family['id']} topology variant has unsupported viewport: {viewport}")
+            if not item["id"].endswith(f"-{viewport}"):
+                fail(f"{family['id']} topology variant id/viewport mismatch: {item}")
+            if not item.get("topology"):
+                fail(f"{family['id']} topology variant has no topology contract")
+        expected_count = normal["images"] + len(exceptions) + len(topology_variants)
         if family.get("image_count") != expected_count:
             fail(f"{family['id']} image_count mismatch")
         if not family.get("evidence_only_states"):
@@ -111,12 +121,16 @@ def main() -> None:
     counts = inventory["counts"]
     normal_images = len(families) * len(viewport_keys)
     exceptional_images = sum(len(family.get("exceptions", [])) for family in families)
+    topology_variant_images = sum(
+        len(family.get("topology_variants", [])) for family in families
+    )
     total_images = len(expanded_targets)
     expected_counts = {
         "families": len(families),
         "bundles": len(bundles),
         "normal_images": normal_images,
         "exceptional_images": exceptional_images,
+        "topology_variant_images": topology_variant_images,
         "total_images": total_images,
     }
     for key, value in expected_counts.items():
@@ -176,7 +190,8 @@ def main() -> None:
     print(
         "PASS issue-167 service-reference inventory: "
         f"{len(families)} families, {len(bundles)} bundles, "
-        f"{normal_images} normal + {exceptional_images} exceptional = "
+        f"{normal_images} normal + {exceptional_images} exceptional + "
+        f"{topology_variant_images} topology variant = "
         f"{total_images} images"
     )
     print(

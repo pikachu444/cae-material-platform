@@ -24,6 +24,13 @@ const responsePlot = document.querySelector("#response-plot");
 const approximationRow = document.querySelector("#approximation-row");
 const unsupportedRow = document.querySelector("#unsupported-row");
 const compactMappingRows = [...document.querySelectorAll("#mapping-list .mapping-row")].filter((row) => row !== approximationRow && row !== unsupportedRow).slice(1);
+const approximationStatus = approximationRow?.querySelector(".mapping-status");
+
+const setApproximationConsequence = (reviewed) => {
+  if (!approximationStatus) return;
+  approximationStatus.className = `mapping-status ${reviewed ? "reviewed" : "review-required"}`;
+  approximationStatus.textContent = reviewed ? "Reviewed" : "Review required";
+};
 
 const setStatus = (message) => {
   if (status) status.textContent = message;
@@ -341,6 +348,7 @@ const applyState = (requestedState) => {
   body.dataset.activeTab = "CAE Cards";
   activateTab(document.querySelector("#tab-cards"), false);
   if (acknowledgement) acknowledgement.checked = false;
+  setApproximationConsequence(false);
   if (approximationRow) approximationRow.hidden = mode !== "approximation";
   if (unsupportedRow) unsupportedRow.hidden = mode !== "unsupported";
   compactMappingRows.forEach((row) => { row.hidden = mode === "approximation" || mode === "unsupported"; });
@@ -418,6 +426,7 @@ const applyState = (requestedState) => {
 acknowledgement?.addEventListener("change", () => {
   if (body.dataset.state !== "approximation") return;
   setActionMode("approximation");
+  setApproximationConsequence(acknowledgement.checked);
   body.dataset.approximationAcknowledged = acknowledgement.checked ? "true" : "false";
   setStatus(acknowledgement.checked ? "Approximation acknowledged locally · Download .rad enabled" : "Approximation acknowledgement cleared · download blocked");
   const deliveryStatus = document.querySelector("#delivery-status");

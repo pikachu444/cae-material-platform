@@ -65,10 +65,6 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1920x1080.png
       - docs/17-evidence/images/issue-167-service-reference/administration-normal-scroll-1920x1080.png
       - docs/17-evidence/images/issue-167-service-reference/administration-splitter-behavior-1920x1080.png
-  - rationale: The successful Materials card error-recovery workflow intentionally returns to the identical normal 1366 viewport.
-    images:
-      - docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1366x768.png
-      - docs/17-evidence/images/issue-167-service-reference/materials-card-state-error-recovery-1366x768.png
 captures:
   - id: issue-167-modeling-export-layout-concept
     route: static-reference

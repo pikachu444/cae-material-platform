@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -18,17 +19,25 @@ VIEWPORTS = {
     "1440x900": {"width": 1440, "height": 900, "device_scale_factor": 1},
     "1920x1080": {"width": 1920, "height": 1080, "device_scale_factor": 1},
 }
+WIDE_VIEWPORTS = {
+    "2560x1440": {"width": 2560, "height": 1440, "device_scale_factor": 1},
+    "3840x2160": {"width": 3840, "height": 2160, "device_scale_factor": 1},
+}
 TARGETS = {
     "modeling-process-normal-1366x768": {"state": "normal", "viewport": VIEWPORTS["1366x768"]},
     "modeling-process-normal-1440x900": {"state": "normal", "viewport": VIEWPORTS["1440x900"]},
     "modeling-process-normal-1920x1080": {"state": "normal", "viewport": VIEWPORTS["1920x1080"]},
     "modeling-process-prerequisite-blocked-1440x900": {"state": "prerequisite-blocked", "viewport": VIEWPORTS["1440x900"]},
 }
+SUPPORT_TARGETS = {
+    "modeling-process-normal-2560x1440": {"state": "normal", "viewport": WIDE_VIEWPORTS["2560x1440"]},
+    "modeling-process-normal-3840x2160": {"state": "normal", "viewport": WIDE_VIEWPORTS["3840x2160"]},
+}
 RESPONSIVE_BLOCKED = {
     "modeling-process-prerequisite-blocked-responsive-1366x768": VIEWPORTS["1366x768"],
     "modeling-process-prerequisite-blocked-responsive-1920x1080": VIEWPORTS["1920x1080"],
 }
-STATE_EVIDENCE_STATES = ("preview-loading", "commit-loading", "preview-error", "commit-error")
+STATE_EVIDENCE_STATES = ("long-rail", "preview-loading", "commit-loading", "preview-error", "commit-error")
 
 
 def parse_args() -> argparse.Namespace:
@@ -86,13 +95,38 @@ def geometry_snapshot(page: Page, target: str, state: str, viewport: dict[str, i
              && left.left < right.right && left.right > right.left
              && left.top < right.bottom && left.bottom > right.top;
            const canvas = document.querySelector('.graph-canvas');
-           const footerAxis = document.querySelector('[data-plot-x-axis-title]');
-           const footerLegend = document.querySelector('.plot-legend');
-           const footer = document.querySelector('[data-region="plot-footer"]');
+           const legend = document.querySelector('.plot-legend');
+           const responseGrid = document.querySelector('[data-region="processed-response"]');
+           const responseRows = [...document.querySelectorAll('[data-processed-response-rows] tr')];
+           const primaryWorkspace = document.body.cloneNode(true);
+           primaryWorkspace.querySelector('.graph-advanced')?.remove();
+           primaryWorkspace.querySelector('#interaction-status')?.remove();
+           const svgBox = plot?.getBoundingClientRect();
            const canvasBox = canvas?.getBoundingClientRect();
-           const footerAxisBox = footerAxis?.getBoundingClientRect();
-           const footerLegendBox = footerLegend?.getBoundingClientRect();
-           const footerBox = footer?.getBoundingClientRect();
+           const legendBox = legend?.getBoundingClientRect();
+           const plotLeft = Number(plot?.dataset.plotLeft || 0);
+           const plotRight = Number(plot?.dataset.plotRight || 0);
+           const plotTop = Number(plot?.dataset.plotTop || 0);
+           const plotBottom = Number(plot?.dataset.plotBottom || 0);
+           const canvasLocal = (rect) => rect && canvasBox ? {
+             left: rect.left - canvasBox.left, right: rect.right - canvasBox.left,
+             top: rect.top - canvasBox.top, bottom: rect.bottom - canvasBox.top,
+           } : null;
+           const plotFrame = canvasBox ? {left: plotLeft, right: plotRight, top: plotTop, bottom: plotBottom} : null;
+           const legendLocal = canvasLocal(legendBox);
+           const curveRects = curves.map((path) => canvasLocal(path.getBoundingClientRect()));
+           const legendCurveIntersect = legend?.dataset.curveCollision === 'true';
+           const legendFrameClearance = legendLocal && plotFrame ? {
+             left: legendLocal.left - plotFrame.left, right: plotFrame.right - legendLocal.right,
+             top: legendLocal.top - plotFrame.top, bottom: plotFrame.bottom - legendLocal.bottom,
+           } : null;
+           const tickLabels = [...document.querySelectorAll('.plot-labels text:not(.axis-title)')].map((element) => element.textContent.trim());
+           const axisTitles = [...document.querySelectorAll('.plot-labels .axis-title')].map((element) => element.textContent.trim());
+           const svgStyle = plot ? getComputedStyle(plot) : null;
+           const tickStyle = document.querySelector('.plot-labels text:not(.axis-title)') ? getComputedStyle(document.querySelector('.plot-labels text:not(.axis-title)')) : null;
+           const titleStyle = document.querySelector('.plot-labels .axis-title') ? getComputedStyle(document.querySelector('.plot-labels .axis-title')) : null;
+           const strokeWidths = [...document.querySelectorAll('.plot-grid line, .plot-axis line, .source-plot .curve')].map((element) => Number.parseFloat(getComputedStyle(element).strokeWidth));
+           const viewBox = plot?.getAttribute('viewBox')?.split(/\\s+/).map(Number) || [];
           return {
             target, state, viewport,
             overflow: {
@@ -112,6 +146,8 @@ def geometry_snapshot(page: Page, target: str, state: str, viewport: dict[str, i
               settingsGrid: box('.settings-grid'),
               graph: box('[data-region="graph"]'),
               graphCanvas: box('.graph-canvas'),
+              saveButton: box('[data-action="save"]'),
+              processedResponse: box('[data-region="processed-response"]'),
               statusBar: box('[data-region="status-bar"]'),
             },
             divider: {
@@ -122,47 +158,110 @@ def geometry_snapshot(page: Page, target: str, state: str, viewport: dict[str, i
               visibleWidth: divider ? Math.round(divider.getBoundingClientRect().width) : -1,
               ruleWidth: computed('[data-region="navigator-divider"]', 'width'),
             },
-            graph: {
-              width: plot ? Math.round(plot.getBoundingClientRect().width) : 0,
-              height: plot ? Math.round(plot.getBoundingClientRect().height) : 0,
-              pathBoxes,
-              series: plot ? {
+             graph: {
+               width: plot ? Math.round(plot.getBoundingClientRect().width) : 0,
+               height: plot ? Math.round(plot.getBoundingClientRect().height) : 0,
+               svg: svgBox ? box('.source-plot') : null,
+               canvas: canvasBox ? box('.graph-canvas') : null,
+               coordinateSystem: {
+                 viewBox,
+                 width: Number(plot?.getAttribute('width') || 0),
+                 height: Number(plot?.getAttribute('height') || 0),
+                 widthDelta: svgBox ? Math.abs(svgBox.width - Number(plot?.getAttribute('width') || 0)) : null,
+                 heightDelta: svgBox ? Math.abs(svgBox.height - Number(plot?.getAttribute('height') || 0)) : null,
+               },
+               pathBoxes,
+               series: plot ? {
                 minStrain: Number(plot.dataset.seriesMinStrain),
                 maxStrain: Number(plot.dataset.seriesMaxStrain),
                 minStressMpa: Number(plot.dataset.seriesMinStressMpa),
                 maxStressMpa: Number(plot.dataset.seriesMaxStressMpa),
                 computedMaxStrain: Number(plot.dataset.axisComputedMaxStrain),
                 computedMaxStressMpa: Number(plot.dataset.axisComputedMaxStressMpa),
-                headroomRatio: Number(plot.dataset.axisHeadroomRatio),
-                derivation: plot.dataset.axisDerivation || '',
-              } : null,
-            },
-            plotFooter: {
-              canvas: canvasBox ? box('.graph-canvas') : null,
-              footer: footerBox ? box('[data-region="plot-footer"]') : null,
-              axis: footerAxisBox ? box('[data-plot-x-axis-title]') : null,
-              legend: footerLegendBox ? box('.plot-legend') : null,
-              axisLegendIntersect: intersects(footerAxisBox, footerLegendBox),
-              axisContained: contains(canvasBox, footerAxisBox),
-              legendContained: contains(canvasBox, footerLegendBox),
-              axisInFooter: contains(footerBox, footerAxisBox),
-              legendInFooter: contains(footerBox, footerLegendBox),
-            },
+                 headroomRatio: Number(plot.dataset.axisHeadroomRatio),
+                 derivation: plot.dataset.axisDerivation || '',
+                 niceStepStrain: Number(plot.dataset.axisNiceStepStrain),
+                 niceStepStressMpa: Number(plot.dataset.axisNiceStepStressMpa),
+                 ticksStrain: JSON.parse(plot.dataset.axisTicksStrain || '[]'),
+                 ticksStressMpa: JSON.parse(plot.dataset.axisTicksStressMpa || '[]'),
+                 sourceStrain: JSON.parse(plot.dataset.sourceStrain || '[]'),
+                 observedSeries: JSON.parse(plot.dataset.observedSeries || '[]'),
+                 processedSeries: JSON.parse(plot.dataset.processedSeries || '[]'),
+                 elasticFit: JSON.parse(plot.dataset.elasticFit || '[]'),
+                 pointFrameClearances: JSON.parse(plot.dataset.pointFrameClearances || '{}'),
+               } : null,
+               typography: {
+                 tickFontSizes: tickStyle ? [Number.parseFloat(tickStyle.fontSize)] : [],
+                 titleFontSizes: titleStyle ? [Number.parseFloat(titleStyle.fontSize)] : [],
+                 strokeWidths,
+                 nonScalingStrokeCount: [...document.querySelectorAll('.plot-grid line, .plot-axis line, .source-plot .curve')].filter((element) => getComputedStyle(element).vectorEffect === 'non-scaling-stroke').length,
+               },
+             },
+             plotContract: {
+               canvas: canvasBox ? box('.graph-canvas') : null,
+               svg: svgBox ? box('.source-plot') : null,
+               legend: legendBox ? box('.plot-legend') : null,
+               legendLocal,
+               legendPlacement: legend?.dataset.placement || '',
+               legendCollisionDataset: legend?.dataset.curveCollision || '',
+               legendContained: !!legendLocal && !!canvasBox && legendLocal.left >= 0 && legendLocal.top >= 0 && legendLocal.right <= canvasBox.width && legendLocal.bottom <= canvasBox.height,
+               legendInPlot: !!legendLocal && !!plotFrame && legendLocal.left >= plotFrame.left && legendLocal.right <= plotFrame.right && legendLocal.top >= plotFrame.top && legendLocal.bottom <= plotFrame.bottom,
+               legendCurveIntersect,
+               legendAxisIntersect: !!legendLocal && !!plotFrame && (intersects(legendLocal, {left: plotFrame.left - 3, right: plotFrame.left + 3, top: plotFrame.top, bottom: plotFrame.bottom}) || intersects(legendLocal, {left: plotFrame.left, right: plotFrame.right, top: plotFrame.bottom - 3, bottom: plotFrame.bottom + 3})),
+               legendTitleIntersect: !!legendLocal && !!plotFrame && intersects(legendLocal, {left: plotFrame.left, right: plotFrame.right, top: plotFrame.bottom + 1, bottom: canvasBox?.height || plotFrame.bottom}),
+               legendFrameClearance,
+               footerPresent: Boolean(document.querySelector('[data-region="plot-footer"]')),
+             },
+             processedResponse: {
+               visible: visible(responseGrid),
+               rows: responseRows.map((row) => [...row.cells].map((cell) => cell.textContent.trim())),
+               headers: [...document.querySelectorAll('[data-region="processed-response"] th')].map((cell) => cell.textContent.trim()),
+               overflow: responseGrid ? {
+                 horizontal: Math.max(0, responseGrid.scrollWidth - responseGrid.clientWidth),
+                 vertical: Math.max(0, responseGrid.scrollHeight - responseGrid.clientHeight),
+               } : null,
+             },
+             widePlotHeightComparison: viewport.width === 3840 ? {
+               rejectedIntermediateHeight: 1723,
+               finalHeight: svgBox ? Math.round(svgBox.height * 100) / 100 : 0,
+               reduction: svgBox ? Math.round((1723 - svgBox.height) * 100) / 100 : 0,
+             } : null,
+             productLanguage: {
+               primaryWorkspaceText: primaryWorkspace.innerText.replace(/\\s+/g, ' ').trim(),
+               exactContracts: {
+                 sourceTestData: document.querySelector('[data-source-revision]')?.dataset.exactTestData || '',
+                 graphTestData: document.querySelector('[data-graph-context]')?.dataset.exactTestData || '',
+                 statusTestData: document.querySelector('[data-status-selection]')?.dataset.exactTestData || '',
+                 blockedTestData: document.querySelector('[data-blocked-reason]')?.dataset.exactTestData || '',
+                 blockedNoFallback: document.querySelector('[data-blocked-reason]')?.dataset.noFallback || '',
+               },
+             },
             visibleContent: {
               stageLabels: [...document.querySelectorAll('.stage-button')].filter(visible).map((element) => element.textContent.trim()),
               activeStage: document.querySelector('.stage-button.active')?.textContent.trim() || '',
               curveRows: rows.filter(visible).map((row) => row.dataset.curve),
+              longRailTrack: visible(document.querySelector('.long-rail-track')),
               includedCurves: rows.filter(visible).filter((row) => row.querySelector('input[type="checkbox"]:checked')).map((row) => row.dataset.curve),
               operationLabels: operations.filter(visible).map((row) => row.textContent.replace(/\\s+/g, ' ').trim()),
               selectedOperation: document.querySelector('.operation-row.selected')?.textContent.replace(/\\s+/g, ' ').trim() || '',
               graphCurves: curves.filter(visible).map((path) => path.getAttribute('class')),
               graphBlocked: visible(document.querySelector('.graph-blocked')),
-              plotLegend: visible(document.querySelector('.plot-legend')),
+               plotLegend: visible(document.querySelector('.plot-legend')),
+               plotLegendLabels: [...document.querySelectorAll('.plot-legend > span')].map((element) => element.textContent.trim()),
+               axisTitles,
+               tickLabels,
               advancedOpen: document.querySelector('.graph-advanced')?.open === true,
               previewState: document.body.dataset.previewState || '',
               downstreamPointers: document.body.dataset.downstreamPointers || '',
               processTitle: document.querySelector('#process-settings-title')?.textContent.trim() || '',
               blockedReason: document.querySelector('[data-blocked-reason]')?.textContent.trim() || '',
+              sourceRevision: document.querySelector('[data-source-revision]')?.textContent.trim() || '',
+              downstreamStatus: document.querySelector('[data-downstream-status]')?.textContent.trim() || '',
+              downstreamStatusVisible: visible(document.querySelector('[data-downstream-status]')),
+              blockedGraphCopy: document.querySelector('[data-blocked-graph-copy]')?.textContent.trim() || '',
+              blockedAction: document.querySelector('[data-action="back-data"]')?.textContent.trim() || '',
+              statusSelection: document.querySelector('[data-status-selection]')?.textContent.trim() || '',
+              statusRevision: document.querySelector('[data-status-revision]')?.textContent.trim() || '',
             },
             controls: {
               previewButtons: [...document.querySelectorAll('[data-action="preview-top"]')].map((button) => ({text: button.textContent.trim(), disabled: button.disabled, ariaDisabled: button.getAttribute('aria-disabled')})),
@@ -203,12 +302,20 @@ def browser_errors(page: Page) -> tuple[list[str], list[str]]:
     return console_errors, page_errors
 
 
+def capture_screenshot(page: Page, image_path: Path) -> None:
+    """Avoid Windows long-path failures while preserving the registered evidence filename."""
+    temporary_path = EVIDENCE_DIR / "_mod_process_capture.png"
+    page.screenshot(path=str(temporary_path), full_page=False)
+    temporary_path.replace(image_path)
+
+
 def open_page(browser: Browser, state: str, viewport: dict[str, int]) -> tuple[Page, list[str], list[str]]:
     page = browser.new_page(viewport={"width": viewport["width"], "height": viewport["height"]}, device_scale_factor=1)
     console_errors, page_errors = browser_errors(page)
     url = f"{HTML_PATH.resolve().as_uri()}?state={state}"
     page.goto(url, wait_until="load")
     page.evaluate("document.fonts.ready")
+    page.evaluate("window.renderModelingProcessPlot?.()")
     page.wait_for_timeout(120)
     return page, console_errors, page_errors
 
@@ -335,16 +442,47 @@ def exercise_long_rail(page: Page) -> dict[str, Any]:
       const rail = document.querySelector('.curve-scroll');
       if (!rail || rail.dataset.longEvidence === 'true') return;
       rail.dataset.longEvidence = 'true';
-      const note = document.createElement('div');
-      note.className = 'long-rail-evidence';
-      note.innerHTML = Array.from({length: 32}, (_, index) =>
-        `<div>Evidence trace ${index + 1} · source retained</div>`).join('');
-      rail.append(note);
+      document.body.classList.add('state-long-rail');
+      const navigator = document.querySelector('.curve-navigator');
+      if (navigator && !navigator.querySelector('.long-rail-track')) {
+        const track = document.createElement('div');
+        track.className = 'long-rail-track';
+        track.setAttribute('aria-hidden', 'true');
+        track.innerHTML = '<span></span>';
+        navigator.append(track);
+      }
+      const group = rail.querySelector('.curve-group');
+      const exemplar = group?.querySelector('.curve-row[data-curve="Specimen 03"]');
+      const requiredRows = Math.ceil((rail.clientHeight || 0) / 39) + 8;
+      for (let index = 4; exemplar && index < requiredRows + 4; index += 1) {
+        const row = exemplar.cloneNode(true);
+        const specimen = `Specimen ${String(index).padStart(2, '0')}`;
+        row.dataset.curve = specimen;
+        row.classList.remove('selected');
+        const include = row.querySelector('input[type="checkbox"]');
+        if (include) {
+          include.checked = false;
+          include.name = `include_specimen_${String(index).padStart(2, '0')}`;
+          include.setAttribute('aria-label', `Include ${specimen} in processing`);
+        }
+        const select = row.querySelector('.curve-selection-button');
+        select?.setAttribute('aria-label', `Select ${specimen} curve`);
+        const label = row.querySelector('.curve-label strong');
+        if (label) label.textContent = specimen;
+        const revision = row.querySelector('.curve-label small');
+        if (revision) revision.textContent = 'Observed · Revision 1';
+        const visibility = row.querySelector('.curve-visibility-button');
+        visibility?.setAttribute('aria-label', `Show ${specimen} in plot`);
+        group.append(row);
+      }
+      const totalCurves = group?.querySelectorAll('.curve-row').length || 0;
+      document.querySelector('[data-included-count]')?.replaceChildren(`${totalCurves} curves · 2 included`);
+      document.querySelector('[data-curve-count]')?.replaceChildren(`${totalCurves} curves`);
     }""")
     page.evaluate("""() => {
       const rail = document.querySelector('.curve-scroll');
-      if (rail) rail.scrollTop = rail.scrollHeight;
       document.querySelector('.operation-row[data-step="5"]')?.focus();
+      if (rail) rail.scrollTop = rail.scrollHeight;
     }""")
     after = page.evaluate("""() => {
       const rail = document.querySelector('.curve-scroll');
@@ -365,10 +503,10 @@ def exercise_long_rail(page: Page) -> dict[str, Any]:
 def exercise_blocked(page: Page) -> dict[str, Any]:
     visible_rows = page.locator(".curve-row:visible").count()
     disabled_operations = page.locator(".operation-row:disabled").count()
-    preview_disabled = all(button.is_disabled() for button in page.locator("[data-action='preview']").all())
+    preview_disabled = all(button.is_disabled() for button in page.locator("[data-action='preview-top']").all())
     save_disabled = page.locator("[data-action='save']").is_disabled()
     graph_blocked = page.locator(".graph-blocked").is_visible()
-    exact_reason = "CMP-DEMO-DP780-TEST-JSON-03" in page.locator("[data-blocked-reason]").inner_text()
+    exact_reason = page.locator("[data-blocked-reason]").get_attribute("data-exact-test-data") == "CMP-DEMO-DP780-TEST-JSON-03"
     page.locator("[data-action='back-data']").click()
     return {
         "visible_curve_rows": visible_rows,
@@ -392,12 +530,12 @@ def capture_target(browser: Browser, target: str, config: dict[str, Any], write_
         digest = ""
         if write_image:
             image_path.parent.mkdir(parents=True, exist_ok=True)
-            page.screenshot(path=str(image_path), full_page=False)
+            capture_screenshot(page, image_path)
             digest = hashlib.sha256(image_path.read_bytes()).hexdigest()
         exercise = exercise_normal(page) if state == "normal" else exercise_blocked(page)
         measurements_path = image_path.with_suffix(".measurements.json")
         measurements = {
-            "capture_date": "2026-07-29",
+            "capture_date": date.today().isoformat(),
             "target": target,
             "state": state,
             "viewport": viewport,
@@ -434,7 +572,7 @@ def capture_blocked_responsive(browser: Browser) -> dict[str, Any]:
         page, console_errors, page_errors = open_page(browser, "prerequisite-blocked", viewport)
         try:
             image_path = EVIDENCE_DIR / f"{target}.png"
-            page.screenshot(path=str(image_path), full_page=False)
+            capture_screenshot(page, image_path)
             geometry = geometry_snapshot(page, target, "prerequisite-blocked", viewport)
             captures.append({
                 "target": target,
@@ -456,17 +594,26 @@ def capture_state_evidence(browser: Browser) -> dict[str, Any]:
     captures: list[dict[str, Any]] = []
     for state in STATE_EVIDENCE_STATES:
         for viewport_name, viewport in VIEWPORTS.items():
-            page, console_errors, page_errors = open_page(browser, state, viewport)
+            rendered_state = "normal" if state == "long-rail" else state
+            page, console_errors, page_errors = open_page(browser, rendered_state, viewport)
             try:
-                geometry = geometry_snapshot(page, f"{state}-{viewport_name}", state, viewport)
+                long_rail = exercise_long_rail(page) if state == "long-rail" else None
+                target = f"modeling-process-state-{state}-{viewport_name}"
+                image_path = EVIDENCE_DIR / f"{target}.png"
+                capture_screenshot(page, image_path)
+                geometry = geometry_snapshot(page, target, state, viewport)
                 captures.append({
+                    "target": target,
                     "state": state,
                     "viewport": viewport,
+                    "image": str(image_path.relative_to(ROOT)),
+                    "image_sha256": hashlib.sha256(image_path.read_bytes()).hexdigest(),
                     "console_errors": console_errors,
                     "page_errors": page_errors,
                     "overflow": geometry["overflow"],
                     "context_preserved": all(geometry["regions"].get(region) for region in ("navigator", "ribbon", "graph")),
                     "graph_curves_preserved": len(geometry["visibleContent"]["graphCurves"]) >= 3,
+                    "long_rail": long_rail,
                     "message": page.locator(".state-message").inner_text() if page.locator(".state-message").count() else "",
                     "geometry": geometry,
                 })
@@ -482,6 +629,7 @@ def main() -> None:
     if not HTML_PATH.is_file():
         raise SystemExit(f"missing static HTML: {HTML_PATH}")
     selected = list(TARGETS) if args.all_packet_targets else [args.target]
+    selected_support = list(SUPPORT_TARGETS) if args.all_packet_targets else []
     all_measurements: dict[str, Any] = {}
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=True)
@@ -489,19 +637,22 @@ def main() -> None:
             for target in selected:
                 all_measurements[target] = capture_target(browser, target, TARGETS[target])
                 print(f"CAPTURED {target} {TARGETS[target]['viewport']['width']}x{TARGETS[target]['viewport']['height']}")
+            for target in selected_support:
+                all_measurements[target] = capture_target(browser, target, SUPPORT_TARGETS[target])
+                print(f"SUPPORT {target} {SUPPORT_TARGETS[target]['viewport']['width']}x{SUPPORT_TARGETS[target]['viewport']['height']}")
             if args.all_packet_targets or args.responsive_evidence:
                 all_measurements["blocked-responsive"] = capture_blocked_responsive(browser)
                 print("EVIDENCE blocked responsive 1366/1920")
             if args.all_packet_targets:
                 all_measurements["loading-error-evidence"] = capture_state_evidence(browser)
-                print("EVIDENCE preview/commit loading and error 4 x 3 viewports")
+                print("EVIDENCE long rail plus preview/commit loading and error 5 x 3 viewports")
         finally:
             browser.close()
     staging = ROOT / "docs/00-research/ux-service-reference/modeling-process-wave02.staging.json"
     staging.write_text(json.dumps({
         "family": "MOD-PROCESS",
         "status": "pending",
-        "capture_date": "2026-07-29",
+        "capture_date": date.today().isoformat(),
         "static": {
             "html": str(HTML_PATH.relative_to(ROOT)),
             "css": "docs/00-research/ux-service-reference/modeling-process.css",
@@ -518,6 +669,16 @@ def main() -> None:
                 "sha256": hashlib.sha256((EVIDENCE_DIR / f"{target}.png").read_bytes()).hexdigest() if (EVIDENCE_DIR / f"{target}.png").is_file() else "",
             } for target in selected
         },
+        "support_targets": {
+            target: {
+                "state": SUPPORT_TARGETS[target]["state"],
+                "viewport": SUPPORT_TARGETS[target]["viewport"],
+                "image": str((EVIDENCE_DIR / f"{target}.png").relative_to(ROOT)),
+                "measurements": str((EVIDENCE_DIR / f"{target}.measurements.json").relative_to(ROOT)),
+                "sha256": hashlib.sha256((EVIDENCE_DIR / f"{target}.png").read_bytes()).hexdigest() if (EVIDENCE_DIR / f"{target}.png").is_file() else "",
+            } for target in selected_support
+        },
+        "lifecycle_candidates": {},
         "evidence": {
             "blocked_responsive": "docs/17-evidence/images/issue-167-service-reference/modeling-process-responsive-evidence.json",
             "state_evidence": "docs/17-evidence/images/issue-167-service-reference/modeling-process-state-evidence.json",
@@ -528,6 +689,9 @@ def main() -> None:
     if "loading-error-evidence" in all_measurements:
         (EVIDENCE_DIR / "modeling-process-state-evidence.json").write_text(json.dumps(all_measurements["loading-error-evidence"], indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     for target in selected:
+        image = EVIDENCE_DIR / f"{target}.png"
+        print(f"{target}: {image.relative_to(ROOT)} sha256={hashlib.sha256(image.read_bytes()).hexdigest()}")
+    for target in selected_support:
         image = EVIDENCE_DIR / f"{target}.png"
         print(f"{target}: {image.relative_to(ROOT)} sha256={hashlib.sha256(image.read_bytes()).hexdigest()}")
 

@@ -1,8 +1,8 @@
 {
   "family": "ADM-SCHEMA-CORE",
   "wave": "WAVE-05",
-  "status": "pending",
-  "capture_date": "2026-07-30",
+  "status": "accepted",
+  "capture_date": "2026-07-31",
   "static": {
     "html": "docs/00-research/ux-service-reference/administration-schema-core.html",
     "css": "docs/00-research/ux-service-reference/administration-schema-core.css",
@@ -33,7 +33,7 @@
       "viewport": "1920x1080",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1920x1080.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1920x1080.measurements.json",
-      "sha256": "6f07e6a7bf59c28107fd21aaeecf72c1cfbc94effb011b67104e3adcd51bc672"
+      "sha256": "dd5bc7fecbe53bf6e97c94e5da99e86a2085b4f4672dfe483a56b8cdd1050d7c"
     },
     "administration-table-edit-draft-1366x768": {
       "state": "table-draft",
@@ -57,7 +57,7 @@
       "viewport": "1920x1080",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1920x1080.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1920x1080.measurements.json",
-      "sha256": "fdee83cea91e0375bc59eb5594972cf096e642f7a293ff947e49812226f28ad0"
+      "sha256": "eace016ff08a9b76577ba30761e35e99a43eee3d525b39f66c65e7c2d6fc6909"
     },
     "administration-attribute-edit-draft-1366x768": {
       "state": "attribute-draft",
@@ -65,7 +65,7 @@
       "viewport": "1366x768",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1366x768.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1366x768.measurements.json",
-      "sha256": "e6682346823355eb99da5eb72eb5c795a31b4847a025d5f554a572e607d7dfd0"
+      "sha256": "6eeb19ed91e1ea343623ae16c837d514bb97b85c307157dfe56f53af6b0d6b1f"
     },
     "administration-attribute-edit-draft-1440x900": {
       "state": "attribute-draft",
@@ -73,7 +73,7 @@
       "viewport": "1440x900",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1440x900.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1440x900.measurements.json",
-      "sha256": "3db6cd5a26221bf62d13bcedd07c7d3a309df3984ef81914a5828da47f9a1a62"
+      "sha256": "8c4038ef03ae882ff8a099b12c78dba0affa4ef733ddec8a2f7fb9c68a341b97"
     },
     "administration-attribute-edit-draft-1920x1080": {
       "state": "attribute-draft",
@@ -81,7 +81,7 @@
       "viewport": "1920x1080",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1920x1080.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1920x1080.measurements.json",
-      "sha256": "2ab1f05490239ff9a77c7495af90fdb65d21df951c9eb0657171e0684dab21ae"
+      "sha256": "da0965abe9a9d0627979b549a71ae6a5fcaa0c5483e6f395ae751b422578810e"
     },
     "administration-edit-stale-conflict-1440x900": {
       "state": "stale-conflict",
@@ -97,7 +97,7 @@
       "viewport": "1440x900",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1440x900.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1440x900.measurements.json",
-      "sha256": "51157e7802a56e093d228a74770cd43b6ad85bc7cb4be2161eca1859087f3994"
+      "sha256": "ac798d466063d9d0408f8f2e7d69ff39e92f6514fafdb4f4838b0582307cb898"
     }
   },
   "evidence_only_states": {
@@ -389,7 +389,7 @@
       "viewport": "2560x1440",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-database-normal-wide-2560x1440.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-database-normal-wide-2560x1440.measurements.json",
-      "sha256": "78f89bd0754c374c9fc80f2b40e5e04b664537c69c18e3208503819f7dc29f27"
+      "sha256": "500bbd5c0a3aeb06ce81967904275cbca0a1e3eb6f6626271a3cb5a9b224e774"
     },
     "administration-database-normal-wide-3840x2160": {
       "state": "normal",
@@ -397,7 +397,7 @@
       "viewport": "3840x2160",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-database-normal-wide-3840x2160.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-database-normal-wide-3840x2160.measurements.json",
-      "sha256": "4860aac93d0f6d27f7c03f843e122f1ed7a43e2ddd019045aac9083423130bb0"
+      "sha256": "bbcaf1243e0396790b37cf659c248fb1224941058c26b8e69269cc8aed2b91bb"
     }
   },
   "interaction_evidence": {
@@ -537,25 +537,58 @@
     "wide_preview": {
       "initial_visible": true,
       "initial_sections": [
-        "Record values",
-        "Layout fields",
+        "Record preview",
         "Representative response"
       ],
+      "initial_projection": "record",
+      "projection_switch": true,
       "hidden_after_toggle": true,
-      "reopened_and_focused": true,
+      "reopened": true,
+      "wide_return_actions": [
+        {
+          "name": "Close preview",
+          "action": "preview",
+          "disabled": false,
+          "rect": {
+            "x": 1694.625,
+            "y": 68.5,
+            "width": 102.5,
+            "height": 30
+          }
+        }
+      ],
+      "wide_taskbar_return_focus": true,
       "density_selected_rows": [
         "density"
       ],
       "yield_selected_rows": [
         "yield-strength"
       ],
-      "draft_label_updates_preview": true,
+      "draft_label_preserves_saved_projection": true,
       "draft_saved_value_unchanged": true,
       "table_rails_visible": true,
       "value_table_keyboard_scroll": true,
+      "value_table_page_down_scroll": true,
+      "value_table_home_scroll": true,
+      "value_table_end_scroll": true,
+      "value_table_pointer_scroll": true,
       "layout_table_wheel_scroll": true,
       "new_table_has_no_projection": true,
-      "empty_has_no_projection": true
+      "empty_has_no_projection": true,
+      "compact_return_actions": [
+        {
+          "name": "Back to editor",
+          "action": "preview-close",
+          "disabled": false,
+          "rect": {
+            "x": 1303.15625,
+            "y": 121,
+            "width": 97.84375,
+            "height": 27
+          }
+        }
+      ],
+      "compact_closed_and_focus_returned": true
     },
     "page_errors": []
   },

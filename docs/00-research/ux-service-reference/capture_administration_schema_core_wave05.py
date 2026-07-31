@@ -102,7 +102,7 @@ def png_dimensions(path: Path) -> tuple[int, int]:
     return struct.unpack(">II", data[16:24])
 
 
-def open_page(browser: Browser, role: str, state: str, viewport_name: str) -> tuple[Page, list[str], list[str]]:
+def open_page(browser: Browser, role: str, state: str, viewport_name: str, *, preview: str | None = None, projection: str | None = None, field: str | None = None) -> tuple[Page, list[str], list[str]]:
     viewport = (VIEWPORTS | WIDE_VIEWPORTS)[viewport_name]
     context = browser.new_context(
         viewport={"width": viewport["width"], "height": viewport["height"]},
@@ -114,7 +114,14 @@ def open_page(browser: Browser, role: str, state: str, viewport_name: str) -> tu
     page_errors: list[str] = []
     page.on("console", lambda message: console_errors.append(message.text) if message.type == "error" else None)
     page.on("pageerror", lambda error: page_errors.append(str(error)))
-    page.goto(f"{HTML_PATH.as_uri()}?{urlencode({'state': state, 'role': role})}", wait_until="load")
+    query = {"state": state, "role": role}
+    if preview:
+        query["preview"] = preview
+    if projection:
+        query["projection"] = projection
+    if field:
+        query["field"] = field
+    page.goto(f"{HTML_PATH.as_uri()}?{urlencode(query)}", wait_until="load")
     page.wait_for_timeout(90)
     return page, console_errors, page_errors
 
@@ -148,9 +155,9 @@ def dom_snapshot(page: Page) -> dict[str, Any]:
             revision: node.querySelector('.object-revision')?.textContent.trim() || '',
             columnCount: node.children.length
           }));
-           const navigator = rect('#navigator-pane'); const list = rect('#object-list-pane'); const editorPane = rect('#editor-pane'); const previewPanel = rect('#datasheet-preview'); const statusBar = rect('.status-bar');
+           const navigator = rect('#navigator-pane'); const list = rect('#object-list-pane'); const editorPane = rect('#editor-pane'); const editorContent = rect('.editor-content'); const previewPanel = rect('#datasheet-preview'); const statusBar = rect('.status-bar');
            const editorScroll = document.querySelector('[data-editor-scroll]'); const listScroll = document.querySelector('[data-list-scroll]'); const previewScroll = document.querySelector('[data-preview-scroll]'); const previewValueTableScroll = document.querySelector('[data-preview-values-scroll]'); const previewLayoutTableScroll = document.querySelector('[data-preview-layout-scroll]');
-          const editorScrollRail = document.querySelector('[data-editor-scroll-rail]'); const editorScrollThumb = document.querySelector('[data-editor-scroll-thumb]'); const previewContent = document.querySelector('[data-preview-content]');
+          const editorScrollRail = document.querySelector('[data-editor-scroll-rail]'); const editorScrollThumb = document.querySelector('[data-editor-scroll-thumb]'); const previewContent = document.querySelector('[data-preview-content]'); const previewHeading = document.querySelector('.preview-heading'); const previewContext = document.querySelector('[data-preview-context]'); const previewTabs = [...document.querySelectorAll('[data-action="preview-projection"]')]; const activePreviewSection = document.querySelector('[data-preview-active-section]');
            const previewPlot = document.querySelector('[data-preview-plot]'); const previewPlotFrame = document.querySelector('[data-preview-plot-frame]'); const previewGraphSection = document.querySelector('[data-preview-graph-section]'); const previewPlotPath = previewPlot?.querySelector('.preview-response-line'); const previewGraphHeading = previewGraphSection?.querySelector('h3'); const previewText = [previewContent?.innerText || '', previewGraphSection?.innerText || ''].join(' ').replace(/\s+/g, ' ').trim();
           const body = document.body; const root = document.documentElement;
           const bodyStyle = getComputedStyle(body); const rootStyle = getComputedStyle(root);
@@ -158,7 +165,7 @@ def dom_snapshot(page: Page) -> dict[str, Any]:
           return {
             role: body.dataset.role, state: body.dataset.state, viewport: { width: innerWidth, height: innerHeight, deviceScaleFactor: devicePixelRatio },
             overflow: { documentScrollWidth: root.scrollWidth - innerWidth, bodyScrollWidth: body.scrollWidth - innerWidth, documentScrollHeight: root.scrollHeight - innerHeight, bodyScrollHeight: body.scrollHeight - innerHeight },
-            geometry: { workspace: rect('[data-workspace]'), navigator, list, editorPane, editorScroll: box(editorScroll), preview: previewPanel, statusBar, editor: rect('[data-editor-mode]'), content: rect('.admin-shell') },
+            geometry: { workspace: rect('[data-workspace]'), navigator, list, editorPane, editorScroll: box(editorScroll), editorContent, preview: previewPanel, previewContent: box(previewContent), statusBar, editor: rect('[data-editor-mode]'), content: rect('.admin-shell') },
             splitters, rows, controls, nestedInteractive, listColumns, listRows,
             objectNameSecondaryCount: document.querySelectorAll('.object-name small').length,
             panes: { navigatorOverflowY: computed('#navigator-pane')?.overflowY, listOverflowY: computed('[data-list-scroll]')?.overflowY, editorOverflowY: computed('[data-editor-scroll]')?.overflowY },
@@ -166,7 +173,7 @@ def dom_snapshot(page: Page) -> dict[str, Any]:
               list: listScroll ? { scrollHeight: listScroll.scrollHeight, clientHeight: listScroll.clientHeight, scrollTop: listScroll.scrollTop, scrollWidth: listScroll.scrollWidth, clientWidth: listScroll.clientWidth, overflowY: getComputedStyle(listScroll).overflowY, scrollbarGutter: getComputedStyle(listScroll).scrollbarGutter, reservedScrollbarWidth: listScroll.offsetWidth - listScroll.clientWidth } : null,
               editor: editorScroll ? { scrollHeight: editorScroll.scrollHeight, clientHeight: editorScroll.clientHeight, scrollTop: editorScroll.scrollTop, scrollWidth: editorScroll.scrollWidth, clientWidth: editorScroll.clientWidth, overflowY: getComputedStyle(editorScroll).overflowY, scrollbarGutter: getComputedStyle(editorScroll).scrollbarGutter, scrollbarColor: getComputedStyle(editorScroll).scrollbarColor, reservedScrollbarWidth: editorScroll.offsetWidth - editorScroll.clientWidth } : null,
                preview: previewScroll ? { scrollHeight: previewScroll.scrollHeight, clientHeight: previewScroll.clientHeight, scrollTop: previewScroll.scrollTop, scrollWidth: previewScroll.scrollWidth, clientWidth: previewScroll.clientWidth, overflowY: getComputedStyle(previewScroll).overflowY, scrollbarGutter: getComputedStyle(previewScroll).scrollbarGutter, reservedScrollbarWidth: previewScroll.offsetWidth - previewScroll.clientWidth } : null,
-               previewTables: [previewValueTableScroll, previewLayoutTableScroll].map((node) => { const rail = node?.closest('[data-preview-table-region]')?.querySelector('[data-preview-table-rail]'); const thumb = node?.closest('[data-preview-table-region]')?.querySelector('[data-preview-table-thumb]'); const clientBox = node ? box(node) : null; const partialRows = node ? [...node.querySelectorAll('tbody tr')].filter((row) => { const rowBox = box(row); return rowBox.y < clientBox.y + clientBox.height && rowBox.y + rowBox.height > clientBox.y && (rowBox.y < clientBox.y || rowBox.y + rowBox.height > clientBox.y + clientBox.height); }).length : null; return node ? ({ scrollHeight: node.scrollHeight, clientHeight: node.clientHeight, overflowY: getComputedStyle(node).overflowY, scrollbarGutter: getComputedStyle(node).scrollbarGutter, partialRows, rail: rail ? { hidden: rail.hidden, rect: box(rail), thumbRect: box(thumb), ariaMin: Number(rail.getAttribute('aria-valuemin')), ariaMax: Number(rail.getAttribute('aria-valuemax')), ariaNow: Number(rail.getAttribute('aria-valuenow')) } : null }) : null; }),
+               previewTables: [previewValueTableScroll, previewLayoutTableScroll].map((node) => { const region = node?.closest('[data-preview-table-region]'); const rail = region?.querySelector('[data-preview-table-rail]'); const thumb = region?.querySelector('[data-preview-table-thumb]'); const clientBox = node ? box(node) : null; const partialRows = node ? [...node.querySelectorAll('tbody tr')].filter((row) => { const rowBox = box(row); const bottom = clientBox.y + clientBox.height; return rowBox.y < bottom - 0.5 && rowBox.y + rowBox.height > clientBox.y + 0.5 && (rowBox.y < clientBox.y - 0.5 || rowBox.y + rowBox.height > bottom + 0.5); }).length : null; return node ? ({ rect: clientBox, regionRect: box(region), tableRect: box(node.querySelector('table')), scrollHeight: node.scrollHeight, clientHeight: node.clientHeight, overflowY: getComputedStyle(node).overflowY, scrollbarGutter: getComputedStyle(node).scrollbarGutter, partialRows, rail: rail ? { hidden: rail.hidden, rect: box(rail), thumbRect: box(thumb), ariaMin: Number(rail.getAttribute('aria-valuemin')), ariaMax: Number(rail.getAttribute('aria-valuemax')), ariaNow: Number(rail.getAttribute('aria-valuenow')) } : null }) : null; }),
               editorRail: editorScrollRail ? {
                 hidden: editorScrollRail.hidden,
                 rect: box(editorScrollRail),
@@ -205,9 +212,16 @@ def dom_snapshot(page: Page) -> dict[str, Any]:
               table: document.querySelector('[data-preview-table]')?.textContent.trim() || '',
               selection: document.querySelector('[data-preview-selection]')?.textContent.trim() || '',
               note: document.querySelector('[data-preview-note]')?.textContent.trim() || '',
-               sections: [...document.querySelectorAll('[data-preview-sections] > section')].map((node) => ({ heading: node.querySelector('h3')?.textContent.trim() || '', rect: box(node) })).concat(previewGraphSection ? [{ heading: previewGraphHeading?.textContent.trim() || '', rect: box(previewGraphSection) }] : []),
-              valueRows: [...document.querySelectorAll('[data-preview-values] [data-preview-row]')].map((node) => ({ id: node.dataset.previewFieldId, selected: node.dataset.previewSelected === 'true', revisionId: node.dataset.previewAttributeRevisionId || '', artifactId: node.dataset.artifactId || '', artifactSha256: node.dataset.artifactSha256 || '', value: node.querySelector('[data-preview-value]')?.textContent.trim() || '', condition: node.querySelector('.preview-condition')?.textContent.trim() || '', text: node.textContent.trim() })),
-              layoutRows: [...document.querySelectorAll('[data-preview-layout] [data-layout-field]')].map((node) => ({ id: node.dataset.previewFieldId, selected: node.dataset.previewSelected === 'true', ordinal: Number(node.dataset.layoutOrdinal), revisionId: node.dataset.previewAttributeRevisionId || '', artifactId: node.dataset.artifactId || '', artifactSha256: node.dataset.artifactSha256 || '', text: node.textContent.trim() })),
+              sections: [...document.querySelectorAll('[data-preview-sections] > section')].map((node) => ({ heading: node.querySelector('h3')?.textContent.trim() || '', rect: box(node), active: node.classList.contains('is-active') || node === previewGraphSection })),
+              activeProjection: previewContent?.dataset.previewActiveTask || '',
+              projectionTabs: previewTabs.map((node) => ({ name: node.textContent.trim(), selected: node.getAttribute('aria-selected') === 'true', focusable: node.tabIndex >= 0 })),
+              activeTable: activePreviewSection?.querySelector('table')?.dataset.previewValues !== undefined ? 'record' : activePreviewSection?.querySelector('table')?.dataset.previewLayout !== undefined ? 'layout' : '',
+              activeRowCount: activePreviewSection?.querySelectorAll('tbody tr[data-preview-row], tbody tr[data-layout-field]').length || 0,
+              activeSectionRect: box(activePreviewSection),
+              activeTableRegionRect: box(activePreviewSection?.querySelector('[data-preview-table-region]')),
+              activeTableScrollRect: box(activePreviewSection?.querySelector('.preview-table-scroll')),
+              valueRows: [...document.querySelectorAll('[data-preview-values] [data-preview-row]')].map((node) => ({ id: node.dataset.previewFieldId, selected: node.dataset.previewSelected === 'true', revisionId: node.dataset.previewAttributeRevisionId || '', artifactId: node.dataset.artifactId || '', artifactSha256: node.dataset.artifactSha256 || '', label: node.querySelector('th strong')?.textContent.trim() || '', value: node.querySelector('[data-preview-value]')?.textContent.trim() || '', condition: node.querySelector('.preview-condition')?.textContent.trim() || '', text: node.textContent.trim() })),
+              layoutRows: [...document.querySelectorAll('[data-preview-layout] [data-layout-field]')].map((node) => ({ id: node.dataset.previewFieldId, selected: node.dataset.previewSelected === 'true', ordinal: Number(node.dataset.layoutOrdinal), revisionId: node.dataset.previewAttributeRevisionId || '', artifactId: node.dataset.artifactId || '', artifactSha256: node.dataset.artifactSha256 || '', label: node.querySelector('td strong')?.textContent.trim() || '', text: node.textContent.trim() })),
               graph: {
                 visible: Boolean(previewPlot && previewPlot.getBoundingClientRect().width > 0 && previewPlot.getBoundingClientRect().height > 0),
                 section: box(previewGraphSection),
@@ -232,6 +246,39 @@ def dom_snapshot(page: Page) -> dict[str, Any]:
               recordTableRevisionId: previewContent?.dataset.recordTableRevisionId || '',
               toggleLabel: document.querySelector('[data-action="preview-toggle"]')?.textContent.trim() || '',
               projectionState: previewContent?.dataset.previewProjection || '',
+              returnActions: [...document.querySelectorAll('[data-preview-command], [data-action="preview-close"]')].filter((node) => !node.hidden && node.getBoundingClientRect().width > 0 && node.getBoundingClientRect().height > 0).map((node) => ({ name: node.textContent.trim(), action: node.dataset.action || '', disabled: Boolean(node.disabled), rect: box(node) })),
+              composition: (() => {
+                if (!editorPane || !editorContent || !previewPanel || !previewContent) return null;
+                const previewContentRect = box(previewContent);
+                const previewContentStyle = getComputedStyle(previewContent);
+                const contentLeft = previewContentRect.x + parseFloat(previewContentStyle.paddingLeft || '0');
+                const contentRight = previewContentRect.x + previewContentRect.width - parseFloat(previewContentStyle.paddingRight || '0');
+                const activeSectionRect = box(activePreviewSection);
+                const activeTableRegionRect = box(activePreviewSection?.querySelector('[data-preview-table-region]'));
+                const activeTableScrollRect = box(activePreviewSection?.querySelector('.preview-table-scroll'));
+                const graphSectionRect = box(previewGraphSection);
+                if (!activeSectionRect || !activeTableRegionRect || !activeTableScrollRect || !graphSectionRect) return null;
+                return {
+                  editorPane: editorPane,
+                  editorContent,
+                  previewPanel,
+                  previewContent: previewContentRect,
+                  recordSection: activeSectionRect,
+                  recordTableRegion: activeTableRegionRect,
+                  recordTableScroll: activeTableScrollRect,
+                  graphSection: graphSectionRect,
+                  taskChrome: {
+                    content: { left: contentLeft, right: contentRight, width: contentRight - contentLeft },
+                    heading: box(previewHeading),
+                    tabs: box(document.querySelector('.preview-tabs')),
+                    context: box(previewContext),
+                    clusterRight: Math.max(activeSectionRect.x + activeSectionRect.width, graphSectionRect.x + graphSectionRect.width)
+                  },
+                  contentGap: previewContentRect.x - (editorContent.x + editorContent.width),
+                  componentGutter: graphSectionRect.x - (activeSectionRect.x + activeSectionRect.width),
+                  topAlignmentDelta: graphSectionRect.y - activeSectionRect.y
+                };
+              })(),
                text: previewText,
             },
             buttons: [...document.querySelectorAll('button')].filter((node) => !node.hidden && node.getBoundingClientRect().width > 0 && node.getBoundingClientRect().height > 0).map((node) => ({ name: node.textContent.trim(), action: node.dataset.action || '', disabled: Boolean(node.disabled), rect: box(node) })),
@@ -246,7 +293,9 @@ def dom_snapshot(page: Page) -> dict[str, Any]:
 
 
 def capture_page(browser: Browser, target: str, role: str, state: str, viewport_name: str) -> dict[str, Any]:
-    page, console_errors, page_errors = open_page(browser, role, state, viewport_name)
+    preview = "open" if target.endswith("normal-1920x1080") or "wide-" in target else None
+    field = "representative-response" if "wide-" in target else None
+    page, console_errors, page_errors = open_page(browser, role, state, viewport_name, preview=preview, field=field)
     image_path = EVIDENCE_DIR / f"{target}.png"
     measurement_path = EVIDENCE_DIR / f"{target}.measurements.json"
     try:
@@ -335,41 +384,64 @@ def interaction_evidence(browser: Browser) -> dict[str, Any]:
         editor_scroll_arrow_down = editor_scroll.evaluate("node => node.scrollTop")
         editor_rail_arrow_down = dom_snapshot(page)["localScroll"]["editorRail"]
         page.get_by_role("button", name="Save new revision").count()
-        wide_page, wide_console_errors, wide_page_errors = open_page(browser, "administrator", "normal", "1920x1080")
+        wide_page, wide_console_errors, wide_page_errors = open_page(browser, "administrator", "normal", "1920x1080", preview="open", field="representative-response")
         try:
             wide_initial = dom_snapshot(wide_page)
             value_table_scroll = wide_page.locator("[data-preview-values-scroll]")
-            layout_table_scroll = wide_page.locator("[data-preview-layout-scroll]")
             value_table_rail = wide_page.get_by_role("scrollbar", name="Scroll saved Record values")
-            layout_table_rail = wide_page.get_by_role("scrollbar", name="Scroll ordered Layout fields")
             value_table_rail.focus()
             wide_page.keyboard.press("ArrowDown")
             preview_value_keyboard_scroll = value_table_scroll.evaluate("node => node.scrollTop")
+            value_table_rail.press("PageDown")
+            preview_value_page_down_scroll = value_table_scroll.evaluate("node => node.scrollTop")
+            value_table_rail.press("Home")
+            preview_value_home_scroll = value_table_scroll.evaluate("node => node.scrollTop")
+            value_table_rail.press("End")
+            preview_value_end_scroll = value_table_scroll.evaluate("node => node.scrollTop")
+            value_table_rail.press("Home")
+            rail_box = value_table_rail.bounding_box()
+            if rail_box:
+                wide_page.mouse.click(rail_box["x"] + rail_box["width"] / 2, rail_box["y"] + rail_box["height"] * .55)
+            preview_value_pointer_scroll = value_table_scroll.evaluate("node => node.scrollTop")
+            wide_page.get_by_role("tab", name="Layout definition").click()
+            wide_layout = dom_snapshot(wide_page)
+            layout_table_scroll = wide_page.locator("[data-preview-layout-scroll]")
+            layout_table_rail = wide_page.get_by_role("scrollbar", name="Scroll ordered Layout definition")
             layout_table_rail.hover()
             wide_page.mouse.wheel(0, 120)
             preview_layout_wheel_scroll = layout_table_scroll.evaluate("node => node.scrollTop")
+            wide_page.get_by_role("tab", name="Record preview").click()
             wide_page.locator("[data-preview-command]").click()
             wide_hidden = dom_snapshot(wide_page)
+            wide_taskbar_return_focus = wide_page.evaluate("() => document.activeElement?.matches('[data-preview-command]') === true")
             wide_page.locator("[data-preview-command]").click()
             wide_reopened = dom_snapshot(wide_page)
-            wide_focus = wide_page.evaluate("() => document.activeElement?.matches('[data-preview-scroll]') === true")
             wide_page.locator('[data-object-kind="attributes"]').click()
             wide_page.locator('[data-object-id="density"]').click()
             wide_density = dom_snapshot(wide_page)
             wide_page.locator('[data-object-id="yield-strength"]').click()
             wide_yield = dom_snapshot(wide_page)
-            wide_page.goto(f"{HTML_PATH.as_uri()}?state=attribute-draft", wait_until="load")
+            wide_page.goto(f"{HTML_PATH.as_uri()}?state=attribute-draft&preview=open", wait_until="load")
             wide_page.wait_for_timeout(80)
             wide_page.locator("[name='attributeName']").evaluate("(node) => { node.value = 'Density draft label'; node.dispatchEvent(new Event('input', { bubbles: true })); }")
             wide_attribute_draft = dom_snapshot(wide_page)
-            wide_page.goto(f"{HTML_PATH.as_uri()}?state=table-add", wait_until="load")
+            wide_page.goto(f"{HTML_PATH.as_uri()}?state=table-add&preview=open", wait_until="load")
             wide_page.wait_for_timeout(80)
             wide_table_add = dom_snapshot(wide_page)
-            wide_page.goto(f"{HTML_PATH.as_uri()}?state=empty", wait_until="load")
+            wide_page.goto(f"{HTML_PATH.as_uri()}?state=empty&preview=open", wait_until="load")
             wide_page.wait_for_timeout(80)
             wide_empty = dom_snapshot(wide_page)
         finally:
             wide_page.context.close()
+        compact_page, compact_console_errors, compact_page_errors = open_page(browser, "administrator", "normal", "1440x900")
+        try:
+            compact_page.locator("[data-preview-command]").click()
+            compact_open = dom_snapshot(compact_page)
+            compact_page.get_by_role("button", name="Back to editor", exact=True).click()
+            compact_closed = dom_snapshot(compact_page)
+            compact_return_focus = compact_page.evaluate("() => document.activeElement?.matches('[data-preview-command]') === true")
+        finally:
+            compact_page.context.close()
         evidence.update({
             "selection_continuity": {"retained_after_refresh": selection_after_refresh == "materials"},
             "add_flows": {
@@ -407,19 +479,34 @@ def interaction_evidence(browser: Browser) -> dict[str, Any]:
             "wide_preview": {
                 "initial_visible": wide_initial["preview"]["visible"],
                 "initial_sections": [section["heading"] for section in wide_initial["preview"]["sections"]],
+                "initial_projection": wide_initial["preview"].get("activeProjection"),
+                "projection_switch": wide_initial["preview"].get("activeProjection") == "record" and wide_layout["preview"].get("activeProjection") == "layout" and wide_layout["preview"].get("activeTable") == "layout",
                 "hidden_after_toggle": not wide_hidden["preview"]["visible"] and wide_hidden["preview"]["open"] is False,
-                "reopened_and_focused": wide_reopened["preview"]["visible"] and wide_reopened["preview"]["open"] is True and wide_focus,
+                "reopened": wide_reopened["preview"]["visible"] and wide_reopened["preview"]["open"] is True,
+                "wide_return_actions": wide_initial["preview"]["returnActions"],
+                "wide_taskbar_return_focus": wide_taskbar_return_focus,
                 "density_selected_rows": [row["id"] for row in wide_density["preview"]["valueRows"] if row["selected"]],
                 "yield_selected_rows": [row["id"] for row in wide_yield["preview"]["valueRows"] if row["selected"]],
-                "draft_label_updates_preview": any("Density draft label" in row["text"] and row["selected"] for row in wide_attribute_draft["preview"]["valueRows"]),
+                "draft_label_preserves_saved_projection": all(
+                    row["label"] == "Density"
+                    for rows in (wide_attribute_draft["preview"]["valueRows"],)
+                    for row in rows
+                    if row["id"] == "density"
+                ),
                 "draft_saved_value_unchanged": any("7,800 kg/m³" in row["text"] for row in wide_attribute_draft["preview"]["valueRows"] if row["id"] == "density"),
-                "table_rails_visible": all(item and item["rail"] and item["rail"]["hidden"] is False and item["rail"]["ariaMax"] > 0 for item in wide_initial["localScroll"]["previewTables"]),
+                "table_rails_visible": all(item and item["rail"] and item["rail"]["hidden"] is False and item["rail"]["ariaMax"] > 0 for item in wide_initial["localScroll"]["previewTables"] if item),
                 "value_table_keyboard_scroll": float(preview_value_keyboard_scroll or 0) > 0,
+                "value_table_page_down_scroll": float(preview_value_page_down_scroll or 0) > float(preview_value_keyboard_scroll or 0),
+                "value_table_home_scroll": float(preview_value_home_scroll or 0) == 0,
+                "value_table_end_scroll": float(preview_value_end_scroll or 0) > 0,
+                "value_table_pointer_scroll": float(preview_value_pointer_scroll or 0) > 0,
                 "layout_table_wheel_scroll": float(preview_layout_wheel_scroll or 0) > 0,
                 "new_table_has_no_projection": wide_table_add["preview"]["projectionState"] == "unavailable" and not wide_table_add["preview"]["valueRows"] and not wide_table_add["preview"]["layoutRows"] and all(stale not in wide_table_add["preview"]["text"] for stale in ("Materials master", "DP780 synthetic demo steel", "Material datasheet")),
                 "empty_has_no_projection": wide_empty["preview"]["projectionState"] == "unavailable" and not wide_empty["preview"]["record"] and not wide_empty["preview"]["table"] and not wide_empty["preview"]["valueRows"] and not wide_empty["preview"]["layoutRows"] and all(stale not in wide_empty["preview"]["text"] for stale in ("Materials master", "DP780 synthetic demo steel", "Material datasheet")),
+                "compact_return_actions": compact_open["preview"]["returnActions"],
+                "compact_closed_and_focus_returned": not compact_closed["preview"]["visible"] and compact_closed["preview"]["open"] is False and compact_return_focus,
             },
-            "page_errors": console_errors + page_errors + wide_console_errors + wide_page_errors,
+            "page_errors": console_errors + page_errors + wide_console_errors + wide_page_errors + compact_console_errors + compact_page_errors,
         })
     finally:
         page.context.close()
@@ -427,10 +514,13 @@ def interaction_evidence(browser: Browser) -> dict[str, Any]:
 
 
 def write_staging(target_results: dict[str, dict[str, Any]], state_results: dict[str, list[dict[str, Any]]], interactions: dict[str, Any], wide_results: dict[str, dict[str, Any]]) -> None:
+    existing_status = "pending"
+    if STAGING_PATH.exists():
+        existing_status = json.loads(STAGING_PATH.read_text(encoding="utf-8")).get("status", existing_status)
     staging = {
         "family": "ADM-SCHEMA-CORE",
         "wave": "WAVE-05",
-        "status": "pending",
+        "status": existing_status,
         "capture_date": date.today().isoformat(),
         "static": {
             "html": "docs/00-research/ux-service-reference/administration-schema-core.html",

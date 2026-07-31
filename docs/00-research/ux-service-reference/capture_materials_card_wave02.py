@@ -227,6 +227,34 @@ def card_snapshot(page: Page) -> dict[str, Any]:
             .filter((element) => element.checkVisibility())
             .filter((element) => element.scrollWidth > element.clientWidth + 1 || element.scrollHeight > element.clientHeight + 1)
             .map((element) => element.textContent.trim());
+          const visibleMappingRows = [...document.querySelectorAll('.mapping-row')].filter((row) => !row.hidden && row.checkVisibility());
+          const mappingRowDetails = visibleMappingRows.map((row) => {
+            const title = row.querySelector('strong');
+            const value = row.querySelector('.mapping-value');
+            const consequence = row.querySelector('.mapping-status');
+            const rowStyle = getComputedStyle(row);
+            const consequenceStyle = consequence ? getComputedStyle(consequence) : null;
+            const valueRect = value?.getBoundingClientRect();
+            const consequenceRect = consequence?.getBoundingClientRect();
+            const titleClipped = Boolean(title && (title.scrollWidth > title.clientWidth + 1 || title.scrollHeight > title.clientHeight + 1));
+            const valueClipped = Boolean(value && (value.scrollWidth > value.clientWidth + 1 || value.scrollHeight > value.clientHeight + 1));
+            const consequenceClipped = Boolean(consequence && (consequence.scrollWidth > consequence.clientWidth + 1 || consequence.scrollHeight > consequence.clientHeight + 1));
+            const overlap = Boolean(valueRect && consequenceRect && consequenceRect.left < valueRect.right - 1);
+            return {
+              key: row.dataset.mappingKey || '',
+              title: title?.textContent.trim() || '',
+              value: value?.textContent.trim() || '',
+              consequence: consequence?.textContent.trim() || '',
+              status_class: consequence?.className || '',
+              grid_template_columns: rowStyle.gridTemplateColumns,
+              status_border_width: consequenceStyle?.borderWidth || '',
+              status_border_radius: consequenceStyle?.borderRadius || '',
+              status_padding: consequenceStyle?.padding || '',
+              status_text_transform: consequenceStyle?.textTransform || '',
+              clipped: titleClipped || valueClipped || consequenceClipped,
+              overlap,
+            };
+          });
           return {
             state: document.body.dataset.state,
             mode: document.body.dataset.cardMode,
@@ -295,7 +323,11 @@ def card_snapshot(page: Page) -> dict[str, Any]:
             loading_visible: Boolean(document.querySelector('#preview-loading')?.checkVisibility()),
             error_visible: Boolean(document.querySelector('#preview-error')?.checkVisibility()),
             retry_visible: Boolean(document.querySelector('#retry-preview')?.checkVisibility()),
-            mapping_rows: [...document.querySelectorAll('.mapping-row')].filter((row) => !row.hidden && row.checkVisibility()).map((row) => row.textContent.trim()),
+            mapping_title: document.querySelector('#mapping-title')?.textContent.trim() || '',
+            mapping_disclosure_title: document.querySelector('#advanced-mapping summary')?.textContent.trim() || '',
+            mapping_rows: visibleMappingRows.map((row) => row.textContent.trim()),
+            mapping_row_details: mappingRowDetails,
+            mapping_visible_count: mappingRowDetails.length,
             approximation_acknowledged: document.querySelector('#approximation-ack')?.checked ?? false,
             download: {text: download?.textContent.trim(), disabled: Boolean(download?.disabled), primary: download?.classList.contains('primary-action')},
             open_modeling_visible: Boolean(document.querySelector('#open-modeling')?.checkVisibility()),
@@ -404,17 +436,23 @@ def common_interactions(page: Page, state: str) -> dict[str, bool]:
                 native_scroll_wheel = preview.evaluate("element => element.scrollTop > 0")
     details_open = advanced.get_attribute("open") == ""
     advanced.locator("summary").click()
+    mapping_acknowledgement = True
     if state == "normal":
         page.locator("#download-card").click()
         command = page.locator("body").get_attribute("data-card-download") == "Abaqus:.inp"
         state_checks = page.locator("#download-card").is_enabled() and page.locator("#download-card").inner_text() == "Download .inp"
     elif state == "approximation":
         initially_blocked = page.locator("#download-card").is_disabled() and not page.locator("#approximation-ack").is_checked()
+        report_before = page.locator("#native-text").text_content()
+        consequence_before = page.locator("#approximation-row .mapping-status").inner_text()
         page.locator("#approximation-ack").check()
+        consequence_after = page.locator("#approximation-row .mapping-status").inner_text()
         enabled = page.locator("#download-card").is_enabled()
         page.locator("#download-card").click()
         command = page.locator("body").get_attribute("data-card-download") == "OpenRadioss:.rad"
-        state_checks = initially_blocked and enabled and command
+        report_after = page.locator("#native-text").text_content()
+        mapping_acknowledgement = consequence_before == "Review required" and consequence_after == "Reviewed" and report_before == report_after
+        state_checks = initially_blocked and mapping_acknowledgement and enabled and command
     else:
         no_artifact = not page.locator("#native-text").is_visible() and page.locator("#preview-unavailable").is_visible()
         blocked = page.locator("#download-card").is_disabled() and page.locator("#download-card").inner_text() == "Download blocked"
@@ -422,12 +460,58 @@ def common_interactions(page: Page, state: str) -> dict[str, bool]:
         page.locator("#back-to-cards").click()
         state_checks = no_artifact and blocked and page.locator("body").get_attribute("data-recovery-open-modeling") == "true" and page.locator("body").get_attribute("data-recovery-back-to-cards") == "true"
         command = blocked
-    return {"navigator_search": search_focus, "tree_search": tree_search, "back_to_results": restored, "tree_keyboard": home and end and previous and selected, "tabs": tab_clicks and tabs and page.locator("#tab-cards").get_attribute("aria-selected") == "true", "advanced_disclosure": details_open and page.locator("#advanced-mapping").get_attribute("open") is None, "native_scroll_wheel": native_scroll_wheel, "state_command": state_checks and command}
+    return {"navigator_search": search_focus, "tree_search": tree_search, "back_to_results": restored, "tree_keyboard": home and end and previous and selected, "tabs": tab_clicks and tabs and page.locator("#tab-cards").get_attribute("aria-selected") == "true", "advanced_disclosure": details_open and page.locator("#advanced-mapping").get_attribute("open") is None, "native_scroll_wheel": native_scroll_wheel, "mapping_acknowledgement": mapping_acknowledgement, "state_command": state_checks and command}
+
+
+MAPPING_CONSEQUENCES = {"Exact", "Converted", "Review required", "Reviewed", "Not supported"}
+MAPPING_EXPECTATIONS = {
+    "density": ("Density", "7 800 kg/m³ → 7.8000E+03 kg/m³", "Exact"),
+    "isotropic-elasticity": ("Isotropic elasticity", "210 GPa, \N{GREEK SMALL LETTER NU} 0.30 → *ELASTIC", "Exact"),
+    "initial-yield": ("Initial yield", "450 MPa at εp = 0 → first *PLASTIC row", "Converted"),
+    "hardening-response": ("Hardening response", "5 points → native *PLASTIC rows", "Converted"),
+    "post-necking-extension": ("Post-necking extension", "Bounded extension → target behavior", "Review required"),
+    "damage-initiation-gissmo": ("Damage initiation · GISSMO", "No governed target representation", "Not supported"),
+}
+
+
+def assert_mapping_grammar(snapshot: dict[str, Any], label: str, state: str) -> None:
+    if snapshot.get("mapping_title") != "Mapping details":
+        raise AssertionError(f"{label} mapping title mismatch: {snapshot.get('mapping_title')!r}")
+    if snapshot.get("mapping_disclosure_title") != "Technical mapping details":
+        raise AssertionError(f"{label} technical disclosure mismatch: {snapshot.get('mapping_disclosure_title')!r}")
+    mode = state if state in {"normal", "approximation", "unsupported"} else "normal"
+    expected_keys = {
+        "normal": {"density", "isotropic-elasticity", "initial-yield", "hardening-response"},
+        "approximation": {"density", "post-necking-extension"},
+        "unsupported": {"density", "damage-initiation-gissmo"},
+    }[mode]
+    details = snapshot.get("mapping_row_details")
+    if not isinstance(details, list) or {row.get("key") for row in details} != expected_keys:
+        raise AssertionError(f"{label} visible mapping keys mismatch: {details!r}")
+    if snapshot.get("mapping_visible_count") != len(expected_keys):
+        raise AssertionError(f"{label} visible mapping count mismatch: {snapshot.get('mapping_visible_count')!r}")
+    for row in details:
+        key = row.get("key")
+        if key not in MAPPING_EXPECTATIONS:
+            raise AssertionError(f"{label} unexpected mapping key: {row!r}")
+        expected_title, expected_value, expected_consequence = MAPPING_EXPECTATIONS[key]
+        expected_consequence = "Reviewed" if mode == "approximation" and row.get("consequence") == "Reviewed" else expected_consequence
+        if (row.get("title"), row.get("value")) != (expected_title, expected_value):
+            raise AssertionError(f"{label} mapping title/value mismatch: {row!r}")
+        if row.get("consequence") not in MAPPING_CONSEQUENCES or row.get("consequence") != expected_consequence:
+            raise AssertionError(f"{label} mapping consequence mismatch: {row!r}")
+        if row.get("clipped") or row.get("overlap"):
+            raise AssertionError(f"{label} mapping row clipping/overlap: {row!r}")
+        if row.get("status_border_width") != "0px" or row.get("status_border_radius") != "0px" or row.get("status_padding") != "0px":
+            raise AssertionError(f"{label} mapping consequence is styled as a badge: {row!r}")
+        if row.get("status_text_transform") not in {"none", ""}:
+            raise AssertionError(f"{label} mapping consequence changes case: {row!r}")
 
 
 def measure_page(page: Page, target: str, state: str, viewport: dict[str, int], splitters: dict[str, Any], interactions: dict[str, bool], *, responsive: bool = False) -> dict[str, Any]:
     snapshot = card_snapshot(page)
     visual_acceptance = visual_acceptance_snapshot(page)
+    assert_mapping_grammar(snapshot, target, state)
     wide = viewport["width"] >= 1800
     if any(value != 0 for value in overflow_snapshot(page).values()):
         raise AssertionError(f"page overflow for {target}: {overflow_snapshot(page)}")
@@ -496,12 +580,12 @@ def measure_page(page: Page, target: str, state: str, viewport: dict[str, int], 
         if any("APPROXIMATED" in row or "UNSUPPORTED" in row for row in snapshot["mapping_rows"]):
             raise AssertionError(f"normal mapping includes blocked state: {snapshot}")
     if state == "approximation":
-        if not snapshot["native_text_visible"] or not any("post-necking extension" in row for row in snapshot["mapping_rows"]):
+        if not snapshot["native_text_visible"] or not any("post-necking extension" in row.casefold() for row in snapshot["mapping_rows"]):
             raise AssertionError(f"approximation mapping/preview missing: {snapshot}")
         if snapshot["approximation_acknowledged"] or not snapshot["download"]["disabled"] or snapshot["download"]["text"] != "Download .rad":
             raise AssertionError(f"approximation acknowledgement/command mismatch: {snapshot}")
     if state == "unsupported":
-        if snapshot["native_text_visible"] or not snapshot["unavailable_visible"] or not any("damage initiation" in row for row in snapshot["mapping_rows"]):
+        if snapshot["native_text_visible"] or not snapshot["unavailable_visible"] or not any("damage initiation" in row.casefold() for row in snapshot["mapping_rows"]):
             raise AssertionError(f"unsupported preview/mapping missing: {snapshot}")
         if not snapshot["download"]["disabled"] or snapshot["download"]["text"] != "Download blocked":
             raise AssertionError(f"unsupported command mismatch: {snapshot}")
@@ -626,6 +710,7 @@ def state_evidence() -> dict[str, Any]:
                 page.on("pageerror", lambda error, errors=page_errors: errors.append(str(error)))
                 load_page(page, state, viewport)
                 snap = card_snapshot(page)
+                assert_mapping_grammar(snap, f"{state}/{key}", state)
                 if state == "long":
                     if snap["preview_scroll_height"] <= snap["preview_client_height"] or not snap["preview_scroll_rail_visible"] or snap["preview_scroll_gutter_width"] < 6 or snap["preview_scroll_text_clearance"] <= 0 or snap["delivery_width"] < 300:
                         raise AssertionError(f"long evidence not independently scrollable: {state} {key} {snap}")
@@ -655,6 +740,7 @@ def state_evidence() -> dict[str, Any]:
                     if page.locator("body").get_attribute("data-preview-retry") != "true":
                         raise AssertionError(f"retry did not announce: {state} {key}")
                     recovery_card = card_snapshot(page)
+                    assert_mapping_grammar(recovery_card, f"{state}/{key}/recovery", "normal")
                     if recovery_card["state"] != "normal" or not recovery_card["native_text_visible"] or recovery_card["error_visible"]:
                         raise AssertionError(f"retry did not recover normal preview/context: {state} {key} {recovery_card}")
                     evidence["states"][state][key] = {

@@ -15,7 +15,7 @@
           "width": 1366,
           "height": 768
         },
-        "screenshot_sha256": "99a225ec3c809e5fd950448245ceb6ea50731ed9fb6f249857785d93a693521d",
+        "screenshot_sha256": "e30b49a52d27d86cce2d0fa41eefa4d4d799ee9721545889371e3d06d1fe1638",
         "overflow": {
           "document_horizontal": 0,
           "document_vertical": 0,
@@ -148,12 +148,73 @@
           "loading_visible": false,
           "error_visible": false,
           "retry_visible": false,
+          "mapping_title": "Mapping details",
+          "mapping_disclosure_title": "Technical mapping details",
           "mapping_rows": [
-            "EXACTdensitySI density is emitted unchanged.",
-            "EXACTisotropic elasticityYoung's modulus and Poisson ratio map directly.",
-            "TRANSFORMEDinitial yieldThe zero-plastic-strain anchor becomes the first hardening row.",
-            "TRANSFORMEDisotropic hardening curveNeutral curve stages are rendered as native rows."
+            "Density7 800 kg/m³ → 7.8000E+03 kg/m³Exact",
+            "Isotropic elasticity210 GPa, ν 0.30 → *ELASTICExact",
+            "Initial yield450 MPa at εp = 0 → first *PLASTIC rowConverted",
+            "Hardening response5 points → native *PLASTIC rowsConverted"
           ],
+          "mapping_row_details": [
+            {
+              "key": "density",
+              "title": "Density",
+              "value": "7 800 kg/m³ → 7.8000E+03 kg/m³",
+              "consequence": "Exact",
+              "status_class": "mapping-status exact",
+              "grid_template_columns": "254.906px 26.0938px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            },
+            {
+              "key": "isotropic-elasticity",
+              "title": "Isotropic elasticity",
+              "value": "210 GPa, ν 0.30 → *ELASTIC",
+              "consequence": "Exact",
+              "status_class": "mapping-status exact",
+              "grid_template_columns": "254.906px 26.0938px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            },
+            {
+              "key": "initial-yield",
+              "title": "Initial yield",
+              "value": "450 MPa at εp = 0 → first *PLASTIC row",
+              "consequence": "Converted",
+              "status_class": "mapping-status converted",
+              "grid_template_columns": "229.062px 51.9375px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            },
+            {
+              "key": "hardening-response",
+              "title": "Hardening response",
+              "value": "5 points → native *PLASTIC rows",
+              "consequence": "Converted",
+              "status_class": "mapping-status converted",
+              "grid_template_columns": "229.062px 51.9375px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            }
+          ],
+          "mapping_visible_count": 4,
           "approximation_acknowledged": false,
           "download": {
             "text": "Download .inp",
@@ -198,7 +259,7 @@
           "width": 1440,
           "height": 900
         },
-        "screenshot_sha256": "b07c79b89bba3e8a957c55b240317c65e6c12610df6a48a48d810875ea6c9196",
+        "screenshot_sha256": "149f4c688c231968090c480a63e1a869ad4524ac9017d48df2c037b32bf8f065",
         "overflow": {
           "document_horizontal": 0,
           "document_vertical": 0,
@@ -331,12 +392,73 @@
           "loading_visible": false,
           "error_visible": false,
           "retry_visible": false,
+          "mapping_title": "Mapping details",
+          "mapping_disclosure_title": "Technical mapping details",
           "mapping_rows": [
-            "EXACTdensitySI density is emitted unchanged.",
-            "EXACTisotropic elasticityYoung's modulus and Poisson ratio map directly.",
-            "TRANSFORMEDinitial yieldThe zero-plastic-strain anchor becomes the first hardening row.",
-            "TRANSFORMEDisotropic hardening curveNeutral curve stages are rendered as native rows."
+            "Density7 800 kg/m³ → 7.8000E+03 kg/m³Exact",
+            "Isotropic elasticity210 GPa, ν 0.30 → *ELASTICExact",
+            "Initial yield450 MPa at εp = 0 → first *PLASTIC rowConverted",
+            "Hardening response5 points → native *PLASTIC rowsConverted"
           ],
+          "mapping_row_details": [
+            {
+              "key": "density",
+              "title": "Density",
+              "value": "7 800 kg/m³ → 7.8000E+03 kg/m³",
+              "consequence": "Exact",
+              "status_class": "mapping-status exact",
+              "grid_template_columns": "254.906px 26.0938px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            },
+            {
+              "key": "isotropic-elasticity",
+              "title": "Isotropic elasticity",
+              "value": "210 GPa, ν 0.30 → *ELASTIC",
+              "consequence": "Exact",
+              "status_class": "mapping-status exact",
+              "grid_template_columns": "254.906px 26.0938px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            },
+            {
+              "key": "initial-yield",
+              "title": "Initial yield",
+              "value": "450 MPa at εp = 0 → first *PLASTIC row",
+              "consequence": "Converted",
+              "status_class": "mapping-status converted",
+              "grid_template_columns": "229.062px 51.9375px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            },
+            {
+              "key": "hardening-response",
+              "title": "Hardening response",
+              "value": "5 points → native *PLASTIC rows",
+              "consequence": "Converted",
+              "status_class": "mapping-status converted",
+              "grid_template_columns": "229.062px 51.9375px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            }
+          ],
+          "mapping_visible_count": 4,
           "approximation_acknowledged": false,
           "download": {
             "text": "Download .inp",
@@ -381,7 +503,7 @@
           "width": 1920,
           "height": 1080
         },
-        "screenshot_sha256": "c29db500ce25f5e27b7b44cc46fdadd4de08ae61946c283123119258cef2650f",
+        "screenshot_sha256": "4cd75f3dd2d8ba3ba5ed13c386c7f6a1c14e2d60610ae150eaf7611cb683f0ad",
         "overflow": {
           "document_horizontal": 0,
           "document_vertical": 0,
@@ -553,12 +675,73 @@
           "loading_visible": false,
           "error_visible": false,
           "retry_visible": false,
+          "mapping_title": "Mapping details",
+          "mapping_disclosure_title": "Technical mapping details",
           "mapping_rows": [
-            "EXACTdensitySI density is emitted unchanged.",
-            "EXACTisotropic elasticityYoung's modulus and Poisson ratio map directly.",
-            "TRANSFORMEDinitial yieldThe zero-plastic-strain anchor becomes the first hardening row.",
-            "TRANSFORMEDisotropic hardening curveNeutral curve stages are rendered as native rows."
+            "Density7 800 kg/m³ → 7.8000E+03 kg/m³Exact",
+            "Isotropic elasticity210 GPa, ν 0.30 → *ELASTICExact",
+            "Initial yield450 MPa at εp = 0 → first *PLASTIC rowConverted",
+            "Hardening response5 points → native *PLASTIC rowsConverted"
           ],
+          "mapping_row_details": [
+            {
+              "key": "density",
+              "title": "Density",
+              "value": "7 800 kg/m³ → 7.8000E+03 kg/m³",
+              "consequence": "Exact",
+              "status_class": "mapping-status exact",
+              "grid_template_columns": "254.906px 26.0938px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            },
+            {
+              "key": "isotropic-elasticity",
+              "title": "Isotropic elasticity",
+              "value": "210 GPa, ν 0.30 → *ELASTIC",
+              "consequence": "Exact",
+              "status_class": "mapping-status exact",
+              "grid_template_columns": "254.906px 26.0938px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            },
+            {
+              "key": "initial-yield",
+              "title": "Initial yield",
+              "value": "450 MPa at εp = 0 → first *PLASTIC row",
+              "consequence": "Converted",
+              "status_class": "mapping-status converted",
+              "grid_template_columns": "229.062px 51.9375px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            },
+            {
+              "key": "hardening-response",
+              "title": "Hardening response",
+              "value": "5 points → native *PLASTIC rows",
+              "consequence": "Converted",
+              "status_class": "mapping-status converted",
+              "grid_template_columns": "229.062px 51.9375px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            }
+          ],
+          "mapping_visible_count": 4,
           "approximation_acknowledged": false,
           "download": {
             "text": "Download .inp",
@@ -605,7 +788,7 @@
           "width": 1366,
           "height": 768
         },
-        "screenshot_sha256": "2be6e0a35f6ea7829ac023d4f016087eb79c12e968f37c36fcc0a7481c0e5b92",
+        "screenshot_sha256": "3d4cb7340b54cf04ca6f13f16bf446284037ecdb6857a0e04fadf4a307da65dc",
         "overflow": {
           "document_horizontal": 0,
           "document_vertical": 0,
@@ -738,12 +921,73 @@
           "loading_visible": true,
           "error_visible": false,
           "retry_visible": false,
+          "mapping_title": "Mapping details",
+          "mapping_disclosure_title": "Technical mapping details",
           "mapping_rows": [
-            "EXACTdensitySI density is emitted unchanged.",
-            "EXACTisotropic elasticityYoung's modulus and Poisson ratio map directly.",
-            "TRANSFORMEDinitial yieldThe zero-plastic-strain anchor becomes the first hardening row.",
-            "TRANSFORMEDisotropic hardening curveNeutral curve stages are rendered as native rows."
+            "Density7 800 kg/m³ → 7.8000E+03 kg/m³Exact",
+            "Isotropic elasticity210 GPa, ν 0.30 → *ELASTICExact",
+            "Initial yield450 MPa at εp = 0 → first *PLASTIC rowConverted",
+            "Hardening response5 points → native *PLASTIC rowsConverted"
           ],
+          "mapping_row_details": [
+            {
+              "key": "density",
+              "title": "Density",
+              "value": "7 800 kg/m³ → 7.8000E+03 kg/m³",
+              "consequence": "Exact",
+              "status_class": "mapping-status exact",
+              "grid_template_columns": "254.906px 26.0938px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            },
+            {
+              "key": "isotropic-elasticity",
+              "title": "Isotropic elasticity",
+              "value": "210 GPa, ν 0.30 → *ELASTIC",
+              "consequence": "Exact",
+              "status_class": "mapping-status exact",
+              "grid_template_columns": "254.906px 26.0938px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            },
+            {
+              "key": "initial-yield",
+              "title": "Initial yield",
+              "value": "450 MPa at εp = 0 → first *PLASTIC row",
+              "consequence": "Converted",
+              "status_class": "mapping-status converted",
+              "grid_template_columns": "229.062px 51.9375px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            },
+            {
+              "key": "hardening-response",
+              "title": "Hardening response",
+              "value": "5 points → native *PLASTIC rows",
+              "consequence": "Converted",
+              "status_class": "mapping-status converted",
+              "grid_template_columns": "229.062px 51.9375px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            }
+          ],
+          "mapping_visible_count": 4,
           "approximation_acknowledged": false,
           "download": {
             "text": "Loading exact evidence…",
@@ -788,7 +1032,7 @@
           "width": 1440,
           "height": 900
         },
-        "screenshot_sha256": "074482bcc771dc13f62b64e114110345d91188f8355deb26712b674e1ba295b8",
+        "screenshot_sha256": "f4cfbbe316bf7191c34bef7c6dc3f0b1ff38438c00db2cfd248ee3f75ca3a08e",
         "overflow": {
           "document_horizontal": 0,
           "document_vertical": 0,
@@ -921,12 +1165,73 @@
           "loading_visible": true,
           "error_visible": false,
           "retry_visible": false,
+          "mapping_title": "Mapping details",
+          "mapping_disclosure_title": "Technical mapping details",
           "mapping_rows": [
-            "EXACTdensitySI density is emitted unchanged.",
-            "EXACTisotropic elasticityYoung's modulus and Poisson ratio map directly.",
-            "TRANSFORMEDinitial yieldThe zero-plastic-strain anchor becomes the first hardening row.",
-            "TRANSFORMEDisotropic hardening curveNeutral curve stages are rendered as native rows."
+            "Density7 800 kg/m³ → 7.8000E+03 kg/m³Exact",
+            "Isotropic elasticity210 GPa, ν 0.30 → *ELASTICExact",
+            "Initial yield450 MPa at εp = 0 → first *PLASTIC rowConverted",
+            "Hardening response5 points → native *PLASTIC rowsConverted"
           ],
+          "mapping_row_details": [
+            {
+              "key": "density",
+              "title": "Density",
+              "value": "7 800 kg/m³ → 7.8000E+03 kg/m³",
+              "consequence": "Exact",
+              "status_class": "mapping-status exact",
+              "grid_template_columns": "254.906px 26.0938px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            },
+            {
+              "key": "isotropic-elasticity",
+              "title": "Isotropic elasticity",
+              "value": "210 GPa, ν 0.30 → *ELASTIC",
+              "consequence": "Exact",
+              "status_class": "mapping-status exact",
+              "grid_template_columns": "254.906px 26.0938px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            },
+            {
+              "key": "initial-yield",
+              "title": "Initial yield",
+              "value": "450 MPa at εp = 0 → first *PLASTIC row",
+              "consequence": "Converted",
+              "status_class": "mapping-status converted",
+              "grid_template_columns": "229.062px 51.9375px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            },
+            {
+              "key": "hardening-response",
+              "title": "Hardening response",
+              "value": "5 points → native *PLASTIC rows",
+              "consequence": "Converted",
+              "status_class": "mapping-status converted",
+              "grid_template_columns": "229.062px 51.9375px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            }
+          ],
+          "mapping_visible_count": 4,
           "approximation_acknowledged": false,
           "download": {
             "text": "Loading exact evidence…",
@@ -971,7 +1276,7 @@
           "width": 1920,
           "height": 1080
         },
-        "screenshot_sha256": "204f2b33e0cfd839f58d8ae017eefe18e76a1d23e01aff2d2de0dc9e27167119",
+        "screenshot_sha256": "612d8b21de5399586f4bf88303b8b05489400cdbcd908d4d0d826dfe9158f093",
         "overflow": {
           "document_horizontal": 0,
           "document_vertical": 0,
@@ -1104,12 +1409,73 @@
           "loading_visible": true,
           "error_visible": false,
           "retry_visible": false,
+          "mapping_title": "Mapping details",
+          "mapping_disclosure_title": "Technical mapping details",
           "mapping_rows": [
-            "EXACTdensitySI density is emitted unchanged.",
-            "EXACTisotropic elasticityYoung's modulus and Poisson ratio map directly.",
-            "TRANSFORMEDinitial yieldThe zero-plastic-strain anchor becomes the first hardening row.",
-            "TRANSFORMEDisotropic hardening curveNeutral curve stages are rendered as native rows."
+            "Density7 800 kg/m³ → 7.8000E+03 kg/m³Exact",
+            "Isotropic elasticity210 GPa, ν 0.30 → *ELASTICExact",
+            "Initial yield450 MPa at εp = 0 → first *PLASTIC rowConverted",
+            "Hardening response5 points → native *PLASTIC rowsConverted"
           ],
+          "mapping_row_details": [
+            {
+              "key": "density",
+              "title": "Density",
+              "value": "7 800 kg/m³ → 7.8000E+03 kg/m³",
+              "consequence": "Exact",
+              "status_class": "mapping-status exact",
+              "grid_template_columns": "254.906px 26.0938px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            },
+            {
+              "key": "isotropic-elasticity",
+              "title": "Isotropic elasticity",
+              "value": "210 GPa, ν 0.30 → *ELASTIC",
+              "consequence": "Exact",
+              "status_class": "mapping-status exact",
+              "grid_template_columns": "254.906px 26.0938px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            },
+            {
+              "key": "initial-yield",
+              "title": "Initial yield",
+              "value": "450 MPa at εp = 0 → first *PLASTIC row",
+              "consequence": "Converted",
+              "status_class": "mapping-status converted",
+              "grid_template_columns": "229.062px 51.9375px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            },
+            {
+              "key": "hardening-response",
+              "title": "Hardening response",
+              "value": "5 points → native *PLASTIC rows",
+              "consequence": "Converted",
+              "status_class": "mapping-status converted",
+              "grid_template_columns": "229.062px 51.9375px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            }
+          ],
+          "mapping_visible_count": 4,
           "approximation_acknowledged": false,
           "download": {
             "text": "Loading exact evidence…",
@@ -1157,7 +1523,7 @@
           "width": 1366,
           "height": 768
         },
-        "screenshot_sha256": "b1fc6bd76d32267209bf2746448479ecea45004836d740d04581c8dbd86ddbd7",
+        "screenshot_sha256": "69ee9355b2bf93ae36cc0af4067f4a1e30d3a2c992e58cbe30a6aae533a3030e",
         "overflow": {
           "document_horizontal": 0,
           "document_vertical": 0,
@@ -1290,12 +1656,73 @@
           "loading_visible": false,
           "error_visible": true,
           "retry_visible": true,
+          "mapping_title": "Mapping details",
+          "mapping_disclosure_title": "Technical mapping details",
           "mapping_rows": [
-            "EXACTdensitySI density is emitted unchanged.",
-            "EXACTisotropic elasticityYoung's modulus and Poisson ratio map directly.",
-            "TRANSFORMEDinitial yieldThe zero-plastic-strain anchor becomes the first hardening row.",
-            "TRANSFORMEDisotropic hardening curveNeutral curve stages are rendered as native rows."
+            "Density7 800 kg/m³ → 7.8000E+03 kg/m³Exact",
+            "Isotropic elasticity210 GPa, ν 0.30 → *ELASTICExact",
+            "Initial yield450 MPa at εp = 0 → first *PLASTIC rowConverted",
+            "Hardening response5 points → native *PLASTIC rowsConverted"
           ],
+          "mapping_row_details": [
+            {
+              "key": "density",
+              "title": "Density",
+              "value": "7 800 kg/m³ → 7.8000E+03 kg/m³",
+              "consequence": "Exact",
+              "status_class": "mapping-status exact",
+              "grid_template_columns": "254.906px 26.0938px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            },
+            {
+              "key": "isotropic-elasticity",
+              "title": "Isotropic elasticity",
+              "value": "210 GPa, ν 0.30 → *ELASTIC",
+              "consequence": "Exact",
+              "status_class": "mapping-status exact",
+              "grid_template_columns": "254.906px 26.0938px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            },
+            {
+              "key": "initial-yield",
+              "title": "Initial yield",
+              "value": "450 MPa at εp = 0 → first *PLASTIC row",
+              "consequence": "Converted",
+              "status_class": "mapping-status converted",
+              "grid_template_columns": "229.062px 51.9375px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            },
+            {
+              "key": "hardening-response",
+              "title": "Hardening response",
+              "value": "5 points → native *PLASTIC rows",
+              "consequence": "Converted",
+              "status_class": "mapping-status converted",
+              "grid_template_columns": "229.062px 51.9375px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            }
+          ],
+          "mapping_visible_count": 4,
           "approximation_acknowledged": false,
           "download": {
             "text": "Download .inp",
@@ -1340,7 +1767,7 @@
             "width": 1366,
             "height": 768
           },
-          "screenshot_sha256": "1cdbb5cc46f04116f5c97f66266869669d407e8be1d9ceed4d3211570a589cb2",
+          "screenshot_sha256": "02c3de5fb8b041fdd9127d72bca0cf04146c0453c5bc988cfad83797d73e89e1",
           "overflow": {
             "document_horizontal": 0,
             "document_vertical": 0,
@@ -1473,12 +1900,73 @@
             "loading_visible": false,
             "error_visible": false,
             "retry_visible": false,
+            "mapping_title": "Mapping details",
+            "mapping_disclosure_title": "Technical mapping details",
             "mapping_rows": [
-              "EXACTdensitySI density is emitted unchanged.",
-              "EXACTisotropic elasticityYoung's modulus and Poisson ratio map directly.",
-              "TRANSFORMEDinitial yieldThe zero-plastic-strain anchor becomes the first hardening row.",
-              "TRANSFORMEDisotropic hardening curveNeutral curve stages are rendered as native rows."
+              "Density7 800 kg/m³ → 7.8000E+03 kg/m³Exact",
+              "Isotropic elasticity210 GPa, ν 0.30 → *ELASTICExact",
+              "Initial yield450 MPa at εp = 0 → first *PLASTIC rowConverted",
+              "Hardening response5 points → native *PLASTIC rowsConverted"
             ],
+            "mapping_row_details": [
+              {
+                "key": "density",
+                "title": "Density",
+                "value": "7 800 kg/m³ → 7.8000E+03 kg/m³",
+                "consequence": "Exact",
+                "status_class": "mapping-status exact",
+                "grid_template_columns": "254.906px 26.0938px",
+                "status_border_width": "0px",
+                "status_border_radius": "0px",
+                "status_padding": "0px",
+                "status_text_transform": "none",
+                "clipped": false,
+                "overlap": false
+              },
+              {
+                "key": "isotropic-elasticity",
+                "title": "Isotropic elasticity",
+                "value": "210 GPa, ν 0.30 → *ELASTIC",
+                "consequence": "Exact",
+                "status_class": "mapping-status exact",
+                "grid_template_columns": "254.906px 26.0938px",
+                "status_border_width": "0px",
+                "status_border_radius": "0px",
+                "status_padding": "0px",
+                "status_text_transform": "none",
+                "clipped": false,
+                "overlap": false
+              },
+              {
+                "key": "initial-yield",
+                "title": "Initial yield",
+                "value": "450 MPa at εp = 0 → first *PLASTIC row",
+                "consequence": "Converted",
+                "status_class": "mapping-status converted",
+                "grid_template_columns": "229.062px 51.9375px",
+                "status_border_width": "0px",
+                "status_border_radius": "0px",
+                "status_padding": "0px",
+                "status_text_transform": "none",
+                "clipped": false,
+                "overlap": false
+              },
+              {
+                "key": "hardening-response",
+                "title": "Hardening response",
+                "value": "5 points → native *PLASTIC rows",
+                "consequence": "Converted",
+                "status_class": "mapping-status converted",
+                "grid_template_columns": "229.062px 51.9375px",
+                "status_border_width": "0px",
+                "status_border_radius": "0px",
+                "status_padding": "0px",
+                "status_text_transform": "none",
+                "clipped": false,
+                "overlap": false
+              }
+            ],
+            "mapping_visible_count": 4,
             "approximation_acknowledged": false,
             "download": {
               "text": "Download .inp",
@@ -1527,7 +2015,7 @@
           "width": 1440,
           "height": 900
         },
-        "screenshot_sha256": "28734b8b4a7527dd8a9a4486a062d9ff1217cb066724559a294295ef1a5642db",
+        "screenshot_sha256": "5bce5d9034081736b54a97468aa4c35a0cd0e97708b9df12a95fd2f93581b672",
         "overflow": {
           "document_horizontal": 0,
           "document_vertical": 0,
@@ -1660,12 +2148,73 @@
           "loading_visible": false,
           "error_visible": true,
           "retry_visible": true,
+          "mapping_title": "Mapping details",
+          "mapping_disclosure_title": "Technical mapping details",
           "mapping_rows": [
-            "EXACTdensitySI density is emitted unchanged.",
-            "EXACTisotropic elasticityYoung's modulus and Poisson ratio map directly.",
-            "TRANSFORMEDinitial yieldThe zero-plastic-strain anchor becomes the first hardening row.",
-            "TRANSFORMEDisotropic hardening curveNeutral curve stages are rendered as native rows."
+            "Density7 800 kg/m³ → 7.8000E+03 kg/m³Exact",
+            "Isotropic elasticity210 GPa, ν 0.30 → *ELASTICExact",
+            "Initial yield450 MPa at εp = 0 → first *PLASTIC rowConverted",
+            "Hardening response5 points → native *PLASTIC rowsConverted"
           ],
+          "mapping_row_details": [
+            {
+              "key": "density",
+              "title": "Density",
+              "value": "7 800 kg/m³ → 7.8000E+03 kg/m³",
+              "consequence": "Exact",
+              "status_class": "mapping-status exact",
+              "grid_template_columns": "254.906px 26.0938px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            },
+            {
+              "key": "isotropic-elasticity",
+              "title": "Isotropic elasticity",
+              "value": "210 GPa, ν 0.30 → *ELASTIC",
+              "consequence": "Exact",
+              "status_class": "mapping-status exact",
+              "grid_template_columns": "254.906px 26.0938px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            },
+            {
+              "key": "initial-yield",
+              "title": "Initial yield",
+              "value": "450 MPa at εp = 0 → first *PLASTIC row",
+              "consequence": "Converted",
+              "status_class": "mapping-status converted",
+              "grid_template_columns": "229.062px 51.9375px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            },
+            {
+              "key": "hardening-response",
+              "title": "Hardening response",
+              "value": "5 points → native *PLASTIC rows",
+              "consequence": "Converted",
+              "status_class": "mapping-status converted",
+              "grid_template_columns": "229.062px 51.9375px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            }
+          ],
+          "mapping_visible_count": 4,
           "approximation_acknowledged": false,
           "download": {
             "text": "Download .inp",
@@ -1710,7 +2259,7 @@
             "width": 1440,
             "height": 900
           },
-          "screenshot_sha256": "5dc36d302c07b34fd4c6ac87bce96bfe6674932ddeb8bbaa446c30a9e5c2d3b8",
+          "screenshot_sha256": "909bafa543b503230350e60468b571456577f1fac701146ace57ea2f845708db",
           "overflow": {
             "document_horizontal": 0,
             "document_vertical": 0,
@@ -1843,12 +2392,73 @@
             "loading_visible": false,
             "error_visible": false,
             "retry_visible": false,
+            "mapping_title": "Mapping details",
+            "mapping_disclosure_title": "Technical mapping details",
             "mapping_rows": [
-              "EXACTdensitySI density is emitted unchanged.",
-              "EXACTisotropic elasticityYoung's modulus and Poisson ratio map directly.",
-              "TRANSFORMEDinitial yieldThe zero-plastic-strain anchor becomes the first hardening row.",
-              "TRANSFORMEDisotropic hardening curveNeutral curve stages are rendered as native rows."
+              "Density7 800 kg/m³ → 7.8000E+03 kg/m³Exact",
+              "Isotropic elasticity210 GPa, ν 0.30 → *ELASTICExact",
+              "Initial yield450 MPa at εp = 0 → first *PLASTIC rowConverted",
+              "Hardening response5 points → native *PLASTIC rowsConverted"
             ],
+            "mapping_row_details": [
+              {
+                "key": "density",
+                "title": "Density",
+                "value": "7 800 kg/m³ → 7.8000E+03 kg/m³",
+                "consequence": "Exact",
+                "status_class": "mapping-status exact",
+                "grid_template_columns": "254.906px 26.0938px",
+                "status_border_width": "0px",
+                "status_border_radius": "0px",
+                "status_padding": "0px",
+                "status_text_transform": "none",
+                "clipped": false,
+                "overlap": false
+              },
+              {
+                "key": "isotropic-elasticity",
+                "title": "Isotropic elasticity",
+                "value": "210 GPa, ν 0.30 → *ELASTIC",
+                "consequence": "Exact",
+                "status_class": "mapping-status exact",
+                "grid_template_columns": "254.906px 26.0938px",
+                "status_border_width": "0px",
+                "status_border_radius": "0px",
+                "status_padding": "0px",
+                "status_text_transform": "none",
+                "clipped": false,
+                "overlap": false
+              },
+              {
+                "key": "initial-yield",
+                "title": "Initial yield",
+                "value": "450 MPa at εp = 0 → first *PLASTIC row",
+                "consequence": "Converted",
+                "status_class": "mapping-status converted",
+                "grid_template_columns": "229.062px 51.9375px",
+                "status_border_width": "0px",
+                "status_border_radius": "0px",
+                "status_padding": "0px",
+                "status_text_transform": "none",
+                "clipped": false,
+                "overlap": false
+              },
+              {
+                "key": "hardening-response",
+                "title": "Hardening response",
+                "value": "5 points → native *PLASTIC rows",
+                "consequence": "Converted",
+                "status_class": "mapping-status converted",
+                "grid_template_columns": "229.062px 51.9375px",
+                "status_border_width": "0px",
+                "status_border_radius": "0px",
+                "status_padding": "0px",
+                "status_text_transform": "none",
+                "clipped": false,
+                "overlap": false
+              }
+            ],
+            "mapping_visible_count": 4,
             "approximation_acknowledged": false,
             "download": {
               "text": "Download .inp",
@@ -1897,7 +2507,7 @@
           "width": 1920,
           "height": 1080
         },
-        "screenshot_sha256": "f3995bfb22279fc86144e680fb8215ea78c9b5bbdb0f070de8fb112d4cf5d6c1",
+        "screenshot_sha256": "a3c1a6abf26d4fdc06a4c58353d1779b6e8cb757f7e7fb1ac746a88625edd7d2",
         "overflow": {
           "document_horizontal": 0,
           "document_vertical": 0,
@@ -2069,12 +2679,73 @@
           "loading_visible": false,
           "error_visible": true,
           "retry_visible": true,
+          "mapping_title": "Mapping details",
+          "mapping_disclosure_title": "Technical mapping details",
           "mapping_rows": [
-            "EXACTdensitySI density is emitted unchanged.",
-            "EXACTisotropic elasticityYoung's modulus and Poisson ratio map directly.",
-            "TRANSFORMEDinitial yieldThe zero-plastic-strain anchor becomes the first hardening row.",
-            "TRANSFORMEDisotropic hardening curveNeutral curve stages are rendered as native rows."
+            "Density7 800 kg/m³ → 7.8000E+03 kg/m³Exact",
+            "Isotropic elasticity210 GPa, ν 0.30 → *ELASTICExact",
+            "Initial yield450 MPa at εp = 0 → first *PLASTIC rowConverted",
+            "Hardening response5 points → native *PLASTIC rowsConverted"
           ],
+          "mapping_row_details": [
+            {
+              "key": "density",
+              "title": "Density",
+              "value": "7 800 kg/m³ → 7.8000E+03 kg/m³",
+              "consequence": "Exact",
+              "status_class": "mapping-status exact",
+              "grid_template_columns": "254.906px 26.0938px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            },
+            {
+              "key": "isotropic-elasticity",
+              "title": "Isotropic elasticity",
+              "value": "210 GPa, ν 0.30 → *ELASTIC",
+              "consequence": "Exact",
+              "status_class": "mapping-status exact",
+              "grid_template_columns": "254.906px 26.0938px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            },
+            {
+              "key": "initial-yield",
+              "title": "Initial yield",
+              "value": "450 MPa at εp = 0 → first *PLASTIC row",
+              "consequence": "Converted",
+              "status_class": "mapping-status converted",
+              "grid_template_columns": "229.062px 51.9375px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            },
+            {
+              "key": "hardening-response",
+              "title": "Hardening response",
+              "value": "5 points → native *PLASTIC rows",
+              "consequence": "Converted",
+              "status_class": "mapping-status converted",
+              "grid_template_columns": "229.062px 51.9375px",
+              "status_border_width": "0px",
+              "status_border_radius": "0px",
+              "status_padding": "0px",
+              "status_text_transform": "none",
+              "clipped": false,
+              "overlap": false
+            }
+          ],
+          "mapping_visible_count": 4,
           "approximation_acknowledged": false,
           "download": {
             "text": "Download .inp",
@@ -2119,7 +2790,7 @@
             "width": 1920,
             "height": 1080
           },
-          "screenshot_sha256": "bac25c8add60748878b4cc9e0b881e43723e25f43b11fc45ac553bab2f3e6690",
+          "screenshot_sha256": "76b05a4609c99ed511a593cfd4d4d39817ba49adf22b3470cf5d19428e426222",
           "overflow": {
             "document_horizontal": 0,
             "document_vertical": 0,
@@ -2291,12 +2962,73 @@
             "loading_visible": false,
             "error_visible": false,
             "retry_visible": false,
+            "mapping_title": "Mapping details",
+            "mapping_disclosure_title": "Technical mapping details",
             "mapping_rows": [
-              "EXACTdensitySI density is emitted unchanged.",
-              "EXACTisotropic elasticityYoung's modulus and Poisson ratio map directly.",
-              "TRANSFORMEDinitial yieldThe zero-plastic-strain anchor becomes the first hardening row.",
-              "TRANSFORMEDisotropic hardening curveNeutral curve stages are rendered as native rows."
+              "Density7 800 kg/m³ → 7.8000E+03 kg/m³Exact",
+              "Isotropic elasticity210 GPa, ν 0.30 → *ELASTICExact",
+              "Initial yield450 MPa at εp = 0 → first *PLASTIC rowConverted",
+              "Hardening response5 points → native *PLASTIC rowsConverted"
             ],
+            "mapping_row_details": [
+              {
+                "key": "density",
+                "title": "Density",
+                "value": "7 800 kg/m³ → 7.8000E+03 kg/m³",
+                "consequence": "Exact",
+                "status_class": "mapping-status exact",
+                "grid_template_columns": "254.906px 26.0938px",
+                "status_border_width": "0px",
+                "status_border_radius": "0px",
+                "status_padding": "0px",
+                "status_text_transform": "none",
+                "clipped": false,
+                "overlap": false
+              },
+              {
+                "key": "isotropic-elasticity",
+                "title": "Isotropic elasticity",
+                "value": "210 GPa, ν 0.30 → *ELASTIC",
+                "consequence": "Exact",
+                "status_class": "mapping-status exact",
+                "grid_template_columns": "254.906px 26.0938px",
+                "status_border_width": "0px",
+                "status_border_radius": "0px",
+                "status_padding": "0px",
+                "status_text_transform": "none",
+                "clipped": false,
+                "overlap": false
+              },
+              {
+                "key": "initial-yield",
+                "title": "Initial yield",
+                "value": "450 MPa at εp = 0 → first *PLASTIC row",
+                "consequence": "Converted",
+                "status_class": "mapping-status converted",
+                "grid_template_columns": "229.062px 51.9375px",
+                "status_border_width": "0px",
+                "status_border_radius": "0px",
+                "status_padding": "0px",
+                "status_text_transform": "none",
+                "clipped": false,
+                "overlap": false
+              },
+              {
+                "key": "hardening-response",
+                "title": "Hardening response",
+                "value": "5 points → native *PLASTIC rows",
+                "consequence": "Converted",
+                "status_class": "mapping-status converted",
+                "grid_template_columns": "229.062px 51.9375px",
+                "status_border_width": "0px",
+                "status_border_radius": "0px",
+                "status_padding": "0px",
+                "status_text_transform": "none",
+                "clipped": false,
+                "overlap": false
+              }
+            ],
+            "mapping_visible_count": 4,
             "approximation_acknowledged": false,
             "download": {
               "text": "Download .inp",

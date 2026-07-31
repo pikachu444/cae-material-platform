@@ -1,6 +1,6 @@
-schema_version: 1
+schema_version: 2
 issue: 167
-date: 2026-07-30
+date: 2026-07-31
 authority:
   instructions: AGENTS.md
   issue_url: https://github.com/pikachu444/cae-material-platform/issues/167
@@ -44,11 +44,12 @@ counts:
   bundles: 13
   normal_images: 54
   exceptional_images: 18
+  topology_variant_images: 0
   total_images: 72
   approved_images_at_freeze: 5
   remaining_images_at_freeze: 67
-  approved_images_current: 32
-  remaining_images_current: 40
+  approved_images_current: 55
+  remaining_images_current: 17
 families:
   - id: MAT-EXP
     domain: Materials

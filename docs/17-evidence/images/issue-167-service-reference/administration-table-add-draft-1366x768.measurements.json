@@ -54,7 +54,19 @@
         "width": 804,
         "height": 622
       },
+      "editorContent": {
+        "x": 553,
+        "y": 109,
+        "width": 760,
+        "height": 537.671875
+      },
       "preview": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "previewContent": {
         "x": 0,
         "y": 0,
         "width": 0,
@@ -187,7 +199,7 @@
       },
       {
         "tag": "button",
-        "name": "Show datasheet preview",
+        "name": "Preview datasheet",
         "disabled": false,
         "action": "preview"
       },
@@ -483,6 +495,24 @@
       "selection": "",
       "note": "This new Table has no saved Record or Layout projection yet. Save the Table, then configure its Layout.",
       "sections": [],
+      "activeProjection": "",
+      "projectionTabs": [
+        {
+          "name": "Record preview",
+          "selected": true,
+          "focusable": true
+        },
+        {
+          "name": "Layout definition",
+          "selected": false,
+          "focusable": true
+        }
+      ],
+      "activeTable": "",
+      "activeRowCount": 0,
+      "activeSectionRect": null,
+      "activeTableRegionRect": null,
+      "activeTableScrollRect": null,
       "valueRows": [],
       "layoutRows": [],
       "graph": {
@@ -534,7 +564,21 @@
       "recordTableRevisionId": "",
       "toggleLabel": "",
       "projectionState": "unavailable",
-      "text": "Record previewNo saved projectionThis new Table has no saved Record or Layout projection yet. Save the Table, then configure its Layout."
+      "returnActions": [
+        {
+          "name": "Preview datasheet",
+          "action": "preview",
+          "disabled": false,
+          "rect": {
+            "x": 1216.296875,
+            "y": 66.5,
+            "width": 126.703125,
+            "height": 30
+          }
+        }
+      ],
+      "composition": null,
+      "text": "Preview datasheetNo saved projectionBack to editorRecord previewLayout definitionThis new Table has no saved Record or Layout projection yet. Save the Table, then configure its Layout."
     },
     "buttons": [
       {

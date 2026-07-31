@@ -185,22 +185,22 @@
                 </dl>
 
                 <section class="mapping-section" aria-labelledby="mapping-title">
-                  <div class="section-heading compact-heading"><div><h4 id="mapping-title">Mapping summary</h4><span class="section-subtitle">Disposition for this exact target</span></div></div>
+                  <div class="section-heading compact-heading"><div><h4 id="mapping-title">Mapping details</h4><span class="section-subtitle">Disposition for this exact target</span></div></div>
                   <ul id="mapping-list" class="mapping-list">
-                    <li class="mapping-row"><span class="mapping-status exact">EXACT</span><div><strong>density</strong><span>SI density is emitted unchanged.</span></div></li>
-                    <li class="mapping-row"><span class="mapping-status exact">EXACT</span><div><strong>isotropic elasticity</strong><span>Young's modulus and Poisson ratio map directly.</span></div></li>
-                    <li class="mapping-row"><span class="mapping-status transformed">TRANSFORMED</span><div><strong>initial yield</strong><span>The zero-plastic-strain anchor becomes the first hardening row.</span></div></li>
-                    <li class="mapping-row"><span class="mapping-status transformed">TRANSFORMED</span><div><strong>isotropic hardening curve</strong><span>Neutral curve stages are rendered as native rows.</span></div></li>
-                    <li id="approximation-row" class="mapping-row mapping-warning" hidden><span class="mapping-status approximated">APPROXIMATED</span><div><strong>post-necking extension</strong><span>The bounded extension is emitted through its final point.</span><p class="mapping-consequence">Review this consequence before downloading the OpenRadioss card.</p><label class="acknowledgement"><input id="approximation-ack" type="checkbox"> <span>I acknowledge this approximation for this exact card.</span></label></div></li>
-                    <li id="unsupported-row" class="mapping-row mapping-blocked" hidden><span class="mapping-status unsupported">UNSUPPORTED</span><div><strong>damage initiation · GISSMO</strong><span>The synthetic source has no governed target representation for this field.</span></div></li>
+                    <li class="mapping-row" data-mapping-key="density"><div><strong>Density</strong><span class="mapping-value">7 800 kg/m³ → 7.8000E+03 kg/m³</span></div><span class="mapping-status exact">Exact</span></li>
+                    <li class="mapping-row" data-mapping-key="isotropic-elasticity"><div><strong>Isotropic elasticity</strong><span class="mapping-value">210 GPa, ν 0.30 → *ELASTIC</span></div><span class="mapping-status exact">Exact</span></li>
+                    <li class="mapping-row" data-mapping-key="initial-yield"><div><strong>Initial yield</strong><span class="mapping-value">450 MPa at εp = 0 → first *PLASTIC row</span></div><span class="mapping-status converted">Converted</span></li>
+                    <li class="mapping-row" data-mapping-key="hardening-response"><div><strong>Hardening response</strong><span class="mapping-value">5 points → native *PLASTIC rows</span></div><span class="mapping-status converted">Converted</span></li>
+                    <li id="approximation-row" class="mapping-row mapping-warning" data-mapping-key="post-necking-extension" hidden><div><strong>Post-necking extension</strong><span class="mapping-value">Bounded extension → target behavior</span><label class="acknowledgement"><input id="approximation-ack" type="checkbox"> <span>I acknowledge this approximation for this exact card.</span></label></div><span class="mapping-status review-required">Review required</span></li>
+                    <li id="unsupported-row" class="mapping-row mapping-blocked" data-mapping-key="damage-initiation-gissmo" hidden><div><strong>Damage initiation · GISSMO</strong><span class="mapping-value">No governed target representation</span></div><span class="mapping-status not-supported">Not supported</span></li>
                   </ul>
                 </section>
 
                 <details id="advanced-mapping" class="advanced-evidence">
-                  <summary>Advanced mapping evidence</summary>
+                  <summary>Technical mapping details</summary>
                   <dl>
                     <div><dt>Card revision identity</dt><dd>DP780-ABAQUS-R1</dd></div>
-                    <div><dt>Mapping report</dt><dd>density · elasticity · yield · hardening</dd></div>
+                    <div><dt>Mapping classifications</dt><dd>exact · transformed · approximated · unsupported</dd></div>
                     <div><dt>Checksum</dt><dd>synthetic reference evidence only</dd></div>
                   </dl>
                 </details>

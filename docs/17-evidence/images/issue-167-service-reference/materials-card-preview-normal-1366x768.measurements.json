@@ -370,12 +370,73 @@
     "loading_visible": false,
     "error_visible": false,
     "retry_visible": false,
+    "mapping_title": "Mapping details",
+    "mapping_disclosure_title": "Technical mapping details",
     "mapping_rows": [
-      "EXACTdensitySI density is emitted unchanged.",
-      "EXACTisotropic elasticityYoung's modulus and Poisson ratio map directly.",
-      "TRANSFORMEDinitial yieldThe zero-plastic-strain anchor becomes the first hardening row.",
-      "TRANSFORMEDisotropic hardening curveNeutral curve stages are rendered as native rows."
+      "Density7 800 kg/m³ → 7.8000E+03 kg/m³Exact",
+      "Isotropic elasticity210 GPa, ν 0.30 → *ELASTICExact",
+      "Initial yield450 MPa at εp = 0 → first *PLASTIC rowConverted",
+      "Hardening response5 points → native *PLASTIC rowsConverted"
     ],
+    "mapping_row_details": [
+      {
+        "key": "density",
+        "title": "Density",
+        "value": "7 800 kg/m³ → 7.8000E+03 kg/m³",
+        "consequence": "Exact",
+        "status_class": "mapping-status exact",
+        "grid_template_columns": "254.906px 26.0938px",
+        "status_border_width": "0px",
+        "status_border_radius": "0px",
+        "status_padding": "0px",
+        "status_text_transform": "none",
+        "clipped": false,
+        "overlap": false
+      },
+      {
+        "key": "isotropic-elasticity",
+        "title": "Isotropic elasticity",
+        "value": "210 GPa, ν 0.30 → *ELASTIC",
+        "consequence": "Exact",
+        "status_class": "mapping-status exact",
+        "grid_template_columns": "254.906px 26.0938px",
+        "status_border_width": "0px",
+        "status_border_radius": "0px",
+        "status_padding": "0px",
+        "status_text_transform": "none",
+        "clipped": false,
+        "overlap": false
+      },
+      {
+        "key": "initial-yield",
+        "title": "Initial yield",
+        "value": "450 MPa at εp = 0 → first *PLASTIC row",
+        "consequence": "Converted",
+        "status_class": "mapping-status converted",
+        "grid_template_columns": "229.062px 51.9375px",
+        "status_border_width": "0px",
+        "status_border_radius": "0px",
+        "status_padding": "0px",
+        "status_text_transform": "none",
+        "clipped": false,
+        "overlap": false
+      },
+      {
+        "key": "hardening-response",
+        "title": "Hardening response",
+        "value": "5 points → native *PLASTIC rows",
+        "consequence": "Converted",
+        "status_class": "mapping-status converted",
+        "grid_template_columns": "229.062px 51.9375px",
+        "status_border_width": "0px",
+        "status_border_radius": "0px",
+        "status_padding": "0px",
+        "status_text_transform": "none",
+        "clipped": false,
+        "overlap": false
+      }
+    ],
+    "mapping_visible_count": 4,
     "approximation_acknowledged": false,
     "download": {
       "text": "Download .inp",
@@ -397,6 +458,7 @@
     "tabs": true,
     "advanced_disclosure": true,
     "native_scroll_wheel": true,
+    "mapping_acknowledgement": true,
     "state_command": true
   },
   "forbidden_visible_terms": [],
@@ -429,7 +491,7 @@
     "result": "pass"
   },
   "image": "docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1366x768.png",
-  "image_sha256": "1cdbb5cc46f04116f5c97f66266869669d407e8be1d9ceed4d3211570a589cb2",
+  "image_sha256": "b4f38c0117c13f50b9cefbccf833d389b7a91c8c719961c66b9d2226cf3950a3",
   "screenshot_dimensions": {
     "width": 1366,
     "height": 768

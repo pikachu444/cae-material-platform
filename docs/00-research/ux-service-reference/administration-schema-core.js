@@ -130,6 +130,9 @@
 
   const params = new URLSearchParams(window.location.search);
   let state = params.get("state") || document.body.dataset.state || "normal";
+  const requestedPreviewOpen = params.get("preview") === "open";
+  const requestedProjection = params.get("projection") === "layout" ? "layout" : "record";
+  const requestedPreviewField = params.get("field") || "";
   document.body.dataset.state = state;
 
   const refs = {
@@ -182,7 +185,10 @@
     saving: state === "table-saving" || state === "attribute-saving",
     dirty: ["table-add", "table-draft", "table-save-error", "attribute-add", "attribute-draft", "attribute-save-error", "attribute-long-invalid", "stale-conflict"].includes(state),
     selectedLayout: PREVIEW_LAYOUT_BY_TABLE.materials,
-    previewOpen: true,
+    previewOpen: requestedPreviewOpen,
+    previewProjection: requestedProjection,
+    previewFieldId: requestedPreviewField,
+    previewInvoker: null,
     errors: {}
   };
   if (state === "table-save-error") model.errors.tableSave = true;
@@ -208,9 +214,7 @@
   function setTaskStatus(text) { if (refs.taskStatus) refs.taskStatus.textContent = text; }
   function currentTable() { return TABLES.find((table) => table.id === model.selectedTable) || TABLES[0]; }
   function selectedAttribute() { return ATTRIBUTES.find((attribute) => attribute.id === model.selectedObject) || ATTRIBUTES[0]; }
-  function compactViewport() { return window.innerWidth < 1700; }
   function materialAttributes() {
-    if (compactViewport()) return ATTRIBUTES.slice(0, 6);
     // Keep the existing out-of-layout Source reference available only in its
     // dedicated reference-state fixture; the normal wide catalog exposes the
     // twelve fields defined by the active Material layout.
@@ -248,8 +252,6 @@
     return model.objectKind === "attributes" && state !== "attribute-add" ? model.selectedObject : "";
   }
   function previewAttributeLabel(field) {
-    const selectedId = previewSelectedAttributeId();
-    if (selectedId === field.id && isExistingAttributeDraft()) return model.draft.attributeName || field.name;
     return field.name;
   }
   function previewHasSavedRecord() { return state !== "empty" && state !== "table-add" && model.selectedTable === "materials"; }
@@ -358,14 +360,16 @@
 
   function bindPreviewTableRails() {
     document.querySelectorAll("[data-preview-values-scroll], [data-preview-layout-scroll]").forEach((scroll, index) => {
-      const scrollBox = scroll.getBoundingClientRect();
-      const completeRows = [...scroll.querySelectorAll("thead tr, tbody tr")].filter((row) => {
-        const rowBox = row.getBoundingClientRect();
-        return rowBox.bottom <= scrollBox.bottom + .01;
-      });
-      const lastCompleteRow = completeRows.at(-1)?.getBoundingClientRect();
-      if (lastCompleteRow && lastCompleteRow.bottom < scrollBox.bottom) {
-        scroll.style.height = `${lastCompleteRow.bottom - scrollBox.top}px`;
+      if (window.innerWidth < 2400) {
+        const scrollBox = scroll.getBoundingClientRect();
+        const completeRows = [...scroll.querySelectorAll("thead tr, tbody tr")].filter((row) => {
+          const rowBox = row.getBoundingClientRect();
+          return rowBox.bottom <= scrollBox.bottom + .01;
+        });
+        const lastCompleteRow = completeRows.at(-1)?.getBoundingClientRect();
+        if (lastCompleteRow && lastCompleteRow.bottom < scrollBox.bottom) {
+          scroll.style.height = `${lastCompleteRow.bottom - scrollBox.top}px`;
+        }
       }
       let region = scroll.closest("[data-preview-table-region]");
       if (!region) {
@@ -374,27 +378,31 @@
         region.dataset.previewTableRegion = "";
         scroll.before(region);
         region.append(scroll);
-        const rail = document.createElement("div");
-        const thumb = document.createElement("span");
+      }
+      let rail = region?.querySelector("[data-preview-table-rail]");
+      let thumb = region?.querySelector("[data-preview-table-thumb]");
+      if (region && (!rail || !thumb)) {
+        const newRail = document.createElement("div");
+        const newThumb = document.createElement("span");
         const scrollId = scroll.id || `preview-table-scroll-${index}`;
         scroll.id = scrollId;
         scroll.dataset.previewTableScroll = "";
-        rail.className = "preview-table-rail";
-        rail.dataset.previewTableRail = "";
-        rail.setAttribute("role", "scrollbar");
-        rail.setAttribute("aria-label", scroll.getAttribute("aria-label") || "Scroll preview table");
-        rail.setAttribute("aria-controls", scrollId);
-        rail.setAttribute("aria-orientation", "vertical");
-        rail.setAttribute("aria-valuemin", "0");
-        rail.tabIndex = 0;
-        thumb.className = "preview-table-thumb";
-        thumb.dataset.previewTableThumb = "";
-        thumb.setAttribute("aria-hidden", "true");
-        rail.append(thumb);
-        region.append(rail);
+        newRail.className = "preview-table-rail";
+        newRail.dataset.previewTableRail = "";
+        newRail.setAttribute("role", "scrollbar");
+        newRail.setAttribute("aria-label", scroll.getAttribute("aria-label") || "Scroll preview table");
+        newRail.setAttribute("aria-controls", scrollId);
+        newRail.setAttribute("aria-orientation", "vertical");
+        newRail.setAttribute("aria-valuemin", "0");
+        newRail.tabIndex = 0;
+        newThumb.className = "preview-table-thumb";
+        newThumb.dataset.previewTableThumb = "";
+        newThumb.setAttribute("aria-hidden", "true");
+        newRail.append(newThumb);
+        region.append(newRail);
+        rail = region.querySelector("[data-preview-table-rail]");
+        thumb = region.querySelector("[data-preview-table-thumb]");
       }
-      const rail = region?.querySelector("[data-preview-table-rail]");
-      const thumb = region?.querySelector("[data-preview-table-thumb]");
       if (!region || !rail || !thumb) return;
       const update = () => {
         const maximum = Math.max(0, scroll.scrollHeight - scroll.clientHeight);
@@ -430,8 +438,7 @@
     });
   }
   function renderPreview() {
-    const wide = window.innerWidth >= 1700;
-    const open = wide && model.previewOpen;
+    const open = model.previewOpen;
     const layoutId = previewLayoutId();
     const layout = GENERIC_OBJECTS.layouts.find((item) => item.id === layoutId) || selectedLayoutObject();
     const fields = previewLayoutFields(layoutId);
@@ -439,22 +446,25 @@
     const selectedInLayout = Boolean(selectedId && fields.some((field) => field.id === selectedId));
     const savedRecord = previewHasSavedRecord();
     const draftTable = state === "table-add";
-    if (refs.editorPane) refs.editorPane.classList.toggle("is-preview-hidden", !open);
+    const projection = model.previewProjection === "layout" ? "layout" : "record";
+    if (refs.editorPane) {
+      refs.editorPane.classList.toggle("is-preview-hidden", !open);
+      refs.editorPane.classList.toggle("is-preview-open", open);
+    }
+    document.body.classList.toggle("is-preview-open", open);
     if (refs.previewPanel) refs.previewPanel.hidden = !open;
     const graphSuppressedForRecovery = ["table-saving", "table-save-error"].includes(state);
-    const showGraph =
-      open
-      && previewHasAvailableProjection()
-      && !state.startsWith("attribute")
-      && !graphSuppressedForRecovery;
+    const curveField = fields.find((field) => field.id === "representative-response");
+    const graphSelected = model.previewFieldId === "representative-response" && model.objectKind !== "attributes" && (!state.startsWith("attribute") || selectedId === "representative-response");
+    const showGraph = open && projection === "record" && previewHasAvailableProjection() && savedRecord && Boolean(curveField) && graphSelected && !graphSuppressedForRecovery;
     if (refs.previewPlotBand) {
-      refs.previewPlotBand.hidden = !showGraph;
+      refs.previewPlotBand.hidden = true;
       refs.previewPlotBand.replaceChildren();
     }
     if (refs.previewCommand) {
-      refs.previewCommand.textContent = open ? "Hide preview" : "Preview datasheet";
+      refs.previewCommand.textContent = open ? "Close preview" : "Preview datasheet";
       refs.previewCommand.setAttribute("aria-expanded", String(open));
-      refs.previewCommand.setAttribute("aria-label", open ? "Hide datasheet preview" : "Show datasheet preview");
+      refs.previewCommand.setAttribute("aria-label", open ? "Close preview" : "Preview datasheet");
     }
     if (!refs.previewScroll) return;
     if (!previewHasAvailableProjection()) {
@@ -463,36 +473,35 @@
       const note = isNewTable
         ? "This new Table has no saved Record or Layout projection yet. Save the Table, then configure its Layout."
         : "Create a Table, then configure its Layout to preview a saved Record.";
-      refs.previewScroll.innerHTML = `<div class="preview-content" data-preview-content data-preview-projection="unavailable"><header class="preview-heading"><div><p class="preview-kicker">Record preview</p><h2 id="datasheet-preview-title" data-preview-title>${title}</h2></div></header><p class="preview-empty" data-preview-note>${note}</p></div>`;
+      refs.previewScroll.innerHTML = `<div class="preview-content" data-preview-content data-preview-projection="unavailable"><header class="preview-heading"><div><p class="preview-kicker">Preview datasheet</p><h2 id="datasheet-preview-title" data-preview-title>${title}</h2></div><button type="button" class="button text" data-action="preview-close">Back to editor</button></header><div class="preview-tabs" role="tablist" aria-label="Preview task"><button type="button" role="tab" aria-selected="true" class="preview-tab is-selected" data-action="preview-projection" data-projection="record">Record preview</button><button type="button" role="tab" aria-selected="false" class="preview-tab" data-action="preview-projection" data-projection="layout">Layout definition</button></div><p class="preview-empty" data-preview-note>${note}</p></div>`;
       return;
     }
     const contextRecord = savedRecord ? PREVIEW_RECORD.name : draftTable ? "No saved Record" : "Not available for this Table";
     const note = draftTable || !savedRecord
       ? "No Record preview until this Table is saved."
       : state.startsWith("attribute")
-        ? "Saved response remains linked to this Layout. Return to the read-only Table view to inspect the complete response graph."
+        ? "Saved values remain linked to this Layout. Unsaved Attribute changes stay in the editor draft."
         : "";
     const valueRows = savedRecord && fields.length
       ? fields.map((field) => {
         const selected = field.id === selectedId && selectedInLayout;
-        const draft = selected && isExistingAttributeDraft();
         const value = PREVIEW_RECORD.values[field.id];
         const displayValue = value?.value ? `${value.value}${value.unit && value.unit !== "—" ? ` ${value.unit}` : ""}` : "—";
         const artifactAttrs = field.artifactId ? ` data-artifact-id="${escapeHtml(field.artifactId)}" data-artifact-sha256="${escapeHtml(field.artifactSha256)}"` : "";
-        return `<tr class="preview-row${selected ? " is-selected" : ""}${draft ? " is-draft" : ""}" data-preview-row data-preview-field-id="${escapeHtml(field.id)}" data-preview-selected="${selected}" data-preview-attribute-revision-id="${escapeHtml(field.revisionId)}"${artifactAttrs}><th scope="row"><strong>${escapeHtml(previewAttributeLabel(field))}</strong><small>Attribute revision ${escapeHtml(field.revision)}</small></th><td class="preview-value" data-preview-value>${escapeHtml(displayValue)}${field.artifactId ? "<small>Saved linked Artifact · read-only</small>" : ""}</td><td class="preview-condition">${escapeHtml(value?.condition || field.condition || "—")}</td></tr>`;
+        return `<tr class="preview-row${selected ? " is-selected" : ""}" data-preview-row data-preview-field-id="${escapeHtml(field.id)}" data-preview-selected="${selected}" data-preview-attribute-revision-id="${escapeHtml(field.revisionId)}"${artifactAttrs}><th scope="row"><button type="button" class="preview-row-button" data-action="preview-field" data-preview-field="${escapeHtml(field.id)}"><strong>${escapeHtml(previewAttributeLabel(field))}</strong><small>Attribute revision ${escapeHtml(field.revision)}</small></button></th><td class="preview-value" data-preview-value>${escapeHtml(displayValue)}${field.artifactId ? "<small>Saved linked Artifact · read-only</small>" : ""}</td><td class="preview-condition">${escapeHtml(value?.condition || field.condition || "—")}</td></tr>`;
       }).join("")
       : "<tr><td colspan=\"3\" class=\"preview-empty\">No saved values are available for this Table.</td></tr>";
     const layoutRows = fields.length
       ? fields.map((field, index) => {
         const selected = field.id === selectedId && selectedInLayout;
-        const draft = selected && isExistingAttributeDraft();
         const artifactAttrs = field.artifactId ? ` data-artifact-id="${escapeHtml(field.artifactId)}" data-artifact-sha256="${escapeHtml(field.artifactSha256)}"` : "";
-        return `<tr class="preview-row${selected ? " is-selected" : ""}${draft ? " is-draft" : ""}" data-layout-field data-preview-field-id="${escapeHtml(field.id)}" data-preview-selected="${selected}" data-layout-ordinal="${index}" data-preview-attribute-revision-id="${escapeHtml(field.revisionId)}"${artifactAttrs}><td class="preview-order">${index + 1}</td><td><strong>${escapeHtml(previewAttributeLabel(field))}</strong><small>Definition revision ${escapeHtml(field.revision)}</small></td><td>${escapeHtml(field.type)}</td></tr>`;
+        return `<tr class="preview-row${selected ? " is-selected" : ""}" data-layout-field data-preview-field-id="${escapeHtml(field.id)}" data-preview-selected="${selected}" data-layout-ordinal="${index}" data-preview-attribute-revision-id="${escapeHtml(field.revisionId)}"${artifactAttrs}><td class="preview-order">${index + 1}</td><td><button type="button" class="preview-row-button" data-action="preview-field" data-preview-field="${escapeHtml(field.id)}"><strong>${escapeHtml(previewAttributeLabel(field))}</strong><small>Definition revision ${escapeHtml(field.revision)}</small></button></td><td>${escapeHtml(field.type)}</td></tr>`;
       }).join("")
       : "<tr><td colspan=\"3\" class=\"preview-empty\">This Layout has no synthetic fields yet.</td></tr>";
-    const graphMarkup = `<section class="preview-section preview-graph-section" data-preview-graph-section aria-labelledby="preview-graph-title"><header class="preview-section-heading"><h3 id="preview-graph-title">Representative response</h3><span>Saved curve value · read-only</span></header><p class="preview-graph-note">Layout field · Representative response · linked Artifact value from the saved Record</p><div class="preview-plot-frame" data-preview-plot-frame><svg class="preview-plot" data-preview-plot viewBox="0 0 760 420" role="img" aria-labelledby="preview-plot-title preview-plot-description" data-series-min-strain="0.00" data-series-max-strain="0.20" data-series-min-stress-mpa="0" data-series-max-stress-mpa="850" data-axis-headroom-ratio="0.10" data-axis-target-intervals-strain="5" data-axis-target-intervals-stress="4" data-axis-nice-step-factors="1,2,2.5,5,10" data-axis-max-strain="0.25" data-axis-max-stress-mpa="1000" data-artifact-id="${escapeHtml(PREVIEW_FIELDS.find((field) => field.id === "representative-response")?.artifactId || "")}" data-artifact-sha256="${escapeHtml(PREVIEW_FIELDS.find((field) => field.id === "representative-response")?.artifactSha256 || "")}" data-curve-selected="${selectedId === "representative-response" && selectedInLayout}"><title id="preview-plot-title">DP780 representative engineering response</title><desc id="preview-plot-description">Saved linked Artifact value for the Representative response Layout field. Engineering stress rises through the synthetic DP780 response against engineering strain; the axes retain data-relative headroom.</desc></svg><div class="preview-plot-legend" aria-label="Plot legend"><span><span class="preview-legend-swatch" aria-hidden="true"></span>Representative response</span><span>Condition: Ambient · as received</span></div></div></section>`;
-    refs.previewScroll.innerHTML = `<div class="preview-content" data-preview-content data-preview-projection="saved" data-layout-id="${escapeHtml(layout.id)}" data-layout-revision="${escapeHtml(layout.revision)}" data-layout-revision-id="eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee" data-record-revision="${escapeHtml(PREVIEW_RECORD.revision)}" data-record-revision-id="${escapeHtml(PREVIEW_RECORD.revisionId)}" data-record-table-revision-id="${escapeHtml(PREVIEW_RECORD.tableRevisionId)}"><header class="preview-heading"><div><p class="preview-kicker">Record preview</p><h2 id="datasheet-preview-title" data-preview-title>${escapeHtml(layout.name)}</h2><p data-preview-subtitle>Layout · ${escapeHtml(layout.name)} · revision ${escapeHtml(layout.revision)}</p></div></header><div class="preview-context" data-preview-context><div class="preview-context-row"><span>Record</span><strong data-preview-record>${escapeHtml(contextRecord)}</strong></div><div class="preview-context-row"><span>Table</span><strong data-preview-table>${escapeHtml(currentTable().name)}</strong></div></div>${note ? `<p class="preview-empty" data-preview-note>${escapeHtml(note)}</p>` : ""}<div class="preview-sections" data-preview-sections><section class="preview-section" data-preview-values-section aria-labelledby="preview-values-title"><header class="preview-section-heading"><h3 id="preview-values-title">Record values</h3><span>${savedRecord ? `Saved Record · revision ${escapeHtml(PREVIEW_RECORD.revision)}` : "No saved Record"}</span></header><div class="preview-table-scroll" data-preview-values-scroll tabindex="0" aria-label="Scroll saved Record values"><table class="preview-table" data-preview-values><thead><tr><th scope="col">Attribute</th><th scope="col">Value</th><th scope="col">Condition</th></tr></thead><tbody>${valueRows}</tbody></table></div></section><section class="preview-section" data-preview-layout-section aria-labelledby="preview-layout-title"><header class="preview-section-heading"><h3 id="preview-layout-title">Layout fields</h3><span>Ordered · exact revisions</span></header><div class="preview-table-scroll" data-preview-layout-scroll tabindex="0" aria-label="Scroll ordered Layout fields"><table class="preview-table" data-preview-layout><thead><tr><th scope="col">#</th><th scope="col">Attribute</th><th scope="col">Type</th></tr></thead><tbody>${layoutRows}</tbody></table></div></section></div></div>`;
-    if (refs.previewPlotBand && showGraph) refs.previewPlotBand.innerHTML = graphMarkup;
+    const graphMarkup = `<section class="preview-section preview-graph-section" data-preview-graph-section aria-labelledby="preview-graph-title"><header class="preview-section-heading"><h3 id="preview-graph-title">Representative response</h3><span>Saved curve value · read-only</span></header><p class="preview-graph-note">Layout field · Representative response · linked Artifact value from the saved Record</p><div class="preview-plot-frame" data-preview-plot-frame><svg class="preview-plot" data-preview-plot viewBox="0 0 760 420" role="img" aria-labelledby="preview-plot-title preview-plot-description" data-series-min-strain="0.00" data-series-max-strain="0.20" data-series-min-stress-mpa="0" data-series-max-stress-mpa="850" data-axis-headroom-ratio="0.10" data-axis-target-intervals-strain="5" data-axis-target-intervals-stress="4" data-axis-nice-step-factors="1,2,2.5,5,10" data-axis-max-strain="0.25" data-axis-max-stress-mpa="1000" data-artifact-id="${escapeHtml(curveField?.artifactId || "")}" data-artifact-sha256="${escapeHtml(curveField?.artifactSha256 || "")}" data-curve-selected="${graphSelected}"><title id="preview-plot-title">DP780 representative engineering response</title><desc id="preview-plot-description">Saved linked Artifact value for the Representative response Layout field. Engineering stress rises through the synthetic DP780 response against engineering strain; the axes retain data-relative headroom.</desc></svg><div class="preview-plot-legend" aria-label="Plot legend"><span><span class="preview-legend-swatch" aria-hidden="true"></span>Representative response</span><span>Condition: Ambient · as received</span></div></div></section>`;
+    const recordSection = `<section class="preview-section${projection === "record" ? " is-active" : ""}" data-preview-active-section data-preview-values-section aria-labelledby="preview-values-title"><header class="preview-section-heading"><h3 id="preview-values-title">Record preview</h3><span>${savedRecord ? `Saved Record · revision ${escapeHtml(PREVIEW_RECORD.revision)}` : "No saved Record"}</span></header><div class="preview-table-region" data-preview-table-region><div class="preview-table-scroll" data-preview-values-scroll tabindex="0" aria-label="Scroll saved Record values"><table class="preview-table" data-preview-values><thead><tr><th scope="col">Attribute</th><th scope="col">Value</th><th scope="col">Condition</th></tr></thead><tbody>${valueRows}</tbody></table></div></div></section>`;
+    const layoutSection = `<section class="preview-section${projection === "layout" ? " is-active" : ""}" data-preview-active-section data-preview-layout-section aria-labelledby="preview-layout-title"><header class="preview-section-heading"><h3 id="preview-layout-title">Layout definition</h3><span>Ordered · exact revisions</span></header><div class="preview-table-region" data-preview-table-region><div class="preview-table-scroll" data-preview-layout-scroll tabindex="0" aria-label="Scroll ordered Layout definition"><table class="preview-table" data-preview-layout><thead><tr><th scope="col">#</th><th scope="col">Attribute</th><th scope="col">Type</th></tr></thead><tbody>${layoutRows}</tbody></table></div></div></section>`;
+    refs.previewScroll.innerHTML = `<div class="preview-content" data-preview-content data-preview-projection="saved" data-preview-active-task="${projection}" data-layout-id="${escapeHtml(layout.id)}" data-layout-revision="${escapeHtml(layout.revision)}" data-layout-revision-id="eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee" data-record-revision="${escapeHtml(PREVIEW_RECORD.revision)}" data-record-revision-id="${escapeHtml(PREVIEW_RECORD.revisionId)}" data-record-table-revision-id="${escapeHtml(PREVIEW_RECORD.tableRevisionId)}"><header class="preview-heading"><div><p class="preview-kicker">Preview datasheet</p><h2 id="datasheet-preview-title" data-preview-title>${escapeHtml(layout.name)}</h2><p data-preview-subtitle>Layout · ${escapeHtml(layout.name)} · revision ${escapeHtml(layout.revision)} · ${fields.length} fields</p></div><button type="button" class="button text" data-action="preview-close">Back to editor</button></header><div class="preview-tabs" role="tablist" aria-label="Preview task"><button type="button" role="tab" class="preview-tab${projection === "record" ? " is-selected" : ""}" aria-selected="${projection === "record"}" data-action="preview-projection" data-projection="record">Record preview</button><button type="button" role="tab" class="preview-tab${projection === "layout" ? " is-selected" : ""}" aria-selected="${projection === "layout"}" data-action="preview-projection" data-projection="layout">Layout definition</button></div><div class="preview-context" data-preview-context><div class="preview-context-row"><span>Record</span><strong data-preview-record>${escapeHtml(contextRecord)}</strong></div><div class="preview-context-row"><span>Table</span><strong data-preview-table>${escapeHtml(currentTable().name)}</strong></div></div>${note ? `<p class="preview-empty" data-preview-note>${escapeHtml(note)}</p>` : ""}<div class="preview-sections" data-preview-sections>${projection === "record" ? recordSection + (showGraph ? graphMarkup : "") : layoutSection}</div></div>`;
     bindPreviewTableRails();
     if (showGraph) window.requestAnimationFrame(renderCurveGraph);
   }
@@ -520,7 +529,7 @@
     refs.list.hidden = objects.length === 0;
     refs.list.innerHTML = objects.map((object) => {
       const selected = object.id === model.selectedObject;
-      const displayName = state === "attribute-long-invalid" && object.id === "material-condition" ? model.draft.attributeName : object.name;
+      const displayName = object.name;
       const metadata = listMetadata(kind, object);
       return `<button type="button" class="object-row${selected ? " is-selected" : ""}${identityOnly ? " is-identity-only" : ""}" role="listitem" data-object-id="${escapeHtml(object.id)}" aria-pressed="${selected}" title="${escapeHtml(displayName)}" aria-label="${escapeHtml(displayName)}">
         <span class="object-name"><span class="object-primary-name" title="${escapeHtml(displayName)}">${escapeHtml(displayName)}</span></span>
@@ -602,7 +611,7 @@
   function tableDraftEditor() {
     const table = currentTable();
     const saveError = model.errors.tableSave ? '<div class="error-region" role="alert"><p>Save failed. The current Table is unchanged; every draft value and the change reason remain available.</p><button type="button" class="button" data-action="retry-save">Retry save</button></div>' : "";
-    const savingNote = model.saving ? '<div class="status-note" role="status" aria-live="polite"><strong>Saving new revision</strong> · duplicate submit is blocked while the response is pending.</div>' : "";
+    const savingNote = model.saving ? '<div class="status-note" role="status" aria-live="polite"><strong>Saving new revision…</strong> · duplicate submit is blocked while the response is pending.</div>' : "";
     return `<div class="editor-content" data-editor-mode="table-draft">
       <header class="editor-heading${model.dirty ? " is-dirty" : ""}"><div><h2>Edit ${escapeHtml(table.name)}</h2><p>Table draft · fields are local until a new revision is saved</p></div><span class="editor-state">${model.dirty ? "Draft changes" : "Based on current revision"}</span></header>
       ${saveError}${savingNote}
@@ -624,7 +633,7 @@
     const type = state === "attribute-long-invalid" ? "discrete" : attribute.type;
     const attrName = state === "attribute-long-invalid" ? model.draft.attributeName : model.draft.attributeName;
     const saveError = model.errors.attributeSave ? '<div class="error-region" role="alert"><p>Save failed. The Attribute definition is unchanged; all draft fields remain available.</p><button type="button" class="button" data-action="retry-save">Retry save</button></div>' : "";
-    const savingNote = model.saving ? '<div class="status-note" role="status" aria-live="polite"><strong>Saving new revision</strong> · duplicate submit is blocked while the response is pending.</div>' : "";
+    const savingNote = model.saving ? '<div class="status-note" role="status" aria-live="polite"><strong>Saving new revision…</strong> · duplicate submit is blocked while the response is pending.</div>' : "";
     const longSummary = state === "attribute-long-invalid" ? '<div class="invalid-summary" role="alert"><strong>3 invalid fields.</strong> Correct the highlighted values before saving; other draft values are preserved.</div>' : "";
     let fields = "";
     fields += formInput("attributeName", "Attribute name", attrName, { required: true, help: "Visible label for a Record entry field." });
@@ -768,7 +777,7 @@
     if (model.saving) { window.__duplicateSubmitBlocked = true; return; }
     if (validateBeforeSave(kind)) { renderEditor(); document.querySelector(".form-error")?.scrollIntoView({ block: "nearest" }); return; }
     model.saving = true;
-    setTaskStatus("Saving new revision");
+    setTaskStatus("Saving new revision…");
     renderEditor();
     window.__saveSubmitCount = (window.__saveSubmitCount || 0) + 1;
   }
@@ -792,9 +801,9 @@
 
   function setStateStatus() {
     if (["catalog-error", "error", "table-save-error", "attribute-save-error"].includes(state)) setTaskStatus("Needs attention");
-    else if (["loading", "catalog-loading"].includes(state)) setTaskStatus("Loading catalog");
+    else if (["loading", "catalog-loading"].includes(state)) setTaskStatus("Loading catalog…");
     else if (state === "stale-conflict") setTaskStatus("Resolve revision conflict");
-    else if (["table-saving", "attribute-saving"].includes(state)) setTaskStatus("Saving new revision");
+    else if (["table-saving", "attribute-saving"].includes(state)) setTaskStatus("Saving new revision…");
     else if (state === "attribute-long-invalid") setTaskStatus("Draft has invalid fields");
     else if (state === "table-add") setTaskStatus("New Table draft");
     else if (state === "attribute-add") setTaskStatus("New Attribute draft");
@@ -808,6 +817,28 @@
     if (target.dataset.objectId) { selectObject(target.dataset.objectId); return; }
     const action = target.dataset.action;
     if (!action) return;
+    if (action === "preview-projection") {
+      model.previewProjection = target.dataset.projection === "layout" ? "layout" : "record";
+      model.previewFieldId = "";
+      renderPreview();
+      target.focus({ preventScroll: true });
+      return;
+    }
+    if (action === "preview-field") {
+      model.previewFieldId = target.dataset.previewField || "";
+      renderPreview();
+      document.querySelector(`[data-preview-field="${CSS.escape(model.previewFieldId)}"]`)?.focus({ preventScroll: true });
+      return;
+    }
+    if (action === "preview-close") {
+      const invoker = model.previewInvoker || refs.previewCommand;
+      model.previewOpen = false;
+      setTaskStatus("Datasheet preview closed");
+      renderPreview();
+      invoker?.focus({ preventScroll: true });
+      model.previewInvoker = null;
+      return;
+    }
     if (action === "edit-table") { model.objectKind = "tables"; state = "table-draft"; document.body.dataset.state = "table-draft"; window.history.replaceState({}, "", `${window.location.pathname}?state=table-draft`); setStateStatus(); model.dirty = false; render(); return; }
     if (action === "add-object") {
       model.objectKind = model.objectKind === "attributes" ? "attributes" : "tables";
@@ -842,13 +873,30 @@
     if (action === "cancel-conflict") { setTaskStatus("Draft retained"); renderEditor(); refs.editor.querySelector("[data-conflict-region]")?.focus(); return; }
     if (action === "refresh") { setTaskStatus("Selection retained · refreshed"); window.__refreshRetainedSelection = model.selectedObject; return; }
     if (action === "preview" || action === "preview-toggle") {
-      if (window.innerWidth < 1700) { setTaskStatus("Datasheet preview opened"); window.__previewRequested = true; return; }
+      model.previewInvoker = target;
       model.previewOpen = !model.previewOpen;
-      setTaskStatus(model.previewOpen ? "Datasheet preview opened" : "Datasheet preview hidden");
+      setTaskStatus(model.previewOpen ? "Datasheet preview opened" : "Datasheet preview closed");
       renderPreview();
-      if (model.previewOpen) refs.previewScroll?.focus({ preventScroll: true });
+      if (model.previewOpen) {
+        refs.previewScroll?.focus({ preventScroll: true });
+        refs.previewPanel?.querySelector("[data-action=preview-close]")?.focus({ preventScroll: true });
+      } else {
+        model.previewInvoker?.focus({ preventScroll: true });
+      }
       return;
     }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    const tab = event.target.closest?.('[role="tab"][data-action="preview-projection"]');
+    if (!tab || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+    const tabs = [...document.querySelectorAll('[role="tab"][data-action="preview-projection"]')];
+    const index = tabs.indexOf(tab);
+    const nextIndex = event.key === "Home" ? 0 : event.key === "End" ? tabs.length - 1 : (index + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
+    event.preventDefault();
+    const next = tabs[nextIndex];
+    if (next && next !== tab) next.click();
+    next?.focus({ preventScroll: true });
   });
 
   refs.currentTable.addEventListener("change", (event) => {

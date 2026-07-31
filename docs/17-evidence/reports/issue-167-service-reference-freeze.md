@@ -5802,3 +5802,1028 @@ approximation-blocked changed and are now `pending`, main-agent `accepted`, prod
 `absent`. Together with the five pending MOD-DATA replacements, the temporary manifest total is
 32 of 72 approved with 40 remaining. Work stops here as directed: no next family, production
 React/CSS, commit, push, PR or merge has started.
+
+## 80. Product-owner finding — MAT-CARD shared Mapping details grammar
+
+Date: 2026-07-30
+
+After the light-preview review, the product owner found that MAT-CARD still presents mapping items
+with an uppercase bordered-pill grammar and long explanatory copy, while the already accepted
+Modeling Export reference uses compact title/value/plain-status rows. The active main agent reopened
+both 1440×900 images at original resolution and confirmed the inconsistency. Both routes project the
+same solver-mapping item contract; a future production port must reuse one component grammar rather
+than preserve this route-specific divergence.
+
+The product and UI specifications now make the shared contract explicit. [The bounded MAT-CARD
+correction packet](issue-167-correction-packet-mat-card-shared-mapping-grammar.md) requires
+`Mapping details`, one compact source→target representation, a plain right-aligned consequence,
+in-place `Review required` → `Reviewed` acknowledgement feedback and `Technical mapping details`
+for raw classifications/counts/identifiers. The light native preview, linked response graph,
+Delivery properties, exact mapping/download semantics and all responsive/recovery contracts remain
+fixed.
+
+One configured Luna Max implementer may perform this isolated static-reference correction. No
+common manifest integration, later family, production React/CSS, commit, push, PR or merge is
+authorized before deterministic gates, active-main-agent original-resolution review, fresh
+read-only review and product-owner confirmation.
+
+## 81. MAT-CARD shared Mapping details implementation and main-agent gate
+
+Date: 2026-07-30
+
+The configured Luna Max implementer loaded successfully and changed only the packet-owned MAT-CARD
+static source, capture, validator, staging and image evidence. No model substitution occurred.
+Modeling Export and production React/CSS remained byte-identical.
+
+The active main agent reran the complete deterministic gate set and independently recalculated the
+final hashes:
+
+| Target | SHA-256 |
+| --- | --- |
+| normal 1366×768 | `b4f38c0117c13f50b9cefbccf833d389b7a91c8c719961c66b9d2226cf3950a3` |
+| normal 1440×900 | `05b327f3741f27962bb6dc7ee961071ab3dedb2b840fedc5c94799ea6076c8db` |
+| normal 1920×1080 | `963ac2613b244caadde2e9f576c9078ebbf6f6138177b8c25c30018797d77fb4` |
+| approximation blocked 1440×900 | `6cfe99b8f20b4609c0fc509e79c8013ef13d764ba55166a617cc9b08c2402ec8` |
+| unsupported blocked 1440×900 | `8eba256b6a59e6c9d61a7a3b6574e4878952dd62e690703ce25a88764fd1afc6` |
+| normal support 2560×1440 | `0f3d84ac331ed902c208bddc2ba2971b502d1afd5dd4e0f7d4e906d54c9dc71c` |
+| normal support 3840×2160 | `3e8a7747e37ccb99d14e600dd23c60410cd754115b001642e05f6a562ce45d9e` |
+
+It opened all seven images at original resolution. The shared compact title/value/plain-status
+grammar is readable at every viewport, approximation acknowledgement and unsupported recovery
+remain explicit, and there is no row/status clipping, bordered status pill or repeated explanatory
+paragraph. The light native preview remains dominant, genuine overflow retains a local rail, and
+the linked true-stress/true-plastic-strain graph preserves positive yield, data-derived headroom and
+stable responsive geometry through 3840.
+
+The main-agent result is 32/32 with no hard-gate failure. Q-01, Q-03, Q-05–Q-09, Q-13–Q-16 and
+Q-20 pass; every non-applicable Q item and its topology reason is recorded in
+[the bounded fresh reviewer packet](issue-167-reviewer-packet-mat-card-shared-mapping-grammar.md).
+The five changed canonical references are now `pending`, main-agent `accepted`, product-owner
+approval `absent`. Because the previously approved unsupported image also changed, the temporary
+manifest total is 31 of 72 approved with 41 remaining. Fresh independent review is the next gate.
+
+The fresh configured read-only Terra High reviewer loaded successfully, verified every hash, opened
+all seven images at original resolution, reran the non-mutating gates and returned `approve`,
+V-01–V-16 at 32/32, with no hard-gate failure, actionable finding or residual concern. Its complete
+Q-01–Q-20 record agrees with the independent main-agent record.
+
+After that disposition, the active main agent reopened all seven originals and repeated the full
+qualitative judgment. It again accepts the compact Mapping details grammar, the exact/review/
+unsupported state consequences, native-preview priority, local overflow behavior, engineering
+graph proportions and 1920/2560/3840 use of space. No clipping, overlap, fabricated filler,
+non-uniform SVG geometry or cross-route Mapping divergence remains. The five canonical references
+remain `pending` solely for product-owner approval; no later family, commit, push, PR, merge or
+production React/CSS work has started.
+
+## 82. Product-owner approval — MAT-CARD shared Mapping details
+
+Date: 2026-07-30
+
+The product owner explicitly approved the submitted MAT-CARD bundle in conversation. The approval
+applies to the three registered normal viewports and two registered blocked references listed with
+their final SHA-256 values in section 81. All five references are now `approved`; the 2560×1440 and
+3840×2160 captures remain supporting wide evidence bound to the approved 1920 normal reference.
+
+The authoritative inventory is now 36 of 72 approved with 36 remaining. The next existing approval
+gate is the five already implemented, deterministically validated, main-agent accepted and freshly
+reviewed MOD-DATA replacement references. No dependent MOD-PROCESS correction, later family,
+production React/CSS, commit, push, PR or merge starts before that product-owner decision.
+
+## 83. MOD-DATA pending replacement revalidation and owner handoff
+
+Date: 2026-07-30
+
+After recording the MAT-CARD approval, the active main agent revalidated the unchanged MOD-DATA
+replacement family from the current worktree. The complete browser validator passed five canonical
+targets, two wide-support targets and all responsive loading/error evidence; the inventory, Ruff,
+Node syntax and whitespace gates also passed. Every canonical and wide SHA-256 remains identical to
+the fresh reviewer packet in section 78.
+
+The active main agent reopened all seven images at original resolution. It retains the prior
+32/32 acceptance: the 184–208 px curve rail and shallow Data ribbon stay bounded; the graph remains
+dominant; `Engineering stress (MPa)` and `Engineering strain [1]` are compact and collision-free;
+glyph/stroke proportions remain stable through 3840; and the data-derived bounds preserve visible
+top/right headroom. The empty session provides one truthful Local file consequence without
+fabricated data, while the invalid mapping state retains the last-valid graph, complete mapping
+context, disabled save boundary and corrective action.
+
+No MOD-DATA source or image changed after its fresh read-only Terra High `approve` result, so that
+independent review remains the applicable final review. The five canonical references remain
+`pending`, main-agent `accepted`, product-owner approval `absent`.
+
+## 84. Product-owner approval — MOD-DATA wide correction
+
+Date: 2026-07-30
+
+The product owner explicitly approved the submitted MOD-DATA bundle in conversation. The approval
+applies to the three registered normal viewports, the empty-new-session reference and the
+long-invalid-mapping blocked reference listed with their final SHA-256 values in section 78. All
+five references are now `approved`; 2560×1440 and 3840×2160 remain supporting wide evidence bound
+to the approved 1920 normal reference.
+
+The authoritative inventory is now 41 of 72 approved with 31 remaining. This approval unblocks the
+wide MOD-PROCESS correction identified in section 77. No production React/CSS, commit, push, PR or
+merge has started.
+
+## 85. MOD-PROCESS wide correction main-agent inspection and packet
+
+Date: 2026-07-30
+
+After the MOD-DATA product-owner approval, the active main agent opened the existing MOD-PROCESS
+normal 1366×768, 1440×900 and 1920×1080 references and the prerequisite-blocked 1440×900 reference
+at original resolution. It inspected the static HTML/CSS/JavaScript, capture and validator, current
+React/API/session contracts, the corrected approved MOD-DATA renderer, the issue inventory and the
+complete cumulative Q-01–Q-20 checklist.
+
+The approved Process topology and workflow contract remain applicable: one 184–208 px curve/process
+rail, one shallow operation band and one dominant persistent graph; exact Test Data; independent
+selection, inclusion and plot visibility; five ordered operations; preview before one immutable
+Processing Output commit; and stale downstream current pointers without historical mutation.
+
+The direct visual and source inspection confirms the wide-audit failure from section 77. A fixed
+`0 0 1000 500` SVG is non-uniformly stretched with `preserveAspectRatio="none"`. The 1920 reference
+already shows Y-axis glyph and stroke inflation relative to the stable application type, and the
+3840 audit measured the same coordinate system inside a 3609×1723 render box. The graph also places
+`MPa` in a tick instead of the Y title, detaches the X title into a footer, mixes workflow status
+with curve identity in a wide legend lane, and calculates proportional bounds without applying them
+to its hard-coded paths/ticks.
+
+The main agent therefore persisted the bounded
+[MOD-PROCESS wide correction packet](issue-167-wide-correction-packet-mod-process.md). It requires
+one render-sized CSS-pixel coordinate system, data-generated paths, proportional nice bounds,
+`Engineering stress (MPa)` and `Engineering strain [1]`, numeric-only ticks, a compact measured
+curve-free in-plot legend, stable typography/strokes through 3840, discoverable long-rail overflow,
+and unchanged Process state/immutability contracts. Exactly one configured Luna Max writer owns the
+family source/capture/image paths. Common manifest, inventory and report integration remain
+main-agent-owned. No production React/CSS, commit, push, PR, merge or later family starts.
+
+## 86. ACT-RECOVERY independent main-agent inspection and packet
+
+Date: 2026-07-30
+
+The product owner authorized continued work on bundles that have no outstanding dependency while
+the MOD-PROCESS correction proceeds. The active main agent inspected the finite ACT-X inventory,
+approved ACT-U/ACT-R sources and original-resolution 1440/1920/3840 references, current
+`ActivityPage`, browser-local Modeling-session and solver-card-history contracts, the Job
+resource/OpenAPI and the architecture truth boundary.
+
+General Job get/retry commands exist only for an opaque job identity. The production web has no
+readable Activity projection that lists a failed calculation and joins it to the user's exact
+Material, Modeling session, stage and selection. Bulk Export jobs are a separate bounded feature.
+The reference must therefore never fabricate a failed row, retry eligibility, progress, receipt or
+successful recovery.
+
+The active main agent persisted the bounded
+[ACT-RECOVERY implementer packet](issue-167-implementer-packet-act-recovery.md). It preserves the
+approved flat Activity shell and active In progress queue, states `Failed calculations · Not
+available in Activity` once in a shallow strip, retains the browser-local saved Modeling session and
+representative pending-request page, and makes `Resume Modeling` the single safe primary action.
+User-visible projection/job/attempt/runner/receipt/release vocabulary is forbidden. The normal
+family includes 1366×768, 1440×900 and 1920×1080 approval targets plus deterministic 2560×1440 and
+3840×2160 support; empty/loading/action-error evidence preserves the same topology.
+
+ACT-QUEUE is already approved, so this family is independent of MOD-PROCESS and uses the second
+bounded writer slot with disjoint source/capture/image ownership. Common manifest, inventory and
+report integration remain serial and main-agent-owned. No production React/CSS, commit, push, PR,
+merge or dependent Administration family starts.
+
+## 87. MOD-PROCESS wide-proportion correction and main-agent gate
+
+Date: 2026-07-31
+
+Both configured Luna Max calls returned the exact error `Selected model is at capacity. Please try a
+different model.` No other model was silently substituted. The first MOD-PROCESS call had already
+produced a bounded partial implementation before the capacity termination; the active main agent
+opened its 3840×2160 output at original resolution and rejected it because the corrected graph still
+occupied roughly 3,609×1,723 pixels and remained visually disproportionate to the rest of the
+workspace. ACT-RECOVERY produced no capturable implementation and remains capacity-blocked.
+
+Because MOD-PROCESS had materially failed the active-main-agent visual gate, the configured sole
+fresh Terra High correction writer received the persisted
+[wide-proportion correction packet](issue-167-correction-packet-mod-process-wide-proportion.md).
+The final correction uses rendered CSS-pixel SVG geometry, stable 11 px ticks and 12 px titles,
+non-scaling strokes, numeric-only ticks, proportional finite-data bounds with ten percent headroom,
+complete `Engineering stress (MPa)` and `Engineering strain [1]` titles, and a compact
+three-identity curve-free legend.
+
+The 1366×768, 1440×900, 1920×1080 and supporting 2560×1440 layouts remain graph-first. At
+3840×2160 only, the graph height is bounded to 1,421.5 pixels and the recovered 330.5-pixel result
+region displays an exact ten-row `Processed response` grid from the same finite source, three
+observed and processed-preview arrays. It performs no interpolation, resampling, enrichment or
+filler substitution. It introduces no fake scrollbar, stretched row/prose treatment or avoidable
+blank region, so this wide topology is registered as its own approval lifecycle target.
+
+The active main agent also removed primary-workspace Mapping Profile, full identifier, algorithm
+name, immutable-output, stale-pointer, recipe and active-job wording. Visible copy now describes the
+saved Test Data, calculated method, preview/save consequence and processing result at the point where
+the engineer needs them. The blocked state states the missing compatible saved Test Data once at the
+workflow level and owns one `Back to Data` recovery action.
+
+The final hashes are:
+
+| Role | Target | SHA-256 |
+| --- | --- | --- |
+| approval target | normal 1366×768 | `7e0e53dfea8e842859dda93c7126dd75add1f5a9a1a7ddabce1d780e9e1dc339` |
+| approval target | normal 1440×900 | `bc45bc41a10db0ba0af217e5ae2b60ce978abfaeaea99d19ca701bac490a8f04` |
+| approval target | normal 1920×1080 | `87a861aa3e8822e4fe19645230f426f902ced609eea09e62b6fdae67f1a9cf09` |
+| approval target | prerequisite blocked 1440×900 | `2f3ed351bbb22b604e6a7bed189b52cd7b9945f8620633d2442482654492ed30` |
+| wide support | normal 2560×1440 | `44799e263a57c03a16ecaf36e5977596309c0cb02bf06df2bfc583b826d2be68` |
+| topology approval target | normal 3840×2160 | `a17b105bb043b42b8920e7f279fc2dba62dd1029392935e2b0d409cca6764e29` |
+
+The product/UI specifications now define the conditional wide point-grid contract, and the
+authoritative inventory/manifest register the 3840 topology variant independently. The finite
+inventory is therefore 54 normal plus 18 exceptional plus one topology variant, for 73 images.
+Reopening the four changed canonical MOD-PROCESS references and adding the new wide candidate makes
+the current count 37 of 73 approved, with 36 remaining. Approval of this five-target bundle would
+raise the count to 42 of 73.
+
+The active main agent called the capture and validator help before execution, then passed the
+complete family validator, inventory validator, Ruff, Python compilation, Node syntax and whitespace
+gates. It opened all six final canonical/support images and the blocked responsive/state evidence at
+original resolution. Its independent qualitative record is:
+
+| Check | Result | Direct evidence and topology reason |
+| --- | --- | --- |
+| Q-01 | pass | Long Process rail state captures in `modeling-process-state-evidence.json` expose an independent reserved local scrollbar; normal rails do not fake one. |
+| Q-02 | not-applicable | MOD-PROCESS has no Materials result list. |
+| Q-03 | not-applicable | The Materials tree-specific row grammar is not present; Process uses a curve/operation rail. |
+| Q-04 | pass | All six images keep one shallow operation ribbon and a dominant graph/result region; no candidate-parameter form squeezes it. |
+| Q-05 | pass | Every normal image has compact complete axis titles, numeric ticks, units in the stress title and materially reduced unused margins. |
+| Q-06 | pass | All normal images use one compact three-series internal legend and no wide footer/status legend. |
+| Q-07 | pass | Measurement JSON records rendered-size view boxes, stable 11/12 px glyphs, non-scaling strokes and no non-uniform stretch through 3840. |
+| Q-08 | not-applicable | This screen shows engineering stress/strain processing, not true-yield-stress versus true-plastic-strain hardening. |
+| Q-09 | pass | The long-state rail has a visible reserved track and real overflow; the 3840 exact point grid has no overflow and therefore no fake rail. |
+| Q-10 | not-applicable | This is Process, not Fit candidate comparison. |
+| Q-11 | not-applicable | The Fit-specific rail grammar is not present. |
+| Q-12 | not-applicable | No Export setup or output unit-system control is present. |
+| Q-13 | not-applicable | No Export setup/result columns are present. |
+| Q-14 | not-applicable | No Export readiness state is present. |
+| Q-15 | pass | Graph bounds derive from the displayed finite span, retain the meaningful zero anchor and ten-percent headroom, and keep extrema clear of the frame. |
+| Q-16 | not-applicable | No Export native solver-card preview or Mapping details column is present. |
+| Q-17 | not-applicable | No Administration object list is present. |
+| Q-18 | not-applicable | No Administration add-definition workflow is present. |
+| Q-19 | not-applicable | No Administration link-type editor is present. |
+| Q-20 | pass | 1920/2560 keep bounded rail/ribbon plus a proportionate graph; 3840 replaces rejected plot-only enlargement with the exact synchronized point grid, without blank space, filler, stretched rows or SVG distortion. |
+
+The main-agent gate is accepted with no hard-gate failure. The five registered approval targets are
+`pending`, main-agent `accepted`, product-owner approval `absent`. The bounded
+[fresh reviewer packet](issue-167-reviewer-packet-mod-process-wide-proportion.md) is the next gate.
+
+## 88. MOD-PROCESS fresh-review rejection and final main judgment
+
+Date: 2026-07-31
+
+The fresh configured read-only Terra High reviewer loaded successfully, verified all six final
+hashes, reran every non-mutating gate and opened the supplied targets at original resolution. It
+returned `changes_requested` on Q-01, Q-09 and Q-20 despite all deterministic checks passing.
+
+The 3840 plot/grid split corrects the original graph-only enlargement, but the six-column settings
+ribbon still stretches compact inputs across the complete wide region. This creates implausibly long
+controls and line lengths rather than keeping a bounded form adjacent to an elastic engineering
+result. In addition, the registered state JSON records geometry for long-rail, loading and error
+states but the capture helper does not persist their PNGs. The mandatory original-resolution
+qualitative gate therefore cannot verify the required local rail and recovery-state usability.
+
+After the review, the active main agent reopened the 3840 image at original resolution and agrees
+with both findings. The result stack is better proportioned than the rejected plot-only version, but
+the control band remains visibly unbalanced and the missing state images are a real evidence gap.
+The 3840 lifecycle is now main-agent `rejected`; the complete family is withheld. The configured
+correction cycle has already been used, so no second writer/correction or re-review is started
+without a new product-owner decision. No dependent MOD-FIT/MOD-EXPORT wide correction, production
+React/CSS, commit, push, PR or merge starts from this rejected family.
+
+## 89. ADM-SCHEMA-CORE governed-name correction and main-agent gate
+
+Date: 2026-07-31
+
+The product owner authorized continued work on dependency-independent #167 families. The active main
+agent reopened the Administration rejection in section 61 and confirmed the exact defect in
+`renderList`: the `attribute-long-invalid` state replaced the stored object-list identity with the
+editable draft name. Because the configured family correction lifecycle had already been exhausted,
+the active main Sol persisted and executed the bounded
+[governed-identity correction packet](issue-167-main-sol-correction-packet-adm-governed-name.md)
+directly; no substitute writer was used.
+
+The Object list now always renders the stored Attribute identity. In the long-invalid state the
+selected row remains exactly `Material condition | Discrete choice | 3`, while the intentionally
+long invalid text stays only in the editable Attribute name field. The validator now proves this
+separation at 1366, 1440 and 1920, in addition to cell containment, disabled Save, validation
+recovery and genuine visible local scrolling.
+
+The active main agent called capture/validator help, recaptured all eleven targets and sixty
+state-evidence images, and confirmed that only the three responsive long-invalid pairs and their
+byte-identical long-scroll evidence pairs changed. All other canonical, state and wide hashes remain
+unchanged. The new approval target is:
+
+| Target | SHA-256 |
+| --- | --- |
+| `administration-attribute-long-invalid-1440x900.png` | `5e8316055d0384863322a2eb8b538181f278c728f773f4576433b00fc9ba8f43` |
+
+The complete Administration validator, inventory validator, Ruff, Python compilation, JavaScript
+syntax and whitespace gates pass. The active main agent opened all six changed images at original
+resolution and accepts the correction: the list is identity-first and immediately scannable, the
+long draft remains fully visible in the editor, the Value type/Rev cells stay aligned, scrollbars do
+not cover content, and no new explanation, feature, badge or internal terminology was added.
+
+Main-agent qualitative record:
+
+| Check | Result | Direct evidence and topology reason |
+| --- | --- | --- |
+| Q-01 | not-applicable | Administration has no Materials navigator tree. |
+| Q-02 | pass | The Object list remains an independent local list; empty evidence has no fake result rail. |
+| Q-03–Q-08 | not-applicable | Materials and Modeling plot requirements are absent. |
+| Q-09 | pass | All six long-invalid/long-scroll originals show the reserved proportional editor rail without covering list or form text; deterministic keyboard, wheel and pointer consequences pass. |
+| Q-10–Q-16 | not-applicable | Fit and Export topology is absent. |
+| Q-17 | pass | The selected list row is exactly `Material condition | Discrete choice | 3`; the long editable draft appears only in the adjacent editor. |
+| Q-18 | pass | Existing Add Table/Add Attribute and saved Layout/Record evidence remain byte-identical and pass the complete family validator. |
+| Q-19 | not-applicable | Link Type cardinality remains owned by the dependent relations bundle; this core correction makes no one-to-one or latest claim. |
+| Q-20 | pass | Existing 1920/2560/3840 Layout/Record projection remains unchanged; the correction does not add blank space, stretched rows, filler or stale data. |
+
+All eleven ADM-SCHEMA-CORE approval references remain `pending`, main-agent `accepted`, and
+product-owner approval `absent`. The bounded
+[fresh re-review packet](issue-167-rereviewer-packet-adm-governed-name.md) is the next gate; dependent
+Administration relations/access/publish work remains blocked until this bundle is approved.
+
+## 90. ADM-SCHEMA-CORE fresh re-review rejection and final main judgment
+
+Date: 2026-07-31
+
+The fresh configured read-only Terra High reviewer verified the six corrected hashes, opened all six
+changed images and both wide images at original resolution, and reran the complete deterministic
+gate set. It confirmed that the Object list now correctly retains
+`Material condition | Discrete choice | 3`, but returned `changes_requested` on Q-17.
+
+The distinct unsaved long invalid Attribute name still reaches the read-only saved Record and
+Layout preview through `previewAttributeLabel`. Both preview row renderers therefore label the
+stored revision with the unsaved draft text even though the draft is invalid and has not produced a
+new revision. The 1920 measurement records the leakage in both the saved Record value row and
+ordered Layout field row.
+
+The active main agent inspected the source and exact measurement entries after the review and agrees.
+This is not a cosmetic clipping problem: it breaks the saved-versus-draft truth boundary and the
+packet's explicit requirement that the long invalid draft remain only in the editable field. The
+long-invalid lifecycle returns to main-agent `rejected`, and the complete ADM-SCHEMA-CORE family is
+withheld. No further correction/re-review cycle or dependent Administration relations/access/publish
+work starts without a new product-owner decision.
+
+## 91. ACT-RECOVERY implementation and main-agent rejection
+
+Date: 2026-07-31
+
+After the earlier capacity failures, the configured Luna Max role loaded successfully on retry and
+completed the bounded ACT-RECOVERY implementation without substitution. It created five normal/wide
+captures and nine empty/loading/action-error state captures, preserved every frozen ACT-QUEUE hash,
+and passed its family validator, inventory, Ruff, JavaScript syntax and whitespace gates.
+
+The active main agent opened all fourteen images at original resolution. The flat Activity shell,
+41-row normal queue, stable row/type density, independent local scroll, truthful failed-calculation
+boundary, saved Modeling-session action, and empty/loading/error consequences are structurally sound
+at 1366, 1440, 1920, 2560 and 3840. No card stacking, stretched row height, avoidable large-display
+blank region, clipping or fabricated recovery capability appears.
+
+The main agent nevertheless rejects the first result before independent review. The normal User
+queue repeatedly exposes `Import provenance`, `Processing output`, `Curve selection`, `Fit result`,
+`Mapping`, `Evidence` and immutable-revision language. These belong in Evidence/Advanced or internal
+workflow mechanics, not the user's primary review-request list. The availability strip also repeats
+the same limitation after already stating `Not available in Activity`.
+
+The sole configured Terra High correction writer receives the persisted
+[ACT-RECOVERY product-language packet](issue-167-correction-packet-act-recovery-product-language.md).
+It may replace only those visible templates and add deterministic forbidden-language assertions;
+topology, density, state behavior and ACT-QUEUE authority are frozen. No common manifest integration,
+product-owner request, commit, push, PR, merge or production work starts before the corrected
+deterministic and original-resolution gates.
+
+## 92. ACT-RECOVERY product-language correction and main-agent gate
+
+Date: 2026-07-31
+
+The sole configured Terra High correction writer changed only the visible request templates and
+their deterministic forbidden-language assertions. It replaced internal workflow categories with
+`Material review`, `Test Data review`, `Selected model review`, and `Solver card review`, and reduced
+the capability-boundary instruction to `Resume the saved Modeling session to inspect the current
+step.` The approved ACT-QUEUE sources and every unrelated family remain byte-for-byte frozen.
+
+The active main agent opened the five corrected normal/wide images and all nine corrected
+empty/loading/action-error images at original resolution. The 1366, 1440, 1920, 2560 and 3840
+layouts preserve stable 13–14 px typography and compact row height; additional display height reveals
+more complete request rows rather than enlarging a graph, stretching prose or creating an empty
+filler region. The local Modeling session remains distinct from the 40 server review requests, the
+failed-calculation boundary is concise, and the action error remains attached to the recoverable
+local row. No internal/developer labels, fabricated release state, nested cards, clipping, overlap or
+page overflow remain.
+
+The main-agent Q-01–Q-20 disposition is:
+
+| ID | Result | Direct evidence / topology reason |
+| --- | --- | --- |
+| Q-01 | not-applicable | Activity has no navigator tree. |
+| Q-02 | pass | All normal/state images preserve the independent queue rail; empty recovery removes only the local session and does not fabricate a second result rail. |
+| Q-03 | not-applicable | Activity has no Materials navigator. |
+| Q-04 | not-applicable | Activity has no Fit ribbon or graph. |
+| Q-05 | not-applicable | Activity has no engineering axes. |
+| Q-06 | not-applicable | Activity has no curve legend. |
+| Q-07 | not-applicable | Activity has no responsive plot. |
+| Q-08 | not-applicable | Activity has no stress/plastic-strain response. |
+| Q-09 | pass | Every viewport shows a reserved proportional local queue track; deterministic pointer, wheel and keyboard consequences pass. |
+| Q-10 | not-applicable | Activity has no Fit legend. |
+| Q-11 | not-applicable | Activity has no Fit rail. |
+| Q-12 | not-applicable | Activity has no Export setup. |
+| Q-13 | not-applicable | Activity has no Export setup/result columns. |
+| Q-14 | not-applicable | Activity has no Export readiness state. |
+| Q-15 | not-applicable | Activity has no engineering plot. |
+| Q-16 | not-applicable | Activity has no solver-card preview or Mapping details. |
+| Q-17 | not-applicable | Activity has no Administration Object list. |
+| Q-18 | not-applicable | Activity has no Administration Add command. |
+| Q-19 | not-applicable | Activity has no Administration Link Type editor. |
+| Q-20 | pass | `activity-recovery-blocked-1920x1080.png` and the 2560/3840 support captures use additional height for the existing request contract at fixed density, without stretched rows, fabricated filler or avoidable blank regions. |
+
+The full ACT-RECOVERY validator, frozen ACT-QUEUE hash gate, finite inventory, Ruff, Python
+compilation, JavaScript syntax and whitespace gate all pass. The three lifecycle targets are
+registered as `pending`, main-agent `accepted`, and product-owner approval `absent`. A fresh
+read-only reviewer receives
+[the bounded ACT-RECOVERY packet](issue-167-reviewer-packet-act-recovery-product-language.md);
+product-owner handoff remains blocked until that independent review and the final repeated
+main-agent full-screen judgment pass.
+
+## 93. ACT-RECOVERY fresh review and final main-agent judgment
+
+Date: 2026-07-31
+
+The fresh configured read-only Terra High reviewer opened all fourteen corrected images at original
+resolution, verified all fourteen hashes, reran every non-mutating deterministic gate, completed
+Q-01–Q-20, and returned `approve` with no actionable finding. Q-02, Q-09 and Q-20 pass; every other
+item is correctly not applicable to the Activity queue topology.
+
+After receiving that disposition, the active main agent reopened the same five normal/wide and nine
+empty/loading/action-error images at original resolution. The final qualitative judgment remains
+accepted. At 3840 the queue is intentionally wide but not visually scaled: typography, row height,
+border weight and controls remain stable, while the existing request contract uses the additional
+height. At compact and canonical widths the same information hierarchy remains readable without
+clipping. The capability boundary, local saved session, server review requests, loading retention and
+row-local recovery error are distinct; no useless feature, fabricated outcome or internal/developer
+term appears.
+
+The three lifecycle targets are ready for product-owner batch review and remain `pending` with
+product-owner approval `absent`:
+
+| Image | SHA-256 |
+| --- | --- |
+| `activity-recovery-blocked-1366x768.png` | `66e93ab285651dcd0095b8f928836611ffbae84165fb6ccc765ed14c8e71c252` |
+| `activity-recovery-blocked-1440x900.png` | `03aa747651b1703b269d2d3fdb96b21572343a22a5aa57ba81b55d8dfd80057d` |
+| `activity-recovery-blocked-1920x1080.png` | `254750dbfeb9eeedc3ac79b9c606ceb7dcc13eb9f83f34cf7f5c831bbb54aaf1` |
+
+The 2560×1440 and 3840×2160 captures are supporting evidence, not additional lifecycle images.
+MOD-PROCESS remains withheld after its independent review found a stretched 3840 settings ribbon
+and missing original-resolution state images. ADM-SCHEMA-CORE remains withheld because an unsaved
+invalid Attribute name reaches the saved Record/Layout preview. Their dependent bundles do not
+start, and no commit, push, PR, merge or production work is authorized.
+
+## 94. ACT-RECOVERY product-owner approval
+
+Date: 2026-07-31
+
+The product owner approved all three explicitly listed ACT-RECOVERY lifecycle images from section 93
+in one response. The registered image paths and SHA-256 values are unchanged. The manifest lifecycle
+for 1366×768, 1440×900 and 1920×1080 is now `approved`; main-agent evaluation remains `accepted`,
+and product-owner approval is recorded with this date and conversation evidence.
+
+The finite inventory advances from 37/73 to 40/73 approved, with 33 images remaining. The 2560×1440
+and 3840×2160 captures remain supporting wide evidence and do not alter the denominator. No
+additional independent bundle is available: MOD-FIT and MOD-EXPORT are downstream of the withheld
+MOD-PROCESS family, while Administration relations, access and publish remain downstream of the
+withheld ADM-SCHEMA-CORE family. No production React/CSS, commit, push, PR or merge starts.
+
+## 95. Product-owner authorization for two final bounded corrections
+
+Date: 2026-07-31
+
+After reviewing the two independent rejections in sections 88 and 90, the product owner explicitly
+authorized one additional bounded correction and fresh re-review for each withheld family. The
+active main agent inspected the exact source paths, current images, state/data contracts and
+rejection evidence, then persisted:
+
+- [the MOD-PROCESS final correction packet](issue-167-owner-authorized-correction-packet-mod-process-final.md);
+- [the ADM-SCHEMA-CORE saved-preview-truth correction packet](issue-167-owner-authorized-correction-packet-adm-saved-preview-truth.md).
+
+The bundles have disjoint ownership and may use the #167 two-writer exception. Each receives one
+fresh configured Terra High correction writer; no model substitution or third writer is
+authorized. The main agent will integrate common manifest/report changes only after deterministic
+gates and original-resolution inspection, then prepare one bounded read-only packet and request one
+fresh Terra High reviewer per family. The current 40/73 approval count is unchanged. No dependent
+family, production React/CSS, commit, push, PR or merge starts before these gates pass.
+
+## 96. ADM-SCHEMA-CORE saved-preview correction and main-agent gate
+
+Date: 2026-07-31
+
+The configured product-owner-authorized Terra High correction writer loaded successfully and changed
+only the ADM-SCHEMA-CORE owned source, capture, validator, staging and measurement evidence. Saved
+Record values and ordered Layout fields now always render the stored Attribute `field.name`.
+The invalid local draft cannot rename either saved read-only projection before a valid save creates
+a new revision.
+
+The complete capture regenerated eleven approval targets, sixty state captures and two wide images.
+Only measurement/interaction evidence changed; all PNG hashes remain stable. The validator now
+proves at 1366, 1440 and 1920 that:
+
+- the Object-list row remains `Material condition | Discrete choice | 3`;
+- the distinct long draft remains in the editable Attribute name input;
+- the draft is absent from Object-list Name and every saved preview heading, context, Record-value
+  row and ordered Layout row;
+- both saved rows retain `Material condition` and Attribute revision
+  `55555555-5555-4555-8555-555555555555`;
+- the Layout and Record revision pins and local scroll consequences remain unchanged.
+
+The active main agent reran the complete Administration validator, finite inventory validator, Ruff,
+Python compilation, JavaScript syntax and whitespace gates; all pass with inventory still 40/73
+approved. It opened all eleven approval originals, all three responsive long-invalid originals and
+the complete family topology. The three-pane hierarchy, compact Name/Value type/Rev list, draft
+editor, validation rail, stale-conflict recovery and wide saved preview remain professionally
+coherent. No new explanation, feature, internal term, clipped identity, overlap or fake revision was
+introduced.
+
+Main-agent qualitative disposition:
+
+| ID | Result | Direct evidence / topology reason |
+| --- | --- | --- |
+| Q-01 | not-applicable | Administration has no Materials navigator tree. |
+| Q-02 | pass | List and editor remain independent local panes; empty evidence does not show a fake rail. |
+| Q-03–Q-08 | not-applicable | Materials and Modeling plot requirements are absent. |
+| Q-09 | pass | All long-invalid/long-scroll originals retain a reserved proportional editor rail without covering the list, field values or errors; validator proves pointer, wheel and keyboard consequences. |
+| Q-10–Q-16 | not-applicable | Fit and Export topology is absent. |
+| Q-17 | pass | Stored Object identity, unsaved editable draft and saved Record/Layout labels are now distinct and exact. |
+| Q-18 | pass | Existing Add Table/Add Attribute and immutable-revision flows retain their exact unchanged images and interaction evidence. |
+| Q-19 | not-applicable | Link Type cardinality belongs to the dependent relations bundle. |
+| Q-20 | pass | Existing wide Record/Layout/curve projection remains byte-identical and uses additional space without stretched controls, filler or stale draft data. |
+
+All eleven family targets are pending, with main-agent evaluation accepted and product-owner
+approval absent. The bounded
+[fresh reviewer packet](issue-167-reviewer-packet-adm-saved-preview-truth-final.md) is the next gate.
+Dependent Administration work remains blocked until independent review and product-owner approval.
+
+## 97. MOD-PROCESS final correction and main-agent gate
+
+Date: 2026-07-31
+
+The product-owner-authorized Terra High correction writer completed the bounded MOD-PROCESS
+correction without model substitution. The 3840 settings ribbon now stops at its natural working
+width instead of stretching six controls across the display. The exact synchronized ten-row
+Processed response grid remains the only wide-topology addition, beneath the dominant engineering
+graph. The normal 1366/1440/1920 views keep the same compact rail, shallow control ribbon and graph
+priority.
+
+The correction also persisted fifteen original-resolution state images. The active main agent opened
+all six lifecycle/support originals and all fifteen state originals. The long rail uses ordinary
+excluded specimen rows and a reserved proportional scrollbar; it contains no invented Evidence
+trace. Preview and save loading/failure each have one concise inline consequence banner, preserve
+the current Test Data, settings and graph, and disable only the affected action. No repeated graph
+overlay, filler row, clipped label, internal/developer term or fabricated saved outcome remains.
+
+The complete MOD-PROCESS validator, finite inventory validator, Ruff, Python compilation,
+JavaScript syntax and whitespace gates all pass. Inventory remains 40/73 approved.
+
+Main-agent qualitative disposition:
+
+| ID | Result | Direct evidence / topology reason |
+| --- | --- | --- |
+| Q-01 | not-applicable | Process uses a curve rail, not a Materials tree. |
+| Q-02 | pass | Long rail evidence retains truthful curve rows and an independent scroll region; normal short rows do not show a fake thumb. |
+| Q-03 | not-applicable | Materials navigation is absent. |
+| Q-04 | pass | The operation controls remain a shallow graph-adjacent ribbon; no permanent inspector or nested control cards appear. |
+| Q-05 | pass | Numeric ticks, centered engineering-strain title and compact stress title with units do not collide at any reviewed viewport. |
+| Q-06 | pass | The three-series legend stays compact inside the lower-right curve-free plot region. |
+| Q-07 | pass | Render-sized SVG coordinates preserve glyph and stroke proportions from 1366 through 3840. |
+| Q-08 | pass | The response begins at zero engineering strain, keeps a finite calculated elastic segment, and uses data-relative top/right headroom. |
+| Q-09 | pass | The long rail has a reserved proportional native track and pointer/wheel/keyboard consequences without covering specimen labels. |
+| Q-10 | pass | Legend placement remains in-plot and clear of every response curve. |
+| Q-11 | pass | The compact curve/process rail retains readable 12–13 px regular/medium text and Materials-like row rhythm without copying its tree topology. |
+| Q-12–Q-16 | not-applicable | Export setup, readiness, card preview and Mapping details are downstream. |
+| Q-17–Q-19 | not-applicable | Administration topology is absent. |
+| Q-20 | pass | At 1920/2560/3840 typography and controls stay fixed-density; the bounded ribbon avoids horizontal stretching and the 3840 lower region exposes the exact synchronized response grid rather than filler. |
+
+The five lifecycle targets remain `pending`, with main-agent evaluation `accepted` and
+product-owner approval `absent`. The bounded
+[fresh reviewer packet](issue-167-reviewer-packet-mod-process-final.md) is the next gate. MOD-FIT and
+MOD-EXPORT remain blocked until independent review and product-owner approval.
+
+## 98. MOD-PROCESS fresh-review rejection and final main judgment
+
+Date: 2026-07-31
+
+The fresh configured read-only Terra High reviewer opened all twenty-one required lifecycle,
+support and state images at original resolution, verified every hash, reran the complete
+non-mutating gate set and returned `changes_requested`.
+
+The six persisted preview-loading/save-loading images keep the global `Preview changes` command
+enabled while a preview calculation or save is already in progress. The real interaction path
+disables the affected busy command, but the static state setup disables only Save. The evidence JSON
+therefore records `previewButtons[0].disabled: false` during loading, and the current validator checks
+only the command's text/presence instead of its busy state.
+
+The active main agent reviewed the exact state images, source branch and evidence entry and agrees.
+This is a functional concurrency and user-feedback defect, not a numeric or cosmetic issue. It
+blocks the family even though V-01–V-16, graph/axis/legend quality, long-rail behavior and the
+1920/2560/3840 topology otherwise pass.
+
+All five MOD-PROCESS lifecycle targets return to main-agent `rejected`; product-owner approval
+remains absent. The product-owner-authorized additional correction and fresh-review cycle described
+in section 95 has been consumed. No further correction, re-review, dependent MOD-FIT/MOD-EXPORT
+work, product-owner image handoff, commit, push, PR, merge or production work starts without a new
+product-owner decision.
+
+## 99. ADM-SCHEMA-CORE fresh-review finding and final main acceptance
+
+Date: 2026-07-31
+
+The fresh configured read-only Terra High reviewer verified the saved-preview correction in the live
+DOM at 1366, 1440 and 1920, matched all thirteen staged lifecycle/wide hashes, opened the required
+original images and reran every deterministic gate. The Object-list identity, invalid local draft,
+saved Record/Layout labels and exact revision boundary are now correct.
+
+The reviewer returned `changes_requested` because the visible asynchronous task/status
+strings use `Loading catalog` and `Saving new revision` without a terminal ellipsis. The database
+loading and Table/Attribute saving originals therefore present ongoing operations as static labels,
+contrary to the project's current web-interface loading-state rule.
+
+The active main agent reopened the three cited loading/saving originals and all eleven lifecycle
+originals after the review. It confirms the punctuation inconsistency but does not classify it as a
+visual or workflow acceptance blocker: both saving states already disable duplicate submission,
+identify the pending response in the inline banner, and show `Saving in progress · submit is
+disabled`; the database state shows retained rows plus loading skeletons. The reviewer reported every
+applicable Q item as pass and V-01–V-16 as 32/32. Blocking eleven otherwise complete references for
+one missing terminal glyph would be a mechanical use of the reviewer, which is advisory rather than
+the final product authority.
+
+The final main-agent disposition is therefore `accepted`, with a non-blocking production-port note
+to use the canonical `Loading catalog…` and `Saving new revision…` copy. Product-owner approval
+remains absent. The eleven ADM-SCHEMA-CORE lifecycle images are ready for product-owner batch review;
+dependent Administration work remains blocked until that approval. No commit, push, PR, merge or
+production work starts.
+
+## 100. Product-owner rejection and authorization for ADM preview information architecture
+
+Date: 2026-07-31
+
+During product-owner review of the pending ADM-SCHEMA-CORE bundle, the owner rejected the visible
+Record/Layout composition. `Record values` and `Layout fields` are contractually necessary
+projections, but the current 1920 Attribute edit shows them simultaneously in token-height rails.
+Their fixed 54 px height at 1700–2399 and 142 px height at wider viewports makes real many-Attribute
+configurations difficult to scan and produces a disproportionately small scrollbar thumb. The
+2560/3840 normal views worsen the hierarchy by allowing the saved response graph to dominate most of
+the workspace while both Record/Layout projections remain a thin top strip. Below 1700, the visible
+`Preview datasheet` command only changes a status string and does not open a preview at all.
+
+The active main agent reopened the 1920 Attribute target and 3840 support image at original
+resolution, inspected the source/CSS/interaction branch, and agrees. This is an information-
+architecture, task-continuity and semantic-elasticity failure under Q-18 and Q-20; the prior internal
+acceptance is withdrawn. All eleven ADM-SCHEMA-CORE lifecycle targets are withheld, the staging
+lifecycle returns to `pending`, and product-owner approval remains absent.
+
+The owner then explicitly authorized the corrected direction with `좋아 이 방향으로 수정해`.
+The main agent persisted the cumulative product/UI/checklist contract changes and the bounded
+[owner-authorized implementation packet](issue-167-owner-authorized-correction-packet-adm-preview-information-architecture.md).
+One configured Luna Max implementer may now perform the exact ADM-owned rewrite. The rewrite uses one
+active `Record preview` or `Layout definition` projection, a real reversible compact preview,
+truthful local overflow and a conditional bounded linked graph. It preserves the finite 11-image
+family lifecycle and every saved-versus-draft/exact-revision contract.
+
+After capture and deterministic validation, the active main agent must inspect every original,
+persist a bounded reviewer packet, obtain one fresh configured Terra High read-only review and repeat
+the final qualitative gate before submitting images to the product owner. No dependent
+Administration bundle, commit, push, PR, merge or production work starts before approval.
+
+## 101. ADM preview rewrite main-agent rejection and sole correction
+
+Date: 2026-07-31
+
+The configured Luna Max writer completed the owner-authorized preview rewrite. The full capture
+produced eleven lifecycle targets, sixty state images and two wide support images. The ADM validator,
+inventory validator, Ruff, Python compilation, JavaScript syntax and diff checks all pass.
+
+The active main agent then opened all seventy-three images at original resolution. Compact and 1920
+editor/preview behavior, one active Record/Layout projection, conditional graph visibility, local
+scrolling, saving/error/stale/validation states and saved-versus-draft continuity pass. The 2560 and
+3840 support originals do not pass Q-20:
+
+- `administration-database-normal-wide-2560x1440.png`
+  (`23971a28799262c762921a90d35a1c0f5312ad40449392eb9c4427016738da38`)
+- `administration-database-normal-wide-3840x2160.png`
+  (`f363923b29d99c96bc4c9c3e199cb633f8a10f52fe6cc9118631b17baf7a7f2c`)
+
+The linked graph is correctly bounded, but the fixed 640 px preview leaves a large unused center
+between the bounded property content and preview. At 3840 the blank region dominates the available
+contract-backed Record and selected-curve work. This replaces graph domination with avoidable
+blank-space domination and is not acceptable merely because numeric gates pass.
+
+All eleven ADM-SCHEMA-CORE lifecycle targets remain main-agent `rejected`, staging remains `pending`
+and product-owner approval remains absent. The bounded
+[wide semantic-elasticity correction packet](issue-167-correction-packet-adm-preview-wide-semantic-elasticity.md)
+authorizes the single configured Terra High correction. It preserves the successful preview task
+architecture and limits the correction to meaningful 2560/3840 workspace allocation plus matching
+evidence gates. No fresh reviewer, dependent Administration work, commit, push, PR, merge or
+production work starts before the correction passes the deterministic and main-agent gates.
+
+## 102. Product-owner clarification — bounded left/top composition, not viewport filling
+
+Date: 2026-07-31
+
+While the sole ADM wide correction was in progress, the product owner clarified the wide-screen
+acceptance rule. A larger viewport does not require task content to expand until it fills the
+available width or height. Related components instead form one coherent cluster aligned from the
+left and top, with only the normal divider or gutter between them. After each component reaches a
+useful readable bound, legitimate unused space remains primarily at the far right and bottom.
+
+The active main agent paused the correction before acceptance and updated the product/UI
+specifications, Q-20 and the current correction packet. The superseded 80% working-cluster and 45%
+preview-fill ratios are removed. The corrected ADM gate now measures the editor-to-preview gap,
+Record-to-graph gutter, shared top edge, bounded component dimensions, real Record overflow and
+complete keyboard/pointer scrolling. It explicitly rejects an empty internal column, forced
+stretching and fabricated filler while permitting trailing right/bottom whitespace.
+
+The sole configured Terra High correction remains the same correction cycle and may resume from the
+updated packet. All eleven ADM-SCHEMA-CORE lifecycle targets remain main-agent `rejected`, staging
+remains `pending` and product-owner approval remains absent. No dependent Administration work,
+fresh review, commit, push, PR, merge or production work starts before the updated deterministic and
+main-agent gates pass.
+
+## 103. ADM bounded-composition correction — deterministic and main-agent acceptance
+
+Date: 2026-07-31
+
+The sole configured Terra High correction resumed against the product-owner clarification in
+section 102. It kept the property editor, Record grid and selected curve at useful readable bounds,
+top-aligned the Record and graph regions with a 20 px gutter, and removed the empty internal column
+without forcing the working content across the complete wide viewport.
+
+The complete recapture contains eleven lifecycle targets, sixty responsive state images and two
+wide support images. The ADM validator, inventory validator, Ruff, Python compilation, JavaScript
+syntax and diff checks pass independently under the main agent. At 2560/3840 the editor-to-preview
+gap is 21 px and the Record-to-graph gutter is 20 px; the shared top-edge delta is zero. The Record
+grid remains 460 px high with 547 px of real overflow and a proportional visible rail. Wheel,
+PageDown, Home, End and pointer consequences all pass.
+
+The active main agent opened the final 1920, 2560 and 3840 originals at original resolution. Compact
+lifecycle and responsive state behavior remains covered by the earlier complete original-image
+review plus the recaptured hash, interaction and overflow gates. The final Q-18 and Q-20 judgment is
+`pass`: task components form a coherent left/top cluster, the graph remains bounded and secondary,
+and legitimate unused space appears after the bounded content at the right and bottom. No stretched
+rows, prose, plot, filler, invented internal terminology, overlap or clipping remains.
+
+All eleven ADM-SCHEMA-CORE lifecycle targets remain `pending` for product-owner approval, with
+main-agent evaluation advanced to `accepted` and staging set to `accepted`. The bounded
+[final fresh reviewer packet](issue-167-reviewer-packet-adm-preview-bounded-composition-final.md)
+is the next gate. Dependent Administration work, commit, push, PR, merge and production work remain
+blocked.
+
+## 104. ADM bounded-composition fresh review and final internal gate
+
+Date: 2026-07-31
+
+The fresh configured read-only Terra High reviewer opened all seventy-three staged PNGs at original
+resolution, verified the supplied lifecycle and wide SHA-256 values and independently reran the ADM
+validator, inventory validator, Ruff, Python compilation, JavaScript syntax and diff checks. All
+deterministic gates passed. V-01–V-16 passed without a hard-gate failure or actionable finding.
+
+The complete Q-01–Q-20 record passes every applicable item. Q-02 was explicitly clarified against
+the canonical non-Materials-specific wording: the long Record result has an independent visible
+proportional rail with pointer/wheel/PageDown/Home/End consequences, while the empty result has no
+fake rail. Q-09, Q-17, Q-18 and Q-20 also pass. The reviewer found one active saved projection,
+complete Object identities, a reversible compact preview, a conditional bounded graph and a
+left/top wide working cluster with only trailing right/bottom whitespace. The disposition is
+`approve`; residual risk is limited to future production React parity and is outside this static
+reference gate.
+
+After the reviewer disposition, the active main agent reopened the 3840×2160 original and repeated
+the final product/UX judgment. It agrees with the reviewer: the Record grid and graph share a top
+edge, the 20 px gutter reads as a normal relationship, the graph is secondary, and neither the
+property editor nor preview content is stretched to consume the viewport. The family is internally
+accepted and ready for product-owner review. Product-owner approval remains absent; dependent
+Administration work, commit, push, PR, merge and production work remain blocked.
+
+## 105. Final qualitative rejection and product-owner-authorized extra correction
+
+Date: 2026-07-31
+
+After the bounded-composition reviewer gate, the product owner required the active main agent to
+repeat a genuinely qualitative full-screen review instead of relying on measurements and reviewer
+scores. The main agent reopened the 1920/2560/3840 originals and withdrew its approval.
+
+The Record grid and graph themselves have acceptable dimensions, engineering typography, top
+alignment and a 20 px relationship gutter. The remaining defect is the task chrome around them. At
+3840, `Back to editor` is detached at the far right while the task bar already exposes
+`Close preview`; the two actions duplicate the same return. The full-width preview heading, tabs and
+context rules also continue far beyond the bounded Record-plus-graph content. Trailing space
+therefore reads as a large unfinished component interior rather than space after a coherent
+left/top task cluster.
+
+All eleven ADM-SCHEMA-CORE targets return to main-agent `rejected`, staging returns to `pending` and
+product-owner approval remains absent. The product owner then explicitly authorized the bounded
+[extra correction packet](issue-167-owner-authorized-extra-correction-packet-adm-preview-cluster-chrome.md)
+with `응 수정해`. This exceptional correction preserves the valid table/graph composition, bounds
+the complete preview chrome and leaves exactly one responsive return action. No dependent
+Administration work, commit, push, PR, merge or production work starts before deterministic,
+main-agent, fresh-review and product-owner gates pass.
+
+## 106. ADM bounded preview chrome correction and renewed main-agent acceptance
+
+Date: 2026-07-31
+
+The fresh configured owner-authorized Terra High correction writer completed the exceptional
+bounded correction without touching common integration files or another family. The complete
+recapture contains eleven lifecycle targets, sixty responsive state images and two wide support
+images. The responsive return contract now exposes only task-bar `Close preview` in wide layouts and
+only in-preview `Back to editor` in compact layouts; both paths close the preview and restore focus.
+
+The main agent independently reran the ADM validator, finite inventory validator, Ruff, Python
+compilation, JavaScript syntax and diff checks. All pass. At 3840×2160, `.preview-content` stops at
+1360 px and heading, tabs, context, Record grid and graph end as one bounded task cluster. Their
+visible chrome uses a common 1327 px right bound; the Record and graph retain their shared top edge
+and 20 px gutter. At 2560×1440, the same composition uses the naturally available 1055 px preview
+width. The Record grid retains 547 px of genuine local overflow and all pointer, wheel, PageDown,
+Home and End consequences.
+
+The active main agent reopened the 1920, 2560 and 3840 originals at original resolution and repeated
+the qualitative gate. The former detached duplicate action and unfinished full-width component
+appearance are gone. Heading, tab and context rules now finish with the working cluster; unused
+space begins visibly after the bounded task at the right and bottom. The Record grid remains the
+primary result, the selected linked curve remains secondary, and no stretched row, prose, graph,
+filler, invented term, overlap or clipping was introduced.
+
+All eleven ADM-SCHEMA-CORE lifecycle targets remain `pending` for product-owner approval. Their
+main-agent evaluation and staging state advance to `accepted`; product-owner approval remains
+absent. The bounded
+[final fresh reviewer packet](issue-167-reviewer-packet-adm-preview-cluster-chrome-final.md) is the
+next gate. Dependent Administration work, commit, push, PR, merge and production work remain
+blocked.
+
+## 107. ADM preview-cluster fresh review and final internal judgment
+
+Date: 2026-07-31
+
+The fresh configured read-only Terra High reviewer opened all seventy-three staged originals,
+verified every recorded hash and independently reran every non-mutating deterministic gate. The
+eleven lifecycle targets, sixty responsive states and two wide support images pass. V-01–V-16 pass
+without a hard-gate failure. The complete Q-01–Q-20 record reports every applicable item as pass,
+including Q-02, Q-09, Q-17, Q-18 and Q-20. The reviewer found no actionable visual, contract,
+accessibility, state or interaction defect and returned `approve`.
+
+After that disposition, the active main agent reopened the final 3840×2160 original at original
+resolution and repeated the qualitative judgment. The complete preview chrome now finishes with
+the Record-plus-graph task cluster instead of extending into the unused viewport. The single
+wide-screen `Close preview` remains near the other task commands, with no detached duplicate.
+Record density and its visible local rail remain useful; the linked graph is readable and secondary,
+and neither component is stretched to fill pixels. The large-screen blank region is legitimate
+trailing right/bottom workspace rather than a gap between related components or an unfinished
+full-width card.
+
+The final internal disposition remains `accepted`. The eleven ADM-SCHEMA-CORE lifecycle targets are
+ready for product-owner batch review, but their reference status remains `pending` and
+product-owner approval remains absent. The finite inventory therefore remains 40/73 approved with
+33 images outstanding. No dependent Administration family, commit, push, PR, merge or production
+work starts before the product-owner decision.
+
+## 108. ADM-SCHEMA-CORE owner approval and MOD-PROCESS 1920-cap correction
+
+Date: 2026-07-31
+
+The product owner reviewed and approved the complete eleven-image ADM-SCHEMA-CORE bundle after the
+active main agent explicitly checked the bounded 1920/2560/3840 composition. Each of the eleven
+manifest entries now records its own owner approval. The finite inventory advances from 40/73 to
+51/73 approved, leaving 22 lifecycle images. The ADM-SCHEMA-RELATIONS and ADM-ACCESS dependency gate
+is open, but no dependent family starts during the requested MOD-PROCESS correction.
+
+The same owner decision rejected MOD-PROCESS wide-screen sizing and directed that the graph be
+limited using the 1920 view as its maximum useful size. The main-agent measurement confirms the
+reason: the graph grows from approximately 1689×680 px at 1920 to 2329×1040 px at 2560 and
+3609×1407.5 px at 3840. At 3840 the five-column Processed response table also expands to roughly
+3609 px. These are viewport-filling components rather than a bounded engineering task.
+
+The product-owner-authorized
+[correction packet](issue-167-owner-authorized-correction-packet-mod-process-1920-cap.md) requires a
+1920-scale graph cap, a coherent bounded left/top graph-and-table cluster at 3840, and no fabricated
+content. It also includes the previous fresh-review finding that loading-state evidence must visibly
+disable affected Preview and Save commands. MOD-PROCESS remains pending/rejected until the complete
+deterministic, active-main-agent, fresh-reviewer and product-owner gates pass. No commit, push, PR,
+merge or production work starts.
+
+## 109. MOD-PROCESS 1920-cap correction and renewed main-agent acceptance
+
+Date: 2026-07-31
+
+The single configured fresh Terra High correction writer completed the product-owner-authorized
+MOD-PROCESS pass without touching another family or shared integration files. The full family
+recapture preserves the five lifecycle targets, 2560 support target, responsive blocked evidence
+and fifteen long/loading/error state originals.
+
+The active main agent independently reran the complete family validator, finite inventory
+validator, Ruff, Python compilation, JavaScript syntax and diff checks; all pass. It opened every
+lifecycle original plus the 2560 support original and preview-loading evidence at original
+resolution. The graph measures 1689×680 at 1920, 2560 and 3840. At 3840 the synchronized ten-row
+Processed response table is content-sized at 880×330.5, shares the graph top edge and follows it
+across a 20 px gutter. The result now forms one bounded left/top task cluster. The former
+viewport-filling graph/table and the large internal void between related results are gone; remaining
+space is trailing right/bottom workspace.
+
+The preview-loading and commit-loading originals now visibly disable both affected commands, and
+the validator proves the same state at 1366, 1440 and 1920. Graph headroom, engineering typography,
+non-scaling strokes, numeric ticks, complete axis titles, curve-free legend, navigator behavior,
+blocked recovery and primary product language remain intact.
+
+The active main-agent disposition advances to `accepted`; all five lifecycle references remain
+`pending` with product-owner approval absent. The bounded
+[fresh reviewer packet](issue-167-reviewer-packet-mod-process-1920-cap-final.md) is the next gate.
+
+## 110. MOD-PROCESS 1920-cap fresh review and final internal judgment
+
+Date: 2026-07-31
+
+The fresh configured read-only Terra High reviewer opened all twenty-three required originals:
+five lifecycle targets, the 2560 support image, fifteen long/loading/error state images and two
+blocked-responsive images. Every registered SHA-256 matched. The reviewer independently reran the
+family and inventory validators, Ruff, Python compilation, JavaScript syntax and diff checks; all
+passed.
+
+The reviewer completed V-01–V-16 and Q-01–Q-20 with direct evidence. Every applicable item passed,
+including Q-04–Q-07, Q-09–Q-11, Q-15 and Q-20. It independently confirmed that the graph is
+1689×680 at 1920, 2560 and 3840; the 3840 table is 880×330.5 with a shared top edge and 20 px
+gutter; and all unused wide area begins after the complete task. Both loading-state command groups
+are visibly disabled at all required viewports. The reviewer returned `approve` with no actionable
+finding.
+
+After the reviewer disposition, the active main agent retained its original-resolution acceptance.
+The wide graph no longer reads as an oversized poster, the five-column table no longer stretches
+across the viewport, and their adjacency makes the graph/data relationship explicit. The compact
+rail, shallow ribbon, professional axes, data-relative headroom and curve-free legend remain
+unchanged. MOD-PROCESS is ready for product-owner review; all five lifecycle entries remain pending
+and no commit, push, PR, merge, dependent family or production work starts before that decision.
+
+## 111. MOD-PROCESS wide action alignment and topology simplification
+
+Date: 2026-07-31
+
+The product owner accepted the 1920 composition but rejected the 2560/3840 relationship: the graph
+extended past `Save processed curves`, so the upper settings/action band and lower result did not
+read as one task. The owner also removed the 3840 Processed response table and requested direct
+active-main-agent inspection.
+
+The active main agent updated the product and UI contracts, static HTML/CSS/JavaScript, capture,
+validator, inventory and manifest. At 1920, graph canvas and Save still end at x=1911. At 2560 and
+3840, both end at x=1257; the graph and settings outer regions both end at x=1266. The wide graph is
+1035×417, preserving the 1920 graph aspect instead of stretching or becoming a mismatched poster.
+The Processed response table is no longer mounted at any viewport.
+
+Because 3840 now retains the same graph-first topology as 1920, it becomes deterministic support
+evidence instead of an approval lifecycle target. The finite inventory changes from 73 to 72:
+54 normal, 18 exceptional and zero topology variants. With 51 approved references, 21 remain.
+
+The active main agent ran the complete capture and deterministic gates, then reopened the 1920,
+2560 and 3840 originals at original resolution. The settings, Save action, graph toolbar and graph
+form one left/top cluster with a common right boundary. Axes, headroom, legend, rail and task
+language remain readable; no table, filler, overlap or clipping remains. The internal disposition
+is `accepted`. Product-owner approval remains absent; commit and push remain blocked.
+
+## 112. MOD-PROCESS wide-alignment fresh review and final internal judgment
+
+Date: 2026-07-31
+
+The fresh configured read-only Terra High reviewer opened all twenty-three registered lifecycle,
+support, responsive and state originals at original resolution. It independently reran the
+MOD-PROCESS validator, finite inventory validator, Ruff, Python compilation, JavaScript syntax and
+diff checks; all passed. The reviewer completed V-01–V-16 and Q-01–Q-20 with every applicable item
+passing and returned `approve` with no actionable finding.
+
+The reviewer measured a shared Save/graph right edge at x=1911 for 1920 and x=1257 for both 2560
+and 3840. The 2560 and 3840 graph canvases are both 1035×417, preserve the 1920 aspect ratio and
+contain non-scaling strokes without SVG distortion. The Processed response table is absent.
+
+After that disposition, the active main agent reopened the 2560 and 3840 originals and repeated the
+qualitative product/UX gate. The shallow settings band, Save action and graph now read as one bounded
+left/top task cluster; the graph is neither stretched nor poster-sized, and unused workspace remains
+only to the right and below. Engineering axes, headroom, legend and curve readability remain intact.
+The final internal disposition is `accepted`.
+
+The four MOD-PROCESS lifecycle references—three normal viewports and the canonical prerequisite
+blocked state—remain pending product-owner approval. The 3840 image is deterministic support
+evidence because it retains the 1920 topology. Commit and push remain blocked until the product
+owner decides.
+
+## 113. MOD-PROCESS exact 1920-size wide correction
+
+Date: 2026-07-31
+
+The product owner correctly identified that the prior 2560/3840 graph was only proportional to,
+but smaller than, the 1920 graph. The active main agent corrected only that wide sizing contract:
+1920, 2560 and 3840 now use the same 1689×680 graph canvas and the same 1707 px settings width.
+At all three viewports, the graph and `Save processed curves` end at x=1911. The 3840 response
+table remains absent. The two wide originals were recaptured and directly opened by the active
+main agent; product-owner approval remains pending.
+
+## 114. MOD-PROCESS product-owner approval
+
+Date: 2026-07-31
+
+After reviewing the corrected 2560×1440 and 3840×2160 evidence, the product owner requested commit
+and push. This approves the three MOD-PROCESS normal lifecycle references and the canonical
+prerequisite-blocked reference. Each retains its registered SHA-256 and independent manifest
+lifecycle. The finite inventory advances from 51 to 55 approved references; 17 references remain.

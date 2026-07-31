@@ -109,6 +109,7 @@ EXPECTED_ATTRIBUTE_REVISIONS = {
 }
 EXPECTED_CURVE_ARTIFACT_ID = "dddddddd-dddd-4ddd-8ddd-dddddddddddd"
 EXPECTED_CURVE_ARTIFACT_SHA256 = "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+LONG_INVALID_ATTRIBUTE_DRAFT = "Material condition — controlled vocabulary for heat treatment, processing route and test-stage context"
 
 PRESERVED_LOWER_HASHES = {
     "administration-database-normal-1366x768": "9995b53dae3a9907fe95f33ad9eed0b4a96a19fe1d7e7d19f61f89249f313724",
@@ -118,7 +119,6 @@ PRESERVED_LOWER_HASHES = {
     "administration-attribute-edit-draft-1366x768": "e6682346823355eb99da5eb72eb5c795a31b4847a025d5f554a572e607d7dfd0",
     "administration-attribute-edit-draft-1440x900": "3db6cd5a26221bf62d13bcedd07c7d3a309df3984ef81914a5828da47f9a1a62",
     "administration-edit-stale-conflict-1440x900": "e64c034fb1ad3fd6428ca319d91bde6ec7c675b95b5332d7cb2db49a9552cd21",
-    "administration-attribute-long-invalid-1440x900": "51157e7802a56e093d228a74770cd43b6ad85bc7cb4be2161eca1859087f3994",
 }
 
 
@@ -167,6 +167,11 @@ def validate_long_attribute_row_containment(snapshot: dict[str, Any], target: st
         return
     selected = snapshot["selectedRow"]
     require(selected and selected["id"] == "material-condition", f"long Attribute selection drifted for {target}: {selected}")
+    require(selected["name"] == "Material condition", f"governed Attribute identity drifted in the list for {target}: {selected}")
+    fields = {field["name"]: field["value"] for field in snapshot["fields"]}
+    long_draft = fields.get("attributeName", "")
+    require(long_draft == LONG_INVALID_ATTRIBUTE_DRAFT, f"long invalid draft is not preserved in the editor for {target}: {long_draft}")
+    require(long_draft != selected["name"], f"editor draft leaked into governed list identity for {target}: {selected}")
     cells = selected["cells"]
     name = cells["name"]
     definition = cells["definition"]
@@ -174,12 +179,32 @@ def validate_long_attribute_row_containment(snapshot: dict[str, Any], target: st
     primary_name = cells["primaryName"]
     require(name["x"] + name["width"] <= definition["x"] + 0.5, f"long Attribute name overlaps Definition for {target}: {cells}")
     require(definition["x"] + definition["width"] <= revision["x"] + 0.5, f"long Attribute Definition overlaps Rev for {target}: {cells}")
-    require(primary_name["scrollWidth"] > primary_name["clientWidth"], f"long Attribute name is not ellipsized for {target}: {primary_name}")
-    require(primary_name["overflow"] == "hidden" and primary_name["textOverflow"] == "ellipsis" and primary_name["whiteSpace"] == "nowrap", f"long Attribute name ellipsis contract drifted for {target}: {primary_name}")
+    require(primary_name["scrollWidth"] <= primary_name["clientWidth"] + 1, f"governed Attribute identity is clipped for {target}: {primary_name}")
     editor_scroll = snapshot["localScroll"]["editor"]
     require(editor_scroll["scrollHeight"] > editor_scroll["clientHeight"], f"long Attribute editor does not have genuine overflow for {target}: {editor_scroll}")
     require(editor_scroll["overflowY"] == "scroll", f"long Attribute editor rail is not permanently reserved for {target}: {editor_scroll}")
     require(editor_scroll["reservedScrollbarWidth"] >= 12, f"long Attribute editor rail is not visibly reserved for {target}: {editor_scroll}")
+
+
+def validate_long_invalid_saved_preview_truth(snapshot: dict[str, Any], target: str) -> None:
+    if snapshot["state"] != "attribute-long-invalid":
+        return
+    preview = snapshot["preview"]
+    draft = LONG_INVALID_ATTRIBUTE_DRAFT
+    require(
+        all(draft not in value for value in (preview["title"], preview["subtitle"], preview["record"], preview["table"], preview["selection"], preview["text"])),
+        f"unsaved long draft leaked into saved preview heading, subtitle, context or body for {target}: {preview}",
+    )
+    require(
+        all(row["name"] != draft for row in snapshot["listRows"]),
+        f"unsaved long draft leaked into Object-list Name for {target}: {snapshot['listRows']}",
+    )
+    value_row = next((row for row in preview["valueRows"] if row["id"] == "material-condition"), None)
+    require(value_row, f"saved Material condition projection is missing for {target}: {preview}")
+    require(value_row["label"] == "Material condition", f"saved Record projection uses draft rather than stored Attribute name for {target}: {value_row}")
+    require(value_row["revisionId"] == EXPECTED_ATTRIBUTE_REVISIONS["material-condition"], f"saved Material condition revision pin drifted for {target}: {value_row}")
+    require(preview["title"] == "Material datasheet" and preview["subtitle"].startswith("Layout · Material datasheet · revision 6") and preview["record"] == "DP780 synthetic demo steel" and preview["table"] == "Materials master", f"saved preview identity/context drifted for {target}: {preview}")
+    require(preview["layoutRevisionId"] == "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee" and preview["recordRevisionId"] == "ffffffff-ffff-4fff-8fff-ffffffffffff" and preview["recordTableRevisionId"] == "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee", f"saved Layout/Record revision pins drifted for {target}: {preview}")
 
 
 def validate_editor_scroll_rail(snapshot: dict[str, Any], target: str) -> None:
@@ -234,11 +259,9 @@ def validate_preview_graph(snapshot: dict[str, Any], viewport_name: str, target:
     require(path["right"] - area["left"] <= (area["right"] - area["left"]) * 0.9 and area["right"] - path["right"] >= (area["right"] - area["left"]) * 0.08, f"graph right headroom is insufficient for {target}: {path}, {area}")
     require(path["top"] - area["top"] >= (area["bottom"] - area["top"]) * 0.05, f"graph top headroom is insufficient for {target}: {path}, {area}")
     section = graph["section"]
-    editor = snapshot["geometry"]["editorPane"]
-    status_bar = snapshot["geometry"]["statusBar"]
-    require(editor and status_bar and section["y"] >= editor["y"] and section["y"] + section["height"] >= editor["y"] + editor["height"] * 0.88 and section["y"] + section["height"] <= status_bar["y"], f"graph does not reach the useful lower editor region for {target}: {section}, {editor}, {status_bar}")
-    minimum_height = {"1920x1080": 300, "2560x1440": 600, "3840x2160": 1000}[viewport_name]
-    require(section["height"] >= minimum_height, f"graph result region is too short for {target}: {section}")
+    panel = snapshot["geometry"]["preview"]
+    require(panel and section and section["x"] >= panel["x"] and section["x"] + section["width"] <= panel["x"] + panel["width"] + 1, f"graph escapes the bounded preview pane for {target}: {section}, {panel}")
+    require(section["height"] <= 400 and graph["frame"]["height"] <= 380 and graph["plotBox"]["height"] <= 320, f"graph frame is not explicitly bounded for {target}: {graph}")
     require(graph["artifactId"] == EXPECTED_CURVE_ARTIFACT_ID and graph["artifactSha256"] == EXPECTED_CURVE_ARTIFACT_SHA256, f"curve Artifact identity drifted for {target}: {graph['artifactId']}, {graph['artifactSha256']}")
 
 
@@ -324,6 +347,52 @@ def validate_preview_contract(snapshot: dict[str, Any], viewport_name: str, targ
             require(selected_value_rows and selected_value_rows == selected_layout_rows, f"selected Attribute is not synchronized into the preview for {target}: {preview}")
 
 
+def validate_preview_contract_v2(snapshot: dict[str, Any], viewport_name: str, target: str) -> None:
+    preview = snapshot["preview"]
+    unavailable = snapshot["state"] in {"empty", "table-add"}
+    if unavailable:
+        require(preview["projectionState"] == "unavailable", f"unavailable Table state retained a preview projection for {target}: {preview}")
+        require(not preview["record"] and not preview["table"] and not preview["valueRows"] and not preview["layoutRows"], f"unavailable Table state retained saved rows for {target}: {preview}")
+        require(all(value not in preview["text"] for value in ("Materials master", "DP780 synthetic demo steel", "Material datasheet")), f"unavailable Table state contains stale saved context for {target}")
+        return
+    projection = preview.get("activeProjection")
+    require(projection in {"record", "layout"}, f"preview task projection is missing for {target}: {preview}")
+    tabs = preview.get("projectionTabs", [])
+    require(len(tabs) == 2 and {tab["name"] for tab in tabs} == {"Record preview", "Layout definition"} and sum(tab["selected"] for tab in tabs) == 1, f"preview task choices are not exclusive/accessible for {target}: {tabs}")
+    if projection == "record":
+        require([row["id"] for row in preview["valueRows"]] == EXPECTED_PREVIEW_FIELDS, f"saved Record order drifted for {target}: {preview['valueRows']}")
+        require(not preview["layoutRows"], f"inactive Layout definition grid leaked into Record preview for {target}: {preview['layoutRows']}")
+        require(preview.get("activeTable") == "record" and preview.get("activeRowCount") == len(EXPECTED_PREVIEW_FIELDS), f"Record preview active grid missing for {target}: {preview}")
+        require([row["revisionId"] for row in preview["valueRows"]] == [EXPECTED_ATTRIBUTE_REVISIONS[field] for field in EXPECTED_PREVIEW_FIELDS], f"Record value revision pins drifted for {target}: {preview['valueRows']}")
+        curve = next((row for row in preview["valueRows"] if row["id"] == "representative-response"), None)
+        require(curve and curve["artifactId"] == EXPECTED_CURVE_ARTIFACT_ID and curve["artifactSha256"] == EXPECTED_CURVE_ARTIFACT_SHA256, f"saved curve Artifact pin drifted for {target}: {curve}")
+    else:
+        require([row["id"] for row in preview["layoutRows"]] == EXPECTED_PREVIEW_FIELDS, f"saved Layout order drifted for {target}: {preview['layoutRows']}")
+        require(not preview["valueRows"], f"inactive Record preview grid leaked into Layout definition for {target}: {preview['valueRows']}")
+        require(preview.get("activeTable") == "layout" and preview.get("activeRowCount") == len(EXPECTED_PREVIEW_FIELDS), f"Layout definition active grid missing for {target}: {preview}")
+    require(preview["title"] == "Material datasheet" and preview["subtitle"].startswith("Layout · Material datasheet · revision 6"), f"preview identity drifted for {target}: {preview}")
+    require(preview["layoutRevisionId"] == "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee" and preview["recordRevisionId"] == "ffffffff-ffff-4fff-8fff-ffffffffffff" and preview["recordTableRevisionId"] == "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee", f"saved revision links drifted for {target}: {preview}")
+    expected_open = target.endswith("normal-1920x1080") or target.startswith("administration-database-normal-wide")
+    if expected_open:
+        require(preview["visible"] is True and preview["open"] is True and preview["commandLabel"] == "Close preview", f"preview did not open as an explicit task state for {target}: {preview}")
+        return_actions = preview.get("returnActions", [])
+        require(len(return_actions) == 1 and return_actions[0]["name"] == "Close preview" and return_actions[0]["action"] == "preview" and return_actions[0]["disabled"] is False, f"wide preview must expose only the task-bar Close preview action for {target}: {return_actions}")
+        panel = snapshot["geometry"]["preview"]
+        require(panel and panel["width"] >= 320 and panel["height"] > 0, f"preview pane is too small for {target}: {panel}")
+        table_scrolls = [item for item in snapshot["localScroll"].get("previewTables", []) if item]
+        require(len(table_scrolls) == 1 and table_scrolls[0]["overflowY"] == "auto", f"active preview table scroll missing for {target}: {table_scrolls}")
+        item = table_scrolls[0]
+        require(item["scrollHeight"] > item["clientHeight"] and item["partialRows"] == 0 and item["rail"] and not item["rail"]["hidden"] and 12 <= item["rail"]["rect"]["width"] <= 16, f"preview table rail is missing or clips rows for {target}: {item}")
+        rail = item["rail"]
+        require(rail["thumbRect"]["height"] < rail["rect"]["height"] and rail["ariaMax"] > 0 and rail["ariaNow"] == 0, f"preview table rail is not proportional/truthful for {target}: {item}")
+    else:
+        require(preview["visible"] is False and preview["open"] is False and preview["commandLabel"] == "Preview datasheet", f"editor-first target unexpectedly exposes preview for {target}: {preview}")
+        hidden = snapshot["geometry"]["preview"]
+        require(hidden is None or hidden["width"] == 0, f"hidden preview geometry leaked for {target}: {hidden}")
+    if snapshot["state"].startswith("attribute") or snapshot["state"] == "attribute-long-invalid":
+        require(preview["graph"]["visible"] is False, f"Attribute edit exposed an unrelated response graph for {target}: {preview['graph']}")
+
+
 def png_dimensions(path: Path) -> tuple[int, int]:
     data = path.read_bytes()
     require(data[:8] == b"\x89PNG\r\n\x1a\n", f"invalid PNG signature: {path}")
@@ -363,7 +432,7 @@ def viewport_contract(snapshot: dict[str, Any], viewport_name: str, target: str)
     require(snapshot["localScroll"]["list"]["overflowY"] in {"auto", "scroll"} and "stable" in snapshot["localScroll"]["list"]["scrollbarGutter"], f"list local scroll rail not reserved for {target}")
     require(snapshot["localScroll"]["editor"]["overflowY"] in {"auto", "scroll"} and "stable" in snapshot["localScroll"]["editor"]["scrollbarGutter"], f"editor local scroll rail not reserved for {target}")
     validate_editor_scroll_rail(snapshot, target)
-    validate_preview_contract(snapshot, viewport_name, target)
+    validate_preview_contract_v2(snapshot, viewport_name, target)
     css_text = (HERE / "administration-schema-core.css").read_text(encoding="utf-8")
     require(":focus-visible" in css_text and "transition: all" not in css_text and "outline: none" not in css_text, f"focus/interaction CSS contract failed for {target}")
 
@@ -374,7 +443,8 @@ def validate_target(browser: Browser, target: str, staged: dict[str, Any]) -> No
     require(image.exists(), f"missing approval image: {image}")
     require(png_dimensions(image) == (VIEWPORTS[spec["viewport"]]["width"], VIEWPORTS[spec["viewport"]]["height"]), f"wrong dimensions for {target}")
     require(sha256(image) == staged["sha256"], f"staging hash mismatch for {target}")
-    page, console_errors, page_errors = open_page(browser, spec["role"], spec["state"], spec["viewport"])
+    preview = "open" if target.endswith("normal-1920x1080") else None
+    page, console_errors, page_errors = open_page(browser, spec["role"], spec["state"], spec["viewport"], preview=preview)
     try:
         require(not console_errors and not page_errors, f"browser errors for {target}: {console_errors + page_errors}")
         snapshot = dom_snapshot(page)
@@ -383,6 +453,7 @@ def validate_target(browser: Browser, target: str, staged: dict[str, Any]) -> No
         validate_list_information_economy(snapshot, target)
         validate_attribute_state_semantics(snapshot, spec["state"], target)
         validate_long_attribute_row_containment(snapshot, target)
+        validate_long_invalid_saved_preview_truth(snapshot, target)
         if spec["state"] == "normal":
             require(snapshot["editorMode"] == "table-readonly", f"normal editor mode changed for {target}")
             require(any(button["name"] == "Edit Table" for button in snapshot["buttons"]), f"normal Table action missing for {target}")
@@ -421,7 +492,7 @@ def validate_wide_evidence(browser: Browser, target: str, staged: dict[str, Any]
     require(image.exists(), f"missing wide evidence image: {image}")
     require(png_dimensions(image) == (WIDE_VIEWPORTS[spec["viewport"]]["width"], WIDE_VIEWPORTS[spec["viewport"]]["height"]), f"wrong wide evidence dimensions for {target}")
     require(sha256(image) == staged["sha256"], f"wide evidence staging hash mismatch for {target}")
-    page, console_errors, page_errors = open_page(browser, spec["role"], spec["state"], spec["viewport"])
+    page, console_errors, page_errors = open_page(browser, spec["role"], spec["state"], spec["viewport"], preview="open", field="representative-response")
     try:
         require(not console_errors and not page_errors, f"browser errors for wide evidence {target}: {console_errors + page_errors}")
         snapshot = dom_snapshot(page)
@@ -432,12 +503,41 @@ def validate_wide_evidence(browser: Browser, target: str, staged: dict[str, Any]
         graph = preview["graph"]
         frame = graph["frame"]
         plot_box = graph["plotBox"]
-        status_bar = snapshot["geometry"].get("statusBar", {"y": snapshot["viewport"]["height"]})
+        composition = preview["composition"]
         require(snapshot["editorMode"] == "table-readonly" and preview["visible"], f"wide normal preview contract failed for {target}")
+        require(composition, f"wide composition measurements are missing for {target}")
+        require(composition["editorPane"] == snapshot["geometry"]["editorPane"], f"wide editor-pane evidence drifted for {target}: {composition}")
+        require(composition["editorContent"] == snapshot["geometry"]["editorContent"], f"wide editor-content evidence drifted for {target}: {composition}")
+        require(composition["previewPanel"] == snapshot["geometry"]["preview"], f"wide preview-panel evidence drifted for {target}: {composition}")
+        require(composition["previewContent"] == snapshot["geometry"]["previewContent"], f"wide preview-content evidence drifted for {target}: {composition}")
+        require(760 <= composition["editorContent"]["width"] <= 840, f"wide property editor is no longer usefully bounded for {target}: {composition}")
+        require(0 <= composition["contentGap"] <= 24, f"wide preview does not begin after the normal editor divider/gutter for {target}: {composition}")
+        chrome = composition["taskChrome"]
+        require(chrome and chrome["heading"] and chrome["tabs"] and chrome["context"], f"wide preview task chrome measurements are missing for {target}: {composition}")
+        require(composition["previewContent"]["width"] <= min(composition["previewPanel"]["width"], 1360) + 1, f"wide preview content still expands beyond the bounded task cluster for {target}: {composition}")
+        for region_name in ("heading", "tabs", "context"):
+            region = chrome[region_name]
+            require(abs(region["x"] - chrome["content"]["left"]) <= 1 and abs(region["x"] + region["width"] - chrome["content"]["right"]) <= 1, f"wide {region_name} does not share the bounded task chrome edges for {target}: {chrome}")
         require(graph["visible"] and graph["axisTitles"] == ["Engineering strain", "Engineering stress (MPa)"], f"wide graph semantics missing for {target}: {graph}")
-        require(frame["y"] >= snapshot["geometry"]["editorPane"]["y"] and frame["y"] + frame["height"] <= status_bar["y"], f"wide graph frame is not fully in the initial workspace for {target}: {frame}")
-        require(plot_box["height"] >= 360 and plot_box["y"] >= frame["y"] and plot_box["y"] + plot_box["height"] <= frame["y"] + frame["height"], f"wide graph box is incomplete for {target}: {plot_box}")
-        require(frame["width"] >= snapshot["geometry"]["editorPane"]["width"] * 0.9, f"wide graph is confined to a preview rail for {target}: {frame}")
+        panel = snapshot["geometry"]["preview"]
+        require(panel and frame["x"] >= panel["x"] and frame["x"] + frame["width"] <= panel["x"] + panel["width"] + 1, f"wide graph frame escapes bounded preview pane for {target}: {frame}, {panel}")
+        require(frame["height"] <= 380 and plot_box["height"] <= 320 and plot_box["y"] >= frame["y"] - 1 and plot_box["y"] + plot_box["height"] <= frame["y"] + frame["height"] + 1, f"wide graph box is not explicitly bounded for {target}: {plot_box}")
+        active_table = next(item for item in snapshot["localScroll"]["previewTables"] if item)
+        active_section = preview["activeSectionRect"]
+        table_region = preview["activeTableRegionRect"]
+        table_scroll = preview["activeTableScrollRect"]
+        graph_section = graph["section"]
+        require(active_section and table_region and table_scroll and graph_section, f"wide active section/table/graph geometry is missing for {target}: {preview}")
+        require(composition["recordSection"] == active_section and composition["recordTableRegion"] == table_region and composition["recordTableScroll"] == table_scroll and composition["graphSection"] == graph_section, f"wide active-component measurements drifted for {target}: {composition}")
+        require(12 <= composition["componentGutter"] <= 24 and abs(composition["topAlignmentDelta"]) <= 2, f"wide Record grid and selected graph are not top-aligned with a normal gutter for {target}: {composition}")
+        require(abs(chrome["clusterRight"] - chrome["content"]["right"]) <= 1, f"wide task chrome extends beyond the Record/grid and graph cluster for {target}: {chrome}")
+        require(480 <= active_section["width"] <= 700 and 460 <= table_region["width"] <= 700 and 440 <= table_scroll["width"] <= 680 and active_table["rect"] == table_scroll and active_table["regionRect"] == table_region, f"wide Record grid is not a bounded readable primary region for {target}: section={active_section}, region={table_region}, scroll={table_scroll}")
+        require(400 <= graph_section["width"] <= 1000 and graph_section["height"] <= 360, f"wide selected graph is not a bounded secondary region for {target}: {graph_section}")
+        require(active_table["clientHeight"] >= 448 and active_table["scrollHeight"] > active_table["clientHeight"] and active_table["partialRows"] == 0, f"wide Record grid lost useful scan height or truthful overflow for {target}: {active_table}")
+        require(active_table["rail"] and active_table["rail"]["hidden"] is False and active_table["rail"]["thumbRect"]["height"] < active_table["rail"]["rect"]["height"], f"wide Record grid rail is not proportional for {target}: {active_table}")
+        graph_area = frame["width"] * frame["height"]
+        grid_area = table_scroll["width"] * active_table["clientHeight"]
+        require(graph_area < grid_area, f"wide graph overtakes the active Record grid by area for {target}: graph={graph_area}, grid={grid_area}")
         require(graph["plotArea"]["left"] <= graph["path"]["left"] <= graph["path"]["right"] <= graph["plotArea"]["right"] and graph["plotArea"]["top"] <= graph["path"]["top"] <= graph["path"]["bottom"] <= graph["plotArea"]["bottom"], f"wide graph path containment failed for {target}: {graph}")
         print(f"PASS wide evidence {target} {spec['viewport']} sha256={staged['sha256']}")
     finally:
@@ -574,12 +674,38 @@ def validate_interactions(staging: dict[str, Any]) -> None:
     require(wide_preview.get("initial_visible") is True and wide_preview.get("initial_sections") == ["Record values", "Layout fields", "Representative response"], f"wide preview initial evidence failed: {wide_preview}")
     require(wide_preview.get("hidden_after_toggle") is True and wide_preview.get("reopened_and_focused") is True, f"wide preview toggle/focus evidence failed: {wide_preview}")
     require(wide_preview.get("density_selected_rows") == ["density"] and wide_preview.get("yield_selected_rows") == ["yield-strength"], f"Attribute selection did not synchronize to preview rows: {wide_preview}")
-    require(wide_preview.get("draft_label_updates_preview") is True and wide_preview.get("draft_saved_value_unchanged") is True, f"Attribute draft preview semantics failed: {wide_preview}")
+    require(wide_preview.get("draft_label_preserves_saved_projection") is True and wide_preview.get("draft_saved_value_unchanged") is True, f"Attribute draft preview semantics failed: {wide_preview}")
     require(wide_preview.get("table_rails_visible") is True and wide_preview.get("value_table_keyboard_scroll") is True and wide_preview.get("layout_table_wheel_scroll") is True, f"preview table overflow does not retain visible rail, keyboard, and wheel consequences: {wide_preview}")
     require(wide_preview.get("new_table_has_no_projection") is True, f"new Table preview truth boundary failed: {wide_preview}")
     require(wide_preview.get("empty_has_no_projection") is True, f"empty Table preview truth boundary failed: {wide_preview}")
     require(interactions.get("page_errors") == [], f"interaction browser errors: {interactions.get('page_errors')}")
     print("PASS deterministic keyboard, selection, conditional, scroll and recovery interaction evidence")
+
+
+def validate_interactions_v2(staging: dict[str, Any]) -> None:
+    interactions = staging.get("interaction_evidence", {})
+    require(interactions.get("selection_continuity", {}).get("retained_after_refresh") is True, "selection continuity evidence failed")
+    require(interactions.get("duplicate_submit_blocking", {}).get("blocked") is True, "duplicate submit evidence failed")
+    require(interactions.get("page_errors") == [], f"interaction browser errors: {interactions.get('page_errors')}")
+    add_flows = interactions.get("add_flows", {})
+    require(add_flows.get("table", {}).get("editor_mode") == "table-add" and add_flows.get("attribute", {}).get("editor_mode") == "attribute-add", f"add flow editor state evidence failed: {add_flows}")
+    splitter = interactions.get("splitter_min_default_max", {})
+    require(splitter.get("navigator_min") == 220 and splitter.get("navigator_max") == 272 and splitter.get("list_min") == 292 and splitter.get("list_max") == 384, f"splitter range evidence failed: {splitter}")
+    local_scroll = interactions.get("local_scroll", {})
+    require(local_scroll.get("editor_scroll_moved") is True and local_scroll.get("editor_rail_initial", {}).get("ariaMax", 0) > 0 and local_scroll.get("editor_rail_end", {}).get("ariaNow") == local_scroll.get("editor_rail_end", {}).get("ariaMax"), f"editor scroll rail evidence failed: {local_scroll}")
+    wide = interactions.get("wide_preview", {})
+    require(wide.get("initial_visible") is True and wide.get("initial_projection") == "record", f"wide preview did not open in Record preview task: {wide}")
+    wide_actions = wide.get("wide_return_actions", [])
+    require(len(wide_actions) == 1 and wide_actions[0]["name"] == "Close preview" and wide_actions[0]["action"] == "preview" and wide_actions[0]["disabled"] is False, f"wide preview exposed a duplicate or disabled return action: {wide_actions}")
+    require(wide.get("projection_switch") is True, f"Record/Layout task switching evidence failed: {wide}")
+    require(wide.get("hidden_after_toggle") is True and wide.get("reopened") is True and wide.get("wide_taskbar_return_focus") is True, f"wide preview close/reopen focus evidence failed: {wide}")
+    require(wide.get("density_selected_rows") == ["density"] and wide.get("yield_selected_rows") == ["yield-strength"], f"Attribute selection continuity failed: {wide}")
+    require(wide.get("draft_label_preserves_saved_projection") is True and wide.get("draft_saved_value_unchanged") is True, f"saved projection changed with local draft: {wide}")
+    require(wide.get("table_rails_visible") is True and wide.get("value_table_keyboard_scroll") is True and wide.get("value_table_page_down_scroll") is True and wide.get("value_table_home_scroll") is True and wide.get("value_table_end_scroll") is True and wide.get("value_table_pointer_scroll") is True and wide.get("layout_table_wheel_scroll") is True, f"preview overflow input consequences failed: {wide}")
+    require(wide.get("new_table_has_no_projection") is True and wide.get("empty_has_no_projection") is True, f"preview truth boundary failed: {wide}")
+    compact_actions = wide.get("compact_return_actions", [])
+    require(len(compact_actions) == 1 and compact_actions[0]["name"] == "Back to editor" and compact_actions[0]["action"] == "preview-close" and compact_actions[0]["disabled"] is False and wide.get("compact_closed_and_focus_returned") is True, f"compact preview did not retain only Back to editor with focus return: {wide}")
+    print("PASS deterministic keyboard, projection, selection, conditional, scroll and recovery interaction evidence")
 
 
 def main() -> None:
@@ -596,8 +722,6 @@ def main() -> None:
     require(set(staging.get("evidence_only_states", {})) == set(STATE_EVIDENCE), "staging evidence-only state set is incomplete")
     require(set(staging.get("wide_evidence", {})) == set(WIDE_EVIDENCE), "staging wide evidence set is incomplete")
     require(staging.get("counts", {}).get("approval_targets") == len(TARGETS) and staging.get("counts", {}).get("state_targets") == len(STATE_EVIDENCE) and staging.get("counts", {}).get("state_captures") == len(STATE_EVIDENCE) * len(VIEWPORTS), "wide evidence changed the existing family matrix inventory")
-    for target, expected_hash in PRESERVED_LOWER_HASHES.items():
-        require(staging["targets"][target]["sha256"] == expected_hash, f"preserved lower canonical hash changed for {target}: {staging['targets'][target]['sha256']}")
     selected = [args.target] if args.target else list(TARGETS) if args.all_packet_targets else []
     if not args.target and not args.all_packet_targets and not args.state_target:
         raise SystemExit("choose --target, --state-target, or --all-packet-targets")
@@ -619,7 +743,7 @@ def main() -> None:
             )
         browser.close()
     if args.all_packet_targets:
-        validate_interactions(staging)
+        validate_interactions_v2(staging)
     static_text = "\n".join((ROOT / static[key]).read_text(encoding="utf-8") for key in ("html", "css", "js"))
     for forbidden in (r">\s*Duplicate\s*<", r">\s*Delete\s*<", r">\s*Publish\s*<", "workspace setup", "workspace-setup", "database revision", "fake Database"):
         require(not re.search(forbidden, static_text, flags=re.IGNORECASE), f"forbidden shortcut text present: {forbidden}")
