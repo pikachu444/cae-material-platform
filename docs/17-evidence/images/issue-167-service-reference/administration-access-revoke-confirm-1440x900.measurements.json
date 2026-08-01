@@ -6,13 +6,16 @@
   "width": 1440,
   "height": 900,
   "image": "docs/17-evidence/images/issue-167-service-reference/administration-access-revoke-confirm-1440x900.png",
-  "image_sha256": "84bbb7af0d70832ef547a1e99269bce6242a565b629bb04d71481a96c5526d81",
+  "image_sha256": "c42857301a53219e05e2c810ddeb3accca96d346c6c198c0c92964cb57622171",
   "snapshot": {
     "ready": true,
     "family": "access",
     "state": "revoke-confirm",
     "pageTitle": "Users and access",
+    "navTitle": "Access administration",
+    "listTitle": "Assignments",
     "topbarContext": "Administrator · Atlas workspace",
+    "statusBarFontPx": 11.5,
     "activePrimary": [
       "Revoke access"
     ],
@@ -49,12 +52,6 @@
       },
       {
         "tag": "button",
-        "name": "Cancel",
-        "disabled": false,
-        "action": "cancel-revoke"
-      },
-      {
-        "tag": "button",
         "name": "Assignments8",
         "disabled": false,
         "action": ""
@@ -79,49 +76,49 @@
       },
       {
         "tag": "button",
-        "name": "material-reviewersReviewerActive",
+        "name": "material-reviewers · Reviewer · Project scope · up to Confidential · Active",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "material-engineersUserActive",
+        "name": "material-engineers · User · Project scope · up to Confidential · Active",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "materials-adminsAdministratorActive",
+        "name": "materials-admins · Administrator · Organization scope · up to Restricted · Active",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "test-lab-usersUserActive",
+        "name": "test-lab-users · User · Project scope · up to Internal · Active",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "cae-card-reviewersReviewerActive",
+        "name": "cae-card-reviewers · Reviewer · Project scope · up to Confidential · Active",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "polymer-modelingUserActive",
+        "name": "polymer-modeling · User · Project scope · up to Confidential · Active",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "materials-auditorsReviewerActive",
+        "name": "materials-auditors · Reviewer · Organization scope · up to Restricted · Active",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "external-lab-readersUserExpires 30 d",
+        "name": "external-lab-readers · User · Project scope · up to Internal · Expires 30 d",
         "disabled": false,
         "action": ""
       },
@@ -183,18 +180,45 @@
     ],
     "bodyFontPx": 13,
     "maximumDataFontPx": 13,
+    "typography": {
+      "data": {
+        "count": 21,
+        "min": 13,
+        "max": 13
+      },
+      "metadata": {
+        "count": 29,
+        "min": 11.5,
+        "max": 12
+      },
+      "ordinaryWeight": {
+        "count": 32,
+        "max": 600
+      }
+    },
+    "clipping": {
+      "listNames": [],
+      "previewValues": []
+    },
+    "revisionMetrics": [],
+    "overlap": {
+      "pairs": [],
+      "noOverlaps": true,
+      "splitterCollisions": [],
+      "splitterSafe": true
+    },
     "labels": [
       "Reason"
     ],
     "fieldValues": [
       {
-        "id": "revoke-reason",
+        "id": "revoke-reason-live",
         "value": "Team membership moved to the consolidated CAE review group.",
         "disabled": false
       }
     ],
     "alerts": [
-      "This removes task access for the selected team.Existing immutable review decisions remain preserved. New Reviewer actions will be blocked after revocation."
+      "This removes task access for the selected team.Existing immutable review decisions remain preserved. New actions granted by this assignment will be blocked after revocation."
     ],
     "listRows": [
       "material-reviewersReviewerActive",
@@ -206,17 +230,52 @@
       "materials-auditorsReviewerActive",
       "external-lab-readersUserExpires 30 d"
     ],
+    "rowAccessibleNames": [
+      {
+        "id": "acc-reviewers",
+        "name": "material-reviewers · Reviewer · Project scope · up to Confidential · Active"
+      },
+      {
+        "id": "acc-users",
+        "name": "material-engineers · User · Project scope · up to Confidential · Active"
+      },
+      {
+        "id": "acc-admin",
+        "name": "materials-admins · Administrator · Organization scope · up to Restricted · Active"
+      },
+      {
+        "id": "acc-lab",
+        "name": "test-lab-users · User · Project scope · up to Internal · Active"
+      },
+      {
+        "id": "acc-cae",
+        "name": "cae-card-reviewers · Reviewer · Project scope · up to Confidential · Active"
+      },
+      {
+        "id": "acc-polymer",
+        "name": "polymer-modeling · User · Project scope · up to Confidential · Active"
+      },
+      {
+        "id": "acc-auditors",
+        "name": "materials-auditors · Reviewer · Organization scope · up to Restricted · Active"
+      },
+      {
+        "id": "acc-contractor",
+        "name": "external-lab-readers · User · Project scope · up to Internal · Expires 30 d"
+      }
+    ],
     "tasks": [
-      "Find and download governed materialsIncluded",
-      "Process and fit test dataIncluded",
+      "Find, compare and download materialsIncluded",
+      "Upload, process and fit test dataIncluded",
       "Review material and solver-card requestsIncluded",
+      "Create approved solver-card deliveriesIncluded",
       "Configure schema and accessNot granted"
     ],
     "readiness": [],
     "related": [],
     "orderedFields": [],
     "filters": [],
-    "documentText": "Skip to Administration workspace CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator · Atlas workspace Users and access Atlas workspace · task-based product roles Confirmation required Cancel Access administration 3 areas Assignments 8 Role presets 3 Access guidance 1 Organization and project scope Assignments 8 items User or team Role Status material-reviewers Reviewer Active material-engineers User Active materials-admins Administrator Active test-lab-users User Active cae-card-reviewers Reviewer Active polymer-modeling User Active materials-auditors Reviewer Active external-lab-readers User Expires 30 d Revoke material-reviewers access Existing Reviewer assignment · current project Confirmation required This removes task access for the selected team. Existing immutable review decisions remain preserved. New Reviewer actions will be blocked after revocation. User or team material-reviewers Current role Reviewer Scope Atlas workspace · current project Classification Up to Confidential Reason A reason is required and is retained with the access change. Revoke access Cancel Included Reviewer work The assignment being removed Read-only Find and download governed materials Included Process and fit test data Included Review material and solver-card requests Included Configure schema and access Not granted Assignment · material-reviewers Task-based access Ready Online",
+    "documentText": "Skip to Administration workspace CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator · Atlas workspace Users and access Atlas workspace · product access Confirmation required Access administration 3 areas Assignments 8 Role presets 3 Access guidance 1 Organization and project scope Assignments 8 items User or team Role Status material-reviewers Reviewer Active material-engineers User Active materials-admins Administrator Active test-lab-users User Active cae-card-reviewers Reviewer Active polymer-modeling User Active materials-auditors Reviewer Active external-lab-readers User Expires 30 d Revoke material-reviewers access Reviewer assignment · current project Confirmation required This removes task access for the selected team. Existing immutable review decisions remain preserved. New actions granted by this assignment will be blocked after revocation. User or team material-reviewers Role Reviewer Scope Atlas workspace · current project Classification Up to Confidential · export-controlled data excluded Reason A reason is required and is retained with the access change. Revoke access Cancel Reviewer access Included in this assignment Read-only Find, compare and download materials Included Upload, process and fit test data Included Review material and solver-card requests Included Create approved solver-card deliveries Included Configure schema and access Not granted Assignment · material-reviewers Access permissions Ready Online",
     "documentOverflow": {
       "horizontal": 0,
       "vertical": 0
@@ -232,6 +291,13 @@
       "scrollTop": 0
     },
     "editorTextClipped": false,
+    "remainingContainment": {
+      "gridInsideEditor": true,
+      "editorColumnInsideGrid": true,
+      "previewColumnInsideGrid": true,
+      "headingsInsideColumns": true,
+      "actionsInsideColumns": true
+    },
     "publishButtons": [],
     "selectedRowCount": 1,
     "previewTables": 0,
@@ -288,25 +354,25 @@
         "x": 647,
         "y": 109,
         "width": 758,
-        "height": 483.875,
+        "height": 467.0625,
         "right": 1405,
-        "bottom": 592.875
+        "bottom": 576.0625
       },
       "editor_column": {
         "x": 647,
         "y": 109,
         "width": 408.78125,
-        "height": 483.875,
+        "height": 467.0625,
         "right": 1055.78125,
-        "bottom": 592.875
+        "bottom": 576.0625
       },
       "preview_column": {
         "x": 1069.78125,
         "y": 121,
         "width": 335.21875,
-        "height": 220.65625,
+        "height": 275.046875,
         "right": 1405,
-        "bottom": 341.65625
+        "bottom": 396.046875
       },
       "status_bar": {
         "x": 9,

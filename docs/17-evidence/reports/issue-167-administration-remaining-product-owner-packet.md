@@ -1,15 +1,15 @@
 # Issue #167 — Remaining Administration product-owner packet
 
-Date: `2026-07-31`  
-Branch: `agent/complete-167-and-157`  
-Baseline: latest `issue-167-service-reference-freeze`  
-Lifecycle: **main-agent accepted; independent reviewer pending; product-owner approval absent**
+Date: `2026-08-01`
+Branch: `agent/complete-167-and-157`
+Baseline: latest `issue-167-service-reference-freeze`
+Lifecycle: **product-owner approved all 17 WAVE-06 targets**
 
 ## Scope
 
 This packet completes the finite 72-image service-reference inventory without changing production React, backend, API, migrations, or current user-guide screenshots. It adds the remaining 17 approval units for `ADM-SCHEMA-RELATIONS`, `ADM-ACCESS`, and `ADM-PUBLISH`, plus 45 evidence-only state captures and 10 deterministic 2560/3840 wide captures.
 
-The publication family is intentionally blocked. The current service has no Catalog publication transition or policy endpoint, so the references preserve saved draft definitions and never fabricate a published state, receipt, release, or successful transition.
+The publication family is intentionally blocked: Catalog publishing is not configured. The references keep saved definitions editable, make the disabled command’s reason visible, and direct an Administrator to enable publishing when the governed release process is available.
 
 ## Static source to production contract mapping
 
@@ -19,29 +19,29 @@ The publication family is intentionally blocked. The current service has no Cata
 | Subset | Schema navigator → Subset list → typed filters + scoped result preview | `apps/web/src/configurable-catalog-admin.tsx`; configurable Catalog Subset list/create/revise APIs and server-scoped Record query | Filter definition, same-query total/rows, authorization scope, draft/error preservation |
 | Link Type | Schema navigator → Link Type list → endpoint/label/cardinality editor + Related test | `apps/web/src/configurable-catalog-admin.tsx`; Link Type and exact Record Link APIs | Source/target Tables, independent cardinalities, forward/reverse labels, exact endpoint revisions, no latest alias |
 | Access | Access navigator → assignment list → readable task preset / revoke confirmation | `apps/web/src/product-access-center.tsx`; product assignment list/grant/revoke APIs | User/Reviewer/Administrator roles, scope/classification, denied boundary, required revoke reason |
-| Publish | Lifecycle navigator → saved draft change set → validation boundary | No production publication endpoint | Publish disabled, saved drafts preserved, validation/recovery only, no fabricated success |
+| Publish | Lifecycle navigator → saved draft change set → validation boundary | Catalog publishing is not configured | One disabled Publish command, editable saved drafts, validation/recovery, and a clear Administrator next step |
 
 ## Approval targets
 
 | Target | Family/state | SHA-256 |
 | --- | --- | --- |
-| [administration-layout-edit-draft-1366x768](../images/issue-167-service-reference/administration-layout-edit-draft-1366x768.png) | `layout` / `draft` | `c82f9c7a43c0e086218816082eaf1881a2e4d672882d792fc4eb79aa33eaa7e7` |
-| [administration-layout-edit-draft-1440x900](../images/issue-167-service-reference/administration-layout-edit-draft-1440x900.png) | `layout` / `draft` | `bf6377f0c9bd4ac9076fc5b6583a8671fea00cd941f06c6faabd6a5bd1d8f16f` |
-| [administration-layout-edit-draft-1920x1080](../images/issue-167-service-reference/administration-layout-edit-draft-1920x1080.png) | `layout` / `draft` | `e4dbd3a0ebf01b2270dc9670d04963f22f728f00c4151dcdd39dd04f2527fd23` |
-| [administration-subset-edit-draft-1366x768](../images/issue-167-service-reference/administration-subset-edit-draft-1366x768.png) | `subset` / `draft` | `d047fbf5204bae67681f0c4663f2732920a4b0a063680597695dcefc4a91137c` |
-| [administration-subset-edit-draft-1440x900](../images/issue-167-service-reference/administration-subset-edit-draft-1440x900.png) | `subset` / `draft` | `bf93f96d807e9a4766f9a2f645bda0ebfb83b08890c62bcc943d8b86894c2122` |
-| [administration-subset-edit-draft-1920x1080](../images/issue-167-service-reference/administration-subset-edit-draft-1920x1080.png) | `subset` / `draft` | `6349535e69692c86a07a9d4424c5f97cf8fa093d431b754894cbd05fa871780b` |
-| [administration-link-type-edit-draft-1366x768](../images/issue-167-service-reference/administration-link-type-edit-draft-1366x768.png) | `link` / `draft` | `d07cbd0f99f049ea01fc7acc9041cb12f3d059ed4513923dd9a8d383cfdb8e0b` |
-| [administration-link-type-edit-draft-1440x900](../images/issue-167-service-reference/administration-link-type-edit-draft-1440x900.png) | `link` / `draft` | `29cb0b45b2cbc418928860baf6ef6ec2f73422ef15ed2ac6b219186ec49b8421` |
-| [administration-link-type-edit-draft-1920x1080](../images/issue-167-service-reference/administration-link-type-edit-draft-1920x1080.png) | `link` / `draft` | `c69ab99c8ed55ffcabc56b8cb2f23368c41e36b02c5b993074eb001fcf548450` |
-| [administration-access-normal-1366x768](../images/issue-167-service-reference/administration-access-normal-1366x768.png) | `access` / `normal` | `b2562dbb6df24c19aa226d3f4bcb4fbc623b94a7d83f65973901ae4be36ef528` |
-| [administration-access-normal-1440x900](../images/issue-167-service-reference/administration-access-normal-1440x900.png) | `access` / `normal` | `0b76852380eb166e335abbfd5945a00e506becf678757ce0c83898821c432806` |
-| [administration-access-normal-1920x1080](../images/issue-167-service-reference/administration-access-normal-1920x1080.png) | `access` / `normal` | `893745491e80309fd9fc7ae5623ba0778cc1f6072a3e8571f0706dab42243eaa` |
-| [administration-access-denied-1440x900](../images/issue-167-service-reference/administration-access-denied-1440x900.png) | `access` / `denied` | `8981bed572ecc8f4757980a33a547e4c431634b1c3b5b7abc48976c23dc912e8` |
-| [administration-access-revoke-confirm-1440x900](../images/issue-167-service-reference/administration-access-revoke-confirm-1440x900.png) | `access` / `revoke-confirm` | `84bbb7af0d70832ef547a1e99269bce6242a565b629bb04d71481a96c5526d81` |
-| [administration-publish-blocked-1366x768](../images/issue-167-service-reference/administration-publish-blocked-1366x768.png) | `publish` / `blocked` | `3bdeb595aff942f0b560fe77101d611d3de5c1056cdb6293705828e3cdbd02ac` |
-| [administration-publish-blocked-1440x900](../images/issue-167-service-reference/administration-publish-blocked-1440x900.png) | `publish` / `blocked` | `9dfb80c19d2450a8c351e18f165ff37ecc7fb61a2574323ac704d9b472e251dc` |
-| [administration-publish-blocked-1920x1080](../images/issue-167-service-reference/administration-publish-blocked-1920x1080.png) | `publish` / `blocked` | `b7da7e5f567fd77b4bbd54403bf7ae980dc0de3fe604c9c169da1e0f0c267f1b` |
+| [administration-layout-edit-draft-1366x768](../images/issue-167-service-reference/administration-layout-edit-draft-1366x768.png) | `layout` / `draft` | `83b33ba1a8fe4dd7f9e68d532781b348373f67f5b7fb581c2195b8b670dd7e38` |
+| [administration-layout-edit-draft-1440x900](../images/issue-167-service-reference/administration-layout-edit-draft-1440x900.png) | `layout` / `draft` | `c644c810f9bf09521e638500db6bc2ea79de9052e5ed99abef9aa9e4823e8899` |
+| [administration-layout-edit-draft-1920x1080](../images/issue-167-service-reference/administration-layout-edit-draft-1920x1080.png) | `layout` / `draft` | `2b8feeced8fe13f26c00d5c0d84f46e823ce7e952276b664ecfa6363c200c1ec` |
+| [administration-subset-edit-draft-1366x768](../images/issue-167-service-reference/administration-subset-edit-draft-1366x768.png) | `subset` / `draft` | `ebb696e2198c2ee809bcbc3a96537624296879146489e0686c8fda6897ae571c` |
+| [administration-subset-edit-draft-1440x900](../images/issue-167-service-reference/administration-subset-edit-draft-1440x900.png) | `subset` / `draft` | `2944564a8bfb23b56547e9fe5a5b7bbe4d90225d8b25191d10cdc760e0bebf0f` |
+| [administration-subset-edit-draft-1920x1080](../images/issue-167-service-reference/administration-subset-edit-draft-1920x1080.png) | `subset` / `draft` | `3c47bd6bfce907fb552e1d420f0595592b14fd443897726fa4f0a22d7d9aadcd` |
+| [administration-link-type-edit-draft-1366x768](../images/issue-167-service-reference/administration-link-type-edit-draft-1366x768.png) | `link` / `draft` | `a45ce72250ae6abd4590aa236cacc31ad7d0b68bfe2596fc3764cb9eb3d9fb3b` |
+| [administration-link-type-edit-draft-1440x900](../images/issue-167-service-reference/administration-link-type-edit-draft-1440x900.png) | `link` / `draft` | `b1d8eae9026501b63103592fb50ceaed9d65c1876b01041d713d2f320110876d` |
+| [administration-link-type-edit-draft-1920x1080](../images/issue-167-service-reference/administration-link-type-edit-draft-1920x1080.png) | `link` / `draft` | `b6cc86a9255c1f1afb9e70feac549a3b6b376192e36f8f3ff5e67fea197a19ce` |
+| [administration-access-normal-1366x768](../images/issue-167-service-reference/administration-access-normal-1366x768.png) | `access` / `normal` | `76aa2c7b7457e42cb6afaee775efdaadb396c67bdfb51c0d8c049bf32b4262b8` |
+| [administration-access-normal-1440x900](../images/issue-167-service-reference/administration-access-normal-1440x900.png) | `access` / `normal` | `d29cefa9daf262f0a74ae924ba2a45cce82d4ed41e8c847c4850400515b939fa` |
+| [administration-access-normal-1920x1080](../images/issue-167-service-reference/administration-access-normal-1920x1080.png) | `access` / `normal` | `8a8be47905e2af0e6eb24ce03c3140d15280604ae007a7af28d14dd4063c94c2` |
+| [administration-access-denied-1440x900](../images/issue-167-service-reference/administration-access-denied-1440x900.png) | `access` / `denied` | `71a9a09ebc2adcfdbfea56d009a5f8cdcb6e10098c2d51d4e5ccec298826ac51` |
+| [administration-access-revoke-confirm-1440x900](../images/issue-167-service-reference/administration-access-revoke-confirm-1440x900.png) | `access` / `revoke-confirm` | `c42857301a53219e05e2c810ddeb3accca96d346c6c198c0c92964cb57622171` |
+| [administration-publish-blocked-1366x768](../images/issue-167-service-reference/administration-publish-blocked-1366x768.png) | `publish` / `blocked` | `422bf607c3488ef2f24b325bb8eac9b1bc5c1d8bd9bdf8f20c876991a69c8ea9` |
+| [administration-publish-blocked-1440x900](../images/issue-167-service-reference/administration-publish-blocked-1440x900.png) | `publish` / `blocked` | `893e7dce8bfea50a48390e56b2eb31b16839b6e116687600a123a0a121d5008a` |
+| [administration-publish-blocked-1920x1080](../images/issue-167-service-reference/administration-publish-blocked-1920x1080.png) | `publish` / `blocked` | `15d79a5708930be1793cbe7336f066196362d4793a48dfcc2176df10034b5b0d` |
 
 ## Deterministic evidence
 
@@ -52,16 +52,21 @@ wide evidence                                         10 images
 exact viewport and SHA checks                          pass
 browser console/page errors                            0 / 0
 page horizontal/vertical overflow                      0 / 0
+editor-grid, column, heading, and action containment    pass
 nested interactive controls                            0
 prohibited legacy selectors                            0
 active filled primary commands                         <= 1 per state
 body/data typography                                   <= 13.5 px
 keyboard splitter and Ctrl+S/revoke interactions        pass
 family-specific truth and recovery checks               pass
-WAVE-06 validator                                       1480 checks / pass
-service-reference inventory                             72 total; 55 approved; 17 pending
+WAVE-06 validator                                       2642 checks / pass
+service-reference inventory                             72 total; 72 approved; 0 pending
 ```
 
-The main agent opened the canonical approval images at original resolution and checked the three-pane topology, dense list/editor relationship, text containment, command priority, preview continuity, and wide-screen bounded task cluster. The 17 targets remain `pending` until explicit product-owner approval. No product-owner approval is inferred from the request to implement this work.
+The configured Luna Max writer completed the product-owner-authorized additional correction without model substitution. The main agent rejected the first result after original-resolution inspection exposed clipped Link Type related-record revision values at 1366px. Luna corrected the row geometry and added a regression that fails the clipped layout before passing the corrected one.
 
-A fresh Terra/Luna reviewer was not callable from this execution surface. No substitute review is claimed. The deterministic evidence and product-owner packet are therefore preserved with reviewer lifecycle still pending.
+The main agent independently reran all deterministic gates, then opened every changed Link Type approval, state and wide image at original resolution. Complete related revisions, safe right clearance, three-pane topology, dense list/editor relationship, command priority, preview continuity, bounded wide task cluster, keyboard focus/selection continuity and truthful recovery states pass without a hard-gate failure.
+
+A fresh Access review then rejected stale selection and incomplete revoke/cancel behavior that the pixel suite did not exercise. Luna replaced hard-coded assignment content with selected-assignment data, added role-appropriate previews and keyboard continuity, unified the revoke renderer, restored the selected normal editor on Cancel, removed role-prefixed identity copy, made the revoke warning role-neutral and corrected the empty status to `Assignments · none`. The new regression failed four focused checks against the rejected behavior before passing; the final suite passes 2,642 checks. The main agent opened all 16 Access originals and repeated the interaction and qualitative gates.
+
+One new fresh Terra High read-only reviewer then opened all 16 final Access originals and independently exercised the corrected selection, keyboard, revoke and Cancel paths. It returned `approve` with no finding. Relations and Publish retain their current fresh `approve` dispositions because their final pixels and contracts did not change. After all reviewer dispositions, the main agent repeated the final product/UX judgment: plain product language, professional typography, content boundaries, error/recovery truth, exact-revision visibility and bounded 2560/3840 composition pass. The product owner then reviewed the submitted 17-image batch and approved it in conversation. All 72 finite #167 reference targets are now approved and individually registered; this approval does not itself authorize production React/CSS work before the #167 PR/merge gate completes.

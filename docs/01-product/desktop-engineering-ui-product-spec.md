@@ -596,6 +596,21 @@ must preserve and expose those branches without replacing exact links with `late
 
 Draft edits stay local to the draft revision until Save/Publish. The property editor indicates dirty fields and validation errors at field level.
 
+Normal Administration copy names the Administrator's object, decision, state and next action. It
+may use the governed catalog terms `Table`, `Attribute`, `Layout`, `Subset`, `Link Type`, `Record`,
+`Revision` and `Cardinality` where those concepts are being edited. Infrastructure or implementation
+phrases such as `identity-provider`, `feature grants`, `server-scoped query`, `pinned`, `latest alias`,
+service/capability `boundary`, endpoint or row-policy language do not appear in the normal surface.
+Use plain consequences instead: identify a user or team, state what the role can do, say that saved
+links keep the selected versions, and tell the Administrator whether publishing is available.
+
+Administration reference captures enforce the shared typography system rather than merely checking
+an upper bound. Data values and controls use the 13 px data token; visible metadata, help, revision
+and status text use the 11.5–12 px metadata tokens. Ordinary rows, buttons and explanatory text do
+not use weight 650 or greater. Ellipsis remains a last resort for genuinely long identities with an
+immediate full-value affordance; ordinary example identities, related Record targets and solver-card
+names must not be clipped simply to preserve a narrow list or preview column.
+
 ## 10. Loading, empty, error and job states
 
 ### Loading

@@ -6,8 +6,8 @@
     "ADM-PUBLISH"
   ],
   "wave": "WAVE-06",
-  "status": "pending_product_owner_review",
-  "capture_date": "2026-07-31",
+  "status": "approved",
+  "capture_date": "2026-08-01",
   "static": {
     "html": "docs/00-research/ux-service-reference/administration-remaining.html",
     "base_css": "docs/00-research/ux-service-reference/administration-schema-core.css",
@@ -23,7 +23,7 @@
       "viewport": "1366x768",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1366x768.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1366x768.measurements.json",
-      "sha256": "c82f9c7a43c0e086218816082eaf1881a2e4d672882d792fc4eb79aa33eaa7e7"
+      "sha256": "83b33ba1a8fe4dd7f9e68d532781b348373f67f5b7fb581c2195b8b670dd7e38"
     },
     "administration-layout-edit-draft-1440x900": {
       "family": "layout",
@@ -31,7 +31,7 @@
       "viewport": "1440x900",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1440x900.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1440x900.measurements.json",
-      "sha256": "bf6377f0c9bd4ac9076fc5b6583a8671fea00cd941f06c6faabd6a5bd1d8f16f"
+      "sha256": "c644c810f9bf09521e638500db6bc2ea79de9052e5ed99abef9aa9e4823e8899"
     },
     "administration-layout-edit-draft-1920x1080": {
       "family": "layout",
@@ -39,7 +39,7 @@
       "viewport": "1920x1080",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1920x1080.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1920x1080.measurements.json",
-      "sha256": "e4dbd3a0ebf01b2270dc9670d04963f22f728f00c4151dcdd39dd04f2527fd23"
+      "sha256": "2b8feeced8fe13f26c00d5c0d84f46e823ce7e952276b664ecfa6363c200c1ec"
     },
     "administration-subset-edit-draft-1366x768": {
       "family": "subset",
@@ -47,7 +47,7 @@
       "viewport": "1366x768",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1366x768.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1366x768.measurements.json",
-      "sha256": "d047fbf5204bae67681f0c4663f2732920a4b0a063680597695dcefc4a91137c"
+      "sha256": "ebb696e2198c2ee809bcbc3a96537624296879146489e0686c8fda6897ae571c"
     },
     "administration-subset-edit-draft-1440x900": {
       "family": "subset",
@@ -55,7 +55,7 @@
       "viewport": "1440x900",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1440x900.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1440x900.measurements.json",
-      "sha256": "bf93f96d807e9a4766f9a2f645bda0ebfb83b08890c62bcc943d8b86894c2122"
+      "sha256": "2944564a8bfb23b56547e9fe5a5b7bbe4d90225d8b25191d10cdc760e0bebf0f"
     },
     "administration-subset-edit-draft-1920x1080": {
       "family": "subset",
@@ -63,7 +63,7 @@
       "viewport": "1920x1080",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1920x1080.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1920x1080.measurements.json",
-      "sha256": "6349535e69692c86a07a9d4424c5f97cf8fa093d431b754894cbd05fa871780b"
+      "sha256": "3c47bd6bfce907fb552e1d420f0595592b14fd443897726fa4f0a22d7d9aadcd"
     },
     "administration-link-type-edit-draft-1366x768": {
       "family": "link",
@@ -71,7 +71,7 @@
       "viewport": "1366x768",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1366x768.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1366x768.measurements.json",
-      "sha256": "d07cbd0f99f049ea01fc7acc9041cb12f3d059ed4513923dd9a8d383cfdb8e0b"
+      "sha256": "a45ce72250ae6abd4590aa236cacc31ad7d0b68bfe2596fc3764cb9eb3d9fb3b"
     },
     "administration-link-type-edit-draft-1440x900": {
       "family": "link",
@@ -79,7 +79,7 @@
       "viewport": "1440x900",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1440x900.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1440x900.measurements.json",
-      "sha256": "29cb0b45b2cbc418928860baf6ef6ec2f73422ef15ed2ac6b219186ec49b8421"
+      "sha256": "b1d8eae9026501b63103592fb50ceaed9d65c1876b01041d713d2f320110876d"
     },
     "administration-link-type-edit-draft-1920x1080": {
       "family": "link",
@@ -87,7 +87,7 @@
       "viewport": "1920x1080",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1920x1080.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1920x1080.measurements.json",
-      "sha256": "c69ab99c8ed55ffcabc56b8cb2f23368c41e36b02c5b993074eb001fcf548450"
+      "sha256": "b6cc86a9255c1f1afb9e70feac549a3b6b376192e36f8f3ff5e67fea197a19ce"
     },
     "administration-access-normal-1366x768": {
       "family": "access",
@@ -95,7 +95,7 @@
       "viewport": "1366x768",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-access-normal-1366x768.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-access-normal-1366x768.measurements.json",
-      "sha256": "b2562dbb6df24c19aa226d3f4bcb4fbc623b94a7d83f65973901ae4be36ef528"
+      "sha256": "76aa2c7b7457e42cb6afaee775efdaadb396c67bdfb51c0d8c049bf32b4262b8"
     },
     "administration-access-normal-1440x900": {
       "family": "access",
@@ -103,7 +103,7 @@
       "viewport": "1440x900",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-access-normal-1440x900.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-access-normal-1440x900.measurements.json",
-      "sha256": "0b76852380eb166e335abbfd5945a00e506becf678757ce0c83898821c432806"
+      "sha256": "d29cefa9daf262f0a74ae924ba2a45cce82d4ed41e8c847c4850400515b939fa"
     },
     "administration-access-normal-1920x1080": {
       "family": "access",
@@ -111,7 +111,7 @@
       "viewport": "1920x1080",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-access-normal-1920x1080.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-access-normal-1920x1080.measurements.json",
-      "sha256": "893745491e80309fd9fc7ae5623ba0778cc1f6072a3e8571f0706dab42243eaa"
+      "sha256": "8a8be47905e2af0e6eb24ce03c3140d15280604ae007a7af28d14dd4063c94c2"
     },
     "administration-access-denied-1440x900": {
       "family": "access",
@@ -119,7 +119,7 @@
       "viewport": "1440x900",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-access-denied-1440x900.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-access-denied-1440x900.measurements.json",
-      "sha256": "8981bed572ecc8f4757980a33a547e4c431634b1c3b5b7abc48976c23dc912e8"
+      "sha256": "71a9a09ebc2adcfdbfea56d009a5f8cdcb6e10098c2d51d4e5ccec298826ac51"
     },
     "administration-access-revoke-confirm-1440x900": {
       "family": "access",
@@ -127,7 +127,7 @@
       "viewport": "1440x900",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-access-revoke-confirm-1440x900.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-access-revoke-confirm-1440x900.measurements.json",
-      "sha256": "84bbb7af0d70832ef547a1e99269bce6242a565b629bb04d71481a96c5526d81"
+      "sha256": "c42857301a53219e05e2c810ddeb3accca96d346c6c198c0c92964cb57622171"
     },
     "administration-publish-blocked-1366x768": {
       "family": "publish",
@@ -135,7 +135,7 @@
       "viewport": "1366x768",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1366x768.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1366x768.measurements.json",
-      "sha256": "3bdeb595aff942f0b560fe77101d611d3de5c1056cdb6293705828e3cdbd02ac"
+      "sha256": "422bf607c3488ef2f24b325bb8eac9b1bc5c1d8bd9bdf8f20c876991a69c8ea9"
     },
     "administration-publish-blocked-1440x900": {
       "family": "publish",
@@ -143,7 +143,7 @@
       "viewport": "1440x900",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1440x900.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1440x900.measurements.json",
-      "sha256": "9dfb80c19d2450a8c351e18f165ff37ecc7fb61a2574323ac704d9b472e251dc"
+      "sha256": "893e7dce8bfea50a48390e56b2eb31b16839b6e116687600a123a0a121d5008a"
     },
     "administration-publish-blocked-1920x1080": {
       "family": "publish",
@@ -151,10 +151,24 @@
       "viewport": "1920x1080",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1920x1080.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1920x1080.measurements.json",
-      "sha256": "b7da7e5f567fd77b4bbd54403bf7ae980dc0de3fe604c9c169da1e0f0c267f1b"
+      "sha256": "15d79a5708930be1793cbe7336f066196362d4793a48dfcc2176df10034b5b0d"
     }
   },
   "evidence_only_states": {
+    "administration-access-empty": {
+      "family": "access",
+      "state": "empty",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-access-empty-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-access-empty-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-access-empty-1920x1080.png"
+      ],
+      "measurements": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-access-empty-1366x768.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-access-empty-1440x900.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-access-empty-1920x1080.measurements.json"
+      ]
+    },
     "administration-layout-missing-attribute-blocked": {
       "family": "layout",
       "state": "missing-attribute-blocked",
@@ -281,20 +295,6 @@
         "docs/17-evidence/images/issue-167-service-reference/administration-link-type-related-test-error-1920x1080.measurements.json"
       ]
     },
-    "administration-access-empty": {
-      "family": "access",
-      "state": "empty",
-      "captures": [
-        "docs/17-evidence/images/issue-167-service-reference/administration-access-empty-1366x768.png",
-        "docs/17-evidence/images/issue-167-service-reference/administration-access-empty-1440x900.png",
-        "docs/17-evidence/images/issue-167-service-reference/administration-access-empty-1920x1080.png"
-      ],
-      "measurements": [
-        "docs/17-evidence/images/issue-167-service-reference/administration-access-empty-1366x768.measurements.json",
-        "docs/17-evidence/images/issue-167-service-reference/administration-access-empty-1440x900.measurements.json",
-        "docs/17-evidence/images/issue-167-service-reference/administration-access-empty-1920x1080.measurements.json"
-      ]
-    },
     "administration-access-loading": {
       "family": "access",
       "state": "loading",
@@ -373,7 +373,7 @@
       "viewport": "2560x1440",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-wide-2560x1440.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-wide-2560x1440.measurements.json",
-      "sha256": "176cc36de1b2c33e89361d7961d145cb19656c6f4235ec87fb8484516c703048"
+      "sha256": "22f52064a295e30103fa1129bb65cc512c32a77381a604ffd65a7729c1d3d81d"
     },
     "administration-layout-edit-draft-wide-3840x2160": {
       "family": "layout",
@@ -381,7 +381,7 @@
       "viewport": "3840x2160",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-wide-3840x2160.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-wide-3840x2160.measurements.json",
-      "sha256": "bf9331f3831ef050b83230d11414e65fe681ebb94a13c0dec4047600030bec46"
+      "sha256": "581e6ad542cd007e14ea366e53d8059aa666e57b252137a41fa8f5ef0e28b202"
     },
     "administration-subset-edit-draft-wide-2560x1440": {
       "family": "subset",
@@ -389,7 +389,7 @@
       "viewport": "2560x1440",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-wide-2560x1440.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-wide-2560x1440.measurements.json",
-      "sha256": "5062a444003e5af68f9ed1d89330571de8b30ec6dd251f45ef08d80cd5173389"
+      "sha256": "c3f590fd5ab7fb8ecc6032ade7f61231a16184b2e568795c11bc3ab4bdc99fa4"
     },
     "administration-subset-edit-draft-wide-3840x2160": {
       "family": "subset",
@@ -397,7 +397,7 @@
       "viewport": "3840x2160",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-wide-3840x2160.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-wide-3840x2160.measurements.json",
-      "sha256": "f29d2861bb70bdd4baea3cbeeb76b5b5b198d006ea068b3c684d8ceb0aca3dcd"
+      "sha256": "5de5254bfb05112915135aeee97e13620bebddfd78ae1a1f74eb54d8c5a6f246"
     },
     "administration-link-type-edit-draft-wide-2560x1440": {
       "family": "link",
@@ -405,7 +405,7 @@
       "viewport": "2560x1440",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-wide-2560x1440.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-wide-2560x1440.measurements.json",
-      "sha256": "9f6dfd667a9a314de166c21417566e08df8a4fd83c188ae244e30bb837bcaec3"
+      "sha256": "8cd9d1486c8a5da77f6d8a6bb97d00e50891181c42ba040bf377c305a6c28b10"
     },
     "administration-link-type-edit-draft-wide-3840x2160": {
       "family": "link",
@@ -413,7 +413,7 @@
       "viewport": "3840x2160",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-wide-3840x2160.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-wide-3840x2160.measurements.json",
-      "sha256": "39ca25f81df3f7d530b5424287ab04d7d8ccadc1b2f65621312c7f32bbcf203e"
+      "sha256": "371f853d1741d6308cc8b413a7f0571e317c4c0f552e7480d955fe7284ee68ed"
     },
     "administration-access-normal-wide-2560x1440": {
       "family": "access",
@@ -421,7 +421,7 @@
       "viewport": "2560x1440",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-access-normal-wide-2560x1440.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-access-normal-wide-2560x1440.measurements.json",
-      "sha256": "540615803e8c49f5044873bd40e8e80bed6be12db6cd6e5273593a1ea73879ff"
+      "sha256": "b6e3e02db2e2cbd482fd573fc78702ea16e4f3222dcbfa94ad6e8339f6b8a6e2"
     },
     "administration-access-normal-wide-3840x2160": {
       "family": "access",
@@ -429,7 +429,7 @@
       "viewport": "3840x2160",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-access-normal-wide-3840x2160.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-access-normal-wide-3840x2160.measurements.json",
-      "sha256": "93fc7ba347acd920f7d37c04573ca4d66340c93bf81e6c896b5d2123626993e3"
+      "sha256": "c9190e10ed250062ec868666849b6357490e89293eca340af8037605d6a2e648"
     },
     "administration-publish-blocked-wide-2560x1440": {
       "family": "publish",
@@ -437,7 +437,7 @@
       "viewport": "2560x1440",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-wide-2560x1440.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-wide-2560x1440.measurements.json",
-      "sha256": "ffe7dea5de950229b394f40053f50d701f207f0984d12e482f074cbebed54dd1"
+      "sha256": "9ac7f6ab3a8f4e0a1bd7dd6b0ce582cf8196969d36f54ec75618a2180b7b079b"
     },
     "administration-publish-blocked-wide-3840x2160": {
       "family": "publish",
@@ -445,7 +445,7 @@
       "viewport": "3840x2160",
       "image": "docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-wide-3840x2160.png",
       "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-wide-3840x2160.measurements.json",
-      "sha256": "24d7610526c1776ccae738cd0f365e3dda5c4d5d1f436b39f2cf18c97d120860"
+      "sha256": "ce7ffcdd81ca0a753702d22e34ab2ca4338d1947abef928c9a2e1626406306f3"
     }
   },
   "counts": {

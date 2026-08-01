@@ -6,13 +6,16 @@
   "width": 1920,
   "height": 1080,
   "image": "docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1920x1080.png",
-  "image_sha256": "b7da7e5f567fd77b4bbd54403bf7ae980dc0de3fe604c9c169da1e0f0c267f1b",
+  "image_sha256": "15d79a5708930be1793cbe7336f066196362d4793a48dfcc2176df10034b5b0d",
   "snapshot": {
     "ready": true,
     "family": "publish",
     "state": "blocked",
-    "pageTitle": "Catalog publish",
+    "pageTitle": "Catalog publishing",
+    "navTitle": "Publishing",
+    "listTitle": "Saved drafts",
     "topbarContext": "Administrator · Atlas workspace",
+    "statusBarFontPx": 11.5,
     "activePrimary": [],
     "controls": [
       {
@@ -83,31 +86,31 @@
       },
       {
         "tag": "button",
-        "name": "Materials master TableSaved draftr12",
+        "name": "Materials master Table · revision r12",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "18 Attribute definitionsSaved drafts18",
+        "name": "18 Attribute definitions · revision 18",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "Engineering datasheet LayoutSaved draftr7",
+        "name": "Engineering datasheet Layout · revision r7",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "Released metal cards SubsetSaved draftr6",
+        "name": "Released metal cards Subset · revision r6",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "Neutral model to solver cardsSaved draftr5",
+        "name": "Neutral model to solver cards · revision r5",
         "disabled": false,
         "action": ""
       },
@@ -128,12 +131,6 @@
         "name": "Validate again",
         "disabled": false,
         "action": "validate-publish"
-      },
-      {
-        "tag": "button",
-        "name": "Publish catalog",
-        "disabled": true,
-        "action": "publish"
       }
     ],
     "nestedInteractive": [],
@@ -169,6 +166,33 @@
     ],
     "bodyFontPx": 13,
     "maximumDataFontPx": 13,
+    "typography": {
+      "data": {
+        "count": 16,
+        "min": 13,
+        "max": 13
+      },
+      "metadata": {
+        "count": 23,
+        "min": 11.5,
+        "max": 12
+      },
+      "ordinaryWeight": {
+        "count": 22,
+        "max": 600
+      }
+    },
+    "clipping": {
+      "listNames": [],
+      "previewValues": []
+    },
+    "revisionMetrics": [],
+    "overlap": {
+      "pairs": [],
+      "noOverlaps": true,
+      "splitterCollisions": [],
+      "splitterSafe": true
+    },
     "labels": [],
     "fieldValues": [],
     "alerts": [],
@@ -179,18 +203,40 @@
       "Released metal cards SubsetSaved draftr6",
       "Neutral model to solver cardsSaved draftr5"
     ],
+    "rowAccessibleNames": [
+      {
+        "id": "pub-table",
+        "name": "Materials master Table · revision r12"
+      },
+      {
+        "id": "pub-attrs",
+        "name": "18 Attribute definitions · revision 18"
+      },
+      {
+        "id": "pub-layout",
+        "name": "Engineering datasheet Layout · revision r7"
+      },
+      {
+        "id": "pub-subset",
+        "name": "Released metal cards Subset · revision r6"
+      },
+      {
+        "id": "pub-link",
+        "name": "Neutral model to solver cards · revision r5"
+      }
+    ],
     "tasks": [],
     "readiness": [
       "Table and Attribute definitionsValid20",
       "LayoutsValid3",
       "SubsetsValid4",
       "Link TypesValid3",
-      "Access boundaryValid3 roles"
+      "Access assignmentsValid3 roles"
     ],
     "related": [],
     "orderedFields": [],
     "filters": [],
-    "documentText": "Skip to Administration workspace CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator · Atlas workspace Catalog publish Atlas workspace · publication capability boundary Not configured Validate drafts Publish catalog Catalog lifecycle 3 areas Publish readiness 5 Validation results 4 Draft history 6 Saved drafts remain editable Draft change set 5 groups Definition State Rev Materials master Table Saved draft r12 18 Attribute definitions Saved drafts 18 Engineering datasheet Layout Saved draft r7 Released metal cards Subset Saved draft r6 Neutral model to solver cards Saved draft r5 Catalog publication readiness Saved definitions in Atlas workspace Not configured Table and Attribute definitions Valid 20 Layouts Valid 3 Subsets Valid 4 Link Types Valid 3 Access boundary Valid 3 roles Open Database design Validate again Publish catalog Publication transition and policy endpoint Not configured Catalog publishing is not available in this build. Table, Attribute, Layout, Subset and Link Type resources currently remain governed saved drafts. The service exposes no catalog publication transition or publication-policy endpoint. Publish catalog Publish is disabled because the required backend capability is not configured. Preserved now Exact saved draft revisions, validation evidence and editor state Not fabricated Published state, publication date, release receipt or successful transition Next action Continue editing and validating drafts in Database design Catalog publish boundary Draft definitions preserved Ready Online",
+    "documentText": "Skip to Administration workspace CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator · Atlas workspace Catalog publishing Atlas workspace · publishing not configured Not configured Validate drafts Publish catalog Publishing 3 areas Publish readiness 5 Validation results 4 Draft history 6 Saved drafts remain editable Saved drafts 5 groups Definition State Rev Materials master Table Saved draft r12 18 Attribute definitions Saved drafts 18 Engineering datasheet Layout Saved draft r7 Released metal cards Subset Saved draft r6 Neutral model to solver cards Saved draft r5 Publish readiness Saved definitions in Atlas workspace Not configured Table and Attribute definitions Valid 20 Layouts Valid 3 Subsets Valid 4 Link Types Valid 3 Access assignments Valid 3 roles Open Database design Validate again Publish catalog Publishing is not configured for this workspace Not configured Catalog publishing is not configured. You can continue to edit and validate saved definitions. Publishing becomes available after workspace setup is completed. Publish is disabled because catalog publishing is not configured. Available now Edit saved definitions and validate drafts Not available Publish catalog Next action Continue in Database design and validate saved drafts Catalog publishing Saved drafts Ready Online",
     "documentOverflow": {
       "horizontal": 0,
       "vertical": 0
@@ -206,11 +252,14 @@
       "scrollTop": 0
     },
     "editorTextClipped": false,
+    "remainingContainment": {
+      "gridInsideEditor": true,
+      "editorColumnInsideGrid": true,
+      "previewColumnInsideGrid": true,
+      "headingsInsideColumns": true,
+      "actionsInsideColumns": true
+    },
     "publishButtons": [
-      {
-        "disabled": true,
-        "text": "Publish catalog"
-      },
       {
         "disabled": true,
         "text": "Publish catalog"
@@ -254,42 +303,42 @@
       "object_list": {
         "x": 252,
         "y": 113,
-        "width": 430,
+        "width": 420,
         "height": 930,
-        "right": 682,
+        "right": 672,
         "bottom": 1043
       },
       "editor": {
-        "x": 689,
+        "x": 679,
         "y": 113,
-        "width": 1218,
+        "width": 1228,
         "height": 930,
         "right": 1907,
         "bottom": 1043
       },
       "editor_grid": {
-        "x": 707,
+        "x": 697,
         "y": 113,
-        "width": 772,
-        "height": 509.40625,
-        "right": 1479,
-        "bottom": 622.40625
+        "width": 1144,
+        "height": 324.953125,
+        "right": 1841,
+        "bottom": 437.953125
       },
       "editor_column": {
-        "x": 707,
+        "x": 697,
         "y": 113,
-        "width": 397,
-        "height": 297.609375,
-        "right": 1104,
-        "bottom": 410.609375
+        "width": 610,
+        "height": 281,
+        "right": 1307,
+        "bottom": 394
       },
       "preview_column": {
-        "x": 1122,
+        "x": 1325,
         "y": 125,
-        "width": 357,
-        "height": 497.40625,
-        "right": 1479,
-        "bottom": 622.40625
+        "width": 470,
+        "height": 312.953125,
+        "right": 1795,
+        "bottom": 437.953125
       },
       "status_bar": {
         "x": 13,

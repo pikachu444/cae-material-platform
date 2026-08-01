@@ -5989,7 +5989,7 @@ merge or dependent Administration family starts.
 
 ## 87. MOD-PROCESS wide-proportion correction and main-agent gate
 
-Date: 2026-07-31
+Date: 2026-08-01
 
 Both configured Luna Max calls returned the exact error `Selected model is at capacity. Please try a
 different model.` No other model was silently substituted. The first MOD-PROCESS call had already
@@ -6830,7 +6830,7 @@ lifecycle. The finite inventory advances from 51 to 55 approved references; 17 r
 
 ## 115. WAVE-06 remaining Administration references — product-owner handoff
 
-Date: 2026-07-31
+Date: 2026-08-01
 
 The main agent completed the finite remaining Administration reference scope on branch
 `agent/complete-167-and-157` without changing production React/CSS, backend, API, migrations or
@@ -6842,16 +6842,156 @@ current product captures.
 - Evidence-only states: 15 families / 45 canonical-viewport images.
 - Wide evidence: 10 images at 2560x1440 and 3840x2160.
 
-The new WAVE-06 validator passed 1,480 deterministic checks across all 72 new captures. Exact
-viewport dimensions and image hashes match, browser errors and document overflow are zero, legacy
-selectors and nested interactive controls are absent, keyboard pane resizing works, and every state
-uses at most one active filled primary command. Family-specific checks prove ordered Layout fields
+After the first correction and the product-owner-authorized bounded second correction, the affected
+ADM-SCHEMA-RELATIONS and ADM-ACCESS families were recaptured without touching ADM-PUBLISH pixels.
+The validator passed 1,861 deterministic checks across the complete 72-capture set: exact viewport
+dimensions and image hashes match; browser errors,
+document overflow and internal editor overflow are zero; and the editor grid, both columns, headings
+and action rows stay inside the visible bounded task cluster at every canonical and wide viewport.
+The global command bar now owns each Layout, Subset and Link Type validate/test/save action, revoke
+confirmation has one local Cancel action, and Publish has one disabled command with an
+Administrator-facing reason and next step. Family-specific checks retain the ordered Layout fields
 and saved Record preview, same-query Subset total/rows, exact-revision Link branching, safe access
-denial/revocation, and disabled non-fabricated Catalog publishing.
+denial/revocation, and truthful blocked Catalog publishing.
+
+The second correction additionally makes every non-default Layout, Subset and Link Type row update
+the editor, preview and status context; provides synchronized ArrowUp/ArrowDown/Home/End/Enter list
+navigation with one roving tab stop; keeps full row identities reachable; and removes Access
+implementation prose. The main agent opened all 58 affected approval, state and wide images at
+original resolution and repeated the qualitative owner checklist. No hard-gate or full-screen
+usability failure remains.
 
 The complete product-owner packet is
 [issue-167-administration-remaining-product-owner-packet.md](issue-167-administration-remaining-product-owner-packet.md).
-The manifest now contains all 72 finite approval targets: 55 remain approved and the 17 WAVE-06
-targets are `pending` with main-agent evaluation `accepted` and product-owner approval `absent`.
-A fresh configured Terra/Luna reviewer was not callable from this execution surface; no substitute
-review is claimed. No PR merge or production implementation has started.
+The manifest still contains all 72 finite approval targets: 55 remain approved and the 17 WAVE-06
+targets remain `pending`; this correction did not alter any main-agent, reviewer or product-owner
+approval state.
+The configured Luna Max writer loaded successfully without model substitution. Two fresh configured
+Terra High read-only re-reviews for the corrected Relations and Access bundles are the next gate;
+ADM-PUBLISH retains its prior fresh reviewer `approve`. No PR merge or production implementation has
+started.
+
+## 116. Owner-authorized second correction — final re-review and handoff
+
+Date: 2026-08-01
+
+Two fresh configured Terra High read-only reviewers independently completed the bounded second-
+correction packets. ADM-SCHEMA-RELATIONS received `approve` after all 42 original-resolution images,
+the pointer/keyboard selection contract, exact-revision/cardinality truth and wide composition were
+checked. ADM-ACCESS received `approve` after all 16 original-resolution images, accessible assignment
+identities, removal of implementation prose, destructive-action continuity and all recovery states
+were checked. Neither reviewer reported an actionable finding. ADM-PUBLISH retains the prior fresh
+reviewer `approve`; the second correction did not touch its pixels or behavior.
+
+After reviewer disposition, the main agent reopened all 58 affected images at original resolution
+and repeated the mandatory qualitative owner checklist. No clipping, overlap, misleading scroll,
+distorted wide composition, developer-facing filler, broken state recovery, command duplication or
+full-screen hierarchy failure remains. Deterministic validation still passes 1,861 checks across 72
+captures, and inventory remains 55 approved with the final 17 product-owner approval units pending.
+No third correction, commit, push, PR merge or production implementation has started.
+
+## 117. Owner-authorized additional Luna correction and main-agent gate
+
+Date: 2026-08-01
+
+The product owner authorized the configured Luna Max implementer for one additional bounded WAVE-06
+correction. The active main agent supplied a persisted, explicit packet covering Administrator-facing
+language, compact professional typography, unclipped identities, flat three-pane structure, truthful
+states and bounded high-resolution behavior. Production React/CSS and unrelated families remained
+outside the packet.
+
+The active main agent did not accept the first result mechanically. Original-resolution inspection
+found that Link Type `Related Records preview` rows clipped their final `r4`/`r5` revision values at
+1366×768 even though the automated suite passed. A single-image recheck confirmed the Access revoke
+header was sound; the apparent header defect was only a multi-image display artifact. Luna then
+corrected the Link row grid, gap and right clearance without changing the information hierarchy or
+shrinking text, and added explicit complete-revision geometry/text assertions. The new regression
+fails against the clipped layout and passes the correction.
+
+The active main agent independently reran JavaScript syntax, Ruff, Python compilation, the WAVE-06
+validator, the finite inventory validator and `git diff --check`. The validator now passes 2,622
+checks across all 72 captures; inventory remains 55 approved and 17 pending. It reopened all fourteen
+changed Link Type normal, error, loading and 2560/3840 originals. Complete revision values, safe right
+clearance, flat task continuity, readable typography and bounded wide composition pass the qualitative
+gate. A fresh configured Terra High read-only review remains required before product-owner handoff;
+commit, push, PR merge and production implementation remain blocked.
+
+## 118. Fresh final review — Access interaction rejection
+
+Date: 2026-08-01
+
+Fresh read-only Terra High reviews independently accepted ADM-SCHEMA-RELATIONS and ADM-PUBLISH with no
+actionable finding. The Access reviewer rejected the current static source even though all registered
+pixels and 2,622 deterministic checks passed. Selecting `material-engineers` changes only the row while
+the editor and status stay on `material-reviewers`; Access keyboard selection is not exercised. The
+normal-screen revoke action also uses an incomplete duplicate confirmation renderer, and Cancel does
+not restore the normal editor.
+
+These are interaction-contract failures, not cosmetic preferences. The active main agent therefore
+withholds product-owner handoff and persisted the bounded
+[Access correction packet](issue-167-access-review-rejection-correction-packet-luna.md) for the
+configured Luna Max implementer. Required evidence now covers selected identity propagation,
+role-specific access preview, keyboard continuity, one canonical revoke-confirm renderer and complete
+cancel recovery. Relations and Publish pixels/contracts are preserved. The final 17 manifest entries
+remain pending; commit, push, PR merge and production implementation remain blocked.
+
+## 119. Access interaction correction and renewed main-agent acceptance
+
+Date: 2026-08-01
+
+The configured Luna Max implementer corrected the fresh Access reviewer findings without model
+substitution or production changes. Assignment rows now drive the editor, role-specific access
+preview and status bar through one selected-assignment record. Pointer and roving keyboard selection
+keep row, focus, details and status synchronized. Normal-to-revoke and direct revoke-confirm use one
+complete renderer with identity, Role, Scope, Classification, reason, the matching access preview,
+one destructive command and one Cancel. Cancel restores the same normal assignment, row focus and
+`Revocation cancelled` status without claiming backend persistence.
+
+The new focused regression failed four checks against the rejected source: pointer identity, keyboard
+synchronization, canonical selected-assignment confirmation and cancel recovery. It passes after the
+correction. The active main agent additionally rejected `Reviewer · material-reviewers` as a misuse of
+role in the `User or team` value, the role-specific warning embedded in a generic renderer, and the
+empty-state status `Assignment · material-reviewers`. Final copy shows the identity only, uses a role-
+neutral revoke consequence, and reports `Assignments · none` for all empty captures.
+
+The active main agent independently reran Node syntax, Ruff, Python compilation, the WAVE-06 validator,
+inventory and diff checks. The final validator passes 2,642 checks across 72 captures. It opened all 16
+Access originals at original resolution, then reopened the three corrected empty originals. Selection,
+revoke/cancel recovery, plain language, typography, header geometry, content boundaries and bounded
+2560/3840 composition pass. Relations and Publish remain unchanged and retain their fresh approvals.
+A fresh Access read-only re-review is the remaining internal gate. All 17 approval targets remain
+pending; commit, push, PR merge and production implementation remain blocked.
+
+## 120. Access fresh re-review and final WAVE-06 internal judgment
+
+Date: 2026-08-01
+
+A new fresh configured Terra High read-only reviewer opened all 16 final Access PNGs at original
+resolution and independently reran the complete gate set. Pointer and roving keyboard selection,
+selected role/scope/classification/task preview, canonical revoke confirmation, Cancel recovery,
+identity-only values, the role-neutral warning and `Assignments · none` all pass. The reviewer returned
+`approve` with no finding. Its recorded result is
+[issue-167-rereview-result-adm-access-post-rejection-final.md](issue-167-rereview-result-adm-access-post-rejection-final.md).
+
+ADM-SCHEMA-RELATIONS and ADM-PUBLISH retain their current fresh `approve` dispositions because the
+Access correction did not alter their final pixels or contracts. After reviewer disposition, the
+active main agent repeated the final original-resolution product/UX judgment. Plain Administrator
+language, compact professional typography, full identities/revisions, error and recovery truth,
+action priority, lack of collision/clipping and bounded 2560/3840 composition pass without a hard-
+gate failure. The finite inventory remains 55 approved and 17 pending. Those final WAVE-06 targets are
+ready for product-owner batch review; no commit, push, PR merge or production implementation starts
+before the product-owner decision.
+
+## 121. Final WAVE-06 product-owner approval
+
+Date: 2026-08-01
+
+The product owner reviewed the submitted final seventeen-image WAVE-06 batch and accepted it. Each
+Layout, Subset, Link Type, Access and Publish target now records its own approved lifecycle, final
+SHA-256 and conversation evidence in the manifest. The finite #167 inventory advances from 55/72 to
+72/72 approved; no reference image remains pending.
+
+Issue #167 reference creation and visual acceptance are therefore complete. Remaining work is the
+repository publication gate only: final full deterministic checks, intentional commit and push, PR
+creation/review and merge under the AGENTS.md procedure. Production React/CSS and issue #157 must not
+start until #167 is merged and the branch returns to latest `main`.

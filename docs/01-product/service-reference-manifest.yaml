@@ -1708,9 +1708,9 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1366x768.png
     measurements: docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1366x768.measurements.json
     family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    image_sha256: c82f9c7a43c0e086218816082eaf1881a2e4d672882d792fc4eb79aa33eaa7e7
-    date: 2026-07-31
-    status: pending
+    image_sha256: 83b33ba1a8fe4dd7f9e68d532781b348373f67f5b7fb581c2195b8b670dd7e38
+    date: 2026-08-01
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
@@ -1718,7 +1718,9 @@ references:
         Record preview remain connected in one flat three-pane Administration task; exact Attribute
         revisions, local recovery and bounded wide composition are preserved.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-08-01
+      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
   - id: administration-layout-edit-draft-1440x900
     screen: administration-layout-edit
     state: draft
@@ -1730,9 +1732,9 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1440x900.png
     measurements: docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1440x900.measurements.json
     family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    image_sha256: bf6377f0c9bd4ac9076fc5b6583a8671fea00cd941f06c6faabd6a5bd1d8f16f
-    date: 2026-07-31
-    status: pending
+    image_sha256: c644c810f9bf09521e638500db6bc2ea79de9052e5ed99abef9aa9e4823e8899
+    date: 2026-08-01
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
@@ -1740,7 +1742,9 @@ references:
         Record preview remain connected in one flat three-pane Administration task; exact Attribute
         revisions, local recovery and bounded wide composition are preserved.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-08-01
+      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
   - id: administration-layout-edit-draft-1920x1080
     screen: administration-layout-edit
     state: draft
@@ -1755,9 +1759,9 @@ references:
     wide_evidence:
       - docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-wide-2560x1440.png
       - docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-wide-3840x2160.png
-    image_sha256: e4dbd3a0ebf01b2270dc9670d04963f22f728f00c4151dcdd39dd04f2527fd23
-    date: 2026-07-31
-    status: pending
+    image_sha256: 2b8feeced8fe13f26c00d5c0d84f46e823ce7e952276b664ecfa6363c200c1ec
+    date: 2026-08-01
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
@@ -1765,7 +1769,9 @@ references:
         Record preview remain connected in one flat three-pane Administration task; exact Attribute
         revisions, local recovery and bounded wide composition are preserved.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-08-01
+      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
   - id: administration-subset-edit-draft-1366x768
     screen: administration-subset-edit
     state: draft
@@ -1777,9 +1783,9 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1366x768.png
     measurements: docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1366x768.measurements.json
     family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    image_sha256: d047fbf5204bae67681f0c4663f2732920a4b0a063680597695dcefc4a91137c
-    date: 2026-07-31
-    status: pending
+    image_sha256: ebb696e2198c2ee809bcbc3a96537624296879146489e0686c8fda6897ae571c
+    date: 2026-08-01
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
@@ -1787,7 +1793,9 @@ references:
         preview use one server-scoped count/row contract, preserve the saved draft on failure and
         remain compact at canonical and wide viewports.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-08-01
+      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
   - id: administration-subset-edit-draft-1440x900
     screen: administration-subset-edit
     state: draft
@@ -1799,9 +1807,9 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1440x900.png
     measurements: docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1440x900.measurements.json
     family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    image_sha256: bf93f96d807e9a4766f9a2f645bda0ebfb83b08890c62bcc943d8b86894c2122
-    date: 2026-07-31
-    status: pending
+    image_sha256: 2944564a8bfb23b56547e9fe5a5b7bbe4d90225d8b25191d10cdc760e0bebf0f
+    date: 2026-08-01
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
@@ -1809,7 +1817,9 @@ references:
         preview use one server-scoped count/row contract, preserve the saved draft on failure and
         remain compact at canonical and wide viewports.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-08-01
+      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
   - id: administration-subset-edit-draft-1920x1080
     screen: administration-subset-edit
     state: draft
@@ -1824,9 +1834,9 @@ references:
     wide_evidence:
       - docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-wide-2560x1440.png
       - docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-wide-3840x2160.png
-    image_sha256: 6349535e69692c86a07a9d4424c5f97cf8fa093d431b754894cbd05fa871780b
-    date: 2026-07-31
-    status: pending
+    image_sha256: 3c47bd6bfce907fb552e1d420f0595592b14fd443897726fa4f0a22d7d9aadcd
+    date: 2026-08-01
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
@@ -1834,7 +1844,9 @@ references:
         preview use one server-scoped count/row contract, preserve the saved draft on failure and
         remain compact at canonical and wide viewports.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-08-01
+      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
   - id: administration-link-type-edit-draft-1366x768
     screen: administration-link-type-edit
     state: draft
@@ -1846,17 +1858,20 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1366x768.png
     measurements: docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1366x768.measurements.json
     family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    image_sha256: d07cbd0f99f049ea01fc7acc9041cb12f3d059ed4513923dd9a8d383cfdb8e0b
-    date: 2026-07-31
-    status: pending
+    image_sha256: a45ce72250ae6abd4590aa236cacc31ad7d0b68bfe2596fc3764cb9eb3d9fb3b
+    date: 2026-08-01
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
         Accepted after direct original-resolution review. Source and target Tables, independent
         cardinalities, forward/reverse labels and exact endpoint revisions are visible together with
-        a branching Related test; no latest alias or fabricated relation is used.
+        a branching Related test. Every related revision remains fully visible at the compact
+        viewport; no latest alias or fabricated relation is used.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-08-01
+      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
   - id: administration-link-type-edit-draft-1440x900
     screen: administration-link-type-edit
     state: draft
@@ -1868,17 +1883,20 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1440x900.png
     measurements: docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1440x900.measurements.json
     family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    image_sha256: 29cb0b45b2cbc418928860baf6ef6ec2f73422ef15ed2ac6b219186ec49b8421
-    date: 2026-07-31
-    status: pending
+    image_sha256: b1d8eae9026501b63103592fb50ceaed9d65c1876b01041d713d2f320110876d
+    date: 2026-08-01
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
         Accepted after direct original-resolution review. Source and target Tables, independent
         cardinalities, forward/reverse labels and exact endpoint revisions are visible together with
-        a branching Related test; no latest alias or fabricated relation is used.
+        a branching Related test. Every related revision remains fully visible at the compact
+        viewport; no latest alias or fabricated relation is used.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-08-01
+      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
   - id: administration-link-type-edit-draft-1920x1080
     screen: administration-link-type-edit
     state: draft
@@ -1893,17 +1911,20 @@ references:
     wide_evidence:
       - docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-wide-2560x1440.png
       - docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-wide-3840x2160.png
-    image_sha256: c69ab99c8ed55ffcabc56b8cb2f23368c41e36b02c5b993074eb001fcf548450
-    date: 2026-07-31
-    status: pending
+    image_sha256: b6cc86a9255c1f1afb9e70feac549a3b6b376192e36f8f3ff5e67fea197a19ce
+    date: 2026-08-01
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
         Accepted after direct original-resolution review. Source and target Tables, independent
         cardinalities, forward/reverse labels and exact endpoint revisions are visible together with
-        a branching Related test; no latest alias or fabricated relation is used.
+        a branching Related test. Every related revision remains fully visible at the compact
+        viewport; no latest alias or fabricated relation is used.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-08-01
+      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
   - id: administration-access-normal-1366x768
     screen: administration-access
     state: normal
@@ -1915,9 +1936,9 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/administration-access-normal-1366x768.png
     measurements: docs/17-evidence/images/issue-167-service-reference/administration-access-normal-1366x768.measurements.json
     family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    image_sha256: b2562dbb6df24c19aa226d3f4bcb4fbc623b94a7d83f65973901ae4be36ef528
-    date: 2026-07-31
-    status: pending
+    image_sha256: 76aa2c7b7457e42cb6afaee775efdaadb396c67bdfb51c0d8c049bf32b4262b8
+    date: 2026-08-01
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
@@ -1926,7 +1947,9 @@ references:
         revoke-confirm states preserve a safe return, exact selected context and required reason
         without leaking restricted assignment data.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-08-01
+      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
   - id: administration-access-normal-1440x900
     screen: administration-access
     state: normal
@@ -1938,9 +1961,9 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/administration-access-normal-1440x900.png
     measurements: docs/17-evidence/images/issue-167-service-reference/administration-access-normal-1440x900.measurements.json
     family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    image_sha256: 0b76852380eb166e335abbfd5945a00e506becf678757ce0c83898821c432806
-    date: 2026-07-31
-    status: pending
+    image_sha256: d29cefa9daf262f0a74ae924ba2a45cce82d4ed41e8c847c4850400515b939fa
+    date: 2026-08-01
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
@@ -1949,7 +1972,9 @@ references:
         revoke-confirm states preserve a safe return, exact selected context and required reason
         without leaking restricted assignment data.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-08-01
+      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
   - id: administration-access-normal-1920x1080
     screen: administration-access
     state: normal
@@ -1964,9 +1989,9 @@ references:
     wide_evidence:
       - docs/17-evidence/images/issue-167-service-reference/administration-access-normal-wide-2560x1440.png
       - docs/17-evidence/images/issue-167-service-reference/administration-access-normal-wide-3840x2160.png
-    image_sha256: 893745491e80309fd9fc7ae5623ba0778cc1f6072a3e8571f0706dab42243eaa
-    date: 2026-07-31
-    status: pending
+    image_sha256: 8a8be47905e2af0e6eb24ce03c3140d15280604ae007a7af28d14dd4063c94c2
+    date: 2026-08-01
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
@@ -1975,7 +2000,9 @@ references:
         revoke-confirm states preserve a safe return, exact selected context and required reason
         without leaking restricted assignment data.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-08-01
+      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
   - id: administration-access-denied-1440x900
     screen: administration-access
     state: denied
@@ -1987,9 +2014,9 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/administration-access-denied-1440x900.png
     measurements: docs/17-evidence/images/issue-167-service-reference/administration-access-denied-1440x900.measurements.json
     family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    image_sha256: 8981bed572ecc8f4757980a33a547e4c431634b1c3b5b7abc48976c23dc912e8
+    image_sha256: 71a9a09ebc2adcfdbfea56d009a5f8cdcb6e10098c2d51d4e5ccec298826ac51
     date: 2026-07-31
-    status: pending
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
@@ -1998,7 +2025,9 @@ references:
         revoke-confirm states preserve a safe return, exact selected context and required reason
         without leaking restricted assignment data.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-08-01
+      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
   - id: administration-access-revoke-confirm-1440x900
     screen: administration-access
     state: revoke-confirm
@@ -2010,9 +2039,9 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/administration-access-revoke-confirm-1440x900.png
     measurements: docs/17-evidence/images/issue-167-service-reference/administration-access-revoke-confirm-1440x900.measurements.json
     family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    image_sha256: 84bbb7af0d70832ef547a1e99269bce6242a565b629bb04d71481a96c5526d81
+    image_sha256: c42857301a53219e05e2c810ddeb3accca96d346c6c198c0c92964cb57622171
     date: 2026-07-31
-    status: pending
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
@@ -2021,7 +2050,9 @@ references:
         revoke-confirm states preserve a safe return, exact selected context and required reason
         without leaking restricted assignment data.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-08-01
+      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
   - id: administration-publish-blocked-1366x768
     screen: administration-publish
     state: not-configured
@@ -2033,9 +2064,9 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1366x768.png
     measurements: docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1366x768.measurements.json
     family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    image_sha256: 3bdeb595aff942f0b560fe77101d611d3de5c1056cdb6293705828e3cdbd02ac
+    image_sha256: 422bf607c3488ef2f24b325bb8eac9b1bc5c1d8bd9bdf8f20c876991a69c8ea9
     date: 2026-07-31
-    status: pending
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
@@ -2044,7 +2075,9 @@ references:
         because no publication transition or policy endpoint exists; no success, release or receipt
         is fabricated.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-08-01
+      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
   - id: administration-publish-blocked-1440x900
     screen: administration-publish
     state: not-configured
@@ -2056,9 +2089,9 @@ references:
     image: docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1440x900.png
     measurements: docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1440x900.measurements.json
     family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    image_sha256: 9dfb80c19d2450a8c351e18f165ff37ecc7fb61a2574323ac704d9b472e251dc
+    image_sha256: 893e7dce8bfea50a48390e56b2eb31b16839b6e116687600a123a0a121d5008a
     date: 2026-07-31
-    status: pending
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
@@ -2067,7 +2100,9 @@ references:
         because no publication transition or policy endpoint exists; no success, release or receipt
         is fabricated.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-08-01
+      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
   - id: administration-publish-blocked-1920x1080
     screen: administration-publish
     state: not-configured
@@ -2082,9 +2117,9 @@ references:
     wide_evidence:
       - docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-wide-2560x1440.png
       - docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-wide-3840x2160.png
-    image_sha256: b7da7e5f567fd77b4bbd54403bf7ae980dc0de3fe604c9c169da1e0f0c267f1b
+    image_sha256: 15d79a5708930be1793cbe7336f066196362d4793a48dfcc2176df10034b5b0d
     date: 2026-07-31
-    status: pending
+    status: approved
     main_agent_evaluation:
       status: accepted
       notes: >-
@@ -2093,4 +2128,6 @@ references:
         because no publication transition or policy endpoint exists; no success, release or receipt
         is fabricated.
     product_owner_approval:
-      status: absent
+      status: approved
+      date: 2026-08-01
+      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.

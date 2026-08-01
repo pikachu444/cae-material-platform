@@ -6,13 +6,16 @@
   "width": 1440,
   "height": 900,
   "image": "docs/17-evidence/images/issue-167-service-reference/administration-layout-preview-loading-1440x900.png",
-  "image_sha256": "48eebcdd4a58e35de86ac97da0e51997e8ba6283a7ec17cf01c3ea6489c86f4c",
+  "image_sha256": "dd7b78328b4e86d91b37c5e2611356e07738f1d654e1e85afda278045cb2898a",
   "snapshot": {
     "ready": true,
     "family": "layout",
     "state": "preview-loading",
     "pageTitle": "Database design",
+    "navTitle": "Schema objects",
+    "listTitle": "Layouts",
     "topbarContext": "Administrator · Atlas workspace",
+    "statusBarFontPx": 11.5,
     "activePrimary": [],
     "controls": [
       {
@@ -107,19 +110,19 @@
       },
       {
         "tag": "button",
-        "name": "Engineering datasheet9 fields7",
+        "name": "Engineering datasheet · revision 7",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "Solver delivery summary6 fields4",
+        "name": "Solver delivery summary · revision 4",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "Test evidence8 fields3",
+        "name": "Test evidence · revision 3",
         "disabled": false,
         "action": ""
       },
@@ -203,12 +206,6 @@
       },
       {
         "tag": "button",
-        "name": "Save new revision",
-        "disabled": false,
-        "action": "save-layout"
-      },
-      {
-        "tag": "button",
         "name": "Discard draft",
         "disabled": false,
         "action": "discard"
@@ -247,6 +244,33 @@
     ],
     "bodyFontPx": 13,
     "maximumDataFontPx": 13,
+    "typography": {
+      "data": {
+        "count": 19,
+        "min": 13,
+        "max": 13
+      },
+      "metadata": {
+        "count": 31,
+        "min": 11.5,
+        "max": 12
+      },
+      "ordinaryWeight": {
+        "count": 27,
+        "max": 600
+      }
+    },
+    "clipping": {
+      "listNames": [],
+      "previewValues": []
+    },
+    "revisionMetrics": [],
+    "overlap": {
+      "pairs": [],
+      "noOverlaps": true,
+      "splitterCollisions": [],
+      "splitterSafe": true
+    },
     "labels": [
       "Current Table",
       "Layout name",
@@ -275,6 +299,20 @@
       "Solver delivery summary6 fields4",
       "Test evidence8 fields3"
     ],
+    "rowAccessibleNames": [
+      {
+        "id": "layout-engineering",
+        "name": "Engineering datasheet · revision 7"
+      },
+      {
+        "id": "layout-card",
+        "name": "Solver delivery summary · revision 4"
+      },
+      {
+        "id": "layout-test",
+        "name": "Test evidence · revision 3"
+      }
+    ],
     "tasks": [],
     "readiness": [],
     "related": [],
@@ -290,7 +328,7 @@
       "9Related solver cardsRecord reference↕"
     ],
     "filters": [],
-    "documentText": "Skip to Administration workspace CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator · Atlas workspace Database design Atlas workspace · Materials master Loading Validate Preview datasheet Save new revision Schema objects 5 areas Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 3 Current Table Materials master Test records Solver cards Definitions pin this exact Table revision. Current Table scope retained Layouts 3 items Name Fields Rev Engineering datasheet 9 fields 7 Solver delivery summary 6 fields 4 Test evidence 8 fields 3 Engineering datasheet Layout revision 7 · Materials master Unsaved draft Layout name Purpose Ordered fields Add field 1 Material name Text ↕ 2 Grade Text ↕ 3 Material condition Discrete ↕ 4 Density Number ↕ 5 Young's modulus Number ↕ 6 Poisson ratio Number ↕ 7 Yield strength Number ↕ 8 Stress–strain response Curve ↕ 9 Related solver cards Record reference ↕ Save new revision Discard draft Live datasheet preview Saved Record values in current Layout order Read-only Record preview Engineering datasheet · r7 · 9 fields Loading Layout · Engineering datasheet Exact revision editing Loading Online",
+    "documentText": "Skip to Administration workspace CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator · Atlas workspace Database design Atlas workspace · Materials master Loading Validate Preview datasheet Save new revision Schema objects 5 areas Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 3 Current Table Materials master Test records Solver cards Definitions use the selected Table version. Materials master selected Layouts 3 items Name Fields Rev Engineering datasheet 9 fields 7 Solver delivery summary 6 fields 4 Test evidence 8 fields 3 Engineering datasheet Layout revision 7 · Materials master Unsaved draft Layout name Purpose Ordered fields Add field 1 Material name Text ↕ 2 Grade Text ↕ 3 Material condition Discrete ↕ 4 Density Number ↕ 5 Young's modulus Number ↕ 6 Poisson ratio Number ↕ 7 Yield strength Number ↕ 8 Stress–strain response Curve ↕ 9 Related solver cards Record reference ↕ Discard draft Live datasheet preview Saved Record values in current Layout order Read-only Record preview Engineering datasheet · r7 · 9 fields Loading Layout · Engineering datasheet Revision editing Loading Online",
     "documentOverflow": {
       "horizontal": 0,
       "vertical": 0
@@ -306,6 +344,13 @@
       "scrollTop": 0
     },
     "editorTextClipped": false,
+    "remainingContainment": {
+      "gridInsideEditor": true,
+      "editorColumnInsideGrid": true,
+      "previewColumnInsideGrid": true,
+      "headingsInsideColumns": true,
+      "actionsInsideColumns": true
+    },
     "publishButtons": [],
     "selectedRowCount": 1,
     "previewTables": 0,
@@ -345,42 +390,42 @@
       "object_list": {
         "x": 236,
         "y": 109,
-        "width": 292,
+        "width": 360,
         "height": 754,
-        "right": 528,
+        "right": 596,
         "bottom": 863
       },
       "editor": {
-        "x": 535,
+        "x": 603,
         "y": 109,
-        "width": 896,
+        "width": 828,
         "height": 754,
         "right": 1431,
         "bottom": 863
       },
       "editor_grid": {
-        "x": 549,
+        "x": 617,
         "y": 109,
-        "width": 856,
-        "height": 601.421875,
+        "width": 788,
+        "height": 602.578125,
         "right": 1405,
-        "bottom": 710.421875
+        "bottom": 711.578125
       },
       "editor_column": {
-        "x": 549,
+        "x": 617,
         "y": 109,
-        "width": 447.859375,
-        "height": 601.421875,
-        "right": 996.859375,
-        "bottom": 710.421875
+        "width": 411.6875,
+        "height": 602.578125,
+        "right": 1028.6875,
+        "bottom": 711.578125
       },
       "preview_column": {
-        "x": 1010.859375,
+        "x": 1042.6875,
         "y": 121,
-        "width": 394.140625,
-        "height": 239.265625,
-        "right": 1405,
-        "bottom": 360.265625
+        "width": 362.296875,
+        "height": 241.828125,
+        "right": 1404.984375,
+        "bottom": 362.828125
       },
       "status_bar": {
         "x": 9,

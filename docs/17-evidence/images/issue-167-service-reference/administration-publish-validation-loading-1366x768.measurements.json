@@ -6,13 +6,16 @@
   "width": 1366,
   "height": 768,
   "image": "docs/17-evidence/images/issue-167-service-reference/administration-publish-validation-loading-1366x768.png",
-  "image_sha256": "85f8844040668a984ac595906c6686d1d0e17d38f487ea0ba45aa271821c1ddc",
+  "image_sha256": "a9e7d86af2d7db6fa65e224b1d29667add3a880b470db03f112b8cd46377fe99",
   "snapshot": {
     "ready": true,
     "family": "publish",
     "state": "validation-loading",
-    "pageTitle": "Catalog publish",
+    "pageTitle": "Catalog publishing",
+    "navTitle": "Publishing",
+    "listTitle": "Saved drafts",
     "topbarContext": "Administrator · Atlas workspace",
+    "statusBarFontPx": 11.5,
     "activePrimary": [],
     "controls": [
       {
@@ -83,31 +86,31 @@
       },
       {
         "tag": "button",
-        "name": "Materials master TableSaved draftr12",
+        "name": "Materials master Table · revision r12",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "18 Attribute definitionsSaved drafts18",
+        "name": "18 Attribute definitions · revision 18",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "Engineering datasheet LayoutSaved draftr7",
+        "name": "Engineering datasheet Layout · revision r7",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "Released metal cards SubsetSaved draftr6",
+        "name": "Released metal cards Subset · revision r6",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "Neutral model to solver cardsSaved draftr5",
+        "name": "Neutral model to solver cards · revision r5",
         "disabled": false,
         "action": ""
       },
@@ -128,12 +131,6 @@
         "name": "Validate again",
         "disabled": true,
         "action": "validate-publish"
-      },
-      {
-        "tag": "button",
-        "name": "Publish catalog",
-        "disabled": true,
-        "action": "publish"
       }
     ],
     "nestedInteractive": [],
@@ -169,6 +166,33 @@
     ],
     "bodyFontPx": 13,
     "maximumDataFontPx": 13,
+    "typography": {
+      "data": {
+        "count": 16,
+        "min": 13,
+        "max": 13
+      },
+      "metadata": {
+        "count": 24,
+        "min": 11.5,
+        "max": 12
+      },
+      "ordinaryWeight": {
+        "count": 23,
+        "max": 600
+      }
+    },
+    "clipping": {
+      "listNames": [],
+      "previewValues": []
+    },
+    "revisionMetrics": [],
+    "overlap": {
+      "pairs": [],
+      "noOverlaps": true,
+      "splitterCollisions": [],
+      "splitterSafe": true
+    },
     "labels": [],
     "fieldValues": [],
     "alerts": [],
@@ -179,18 +203,40 @@
       "Released metal cards SubsetSaved draftr6",
       "Neutral model to solver cardsSaved draftr5"
     ],
+    "rowAccessibleNames": [
+      {
+        "id": "pub-table",
+        "name": "Materials master Table · revision r12"
+      },
+      {
+        "id": "pub-attrs",
+        "name": "18 Attribute definitions · revision 18"
+      },
+      {
+        "id": "pub-layout",
+        "name": "Engineering datasheet Layout · revision r7"
+      },
+      {
+        "id": "pub-subset",
+        "name": "Released metal cards Subset · revision r6"
+      },
+      {
+        "id": "pub-link",
+        "name": "Neutral model to solver cards · revision r5"
+      }
+    ],
     "tasks": [],
     "readiness": [
       "Table and Attribute definitionsChecking20",
       "LayoutsChecking3",
       "SubsetsChecking4",
       "Link TypesChecking3",
-      "Access boundaryChecking3 roles"
+      "Access assignmentsChecking3 roles"
     ],
     "related": [],
     "orderedFields": [],
     "filters": [],
-    "documentText": "Skip to Administration workspace CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator · Atlas workspace Catalog publish Atlas workspace · publication capability boundary Not configured Validate drafts Publish catalog Catalog lifecycle 3 areas Publish readiness 5 Validation results 4 Draft history 6 Saved drafts remain editable Draft change set 5 groups Definition State Rev Materials master Table Saved draft r12 18 Attribute definitions Saved drafts 18 Engineering datasheet Layout Saved draft r7 Released metal cards Subset Saved draft r6 Neutral model to solver cards Saved draft r5 Catalog publication readiness Saved definitions in Atlas workspace Validating Validating saved draft revisions Table, Attribute, Layout, Subset and Link Type checks are running. Draft editing remains available. Table and Attribute definitions Checking 20 Layouts Checking 3 Subsets Checking 4 Link Types Checking 3 Access boundary Checking 3 roles Open Database design Validate again Publish catalog Publication transition and policy endpoint Not configured Catalog publishing is not available in this build. Table, Attribute, Layout, Subset and Link Type resources currently remain governed saved drafts. The service exposes no catalog publication transition or publication-policy endpoint. Publish catalog Publish is disabled because the required backend capability is not configured. Preserved now Exact saved draft revisions, validation evidence and editor state Not fabricated Published state, publication date, release receipt or successful transition Next action Continue editing and validating drafts in Database design Catalog publish boundary Draft definitions preserved Loading Online",
+    "documentText": "Skip to Administration workspace CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator · Atlas workspace Catalog publishing Atlas workspace · publishing not configured Not configured Validate drafts Publish catalog Publishing 3 areas Publish readiness 5 Validation results 4 Draft history 6 Saved drafts remain editable Saved drafts 5 groups Definition State Rev Materials master Table Saved draft r12 18 Attribute definitions Saved drafts 18 Engineering datasheet Layout Saved draft r7 Released metal cards Subset Saved draft r6 Neutral model to solver cards Saved draft r5 Publish readiness Saved definitions in Atlas workspace Validating Validating saved draft revisions Table, Attribute, Layout, Subset and Link Type checks are running. Draft editing remains available. Table and Attribute definitions Checking 20 Layouts Checking 3 Subsets Checking 4 Link Types Checking 3 Access assignments Checking 3 roles Open Database design Validate again Publish catalog Publishing is not configured for this workspace Not configured Catalog publishing is not configured. You can continue to edit and validate saved definitions. Publishing becomes available after workspace setup is completed. Publish is disabled because catalog publishing is not configured. Available now Edit saved definitions and validate drafts Not available Publish catalog Next action Continue in Database design and validate saved drafts Catalog publishing Saved drafts Loading Online",
     "documentOverflow": {
       "horizontal": 0,
       "vertical": 0
@@ -206,11 +252,14 @@
       "scrollTop": 0
     },
     "editorTextClipped": false,
+    "remainingContainment": {
+      "gridInsideEditor": true,
+      "editorColumnInsideGrid": true,
+      "previewColumnInsideGrid": true,
+      "headingsInsideColumns": true,
+      "actionsInsideColumns": true
+    },
     "publishButtons": [
-      {
-        "disabled": true,
-        "text": "Publish catalog"
-      },
       {
         "disabled": true,
         "text": "Publish catalog"
@@ -271,25 +320,25 @@
         "x": 615,
         "y": 107,
         "width": 716,
-        "height": 557.171875,
+        "height": 403.140625,
         "right": 1331,
-        "bottom": 664.171875
+        "bottom": 510.140625
       },
       "editor_column": {
         "x": 615,
         "y": 107,
         "width": 395.5,
-        "height": 356.171875,
+        "height": 356.546875,
         "right": 1010.5,
-        "bottom": 463.171875
+        "bottom": 463.546875
       },
       "preview_column": {
         "x": 1022.5,
         "y": 119,
         "width": 308.484375,
-        "height": 545.171875,
+        "height": 391.140625,
         "right": 1330.984375,
-        "bottom": 664.171875
+        "bottom": 510.140625
       },
       "status_bar": {
         "x": 9,

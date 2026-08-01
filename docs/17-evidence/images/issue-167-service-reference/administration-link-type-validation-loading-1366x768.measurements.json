@@ -6,13 +6,16 @@
   "width": 1366,
   "height": 768,
   "image": "docs/17-evidence/images/issue-167-service-reference/administration-link-type-validation-loading-1366x768.png",
-  "image_sha256": "da915544d1b52d801328072c76f1eb62eaf6a22fb54cf8d678a6f917bc2d54cb",
+  "image_sha256": "15b044eb5befa75f6261c0d79c890a68276d7da4a59b6215616d8394ba6b20a9",
   "snapshot": {
     "ready": true,
     "family": "link",
     "state": "validation-loading",
     "pageTitle": "Database design",
+    "navTitle": "Schema objects",
+    "listTitle": "Link Types",
     "topbarContext": "Administrator · Atlas workspace",
+    "statusBarFontPx": 11.5,
     "activePrimary": [],
     "controls": [
       {
@@ -53,7 +56,7 @@
       },
       {
         "tag": "button",
-        "name": "Test Related",
+        "name": "Test links",
         "disabled": true,
         "action": "preview"
       },
@@ -107,19 +110,19 @@
       },
       {
         "tag": "button",
-        "name": "Neutral model to solver cards1 → many5",
+        "name": "Neutral model to solver cards · revision 5",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "Test Data to materialmany → 13",
+        "name": "Test Data to material · revision 3",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "Related materialsmany ↔ many2",
+        "name": "Related materials · revision 2",
         "disabled": false,
         "action": ""
       },
@@ -173,18 +176,6 @@
       },
       {
         "tag": "button",
-        "name": "Save new revision",
-        "disabled": true,
-        "action": "save-link"
-      },
-      {
-        "tag": "button",
-        "name": "Validate and test",
-        "disabled": true,
-        "action": "validate-link"
-      },
-      {
-        "tag": "button",
         "name": "Discard draft",
         "disabled": false,
         "action": "discard"
@@ -223,6 +214,33 @@
     ],
     "bodyFontPx": 13,
     "maximumDataFontPx": 13,
+    "typography": {
+      "data": {
+        "count": 15,
+        "min": 13,
+        "max": 13
+      },
+      "metadata": {
+        "count": 26,
+        "min": 11.5,
+        "max": 12
+      },
+      "ordinaryWeight": {
+        "count": 23,
+        "max": 600
+      }
+    },
+    "clipping": {
+      "listNames": [],
+      "previewValues": []
+    },
+    "revisionMetrics": [],
+    "overlap": {
+      "pairs": [],
+      "noOverlaps": true,
+      "splitterCollisions": [],
+      "splitterSafe": true
+    },
     "labels": [
       "Current Table",
       "Name",
@@ -284,12 +302,26 @@
       "Test Data to materialmany → 13",
       "Related materialsmany ↔ many2"
     ],
+    "rowAccessibleNames": [
+      {
+        "id": "link-neutral-card",
+        "name": "Neutral model to solver cards · revision 5"
+      },
+      {
+        "id": "link-test-material",
+        "name": "Test Data to material · revision 3"
+      },
+      {
+        "id": "link-material-related",
+        "name": "Related materials · revision 2"
+      }
+    ],
     "tasks": [],
     "readiness": [],
     "related": [],
     "orderedFields": [],
     "filters": [],
-    "documentText": "Skip to Administration workspace CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator · Atlas workspace Database design Atlas workspace · Materials master Loading Validate Test Related Save new revision Schema objects 5 areas Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 3 Current Table Materials master Test records Solver cards Definitions pin this exact Table revision. Current Table scope retained Link Types 3 items Name Cardinality Rev Neutral model to solver cards 1 → many 5 Test Data to material many → 1 3 Related materials many ↔ many 2 Neutral model to solver cards Link Type revision 5 Validating Validating endpoints and cardinality Save and Related test remain disabled while the exact Table revisions are checked. Name Source / target Source Table Neutral materials Target Table Solver cards Current Table revisions are pinned when this Link Type revision is saved. Direction labels Forward Reverse Cardinality Sources allowed per target one many Targets allowed per source many one One exact Neutral revision may branch to several solver/version/unit-specific cards. Exact revision policy: each Record Link pins the source revision and target revision. There is no “latest” alias. Save new revision Validate and test Discard draft Branching relationship preview One-to-many and many-to-one are independently configured Read-only Related Records test Forward label: Available solver cards · exact Record revisions 5 links Link Type · Neutral model to solver cards Exact revision editing Loading Online",
+    "documentText": "Skip to Administration workspace CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator · Atlas workspace Database design Atlas workspace · Materials master Loading Validate Test links Save new revision Schema objects 5 areas Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 3 Current Table Materials master Test records Solver cards Definitions use the selected Table version. Materials master selected Link Types 3 items Name Cardinality Rev Neutral model to solver cards 1 → many 5 Test Data to material many → 1 3 Related materials many ↔ many 2 Neutral model to solver cards Link Type revision 5 Validating Checking selected Tables and connection count Save and Related test remain disabled while the selected Tables are checked. Name Source / target Source Table Neutral materials Target Table Solver cards Saving keeps the selected Table versions. Direction labels Forward Reverse Cardinality Sources allowed per target one many Targets allowed per source many one One selected model can connect to several solver, version and unit-specific cards. Saved link versions: Saved links keep the selected source and target Record versions. Newer versions do not change these links. Discard draft Branching relationship preview One selected model branches to several solver cards. Read-only Related Records preview Available solver cards · Neutral model to solver cards · One selected model branches to several solver cards. 5 links Link Type · Neutral model to solver cards Revision editing Loading Online",
     "documentOverflow": {
       "horizontal": 0,
       "vertical": 0
@@ -305,6 +337,13 @@
       "scrollTop": 0
     },
     "editorTextClipped": false,
+    "remainingContainment": {
+      "gridInsideEditor": true,
+      "editorColumnInsideGrid": true,
+      "previewColumnInsideGrid": true,
+      "headingsInsideColumns": true,
+      "actionsInsideColumns": true
+    },
     "publishButtons": [],
     "selectedRowCount": 1,
     "previewTables": 0,
@@ -344,42 +383,42 @@
       "object_list": {
         "x": 224,
         "y": 107,
-        "width": 276,
+        "width": 360,
         "height": 624,
-        "right": 500,
+        "right": 584,
         "bottom": 731
       },
       "editor": {
-        "x": 507,
+        "x": 591,
         "y": 107,
-        "width": 850,
+        "width": 766,
         "height": 624,
         "right": 1357,
         "bottom": 731
       },
       "editor_grid": {
-        "x": 521,
+        "x": 605,
         "y": 107,
-        "width": 810,
-        "height": 577.1875,
+        "width": 726,
+        "height": 586.953125,
         "right": 1331,
-        "bottom": 684.1875
+        "bottom": 693.953125
       },
       "editor_column": {
-        "x": 521,
+        "x": 605,
         "y": 107,
-        "width": 433.6875,
-        "height": 577.1875,
-        "right": 954.6875,
-        "bottom": 684.1875
+        "width": 388.03125,
+        "height": 586.953125,
+        "right": 993.03125,
+        "bottom": 693.953125
       },
       "preview_column": {
-        "x": 966.6875,
+        "x": 1005.03125,
         "y": 119,
-        "width": 364.3125,
-        "height": 248.28125,
+        "width": 325.96875,
+        "height": 268.375,
         "right": 1331,
-        "bottom": 367.28125
+        "bottom": 387.375
       },
       "status_bar": {
         "x": 9,

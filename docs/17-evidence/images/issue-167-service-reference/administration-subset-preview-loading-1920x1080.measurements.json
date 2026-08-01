@@ -6,13 +6,16 @@
   "width": 1920,
   "height": 1080,
   "image": "docs/17-evidence/images/issue-167-service-reference/administration-subset-preview-loading-1920x1080.png",
-  "image_sha256": "f4c646dd5866c3307d52ecf4eeab3ce4f8dcb756ad08c433b8e6d11ec3cf9dfe",
+  "image_sha256": "0a513baa9a133ff83c72b8b3297e2a159f02344c5209f0ab4131248c97fd18f0",
   "snapshot": {
     "ready": true,
     "family": "subset",
     "state": "preview-loading",
     "pageTitle": "Database design",
+    "navTitle": "Schema objects",
+    "listTitle": "Subsets",
     "topbarContext": "Administrator · Atlas workspace",
+    "statusBarFontPx": 11.5,
     "activePrimary": [],
     "controls": [
       {
@@ -107,25 +110,25 @@
       },
       {
         "tag": "button",
-        "name": "Released metal cards24 rows6",
+        "name": "Released metal cards · revision 6",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "Room-temperature tensile38 rows5",
+        "name": "Room-temperature tensile · revision 5",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "Needs technical review7 rows2",
+        "name": "Needs technical review · revision 2",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "Polymer relaxation data16 rows4",
+        "name": "Polymer relaxation data · revision 4",
         "disabled": false,
         "action": ""
       },
@@ -152,12 +155,6 @@
         "name": "Add filter",
         "disabled": false,
         "action": "add-filter"
-      },
-      {
-        "tag": "button",
-        "name": "Save new revision",
-        "disabled": false,
-        "action": "save-subset"
       },
       {
         "tag": "button",
@@ -199,6 +196,33 @@
     ],
     "bodyFontPx": 13,
     "maximumDataFontPx": 13,
+    "typography": {
+      "data": {
+        "count": 14,
+        "min": 13,
+        "max": 13
+      },
+      "metadata": {
+        "count": 27,
+        "min": 11.5,
+        "max": 12
+      },
+      "ordinaryWeight": {
+        "count": 23,
+        "max": 600
+      }
+    },
+    "clipping": {
+      "listNames": [],
+      "previewValues": []
+    },
+    "revisionMetrics": [],
+    "overlap": {
+      "pairs": [],
+      "noOverlaps": true,
+      "splitterCollisions": [],
+      "splitterSafe": true
+    },
     "labels": [
       "Current Table",
       "Subset name",
@@ -228,6 +252,24 @@
       "Needs technical review7 rows2",
       "Polymer relaxation data16 rows4"
     ],
+    "rowAccessibleNames": [
+      {
+        "id": "subset-released-metal",
+        "name": "Released metal cards · revision 6"
+      },
+      {
+        "id": "subset-room-temp",
+        "name": "Room-temperature tensile · revision 5"
+      },
+      {
+        "id": "subset-review",
+        "name": "Needs technical review · revision 2"
+      },
+      {
+        "id": "subset-polymer",
+        "name": "Polymer relaxation data · revision 4"
+      }
+    ],
     "tasks": [],
     "readiness": [],
     "related": [],
@@ -237,7 +279,7 @@
       "Card statusequals ReleasedDiscrete",
       "Temperature273 K to 333 KNumber"
     ],
-    "documentText": "Skip to Administration workspace CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator · Atlas workspace Database design Atlas workspace · Materials master Loading Validate Preview results Save new revision Schema objects 5 areas Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 3 Current Table Materials master Test records Solver cards Definitions pin this exact Table revision. Current Table scope retained Subsets 4 items Name Preview Rev Released metal cards 24 rows 6 Room-temperature tensile 38 rows 5 Needs technical review 7 rows 2 Polymer relaxation data 16 rows 4 Released metal cards Subset revision 6 · Materials master Unsaved draft Subset name Purpose Filter definition Add filter Family equals Metal Discrete Card status equals Released Discrete Temperature 273 K to 333 K Number Save new revision Discard draft Result preview Same server-scoped query supplies count and rows Read-only Scoped result preview Current authorization and saved filter definition Loading Subset · Released metal cards Exact revision editing Loading Online",
+    "documentText": "Skip to Administration workspace CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator · Atlas workspace Database design Atlas workspace · Materials master Loading Validate Preview results Save new revision Schema objects 5 areas Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 3 Current Table Materials master Test records Solver cards Definitions use the selected Table version. Materials master selected Subsets 4 items Name Preview Rev Released metal cards 24 rows 6 Room-temperature tensile 38 rows 5 Needs technical review 7 rows 2 Polymer relaxation data 16 rows 4 Released metal cards Subset revision 6 · Materials master Unsaved draft Subset name Purpose Filter definition Add filter Family equals Metal Discrete Card status equals Released Discrete Temperature 273 K to 333 K Number Discard draft Result preview Records matching the current filters Read-only Scoped result preview Current authorization and saved filter definition Loading Subset · Released metal cards Revision editing Loading Online",
     "documentOverflow": {
       "horizontal": 0,
       "vertical": 0
@@ -253,6 +295,13 @@
       "scrollTop": 0
     },
     "editorTextClipped": false,
+    "remainingContainment": {
+      "gridInsideEditor": true,
+      "editorColumnInsideGrid": true,
+      "previewColumnInsideGrid": true,
+      "headingsInsideColumns": true,
+      "actionsInsideColumns": true
+    },
     "publishButtons": [],
     "selectedRowCount": 1,
     "previewTables": 0,
@@ -292,42 +341,42 @@
       "object_list": {
         "x": 252,
         "y": 113,
-        "width": 312,
+        "width": 360,
         "height": 930,
-        "right": 564,
+        "right": 612,
         "bottom": 1043
       },
       "editor": {
-        "x": 571,
+        "x": 619,
         "y": 113,
-        "width": 1336,
+        "width": 1288,
         "height": 930,
         "right": 1907,
         "bottom": 1043
       },
       "editor_grid": {
-        "x": 589,
+        "x": 637,
         "y": 113,
-        "width": 772,
-        "height": 383.546875,
-        "right": 1361,
-        "bottom": 496.546875
+        "width": 1144,
+        "height": 382.546875,
+        "right": 1781,
+        "bottom": 495.546875
       },
       "editor_column": {
-        "x": 589,
+        "x": 637,
         "y": 113,
-        "width": 392.703125,
-        "height": 383.546875,
-        "right": 981.703125,
-        "bottom": 496.546875
+        "width": 586.453125,
+        "height": 382.546875,
+        "right": 1223.453125,
+        "bottom": 495.546875
       },
       "preview_column": {
-        "x": 999.703125,
+        "x": 1241.453125,
         "y": 125,
-        "width": 361.28125,
-        "height": 234.109375,
-        "right": 1360.984375,
-        "bottom": 359.109375
+        "width": 539.546875,
+        "height": 221.828125,
+        "right": 1781,
+        "bottom": 346.828125
       },
       "status_bar": {
         "x": 13,

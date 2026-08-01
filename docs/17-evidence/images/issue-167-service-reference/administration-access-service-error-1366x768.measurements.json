@@ -6,13 +6,16 @@
   "width": 1366,
   "height": 768,
   "image": "docs/17-evidence/images/issue-167-service-reference/administration-access-service-error-1366x768.png",
-  "image_sha256": "c99075214623411283648142a6a844574d8157f43923d056f4a3e97bfa6c0138",
+  "image_sha256": "679b74ab5e302fc5de8efda8bb3691b85f0e34988836d87bdbf4baea42501482",
   "snapshot": {
     "ready": true,
     "family": "access",
     "state": "service-error",
     "pageTitle": "Users and access",
+    "navTitle": "Access administration",
+    "listTitle": "Assignments",
     "topbarContext": "Administrator · Atlas workspace",
+    "statusBarFontPx": 11.5,
     "activePrimary": [
       "Add assignment"
     ],
@@ -85,49 +88,49 @@
       },
       {
         "tag": "button",
-        "name": "material-reviewersReviewerActive",
+        "name": "material-reviewers · Reviewer · Project scope · up to Confidential · Active",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "material-engineersUserActive",
+        "name": "material-engineers · User · Project scope · up to Confidential · Active",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "materials-adminsAdministratorActive",
+        "name": "materials-admins · Administrator · Organization scope · up to Restricted · Active",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "test-lab-usersUserActive",
+        "name": "test-lab-users · User · Project scope · up to Internal · Active",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "cae-card-reviewersReviewerActive",
+        "name": "cae-card-reviewers · Reviewer · Project scope · up to Confidential · Active",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "polymer-modelingUserActive",
+        "name": "polymer-modeling · User · Project scope · up to Confidential · Active",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "materials-auditorsReviewerActive",
+        "name": "materials-auditors · Reviewer · Organization scope · up to Restricted · Active",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "external-lab-readersUserExpires 30 d",
+        "name": "external-lab-readers · User · Project scope · up to Internal · Expires 30 d",
         "disabled": false,
         "action": ""
       },
@@ -189,10 +192,37 @@
     ],
     "bodyFontPx": 13,
     "maximumDataFontPx": 13,
+    "typography": {
+      "data": {
+        "count": 21,
+        "min": 13,
+        "max": 13
+      },
+      "metadata": {
+        "count": 28,
+        "min": 11.5,
+        "max": 12
+      },
+      "ordinaryWeight": {
+        "count": 35,
+        "max": 600
+      }
+    },
+    "clipping": {
+      "listNames": [],
+      "previewValues": []
+    },
+    "revisionMetrics": [],
+    "overlap": {
+      "pairs": [],
+      "noOverlaps": true,
+      "splitterCollisions": [],
+      "splitterSafe": true
+    },
     "labels": [],
     "fieldValues": [],
     "alerts": [
-      "Access service refresh failedThe last valid assignments and selection remain visible. Retry without changing the assignment."
+      "Access could not be refreshedThe last valid assignments and selection remain visible. Retry without changing the assignment."
     ],
     "listRows": [
       "material-reviewersReviewerActive",
@@ -203,6 +233,40 @@
       "polymer-modelingUserActive",
       "materials-auditorsReviewerActive",
       "external-lab-readersUserExpires 30 d"
+    ],
+    "rowAccessibleNames": [
+      {
+        "id": "acc-reviewers",
+        "name": "material-reviewers · Reviewer · Project scope · up to Confidential · Active"
+      },
+      {
+        "id": "acc-users",
+        "name": "material-engineers · User · Project scope · up to Confidential · Active"
+      },
+      {
+        "id": "acc-admin",
+        "name": "materials-admins · Administrator · Organization scope · up to Restricted · Active"
+      },
+      {
+        "id": "acc-lab",
+        "name": "test-lab-users · User · Project scope · up to Internal · Active"
+      },
+      {
+        "id": "acc-cae",
+        "name": "cae-card-reviewers · Reviewer · Project scope · up to Confidential · Active"
+      },
+      {
+        "id": "acc-polymer",
+        "name": "polymer-modeling · User · Project scope · up to Confidential · Active"
+      },
+      {
+        "id": "acc-auditors",
+        "name": "materials-auditors · Reviewer · Organization scope · up to Restricted · Active"
+      },
+      {
+        "id": "acc-contractor",
+        "name": "external-lab-readers · User · Project scope · up to Internal · Expires 30 d"
+      }
     ],
     "tasks": [
       "Find, compare and download materialsIncluded",
@@ -215,7 +279,7 @@
     "related": [],
     "orderedFields": [],
     "filters": [],
-    "documentText": "Skip to Administration workspace CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator · Atlas workspace Users and access Atlas workspace · task-based product roles Attention required Refresh Add assignment Access administration 3 areas Assignments 8 Role presets 3 Access guidance 1 Organization and project scope Assignments 8 items User or team Role Status material-reviewers Reviewer Active material-engineers User Active materials-admins Administrator Active test-lab-users User Active cae-card-reviewers Reviewer Active polymer-modeling User Active materials-auditors Reviewer Active external-lab-readers User Expires 30 d material-reviewers Reviewer assignment · current project Last valid assignment Access service refresh failed The last valid assignments and selection remain visible. Retry without changing the assignment. Subject Identity-provider group · material-reviewers Product role Reviewer Scope Atlas workspace · current project Classification Up to Confidential · export-controlled data excluded Valid from 2026-07-18 · no expiry Edit assignment Revoke access… Retry refresh Included Reviewer work Readable task preset backed by feature grants Read-only Find, compare and download materials Included Upload, process and fit test data Included Review material and solver-card requests Included Create approved solver-card deliveries Included Configure schema and access Not granted Enforcement: detailed service permissions and PostgreSQL row policies remain behind this task-based role. Assignment · material-reviewers Task-based access Attention required Online",
+    "documentText": "Skip to Administration workspace CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator · Atlas workspace Users and access Atlas workspace · product access Attention required Refresh Add assignment Access administration 3 areas Assignments 8 Role presets 3 Access guidance 1 Organization and project scope Assignments 8 items User or team Role Status material-reviewers Reviewer Active material-engineers User Active materials-admins Administrator Active test-lab-users User Active cae-card-reviewers Reviewer Active polymer-modeling User Active materials-auditors Reviewer Active external-lab-readers User Expires 30 d material-reviewers Reviewer assignment · current project Last valid assignment Access could not be refreshed The last valid assignments and selection remain visible. Retry without changing the assignment. User or team material-reviewers Role Reviewer Scope Atlas workspace · current project Classification Up to Confidential · export-controlled data excluded Status Active Edit assignment Revoke access… Retry refresh Reviewer access Included in this assignment Read-only Find, compare and download materials Included Upload, process and fit test data Included Review material and solver-card requests Included Create approved solver-card deliveries Included Configure schema and access Not granted Assignment · material-reviewers Access permissions Attention required Online",
     "documentOverflow": {
       "horizontal": 0,
       "vertical": 0
@@ -231,6 +295,13 @@
       "scrollTop": 0
     },
     "editorTextClipped": false,
+    "remainingContainment": {
+      "gridInsideEditor": true,
+      "editorColumnInsideGrid": true,
+      "previewColumnInsideGrid": true,
+      "headingsInsideColumns": true,
+      "actionsInsideColumns": true
+    },
     "publishButtons": [],
     "selectedRowCount": 1,
     "previewTables": 0,
@@ -287,25 +358,25 @@
         "x": 615,
         "y": 107,
         "width": 716,
-        "height": 434.921875,
+        "height": 388.640625,
         "right": 1331,
-        "bottom": 541.921875
+        "bottom": 495.640625
       },
       "editor_column": {
         "x": 615,
         "y": 107,
         "width": 395.5,
-        "height": 434.921875,
+        "height": 388.640625,
         "right": 1010.5,
-        "bottom": 541.921875
+        "bottom": 495.640625
       },
       "preview_column": {
         "x": 1022.5,
         "y": 119,
         "width": 308.484375,
-        "height": 351.75,
+        "height": 287.140625,
         "right": 1330.984375,
-        "bottom": 470.75
+        "bottom": 406.140625
       },
       "status_bar": {
         "x": 9,

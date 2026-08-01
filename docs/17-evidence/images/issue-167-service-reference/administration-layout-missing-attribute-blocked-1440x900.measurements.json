@@ -6,13 +6,16 @@
   "width": 1440,
   "height": 900,
   "image": "docs/17-evidence/images/issue-167-service-reference/administration-layout-missing-attribute-blocked-1440x900.png",
-  "image_sha256": "bd655fc71951916574c3237a8922499d06ecdaabdafa4ae7099d8ad63f557a78",
+  "image_sha256": "182b9e8c15b997b749a93c1008d3a98dab8c0088a4c4326012e07ab8c3efa4e4",
   "snapshot": {
     "ready": true,
     "family": "layout",
     "state": "missing-attribute-blocked",
     "pageTitle": "Database design",
+    "navTitle": "Schema objects",
+    "listTitle": "Layouts",
     "topbarContext": "Administrator · Atlas workspace",
+    "statusBarFontPx": 11.5,
     "activePrimary": [],
     "controls": [
       {
@@ -107,19 +110,19 @@
       },
       {
         "tag": "button",
-        "name": "Engineering datasheet9 fields7",
+        "name": "Engineering datasheet · revision 7",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "Solver delivery summary6 fields4",
+        "name": "Solver delivery summary · revision 4",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "Test evidence8 fields3",
+        "name": "Test evidence · revision 3",
         "disabled": false,
         "action": ""
       },
@@ -203,12 +206,6 @@
       },
       {
         "tag": "button",
-        "name": "Save new revision",
-        "disabled": true,
-        "action": "save-layout"
-      },
-      {
-        "tag": "button",
         "name": "Discard draft",
         "disabled": false,
         "action": "discard"
@@ -247,6 +244,33 @@
     ],
     "bodyFontPx": 13,
     "maximumDataFontPx": 13,
+    "typography": {
+      "data": {
+        "count": 46,
+        "min": 13,
+        "max": 13
+      },
+      "metadata": {
+        "count": 33,
+        "min": 11.5,
+        "max": 12
+      },
+      "ordinaryWeight": {
+        "count": 55,
+        "max": 600
+      }
+    },
+    "clipping": {
+      "listNames": [],
+      "previewValues": []
+    },
+    "revisionMetrics": [],
+    "overlap": {
+      "pairs": [],
+      "noOverlaps": true,
+      "splitterCollisions": [],
+      "splitterSafe": true
+    },
     "labels": [
       "Current Table",
       "Layout name",
@@ -277,6 +301,20 @@
       "Solver delivery summary6 fields4",
       "Test evidence8 fields3"
     ],
+    "rowAccessibleNames": [
+      {
+        "id": "layout-engineering",
+        "name": "Engineering datasheet · revision 7"
+      },
+      {
+        "id": "layout-card",
+        "name": "Solver delivery summary · revision 4"
+      },
+      {
+        "id": "layout-test",
+        "name": "Test evidence · revision 3"
+      }
+    ],
     "tasks": [],
     "readiness": [],
     "related": [],
@@ -292,7 +330,7 @@
       "9Deleted Attribute revisionMissing↕"
     ],
     "filters": [],
-    "documentText": "Skip to Administration workspace CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator · Atlas workspace Database design Atlas workspace · Materials master Ready Validate Preview datasheet Save new revision Schema objects 5 areas Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 3 Current Table Materials master Test records Solver cards Definitions pin this exact Table revision. Current Table scope retained Layouts 3 items Name Fields Rev Engineering datasheet 9 fields 7 Solver delivery summary 6 fields 4 Test evidence 8 fields 3 Engineering datasheet Layout revision 7 · Materials master Blocked draft Missing Attribute revision One ordered field no longer resolves. Replace or remove it before saving a new Layout revision. Layout name Purpose Ordered fields Add field 1 Material name Text ↕ 2 Grade Text ↕ 3 Material condition Discrete ↕ 4 Density Number ↕ 5 Young's modulus Number ↕ 6 Poisson ratio Number ↕ 7 Yield strength Number ↕ 8 Stress–strain response Curve ↕ 9 Deleted Attribute revision Missing ↕ Save new revision Discard draft Save disabled · resolve the missing Attribute. Live datasheet preview Saved Record values in current Layout order Read-only Record preview Engineering datasheet · r7 · 9 saved fields DP780-REF · r3 Property Value Condition Material name DP780 synthetic demo steel — Grade DP780-REF — Material condition As received 293 K Density 7.80e-9 tonne/mm³ Nominal Young's modulus 210,000 MPa 293 K Poisson ratio 0.30 293 K Yield strength 560 MPa Quasi-static Stress–strain response 1 saved curve Tensile Related solver cards 3 exact revisions Abaqus · OpenRadioss Layout · Engineering datasheet Exact revision editing Ready Online",
+    "documentText": "Skip to Administration workspace CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator · Atlas workspace Database design Atlas workspace · Materials master Ready Validate Preview datasheet Save new revision Schema objects 5 areas Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 3 Current Table Materials master Test records Solver cards Definitions use the selected Table version. Materials master selected Layouts 3 items Name Fields Rev Engineering datasheet 9 fields 7 Solver delivery summary 6 fields 4 Test evidence 8 fields 3 Engineering datasheet Layout revision 7 · Materials master Blocked draft Missing Attribute revision One ordered field no longer resolves. Replace or remove it before saving a new Layout revision. Layout name Purpose Ordered fields Add field 1 Material name Text ↕ 2 Grade Text ↕ 3 Material condition Discrete ↕ 4 Density Number ↕ 5 Young's modulus Number ↕ 6 Poisson ratio Number ↕ 7 Yield strength Number ↕ 8 Stress–strain response Curve ↕ 9 Deleted Attribute revision Missing ↕ Discard draft Save is disabled until the missing Attribute is resolved. Live datasheet preview Saved Record values in current Layout order Read-only Record preview Engineering datasheet · r7 · 9 saved fields DP780-REF · r3 Property Value Condition Material name DP780 synthetic demo steel — Grade DP780-REF — Material condition As received 293 K Density 7.80e-9 tonne/mm³ Nominal Young's modulus 210,000 MPa 293 K Poisson ratio 0.30 293 K Yield strength 560 MPa Quasi-static Stress–strain response 1 saved curve Tensile Related solver cards 3 exact revisions Abaqus · OpenRadioss Layout · Engineering datasheet Revision editing Ready Online",
     "documentOverflow": {
       "horizontal": 0,
       "vertical": 0
@@ -308,6 +346,13 @@
       "scrollTop": 0
     },
     "editorTextClipped": false,
+    "remainingContainment": {
+      "gridInsideEditor": true,
+      "editorColumnInsideGrid": true,
+      "previewColumnInsideGrid": true,
+      "headingsInsideColumns": true,
+      "actionsInsideColumns": true
+    },
     "publishButtons": [],
     "selectedRowCount": 1,
     "previewTables": 1,
@@ -347,42 +392,42 @@
       "object_list": {
         "x": 236,
         "y": 109,
-        "width": 292,
+        "width": 360,
         "height": 754,
-        "right": 528,
+        "right": 596,
         "bottom": 863
       },
       "editor": {
-        "x": 535,
+        "x": 603,
         "y": 109,
-        "width": 896,
+        "width": 828,
         "height": 754,
         "right": 1431,
         "bottom": 863
       },
       "editor_grid": {
-        "x": 549,
+        "x": 617,
         "y": 109,
-        "width": 856,
-        "height": 694.5625,
+        "width": 788,
+        "height": 671.09375,
         "right": 1405,
-        "bottom": 803.5625
+        "bottom": 780.09375
       },
       "editor_column": {
-        "x": 549,
+        "x": 617,
         "y": 109,
-        "width": 447.859375,
-        "height": 694.5625,
-        "right": 996.859375,
-        "bottom": 803.5625
+        "width": 411.6875,
+        "height": 671.09375,
+        "right": 1028.6875,
+        "bottom": 780.09375
       },
       "preview_column": {
-        "x": 1010.859375,
+        "x": 1042.6875,
         "y": 121,
-        "width": 394.140625,
-        "height": 528.734375,
-        "right": 1405,
-        "bottom": 649.734375
+        "width": 362.296875,
+        "height": 543.828125,
+        "right": 1404.984375,
+        "bottom": 664.828125
       },
       "status_bar": {
         "x": 9,

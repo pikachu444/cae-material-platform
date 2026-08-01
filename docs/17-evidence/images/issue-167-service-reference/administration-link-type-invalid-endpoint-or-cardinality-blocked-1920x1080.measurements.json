@@ -6,13 +6,16 @@
   "width": 1920,
   "height": 1080,
   "image": "docs/17-evidence/images/issue-167-service-reference/administration-link-type-invalid-endpoint-or-cardinality-blocked-1920x1080.png",
-  "image_sha256": "defc77e1b40846f8076a5db1a3f2bc41fdf76120219597bd11cb8fe555a25389",
+  "image_sha256": "0f5e4df587d5f6767e81f5ccabb53d73ce6c6954a2ae51a105c6b5b0778aa40b",
   "snapshot": {
     "ready": true,
     "family": "link",
     "state": "link-invalid",
     "pageTitle": "Database design",
+    "navTitle": "Schema objects",
+    "listTitle": "Link Types",
     "topbarContext": "Administrator · Atlas workspace",
+    "statusBarFontPx": 11.5,
     "activePrimary": [],
     "controls": [
       {
@@ -53,7 +56,7 @@
       },
       {
         "tag": "button",
-        "name": "Test Related",
+        "name": "Test links",
         "disabled": false,
         "action": "preview"
       },
@@ -107,19 +110,19 @@
       },
       {
         "tag": "button",
-        "name": "Neutral model to solver cards1 → many5",
+        "name": "Neutral model to solver cards · revision 5",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "Test Data to materialmany → 13",
+        "name": "Test Data to material · revision 3",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "Related materialsmany ↔ many2",
+        "name": "Related materials · revision 2",
         "disabled": false,
         "action": ""
       },
@@ -173,18 +176,6 @@
       },
       {
         "tag": "button",
-        "name": "Save new revision",
-        "disabled": true,
-        "action": "save-link"
-      },
-      {
-        "tag": "button",
-        "name": "Validate and test",
-        "disabled": true,
-        "action": "validate-link"
-      },
-      {
-        "tag": "button",
         "name": "Discard draft",
         "disabled": false,
         "action": "discard"
@@ -223,6 +214,104 @@
     ],
     "bodyFontPx": 13,
     "maximumDataFontPx": 13,
+    "typography": {
+      "data": {
+        "count": 20,
+        "min": 13,
+        "max": 13
+      },
+      "metadata": {
+        "count": 31,
+        "min": 11.5,
+        "max": 12
+      },
+      "ordinaryWeight": {
+        "count": 28,
+        "max": 600
+      }
+    },
+    "clipping": {
+      "listNames": [],
+      "previewValues": []
+    },
+    "revisionMetrics": [
+      {
+        "text": "r4",
+        "complete": true,
+        "width": 32,
+        "right": 1762,
+        "rowRight": 1762,
+        "panelRight": 1781,
+        "viewportRight": 1920,
+        "rowRightClearance": 0,
+        "panelRightClearance": 19,
+        "viewportRightClearance": 158,
+        "withinRow": true,
+        "withinPanel": true
+      },
+      {
+        "text": "r4",
+        "complete": true,
+        "width": 32,
+        "right": 1762,
+        "rowRight": 1762,
+        "panelRight": 1781,
+        "viewportRight": 1920,
+        "rowRightClearance": 0,
+        "panelRightClearance": 19,
+        "viewportRightClearance": 158,
+        "withinRow": true,
+        "withinPanel": true
+      },
+      {
+        "text": "r4",
+        "complete": true,
+        "width": 32,
+        "right": 1762,
+        "rowRight": 1762,
+        "panelRight": 1781,
+        "viewportRight": 1920,
+        "rowRightClearance": 0,
+        "panelRightClearance": 19,
+        "viewportRightClearance": 158,
+        "withinRow": true,
+        "withinPanel": true
+      },
+      {
+        "text": "r5",
+        "complete": true,
+        "width": 32,
+        "right": 1762,
+        "rowRight": 1762,
+        "panelRight": 1781,
+        "viewportRight": 1920,
+        "rowRightClearance": 0,
+        "panelRightClearance": 19,
+        "viewportRightClearance": 158,
+        "withinRow": true,
+        "withinPanel": true
+      },
+      {
+        "text": "r5",
+        "complete": true,
+        "width": 32,
+        "right": 1762,
+        "rowRight": 1762,
+        "panelRight": 1781,
+        "viewportRight": 1920,
+        "rowRightClearance": 0,
+        "panelRightClearance": 19,
+        "viewportRightClearance": 158,
+        "withinRow": true,
+        "withinPanel": true
+      }
+    ],
+    "overlap": {
+      "pairs": [],
+      "noOverlaps": true,
+      "splitterCollisions": [],
+      "splitterSafe": true
+    },
     "labels": [
       "Current Table",
       "Name",
@@ -279,12 +368,26 @@
       }
     ],
     "alerts": [
-      "Invalid endpointsSource and target cannot both be Neutral materials for this Link Type. Choose the governed Solver cards Table."
+      "Invalid connectionSource and target cannot both be Neutral materials for this Link Type. Choose the governed Solver cards Table."
     ],
     "listRows": [
       "Neutral model to solver cards1 → many5",
       "Test Data to materialmany → 13",
       "Related materialsmany ↔ many2"
+    ],
+    "rowAccessibleNames": [
+      {
+        "id": "link-neutral-card",
+        "name": "Neutral model to solver cards · revision 5"
+      },
+      {
+        "id": "link-test-material",
+        "name": "Test Data to material · revision 3"
+      },
+      {
+        "id": "link-material-related",
+        "name": "Related materials · revision 2"
+      }
     ],
     "tasks": [],
     "readiness": [],
@@ -292,12 +395,12 @@
       "Neutral metal model · r4→Abaqus 2025 kg-m-s · r2r4",
       "Neutral metal model · r4→OpenRadioss 2025 kg-m-s · r1r4",
       "Neutral metal model · r4→LS-DYNA R15 mm-ms-tonne · r1r4",
-      "Neutral polymer model · r2→Abaqus 2025 kg-m-s · r1r2",
-      "Neutral polymer model · r2→OpenRadioss 2025 kg-m-s · r1r2"
+      "Neutral polymer model · r2→Abaqus 2025 kg-m-s · r1r5",
+      "Neutral polymer model · r2→OpenRadioss 2025 kg-m-s · r1r5"
     ],
     "orderedFields": [],
     "filters": [],
-    "documentText": "Skip to Administration workspace CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator · Atlas workspace Database design Atlas workspace · Materials master Ready Validate Test Related Save new revision Schema objects 5 areas Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 3 Current Table Materials master Test records Solver cards Definitions pin this exact Table revision. Current Table scope retained Link Types 3 items Name Cardinality Rev Neutral model to solver cards 1 → many 5 Test Data to material many → 1 3 Related materials many ↔ many 2 Neutral model to solver cards Link Type revision 5 Blocked draft Invalid endpoints Source and target cannot both be Neutral materials for this Link Type. Choose the governed Solver cards Table. Name Source / target Source Table Neutral materials Target Table Neutral materials Current Table revisions are pinned when this Link Type revision is saved. Direction labels Forward Reverse Cardinality Sources allowed per target one many Targets allowed per source many one One exact Neutral revision may branch to several solver/version/unit-specific cards. Exact revision policy: each Record Link pins the source revision and target revision. There is no “latest” alias. Save new revision Validate and test Discard draft Branching relationship preview One-to-many and many-to-one are independently configured Read-only Related Records test Forward label: Available solver cards · exact Record revisions 5 links Neutral metal model · r4 → Abaqus 2025 kg-m-s · r2 r4 Neutral metal model · r4 → OpenRadioss 2025 kg-m-s · r1 r4 Neutral metal model · r4 → LS-DYNA R15 mm-ms-tonne · r1 r4 Neutral polymer model · r2 → Abaqus 2025 kg-m-s · r1 r2 Neutral polymer model · r2 → OpenRadioss 2025 kg-m-s · r1 r2 Link Type · Neutral model to solver cards Exact revision editing Ready Online",
+    "documentText": "Skip to Administration workspace CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator · Atlas workspace Database design Atlas workspace · Materials master Ready Validate Test links Save new revision Schema objects 5 areas Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 3 Current Table Materials master Test records Solver cards Definitions use the selected Table version. Materials master selected Link Types 3 items Name Cardinality Rev Neutral model to solver cards 1 → many 5 Test Data to material many → 1 3 Related materials many ↔ many 2 Neutral model to solver cards Link Type revision 5 Blocked draft Invalid connection Source and target cannot both be Neutral materials for this Link Type. Choose the governed Solver cards Table. Name Source / target Source Table Neutral materials Target Table Neutral materials Saving keeps the selected Table versions. Direction labels Forward Reverse Cardinality Sources allowed per target one many Targets allowed per source many one One selected model can connect to several solver, version and unit-specific cards. Saved link versions: Saved links keep the selected source and target Record versions. Newer versions do not change these links. Discard draft Branching relationship preview One selected model branches to several solver cards. Read-only Related Records preview Available solver cards · Neutral model to solver cards · One selected model branches to several solver cards. 5 links Neutral metal model · r4 → Abaqus 2025 kg-m-s · r2 r4 Neutral metal model · r4 → OpenRadioss 2025 kg-m-s · r1 r4 Neutral metal model · r4 → LS-DYNA R15 mm-ms-tonne · r1 r4 Neutral polymer model · r2 → Abaqus 2025 kg-m-s · r1 r5 Neutral polymer model · r2 → OpenRadioss 2025 kg-m-s · r1 r5 Link Type · Neutral model to solver cards Revision editing Ready Online",
     "documentOverflow": {
       "horizontal": 0,
       "vertical": 0
@@ -313,6 +416,13 @@
       "scrollTop": 0
     },
     "editorTextClipped": false,
+    "remainingContainment": {
+      "gridInsideEditor": true,
+      "editorColumnInsideGrid": true,
+      "previewColumnInsideGrid": true,
+      "headingsInsideColumns": true,
+      "actionsInsideColumns": true
+    },
     "publishButtons": [],
     "selectedRowCount": 1,
     "previewTables": 0,
@@ -352,42 +462,42 @@
       "object_list": {
         "x": 252,
         "y": 113,
-        "width": 312,
+        "width": 360,
         "height": 930,
-        "right": 564,
+        "right": 612,
         "bottom": 1043
       },
       "editor": {
-        "x": 571,
+        "x": 619,
         "y": 113,
-        "width": 1336,
+        "width": 1288,
         "height": 930,
         "right": 1907,
         "bottom": 1043
       },
       "editor_grid": {
-        "x": 589,
+        "x": 637,
         "y": 113,
-        "width": 772,
-        "height": 574.640625,
-        "right": 1361,
-        "bottom": 687.640625
+        "width": 1144,
+        "height": 516.59375,
+        "right": 1781,
+        "bottom": 629.59375
       },
       "editor_column": {
-        "x": 589,
+        "x": 637,
         "y": 113,
-        "width": 392.703125,
-        "height": 574.640625,
-        "right": 981.703125,
-        "bottom": 687.640625
+        "width": 586.453125,
+        "height": 516.59375,
+        "right": 1223.453125,
+        "bottom": 629.59375
       },
       "preview_column": {
-        "x": 999.703125,
+        "x": 1241.453125,
         "y": 125,
-        "width": 361.28125,
-        "height": 346.53125,
-        "right": 1360.984375,
-        "bottom": 471.53125
+        "width": 539.546875,
+        "height": 318.34375,
+        "right": 1781,
+        "bottom": 443.34375
       },
       "status_bar": {
         "x": 13,

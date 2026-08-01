@@ -48,8 +48,8 @@ counts:
   total_images: 72
   approved_images_at_freeze: 5
   remaining_images_at_freeze: 67
-  approved_images_current: 55
-  remaining_images_current: 17
+  approved_images_current: 72
+  remaining_images_current: 0
 families:
   - id: MAT-EXP
     domain: Materials

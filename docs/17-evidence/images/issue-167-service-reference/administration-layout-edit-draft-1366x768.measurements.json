@@ -6,13 +6,16 @@
   "width": 1366,
   "height": 768,
   "image": "docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1366x768.png",
-  "image_sha256": "c82f9c7a43c0e086218816082eaf1881a2e4d672882d792fc4eb79aa33eaa7e7",
+  "image_sha256": "83b33ba1a8fe4dd7f9e68d532781b348373f67f5b7fb581c2195b8b670dd7e38",
   "snapshot": {
     "ready": true,
     "family": "layout",
     "state": "draft",
     "pageTitle": "Database design",
+    "navTitle": "Schema objects",
+    "listTitle": "Layouts",
     "topbarContext": "Administrator · Atlas workspace",
+    "statusBarFontPx": 11.5,
     "activePrimary": [
       "Save new revision"
     ],
@@ -109,19 +112,19 @@
       },
       {
         "tag": "button",
-        "name": "Engineering datasheet9 fields7",
+        "name": "Engineering datasheet · revision 7",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "Solver delivery summary6 fields4",
+        "name": "Solver delivery summary · revision 4",
         "disabled": false,
         "action": ""
       },
       {
         "tag": "button",
-        "name": "Test evidence8 fields3",
+        "name": "Test evidence · revision 3",
         "disabled": false,
         "action": ""
       },
@@ -205,12 +208,6 @@
       },
       {
         "tag": "button",
-        "name": "Save new revision",
-        "disabled": false,
-        "action": "save-layout"
-      },
-      {
-        "tag": "button",
         "name": "Discard draft",
         "disabled": false,
         "action": "discard"
@@ -249,6 +246,33 @@
     ],
     "bodyFontPx": 13,
     "maximumDataFontPx": 13,
+    "typography": {
+      "data": {
+        "count": 46,
+        "min": 13,
+        "max": 13
+      },
+      "metadata": {
+        "count": 31,
+        "min": 11.5,
+        "max": 12
+      },
+      "ordinaryWeight": {
+        "count": 54,
+        "max": 600
+      }
+    },
+    "clipping": {
+      "listNames": [],
+      "previewValues": []
+    },
+    "revisionMetrics": [],
+    "overlap": {
+      "pairs": [],
+      "noOverlaps": true,
+      "splitterCollisions": [],
+      "splitterSafe": true
+    },
     "labels": [
       "Current Table",
       "Layout name",
@@ -277,6 +301,20 @@
       "Solver delivery summary6 fields4",
       "Test evidence8 fields3"
     ],
+    "rowAccessibleNames": [
+      {
+        "id": "layout-engineering",
+        "name": "Engineering datasheet · revision 7"
+      },
+      {
+        "id": "layout-card",
+        "name": "Solver delivery summary · revision 4"
+      },
+      {
+        "id": "layout-test",
+        "name": "Test evidence · revision 3"
+      }
+    ],
     "tasks": [],
     "readiness": [],
     "related": [],
@@ -292,13 +330,13 @@
       "9Related solver cardsRecord reference↕"
     ],
     "filters": [],
-    "documentText": "Skip to Administration workspace CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator · Atlas workspace Database design Atlas workspace · Materials master Ready Validate Preview datasheet Save new revision Schema objects 5 areas Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 3 Current Table Materials master Test records Solver cards Definitions pin this exact Table revision. Current Table scope retained Layouts 3 items Name Fields Rev Engineering datasheet 9 fields 7 Solver delivery summary 6 fields 4 Test evidence 8 fields 3 Engineering datasheet Layout revision 7 · Materials master Unsaved draft Layout name Purpose Ordered fields Add field 1 Material name Text ↕ 2 Grade Text ↕ 3 Material condition Discrete ↕ 4 Density Number ↕ 5 Young's modulus Number ↕ 6 Poisson ratio Number ↕ 7 Yield strength Number ↕ 8 Stress–strain response Curve ↕ 9 Related solver cards Record reference ↕ Save new revision Discard draft Live datasheet preview Saved Record values in current Layout order Read-only Record preview Engineering datasheet · r7 · 9 saved fields DP780-REF · r3 Property Value Condition Material name DP780 synthetic demo steel — Grade DP780-REF — Material condition As received 293 K Density 7.80e-9 tonne/mm³ Nominal Young's modulus 210,000 MPa 293 K Poisson ratio 0.30 293 K Yield strength 560 MPa Quasi-static Stress–strain response 1 saved curve Tensile Related solver cards 3 exact revisions Abaqus · OpenRadioss Layout · Engineering datasheet Exact revision editing Ready Online",
+    "documentText": "Skip to Administration workspace CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator · Atlas workspace Database design Atlas workspace · Materials master Ready Validate Preview datasheet Save new revision Schema objects 5 areas Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 3 Current Table Materials master Test records Solver cards Definitions use the selected Table version. Materials master selected Layouts 3 items Name Fields Rev Engineering datasheet 9 fields 7 Solver delivery summary 6 fields 4 Test evidence 8 fields 3 Engineering datasheet Layout revision 7 · Materials master Unsaved draft Layout name Purpose Ordered fields Add field 1 Material name Text ↕ 2 Grade Text ↕ 3 Material condition Discrete ↕ 4 Density Number ↕ 5 Young's modulus Number ↕ 6 Poisson ratio Number ↕ 7 Yield strength Number ↕ 8 Stress–strain response Curve ↕ 9 Related solver cards Record reference ↕ Discard draft Live datasheet preview Saved Record values in current Layout order Read-only Record preview Engineering datasheet · r7 · 9 saved fields DP780-REF · r3 Property Value Condition Material name DP780 synthetic demo steel — Grade DP780-REF — Material condition As received 293 K Density 7.80e-9 tonne/mm³ Nominal Young's modulus 210,000 MPa 293 K Poisson ratio 0.30 293 K Yield strength 560 MPa Quasi-static Stress–strain response 1 saved curve Tensile Related solver cards 3 exact revisions Abaqus · OpenRadioss Layout · Engineering datasheet Revision editing Ready Online",
     "documentOverflow": {
       "horizontal": 0,
       "vertical": 0
     },
     "editorScroll": {
-      "scrollHeight": 627,
+      "scrollHeight": 629,
       "clientHeight": 624,
       "scrollTop": 0
     },
@@ -308,6 +346,13 @@
       "scrollTop": 0
     },
     "editorTextClipped": false,
+    "remainingContainment": {
+      "gridInsideEditor": true,
+      "editorColumnInsideGrid": true,
+      "previewColumnInsideGrid": true,
+      "headingsInsideColumns": true,
+      "actionsInsideColumns": true
+    },
     "publishButtons": [],
     "selectedRowCount": 1,
     "previewTables": 1,
@@ -347,42 +392,42 @@
       "object_list": {
         "x": 224,
         "y": 107,
-        "width": 276,
+        "width": 360,
         "height": 624,
-        "right": 500,
+        "right": 584,
         "bottom": 731
       },
       "editor": {
-        "x": 507,
+        "x": 591,
         "y": 107,
-        "width": 850,
+        "width": 766,
         "height": 624,
         "right": 1357,
         "bottom": 731
       },
       "editor_grid": {
-        "x": 521,
+        "x": 605,
         "y": 107,
-        "width": 810,
-        "height": 601.421875,
+        "width": 726,
+        "height": 602.578125,
         "right": 1331,
-        "bottom": 708.421875
+        "bottom": 709.578125
       },
       "editor_column": {
-        "x": 521,
+        "x": 605,
         "y": 107,
-        "width": 433.6875,
-        "height": 601.421875,
-        "right": 954.6875,
-        "bottom": 708.421875
+        "width": 388.03125,
+        "height": 602.578125,
+        "right": 993.03125,
+        "bottom": 709.578125
       },
       "preview_column": {
-        "x": 966.6875,
+        "x": 1005.03125,
         "y": 119,
-        "width": 364.3125,
-        "height": 529.171875,
+        "width": 325.96875,
+        "height": 559.34375,
         "right": 1331,
-        "bottom": 648.171875
+        "bottom": 678.34375
       },
       "status_bar": {
         "x": 9,
@@ -396,7 +441,125 @@
   },
   "interactions": {
     "keyboard_splitter_delta": 12,
-    "ctrl_s_status": "Layout · Engineering datasheet\nExact revision editing\nDraft save requested\nOnline"
+    "ctrl_s_status": "Layout · Engineering datasheet\nRevision editing\nDraft save requested\nOnline",
+    "selection_records": [
+      {
+        "selectedId": "layout-card",
+        "selectedPressed": "true",
+        "selectedCount": 1,
+        "pressedTrueCount": 1,
+        "focusedId": "layout-card",
+        "selectedTabindex": "0",
+        "editorHeading": "Solver delivery summary",
+        "previewText": "Record preview · Solver delivery summarySolver delivery summary · r4 · 6 fieldsDP780-REF · r3PropertyValueConditionMaterial nameDP780 synthetic demo steel—GradeDP780-REF—Material conditionAs received293 KDensity7.80e-9 tonne/mm³NominalYoung's modulus210,000 MPa293 KPoisson ratio0.30293 K",
+        "selectionStatus": "Layout · Solver delivery summary",
+        "expectedId": "layout-card",
+        "expectedName": "Solver delivery summary",
+        "expectedContext": "6 fields",
+        "expectedStatus": "Layout · Solver delivery summary",
+        "passed": true
+      },
+      {
+        "selectedId": "layout-test",
+        "selectedPressed": "true",
+        "selectedCount": 1,
+        "pressedTrueCount": 1,
+        "focusedId": "layout-test",
+        "selectedTabindex": "0",
+        "editorHeading": "Test evidence",
+        "previewText": "Record preview · Test evidenceTest evidence · r3 · 8 fieldsDP780-REF · r3PropertyValueConditionMaterial nameDP780 synthetic demo steel—GradeDP780-REF—Material conditionAs received293 KDensity7.80e-9 tonne/mm³NominalYoung's modulus210,000 MPa293 KPoisson ratio0.30293 KYield strength560 MPaQuasi-staticStress–strain response1 saved curveTensile",
+        "selectionStatus": "Layout · Test evidence",
+        "expectedId": "layout-test",
+        "expectedName": "Test evidence",
+        "expectedContext": "8 fields",
+        "expectedStatus": "Layout · Test evidence",
+        "passed": true
+      }
+    ],
+    "selection_passed": true,
+    "keyboard_records": [
+      {
+        "selectedId": "layout-card",
+        "selectedPressed": "true",
+        "selectedCount": 1,
+        "pressedTrueCount": 1,
+        "focusedId": "layout-card",
+        "selectedTabindex": "0",
+        "editorHeading": "Solver delivery summary",
+        "previewText": "Record preview · Solver delivery summarySolver delivery summary · r4 · 6 fieldsDP780-REF · r3PropertyValueConditionMaterial nameDP780 synthetic demo steel—GradeDP780-REF—Material conditionAs received293 KDensity7.80e-9 tonne/mm³NominalYoung's modulus210,000 MPa293 KPoisson ratio0.30293 K",
+        "selectionStatus": "Layout · Solver delivery summary",
+        "key": "ArrowDown",
+        "expectedId": "layout-card",
+        "expectedName": "Solver delivery summary",
+        "expectedStatus": "Layout · Solver delivery summary",
+        "passed": true
+      },
+      {
+        "selectedId": "layout-engineering",
+        "selectedPressed": "true",
+        "selectedCount": 1,
+        "pressedTrueCount": 1,
+        "focusedId": "layout-engineering",
+        "selectedTabindex": "0",
+        "editorHeading": "Engineering datasheet",
+        "previewText": "Record previewEngineering datasheet · r7 · 9 saved fieldsDP780-REF · r3PropertyValueConditionMaterial nameDP780 synthetic demo steel—GradeDP780-REF—Material conditionAs received293 KDensity7.80e-9 tonne/mm³NominalYoung's modulus210,000 MPa293 KPoisson ratio0.30293 KYield strength560 MPaQuasi-staticStress–strain response1 saved curveTensileRelated solver cards3 exact revisionsAbaqus · OpenRadioss",
+        "selectionStatus": "Layout · Engineering datasheet",
+        "key": "ArrowUp",
+        "expectedId": "layout-engineering",
+        "expectedName": "Engineering datasheet",
+        "expectedStatus": "Layout · Engineering datasheet",
+        "passed": true
+      },
+      {
+        "selectedId": "layout-engineering",
+        "selectedPressed": "true",
+        "selectedCount": 1,
+        "pressedTrueCount": 1,
+        "focusedId": "layout-engineering",
+        "selectedTabindex": "0",
+        "editorHeading": "Engineering datasheet",
+        "previewText": "Record previewEngineering datasheet · r7 · 9 saved fieldsDP780-REF · r3PropertyValueConditionMaterial nameDP780 synthetic demo steel—GradeDP780-REF—Material conditionAs received293 KDensity7.80e-9 tonne/mm³NominalYoung's modulus210,000 MPa293 KPoisson ratio0.30293 KYield strength560 MPaQuasi-staticStress–strain response1 saved curveTensileRelated solver cards3 exact revisionsAbaqus · OpenRadioss",
+        "selectionStatus": "Layout · Engineering datasheet",
+        "key": "Home",
+        "expectedId": "layout-engineering",
+        "expectedName": "Engineering datasheet",
+        "expectedStatus": "Layout · Engineering datasheet",
+        "passed": true
+      },
+      {
+        "selectedId": "layout-test",
+        "selectedPressed": "true",
+        "selectedCount": 1,
+        "pressedTrueCount": 1,
+        "focusedId": "layout-test",
+        "selectedTabindex": "0",
+        "editorHeading": "Test evidence",
+        "previewText": "Record preview · Test evidenceTest evidence · r3 · 8 fieldsDP780-REF · r3PropertyValueConditionMaterial nameDP780 synthetic demo steel—GradeDP780-REF—Material conditionAs received293 KDensity7.80e-9 tonne/mm³NominalYoung's modulus210,000 MPa293 KPoisson ratio0.30293 KYield strength560 MPaQuasi-staticStress–strain response1 saved curveTensile",
+        "selectionStatus": "Layout · Test evidence",
+        "key": "End",
+        "expectedId": "layout-test",
+        "expectedName": "Test evidence",
+        "expectedStatus": "Layout · Test evidence",
+        "passed": true
+      },
+      {
+        "selectedId": "layout-card",
+        "selectedPressed": "true",
+        "selectedCount": 1,
+        "pressedTrueCount": 1,
+        "focusedId": "layout-card",
+        "selectedTabindex": "0",
+        "editorHeading": "Solver delivery summary",
+        "previewText": "Record preview · Solver delivery summarySolver delivery summary · r4 · 6 fieldsDP780-REF · r3PropertyValueConditionMaterial nameDP780 synthetic demo steel—GradeDP780-REF—Material conditionAs received293 KDensity7.80e-9 tonne/mm³NominalYoung's modulus210,000 MPa293 KPoisson ratio0.30293 K",
+        "selectionStatus": "Layout · Solver delivery summary",
+        "key": "Enter",
+        "expectedId": "layout-card",
+        "expectedName": "Solver delivery summary",
+        "expectedStatus": "Layout · Solver delivery summary",
+        "passed": true
+      }
+    ],
+    "keyboard_passed": true
   },
   "console_errors": [],
   "page_errors": []
