@@ -17,9 +17,7 @@ depends_on = None
 def upgrade() -> None:
     # Existing User and Administrator rows are append-only history. Widen the role
     # vocabulary in place; do not backfill a Reviewer from an old feature combination.
-    op.drop_constraint(
-        "ck_product_access_role", "product_access_assignment", schema="identity"
-    )
+    op.drop_constraint("ck_product_access_role", "product_access_assignment", schema="identity")
     op.create_check_constraint(
         "ck_product_access_role",
         "product_access_assignment",
@@ -49,7 +47,8 @@ def downgrade() -> None:
             WHERE product_role = 'reviewer'
           ) THEN
             RAISE EXCEPTION
-              'cannot downgrade UXC-00G while Reviewer product assignments exist; revoke them explicitly first';
+              'cannot downgrade UXC-00G while Reviewer product assignments exist; '
+              'revoke them explicitly first';
           END IF;
         END
         $$
@@ -60,9 +59,7 @@ def downgrade() -> None:
         "product_access_assignment",
         schema="identity",
     )
-    op.drop_constraint(
-        "ck_product_access_role", "product_access_assignment", schema="identity"
-    )
+    op.drop_constraint("ck_product_access_role", "product_access_assignment", schema="identity")
     op.create_check_constraint(
         "ck_product_access_role",
         "product_access_assignment",

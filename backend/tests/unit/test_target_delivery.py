@@ -7,8 +7,6 @@ from typing import cast
 from uuid import NAMESPACE_URL, UUID, uuid5
 
 import pytest
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
 from cmp.modules.exporting.adapters.persistence import target_delivery_receipts
 from cmp.modules.exporting.adapters.persistence.target_delivery_receipts import (
     SqlTargetDeliveryReceiptRecorder,
@@ -31,6 +29,7 @@ from cmp.modules.identity_access.domain.authorization import (
 )
 from cmp.modules.identity_access.domain.security import Principal, PrincipalType, SecurityContext
 from cmp.modules.jobs.domain.events import EventConflict
+from sqlalchemy.exc import IntegrityError
 
 IDS = tuple(UUID(int=value) for value in range(1, 12))
 NOW = datetime(2026, 7, 26, tzinfo=UTC)
@@ -239,7 +238,9 @@ def test_concurrent_delivery_race_returns_the_committed_receipt_once() -> None:
         previews=cast(object, Previews(preview())), cards=cast(object, cards), receipts=receipts
     )
 
-    async def deliver_twice() -> tuple[tuple[TargetPreview, DeliveryReceipt], tuple[TargetPreview, DeliveryReceipt]]:
+    async def deliver_twice() -> tuple[
+        tuple[TargetPreview, DeliveryReceipt], tuple[TargetPreview, DeliveryReceipt]
+    ]:
         return cast(
             tuple[tuple[TargetPreview, DeliveryReceipt], tuple[TargetPreview, DeliveryReceipt]],
             await asyncio.gather(
@@ -277,7 +278,9 @@ def test_receipt_hook_translates_only_expected_delivery_identity_duplicate(
 
     class OtherDuplicateOrig:
         sqlstate = "23505"
-        diag = SimpleNamespace(table_name="solver_card_delivery_receipt", constraint_name="other_key")
+        diag = SimpleNamespace(
+            table_name="solver_card_delivery_receipt", constraint_name="other_key"
+        )
 
     class OutboxDuplicateOrig:
         sqlstate = "23505"
@@ -303,18 +306,28 @@ def test_receipt_hook_translates_only_expected_delivery_identity_duplicate(
 
     monkeypatch.setattr(target_delivery_receipts, "Session", FakeSession)
     recorder = SqlTargetDeliveryReceiptRecorder(
-        session_factory=cast(object, None), rls_context=cast(object, None), writer=cast(object, Writer())
+        session_factory=cast(object, None),
+        rls_context=cast(object, None),
+        writer=cast(object, Writer()),
     )
     revision = SimpleNamespace(
-        aggregate_id=IDS[4], revision_id=IDS[5], scope=SimpleNamespace(classification="internal"),
+        aggregate_id=IDS[4],
+        revision_id=IDS[5],
+        scope=SimpleNamespace(classification="internal"),
         created_at=NOW,
     )
     hook = recorder.hook_for(context=CONTEXT, preview=preview(), receipt_id=IDS[3])
 
     with pytest.raises(TargetDeliveryDuplicate):
-        hook(FakeSession(IntegrityError("insert", {}, DuplicateOrig())), SimpleNamespace(revision=revision))
+        hook(
+            FakeSession(IntegrityError("insert", {}, DuplicateOrig())),
+            SimpleNamespace(revision=revision),
+        )
     with pytest.raises(IntegrityError):
-        hook(FakeSession(IntegrityError("insert", {}, OtherDuplicateOrig())), SimpleNamespace(revision=revision))
+        hook(
+            FakeSession(IntegrityError("insert", {}, OtherDuplicateOrig())),
+            SimpleNamespace(revision=revision),
+        )
 
     outbox_recorder = SqlTargetDeliveryReceiptRecorder(
         session_factory=cast(object, None),

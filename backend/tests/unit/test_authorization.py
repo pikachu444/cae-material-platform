@@ -194,24 +194,49 @@ def test_effective_product_role_precedence_does_not_promote_legacy_features() ->
     reviewer = _product_assignment(ProductRole.REVIEWER)
     administrator = _product_assignment(ProductRole.ADMINISTRATOR)
 
-    assert AuthorizationService(
-        bindings=_Bindings(), product_assignments=_ProductAssignments(legacy_model_approval), clock=lambda: NOW
-    ).effective_product_access(_context()).product_role is ProductRole.USER
-    assert AuthorizationService(
-        bindings=_Bindings(), product_assignments=_ProductAssignments(reviewer), clock=lambda: NOW
-    ).effective_product_access(_context()).product_role is ProductRole.REVIEWER
-    assert AuthorizationService(
-        bindings=_Bindings(), product_assignments=_ProductAssignments(reviewer, administrator), clock=lambda: NOW
-    ).effective_product_access(_context()).product_role is ProductRole.ADMINISTRATOR
+    assert (
+        AuthorizationService(
+            bindings=_Bindings(),
+            product_assignments=_ProductAssignments(legacy_model_approval),
+            clock=lambda: NOW,
+        )
+        .effective_product_access(_context())
+        .product_role
+        is ProductRole.USER
+    )
+    assert (
+        AuthorizationService(
+            bindings=_Bindings(),
+            product_assignments=_ProductAssignments(reviewer),
+            clock=lambda: NOW,
+        )
+        .effective_product_access(_context())
+        .product_role
+        is ProductRole.REVIEWER
+    )
+    assert (
+        AuthorizationService(
+            bindings=_Bindings(),
+            product_assignments=_ProductAssignments(reviewer, administrator),
+            clock=lambda: NOW,
+        )
+        .effective_product_access(_context())
+        .product_role
+        is ProductRole.ADMINISTRATOR
+    )
 
 
 def test_reviewer_assignment_cannot_weaken_or_expand_its_preset() -> None:
     with pytest.raises(ValueError, match="fixed product preset"):
         ProductAccessAssignment(
-            id=uuid4(), organization_id=ORG, project_id=PROJECT,
-            subject=BindingSubject.for_principal(PRINCIPAL), product_role=ProductRole.REVIEWER,
+            id=uuid4(),
+            organization_id=ORG,
+            project_id=PROJECT,
+            subject=BindingSubject.for_principal(PRINCIPAL),
+            product_role=ProductRole.REVIEWER,
             feature_grants=(FeatureGrant.MODEL_APPROVAL,),
-            max_classification=DataClassification.RESTRICTED, allow_export_controlled=False,
+            max_classification=DataClassification.RESTRICTED,
+            allow_export_controlled=False,
             valid_from=NOW - timedelta(days=1),
         )
 
@@ -418,9 +443,7 @@ def test_cross_module_execution_decision_contains_only_explicit_dependencies() -
 
 
 def test_export_read_decision_can_resolve_exact_processing_sources() -> None:
-    decision = _service(_binding(Role.CAE_ANALYST)).authorize(
-        _context(), Permission.EXPORT_READ
-    )
+    decision = _service(_binding(Role.CAE_ANALYST)).authorize(_context(), Permission.EXPORT_READ)
 
     assert "processing.read" in decision.database_permissions
     assert "processing.write" not in decision.database_permissions

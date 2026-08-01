@@ -894,7 +894,7 @@ class MaterialListResponse(BaseModel):
     total_count: int = Field(ge=0)
     offset: int = Field(ge=0)
     limit: int = Field(ge=1, le=100)
-    facets: "MaterialFacetsResponse"
+    facets: MaterialFacetsResponse
 
 
 class MaterialClassFacetResponse(BaseModel):

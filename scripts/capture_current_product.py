@@ -45,11 +45,14 @@ PRODUCT_ACCESS_OUTPUTS = (
     "administration-access-1440x900.png",
 )
 ACTIVITY_OUTPUTS = tuple(f"activity-{width}x{height}.png" for width, height in VIEWPORTS)
-REVIEW_SUBMISSION_OUTPUTS = tuple(
-    f"{screen}-{width}x{height}.png"
-    for screen in ("solver-card-preview", "activity")
-    for width, height in VIEWPORTS
-) + ("material-detail-1440x900.png",)
+REVIEW_SUBMISSION_OUTPUTS = (
+    *(
+        f"{screen}-{width}x{height}.png"
+        for screen in ("solver-card-preview", "activity")
+        for width, height in VIEWPORTS
+    ),
+    "material-detail-1440x900.png",
+)
 CURRENT_CAPTURE_OUTPUTS = (
     "materials-search-1366x768.png",
     "materials-search-1440x900.png",
@@ -224,7 +227,8 @@ def _assert_material_pane_reset(page: Page, width: int) -> None:
     reset = navigator.bounding_box()
     if reset is None or abs(reset["width"] - expected_navigator) > 4:
         raise RuntimeError(
-            f"Materials navigator reset drift at {width}px: expected {expected_navigator}px, got {reset and reset['width']}px"
+            f"Materials navigator reset drift at {width}px: expected {expected_navigator}px, "
+            f"got {reset and reset['width']}px"
         )
 
     if width <= 1390:
@@ -249,7 +253,8 @@ def _assert_material_pane_reset(page: Page, width: int) -> None:
     context_reset = context.bounding_box()
     if context_reset is None or abs(context_reset["width"] - expected_context) > 4:
         raise RuntimeError(
-            f"Materials context reset drift at {width}px: expected {expected_context}px, got {context_reset and context_reset['width']}px"
+            f"Materials context reset drift at {width}px: expected {expected_context}px, "
+            f"got {context_reset and context_reset['width']}px"
         )
 
 
@@ -287,16 +292,11 @@ def _capture_materials(browser: Browser, base_url: str, output: Path) -> None:
     primary_delivery_actions = page.locator(
         ".material-detail-header .card-action-row button.ux-button.primary"
     )
-    if (
-        primary_delivery_actions.count() != 1
-        or not re.match(
-            r"^(Download|Preview card|Create card|Start Modeling)",
-            primary_delivery_actions.first.inner_text(),
-        )
+    if primary_delivery_actions.count() != 1 or not re.match(
+        r"^(Download|Preview card|Create card|Start Modeling)",
+        primary_delivery_actions.first.inner_text(),
     ):
-        raise RuntimeError(
-            "CAE Cards must expose exactly one contextual filled delivery command"
-        )
+        raise RuntimeError("CAE Cards must expose exactly one contextual filled delivery command")
     _capture(page, output / "material-cae-cards-1440x900.png", width, height)
     page.context.close()
 
@@ -320,19 +320,13 @@ def _capture_solver_delivery(browser: Browser, base_url: str, output: Path) -> N
                 height,
             )
         page.get_by_role("tab", name="CAE Cards", exact=True).click()
-        openradioss = page.locator(".cae-card-table tbody tr").filter(
-            has_text="OpenRadioss"
-        ).first
-        openradioss.get_by_role(
-            "button", name=re.compile(r"^Preview(?: card)?$")
-        ).click()
+        openradioss = page.locator(".cae-card-table tbody tr").filter(has_text="OpenRadioss").first
+        openradioss.get_by_role("button", name=re.compile(r"^Preview(?: card)?$")).click()
         page.wait_for_url(
             re.compile(r"/materials/[0-9a-f-]+/cards/[0-9a-f-]+$"),
             timeout=30_000,
         )
-        page.get_by_role("heading", name="Mapping status", exact=True).wait_for(
-            timeout=30_000
-        )
+        page.get_by_role("heading", name="Mapping status", exact=True).wait_for(timeout=30_000)
         download = page.get_by_role("button", name="Download .rad", exact=True)
         download.wait_for(timeout=30_000)
         if page.locator(".mapping-status.unsupported").count():
@@ -348,13 +342,14 @@ def _capture_solver_delivery(browser: Browser, base_url: str, output: Path) -> N
                 )
             acknowledgement.check()
             if not download.is_enabled():
-                raise RuntimeError(
-                    "reviewed approximation did not enable solver-card delivery"
-                )
+                raise RuntimeError("reviewed approximation did not enable solver-card delivery")
         elif acknowledgement.count() or not download.is_enabled():
             raise RuntimeError("exact solver-card delivery has a redundant confirmation")
         review_reason = page.get_by_role("textbox", name="Review request reason", exact=True)
-        if not review_reason.count() and page.get_by_role("button", name="Request review", exact=True).count():
+        if (
+            not review_reason.count()
+            and page.get_by_role("button", name="Request review", exact=True).count()
+        ):
             page.get_by_role("button", name="Request review", exact=True).click()
         review_reason = page.get_by_role("textbox", name="Review request reason", exact=True)
         if review_reason.count():
@@ -398,7 +393,9 @@ def _ensure_activity_review_fixture(page: Page, base_url: str) -> None:
     """Create one real pending synthetic Material review only when the demo has none."""
     outcome = page.evaluate(
         """async ({ baseUrl }) => {
-          const config = JSON.parse(localStorage.getItem("cmp.material-platform.api-config") || "{}");
+          const config = JSON.parse(
+            localStorage.getItem("cmp.material-platform.api-config") || "{}"
+          );
           const headers = {
             "Accept": "application/json",
             "Content-Type": "application/json",
@@ -407,9 +404,15 @@ def _ensure_activity_review_fixture(page: Page, base_url: str) -> None:
           const reviews = await fetch(`${baseUrl}/api/v1/review-requests?limit=50`, { headers });
           if (!reviews.ok) throw new Error(`cannot list review requests: ${reviews.status}`);
           if ((await reviews.json()).items.length) return "reused";
-          const materials = await fetch(`${baseUrl}/api/v1/materials?limit=10&offset=0`, { headers });
-          if (!materials.ok) throw new Error(`cannot list synthetic materials: ${materials.status}`);
-          const material = (await materials.json()).items.find(item => item.current_revision?.lifecycle_state === "draft");
+          const materials = await fetch(
+            `${baseUrl}/api/v1/materials?limit=10&offset=0`, { headers }
+          );
+          if (!materials.ok) {
+            throw new Error(`cannot list synthetic materials: ${materials.status}`);
+          }
+          const material = (await materials.json()).items.find(
+            item => item.current_revision?.lifecycle_state === "draft"
+          );
           if (!material) return "empty";
           const revision = material.current_revision;
           const created = await fetch(`${baseUrl}/api/v1/review-requests`, {
@@ -424,7 +427,9 @@ def _ensure_activity_review_fixture(page: Page, base_url: str) -> None:
               reason: "Review synthetic material data for the Activity queue",
             }),
           });
-          if (!created.ok) throw new Error(`cannot create Activity review fixture: ${created.status}`);
+          if (!created.ok) {
+            throw new Error(`cannot create Activity review fixture: ${created.status}`);
+          }
           return "created";
         }""",
         {"baseUrl": base_url},
@@ -439,9 +444,7 @@ def _open_modeling_stage(page: Page, stage: str) -> None:
 
 def _prepare_modeling(page: Page, base_url: str) -> None:
     page.goto(f"{base_url}/modeling?stage=data&family=metal")
-    page.get_by_role("heading", name=STAGE_HEADINGS["data"], exact=True).wait_for(
-        timeout=30_000
-    )
+    page.get_by_role("heading", name=STAGE_HEADINGS["data"], exact=True).wait_for(timeout=30_000)
     revision = page.get_by_role("combobox", name="Data-stage Test Data revision")
     revision.wait_for(timeout=30_000)
     if not revision.input_value():
@@ -460,15 +463,11 @@ def _prepare_modeling(page: Page, base_url: str) -> None:
     # preview through Process's secondary action, then return to Data for its evidence capture.
     _open_modeling_stage(page, "process")
     page.wait_for_url(re.compile(r"stage=process"), timeout=30_000)
-    page.get_by_role(
-        "button", name="Preview changes", exact=True
-    ).click()
+    page.get_by_role("button", name="Preview changes", exact=True).click()
     plot.wait_for(timeout=30_000)
     _open_modeling_stage(page, "data")
     page.wait_for_url(re.compile(r"stage=data"), timeout=30_000)
-    page.get_by_role("heading", name=STAGE_HEADINGS["data"], exact=True).wait_for(
-        timeout=30_000
-    )
+    page.get_by_role("heading", name=STAGE_HEADINGS["data"], exact=True).wait_for(timeout=30_000)
     _wait_for_settled(page)
 
 
@@ -478,20 +477,14 @@ def _save_exact_fit_selection(page: Page) -> None:
     page.locator(".modeling-work-title strong").get_by_text(
         STAGE_HEADINGS["fit"], exact=True
     ).wait_for(timeout=30_000)
-    show_settings = page.get_by_role(
-        "button", name="Show current-stage settings", exact=True
-    )
+    show_settings = page.get_by_role("button", name="Show current-stage settings", exact=True)
     if show_settings.count():
         show_settings.click()
     disclosure = page.locator("details.fit-evidence-disclosure")
     disclosure.locator(":scope > summary").click()
-    candidate_table = page.get_by_role(
-        "table", name="Hardening candidate comparison"
-    )
+    candidate_table = page.get_by_role("table", name="Hardening candidate comparison")
     candidate_table.wait_for(timeout=30_000)
-    candidate_table.get_by_role(
-        "button", name=re.compile(r"^Select .+ candidate$")
-    ).last.click()
+    candidate_table.get_by_role("button", name=re.compile(r"^Select .+ candidate$")).last.click()
     page.get_by_role("textbox", name="Candidate selection reason").fill(
         "Best agreement over the measured strain range."
     )
@@ -500,9 +493,7 @@ def _save_exact_fit_selection(page: Page) -> None:
     )
     if warning_acknowledgement.count():
         warning_acknowledgement.check()
-    save_candidate = page.get_by_role(
-        "button", name="Save fit & continue", exact=True
-    )
+    save_candidate = page.get_by_role("button", name="Save fit & continue", exact=True)
     page.wait_for_function(
         """() => [...document.querySelectorAll("button")].some(
             button => button.textContent?.trim() === "Save fit & continue"
@@ -521,22 +512,16 @@ def _save_exact_fit_selection(page: Page) -> None:
     )
     error_banner = page.locator(".error-banner")
     if error_banner.count():
-        raise RuntimeError(
-            f"Fit selected-output save failed: {error_banner.inner_text().strip()}"
-        )
+        raise RuntimeError(f"Fit selected-output save failed: {error_banner.inner_text().strip()}")
 
 
 def _prepare_exact_target_preview(page: Page) -> None:
-    page.get_by_role(
-        "heading", name=STAGE_HEADINGS["export"], exact=True
-    ).wait_for(timeout=30_000)
-    target_heading = page.get_by_role(
-        "heading", name="Choose delivery target", exact=True
-    )
+    page.get_by_role("heading", name=STAGE_HEADINGS["export"], exact=True).wait_for(timeout=30_000)
+    target_heading = page.get_by_role("heading", name="Choose delivery target", exact=True)
     if not target_heading.count():
-        page.get_by_role(
-            "heading", name="Prepare exact metal source", exact=True
-        ).wait_for(timeout=30_000)
+        page.get_by_role("heading", name="Prepare exact metal source", exact=True).wait_for(
+            timeout=30_000
+        )
         page.get_by_role(
             "checkbox",
             name="I acknowledge the selected bounded extrapolation for this reference model.",
@@ -545,9 +530,7 @@ def _prepare_exact_target_preview(page: Page) -> None:
         page.get_by_role("textbox", name="Metal promotion reason").fill(
             "Prepare the exact selected output for synthetic non-production target preview."
         )
-        page.get_by_role(
-            "button", name="Prepare exact model and Neutral", exact=True
-        ).click()
+        page.get_by_role("button", name="Prepare exact model and Neutral", exact=True).click()
         page.wait_for_function(
             """() => [...document.querySelectorAll("h1, h2, h3")].some(
                 heading => heading.textContent?.trim() === "Choose delivery target"
@@ -557,15 +540,12 @@ def _prepare_exact_target_preview(page: Page) -> None:
         recovery_error = page.get_by_role("alert")
         if recovery_error.count():
             raise RuntimeError(
-                f"Exact model/Neutral recovery failed: "
-                f"{recovery_error.inner_text().strip()}"
+                f"Exact model/Neutral recovery failed: {recovery_error.inner_text().strip()}"
             )
         target_heading.wait_for(timeout=30_000)
 
     page.get_by_role("combobox", name="Solver target").select_option("abaqus")
-    page.get_by_role("textbox", name="Native material name").fill(
-        "DP780_C1_REFERENCE"
-    )
+    page.get_by_role("textbox", name="Native material name").fill("DP780_C1_REFERENCE")
     page.get_by_role("button", name="Generate preview", exact=True).click()
     page.wait_for_function(
         """() => document.querySelector(
@@ -575,15 +555,11 @@ def _prepare_exact_target_preview(page: Page) -> None:
     )
     preview_error = page.get_by_role("alert")
     if preview_error.count():
-        raise RuntimeError(
-            f"Exact target preview failed: {preview_error.inner_text().strip()}"
-        )
-    page.get_by_role(
-        "region", name="Target mapping preflight", exact=True
-    ).wait_for(timeout=30_000)
-    page.get_by_role("region", name="Native preview", exact=True).locator(
-        "pre"
-    ).wait_for(timeout=30_000)
+        raise RuntimeError(f"Exact target preview failed: {preview_error.inner_text().strip()}")
+    page.get_by_role("region", name="Target mapping preflight", exact=True).wait_for(timeout=30_000)
+    page.get_by_role("region", name="Native preview", exact=True).locator("pre").wait_for(
+        timeout=30_000
+    )
     deliver = page.get_by_role("button", name="Deliver native card", exact=True)
     deliver.wait_for(timeout=30_000)
     acknowledgement = page.get_by_role(
@@ -609,9 +585,7 @@ def _prepare_exact_target_preview(page: Page) -> None:
     )
     delivery_error = page.get_by_role("alert")
     if delivery_error.count():
-        raise RuntimeError(
-            f"UXC-06C2 delivery failed: {delivery_error.inner_text().strip()}"
-        )
+        raise RuntimeError(f"UXC-06C2 delivery failed: {delivery_error.inner_text().strip()}")
     delivery_status = page.get_by_role("status").filter(has_text="Solver card delivered")
     delivery_status.wait_for(timeout=30_000)
     if delivery_status.get_by_role("link", name="Receipt").count() != 1:
@@ -627,9 +601,7 @@ def _prepare_exact_target_preview(page: Page) -> None:
     _wait_for_settled(page)
 
 
-def _capture_modeling_export_only(
-    browser: Browser, base_url: str, output: Path
-) -> None:
+def _capture_modeling_export_only(browser: Browser, base_url: str, output: Path) -> None:
     for width, height in VIEWPORTS:
         page = _new_page(browser, base_url, width, height)
         _prepare_modeling(page, base_url)
@@ -653,9 +625,9 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
         for stage, heading in STAGE_HEADINGS.items():
             _open_modeling_stage(page, stage)
             page.wait_for_url(re.compile(rf"stage={stage}"), timeout=30_000)
-            page.locator(".modeling-work-title strong").get_by_text(
-                heading, exact=True
-            ).wait_for(timeout=30_000)
+            page.locator(".modeling-work-title strong").get_by_text(heading, exact=True).wait_for(
+                timeout=30_000
+            )
             if stage == "fit":
                 show_settings = page.get_by_role(
                     "button", name="Show current-stage settings", exact=True
@@ -665,18 +637,16 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
                 _wait_for_settled(page)
                 disclosure = page.locator("details.fit-evidence-disclosure")
                 disclosure.locator(":scope > summary").click()
-                candidate_table = page.get_by_role(
-                    "table", name="Hardening candidate comparison"
-                )
+                candidate_table = page.get_by_role("table", name="Hardening candidate comparison")
                 candidate_table.wait_for(timeout=30_000)
                 if candidate_table.locator("tbody tr").count() != 5:
                     raise RuntimeError(
                         "Fit must expose four calculated single-law candidates "
                         "and the exact calculated preview blend"
                     )
-                page.get_by_text(
-                    re.compile(r"^Preview blend · .+ · fitted domain$")
-                ).wait_for(timeout=30_000)
+                page.get_by_text(re.compile(r"^Preview blend · .+ · fitted domain$")).wait_for(
+                    timeout=30_000
+                )
                 for column in (
                     "Decision",
                     "Model / law",
@@ -687,13 +657,12 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
                     "Compatibility",
                     "Warning",
                 ):
-                    if candidate_table.get_by_role(
-                        "columnheader", name=column, exact=True
-                    ).count() != 1:
+                    if (
+                        candidate_table.get_by_role("columnheader", name=column, exact=True).count()
+                        != 1
+                    ):
                         raise RuntimeError(f"Fit candidate table is missing {column}")
-                save_candidate = page.get_by_role(
-                    "button", name="Save fit & continue", exact=True
-                )
+                save_candidate = page.get_by_role("button", name="Save fit & continue", exact=True)
                 if save_candidate.count() != 1:
                     raise RuntimeError("Fit is missing its sole top-row save action")
                 if not save_candidate.is_disabled():
@@ -704,9 +673,9 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
                     "button", name=re.compile(r"^Select .+ candidate$")
                 ).first
                 select_candidate.click()
-                page.get_by_text(
-                    re.compile(r"^Selected · .+ · fitted domain$")
-                ).wait_for(timeout=30_000)
+                page.get_by_text(re.compile(r"^Selected · .+ · fitted domain$")).wait_for(
+                    timeout=30_000
+                )
                 parameter_table = page.get_by_role(
                     "table", name="Selected candidate parameters and bounds"
                 )
@@ -715,12 +684,8 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
                     raise RuntimeError(
                         "Selected Fit candidate must expose parameter and bound evidence"
                     )
-                selection_reason = page.get_by_role(
-                    "textbox", name="Candidate selection reason"
-                )
-                selection_reason.fill(
-                    "Best agreement over the measured strain range."
-                )
+                selection_reason = page.get_by_role("textbox", name="Candidate selection reason")
+                selection_reason.fill("Best agreement over the measured strain range.")
                 warning_acknowledgement = page.get_by_role(
                     "checkbox", name="Acknowledge selected candidate warning"
                 )
@@ -766,9 +731,7 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
                 focus_selector=None,
             )
             if stage == "fit":
-                page.get_by_role(
-                    "button", name="Save fit & continue", exact=True
-                ).click()
+                page.get_by_role("button", name="Save fit & continue", exact=True).click()
                 page.wait_for_url(re.compile(r"stage=export"), timeout=30_000)
         page.context.close()
 
@@ -779,7 +742,9 @@ def _measure_process_fit(page: Page, stage: str, width: int, height: int) -> dic
           const box = selector => document.querySelector(selector)?.getBoundingClientRect();
           const svg = document.querySelector('.persistent-modeling-plot svg[role=img]');
           const axis = [...(svg?.querySelectorAll('.chart-axis') ?? [])]
-            .find(line => line.getAttribute('x1') !== line.getAttribute('x2'))?.getBoundingClientRect();
+            .find(
+              line => line.getAttribute('x1') !== line.getAttribute('x2')
+            )?.getBoundingClientRect();
           const workspace = box('.modeling-split-workspace');
           const rail = box('.modeling-workspace-rail');
           const ribbon = box('.modeling-task-ribbon');
@@ -788,11 +753,16 @@ def _measure_process_fit(page: Page, stage: str, width: int, height: int) -> dic
           const svgBox = svg?.getBoundingClientRect();
           const axisLabels = [...(svg?.querySelectorAll('.chart-axis-label') ?? [])];
           const xAxisLabel = axisLabels.at(-2)?.getBoundingClientRect();
-          return { svgHeight: svgBox?.height ?? 0, svgWidth: svgBox?.width ?? 0, svgBottom: svgBox?.bottom ?? 0,
+          return {
+            svgHeight: svgBox?.height ?? 0,
+            svgWidth: svgBox?.width ?? 0,
+            svgBottom: svgBox?.bottom ?? 0,
             drawableRatio: workspace && axis ? axis.width / workspace.width : 0,
             railWidth: rail?.width ?? 0, ribbonHeight: ribbon?.height ?? 0,
             plotBottom: plot?.bottom ?? 0, xAxisLabelBottom: xAxisLabel?.bottom ?? 0,
-            legendBottom: legend?.bottom ?? 0, viewportHeight: window.innerHeight };
+            legendBottom: legend?.bottom ?? 0,
+            viewportHeight: window.innerHeight
+          };
         }"""
     )
     if stage == "data":
@@ -806,56 +776,74 @@ def _measure_process_fit(page: Page, stage: str, width: int, height: int) -> dic
         raise RuntimeError(f"{stage} geometry gate failed at {width}x{height}: {measurement}")
     if width == 1440 and measurement["svgWidth"] < 1050:
         raise RuntimeError(f"{stage} 1440 graph-width gate failed: {measurement}")
-    if (measurement["svgBottom"] > measurement["plotBottom"] + 2.5
-            or measurement["xAxisLabelBottom"] > measurement["plotBottom"] + 1):
+    if (
+        measurement["svgBottom"] > measurement["plotBottom"] + 2.5
+        or measurement["xAxisLabelBottom"] > measurement["plotBottom"] + 1
+    ):
         raise RuntimeError(f"{stage} axis is clipped at {width}x{height}: {measurement}")
     if measurement["legendBottom"] > measurement["viewportHeight"]:
         raise RuntimeError(f"{stage} legend is clipped at {width}x{height}: {measurement}")
     return measurement
 
 
-def _capture_modeling_process_fit(browser: Browser, base_url: str, output: Path) -> list[dict[str, float]]:
+def _capture_modeling_process_fit(
+    browser: Browser, base_url: str, output: Path
+) -> list[dict[str, float]]:
     measurements: list[dict[str, float]] = []
     for width, height in VIEWPORTS:
         page = _new_page(browser, base_url, width, height)
         _prepare_modeling(page, base_url)
         _open_modeling_stage(page, "process")
-        page.locator('.modeling-work-title strong').get_by_text(
-            STAGE_HEADINGS['process'], exact=True
+        page.locator(".modeling-work-title strong").get_by_text(
+            STAGE_HEADINGS["process"], exact=True
         ).wait_for(timeout=30_000)
-        if page.locator('.modeling-stage-number:visible').count():
-            raise RuntimeError('Process/Fit capture received the retired numbered stage strip')
-        if page.locator('.stage-process > .section-heading:visible').count():
-            raise RuntimeError('Process capture received the retired duplicate workspace heading')
-        page.locator('.modeling-workspace-rail .rail-heading').get_by_text(
-            'Curves', exact=True
+        if page.locator(".modeling-stage-number:visible").count():
+            raise RuntimeError("Process/Fit capture received the retired numbered stage strip")
+        if page.locator(".stage-process > .section-heading:visible").count():
+            raise RuntimeError("Process capture received the retired duplicate workspace heading")
+        page.locator(".modeling-workspace-rail .rail-heading").get_by_text(
+            "Curves", exact=True
         ).wait_for(timeout=30_000)
-        _capture(page, output / f'modeling-process-{width}x{height}.png', width, height)
-        measurements.append({'stage': 'process', 'viewport': f'{width}x{height}', **_measure_process_fit(page, 'process', width, height)})
+        _capture(page, output / f"modeling-process-{width}x{height}.png", width, height)
+        measurements.append(
+            {
+                "stage": "process",
+                "viewport": f"{width}x{height}",
+                **_measure_process_fit(page, "process", width, height),
+            }
+        )
 
         _open_modeling_stage(page, "fit")
-        page.locator('.modeling-work-title strong').get_by_text(
-            STAGE_HEADINGS['fit'], exact=True
+        page.locator(".modeling-work-title strong").get_by_text(
+            STAGE_HEADINGS["fit"], exact=True
         ).wait_for(timeout=30_000)
-        page.get_by_role('button', name='Preview changes', exact=True).click()
-        disclosure = page.locator('details.fit-evidence-disclosure')
-        disclosure.locator(':scope > summary').click()
-        table = page.get_by_role('table', name='Hardening candidate comparison')
+        page.get_by_role("button", name="Preview changes", exact=True).click()
+        disclosure = page.locator("details.fit-evidence-disclosure")
+        disclosure.locator(":scope > summary").click()
+        table = page.get_by_role("table", name="Hardening candidate comparison")
         table.wait_for(timeout=30_000)
-        if page.get_by_role('button', name='Save fit & continue', exact=True).count() != 1:
-            raise RuntimeError('Fit must expose one top-row Save fit & continue action')
-        table.get_by_role('button', name=re.compile(r'^Select .+ candidate$')).last.click()
-        page.get_by_role('textbox', name='Candidate selection reason').fill('Best agreement over the measured strain range.')
-        acknowledgement = page.get_by_role('checkbox', name='Acknowledge selected candidate warning')
-        if acknowledgement.count(): acknowledgement.check()
-        if page.get_by_role('button', name='Save fit & continue', exact=True).is_disabled():
-            raise RuntimeError('Fit selection did not enable the top-row save action')
-        disclosure.locator(':scope > summary').click()
-        _capture(page, output / f'modeling-fit-{width}x{height}.png', width, height)
-        measurements.append({
-            'stage': 'fit', 'viewport': f'{width}x{height}',
-            **_measure_process_fit(page, 'fit', width, height),
-        })
+        if page.get_by_role("button", name="Save fit & continue", exact=True).count() != 1:
+            raise RuntimeError("Fit must expose one top-row Save fit & continue action")
+        table.get_by_role("button", name=re.compile(r"^Select .+ candidate$")).last.click()
+        page.get_by_role("textbox", name="Candidate selection reason").fill(
+            "Best agreement over the measured strain range."
+        )
+        acknowledgement = page.get_by_role(
+            "checkbox", name="Acknowledge selected candidate warning"
+        )
+        if acknowledgement.count():
+            acknowledgement.check()
+        if page.get_by_role("button", name="Save fit & continue", exact=True).is_disabled():
+            raise RuntimeError("Fit selection did not enable the top-row save action")
+        disclosure.locator(":scope > summary").click()
+        _capture(page, output / f"modeling-fit-{width}x{height}.png", width, height)
+        measurements.append(
+            {
+                "stage": "fit",
+                "viewport": f"{width}x{height}",
+                **_measure_process_fit(page, "fit", width, height),
+            }
+        )
         page.context.close()
     return measurements
 
@@ -864,12 +852,16 @@ def _assert_modeling_normal_shell(page: Page) -> None:
     shell = page.get_by_role("navigation", name="Modeling workflow stages")
     buttons = shell.get_by_role("button")
     if buttons.count() != 4 or buttons.all_inner_texts() != ["Data", "Process", "Fit", "Export"]:
-        raise RuntimeError("normal Modeling shell must visibly contain only Data, Process, Fit and Export")
+        raise RuntimeError(
+            "normal Modeling shell must visibly contain only Data, Process, Fit and Export"
+        )
     if shell.get_by_text(re.compile(r"Validate|Review")).count():
         raise RuntimeError("Validate/Review must not appear in the normal Modeling stage strip")
 
 
-def _capture_modeling_consistency(browser: Browser, base_url: str, output: Path) -> list[dict[str, float]]:
+def _capture_modeling_consistency(
+    browser: Browser, base_url: str, output: Path
+) -> list[dict[str, float]]:
     measurements: list[dict[str, float]] = []
     _capture_modeling_session_shell(browser, base_url, output)
     for width, height in VIEWPORTS:
@@ -878,28 +870,51 @@ def _capture_modeling_consistency(browser: Browser, base_url: str, output: Path)
         _assert_modeling_normal_shell(page)
         rail = page.locator(".modeling-workspace-rail")
         rail.get_by_text("Curves", exact=True).wait_for(timeout=30_000)
-        if page.get_by_text("Hide", exact=True).count() or page.get_by_role("button", name="Mean & band", exact=True).count():
-            raise RuntimeError("Data must use icon-only visibility and omit Mean & band before an ensemble preview")
-        if rail.get_by_role("checkbox").count() < 1 or rail.locator(".curve-visibility-toggle").count() < 1:
+        if (
+            page.get_by_text("Hide", exact=True).count()
+            or page.get_by_role("button", name="Mean & band", exact=True).count()
+        ):
+            raise RuntimeError(
+                "Data must use icon-only visibility and omit Mean & band before an ensemble preview"
+            )
+        if (
+            rail.get_by_role("checkbox").count() < 1
+            or rail.locator(".curve-visibility-toggle").count() < 1
+        ):
             raise RuntimeError("Data must retain compact curve inclusion and visibility controls")
-        if rail.locator(".curve-tree-group").count() < 1 or rail.locator(".curve-group-row").count() < 1:
+        if (
+            rail.locator(".curve-tree-group").count() < 1
+            or rail.locator(".curve-group-row").count() < 1
+        ):
             raise RuntimeError("Data must group specimen rows under a real test-method tree parent")
         rail_box = rail.bounding_box()
         if rail_box is None or not 180 <= rail_box["width"] <= 210:
             raise RuntimeError(f"Data compact curve rail width drifted: {rail_box}")
         _capture(page, output / f"modeling-data-{width}x{height}.png", width, height)
-        measurements.append({"stage": "data", "viewport": f"{width}x{height}", **_measure_process_fit(page, "data", width, height)})
+        measurements.append(
+            {
+                "stage": "data",
+                "viewport": f"{width}x{height}",
+                **_measure_process_fit(page, "data", width, height),
+            }
+        )
         for stage in ("process", "fit", "export"):
             _open_modeling_stage(page, stage)
-            page.locator(".modeling-work-title strong").get_by_text(STAGE_HEADINGS[stage], exact=True).wait_for(timeout=30_000)
+            page.locator(".modeling-work-title strong").get_by_text(
+                STAGE_HEADINGS[stage], exact=True
+            ).wait_for(timeout=30_000)
             _assert_modeling_normal_shell(page)
             if stage in ("process", "fit"):
                 stage_rail = page.locator(".modeling-workspace-rail")
                 stage_rail_box = stage_rail.bounding_box()
                 if stage_rail_box is None or not 180 <= stage_rail_box["width"] <= 210:
-                    raise RuntimeError(f"{stage} compact curve rail width drifted: {stage_rail_box}")
+                    raise RuntimeError(
+                        f"{stage} compact curve rail width drifted: {stage_rail_box}"
+                    )
                 if page.get_by_role("button", name="Mean & band", exact=True).count():
-                    raise RuntimeError(f"{stage} must omit Mean & band before a real ensemble preview")
+                    raise RuntimeError(
+                        f"{stage} must omit Mean & band before a real ensemble preview"
+                    )
             elif page.locator(".modeling-workspace-rail").count():
                 raise RuntimeError("Export must remain graph-only without a curve rail")
             if stage == "fit":
@@ -908,12 +923,20 @@ def _capture_modeling_consistency(browser: Browser, base_url: str, output: Path)
                 _save_exact_fit_selection(page)
                 _prepare_exact_target_preview(page)
             _capture(page, output / f"modeling-{stage}-{width}x{height}.png", width, height)
-            measurements.append({"stage": stage, "viewport": f"{width}x{height}", **_measure_process_fit(page, stage, width, height)})
+            measurements.append(
+                {
+                    "stage": stage,
+                    "viewport": f"{width}x{height}",
+                    **_measure_process_fit(page, stage, width, height),
+                }
+            )
         page.context.close()
     return measurements
 
 
-def _capture_modeling_data_session(browser: Browser, base_url: str, output: Path) -> list[dict[str, float]]:
+def _capture_modeling_data_session(
+    browser: Browser, base_url: str, output: Path
+) -> list[dict[str, float]]:
     """Refresh the Data and new-session evidence after user-facing copy changes."""
     measurements: list[dict[str, float]] = []
     _capture_modeling_session_shell(browser, base_url, output)
@@ -926,12 +949,26 @@ def _capture_modeling_data_session(browser: Browser, base_url: str, output: Path
         rail_box = rail.bounding_box()
         if rail_box is None or not 180 <= rail_box["width"] <= 210:
             raise RuntimeError(f"Data compact curve rail width drifted: {rail_box}")
-        if page.get_by_text("Hide", exact=True).count() or page.get_by_role("button", name="Mean & band", exact=True).count():
-            raise RuntimeError("Data must use icon-only visibility and omit Mean & band before an ensemble preview")
-        if rail.locator(".curve-tree-group").count() < 1 or rail.locator(".curve-group-row").count() < 1:
+        if (
+            page.get_by_text("Hide", exact=True).count()
+            or page.get_by_role("button", name="Mean & band", exact=True).count()
+        ):
+            raise RuntimeError(
+                "Data must use icon-only visibility and omit Mean & band before an ensemble preview"
+            )
+        if (
+            rail.locator(".curve-tree-group").count() < 1
+            or rail.locator(".curve-group-row").count() < 1
+        ):
             raise RuntimeError("Data must group specimen rows under a real test-method tree parent")
         _capture(page, output / f"modeling-data-{width}x{height}.png", width, height)
-        measurements.append({"stage": "data", "viewport": f"{width}x{height}", **_measure_process_fit(page, "data", width, height)})
+        measurements.append(
+            {
+                "stage": "data",
+                "viewport": f"{width}x{height}",
+                **_measure_process_fit(page, "data", width, height),
+            }
+        )
         page.context.close()
     return measurements
 
@@ -941,7 +978,9 @@ def _capture_modeling_session_shell(browser: Browser, base_url: str, output: Pat
     for width, height in VIEWPORTS:
         page = _new_page(browser, base_url, width, height)
         page.goto(f"{base_url}/modeling?stage=data&family=metal")
-        page.locator(".modeling-stage-shell button").filter(has_text="Data").wait_for(timeout=30_000)
+        page.locator(".modeling-stage-shell button").filter(has_text="Data").wait_for(
+            timeout=30_000
+        )
         page.wait_for_function(
             """() => document.querySelector(
               ".modeling-stage-shell button.active strong"
@@ -969,7 +1008,12 @@ def _capture_modeling_session_shell(browser: Browser, base_url: str, output: Pat
         shell.wait_for(timeout=30_000)
         shell_buttons = shell.get_by_role("button")
         shell_buttons.nth(3).wait_for(timeout=30_000)
-        if shell_buttons.count() != 4 or shell_buttons.all_inner_texts() != ["Data", "Process", "Fit", "Export"]:
+        if shell_buttons.count() != 4 or shell_buttons.all_inner_texts() != [
+            "Data",
+            "Process",
+            "Fit",
+            "Export",
+        ]:
             raise RuntimeError("new-session shell must visibly contain exactly four normal stages")
         retired_terms = page.get_by_text(re.compile(r"exact Test Data|Advanced data contract"))
         if any(retired_terms.nth(index).is_visible() for index in range(retired_terms.count())):
@@ -986,7 +1030,9 @@ def _capture_supporting_screens(browser: Browser, base_url: str, output: Path) -
         page.get_by_role("heading", name="Database design", exact=True).wait_for(timeout=30_000)
         page.get_by_role("navigation", name="Database objects").wait_for(timeout=30_000)
         page.get_by_role("combobox", name="Current table", exact=True).wait_for(timeout=30_000)
-        if page.evaluate("document.documentElement.scrollWidth > document.documentElement.clientWidth"):
+        if page.evaluate(
+            "document.documentElement.scrollWidth > document.documentElement.clientWidth"
+        ):
             raise RuntimeError(f"Administration has horizontal overflow at {width}x{height}")
         _capture(page, output / f"administration-database-{width}x{height}.png", width, height)
         page.context.close()
@@ -1027,11 +1073,7 @@ def _validate_capture_outputs(output: Path) -> int:
     for name in CURRENT_CAPTURE_OUTPUTS:
         image = output / name
         value = image.read_bytes()
-        if (
-            len(value) < 10_000
-            or value[:8] != PNG_SIGNATURE
-            or value[12:16] != b"IHDR"
-        ):
+        if len(value) < 10_000 or value[:8] != PNG_SIGNATURE or value[12:16] != b"IHDR":
             raise RuntimeError(f"current capture is not a plausible PNG: {name}")
         width, height = struct.unpack(">II", value[16:24])
         expected = re.search(r"-(\d+)x(\d+)\.png$", name)
@@ -1039,18 +1081,14 @@ def _validate_capture_outputs(output: Path) -> int:
             int(expected.group(1)),
             int(expected.group(2)),
         ):
-            raise RuntimeError(
-                f"current capture viewport drift for {name}: {width}x{height}"
-            )
+            raise RuntimeError(f"current capture viewport drift for {name}: {width}x{height}")
     return len(actual_outputs)
 
 
 def _replace_capture_directory(staged: Path, target: Path) -> None:
     backup: Path | None = None
     if target.exists():
-        backup = Path(
-            tempfile.mkdtemp(prefix=f".{target.name}-previous-", dir=target.parent)
-        )
+        backup = Path(tempfile.mkdtemp(prefix=f".{target.name}-previous-", dir=target.parent))
         backup.rmdir()
         os.replace(target, backup)
     try:
@@ -1119,12 +1157,17 @@ def main() -> int:
     parser.add_argument(
         "--only-modeling-consistency",
         action="store_true",
-        help="Capture all 15 current Modeling Data/Process/Fit/Export/session screens with consistency gates.",
+        help=(
+            "Capture all 15 current Modeling Data/Process/Fit/Export/session screens "
+            "with consistency gates."
+        ),
     )
     parser.add_argument(
         "--only-modeling-data-session",
         action="store_true",
-        help="Capture the six current Modeling Data/session screens with the same consistency gates.",
+        help=(
+            "Capture the six current Modeling Data/session screens with the same consistency gates."
+        ),
     )
     args = parser.parse_args()
 
@@ -1140,7 +1183,16 @@ def main() -> int:
             finally:
                 browser.close()
 
-    if args.only_materials or args.only_modeling_export or args.only_modeling_process_fit or args.only_modeling_consistency or args.only_modeling_data_session or args.only_product_access or args.only_activity or args.only_review_submission:
+    if (
+        args.only_materials
+        or args.only_modeling_export
+        or args.only_modeling_process_fit
+        or args.only_modeling_consistency
+        or args.only_modeling_data_session
+        or args.only_product_access
+        or args.only_activity
+        or args.only_review_submission
+    ):
         names = (
             CURRENT_CAPTURE_OUTPUTS[:6]
             if args.only_materials
@@ -1185,31 +1237,34 @@ def main() -> int:
                     )
                 finally:
                     browser.close()
-            actual_outputs = {
-                path.name for path in staged.iterdir() if path.is_file()
-            }
+            actual_outputs = {path.name for path in staged.iterdir() if path.is_file()}
             if args.only_product_access:
                 actual_outputs = {name for name in actual_outputs if name in names}
             if actual_outputs != set(names):
                 raise RuntimeError(
-                    "targeted capture output drift: "
-                    f"actual={sorted(actual_outputs)}"
+                    f"targeted capture output drift: actual={sorted(actual_outputs)}"
                 )
             for name in names:
                 image = staged / name
                 value = image.read_bytes()
                 if len(value) < 10_000 or value[:8] != PNG_SIGNATURE:
-                    raise RuntimeError(
-                        f"targeted Modeling capture is not a plausible PNG: {name}"
-                    )
+                    raise RuntimeError(f"targeted Modeling capture is not a plausible PNG: {name}")
             for name in names:
                 os.replace(staged / name, args.output / name)
         capture_count = len(names)
     else:
         capture_count = _capture_to_empty_directory(args.output, produce)
-    result = {"output": args.output.as_posix(), "captures": capture_count,
-        "viewports": [f"{width}x{height}" for width, height in VIEWPORTS]}
-    if args.only_modeling_process_fit or args.only_modeling_consistency or args.only_modeling_data_session: result["measurements"] = measurements
+    result = {
+        "output": args.output.as_posix(),
+        "captures": capture_count,
+        "viewports": [f"{width}x{height}" for width, height in VIEWPORTS],
+    }
+    if (
+        args.only_modeling_process_fit
+        or args.only_modeling_consistency
+        or args.only_modeling_data_session
+    ):
+        result["measurements"] = measurements
     print(json.dumps(result, ensure_ascii=False))
     return 0
 

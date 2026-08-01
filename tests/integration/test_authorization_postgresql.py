@@ -319,22 +319,20 @@ def postgres() -> Iterator[PostgresHarness]:
                 only=["protected_document", "document_ref"],
             )
             role_binding = metadata.tables["identity.role_binding"]
-            product_access_assignment = metadata.tables[
-                "identity.product_access_assignment"
-            ]
+            product_access_assignment = metadata.tables["identity.product_access_assignment"]
             document = metadata.tables["authorization_fixture.protected_document"]
             document_ref = metadata.tables["authorization_fixture.document_ref"]
             _seed(connection, role_binding, document)
             connection.exec_driver_sql(
-                f'GRANT USAGE ON SCHEMA identity, revisioning, access_control, '
+                f"GRANT USAGE ON SCHEMA identity, revisioning, access_control, "
                 f'authorization_fixture TO "{app_role}"'
             )
             connection.exec_driver_sql(
-                f'GRANT SELECT, INSERT, UPDATE ON identity.role_binding, '
+                f"GRANT SELECT, INSERT, UPDATE ON identity.role_binding, "
                 f'identity.product_access_assignment TO "{app_role}"'
             )
             connection.exec_driver_sql(
-                f'GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES '
+                f"GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES "
                 f'IN SCHEMA authorization_fixture TO "{app_role}"'
             )
             connection.exec_driver_sql(
@@ -429,9 +427,7 @@ def test_application_role_is_non_bypass_and_subject_rls_resolves_only_active_bin
 
     with postgres.app_engine.connect() as connection:
         attributes = connection.execute(
-            sa.text(
-                "SELECT rolsuper, rolbypassrls FROM pg_roles WHERE rolname = current_user"
-            )
+            sa.text("SELECT rolsuper, rolbypassrls FROM pg_roles WHERE rolname = current_user")
         ).one()
         owned_relations = connection.execute(
             sa.text(
@@ -486,9 +482,7 @@ def test_runtime_composition_accepts_only_the_non_bypass_application_role(
                 oidc_issuer=ISSUER,
                 oidc_audience="urn:cmp:test-api",
                 oidc_jwks_url="https://test-idp.invalid/jwks",
-                database_url=postgres.database_url.render_as_string(
-                    hide_password=False
-                ),
+                database_url=postgres.database_url.render_as_string(hide_password=False),
             )
         )
     assert getattr(owner_error.value.orig, "sqlstate", None) == "42501"
@@ -505,8 +499,9 @@ def test_list_count_and_facets_hide_other_scope_and_higher_classification(
     with sessions() as session, session.begin():
         rls.bind_authorization(session, context, decision)
         rows = session.execute(
-            sa.select(postgres.document.c.id, postgres.document.c.classification)
-            .order_by(postgres.document.c.title)
+            sa.select(postgres.document.c.id, postgres.document.c.classification).order_by(
+                postgres.document.c.title
+            )
         ).all()
         count = session.execute(
             sa.select(sa.func.count()).select_from(postgres.document)
@@ -543,8 +538,9 @@ def test_exact_group_binding_adds_restricted_and_export_compartment_access(
         rls.bind_authorization(session, context, decision)
         classifications = tuple(
             session.execute(
-                sa.select(postgres.document.c.classification)
-                .order_by(postgres.document.c.classification)
+                sa.select(postgres.document.c.classification).order_by(
+                    postgres.document.c.classification
+                )
             ).scalars()
         )
 
@@ -801,7 +797,10 @@ def test_reviewer_preset_is_enforced_and_project_scoped_under_rls(
         FeatureGrant.SOLVER_CARD_EXPORT,
     )
     assert decision.max_classification is DataClassification.CONFIDENTIAL
-    assert authorization.authorize(modeler, Permission.REVIEW_DECIDE).permission is Permission.REVIEW_DECIDE
+    assert (
+        authorization.authorize(modeler, Permission.REVIEW_DECIDE).permission
+        is Permission.REVIEW_DECIDE
+    )
     with pytest.raises(AuthorizationDenied, match="permission_denied"):
         authorization.authorize(
             _context(project_id=PROJECT_B, groups=("reviewers",)),
