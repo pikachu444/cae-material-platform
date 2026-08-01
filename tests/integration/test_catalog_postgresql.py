@@ -39,9 +39,9 @@ from cmp.modules.artifacts.application.uploads import (
 from cmp.modules.audit.adapters.persistence.repository import SqlAlchemyRevisionAuditHook
 from cmp.modules.catalog.adapters.persistence.repository import (
     SqlAlchemyCatalogRepository,
-    material_table,
     material_lot_revision_table,
     material_revision_table,
+    material_table,
     process_run_lot_flow_table,
     process_run_revision_table,
     state_genealogy_revision_table,
@@ -390,8 +390,7 @@ def postgres(tmp_path_factory: pytest.TempPathFactory) -> Iterator[PostgresHarne
                 f'TO "{app_role}"'
             )
             connection.exec_driver_sql(
-                "GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA artifact "
-                f'TO "{app_role}"'
+                f'GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA artifact TO "{app_role}"'
             )
         app_engine = sa.create_engine(
             database_url.set(username=app_role, password=None), pool_pre_ping=True
@@ -2101,9 +2100,7 @@ def test_multi_test_ogden_calibration_persists_exact_evidence_in_postgresql(
         method = postgres.testing.create_reference_tensile_method(
             context,
             testing_write,
-            CreateReferenceTensileMethod(
-                DataClassification.INTERNAL, "create exact T43 method"
-            ),
+            CreateReferenceTensileMethod(DataClassification.INTERNAL, "create exact T43 method"),
         )
     planar_method = postgres.testing.create_reference_multiaxial_tension_method(
         context,
@@ -2179,8 +2176,7 @@ def test_multi_test_ogden_calibration_persists_exact_evidence_in_postgresql(
         strain = (0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30)
         rows = ["engineering_strain,engineering_stress_pa"]
         rows.extend(
-            f"{item:.8g},{2_000_000.0 * ((1 + item) - (1 + item) ** -2):.12g}"
-            for item in strain
+            f"{item:.8g},{2_000_000.0 * ((1 + item) - (1 + item) ** -2):.12g}" for item in strain
         )
         payload = ("\n".join(rows) + "\n").encode()
         artifact_write = _decision(context, Permission.ARTIFACT_WRITE)
@@ -2254,13 +2250,9 @@ def test_multi_test_ogden_calibration_persists_exact_evidence_in_postgresql(
         modeling_read = _decision(context, Permission.MODELING_READ)
         assert any(
             item.id == plan.id
-            for item in postgres.ogden_calibration.list_plans(
-                context, modeling_read, limit=100
-            )
+            for item in postgres.ogden_calibration.list_plans(context, modeling_read, limit=100)
         )
-        restored_plan = postgres.ogden_calibration.get_plan(
-            context, modeling_read, plan.id
-        )
+        restored_plan = postgres.ogden_calibration.get_plan(context, modeling_read, plan.id)
         assert restored_plan.current.record.revision_id == plan.current.record.revision_id
         revised_plan = postgres.ogden_calibration.revise_plan(
             context,
@@ -2402,8 +2394,7 @@ def test_multi_test_ogden_calibration_persists_exact_evidence_in_postgresql(
         with postgres.admin_engine.begin() as connection:
             connection.execute(
                 sa.text(
-                    "UPDATE modeling.ogden_calibration_candidate "
-                    "SET mu_pa=mu_pa+1 WHERE id=:id"
+                    "UPDATE modeling.ogden_calibration_candidate SET mu_pa=mu_pa+1 WHERE id=:id"
                 ),
                 {"id": candidate_id},
             )
@@ -2459,9 +2450,7 @@ async def _import_shear_curve(
             test_run_revision_id=test_run_revision_id,
             raw_asset_id=completed.raw_asset.id,
             raw_artifact_id=completed.available_artifact_id,
-            mapping=ShearRelaxationMapping(
-                "time_s", "shear_modulus_mpa", "s", "MPa"
-            ),
+            mapping=ShearRelaxationMapping("time_s", "shear_modulus_mpa", "s", "MPa"),
             change_reason="normalize T42 PostgreSQL fixture",
         ),
     )
@@ -2554,9 +2543,7 @@ def test_viscoelastic_master_curve_is_typed_provenanced_and_previewable_in_postg
                 label=f"{int(temperature_k)}-{replicate}-{uuid4().hex[:6]}",
                 scale=scale,
             )
-            member_refs.append(
-                ViscoelasticSelectionMemberRef(dataset_id, dataset_revision_id)
-            )
+            member_refs.append(ViscoelasticSelectionMemberRef(dataset_id, dataset_revision_id))
         selection = postgres.viscoelastic_datasets.create_selection(
             context,
             _decision(context, Permission.DATASET_WRITE),
@@ -2657,9 +2644,7 @@ def test_viscoelastic_master_curve_is_typed_provenanced_and_previewable_in_postg
         "processing.viscoelastic_master_output.statistics",
         "processing.viscoelastic_master_output.master_curve",
     }
-    assert [
-        (str(row[0]), int(row[1]), int(row[2])) for row in output_relations
-    ] == [
+    assert [(str(row[0]), int(row[1]), int(row[2])) for row in output_relations] == [
         ("aligned", 6, 4),
         ("master_curve", 6, 4),
         ("statistics", 6, 4),
@@ -2711,9 +2696,7 @@ def test_scientific_profile_revisions_are_typed_historical_and_project_isolated(
     created = postgres.scientific_profiles.create(
         context,
         write,
-        CreateScientificProfile(
-            "internal", original_content, "create exact T43 reference profile"
-        ),
+        CreateScientificProfile("internal", original_content, "create exact T43 reference profile"),
     )
     revised_content = ScientificProfileContent(
         profile_label=original_content.profile_label,
@@ -2805,35 +2788,84 @@ def test_material_query_uses_one_rls_scoped_snapshot_for_ten_thousand_materials(
         material_id = uuid5(NAMESPACE_URL, f"uxc01-material-{index}")
         revision_id = uuid5(NAMESPACE_URL, f"uxc01-material-revision-{index}")
         material_class = "metal" if index % 2 == 0 else "polymer"
-        identities.append({
-            "id": material_id, "organization_id": ORG, "project_id": PROJECT_A,
-            "current_revision_id": revision_id, "created_at": NOW, "created_by": ACTOR,
-            "updated_at": NOW,
-        })
-        revisions.append({
-            "id": revision_id, "aggregate_id": material_id, "organization_id": ORG,
-            "project_id": PROJECT_A, "revision_no": 1, "content_hash": f"{index:064x}",
-            "created_at": NOW, "created_by": ACTOR, "request_id": uuid5(NAMESPACE_URL, f"uxc01-request-{index}"),
-            "name": f"UXC10K Material {index:05d}", "material_code": f"UXC-{index:05d}",
-            "material_family": material_class, "material_class": material_class,
-        })
+        identities.append(
+            {
+                "id": material_id,
+                "organization_id": ORG,
+                "project_id": PROJECT_A,
+                "current_revision_id": revision_id,
+                "created_at": NOW,
+                "created_by": ACTOR,
+                "updated_at": NOW,
+            }
+        )
+        revisions.append(
+            {
+                "id": revision_id,
+                "aggregate_id": material_id,
+                "organization_id": ORG,
+                "project_id": PROJECT_A,
+                "revision_no": 1,
+                "content_hash": f"{index:064x}",
+                "created_at": NOW,
+                "created_by": ACTOR,
+                "request_id": uuid5(NAMESPACE_URL, f"uxc01-request-{index}"),
+                "name": f"UXC10K Material {index:05d}",
+                "material_code": f"UXC-{index:05d}",
+                "material_family": material_class,
+                "material_class": material_class,
+            }
+        )
     foreign_id = uuid5(NAMESPACE_URL, "uxc01-other-project")
     foreign_revision = uuid5(NAMESPACE_URL, "uxc01-other-project-revision")
-    identities.append({"id": foreign_id, "organization_id": ORG, "project_id": PROJECT_B, "current_revision_id": foreign_revision, "created_at": NOW, "created_by": ACTOR, "updated_at": NOW})
-    revisions.append({"id": foreign_revision, "aggregate_id": foreign_id, "organization_id": ORG, "project_id": PROJECT_B, "revision_no": 1, "content_hash": "f" * 64, "created_at": NOW, "created_by": ACTOR, "request_id": uuid5(NAMESPACE_URL, "uxc01-other-request"), "name": "UXC10K Material foreign", "material_code": "UXC-foreign", "material_family": "metal", "material_class": "metal"})
+    identities.append(
+        {
+            "id": foreign_id,
+            "organization_id": ORG,
+            "project_id": PROJECT_B,
+            "current_revision_id": foreign_revision,
+            "created_at": NOW,
+            "created_by": ACTOR,
+            "updated_at": NOW,
+        }
+    )
+    revisions.append(
+        {
+            "id": foreign_revision,
+            "aggregate_id": foreign_id,
+            "organization_id": ORG,
+            "project_id": PROJECT_B,
+            "revision_no": 1,
+            "content_hash": "f" * 64,
+            "created_at": NOW,
+            "created_by": ACTOR,
+            "request_id": uuid5(NAMESPACE_URL, "uxc01-other-request"),
+            "name": "UXC10K Material foreign",
+            "material_code": "UXC-foreign",
+            "material_family": "metal",
+            "material_class": "metal",
+        }
+    )
     with postgres.admin_engine.begin() as connection:
-        connection.execute(sa.insert(material_table), [
-            {**row, "classification": "internal"} for row in identities
-        ])
-        connection.execute(sa.insert(material_revision_table), [
-            {
-                **row, "classification": "internal", "based_on_revision_id": None,
-                "schema_id": "urn:cmp:catalog:material:2.0.0", "schema_version": "2.0.0",
-                "change_reason": "UXC-01 deterministic 10,000-material fixture", "trace_id": TRACE,
-                "description": None,
-            }
-            for row in revisions
-        ])
+        connection.execute(
+            sa.insert(material_table), [{**row, "classification": "internal"} for row in identities]
+        )
+        connection.execute(
+            sa.insert(material_revision_table),
+            [
+                {
+                    **row,
+                    "classification": "internal",
+                    "based_on_revision_id": None,
+                    "schema_id": "urn:cmp:catalog:material:2.0.0",
+                    "schema_version": "2.0.0",
+                    "change_reason": "UXC-01 deterministic 10,000-material fixture",
+                    "trace_id": TRACE,
+                    "description": None,
+                }
+                for row in revisions
+            ],
+        )
 
     first = postgres.service.list_materials(context, read, query="UXC10K Material", limit=50)
     assert first.total_count == 10_000
@@ -2843,7 +2875,11 @@ def test_material_query_uses_one_rls_scoped_snapshot_for_ten_thousand_materials(
     ]
     assert dict(first.facets) == {MaterialClass.METAL: 5_000, MaterialClass.POLYMER: 5_000}
     class_page = postgres.service.list_materials(
-        context, read, query="UXC10K Material", sort_by="material_class", limit=50,
+        context,
+        read,
+        query="UXC10K Material",
+        sort_by="material_class",
+        limit=50,
     )
     assert class_page.total_count == 10_000
     assert len(class_page.items) == 50
@@ -2851,21 +2887,34 @@ def test_material_query_uses_one_rls_scoped_snapshot_for_ten_thousand_materials(
         MaterialClass.METAL
     }
     metal_page = postgres.service.list_materials(
-        context, read, query="UXC10K Material", material_class=MaterialClass.METAL,
-        offset=4_950, sort_by="name", limit=50,
+        context,
+        read,
+        query="UXC10K Material",
+        material_class=MaterialClass.METAL,
+        offset=4_950,
+        sort_by="name",
+        limit=50,
     )
     assert metal_page.total_count == 5_000
     assert len(metal_page.items) == 50
     assert metal_page.items[0].current.content.name == "UXC10K Material 09900"
     assert dict(metal_page.facets) == {MaterialClass.METAL: 5_000}
     beyond = postgres.service.list_materials(
-        context, read, query="UXC10K Material", offset=10_000, sort_by="name", limit=50,
+        context,
+        read,
+        query="UXC10K Material",
+        offset=10_000,
+        sort_by="name",
+        limit=50,
     )
     assert beyond.items == ()
     assert beyond.total_count == 10_000
     assert dict(beyond.facets) == {MaterialClass.METAL: 5_000, MaterialClass.POLYMER: 5_000}
     empty = postgres.service.list_materials(
-        context, read, query="no matching UXC10K material", limit=50,
+        context,
+        read,
+        query="no matching UXC10K material",
+        limit=50,
     )
     assert empty.items == ()
     assert empty.total_count == 0

@@ -1133,12 +1133,10 @@ class SqlAlchemyCatalogRepository(CatalogRepository):
         # One statement, one scoped CTE: rows, total, and facets see the same RLS-filtered
         # PostgreSQL snapshot even when the requested page is empty or out of range.
         scoped = scoped_statement.cte("scoped_materials")
-        order_column = (
-            scoped.c.material_class
-            if sort_by == "material_class"
-            else scoped.c.name
+        order_column = scoped.c.material_class if sort_by == "material_class" else scoped.c.name
+        order_expression = (
+            order_column.desc() if sort_direction == "descending" else order_column.asc()
         )
-        order_expression = order_column.desc() if sort_direction == "descending" else order_column.asc()
         page = (
             sa.select(scoped)
             .order_by(order_expression, scoped.c.identity_id.asc())
@@ -1158,26 +1156,25 @@ class SqlAlchemyCatalogRepository(CatalogRepository):
             sa.func.coalesce(
                 sa.func.jsonb_agg(
                     sa.func.jsonb_build_object(
-                        "material_class", facet_counts.c.material_class,
-                        "facet_count", facet_counts.c.facet_count,
+                        "material_class",
+                        facet_counts.c.material_class,
+                        "facet_count",
+                        facet_counts.c.facet_count,
                     )
                 ),
                 sa.literal([], type_=postgresql.JSONB),
             )
         ).scalar_subquery()
         metadata = sa.select(
-            sa.select(sa.func.count()).select_from(scoped).scalar_subquery().label("search_total_count"),
+            sa.select(sa.func.count())
+            .select_from(scoped)
+            .scalar_subquery()
+            .label("search_total_count"),
             facet_json.label("search_facets"),
         ).cte("material_search_metadata")
-        page_order_column = (
-            page.c.material_class
-            if sort_by == "material_class"
-            else page.c.name
-        )
+        page_order_column = page.c.material_class if sort_by == "material_class" else page.c.name
         page_order_expression = (
-            page_order_column.desc()
-            if sort_direction == "descending"
-            else page_order_column.asc()
+            page_order_column.desc() if sort_direction == "descending" else page_order_column.asc()
         )
         statement = (
             sa.select(page, metadata.c.search_total_count, metadata.c.search_facets)
@@ -1199,7 +1196,10 @@ class SqlAlchemyCatalogRepository(CatalogRepository):
             # validation, solver readiness, and condition-aware properties intentionally
             # remain absent until their own server projections are defined.
             facets=tuple(
-                (MaterialClass(row["material_class"] or MaterialClass.UNCLASSIFIED.value), int(row["facet_count"]))
+                (
+                    MaterialClass(row["material_class"] or MaterialClass.UNCLASSIFIED.value),
+                    int(row["facet_count"]),
+                )
                 for row in facet_rows
             ),
         )

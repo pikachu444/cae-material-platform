@@ -7,7 +7,7 @@
 - When a new issue starts, use the latest `main` from `git pull --ff-only origin main`. During an
   active issue, continue on its branch and do not reopen work already merged to `main`.
 - `docs/13-delivery/backlog.md` is the single current baseline, issue-order and handoff router.
-  `IMPLEMENTATION_STATUS.md`, live code and current user guides describe implemented behavior.
+  `IMPLEMENTATION_STATUS.md`, live code and user guides describe implemented behavior.
 - Read this file and the exact GitHub issue first. Use `rg` to locate only the affected requirement,
   ADR, API, state, test and product-spec sections. Do not bulk-read large specs, manifests, backlog
   archives, or `docs/_incoming/`.
