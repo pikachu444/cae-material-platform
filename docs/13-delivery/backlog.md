@@ -20,12 +20,12 @@
 
 | 순서 | Issue | 작업 유형 | 처음 읽을 범위 | 종료 조건 |
 | ---: | --- | --- | --- | --- |
-| 1 | [#157 demo](https://github.com/pikachu444/cae-material-platform/issues/157) | clean demo, backend/domain, 조건부 UI | issue, 실패한 seed/verifier 계약, 관련 requirement·ADR·test. 실제 UI diff가 있을 때만 visual skill과 target을 읽음 | clean demo와 verifier, 관련 test, 필요한 현재 화면·문서, 제품 소유자 확인, merge |
-| 2 | [#158 Fit](https://github.com/pikachu444/cae-material-platform/issues/158) | Modeling Fit production UI | issue, `desktop-engineering-ui`, inventory의 `modeling-fit`, 선택된 manifest entry, Fit React/API/state/test | 계약 보존, 필수 viewport·상태·키보드 검증, 시각 승인, merge |
-| 3 | [#159 Materials](https://github.com/pikachu444/cae-material-platform/issues/159) | Materials·Administration data/UI | issue, visual skill, Materials/Admin target family, query/tree/detail/card와 권한 계약 | query·revision·download·권한 회귀, 시각 승인, merge |
-| 4 | [#160 Governance/Activity](https://github.com/pikachu444/cae-material-platform/issues/160) | 복합 API/state/UI | issue, visual skill, Activity/Admin target family, governance·recovery·authorization 계약 | 역할 E2E, 복구·invalidation·immutable artifact 회귀, 시각 승인, merge |
-| 5 | [#161 DUI-09](https://github.com/pikachu444/cae-material-platform/issues/161) | 공통 component·legacy 정리 | issue, visual/frontend skill, 활성 route·공통 component·selector와 approved target | component 상태, 접근성·overflow, 참조 0 삭제, 시각 승인, merge |
-| 6 | [#162 UXC-99](https://github.com/pikachu444/cae-material-platform/issues/162) | 역할 E2E·문서·최종 정리 | issue, merged routes, 전체 current/reference inventory, 문서 manifest. 이 단계에서만 incoming을 읽음 | clean role E2E, current 문서·화면 일치, incoming 흡수·참조 0·삭제, 최종 승인, merge |
+| 1 | [#157 전체 데모 실행 복구](https://github.com/pikachu444/cae-material-platform/issues/157) | 전체 데모와 예제 데이터 생성 | issue, 실패한 데이터 생성·자동 확인 절차, 관련 requirement·ADR·test. 실제 화면이 바뀔 때만 visual skill과 승인 화면을 읽음 | 깨끗한 환경에서 전체 데모와 자동 확인 성공, 관련 test, 필요한 현재 화면·문서, 제품 소유자 확인, merge |
+| 2 | [#158 Modeling Fit 화면 연결](https://github.com/pikachu444/cae-material-platform/issues/158) | 승인 화면의 실제 기능 연결 | issue, `desktop-engineering-ui`, inventory의 `modeling-fit`, 선택된 manifest entry, Fit React/API/state/test | 기존 동작 보존, 필수 화면 크기·상태·키보드 검증, 시각 승인, merge |
+| 3 | [#159 Materials와 관리 화면 완성](https://github.com/pikachu444/cae-material-platform/issues/159) | 검색·상세정보·솔버 카드·관리 화면 | issue, visual skill, Materials/Admin 승인 화면, 검색·트리·상세정보·카드와 권한 규칙 | 검색·개정본·다운로드·권한 검사, 시각 승인, merge |
+| 4 | [#160 검토·승인·실패 복구·다운로드](https://github.com/pikachu444/cae-material-platform/issues/160) | 역할별 업무와 복구 흐름 | issue, visual skill, Activity/Admin 승인 화면, 검토·복구·권한 규칙 | 역할별 전체 흐름, 복구·결과 무효화·승인 파일 불변 검사, 시각 승인, merge |
+| 5 | [#161 공통 화면 구성요소 정리](https://github.com/pikachu444/cae-material-platform/issues/161) | 공통 구성요소와 오래된 스타일 정리 | issue, visual/frontend skill, 활성 화면·공통 구성요소·사용 여부와 승인 화면 | 구성요소 상태, 접근성·넘침, 삭제 대상 참조 0, 시각 승인, merge |
+| 6 | [#162 전체 흐름과 문서 최종 검증](https://github.com/pikachu444/cae-material-platform/issues/162) | 역할별 전체 흐름·문서·최종 정리 | issue, 병합된 화면, 전체 현재/승인 화면 목록, 문서 목록. 이 단계에서만 임시 문서 묶음을 읽음 | 깨끗한 역할별 전체 흐름, 현재 문서·화면 일치, 임시 문서 흡수·참조 0·삭제, 최종 승인, merge |
 
 ## 공통 운영
 

@@ -38,7 +38,7 @@ def test_cold_start_routes_demo_before_visual_work() -> None:
 
     issue_positions = [backlog.index(f"#{issue}") for issue in range(157, 163)]
     assert issue_positions == sorted(issue_positions)
-    assert "실제 UI diff가 있을 때만 visual skill" in backlog
+    assert "실제 화면이 바뀔 때만 visual skill" in backlog
     assert "inventory의 `modeling-fit`" in backlog
     assert "새 Codex 작업" in backlog
 
