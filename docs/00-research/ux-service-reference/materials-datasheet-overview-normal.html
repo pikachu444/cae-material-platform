@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#182630">
+    <title>Material Datasheet Reference</title>
+    <link rel="stylesheet" href="reference.css">
+    <link rel="stylesheet" href="materials-datasheet.css">
+    <link rel="stylesheet" href="materials-navigator.css">
+    <script src="materials-datasheet.js" defer></script>
+    <script src="materials-navigator.js" defer></script>
+  </head>
+  <body data-materials-navigator="normal">
+    <a class="skip-link" href="#main-content">Skip to material datasheet</a>
+
+    <header class="application-bar" data-region="application-bar">
+      <div class="brand" translate="no">
+        <span class="brand-mark" aria-hidden="true">CMP</span>
+        <span class="brand-name">CAE Material Platform</span>
+      </div>
+      <nav class="primary-navigation" aria-label="Primary workspace">
+        <a class="active" href="#main-content" aria-current="page">Materials</a>
+        <a href="#modeling">Modeling</a>
+        <a href="#activity">Activity</a>
+      </nav>
+      <span class="current-user">Demo user</span>
+    </header>
+
+    <main id="main-content" class="detail-shell">
+      <section
+        class="detail-command-bar"
+        data-region="command-bar"
+        aria-labelledby="detail-title"
+      >
+        <div class="detail-command-left">
+          <a id="back-to-results" class="command-link" href="#results">Back to results</a>
+          <span class="command-divider" aria-hidden="true"></span>
+          <h1 id="detail-title">Material Datasheet</h1>
+        </div>
+        <div class="detail-command-right" aria-label="Selected material context">
+          <span class="command-context">Record · DP780-REF</span>
+          <span class="command-context">Revision r1</span>
+        </div>
+      </section>
+
+      <section
+        class="detail-workspace"
+        data-region="workspace"
+        aria-label="Materials explorer and datasheet"
+      >
+        <aside
+          class="navigator-pane"
+          data-region="navigator"
+          aria-labelledby="navigator-title"
+        >
+          <div class="pane-title">
+            <h2 id="navigator-title">Browse catalog</h2>
+          </div>
+
+          <nav class="navigator-modes" aria-label="Navigator mode">
+            <button class="active" type="button" aria-pressed="true">Browse</button>
+            <button type="button" aria-pressed="false">Filters</button>
+            <button type="button" aria-pressed="false">Subsets</button>
+          </nav>
+
+          <div class="scope-controls" aria-label="Catalog scope">
+            <label>
+              <span>Database</span>
+              <select name="database" autocomplete="off">
+                <option selected>Materials Database</option>
+              </select>
+            </label>
+            <label>
+              <span>Profile</span>
+              <select name="profile" autocomplete="off">
+                <option selected>Engineering Materials</option>
+              </select>
+            </label>
+            <label>
+              <span>Table</span>
+              <select name="table" autocomplete="off">
+                <option selected>Demo Material Records</option>
+              </select>
+            </label>
+          </div>
+
+          <form id="tree-search-form" class="tree-search" role="search">
+            <label class="sr-only" for="tree-query">Find folder or record</label>
+            <input
+              id="tree-query"
+              name="tree-query"
+              type="search"
+              placeholder="Find folder or record"
+              autocomplete="off"
+            >
+          </form>
+
+          <div class="scroll-shell tree-scroll-shell" data-scroll-shell>
+            <div id="tree-scroll" class="tree-scroll scroll-viewport" tabindex="0" aria-label="Scrollable material database hierarchy">
+            <div
+              id="material-tree"
+              class="material-tree"
+              role="tree"
+              aria-label="Material database hierarchy"
+            >
+              <div
+                id="tree-database"
+                class="tree-row depth-0"
+                role="treeitem"
+                aria-level="1"
+                aria-expanded="true"
+                tabindex="-1"
+                data-kind="Database"
+                aria-label="Database: Materials Database"
+              >
+                <span class="tree-disclosure" aria-hidden="true">▾</span>
+                <span class="tree-label" title="Materials Database">Materials Database</span>
+                <span class="tree-kind" data-kind="Database" title="Database" aria-hidden="true">Database</span>
+              </div>
+              <div
+                id="tree-profile"
+                class="tree-row depth-1"
+                role="treeitem"
+                aria-level="2"
+                aria-expanded="true"
+                tabindex="-1"
+                data-kind="Profile"
+                aria-label="Profile: Engineering Materials"
+              >
+                <span class="tree-disclosure" aria-hidden="true">▾</span>
+                <span class="tree-label" title="Engineering Materials">Engineering Materials</span>
+                <span class="tree-kind" data-kind="Profile" title="Profile" aria-hidden="true">Profile</span>
+              </div>
+              <div
+                id="tree-table"
+                class="tree-row depth-2"
+                role="treeitem"
+                aria-level="3"
+                aria-expanded="true"
+                tabindex="-1"
+                data-kind="Table"
+                aria-label="Table: Demo Material Records"
+              >
+                <span class="tree-disclosure" aria-hidden="true">▾</span>
+                <span class="tree-label" title="Demo Material Records">Demo Material Records</span>
+                <span class="tree-kind" data-kind="Table" title="Table" aria-hidden="true">Table</span>
+              </div>
+              <div
+                id="tree-metals"
+                class="tree-row depth-3"
+                role="treeitem"
+                aria-level="4"
+                aria-expanded="true"
+                tabindex="-1"
+                data-kind="Folder"
+                aria-label="Folder: Synthetic metals"
+              >
+                <span class="tree-disclosure" aria-hidden="true">▾</span>
+                <span class="tree-label" title="Synthetic metals">Synthetic metals</span>
+                <span class="tree-kind" data-kind="Folder" title="Folder" aria-hidden="true">Folder</span>
+              </div>
+              <div
+                id="tree-steels"
+                class="tree-row depth-4"
+                role="treeitem"
+                aria-level="5"
+                aria-expanded="true"
+                tabindex="-1"
+                data-kind="Folder"
+                aria-label="Folder: Demo steels"
+              >
+                <span class="tree-disclosure" aria-hidden="true">▾</span>
+                <span class="tree-label" title="Demo steels">Demo steels</span>
+                <span class="tree-kind" data-kind="Folder" title="Folder" aria-hidden="true">Folder</span>
+              </div>
+              <div
+                id="tree-dp780"
+                class="tree-row depth-5 selected"
+                role="treeitem"
+                aria-level="6"
+                aria-selected="true"
+                tabindex="0"
+                data-kind="Record"
+                aria-label="Record: DP780 synthetic demo steel"
+              >
+                <span class="tree-disclosure" aria-hidden="true"></span>
+                <span class="tree-label" title="DP780 synthetic demo steel">DP780 synthetic demo steel</span>
+                <span class="tree-kind" data-kind="Record" title="Record" aria-hidden="true">Record</span>
+              </div>
+              <div
+                id="tree-dp600"
+                class="tree-row depth-5"
+                role="treeitem"
+                aria-level="6"
+                aria-selected="false"
+                tabindex="-1"
+                data-kind="Record"
+                aria-label="Record: DP600 synthetic demo steel"
+              >
+                <span class="tree-disclosure" aria-hidden="true"></span>
+                <span class="tree-label" title="DP600 synthetic demo steel">DP600 synthetic demo steel</span>
+                <span class="tree-kind" data-kind="Record" title="Record" aria-hidden="true">Record</span>
+              </div>
+            </div>
+            </div>
+            <div id="tree-scrollbar-y" class="app-scrollbar app-scrollbar-y" role="scrollbar" aria-label="Scroll material hierarchy vertically" aria-controls="tree-scroll" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" tabindex="0" hidden><span class="app-scrollbar-thumb"></span></div>
+            <div id="tree-scrollbar-x" class="app-scrollbar app-scrollbar-x" role="scrollbar" aria-label="Scroll long material identities horizontally" aria-controls="tree-scroll" aria-orientation="horizontal" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" tabindex="0" hidden><span class="app-scrollbar-thumb"></span></div>
+            <span class="app-scrollbar-corner" aria-hidden="true"></span>
+          </div>
+        </aside>
+
+        <div
+          class="splitter navigator-divider"
+          data-region="navigator-divider"
+          role="separator"
+          aria-label="Resize catalog navigator"
+          aria-orientation="vertical"
+          aria-valuemin="200"
+          aria-valuemax="360"
+          aria-valuenow="264"
+          tabindex="0"
+        >
+          <span aria-hidden="true"></span>
+        </div>
+
+        <section
+          class="datasheet-pane"
+          data-region="datasheet"
+          aria-labelledby="record-title"
+        >
+          <header class="record-header">
+            <div class="record-identity">
+              <span class="record-breadcrumb">Demo Material Records / Demo steels / Record</span>
+              <h2 id="record-title">DP780 synthetic demo steel</h2>
+              <div class="record-meta" aria-label="Material identity">
+                <span>DP780-REF</span>
+                <span>Metal</span>
+                <span class="draft-state">Draft</span>
+              </div>
+              <p class="synthetic-note">Synthetic reference data · not validated engineering data</p>
+            </div>
+            <div class="record-status" aria-label="Record status">
+              <span class="status-label">Current revision</span>
+              <strong>r1 · Draft</strong>
+            </div>
+          </header>
+
+          <nav class="datasheet-tabs" role="tablist" aria-label="Material datasheet sections">
+            <button
+              id="tab-overview"
+              class="tab-button active"
+              type="button"
+              role="tab"
+              aria-selected="true"
+              aria-controls="overview-panel"
+              tabindex="0"
+              data-tab="Overview"
+            >Overview</button>
+            <button
+              id="tab-properties"
+              class="tab-button"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              aria-controls="overview-panel"
+              tabindex="-1"
+              data-tab="Properties"
+            >Properties</button>
+            <button
+              id="tab-curves"
+              class="tab-button"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              aria-controls="overview-panel"
+              tabindex="-1"
+              data-tab="Curves"
+            >Curves</button>
+            <button
+              id="tab-cards"
+              class="tab-button"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              aria-controls="overview-panel"
+              tabindex="-1"
+              data-tab="CAE Cards"
+            >CAE Cards</button>
+            <button
+              id="tab-related"
+              class="tab-button"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              aria-controls="overview-panel"
+              tabindex="-1"
+              data-tab="Related"
+            >Related</button>
+            <button
+              id="tab-evidence"
+              class="tab-button"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              aria-controls="overview-panel"
+              tabindex="-1"
+              data-tab="Evidence"
+            >Evidence</button>
+          </nav>
+
+          <div
+            id="overview-panel"
+            class="overview-panel"
+            role="tabpanel"
+            aria-labelledby="tab-overview"
+            tabindex="0"
+          >
+            <div class="overview-grid">
+              <div class="overview-main">
+                <section class="property-section" aria-labelledby="properties-title">
+                  <div class="section-heading">
+                    <div>
+                      <h3 id="properties-title">Engineering properties</h3>
+                      <span class="section-subtitle">Typed Property Set · overview values</span>
+                    </div>
+                    <span class="section-context">As received</span>
+                  </div>
+                  <table class="property-sheet">
+                    <thead>
+                      <tr>
+                        <th scope="col">Property</th>
+                        <th scope="col">Value</th>
+                        <th scope="col">Unit</th>
+                        <th scope="col">Condition</th>
+                        <th scope="col">Source</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th scope="row">Density</th>
+                        <td class="numeric">7,800</td>
+                        <td>kg/m³</td>
+                        <td>Ambient · as received</td>
+                        <td>DP780-REF · r1</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Young's modulus</th>
+                        <td class="numeric">210,000</td>
+                        <td>MPa</td>
+                        <td>Ambient · as received</td>
+                        <td>DP780-REF · r1</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Yield strength</th>
+                        <td class="numeric">450</td>
+                        <td>MPa</td>
+                        <td>Ambient · as received</td>
+                        <td>DP780-REF · r1</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Poisson ratio</th>
+                        <td class="numeric">0.30</td>
+                        <td>—</td>
+                        <td>Ambient · as received</td>
+                        <td>DP780-REF · r1</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </section>
+
+                <section class="curve-section" aria-labelledby="curve-title">
+                  <div class="section-heading">
+                    <div>
+                      <h3 id="curve-title">Representative response</h3>
+                      <span class="section-subtitle">Engineering projection · synthetic reference</span>
+                    </div>
+                    <span class="section-context">Tension · monotonic</span>
+                  </div>
+                  <script id="response-series" type="application/json">[
+                    {"point":1,"strain":0.000,"stress_mpa":0},
+                    {"point":2,"strain":0.001,"stress_mpa":210},
+                    {"point":3,"strain":0.002,"stress_mpa":420},
+                    {"point":4,"strain":0.003,"stress_mpa":560},
+                    {"point":5,"strain":0.004,"stress_mpa":578},
+                    {"point":6,"strain":0.006,"stress_mpa":596},
+                    {"point":7,"strain":0.008,"stress_mpa":608},
+                    {"point":8,"strain":0.010,"stress_mpa":620},
+                    {"point":9,"strain":0.015,"stress_mpa":638},
+                    {"point":10,"strain":0.020,"stress_mpa":655},
+                    {"point":11,"strain":0.025,"stress_mpa":668},
+                    {"point":12,"strain":0.030,"stress_mpa":680},
+                    {"point":13,"strain":0.040,"stress_mpa":700},
+                    {"point":14,"strain":0.050,"stress_mpa":718},
+                    {"point":15,"strain":0.060,"stress_mpa":735},
+                    {"point":16,"strain":0.070,"stress_mpa":750},
+                    {"point":17,"strain":0.080,"stress_mpa":765},
+                    {"point":18,"strain":0.090,"stress_mpa":778},
+                    {"point":19,"strain":0.100,"stress_mpa":790},
+                    {"point":20,"strain":0.110,"stress_mpa":801},
+                    {"point":21,"strain":0.120,"stress_mpa":810},
+                    {"point":22,"strain":0.130,"stress_mpa":818},
+                    {"point":23,"strain":0.140,"stress_mpa":826},
+                    {"point":24,"strain":0.150,"stress_mpa":832},
+                    {"point":25,"strain":0.160,"stress_mpa":838},
+                    {"point":26,"strain":0.170,"stress_mpa":842},
+                    {"point":27,"strain":0.180,"stress_mpa":846},
+                    {"point":28,"strain":0.190,"stress_mpa":849},
+                    {"point":29,"strain":0.200,"stress_mpa":850}
+                  ]</script>
+                  <div class="response-layout">
+                    <div class="response-plot-column">
+                      <div class="plot-frame">
+                        <svg
+                          class="response-plot"
+                          viewBox="0 0 760 226"
+                          role="img"
+                          aria-labelledby="plot-title plot-description"
+                          data-series-source="#response-series"
+                          data-series-min-strain="0.00"
+                          data-series-max-strain="0.20"
+                          data-series-min-stress-mpa="0"
+                          data-series-max-stress-mpa="850"
+                          data-axis-headroom-ratio="0.10"
+                          data-axis-target-intervals-strain="5"
+                          data-axis-target-intervals-stress="4"
+                          data-axis-nice-step-factors="1,2,2.5,5,10"
+                          data-axis-max-strain="0.25"
+                          data-axis-max-stress-mpa="1000"
+                        >
+                          <title id="plot-title">DP780 representative stress-strain response</title>
+                          <desc id="plot-description">A synthetic response curve rises steeply then hardens gradually, ending near 0.20 engineering strain while the displayed axes extend to 0.25 strain and 1,000 MPa.</desc>
+                        </svg>
+                        <div class="plot-legend" aria-label="Plot legend">
+                          <span class="legend-item"><span class="legend-swatch response-swatch" aria-hidden="true"></span>Representative response</span>
+                          <span class="legend-context">Condition: Ambient · as received</span>
+                        </div>
+                      </div>
+                    </div>
+                    <section class="response-grid-panel" aria-labelledby="response-grid-title">
+                      <div class="response-grid-heading">
+                        <div>
+                          <h4 id="response-grid-title">Response points</h4>
+                          <span class="section-subtitle">Exact ordered series · 29 points</span>
+                        </div>
+                        <span class="section-context">Engineering units</span>
+                      </div>
+                      <div class="response-grid-scroll-shell" data-response-grid-scroll-shell>
+                        <div
+                          id="response-grid-scroll"
+                          class="response-grid-scroll"
+                          tabindex="0"
+                          role="region"
+                          aria-label="Scrollable representative response points"
+                        >
+                          <table class="response-point-grid">
+                            <caption class="sr-only">DP780 representative response points</caption>
+                            <thead>
+                              <tr>
+                                <th scope="col">Point</th>
+                                <th scope="col">Engineering strain</th>
+                                <th scope="col">Engineering stress (MPa)</th>
+                              </tr>
+                            </thead>
+                            <tbody id="response-point-rows"></tbody>
+                          </table>
+                        </div>
+                        <div
+                          id="response-grid-scrollbar-y"
+                          class="response-grid-scrollbar"
+                          role="scrollbar"
+                          aria-label="Scroll representative response points"
+                          aria-controls="response-grid-scroll"
+                          aria-orientation="vertical"
+                          aria-valuemin="0"
+                          aria-valuemax="0"
+                          aria-valuenow="0"
+                          tabindex="0"
+                          hidden
+                        ><span class="response-grid-scrollbar-thumb"></span></div>
+                      </div>
+                    </section>
+                  </div>
+                </section>
+              </div>
+
+              <aside class="overview-aside" aria-label="Application and delivery summary">
+                <section class="condition-section" aria-labelledby="condition-title">
+                  <div class="section-heading compact-heading">
+                    <div>
+                      <h3 id="condition-title">Application condition</h3>
+                      <span class="section-subtitle">Typed applicability summary</span>
+                    </div>
+                  </div>
+                  <dl class="condition-list">
+                    <div>
+                      <dt>Material state</dt>
+                      <dd>As received</dd>
+                    </div>
+                    <div>
+                      <dt>Temperature</dt>
+                      <dd>Ambient · 293.15 K</dd>
+                    </div>
+                    <div>
+                      <dt>Strain rate</dt>
+                      <dd>— /s · not supplied</dd>
+                    </div>
+                    <div>
+                      <dt>Applicability</dt>
+                      <dd>Metal Property Set</dd>
+                    </div>
+                  </dl>
+                </section>
+
+                <section class="delivery-section" aria-labelledby="delivery-title">
+                  <div class="section-heading compact-heading">
+                    <div>
+                      <h3 id="delivery-title">CAE card delivery</h3>
+                      <span class="section-subtitle">Native formats · synthetic reference</span>
+                    </div>
+                  </div>
+                  <p class="delivery-intro">Preview or download one of the available native reference formats.</p>
+                  <ul class="solver-list">
+                    <li class="solver-row">
+                      <div class="solver-identity">
+                        <strong>Abaqus</strong>
+                        <span class="solver-format">.inp</span>
+                      </div>
+                      <span class="solver-state">Available</span>
+                      <div class="solver-actions">
+                        <button id="preview-inp" class="button secondary-action" type="button">Preview</button>
+                        <button id="download-inp" class="button secondary-action" type="button">Download</button>
+                      </div>
+                    </li>
+                    <li class="solver-row">
+                      <div class="solver-identity">
+                        <strong>OpenRadioss</strong>
+                        <span class="solver-format">.rad</span>
+                      </div>
+                      <span class="solver-state">Available</span>
+                      <div class="solver-actions">
+                        <button id="preview-rad" class="button secondary-action" type="button">Preview</button>
+                        <button id="download-rad" class="button primary-action" type="button">Download</button>
+                      </div>
+                    </li>
+                  </ul>
+                  <p class="delivery-status">Reference card · available for this synthetic Record</p>
+                </section>
+              </aside>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <footer class="status-bar" data-region="status-bar" aria-label="Workspace status">
+      <span id="status-selection">DP780 synthetic demo steel · DP780-REF</span>
+      <span>r1 · Draft</span>
+      <span class="status-spacer"></span>
+      <span>No active job</span>
+      <span>0 warnings</span>
+      <span class="online-state"><span class="online-dot" aria-hidden="true"></span>Online</span>
+    </footer>
+
+    <p id="interaction-status" class="sr-only" role="status" aria-live="polite"></p>
+  </body>
+</html>

@@ -1,0 +1,4 @@
+/* Capture-only containment at the registered 200 px navigator minimum. */
+.material-tree {
+  min-width: 0;
+}

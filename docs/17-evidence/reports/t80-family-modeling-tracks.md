@@ -9,7 +9,7 @@ clears the previously selected Test Data revision, and loads a Material, Materia
 Property Set from the matching material class. A Test Data revision from another family is never
 silently carried into the new quantity contract.
 
-![Metal, Polymer and Elastomer tracks in the common Modeling shell](../images/t80-material-family-tracks.png)
+![Metal, Polymer and Elastomer tracks in the common Modeling shell](../images/historical-task-screenshots/t80-material-family-tracks.png)
 
 The right inspector now keeps Step options, versioned Recipe authoring and exact Batch
 preflight/execution/retry beside the persistent graph. Recipe and Batch are no longer disconnected
@@ -37,7 +37,7 @@ for audit and interchange without dominating the normal task flow.
 - the exact reviewed Processing Output, three-term generalized-Maxwell IR, fit metrics, Neutral
   Material JSON and Abaqus/OpenRadioss mapping preflight controls remained in the same page.
 
-![Polymer log-time and Prony processing inside the shared workspace](../images/t80-polymer-modeling-track.png)
+![Polymer log-time and Prony processing inside the shared workspace](../images/historical-task-screenshots/t80-polymer-modeling-track.png)
 
 ### Elastomer hyper-viscoelastic
 
@@ -49,7 +49,7 @@ for audit and interchange without dominating the normal task flow.
   candidates, with observed/fitted/residual curves, holdout RMSE, rank and uncertainty evidence;
 - retained the manual Ogden--Prony IR and both Abaqus/OpenRadioss card controls below the fit.
 
-![Four-family elastomer comparison from an exact saved Plan](../images/t80-elastomer-calibration-track.png)
+![Four-family elastomer comparison from an exact saved Plan](../images/historical-task-screenshots/t80-elastomer-calibration-track.png)
 
 ## Verification
 

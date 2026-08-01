@@ -7,7 +7,7 @@ user select one reviewed hyperelastic family Candidate, and promotes that Candid
 stable Neutral Material identity with immutable revision 1. The connected workbench shows the
 canonical document digest and downloads the exact `cmp.neutral-material` JSON.
 
-![Reviewed family promoted to canonical Neutral Material JSON](../images/t56-neutral-material-json.jpg)
+![Reviewed family promoted to canonical Neutral Material JSON](../images/historical-task-screenshots/t56-neutral-material-json.jpg)
 
 ## Persisted evidence
 

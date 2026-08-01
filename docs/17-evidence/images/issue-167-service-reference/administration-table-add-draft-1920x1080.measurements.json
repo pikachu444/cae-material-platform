@@ -1,0 +1,761 @@
+{
+  "target": "administration-table-add-draft-1920x1080",
+  "role": "administrator",
+  "state": "table-add",
+  "viewport": "1920x1080",
+  "image": "docs/17-evidence/images/issue-167-service-reference/administration-table-add-draft-1920x1080.png",
+  "sha256": "1ad2b1f222609dfe79548125da7dc4b4b47cdb513c9aa8d6e7a04e95748ac92c",
+  "dimensions": {
+    "width": 1920,
+    "height": 1080
+  },
+  "snapshot": {
+    "role": "administrator",
+    "state": "table-add",
+    "viewport": {
+      "width": 1920,
+      "height": 1080,
+      "deviceScaleFactor": 1
+    },
+    "overflow": {
+      "documentScrollWidth": 0,
+      "bodyScrollWidth": 0,
+      "documentScrollHeight": 0,
+      "bodyScrollHeight": 0
+    },
+    "geometry": {
+      "workspace": {
+        "x": 13,
+        "y": 113,
+        "width": 1894,
+        "height": 930
+      },
+      "navigator": {
+        "x": 13,
+        "y": 113,
+        "width": 260,
+        "height": 930
+      },
+      "list": {
+        "x": 280,
+        "y": 113,
+        "width": 364,
+        "height": 930
+      },
+      "editorPane": {
+        "x": 651,
+        "y": 113,
+        "width": 1256,
+        "height": 930
+      },
+      "editorScroll": {
+        "x": 651,
+        "y": 113,
+        "width": 1256,
+        "height": 930
+      },
+      "editorContent": {
+        "x": 651,
+        "y": 113,
+        "width": 820,
+        "height": 537.671875
+      },
+      "preview": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "previewContent": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "statusBar": {
+        "x": 13,
+        "y": 1043,
+        "width": 1894,
+        "height": 28
+      },
+      "editor": {
+        "x": 651,
+        "y": 113,
+        "width": 820,
+        "height": 537.671875
+      },
+      "content": {
+        "x": 12,
+        "y": 54,
+        "width": 1896,
+        "height": 1018
+      }
+    },
+    "splitters": [
+      {
+        "key": "navigator",
+        "min": 220,
+        "max": 272,
+        "value": 260,
+        "rect": {
+          "x": 273,
+          "y": 113,
+          "width": 7,
+          "height": 930
+        }
+      },
+      {
+        "key": "list",
+        "min": 292,
+        "max": 384,
+        "value": 364,
+        "rect": {
+          "x": 644,
+          "y": 113,
+          "width": 7,
+          "height": 930
+        }
+      }
+    ],
+    "rows": [
+      {
+        "id": "materials",
+        "selected": true,
+        "width": 352,
+        "height": 26,
+        "clipped": false
+      },
+      {
+        "id": "conditions",
+        "selected": false,
+        "width": 352,
+        "height": 26,
+        "clipped": false
+      },
+      {
+        "id": "sources",
+        "selected": false,
+        "width": 352,
+        "height": 26,
+        "clipped": false
+      },
+      {
+        "id": "aliases",
+        "selected": false,
+        "width": 352,
+        "height": 26,
+        "clipped": false
+      },
+      {
+        "id": "batches",
+        "selected": false,
+        "width": 352,
+        "height": 26,
+        "clipped": false
+      }
+    ],
+    "controls": [
+      {
+        "tag": "a",
+        "name": "Skip to database design",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "CAE Material Platform home",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Materials",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Modeling",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Activity",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Administration",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Refresh",
+        "disabled": false,
+        "action": "refresh"
+      },
+      {
+        "tag": "button",
+        "name": "Preview datasheet",
+        "disabled": false,
+        "action": "preview"
+      },
+      {
+        "tag": "button",
+        "name": "Tables5",
+        "disabled": false,
+        "action": "tables"
+      },
+      {
+        "tag": "button",
+        "name": "Attributes18",
+        "disabled": false,
+        "action": "attributes"
+      },
+      {
+        "tag": "button",
+        "name": "Layouts3",
+        "disabled": false,
+        "action": "layouts"
+      },
+      {
+        "tag": "button",
+        "name": "Subsets4",
+        "disabled": false,
+        "action": "subsets"
+      },
+      {
+        "tag": "button",
+        "name": "Link Types2",
+        "disabled": false,
+        "action": "links"
+      },
+      {
+        "tag": "select",
+        "name": "Materials master Test conditions Source references Solver aliases Batch runs",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "div",
+        "name": "Resize Schema objects pane",
+        "disabled": false,
+        "action": "navigator"
+      },
+      {
+        "tag": "button",
+        "name": "Materials master",
+        "disabled": false,
+        "action": "materials"
+      },
+      {
+        "tag": "button",
+        "name": "Test conditions",
+        "disabled": false,
+        "action": "conditions"
+      },
+      {
+        "tag": "button",
+        "name": "Source references",
+        "disabled": false,
+        "action": "sources"
+      },
+      {
+        "tag": "button",
+        "name": "Solver aliases",
+        "disabled": false,
+        "action": "aliases"
+      },
+      {
+        "tag": "button",
+        "name": "Batch runs",
+        "disabled": false,
+        "action": "batches"
+      },
+      {
+        "tag": "div",
+        "name": "Resize Object list pane",
+        "disabled": false,
+        "action": "list"
+      },
+      {
+        "tag": "input",
+        "name": "Table name *",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "input",
+        "name": "Reference key *",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "textarea",
+        "name": "Saved model-calibration branches linked to their exact engineering inputs.",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "input",
+        "name": "Change reason *",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Save new Table",
+        "disabled": false,
+        "action": "save-new-table"
+      },
+      {
+        "tag": "button",
+        "name": "Cancel",
+        "disabled": false,
+        "action": "cancel-add"
+      }
+    ],
+    "nestedInteractive": [],
+    "listColumns": [
+      "Name",
+      "Rev"
+    ],
+    "listRows": [
+      {
+        "id": "materials",
+        "name": "Materials master",
+        "metadata": null,
+        "revision": "12",
+        "columnCount": 2
+      },
+      {
+        "id": "conditions",
+        "name": "Test conditions",
+        "metadata": null,
+        "revision": "8",
+        "columnCount": 2
+      },
+      {
+        "id": "sources",
+        "name": "Source references",
+        "metadata": null,
+        "revision": "4",
+        "columnCount": 2
+      },
+      {
+        "id": "aliases",
+        "name": "Solver aliases",
+        "metadata": null,
+        "revision": "3",
+        "columnCount": 2
+      },
+      {
+        "id": "batches",
+        "name": "Batch runs",
+        "metadata": null,
+        "revision": "2",
+        "columnCount": 2
+      }
+    ],
+    "objectNameSecondaryCount": 0,
+    "panes": {
+      "navigatorOverflowY": "hidden",
+      "listOverflowY": "auto",
+      "editorOverflowY": "auto"
+    },
+    "localScroll": {
+      "list": {
+        "scrollHeight": 894,
+        "clientHeight": 894,
+        "scrollTop": 0,
+        "scrollWidth": 352,
+        "clientWidth": 352,
+        "overflowY": "auto",
+        "scrollbarGutter": "stable",
+        "reservedScrollbarWidth": 12
+      },
+      "editor": {
+        "scrollHeight": 930,
+        "clientHeight": 930,
+        "scrollTop": 0,
+        "scrollWidth": 1244,
+        "clientWidth": 1244,
+        "overflowY": "auto",
+        "scrollbarGutter": "stable",
+        "scrollbarColor": "auto",
+        "reservedScrollbarWidth": 12
+      },
+      "preview": {
+        "scrollHeight": 0,
+        "clientHeight": 0,
+        "scrollTop": 0,
+        "scrollWidth": 0,
+        "clientWidth": 0,
+        "overflowY": "auto",
+        "scrollbarGutter": "stable",
+        "reservedScrollbarWidth": 0
+      },
+      "previewTables": [
+        null,
+        null
+      ],
+      "editorRail": {
+        "hidden": true,
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "thumbRect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "ariaMin": 0,
+        "ariaMax": 0,
+        "ariaNow": 0
+      }
+    },
+    "editorMode": "table-add",
+    "editorTitle": "New Table",
+    "selectedRow": {
+      "id": "materials",
+      "name": "Materials master",
+      "cells": {
+        "name": {
+          "x": 294,
+          "y": 180.71875,
+          "width": 293,
+          "height": 17.546875
+        },
+        "definition": null,
+        "revision": {
+          "x": 587,
+          "y": 181.734375,
+          "width": 34,
+          "height": 15.515625
+        },
+        "primaryName": {
+          "clientWidth": 293,
+          "scrollWidth": 293,
+          "overflow": "hidden",
+          "textOverflow": "ellipsis",
+          "whiteSpace": "nowrap"
+        }
+      }
+    },
+    "fields": [
+      {
+        "name": "newTableName",
+        "value": "Model calibration records",
+        "type": "text",
+        "disabled": false,
+        "readonly": false,
+        "invalid": false
+      },
+      {
+        "name": "newTableKey",
+        "value": "model_calibration_records",
+        "type": "text",
+        "disabled": false,
+        "readonly": false,
+        "invalid": false
+      },
+      {
+        "name": "newTableDescription",
+        "value": "Saved model-calibration branches linked to their exact engineering inputs.",
+        "type": "textarea",
+        "disabled": false,
+        "readonly": false,
+        "invalid": false
+      },
+      {
+        "name": "newTableReason",
+        "value": "Add a governed place for model-calibration records.",
+        "type": "text",
+        "disabled": false,
+        "readonly": false,
+        "invalid": false
+      }
+    ],
+    "errors": [],
+    "preview": {
+      "visible": false,
+      "open": false,
+      "commandLabel": "Preview datasheet",
+      "title": "No saved projection",
+      "subtitle": "",
+      "record": "",
+      "table": "",
+      "selection": "",
+      "note": "This new Table has no saved Record or Layout projection yet. Save the Table, then configure its Layout.",
+      "sections": [],
+      "activeProjection": "",
+      "projectionTabs": [
+        {
+          "name": "Record preview",
+          "selected": true,
+          "focusable": true
+        },
+        {
+          "name": "Layout definition",
+          "selected": false,
+          "focusable": true
+        }
+      ],
+      "activeTable": "",
+      "activeRowCount": 0,
+      "activeSectionRect": null,
+      "activeTableRegionRect": null,
+      "activeTableScrollRect": null,
+      "valueRows": [],
+      "layoutRows": [],
+      "graph": {
+        "visible": false,
+        "section": null,
+        "frame": null,
+        "plotBox": null,
+        "title": "",
+        "description": "",
+        "axisTitles": [],
+        "ticks": [],
+        "viewBox": [
+          0
+        ],
+        "rendered": {
+          "width": 0,
+          "height": 0
+        },
+        "plotArea": {
+          "left": 0,
+          "right": 0,
+          "top": 0,
+          "bottom": 0
+        },
+        "path": {
+          "d": "",
+          "left": 0,
+          "right": 0,
+          "top": 0,
+          "bottom": 0
+        },
+        "series": {
+          "minStrain": 0,
+          "maxStrain": 0,
+          "minStressMpa": 0,
+          "maxStressMpa": 0
+        },
+        "axis": {
+          "headroomRatio": 0,
+          "maxStrain": 0,
+          "maxStressMpa": 0
+        },
+        "artifactId": "",
+        "artifactSha256": "",
+        "curveSelected": false
+      },
+      "layoutRevisionId": "",
+      "recordRevisionId": "",
+      "recordTableRevisionId": "",
+      "toggleLabel": "",
+      "projectionState": "unavailable",
+      "returnActions": [
+        {
+          "name": "Preview datasheet",
+          "action": "preview",
+          "disabled": false,
+          "rect": {
+            "x": 1762.296875,
+            "y": 68.5,
+            "width": 126.703125,
+            "height": 30
+          }
+        }
+      ],
+      "composition": null,
+      "text": "Preview datasheetNo saved projectionBack to editorRecord previewLayout definitionThis new Table has no saved Record or Layout projection yet. Save the Table, then configure its Layout."
+    },
+    "buttons": [
+      {
+        "name": "Refresh",
+        "action": "refresh",
+        "disabled": false,
+        "rect": {
+          "x": 1688.828125,
+          "y": 68.5,
+          "width": 65.46875,
+          "height": 30
+        }
+      },
+      {
+        "name": "Preview datasheet",
+        "action": "preview",
+        "disabled": false,
+        "rect": {
+          "x": 1762.296875,
+          "y": 68.5,
+          "width": 126.703125,
+          "height": 30
+        }
+      },
+      {
+        "name": "Tables5",
+        "action": "",
+        "disabled": false,
+        "rect": {
+          "x": 13,
+          "y": 153,
+          "width": 260,
+          "height": 28
+        }
+      },
+      {
+        "name": "Attributes18",
+        "action": "",
+        "disabled": false,
+        "rect": {
+          "x": 13,
+          "y": 181,
+          "width": 260,
+          "height": 28
+        }
+      },
+      {
+        "name": "Layouts3",
+        "action": "",
+        "disabled": false,
+        "rect": {
+          "x": 13,
+          "y": 209,
+          "width": 260,
+          "height": 28
+        }
+      },
+      {
+        "name": "Subsets4",
+        "action": "",
+        "disabled": false,
+        "rect": {
+          "x": 13,
+          "y": 237,
+          "width": 260,
+          "height": 28
+        }
+      },
+      {
+        "name": "Link Types2",
+        "action": "",
+        "disabled": false,
+        "rect": {
+          "x": 13,
+          "y": 265,
+          "width": 260,
+          "height": 28
+        }
+      },
+      {
+        "name": "Materials master\n        \n        12",
+        "action": "",
+        "disabled": false,
+        "rect": {
+          "x": 280,
+          "y": 177,
+          "width": 352,
+          "height": 26
+        }
+      },
+      {
+        "name": "Test conditions\n        \n        8",
+        "action": "",
+        "disabled": false,
+        "rect": {
+          "x": 280,
+          "y": 203,
+          "width": 352,
+          "height": 26
+        }
+      },
+      {
+        "name": "Source references\n        \n        4",
+        "action": "",
+        "disabled": false,
+        "rect": {
+          "x": 280,
+          "y": 229,
+          "width": 352,
+          "height": 26
+        }
+      },
+      {
+        "name": "Solver aliases\n        \n        3",
+        "action": "",
+        "disabled": false,
+        "rect": {
+          "x": 280,
+          "y": 255,
+          "width": 352,
+          "height": 26
+        }
+      },
+      {
+        "name": "Batch runs\n        \n        2",
+        "action": "",
+        "disabled": false,
+        "rect": {
+          "x": 280,
+          "y": 281,
+          "width": 352,
+          "height": 26
+        }
+      },
+      {
+        "name": "Save new Table",
+        "action": "save-new-table",
+        "disabled": false,
+        "rect": {
+          "x": 673,
+          "y": 546.15625,
+          "width": 115.546875,
+          "height": 30
+        }
+      },
+      {
+        "name": "Cancel",
+        "action": "cancel-add",
+        "disabled": false,
+        "rect": {
+          "x": 796.546875,
+          "y": 546.15625,
+          "width": 62.78125,
+          "height": 30
+        }
+      }
+    ],
+    "conditional": {
+      "hasQuantity": false,
+      "hasStandardUnit": false,
+      "hasMinMax": false,
+      "hasAllowedChoices": false,
+      "hasRelatedTable": false,
+      "hasTextLimits": false
+    },
+    "announcements": {
+      "alert": false,
+      "status": true
+    },
+    "bodyCss": {
+      "overflowX": "hidden",
+      "overflowY": "hidden",
+      "rootOverflowX": "visible",
+      "rootOverflowY": "visible"
+    },
+    "pageText": "Skip to database design CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator \u00b7 Atlas workspace Database design Atlas workspace \u00b7 materials catalog New Table draft Refresh Preview datasheet Schema objects 5 types Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 2 Current table Materials master Test conditions Source references Solver aliases Batch runs Scopes Attributes, Layouts and Subsets. Selection retained on refresh Tables 5 items Name Rev Materials master 12 Test conditions 8 Source references 4 Solver aliases 3 Batch runs 2 New Table New governed record type \u00b7 existing Tables remain unchanged New definition Table name * Shown to people choosing where to store a Record. Reference key * Stable key for this new Table identity. Purpose State what records belong here; this appears in the property editor, not the Object list. Change reason * Recorded with immutable revision 1. Creates revision 1. The new Table becomes available for typed Attributes, Layouts and Records after save. Save new Table Cancel Advanced definition details Tables \u00b7 Materials master Table-scoped definitions Local pane scrolling Online"
+  },
+  "console_errors": [],
+  "page_errors": []
+}

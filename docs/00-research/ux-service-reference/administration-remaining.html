@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#1d2b39">
+    <title>Administration remaining service references</title>
+    <link rel="stylesheet" href="administration-schema-core.css">
+    <link rel="stylesheet" href="administration-remaining.css">
+    <script src="administration-remaining.js" defer></script>
+  </head>
+  <body data-reference-family="layout" data-reference-state="draft">
+    <a class="skip-link" href="#admin-main">Skip to Administration workspace</a>
+    <div class="app-frame">
+      <header class="app-topbar" data-region="application-bar">
+        <div class="brand-lockup" translate="no">
+          <span class="brand-mark" aria-hidden="true">CMP</span>
+          <span class="brand-copy"><strong>CAE Material Platform</strong><small>Material data and solver delivery</small></span>
+        </div>
+        <nav class="workspace-nav" aria-label="Primary workspace">
+          <a href="#materials">Materials</a><a href="#modeling">Modeling</a><a href="#activity">Activity</a><a class="is-active" aria-current="page" href="#admin-main">Administration</a>
+        </nav>
+        <span class="topbar-context" data-topbar-context>Administrator · Atlas workspace</span>
+      </header>
+      <main class="admin-page" id="admin-main">
+        <section class="admin-shell" aria-labelledby="page-title">
+          <header class="task-bar" data-region="command-bar">
+            <div class="task-context"><h1 id="page-title" data-page-title>Database design</h1><span data-page-context>Atlas workspace · materials catalog</span></div>
+            <div class="task-actions" data-task-actions></div>
+          </header>
+          <section class="workspace remaining-workspace" data-region="workspace">
+            <aside class="pane navigator-pane" data-region="navigator">
+              <header class="pane-heading"><h2 data-nav-title>Schema objects</h2><span data-nav-count>5 types</span></header>
+              <nav class="object-family-list" data-object-families aria-label="Administration object type"></nav>
+              <div class="current-table-wrap" data-scope-editor></div>
+              <div class="navigator-fill"></div>
+              <footer class="pane-foot" data-nav-foot>Current Table scope retained</footer>
+            </aside>
+            <div class="splitter" role="separator" tabindex="0" aria-label="Resize navigator" aria-orientation="vertical" aria-valuemin="196" aria-valuemax="300" aria-valuenow="232" data-splitter="navigator"><span aria-hidden="true"></span></div>
+            <section class="pane object-list-pane" data-region="object-list">
+              <header class="pane-heading sticky-heading"><h2 data-list-title>Layouts</h2><span data-list-count>3 items</span></header>
+              <div class="list-scroll" tabindex="0" data-list-scroll><div data-list-body></div></div>
+            </section>
+            <div class="splitter" role="separator" tabindex="0" aria-label="Resize object list" aria-orientation="vertical" aria-valuemin="270" aria-valuemax="440" aria-valuenow="312" data-splitter="list"><span aria-hidden="true"></span></div>
+            <section class="pane editor-pane remaining-editor-pane" data-region="editor"><div class="editor-scroll" tabindex="0" data-editor-scroll><div data-editor-body></div></div></section>
+          </section>
+          <footer class="status-bar" aria-label="Workspace status" data-status-bar></footer>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

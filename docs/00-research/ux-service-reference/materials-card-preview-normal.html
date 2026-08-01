@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#182630">
+    <title>Material CAE Card Reference</title>
+    <link rel="stylesheet" href="reference.css">
+    <link rel="stylesheet" href="materials-card-preview.css">
+    <script src="materials-card-preview.js" defer></script>
+  </head>
+  <body data-state="normal">
+    <a class="skip-link" href="#main-content">Skip to solver card preview</a>
+
+    <header class="application-bar" data-region="application-bar">
+      <div class="brand" translate="no">
+        <span class="brand-mark" aria-hidden="true">CMP</span>
+        <span class="brand-name">CAE Material Platform</span>
+      </div>
+      <nav class="primary-navigation" aria-label="Primary workspace">
+        <a class="active" href="#main-content" aria-current="page">Materials</a>
+        <a href="#modeling">Modeling</a>
+        <a href="#activity">Activity</a>
+      </nav>
+      <span class="current-user">Demo user</span>
+    </header>
+
+    <main id="main-content" class="detail-shell">
+      <section class="detail-command-bar" data-region="command-bar" aria-labelledby="detail-title">
+        <div class="detail-command-left">
+          <a id="back-to-results" class="command-link" href="#results">Back to results</a>
+          <span class="command-divider" aria-hidden="true"></span>
+          <h1 id="detail-title">Material Datasheet</h1>
+        </div>
+        <div class="detail-command-right" aria-label="Selected material context">
+          <span class="command-context">Record · DP780-REF</span>
+          <span class="command-context">Revision r1</span>
+        </div>
+      </section>
+
+      <section class="detail-workspace" data-region="workspace" aria-label="Materials explorer and solver card">
+        <aside class="navigator-pane" data-region="navigator" aria-labelledby="navigator-title">
+          <div class="pane-title"><h2 id="navigator-title">Browse catalog</h2></div>
+          <nav class="navigator-modes" aria-label="Navigator mode">
+            <button class="active" type="button" aria-pressed="true">Browse</button>
+            <button type="button" aria-pressed="false">Filters</button>
+            <button type="button" aria-pressed="false">Subsets</button>
+          </nav>
+          <div class="scope-controls" aria-label="Catalog scope">
+            <label><span>Database</span><select name="database" autocomplete="off"><option selected>Materials Database</option></select></label>
+            <label><span>Profile</span><select name="profile" autocomplete="off"><option selected>Engineering Materials</option></select></label>
+            <label><span>Table</span><select name="table" autocomplete="off"><option selected>Demo Material Records</option></select></label>
+          </div>
+          <form id="tree-search-form" class="tree-search" role="search">
+            <label class="sr-only" for="tree-query">Find folder or record</label>
+            <input id="tree-query" name="tree-query" type="search" placeholder="Find folder or record" autocomplete="off">
+          </form>
+          <div class="tree-scroll">
+            <div id="material-tree" class="material-tree" role="tree" aria-label="Material database hierarchy">
+              <div id="tree-database" class="tree-row depth-0" role="treeitem" aria-level="1" aria-expanded="true" tabindex="-1" data-kind="Database">
+                <span class="tree-disclosure" aria-hidden="true">▾</span><span class="tree-label" title="Materials Database">Materials Database</span><span class="tree-kind">Database</span>
+              </div>
+              <div id="tree-profile" class="tree-row depth-1" role="treeitem" aria-level="2" aria-expanded="true" tabindex="-1" data-kind="Profile">
+                <span class="tree-disclosure" aria-hidden="true">▾</span><span class="tree-label" title="Engineering Materials">Engineering Materials</span><span class="tree-kind">Profile</span>
+              </div>
+              <div id="tree-table" class="tree-row depth-2" role="treeitem" aria-level="3" aria-expanded="true" tabindex="-1" data-kind="Table">
+                <span class="tree-disclosure" aria-hidden="true">▾</span><span class="tree-label" title="Demo Material Records">Demo Material Records</span><span class="tree-kind">Table</span>
+              </div>
+              <div id="tree-metals" class="tree-row depth-3" role="treeitem" aria-level="4" aria-expanded="true" tabindex="-1" data-kind="Folder">
+                <span class="tree-disclosure" aria-hidden="true">▾</span><span class="tree-label" title="Synthetic metals">Synthetic metals</span><span class="tree-kind">Folder</span>
+              </div>
+              <div id="tree-steels" class="tree-row depth-4" role="treeitem" aria-level="5" aria-expanded="true" tabindex="-1" data-kind="Folder">
+                <span class="tree-disclosure" aria-hidden="true">▾</span><span class="tree-label" title="Demo steels">Demo steels</span><span class="tree-kind">Folder</span>
+              </div>
+              <div id="tree-dp780" class="tree-row depth-5 selected" role="treeitem" aria-level="6" aria-selected="true" tabindex="0" data-kind="Record">
+                <span class="tree-disclosure" aria-hidden="true"></span><span class="tree-label" title="DP780 synthetic demo steel">DP780 synthetic demo steel</span><span class="tree-kind">Record</span>
+              </div>
+              <div id="tree-dp600" class="tree-row depth-5" role="treeitem" aria-level="6" aria-selected="false" tabindex="-1" data-kind="Record">
+                <span class="tree-disclosure" aria-hidden="true"></span><span class="tree-label" title="DP600 synthetic demo steel">DP600 synthetic demo steel</span><span class="tree-kind">Record</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <div class="splitter navigator-divider" data-region="navigator-divider" role="separator" aria-label="Resize catalog navigator" aria-orientation="vertical" aria-valuemin="200" aria-valuemax="360" aria-valuenow="264" tabindex="0"><span aria-hidden="true"></span></div>
+
+        <section class="datasheet-pane" data-region="datasheet" aria-labelledby="record-title">
+          <header class="record-header">
+            <div class="record-identity">
+              <span class="record-breadcrumb">Demo Material Records / Demo steels / Record</span>
+              <h2 id="record-title">DP780 synthetic demo steel</h2>
+              <div class="record-meta" aria-label="Material identity"><span>DP780-REF</span><span>Metal</span><span class="draft-state">Draft</span></div>
+              <p class="synthetic-note">Synthetic reference data · not validated engineering data</p>
+            </div>
+            <div class="record-status" aria-label="Record status"><span class="status-label">Current revision</span><strong>r1 · Draft</strong></div>
+          </header>
+
+          <nav class="datasheet-tabs" role="tablist" aria-label="Material datasheet sections">
+            <button id="tab-overview" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="card-panel" tabindex="-1" data-tab="Overview">Overview</button>
+            <button id="tab-properties" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="card-panel" tabindex="-1" data-tab="Properties">Properties</button>
+            <button id="tab-curves" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="card-panel" tabindex="-1" data-tab="Curves">Curves</button>
+            <button id="tab-cards" class="tab-button active" type="button" role="tab" aria-selected="true" aria-controls="card-panel" tabindex="0" data-tab="CAE Cards">CAE Cards</button>
+            <button id="tab-related" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="card-panel" tabindex="-1" data-tab="Related">Related</button>
+            <button id="tab-evidence" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="card-panel" tabindex="-1" data-tab="Evidence">Evidence</button>
+          </nav>
+
+          <div id="card-panel" class="card-panel" role="tabpanel" aria-labelledby="tab-cards" tabindex="0" data-region="card-panel">
+            <header class="card-heading" data-region="card-heading">
+              <div class="card-heading-copy">
+                <span id="card-kicker" class="card-kicker">Abaqus · Native ASCII</span>
+                <h3 id="card-title">DP780 Abaqus native material card</h3>
+                <p id="card-subtitle">Verify the exact native solver text before downloading this card revision.</p>
+              </div>
+              <div class="card-heading-state" aria-live="polite"><span id="card-state-label" data-decision-text>Exact · exportable</span></div>
+            </header>
+
+            <div class="card-content" data-region="card-content">
+              <section class="native-preview" aria-labelledby="native-preview-title">
+                <div class="preview-title-row">
+                  <div>
+                    <h4 id="native-preview-title">Native preview</h4>
+                    <span id="preview-target" class="preview-target">DP780_ABAQUS_R1.inp · Abaqus 2025 · kg-m-s</span>
+                  </div>
+                  <span id="preview-scroll-note" class="preview-note">Read-only exact text</span>
+                </div>
+                <div id="preview-error" class="preview-error" role="alert" hidden>
+                  <strong>Preview request failed.</strong> The last valid native text remains visible. <button id="retry-preview" class="inline-action" type="button">Retry preview</button>
+                </div>
+                <div id="preview-loading" class="preview-loading" role="status" hidden>
+                  <strong>Loading exact evidence…</strong><span>Native text and mapping checks are being fetched.</span>
+                </div>
+                <div id="preview-scroll-shell" class="preview-scroll-shell">
+                  <div id="preview-scroll" class="preview-scroll" tabindex="0" aria-label="Scrollable native solver card text">
+                    <pre id="native-text" aria-label="Native solver card text">*HEADING
+** CMP synthetic reference · DP780 exact card
+*MATERIAL, NAME=DP780_SYNTHETIC_R1
+** Source Record: DP780-REF · r1
+*DENSITY
+ 7.800000000E-09,
+*ELASTIC
+ 2.100000000E+05, 3.000000000E-01
+*PLASTIC
+ 4.500000000E+02, 0.000000000E+00
+ 5.000000000E+02, 1.000000000E-02
+ 5.600000000E+02, 2.500000000E-02
+ 6.200000000E+02, 5.000000000E-02
+ 6.500000000E+02, 7.500000000E-02
+ 6.800000000E+02, 1.000000000E-01
+** Mapping: density exact; isotropic elasticity exact
+** Mapping: initial yield transformed to first plastic point
+** Mapping: hardening curve transformed from Neutral response
+** Unit convention: kg-m-s · values emitted in native syntax
+** End of exact synthetic card preview
+</pre>
+                  </div>
+                  <div id="preview-scroll-rail" class="preview-scroll-rail" aria-hidden="true"><span id="preview-scroll-thumb" class="preview-scroll-thumb"></span></div>
+                </div>
+                <p id="preview-unavailable" class="preview-unavailable" hidden>
+                  <strong>Native preview unavailable</strong><span>Preflight stopped before artifact creation because <b id="unsupported-field">damage initiation · GISSMO</b> cannot be represented by this target.</span>
+                </p>
+                <section id="response-plot-band" class="response-plot-band" data-region="linked-response-plot" aria-labelledby="response-plot-title" hidden>
+                  <header class="response-plot-heading">
+                    <div>
+                      <h4 id="response-plot-title">Linked response</h4>
+                      <p id="response-plot-summary">Same exact <code>*PLASTIC</code> rows as the native card preview.</p>
+                    </div>
+                    <span class="response-plot-note">Card evidence · read only</span>
+                  </header>
+                  <div class="response-plot-frame">
+                    <svg id="response-plot" class="response-plot" role="img" aria-labelledby="response-plot-title response-plot-description" preserveAspectRatio="xMidYMid meet">
+                      <title id="response-plot-description">True stress versus true plastic strain from the selected native card.</title>
+                    </svg>
+                  </div>
+                </section>
+              </section>
+
+              <aside class="delivery-sheet" aria-label="Delivery and mapping properties">
+                <header class="delivery-heading"><h4>Delivery properties</h4></header>
+                <dl class="delivery-fields">
+                  <div><dt>Solver / format</dt><dd id="field-solver">Abaqus · .inp</dd></div>
+                  <div><dt>Target version</dt><dd id="field-version">Abaqus 2025</dd></div>
+                  <div><dt>Unit system</dt><dd id="field-units">kg · m · s</dd></div>
+                  <div><dt>Card revision</dt><dd id="field-card-revision">r1</dd></div>
+                  <div><dt>Lifecycle</dt><dd id="field-lifecycle">Draft</dd></div>
+                </dl>
+
+                <section class="mapping-section" aria-labelledby="mapping-title">
+                  <div class="section-heading compact-heading"><div><h4 id="mapping-title">Mapping details</h4><span class="section-subtitle">Disposition for this exact target</span></div></div>
+                  <ul id="mapping-list" class="mapping-list">
+                    <li class="mapping-row" data-mapping-key="density"><div><strong>Density</strong><span class="mapping-value">7 800 kg/m³ → 7.8000E+03 kg/m³</span></div><span class="mapping-status exact">Exact</span></li>
+                    <li class="mapping-row" data-mapping-key="isotropic-elasticity"><div><strong>Isotropic elasticity</strong><span class="mapping-value">210 GPa, ν 0.30 → *ELASTIC</span></div><span class="mapping-status exact">Exact</span></li>
+                    <li class="mapping-row" data-mapping-key="initial-yield"><div><strong>Initial yield</strong><span class="mapping-value">450 MPa at εp = 0 → first *PLASTIC row</span></div><span class="mapping-status converted">Converted</span></li>
+                    <li class="mapping-row" data-mapping-key="hardening-response"><div><strong>Hardening response</strong><span class="mapping-value">5 points → native *PLASTIC rows</span></div><span class="mapping-status converted">Converted</span></li>
+                    <li id="approximation-row" class="mapping-row mapping-warning" data-mapping-key="post-necking-extension" hidden><div><strong>Post-necking extension</strong><span class="mapping-value">Bounded extension → target behavior</span><label class="acknowledgement"><input id="approximation-ack" type="checkbox"> <span>I acknowledge this approximation for this exact card.</span></label></div><span class="mapping-status review-required">Review required</span></li>
+                    <li id="unsupported-row" class="mapping-row mapping-blocked" data-mapping-key="damage-initiation-gissmo" hidden><div><strong>Damage initiation · GISSMO</strong><span class="mapping-value">No governed target representation</span></div><span class="mapping-status not-supported">Not supported</span></li>
+                  </ul>
+                </section>
+
+                <details id="advanced-mapping" class="advanced-evidence">
+                  <summary>Technical mapping details</summary>
+                  <dl>
+                    <div><dt>Card revision identity</dt><dd>DP780-ABAQUS-R1</dd></div>
+                    <div><dt>Mapping classifications</dt><dd>exact · transformed · approximated · unsupported</dd></div>
+                    <div><dt>Checksum</dt><dd>synthetic reference evidence only</dd></div>
+                  </dl>
+                </details>
+
+                <div class="delivery-actions">
+                  <button id="download-card" class="button primary-action" type="button">Download .inp</button>
+                  <button id="open-modeling" class="button secondary-action" type="button" hidden>Open Modeling</button>
+                  <button id="back-to-cards" class="button text-action" type="button" hidden>Back to CAE Cards</button>
+                  <p id="delivery-status" class="delivery-status" role="status" data-decision-text>Exact mapping · download is available without acknowledgement.</p>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <footer class="status-bar" data-region="status-bar" aria-label="Workspace status">
+      <span id="status-selection">DP780 synthetic demo steel · DP780-REF</span><span>r1 · Draft</span><span class="status-spacer"></span><span>No active job</span><span id="status-warnings">0 warnings</span><span class="online-state"><span class="online-dot" aria-hidden="true"></span>Online</span>
+    </footer>
+    <p id="interaction-status" class="sr-only" role="status" aria-live="polite"></p>
+  </body>
+</html>

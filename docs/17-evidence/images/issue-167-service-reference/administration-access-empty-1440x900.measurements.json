@@ -1,0 +1,349 @@
+{
+  "target": "administration-access-empty-1440x900",
+  "family": "access",
+  "state": "empty",
+  "viewport": "1440x900",
+  "width": 1440,
+  "height": 900,
+  "image": "docs/17-evidence/images/issue-167-service-reference/administration-access-empty-1440x900.png",
+  "image_sha256": "29afbc544d804bf42f0fccfe9562e24f95275d6ea3ab29b75a65d76ebb743877",
+  "snapshot": {
+    "ready": true,
+    "family": "access",
+    "state": "empty",
+    "pageTitle": "Users and access",
+    "navTitle": "Access administration",
+    "listTitle": "Assignments",
+    "topbarContext": "Administrator · Atlas workspace",
+    "statusSelection": "Assignments · none",
+    "statusBarFontPx": 11.5,
+    "activePrimary": [
+      "Create assignment"
+    ],
+    "controls": [
+      {
+        "tag": "a",
+        "name": "Skip to Administration workspace",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Materials",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Modeling",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Activity",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Administration",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Refresh",
+        "disabled": false,
+        "action": "refresh"
+      },
+      {
+        "tag": "button",
+        "name": "Add assignment",
+        "disabled": false,
+        "action": "add-assignment"
+      },
+      {
+        "tag": "button",
+        "name": "Assignments0",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Role presets3",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Access guidance1",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "div",
+        "name": "Resize navigator",
+        "disabled": false,
+        "action": "navigator"
+      },
+      {
+        "tag": "div",
+        "name": "Resize object list",
+        "disabled": false,
+        "action": "list"
+      },
+      {
+        "tag": "input",
+        "name": "User or team name",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "select",
+        "name": "UserReviewerAdministrator",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "select",
+        "name": "Current projectOrganization",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "select",
+        "name": "ConfidentialInternalRestricted",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "textarea",
+        "name": "Provide standard material search, Modeling and solver-card request work for the current project.",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Create assignment",
+        "disabled": false,
+        "action": "save-access"
+      },
+      {
+        "tag": "button",
+        "name": "Cancel",
+        "disabled": false,
+        "action": "cancel-add"
+      }
+    ],
+    "nestedInteractive": [],
+    "legacySelectors": [
+      {
+        "selector": ".page-stack",
+        "count": 0
+      },
+      {
+        "selector": ".page-heading",
+        "count": 0
+      },
+      {
+        "selector": ".content-card",
+        "count": 0
+      },
+      {
+        "selector": ".hero-actions",
+        "count": 0
+      },
+      {
+        "selector": ".eyebrow",
+        "count": 0
+      },
+      {
+        "selector": ".status-badge",
+        "count": 0
+      },
+      {
+        "selector": ".count-chip",
+        "count": 0
+      }
+    ],
+    "bodyFontPx": 13,
+    "maximumDataFontPx": 0,
+    "typography": {
+      "data": {
+        "count": 10,
+        "min": 13,
+        "max": 13
+      },
+      "metadata": {
+        "count": 10,
+        "min": 11.5,
+        "max": 12
+      },
+      "ordinaryWeight": {
+        "count": 14,
+        "max": 600
+      }
+    },
+    "clipping": {
+      "listNames": [],
+      "previewValues": []
+    },
+    "revisionMetrics": [],
+    "overlap": {
+      "pairs": [],
+      "noOverlaps": true,
+      "splitterCollisions": [],
+      "splitterSafe": true
+    },
+    "labels": [
+      "User or team",
+      "Role",
+      "Scope",
+      "Maximum classification",
+      "Reason"
+    ],
+    "fieldValues": [
+      {
+        "id": "access-team",
+        "value": "material-engineers",
+        "disabled": false
+      },
+      {
+        "id": "access-role",
+        "value": "User",
+        "disabled": false
+      },
+      {
+        "id": "access-scope",
+        "value": "Current project",
+        "disabled": false
+      },
+      {
+        "id": "access-classification",
+        "value": "Confidential",
+        "disabled": false
+      },
+      {
+        "id": "access-reason",
+        "value": "Provide standard material search, Modeling and solver-card request work for the current project.",
+        "disabled": false
+      }
+    ],
+    "alerts": [],
+    "listRows": [],
+    "rowAccessibleNames": [],
+    "tasks": [],
+    "readiness": [],
+    "related": [],
+    "orderedFields": [],
+    "filters": [],
+    "documentText": "Skip to Administration workspace CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator · Atlas workspace Users and access Atlas workspace · product access Ready Refresh Add assignment Access administration 3 areas Assignments 0 Role presets 3 Access guidance 1 Organization and project scope Assignments 0 items User or team Role Status No product assignments Add the first role for this workspace. Add the first product assignment User, Reviewer or Administrator role New assignment No assignments exist in this workspace. Choose one team, role, scope and maximum classification. User or team Role User Reviewer Administrator User can search, download, request review, and process or fit material data. Scope Current project Organization Maximum classification Confidential Internal Restricted Reason Create assignment Cancel Assignments · none Access permissions Ready Online",
+    "documentOverflow": {
+      "horizontal": 0,
+      "vertical": 0
+    },
+    "editorScroll": {
+      "scrollHeight": 754,
+      "clientHeight": 754,
+      "scrollTop": 0
+    },
+    "listScroll": {
+      "scrollHeight": 718,
+      "clientHeight": 718,
+      "scrollTop": 0
+    },
+    "editorTextClipped": false,
+    "remainingContainment": {
+      "gridInsideEditor": true,
+      "editorColumnInsideGrid": true,
+      "previewColumnInsideGrid": true,
+      "headingsInsideColumns": true,
+      "actionsInsideColumns": true
+    },
+    "publishButtons": [],
+    "selectedRowCount": 0,
+    "previewTables": 0,
+    "geometry": {
+      "application_bar": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 46,
+        "right": 1440,
+        "bottom": 46
+      },
+      "command_bar": {
+        "x": 9,
+        "y": 55,
+        "width": 1422,
+        "height": 54,
+        "right": 1431,
+        "bottom": 109
+      },
+      "workspace": {
+        "x": 9,
+        "y": 109,
+        "width": 1422,
+        "height": 754,
+        "right": 1431,
+        "bottom": 863
+      },
+      "navigator": {
+        "x": 9,
+        "y": 109,
+        "width": 220,
+        "height": 754,
+        "right": 229,
+        "bottom": 863
+      },
+      "object_list": {
+        "x": 236,
+        "y": 109,
+        "width": 390,
+        "height": 754,
+        "right": 626,
+        "bottom": 863
+      },
+      "editor": {
+        "x": 633,
+        "y": 109,
+        "width": 798,
+        "height": 754,
+        "right": 1431,
+        "bottom": 863
+      },
+      "editor_grid": {
+        "x": 647,
+        "y": 109,
+        "width": 758,
+        "height": 449.578125,
+        "right": 1405,
+        "bottom": 558.578125
+      },
+      "editor_column": {
+        "x": 647,
+        "y": 109,
+        "width": 720,
+        "height": 449.578125,
+        "right": 1367,
+        "bottom": 558.578125
+      },
+      "preview_column": null,
+      "status_bar": {
+        "x": 9,
+        "y": 863,
+        "width": 1422,
+        "height": 28,
+        "right": 1431,
+        "bottom": 891
+      }
+    },
+    "emptyStatusValid": true
+  },
+  "interactions": {
+    "keyboard_splitter_delta": 12
+  },
+  "console_errors": [],
+  "page_errors": []
+}

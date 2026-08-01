@@ -22,8 +22,8 @@ The cards remain `reference/non-production`. T-88 does not claim an Abaqus or Op
 
 ## Browser evidence
 
-- [exact reviewed evidence and guided Card task](../images/t88-abaqus-card-delivery.png)
-- [OpenRadioss LAW36 native ASCII preview](../images/t88-openradioss-card-delivery.png)
+- [exact reviewed evidence and guided Card task](../images/historical-task-screenshots/t88-abaqus-card-delivery.png)
+- [OpenRadioss LAW36 native ASCII preview](../images/historical-task-screenshots/t88-openradioss-card-delivery.png)
 
 The Docker/PostgreSQL capture journey opens the top-level Card task, restores the existing exact DP780
 Neutral Material, runs Abaqus preflight, acknowledges bounded transformation where required, creates

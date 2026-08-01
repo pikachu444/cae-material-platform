@@ -2,9 +2,9 @@ import { chromium } from "@playwright/test";
 
 const webUrl = process.env.CMP_DEMO_WEB_URL ?? "http://127.0.0.1:5173";
 const abaqusOutput = process.env.CMP_T88_ABAQUS_SCREENSHOT
-  ?? "docs/17-evidence/images/t88-abaqus-card-delivery.png";
+  ?? "docs/17-evidence/images/historical-task-screenshots/t88-abaqus-card-delivery.png";
 const radiossOutput = process.env.CMP_T88_RADIOSS_SCREENSHOT
-  ?? "docs/17-evidence/images/t88-openradioss-card-delivery.png";
+  ?? "docs/17-evidence/images/historical-task-screenshots/t88-openradioss-card-delivery.png";
 
 const browser = await chromium.launch();
 try {

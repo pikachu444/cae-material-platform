@@ -36,6 +36,14 @@ _STRUCTURED_IMAGE_MANIFESTS = (
     "docs/17-evidence/images/desktop-engineering-ui/dui-01/after-measurements.json",
     "docs/17-evidence/images/desktop-engineering-ui/dui-01/before-measurements.json",
 )
+_STRUCTURED_IMAGE_MANIFEST_GLOBS = (
+    "docs/17-evidence/images/issue-167-service-reference/*.json",
+    "docs/00-research/ux-service-reference/*.staging.json",
+    "docs/00-research/ux-service-reference/*.state-evidence.json",
+)
+_STRUCTURED_IMAGE_YAML_MANIFESTS = (
+    "docs/01-product/service-reference-manifest.yaml",
+)
 _IMAGE_PATH_MANIFESTS = (
     "docs/17-evidence/images/ux-layout-review/manifest.yaml",
 )
@@ -319,7 +327,9 @@ def _verify_readme(project: Path, registered_images: set[str]) -> None:
 
 def _verify_permanent_reference_catalog(project: Path) -> None:
     catalog_path = project / "docs/00-research/product-reference-source-catalog.json"
-    catalog = _mapping(json.loads(catalog_path.read_text(encoding="utf-8")), "reference source catalog")
+    catalog = _mapping(
+        json.loads(catalog_path.read_text(encoding="utf-8")), "reference source catalog"
+    )
     sources = _sequence(catalog.get("sources"), "reference source catalog sources")
     source_ids: set[str] = set()
     for ordinal, raw_source in enumerate(sources, start=1):
@@ -345,8 +355,14 @@ def _verify_permanent_reference_catalog(project: Path) -> None:
     ):
         image_root = project / relative_root
         if not image_root.is_dir():
-            raise UserGuideContractError(f"permanent reference image root is missing: {relative_root}")
-        images = [path for path in image_root.iterdir() if path.suffix.lower() in {".png", ".jpg", ".jpeg"}]
+            raise UserGuideContractError(
+                f"permanent reference image root is missing: {relative_root}"
+            )
+        images = [
+            path
+            for path in image_root.iterdir()
+            if path.suffix.lower() in {".png", ".jpg", ".jpeg"}
+        ]
         if len(images) < minimum_images:
             raise UserGuideContractError(
                 f"permanent reference image root is incomplete: {relative_root}"
@@ -453,23 +469,36 @@ def _verify_historical_capture_scripts(project: Path) -> tuple[int, set[str]]:
 def _structured_manifest_images(project: Path) -> set[str]:
     images: set[str] = set()
 
+    def resolve_image_ref(value: str, manifest: Path) -> str | None:
+        normalized = value.replace("\\", "/")
+        if Path(normalized).suffix.lower() not in {".png", ".jpg", ".jpeg"}:
+            return None
+        if any(character.isspace() for character in value):
+            raise UserGuideContractError(
+                f"image manifest path contains whitespace: {manifest} -> {value}"
+            )
+        candidate = Path(normalized)
+        image = _inside(
+            candidate if candidate.is_absolute() else project / candidate,
+            project,
+            f"image manifest {manifest}",
+        )
+        if not image.is_file():
+            raise UserGuideContractError(
+                f"image manifest target is missing: {manifest} -> {normalized}"
+            )
+        return _relative(image, project)
+
     def visit(value: object, manifest: Path) -> None:
         if isinstance(value, dict):
             for key, item in value.items():
-                if key == "file" and isinstance(item, str):
-                    normalized = item.replace("\\", "/")
-                    marker = normalized.find("docs/")
-                    if marker < 0:
+                if key in {"image", "file"}:
+                    if not isinstance(item, str):
                         raise UserGuideContractError(
-                            f"image manifest path is not repository-relative: {manifest} -> {item}"
+                            f"image manifest reference must be text: {manifest} -> {key}"
                         )
-                    relative = normalized[marker:]
-                    image = _inside(project / relative, project, f"image manifest {manifest}")
-                    if not image.is_file():
-                        raise UserGuideContractError(
-                            f"image manifest target is missing: {manifest} -> {relative}"
-                        )
-                    images.add(_relative(image, project))
+                    if relative := resolve_image_ref(item, manifest):
+                        images.add(relative)
                 else:
                     visit(item, manifest)
         elif isinstance(value, list):
@@ -479,6 +508,12 @@ def _structured_manifest_images(project: Path) -> set[str]:
     for relative in _STRUCTURED_IMAGE_MANIFESTS:
         manifest = project / relative
         visit(json.loads(manifest.read_text(encoding="utf-8")), manifest)
+    for pattern in _STRUCTURED_IMAGE_MANIFEST_GLOBS:
+        for manifest in sorted(project.glob(pattern)):
+            visit(json.loads(manifest.read_text(encoding="utf-8")), manifest)
+    for relative in _STRUCTURED_IMAGE_YAML_MANIFESTS:
+        manifest = project / relative
+        visit(yaml.safe_load(manifest.read_text(encoding="utf-8")), manifest)
     for relative in _IMAGE_PATH_MANIFESTS:
         manifest = project / relative
         content = _mapping(
@@ -499,32 +534,48 @@ def _structured_manifest_images(project: Path) -> set[str]:
 def _duplicate_allowances(
     project: Path, manifest: dict[str, Any]
 ) -> set[frozenset[str]]:
-    entries = _sequence(manifest.get("allowed_duplicate_pairs", []), "duplicate allowances")
+    entries = _sequence(manifest.get("allowed_duplicate_groups", []), "duplicate allowances")
     allowances: set[frozenset[str]] = set()
-    current_root = project / "docs" / "user-guide" / "images" / "current"
     historical_root = project / "docs" / "17-evidence" / "images"
     for ordinal, raw_entry in enumerate(entries, start=1):
         entry = _mapping(raw_entry, f"duplicate allowance {ordinal}")
-        current_ref = _text(entry.get("current"), f"duplicate allowance {ordinal} current")
-        historical_ref = _text(
-            entry.get("historical"), f"duplicate allowance {ordinal} historical"
-        )
-        current = _relative(
-            _inside(project / current_ref, current_root, f"duplicate allowance {ordinal} current"),
-            project,
-        )
-        historical = _relative(
-            _inside(
-                project / historical_ref,
+        _text(entry.get("rationale"), f"duplicate allowance {ordinal} rationale")
+        image_refs = _sequence(entry.get("images"), f"duplicate allowance {ordinal} images")
+        if len(image_refs) < 2:
+            raise UserGuideContractError(
+                f"duplicate allowance {ordinal} must list at least two exact images"
+            )
+        paths: list[str] = []
+        for image_ordinal, raw_image in enumerate(image_refs, start=1):
+            image_ref = _text(
+                raw_image, f"duplicate allowance {ordinal} image {image_ordinal}"
+            )
+            if any(character.isspace() for character in image_ref) or any(
+                character in image_ref for character in "*?[]{}"
+            ):
+                raise UserGuideContractError(
+                    f"duplicate allowance {ordinal} image must be an exact path: {image_ref}"
+                )
+            image = _inside(
+                project / image_ref,
                 historical_root,
-                f"duplicate allowance {ordinal} historical",
-            ),
-            project,
-        )
-        pair = frozenset((current, historical))
-        if pair in allowances:
-            raise UserGuideContractError(f"duplicate image allowance is repeated: {sorted(pair)}")
-        allowances.add(pair)
+                f"duplicate allowance {ordinal} image {image_ordinal}",
+            )
+            if not image.is_file():
+                raise UserGuideContractError(
+                    f"duplicate allowance target is missing: {image_ref}"
+                )
+            paths.append(_relative(image, project))
+        group = frozenset(paths)
+        if len(group) != len(paths):
+            raise UserGuideContractError(
+                f"duplicate allowance {ordinal} repeats an image path"
+            )
+        if group in allowances:
+            raise UserGuideContractError(
+                f"duplicate image allowance is repeated: {sorted(group)}"
+            )
+        allowances.add(group)
     return allowances
 
 
@@ -541,7 +592,7 @@ def _image_lifecycle(relative: str) -> str:
 def _verify_image_inventory(
     project: Path,
     referenced_images: set[str],
-    allowed_duplicate_pairs: set[frozenset[str]],
+    allowed_duplicate_groups: set[frozenset[str]],
 ) -> tuple[int, int, int]:
     roots = (
         project / "docs" / "00-research",
@@ -577,26 +628,25 @@ def _verify_image_inventory(
         digest = hashlib.sha256(image.read_bytes()).hexdigest()
         hashes.setdefault(digest, []).append(image)
     duplicate_groups = [paths for paths in hashes.values() if len(paths) > 1]
-    actual_allowed_pairs: set[frozenset[str]] = set()
+    actual_allowed_groups: set[frozenset[str]] = set()
     invalid_duplicate_groups: list[tuple[list[str], dict[str, int]]] = []
     for paths in duplicate_groups:
         relative_paths = sorted(_relative(path, project) for path in paths)
         lifecycle_counts = dict(Counter(_image_lifecycle(path) for path in relative_paths))
-        pair = frozenset(relative_paths)
+        group = frozenset(relative_paths)
         if (
-            len(relative_paths) == 2
-            and lifecycle_counts == {"historical": 1, "current": 1}
-            and pair in allowed_duplicate_pairs
+            all(_image_lifecycle(path) == "historical" for path in relative_paths)
+            and group in allowed_duplicate_groups
         ):
-            actual_allowed_pairs.add(pair)
+            actual_allowed_groups.add(group)
             continue
         invalid_duplicate_groups.append((relative_paths, lifecycle_counts))
     if invalid_duplicate_groups:
         raise UserGuideContractError(
-            "duplicate image hashes require one explicit current/historical pair: "
+            "duplicate image hashes require one explicit historical group: "
             f"{invalid_duplicate_groups}"
         )
-    stale_allowances = allowed_duplicate_pairs - actual_allowed_pairs
+    stale_allowances = allowed_duplicate_groups - actual_allowed_groups
     if stale_allowances:
         raise UserGuideContractError(
             "duplicate image allowances no longer match equal bytes: "
@@ -731,9 +781,17 @@ def verify_user_guide(root: Path) -> UserGuideReport:
         | historical_script_images
         | structured_manifest_images
     )
-    allowed_duplicate_pairs = _duplicate_allowances(project, manifest)
+    archive_manifest = _mapping(
+        yaml.safe_load(
+            (project / "docs" / "17-evidence" / "screenshot-archive.yaml").read_text(
+                encoding="utf-8"
+            )
+        ),
+        "screenshot archive",
+    )
+    allowed_duplicate_groups = _duplicate_allowances(project, archive_manifest)
     image_count, orphan_image_count, duplicate_image_group_count = _verify_image_inventory(
-        project, referenced_images, allowed_duplicate_pairs
+        project, referenced_images, allowed_duplicate_groups
     )
 
     return UserGuideReport(

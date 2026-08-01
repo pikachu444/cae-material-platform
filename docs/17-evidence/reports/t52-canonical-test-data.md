@@ -20,11 +20,11 @@ Verified on 2026-07-18 against the Docker Compose demo and PostgreSQL migration 
 
 ## Evidence
 
-![Canonical Test Data validation, immutable import and revision list](../images/t52-canonical-test-data.jpg)
+![Canonical Test Data validation, immutable import and revision list](../images/historical-task-screenshots/t52-canonical-test-data.jpg)
 
-![Current exact revisions packaged as deterministic JSON+ZIP](../images/t52-canonical-test-data-package.jpg)
+![Current exact revisions packaged as deterministic JSON+ZIP](../images/historical-task-screenshots/t52-canonical-test-data-package.jpg)
 
-![Governed CSV/TSV/XLSX mapping contract adapter](../images/t52-tabular-adapter.jpg)
+![Governed CSV/TSV/XLSX mapping contract adapter](../images/historical-task-screenshots/t52-tabular-adapter.jpg)
 
 - API/domain tests cover semantic preview, immutable import, list and exact-revision round-trip.
 - Fresh PostgreSQL migration and the live Docker workflow verify typed condition/channel rows, RLS,

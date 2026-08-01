@@ -50,13 +50,26 @@ This authoritative annex retains the component-specific contract. Each compact r
 | `P-01` rail summary, test group and selected specimen row | State the available test scope and let the engineer focus one specimen without consuming graph width. | Left of the persistent graph; the compact summary and real method group precede indented 26 px specimen rows. A group is a native keyboard-operable disclosure only when its rows can truly be collapsed; otherwise it has no disclosure glyph. Each row's 20 px horizontal plot-color legend sample follows the title and precedes the plot-visibility control, so it cannot read as a branch or title prefix. Printed `└`/`ㄴ` glyphs and decorative branches are forbidden. | Data/Process with compatible Test Data; the same row grammar is used by `F-01` in Fit. It is absent from Validate, Review / Release and Export. | Compatible Test Data/Processing Output revisions, canonical `method`, specimen identity, session selected-document identity and revision metadata. Add a condition subgroup only when exact condition metadata is present; never invent temperature or rate. | Current compatible source context. | Selecting a row changes local selected-curve/plot context only; it never rewrites a revision. | empty, compatible, selected, stale, blocked. | Keep selection and graph context; name a missing/incompatible revision and return to Data/Process. |
 | `P-01a` Include in processing/fit checkbox | Make the engineer’s calculation-membership decision explicit and independent of viewing a line. | First control in each Data/Process tree row. | Data/Process when the existing session authorization allows selection changes; never rendered as editable downstream evidence. | Session selection IDs and the row’s exact Test Data/Processing Output revision. | Compatible exact source and a stage that owns selection. | Dispatches `CHANGE_SELECTION`; clears fit decision, validation, review, release and delivery current pointers while immutable history remains. | included, excluded, limit-reached, stale. | Preserve the row and current plot; retain selection on failed preview and explain the blocked prerequisite. |
 | `P-01b` Show on plot eye control | Toggle only the browser-local line visibility while retaining inclusion and exact curve identity. | Final compact control in each Data/Process row. | Data/Process with a plotted source; keyboard reachable with an accessible show/hide label. | Local view state keyed by the exact selected document ID. | A loaded compatible curve. | Does not invalidate selection, Recipe, output, candidate or any immutable revision. | visible, hidden, selected, unavailable. | Preserve all engineering state and restore the prior local visibility when the same exact session is resumed. |
+| `P-07a` wide Process graph alignment | Keep the Process task visually coherent on 2560/3840 without stretching the graph or adding unrelated filler. | The graph sits directly below the bounded settings band; its plot right edge aligns with `Save processed curves`, and its useful pixel size and aspect match the 1920 reference. | Process at 2560×1440 and 3840×2160; the same graph-first topology remains at canonical viewports. | The same ordered observed, processed-preview and calculated-fit arrays rendered by `P-07`; no companion table is introduced. | A finite compatible saved Test Data selection and current processing preview. | View-only responsive layout; it never changes source, selection, preview or output state. | current, stale-with-last-valid-plot, blocked, unavailable. | Preserve the last valid plot and the bounded settings/graph alignment; recover through the owning Process action. |
 
 ### Export component and field contract (`E-01`–`E-08`)
 
 | ID / component | purpose | placement | visible_when | source | requires | invalidates | states | error_recovery |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `E-01–04` exact source checklist and lineage | Make every required current pin and the Processing Output → IR → Neutral → target preflight → native card chain inspectable before an artifact action. | Export graph dock, replacing artifact controls while any prerequisite is not current. | Export stage. | Session refs plus the loaded Processing Output `export_provenance`, copied from the exact Canonical Test Data revision after Catalog/Testing verification. | Matching current refs and non-null exact Material/State proof; Test Run is validated server-side through its Specimen. | A new Test Data/Processing Output revision or any upstream change retains history but clears/regenerates downstream current pointers. | current, missing, stale, not-supported. | Null is an honest historical/unqualified state and is never backfilled or inferred. Name the missing/mismatched pin, preserve session context, and return to Local file Data or the owning stage. |
-| `E-05–08` target, preflight, preview, deliver and receipt | Select an explicit **Reference target**, disclose all mapping states, create a stateless preview, then explicitly deliver one immutable Solver Card/receipt. | A compact in-flow Export dock below the persistent selected-model graph; it must never overlay or clip the plot. Normal-path labels use engineer task language (`Review & deliver solver card`, `Saved source revision`, `Why this model`). Exact IDs, checksums and receipt mechanics stay in Preview/Mapping Evidence or the receipt resource. Metal recovery remains in this dock when only the IR/Neutral pins are absent; it requires a bounded-extrapolation acknowledgement and reason, pins the returned upstream model immediately, and offers Neutral-only retry if the second promotion fails. | Only after `E-01–04` server proof and C1's server resolver. | Exact Processing Output proof plus target-preview/delivery contracts. The upstream model pin and the Neutral document's embedded canonical IR are distinct identities: C1 sends the exact Neutral revision and the server resolves/verifies its embedded IR, rather than treating the upstream model revision as interchangeable. The two choices mirror `neutral_hyperelastic_capability_manifest`'s non-production Abaqus/OpenRadioss 2025 kg-m-s tuples; they are not a production matrix. | Exact output/model/neutral source, target mapping result and acknowledgement identity where required. | Target tuple change clears the local preview and delivery pointer, never the source IR/Neutral. | blocked, preflight, preview, delivering, delivered, stale, failed, retry. | C1 writes no card/artifact/receipt/Activity. C2 acknowledgement is bound to acknowledgement identity only when mapping requires it; its card/receipt/outbox write is atomic and an exact retry returns the original receipt. Materials CAE Card reuse is canonical. When Activity projection is not configured, omit an Activity link/status from the normal success message rather than exposing architecture terminology. Non-metal recovery says `Not configured` only at the unavailable action and never substitutes a model. |
+| `E-05–08` destination, Export check, preview, create and delivery details | Select one explicit exporter-declared **Reference target tuple**, disclose every decision-relevant mapping consequence, create a stateless preview, then explicitly create one immutable Solver Card. | The Export setup pane shows only selected model identity, Destination, one Export check state and its current action. The common experiment/method/condition remains in the compact page context instead of being mislabeled as a Fit result. It is followed by a dominant native preview. A bounded read-only result column may place family-specific Mapping details above a compact Fit source preview; it is not a control inspector and never overlays or clips either result. Normal-path labels use engineer task language (`Create solver card`, `Destination`, `Export check`, `Solver card preview`, `Mapping details`, `Fit source`). Exact IDs, checksums, technical mapping status, lineage flags and receipt mechanics stay in Advanced or Delivery details. Metal recovery remains in the setup pane when only the IR/Neutral pins are absent; it requires a bounded-extrapolation acknowledgement and reason, pins the returned upstream model immediately, and offers Neutral-only retry if the second promotion fails. | Only after `E-01–04` server proof and C1's server resolver. | Exact Processing Output proof, the exporter capability tuple and target-preview/delivery contracts. Source Material/State/model values are read-only here and physical values appear once in Mapping details when they affect output. The upstream model pin and the Neutral document's embedded canonical IR are distinct identities: C1 sends the exact Neutral revision and the server resolves/verifies its embedded IR. The current choices mirror `neutral_hyperelastic_capability_manifest`'s non-production Abaqus/OpenRadioss 2025 kg-m-s tuples; they are not a production matrix. | Exact output/model/neutral source, one supported target tuple, deterministic mapping result and acknowledgement identity where required. | Target tuple change clears the local preview and delivery pointer, never the source IR/Neutral. An upstream physical-property correction creates a governed revision and invalidates current downstream pointers. | cannot-create, checking, review-required, ready-to-create, creating, created, stale, failed, retry. | C1 writes no card/artifact/receipt/Activity. C2 acknowledgement is bound to acknowledgement identity only when mapping requires it; its card/receipt/outbox write is atomic and an exact retry returns the original delivery. Materials CAE Card reuse is canonical. When Activity projection is not configured, omit an Activity link/status. Non-metal recovery says `Not configured` only at the unavailable action and never substitutes a model. |
+
+#### Export user-facing field contract (`E-05`–`E-08`)
+
+| ID / component or field | purpose | placement | visible_when | source | requires | invalidates | states | error_recovery |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `E-05a` Destination | Choose only a real exporter-declared solver/version/unit tuple. Output unit system is always a visible capability-backed selector: supported options are selectable, while an exporter-declared unavailable option may be visible but disabled with its reason. Never accept a known-invalid option and defer the failure to a warning dialog or disabled Create action. | Top of the left Export setup pane. | Exact export source is current. | Exporter capability manifest; synthetic reference tuples remain explicitly non-production. | One supported tuple. | Any valid tuple change clears preview, acknowledgement and delivery pointers and requires a new Export check. | unselected, selected, unavailable, stale. | Preserve the source and explain why a target is unavailable; never substitute a default. When only one unit system is supported, retain the selector and disclose that no other option is available. |
+| `E-05b` source physical properties | Let the engineer verify pinned Material/State/model inputs without implying they can be edited during export. | Once in the corresponding Mapping details row; the left setup pane retains only selected model identity. | A mapping item uses the value. | Exact Material/State/Neutral revision with original and canonical value/unit semantics. | Current source chain. | No local edit exists. An upstream governed revision invalidates downstream current pointers. | current, missing, stale, context-only. | `Open in Fit` returns to the exact selected model branch and an Advanced source link exposes its immutable upstream chain; Export never mutates Density, elasticity or fitted parameters. |
+| `E-06a` Export check | Answer whether the card can be created now, rather than exposing an unexplained preflight mechanism. | Below Destination in the setup pane, adjacent to the sole current action. | Export stage. | Current source/target mapping report and acknowledgement identity. | Deterministic mapping report. | Source/target change recomputes the state. | `Ready to create`, `Review required`, `Cannot create`, checking, failed. | State the readiness once, then name only the exact blocker/review item/next action; preserve source, target and any valid preview without repeating the failure across regions. |
+| `E-06b` shared Mapping details | Show the decision consequence of each mapped quantity with source value/unit and target value/unit or representation, using one component grammar in Modeling Export and the Materials CAE Card preview. | Read-only result column beside the dominant Export preview or the bounded Materials delivery pane; normal rows fit without a decorative rail and genuine long content scrolls locally. | The current preview or saved Solver Card has a mapping report. | Exporter mapping items plus exact source values and rendered target values. | Same mapping-report digest used by preview/create or saved-card download. | Source/target change replaces the rows deterministically; a saved card remains pinned to its immutable report. | values-unchanged, converted, native-formatting, review-required, reviewed, not-supported, context-only. | Keep the last valid report marked stale while a new check fails. Each visible row uses one compact title/value/plain-status grammar; route-specific pills and per-row explanatory paragraphs are forbidden. Technical exact/transformed/approximated/ignored/unsupported/not-applicable counts stay in Advanced. |
+| `E-07a` Solver Card preview | Let the engineer inspect the native ASCII result before creating an immutable card. | Dominant center result region on a light code surface with independent scrolling. | Stateless preview succeeds. | Exact preview bytes and target tuple. | Current source, target and mapping digest. | Source/target change removes the current preview pointer. | unavailable, preparing, ephemeral, stale, failed, created. | Preserve setup/mapping context and offer one specific retry. |
+| `E-07b` Fit source preview | Retain compact visual continuity with the selected model without squeezing the native preview. | Bottom of the bounded read-only result column; `Open full graph` returns to the full Fit graph. | The selected family has a meaningful response projection. | Exact selected Fit result and family-specific quantities. | Current selected model. | A source change replaces the plot. | metal-response, viscoelastic-response, hyperelastic-mode, unavailable. | Preserve textual source identity when a plot cannot be produced; never reuse metal axes for another family. The compact plot derives headroom from the displayed data span, preserves a meaningful zero anchor where applicable, uses uniform SVG geometry and places its compact legend in a curve-free quadrant. |
+| `E-08` Create/open and Delivery details | Create exactly one immutable Solver Card, then open it; expose the separate receipt through plain-language delivery details. | One filled action in Export check; a secondary `Delivery details` action appears only after creation. | Ready/create/created states and permission allow it. | Atomic delivery response and exact retry identity. | Zero blockers and any required acknowledgement. | A source/target change clears only the current delivery pointer. | disabled-with-reason, creating, created, failed, retry. | Exact retry returns the original result; duplicate submission is blocked and no review/release/Activity event is implied. |
 | A-01–03 queue/item/job | Show `Needs attention | In progress | Recent outcomes`, resume exact browser-local Modeling/card context, and record a role-gated decision on an existing review request. User pending requests stay in progress; Reviewer/Administrator pending requests receive one row-level Review action. Queue loading/error/empty states retain context and offer Refresh/Retry; object/person IDs stay in Advanced evidence. | Placeholder dashboard, generic job history, decision controls for User, fake release/publish, stale-response overwrite, or a duplicate review request; DUI-08A current queue/decision boundary. |
 
 ### Fit component and field contracts (`F-01`–`F-11`)
@@ -74,6 +87,14 @@ This authoritative annex retains the component-specific contract. Each compact r
 | `F-09` engineer selection, reason and acknowledgement | Make one explicit engineering decision after comparison. | Directly below the candidate table. | A selectable recomputed candidate row is clicked. | User event plus exact active preview identity; reason and warning acknowledgement are user inputs. | Selected row, non-empty reason, and acknowledgement only when that row has a warning. | `CHANGE_SELECTION` clears saved-current output, validation, review, release and delivery pointers. | null, selected-unsaved, reason-missing, acknowledgement-required, stale. | Preserve row/graph/reason on save error; refocus the missing requirement. Reason text alone never selects a row. |
 | `F-10` single/blend identity | Preserve one law or both named laws and primary ratio consistently in UI, graph, API, model projection and Neutral evidence. | Candidate rows, selected-candidate evidence and saved evidence. | Metal with at least two compatible laws exposes the exact calculated preview blend as its own selectable row; polymer is single actual server result only. | Explicit row choice; fitted parameter sets for every selected law. | Distinct blend laws, ratio strictly inside `(0,1)`, both parameter sets and bounds. A preview law/ratio change must be recalculated before the blend can be selected. | Preview option change dispatches `CHANGE_PROCESS`; row choice dispatches `CHANGE_SELECTION`; either invalidates saved-current and downstream pointers. | preview-blend, selected-single, selected-blend, stale. | Keep candidate evidence; update candidates after a preview identity change, then explicitly select and re-save. Never label preview as selected or collapse a blend to its primary law. |
 | `F-11` Save fit decision | Commit the exact selected decision as an immutable Processing Output revision for model promotion. | Sole Fit primary action, **Save fit & continue**, in the compact title/context row; numerical selection detail is an on-demand disclosure. | `F-09` is ready and the current server preview matches the selection. | Exact source/Profile revisions, executed steps, recomputed scalars and typed `fit_decision`. | Explicit row selection; valid identity/range/metric/parameters/reason/acknowledgement. Polymer requires `prony:{actual_term_count}` from the server result. | Successful save advances the current output pointer and leaves validation/review/release/delivery unset; later upstream change clears only current pointers. | disabled, ready, saving, saved, stale, failed. | Preflight before Artifact/revision creation; on failure create neither, retain selection and graph, show the mismatch and offer re-run/retry. |
+
+The same exact Test Data/Processing Output revision may generate several sibling saved decisions with
+different fit methods, versions, options, parameter sets or fit domains. Every sibling is immutable
+and promotes to its own exact Material Model IR revision; no save mutates another sibling. Export
+receives one explicitly selected IR branch and creates target-specific Solver Card revisions from
+that branch. The normal surface names the selected model, while Advanced/Evidence exposes the exact
+Test Data → Processing Output → selected decision/IR → Solver Card links. No run or card follows an
+aggregate `latest` pointer.
 
 ### Validation and review component contracts (`V-01`–`R-04`)
 
@@ -203,6 +224,30 @@ Rules:
 - no nested persistent cards;
 - selection uses a flat background plus a 2–3 px accent edge.
 
+### 3.4 Wide-screen allocation
+
+Responsive layout uses semantic elasticity rather than uniform scaling:
+
+- `bounded rails`: navigator, object list, compact setup controls and property forms keep readable
+  widths and density;
+- `elastic results`: graph, data grid, native solver-card preview and real datasheet/Record preview
+  grow only to a useful reading or interaction bound, never solely to consume remaining pixels;
+- `companion evidence`: a wide-only adjacent region is permitted only when it projects the current
+  Layout, Record, mapping, curve or workflow contract and remains synchronized with the selection;
+- `working-cluster alignment`: related components start at the left/top and remain adjacent with the
+  normal divider or gutter. Legitimate unused space accumulates at the far right and bottom rather
+  than between components;
+- `no filler`: repeated descriptions, decorative summaries and fabricated engineering fields never
+  occupy a wide region;
+- `no forced fill`: trailing whitespace is permitted after truthful task content reaches its useful
+  bound; stretched controls, rows, prose, plots or previews are not a responsive solution;
+- `plot geometry`: render width and height, viewBox, axes, ticks, paths and hit regions share one
+  recomputed coordinate system. CSS must not stretch an SVG differently on each axis.
+
+Registered normal targets remain 1366×768, 1440×900 and 1920×1080. Each materially expanding family
+also records deterministic 2560×1440 and 3840×2160 evidence; those evidence captures become separate
+approval targets only when the responsive topology changes beyond the registered 1920 target.
+
 ## 4. Materials workspace
 
 ### 4.1 Layout
@@ -247,9 +292,13 @@ Browse mode contains:
 - Database/Profile/Table selectors;
 - local tree search;
 - compact 24–26 px rows;
-- node glyph, disclosure, label;
+- node glyph, disclosure and label on one grid row with a shared vertical center;
 - full keyboard navigation;
-- independent scroll.
+- independent scroll;
+- concise stored identities rather than qualification prose repeated in every node;
+- a reserved, perceptually visible vertical rail when rows overflow and a horizontal rail only when
+  a genuine stored identity overflows. Pointer, wheel and keyboard interaction must operate the
+  local pane, and neither rail may cover text.
 
 Subsets mode displays saved subsets as compact rows, not cards.
 
@@ -280,6 +329,11 @@ Behavior:
 
 No explanatory banner is displayed above the grid. Search state stays in the query bar and the
 server result count stays with the result grid.
+
+Large-display normal evidence uses a complete scoped server page when the response provides one.
+The current Material search page limit is 50 rows. A smaller genuinely returned final page may
+remain sparse, but a six-row synthetic fixture must not be used to excuse avoidable blank space at
+1920×1080, 2560×1440 or 3840×2160.
 
 ### 4.4 Inspector
 
@@ -328,7 +382,16 @@ Property | Value | Unit | Condition | Source
 - original and normalized unit/value can be toggled;
 - administrator-defined Layout order is preserved.
 
-### 5.4 Related and workflow
+### 5.4 Representative response
+
+The Overview response plot and any wide-screen point grid are two projections of one ordered linked
+series. The grid uses `Point | Engineering strain | Engineering stress (MPa)` for the current
+synthetic metal reference and changes its quantities and units with the response family. It appears
+at 1920×1080 and above only when it can sit beside a still-dominant plot. Its rows are exact source
+points, not sampled pixels or fitted/interpolated values. Real overflow gets an independent visible,
+proportional and keyboard-operable local scrollbar; when every row fits, no decorative rail remains.
+
+### 5.5 Related and workflow
 
 The Related tab contains two synchronized views:
 
@@ -374,6 +437,15 @@ Rows are 24–26 px and support:
 - exact revision suffix;
 - separate icon-only plot visibility.
 
+The rail shares the Materials navigator's flat desktop grammar without copying its catalog topology:
+sentence-case section headings, regular 12–13 px identities, aligned disclosure/type marks, a clear
+parent-to-child indent, restrained selected-row fill and one leading accent. The title/count pair and
+filter use the same spacing rhythm as the row list. A curve color sample is a narrow line rather than
+a decorative badge, and the exact revision is visually secondary. At the minimum pane width, the
+specimen identity, inclusion checkbox and visibility control must remain distinct and unclipped.
+Overflow remains local and produces a discoverable conditional scrollbar without changing plot
+width.
+
 Source paths, UUIDs and detailed metadata appear in a properties inspector, not inside each row.
 
 ### 6.4 Plot
@@ -381,7 +453,11 @@ Source paths, UUIDs and detailed metadata appear in a properties inspector, not 
 Plot requirements:
 
 - minimum 72% of workspace width at 1440 px;
-- legend can be docked, overlaid or hidden;
+- the normal curve legend is a compact plot-internal overlay in a measured curve-free quadrant,
+  lower-right when clear; it moves to another safe quadrant as data changes and docks outside only
+  when no collision-free internal placement exists;
+- legend placement must not intersect data, boundaries, axes, labels, state overlays or selection
+  feedback, and it must not reserve a permanent column beside the plot;
 - direct range/point selection;
 - observed, processed, fitted and extrapolated styling is consistent;
 - response, residual and derivative/tangent views use plot tabs;
@@ -416,10 +492,15 @@ Controls use property-editor rows, not independent cards.
 Export uses a two-pane layout:
 
 ```text
-Solver/law/unit/mapping options 300–360 px | Native card preview flexible
+Destination + Export check 300–340 px | Solver Card result workspace flexible
+                                       | preview dominant + bounded read-only Mapping/Fit source
 ```
 
-Download is the task-primary command. Mapping warnings remain visible. Detailed mapping JSON and revision IDs are under Advanced Evidence.
+`Create solver card` is the task-primary command before creation; `Open solver card` replaces it
+after creation. The result workspace may use a bounded secondary read-only column, but it never
+becomes a third control inspector. Mapping warnings remain visible beside their source/target
+consequence. Detailed mapping JSON, technical status values, revision IDs and receipt mechanics are
+under Advanced or Delivery details.
 
 ## 6.7 Canonical component contracts (UXC-00R target)
 
@@ -467,6 +548,9 @@ Administration must resemble a schema/property editor, not a landing page with t
 
 - Table selection updates Attribute/Layout/Subset/Link Type lists in context;
 - Add/Edit/Duplicate/Delete are command-bar actions;
+- the Object list is a compact selector: its Name cell contains only identity, Table rows use
+  `Name | Rev`, Attribute rows use `Name | Value type | Rev`, and full description/quantity/unit/help
+  remains in the property editor;
 - Attribute editor is a structured property sheet;
 - Layout editor supports ordered rows and drag/reorder commands;
 - Link Type editor displays source table, target table, direction labels, cardinality and revision binding;
@@ -474,13 +558,14 @@ Administration must resemble a schema/property editor, not a landing page with t
 
 ### 7.3 Current DUI-07 capability boundary
 
-The current service can add Tables, typed Attributes, default Attribute-order Layouts, the initial
-saved Subset, and Link Types. Therefore the command bar shows only those **Add** commands and
-datasheet preview. Existing definitions are shown as read-only with their purpose and current
-decision-relevant properties; it must not show an Edit, Duplicate, Delete, or reorder command until
-the corresponding live API preserves the immutable revision contract. Attribute fields are conditional
-on the selected type: numeric meaning/unit, discrete choices, and related Table do not occupy the
-normal property sheet unless applicable.
+The service contracts can create Tables, typed Attributes, ordered Layouts, saved Subsets and Link
+Types, and can append immutable revisions to their stable identities. The current PR #156 product
+route wires the supported **Add** commands and datasheet preview but does not yet wire every revise
+operation. The #167 target reference may show a contract-backed Edit draft for the later React port,
+but the same bundle must also exercise Add Table and Add Attribute as real right-pane draft states.
+It must not show Duplicate, Delete, Publish or reorder commands until their complete live workflow is
+implemented. Attribute fields are conditional on the selected type: numeric meaning/unit, discrete
+choices, and related Table do not occupy the normal property sheet unless applicable.
 
 Current visible-field contracts:
 
@@ -488,7 +573,9 @@ Current visible-field contracts:
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Object navigator | change the schema object being inspected | 220–280 px left pane | Administrator in Database design | current Table and definition lists | readable Administration scope | changes the list/detail selection only | loading, empty, selected, error | retain Table selection; refresh |
 | Current table | scope Attributes, Layouts and Subsets to one Table | navigator footer | one or more Tables exist | configurable Table API | selected Table | replaces scoped lists and selected detail only | loading, selected, empty, error | restore last valid Table or choose another |
+| Object list row | identify and select one schema object without duplicating its property sheet | 280–420 px center pane | one or more objects exist for the selected family/scope | current definition list response | readable object identity | changes only selected detail | selected, unselected, long identity, empty | keep identity reachable; remove non-decision prose rather than compressing it |
 | Property sheet | inspect a definition or provide values for one supported new definition | flexible right pane | selected object or Add command | immutable definition revision and local draft | Administrator and required fields | unsaved draft affects preview only; save creates a new definition | read-only, draft, saving, saved, blocked, error | preserve draft and field error; close or retry |
+| Record/Layout preview | verify that the saved Record uses the ordered exact Attribute Definition revisions selected by its Layout | one active `Record preview` or `Layout definition` view; compact widths use a reversible full-height auxiliary surface, 1920+ may use a bounded companion pane | a saved Record and Layout exist for the selected Table; linked graph only when a curve/table Artifact field exists | saved Record Revision, Layout Revision and exact Attribute Definition Revisions | selected Table and readable saved projection | local draft never mutates the saved preview; selection changes replace only the current projection | record, layout-definition, genuine-overflow, no-saved-record, linked-curve | keep editor context and return action; expose independent table scrolling; retry the read without discarding a draft |
 | Link Type direction | make a record relationship understandable before saving | Link Type property sheet | Link Type selected or being added | selected source/target Table revisions | both Tables and direction/cardinality values | saving creates a new Link Type; no existing relation changes | read-only, draft, saving, saved, error | keep entered labels and retry |
 
 ## 8. Activity workspace
@@ -496,10 +583,22 @@ Current visible-field contracts:
 Default view is a compact work queue:
 
 ```text
-Status | Task | Material | Owner | Updated | Action
+Task | Request reason | Status | Updated | Action
 ```
 
 Reviews, jobs and releases are tabs or saved views. No dashboard cards or large summary tiles in the normal view.
+
+The current review response does not provide readable Material or Owner names. Those columns are not
+filled with identifiers, hashes or invented labels; the table uses the request task type and supplied
+human reason until a readable projection exists. User-owned pending requests belong in `In progress`;
+Reviewer/Administrator decision work belongs in `Needs attention`. The role-appropriate view is the
+default selected tab.
+
+The normal reference exercises a representative page from the existing 50-request list contract.
+The table body scrolls locally with a visible reserved track only when rows overflow. Row height and
+type remain compact at every viewport; larger displays reveal more complete rows and do not stretch
+the table, repeat prose, introduce KPI cards or fabricate receipt/release history. Browser-local
+Modeling resume and solver-card history stay distinguishable from immutable server review requests.
 
 ### 8.1 Review request entry (DUI-08B)
 

@@ -1,0 +1,107 @@
+{
+  "family": "ACT-RECOVERY",
+  "status": "accepted",
+  "capture_date": "2026-07-31",
+  "static": {
+    "html": "docs/00-research/ux-service-reference/activity-recovery-blocked.html",
+    "css": "docs/00-research/ux-service-reference/activity-recovery.css",
+    "js": "docs/00-research/ux-service-reference/activity-recovery.js",
+    "capture": "docs/00-research/ux-service-reference/capture_activity_recovery.py",
+    "validator": "docs/00-research/ux-service-reference/validate_activity_recovery.py"
+  },
+  "targets": {
+    "activity-recovery-blocked-1366x768": {
+      "role": "user",
+      "state": "not-configured",
+      "viewport": {
+        "width": 1366,
+        "height": 768,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-1366x768.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-1366x768.measurements.json",
+      "sha256": "66e93ab285651dcd0095b8f928836611ffbae84165fb6ccc765ed14c8e71c252"
+    },
+    "activity-recovery-blocked-1440x900": {
+      "role": "user",
+      "state": "not-configured",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-1440x900.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-1440x900.measurements.json",
+      "sha256": "03aa747651b1703b269d2d3fdb96b21572343a22a5aa57ba81b55d8dfd80057d"
+    },
+    "activity-recovery-blocked-1920x1080": {
+      "role": "user",
+      "state": "not-configured",
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-1920x1080.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-1920x1080.measurements.json",
+      "sha256": "254750dbfeb9eeedc3ac79b9c606ceb7dcc13eb9f83f34cf7f5c831bbb54aaf1"
+    },
+    "activity-recovery-blocked-2560x1440": {
+      "role": "user",
+      "state": "not-configured",
+      "viewport": {
+        "width": 2560,
+        "height": 1440,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-2560x1440.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-2560x1440.measurements.json",
+      "sha256": "3d020a39361fc00d3c100f792d98d9f666e23771f549d9e0853ad6131c7f12af"
+    },
+    "activity-recovery-blocked-3840x2160": {
+      "role": "user",
+      "state": "not-configured",
+      "viewport": {
+        "width": 3840,
+        "height": 2160,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-3840x2160.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-3840x2160.measurements.json",
+      "sha256": "fb019293c76c660d447a8df597abb3bc005f1fbbac7f7c2a910872000bc0fdc8"
+    }
+  },
+  "evidence_only_states": {
+    "activity-recovery-empty": {
+      "role": "user",
+      "state": "recovery-empty",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/activity-recovery-empty-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/activity-recovery-empty-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/activity-recovery-empty-1920x1080.png"
+      ],
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-recovery-empty.measurements.json"
+    },
+    "activity-recovery-loading": {
+      "role": "user",
+      "state": "recovery-loading",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/activity-recovery-loading-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/activity-recovery-loading-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/activity-recovery-loading-1920x1080.png"
+      ],
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-recovery-loading.measurements.json"
+    },
+    "activity-recovery-action-error": {
+      "role": "user",
+      "state": "recovery-action-error",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/activity-recovery-action-error-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/activity-recovery-action-error-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/activity-recovery-action-error-1920x1080.png"
+      ],
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-recovery-action-error.measurements.json"
+    }
+  },
+  "state_evidence": "docs/17-evidence/images/issue-167-service-reference/activity-recovery-state-evidence.json"
+}

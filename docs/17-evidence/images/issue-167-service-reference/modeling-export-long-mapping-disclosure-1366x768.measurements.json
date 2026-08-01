@@ -1,0 +1,629 @@
+{
+  "capture_date": "2026-07-29",
+  "target": "modeling-export-long-mapping-disclosure-1366x768",
+  "state": "long-mapping",
+  "family": "metal",
+  "viewport": {
+    "width": 1366,
+    "height": 768,
+    "device_scale_factor": 1
+  },
+  "image": "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png",
+  "image_sha256": "4f5fef6b515ade4bb3763ac7aa7d956af92a56b0c4904313b2f1fceadbb0d052",
+  "status": "pending",
+  "main_agent_evaluation": {
+    "status": "pending"
+  },
+  "product_owner_approval": {
+    "status": "absent"
+  },
+  "console_errors": [],
+  "page_errors": [],
+  "geometry": {
+    "target": "modeling-export-long-mapping-disclosure-1366x768",
+    "state": "long-mapping",
+    "family": "metal",
+    "overflow": {
+      "documentHorizontal": 0,
+      "documentVertical": 0,
+      "bodyHorizontal": 0,
+      "bodyVertical": 0
+    },
+    "regions": {
+      "applicationBar": {
+        "x": 0,
+        "y": 0,
+        "width": 1366,
+        "height": 46,
+        "right": 1366,
+        "bottom": 46
+      },
+      "context": {
+        "x": 8,
+        "y": 46,
+        "width": 1350,
+        "height": 40,
+        "right": 1358,
+        "bottom": 86
+      },
+      "stageStrip": {
+        "x": 8,
+        "y": 86,
+        "width": 1350,
+        "height": 32,
+        "right": 1358,
+        "bottom": 118
+      },
+      "workspace": {
+        "x": 8,
+        "y": 118,
+        "width": 1350,
+        "height": 626,
+        "right": 1358,
+        "bottom": 744
+      },
+      "properties": {
+        "x": 8,
+        "y": 118,
+        "width": 300.52,
+        "height": 626,
+        "right": 308.52,
+        "bottom": 744
+      },
+      "divider": {
+        "x": 308.52,
+        "y": 118,
+        "width": 8,
+        "height": 626,
+        "right": 316.52,
+        "bottom": 744
+      },
+      "main": {
+        "x": 316.52,
+        "y": 118,
+        "width": 1041.48,
+        "height": 626,
+        "right": 1358,
+        "bottom": 744
+      },
+      "result": {
+        "x": 316.52,
+        "y": 118,
+        "width": 1041.48,
+        "height": 626,
+        "right": 1358,
+        "bottom": 744
+      },
+      "nativePreview": {
+        "x": 316.52,
+        "y": 118,
+        "width": 699.98,
+        "height": 626,
+        "right": 1016.5,
+        "bottom": 744
+      },
+      "mappingSheet": {
+        "x": 1017.5,
+        "y": 118,
+        "width": 340.5,
+        "height": 354,
+        "right": 1358,
+        "bottom": 472
+      },
+      "fitSource": {
+        "x": 1017.5,
+        "y": 472,
+        "width": 340.5,
+        "height": 272,
+        "right": 1358,
+        "bottom": 744
+      },
+      "statusBar": {
+        "x": 0,
+        "y": 744,
+        "width": 1366,
+        "height": 24,
+        "right": 1366,
+        "bottom": 768
+      }
+    },
+    "layout": {
+      "workspaceWidth": 1350,
+      "nativeWidth": 699.984375,
+      "mappingWidth": 340.5,
+      "propertiesWidth": 300.515625
+    },
+    "sourceGraph": {
+      "box": {
+        "left": 1026.5,
+        "right": 1349,
+        "top": 527.890625,
+        "bottom": 738,
+        "width": 322.5,
+        "height": 210.109375
+      },
+      "axisTitles": [
+        {
+          "text": "True stress (MPa)",
+          "box": {
+            "left": 1066.6875,
+            "right": 1149.242919921875,
+            "top": 528.8968505859375,
+            "bottom": 542.8968505859375,
+            "width": 82.555419921875,
+            "height": 14
+          }
+        },
+        {
+          "text": "True plastic strain [1]",
+          "box": {
+            "left": 1154.00830078125,
+            "right": 1252.50830078125,
+            "top": 721.9973754882812,
+            "bottom": 735.9973754882812,
+            "width": 98.5,
+            "height": 14
+          }
+        }
+      ],
+      "legendZone": "lower-right",
+      "legendOverlapsCurve": false,
+      "scaleDelta": 0,
+      "preserveAspectRatio": "xMidYMid meet",
+      "curveCount": 2,
+      "labels": [
+        "450",
+        "550",
+        "650",
+        "0.00",
+        "0.05",
+        "0.10",
+        "True stress (MPa)",
+        "True plastic strain [1]"
+      ],
+      "renderedTicks": [
+        9.504947916666666,
+        9.504947916666666,
+        9.504947916666666,
+        9.504947916666666,
+        9.504947916666666,
+        9.504947916666666,
+        9.504947916666666,
+        9.504947916666666,
+        9.504947916666666,
+        9.504947916666666,
+        9.504947916666666,
+        9.504947916666666,
+        9.504947916666666,
+        9.504947916666666,
+        9.504947916666666,
+        9.504947916666666,
+        9.504947916666666,
+        9.504947916666666
+      ],
+      "renderedTitles": [
+        10.50546875,
+        10.50546875,
+        10.50546875,
+        10.50546875,
+        10.50546875,
+        10.50546875
+      ],
+      "renderedLegend": [
+        9.504947916666666,
+        9.504947916666666,
+        9.504947916666666,
+        9.504947916666666,
+        9.504947916666666,
+        9.504947916666666
+      ],
+      "positiveYield": true,
+      "labelsContained": true,
+      "legendContained": true,
+      "curveClearance": {
+        "left": 0,
+        "right": 24.74282609621673,
+        "top": 28.24468232194579,
+        "bottom": 28.244711057345057,
+        "frameWidth": 272.1416015625,
+        "frameHeight": 154.0802001953125
+      },
+      "dataRange": {
+        "paddingRatio": 0.1,
+        "xDataMin": 0,
+        "xDataMax": 0.1,
+        "xDomainMin": 0,
+        "xDomainMax": 0.11000000000000001,
+        "yDataMin": 445,
+        "yDataMax": 680,
+        "yDomainMin": 377,
+        "yDomainMax": 748
+      }
+    },
+    "preflight": {
+      "sourceState": "Available",
+      "targetState": "Selected",
+      "checkState": "Ready to create",
+      "checkStatus": "Ready to create\n                No blockers.",
+      "checkSummary": "No blockers.",
+      "mappingHeader": "28 mapped",
+      "rows": [
+        {
+          "text": "Density · target field 017,800 kg/m³ → 7.8000E+03Exact",
+          "status": "exact",
+          "title": "Density · target field 01"
+        },
+        {
+          "text": "Isotropic elasticity · target field 02210 GPa, ν 0.30 → *ELASTICExact",
+          "status": "exact",
+          "title": "Isotropic elasticity · target field 02"
+        },
+        {
+          "text": "Initial yield · target field 03450 MPa at εp = 0 → first *PLASTIC rowConverted",
+          "status": "transformed",
+          "title": "Initial yield · target field 03"
+        },
+        {
+          "text": "Hardening response · target field 045 points → native *PLASTIC rowsConverted",
+          "status": "transformed",
+          "title": "Hardening response · target field 04"
+        },
+        {
+          "text": "Unit convention · target field 05kg · m · s → stress in PaConverted",
+          "status": "transformed",
+          "title": "Unit convention · target field 05"
+        },
+        {
+          "text": "Post-necking extension · target field 06Bounded extension → target behaviorReviewed",
+          "status": "approximated",
+          "title": "Post-necking extension · target field 06"
+        },
+        {
+          "text": "Density · target field 077,800 kg/m³ → 7.8000E+03Exact",
+          "status": "exact",
+          "title": "Density · target field 07"
+        },
+        {
+          "text": "Isotropic elasticity · target field 08210 GPa, ν 0.30 → *ELASTICExact",
+          "status": "exact",
+          "title": "Isotropic elasticity · target field 08"
+        },
+        {
+          "text": "Initial yield · target field 09450 MPa at εp = 0 → first *PLASTIC rowConverted",
+          "status": "transformed",
+          "title": "Initial yield · target field 09"
+        },
+        {
+          "text": "Hardening response · target field 105 points → native *PLASTIC rowsConverted",
+          "status": "transformed",
+          "title": "Hardening response · target field 10"
+        },
+        {
+          "text": "Unit convention · target field 11kg · m · s → stress in PaConverted",
+          "status": "transformed",
+          "title": "Unit convention · target field 11"
+        },
+        {
+          "text": "Post-necking extension · target field 12Bounded extension → target behaviorReviewed",
+          "status": "approximated",
+          "title": "Post-necking extension · target field 12"
+        },
+        {
+          "text": "Density · target field 137,800 kg/m³ → 7.8000E+03Exact",
+          "status": "exact",
+          "title": "Density · target field 13"
+        },
+        {
+          "text": "Isotropic elasticity · target field 14210 GPa, ν 0.30 → *ELASTICExact",
+          "status": "exact",
+          "title": "Isotropic elasticity · target field 14"
+        },
+        {
+          "text": "Initial yield · target field 15450 MPa at εp = 0 → first *PLASTIC rowConverted",
+          "status": "transformed",
+          "title": "Initial yield · target field 15"
+        },
+        {
+          "text": "Hardening response · target field 165 points → native *PLASTIC rowsConverted",
+          "status": "transformed",
+          "title": "Hardening response · target field 16"
+        },
+        {
+          "text": "Unit convention · target field 17kg · m · s → stress in PaConverted",
+          "status": "transformed",
+          "title": "Unit convention · target field 17"
+        },
+        {
+          "text": "Post-necking extension · target field 18Bounded extension → target behaviorReviewed",
+          "status": "approximated",
+          "title": "Post-necking extension · target field 18"
+        },
+        {
+          "text": "Density · target field 197,800 kg/m³ → 7.8000E+03Exact",
+          "status": "exact",
+          "title": "Density · target field 19"
+        },
+        {
+          "text": "Isotropic elasticity · target field 20210 GPa, ν 0.30 → *ELASTICExact",
+          "status": "exact",
+          "title": "Isotropic elasticity · target field 20"
+        },
+        {
+          "text": "Initial yield · target field 21450 MPa at εp = 0 → first *PLASTIC rowConverted",
+          "status": "transformed",
+          "title": "Initial yield · target field 21"
+        },
+        {
+          "text": "Hardening response · target field 225 points → native *PLASTIC rowsConverted",
+          "status": "transformed",
+          "title": "Hardening response · target field 22"
+        },
+        {
+          "text": "Unit convention · target field 23kg · m · s → stress in PaConverted",
+          "status": "transformed",
+          "title": "Unit convention · target field 23"
+        },
+        {
+          "text": "Post-necking extension · target field 24Bounded extension → target behaviorReviewed",
+          "status": "approximated",
+          "title": "Post-necking extension · target field 24"
+        },
+        {
+          "text": "Density · target field 257,800 kg/m³ → 7.8000E+03Exact",
+          "status": "exact",
+          "title": "Density · target field 25"
+        },
+        {
+          "text": "Isotropic elasticity · target field 26210 GPa, ν 0.30 → *ELASTICExact",
+          "status": "exact",
+          "title": "Isotropic elasticity · target field 26"
+        },
+        {
+          "text": "Initial yield · target field 27450 MPa at εp = 0 → first *PLASTIC rowConverted",
+          "status": "transformed",
+          "title": "Initial yield · target field 27"
+        },
+        {
+          "text": "Hardening response · target field 285 points → native *PLASTIC rowsConverted",
+          "status": "transformed",
+          "title": "Hardening response · target field 28"
+        }
+      ],
+      "counts": {
+        "exact": 2,
+        "transformed": 3,
+        "approximated": 1,
+        "not_applicable": 2,
+        "unsupported": 0
+      },
+      "source": {
+        "text": "Selected model\nAvailable\nModel\nSwift / Voce blend (50/50)\nOpen in Fit",
+        "model": "Swift / Voce blend (50/50)"
+      },
+      "advancedNotApplicable": 4
+    },
+    "actions": {
+      "primaryCount": 1,
+      "action": "create-card",
+      "text": "Create solver card",
+      "disabled": false,
+      "deliveryDetailsVisible": false,
+      "retryVisible": false,
+      "runCheckVisible": false,
+      "recoveryActions": [],
+      "acknowledgementVisible": false,
+      "acknowledgementChecked": false,
+      "previewState": "Current preview · not created",
+      "previewTarget": "Abaqus 2025 · kg · m · s · synthetic reference",
+      "sourceMaterialDisabled": false,
+      "fitSourceDisabled": false,
+      "fitSourceOpenVisible": true,
+      "fitSourceGraphOpacity": "1",
+      "outputMarkerVisible": false,
+      "visibleText": "Skip to Modeling Export workspace\nCMP\nCAE Material Platform\nMaterials\nModeling\nActivity\nDemo workspace\nExport solver card\nDP780 Dual-Phase Steel · Tensile · room temperature\nAdvanced\nData\nProcess\nFit\nExport\nExport check complete\nExport setup\nReady\nSelected model\nAvailable\nModel\nSwift / Voce blend (50/50)\nOpen in Fit\nDestination\nSelected\nSolver / format\nSelect Destination\nAbaqus 2025 · ASCII\nOpenRadioss 2025 · ASCII\n2025\nOutput unit system\nSelect unit system\nkg · m · s\nOther unit systems — unavailable\nOptions are supplied by the selected exporter capability.\nExport check\nReady to create\nNo blockers.\nCreate solver card\nAdvanced\n‹\nSolver Card preview\nAbaqus 2025 · kg · m · s · synthetic reference\nCurrent preview · not created\n*HEADING\n** CMP synthetic reference · DP780 selected model\n*MATERIAL, NAME=DP780_SYNTHETIC_R1\n** Selected model: Swift / Voce blend (50/50)\n** Unit convention: kg · m · s; stress in Pa\n*DENSITY\n  7.80000000E+03,\n*ELASTIC\n  2.10000000E+11, 3.00000000E-01\n*PLASTIC\n  4.50000000E+08, 0.00000000E+00\n  5.00000000E+08, 1.00000000E-02\n  5.60000000E+08, 2.50000000E-02\n  6.20000000E+08, 5.00000000E-02\n  6.80000000E+08, 1.00000000E-01\n** Mapping: density exact · source/output kg/m³ agree\n** Mapping: isotropic elasticity exact · source/output Pa agree\n** Mapping: initial yield transformed · first *PLASTIC row\n** Mapping: hardening response transformed · native formatting\n** Mapping: post-necking extension · approximation acknowledged for this exact preview\n** Preview only · Create solver card writes one immutable revision\n** End of exact synthetic Abaqus card\n** Target field 01 · source revision pinned\n** Target field 02 · source revision pinned\n** Target field 03 · source revision pinned\n** Target field 04 · source revision pinned\n** Target field 05 · source revision pinned\n** Target field 06 · source revision pinned\n** Target field 07 · source revision pinned\n** Target field 08 · source revision pinned\n** Target field 09 · source revision pinned\n** Target field 10 · source revision pinned\n** Target field 11 · source revision pinned\n** Target field 12 · source revision pinned\n** Target field 13 · source revision pinned\n** Target field 14 · source revision pinned\n** Target field 15 · source revision pinned\n** Target field 16 · source revision pinned\n** Target field 17 · source revision pinned\n** Target field 18 · source revision pinned\n** Target field 19 · source revision pinned\n** Target field 20 · source revision pinned\n** Target field 21 · source revision pinned\n** Target field 22 · source revision pinned\n** Target field 23 · source revision pinned\n** Target field 24 · source revision pinned\n** Target field 25 · source revision pinned\n** Target field 26 · source revision pinned\n** Target field 27 · source revision pinned\n** Target field 28 · source revision pinned\n** Target field 29 · source revision pinned\n** Target field 30 · source revision pinned\n** Target field 31 · source revision pinned\n** Target field 32 · source revision pinned\n** Target field 33 · source revision pinned\n** Target field 34 · source revision pinned\n** Target field 35 · source revision pinned\n** Target field 36 · source revision pinned\n** Target field 37 · source revision pinned\n** Target field 38 · source revision pinned\n** Target field 39 · source revision pinned\n** Target field 40 · source revision pinned\nMapping details\n28 mapped\nDensity · target field 01\n7,800 kg/m³ → 7.8000E+03\nExact\nIsotropic elasticity · target field 02\n210 GPa, ν 0.30 → *ELASTIC\nExact\nInitial yield · target field 03\n450 MPa at εp = 0 → first *PLASTIC row\nConverted\nHardening response · target field 04\n5 points → native *PLASTIC rows\nConverted\nUnit convention · target field 05\nkg · m · s → stress in Pa\nConverted\nPost-necking extension · target field 06\nBounded extension → target behavior\nReviewed\nDensity · target field 07\n7,800 kg/m³ → 7.8000E+03\nExact\nIsotropic elasticity · target field 08\n210 GPa, ν 0.30 → *ELASTIC\nExact\nInitial yield · target field 09\n450 MPa at εp = 0 → first *PLASTIC row\nConverted\nHardening response · target field 10\n5 points → native *PLASTIC rows\nConverted\nUnit convention · target field 11\nkg · m · s → stress in Pa\nConverted\nPost-necking extension · target field 12\nBounded extension → target behavior\nReviewed\nDensity · target field 13\n7,800 kg/m³ → 7.8000E+03\nExact\nIsotropic elasticity · target field 14\n210 GPa, ν 0.30 → *ELASTIC\nExact\nInitial yield · target field 15\n450 MPa at εp = 0 → first *PLASTIC row\nConverted\nHardening response · target field 16\n5 points → native *PLASTIC rows\nConverted\nUnit convention · target field 17\nkg · m · s → stress in Pa\nConverted\nPost-necking extension · target field 18\nBounded extension → target behavior\nReviewed\nDensity · target field 19\n7,800 kg/m³ → 7.8000E+03\nExact\nIsotropic elasticity · target field 20\n210 GPa, ν 0.30 → *ELASTIC\nExact\nInitial yield · target field 21\n450 MPa at εp = 0 → first *PLASTIC row\nConverted\nHardening response · target field 22\n5 points → native *PLASTIC rows\nConverted\nUnit convention · target field 23\nkg · m · s → stress in Pa\nConverted\nPost-necking extension · target field 24\nBounded extension → target behavior\nReviewed\nDensity · target field 25\n7,800 kg/m³ → 7.8000E+03\nExact\nIsotropic elasticity · target field 26\n210 GPa, ν 0.30 → *ELASTIC\nExact\nInitial yield · target field 27\n450 MPa at εp = 0 → first *PLASTIC row\nConverted\nHardening response · target field 28\n5 points → native *PLASTIC rows\nConverted\nTechnical mapping details\nFit source\nOpen full graph\n\nSwift / Voce blend (50/50)\n\nMetal hardening response\n450\n550\n650\n0.00\n0.05\n0.10\nTrue stress (MPa)\nTrue plastic strain [1]\nSaved blend\nObserved\nSwift / Voce blend (50/50)\nExport check complete\nReady to create\nOnline",
+      "deliveryCount": 0,
+      "deliveryPointer": "",
+      "previewCurrent": true
+    },
+    "scroll": {
+      "properties": {
+        "clientWidth": 285,
+        "offsetWidth": 300,
+        "scrollWidth": 285,
+        "clientHeight": 592,
+        "offsetHeight": 592,
+        "scrollHeight": 592,
+        "overflowX": "auto",
+        "overflowY": "auto",
+        "scrollbarGutter": "stable"
+      },
+      "native": {
+        "clientWidth": 661,
+        "offsetWidth": 678,
+        "scrollWidth": 661,
+        "clientHeight": 568,
+        "offsetHeight": 570,
+        "scrollHeight": 1216,
+        "overflowX": "auto",
+        "overflowY": "auto",
+        "scrollbarGutter": "stable"
+      },
+      "mapping": {
+        "clientWidth": 326,
+        "offsetWidth": 341,
+        "scrollWidth": 326,
+        "clientHeight": 279,
+        "offsetHeight": 279,
+        "scrollHeight": 1064,
+        "overflowX": "auto",
+        "overflowY": "scroll",
+        "scrollbarGutter": "stable"
+      }
+    },
+    "interaction": {
+      "stageLabels": [
+        "Data",
+        "Process",
+        "Fit",
+        "Export"
+      ],
+      "activeStage": "Export",
+      "legacySelectors": [],
+      "nestedInteractive": [],
+      "topGraphCount": 0,
+      "sourceGraphVisible": true,
+      "focused": "BODY"
+    },
+    "technical": {
+      "digest": "metal-abaqus-2025-kg_m_s-v1",
+      "nativeText": "*HEADING\n** CMP synthetic reference · DP780 selected model\n*MATERIAL, NAME=DP780_SYNTHETIC_R1\n** Selected model: Swift / Voce blend (50/50)\n** Unit convention: kg · m · s; stress in Pa\n*DENSITY\n  7.80000000E+03,\n*ELASTIC\n  2.10000000E+11, 3.00000000E-01\n*PLASTIC\n  4.50000000E+08, 0.00000000E+00\n  5.00000000E+08, 1.00000000E-02\n  5.60000000E+08, 2.50000000E-02\n  6.20000000E+08, 5.00000000E-02\n  6.80000000E+08, 1.00000000E-01\n** Mapping: density exact · source/output kg/m³ agree\n** Mapping: isotropic elasticity exact · source/output Pa agree\n** Mapping: initial yield transformed · first *PLASTIC row\n** Mapping: hardening response transformed · native formatting\n** Mapping: post-necking extension · approximation acknowledged for this exact preview\n** Preview only · Create solver card writes one immutable revision\n** End of exact synthetic Abaqus card\n** Target field 01 · source revision pinned\n** Target field 02 · source revision pinned\n** Target field 03 · source revision pinned\n** Target field 04 · source revision pinned\n** Target field 05 · source revision pinned\n** Target field 06 · source revision pinned\n** Target field 07 · source revision pinned\n** Target field 08 · source revision pinned\n** Target field 09 · source revision pinned\n** Target field 10 · source revision pinned\n** Target field 11 · source revision pinned\n** Target field 12 · source revision pinned\n** Target field 13 · source revision pinned\n** Target field 14 · source revision pinned\n** Target field 15 · source revision pinned\n** Target field 16 · source revision pinned\n** Target field 17 · source revision pinned\n** Target field 18 · source revision pinned\n** Target field 19 · source revision pinned\n** Target field 20 · source revision pinned\n** Target field 21 · source revision pinned\n** Target field 22 · source revision pinned\n** Target field 23 · source revision pinned\n** Target field 24 · source revision pinned\n** Target field 25 · source revision pinned\n** Target field 26 · source revision pinned\n** Target field 27 · source revision pinned\n** Target field 28 · source revision pinned\n** Target field 29 · source revision pinned\n** Target field 30 · source revision pinned\n** Target field 31 · source revision pinned\n** Target field 32 · source revision pinned\n** Target field 33 · source revision pinned\n** Target field 34 · source revision pinned\n** Target field 35 · source revision pinned\n** Target field 36 · source revision pinned\n** Target field 37 · source revision pinned\n** Target field 38 · source revision pinned\n** Target field 39 · source revision pinned\n** Target field 40 · source revision pinned",
+      "targetValue": "abaqus",
+      "version": "2025",
+      "unitSystem": "kg_m_s",
+      "unitSystemLabel": "kg · m · s",
+      "unitControl": {
+        "disabled": false,
+        "options": [
+          {
+            "value": "",
+            "label": "Select unit system",
+            "disabled": false
+          },
+          {
+            "value": "kg_m_s",
+            "label": "kg · m · s",
+            "disabled": false
+          },
+          {
+            "value": "unavailable",
+            "label": "Other unit systems — unavailable",
+            "disabled": true
+          }
+        ]
+      },
+      "tuple": "abaqus|2025|kg_m_s|metal",
+      "mappingPlaceholders": []
+    }
+  },
+  "overflow": {
+    "documentHorizontal": 0,
+    "documentVertical": 0,
+    "bodyHorizontal": 0,
+    "bodyVertical": 0
+  },
+  "exercise": {},
+  "qualitative_checklist": {
+    "Q-01": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png"
+      ],
+      "reason": "Export has no navigator tree; Export setup is a bounded property pane."
+    },
+    "Q-02": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png"
+      ],
+      "reason": "Mapping details are not a result list; their overflow is evaluated in Q-09."
+    },
+    "Q-03": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png"
+      ],
+      "reason": "Materials navigation is not mounted in Modeling Export."
+    },
+    "Q-04": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png"
+      ],
+      "reason": "Fit controls and candidate drawer are upstream; Export keeps only selected Fit source context."
+    },
+    "Q-05": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png"
+      ],
+      "reason": "The bounded Fit source graph labels True stress (MPa) against true plastic strain [1] with positive initial yield."
+    },
+    "Q-06": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png"
+      ],
+      "reason": "Family legend remains compact and inside the bounded graph."
+    },
+    "Q-07": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png"
+      ],
+      "reason": "SVG preserveAspectRatio is uniform across responsive captures."
+    },
+    "Q-08": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png"
+      ],
+      "reason": "Metal source response starts at positive yield stress at zero true plastic strain."
+    },
+    "Q-09": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png"
+      ],
+      "reason": "Long mapping evidence exposes independent reserved local scroll rails and reachable wrapped identities."
+    },
+    "Q-10": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png"
+      ],
+      "reason": "Legend is placed in a curve-free graph quadrant."
+    },
+    "Q-11": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png"
+      ],
+      "reason": "Export has no Fit rail; the right context is a bounded result column."
+    },
+    "Q-12": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png"
+      ],
+      "reason": "Export setup identifies the exact saved branch by selected model only; Output unit system remains a capability-backed selector with unsupported alternatives disabled, ambiguous r1 shorthand is absent, and physical values appear once in Mapping details."
+    },
+    "Q-13": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png"
+      ],
+      "reason": "Setup and mapping rows use one compact title/value/status rhythm; explanatory prose and technical counts are disclosed only on demand."
+    },
+    "Q-14": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png"
+      ],
+      "reason": "Readiness and the exact next action are stated once in Export check; preview and mapping regions avoid duplicate alert prose."
+    },
+    "Q-15": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png"
+      ],
+      "reason": "The family plot uses data-span-proportional headroom, uniform SVG geometry, correct family quantities and a curve-free legend."
+    },
+    "Q-16": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png"
+      ],
+      "reason": "The native preview remains dominant; bounded result context has no normal fake rail and genuine long content exposes independent local scrolling."
+    }
+  }
+}

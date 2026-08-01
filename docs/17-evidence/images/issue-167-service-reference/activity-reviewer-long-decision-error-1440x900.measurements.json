@@ -1,0 +1,851 @@
+{
+  "target": "activity-reviewer-long-decision-error-1440x900",
+  "role": "reviewer",
+  "state": "long-decision-error",
+  "viewport": {
+    "width": 1440,
+    "height": 900,
+    "device_scale_factor": 1
+  },
+  "image": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-long-decision-error-1440x900.png",
+  "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-long-decision-error-1440x900.measurements.json",
+  "sha256": "82147fecd36a049d4982ae787b903f71c8c95849658467950ae2b18ffaff4f6d",
+  "dimensions": {
+    "width": 1440,
+    "height": 900
+  },
+  "console_errors": [],
+  "page_errors": [],
+  "snapshot": {
+    "role": "reviewer",
+    "state": "long-decision-error",
+    "pageText": "Skip to Activity queue\nCMP\nCAE Material Platform\nMaterial data and solver delivery\nMaterials\nModeling\nActivity\nReviewer context\nActivity\nReviewer queue\n\nRequests awaiting a decision, plus local work and outcomes.\n\nDecision not recorded\nRefresh\nNeeds attention\nIn progress\nRecent outcomes\nNeeds attention\n\nSubmitted work waiting for your review.\n\n13 items\nNeeds attention requests\nTASK\tREQUEST REASON\tSTATUS\tUPDATED\tACTION\nMaterial data review\tCheck the uploaded tensile data\tNeeds a decision\tToday \u00b7 09:24\t\nReview\n\n\nReview decision\nOne request \u00b7 one decision\nClose\n\nMaterial data review \u00b7 Check the uploaded tensile data\n\nReview reason\nApprove\nRequest changes\n\nReview service is unavailable. The selected request and reason remain available; retry this decision when the service is available.\n\nRetry decision\nReason retained; retry will resubmit this decision.\n\nTest data review\tConfirm units and test condition\tNeeds a decision\tYesterday \u00b7 14:10\t\nReview\n\nSolver card review\tConfirm solver mapping before delivery\tNeeds a decision\t27 Jul \u00b7 11:06\t\nReview\n\nMaterial data review\tVerify the selected model context\tNeeds a decision\t26 Jul \u00b7 17:32\t\nReview\n\nSolver card review\tConfirm the submitted tensile data keeps the original unit text, records the test condition, and uses the selected exact Test Data revision before the review decision is recorded.\tNeeds a decision\t25 Jul \u00b7 08:20\t\nReview\n\nImport provenance review\tCheck that the normalized stress and strain quantities preserve their source semantics and that no hidden conversion or manual curve edit was applied.\tNeeds a decision\t24 Jul \u00b7 09:21\t\nReview\n\nCurve selection review\tVerify the selected model context is still current for this request and that the saved result remains separate from the recommendation and review decision.\tNeeds a decision\t23 Jul \u00b7 10:22\t\nReview\n\nFit result review\tConfirm the solver mapping report identifies exact, transformed, approximated, and unsupported fields before any delivery action is considered.\tNeeds a decision\t22 Jul \u00b7 11:23\t\nReview\n\nMapping review\tReview the provenance context and the reason supplied by the requestor; retain the immutable revision when asking for a correction.\tNeeds a decision\t21 Jul \u00b7 12:24\t\nReview\n\nEvidence review\tCheck that the selected Test Data revision, processing output, and material state remain aligned after the upstream change.\tNeeds a decision\t20 Jul \u00b7 13:25\t\nReview\n\nMaterial data review\tConfirm the request is still authorized for this Reviewer and that the expected manifest has not become stale.\tNeeds a decision\t19 Jul \u00b7 14:26\t\nReview\n\nTest data review\tReview the condition-aware property evidence and keep technical identifiers available only in Advanced or Evidence.\tNeeds a decision\t18 Jul \u00b7 15:27\t\nReview\n\nModel selection review\tVerify that the request reason is actionable and does not silently imply release, publish, or delivery.\tNeeds a decision\t17 Jul \u00b7 16:28\t\nReview\nActivity queue\nReviewer context\nLocal queue scroll\nOnline",
+    "viewport": {
+      "width": 1440,
+      "height": 900,
+      "deviceScaleFactor": 1
+    },
+    "overflow": {
+      "documentHorizontal": 0,
+      "documentVertical": 0,
+      "bodyHorizontal": 0,
+      "bodyVertical": 0
+    },
+    "geometry": {
+      "shell": {
+        "left": 8,
+        "top": 54,
+        "right": 1432,
+        "bottom": 892,
+        "width": 1424,
+        "height": 838
+      },
+      "content": {
+        "left": 0,
+        "top": 46,
+        "right": 1440,
+        "bottom": 900,
+        "width": 1440,
+        "height": 854
+      },
+      "queueRegion": {
+        "left": 9,
+        "top": 157,
+        "right": 1431,
+        "bottom": 864,
+        "width": 1422,
+        "height": 707
+      },
+      "queue": {
+        "left": 23,
+        "top": 157,
+        "right": 1417,
+        "bottom": 864,
+        "width": 1394,
+        "height": 707
+      },
+      "heading": {
+        "left": 9,
+        "top": 55,
+        "right": 1431,
+        "bottom": 120,
+        "width": 1422,
+        "height": 65
+      },
+      "views": {
+        "left": 9,
+        "top": 120,
+        "right": 1431,
+        "bottom": 157,
+        "width": 1422,
+        "height": 37
+      },
+      "status": {
+        "left": 9,
+        "top": 864,
+        "right": 1431,
+        "bottom": 891,
+        "width": 1422,
+        "height": 27
+      }
+    },
+    "queueScroll": {
+      "scrollHeight": 1035,
+      "clientHeight": 707,
+      "scrollTop": 0,
+      "overflowY": "auto",
+      "scrollbarGutter": "stable both-edges",
+      "width": 1370,
+      "hasOverflow": true
+    },
+    "overflowRail": {
+      "reserved": true,
+      "track": {
+        "left": 1420,
+        "top": 163,
+        "right": 1429,
+        "bottom": 858,
+        "width": 9,
+        "height": 695
+      },
+      "thumb": {
+        "left": 1421,
+        "top": 163,
+        "right": 1429,
+        "bottom": 638,
+        "width": 8,
+        "height": 475
+      },
+      "thumbHeight": 475,
+      "trackHeight": 695
+    },
+    "sections": [
+      {
+        "id": "needs-attention",
+        "visible": true,
+        "rows": 13,
+        "visibleRows": 13,
+        "listHidden": false,
+        "emptyHidden": true
+      },
+      {
+        "id": "in-progress",
+        "visible": false,
+        "rows": 1,
+        "visibleRows": 0,
+        "listHidden": false,
+        "emptyHidden": true
+      },
+      {
+        "id": "recent-outcomes",
+        "visible": false,
+        "rows": 1,
+        "visibleRows": 0,
+        "listHidden": false,
+        "emptyHidden": true
+      }
+    ],
+    "rows": [
+      {
+        "id": "review-1",
+        "selected": true,
+        "task": "Material data review",
+        "reason": "Check the uploaded tensile data",
+        "reasonClipped": false,
+        "hasReview": true,
+        "hasDecision": true,
+        "status": "Needs a decision",
+        "actionKind": "review",
+        "actionText": "Review",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "review",
+        "source": "server",
+        "section": "needs-attention",
+        "height": 46.5
+      },
+      {
+        "id": "review-2",
+        "selected": false,
+        "task": "Test data review",
+        "reason": "Confirm units and test condition",
+        "reasonClipped": false,
+        "hasReview": true,
+        "hasDecision": false,
+        "status": "Needs a decision",
+        "actionKind": "review",
+        "actionText": "Review",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "review",
+        "source": "server",
+        "section": "needs-attention",
+        "height": 47
+      },
+      {
+        "id": "review-3",
+        "selected": false,
+        "task": "Solver card review",
+        "reason": "Confirm solver mapping before delivery",
+        "reasonClipped": false,
+        "hasReview": true,
+        "hasDecision": false,
+        "status": "Needs a decision",
+        "actionKind": "review",
+        "actionText": "Review",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "review",
+        "source": "server",
+        "section": "needs-attention",
+        "height": 47
+      },
+      {
+        "id": "review-4",
+        "selected": false,
+        "task": "Material data review",
+        "reason": "Verify the selected model context",
+        "reasonClipped": false,
+        "hasReview": true,
+        "hasDecision": false,
+        "status": "Needs a decision",
+        "actionKind": "review",
+        "actionText": "Review",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "review",
+        "source": "server",
+        "section": "needs-attention",
+        "height": 47
+      },
+      {
+        "id": "review-long-1",
+        "selected": false,
+        "task": "Solver card review",
+        "reason": "Confirm the submitted tensile data keeps the original unit text, records the test condition, and uses the selected exact Test Data revision before the review decision is recorded.",
+        "reasonClipped": false,
+        "hasReview": true,
+        "hasDecision": false,
+        "status": "Needs a decision",
+        "actionKind": "review",
+        "actionText": "Review",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "review",
+        "source": "server",
+        "section": "needs-attention",
+        "height": 48.75
+      },
+      {
+        "id": "review-long-2",
+        "selected": false,
+        "task": "Import provenance review",
+        "reason": "Check that the normalized stress and strain quantities preserve their source semantics and that no hidden conversion or manual curve edit was applied.",
+        "reasonClipped": false,
+        "hasReview": true,
+        "hasDecision": false,
+        "status": "Needs a decision",
+        "actionKind": "review",
+        "actionText": "Review",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "review",
+        "source": "server",
+        "section": "needs-attention",
+        "height": 48.75
+      },
+      {
+        "id": "review-long-3",
+        "selected": false,
+        "task": "Curve selection review",
+        "reason": "Verify the selected model context is still current for this request and that the saved result remains separate from the recommendation and review decision.",
+        "reasonClipped": false,
+        "hasReview": true,
+        "hasDecision": false,
+        "status": "Needs a decision",
+        "actionKind": "review",
+        "actionText": "Review",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "review",
+        "source": "server",
+        "section": "needs-attention",
+        "height": 48.75
+      },
+      {
+        "id": "review-long-4",
+        "selected": false,
+        "task": "Fit result review",
+        "reason": "Confirm the solver mapping report identifies exact, transformed, approximated, and unsupported fields before any delivery action is considered.",
+        "reasonClipped": false,
+        "hasReview": true,
+        "hasDecision": false,
+        "status": "Needs a decision",
+        "actionKind": "review",
+        "actionText": "Review",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "review",
+        "source": "server",
+        "section": "needs-attention",
+        "height": 48.75
+      },
+      {
+        "id": "review-long-5",
+        "selected": false,
+        "task": "Mapping review",
+        "reason": "Review the provenance context and the reason supplied by the requestor; retain the immutable revision when asking for a correction.",
+        "reasonClipped": false,
+        "hasReview": true,
+        "hasDecision": false,
+        "status": "Needs a decision",
+        "actionKind": "review",
+        "actionText": "Review",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "review",
+        "source": "server",
+        "section": "needs-attention",
+        "height": 48.75
+      },
+      {
+        "id": "review-long-6",
+        "selected": false,
+        "task": "Evidence review",
+        "reason": "Check that the selected Test Data revision, processing output, and material state remain aligned after the upstream change.",
+        "reasonClipped": false,
+        "hasReview": true,
+        "hasDecision": false,
+        "status": "Needs a decision",
+        "actionKind": "review",
+        "actionText": "Review",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "review",
+        "source": "server",
+        "section": "needs-attention",
+        "height": 48.75
+      },
+      {
+        "id": "review-long-7",
+        "selected": false,
+        "task": "Material data review",
+        "reason": "Confirm the request is still authorized for this Reviewer and that the expected manifest has not become stale.",
+        "reasonClipped": false,
+        "hasReview": true,
+        "hasDecision": false,
+        "status": "Needs a decision",
+        "actionKind": "review",
+        "actionText": "Review",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "review",
+        "source": "server",
+        "section": "needs-attention",
+        "height": 48.75
+      },
+      {
+        "id": "review-long-8",
+        "selected": false,
+        "task": "Test data review",
+        "reason": "Review the condition-aware property evidence and keep technical identifiers available only in Advanced or Evidence.",
+        "reasonClipped": false,
+        "hasReview": true,
+        "hasDecision": false,
+        "status": "Needs a decision",
+        "actionKind": "review",
+        "actionText": "Review",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "review",
+        "source": "server",
+        "section": "needs-attention",
+        "height": 48.75
+      },
+      {
+        "id": "review-long-9",
+        "selected": false,
+        "task": "Model selection review",
+        "reason": "Verify that the request reason is actionable and does not silently imply release, publish, or delivery.",
+        "reasonClipped": false,
+        "hasReview": true,
+        "hasDecision": false,
+        "status": "Needs a decision",
+        "actionKind": "review",
+        "actionText": "Review",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "review",
+        "source": "server",
+        "section": "needs-attention",
+        "height": 48.75
+      }
+    ],
+    "allRows": [
+      {
+        "id": "review-1",
+        "selected": true,
+        "task": "Material data review",
+        "reason": "Check the uploaded tensile data",
+        "reasonClipped": false,
+        "hasReview": true,
+        "hasDecision": true,
+        "status": "Needs a decision",
+        "actionKind": "review",
+        "actionText": "Review",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "review",
+        "source": "server",
+        "section": "needs-attention",
+        "height": 46.5
+      },
+      {
+        "id": "review-2",
+        "selected": false,
+        "task": "Test data review",
+        "reason": "Confirm units and test condition",
+        "reasonClipped": false,
+        "hasReview": true,
+        "hasDecision": false,
+        "status": "Needs a decision",
+        "actionKind": "review",
+        "actionText": "Review",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "review",
+        "source": "server",
+        "section": "needs-attention",
+        "height": 47
+      },
+      {
+        "id": "review-3",
+        "selected": false,
+        "task": "Solver card review",
+        "reason": "Confirm solver mapping before delivery",
+        "reasonClipped": false,
+        "hasReview": true,
+        "hasDecision": false,
+        "status": "Needs a decision",
+        "actionKind": "review",
+        "actionText": "Review",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "review",
+        "source": "server",
+        "section": "needs-attention",
+        "height": 47
+      },
+      {
+        "id": "review-4",
+        "selected": false,
+        "task": "Material data review",
+        "reason": "Verify the selected model context",
+        "reasonClipped": false,
+        "hasReview": true,
+        "hasDecision": false,
+        "status": "Needs a decision",
+        "actionKind": "review",
+        "actionText": "Review",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "review",
+        "source": "server",
+        "section": "needs-attention",
+        "height": 47
+      },
+      {
+        "id": "review-long-1",
+        "selected": false,
+        "task": "Solver card review",
+        "reason": "Confirm the submitted tensile data keeps the original unit text, records the test condition, and uses the selected exact Test Data revision before the review decision is recorded.",
+        "reasonClipped": false,
+        "hasReview": true,
+        "hasDecision": false,
+        "status": "Needs a decision",
+        "actionKind": "review",
+        "actionText": "Review",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "review",
+        "source": "server",
+        "section": "needs-attention",
+        "height": 48.75
+      },
+      {
+        "id": "review-long-2",
+        "selected": false,
+        "task": "Import provenance review",
+        "reason": "Check that the normalized stress and strain quantities preserve their source semantics and that no hidden conversion or manual curve edit was applied.",
+        "reasonClipped": false,
+        "hasReview": true,
+        "hasDecision": false,
+        "status": "Needs a decision",
+        "actionKind": "review",
+        "actionText": "Review",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "review",
+        "source": "server",
+        "section": "needs-attention",
+        "height": 48.75
+      },
+      {
+        "id": "review-long-3",
+        "selected": false,
+        "task": "Curve selection review",
+        "reason": "Verify the selected model context is still current for this request and that the saved result remains separate from the recommendation and review decision.",
+        "reasonClipped": false,
+        "hasReview": true,
+        "hasDecision": false,
+        "status": "Needs a decision",
+        "actionKind": "review",
+        "actionText": "Review",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "review",
+        "source": "server",
+        "section": "needs-attention",
+        "height": 48.75
+      },
+      {
+        "id": "review-long-4",
+        "selected": false,
+        "task": "Fit result review",
+        "reason": "Confirm the solver mapping report identifies exact, transformed, approximated, and unsupported fields before any delivery action is considered.",
+        "reasonClipped": false,
+        "hasReview": true,
+        "hasDecision": false,
+        "status": "Needs a decision",
+        "actionKind": "review",
+        "actionText": "Review",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "review",
+        "source": "server",
+        "section": "needs-attention",
+        "height": 48.75
+      },
+      {
+        "id": "review-long-5",
+        "selected": false,
+        "task": "Mapping review",
+        "reason": "Review the provenance context and the reason supplied by the requestor; retain the immutable revision when asking for a correction.",
+        "reasonClipped": false,
+        "hasReview": true,
+        "hasDecision": false,
+        "status": "Needs a decision",
+        "actionKind": "review",
+        "actionText": "Review",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "review",
+        "source": "server",
+        "section": "needs-attention",
+        "height": 48.75
+      },
+      {
+        "id": "review-long-6",
+        "selected": false,
+        "task": "Evidence review",
+        "reason": "Check that the selected Test Data revision, processing output, and material state remain aligned after the upstream change.",
+        "reasonClipped": false,
+        "hasReview": true,
+        "hasDecision": false,
+        "status": "Needs a decision",
+        "actionKind": "review",
+        "actionText": "Review",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "review",
+        "source": "server",
+        "section": "needs-attention",
+        "height": 48.75
+      },
+      {
+        "id": "review-long-7",
+        "selected": false,
+        "task": "Material data review",
+        "reason": "Confirm the request is still authorized for this Reviewer and that the expected manifest has not become stale.",
+        "reasonClipped": false,
+        "hasReview": true,
+        "hasDecision": false,
+        "status": "Needs a decision",
+        "actionKind": "review",
+        "actionText": "Review",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "review",
+        "source": "server",
+        "section": "needs-attention",
+        "height": 48.75
+      },
+      {
+        "id": "review-long-8",
+        "selected": false,
+        "task": "Test data review",
+        "reason": "Review the condition-aware property evidence and keep technical identifiers available only in Advanced or Evidence.",
+        "reasonClipped": false,
+        "hasReview": true,
+        "hasDecision": false,
+        "status": "Needs a decision",
+        "actionKind": "review",
+        "actionText": "Review",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "review",
+        "source": "server",
+        "section": "needs-attention",
+        "height": 48.75
+      },
+      {
+        "id": "review-long-9",
+        "selected": false,
+        "task": "Model selection review",
+        "reason": "Verify that the request reason is actionable and does not silently imply release, publish, or delivery.",
+        "reasonClipped": false,
+        "hasReview": true,
+        "hasDecision": false,
+        "status": "Needs a decision",
+        "actionKind": "review",
+        "actionText": "Review",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "review",
+        "source": "server",
+        "section": "needs-attention",
+        "height": 48.75
+      },
+      {
+        "id": "modeling-session-local",
+        "selected": false,
+        "task": "Resume Modeling session",
+        "reason": "metal \u00b7 Fit \u00b7 DP780 tensile r3 \u00b7 2 selected curves",
+        "reasonClipped": false,
+        "hasReview": false,
+        "hasDecision": false,
+        "status": "Local session",
+        "actionKind": "resume",
+        "actionText": "Resume Modeling",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "resume",
+        "source": "browser-local",
+        "section": "in-progress",
+        "height": 0
+      },
+      {
+        "id": "solver-card-local",
+        "selected": false,
+        "task": "Downloaded solver card",
+        "reason": "DP780 \u00b7 OpenRadioss .rad",
+        "reasonClipped": false,
+        "hasReview": false,
+        "hasDecision": false,
+        "status": "Delivered",
+        "actionKind": "open-card",
+        "actionText": "Open card",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "open-card",
+        "source": "browser-local",
+        "section": "recent-outcomes",
+        "height": 0
+      }
+    ],
+    "controls": [
+      {
+        "tag": "a",
+        "name": "Skip to Activity queue",
+        "disabled": false
+      },
+      {
+        "tag": "a",
+        "name": "CAE Material Platform home",
+        "disabled": false
+      },
+      {
+        "tag": "a",
+        "name": "Materials",
+        "disabled": false
+      },
+      {
+        "tag": "a",
+        "name": "Modeling",
+        "disabled": false
+      },
+      {
+        "tag": "a",
+        "name": "Activity",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "Refresh",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "Needs attention",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "In progress",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "Recent outcomes",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "Review: Material data review",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "Close review decision",
+        "disabled": false
+      },
+      {
+        "tag": "textarea",
+        "name": "Explain the approval or requested change\u2026",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "Approve",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "Request changes",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "Retry decision",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "Review: Test data review",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "Review: Solver card review",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "Review: Material data review",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "Review: Solver card review",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "Review: Import provenance review",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "Review: Curve selection review",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "Review: Fit result review",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "Review: Mapping review",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "Review: Evidence review",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "Review: Material data review",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "Review: Test data review",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "Review: Model selection review",
+        "disabled": false
+      }
+    ],
+    "legacy": [],
+    "nestedInteractive": [],
+    "tabCount": 3,
+    "activeTab": "needs-attention",
+    "tableHeaders": [
+      "Task",
+      "Request reason",
+      "Status",
+      "Updated",
+      "Action"
+    ],
+    "tableCount": 3,
+    "rowHeightRange": {
+      "min": 46.5,
+      "max": 48.75
+    },
+    "contract": {
+      "serverRequestCount": 13,
+      "pendingCount": 13,
+      "decidedCount": 0,
+      "localHistoryCount": 2,
+      "roleDefaultView": "needs-attention",
+      "visibleServerRows": 13,
+      "pendingRows": 13,
+      "decidedRows": 0
+    },
+    "decision": {
+      "visible": true,
+      "reason": "Units and source are complete; retain this request while the reviewer service recovers.",
+      "error": "Review service is unavailable. The selected request and reason remain available; retry this decision when the service is available.",
+      "selected": "review-1",
+      "help": "Reason retained; retry will resubmit this decision.",
+      "selectedChoice": [
+        {
+          "name": "Request changes",
+          "chosen": true
+        }
+      ],
+      "recoveryCommands": [
+        {
+          "name": "Retry decision",
+          "action": "retry-decision",
+          "primary": true
+        }
+      ]
+    },
+    "queueStatus": "Decision not recorded",
+    "announcements": {
+      "alert": true,
+      "loading": false,
+      "focusVisibleRule": false
+    },
+    "typography": {
+      "body": 14,
+      "task": 14,
+      "metadata": 12.5
+    }
+  }
+}

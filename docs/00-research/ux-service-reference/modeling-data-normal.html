@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#182630">
+    <title>Modeling Data Reference</title>
+    <link rel="stylesheet" href="reference.css">
+    <link rel="stylesheet" href="modeling-data.css">
+    <script src="modeling-data.js" defer></script>
+  </head>
+  <body class="modeling-data-page" data-reference-state="normal">
+    <a class="skip-link" href="#modeling-main">Skip to Modeling Data workspace</a>
+
+    <header class="application-bar" data-region="application-bar">
+      <div class="brand" translate="no">
+        <span class="brand-mark" aria-hidden="true">CMP</span>
+        <span class="brand-name">CAE Material Platform</span>
+      </div>
+      <nav class="primary-navigation" aria-label="Primary workspace">
+        <a href="#materials">Materials</a>
+        <a class="active" href="#modeling-main" aria-current="page">Modeling</a>
+        <a href="#activity">Activity</a>
+      </nav>
+      <span class="current-user">Demo workspace</span>
+    </header>
+
+    <main id="modeling-main" class="modeling-shell" data-region="modeling-workspace" aria-labelledby="modeling-title">
+      <section class="modeling-context" data-region="context-header">
+        <div class="context-identity">
+          <h1 id="modeling-title">Test Data intake</h1>
+          <span class="context-material">DP780 Dual-Phase Steel · Tensile · room temperature</span>
+        </div>
+        <div class="context-actions">
+          <span class="session-state" data-session-state>Session · draft</span>
+          <button class="button" id="advanced-top" type="button">Advanced</button>
+        </div>
+      </section>
+
+      <nav class="stage-strip" aria-label="Modeling stages">
+        <button class="stage-button active" type="button" aria-current="step" data-stage="Data">Data</button>
+        <button class="stage-button" type="button" data-stage="Process">Process</button>
+        <button class="stage-button" type="button" data-stage="Fit">Fit</button>
+        <button class="stage-button" type="button" data-stage="Export">Export</button>
+        <span class="stage-status" data-stage-status>Data source · not saved</span>
+      </nav>
+
+      <section class="modeling-grid" data-region="workspace-grid">
+        <aside class="curve-navigator" data-region="navigator" aria-labelledby="curve-nav-title">
+          <header class="pane-heading">
+            <h2 id="curve-nav-title">Test Data curves</h2>
+            <span class="pane-count" data-included-count>2 included</span>
+          </header>
+          <div class="navigator-filter">
+            <label class="sr-only" for="curve-filter">Filter curves</label>
+            <input id="curve-filter" type="search" placeholder="Filter curves" autocomplete="off">
+          </div>
+          <div class="curve-scroll">
+            <section class="curve-group" aria-labelledby="tensile-group-title">
+              <div class="group-heading"><span id="tensile-group-title">Tensile tests</span><span>3 revisions</span></div>
+              <div class="curve-parent" title="DP780 tensile test at 293 K"><span class="disclosure-mark" aria-hidden="true">▾</span><span class="truncate">DP780 tensile · 293 K</span></div>
+              <div class="curve-row selected" role="button" tabindex="0" data-curve="Specimen 01" aria-pressed="true" title="Observed curve · revision 1">
+                <input type="checkbox" checked aria-label="Include Specimen 01 in analysis">
+                <span class="curve-swatch swatch-blue" aria-hidden="true"></span>
+                <span class="curve-label"><strong>Specimen 01</strong><small>Observed · r1</small></span>
+                <button class="curve-visibility-button" type="button" aria-label="Hide Specimen 01 from plot" title="Hide from plot">◉</button>
+              </div>
+              <div class="curve-row" role="button" tabindex="0" data-curve="Specimen 02" aria-pressed="false" title="Observed curve · revision 1">
+                <input type="checkbox" checked aria-label="Include Specimen 02 in analysis">
+                <span class="curve-swatch swatch-orange" aria-hidden="true"></span>
+                <span class="curve-label"><strong>Specimen 02</strong><small>Observed · r1</small></span>
+                <button class="curve-visibility-button" type="button" aria-label="Hide Specimen 02 from plot" title="Hide from plot">◉</button>
+              </div>
+              <div class="curve-row" role="button" tabindex="0" data-curve="Specimen 03" aria-pressed="false" title="Observed curve · revision 1">
+                <input type="checkbox" aria-label="Include Specimen 03 in analysis">
+                <span class="curve-swatch swatch-purple" aria-hidden="true"></span>
+                <span class="curve-label"><strong>Specimen 03</strong><small>Observed · r1</small></span>
+                <button class="curve-visibility-button" type="button" aria-label="Hide Specimen 03 from plot" title="Hide from plot">◉</button>
+              </div>
+            </section>
+            <section class="navigator-note" aria-label="Navigator note">
+              <span>Selection and plot visibility stay separate.</span>
+              <a href="#evidence">Details in Evidence</a>
+            </section>
+          </div>
+        </aside>
+
+        <div class="modeling-divider" data-region="navigator-divider" role="separator" aria-orientation="vertical" aria-label="Resize curve and process navigator" aria-valuemin="180" aria-valuemax="240" aria-valuenow="192" aria-expanded="true" tabindex="0">
+          <button type="button" aria-label="Collapse curve and process navigator" aria-expanded="true"><span aria-hidden="true">‹</span></button>
+        </div>
+
+        <section class="modeling-main-surface" aria-label="Persistent Data graph and source controls">
+          <section class="data-ribbon" data-region="source-controls" aria-labelledby="source-controls-title">
+            <header class="ribbon-heading">
+              <div>
+                <h2 id="source-controls-title">Data source</h2>
+                <span>Choose an exact Test Data revision or inspect one local source before saving.</span>
+              </div>
+              <span class="ribbon-state" data-ribbon-state>Preview · not saved</span>
+            </header>
+
+            <div class="source-tabs" role="tablist" aria-label="Test Data source">
+              <button class="source-tab active" type="button" role="tab" aria-selected="true" aria-controls="library-panel" data-source="library">Library</button>
+              <button class="source-tab" type="button" role="tab" aria-selected="false" aria-controls="local-panel" data-source="local">Local file</button>
+              <button class="source-tab" type="button" role="tab" aria-selected="false" aria-controls="json-panel" data-source="json">Test Data JSON</button>
+            </div>
+
+            <div id="library-panel" class="source-panel library-panel" role="tabpanel" aria-label="Saved Test Data revisions">
+              <div class="source-panel-heading">
+                <strong>Saved Test Data</strong>
+                <span><span data-saved-count>3</span> saved datasets · exact revisions only</span>
+              </div>
+              <div class="saved-dataset-list" role="listbox" aria-label="Saved Test Data revisions">
+                <button class="saved-dataset selected" type="button" role="option" aria-selected="true" data-dataset="CMP-DEMO-DP780-TEST-JSON-03 · r1" data-record="CMP-DEMO-DP780-TEST-JSON-03">
+                  <span class="selection-marker" aria-hidden="true">●</span><span class="dataset-label"><strong>CMP-DEMO-DP780-TEST-JSON-03 · r1</strong><small>Engineering tension · 3 curves · synthetic reference</small></span><span class="dataset-state">Selected</span>
+                </button>
+                <button class="saved-dataset" type="button" role="option" aria-selected="false" data-dataset="CMP-DEMO-DP780-TEST-JSON-02 · r1" data-record="CMP-DEMO-DP780-TEST-JSON-02">
+                  <span class="selection-marker" aria-hidden="true">○</span><span class="dataset-label"><strong>CMP-DEMO-DP780-TEST-JSON-02 · r1</strong><small>Engineering tension · 2 curves · synthetic reference</small></span><span class="dataset-state">Available</span>
+                </button>
+                <button class="saved-dataset" type="button" role="option" aria-selected="false" data-dataset="CMP-DEMO-DP780-TEST-JSON-01 · r2" data-record="CMP-DEMO-DP780-TEST-JSON-01">
+                  <span class="selection-marker" aria-hidden="true">○</span><span class="dataset-label"><strong>CMP-DEMO-DP780-TEST-JSON-01 · r2</strong><small>Engineering tension · 3 curves · synthetic reference</small></span><span class="dataset-state">Available</span>
+                </button>
+              </div>
+            </div>
+
+            <div id="local-panel" class="source-panel local-panel" role="tabpanel" aria-label="Local file intake" hidden>
+              <div class="local-source-row">
+                <label>Exact Test Run<select aria-label="Exact Test Run"><option>DP780 tensile test · r1</option></select></label>
+                <label class="file-field">Local file<input type="file" aria-label="Local test data file" accept=".csv,.tsv,.xlsx"></label>
+                <button class="button primary-action" type="button" data-action="inspect">Inspect source</button>
+              </div>
+              <div class="local-context-hint">CSV, TSV and XLSX parser evidence stays beside the mapping decision.</div>
+              <section class="raw-inspector" aria-label="Raw source inspector" hidden>
+                <header><strong>Raw source inspector</strong><span>CSV · header row 1 · decimal .</span></header>
+                <p>Source bytes remain immutable. Raw asset and checksum are available in Advanced source settings.</p>
+                <div class="raw-table-scroll" role="region" aria-label="Raw source sample table">
+                  <table class="raw-table"><thead><tr><th title="Engineering strain measurement long channel name">Engineering strain measurement long channel name</th><th title="True stress MPa observed channel label">True stress MPa observed channel label</th><th title="Specimen identifier from test record">Specimen identifier from test record</th></tr></thead><tbody><tr><td>0.0000</td><td>0</td><td>DP780-S01</td></tr><tr><td>0.0125</td><td>318.4</td><td>DP780-S01</td></tr><tr><td>0.0250</td><td>455.9</td><td>DP780-S01</td></tr></tbody></table>
+                </div>
+              </section>
+              <section class="mapping-block" aria-label="Axis and unit mapping decision" hidden>
+                <div class="mapping-heading"><div><strong>Mapping decision</strong><span>Raw text, quantity semantics and normalized units stay explicit.</span></div><span class="mapping-state" data-mapping-state>Conflict · blocked</span></div>
+                <div class="mapping-table-scroll"><table class="mapping-table"><thead><tr><th>Axis</th><th>Source column</th><th>Quantity semantics</th><th>Raw unit</th><th>Normalized unit</th><th>Status</th></tr></thead><tbody><tr><th scope="row">Independent</th><td><select aria-label="Independent source column"><option>Engineering strain measurement long channel name</option><option>True stress MPa observed channel label</option></select></td><td>Engineering strain</td><td><select aria-label="Independent raw unit"><option>%</option><option>1</option></select></td><td>1</td><td class="mapping-ok">Proposed</td></tr><tr><th scope="row">Dependent</th><td><select aria-label="Dependent source column"><option selected>Engineering strain measurement long channel name</option><option>True stress MPa observed channel label</option></select></td><td>Engineering stress</td><td><select aria-label="Dependent raw unit"><option selected>%</option><option>MPa</option></select></td><td>MPa</td><td class="mapping-error">Conflict · choose a different source column</td></tr></tbody></table></div>
+                <div class="mapping-conflict" role="alert"><strong>Mapping blocked.</strong> Both axes currently use <span>Engineering strain measurement long channel name</span>; choose the stress channel and confirm its raw unit before updating the preview.</div>
+                <label class="mapping-reason">Mapping change reason<input type="text" aria-label="Mapping change reason" value="Correct dependent axis to the observed stress channel; preserve original unit text."></label>
+                <p class="mapping-note">No unit conversion is silent. The original unit text remains in the mapping revision; normalized semantics are shown separately.</p>
+                <div class="mapping-actions"><button class="button secondary-action" type="button" disabled aria-disabled="true" data-action="update-preview">Update preview</button><button class="button primary-action" type="button" disabled aria-disabled="true" data-action="save-dataset">Save dataset</button></div>
+              </section>
+              <details class="advanced-settings"><summary>Advanced source settings</summary><div><span>Raw asset UUID</span><code>rawasset-demo-dp780-20260724</code><span>Raw SHA-256</span><code>e2cc…9a4f</code><span>Mapping Profile JSON</span><code>Advanced evidence only</code></div></details>
+            </div>
+
+            <div id="json-panel" class="source-panel json-panel" role="tabpanel" aria-label="Test Data JSON intake" hidden>
+              <label class="file-field">Canonical Test Data JSON<input type="file" aria-label="Test Data JSON file" accept=".json,application/json"></label><span>Validate and preview a canonical JSON document. Nothing is registered until Save dataset.</span>
+            </div>
+          </section>
+
+          <section class="graph-panel" data-region="graph" aria-labelledby="graph-title">
+            <header class="graph-toolbar">
+              <div class="graph-heading"><h2 id="graph-title">Source preview</h2><span data-graph-context>CMP-DEMO-DP780-TEST-JSON-03 · r1 · preview only</span></div>
+              <div class="graph-controls" role="toolbar" aria-label="Graph view">
+                <button class="graph-control active" type="button" data-graph-view="response" aria-pressed="true">Response</button>
+                <button class="graph-control" type="button" data-graph-view="points" aria-pressed="false">Points</button>
+                <button class="graph-control" type="button" data-graph-view="fit" aria-pressed="false">Fit view</button>
+                <button class="graph-control" type="button" data-graph-view="reset" aria-pressed="false">Reset view</button>
+              </div>
+            </header>
+            <div class="graph-canvas">
+              <svg class="source-plot" width="100%" height="100%" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="plot-title plot-description" data-renderer="responsive-css-pixel" data-series-min-strain="0" data-series-max-strain="0.20" data-series-min-stress-mpa="0" data-series-max-stress-mpa="850" data-axis-headroom-ratio="0.10" data-axis-target-intervals-strain="5" data-axis-target-intervals-stress="4" data-axis-nice-step-factors="1,2,2.5,5,10">
+                <title id="plot-title">DP780 synthetic Test Data stress-strain source preview</title>
+                <desc id="plot-description">Three observed specimen curves with engineering strain on the horizontal axis and engineering stress on the vertical axis. The displayed range has headroom beyond the source extrema.</desc>
+                <rect class="plot-background" x="0" y="0" width="1" height="1"></rect>
+                <g class="plot-grid" aria-hidden="true"></g>
+                <g class="plot-axis" aria-hidden="true"></g>
+                <g class="plot-series" aria-hidden="true"><path class="curve curve-one"></path><path class="curve curve-two"></path><path class="curve curve-three"></path></g>
+                <g class="plot-labels"></g>
+              </svg>
+              <div class="graph-empty" role="status" hidden><strong>No Test Data in this session</strong><p>Choose an exact saved revision or inspect a Local file to prepare the first preview.</p><button class="button primary-action" type="button" data-action="choose-local">Local file</button></div>
+              <div class="graph-blocked" role="status" hidden><strong>Preview held at the last valid source</strong><p>Mapping is invalid, so Update preview and Save dataset remain blocked. Correct the adjacent mapping decision to continue.</p></div>
+              <div class="plot-legend" aria-label="Source preview legend"><span><i class="legend-line blue" aria-hidden="true"></i>Specimen 01 · observed</span><span><i class="legend-line orange" aria-hidden="true"></i>Specimen 02 · observed</span><span><i class="legend-line purple" aria-hidden="true"></i>Specimen 03 · observed</span><span class="legend-note" data-legend-note>Headroom · preview not saved</span></div>
+            </div>
+          </section>
+          <details class="graph-advanced advanced-settings"><summary>Advanced graph evidence</summary><div><span>Mapping Profile</span><code>Engineering tension · r1</code><span>Preview provenance</span><code>Source arrays only · non-authoritative</code></div></details>
+        </section>
+      </section>
+    </main>
+
+    <footer class="status-bar" data-region="status-bar" aria-label="Workspace status">
+      <span id="status-selection" data-status-selection>CMP-DEMO-DP780-TEST-JSON-03 · r1</span>
+      <span data-status-revision>Test Data · exact revision</span>
+      <span class="status-spacer"></span>
+      <span data-status-job>No active job</span>
+      <span data-status-warning>0 warnings</span>
+      <span class="online-state"><span class="online-dot" aria-hidden="true"></span>Online</span>
+    </footer>
+
+    <p id="interaction-status" class="sr-only" role="status" aria-live="polite"></p>
+  </body>
+</html>

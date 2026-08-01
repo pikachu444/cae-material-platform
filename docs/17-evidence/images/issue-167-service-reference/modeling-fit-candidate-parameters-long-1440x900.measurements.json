@@ -1,0 +1,887 @@
+{
+  "capture_date": "2026-07-29",
+  "target": "modeling-fit-candidate-parameters-long-1440x900",
+  "state": "candidate-parameters-long",
+  "viewport": {
+    "width": 1440,
+    "height": 900,
+    "device_scale_factor": 1
+  },
+  "image": "docs\\17-evidence\\images\\issue-167-service-reference\\modeling-fit-candidate-parameters-long-1440x900.png",
+  "image_sha256": "500e66fa38e8b7f6adde92f7aa3f309a41aa7f27cb5ef3ebe322fad07abce881",
+  "console_errors": [],
+  "page_errors": [],
+  "geometry": {
+    "target": "modeling-fit-candidate-parameters-long-1440x900",
+    "state": "candidate-parameters-long",
+    "viewport": {
+      "width": 1440,
+      "height": 900,
+      "device_scale_factor": 1
+    },
+    "overflow": {
+      "documentHorizontal": 0,
+      "documentVertical": 0,
+      "bodyHorizontal": 0,
+      "bodyVertical": 0
+    },
+    "regions": {
+      "applicationBar": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 46,
+        "right": 1440,
+        "bottom": 46
+      },
+      "context": {
+        "x": 0,
+        "y": 46,
+        "width": 1440,
+        "height": 42,
+        "right": 1440,
+        "bottom": 88
+      },
+      "stageStrip": {
+        "x": 0,
+        "y": 88,
+        "width": 1440,
+        "height": 34,
+        "right": 1440,
+        "bottom": 122
+      },
+      "navigator": {
+        "x": 0,
+        "y": 122,
+        "width": 192,
+        "height": 754,
+        "right": 192,
+        "bottom": 876
+      },
+      "divider": {
+        "x": 192,
+        "y": 122,
+        "width": 5,
+        "height": 754,
+        "right": 197,
+        "bottom": 876
+      },
+      "main": {
+        "x": 197,
+        "y": 122,
+        "width": 1243,
+        "height": 754,
+        "right": 1440,
+        "bottom": 876
+      },
+      "ribbon": {
+        "x": 197,
+        "y": 122,
+        "width": 1243,
+        "height": 151,
+        "right": 1440,
+        "bottom": 273
+      },
+      "disclosure": {
+        "x": 197,
+        "y": 699,
+        "width": 1243,
+        "height": 148,
+        "right": 1440,
+        "bottom": 847
+      },
+      "graph": {
+        "x": 197,
+        "y": 273,
+        "width": 1243,
+        "height": 426,
+        "right": 1440,
+        "bottom": 699
+      },
+      "graphCanvas": {
+        "x": 197,
+        "y": 307,
+        "width": 1243,
+        "height": 392,
+        "right": 1440,
+        "bottom": 699
+      },
+      "statusBar": {
+        "x": 0,
+        "y": 876,
+        "width": 1440,
+        "height": 24,
+        "right": 1440,
+        "bottom": 900
+      }
+    },
+    "divider": {
+      "ariaMin": 184,
+      "ariaMax": 260,
+      "ariaNow": 192,
+      "ariaExpanded": true,
+      "visibleWidth": 192
+    },
+    "graph": {
+      "width": 1243,
+      "height": 392,
+      "workspaceShare": 0.8631944444444445,
+      "series": {
+        "minStrain": 0,
+        "maxStrain": 0.42,
+        "minStressMpa": 312,
+        "maxStressMpa": 1214.012,
+        "computedMinStrain": 0,
+        "computedMaxStrain": 0.462,
+        "computedMinStressMpa": 221.799,
+        "computedMaxStressMpa": 1304.213,
+        "headroomRatio": 0.1,
+        "derivation": "finite-plotted-span-plus-proportional-padding",
+        "alteredMaxStrain": 0.5313,
+        "alteredMaxStressMpa": 1504.525,
+        "niceMinStrain": 0,
+        "niceMaxStrain": 0.5,
+        "niceMinStressMpa": 200,
+        "niceMaxStressMpa": 1400,
+        "alteredProof": true,
+        "initialYieldStressMpa": 312,
+        "zeroPlasticStressPositive": true,
+        "xQuantity": "true_plastic_strain",
+        "xUnit": "1",
+        "yQuantity": "true_yield_stress",
+        "yUnit": "MPa",
+        "preserveAspectRatio": null,
+        "renderedWidth": 1243,
+        "renderedHeight": 392,
+        "viewBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1243,
+          "height": 392
+        },
+        "svgScale": {
+          "x": 1,
+          "y": 1,
+          "delta": 0
+        },
+        "nonUniformScale": false,
+        "plotArea": {
+          "left": 58,
+          "right": 1231,
+          "top": 18,
+          "bottom": 354
+        },
+        "seriesGeometry": [
+          {
+            "key": "observed",
+            "bbox": {
+              "x": 58,
+              "y": 176.85000610351562,
+              "width": 422.2799987792969,
+              "height": 145.79000854492188,
+              "right": 480.2799987792969,
+              "bottom": 322.6400146484375
+            },
+            "firstPoint": {
+              "x": 58,
+              "y": 322.64
+            },
+            "lastPoint": {
+              "x": 480.28,
+              "y": 176.85
+            },
+            "pointCount": 9
+          },
+          {
+            "key": "voce",
+            "bbox": {
+              "x": 58,
+              "y": 94.87999725341797,
+              "width": 985.3199462890625,
+              "height": 227.760009765625,
+              "right": 1043.3199462890625,
+              "bottom": 322.64000701904297
+            },
+            "firstPoint": {
+              "x": 58,
+              "y": 322.64
+            },
+            "lastPoint": {
+              "x": 1043.32,
+              "y": 94.88
+            },
+            "pointCount": 13
+          },
+          {
+            "key": "swift",
+            "bbox": {
+              "x": 58,
+              "y": 172.85000610351562,
+              "width": 985.3199462890625,
+              "height": 149.79000854492188,
+              "right": 1043.3199462890625,
+              "bottom": 322.6400146484375
+            },
+            "firstPoint": {
+              "x": 58,
+              "y": 322.64
+            },
+            "lastPoint": {
+              "x": 1043.32,
+              "y": 172.85
+            },
+            "pointCount": 13
+          },
+          {
+            "key": "hockett-sherby",
+            "bbox": {
+              "x": 58,
+              "y": 70.08000183105469,
+              "width": 985.3199462890625,
+              "height": 252.5600128173828,
+              "right": 1043.3199462890625,
+              "bottom": 322.6400146484375
+            },
+            "firstPoint": {
+              "x": 58,
+              "y": 322.64
+            },
+            "lastPoint": {
+              "x": 1043.32,
+              "y": 70.08
+            },
+            "pointCount": 13
+          },
+          {
+            "key": "ghosh",
+            "bbox": {
+              "x": 58,
+              "y": 137.61000061035156,
+              "width": 985.3199462890625,
+              "height": 185.03001403808594,
+              "right": 1043.3199462890625,
+              "bottom": 322.6400146484375
+            },
+            "firstPoint": {
+              "x": 58,
+              "y": 322.64
+            },
+            "lastPoint": {
+              "x": 1043.32,
+              "y": 137.61
+            },
+            "pointCount": 13
+          },
+          {
+            "key": "blend",
+            "bbox": {
+              "x": 58,
+              "y": 133.86000061035156,
+              "width": 985.3199462890625,
+              "height": 188.78001403808594,
+              "right": 1043.3199462890625,
+              "bottom": 322.6400146484375
+            },
+            "firstPoint": {
+              "x": 58,
+              "y": 322.64
+            },
+            "lastPoint": {
+              "x": 1043.32,
+              "y": 133.86
+            },
+            "pointCount": 13
+          }
+        ],
+        "labels": [
+          {
+            "text": "0",
+            "rect": {
+              "left": 255,
+              "right": 261,
+              "top": 664,
+              "bottom": 679,
+              "width": 6,
+              "height": 15
+            },
+            "fontSize": 11,
+            "height": 15,
+            "visible": true,
+            "insideSvg": true,
+            "insideCanvas": true
+          },
+          {
+            "text": "0.10",
+            "rect": {
+              "left": 479.5062561035156,
+              "right": 499.7503967285156,
+              "top": 664,
+              "bottom": 679,
+              "width": 20.244140625,
+              "height": 15
+            },
+            "fontSize": 11,
+            "height": 15,
+            "visible": true,
+            "insideSvg": true,
+            "insideCanvas": true
+          },
+          {
+            "text": "0.20",
+            "rect": {
+              "left": 714.1062622070312,
+              "right": 734.3504028320312,
+              "top": 664,
+              "bottom": 679,
+              "width": 20.244140625,
+              "height": 15
+            },
+            "fontSize": 11,
+            "height": 15,
+            "visible": true,
+            "insideSvg": true,
+            "insideCanvas": true
+          },
+          {
+            "text": "0.30",
+            "rect": {
+              "left": 948.7062377929688,
+              "right": 968.9503784179688,
+              "top": 664,
+              "bottom": 679,
+              "width": 20.244140625,
+              "height": 15
+            },
+            "fontSize": 11,
+            "height": 15,
+            "visible": true,
+            "insideSvg": true,
+            "insideCanvas": true
+          },
+          {
+            "text": "0.40",
+            "rect": {
+              "left": 1183.3062744140625,
+              "right": 1203.5504150390625,
+              "top": 664,
+              "bottom": 679,
+              "width": 20.244140625,
+              "height": 15
+            },
+            "fontSize": 11,
+            "height": 15,
+            "visible": true,
+            "insideSvg": true,
+            "insideCanvas": true
+          },
+          {
+            "text": "0.50",
+            "rect": {
+              "left": 1407.8125,
+              "right": 1428.056640625,
+              "top": 664,
+              "bottom": 679,
+              "width": 20.244140625,
+              "height": 15
+            },
+            "fontSize": 11,
+            "height": 15,
+            "visible": true,
+            "insideSvg": true,
+            "insideCanvas": true
+          },
+          {
+            "text": "200",
+            "rect": {
+              "left": 230.203125,
+              "right": 248.0625,
+              "top": 653,
+              "bottom": 668,
+              "width": 17.859375,
+              "height": 15
+            },
+            "fontSize": 11,
+            "height": 15,
+            "visible": true,
+            "insideSvg": true,
+            "insideCanvas": true
+          },
+          {
+            "text": "400",
+            "rect": {
+              "left": 229.203125,
+              "right": 248.0625,
+              "top": 597,
+              "bottom": 612,
+              "width": 18.859375,
+              "height": 15
+            },
+            "fontSize": 11,
+            "height": 15,
+            "visible": true,
+            "insideSvg": true,
+            "insideCanvas": true
+          },
+          {
+            "text": "600",
+            "rect": {
+              "left": 230.203125,
+              "right": 248.0625,
+              "top": 541,
+              "bottom": 556,
+              "width": 17.859375,
+              "height": 15
+            },
+            "fontSize": 11,
+            "height": 15,
+            "visible": true,
+            "insideSvg": true,
+            "insideCanvas": true
+          },
+          {
+            "text": "800",
+            "rect": {
+              "left": 230.203125,
+              "right": 248.0625,
+              "top": 485,
+              "bottom": 500,
+              "width": 17.859375,
+              "height": 15
+            },
+            "fontSize": 11,
+            "height": 15,
+            "visible": true,
+            "insideSvg": true,
+            "insideCanvas": true
+          },
+          {
+            "text": "1,000",
+            "rect": {
+              "left": 221.890625,
+              "right": 248.064453125,
+              "top": 429,
+              "bottom": 444,
+              "width": 26.173828125,
+              "height": 15
+            },
+            "fontSize": 11,
+            "height": 15,
+            "visible": true,
+            "insideSvg": true,
+            "insideCanvas": true
+          },
+          {
+            "text": "1,200",
+            "rect": {
+              "left": 221.890625,
+              "right": 248.064453125,
+              "top": 373,
+              "bottom": 388,
+              "width": 26.173828125,
+              "height": 15
+            },
+            "fontSize": 11,
+            "height": 15,
+            "visible": true,
+            "insideSvg": true,
+            "insideCanvas": true
+          },
+          {
+            "text": "1,400",
+            "rect": {
+              "left": 221.890625,
+              "right": 248.064453125,
+              "top": 317,
+              "bottom": 332,
+              "width": 26.173828125,
+              "height": 15
+            },
+            "fontSize": 11,
+            "height": 15,
+            "visible": true,
+            "insideSvg": true,
+            "insideCanvas": true
+          },
+          {
+            "text": "True yield stress (MPa)",
+            "rect": {
+              "left": 198,
+              "right": 213,
+              "top": 434.418701171875,
+              "bottom": 552.4140625,
+              "width": 15,
+              "height": 117.995361328125
+            },
+            "fontSize": 11.5,
+            "height": 117.995361328125,
+            "visible": true,
+            "insideSvg": true,
+            "insideCanvas": true
+          },
+          {
+            "text": "True plastic strain [1]",
+            "rect": {
+              "left": 786.2265625,
+              "right": 895.945068359375,
+              "top": 683,
+              "bottom": 698,
+              "width": 109.718505859375,
+              "height": 15
+            },
+            "fontSize": 11.5,
+            "height": 15,
+            "visible": true,
+            "insideSvg": true,
+            "insideCanvas": true
+          }
+        ],
+        "labelsContained": true,
+        "labelsReadable": true
+      }
+    },
+    "disclosure": {
+      "present": true,
+      "open": true,
+      "bodyHeight": 117,
+      "height": 148,
+      "workspaceShare": 0.1962864721485411,
+      "tableClientHeight": 177,
+      "tableScrollHeight": 177,
+      "tableOverflowY": "auto",
+      "drawerOverflowY": "hidden",
+      "triggerExpanded": "true",
+      "tableRows": 5,
+      "visibleRows": 5,
+      "tableOverflow": -1,
+      "allCellsInside": true,
+      "allCellsContained": true,
+      "requiredContainment": {
+        "candidateRows": [
+          {
+            "candidate": "voce",
+            "visible": true,
+            "insideViewport": true
+          },
+          {
+            "candidate": "swift",
+            "visible": true,
+            "insideViewport": true
+          },
+          {
+            "candidate": "hockett-sherby",
+            "visible": true,
+            "insideViewport": true
+          },
+          {
+            "candidate": "ghosh",
+            "visible": true,
+            "insideViewport": true
+          },
+          {
+            "candidate": "blend-swift-voce",
+            "visible": true,
+            "insideViewport": true
+          }
+        ],
+        "allCandidateRowsInside": true,
+        "selectionEvidenceInside": false,
+        "parameterEntries": [
+          {
+            "name": "Swift coefficient K",
+            "rect": {
+              "left": 205,
+              "right": 823.453125,
+              "top": 946.5,
+              "bottom": 968.5,
+              "width": 618.453125,
+              "height": 22
+            },
+            "insideEvidence": true,
+            "nameClipped": false
+          },
+          {
+            "name": "Swift exponent n",
+            "rect": {
+              "left": 205,
+              "right": 823.453125,
+              "top": 968.5,
+              "bottom": 990.5,
+              "width": 618.453125,
+              "height": 22
+            },
+            "insideEvidence": true,
+            "nameClipped": false
+          },
+          {
+            "name": "Voce saturation stress",
+            "rect": {
+              "left": 205,
+              "right": 823.453125,
+              "top": 990.5,
+              "bottom": 1012.5,
+              "width": 618.453125,
+              "height": 22
+            },
+            "insideEvidence": true,
+            "nameClipped": false
+          },
+          {
+            "name": "Voce recovery rate",
+            "rect": {
+              "left": 205,
+              "right": 823.453125,
+              "top": 1012.5,
+              "bottom": 1034.5,
+              "width": 618.453125,
+              "height": 22
+            },
+            "insideEvidence": true,
+            "nameClipped": false
+          }
+        ],
+        "allParameterEntriesInside": true,
+        "requiredElements": [
+          {
+            "selector": "[data-selection-reason]",
+            "rect": {
+              "left": 829.453125,
+              "right": 1417,
+              "top": 942.5,
+              "bottom": 976.5,
+              "width": 587.546875,
+              "height": 34
+            },
+            "insideEvidence": true
+          },
+          {
+            "selector": "[data-warning-ack]",
+            "rect": {
+              "left": 829.453125,
+              "right": 842.453125,
+              "top": 978.5,
+              "bottom": 991.5,
+              "width": 13,
+              "height": 13
+            },
+            "insideEvidence": true
+          },
+          {
+            "selector": "[data-selection-help]",
+            "rect": {
+              "left": 829.453125,
+              "right": 1417,
+              "top": 994.5,
+              "bottom": 1009.5,
+              "width": 587.546875,
+              "height": 15
+            },
+            "insideEvidence": true
+          }
+        ],
+        "allRequiredElementsInside": true,
+        "parameterNamesClipped": false
+      }
+    },
+    "visibleContent": {
+      "stageLabels": [
+        "Data",
+        "Process",
+        "Fit",
+        "Export"
+      ],
+      "activeStage": "Fit",
+      "curveRows": [
+        "Specimen 01",
+        "Specimen 02",
+        "Specimen 03"
+      ],
+      "includedCurves": [
+        "Specimen 01",
+        "Specimen 02"
+      ],
+      "graphCurves": [
+        "curve observed-curve",
+        "curve voce-curve",
+        "curve swift-curve",
+        "curve hockett-curve",
+        "curve ghosh-curve",
+        "curve preview-blend-curve"
+      ],
+      "candidateRows": [
+        "voce",
+        "swift",
+        "hockett-sherby",
+        "ghosh",
+        "blend-swift-voce"
+      ],
+      "selectedCandidate": "blend-swift-voce",
+      "recommendedRows": [
+        "blend-swift-voce"
+      ],
+      "saveDisabled": false,
+      "saveReason": "Reason and applicable warning acknowledgement complete · ready to save one immutable fit decision.",
+      "downstreamStatus": "Swift / Voce 50/50 blend explicitly selected for this draft; recommendation remains evidence and Export stays stale until Save fit & continue.",
+      "blockedReason": "",
+      "selectionHelp": "Reason and warning acknowledgement complete · ready to save one immutable fit decision.",
+      "updateDisabled": false,
+      "graphOverlay": "",
+      "graphEmpty": false,
+      "selectionEvidence": true,
+      "selectionReason": "The 50/50 Swift and Voce preview follows observed hardening while remaining stable through the target strain.",
+      "warningAcknowledged": true,
+      "targetStrain": "1.00",
+      "candidateState": "current",
+      "statusSelection": "Fit · Swift / Voce 50/50 blend selected",
+      "statusJob": "Fit candidate selected · decision draft",
+      "axisProof": "pass",
+      "legacySelectors": [],
+      "nestedInteractive": []
+    },
+    "typography": {
+      "bodyPx": 13,
+      "railPx": 12.5,
+      "ribbonPx": 11.5,
+      "decisionTablePx": 13,
+      "decisionHelpPx": 12,
+      "graphFooterPx": 10.5,
+      "statusPx": 12,
+      "candidateCellPx": 13,
+      "clippedDecisionText": false
+    },
+    "plotFooter": {
+      "axisLegendIntersect": false,
+      "axisContained": true,
+      "legendContained": true,
+      "axisInPlotStage": true,
+      "legendInsidePlot": true,
+      "legendPlacement": "lower-right",
+      "legendCollisionCount": 0,
+      "legendFallback": false,
+      "curveTouchesLegend": false,
+      "externalWidthTax": 0
+    },
+    "topology": {
+      "workspaceHeight": 754,
+      "fitWorkspaceHeight": 603,
+      "graphHeight": 426,
+      "actualPlotHeight": 336,
+      "actualPlotShare": 0.44562334217506633,
+      "actualPlotFitShare": 0.5572139303482587,
+      "drawerHeight": 148,
+      "drawerShare": 0.1962864721485411,
+      "curveRowHeights": [
+        28,
+        28,
+        28
+      ],
+      "operationRowHeights": [
+        26,
+        26,
+        26,
+        26
+      ],
+      "railClientHeight": 688,
+      "railScrollHeight": 688,
+      "railOverflowY": "auto",
+      "navigatorVisual": {
+        "paneCount": "2 / 3 included",
+        "sectionTextTransform": "none",
+        "sectionFontSize": 11.5,
+        "filterFontSize": 12.5,
+        "identityFontSize": 12.5,
+        "identityFontWeight": 400,
+        "operationFontSize": 12.5,
+        "operationFontWeight": 400,
+        "hierarchyIndentPx": 10,
+        "clippedIdentities": 0,
+        "clippedRevisions": 0,
+        "clippedOperations": 0,
+        "swatchWidth": 3,
+        "swatchHeight": 16,
+        "swatchBorderRadius": "0px",
+        "selectedBorderWidth": 3,
+        "selectedBackground": "rgb(220, 236, 243)",
+        "railBackground": "rgb(255, 255, 255)",
+        "scrollbarGutter": "stable",
+        "parentText": "DP780 tensile · 293 K",
+        "revisionText": "· r1"
+      },
+      "axis": {
+        "visibleSource": "svg",
+        "tickText": [
+          "0",
+          "0.10",
+          "0.20",
+          "0.30",
+          "0.40",
+          "0.50",
+          "200",
+          "400",
+          "600",
+          "800",
+          "1,000",
+          "1,200",
+          "1,400"
+        ],
+        "xTitle": "True plastic strain [1]",
+        "yTitle": "True yield stress (MPa)",
+        "xTitleVisible": true,
+        "xTitleFontSize": 11.5,
+        "yTitleVisible": true,
+        "xCentered": true,
+        "xTitleGapToTicksPx": 4,
+        "yTitleGapToTicksPx": 8.890625,
+        "yTickGapToAxisPx": 6.935546875,
+        "yCollidesTicks": false,
+        "yCollidesLegend": false,
+        "yCollidesPlot": false,
+        "yContained": true,
+        "plotInsets": {
+          "leftRatio": 0.04666130329847144,
+          "rightRatio": 0.009654062751407884,
+          "bottomRatio": 0.09693877551020408
+        }
+      }
+    },
+    "nestedPersistentCards": 0
+  },
+  "overflow": {
+    "documentHorizontal": 0,
+    "documentVertical": 0,
+    "bodyHorizontal": 0,
+    "bodyVertical": 0
+  },
+  "exercise": {
+    "details_open": true,
+    "selected": "blend-swift-voce",
+    "reason_present": true,
+    "warning_ack": true,
+    "save_enabled": true,
+    "table_rows": 5,
+    "graph_width_open": 1243,
+    "graph_width_closed": 1243,
+    "graph_remounted": true,
+    "drawer_table": {
+      "clientHeight": 177,
+      "scrollHeight": 177,
+      "before": 0
+    },
+    "drawer_body": {
+      "clientHeight": 116,
+      "scrollHeight": 307,
+      "before": 0
+    },
+    "drawer_page_down_scroll_top": 93
+  },
+  "web_interface_guidelines_audit": {
+    "result": "pass",
+    "checked": [
+      "semantic controls with visible focus",
+      "separate inclusion, selection and plot visibility controls",
+      "no nested interactive controls",
+      "contained long decision evidence",
+      "persistent graph context for loading and error"
+    ],
+    "source": "vercel-labs/web-interface-guidelines/command.md"
+  }
+}

@@ -108,9 +108,9 @@ The following files have no repository text/YAML/script reference, no current/ar
 and no filename reference in the latest 200 GitHub PR descriptions. They are removal candidates, not
 historical evidence inputs:
 
-- `docs/15-demo/images/t55m-hardening-candidates.png`
-- `docs/15-demo/images/t59-product-access.png`
-- `docs/15-demo/images/t89-polymer-prony-workbench.png`
+- `docs/15-demo/images/historical-task-screenshots/t55m-hardening-candidates.png`
+- `docs/15-demo/images/historical-task-screenshots/t59-product-access.png`
+- `docs/15-demo/images/historical-task-screenshots/t89-polymer-prony-workbench.png`
 - `docs/15-demo/images/ux-layout-review/card-1366x768.png`
 - `docs/15-demo/images/ux-layout-review/card-1920x1080.png`
 - `docs/15-demo/images/ux-layout-review/detail-1366x768.png`

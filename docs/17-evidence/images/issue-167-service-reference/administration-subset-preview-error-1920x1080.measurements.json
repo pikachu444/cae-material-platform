@@ -1,0 +1,400 @@
+{
+  "target": "administration-subset-preview-error-1920x1080",
+  "family": "subset",
+  "state": "preview-error",
+  "viewport": "1920x1080",
+  "width": 1920,
+  "height": 1080,
+  "image": "docs/17-evidence/images/issue-167-service-reference/administration-subset-preview-error-1920x1080.png",
+  "image_sha256": "c22ff4e27f7d4e8d64ae389344db3e642ad3856d84bd3d65d241dcaedbc813d5",
+  "snapshot": {
+    "ready": true,
+    "family": "subset",
+    "state": "preview-error",
+    "pageTitle": "Database design",
+    "navTitle": "Schema objects",
+    "listTitle": "Subsets",
+    "topbarContext": "Administrator · Atlas workspace",
+    "statusBarFontPx": 11.5,
+    "activePrimary": [
+      "Save new revision"
+    ],
+    "controls": [
+      {
+        "tag": "a",
+        "name": "Skip to Administration workspace",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Materials",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Modeling",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Activity",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Administration",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Validate",
+        "disabled": false,
+        "action": "validate"
+      },
+      {
+        "tag": "button",
+        "name": "Preview results",
+        "disabled": false,
+        "action": "preview"
+      },
+      {
+        "tag": "button",
+        "name": "Save new revision",
+        "disabled": false,
+        "action": "save"
+      },
+      {
+        "tag": "button",
+        "name": "Tables5",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Attributes18",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Layouts3",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Subsets4",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Link Types3",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "select",
+        "name": "Current Table",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "div",
+        "name": "Resize navigator",
+        "disabled": false,
+        "action": "navigator"
+      },
+      {
+        "tag": "button",
+        "name": "Released metal cards · revision 6",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Room-temperature tensile · revision 5",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Needs technical review · revision 2",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Polymer relaxation data · revision 4",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "div",
+        "name": "Resize object list",
+        "disabled": false,
+        "action": "list"
+      },
+      {
+        "tag": "input",
+        "name": "Subset name",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "textarea",
+        "name": "Reusable view of released metal records with at least one downloadable solver card.",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Add filter",
+        "disabled": false,
+        "action": "add-filter"
+      },
+      {
+        "tag": "button",
+        "name": "Discard draft",
+        "disabled": false,
+        "action": "discard"
+      }
+    ],
+    "nestedInteractive": [],
+    "legacySelectors": [
+      {
+        "selector": ".page-stack",
+        "count": 0
+      },
+      {
+        "selector": ".page-heading",
+        "count": 0
+      },
+      {
+        "selector": ".content-card",
+        "count": 0
+      },
+      {
+        "selector": ".hero-actions",
+        "count": 0
+      },
+      {
+        "selector": ".eyebrow",
+        "count": 0
+      },
+      {
+        "selector": ".status-badge",
+        "count": 0
+      },
+      {
+        "selector": ".count-chip",
+        "count": 0
+      }
+    ],
+    "bodyFontPx": 13,
+    "maximumDataFontPx": 13,
+    "typography": {
+      "data": {
+        "count": 38,
+        "min": 13,
+        "max": 13
+      },
+      "metadata": {
+        "count": 28,
+        "min": 11.5,
+        "max": 12
+      },
+      "ordinaryWeight": {
+        "count": 48,
+        "max": 600
+      }
+    },
+    "clipping": {
+      "listNames": [],
+      "previewValues": []
+    },
+    "revisionMetrics": [],
+    "overlap": {
+      "pairs": [],
+      "noOverlaps": true,
+      "splitterCollisions": [],
+      "splitterSafe": true
+    },
+    "labels": [
+      "Current Table",
+      "Subset name",
+      "Purpose"
+    ],
+    "fieldValues": [
+      {
+        "id": "current-table",
+        "value": "Materials master",
+        "disabled": false
+      },
+      {
+        "id": "subset-name",
+        "value": "Released metal cards",
+        "disabled": false
+      },
+      {
+        "id": "subset-desc",
+        "value": "Reusable view of released metal records with at least one downloadable solver card.",
+        "disabled": false
+      }
+    ],
+    "alerts": [
+      "Preview refresh failedThe last valid result page remains visible; the Subset draft is preserved."
+    ],
+    "listRows": [
+      "Released metal cards24 rows6",
+      "Room-temperature tensile38 rows5",
+      "Needs technical review7 rows2",
+      "Polymer relaxation data16 rows4"
+    ],
+    "rowAccessibleNames": [
+      {
+        "id": "subset-released-metal",
+        "name": "Released metal cards · revision 6"
+      },
+      {
+        "id": "subset-room-temp",
+        "name": "Room-temperature tensile · revision 5"
+      },
+      {
+        "id": "subset-review",
+        "name": "Needs technical review · revision 2"
+      },
+      {
+        "id": "subset-polymer",
+        "name": "Polymer relaxation data · revision 4"
+      }
+    ],
+    "tasks": [],
+    "readiness": [],
+    "related": [],
+    "orderedFields": [],
+    "filters": [
+      "Familyequals MetalDiscrete",
+      "Card statusequals ReleasedDiscrete",
+      "Temperature273 K to 333 KNumber"
+    ],
+    "documentText": "Skip to Administration workspace CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator · Atlas workspace Database design Atlas workspace · Materials master Attention required Validate Preview results Save new revision Schema objects 5 areas Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 3 Current Table Materials master Test records Solver cards Definitions use the selected Table version. Materials master selected Subsets 4 items Name Preview Rev Released metal cards 24 rows 6 Room-temperature tensile 38 rows 5 Needs technical review 7 rows 2 Polymer relaxation data 16 rows 4 Released metal cards Subset revision 6 · Materials master Unsaved draft Subset name Purpose Filter definition Add filter Family equals Metal Discrete Card status equals Released Discrete Temperature 273 K to 333 K Number Discard draft Result preview Records matching the current filters Read-only Scoped result preview Released metal cards · 24 authorized matches 1–8 of 24 Preview refresh failed The last valid result page remains visible; the Subset draft is preserved. Material State Available cards DP780 As received Abaqus · OpenRadioss DP600 As received Abaqus · LS-DYNA HC340LA Cold rolled OpenRadioss AA6061-T6 T6 Abaqus DC04 Annealed Abaqus · OpenRadioss SUS304 Solution treated LS-DYNA SPFC980 As received OpenRadioss Q&P980 As received Abaqus Subset · Released metal cards Revision editing Attention required Online",
+    "documentOverflow": {
+      "horizontal": 0,
+      "vertical": 0
+    },
+    "editorScroll": {
+      "scrollHeight": 930,
+      "clientHeight": 930,
+      "scrollTop": 0
+    },
+    "listScroll": {
+      "scrollHeight": 894,
+      "clientHeight": 894,
+      "scrollTop": 0
+    },
+    "editorTextClipped": false,
+    "remainingContainment": {
+      "gridInsideEditor": true,
+      "editorColumnInsideGrid": true,
+      "previewColumnInsideGrid": true,
+      "headingsInsideColumns": true,
+      "actionsInsideColumns": true
+    },
+    "publishButtons": [],
+    "selectedRowCount": 1,
+    "previewTables": 1,
+    "geometry": {
+      "application_bar": {
+        "x": 0,
+        "y": 0,
+        "width": 1920,
+        "height": 46,
+        "right": 1920,
+        "bottom": 46
+      },
+      "command_bar": {
+        "x": 13,
+        "y": 55,
+        "width": 1894,
+        "height": 58,
+        "right": 1907,
+        "bottom": 113
+      },
+      "workspace": {
+        "x": 13,
+        "y": 113,
+        "width": 1894,
+        "height": 930,
+        "right": 1907,
+        "bottom": 1043
+      },
+      "navigator": {
+        "x": 13,
+        "y": 113,
+        "width": 232,
+        "height": 930,
+        "right": 245,
+        "bottom": 1043
+      },
+      "object_list": {
+        "x": 252,
+        "y": 113,
+        "width": 360,
+        "height": 930,
+        "right": 612,
+        "bottom": 1043
+      },
+      "editor": {
+        "x": 619,
+        "y": 113,
+        "width": 1288,
+        "height": 930,
+        "right": 1907,
+        "bottom": 1043
+      },
+      "editor_grid": {
+        "x": 637,
+        "y": 113,
+        "width": 1144,
+        "height": 560.375,
+        "right": 1781,
+        "bottom": 673.375
+      },
+      "editor_column": {
+        "x": 637,
+        "y": 113,
+        "width": 586.453125,
+        "height": 382.546875,
+        "right": 1223.453125,
+        "bottom": 495.546875
+      },
+      "preview_column": {
+        "x": 1241.453125,
+        "y": 125,
+        "width": 539.546875,
+        "height": 548.375,
+        "right": 1781,
+        "bottom": 673.375
+      },
+      "status_bar": {
+        "x": 13,
+        "y": 1043,
+        "width": 1894,
+        "height": 28,
+        "right": 1907,
+        "bottom": 1071
+      }
+    }
+  },
+  "interactions": {
+    "keyboard_splitter_delta": 12
+  },
+  "console_errors": [],
+  "page_errors": []
+}

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#182630">
+    <title>Modeling Fit Reference</title>
+    <link rel="stylesheet" href="reference.css">
+    <link rel="stylesheet" href="modeling-fit.css">
+    <script src="modeling-fit.js" defer></script>
+  </head>
+  <body class="modeling-fit-page" data-reference-state="normal">
+    <a class="skip-link" href="#modeling-main">Skip to Modeling Fit workspace</a>
+    <header class="application-bar" data-region="application-bar">
+      <div class="brand" translate="no"><span class="brand-mark" aria-hidden="true">CMP</span><span class="brand-name">CAE Material Platform</span></div>
+      <nav class="primary-navigation" aria-label="Primary workspace">
+        <a href="#materials">Materials</a><a class="active" href="#modeling-main" aria-current="page">Modeling</a><a href="#activity">Activity</a>
+      </nav>
+      <span class="current-user">Demo workspace</span>
+    </header>
+    <main id="modeling-main" class="modeling-shell" data-region="modeling-workspace" aria-labelledby="modeling-title">
+      <section class="modeling-context" data-region="context-header">
+        <div class="context-identity"><h1 id="modeling-title">Fit material response</h1><span class="context-material">DP780 Dual-Phase Steel · Tensile · room temperature</span></div>
+        <div class="context-actions"><span class="session-state" data-session-state>Processing Output saved · Fit preview</span><button class="button" id="advanced-top" type="button">Advanced</button><button class="button secondary-action" type="button" data-action="preview-top">Preview changes</button></div>
+      </section>
+      <nav class="stage-strip" aria-label="Modeling stages">
+        <button class="stage-button" type="button" data-stage="Data">Data</button><button class="stage-button" type="button" data-stage="Process">Process</button><button class="stage-button active" type="button" aria-current="step" data-stage="Fit">Fit</button><button class="stage-button" type="button" data-stage="Export">Export</button>
+        <span class="stage-status" data-stage-status>Processing Output · exact revision saved · fit preview not saved</span>
+      </nav>
+      <section class="modeling-grid" data-region="workspace-grid">
+        <aside class="curve-navigator" data-region="navigator" aria-labelledby="curve-nav-title">
+          <header class="pane-heading"><h2 id="curve-nav-title">Curves</h2><span class="pane-count" data-included-count>2 / 3 included</span></header>
+          <div class="navigator-filter"><label class="sr-only" for="curve-filter">Filter curves</label><input id="curve-filter" name="curve_filter" type="search" placeholder="Filter curves…" autocomplete="off"></div>
+          <div class="curve-scroll">
+            <section class="curve-group" aria-labelledby="tensile-group-title">
+              <div class="group-heading"><span id="tensile-group-title">Tensile tests</span><span data-curve-count>3 curves</span></div>
+              <div class="curve-parent" title="DP780 tensile test at room temperature"><span class="disclosure-mark" aria-hidden="true">▾</span><span class="curve-type-glyph" aria-hidden="true">▤</span><span class="truncate">DP780 tensile · 293 K</span></div>
+              <div class="curve-row selected" data-curve="Specimen 01" title="Observed curve · revision 1">
+                <input type="checkbox" name="include_specimen_01" checked aria-label="Include Specimen 01 in analysis"><button class="curve-selection-button" type="button" aria-label="Select Specimen 01 curve" aria-pressed="true"><span class="curve-swatch swatch-blue" aria-hidden="true"></span><span class="curve-label"><strong>Specimen 01</strong><small>· r1</small></span></button><button class="curve-visibility-button" type="button" aria-label="Hide Specimen 01 from plot" title="Hide from plot">◉</button>
+              </div>
+              <div class="curve-row" data-curve="Specimen 02" title="Observed curve · revision 1">
+                <input type="checkbox" name="include_specimen_02" checked aria-label="Include Specimen 02 in analysis"><button class="curve-selection-button" type="button" aria-label="Select Specimen 02 curve" aria-pressed="false"><span class="curve-swatch swatch-orange" aria-hidden="true"></span><span class="curve-label"><strong>Specimen 02</strong><small>· r1</small></span></button><button class="curve-visibility-button" type="button" aria-label="Hide Specimen 02 from plot" title="Hide from plot">◉</button>
+              </div>
+              <div class="curve-row" data-curve="Specimen 03" title="Observed curve · revision 1">
+                <input type="checkbox" name="include_specimen_03" aria-label="Include Specimen 03 in analysis"><button class="curve-selection-button" type="button" aria-label="Select Specimen 03 curve" aria-pressed="false"><span class="curve-swatch swatch-purple" aria-hidden="true"></span><span class="curve-label"><strong>Specimen 03</strong><small>· r1</small></span></button><button class="curve-visibility-button" type="button" aria-label="Hide Specimen 03 from plot" title="Hide from plot">◉</button>
+              </div>
+            </section>
+            <section class="operations-group" aria-labelledby="operations-title">
+              <div class="group-heading"><h3 id="operations-title">Fit sequence</h3><span>4 steps</span></div>
+              <ol class="operation-list">
+                <li><button class="operation-row" type="button" data-step="1" aria-pressed="false"><span class="operation-number">1</span><span>Sort duplicate x</span></button></li>
+                <li><button class="operation-row" type="button" data-step="2" aria-pressed="false"><span class="operation-number">2</span><span>True/plastic conversion</span></button></li>
+                <li><button class="operation-row" type="button" data-step="3" aria-pressed="false"><span class="operation-number">3</span><span>Necking boundary</span></button></li>
+                <li><button class="operation-row selected" type="button" data-step="4" aria-pressed="true"><span class="operation-number">4</span><span>Hardening fit</span></button></li>
+              </ol>
+            </section>
+            <section class="navigator-note" aria-label="Navigator note"><span>Include scope and plot visibility are independent.</span><a href="#evidence">Fit details in Evidence</a></section>
+          </div>
+        </aside>
+        <div class="modeling-divider" data-region="navigator-divider"><div class="modeling-divider-resizer" role="separator" aria-orientation="vertical" aria-label="Resize curve and fit navigator" aria-valuemin="184" aria-valuemax="260" aria-valuenow="192" aria-expanded="true" tabindex="0"></div><button type="button" aria-label="Collapse curve and fit navigator" aria-expanded="true"><span aria-hidden="true">‹</span></button></div>
+        <section class="modeling-main-surface" aria-label="Persistent Fit graph and candidate settings">
+          <section class="fit-ribbon" data-region="fit-settings" aria-labelledby="fit-settings-title">
+            <header class="ribbon-heading">
+              <div><h2 id="fit-settings-title">Step 4 · Hardening fit and extrapolation</h2><span>All controls affect the persistent preview below · exact Processing Output revision</span></div>
+              <span class="ribbon-state" data-ribbon-state>Preview · not saved</span>
+            </header>
+            <div class="fit-controls">
+              <fieldset class="control-group equations-group"><legend>Candidate equations</legend><div class="check-grid"><label><input type="checkbox" data-candidate-equation="Voce" checked>Voce</label><label><input type="checkbox" data-candidate-equation="Swift" checked>Swift</label><label><input type="checkbox" data-candidate-equation="Hockett–Sherby" checked>Hockett–Sherby</label><label><input type="checkbox" data-candidate-equation="Ghosh" checked>Ghosh</label></div></fieldset>
+              <fieldset class="control-group"><legend>Fit domain</legend><div class="dual-field"><label class="field-label">Start<input class="compact-input" aria-label="Fit start strain" name="fit_start" value="0.0001" inputmode="decimal"></label><label class="field-label">End<input class="compact-input" aria-label="Fit end strain" name="fit_end" value="0.1000" inputmode="decimal"></label></div></fieldset>
+              <fieldset class="control-group"><legend>Selected blend</legend><label class="field-label">Primary<select class="compact-select" aria-label="Primary blend law" name="blend_primary"><option selected>Swift</option><option>Voce</option><option>Hockett–Sherby</option><option>Ghosh</option></select></label><label class="field-label">Secondary<select class="compact-select" aria-label="Secondary blend law" name="blend_secondary"><option selected>Voce</option><option>Swift</option><option>Hockett–Sherby</option><option>Ghosh</option></select></label></fieldset>
+              <fieldset class="control-group"><legend>Primary contribution</legend><div class="slider-line"><label class="sr-only" for="primary-contribution">Primary contribution</label><input id="primary-contribution" type="range" min="0" max="100" value="50" aria-label="Primary contribution"><output for="primary-contribution" data-contribution>50%</output></div><label class="field-label">Review metric<select class="compact-select" aria-label="Review metric" name="review_metric"><option selected>Relative RMSE</option><option>Absolute RMSE</option><option>Weighted residual</option></select></label></fieldset>
+              <fieldset class="control-group"><legend>Extrapolation</legend><label class="field-label">Target strain<input class="compact-input" aria-label="Target strain" name="target_strain" value="1.00" inputmode="decimal"></label><label class="field-label">Output points<input class="compact-input" aria-label="Output points" name="output_points" value="101" inputmode="numeric"></label></fieldset>
+              <fieldset class="control-group graph-interaction-controls"><legend>Graph interaction</legend><button class="button" type="button" data-action="select-fit-range">Select fit range</button><button class="button" type="button" data-action="pick-point">Pick point</button><button class="button disclosure-trigger" type="button" data-action="toggle-candidates" aria-controls="candidate-parameters" aria-expanded="false">Candidate parameters <span aria-hidden="true">▸</span></button></fieldset>
+            </div>
+            <div class="fit-command-row"><div class="fit-command-copy"><span class="setting-label">Candidate computation &amp; decision status</span><strong data-candidate-status>Recomputed candidates · recommendation is evidence only</strong><span class="downstream-status" data-downstream-status role="status">Current candidates are a preview; no engineer selection has been recorded.</span><small data-save-reason>Choose one candidate, then record a reason before Save fit &amp; continue.</small></div><div class="fit-command-actions"><button class="button secondary-action" type="button" data-action="update-candidates">Update candidates</button><button class="button primary-action" type="button" data-action="save-fit" disabled aria-disabled="true">Save fit &amp; continue</button></div></div>
+            <div class="blocked-reason" data-blocked-reason role="alert" hidden></div>
+            <p class="state-message" data-state-message role="status" hidden></p>
+          </section>
+          <section class="graph-panel" data-region="graph" aria-labelledby="graph-title">
+            <header class="graph-toolbar">
+              <div class="graph-heading"><h2 id="graph-title">Stress response · observed evidence and hardening candidates</h2><span data-graph-context>CMP-DEMO-DP780-PROCESSED-OUT-03 · r1 · preview candidates</span></div>
+              <div class="graph-controls" role="toolbar" aria-label="Graph view"><button class="graph-control active" type="button" data-graph-view="response" aria-pressed="true">Response</button><button class="graph-control" type="button" data-graph-view="residual" aria-pressed="false">Residual</button><button class="graph-control" type="button" data-graph-view="tangent" aria-pressed="false">Tangent modulus</button><button class="graph-control" type="button" data-graph-view="reset" aria-pressed="false">Reset view</button></div>
+            </header>
+            <div class="graph-canvas" data-graph-canvas>
+              <div class="plot-layout">
+                <div class="plot-stage">
+                  <svg class="engineering-plot" role="img" aria-labelledby="plot-title plot-description" data-axis-headroom-ratio="0.10">
+                    <title id="plot-title">Synthetic metal hardening fit candidate comparison</title>
+                    <desc id="plot-description">Positive true yield stress is plotted against true plastic strain. Every response begins at the initial yield stress when true plastic strain is zero. The shaded region is extrapolated and unobserved; the Preview Swift and Voce 50/50 blend is not an engineer selection.</desc>
+                    <g data-plot-root></g>
+                  </svg>
+                  <div class="graph-state-overlay" data-graph-state-overlay role="status" hidden></div>
+                  <div class="graph-empty" data-graph-empty role="status" hidden><strong>No candidate comparison yet</strong><p>Keep the exact processed evidence mounted, then Update candidates to calculate laws.</p></div>
+                  <aside class="plot-legend" aria-label="Fit comparison legend" data-placement="pending">
+                    <span><i class="legend-line observed" aria-hidden="true"></i>Observed hardening response</span>
+                    <span><i class="legend-line blend" aria-hidden="true"></i>Preview Swift / Voce 50/50 blend</span>
+                    <span><i class="legend-line voce" aria-hidden="true"></i>Voce</span>
+                    <span><i class="legend-line swift" aria-hidden="true"></i>Swift</span>
+                    <span><i class="legend-line hockett" aria-hidden="true"></i>Hockett–Sherby</span>
+                    <span><i class="legend-line ghosh" aria-hidden="true"></i>Ghosh</span>
+                  </aside>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section id="candidate-parameters" class="candidate-drawer" aria-label="Candidate parameters" hidden>
+            <header class="candidate-drawer-heading"><h2>Candidate parameters</h2><span class="summary-state" data-candidate-disclosure-state>Open · graph stays mounted</span><button class="drawer-close" type="button" data-action="toggle-candidates" aria-label="Close candidate parameters">Close</button></header>
+            <div class="candidate-parameters-body" tabindex="0" aria-label="Candidate parameter and decision details">
+              <div class="candidate-table-heading"><div><h2>Candidate comparison</h2><span>Recomputed from the exact Processing Output · metric uses current fit domain</span></div><span class="candidate-count">5 candidates</span></div>
+              <div class="candidate-table-scroll">
+                <table class="candidate-table" aria-label="Fit candidate comparison"><thead><tr><th scope="col">Model / law</th><th scope="col">Recommendation</th><th scope="col">Metric</th><th scope="col">Fit / extrapolation</th><th scope="col">Stability</th><th scope="col">Compatibility</th><th scope="col">Warning</th><th scope="col">Selection</th></tr></thead>
+                  <tbody>
+                    <tr class="candidate-row" data-candidate="voce"><th scope="row"><strong>Voce</strong><small>single law · v1</small></th><td>—</td><td data-metric="0.0324">0.0324</td><td>0.0001–0.1000 <small>· 1.00 strain</small></td><td><span class="status-text good">Stable</span></td><td><span class="status-text good">Compatible</span></td><td>None</td><td><button type="button" class="candidate-select" data-select-candidate="voce" aria-label="Select Voce candidate">Select</button></td></tr>
+                    <tr class="candidate-row" data-candidate="swift"><th scope="row"><strong>Swift</strong><small>single law · v1</small></th><td>—</td><td data-metric="0.0241">0.0241</td><td>0.0001–0.1000 <small>· 1.00 strain</small></td><td><span class="status-text good">Stable</span></td><td><span class="status-text good">Compatible</span></td><td>None</td><td><button type="button" class="candidate-select" data-select-candidate="swift" aria-label="Select Swift candidate">Select</button></td></tr>
+                    <tr class="candidate-row" data-candidate="hockett-sherby"><th scope="row"><strong>Hockett–Sherby</strong><small>single law · v1</small></th><td>—</td><td data-metric="0.0288">0.0288</td><td>0.0001–0.1000 <small>· 1.00 strain</small></td><td><span class="status-text good">Stable</span></td><td><span class="status-text good">Compatible</span></td><td>Long-tail sensitivity</td><td><button type="button" class="candidate-select" data-select-candidate="hockett-sherby" aria-label="Select Hockett–Sherby candidate">Select</button></td></tr>
+                    <tr class="candidate-row" data-candidate="ghosh"><th scope="row"><strong>Ghosh</strong><small>single law · v1</small></th><td>—</td><td data-metric="0.0417">0.0417</td><td>0.0001–0.1000 <small>· 1.00 strain</small></td><td><span class="status-text warning">Review</span></td><td><span class="status-text good">Compatible</span></td><td>High-strain curvature</td><td><button type="button" class="candidate-select" data-select-candidate="ghosh" aria-label="Select Ghosh candidate">Select</button></td></tr>
+                    <tr class="candidate-row preview-row" data-candidate="blend-swift-voce"><th scope="row"><strong>Swift / Voce 50/50 blend</strong><small>calculated blend · Preview</small></th><td><span class="recommendation-text">Recommended</span></td><td data-metric="0.0186">0.0186</td><td>0.0001–0.1000 <small>· 1.00 strain</small></td><td><span class="status-text good">Stable</span></td><td><span class="status-text good">Compatible</span></td><td>Preview only · acknowledge on save</td><td><button type="button" class="candidate-select" data-select-candidate="blend-swift-voce" aria-label="Select Swift Voce 50 50 preview candidate">Select</button></td></tr>
+                    <tr class="candidate-empty" hidden><td colspan="8"><strong>No candidates computed</strong><span>Update candidates to recompute from the exact Processing Output.</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="selection-evidence" data-selection-evidence hidden>
+                <div class="selection-heading"><div><h3 data-selection-title>Selected candidate</h3><p data-selection-summary>Explicit engineer selection · immutable candidate revision remains unchanged.</p></div><span class="selection-state" data-selection-state>Selected · draft</span></div>
+                <div class="parameter-layout"><section class="parameter-panel"><h4>Parameter evidence</h4><div class="parameter-scroll" data-parameter-values></div></section><section class="selection-panel"><h4>Decision record</h4><label class="field-label">Selection reason<textarea data-selection-reason aria-label="Selection reason" rows="2" placeholder="Why is this candidate fit for the current evidence?" maxlength="240"></textarea></label><label class="warning-ack"><input type="checkbox" data-warning-ack aria-label="Acknowledge selected candidate warning"><span data-warning-copy>Applicable warning acknowledgement</span></label><p class="selection-help" data-selection-help>Save remains disabled until the reason and applicable warning acknowledgement are complete.</p></section></div>
+              </div>
+            </div>
+          </section>
+          <details id="evidence" class="advanced-settings graph-advanced"><summary>Advanced / Evidence</summary><div><span>Processing Output</span><code>CMP-DEMO-DP780-PROCESSED-OUT-03 · r1</code><span>Mapping Profile</span><code>Engineering tension → plastic · exact r1</code><span>Fit Recipe</span><code>recipe-demo-metal-tensile-fit · draft</code><span>Provenance</span><code>source Test Data r1 · candidates preview</code><span>Raw JSON / hashes</span><code>Available in Evidence; immutable source bytes retained</code></div></details>
+        </section>
+      </section>
+    </main>
+    <footer class="status-bar" data-region="status-bar" aria-label="Workspace status"><span id="status-selection" data-status-selection>No Fit candidate selected</span><span data-status-revision>Processing Output · exact revision</span><span class="status-spacer"></span><span data-status-job>No active job</span><span data-status-warning>0 warnings</span><span class="online-state"><span class="online-dot" aria-hidden="true"></span>Online</span></footer>
+    <p id="interaction-status" class="sr-only" role="status" aria-live="polite"></p>
+  </body>
+</html>

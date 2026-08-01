@@ -1,0 +1,533 @@
+{
+  "target": "administration-subset-edit-draft-1440x900",
+  "family": "subset",
+  "state": "draft",
+  "viewport": "1440x900",
+  "width": 1440,
+  "height": 900,
+  "image": "docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1440x900.png",
+  "image_sha256": "2944564a8bfb23b56547e9fe5a5b7bbe4d90225d8b25191d10cdc760e0bebf0f",
+  "snapshot": {
+    "ready": true,
+    "family": "subset",
+    "state": "draft",
+    "pageTitle": "Database design",
+    "navTitle": "Schema objects",
+    "listTitle": "Subsets",
+    "topbarContext": "Administrator · Atlas workspace",
+    "statusBarFontPx": 11.5,
+    "activePrimary": [
+      "Save new revision"
+    ],
+    "controls": [
+      {
+        "tag": "a",
+        "name": "Skip to Administration workspace",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Materials",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Modeling",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Activity",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Administration",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Validate",
+        "disabled": false,
+        "action": "validate"
+      },
+      {
+        "tag": "button",
+        "name": "Preview results",
+        "disabled": false,
+        "action": "preview"
+      },
+      {
+        "tag": "button",
+        "name": "Save new revision",
+        "disabled": false,
+        "action": "save"
+      },
+      {
+        "tag": "button",
+        "name": "Tables5",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Attributes18",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Layouts3",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Subsets4",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Link Types3",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "select",
+        "name": "Current Table",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "div",
+        "name": "Resize navigator",
+        "disabled": false,
+        "action": "navigator"
+      },
+      {
+        "tag": "button",
+        "name": "Released metal cards · revision 6",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Room-temperature tensile · revision 5",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Needs technical review · revision 2",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Polymer relaxation data · revision 4",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "div",
+        "name": "Resize object list",
+        "disabled": false,
+        "action": "list"
+      },
+      {
+        "tag": "input",
+        "name": "Subset name",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "textarea",
+        "name": "Reusable view of released metal records with at least one downloadable solver card.",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Add filter",
+        "disabled": false,
+        "action": "add-filter"
+      },
+      {
+        "tag": "button",
+        "name": "Discard draft",
+        "disabled": false,
+        "action": "discard"
+      }
+    ],
+    "nestedInteractive": [],
+    "legacySelectors": [
+      {
+        "selector": ".page-stack",
+        "count": 0
+      },
+      {
+        "selector": ".page-heading",
+        "count": 0
+      },
+      {
+        "selector": ".content-card",
+        "count": 0
+      },
+      {
+        "selector": ".hero-actions",
+        "count": 0
+      },
+      {
+        "selector": ".eyebrow",
+        "count": 0
+      },
+      {
+        "selector": ".status-badge",
+        "count": 0
+      },
+      {
+        "selector": ".count-chip",
+        "count": 0
+      }
+    ],
+    "bodyFontPx": 13,
+    "maximumDataFontPx": 13,
+    "typography": {
+      "data": {
+        "count": 38,
+        "min": 13,
+        "max": 13
+      },
+      "metadata": {
+        "count": 27,
+        "min": 11.5,
+        "max": 12
+      },
+      "ordinaryWeight": {
+        "count": 47,
+        "max": 600
+      }
+    },
+    "clipping": {
+      "listNames": [],
+      "previewValues": []
+    },
+    "revisionMetrics": [],
+    "overlap": {
+      "pairs": [],
+      "noOverlaps": true,
+      "splitterCollisions": [],
+      "splitterSafe": true
+    },
+    "labels": [
+      "Current Table",
+      "Subset name",
+      "Purpose"
+    ],
+    "fieldValues": [
+      {
+        "id": "current-table",
+        "value": "Materials master",
+        "disabled": false
+      },
+      {
+        "id": "subset-name",
+        "value": "Released metal cards",
+        "disabled": false
+      },
+      {
+        "id": "subset-desc",
+        "value": "Reusable view of released metal records with at least one downloadable solver card.",
+        "disabled": false
+      }
+    ],
+    "alerts": [],
+    "listRows": [
+      "Released metal cards24 rows6",
+      "Room-temperature tensile38 rows5",
+      "Needs technical review7 rows2",
+      "Polymer relaxation data16 rows4"
+    ],
+    "rowAccessibleNames": [
+      {
+        "id": "subset-released-metal",
+        "name": "Released metal cards · revision 6"
+      },
+      {
+        "id": "subset-room-temp",
+        "name": "Room-temperature tensile · revision 5"
+      },
+      {
+        "id": "subset-review",
+        "name": "Needs technical review · revision 2"
+      },
+      {
+        "id": "subset-polymer",
+        "name": "Polymer relaxation data · revision 4"
+      }
+    ],
+    "tasks": [],
+    "readiness": [],
+    "related": [],
+    "orderedFields": [],
+    "filters": [
+      "Familyequals MetalDiscrete",
+      "Card statusequals ReleasedDiscrete",
+      "Temperature273 K to 333 KNumber"
+    ],
+    "documentText": "Skip to Administration workspace CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Administrator · Atlas workspace Database design Atlas workspace · Materials master Ready Validate Preview results Save new revision Schema objects 5 areas Tables 5 Attributes 18 Layouts 3 Subsets 4 Link Types 3 Current Table Materials master Test records Solver cards Definitions use the selected Table version. Materials master selected Subsets 4 items Name Preview Rev Released metal cards 24 rows 6 Room-temperature tensile 38 rows 5 Needs technical review 7 rows 2 Polymer relaxation data 16 rows 4 Released metal cards Subset revision 6 · Materials master Unsaved draft Subset name Purpose Filter definition Add filter Family equals Metal Discrete Card status equals Released Discrete Temperature 273 K to 333 K Number Discard draft Result preview Records matching the current filters Read-only Scoped result preview Released metal cards · 24 authorized matches 1–8 of 24 Material State Available cards DP780 As received Abaqus · OpenRadioss DP600 As received Abaqus · LS-DYNA HC340LA Cold rolled OpenRadioss AA6061-T6 T6 Abaqus DC04 Annealed Abaqus · OpenRadioss SUS304 Solution treated LS-DYNA SPFC980 As received OpenRadioss Q&P980 As received Abaqus Subset · Released metal cards Revision editing Ready Online",
+    "documentOverflow": {
+      "horizontal": 0,
+      "vertical": 0
+    },
+    "editorScroll": {
+      "scrollHeight": 754,
+      "clientHeight": 754,
+      "scrollTop": 0
+    },
+    "listScroll": {
+      "scrollHeight": 718,
+      "clientHeight": 718,
+      "scrollTop": 0
+    },
+    "editorTextClipped": false,
+    "remainingContainment": {
+      "gridInsideEditor": true,
+      "editorColumnInsideGrid": true,
+      "previewColumnInsideGrid": true,
+      "headingsInsideColumns": true,
+      "actionsInsideColumns": true
+    },
+    "publishButtons": [],
+    "selectedRowCount": 1,
+    "previewTables": 1,
+    "geometry": {
+      "application_bar": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 46,
+        "right": 1440,
+        "bottom": 46
+      },
+      "command_bar": {
+        "x": 9,
+        "y": 55,
+        "width": 1422,
+        "height": 54,
+        "right": 1431,
+        "bottom": 109
+      },
+      "workspace": {
+        "x": 9,
+        "y": 109,
+        "width": 1422,
+        "height": 754,
+        "right": 1431,
+        "bottom": 863
+      },
+      "navigator": {
+        "x": 9,
+        "y": 109,
+        "width": 220,
+        "height": 754,
+        "right": 229,
+        "bottom": 863
+      },
+      "object_list": {
+        "x": 236,
+        "y": 109,
+        "width": 360,
+        "height": 754,
+        "right": 596,
+        "bottom": 863
+      },
+      "editor": {
+        "x": 603,
+        "y": 109,
+        "width": 828,
+        "height": 754,
+        "right": 1431,
+        "bottom": 863
+      },
+      "editor_grid": {
+        "x": 617,
+        "y": 109,
+        "width": 788,
+        "height": 518.625,
+        "right": 1405,
+        "bottom": 627.625
+      },
+      "editor_column": {
+        "x": 617,
+        "y": 109,
+        "width": 411.6875,
+        "height": 382.546875,
+        "right": 1028.6875,
+        "bottom": 491.546875
+      },
+      "preview_column": {
+        "x": 1042.6875,
+        "y": 121,
+        "width": 362.296875,
+        "height": 506.625,
+        "right": 1404.984375,
+        "bottom": 627.625
+      },
+      "status_bar": {
+        "x": 9,
+        "y": 863,
+        "width": 1422,
+        "height": 28,
+        "right": 1431,
+        "bottom": 891
+      }
+    }
+  },
+  "interactions": {
+    "keyboard_splitter_delta": 12,
+    "ctrl_s_status": "Subset · Released metal cards\nRevision editing\nDraft save requested\nOnline",
+    "selection_records": [
+      {
+        "selectedId": "subset-room-temp",
+        "selectedPressed": "true",
+        "selectedCount": 1,
+        "pressedTrueCount": 1,
+        "focusedId": "subset-room-temp",
+        "selectedTabindex": "0",
+        "editorHeading": "Room-temperature tensile",
+        "previewText": "Scoped result preview · Room-temperature tensileRoom-temperature tensile · 38 rows authorized matches1–8 of 38MaterialStateAvailable cardsDP780As receivedAbaqus · OpenRadiossDP600As receivedAbaqus · LS-DYNAHC340LACold rolledOpenRadiossAA6061-T6T6AbaqusDC04AnnealedAbaqus · OpenRadiossSUS304Solution treatedLS-DYNASPFC980As receivedOpenRadiossQ&P980As receivedAbaqus",
+        "selectionStatus": "Subset · Room-temperature tensile",
+        "expectedId": "subset-room-temp",
+        "expectedName": "Room-temperature tensile",
+        "expectedContext": "38 rows",
+        "expectedStatus": "Subset · Room-temperature tensile",
+        "passed": true
+      },
+      {
+        "selectedId": "subset-review",
+        "selectedPressed": "true",
+        "selectedCount": 1,
+        "pressedTrueCount": 1,
+        "focusedId": "subset-review",
+        "selectedTabindex": "0",
+        "editorHeading": "Needs technical review",
+        "previewText": "Scoped result preview · Needs technical reviewNeeds technical review · 7 rows authorized matches1–8 of 7MaterialStateAvailable cardsDP780As receivedAbaqus · OpenRadiossDP600As receivedAbaqus · LS-DYNAHC340LACold rolledOpenRadiossAA6061-T6T6AbaqusDC04AnnealedAbaqus · OpenRadiossSUS304Solution treatedLS-DYNASPFC980As receivedOpenRadiossQ&P980As receivedAbaqus",
+        "selectionStatus": "Subset · Needs technical review",
+        "expectedId": "subset-review",
+        "expectedName": "Needs technical review",
+        "expectedContext": "7 rows",
+        "expectedStatus": "Subset · Needs technical review",
+        "passed": true
+      },
+      {
+        "selectedId": "subset-polymer",
+        "selectedPressed": "true",
+        "selectedCount": 1,
+        "pressedTrueCount": 1,
+        "focusedId": "subset-polymer",
+        "selectedTabindex": "0",
+        "editorHeading": "Polymer relaxation data",
+        "previewText": "Scoped result preview · Polymer relaxation dataPolymer relaxation data · 16 rows authorized matches1–8 of 16MaterialStateAvailable cardsDP780As receivedAbaqus · OpenRadiossDP600As receivedAbaqus · LS-DYNAHC340LACold rolledOpenRadiossAA6061-T6T6AbaqusDC04AnnealedAbaqus · OpenRadiossSUS304Solution treatedLS-DYNASPFC980As receivedOpenRadiossQ&P980As receivedAbaqus",
+        "selectionStatus": "Subset · Polymer relaxation data",
+        "expectedId": "subset-polymer",
+        "expectedName": "Polymer relaxation data",
+        "expectedContext": "16 rows",
+        "expectedStatus": "Subset · Polymer relaxation data",
+        "passed": true
+      }
+    ],
+    "selection_passed": true,
+    "keyboard_records": [
+      {
+        "selectedId": "subset-room-temp",
+        "selectedPressed": "true",
+        "selectedCount": 1,
+        "pressedTrueCount": 1,
+        "focusedId": "subset-room-temp",
+        "selectedTabindex": "0",
+        "editorHeading": "Room-temperature tensile",
+        "previewText": "Scoped result preview · Room-temperature tensileRoom-temperature tensile · 38 rows authorized matches1–8 of 38MaterialStateAvailable cardsDP780As receivedAbaqus · OpenRadiossDP600As receivedAbaqus · LS-DYNAHC340LACold rolledOpenRadiossAA6061-T6T6AbaqusDC04AnnealedAbaqus · OpenRadiossSUS304Solution treatedLS-DYNASPFC980As receivedOpenRadiossQ&P980As receivedAbaqus",
+        "selectionStatus": "Subset · Room-temperature tensile",
+        "key": "ArrowDown",
+        "expectedId": "subset-room-temp",
+        "expectedName": "Room-temperature tensile",
+        "expectedStatus": "Subset · Room-temperature tensile",
+        "passed": true
+      },
+      {
+        "selectedId": "subset-released-metal",
+        "selectedPressed": "true",
+        "selectedCount": 1,
+        "pressedTrueCount": 1,
+        "focusedId": "subset-released-metal",
+        "selectedTabindex": "0",
+        "editorHeading": "Released metal cards",
+        "previewText": "Scoped result previewReleased metal cards · 24 authorized matches1–8 of 24MaterialStateAvailable cardsDP780As receivedAbaqus · OpenRadiossDP600As receivedAbaqus · LS-DYNAHC340LACold rolledOpenRadiossAA6061-T6T6AbaqusDC04AnnealedAbaqus · OpenRadiossSUS304Solution treatedLS-DYNASPFC980As receivedOpenRadiossQ&P980As receivedAbaqus",
+        "selectionStatus": "Subset · Released metal cards",
+        "key": "ArrowUp",
+        "expectedId": "subset-released-metal",
+        "expectedName": "Released metal cards",
+        "expectedStatus": "Subset · Released metal cards",
+        "passed": true
+      },
+      {
+        "selectedId": "subset-released-metal",
+        "selectedPressed": "true",
+        "selectedCount": 1,
+        "pressedTrueCount": 1,
+        "focusedId": "subset-released-metal",
+        "selectedTabindex": "0",
+        "editorHeading": "Released metal cards",
+        "previewText": "Scoped result previewReleased metal cards · 24 authorized matches1–8 of 24MaterialStateAvailable cardsDP780As receivedAbaqus · OpenRadiossDP600As receivedAbaqus · LS-DYNAHC340LACold rolledOpenRadiossAA6061-T6T6AbaqusDC04AnnealedAbaqus · OpenRadiossSUS304Solution treatedLS-DYNASPFC980As receivedOpenRadiossQ&P980As receivedAbaqus",
+        "selectionStatus": "Subset · Released metal cards",
+        "key": "Home",
+        "expectedId": "subset-released-metal",
+        "expectedName": "Released metal cards",
+        "expectedStatus": "Subset · Released metal cards",
+        "passed": true
+      },
+      {
+        "selectedId": "subset-polymer",
+        "selectedPressed": "true",
+        "selectedCount": 1,
+        "pressedTrueCount": 1,
+        "focusedId": "subset-polymer",
+        "selectedTabindex": "0",
+        "editorHeading": "Polymer relaxation data",
+        "previewText": "Scoped result preview · Polymer relaxation dataPolymer relaxation data · 16 rows authorized matches1–8 of 16MaterialStateAvailable cardsDP780As receivedAbaqus · OpenRadiossDP600As receivedAbaqus · LS-DYNAHC340LACold rolledOpenRadiossAA6061-T6T6AbaqusDC04AnnealedAbaqus · OpenRadiossSUS304Solution treatedLS-DYNASPFC980As receivedOpenRadiossQ&P980As receivedAbaqus",
+        "selectionStatus": "Subset · Polymer relaxation data",
+        "key": "End",
+        "expectedId": "subset-polymer",
+        "expectedName": "Polymer relaxation data",
+        "expectedStatus": "Subset · Polymer relaxation data",
+        "passed": true
+      },
+      {
+        "selectedId": "subset-room-temp",
+        "selectedPressed": "true",
+        "selectedCount": 1,
+        "pressedTrueCount": 1,
+        "focusedId": "subset-room-temp",
+        "selectedTabindex": "0",
+        "editorHeading": "Room-temperature tensile",
+        "previewText": "Scoped result preview · Room-temperature tensileRoom-temperature tensile · 38 rows authorized matches1–8 of 38MaterialStateAvailable cardsDP780As receivedAbaqus · OpenRadiossDP600As receivedAbaqus · LS-DYNAHC340LACold rolledOpenRadiossAA6061-T6T6AbaqusDC04AnnealedAbaqus · OpenRadiossSUS304Solution treatedLS-DYNASPFC980As receivedOpenRadiossQ&P980As receivedAbaqus",
+        "selectionStatus": "Subset · Room-temperature tensile",
+        "key": "Enter",
+        "expectedId": "subset-room-temp",
+        "expectedName": "Room-temperature tensile",
+        "expectedStatus": "Subset · Room-temperature tensile",
+        "passed": true
+      }
+    ],
+    "keyboard_passed": true
+  },
+  "console_errors": [],
+  "page_errors": []
+}

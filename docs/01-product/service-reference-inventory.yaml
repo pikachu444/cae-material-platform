@@ -1,0 +1,461 @@
+schema_version: 2
+issue: 167
+date: 2026-07-31
+authority:
+  instructions: AGENTS.md
+  issue_url: https://github.com/pikachu444/cae-material-platform/issues/167
+  product_spec: docs/01-product/desktop-engineering-ui-product-spec.md
+  ui_spec: docs/01-product/desktop-engineering-ui-spec.md
+  visual_gate: docs/01-product/visual-acceptance-matrix.md
+  manifest: docs/01-product/service-reference-manifest.yaml
+  evidence: docs/17-evidence/reports/issue-167-service-reference-freeze.md
+policy:
+  normal_viewports:
+    - key: 1366x768
+      width: 1366
+      height: 768
+    - key: 1440x900
+      width: 1440
+      height: 900
+    - key: 1920x1080
+      width: 1920
+      height: 1080
+  exceptional_image_viewport:
+    key: 1440x900
+    width: 1440
+    height: 900
+  exceptional_responsive_evidence:
+    - 1366x768
+    - 1440x900
+    - 1920x1080
+  additional_exception_image_rule: >-
+    Add a compact or wide exceptional-state image only after deterministic evidence proves that the
+    state changes responsive topology. Any addition requires an inventory version bump and
+    product-owner approval.
+  approval: >-
+    One product-owner response may approve a batch, but it must identify every image path and
+    SHA-256. Each target keeps an independent manifest lifecycle.
+  parallelism: >-
+    At most two dependency-independent bundles may have writers at once. Writers own disjoint
+    family sources, capture scripts and image directories; the main agent alone integrates this
+    inventory, the common manifest and the common evidence report.
+counts:
+  families: 18
+  bundles: 13
+  normal_images: 54
+  exceptional_images: 18
+  topology_variant_images: 0
+  total_images: 72
+  approved_images_at_freeze: 5
+  remaining_images_at_freeze: 67
+  approved_images_current: 72
+  remaining_images_current: 0
+families:
+  - id: MAT-EXP
+    domain: Materials
+    label: Explorer, results, selected context and Browse tree
+    bundle: MAT-EXP
+    depends_on: []
+    normal:
+      target_base: materials-search-normal
+      state: normal
+      images: 3
+    exceptions:
+      - id: materials-search-long-1440x900
+        state: long
+      - id: materials-search-empty-1440x900
+        state: empty
+    evidence_only_states:
+      - loading-refresh-and-tree-lazy-load
+      - query-or-tree-error-with-selection-preserved
+    image_count: 5
+  - id: MAT-DETAIL
+    domain: Materials
+    label: Datasheet overview, properties, curves and Related
+    bundle: MAT-DETAIL
+    depends_on:
+      - MAT-EXP
+    dependency_gate: MAT-EXP normal selected-Record targets approved
+    normal:
+      target_base: materials-datasheet-overview-normal
+      state: normal
+      images: 3
+    exceptions:
+      - id: materials-datasheet-related-long-1440x900
+        state: related-long
+      - id: materials-datasheet-empty-1440x900
+        state: empty
+    evidence_only_states:
+      - selected-record-loading-with-header-tree-tabs-preserved
+      - record-fetch-error-with-back-return
+      - access-blocked-with-safe-return
+    image_count: 5
+  - id: MAT-CARD
+    domain: Materials
+    label: Native solver-card preview and download
+    bundle: MAT-CARD
+    depends_on:
+      - MAT-DETAIL
+    normal:
+      target_base: materials-card-preview-normal
+      state: normal
+      images: 3
+    exceptions:
+      - id: materials-card-approximation-blocked-1440x900
+        state: approximation-blocked
+      - id: materials-card-unsupported-blocked-1440x900
+        state: unsupported-blocked
+    evidence_only_states:
+      - long-native-text-scroll
+      - preview-or-mapping-loading
+      - preview-or-download-error-with-context-preserved
+    image_count: 5
+  - id: MOD-DATA
+    domain: Modeling
+    label: Data source, raw inspector and mapping
+    bundle: MOD-DATA
+    depends_on: []
+    normal:
+      target_base: modeling-data-normal
+      state: normal
+      images: 3
+    exceptions:
+      - id: modeling-data-empty-new-session-1440x900
+        state: empty-new-session
+      - id: modeling-data-long-invalid-mapping-blocked-1440x900
+        state: long-invalid-mapping-blocked
+    evidence_only_states:
+      - detecting-or-saving-loading
+      - parse-import-or-save-error-with-source-and-mapping-preserved
+    image_count: 5
+  - id: MOD-PROCESS
+    domain: Modeling
+    label: Process operations and preview
+    bundle: MOD-PROCESS
+    depends_on:
+      - MOD-DATA
+    normal:
+      target_base: modeling-process-normal
+      state: normal
+      images: 3
+    exceptions:
+      - id: modeling-process-prerequisite-blocked-1440x900
+        state: prerequisite-blocked
+    evidence_only_states:
+      - long-curve-rail-and-operation-list
+      - preview-or-commit-loading
+      - preview-or-commit-error-with-graph-preserved
+    image_count: 4
+  - id: MOD-FIT
+    domain: Modeling
+    label: Fit candidates, graph comparison and engineer selection
+    bundle: MOD-FIT
+    depends_on:
+      - MOD-PROCESS
+    normal:
+      target_base: modeling-fit-normal
+      state: normal
+      images: 3
+    exceptions:
+      - id: modeling-fit-candidate-parameters-long-1440x900
+        state: candidate-parameters-long
+    evidence_only_states:
+      - no-candidate-empty
+      - calculating
+      - stale-or-no-selection-blocked
+      - fit-error-with-rail-ribbon-and-graph-preserved
+    image_count: 4
+  - id: MOD-EXPORT
+    domain: Modeling
+    label: Export preflight, native preview and delivery
+    bundle: MOD-EXPORT
+    depends_on:
+      - MOD-FIT
+    normal:
+      target_base: modeling-export-normal
+      state: preview-ready
+      images: 3
+    exceptions:
+      - id: modeling-export-source-blocked-1440x900
+        state: source-blocked
+      - id: modeling-export-approximation-blocked-1440x900
+        state: approximation-blocked
+      - id: modeling-export-delivered-1440x900
+        state: delivered
+    evidence_only_states:
+      - no-target-empty
+      - preflight-or-delivering-loading
+      - delivery-error-with-preflight-preserved
+      - long-mapping-disclosure
+    image_count: 6
+  - id: ACT-U
+    domain: Activity
+    label: User queue and resume history
+    bundle: ACT-QUEUE
+    depends_on: []
+    normal:
+      target_base: activity-user-normal
+      state: normal
+      images: 3
+    exceptions: []
+    evidence_only_states:
+      - empty-with-one-next-command
+      - loading-with-local-session-history-preserved
+      - long-row-containment
+      - queue-error-with-current-rows-preserved
+    image_count: 3
+  - id: ACT-R
+    domain: Activity
+    label: Reviewer queue and decision
+    bundle: ACT-QUEUE
+    depends_on:
+      - ACT-U
+    dependency_gate: shared Activity queue topology frozen
+    normal:
+      target_base: activity-reviewer-normal
+      state: normal
+      images: 3
+    exceptions:
+      - id: activity-reviewer-long-decision-error-1440x900
+        state: long-decision-error
+    evidence_only_states:
+      - user-role-decision-blocked
+      - stale-or-unauthorized-review
+      - decision-error-with-reason-and-request-preserved
+    image_count: 4
+  - id: ACT-X
+    domain: Activity
+    label: Failed-job recovery projection
+    bundle: ACT-RECOVERY
+    depends_on:
+      - ACT-U
+    normal:
+      target_base: activity-recovery-blocked
+      state: not-configured
+      truth_boundary: >-
+        The current product lacks a readable user-task recovery projection. Show a blocked
+        Not configured reference and preserve available Modeling context; never fabricate a job,
+        receipt, release or successful retry.
+      images: 3
+    exceptions: []
+    evidence_only_states:
+      - recovery-empty
+      - recovery-loading
+      - recovery-action-error
+    image_count: 3
+  - id: ADM-DB
+    domain: Administration
+    label: Database design scope and schema object navigator
+    bundle: ADM-SCHEMA-CORE
+    depends_on: []
+    normal:
+      target_base: administration-database-normal
+      state: normal
+      truth_boundary: >-
+        Do not fabricate a governed editable Database or Profile resource that the current service
+        does not expose.
+      images: 3
+    exceptions: []
+    evidence_only_states:
+      - catalog-empty
+      - catalog-loading
+      - catalog-error-with-prior-selection-preserved
+    image_count: 3
+  - id: ADM-TBL
+    domain: Administration
+    label: Table edit draft
+    bundle: ADM-SCHEMA-CORE
+    depends_on:
+      - ADM-DB
+    normal:
+      target_base: administration-table-edit-draft
+      state: draft
+      images: 3
+    exceptions:
+      - id: administration-edit-stale-conflict-1440x900
+        state: stale-revision-conflict
+    evidence_only_states:
+      - table-empty
+      - saving
+      - save-error-with-draft-preserved
+    image_count: 4
+  - id: ADM-ATR
+    domain: Administration
+    label: Typed Attribute edit draft
+    bundle: ADM-SCHEMA-CORE
+    depends_on:
+      - ADM-TBL
+    normal:
+      target_base: administration-attribute-edit-draft
+      state: draft
+      images: 3
+    exceptions:
+      - id: administration-attribute-long-invalid-1440x900
+        state: long-invalid
+    evidence_only_states:
+      - type-conditional-fields
+      - saving
+      - save-error-with-field-values-preserved
+    image_count: 4
+  - id: ADM-LAY
+    domain: Administration
+    label: Layout edit and real datasheet preview
+    bundle: ADM-SCHEMA-RELATIONS
+    depends_on:
+      - ADM-ATR
+    normal:
+      target_base: administration-layout-edit-draft
+      state: draft
+      images: 3
+    exceptions: []
+    evidence_only_states:
+      - missing-attribute-blocked
+      - preview-loading
+      - preview-error-with-draft-preserved
+    image_count: 3
+  - id: ADM-SUB
+    domain: Administration
+    label: Subset edit and scoped result preview
+    bundle: ADM-SCHEMA-RELATIONS
+    depends_on:
+      - ADM-TBL
+    normal:
+      target_base: administration-subset-edit-draft
+      state: draft
+      images: 3
+    exceptions: []
+    evidence_only_states:
+      - invalid-filter-blocked
+      - preview-loading
+      - preview-error-with-draft-preserved
+    image_count: 3
+  - id: ADM-LNK
+    domain: Administration
+    label: Link Type edit, validation and Related test
+    bundle: ADM-SCHEMA-RELATIONS
+    depends_on:
+      - ADM-TBL
+    normal:
+      target_base: administration-link-type-edit-draft
+      state: draft
+      images: 3
+    exceptions: []
+    evidence_only_states:
+      - invalid-endpoint-or-cardinality-blocked
+      - validation-loading
+      - related-test-error-with-draft-preserved
+    image_count: 3
+  - id: ADM-ACC
+    domain: Administration
+    label: Access grant and revoke
+    bundle: ADM-ACCESS
+    depends_on:
+      - ADM-DB
+    normal:
+      target_base: administration-access-normal
+      state: normal
+      images: 3
+    exceptions:
+      - id: administration-access-denied-1440x900
+        state: denied
+      - id: administration-access-revoke-confirm-1440x900
+        state: revoke-confirm
+    evidence_only_states:
+      - access-empty
+      - access-loading
+      - access-service-error
+    image_count: 5
+  - id: ADM-PUB
+    domain: Administration
+    label: Catalog publish boundary
+    bundle: ADM-PUBLISH
+    depends_on:
+      - ADM-ATR
+      - ADM-LAY
+      - ADM-SUB
+      - ADM-LNK
+    normal:
+      target_base: administration-publish-blocked
+      state: not-configured
+      truth_boundary: >-
+        Catalog resources are draft-only and no publication transition or policy endpoint exists.
+        Show Publish as Not configured/blocked and never fabricate publication success.
+      images: 3
+    exceptions: []
+    evidence_only_states:
+      - validation-blocked
+      - validation-loading
+      - publish-error-with-draft-preserved
+    image_count: 3
+bundles:
+  - id: MAT-EXP
+    family_ids: [MAT-EXP]
+    depends_on: []
+    image_count: 5
+  - id: MAT-DETAIL
+    family_ids: [MAT-DETAIL]
+    depends_on: [MAT-EXP]
+    image_count: 5
+  - id: MAT-CARD
+    family_ids: [MAT-CARD]
+    depends_on: [MAT-DETAIL]
+    image_count: 5
+  - id: MOD-DATA
+    family_ids: [MOD-DATA]
+    depends_on: []
+    image_count: 5
+  - id: MOD-PROCESS
+    family_ids: [MOD-PROCESS]
+    depends_on: [MOD-DATA]
+    image_count: 4
+  - id: MOD-FIT
+    family_ids: [MOD-FIT]
+    depends_on: [MOD-PROCESS]
+    image_count: 4
+  - id: MOD-EXPORT
+    family_ids: [MOD-EXPORT]
+    depends_on: [MOD-FIT]
+    image_count: 6
+  - id: ACT-QUEUE
+    family_ids: [ACT-U, ACT-R]
+    depends_on: []
+    image_count: 7
+  - id: ACT-RECOVERY
+    family_ids: [ACT-X]
+    depends_on: [ACT-QUEUE]
+    image_count: 3
+  - id: ADM-SCHEMA-CORE
+    family_ids: [ADM-DB, ADM-TBL, ADM-ATR]
+    depends_on: []
+    image_count: 11
+  - id: ADM-SCHEMA-RELATIONS
+    family_ids: [ADM-LAY, ADM-SUB, ADM-LNK]
+    depends_on: [ADM-SCHEMA-CORE]
+    image_count: 9
+  - id: ADM-ACCESS
+    family_ids: [ADM-ACC]
+    depends_on: [ADM-SCHEMA-CORE]
+    image_count: 5
+  - id: ADM-PUBLISH
+    family_ids: [ADM-PUB]
+    depends_on: [ADM-SCHEMA-CORE, ADM-SCHEMA-RELATIONS]
+    image_count: 3
+first_parallel_wave:
+  approval_batch: WAVE-01
+  status: approved
+  bundles:
+    - MAT-DETAIL
+    - MOD-DATA
+  rationale: >-
+    MAT-EXP normal selected-Record targets are approved, which satisfies MAT-DETAIL's dependency
+    gate. MOD-DATA depends only on the frozen shared Modeling shell/session contract. Their source,
+    capture and image ownership is disjoint.
+  targets:
+    - materials-datasheet-overview-normal-1920x1080
+    - materials-datasheet-related-long-1440x900
+    - materials-datasheet-empty-1440x900
+    - modeling-data-normal-1366x768
+    - modeling-data-normal-1440x900
+    - modeling-data-normal-1920x1080
+    - modeling-data-empty-new-session-1440x900
+    - modeling-data-long-invalid-mapping-blocked-1440x900

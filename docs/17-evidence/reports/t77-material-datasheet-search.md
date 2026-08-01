@@ -20,13 +20,13 @@ database migration: eight typed Attributes and a four-section `Material overview
 Datasheet shows `7.85 g/cm^3 -> 7850 kg/m^3`, `210000 MPa -> 210000000000 Pa`, Poisson's ratio and
 yield stress without hiding normalization.
 
-![DP780 Layout-driven Material Datasheet](../images/t77-material-datasheet.png)
+![DP780 Layout-driven Material Datasheet](../images/historical-task-screenshots/t77-material-datasheet.png)
 
 The second capture searches `DP780`, selects the Material and Material State Records and compares
 their exact current revisions. Facet counts and numeric range controls are computed by the existing
 PostgreSQL typed-value search contract.
 
-![AMDC-style typed search, facets and Layout comparison](../images/t77-material-search-compare.png)
+![AMDC-style typed search, facets and Layout comparison](../images/historical-task-screenshots/t77-material-search-compare.png)
 
 T-77 deliberately does not draw a fake generic plot from opaque curve Artifact identifiers. The
 Curves tab preserves curve Attribute provenance and directs the user to exact linked Test Data.

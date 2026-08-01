@@ -17,9 +17,9 @@ Date: 2026-07-20
 
 ## Live Docker/PostgreSQL evidence
 
-![Guided configurable Material Database administration](../images/t92-database-administration.jpg)
+![Guided configurable Material Database administration](../images/historical-task-screenshots/t92-database-administration.jpg)
 
-![Metal Recipe batch compatibility and monitor](../images/t92-recipe-batch-monitor.jpg)
+![Metal Recipe batch compatibility and monitor](../images/historical-task-screenshots/t92-recipe-batch-monitor.jpg)
 
 The live Metal path automatically restored `CMP demo tensile cleanup r2 · published`, selected two exact
 Test JSON revisions and returned `2/2 compatible` with 101 output points each. The native Execute action

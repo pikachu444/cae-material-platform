@@ -1,0 +1,60 @@
+/* Target-only wide override: retain a restrained navigator and 300px context column. */
+:root {
+  --navigator-width: 280px;
+}
+
+.overview-grid {
+  grid-template-columns: minmax(0, 1fr) 300px;
+}
+
+/*
+ * The wide target has enough vertical room to show the existing response curve at
+ * an engineering-plot proportion.  Keep the context rail bounded and derive the
+ * low-density plot height from the rendered plot width instead of stretching the
+ * 190px compact viewport across a wide main pane.
+ */
+.plot-frame {
+  container-type: inline-size;
+}
+
+.response-plot {
+  height: clamp(450px, min(48vw, calc(100vh - 600px)), 1550px);
+}
+
+@supports (height: 1cqw) {
+  .response-plot {
+    height: clamp(450px, min(48cqw, calc(100vh - 600px)), 1550px);
+  }
+}
+
+/* At wide desktop sizes, the exact response points use the remaining width
+ * beside one dominant plot.  The bounded context rail remains unchanged. */
+@media (min-width: 1920px) {
+  .response-layout {
+    display: grid;
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr) clamp(340px, 26%, 500px);
+    border: 1px solid var(--line);
+    background: var(--surface);
+  }
+
+  .response-plot-column {
+    min-width: 0;
+  }
+
+  .response-plot-column .plot-frame {
+    height: 100%;
+    border: 0;
+  }
+
+  .response-grid-panel {
+    display: grid;
+    min-height: 0;
+    grid-template-rows: 46px minmax(0, 1fr);
+    border-left: 1px solid var(--line);
+  }
+
+  .response-grid-scroll-shell {
+    min-height: 0;
+  }
+}

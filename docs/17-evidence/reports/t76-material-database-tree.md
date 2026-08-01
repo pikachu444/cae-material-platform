@@ -18,7 +18,7 @@ developer-oriented flat Catalog screen:
 The screenshot uses public synthetic DP780 demo data. It is product navigation evidence, not a
 claim that T-77 Layout Datasheet, AMDC-style facets and comparison are complete.
 
-![Hierarchical Material Database Contents and Workflow Trees](../images/t76-material-database-tree.jpg)
+![Hierarchical Material Database Contents and Workflow Trees](../images/historical-task-screenshots/t76-material-database-tree.jpg)
 
 The persistence contract was corrected as part of the vertical slice. A stable Catalog Record can
 append a new revision and bind that new exact Record revision to the same exact governed revision;

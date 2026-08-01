@@ -7,7 +7,7 @@ Neo-Hookean, Mooney--Rivlin, Yeoh, and one-term Ogden candidates on the same thr
 and one disjoint holdout curve. Selecting a family row loads its digest-pinned Parquet diagnostics
 Artifact and renders observed, fitted, and residual nominal stress without re-running the fit.
 
-![Public hyperelastic family comparison](../images/t55e-hyperelastic-family-comparison.jpg)
+![Public hyperelastic family comparison](../images/historical-task-screenshots/t55e-hyperelastic-family-comparison.jpg)
 
 ## Persisted evidence
 

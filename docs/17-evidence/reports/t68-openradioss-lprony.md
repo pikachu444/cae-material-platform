@@ -23,7 +23,7 @@ nearly-incompressible interpretation and external `/PROP I_smstr=10 or 12` prere
 contains `/MAT/LAW1`, `/VISC/LPRONY`, Form 2 and `flag_visc=2`; it does not contain LAW62 or an
 invented `/PROP`.
 
-![Conditional OpenRadioss LPRONY preflight and native card](../images/t68-openradioss-lprony.png)
+![Conditional OpenRadioss LPRONY preflight and native card](../images/historical-task-screenshots/t68-openradioss-lprony.png)
 
 The protected verifier also downloaded both solver cards and verified their SHA-256 digests. This
 is reference/non-production mapping evidence, not an OpenRadioss execution or qualification result.

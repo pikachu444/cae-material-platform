@@ -27,9 +27,9 @@ The PostgreSQL row pins the same Recipe revision/digest, Batch, Member, Attempt 
 The browser shows the published Recipe and successful Attempt directly on the selected IR, and the
 Processing workbench shows the same polymer Batch as succeeded.
 
-![Exact Recipe and successful Batch evidence on the promoted IR](../images/t69-polymer-recipe-batch-evidence.png)
+![Exact Recipe and successful Batch evidence on the promoted IR](../images/historical-task-screenshots/t69-polymer-recipe-batch-evidence.png)
 
-![Published polymer Recipe Batch result](../images/t69-polymer-recipe-batch-monitor.png)
+![Published polymer Recipe Batch result](../images/historical-task-screenshots/t69-polymer-recipe-batch-monitor.png)
 
 The protected verifier checked both native card digests and the package representation set. The
 isolated PostgreSQL integration suite passed all 76 tests. Full `make ci` passed with 768 backend,

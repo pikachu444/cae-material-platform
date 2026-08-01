@@ -16,4 +16,4 @@ Verification passed all 76 isolated PostgreSQL tests, 774 Python tests in the de
 62 frontend tests, static typing across 650 source files, architecture and contract checks, OpenAPI
 compatibility, the 55-capture user-guide gate and the production web bundle budget.
 
-![Saved Plan library and loaded exact member settings](../images/t72-ogden-plan-library.jpg)
+![Saved Plan library and loaded exact member settings](../images/historical-task-screenshots/t72-ogden-plan-library.jpg)

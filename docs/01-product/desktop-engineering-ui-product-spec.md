@@ -67,6 +67,34 @@ The application has four modes. These are workspaces, not separate mini-products
 - Data/control text: 13–13.5 px.
 - Metadata: 11.5–12 px.
 
+### 4.2.1 Wide-screen semantic elasticity
+
+The 1366×768 and 1440×900 references establish the compact safety topology; they are not a
+maximum-content template stretched across every larger display. At 1920×1080 and above, bounded
+navigator, list, form, graph and preview regions keep readable dimensions. Related task components
+form one left- and top-aligned working cluster with only the normal divider or gutter between them.
+Unused space is permitted after that cluster, primarily at the far right and bottom.
+
+- Graphs, data grids, native previews and real Layout/Record previews grow only while additional
+  size improves reading, comparison or interaction; they stop at a useful bound rather than
+  stretching merely to fill the viewport.
+- Navigation rails, compact control bands and property forms remain bounded; their rows and prose
+  do not stretch merely to occupy pixels.
+- Additional wide-screen content must come from the same current record, layout, mapping, curve or
+  workflow projection. Explanatory filler, duplicated labels and invented technical metadata are not
+  accepted.
+- A large void inside the working cluster is a qualitative failure when it separates related
+  components or hides an existing contract-backed result. Trailing right/bottom whitespace is not a
+  failure by itself; forced stretching or fabricated content used only to eliminate it is a failure.
+- A normal pageable search reference uses a representative complete server page when that page is
+  already available from the scoped query. An intentionally under-filled demo fixture is not a
+  sparse-state exception and cannot justify a large empty result grid.
+- Responsive graph geometry is recomputed from the rendered plot box. SVG is acceptable when its
+  viewBox and marks use the same aspect ratio; non-uniform stretching is forbidden. Canvas or WebGL
+  is reserved for point density or interaction cost that SVG cannot meet, not for repairing layout.
+- 2560×1440 and 3840×2160 are deterministic wide-screen evidence viewports. They do not add approval
+  inventory items unless their topology differs materially from the registered 1920×1080 target.
+
 ### 4.3 Command hierarchy
 
 Commands are rendered according to scope.
@@ -94,6 +122,10 @@ A large bordered button is not the default representation for every action.
 ```
 
 - Navigator and Context panes are resizable and independently scrollable.
+- An overflowing tree or result region has a reserved, visibly distinguishable scroll rail and
+  thumb in the required reference captures. Computed overflow or an operating-system scrollbar that
+  disappears in the captured pixels is not sufficient visual evidence. The rail must not cover row
+  text, and it must operate by pointer, wheel and keyboard.
 - Splitter positions persist per user and viewport class.
 - At 1366 px, Context defaults closed before the result region is compressed.
 - Main result/datasheet region must remain at least 720 px when possible.
@@ -117,6 +149,14 @@ A large bordered button is not the default representation for every action.
 - Related links open the linked Record while maintaining an in-workspace back stack.
 - Breadcrumbs show hierarchy but do not replace the Tree.
 - Record selection must preserve exact revision context when opened from Evidence or a governed link.
+- A tree row shows the concise stored object identity. Database/Profile/Table/Folder/Record type is
+  conveyed by one aligned disclosure/glyph grammar. Disclosure, type glyph and identity occupy the
+  same grid row and share one vertical center; implicit grid auto-placement must never put the glyph
+  on a second line. Explanatory or qualification prose belongs in adjacent context or a tooltip, not
+  appended to every node name.
+- A genuinely long stored identity remains one line and is reachable with a local horizontal
+  scrollbar that appears only when the tree actually overflows. The vertical scrollbar appears when
+  more rows exist than the local viewport can show. Both use reserved rails outside the text area.
 
 ### 5.4 Result grid columns
 
@@ -172,6 +212,22 @@ Overview | Properties | Curves | CAE Cards | Evidence
 - Curves uses the engineering plot component and a compact curve list.
 - CAE Cards contains solver, law, version, unit system, mapping state and preview/download commands.
 - Evidence contains Related Records, workflow, revisions, provenance and technical identifiers.
+
+The CAE Card preview and Modeling Export reuse one Mapping details grammar because they project the
+same solver-mapping item contract. Each normal row contains one concise quantity title, one
+source-to-target value or representation, and one plain right-aligned user consequence such as
+`Exact`, `Converted`, `Review required`, `Reviewed` or `Not supported`. Uppercase status pills,
+route-specific badge systems and explanatory paragraphs inside every row are forbidden. Technical
+exact/transformed/approximated/ignored/unsupported counts, identifiers and checksums remain in
+Technical mapping details or Evidence. The routes may allocate different surrounding regions, but
+must not reinterpret the mapping state or invent a second component grammar.
+
+At 1920×1080 and above, a sparse representative curve does not expand indefinitely merely because
+the viewport is wider. When the exact current response points already exist in the same linked
+curve/Record projection, Overview pairs the dominant plot with a compact point grid. Plot and grid
+read one ordered point set; neither interpolates, resamples, smooths or invents a second series. The
+grid uses local scrolling only when its exact rows overflow and disappears as a separate companion
+when the compact viewport cannot preserve a useful plot.
 
 ## 6. Known Material to card flow
 
@@ -231,6 +287,23 @@ disclosure, never a permanent third column. Validation and review/release remain
 Advanced or Activity actions and are not normal-stage tiles. The approved visual reference is the
 lower proposal in `docs/17-evidence/images/ux-layout-review/modeling-reference-comparison.png`.
 
+The Modeling navigator is not a copy of the Materials catalog tree, but both belong to one desktop
+engineering grammar. Modeling therefore uses the same flat pane heading, regular 12–13 px identity
+text, restrained selection fill with a leading accent, aligned hierarchy indentation and compact
+section separators. The curve rail keeps its stage-specific membership checkbox, plot-color sample
+and independent visibility command, but these controls must not make the identity look bold, crowded
+or card-like. Section labels use sentence case rather than oversized uppercase navigation chrome.
+The method parent and its specimen children remain visually distinguishable at every supported pane
+width; full identities stay accessible, and a conditional local scrollbar appears when content
+actually overflows.
+
+The curve legend is a compact overlay inside a measured data-free plot quadrant, using lower-right
+for the current Fit response when it remains clear. It must not cover any curve, observed boundary,
+axis, tick/title, graph-state overlay or direct-selection feedback. The renderer checks candidate
+quadrants against current geometry and moves the legend when necessary; a compact docked legend is
+the fallback only when no safe plot region exists. A permanent external legend column must not tax
+the normal plot width. Recommendation/selection workflow status is not part of the curve legend.
+
 ### 7.2 Session lifecycle
 
 Normal-path states:
@@ -285,6 +358,13 @@ Commands:
 
 Every operation shows its effect as a graph overlay before commit. The source curve remains visible or recoverable.
 
+At 2560×1440 and 3840×2160, the Process graph does not grow indefinitely or introduce a separate
+response table merely to occupy the viewport. Its plot keeps the 1920 useful pixel size and aspect, while its
+right edge aligns with the bounded operation settings and `Save processed curves` action above.
+The graph and settings therefore read as one left/top task cluster; unused space remains only after
+that cluster at the far right and bottom. These wide viewports retain the 1920 topology and are
+deterministic support evidence rather than separate approval lifecycle targets.
+
 ### 7.5 Fit stage
 
 The graph displays observed data, candidate fits, residual or tangent view and the observed/extrapolated boundary.
@@ -318,19 +398,89 @@ single/blend identity as the decision evidence. Polymer selection is the actual 
 term-count result, not the requested policy. A save is disabled until a row is selected, its reason
 is present and any row warning is acknowledged.
 
+One exact Test Data/Processing Output revision may branch into several independently calculated and
+saved models. For example, Swift, Voce and a Swift/Voce blend can share the same tensile input while
+retaining different method/version/options, parameters, fit domain, diagnostics and engineer
+decision. Saving one branch never updates or supersedes its siblings. Each promoted Material Model
+IR revision pins one exact saved branch, and each Solver Card pins that IR revision plus one explicit
+target tuple and mapping digest. Several Solver Cards may therefore coexist for the same experiment.
+A current pointer is only a workspace convenience; it never rewrites these links or makes a sibling
+the implicit source.
+
+The normal GUI identifies the branch by its selected model identity and keeps the common experiment,
+material state and condition in the page/session context. It does not use a source test name or an
+ambiguous label such as `r1` to distinguish model branches. Exact Test Data, Processing Output,
+selected-model/IR and Solver Card revision links remain inspectable in Advanced/Evidence and history.
+`Open in Fit` returns to the exact selected branch, not the newest branch derived from that test.
+
 ### 7.6 Export stage
 
 Flow:
 
 1. selected, saved model is pinned;
-2. choose target solver/version/unit system;
-3. preflight mapping states;
+2. choose one exporter-declared target tuple; Output unit system remains a visible selector so the
+   tuple is explicit even when the current exporter offers one supported value. Supported values are
+   selectable; capability-declared unavailable values may be visible but disabled with their reason;
+3. run the Export check and disclose mapping consequences;
 4. resolve required missing values;
 5. acknowledge approximations when present;
 6. preview native card;
 7. download and save/link to the Material Library.
 
-The preflight summary uses user language first and technical mapping details second.
+Export is a setup/result workspace. The left setup pane contains only the selected model identity,
+Destination and Export check. It does not repeat physical properties, lineage flags or generated
+output labels. The result side keeps the native Solver Card preview dominant and may divide its
+bounded secondary column between Mapping details and a compact family-specific Fit source preview.
+This secondary column is read-only result context, not a permanent control inspector. Mapping rows
+use one compact title/value/status grammar; explanatory paragraphs, technical mapping counts,
+identifiers and receipt mechanics remain under Advanced or Delivery details.
+
+The Export check uses three user-facing states:
+
+- `Ready to create`: zero blockers and no unacknowledged review item;
+- `Review required`: zero blockers and one or more named approximations awaiting acknowledgement;
+- `Cannot create`: one or more missing, stale, unsupported or unsafe prerequisites.
+
+Source Material/State/model values are read-only in Export. A physical value such as Density appears
+once in Mapping details when it affects the target representation; changing it requires an upstream
+governed revision. Changing the target tuple changes only the deterministic output representation
+and invalidates the current preview/delivery pointer. Mapping details show source value/unit, target
+value/unit or representation and one concise user consequence. Material State retained only as
+applicability context is not counted as a successful solver-field mapping.
+
+Output unit system is never presented as an unexplained read-only value. The selector is populated
+from the exporter capability response. With one supported option it remains visible and exposes that
+no other unit system is available; with several supported options it permits a change. An unsupported
+value is not accepted and then rejected by a warning dialog or a disabled Create action. If the
+capability response declares an unavailable option and reason, the option may be shown disabled.
+A valid unit-system change clears preview, acknowledgement and delivery pointers and requires a new
+Export check.
+
+Readiness is stated once in Export check as `Ready to create`, `Review required`, or `Cannot create`,
+with one short blocker, review item or next action. Preview and Mapping details must not restate the
+same failure in competing prose or large alert fields. The compact Fit source plot computes axis
+headroom as a ratio of its displayed data span, preserves a meaningful zero anchor where required,
+uses family-specific quantities/units and keeps the legend in a curve-free plot quadrant. Normal
+content has no decorative scroll rail; genuine long native or mapping content scrolls locally with
+a visible, proportional affordance.
+
+User-facing mapping language is consequence-first (`Values unchanged`, `Converted`,
+`Native formatting`, `Review required`, `Not supported`, `Context only`). The exporter-owned
+`exact`, `transformed`, `approximated`, `ignored`, `unsupported` and `not_applicable` values remain
+available in Advanced mapping details and are never silently changed. Reformatting immutable values
+as native ASCII rows is not presented as a numerical conversion.
+
+The visible mapping rows and Fit source preview are family-specific:
+
+- metal elastoplastic: density, elasticity, initial yield, hardening response, extension and
+  temperature/rate applicability;
+- linear viscoelastic: density, instantaneous/long-term elastic convention, shear/bulk Prony terms
+  and temperature shift/applicability;
+- hyperelastic or hyper-viscoelastic: density, strain-energy terms, volumetric response, available
+  test modes and optional Prony terms.
+
+A hyperelastic source preview may switch among or overlay uniaxial, biaxial, planar and volumetric
+responses. It must not force those different quantities into a metal stress/plastic-strain chart.
 
 ## 8. Activity workspace
 
@@ -349,6 +499,16 @@ Needs attention | In progress | Recent outcomes
 - The review API currently supplies immutable request/revision data but not readable submitted-item
   or actor names. The normal row therefore states task type, request reason, state and time; exact
   identifiers remain in Advanced evidence until a readable projection exists.
+
+The role-aware default and large-screen density are contractual. A User opens `In progress`, where
+their own pending review requests appear with the browser-local Modeling session. A Reviewer or
+Administrator opens `Needs attention`, where requests they may decide appear. The normal reference
+uses a representative page from the existing `listReviewRequests(..., { limit: 50 })` contract
+instead of an intentionally under-filled one-row fixture. The queue remains one flat, locally
+scrolling work table with `Task | Request reason | Status | Updated | Action`; it does not fabricate
+Material or Owner display names that the response does not supply. At 1920×1080, 2560×1440 and
+3840×2160, additional height exposes more complete rows at the same compact density rather than
+stretching rows, adding explanatory cards or leaving an avoidable dominant blank region.
 
 Advanced disclosure:
 
@@ -376,12 +536,45 @@ Administration must not use a card gallery for schema objects.
 
 ```text
 Select Table
-→ inspect/add Attribute Definition
+→ add or inspect an Attribute Definition
 → edit unit/quantity/value semantics
 → place Attribute in Layout
 → preview a real Record datasheet
 → publish revision
 ```
+
+The center Object list is a selector, not a second property sheet. Its `Name` cell contains only the
+schema-object identity. It never appends a clipped description, quantity sentence or help text to the
+name. Tables use `Name | Rev`; Attributes use `Name | Value type | Rev`. Full purpose, quantity,
+unit, entry guidance and validation remain in the adjacent property editor. A long identity may
+ellipsize inside the Name cell only when the complete value remains reachable.
+
+`Add Table` and `Add Attribute` replace only the right property editor with a new-definition draft;
+the object navigator, current Table scope and existing list remain visible. The new Attribute draft
+lets the Administrator choose its value type and exposes only the fields that apply to that type.
+After save, a configurable Record pins the exact Attribute Definition revisions used by its values.
+The Layout/Record preview must therefore demonstrate that administrator-selected Attributes, rather
+than a hard-coded default field set, determine the visible datasheet and entry fields.
+
+`Record preview` and `Layout definition` are two views of that same saved contract, not two tiny
+tables that must remain visible together. The normal Database/Table/Attribute editor exposes one
+active preview surface:
+
+- `Record preview` is the default and shows the saved Record values in Layout order, including value,
+  unit and condition where applicable;
+- its header identifies the governing Layout name, immutable revision and field count;
+- `Layout definition` is an on-demand sibling view for the ordered exact Attribute Definition
+  revisions, and becomes the primary work surface in the later Layout editor;
+- each active table receives the available preview height and an independent, discoverable local
+  scrollbar only when its rows genuinely overflow;
+- at compact widths, opening preview replaces or overlays the right editor with an obvious return
+  action; at 1920 and above it may occupy a bounded companion pane without squeezing the property
+  sheet.
+
+A linked curve is secondary evidence inside `Record preview`. It appears only when the saved Layout
+contains a curve/table Artifact Attribute, remains synchronized to that exact saved Record value,
+and uses a bounded engineering-plot region. It must not appear beside an unrelated scalar Attribute
+edit or grow indefinitely at 2560/3840 while the Record and Layout content remain a thin strip.
 
 Link Type flow:
 
@@ -394,7 +587,29 @@ Select source/target Tables
 → test through Related Records
 ```
 
+The link workflow must not imply a universal one-to-one chain. Link Types expose independently
+configured `one` or `many` cardinality at each endpoint, and each saved Record Link pins both exact
+Record revisions. The engineering workflow may branch from one exact Test Data/Processing Output
+into several independently saved fit/model/Neutral revisions, and one exact Neutral/model revision
+may produce several solver/version/unit-specific Solver Cards. The Related test and workflow graph
+must preserve and expose those branches without replacing exact links with `latest`.
+
 Draft edits stay local to the draft revision until Save/Publish. The property editor indicates dirty fields and validation errors at field level.
+
+Normal Administration copy names the Administrator's object, decision, state and next action. It
+may use the governed catalog terms `Table`, `Attribute`, `Layout`, `Subset`, `Link Type`, `Record`,
+`Revision` and `Cardinality` where those concepts are being edited. Infrastructure or implementation
+phrases such as `identity-provider`, `feature grants`, `server-scoped query`, `pinned`, `latest alias`,
+service/capability `boundary`, endpoint or row-policy language do not appear in the normal surface.
+Use plain consequences instead: identify a user or team, state what the role can do, say that saved
+links keep the selected versions, and tell the Administrator whether publishing is available.
+
+Administration reference captures enforce the shared typography system rather than merely checking
+an upper bound. Data values and controls use the 13 px data token; visible metadata, help, revision
+and status text use the 11.5–12 px metadata tokens. Ordinary rows, buttons and explanatory text do
+not use weight 650 or greater. Ellipsis remains a last resort for genuinely long identities with an
+immediate full-value affordance; ordinary example identities, related Record targets and solver-card
+names must not be clipped simply to preserve a narrow list or preview column.
 
 ## 10. Loading, empty, error and job states
 
@@ -491,6 +706,12 @@ No visual implementation starts until the main agent has opened/evaluated every 
 product owner has approved it. Every visual PR supplies registered reference/current side-by-side live
 captures to the main agent and product owner before merge. On a failure, make one evidence-backed
 correction and re-review; do not retry the same local CSS approach.
+
+The main agent and fresh read-only reviewer independently complete the
+[mandatory qualitative owner checklist](visual-acceptance-matrix.md#mandatory-qualitative-owner-checklist)
+at original resolution. Numeric scoring and automated measurements cannot override a qualitative
+failure. The main agent repeats the judgment after reviewer disposition, and product-owner approval
+is the final visual decision.
 
 ## 15. Tooling and implementation approach
 

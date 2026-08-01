@@ -1,0 +1,600 @@
+{
+  "family": "ADM-SCHEMA-CORE",
+  "wave": "WAVE-05",
+  "status": "accepted",
+  "capture_date": "2026-07-31",
+  "static": {
+    "html": "docs/00-research/ux-service-reference/administration-schema-core.html",
+    "css": "docs/00-research/ux-service-reference/administration-schema-core.css",
+    "js": "docs/00-research/ux-service-reference/administration-schema-core.js",
+    "capture": "docs/00-research/ux-service-reference/capture_administration_schema_core_wave05.py",
+    "validator": "docs/00-research/ux-service-reference/validate_administration_schema_core_wave05.py"
+  },
+  "targets": {
+    "administration-database-normal-1366x768": {
+      "state": "normal",
+      "role": "administrator",
+      "viewport": "1366x768",
+      "image": "docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1366x768.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1366x768.measurements.json",
+      "sha256": "9995b53dae3a9907fe95f33ad9eed0b4a96a19fe1d7e7d19f61f89249f313724"
+    },
+    "administration-database-normal-1440x900": {
+      "state": "normal",
+      "role": "administrator",
+      "viewport": "1440x900",
+      "image": "docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1440x900.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1440x900.measurements.json",
+      "sha256": "1b2491632ca17a96bbcd32efeac6d8d4cc5555b5ee43eaaa016085538828a2bf"
+    },
+    "administration-database-normal-1920x1080": {
+      "state": "normal",
+      "role": "administrator",
+      "viewport": "1920x1080",
+      "image": "docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1920x1080.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1920x1080.measurements.json",
+      "sha256": "dd5bc7fecbe53bf6e97c94e5da99e86a2085b4f4672dfe483a56b8cdd1050d7c"
+    },
+    "administration-table-edit-draft-1366x768": {
+      "state": "table-draft",
+      "role": "administrator",
+      "viewport": "1366x768",
+      "image": "docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1366x768.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1366x768.measurements.json",
+      "sha256": "9de662dd7dfa2453a66c0b0da830193b4061c25796406b3d88803f8ec5fc8c69"
+    },
+    "administration-table-edit-draft-1440x900": {
+      "state": "table-draft",
+      "role": "administrator",
+      "viewport": "1440x900",
+      "image": "docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1440x900.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1440x900.measurements.json",
+      "sha256": "2390d47c2b9828f9aa4ae2a0d47d1829b2b4567c2584f13aac5863d0561cb284"
+    },
+    "administration-table-edit-draft-1920x1080": {
+      "state": "table-draft",
+      "role": "administrator",
+      "viewport": "1920x1080",
+      "image": "docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1920x1080.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1920x1080.measurements.json",
+      "sha256": "eace016ff08a9b76577ba30761e35e99a43eee3d525b39f66c65e7c2d6fc6909"
+    },
+    "administration-attribute-edit-draft-1366x768": {
+      "state": "attribute-draft",
+      "role": "administrator",
+      "viewport": "1366x768",
+      "image": "docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1366x768.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1366x768.measurements.json",
+      "sha256": "6eeb19ed91e1ea343623ae16c837d514bb97b85c307157dfe56f53af6b0d6b1f"
+    },
+    "administration-attribute-edit-draft-1440x900": {
+      "state": "attribute-draft",
+      "role": "administrator",
+      "viewport": "1440x900",
+      "image": "docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1440x900.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1440x900.measurements.json",
+      "sha256": "8c4038ef03ae882ff8a099b12c78dba0affa4ef733ddec8a2f7fb9c68a341b97"
+    },
+    "administration-attribute-edit-draft-1920x1080": {
+      "state": "attribute-draft",
+      "role": "administrator",
+      "viewport": "1920x1080",
+      "image": "docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1920x1080.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1920x1080.measurements.json",
+      "sha256": "da0965abe9a9d0627979b549a71ae6a5fcaa0c5483e6f395ae751b422578810e"
+    },
+    "administration-edit-stale-conflict-1440x900": {
+      "state": "stale-conflict",
+      "role": "administrator",
+      "viewport": "1440x900",
+      "image": "docs/17-evidence/images/issue-167-service-reference/administration-edit-stale-conflict-1440x900.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-edit-stale-conflict-1440x900.measurements.json",
+      "sha256": "e64c034fb1ad3fd6428ca319d91bde6ec7c675b95b5332d7cb2db49a9552cd21"
+    },
+    "administration-attribute-long-invalid-1440x900": {
+      "state": "attribute-long-invalid",
+      "role": "administrator",
+      "viewport": "1440x900",
+      "image": "docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1440x900.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1440x900.measurements.json",
+      "sha256": "ac798d466063d9d0408f8f2e7d69ff39e92f6514fafdb4f4838b0582307cb898"
+    }
+  },
+  "evidence_only_states": {
+    "administration-database-empty": {
+      "state": "empty",
+      "role": "administrator",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-database-empty-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-database-empty-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-database-empty-1920x1080.png"
+      ],
+      "measurements": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-database-empty-1366x768.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-database-empty-1440x900.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-database-empty-1920x1080.measurements.json"
+      ]
+    },
+    "administration-database-loading": {
+      "state": "catalog-loading",
+      "role": "administrator",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-database-loading-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-database-loading-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-database-loading-1920x1080.png"
+      ],
+      "measurements": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-database-loading-1366x768.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-database-loading-1440x900.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-database-loading-1920x1080.measurements.json"
+      ]
+    },
+    "administration-database-error": {
+      "state": "catalog-error",
+      "role": "administrator",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-database-error-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-database-error-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-database-error-1920x1080.png"
+      ],
+      "measurements": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-database-error-1366x768.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-database-error-1440x900.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-database-error-1920x1080.measurements.json"
+      ]
+    },
+    "administration-table-add-draft": {
+      "state": "table-add",
+      "role": "administrator",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-table-add-draft-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-table-add-draft-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-table-add-draft-1920x1080.png"
+      ],
+      "measurements": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-table-add-draft-1366x768.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-table-add-draft-1440x900.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-table-add-draft-1920x1080.measurements.json"
+      ]
+    },
+    "administration-table-saving": {
+      "state": "table-saving",
+      "role": "administrator",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-table-saving-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-table-saving-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-table-saving-1920x1080.png"
+      ],
+      "measurements": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-table-saving-1366x768.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-table-saving-1440x900.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-table-saving-1920x1080.measurements.json"
+      ]
+    },
+    "administration-table-save-error": {
+      "state": "table-save-error",
+      "role": "administrator",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-table-save-error-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-table-save-error-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-table-save-error-1920x1080.png"
+      ],
+      "measurements": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-table-save-error-1366x768.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-table-save-error-1440x900.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-table-save-error-1920x1080.measurements.json"
+      ]
+    },
+    "administration-attribute-add-draft": {
+      "state": "attribute-add",
+      "role": "administrator",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-add-draft-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-add-draft-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-add-draft-1920x1080.png"
+      ],
+      "measurements": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-add-draft-1366x768.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-add-draft-1440x900.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-add-draft-1920x1080.measurements.json"
+      ]
+    },
+    "administration-attribute-conditional-number": {
+      "state": "attribute-draft",
+      "role": "administrator",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-number-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-number-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-number-1920x1080.png"
+      ],
+      "measurements": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-number-1366x768.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-number-1440x900.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-number-1920x1080.measurements.json"
+      ]
+    },
+    "administration-attribute-conditional-discrete": {
+      "state": "attribute-discrete",
+      "role": "administrator",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-discrete-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-discrete-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-discrete-1920x1080.png"
+      ],
+      "measurements": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-discrete-1366x768.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-discrete-1440x900.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-discrete-1920x1080.measurements.json"
+      ]
+    },
+    "administration-attribute-conditional-record-reference": {
+      "state": "attribute-reference",
+      "role": "administrator",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-record-reference-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-record-reference-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-record-reference-1920x1080.png"
+      ],
+      "measurements": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-record-reference-1366x768.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-record-reference-1440x900.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-record-reference-1920x1080.measurements.json"
+      ]
+    },
+    "administration-attribute-conditional-text": {
+      "state": "attribute-text",
+      "role": "administrator",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-text-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-text-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-text-1920x1080.png"
+      ],
+      "measurements": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-text-1366x768.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-text-1440x900.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-text-1920x1080.measurements.json"
+      ]
+    },
+    "administration-attribute-saving": {
+      "state": "attribute-saving",
+      "role": "administrator",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-saving-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-saving-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-saving-1920x1080.png"
+      ],
+      "measurements": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-saving-1366x768.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-saving-1440x900.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-saving-1920x1080.measurements.json"
+      ]
+    },
+    "administration-attribute-save-error": {
+      "state": "attribute-save-error",
+      "role": "administrator",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-save-error-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-save-error-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-save-error-1920x1080.png"
+      ],
+      "measurements": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-save-error-1366x768.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-save-error-1440x900.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-save-error-1920x1080.measurements.json"
+      ]
+    },
+    "administration-edit-stale-conflict": {
+      "state": "stale-conflict",
+      "role": "administrator",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-edit-stale-conflict-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-edit-stale-conflict-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-edit-stale-conflict-1920x1080.png"
+      ],
+      "measurements": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-edit-stale-conflict-1366x768.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-edit-stale-conflict-1440x900.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-edit-stale-conflict-1920x1080.measurements.json"
+      ]
+    },
+    "administration-attribute-long-invalid": {
+      "state": "attribute-long-invalid",
+      "role": "administrator",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1920x1080.png"
+      ],
+      "measurements": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1366x768.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1440x900.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1920x1080.measurements.json"
+      ]
+    },
+    "administration-splitter-behavior": {
+      "state": "normal",
+      "role": "administrator",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-splitter-behavior-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-splitter-behavior-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-splitter-behavior-1920x1080.png"
+      ],
+      "measurements": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-splitter-behavior-1366x768.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-splitter-behavior-1440x900.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-splitter-behavior-1920x1080.measurements.json"
+      ]
+    },
+    "administration-normal-scroll": {
+      "state": "normal",
+      "role": "administrator",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-normal-scroll-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-normal-scroll-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-normal-scroll-1920x1080.png"
+      ],
+      "measurements": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-normal-scroll-1366x768.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-normal-scroll-1440x900.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-normal-scroll-1920x1080.measurements.json"
+      ]
+    },
+    "administration-long-scroll": {
+      "state": "attribute-long-invalid",
+      "role": "administrator",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-long-scroll-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-long-scroll-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-long-scroll-1920x1080.png"
+      ],
+      "measurements": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-long-scroll-1366x768.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-long-scroll-1440x900.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-long-scroll-1920x1080.measurements.json"
+      ]
+    },
+    "administration-selection-continuity": {
+      "state": "catalog-error",
+      "role": "administrator",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-selection-continuity-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-selection-continuity-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-selection-continuity-1920x1080.png"
+      ],
+      "measurements": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-selection-continuity-1366x768.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-selection-continuity-1440x900.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-selection-continuity-1920x1080.measurements.json"
+      ]
+    },
+    "administration-stale-response-suppression": {
+      "state": "catalog-loading",
+      "role": "administrator",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-stale-response-suppression-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-stale-response-suppression-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/administration-stale-response-suppression-1920x1080.png"
+      ],
+      "measurements": [
+        "docs/17-evidence/images/issue-167-service-reference/administration-stale-response-suppression-1366x768.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-stale-response-suppression-1440x900.measurements.json",
+        "docs/17-evidence/images/issue-167-service-reference/administration-stale-response-suppression-1920x1080.measurements.json"
+      ]
+    }
+  },
+  "wide_evidence": {
+    "administration-database-normal-wide-2560x1440": {
+      "state": "normal",
+      "role": "administrator",
+      "viewport": "2560x1440",
+      "image": "docs/17-evidence/images/issue-167-service-reference/administration-database-normal-wide-2560x1440.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-database-normal-wide-2560x1440.measurements.json",
+      "sha256": "500bbd5c0a3aeb06ce81967904275cbca0a1e3eb6f6626271a3cb5a9b224e774"
+    },
+    "administration-database-normal-wide-3840x2160": {
+      "state": "normal",
+      "role": "administrator",
+      "viewport": "3840x2160",
+      "image": "docs/17-evidence/images/issue-167-service-reference/administration-database-normal-wide-3840x2160.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/administration-database-normal-wide-3840x2160.measurements.json",
+      "sha256": "bbcaf1243e0396790b37cf659c248fb1224941058c26b8e69269cc8aed2b91bb"
+    }
+  },
+  "interaction_evidence": {
+    "selection_continuity": {
+      "retained_after_refresh": true
+    },
+    "add_flows": {
+      "table": {
+        "editor_mode": "table-add",
+        "editor_title": "New Table",
+        "list_columns": [
+          "Name",
+          "Rev"
+        ],
+        "selected_row": "materials",
+        "field_names": [
+          "newTableName",
+          "newTableKey",
+          "newTableDescription",
+          "newTableReason"
+        ]
+      },
+      "attribute": {
+        "editor_mode": "attribute-add",
+        "editor_title": "New Attribute for Materials master",
+        "list_columns": [
+          "Name",
+          "Value type",
+          "Rev"
+        ],
+        "selected_row": "density",
+        "value_type_editable": true,
+        "discrete_fields": {
+          "hasQuantity": false,
+          "hasStandardUnit": false,
+          "hasMinMax": false,
+          "hasAllowedChoices": true,
+          "hasRelatedTable": false,
+          "hasTextLimits": false
+        },
+        "reference_fields": {
+          "hasQuantity": false,
+          "hasStandardUnit": false,
+          "hasMinMax": false,
+          "hasAllowedChoices": false,
+          "hasRelatedTable": true,
+          "hasTextLimits": false
+        }
+      }
+    },
+    "conditional_fields": {
+      "number_has_quantity_unit_min_max": true,
+      "number_has_no_choices": true,
+      "object_kind": true
+    },
+    "splitter_min_default_max": {
+      "navigator_min": 220,
+      "navigator_max": 272,
+      "navigator_after_arrow": 264,
+      "list_min": 292,
+      "list_max": 384,
+      "list_after_arrow": 376
+    },
+    "local_scroll": {
+      "list_scroll_moved": false,
+      "list_scroll_not_needed": true,
+      "editor_scroll_moved": true,
+      "editor_rail_initial": {
+        "hidden": false,
+        "rect": {
+          "x": 1416,
+          "y": 110,
+          "width": 14,
+          "height": 752
+        },
+        "thumbRect": {
+          "x": 1420,
+          "y": 110,
+          "width": 7,
+          "height": 581
+        },
+        "ariaMin": 0,
+        "ariaMax": 222,
+        "ariaNow": 0
+      },
+      "editor_rail_end": {
+        "hidden": false,
+        "rect": {
+          "x": 1416,
+          "y": 110,
+          "width": 14,
+          "height": 752
+        },
+        "thumbRect": {
+          "x": 1420,
+          "y": 281,
+          "width": 7,
+          "height": 581
+        },
+        "ariaMin": 0,
+        "ariaMax": 222,
+        "ariaNow": 222
+      },
+      "editor_home_scroll_top": 0.0,
+      "editor_arrow_down_scroll_top": 36.0,
+      "editor_rail_arrow_down": {
+        "hidden": false,
+        "rect": {
+          "x": 1416,
+          "y": 110,
+          "width": 14,
+          "height": 752
+        },
+        "thumbRect": {
+          "x": 1420,
+          "y": 138,
+          "width": 7,
+          "height": 581
+        },
+        "ariaMin": 0,
+        "ariaMax": 222,
+        "ariaNow": 36
+      }
+    },
+    "duplicate_submit_blocking": {
+      "blocked": true
+    },
+    "stale_conflict": {
+      "focus_region_present": true,
+      "commands": [
+        "Reload current",
+        "Keep local as new revision",
+        "Cancel"
+      ],
+      "local_draft_preserved": true
+    },
+    "wide_preview": {
+      "initial_visible": true,
+      "initial_sections": [
+        "Record preview",
+        "Representative response"
+      ],
+      "initial_projection": "record",
+      "projection_switch": true,
+      "hidden_after_toggle": true,
+      "reopened": true,
+      "wide_return_actions": [
+        {
+          "name": "Close preview",
+          "action": "preview",
+          "disabled": false,
+          "rect": {
+            "x": 1694.625,
+            "y": 68.5,
+            "width": 102.5,
+            "height": 30
+          }
+        }
+      ],
+      "wide_taskbar_return_focus": true,
+      "density_selected_rows": [
+        "density"
+      ],
+      "yield_selected_rows": [
+        "yield-strength"
+      ],
+      "draft_label_preserves_saved_projection": true,
+      "draft_saved_value_unchanged": true,
+      "table_rails_visible": true,
+      "value_table_keyboard_scroll": true,
+      "value_table_page_down_scroll": true,
+      "value_table_home_scroll": true,
+      "value_table_end_scroll": true,
+      "value_table_pointer_scroll": true,
+      "layout_table_wheel_scroll": true,
+      "new_table_has_no_projection": true,
+      "empty_has_no_projection": true,
+      "compact_return_actions": [
+        {
+          "name": "Back to editor",
+          "action": "preview-close",
+          "disabled": false,
+          "rect": {
+            "x": 1303.15625,
+            "y": 121,
+            "width": 97.84375,
+            "height": 27
+          }
+        }
+      ],
+      "compact_closed_and_focus_returned": true
+    },
+    "page_errors": []
+  },
+  "counts": {
+    "approval_targets": 11,
+    "state_targets": 20,
+    "state_captures": 60
+  }
+}

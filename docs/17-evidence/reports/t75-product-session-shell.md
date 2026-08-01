@@ -11,7 +11,7 @@ The Dashboard queries the live PostgreSQL-backed catalog and shows the three syn
 Polymer and Elastomer examples. The screenshot is product-shell evidence only; T-76 through T-81
 remain responsible for the hierarchical database explorer and graph-centered modeling replacement.
 
-![Automatic demo session and product Dashboard](../images/t75-product-dashboard.jpg)
+![Automatic demo session and product Dashboard](../images/historical-task-screenshots/t75-product-dashboard.jpg)
 
 Verification:
 

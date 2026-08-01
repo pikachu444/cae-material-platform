@@ -3,17 +3,68 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import cmp.tools.user_guide as user_guide
 import pytest
 import yaml
 from cmp.tools.user_guide import (
     UserGuideContractError,
     _documentation_classes,
+    _duplicate_allowances,
     _verify_document_links,
     _verify_image_inventory,
     verify_user_guide,
 )
 
 _PNG = b"\x89PNG\r\n\x1a\ncontract-test"
+
+
+def test_structured_image_references_must_be_exact_existing_repository_paths(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    manifest_relative = "docs/17-evidence/images/issue-167-service-reference/manifest.json"
+    image_relative = "docs/17-evidence/images/issue-167-service-reference/evidence.png"
+    image = tmp_path / image_relative
+    image.parent.mkdir(parents=True)
+    image.write_bytes(_PNG)
+    manifest = tmp_path / manifest_relative
+    manifest.write_text(json.dumps({"image": image_relative}), encoding="utf-8")
+    monkeypatch.setattr(user_guide, "_STRUCTURED_IMAGE_MANIFESTS", (manifest_relative,))
+    monkeypatch.setattr(user_guide, "_STRUCTURED_IMAGE_MANIFEST_GLOBS", ())
+    monkeypatch.setattr(user_guide, "_STRUCTURED_IMAGE_YAML_MANIFESTS", ())
+    monkeypatch.setattr(user_guide, "_IMAGE_PATH_MANIFESTS", ())
+
+    assert user_guide._structured_manifest_images(tmp_path) == {image_relative}
+
+
+@pytest.mark.parametrize(
+    ("image_ref", "message"),
+    [
+        ("docs/17-evidence/images/issue-167-service-reference/missing.png", "missing"),
+        ("../outside.png", "escapes"),
+        (
+            "docs/17-evidence/images/issue-167-service-reference/one.png "
+            "docs/17-evidence/images/issue-167-service-reference/two.png",
+            "whitespace",
+        ),
+    ],
+)
+def test_structured_image_references_reject_invalid_paths(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    image_ref: str,
+    message: str,
+) -> None:
+    manifest_relative = "docs/17-evidence/images/issue-167-service-reference/manifest.json"
+    manifest = tmp_path / manifest_relative
+    manifest.parent.mkdir(parents=True)
+    manifest.write_text(json.dumps({"image": image_ref}), encoding="utf-8")
+    monkeypatch.setattr(user_guide, "_STRUCTURED_IMAGE_MANIFESTS", (manifest_relative,))
+    monkeypatch.setattr(user_guide, "_STRUCTURED_IMAGE_MANIFEST_GLOBS", ())
+    monkeypatch.setattr(user_guide, "_STRUCTURED_IMAGE_YAML_MANIFESTS", ())
+    monkeypatch.setattr(user_guide, "_IMAGE_PATH_MANIFESTS", ())
+
+    with pytest.raises(UserGuideContractError, match=message):
+        user_guide._structured_manifest_images(tmp_path)
 
 
 def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> None:
@@ -188,17 +239,17 @@ def test_duplicate_group_with_multiple_historical_files_is_rejected(
         image = tmp_path / relative
         image.parent.mkdir(parents=True, exist_ok=True)
         image.write_bytes(_PNG + b"-same")
-    allowed_pair = frozenset(relative_paths[:2])
+    allowed_group = frozenset(relative_paths[:2])
 
-    with pytest.raises(UserGuideContractError, match="explicit current/historical pair"):
-        _verify_image_inventory(tmp_path, set(relative_paths), {allowed_pair})
+    with pytest.raises(UserGuideContractError, match="explicit historical group"):
+        _verify_image_inventory(tmp_path, set(relative_paths), {allowed_group})
 
 
-def test_exact_explicit_current_historical_duplicate_pair_is_allowed(
+def test_exact_explicit_historical_duplicate_group_is_allowed(
     tmp_path: Path,
 ) -> None:
     relative_paths = (
-        "docs/user-guide/images/current/current.png",
+        "docs/17-evidence/images/first.png",
         "docs/17-evidence/images/historical.png",
     )
     for relative in relative_paths:
@@ -213,3 +264,90 @@ def test_exact_explicit_current_historical_duplicate_pair_is_allowed(
     )
 
     assert result == (2, 0, 1)
+
+
+@pytest.mark.parametrize(
+    ("entry", "message"),
+    [
+        ({"images": ["docs/17-evidence/images/first.png"]}, "rationale"),
+        (
+            {
+                "rationale": "reason",
+                "images": ["docs/17-evidence/images/first.png"],
+            },
+            "at least two exact images",
+        ),
+        (
+            {
+                "rationale": "reason",
+                "images": [
+                    "docs/17-evidence/images/*.png",
+                    "docs/17-evidence/images/second.png",
+                ],
+            },
+            "exact path",
+        ),
+        (
+            {
+                "rationale": "reason",
+                "images": [
+                    "docs/17-evidence/images/first.png docs/17-evidence/images/second.png",
+                    "docs/17-evidence/images/second.png",
+                ],
+            },
+            "exact path",
+        ),
+        (
+            {
+                "rationale": "reason",
+                "images": [
+                    "docs/user-guide/images/current/current.png",
+                    "docs/17-evidence/images/second.png",
+                ],
+            },
+            "escapes",
+        ),
+    ],
+)
+def test_duplicate_allowance_rejects_malformed_entries(
+    tmp_path: Path, entry: dict[str, object], message: str
+) -> None:
+    for relative in (
+        "docs/17-evidence/images/first.png",
+        "docs/17-evidence/images/second.png",
+        "docs/user-guide/images/current/current.png",
+    ):
+        image = tmp_path / relative
+        image.parent.mkdir(parents=True, exist_ok=True)
+        image.write_bytes(_PNG)
+
+    with pytest.raises(UserGuideContractError, match=message):
+        _duplicate_allowances(tmp_path, {"allowed_duplicate_groups": [entry]})
+
+
+def test_duplicate_allowance_rejects_repeated_or_unused_groups(tmp_path: Path) -> None:
+    relative_paths = (
+        "docs/17-evidence/images/first.png",
+        "docs/17-evidence/images/second.png",
+    )
+    for relative in relative_paths:
+        image = tmp_path / relative
+        image.parent.mkdir(parents=True, exist_ok=True)
+        image.write_bytes(_PNG + b"-same")
+    entry = {"rationale": "same intentional historical evidence", "images": list(relative_paths)}
+
+    with pytest.raises(UserGuideContractError, match="repeated"):
+        _duplicate_allowances(
+            tmp_path, {"allowed_duplicate_groups": [entry, entry]}
+        )
+    with pytest.raises(UserGuideContractError, match="no longer match equal bytes"):
+        _verify_image_inventory(
+            tmp_path,
+            set(relative_paths),
+            {
+                frozenset(relative_paths),
+                frozenset(
+                    (relative_paths[0], "docs/17-evidence/images/missing.png")
+                ),
+            },
+        )

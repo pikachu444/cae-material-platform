@@ -29,13 +29,13 @@ Verified on 2026-07-18 against the Docker Compose demo and PostgreSQL migration 
 
 ## Evidence
 
-![Exact input, reusable profile and ordered processing steps](../images/t53-processing-stage-overlay.jpg)
+![Exact input, reusable profile and ordered processing steps](../images/historical-task-screenshots/t53-processing-stage-overlay.jpg)
 
-![Server-produced processing stages and shared-axis curve overlay](../images/t53-processing-curve-overlay.jpg)
+![Server-produced processing stages and shared-axis curve overlay](../images/historical-task-screenshots/t53-processing-curve-overlay.jpg)
 
-![Exact-input server recomputation and immutable Processing Output](../images/t53-processing-output-commit.jpg)
+![Exact-input server recomputation and immutable Processing Output](../images/historical-task-screenshots/t53-processing-output-commit.jpg)
 
-![Two exact replicate curves, pointwise statistics and explicit assumptions](../images/t53-processing-ensemble-statistics.jpg)
+![Two exact replicate curves, pointwise statistics and explicit assumptions](../images/historical-task-screenshots/t53-processing-ensemble-statistics.jpg)
 
 - Domain fixtures cover sorting, duplicate/missing policies, crop, scale/shift, interpolation,
   moving average, Savitzky–Golay, smoothing spline and invalid option/quantity paths.

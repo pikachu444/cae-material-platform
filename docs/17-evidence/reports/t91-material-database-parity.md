@@ -15,9 +15,9 @@ Date: 2026-07-20
 
 ## Live evidence
 
-![Catalog projection and Layout Datasheet](../images/t91-material-database-catalog.jpg)
+![Catalog projection and Layout Datasheet](../images/historical-task-screenshots/t91-material-database-catalog.jpg)
 
-![Exact-revision Workflow projection](../images/t91-material-database-workflow.jpg)
+![Exact-revision Workflow projection](../images/historical-task-screenshots/t91-material-database-workflow.jpg)
 
 The live Docker/PostgreSQL demo showed the nested Material Library → Metals → Steels → DP780 hierarchy,
 an engine-connected Layout Datasheet, 8 governed Workflow records, 7 typed exact-revision links and

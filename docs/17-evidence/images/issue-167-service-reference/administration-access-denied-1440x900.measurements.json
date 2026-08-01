@@ -1,0 +1,269 @@
+{
+  "target": "administration-access-denied-1440x900",
+  "family": "access",
+  "state": "denied",
+  "viewport": "1440x900",
+  "width": 1440,
+  "height": 900,
+  "image": "docs/17-evidence/images/issue-167-service-reference/administration-access-denied-1440x900.png",
+  "image_sha256": "71a9a09ebc2adcfdbfea56d009a5f8cdcb6e10098c2d51d4e5ccec298826ac51",
+  "snapshot": {
+    "ready": true,
+    "family": "access",
+    "state": "denied",
+    "pageTitle": "Users and access",
+    "navTitle": "Access administration",
+    "listTitle": "Assignments",
+    "topbarContext": "Demo user",
+    "statusBarFontPx": 11.5,
+    "activePrimary": [
+      "Back to Materials"
+    ],
+    "controls": [
+      {
+        "tag": "a",
+        "name": "Skip to Administration workspace",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Materials",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Modeling",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Activity",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "a",
+        "name": "Administration",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Assignments8",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Role presets3",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "button",
+        "name": "Access guidance1",
+        "disabled": false,
+        "action": ""
+      },
+      {
+        "tag": "div",
+        "name": "Resize navigator",
+        "disabled": false,
+        "action": "navigator"
+      },
+      {
+        "tag": "div",
+        "name": "Resize object list",
+        "disabled": false,
+        "action": "list"
+      },
+      {
+        "tag": "button",
+        "name": "Back to Materials",
+        "disabled": false,
+        "action": "back-materials"
+      }
+    ],
+    "nestedInteractive": [],
+    "legacySelectors": [
+      {
+        "selector": ".page-stack",
+        "count": 0
+      },
+      {
+        "selector": ".page-heading",
+        "count": 0
+      },
+      {
+        "selector": ".content-card",
+        "count": 0
+      },
+      {
+        "selector": ".hero-actions",
+        "count": 0
+      },
+      {
+        "selector": ".eyebrow",
+        "count": 0
+      },
+      {
+        "selector": ".status-badge",
+        "count": 0
+      },
+      {
+        "selector": ".count-chip",
+        "count": 0
+      }
+    ],
+    "bodyFontPx": 13,
+    "maximumDataFontPx": 0,
+    "typography": {
+      "data": {
+        "count": 4,
+        "min": 13,
+        "max": 13
+      },
+      "metadata": {
+        "count": 8,
+        "min": 11.5,
+        "max": 11.5
+      },
+      "ordinaryWeight": {
+        "count": 6,
+        "max": 600
+      }
+    },
+    "clipping": {
+      "listNames": [],
+      "previewValues": []
+    },
+    "revisionMetrics": [],
+    "overlap": {
+      "pairs": [],
+      "noOverlaps": true,
+      "splitterCollisions": [],
+      "splitterSafe": true
+    },
+    "labels": [],
+    "fieldValues": [],
+    "alerts": [
+      "You cannot view or change product assignments.Your current User role still allows authorized Materials lookup, Modeling work and review requests."
+    ],
+    "listRows": [],
+    "rowAccessibleNames": [],
+    "tasks": [],
+    "readiness": [],
+    "related": [],
+    "orderedFields": [],
+    "filters": [],
+    "documentText": "Skip to Administration workspace CMP CAE Material Platform Material data and solver delivery Materials Modeling Activity Administration Demo user Users and access Administrator access required Access administration 3 areas Assignments 8 Role presets 3 Access guidance 1 No assignment data disclosed Assignments Hidden Assignments are not available Only an Administrator may view or change product access. Administrator access required Users and access is restricted to workspace administrators Blocked You cannot view or change product assignments. Your current User role still allows authorized Materials lookup, Modeling work and review requests. Back to Materials Why this is blocked Users and access Access permissions Ready Online",
+    "documentOverflow": {
+      "horizontal": 0,
+      "vertical": 0
+    },
+    "editorScroll": {
+      "scrollHeight": 754,
+      "clientHeight": 754,
+      "scrollTop": 0
+    },
+    "listScroll": {
+      "scrollHeight": 718,
+      "clientHeight": 718,
+      "scrollTop": 0
+    },
+    "editorTextClipped": false,
+    "remainingContainment": {
+      "gridInsideEditor": true,
+      "editorColumnInsideGrid": true,
+      "previewColumnInsideGrid": true,
+      "headingsInsideColumns": true,
+      "actionsInsideColumns": true
+    },
+    "publishButtons": [],
+    "selectedRowCount": 0,
+    "previewTables": 0,
+    "geometry": {
+      "application_bar": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 46,
+        "right": 1440,
+        "bottom": 46
+      },
+      "command_bar": {
+        "x": 9,
+        "y": 55,
+        "width": 1422,
+        "height": 54,
+        "right": 1431,
+        "bottom": 109
+      },
+      "workspace": {
+        "x": 9,
+        "y": 109,
+        "width": 1422,
+        "height": 754,
+        "right": 1431,
+        "bottom": 863
+      },
+      "navigator": {
+        "x": 9,
+        "y": 109,
+        "width": 220,
+        "height": 754,
+        "right": 229,
+        "bottom": 863
+      },
+      "object_list": {
+        "x": 236,
+        "y": 109,
+        "width": 390,
+        "height": 754,
+        "right": 626,
+        "bottom": 863
+      },
+      "editor": {
+        "x": 633,
+        "y": 109,
+        "width": 798,
+        "height": 754,
+        "right": 1431,
+        "bottom": 863
+      },
+      "editor_grid": {
+        "x": 647,
+        "y": 109,
+        "width": 758,
+        "height": 212.546875,
+        "right": 1405,
+        "bottom": 321.546875
+      },
+      "editor_column": {
+        "x": 647,
+        "y": 109,
+        "width": 720,
+        "height": 212.546875,
+        "right": 1367,
+        "bottom": 321.546875
+      },
+      "preview_column": null,
+      "status_bar": {
+        "x": 9,
+        "y": 863,
+        "width": 1422,
+        "height": 28,
+        "right": 1431,
+        "bottom": 891
+      }
+    }
+  },
+  "interactions": {
+    "keyboard_splitter_delta": 12
+  },
+  "console_errors": [],
+  "page_errors": []
+}

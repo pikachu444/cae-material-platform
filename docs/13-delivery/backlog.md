@@ -1832,7 +1832,7 @@ clean-acceptance intent is retained in T-93.
   supplemental panel disclosure와 Elastic Modulus 전용 method/range/manual slider까지 실제
   Docker 브라우저에서 검증했다. T-86 이후의 method-specific 작업은 별도 Task로 계속한다.
 - **증거:** `docs/17-evidence/reports/t85-engineering-modeling-shell.md`,
-  `docs/17-evidence/images/t85-engineering-modeling-shell.png`.
+  `docs/17-evidence/images/historical-task-screenshots/t85-engineering-modeling-shell.png`.
 
 #### T-86. Metal Prepare direct manipulation — `P0`
 
@@ -1843,8 +1843,8 @@ clean-acceptance intent is retained in T-93.
   서버는 복수 exact revision에 공통 전처리만 적용해 observed-domain intersection에서 member/mean/
   95% mean CI를 계산한다. 세 synthetic DP780 replicate와 1440×900 Docker 증거를 포함한다.
 - **증거:** `docs/17-evidence/reports/t86-metal-prepare-direct-manipulation.md`,
-  `docs/17-evidence/images/t86-metal-prepare-workbench.png`,
-  `docs/17-evidence/images/t86-metal-replicate-statistics.png`.
+  `docs/17-evidence/images/historical-task-screenshots/t86-metal-prepare-workbench.png`,
+  `docs/17-evidence/images/historical-task-screenshots/t86-metal-replicate-statistics.png`.
 
 #### T-87. Metal Fit and Extrapolate direct manipulation — `P0`
 
@@ -1858,8 +1858,8 @@ clean-acceptance intent is retained in T-93.
   선택 이유를 Recipe option에 보존한다. 저장/commit은 기존 immutable Recipe/Processing Output
   경계를 사용하며 preview가 source를 덮어쓰지 않는다.
 - **증거:** `docs/17-evidence/reports/t87-metal-fit-extrapolation.md`,
-  `docs/17-evidence/images/t87-metal-fit-candidate-comparison.png`,
-  `docs/17-evidence/images/t87-metal-fit-residual.png`.
+  `docs/17-evidence/images/historical-task-screenshots/t87-metal-fit-candidate-comparison.png`,
+  `docs/17-evidence/images/historical-task-screenshots/t87-metal-fit-residual.png`.
 
 #### T-88. In-workbench Neutral and Card delivery — `P0`
 
@@ -1872,8 +1872,8 @@ clean-acceptance intent is retained in T-93.
   PostgreSQL browser journey가 Abaqus `.inp`, OpenRadioss `.rad`와 mapping JSON download를 검증했다.
 - **범위:** guided Neutral review, solver/version/law form, six-state mapping과 two native card downloads.
 - **증거:** `docs/17-evidence/reports/t88-neutral-card-delivery.md`,
-  `docs/17-evidence/images/t88-abaqus-card-delivery.png`,
-  `docs/17-evidence/images/t88-openradioss-card-delivery.png`.
+  `docs/17-evidence/images/historical-task-screenshots/t88-abaqus-card-delivery.png`,
+  `docs/17-evidence/images/historical-task-screenshots/t88-openradioss-card-delivery.png`.
 
 #### T-89. Polymer workbench parity — `P0`
 
@@ -1884,7 +1884,7 @@ clean-acceptance intent is retained in T-93.
   표시한다. 두 경로 모두 exact Batch Output→IR→Neutral JSON→Abaqus/OpenRadioss card로 이어지며,
   OpenRadioss 근사는 명시적 확인 없이는 생성할 수 없다.
 - **증거:** `docs/17-evidence/reports/t89-polymer-viscoelastic-workbench.md`와
-  `docs/17-evidence/images/t89-polymer-*.png`.
+  `docs/17-evidence/images/historical-task-screenshots/t89-polymer-*.png`.
 
 #### T-90. Elastomer workbench parity — `P0`
 
@@ -1897,7 +1897,7 @@ clean-acceptance intent is retained in T-93.
   LAW62 native ASCII를 preview/download하며 approximation/ignored mapping은 명시적 확인 없이
   새 Card를 만들 수 없다.
 - **증거:** `docs/17-evidence/reports/t90-elastomer-multimode-workbench.md`와
-  `docs/17-evidence/images/t90-elastomer-*.png`.
+  `docs/17-evidence/images/historical-task-screenshots/t90-elastomer-*.png`.
 
 #### T-91. Material Database tree and datasheet parity — `P0`
 
@@ -1909,7 +1909,7 @@ clean-acceptance intent is retained in T-93.
   이동·전개·축소하고 마지막 exact revision 문맥을 session에서 복원한다. 검색·Layout 비교와
   normalized facet/range 엔진은 유지된다.
 - **증거:** `docs/17-evidence/reports/t91-material-database-parity.md`와
-  `docs/17-evidence/images/t91-material-database-*.png`.
+  `docs/17-evidence/images/historical-task-screenshots/t91-material-database-*.png`.
 
 #### T-92. Search/Compare/Admin and Recipe/Batch polish — `P1`
 
@@ -1921,7 +1921,7 @@ clean-acceptance intent is retained in T-93.
   Data compatibility를 member별 output point/diagnostic으로 preflight하며 성공/전체 attempt와
   실패 재실행 상태를 표시한다.
 - **증거:** `docs/17-evidence/reports/t92-search-admin-recipe-batch.md`와
-  `docs/17-evidence/images/t92-*.png`.
+  `docs/17-evidence/images/historical-task-screenshots/t92-*.png`.
 
 #### T-93. Clean clone-level product acceptance — `P0`
 
@@ -1936,7 +1936,7 @@ clean-acceptance intent is retained in T-93.
   skipped, actual PostgreSQL 76 passed, frontend 34 files/83 tests, production bundle budgets,
   user-guide checker, clean Docker seed/verifier와 live browser.
 - **증거:** `docs/17-evidence/reports/t93-clean-product-acceptance.md`와
-  `docs/17-evidence/images/t93-clean-*.png`.
+  `docs/17-evidence/images/historical-task-screenshots/t93-clean-*.png`.
 - **명시적 경계:** 공개식 기반 reference model 제품 흐름의 승인이다. 실제 solver 실행 상관,
   회사별 재료 qualification과 production-approved model 승인은 여전히 별도 검증 대상이다.
 

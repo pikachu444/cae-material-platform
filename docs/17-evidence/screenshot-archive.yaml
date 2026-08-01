@@ -1,19 +1,90 @@
-version: 34
-verified_at: 2026-07-23
+version: 36
+verified_at: 2026-07-31
 source_evidence: reports/t60-clean-demo.md
+allowed_duplicate_groups:
+  - rationale: The number editor's final conditional state is intentionally identical to its draft evidence; only the state-transition provenance differs.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-number-1366x768.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1366x768.png
+  - rationale: The number editor's final conditional state is intentionally identical to its draft evidence; only the state-transition provenance differs.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-number-1440x900.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1440x900.png
+  - rationale: The number editor's final conditional state is intentionally identical to its draft evidence; only the state-transition provenance differs.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-attribute-conditional-number-1920x1080.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1920x1080.png
+  - rationale: The long-invalid assertion preserves the same final administrative layout as the long-scroll containment evidence.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1366x768.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-long-scroll-1366x768.png
+  - rationale: The long-invalid assertion preserves the same final administrative layout as the long-scroll containment evidence.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1440x900.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-long-scroll-1440x900.png
+  - rationale: The long-invalid assertion preserves the same final administrative layout as the long-scroll containment evidence.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1920x1080.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-long-scroll-1920x1080.png
+  - rationale: The database error capture preserves the same selected record as the selection-continuity-after-error evidence.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-database-error-1366x768.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-selection-continuity-1366x768.png
+  - rationale: The database error capture preserves the same selected record as the selection-continuity-after-error evidence.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-database-error-1440x900.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-selection-continuity-1440x900.png
+  - rationale: The database error capture preserves the same selected record as the selection-continuity-after-error evidence.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-database-error-1920x1080.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-selection-continuity-1920x1080.png
+  - rationale: The loading capture and stale-response suppression evidence intentionally retain the same pending administrative view.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-database-loading-1366x768.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-stale-response-suppression-1366x768.png
+  - rationale: The loading capture and stale-response suppression evidence intentionally retain the same pending administrative view.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-database-loading-1440x900.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-stale-response-suppression-1440x900.png
+  - rationale: The loading capture and stale-response suppression evidence intentionally retain the same pending administrative view.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-database-loading-1920x1080.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-stale-response-suppression-1920x1080.png
+  - rationale: Normal, normal-scroll, and restored-splitter evidence share one deliberate final database workspace at this viewport.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1366x768.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-normal-scroll-1366x768.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-splitter-behavior-1366x768.png
+  - rationale: Normal, normal-scroll, and restored-splitter evidence share one deliberate final database workspace at this viewport.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1440x900.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-normal-scroll-1440x900.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-splitter-behavior-1440x900.png
+  - rationale: Normal-scroll and restored-splitter evidence share one deliberate final database workspace at this viewport.
+    images:
+      - docs/17-evidence/images/issue-167-service-reference/administration-normal-scroll-1920x1080.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-splitter-behavior-1920x1080.png
 captures:
+  - id: issue-167-modeling-export-layout-concept
+    route: static-reference
+    workflow: issue-167-modeling-export-layout-concept-before-product-rework
+    fixture: deterministic synthetic solver-card export layout sketch retained as superseded design evidence
+    source_evidence: reports/issue-167-product-owner-rework-packet-wave-04-mod-export.md
+    image: images/issue-167-service-reference/modeling-export-layout-concept-1440x900.png
+    width: 1440
+    height: 900
   - id: t60-guided-dashboard
     route: /
     workflow: clean-compose-three-family-guided-demo
     fixture: deterministic T-60 metal, polymer and elastomer reference seed
-    image: images/t60-guided-dashboard.jpg
+    image: images/historical-task-screenshots/t60-guided-dashboard.jpg
     width: 2385
     height: 894
   - id: catalog-workflow-explorer
     route: /catalog/explorer/records/{record_id}/revisions/{revision_id}
     workflow: lazy-catalog-tree-and-forward-exact-revision-link
     fixture: T-51 live Docker/PostgreSQL DP600 r2 to tensile-test r1
-    image: images/t51-catalog-workflow-explorer.jpg
+    image: images/historical-task-screenshots/t51-catalog-workflow-explorer.jpg
     width: 1265
     height: 712
   - id: explorer-integrated-search-workflow
@@ -21,42 +92,42 @@ captures:
     workflow: integrated-record-search-and-exact-workflow-graph
     fixture: T-71 clean Docker DP780 search and eight-node exact workflow; saved Subset verified separately
     source_evidence: reports/t71-explorer-search-workflow.md
-    image: images/t71-explorer-search-workflow.jpg
+    image: images/historical-task-screenshots/t71-explorer-search-workflow.jpg
     width: 1265
     height: 1666
   - id: domain-workflow-binding
     route: /catalog/explorer/records/{record_id}/revisions/{revision_id}
     workflow: configurable-record-to-governed-domain-exact-revision
     fixture: T-62 live Docker/PostgreSQL Catalog Record pinned to DP780 Material revision 1
-    image: images/t62-domain-workflow-binding.png
+    image: images/historical-task-screenshots/t62-domain-workflow-binding.png
     width: 1265
     height: 1235
   - id: reverse-record-link
     route: /catalog/explorer/records/{test_record_id}/revisions/{test_revision_id}
     workflow: reverse-link-navigation-with-exact-revision-pins
     fixture: T-51 live Docker/PostgreSQL tensile-test r1 to DP600 r2
-    image: images/t51-reverse-record-link.jpg
+    image: images/historical-task-screenshots/t51-reverse-record-link.jpg
     width: 1265
     height: 712
   - id: configurable-catalog-records
     route: /catalog/records
     workflow: typed-record-datasheet-search-facet-and-folder
     fixture: T-50 live Docker/PostgreSQL DP600 r2 and AA6061-T6 r1
-    image: images/t50-configurable-catalog-records.jpg
+    image: images/historical-task-screenshots/t50-configurable-catalog-records.jpg
     width: 1265
     height: 712
   - id: configurable-catalog-revision-compare
     route: /catalog/records
     workflow: exact-record-revision-comparison
     fixture: T-50 DP600 Young's modulus 210 GPa to 205 GPa immutable revision
-    image: images/t50-configurable-catalog-revision-compare.jpg
+    image: images/historical-task-screenshots/t50-configurable-catalog-revision-compare.jpg
     width: 1265
     height: 712
   - id: configurable-catalog-schema
     route: /catalog/schema
     workflow: administrator-defined-Table-Attribute-Layout-Subset
     fixture: T-49 live Docker/PostgreSQL Engineering Materials and Test Records
-    image: images/t49-configurable-catalog.jpg
+    image: images/historical-task-screenshots/t49-configurable-catalog.jpg
     width: 1003
     height: 1216
   - id: material-detail
@@ -123,170 +194,170 @@ captures:
     route: /materials/{demo-elastomer-material-id}
     workflow: governed-multitest-ogden-calibration
     fixture: deterministic T-43 uniaxial, planar, biaxial and holdout demo
-    image: images/t43-ogden-candidates.jpg
+    image: images/historical-task-screenshots/t43-ogden-candidates.jpg
   - id: ogden-diagnostics-and-cards
     route: /materials/{demo-elastomer-material-id}
     workflow: ogden-fitted-residual-diagnostics-and-card-download
     fixture: deterministic T-43 52-point diagnostics Artifact
-    image: images/t43-ogden-diagnostics-and-cards.jpg
+    image: images/historical-task-screenshots/t43-ogden-diagnostics-and-cards.jpg
   - id: ogden-iterative-promotion-history
     route: /materials/{demo-elastomer-material-id}
     workflow: human-candidate-selection-and-append-only-ir-promotion
     fixture: deterministic T-44 repeated r1-to-r2-to-r3 promotion
-    image: images/t44-ogden-selection-promotion-history.jpg
+    image: images/historical-task-screenshots/t44-ogden-selection-promotion-history.jpg
   - id: ogden-prior-cards-stable
     route: /materials/{demo-elastomer-material-id}
     workflow: prior-solver-card-stability-after-ir-promotion
     fixture: deterministic T-44 cards pinned to r1 and r2
-    image: images/t44-prior-solver-cards-stable.jpg
+    image: images/historical-task-screenshots/t44-prior-solver-cards-stable.jpg
   - id: bulk-export-selection
     route: /exports
     workflow: exact-revision-bulk-export-selection
     fixture: deterministic T-45 DP780 Material with raw, Dataset, IR and two-solver cards
-    image: images/t45-bulk-export-selection.jpg
+    image: images/historical-task-screenshots/t45-bulk-export-selection.jpg
   - id: immutable-bulk-export-bundles
     route: /exports
     workflow: deterministic-bundle-download
     fixture: T-45 22-component protected Docker/PostgreSQL bundle
-    image: images/t45-immutable-bundles.jpg
+    image: images/historical-task-screenshots/t45-immutable-bundles.jpg
   - id: global-navigation-model-hub
     route: /models
     workflow: global-model-navigation-to-material-context
     fixture: deterministic T-46 four-Material Docker demo catalog
-    image: images/t46-global-navigation-model-hub.jpg
+    image: images/historical-task-screenshots/t46-global-navigation-model-hub.jpg
     width: 900
     height: 1216
   - id: material-context-tabs
     route: /materials/{demo-material-id}/models
     workflow: contextual-material-state-model-and-card-workspace
     fixture: deterministic T-46 DP780 Material and exact State revision
-    image: images/t46-material-context-tabs.jpg
+    image: images/historical-task-screenshots/t46-material-context-tabs.jpg
     width: 885
     height: 1196
   - id: api-observability
     route: /governance
     workflow: auditor-redacted-route-template-observability
     fixture: deterministic T-47 Docker demo with OpenTelemetry Collector
-    image: images/t47-api-observability.jpg
+    image: images/historical-task-screenshots/t47-api-observability.jpg
     width: 885
     height: 1196
   - id: external-bundle-worker
     route: /exports
     workflow: external-worker-assembly-output-commit-and-bundle-reconciliation
     fixture: T-47 22-component Docker/PostgreSQL DP780 bundle forced above the 16-KiB demo inline limit
-    image: images/t47-external-bundle-worker.jpg
+    image: images/historical-task-screenshots/t47-external-bundle-worker.jpg
     width: 885
     height: 1196
   - id: external-bundle-worker-lease
     route: /exports
     workflow: external-worker-heartbeat-expiry-and-hard-kill-recovery
     fixture: T-47 DP780 Bundle Job with an explicit 15-second synthetic demo lease
-    image: images/t47-worker-lease-recovery.jpg
+    image: images/historical-task-screenshots/t47-worker-lease-recovery.jpg
     width: 917
     height: 1196
   - id: production-scale-catalog
     route: /
     workflow: authorized-10000-material-catalog-and-2-gib-streaming-acceptance
     fixture: T-47 isolated PostgreSQL composition with exactly 10,000 visible Material heads
-    image: images/t47-production-scale-catalog.jpg
+    image: images/historical-task-screenshots/t47-production-scale-catalog.jpg
     width: 1265
     height: 712
   - id: canonical-test-data-json
     route: /datasets/test-json
     workflow: validate-import-list-and-download-exact-test-data-revision
     fixture: T-52 DP600 cmp.test-data 1.0.0 PostgreSQL round-trip
-    image: images/t52-canonical-test-data.jpg
+    image: images/historical-task-screenshots/t52-canonical-test-data.jpg
     width: 1265
     height: 1571
   - id: canonical-test-data-package
     route: /datasets/test-json
     workflow: deterministic-current-exact-revision-json-zip-download
     fixture: T-52 DP600 revision 2 package with manifest and checksums
-    image: images/t52-canonical-test-data-package.jpg
+    image: images/historical-task-screenshots/t52-canonical-test-data-package.jpg
     width: 1265
     height: 712
   - id: canonical-tabular-adapter
     route: /datasets/test-json
     workflow: governed-csv-tsv-xlsx-to-canonical-json-preview
     fixture: T-52 DP600 strain-stress CSV mapping contract
-    image: images/t52-tabular-adapter.jpg
+    image: images/historical-task-screenshots/t52-tabular-adapter.jpg
     width: 1265
     height: 712
   - id: common-processing-workbench
     route: /datasets/processing
     workflow: exact-test-data-mapping-profile-revision-and-ordered-server-preview
     fixture: T-53 DP600 cmp.test-data revision 2 and Mapping Profile revision 2
-    image: images/t53-processing-stage-overlay.jpg
+    image: images/historical-task-screenshots/t53-processing-stage-overlay.jpg
     width: 1265
     height: 712
   - id: common-processing-curve-overlay
     route: /datasets/processing
     workflow: server-produced-stage-selection-and-shared-axis-curve-overlay
     fixture: T-53 DP600 mapping plus rows.sort_unique preview stages
-    image: images/t53-processing-curve-overlay.jpg
+    image: images/historical-task-screenshots/t53-processing-curve-overlay.jpg
     width: 1265
     height: 712
   - id: common-processing-output-commit
     route: /datasets/processing
     workflow: exact-input-server-recomputation-immutable-output-and-json-download
     fixture: T-53 DP600 Test Data r2, Mapping Profile r2 and three revision-1 Outputs
-    image: images/t53-processing-output-commit.jpg
+    image: images/historical-task-screenshots/t53-processing-output-commit.jpg
     width: 1265
     height: 712
   - id: common-processing-ensemble-statistics
     route: /datasets/processing
     workflow: exact-replicate-alignment-member-retention-and-pointwise-statistics
     fixture: T-53 DP600 Test Data identities 01 r2 and 02 r1 aligned on 21 observed-intersection points
-    image: images/t53-processing-ensemble-statistics.jpg
+    image: images/historical-task-screenshots/t53-processing-ensemble-statistics.jpg
     width: 1265
     height: 712
   - id: common-processing-recipe-library
     route: /datasets/processing
     workflow: exact-profile-versioned-recipe-draft-and-publish
     fixture: T-54 DP600 common cleanup Recipe revision 2 published
-    image: images/t54-processing-recipe-library.jpg
+    image: images/historical-task-screenshots/t54-processing-recipe-library.jpg
     width: 1265
     height: 712
   - id: common-processing-batch-monitor
     route: /datasets/processing
     workflow: exact-selection-compatibility-preflight-isolated-run-and-attempt-monitor
     fixture: T-54 published Recipe r2 with DP600 Test Data revisions 01 r2 and 02 r1
-    image: images/t54-processing-batch-monitor.jpg
+    image: images/historical-task-screenshots/t54-processing-batch-monitor.jpg
     width: 1265
     height: 712
   - id: metal-tensile-processing-methods
     route: /datasets/processing
     workflow: explicit-elastic-proof-necking-and-true-plastic-recipe-pipeline
     fixture: T-55M DP600-T55M-12PT r1 with published metal tensile Recipe r2
-    image: images/t55m-metal-processing-methods.jpg
+    image: images/historical-task-screenshots/t55m-metal-processing-methods.jpg
     width: 1265
     height: 712
   - id: metal-processing-output-promotion
     route: /materials/{demo-material-id}/models
     workflow: exact-selected-hardening-output-to-tabulated-plasticity-ir
     fixture: T-55M DP600 selected Output b3644458 promoted in DP780 synthetic demo State context
-    image: images/t55m-output-promotion.jpg
+    image: images/historical-task-screenshots/t55m-output-promotion.jpg
     width: 1425
     height: 891
   - id: metal-processed-hardening-ir
     route: /materials/{demo-material-id}/models
     workflow: exact-output-lineage-and-immutable-hardening-artifact
     fixture: T-55M IR 4080a694 with 101 selected fitted hardening points and bounded domain
-    image: images/t55m-processed-ir.jpg
+    image: images/historical-task-screenshots/t55m-processed-ir.jpg
     width: 1425
     height: 891
   - id: metal-processed-solver-cards
     route: /materials/{demo-material-id}/models
     workflow: one-processed-ir-to-openradioss-and-abaqus-native-cards
     fixture: T-55M OpenRadioss LAW36 rad and Abaqus isotropic-plasticity inp live downloads
-    image: images/t55m-processed-solver-cards.jpg
+    image: images/historical-task-screenshots/t55m-processed-solver-cards.jpg
     width: 1425
     height: 891
   - id: hyperelastic-family-comparison
     route: /materials/{demo-elastomer-material-id}/models
     workflow: immutable-run-reload-and-public-hyperelastic-family-diagnostics
     fixture: T-55E Neo-Hookean, Mooney-Rivlin, Yeoh, and Ogden comparison on three fit modes plus holdout
-    image: images/t55e-hyperelastic-family-comparison.jpg
+    image: images/historical-task-screenshots/t55e-hyperelastic-family-comparison.jpg
     width: 1250
     height: 704
   - id: hyperelastic-calibration-plan-library
@@ -294,14 +365,14 @@ captures:
     workflow: saved-exact-plan-reuse-and-append-only-plan-revision
     fixture: T-72 clean Compose four-Dataset Ogden Plan r1 loaded into editable role/mode/weight settings
     source_evidence: reports/t72-ogden-plan-library.md
-    image: images/t72-ogden-plan-library.jpg
+    image: images/historical-task-screenshots/t72-ogden-plan-library.jpg
     width: 1265
     height: 712
   - id: neutral-material-json-promotion
     route: /materials/{demo-elastomer-material-id}/models
     workflow: reviewed-family-candidate-to-canonical-neutral-material-json
     fixture: T-56 Ogden family Candidate from exact four-Dataset calibration Run
-    image: images/t56-neutral-material-json.jpg
+    image: images/historical-task-screenshots/t56-neutral-material-json.jpg
     width: 1265
     height: 712
   - id: clean-demo-governed-downloads
@@ -309,7 +380,7 @@ captures:
     workflow: clean-test-json-recipe-neutral-two-solver-card-and-bulk-download
     fixture: T-65 clean Compose DP780 exact revisions and committed governed ZIP
     source_evidence: reports/t65-clean-demo-product-journey.md
-    image: images/t65-clean-demo-downloads.png
+    image: images/historical-task-screenshots/t65-clean-demo-downloads.png
     width: 1440
     height: 3106
   - id: exact-domain-reverse-workflow-navigation
@@ -317,7 +388,7 @@ captures:
     workflow: exact-test-json-to-full-material-neutral-card-graph
     fixture: T-66 clean Compose DP780 reverse domain binding lookup
     source_evidence: reports/t66-reverse-workflow-navigation.md
-    image: images/t66-reverse-workflow-navigation.png
+    image: images/historical-task-screenshots/t66-reverse-workflow-navigation.png
     width: 1440
     height: 1681
   - id: reviewed-polymer-processing-output-promotion
@@ -325,7 +396,7 @@ captures:
     workflow: exact-prony-processing-output-review-and-promotion
     fixture: T-67 clean Compose 3-term automatic-BIC synthetic relaxation Output
     source_evidence: reports/t67-polymer-processing-promotion.md
-    image: images/t67-polymer-processing-promotion.png
+    image: images/historical-task-screenshots/t67-polymer-processing-promotion.png
     width: 1423
     height: 1521
   - id: promoted-polymer-processing-evidence
@@ -333,7 +404,7 @@ captures:
     workflow: promoted-generalized-maxwell-evidence-and-neutral-action
     fixture: T-67 IR r1 with 3 terms, normalized RMSE 0.002094 and G0 mismatch 0.09 percent
     source_evidence: reports/t67-polymer-processing-promotion.md
-    image: images/t67-polymer-processing-evidence.png
+    image: images/historical-task-screenshots/t67-polymer-processing-evidence.png
     width: 1380
     height: 858
   - id: polymer-recipe-batch-promotion-evidence
@@ -341,7 +412,7 @@ captures:
     workflow: published-recipe-successful-batch-output-to-ir
     fixture: T-69 clean Compose Recipe r2, Batch attempt 1, IR 1.3.0 and exact Neutral Recipe pin
     source_evidence: reports/t69-polymer-recipe-batch-package.md
-    image: images/t69-polymer-recipe-batch-evidence.png
+    image: images/historical-task-screenshots/t69-polymer-recipe-batch-evidence.png
     width: 1380
     height: 1601
   - id: polymer-recipe-batch-monitor
@@ -349,7 +420,7 @@ captures:
     workflow: published-polymer-recipe-successful-batch-attempt-monitor
     fixture: T-69 clean Compose polymer Prony Recipe and one succeeded exact member
     source_evidence: reports/t69-polymer-recipe-batch-package.md
-    image: images/t69-polymer-recipe-batch-monitor.png
+    image: images/historical-task-screenshots/t69-polymer-recipe-batch-monitor.png
     width: 1415
     height: 816
   - id: metal-recipe-batch-promotion-evidence
@@ -357,7 +428,7 @@ captures:
     workflow: published-metal-recipe-successful-batch-output-to-tabulated-plasticity-ir
     fixture: T-70 clean Compose Recipe r2, Batch attempt 1, IR 1.3.0 and exact Neutral Recipe pin
     source_evidence: reports/t70-metal-recipe-batch-package.md
-    image: images/t70-metal-recipe-batch-evidence.png
+    image: images/historical-task-screenshots/t70-metal-recipe-batch-evidence.png
     width: 1423
     height: 1913
   - id: product-session-dashboard
@@ -365,7 +436,7 @@ captures:
     workflow: automatic-demo-session-and-product-centered-entry
     fixture: T-75 clean Compose three-family demo workspace without visible connection controls
     source_evidence: reports/t75-product-session-shell.md
-    image: images/t75-product-dashboard.jpg
+    image: images/historical-task-screenshots/t75-product-dashboard.jpg
     width: 1440
     height: 1000
   - id: hierarchical-material-database
@@ -373,7 +444,7 @@ captures:
     workflow: database-profile-table-folder-record-and-exact-linked-workflow-tree
     fixture: T-76 clean Compose DP780 nested Metals and Steels folders with eight exact linked records
     source_evidence: reports/t76-material-database-tree.md
-    image: images/t76-material-database-tree.jpg
+    image: images/historical-task-screenshots/t76-material-database-tree.jpg
     width: 1440
     height: 1000
   - id: material-layout-datasheet
@@ -381,7 +452,7 @@ captures:
     workflow: tree-or-search-to-layout-selected-exact-material-datasheet
     fixture: T-77 clean Compose DP780 with eight typed Attributes and Material overview Layout
     source_evidence: reports/t77-material-datasheet-search.md
-    image: images/t77-material-datasheet.png
+    image: images/historical-task-screenshots/t77-material-datasheet.png
     width: 1440
     height: 1232
   - id: material-search-layout-comparison
@@ -389,7 +460,7 @@ captures:
     workflow: typed-search-facet-normalized-range-and-multi-record-layout-comparison
     fixture: T-77 clean Compose DP780 Material and exact linked workflow Records
     source_evidence: reports/t77-material-datasheet-search.md
-    image: images/t77-material-search-compare.png
+    image: images/historical-task-screenshots/t77-material-search-compare.png
     width: 1440
     height: 1000
   - id: product-administration-overview
@@ -397,7 +468,7 @@ captures:
     workflow: task-oriented-database-and-access-administration
     fixture: T-78 clean Compose automatic Administrator session
     source_evidence: reports/t78-product-administration.md
-    image: images/t78-administration-overview.png
+    image: images/historical-task-screenshots/t78-administration-overview.png
     width: 1440
     height: 1128
   - id: product-database-design
@@ -405,7 +476,7 @@ captures:
     workflow: configure-table-typed-attribute-layout-subset-and-link-type
     fixture: T-78 clean Compose one Table, eight typed Attributes, one Layout, one Subset and one Link Type
     source_evidence: reports/t78-product-administration.md
-    image: images/t78-database-design.png
+    image: images/historical-task-screenshots/t78-database-design.png
     width: 1440
     height: 2339
   - id: product-users-access
@@ -413,7 +484,7 @@ captures:
     workflow: administrator-user-and-readable-feature-capability-assignment
     fixture: T-78 clean Compose Administrator assignment without visible policy vocabulary
     source_evidence: reports/t78-product-administration.md
-    image: images/t78-users-access.png
+    image: images/historical-task-screenshots/t78-users-access.png
     width: 1440
     height: 1681
   - id: graph-centered-material-modeling
@@ -421,7 +492,7 @@ captures:
     workflow: exact-test-data-published-recipe-server-preview-and-stage-options
     fixture: T-79 clean Compose DP780 tensile JSON and published metal processing Recipe
     source_evidence: reports/t79-material-modeling-workspace.md
-    image: images/t79-material-modeling-workspace.png
+    image: images/historical-task-screenshots/t79-material-modeling-workspace.png
     width: 1036
     height: 1199
   - id: material-modeling-family-tracks
@@ -429,7 +500,7 @@ captures:
     workflow: choose-metal-polymer-or-elastomer-without-carrying-incompatible-input
     fixture: T-80 clean Compose three-family Material and exact State contexts
     source_evidence: reports/t80-family-modeling-tracks.md
-    image: images/t80-material-family-tracks.png
+    image: images/historical-task-screenshots/t80-material-family-tracks.png
     width: 1036
     height: 1199
   - id: polymer-modeling-track
@@ -437,7 +508,7 @@ captures:
     workflow: exact-relaxation-json-log-time-prony-output-neutral-and-card
     fixture: T-80 clean Compose polymer Test JSON, published Recipe, Processing Output and three-term IR
     source_evidence: reports/t80-family-modeling-tracks.md
-    image: images/t80-polymer-modeling-track.png
+    image: images/historical-task-screenshots/t80-polymer-modeling-track.png
     width: 1265
     height: 712
   - id: elastomer-modeling-track
@@ -445,7 +516,7 @@ captures:
     workflow: exact-multimode-plan-four-family-fit-eight-candidates-and-residuals
     fixture: T-80 clean Compose uniaxial, planar, biaxial and holdout Datasets with saved Plan r1
     source_evidence: reports/t80-family-modeling-tracks.md
-    image: images/t80-elastomer-calibration-track.png
+    image: images/historical-task-screenshots/t80-elastomer-calibration-track.png
     width: 1265
     height: 712
   - id: reviewed-neutral-solver-delivery
@@ -453,7 +524,7 @@ captures:
     workflow: interim-reviewed-result-neutral-json-explicit-mapping-and-native-card
     fixture: T-81 DP780 exact Processing Output, canonical Neutral Material and Abaqus mapping report
     source_evidence: reports/t81-reviewed-delivery.md
-    image: images/t81-reviewed-delivery.jpg
+    image: images/historical-task-screenshots/t81-reviewed-delivery.jpg
     width: 1036
     height: 1199
   - id: engineering-modeling-shell
@@ -461,7 +532,7 @@ captures:
     workflow: exact-datasheet-session-to-guided-elastic-range-and-interactive-server-plot
     fixture: T-85 clean Compose DP780 exact Material/State/Test Data with guided Elastic Modulus controls
     source_evidence: reports/t85-engineering-modeling-shell.md
-    image: images/t85-engineering-modeling-shell.png
+    image: images/historical-task-screenshots/t85-engineering-modeling-shell.png
     width: 1440
     height: 900
   - id: t85-workspace-dashboard
@@ -469,7 +540,7 @@ captures:
     workflow: choose-material-database-or-material-modeling-as-the-primary-work-lane
     fixture: T-85 clean Compose three-family workspace with three Material records
     source_evidence: reports/t85-engineering-modeling-shell.md
-    image: images/t85-workspace-dashboard.png
+    image: images/historical-task-screenshots/t85-workspace-dashboard.png
     width: 1440
     height: 900
   - id: t86-metal-prepare-workbench
@@ -477,7 +548,7 @@ captures:
     workflow: guided-common-preprocessing-and-direct-metal-elastic-domain-selection
     fixture: T-86 clean Compose three exact synthetic DP780 tensile Test JSON revisions
     source_evidence: reports/t86-metal-prepare-direct-manipulation.md
-    image: images/t86-metal-prepare-workbench.png
+    image: images/historical-task-screenshots/t86-metal-prepare-workbench.png
     width: 1440
     height: 900
   - id: t86-metal-replicate-statistics
@@ -485,7 +556,7 @@ captures:
     workflow: exact-replicate-include-exclude-observed-alignment-mean-and-confidence-band
     fixture: T-86 clean Compose two included synthetic DP780 tensile revisions on 21-point intersection
     source_evidence: reports/t86-metal-prepare-direct-manipulation.md
-    image: images/t86-metal-replicate-statistics.png
+    image: images/historical-task-screenshots/t86-metal-replicate-statistics.png
     width: 1440
     height: 900
   - id: t87-metal-fit-candidate-comparison
@@ -493,7 +564,7 @@ captures:
     workflow: compare-four-hardening-equations-selected-blend-and-explicit-unobserved-domain
     fixture: T-87 clean Compose synthetic DP780 true-plastic workup and server hardening candidates
     source_evidence: reports/t87-metal-fit-extrapolation.md
-    image: images/t87-metal-fit-candidate-comparison.png
+    image: images/historical-task-screenshots/t87-metal-fit-candidate-comparison.png
     width: 1440
     height: 900
   - id: t87-metal-fit-residual
@@ -501,7 +572,7 @@ captures:
     workflow: inspect-predicted-minus-observed-residual-for-all-hardening-candidates
     fixture: T-87 clean Compose synthetic DP780 selected fit domain and server candidate arrays
     source_evidence: reports/t87-metal-fit-extrapolation.md
-    image: images/t87-metal-fit-residual.png
+    image: images/historical-task-screenshots/t87-metal-fit-residual.png
     width: 1440
     height: 900
   - id: t88-abaqus-card-delivery
@@ -509,7 +580,7 @@ captures:
     workflow: reviewed-metal-output-to-neutral-six-state-mapping-and-abaqus-native-card
     fixture: T-88 clean Compose DP780 exact Processing Output and canonical Neutral Material
     source_evidence: reports/t88-neutral-card-delivery.md
-    image: images/t88-abaqus-card-delivery.png
+    image: images/historical-task-screenshots/t88-abaqus-card-delivery.png
     width: 1440
     height: 900
   - id: t88-openradioss-card-delivery
@@ -517,7 +588,7 @@ captures:
     workflow: same-reviewed-neutral-to-openradioss-law36-preview-and-download
     fixture: T-88 clean Compose DP780 exact Neutral Material and acknowledged OpenRadioss mapping
     source_evidence: reports/t88-neutral-card-delivery.md
-    image: images/t88-openradioss-card-delivery.png
+    image: images/historical-task-screenshots/t88-openradioss-card-delivery.png
     width: 1440
     height: 900
   - id: t95-ux-foundation-materials
@@ -613,7 +684,7 @@ captures:
     workflow: historical-neutral-ir-to-solver-card
     fixture: synthetic reference Ogden-Prony Neutral Material
     source_evidence: reports/t64-neutral-export-parity.md
-    image: images/t57-neutral-solver-card.jpg
+    image: images/historical-task-screenshots/t57-neutral-solver-card.jpg
     width: 373
     height: 1155
   - id: t58-canonical-bulk-package
@@ -621,7 +692,7 @@ captures:
     workflow: historical-canonical-bulk-package
     fixture: synthetic reference Neutral JSON and solver-card bundle
     source_evidence: reports/t64-neutral-export-parity.md
-    image: images/t58-canonical-bulk-package.jpg
+    image: images/historical-task-screenshots/t58-canonical-bulk-package.jpg
     width: 373
     height: 1155
   - id: t98-governed-import
@@ -808,3 +879,579 @@ captures:
     image: images/uxc-00r-retired-modeling-validation/modeling-validation-1920x1080.png
     width: 1920
     height: 1080
+  - id: administration-layout-edit-draft-1366x768
+    route: static-reference
+    workflow: issue-167-layout-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-layout-edit-draft-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-layout-edit-draft-1440x900
+    route: static-reference
+    workflow: issue-167-layout-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-layout-edit-draft-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-layout-edit-draft-1920x1080
+    route: static-reference
+    workflow: issue-167-layout-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-layout-edit-draft-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-subset-edit-draft-1366x768
+    route: static-reference
+    workflow: issue-167-subset-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-subset-edit-draft-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-subset-edit-draft-1440x900
+    route: static-reference
+    workflow: issue-167-subset-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-subset-edit-draft-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-subset-edit-draft-1920x1080
+    route: static-reference
+    workflow: issue-167-subset-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-subset-edit-draft-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-link-type-edit-draft-1366x768
+    route: static-reference
+    workflow: issue-167-link-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-link-type-edit-draft-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-link-type-edit-draft-1440x900
+    route: static-reference
+    workflow: issue-167-link-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-link-type-edit-draft-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-link-type-edit-draft-1920x1080
+    route: static-reference
+    workflow: issue-167-link-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-link-type-edit-draft-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-access-normal-1366x768
+    route: static-reference
+    workflow: issue-167-access-normal
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-normal-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-access-normal-1440x900
+    route: static-reference
+    workflow: issue-167-access-normal
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-normal-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-access-normal-1920x1080
+    route: static-reference
+    workflow: issue-167-access-normal
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-normal-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-access-denied-1440x900
+    route: static-reference
+    workflow: issue-167-access-denied
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-denied-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-access-revoke-confirm-1440x900
+    route: static-reference
+    workflow: issue-167-access-revoke-confirm
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-revoke-confirm-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-publish-blocked-1366x768
+    route: static-reference
+    workflow: issue-167-publish-blocked
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-publish-blocked-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-publish-blocked-1440x900
+    route: static-reference
+    workflow: issue-167-publish-blocked
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-publish-blocked-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-publish-blocked-1920x1080
+    route: static-reference
+    workflow: issue-167-publish-blocked
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-publish-blocked-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-layout-missing-attribute-blocked-1366x768
+    route: static-reference
+    workflow: issue-167-layout-missing-attribute-blocked
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-layout-missing-attribute-blocked-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-layout-missing-attribute-blocked-1440x900
+    route: static-reference
+    workflow: issue-167-layout-missing-attribute-blocked
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-layout-missing-attribute-blocked-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-layout-missing-attribute-blocked-1920x1080
+    route: static-reference
+    workflow: issue-167-layout-missing-attribute-blocked
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-layout-missing-attribute-blocked-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-layout-preview-loading-1366x768
+    route: static-reference
+    workflow: issue-167-layout-preview-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-layout-preview-loading-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-layout-preview-loading-1440x900
+    route: static-reference
+    workflow: issue-167-layout-preview-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-layout-preview-loading-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-layout-preview-loading-1920x1080
+    route: static-reference
+    workflow: issue-167-layout-preview-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-layout-preview-loading-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-layout-preview-error-1366x768
+    route: static-reference
+    workflow: issue-167-layout-preview-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-layout-preview-error-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-layout-preview-error-1440x900
+    route: static-reference
+    workflow: issue-167-layout-preview-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-layout-preview-error-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-layout-preview-error-1920x1080
+    route: static-reference
+    workflow: issue-167-layout-preview-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-layout-preview-error-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-subset-invalid-filter-blocked-1366x768
+    route: static-reference
+    workflow: issue-167-subset-invalid-filter-blocked
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-subset-invalid-filter-blocked-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-subset-invalid-filter-blocked-1440x900
+    route: static-reference
+    workflow: issue-167-subset-invalid-filter-blocked
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-subset-invalid-filter-blocked-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-subset-invalid-filter-blocked-1920x1080
+    route: static-reference
+    workflow: issue-167-subset-invalid-filter-blocked
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-subset-invalid-filter-blocked-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-subset-preview-loading-1366x768
+    route: static-reference
+    workflow: issue-167-subset-preview-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-subset-preview-loading-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-subset-preview-loading-1440x900
+    route: static-reference
+    workflow: issue-167-subset-preview-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-subset-preview-loading-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-subset-preview-loading-1920x1080
+    route: static-reference
+    workflow: issue-167-subset-preview-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-subset-preview-loading-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-subset-preview-error-1366x768
+    route: static-reference
+    workflow: issue-167-subset-preview-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-subset-preview-error-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-subset-preview-error-1440x900
+    route: static-reference
+    workflow: issue-167-subset-preview-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-subset-preview-error-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-subset-preview-error-1920x1080
+    route: static-reference
+    workflow: issue-167-subset-preview-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-subset-preview-error-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-link-type-invalid-endpoint-or-cardinality-blocked-1366x768
+    route: static-reference
+    workflow: issue-167-link-link-invalid
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-link-type-invalid-endpoint-or-cardinality-blocked-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-link-type-invalid-endpoint-or-cardinality-blocked-1440x900
+    route: static-reference
+    workflow: issue-167-link-link-invalid
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-link-type-invalid-endpoint-or-cardinality-blocked-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-link-type-invalid-endpoint-or-cardinality-blocked-1920x1080
+    route: static-reference
+    workflow: issue-167-link-link-invalid
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-link-type-invalid-endpoint-or-cardinality-blocked-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-link-type-validation-loading-1366x768
+    route: static-reference
+    workflow: issue-167-link-validation-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-link-type-validation-loading-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-link-type-validation-loading-1440x900
+    route: static-reference
+    workflow: issue-167-link-validation-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-link-type-validation-loading-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-link-type-validation-loading-1920x1080
+    route: static-reference
+    workflow: issue-167-link-validation-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-link-type-validation-loading-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-link-type-related-test-error-1366x768
+    route: static-reference
+    workflow: issue-167-link-related-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-link-type-related-test-error-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-link-type-related-test-error-1440x900
+    route: static-reference
+    workflow: issue-167-link-related-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-link-type-related-test-error-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-link-type-related-test-error-1920x1080
+    route: static-reference
+    workflow: issue-167-link-related-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-link-type-related-test-error-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-access-empty-1366x768
+    route: static-reference
+    workflow: issue-167-access-empty
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-empty-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-access-empty-1440x900
+    route: static-reference
+    workflow: issue-167-access-empty
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-empty-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-access-empty-1920x1080
+    route: static-reference
+    workflow: issue-167-access-empty
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-empty-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-access-loading-1366x768
+    route: static-reference
+    workflow: issue-167-access-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-loading-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-access-loading-1440x900
+    route: static-reference
+    workflow: issue-167-access-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-loading-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-access-loading-1920x1080
+    route: static-reference
+    workflow: issue-167-access-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-loading-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-access-service-error-1366x768
+    route: static-reference
+    workflow: issue-167-access-service-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-service-error-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-access-service-error-1440x900
+    route: static-reference
+    workflow: issue-167-access-service-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-service-error-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-access-service-error-1920x1080
+    route: static-reference
+    workflow: issue-167-access-service-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-service-error-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-publish-validation-blocked-1366x768
+    route: static-reference
+    workflow: issue-167-publish-validation-blocked
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-publish-validation-blocked-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-publish-validation-blocked-1440x900
+    route: static-reference
+    workflow: issue-167-publish-validation-blocked
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-publish-validation-blocked-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-publish-validation-blocked-1920x1080
+    route: static-reference
+    workflow: issue-167-publish-validation-blocked
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-publish-validation-blocked-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-publish-validation-loading-1366x768
+    route: static-reference
+    workflow: issue-167-publish-validation-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-publish-validation-loading-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-publish-validation-loading-1440x900
+    route: static-reference
+    workflow: issue-167-publish-validation-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-publish-validation-loading-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-publish-validation-loading-1920x1080
+    route: static-reference
+    workflow: issue-167-publish-validation-loading
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-publish-validation-loading-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-publish-error-1366x768
+    route: static-reference
+    workflow: issue-167-publish-publish-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-publish-error-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-publish-error-1440x900
+    route: static-reference
+    workflow: issue-167-publish-publish-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-publish-error-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-publish-error-1920x1080
+    route: static-reference
+    workflow: issue-167-publish-publish-error
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-publish-error-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-layout-edit-draft-wide-2560x1440
+    route: static-reference
+    workflow: issue-167-layout-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-layout-edit-draft-wide-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: administration-layout-edit-draft-wide-3840x2160
+    route: static-reference
+    workflow: issue-167-layout-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-layout-edit-draft-wide-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: administration-subset-edit-draft-wide-2560x1440
+    route: static-reference
+    workflow: issue-167-subset-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-subset-edit-draft-wide-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: administration-subset-edit-draft-wide-3840x2160
+    route: static-reference
+    workflow: issue-167-subset-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-subset-edit-draft-wide-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: administration-link-type-edit-draft-wide-2560x1440
+    route: static-reference
+    workflow: issue-167-link-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-link-type-edit-draft-wide-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: administration-link-type-edit-draft-wide-3840x2160
+    route: static-reference
+    workflow: issue-167-link-draft
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-link-type-edit-draft-wide-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: administration-access-normal-wide-2560x1440
+    route: static-reference
+    workflow: issue-167-access-normal
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-normal-wide-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: administration-access-normal-wide-3840x2160
+    route: static-reference
+    workflow: issue-167-access-normal
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-access-normal-wide-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: administration-publish-blocked-wide-2560x1440
+    route: static-reference
+    workflow: issue-167-publish-blocked
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-publish-blocked-wide-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: administration-publish-blocked-wide-3840x2160
+    route: static-reference
+    workflow: issue-167-publish-blocked
+    fixture: deterministic synthetic non-production Administration reference
+    source_evidence: reports/issue-167-administration-remaining-product-owner-packet.md
+    image: images/issue-167-service-reference/administration-publish-blocked-wide-3840x2160.png
+    width: 3840
+    height: 2160

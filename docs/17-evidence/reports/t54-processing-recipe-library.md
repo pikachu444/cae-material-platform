@@ -13,7 +13,7 @@ Verified on 2026-07-18 against the Docker Compose demo and PostgreSQL migration 
 5. The connected React workbench listed `DP600 common cleanup · r2 · published`, restored the
    ordered step editor and displayed the exact profile revision and Recipe content digest.
 
-![Published reusable Recipe with exact profile and content pins](../images/t54-processing-recipe-library.jpg)
+![Published reusable Recipe with exact profile and content pins](../images/historical-task-screenshots/t54-processing-recipe-library.jpg)
 
 Migration 065 uses explicit identity, revision and ordered step tables. Method options are bounded,
 schema-validated JSON objects with detached SHA-256, not catalog EAV. Composite tenant/classification

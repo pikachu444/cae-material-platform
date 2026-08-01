@@ -1,0 +1,439 @@
+{
+  "capture_date": "2026-07-29",
+  "target": "modeling-export-source-blocked-responsive-1920x1080",
+  "state": "source-blocked",
+  "family": "metal",
+  "viewport": {
+    "width": 1920,
+    "height": 1080,
+    "device_scale_factor": 1
+  },
+  "image": "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png",
+  "image_sha256": "f64f50b25dc817482641d4a7c355de630a4b027851d562a95e9bbe973bef2991",
+  "status": "pending",
+  "main_agent_evaluation": {
+    "status": "pending"
+  },
+  "product_owner_approval": {
+    "status": "absent"
+  },
+  "console_errors": [],
+  "page_errors": [],
+  "geometry": {
+    "target": "modeling-export-source-blocked-responsive-1920x1080",
+    "state": "source-blocked",
+    "family": "metal",
+    "overflow": {
+      "documentHorizontal": 0,
+      "documentVertical": 0,
+      "bodyHorizontal": 0,
+      "bodyVertical": 0
+    },
+    "regions": {
+      "applicationBar": {
+        "x": 0,
+        "y": 0,
+        "width": 1920,
+        "height": 46,
+        "right": 1920,
+        "bottom": 46
+      },
+      "context": {
+        "x": 8,
+        "y": 46,
+        "width": 1904,
+        "height": 42,
+        "right": 1912,
+        "bottom": 88
+      },
+      "stageStrip": {
+        "x": 8,
+        "y": 88,
+        "width": 1904,
+        "height": 34,
+        "right": 1912,
+        "bottom": 122
+      },
+      "workspace": {
+        "x": 8,
+        "y": 122,
+        "width": 1904,
+        "height": 934,
+        "right": 1912,
+        "bottom": 1056
+      },
+      "properties": {
+        "x": 8,
+        "y": 122,
+        "width": 326,
+        "height": 934,
+        "right": 334,
+        "bottom": 1056
+      },
+      "divider": {
+        "x": 334,
+        "y": 122,
+        "width": 8,
+        "height": 934,
+        "right": 342,
+        "bottom": 1056
+      },
+      "main": {
+        "x": 342,
+        "y": 122,
+        "width": 1570,
+        "height": 934,
+        "right": 1912,
+        "bottom": 1056
+      },
+      "result": {
+        "x": 342,
+        "y": 122,
+        "width": 1570,
+        "height": 934,
+        "right": 1912,
+        "bottom": 1056
+      },
+      "nativePreview": {
+        "x": 342,
+        "y": 122,
+        "width": 1210,
+        "height": 934,
+        "right": 1552,
+        "bottom": 1056
+      },
+      "mappingSheet": {
+        "x": 1553,
+        "y": 122,
+        "width": 359,
+        "height": 616,
+        "right": 1912,
+        "bottom": 738
+      },
+      "fitSource": {
+        "x": 1553,
+        "y": 738,
+        "width": 359,
+        "height": 318,
+        "right": 1912,
+        "bottom": 1056
+      },
+      "statusBar": {
+        "x": 0,
+        "y": 1056,
+        "width": 1920,
+        "height": 24,
+        "right": 1920,
+        "bottom": 1080
+      }
+    },
+    "layout": {
+      "workspaceWidth": 1904,
+      "nativeWidth": 1210,
+      "mappingWidth": 359,
+      "propertiesWidth": 326
+    },
+    "sourceGraph": {
+      "box": null,
+      "axisTitles": [],
+      "legendZone": "",
+      "legendOverlapsCurve": false,
+      "scaleDelta": 0,
+      "preserveAspectRatio": "",
+      "curveCount": 0,
+      "labels": [],
+      "renderedTicks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "renderedTitles": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "renderedLegend": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "positiveYield": false,
+      "labelsContained": true,
+      "legendContained": false,
+      "curveClearance": null,
+      "dataRange": null
+    },
+    "preflight": {
+      "sourceState": "Missing",
+      "targetState": "Selected",
+      "checkState": "Cannot create",
+      "checkStatus": "Cannot create\n                Select a model in Fit.",
+      "checkSummary": "Select a model in Fit.",
+      "mappingHeader": "Unavailable",
+      "rows": [
+        {
+          "text": "No mapping availableSelected model requiredBlocked",
+          "status": "blocked",
+          "title": "No mapping available"
+        }
+      ],
+      "counts": {
+        "exact": 0,
+        "transformed": 0,
+        "approximated": 0,
+        "not_applicable": 0,
+        "unsupported": 0,
+        "blockers": 1
+      },
+      "source": {
+        "text": "Selected model\nMissing\nModel\nNot selected\nOpen in Fit",
+        "model": "Not selected"
+      },
+      "advancedNotApplicable": 4
+    },
+    "actions": {
+      "primaryCount": 1,
+      "action": "back-fit",
+      "text": "Back to Fit",
+      "disabled": false,
+      "deliveryDetailsVisible": false,
+      "retryVisible": false,
+      "runCheckVisible": false,
+      "recoveryActions": [],
+      "acknowledgementVisible": false,
+      "acknowledgementChecked": false,
+      "previewState": "Unavailable",
+      "previewTarget": "Abaqus 2025 · kg · m · s · synthetic reference",
+      "sourceMaterialDisabled": true,
+      "fitSourceDisabled": true,
+      "fitSourceOpenVisible": true,
+      "fitSourceGraphOpacity": "1",
+      "outputMarkerVisible": false,
+      "visibleText": "Skip to Modeling Export workspace\nCMP\nCAE Material Platform\nMaterials\nModeling\nActivity\nDemo workspace\nExport solver card\nDP780 Dual-Phase Steel · Tensile · room temperature\nCannot create\nAdvanced\nData\nProcess\nFit\nExport\nSelect a model in Fit\nExport setup\nBlocked\nSelected model\nMissing\nModel\nNot selected\nOpen in Fit\nDestination\nSelected\nSolver / format\nSelect Destination\nAbaqus 2025 · ASCII\nOpenRadioss 2025 · ASCII\n2025\nOutput unit system\nSelect unit system\nkg · m · s\nOther unit systems — unavailable\nOptions are supplied by the selected exporter capability.\nExport check\nCannot create\nSelect a model in Fit.\nBack to Fit\nAdvanced\n‹\nSolver Card preview\nAbaqus 2025 · kg · m · s · synthetic reference\nUnavailable\nMapping details\nUnavailable\nNo mapping available\nSelected model required\nBlocked\nFit source\nOpen full graph\n\nNo selected model\n\nFit source unavailable\nNo selected model\nSource required\nCannot create\nOnline",
+      "deliveryCount": 0,
+      "deliveryPointer": "",
+      "previewCurrent": false
+    },
+    "scroll": {
+      "properties": {
+        "clientWidth": 310,
+        "offsetWidth": 325,
+        "scrollWidth": 310,
+        "clientHeight": 900,
+        "offsetHeight": 900,
+        "scrollHeight": 900,
+        "overflowX": "auto",
+        "overflowY": "auto",
+        "scrollbarGutter": "stable"
+      },
+      "native": {
+        "clientWidth": 1171,
+        "offsetWidth": 1188,
+        "scrollWidth": 1171,
+        "clientHeight": 870,
+        "offsetHeight": 872,
+        "scrollHeight": 870,
+        "overflowX": "auto",
+        "overflowY": "auto",
+        "scrollbarGutter": "stable"
+      },
+      "mapping": {
+        "clientWidth": 344,
+        "offsetWidth": 359,
+        "scrollWidth": 344,
+        "clientHeight": 44,
+        "offsetHeight": 44,
+        "scrollHeight": 44,
+        "overflowX": "auto",
+        "overflowY": "auto",
+        "scrollbarGutter": "stable"
+      }
+    },
+    "interaction": {
+      "stageLabels": [
+        "Data",
+        "Process",
+        "Fit",
+        "Export"
+      ],
+      "activeStage": "Export",
+      "legacySelectors": [],
+      "nestedInteractive": [],
+      "topGraphCount": 0,
+      "sourceGraphVisible": false,
+      "focused": "BODY"
+    },
+    "technical": {
+      "digest": "metal-abaqus-2025-kg_m_s-v1",
+      "nativeText": "",
+      "targetValue": "abaqus",
+      "version": "2025",
+      "unitSystem": "kg_m_s",
+      "unitSystemLabel": "kg · m · s",
+      "unitControl": {
+        "disabled": false,
+        "options": [
+          {
+            "value": "",
+            "label": "Select unit system",
+            "disabled": false
+          },
+          {
+            "value": "kg_m_s",
+            "label": "kg · m · s",
+            "disabled": false
+          },
+          {
+            "value": "unavailable",
+            "label": "Other unit systems — unavailable",
+            "disabled": true
+          }
+        ]
+      },
+      "tuple": "abaqus|2025|kg_m_s|metal",
+      "mappingPlaceholders": []
+    }
+  },
+  "overflow": {
+    "documentHorizontal": 0,
+    "documentVertical": 0,
+    "bodyHorizontal": 0,
+    "bodyVertical": 0
+  },
+  "exercise": {},
+  "qualitative_checklist": {
+    "Q-01": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png"
+      ],
+      "reason": "Export has no navigator tree; Export setup is a bounded property pane."
+    },
+    "Q-02": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png"
+      ],
+      "reason": "Mapping details are not a result list; their overflow is evaluated in Q-09."
+    },
+    "Q-03": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png"
+      ],
+      "reason": "Materials navigation is not mounted in Modeling Export."
+    },
+    "Q-04": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png"
+      ],
+      "reason": "Fit controls and candidate drawer are upstream; Export keeps only selected Fit source context."
+    },
+    "Q-05": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png"
+      ],
+      "reason": "Source graph is unavailable while the exact Fit prerequisite is blocked."
+    },
+    "Q-06": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png"
+      ],
+      "reason": "No graph legend is shown without an exact source."
+    },
+    "Q-07": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png"
+      ],
+      "reason": "No source plot is rendered in blocked state."
+    },
+    "Q-08": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png"
+      ],
+      "reason": "The source family is not a true-yield/true-plastic-strain plot."
+    },
+    "Q-09": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png"
+      ],
+      "reason": "Normal mapping is compact; long overflow is covered by long-mapping evidence."
+    },
+    "Q-10": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png"
+      ],
+      "reason": "No legend is shown without an exact source."
+    },
+    "Q-11": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png"
+      ],
+      "reason": "Export has no Fit rail; the right context is a bounded result column."
+    },
+    "Q-12": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png"
+      ],
+      "reason": "Export setup identifies the exact saved branch by selected model only; Output unit system remains a capability-backed selector with unsupported alternatives disabled, ambiguous r1 shorthand is absent, and physical values appear once in Mapping details."
+    },
+    "Q-13": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png"
+      ],
+      "reason": "Setup and mapping rows use one compact title/value/status rhythm; explanatory prose and technical counts are disclosed only on demand."
+    },
+    "Q-14": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png"
+      ],
+      "reason": "Readiness and the exact next action are stated once in Export check; preview and mapping regions avoid duplicate alert prose."
+    },
+    "Q-15": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png"
+      ],
+      "reason": "No engineering plot is rendered without an exact selected model."
+    },
+    "Q-16": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png"
+      ],
+      "reason": "The native preview remains dominant; bounded result context has no normal fake rail and genuine long content exposes independent local scrolling."
+    }
+  }
+}

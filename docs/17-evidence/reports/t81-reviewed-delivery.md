@@ -26,7 +26,7 @@ The exact Material, Material State, Property Set, input Dataset, Processing Outp
 model revision and selection reason are summarized before export. Users can return to the Material
 datasheet or continue to the existing bulk package screen without copying an object UUID.
 
-![Reviewed metal result, exact Neutral JSON and explicit Abaqus mapping](../images/t81-reviewed-delivery.jpg)
+![Reviewed metal result, exact Neutral JSON and explicit Abaqus mapping](../images/historical-task-screenshots/t81-reviewed-delivery.jpg)
 
 ## Live Docker/PostgreSQL journeys
 

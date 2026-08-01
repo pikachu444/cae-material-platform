@@ -1,0 +1,305 @@
+{
+  "target": "activity-user-loading-with-local-session-history-preserved-1366x768",
+  "role": "user",
+  "state": "loading",
+  "viewport": {
+    "width": 1366,
+    "height": 768,
+    "device_scale_factor": 1
+  },
+  "image": "docs/17-evidence/images/issue-167-service-reference/activity-user-loading-with-local-session-history-preserved-1366x768.png",
+  "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-user-loading-with-local-session-history-preserved-1366x768.measurements.json",
+  "sha256": "e52d826e6646f39edd60fb53ad9522043a3ab9462dcc065ed3921580cb02754c",
+  "dimensions": {
+    "width": 1366,
+    "height": 768
+  },
+  "console_errors": [],
+  "page_errors": [],
+  "snapshot": {
+    "role": "user",
+    "state": "loading",
+    "pageText": "Skip to Activity queue\nCMP\nCAE Material Platform\nMaterial data and solver delivery\nMaterials\nModeling\nActivity\nSigned-in user\nActivity\nUser queue\n\nYour pending requests and browser-local work.\n\nLoading activity queue\u2026\nRefresh\nNeeds attention\nIn progress\nRecent outcomes\nIn progress\n\nBrowser-local Modeling sessions and requests awaiting a decision.\n\nLoading\u2026\nIn progress work\nTASK\tREQUEST REASON\tSTATUS\tUPDATED\tACTION\nResume Modeling session\tmetal \u00b7 Fit \u00b7 DP780 tensile r3 \u00b7 2 selected curves\tLocal session\tToday \u00b7 09:18\t\nResume Modeling\nActivity queue\nUser context\nLocal queue scroll\nOnline",
+    "viewport": {
+      "width": 1366,
+      "height": 768,
+      "deviceScaleFactor": 1
+    },
+    "overflow": {
+      "documentHorizontal": 0,
+      "documentVertical": 0,
+      "bodyHorizontal": 0,
+      "bodyVertical": 0
+    },
+    "geometry": {
+      "shell": {
+        "left": 8,
+        "top": 54,
+        "right": 1358,
+        "bottom": 760,
+        "width": 1350,
+        "height": 706
+      },
+      "content": {
+        "left": 0,
+        "top": 46,
+        "right": 1366,
+        "bottom": 768,
+        "width": 1366,
+        "height": 722
+      },
+      "queueRegion": {
+        "left": 9,
+        "top": 157,
+        "right": 1357,
+        "bottom": 732,
+        "width": 1348,
+        "height": 575
+      },
+      "queue": {
+        "left": 23,
+        "top": 157,
+        "right": 1343,
+        "bottom": 732,
+        "width": 1320,
+        "height": 575
+      },
+      "heading": {
+        "left": 9,
+        "top": 55,
+        "right": 1357,
+        "bottom": 120,
+        "width": 1348,
+        "height": 65
+      },
+      "views": {
+        "left": 9,
+        "top": 120,
+        "right": 1357,
+        "bottom": 157,
+        "width": 1348,
+        "height": 37
+      },
+      "status": {
+        "left": 9,
+        "top": 732,
+        "right": 1357,
+        "bottom": 759,
+        "width": 1348,
+        "height": 27
+      }
+    },
+    "queueScroll": {
+      "scrollHeight": 575,
+      "clientHeight": 575,
+      "scrollTop": 0,
+      "overflowY": "auto",
+      "scrollbarGutter": "stable both-edges",
+      "width": 1296,
+      "hasOverflow": false
+    },
+    "overflowRail": {
+      "reserved": false,
+      "track": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "width": 0,
+        "height": 0
+      },
+      "thumb": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "width": 0,
+        "height": 0
+      },
+      "thumbHeight": 0,
+      "trackHeight": 0
+    },
+    "sections": [
+      {
+        "id": "needs-attention",
+        "visible": false,
+        "rows": 0,
+        "visibleRows": 0,
+        "listHidden": true,
+        "emptyHidden": false
+      },
+      {
+        "id": "in-progress",
+        "visible": true,
+        "rows": 1,
+        "visibleRows": 1,
+        "listHidden": false,
+        "emptyHidden": true
+      },
+      {
+        "id": "recent-outcomes",
+        "visible": false,
+        "rows": 1,
+        "visibleRows": 0,
+        "listHidden": false,
+        "emptyHidden": true
+      }
+    ],
+    "rows": [
+      {
+        "id": "modeling-session-local",
+        "selected": false,
+        "task": "Resume Modeling session",
+        "reason": "metal \u00b7 Fit \u00b7 DP780 tensile r3 \u00b7 2 selected curves",
+        "reasonClipped": false,
+        "hasReview": false,
+        "hasDecision": false,
+        "status": "Local session",
+        "actionKind": "resume",
+        "actionText": "Resume Modeling",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "resume",
+        "source": "browser-local",
+        "section": "in-progress",
+        "height": 46.5
+      }
+    ],
+    "allRows": [
+      {
+        "id": "modeling-session-local",
+        "selected": false,
+        "task": "Resume Modeling session",
+        "reason": "metal \u00b7 Fit \u00b7 DP780 tensile r3 \u00b7 2 selected curves",
+        "reasonClipped": false,
+        "hasReview": false,
+        "hasDecision": false,
+        "status": "Local session",
+        "actionKind": "resume",
+        "actionText": "Resume Modeling",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "resume",
+        "source": "browser-local",
+        "section": "in-progress",
+        "height": 46.5
+      },
+      {
+        "id": "solver-card-local",
+        "selected": false,
+        "task": "Downloaded solver card",
+        "reason": "DP780 \u00b7 OpenRadioss .rad",
+        "reasonClipped": false,
+        "hasReview": false,
+        "hasDecision": false,
+        "status": "Delivered",
+        "actionKind": "open-card",
+        "actionText": "Open card",
+        "actionAccessibleName": "",
+        "passiveAction": false,
+        "command": "open-card",
+        "source": "browser-local",
+        "section": "recent-outcomes",
+        "height": 0
+      }
+    ],
+    "controls": [
+      {
+        "tag": "a",
+        "name": "Skip to Activity queue",
+        "disabled": false
+      },
+      {
+        "tag": "a",
+        "name": "CAE Material Platform home",
+        "disabled": false
+      },
+      {
+        "tag": "a",
+        "name": "Materials",
+        "disabled": false
+      },
+      {
+        "tag": "a",
+        "name": "Modeling",
+        "disabled": false
+      },
+      {
+        "tag": "a",
+        "name": "Activity",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "Refresh",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "Needs attention",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "In progress",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "Recent outcomes",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "Resume Modeling: Resume Modeling session",
+        "disabled": false
+      }
+    ],
+    "legacy": [],
+    "nestedInteractive": [],
+    "tabCount": 3,
+    "activeTab": "in-progress",
+    "tableHeaders": [
+      "Task",
+      "Request reason",
+      "Status",
+      "Updated",
+      "Action"
+    ],
+    "tableCount": 3,
+    "rowHeightRange": {
+      "min": 46.5,
+      "max": 46.5
+    },
+    "contract": {
+      "serverRequestCount": 0,
+      "pendingCount": 0,
+      "decidedCount": 0,
+      "localHistoryCount": 2,
+      "roleDefaultView": "in-progress",
+      "visibleServerRows": 0,
+      "pendingRows": 0,
+      "decidedRows": 0
+    },
+    "decision": {
+      "visible": false,
+      "reason": "",
+      "error": "",
+      "selected": "",
+      "help": "",
+      "selectedChoice": [],
+      "recoveryCommands": []
+    },
+    "queueStatus": "Loading activity queue\u2026",
+    "announcements": {
+      "alert": false,
+      "loading": true,
+      "focusVisibleRule": false
+    },
+    "typography": {
+      "body": 14,
+      "task": 14,
+      "metadata": 12.5
+    }
+  }
+}

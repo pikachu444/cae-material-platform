@@ -1,0 +1,1082 @@
+{
+  "state_target": "activity-reviewer-decision-error-with-reason-and-request-preserved",
+  "captures": [
+    {
+      "target": "activity-reviewer-decision-error-with-reason-and-request-preserved-1366x768",
+      "role": "reviewer",
+      "state": "decision-error",
+      "viewport": {
+        "width": 1366,
+        "height": 768,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-decision-error-with-reason-and-request-preserved-1366x768.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-decision-error-with-reason-and-request-preserved-1366x768.measurements.json",
+      "sha256": "a908fbbe3e20e66e2907bcd9cec87dbc573d114eb29ea04c3a73c1b17455f668",
+      "dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "snapshot": {
+        "role": "reviewer",
+        "state": "decision-error",
+        "pageText": "Skip to Activity queue\nCMP\nCAE Material Platform\nMaterial data and solver delivery\nMaterials\nModeling\nActivity\nReviewer context\nActivity\nReviewer queue\n\nRequests awaiting a decision, plus local work and outcomes.\n\nDecision not recorded\nRefresh\nNeeds attention\nIn progress\nRecent outcomes\nNeeds attention\n\nSubmitted work waiting for your review.\n\n1 item\nNeeds attention requests\nTASK\tREQUEST REASON\tSTATUS\tUPDATED\tACTION\nMaterial data review\tCheck the uploaded tensile data\tNeeds a decision\tToday \u00b7 09:24\t\nReview\n\n\nReview decision\nOne request \u00b7 one decision\nClose\n\nMaterial data review \u00b7 Check the uploaded tensile data\n\nReview reason\nApprove\nRequest changes\n\nReview service is unavailable. The selected request and reason remain available; retry this decision when the service is available.\n\nRetry decision\nReason retained; retry will resubmit this decision.\nActivity queue\nReviewer context\nLocal queue scroll\nOnline",
+        "viewport": {
+          "width": 1366,
+          "height": 768,
+          "deviceScaleFactor": 1
+        },
+        "overflow": {
+          "documentHorizontal": 0,
+          "documentVertical": 0,
+          "bodyHorizontal": 0,
+          "bodyVertical": 0
+        },
+        "geometry": {
+          "shell": {
+            "left": 8,
+            "top": 54,
+            "right": 1358,
+            "bottom": 760,
+            "width": 1350,
+            "height": 706
+          },
+          "content": {
+            "left": 0,
+            "top": 46,
+            "right": 1366,
+            "bottom": 768,
+            "width": 1366,
+            "height": 722
+          },
+          "queueRegion": {
+            "left": 9,
+            "top": 157,
+            "right": 1357,
+            "bottom": 732,
+            "width": 1348,
+            "height": 575
+          },
+          "queue": {
+            "left": 23,
+            "top": 157,
+            "right": 1343,
+            "bottom": 732,
+            "width": 1320,
+            "height": 575
+          },
+          "heading": {
+            "left": 9,
+            "top": 55,
+            "right": 1357,
+            "bottom": 120,
+            "width": 1348,
+            "height": 65
+          },
+          "views": {
+            "left": 9,
+            "top": 120,
+            "right": 1357,
+            "bottom": 157,
+            "width": 1348,
+            "height": 37
+          },
+          "status": {
+            "left": 9,
+            "top": 732,
+            "right": 1357,
+            "bottom": 759,
+            "width": 1348,
+            "height": 27
+          }
+        },
+        "queueScroll": {
+          "scrollHeight": 575,
+          "clientHeight": 575,
+          "scrollTop": 0,
+          "overflowY": "auto",
+          "scrollbarGutter": "stable both-edges",
+          "width": 1296,
+          "hasOverflow": false
+        },
+        "overflowRail": {
+          "reserved": false,
+          "track": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "thumb": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "thumbHeight": 0,
+          "trackHeight": 0
+        },
+        "sections": [
+          {
+            "id": "needs-attention",
+            "visible": true,
+            "rows": 1,
+            "visibleRows": 1,
+            "listHidden": false,
+            "emptyHidden": true
+          },
+          {
+            "id": "in-progress",
+            "visible": false,
+            "rows": 1,
+            "visibleRows": 0,
+            "listHidden": false,
+            "emptyHidden": true
+          },
+          {
+            "id": "recent-outcomes",
+            "visible": false,
+            "rows": 1,
+            "visibleRows": 0,
+            "listHidden": false,
+            "emptyHidden": true
+          }
+        ],
+        "rows": [
+          {
+            "id": "review-1",
+            "selected": true,
+            "task": "Material data review",
+            "reason": "Check the uploaded tensile data",
+            "reasonClipped": false,
+            "hasReview": true,
+            "hasDecision": true,
+            "status": "Needs a decision",
+            "actionKind": "review",
+            "actionText": "Review",
+            "actionAccessibleName": "",
+            "passiveAction": false,
+            "command": "review",
+            "source": "server",
+            "section": "needs-attention",
+            "height": 46.5
+          }
+        ],
+        "allRows": [
+          {
+            "id": "review-1",
+            "selected": true,
+            "task": "Material data review",
+            "reason": "Check the uploaded tensile data",
+            "reasonClipped": false,
+            "hasReview": true,
+            "hasDecision": true,
+            "status": "Needs a decision",
+            "actionKind": "review",
+            "actionText": "Review",
+            "actionAccessibleName": "",
+            "passiveAction": false,
+            "command": "review",
+            "source": "server",
+            "section": "needs-attention",
+            "height": 46.5
+          },
+          {
+            "id": "modeling-session-local",
+            "selected": false,
+            "task": "Resume Modeling session",
+            "reason": "metal \u00b7 Fit \u00b7 DP780 tensile r3 \u00b7 2 selected curves",
+            "reasonClipped": false,
+            "hasReview": false,
+            "hasDecision": false,
+            "status": "Local session",
+            "actionKind": "resume",
+            "actionText": "Resume Modeling",
+            "actionAccessibleName": "",
+            "passiveAction": false,
+            "command": "resume",
+            "source": "browser-local",
+            "section": "in-progress",
+            "height": 0
+          },
+          {
+            "id": "solver-card-local",
+            "selected": false,
+            "task": "Downloaded solver card",
+            "reason": "DP780 \u00b7 OpenRadioss .rad",
+            "reasonClipped": false,
+            "hasReview": false,
+            "hasDecision": false,
+            "status": "Delivered",
+            "actionKind": "open-card",
+            "actionText": "Open card",
+            "actionAccessibleName": "",
+            "passiveAction": false,
+            "command": "open-card",
+            "source": "browser-local",
+            "section": "recent-outcomes",
+            "height": 0
+          }
+        ],
+        "controls": [
+          {
+            "tag": "a",
+            "name": "Skip to Activity queue",
+            "disabled": false
+          },
+          {
+            "tag": "a",
+            "name": "CAE Material Platform home",
+            "disabled": false
+          },
+          {
+            "tag": "a",
+            "name": "Materials",
+            "disabled": false
+          },
+          {
+            "tag": "a",
+            "name": "Modeling",
+            "disabled": false
+          },
+          {
+            "tag": "a",
+            "name": "Activity",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "name": "Refresh",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "name": "Needs attention",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "name": "In progress",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "name": "Recent outcomes",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "name": "Review: Material data review",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "name": "Close review decision",
+            "disabled": false
+          },
+          {
+            "tag": "textarea",
+            "name": "Explain the approval or requested change\u2026",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "name": "Approve",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "name": "Request changes",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "name": "Retry decision",
+            "disabled": false
+          }
+        ],
+        "legacy": [],
+        "nestedInteractive": [],
+        "tabCount": 3,
+        "activeTab": "needs-attention",
+        "tableHeaders": [
+          "Task",
+          "Request reason",
+          "Status",
+          "Updated",
+          "Action"
+        ],
+        "tableCount": 3,
+        "rowHeightRange": {
+          "min": 46.5,
+          "max": 46.5
+        },
+        "contract": {
+          "serverRequestCount": 1,
+          "pendingCount": 1,
+          "decidedCount": 0,
+          "localHistoryCount": 2,
+          "roleDefaultView": "needs-attention",
+          "visibleServerRows": 1,
+          "pendingRows": 1,
+          "decidedRows": 0
+        },
+        "decision": {
+          "visible": true,
+          "reason": "Units and source are complete; retain this request while the reviewer service recovers.",
+          "error": "Review service is unavailable. The selected request and reason remain available; retry this decision when the service is available.",
+          "selected": "review-1",
+          "help": "Reason retained; retry will resubmit this decision.",
+          "selectedChoice": [
+            {
+              "name": "Request changes",
+              "chosen": true
+            }
+          ],
+          "recoveryCommands": [
+            {
+              "name": "Retry decision",
+              "action": "retry-decision",
+              "primary": true
+            }
+          ]
+        },
+        "queueStatus": "Decision not recorded",
+        "announcements": {
+          "alert": true,
+          "loading": false,
+          "focusVisibleRule": false
+        },
+        "typography": {
+          "body": 14,
+          "task": 14,
+          "metadata": 12.5
+        }
+      }
+    },
+    {
+      "target": "activity-reviewer-decision-error-with-reason-and-request-preserved-1440x900",
+      "role": "reviewer",
+      "state": "decision-error",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-decision-error-with-reason-and-request-preserved-1440x900.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-decision-error-with-reason-and-request-preserved-1440x900.measurements.json",
+      "sha256": "4f7b9498c03f5507f70dad50ed1ce1ac28618378b632f327de4a7afeb3237ea5",
+      "dimensions": {
+        "width": 1440,
+        "height": 900
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "snapshot": {
+        "role": "reviewer",
+        "state": "decision-error",
+        "pageText": "Skip to Activity queue\nCMP\nCAE Material Platform\nMaterial data and solver delivery\nMaterials\nModeling\nActivity\nReviewer context\nActivity\nReviewer queue\n\nRequests awaiting a decision, plus local work and outcomes.\n\nDecision not recorded\nRefresh\nNeeds attention\nIn progress\nRecent outcomes\nNeeds attention\n\nSubmitted work waiting for your review.\n\n1 item\nNeeds attention requests\nTASK\tREQUEST REASON\tSTATUS\tUPDATED\tACTION\nMaterial data review\tCheck the uploaded tensile data\tNeeds a decision\tToday \u00b7 09:24\t\nReview\n\n\nReview decision\nOne request \u00b7 one decision\nClose\n\nMaterial data review \u00b7 Check the uploaded tensile data\n\nReview reason\nApprove\nRequest changes\n\nReview service is unavailable. The selected request and reason remain available; retry this decision when the service is available.\n\nRetry decision\nReason retained; retry will resubmit this decision.\nActivity queue\nReviewer context\nLocal queue scroll\nOnline",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "deviceScaleFactor": 1
+        },
+        "overflow": {
+          "documentHorizontal": 0,
+          "documentVertical": 0,
+          "bodyHorizontal": 0,
+          "bodyVertical": 0
+        },
+        "geometry": {
+          "shell": {
+            "left": 8,
+            "top": 54,
+            "right": 1432,
+            "bottom": 892,
+            "width": 1424,
+            "height": 838
+          },
+          "content": {
+            "left": 0,
+            "top": 46,
+            "right": 1440,
+            "bottom": 900,
+            "width": 1440,
+            "height": 854
+          },
+          "queueRegion": {
+            "left": 9,
+            "top": 157,
+            "right": 1431,
+            "bottom": 864,
+            "width": 1422,
+            "height": 707
+          },
+          "queue": {
+            "left": 23,
+            "top": 157,
+            "right": 1417,
+            "bottom": 864,
+            "width": 1394,
+            "height": 707
+          },
+          "heading": {
+            "left": 9,
+            "top": 55,
+            "right": 1431,
+            "bottom": 120,
+            "width": 1422,
+            "height": 65
+          },
+          "views": {
+            "left": 9,
+            "top": 120,
+            "right": 1431,
+            "bottom": 157,
+            "width": 1422,
+            "height": 37
+          },
+          "status": {
+            "left": 9,
+            "top": 864,
+            "right": 1431,
+            "bottom": 891,
+            "width": 1422,
+            "height": 27
+          }
+        },
+        "queueScroll": {
+          "scrollHeight": 707,
+          "clientHeight": 707,
+          "scrollTop": 0,
+          "overflowY": "auto",
+          "scrollbarGutter": "stable both-edges",
+          "width": 1370,
+          "hasOverflow": false
+        },
+        "overflowRail": {
+          "reserved": false,
+          "track": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "thumb": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "thumbHeight": 0,
+          "trackHeight": 0
+        },
+        "sections": [
+          {
+            "id": "needs-attention",
+            "visible": true,
+            "rows": 1,
+            "visibleRows": 1,
+            "listHidden": false,
+            "emptyHidden": true
+          },
+          {
+            "id": "in-progress",
+            "visible": false,
+            "rows": 1,
+            "visibleRows": 0,
+            "listHidden": false,
+            "emptyHidden": true
+          },
+          {
+            "id": "recent-outcomes",
+            "visible": false,
+            "rows": 1,
+            "visibleRows": 0,
+            "listHidden": false,
+            "emptyHidden": true
+          }
+        ],
+        "rows": [
+          {
+            "id": "review-1",
+            "selected": true,
+            "task": "Material data review",
+            "reason": "Check the uploaded tensile data",
+            "reasonClipped": false,
+            "hasReview": true,
+            "hasDecision": true,
+            "status": "Needs a decision",
+            "actionKind": "review",
+            "actionText": "Review",
+            "actionAccessibleName": "",
+            "passiveAction": false,
+            "command": "review",
+            "source": "server",
+            "section": "needs-attention",
+            "height": 46.5
+          }
+        ],
+        "allRows": [
+          {
+            "id": "review-1",
+            "selected": true,
+            "task": "Material data review",
+            "reason": "Check the uploaded tensile data",
+            "reasonClipped": false,
+            "hasReview": true,
+            "hasDecision": true,
+            "status": "Needs a decision",
+            "actionKind": "review",
+            "actionText": "Review",
+            "actionAccessibleName": "",
+            "passiveAction": false,
+            "command": "review",
+            "source": "server",
+            "section": "needs-attention",
+            "height": 46.5
+          },
+          {
+            "id": "modeling-session-local",
+            "selected": false,
+            "task": "Resume Modeling session",
+            "reason": "metal \u00b7 Fit \u00b7 DP780 tensile r3 \u00b7 2 selected curves",
+            "reasonClipped": false,
+            "hasReview": false,
+            "hasDecision": false,
+            "status": "Local session",
+            "actionKind": "resume",
+            "actionText": "Resume Modeling",
+            "actionAccessibleName": "",
+            "passiveAction": false,
+            "command": "resume",
+            "source": "browser-local",
+            "section": "in-progress",
+            "height": 0
+          },
+          {
+            "id": "solver-card-local",
+            "selected": false,
+            "task": "Downloaded solver card",
+            "reason": "DP780 \u00b7 OpenRadioss .rad",
+            "reasonClipped": false,
+            "hasReview": false,
+            "hasDecision": false,
+            "status": "Delivered",
+            "actionKind": "open-card",
+            "actionText": "Open card",
+            "actionAccessibleName": "",
+            "passiveAction": false,
+            "command": "open-card",
+            "source": "browser-local",
+            "section": "recent-outcomes",
+            "height": 0
+          }
+        ],
+        "controls": [
+          {
+            "tag": "a",
+            "name": "Skip to Activity queue",
+            "disabled": false
+          },
+          {
+            "tag": "a",
+            "name": "CAE Material Platform home",
+            "disabled": false
+          },
+          {
+            "tag": "a",
+            "name": "Materials",
+            "disabled": false
+          },
+          {
+            "tag": "a",
+            "name": "Modeling",
+            "disabled": false
+          },
+          {
+            "tag": "a",
+            "name": "Activity",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "name": "Refresh",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "name": "Needs attention",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "name": "In progress",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "name": "Recent outcomes",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "name": "Review: Material data review",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "name": "Close review decision",
+            "disabled": false
+          },
+          {
+            "tag": "textarea",
+            "name": "Explain the approval or requested change\u2026",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "name": "Approve",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "name": "Request changes",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "name": "Retry decision",
+            "disabled": false
+          }
+        ],
+        "legacy": [],
+        "nestedInteractive": [],
+        "tabCount": 3,
+        "activeTab": "needs-attention",
+        "tableHeaders": [
+          "Task",
+          "Request reason",
+          "Status",
+          "Updated",
+          "Action"
+        ],
+        "tableCount": 3,
+        "rowHeightRange": {
+          "min": 46.5,
+          "max": 46.5
+        },
+        "contract": {
+          "serverRequestCount": 1,
+          "pendingCount": 1,
+          "decidedCount": 0,
+          "localHistoryCount": 2,
+          "roleDefaultView": "needs-attention",
+          "visibleServerRows": 1,
+          "pendingRows": 1,
+          "decidedRows": 0
+        },
+        "decision": {
+          "visible": true,
+          "reason": "Units and source are complete; retain this request while the reviewer service recovers.",
+          "error": "Review service is unavailable. The selected request and reason remain available; retry this decision when the service is available.",
+          "selected": "review-1",
+          "help": "Reason retained; retry will resubmit this decision.",
+          "selectedChoice": [
+            {
+              "name": "Request changes",
+              "chosen": true
+            }
+          ],
+          "recoveryCommands": [
+            {
+              "name": "Retry decision",
+              "action": "retry-decision",
+              "primary": true
+            }
+          ]
+        },
+        "queueStatus": "Decision not recorded",
+        "announcements": {
+          "alert": true,
+          "loading": false,
+          "focusVisibleRule": false
+        },
+        "typography": {
+          "body": 14,
+          "task": 14,
+          "metadata": 12.5
+        }
+      }
+    },
+    {
+      "target": "activity-reviewer-decision-error-with-reason-and-request-preserved-1920x1080",
+      "role": "reviewer",
+      "state": "decision-error",
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-decision-error-with-reason-and-request-preserved-1920x1080.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-decision-error-with-reason-and-request-preserved-1920x1080.measurements.json",
+      "sha256": "b5fd1cdfcb0705e967222b46ec52d23dd16d81016059da13a34286951df0ec81",
+      "dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "snapshot": {
+        "role": "reviewer",
+        "state": "decision-error",
+        "pageText": "Skip to Activity queue\nCMP\nCAE Material Platform\nMaterial data and solver delivery\nMaterials\nModeling\nActivity\nReviewer context\nActivity\nReviewer queue\n\nRequests awaiting a decision, plus local work and outcomes.\n\nDecision not recorded\nRefresh\nNeeds attention\nIn progress\nRecent outcomes\nNeeds attention\n\nSubmitted work waiting for your review.\n\n1 item\nNeeds attention requests\nTASK\tREQUEST REASON\tSTATUS\tUPDATED\tACTION\nMaterial data review\tCheck the uploaded tensile data\tNeeds a decision\tToday \u00b7 09:24\t\nReview\n\n\nReview decision\nOne request \u00b7 one decision\nClose\n\nMaterial data review \u00b7 Check the uploaded tensile data\n\nReview reason\nApprove\nRequest changes\n\nReview service is unavailable. The selected request and reason remain available; retry this decision when the service is available.\n\nRetry decision\nReason retained; retry will resubmit this decision.\nActivity queue\nReviewer context\nLocal queue scroll\nOnline",
+        "viewport": {
+          "width": 1920,
+          "height": 1080,
+          "deviceScaleFactor": 1
+        },
+        "overflow": {
+          "documentHorizontal": 0,
+          "documentVertical": 0,
+          "bodyHorizontal": 0,
+          "bodyVertical": 0
+        },
+        "geometry": {
+          "shell": {
+            "left": 8,
+            "top": 54,
+            "right": 1912,
+            "bottom": 1072,
+            "width": 1904,
+            "height": 1018
+          },
+          "content": {
+            "left": 0,
+            "top": 46,
+            "right": 1920,
+            "bottom": 1080,
+            "width": 1920,
+            "height": 1034
+          },
+          "queueRegion": {
+            "left": 9,
+            "top": 162,
+            "right": 1911,
+            "bottom": 1044,
+            "width": 1902,
+            "height": 882
+          },
+          "queue": {
+            "left": 27,
+            "top": 162,
+            "right": 1893,
+            "bottom": 1044,
+            "width": 1866,
+            "height": 882
+          },
+          "heading": {
+            "left": 9,
+            "top": 55,
+            "right": 1911,
+            "bottom": 125,
+            "width": 1902,
+            "height": 70
+          },
+          "views": {
+            "left": 9,
+            "top": 125,
+            "right": 1911,
+            "bottom": 162,
+            "width": 1902,
+            "height": 37
+          },
+          "status": {
+            "left": 9,
+            "top": 1044,
+            "right": 1911,
+            "bottom": 1071,
+            "width": 1902,
+            "height": 27
+          }
+        },
+        "queueScroll": {
+          "scrollHeight": 882,
+          "clientHeight": 882,
+          "scrollTop": 0,
+          "overflowY": "auto",
+          "scrollbarGutter": "stable both-edges",
+          "width": 1842,
+          "hasOverflow": false
+        },
+        "overflowRail": {
+          "reserved": false,
+          "track": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "thumb": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "thumbHeight": 0,
+          "trackHeight": 0
+        },
+        "sections": [
+          {
+            "id": "needs-attention",
+            "visible": true,
+            "rows": 1,
+            "visibleRows": 1,
+            "listHidden": false,
+            "emptyHidden": true
+          },
+          {
+            "id": "in-progress",
+            "visible": false,
+            "rows": 1,
+            "visibleRows": 0,
+            "listHidden": false,
+            "emptyHidden": true
+          },
+          {
+            "id": "recent-outcomes",
+            "visible": false,
+            "rows": 1,
+            "visibleRows": 0,
+            "listHidden": false,
+            "emptyHidden": true
+          }
+        ],
+        "rows": [
+          {
+            "id": "review-1",
+            "selected": true,
+            "task": "Material data review",
+            "reason": "Check the uploaded tensile data",
+            "reasonClipped": false,
+            "hasReview": true,
+            "hasDecision": true,
+            "status": "Needs a decision",
+            "actionKind": "review",
+            "actionText": "Review",
+            "actionAccessibleName": "",
+            "passiveAction": false,
+            "command": "review",
+            "source": "server",
+            "section": "needs-attention",
+            "height": 48.5
+          }
+        ],
+        "allRows": [
+          {
+            "id": "review-1",
+            "selected": true,
+            "task": "Material data review",
+            "reason": "Check the uploaded tensile data",
+            "reasonClipped": false,
+            "hasReview": true,
+            "hasDecision": true,
+            "status": "Needs a decision",
+            "actionKind": "review",
+            "actionText": "Review",
+            "actionAccessibleName": "",
+            "passiveAction": false,
+            "command": "review",
+            "source": "server",
+            "section": "needs-attention",
+            "height": 48.5
+          },
+          {
+            "id": "modeling-session-local",
+            "selected": false,
+            "task": "Resume Modeling session",
+            "reason": "metal \u00b7 Fit \u00b7 DP780 tensile r3 \u00b7 2 selected curves",
+            "reasonClipped": false,
+            "hasReview": false,
+            "hasDecision": false,
+            "status": "Local session",
+            "actionKind": "resume",
+            "actionText": "Resume Modeling",
+            "actionAccessibleName": "",
+            "passiveAction": false,
+            "command": "resume",
+            "source": "browser-local",
+            "section": "in-progress",
+            "height": 0
+          },
+          {
+            "id": "solver-card-local",
+            "selected": false,
+            "task": "Downloaded solver card",
+            "reason": "DP780 \u00b7 OpenRadioss .rad",
+            "reasonClipped": false,
+            "hasReview": false,
+            "hasDecision": false,
+            "status": "Delivered",
+            "actionKind": "open-card",
+            "actionText": "Open card",
+            "actionAccessibleName": "",
+            "passiveAction": false,
+            "command": "open-card",
+            "source": "browser-local",
+            "section": "recent-outcomes",
+            "height": 0
+          }
+        ],
+        "controls": [
+          {
+            "tag": "a",
+            "name": "Skip to Activity queue",
+            "disabled": false
+          },
+          {
+            "tag": "a",
+            "name": "CAE Material Platform home",
+            "disabled": false
+          },
+          {
+            "tag": "a",
+            "name": "Materials",
+            "disabled": false
+          },
+          {
+            "tag": "a",
+            "name": "Modeling",
+            "disabled": false
+          },
+          {
+            "tag": "a",
+            "name": "Activity",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "name": "Refresh",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "name": "Needs attention",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "name": "In progress",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "name": "Recent outcomes",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "name": "Review: Material data review",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "name": "Close review decision",
+            "disabled": false
+          },
+          {
+            "tag": "textarea",
+            "name": "Explain the approval or requested change\u2026",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "name": "Approve",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "name": "Request changes",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "name": "Retry decision",
+            "disabled": false
+          }
+        ],
+        "legacy": [],
+        "nestedInteractive": [],
+        "tabCount": 3,
+        "activeTab": "needs-attention",
+        "tableHeaders": [
+          "Task",
+          "Request reason",
+          "Status",
+          "Updated",
+          "Action"
+        ],
+        "tableCount": 3,
+        "rowHeightRange": {
+          "min": 48.5,
+          "max": 48.5
+        },
+        "contract": {
+          "serverRequestCount": 1,
+          "pendingCount": 1,
+          "decidedCount": 0,
+          "localHistoryCount": 2,
+          "roleDefaultView": "needs-attention",
+          "visibleServerRows": 1,
+          "pendingRows": 1,
+          "decidedRows": 0
+        },
+        "decision": {
+          "visible": true,
+          "reason": "Units and source are complete; retain this request while the reviewer service recovers.",
+          "error": "Review service is unavailable. The selected request and reason remain available; retry this decision when the service is available.",
+          "selected": "review-1",
+          "help": "Reason retained; retry will resubmit this decision.",
+          "selectedChoice": [
+            {
+              "name": "Request changes",
+              "chosen": true
+            }
+          ],
+          "recoveryCommands": [
+            {
+              "name": "Retry decision",
+              "action": "retry-decision",
+              "primary": true
+            }
+          ]
+        },
+        "queueStatus": "Decision not recorded",
+        "announcements": {
+          "alert": true,
+          "loading": false,
+          "focusVisibleRule": false
+        },
+        "typography": {
+          "body": 14,
+          "task": 14,
+          "metadata": 12.5
+        }
+      }
+    }
+  ]
+}

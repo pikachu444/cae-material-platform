@@ -1,0 +1,97 @@
+/* Target-only empty-state extension. Shared reference and datasheet CSS stay frozen. */
+.overview-panel {
+  overflow: hidden;
+}
+
+#back-to-results {
+  display: none;
+}
+
+.empty-panel {
+  display: grid;
+  min-width: 0;
+  min-height: 100%;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  background: var(--surface);
+}
+
+.empty-main,
+.empty-context {
+  min-width: 0;
+  min-height: 0;
+  padding: 16px 20px;
+}
+
+.empty-main {
+  border-right: 1px solid var(--line);
+}
+
+.empty-heading,
+.empty-context-heading {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 9px;
+  border-bottom: 1px solid var(--line);
+}
+
+.empty-heading h3,
+.empty-context-heading h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
+.empty-heading .section-subtitle,
+.empty-context-heading .section-subtitle {
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 15px;
+  white-space: nowrap;
+}
+
+.empty-explanation {
+  max-width: 620px;
+  margin: 18px 0 16px;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 21px;
+}
+
+.empty-main .button {
+  min-width: 142px;
+}
+
+.empty-context {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.empty-context p {
+  margin: 14px 0 0;
+  color: var(--text);
+  font-size: 12.5px;
+  line-height: 18px;
+  overflow-wrap: anywhere;
+}
+
+.empty-context .empty-context-note {
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 16px;
+}
+
+@media (max-width: 1399px) {
+  .empty-panel {
+    grid-template-columns: minmax(0, 1fr) 280px;
+  }
+
+  .empty-main {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}

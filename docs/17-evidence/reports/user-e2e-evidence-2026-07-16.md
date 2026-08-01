@@ -72,13 +72,13 @@ Dataset revision을 고정한다. PCG64/SciPy TRF 8-start Run은 `mu=2.0000 MPa`
 회복했고 Jacobian rank `2/2`, estimated covariance와 95% CI를 기록했다. 1% stress scale을
 적용한 holdout RMSE는 `0.0087561 MPa`이며 calibration과 섞이지 않았다.
 
-![Multi-test Ogden Candidates](../images/t43-ogden-candidates.jpg)
+![Multi-test Ogden Candidates](../images/historical-task-screenshots/t43-ogden-candidates.jpg)
 
 Candidate diagnostics는 52개 observed/fitted/residual point를 exact Parquet Artifact로
 보존한다. 같은 화면에서 별도 manual baseline IR의 Abaqus/OpenRadioss card preview와 download
 진입점도 확인했다. Candidate를 baseline IR에 append-only promotion하는 단계는 T-44 범위다.
 
-![Ogden fitted curve, residual and cards](../images/t43-ogden-diagnostics-and-cards.jpg)
+![Ogden fitted curve, residual and cards](../images/historical-task-screenshots/t43-ogden-diagnostics-and-cards.jpg)
 
 ### Human Selection and iterative Ogden promotion
 
@@ -87,13 +87,13 @@ Run과 converged Candidate를 차례로 human Selection으로 기록했다. 각 
 strong current IR ETag를 요구했으며 r1→r2→r3을 append했다. r2와 r3은 각각 자신의 Selection,
 Run, Candidate, diagnostics digest와 정확한 prior revision을 소유한다.
 
-![Append-only Ogden r1-r3 history](../images/t44-ogden-selection-promotion-history.jpg)
+![Append-only Ogden r1-r3 history](../images/historical-task-screenshots/t44-ogden-selection-promotion-history.jpg)
 
 r2 승격 전에 존재한 Abaqus/OpenRadioss 카드 2개와 r2에서 추가한 Abaqus 카드 1개의 stable ID,
 revision ID 및 card SHA를 r3 승격 후 재조회해 모두 동일함을 확인했다. 화면에는 current model이
 r3이어도 이전 concrete IR revision에 고정된 카드 3개가 그대로 남는다.
 
-![Prior solver cards remain immutable](../images/t44-prior-solver-cards-stable.jpg)
+![Prior solver cards remain immutable](../images/historical-task-screenshots/t44-prior-solver-cards-stable.jpg)
 
 ### Exact-revision Bulk Export Bundle
 
@@ -102,14 +102,14 @@ solver-neutral IR/schema, Abaqus/OpenRadioss mapping report와 native card를 ex
 검색했다. 화면에서 22개 representation을 선택하고 immutable Export Selection과 durable Job을
 거쳐 deterministic ZIP Bundle을 생성했다.
 
-![Bulk Export exact selection](../images/t45-bulk-export-selection.jpg)
+![Bulk Export exact selection](../images/historical-task-screenshots/t45-bulk-export-selection.jpg)
 
 최신 Bundle은 22개 component, 21.3 KiB이며 별도 `manifest.json`, `checksums.sha256`와 README를
 포함한다. 브라우저 Download 동작은 Bundle authorization `201 Created` 뒤 Artifact content
 `200 OK`를 받았다. 선택 revision에는 lifecycle/provenance/audit fact가 각각 1건 기록됐다.
 Release 또는 기존 source/card revision은 변경되지 않았다.
 
-![Immutable Bulk Export Bundles](../images/t45-immutable-bundles.jpg)
+![Immutable Bulk Export Bundles](../images/historical-task-screenshots/t45-immutable-bundles.jpg)
 
 ### External worker assembly and committed-output reconciliation
 
@@ -125,7 +125,7 @@ immutable output commit `7842eac7-aa26-4b4e-9492-2d84382b52ae`와 Bundle
 강제한다. 첫 실행은 `reconciliation_required`와 커밋된 digest/size를 노출하고, 두 번째 claim은
 source를 다시 읽거나 archive를 재조립하지 않고 기존 output을 Bundle에 연결한다.
 
-![External worker Job and immutable Bundle](../images/t47-external-bundle-worker.jpg)
+![External worker Job and immutable Bundle](../images/historical-task-screenshots/t47-external-bundle-worker.jpg)
 
 ### External worker hard-kill lease recovery
 
@@ -140,7 +140,7 @@ terminal transition에서 모두 비워졌다.
 heartbeat 부활과 fail/output finalization을 거부하는지 확인한다. API에는 opaque lease token을
 노출하지 않고 heartbeat와 복구 가능 시각만 제공한다.
 
-![External worker heartbeat and recovery deadline](../images/t47-worker-lease-recovery.jpg)
+![External worker heartbeat and recovery deadline](../images/historical-task-screenshots/t47-worker-lease-recovery.jpg)
 
 ### Global module navigation and Material context tabs
 
@@ -148,14 +148,14 @@ T-46은 Dashboard/Materials/Tests/Datasets/Models/Exports/Governance 전역 메�
 Tests, Datasets, Models와 Governance 허브는 현재 tenant/project에서 보이는 Material을 실제
 Catalog API로 읽고, 선택한 stable identity의 문맥 경로로 이동한다.
 
-![Global Models hub](../images/t46-global-navigation-model-hub.jpg)
+![Global Models hub](../images/historical-task-screenshots/t46-global-navigation-model-hub.jpg)
 
 기존 `/materials/{material_id}` deep link는 Overview로 유지하면서 `/testing`, `/datasets`,
 `/models`, `/governance` 경로를 추가했다. DP780 `/models` 경로에서 exact State와 Property Set,
 IR/Card workbench만 로드되고 Dataset/Test/Governance workbench는 다른 탭으로 분리됨을 확인했다.
 Governance 전역 허브에는 실제 Review, Release와 Lineage/Audit 작업대가 연결됐다.
 
-![Contextual Material tabs](../images/t46-material-context-tabs.jpg)
+![Contextual Material tabs](../images/historical-task-screenshots/t46-material-context-tabs.jpg)
 
 ### 10,000-Material search and 2-GiB streaming acceptance
 
@@ -164,7 +164,7 @@ immutable r1 revision 9,996개를 append했다. Catalog API는 동일한 RLS-fil
 bounded page 100개와 `total_count=10000`을 함께 반환했다. Dashboard도 page 길이가 아니라 이 권한
 범위 전체 개수를 표시한다.
 
-![10,000 visible Materials production-scale Dashboard](../images/t47-production-scale-catalog.jpg)
+![10,000 visible Materials production-scale Dashboard](../images/historical-task-screenshots/t47-production-scale-catalog.jpg)
 
 같은 구성의 실제 multipart API에 deterministic 2,147,483,648 bytes를 32개 64-MiB part로 전송했다.
 89.048012초, 22.999 MiB/s였고 terminal Raw Asset의 SHA-256과 size가 preflight 값과 일치했다. source

@@ -3,10 +3,10 @@ import { chromium } from "@playwright/test";
 const webUrl = process.env.CMP_DEMO_WEB_URL ?? "http://127.0.0.1:5173";
 const evidenceOutput =
   process.env.CMP_T69_RECIPE_EVIDENCE_SCREENSHOT ??
-  "docs/17-evidence/images/t69-polymer-recipe-batch-evidence.png";
+  "docs/17-evidence/images/historical-task-screenshots/t69-polymer-recipe-batch-evidence.png";
 const monitorOutput =
   process.env.CMP_T69_BATCH_MONITOR_SCREENSHOT ??
-  "docs/17-evidence/images/t69-polymer-recipe-batch-monitor.png";
+  "docs/17-evidence/images/historical-task-screenshots/t69-polymer-recipe-batch-monitor.png";
 
 const browser = await chromium.launch();
 try {

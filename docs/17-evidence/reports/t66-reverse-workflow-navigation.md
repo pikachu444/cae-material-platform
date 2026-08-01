@@ -24,4 +24,4 @@ journey, while **Forward and reverse links** displays only edges incident to the
   Abaqus/OpenRadioss card nodes;
 - OpenAPI contract and generated Python client updated additively.
 
-![Exact Test JSON reverse navigation to the complete governed graph](../images/t66-reverse-workflow-navigation.png)
+![Exact Test JSON reverse navigation to the complete governed graph](../images/historical-task-screenshots/t66-reverse-workflow-navigation.png)

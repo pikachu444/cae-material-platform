@@ -1,0 +1,8 @@
+/* Capture-only override for the pending 1366px Materials datasheet target. */
+:root {
+  --navigator-width: 244px;
+}
+
+.overview-grid {
+  grid-template-columns: minmax(0, 1fr) 280px;
+}

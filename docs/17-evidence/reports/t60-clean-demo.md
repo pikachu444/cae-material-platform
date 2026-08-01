@@ -15,7 +15,7 @@
 필수 solver card를 다시 조회한다. 검증 당시 세 Material과 다섯 native card가 모두 확인됐고 seed
 컨테이너는 exit code 0으로 종료됐다.
 
-![세 재료 계열을 안내하는 Dashboard](../images/t60-guided-dashboard.jpg)
+![세 재료 계열을 안내하는 Dashboard](../images/historical-task-screenshots/t60-guided-dashboard.jpg)
 
 이 자료는 공개 수식으로 만든 `reference/non-production` 합성 fixture다. 실제 재료 qualification이나
 solver 실행 검증의 증거가 아니다.

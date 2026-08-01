@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#182630">
+    <title>Materials Search Reference</title>
+    <link rel="stylesheet" href="reference.css">
+    <link rel="stylesheet" href="materials-navigator.css">
+    <script src="reference.js" defer></script>
+    <script src="materials-navigator.js" defer></script>
+  </head>
+  <body data-materials-navigator="normal">
+    <a class="skip-link" href="#main-content">Skip to materials workspace</a>
+
+    <header class="application-bar" data-region="application-bar">
+      <div class="brand" translate="no">
+        <span class="brand-mark" aria-hidden="true">CMP</span>
+        <span class="brand-name">CAE Material Platform</span>
+      </div>
+      <nav class="primary-navigation" aria-label="Primary workspace">
+        <a class="active" href="#main-content" aria-current="page">Materials</a>
+        <a href="#modeling">Modeling</a>
+        <a href="#activity">Activity</a>
+      </nav>
+      <span class="current-user">Demo user</span>
+    </header>
+
+    <main id="main-content" class="workspace-shell">
+      <section class="workspace-command-bar" data-region="command-bar" aria-labelledby="workspace-title">
+        <h1 id="workspace-title">Materials</h1>
+      </section>
+
+      <section class="search-band" data-region="search-band" aria-label="Material search">
+        <form id="material-search-form" class="material-search-form" role="search">
+          <label class="sr-only" for="material-query">Search materials</label>
+          <input
+            id="material-query"
+            name="material-query"
+            type="search"
+            value="steel"
+            autocomplete="off"
+            aria-keyshortcuts="Control+K Meta+K"
+          >
+          <button class="button primary-action" type="submit">Find</button>
+        </form>
+      </section>
+
+      <section class="materials-workspace" data-region="materials-workspace" aria-label="Materials explorer and results">
+        <aside class="navigator-pane" data-region="navigator" aria-labelledby="navigator-title">
+          <div class="pane-title">
+            <h2 id="navigator-title">Browse catalog</h2>
+          </div>
+
+          <nav class="navigator-modes" aria-label="Navigator mode">
+            <button class="active" type="button" aria-pressed="true">Browse</button>
+            <button type="button" aria-pressed="false">Filters</button>
+            <button type="button" aria-pressed="false">Subsets</button>
+          </nav>
+
+          <div class="scope-controls" aria-label="Catalog scope">
+            <label>
+              <span>Database</span>
+              <select name="database">
+                <option selected>Materials Database</option>
+              </select>
+            </label>
+            <label>
+              <span>Profile</span>
+              <select name="profile">
+                <option selected>Engineering Materials</option>
+              </select>
+            </label>
+            <label>
+              <span>Table</span>
+              <select name="table">
+                <option selected>Demo Material Records</option>
+              </select>
+            </label>
+          </div>
+
+          <form class="tree-search" role="search">
+            <label class="sr-only" for="tree-query">Find folder or record</label>
+            <input
+              id="tree-query"
+              name="tree-query"
+              type="search"
+              placeholder="Find folder or record"
+              autocomplete="off"
+            >
+          </form>
+
+          <div class="scroll-shell tree-scroll-shell" data-scroll-shell>
+            <div id="tree-scroll" class="tree-scroll scroll-viewport" tabindex="0" aria-label="Scrollable material database hierarchy">
+            <div id="material-tree" class="material-tree" role="tree" aria-label="Material database hierarchy">
+              <div
+                id="tree-database"
+                class="tree-row depth-0"
+                role="treeitem"
+                aria-level="1"
+                aria-expanded="true"
+                tabindex="-1"
+                data-kind="Database"
+                aria-label="Database: Materials Database"
+              >
+                <span class="tree-disclosure" aria-hidden="true">▾</span>
+                <span class="tree-kind" data-kind="Database" title="Database" aria-hidden="true">Database</span>
+                <span class="tree-label" title="Materials Database">Materials Database</span>
+              </div>
+              <div
+                id="tree-profile"
+                class="tree-row depth-1"
+                role="treeitem"
+                aria-level="2"
+                aria-expanded="true"
+                tabindex="-1"
+                data-kind="Profile"
+                aria-label="Profile: Engineering Materials"
+              >
+                <span class="tree-disclosure" aria-hidden="true">▾</span>
+                <span class="tree-kind" data-kind="Profile" title="Profile" aria-hidden="true">Profile</span>
+                <span class="tree-label" title="Engineering Materials">Engineering Materials</span>
+              </div>
+              <div
+                id="tree-table"
+                class="tree-row depth-2"
+                role="treeitem"
+                aria-level="3"
+                aria-expanded="true"
+                tabindex="-1"
+                data-kind="Table"
+                aria-label="Table: Demo Material Records"
+              >
+                <span class="tree-disclosure" aria-hidden="true">▾</span>
+                <span class="tree-kind" data-kind="Table" title="Table" aria-hidden="true">Table</span>
+                <span class="tree-label" title="Demo Material Records">Demo Material Records</span>
+              </div>
+              <div
+                id="tree-metals"
+                class="tree-row depth-3"
+                role="treeitem"
+                aria-level="4"
+                aria-expanded="true"
+                tabindex="-1"
+                data-kind="Folder"
+                aria-label="Folder: Synthetic metals"
+              >
+                <span class="tree-disclosure" aria-hidden="true">▾</span>
+                <span class="tree-kind" data-kind="Folder" title="Folder" aria-hidden="true">Folder</span>
+                <span class="tree-label" title="Synthetic metals">Synthetic metals</span>
+              </div>
+              <div
+                id="tree-steels"
+                class="tree-row depth-4"
+                role="treeitem"
+                aria-level="5"
+                aria-expanded="true"
+                tabindex="-1"
+                data-kind="Folder"
+                aria-label="Folder: Demo steels"
+              >
+                <span class="tree-disclosure" aria-hidden="true">▾</span>
+                <span class="tree-kind" data-kind="Folder" title="Folder" aria-hidden="true">Folder</span>
+                <span class="tree-label" title="Demo steels">Demo steels</span>
+              </div>
+              <div
+                id="tree-dp780"
+                class="tree-row depth-5 selected"
+                role="treeitem"
+                aria-level="6"
+                aria-selected="true"
+                tabindex="0"
+                data-kind="Record"
+                data-result-grade="DP780-REF"
+                aria-label="Record: DP780 synthetic demo steel"
+              >
+                <span class="tree-disclosure" aria-hidden="true"></span>
+                <span class="tree-kind" data-kind="Record" title="Record" aria-hidden="true">Record</span>
+                <span class="tree-label" title="DP780 synthetic demo steel">DP780 synthetic demo steel</span>
+              </div>
+              <div
+                id="tree-dp600"
+                class="tree-row depth-5"
+                role="treeitem"
+                aria-level="6"
+                aria-selected="false"
+                tabindex="-1"
+                data-kind="Record"
+                data-result-grade="DP600-REF"
+                aria-label="Record: DP600 synthetic demo steel"
+              >
+                <span class="tree-disclosure" aria-hidden="true"></span>
+                <span class="tree-kind" data-kind="Record" title="Record" aria-hidden="true">Record</span>
+                <span class="tree-label" title="DP600 synthetic demo steel">DP600 synthetic demo steel</span>
+              </div>
+            </div>
+            </div>
+            <div id="tree-scrollbar-y" class="app-scrollbar app-scrollbar-y" role="scrollbar" aria-label="Scroll material hierarchy vertically" aria-controls="tree-scroll" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" tabindex="0" hidden><span class="app-scrollbar-thumb"></span></div>
+            <div id="tree-scrollbar-x" class="app-scrollbar app-scrollbar-x" role="scrollbar" aria-label="Scroll long material identities horizontally" aria-controls="tree-scroll" aria-orientation="horizontal" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" tabindex="0" hidden><span class="app-scrollbar-thumb"></span></div>
+            <span class="app-scrollbar-corner" aria-hidden="true"></span>
+          </div>
+        </aside>
+
+        <div
+          class="splitter navigator-divider"
+          role="separator"
+          aria-label="Resize catalog navigator"
+          aria-orientation="vertical"
+          aria-valuemin="200"
+          aria-valuemax="360"
+          aria-valuenow="264"
+          tabindex="0"
+          data-region="navigator-divider"
+        >
+          <span aria-hidden="true"></span>
+        </div>
+
+        <section class="results-pane" data-region="results" aria-labelledby="results-title">
+          <header class="results-heading">
+            <div>
+              <h2 id="results-title">Search results</h2>
+              <span class="result-count">1–50 of 10,000 matches</span>
+            </div>
+            <p>Enter opens · select up to 3 to compare</p>
+          </header>
+
+          <div class="scroll-shell results-scroll-shell" data-scroll-shell>
+            <div id="results-scroll" class="results-table-scroll scroll-viewport" tabindex="0" aria-label="Scrollable material search results">
+              <table class="results-table">
+              <colgroup>
+                <col class="compare-column">
+                <col class="material-column">
+                <col class="family-column">
+                <col class="description-column">
+                <col class="status-column">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th scope="col" data-column="Compare">
+                    <span class="column-label">Compare</span>
+                    <span class="column-resizer" aria-hidden="true"></span>
+                  </th>
+                  <th scope="col" data-column="Material / grade">
+                    <span class="column-label">Material / grade</span>
+                    <span class="column-resizer" aria-hidden="true"></span>
+                  </th>
+                  <th scope="col" data-column="Family">
+                    <span class="column-label">Family</span>
+                    <span class="column-resizer" aria-hidden="true"></span>
+                  </th>
+                  <th scope="col" data-column="Description">
+                    <span class="column-label">Description</span>
+                    <span class="column-resizer" aria-hidden="true"></span>
+                  </th>
+                  <th scope="col" data-column="Status">
+                    <span class="column-label">Status</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="results-body">
+                <tr
+                  class="result-row selected"
+                  tabindex="0"
+                  aria-selected="true"
+                  data-result-row
+                  data-name="DP780 synthetic demo steel"
+                  data-grade="DP780-REF"
+                  data-family="Metal"
+                  data-description="Synthetic local-demo data; not validated engineering data."
+                  data-status="Draft"
+                >
+                  <td>
+                    <label class="compare-control">
+                      <input type="checkbox" aria-label="Compare DP780 synthetic demo steel">
+                    </label>
+                  </td>
+                  <td class="material-identity" title="DP780 synthetic demo steel · DP780-REF">
+                    <strong>DP780 synthetic demo steel</strong>
+                    <span>DP780-REF</span>
+                  </td>
+                  <td>Metal</td>
+                  <td title="Synthetic local-demo data; not validated engineering data.">Synthetic local-demo data; not validated engineering data.</td>
+                  <td>Draft</td>
+                </tr>
+                <tr
+                  class="result-row"
+                  tabindex="-1"
+                  aria-selected="false"
+                  data-result-row
+                  data-name="DP600 synthetic demo steel"
+                  data-grade="DP600-REF"
+                  data-family="Metal"
+                  data-description="Synthetic demo steel record; not engineering data."
+                  data-status="Draft"
+                >
+                  <td>
+                    <label class="compare-control">
+                      <input type="checkbox" aria-label="Compare DP600 synthetic demo steel">
+                    </label>
+                  </td>
+                  <td class="material-identity" title="DP600 synthetic demo steel · DP600-REF">
+                    <strong>DP600 synthetic demo steel</strong>
+                    <span>DP600-REF</span>
+                  </td>
+                  <td>Metal</td>
+                  <td title="Synthetic demo steel record; not engineering data.">Synthetic demo steel record; not engineering data.</td>
+                  <td>Draft</td>
+                </tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 03" data-grade="STEEL-DEMO-03" data-family="Metal" data-description="Synthetic local-demo record 03; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 03"></label></td><td class="material-identity" title="Synthetic steel demo record 03 · STEEL-DEMO-03"><strong>Synthetic steel demo record 03</strong><span>STEEL-DEMO-03</span></td><td>Metal</td><td title="Synthetic local-demo record 03; not validated engineering data.">Synthetic local-demo record 03; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 04" data-grade="STEEL-DEMO-04" data-family="Metal" data-description="Synthetic local-demo record 04; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 04"></label></td><td class="material-identity" title="Synthetic steel demo record 04 · STEEL-DEMO-04"><strong>Synthetic steel demo record 04</strong><span>STEEL-DEMO-04</span></td><td>Metal</td><td title="Synthetic local-demo record 04; not validated engineering data.">Synthetic local-demo record 04; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 05" data-grade="STEEL-DEMO-05" data-family="Metal" data-description="Synthetic local-demo record 05; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 05"></label></td><td class="material-identity" title="Synthetic steel demo record 05 · STEEL-DEMO-05"><strong>Synthetic steel demo record 05</strong><span>STEEL-DEMO-05</span></td><td>Metal</td><td title="Synthetic local-demo record 05; not validated engineering data.">Synthetic local-demo record 05; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 06" data-grade="STEEL-DEMO-06" data-family="Metal" data-description="Synthetic local-demo record 06; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 06"></label></td><td class="material-identity" title="Synthetic steel demo record 06 · STEEL-DEMO-06"><strong>Synthetic steel demo record 06</strong><span>STEEL-DEMO-06</span></td><td>Metal</td><td title="Synthetic local-demo record 06; not validated engineering data.">Synthetic local-demo record 06; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 07" data-grade="STEEL-DEMO-07" data-family="Metal" data-description="Synthetic local-demo record 07; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 07"></label></td><td class="material-identity" title="Synthetic steel demo record 07 · STEEL-DEMO-07"><strong>Synthetic steel demo record 07</strong><span>STEEL-DEMO-07</span></td><td>Metal</td><td title="Synthetic local-demo record 07; not validated engineering data.">Synthetic local-demo record 07; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 08" data-grade="STEEL-DEMO-08" data-family="Metal" data-description="Synthetic local-demo record 08; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 08"></label></td><td class="material-identity" title="Synthetic steel demo record 08 · STEEL-DEMO-08"><strong>Synthetic steel demo record 08</strong><span>STEEL-DEMO-08</span></td><td>Metal</td><td title="Synthetic local-demo record 08; not validated engineering data.">Synthetic local-demo record 08; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 09" data-grade="STEEL-DEMO-09" data-family="Metal" data-description="Synthetic local-demo record 09; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 09"></label></td><td class="material-identity" title="Synthetic steel demo record 09 · STEEL-DEMO-09"><strong>Synthetic steel demo record 09</strong><span>STEEL-DEMO-09</span></td><td>Metal</td><td title="Synthetic local-demo record 09; not validated engineering data.">Synthetic local-demo record 09; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 10" data-grade="STEEL-DEMO-10" data-family="Metal" data-description="Synthetic local-demo record 10; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 10"></label></td><td class="material-identity" title="Synthetic steel demo record 10 · STEEL-DEMO-10"><strong>Synthetic steel demo record 10</strong><span>STEEL-DEMO-10</span></td><td>Metal</td><td title="Synthetic local-demo record 10; not validated engineering data.">Synthetic local-demo record 10; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 11" data-grade="STEEL-DEMO-11" data-family="Metal" data-description="Synthetic local-demo record 11; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 11"></label></td><td class="material-identity" title="Synthetic steel demo record 11 · STEEL-DEMO-11"><strong>Synthetic steel demo record 11</strong><span>STEEL-DEMO-11</span></td><td>Metal</td><td title="Synthetic local-demo record 11; not validated engineering data.">Synthetic local-demo record 11; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 12" data-grade="STEEL-DEMO-12" data-family="Metal" data-description="Synthetic local-demo record 12; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 12"></label></td><td class="material-identity" title="Synthetic steel demo record 12 · STEEL-DEMO-12"><strong>Synthetic steel demo record 12</strong><span>STEEL-DEMO-12</span></td><td>Metal</td><td title="Synthetic local-demo record 12; not validated engineering data.">Synthetic local-demo record 12; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 13" data-grade="STEEL-DEMO-13" data-family="Metal" data-description="Synthetic local-demo record 13; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 13"></label></td><td class="material-identity" title="Synthetic steel demo record 13 · STEEL-DEMO-13"><strong>Synthetic steel demo record 13</strong><span>STEEL-DEMO-13</span></td><td>Metal</td><td title="Synthetic local-demo record 13; not validated engineering data.">Synthetic local-demo record 13; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 14" data-grade="STEEL-DEMO-14" data-family="Metal" data-description="Synthetic local-demo record 14; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 14"></label></td><td class="material-identity" title="Synthetic steel demo record 14 · STEEL-DEMO-14"><strong>Synthetic steel demo record 14</strong><span>STEEL-DEMO-14</span></td><td>Metal</td><td title="Synthetic local-demo record 14; not validated engineering data.">Synthetic local-demo record 14; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 15" data-grade="STEEL-DEMO-15" data-family="Metal" data-description="Synthetic local-demo record 15; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 15"></label></td><td class="material-identity" title="Synthetic steel demo record 15 · STEEL-DEMO-15"><strong>Synthetic steel demo record 15</strong><span>STEEL-DEMO-15</span></td><td>Metal</td><td title="Synthetic local-demo record 15; not validated engineering data.">Synthetic local-demo record 15; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 16" data-grade="STEEL-DEMO-16" data-family="Metal" data-description="Synthetic local-demo record 16; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 16"></label></td><td class="material-identity" title="Synthetic steel demo record 16 · STEEL-DEMO-16"><strong>Synthetic steel demo record 16</strong><span>STEEL-DEMO-16</span></td><td>Metal</td><td title="Synthetic local-demo record 16; not validated engineering data.">Synthetic local-demo record 16; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 17" data-grade="STEEL-DEMO-17" data-family="Metal" data-description="Synthetic local-demo record 17; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 17"></label></td><td class="material-identity" title="Synthetic steel demo record 17 · STEEL-DEMO-17"><strong>Synthetic steel demo record 17</strong><span>STEEL-DEMO-17</span></td><td>Metal</td><td title="Synthetic local-demo record 17; not validated engineering data.">Synthetic local-demo record 17; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 18" data-grade="STEEL-DEMO-18" data-family="Metal" data-description="Synthetic local-demo record 18; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 18"></label></td><td class="material-identity" title="Synthetic steel demo record 18 · STEEL-DEMO-18"><strong>Synthetic steel demo record 18</strong><span>STEEL-DEMO-18</span></td><td>Metal</td><td title="Synthetic local-demo record 18; not validated engineering data.">Synthetic local-demo record 18; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 19" data-grade="STEEL-DEMO-19" data-family="Metal" data-description="Synthetic local-demo record 19; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 19"></label></td><td class="material-identity" title="Synthetic steel demo record 19 · STEEL-DEMO-19"><strong>Synthetic steel demo record 19</strong><span>STEEL-DEMO-19</span></td><td>Metal</td><td title="Synthetic local-demo record 19; not validated engineering data.">Synthetic local-demo record 19; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 20" data-grade="STEEL-DEMO-20" data-family="Metal" data-description="Synthetic local-demo record 20; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 20"></label></td><td class="material-identity" title="Synthetic steel demo record 20 · STEEL-DEMO-20"><strong>Synthetic steel demo record 20</strong><span>STEEL-DEMO-20</span></td><td>Metal</td><td title="Synthetic local-demo record 20; not validated engineering data.">Synthetic local-demo record 20; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 21" data-grade="STEEL-DEMO-21" data-family="Metal" data-description="Synthetic local-demo record 21; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 21"></label></td><td class="material-identity" title="Synthetic steel demo record 21 · STEEL-DEMO-21"><strong>Synthetic steel demo record 21</strong><span>STEEL-DEMO-21</span></td><td>Metal</td><td title="Synthetic local-demo record 21; not validated engineering data.">Synthetic local-demo record 21; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 22" data-grade="STEEL-DEMO-22" data-family="Metal" data-description="Synthetic local-demo record 22; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 22"></label></td><td class="material-identity" title="Synthetic steel demo record 22 · STEEL-DEMO-22"><strong>Synthetic steel demo record 22</strong><span>STEEL-DEMO-22</span></td><td>Metal</td><td title="Synthetic local-demo record 22; not validated engineering data.">Synthetic local-demo record 22; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 23" data-grade="STEEL-DEMO-23" data-family="Metal" data-description="Synthetic local-demo record 23; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 23"></label></td><td class="material-identity" title="Synthetic steel demo record 23 · STEEL-DEMO-23"><strong>Synthetic steel demo record 23</strong><span>STEEL-DEMO-23</span></td><td>Metal</td><td title="Synthetic local-demo record 23; not validated engineering data.">Synthetic local-demo record 23; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 24" data-grade="STEEL-DEMO-24" data-family="Metal" data-description="Synthetic local-demo record 24; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 24"></label></td><td class="material-identity" title="Synthetic steel demo record 24 · STEEL-DEMO-24"><strong>Synthetic steel demo record 24</strong><span>STEEL-DEMO-24</span></td><td>Metal</td><td title="Synthetic local-demo record 24; not validated engineering data.">Synthetic local-demo record 24; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 25" data-grade="STEEL-DEMO-25" data-family="Metal" data-description="Synthetic local-demo record 25; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 25"></label></td><td class="material-identity" title="Synthetic steel demo record 25 · STEEL-DEMO-25"><strong>Synthetic steel demo record 25</strong><span>STEEL-DEMO-25</span></td><td>Metal</td><td title="Synthetic local-demo record 25; not validated engineering data.">Synthetic local-demo record 25; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 26" data-grade="STEEL-DEMO-26" data-family="Metal" data-description="Synthetic local-demo record 26; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 26"></label></td><td class="material-identity" title="Synthetic steel demo record 26 · STEEL-DEMO-26"><strong>Synthetic steel demo record 26</strong><span>STEEL-DEMO-26</span></td><td>Metal</td><td title="Synthetic local-demo record 26; not validated engineering data.">Synthetic local-demo record 26; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 27" data-grade="STEEL-DEMO-27" data-family="Metal" data-description="Synthetic local-demo record 27; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 27"></label></td><td class="material-identity" title="Synthetic steel demo record 27 · STEEL-DEMO-27"><strong>Synthetic steel demo record 27</strong><span>STEEL-DEMO-27</span></td><td>Metal</td><td title="Synthetic local-demo record 27; not validated engineering data.">Synthetic local-demo record 27; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 28" data-grade="STEEL-DEMO-28" data-family="Metal" data-description="Synthetic local-demo record 28; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 28"></label></td><td class="material-identity" title="Synthetic steel demo record 28 · STEEL-DEMO-28"><strong>Synthetic steel demo record 28</strong><span>STEEL-DEMO-28</span></td><td>Metal</td><td title="Synthetic local-demo record 28; not validated engineering data.">Synthetic local-demo record 28; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 29" data-grade="STEEL-DEMO-29" data-family="Metal" data-description="Synthetic local-demo record 29; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 29"></label></td><td class="material-identity" title="Synthetic steel demo record 29 · STEEL-DEMO-29"><strong>Synthetic steel demo record 29</strong><span>STEEL-DEMO-29</span></td><td>Metal</td><td title="Synthetic local-demo record 29; not validated engineering data.">Synthetic local-demo record 29; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 30" data-grade="STEEL-DEMO-30" data-family="Metal" data-description="Synthetic local-demo record 30; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 30"></label></td><td class="material-identity" title="Synthetic steel demo record 30 · STEEL-DEMO-30"><strong>Synthetic steel demo record 30</strong><span>STEEL-DEMO-30</span></td><td>Metal</td><td title="Synthetic local-demo record 30; not validated engineering data.">Synthetic local-demo record 30; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 31" data-grade="STEEL-DEMO-31" data-family="Metal" data-description="Synthetic local-demo record 31; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 31"></label></td><td class="material-identity" title="Synthetic steel demo record 31 · STEEL-DEMO-31"><strong>Synthetic steel demo record 31</strong><span>STEEL-DEMO-31</span></td><td>Metal</td><td title="Synthetic local-demo record 31; not validated engineering data.">Synthetic local-demo record 31; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 32" data-grade="STEEL-DEMO-32" data-family="Metal" data-description="Synthetic local-demo record 32; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 32"></label></td><td class="material-identity" title="Synthetic steel demo record 32 · STEEL-DEMO-32"><strong>Synthetic steel demo record 32</strong><span>STEEL-DEMO-32</span></td><td>Metal</td><td title="Synthetic local-demo record 32; not validated engineering data.">Synthetic local-demo record 32; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 33" data-grade="STEEL-DEMO-33" data-family="Metal" data-description="Synthetic local-demo record 33; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 33"></label></td><td class="material-identity" title="Synthetic steel demo record 33 · STEEL-DEMO-33"><strong>Synthetic steel demo record 33</strong><span>STEEL-DEMO-33</span></td><td>Metal</td><td title="Synthetic local-demo record 33; not validated engineering data.">Synthetic local-demo record 33; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 34" data-grade="STEEL-DEMO-34" data-family="Metal" data-description="Synthetic local-demo record 34; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 34"></label></td><td class="material-identity" title="Synthetic steel demo record 34 · STEEL-DEMO-34"><strong>Synthetic steel demo record 34</strong><span>STEEL-DEMO-34</span></td><td>Metal</td><td title="Synthetic local-demo record 34; not validated engineering data.">Synthetic local-demo record 34; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 35" data-grade="STEEL-DEMO-35" data-family="Metal" data-description="Synthetic local-demo record 35; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 35"></label></td><td class="material-identity" title="Synthetic steel demo record 35 · STEEL-DEMO-35"><strong>Synthetic steel demo record 35</strong><span>STEEL-DEMO-35</span></td><td>Metal</td><td title="Synthetic local-demo record 35; not validated engineering data.">Synthetic local-demo record 35; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 36" data-grade="STEEL-DEMO-36" data-family="Metal" data-description="Synthetic local-demo record 36; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 36"></label></td><td class="material-identity" title="Synthetic steel demo record 36 · STEEL-DEMO-36"><strong>Synthetic steel demo record 36</strong><span>STEEL-DEMO-36</span></td><td>Metal</td><td title="Synthetic local-demo record 36; not validated engineering data.">Synthetic local-demo record 36; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 37" data-grade="STEEL-DEMO-37" data-family="Metal" data-description="Synthetic local-demo record 37; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 37"></label></td><td class="material-identity" title="Synthetic steel demo record 37 · STEEL-DEMO-37"><strong>Synthetic steel demo record 37</strong><span>STEEL-DEMO-37</span></td><td>Metal</td><td title="Synthetic local-demo record 37; not validated engineering data.">Synthetic local-demo record 37; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 38" data-grade="STEEL-DEMO-38" data-family="Metal" data-description="Synthetic local-demo record 38; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 38"></label></td><td class="material-identity" title="Synthetic steel demo record 38 · STEEL-DEMO-38"><strong>Synthetic steel demo record 38</strong><span>STEEL-DEMO-38</span></td><td>Metal</td><td title="Synthetic local-demo record 38; not validated engineering data.">Synthetic local-demo record 38; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 39" data-grade="STEEL-DEMO-39" data-family="Metal" data-description="Synthetic local-demo record 39; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 39"></label></td><td class="material-identity" title="Synthetic steel demo record 39 · STEEL-DEMO-39"><strong>Synthetic steel demo record 39</strong><span>STEEL-DEMO-39</span></td><td>Metal</td><td title="Synthetic local-demo record 39; not validated engineering data.">Synthetic local-demo record 39; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 40" data-grade="STEEL-DEMO-40" data-family="Metal" data-description="Synthetic local-demo record 40; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 40"></label></td><td class="material-identity" title="Synthetic steel demo record 40 · STEEL-DEMO-40"><strong>Synthetic steel demo record 40</strong><span>STEEL-DEMO-40</span></td><td>Metal</td><td title="Synthetic local-demo record 40; not validated engineering data.">Synthetic local-demo record 40; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 41" data-grade="STEEL-DEMO-41" data-family="Metal" data-description="Synthetic local-demo record 41; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 41"></label></td><td class="material-identity" title="Synthetic steel demo record 41 · STEEL-DEMO-41"><strong>Synthetic steel demo record 41</strong><span>STEEL-DEMO-41</span></td><td>Metal</td><td title="Synthetic local-demo record 41; not validated engineering data.">Synthetic local-demo record 41; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 42" data-grade="STEEL-DEMO-42" data-family="Metal" data-description="Synthetic local-demo record 42; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 42"></label></td><td class="material-identity" title="Synthetic steel demo record 42 · STEEL-DEMO-42"><strong>Synthetic steel demo record 42</strong><span>STEEL-DEMO-42</span></td><td>Metal</td><td title="Synthetic local-demo record 42; not validated engineering data.">Synthetic local-demo record 42; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 43" data-grade="STEEL-DEMO-43" data-family="Metal" data-description="Synthetic local-demo record 43; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 43"></label></td><td class="material-identity" title="Synthetic steel demo record 43 · STEEL-DEMO-43"><strong>Synthetic steel demo record 43</strong><span>STEEL-DEMO-43</span></td><td>Metal</td><td title="Synthetic local-demo record 43; not validated engineering data.">Synthetic local-demo record 43; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 44" data-grade="STEEL-DEMO-44" data-family="Metal" data-description="Synthetic local-demo record 44; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 44"></label></td><td class="material-identity" title="Synthetic steel demo record 44 · STEEL-DEMO-44"><strong>Synthetic steel demo record 44</strong><span>STEEL-DEMO-44</span></td><td>Metal</td><td title="Synthetic local-demo record 44; not validated engineering data.">Synthetic local-demo record 44; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 45" data-grade="STEEL-DEMO-45" data-family="Metal" data-description="Synthetic local-demo record 45; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 45"></label></td><td class="material-identity" title="Synthetic steel demo record 45 · STEEL-DEMO-45"><strong>Synthetic steel demo record 45</strong><span>STEEL-DEMO-45</span></td><td>Metal</td><td title="Synthetic local-demo record 45; not validated engineering data.">Synthetic local-demo record 45; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 46" data-grade="STEEL-DEMO-46" data-family="Metal" data-description="Synthetic local-demo record 46; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 46"></label></td><td class="material-identity" title="Synthetic steel demo record 46 · STEEL-DEMO-46"><strong>Synthetic steel demo record 46</strong><span>STEEL-DEMO-46</span></td><td>Metal</td><td title="Synthetic local-demo record 46; not validated engineering data.">Synthetic local-demo record 46; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 47" data-grade="STEEL-DEMO-47" data-family="Metal" data-description="Synthetic local-demo record 47; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 47"></label></td><td class="material-identity" title="Synthetic steel demo record 47 · STEEL-DEMO-47"><strong>Synthetic steel demo record 47</strong><span>STEEL-DEMO-47</span></td><td>Metal</td><td title="Synthetic local-demo record 47; not validated engineering data.">Synthetic local-demo record 47; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 48" data-grade="STEEL-DEMO-48" data-family="Metal" data-description="Synthetic local-demo record 48; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 48"></label></td><td class="material-identity" title="Synthetic steel demo record 48 · STEEL-DEMO-48"><strong>Synthetic steel demo record 48</strong><span>STEEL-DEMO-48</span></td><td>Metal</td><td title="Synthetic local-demo record 48; not validated engineering data.">Synthetic local-demo record 48; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 49" data-grade="STEEL-DEMO-49" data-family="Metal" data-description="Synthetic local-demo record 49; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 49"></label></td><td class="material-identity" title="Synthetic steel demo record 49 · STEEL-DEMO-49"><strong>Synthetic steel demo record 49</strong><span>STEEL-DEMO-49</span></td><td>Metal</td><td title="Synthetic local-demo record 49; not validated engineering data.">Synthetic local-demo record 49; not validated engineering data.</td><td>Draft</td></tr>
+                <tr class="result-row" tabindex="-1" aria-selected="false" data-result-row data-name="Synthetic steel demo record 50" data-grade="STEEL-DEMO-50" data-family="Metal" data-description="Synthetic local-demo record 50; not validated engineering data." data-status="Draft"><td><label class="compare-control"><input type="checkbox" aria-label="Compare Synthetic steel demo record 50"></label></td><td class="material-identity" title="Synthetic steel demo record 50 · STEEL-DEMO-50"><strong>Synthetic steel demo record 50</strong><span>STEEL-DEMO-50</span></td><td>Metal</td><td title="Synthetic local-demo record 50; not validated engineering data.">Synthetic local-demo record 50; not validated engineering data.</td><td>Draft</td></tr>
+              </tbody>
+              </table>
+            </div>
+            <div id="results-scrollbar-y" class="app-scrollbar app-scrollbar-y" role="scrollbar" aria-label="Scroll material search results vertically" aria-controls="results-scroll" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" tabindex="0" hidden><span class="app-scrollbar-thumb"></span></div>
+            <div id="results-scrollbar-x" class="app-scrollbar app-scrollbar-x" role="scrollbar" aria-label="Scroll material search results horizontally" aria-controls="results-scroll" aria-orientation="horizontal" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" tabindex="0" hidden><span class="app-scrollbar-thumb"></span></div>
+            <span class="app-scrollbar-corner" aria-hidden="true"></span>
+          </div>
+          <footer class="results-pagination" aria-label="Search result pagination">
+            <span id="results-range">Rows 1–50 of 10,000 matches</span>
+            <span class="pagination-spacer"></span>
+            <span id="results-next-consequence">Next page available</span>
+            <button id="results-next-page" class="button secondary-action" type="button" aria-label="Open next results page">Next page</button>
+          </footer>
+        </section>
+
+        <div
+          class="splitter context-divider"
+          role="separator"
+          aria-label="Resize selected material context"
+          aria-orientation="vertical"
+          aria-valuemin="260"
+          aria-valuemax="480"
+          aria-valuenow="280"
+          tabindex="0"
+          data-region="context-divider"
+        >
+          <span aria-hidden="true"></span>
+        </div>
+
+        <aside class="selected-context" data-region="selected-context" aria-labelledby="selected-context-title">
+          <header class="context-heading">
+            <h2 id="selected-context-title">Selected material</h2>
+          </header>
+          <section class="selected-summary" aria-labelledby="selected-name">
+            <h3 id="selected-name">DP780 synthetic demo steel</h3>
+            <p id="selected-grade" class="selected-grade">DP780-REF</p>
+            <p id="selected-description" class="selected-description">
+              Synthetic local-demo data; not validated engineering data.
+            </p>
+          </section>
+          <dl class="selected-fields">
+            <div>
+              <dt>Family</dt>
+              <dd id="selected-family">Metal</dd>
+            </div>
+            <div>
+              <dt>Status</dt>
+              <dd id="selected-status">Draft</dd>
+            </div>
+          </dl>
+          <div class="context-action">
+            <button id="open-datasheet" class="button secondary-action" type="button">Open datasheet</button>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <footer class="status-bar" data-region="status-bar">
+      <span id="status-selection">DP780 synthetic demo steel · DP780-REF</span>
+      <span>r1 · draft</span>
+      <span class="status-spacer"></span>
+      <span>No active job</span>
+      <span>0 warnings</span>
+      <span class="online-state"><span class="online-dot" aria-hidden="true"></span>Online</span>
+    </footer>
+
+    <p id="interaction-status" class="sr-only" aria-live="polite"></p>
+  </body>
+</html>

@@ -28,9 +28,9 @@ and full product parity are complete.
   `Open in Material Modeling`; `/modeling` restored `DP780 synthetic demo steel r1`, its exact State and
   exact Test Data r1 without URL/token/UUID input.
 
-![T-85 workspace dashboard with Database and Modeling work lanes](../images/t85-workspace-dashboard.png)
+![T-85 workspace dashboard with Database and Modeling work lanes](../images/historical-task-screenshots/t85-workspace-dashboard.png)
 
-![T-85 engineering modeling shell at 1440×900](../images/t85-engineering-modeling-shell.png)
+![T-85 engineering modeling shell at 1440×900](../images/historical-task-screenshots/t85-engineering-modeling-shell.png)
 
 ## Automated evidence
 

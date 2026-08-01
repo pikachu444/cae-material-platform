@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#182630">
+    <title>Materials Search Exceptional State Reference</title>
+    <link rel="stylesheet" href="reference.css">
+    <link rel="stylesheet" href="materials-search-exceptional.css">
+    <script src="materials-search-exceptional.js" defer></script>
+  </head>
+  <body data-state="normal">
+    <a class="skip-link" href="#main-content">Skip to materials workspace</a>
+
+    <header class="application-bar" data-region="application-bar">
+      <div class="brand" translate="no">
+        <span class="brand-mark" aria-hidden="true">CMP</span>
+        <span class="brand-name">CAE Material Platform</span>
+      </div>
+      <nav class="primary-navigation" aria-label="Primary workspace">
+        <a class="active" href="#main-content" aria-current="page">Materials</a>
+        <a href="#modeling">Modeling</a>
+        <a href="#activity">Activity</a>
+      </nav>
+      <span class="current-user">Demo user</span>
+    </header>
+
+    <main id="main-content" class="workspace-shell">
+      <section class="workspace-command-bar" data-region="command-bar" aria-labelledby="workspace-title">
+        <h1 id="workspace-title">Materials</h1>
+      </section>
+
+      <section class="search-band" data-region="search-band" aria-label="Material search">
+        <form id="material-search-form" class="material-search-form" role="search">
+          <label class="sr-only" for="material-query">Search materials</label>
+          <input id="material-query" name="material-query" type="search" value="steel" autocomplete="off" aria-keyshortcuts="Control+K Meta+K">
+          <button class="button primary-action" type="submit">Find</button>
+        </form>
+      </section>
+
+      <section class="materials-workspace" data-region="materials-workspace" aria-label="Materials explorer and results">
+        <aside class="navigator-pane" data-region="navigator" aria-labelledby="navigator-title">
+          <div class="pane-title"><h2 id="navigator-title">Browse catalog</h2></div>
+          <nav class="navigator-modes" aria-label="Navigator mode">
+            <button class="active" type="button" aria-pressed="true">Browse</button>
+            <button type="button" aria-pressed="false">Filters</button>
+            <button type="button" aria-pressed="false">Subsets</button>
+          </nav>
+          <div class="scope-controls" aria-label="Catalog scope">
+            <label><span>Database</span><select name="database"><option selected>Materials Database</option></select></label>
+            <label><span>Profile</span><select name="profile"><option selected>Engineering Materials</option></select></label>
+            <label><span>Table</span><select name="table"><option selected>Demo Material Records</option></select></label>
+          </div>
+          <form class="tree-search" id="tree-search-form" role="search">
+            <label class="sr-only" for="tree-query">Find folder or record</label>
+            <input id="tree-query" name="tree-query" type="search" placeholder="Find folder or record" autocomplete="off">
+          </form>
+          <div class="scroll-shell tree-scroll-shell" data-scroll-shell>
+            <div id="tree-scroll" class="tree-scroll scroll-viewport" tabindex="0" aria-label="Scrollable material database hierarchy">
+              <div id="tree-notice" class="state-notice navigator-notice" role="status" aria-live="polite" hidden></div>
+              <div id="material-tree" class="material-tree" role="tree" aria-label="Material database hierarchy"></div>
+            </div>
+            <div id="tree-scrollbar-y" class="app-scrollbar app-scrollbar-y" role="scrollbar" aria-label="Scroll material hierarchy vertically" aria-controls="tree-scroll" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" tabindex="0" hidden><span class="app-scrollbar-thumb"></span></div>
+            <div id="tree-scrollbar-x" class="app-scrollbar app-scrollbar-x" role="scrollbar" aria-label="Scroll long material identities horizontally" aria-controls="tree-scroll" aria-orientation="horizontal" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" tabindex="0" hidden><span class="app-scrollbar-thumb"></span></div>
+            <span class="app-scrollbar-corner" aria-hidden="true"></span>
+          </div>
+        </aside>
+
+        <div class="splitter navigator-divider" role="separator" aria-label="Resize catalog navigator" aria-orientation="vertical" aria-valuemin="200" aria-valuemax="340" aria-valuenow="264" tabindex="0" data-region="navigator-divider"><span aria-hidden="true"></span></div>
+
+        <section class="results-pane" data-region="results" aria-labelledby="results-title">
+          <header class="results-heading">
+            <div><h2 id="results-title">Search results</h2><span id="result-count" class="result-count">1–6 of 6 matches</span><span id="family-counts" class="family-counts" aria-label="Result family counts"></span></div>
+            <p id="results-hint">Enter opens · select up to 3 to compare</p>
+          </header>
+          <div class="scroll-shell results-scroll-shell" data-scroll-shell>
+            <div class="results-table-scroll scroll-viewport" id="results-scroll" tabindex="0" aria-label="Search result rows">
+              <div id="results-notice" class="state-notice results-notice" role="status" aria-live="polite" hidden></div>
+              <div id="results-empty" class="results-empty" role="status" hidden>
+                <h3>No materials match this search</h3>
+                <p>Scoped results are empty. Clear the query to return to the catalog.</p>
+                <button id="clear-search" class="button secondary-action" type="button">Clear search</button>
+              </div>
+              <table class="results-table" aria-describedby="results-title">
+                <colgroup><col class="compare-column"><col class="material-column"><col class="family-column"><col class="description-column"><col class="status-column"></colgroup>
+                <thead><tr>
+                  <th scope="col" data-column="Compare"><span class="column-label">Compare</span><span class="column-resizer" aria-hidden="true"></span></th>
+                  <th scope="col" data-column="Material / grade"><span class="column-label">Material / grade</span><span class="column-resizer" aria-hidden="true"></span></th>
+                  <th scope="col" data-column="Family"><span class="column-label">Family</span><span class="column-resizer" aria-hidden="true"></span></th>
+                  <th scope="col" data-column="Description"><span class="column-label">Description</span><span class="column-resizer" aria-hidden="true"></span></th>
+                  <th scope="col" data-column="Status"><span class="column-label">Status</span></th>
+                </tr></thead>
+                <tbody id="results-body"></tbody>
+              </table>
+            </div>
+            <div id="results-scrollbar-y" class="app-scrollbar app-scrollbar-y" role="scrollbar" aria-label="Scroll material result rows vertically" aria-controls="results-scroll" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" tabindex="0" hidden><span class="app-scrollbar-thumb"></span></div>
+          </div>
+        </section>
+
+        <div class="splitter context-divider" role="separator" aria-label="Resize selected material context" aria-orientation="vertical" aria-valuemin="260" aria-valuemax="480" aria-valuenow="280" tabindex="0" data-region="context-divider"><span aria-hidden="true"></span></div>
+
+        <aside class="selected-context" data-region="selected-context" aria-labelledby="selected-context-title">
+          <header class="context-heading"><h2 id="selected-context-title">Selected material</h2></header>
+          <section id="selected-summary" class="selected-summary" aria-labelledby="selected-name">
+            <h3 id="selected-name">DP780 synthetic demo steel</h3>
+            <p id="selected-grade" class="selected-grade">DP780-REF</p>
+            <p id="selected-description" class="selected-description">Synthetic local-demo data; not validated engineering data.</p>
+          </section>
+          <section id="empty-context" class="selected-summary empty-context" aria-live="polite" hidden>
+            <h3>No material selected</h3>
+            <p class="selected-description">Select a scoped result to inspect its material context.</p>
+          </section>
+          <dl id="selected-fields" class="selected-fields">
+            <div><dt>Family</dt><dd id="selected-family">Metal</dd></div>
+            <div><dt>Status</dt><dd id="selected-status">Draft</dd></div>
+          </dl>
+          <div id="context-action" class="context-action"><button id="open-datasheet" class="button secondary-action" type="button">Open datasheet</button></div>
+        </aside>
+      </section>
+    </main>
+
+    <footer class="status-bar" data-region="status-bar">
+      <span id="status-selection">DP780 synthetic demo steel · DP780-REF</span><span id="status-revision">r1 · draft</span><span class="status-spacer"></span><span>No active job</span><span id="status-warnings">0 warnings</span><span class="online-state"><span class="online-dot" aria-hidden="true"></span>Online</span>
+    </footer>
+    <p id="interaction-status" class="sr-only" aria-live="polite"></p>
+  </body>
+</html>

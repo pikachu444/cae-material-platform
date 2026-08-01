@@ -1,0 +1,108 @@
+{
+  "family": "MAT-EXP",
+  "generated": "2026-07-29",
+  "references": [
+    {
+      "css": "docs/00-research/ux-service-reference/materials-search-exceptional.css",
+      "family": "MAT-EXP",
+      "html": "docs/00-research/ux-service-reference/materials-search-exceptional.html",
+      "id": "materials-search-long-1440x900",
+      "image": "docs/17-evidence/images/issue-167-service-reference/materials-search-long-1440x900.png",
+      "image_sha256": "43f146e60baf2d933265d952e22fce5cd0c1e2ca0e9145eea0e72a9677da2484",
+      "javascript": "docs/00-research/ux-service-reference/materials-search-exceptional.js",
+      "kind": "approval",
+      "main_agent_evaluation": {
+        "status": "pending"
+      },
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/materials-search-long-1440x900.measurements.json",
+      "product_owner_approval": {
+        "status": "absent"
+      },
+      "responsive_evidence": "docs/17-evidence/images/issue-167-service-reference/materials-search-long-1440x900.responsive-1366x768.png docs/17-evidence/images/issue-167-service-reference/materials-search-long-1440x900.responsive-1920x1080.png",
+      "state": "long",
+      "status": "pending",
+      "viewport": {
+        "device_scale_factor": 1,
+        "height": 900,
+        "width": 1440
+      }
+    },
+    {
+      "css": "docs/00-research/ux-service-reference/materials-search-exceptional.css",
+      "family": "MAT-EXP",
+      "html": "docs/00-research/ux-service-reference/materials-search-exceptional.html",
+      "id": "materials-search-empty-1440x900",
+      "image": "docs/17-evidence/images/issue-167-service-reference/materials-search-empty-1440x900.png",
+      "image_sha256": "d9e4fed1d8c17ca86b7c14dfe57909591b44ff8ec300286bb49f3a940fb5e1b1",
+      "javascript": "docs/00-research/ux-service-reference/materials-search-exceptional.js",
+      "kind": "approval",
+      "main_agent_evaluation": {
+        "status": "pending"
+      },
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/materials-search-empty-1440x900.measurements.json",
+      "product_owner_approval": {
+        "status": "absent"
+      },
+      "responsive_evidence": "docs/17-evidence/images/issue-167-service-reference/materials-search-empty-1440x900.responsive-1366x768.png docs/17-evidence/images/issue-167-service-reference/materials-search-empty-1440x900.responsive-1920x1080.png",
+      "state": "empty",
+      "status": "pending",
+      "viewport": {
+        "device_scale_factor": 1,
+        "height": 900,
+        "width": 1440
+      }
+    }
+  ],
+  "responsive_evidence": [
+    {
+      "id": "materials-search-long-1440x900.responsive-1366x768",
+      "image": "docs/17-evidence/images/issue-167-service-reference/materials-search-long-1440x900.responsive-1366x768.png",
+      "image_sha256": "6e9b91ff80698c08d591b514bd491a682f618c4595ea7d9b11cb0f70bd66c504",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/materials-search-long-1440x900.responsive-1366x768.measurements.json",
+      "state": "long",
+      "viewport": {
+        "device_scale_factor": 1,
+        "height": 768,
+        "width": 1366
+      }
+    },
+    {
+      "id": "materials-search-long-1440x900.responsive-1920x1080",
+      "image": "docs/17-evidence/images/issue-167-service-reference/materials-search-long-1440x900.responsive-1920x1080.png",
+      "image_sha256": "a8b387bf1dbc6327da02d494699d19022f89ac6e10c57e0b9922cae6fee96bb4",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/materials-search-long-1440x900.responsive-1920x1080.measurements.json",
+      "state": "long",
+      "viewport": {
+        "device_scale_factor": 1,
+        "height": 1080,
+        "width": 1920
+      }
+    },
+    {
+      "id": "materials-search-empty-1440x900.responsive-1366x768",
+      "image": "docs/17-evidence/images/issue-167-service-reference/materials-search-empty-1440x900.responsive-1366x768.png",
+      "image_sha256": "2bb1798ab9a4d7438b4e2e274393e49cfe61b1329c2bc6e9dbe9a49624049025",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/materials-search-empty-1440x900.responsive-1366x768.measurements.json",
+      "state": "empty",
+      "viewport": {
+        "device_scale_factor": 1,
+        "height": 768,
+        "width": 1366
+      }
+    },
+    {
+      "id": "materials-search-empty-1440x900.responsive-1920x1080",
+      "image": "docs/17-evidence/images/issue-167-service-reference/materials-search-empty-1440x900.responsive-1920x1080.png",
+      "image_sha256": "9e1caed30c77fd8141fd64fe1a4b6dc3f2fa540841d791513a16c74753e71493",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/materials-search-empty-1440x900.responsive-1920x1080.measurements.json",
+      "state": "empty",
+      "viewport": {
+        "device_scale_factor": 1,
+        "height": 1080,
+        "width": 1920
+      }
+    }
+  ],
+  "schema_version": 1,
+  "state_evidence": "docs/17-evidence/images/issue-167-service-reference/materials-search-wave03.state-evidence.json"
+}
