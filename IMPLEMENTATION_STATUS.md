@@ -1,68 +1,50 @@
 # 구현 상태
 
-승인된 제품/시각 구현 기준선: `55cfa62` (PR #156)입니다. repository 작업 시작점은 항상
-`git pull --ff-only origin main`으로 얻는 최신 `main`입니다. 세부 구현 연대기는
-[implementation history](docs/13-delivery/implementation-history.md)에 보존합니다.
+이 문서는 현재 코드가 제공하는 기능과 알려진 공백을 설명합니다. 작업 순서와 승인 기준선은
+[현재 전달 backlog](docs/13-delivery/backlog.md), 완료 이력은 Git과 병합된 GitHub issue/PR에서
+확인합니다.
 
-## 제품 기준선
+## 제품 진입점
 
 - 일반 사용자 메뉴: `Materials | Modeling | Activity`
 - 기본 route: `/materials`
 - Material Detail: `Overview | Properties | Curves | CAE Cards | Evidence`
-- Modeling: `Data | Process | Fit | Export`; validation과 review/release는 Advanced의 별도 governed action이며 normal stage가 아니다. Activity에는 PR #144의 review queue와 PR #145의 exact Material/Solver Card request entry가 현재 제공된다. 남은 failed-job recovery, server receipt, release projection은 #160 범위다.
-- Administration: role-gated Table/Attribute/Layout/Subset/Link Type 및 접근 관리
-- legacy `/database`, `/catalog/*`, `/datasets/*`: deep-link compatibility
+- Modeling: `Data | Process | Fit | Export`
+- Administration: 권한이 있는 사용자에게 Table/Attribute/Layout/Subset/Link Type과 접근 관리 제공
+- legacy `/database`, `/catalog/*`, `/datasets/*`: deep-link 호환성 유지
 
-Search-first는 탐색 우선순위 변경입니다. Database/Profile/Table/Folder/Record Tree, typed Attribute,
-Layout, Subset, exact-revision 양방향 Link Type과 workflow projection은 유지됩니다.
+Search-first는 탐색 우선순위만 바꿉니다. Database/Profile/Table/Folder/Record Tree, typed
+Attribute, Layout, Subset, exact-revision Link Type과 workflow projection은 유지됩니다. Validation과
+review/release는 Modeling의 normal stage가 아니라 Advanced와 Activity의 별도 governed action입니다.
 
-## 구현된 기준선
+## 현재 기능
 
-| 영역 | 현재 범위 |
+| 영역 | 구현 상태 |
 | --- | --- |
-| Materials | Browse 기본의 연속 explorer/result/datasheet workspace, server-scoped Material class 검색·result table, Browse Tree, 선택 문맥, 5영역 detail, direct card preview/download |
-| Modeling | Data/Process/Fit의 184–210 px method→specimen Curves tree, Process/Fit process tree, shallow graph-adjacent control band, persistent dominant graph, Data/Process/Fit/Export; validation/review/release는 Advanced governed action이며 Activity review queue와 exact Material/Solver Card request entry는 current. failed-job recovery, server receipt, release projection은 #160에 남음 |
-| Catalog | configurable Table/Attribute/Layout/Subset, Folder/Record tree, typed search·compare, exact Record links |
-| Exchange | CSV/TSV/XLSX governed import, versioned Test Data JSON, Neutral Material JSON, deterministic packages |
-| Engineering | public-equation reference metal/polymer/elastomer processing·fitting, IR promotion, mapping evidence |
-| Governance | immutable review/release/artifact, provenance/audit, Activity 및 Advanced entry |
-| Security | OIDC/JWT context, tenant/project authorization, PostgreSQL RLS, append-only audit |
-| Operations | Compose demo, worker/jobs, observability, recovery/performance/security acceptance tools |
+| Materials | Browse 기본의 explorer/result/datasheet workspace, server-scoped Material class 검색·정렬·pagination, Browse Tree, 선택 문맥, detail 5개 영역, solver card preview/download |
+| Modeling | exact Material/State/Test Data session pin, Data/Process/Fit/Export, processing·fitting, 선택 모델 저장, Material Model IR·Neutral·solver card 생성, upstream 변경에 따른 downstream clear/stale/regenerate |
+| Activity | review queue, Material/Solver Card 요청 진입, Reviewer 승인·반려. failed-job recovery, server receipt와 release projection은 아직 없음 |
+| Administration | configurable Table/Attribute/Layout/Subset/Link Type, Folder/Record tree, typed search·compare, exact Record links와 접근 관리 |
+| Exchange | CSV/TSV/XLSX governed import, versioned Test Data JSON, Neutral Material JSON, deterministic package |
+| Governance | immutable review/release/artifact, exact revision, provenance/audit, organization/project 권한 |
+| Operations | Compose demo, worker/job, observability, recovery·performance·security 검증 도구 |
 
-모든 engineering 수치와 solver 결과는 bounded synthetic `reference/non-production` 범위입니다.
-Production 표준·plugin·solver correlation·validation threshold는 domain approval 전까지 완료로 간주하지
-않습니다.
+Engineering 수치와 solver 결과는 bounded synthetic `reference/non-production` 범위입니다.
+Production 표준, plugin, solver correlation과 validation threshold는 domain approval 전까지
+완료로 간주하지 않습니다.
 
-## Desktop UI delivery status
+## 알려진 공백
 
-PR #124/DUI-06 completed the bounded Fit candidate decision → immutable Processing Output → Material
-Model IR → Neutral Material → mapping preflight → native solver-card delivery chain on 2026-07-24.
-DUI-01~06 are complete. UXC-02 now provides a v3 clearable session reducer, Data-first reset,
-exact Material/State/Test Data session pins, downstream clear/stale/regenerate state and resumable
-plot state. The normal shell is exactly `Data | Process | Fit | Export`; validation and review/release
-are distinct governed Advanced actions, not implemented normal-stage destinations. PR #144의 Activity review
-queue와 PR #145의 exact Material/Solver Card request entry는 current이며, failed-job recovery, server
-receipt, release projection은 #160에 남는다. Export has no
-current-session fallback. UXC-06B now carries server-verified Material/State/Test Run proof from a
-qualified local-file Test Data revision into its Processing Output; historical and JSON-only rows keep
-that proof null and remain blocked rather than inferred. UXC-01 has a completed server-scoped Materials Find vertical slice
-(text/material-class/sort/page total and rows; no row enrichment N+1). Materials uses local
-Browse/Filters/Subsets modes, and the compact result/context surface omits provider/evidence/validation/solver,
-condition-aware Yield and Modeling-start projections until their governed query projections are defined. The remaining
-governed query projection gaps and final product-level verification remain. The linked #167,
-then #157–#162 sequence below owns those follow-ups; Issue #119 automatic LLM review remains disabled.
-
-## 핵심 보존 계약
-
-- raw bytes와 released artifacts immutable
-- stable identity와 immutable revision 분리
-- run/link의 exact revision pin
-- original/normalized unit와 quantity semantics 보존
-- outlier 원본 비삭제와 adjudication 분리
-- derived entity의 input/activity/agent provenance
-- Material Model IR 기반 solver card
-- exact/transformed/approximated/unsupported mapping과 fail-closed unsupported
-- organization/project authorization의 service+database enforcement
+- clean full-demo seed는 polymer Processing Recipe preflight와 metal manual necking provenance의
+  최초 실패를 #157에서 해결해야 합니다.
+- production UI는 PR #156 기능 기준선이며, PR #170의 승인 target은 아직 #158부터 #161까지
+  화면별로 React에 이식해야 합니다.
+- Materials의 provider/evidence source, condition-aware property, validation·solver readiness는
+  실제 governed query projection이 없는 상태에서 추론하지 않습니다.
+- Activity의 실패 작업 복구, delivery receipt와 release projection은 #160 범위입니다.
+- `docs/_incoming/2026-07-24-organic-ux-update/`의 유효 내용 흡수와 삭제는 #162 범위입니다.
+- 실제 identity provider/directory, 운영 object storage/KMS/WORM, credential rotation/outage,
+  external receiver와 장시간 endurance는 production 환경 수용이 남아 있습니다.
 
 ## 검증 진입점
 
@@ -74,29 +56,7 @@ npm run test:web
 uv run cmp-check-user-guide --root .
 ```
 
-전체 synthetic demo는 `make demo`, `make demo-verify` 또는 Compose 명령으로 확인합니다. PostgreSQL,
-performance, security와 product-pilot gate는 [개발 가이드](DEVELOPMENT.md)와
-[테스트 전략](docs/14-testing/test-strategy.md)을 따릅니다.
-
-## 남은 범위
-
-PR #125~#166과 이후 최신 `main`에 이미 병합된 PR은 재구현 대상이 아닙니다. 다음
-product-level 순서는
-[#167 service reference freeze](https://github.com/pikachu444/cae-material-platform/issues/167) →
-[#157 demo](https://github.com/pikachu444/cae-material-platform/issues/157) →
-[#158 Fit](https://github.com/pikachu444/cae-material-platform/issues/158) →
-[#159 Materials](https://github.com/pikachu444/cae-material-platform/issues/159) →
-[#160 Governance/Activity](https://github.com/pikachu444/cae-material-platform/issues/160) →
-[#161 DUI-09](https://github.com/pikachu444/cae-material-platform/issues/161) →
-[#162 UXC-99](https://github.com/pikachu444/cae-material-platform/issues/162)입니다. #157은 clean
-full-seed failure를, #162는 incoming package의 흡수 및 zero-inbound audit 뒤 삭제만을 다룹니다.
-#119 automatic LLM review는 계속 비활성입니다.
-
-- production tensile standard, material family/model, optimizer 및 solver qualification 결정
-- domain-approved numeric reference, IR payload, solver mapping과 golden 승인
-- 실제 identity provider/directory 및 운영 배포 정책 통합
-- production plugin packaging과 confidential-data 운영 절차
-- backlog의 미완료 Task와 pilot acceptance evidence
-
-상세 우선순위와 완료 조건은 [backlog](docs/13-delivery/backlog.md), 의사결정이 필요한 항목은
-[risks/open questions](docs/15-governance/risks-open-questions-decisions.md)를 기준으로 합니다.
+전체 synthetic demo는 `make demo`, `make demo-verify` 또는 Compose 명령으로 확인합니다.
+PostgreSQL, performance, security와 production acceptance는 [개발 가이드](DEVELOPMENT.md)와
+[테스트 전략](docs/14-testing/test-strategy.md)을 따릅니다. 의사결정이 필요한 항목은
+[위험·미결정 사항](docs/15-governance/risks-open-questions-decisions.md)에 기록합니다.

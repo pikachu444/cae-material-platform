@@ -284,8 +284,9 @@ The delivery sheet shows solver, law, units, revision status and mapping summary
 The graph is persistent across Data, Process, Fit and Export. Stage changes update commands and
 overlays; they do not remount an unrelated page. Candidate parameters appear on demand in a drawer or
 disclosure, never a permanent third column. Validation and review/release remain distinct governed
-Advanced or Activity actions and are not normal-stage tiles. The approved visual reference is the
-lower proposal in `docs/17-evidence/images/ux-layout-review/modeling-reference-comparison.png`.
+Advanced or Activity actions and are not normal-stage tiles. The approved Modeling target is selected
+by family in `service-reference-inventory.yaml`; its exact HTML/CSS/image/hash entries are registered
+in `service-reference-manifest.yaml`.
 
 The Modeling navigator is not a copy of the Materials catalog tree, but both belong to one desktop
 engineering grammar. Modeling therefore uses the same flat pane heading, regular 12–13 px identity
@@ -687,7 +688,7 @@ These primitives must use one token system and must not depend on legacy `conten
 
 ## 14. Reference-to-production contract
 
-Issue #167 freezes the complete service reference set before any production visual change. It covers
+#167 completed the service reference freeze in PR #170. The approved set covers
 Materials search/tree/detail/card; Modeling Data/Process/Fit/Export; Activity user/reviewer/recovery;
 and Administration database/table/attribute/layout/subset/link/access edit/publish, at 1366×768,
 1440×900 and 1920×1080. Each affected workflow also has the relevant long, empty, loading, blocked
@@ -702,10 +703,11 @@ whole task flow, region topology, information priority, readable density, graph/
 control-result continuity and absence of overlap, clipping and overflow; measurements prevent unsafe
 regressions rather than becoming the design objective.
 
-No visual implementation starts until the main agent has opened/evaluated every target image and the
-product owner has approved it. Every visual PR supplies registered reference/current side-by-side live
-captures to the main agent and product owner before merge. On a failure, make one evidence-backed
-correction and re-review; do not retry the same local CSS approach.
+No visual implementation starts until the main agent has opened the exact approved target images.
+Every visual PR supplies registered reference/current side-by-side live captures to the main agent and
+product owner before merge. One correction and fresh re-review is the default. If it still fails, stop
+with exact findings; only explicit product-owner authorization opens one second bounded correction and
+fresh re-review. Never retry the same local CSS approach or run a third correction.
 
 The main agent and fresh read-only reviewer independently complete the
 [mandatory qualitative owner checklist](visual-acceptance-matrix.md#mandatory-qualitative-owner-checklist)
@@ -719,9 +721,9 @@ is the final visual decision.
 - Figma MCP, when connected, is used to review editable layouts and component states.
 - Storybook is used for isolated primitive states before legacy CSS cleanup is accepted.
 - Playwright is the executable authority for complete workflows and viewport behavior.
-- The mandatory visual-work skills are `.agents/skills/desktop-engineering-ui`,
-  `.agents/skills/frontend-ui-engineering`, `.agents/skills/web-design-guidelines`, and
-  `.agents/skills/webapp-testing`.
+- `.agents/skills/desktop-engineering-ui` is mandatory for visual work. Use
+  `.agents/skills/frontend-ui-engineering` for production code, `.agents/skills/web-design-guidelines`
+  for an explicit UI/accessibility audit, and `.agents/skills/webapp-testing` for live browser work.
 
 Recommended dependency policy:
 

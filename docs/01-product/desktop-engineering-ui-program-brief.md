@@ -9,11 +9,10 @@ repository documents; the legacy package remains historical context only.
 
 ## Current delivery boundary
 
-`55cfa62` (PR #156) is the approved product/visual implementation baseline. Start every task from the
-latest `main` with `git pull --ff-only origin main`. PR #125–#166 and every later PR already present
-on current `main` are merged bounded scope; they are not a queue to reimplement. The next
-product-level order is #167 service reference freeze, #157 demo, #158 Fit, #159 Materials, #160
-Governance/Activity, #161 DUI-09, then #162 UXC-99. The incoming package remains temporary reference
+`55cfa62` (PR #156) is the current production React/CSS baseline. `7601ec8` (PR #170) is the approved
+visual target baseline; #167 is complete with 72/72 images. Start every task from the latest `main`.
+Work already merged there is not a queue to reimplement. The remaining order is #157 demo, #158 Fit,
+#159 Materials, #160 Governance/Activity, #161 DUI-09, then #162 UXC-99. The incoming package remains temporary reference
 until #162 completes absorption and an inbound-link audit. See `AGENTS.md` for the mandatory one-writer,
 deterministic-gate, fresh-reviewer execution rule.
 
@@ -71,17 +70,11 @@ traces. Reuse only publicly observable workflow, information hierarchy and inter
 
 ## 3. Source-of-truth order
 
-Read these documents in this order before changing a visual route:
-
-1. [AGENTS.md](../../AGENTS.md)
-2. this brief
-3. [Desktop Engineering UI Product and Interaction Specification](desktop-engineering-ui-product-spec.md)
-4. [Desktop engineering UI specification](desktop-engineering-ui-spec.md)
-5. [Desktop Engineering UI Tooling](desktop-engineering-ui-tooling.md)
-6. [Desktop Engineering UI Delivery Backlog](../13-delivery/desktop-engineering-ui-backlog.md)
-7. [Project desktop-engineering-ui skill](../../.agents/skills/desktop-engineering-ui/SKILL.md)
-8. [Official GUI image manifest](../00-research/images/gui-reference/README.md), every image relevant
-   to the screen, and current product screenshots/evidence.
+For a visual route, start with [AGENTS.md](../../AGENTS.md), the exact GitHub issue and the
+[project desktop-engineering-ui skill](../../.agents/skills/desktop-engineering-ui/SKILL.md). The skill
+routes to the selected inventory/manifest entries, original assets, checklist and affected spec
+sections. Do not read this brief or the complete specifications from beginning to end unless the exact
+task requires their full program context.
 
 If a previous ZIP, mockup, screenshot or ad-hoc prompt disagrees with those sources, the repository
 documents above win. The standalone mockup is only a discussion artifact; its data, SVGs and
@@ -209,6 +202,6 @@ A DUI slice is complete only when all of the following are true:
 
 ## 9. Session start
 
-[AGENTS.md](../../AGENTS.md) is the single current execution handoff. It owns baseline, issue order,
-approval references, and execution gates. [CODEX_DESKTOP_ENGINEERING_UI_START.md](../../CODEX_DESKTOP_ENGINEERING_UI_START.md)
-is a short compatibility pointer only; do not treat it as an independent paste prompt.
+[AGENTS.md](../../AGENTS.md) owns durable execution rules. The
+[current delivery backlog](../13-delivery/backlog.md) owns the baseline and issue order; the exact
+GitHub issue and selected reference manifest entries own task-specific scope.

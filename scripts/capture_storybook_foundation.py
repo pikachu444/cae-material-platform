@@ -6,7 +6,10 @@ import argparse
 from pathlib import Path
 
 FOUNDATION_STORY_PATH = "/iframe.html?id=foundation-engineeringcurveplot--default&viewMode=story"
-GOVERNED_STORY_PATH = "/iframe.html?id=governed-workflowcomponents--target-preview-mixed-mapping-states&viewMode=story"
+GOVERNED_STORY_PATH = (
+    "/iframe.html?id=governed-workflowcomponents--"
+    "target-preview-mixed-mapping-states&viewMode=story"
+)
 FOUNDATION_GROUPS = (
     "ApplicationShell",
     "ResizableSplitPane",
@@ -20,7 +23,7 @@ GOVERNED_STORIES = (
     "governed-workflowcomponents--mapping-empty",
     "governed-workflowcomponents--target-preview-mixed-mapping-states",
 )
-HISTORICAL_OUTPUT_DIRECTORY = Path("docs/17-evidence/images/dui-09-component-qa")
+DEFAULT_OUTPUT_DIRECTORY = Path(".artifacts/storybook")
 
 
 def default_output_path(scope: str) -> Path:
@@ -29,7 +32,7 @@ def default_output_path(scope: str) -> Path:
         if scope == "foundation"
         else "storybook-governed-workflow-1440x900.png"
     )
-    return HISTORICAL_OUTPUT_DIRECTORY / filename
+    return DEFAULT_OUTPUT_DIRECTORY / filename
 
 
 def main() -> None:
@@ -77,7 +80,10 @@ def main() -> None:
             page.get_by_role("region", name="Target mapping preflight").wait_for()
             for status in ("exact", "transformed", "approximated", "unsupported"):
                 page.get_by_text(status, exact=True).wait_for()
-        if page.locator("[role='alert']:visible, #error-message:visible, .sb-errordisplay:visible").count():
+        error_locator = page.locator(
+            "[role='alert']:visible, #error-message:visible, .sb-errordisplay:visible"
+        )
+        if error_locator.count():
             raise RuntimeError("Storybook canvas reported a rendered error")
         if page.evaluate("document.documentElement.scrollWidth > window.innerWidth"):
             raise RuntimeError("Storybook canvas has horizontal overflow")

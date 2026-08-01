@@ -1,4 +1,4 @@
-# CAE Material Platform — 기획·설계 기준선
+# CAE Material Platform 기획·설계 기준선
 
 문서 버전: `0.2.0-production-pilot`
 
@@ -12,31 +12,28 @@
 제품/UI 규칙은 `product-vision`, `desktop-engineering-user-flows`,
 `desktop-engineering-ui-product-spec`, `desktop-engineering-ui-spec`,
 `visual-acceptance-matrix` 및 desktop UI backlog가 각각 한 책임만 갖는다. 외부 제품에서 확인한
-사실은 `docs/00-research/`의 reference이며 제품 요구사항으로 자동 승격되지 않는다. 완료된
-evidence는 `docs/17-evidence/`와 implementation history에 보존하고 현재 사용법으로 읽지 않는다.
+사실은 `docs/00-research/`의 reference이며 제품 요구사항으로 자동 승격되지 않는다. 완료된 작업
+연대기는 Git 이력과 병합된 GitHub issue/PR에서 확인하고 현재 문서에는 현재 기준만 남긴다.
 
 문장 수준 표기는 `FACT-PUBLIC`, `CONFIRMED`, `DECISION`, `TBD`, `OUT-OF-SCOPE`를 사용한다.
 `ASSUMPTION`은 production domain, solver, validation, review policy를 결정하는 근거로 사용하지
 않는다. PR #125~#166과 이후 최신 `main`에 이미 병합된 PR은 재구현하지 않는다.
-`55cfa62` (PR #156)는 승인된 제품/시각
-구현 기준선이다. repository 작업 시작점은 항상 `git pull --ff-only origin main`으로 얻는 최신 `main`이다.
-다음 product-level work는 #167 service reference freeze, #157 demo, #158 Fit, #159 Materials, #160
-Governance/Activity, #161 DUI-09, #162 UXC-99 순서다. #167은 전체 서비스의 static HTML/CSS와 이미지
-레퍼런스를 화면·상태·viewport별로 동결하고 main agent와 product owner가 모두 열람·승인한 뒤에만 React/CSS
-구현을 허용한다. 승인된 레퍼런스는 영감이 아니라 구조/CSS 이식의 기준이며, 현재 캡처와 나란히 검수한다.
+`55cfa62`(PR #156)는 현재 production React/CSS 기준선이고 `7601ec8`(PR #170)은 승인된 시각
+target 기준선이다. repository 작업 시작점은 항상 최신 `main`이다. #167은 72/72 target 승인으로
+완료됐으며 다음 순서는 #157, #158, #159, #160, #161, #162다. 승인된 레퍼런스는 영감이 아니라
+구조/CSS 이식의 기준이며, production port는 현재 live 캡처와 나란히 검수한다.
 incoming package는 #162의 absorption 및 zero-inbound audit 전에는 삭제하지 않는다.
 
-## UXC-00R authority and approval rule
+## 시각 authority와 승인 규칙
 
 - Current-status documents describe the implemented User, Reviewer, and Administrator task presets.
   Administration and Activity connect those presets to their dedicated workspaces; failed-job and
   server-receipt projections remain follow-up work.
-- The historical 2026-07-21 Modeling target was the **lower proposal** in
-  `docs/17-evidence/images/ux-layout-review/modeling-reference-comparison.png`: 184–210 px tree,
-  shallow graph-adjacent band and dominant plot. The normal path is `Data | Process | Fit | Export`.
-- Materials, Administration and Activity current routes implement the approved workspace topology.
-  UXC-00D preserves the responsive static prototypes and the product-owner approval from 2026-07-26
-  as reference evidence, not as a substitute for current live captures.
+- #167 target 선택과 의존성은 `docs/01-product/service-reference-inventory.yaml`이 권위다.
+- 정확한 HTML/CSS/image/hash/viewport/approval은
+  `docs/01-product/service-reference-manifest.yaml`이 권위다.
+- 현재 live 화면과 승인 target은 동일하지 않을 수 있다. production port가 merge되기 전에는
+  `docs/user-guide/screenshot-manifest.yaml`과 live code가 현재 상태를 설명한다.
 
 ## 1. 이 패키지의 목적
 
@@ -91,11 +88,10 @@ flowchart TD
     H --> I["개별·Bulk 전달 / Governance"]
 ```
 
-현재 bounded reference 구현은 Material 저장, 시험 CSV 등록, normalized/processed Dataset,
+현재 bounded reference 구현은 Material 저장, 시험 데이터 등록, normalized/processed Dataset,
 Voce 또는 Prony fitting, 사람의 Candidate 선택, IR 승격, Abaqus/OpenRadioss card preview와
-download를 포함한다. 다음 기준선은 Process Run·Campaign·Instrument, CSV/TSV/XLSX importer,
-점탄성 반복시험/master curve, iterative calibration과 Bulk Export Bundle이다. 세부 순서는
-[production-pilot 실행 계획](13-delivery/production-pilot-execution-plan.md)을 따른다.
+download를 포함한다. 실제 제공 기능과 남은 공백은 [구현 상태](../IMPLEMENTATION_STATUS.md),
+다음 작업은 [현재 전달 backlog](13-delivery/backlog.md)에서 확인한다.
 
 ## 5. 문서 목록과 읽는 순서
 
@@ -116,7 +112,7 @@ download를 포함한다. 다음 기준선은 Process Run·Campaign·Instrument,
 15. [테스트 전략](14-testing/test-strategy.md)
 16. [위험·미결정·의사결정 로그](15-governance/risks-open-questions-decisions.md)
 17. [Codex 구현용 저장소 구조](16-repository/repository-blueprint.md)
-18. [역사적 전달·검증 evidence](17-evidence/documentation-image-audit-2026-07-22.md)
+18. [승인 시각 target inventory](01-product/service-reference-inventory.yaml)
 
 ## 6. Production 승인 게이트
 

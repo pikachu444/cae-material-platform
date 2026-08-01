@@ -74,14 +74,13 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
 
     assert report.document_count >= 10
     assert report.capture_count == 32
-    assert report.archived_capture_count >= 100
-    assert report.historical_capture_script_count == 12
     assert report.navigation_count == 3
-    assert report.classified_markdown_count >= 195
+    assert report.classified_markdown_count >= 100
     assert report.current_document_count >= 40
-    assert report.local_link_count >= 300
-    assert report.image_count >= 200
+    assert report.local_link_count >= 150
+    assert report.image_count >= 120
     assert report.orphan_image_count == 0
+    assert report.duplicate_image_group_count == 0
 
 
 def test_incoming_integration_package_is_reference_not_authoritative() -> None:
@@ -98,7 +97,6 @@ def test_incoming_integration_package_is_reference_not_authoritative() -> None:
     )
     assert classes["docs/01-product/desktop-engineering-ui-program-brief.md"] == "authoritative"
     assert classes["docs/user-guide/02-steel-elastoplastic.md"] == "current"
-    assert classes["docs/17-evidence/reports/dui-04-modeling-workspace.md"] == "historical"
 
 
 def test_permanent_reference_catalog_and_image_roots_are_retained() -> None:
@@ -175,65 +173,54 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         assert "one immutable card/receipt" in capture["fixture"]
 
 
-def test_current_images_are_product_routes_and_storybook_evidence_is_historical() -> None:
+def test_current_images_are_product_routes_and_storybook_captures_are_untracked() -> None:
     root = Path(__file__).parents[2]
     manifest = yaml.safe_load(
         (root / "docs/user-guide/screenshot-manifest.yaml").read_text(encoding="utf-8")
     )
     current_images = root / "docs/user-guide/images/current"
-    historical_images = root / "docs/17-evidence/images/dui-09-component-qa"
-    historical_report = root / "docs/17-evidence/reports/dui-09-component-qa.md"
-
     assert len(manifest["captures"]) == 32
     assert all(not capture["route"].startswith("/iframe.html") for capture in manifest["captures"])
     assert not list(current_images.glob("storybook-*.png"))
     assert len(list(current_images.glob("*.png"))) == 32
-    assert {
-        path.name for path in historical_images.glob("storybook-*.png")
-    } == {
-        "storybook-foundation-1440x900.png",
-        "storybook-governed-workflow-1440x900.png",
-    }
-    report_text = historical_report.read_text(encoding="utf-8")
-    assert "storybook-foundation-1440x900.png" in report_text
-    assert "storybook-governed-workflow-1440x900.png" in report_text
+    assert not list((root / "docs/17-evidence/images").glob("**/storybook-*.png"))
 
 
 def test_orphan_detection_uses_resolved_paths_not_filenames_or_audit_text(
     tmp_path: Path,
 ) -> None:
     current = tmp_path / "docs/user-guide/images/current/shared.png"
-    historical = tmp_path / "docs/17-evidence/images/shared.png"
+    reference = tmp_path / "docs/17-evidence/images/issue-167-service-reference/shared.png"
     current.parent.mkdir(parents=True)
-    historical.parent.mkdir(parents=True)
+    reference.parent.mkdir(parents=True)
     current.write_bytes(_PNG + b"-current")
-    historical.write_bytes(_PNG + b"-historical")
+    reference.write_bytes(_PNG + b"-reference")
     audit = tmp_path / "docs/audit.md"
     audit.write_text(
         "![owned](user-guide/images/current/shared.png)\n\n"
-        "Delete candidate: `docs/17-evidence/images/shared.png`\n",
+        "Delete candidate: `docs/17-evidence/images/issue-167-service-reference/shared.png`\n",
         encoding="utf-8",
     )
 
     _, referenced, _ = _verify_document_links(
-        tmp_path, {"docs/audit.md": "historical"}
+        tmp_path, {"docs/audit.md": "reference"}
     )
 
     assert referenced == {"docs/user-guide/images/current/shared.png"}
     with pytest.raises(
         UserGuideContractError,
-        match=r"docs/17-evidence/images/shared\.png",
+        match=r"docs/17-evidence/images/issue-167-service-reference/shared\.png",
     ):
         _verify_image_inventory(tmp_path, referenced, set())
 
 
-def test_duplicate_group_with_multiple_historical_files_is_rejected(
+def test_duplicate_group_mixing_current_and_reference_files_is_rejected(
     tmp_path: Path,
 ) -> None:
     relative_paths = (
         "docs/user-guide/images/current/current.png",
-        "docs/17-evidence/images/first.png",
-        "docs/17-evidence/images/nested/second.png",
+        "docs/17-evidence/images/issue-167-service-reference/first.png",
+        "docs/17-evidence/images/issue-167-service-reference/nested/second.png",
     )
     for relative in relative_paths:
         image = tmp_path / relative
@@ -241,16 +228,16 @@ def test_duplicate_group_with_multiple_historical_files_is_rejected(
         image.write_bytes(_PNG + b"-same")
     allowed_group = frozenset(relative_paths[:2])
 
-    with pytest.raises(UserGuideContractError, match="explicit historical group"):
+    with pytest.raises(UserGuideContractError, match="explicit reference group"):
         _verify_image_inventory(tmp_path, set(relative_paths), {allowed_group})
 
 
-def test_exact_explicit_historical_duplicate_group_is_allowed(
+def test_exact_explicit_reference_duplicate_group_is_allowed(
     tmp_path: Path,
 ) -> None:
     relative_paths = (
-        "docs/17-evidence/images/first.png",
-        "docs/17-evidence/images/historical.png",
+        "docs/17-evidence/images/issue-167-service-reference/first.png",
+        "docs/17-evidence/images/issue-167-service-reference/reference.png",
     )
     for relative in relative_paths:
         image = tmp_path / relative
@@ -269,11 +256,18 @@ def test_exact_explicit_historical_duplicate_group_is_allowed(
 @pytest.mark.parametrize(
     ("entry", "message"),
     [
-        ({"images": ["docs/17-evidence/images/first.png"]}, "rationale"),
+        (
+            {
+                "images": [
+                    "docs/17-evidence/images/issue-167-service-reference/first.png"
+                ]
+            },
+            "rationale",
+        ),
         (
             {
                 "rationale": "reason",
-                "images": ["docs/17-evidence/images/first.png"],
+                "images": ["docs/17-evidence/images/issue-167-service-reference/first.png"],
             },
             "at least two exact images",
         ),
@@ -281,8 +275,8 @@ def test_exact_explicit_historical_duplicate_group_is_allowed(
             {
                 "rationale": "reason",
                 "images": [
-                    "docs/17-evidence/images/*.png",
-                    "docs/17-evidence/images/second.png",
+                    "docs/17-evidence/images/issue-167-service-reference/*.png",
+                    "docs/17-evidence/images/issue-167-service-reference/second.png",
                 ],
             },
             "exact path",
@@ -291,8 +285,9 @@ def test_exact_explicit_historical_duplicate_group_is_allowed(
             {
                 "rationale": "reason",
                 "images": [
-                    "docs/17-evidence/images/first.png docs/17-evidence/images/second.png",
-                    "docs/17-evidence/images/second.png",
+                    "docs/17-evidence/images/issue-167-service-reference/first.png "
+                    "docs/17-evidence/images/issue-167-service-reference/second.png",
+                    "docs/17-evidence/images/issue-167-service-reference/second.png",
                 ],
             },
             "exact path",
@@ -302,7 +297,7 @@ def test_exact_explicit_historical_duplicate_group_is_allowed(
                 "rationale": "reason",
                 "images": [
                     "docs/user-guide/images/current/current.png",
-                    "docs/17-evidence/images/second.png",
+                    "docs/17-evidence/images/issue-167-service-reference/second.png",
                 ],
             },
             "escapes",
@@ -313,8 +308,8 @@ def test_duplicate_allowance_rejects_malformed_entries(
     tmp_path: Path, entry: dict[str, object], message: str
 ) -> None:
     for relative in (
-        "docs/17-evidence/images/first.png",
-        "docs/17-evidence/images/second.png",
+        "docs/17-evidence/images/issue-167-service-reference/first.png",
+        "docs/17-evidence/images/issue-167-service-reference/second.png",
         "docs/user-guide/images/current/current.png",
     ):
         image = tmp_path / relative
@@ -327,14 +322,14 @@ def test_duplicate_allowance_rejects_malformed_entries(
 
 def test_duplicate_allowance_rejects_repeated_or_unused_groups(tmp_path: Path) -> None:
     relative_paths = (
-        "docs/17-evidence/images/first.png",
-        "docs/17-evidence/images/second.png",
+        "docs/17-evidence/images/issue-167-service-reference/first.png",
+        "docs/17-evidence/images/issue-167-service-reference/second.png",
     )
     for relative in relative_paths:
         image = tmp_path / relative
         image.parent.mkdir(parents=True, exist_ok=True)
         image.write_bytes(_PNG + b"-same")
-    entry = {"rationale": "same intentional historical evidence", "images": list(relative_paths)}
+    entry = {"rationale": "same intentional approved reference", "images": list(relative_paths)}
 
     with pytest.raises(UserGuideContractError, match="repeated"):
         _duplicate_allowances(
@@ -347,7 +342,10 @@ def test_duplicate_allowance_rejects_repeated_or_unused_groups(tmp_path: Path) -
             {
                 frozenset(relative_paths),
                 frozenset(
-                    (relative_paths[0], "docs/17-evidence/images/missing.png")
+                    (
+                        relative_paths[0],
+                        "docs/17-evidence/images/issue-167-service-reference/missing.png",
+                    )
                 ),
             },
         )

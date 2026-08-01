@@ -4,7 +4,7 @@ Status: authoritative visual review gate
 
 ## Reference registration and review gate
 
-Before production React/CSS work, #167 registers an approved static HTML/CSS and rendered image for
+Before production React/CSS work, use #167's approved static HTML/CSS and rendered image for
 every target screen/state. The register records direct source/image paths, image hash, viewport, date,
 status, main-agent evaluation and product-owner approval. Required coverage is Materials
 search/tree/detail/card; Modeling Data/Process/Fit/Export; Activity user/reviewer/recovery; and
@@ -241,8 +241,8 @@ Additional checks:
 
 ## Reference and approval disposition
 
-The historical 2026-07-21 Modeling target was the **lower proposal** in
-`docs/17-evidence/images/ux-layout-review/modeling-reference-comparison.png`. Materials references:
+#167's approved target inventory is `service-reference-inventory.yaml`; exact HTML/CSS/image/hash and
+approval records are in `service-reference-manifest.yaml`. External Materials references include:
 `docs/00-research/images/gui-reference/granta-profile.png`,
 `docs/00-research/images/gui-reference/granta-list-results.png`, and
 `docs/00-research/images/gui-reference/granta-datasheet-embedded.png`. Administration references:
@@ -252,13 +252,9 @@ The historical 2026-07-21 Modeling target was the **lower proposal** in
 `docs/00-research/images/gui-reference/granta-record-links-datasheet.png`. Modeling references:
 `modeler-start-data.png`, `modeler-youngs-auto.png`, `modeler-youngs-manual.png`,
 `modeler-necking-point.png`, `modeler-fit-extrapolation.png`, `modeler-create-cae-card.png`, and
-`modeler-cae-card-details.png` in `docs/00-research/images/gui-reference/README.md`, plus the
-approved lower comparison above.
-UXC-00D records a historically approved four-screen responsive proposal in
-`docs/17-evidence/images/uxc-00d-responsive-design/`; it is evidence, not a complete service
-reference register. #167 supplies the complete approved target set and supersedes any implication that
-the historical four-screen approval alone authorizes later route work. Historical approval never
-marks a live route as complete.
+`modeler-cae-card-details.png` in `docs/00-research/images/gui-reference/README.md`. These external
+images explain product grammar but do not override the approved #167 target. Target approval never
+marks a production route complete; live implementation still requires browser evidence and approval.
 
 ## Required measurement report
 

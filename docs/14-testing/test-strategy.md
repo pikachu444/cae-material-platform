@@ -747,10 +747,10 @@ published revision. The recorded run used a newly created polymer Material and p
 8. preview contained `*DENSITY`, `*ELASTIC`, and `*VISCOELASTIC`; HTTP download returned 418 bytes
    whose SHA-256 exactly matched the stored card digest.
 
-The browser evidence additionally renders the processed curve, sorted Candidates, residual view,
+The browser scenario additionally verifies the processed curve, sorted Candidates, residual view,
 promoted IR/card preview, OpenRadioss LAW62 approximation notice, and exact Process/Lot genealogy.
-The complete IDs, digests, commands, expected negative check, and screenshots are in
-`docs/17-evidence/reports/user-e2e-evidence-2026-07-16.md`.
+Past run output is retained in Git history; current acceptance comes from the executable tests and
+registered current user-guide captures.
 
 ## T-47 observability and isolated recovery gate
 

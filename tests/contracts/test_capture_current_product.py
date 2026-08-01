@@ -51,18 +51,13 @@ def test_current_capture_contract_contains_product_routes_only() -> None:
     assert all(not name.startswith("storybook-") for name in CURRENT_CAPTURE_OUTPUTS)
 
 
-def test_storybook_default_captures_are_historical_evidence() -> None:
+def test_storybook_default_captures_are_untracked_local_artifacts() -> None:
     expected = {
-        "foundation": Path(
-            "docs/17-evidence/images/dui-09-component-qa/"
-            "storybook-foundation-1440x900.png"
-        ),
-        "governed": Path(
-            "docs/17-evidence/images/dui-09-component-qa/"
-            "storybook-governed-workflow-1440x900.png"
-        ),
+        "foundation": Path(".artifacts/storybook/storybook-foundation-1440x900.png"),
+        "governed": Path(".artifacts/storybook/storybook-governed-workflow-1440x900.png"),
     }
 
     for scope, path in expected.items():
         assert default_storybook_output_path(scope) == path
         assert "docs/user-guide/images/current" not in path.as_posix()
+        assert "docs/17-evidence" not in path.as_posix()
