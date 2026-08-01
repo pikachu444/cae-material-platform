@@ -82,14 +82,11 @@ Reference의 관찰을 제품 요구사항으로 자동 승격하지 않는다. 
 
 이 문서는 실제 main의 동작을 설명해야 한다. 미래 목표를 현재 기능처럼 쓰지 않는다.
 
-### 3.4 Historical evidence
+### 3.4 완료 이력
 
-- `docs/17-evidence/**`
-- `docs/13-delivery/implementation-history.md`
-- `docs/17-evidence/screenshot-archive.yaml`
-- DUI별 evidence report
-
-역사적 증거는 삭제하거나 현재 제품 명세로 다시 쓰지 않는다. 새 동작이 생기면 새 evidence를 추가한다.
+이 패키지가 작성된 뒤 저장소 정책이 바뀌었다. 완료 보고서, 과거 캡처와 archive는 working tree에
+누적하지 않고 Git 이력과 병합된 GitHub issue/PR에서 조회한다. #167의 승인 target만 별도 manifest로
+유지한다.
 
 ## 4. 이전 조사 패키지의 통합 매핑
 
@@ -98,7 +95,7 @@ Reference의 관찰을 제품 요구사항으로 자동 승격하지 않는다. 
 | `01_PRODUCT_BOUNDARIES_AND_RESEARCH_METHOD.md` | 분해·병합 후 폐기 | 조사 방법·버전은 `official-product-research.md`; 제품 경계는 `product-vision.md`; 사실·판단·TBD 규칙은 `docs/design-index.md` |
 | `02_GRANTA_USAGE_RESEARCH.md` | 유효 사실만 병합 | `official-product-research.md`; 채택한 원리는 `user-flows`·`product-spec`·`ui-spec` |
 | `03_MATERIAL_MODELER_USAGE_RESEARCH.md` | 버전 구분과 실제 흐름을 병합 | `official-product-research.md`; 채택한 원리는 Modeling 관련 권위 문서 |
-| `04_CURRENT_PRODUCT_UX_DIAGNOSIS.md` | 기존 내용 폐기 후 최신 main에서 재작성 | 필요하면 `docs/17-evidence/reports/ux-integration-baseline-d16d925.md`로만 보존; 수정 요구는 spec/backlog에 흡수 |
+| `04_CURRENT_PRODUCT_UX_DIAGNOSIS.md` | 기존 내용 폐기 후 최신 main에서 재작성 | 수정 요구는 spec/backlog에 흡수하고 완료본은 Git 이력에서 조회 |
 | `05_TARGET_PRODUCT_EXPERIENCE_SPEC.md` | 책임별 분해·병합 | flow는 `user-flows`; 구조는 `product-spec`; 컴포넌트는 `ui-spec`; 수치 기준은 `visual-acceptance-matrix` |
 | `06_CODEX_IMPLEMENTATION_BRIEF.md` | 전면 대체 | 현재 backlog와 `CODEX_DESKTOP_ENGINEERING_UI_START.md` |
 | `07_UX_RULES.yaml` | 저장소에 추가하지 않고 폐기 | 실행 규칙은 spec/matrix/test로 이동 |
@@ -139,7 +136,7 @@ Reference의 관찰을 제품 요구사항으로 자동 승격하지 않는다. 
 | 실제 사용자 업무 | `desktop-engineering-user-flows.md` |
 | 정보 구조·컴포넌트·타이포그래피 | `desktop-engineering-ui-product-spec.md`, `desktop-engineering-ui-spec.md` |
 | 수치 hard gate | `visual-acceptance-matrix.md` |
-| 과거 T-84~T-93·PR 상태 | `implementation-history.md` |
+| 과거 T-84~T-93·PR 상태 | Git 이력과 병합된 GitHub issue/PR |
 
 충돌 시 우선순위:
 
@@ -147,7 +144,7 @@ Reference의 관찰을 제품 요구사항으로 자동 승격하지 않는다. 
 2. latest main에서 검증된 동작
 3. 새로 통합한 authoritative product/UI spec
 4. reference research
-5. historical evidence
+5. Git/GitHub completion history
 
 ## 7. 삭제할 오래된 실행 자료
 
@@ -165,12 +162,10 @@ Reference의 관찰을 제품 요구사항으로 자동 승격하지 않는다. 
 삭제하지 않을 것:
 
 - 공식 reference image·manifest
-- `docs/17-evidence/**`
-- screenshot archive
-- DUI evidence report
+- #167 approved reference HTML/CSS/image와 manifest
 - domain/ADR/계산/solver/plugin/revision/provenance 계약
 
-삭제 후 `docs/documentation-manifest.yaml`의 historical include/exclude와 `docs/README.md`의 안내를 함께 정리한다.
+삭제 후 `docs/documentation-manifest.yaml`과 `docs/README.md`의 안내를 함께 정리한다.
 
 ## 8. 문서 통합의 완료 조건
 

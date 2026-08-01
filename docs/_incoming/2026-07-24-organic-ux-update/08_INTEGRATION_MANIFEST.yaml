@@ -28,7 +28,7 @@ package_policy:
   merge_into_existing_tree: true
   replace_previous_reference_pack: true
   previous_pack_current_diagnosis_valid: false
-  keep_historical_evidence: true
+  keep_historical_evidence: false
   implementation_entrypoint: "CODEX_DESKTOP_ENGINEERING_UI_START.md"
 
 document_roles:
@@ -55,10 +55,10 @@ document_roles:
     - "docs/user-guide/**"
     - "docs/user-guide/navigation-contract.yaml"
     - "docs/user-guide/screenshot-manifest.yaml"
-  historical:
-    - "docs/17-evidence/**"
-    - "docs/13-delivery/implementation-history.md"
-    - "docs/17-evidence/screenshot-archive.yaml"
+  completion_history:
+    - "Git history"
+    - "merged GitHub issues and pull requests"
+    - "issue #167 approved reference manifest"
 
 document_actions:
   update:
@@ -463,7 +463,7 @@ acceptance:
     - "before and after screenshots"
     - "screenshot source SHA matches capture"
     - "authoritative docs updated in the same PR"
-    - "historical evidence preserved"
+    - "completed reports and retired captures recoverable from Git history"
 
 stop_conditions:
   - "condition-aware property facet contract missing"

@@ -21,32 +21,17 @@ _MARKDOWN_LINK = re.compile(r"!?\[[^\]]*\]\(([^)#]+)(?:#[^)]+)?\)")
 _MARKDOWN_IMAGE = re.compile(r"!\[[^\]]*\]\(([^)#]+)(?:#[^)]+)?\)")
 _PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 _JPEG_SIGNATURE = b"\xff\xd8\xff"
-_HISTORICAL_IMAGE = re.compile(r"docs/17-evidence/images/")
+_NON_CURRENT_IMAGE = re.compile(r"docs/17-evidence/images/")
 _CURRENT_IMAGE_PREFIX = "docs/user-guide/images/current/"
 _REPOSITORY_LITERAL = re.compile(
     r"`((?:apps|backend|contracts|deploy|docs|fixtures|plugins|scripts|tests)/"
     r"[^`\s]+\.(?:css|json|md|mjs|png|jpg|jpeg|py|tsx|yaml|yml))`",
     re.IGNORECASE,
 )
-_CAPTURE_OUTPUT_LITERAL = re.compile(
-    r'["\'](docs/17-evidence/images/[^"\']+\.(?:png|jpg|jpeg))["\']',
-    re.IGNORECASE,
-)
-_STRUCTURED_IMAGE_MANIFESTS = (
-    "docs/17-evidence/images/desktop-engineering-ui/dui-01/after-measurements.json",
-    "docs/17-evidence/images/desktop-engineering-ui/dui-01/before-measurements.json",
-)
-_STRUCTURED_IMAGE_MANIFEST_GLOBS = (
-    "docs/17-evidence/images/issue-167-service-reference/*.json",
-    "docs/00-research/ux-service-reference/*.staging.json",
-    "docs/00-research/ux-service-reference/*.state-evidence.json",
-)
-_STRUCTURED_IMAGE_YAML_MANIFESTS = (
-    "docs/01-product/service-reference-manifest.yaml",
-)
-_IMAGE_PATH_MANIFESTS = (
-    "docs/17-evidence/images/ux-layout-review/manifest.yaml",
-)
+_STRUCTURED_IMAGE_MANIFESTS: tuple[str, ...] = ()
+_STRUCTURED_IMAGE_MANIFEST_GLOBS: tuple[str, ...] = ()
+_STRUCTURED_IMAGE_YAML_MANIFESTS: tuple[str, ...] = ()
+_IMAGE_PATH_MANIFESTS: tuple[str, ...] = ()
 _STALE_CURRENT_PATTERNS = {
     "retired global navigation": re.compile(
         r"(?:전역|global)\s+\*\*(?:Dashboard|Models|Exports|Governance)\*\*", re.IGNORECASE
@@ -101,8 +86,6 @@ class UserGuideContractError(RuntimeError):
 class UserGuideReport:
     document_count: int
     capture_count: int
-    archived_capture_count: int
-    historical_capture_script_count: int
     navigation_count: int
     classified_markdown_count: int
     current_document_count: int
@@ -182,7 +165,7 @@ def _documentation_classes(project: Path) -> dict[str, str]:
         for ordinal, raw_rule in enumerate(rules, start=1):
             rule = _mapping(raw_rule, f"documentation rule {ordinal}")
             status = _text(rule.get("status"), f"documentation rule {ordinal} status")
-            if status not in {"current", "authoritative", "historical", "reference"}:
+            if status not in {"current", "authoritative", "reference"}:
                 raise UserGuideContractError(f"unsupported documentation status: {status}")
             patterns = _sequence(rule.get("include"), f"documentation rule {ordinal} include")
             exclude_patterns = _sequence(
@@ -276,9 +259,9 @@ def _verify_document_links(
                 relative_image = _relative(linked, project)
                 referenced_images.add(relative_image)
                 if status == "current":
-                    if _HISTORICAL_IMAGE.search(relative_image):
+                    if _NON_CURRENT_IMAGE.search(relative_image):
                         raise UserGuideContractError(
-                            "current document uses a historical screenshot: "
+                            "current document uses a non-current reference image: "
                             f"{relative_document} -> {relative_image}"
                         )
                     current_images.add(relative_image)
@@ -325,7 +308,7 @@ def _verify_readme(project: Path, registered_images: set[str]) -> None:
         raise UserGuideContractError("README.md must show at least two current registered screens")
 
 
-def _verify_permanent_reference_catalog(project: Path) -> None:
+def _verify_permanent_reference_catalog(project: Path) -> set[str]:
     catalog_path = project / "docs/00-research/product-reference-source-catalog.json"
     catalog = _mapping(
         json.loads(catalog_path.read_text(encoding="utf-8")), "reference source catalog"
@@ -349,6 +332,7 @@ def _verify_permanent_reference_catalog(project: Path) -> None:
         raise UserGuideContractError(
             f"permanent reference source IDs drifted; missing={missing}"
         )
+    registered_images: set[str] = set()
     for relative_root, minimum_images in (
         ("docs/00-research/ux-reference-gallery/images", 5),
         ("docs/00-research/images/gui-reference", 20),
@@ -367,6 +351,8 @@ def _verify_permanent_reference_catalog(project: Path) -> None:
             raise UserGuideContractError(
                 f"permanent reference image root is incomplete: {relative_root}"
             )
+        registered_images.update(_relative(image, project) for image in images)
+    return registered_images
 
 
 def _capture_script_outputs(script: Path) -> set[str]:
@@ -390,80 +376,6 @@ def _capture_script_outputs(script: Path) -> set[str]:
         "capture script must declare CURRENT_CAPTURE_OUTPUTS: "
         f"{_relative(script, script.parents[1])}"
     )
-
-
-def _verify_archive(project: Path) -> tuple[int, set[str]]:
-    archive_path = project / "docs" / "17-evidence" / "screenshot-archive.yaml"
-    archive = _mapping(
-        yaml.safe_load(archive_path.read_text(encoding="utf-8")),
-        "screenshot archive",
-    )
-    captures = _sequence(archive.get("captures"), "screenshot archive captures")
-    ids: set[str] = set()
-    images: set[str] = set()
-    for ordinal, raw_capture in enumerate(captures, start=1):
-        capture = _mapping(raw_capture, f"archived capture {ordinal}")
-        capture_id = _text(capture.get("id"), f"archived capture {ordinal} id")
-        if capture_id in ids:
-            raise UserGuideContractError(f"duplicate archived screenshot id: {capture_id}")
-        ids.add(capture_id)
-        relative_image = _text(capture.get("image"), f"archived capture {capture_id} image")
-        image = _inside(
-            archive_path.parent / relative_image,
-            archive_path.parent / "images",
-            f"archived capture {capture_id} image",
-        )
-        if not image.is_file():
-            raise UserGuideContractError(f"archived capture is missing: {capture_id}")
-        project_image = _relative(image, project)
-        if project_image in images:
-            raise UserGuideContractError(
-                f"archived screenshot is registered more than once: {project_image}"
-            )
-        images.add(project_image)
-        if "source_evidence" in capture:
-            evidence_ref = _text(
-                capture.get("source_evidence"),
-                f"archived capture {capture_id} source evidence",
-            )
-            evidence = _inside(
-                archive_path.parent / evidence_ref,
-                archive_path.parent,
-                f"archived capture {capture_id} source evidence",
-            )
-            if not evidence.is_file():
-                raise UserGuideContractError(
-                    f"archived capture source evidence is missing: {capture_id}"
-                )
-        if "width" in capture or "height" in capture:
-            width, height = _image_dimensions(image)
-            if capture.get("width") != width or capture.get("height") != height:
-                raise UserGuideContractError(f"archived capture viewport drifted: {capture_id}")
-    return len(captures), images
-
-
-def _verify_historical_capture_scripts(project: Path) -> tuple[int, set[str]]:
-    script_root = project / "docs" / "17-evidence" / "capture-scripts"
-    scripts = sorted(script_root.glob("capture*.mjs"))
-    if not scripts:
-        raise UserGuideContractError("historical capture scripts are missing")
-    images: set[str] = set()
-    for script in scripts:
-        content = script.read_text(encoding="utf-8")
-        output_literals = _CAPTURE_OUTPUT_LITERAL.findall(content)
-        if not output_literals and "outputDir" not in content:
-            raise UserGuideContractError(
-                f"historical capture script has no declared output: {_relative(script, project)}"
-            )
-        for output in output_literals:
-            image = _inside(project / output, project / "docs" / "17-evidence" / "images", output)
-            if not image.is_file():
-                raise UserGuideContractError(
-                    "historical capture output is missing: "
-                    f"{_relative(script, project)} -> {output}"
-                )
-            images.add(_relative(image, project))
-    return len(scripts), images
 
 
 def _structured_manifest_images(project: Path) -> set[str]:
@@ -531,12 +443,108 @@ def _structured_manifest_images(project: Path) -> set[str]:
     return images
 
 
+def _verify_service_reference_manifest(project: Path) -> set[str]:
+    manifest_path = project / "docs" / "01-product" / "service-reference-manifest.yaml"
+    manifest = _mapping(
+        yaml.safe_load(manifest_path.read_text(encoding="utf-8")),
+        "service reference manifest",
+    )
+    if manifest.get("retention") != "approved-targets-only":
+        raise UserGuideContractError("service reference retention policy drifted")
+    references = _sequence(manifest.get("references"), "service references")
+    if len(references) != 72:
+        raise UserGuideContractError("service reference manifest must contain 72 approved targets")
+
+    source_root = project / "docs" / "00-research" / "ux-service-reference"
+    reference_root = project / "docs" / "17-evidence" / "images" / "issue-167-service-reference"
+    ids: set[str] = set()
+    images: set[str] = set()
+    expected_files: set[Path] = set()
+    for ordinal, raw_reference in enumerate(references, start=1):
+        reference = _mapping(raw_reference, f"service reference {ordinal}")
+        reference_id = _text(reference.get("id"), f"service reference {ordinal} id")
+        if reference_id in ids:
+            raise UserGuideContractError(f"duplicate service reference id: {reference_id}")
+        ids.add(reference_id)
+        if reference.get("status") != "approved":
+            raise UserGuideContractError(f"service reference is not approved: {reference_id}")
+        owner = _mapping(
+            reference.get("product_owner_approval"),
+            f"service reference {reference_id} owner approval",
+        )
+        if owner.get("status") != "approved":
+            raise UserGuideContractError(
+                f"service reference lacks owner approval: {reference_id}"
+            )
+
+        sources = _mapping(reference.get("sources"), f"service reference {reference_id} sources")
+        if not sources:
+            raise UserGuideContractError(f"service reference has no source: {reference_id}")
+        for source_name, raw_source in sources.items():
+            source_ref = _text(raw_source, f"service reference {reference_id} {source_name}")
+            source = _inside(
+                project / source_ref,
+                source_root,
+                f"service reference {reference_id} {source_name}",
+            )
+            if not source.is_file() or source.suffix.lower() not in {".html", ".css", ".js"}:
+                raise UserGuideContractError(
+                    "service reference source is missing or unsupported: "
+                    f"{reference_id} {source_ref}"
+                )
+
+        image_ref = _text(reference.get("image"), f"service reference {reference_id} image")
+        image = _inside(
+            project / image_ref,
+            reference_root,
+            f"service reference {reference_id} image",
+        )
+        if not image.is_file() or image.suffix.lower() != ".png":
+            raise UserGuideContractError(f"service reference image is missing: {reference_id}")
+        viewport = _mapping(
+            reference.get("viewport"), f"service reference {reference_id} viewport"
+        )
+        if _image_dimensions(image) != (viewport.get("width"), viewport.get("height")):
+            raise UserGuideContractError(f"service reference viewport drifted: {reference_id}")
+        expected_hash = _text(
+            reference.get("image_sha256"), f"service reference {reference_id} hash"
+        )
+        if hashlib.sha256(image.read_bytes()).hexdigest() != expected_hash:
+            raise UserGuideContractError(f"service reference hash drifted: {reference_id}")
+
+        measurement_ref = _text(
+            reference.get("measurements"), f"service reference {reference_id} measurements"
+        )
+        measurement = _inside(
+            project / measurement_ref,
+            reference_root,
+            f"service reference {reference_id} measurements",
+        )
+        if not measurement.is_file() or measurement.suffix.lower() != ".json":
+            raise UserGuideContractError(
+                f"service reference measurements are missing: {reference_id}"
+            )
+        json.loads(measurement.read_text(encoding="utf-8"))
+        images.add(_relative(image, project))
+        expected_files.update((image, measurement))
+
+    actual_files = {path for path in reference_root.iterdir() if path.is_file()}
+    if actual_files != expected_files:
+        unexpected = sorted(_relative(path, project) for path in actual_files - expected_files)
+        missing = sorted(_relative(path, project) for path in expected_files - actual_files)
+        raise UserGuideContractError(
+            f"service reference directory must contain approved targets only: "
+            f"unexpected={unexpected}, missing={missing}"
+        )
+    return images
+
+
 def _duplicate_allowances(
     project: Path, manifest: dict[str, Any]
 ) -> set[frozenset[str]]:
     entries = _sequence(manifest.get("allowed_duplicate_groups", []), "duplicate allowances")
     allowances: set[frozenset[str]] = set()
-    historical_root = project / "docs" / "17-evidence" / "images"
+    reference_root = project / "docs" / "17-evidence" / "images" / "issue-167-service-reference"
     for ordinal, raw_entry in enumerate(entries, start=1):
         entry = _mapping(raw_entry, f"duplicate allowance {ordinal}")
         _text(entry.get("rationale"), f"duplicate allowance {ordinal} rationale")
@@ -558,7 +566,7 @@ def _duplicate_allowances(
                 )
             image = _inside(
                 project / image_ref,
-                historical_root,
+                reference_root,
                 f"duplicate allowance {ordinal} image {image_ordinal}",
             )
             if not image.is_file():
@@ -582,8 +590,8 @@ def _duplicate_allowances(
 def _image_lifecycle(relative: str) -> str:
     if relative.startswith(_CURRENT_IMAGE_PREFIX):
         return "current"
-    if relative.startswith("docs/17-evidence/images/"):
-        return "historical"
+    if relative.startswith("docs/17-evidence/images/issue-167-service-reference/"):
+        return "reference"
     if relative.startswith("docs/00-research/"):
         return "reference"
     return "unclassified"
@@ -635,7 +643,7 @@ def _verify_image_inventory(
         lifecycle_counts = dict(Counter(_image_lifecycle(path) for path in relative_paths))
         group = frozenset(relative_paths)
         if (
-            all(_image_lifecycle(path) == "historical" for path in relative_paths)
+            all(_image_lifecycle(path) == "reference" for path in relative_paths)
             and group in allowed_duplicate_groups
         ):
             actual_allowed_groups.add(group)
@@ -643,7 +651,7 @@ def _verify_image_inventory(
         invalid_duplicate_groups.append((relative_paths, lifecycle_counts))
     if invalid_duplicate_groups:
         raise UserGuideContractError(
-            "duplicate image hashes require one explicit historical group: "
+            "duplicate image hashes require one explicit reference group: "
             f"{invalid_duplicate_groups}"
         )
     stale_allowances = allowed_duplicate_groups - actual_allowed_groups
@@ -734,7 +742,7 @@ def verify_user_guide(root: Path) -> UserGuideReport:
             f"{sorted(unused_registration)}"
         )
     _verify_readme(project, registered_images)
-    _verify_permanent_reference_catalog(project)
+    permanent_reference_images = _verify_permanent_reference_catalog(project)
 
     navigation = _mapping(
         yaml.safe_load((guide_root / "navigation-contract.yaml").read_text(encoding="utf-8")),
@@ -768,28 +776,25 @@ def verify_user_guide(root: Path) -> UserGuideReport:
         if not guide.is_file() or f"({guide_name})" not in index_source:
             raise UserGuideContractError(f"navigation guide is missing from the index: {label}")
 
-    archived_capture_count, archived_images = _verify_archive(project)
-    historical_capture_script_count, historical_script_images = (
-        _verify_historical_capture_scripts(project)
-    )
     structured_manifest_images = _structured_manifest_images(project)
+    service_reference_images = _verify_service_reference_manifest(project)
     referenced_images = (
         document_images
         | registered_images
-        | archived_images
         | scripted_images
-        | historical_script_images
         | structured_manifest_images
+        | permanent_reference_images
+        | service_reference_images
     )
-    archive_manifest = _mapping(
+    duplicate_manifest = _mapping(
         yaml.safe_load(
-            (project / "docs" / "17-evidence" / "screenshot-archive.yaml").read_text(
+            (project / "docs" / "01-product" / "service-reference-duplicates.yaml").read_text(
                 encoding="utf-8"
             )
         ),
-        "screenshot archive",
+        "service reference duplicate manifest",
     )
-    allowed_duplicate_groups = _duplicate_allowances(project, archive_manifest)
+    allowed_duplicate_groups = _duplicate_allowances(project, duplicate_manifest)
     image_count, orphan_image_count, duplicate_image_group_count = _verify_image_inventory(
         project, referenced_images, allowed_duplicate_groups
     )
@@ -797,8 +802,6 @@ def verify_user_guide(root: Path) -> UserGuideReport:
     return UserGuideReport(
         document_count=len(documents),
         capture_count=len(captures),
-        archived_capture_count=archived_capture_count,
-        historical_capture_script_count=historical_capture_script_count,
         navigation_count=len(items),
         classified_markdown_count=len(classes),
         current_document_count=sum(status == "current" for status in classes.values()),
@@ -820,8 +823,6 @@ def main() -> int:
     print(
         "user-guide check passed: "
         f"{report.document_count} guide documents, {report.capture_count} current captures, "
-        f"{report.archived_capture_count} archived captures, "
-        f"{report.historical_capture_script_count} archived capture scripts, "
         f"{report.navigation_count} navigation items, "
         f"{report.classified_markdown_count} classified Markdown files, "
         f"{report.local_link_count} local links, {report.image_count} images"

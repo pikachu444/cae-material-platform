@@ -1,80 +1,64 @@
 ---
 name: desktop-engineering-ui
-description: Execute or review CAE Material Platform visual work, including static reference creation, React/CSS porting, screenshots, and visual acceptance. Use for any frontend layout, navigation, typography, component, CSS, screenshot, or visual-review task.
+description: Execute or review CAE Material Platform visual work, including approved-reference selection, React/CSS porting, screenshots, and full-screen qualitative acceptance.
 ---
 
 # Desktop Engineering UI
 
-Build a browser-delivered engineering workspace, never a marketing site or generic card dashboard.
+Build a compact browser-delivered engineering workspace, not a marketing site or generic card
+dashboard. Follow `AGENTS.md` for agent selection, correction limits, publication and current work.
 
-## Read first
+## Route only the needed context
 
-Read `AGENTS.md`, `docs/01-product/desktop-engineering-ui-product-spec.md`,
-`docs/01-product/visual-acceptance-matrix.md`, the current task, relevant local reference manifest and
-images, current screenshot-manifest entries/images, and the relevant UI specification. Also use
-`frontend-ui-engineering`, `web-design-guidelines`, and `webapp-testing` for every visual task.
-Treat the matrix's **Mandatory qualitative owner checklist** as canonical; do not replace it with a
-numeric score or a generic web-guideline audit.
+1. Read the exact GitHub issue.
+2. Find its target family in `docs/01-product/service-reference-inventory.yaml` with `rg`.
+3. Read only that family's entries in `docs/01-product/service-reference-manifest.yaml` and inspect
+   every listed HTML, CSS and image at original resolution.
+4. Read Q-01 through Q-20 in `docs/01-product/visual-acceptance-matrix.md`, then only the affected
+   route-specific gate and the relevant product/UI-spec sections.
+5. Inspect the affected React, API, state and test contracts.
 
-## Reference gate
+Do not bulk-read the complete product specs, manifest or incoming package. Use
+`frontend-ui-engineering` only for production React/CSS/component work, `web-design-guidelines` only
+for an explicit UI/accessibility audit, and `webapp-testing` only for live interaction, capture or
+browser evidence.
 
-For #167, build and register the complete service reference set before production visual work:
+## Prepare and implement from authority
 
-- Materials search/tree/detail/card;
-- Modeling Data/Process/Fit/Export;
-- Activity user/reviewer/recovery;
-- Administration database/table/attribute/layout/subset/link/access edit/publish;
-- 1366×768, 1440×900 and 1920×1080 plus relevant long, empty, loading, blocked and error states.
+Treat the registered approved HTML/CSS and images as implementation authority for their exact target.
+Port their region structure and CSS faithfully while wiring existing data and state contracts. Do not
+invent replacement topology, route-specific override layers, fake data fallbacks or decorative
+technical content.
 
-For every reference, record static HTML/CSS source, rendered-image path and hash, viewport, date,
-status, main-agent evaluation, and product-owner approval. The main agent must open and evaluate every
-image; no React/CSS implementation starts without product-owner approval of the exact target state.
+Before calling a writer, the main agent stores one bounded packet naming:
 
-Approved static HTML/CSS and images are implementation source and visual authority. Port their regions
-and CSS faithfully into React while wiring existing state/backend contracts. Do not redesign an
-approved topology or add incremental route-specific CSS overrides.
+- the user task and exact assets/screens;
+- static region to component, event, state and data-source mapping;
+- preserved behavior, loading/empty/blocked/error states and invalidation contracts;
+- forbidden shortcuts, required captures, interactions and tests.
 
-## Implementer packet and workflow
+The writer implements that packet without reinterpreting product requirements.
 
-Before spawning an implementer, the main Sol agent must inspect the exact issue, approved HTML/CSS
-and images, current components, and preserved state/data contracts. The main agent authors and
-delivers the detailed packet; never ask the implementer to discover or rewrite its own requirements.
-Name the exact target assets/screens/components, user task, preserved behavior/data/state,
-static-region → React component/contract mapping, forbidden shortcuts, required captures and tests.
-Preserve catalog hierarchy, revision/provenance, unit semantics, solver mapping, and access contracts.
-Use the engineering grammar: split panes, compact grids/property sheets, flat dividers, one filled
-primary action, in-place selection, persistent Modeling graph, and technical detail in
-Advanced/Evidence.
+## Verify the complete screen
 
-Open the reference and live route at all required viewports. Verify the full workflow, keyboard path,
-loading/empty/blocked/error recovery, no page overflow, no clipping/overlap, state continuity and
-legacy-selector report. Capture reference/current side-by-side evidence and update the required current
-guide, screenshot manifest and live screenshots. Measurements are safety rails, not an invitation to
-pixel-copy or tune arbitrary small numbers.
+At the issue's required viewports, verify the task flow, keyboard path, state recovery, selection
+continuity, local scroll discoverability and absence of page overflow, clipping, overlap or distorted
+plots. Capture live/reference comparisons and update the required current guide, screenshot manifest
+and live screenshots.
 
-## Main-agent qualitative gate
+After deterministic gates, the main agent opens every target/state image at original resolution and
+records pass, fail or not-applicable evidence for Q-01 through Q-20. Judge the whole screen before an
+isolated control: engineering credibility, information density, hierarchy, graph/table/tree dominance,
+whitespace, typography, meaningful wide-screen use and responsive continuity. Numeric measurements
+support this judgment but cannot override a qualitative failure.
 
-Treat the active `/root` primary agent as the main agent; do not invent a separate "main Sol"
-reviewer. Implementer and read-only reviewer agents remain subordinate independent roles.
-After deterministic gates, open every target and state image at original resolution. Complete every
-applicable item in the matrix's mandatory qualitative owner checklist with direct image/path evidence.
-Judge the full screen before isolated controls: engineering credibility, information density,
-hierarchy, graph/table/tree dominance, whitespace, typography, discoverable overflow and responsive
-continuity. A checklist failure blocks reviewer handoff even when automated gates and V-01–V-16 pass.
-Record the active main-agent model and reasoning configuration from an inspectable source; do not infer
-model identity from a role name.
+## Independent review and approval
 
-## Reviewer packet and decision
+The main agent stores a bounded reviewer packet containing issue acceptance, approved references,
+implementation diff, live/comparison paths, interaction/test results and the completed checklist. The
+configured fresh read-only reviewer independently checks the same evidence and returns actionable
+findings plus an approval disposition.
 
-After implementation and deterministic gates, the `/root` main agent prepares the bounded reviewer packet:
-issue acceptance, approved references, implementation diff, direct paths to live and comparison
-captures, interaction/test results, and the canonical qualitative checklist. The reviewer independently
-opens every image at original resolution and records each applicable checklist item as pass, fail or
-not applicable with evidence. The reviewer evaluates full-screen usability and parity:
-task flow, topology, information priority, readable density, graph/table/tree dominance,
-control-result continuity, overflow, clipping and overlap. Do not accept test success alone. The main
-agent repeats the qualitative judgment after reviewer disposition and directly compares the resulting
-images before product-owner review. The product owner remains the final visual approver. A reviewer
-score cannot override a main-agent or product-owner qualitative finding.
-Permit one evidence-backed correction and fresh re-review at most; do not repeat a failed local CSS
-approach. Automatic LLM review stays disabled under #119.
+The main agent repeats the original-resolution product/UX judgment after review. The product owner is
+the final visual approver. Follow `AGENTS.md` for correction and re-review limits; automatic LLM review
+remains disabled under #119.

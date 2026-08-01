@@ -119,8 +119,7 @@ uv run cmp-check-user-guide --root .
 
 전체 명령은 [개발 가이드](DEVELOPMENT.md), 사용자 화면 확인 방법은
 [사용자 가이드](docs/user-guide/index.md)를 따릅니다. 개발 변경 전에는 [AGENTS.md](AGENTS.md)와
-해당 backlog Task를 읽으십시오. 작업 이력은
-[implementation history](docs/13-delivery/implementation-history.md)에 보관합니다.
+정확한 GitHub issue를 읽으십시오. 완료된 작업 이력은 Git과 병합된 issue/PR에서 확인합니다.
 
 ## 문서
 

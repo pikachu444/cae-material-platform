@@ -1,21 +1,13 @@
-version: 1
+version: 2
 policy:
   current: "현재 코드, route, 화면 또는 운영 절차와 같은 변경 단위에서 유지"
   authoritative: "구현과 검수의 규범; 변경 시 requirement/ADR/Task 추적"
-  historical: "완료 작업과 과거 evidence 보존; 현재 사용법으로 사용하지 않음"
   reference: "외부 조사와 비교 입력; 제품 자체의 계약은 아님"
 rules:
   - status: reference
     include:
-      - ".agents/skills/**/*.md"
       - "docs/00-research/**/*.md"
       - "docs/_incoming/2026-07-24-organic-ux-update/**/*.md"
-  - status: historical
-    include:
-      - "docs/13-delivery/implementation-history.md"
-      - "docs/13-delivery/t*.md"
-      - "docs/13-delivery/v3-completion-audit.md"
-      - "docs/17-evidence/**/*.md"
   - status: current
     include:
       - "README.md"
@@ -35,7 +27,7 @@ rules:
   - status: authoritative
     include:
       - "AGENTS.md"
-      - "CODEX_DESKTOP_ENGINEERING_UI_START.md"
+      - ".agents/skills/**/*.md"
       - ".codex/skills/**/*.md"
       - "adr/**/*.md"
       - "docs/01-product/**/*.md"
@@ -51,8 +43,6 @@ rules:
       - "docs/11-security/**/*.md"
       - "docs/12-roadmap/**/*.md"
       - "docs/13-delivery/backlog.md"
-      - "docs/13-delivery/desktop-engineering-ui-backlog.md"
-      - "docs/13-delivery/production-pilot-execution-plan.md"
       - "docs/14-testing/**/*.md"
       - "docs/15-governance/**/*.md"
       - "docs/16-repository/**/*.md"

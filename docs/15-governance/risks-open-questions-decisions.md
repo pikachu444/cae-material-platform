@@ -75,7 +75,7 @@
 
 ## 4. Domain 미결정 사항
 
-### 4.1 MVP blocking — Stage 0에서 결정
+### 4.1 MVP blocking: Stage 0에서 결정
 
 | ID | 질문 | 결정 owner |
 | --- | --- | --- |
@@ -111,6 +111,8 @@
 - `OQ-SEC-004`: retention/legal hold/hard-delete 정책
 - `OQ-SEC-005`: partner/external collaboration
 - `OQ-OPS-001`: deployment platform, IdP, object storage, scheduler/HPC 구체 제품
+- `OQ-OPS-002`: production 환경의 live KMS/WORM과 HSM/keyless identity, external receiver,
+  credential rotation·outage, multi-node failover와 overnight endurance 수용 기준
 
 ## 6. Architecture Decision Log
 

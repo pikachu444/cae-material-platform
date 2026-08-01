@@ -1,2133 +1,1426 @@
-schema_version: 1
+schema_version: 2
+retention: approved-targets-only
 status_vocabulary:
-  reference: [pending, approved, rejected]
-  main_agent_evaluation: [pending, accepted, rejected]
+  reference:
+  - pending
+  - approved
+  - rejected
+  main_agent_evaluation:
+  - pending
+  - accepted
+  - rejected
 references:
-  - id: materials-search-normal-1440x900
-    screen: materials-search
-    state: normal
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources:
-      html: docs/00-research/ux-service-reference/materials-search-normal.html
-      css: docs/00-research/ux-service-reference/reference.css
-      css_navigator: docs/00-research/ux-service-reference/materials-navigator.css
-      javascript: docs/00-research/ux-service-reference/reference.js
-      javascript_navigator: docs/00-research/ux-service-reference/materials-navigator.js
-      capture: docs/00-research/ux-service-reference/capture_reference.py
-      validation: docs/00-research/ux-service-reference/validate_reference.py
-    image: docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1440x900.measurements.json
-    image_sha256: 7f96a68d0ff03eb20b95abf831354e6a1052e34f0246871c9318ede0cce367a0
-    date: 2026-07-30
+- id: materials-search-normal-1440x900
+  screen: materials-search
+  state: normal
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/materials-search-normal.html
+    css: docs/00-research/ux-service-reference/reference.css
+    css_navigator: docs/00-research/ux-service-reference/materials-navigator.css
+    javascript: docs/00-research/ux-service-reference/reference.js
+    javascript_navigator: docs/00-research/ux-service-reference/materials-navigator.js
+  image: docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1440x900.measurements.json
+  image_sha256: 7f96a68d0ff03eb20b95abf831354e6a1052e34f0246871c9318ede0cce367a0
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review of the corrected 50-row server-scoped
-        result page. Eighteen complete fixed-height rows occupy the initial result body, the
-        reserved local rail remains outside cell text, and the sticky header plus fixed range/footer
-        preserve selection and paging context. No stretched row, filler panel, clipping or
-        avoidable dominant blank region remains.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-30
-      evidence: >-
-        Materials Search normal wide-density bundle approval in conversation after representative
-        1920 handoff and explicit confirmation that 1366/1440/1920 plus 2560/3840 evidence passed.
-  - id: materials-search-normal-1366x768
-    screen: materials-search
-    state: normal
-    viewport:
-      width: 1366
-      height: 768
-      device_scale_factor: 1
-    sources:
-      html: docs/00-research/ux-service-reference/materials-search-normal.html
-      css: docs/00-research/ux-service-reference/reference.css
-      css_navigator: docs/00-research/ux-service-reference/materials-navigator.css
-      css_override: docs/00-research/ux-service-reference/materials-search-normal-1366x768.css
-      javascript: docs/00-research/ux-service-reference/reference.js
-      javascript_navigator: docs/00-research/ux-service-reference/materials-navigator.js
-      javascript_override: docs/00-research/ux-service-reference/materials-search-normal-1366x768.js
-      capture: docs/00-research/ux-service-reference/capture_reference.py
-      validation: docs/00-research/ux-service-reference/validate_reference.py
-    image: docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1366x768.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1366x768.measurements.json
-    image_sha256: bd400b2f913a0d2c8c1e5dba6565c05b12055118ffbbaac1b9e5845cf6bfff89
     date: 2026-07-30
+- id: materials-search-normal-1366x768
+  screen: materials-search
+  state: normal
+  viewport:
+    width: 1366
+    height: 768
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/materials-search-normal.html
+    css: docs/00-research/ux-service-reference/reference.css
+    css_navigator: docs/00-research/ux-service-reference/materials-navigator.css
+    css_override: docs/00-research/ux-service-reference/materials-search-normal-1366x768.css
+    javascript: docs/00-research/ux-service-reference/reference.js
+    javascript_navigator: docs/00-research/ux-service-reference/materials-navigator.js
+    javascript_override: docs/00-research/ux-service-reference/materials-search-normal-1366x768.js
+  image: docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1366x768.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1366x768.measurements.json
+  image_sha256: bd400b2f913a0d2c8c1e5dba6565c05b12055118ffbbaac1b9e5845cf6bfff89
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review of the corrected 50-row server-scoped
-        result page. Fourteen complete fixed-height rows remain visible above the fixed range/footer;
-        the compact navigator, selected context and result grid preserve their priority, and the
-        reserved local rail is discoverable without covering names or values. No partial row,
-        clipping, overlap or topology failure remains.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-30
-      evidence: >-
-        Materials Search normal wide-density bundle approval in conversation after representative
-        1920 handoff and explicit confirmation that 1366/1440/1920 plus 2560/3840 evidence passed.
-  - id: materials-search-normal-1920x1080
-    screen: materials-search
-    state: normal
-    viewport:
-      width: 1920
-      height: 1080
-      device_scale_factor: 1
-    sources:
-      html: docs/00-research/ux-service-reference/materials-search-normal.html
-      css: docs/00-research/ux-service-reference/reference.css
-      css_navigator: docs/00-research/ux-service-reference/materials-navigator.css
-      css_override: docs/00-research/ux-service-reference/materials-search-normal-1920x1080.css
-      javascript: docs/00-research/ux-service-reference/reference.js
-      javascript_navigator: docs/00-research/ux-service-reference/materials-navigator.js
-      javascript_override: docs/00-research/ux-service-reference/materials-search-normal-1920x1080.js
-      capture: docs/00-research/ux-service-reference/capture_reference.py
-      validation: docs/00-research/ux-service-reference/validate_reference.py
-    image: docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1920x1080.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1920x1080.measurements.json
-    wide_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1920x1080.wide-evidence-2560x1440.png
-      - docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1920x1080.wide-evidence-3840x2160.png
-    image_sha256: 57f136268f52386c99cb13970f694cf40a30bdb57a6bc3badcab0b70a24ed3ae
     date: 2026-07-30
+- id: materials-search-normal-1920x1080
+  screen: materials-search
+  state: normal
+  viewport:
+    width: 1920
+    height: 1080
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/materials-search-normal.html
+    css: docs/00-research/ux-service-reference/reference.css
+    css_navigator: docs/00-research/ux-service-reference/materials-navigator.css
+    css_override: docs/00-research/ux-service-reference/materials-search-normal-1920x1080.css
+    javascript: docs/00-research/ux-service-reference/reference.js
+    javascript_navigator: docs/00-research/ux-service-reference/materials-navigator.js
+    javascript_override: docs/00-research/ux-service-reference/materials-search-normal-1920x1080.js
+  image: docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1920x1080.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1920x1080.measurements.json
+  image_sha256: 57f136268f52386c99cb13970f694cf40a30bdb57a6bc3badcab0b70a24ed3ae
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review at 1920, 2560 and 3840. The reference now
-        exercises the production 50-row page contract: 23 and 33 complete rows fill the 1920 and
-        2560 initial result bodies with a reserved proportional rail, while all 50 rows fit at 3840
-        and the unnecessary rail is hidden. The remaining 3840 space follows the complete page
-        rather than stretched rows or fabricated content. Tree/result/context synchronization,
-        fixed paging context and dominant result priority remain intact.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-30
-      evidence: >-
-        Materials Search normal wide-density bundle approval in conversation after representative
-        1920 handoff and explicit confirmation that 1366/1440/1920 plus 2560/3840 evidence passed.
-  - id: materials-datasheet-overview-normal-1440x900
-    screen: materials-datasheet-overview
-    state: normal
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources:
-      html: docs/00-research/ux-service-reference/materials-datasheet-overview-normal.html
-      css: docs/00-research/ux-service-reference/reference.css
-      css_detail: docs/00-research/ux-service-reference/materials-datasheet.css
-      css_navigator: docs/00-research/ux-service-reference/materials-navigator.css
-      javascript: docs/00-research/ux-service-reference/materials-datasheet.js
-      javascript_navigator: docs/00-research/ux-service-reference/materials-navigator.js
-      capture: docs/00-research/ux-service-reference/capture_materials_datasheet_wave01.py
-      validation: docs/00-research/ux-service-reference/validate_materials_datasheet_wave01.py
-    image: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1440x900.measurements.json
-    image_sha256: c12ab49d173016db7119f0fc8a898cb66495f0424f3b5629480cd91185c3876b
     date: 2026-07-30
+- id: materials-datasheet-overview-normal-1440x900
+  screen: materials-datasheet-overview
+  state: normal
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/materials-datasheet-overview-normal.html
+    css: docs/00-research/ux-service-reference/reference.css
+    css_detail: docs/00-research/ux-service-reference/materials-datasheet.css
+    css_navigator: docs/00-research/ux-service-reference/materials-navigator.css
+    javascript: docs/00-research/ux-service-reference/materials-datasheet.js
+    javascript_navigator: docs/00-research/ux-service-reference/materials-navigator.js
+  image: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1440x900.measurements.json
+  image_sha256: c12ab49d173016db7119f0fc8a898cb66495f0424f3b5629480cd91185c3876b
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after the sole bounded product-owner correction and active main-agent
-        original-resolution review. All 7 disclosure/type-glyph/label groups resolve to grid row 1
-        with 0 px center delta; the compact graph and exact response-source contracts remain intact.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-30
-      evidence: >-
-        Product-owner approval in conversation after the corrected 1920×1080 representative
-        handoff and explicit confirmation that all five original-resolution checks passed.
-  - id: materials-datasheet-overview-normal-1366x768
-    screen: materials-datasheet-overview
-    state: normal
-    viewport:
-      width: 1366
-      height: 768
-      device_scale_factor: 1
-    sources:
-      html: docs/00-research/ux-service-reference/materials-datasheet-overview-normal.html
-      css: docs/00-research/ux-service-reference/reference.css
-      css_detail: docs/00-research/ux-service-reference/materials-datasheet.css
-      css_navigator: docs/00-research/ux-service-reference/materials-navigator.css
-      css_override: docs/00-research/ux-service-reference/materials-datasheet-overview-normal-1366x768.css
-      javascript: docs/00-research/ux-service-reference/materials-datasheet.js
-      javascript_navigator: docs/00-research/ux-service-reference/materials-navigator.js
-      javascript_override: docs/00-research/ux-service-reference/materials-datasheet-overview-normal-1366x768.js
-      capture: docs/00-research/ux-service-reference/capture_materials_datasheet_wave01.py
-      validation: docs/00-research/ux-service-reference/validate_materials_datasheet_wave01.py
-    image: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1366x768.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1366x768.measurements.json
-    image_sha256: d7b0ff64903b655882987ce4feefb9beb456e6cf5709ff8726ec8e293de9f43d
     date: 2026-07-30
+- id: materials-datasheet-overview-normal-1366x768
+  screen: materials-datasheet-overview
+  state: normal
+  viewport:
+    width: 1366
+    height: 768
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/materials-datasheet-overview-normal.html
+    css: docs/00-research/ux-service-reference/reference.css
+    css_detail: docs/00-research/ux-service-reference/materials-datasheet.css
+    css_navigator: docs/00-research/ux-service-reference/materials-navigator.css
+    css_override: docs/00-research/ux-service-reference/materials-datasheet-overview-normal-1366x768.css
+    javascript: docs/00-research/ux-service-reference/materials-datasheet.js
+    javascript_navigator: docs/00-research/ux-service-reference/materials-navigator.js
+    javascript_override: docs/00-research/ux-service-reference/materials-datasheet-overview-normal-1366x768.js
+  image: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1366x768.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1366x768.measurements.json
+  image_sha256: d7b0ff64903b655882987ce4feefb9beb456e6cf5709ff8726ec8e293de9f43d
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after the sole bounded product-owner correction and active main-agent
-        original-resolution review. All 7 disclosure/type-glyph/label groups resolve to grid row 1
-        with 0 px center delta; the compact graph, response-source and delivery contracts remain intact.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-30
-      evidence: >-
-        Product-owner approval in conversation after the corrected 1920×1080 representative
-        handoff and explicit confirmation that all five original-resolution checks passed.
-  - id: materials-datasheet-overview-normal-1920x1080
-    screen: materials-datasheet-overview
-    state: normal
-    viewport:
-      width: 1920
-      height: 1080
-      device_scale_factor: 1
-    sources:
-      html: docs/00-research/ux-service-reference/materials-datasheet-overview-normal.html
-      css: docs/00-research/ux-service-reference/reference.css
-      css_detail: docs/00-research/ux-service-reference/materials-datasheet.css
-      css_navigator: docs/00-research/ux-service-reference/materials-navigator.css
-      css_override: docs/00-research/ux-service-reference/materials-datasheet-overview-normal-1920x1080.css
-      javascript: docs/00-research/ux-service-reference/materials-datasheet.js
-      javascript_navigator: docs/00-research/ux-service-reference/materials-navigator.js
-      javascript_override: docs/00-research/ux-service-reference/materials-datasheet-overview-normal-1920x1080.js
-      capture: docs/00-research/ux-service-reference/capture_materials_datasheet_wave01.py
-      validation: docs/00-research/ux-service-reference/validate_materials_datasheet_wave01.py
-    image: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1920x1080.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1920x1080.measurements.json
-    wide_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1920x1080.wide-evidence-2560x1440.png
-      - docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1920x1080.wide-evidence-3840x2160.png
-    image_sha256: 8ac1d48195a233d385743d3d9d936bcea8047f25967a63f0cff9a8a984ab06f0
     date: 2026-07-30
+- id: materials-datasheet-overview-normal-1920x1080
+  screen: materials-datasheet-overview
+  state: normal
+  viewport:
+    width: 1920
+    height: 1080
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/materials-datasheet-overview-normal.html
+    css: docs/00-research/ux-service-reference/reference.css
+    css_detail: docs/00-research/ux-service-reference/materials-datasheet.css
+    css_navigator: docs/00-research/ux-service-reference/materials-navigator.css
+    css_override: docs/00-research/ux-service-reference/materials-datasheet-overview-normal-1920x1080.css
+    javascript: docs/00-research/ux-service-reference/materials-datasheet.js
+    javascript_navigator: docs/00-research/ux-service-reference/materials-navigator.js
+    javascript_override: docs/00-research/ux-service-reference/materials-datasheet-overview-normal-1920x1080.js
+  image: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1920x1080.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1920x1080.measurements.json
+  image_sha256: 8ac1d48195a233d385743d3d9d936bcea8047f25967a63f0cff9a8a984ab06f0
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after the sole bounded product-owner correction and active main-agent
-        original-resolution review at 1920/2560/3840. All 7 disclosure/type-glyph/label groups
-        resolve to grid row 1 with 0 px center delta. The dominant proportional graph, exact
-        synchronized point grid and local-scroll contracts remain intact.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-30
-      evidence: >-
-        Product-owner approval in conversation after the corrected 1920×1080 representative
-        handoff and explicit confirmation that all five original-resolution checks passed.
-  - id: materials-datasheet-related-long-1440x900
-    screen: materials-datasheet-related
-    state: related-long
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources:
-      html: docs/00-research/ux-service-reference/materials-datasheet-overview-normal.html
-      css: docs/00-research/ux-service-reference/reference.css
-      css_detail: docs/00-research/ux-service-reference/materials-datasheet.css
-      css_override: docs/00-research/ux-service-reference/materials-datasheet-related-long-1440x900.css
-      javascript: docs/00-research/ux-service-reference/materials-datasheet.js
-      javascript_override: docs/00-research/ux-service-reference/materials-datasheet-related-long-1440x900.js
-      capture: docs/00-research/ux-service-reference/capture_materials_datasheet_wave01.py
-      validation: docs/00-research/ux-service-reference/validate_materials_datasheet_wave01.py
-    image: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-related-long-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-related-long-1440x900.measurements.json
-    responsive_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/materials-datasheet-related-long-1440x900.responsive-1366x768.png
-      - docs/17-evidence/images/issue-167-service-reference/materials-datasheet-related-long-1440x900.png
-      - docs/17-evidence/images/issue-167-service-reference/materials-datasheet-related-long-1440x900.responsive-1920x1080.png
-    image_sha256: 810394678a9a77c1c35adc4a1848ca45eadd71a1a95a69ea94af7266405079b6
+    date: 2026-07-30
+- id: materials-datasheet-related-long-1440x900
+  screen: materials-datasheet-related
+  state: related-long
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/materials-datasheet-overview-normal.html
+    css: docs/00-research/ux-service-reference/reference.css
+    css_detail: docs/00-research/ux-service-reference/materials-datasheet.css
+    css_override: docs/00-research/ux-service-reference/materials-datasheet-related-long-1440x900.css
+    javascript: docs/00-research/ux-service-reference/materials-datasheet.js
+    javascript_override: docs/00-research/ux-service-reference/materials-datasheet-related-long-1440x900.js
+  image: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-related-long-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-related-long-1440x900.measurements.json
+  image_sha256: 810394678a9a77c1c35adc4a1848ca45eadd71a1a95a69ea94af7266405079b6
+  date: 2026-07-29
+  status: approved
+  product_owner_approval:
+    status: approved
     date: 2026-07-29
+- id: materials-datasheet-empty-1440x900
+  screen: materials-datasheet-overview
+  state: empty
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/materials-datasheet-overview-normal.html
+    css: docs/00-research/ux-service-reference/reference.css
+    css_detail: docs/00-research/ux-service-reference/materials-datasheet.css
+    css_override: docs/00-research/ux-service-reference/materials-datasheet-empty-1440x900.css
+    javascript: docs/00-research/ux-service-reference/materials-datasheet.js
+    javascript_override: docs/00-research/ux-service-reference/materials-datasheet-empty-1440x900.js
+  image: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-empty-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-empty-1440x900.measurements.json
+  image_sha256: 8df98559459f03db925e02251e10a84265b9ff1e21cd8f4573dd9d2a090548e6
+  date: 2026-07-29
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted 32/32 after the sole MAT-DETAIL correction, direct original-resolution inspection,
-        registered family validation and an independent native Playwright interaction. The Related
-        tab keeps the frozen Record header, navigator and flat datasheet topology while long
-        forward/reverse Link Type wording and long exact-Record names wrap inside the relation
-        table. Row selection updates the restrained context in place and Open related Record records
-        the exact revision consequence. Three-viewport evidence has zero clipping or page overflow.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-29
-      evidence: WAVE-01 batch approval in conversation.
-  - id: materials-datasheet-empty-1440x900
-    screen: materials-datasheet-overview
-    state: empty
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources:
-      html: docs/00-research/ux-service-reference/materials-datasheet-overview-normal.html
-      css: docs/00-research/ux-service-reference/reference.css
-      css_detail: docs/00-research/ux-service-reference/materials-datasheet.css
-      css_override: docs/00-research/ux-service-reference/materials-datasheet-empty-1440x900.css
-      javascript: docs/00-research/ux-service-reference/materials-datasheet.js
-      javascript_override: docs/00-research/ux-service-reference/materials-datasheet-empty-1440x900.js
-      capture: docs/00-research/ux-service-reference/capture_materials_datasheet_wave01.py
-      validation: docs/00-research/ux-service-reference/validate_materials_datasheet_wave01.py
-    image: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-empty-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-empty-1440x900.measurements.json
-    responsive_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/materials-datasheet-empty-1440x900.responsive-1366x768.png
-      - docs/17-evidence/images/issue-167-service-reference/materials-datasheet-empty-1440x900.png
-      - docs/17-evidence/images/issue-167-service-reference/materials-datasheet-empty-1440x900.responsive-1920x1080.png
-    image_sha256: 8df98559459f03db925e02251e10a84265b9ff1e21cd8f4573dd9d2a090548e6
     date: 2026-07-29
+- id: modeling-data-normal-1366x768
+  screen: modeling-data
+  state: normal
+  viewport:
+    width: 1366
+    height: 768
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/modeling-data-normal.html
+    css: docs/00-research/ux-service-reference/modeling-data.css
+    javascript: docs/00-research/ux-service-reference/modeling-data.js
+  image: docs/17-evidence/images/issue-167-service-reference/modeling-data-normal-1366x768.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/modeling-data-normal-1366x768.measurements.json
+  image_sha256: a5a61b1f960575ed5f266d218bc5ff748a4fb986dcc53807604c8e17d0d0e64c
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted 32/32 after the sole MAT-DETAIL correction restored the selected DP780 Record
-        header, followed by direct original-resolution inspection, registered family validation and
-        independent native Playwright. The tree, Record identity/status and six tabs persist while
-        the data region truthfully contains no governed properties, curve or solver format. Exactly
-        one filled Back to results consequence preserves the selection; delivery is unavailable
-        without a fake action. Three-viewport evidence has zero clipping or page overflow.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-29
-      evidence: WAVE-01 batch approval in conversation.
-  - id: modeling-data-normal-1366x768
-    screen: modeling-data
-    state: normal
-    viewport:
-      width: 1366
-      height: 768
-      device_scale_factor: 1
-    sources: &modeling_data_sources
-      html: docs/00-research/ux-service-reference/modeling-data-normal.html
-      css: docs/00-research/ux-service-reference/modeling-data.css
-      javascript: docs/00-research/ux-service-reference/modeling-data.js
-      capture: docs/00-research/ux-service-reference/capture_modeling_data.py
-      validation: docs/00-research/ux-service-reference/validate_modeling_data.py
-    image: docs/17-evidence/images/issue-167-service-reference/modeling-data-normal-1366x768.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/modeling-data-normal-1366x768.measurements.json
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-data-state-evidence.json
-    image_sha256: a5a61b1f960575ed5f266d218bc5ff748a4fb986dcc53807604c8e17d0d0e64c
     date: 2026-07-30
+- id: modeling-data-normal-1440x900
+  screen: modeling-data
+  state: normal
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/modeling-data-normal.html
+    css: docs/00-research/ux-service-reference/modeling-data.css
+    javascript: docs/00-research/ux-service-reference/modeling-data.js
+  image: docs/17-evidence/images/issue-167-service-reference/modeling-data-normal-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/modeling-data-normal-1440x900.measurements.json
+  image_sha256: 5e831b9ea26489f44d6b8ef263d104951968f0107aecb983f0cd9ed0ebcefe54
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Replacement accepted 32/32 after direct original-resolution inspection, complete registered
-        gates and fresh independent review. The render-sized SVG preserves stable 11–12 px graph
-        text and non-scaling strokes while the 184 px rail leaves a dominant graph. Parenthesized
-        stress units, dimensionless strain, data-relative nice bounds, headroom, exact revisions,
-        inclusion/visibility separation and keyboard splitter consequences pass without overflow.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-30
-      evidence: >-
-        Product-owner approval in conversation after submission of the MOD-DATA wide-correction
-        representative and explicit five-reference bundle.
-  - id: modeling-data-normal-1440x900
-    screen: modeling-data
-    state: normal
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *modeling_data_sources
-    image: docs/17-evidence/images/issue-167-service-reference/modeling-data-normal-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/modeling-data-normal-1440x900.measurements.json
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-data-state-evidence.json
-    image_sha256: 5e831b9ea26489f44d6b8ef263d104951968f0107aecb983f0cd9ed0ebcefe54
     date: 2026-07-30
+- id: modeling-data-normal-1920x1080
+  screen: modeling-data
+  state: normal
+  viewport:
+    width: 1920
+    height: 1080
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/modeling-data-normal.html
+    css: docs/00-research/ux-service-reference/modeling-data.css
+    javascript: docs/00-research/ux-service-reference/modeling-data.js
+  image: docs/17-evidence/images/issue-167-service-reference/modeling-data-normal-1920x1080.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/modeling-data-normal-1920x1080.measurements.json
+  image_sha256: fc3fc35693718f5aa5e3902d6b7ade39f8f2009f33c6507fadc6733b517a0fbe
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Replacement accepted 32/32 after direct original-resolution inspection, complete registered
-        gates and fresh independent review. The 192 px rail and dominant graph retain the approved
-        Modeling grammar. Render-sized SVG geometry, compact parenthesized stress units,
-        dimensionless strain, stable glyphs/strokes and data-derived plot headroom remain readable;
-        exact revisions, source switching and truthful splitter behavior are preserved.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-30
-      evidence: >-
-        Product-owner approval in conversation after submission of the MOD-DATA wide-correction
-        representative and explicit five-reference bundle.
-  - id: modeling-data-normal-1920x1080
-    screen: modeling-data
-    state: normal
-    viewport:
-      width: 1920
-      height: 1080
-      device_scale_factor: 1
-    sources: *modeling_data_sources
-    image: docs/17-evidence/images/issue-167-service-reference/modeling-data-normal-1920x1080.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/modeling-data-normal-1920x1080.measurements.json
-    wide_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/modeling-data-normal-2560x1440.png
-      - docs/17-evidence/images/issue-167-service-reference/modeling-data-normal-3840x2160.png
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-data-state-evidence.json
-    image_sha256: fc3fc35693718f5aa5e3902d6b7ade39f8f2009f33c6507fadc6733b517a0fbe
     date: 2026-07-30
+- id: modeling-data-empty-new-session-1440x900
+  screen: modeling-data
+  state: empty-new-session
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/modeling-data-normal.html
+    css: docs/00-research/ux-service-reference/modeling-data.css
+    javascript: docs/00-research/ux-service-reference/modeling-data.js
+  image: docs/17-evidence/images/issue-167-service-reference/modeling-data-empty-new-session-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/modeling-data-empty-new-session-1440x900.measurements.json
+  image_sha256: c6b7949a32019ef3dc29a3c4dd27444c5a4e466798360c1f76fb650242a105e8
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Replacement accepted 32/32 after direct original-resolution inspection at 1920, 2560 and
-        3840, complete registered gates and fresh independent review. The restrained 208 px rail
-        preserves the shallow Data ribbon while the responsive graph expands without stretching
-        text or strokes. Compact engineering axes use Engineering stress (MPa) and Engineering
-        strain [1], with data-derived nice bounds and visible headroom at every wide viewport.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-30
-      evidence: >-
-        Product-owner approval in conversation after submission of the MOD-DATA wide-correction
-        representative and explicit five-reference bundle.
-  - id: modeling-data-empty-new-session-1440x900
-    screen: modeling-data
-    state: empty-new-session
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *modeling_data_sources
-    image: docs/17-evidence/images/issue-167-service-reference/modeling-data-empty-new-session-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/modeling-data-empty-new-session-1440x900.measurements.json
-    responsive_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/modeling-data-empty-new-session-responsive-1366x768.png
-      - docs/17-evidence/images/issue-167-service-reference/modeling-data-empty-new-session-1440x900.png
-      - docs/17-evidence/images/issue-167-service-reference/modeling-data-empty-new-session-responsive-1920x1080.png
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-data-state-evidence.json
-    image_sha256: c6b7949a32019ef3dc29a3c4dd27444c5a4e466798360c1f76fb650242a105e8
     date: 2026-07-30
+- id: modeling-data-long-invalid-mapping-blocked-1440x900
+  screen: modeling-data
+  state: long-invalid-mapping-blocked
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/modeling-data-normal.html
+    css: docs/00-research/ux-service-reference/modeling-data.css
+    javascript: docs/00-research/ux-service-reference/modeling-data.js
+  image: docs/17-evidence/images/issue-167-service-reference/modeling-data-long-invalid-mapping-blocked-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/modeling-data-long-invalid-mapping-blocked-1440x900.measurements.json
+  image_sha256: 0c661147014fecdb5ad290a9c9ead01d9a389c84f12eb9fe87f6548cbe362356
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Replacement accepted 32/32 after direct original-resolution inspection, complete
-        responsive/state gates and fresh independent review. The new session keeps the same
-        curve-rail/ribbon/graph topology without fabricating a curve or saved downstream state.
-        Render-sized SVG geometry and compact axis typography remain stable while Local file stays
-        the single truthful intake consequence.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-30
-      evidence: >-
-        Product-owner approval in conversation after submission of the MOD-DATA wide-correction
-        representative and explicit five-reference bundle.
-  - id: modeling-data-long-invalid-mapping-blocked-1440x900
-    screen: modeling-data
-    state: long-invalid-mapping-blocked
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *modeling_data_sources
-    image: docs/17-evidence/images/issue-167-service-reference/modeling-data-long-invalid-mapping-blocked-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/modeling-data-long-invalid-mapping-blocked-1440x900.measurements.json
-    responsive_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/modeling-data-long-invalid-mapping-blocked-responsive-1366x768.png
-      - docs/17-evidence/images/issue-167-service-reference/modeling-data-long-invalid-mapping-blocked-1440x900.png
-      - docs/17-evidence/images/issue-167-service-reference/modeling-data-long-invalid-mapping-blocked-responsive-1920x1080.png
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-data-state-evidence.json
-    image_sha256: 0c661147014fecdb5ad290a9c9ead01d9a389c84f12eb9fe87f6548cbe362356
     date: 2026-07-30
+- id: materials-card-preview-normal-1366x768
+  screen: materials-card
+  state: normal
+  viewport:
+    width: 1366
+    height: 768
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/materials-card-preview-normal.html
+    css: docs/00-research/ux-service-reference/materials-card-preview.css
+    javascript: docs/00-research/ux-service-reference/materials-card-preview.js
+  image: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1366x768.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1366x768.measurements.json
+  image_sha256: b4f38c0117c13f50b9cefbccf833d389b7a91c8c719961c66b9d2226cf3950a3
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Replacement accepted after direct original-resolution inspection, complete responsive/state
-        gates and fresh independent review. The Local-file conflict preserves the last-valid graph,
-        source samples, axis/quantity/raw-unit/normalized-unit mapping rows and the disabled Update
-        preview/Save dataset boundary. The responsive graph retains compact engineering axes and
-        data-relative headroom with no clipping, page overflow or false update claim.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-30
-      evidence: >-
-        Product-owner approval in conversation after submission of the MOD-DATA wide-correction
-        representative and explicit five-reference bundle.
-  - id: materials-card-preview-normal-1366x768
-    screen: materials-card
-    state: normal
-    viewport:
-      width: 1366
-      height: 768
-      device_scale_factor: 1
-    sources: &materials_card_sources
-      html: docs/00-research/ux-service-reference/materials-card-preview-normal.html
-      css: docs/00-research/ux-service-reference/materials-card-preview.css
-      javascript: docs/00-research/ux-service-reference/materials-card-preview.js
-      capture: docs/00-research/ux-service-reference/capture_materials_card_wave02.py
-      validation: docs/00-research/ux-service-reference/validate_materials_card_wave02.py
-    image: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1366x768.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1366x768.measurements.json
-    family_state_evidence: docs/00-research/ux-service-reference/materials-card-wave02.state-evidence.json
-    image_sha256: b4f38c0117c13f50b9cefbccf833d389b7a91c8c719961c66b9d2226cf3950a3
     date: 2026-07-30
+- id: materials-search-long-1440x900
+  screen: materials-search
+  state: long
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/materials-search-exceptional.html
+    css: docs/00-research/ux-service-reference/materials-search-exceptional.css
+    javascript: docs/00-research/ux-service-reference/materials-search-exceptional.js
+  image: docs/17-evidence/images/issue-167-service-reference/materials-search-long-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/materials-search-long-1440x900.measurements.json
+  image_sha256: 43f146e60baf2d933265d952e22fce5cd0c1e2ca0e9145eea0e72a9677da2484
+  date: 2026-07-29
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Replacement accepted after direct original-resolution inspection, complete family gates
-        and fresh independent review. The exact Abaqus native bytes use the established light
-        document surface without a false rail. Mapping details use the shared compact
-        title/value/plain-status grammar; selected Record, Delivery properties and Download .inp
-        remain readable without clipping or overflow.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-30
-      evidence: >-
-        Product-owner approval in conversation after submission of the MAT-CARD shared Mapping
-        details representative and explicit five-reference bundle.
-  - id: materials-search-long-1440x900
-    screen: materials-search
-    state: long
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: &materials_search_exceptional_sources
-      html: docs/00-research/ux-service-reference/materials-search-exceptional.html
-      css: docs/00-research/ux-service-reference/materials-search-exceptional.css
-      javascript: docs/00-research/ux-service-reference/materials-search-exceptional.js
-      capture: docs/00-research/ux-service-reference/capture_materials_search_wave03.py
-      validation: docs/00-research/ux-service-reference/validate_materials_search_wave03.py
-    image: docs/17-evidence/images/issue-167-service-reference/materials-search-long-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/materials-search-long-1440x900.measurements.json
-    responsive_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/materials-search-long-1440x900.responsive-1366x768.png
-      - docs/17-evidence/images/issue-167-service-reference/materials-search-long-1440x900.png
-      - docs/17-evidence/images/issue-167-service-reference/materials-search-long-1440x900.responsive-1920x1080.png
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/materials-search-wave03.state-evidence.json
-    image_sha256: 43f146e60baf2d933265d952e22fce5cd0c1e2ca0e9145eea0e72a9677da2484
+    date: 2026-07-30
+- id: materials-search-empty-1440x900
+  screen: materials-search
+  state: empty
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/materials-search-exceptional.html
+    css: docs/00-research/ux-service-reference/materials-search-exceptional.css
+    javascript: docs/00-research/ux-service-reference/materials-search-exceptional.js
+  image: docs/17-evidence/images/issue-167-service-reference/materials-search-empty-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/materials-search-empty-1440x900.measurements.json
+  image_sha256: d9e4fed1d8c17ca86b7c14dfe57909591b44ff8ec300286bb49f3a940fb5e1b1
+  date: 2026-07-29
+  status: approved
+  product_owner_approval:
+    status: approved
+    date: 2026-07-30
+- id: modeling-fit-normal-1366x768
+  screen: modeling-fit
+  state: normal
+  viewport:
+    width: 1366
+    height: 768
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/modeling-fit-normal.html
+    css: docs/00-research/ux-service-reference/modeling-fit.css
+    javascript: docs/00-research/ux-service-reference/modeling-fit.js
+  image: docs/17-evidence/images/issue-167-service-reference/modeling-fit-normal-1366x768.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/modeling-fit-normal-1366x768.measurements.json
+  image_sha256: 41a775d88b32c9528d742858fdfbcf86dda6b391f3ad704337ee9d9781487a93
+  date: 2026-07-29
+  status: approved
+  product_owner_approval:
+    status: approved
     date: 2026-07-29
+- id: modeling-fit-normal-1440x900
+  screen: modeling-fit
+  state: normal
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/modeling-fit-normal.html
+    css: docs/00-research/ux-service-reference/modeling-fit.css
+    javascript: docs/00-research/ux-service-reference/modeling-fit.js
+  image: docs/17-evidence/images/issue-167-service-reference/modeling-fit-normal-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/modeling-fit-normal-1440x900.measurements.json
+  image_sha256: 7ba66c5f5d5605dd897f1bb511fcaa888985c5472d378a56ce849ded55ed0db5
+  date: 2026-07-29
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted by the main Sol High agent after the final cumulative ten-finding rebuild,
-        deterministic validation and original-resolution inspection of all 18 family images. The
-        long state keeps 50 of 126 scoped rows and one truthful selection/context. Reserved
-        application scroll rails make the tree's vertical/horizontal and the result's vertical
-        overflow visibly discoverable without covering concise stored identities.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-30
-      evidence: >-
-        Product-owner batch approval in conversation after the final nine-image MAT-EXP
-        exceptional and ACT-QUEUE handoff.
-  - id: materials-search-empty-1440x900
-    screen: materials-search
-    state: empty
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *materials_search_exceptional_sources
-    image: docs/17-evidence/images/issue-167-service-reference/materials-search-empty-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/materials-search-empty-1440x900.measurements.json
-    responsive_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/materials-search-empty-1440x900.responsive-1366x768.png
-      - docs/17-evidence/images/issue-167-service-reference/materials-search-empty-1440x900.png
-      - docs/17-evidence/images/issue-167-service-reference/materials-search-empty-1440x900.responsive-1920x1080.png
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/materials-search-wave03.state-evidence.json
-    image_sha256: d9e4fed1d8c17ca86b7c14dfe57909591b44ff8ec300286bb49f3a940fb5e1b1
     date: 2026-07-29
+- id: modeling-fit-normal-1920x1080
+  screen: modeling-fit
+  state: normal
+  viewport:
+    width: 1920
+    height: 1080
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/modeling-fit-normal.html
+    css: docs/00-research/ux-service-reference/modeling-fit.css
+    javascript: docs/00-research/ux-service-reference/modeling-fit.js
+  image: docs/17-evidence/images/issue-167-service-reference/modeling-fit-normal-1920x1080.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/modeling-fit-normal-1920x1080.measurements.json
+  image_sha256: f7a6aaf8720659bdadf1559347e08b8d1c5b920633c8ce954b34ba39aa7ee261
+  date: 2026-07-29
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted by the main Sol High agent after the final cumulative ten-finding rebuild,
-        deterministic validation and original-resolution inspection of all 18 family images. The
-        empty state retains the populated catalog hierarchy and its reserved overflow rails while
-        clearing result, tree and context selection; the non-overflowing result pane has no fake
-        scrollbar.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-30
-      evidence: >-
-        Product-owner batch approval in conversation after the final nine-image MAT-EXP
-        exceptional and ACT-QUEUE handoff.
-  - id: modeling-fit-normal-1366x768
-    screen: modeling-fit
-    state: normal
-    viewport:
-      width: 1366
-      height: 768
-      device_scale_factor: 1
-    sources: &modeling_fit_sources
-      html: docs/00-research/ux-service-reference/modeling-fit-normal.html
-      css: docs/00-research/ux-service-reference/modeling-fit.css
-      javascript: docs/00-research/ux-service-reference/modeling-fit.js
-      capture: docs/00-research/ux-service-reference/capture_modeling_fit_wave03.py
-      validation: docs/00-research/ux-service-reference/validate_modeling_fit_wave03.py
-    image: docs/17-evidence/images/issue-167-service-reference/modeling-fit-normal-1366x768.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/modeling-fit-normal-1366x768.measurements.json
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-fit-state-evidence.json
-    image_sha256: 41a775d88b32c9528d742858fdfbcf86dda6b391f3ad704337ee9d9781487a93
     date: 2026-07-29
+- id: modeling-fit-candidate-parameters-long-1440x900
+  screen: modeling-fit
+  state: candidate-parameters-long
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/modeling-fit-normal.html
+    css: docs/00-research/ux-service-reference/modeling-fit.css
+    javascript: docs/00-research/ux-service-reference/modeling-fit.js
+  image: docs/17-evidence/images/issue-167-service-reference/modeling-fit-candidate-parameters-long-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/modeling-fit-candidate-parameters-long-1440x900.measurements.json
+  image_sha256: 500e66fa38e8b7f6adde92f7aa3f309a41aa7f27cb5ef3ebe322fad07abce881
+  date: 2026-07-29
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted by the main Sol High agent after deterministic validation and original-resolution
-        inspection of all 16 family images. At the minimum rail width the sentence-case sections,
-        regular specimen identities, aligned parent/child indentation, narrow curve samples and
-        leading-accent selection remain readable without clipping. Inclusion, row selection and plot
-        visibility stay separate, while the graph and collision-free internal legend remain dominant.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-29
-      evidence: >-
-        Explicit product-owner approval in conversation after submission of this corrected
-        Modeling Fit image path and SHA-256.
-  - id: modeling-fit-normal-1440x900
-    screen: modeling-fit
-    state: normal
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *modeling_fit_sources
-    image: docs/17-evidence/images/issue-167-service-reference/modeling-fit-normal-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/modeling-fit-normal-1440x900.measurements.json
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-fit-state-evidence.json
-    image_sha256: 7ba66c5f5d5605dd897f1bb511fcaa888985c5472d378a56ce849ded55ed0db5
     date: 2026-07-29
+- id: materials-card-preview-normal-1440x900
+  screen: materials-card
+  state: normal
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/materials-card-preview-normal.html
+    css: docs/00-research/ux-service-reference/materials-card-preview.css
+    javascript: docs/00-research/ux-service-reference/materials-card-preview.js
+  image: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1440x900.measurements.json
+  image_sha256: 05b327f3741f27962bb6dc7ee961071ab3dedb2b840fedc5c94799ea6076c8db
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted by the main Sol High agent after deterministic validation and original-resolution
-        inspection of all 16 family images. The Fit rail now shares the approved Materials
-        navigator's flat density and selection rhythm without copying catalog topology. The complete
-        curve and sequence labels fit inside the approved 192 px rail, and the graph, compact axis
-        grammar and curve-free internal legend remain unchanged in priority.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-29
-      evidence: >-
-        Explicit product-owner approval in conversation after submission of this corrected
-        Modeling Fit image path and SHA-256.
-  - id: modeling-fit-normal-1920x1080
-    screen: modeling-fit
-    state: normal
-    viewport:
-      width: 1920
-      height: 1080
-      device_scale_factor: 1
-    sources: *modeling_fit_sources
-    image: docs/17-evidence/images/issue-167-service-reference/modeling-fit-normal-1920x1080.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/modeling-fit-normal-1920x1080.measurements.json
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-fit-state-evidence.json
-    image_sha256: f7a6aaf8720659bdadf1559347e08b8d1c5b920633c8ce954b34ba39aa7ee261
-    date: 2026-07-29
-    status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted by the main Sol High agent after deterministic validation and original-resolution
-        inspection of all 16 family images. The 208 px rail keeps the same compact hierarchy,
-        sentence-case section rhythm and regular identity weight as the smaller viewports rather than
-        becoming sparse or coarse. The expanded graph remains the dominant region, with undistorted
-        engineering typography and a collision-free plot-internal legend.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-29
-      evidence: >-
-        Explicit product-owner approval in conversation after submission of this corrected
-        Modeling Fit image path and SHA-256.
-  - id: modeling-fit-candidate-parameters-long-1440x900
-    screen: modeling-fit
-    state: candidate-parameters-long
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *modeling_fit_sources
-    image: docs/17-evidence/images/issue-167-service-reference/modeling-fit-candidate-parameters-long-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/modeling-fit-candidate-parameters-long-1440x900.measurements.json
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-fit-state-evidence.json
-    image_sha256: 500e66fa38e8b7f6adde92f7aa3f309a41aa7f27cb5ef3ebe322fad07abce881
-    date: 2026-07-29
-    status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted by the main Sol High agent after deterministic validation and original-resolution
-        inspection of all 16 family images. The refined Fit rail retains the same hierarchy,
-        inclusion/visibility semantics and selected state while the bounded candidate drawer opens.
-        The drawer remains independently scrollable and the useful graph, undistorted axes and
-        collision-free lower-right legend are preserved.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-29
-      evidence: >-
-        Explicit product-owner approval in conversation after submission of this corrected
-        Modeling Fit image path and SHA-256.
-  - id: materials-card-preview-normal-1440x900
-    screen: materials-card
-    state: normal
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *materials_card_sources
-    image: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1440x900.measurements.json
-    family_state_evidence: docs/00-research/ux-service-reference/materials-card-wave02.state-evidence.json
-    image_sha256: 05b327f3741f27962bb6dc7ee961071ab3dedb2b840fedc5c94799ea6076c8db
     date: 2026-07-30
+- id: materials-card-preview-normal-1920x1080
+  screen: materials-card
+  state: normal
+  viewport:
+    width: 1920
+    height: 1080
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/materials-card-preview-normal.html
+    css: docs/00-research/ux-service-reference/materials-card-preview.css
+    javascript: docs/00-research/ux-service-reference/materials-card-preview.js
+  image: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1920x1080.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1920x1080.measurements.json
+  image_sha256: 963ac2613b244caadde2e9f576c9078ebbf6f6138177b8c25c30018797d77fb4
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Replacement accepted after direct original-resolution inspection, complete family gates
-        and fresh independent review. The native preview fills the available pane on a light
-        engineering-document surface with no false rail. Mapping details use the shared compact
-        title/value/plain-status grammar; solver, unit, revision, lifecycle, Download and the
-        technical disclosure remain readable and unchanged in meaning.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-30
-      evidence: >-
-        Product-owner approval in conversation after submission of the MAT-CARD shared Mapping
-        details representative and explicit five-reference bundle.
-  - id: materials-card-preview-normal-1920x1080
-    screen: materials-card
-    state: normal
-    viewport:
-      width: 1920
-      height: 1080
-      device_scale_factor: 1
-    sources: *materials_card_sources
-    image: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1920x1080.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1920x1080.measurements.json
-    wide_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-2560x1440.png
-      - docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-3840x2160.png
-    family_state_evidence: docs/00-research/ux-service-reference/materials-card-wave02.state-evidence.json
-    image_sha256: 963ac2613b244caadde2e9f576c9078ebbf6f6138177b8c25c30018797d77fb4
     date: 2026-07-30
+- id: materials-card-approximation-blocked-1440x900
+  screen: materials-card
+  state: approximation-blocked
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/materials-card-preview-normal.html
+    css: docs/00-research/ux-service-reference/materials-card-preview.css
+    javascript: docs/00-research/ux-service-reference/materials-card-preview.js
+  image: docs/17-evidence/images/issue-167-service-reference/materials-card-approximation-blocked-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/materials-card-approximation-blocked-1440x900.measurements.json
+  image_sha256: 6cfe99b8f20b4609c0fc509e79c8013ef13d764ba55166a617cc9b08c2402ec8
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Replacement accepted after original-resolution inspection at 1920, 2560 and 3840, complete
-        family gates and fresh independent review. Exact native text uses the established light
-        document surface in a bounded 320 px region with a local rail only when it overflows. The
-        linked response, true stress/plastic-strain axes, data-relative headroom, bounded delivery
-        sheet and shared compact Mapping details remain undistorted and readable.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-30
-      evidence: >-
-        Product-owner approval in conversation after submission of the MAT-CARD shared Mapping
-        details representative and explicit five-reference bundle.
-  - id: materials-card-approximation-blocked-1440x900
-    screen: materials-card
-    state: approximation-blocked
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *materials_card_sources
-    image: docs/17-evidence/images/issue-167-service-reference/materials-card-approximation-blocked-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/materials-card-approximation-blocked-1440x900.measurements.json
-    responsive_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/materials-card-approximation-blocked-1440x900.responsive-1366x768.png
-      - docs/17-evidence/images/issue-167-service-reference/materials-card-approximation-blocked-1440x900.png
-      - docs/17-evidence/images/issue-167-service-reference/materials-card-approximation-blocked-1440x900.responsive-1920x1080.png
-    family_state_evidence: docs/00-research/ux-service-reference/materials-card-wave02.state-evidence.json
-    image_sha256: 6cfe99b8f20b4609c0fc509e79c8013ef13d764ba55166a617cc9b08c2402ec8
     date: 2026-07-30
+- id: materials-card-unsupported-blocked-1440x900
+  screen: materials-card
+  state: unsupported-blocked
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/materials-card-preview-normal.html
+    css: docs/00-research/ux-service-reference/materials-card-preview.css
+    javascript: docs/00-research/ux-service-reference/materials-card-preview.js
+  image: docs/17-evidence/images/issue-167-service-reference/materials-card-unsupported-blocked-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/materials-card-unsupported-blocked-1440x900.measurements.json
+  image_sha256: 8eba256b6a59e6c9d61a7a3b6574e4878952dd62e690703ce25a88764fd1afc6
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Replacement accepted after direct original-resolution inspection, complete responsive/state
-        gates and fresh independent review. The OpenRadioss native bytes use the same light
-        engineering-document grammar while compact Mapping details name the approximation and its
-        consequence. The unchecked acknowledgement, blocked Download .rad and selected Record
-        remain complete with no clipped status or hidden consequence.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-30
-      evidence: >-
-        Product-owner approval in conversation after submission of the MAT-CARD shared Mapping
-        details representative and explicit five-reference bundle.
-  - id: materials-card-unsupported-blocked-1440x900
-    screen: materials-card
-    state: unsupported-blocked
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *materials_card_sources
-    image: docs/17-evidence/images/issue-167-service-reference/materials-card-unsupported-blocked-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/materials-card-unsupported-blocked-1440x900.measurements.json
-    responsive_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/materials-card-unsupported-blocked-1440x900.responsive-1366x768.png
-      - docs/17-evidence/images/issue-167-service-reference/materials-card-unsupported-blocked-1440x900.png
-      - docs/17-evidence/images/issue-167-service-reference/materials-card-unsupported-blocked-1440x900.responsive-1920x1080.png
-    family_state_evidence: docs/00-research/ux-service-reference/materials-card-wave02.state-evidence.json
-    image_sha256: 8eba256b6a59e6c9d61a7a3b6574e4878952dd62e690703ce25a88764fd1afc6
     date: 2026-07-30
+- id: modeling-process-normal-1366x768
+  screen: modeling-process
+  state: normal
+  viewport:
+    width: 1366
+    height: 768
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/modeling-process-normal.html
+    css: docs/00-research/ux-service-reference/modeling-process.css
+    javascript: docs/00-research/ux-service-reference/modeling-process.js
+  image: docs/17-evidence/images/issue-167-service-reference/modeling-process-normal-1366x768.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/modeling-process-normal-1366x768.measurements.json
+  image_sha256: 6722bd80c851b47c941cbac92c03e10a6106566fef940fabe9d8ab61c7fec825
+  date: 2026-07-31
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Replacement accepted after direct original-resolution inspection, complete responsive/state
-        validation and fresh independent review. The dominant region truthfully says no native
-        artifact was created, while shared compact Mapping details names damage initiation GISSMO
-        as not supported. No acknowledgement bypass or fake download is present; Open Modeling and
-        Back to CAE Cards remain safe recovery actions.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-30
-      evidence: >-
-        Product-owner approval in conversation after submission of the MAT-CARD shared Mapping
-        details representative and explicit five-reference bundle.
-  - id: modeling-process-normal-1366x768
-    screen: modeling-process
-    state: normal
-    viewport:
-      width: 1366
-      height: 768
-      device_scale_factor: 1
-    sources: &modeling_process_sources
-      html: docs/00-research/ux-service-reference/modeling-process-normal.html
-      css: docs/00-research/ux-service-reference/modeling-process.css
-      javascript: docs/00-research/ux-service-reference/modeling-process.js
-      capture: docs/00-research/ux-service-reference/capture_modeling_process_wave02.py
-      validation: docs/00-research/ux-service-reference/validate_modeling_process_wave02.py
-    image: docs/17-evidence/images/issue-167-service-reference/modeling-process-normal-1366x768.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/modeling-process-normal-1366x768.measurements.json
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-process-state-evidence.json
-    image_sha256: 6722bd80c851b47c941cbac92c03e10a6106566fef940fabe9d8ab61c7fec825
     date: 2026-07-31
+- id: modeling-process-normal-1440x900
+  screen: modeling-process
+  state: normal
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/modeling-process-normal.html
+    css: docs/00-research/ux-service-reference/modeling-process.css
+    javascript: docs/00-research/ux-service-reference/modeling-process.js
+  image: docs/17-evidence/images/issue-167-service-reference/modeling-process-normal-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/modeling-process-normal-1440x900.measurements.json
+  image_sha256: 122cf29074eea18bfd0549ad40dc0d9143b1ee6bb2bd82df6266194645b5d3ae
+  date: 2026-07-31
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after the owner-authorized 1920-cap correction, complete deterministic gates and
-        active-main-agent original-resolution review. The compact rail, shallow ribbon, stable
-        engineering typography, non-scaling strokes and data-derived graph headroom remain intact.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-31
-      evidence: >-
-        Product-owner approval in conversation after the corrected 2560/3840 wide evidence
-        preserved the exact 1920 graph size and the owner requested commit and push.
-  - id: modeling-process-normal-1440x900
-    screen: modeling-process
-    state: normal
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *modeling_process_sources
-    image: docs/17-evidence/images/issue-167-service-reference/modeling-process-normal-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/modeling-process-normal-1440x900.measurements.json
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-process-state-evidence.json
-    image_sha256: 122cf29074eea18bfd0549ad40dc0d9143b1ee6bb2bd82df6266194645b5d3ae
     date: 2026-07-31
+- id: modeling-process-normal-1920x1080
+  screen: modeling-process
+  state: normal
+  viewport:
+    width: 1920
+    height: 1080
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/modeling-process-normal.html
+    css: docs/00-research/ux-service-reference/modeling-process.css
+    javascript: docs/00-research/ux-service-reference/modeling-process.js
+  image: docs/17-evidence/images/issue-167-service-reference/modeling-process-normal-1920x1080.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/modeling-process-normal-1920x1080.measurements.json
+  image_sha256: 87a861aa3e8822e4fe19645230f426f902ced609eea09e62b6fdae67f1a9cf09
+  date: 2026-07-31
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after complete recapture and original-resolution review. The 192 px navigator,
-        compact operation ribbon and dominant graph preserve their hierarchy without clipping;
-        engineering axes, numeric ticks and the internal legend remain readable and collision-free.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-31
-      evidence: >-
-        Product-owner approval in conversation after the corrected 2560/3840 wide evidence
-        preserved the exact 1920 graph size and the owner requested commit and push.
-  - id: modeling-process-normal-1920x1080
-    screen: modeling-process
-    state: normal
-    viewport:
-      width: 1920
-      height: 1080
-      device_scale_factor: 1
-    sources: *modeling_process_sources
-    image: docs/17-evidence/images/issue-167-service-reference/modeling-process-normal-1920x1080.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/modeling-process-normal-1920x1080.measurements.json
-    wide_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/modeling-process-normal-2560x1440.png
-      - docs/17-evidence/images/issue-167-service-reference/modeling-process-normal-3840x2160.png
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-process-state-evidence.json
-    image_sha256: 87a861aa3e8822e4fe19645230f426f902ced609eea09e62b6fdae67f1a9cf09
     date: 2026-07-31
+- id: modeling-process-prerequisite-blocked-1440x900
+  screen: modeling-process
+  state: prerequisite-blocked
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/modeling-process-normal.html
+    css: docs/00-research/ux-service-reference/modeling-process.css
+    javascript: docs/00-research/ux-service-reference/modeling-process.js
+  image: docs/17-evidence/images/issue-167-service-reference/modeling-process-prerequisite-blocked-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/modeling-process-prerequisite-blocked-1440x900.measurements.json
+  image_sha256: 2f3ed351bbb22b604e6a7bed189b52cd7b9945f8620633d2442482654492ed30
+  date: 2026-07-31
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after original-resolution inspection at 1920 and supporting 2560/3840. The
-        1920 graph remains 1689×680. At both wide evidence sizes, the graph preserves that exact
-        useful pixel size and its right edge exactly matches Save processed curves. The retired 3840
-        table is absent; unused space begins after the complete left/top task cluster.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-31
-      evidence: >-
-        Product-owner approval in conversation after the corrected 2560/3840 wide evidence
-        preserved the exact 1920 graph size and the owner requested commit and push.
-  - id: modeling-process-prerequisite-blocked-1440x900
-    screen: modeling-process
-    state: prerequisite-blocked
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *modeling_process_sources
-    image: docs/17-evidence/images/issue-167-service-reference/modeling-process-prerequisite-blocked-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/modeling-process-prerequisite-blocked-1440x900.measurements.json
-    responsive_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/modeling-process-prerequisite-blocked-responsive-1366x768.png
-      - docs/17-evidence/images/issue-167-service-reference/modeling-process-prerequisite-blocked-1440x900.png
-      - docs/17-evidence/images/issue-167-service-reference/modeling-process-prerequisite-blocked-responsive-1920x1080.png
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-process-state-evidence.json
-    image_sha256: 2f3ed351bbb22b604e6a7bed189b52cd7b9945f8620633d2442482654492ed30
     date: 2026-07-31
+- id: activity-user-normal-1366x768
+  screen: activity-user
+  state: normal
+  viewport:
+    width: 1366
+    height: 768
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/activity-queue-normal.html
+    css: docs/00-research/ux-service-reference/activity-queue.css
+    javascript: docs/00-research/ux-service-reference/activity-queue.js
+  image: docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1366x768.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1366x768.measurements.json
+  image_sha256: 489d66c6d1d1e80d2d0ae11c94dcf71d27a9c56b0cdcbb59c3623330d562f4d3
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after complete responsive/state validation and original-resolution review. No
-        fabricated curve appears; Preview and Save are disabled. The missing saved Test Data,
-        blocking requirement and sole Back to Data recovery remain clear without duplicate
-        implementation or provenance language.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-31
-      evidence: >-
-        Product-owner approval in conversation after the corrected 2560/3840 wide evidence
-        preserved the exact 1920 graph size and the owner requested commit and push.
-  - id: activity-user-normal-1366x768
-    screen: activity-user
-    state: normal
-    viewport:
-      width: 1366
-      height: 768
-      device_scale_factor: 1
-    sources: &activity_queue_sources
-      html: docs/00-research/ux-service-reference/activity-queue-normal.html
-      css: docs/00-research/ux-service-reference/activity-queue.css
-      javascript: docs/00-research/ux-service-reference/activity-queue.js
-      capture: docs/00-research/ux-service-reference/capture_activity_queue_wave04.py
-      validation: docs/00-research/ux-service-reference/validate_activity_queue_wave04.py
-    image: docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1366x768.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1366x768.measurements.json
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/activity-queue-wave04-state-evidence.json
-    image_sha256: 489d66c6d1d1e80d2d0ae11c94dcf71d27a9c56b0cdcbb59c3623330d562f4d3
     date: 2026-07-30
+- id: activity-user-normal-1440x900
+  screen: activity-user
+  state: normal
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/activity-queue-normal.html
+    css: docs/00-research/ux-service-reference/activity-queue.css
+    javascript: docs/00-research/ux-service-reference/activity-queue.js
+  image: docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1440x900.measurements.json
+  image_sha256: b96554fa362cd301079881ef7503a8822171e34059ba972f17ab7e2c08ed8de8
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after the wide-density rework and passive-action correction. User defaults to
-        In progress with 40 pending server requests plus one browser-local Modeling session. Compact
-        table rows, an independent proportional scroll rail and a non-interactive dash in passive
-        Action cells preserve role truth without repeated status text, clipping or page overflow.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-30
-      evidence: >-
-        Product-owner batch approval in conversation after the final nine-image MAT-EXP
-        exceptional and ACT-QUEUE handoff.
-  - id: activity-user-normal-1440x900
-    screen: activity-user
-    state: normal
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *activity_queue_sources
-    image: docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1440x900.measurements.json
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/activity-queue-wave04-state-evidence.json
-    image_sha256: b96554fa362cd301079881ef7503a8822171e34059ba972f17ab7e2c08ed8de8
     date: 2026-07-30
+- id: activity-user-normal-1920x1080
+  screen: activity-user
+  state: normal
+  viewport:
+    width: 1920
+    height: 1080
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/activity-queue-normal.html
+    css: docs/00-research/ux-service-reference/activity-queue.css
+    javascript: docs/00-research/ux-service-reference/activity-queue.js
+  image: docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1920x1080.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1920x1080.measurements.json
+  image_sha256: 730b7144803decf282bb190373cc44c15151e74f028b7b9cfb15f1627c370bbe
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted with the corrected role-aware 50-request Activity family. At 1440 the flat semantic
-        table exposes more compact rows without stretching, keeps truthful lifecycle state separate
-        from Action and retains a visible local overflow rail with no body/page overflow.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-30
-      evidence: >-
-        Product-owner batch approval in conversation after the final nine-image MAT-EXP
-        exceptional and ACT-QUEUE handoff.
-  - id: activity-user-normal-1920x1080
-    screen: activity-user
-    state: normal
-    viewport:
-      width: 1920
-      height: 1080
-      device_scale_factor: 1
-    sources: *activity_queue_sources
-    image: docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1920x1080.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1920x1080.measurements.json
-    wide_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/activity-user-normal-2560x1440.png
-      - docs/17-evidence/images/issue-167-service-reference/activity-user-normal-3840x2160.png
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/activity-queue-wave04-state-evidence.json
-    image_sha256: 730b7144803decf282bb190373cc44c15151e74f028b7b9cfb15f1627c370bbe
     date: 2026-07-30
+- id: activity-reviewer-normal-1366x768
+  screen: activity-reviewer
+  state: normal
+  viewport:
+    width: 1366
+    height: 768
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/activity-queue-normal.html
+    css: docs/00-research/ux-service-reference/activity-queue.css
+    javascript: docs/00-research/ux-service-reference/activity-queue.js
+  image: docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1366x768.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1366x768.measurements.json
+  image_sha256: 1f4d25511fa1dc307839271a132a7c24ef51cf4200cac6a0462d660ec47465f4
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after original-resolution inspection at 1920 plus 2560/3840 support. A representative
-        50-request page uses increased height for complete rows at fixed density, avoids the prior
-        dominant blank region and invents no Material/Owner identities, receipts or release records.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-30
-      evidence: >-
-        Product-owner batch approval in conversation after the final nine-image MAT-EXP
-        exceptional and ACT-QUEUE handoff.
-  - id: activity-reviewer-normal-1366x768
-    screen: activity-reviewer
-    state: normal
-    viewport:
-      width: 1366
-      height: 768
-      device_scale_factor: 1
-    sources: *activity_queue_sources
-    image: docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1366x768.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1366x768.measurements.json
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/activity-queue-wave04-state-evidence.json
-    image_sha256: 1f4d25511fa1dc307839271a132a7c24ef51cf4200cac6a0462d660ec47465f4
     date: 2026-07-30
+- id: activity-reviewer-normal-1440x900
+  screen: activity-reviewer
+  state: normal
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/activity-queue-normal.html
+    css: docs/00-research/ux-service-reference/activity-queue.css
+    javascript: docs/00-research/ux-service-reference/activity-queue.js
+  image: docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1440x900.measurements.json
+  image_sha256: e8c7877dbd7d6191ee4d3d68d29f55be9604f537f38c5ff85f20ff59b510694f
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after the role-correct rework. Reviewer defaults to Needs attention with 40 pending
-        server requests, one Review command per row and no permanently open decision form. The
-        compact table and independent local scroll keep all task/reason/status/action access usable.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-30
-      evidence: >-
-        Product-owner batch approval in conversation after the final nine-image MAT-EXP
-        exceptional and ACT-QUEUE handoff.
-  - id: activity-reviewer-normal-1440x900
-    screen: activity-reviewer
-    state: normal
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *activity_queue_sources
-    image: docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1440x900.measurements.json
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/activity-queue-wave04-state-evidence.json
-    image_sha256: e8c7877dbd7d6191ee4d3d68d29f55be9604f537f38c5ff85f20ff59b510694f
     date: 2026-07-30
+- id: activity-reviewer-normal-1920x1080
+  screen: activity-reviewer
+  state: normal
+  viewport:
+    width: 1920
+    height: 1080
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/activity-queue-normal.html
+    css: docs/00-research/ux-service-reference/activity-queue.css
+    javascript: docs/00-research/ux-service-reference/activity-queue.js
+  image: docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1920x1080.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1920x1080.measurements.json
+  image_sha256: 8c27fa20576d259be8bd84ff215cdc64ab122a497d3f27f57872be843e4fbaf6
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted with the corrected ACT-QUEUE family. Needs attention remains the Reviewer default;
-        the 50-request contract produces a compact flat queue with real Review commands, stable
-        columns, proportional local scrolling and no nested cards or fabricated display identities.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-30
-      evidence: >-
-        Product-owner batch approval in conversation after the final nine-image MAT-EXP
-        exceptional and ACT-QUEUE handoff.
-  - id: activity-reviewer-normal-1920x1080
-    screen: activity-reviewer
-    state: normal
-    viewport:
-      width: 1920
-      height: 1080
-      device_scale_factor: 1
-    sources: *activity_queue_sources
-    image: docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1920x1080.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1920x1080.measurements.json
-    wide_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-2560x1440.png
-      - docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-3840x2160.png
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/activity-queue-wave04-state-evidence.json
-    image_sha256: 8c27fa20576d259be8bd84ff215cdc64ab122a497d3f27f57872be843e4fbaf6
     date: 2026-07-30
+- id: activity-reviewer-long-decision-error-1440x900
+  screen: activity-reviewer
+  state: long-decision-error
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/activity-queue-normal.html
+    css: docs/00-research/ux-service-reference/activity-queue.css
+    javascript: docs/00-research/ux-service-reference/activity-queue.js
+  image: docs/17-evidence/images/issue-167-service-reference/activity-reviewer-long-decision-error-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/activity-reviewer-long-decision-error-1440x900.measurements.json
+  image_sha256: 82147fecd36a049d4982ae787b903f71c8c95849658467950ae2b18ffaff4f6d
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct inspection at 1920 plus 2560/3840 support. The available height reveals
-        more of the same fixed-density 40-item decision queue; Review remains a row command, the
-        decision form remains closed by default and no dominant avoidable blank region remains.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-30
-      evidence: >-
-        Product-owner batch approval in conversation after the final nine-image MAT-EXP
-        exceptional and ACT-QUEUE handoff.
-  - id: activity-reviewer-long-decision-error-1440x900
-    screen: activity-reviewer
-    state: long-decision-error
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *activity_queue_sources
-    image: docs/17-evidence/images/issue-167-service-reference/activity-reviewer-long-decision-error-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/activity-reviewer-long-decision-error-1440x900.measurements.json
-    responsive_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/activity-reviewer-decision-error-with-reason-and-request-preserved-1366x768.png
-      - docs/17-evidence/images/issue-167-service-reference/activity-reviewer-decision-error-with-reason-and-request-preserved-1440x900.png
-      - docs/17-evidence/images/issue-167-service-reference/activity-reviewer-decision-error-with-reason-and-request-preserved-1920x1080.png
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/activity-queue-wave04-state-evidence.json
-    image_sha256: 82147fecd36a049d4982ae787b903f71c8c95849658467950ae2b18ffaff4f6d
     date: 2026-07-30
+- id: activity-recovery-blocked-1366x768
+  screen: activity-recovery
+  state: not-configured
+  viewport:
+    width: 1366
+    height: 768
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/activity-recovery-blocked.html
+    css: docs/00-research/ux-service-reference/activity-recovery.css
+    javascript: docs/00-research/ux-service-reference/activity-recovery.js
+  image: docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-1366x768.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-1366x768.measurements.json
+  image_sha256: 66e93ab285651dcd0095b8f928836611ffbae84165fb6ccc765ed14c8e71c252
+  date: 2026-07-31
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted with the corrected ACT-QUEUE family. The state preserves one request, the selected
-        decision and non-empty reason, reports Decision not recorded and exposes only Retry decision.
-        Stale authorization remains a separate Refresh access path; the expanded queue does not leak
-        into the focused recovery state.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-30
-      evidence: >-
-        Product-owner batch approval in conversation after the final nine-image MAT-EXP
-        exceptional and ACT-QUEUE handoff.
-  - id: activity-recovery-blocked-1366x768
-    screen: activity-recovery
-    state: not-configured
-    viewport:
-      width: 1366
-      height: 768
-      device_scale_factor: 1
-    sources: &activity_recovery_sources
-      html: docs/00-research/ux-service-reference/activity-recovery-blocked.html
-      css: docs/00-research/ux-service-reference/activity-recovery.css
-      javascript: docs/00-research/ux-service-reference/activity-recovery.js
-      capture: docs/00-research/ux-service-reference/capture_activity_recovery.py
-      validation: docs/00-research/ux-service-reference/validate_activity_recovery.py
-    image: docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-1366x768.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-1366x768.measurements.json
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/activity-recovery-state-evidence.json
-    image_sha256: 66e93ab285651dcd0095b8f928836611ffbae84165fb6ccc765ed14c8e71c252
     date: 2026-07-31
+- id: activity-recovery-blocked-1440x900
+  screen: activity-recovery
+  state: not-configured
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/activity-recovery-blocked.html
+    css: docs/00-research/ux-service-reference/activity-recovery.css
+    javascript: docs/00-research/ux-service-reference/activity-recovery.js
+  image: docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-1440x900.measurements.json
+  image_sha256: 03aa747651b1703b269d2d3fdb96b21572343a22a5aa57ba81b55d8dfd80057d
+  date: 2026-07-31
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after replacing internal workflow vocabulary with four user-recognizable review
-        tasks. The failed-calculation boundary states the capability limit once, the local Modeling
-        session remains a distinct first row, and the fixed-density queue exposes useful content
-        without clipping, stretched rows, fabricated outcomes or card stacking.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-31
-      evidence: >-
-        Product-owner batch approval in conversation for all three ACT-RECOVERY lifecycle images.
-  - id: activity-recovery-blocked-1440x900
-    screen: activity-recovery
-    state: not-configured
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *activity_recovery_sources
-    image: docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-1440x900.measurements.json
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/activity-recovery-state-evidence.json
-    image_sha256: 03aa747651b1703b269d2d3fdb96b21572343a22a5aa57ba81b55d8dfd80057d
     date: 2026-07-31
+- id: activity-recovery-blocked-1920x1080
+  screen: activity-recovery
+  state: not-configured
+  viewport:
+    width: 1920
+    height: 1080
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/activity-recovery-blocked.html
+    css: docs/00-research/ux-service-reference/activity-recovery.css
+    javascript: docs/00-research/ux-service-reference/activity-recovery.js
+  image: docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-1920x1080.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-1920x1080.measurements.json
+  image_sha256: 254750dbfeb9eeedc3ac79b9c606ceb7dcc13eb9f83f34cf7f5c831bbb54aaf1
+  date: 2026-07-31
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after original-resolution review of normal, empty, loading and action-error
-        consequences. The flat queue preserves the approved Activity rhythm, keeps recovery local
-        to the saved Modeling session and uses the available height for complete fixed-density rows.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-31
-      evidence: >-
-        Product-owner batch approval in conversation for all three ACT-RECOVERY lifecycle images.
-  - id: activity-recovery-blocked-1920x1080
-    screen: activity-recovery
-    state: not-configured
-    viewport:
-      width: 1920
-      height: 1080
-      device_scale_factor: 1
-    sources: *activity_recovery_sources
-    image: docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-1920x1080.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-1920x1080.measurements.json
-    wide_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-2560x1440.png
-      - docs/17-evidence/images/issue-167-service-reference/activity-recovery-blocked-3840x2160.png
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/activity-recovery-state-evidence.json
-    image_sha256: 254750dbfeb9eeedc3ac79b9c606ceb7dcc13eb9f83f34cf7f5c831bbb54aaf1
     date: 2026-07-31
+- id: modeling-export-normal-1366x768
+  screen: modeling-export
+  state: normal
+  viewport:
+    width: 1366
+    height: 768
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/modeling-export-normal.html
+    css: docs/00-research/ux-service-reference/modeling-export.css
+    javascript: docs/00-research/ux-service-reference/modeling-export.js
+  image: docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1366x768.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1366x768.measurements.json
+  image_sha256: 235b25e7bdd8668b341316c9c0b7e48c64c55f3098c1bb2208b6c23161cec770
+  date: 2026-07-29
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct 1920, 2560 and 3840 comparison. Wider displays reveal more of the
-        existing request contract at stable typography and row density instead of enlarging one
-        graph or stretching prose. The local session, server requests and failed-calculation
-        boundary remain semantically distinct and no invented recovery feature fills the workspace.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-31
-      evidence: >-
-        Product-owner batch approval in conversation for all three ACT-RECOVERY lifecycle images.
-  - id: modeling-export-normal-1366x768
-    screen: modeling-export
-    state: normal
-    viewport:
-      width: 1366
-      height: 768
-      device_scale_factor: 1
-    sources: &modeling_export_sources
-      html: docs/00-research/ux-service-reference/modeling-export-normal.html
-      css: docs/00-research/ux-service-reference/modeling-export.css
-      javascript: docs/00-research/ux-service-reference/modeling-export.js
-      capture: docs/00-research/ux-service-reference/capture_modeling_export_wave04.py
-      validation: docs/00-research/ux-service-reference/validate_modeling_export_wave04.py
-    image: docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1366x768.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1366x768.measurements.json
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-export-wave04.state-evidence.json
-    image_sha256: 235b25e7bdd8668b341316c9c0b7e48c64c55f3098c1bb2208b6c23161cec770
     date: 2026-07-29
+- id: modeling-export-normal-1440x900
+  screen: modeling-export
+  state: normal
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/modeling-export-normal.html
+    css: docs/00-research/ux-service-reference/modeling-export.css
+    javascript: docs/00-research/ux-service-reference/modeling-export.js
+  image: docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1440x900.measurements.json
+  image_sha256: 38e6e300d7aa1258bf4523b0d768920df42653956a9e1659aabf9232bdd2d0b0
+  date: 2026-07-29
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted by the active main agent after the product owner rejected the post-review image and
-        authorized a direct qualitative correction. The setup pane now identifies the exact saved
-        branch by selected model only; the shared experiment remains page context and ambiguous `r1`
-        shorthand is absent. Destination and one concise Export check complete the setup. All six
-        normal mapping rows fit without a decorative rail, the native preview stays at least 680 px
-        wide, and the bounded Fit source uses compact family-correct labels, a curve-free legend and
-        data-span-proportional headroom without touching the plot frame. Output unit system remains
-        an explicit capability-backed selector at the compact viewport.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-29
-      evidence: >-
-        Conversation approval after the output-unit-system capability correction and final
-        six-image MOD-EXPORT handoff.
-  - id: modeling-export-normal-1440x900
-    screen: modeling-export
-    state: normal
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *modeling_export_sources
-    image: docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1440x900.measurements.json
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-export-wave04.state-evidence.json
-    image_sha256: 38e6e300d7aa1258bf4523b0d768920df42653956a9e1659aabf9232bdd2d0b0
     date: 2026-07-29
+- id: modeling-export-normal-1920x1080
+  screen: modeling-export
+  state: normal
+  viewport:
+    width: 1920
+    height: 1080
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/modeling-export-normal.html
+    css: docs/00-research/ux-service-reference/modeling-export.css
+    javascript: docs/00-research/ux-service-reference/modeling-export.js
+  image: docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1920x1080.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1920x1080.measurements.json
+  image_sha256: 363516b847e3298ed85ca7c7c06e1bef564fbaddca93ff17baba1cc8bd2d7a85
+  date: 2026-07-29
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted by the active main agent after direct original-resolution review of all 26 final
-        images. Selected model names the exact saved branch; the experiment remains page context,
-        while exact revision linkage stays in Advanced/Evidence and Open in Fit returns to that
-        branch. Density and other physical values appear once in compact Mapping details rather than
-        being repeated in setup; Saved/Pinned/Source/Output prose is absent. Export check states one
-        readiness and next action, technical counts remain closed in Advanced, and the dominant
-        Abaqus kg-m-s preview remains consistent with its concise mapping consequences. The unit
-        selector exposes the supported value and keeps capability-declared unavailable alternatives
-        disabled rather than accepting an invalid choice.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-29
-      evidence: >-
-        Conversation approval after the output-unit-system capability correction and final
-        six-image MOD-EXPORT handoff.
-  - id: modeling-export-normal-1920x1080
-    screen: modeling-export
-    state: normal
-    viewport:
-      width: 1920
-      height: 1080
-      device_scale_factor: 1
-    sources: *modeling_export_sources
-    image: docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1920x1080.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1920x1080.measurements.json
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-export-wave04.state-evidence.json
-    image_sha256: 363516b847e3298ed85ca7c7c06e1bef564fbaddca93ff17baba1cc8bd2d7a85
     date: 2026-07-29
+- id: modeling-export-source-blocked-1440x900
+  screen: modeling-export
+  state: source-blocked
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/modeling-export-normal.html
+    css: docs/00-research/ux-service-reference/modeling-export.css
+    javascript: docs/00-research/ux-service-reference/modeling-export.js
+  image: docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-1440x900.measurements.json
+  image_sha256: 2b406f84eb8180d994a87766da021b1e09c3e7b0869907d02bc9614bc5c6320f
+  date: 2026-07-29
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted by the active main agent after direct correction and complete original-resolution
-        review. The bounded setup/result-context panes retain the same topology while the light
-        native preview expands. The selected model is the branch identity used to create the exact
-        target-specific Solver Card; sibling cards from the same experiment may coexist without
-        overwriting one another. Compact mapping rows and the family Fit source remain readable
-        without a permanent control inspector, repeated explanatory prose, clipping, fake normal
-        scroll rails or page overflow.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-29
-      evidence: >-
-        Conversation approval after the output-unit-system capability correction and final
-        six-image MOD-EXPORT handoff.
-  - id: modeling-export-source-blocked-1440x900
-    screen: modeling-export
-    state: source-blocked
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *modeling_export_sources
-    image: docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-1440x900.measurements.json
-    responsive_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1366x768.png
-      - docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-1440x900.png
-      - docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-export-wave04.state-evidence.json
-    image_sha256: 2b406f84eb8180d994a87766da021b1e09c3e7b0869907d02bc9614bc5c6320f
     date: 2026-07-29
+- id: modeling-export-approximation-blocked-1440x900
+  screen: modeling-export
+  state: approximation-blocked
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/modeling-export-normal.html
+    css: docs/00-research/ux-service-reference/modeling-export.css
+    javascript: docs/00-research/ux-service-reference/modeling-export.js
+  image: docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-1440x900.measurements.json
+  image_sha256: 04a85b17f8eb6490aaf0edfe2cb3c898336329bfa33b40a66ee7c41c3215dbc9
+  date: 2026-07-29
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted by the active main agent after direct original-resolution review. No selected model,
-        branch identity, physical value, preview or mapping is fabricated. The blocker and one Back
-        to Fit recovery appear once in Export check; the preview and result context use restrained
-        neutral unavailable states instead of repeating large error fields.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-29
-      evidence: >-
-        Conversation approval after the output-unit-system capability correction and final
-        six-image MOD-EXPORT handoff.
-  - id: modeling-export-approximation-blocked-1440x900
-    screen: modeling-export
-    state: approximation-blocked
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *modeling_export_sources
-    image: docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-1440x900.measurements.json
-    responsive_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1366x768.png
-      - docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-1440x900.png
-      - docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1920x1080.png
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-export-wave04.state-evidence.json
-    image_sha256: 04a85b17f8eb6490aaf0edfe2cb3c898336329bfa33b40a66ee7c41c3215dbc9
     date: 2026-07-29
+- id: modeling-export-delivered-1440x900
+  screen: modeling-export
+  state: delivered
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/modeling-export-normal.html
+    css: docs/00-research/ux-service-reference/modeling-export.css
+    javascript: docs/00-research/ux-service-reference/modeling-export.js
+  image: docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-1440x900.measurements.json
+  image_sha256: 4979f4d070e17d0703052efcb2e0152d0858043467bc549e091b25204effc1cc
+  date: 2026-07-29
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted by the active main agent after direct original-resolution review. The exact selected
-        model branch, OpenRadioss target and native preview remain mounted; only the post-necking row
-        and adjacent identity-bound acknowledgement carry review emphasis. Export check states one
-        exact review action, Create solver card remains blocked without a bypass, and technical
-        counts stay under the closed Advanced disclosure.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-29
-      evidence: >-
-        Conversation approval after the output-unit-system capability correction and final
-        six-image MOD-EXPORT handoff.
-  - id: modeling-export-delivered-1440x900
-    screen: modeling-export
-    state: delivered
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *modeling_export_sources
-    image: docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-1440x900.measurements.json
-    responsive_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1366x768.png
-      - docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-1440x900.png
-      - docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1920x1080.png
-    family_state_evidence: docs/17-evidence/images/issue-167-service-reference/modeling-export-wave04.state-evidence.json
-    image_sha256: 4979f4d070e17d0703052efcb2e0152d0858043467bc549e091b25204effc1cc
     date: 2026-07-29
+- id: administration-database-normal-1366x768
+  screen: administration-database
+  state: normal
+  viewport:
+    width: 1366
+    height: 768
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/administration-schema-core.html
+    css: docs/00-research/ux-service-reference/administration-schema-core.css
+    javascript: docs/00-research/ux-service-reference/administration-schema-core.js
+  image: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1366x768.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1366x768.measurements.json
+  image_sha256: 9995b53dae3a9907fe95f33ad9eed0b4a96a19fe1d7e7d19f61f89249f313724
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted by the active main agent after direct original-resolution review. One immutable
-        Solver Card is created from the exact selected-model branch and target preview; sibling cards
-        from the same experiment remain independently linked and immutable. Open solver card is
-        primary and Delivery details is secondary. Receipt/evidence vocabulary stays outside the
-        normal surface, while source/target, native text and concise Mapping details remain mounted
-        without implying review, release or automatic Activity creation.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-29
-      evidence: >-
-        Conversation approval after the output-unit-system capability correction and final
-        six-image MOD-EXPORT handoff.
-  - id: administration-database-normal-1366x768
-    screen: administration-database
-    state: normal
-    viewport:
-      width: 1366
-      height: 768
-      device_scale_factor: 1
-    sources: &administration_schema_core_sources
-      html: docs/00-research/ux-service-reference/administration-schema-core.html
-      css: docs/00-research/ux-service-reference/administration-schema-core.css
-      javascript: docs/00-research/ux-service-reference/administration-schema-core.js
-      capture: docs/00-research/ux-service-reference/capture_administration_schema_core_wave05.py
-      validation: docs/00-research/ux-service-reference/validate_administration_schema_core_wave05.py
-    image: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1366x768.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1366x768.measurements.json
-    family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: 9995b53dae3a9907fe95f33ad9eed0b4a96a19fe1d7e7d19f61f89249f313724
-    date: 2026-07-30
-    status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after the owner-authorized qualitative correction and original-resolution review.
-        Compact preview retains one in-preview return; the preview task remains bounded and no
-        duplicate wide action, overlap, clipping or artificial filler is present.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-31
-      evidence: >-
-        Product-owner approval in conversation after explicit review of the complete
-        ADM-SCHEMA-CORE eleven-image bundle and the 1920/2560/3840 bounded-dimension check.
-  - id: administration-database-normal-1440x900
-    screen: administration-database
-    state: normal
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *administration_schema_core_sources
-    image: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1440x900.measurements.json
-    family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: 1b2491632ca17a96bbcd32efeac6d8d4cc5555b5ee43eaaa016085538828a2bf
-    date: 2026-07-30
-    status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review. The compact database task preserves one
-        obvious return path, readable catalog structure and a bounded preview without duplicated
-        chrome or avoidable internal whitespace.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-31
-      evidence: >-
-        Product-owner approval in conversation after explicit review of the complete
-        ADM-SCHEMA-CORE eleven-image bundle and the 1920/2560/3840 bounded-dimension check.
-  - id: administration-database-normal-1920x1080
-    screen: administration-database
-    state: normal
-    viewport:
-      width: 1920
-      height: 1080
-      device_scale_factor: 1
-    sources: *administration_schema_core_sources
-    image: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1920x1080.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1920x1080.measurements.json
-    wide_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/administration-database-normal-wide-2560x1440.png
-      - docs/17-evidence/images/issue-167-service-reference/administration-database-normal-wide-3840x2160.png
-    family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: dd5bc7fecbe53bf6e97c94e5da99e86a2085b4f4672dfe483a56b8cdd1050d7c
-    date: 2026-07-30
-    status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct review at 1920, 2560 and 3840. The complete preview chrome now ends
-        with the Record-plus-graph cluster, only the task-bar return remains on wide screens, and
-        legitimate unused space reads outside the bounded component at the right and bottom.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-31
-      evidence: >-
-        Product-owner approval in conversation after explicit review of the complete
-        ADM-SCHEMA-CORE eleven-image bundle and the 1920/2560/3840 bounded-dimension check.
-  - id: administration-table-edit-draft-1366x768
-    screen: administration-table-edit
-    state: draft
-    viewport:
-      width: 1366
-      height: 768
-      device_scale_factor: 1
-    sources: *administration_schema_core_sources
-    image: docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1366x768.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1366x768.measurements.json
-    family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: 9de662dd7dfa2453a66c0b0da830193b4061c25796406b3d88803f8ec5fc8c69
-    date: 2026-07-30
-    status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review. The Table draft, exact revision and
-        compact preview remain coherent, with one return action and no regression in saved
-        projection, overflow or focus-return behavior.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-31
-      evidence: >-
-        Product-owner approval in conversation after explicit review of the complete
-        ADM-SCHEMA-CORE eleven-image bundle and the 1920/2560/3840 bounded-dimension check.
-  - id: administration-table-edit-draft-1440x900
-    screen: administration-table-edit
-    state: draft
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *administration_schema_core_sources
-    image: docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1440x900.measurements.json
-    family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: 2390d47c2b9828f9aa4ae2a0d47d1829b2b4567c2584f13aac5863d0561cb284
-    date: 2026-07-30
-    status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review. The responsive preview retains one
-        discoverable return action, readable draft controls and a bounded result area without
-        duplicated chrome, clipping or filler.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-31
-      evidence: >-
-        Product-owner approval in conversation after explicit review of the complete
-        ADM-SCHEMA-CORE eleven-image bundle and the 1920/2560/3840 bounded-dimension check.
-  - id: administration-table-edit-draft-1920x1080
-    screen: administration-table-edit
-    state: draft
-    viewport:
-      width: 1920
-      height: 1080
-      device_scale_factor: 1
-    sources: *administration_schema_core_sources
-    image: docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1920x1080.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1920x1080.measurements.json
-    family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: eace016ff08a9b76577ba30761e35e99a43eee3d525b39f66c65e7c2d6fc6909
-    date: 2026-07-30
-    status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review. Immutable revision context, the active
-        projection and bounded linked curve remain intact; wide task chrome no longer expands
-        beyond the useful working cluster.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-31
-      evidence: >-
-        Product-owner approval in conversation after explicit review of the complete
-        ADM-SCHEMA-CORE eleven-image bundle and the 1920/2560/3840 bounded-dimension check.
-  - id: administration-attribute-edit-draft-1366x768
-    screen: administration-attribute-edit
-    state: draft
-    viewport:
-      width: 1366
-      height: 768
-      device_scale_factor: 1
-    sources: *administration_schema_core_sources
-    image: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1366x768.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1366x768.measurements.json
-    family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: 6eeb19ed91e1ea343623ae16c837d514bb97b85c307157dfe56f53af6b0d6b1f
-    date: 2026-07-30
-    status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review. Typed Attribute editing, compact preview,
-        genuine local overflow and one responsive return path remain legible and operational.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-31
-      evidence: >-
-        Product-owner approval in conversation after explicit review of the complete
-        ADM-SCHEMA-CORE eleven-image bundle and the 1920/2560/3840 bounded-dimension check.
-  - id: administration-attribute-edit-draft-1440x900
-    screen: administration-attribute-edit
-    state: draft
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *administration_schema_core_sources
-    image: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1440x900.measurements.json
-    family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: 8c4038ef03ae882ff8a099b12c78dba0affa4ef733ddec8a2f7fb9c68a341b97
-    date: 2026-07-30
-    status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review. The scalar Attribute task remains
-        graph-free, the saved projection remains distinct from the draft, and the compact preview
-        exposes one clear return without duplicated controls.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-31
-      evidence: >-
-        Product-owner approval in conversation after explicit review of the complete
-        ADM-SCHEMA-CORE eleven-image bundle and the 1920/2560/3840 bounded-dimension check.
-  - id: administration-attribute-edit-draft-1920x1080
-    screen: administration-attribute-edit
-    state: draft
-    viewport:
-      width: 1920
-      height: 1080
-      device_scale_factor: 1
-    sources: *administration_schema_core_sources
-    image: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1920x1080.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1920x1080.measurements.json
-    family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: da0965abe9a9d0627979b549a71ae6a5fcaa0c5483e6f395ae751b422578810e
-    date: 2026-07-30
-    status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review. One active projection, useful scan
-        height, local overflow and graph-free scalar editing remain coherent; unused wide space is
-        outside the bounded task rather than inside an unfinished component.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-31
-      evidence: >-
-        Product-owner approval in conversation after explicit review of the complete
-        ADM-SCHEMA-CORE eleven-image bundle and the 1920/2560/3840 bounded-dimension check.
-  - id: administration-edit-stale-conflict-1440x900
-    screen: administration-edit
-    state: stale-conflict
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *administration_schema_core_sources
-    image: docs/17-evidence/images/issue-167-service-reference/administration-edit-stale-conflict-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/administration-edit-stale-conflict-1440x900.measurements.json
-    responsive_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/administration-edit-stale-conflict-1366x768.png
-      - docs/17-evidence/images/issue-167-service-reference/administration-edit-stale-conflict-1440x900.png
-      - docs/17-evidence/images/issue-167-service-reference/administration-edit-stale-conflict-1920x1080.png
-    family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: e64c034fb1ad3fd6428ca319d91bde6ec7c675b95b5332d7cb2db49a9552cd21
-    date: 2026-07-30
-    status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review. Conflict recovery preserves the local
-        draft and exact saved revision, while the single responsive return path restores focus
-        without duplicating actions.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-31
-      evidence: >-
-        Product-owner approval in conversation after explicit review of the complete
-        ADM-SCHEMA-CORE eleven-image bundle and the 1920/2560/3840 bounded-dimension check.
-  - id: administration-attribute-long-invalid-1440x900
-    screen: administration-attribute-edit
-    state: long-invalid
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *administration_schema_core_sources
-    image: docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1440x900.measurements.json
-    responsive_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1366x768.png
-      - docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1440x900.png
-      - docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1920x1080.png
-    family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
-    image_sha256: ac798d466063d9d0408f8f2e7d69ff39e92f6514fafdb4f4838b0582307cb898
     date: 2026-07-31
+- id: administration-database-normal-1440x900
+  screen: administration-database
+  state: normal
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/administration-schema-core.html
+    css: docs/00-research/ux-service-reference/administration-schema-core.css
+    javascript: docs/00-research/ux-service-reference/administration-schema-core.js
+  image: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1440x900.measurements.json
+  image_sha256: 1b2491632ca17a96bbcd32efeac6d8d4cc5555b5ee43eaaa016085538828a2bf
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review. The invalid draft remains separated from
-        saved Record/Layout projections; one active projection, realistic overflow and the bounded
-        preview task remain intact.
-    product_owner_approval:
-      status: approved
-      date: 2026-07-31
-      evidence: >-
-        Product-owner approval in conversation after explicit review of the complete
-        ADM-SCHEMA-CORE eleven-image bundle and the 1920/2560/3840 bounded-dimension check.
-  - id: administration-layout-edit-draft-1366x768
-    screen: administration-layout-edit
-    state: draft
-    viewport:
-      width: 1366
-      height: 768
-      device_scale_factor: 1
-    sources: &administration_remaining_sources
-      html: docs/00-research/ux-service-reference/administration-remaining.html
-      base_css: docs/00-research/ux-service-reference/administration-schema-core.css
-      css: docs/00-research/ux-service-reference/administration-remaining.css
-      javascript: docs/00-research/ux-service-reference/administration-remaining.js
-      capture: docs/00-research/ux-service-reference/capture_administration_remaining_wave06.py
-      validation: docs/00-research/ux-service-reference/validate_administration_remaining_wave06.py
-    image: docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1366x768.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1366x768.measurements.json
-    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    image_sha256: 83b33ba1a8fe4dd7f9e68d532781b348373f67f5b7fb581c2195b8b670dd7e38
+    date: 2026-07-31
+- id: administration-database-normal-1920x1080
+  screen: administration-database
+  state: normal
+  viewport:
+    width: 1920
+    height: 1080
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/administration-schema-core.html
+    css: docs/00-research/ux-service-reference/administration-schema-core.css
+    javascript: docs/00-research/ux-service-reference/administration-schema-core.js
+  image: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1920x1080.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1920x1080.measurements.json
+  image_sha256: dd5bc7fecbe53bf6e97c94e5da99e86a2085b4f4672dfe483a56b8cdd1050d7c
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
+    status: approved
+    date: 2026-07-31
+- id: administration-table-edit-draft-1366x768
+  screen: administration-table-edit
+  state: draft
+  viewport:
+    width: 1366
+    height: 768
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/administration-schema-core.html
+    css: docs/00-research/ux-service-reference/administration-schema-core.css
+    javascript: docs/00-research/ux-service-reference/administration-schema-core.js
+  image: docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1366x768.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1366x768.measurements.json
+  image_sha256: 9de662dd7dfa2453a66c0b0da830193b4061c25796406b3d88803f8ec5fc8c69
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
+    status: approved
+    date: 2026-07-31
+- id: administration-table-edit-draft-1440x900
+  screen: administration-table-edit
+  state: draft
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/administration-schema-core.html
+    css: docs/00-research/ux-service-reference/administration-schema-core.css
+    javascript: docs/00-research/ux-service-reference/administration-schema-core.js
+  image: docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1440x900.measurements.json
+  image_sha256: 2390d47c2b9828f9aa4ae2a0d47d1829b2b4567c2584f13aac5863d0561cb284
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
+    status: approved
+    date: 2026-07-31
+- id: administration-table-edit-draft-1920x1080
+  screen: administration-table-edit
+  state: draft
+  viewport:
+    width: 1920
+    height: 1080
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/administration-schema-core.html
+    css: docs/00-research/ux-service-reference/administration-schema-core.css
+    javascript: docs/00-research/ux-service-reference/administration-schema-core.js
+  image: docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1920x1080.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1920x1080.measurements.json
+  image_sha256: eace016ff08a9b76577ba30761e35e99a43eee3d525b39f66c65e7c2d6fc6909
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
+    status: approved
+    date: 2026-07-31
+- id: administration-attribute-edit-draft-1366x768
+  screen: administration-attribute-edit
+  state: draft
+  viewport:
+    width: 1366
+    height: 768
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/administration-schema-core.html
+    css: docs/00-research/ux-service-reference/administration-schema-core.css
+    javascript: docs/00-research/ux-service-reference/administration-schema-core.js
+  image: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1366x768.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1366x768.measurements.json
+  image_sha256: 6eeb19ed91e1ea343623ae16c837d514bb97b85c307157dfe56f53af6b0d6b1f
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
+    status: approved
+    date: 2026-07-31
+- id: administration-attribute-edit-draft-1440x900
+  screen: administration-attribute-edit
+  state: draft
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/administration-schema-core.html
+    css: docs/00-research/ux-service-reference/administration-schema-core.css
+    javascript: docs/00-research/ux-service-reference/administration-schema-core.js
+  image: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1440x900.measurements.json
+  image_sha256: 8c4038ef03ae882ff8a099b12c78dba0affa4ef733ddec8a2f7fb9c68a341b97
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
+    status: approved
+    date: 2026-07-31
+- id: administration-attribute-edit-draft-1920x1080
+  screen: administration-attribute-edit
+  state: draft
+  viewport:
+    width: 1920
+    height: 1080
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/administration-schema-core.html
+    css: docs/00-research/ux-service-reference/administration-schema-core.css
+    javascript: docs/00-research/ux-service-reference/administration-schema-core.js
+  image: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1920x1080.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1920x1080.measurements.json
+  image_sha256: da0965abe9a9d0627979b549a71ae6a5fcaa0c5483e6f395ae751b422578810e
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
+    status: approved
+    date: 2026-07-31
+- id: administration-edit-stale-conflict-1440x900
+  screen: administration-edit
+  state: stale-conflict
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/administration-schema-core.html
+    css: docs/00-research/ux-service-reference/administration-schema-core.css
+    javascript: docs/00-research/ux-service-reference/administration-schema-core.js
+  image: docs/17-evidence/images/issue-167-service-reference/administration-edit-stale-conflict-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/administration-edit-stale-conflict-1440x900.measurements.json
+  image_sha256: e64c034fb1ad3fd6428ca319d91bde6ec7c675b95b5332d7cb2db49a9552cd21
+  date: 2026-07-30
+  status: approved
+  product_owner_approval:
+    status: approved
+    date: 2026-07-31
+- id: administration-attribute-long-invalid-1440x900
+  screen: administration-attribute-edit
+  state: long-invalid
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/administration-schema-core.html
+    css: docs/00-research/ux-service-reference/administration-schema-core.css
+    javascript: docs/00-research/ux-service-reference/administration-schema-core.js
+  image: docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1440x900.measurements.json
+  image_sha256: ac798d466063d9d0408f8f2e7d69ff39e92f6514fafdb4f4838b0582307cb898
+  date: 2026-07-31
+  status: approved
+  product_owner_approval:
+    status: approved
+    date: 2026-07-31
+- id: administration-layout-edit-draft-1366x768
+  screen: administration-layout-edit
+  state: draft
+  viewport:
+    width: 1366
+    height: 768
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/administration-remaining.html
+    base_css: docs/00-research/ux-service-reference/administration-schema-core.css
+    css: docs/00-research/ux-service-reference/administration-remaining.css
+    javascript: docs/00-research/ux-service-reference/administration-remaining.js
+  image: docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1366x768.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1366x768.measurements.json
+  image_sha256: 83b33ba1a8fe4dd7f9e68d532781b348373f67f5b7fb581c2195b8b670dd7e38
+  date: 2026-08-01
+  status: approved
+  product_owner_approval:
+    status: approved
     date: 2026-08-01
+- id: administration-layout-edit-draft-1440x900
+  screen: administration-layout-edit
+  state: draft
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/administration-remaining.html
+    base_css: docs/00-research/ux-service-reference/administration-schema-core.css
+    css: docs/00-research/ux-service-reference/administration-remaining.css
+    javascript: docs/00-research/ux-service-reference/administration-remaining.js
+  image: docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1440x900.measurements.json
+  image_sha256: c644c810f9bf09521e638500db6bc2ea79de9052e5ed99abef9aa9e4823e8899
+  date: 2026-08-01
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review. The ordered Layout editor and live saved-
-        Record preview remain connected in one flat three-pane Administration task; exact Attribute
-        revisions, local recovery and bounded wide composition are preserved.
-    product_owner_approval:
-      status: approved
-      date: 2026-08-01
-      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
-  - id: administration-layout-edit-draft-1440x900
-    screen: administration-layout-edit
-    state: draft
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *administration_remaining_sources
-    image: docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1440x900.measurements.json
-    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    image_sha256: c644c810f9bf09521e638500db6bc2ea79de9052e5ed99abef9aa9e4823e8899
     date: 2026-08-01
+- id: administration-layout-edit-draft-1920x1080
+  screen: administration-layout-edit
+  state: draft
+  viewport:
+    width: 1920
+    height: 1080
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/administration-remaining.html
+    base_css: docs/00-research/ux-service-reference/administration-schema-core.css
+    css: docs/00-research/ux-service-reference/administration-remaining.css
+    javascript: docs/00-research/ux-service-reference/administration-remaining.js
+  image: docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1920x1080.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1920x1080.measurements.json
+  image_sha256: 2b8feeced8fe13f26c00d5c0d84f46e823ce7e952276b664ecfa6363c200c1ec
+  date: 2026-08-01
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review. The ordered Layout editor and live saved-
-        Record preview remain connected in one flat three-pane Administration task; exact Attribute
-        revisions, local recovery and bounded wide composition are preserved.
-    product_owner_approval:
-      status: approved
-      date: 2026-08-01
-      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
-  - id: administration-layout-edit-draft-1920x1080
-    screen: administration-layout-edit
-    state: draft
-    viewport:
-      width: 1920
-      height: 1080
-      device_scale_factor: 1
-    sources: *administration_remaining_sources
-    image: docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1920x1080.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1920x1080.measurements.json
-    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    wide_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-wide-2560x1440.png
-      - docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-wide-3840x2160.png
-    image_sha256: 2b8feeced8fe13f26c00d5c0d84f46e823ce7e952276b664ecfa6363c200c1ec
     date: 2026-08-01
+- id: administration-subset-edit-draft-1366x768
+  screen: administration-subset-edit
+  state: draft
+  viewport:
+    width: 1366
+    height: 768
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/administration-remaining.html
+    base_css: docs/00-research/ux-service-reference/administration-schema-core.css
+    css: docs/00-research/ux-service-reference/administration-remaining.css
+    javascript: docs/00-research/ux-service-reference/administration-remaining.js
+  image: docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1366x768.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1366x768.measurements.json
+  image_sha256: ebb696e2198c2ee809bcbc3a96537624296879146489e0686c8fda6897ae571c
+  date: 2026-08-01
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review. The ordered Layout editor and live saved-
-        Record preview remain connected in one flat three-pane Administration task; exact Attribute
-        revisions, local recovery and bounded wide composition are preserved.
-    product_owner_approval:
-      status: approved
-      date: 2026-08-01
-      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
-  - id: administration-subset-edit-draft-1366x768
-    screen: administration-subset-edit
-    state: draft
-    viewport:
-      width: 1366
-      height: 768
-      device_scale_factor: 1
-    sources: *administration_remaining_sources
-    image: docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1366x768.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1366x768.measurements.json
-    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    image_sha256: ebb696e2198c2ee809bcbc3a96537624296879146489e0686c8fda6897ae571c
     date: 2026-08-01
+- id: administration-subset-edit-draft-1440x900
+  screen: administration-subset-edit
+  state: draft
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/administration-remaining.html
+    base_css: docs/00-research/ux-service-reference/administration-schema-core.css
+    css: docs/00-research/ux-service-reference/administration-remaining.css
+    javascript: docs/00-research/ux-service-reference/administration-remaining.js
+  image: docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1440x900.measurements.json
+  image_sha256: 2944564a8bfb23b56547e9fe5a5b7bbe4d90225d8b25191d10cdc760e0bebf0f
+  date: 2026-08-01
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review. The typed filter definition and result
-        preview use one server-scoped count/row contract, preserve the saved draft on failure and
-        remain compact at canonical and wide viewports.
-    product_owner_approval:
-      status: approved
-      date: 2026-08-01
-      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
-  - id: administration-subset-edit-draft-1440x900
-    screen: administration-subset-edit
-    state: draft
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *administration_remaining_sources
-    image: docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1440x900.measurements.json
-    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    image_sha256: 2944564a8bfb23b56547e9fe5a5b7bbe4d90225d8b25191d10cdc760e0bebf0f
     date: 2026-08-01
+- id: administration-subset-edit-draft-1920x1080
+  screen: administration-subset-edit
+  state: draft
+  viewport:
+    width: 1920
+    height: 1080
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/administration-remaining.html
+    base_css: docs/00-research/ux-service-reference/administration-schema-core.css
+    css: docs/00-research/ux-service-reference/administration-remaining.css
+    javascript: docs/00-research/ux-service-reference/administration-remaining.js
+  image: docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1920x1080.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1920x1080.measurements.json
+  image_sha256: 3c47bd6bfce907fb552e1d420f0595592b14fd443897726fa4f0a22d7d9aadcd
+  date: 2026-08-01
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review. The typed filter definition and result
-        preview use one server-scoped count/row contract, preserve the saved draft on failure and
-        remain compact at canonical and wide viewports.
-    product_owner_approval:
-      status: approved
-      date: 2026-08-01
-      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
-  - id: administration-subset-edit-draft-1920x1080
-    screen: administration-subset-edit
-    state: draft
-    viewport:
-      width: 1920
-      height: 1080
-      device_scale_factor: 1
-    sources: *administration_remaining_sources
-    image: docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1920x1080.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1920x1080.measurements.json
-    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    wide_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-wide-2560x1440.png
-      - docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-wide-3840x2160.png
-    image_sha256: 3c47bd6bfce907fb552e1d420f0595592b14fd443897726fa4f0a22d7d9aadcd
     date: 2026-08-01
+- id: administration-link-type-edit-draft-1366x768
+  screen: administration-link-type-edit
+  state: draft
+  viewport:
+    width: 1366
+    height: 768
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/administration-remaining.html
+    base_css: docs/00-research/ux-service-reference/administration-schema-core.css
+    css: docs/00-research/ux-service-reference/administration-remaining.css
+    javascript: docs/00-research/ux-service-reference/administration-remaining.js
+  image: docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1366x768.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1366x768.measurements.json
+  image_sha256: a45ce72250ae6abd4590aa236cacc31ad7d0b68bfe2596fc3764cb9eb3d9fb3b
+  date: 2026-08-01
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review. The typed filter definition and result
-        preview use one server-scoped count/row contract, preserve the saved draft on failure and
-        remain compact at canonical and wide viewports.
-    product_owner_approval:
-      status: approved
-      date: 2026-08-01
-      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
-  - id: administration-link-type-edit-draft-1366x768
-    screen: administration-link-type-edit
-    state: draft
-    viewport:
-      width: 1366
-      height: 768
-      device_scale_factor: 1
-    sources: *administration_remaining_sources
-    image: docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1366x768.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1366x768.measurements.json
-    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    image_sha256: a45ce72250ae6abd4590aa236cacc31ad7d0b68bfe2596fc3764cb9eb3d9fb3b
     date: 2026-08-01
+- id: administration-link-type-edit-draft-1440x900
+  screen: administration-link-type-edit
+  state: draft
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/administration-remaining.html
+    base_css: docs/00-research/ux-service-reference/administration-schema-core.css
+    css: docs/00-research/ux-service-reference/administration-remaining.css
+    javascript: docs/00-research/ux-service-reference/administration-remaining.js
+  image: docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1440x900.measurements.json
+  image_sha256: b1d8eae9026501b63103592fb50ceaed9d65c1876b01041d713d2f320110876d
+  date: 2026-08-01
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review. Source and target Tables, independent
-        cardinalities, forward/reverse labels and exact endpoint revisions are visible together with
-        a branching Related test. Every related revision remains fully visible at the compact
-        viewport; no latest alias or fabricated relation is used.
-    product_owner_approval:
-      status: approved
-      date: 2026-08-01
-      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
-  - id: administration-link-type-edit-draft-1440x900
-    screen: administration-link-type-edit
-    state: draft
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *administration_remaining_sources
-    image: docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1440x900.measurements.json
-    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    image_sha256: b1d8eae9026501b63103592fb50ceaed9d65c1876b01041d713d2f320110876d
     date: 2026-08-01
+- id: administration-link-type-edit-draft-1920x1080
+  screen: administration-link-type-edit
+  state: draft
+  viewport:
+    width: 1920
+    height: 1080
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/administration-remaining.html
+    base_css: docs/00-research/ux-service-reference/administration-schema-core.css
+    css: docs/00-research/ux-service-reference/administration-remaining.css
+    javascript: docs/00-research/ux-service-reference/administration-remaining.js
+  image: docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1920x1080.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1920x1080.measurements.json
+  image_sha256: b6cc86a9255c1f1afb9e70feac549a3b6b376192e36f8f3ff5e67fea197a19ce
+  date: 2026-08-01
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review. Source and target Tables, independent
-        cardinalities, forward/reverse labels and exact endpoint revisions are visible together with
-        a branching Related test. Every related revision remains fully visible at the compact
-        viewport; no latest alias or fabricated relation is used.
-    product_owner_approval:
-      status: approved
-      date: 2026-08-01
-      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
-  - id: administration-link-type-edit-draft-1920x1080
-    screen: administration-link-type-edit
-    state: draft
-    viewport:
-      width: 1920
-      height: 1080
-      device_scale_factor: 1
-    sources: *administration_remaining_sources
-    image: docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1920x1080.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1920x1080.measurements.json
-    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    wide_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-wide-2560x1440.png
-      - docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-wide-3840x2160.png
-    image_sha256: b6cc86a9255c1f1afb9e70feac549a3b6b376192e36f8f3ff5e67fea197a19ce
     date: 2026-08-01
+- id: administration-access-normal-1366x768
+  screen: administration-access
+  state: normal
+  viewport:
+    width: 1366
+    height: 768
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/administration-remaining.html
+    base_css: docs/00-research/ux-service-reference/administration-schema-core.css
+    css: docs/00-research/ux-service-reference/administration-remaining.css
+    javascript: docs/00-research/ux-service-reference/administration-remaining.js
+  image: docs/17-evidence/images/issue-167-service-reference/administration-access-normal-1366x768.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/administration-access-normal-1366x768.measurements.json
+  image_sha256: 76aa2c7b7457e42cb6afaee775efdaadb396c67bdfb51c0d8c049bf32b4262b8
+  date: 2026-08-01
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review. Source and target Tables, independent
-        cardinalities, forward/reverse labels and exact endpoint revisions are visible together with
-        a branching Related test. Every related revision remains fully visible at the compact
-        viewport; no latest alias or fabricated relation is used.
-    product_owner_approval:
-      status: approved
-      date: 2026-08-01
-      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
-  - id: administration-access-normal-1366x768
-    screen: administration-access
-    state: normal
-    viewport:
-      width: 1366
-      height: 768
-      device_scale_factor: 1
-    sources: *administration_remaining_sources
-    image: docs/17-evidence/images/issue-167-service-reference/administration-access-normal-1366x768.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/administration-access-normal-1366x768.measurements.json
-    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    image_sha256: 76aa2c7b7457e42cb6afaee775efdaadb396c67bdfb51c0d8c049bf32b4262b8
     date: 2026-08-01
+- id: administration-access-normal-1440x900
+  screen: administration-access
+  state: normal
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/administration-remaining.html
+    base_css: docs/00-research/ux-service-reference/administration-schema-core.css
+    css: docs/00-research/ux-service-reference/administration-remaining.css
+    javascript: docs/00-research/ux-service-reference/administration-remaining.js
+  image: docs/17-evidence/images/issue-167-service-reference/administration-access-normal-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/administration-access-normal-1440x900.measurements.json
+  image_sha256: d29cefa9daf262f0a74ae924ba2a45cce82d4ed41e8c847c4850400515b939fa
+  date: 2026-08-01
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review. Task-based User, Reviewer and
-        Administrator assignments remain readable in a dense three-pane workspace; denied and
-        revoke-confirm states preserve a safe return, exact selected context and required reason
-        without leaking restricted assignment data.
-    product_owner_approval:
-      status: approved
-      date: 2026-08-01
-      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
-  - id: administration-access-normal-1440x900
-    screen: administration-access
-    state: normal
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *administration_remaining_sources
-    image: docs/17-evidence/images/issue-167-service-reference/administration-access-normal-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/administration-access-normal-1440x900.measurements.json
-    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    image_sha256: d29cefa9daf262f0a74ae924ba2a45cce82d4ed41e8c847c4850400515b939fa
     date: 2026-08-01
+- id: administration-access-normal-1920x1080
+  screen: administration-access
+  state: normal
+  viewport:
+    width: 1920
+    height: 1080
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/administration-remaining.html
+    base_css: docs/00-research/ux-service-reference/administration-schema-core.css
+    css: docs/00-research/ux-service-reference/administration-remaining.css
+    javascript: docs/00-research/ux-service-reference/administration-remaining.js
+  image: docs/17-evidence/images/issue-167-service-reference/administration-access-normal-1920x1080.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/administration-access-normal-1920x1080.measurements.json
+  image_sha256: 8a8be47905e2af0e6eb24ce03c3140d15280604ae007a7af28d14dd4063c94c2
+  date: 2026-08-01
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review. Task-based User, Reviewer and
-        Administrator assignments remain readable in a dense three-pane workspace; denied and
-        revoke-confirm states preserve a safe return, exact selected context and required reason
-        without leaking restricted assignment data.
-    product_owner_approval:
-      status: approved
-      date: 2026-08-01
-      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
-  - id: administration-access-normal-1920x1080
-    screen: administration-access
-    state: normal
-    viewport:
-      width: 1920
-      height: 1080
-      device_scale_factor: 1
-    sources: *administration_remaining_sources
-    image: docs/17-evidence/images/issue-167-service-reference/administration-access-normal-1920x1080.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/administration-access-normal-1920x1080.measurements.json
-    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    wide_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/administration-access-normal-wide-2560x1440.png
-      - docs/17-evidence/images/issue-167-service-reference/administration-access-normal-wide-3840x2160.png
-    image_sha256: 8a8be47905e2af0e6eb24ce03c3140d15280604ae007a7af28d14dd4063c94c2
     date: 2026-08-01
+- id: administration-access-denied-1440x900
+  screen: administration-access
+  state: denied
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/administration-remaining.html
+    base_css: docs/00-research/ux-service-reference/administration-schema-core.css
+    css: docs/00-research/ux-service-reference/administration-remaining.css
+    javascript: docs/00-research/ux-service-reference/administration-remaining.js
+  image: docs/17-evidence/images/issue-167-service-reference/administration-access-denied-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/administration-access-denied-1440x900.measurements.json
+  image_sha256: 71a9a09ebc2adcfdbfea56d009a5f8cdcb6e10098c2d51d4e5ccec298826ac51
+  date: 2026-07-31
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review. Task-based User, Reviewer and
-        Administrator assignments remain readable in a dense three-pane workspace; denied and
-        revoke-confirm states preserve a safe return, exact selected context and required reason
-        without leaking restricted assignment data.
-    product_owner_approval:
-      status: approved
-      date: 2026-08-01
-      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
-  - id: administration-access-denied-1440x900
-    screen: administration-access
-    state: denied
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *administration_remaining_sources
-    image: docs/17-evidence/images/issue-167-service-reference/administration-access-denied-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/administration-access-denied-1440x900.measurements.json
-    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    image_sha256: 71a9a09ebc2adcfdbfea56d009a5f8cdcb6e10098c2d51d4e5ccec298826ac51
-    date: 2026-07-31
+    date: 2026-08-01
+- id: administration-access-revoke-confirm-1440x900
+  screen: administration-access
+  state: revoke-confirm
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/administration-remaining.html
+    base_css: docs/00-research/ux-service-reference/administration-schema-core.css
+    css: docs/00-research/ux-service-reference/administration-remaining.css
+    javascript: docs/00-research/ux-service-reference/administration-remaining.js
+  image: docs/17-evidence/images/issue-167-service-reference/administration-access-revoke-confirm-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/administration-access-revoke-confirm-1440x900.measurements.json
+  image_sha256: c42857301a53219e05e2c810ddeb3accca96d346c6c198c0c92964cb57622171
+  date: 2026-07-31
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review. Task-based User, Reviewer and
-        Administrator assignments remain readable in a dense three-pane workspace; denied and
-        revoke-confirm states preserve a safe return, exact selected context and required reason
-        without leaking restricted assignment data.
-    product_owner_approval:
-      status: approved
-      date: 2026-08-01
-      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
-  - id: administration-access-revoke-confirm-1440x900
-    screen: administration-access
-    state: revoke-confirm
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *administration_remaining_sources
-    image: docs/17-evidence/images/issue-167-service-reference/administration-access-revoke-confirm-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/administration-access-revoke-confirm-1440x900.measurements.json
-    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    image_sha256: c42857301a53219e05e2c810ddeb3accca96d346c6c198c0c92964cb57622171
-    date: 2026-07-31
+    date: 2026-08-01
+- id: administration-publish-blocked-1366x768
+  screen: administration-publish
+  state: not-configured
+  viewport:
+    width: 1366
+    height: 768
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/administration-remaining.html
+    base_css: docs/00-research/ux-service-reference/administration-schema-core.css
+    css: docs/00-research/ux-service-reference/administration-remaining.css
+    javascript: docs/00-research/ux-service-reference/administration-remaining.js
+  image: docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1366x768.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1366x768.measurements.json
+  image_sha256: 422bf607c3488ef2f24b325bb8eac9b1bc5c1d8bd9bdf8f20c876991a69c8ea9
+  date: 2026-07-31
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review. Task-based User, Reviewer and
-        Administrator assignments remain readable in a dense three-pane workspace; denied and
-        revoke-confirm states preserve a safe return, exact selected context and required reason
-        without leaking restricted assignment data.
-    product_owner_approval:
-      status: approved
-      date: 2026-08-01
-      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
-  - id: administration-publish-blocked-1366x768
-    screen: administration-publish
-    state: not-configured
-    viewport:
-      width: 1366
-      height: 768
-      device_scale_factor: 1
-    sources: *administration_remaining_sources
-    image: docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1366x768.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1366x768.measurements.json
-    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    image_sha256: 422bf607c3488ef2f24b325bb8eac9b1bc5c1d8bd9bdf8f20c876991a69c8ea9
-    date: 2026-07-31
+    date: 2026-08-01
+- id: administration-publish-blocked-1440x900
+  screen: administration-publish
+  state: not-configured
+  viewport:
+    width: 1440
+    height: 900
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/administration-remaining.html
+    base_css: docs/00-research/ux-service-reference/administration-schema-core.css
+    css: docs/00-research/ux-service-reference/administration-remaining.css
+    javascript: docs/00-research/ux-service-reference/administration-remaining.js
+  image: docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1440x900.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1440x900.measurements.json
+  image_sha256: 893e7dce8bfea50a48390e56b2eb31b16839b6e116687600a123a0a121d5008a
+  date: 2026-07-31
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review. The screen truthfully preserves saved
-        draft definitions and validation evidence while keeping every Publish command disabled
-        because no publication transition or policy endpoint exists; no success, release or receipt
-        is fabricated.
-    product_owner_approval:
-      status: approved
-      date: 2026-08-01
-      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
-  - id: administration-publish-blocked-1440x900
-    screen: administration-publish
-    state: not-configured
-    viewport:
-      width: 1440
-      height: 900
-      device_scale_factor: 1
-    sources: *administration_remaining_sources
-    image: docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1440x900.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1440x900.measurements.json
-    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    image_sha256: 893e7dce8bfea50a48390e56b2eb31b16839b6e116687600a123a0a121d5008a
-    date: 2026-07-31
+    date: 2026-08-01
+- id: administration-publish-blocked-1920x1080
+  screen: administration-publish
+  state: not-configured
+  viewport:
+    width: 1920
+    height: 1080
+    device_scale_factor: 1
+  sources:
+    html: docs/00-research/ux-service-reference/administration-remaining.html
+    base_css: docs/00-research/ux-service-reference/administration-schema-core.css
+    css: docs/00-research/ux-service-reference/administration-remaining.css
+    javascript: docs/00-research/ux-service-reference/administration-remaining.js
+  image: docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1920x1080.png
+  measurements: docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1920x1080.measurements.json
+  image_sha256: 15d79a5708930be1793cbe7336f066196362d4793a48dfcc2176df10034b5b0d
+  date: 2026-07-31
+  status: approved
+  product_owner_approval:
     status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review. The screen truthfully preserves saved
-        draft definitions and validation evidence while keeping every Publish command disabled
-        because no publication transition or policy endpoint exists; no success, release or receipt
-        is fabricated.
-    product_owner_approval:
-      status: approved
-      date: 2026-08-01
-      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
-  - id: administration-publish-blocked-1920x1080
-    screen: administration-publish
-    state: not-configured
-    viewport:
-      width: 1920
-      height: 1080
-      device_scale_factor: 1
-    sources: *administration_remaining_sources
-    image: docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1920x1080.png
-    measurements: docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-1920x1080.measurements.json
-    family_state_evidence: docs/00-research/ux-service-reference/administration-remaining-wave06.staging.json
-    wide_evidence:
-      - docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-wide-2560x1440.png
-      - docs/17-evidence/images/issue-167-service-reference/administration-publish-blocked-wide-3840x2160.png
-    image_sha256: 15d79a5708930be1793cbe7336f066196362d4793a48dfcc2176df10034b5b0d
-    date: 2026-07-31
-    status: approved
-    main_agent_evaluation:
-      status: accepted
-      notes: >-
-        Accepted after direct original-resolution review. The screen truthfully preserves saved
-        draft definitions and validation evidence while keeping every Publish command disabled
-        because no publication transition or policy endpoint exists; no success, release or receipt
-        is fabricated.
-    product_owner_approval:
-      status: approved
-      date: 2026-08-01
-      evidence: Product-owner batch approval in conversation after reviewing the final 17 WAVE-06 images.
+    date: 2026-08-01
