@@ -46,7 +46,8 @@ def test_cold_start_routes_user_work_in_product_order() -> None:
         "#158 Modeling Export",
         "#160 검토·승인·DB 공개·복구",
         "#161 공통 화면 정리",
-        "#162 전체 흐름·Ubuntu VM·문서 최종 검증",
+        "#162 Ubuntu VM·문서 최종 검증",
+        "#162 공개 실측 데이터 최종 검증",
     )
     positions = [backlog.index(unit) for unit in work_units]
     assert positions == sorted(positions)
@@ -55,6 +56,7 @@ def test_cold_start_routes_user_work_in_product_order() -> None:
     assert "새 Codex 작업" in backlog
     assert "Materials에서 필요한 물성을 검색" in backlog
     assert "모든 결과에서 원본 데이터까지 역추적" in backlog
+    assert "NIST Numisheet 2020" in backlog
 
 
 def test_retired_instruction_documents_are_absent_and_unreferenced() -> None:
