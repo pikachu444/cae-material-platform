@@ -4,21 +4,28 @@ Status: authoritative product and interaction specification
 
 ## 1. Objective
 
-The product must behave as a desktop engineering application delivered through a browser. The redesign is not a visual reskin. It must reduce the time and cognitive work required to complete two primary jobs while preserving the existing configurable Material Database, revision/provenance and solver-card contracts.
+The product must behave as a desktop engineering application delivered through a browser. The redesign is not a visual reskin. It must reduce the time and cognitive work required to complete the user's daily lookup/download job and the expert data-to-card lifecycle while preserving the existing configurable Material Database, revision/provenance and solver-card contracts.
 
-Primary job:
+Primary daily job for most users:
 
 ```text
 Find a material → assess applicability → inspect evidence → preview/download a native solver card
 ```
 
-Secondary job:
+Expert and governed lifecycle:
 
 ```text
-Select or upload test data → map units/channels → process curves → fit a model → review mapping → create/download cards → save to the Material Library
+Register material-property data → link test data → process data → create models by several methods
+→ select the model to use → create solver-specific cards → review and approve
+→ search, inspect and download in Materials DB → trace every result back to its original data
 ```
 
 The user must remain in a stable workspace. Selection changes the working context; it must not repeatedly replace the application with unrelated page layouts.
+
+The primary daily job has first claim on entry priority, workspace area, responsiveness and delivery
+order. Review, Administration and authorization make the result trustworthy, but must not crowd the
+normal lookup/download path with implementation terms or extra decisions. Authorization remains
+enforced even when its controls are intentionally unobtrusive.
 
 ## 2. Confirmed product facts
 

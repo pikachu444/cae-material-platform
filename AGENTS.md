@@ -20,8 +20,8 @@
 
 ## Task routing
 
-- **Current order:** open `docs/13-delivery/backlog.md`, take its first unfinished issue, and finish it
-  before the next. Start each issue in a fresh Codex task so chat history is not a dependency.
+- **Current work:** take the first unfinished backlog unit in a fresh Codex task. Merge it before
+  dependent work; close its issue only after all listed units finish.
 - **Visual or production UI work:** use `.agents/skills/desktop-engineering-ui`. It routes to the exact
   approved family in `docs/01-product/service-reference-inventory.yaml`, the selected entries in
   `docs/01-product/service-reference-manifest.yaml`, the original assets, affected UI contracts and

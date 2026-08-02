@@ -33,14 +33,28 @@ def test_root_agent_guidance_keeps_required_authority_and_safety_routes() -> Non
         assert duplicated_model_instruction not in guidance
 
 
-def test_cold_start_routes_demo_before_visual_work() -> None:
+def test_cold_start_routes_user_work_in_product_order() -> None:
     backlog = BACKLOG.read_text(encoding="utf-8")
 
-    issue_positions = [backlog.index(f"#{issue}") for issue in range(157, 163)]
-    assert issue_positions == sorted(issue_positions)
+    work_units = (
+        "#157 깨끗한 데모 실행",
+        "#159 Materials 검색·조회·다운로드",
+        "#159 물성 데이터 등록·관리",
+        "#158 Modeling Data",
+        "#158 Modeling Process",
+        "#158 Modeling Fit",
+        "#158 Modeling Export",
+        "#160 검토·승인·DB 공개·복구",
+        "#161 공통 화면 정리",
+        "#162 전체 흐름·Ubuntu VM·문서 최종 검증",
+    )
+    positions = [backlog.index(unit) for unit in work_units]
+    assert positions == sorted(positions)
     assert "실제 화면이 바뀔 때만 visual skill" in backlog
-    assert "inventory의 `modeling-fit`" in backlog
+    assert "`modeling-fit` 승인 화면" in backlog
     assert "새 Codex 작업" in backlog
+    assert "Materials에서 필요한 물성을 검색" in backlog
+    assert "모든 결과에서 원본 데이터까지 역추적" in backlog
 
 
 def test_retired_instruction_documents_are_absent_and_unreferenced() -> None:
