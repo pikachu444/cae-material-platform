@@ -37,6 +37,8 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260725_087_uxc04_fit_decision_snapshot.py",
         "20260726_028_TD03_reference_elastoplastic_multisolver.py",
         "20260726_088_uxc06b_export_provenance.py",
+        "20260726_089_uxc06c2_atomic_delivery.py",
+        "20260726_090_uxc00g_reviewer_product_role.py",
         "20260727_029_P0_solver_card_applicability_note.py",
         "20260728_030_P0_2_multi_replicate_selection.py",
         "20260728_031_P0_2_provenance_activity_finalization.py",
@@ -95,6 +97,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260919_084_T89_dma_neutral_selection.py",
         "20260920_085_T89_dma_neutral_source.py",
         "20260921_086_UXC03_workup_override_provenance.py",
+        "20260922_091_UXC07_batch_evidence.py",
     ]
 
 

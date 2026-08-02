@@ -169,16 +169,16 @@ def test_batch_preflight_execute_and_monitor_contracts() -> None:
                 "classification": "internal",
                 "recipe_id": str(RECIPE),
                 "recipe_revision_id": str(RECIPE_REVISION),
-                "sources": [
-                    {"document_id": str(DOCUMENT), "revision_id": str(DOCUMENT_REVISION)}
-                ],
+                "sources": [{"document_id": str(DOCUMENT), "revision_id": str(DOCUMENT_REVISION)}],
             }
-            preflight = await client.post(
-                "/api/v1/common-processing-batches:preflight", json=body
-            )
+            preflight = await client.post("/api/v1/common-processing-batches:preflight", json=body)
             assert preflight.status_code == 200
             assert preflight.json()["compatible"] is True
             assert preflight.json()["members"][0]["final_point_count"] == 21
+            assert preflight.json()["members"][0]["source"]["workup_overrides"] == []
+            assert preflight.json()["members"][0]["source"]["fit_decision"] is None
+            assert "workup_overrides" not in preflight.json()["members"][0]
+            assert "fit_decision" not in preflight.json()["members"][0]
 
             executed = await client.post(
                 "/api/v1/common-processing-batches",
@@ -191,6 +191,10 @@ def test_batch_preflight_execute_and_monitor_contracts() -> None:
             assert executed.status_code == 201
             assert executed.json()["status"] == "succeeded"
             assert executed.json()["attempts"][0]["attempt_no"] == 1
+            assert executed.json()["members"][0]["source"]["workup_overrides"] == []
+            assert executed.json()["members"][0]["source"]["fit_decision"] is None
+            assert "workup_overrides" not in executed.json()["members"][0]
+            assert "fit_decision" not in executed.json()["members"][0]
 
             listed = await client.get("/api/v1/common-processing-batches")
             assert listed.status_code == 200

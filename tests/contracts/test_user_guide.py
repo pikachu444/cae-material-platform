@@ -132,15 +132,13 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         for capture_id in provenance["ids"]
     ]
 
-    assert manifest["source_commit"] == "55cfa62"
+    assert manifest["source_commit"] == "aeb4cec"
     assert len(provenance_ids) == len(set(provenance_ids))
     assert set(provenance_ids) == set(captures)
     assert {provenance["source_commit"] for provenance in manifest["capture_provenance"]} == {
+        "aeb4cec",
         "55cfa62",
-        "e4dd176",
-        "a0136b4",
         "65eddb0",
-        "b566a04",
         "3bfc0d7",
     }
     uxc04e_commands = [
@@ -155,7 +153,10 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
 
     activity = captures["activity-1440"]
     assert activity["workflow"] == "role-aware-review-queue-with-resume-and-outcomes"
-    assert "real pending exact-revision Material and Solver Card requests" in activity["fixture"]
+    assert (
+        "pending exact-revision DP780 Selected model and Solver card reviews"
+        in activity["fixture"]
+    )
     for capture_id in ("administration-access-1366", "administration-access-1440"):
         capture = captures[capture_id]
         assert capture["workflow"] == "user-reviewer-administrator-task-preset-assignment"

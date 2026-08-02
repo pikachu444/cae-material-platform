@@ -74,6 +74,249 @@ def _revision_etag(value: Mapping[str, Any]) -> str:
     return f'"revision:{revision_no}:sha256:{_revision_hash(value)}"'
 
 
+def _ensure_pending_model_review(
+    api: DemoApi,
+    *,
+    model: Mapping[str, Any],
+    reason: str,
+) -> str:
+    """Create (or reuse) the one pending review request for this exact model revision."""
+
+    model_id = _id(model, "material_model_id")
+    revision_id = _revision_id(model)
+    manifest_sha256 = _revision_hash(model)
+    aggregate_type = "modeling.material_model"
+    existing = _items(
+        api.get(
+            "/review-requests?aggregate_type="
+            f"{aggregate_type}&aggregate_id={model_id}&revision_id={revision_id}"
+        )
+    )
+    if len(existing) > 1:
+        raise DemoSeedError("clean demo has duplicate review requests for one model revision")
+    if existing:
+        request = existing[0]
+        if request.get("manifest_sha256") != manifest_sha256:
+            raise DemoSeedError("clean demo review request pins a stale model manifest")
+        if request.get("decision") is not None:
+            raise DemoSeedError("clean demo selected model review request is already decided")
+        return _id(request, "review_request_id")
+    request = api.post(
+        "/review-requests",
+        {
+            "classification": "internal",
+            "aggregate_type": aggregate_type,
+            "aggregate_id": model_id,
+            "revision_id": revision_id,
+            "manifest_sha256": manifest_sha256,
+            "reason": reason,
+        },
+    )
+    return _id(request, "review_request_id")
+
+
+def _processing_preview(
+    api: DemoApi,
+    *,
+    document: Mapping[str, Any],
+    profile: Mapping[str, Any],
+    steps: Sequence[Mapping[str, Any]],
+) -> Mapping[str, Any]:
+    """Run the protected server preview used to build explicit fit evidence."""
+
+    preview = api.post(
+        "/processing:preview",
+        {
+            "document": document,
+            "mapping_profile": _content(profile),
+            "steps": list(steps),
+        },
+    )
+    stages = preview.get("stages")
+    if not isinstance(stages, list) or not stages:
+        raise DemoSeedError("processing preview did not return stage evidence")
+    return preview
+
+
+def _preview_stage(preview: Mapping[str, Any], method_id: str) -> Mapping[str, Any]:
+    stages = preview.get("stages")
+    if not isinstance(stages, list):
+        raise DemoSeedError("processing preview did not return stages")
+    stage = next(
+        (
+            item
+            for item in stages
+            if isinstance(item, Mapping) and item.get("method_id") == method_id
+        ),
+        None,
+    )
+    if not isinstance(stage, Mapping):
+        raise DemoSeedError(f"processing preview did not return {method_id} evidence")
+    return stage
+
+
+def _preview_scalar(stage: Mapping[str, Any], key: str) -> Mapping[str, Any]:
+    values = stage.get("scalar_results")
+    if not isinstance(values, list):
+        raise DemoSeedError("processing preview stage did not return scalar evidence")
+    scalar = next(
+        (item for item in values if isinstance(item, Mapping) and item.get("key") == key),
+        None,
+    )
+    if not isinstance(scalar, Mapping):
+        raise DemoSeedError(f"processing preview did not return scalar {key}")
+    return scalar
+
+
+def _preview_series_range(stage: Mapping[str, Any], quantity: str) -> tuple[float, float]:
+    series = stage.get("series")
+    if not isinstance(series, list):
+        raise DemoSeedError("processing preview stage did not return curve evidence")
+    selected = next(
+        (item for item in series if isinstance(item, Mapping) and item.get("quantity") == quantity),
+        None,
+    )
+    values = selected.get("values") if isinstance(selected, Mapping) else None
+    if not isinstance(values, list) or len(values) < 2:
+        raise DemoSeedError(f"processing preview did not return {quantity} range evidence")
+    try:
+        numbers = [float(value) for value in values]
+    except (TypeError, ValueError) as error:
+        raise DemoSeedError(f"processing preview returned invalid {quantity} values") from error
+    return min(numbers), max(numbers)
+
+
+def _polymer_fit_decision(
+    preview: Mapping[str, Any], *, steps: Sequence[Mapping[str, Any]], independent_quantity: str
+) -> dict[str, Any]:
+    fit_step = next(
+        (
+            step
+            for step in steps
+            if step.get("method_id")
+            in {"polymer.prony_fit_compare", "polymer.dma_prony_fit_compare"}
+        ),
+        None,
+    )
+    if not isinstance(fit_step, Mapping):
+        raise DemoSeedError("polymer Processing Recipe has no fit step")
+    method_id = str(fit_step["method_id"])
+    stage = _preview_stage(preview, method_id)
+    selected = _preview_scalar(stage, "prony_selected_term_count")
+    term_count = int(float(selected.get("value", 0)))
+    if term_count < 1 or float(selected.get("value", 0)) != term_count:
+        raise DemoSeedError("polymer preview returned an invalid selected term count")
+    parameter_keys = [
+        "prony_equilibrium_modulus",
+        *(
+            key
+            for ordinal in range(1, term_count + 1)
+            for key in (f"prony_g_ratio_{ordinal}", f"prony_relaxation_time_{ordinal}")
+        ),
+    ]
+    parameters = [
+        {
+            "name": key,
+            "value": _preview_scalar(stage, key)["value"],
+            "unit": _preview_scalar(stage, key)["unit"],
+        }
+        for key in parameter_keys
+    ]
+    metric = _preview_scalar(stage, f"prony_{term_count}_normalized_rmse")
+    fit_minimum, fit_maximum = _preview_series_range(stage, independent_quantity)
+    options = fit_step.get("options")
+    if not isinstance(options, Mapping):
+        raise DemoSeedError("polymer fit step options are missing")
+    return {
+        "candidate_key": f"prony:{term_count}",
+        "mode": "single",
+        "primary_law": "generalized_maxwell",
+        "secondary_law": None,
+        "primary_weight": None,
+        "parameter_sets": [{"law": "generalized_maxwell", "parameters": parameters}],
+        "fit_minimum": fit_minimum,
+        "fit_maximum": fit_maximum,
+        "extrapolation_maximum": None,
+        "extrapolation_policy": "observed_only",
+        "metric_definition": "normalized_rmse",
+        "metric_value": metric["value"],
+        "requested_term_policy": options.get("selection_mode"),
+        "actual_term_count": term_count,
+        "selection_reason": str(
+            options.get("selection_reason")
+            or "Select the server preview candidate for this reference run."
+        ),
+        "warning_acknowledged": True,
+    }
+
+
+def _metal_fit_decision(
+    preview: Mapping[str, Any], *, steps: Sequence[Mapping[str, Any]]
+) -> dict[str, Any]:
+    fit_step = next(
+        (step for step in steps if step.get("method_id") == "metal.hardening_fit_extrapolate"),
+        None,
+    )
+    if not isinstance(fit_step, Mapping):
+        raise DemoSeedError("metal Processing Recipe has no hardening fit step")
+    stage = _preview_stage(preview, "metal.hardening_fit_extrapolate")
+    options = fit_step.get("options")
+    if not isinstance(options, Mapping):
+        raise DemoSeedError("metal fit step options are missing")
+    primary = str(options.get("primary_family"))
+    secondary = str(options.get("secondary_family"))
+    families = (primary, secondary)
+    parameter_sets: list[dict[str, Any]] = []
+    scalars = stage.get("scalar_results")
+    if not isinstance(scalars, list):
+        raise DemoSeedError("metal preview did not return scalar evidence")
+    for family in families:
+        family_parameters: list[dict[str, Any]] = []
+        prefix = f"{family}.parameter."
+        names = [
+            str(item["key"])[len(prefix) :]
+            for item in scalars
+            if isinstance(item, Mapping)
+            and str(item.get("key", "")).startswith(prefix)
+            and not str(item["key"]).endswith((".lower", ".upper", ".initial"))
+        ]
+        for name in names:
+            value = _preview_scalar(stage, f"{prefix}{name}")
+            lower = _preview_scalar(stage, f"{prefix}{name}.lower")
+            upper = _preview_scalar(stage, f"{prefix}{name}.upper")
+            family_parameters.append(
+                {
+                    "name": name,
+                    "value": value["value"],
+                    "unit": value["unit"],
+                    "lower": lower["value"],
+                    "upper": upper["value"],
+                }
+            )
+        if not family_parameters:
+            raise DemoSeedError(f"metal preview did not return {family} parameter evidence")
+        parameter_sets.append({"law": family, "parameters": family_parameters})
+    metric = _preview_scalar(stage, f"{primary}.relative_rmse")
+    return {
+        "candidate_key": f"{primary}+{secondary}",
+        "mode": "blend",
+        "primary_law": primary,
+        "secondary_law": secondary,
+        "primary_weight": options.get("primary_weight"),
+        "parameter_sets": parameter_sets,
+        "fit_minimum": options.get("fit_minimum_strain"),
+        "fit_maximum": options.get("fit_maximum_strain"),
+        "extrapolation_maximum": options.get("extrapolation_maximum_strain"),
+        "extrapolation_policy": "bounded",
+        "metric_definition": "relative_rmse",
+        "metric_value": metric["value"],
+        "requested_term_policy": None,
+        "actual_term_count": None,
+        "selection_reason": "Select the configured server-evaluated blend for this reference run.",
+        "warning_acknowledged": True,
+    }
+
+
 def _ensure_catalog_binding(
     api: DemoApi,
     *,
@@ -918,9 +1161,7 @@ def _ensure_test_json(
         current = listed_by_key.get(key)
         if current is None:
             raise DemoSeedError(f"clean demo canonical Test Data {key} was not listed")
-        governed_documents[key] = _ensure_governed_test_data_revision(
-            api, current, governed_source
-        )
+        governed_documents[key] = _ensure_governed_test_data_revision(api, current, governed_source)
     primary = governed_documents.get(document_key)
     if primary is None:
         raise DemoSeedError("clean demo canonical Test Data was not listed after proof revision")
@@ -1043,10 +1284,46 @@ def _ensure_processing_journey(api: DemoApi, *, test_data: Mapping[str, str]) ->
         )
     recipe_id = _id(recipe, "processing_recipe_id")
     recipe_revision_id = _revision_id(recipe)
-    # Preserve the pre-UXC-06C1 batch and its immutable ungoverned output.  The
-    # interactive workbench creates the new governed output from the current
-    # proof-bearing Test Data revision; demo seeding must not manufacture a
-    # replacement batch or silently choose a new necking policy.
+    recipe_steps = _content(recipe).get("steps")
+    if not isinstance(recipe_steps, list) or not all(
+        isinstance(step, Mapping) for step in recipe_steps
+    ):
+        raise DemoSeedError("clean demo Processing Recipe has no executable steps")
+    metal_document = api.get(
+        f"/test-data-documents/{test_data['test_data_document_id']}/revisions/"
+        f"{test_data['test_data_document_revision_id']}/content"
+    )
+    metal_preview = _processing_preview(
+        api,
+        document=metal_document,
+        profile=profile,
+        steps=recipe_steps,
+    )
+    metal_fit_decision = _metal_fit_decision(metal_preview, steps=recipe_steps)
+    necking_step = next(
+        (
+            step
+            for step in recipe_steps
+            if step.get("method_id") == "metal.engineering_to_true_plastic"
+        ),
+        None,
+    )
+    necking_options = necking_step.get("options") if isinstance(necking_step, Mapping) else None
+    manual_necking_index = (
+        necking_options.get("manual_necking_index")
+        if isinstance(necking_options, Mapping)
+        else None
+    )
+    if not isinstance(manual_necking_index, int):
+        raise DemoSeedError("clean demo Recipe has no manual necking index")
+    metal_necking_override = {
+        "kind": "necking_boundary",
+        "original_value": manual_necking_index,
+        "original_unit": "observed-point-index",
+        "canonical_value": manual_necking_index,
+        "canonical_unit": "observed-point-index",
+        "reason": "Confirm the existing synthetic manual necking boundary from the preview.",
+    }
     batch_label = "CMP clean demo canonical JSON batch"
     batch = next(
         (
@@ -1059,6 +1336,8 @@ def _ensure_processing_journey(api: DemoApi, *, test_data: Mapping[str, str]) ->
     source = {
         "document_id": test_data["test_data_document_id"],
         "revision_id": test_data["test_data_document_revision_id"],
+        "workup_overrides": [metal_necking_override],
+        "fit_decision": metal_fit_decision,
     }
     if batch is None:
         preflight = api.post(
@@ -1498,6 +1777,16 @@ def _ensure_polymer_processing_card(api: DemoApi, *, material_id: str) -> dict[s
             },
         },
     ]
+    relaxation_document = api.get(
+        f"/test-data-documents/{_id(test_data, 'test_data_document_id')}/revisions/"
+        f"{_revision_id(test_data)}/content"
+    )
+    relaxation_preview = _processing_preview(
+        api, document=relaxation_document, profile=profile, steps=steps
+    )
+    relaxation_fit_decision = _polymer_fit_decision(
+        relaxation_preview, steps=steps, independent_quantity="time"
+    )
     recipe = next(
         (
             item
@@ -1549,6 +1838,7 @@ def _ensure_polymer_processing_card(api: DemoApi, *, material_id: str) -> dict[s
     batch_source = {
         "document_id": _id(test_data, "test_data_document_id"),
         "revision_id": _revision_id(test_data),
+        "fit_decision": relaxation_fit_decision,
     }
     if batch is None:
         preflight = api.post(
@@ -1905,6 +2195,16 @@ def _ensure_polymer_processing_card(api: DemoApi, *, material_id: str) -> dict[s
             },
         },
     ]
+    dma_document = api.get(
+        f"/test-data-documents/{_id(dma_test_data, 'test_data_document_id')}/revisions/"
+        f"{_revision_id(dma_test_data)}/content"
+    )
+    dma_preview = _processing_preview(
+        api, document=dma_document, profile=dma_profile, steps=dma_steps
+    )
+    dma_fit_decision = _polymer_fit_decision(
+        dma_preview, steps=dma_steps, independent_quantity="frequency"
+    )
     dma_recipe = next(
         (
             item
@@ -1954,6 +2254,7 @@ def _ensure_polymer_processing_card(api: DemoApi, *, material_id: str) -> dict[s
     dma_batch_source = {
         "document_id": _id(dma_test_data, "test_data_document_id"),
         "revision_id": _revision_id(dma_test_data),
+        "fit_decision": dma_fit_decision,
     }
     if dma_batch is None:
         dma_preflight = api.post(
@@ -2107,6 +2408,8 @@ def _ensure_polymer_processing_card(api: DemoApi, *, material_id: str) -> dict[s
         "polymer_processing_batch_id": _id(batch, "batch_id"),
         "polymer_processing_output_id": _id(output, "processing_output_id"),
         "polymer_processing_model_id": _id(model, "material_model_id"),
+        "polymer_processing_model_revision_id": _revision_id(model),
+        "polymer_processing_model_content_hash": _revision_hash(model),
         "polymer_processing_neutral_id": neutral_id,
         "polymer_processing_card_id": _id(abaqus_card, "solver_card_id"),
         "polymer_processing_openradioss_card_id": _id(openradioss_card, "solver_card_id"),
@@ -2116,6 +2419,8 @@ def _ensure_polymer_processing_card(api: DemoApi, *, material_id: str) -> dict[s
         "polymer_dma_processing_batch_id": _id(dma_batch, "batch_id"),
         "polymer_dma_processing_output_id": _id(dma_output, "processing_output_id"),
         "polymer_dma_processing_model_id": _id(dma_model, "material_model_id"),
+        "polymer_dma_processing_model_revision_id": _revision_id(dma_model),
+        "polymer_dma_processing_model_content_hash": _revision_hash(dma_model),
         "polymer_dma_processing_neutral_id": dma_neutral_id,
         "polymer_dma_abaqus_card_id": dma_card_ids["abaqus"],
         "polymer_dma_openradioss_card_id": dma_card_ids["openradioss"],
@@ -2190,9 +2495,7 @@ def _ensure_elastomer_baseline(api: DemoApi) -> str:
     return _id(material, "material_id")
 
 
-def _ensure_elastomer_neutral_and_cards(
-    api: DemoApi, *, material_id: str
-) -> dict[str, str]:
+def _ensure_elastomer_neutral_and_cards(api: DemoApi, *, material_id: str) -> dict[str, str]:
     """Create the exact reviewed family Neutral revision and both native cards."""
     neutral = None
     for candidate in _items(api.get(f"/bulk-export-candidates?material_id={material_id}")):
@@ -2267,9 +2570,7 @@ def _ensure_elastomer_neutral_and_cards(
     cards = _items(api.get(f"/neutral-materials/{neutral_id}/solver-cards"))
     result = {
         "elastomer_neutral_material_id": neutral_id,
-        "elastomer_neutral_material_revision_id": _id(
-            neutral, "neutral_material_revision_id"
-        ),
+        "elastomer_neutral_material_revision_id": _id(neutral, "neutral_material_revision_id"),
     }
     for solver, solver_material_id in (("abaqus", 2301), ("openradioss", 2302)):
         card = next(
@@ -2286,9 +2587,7 @@ def _ensure_elastomer_neutral_and_cards(
             report = api.post(
                 f"/neutral-materials/{neutral_id}/solver-card-preflight",
                 {
-                    "neutral_material_revision_id": _id(
-                        neutral, "neutral_material_revision_id"
-                    ),
+                    "neutral_material_revision_id": _id(neutral, "neutral_material_revision_id"),
                     "target": target,
                 },
             )
@@ -2297,13 +2596,9 @@ def _ensure_elastomer_neutral_and_cards(
             card = api.post(
                 f"/neutral-materials/{neutral_id}/solver-cards",
                 {
-                    "neutral_material_revision_id": _id(
-                        neutral, "neutral_material_revision_id"
-                    ),
+                    "neutral_material_revision_id": _id(neutral, "neutral_material_revision_id"),
                     "target": target,
-                    "expected_mapping_report_sha256": _id(
-                        report, "mapping_report_sha256"
-                    ),
+                    "expected_mapping_report_sha256": _id(report, "mapping_report_sha256"),
                     "solver_material_id": solver_material_id,
                     "material_name": "CMP_DEMO_ELASTOMER_NEUTRAL",
                     "change_reason": (
@@ -2311,9 +2606,7 @@ def _ensure_elastomer_neutral_and_cards(
                     ),
                 },
             )
-        result[f"elastomer_{solver}_neutral_solver_card_id"] = _id(
-            card, "solver_card_id"
-        )
+        result[f"elastomer_{solver}_neutral_solver_card_id"] = _id(card, "solver_card_id")
     return result
 
 
@@ -2410,6 +2703,7 @@ def _ensure_metal_neutral_and_cards(
         "neutral_material_revision_id": neutral_revision_id,
         "selected_material_model_id": _id(model, "material_model_id"),
         "selected_material_model_revision_id": _revision_id(model),
+        "selected_material_model_content_hash": _revision_hash(model),
     }
     for solver, solver_material_id in (("abaqus", 5780), ("openradioss", 5781)):
         card = by_solver.get(solver)
@@ -2522,6 +2816,20 @@ def _ensure_bulk_bundle(
     }
 
 
+def _find_material_model(
+    api: DemoApi, *, material_id: str, model_path: str, model_id: str
+) -> Mapping[str, Any]:
+    detail = api.get(f"/materials/{material_id}")
+    states = detail.get("states")
+    if not isinstance(states, list) or not states or not isinstance(states[0], Mapping):
+        raise DemoSeedError("clean demo selected model has no Material State")
+    models = _items(api.get(f"/material-states/{_id(states[0], 'material_state_id')}/{model_path}"))
+    model = next((item for item in models if item.get("material_model_id") == model_id), None)
+    if model is None:
+        raise DemoSeedError("clean demo selected model revision is not visible")
+    return model
+
+
 def seed_full_demo(base_url: str) -> dict[str, str]:
     api = DemoApi(base_url)
     api.wait_until_healthy()
@@ -2556,9 +2864,7 @@ def seed_full_demo(base_url: str) -> dict[str, str]:
         expected_count=4,
     ):
         seed_ogden_calibration_demo.main(promote=True)
-    elastomer_neutral = _ensure_elastomer_neutral_and_cards(
-        api, material_id=elastomer_id
-    )
+    elastomer_neutral = _ensure_elastomer_neutral_and_cards(api, material_id=elastomer_id)
     metal_detail = api.get(f"/materials/{metal_id}")
     metal_material = metal_detail.get("material")
     metal_states = metal_detail.get("states")
@@ -2654,6 +2960,19 @@ def seed_full_demo(base_url: str) -> dict[str, str]:
         selection_label="CMP polymer Recipe to dual-solver governed transfer",
     )
     polymer_bulk = {f"polymer_{key}": value for key, value in polymer_bulk_source.items()}
+    metal_model = _find_material_model(
+        api,
+        material_id=metal_id,
+        model_path="tabulated-plasticity-models",
+        model_id=neutral["selected_material_model_id"],
+    )
+    review_requests = {
+        "metal_processing_review_request_id": _ensure_pending_model_review(
+            api,
+            model=metal_model,
+            reason="Review the selected synthetic DP780 hardening model revision.",
+        ),
+    }
     return {
         "metal_material_id": metal_id,
         "polymer_material_id": polymer_id,
@@ -2666,6 +2985,7 @@ def seed_full_demo(base_url: str) -> dict[str, str]:
         **polymer_bulk,
         **polymer_processing,
         **elastomer_neutral,
+        **review_requests,
     }
 
 

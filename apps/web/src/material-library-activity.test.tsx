@@ -150,6 +150,17 @@ describe("Activity Modeling resume", () => {
     expect(screen.queryByRole("button", { name: "Approve" })).toBeNull();
   });
 
+  it("labels a material-model request as a selected model review", async () => {
+    mocks.reviews.mockResolvedValue({ data: { items: [
+      { ...pendingReview, aggregate_type: "modeling.material_model", reason: "Review the selected DP780 model" },
+    ] }, etag: null });
+
+    render(<ActivityPage config={config} onNavigate={vi.fn()} />);
+
+    expect(await screen.findByText("Selected model review")).toBeTruthy();
+    expect(screen.queryByText("Material data review")).toBeNull();
+  });
+
   it("lets a Reviewer record an approval and moves the returned immutable request to outcomes", async () => {
     mocks.access.mockResolvedValue({ data: { product_role: "reviewer", feature_grants: ["model_approval"], legacy_compatible: false }, etag: null });
     mocks.reviews.mockResolvedValue({ data: { items: [pendingReview] }, etag: null });

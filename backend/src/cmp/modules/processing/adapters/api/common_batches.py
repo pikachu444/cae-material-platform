@@ -16,6 +16,10 @@ from cmp.modules.identity_access.domain.authorization import (
     DataClassification,
 )
 from cmp.modules.identity_access.domain.security import SecurityContext
+from cmp.modules.processing.adapters.api.common_pipeline import (
+    FitDecisionInput,
+    ProcessingWorkupOverrideInput,
+)
 from cmp.modules.processing.application.common_batches import (
     BatchPreflight,
     BatchPreflightMember,
@@ -24,6 +28,11 @@ from cmp.modules.processing.application.common_batches import (
     CommonBatchService,
     ExecuteBatch,
     PreflightBatch,
+)
+from cmp.modules.processing.application.common_outputs import (
+    FitDecisionSnapshot,
+    ProcessingWorkupOverride,
+    fit_decision_canonical,
 )
 from cmp.modules.processing.domain.common_batches import (
     BatchAttempt,
@@ -37,13 +46,42 @@ type Text200 = Annotated[str, StringConstraints(min_length=1, max_length=200)]
 type Reason = Annotated[str, StringConstraints(min_length=1, max_length=2000)]
 
 
+def _fit_decision_input(value: FitDecisionSnapshot | None) -> FitDecisionInput | None:
+    if value is None:
+        return None
+    return FitDecisionInput.model_validate(fit_decision_canonical(value))
+
+
+def _workup_override_inputs(
+    value: tuple[ProcessingWorkupOverride, ...],
+) -> tuple[ProcessingWorkupOverrideInput, ...]:
+    return tuple(
+        ProcessingWorkupOverrideInput(
+            kind=override.kind,
+            original_value=override.original_value,
+            original_unit=override.original_unit,
+            canonical_value=override.canonical_value,
+            canonical_unit=override.canonical_unit,
+            reason=override.reason,
+        )
+        for override in value
+    )
+
+
 class BatchSourceInputModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
     document_id: UUID
     revision_id: UUID
+    workup_overrides: Annotated[tuple[ProcessingWorkupOverrideInput, ...], Field(max_length=2)] = ()
+    fit_decision: FitDecisionInput | None = None
 
     def to_domain(self) -> BatchSourceInput:
-        return BatchSourceInput(self.document_id, self.revision_id)
+        return BatchSourceInput(
+            self.document_id,
+            self.revision_id,
+            tuple(item.to_domain() for item in self.workup_overrides),
+            self.fit_decision.to_domain() if self.fit_decision else None,
+        )
 
 
 class BatchPreflightRequest(BaseModel):
@@ -75,6 +113,8 @@ class BatchPreflightMemberResponse(BaseModel):
             source=BatchSourceInputModel(
                 document_id=value.source.document_id,
                 revision_id=value.source.revision_id,
+                workup_overrides=_workup_override_inputs(value.workup_overrides),
+                fit_decision=_fit_decision_input(value.fit_decision),
             ),
             compatible=value.compatible,
             source_document_sha256=value.source_document_sha256,
@@ -117,6 +157,8 @@ class BatchMemberResponse(BaseModel):
             source=BatchSourceInputModel(
                 document_id=value.source_document.aggregate_id,
                 revision_id=value.source_document.revision_id,
+                workup_overrides=_workup_override_inputs(value.workup_overrides),
+                fit_decision=_fit_decision_input(value.fit_decision),
             ),
             source_document_sha256=value.source_document_sha256,
         )
@@ -241,9 +283,7 @@ def install_common_batch_api(
         dependencies=[Depends(security_dependency), Depends(execute_dependency)],
         tags=["processing-batches"],
     )
-    async def execute_batch(
-        body: ExecuteBatchRequest, request: Request
-    ) -> CommonBatchResponse:
+    async def execute_batch(body: ExecuteBatchRequest, request: Request) -> CommonBatchResponse:
         context, decision = scope(request)
         try:
             result = await require_service().execute(
@@ -303,9 +343,7 @@ def install_common_batch_api(
     async def retry_failed(batch_id: UUID, request: Request) -> CommonBatchResponse:
         context, decision = scope(request)
         try:
-            result = await require_service().retry_failed(
-                context, decision, batch_id
-            )
+            result = await require_service().retry_failed(context, decision, batch_id)
             return CommonBatchResponse.from_domain(result)
         except CommonBatchNotFound as error:
             raise HTTPException(status_code=404, detail=str(error)) from error

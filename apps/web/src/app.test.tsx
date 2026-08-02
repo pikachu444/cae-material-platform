@@ -99,14 +99,18 @@ function neutralSolverCard(cardId: string) {
   };
 }
 
-function neutralSolverMappingReport() {
+function neutralSolverMappingReport(review = false) {
   return {
     mapping_report_sha256: "d".repeat(64),
     exportable: true,
     report: {
       items: [
-        { name: "density", ir_path: "density", target_representation: "RHO_I", status: "exact", detail: "Mapped without approximation." },
-        { name: "elasticity", ir_path: "elasticity", target_representation: "E, NU", status: "transformed", detail: "Converted to the target unit system." },
+        ...(review ? [
+          { name: "hardening", ir_path: "hardening", target_representation: "*PLASTIC", status: "approximated", detail: "The bounded extension needs a delivery review." },
+        ] : [
+          { name: "density", ir_path: "density", target_representation: "RHO_I", status: "exact", detail: "Mapped without approximation." },
+          { name: "elasticity", ir_path: "elasticity", target_representation: "E, NU", status: "transformed", detail: "Converted to the target unit system." },
+        ]),
       ],
     },
   };
@@ -328,7 +332,7 @@ describe("Material Catalog workbench", () => {
     const pendingReview = {
       review_request_id: "review-legacy-route-1",
       classification: "internal",
-      aggregate_type: "catalog.material",
+      aggregate_type: "modeling.material_model",
       aggregate_id: "material-1",
       revision_id: "material-r1",
       manifest_sha256: "a".repeat(64),
@@ -353,7 +357,7 @@ describe("Material Catalog workbench", () => {
     expect(await screen.findByRole("heading", { name: "Activity", level: 1 })).toBeTruthy();
     await waitFor(() => expect(fetchMock.mock.calls.some(([input]) => String(input).includes("/review-requests?"))).toBe(true));
     expect(screen.getByRole("heading", { name: "Needs attention" })).toBeTruthy();
-    expect(await screen.findByText("Material data review")).toBeTruthy();
+    expect(await screen.findByText("Selected model review")).toBeTruthy();
     expect(screen.getByText(/Review the synthetic material data/)).toBeTruthy();
     expect(screen.getByRole("button", { name: "Review" })).toBeTruthy();
     expect(document.body.textContent).not.toMatch(/Aggregate type|Aggregate ID|Revision ID|Manifest SHA-256|Record decision/);
@@ -510,7 +514,7 @@ describe("Material Catalog workbench", () => {
         }], links: [] });
       }
       if (url.endsWith(`/neutral-solver-cards/${cardId}/preview`)) {
-        return textResponse("/MAT/LAW36/1\nDP780");
+        return textResponse("** CMP material-model-revision card-r1\n** CMP mapping-report-sha256 abc123\n/MAT/LAW36/1\nDP780\n/FUNCT/1\n0 450000000\n0.01 500000000\n0.05 620000000\n/END");
       }
       if (url.endsWith(`/neutral-solver-cards/${cardId}/mapping-report`)) return jsonResponse(neutralSolverMappingReport());
       if (url.endsWith(`/neutral-solver-cards/${cardId}`)) return jsonResponse(neutralSolverCard(cardId));
@@ -520,9 +524,113 @@ describe("Material Catalog workbench", () => {
     render(<App />);
 
     expect(await screen.findByRole("heading", { name: "DP780 OpenRadioss native material card" })).toBeTruthy();
-    expect(screen.getByLabelText("Native solver card preview").textContent).toContain("/MAT/LAW36/1");
-    expect(screen.getByRole("button", { name: "Download .rad" })).toBeTruthy();
+    const nativePreview = screen.getByLabelText("Native solver card preview");
+    expect(nativePreview.textContent).toContain("/MAT/LAW36/1");
+    expect(nativePreview.textContent).not.toMatch(/material-model-revision|mapping-report-sha|abc123/i);
+    const download = screen.getByRole("button", { name: "Download .rad" });
+    expect(download.closest(".card-preview-actions")).not.toBeNull();
+    expect(download.closest(".card-preview-header")).toBeNull();
+    expect(nativePreview.className).toContain("native-card-preview");
+    expect(nativePreview.tabIndex).toBe(0);
+    expect(nativePreview.parentElement?.className).toContain("preview-scroll-shell");
+    const scrollRail = nativePreview.parentElement?.querySelector<HTMLElement>(".preview-scroll-rail");
+    const scrollThumb = scrollRail?.querySelector<HTMLElement>(".preview-scroll-thumb");
+    expect(scrollRail).not.toBeNull();
+    Object.defineProperties(nativePreview, {
+      clientHeight: { configurable: true, value: 100 },
+      scrollHeight: { configurable: true, value: 600 },
+      scrollTop: { configurable: true, writable: true, value: 0 },
+    });
+    if (scrollRail) Object.defineProperty(scrollRail, "clientHeight", { configurable: true, value: 90 });
+    fireEvent.scroll(nativePreview);
+    expect(scrollRail?.dataset.scrollable).toBe("true");
+    expect(scrollThumb?.style.height).toBe("22px");
+    fireEvent.keyDown(nativePreview, { key: "PageDown" });
+    expect(nativePreview.scrollTop).toBe(100);
+    fireEvent.keyDown(nativePreview, { key: "End" });
+    expect(nativePreview.scrollTop).toBe(600);
+    const linkedResponse = screen.getByRole("img", { name: "Linked response chart showing true stress in MPa versus true plastic strain" });
+    expect(linkedResponse).toBeTruthy();
+    expect(linkedResponse.getAttribute("data-series-rows")).toBe("3");
+    expect(linkedResponse.getAttribute("data-y-domain")?.startsWith("0,")).toBe(false);
+    expect(screen.getByText("True plastic strain [1]")).toBeTruthy();
+    expect(screen.getByText("True stress (MPa)")).toBeTruthy();
+    expect(screen.getByText("Delivery checks pass for this target, so this download is ready.")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Delivery check" })).toBeTruthy();
+    expect(screen.getByText("Values unchanged")).toBeTruthy();
+    expect(screen.getByText("Converted")).toBeTruthy();
+    expect(screen.queryByText("exact")).toBeNull();
+    expect(screen.queryByText("transformed")).toBeNull();
     expect(window.location.pathname).toBe(`/materials/${materialId}/cards/${cardId}`);
+  });
+
+  it("keeps review delivery disabled until the adjacent acknowledgement is checked", async () => {
+    const materialId = visibleMaterial.material_id;
+    const cardId = "00000000-0000-4000-8000-000000000099";
+    const recordId = "00000000-0000-4000-8000-000000000010";
+    const recordRevisionId = "00000000-0000-4000-8000-000000000011";
+    window.history.pushState({}, "", `/materials/${materialId}/cards/${cardId}`);
+    const createObjectUrl = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:cmp-review-card");
+    const revokeObjectUrl = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
+    const anchorClick = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => undefined);
+    const fetchMock = mockProductFetch((input) => {
+      const url = String(input);
+      if (url.endsWith(`/materials/${materialId}`)) return jsonResponse({ material: visibleMaterial, states: [], property_sets: [] });
+      if (url.includes("/catalog/domain-bindings:resolve")) return jsonResponse({
+        binding_id: "00000000-0000-4000-8000-000000000013",
+        record_id: recordId,
+        record_revision_id: recordRevisionId,
+        kind: "material",
+        object_id: materialId,
+        revision_id: visibleMaterial.current_revision.id,
+        workbench_path: `/materials/${materialId}`,
+      });
+      if (url.includes("/catalog/workflow-explorer/")) {
+        const root = { record_id: recordId, record_revision_id: recordRevisionId, revision_no: 1, table_id: "00000000-0000-4000-8000-000000000012", name: "Demo DP780 Steel", external_key: "DP780", domain_binding: null };
+        return jsonResponse({ root, nodes: [root, {
+          ...root,
+          record_id: "00000000-0000-4000-8000-000000000020",
+          record_revision_id: "00000000-0000-4000-8000-000000000021",
+          name: "DP780 OpenRadioss native material card",
+          domain_binding: {
+            binding_id: "00000000-0000-4000-8000-000000000022",
+            record_id: "00000000-0000-4000-8000-000000000020",
+            record_revision_id: "00000000-0000-4000-8000-000000000021",
+            kind: "neutral_solver_card",
+            object_id: cardId,
+            revision_id: "00000000-0000-4000-8000-000000000023",
+            workbench_path: "/exports",
+          },
+        }], links: [] });
+      }
+      if (url.endsWith(`/neutral-solver-cards/${cardId}/preview`)) return textResponse("/MAT/LAW36/1\nDP780");
+      if (url.endsWith(`/neutral-solver-cards/${cardId}/mapping-report`)) return jsonResponse(neutralSolverMappingReport(true));
+      if (url.endsWith(`/neutral-solver-cards/${cardId}`)) return jsonResponse(neutralSolverCard(cardId));
+      if (url.endsWith(`/neutral-solver-cards/${cardId}/download`)) return {
+        ok: true,
+        status: 200,
+        headers: new Headers({ "content-disposition": "attachment; filename=DP780.rad" }),
+        blob: async () => new Blob(["/MAT/LAW36/1\nDP780"], { type: "text/plain" }),
+      } as Response;
+      throw new Error(`Unexpected request: ${url}`);
+    });
+
+    render(<App />);
+
+    const download = await screen.findByRole("button", { name: "Download .rad" });
+    expect((download as HTMLButtonElement).disabled).toBe(true);
+    const acknowledgement = screen.getByRole("checkbox", { name: "I reviewed the delivery notes before downloading this card." });
+    expect(acknowledgement.closest("li")).not.toBeNull();
+    expect(acknowledgement.closest("li")?.textContent).toContain("Review required");
+    expect(screen.queryByRole("img", { name: "Linked response chart showing true stress in MPa versus true plastic strain" })).toBeNull();
+    fireEvent.click(acknowledgement);
+    expect((download as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(download);
+
+    await waitFor(() => expect(fetchMock.mock.calls.some(([input]) => String(input).endsWith(`/neutral-solver-cards/${cardId}/download`))).toBe(true));
+    expect(createObjectUrl).toHaveBeenCalled();
+    expect(revokeObjectUrl).toHaveBeenCalledWith("blob:cmp-review-card");
+    expect(anchorClick).toHaveBeenCalled();
   });
 
   it("downloads the preferred native OpenRadioss card directly from Material Detail", async () => {

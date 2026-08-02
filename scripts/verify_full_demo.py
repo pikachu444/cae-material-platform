@@ -41,6 +41,37 @@ def _content(value: Mapping[str, Any]) -> Mapping[str, Any]:
     return content if isinstance(content, Mapping) else {}
 
 
+def _pending_model_review(
+    client: httpx.Client, *, model: Mapping[str, Any], label: str
+) -> Mapping[str, Any]:
+    model_id = str(model["material_model_id"])
+    revision = model.get("current_revision")
+    if not isinstance(revision, Mapping):
+        raise RuntimeError(f"{label} has no exact current model revision")
+    revision_id = str(revision["id"])
+    requests = _items(
+        _json(
+            client.get(
+                "/review-requests?aggregate_type=modeling.material_model"
+                f"&aggregate_id={model_id}&revision_id={revision_id}"
+            )
+        )
+    )
+    if len(requests) != 1:
+        raise RuntimeError(f"{label} does not have exactly one pending review request")
+    request = requests[0]
+    if (
+        request.get("aggregate_type") != "modeling.material_model"
+        or request.get("aggregate_id") != model_id
+        or request.get("revision_id") != revision_id
+        or request.get("manifest_sha256") != revision.get("content_hash")
+        or request.get("lifecycle_state") != "review"
+        or request.get("decision") is not None
+    ):
+        raise RuntimeError(f"{label} review request is not pending for the exact model revision")
+    return request
+
+
 def verify_full_demo(base_url: str) -> dict[str, object]:
     with httpx.Client(base_url=base_url, timeout=60.0) as anonymous:
         token = str(_json(anonymous.get("/demo-identity/token"))["access_token"])
@@ -135,15 +166,18 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             raise RuntimeError("elastomer Neutral JSON does not pin four exact Datasets")
         roles = [item.get("role") for item in elastomer_datasets if isinstance(item, Mapping)]
         modes = {
-            str(item.get("test_mode"))
-            for item in elastomer_datasets
-            if isinstance(item, Mapping)
+            str(item.get("test_mode")) for item in elastomer_datasets if isinstance(item, Mapping)
         }
-        if roles.count("calibration") != 3 or roles.count("holdout") != 1 or modes != {
-            "uniaxial_tension",
-            "planar_tension",
-            "biaxial_tension",
-        }:
+        if (
+            roles.count("calibration") != 3
+            or roles.count("holdout") != 1
+            or modes
+            != {
+                "uniaxial_tension",
+                "planar_tension",
+                "biaxial_tension",
+            }
+        ):
             raise RuntimeError("elastomer Neutral JSON roles or test modes are incomplete")
         selection = elastomer_neutral["document"]["candidate_selection"]
         run_id = str(selection["calibration_run_id"])
@@ -249,13 +283,30 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             for item in _items(_json(client.get("/processing-outputs")))
             if item.get("processing_output_id") == polymer_attempt.get("output_id")
         )
+        polymer_members = polymer_batch.get("members")
+        polymer_source = (
+            polymer_members[0].get("source")
+            if isinstance(polymer_members, list)
+            and len(polymer_members) == 1
+            and isinstance(polymer_members[0], Mapping)
+            else None
+        )
+        if (
+            not isinstance(polymer_members, list)
+            or len(polymer_members) != 1
+            or not isinstance(polymer_members[0], Mapping)
+            or not isinstance(polymer_source, Mapping)
+            or polymer_source.get("fit_decision") is None
+            or polymer_source.get("workup_overrides") != []
+            or polymer_output.get("fit_decision") != polymer_source.get("fit_decision")
+            or polymer_output.get("workup_overrides") != polymer_source.get("workup_overrides")
+        ):
+            raise RuntimeError("polymer batch/output did not preserve explicit fit evidence")
         processed_model = next(
             (
                 item
                 for item in polymer_models
-                if isinstance(
-                    _content(item).get("processing_promotion_evidence"), Mapping
-                )
+                if isinstance(_content(item).get("processing_promotion_evidence"), Mapping)
                 and _content(item)["processing_promotion_evidence"]
                 .get("processing_output", {})
                 .get("id")
@@ -444,6 +495,25 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             for item in _items(_json(client.get("/processing-outputs")))
             if item.get("processing_output_id") == dma_attempt.get("output_id")
         )
+        dma_members = dma_batch.get("members")
+        dma_source = (
+            dma_members[0].get("source")
+            if isinstance(dma_members, list)
+            and len(dma_members) == 1
+            and isinstance(dma_members[0], Mapping)
+            else None
+        )
+        if (
+            not isinstance(dma_members, list)
+            or len(dma_members) != 1
+            or not isinstance(dma_members[0], Mapping)
+            or not isinstance(dma_source, Mapping)
+            or dma_source.get("fit_decision") is None
+            or dma_source.get("workup_overrides") != []
+            or dma_output.get("fit_decision") != dma_source.get("fit_decision")
+            or dma_output.get("workup_overrides") != dma_source.get("workup_overrides")
+        ):
+            raise RuntimeError("DMA batch/output did not preserve explicit fit evidence")
         dma_model = next(
             (
                 item
@@ -502,7 +572,9 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
                 "DMA Neutral JSON does not pin its exact test mode and Mapping Profile"
             )
         dma_cards = _items(
-            _json(client.get(f"/neutral-materials/{dma_neutral['neutral_material_id']}/solver-cards"))
+            _json(
+                client.get(f"/neutral-materials/{dma_neutral['neutral_material_id']}/solver-cards")
+            )
         )
         dma_native_cards: dict[str, dict[str, str]] = {}
         for solver, keyword in (
@@ -510,9 +582,7 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             ("openradioss", b"/VISC/LPRONY"),
         ):
             card = next(
-                item
-                for item in dma_cards
-                if item.get("target", {}).get("solver") == solver
+                item for item in dma_cards if item.get("target", {}).get("solver") == solver
             )
             native = client.get(f"/neutral-solver-cards/{card['solver_card_id']}/download")
             native.raise_for_status()
@@ -542,9 +612,7 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
         table = next(
             item for item in tables if _content(item).get("key") == "demo_material_records"
         )
-        subsets = _items(
-            _json(client.get(f"/catalog/tables/{table['table_id']}/subsets"))
-        )
+        subsets = _items(_json(client.get(f"/catalog/tables/{table['table_id']}/subsets")))
         workflow_subset = next(
             (item for item in subsets if item.get("name") == "DP780 workflow records"),
             None,
@@ -666,6 +734,35 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             for item in batch.get("attempts", [])
             if isinstance(item, Mapping) and item.get("status") == "succeeded"
         )
+        metal_output = next(
+            item
+            for item in _items(_json(client.get("/processing-outputs")))
+            if item.get("processing_output_id") == batch_attempt.get("output_id")
+        )
+        metal_members = batch.get("members")
+        metal_source = (
+            metal_members[0].get("source")
+            if isinstance(metal_members, list)
+            and len(metal_members) == 1
+            and isinstance(metal_members[0], Mapping)
+            else None
+        )
+        metal_workup = (
+            metal_source.get("workup_overrides") if isinstance(metal_source, Mapping) else None
+        )
+        if (
+            not isinstance(metal_members, list)
+            or len(metal_members) != 1
+            or not isinstance(metal_members[0], Mapping)
+            or not isinstance(metal_source, Mapping)
+            or not isinstance(metal_workup, list)
+            or len(metal_workup) != 1
+            or metal_workup[0].get("kind") != "necking_boundary"
+            or metal_source.get("fit_decision") is None
+            or metal_output.get("fit_decision") != metal_source.get("fit_decision")
+            or metal_output.get("workup_overrides") != metal_workup
+        ):
+            raise RuntimeError("metal batch/output did not preserve fit and necking evidence")
         metal_detail = _json(client.get(f"/materials/{metal_id}"))
         metal_states = metal_detail.get("states")
         if not isinstance(metal_states, list) or not metal_states:
@@ -681,6 +778,9 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
         )
         metal_projection = _content(metal_model)["processing_projection"]
         assert isinstance(metal_projection, Mapping)
+        metal_review = _pending_model_review(
+            client, model=metal_model, label="metal selected model"
+        )
         metal_recipe_batch = metal_projection.get("recipe_batch")
         exact_metal_recipe = (
             metal_recipe_batch.get("processing_recipe")
@@ -690,14 +790,12 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
         if (
             not isinstance(exact_metal_recipe, Mapping)
             or exact_metal_recipe.get("id") != recipe.get("processing_recipe_id")
-            or exact_metal_recipe.get("revision_id")
-            != recipe.get("current_revision", {}).get("id")
+            or exact_metal_recipe.get("revision_id") != recipe.get("current_revision", {}).get("id")
             or not isinstance(metal_recipe_batch, Mapping)
             or not isinstance(batch_attempt, Mapping)
             or metal_recipe_batch.get("processing_batch_id") != batch.get("batch_id")
             or metal_recipe_batch.get("batch_attempt_id") != batch_attempt.get("attempt_id")
-            or metal_projection.get("output_revision_id")
-            != batch_attempt.get("output_revision_id")
+            or metal_projection.get("output_revision_id") != batch_attempt.get("output_revision_id")
         ):
             raise RuntimeError("metal IR does not pin the exact Recipe/Batch/Output execution")
 
@@ -716,8 +814,7 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
         neutral_recipe = neutral["document"]["sources"]["processing_recipe"]
         if (
             neutral_recipe.get("status") != "exact_revision"
-            or neutral_recipe.get("reference", {}).get("id")
-            != recipe.get("processing_recipe_id")
+            or neutral_recipe.get("reference", {}).get("id") != recipe.get("processing_recipe_id")
             or neutral_recipe.get("reference", {}).get("revision_id")
             != recipe.get("current_revision", {}).get("id")
         ):
@@ -807,6 +904,7 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             "processing_batch_id": batch["batch_id"],
             "processing_batch_attempt_id": batch_attempt["attempt_id"],
             "metal_model_schema_version": _content(metal_model)["model_schema_version"],
+            "review_request_id": metal_review["review_request_id"],
             "neutral_material_id": neutral_id,
             "neutral_solver_card_sha256": native_downloads,
             "bulk_bundle_id": bundle_id,

@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 from contextlib import contextmanager
-from typing import Any, Protocol, cast
+from typing import Any, Literal, Protocol, cast
 from uuid import UUID
 
 import sqlalchemy as sa
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Session, sessionmaker
 
 from cmp.modules.identity_access.domain.authorization import AuthorizationDecision
@@ -15,6 +16,13 @@ from cmp.modules.processing.application.common_batches import (
     CommonBatchNotFound,
     CommonBatchRepository,
     ProcessingExecutionOrigin,
+)
+from cmp.modules.processing.application.common_outputs import (
+    FitDecisionParameter,
+    FitDecisionParameterSet,
+    FitDecisionSnapshot,
+    ProcessingWorkupOverride,
+    fit_decision_canonical,
 )
 from cmp.modules.processing.domain.common_batches import (
     BatchAttempt,
@@ -63,6 +71,8 @@ member_table = sa.Table(
     sa.Column("source_document_id", sa.Uuid(), nullable=False),
     sa.Column("source_document_revision_id", sa.Uuid(), nullable=False),
     sa.Column("source_document_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("workup_overrides", JSONB(), nullable=False),
+    sa.Column("fit_decision", JSONB(none_as_null=True), nullable=True),
     schema="processing",
 )
 attempt_table = sa.Table(
@@ -84,6 +94,72 @@ attempt_table = sa.Table(
     sa.Column("completed_at", sa.DateTime(timezone=True), nullable=False),
     schema="processing",
 )
+
+
+def _workup_overrides(value: Any) -> tuple[ProcessingWorkupOverride, ...]:
+    if value is None:
+        return ()
+    return tuple(
+        ProcessingWorkupOverride(
+            kind=cast(Literal["youngs_modulus", "necking_boundary"], str(item["kind"])),
+            original_value=float(item["original_value"]),
+            original_unit=str(item["original_unit"]),
+            canonical_value=float(item["canonical_value"]),
+            canonical_unit=str(item["canonical_unit"]),
+            reason=str(item["reason"]),
+        )
+        for item in value
+    )
+
+
+def _fit_decision(value: Any) -> FitDecisionSnapshot | None:
+    if value is None:
+        return None
+    return FitDecisionSnapshot(
+        candidate_key=str(value["candidate_key"]),
+        mode=cast(Literal["single", "blend"], str(value["mode"])),
+        primary_law=str(value["primary_law"]),
+        secondary_law=value["secondary_law"],
+        primary_weight=value["primary_weight"],
+        parameter_sets=tuple(
+            FitDecisionParameterSet(
+                law=str(item["law"]),
+                parameters=tuple(
+                    FitDecisionParameter(
+                        name=str(parameter["name"]),
+                        value=float(parameter["value"]),
+                        unit=str(parameter["unit"]),
+                        lower=(
+                            None
+                            if parameter["lower"] is None
+                            else float(parameter["lower"])
+                        ),
+                        upper=(
+                            None
+                            if parameter["upper"] is None
+                            else float(parameter["upper"])
+                        ),
+                    )
+                    for parameter in item["parameters"]
+                ),
+            )
+            for item in value["parameter_sets"]
+        ),
+        fit_minimum=float(value["fit_minimum"]),
+        fit_maximum=float(value["fit_maximum"]),
+        extrapolation_maximum=(
+            None
+            if value["extrapolation_maximum"] is None
+            else float(value["extrapolation_maximum"])
+        ),
+        extrapolation_policy=str(value["extrapolation_policy"]),
+        metric_definition=str(value["metric_definition"]),
+        metric_value=float(value["metric_value"]),
+        requested_term_policy=value["requested_term_policy"],
+        actual_term_count=value["actual_term_count"],
+        selection_reason=str(value["selection_reason"]),
+        warning_acknowledged=bool(value["warning_acknowledged"]),
+    )
 
 
 class SqlAlchemyCommonBatchRepository(CommonBatchRepository):
@@ -141,6 +217,18 @@ class SqlAlchemyCommonBatchRepository(CommonBatchRepository):
                         "source_document_id": member.source_document.aggregate_id,
                         "source_document_revision_id": member.source_document.revision_id,
                         "source_document_sha256": member.source_document_sha256,
+                        "workup_overrides": [
+                            {
+                                "kind": override.kind,
+                                "original_value": override.original_value,
+                                "original_unit": override.original_unit,
+                                "canonical_value": override.canonical_value,
+                                "canonical_unit": override.canonical_unit,
+                                "reason": override.reason,
+                            }
+                            for override in member.workup_overrides
+                        ],
+                        "fit_decision": fit_decision_canonical(member.fit_decision),
                     }
                     for member in batch.members
                 ],
@@ -227,6 +315,8 @@ class SqlAlchemyCommonBatchRepository(CommonBatchRepository):
                         cast(UUID, item["source_document_revision_id"]),
                     ),
                     source_document_sha256=str(item["source_document_sha256"]),
+                    workup_overrides=_workup_overrides(item["workup_overrides"]),
+                    fit_decision=_fit_decision(item["fit_decision"]),
                 )
                 for item in members
             ),
