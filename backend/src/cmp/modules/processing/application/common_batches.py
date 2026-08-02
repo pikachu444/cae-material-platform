@@ -18,6 +18,8 @@ from cmp.modules.processing.application.common_outputs import (
     CommitProcessingOutput,
     CommonProcessingOutputService,
     ExactRevisionPin,
+    FitDecisionSnapshot,
+    ProcessingWorkupOverride,
 )
 from cmp.modules.processing.application.common_recipes import CommonRecipeService
 from cmp.modules.processing.domain.common_batches import (
@@ -53,6 +55,8 @@ class ProcessingExecutionOrigin:
 class BatchSourceInput:
     document_id: UUID
     revision_id: UUID
+    workup_overrides: tuple[ProcessingWorkupOverride, ...] = ()
+    fit_decision: FitDecisionSnapshot | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -71,6 +75,8 @@ class BatchPreflightMember:
     source_document_sha256: str | None
     final_point_count: int | None
     diagnostic: str | None
+    workup_overrides: tuple[ProcessingWorkupOverride, ...] = ()
+    fit_decision: FitDecisionSnapshot | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -174,7 +180,9 @@ class CommonBatchService:
         _require(context, decision, Permission.PROCESSING_EXECUTE)
         if not command.sources or len(command.sources) > 500:
             raise CommonPipelineError("Batch preflight requires 1..500 exact inputs")
-        if len(set(command.sources)) != len(command.sources):
+        if len({(item.document_id, item.revision_id) for item in command.sources}) != len(
+            command.sources
+        ):
             raise CommonPipelineError("Batch exact inputs must be unique")
         recipe = self._recipes.get_recipe_revision(
             context, decision, command.recipe_id, command.recipe_revision_id
@@ -204,6 +212,8 @@ class CommonBatchService:
                         result.source_document_sha256,
                         result.preview.stages[-1].point_count,
                         None,
+                        source.workup_overrides,
+                        source.fit_decision,
                     )
                 )
             except (CommonPipelineError, TypeError, ValueError) as error:
@@ -259,6 +269,8 @@ class CommonBatchService:
                         item.source.document_id, item.source.revision_id
                     ),
                     source_document_sha256=item.source_document_sha256 or "",
+                    workup_overrides=item.workup_overrides,
+                    fit_decision=item.fit_decision,
                 )
                 for item in preflight.members
             ),
@@ -353,6 +365,8 @@ class CommonBatchService:
                     BatchSourceInput(
                         member.source_document.aggregate_id,
                         member.source_document.revision_id,
+                        member.workup_overrides,
+                        member.fit_decision,
                     ),
                     change_reason,
                 ),
@@ -390,6 +404,8 @@ class CommonBatchService:
         source: BatchSourceInput,
         change_reason: str,
     ) -> CommitProcessingOutput:
+        # Evidence belongs to the exact source/member pin and is carried into
+        # the immutable Processing Output commit without re-derivation.
         return CommitProcessingOutput(
             classification=classification,
             label=label[:200],
@@ -397,6 +413,8 @@ class CommonBatchService:
             mapping_profile=ExactRevisionPin(profile_id, profile_revision_id),
             steps=steps,
             change_reason=change_reason,
+            workup_overrides=source.workup_overrides,
+            fit_decision=source.fit_decision,
         )
 
     def get_batch(

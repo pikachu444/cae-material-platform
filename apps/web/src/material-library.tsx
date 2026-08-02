@@ -341,6 +341,171 @@ function RepresentativeCurve({ points }: { points: Array<{ x: number; y: number 
   return <svg className="material-curve-preview" role="img" aria-label="Representative governed material curve" viewBox={`0 0 ${width} ${height}`}><line x1="36" y1="12" x2="36" y2={height - 28}/><line x1="36" y1={height - 28} x2={width - 16} y2={height - 28}/><polyline points={polyline}/><text x="8" y="18">stress</text><text x={width - 48} y={height - 8}>strain</text></svg>;
 }
 
+function NativeCardPreview({ text }: { text: string }) {
+  const previewRef = useRef<HTMLPreElement | null>(null);
+  const railRef = useRef<HTMLDivElement | null>(null);
+  const thumbRef = useRef<HTMLSpanElement | null>(null);
+
+  useEffect(() => {
+    const preview = previewRef.current;
+    const rail = railRef.current;
+    const thumb = thumbRef.current;
+    if (!preview || !rail || !thumb) return;
+    const updateScrollRail = () => {
+      const scrollable = preview.scrollHeight > preview.clientHeight + 1;
+      rail.dataset.scrollable = String(scrollable);
+      if (!scrollable) {
+        thumb.style.height = "0px";
+        thumb.style.transform = "translateY(0px)";
+        return;
+      }
+      const trackHeight = Math.max(0, rail.clientHeight);
+      const thumbHeight = Math.min(trackHeight, Math.max(22, trackHeight * (preview.clientHeight / preview.scrollHeight)));
+      const travel = Math.max(0, trackHeight - thumbHeight);
+      const range = Math.max(1, preview.scrollHeight - preview.clientHeight);
+      thumb.style.height = `${thumbHeight}px`;
+      thumb.style.transform = `translateY(${travel * (preview.scrollTop / range)}px)`;
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "PageDown") {
+        event.preventDefault();
+        preview.scrollTop += preview.clientHeight;
+      } else if (event.key === "PageUp") {
+        event.preventDefault();
+        preview.scrollTop -= preview.clientHeight;
+      } else if (event.key === "End") {
+        event.preventDefault();
+        preview.scrollTop = preview.scrollHeight;
+      } else if (event.key === "Home") {
+        event.preventDefault();
+        preview.scrollTop = 0;
+      }
+    };
+    preview.addEventListener("scroll", updateScrollRail, { passive: true });
+    preview.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("resize", updateScrollRail);
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(updateScrollRail);
+    observer?.observe(preview);
+    observer?.observe(rail);
+    const frame = typeof window.requestAnimationFrame === "function" ? window.requestAnimationFrame(updateScrollRail) : 0;
+    return () => {
+      preview.removeEventListener("scroll", updateScrollRail);
+      preview.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("resize", updateScrollRail);
+      observer?.disconnect();
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, [text]);
+
+  return <div className="preview-scroll-shell">
+    <pre ref={previewRef} className="native-card-preview preview-scroll" aria-label="Native solver card preview" tabIndex={0}>{text}</pre>
+    <div ref={railRef} className="preview-scroll-rail" data-scrollable="false" aria-hidden="true"><span ref={thumbRef} className="preview-scroll-thumb"/></div>
+  </div>;
+}
+
+function normalizeLinkedResponsePoints(points: Array<{ x: number; y: number }>): Array<{ x: number; y: number }> {
+  const maximumMagnitude = Math.max(...points.map((point) => Math.abs(point.y)), 0);
+  const stressScale = maximumMagnitude > 10_000 ? 1e-6 : 1;
+  return points.map((point) => ({ x: point.x, y: point.y * stressScale }));
+}
+
+function plotTicks(minimum: number, maximum: number, step: number): number[] {
+  const ticks: number[] = [];
+  for (let value = Math.ceil(minimum / step) * step; value <= maximum + step * 0.01; value += step) {
+    ticks.push(Number(value.toFixed(6)));
+  }
+  return ticks;
+}
+
+function formatLinkedResponseTick(value: number, axis: "x" | "y"): string {
+  if (axis === "x") {
+    if (Math.abs(value) < 1e-9) return "0";
+    return value.toFixed(3).replace(/0+$/, "").replace(/\.$/, "");
+  }
+  return new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(value);
+}
+
+function LinkedResponseGraph({ points }: { points: Array<{ x: number; y: number }> }) {
+  const frameRef = useRef<HTMLDivElement | null>(null);
+  const [frameSize, setFrameSize] = useState({ width: 720, height: 300 });
+  const normalizedPoints = useMemo(() => normalizeLinkedResponsePoints(points), [points]);
+
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (!frame) return;
+    const measure = () => {
+      const bounds = frame.getBoundingClientRect();
+      setFrameSize((current) => {
+        const width = Math.max(1, Math.round(bounds.width));
+        const height = Math.max(1, Math.round(bounds.height));
+        return current.width === width && current.height === height ? current : { width, height };
+      });
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
+    observer?.observe(frame);
+    return () => {
+      window.removeEventListener("resize", measure);
+      observer?.disconnect();
+    };
+  }, [normalizedPoints.length]);
+
+  if (normalizedPoints.length < 2) return null;
+  const width = Math.max(360, frameSize.width);
+  const height = Math.max(220, frameSize.height);
+  const margin = { left: 62, right: 24, top: 20, bottom: 44 };
+  const plotWidth = Math.max(1, width - margin.left - margin.right);
+  const plotHeight = Math.max(1, height - margin.top - margin.bottom);
+  const xMaximum = Math.max(...normalizedPoints.map((point) => point.x), 0);
+  const xStep = xMaximum <= 0.25 ? 0.025 : xMaximum <= 1 ? 0.1 : 0.5;
+  const xDomainStep = xMaximum <= 0.25 ? 0.005 : xStep / 2;
+  const xDomainMaximum = Math.max(xDomainStep, Math.ceil((xMaximum + Math.max(xMaximum * 0.05, 0.005)) / xDomainStep) * xDomainStep);
+  const yMinimum = Math.min(...normalizedPoints.map((point) => point.y));
+  const yMaximum = Math.max(...normalizedPoints.map((point) => point.y));
+  const ySpan = Math.max(yMaximum - yMinimum, 1);
+  const yPad = Math.max(ySpan * 0.05, 10);
+  const yDomainMinimum = Math.max(0, Math.floor((yMinimum - yPad) / 10) * 10);
+  const yDomainMaximum = Math.max(yDomainMinimum + 10, Math.ceil((yMaximum + yPad) / 10) * 10);
+  const yStep = yDomainMaximum - yDomainMinimum <= 400 ? 50 : yDomainMaximum - yDomainMinimum <= 800 ? 100 : 200;
+  const xTicks = plotTicks(0, xDomainMaximum, xStep);
+  const yTicks = plotTicks(yDomainMinimum, yDomainMaximum, yStep);
+  const scaleX = (value: number) => margin.left + (value / xDomainMaximum) * plotWidth;
+  const scaleY = (value: number) => margin.top + (1 - (value - yDomainMinimum) / (yDomainMaximum - yDomainMinimum)) * plotHeight;
+  const mappedPoints = normalizedPoints.map((point) => ({ x: scaleX(point.x), y: scaleY(point.y) }));
+  const linePoints = mappedPoints.map((point) => `${point.x.toFixed(2)},${point.y.toFixed(2)}`).join(" ");
+  const gridX = xTicks.map((value) => <line key={`grid-x-${value}`} x1={scaleX(value)} y1={margin.top} x2={scaleX(value)} y2={margin.top + plotHeight}/>);
+  const gridY = yTicks.map((value) => <line key={`grid-y-${value}`} x1={margin.left} y1={scaleY(value)} x2={margin.left + plotWidth} y2={scaleY(value)}/>);
+  const legendWidth = 168;
+  const legendCandidates = [
+    { x: margin.left + plotWidth - legendWidth - 8, y: margin.top + 16 },
+    { x: margin.left + 8, y: margin.top + 16 },
+    { x: margin.left + plotWidth - legendWidth - 8, y: margin.top + plotHeight - 8 },
+    { x: margin.left + 8, y: margin.top + plotHeight - 8 },
+  ];
+  const legend = legendCandidates.find((candidate) => !mappedPoints.some((point) => point.x >= candidate.x - 4 && point.x <= candidate.x + legendWidth && point.y >= candidate.y - 16 && point.y <= candidate.y + 4)) ?? legendCandidates[0];
+
+  return <section className="linked-response-band response-plot-band" aria-labelledby="linked-response-title">
+    <header className="linked-response-heading response-plot-heading"><div><h2 id="linked-response-title">Linked response</h2><p>Same values as the selected card preview.</p></div><span className="ux-meta">Card evidence · read only</span></header>
+    <div ref={frameRef} className="linked-response-frame response-plot-frame">
+      <svg className="linked-response-plot response-plot" role="img" aria-label="Linked response chart showing true stress in MPa versus true plastic strain" viewBox={`0 0 ${width} ${height}`} data-series-rows={normalizedPoints.length} data-x-domain={`0,${xDomainMaximum}`} data-y-domain={`${yDomainMinimum},${yDomainMaximum}`} data-x-label="True plastic strain [1]" data-y-label="True stress (MPa)">
+        <title>True stress versus true plastic strain from the selected card.</title>
+        <g className="linked-response-grid plot-grid" aria-hidden="true">{gridX}{gridY}</g>
+        <path className="linked-response-axis plot-axis" d={`M ${margin.left} ${margin.top} V ${margin.top + plotHeight} H ${margin.left + plotWidth}`}/>
+        <g className="linked-response-labels">
+          {xTicks.map((value) => <g key={`x-tick-${value}`}><line className="linked-response-tick plot-tick" x1={scaleX(value)} y1={margin.top + plotHeight} x2={scaleX(value)} y2={margin.top + plotHeight + 5}/><text className="linked-response-tick-label plot-tick-label" x={scaleX(value)} y={height - 24} textAnchor="middle">{formatLinkedResponseTick(value, "x")}</text></g>)}
+          {yTicks.map((value) => <g key={`y-tick-${value}`}><line className="linked-response-tick plot-tick" x1={margin.left - 5} y1={scaleY(value)} x2={margin.left} y2={scaleY(value)}/><text className="linked-response-tick-label plot-tick-label" x={margin.left - 10} y={scaleY(value) + 4} textAnchor="end">{formatLinkedResponseTick(value, "y")}</text></g>)}
+          <text className="linked-response-axis-title plot-axis-title" x={margin.left + plotWidth / 2} y={height - 7} textAnchor="middle">True plastic strain [1]</text>
+          <text className="linked-response-axis-title plot-axis-title" transform={`translate(16 ${margin.top + plotHeight / 2}) rotate(-90)`} textAnchor="middle">True stress (MPa)</text>
+        </g>
+        <polyline className="linked-response-line response-line" points={linePoints} data-series-line="true"/>
+        <g className="linked-response-points response-points" aria-hidden="true">{mappedPoints.map((point, index) => <circle key={`point-${index}`} className="linked-response-point response-point" cx={point.x} cy={point.y} r="3"/>)}</g>
+        <g className="linked-response-legend plot-legend" transform={`translate(${legend.x} ${legend.y})`}><line x1="0" y1="-4" x2="18" y2="-4"/><text x="26" y="0">Card hardening data</text></g>
+      </svg>
+    </div>
+  </section>;
+}
+
 function triggerDownload(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
@@ -563,7 +728,7 @@ function configurableValueText(value: ConfigurableRecordValue): string {
 }
 
 function CardTable({ config, material, cards, onNavigate }: { config: ApiConfig; material: MaterialResponse; cards: SolverCardSummary[]; onNavigate: (path: string) => void }) {
-  if (!cards.length) return <div className="ux-empty compact"><strong>No native card is available.</strong><p>Create one from the exact Neutral Material below, or continue the selected material in Modeling.</p></div>;
+  if (!cards.length) return <div className="ux-empty compact"><strong>No native card is available.</strong><p>Create one from the selected source data below, or continue the selected material in Modeling.</p></div>;
   return <table className="ux-table cae-card-table"><thead><tr><th>Solver</th><th>Card</th><th>Format</th><th>Delivery</th></tr></thead><tbody>{cards.map((card) => <tr key={card.id}><td><strong>{card.solver}</strong></td><td title={card.label}>{card.label}</td><td>Native ASCII {card.extension}</td><td><div className="card-table-actions"><SolverCardAction config={config} card={card} material={deliveryMaterial(material)} onNavigate={onNavigate} directClassName="ux-button" reviewClassName="ux-button" includePreview/></div></td></tr>)}</tbody></table>;
 }
 
@@ -633,10 +798,10 @@ export function MaterialDetailPage({ config, materialId, activeTab, onNavigate }
     <header className="material-detail-header"><div><h1>{content.name}</h1><div className="material-detail-meta"><span>{content.material_code ?? "No grade code"}</span><span>{content.material_family ?? content.material_class}</span><span>{sourceLabel(experience)}</span><span>{material.current_revision.lifecycle_state}</span></div></div><div className="card-action-row">{preferredCard ? <SolverCardAction config={config} card={preferredCard} material={deliveryMaterial(material)} onNavigate={onNavigate}/> : neutralMaterial ? <button className="ux-button primary" type="button" onClick={() => onNavigate(`/materials/${materialId}/cards`)}>Create card</button> : modelingFamily(material) ? <button className="ux-button primary" type="button" onClick={() => startModeling(material, onNavigate)}>Start Modeling</button> : <p className="ux-notice" role="status">Modeling is not supported for this family.</p>}<ReviewRequestAction config={config} subject={{ aggregateType: "catalog.material", aggregateId: material.material_id, revisionId: material.current_revision.id, manifestSha256: material.current_revision.content_hash, classification: material.current_revision.classification, lifecycleState: material.current_revision.lifecycle_state }} /></div></header>
     <nav className="ux-tabs" role="tablist" aria-label="Material detail"><input type="hidden" value={activePath} readOnly />{tabs.map((tab) => <button key={tab.id} className="ux-tab" type="button" role="tab" aria-selected={activeTab === tab.id} onClick={() => onNavigate(tab.id === "overview" ? `/materials/${materialId}` : `/materials/${materialId}/${tab.id}`)}>{tab.label}</button>)}</nav>
     <section className="material-tab-panel" role="tabpanel">
-      {activeTab === "overview" ? <div className="overview-grid"><div><section className="overview-section"><div className="detail-section-heading"><div><p className="ux-kicker">Engineering summary</p><h2>Key properties</h2></div><button className="ux-button tertiary" type="button" onClick={() => onNavigate(`/materials/${materialId}/properties`)}>All properties</button></div><div className="overview-property-grid"><div><span>Density</span><strong>{formatDensity(property?.density_kg_per_m3)}</strong></div><div><span>Young’s modulus</span><strong>{formatPressure(property?.youngs_modulus_pa)}</strong></div><div><span>Yield strength</span><strong>{formatPressure(property?.yield_stress_pa)}</strong></div><div><span>Poisson ratio</span><strong>{property?.poisson_ratio ?? "—"}</strong></div></div></section><div className="overview-data-grid"><section className="overview-section"><div className="detail-section-heading"><div><p className="ux-kicker">Representative curve</p><h2>Linked material response</h2></div><button className="ux-button tertiary" type="button" onClick={() => onNavigate(`/materials/${materialId}/curves`)}>All curves</button></div><RepresentativeCurve points={experience.representativeCurve}/></section><section className="overview-section"><p className="ux-kicker">Application conditions</p><h2>Material states</h2><dl className="condition-summary"><dt>Temperature</dt><dd>{property?.applicability.temperature_min_k ?? "—"}–{property?.applicability.temperature_max_k ?? "—"} K</dd><dt>Strain rate</dt><dd>{property?.applicability.strain_rate_min_per_s ?? "—"}–{property?.applicability.strain_rate_max_per_s ?? "—"} /s</dd></dl>{experience.detail.states.slice(0, 2).map((state) => <p className="condition-state" key={state.material_state_id}><strong>{state.current_revision.content.name}</strong><span>{state.current_revision.content.manufacturing_route ?? "Route not specified"}</span></p>)}</section></div></div><aside><p className="ux-kicker">CAE delivery</p><h2>Ready solver cards</h2><p>Choose a native format. The primary Download action above uses the preferred available solver.</p><SolverAvailability cards={experience.cards}/><div className="solver-preview-links">{experience.cards.map((card) => <button key={card.id} type="button" onClick={() => onNavigate(`/materials/${materialId}/cards/${card.id}`)}>Preview {card.solver} {card.extension}</button>)}</div><button className="ux-button tertiary" type="button" onClick={() => onNavigate(browsePath(experience))}>Related records in Browse Tree</button></aside></div> : null}
+      {activeTab === "overview" ? <div className="overview-grid"><div><section className="overview-section"><div className="detail-section-heading"><div><p className="ux-kicker">Engineering summary</p><h2>Key properties</h2></div><button className="ux-button tertiary" type="button" onClick={() => onNavigate(`/materials/${materialId}/properties`)}>All properties</button></div><div className="overview-property-grid"><div><span>Density</span><strong>{formatDensity(property?.density_kg_per_m3)}</strong></div><div><span>Young’s modulus</span><strong>{formatPressure(property?.youngs_modulus_pa)}</strong></div><div><span>Yield strength</span><strong>{formatPressure(property?.yield_stress_pa)}</strong></div><div><span>Poisson ratio</span><strong>{property?.poisson_ratio ?? "—"}</strong></div></div></section><div className="overview-data-grid"><section className="overview-section"><div className="detail-section-heading"><div><p className="ux-kicker">Representative curve</p><h2>Linked material response</h2></div><button className="ux-button tertiary" type="button" onClick={() => onNavigate(`/materials/${materialId}/curves`)}>All curves</button></div><RepresentativeCurve points={experience.representativeCurve}/></section><section className="overview-section"><p className="ux-kicker">Application conditions</p><h2>Material states</h2><dl className="condition-summary"><dt>Temperature</dt><dd>{property?.applicability.temperature_min_k ?? "—"}–{property?.applicability.temperature_max_k ?? "—"} K</dd><dt>Strain rate</dt><dd>{property?.applicability.strain_rate_min_per_s ?? "—"}–{property?.applicability.strain_rate_max_per_s ?? "—"} /s</dd></dl>{experience.detail.states.slice(0, 2).map((state) => <p className="condition-state" key={state.material_state_id}><strong>{state.current_revision.content.name}</strong><span>{state.current_revision.content.manufacturing_route ?? "Route not specified"}</span></p>)}</section></div></div><aside><p className="ux-kicker">CAE delivery</p><h2>Ready solver cards</h2><p>Choose a native format. Open a card preview to check delivery notes before downloading.</p><SolverAvailability cards={experience.cards}/><div className="solver-preview-links">{experience.cards.map((card) => <button key={card.id} type="button" onClick={() => onNavigate(`/materials/${materialId}/cards/${card.id}`)}>Preview {card.solver} {card.extension}</button>)}</div><button className="ux-button tertiary" type="button" onClick={() => onNavigate(browsePath(experience))}>Related records in Browse Tree</button></aside></div> : null}
       {activeTab === "properties" ? <><div className="detail-section-heading"><div><p className="ux-kicker">Normalized values</p><h2>Engineering properties</h2></div></div>{property ? <table className="ux-table"><thead><tr><th>Property</th><th>Value</th><th>Quantity semantics</th><th>Source</th></tr></thead><tbody><tr><td>Density</td><td>{formatDensity(property.density_kg_per_m3)}</td><td>mass density</td><td>{property.density_source.kind}</td></tr><tr><td>Young’s modulus</td><td>{formatPressure(property.youngs_modulus_pa)}</td><td>elastic modulus</td><td>{property.youngs_modulus_source.kind}</td></tr><tr><td>Poisson ratio</td><td>{property.poisson_ratio}</td><td>dimensionless ratio</td><td>{property.poisson_ratio_source.kind}</td></tr><tr><td>Yield strength</td><td>{formatPressure(property.yield_stress_pa)}</td><td>stress</td><td>{property.yield_stress_source?.kind ?? "—"}</td></tr></tbody></table> : <div className="ux-empty">No typed property set is available.</div>}<p className="ux-meta">Normalized units are shown here. Original unit text and exact source revisions remain preserved in Evidence.</p>{catalogRoot ? <MaterialDatasheetProjection config={config} tableId={catalogRoot.table_id} recordId={catalogRoot.record_id} mode="properties"/> : null}</> : null}
       {activeTab === "curves" ? <><div className="detail-section-heading"><div><p className="ux-kicker">Test and model data</p><h2>Curves</h2><p>Review available workflow data in the persistent Modeling graph.</p></div><button className="ux-button primary" type="button" onClick={() => onNavigate("/modeling")}>Open in Modeling</button></div>{catalogRoot ? <MaterialDatasheetProjection config={config} tableId={catalogRoot.table_id} recordId={catalogRoot.record_id} mode="curves"/> : null}<table className="ux-table"><thead><tr><th>Related data</th><th>Type</th><th>Use</th></tr></thead><tbody>{(experience.graph?.nodes ?? []).filter((node) => ["test_data", "processing_output", "material_model"].includes(node.domain_binding?.kind ?? "")).map((node) => <tr key={node.record_id}><td>{node.name}</td><td>{node.domain_binding?.kind.replaceAll("_", " ")}</td><td>{node.domain_binding?.kind === "test_data" ? "Observed input" : node.domain_binding?.kind === "processing_output" ? "Processed curve" : "Fitted response"}</td></tr>)}</tbody></table></> : null}
-      {activeTab === "cards" ? <><div className="detail-section-heading"><div><p className="ux-kicker">Solver delivery</p><h2>CAE Cards</h2><p>Exact mappings download directly. Approximated or ignored mappings require review; unsupported mappings remain blocked.</p></div></div><CardTable config={config} material={material} cards={experience.cards} onNavigate={onNavigate}/>{neutralMaterial ? <NeutralCardCreationPanel config={config} neutralMaterialId={neutralMaterial.object_id} neutralMaterialRevisionId={neutralMaterial.revision_id} materialName={content.name} materialCode={content.material_code} existingCards={experience.cards} onCreated={acceptCreatedCard}/> : !experience.cards.length && modelingFamily(material) ? <button className="ux-button primary" type="button" onClick={() => startModeling(material, onNavigate)}>Start Modeling</button> : null}</> : null}
+      {activeTab === "cards" ? <><div className="detail-section-heading"><div><p className="ux-kicker">Solver delivery</p><h2>CAE Cards</h2><p>Cards with unchanged values can download directly. Cards with delivery notes open a review before download; values the solver cannot represent remain unavailable.</p></div></div><CardTable config={config} material={material} cards={experience.cards} onNavigate={onNavigate}/>{neutralMaterial ? <NeutralCardCreationPanel config={config} neutralMaterialId={neutralMaterial.object_id} neutralMaterialRevisionId={neutralMaterial.revision_id} materialName={content.name} materialCode={content.material_code} existingCards={experience.cards} onCreated={acceptCreatedCard}/> : !experience.cards.length && modelingFamily(material) ? <button className="ux-button primary" type="button" onClick={() => startModeling(material, onNavigate)}>Start Modeling</button> : null}</> : null}
       {activeTab === "evidence" ? <><div className="detail-section-heading"><div><p className="ux-kicker">Related · Workflow · Evidence</p><h2>Connected material record</h2><p>Follow typed Record links and the material workflow; open technical identifiers only when needed.</p></div><button className="ux-button" type="button" onClick={() => onNavigate(browsePath(experience))}>Open exact Layout datasheet</button></div><div className="evidence-overview"><section><h3>Related Records</h3>{relatedLinks.length ? <table className="ux-table"><thead><tr><th>Relationship</th><th>Record</th><th>Type</th><th>Revision</th></tr></thead><tbody>{relatedLinks.map((related) => <tr key={related.id}><td>{related.label}</td><td title={related.endpoint.name}>{related.endpoint.name}</td><td>{related.endpoint.domain_binding?.kind?.replaceAll("_", " ") ?? "Catalog Record"}</td><td>r{related.endpoint.revision_no}</td></tr>)}</tbody></table> : <p className="ux-meta">No related Records are visible in the current scope.</p>}</section><section><h3>Workflow</h3><table className="ux-table"><thead><tr><th>Record</th><th>Role</th><th>Revision</th></tr></thead><tbody>{(experience.graph?.nodes ?? []).map((node) => <tr key={`${node.record_id}:${node.record_revision_id}`}><td title={node.name}>{node.name}</td><td>{node.domain_binding?.kind?.replaceAll("_", " ") ?? "catalog record"}</td><td>r{node.revision_no}</td></tr>)}</tbody></table></section></div>{catalogRoot ? <MaterialDatasheetProjection config={config} tableId={catalogRoot.table_id} recordId={catalogRoot.record_id} mode="evidence"/> : null}<details className="ux-disclosure"><summary>Technical revision and provenance identifiers</summary><dl className="evidence-grid"><dt>Material ID</dt><dd>{material.material_id}</dd><dt>Aggregate ID</dt><dd>{material.current_revision.aggregate_id}</dd><dt>Full revision ID</dt><dd>{material.current_revision.id}</dd><dt>Content hash</dt><dd>{material.current_revision.content_hash}</dd><dt>Classification</dt><dd>{material.current_revision.classification}</dd><dt>Change reason</dt><dd>{material.current_revision.change_reason}</dd><dt>Recorded by</dt><dd>{material.current_revision.provenance.recorded_by}</dd></dl></details></> : null}
     </section>
   </div>;
@@ -798,29 +963,42 @@ export function SolverCardPreviewPage({ config, materialId, cardId, onNavigate }
 
   const taskPreview = preview
     .split("\n")
-    .filter((line) => !line.startsWith("# CMP material-model-revision") && !line.startsWith("# CMP mapping-report-sha256"))
+    .filter((line) => !/^(?:#|\*\*) CMP/.test(line))
     .join("\n");
 
   const reviewRequired = evidence?.disposition === "review";
   const blocked = evidence?.disposition === "blocked";
+  const linkedResponsePoints = blocked ? [] : curveFromNativeCard(preview);
   const downloadDisabled = loading || downloading || !preview || !evidence || blocked || (reviewRequired && !acknowledged);
   const downloadLabel = blocked ? "Download blocked" : downloading ? "Preparing…" : `Download ${card?.extension ?? "card"}`;
+  const downloadConsequence = loading || !evidence
+    ? "Delivery checks are loading before this card can be downloaded."
+    : blocked
+      ? "This card cannot be downloaded because some values are not supported by the selected solver."
+      : reviewRequired
+        ? "Review the highlighted delivery note, then acknowledge it to enable this download."
+        : "Delivery checks pass for this target, so this download is ready.";
 
   return <div className="ux-page"><div className="card-preview-shell">
     <header className="card-preview-header">
-      <div><button className="ux-button tertiary" type="button" onClick={() => onNavigate(`/materials/${materialId}/cards`)}>← CAE Cards</button><p className="ux-kicker">{card?.solver ?? "Solver card"} · Native ASCII</p><h1>{card?.label ?? material?.current_revision.content.name ?? "Card preview"}</h1><p>Inspect the native syntax and mapping states tied to this exact card revision.</p></div>
-      <div className="card-action-row"><button className="ux-button primary" type="button" disabled={downloadDisabled} onClick={() => void downloadCard()}>{downloadLabel}</button><ReviewRequestAction config={config} subject={evidence ? { aggregateType: evidence.reviewAggregateType, aggregateId: card?.id ?? cardId, revisionId: evidence.reviewRevisionId, manifestSha256: evidence.reviewContentHash, classification: evidence.reviewClassification, lifecycleState: evidence.lifecycleState } : null} /></div>
+      <div><button className="ux-button tertiary" type="button" onClick={() => onNavigate(`/materials/${materialId}/cards`)}>← CAE Cards</button><p className="ux-kicker">{card?.solver ?? "Solver card"} · Native ASCII</p><h1>{card?.label ?? material?.current_revision.content.name ?? "Card preview"}</h1><p>Check the saved card and delivery details before downloading.</p></div>
+      <div className="card-action-row"><ReviewRequestAction config={config} subject={evidence ? { aggregateType: evidence.reviewAggregateType, aggregateId: card?.id ?? cardId, revisionId: evidence.reviewRevisionId, manifestSha256: evidence.reviewContentHash, classification: evidence.reviewClassification, lifecycleState: evidence.lifecycleState } : null} /></div>
     </header>
     {error ? <div className="ux-notice error" role="alert">{error}</div> : null}
     <div className="card-preview-content">
-      <pre className="native-card-preview" aria-label="Native solver card preview">{loading ? "Loading native card preview…" : taskPreview}</pre>
+      <section className={`native-preview${linkedResponsePoints.length >= 2 ? " has-linked-response" : ""}`} aria-label="Native card and linked response">
+        <NativeCardPreview text={loading ? "Loading native card preview…" : taskPreview}/>
+        <LinkedResponseGraph points={linkedResponsePoints}/>
+      </section>
       <aside className="card-preview-actions">
         <p className="ux-kicker">Delivery properties</p>
         <h2>{card?.solver ?? "Solver"}</h2>
-        {evidence ? <dl className="delivery-card-properties"><dt>Target</dt><dd>{evidence.target.solver} {evidence.target.version}</dd><dt>Unit system</dt><dd>{evidence.target.unit_system.replaceAll("_", " · ")}</dd><dt>Card revision</dt><dd>r{evidence.revisionNo}</dd><dt>Lifecycle</dt><dd>{evidence.lifecycleState}</dd><dt>Material ID</dt><dd>{evidence.solverMaterialId}</dd></dl> : <p className="delivery-progress-line">Loading mapping evidence…</p>}
-        {evidence ? <><h3>Mapping status</h3><MappingStatusList items={evidence.mappingItems}/></> : null}
-        {reviewRequired ? <label className="delivery-acknowledgement"><input name="mapping-delivery-acknowledgement" type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)}/>I reviewed every approximated or ignored mapping state.</label> : null}
-        {blocked ? <p className="ux-notice error" role="alert">Delivery is blocked because this exact revision contains unsupported solver mappings.</p> : null}
+        {evidence ? <dl className="delivery-card-properties"><div><dt>Target</dt><dd>{evidence.target.solver} {evidence.target.version}</dd></div><div><dt>Format</dt><dd>Native {card?.extension ?? "card"}</dd></div><div><dt>Unit system</dt><dd>{evidence.target.unit_system.replaceAll("_", " · ")}</dd></div></dl> : <p className="delivery-progress-line">Loading delivery checks…</p>}
+        <div className="card-preview-delivery-command">
+          <button className="ux-button primary" type="button" disabled={downloadDisabled} onClick={() => void downloadCard()}>{downloadLabel}</button>
+          <p className={`card-preview-delivery-consequence${blocked ? " blocked" : reviewRequired ? " review" : ""}`} {...(blocked ? { role: "alert" } : {})}>{downloadConsequence}</p>
+        </div>
+        {evidence ? <><h3>Delivery check</h3><MappingStatusList items={evidence.mappingItems} reviewAcknowledgement={reviewRequired ? <label className="delivery-acknowledgement"><input name="mapping-delivery-acknowledgement" type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)}/>I reviewed the delivery notes before downloading this card.</label> : undefined}/></> : null}
         <button className="ux-button" type="button" onClick={() => onNavigate(`/materials/${materialId}`)}>Return to material</button>
         <details className="ux-disclosure"><summary>Advanced mapping evidence</summary><p className="ux-meta">The mapping report records exact, transformed, approximated, ignored, and unsupported fields. The native file retains its provenance headers.</p><button className="ux-button" type="button" disabled={!evidence} onClick={() => void downloadMapping()}>Download mapping report</button><dl className="evidence-grid"><dt>Card ID</dt><dd>{cardId}</dd><dt>Exact revision</dt><dd>{card?.revisionId ?? "Loading…"}</dd><dt>Card checksum</dt><dd>{evidence?.cardSha256 ?? "Recorded after generation"}</dd><dt>Mapping checksum</dt><dd>{evidence?.mappingReportSha256 ?? "Loading…"}</dd></dl></details>
       </aside>
@@ -940,6 +1118,7 @@ export function ActivityPage({
 
 function reviewTaskLabel(aggregateType: string): string {
   const normalized = aggregateType.toLowerCase();
+  if (normalized === "modeling.material_model") return "Selected model review";
   if (normalized.includes("solver") || normalized.includes("card")) return "Solver card review";
   if (normalized.includes("test") || normalized.includes("dataset")) return "Test data review";
   return "Material data review";

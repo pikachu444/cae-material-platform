@@ -27,7 +27,7 @@ review/release는 Modeling의 normal stage가 아니라 Advanced와 Activity의 
 | Administration | configurable Table/Attribute/Layout/Subset/Link Type, Folder/Record tree, typed search·compare, exact Record links와 접근 관리 |
 | Exchange | CSV/TSV/XLSX governed import, versioned Test Data JSON, Neutral Material JSON, deterministic package |
 | Governance | immutable review/release/artifact, exact revision, provenance/audit, organization/project 권한 |
-| Operations | Compose demo, worker/job, observability, recovery·performance·security 검증 도구 |
+| Operations | Compose demo, worker/job, observability, recovery·performance·security 검증 도구. clean full-demo는 preview에서 선택한 fit evidence와 metal manual necking override를 exact revision으로 보존하고, DP780 selected model review request 하나와 Materials의 solver card preview·검토 후 다운로드를 검증 |
 
 Engineering 수치와 solver 결과는 bounded synthetic `reference/non-production` 범위입니다.
 Production 표준, plugin, solver correlation과 validation threshold는 domain approval 전까지
@@ -35,8 +35,6 @@ Production 표준, plugin, solver correlation과 validation threshold는 domain 
 
 ## 알려진 공백
 
-- clean full-demo seed는 polymer Processing Recipe preflight와 metal manual necking provenance의
-  최초 실패를 #157에서 해결해야 합니다.
 - production UI는 PR #156 기능 기준선이며, PR #170의 승인 target은 아직 #158부터 #161까지
   화면별로 React에 이식해야 합니다.
 - Materials의 provider/evidence source, condition-aware property, validation·solver readiness는

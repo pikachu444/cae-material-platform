@@ -421,7 +421,15 @@
       "required": ["document_id", "revision_id"],
       "properties": {
         "document_id": {"type": "string", "format": "uuid"},
-        "revision_id": {"type": "string", "format": "uuid"}
+        "revision_id": {"type": "string", "format": "uuid"},
+        "workup_overrides": {
+          "type": "array", "maxItems": 2,
+          "items": {"$ref": "#/$defs/ProcessingWorkupOverride"}, "default": []
+        },
+        "fit_decision": {
+          "anyOf": [{"$ref": "#/$defs/FitDecision"}, {"type": "null"}],
+          "default": null
+        }
       }
     },
     "BatchPreflightRequest": {

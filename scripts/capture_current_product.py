@@ -326,9 +326,50 @@ def _capture_solver_delivery(browser: Browser, base_url: str, output: Path) -> N
             re.compile(r"/materials/[0-9a-f-]+/cards/[0-9a-f-]+$"),
             timeout=30_000,
         )
-        page.get_by_role("heading", name="Mapping status", exact=True).wait_for(timeout=30_000)
+        page.get_by_role("heading", name="Delivery check", exact=True).wait_for(timeout=30_000)
         download = page.get_by_role("button", name="Download .rad", exact=True)
         download.wait_for(timeout=30_000)
+        native_preview = page.get_by_label("Native solver card preview")
+        native_preview.wait_for(timeout=30_000)
+        if native_preview.get_attribute("tabindex") != "0":
+            raise RuntimeError("native solver card preview is not keyboard focusable")
+        scroll_state = native_preview.evaluate(
+            "element => ({"
+            "clientHeight: element.clientHeight, "
+            "scrollHeight: element.scrollHeight, "
+            "scrollTop: element.scrollTop"
+            "})"
+        )
+        if scroll_state["scrollHeight"] > scroll_state["clientHeight"] + 1:
+            rail = page.locator(".preview-scroll-rail")
+            if rail.get_attribute("data-scrollable") != "true":
+                raise RuntimeError(
+                    "long native solver card preview has no visible local scroll rail"
+                )
+            native_preview.focus()
+            native_preview.press("End")
+            page.wait_for_function(
+                "element => element.scrollTop > 0",
+                arg=native_preview.element_handle(),
+            )
+            native_preview.press("Home")
+        linked_response = page.get_by_role(
+            "img",
+            name="Linked response chart showing true stress in MPa versus true plastic strain",
+        )
+        if width >= 1800:
+            linked_response.wait_for(state="visible", timeout=30_000)
+            if linked_response.get_attribute("data-x-label") != "True plastic strain [1]":
+                raise RuntimeError("linked response graph has the wrong horizontal axis")
+            y_domain = linked_response.get_attribute("data-y-domain") or ""
+            try:
+                y_bounds = [float(value) for value in y_domain.split(",")]
+            except ValueError as cause:
+                raise RuntimeError("linked response graph has an invalid stress range") from cause
+            if len(y_bounds) != 2 or min(y_bounds) < 0 or max(y_bounds) >= 10_000:
+                raise RuntimeError("linked response graph is not displayed in MPa")
+        elif linked_response.is_visible():
+            raise RuntimeError("linked response graph must remain bounded to wide workspaces")
         if page.locator(".mapping-status.unsupported").count():
             raise RuntimeError("exact demo card unexpectedly exposes an unsupported mapping")
         approximation_count = page.locator(
@@ -385,12 +426,14 @@ def _capture_activity(browser: Browser, base_url: str, output: Path) -> None:
 def _wait_for_activity_queue(page: Page) -> None:
     page.get_by_role("heading", name="Activity", exact=True).wait_for(timeout=30_000)
     page.get_by_role("heading", name="Needs attention", exact=True).wait_for(timeout=30_000)
-    page.get_by_text("Material data review", exact=True).wait_for(timeout=30_000)
+    page.get_by_text(re.compile(r"^(Selected model review|Material data review)$")).first.wait_for(
+        timeout=30_000
+    )
     page.get_by_role("button", name="Review", exact=True).first.wait_for(timeout=30_000)
 
 
 def _ensure_activity_review_fixture(page: Page, base_url: str) -> None:
-    """Create one real pending synthetic Material review only when the demo has none."""
+    """Reuse the clean-demo selected-model review or create the no-review fallback."""
     outcome = page.evaluate(
         """async ({ baseUrl }) => {
           const config = JSON.parse(

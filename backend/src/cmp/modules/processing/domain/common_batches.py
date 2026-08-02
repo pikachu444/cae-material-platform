@@ -5,8 +5,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from enum import StrEnum
+from typing import TYPE_CHECKING
 from uuid import UUID
 
+if TYPE_CHECKING:
+    from cmp.modules.processing.application.common_outputs import (
+        FitDecisionSnapshot,
+        ProcessingWorkupOverride,
+    )
 from cmp.modules.processing.domain.common_pipeline import CommonPipelineError
 from cmp.shared.domain.revisions import TenantScope
 
@@ -36,6 +42,8 @@ class BatchMemberPlan:
     ordinal: int
     source_document: BatchRevisionPin
     source_document_sha256: str
+    workup_overrides: tuple[ProcessingWorkupOverride, ...] = ()
+    fit_decision: FitDecisionSnapshot | None = None
 
 
 @dataclass(frozen=True, slots=True)

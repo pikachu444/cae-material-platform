@@ -22,7 +22,13 @@ from cmp.modules.processing.application.common_batches import (
     ExecuteBatch,
     ProcessingExecutionOrigin,
 )
-from cmp.modules.processing.application.common_outputs import ProcessingOutputPreflight
+from cmp.modules.processing.application.common_outputs import (
+    FitDecisionParameter,
+    FitDecisionParameterSet,
+    FitDecisionSnapshot,
+    ProcessingOutputPreflight,
+    ProcessingWorkupOverride,
+)
 from cmp.modules.processing.application.common_recipes import (
     CommonRecipeService,
     CommonRecipeSnapshot,
@@ -133,6 +139,7 @@ class _Recipes:
 class _Outputs:
     def __init__(self) -> None:
         self.failed_once = False
+        self.commands: list[Any] = []
 
     async def preflight(self, *_: Any) -> ProcessingOutputPreflight:
         preview = ProcessingPreview(
@@ -144,10 +151,85 @@ class _Outputs:
         return ProcessingOutputPreflight("b" * 64, "c" * 64, "a" * 64, preview)
 
     async def commit(self, _context: Any, _decision: Any, command: Any) -> Any:
+        self.commands.append(command)
         if command.source_document.aggregate_id == SOURCE_TWO.document_id and not self.failed_once:
             self.failed_once = True
             raise RuntimeError("reference member failure")
         return SimpleNamespace(id=uuid4(), current=SimpleNamespace(revision_id=uuid4()))
+
+
+def test_batch_retries_preserve_source_workup_and_fit_evidence() -> None:
+    async def scenario() -> None:
+        repository = _Repository()
+        outputs = _Outputs()
+        ticks = iter(NOW + timedelta(seconds=value) for value in range(20))
+        service = CommonBatchService(
+            repository=repository,
+            recipes=cast(CommonRecipeService, _Recipes()),
+            outputs=cast(Any, outputs),
+            clock=lambda: next(ticks),
+        )
+        override = ProcessingWorkupOverride(
+            kind="necking_boundary",
+            original_value=4,
+            original_unit="observed-point-index",
+            canonical_value=4,
+            canonical_unit="observed-point-index",
+            reason="Keep the selected synthetic necking boundary.",
+        )
+        fit_decision = FitDecisionSnapshot(
+            candidate_key="fixture:1",
+            mode="single",
+            primary_law="fixture_law",
+            secondary_law=None,
+            primary_weight=None,
+            parameter_sets=(
+                FitDecisionParameterSet(
+                    law="fixture_law",
+                    parameters=(FitDecisionParameter("coefficient", 1.0, "1"),),
+                ),
+            ),
+            fit_minimum=0.0,
+            fit_maximum=1.0,
+            extrapolation_maximum=None,
+            extrapolation_policy="observed_only",
+            metric_definition="fixture_rmse",
+            metric_value=0.01,
+            requested_term_policy=None,
+            actual_term_count=None,
+            selection_reason="Select the deterministic fixture candidate.",
+            warning_acknowledged=True,
+        )
+        sources = tuple(
+            BatchSourceInput(
+                source.document_id,
+                source.revision_id,
+                (override,),
+                fit_decision,
+            )
+            for source in (SOURCE_ONE, SOURCE_TWO)
+        )
+        batch = await service.execute(
+            CONTEXT,
+            DECISION,
+            ExecuteBatch(
+                DataClassification.INTERNAL,
+                "evidence batch",
+                RECIPE,
+                RECIPE_REVISION,
+                sources,
+                "preserve typed evidence",
+            ),
+        )
+        assert batch.status is BatchStatus.PARTIAL
+        retried = await service.retry_failed(CONTEXT, DECISION, batch.batch_id)
+        assert retried.status is BatchStatus.SUCCEEDED
+        assert len(outputs.commands) == 3
+        for command in outputs.commands:
+            assert command.workup_overrides == (override,)
+            assert command.fit_decision == fit_decision
+
+    asyncio.run(scenario())
 
 
 class _IncompatibleOutputs(_Outputs):

@@ -10,6 +10,7 @@ async function expectMaterialsReady(page: Page): Promise<void> {
 }
 
 test("clean demo exposes Search-first material-family journeys and progressive bulk entry", async ({ page, request }) => {
+  test.setTimeout(60_000);
   const tokenResponse = await request.get(`${webUrl}/api/v1/demo-identity/token`);
   expect(tokenResponse.ok()).toBeTruthy();
   const tokenPayload = (await tokenResponse.json()) as { access_token: string };
@@ -35,20 +36,111 @@ test("clean demo exposes Search-first material-family journeys and progressive b
     "CMP-DEMO-ELASTOMER-OGDEN",
   ] as const) {
     await page.getByRole("textbox", { name: "Search materials" }).fill(materialCode);
-    await page.getByRole("search").getByRole("button", { name: "Find", exact: true }).click();
+    await page.getByLabel("Material query").getByRole("button", { name: "Find", exact: true }).click();
     await expectMaterialsReady(page);
     const resultRow = page.getByRole("row").filter({ hasText: materialCode });
     await expect(resultRow).toBeVisible();
     await resultRow.getByRole("button").click();
-    await page.getByRole("button", { name: "Open material" }).click();
+    await page.getByRole("button", { name: "Open datasheet" }).click();
     await expect(page).toHaveURL(/\/materials\/[0-9a-f-]+$/);
     await expect(page.getByRole("complementary", { name: "Materials Browse Tree" })).toBeVisible({ timeout: 15_000 });
     await expect(page.getByRole("tab", { name: "CAE Cards" })).toBeVisible();
+    if (materialCode === "CMP-DEMO-DP780") {
+      await page.getByRole("tab", { name: "CAE Cards" }).click();
+      const abaqusRow = page.getByRole("row").filter({ hasText: "Abaqus" }).filter({ hasText: ".inp" });
+      await expect(abaqusRow).toHaveCount(1);
+      const previewButton = abaqusRow.getByRole("button", { name: "Preview card", exact: true });
+      await expect(previewButton).toBeVisible({ timeout: 15_000 });
+      await previewButton.click();
+      await expect(page).toHaveURL(/\/materials\/[0-9a-f-]+\/cards\/[0-9a-f-]+$/);
+
+      const acknowledgement = page.getByRole("checkbox", { name: "I reviewed the delivery notes before downloading this card." });
+      const downloadButton = page.getByRole("button", { name: "Download .inp", exact: true });
+      await expect(page.getByRole("heading", { name: "Delivery check", exact: true })).toBeVisible({ timeout: 15_000 });
+      await expect(acknowledgement).toBeVisible({ timeout: 15_000 });
+      await expect(downloadButton).toBeVisible({ timeout: 15_000 });
+      const nativePreview = page.getByLabel("Native solver card preview");
+      const scrollRail = page.locator(".preview-scroll-rail");
+      await expect(nativePreview).toHaveAttribute("tabindex", "0");
+      const normalCardText = await page.locator(".card-preview-shell").innerText();
+      expect(normalCardText).not.toMatch(/\b(?:uuid|sha256|hash|aggregate|revision_id|mapping profile|recipe|batch|processing output|neutral|neutral json|ir|exporter|provenance|checksum)\b/i);
+      expect(normalCardText).not.toMatch(/\b(?:approximated|ignored|unsupported|not_applicable)\b/i);
+      for (const { width, height } of [
+        { width: 1366, height: 768 },
+        { width: 1440, height: 900 },
+        { width: 1920, height: 1080 },
+        { width: 2560, height: 1440 },
+        { width: 3840, height: 2160 },
+      ]) {
+        await page.setViewportSize({ width, height });
+        const shellGeometry = await page.locator(".card-preview-shell").evaluate((element) => {
+          const bounds = element.getBoundingClientRect();
+          return { left: bounds.left, right: bounds.right, width: bounds.width };
+        });
+        expect(shellGeometry.left).toBeLessThanOrEqual(9);
+        expect(shellGeometry.width).toBeLessThanOrEqual(Math.min(width - 16, 1920) + 1);
+        expect(shellGeometry.right).toBeLessThanOrEqual(Math.min(width, 1928) + 1);
+        const deliverySheetGeometry = await page.locator(".card-preview-actions").evaluate((element) => element.getBoundingClientRect().width);
+        expect(deliverySheetGeometry).toBeGreaterThanOrEqual(311);
+        expect(deliverySheetGeometry).toBeLessThanOrEqual(313);
+        await acknowledgement.scrollIntoViewIfNeeded();
+        await expect(acknowledgement).toBeVisible();
+        await expect(downloadButton).toBeVisible();
+        await expect(downloadButton).toBeDisabled();
+        await nativePreview.focus();
+        await expect(nativePreview).toBeFocused();
+        const scrollState = await nativePreview.evaluate((element) => ({
+          clientHeight: element.clientHeight,
+          scrollHeight: element.scrollHeight,
+          scrollTop: element.scrollTop,
+        }));
+        if (scrollState.scrollHeight > scrollState.clientHeight + 1) {
+          await expect(scrollRail).toHaveAttribute("data-scrollable", "true");
+          await nativePreview.press("End");
+          await expect.poll(() => nativePreview.evaluate((element) => element.scrollTop)).toBeGreaterThan(scrollState.scrollTop);
+          await nativePreview.press("Home");
+        }
+        const linkedResponse = page.getByRole("img", { name: "Linked response chart showing true stress in MPa versus true plastic strain" });
+        if (width >= 1800) {
+          await expect(linkedResponse).toBeVisible();
+          await expect(linkedResponse).toHaveAttribute("data-x-label", "True plastic strain [1]");
+          await expect(linkedResponse).toHaveAttribute("data-y-label", "True stress (MPa)");
+          const yDomain = await linkedResponse.getAttribute("data-y-domain");
+          expect(yDomain?.split(",").map(Number).every((value) => Number.isFinite(value) && value >= 0 && value < 10_000)).toBe(true);
+          const nativeGeometry = await nativePreview.boundingBox();
+          const responseGeometry = await page.locator(".response-plot-band").boundingBox();
+          expect(nativeGeometry?.height ?? 0).toBeLessThanOrEqual(322);
+          expect(responseGeometry?.height ?? 0).toBeGreaterThanOrEqual(320);
+          expect(responseGeometry?.height ?? 0).toBeLessThanOrEqual(562);
+        } else {
+          await expect(linkedResponse).toBeHidden();
+        }
+        await expect
+          .poll(() => acknowledgement.evaluate((element) => {
+            const bounds = element.getBoundingClientRect();
+            return bounds.top >= 0
+              && bounds.left >= 0
+              && bounds.bottom <= window.innerHeight
+              && bounds.right <= window.innerWidth;
+          }))
+          .toBe(true);
+        await expect
+          .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+          .toBe(true);
+      }
+
+      await acknowledgement.check();
+      await expect(downloadButton).toBeEnabled();
+      const downloadPromise = page.waitForEvent("download");
+      await downloadButton.click();
+      const download = await downloadPromise;
+      expect(download.suggestedFilename()).toMatch(/\.inp$/);
+    }
     await page.goto("/materials");
   }
 
   await page.getByRole("textbox", { name: "Search materials" }).fill("CMP-DEMO-DP780");
-  await page.getByRole("search").getByRole("button", { name: "Find", exact: true }).click();
+  await page.getByLabel("Material query").getByRole("button", { name: "Find", exact: true }).click();
   await expectMaterialsReady(page);
   const dp780Row = page.getByRole("row").filter({ hasText: "CMP-DEMO-DP780" });
   await expect(dp780Row).toHaveCount(1);
@@ -67,10 +159,51 @@ test("clean demo exposes Search-first material-family journeys and progressive b
   await expectMaterialsReady(page);
 
   await page.goto("/activity");
-  await expect(page.getByRole("heading", { name: "Current workspace activity" })).toBeVisible();
-  await page.getByText("Advanced jobs and export packages", { exact: true }).click();
+  await expect(page.locator("main").getByRole("heading", { name: "Activity", exact: true, level: 1 })).toBeVisible();
+  const selectedModelReview = page.getByRole("listitem").filter({ hasText: "Selected model review" }).first();
+  await expect(selectedModelReview).toBeVisible();
+  await expect(selectedModelReview).toContainText("Waiting for review");
+  await expect(page.getByText(/Downloaded solver card/).first()).toBeVisible();
+  await page.getByRole("button", { name: "Refresh" }).click();
+  await expect(selectedModelReview).toContainText("Waiting for review");
+  const normalActivityText = await page.locator(".activity-content").innerText();
+  expect(normalActivityText).not.toMatch(/\b(?:uuid|sha256|aggregate|revision_id|mapping profile|processing output|neutral json|provenance|checksum|recipe|batch)\b/i);
+  expect(normalActivityText).not.toMatch(/\b[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}\b/i);
+  await page.getByText("Advanced activity evidence", { exact: true }).click();
   await page.getByRole("button", { name: "Open export packages" }).click();
   await expect(page).toHaveURL(/\/exports$/);
+});
+
+test("Activity queue has no horizontal overflow at required demo viewports", async ({ page, request }) => {
+  const tokenResponse = await request.get(`${webUrl}/api/v1/demo-identity/token`);
+  expect(tokenResponse.ok()).toBeTruthy();
+  const tokenPayload = (await tokenResponse.json()) as { access_token: string };
+
+  await page.addInitScript(
+    ({ accessToken }) => {
+      window.localStorage.setItem(
+        "cmp.material-platform.api-config",
+        JSON.stringify({ baseUrl: "/api/v1", accessToken }),
+      );
+    },
+    { accessToken: tokenPayload.access_token },
+  );
+
+  for (const { width, height } of [
+    { width: 1366, height: 768 },
+    { width: 1440, height: 900 },
+    { width: 1920, height: 1080 },
+    { width: 2560, height: 1440 },
+    { width: 3840, height: 2160 },
+  ]) {
+    await page.setViewportSize({ width, height });
+    await page.goto("/activity");
+    await expect(page.locator("main").getByRole("heading", { name: "Activity", exact: true, level: 1 })).toBeVisible();
+    await expect(page.getByText("Selected model review", { exact: true }).first()).toBeVisible();
+    await expect
+      .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+      .toBe(true);
+  }
 });
 
 test("clean demo downloads exact Neutral cards and the governed ZIP", async ({ page, request }, testInfo) => {

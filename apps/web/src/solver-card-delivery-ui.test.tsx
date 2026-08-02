@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { NeutralCardCreationPanel, SolverCardAction } from "./solver-card-delivery-ui";
+import { MappingStatusList, NeutralCardCreationPanel, SolverCardAction } from "./solver-card-delivery-ui";
 import type { SolverCardSummary } from "./solver-card-delivery";
 
 const config = { baseUrl: "http://cmp.test/api/v1", accessToken: "token" };
@@ -91,8 +91,50 @@ describe("contextual solver-card action", () => {
 
     render(<SolverCardAction config={config} card={card} material={material} onNavigate={vi.fn()}/>);
 
-    expect((await screen.findByRole("status")).textContent).toContain("Blocked: constitutive law");
+    expect((await screen.findByRole("status")).textContent).toContain("Not supported: constitutive law");
     expect(screen.queryByRole("button", { name: /Download/ })).toBeNull();
+  });
+
+  it("projects exporter statuses into consequence language for the normal card view", () => {
+    render(<MappingStatusList items={[
+      { name: "density", ir_path: "density", target_representation: "RHO_I", status: "exact", detail: "Recorded unchanged." },
+      { name: "hardening", ir_path: "hardening", target_representation: "*PLASTIC", status: "transformed", detail: "Rendered in native syntax." },
+      { name: "post_necking_extension", ir_path: "extension", target_representation: "*PLASTIC", status: "approximated", detail: "Review the delivery note." },
+      { name: "optional", ir_path: "optional", target_representation: null, status: "not_applicable", detail: "Not part of this reference." },
+      { name: "unsupported_field", ir_path: "unsupported_field", target_representation: null, status: "unsupported", detail: "Not available for this solver." },
+    ]}/>);
+
+    expect(screen.getByText("Values unchanged")).toBeTruthy();
+    expect(screen.getByText("Converted")).toBeTruthy();
+    expect(screen.getByText("Review required")).toBeTruthy();
+    expect(screen.getByText("The selected curve continues beyond the measured range.")).toBeTruthy();
+    expect(screen.getByText("Context only")).toBeTruthy();
+    expect(screen.getByText("Not supported")).toBeTruthy();
+    expect(screen.queryByText("Recorded unchanged.")).toBeNull();
+    expect(screen.queryByText("Not available for this solver.")).toBeNull();
+    expect(screen.queryByText("approximated")).toBeNull();
+    expect(screen.queryByText("unsupported")).toBeNull();
+
+    const rows = screen.getByRole("list", { name: "Delivery checks" }).querySelectorAll("li");
+    expect(rows[0]?.firstElementChild?.className).toContain("delivery-mapping-copy");
+    expect(rows[0]?.lastElementChild?.className).toContain("mapping-status");
+    expect(rows[0]?.lastElementChild?.textContent).toBe("Values unchanged");
+  });
+
+  it("places one review acknowledgement inside the first review-required row", () => {
+    render(<MappingStatusList
+      items={[
+        { name: "density", ir_path: "density", target_representation: "RHO_I", status: "exact", detail: "Recorded unchanged." },
+        { name: "post_necking_extension", ir_path: "extension", target_representation: "*PLASTIC", status: "approximated", detail: "Review the delivery note." },
+      ]}
+      reviewAcknowledgement={<label><input type="checkbox" />I reviewed the delivery notes.</label>}
+    />);
+
+    const checkbox = screen.getByRole("checkbox");
+    const row = checkbox.closest("li");
+    expect(row).not.toBeNull();
+    expect(row?.textContent).toContain("Review required");
+    expect(row?.textContent).toContain("I reviewed the delivery notes.");
   });
 
   it("creates from the exact Neutral revision only after adjacent approximation acknowledgement", async () => {
@@ -131,7 +173,10 @@ describe("contextual solver-card action", () => {
 
     const create = await screen.findByRole("button", { name: "Create card" });
     expect((create as HTMLButtonElement).disabled).toBe(true);
-    fireEvent.click(await screen.findByRole("checkbox"));
+    const acknowledgement = await screen.findByRole("checkbox");
+    expect(acknowledgement.closest("li")).not.toBeNull();
+    expect(acknowledgement.closest("li")?.textContent).toContain("Review required");
+    fireEvent.click(acknowledgement);
     expect((create as HTMLButtonElement).disabled).toBe(false);
     fireEvent.click(create);
 
@@ -160,6 +205,6 @@ describe("contextual solver-card action", () => {
     render(<NeutralCardCreationPanel config={config} neutralMaterialId="neutral-1" neutralMaterialRevisionId="neutral-r4" materialName="DP780" materialCode="DP780" existingCards={[]} onCreated={vi.fn()}/>);
 
     expect((await screen.findByRole("button", { name: "Create card" }) as HTMLButtonElement).disabled).toBe(true);
-    expect((await screen.findByRole("alert")).textContent).toContain("blocked by the unsupported fields");
+    expect((await screen.findByRole("alert")).textContent).toContain("not supported by the selected solver");
   });
 });
