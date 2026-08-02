@@ -11,10 +11,10 @@ repository documents; the legacy package remains historical context only.
 
 `55cfa62` (PR #156) is the current production React/CSS baseline. `7601ec8` (PR #170) is the approved
 visual target baseline; #167 is complete with 72/72 images. Start every task from the latest `main`.
-Work already merged there is not a queue to reimplement. The remaining order is #157 demo, #158 Fit,
-#159 Materials, #160 Governance/Activity, #161 DUI-09, then #162 UXC-99. The incoming package remains temporary reference
-until #162 completes absorption and an inbound-link audit. See `AGENTS.md` for the mandatory one-writer,
-deterministic-gate, fresh-reviewer execution rule.
+Work already merged there is not a queue to reimplement. The current sequence and fresh-task work
+units are owned by the [delivery backlog](../13-delivery/backlog.md); do not reconstruct them from old
+DUI/UXC numbering. The incoming package remains temporary reference until #162 completes absorption
+and an inbound-link audit. See `AGENTS.md` for the mandatory writer, gate and reviewer workflow.
 
 ## 1. Goal
 
@@ -32,6 +32,11 @@ and Altair Material Modeler:
   governed Advanced/Activity actions, not normal-stage tiles.
 - The result must look and behave like a Windows engineering program delivered in a browser, not a
   landing page, mobile layout, content portal or card-heavy SaaS dashboard.
+
+Materials lookup and download is the primary daily job and therefore comes before specialist
+authoring and governance refinement in both delivery order and screen priority. Data authoring,
+modeling, review, Administration and authorization support trustworthy reuse; they do not turn the
+normal user path into an internal-process console.
 
 Do not copy names, logos, product assets, proprietary schemas, private behavior or exact pixel
 traces. Reuse only publicly observable workflow, information hierarchy and interaction grammar.
@@ -133,21 +138,14 @@ delete a route component simply because its markup looks old; first move or prot
 
 ### Delivery sequence
 
-Use the backlog in order:
+Use the current backlog in order. It first restores the clean demo, completes Materials
+search/inspection/download, then completes configurable property registration, Modeling
+Data/Process/Fit/Export, review and Materials DB publication. Shared-component cleanup and final
+environment/documentation verification follow the completed user flows.
 
-1. Future major workspace redesign: `AGENTS.md` requires reference comparison, responsive prototype,
-   measured region ratios and recorded product-owner approval before any production React/CSS work.
-2. DUI-02 Materials split workspace and in-place datasheet.
-3. DUI-03 contextual card delivery.
-4. DUI-04 persistent Modeling session and graph-adjacent control band.
-5. DUI-05 data intake and processing.
-6. DUI-06 fit and export decision workflow.
-7. DUI-07 Administration object navigator/property editor.
-8. DUI-08 Activity resume and attention model.
-9. DUI-09 component workbench and final legacy CSS removal.
-
-One pull request implements one bounded DUI slice. A “frontend rewrite” that combines those slices
-without independent user-flow evidence is not acceptable.
+One fresh Codex task and one pull request implement one bounded backlog unit. A GitHub issue may own
+several ordered units; it closes only after all of them merge. Dependent units are not implemented in
+parallel, and a broad “frontend rewrite” without independent user-flow evidence is not acceptable.
 
 ## 6. Official references and evidence
 
@@ -162,7 +160,7 @@ For every visual pull request, record:
 | Reference review | Exact image names opened, applied layout/interaction principle, intentional difference and its reason |
 | Current task | Before/after screenshots and a user-action/state transition |
 | Functional parity | Real API data, actual success/error/disabled behavior and download/import/fitting regression where relevant |
-| Desktop geometry | 1366×768, 1440×900 and 1920×1080 captures; shell/pane/padding/row/plot/overflow measurement table |
+| Desktop geometry | 1366×768, 1440×900, 1920×1080, 2560×1440 and 3840×2160 captures; shell/pane/padding/row/plot/overflow checks without stretching sparse content |
 | UI quality | Legacy-selector report, keyboard/focus check and no page-level horizontal overflow |
 | Documentation | Updated user guide, screenshot manifest and visual evidence required by AGENTS.md |
 
@@ -189,6 +187,10 @@ every hard-gate failure, then recapture/retest and update evidence.
 A DUI slice is complete only when all of the following are true:
 
 - The real feature works through actual API/state flows; no production mock substitutes for it.
+- Materials search, applicability inspection and download remain the shortest and most prominent
+  normal-user path.
+- Registered property data, linked tests, processed data, alternative models, the explicitly selected
+  model, solver cards and approved Materials DB records retain exact links in both directions.
 - Existing numerical/domain/solver-card behavior is unchanged or a separately approved product
   decision documents the change.
 - The screen passes the required visual-acceptance matrix with no topology, data/plot-dominance,
