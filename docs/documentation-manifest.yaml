@@ -8,6 +8,7 @@ rules:
     include:
       - "docs/00-research/**/*.md"
       - "docs/_incoming/2026-07-24-organic-ux-update/**/*.md"
+      - "docs/17-evidence/**/*.md"
   - status: current
     include:
       - "README.md"

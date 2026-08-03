@@ -133,12 +133,11 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         for capture_id in provenance["ids"]
     ]
 
-    assert manifest["source_commit"] == "8469c03"
+    assert manifest["source_commit"] == "960d476"
     assert len(provenance_ids) == len(set(provenance_ids))
     assert set(provenance_ids) == set(captures)
     assert {provenance["source_commit"] for provenance in manifest["capture_provenance"]} == {
-        "8469c03",
-        "aeb4cec",
+        "960d476",
         "55cfa62",
         "65eddb0",
         "3bfc0d7",

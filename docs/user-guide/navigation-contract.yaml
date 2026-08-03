@@ -1,4 +1,4 @@
-version: 18
+version: 19
 shell:
   product_header_px: [44, 48]
   generic_command_status_bands: absent
@@ -20,6 +20,15 @@ materials_workspace:
     results: /materials
     material_datasheet: /materials/:materialId/:tab?
     exact_record_revision: /materials/records/:recordId/revisions/:revisionId
+    optional_exact_pin_query: [record_id, record_revision_id, material_revision_id]
+  revision_pinning:
+    search_result_open: record_id-plus-record_revision_id-plus-material_revision_id
+    pinned_detail: fetches-authorized-exact-record-material-and-workflow-revisions
+    pinned_tabs_and_actions: preserve-exact-pin-query
+    current_head_deep_link: /materials/:materialId-without-pin
+    missing_or_mismatched_pin: fail-closed-with-retry-error
+    states_and_property_sets: filter-to-pinned-material-revision; no-current-head-fallback
+    provider_and_evidence_source: returned-as-server-scoped-fields-and-facets
   panes:
     compact_1366: { navigator_px: 244, context: collapsed, main_px: 1102, main_min_px: 720 }
     standard_1440: { navigator_px: 264, context_px: 280, main_px: 856, main_min_px: 720 }
@@ -39,9 +48,9 @@ materials_workspace:
     capture_ready: [aria-busy-false, server-scoped-total-page-and-material-class-facet, no-row-enrichment-requests]
   find_query:
     source_of_truth: server-side
-    fields: [text_query, material_class, sort, offset, limit]
-    same_response: [total_count, page_rows, material_class_facet_counts]
-    unavailable_until_governed_projection: [provider, evidence_source, validation_availability, solver_readiness, condition_aware_property_ranges]
+    fields: [text_query, material_class, provider, evidence_source, sort, offset, limit]
+    same_response: [total_count, page_rows, material_class_facet_counts, provider_facet_counts, evidence_source_facet_counts]
+    unavailable_until_governed_projection: [validation_availability, solver_readiness, condition_aware_property_ranges]
     yield: hidden-until-metal-condition-definition-unit-source-revision-projection
 modeling_workspace:
   task: DUI-04/DUI-05/DUI-06 and UXC-02~06 delivery work complete; normal path correction is Data/Process/Fit/Export; Reviewer product-role access, DUI-08A Activity queue, DUI-08B exact request entry, and DUI-09A legacy cleanup are complete
