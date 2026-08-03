@@ -1,4 +1,4 @@
-version: 19
+version: 20
 shell:
   product_header_px: [44, 48]
   generic_command_status_bands: absent
@@ -14,6 +14,27 @@ items:
   - label: Activity
     route: /activity
     guide: 10-navigation-and-troubleshooting.md
+administration_workspace:
+  task: Issue #159 task 2
+  routes:
+    overview: /administration
+    database_design: /administration/database
+    records_and_registration: /administration/records
+    users_and_access: /administration/access
+    legacy_schema: /catalog/schema
+    legacy_records: /catalog/records
+  access: authorized-workspace-menu-only
+  normal_navigation: [Materials, Modeling, Activity]
+  database_design:
+    topology: [object-navigator, object-list, property-editor]
+    objects: [Database, Profile, Table, Attribute, Layout, Subset, Link Type]
+    lifecycle: [add, edit-as-new-revision, check, publish]
+  records:
+    modes: [single-entry, multiple-rows]
+    sources: [CSV, TSV, XLSX]
+    mapping: [source-column, selected-attribute, value-type, original-unit, existing-material-state]
+    validation: [required-value, value-type, unit, duplicate-code, per-row-correction]
+    publication: published-revisions-only-in-material-database-search
 materials_workspace:
   task: UXC-01 (server-scoped Find correction on DUI-02 workspace)
   routes:

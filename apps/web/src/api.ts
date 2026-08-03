@@ -158,17 +158,22 @@ import type {
   OperationalSnapshotResponse,
   ConfigurableAttributeContent,
   ConfigurableAttributeResponse,
+  ConfigurableDatabaseContent,
+  ConfigurableDatabaseResponse,
   ConfigurableCatalogFolderResponse,
   ConfigurableCatalogRecordComparison,
   ConfigurableCatalogRecordContent,
   ConfigurableCatalogRecordResponse,
   ConfigurableCatalogRecordRevisionList,
   ConfigurableCatalogRecordSearchResponse,
+  ConfigurableRegistrationPreviewResponse,
   ConfigurableLayoutItem,
   ConfigurableLayoutResponse,
   ConfigurableSubsetResponse,
   ConfigurableTableContent,
   ConfigurableTableResponse,
+  ConfigurableProfileContent,
+  ConfigurableProfileResponse,
   ConfigurableLinkTypeContent,
   ConfigurableLinkTypeResponse,
   ConfigurableRecordLinkContent,
@@ -178,6 +183,7 @@ import type {
   CatalogWorkflowGraphResponse,
   DomainBindingKind,
   DomainRevisionBinding,
+  RevisionMetadata,
   CanonicalTestDataDocumentResponse,
   CanonicalTestDataPreviewResponse,
   CommonMappingProfileContent,
@@ -253,6 +259,60 @@ export function listConfigurableCatalogTables(
   config: ApiConfig,
 ): Promise<ApiResult<{ items: ConfigurableTableResponse[] }>> {
   return request(config, "/catalog/tables");
+}
+
+export function listConfigurableCatalogDatabases(
+  config: ApiConfig,
+): Promise<ApiResult<{ items: ConfigurableDatabaseResponse[] }>> {
+  return request(config, "/catalog/databases");
+}
+
+export function createConfigurableCatalogDatabase(
+  config: ApiConfig,
+  input: { classification: DataClassification; content: ConfigurableDatabaseContent; change_reason: string },
+): Promise<ApiResult<ConfigurableDatabaseResponse>> {
+  return request(config, "/catalog/databases", { method: "POST", body: JSON.stringify(input) });
+}
+
+export function reviseConfigurableCatalogDatabase(
+  config: ApiConfig,
+  databaseId: string,
+  etag: string,
+  input: { content: ConfigurableDatabaseContent; change_reason: string },
+): Promise<ApiResult<ConfigurableDatabaseResponse>> {
+  return request(config, `/catalog/databases/${encodeURIComponent(databaseId)}/revisions`, {
+    method: "POST",
+    headers: { "If-Match": etag },
+    body: JSON.stringify(input),
+  });
+}
+
+export function listConfigurableCatalogProfiles(
+  config: ApiConfig,
+  databaseId?: string,
+): Promise<ApiResult<{ items: ConfigurableProfileResponse[] }>> {
+  const suffix = databaseId ? `?database_id=${encodeURIComponent(databaseId)}` : "";
+  return request(config, `/catalog/profiles${suffix}`);
+}
+
+export function createConfigurableCatalogProfile(
+  config: ApiConfig,
+  input: { classification: DataClassification; content: ConfigurableProfileContent; change_reason: string },
+): Promise<ApiResult<ConfigurableProfileResponse>> {
+  return request(config, "/catalog/profiles", { method: "POST", body: JSON.stringify(input) });
+}
+
+export function reviseConfigurableCatalogProfile(
+  config: ApiConfig,
+  profileId: string,
+  etag: string,
+  input: { content: ConfigurableProfileContent; change_reason: string },
+): Promise<ApiResult<ConfigurableProfileResponse>> {
+  return request(config, `/catalog/profiles/${encodeURIComponent(profileId)}/revisions`, {
+    method: "POST",
+    headers: { "If-Match": etag },
+    body: JSON.stringify(input),
+  });
 }
 
 export function listCatalogExplorerTables(
@@ -694,16 +754,76 @@ export async function downloadCommonProcessingOutput(
   };
 }
 
+export function catalogRevisionEtag(revision: RevisionMetadata): string {
+  return `"revision:${revision.revision_no}:sha256:${revision.content_hash}"`;
+}
+
+export function reviseConfigurableCatalogLinkType(
+  config: ApiConfig,
+  linkTypeId: string,
+  revision: RevisionMetadata,
+  input: { content: ConfigurableLinkTypeContent; change_reason: string },
+): Promise<ApiResult<ConfigurableLinkTypeResponse>> {
+  return request(config, `/catalog/link-types/${encodeURIComponent(linkTypeId)}/revisions`, {
+    method: "POST",
+    headers: { "If-Match": catalogRevisionEtag(revision) },
+    body: JSON.stringify(input),
+  });
+}
+
+export interface ConfigurablePublicationValidation {
+  aggregate_type: string;
+  aggregate_id: string;
+  revision_id: string;
+  valid: boolean;
+  errors: string[];
+}
+
+export function validateConfigurableCatalogPublication(
+  config: ApiConfig,
+  input: { aggregate_type: string; aggregate_id: string; revision_id: string },
+): Promise<ApiResult<ConfigurablePublicationValidation>> {
+  return request(config, "/catalog/publication:validate", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function publishConfigurableCatalogRevision(
+  config: ApiConfig,
+  input: { aggregate_type: string; aggregate_id: string; revision_id: string },
+): Promise<ApiResult<ConfigurablePublicationValidation>> {
+  return request(config, "/catalog/publication:publish", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
 export function createConfigurableCatalogTable(
   config: ApiConfig,
   input: {
     classification: DataClassification;
     content: ConfigurableTableContent;
     change_reason: string;
+    profile_id?: string | null;
+    profile_revision_id?: string | null;
   },
 ): Promise<ApiResult<ConfigurableTableResponse>> {
   return request(config, "/catalog/tables", {
     method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function reviseConfigurableCatalogTable(
+  config: ApiConfig,
+  tableId: string,
+  revision: RevisionMetadata,
+  input: { content: ConfigurableTableContent; change_reason: string },
+): Promise<ApiResult<ConfigurableTableResponse>> {
+  return request(config, `/catalog/tables/${encodeURIComponent(tableId)}/revisions`, {
+    method: "POST",
+    headers: { "If-Match": catalogRevisionEtag(revision) },
     body: JSON.stringify(input),
   });
 }
@@ -722,6 +842,19 @@ export function createConfigurableCatalogAttribute(
 ): Promise<ApiResult<ConfigurableAttributeResponse>> {
   return request(config, `/catalog/tables/${encodeURIComponent(tableId)}/attributes`, {
     method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function reviseConfigurableCatalogAttribute(
+  config: ApiConfig,
+  attributeId: string,
+  revision: RevisionMetadata,
+  input: { content: ConfigurableAttributeContent; change_reason: string },
+): Promise<ApiResult<ConfigurableAttributeResponse>> {
+  return request(config, `/catalog/attributes/${encodeURIComponent(attributeId)}/revisions`, {
+    method: "POST",
+    headers: { "If-Match": catalogRevisionEtag(revision) },
     body: JSON.stringify(input),
   });
 }
@@ -750,6 +883,25 @@ export function createConfigurableCatalogLayout(
   });
 }
 
+export function reviseConfigurableCatalogLayout(
+  config: ApiConfig,
+  layoutId: string,
+  revision: RevisionMetadata,
+  input: {
+    table_revision_id: string;
+    name: string;
+    description: string | null;
+    items: ConfigurableLayoutItem[];
+    change_reason: string;
+  },
+): Promise<ApiResult<ConfigurableLayoutResponse>> {
+  return request(config, `/catalog/layouts/${encodeURIComponent(layoutId)}/revisions`, {
+    method: "POST",
+    headers: { "If-Match": catalogRevisionEtag(revision) },
+    body: JSON.stringify(input),
+  });
+}
+
 export function listConfigurableCatalogSubsets(
   config: ApiConfig,
   tableId: string,
@@ -770,6 +922,25 @@ export function createConfigurableCatalogSubset(
 ): Promise<ApiResult<ConfigurableSubsetResponse>> {
   return request(config, `/catalog/tables/${encodeURIComponent(tableId)}/subsets`, {
     method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function reviseConfigurableCatalogSubset(
+  config: ApiConfig,
+  subsetId: string,
+  revision: RevisionMetadata,
+  input: {
+    table_revision_id: string;
+    name: string;
+    description: string | null;
+    filter_definition: Record<string, unknown> | null;
+    change_reason: string;
+  },
+): Promise<ApiResult<ConfigurableSubsetResponse>> {
+  return request(config, `/catalog/subsets/${encodeURIComponent(subsetId)}/revisions`, {
+    method: "POST",
+    headers: { "If-Match": catalogRevisionEtag(revision) },
     body: JSON.stringify(input),
   });
 }
@@ -817,6 +988,7 @@ export function searchConfigurableCatalogRecords(
     sort_by?: "name" | "external_key" | "attribute";
     sort_attribute_id?: string;
     sort_direction?: "ascending" | "descending";
+    published_only?: boolean;
   },
 ): Promise<ApiResult<ConfigurableCatalogRecordSearchResponse>> {
   return request(config, "/catalog/records:search", {
@@ -835,6 +1007,63 @@ export function createConfigurableCatalogRecord(
   },
 ): Promise<ApiResult<ConfigurableCatalogRecordResponse>> {
   return request(config, `/catalog/tables/${encodeURIComponent(tableId)}/records`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function reviseConfigurableCatalogFolder(
+  config: ApiConfig,
+  folderId: string,
+  revision: RevisionMetadata,
+  input: {
+    content: ConfigurableCatalogFolderResponse["content"];
+    change_reason: string;
+  },
+): Promise<ApiResult<ConfigurableCatalogFolderResponse>> {
+  return request(config, `/catalog/folders/${encodeURIComponent(folderId)}/revisions`, {
+    method: "POST",
+    headers: { "If-Match": catalogRevisionEtag(revision) },
+    body: JSON.stringify(input),
+  });
+}
+
+export function previewConfigurableCatalogRecordRegistration(
+  config: ApiConfig,
+  input: {
+    table_id: string;
+    table_revision_id: string;
+    rows?: Array<Record<string, unknown>>;
+    mapping: Record<string, string | { attribute: string; unit: string | null }>;
+    common_material_state?: Record<string, string> | null;
+    raw_asset_id?: string;
+    raw_artifact_id?: string;
+    file_format?: GovernedTabularFileFormat;
+    sheet_name?: string | null;
+    header_row?: number;
+    encoding?: string;
+    delimiter?: string | null;
+    decimal_separator?: "." | ",";
+    corrections?: Record<number, Record<string, string>>;
+  },
+): Promise<ApiResult<ConfigurableRegistrationPreviewResponse>> {
+  return request(config, "/catalog/record-registrations:preview", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function publishConfigurableCatalogRecordRegistration(
+  config: ApiConfig,
+  input: {
+    token: string;
+    table_id: string;
+    table_revision_id: string;
+    change_reason: string;
+    classification: DataClassification;
+  },
+): Promise<ApiResult<{ items: ConfigurableCatalogRecordResponse[] }>> {
+  return request(config, "/catalog/record-registrations:publish", {
     method: "POST",
     body: JSON.stringify(input),
   });
@@ -3951,7 +4180,7 @@ export async function uploadGovernedTabularFile(
     file: File;
     file_format: GovernedTabularFileFormat;
     classification: DataClassification;
-    test_run_revision_id: string;
+    test_run_revision_id?: string | null;
   },
 ): Promise<ApiResult<CompletedUpload>> {
   const filename = input.file.name.trim();
@@ -3979,7 +4208,7 @@ export async function uploadGovernedTabularFile(
         media_type: mediaType,
         expected_size_bytes: input.file.size,
         expected_sha256: digest,
-        test_run_revision_id: input.test_run_revision_id,
+        test_run_revision_id: input.test_run_revision_id ?? null,
       }),
     },
   );

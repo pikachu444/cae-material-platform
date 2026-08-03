@@ -38,7 +38,6 @@ class ProductAccessAssignmentReader(Protocol):
 
 
 class ProductAccessAssignmentRepository(ProductAccessAssignmentReader, Protocol):
-
     def list_assignments(
         self,
         *,
@@ -296,9 +295,7 @@ _FEATURE_EVIDENCE_ROLES: Mapping[FeatureGrant, frozenset[Role]] = {
     FeatureGrant.PROCESSING_CALIBRATION: frozenset(
         {Role.STATISTICAL_ANALYST, Role.MATERIAL_MODELER}
     ),
-    FeatureGrant.MODEL_APPROVAL: frozenset(
-        {Role.DOMAIN_REVIEWER, Role.RELEASE_APPROVER}
-    ),
+    FeatureGrant.MODEL_APPROVAL: frozenset({Role.DOMAIN_REVIEWER, Role.RELEASE_APPROVER}),
     FeatureGrant.SOLVER_CARD_EXPORT: frozenset({Role.CAE_ANALYST}),
 }
 
@@ -335,6 +332,7 @@ def _legacy_feature_grants(roles: set[Role]) -> set[FeatureGrant]:
         if required.issubset(permissions)
     }
 
+
 _MODIFYING_OPERATIONS = frozenset(
     {
         "activate",
@@ -349,6 +347,10 @@ _MODIFYING_OPERATIONS = frozenset(
     }
 )
 _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = {
+    # Catalog registration parses a verified immutable source Artifact before it creates
+    # typed Record revisions. This is an internal command capability only; the public
+    # Artifact endpoints continue to require artifact.read explicitly.
+    Permission.CATALOG_WRITE: frozenset({Permission.ARTIFACT_READ}),
     # Reference import detection reads the verified immutable raw artifact before
     # it records a human-approved mapping revision.  This remains a transaction
     # capability only; the public Artifact endpoint still requires artifact.read.
@@ -622,10 +624,7 @@ class AuthorizationService:
             max_classification=maximum,
             allow_export_controlled=(
                 any(binding.allow_export_controlled for binding in granting)
-                or any(
-                    assignment.allow_export_controlled
-                    for assignment in product_granting
-                )
+                or any(assignment.allow_export_controlled for assignment in product_granting)
             ),
             request_id=context.request_id,
             trace_id=context.trace_id,
@@ -810,9 +809,7 @@ class ProductAccessAdministrationService:
     def effective(self, context: SecurityContext) -> ProductAccessSummary:
         return self._authorization.effective_product_access(context)
 
-    def list_assignments(
-        self, context: SecurityContext
-    ) -> tuple[ProductAccessAssignment, ...]:
+    def list_assignments(self, context: SecurityContext) -> tuple[ProductAccessAssignment, ...]:
         decision = self._authorization.authorize(context, Permission.IDENTITY_MANAGE)
         return self._repository.list_assignments(context=context, decision=decision)
 

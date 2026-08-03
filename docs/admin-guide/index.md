@@ -1,15 +1,15 @@
 # CAE Material Platform 관리자 가이드
 
 이 문서는 개발 설정이 아니라 서비스 관리자가 Material Information System의 구조와 사용자
-권한을 구성하는 방법을 설명합니다. 관리자는 Table과 항목을 추가하고, 레코드 사이의 링크
-규칙을 정하고, 사용자에게 필요한 제품 기능만 부여합니다.
+권한을 구성하는 방법을 설명합니다. 관리자는 Database/Profile과 Table 항목을 추가하고,
+레코드 사이의 링크 규칙을 정하고, 사용자에게 필요한 제품 기능만 부여합니다.
 
 ## 1. 관리자 작업 영역
 
 | 화면 | 주소 | 관리 대상 |
 | --- | --- | --- |
 | Administration overview | `/administration` | 관리자 작업 선택과 제품 권한 원칙 |
-| Database design | `/administration/database` | Table, Attribute, Layout, Subset, Link Type |
+| Database design | `/administration/database` | Database, Profile, Table, Attribute, Layout, Subset, Link Type, Publish |
 | Users & access | `/administration/access` | User/Reviewer/Administrator 업무 역할과 assignment 관리 |
 | Material Database | `/database` | Folder, Record, exact-revision link 탐색 |
 
@@ -22,15 +22,17 @@ Administration은 일반 사용자 메뉴에 상시 노출되지 않습니다. �
 divider 목록이고, Database design은 20 px 제목, 340 px Table 열과 나머지 Attribute/Layout 열을
 사용합니다. Attribute도 rounded card가 아닌 52 px divider 행으로 표시합니다.
 
-## 2. Table과 Attribute 구성
+## 2. Database/Profile, Table과 Attribute 구성
 
-1. **Administration → Database design**에서 stable key, 표시 이름, 설명과 classification을 입력해
-   Table revision 1을 만듭니다.
-2. Table을 선택하고 Attribute stable key, 표시 이름, 설명과 data type을 정의합니다.
+1. **Administration → Database design**에서 Database와 Profile의 표시 이름과 설명을 입력합니다. Profile은
+   선택한 Database 버전에 고정됩니다.
+2. Table을 선택하고 Attribute 표시 이름, 설명과 값 형식을 정의합니다.
 3. `number`에는 quantity semantics와 정규화 단위를 함께 지정합니다.
 4. `discrete`에는 허용값을, `record_reference`에는 대상 Table을 지정합니다.
-5. Attribute를 Layout에 원하는 순서로 배치하고, 자주 쓰는 검색 조건은 Subset으로
-   저장합니다.
+5. Layout에 표시할 Attribute를 선택합니다. 선택한 항목은 현재 Attribute 순서로 배치되며, 자주
+   쓰는 검색 조건은 Subset으로 저장합니다.
+6. 각 항목에서 **Check**를 눌러 참조·필수·형식·단위 제약을 확인한 뒤 **Publish**합니다. 공개된
+   버전은 Materials 검색에 사용되고, 수정은 새 초안으로 시작합니다.
 
 지원 data type은 `number`, `integer`, `text`, `boolean`, `date`, `discrete`, `file`, `curve`,
 `record_reference`입니다. Attribute 추가에는 DB migration이 필요하지 않지만, 정의 자체는
@@ -43,6 +45,11 @@ semantics를 함께 저장합니다.
 생성합니다. Folder parent는 exact revision으로 고정되며 cycle이나 다른 Table 연결은 서버와
 PostgreSQL이 모두 거부합니다. Record를 수정할 때는 현재 ETag가 필요하고, 성공하면 기존 행을
 덮어쓰지 않고 새 Record revision이 생깁니다.
+
+한 건은 datasheet의 **Single entry**에서 입력하고, 여러 건은 **Multiple rows**에서 CSV/TSV/XLSX
+행을 미리 확인합니다. 원본 열과 Attribute, 원본 단위, 기존 재료와 상태를 직접 연결해야 하며,
+행 오류가 남아 있으면 등록 버튼이 잠깁니다. 이미 데이터가 연결된 재료 상태는 새로 등록하지 말고
+검색 결과에서 기존 데이터를 열어 수정합니다. 여러 행은 전체가 검사를 통과할 때 한 번에 등록됩니다.
 
 Layout은 입력 순서만 정의하며 값을 복제하지 않습니다. Subset을 수정할 때도 기존 검색 조건을
 바꾸지 않고 새 revision을 추가합니다.

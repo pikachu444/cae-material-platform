@@ -2758,10 +2758,39 @@
 
 .property-sheet footer {
   display: flex;
+  flex-wrap: wrap;
+  gap: var(--ux-space-2);
   justify-content: end;
   margin-top: var(--ux-space-4);
   padding-top: var(--ux-space-3);
   border-top: 1px solid var(--ux-border);
+}
+
+.layout-field-picker {
+  border: 0;
+  border-top: 1px solid var(--ux-border);
+  display: grid;
+  gap: 0;
+  margin: var(--ux-space-4) 0 0;
+  padding: var(--ux-space-3) 0 0;
+}
+
+.layout-field-picker > label {
+  align-items: center;
+  border-bottom: 1px solid var(--ux-border);
+  display: grid;
+  gap: var(--ux-space-2);
+  grid-template-columns: auto minmax(120px, 1fr) minmax(120px, 1fr);
+  min-height: 38px;
+}
+
+.layout-field-picker input {
+  min-height: 0;
+  width: auto;
+}
+
+.layout-field-picker small {
+  color: var(--ux-text-muted);
 }
 
 .property-sheet dl {

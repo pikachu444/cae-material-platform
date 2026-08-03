@@ -13,15 +13,28 @@ from sqlalchemy.exc import IntegrityError
 
 from cmp.modules.catalog.adapters.api.catalog import CatalogHttpError, _etag, _scope
 from cmp.modules.catalog.application.configurable import (
+    ATTRIBUTE_AGGREGATE_TYPE,
+    DATABASE_AGGREGATE_TYPE,
+    LAYOUT_AGGREGATE_TYPE,
+    PROFILE_AGGREGATE_TYPE,
+    SUBSET_AGGREGATE_TYPE,
+    TABLE_AGGREGATE_TYPE,
     AttributeSnapshot,
     ConfigurableCatalogService,
     CreateAttribute,
+    CreateDatabase,
     CreateLayout,
+    CreateProfile,
     CreateSubset,
     CreateTable,
+    DatabaseSnapshot,
     LayoutSnapshot,
+    ProfileSnapshot,
+    PublishRevision,
     ReviseAttribute,
+    ReviseDatabase,
     ReviseLayout,
+    ReviseProfile,
     ReviseSubset,
     ReviseTable,
     SubsetSnapshot,
@@ -30,6 +43,8 @@ from cmp.modules.catalog.application.configurable import (
 from cmp.modules.catalog.domain.configurable import (
     AttributeDataType,
     AttributeDefinitionContent,
+    CatalogDatabaseContent,
+    CatalogProfileContent,
     CatalogTableContent,
     ConfigurableCatalogConflict,
     ConfigurableCatalogNotFound,
@@ -51,6 +66,60 @@ type Label = Annotated[str, StringConstraints(min_length=1, max_length=255)]
 type Dependency = Callable[..., object]
 
 
+class DatabaseContentInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    key: Annotated[str, StringConstraints(pattern=r"^[a-z][a-z0-9_]{0,63}$")]
+    name: Annotated[str, StringConstraints(min_length=1, max_length=200)]
+    description: Annotated[str | None, StringConstraints(min_length=1, max_length=4000)] = None
+
+    def to_domain(self) -> CatalogDatabaseContent:
+        return CatalogDatabaseContent(self.key, self.name, self.description)
+
+
+class DatabaseCreateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    classification: DataClassification = DataClassification.INTERNAL
+    content: DatabaseContentInput
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
+class DatabaseReviseRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    content: DatabaseContentInput
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
+class ProfileContentInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    database_id: UUID
+    database_revision_id: UUID
+    key: Annotated[str, StringConstraints(pattern=r"^[a-z][a-z0-9_]{0,63}$")]
+    name: Annotated[str, StringConstraints(min_length=1, max_length=200)]
+    description: Annotated[str | None, StringConstraints(min_length=1, max_length=4000)] = None
+
+    def to_domain(self) -> CatalogProfileContent:
+        return CatalogProfileContent(
+            self.database_id,
+            self.database_revision_id,
+            self.key,
+            self.name,
+            self.description,
+        )
+
+
+class ProfileCreateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    classification: DataClassification = DataClassification.INTERNAL
+    content: ProfileContentInput
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
+class ProfileReviseRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    content: ProfileContentInput
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
 class TableContentInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
     key: Annotated[str, StringConstraints(pattern=r"^[a-z][a-z0-9_]{0,63}$")]
@@ -66,6 +135,8 @@ class TableCreateRequest(BaseModel):
     classification: DataClassification = DataClassification.INTERNAL
     content: TableContentInput
     change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+    profile_id: UUID | None = None
+    profile_revision_id: UUID | None = None
 
 
 class TableReviseRequest(BaseModel):
@@ -173,14 +244,105 @@ class SubsetCreateRequest(BaseModel):
         )
 
 
+class DatabaseRevisionResponse(RevisionMetadataResponse):
+    content: DatabaseContentInput
+
+    @classmethod
+    def from_snapshot(
+        cls, value: DatabaseSnapshot, lifecycle: str = "draft"
+    ) -> DatabaseRevisionResponse:
+        revision = value.current
+        return cls(
+            **RevisionMetadataResponse.from_record(revision.record, lifecycle).model_dump(),
+            content=DatabaseContentInput(
+                key=revision.content.key,
+                name=revision.content.name,
+                description=revision.content.description,
+            ),
+        )
+
+
+class DatabaseResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    database_id: UUID
+    current_revision: DatabaseRevisionResponse
+
+    @classmethod
+    def from_snapshot(cls, value: DatabaseSnapshot, lifecycle: str = "draft") -> DatabaseResponse:
+        return cls(
+            database_id=value.id,
+            current_revision=DatabaseRevisionResponse.from_snapshot(value, lifecycle),
+        )
+
+
+class DatabaseListResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    items: tuple[DatabaseResponse, ...]
+
+
+class ProfileRevisionResponse(RevisionMetadataResponse):
+    content: ProfileContentInput
+
+    @classmethod
+    def from_snapshot(
+        cls, value: ProfileSnapshot, lifecycle: str = "draft"
+    ) -> ProfileRevisionResponse:
+        revision = value.current
+        content = revision.content
+        return cls(
+            **RevisionMetadataResponse.from_record(revision.record, lifecycle).model_dump(),
+            content=ProfileContentInput(
+                database_id=content.database_id,
+                database_revision_id=content.database_revision_id,
+                key=content.key,
+                name=content.name,
+                description=content.description,
+            ),
+        )
+
+
+class ProfileResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    profile_id: UUID
+    current_revision: ProfileRevisionResponse
+
+    @classmethod
+    def from_snapshot(cls, value: ProfileSnapshot, lifecycle: str = "draft") -> ProfileResponse:
+        return cls(
+            profile_id=value.id,
+            current_revision=ProfileRevisionResponse.from_snapshot(value, lifecycle),
+        )
+
+
+class ProfileListResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    items: tuple[ProfileResponse, ...]
+
+
+class PublicationRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    aggregate_type: Annotated[str, StringConstraints(min_length=1, max_length=128)]
+    aggregate_id: UUID
+    revision_id: UUID
+
+
+class PublicationValidationResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    aggregate_type: str
+    aggregate_id: UUID
+    revision_id: UUID
+    valid: bool
+    errors: tuple[str, ...]
+
+
 class TableRevisionResponse(RevisionMetadataResponse):
     content: TableContentInput
 
     @classmethod
-    def from_snapshot(cls, value: TableSnapshot) -> TableRevisionResponse:
+    def from_snapshot(cls, value: TableSnapshot, lifecycle: str = "draft") -> TableRevisionResponse:
         revision = value.current
         return cls(
-            **RevisionMetadataResponse.from_record(revision.record, "draft").model_dump(),
+            **RevisionMetadataResponse.from_record(revision.record, lifecycle).model_dump(),
             content=TableContentInput(
                 key=revision.content.key,
                 name=revision.content.name,
@@ -195,8 +357,11 @@ class TableResponse(BaseModel):
     current_revision: TableRevisionResponse
 
     @classmethod
-    def from_snapshot(cls, value: TableSnapshot) -> TableResponse:
-        return cls(table_id=value.id, current_revision=TableRevisionResponse.from_snapshot(value))
+    def from_snapshot(cls, value: TableSnapshot, lifecycle: str = "draft") -> TableResponse:
+        return cls(
+            table_id=value.id,
+            current_revision=TableRevisionResponse.from_snapshot(value, lifecycle),
+        )
 
 
 class TableListResponse(BaseModel):
@@ -208,11 +373,13 @@ class AttributeRevisionResponse(RevisionMetadataResponse):
     content: AttributeContentInput
 
     @classmethod
-    def from_snapshot(cls, value: AttributeSnapshot) -> AttributeRevisionResponse:
+    def from_snapshot(
+        cls, value: AttributeSnapshot, lifecycle: str = "draft"
+    ) -> AttributeRevisionResponse:
         revision = value.current
         content = revision.content
         return cls(
-            **RevisionMetadataResponse.from_record(revision.record, "draft").model_dump(),
+            **RevisionMetadataResponse.from_record(revision.record, lifecycle).model_dump(),
             content=AttributeContentInput(
                 table_revision_id=content.table_revision_id,
                 key=content.key,
@@ -240,11 +407,11 @@ class AttributeResponse(BaseModel):
     current_revision: AttributeRevisionResponse
 
     @classmethod
-    def from_snapshot(cls, value: AttributeSnapshot) -> AttributeResponse:
+    def from_snapshot(cls, value: AttributeSnapshot, lifecycle: str = "draft") -> AttributeResponse:
         return cls(
             attribute_definition_id=value.id,
             table_id=value.table_id,
-            current_revision=AttributeRevisionResponse.from_snapshot(value),
+            current_revision=AttributeRevisionResponse.from_snapshot(value, lifecycle),
         )
 
 
@@ -263,12 +430,12 @@ class LayoutResponse(BaseModel):
     items: tuple[LayoutItemInput, ...]
 
     @classmethod
-    def from_snapshot(cls, value: LayoutSnapshot) -> LayoutResponse:
+    def from_snapshot(cls, value: LayoutSnapshot, lifecycle: str = "draft") -> LayoutResponse:
         content = value.current.content
         return cls(
             layout_id=value.id,
             table_id=value.table_id,
-            revision=RevisionMetadataResponse.from_record(value.current.record, "draft"),
+            revision=RevisionMetadataResponse.from_record(value.current.record, lifecycle),
             name=content.name,
             description=content.description,
             items=tuple(
@@ -293,12 +460,12 @@ class SubsetResponse(BaseModel):
     filter_definition: dict[str, Any] | None
 
     @classmethod
-    def from_snapshot(cls, value: SubsetSnapshot) -> SubsetResponse:
+    def from_snapshot(cls, value: SubsetSnapshot, lifecycle: str = "draft") -> SubsetResponse:
         content = value.current.content
         return cls(
             subset_id=value.id,
             table_id=value.table_id,
-            revision=RevisionMetadataResponse.from_record(value.current.record, "draft"),
+            revision=RevisionMetadataResponse.from_record(value.current.record, lifecycle),
             name=content.name,
             description=content.description,
             filter_definition=content.filter_definition,
@@ -404,6 +571,288 @@ def install_configurable_catalog_api(
             )
         return service
 
+    def lifecycle(context: Any, decision: Any, aggregate_type: str, value: Any) -> str:
+        publication_reader = getattr(required(context), "is_published", None)
+        if publication_reader is None:
+            # Lightweight API fixtures used by contract tests intentionally do
+            # not model the database marker.  Production service always does.
+            return "draft"
+        return (
+            "published"
+            if publication_reader(
+                context,
+                decision,
+                aggregate_type,
+                value.id,
+                value.current.record.revision_id,
+            )
+            else "draft"
+        )
+
+    @application.post(
+        "/api/v1/catalog/publication:validate",
+        operation_id="validateConfigurableCatalogPublication",
+        response_model=PublicationValidationResponse,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["catalog-schema"],
+    )
+    def validate_publication(
+        request: Request, body: PublicationRequest
+    ) -> PublicationValidationResponse:
+        context, decision = _scope(request)
+        try:
+            value = required(context).validate_publication(
+                context,
+                decision,
+                PublishRevision(body.aggregate_type, body.aggregate_id, body.revision_id),
+            )
+            return PublicationValidationResponse(
+                aggregate_type=value.aggregate_type,
+                aggregate_id=value.aggregate_id,
+                revision_id=value.revision_id,
+                valid=value.valid,
+                errors=value.errors,
+            )
+        except CatalogHttpError:
+            raise
+        except Exception as error:
+            raise _error(context, error) from error
+
+    @application.post(
+        "/api/v1/catalog/publication:publish",
+        operation_id="publishConfigurableCatalogRevision",
+        response_model=PublicationValidationResponse,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["catalog-schema"],
+    )
+    def publish_revision(
+        request: Request, body: PublicationRequest
+    ) -> PublicationValidationResponse:
+        context, decision = _scope(request)
+        try:
+            value = required(context).publish_revision(
+                context,
+                decision,
+                PublishRevision(body.aggregate_type, body.aggregate_id, body.revision_id),
+            )
+            return PublicationValidationResponse(
+                aggregate_type=value.aggregate_type,
+                aggregate_id=value.aggregate_id,
+                revision_id=value.revision_id,
+                valid=value.valid,
+                errors=value.errors,
+            )
+        except CatalogHttpError:
+            raise
+        except Exception as error:
+            raise _error(context, error) from error
+
+    @application.get(
+        "/api/v1/catalog/databases",
+        operation_id="listConfigurableCatalogDatabases",
+        response_model=DatabaseListResponse,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["catalog-schema"],
+    )
+    def list_databases(request: Request) -> DatabaseListResponse:
+        context, decision = _scope(request)
+        try:
+            values = required(context).list_databases(context, decision)
+            return DatabaseListResponse(
+                items=tuple(
+                    DatabaseResponse.from_snapshot(
+                        item, lifecycle(context, decision, DATABASE_AGGREGATE_TYPE, item)
+                    )
+                    for item in values
+                )
+            )
+        except CatalogHttpError:
+            raise
+        except Exception as error:
+            raise _error(context, error) from error
+
+    @application.post(
+        "/api/v1/catalog/databases",
+        operation_id="createConfigurableCatalogDatabase",
+        response_model=DatabaseResponse,
+        status_code=status.HTTP_201_CREATED,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["catalog-schema"],
+    )
+    def create_database(
+        request: Request, response: Response, body: DatabaseCreateRequest
+    ) -> DatabaseResponse:
+        context, decision = _scope(request)
+        try:
+            value = required(context).create_database(
+                context,
+                decision,
+                CreateDatabase(body.classification, body.content.to_domain(), body.change_reason),
+            )
+            _etag(response, value.current.record)
+            return DatabaseResponse.from_snapshot(
+                value, lifecycle(context, decision, DATABASE_AGGREGATE_TYPE, value)
+            )
+        except CatalogHttpError:
+            raise
+        except Exception as error:
+            raise _error(context, error) from error
+
+    @application.get(
+        "/api/v1/catalog/databases/{database_id}",
+        operation_id="getConfigurableCatalogDatabase",
+        response_model=DatabaseResponse,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["catalog-schema"],
+    )
+    def get_database(request: Request, response: Response, database_id: UUID) -> DatabaseResponse:
+        context, decision = _scope(request)
+        try:
+            value = required(context).get_database(context, decision, database_id)
+            _etag(response, value.current.record)
+            return DatabaseResponse.from_snapshot(
+                value, lifecycle(context, decision, DATABASE_AGGREGATE_TYPE, value)
+            )
+        except CatalogHttpError:
+            raise
+        except Exception as error:
+            raise _error(context, error) from error
+
+    @application.post(
+        "/api/v1/catalog/databases/{database_id}/revisions",
+        operation_id="reviseConfigurableCatalogDatabase",
+        response_model=DatabaseResponse,
+        status_code=status.HTTP_201_CREATED,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["catalog-schema"],
+    )
+    def revise_database(
+        request: Request,
+        response: Response,
+        database_id: UUID,
+        body: DatabaseReviseRequest,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> DatabaseResponse:
+        context, decision = _scope(request)
+        try:
+            current = required(context).get_database_for_write(context, decision, database_id)
+            expected = require_matching_if_match(if_match, current.current.record.ref)
+            value = required(context).revise_database(
+                context,
+                decision,
+                database_id,
+                ReviseDatabase(expected, body.content.to_domain(), body.change_reason),
+            )
+            _etag(response, value.current.record)
+            return DatabaseResponse.from_snapshot(value)
+        except CatalogHttpError:
+            raise
+        except Exception as error:
+            raise _error(context, error) from error
+
+    @application.get(
+        "/api/v1/catalog/profiles",
+        operation_id="listConfigurableCatalogProfiles",
+        response_model=ProfileListResponse,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["catalog-schema"],
+    )
+    def list_profiles(request: Request, database_id: UUID | None = None) -> ProfileListResponse:
+        context, decision = _scope(request)
+        try:
+            values = required(context).list_profiles(context, decision, database_id)
+            return ProfileListResponse(
+                items=tuple(
+                    ProfileResponse.from_snapshot(
+                        item, lifecycle(context, decision, PROFILE_AGGREGATE_TYPE, item)
+                    )
+                    for item in values
+                )
+            )
+        except CatalogHttpError:
+            raise
+        except Exception as error:
+            raise _error(context, error) from error
+
+    @application.post(
+        "/api/v1/catalog/profiles",
+        operation_id="createConfigurableCatalogProfile",
+        response_model=ProfileResponse,
+        status_code=status.HTTP_201_CREATED,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["catalog-schema"],
+    )
+    def create_profile(
+        request: Request, response: Response, body: ProfileCreateRequest
+    ) -> ProfileResponse:
+        context, decision = _scope(request)
+        try:
+            value = required(context).create_profile(
+                context,
+                decision,
+                CreateProfile(body.classification, body.content.to_domain(), body.change_reason),
+            )
+            _etag(response, value.current.record)
+            return ProfileResponse.from_snapshot(
+                value, lifecycle(context, decision, PROFILE_AGGREGATE_TYPE, value)
+            )
+        except CatalogHttpError:
+            raise
+        except Exception as error:
+            raise _error(context, error) from error
+
+    @application.get(
+        "/api/v1/catalog/profiles/{profile_id}",
+        operation_id="getConfigurableCatalogProfile",
+        response_model=ProfileResponse,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["catalog-schema"],
+    )
+    def get_profile(request: Request, response: Response, profile_id: UUID) -> ProfileResponse:
+        context, decision = _scope(request)
+        try:
+            value = required(context).get_profile(context, decision, profile_id)
+            _etag(response, value.current.record)
+            return ProfileResponse.from_snapshot(
+                value, lifecycle(context, decision, PROFILE_AGGREGATE_TYPE, value)
+            )
+        except CatalogHttpError:
+            raise
+        except Exception as error:
+            raise _error(context, error) from error
+
+    @application.post(
+        "/api/v1/catalog/profiles/{profile_id}/revisions",
+        operation_id="reviseConfigurableCatalogProfile",
+        response_model=ProfileResponse,
+        status_code=status.HTTP_201_CREATED,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["catalog-schema"],
+    )
+    def revise_profile(
+        request: Request,
+        response: Response,
+        profile_id: UUID,
+        body: ProfileReviseRequest,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> ProfileResponse:
+        context, decision = _scope(request)
+        try:
+            current = required(context).get_profile_for_write(context, decision, profile_id)
+            expected = require_matching_if_match(if_match, current.current.record.ref)
+            value = required(context).revise_profile(
+                context,
+                decision,
+                profile_id,
+                ReviseProfile(expected, body.content.to_domain(), body.change_reason),
+            )
+            _etag(response, value.current.record)
+            return ProfileResponse.from_snapshot(value)
+        except CatalogHttpError:
+            raise
+        except Exception as error:
+            raise _error(context, error) from error
+
     @application.get(
         "/api/v1/catalog/tables",
         operation_id="listConfigurableCatalogTables",
@@ -416,7 +865,12 @@ def install_configurable_catalog_api(
         try:
             values = required(context).list_tables(context, decision)
             return TableListResponse(
-                items=tuple(TableResponse.from_snapshot(item) for item in values)
+                items=tuple(
+                    TableResponse.from_snapshot(
+                        item, lifecycle(context, decision, TABLE_AGGREGATE_TYPE, item)
+                    )
+                    for item in values
+                )
             )
         except CatalogHttpError:
             raise
@@ -437,13 +891,23 @@ def install_configurable_catalog_api(
     ) -> TableResponse:
         context, decision = _scope(request)
         try:
+            if (body.profile_id is None) != (body.profile_revision_id is None):
+                raise ValueError("profile_id and profile_revision_id must be supplied together")
             value = required(context).create_table(
                 context,
                 decision,
-                CreateTable(body.classification, body.content.to_domain(), body.change_reason),
+                CreateTable(
+                    body.classification,
+                    body.content.to_domain(),
+                    body.change_reason,
+                    body.profile_id,
+                    body.profile_revision_id,
+                ),
             )
             _etag(response, value.current.record)
-            return TableResponse.from_snapshot(value)
+            return TableResponse.from_snapshot(
+                value, lifecycle(context, decision, TABLE_AGGREGATE_TYPE, value)
+            )
         except CatalogHttpError:
             raise
         except Exception as error:
@@ -461,7 +925,9 @@ def install_configurable_catalog_api(
         try:
             value = required(context).get_table(context, decision, table_id)
             _etag(response, value.current.record)
-            return TableResponse.from_snapshot(value)
+            return TableResponse.from_snapshot(
+                value, lifecycle(context, decision, TABLE_AGGREGATE_TYPE, value)
+            )
         except CatalogHttpError:
             raise
         except Exception as error:
@@ -511,7 +977,12 @@ def install_configurable_catalog_api(
         try:
             values = required(context).list_attributes(context, decision, table_id)
             return AttributeListResponse(
-                items=tuple(AttributeResponse.from_snapshot(item) for item in values)
+                items=tuple(
+                    AttributeResponse.from_snapshot(
+                        item, lifecycle(context, decision, ATTRIBUTE_AGGREGATE_TYPE, item)
+                    )
+                    for item in values
+                )
             )
         except CatalogHttpError:
             raise
@@ -589,7 +1060,12 @@ def install_configurable_catalog_api(
         try:
             values = required(context).list_layouts(context, decision, table_id)
             return LayoutListResponse(
-                items=tuple(LayoutResponse.from_snapshot(item) for item in values)
+                items=tuple(
+                    LayoutResponse.from_snapshot(
+                        item, lifecycle(context, decision, LAYOUT_AGGREGATE_TYPE, item)
+                    )
+                    for item in values
+                )
             )
         except CatalogHttpError:
             raise
@@ -663,7 +1139,12 @@ def install_configurable_catalog_api(
         try:
             values = required(context).list_subsets(context, decision, table_id)
             return SubsetListResponse(
-                items=tuple(SubsetResponse.from_snapshot(item) for item in values)
+                items=tuple(
+                    SubsetResponse.from_snapshot(
+                        item, lifecycle(context, decision, SUBSET_AGGREGATE_TYPE, item)
+                    )
+                    for item in values
+                )
             )
         except CatalogHttpError:
             raise

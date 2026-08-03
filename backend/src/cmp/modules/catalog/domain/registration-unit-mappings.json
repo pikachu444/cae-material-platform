@@ -1,0 +1,18 @@
+{
+  "version": "cmp-registration-units/1",
+  "mappings": [
+    {"source": "Pa", "target": "kPa", "factor": "0.001", "offset": "0", "rule": "linear_scale"},
+    {"source": "Pa", "target": "MPa", "factor": "0.000001", "offset": "0", "rule": "linear_scale"},
+    {"source": "Pa", "target": "GPa", "factor": "0.000000001", "offset": "0", "rule": "linear_scale"},
+    {"source": "kPa", "target": "Pa", "factor": "1000", "offset": "0", "rule": "linear_scale"},
+    {"source": "MPa", "target": "Pa", "factor": "1000000", "offset": "0", "rule": "linear_scale"},
+    {"source": "GPa", "target": "Pa", "factor": "1000000000", "offset": "0", "rule": "linear_scale"},
+    {"source": "MPa", "target": "GPa", "factor": "0.001", "offset": "0", "rule": "linear_scale"},
+    {"source": "GPa", "target": "MPa", "factor": "1000", "offset": "0", "rule": "linear_scale"},
+    {"source": "mm", "target": "m", "factor": "0.001", "offset": "0", "rule": "linear_scale"},
+    {"source": "cm", "target": "m", "factor": "0.01", "offset": "0", "rule": "linear_scale"},
+    {"source": "m", "target": "mm", "factor": "1000", "offset": "0", "rule": "linear_scale"},
+    {"source": "%", "target": "1", "factor": "0.01", "offset": "0", "rule": "linear_scale"},
+    {"source": "1", "target": "%", "factor": "100", "offset": "0", "rule": "linear_scale"}
+  ]
+}

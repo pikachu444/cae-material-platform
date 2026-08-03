@@ -22,6 +22,7 @@ from cmp.modules.catalog.application.configurable import (
     ConfigurableCatalogService,
     CreateAttribute,
     CreateTable,
+    PublishRevision,
 )
 from cmp.modules.catalog.application.links import (
     BindDomainRevision,
@@ -32,13 +33,19 @@ from cmp.modules.catalog.application.links import (
     ReviseRecordLink,
 )
 from cmp.modules.catalog.application.records import (
+    RECORD_AGGREGATE_TYPE,
     CatalogRecordService,
     CreateFolder,
     CreateRecord,
+    RegistrationSourceEvidence,
     ReviseFolder,
     ReviseRecord,
 )
-from cmp.modules.catalog.application.service import CatalogService, CreateMaterial
+from cmp.modules.catalog.application.service import (
+    CatalogService,
+    CreateMaterial,
+    CreateMaterialState,
+)
 from cmp.modules.catalog.domain.configurable import (
     AttributeDataType,
     AttributeDefinitionContent,
@@ -46,7 +53,7 @@ from cmp.modules.catalog.domain.configurable import (
     ConfigurableCatalogConflict,
 )
 from cmp.modules.catalog.domain.links import LinkCardinality, LinkTypeContent, RecordLinkContent
-from cmp.modules.catalog.domain.model import MaterialClass, MaterialContent
+from cmp.modules.catalog.domain.model import MaterialClass, MaterialContent, MaterialStateContent
 from cmp.modules.catalog.domain.records import (
     CatalogFolderContent,
     CatalogRecordContent,
@@ -375,7 +382,8 @@ def test_record_round_trip_search_facet_compare_and_folder_cycle(postgres: Harne
                     AttributeDataType.NUMBER,
                     original_value=Decimal(e_pa) / Decimal("1000000"),
                     original_unit_string="MPa",
-                    normalized_value=Decimal(e_pa),
+                    # The service must derive this from the original value and unit.
+                    normalized_value=Decimal("0"),
                     normalized_unit="Pa",
                     quantity_semantics="modulus.elastic.young",
                 ),
@@ -445,9 +453,7 @@ def test_record_round_trip_search_facet_compare_and_folder_cycle(postgres: Harne
     )
     assert result.total_count == 1
     assert result.items[0].id == steel.id
-    family_facet = next(
-        item for item in result.facets if item.attribute_definition_id == family.id
-    )
+    family_facet = next(item for item in result.facets if item.attribute_definition_id == family.id)
     provider_facet = next(
         item for item in result.facets if item.attribute_definition_id == provider.id
     )
@@ -506,7 +512,7 @@ def test_record_round_trip_search_facet_compare_and_folder_cycle(postgres: Harne
 
     with postgres.admin_engine.connect() as connection:
         version = connection.scalar(sa.text("SELECT version_num FROM alembic_version"))
-        assert version == "20260922_091_uxc07_evidence"
+        assert version == "20260923_092_uxc08"
         validator = connection.execute(
             sa.text(
                 "SELECT p.prosecdef, p.proconfig, "
@@ -858,6 +864,381 @@ def test_dual_explorer_exact_links_reverse_query_cardinality_and_deactivation(
     assert not postgres.links.list_record_links(context, read, tensile.id)
     historical = postgres.links.list_record_links(context, read, tensile.id, include_inactive=True)
     assert historical[0].link.current.content.active is False
+
+
+def test_registration_preview_maps_original_columns_units_and_publishes_atomically(
+    postgres: Harness,
+) -> None:
+    context = _context()
+    write = _decision(context, Permission.CATALOG_WRITE)
+    read = _decision(context, Permission.CATALOG_READ)
+    table = postgres.schemas.create_table(
+        context,
+        write,
+        CreateTable(
+            DataClassification.INTERNAL,
+            CatalogTableContent("registration_materials", "Registration Materials"),
+            "create registration table",
+        ),
+    )
+    modulus = postgres.schemas.create_attribute(
+        context,
+        write,
+        CreateAttribute(
+            AttributeDefinitionContent(
+                table.id,
+                table.current.record.revision_id,
+                "youngs_modulus",
+                "Young's modulus",
+                AttributeDataType.NUMBER,
+                required=True,
+                quantity_semantics="modulus.elastic.young",
+                normalized_unit="Pa",
+                minimum_number=0,
+            ),
+            "add required modulus",
+        ),
+    )
+    material_code = postgres.schemas.create_attribute(
+        context,
+        write,
+        CreateAttribute(
+            AttributeDefinitionContent(
+                table.id,
+                table.current.record.revision_id,
+                "material_code",
+                "Material code",
+                AttributeDataType.TEXT,
+                required=True,
+            ),
+            "add required material code",
+        ),
+    )
+    source = RegistrationSourceEvidence(
+        uuid4(),
+        "a" * 64,
+        "csv",
+        encoding="utf-8",
+        delimiter=";",
+        decimal_separator=",",
+    )
+    mapping = {
+        "Material name": "name",
+        "Record code": "code",
+        "Source material": "existing_material_code",
+        "Source state": "existing_state_name",
+        "Elastic modulus": {"attribute": "youngs_modulus", "unit": "GPa"},
+    }
+    material = postgres.catalog.create_material(
+        context,
+        write,
+        CreateMaterial(
+            DataClassification.INTERNAL,
+            MaterialContent("Registration source material", "REG-SOURCE", "steel"),
+            "create material for exact registration binding",
+        ),
+    )
+    state = postgres.catalog.create_material_state(
+        context,
+        write,
+        CreateMaterialState(
+            MaterialStateContent(
+                material.id,
+                material.current.record.revision_id,
+                "As received",
+            ),
+            "create state for exact registration binding",
+        ),
+    )
+    second_material = postgres.catalog.create_material(
+        context,
+        write,
+        CreateMaterial(
+            DataClassification.INTERNAL,
+            MaterialContent("Second registration source", "REG-SOURCE-2", "steel"),
+            "create second material for row binding",
+        ),
+    )
+    second_state = postgres.catalog.create_material_state(
+        context,
+        write,
+        CreateMaterialState(
+            MaterialStateContent(
+                second_material.id,
+                second_material.current.record.revision_id,
+                "Annealed",
+            ),
+            "create second state for row binding",
+        ),
+    )
+    rejected = postgres.records.preview_registration(
+        context,
+        write,
+        table_id=table.id,
+        table_revision_id=table.current.record.revision_id,
+        rows=(
+            {
+                "Material name": "Steel A",
+                "Record code": "A",
+                "Source material": "REG-SOURCE",
+                "Source state": "As received",
+                "Elastic modulus": "210,5",
+            },
+            {
+                "Material name": "Steel B",
+                "Record code": "a",
+                "Source material": "REG-SOURCE-2",
+                "Source state": "Annealed",
+                "Elastic modulus": "205,0",
+            },
+        ),
+        mapping=mapping,
+        source=source,
+    )
+    assert not rejected.valid
+    assert [(error.row, error.column) for error in rejected.errors] == [(2, "Record code")]
+    with postgres.admin_engine.connect() as connection:
+        assert (
+            connection.scalar(
+                sa.text(
+                    "SELECT count(*) FROM catalog.catalog_record "
+                    "WHERE organization_id = :organization_id AND project_id = :project_id "
+                    "AND table_id = :table_id"
+                ),
+                {"organization_id": ORG, "project_id": PROJECT, "table_id": table.id},
+            )
+            == 0
+        )
+
+    checked = postgres.records.preview_registration(
+        context,
+        write,
+        table_id=table.id,
+        table_revision_id=table.current.record.revision_id,
+        rows=(
+            {
+                "Material name": "Steel A",
+                "Record code": "A",
+                "Source material": "REG-SOURCE",
+                "Source state": "As received",
+                "Elastic modulus": "210,5",
+            },
+            {
+                "Material name": "Steel B",
+                "Record code": "B",
+                "Source material": "REG-SOURCE-2",
+                "Source state": "Annealed",
+                "Elastic modulus": "205,0",
+            },
+        ),
+        mapping=mapping,
+        source=source,
+    )
+    assert checked.valid
+    assert [row["material_state"] for row in checked.rows] == ["As received", "Annealed"]
+    published = postgres.records.publish_registration(
+        context,
+        write,
+        token=checked.token,
+        table_id=table.id,
+        table_revision_id=table.current.record.revision_id,
+        change_reason="register checked material property rows",
+    )
+    assert [record.current.content.name for record in published.records] == ["Steel A", "Steel B"]
+    values = [
+        next(
+            value
+            for value in record.current.content.values
+            if value.attribute_definition_id == modulus.id
+        )
+        for record in published.records
+    ]
+    assert [value.original_unit_string for value in values] == ["GPa", "GPa"]
+    assert [value.normalized_value for value in values] == [
+        Decimal("210500000000.0"),
+        Decimal("205000000000.0"),
+    ]
+    material_codes = [
+        next(
+            value.value
+            for value in record.current.content.values
+            if value.attribute_definition_id == material_code.id
+        )
+        for record in published.records
+    ]
+    assert material_codes == ["REG-SOURCE", "REG-SOURCE-2"]
+    assert (
+        postgres.records.search_records(
+            context,
+            read,
+            CatalogRecordQuery(table.id, published_only=True),
+        ).total_count
+        == 0
+    )
+    for record in published.records:
+        validation = postgres.schemas.validate_publication(
+            context,
+            write,
+            PublishRevision(
+                RECORD_AGGREGATE_TYPE,
+                record.id,
+                record.current.record.revision_id,
+            ),
+        )
+        assert validation.valid
+        postgres.schemas.publish_revision(
+            context,
+            write,
+            PublishRevision(
+                RECORD_AGGREGATE_TYPE,
+                record.id,
+                record.current.record.revision_id,
+            ),
+        )
+    searchable = postgres.records.search_records(
+        context,
+        read,
+        CatalogRecordQuery(table.id, published_only=True),
+    )
+    assert searchable.total_count == 2
+    assert {record.id for record in searchable.items} == {record.id for record in published.records}
+    first = published.records[0]
+    draft_content = first.current.content
+    postgres.records.revise_record(
+        context,
+        write,
+        first.id,
+        ReviseRecord(
+            first.current.record.revision_id,
+            CatalogRecordContent(
+                draft_content.table_id,
+                draft_content.table_revision_id,
+                "Steel A draft",
+                draft_content.external_key,
+                draft_content.description,
+                draft_content.folder_id,
+                draft_content.folder_revision_id,
+                draft_content.values,
+            ),
+            "create a later unpublished draft",
+        ),
+    )
+    after_draft = postgres.records.search_records(
+        context,
+        read,
+        CatalogRecordQuery(table.id, published_only=True),
+    )
+    published_first = next(record for record in after_draft.items if record.id == first.id)
+    assert published_first.current.record.revision_id == first.current.record.revision_id
+    assert published_first.current.content.name == "Steel A"
+    with postgres.admin_engine.connect() as connection:
+        evidence = (
+            connection.execute(
+                sa.text(
+                    "SELECT source_artifact_id, source_digest, source_format, delimiter, "
+                    "decimal_separator, unit_mapping_evidence, consumed_at "
+                    "FROM catalog.record_registration_preview "
+                    "WHERE token_digest = encode(sha256(convert_to(:token, 'UTF8')), 'hex')"
+                ),
+                {"token": checked.token},
+            )
+            .mappings()
+            .one()
+        )
+    assert evidence["source_artifact_id"] == source.artifact_id
+    assert evidence["source_digest"] == source.sha256
+    assert evidence["source_format"] == "csv"
+    assert evidence["delimiter"] == ";"
+    assert evidence["decimal_separator"] == ","
+    assert evidence["unit_mapping_evidence"] == [
+        {
+            "source_column": "Elastic modulus",
+            "library_version": "cmp-registration-units/1",
+            "source_unit": "GPa",
+            "target_unit": "Pa",
+            "factor": "1000000000",
+            "offset": "0",
+            "rule": "linear_scale",
+        }
+    ]
+    assert evidence["consumed_at"] is not None
+    conflicting = postgres.records.preview_registration(
+        context,
+        write,
+        table_id=table.id,
+        table_revision_id=table.current.record.revision_id,
+        rows=(
+            {
+                "Material name": "Conflicting state row",
+                "Material code": "C",
+                "Source material": "REG-SOURCE",
+                "Source state": "As received",
+                "Elastic modulus": "200,0",
+            },
+        ),
+        mapping=mapping,
+        source=source,
+    )
+    assert not conflicting.valid
+    assert [(error.row, error.column) for error in conflicting.errors] == [(1, "Source state")]
+    assert "이미 데이터가 등록" in conflicting.errors[0].message
+    with postgres.admin_engine.connect() as connection:
+        assert (
+            connection.scalar(
+                sa.text("SELECT count(*) FROM catalog.catalog_record WHERE table_id = :table_id"),
+                {"table_id": table.id},
+            )
+            == 2
+        )
+        assert (
+            connection.scalar(
+                sa.text(
+                    "SELECT consumed_at FROM catalog.record_registration_preview "
+                    "WHERE token_digest = encode(sha256(convert_to(:token, 'UTF8')), 'hex')"
+                ),
+                {"token": conflicting.token},
+            )
+            is None
+        )
+    with postgres.admin_engine.connect() as connection:
+        bindings = (
+            connection.execute(
+                sa.text(
+                    "SELECT record_id, domain_kind, domain_object_id, domain_revision_id "
+                    "FROM catalog.domain_record_binding WHERE record_id = ANY(:record_ids)"
+                ),
+                {"record_ids": [record.id for record in published.records]},
+            )
+            .mappings()
+            .all()
+        )
+    assert len(bindings) == 2
+    assert {
+        (row["record_id"], row["domain_kind"], row["domain_object_id"], row["domain_revision_id"])
+        for row in bindings
+    } == {
+        (
+            published.records[0].id,
+            "material_state",
+            state.id,
+            state.current.record.revision_id,
+        ),
+        (
+            published.records[1].id,
+            "material_state",
+            second_state.id,
+            second_state.current.record.revision_id,
+        ),
+    }
+    with pytest.raises(ConfigurableCatalogConflict, match="stale"):
+        postgres.records.publish_registration(
+            context,
+            write,
+            token=checked.token,
+            table_id=table.id,
+            table_revision_id=table.current.record.revision_id,
+            change_reason="reject token replay",
+        )
 
 
 def test_ten_thousand_record_search_is_counted_and_page_bounded(postgres: Harness) -> None:

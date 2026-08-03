@@ -262,7 +262,7 @@ export interface RevisionMetadata {
   organization_id: string;
   project_id: string;
   classification: DataClassification;
-  lifecycle_state: "draft";
+  lifecycle_state: "draft" | "published";
 }
 
 export interface MaterialContent {
@@ -3592,6 +3592,30 @@ export interface ConfigurableTableContent {
   description: string | null;
 }
 
+export interface ConfigurableDatabaseContent {
+  key: string;
+  name: string;
+  description: string | null;
+}
+
+export interface ConfigurableDatabaseResponse {
+  database_id: string;
+  current_revision: RevisionMetadata & { content: ConfigurableDatabaseContent };
+}
+
+export interface ConfigurableProfileContent {
+  database_id: string;
+  database_revision_id: string;
+  key: string;
+  name: string;
+  description: string | null;
+}
+
+export interface ConfigurableProfileResponse {
+  profile_id: string;
+  current_revision: RevisionMetadata & { content: ConfigurableProfileContent };
+}
+
 export interface ConfigurableTableResponse {
   table_id: string;
   current_revision: RevisionMetadata & { content: ConfigurableTableContent };
@@ -3709,6 +3733,23 @@ export interface ConfigurableCatalogRecordResponse {
   table_id: string;
   current_revision: RevisionMetadata & { content: ConfigurableCatalogRecordContent };
   domain_binding?: DomainRevisionBinding | null;
+  domain_bindings?: DomainRevisionBinding[];
+}
+
+export interface ConfigurableRegistrationCellError {
+  row: number;
+  column: string;
+  message: string;
+  action: string;
+}
+
+export interface ConfigurableRegistrationPreviewResponse {
+  token: string;
+  valid: boolean;
+  rows: Array<Record<string, unknown>>;
+  errors: ConfigurableRegistrationCellError[];
+  source_columns: string[];
+  sample_rows: Array<Record<string, unknown>>;
 }
 
 export interface ConfigurableCatalogRecordSearchResponse {

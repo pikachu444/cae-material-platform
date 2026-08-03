@@ -24,6 +24,10 @@ class ConfigurableCatalogNotFound(ConfigurableCatalogError):
     """A configurable schema identity or revision was not found."""
 
 
+class ConfigurableCatalogPublicationError(ConfigurableCatalogError):
+    """A draft cannot cross the catalog publication boundary."""
+
+
 class AttributeDataType(StrEnum):
     NUMBER = "number"
     INTEGER = "integer"
@@ -34,6 +38,40 @@ class AttributeDataType(StrEnum):
     FILE = "file"
     CURVE = "curve"
     RECORD_REFERENCE = "record_reference"
+
+
+@dataclass(frozen=True, slots=True)
+class CatalogDatabaseContent:
+    """Stable, human-facing database definition."""
+
+    key: str
+    name: str
+    description: str | None = None
+
+    def __post_init__(self) -> None:
+        _key("database key", self.key)
+        _trimmed("database name", self.name, 200)
+        if self.description is not None:
+            _trimmed("database description", self.description, 4000)
+
+
+@dataclass(frozen=True, slots=True)
+class CatalogProfileContent:
+    """Profile definition pinned to one exact Database revision."""
+
+    database_id: UUID
+    database_revision_id: UUID
+    key: str
+    name: str
+    description: str | None = None
+
+    def __post_init__(self) -> None:
+        if self.database_id.int == 0 or self.database_revision_id.int == 0:
+            raise ValueError("Profile Database identity and revision must be non-zero")
+        _key("profile key", self.key)
+        _trimmed("profile name", self.name, 200)
+        if self.description is not None:
+            _trimmed("profile description", self.description, 4000)
 
 
 def _trimmed(name: str, value: str, maximum: int) -> None:
@@ -189,6 +227,20 @@ class SubsetContent:
 
 def table_canonical(content: CatalogTableContent) -> dict[str, Any]:
     return {"key": content.key, "name": content.name, "description": content.description}
+
+
+def database_canonical(content: CatalogDatabaseContent) -> dict[str, Any]:
+    return {"key": content.key, "name": content.name, "description": content.description}
+
+
+def profile_canonical(content: CatalogProfileContent) -> dict[str, Any]:
+    return {
+        "database_id": str(content.database_id),
+        "database_revision_id": str(content.database_revision_id),
+        "key": content.key,
+        "name": content.name,
+        "description": content.description,
+    }
 
 
 def attribute_canonical(content: AttributeDefinitionContent) -> dict[str, Any]:

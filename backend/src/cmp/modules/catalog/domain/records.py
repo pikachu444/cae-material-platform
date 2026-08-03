@@ -204,6 +204,7 @@ class CatalogRecordQuery:
     sort_attribute_id: UUID | None = None
     sort_direction: Literal["ascending", "descending"] = "ascending"
     record_id: UUID | None = None
+    published_only: bool = False
 
     def __post_init__(self) -> None:
         if self.table_id.int == 0:

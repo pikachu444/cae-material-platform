@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from decimal import Decimal
+from types import SimpleNamespace
 from typing import Any, cast
 from uuid import UUID, uuid4
 
 import httpx
 import pytest
+from cmp.modules.artifacts.domain import ArtifactKind
 from cmp.modules.catalog.adapters.api.configurable import install_configurable_catalog_api
 from cmp.modules.catalog.adapters.api.records import install_catalog_record_api
 from cmp.modules.catalog.application.configurable import ConfigRevision
@@ -19,6 +21,7 @@ from cmp.modules.catalog.application.records import (
     RecordSearchResult,
     RecordSnapshot,
     RecordValueDifference,
+    RegistrationPreview,
 )
 from cmp.modules.identity_access.application.authorization import database_permissions_for
 from cmp.modules.identity_access.domain.authorization import (
@@ -44,6 +47,8 @@ FOLDER_REV = UUID("dc000000-0000-4000-8000-000000000009")
 RECORD = UUID("dc000000-0000-4000-8000-000000000010")
 RECORD_REV_1 = UUID("dc000000-0000-4000-8000-000000000011")
 RECORD_REV_2 = UUID("dc000000-0000-4000-8000-000000000012")
+RAW_ASSET = UUID("dc000000-0000-4000-8000-000000000013")
+RAW_ARTIFACT = UUID("dc000000-0000-4000-8000-000000000014")
 
 
 def _context() -> SecurityContext:
@@ -112,6 +117,7 @@ class _Service:
         self.record: RecordSnapshot | None = None
         self.revisions: list[ConfigRevision[Any]] = []
         self.last_query: Any | None = None
+        self.registration: dict[str, Any] | None = None
 
     def create_folder(self, context: Any, decision: Any, command: Any) -> FolderSnapshot:
         del context, decision
@@ -180,9 +186,7 @@ class _Service:
         del context, decision
         self.last_query = query
         assert query.table_id == TABLE and self.record is not None
-        return RecordSearchResult(
-            (self.record,), 1, (RecordFacetBucket(ATTRIBUTE, "Steel", 1),)
-        )
+        return RecordSearchResult((self.record,), 1, (RecordFacetBucket(ATTRIBUTE, "Steel", 1),))
 
     def compare_record_revisions(
         self,
@@ -212,8 +216,13 @@ class _Service:
             ),
         )
 
+    def preview_registration(self, context: Any, decision: Any, **values: Any) -> Any:
+        del context, decision
+        self.registration = values
+        return RegistrationPreview("opaque-token", True, values["rows"], ())
 
-def _app(service: _Service) -> FastAPI:
+
+def _app(service: _Service, artifact_service: Any | None = None) -> FastAPI:
     app = FastAPI()
 
     async def security(request: Request) -> SecurityContext:
@@ -240,6 +249,7 @@ def _app(service: _Service) -> FastAPI:
     install_catalog_record_api(
         app,
         service=cast(Any, service),
+        artifact_service=artifact_service,
         security_dependency=security,
         read_dependency=read,
         write_dependency=write,
@@ -252,6 +262,33 @@ async def _request(app: FastAPI, method: str, path: str, **kwargs: Any) -> httpx
         transport=httpx.ASGITransport(app=app), base_url="http://test"
     ) as client:
         return await client.request(method, path, **kwargs)
+
+
+class _Artifacts:
+    async def read_verified_bytes(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        artifact_id: UUID,
+        *,
+        maximum_bytes: int,
+    ) -> tuple[Any, bytes]:
+        assert context == CONTEXT
+        assert decision.permission is Permission.CATALOG_WRITE
+        assert Permission.ARTIFACT_READ in decision.database_permissions
+        assert artifact_id == RAW_ARTIFACT
+        assert maximum_bytes == 16 * 1024 * 1024
+        return (
+            SimpleNamespace(
+                artifact=SimpleNamespace(
+                    artifact_kind=ArtifactKind.RAW,
+                    source_raw_asset_id=RAW_ASSET,
+                    sha256="a" * 64,
+                    media_type="text/csv",
+                )
+            ),
+            b"Material;Code;E\nSteel A;A;210,5\nSteel B;B;205,0\n",
+        )
 
 
 def _record_body(modulus: str) -> dict[str, Any]:
@@ -279,6 +316,49 @@ def _record_body(modulus: str) -> dict[str, Any]:
         },
         "change_reason": "API record fixture",
     }
+
+
+@pytest.mark.anyio
+async def test_registration_preview_reads_the_verified_source_and_preserves_mapping() -> None:
+    service = _Service()
+    app = _app(service, _Artifacts())
+
+    response = await _request(
+        app,
+        "POST",
+        "/api/v1/catalog/record-registrations:preview",
+        json={
+            "table_id": str(TABLE),
+            "table_revision_id": str(TABLE_REV),
+            "mapping": {
+                "Material": "name",
+                "Code": "code",
+                "E": {"attribute": "youngs_modulus", "unit": "GPa"},
+            },
+            "raw_asset_id": str(RAW_ASSET),
+            "raw_artifact_id": str(RAW_ARTIFACT),
+            "file_format": "csv",
+            "header_row": 1,
+            "encoding": "utf-8",
+            "delimiter": ";",
+            "decimal_separator": ",",
+            "corrections": {"2": {"Code": "B-corrected"}},
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["rows"] == [
+        {"Material": "Steel A", "Code": "A", "E": "210,5"},
+        {"Material": "Steel B", "Code": "B-corrected", "E": "205,0"},
+    ]
+    assert service.registration is not None
+    assert service.registration["mapping"]["E"] == {
+        "attribute": "youngs_modulus",
+        "unit": "GPa",
+    }
+    assert service.registration["rows"][1]["Code"] == "B-corrected"
+    assert service.registration["source"].artifact_id == RAW_ARTIFACT
+    assert service.registration["source"].sha256 == "a" * 64
 
 
 @pytest.mark.anyio

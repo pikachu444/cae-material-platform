@@ -9,8 +9,11 @@ from uuid import UUID, uuid4
 
 from cmp.modules.catalog.domain.configurable import (
     AttributeDefinitionContent,
+    CatalogDatabaseContent,
+    CatalogProfileContent,
     CatalogTableContent,
     ConfigurableCatalogConflict,
+    ConfigurableCatalogNotFound,
     LayoutContent,
     SubsetContent,
 )
@@ -29,11 +32,18 @@ from cmp.shared.application.revisions import (
 from cmp.shared.domain.revisions import RevisionRecord, TenantScope
 
 TABLE_AGGREGATE_TYPE = "catalog.configurable_table"
+DATABASE_AGGREGATE_TYPE = "catalog.database"
+PROFILE_AGGREGATE_TYPE = "catalog.profile"
 ATTRIBUTE_AGGREGATE_TYPE = "catalog.attribute_definition"
 LAYOUT_AGGREGATE_TYPE = "catalog.layout"
 SUBSET_AGGREGATE_TYPE = "catalog.subset"
+FOLDER_AGGREGATE_TYPE = "catalog.folder"
+RECORD_AGGREGATE_TYPE = "catalog.configurable_record"
+LINK_TYPE_AGGREGATE_TYPE = "catalog.link_type"
 
 TABLE_SCHEMA_ID = "urn:cmp:catalog:configurable-table:1.0.0"
+DATABASE_SCHEMA_ID = "urn:cmp:catalog:database:1.0.0"
+PROFILE_SCHEMA_ID = "urn:cmp:catalog:profile:1.0.0"
 ATTRIBUTE_SCHEMA_ID = "urn:cmp:catalog:attribute-definition:1.0.0"
 LAYOUT_SCHEMA_ID = "urn:cmp:catalog:layout:1.0.0"
 SUBSET_SCHEMA_ID = "urn:cmp:catalog:subset:1.0.0"
@@ -44,6 +54,18 @@ SCHEMA_VERSION = "1.0.0"
 class ConfigRevision[ContentT]:
     record: RevisionRecord
     content: ContentT
+
+
+@dataclass(frozen=True, slots=True)
+class DatabaseSnapshot:
+    id: UUID
+    current: ConfigRevision[CatalogDatabaseContent]
+
+
+@dataclass(frozen=True, slots=True)
+class ProfileSnapshot:
+    id: UUID
+    current: ConfigRevision[CatalogProfileContent]
 
 
 @dataclass(frozen=True, slots=True)
@@ -78,6 +100,52 @@ class CreateTable:
     classification: DataClassification
     content: CatalogTableContent
     change_reason: str
+    profile_id: UUID | None = None
+    profile_revision_id: UUID | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class CreateDatabase:
+    classification: DataClassification
+    content: CatalogDatabaseContent
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class ReviseDatabase:
+    expected_current_revision_id: UUID
+    content: CatalogDatabaseContent
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class CreateProfile:
+    classification: DataClassification
+    content: CatalogProfileContent
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class ReviseProfile:
+    expected_current_revision_id: UUID
+    content: CatalogProfileContent
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class PublicationValidation:
+    aggregate_type: str
+    aggregate_id: UUID
+    revision_id: UUID
+    valid: bool
+    errors: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True, slots=True)
+class PublishRevision:
+    aggregate_type: str
+    aggregate_id: UUID
+    revision_id: UUID
 
 
 @dataclass(frozen=True, slots=True)
@@ -127,6 +195,74 @@ class ReviseSubset:
 
 
 class ConfigurableCatalogRepository(Protocol):
+    def place_table(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        table_id: UUID,
+        table_revision_id: UUID,
+        profile_id: UUID,
+        profile_revision_id: UUID,
+    ) -> None: ...
+
+    def is_current_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        aggregate_type: str,
+        aggregate_id: UUID,
+        revision_id: UUID,
+    ) -> bool: ...
+
+    def is_published(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        aggregate_type: str,
+        aggregate_id: UUID,
+        revision_id: UUID,
+    ) -> bool: ...
+
+    def database_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[CatalogDatabaseContent]: ...
+
+    def profile_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[CatalogProfileContent]: ...
+
+    def list_databases(
+        self, *, context: SecurityContext, decision: AuthorizationDecision
+    ) -> tuple[DatabaseSnapshot, ...]: ...
+
+    def get_database(
+        self, *, context: SecurityContext, decision: AuthorizationDecision, database_id: UUID
+    ) -> DatabaseSnapshot: ...
+
+    def get_database_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        database_id: UUID,
+        revision_id: UUID,
+    ) -> ConfigRevision[CatalogDatabaseContent]: ...
+
+    def list_profiles(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        database_id: UUID | None = None,
+    ) -> tuple[ProfileSnapshot, ...]: ...
+
+    def get_profile(
+        self, *, context: SecurityContext, decision: AuthorizationDecision, profile_id: UUID
+    ) -> ProfileSnapshot: ...
+
     def table_store(
         self, context: SecurityContext, decision: AuthorizationDecision
     ) -> RevisionStore[CatalogTableContent]: ...
@@ -271,6 +407,304 @@ class ConfigurableCatalogService:
     ) -> RevisionService[ContentT]:
         return RevisionService(aggregate_type=aggregate_type, store=store)
 
+    def create_database(
+        self, context: SecurityContext, decision: AuthorizationDecision, command: CreateDatabase
+    ) -> DatabaseSnapshot:
+        _require(context, decision, Permission.CATALOG_WRITE)
+        if any(
+            item.current.content.key == command.content.key
+            for item in self._repository.list_databases(context=context, decision=decision)
+        ):
+            raise ConfigurableCatalogConflict("Catalog Database key already exists")
+        aggregate_id = self._id()
+        record = self._revision_service(
+            DATABASE_AGGREGATE_TYPE, self._repository.database_store(context, decision)
+        ).create(
+            CreateRevisionedAggregate(
+                aggregate_id=aggregate_id,
+                scope=self._scope(context, command.classification),
+                schema_id=DATABASE_SCHEMA_ID,
+                schema_version=SCHEMA_VERSION,
+                content=command.content,
+                created_by=context.principal.id,
+                change_reason=_reason(command.change_reason),
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return DatabaseSnapshot(aggregate_id, ConfigRevision(record, command.content))
+
+    def revise_database(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        database_id: UUID,
+        command: ReviseDatabase,
+    ) -> DatabaseSnapshot:
+        _require(context, decision, Permission.CATALOG_WRITE)
+        current = self._repository.get_database(
+            context=context, decision=decision, database_id=database_id
+        )
+        if command.content.key != current.current.content.key:
+            raise ConfigurableCatalogConflict("Catalog Database stable key cannot change")
+        record = self._revision_service(
+            DATABASE_AGGREGATE_TYPE, self._repository.database_store(context, decision)
+        ).revise(
+            ReviseAggregate(
+                aggregate_id=database_id,
+                scope=current.current.record.scope,
+                expected_current_revision_id=command.expected_current_revision_id,
+                based_on_revision_id=command.expected_current_revision_id,
+                schema_id=DATABASE_SCHEMA_ID,
+                schema_version=SCHEMA_VERSION,
+                content=command.content,
+                created_by=context.principal.id,
+                change_reason=_reason(command.change_reason),
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return DatabaseSnapshot(database_id, ConfigRevision(record, command.content))
+
+    def create_profile(
+        self, context: SecurityContext, decision: AuthorizationDecision, command: CreateProfile
+    ) -> ProfileSnapshot:
+        _require(context, decision, Permission.CATALOG_WRITE)
+        database = self._repository.get_database_revision(
+            context=context,
+            decision=decision,
+            database_id=command.content.database_id,
+            revision_id=command.content.database_revision_id,
+        )
+        if any(
+            item.current.content.key == command.content.key
+            for item in self._repository.list_profiles(
+                context=context, decision=decision, database_id=command.content.database_id
+            )
+        ):
+            raise ConfigurableCatalogConflict("Catalog Profile key already exists")
+        aggregate_id = self._id()
+        record = self._revision_service(
+            PROFILE_AGGREGATE_TYPE, self._repository.profile_store(context, decision)
+        ).create(
+            CreateRevisionedAggregate(
+                aggregate_id=aggregate_id,
+                scope=database.record.scope,
+                schema_id=PROFILE_SCHEMA_ID,
+                schema_version=SCHEMA_VERSION,
+                content=command.content,
+                created_by=context.principal.id,
+                change_reason=_reason(command.change_reason),
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return ProfileSnapshot(aggregate_id, ConfigRevision(record, command.content))
+
+    def revise_profile(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        profile_id: UUID,
+        command: ReviseProfile,
+    ) -> ProfileSnapshot:
+        _require(context, decision, Permission.CATALOG_WRITE)
+        current = self._repository.get_profile(
+            context=context, decision=decision, profile_id=profile_id
+        )
+        self._repository.get_database_revision(
+            context=context,
+            decision=decision,
+            database_id=command.content.database_id,
+            revision_id=command.content.database_revision_id,
+        )
+        if command.content.key != current.current.content.key:
+            raise ConfigurableCatalogConflict("Catalog Profile stable key cannot change")
+        record = self._revision_service(
+            PROFILE_AGGREGATE_TYPE, self._repository.profile_store(context, decision)
+        ).revise(
+            ReviseAggregate(
+                aggregate_id=profile_id,
+                scope=current.current.record.scope,
+                expected_current_revision_id=command.expected_current_revision_id,
+                based_on_revision_id=command.expected_current_revision_id,
+                schema_id=PROFILE_SCHEMA_ID,
+                schema_version=SCHEMA_VERSION,
+                content=command.content,
+                created_by=context.principal.id,
+                change_reason=_reason(command.change_reason),
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return ProfileSnapshot(profile_id, ConfigRevision(record, command.content))
+
+    def list_databases(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> tuple[DatabaseSnapshot, ...]:
+        _require(context, decision, Permission.CATALOG_READ)
+        return self._repository.list_databases(context=context, decision=decision)
+
+    def get_database(
+        self, context: SecurityContext, decision: AuthorizationDecision, database_id: UUID
+    ) -> DatabaseSnapshot:
+        _require(context, decision, Permission.CATALOG_READ)
+        return self._repository.get_database(
+            context=context, decision=decision, database_id=database_id
+        )
+
+    def get_database_for_write(
+        self, context: SecurityContext, decision: AuthorizationDecision, database_id: UUID
+    ) -> DatabaseSnapshot:
+        _require(context, decision, Permission.CATALOG_WRITE)
+        return self._repository.get_database(
+            context=context, decision=decision, database_id=database_id
+        )
+
+    def list_profiles(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        database_id: UUID | None = None,
+    ) -> tuple[ProfileSnapshot, ...]:
+        _require(context, decision, Permission.CATALOG_READ)
+        return self._repository.list_profiles(
+            context=context, decision=decision, database_id=database_id
+        )
+
+    def get_profile_for_write(
+        self, context: SecurityContext, decision: AuthorizationDecision, profile_id: UUID
+    ) -> ProfileSnapshot:
+        _require(context, decision, Permission.CATALOG_WRITE)
+        return self._repository.get_profile(
+            context=context, decision=decision, profile_id=profile_id
+        )
+
+    def get_profile(
+        self, context: SecurityContext, decision: AuthorizationDecision, profile_id: UUID
+    ) -> ProfileSnapshot:
+        _require(context, decision, Permission.CATALOG_READ)
+        return self._repository.get_profile(
+            context=context, decision=decision, profile_id=profile_id
+        )
+
+    def validate_publication(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: PublishRevision,
+    ) -> PublicationValidation:
+        _require(context, decision, Permission.CATALOG_WRITE)
+        errors: list[str] = []
+        try:
+            if command.aggregate_type == DATABASE_AGGREGATE_TYPE:
+                revision = self._repository.get_database(
+                    context=context, decision=decision, database_id=command.aggregate_id
+                )
+                if revision.current.record.revision_id != command.revision_id:
+                    errors.append("선택한 Database 버전이 현재 초안이 아닙니다.")
+            elif command.aggregate_type == PROFILE_AGGREGATE_TYPE:
+                revision = self._repository.get_profile(
+                    context=context, decision=decision, profile_id=command.aggregate_id
+                )
+                self._repository.get_database_revision(
+                    context=context,
+                    decision=decision,
+                    database_id=revision.current.content.database_id,
+                    revision_id=revision.current.content.database_revision_id,
+                )
+                if revision.current.record.revision_id != command.revision_id:
+                    errors.append("선택한 Profile 버전이 현재 초안이 아닙니다.")
+            elif command.aggregate_type == TABLE_AGGREGATE_TYPE:
+                revision = self._repository.get_table(
+                    context=context, decision=decision, table_id=command.aggregate_id
+                )
+                if revision.current.record.revision_id != command.revision_id:
+                    errors.append("선택한 Table 버전이 현재 초안이 아닙니다.")
+                self._repository.list_attributes(
+                    context=context, decision=decision, table_id=command.aggregate_id
+                )
+            elif command.aggregate_type == ATTRIBUTE_AGGREGATE_TYPE:
+                revision = self._repository.get_attribute(
+                    context=context, decision=decision, attribute_id=command.aggregate_id
+                )
+                if revision.current.record.revision_id != command.revision_id:
+                    errors.append("선택한 Attribute 버전이 현재 초안이 아닙니다.")
+            elif command.aggregate_type == LAYOUT_AGGREGATE_TYPE:
+                revision = self._repository.get_layout(
+                    context=context, decision=decision, layout_id=command.aggregate_id
+                )
+                if revision.current.record.revision_id != command.revision_id:
+                    errors.append("선택한 Layout 버전이 현재 초안이 아닙니다.")
+            elif command.aggregate_type == SUBSET_AGGREGATE_TYPE:
+                revision = self._repository.get_subset(
+                    context=context, decision=decision, subset_id=command.aggregate_id
+                )
+                if revision.current.record.revision_id != command.revision_id:
+                    errors.append("선택한 Subset 버전이 현재 초안이 아닙니다.")
+            elif command.aggregate_type in {
+                FOLDER_AGGREGATE_TYPE,
+                RECORD_AGGREGATE_TYPE,
+                LINK_TYPE_AGGREGATE_TYPE,
+            }:
+                if not self._repository.is_current_revision(
+                    context=context,
+                    decision=decision,
+                    aggregate_type=command.aggregate_type,
+                    aggregate_id=command.aggregate_id,
+                    revision_id=command.revision_id,
+                ):
+                    errors.append("선택한 항목의 현재 버전을 찾을 수 없습니다.")
+            else:
+                errors.append("발행할 수 없는 항목입니다.")
+        except ConfigurableCatalogNotFound:
+            errors.append("선택한 항목을 찾을 수 없습니다.")
+        return PublicationValidation(
+            command.aggregate_type,
+            command.aggregate_id,
+            command.revision_id,
+            not errors,
+            tuple(errors),
+        )
+
+    def publish_revision(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: PublishRevision,
+    ) -> PublicationValidation:
+        validation = self.validate_publication(context, decision, command)
+        if not validation.valid:
+            raise ConfigurableCatalogConflict("publication validation failed")
+        self._repository.publish_revision(
+            context=context,
+            decision=decision,
+            aggregate_type=command.aggregate_type,
+            aggregate_id=command.aggregate_id,
+            revision_id=command.revision_id,
+            published_by=context.principal.id,
+        )
+        return validation
+
+    def is_published(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        aggregate_type: str,
+        aggregate_id: UUID,
+        revision_id: UUID,
+    ) -> bool:
+        """Read the append-only marker; process memory is never publication authority."""
+
+        _require(context, decision, Permission.CATALOG_READ)
+        return self._repository.is_published(
+            context=context,
+            decision=decision,
+            aggregate_type=aggregate_type,
+            aggregate_id=aggregate_id,
+            revision_id=revision_id,
+        )
+
     def create_table(
         self,
         context: SecurityContext,
@@ -283,6 +717,18 @@ class ConfigurableCatalogService:
             for item in self._repository.list_tables(context=context, decision=decision)
         ):
             raise ConfigurableCatalogConflict("Catalog Table key already exists")
+        if (command.profile_id is None) != (command.profile_revision_id is None):
+            raise ConfigurableCatalogConflict(
+                "Catalog Table placement requires an exact Profile revision"
+            )
+        if command.profile_id is not None and command.profile_revision_id is not None:
+            profile = self._repository.get_profile(
+                context=context, decision=decision, profile_id=command.profile_id
+            )
+            if profile.current.record.revision_id != command.profile_revision_id:
+                raise ConfigurableCatalogConflict(
+                    "Catalog Table placement must pin the current Profile revision"
+                )
         aggregate_id = self._id()
         record = self._revision_service(
             TABLE_AGGREGATE_TYPE, self._repository.table_store(context, decision)
@@ -299,6 +745,15 @@ class ConfigurableCatalogService:
                 trace_id=context.trace_id,
             )
         )
+        if command.profile_id is not None and command.profile_revision_id is not None:
+            self._repository.place_table(
+                context=context,
+                decision=decision,
+                table_id=aggregate_id,
+                table_revision_id=record.revision_id,
+                profile_id=command.profile_id,
+                profile_revision_id=command.profile_revision_id,
+            )
         return TableSnapshot(aggregate_id, ConfigRevision(record, command.content))
 
     def revise_table(

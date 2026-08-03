@@ -28,7 +28,7 @@
         "organization_id": {"$ref": "#/$defs/Uuid"},
         "project_id": {"$ref": "#/$defs/Uuid"},
         "classification": {"type": "string", "minLength": 1, "maxLength": 64},
-        "lifecycle_state": {"type": "string", "const": "draft"}
+        "lifecycle_state": {"type": "string", "enum": ["draft", "published"]}
       }
     },
     "FolderContent": {
@@ -219,7 +219,8 @@
         "record_id": {"$ref": "#/$defs/Uuid"},
         "table_id": {"$ref": "#/$defs/Uuid"},
         "current_revision": {"$ref": "#/$defs/RecordRevision"},
-        "domain_binding": {"oneOf": [{"$ref": "#/$defs/DomainBindingProjection"}, {"type": "null"}]}
+        "domain_binding": {"oneOf": [{"$ref": "#/$defs/DomainBindingProjection"}, {"type": "null"}]},
+        "domain_bindings": {"type": "array", "items": {"$ref": "#/$defs/DomainBindingProjection"}}
       }
     },
     "DomainBindingKind": {
@@ -266,6 +267,85 @@
         "maximum": {"type": ["number", "string", "null"]}
       }
     },
+    "RegistrationCellError": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["row", "column", "message", "action"],
+      "properties": {
+        "row": {"type": "integer", "minimum": 1},
+        "column": {"type": "string", "minLength": 1, "maxLength": 255},
+        "message": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "action": {"type": "string", "minLength": 1, "maxLength": 500}
+      }
+    },
+    "RegistrationPreviewRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["table_id", "table_revision_id", "mapping"],
+      "properties": {
+        "table_id": {"$ref": "#/$defs/Uuid"},
+        "table_revision_id": {"$ref": "#/$defs/Uuid"},
+        "rows": {"type": "array", "maxItems": 100000, "items": {"type": "object"}},
+        "mapping": {
+          "type": "object",
+          "additionalProperties": {
+            "oneOf": [
+              {"type": "string", "minLength": 1, "maxLength": 255},
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["attribute"],
+                "properties": {
+                  "attribute": {"type": "string", "minLength": 1, "maxLength": 255},
+                  "unit": {"type": ["string", "null"], "minLength": 1, "maxLength": 64}
+                }
+              }
+            ]
+          }
+        },
+        "common_material_state": {"type": ["object", "null"]},
+        "raw_asset_id": {"anyOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "raw_artifact_id": {"anyOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "file_format": {"type": ["string", "null"], "enum": ["csv", "tsv", "xlsx", null]},
+        "sheet_name": {"type": ["string", "null"], "maxLength": 255},
+        "header_row": {"type": "integer", "minimum": 1, "maximum": 100, "default": 1},
+        "encoding": {"type": "string", "minLength": 1, "maxLength": 64, "default": "utf-8"},
+        "delimiter": {"type": ["string", "null"], "maxLength": 8},
+        "decimal_separator": {"type": "string", "enum": [".", ","], "default": "."},
+        "corrections": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": {"type": "string"}
+          }
+        }
+      }
+    },
+    "RegistrationPreviewResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["token", "valid", "rows", "errors", "source_columns", "sample_rows"],
+      "properties": {
+        "token": {"type": "string", "minLength": 1, "maxLength": 255},
+        "valid": {"type": "boolean"},
+        "rows": {"type": "array", "items": {"type": "object"}},
+        "errors": {"type": "array", "items": {"$ref": "#/$defs/RegistrationCellError"}},
+        "source_columns": {"type": "array", "maxItems": 512, "items": {"type": "string"}},
+        "sample_rows": {"type": "array", "maxItems": 20, "items": {"type": "object"}}
+      }
+    },
+    "RegistrationPublishRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["token", "table_id", "table_revision_id", "change_reason"],
+      "properties": {
+        "token": {"type": "string", "minLength": 1, "maxLength": 255},
+        "table_id": {"$ref": "#/$defs/Uuid"},
+        "table_revision_id": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "classification": {"$ref": "#/$defs/Classification"}
+      }
+    },
     "RecordSearchRequest": {
       "type": "object",
       "additionalProperties": false,
@@ -284,7 +364,8 @@
         "include_descendants": {"type": "boolean", "default": false},
         "sort_by": {"type": "string", "enum": ["name", "external_key", "attribute"], "default": "name"},
         "sort_attribute_id": {"type": ["string", "null"], "format": "uuid"},
-        "sort_direction": {"type": "string", "enum": ["ascending", "descending"], "default": "ascending"}
+        "sort_direction": {"type": "string", "enum": ["ascending", "descending"], "default": "ascending"},
+        "published_only": {"type": "boolean", "default": false}
       }
     },
     "FacetBucket": {

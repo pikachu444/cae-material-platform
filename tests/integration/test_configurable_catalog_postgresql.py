@@ -17,14 +17,19 @@ from cmp.modules.catalog.adapters.persistence.configurable import (
 from cmp.modules.catalog.application.configurable import (
     ConfigurableCatalogService,
     CreateAttribute,
+    CreateDatabase,
     CreateLayout,
+    CreateProfile,
     CreateSubset,
     CreateTable,
+    PublishRevision,
     ReviseLayout,
 )
 from cmp.modules.catalog.domain.configurable import (
     AttributeDataType,
     AttributeDefinitionContent,
+    CatalogDatabaseContent,
+    CatalogProfileContent,
     CatalogTableContent,
     LayoutContent,
     LayoutItem,
@@ -107,6 +112,8 @@ def postgres() -> Iterator[Harness]:
     admin_engine = sa.create_engine(database_url, pool_pre_ping=True)
     app_engine: Engine | None = None
     try:
+        command.upgrade(_alembic_config(database_url), "head")
+        command.downgrade(_alembic_config(database_url), "20260922_091_uxc07_evidence")
         command.upgrade(_alembic_config(database_url), "head")
         with admin_engine.begin() as connection:
             connection.execute(
@@ -197,6 +204,29 @@ def test_configurable_schema_round_trip_revision_and_typed_guards(
     context = _context()
     write = _decision(context, Permission.CATALOG_WRITE)
     read = _decision(context, Permission.CATALOG_READ)
+    database = postgres.service.create_database(
+        context,
+        write,
+        CreateDatabase(
+            DataClassification.INTERNAL,
+            CatalogDatabaseContent("engineering", "Engineering database"),
+            "create configurable database",
+        ),
+    )
+    profile = postgres.service.create_profile(
+        context,
+        write,
+        CreateProfile(
+            DataClassification.INTERNAL,
+            CatalogProfileContent(
+                database.id,
+                database.current.record.revision_id,
+                "materials",
+                "Materials profile",
+            ),
+            "create configurable profile",
+        ),
+    )
     table = postgres.service.create_table(
         context,
         write,
@@ -204,8 +234,52 @@ def test_configurable_schema_round_trip_revision_and_typed_guards(
             DataClassification.INTERNAL,
             CatalogTableContent("materials", "Materials"),
             "create configurable materials table",
+            profile.id,
+            profile.current.record.revision_id,
         ),
     )
+    with postgres.admin_engine.connect() as connection:
+        placement = (
+            connection.execute(
+                sa.text(
+                    "SELECT profile_id, profile_revision_id FROM catalog.table_profile_placement "
+                    "WHERE table_id = :table_id AND table_revision_id = :table_revision_id"
+                ),
+                {"table_id": table.id, "table_revision_id": table.current.record.revision_id},
+            )
+            .mappings()
+            .one()
+        )
+    assert placement["profile_id"] == profile.id
+    assert placement["profile_revision_id"] == profile.current.record.revision_id
+    validation = postgres.service.publish_revision(
+        context,
+        write,
+        PublishRevision("catalog.configurable_table", table.id, table.current.record.revision_id),
+    )
+    assert validation.valid
+    other_context = _context(uuid4())
+    assert (
+        postgres.service.list_tables(
+            other_context,
+            _decision(other_context, Permission.CATALOG_READ),
+        )
+        == ()
+    )
+    with postgres.admin_engine.begin() as connection:
+        with pytest.raises(DBAPIError), connection.begin_nested():
+            connection.execute(
+                sa.text(
+                    "UPDATE catalog.publication_marker SET published_at = now() "
+                    "WHERE aggregate_id = :table_id"
+                ),
+                {"table_id": table.id},
+            )
+        with pytest.raises(DBAPIError), connection.begin_nested():
+            connection.execute(
+                sa.text("DELETE FROM catalog.table_profile_placement WHERE table_id = :table_id"),
+                {"table_id": table.id},
+            )
     attribute = postgres.service.create_attribute(
         context,
         write,

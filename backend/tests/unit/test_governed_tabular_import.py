@@ -16,6 +16,7 @@ from cmp.modules.datasets.domain.governed_tabular import (
     inspect_tabular_source,
     normalized_parquet_bytes,
     parse_governed_source,
+    read_tabular_source_rows,
 )
 
 RAW_ASSET = UUID("10000000-0000-0000-0000-000000000001")
@@ -275,3 +276,22 @@ def test_schema_does_not_accept_arbitrary_quantity_pairs() -> None:
             decimal_separator=".",
             channels=_axial_profile().channels,
         )
+
+
+def test_catalog_registration_parser_returns_every_named_row() -> None:
+    sheet_names, selected_sheet, rows = read_tabular_source_rows(
+        b"Material;Code;E\nSteel A;A;210,5\nSteel B;B;205,0\n",
+        file_format=TabularFileFormat.CSV,
+        sheet_name=None,
+        header_row=1,
+        encoding="utf-8",
+        delimiter=";",
+        decimal_separator=",",
+    )
+
+    assert sheet_names == ()
+    assert selected_sheet is None
+    assert rows == (
+        {"Material": "Steel A", "Code": "A", "E": "210,5"},
+        {"Material": "Steel B", "Code": "B", "E": "205,0"},
+    )

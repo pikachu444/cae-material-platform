@@ -142,6 +142,7 @@ export function CatalogExplorer({
       try {
         const result = await searchConfigurableCatalogRecords(config, {
           table_id: tableId,
+          published_only: true,
           text: text.trim() || null,
           folder_id: typeof definition.folder_id === "string" ? definition.folder_id : null,
           discrete_filters: Object.entries(discreteDefinition).flatMap(
@@ -347,6 +348,7 @@ export function CatalogExplorer({
     try {
       const result = await searchConfigurableCatalogRecords(config, {
         table_id: definition.current_revision.content.target_table_id,
+        published_only: true,
         text: null,
         folder_id: null,
         discrete_filters: [],
@@ -619,12 +621,12 @@ export function CatalogExplorer({
         </section>
 
         <aside className="explorer-panel link-editor-panel">
-          <p className="eyebrow">Domain revision binding</p>
+          <p className="eyebrow">Related object</p>
           <h2>Open the real workbench</h2>
           {selected?.domain_binding ? (
             <div className="mapping-note">
               <strong>{selected.domain_binding.kind}</strong>
-              <p>Exact revision {selected.domain_binding.revision_id}</p>
+              <p>Current version is pinned for this link.</p>
               <button
                 type="button"
                 className="button secondary"
@@ -634,7 +636,7 @@ export function CatalogExplorer({
               </button>
             </div>
           ) : (
-            <form onSubmit={(event) => void bindDomainRevision(event)}>
+            <details className="advanced-field"><summary>Advanced related-object link</summary><form onSubmit={(event) => void bindDomainRevision(event)}>
               <label>
                 Domain object type
                 <select
@@ -647,17 +649,17 @@ export function CatalogExplorer({
                 </select>
               </label>
               <label>
-                Stable object UUID
+                Related object reference
                 <input required value={bindingDraft.objectId} onChange={(event) => setBindingDraft({ ...bindingDraft, objectId: event.target.value })} />
               </label>
               <label>
-                Exact revision UUID
+                Related version reference
                 <input required value={bindingDraft.revisionId} onChange={(event) => setBindingDraft({ ...bindingDraft, revisionId: event.target.value })} />
               </label>
               <button className="button primary" disabled={!selected || busy === "binding"}>
                 {busy === "binding" ? "Binding…" : "Pin exact domain revision"}
               </button>
-            </form>
+            </form></details>
           )}
           <hr />
           <p className="eyebrow">Typed link editor</p>

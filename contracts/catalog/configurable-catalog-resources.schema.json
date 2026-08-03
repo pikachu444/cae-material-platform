@@ -7,6 +7,70 @@
       "type": "string",
       "enum": ["internal", "confidential", "restricted", "export_controlled"]
     },
+    "DatabaseContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "name", "description"],
+      "properties": {
+        "key": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+        "name": {"type": "string", "minLength": 1, "maxLength": 200},
+        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 4000}
+      }
+    },
+    "ProfileContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["database_id", "database_revision_id", "key", "name", "description"],
+      "properties": {
+        "database_id": {"$ref": "#/$defs/Uuid"},
+        "database_revision_id": {"$ref": "#/$defs/Uuid"},
+        "key": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+        "name": {"type": "string", "minLength": 1, "maxLength": 200},
+        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 4000}
+      }
+    },
+    "DatabaseRevision": {
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {"type": "object", "required": ["content"], "properties": {"content": {"$ref": "#/$defs/DatabaseContent"}}}
+      ]
+    },
+    "ProfileRevision": {
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {"type": "object", "required": ["content"], "properties": {"content": {"$ref": "#/$defs/ProfileContent"}}}
+      ]
+    },
+    "DatabaseResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["database_id", "current_revision"],
+      "properties": {
+        "database_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/DatabaseRevision"}
+      }
+    },
+    "ProfileResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profile_id", "current_revision"],
+      "properties": {
+        "profile_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/ProfileRevision"}
+      }
+    },
+    "DatabaseListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/DatabaseResponse"}}}
+    },
+    "ProfileListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/ProfileResponse"}}}
+    },
     "AttributeDataType": {
       "type": "string",
       "enum": [
@@ -35,7 +99,7 @@
         "organization_id": {"$ref": "#/$defs/Uuid"},
         "project_id": {"$ref": "#/$defs/Uuid"},
         "classification": {"$ref": "#/$defs/Classification"},
-        "lifecycle_state": {"type": "string", "const": "draft"}
+        "lifecycle_state": {"type": "string", "enum": ["draft", "published"]}
       }
     },
     "TableContent": {
@@ -77,10 +141,16 @@
       "type": "object",
       "additionalProperties": false,
       "required": ["content", "change_reason"],
+      "dependentRequired": {
+        "profile_id": ["profile_revision_id"],
+        "profile_revision_id": ["profile_id"]
+      },
       "properties": {
         "classification": {"$ref": "#/$defs/Classification"},
         "content": {"$ref": "#/$defs/TableContent"},
-        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "profile_id": {"$ref": "#/$defs/Uuid"},
+        "profile_revision_id": {"$ref": "#/$defs/Uuid"}
       }
     },
     "TableReviseRequest": {
