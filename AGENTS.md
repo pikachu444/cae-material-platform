@@ -1,122 +1,106 @@
 # Implementation Instructions
 
-## Authority and current work
+## Authority and safety
 
-- Preserve the current branch and every existing worktree change. Never use `git reset`, `git clean`,
-  stash, checkout-based discard, or another operation that drops or hides existing work.
-- When a new issue starts, use the latest `main` from `git pull --ff-only origin main`. During an
-  active issue, continue on its branch and do not reopen work already merged to `main`.
-- `docs/13-delivery/backlog.md` is the single current baseline, issue-order and handoff router.
-  `IMPLEMENTATION_STATUS.md`, live code and user guides describe implemented behavior.
-- Read this file and the exact GitHub issue first. Use `rg` to locate only the affected requirement,
-  ADR, API, state, test and product-spec sections. Do not bulk-read large specs, manifests, backlog
-  archives, or `docs/_incoming/`.
-- `.codex/config.toml` and `.codex/agents/*.toml` are the sole authority for agent models, reasoning
-  levels and role instructions. Verify that the configured role actually loaded. If it is unavailable,
-  report the exact error and never silently substitute or redefine a model in a prompt.
-- Product language is **test data**, **selected model**, **review request**, and **solver card**.
-  UUIDs, hashes, Mapping Profile, Recipe/Batch, provenance and checksums belong in Evidence,
-  Advanced or Administration.
+- Preserve the current branch and all existing worktree changes. Never use `git reset`, `git clean`,
+  stash, checkout discard, or another operation that drops or hides existing work.
+- A new issue starts from latest main with `git pull --ff-only origin main`. An active issue stays on
+  its branch; do not reopen merged work. Close it only after all its listed units finish.
+- `docs/13-delivery/backlog.md` is the baseline, issue order, and handoff router. Read it and the exact
+  issue first; use `rg` to locate only affected requirements, ADRs, contracts, tests, and product specs.
+  `IMPLEMENTATION_STATUS.md`, live code, and user guides describe implemented behavior.
+  Do not bulk-read archives or `docs/_incoming/`.
+- `.codex/config.toml` and `.codex/agents/*.toml` solely authorize configured models, reasoning, sandbox,
+  and roles. Verify that the configured role actually loaded; if unavailable, report the exact error and
+  never silently substitute or redefine it in a prompt. Product language is **test data**, **selected
+  model**, **review request**, and **solver card**; UUIDs, hashes, Mapping Profile, Recipe/Batch,
+  provenance, and checksums belong in Evidence, Advanced, or Administration.
 
-## Task routing
+## Routing
 
-- **Current work:** take the first unfinished backlog unit in a fresh Codex task. Merge it before
-  dependent work; close its issue only after all listed units finish.
-- **Visual or production UI work:** use `.agents/skills/desktop-engineering-ui`. It routes to the exact
-  approved family in `docs/01-product/service-reference-inventory.yaml`, the selected entries in
-  `docs/01-product/service-reference-manifest.yaml`, the original assets, affected UI contracts and
+- A fresh Codex task takes the first unfinished backlog unit and merges dependent work before it.
+- Visual or production UI work uses `.agents/skills/desktop-engineering-ui`, the approved family
+  in `docs/01-product/service-reference-inventory.yaml`, selected entries in
+  `docs/01-product/service-reference-manifest.yaml`, original assets, affected UI contracts, and
   `docs/01-product/visual-acceptance-matrix.md`. Use `frontend-ui-engineering` only for production
   React/CSS, `web-design-guidelines` for an explicit UI/accessibility audit, and `webapp-testing` for
-  live interaction, capture or browser evidence.
-- **Domain, API, data or migration work:** read the exact requirement/ADR and affected contract before
-  implementation. Do not load visual references unless user-visible UI changes.
-- **Documentation work:** follow `docs/documentation-manifest.yaml` and the project hooks. Current
-  README or user-guide prose changes require the restrained `korean-humanizer` pass prescribed there.
-- **Publish work:** trust the project commit/publish hooks, run the requested deterministic gates, and
-  never start automatic LLM review while GitHub issue #119 remains open.
+  live interaction or browser evidence.
+- Domain, API, data, migration, and documentation work reads the exact requirement and affected contract
+  before implementation and loads visual references only for UI changes. README/user-guide prose follows
+  `docs/documentation-manifest.yaml` and its restrained Korean-humanizer hook.
 
-## Agent workflow
+## Workflow contract
 
-- The active main orchestrator (internally `/root`) owns requirement and product/UX interpretation,
-  implementation and correction packets, integration, failure diagnosis and the final internal gate;
-  it is not a subagent.
-- Before calling one configured writer, the main orchestrator reads the exact issue, affected contracts and approved
-  assets, then persists one bounded packet naming the user outcome, exact sources, preserved behavior/data/
-  states, component or contract mapping, forbidden shortcuts, owned files, captures and tests. The writer
-  implements only that packet, reports unexpected conflicts and never calls another agent. Never run
-  concurrent writers.
-- Writers, correction writers and reviewers do not reinterpret requirements or add product decisions,
-  acceptance criteria, scope or gates absent from their packet. The main orchestrator alone revises a
-  packet or routes separately discovered work to the backlog.
-- For visual work, the main orchestrator follows `.agents/skills/desktop-engineering-ui/SKILL.md`: compare the approved
-  reference with the current screen before the writer, repeat the comparison once after implementation and
-  deterministic gates, then send the same bounded evidence to one fresh read-only reviewer. Do not repeat
-  an unchanged completed checklist.
-- When a deterministic, main-orchestrator or reviewer gate fails, the main orchestrator records the exact
-  cause, failed evidence, required change, preserved behavior and gates to rerun before the configured
-  correction role makes one bounded pass. Rerun only failed and directly affected gates. A work unit permits
-  at most three correction passes after its initial implementation; each pass requires a new main-orchestrator
-  diagnosis and packet. If the third pass still fails, stop all further correction and re-review, preserve
-  the evidence and report the exact unresolved findings to the product owner.
-- Commit, push, PR and merge are separate; await user or product-owner confirmation.
+- Each fresh task defines one realistic primary user journey grounded in actual product work, not a
+  contrived validation story. Keep recovery, negative, and technical failure cases separate. The packet
+  names fixture/setup, user actions, visible and persistence outcomes, preserved data/state, owned files,
+  forbidden shortcuts, captures, and implementation-adjacent gates.
+- The implementation writer changes only packet-owned files, runs only packet automated gates, reports
+  exact unrun or blocked gates, and never claims main-orchestrator live acceptance. Writers do not
+  reinterpret requirements, add scope/gates, or start another writer; unrelated changes remain untouched.
+- The main orchestrator owns requirement interpretation, packets, integration, failure diagnosis, and
+  final internal gate; it is not a subagent. Never run concurrent writers.
+- The main orchestrator independently performs live Compose, database, and browser acceptance. Writer
+  tests/screenshots are evidence, never a substitute. A visual reviewer opens/reports every
+  issue-required viewport at original resolution; a representative subset is not sufficient.
+- Before any live Docker gate, main orchestrator runs `make compose-preflight`. The canonical
+  composition is rebuilt/recreated for this work; stale or foreign environments are rejected.
+  Ad-hoc projects use dynamic host ports, guaranteed `finally` cleanup, and post-cleanup verification.
+  Preflight never removes or mutates containers, volumes, or data.
+- Before correction, root/main reproduces and diagnoses the whole UI -> request -> service -> DB -> reload
+  chain, consolidates same-cause failures, and gives one fresh configured correction writer one bounded
+  pass. A work unit permits at most three correction passes after implementation; each has a new diagnosis
+  and packet. If the third fails, stop and report the exact unresolved evidence.
+- Automation stays thin: one realistic high-value browser flow where applicable, lower-level regression
+  tests for rules, and Docker preflight. Do not create a generic verification or review framework.
 
-## Non-negotiable domain invariants
+## Domain invariants
 
-- Raw bytes and released artifacts are immutable.
-- Stable identities and immutable revisions are separate; runs and links pin concrete revisions,
-  never `latest`.
-- Preserve original unit text, normalized unit and quantity semantics.
-- Never delete outliers; candidate detection and adjudication are separate records.
-- Every derived entity records input usage, generation activity and responsible agents.
-- A production solver card requires a Material Model IR revision.
-- Exporters report exact, transformed, approximated and unsupported mappings without silent defaults.
-- Core code never imports domain plugin implementations.
-- Organization/project authorization is enforced at service and database levels.
+- Raw bytes and released artifacts are immutable. Stable identities and immutable revisions are separate;
+  runs and links pin concrete revisions, never `latest`.
+- Preserve original unit text, normalized unit, and quantity semantics. Never delete outliers; candidate
+  detection and adjudication are separate records.
+- Every derived entity records input usage, generation activity, and responsible agents. A production
+  solver card requires a Material Model IR revision. Exporters report exact, transformed, approximated,
+  and unsupported mappings without silent defaults.
+- Core code never imports domain plugin implementations. Organization/project authorization is enforced
+  at service and database levels.
 
 ## Product and UX invariants
 
-- Normal-user navigation is `Materials | Modeling | Activity`; `/materials` is the home route.
-  Search-first does not remove Database/Profile/Table/Folder/Record navigation, Administration schema
-  objects, exact-revision links or keyboard browsing.
-- Materials is one continuous explorer/result/datasheet workspace. Results remain wider than optional
+- Normal-user navigation is `Materials | Modeling | Activity`; `/materials` is home. Search-first does
+  not remove Database/Profile/Table/Folder/Record navigation, Administration schema objects,
+  exact-revision links, or keyboard browsing.
+- Materials is one continuous explorer/result/datasheet workspace, with results wider than optional
   context. Modeling keeps a compact curve/process explorer and dominant persistent graph; current-step
   controls use a shallow ribbon or disclosure, never a permanent third inspector column.
-- Use flat panes, alignment and dividers before borders, radius, background or shadow. Avoid nested
-  cards, decorative gradients, repeated eyebrow labels and non-status badges.
-- Every visible engineering field has a user decision or workflow consequence and a canonical UI-spec
-  contract. Otherwise remove it or move it to Advanced/Evidence.
-- Recommendation, engineer selection, saved result, review, release and delivered artifact are
-  distinct states. Upstream changes invalidate downstream current pointers without mutating revisions.
-- Materials rows, totals and facet counts come from one server-scoped query. Condition-aware properties
-  are not universal facets.
-- Approved static HTML/CSS and registered images are implementation authority for their exact target.
-  The mandatory qualitative checklist is a hard gate: numeric scores and automated measurements cannot
-  override a qualitative failure, and the product owner gives final visual approval.
+- Prefer flat panes, alignment, and dividers before borders, radius, background, or shadow. Avoid nested
+  cards, decorative gradients, repeated eyebrow labels, and non-status badges.
+- Every visible engineering field has a user decision or workflow consequence and a canonical UI
+  contract; otherwise remove it or move it to Advanced/Evidence. Recommendation, engineer selection,
+  saved result, review, release, and delivered artifact are distinct states. Upstream changes invalidate
+  downstream current pointers without mutating revisions.
+- Materials rows, totals, and facet counts come from one server-scoped query. Condition-aware properties
+  are not universal facets. Approved static HTML/CSS and registered images are authority for their exact
+  target. The qualitative owner checklist is a hard gate; measurements cannot override a qualitative
+  failure and the product owner gives final visual approval.
+
+## Delivery
+
+- Implement one issue or clearly bounded subset. Define or update contracts before adapters and add the
+  specified unit, integration, regression, and browser tests. Run only gates required by issue acceptance,
+  affected contracts, selected skills, changed behavior, or hooks; resolve hook failures.
+- User-visible React/CSS changes update the current guide, screenshot manifest, and required live
+  screenshots. An `app.tsx` navigation change also updates the navigation contract.
+- Before handoff, run affected tests, `uv run cmp-check-user-guide --root .`, `make docs-impact`, and
+  `git diff --check` when applicable. Do not commit, push, open, or merge a pull request without
+  explicit user or product-owner confirmation.
 
 ## Do not decide TBD domain items
 
 Do not select or imply a production tensile standard, material family, constitutive model, optimizer
-policy, solver card, virtual specimen or validation threshold. Use bounded synthetic non-production
+policy, solver card, virtual specimen, or validation threshold. Use bounded synthetic non-production
 references until the corresponding open decision is approved.
-
-## Delivery and verification
-
-- Implement one issue or clearly bounded subset. Link requirement, ADR and task IDs where the project
-  records them. Define or update contracts before adapters and add the specified unit, integration,
-  regression and browser tests.
-- Run only gates required by issue acceptance, affected contracts, the selected skill, changed behavior
-  or project hooks. Do not invent precautionary audits or captures, run an unrelated full suite, or repeat
-  an unchanged passing gate. If an unforeseen material risk needs another gate, the main orchestrator adds
-  it to the packet with its authority and reason before it runs.
-- A user-visible React/CSS change must update the current guide, screenshot manifest and live browser
-  screenshots required by the documentation contract. An `app.tsx` navigation change also updates the
-  navigation contract. Run affected browser scenarios at required viewports before commit.
-- Formatting and mechanical documentation rules belong in hooks, linters and tests rather than prose.
-  Resolve hook failures; do not bypass them.
-- Before handoff, run affected tests plus `uv run cmp-check-user-guide --root .`, `make docs-impact`
-  and `git diff --check` when applicable. Report results and remaining risk.
-- `docs/_incoming/2026-07-24-organic-ux-update/` remains temporary #162 input. Do not read it early or
-  delete it before #162 absorbs valid content and proves inbound links are zero.
 
 ## Forbidden shortcuts
 
@@ -124,3 +108,6 @@ No generic EAV for core domain data, row-per-point storage for large curves, mut
 hidden conversion/resampling/smoothing/manual curve edits, direct plugin database access, in-process
 production plugin loading, silent solver approximation, unreviewed golden updates, or confidential
 test data in source control.
+
+`docs/_incoming/2026-07-24-organic-ux-update/` remains temporary #162 input. Do not read it early or
+delete it before #162 absorbs valid content and proves inbound links are zero.

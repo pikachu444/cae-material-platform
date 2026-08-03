@@ -72,6 +72,19 @@ docker compose -f deploy/compose/docker-compose.demo.yml up --build -d
 docker compose -f deploy/compose/docker-compose.demo.yml ps --all
 ```
 
+Before any live database or browser gate, run the read-only environment preflight. It rejects stale
+or foreign Compose projects that own a required host port and checks the canonical project labels,
+health, config path, working directory, and image IDs:
+
+```powershell
+make compose-preflight
+# include the optional isolated integration-test database when that gate is selected:
+uv run python scripts/check_compose_environment.py --include-postgres-test
+```
+
+Rebuild and recreate the canonical project for the current work before accepting a preflight result;
+the command never stops, removes, or mutates containers or volumes.
+
 Wait until `postgres` and `api` are healthy. `migrate`, `reference-plugins`, and `seed` are one-shot
 services and must exit with code 0. Check the API independently:
 
