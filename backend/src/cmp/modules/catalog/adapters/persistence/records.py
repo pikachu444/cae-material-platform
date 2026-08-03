@@ -5,11 +5,14 @@ from __future__ import annotations
 from collections import defaultdict
 from collections.abc import Callable, Iterator, Sequence
 from contextlib import contextmanager
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
+from hashlib import sha256
 from typing import Any
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import Session
 
 from cmp.modules.catalog.adapters.persistence.configurable import RlsContext
@@ -18,14 +21,19 @@ from cmp.modules.catalog.application.records import (
     FOLDER_AGGREGATE_TYPE,
     RECORD_AGGREGATE_TYPE,
     CatalogRecordRepository,
+    CreateRecord,
     FolderSnapshot,
     RecordDomainBinding,
     RecordFacetBucket,
     RecordSearchResult,
     RecordSnapshot,
+    RegistrationCellError,
+    RegistrationSourceEvidence,
+    StoredRegistrationPreview,
 )
 from cmp.modules.catalog.domain.configurable import (
     AttributeDataType,
+    ConfigurableCatalogConflict,
     ConfigurableCatalogNotFound,
 )
 from cmp.modules.catalog.domain.records import (
@@ -42,9 +50,16 @@ from cmp.shared.adapters.persistence.revisions import (
     SqlAlchemyRevisionStore,
     SqlRevisionHook,
     TypedRevisionTables,
+    _SqlAlchemyRevisionTransaction,
 )
 from cmp.shared.application.revisions import RevisionStore
-from cmp.shared.domain.revisions import RevisionRecord, TenantScope
+from cmp.shared.domain.revisions import (
+    RevisionCreated,
+    RevisionDraft,
+    RevisionRecord,
+    TenantScope,
+    content_sha256,
+)
 
 metadata = sa.MetaData()
 _uuid = sa.Uuid()
@@ -128,6 +143,114 @@ domain_record_binding = sa.Table(
     sa.Column("domain_kind", sa.String(32), nullable=False),
     sa.Column("domain_object_id", _uuid, nullable=False),
     sa.Column("domain_revision_id", _uuid, nullable=False),
+    sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("created_by", _uuid, nullable=False),
+    sa.Column("request_id", _uuid, nullable=False),
+    sa.Column("trace_id", sa.String(255), nullable=False),
+    schema="catalog",
+)
+material = sa.Table(
+    "material",
+    metadata,
+    sa.Column("id", _uuid, nullable=False),
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("current_revision_id", _uuid, nullable=False),
+    schema="catalog",
+)
+material_revision = sa.Table(
+    "material_revision",
+    metadata,
+    sa.Column("id", _uuid, nullable=False),
+    sa.Column("aggregate_id", _uuid, nullable=False),
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("material_code", sa.String(100), nullable=True),
+    schema="catalog",
+)
+material_state = sa.Table(
+    "material_state",
+    metadata,
+    sa.Column("id", _uuid, nullable=False),
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("current_revision_id", _uuid, nullable=False),
+    sa.Column("material_id", _uuid, nullable=False),
+    schema="catalog",
+)
+material_state_revision = sa.Table(
+    "material_state_revision",
+    metadata,
+    sa.Column("id", _uuid, nullable=False),
+    sa.Column("aggregate_id", _uuid, nullable=False),
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("material_id", _uuid, nullable=False),
+    sa.Column("material_revision_id", _uuid, nullable=False),
+    sa.Column("name", sa.String(200), nullable=False),
+    schema="catalog",
+)
+record_registration_preview = sa.Table(
+    "record_registration_preview",
+    metadata,
+    sa.Column("id", _uuid, nullable=False),
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("principal_id", _uuid, nullable=False),
+    sa.Column("token_digest", sa.CHAR(64), nullable=False),
+    sa.Column("table_id", _uuid, nullable=False),
+    sa.Column("table_revision_id", _uuid, nullable=False),
+    sa.Column("source_artifact_id", _uuid, nullable=True),
+    sa.Column("source_digest", sa.CHAR(64), nullable=False),
+    sa.Column("source_format", sa.String(16), nullable=False),
+    sa.Column("sheet_name", sa.String(255), nullable=True),
+    sa.Column("has_header", sa.Boolean(), nullable=False),
+    sa.Column("encoding", sa.String(64), nullable=True),
+    sa.Column("delimiter", sa.String(8), nullable=True),
+    sa.Column("decimal_separator", sa.String(1), nullable=True),
+    sa.Column("unit_mapping_evidence", sa.JSON(), nullable=False),
+    sa.Column("rows", sa.JSON(), nullable=False),
+    sa.Column("mapping", sa.JSON(), nullable=False),
+    sa.Column("state_selection", sa.JSON(), nullable=True),
+    sa.Column("errors", sa.JSON(), nullable=False),
+    sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("expires_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("consumed_at", sa.DateTime(timezone=True), nullable=True),
+    sa.Column("consumed_by", _uuid, nullable=True),
+    schema="catalog",
+)
+publication_marker = sa.Table(
+    "publication_marker",
+    metadata,
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("aggregate_type", sa.String(100), nullable=False),
+    sa.Column("aggregate_id", _uuid, nullable=False),
+    sa.Column("revision_id", _uuid, nullable=False),
+    sa.Column("published_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("published_by", _uuid, nullable=False),
+    schema="catalog",
+)
+domain_record_identity_binding = sa.Table(
+    "domain_record_identity_binding",
+    metadata,
+    sa.Column("organization_id", _uuid, primary_key=True),
+    sa.Column("project_id", _uuid, primary_key=True),
+    sa.Column("classification", sa.String(64), primary_key=True),
+    sa.Column("domain_kind", sa.String(32), primary_key=True),
+    sa.Column("domain_object_id", _uuid, primary_key=True),
+    sa.Column("domain_revision_id", _uuid, primary_key=True),
+    sa.Column("record_id", _uuid, nullable=False),
+    sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("created_by", _uuid, nullable=False),
+    sa.Column("request_id", _uuid, nullable=False),
+    sa.Column("trace_id", sa.String(255), nullable=False),
     schema="catalog",
 )
 
@@ -391,6 +514,426 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
     ) -> RevisionStore[CatalogRecordContent]:
         return self._store(context, decision, _RECORDS)
 
+    def resolve_registration_material_state(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection: dict[str, str],
+    ) -> tuple[tuple[str, UUID, UUID], ...] | None:
+        """Resolve only the exact authorized Material/State revisions selected by the user."""
+
+        try:
+            material_id = UUID(selection["material_id"])
+            material_revision_id = UUID(selection["material_revision_id"])
+            state_id = UUID(selection["state_id"])
+            state_revision_id = UUID(selection["state_revision_id"])
+        except (KeyError, ValueError):
+            return None
+        with self._transaction(context, decision) as session:
+            pair = session.execute(
+                sa.select(material_revision.c.id, material_state_revision.c.id)
+                .select_from(
+                    material_revision.join(
+                        material_state_revision,
+                        sa.and_(
+                            material_state_revision.c.material_id == material_id,
+                            material_state_revision.c.material_revision_id
+                            == material_revision.c.id,
+                        ),
+                    )
+                )
+                .where(
+                    material_revision.c.aggregate_id == material_id,
+                    material_revision.c.id == material_revision_id,
+                    material_state_revision.c.aggregate_id == state_id,
+                    material_state_revision.c.id == state_revision_id,
+                    material_revision.c.organization_id == context.organization_id,
+                    material_revision.c.project_id == context.project_id,
+                    material_state_revision.c.organization_id == context.organization_id,
+                    material_state_revision.c.project_id == context.project_id,
+                )
+            ).first()
+            if pair is None:
+                return None
+        # A Catalog Record revision has exactly one governed-domain binding.
+        # The exact Material State revision already pins its exact Material
+        # revision, so retain the more specific binding after validating both.
+        return (("material_state", state_id, state_revision_id),)
+
+    def resolve_registration_material_state_label(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_code: str,
+        state_name: str,
+    ) -> tuple[tuple[tuple[str, UUID, UUID], ...], str] | None:
+        """Resolve one current exact state from the human labels supplied in a row."""
+
+        with self._transaction(context, decision) as session:
+            rows = (
+                session.execute(
+                    sa.select(
+                        material.c.id.label("material_id"),
+                        material_revision.c.id.label("material_revision_id"),
+                        material_state.c.id.label("state_id"),
+                        material_state_revision.c.id.label("state_revision_id"),
+                        material_state_revision.c.name.label("state_name"),
+                    )
+                    .select_from(
+                        material.join(
+                            material_revision,
+                            sa.and_(
+                                material_revision.c.aggregate_id == material.c.id,
+                                material_revision.c.id == material.c.current_revision_id,
+                                material_revision.c.organization_id == material.c.organization_id,
+                                material_revision.c.project_id == material.c.project_id,
+                                material_revision.c.classification == material.c.classification,
+                            ),
+                        )
+                        .join(
+                            material_state,
+                            sa.and_(
+                                material_state.c.material_id == material.c.id,
+                                material_state.c.organization_id == material.c.organization_id,
+                                material_state.c.project_id == material.c.project_id,
+                                material_state.c.classification == material.c.classification,
+                            ),
+                        )
+                        .join(
+                            material_state_revision,
+                            sa.and_(
+                                material_state_revision.c.aggregate_id == material_state.c.id,
+                                material_state_revision.c.id
+                                == material_state.c.current_revision_id,
+                                material_state_revision.c.material_id == material.c.id,
+                                material_state_revision.c.material_revision_id
+                                == material_revision.c.id,
+                                material_state_revision.c.organization_id
+                                == material_state.c.organization_id,
+                                material_state_revision.c.project_id == material_state.c.project_id,
+                                material_state_revision.c.classification
+                                == material_state.c.classification,
+                            ),
+                        )
+                    )
+                    .where(
+                        material.c.organization_id == context.organization_id,
+                        material.c.project_id == context.project_id,
+                        sa.func.lower(material_revision.c.material_code)
+                        == material_code.strip().lower(),
+                        sa.func.lower(material_state_revision.c.name) == state_name.strip().lower(),
+                    )
+                    .limit(2)
+                )
+                .mappings()
+                .all()
+            )
+        if len(rows) != 1:
+            return None
+        row = rows[0]
+        return (
+            (("material_state", row["state_id"], row["state_revision_id"]),),
+            row["state_name"],
+        )
+
+    def registration_binding_owner(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        binding: tuple[str, UUID, UUID],
+    ) -> UUID | None:
+        """Return the existing Catalog identity for one exact domain revision."""
+
+        kind, object_id, revision_id = binding
+        with self._transaction(context, decision) as session:
+            return session.scalar(
+                sa.select(domain_record_identity_binding.c.record_id).where(
+                    domain_record_identity_binding.c.organization_id == context.organization_id,
+                    domain_record_identity_binding.c.project_id == context.project_id,
+                    domain_record_identity_binding.c.domain_kind == kind,
+                    domain_record_identity_binding.c.domain_object_id == object_id,
+                    domain_record_identity_binding.c.domain_revision_id == revision_id,
+                )
+            )
+
+    @staticmethod
+    def _preview_digest(token: str) -> str:
+        return sha256(token.encode("utf-8")).hexdigest()
+
+    def save_registration_preview(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        classification: str,
+        token: str,
+        table_id: UUID,
+        table_revision_id: UUID,
+        rows: tuple[dict[str, Any], ...],
+        mapping: dict[str, Any],
+        common_material_state: dict[str, str] | None,
+        source: RegistrationSourceEvidence,
+        errors: tuple[RegistrationCellError, ...],
+    ) -> None:
+        """Persist normalized user input; the opaque token itself is never stored."""
+
+        now = datetime.now(UTC)
+        manual_source = repr((rows, mapping, common_material_state)).encode("utf-8")
+        with self._transaction(context, decision) as session:
+            session.execute(
+                sa.insert(record_registration_preview).values(
+                    id=uuid4(),
+                    organization_id=context.organization_id,
+                    project_id=context.project_id,
+                    classification=classification,
+                    principal_id=context.principal.id,
+                    token_digest=self._preview_digest(token),
+                    table_id=table_id,
+                    table_revision_id=table_revision_id,
+                    source_artifact_id=source.artifact_id,
+                    source_digest=source.sha256 or sha256(manual_source).hexdigest(),
+                    source_format=source.file_format,
+                    sheet_name=source.sheet_name,
+                    has_header=True,
+                    encoding=source.encoding,
+                    delimiter=source.delimiter,
+                    decimal_separator=source.decimal_separator,
+                    unit_mapping_evidence=list(source.unit_mappings),
+                    rows=list(rows),
+                    mapping=mapping,
+                    state_selection=common_material_state,
+                    errors=[
+                        {
+                            "row": item.row,
+                            "column": item.column,
+                            "message": item.message,
+                            "action": item.action,
+                        }
+                        for item in errors
+                    ],
+                    created_at=now,
+                    expires_at=now + timedelta(hours=1),
+                    consumed_at=None,
+                    consumed_by=None,
+                )
+            )
+
+    def get_registration_preview(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        token: str,
+    ) -> StoredRegistrationPreview | None:
+        with self._transaction(context, decision) as session:
+            row = (
+                session.execute(
+                    sa.select(record_registration_preview).where(
+                        record_registration_preview.c.organization_id == context.organization_id,
+                        record_registration_preview.c.project_id == context.project_id,
+                        record_registration_preview.c.principal_id == context.principal.id,
+                        record_registration_preview.c.token_digest == self._preview_digest(token),
+                        record_registration_preview.c.consumed_at.is_(None),
+                        record_registration_preview.c.expires_at > datetime.now(UTC),
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if row is None:
+                return None
+            return StoredRegistrationPreview(
+                table_id=row["table_id"],
+                table_revision_id=row["table_revision_id"],
+                rows=tuple(row["rows"]),
+                mapping=dict(row["mapping"]),
+                common_material_state=(
+                    dict(row["state_selection"]) if row["state_selection"] is not None else None
+                ),
+                source=RegistrationSourceEvidence(
+                    row["source_artifact_id"],
+                    str(row["source_digest"]),
+                    str(row["source_format"]),
+                    row["sheet_name"],
+                    row["encoding"],
+                    row["delimiter"],
+                    str(row["decimal_separator"] or "."),
+                    tuple(dict(item) for item in row["unit_mapping_evidence"]),
+                ),
+            )
+
+    def consume_registration_preview(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        token: str,
+    ) -> bool:
+        with self._transaction(context, decision) as session:
+            result = session.execute(
+                sa.update(record_registration_preview)
+                .where(
+                    record_registration_preview.c.organization_id == context.organization_id,
+                    record_registration_preview.c.project_id == context.project_id,
+                    record_registration_preview.c.principal_id == context.principal.id,
+                    record_registration_preview.c.token_digest == self._preview_digest(token),
+                    record_registration_preview.c.consumed_at.is_(None),
+                    record_registration_preview.c.expires_at > datetime.now(UTC),
+                )
+                .values(consumed_at=datetime.now(UTC), consumed_by=context.principal.id)
+            )
+            return result.rowcount == 1
+
+    def create_records_atomically(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        records: Sequence[tuple[UUID, CreateRecord]],
+        registration_token: str | None = None,
+    ) -> tuple[RecordSnapshot, ...]:
+        """Create a registration batch in one outer database transaction.
+
+        The normal per-record store correctly owns a session per command, so
+        it cannot implement a batch boundary.  This repository method builds
+        the same typed revision drafts and child values against the one RLS
+        bound outer session.  Any exception leaves that outer transaction and
+        therefore every row, value and staged hook rolled back.
+        """
+
+        with self._transaction(context, decision) as session:
+            # Lock and consume the durable preview in this same outer transaction.
+            # A separate read/update transaction admitted a concurrent publish between
+            # record insertion and token consumption.  The scope/principal predicates
+            # deliberately make token use non-transferable.
+            preview_id: UUID | None = None
+            if registration_token is not None:
+                preview = (
+                    session.execute(
+                        sa.select(record_registration_preview)
+                        .where(
+                            record_registration_preview.c.organization_id
+                            == context.organization_id,
+                            record_registration_preview.c.project_id == context.project_id,
+                            record_registration_preview.c.principal_id == context.principal.id,
+                            record_registration_preview.c.token_digest
+                            == self._preview_digest(registration_token),
+                        )
+                        .with_for_update()
+                    )
+                    .mappings()
+                    .one_or_none()
+                )
+                if preview is None:
+                    raise ConfigurableCatalogConflict("registration preview token was not found")
+                if preview["consumed_at"] is not None:
+                    raise ConfigurableCatalogConflict("registration preview was already consumed")
+                if preview["expires_at"] <= datetime.now(UTC):
+                    raise ConfigurableCatalogConflict("registration preview token has expired")
+                preview_id = preview["id"]
+            transaction = _SqlAlchemyRevisionTransaction(session, _RECORDS, self._hooks)
+            snapshots: list[RecordSnapshot] = []
+            for record_id, command in records:
+                for kind, object_id, revision_id in command.domain_bindings:
+                    existing_record_id = session.scalar(
+                        sa.select(domain_record_identity_binding.c.record_id).where(
+                            domain_record_identity_binding.c.organization_id
+                            == context.organization_id,
+                            domain_record_identity_binding.c.project_id == context.project_id,
+                            domain_record_identity_binding.c.classification
+                            == command.classification.value,
+                            domain_record_identity_binding.c.domain_kind == kind,
+                            domain_record_identity_binding.c.domain_object_id == object_id,
+                            domain_record_identity_binding.c.domain_revision_id == revision_id,
+                        )
+                    )
+                    if existing_record_id is not None and existing_record_id != record_id:
+                        raise ConfigurableCatalogConflict(
+                            "선택한 재료 상태는 이미 다른 데이터에 연결되어 있습니다."
+                        )
+                scope = TenantScope(
+                    context.organization_id, context.project_id, command.classification.value
+                )
+                draft = RevisionDraft(
+                    revision_id=uuid4(),
+                    aggregate_type=RECORD_AGGREGATE_TYPE,
+                    aggregate_id=record_id,
+                    scope=scope,
+                    schema_id="urn:cmp:catalog:record:1.0.0",
+                    schema_version="1.0.0",
+                    content=command.content,
+                    content_hash=content_sha256(record_canonical(command.content)),
+                    created_at=datetime.now(UTC),
+                    created_by=context.principal.id,
+                    change_reason=command.change_reason,
+                    request_id=context.request_id,
+                    trace_id=context.trace_id,
+                )
+                record = transaction.create(draft)
+                transaction.stage(RevisionCreated(record, "draft"))
+                if command.domain_bindings:
+                    for kind, object_id, revision_id in command.domain_bindings:
+                        session.execute(
+                            postgresql.insert(domain_record_identity_binding)
+                            .values(
+                                organization_id=context.organization_id,
+                                project_id=context.project_id,
+                                classification=command.classification.value,
+                                domain_kind=kind,
+                                domain_object_id=object_id,
+                                domain_revision_id=revision_id,
+                                record_id=record_id,
+                                created_at=datetime.now(UTC),
+                                created_by=context.principal.id,
+                                request_id=context.request_id,
+                                trace_id=context.trace_id,
+                            )
+                            .on_conflict_do_nothing()
+                        )
+                    session.execute(
+                        sa.insert(domain_record_binding),
+                        [
+                            {
+                                "id": uuid4(),
+                                "organization_id": context.organization_id,
+                                "project_id": context.project_id,
+                                "classification": command.classification.value,
+                                "record_id": record_id,
+                                "record_revision_id": record.revision_id,
+                                "domain_kind": kind,
+                                "domain_object_id": object_id,
+                                "domain_revision_id": revision_id,
+                                "created_at": datetime.now(UTC),
+                                "created_by": context.principal.id,
+                                "request_id": context.request_id,
+                                "trace_id": context.trace_id,
+                            }
+                            for kind, object_id, revision_id in command.domain_bindings
+                        ],
+                    )
+                snapshots.append(
+                    RecordSnapshot(
+                        record_id,
+                        command.content.table_id,
+                        ConfigRevision(record, command.content),
+                    )
+                )
+            if preview_id is not None:
+                consumed = session.execute(
+                    sa.update(record_registration_preview)
+                    .where(
+                        record_registration_preview.c.id == preview_id,
+                        record_registration_preview.c.consumed_at.is_(None),
+                    )
+                    .values(consumed_at=datetime.now(UTC), consumed_by=context.principal.id)
+                )
+                if consumed.rowcount != 1:
+                    raise ConfigurableCatalogConflict("registration preview was already consumed")
+            return tuple(snapshots)
+
     @staticmethod
     def _current_join(identity: sa.Table, revision: sa.Table) -> Any:
         return identity.join(
@@ -522,6 +1065,22 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
             for revision_id, values in grouped.items()
         }
 
+    def external_key_exists(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        table_id: UUID,
+        external_key: str,
+    ) -> bool:
+        with self._transaction(context, decision) as session:
+            statement = self._record_statement(current=True).where(
+                catalog_record_revision.c.table_id == table_id,
+                sa.func.lower(sa.func.btrim(catalog_record_revision.c.external_key))
+                == external_key.strip().casefold(),
+            )
+            return session.execute(statement.limit(1)).first() is not None
+
     @staticmethod
     def _folder_snapshot(row: Any) -> FolderSnapshot:
         return FolderSnapshot(
@@ -534,8 +1093,9 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
     def _record_snapshot(
         row: Any,
         values: dict[UUID, tuple[CatalogRecordValue, ...]],
-        bindings: dict[UUID, RecordDomainBinding] | None = None,
+        bindings: dict[UUID, tuple[RecordDomainBinding, ...]] | None = None,
     ) -> RecordSnapshot:
+        revision_bindings = () if bindings is None else bindings.get(row["id"], ())
         return RecordSnapshot(
             row["identity_id"],
             row["identity_table_id"],
@@ -543,7 +1103,8 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                 _record(row, RECORD_AGGREGATE_TYPE),
                 _record_content(row, values.get(row["id"], ())),
             ),
-            None if bindings is None else bindings.get(row["id"]),
+            revision_bindings[0] if revision_bindings else None,
+            revision_bindings,
         )
 
     @staticmethod
@@ -569,7 +1130,7 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
         session: Session,
         revision_ids: Sequence[UUID],
         kind: str | None,
-    ) -> dict[UUID, RecordDomainBinding]:
+    ) -> dict[UUID, tuple[RecordDomainBinding, ...]]:
         if not revision_ids:
             return {}
         predicate: sa.ColumnElement[bool] = domain_record_binding.c.record_revision_id.in_(
@@ -577,21 +1138,27 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
         )
         if kind is not None:
             predicate = sa.and_(predicate, domain_record_binding.c.domain_kind == kind)
-        rows = session.execute(
-            sa.select(domain_record_binding).where(predicate)
-        ).mappings()
-        bindings: dict[UUID, RecordDomainBinding] = {}
+        rows = session.execute(sa.select(domain_record_binding).where(predicate)).mappings()
+        bindings: dict[UUID, list[RecordDomainBinding]] = defaultdict(list)
         for row in rows:
-            bindings[row["record_revision_id"]] = RecordDomainBinding(
-                binding_id=row["id"],
-                kind=row["domain_kind"],
-                object_id=row["domain_object_id"],
-                revision_id=row["domain_revision_id"],
-                workbench_path=self._binding_path(
-                    row["domain_kind"], row["domain_object_id"], row["domain_revision_id"]
-                ),
+            bindings[row["record_revision_id"]].append(
+                RecordDomainBinding(
+                    binding_id=row["id"],
+                    kind=row["domain_kind"],
+                    object_id=row["domain_object_id"],
+                    revision_id=row["domain_revision_id"],
+                    workbench_path=self._binding_path(
+                        row["domain_kind"], row["domain_object_id"], row["domain_revision_id"]
+                    ),
+                )
             )
-        return bindings
+        # A Record revision can pin several exact governed revisions (for
+        # example a Material and its Material State).  Keep the legacy single
+        # projection deterministic while returning the complete set.
+        return {
+            revision_id: tuple(sorted(items, key=lambda item: (item.kind, str(item.binding_id))))
+            for revision_id, items in bindings.items()
+        }
 
     def list_folders(
         self, *, context: SecurityContext, decision: AuthorizationDecision, table_id: UUID
@@ -738,9 +1305,36 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
 
     @staticmethod
     def _filtered_statement(query: CatalogRecordQuery) -> sa.Select[Any]:
-        statement = SqlAlchemyCatalogRecordRepository._record_statement(current=True).where(
-            catalog_record.c.table_id == query.table_id
-        )
+        if query.published_only:
+            published_revision = catalog_record_revision.alias("published_record_revision")
+            latest_published_revision_id = (
+                sa.select(publication_marker.c.revision_id)
+                .join(
+                    published_revision,
+                    sa.and_(
+                        published_revision.c.id == publication_marker.c.revision_id,
+                        published_revision.c.aggregate_id == publication_marker.c.aggregate_id,
+                        published_revision.c.organization_id
+                        == publication_marker.c.organization_id,
+                        published_revision.c.project_id == publication_marker.c.project_id,
+                    ),
+                )
+                .where(
+                    publication_marker.c.organization_id == catalog_record.c.organization_id,
+                    publication_marker.c.project_id == catalog_record.c.project_id,
+                    publication_marker.c.aggregate_type == RECORD_AGGREGATE_TYPE,
+                    publication_marker.c.aggregate_id == catalog_record.c.id,
+                )
+                .order_by(published_revision.c.revision_no.desc())
+                .limit(1)
+                .scalar_subquery()
+            )
+            statement = SqlAlchemyCatalogRecordRepository._record_statement(current=False).where(
+                catalog_record_revision.c.id == latest_published_revision_id
+            )
+        else:
+            statement = SqlAlchemyCatalogRecordRepository._record_statement(current=True)
+        statement = statement.where(catalog_record.c.table_id == query.table_id)
         if query.text is not None:
             pattern = f"%{query.text.lower()}%"
             statement = statement.where(
@@ -770,14 +1364,19 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                 # Keep Folder scope in the same SQL set as rows, totals and
                 # facets.  The recursive CTE follows exact current Folder
                 # revisions and is bounded by the requested Table.
-                folder_scope = sa.select(folder.c.id.label("folder_id")).where(
-                    folder.c.id == query.folder_id,
-                    folder.c.table_id == query.table_id,
-                ).cte("record_folder_scope", recursive=True)
+                folder_scope = (
+                    sa.select(folder.c.id.label("folder_id"))
+                    .where(
+                        folder.c.id == query.folder_id,
+                        folder.c.table_id == query.table_id,
+                    )
+                    .cte("record_folder_scope", recursive=True)
+                )
                 child_folder = folder.alias("child_folder")
                 child_revision = folder_revision.alias("child_folder_revision")
                 folder_scope = folder_scope.union_all(
-                    sa.select(child_folder.c.id).select_from(
+                    sa.select(child_folder.c.id)
+                    .select_from(
                         child_folder.join(
                             child_revision,
                             sa.and_(
@@ -791,12 +1390,11 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                             folder_scope,
                             child_revision.c.parent_folder_id == folder_scope.c.folder_id,
                         )
-                    ).where(child_folder.c.table_id == query.table_id)
+                    )
+                    .where(child_folder.c.table_id == query.table_id)
                 )
                 statement = statement.where(
-                    catalog_record_revision.c.folder_id.in_(
-                        sa.select(folder_scope.c.folder_id)
-                    )
+                    catalog_record_revision.c.folder_id.in_(sa.select(folder_scope.c.folder_id))
                 )
         if query.record_id is not None:
             statement = statement.where(catalog_record.c.id == query.record_id)
@@ -806,13 +1404,11 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                     sa.select(1).where(
                         domain_record_binding.c.organization_id
                         == catalog_record_revision.c.organization_id,
-                        domain_record_binding.c.project_id
-                        == catalog_record_revision.c.project_id,
+                        domain_record_binding.c.project_id == catalog_record_revision.c.project_id,
                         domain_record_binding.c.classification
                         == catalog_record_revision.c.classification,
                         domain_record_binding.c.record_id == catalog_record.c.id,
-                        domain_record_binding.c.record_revision_id
-                        == catalog_record_revision.c.id,
+                        domain_record_binding.c.record_revision_id == catalog_record_revision.c.id,
                         domain_record_binding.c.domain_kind == query.domain_binding_kind,
                     )
                 )
@@ -828,8 +1424,7 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                 record_discrete_value.c.value.in_(discrete_filter.values),
             )
             text_predicates = (
-                record_text_value.c.organization_id
-                == catalog_record_revision.c.organization_id,
+                record_text_value.c.organization_id == catalog_record_revision.c.organization_id,
                 record_text_value.c.project_id == catalog_record_revision.c.project_id,
                 record_text_value.c.record_revision_id == catalog_record_revision.c.id,
                 record_text_value.c.attribute_definition_id
@@ -940,9 +1535,7 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
             if isinstance(sort_expression, tuple):
                 direction = tuple(
                     (
-                        item.desc()
-                        if query.sort_direction == "descending"
-                        else item.asc()
+                        item.desc() if query.sort_direction == "descending" else item.asc()
                     ).nulls_last()
                     for item in sort_expression
                 )
@@ -969,15 +1562,16 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
             if query.facet_attribute_ids:
                 facet_values = sa.union_all(
                     sa.select(
-                        record_text_value.c.attribute_definition_id.label("attribute_definition_id"),
+                        record_text_value.c.attribute_definition_id.label(
+                            "attribute_definition_id"
+                        ),
                         record_text_value.c.value.label("value"),
                     )
                     .select_from(
                         record_text_value.join(
                             matched,
                             sa.and_(
-                                matched.c.organization_id
-                                == record_text_value.c.organization_id,
+                                matched.c.organization_id == record_text_value.c.organization_id,
                                 matched.c.project_id == record_text_value.c.project_id,
                                 matched.c.record_revision_id
                                 == record_text_value.c.record_revision_id,
@@ -985,9 +1579,7 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                         )
                     )
                     .where(
-                        record_text_value.c.attribute_definition_id.in_(
-                            query.facet_attribute_ids
-                        )
+                        record_text_value.c.attribute_definition_id.in_(query.facet_attribute_ids)
                     ),
                     sa.select(
                         record_discrete_value.c.attribute_definition_id.label(

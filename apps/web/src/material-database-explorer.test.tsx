@@ -325,6 +325,10 @@ describe("MaterialDatabaseExplorer", () => {
     await user.type(screen.getByLabelText("Search database"), "DP");
     await user.click(screen.getByRole("button", { name: "Search" }));
     expect(await screen.findByRole("heading", { name: "2 matching records" })).toBeTruthy();
+    expect(mocks.search).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ published_only: true }),
+    );
     await user.click(screen.getByLabelText("Compare DP780 Sheet Steel"));
     await user.click(screen.getByLabelText("Compare DP600 Sheet Steel"));
     await user.click(screen.getByRole("button", { name: "Compare 2" }));

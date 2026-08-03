@@ -12,6 +12,8 @@ from fastapi import Depends, FastAPI, Header, Query, Request, Response, status
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, StringConstraints
 from sqlalchemy.exc import IntegrityError
 
+from cmp.modules.artifacts.application.content import ArtifactService
+from cmp.modules.artifacts.domain import ArtifactKind
 from cmp.modules.catalog.adapters.api.catalog import CatalogHttpError, _etag, _scope
 from cmp.modules.catalog.application.configurable import ConfigRevision
 from cmp.modules.catalog.application.records import (
@@ -23,6 +25,8 @@ from cmp.modules.catalog.application.records import (
     RecordDomainBinding,
     RecordSearchResult,
     RecordSnapshot,
+    RegistrationPreview,
+    RegistrationSourceEvidence,
     ReviseFolder,
     ReviseRecord,
 )
@@ -38,6 +42,10 @@ from cmp.modules.catalog.domain.records import (
     CatalogRecordValue,
     DiscreteFilter,
     NumberRangeFilter,
+)
+from cmp.modules.datasets.domain.governed_tabular import (
+    TabularFileFormat,
+    read_tabular_source_rows,
 )
 from cmp.modules.identity_access.domain.authorization import DataClassification
 from cmp.shared.contracts.revisions import (
@@ -311,6 +319,73 @@ class RecordReviseRequest(BaseModel):
     change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
 
 
+class RegistrationColumnMappingInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    attribute: ShortText
+    unit: Annotated[str, StringConstraints(min_length=1, max_length=64)] | None = None
+
+
+class RegistrationPreviewRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    table_id: UUID
+    table_revision_id: UUID
+    rows: tuple[dict[str, Any], ...] = Field(default=(), max_length=100000)
+    mapping: dict[str, str | RegistrationColumnMappingInput]
+    common_material_state: dict[str, str] | None = None
+    raw_asset_id: UUID | None = None
+    raw_artifact_id: UUID | None = None
+    file_format: TabularFileFormat | None = None
+    sheet_name: str | None = None
+    header_row: int = Field(default=1, ge=1, le=100)
+    encoding: str = "utf-8"
+    delimiter: str | None = None
+    decimal_separator: Literal[".", ","] = "."
+    corrections: dict[int, dict[str, str]] = Field(default_factory=dict)
+
+
+class RegistrationCellErrorResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    row: int
+    column: str
+    message: str
+    action: str
+
+
+class RegistrationPreviewResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    token: str
+    valid: bool
+    rows: tuple[dict[str, Any], ...]
+    errors: tuple[RegistrationCellErrorResponse, ...]
+    source_columns: tuple[str, ...]
+    sample_rows: tuple[dict[str, Any], ...]
+
+    @classmethod
+    def from_preview(cls, value: RegistrationPreview) -> RegistrationPreviewResponse:
+        return cls(
+            token=value.token,
+            valid=value.valid,
+            rows=value.rows,
+            errors=tuple(
+                RegistrationCellErrorResponse(
+                    row=error.row, column=error.column, message=error.message, action=error.action
+                )
+                for error in value.errors
+            ),
+            source_columns=value.source_columns,
+            sample_rows=value.sample_rows,
+        )
+
+
+class RegistrationPublishRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    token: Annotated[str, StringConstraints(min_length=1, max_length=255)]
+    table_id: UUID
+    table_revision_id: UUID
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+    classification: DataClassification = DataClassification.INTERNAL
+
+
 class DiscreteFilterInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
     attribute_definition_id: UUID
@@ -338,23 +413,27 @@ class RecordSearchRequest(BaseModel):
     # Optional search refinements are deliberately additive to the existing
     # table-scoped contract.  Materials supplies the binding discriminator so
     # workflow records never appear in the normal result set.
-    domain_binding_kind: Literal[
-        "material",
-        "material_state",
-        "specimen",
-        "test_run",
-        "test_data",
-        "processing_output",
-        "material_model",
-        "neutral_material",
-        "solver_card",
-        "neutral_solver_card",
-        "release",
-    ] | None = None
+    domain_binding_kind: (
+        Literal[
+            "material",
+            "material_state",
+            "specimen",
+            "test_run",
+            "test_data",
+            "processing_output",
+            "material_model",
+            "neutral_material",
+            "solver_card",
+            "neutral_solver_card",
+            "release",
+        ]
+        | None
+    ) = None
     include_descendants: bool = False
     sort_by: Literal["name", "external_key", "attribute"] = "name"
     sort_attribute_id: UUID | None = None
     sort_direction: Literal["ascending", "descending"] = "ascending"
+    published_only: bool = False
 
     def to_domain(self) -> CatalogRecordQuery:
         return CatalogRecordQuery(
@@ -378,6 +457,7 @@ class RecordSearchRequest(BaseModel):
             sort_attribute_id=self.sort_attribute_id,
             sort_direction=self.sort_direction,
             record_id=self.record_id,
+            published_only=self.published_only,
         )
 
 
@@ -414,9 +494,7 @@ class RecordRevisionResponse(RevisionMetadataResponse):
     content: RecordContentInput
 
     @classmethod
-    def from_revision(
-        cls, value: ConfigRevision[CatalogRecordContent]
-    ) -> RecordRevisionResponse:
+    def from_revision(cls, value: ConfigRevision[CatalogRecordContent]) -> RecordRevisionResponse:
         content = value.content
         return cls(
             **RevisionMetadataResponse.from_record(value.record, "draft").model_dump(),
@@ -467,6 +545,7 @@ class RecordResponse(BaseModel):
     table_id: UUID
     current_revision: RecordRevisionResponse
     domain_binding: DomainBindingProjectionResponse | None = None
+    domain_bindings: tuple[DomainBindingProjectionResponse, ...] = ()
 
     @classmethod
     def from_snapshot(cls, value: RecordSnapshot) -> RecordResponse:
@@ -483,7 +562,20 @@ class RecordResponse(BaseModel):
                 if value.domain_binding is not None
                 else None
             ),
+            domain_bindings=tuple(
+                DomainBindingProjectionResponse.from_domain(
+                    binding,
+                    record_id=value.id,
+                    record_revision_id=value.current.record.revision_id,
+                )
+                for binding in value.domain_bindings
+            ),
         )
+
+
+class RecordListResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    items: tuple[RecordResponse, ...]
 
 
 class FacetBucketResponse(BaseModel):
@@ -610,6 +702,7 @@ def install_catalog_record_api(
     application: FastAPI,
     *,
     service: CatalogRecordService | None,
+    artifact_service: ArtifactService | None = None,
     security_dependency: Dependency,
     read_dependency: Dependency,
     write_dependency: Dependency,
@@ -624,6 +717,140 @@ def install_catalog_record_api(
                 code="CMP-CATALOG-0014",
             )
         return service
+
+    @application.post(
+        "/api/v1/catalog/record-registrations:preview",
+        response_model=RegistrationPreviewResponse,
+        operation_id="previewCatalogRecordRegistration",
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["catalog-records"],
+    )
+    async def preview_registration(
+        request: Request, body: RegistrationPreviewRequest
+    ) -> RegistrationPreviewResponse:
+        context, decision = _scope(request)
+        try:
+            mapping = {
+                source_column: (
+                    target if isinstance(target, str) else target.model_dump(mode="json")
+                )
+                for source_column, target in body.mapping.items()
+            }
+            rows = body.rows
+            source = RegistrationSourceEvidence(None, "", "manual")
+            artifact_fields = (body.raw_asset_id, body.raw_artifact_id, body.file_format)
+            if any(value is not None for value in artifact_fields):
+                if not all(value is not None for value in artifact_fields):
+                    raise ValueError(
+                        "raw_asset_id, raw_artifact_id and file_format must be supplied together"
+                    )
+                if rows:
+                    raise ValueError("send either an immutable source file or manual rows")
+                if artifact_service is None:
+                    raise CatalogHttpError(
+                        context=context,
+                        status_code=503,
+                        title="Catalog registration source unavailable",
+                        detail="The immutable Artifact reader is not configured.",
+                        code="CMP-CATALOG-0014",
+                    )
+                assert body.raw_asset_id is not None
+                assert body.raw_artifact_id is not None
+                assert body.file_format is not None
+                artifact_record, raw = await artifact_service.read_verified_bytes(
+                    context,
+                    decision,
+                    body.raw_artifact_id,
+                    maximum_bytes=16 * 1024 * 1024,
+                )
+                artifact = artifact_record.artifact
+                if (
+                    artifact.artifact_kind is not ArtifactKind.RAW
+                    or artifact.source_raw_asset_id != body.raw_asset_id
+                ):
+                    raise ValueError("registration requires the named immutable Raw Asset")
+                allowed_media_types = {
+                    TabularFileFormat.CSV: {"text/csv", "application/csv"},
+                    TabularFileFormat.TSV: {"text/tab-separated-values", "text/tsv"},
+                    TabularFileFormat.XLSX: {
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    },
+                }
+                if artifact.media_type not in allowed_media_types[body.file_format]:
+                    raise ValueError("source media type does not match the selected file format")
+                _, selected_sheet, rows = read_tabular_source_rows(
+                    raw,
+                    file_format=body.file_format,
+                    sheet_name=body.sheet_name,
+                    header_row=body.header_row,
+                    encoding=body.encoding,
+                    delimiter=body.delimiter,
+                    decimal_separator=body.decimal_separator,
+                )
+                corrected_rows = [dict(row) for row in rows]
+                for row_number, corrections in body.corrections.items():
+                    if not 1 <= row_number <= len(corrected_rows):
+                        raise ValueError("a corrected row is outside the source row range")
+                    for column, corrected_value in corrections.items():
+                        if column not in corrected_rows[row_number - 1]:
+                            raise ValueError("a corrected column is not present in the source")
+                        corrected_rows[row_number - 1][column] = corrected_value
+                rows = tuple(corrected_rows)
+                source = RegistrationSourceEvidence(
+                    body.raw_artifact_id,
+                    artifact.sha256,
+                    body.file_format.value,
+                    selected_sheet,
+                    body.encoding,
+                    body.delimiter,
+                    body.decimal_separator,
+                )
+            elif not rows:
+                raise ValueError("registration requires at least one row")
+            value = required(context).preview_registration(
+                context,
+                decision,
+                table_id=body.table_id,
+                table_revision_id=body.table_revision_id,
+                rows=rows,
+                mapping=mapping,
+                common_material_state=body.common_material_state,
+                source=source,
+            )
+            return RegistrationPreviewResponse.from_preview(value)
+        except CatalogHttpError:
+            raise
+        except Exception as error:
+            raise _error(context, error) from error
+
+    @application.post(
+        "/api/v1/catalog/record-registrations:publish",
+        response_model=RecordListResponse,
+        operation_id="publishCatalogRecordRegistration",
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["catalog-records"],
+    )
+    def publish_registration(
+        request: Request, body: RegistrationPublishRequest
+    ) -> RecordListResponse:
+        context, decision = _scope(request)
+        try:
+            value = required(context).publish_registration(
+                context,
+                decision,
+                token=body.token,
+                table_id=body.table_id,
+                table_revision_id=body.table_revision_id,
+                change_reason=body.change_reason,
+                classification=body.classification,
+            )
+            return RecordListResponse(
+                items=tuple(RecordResponse.from_snapshot(item) for item in value.records)
+            )
+        except CatalogHttpError:
+            raise
+        except Exception as error:
+            raise _error(context, error) from error
 
     @application.get(
         "/api/v1/catalog/tables/{table_id}/folders",
@@ -816,9 +1043,7 @@ def install_catalog_record_api(
         dependencies=[Depends(security_dependency), Depends(read_dependency)],
         tags=["catalog-records"],
     )
-    def list_record_revisions(
-        request: Request, record_id: UUID
-    ) -> RecordRevisionListResponse:
+    def list_record_revisions(request: Request, record_id: UUID) -> RecordRevisionListResponse:
         context, decision = _scope(request)
         try:
             values = required(context).list_record_revisions(context, decision, record_id)

@@ -376,6 +376,7 @@ export function MaterialDatabaseExplorer({
         facet_attribute_ids: searchDiscreteAttributes.map(
           (attribute) => attribute.attribute_definition_id,
         ),
+        published_only: true,
         limit: 100,
       });
       setSearchResults(result.data.items);
@@ -573,7 +574,8 @@ export function MaterialDatabaseExplorer({
                 void searchConfigurableCatalogRecords(config, {
                   table_id: subset.table_id,
                   text: typeof subset.filter_definition?.text === "string" ? subset.filter_definition.text : null,
-                  folder_id: null, discrete_filters: [], number_filters: [], facet_attribute_ids: [], limit: 100,
+                  folder_id: null, discrete_filters: [], number_filters: [], facet_attribute_ids: [],
+                  published_only: true, limit: 100,
                 }).then((result) => setSearchResults(result.data.items));
               }}><span aria-hidden="true">☆</span>{subset.name}</button>
             ))}

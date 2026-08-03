@@ -47,6 +47,14 @@ PRODUCT_ACCESS_OUTPUTS = (
     "administration-access-1366x768.png",
     "administration-access-1440x900.png",
 )
+ADMINISTRATION_DATABASE_OUTPUTS = tuple(
+    f"administration-database-{width}x{height}.png"
+    for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)
+)
+ADMINISTRATION_RECORDS_OUTPUTS = tuple(
+    f"administration-records-{width}x{height}.png"
+    for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)
+)
 ACTIVITY_OUTPUTS = tuple(f"activity-{width}x{height}.png" for width, height in VIEWPORTS)
 REVIEW_SUBMISSION_OUTPUTS = (
     *(
@@ -98,6 +106,13 @@ CURRENT_CAPTURE_OUTPUTS = (
     "administration-database-1366x768.png",
     "administration-database-1440x900.png",
     "administration-database-1920x1080.png",
+    "administration-database-2560x1440.png",
+    "administration-database-3840x2160.png",
+    "administration-records-1366x768.png",
+    "administration-records-1440x900.png",
+    "administration-records-1920x1080.png",
+    "administration-records-2560x1440.png",
+    "administration-records-3840x2160.png",
     "administration-access-1366x768.png",
     "administration-access-1440x900.png",
 )
@@ -234,8 +249,7 @@ def _open_materials_search(page: Page, base_url: str) -> None:
         surface_text = surface.inner_text()
         if NORMAL_SURFACE_TECHNICAL_LABELS.search(surface_text):
             raise RuntimeError(
-                "normal Materials surface exposes technical label in "
-                f"{selector}: {surface_text}"
+                f"normal Materials surface exposes technical label in {selector}: {surface_text}"
             )
 
 
@@ -535,9 +549,7 @@ def _install_material_scroll_fixture(page: Page) -> None:
         if request_path.endswith("/catalog/explorer/tables"):
             fulfill(route, {"items": [_scroll_table()]})
             return
-        if request_path.endswith(
-            f"/catalog/explorer/tables/{_SCROLL_TABLE_ID}/children"
-        ):
+        if request_path.endswith(f"/catalog/explorer/tables/{_SCROLL_TABLE_ID}/children"):
             parent = parse_qs(parsed.query).get("parent_folder_id", [None])[0]
             folders = [] if parent else root_folders
             fulfill(route, {"table": _scroll_table(), "folders": folders, "records": []})
@@ -574,18 +586,22 @@ def _install_material_scroll_fixture(page: Page) -> None:
             text = payload.get("text") if isinstance(payload, dict) else None
             count = 0 if text == "magnesium" else 6 if text == "steel" else 50
             total_count = 0 if count == 0 else 6 if count == 6 else 120
-            facets = [] if count == 0 else [
-                {
-                    "attribute_definition_id": attribute_id,
-                    "value": value,
-                    "count": total_count,
-                }
-                for attribute_id, value in (
-                    ("material-class", "metal"),
-                    ("provider", "Northstar Materials"),
-                    ("evidence-source", "Governed reference"),
-                )
-            ]
+            facets = (
+                []
+                if count == 0
+                else [
+                    {
+                        "attribute_definition_id": attribute_id,
+                        "value": value,
+                        "count": total_count,
+                    }
+                    for attribute_id, value in (
+                        ("material-class", "metal"),
+                        ("provider", "Northstar Materials"),
+                        ("evidence-source", "Governed reference"),
+                    )
+                ]
+            )
             fulfill(
                 route,
                 {
@@ -614,15 +630,11 @@ def _open_material_scroll_state(page: Page, base_url: str, search_text: str) -> 
     search = page.get_by_role("textbox", name="Search materials")
     search.wait_for(timeout=30_000)
     search.fill(search_text)
-    page.locator(".materials-search-form").get_by_role(
-        "button", name="Find", exact=True
-    ).click()
+    page.locator(".materials-search-form").get_by_role("button", name="Find", exact=True).click()
     if search_text == "magnesium":
         page.get_by_text("No materials match this search.", exact=True).wait_for(timeout=30_000)
     else:
-        page.locator('table[aria-label="Material results"] tbody tr').first.wait_for(
-            timeout=30_000
-        )
+        page.locator('table[aria-label="Material results"] tbody tr').first.wait_for(timeout=30_000)
     _wait_for_settled(page)
 
 
@@ -1575,14 +1587,17 @@ def _capture_modeling_session_shell(browser: Browser, base_url: str, output: Pat
         page.context.close()
 
 
-def _capture_supporting_screens(browser: Browser, base_url: str, output: Path) -> None:
-    for width, height in ((1366, 768), (1440, 900), (1920, 1080)):
+def _capture_administration_database(browser: Browser, base_url: str, output: Path) -> None:
+    for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS):
         page = _new_page(browser, base_url, width, height)
         page.goto(f"{base_url}/administration/database")
         page.get_by_role("navigation", name="Administration areas").wait_for(timeout=30_000)
         page.get_by_role("heading", name="Database design", exact=True).wait_for(timeout=30_000)
         page.get_by_role("navigation", name="Database objects").wait_for(timeout=30_000)
         page.get_by_role("combobox", name="Current table", exact=True).wait_for(timeout=30_000)
+        page.locator(".schema-property-editor .property-sheet").wait_for(timeout=30_000)
+        if page.get_by_role("alert").count():
+            raise RuntimeError(f"Administration shows an error at {width}x{height}")
         if page.evaluate(
             "document.documentElement.scrollWidth > document.documentElement.clientWidth"
         ):
@@ -1590,6 +1605,36 @@ def _capture_supporting_screens(browser: Browser, base_url: str, output: Path) -
         _capture(page, output / f"administration-database-{width}x{height}.png", width, height)
         page.context.close()
 
+
+def _capture_administration_records(browser: Browser, base_url: str, output: Path) -> None:
+    for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS):
+        page = _new_page(browser, base_url, width, height)
+        page.goto(f"{base_url}/administration/records")
+        page.get_by_role("navigation", name="Administration areas").wait_for(timeout=30_000)
+        page.get_by_role("heading", name="Single entry or multiple rows", exact=True).wait_for(
+            timeout=30_000
+        )
+        page.get_by_role("heading", name="Create Record", exact=True).wait_for(timeout=30_000)
+        multiple_rows = page.get_by_role("button", name="Multiple rows", exact=True)
+        multiple_rows.wait_for(timeout=30_000)
+        multiple_rows.click()
+        page.get_by_label("Source file", exact=True).wait_for(timeout=30_000)
+        page.get_by_role("button", name="Read columns", exact=True).wait_for(timeout=30_000)
+        if page.get_by_role("alert").count():
+            raise RuntimeError(f"Administration registration shows an error at {width}x{height}")
+        if page.evaluate(
+            "document.documentElement.scrollWidth > document.documentElement.clientWidth"
+        ):
+            raise RuntimeError(
+                f"Administration registration has horizontal overflow at {width}x{height}"
+            )
+        _capture(page, output / f"administration-records-{width}x{height}.png", width, height)
+        page.context.close()
+
+
+def _capture_supporting_screens(browser: Browser, base_url: str, output: Path) -> None:
+    _capture_administration_database(browser, base_url, output)
+    _capture_administration_records(browser, base_url, output)
     for width, height in ((1366, 768), (1440, 900)):
         page = _new_page(browser, base_url, width, height)
         page.goto(f"{base_url}/administration/access")
@@ -1688,6 +1733,16 @@ def main() -> int:
         help="Capture and replace only the two Product Access role-preset viewports.",
     )
     parser.add_argument(
+        "--only-administration-database",
+        action="store_true",
+        help="Capture and replace only the five Administration database-design viewports.",
+    )
+    parser.add_argument(
+        "--only-administration-records",
+        action="store_true",
+        help="Capture and replace only the five Administration registration viewports.",
+    )
+    parser.add_argument(
         "--only-activity",
         action="store_true",
         help="Capture and replace only the three role-aware Activity queue viewports.",
@@ -1743,6 +1798,8 @@ def main() -> int:
         or args.only_modeling_consistency
         or args.only_modeling_data_session
         or args.only_product_access
+        or args.only_administration_database
+        or args.only_administration_records
         or args.only_activity
         or args.only_review_submission
     ):
@@ -1762,6 +1819,10 @@ def main() -> int:
             else REVIEW_SUBMISSION_OUTPUTS
             if args.only_review_submission
             else PRODUCT_ACCESS_OUTPUTS
+            if args.only_product_access
+            else ADMINISTRATION_RECORDS_OUTPUTS
+            if args.only_administration_records
+            else ADMINISTRATION_DATABASE_OUTPUTS
         )
         args.output.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(
@@ -1787,6 +1848,10 @@ def main() -> int:
                         else _capture_solver_delivery(browser, args.base_url, staged)
                         if args.only_review_submission
                         else _capture_supporting_screens(browser, args.base_url, staged)
+                        if args.only_product_access
+                        else _capture_administration_records(browser, args.base_url, staged)
+                        if args.only_administration_records
+                        else _capture_administration_database(browser, args.base_url, staged)
                     )
                 finally:
                     browser.close()
@@ -1810,7 +1875,14 @@ def main() -> int:
     result = {
         "output": args.output.as_posix(),
         "captures": capture_count,
-        "viewports": [f"{width}x{height}" for width, height in VIEWPORTS],
+        "viewports": [
+            f"{width}x{height}"
+            for width, height in (
+                (*VIEWPORTS, *WIDE_VIEWPORTS)
+                if args.only_administration_database or args.only_administration_records
+                else VIEWPORTS
+            )
+        ],
     }
     if (
         args.only_modeling_process_fit

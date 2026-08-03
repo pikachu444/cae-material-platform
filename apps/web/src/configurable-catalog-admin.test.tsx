@@ -36,7 +36,11 @@ const secondTable = {
   },
 };
 
-function attributeFor(sourceTable: typeof table, name: string, idPrefix: string) {
+function attributeFor(
+  sourceTable: typeof table,
+  name: string,
+  idPrefix: string,
+) {
   return {
     attribute_definition_id: `${idPrefix}0000-0000-4000-8000-000000000006`,
     table_id: sourceTable.table_id,
@@ -66,6 +70,8 @@ function attributeFor(sourceTable: typeof table, name: string, idPrefix: string)
 }
 
 const mocks = vi.hoisted(() => ({
+  listDatabases: vi.fn(),
+  listProfiles: vi.fn(),
   listTables: vi.fn(),
   listAttributes: vi.fn(),
   listLayouts: vi.fn(),
@@ -76,6 +82,9 @@ const mocks = vi.hoisted(() => ({
   createLayout: vi.fn(),
   createSubset: vi.fn(),
   createLinkType: vi.fn(),
+  reviseTable: vi.fn(),
+  validatePublication: vi.fn(),
+  publishRevision: vi.fn(),
 }));
 
 vi.mock("./api", async (importOriginal) => {
@@ -83,6 +92,8 @@ vi.mock("./api", async (importOriginal) => {
   return {
     ...original,
     listConfigurableCatalogTables: mocks.listTables,
+    listConfigurableCatalogDatabases: mocks.listDatabases,
+    listConfigurableCatalogProfiles: mocks.listProfiles,
     listConfigurableCatalogAttributes: mocks.listAttributes,
     listConfigurableCatalogLayouts: mocks.listLayouts,
     listConfigurableCatalogSubsets: mocks.listSubsets,
@@ -92,13 +103,21 @@ vi.mock("./api", async (importOriginal) => {
     createConfigurableCatalogLayout: mocks.createLayout,
     createConfigurableCatalogSubset: mocks.createSubset,
     createConfigurableCatalogLinkType: mocks.createLinkType,
+    reviseConfigurableCatalogTable: mocks.reviseTable,
+    validateConfigurableCatalogPublication: mocks.validatePublication,
+    publishConfigurableCatalogRevision: mocks.publishRevision,
   };
 });
 
 describe("ConfigurableCatalogAdmin", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.listTables.mockResolvedValue({ data: { items: [table] }, etag: null });
+    mocks.listTables.mockResolvedValue({
+      data: { items: [table] },
+      etag: null,
+    });
+    mocks.listDatabases.mockResolvedValue({ data: { items: [] }, etag: null });
+    mocks.listProfiles.mockResolvedValue({ data: { items: [] }, etag: null });
     mocks.listAttributes.mockResolvedValue({ data: { items: [] }, etag: null });
     mocks.listLayouts.mockResolvedValue({ data: { items: [] }, etag: null });
     mocks.listSubsets.mockResolvedValue({ data: { items: [] }, etag: null });
@@ -156,6 +175,27 @@ describe("ConfigurableCatalogAdmin", () => {
       },
       etag: null,
     });
+    mocks.reviseTable.mockResolvedValue({ data: table, etag: null });
+    mocks.validatePublication.mockResolvedValue({
+      data: {
+        aggregate_type: "catalog.configurable_table",
+        aggregate_id: table.table_id,
+        revision_id: table.current_revision.id,
+        valid: true,
+        errors: [],
+      },
+      etag: null,
+    });
+    mocks.publishRevision.mockResolvedValue({
+      data: {
+        aggregate_type: "catalog.configurable_table",
+        aggregate_id: table.table_id,
+        revision_id: table.current_revision.id,
+        valid: true,
+        errors: [],
+      },
+      etag: null,
+    });
   });
 
   it("loads a Table and creates a typed Attribute through the actual API contract", async () => {
@@ -167,9 +207,16 @@ describe("ConfigurableCatalogAdmin", () => {
       />,
     );
 
-    expect(await screen.findByRole("heading", { name: "Materials" })).toBeTruthy();
-    await user.type(screen.getAllByRole("textbox", { name: "Description" })[1]!, "Supplier display value used in datasheets.");
-    await user.click(screen.getByRole("button", { name: "Add Attribute revision 1" }));
+    expect(
+      await screen.findByRole("heading", { name: "Materials" }),
+    ).toBeTruthy();
+    await user.type(
+      screen.getAllByRole("textbox", { name: "Description" })[1]!,
+      "Supplier display value used in datasheets.",
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Add Attribute revision 1" }),
+    );
 
     await waitFor(() => expect(mocks.createAttribute).toHaveBeenCalledOnce());
     expect(mocks.createAttribute).toHaveBeenCalledWith(
@@ -196,12 +243,18 @@ describe("ConfigurableCatalogAdmin", () => {
       />,
     );
 
-    expect(await screen.findByRole("heading", { name: "Database design" })).toBeTruthy();
+    expect(
+      await screen.findByRole("heading", { name: "Database design" }),
+    ).toBeTruthy();
     expect(screen.getByLabelText("Database objects")).toBeTruthy();
-    expect((screen.getByLabelText("Current table") as HTMLSelectElement).value).toBe(table.table_id);
+    expect(
+      (screen.getByLabelText("Current table") as HTMLSelectElement).value,
+    ).toBe(table.table_id);
     await user.click(screen.getByRole("button", { name: "Link Types" }));
     await user.click(screen.getByRole("button", { name: "Add Link Type" }));
-    await user.click(screen.getByRole("button", { name: "Save new Link Type" }));
+    await user.click(
+      screen.getByRole("button", { name: "Save new Link Type" }),
+    );
 
     await waitFor(() => expect(mocks.createLinkType).toHaveBeenCalledOnce());
     expect(mocks.createLinkType).toHaveBeenCalledWith(
@@ -217,15 +270,63 @@ describe("ConfigurableCatalogAdmin", () => {
     );
   });
 
+  it("edits, checks and publishes the selected Table revision", async () => {
+    const user = userEvent.setup();
+    render(
+      <ConfigurableCatalogAdmin
+        config={{ baseUrl: "/api/v1", accessToken: "administrator-token" }}
+        onOpenConnection={() => undefined}
+        productMode
+      />,
+    );
+
+    await screen.findByRole("heading", { name: "Database design" });
+    await user.click(screen.getByRole("button", { name: "Tables" }));
+    const name = screen.getByRole("textbox", { name: "Display name" });
+    await user.clear(name);
+    await user.type(name, "Engineering materials");
+    await user.click(screen.getByRole("button", { name: "Save draft" }));
+    await waitFor(() => expect(mocks.reviseTable).toHaveBeenCalledOnce());
+    expect(mocks.reviseTable).toHaveBeenCalledWith(
+      expect.anything(),
+      table.table_id,
+      table.current_revision,
+      expect.objectContaining({
+        content: expect.objectContaining({ name: "Engineering materials" }),
+      }),
+    );
+
+    await user.click(screen.getByRole("button", { name: "Check" }));
+    await waitFor(() =>
+      expect(mocks.validatePublication).toHaveBeenCalledOnce(),
+    );
+    await user.click(screen.getByRole("button", { name: "Publish" }));
+    await waitFor(() => expect(mocks.publishRevision).toHaveBeenCalledOnce());
+    expect(mocks.publishRevision).toHaveBeenCalledWith(expect.anything(), {
+      aggregate_type: "catalog.configurable_table",
+      aggregate_id: table.table_id,
+      revision_id: table.current_revision.id,
+    });
+  });
+
   it("keeps the newest Table definitions when an older request resolves late", async () => {
     const user = userEvent.setup();
-    let resolveFirstTable!: (value: { data: { items: ReturnType<typeof attributeFor>[] }; etag: null }) => void;
-    const firstTableRequest = new Promise<{ data: { items: ReturnType<typeof attributeFor>[] }; etag: null }>((resolve) => {
+    let resolveFirstTable!: (value: {
+      data: { items: ReturnType<typeof attributeFor>[] };
+      etag: null;
+    }) => void;
+    const firstTableRequest = new Promise<{
+      data: { items: ReturnType<typeof attributeFor>[] };
+      etag: null;
+    }>((resolve) => {
       resolveFirstTable = resolve;
     });
     const firstAttribute = attributeFor(table, "Material family", "31");
     const secondAttribute = attributeFor(secondTable, "Test method", "32");
-    mocks.listTables.mockResolvedValue({ data: { items: [table, secondTable] }, etag: null });
+    mocks.listTables.mockResolvedValue({
+      data: { items: [table, secondTable] },
+      etag: null,
+    });
     mocks.listAttributes.mockImplementation((_config, tableId: string) =>
       tableId === table.table_id
         ? firstTableRequest
@@ -241,17 +342,24 @@ describe("ConfigurableCatalogAdmin", () => {
     );
 
     const tableSelector = await screen.findByLabelText("Current table");
-    await waitFor(() => expect(mocks.listAttributes).toHaveBeenCalledWith(expect.anything(), table.table_id));
+    await waitFor(() =>
+      expect(mocks.listAttributes).toHaveBeenCalledWith(
+        expect.anything(),
+        table.table_id,
+      ),
+    );
     await user.selectOptions(tableSelector, secondTable.table_id);
     await user.click(screen.getByRole("button", { name: "Attributes" }));
-    expect(await screen.findByText("Test method")).toBeTruthy();
+    expect((await screen.findAllByText("Test method")).length).toBeGreaterThan(
+      0,
+    );
 
     await act(async () => {
       resolveFirstTable({ data: { items: [firstAttribute] }, etag: null });
       await firstTableRequest;
     });
 
-    expect(screen.getByText("Test method")).toBeTruthy();
+    expect(screen.getAllByText("Test method").length).toBeGreaterThan(0);
     expect(screen.queryByText("Material family")).toBeNull();
   });
 
@@ -268,6 +376,9 @@ describe("ConfigurableCatalogAdmin", () => {
 
     expect(await screen.findByText("No tables yet")).toBeTruthy();
     expect(screen.queryByLabelText("Current table")).toBeNull();
-    expect((screen.getByRole("button", { name: "Add Table" }) as HTMLButtonElement).disabled).toBe(false);
+    expect(
+      (screen.getByRole("button", { name: "Add Table" }) as HTMLButtonElement)
+        .disabled,
+    ).toBe(false);
   });
 });

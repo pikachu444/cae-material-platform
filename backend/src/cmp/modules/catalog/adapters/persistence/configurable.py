@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from collections.abc import Callable, Iterator, Sequence
 from contextlib import contextmanager
+from datetime import UTC, datetime
 from typing import Any, Protocol
 from uuid import UUID
 
@@ -14,26 +15,34 @@ from sqlalchemy.orm import Session
 
 from cmp.modules.catalog.application.configurable import (
     ATTRIBUTE_AGGREGATE_TYPE,
+    DATABASE_AGGREGATE_TYPE,
     LAYOUT_AGGREGATE_TYPE,
+    PROFILE_AGGREGATE_TYPE,
     SUBSET_AGGREGATE_TYPE,
     TABLE_AGGREGATE_TYPE,
     AttributeSnapshot,
     ConfigRevision,
     ConfigurableCatalogRepository,
+    DatabaseSnapshot,
     LayoutSnapshot,
+    ProfileSnapshot,
     SubsetSnapshot,
     TableSnapshot,
 )
 from cmp.modules.catalog.domain.configurable import (
     AttributeDataType,
     AttributeDefinitionContent,
+    CatalogDatabaseContent,
+    CatalogProfileContent,
     CatalogTableContent,
     ConfigurableCatalogNotFound,
     LayoutContent,
     LayoutItem,
     SubsetContent,
     attribute_canonical,
+    database_canonical,
     layout_canonical,
+    profile_canonical,
     subset_canonical,
     table_canonical,
 )
@@ -111,6 +120,22 @@ schema_table_revision = _revision_table(
     sa.Column("name", sa.String(200), nullable=False),
     sa.Column("description", sa.Text(), nullable=True),
 )
+database = _identity_table("database", sa.Column("database_key", sa.String(64), nullable=False))
+database_revision = _revision_table(
+    "database",
+    sa.Column("database_key", sa.String(64), nullable=False),
+    sa.Column("name", sa.String(200), nullable=False),
+    sa.Column("description", sa.Text(), nullable=True),
+)
+profile = _identity_table("profile", sa.Column("profile_key", sa.String(64), nullable=False))
+profile_revision = _revision_table(
+    "profile",
+    sa.Column("profile_key", sa.String(64), nullable=False),
+    sa.Column("name", sa.String(200), nullable=False),
+    sa.Column("description", sa.Text(), nullable=True),
+    sa.Column("database_id", _uuid, nullable=False),
+    sa.Column("database_revision_id", _uuid, nullable=False),
+)
 attribute_definition = _identity_table(
     "attribute_definition",
     sa.Column("table_id", _uuid, nullable=False),
@@ -166,6 +191,21 @@ subset_revision = _revision_table(
     sa.Column("description", sa.Text(), nullable=True),
     sa.Column("filter_definition", sa.Text(), nullable=False),
 )
+folder_identity = _identity_table("folder", sa.Column("table_id", _uuid, nullable=False))
+record_identity = _identity_table("catalog_record", sa.Column("table_id", _uuid, nullable=False))
+link_type_identity = _identity_table("link_type")
+
+_PUBLISHABLE_IDENTITIES = {
+    "catalog.database": database,
+    "catalog.profile": profile,
+    "catalog.configurable_table": schema_table,
+    "catalog.attribute_definition": attribute_definition,
+    "catalog.layout": layout,
+    "catalog.subset": subset,
+    "catalog.folder": folder_identity,
+    "catalog.configurable_record": record_identity,
+    "catalog.link_type": link_type_identity,
+}
 
 
 def _record(row: Any, aggregate_type: str) -> RevisionRecord:
@@ -189,6 +229,20 @@ def _record(row: Any, aggregate_type: str) -> RevisionRecord:
 
 def _table_content(row: Any) -> CatalogTableContent:
     return CatalogTableContent(row["table_key"], row["name"], row["description"])
+
+
+def _database_content(row: Any) -> CatalogDatabaseContent:
+    return CatalogDatabaseContent(row["database_key"], row["name"], row["description"])
+
+
+def _profile_content(row: Any) -> CatalogProfileContent:
+    return CatalogProfileContent(
+        database_id=row["database_id"],
+        database_revision_id=row["database_revision_id"],
+        key=row["profile_key"],
+        name=row["name"],
+        description=row["description"],
+    )
 
 
 def _attribute_content(row: Any) -> AttributeDefinitionContent:
@@ -241,6 +295,20 @@ def _subset_content(row: Any) -> SubsetContent:
 
 def _table_values(content: CatalogTableContent) -> dict[str, Any]:
     return {"table_key": content.key, "name": content.name, "description": content.description}
+
+
+def _database_values(content: CatalogDatabaseContent) -> dict[str, Any]:
+    return {"database_key": content.key, "name": content.name, "description": content.description}
+
+
+def _profile_values(content: CatalogProfileContent) -> dict[str, Any]:
+    return {
+        "profile_key": content.key,
+        "name": content.name,
+        "description": content.description,
+        "database_id": content.database_id,
+        "database_revision_id": content.database_revision_id,
+    }
 
 
 def _attribute_values(content: AttributeDefinitionContent) -> dict[str, Any]:
@@ -317,6 +385,49 @@ _TABLES = TypedRevisionTables(
     canonical_content=table_canonical,
     content_values=_table_values,
     identity_values=lambda content: {"table_key": content.key},
+)
+publication_marker = sa.Table(
+    "publication_marker",
+    metadata,
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("aggregate_type", sa.String(128), nullable=False),
+    sa.Column("aggregate_id", _uuid, nullable=False),
+    sa.Column("revision_id", _uuid, nullable=False),
+    sa.Column("published_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("published_by", _uuid, nullable=False),
+    schema="catalog",
+)
+table_profile_placement = sa.Table(
+    "table_profile_placement",
+    metadata,
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("table_id", _uuid, nullable=False),
+    sa.Column("table_revision_id", _uuid, nullable=False),
+    sa.Column("profile_id", _uuid, nullable=False),
+    sa.Column("profile_revision_id", _uuid, nullable=False),
+    sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("created_by", _uuid, nullable=False),
+    schema="catalog",
+)
+_DATABASES = TypedRevisionTables(
+    aggregate_type=DATABASE_AGGREGATE_TYPE,
+    identity_table=database,
+    revision_table=database_revision,
+    canonical_content=database_canonical,
+    content_values=_database_values,
+    identity_values=lambda content: {"database_key": content.key},
+)
+_PROFILES = TypedRevisionTables(
+    aggregate_type=PROFILE_AGGREGATE_TYPE,
+    identity_table=profile,
+    revision_table=profile_revision,
+    canonical_content=profile_canonical,
+    content_values=_profile_values,
+    identity_values=lambda content: {"profile_key": content.key},
 )
 _ATTRIBUTES = TypedRevisionTables(
     aggregate_type=ATTRIBUTE_AGGREGATE_TYPE,
@@ -407,6 +518,16 @@ class SqlAlchemyConfigurableCatalogRepository(ConfigurableCatalogRepository):
     ) -> RevisionStore[CatalogTableContent]:
         return self._store(context, decision, _TABLES)
 
+    def database_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[CatalogDatabaseContent]:
+        return self._store(context, decision, _DATABASES)
+
+    def profile_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[CatalogProfileContent]:
+        return self._store(context, decision, _PROFILES)
+
     def attribute_store(
         self, context: SecurityContext, decision: AuthorizationDecision
     ) -> RevisionStore[AttributeDefinitionContent]:
@@ -447,6 +568,32 @@ class SqlAlchemyConfigurableCatalogRepository(ConfigurableCatalogRepository):
             SqlAlchemyConfigurableCatalogRepository._current_join(
                 schema_table, schema_table_revision
             )
+        )
+
+    @staticmethod
+    def _database_statement() -> sa.Select[Any]:
+        return sa.select(
+            database.c.id.label("identity_id"),
+            *_revision_columns(database_revision, DATABASE_AGGREGATE_TYPE),
+            database_revision.c.database_key,
+            database_revision.c.name,
+            database_revision.c.description,
+        ).select_from(
+            SqlAlchemyConfigurableCatalogRepository._current_join(database, database_revision)
+        )
+
+    @staticmethod
+    def _profile_statement() -> sa.Select[Any]:
+        return sa.select(
+            profile.c.id.label("identity_id"),
+            *_revision_columns(profile_revision, PROFILE_AGGREGATE_TYPE),
+            profile_revision.c.profile_key,
+            profile_revision.c.name,
+            profile_revision.c.description,
+            profile_revision.c.database_id,
+            profile_revision.c.database_revision_id,
+        ).select_from(
+            SqlAlchemyConfigurableCatalogRepository._current_join(profile, profile_revision)
         )
 
     @staticmethod
@@ -491,12 +638,103 @@ class SqlAlchemyConfigurableCatalogRepository(ConfigurableCatalogRepository):
         )
 
     @staticmethod
+    def _database_snapshot(row: Any) -> DatabaseSnapshot:
+        return DatabaseSnapshot(
+            row["identity_id"],
+            ConfigRevision(_record(row, DATABASE_AGGREGATE_TYPE), _database_content(row)),
+        )
+
+    @staticmethod
+    def _profile_snapshot(row: Any) -> ProfileSnapshot:
+        return ProfileSnapshot(
+            row["identity_id"],
+            ConfigRevision(_record(row, PROFILE_AGGREGATE_TYPE), _profile_content(row)),
+        )
+
+    @staticmethod
     def _attribute_snapshot(row: Any) -> AttributeSnapshot:
         return AttributeSnapshot(
             row["identity_id"],
             row["identity_table_id"],
             ConfigRevision(_record(row, ATTRIBUTE_AGGREGATE_TYPE), _attribute_content(row)),
         )
+
+    def list_databases(
+        self, *, context: SecurityContext, decision: AuthorizationDecision
+    ) -> tuple[DatabaseSnapshot, ...]:
+        with self._transaction(context, decision) as session:
+            rows = session.execute(
+                self._database_statement().order_by(database_revision.c.name.asc())
+            ).mappings()
+            return tuple(self._database_snapshot(row) for row in rows)
+
+    def get_database(
+        self, *, context: SecurityContext, decision: AuthorizationDecision, database_id: UUID
+    ) -> DatabaseSnapshot:
+        with self._transaction(context, decision) as session:
+            row = (
+                session.execute(self._database_statement().where(database.c.id == database_id))
+                .mappings()
+                .one_or_none()
+            )
+            if row is None:
+                raise ConfigurableCatalogNotFound("Catalog Database was not found")
+            return self._database_snapshot(row)
+
+    def get_database_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        database_id: UUID,
+        revision_id: UUID,
+    ) -> ConfigRevision[CatalogDatabaseContent]:
+        with self._transaction(context, decision) as session:
+            row = (
+                session.execute(
+                    sa.select(
+                        *_revision_columns(database_revision, DATABASE_AGGREGATE_TYPE),
+                        database_revision.c.database_key,
+                        database_revision.c.name,
+                        database_revision.c.description,
+                    ).where(
+                        database_revision.c.aggregate_id == database_id,
+                        database_revision.c.id == revision_id,
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if row is None:
+                raise ConfigurableCatalogNotFound("Catalog Database revision was not found")
+            return ConfigRevision(_record(row, DATABASE_AGGREGATE_TYPE), _database_content(row))
+
+    def list_profiles(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        database_id: UUID | None = None,
+    ) -> tuple[ProfileSnapshot, ...]:
+        statement = self._profile_statement().order_by(profile_revision.c.name.asc())
+        if database_id is not None:
+            statement = statement.where(profile_revision.c.database_id == database_id)
+        with self._transaction(context, decision) as session:
+            rows = session.execute(statement).mappings()
+            return tuple(self._profile_snapshot(row) for row in rows)
+
+    def get_profile(
+        self, *, context: SecurityContext, decision: AuthorizationDecision, profile_id: UUID
+    ) -> ProfileSnapshot:
+        with self._transaction(context, decision) as session:
+            row = (
+                session.execute(self._profile_statement().where(profile.c.id == profile_id))
+                .mappings()
+                .one_or_none()
+            )
+            if row is None:
+                raise ConfigurableCatalogNotFound("Catalog Profile was not found")
+            return self._profile_snapshot(row)
 
     def list_tables(
         self, *, context: SecurityContext, decision: AuthorizationDecision
@@ -771,4 +1009,130 @@ class SqlAlchemyConfigurableCatalogRepository(ConfigurableCatalogRepository):
                 row["identity_id"],
                 row["identity_table_id"],
                 ConfigRevision(_record(row, SUBSET_AGGREGATE_TYPE), _subset_content(row)),
+            )
+
+    def is_current_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        aggregate_type: str,
+        aggregate_id: UUID,
+        revision_id: UUID,
+    ) -> bool:
+        identity = _PUBLISHABLE_IDENTITIES.get(aggregate_type)
+        if identity is None:
+            return False
+        with self._transaction(context, decision) as session:
+            return (
+                session.execute(
+                    sa.select(identity.c.id).where(
+                        identity.c.organization_id == context.organization_id,
+                        identity.c.project_id == context.project_id,
+                        identity.c.id == aggregate_id,
+                        identity.c.current_revision_id == revision_id,
+                    )
+                ).first()
+                is not None
+            )
+
+    def place_table(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        table_id: UUID,
+        table_revision_id: UUID,
+        profile_id: UUID,
+        profile_revision_id: UUID,
+    ) -> None:
+        with self._transaction(context, decision) as session:
+            classification = session.scalar(
+                sa.select(schema_table.c.classification).where(
+                    schema_table.c.organization_id == context.organization_id,
+                    schema_table.c.project_id == context.project_id,
+                    schema_table.c.id == table_id,
+                    schema_table.c.current_revision_id == table_revision_id,
+                )
+            )
+            if classification is None:
+                raise ConfigurableCatalogNotFound("Catalog Table revision was not found")
+            session.execute(
+                postgresql.insert(table_profile_placement)
+                .values(
+                    organization_id=context.organization_id,
+                    project_id=context.project_id,
+                    classification=classification,
+                    table_id=table_id,
+                    table_revision_id=table_revision_id,
+                    profile_id=profile_id,
+                    profile_revision_id=profile_revision_id,
+                    created_at=datetime.now(UTC),
+                    created_by=context.principal.id,
+                )
+                .on_conflict_do_nothing()
+            )
+
+    def publish_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        aggregate_type: str,
+        aggregate_id: UUID,
+        revision_id: UUID,
+        published_by: UUID,
+    ) -> None:
+        identity = _PUBLISHABLE_IDENTITIES.get(aggregate_type)
+        if identity is None:
+            raise ConfigurableCatalogNotFound("Catalog revision was not found")
+        with self._transaction(context, decision) as session:
+            classification = session.scalar(
+                sa.select(identity.c.classification).where(
+                    identity.c.organization_id == context.organization_id,
+                    identity.c.project_id == context.project_id,
+                    identity.c.id == aggregate_id,
+                    identity.c.current_revision_id == revision_id,
+                )
+            )
+            if classification is None:
+                raise ConfigurableCatalogNotFound("Catalog revision was not found")
+            session.execute(
+                postgresql.insert(publication_marker)
+                .values(
+                    organization_id=context.organization_id,
+                    project_id=context.project_id,
+                    classification=classification,
+                    aggregate_type=aggregate_type,
+                    aggregate_id=aggregate_id,
+                    revision_id=revision_id,
+                    published_at=datetime.now(UTC),
+                    published_by=published_by,
+                )
+                .on_conflict_do_nothing()
+            )
+
+    def is_published(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        aggregate_type: str,
+        aggregate_id: UUID,
+        revision_id: UUID,
+    ) -> bool:
+        """Publication survives workers and restarts because it is an append-only row."""
+
+        with self._transaction(context, decision) as session:
+            return (
+                session.execute(
+                    sa.select(publication_marker.c.revision_id).where(
+                        publication_marker.c.organization_id == context.organization_id,
+                        publication_marker.c.project_id == context.project_id,
+                        publication_marker.c.aggregate_type == aggregate_type,
+                        publication_marker.c.aggregate_id == aggregate_id,
+                        publication_marker.c.revision_id == revision_id,
+                    )
+                ).first()
+                is not None
             )

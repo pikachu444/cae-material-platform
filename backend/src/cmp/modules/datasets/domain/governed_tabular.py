@@ -682,6 +682,64 @@ def inspect_tabular_source(
     )
 
 
+def read_tabular_source_rows(
+    value: bytes,
+    *,
+    file_format: TabularFileFormat,
+    sheet_name: str | None,
+    header_row: int,
+    encoding: str,
+    delimiter: str | None,
+    decimal_separator: str,
+) -> tuple[tuple[str, ...], str | None, tuple[dict[str, str], ...]]:
+    """Return every non-empty data row using the governed safe parser limits.
+
+    Catalog registration uses the same CSV/TSV/XLSX safety boundary as governed test-data
+    import, while applying its own Attribute and unit semantics after parsing.
+    """
+
+    dummy_channels = (
+        GovernedChannelMapping(0, "x", QuantityKind.ENGINEERING_STRAIN, "1", AxisRole.INDEPENDENT),
+        GovernedChannelMapping(1, "y", QuantityKind.ENGINEERING_STRESS, "Pa", AxisRole.DEPENDENT),
+    )
+    profile = GovernedImportProfileContent(
+        profile_label="catalog registration",
+        data_schema=TabularDataSchema.MONOTONIC_TENSION,
+        file_format=file_format,
+        sheet_name=sheet_name,
+        header_row=header_row,
+        encoding=encoding,
+        delimiter=delimiter,
+        decimal_separator=decimal_separator,
+        channels=dummy_channels,
+    )
+    sheet_names, rows = _rows(value, profile)
+    selected_sheet = sheet_name
+    if file_format is TabularFileFormat.XLSX and selected_sheet is None:
+        if len(sheet_names) != 1:
+            raise InvalidGovernedImport("select one XLSX sheet before checking rows")
+        selected_sheet = sheet_names[0]
+    if len(rows) < header_row:
+        raise InvalidGovernedImport("source does not contain the selected header row")
+    headers = tuple(item.strip() for item in rows[header_row - 1])
+    while headers and not headers[-1]:
+        headers = headers[:-1]
+    if not headers or any(not item for item in headers):
+        raise InvalidGovernedImport("header contains an empty column name")
+    if len(headers) > MAX_COLUMNS or len(set(headers)) != len(headers):
+        raise InvalidGovernedImport("header must contain at most 512 unique names")
+    parsed = tuple(
+        {header: row[index] if index < len(row) else "" for index, header in enumerate(headers)}
+        for row in rows[header_row:]
+        if any(item.strip() for item in row)
+    )
+    if not parsed:
+        raise InvalidGovernedImport("source does not contain a data row")
+    if len(parsed) > MAX_ROWS:
+        raise InvalidGovernedImport("source exceeds the 100000-row limit")
+    return sheet_names, selected_sheet, parsed
+
+
 def _number(value: str, *, row: int, column: str, decimal_separator: str) -> float:
     stripped = value.strip()
     if not stripped:
@@ -828,10 +886,7 @@ def normalized_rows_from_parquet(
     try:
         first = table.column(expected_names[0]).to_pylist()
         second = table.column(expected_names[1]).to_pylist()
-        rows = tuple(
-            (float(left), float(right))
-            for left, right in zip(first, second, strict=True)
-        )
+        rows = tuple((float(left), float(right)) for left, right in zip(first, second, strict=True))
     except (TypeError, ValueError) as error:
         raise InvalidGovernedImport(
             "normalized Dataset Artifact contains invalid values"

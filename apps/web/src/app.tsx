@@ -1,4 +1,11 @@
-import { lazy, Suspense, type FormEvent, useEffect, useMemo, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  type FormEvent,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import {
   ApiError,
   type ApiConfig,
@@ -14,7 +21,10 @@ import type {
   MaterialResponse,
 } from "./types";
 import type { MaterialRevisionPin, MaterialTab } from "./material-library";
-import { ApplicationShell, publishWorkspaceStatus } from "./design/application-shell";
+import {
+  ApplicationShell,
+  publishWorkspaceStatus,
+} from "./design/application-shell";
 
 const ReferenceTensileWorkflow = lazy(() =>
   import("./reference-tensile-workflow").then((module) => ({
@@ -52,7 +62,9 @@ const ReferenceValidationWorkbench = lazy(() =>
   })),
 );
 const ReleaseWorkbench = lazy(() =>
-  import("./release-workbench").then((module) => ({ default: module.ReleaseWorkbench })),
+  import("./release-workbench").then((module) => ({
+    default: module.ReleaseWorkbench,
+  })),
 );
 const GovernanceEvidenceWorkbench = lazy(() =>
   import("./governance-evidence-workbench").then((module) => ({
@@ -75,7 +87,9 @@ const GovernedImportRoute = lazy(() =>
   })),
 );
 const BulkExportCenter = lazy(() =>
-  import("./bulk-export-center").then((module) => ({ default: module.BulkExportCenter })),
+  import("./bulk-export-center").then((module) => ({
+    default: module.BulkExportCenter,
+  })),
 );
 const OperationsDashboard = lazy(() =>
   import("./operations-dashboard").then((module) => ({
@@ -118,19 +132,29 @@ const ProductAccessCenter = lazy(() =>
   })),
 );
 const MaterialSearchPage = lazy(() =>
-  import("./material-library").then((module) => ({ default: module.MaterialSearchPage })),
+  import("./material-library").then((module) => ({
+    default: module.MaterialSearchPage,
+  })),
 );
 const SearchFirstMaterialDetailPage = lazy(() =>
-  import("./material-library").then((module) => ({ default: module.MaterialDetailPage })),
+  import("./material-library").then((module) => ({
+    default: module.MaterialDetailPage,
+  })),
 );
 const ExactRecordDatasheetPage = lazy(() =>
-  import("./material-library").then((module) => ({ default: module.ExactRecordDatasheetPage })),
+  import("./material-library").then((module) => ({
+    default: module.ExactRecordDatasheetPage,
+  })),
 );
 const SolverCardPreviewPage = lazy(() =>
-  import("./material-library").then((module) => ({ default: module.SolverCardPreviewPage })),
+  import("./material-library").then((module) => ({
+    default: module.SolverCardPreviewPage,
+  })),
 );
 const ActivityPage = lazy(() =>
-  import("./material-library").then((module) => ({ default: module.ActivityPage })),
+  import("./material-library").then((module) => ({
+    default: module.ActivityPage,
+  })),
 );
 
 type Navigate = (path: string) => void;
@@ -154,7 +178,8 @@ const materialClasses: MaterialClass[] = [
 ];
 
 function useLocationPath(): [string, Navigate] {
-  const currentLocation = () => `${window.location.pathname || "/"}${window.location.search}`;
+  const currentLocation = () =>
+    `${window.location.pathname || "/"}${window.location.search}`;
   const [path, setPath] = useState(currentLocation);
 
   useEffect(() => {
@@ -169,7 +194,10 @@ function useLocationPath(): [string, Navigate] {
     }
     window.history.pushState({}, "", nextPath);
     setPath(currentLocation());
-    if (!window.navigator.userAgent.includes("jsdom") && typeof window.scrollTo === "function") {
+    if (
+      !window.navigator.userAgent.includes("jsdom") &&
+      typeof window.scrollTo === "function"
+    ) {
       window.scrollTo({ top: 0, left: 0 });
     }
   };
@@ -188,9 +216,17 @@ function blankToNull(value: string): string | null {
   return trimmed ? trimmed : null;
 }
 
-function exactPinFromLocation(location: string): MaterialRevisionPin | undefined {
-  const params = new URLSearchParams(location.includes("?") ? location.slice(location.indexOf("?") + 1) : "");
-  const values = [params.get("record_id"), params.get("record_revision_id"), params.get("material_revision_id")];
+function exactPinFromLocation(
+  location: string,
+): MaterialRevisionPin | undefined {
+  const params = new URLSearchParams(
+    location.includes("?") ? location.slice(location.indexOf("?") + 1) : "",
+  );
+  const values = [
+    params.get("record_id"),
+    params.get("record_revision_id"),
+    params.get("material_revision_id"),
+  ];
   if (!values.some((value) => value !== null)) return undefined;
   return {
     recordId: values[0] ?? "",
@@ -199,14 +235,28 @@ function exactPinFromLocation(location: string): MaterialRevisionPin | undefined
   };
 }
 
-function ProductSessionBoundary({ loading, onRetry }: { loading: boolean; onRetry: () => void }) {
+function ProductSessionBoundary({
+  loading,
+  onRetry,
+}: {
+  loading: boolean;
+  onRetry: () => void;
+}) {
   return (
     <section className="product-session-boundary" aria-live="polite">
       <span className="brand-mark">CMP</span>
       <p className="eyebrow">CAE Material Platform</p>
       <h1>{loading ? "Preparing your workspace…" : "Sign in to continue"}</h1>
-      <p>{loading ? "Loading the Material Database and modeling tools." : "The workspace session could not be started."}</p>
-      {!loading ? <button className="button primary" type="button" onClick={onRetry}>Try again</button> : null}
+      <p>
+        {loading
+          ? "Loading the Material Database and modeling tools."
+          : "The workspace session could not be started."}
+      </p>
+      {!loading ? (
+        <button className="button primary" type="button" onClick={onRetry}>
+          Try again
+        </button>
+      ) : null}
     </section>
   );
 }
@@ -220,12 +270,13 @@ function AdministrationWorkspace({
   config: ApiConfig;
   navigate: Navigate;
   onOpenConnection: () => void;
-  section: "overview" | "database" | "access";
+  section: "overview" | "database" | "records" | "access";
 }) {
   useEffect(() => {
     if (section === "database") return;
     publishWorkspaceStatus({
-      selection: section === "access" ? "Users and access" : "Administration overview",
+      selection:
+        section === "access" ? "Users and access" : "Administration overview",
       revision: "Governed configuration",
       jobs: "No active job",
       warnings: "0 validation errors",
@@ -241,34 +292,142 @@ function AdministrationWorkspace({
           <h2>Workspace setup</h2>
         </div>
         <nav aria-label="Administration areas">
-          <button className={section === "overview" ? "active" : ""} type="button" onClick={() => navigate("/administration")}>
-            <span>01</span><strong>Overview</strong>
+          <button
+            className={section === "overview" ? "active" : ""}
+            type="button"
+            onClick={() => navigate("/administration")}
+          >
+            <span>01</span>
+            <strong>Overview</strong>
           </button>
-          <button className={section === "database" ? "active" : ""} type="button" onClick={() => navigate("/administration/database")}>
-            <span>02</span><strong>Database design</strong>
+          <button
+            className={section === "database" ? "active" : ""}
+            type="button"
+            onClick={() => navigate("/administration/database")}
+          >
+            <span>02</span>
+            <strong>Database design</strong>
           </button>
-          <button className={section === "access" ? "active" : ""} type="button" onClick={() => navigate("/administration/access")}>
-            <span>03</span><strong>Users &amp; access</strong>
+          <button
+            className={section === "records" ? "active" : ""}
+            type="button"
+            onClick={() => navigate("/administration/records")}
+          >
+            <span>03</span>
+            <strong>Records &amp; registration</strong>
+          </button>
+          <button
+            className={section === "access" ? "active" : ""}
+            type="button"
+            onClick={() => navigate("/administration/access")}
+          >
+            <span>04</span>
+            <strong>Users &amp; access</strong>
           </button>
         </nav>
-        <button className="text-button" type="button" onClick={() => navigate("/database")}>Open Material Database</button>
+        <button
+          className="text-button"
+          type="button"
+          onClick={() => navigate("/database")}
+        >
+          Open Material Database
+        </button>
       </aside>
       <section className="administration-content">
-        {section === "overview" ? <>
-          <header className="administration-section-heading"><h2>Configure the material workspace</h2></header>
-          <section className="administration-task-grid" aria-label="Administration tasks">
-            <button type="button" onClick={() => navigate("/administration/database")}><span className="workspace-choice-icon">DB</span><span><small>Material information system</small><strong>Design the database</strong><p>Add Tables, typed Attributes, datasheet Layouts, saved Subsets and exact Record Link Types without a migration.</p></span><em>Configure ›</em></button>
-            <button type="button" onClick={() => navigate("/administration/access")}><span className="workspace-choice-icon">US</span><span><small>People and capabilities</small><strong>Manage access</strong><p>Assign Administrator or User and enable only the product features each team needs.</p></span><em>Manage ›</em></button>
-          </section>
-          <section className="administration-principle"><p className="eyebrow">Designed for extension</p><h2>Simple now, granular when needed.</h2><p>The product surface uses two roles and five understandable feature permissions. The existing resource/action/scope enforcement remains an internal extension point, so later policies do not require a Catalog schema rewrite.</p></section>
-        </> : null}
-        {section === "database" ? <ConfigurableCatalogAdmin config={config} onNavigate={navigate} onOpenConnection={onOpenConnection} productMode /> : null}
-        {section === "access" ? <ProductAccessCenter config={config} onOpenConnection={onOpenConnection} productMode /> : null}
+        {section === "overview" ? (
+          <>
+            <header className="administration-section-heading">
+              <h2>Configure the material workspace</h2>
+            </header>
+            <section
+              className="administration-task-grid"
+              aria-label="Administration tasks"
+            >
+              <button
+                type="button"
+                onClick={() => navigate("/administration/database")}
+              >
+                <span className="workspace-choice-icon">DB</span>
+                <span>
+                  <small>Material information system</small>
+                  <strong>Design the database</strong>
+                  <p>
+                    Add Tables, typed Attributes, datasheet Layouts, saved
+                    Subsets and exact Record Link Types without a migration.
+                  </p>
+                </span>
+                <em>Configure ›</em>
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/administration/records")}
+              >
+                <span className="workspace-choice-icon">RD</span>
+                <span>
+                  <small>Checked material properties</small>
+                  <strong>Register records</strong>
+                  <p>
+                    Upload rows, map the chosen fields and units, correct row
+                    errors, then publish the checked records.
+                  </p>
+                </span>
+                <em>Register ›</em>
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/administration/access")}
+              >
+                <span className="workspace-choice-icon">US</span>
+                <span>
+                  <small>People and capabilities</small>
+                  <strong>Manage access</strong>
+                  <p>
+                    Assign Administrator or User and enable only the product
+                    features each team needs.
+                  </p>
+                </span>
+                <em>Manage ›</em>
+              </button>
+            </section>
+            <section className="administration-principle">
+              <p className="eyebrow">Designed for extension</p>
+              <h2>Simple now, granular when needed.</h2>
+              <p>
+                The product surface uses two roles and five understandable
+                feature permissions. The existing resource/action/scope
+                enforcement remains an internal extension point, so later
+                policies do not require a Catalog schema rewrite.
+              </p>
+            </section>
+          </>
+        ) : null}
+        {section === "database" ? (
+          <ConfigurableCatalogAdmin
+            config={config}
+            onNavigate={navigate}
+            onOpenConnection={onOpenConnection}
+            productMode
+          />
+        ) : null}
+        {section === "records" ? (
+          <ConfigurableCatalogRecords
+            config={config}
+            onNavigate={navigate}
+            onOpenConnection={onOpenConnection}
+            productMode
+          />
+        ) : null}
+        {section === "access" ? (
+          <ProductAccessCenter
+            config={config}
+            onOpenConnection={onOpenConnection}
+            productMode
+          />
+        ) : null}
       </section>
     </div>
   );
 }
-
 
 function ErrorNotice({ message }: { message: string }) {
   return (
@@ -278,35 +437,41 @@ function ErrorNotice({ message }: { message: string }) {
   );
 }
 
-
-const moduleHubContent: Record<ModuleArea, {
-  eyebrow: string;
-  title: string;
-  description: string;
-  action: string;
-}> = {
+const moduleHubContent: Record<
+  ModuleArea,
+  {
+    eyebrow: string;
+    title: string;
+    description: string;
+    action: string;
+  }
+> = {
   testing: {
     eyebrow: "Testing",
     title: "Test data",
-    description: "Open a Material to govern campaigns, instruments, source files, and explicit column/unit mappings.",
+    description:
+      "Open a Material to govern campaigns, instruments, source files, and explicit column/unit mappings.",
     action: "Open test workspace",
   },
   datasets: {
     eyebrow: "Datasets",
     title: "Datasets & Processing",
-    description: "Review raw, normalized, processed, statistical, and master-curve representations without replacing source curves.",
+    description:
+      "Review raw, normalized, processed, statistical, and master-curve representations without replacing source curves.",
     action: "Open dataset workspace",
   },
   models: {
     eyebrow: "Modeling",
     title: "Material Models & Solver Cards",
-    description: "Create or calibrate solver-neutral IR revisions, inspect mapping status, and download reference cards.",
+    description:
+      "Create or calibrate solver-neutral IR revisions, inspect mapping status, and download reference cards.",
     action: "Open model workspace",
   },
   governance: {
     eyebrow: "Governance",
     title: "Evidence, Review & Release",
-    description: "Inspect immutable provenance and audit evidence before review, approval, release, or impact analysis.",
+    description:
+      "Inspect immutable provenance and audit evidence before review, approval, release, or impact analysis.",
     action: "Open Material governance",
   },
 };
@@ -333,10 +498,20 @@ function ModuleHubPage({
     if (area !== "governance") return [];
     const query = new URLSearchParams(locationSearch);
     return [
-      ["Candidate", query.get("candidate_id"), query.get("candidate_revision_id")],
+      [
+        "Candidate",
+        query.get("candidate_id"),
+        query.get("candidate_revision_id"),
+      ],
       ["Validation result", query.get("validation_result_id"), null],
-      ["Solver Card", query.get("solver_card_id"), query.get("solver_card_revision_id")],
-    ].filter((entry): entry is [string, string, string | null] => Boolean(entry[1]));
+      [
+        "Solver Card",
+        query.get("solver_card_id"),
+        query.get("solver_card_revision_id"),
+      ],
+    ].filter((entry): entry is [string, string, string | null] =>
+      Boolean(entry[1]),
+    );
   }, [area, locationSearch]);
 
   useEffect(() => {
@@ -363,7 +538,9 @@ function ModuleHubPage({
   }, [config, area]);
 
   if (!config.accessToken.trim()) {
-    return <ProductSessionBoundary loading={false} onRetry={onOpenConnection} />;
+    return (
+      <ProductSessionBoundary loading={false} onRetry={onOpenConnection} />
+    );
   }
 
   return (
@@ -375,20 +552,64 @@ function ModuleHubPage({
           <p>{copy.description}</p>
         </div>
         {area === "datasets" ? (
-          <div className="hero-actions"><button className="button secondary" type="button" onClick={() => navigate("/datasets/test-json")}>Import Test Data JSON</button><button className="button primary" type="button" onClick={() => navigate("/datasets/processing")}>Open Processing Workbench</button></div>
+          <div className="hero-actions">
+            <button
+              className="button secondary"
+              type="button"
+              onClick={() => navigate("/datasets/test-json")}
+            >
+              Import Test Data JSON
+            </button>
+            <button
+              className="button primary"
+              type="button"
+              onClick={() => navigate("/datasets/processing")}
+            >
+              Open Processing Workbench
+            </button>
+          </div>
         ) : null}
       </section>
-      {governedContext.length ? <section className="content-card" aria-label="Exact Modeling governance context">
-        <div className="section-heading"><div><p className="eyebrow">Exact Modeling context</p><h2>Governed objects from the current session</h2></div><button className="button secondary" type="button" onClick={() => navigate("/modeling?stage=review")}>Return to Review / Release</button></div>
-        <dl className="evidence-grid">{governedContext.map(([label, id, revisionId]) => <div key={label}><dt>{label}</dt><dd>{id}{revisionId ? ` · revision ${revisionId}` : ""}</dd></div>)}</dl>
-      </section> : null}
+      {governedContext.length ? (
+        <section
+          className="content-card"
+          aria-label="Exact Modeling governance context"
+        >
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">Exact Modeling context</p>
+              <h2>Governed objects from the current session</h2>
+            </div>
+            <button
+              className="button secondary"
+              type="button"
+              onClick={() => navigate("/modeling?stage=review")}
+            >
+              Return to Review / Release
+            </button>
+          </div>
+          <dl className="evidence-grid">
+            {governedContext.map(([label, id, revisionId]) => (
+              <div key={label}>
+                <dt>{label}</dt>
+                <dd>
+                  {id}
+                  {revisionId ? ` · revision ${revisionId}` : ""}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      ) : null}
       <section className="content-card">
         <div className="section-heading">
           <div>
             <p className="eyebrow">Material context</p>
             <h2>Select a Material</h2>
           </div>
-          <span className="count-chip">{totalCount.toLocaleString()} visible</span>
+          <span className="count-chip">
+            {totalCount.toLocaleString()} visible
+          </span>
         </div>
         {error ? <ErrorNotice message={error} /> : null}
         {loading ? <p className="muted">Loading Material contexts…</p> : null}
@@ -397,18 +618,29 @@ function ModuleHubPage({
         ) : null}
         <div className="module-material-grid">
           {materials.map((material) => (
-            <article className="module-material-card" key={material.material_id}>
+            <article
+              className="module-material-card"
+              key={material.material_id}
+            >
               <div>
-                <span className={`material-class-chip ${material.current_revision.content.material_class}`}>
+                <span
+                  className={`material-class-chip ${material.current_revision.content.material_class}`}
+                >
                   {material.current_revision.content.material_class}
                 </span>
                 <h3>{material.current_revision.content.name}</h3>
-                <p>{material.current_revision.content.material_code ?? material.current_revision.content.material_family ?? "No material code"}</p>
+                <p>
+                  {material.current_revision.content.material_code ??
+                    material.current_revision.content.material_family ??
+                    "No material code"}
+                </p>
               </div>
               <button
                 className="button secondary"
                 type="button"
-                onClick={() => navigate(`/materials/${material.material_id}/${area}`)}
+                onClick={() =>
+                  navigate(`/materials/${material.material_id}/${area}`)
+                }
               >
                 {copy.action}
               </button>
@@ -441,19 +673,24 @@ function MaterialCreatePage({
   const [family, setFamily] = useState("");
   const [materialClass, setMaterialClass] = useState<MaterialClass | "">("");
   const [description, setDescription] = useState("");
-  const [classification, setClassification] = useState<DataClassification>("internal");
+  const [classification, setClassification] =
+    useState<DataClassification>("internal");
   const [reason, setReason] = useState("Initial Material catalog entry");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   if (!config.accessToken.trim()) {
-    return <ProductSessionBoundary loading={false} onRetry={onOpenConnection} />;
+    return (
+      <ProductSessionBoundary loading={false} onRetry={onOpenConnection} />
+    );
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!materialClass) {
-      setError("Select a Material class before creating the immutable revision.");
+      setError(
+        "Select a Material class before creating the immutable revision.",
+      );
       return;
     }
     setSaving(true);
@@ -485,8 +722,8 @@ function MaterialCreatePage({
           <p className="eyebrow">Catalog / New</p>
           <h1>Create Material</h1>
           <p>
-            Creates one stable Material identity and its first immutable revision. It does not replace
-            an existing record.
+            Creates one stable Material identity and its first immutable
+            revision. It does not replace an existing record.
           </p>
         </div>
       </section>
@@ -495,26 +732,45 @@ function MaterialCreatePage({
           <div className="form-grid">
             <label>
               Material name
-              <input value={name} onChange={(event) => setName(event.target.value)} required autoFocus />
+              <input
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                required
+                autoFocus
+              />
             </label>
             <label>
               Material code
-              <input value={code} onChange={(event) => setCode(event.target.value)} placeholder="Optional" />
+              <input
+                value={code}
+                onChange={(event) => setCode(event.target.value)}
+                placeholder="Optional"
+              />
             </label>
             <label>
               Material family
-              <input value={family} onChange={(event) => setFamily(event.target.value)} placeholder="Optional" />
+              <input
+                value={family}
+                onChange={(event) => setFamily(event.target.value)}
+                placeholder="Optional"
+              />
             </label>
             <label>
               Material class
               <select
                 value={materialClass}
-                onChange={(event) => setMaterialClass(event.target.value as MaterialClass | "")}
+                onChange={(event) =>
+                  setMaterialClass(event.target.value as MaterialClass | "")
+                }
                 required
               >
-                <option value="" disabled>Select a governed class</option>
+                <option value="" disabled>
+                  Select a governed class
+                </option>
                 {materialClasses.map((value) => (
-                  <option key={value} value={value}>{value}</option>
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
                 ))}
               </select>
             </label>
@@ -522,7 +778,9 @@ function MaterialCreatePage({
               Classification
               <select
                 value={classification}
-                onChange={(event) => setClassification(event.target.value as DataClassification)}
+                onChange={(event) =>
+                  setClassification(event.target.value as DataClassification)
+                }
               >
                 {classifications.map((value) => (
                   <option key={value} value={value}>
@@ -534,15 +792,27 @@ function MaterialCreatePage({
           </div>
           <label>
             Description
-            <textarea value={description} onChange={(event) => setDescription(event.target.value)} rows={4} />
+            <textarea
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              rows={4}
+            />
           </label>
           <label>
             Change reason
-            <input value={reason} onChange={(event) => setReason(event.target.value)} required />
+            <input
+              value={reason}
+              onChange={(event) => setReason(event.target.value)}
+              required
+            />
           </label>
           {error ? <ErrorNotice message={error} /> : null}
           <div className="form-actions">
-            <button className="button secondary" type="button" onClick={() => navigate("/materials")}>
+            <button
+              className="button secondary"
+              type="button"
+              onClick={() => navigate("/materials")}
+            >
               Cancel
             </button>
             <button className="button primary" type="submit" disabled={saving}>
@@ -555,12 +825,13 @@ function MaterialCreatePage({
   );
 }
 
-
 export function App() {
   const [location, navigate] = useLocationPath();
   const path = location.split("?")[0] || "/";
   const [config, setConfig] = useState<ApiConfig>(defaultApiConfig);
-  const [sessionStatus, setSessionStatus] = useState<"loading" | "ready" | "signed_out">("loading");
+  const [sessionStatus, setSessionStatus] = useState<
+    "loading" | "ready" | "signed_out"
+  >("loading");
   const [sessionAttempt, setSessionAttempt] = useState(0);
 
   useEffect(() => {
@@ -576,12 +847,21 @@ export function App() {
     async function establishSession(): Promise<void> {
       setSessionStatus("loading");
       try {
-        const result = await requestLocalDemoAccessToken({ baseUrl: defaultApiConfig.baseUrl });
+        const result = await requestLocalDemoAccessToken({
+          baseUrl: defaultApiConfig.baseUrl,
+        });
         if (!current) return;
-        setConfig({ ...defaultApiConfig, accessToken: result.data.access_token });
+        setConfig({
+          ...defaultApiConfig,
+          accessToken: result.data.access_token,
+        });
         setSessionStatus("ready");
-        const refreshAfter = Math.max(60, result.data.expires_in_seconds - 120) * 1000;
-        refreshTimer = window.setTimeout(() => void establishSession(), refreshAfter);
+        const refreshAfter =
+          Math.max(60, result.data.expires_in_seconds - 120) * 1000;
+        refreshTimer = window.setTimeout(
+          () => void establishSession(),
+          refreshAfter,
+        );
       } catch {
         if (current) setSessionStatus("signed_out");
       }
@@ -596,51 +876,99 @@ export function App() {
 
   const retrySession = () => setSessionAttempt((attempt) => attempt + 1);
   const legacyMaterialRoute = useMemo(() => {
-    const match = path.match(/^\/materials\/([^/]+)\/(testing|datasets|models|governance)$/);
-    return match ? {
-      materialId: match[1],
-      area: match[2] as LegacyMaterialArea,
-    } : null;
+    const match = path.match(
+      /^\/materials\/([^/]+)\/(testing|datasets|models|governance)$/,
+    );
+    return match
+      ? {
+          materialId: match[1],
+          area: match[2] as LegacyMaterialArea,
+        }
+      : null;
   }, [path]);
   const searchFirstMaterialRoute = useMemo(() => {
-    const match = path.match(/^\/materials\/([^/]+)(?:\/(overview|properties|curves|cards|evidence))?$/);
+    const match = path.match(
+      /^\/materials\/([^/]+)(?:\/(overview|properties|curves|cards|evidence))?$/,
+    );
     if (!match) return null;
-    return { materialId: match[1], tab: (match[2] ?? "overview") as MaterialTab, exactPin: exactPinFromLocation(location) };
+    return {
+      materialId: match[1],
+      tab: (match[2] ?? "overview") as MaterialTab,
+      exactPin: exactPinFromLocation(location),
+    };
   }, [location, path]);
   const exactMaterialRecordRoute = useMemo(() => {
-    const match = path.match(/^\/materials\/records\/([^/]+)\/revisions\/([^/]+)$/);
+    const match = path.match(
+      /^\/materials\/records\/([^/]+)\/revisions\/([^/]+)$/,
+    );
     return match ? { recordId: match[1], revisionId: match[2] } : null;
   }, [path]);
   const solverCardRoute = useMemo(() => {
     const match = path.match(/^\/materials\/([^/]+)\/cards\/([^/]+)$/);
-    return match ? { materialId: match[1], cardId: match[2], exactPin: exactPinFromLocation(location) } : null;
+    return match
+      ? {
+          materialId: match[1],
+          cardId: match[2],
+          exactPin: exactPinFromLocation(location),
+        }
+      : null;
   }, [location, path]);
   const catalogExplorerRoute = useMemo(() => {
-    const match = path.match(/^\/catalog\/explorer(?:\/records\/([^/]+)\/revisions\/([^/]+))?$/);
+    const match = path.match(
+      /^\/catalog\/explorer(?:\/records\/([^/]+)\/revisions\/([^/]+))?$/,
+    );
     return match
-      ? { recordId: match[1] as string | undefined, revisionId: match[2] as string | undefined }
+      ? {
+          recordId: match[1] as string | undefined,
+          revisionId: match[2] as string | undefined,
+        }
       : null;
   }, [path]);
   const materialDatabaseRoute = useMemo(() => {
-    const match = path.match(/^\/database(?:\/records\/([^/]+)\/revisions\/([^/]+))?$/);
+    const match = path.match(
+      /^\/database(?:\/records\/([^/]+)\/revisions\/([^/]+))?$/,
+    );
     return match
-      ? { recordId: match[1] as string | undefined, revisionId: match[2] as string | undefined }
+      ? {
+          recordId: match[1] as string | undefined,
+          revisionId: match[2] as string | undefined,
+        }
       : null;
   }, [path]);
 
   if (sessionStatus !== "ready") {
     return (
       <div className="session-shell">
-        <main><ProductSessionBoundary loading={sessionStatus === "loading"} onRetry={retrySession} /></main>
+        <main>
+          <ProductSessionBoundary
+            loading={sessionStatus === "loading"}
+            onRetry={retrySession}
+          />
+        </main>
       </div>
     );
   }
 
   let page: React.ReactNode;
   if (solverCardRoute) {
-    page = <SolverCardPreviewPage config={config} materialId={solverCardRoute.materialId} cardId={solverCardRoute.cardId} exactPin={solverCardRoute.exactPin} onNavigate={navigate} />;
+    page = (
+      <SolverCardPreviewPage
+        config={config}
+        materialId={solverCardRoute.materialId}
+        cardId={solverCardRoute.cardId}
+        exactPin={solverCardRoute.exactPin}
+        onNavigate={navigate}
+      />
+    );
   } else if (exactMaterialRecordRoute) {
-    page = <ExactRecordDatasheetPage config={config} recordId={exactMaterialRecordRoute.recordId} revisionId={exactMaterialRecordRoute.revisionId} onNavigate={navigate} />;
+    page = (
+      <ExactRecordDatasheetPage
+        config={config}
+        recordId={exactMaterialRecordRoute.recordId}
+        revisionId={exactMaterialRecordRoute.revisionId}
+        onNavigate={navigate}
+      />
+    );
   } else if (materialDatabaseRoute) {
     page = (
       <MaterialDatabaseExplorer
@@ -662,9 +990,23 @@ export function App() {
       />
     );
   } else if (path === "/materials/new") {
-    page = <MaterialCreatePage config={config} navigate={navigate} onOpenConnection={retrySession} />;
+    page = (
+      <MaterialCreatePage
+        config={config}
+        navigate={navigate}
+        onOpenConnection={retrySession}
+      />
+    );
   } else if (searchFirstMaterialRoute) {
-    page = <SearchFirstMaterialDetailPage config={config} materialId={searchFirstMaterialRoute.materialId} activeTab={searchFirstMaterialRoute.tab} exactPin={searchFirstMaterialRoute.exactPin} onNavigate={navigate} />;
+    page = (
+      <SearchFirstMaterialDetailPage
+        config={config}
+        materialId={searchFirstMaterialRoute.materialId}
+        activeTab={searchFirstMaterialRoute.tab}
+        exactPin={searchFirstMaterialRoute.exactPin}
+        onNavigate={navigate}
+      />
+    );
   } else if (legacyMaterialRoute) {
     const legacyTab: Record<LegacyMaterialArea, MaterialTab> = {
       testing: "curves",
@@ -672,11 +1014,33 @@ export function App() {
       models: "cards",
       governance: "evidence",
     };
-    page = <SearchFirstMaterialDetailPage config={config} materialId={legacyMaterialRoute.materialId} activeTab={legacyTab[legacyMaterialRoute.area]} onNavigate={navigate} />;
+    page = (
+      <SearchFirstMaterialDetailPage
+        config={config}
+        materialId={legacyMaterialRoute.materialId}
+        activeTab={legacyTab[legacyMaterialRoute.area]}
+        onNavigate={navigate}
+      />
+    );
   } else if (path === "/materials") {
-    page = <MaterialSearchPage config={config} onNavigate={navigate} locationSearch={location.includes("?") ? location.slice(location.indexOf("?")) : ""} />;
+    page = (
+      <MaterialSearchPage
+        config={config}
+        onNavigate={navigate}
+        locationSearch={
+          location.includes("?") ? location.slice(location.indexOf("?")) : ""
+        }
+      />
+    );
   } else if (path === "/catalog/schema") {
-    page = <AdministrationWorkspace config={config} navigate={navigate} onOpenConnection={retrySession} section="database" />;
+    page = (
+      <AdministrationWorkspace
+        config={config}
+        navigate={navigate}
+        onOpenConnection={retrySession}
+        section="database"
+      />
+    );
   } else if (path === "/catalog/records") {
     page = (
       <ConfigurableCatalogRecords
@@ -688,7 +1052,14 @@ export function App() {
   } else if (path === "/exports") {
     page = <BulkExportCenter config={config} onOpenConnection={retrySession} />;
   } else if (path === "/tests") {
-    page = <ModuleHubPage area="testing" config={config} navigate={navigate} onOpenConnection={retrySession} />;
+    page = (
+      <ModuleHubPage
+        area="testing"
+        config={config}
+        navigate={navigate}
+        onOpenConnection={retrySession}
+      />
+    );
   } else if (path === "/datasets/test-json") {
     page = (
       <CanonicalTestDataWorkbench
@@ -706,30 +1077,120 @@ export function App() {
       />
     );
   } else if (path === "/datasets/processing") {
-    page = <MaterialModelingWorkspace config={config} onNavigate={navigate} onOpenConnection={retrySession} locationSearch={location.includes("?") ? location.slice(location.indexOf("?")) : ""} />;
+    page = (
+      <MaterialModelingWorkspace
+        config={config}
+        onNavigate={navigate}
+        onOpenConnection={retrySession}
+        locationSearch={
+          location.includes("?") ? location.slice(location.indexOf("?")) : ""
+        }
+      />
+    );
   } else if (path === "/datasets") {
-    page = <ModuleHubPage area="datasets" config={config} navigate={navigate} onOpenConnection={retrySession} />;
+    page = (
+      <ModuleHubPage
+        area="datasets"
+        config={config}
+        navigate={navigate}
+        onOpenConnection={retrySession}
+      />
+    );
   } else if (path === "/models") {
-    page = <ModuleHubPage area="models" config={config} navigate={navigate} onOpenConnection={retrySession} />;
+    page = (
+      <ModuleHubPage
+        area="models"
+        config={config}
+        navigate={navigate}
+        onOpenConnection={retrySession}
+      />
+    );
   } else if (path === "/modeling") {
-    page = <MaterialModelingWorkspace config={config} onNavigate={navigate} onOpenConnection={retrySession} locationSearch={location.includes("?") ? location.slice(location.indexOf("?")) : ""} />;
+    page = (
+      <MaterialModelingWorkspace
+        config={config}
+        onNavigate={navigate}
+        onOpenConnection={retrySession}
+        locationSearch={
+          location.includes("?") ? location.slice(location.indexOf("?")) : ""
+        }
+      />
+    );
   } else if (path === "/activity" || path === "/jobs-reviews") {
-    page = <ActivityPage config={config} onNavigate={navigate} locationSearch={location.includes("?") ? location.slice(location.indexOf("?")) : ""} />;
+    page = (
+      <ActivityPage
+        config={config}
+        onNavigate={navigate}
+        locationSearch={
+          location.includes("?") ? location.slice(location.indexOf("?")) : ""
+        }
+      />
+    );
   } else if (path === "/governance") {
-    page = <ModuleHubPage area="governance" config={config} navigate={navigate} onOpenConnection={retrySession} locationSearch={location.includes("?") ? location.slice(location.indexOf("?")) : ""} />;
+    page = (
+      <ModuleHubPage
+        area="governance"
+        config={config}
+        navigate={navigate}
+        onOpenConnection={retrySession}
+        locationSearch={
+          location.includes("?") ? location.slice(location.indexOf("?")) : ""
+        }
+      />
+    );
   } else if (path === "/access" || path === "/administration/access") {
-    page = <AdministrationWorkspace config={config} navigate={navigate} onOpenConnection={retrySession} section="access" />;
+    page = (
+      <AdministrationWorkspace
+        config={config}
+        navigate={navigate}
+        onOpenConnection={retrySession}
+        section="access"
+      />
+    );
   } else if (path === "/administration/database") {
-    page = <AdministrationWorkspace config={config} navigate={navigate} onOpenConnection={retrySession} section="database" />;
+    page = (
+      <AdministrationWorkspace
+        config={config}
+        navigate={navigate}
+        onOpenConnection={retrySession}
+        section="database"
+      />
+    );
+  } else if (path === "/administration/records") {
+    page = (
+      <AdministrationWorkspace
+        config={config}
+        navigate={navigate}
+        onOpenConnection={retrySession}
+        section="records"
+      />
+    );
   } else if (path === "/administration") {
-    page = <AdministrationWorkspace config={config} navigate={navigate} onOpenConnection={retrySession} section="overview" />;
+    page = (
+      <AdministrationWorkspace
+        config={config}
+        navigate={navigate}
+        onOpenConnection={retrySession}
+        section="overview"
+      />
+    );
   } else {
-    page = <MaterialSearchPage config={config} onNavigate={navigate} locationSearch={location.includes("?") ? location.slice(location.indexOf("?")) : ""} />;
+    page = (
+      <MaterialSearchPage
+        config={config}
+        onNavigate={navigate}
+        locationSearch={
+          location.includes("?") ? location.slice(location.indexOf("?")) : ""
+        }
+      />
+    );
   }
 
   return (
     <ApplicationShell path={path} navigate={navigate}>
-      <Suspense fallback={<p className="loading-state">Loading workspace…</p>}>{page}</Suspense>
+      <Suspense fallback={<p className="loading-state">Loading workspace…</p>}>
+        {page}
+      </Suspense>
     </ApplicationShell>
   );
 }

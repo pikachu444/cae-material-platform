@@ -477,6 +477,7 @@ def create_app(
     install_catalog_record_api(
         application,
         service=build_catalog_record_service(services),
+        artifact_service=resolved_artifacts,
         security_dependency=security_dependency,
         read_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.CATALOG_READ

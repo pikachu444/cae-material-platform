@@ -1,24 +1,26 @@
 # Configurable Catalog와 Material Modeling 사용자 흐름
 
-이 문서는 T-49~T-60의 통합 사용자 흐름을 추적한다. T-49/T-50의 관리형 schema designer,
-typed Record datasheet/search/compare와 기존 fixed-schema reference modeling 흐름은 실제 실행할 수 있다. 이후 단계는 각
-Task 구현 시 실제 UI, 입력 fixture와 스크린샷으로 교체하며 미구현 기능을 완료로 표시하지 않는다.
+이 문서는 물성 데이터의 구조를 만들고 값을 등록·검색하는 사용자 흐름을 설명한다. Administration에서
+Database와 Profile을 먼저 만들고, 그 안에 Table, Attribute, Layout, Subset과 Link Type을 정의한다.
 
 ## 지금 사용할 수 있는 Catalog schema designer
 
 1. 우측 workspace menu에서 **Administration → Database design**을 연다. `/catalog/schema`는
    같은 Administration 화면으로 연결되는 호환 주소다.
-2. 왼쪽 **Objects**에서 Table, Attribute, Layout, Subset 또는 Link Type을 고른다. 가운데 목록과
+2. 왼쪽 **Objects**에서 Database, Profile, Table, Attribute, Layout, Subset 또는 Link Type을 고른다. 가운데 목록과
    오른쪽 속성 화면은 같은 선택을 유지한다.
 3. **Current table**을 바꾸면 Attribute, Layout, Subset 목록이 그 Table 기준으로 즉시 바뀐다.
-4. **Add Table** 또는 **Add Attribute**를 누른 뒤, 표시명·참조 key·사용자에게 필요한 입력 안내만
+4. **Add Database**, **Add Profile**, **Add Table** 또는 **Add Attribute**를 누른 뒤, 표시명·참조 key·사용자에게 필요한 입력 안내만
    작성한다. 수치 Attribute는 무엇을 뜻하는 수치인지와 표준 단위를 함께 입력하고, Record reference는
    연결할 Table을 고정한다.
-5. **Add layout**은 현재 Attribute 순서로 datasheet Layout을 저장하고, **Add subset**은 현재
-   Table의 기본 저장 보기를 만든다. 현재 서비스가 지원하지 않는 기존 정의 편집·순서 변경·삭제는
-   버튼으로 표시하지 않으며, 기존 revision을 덮어쓰지 않는다.
+5. **Add layout**은 선택한 Attribute를 현재 Attribute 순서로 datasheet Layout에 저장하고, **Add subset**은 현재
+   Table의 검색 보기를 만든다. 기존 항목을 수정하면 새 초안이 생기며, 검증을 통과한 초안만 **Publish**할 수 있다.
 6. Link Type에서는 출발/도착 Table, 양방향으로 읽을 문구와 한 항목당 연결 수를 정한다. 저장할 때
    두 Table의 현재 정의 revision이 함께 고정된다.
+
+넓은 화면에서도 Database design 작업 영역은 왼쪽 위에 읽기 좋은 폭으로 유지된다. 같은 화면을
+[2560×1440](images/current/administration-database-2560x1440.png)과
+[3840×2160](images/current/administration-database-3840x2160.png)에서도 확인할 수 있다.
 
 Table/Attribute/Layout/Subset은 stable identity와 immutable revision으로 저장되며, 새 정의는 기존
 Record나 과거 revision을 바꾸지 않는다.
@@ -37,6 +39,18 @@ Record나 과거 revision을 바꾸지 않는다.
 6. 이름·설명·text Attribute, Folder, discrete facet 또는 normalized 수치 범위로 검색한다.
 7. 현재 검색을 이름과 함께 Subset revision으로 저장하고, 저장된 chip으로 다시 적용한다.
 8. 두 revision 이상인 Record를 열면 revision 1과 current 사이의 Attribute 차이를 확인한다.
+9. 여러 건은 **Multiple rows**를 선택해 CSV/TSV/XLSX 내용을 확인하고 원본 열, Attribute, 값 형식,
+   원본 단위와 재료 상태를 매핑한다. **Check rows**에서 행별 오류를 고친 뒤 모든 행이 유효할 때만
+   **Register checked rows**를 누른다. 이미 데이터가 연결된 재료 상태는 검색 결과에서 기존 Record를
+   열어 수정한다. 등록 과정에서 기존 재료나 상태를 자동으로 만들거나 덮어쓰지 않는다.
+
+![여러 행 물성 데이터 등록](images/current/administration-records-1440x900.png)
+
+같은 등록 화면은 [1366×768](images/current/administration-records-1366x768.png),
+[1920×1080](images/current/administration-records-1920x1080.png),
+[2560×1440](images/current/administration-records-2560x1440.png),
+[3840×2160](images/current/administration-records-3840x2160.png)에서도 원본 파일과 행 검사 명령을
+첫 화면에 유지한다.
 
 아래 화면은 실제 Docker API와 PostgreSQL에 저장한 DP600 및 AA6061-T6 Record를 조회한 결과다.
 왼쪽 facet은 재료군별 건수를 집계하고, 가운데 검색 결과는 각 Record의 current revision을 표시하며,
@@ -47,9 +61,8 @@ DP600의 Young's modulus를 210 GPa에서 205 GPa로 바꾸면 기존 값을 덮
 생성한다. 아래 비교는 원본 단위 문자열과 정규화된 Pa 값을 함께 보존한 결과다.
 
 
-file/curve 값은 이미 업로드된 Artifact UUID와 SHA-256을, record-reference 값은 대상 Record와
-정확한 revision UUID를 함께 입력한다. 사용자 친화적 Artifact picker와 link editor는 T-51에서
-Explorer와 함께 확장한다.
+file/curve 값과 다른 레코드 연결의 상세 식별자는 **Evidence** 또는 **Advanced**에서 확인한다.
+일반 입력 화면에는 내부 식별자가 표시되지 않는다.
 
 ## Material Database와 exact Record Link 사용
 
