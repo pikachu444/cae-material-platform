@@ -37,21 +37,27 @@
 
 ## Agent workflow
 
-- The active `/root` primary agent owns requirement interpretation, product/UX judgment, packets,
-  integration and the final internal gate. It is not a separate subagent.
-- Before calling a writer, `/root` inspects the exact issue, relevant contracts and approved assets,
-  then persists one bounded implementation packet in the issue or current task evidence. The packet
-  names the user outcome, exact sources, preserved behavior/data/states, component or contract mapping,
-  forbidden shortcuts, captures and tests. The writer does not reinterpret it.
-- Use one configured writer. Do not run concurrent writers. Use the configured correction role for the
-  first bounded correction after a failed deterministic, main-agent or reviewer gate. If fresh
-  re-review still fails, stop with exact findings. A second bounded correction is allowed only after
-  explicit product-owner authorization; a third correction is forbidden.
-- After deterministic gates, `/root` prepares a bounded packet for the configured fresh read-only
-  reviewer. It checks contracts, evidence, accessibility and qualitative full-screen usability.
-  Reviewer approval does not replace `/root` judgment or product-owner approval.
-- Commit, push, PR and merge are separate operations. Do not perform them before the required user or
-  product-owner confirmation.
+- `/root` owns requirement and product/UX interpretation, implementation and correction packets,
+  integration, failure diagnosis and the final internal gate; it is not a subagent.
+- Before calling one configured writer, `/root` reads the exact issue, affected contracts and approved
+  assets, then persists one bounded packet naming the user outcome, exact sources, preserved behavior/data/
+  states, component or contract mapping, forbidden shortcuts, owned files, captures and tests. The writer
+  implements only that packet, reports unexpected conflicts and never calls another agent. Never run
+  concurrent writers.
+- Writers, correction writers and reviewers do not reinterpret requirements or add product decisions,
+  acceptance criteria, scope or gates absent from their packet. `/root` alone revises a packet or routes
+  separately discovered work to the backlog.
+- For visual work, `/root` follows `.agents/skills/desktop-engineering-ui/SKILL.md`: compare the approved
+  reference with the current screen before the writer, repeat the comparison once after implementation and
+  deterministic gates, then send the same bounded evidence to one fresh read-only reviewer. Do not repeat
+  an unchanged completed checklist.
+- When a deterministic, `/root` or reviewer gate fails, `/root` records the exact cause, failed evidence,
+  required change, preserved behavior and gates to rerun before the configured correction role makes one
+  bounded pass. Rerun only failed and directly affected gates. A work unit permits at most three correction
+  passes after its initial implementation; each pass requires a new `/root` diagnosis and packet. If the
+  third pass still fails, stop all further correction and re-review, preserve the evidence and report the
+  exact unresolved findings to the product owner.
+- Commit, push, PR and merge are separate; await user or product-owner confirmation.
 
 ## Non-negotiable domain invariants
 
@@ -97,6 +103,10 @@ references until the corresponding open decision is approved.
 - Implement one issue or clearly bounded subset. Link requirement, ADR and task IDs where the project
   records them. Define or update contracts before adapters and add the specified unit, integration,
   regression and browser tests.
+- Run only gates required by issue acceptance, affected contracts, the selected skill, changed behavior
+  or project hooks. Do not invent precautionary audits or captures, run an unrelated full suite, or repeat
+  an unchanged passing gate. If an unforeseen material risk needs another gate, `/root` adds it to the
+  packet with its authority and reason before it runs.
 - A user-visible React/CSS change must update the current guide, screenshot manifest and live browser
   screenshots required by the documentation contract. An `app.tsx` navigation change also updates the
   navigation contract. Run affected browser scenarios at required viewports before commit.

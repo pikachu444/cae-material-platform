@@ -8,6 +8,11 @@ license: Complete terms in LICENSE.txt
 
 To test local web applications, write native Python Playwright scripts.
 
+For this repository's deterministic capture script, use the verified on-demand pin
+`uv run --with playwright==1.62.0 python scripts/capture_current_product.py`; keep Playwright out of
+the project dependency manifests. Node browser tests continue to use the existing locked project
+dependency.
+
 **Helper Scripts Available**:
 - `scripts/with_server.py` - Manages server lifecycle (supports multiple servers)
 
