@@ -24,6 +24,7 @@ if TYPE_CHECKING:
 
 VIEWPORTS = ((1366, 768), (1440, 900), (1920, 1080))
 WIDE_VIEWPORTS = ((2560, 1440), (3840, 2160))
+REVISION_LABEL_PATTERN = re.compile(r"\br[1-9]\d*\b")
 MODELING_EXPORT_OUTPUTS = tuple(
     f"modeling-export-{width}x{height}.png" for width, height in VIEWPORTS
 )
@@ -222,7 +223,9 @@ def _open_materials_search(page: Page, base_url: str) -> None:
         raise RuntimeError("Material enrichment is incomplete")
     rows.filter(has_text="DP780").first.click()
     page.get_by_text("Selected material", exact=True).wait_for(timeout=30_000)
-    page.locator(".application-status-bar").get_by_text(re.compile(r"\br3\b")).wait_for(timeout=30_000)
+    page.locator(".application-status-bar").get_by_text(REVISION_LABEL_PATTERN).wait_for(
+        timeout=30_000
+    )
     if page.get_by_role("columnheader", name="Status", exact=True).count():
         raise RuntimeError("normal Materials results must not expose a Status column")
     for selector in (".materials-results", ".materials-selection", ".application-status-bar"):
@@ -666,7 +669,9 @@ def _open_material_detail(page: Page, base_url: str) -> None:
     page.get_by_text(
         re.compile(r"^(Request review|Waiting for review|Approved|Changes requested)$")
     ).first.wait_for(timeout=30_000)
-    page.locator(".application-status-bar").get_by_text(re.compile(r"\br3\b")).wait_for(timeout=30_000)
+    page.locator(".application-status-bar").get_by_text(REVISION_LABEL_PATTERN).wait_for(
+        timeout=30_000
+    )
     for selector in (
         ".material-detail-header",
         '[aria-label="Related exact records"]',
