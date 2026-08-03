@@ -57,6 +57,36 @@ describe("EngineeringCurvePlot", () => {
     expect(screen.getByText("Engineering stress [MPa]")).toBeTruthy();
   });
 
+  it("overlays every visible real Data-stage curve with its own legend entry", () => {
+    const secondPreview: CommonProcessingPreview = {
+      ...preview,
+      source_document_sha256: "c".repeat(64),
+      stages: [{
+        ...baseStage,
+        series: [
+          { quantity: "strain.engineering", unit: "1", values: [0, 0.001, 0.002] },
+          { quantity: "stress.engineering", unit: "Pa", values: [0, 2.2e8, 3.2e8] },
+        ],
+      }, activeStage],
+    };
+    const { container } = render(
+      <EngineeringCurvePlot
+        preview={preview}
+        activeStage={activeStage}
+        baseStage={baseStage}
+        width={760}
+        height={420}
+        observedCurves={[
+          { id: "doc-1:r1", label: "Specimen 01 · r1", preview },
+          { id: "doc-2:r1", label: "Specimen 02 · r1", preview: secondPreview },
+        ]}
+      />,
+    );
+    expect(container.querySelectorAll("polyline.data-observed")).toHaveLength(2);
+    expect(screen.getByRole("button", { name: "Specimen 01 · r1" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Specimen 02 · r1" })).toBeTruthy();
+  });
+
   it("supports legend visibility and explicit zoom reset controls", () => {
     const { container } = render(
       <EngineeringCurvePlot preview={preview} activeStage={activeStage} baseStage={baseStage} width={760} height={420} />,

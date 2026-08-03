@@ -19,7 +19,7 @@ notes:
   - "The legacy /jobs-reviews deep link renders the same Activity queue; the retired raw aggregate/revision/hash request form and standalone decision control are absent. /governance remains an Advanced Operations, Release and Governance Evidence route."
   - "The deterministic capture reuses the clean-demo Selected model review. Only when the synthetic demo has no review does it create one real review request for a draft synthetic Material; it never creates a duplicate or records a decision. The current review API does not expose readable submitted-item or actor names, so the normal queue uses task labels and request reason while exact identifiers stay in Advanced evidence."
   - "DUI-08B submits or reuses one real review request for the exact draft OpenRadioss card revision already loaded by Native Card Preview. The normal header then shows Waiting for review, and Activity shows the corresponding Solver card review row; no decision or release is fabricated."
-  - "Data, Process and Fit use the same compact Curves tree: the canonical test-method group is a real native disclosure above specimen/revision rows, a 3×17 px vertical plot-color swatch is placed between the inclusion checkbox and flexible label, inclusion checkbox and icon-only plot visibility remain independent, and Export has no permanent curve rail."
+  - "Data, Process and Fit use the same compact Curves tree: the canonical test-method group is a real native disclosure above specimen/revision rows, a 3×17 px vertical plot-color swatch is placed between the inclusion checkbox and flexible label, inclusion checkbox and icon-only plot visibility remain independent, and Export has no permanent curve rail. Data overlays each visible exact Test Data revision from a server preview and persists included revisions across reload."
   - "The normal stage strip visibly contains only Data, Process, Fit and Export. Its readiness details remain in hover/focus labels; Validate and Review are Advanced/Activity governed contracts. Mean & band is absent until an ensemble preview exists."
   - "Fit retains the UXC-04 typed decision snapshot. Export recovers an exact governed Output→Material Model IR→Neutral chain, then displays the server-proven target mapping/native text and explicitly delivers one immutable card/receipt."
   - "PR #124 and DUI-01 through DUI-06 remain preserved. UXC-06C1 remains stateless; UXC-06C2 writes one immutable Solver Card and Exporting receipt/outbox event atomically. Materials CAE Card reuse remains canonical; Activity receipt projection is Not configured."
@@ -214,8 +214,8 @@ captures:
     height: 1080
   - id: modeling-data-1366
     route: /modeling?stage=data&family=metal
-    workflow: integrated-library-local-json-and-graph-preview
-    fixture: synthetic DP780 exact Test Data revision; DUI-05 live acceptance
+    workflow: integrated-library-local-json-and-graph-preview-with-exact-multi-curve-selection
+    fixture: synthetic DP780 material/state with three exact governed Test Data revisions; writer evidence only, main live acceptance pending
     image: images/current/modeling-data-1366x768.png
     width: 1366
     height: 768
@@ -242,18 +242,46 @@ captures:
     height: 1080
   - id: modeling-data-1440
     route: /modeling?stage=data&family=metal
-    workflow: integrated-library-local-json-and-graph-preview
-    fixture: synthetic DP780 exact Test Data revision; DUI-05 live acceptance
+    workflow: integrated-library-local-json-and-graph-preview-with-exact-multi-curve-selection
+    fixture: synthetic DP780 material/state with three exact governed Test Data revisions; writer evidence only, main live acceptance pending
     image: images/current/modeling-data-1440x900.png
     width: 1440
     height: 900
   - id: modeling-data-1920
     route: /modeling?stage=data&family=metal
-    workflow: integrated-library-local-json-and-graph-preview
-    fixture: synthetic DP780 exact Test Data revision; DUI-05 live acceptance
+    workflow: integrated-library-local-json-and-graph-preview-with-exact-multi-curve-selection
+    fixture: synthetic DP780 material/state with three exact governed Test Data revisions; writer evidence only, main live acceptance pending
     image: images/current/modeling-data-1920x1080.png
     width: 1920
     height: 1080
+  - id: modeling-data-2560
+    route: /modeling?stage=data&family=metal
+    workflow: exact-library-multi-curve-selection-show-toggle-and-reload-persistence
+    fixture: synthetic DP780 material/state with three exact governed Test Data revisions; targeted live capture pending
+    image: images/current/modeling-data-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: modeling-data-3840
+    route: /modeling?stage=data&family=metal
+    workflow: exact-library-multi-curve-selection-show-toggle-and-reload-persistence
+    fixture: synthetic DP780 material/state with three exact governed Test Data revisions; targeted live capture pending
+    image: images/current/modeling-data-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: modeling-data-empty-1440
+    route: /modeling?stage=data&family=metal
+    workflow: new-session-empty-data-state
+    fixture: new Modeling session with no Material, State, or Test Data pin; targeted live capture pending
+    image: images/current/modeling-data-empty-1440x900.png
+    width: 1440
+    height: 900
+  - id: modeling-data-invalid-1440
+    route: /modeling?stage=data&family=metal
+    workflow: runtime-csv-invalid-channel-mapping
+    fixture: temporary runtime CSV with duplicate independent/dependent channel selection; no source fixture is persisted
+    image: images/current/modeling-data-invalid-1440x900.png
+    width: 1440
+    height: 900
   - id: modeling-process-1366
     route: /modeling?stage=process&family=metal
     workflow: UXC-04C shared rail/plot sizing; source-processed-preview-and-explicit-output-commit

@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { ApiError, getMaterialDetail, listMaterials, type ApiConfig } from "./api";
-import { CommonProcessingWorkbench, type ModelingTrack } from "./common-processing-workbench";
+import type { ModelingTrack } from "./common-processing-workbench";
 import { dispatchModelingSession, loadModelingSession, saveModelingSession, type ModelingMaterialFamily, type ModelingSessionSummary } from "./modeling-session-context";
 import { PolymerTemperatureShiftInspector } from "./polymer-temperature-shift-inspector";
 import type {
@@ -14,6 +14,11 @@ import type {
 const ReferenceElastoplasticWorkbench = lazy(() =>
   import("./reference-elastoplastic-workbench").then((module) => ({
     default: module.ReferenceElastoplasticWorkbench,
+  })),
+);
+const CommonProcessingWorkbench = lazy(() =>
+  import("./common-processing-workbench").then((module) => ({
+    default: module.CommonProcessingWorkbench,
   })),
 );
 const ReferenceLinearViscoelasticWorkbench = lazy(() =>
@@ -362,7 +367,8 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
   ) : null, [config, selectedState, track]);
 
   return (
-    <CommonProcessingWorkbench
+    <Suspense fallback={<p className="loading-state">Loading Modeling workspace…</p>}>
+      <CommonProcessingWorkbench
       config={config}
       onNavigate={onNavigate}
       onOpenConnection={onOpenConnection}
@@ -377,6 +383,7 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
       materialState={selectedState}
       propertySet={detail?.property_sets.find((item) => item.material_state_id === selectedStateId)}
       locationSearch={locationSearch}
-    />
+      />
+    </Suspense>
   );
 }

@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState, type ChangeEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 
 import {
   ApiError,
   convertTabularToCanonicalTestData,
   createGovernedImportProfile,
   executeGovernedTabularImport,
+  downloadCanonicalTestDataDocument,
   importCanonicalTestData,
   listGovernedImportProfiles,
   listTestRunsForMaterialState,
@@ -16,6 +17,7 @@ import {
   validateCanonicalTestData,
   type ApiConfig,
 } from "./api";
+import type { ObservedCurveInput } from "./engineering-curve-plot";
 import type {
   CanonicalTestDataDocumentResponse,
   CanonicalTestDataPreviewResponse,
@@ -34,6 +36,7 @@ import type {
   MaterialStateResponse,
   TestRunResponse,
 } from "./types";
+import type { ModelingSessionRecordRef } from "./modeling-session-context";
 
 type IntakeSource = "library" | "local" | "json";
 
@@ -42,14 +45,17 @@ interface Props {
   material?: MaterialResponse;
   state?: MaterialStateResponse;
   documents: CanonicalTestDataDocumentResponse[];
+  selectedTestDataRefs?: ModelingSessionRecordRef[];
   selectedDocumentId: string;
+  visibleDocumentKeys?: string[];
   processingMappingProfileText: string;
-  onSelectDocument: (id: string) => void;
+  onSelectDocument: (id: string, revisionId?: string) => void;
   onPreviewDocument: (
     document: Record<string, unknown>,
     preview: CommonProcessingPreview,
   ) => void;
   onImported: (document: CanonicalTestDataDocumentResponse) => void;
+  onObservedCurves?: (curves: ObservedCurveInput[]) => void;
 }
 
 const SCHEMAS: Array<{ value: GovernedTabularDataSchema; label: string }> = [
@@ -63,14 +69,49 @@ const SCHEMAS: Array<{ value: GovernedTabularDataSchema; label: string }> = [
 
 const UNIT_OPTIONS: Record<GovernedQuantityKind, string[]> = {
   engineering_strain: ["1", "%"],
-  engineering_stress: ["Pa", "kPa", "MPa", "GPa"],
+  // Keep a raw unsupported choice visible so the engineer can see and correct
+  // the source declaration instead of silently coercing it.
+  engineering_stress: ["Pa", "kPa", "MPa", "GPa", "%"],
   shear_strain: ["1", "%"],
-  shear_stress: ["Pa", "kPa", "MPa", "GPa"],
+  shear_stress: ["Pa", "kPa", "MPa", "GPa", "%"],
   time: ["s", "ms", "min", "h"],
-  shear_modulus: ["Pa", "kPa", "MPa", "GPa"],
+  shear_modulus: ["Pa", "kPa", "MPa", "GPa", "%"],
   displacement: ["m", "mm", "um"],
-  force: ["N", "kN"],
+  force: ["N", "kN", "%"],
 };
+
+function supportedUnits(quantity: GovernedQuantityKind): string[] {
+  return UNIT_OPTIONS[quantity].filter((unit) => unit !== "%"
+    || quantity.includes("strain"));
+}
+
+export function mappingBlockers({
+  independentColumn,
+  dependentColumn,
+  independentUnit,
+  dependentUnit,
+  quantities: channelQuantities,
+}: {
+  independentColumn: string;
+  dependentColumn: string;
+  independentUnit: string;
+  dependentUnit: string;
+  quantities: readonly [GovernedQuantityKind, GovernedQuantityKind];
+}): string[] {
+  const issues: string[] = [];
+  if (!independentColumn) issues.push(`Choose the required ${channelQuantities[0].replaceAll("_", " ")} channel.`);
+  if (!dependentColumn) issues.push(`Choose the required ${channelQuantities[1].replaceAll("_", " ")} channel.`);
+  if (independentColumn && dependentColumn && independentColumn === dependentColumn) {
+    issues.push("The same source column cannot be used for both required axes.");
+  }
+  if (independentUnit && !supportedUnits(channelQuantities[0]).includes(independentUnit)) {
+    issues.push(`${channelQuantities[0].replaceAll("_", " ")} unit “${independentUnit}” is not supported. Choose ${supportedUnits(channelQuantities[0]).join(", ")}.`);
+  }
+  if (dependentUnit && !supportedUnits(channelQuantities[1]).includes(dependentUnit)) {
+    issues.push(`${channelQuantities[1].replaceAll("_", " ")} unit “${dependentUnit}” is not supported. Choose ${supportedUnits(channelQuantities[1]).join(", ")}.`);
+  }
+  return issues;
+}
 
 function errorMessage(error: unknown): string {
   if (error instanceof ApiError) return error.message;
@@ -109,6 +150,13 @@ function normalizedUnit(quantity: GovernedQuantityKind): string {
   if (quantity === "displacement") return "m";
   if (quantity === "force") return "N";
   return "Pa";
+}
+
+const NOOP_OBSERVED_CURVES = (_curves: ObservedCurveInput[]): void => undefined;
+
+function curveLabel(item: CanonicalTestDataDocumentResponse): string {
+  const specimen = item.specimen_id.match(/(?:specimen|sample|s)[-_ ]*(\d+)$/i) ?? item.specimen_id.match(/(\d+)$/);
+  return specimen ? `Specimen ${specimen[1].padStart(2, "0")}` : item.specimen_id || item.document_key;
 }
 
 function editableProfile(value: GovernedImportProfileContent): GovernedImportProfileContent {
@@ -174,11 +222,14 @@ export function ModelingDataIntake({
   material,
   state,
   documents,
+  selectedTestDataRefs = [],
   selectedDocumentId,
+  visibleDocumentKeys = [],
   processingMappingProfileText,
   onSelectDocument,
   onPreviewDocument,
   onImported,
+  onObservedCurves = NOOP_OBSERVED_CURVES,
 }: Props) {
   const [source, setSource] = useState<IntakeSource>("library");
   const [testRuns, setTestRuns] = useState<TestRunResponse[]>([]);
@@ -210,6 +261,7 @@ export function ModelingDataIntake({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const observedPreviewCache = useRef(new Map<string, CommonProcessingPreview>());
 
   const selectedRun = testRuns.find((item) => item.test_run_id === testRunId) ?? null;
   const selectedProfile = profiles.find((item) => item.import_profile_id === selectedProfileId) ?? null;
@@ -222,9 +274,23 @@ export function ModelingDataIntake({
       : [],
     [profiles, selectedRun, tabularPreview],
   );
-  const mappingResolved = !mappingEditing && Boolean(
+  const mappingIssues = useMemo(() => {
+    if (!tabularPreview) return [];
+    return mappingBlockers({
+      independentColumn: firstColumn,
+      dependentColumn: secondColumn,
+      independentUnit: firstUnit,
+      dependentUnit: secondUnit,
+      quantities: channelQuantities,
+    });
+  }, [channelQuantities, firstColumn, firstUnit, secondColumn, secondUnit, tabularPreview]);
+  const mappingResolved = !mappingEditing && mappingIssues.length === 0 && Boolean(
     selectedProfile && tabularPreview && profileMatchesPreview(selectedProfile, tabularPreview),
   );
+
+  useEffect(() => {
+    if (tabularPreview) setCanonicalPreview(null);
+  }, [firstColumn, firstUnit, schema, secondColumn, secondUnit, tabularPreview]);
 
   useEffect(() => {
     if (!state || !config.accessToken) return;
@@ -242,6 +308,55 @@ export function ModelingDataIntake({
     });
     return () => { active = false; };
   }, [config, state]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const visibleRefs = selectedTestDataRefs.filter((ref) => visibleDocumentKeys.includes(`${ref.id}:${ref.revisionId}`));
+    if (!visibleRefs.length) {
+      onObservedCurves([]);
+      return () => controller.abort();
+    }
+    let profile: CommonMappingProfileContent;
+    try {
+      profile = JSON.parse(processingMappingProfileText) as CommonMappingProfileContent;
+    } catch {
+      onObservedCurves([]);
+      return () => controller.abort();
+    }
+    void Promise.allSettled(visibleRefs.map(async (ref) => {
+      const item = documents.find((candidate) => candidate.test_data_document_id === ref.id);
+      const key = `${ref.id}:${ref.revisionId}`;
+      const cached = observedPreviewCache.current.get(key);
+      if (cached) return { ref, item, preview: cached };
+      const downloaded = await downloadCanonicalTestDataDocument(config, ref.id, ref.revisionId);
+      if (controller.signal.aborted) return null;
+      const sourceDocument = JSON.parse(await downloaded.data.blob.text()) as Record<string, unknown>;
+      const result = await previewCommonProcessing(config, {
+        document: sourceDocument,
+        mapping_profile: profile,
+        steps: [],
+      }, controller.signal);
+      observedPreviewCache.current.set(key, result.data);
+      return { ref, item, preview: result.data };
+    })).then((results) => {
+      if (controller.signal.aborted) return;
+      const curves = results.flatMap((result, index) => {
+        if (result.status !== "fulfilled" || !result.value) return [];
+        const { ref, item, preview } = result.value;
+        return [{
+          id: `${ref.id}:${ref.revisionId}`,
+          label: `${item ? curveLabel(item) : ref.label} · r${ref.revisionNo}`,
+          preview,
+          color: ["#e56734", "#2f7f78", "#7c3aed", "#2563eb", "#dc2626"][index % 5],
+        }];
+      });
+      onObservedCurves(curves);
+    }).catch((caught: unknown) => {
+      if (caught instanceof Error && caught.name === "AbortError") return;
+      if (!controller.signal.aborted) setNotice("One or more Test Data curves could not be previewed; available curves remain visible.");
+    });
+    return () => controller.abort();
+  }, [config, documents, onObservedCurves, processingMappingProfileText, selectedTestDataRefs, visibleDocumentKeys]);
 
   useEffect(() => {
     if (!selectedRun) return;
@@ -554,8 +669,34 @@ export function ModelingDataIntake({
 
       {source === "library" ? (
         <div className="data-intake-row">
-          <label>Test data source<select name="library-test-data-revision" aria-label="Data-stage Test Data revision" value={selectedDocumentId} onChange={(event) => onSelectDocument(event.target.value)}><option value="">Choose a saved dataset</option>{documents.map((item) => <option key={item.test_data_document_id} value={item.test_data_document_id}>{item.document_key} · r{item.current_revision.revision_no}</option>)}</select></label>
-          <p>{documents.length ? `${documents.length} saved datasets available` : "No test data is registered yet."}</p>
+          <div className="data-library-list" role="list" aria-label="Saved Test Data revisions">
+            {documents.map((item) => {
+              const selectedRef = selectedTestDataRefs.find((ref) => ref.id === item.test_data_document_id);
+              const materialRevisionChanged = Boolean(item.governed_source
+                && material
+                && state
+                && (item.governed_source.material.revision_id !== material.current_revision.id
+                  || item.governed_source.material_state.revision_id !== state.current_revision.id));
+              return <article className={selectedDocumentId === item.test_data_document_id ? "active" : ""} role="listitem" key={`${item.test_data_document_id}:${item.current_revision.id}`}>
+              <button type="button" className="data-library-row" onClick={() => onSelectDocument(item.test_data_document_id, item.current_revision.id)}>
+                <strong>{item.document_key}</strong><span>{curveLabel(item)} · {selectedRef?.revisionId === item.current_revision.id ? `Session revision r${selectedRef.revisionNo}` : `r${item.current_revision.revision_no}`}</span><small>{item.channels.map((channel) => `${channel.name} ${channel.original_unit_string} → ${channel.normalized_unit}`).join(" · ")}</small>{materialRevisionChanged ? <small className="data-library-warning">Recorded for an earlier material revision; selecting keeps this exact test source.</small> : null}
+              </button>
+            </article>;
+            })}
+            {selectedTestDataRefs.filter((ref) => {
+              const current = documents.find((item) => item.test_data_document_id === ref.id);
+              return current && current.current_revision.id !== ref.revisionId;
+            }).map((ref) => {
+              const current = documents.find((item) => item.test_data_document_id === ref.id);
+              return <article className={selectedDocumentId === ref.id ? "active historical" : "historical"} role="listitem" key={`${ref.id}:${ref.revisionId}`}>
+                <button type="button" className="data-library-row" onClick={() => onSelectDocument(ref.id, ref.revisionId)}>
+                  <strong>{ref.label}</strong><span>Session revision r{ref.revisionNo} · exact source retained</span><small>{current?.channels.map((channel) => `${channel.name} ${channel.original_unit_string} → ${channel.normalized_unit}`).join(" · ")}</small>
+                </button>
+              </article>;
+            })}
+            {!documents.length ? <p className="muted">No Test Data is connected to this material state.</p> : null}
+          </div>
+          <p>{documents.length ? `${documents.length} Test Data records available for this material state.` : "No Test Data is connected to this material state. Choose Local file to add a source."}</p>
         </div>
       ) : null}
 
@@ -587,7 +728,7 @@ export function ModelingDataIntake({
                   <strong>Approved mapping matched</strong>
                   <span>{selectedProfile?.content.profile_label} · r{selectedProfile?.current_revision.revision_no} · {selectedProfile?.content.channels.map((channel) => `${channel.source_column} [${channel.original_unit}]`).join(" / ")}</span>
                   <button className="text-button" type="button" onClick={() => setMappingEditing(true)}>Change mapping</button>
-                  {!canonicalPreview ? <button className="button secondary" type="button" disabled={busy} onClick={() => void previewLocalOnGraph()}>{busy ? "Preparing…" : "Update preview"}</button> : <button className="button primary" type="button" disabled={busy} onClick={() => void confirmLocal()}>{busy ? "Saving…" : "Save dataset"}</button>}
+                  {!canonicalPreview ? <button className="button secondary" type="button" disabled={busy || mappingIssues.length > 0} onClick={() => void previewLocalOnGraph()}>{busy ? "Preparing…" : "Update preview"}</button> : <button className="button primary" type="button" disabled={busy || mappingIssues.length > 0} onClick={() => void confirmLocal()}>{busy ? "Saving…" : "Save Test Data"}</button>}
                 </div>
               ) : (
                 <div className="data-intake-attention">
@@ -612,10 +753,11 @@ export function ModelingDataIntake({
                     setFirstUnit(defaultUnit(nextQuantities[0]));
                     setSecondUnit(defaultUnit(nextQuantities[1]));
                   }}>{SCHEMAS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label>
-                  <div className="data-mapping-table" role="region" aria-label="Axis and unit mapping decision table"><table><thead><tr><th>Axis</th><th>Source column</th><th>Quantity semantics</th><th>Raw unit</th><th>Normalized unit</th><th>Status</th></tr></thead><tbody><tr><td>Independent</td><td><select name="independent-source-column" aria-label="Independent source column" value={firstColumn} onChange={(event) => setFirstColumn(event.target.value)}>{tabularPreview.header_columns.map((name) => <option key={name}>{name}</option>)}</select></td><td>{channelQuantities[0].replaceAll("_", " ")}</td><td><select name="independent-original-unit" aria-label="Independent original unit" value={firstUnit} onChange={(event) => setFirstUnit(event.target.value)}>{UNIT_OPTIONS[channelQuantities[0]].map((unit) => <option key={unit}>{unit}</option>)}</select></td><td>{normalizedUnit(channelQuantities[0])}</td><td>Proposed</td></tr><tr><td>Dependent</td><td><select name="dependent-source-column" aria-label="Dependent source column" value={secondColumn} onChange={(event) => setSecondColumn(event.target.value)}>{tabularPreview.header_columns.map((name) => <option key={name}>{name}</option>)}</select></td><td>{channelQuantities[1].replaceAll("_", " ")}</td><td><select name="dependent-original-unit" aria-label="Dependent original unit" value={secondUnit} onChange={(event) => setSecondUnit(event.target.value)}>{UNIT_OPTIONS[channelQuantities[1]].map((unit) => <option key={unit}>{unit}</option>)}</select></td><td>{normalizedUnit(channelQuantities[1])}</td><td>{firstColumn === secondColumn ? "Conflict: choose two columns" : "Proposed"}</td></tr></tbody></table></div>
+                  <div className="data-mapping-table" role="region" aria-label="Axis and unit mapping decision table"><table><thead><tr><th>Axis</th><th>Source column</th><th>Quantity semantics</th><th>Raw unit</th><th>Normalized unit</th><th>Status</th></tr></thead><tbody><tr><td>Independent</td><td><select name="independent-source-column" aria-label="Independent source column" value={firstColumn} onChange={(event) => setFirstColumn(event.target.value)}><option value="">Choose required column</option>{tabularPreview.header_columns.map((name) => <option key={name}>{name}</option>)}</select></td><td>{channelQuantities[0].replaceAll("_", " ")}</td><td><select name="independent-original-unit" aria-label="Independent original unit" value={firstUnit} onChange={(event) => setFirstUnit(event.target.value)}>{UNIT_OPTIONS[channelQuantities[0]].map((unit) => <option key={unit}>{unit}</option>)}</select></td><td>{normalizedUnit(channelQuantities[0])}</td><td>{mappingIssues.find((issue) => issue.includes(channelQuantities[0].replaceAll("_", " "))) ?? "Ready"}</td></tr><tr><td>Dependent</td><td><select name="dependent-source-column" aria-label="Dependent source column" value={secondColumn} onChange={(event) => setSecondColumn(event.target.value)}><option value="">Choose required column</option>{tabularPreview.header_columns.map((name) => <option key={name}>{name}</option>)}</select></td><td>{channelQuantities[1].replaceAll("_", " ")}</td><td><select name="dependent-original-unit" aria-label="Dependent original unit" value={secondUnit} onChange={(event) => setSecondUnit(event.target.value)}>{UNIT_OPTIONS[channelQuantities[1]].map((unit) => <option key={unit}>{unit}</option>)}</select></td><td>{normalizedUnit(channelQuantities[1])}</td><td>{firstColumn === secondColumn && firstColumn ? "Blocked: choose two columns" : mappingIssues.find((issue) => issue.includes(channelQuantities[1].replaceAll("_", " "))) ?? "Ready"}</td></tr></tbody></table></div>
                   <label>Mapping change reason<input aria-label="Mapping change reason" value={mappingReason} onChange={(event) => setMappingReason(event.target.value)} placeholder="Why this source meaning and unit are correct" /></label>
                   <p>Raw units and semantics stay in the mapping revision. The normalized unit and conversion are explicit in the preview; no unit is converted silently.</p>
-                  {!canonicalPreview ? <button className="button secondary" type="button" disabled={busy || !mappingReason.trim() || firstColumn === secondColumn} onClick={() => void previewLocalOnGraph()}>{busy ? "Preparing…" : "Update preview"}</button> : <button className="button primary" type="button" disabled={busy || !mappingReason.trim() || firstColumn === secondColumn} onClick={() => void confirmLocal()}>{busy ? "Saving…" : "Save dataset"}</button>}
+                  {mappingIssues.length ? <div className="data-mapping-blockers" role="alert"><strong>Fix the Test Data mapping before continuing.</strong>{mappingIssues.map((issue) => <span key={issue}>{issue}</span>)}</div> : null}
+                  {!canonicalPreview ? <button className="button secondary" type="button" disabled={busy || mappingIssues.length > 0 || !mappingReason.trim()} onClick={() => void previewLocalOnGraph()}>{busy ? "Preparing…" : "Update preview"}</button> : <button className="button primary" type="button" disabled={busy || mappingIssues.length > 0 || !mappingReason.trim()} onClick={() => void confirmLocal()}>{busy ? "Saving…" : "Save Test Data"}</button>}
                 </div>
               )}
               <section className="data-provenance-group" aria-label="Test identity and provenance"><strong>Test identity &amp; provenance</strong><span>Test Run {selectedRun?.current_revision.content.run_label ?? "not selected"} · r{selectedRun?.current_revision.revision_no ?? "—"}</span><span>Specimen {selectedRun?.current_revision.content.specimen_id ?? "—"} · performed {selectedRun?.current_revision.content.performed_at ?? "—"}</span><span>Source: governed Test Run metadata; edited maker, operator and laboratory are recorded with this save.</span></section>

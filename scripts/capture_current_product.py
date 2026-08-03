@@ -38,10 +38,11 @@ MODELING_CONSISTENCY_OUTPUTS = tuple(
     for stage in ("data", "process", "fit", "export", "session")
     for width, height in VIEWPORTS
 )
-MODELING_DATA_SESSION_OUTPUTS = tuple(
-    f"modeling-{stage}-{width}x{height}.png"
-    for stage in ("data", "session")
-    for width, height in VIEWPORTS
+MODELING_DATA_SESSION_OUTPUTS = (
+    *(f"modeling-data-{width}x{height}.png" for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)),
+    *(f"modeling-session-{width}x{height}.png" for width, height in VIEWPORTS),
+    "modeling-data-empty-1440x900.png",
+    "modeling-data-invalid-1440x900.png",
 )
 PRODUCT_ACCESS_OUTPUTS = (
     "administration-access-1366x768.png",
@@ -117,7 +118,7 @@ CURRENT_CAPTURE_OUTPUTS = (
     "administration-access-1440x900.png",
 )
 STAGE_HEADINGS = {
-    "data": "Verify source & channel mapping",
+    "data": "Select Test Data",
     "process": "Prepare observed curves",
     "fit": "Fit material response",
     "export": "Review & deliver solver card",
@@ -1007,32 +1008,161 @@ def _open_modeling_stage(page: Page, stage: str) -> None:
     page.locator(".modeling-stage-shell").get_by_text(stage.title(), exact=True).click()
 
 
+def _wait_for_modeling_data_surface(page: Page) -> None:
+    """Wait for the visible Data workspace, not an off-screen heading."""
+    page.locator(".data-source-tabs").wait_for(state="visible", timeout=30_000)
+    page.locator(".modeling-workspace-rail").wait_for(state="visible", timeout=30_000)
+    page.locator(".persistent-modeling-plot").wait_for(state="visible", timeout=30_000)
+
+
+def _modeling_session(page: Page) -> dict[str, object]:
+    raw = page.evaluate(
+        "() => window.sessionStorage.getItem('cmp.modeling.recent-session.v4')"
+    )
+    if not raw:
+        raise RuntimeError("Modeling Data session v4 is missing from sessionStorage")
+    try:
+        parsed = json.loads(raw)
+    except json.JSONDecodeError as cause:
+        raise RuntimeError("Modeling Data session v4 is not valid JSON") from cause
+    if not isinstance(parsed, dict):
+        raise RuntimeError("Modeling Data session v4 has an unexpected shape")
+    return parsed
+
+
+def _data_session_snapshot(page: Page) -> dict[str, object]:
+    session = _modeling_session(page)
+    workspace = session.get("workspace")
+    if not isinstance(workspace, dict):
+        raise RuntimeError("Modeling Data session has no workspace state")
+    refs = workspace.get("selectedTestDataRefs")
+    included = workspace.get("selectedDocumentIds")
+    visible = workspace.get("visibleTestDataKeys")
+    if not isinstance(refs, list) or not isinstance(included, list) or not isinstance(visible, list):
+        raise RuntimeError("Modeling Data session is missing exact selection arrays")
+    return {
+        "selectedTestDataRefs": refs,
+        "selectedDocumentIds": included,
+        "visibleTestDataKeys": visible,
+    }
+
+
+def _wait_for_data_session_counts(page: Page, refs: int, included: int, visible: int) -> None:
+    page.wait_for_function(
+        """expected => {
+          const raw = window.sessionStorage.getItem('cmp.modeling.recent-session.v4');
+          if (!raw) return false;
+          const workspace = JSON.parse(raw).workspace || {};
+          return Array.isArray(workspace.selectedTestDataRefs)
+            && workspace.selectedTestDataRefs.length === expected.refs
+            && Array.isArray(workspace.selectedDocumentIds)
+            && workspace.selectedDocumentIds.length === expected.included
+            && Array.isArray(workspace.visibleTestDataKeys)
+            && workspace.visibleTestDataKeys.length === expected.visible;
+        }""",
+        arg={"refs": refs, "included": included, "visible": visible},
+        timeout=30_000,
+    )
+
+
+def _wait_for_data_plot(page: Page, *, lines: int = 3, legends: int = 3) -> None:
+    page.wait_for_function(
+        """expected => document.querySelectorAll('.curve-line.data-observed').length === expected.lines
+          && document.querySelectorAll('.persistent-modeling-plot .curve-legend.interactive button').length === expected.legends""",
+        arg={"lines": lines, "legends": legends},
+        timeout=30_000,
+    )
+
+
 def _prepare_modeling(page: Page, base_url: str) -> None:
     page.goto(f"{base_url}/modeling?stage=data&family=metal")
-    page.get_by_role("heading", name=STAGE_HEADINGS["data"], exact=True).wait_for(timeout=30_000)
-    revision = page.get_by_role("combobox", name="Data-stage Test Data revision")
-    revision.wait_for(timeout=30_000)
-    if not revision.input_value():
-        revision.select_option(index=1)
-    page.get_by_text(re.compile(r"Loaded saved dataset revision")).wait_for(timeout=30_000)
+    _wait_for_modeling_data_surface(page)
+    library_rows = page.locator(".data-library-list .data-library-row")
+    library_rows.first.wait_for(timeout=30_000)
+    if library_rows.count() != 3:
+        raise RuntimeError(f"expected exactly 3 governed Test Data Library rows, got {library_rows.count()}")
+    # Use the real Library rows so every selected curve has an exact server
+    # revision, rather than manufacturing a capture-only document identity.
+    for index in range(3):
+        library_rows.nth(index).click()
+        page.get_by_text(re.compile(r"Loaded saved dataset revision")).wait_for(timeout=30_000)
+        _wait_for_data_session_counts(page, refs=index + 1, included=index + 1, visible=index + 1)
     advanced_contract = page.locator("details.modeling-data-advanced")
     if not advanced_contract.get_attribute("open"):
         advanced_contract.locator(":scope > summary").click()
     profile = page.get_by_role("combobox", name="Saved Mapping Profile")
     profile.wait_for(timeout=30_000)
-    if not profile.input_value():
-        profile.select_option(index=1)
+    page.wait_for_function(
+        """() => (document.querySelector('select[aria-label=\"Saved Mapping Profile\"]')?.options.length ?? 0) >= 2""",
+        timeout=30_000,
+    )
+    if profile.locator("option").count() < 2:
+        raise RuntimeError("no saved Mapping Profile is available for Modeling Data capture")
+    profile.select_option(index=1)
+    page.wait_for_function(
+        """() => Boolean(document.querySelector('select[aria-label="Saved Mapping Profile"]')?.value)""",
+        timeout=30_000,
+    )
     advanced_contract.locator(":scope > summary").click()
-    plot = page.locator(".persistent-modeling-plot svg[role=img]")
-    # Data has no competing stage-header primary action. Compute the same exact source/mapping
-    # preview through Process's secondary action, then return to Data for its evidence capture.
-    _open_modeling_stage(page, "process")
-    page.wait_for_url(re.compile(r"stage=process"), timeout=30_000)
-    page.get_by_role("button", name="Preview changes", exact=True).click()
-    plot.wait_for(timeout=30_000)
-    _open_modeling_stage(page, "data")
-    page.wait_for_url(re.compile(r"stage=data"), timeout=30_000)
-    page.get_by_role("heading", name=STAGE_HEADINGS["data"], exact=True).wait_for(timeout=30_000)
+    rail = page.locator(".modeling-workspace-rail")
+    checkboxes = rail.locator(".curve-include-toggle input")
+    checkboxes.first.wait_for(timeout=30_000)
+    if checkboxes.count() != 3:
+        raise RuntimeError(f"expected exactly 3 Include controls, got {checkboxes.count()}")
+    for index in range(3):
+        checkbox = checkboxes.nth(index)
+        if not checkbox.is_checked():
+            checkbox.check()
+    page.wait_for_function(
+        "() => document.querySelectorAll('.modeling-workspace-rail .curve-include-toggle input:checked').length === 3",
+        timeout=30_000,
+    )
+    checkboxes.nth(0).uncheck()
+    page.wait_for_function(
+        "() => document.querySelectorAll('.modeling-workspace-rail .curve-include-toggle input:checked').length === 2",
+        timeout=30_000,
+    )
+    visibility = rail.locator(".curve-visibility-toggle")
+    if visibility.count() != 3:
+        raise RuntimeError(f"expected exactly 3 Show controls, got {visibility.count()}")
+    for index in range(3):
+        button = visibility.nth(index)
+        if button.get_attribute("aria-pressed") != "true":
+            button.click()
+    page.wait_for_function(
+        "() => [...document.querySelectorAll('.modeling-workspace-rail .curve-visibility-toggle')].every(button => button.getAttribute('aria-pressed') === 'true')",
+        timeout=30_000,
+    )
+    _wait_for_data_plot(page)
+    _wait_for_settled(page)
+    before_reload = _data_session_snapshot(page)
+    if len(before_reload["selectedTestDataRefs"]) != 3:
+        raise RuntimeError(f"expected 3 selected exact refs before reload, got {before_reload}")
+    if len(before_reload["selectedDocumentIds"]) != 2:
+        raise RuntimeError(f"expected exactly 2 included Test Data ids before reload, got {before_reload}")
+    if len(before_reload["visibleTestDataKeys"]) != 3:
+        raise RuntimeError(f"expected 3 visible exact refs before reload, got {before_reload}")
+    # Reload through the actual route and require the selected exact rows to
+    # remain included. This catches the old id-only/current-head regression.
+    page.reload()
+    _wait_for_modeling_data_surface(page)
+    page.locator(".data-library-list .data-library-row").first.wait_for(timeout=30_000)
+    page.wait_for_function(
+        "() => document.querySelectorAll('.modeling-workspace-rail .curve-include-toggle input:checked').length === 2",
+        timeout=30_000,
+    )
+    page.wait_for_function(
+        """() => document.querySelectorAll('.modeling-workspace-rail .curve-visibility-toggle[aria-pressed=\"true\"]').length === 3""",
+        timeout=30_000,
+    )
+    _wait_for_data_plot(page)
+    after_reload = _data_session_snapshot(page)
+    if after_reload != before_reload:
+        raise RuntimeError(f"exact Modeling Data selection changed across reload: before={before_reload}, after={after_reload}")
+    if page.locator(".modeling-workspace-rail .curve-include-toggle input:checked").count() != 2:
+        raise RuntimeError("reload did not preserve exactly 2 included Test Data records")
+    if page.locator('.modeling-workspace-rail .curve-visibility-toggle[aria-pressed="true"]').count() != 3:
+        raise RuntimeError("reload did not preserve all 3 visible Test Data records")
     _wait_for_settled(page)
 
 
@@ -1502,10 +1632,10 @@ def _capture_modeling_consistency(
 def _capture_modeling_data_session(
     browser: Browser, base_url: str, output: Path
 ) -> list[dict[str, float]]:
-    """Refresh the Data and new-session evidence after user-facing copy changes."""
+    """Capture exact Library selection, reload persistence, and Data exceptions."""
     measurements: list[dict[str, float]] = []
     _capture_modeling_session_shell(browser, base_url, output)
-    for width, height in VIEWPORTS:
+    for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS):
         page = _new_page(browser, base_url, width, height)
         _prepare_modeling(page, base_url)
         _assert_modeling_normal_shell(page)
@@ -1535,6 +1665,7 @@ def _capture_modeling_data_session(
             }
         )
         page.context.close()
+    _capture_modeling_data_exceptions(browser, base_url, output)
     return measurements
 
 
@@ -1560,7 +1691,7 @@ def _capture_modeling_session_shell(browser: Browser, base_url: str, output: Pat
         page.wait_for_url(re.compile(r"stage=data"), timeout=30_000)
         page.wait_for_function(
             """() => {
-              const raw = sessionStorage.getItem("cmp.modeling.recent-session.v3");
+              const raw = sessionStorage.getItem("cmp.modeling.recent-session.v4");
               if (!raw) return false;
               const session = JSON.parse(raw);
               return session.contextSelectionRequired === true
@@ -1584,6 +1715,117 @@ def _capture_modeling_session_shell(browser: Browser, base_url: str, output: Pat
         if any(retired_terms.nth(index).is_visible() for index in range(retired_terms.count())):
             raise RuntimeError("new-session shell exposed retired implementation terminology")
         _capture(page, output / f"modeling-session-{width}x{height}.png", width, height)
+        page.context.close()
+
+
+def _capture_modeling_data_exceptions(browser: Browser, base_url: str, output: Path) -> None:
+    """Capture an empty new session and an invalid runtime CSV mapping state."""
+    page = _new_page(browser, base_url, 1440, 900)
+    try:
+        page.goto(f"{base_url}/modeling?stage=data&family=metal")
+        _wait_for_modeling_data_surface(page)
+        page.evaluate(
+            """() => window.dispatchEvent(new CustomEvent(
+              "cmp:workspace-command", { detail: { command: "modeling:new" } }
+            ))"""
+        )
+        _wait_for_modeling_data_surface(page)
+        page.wait_for_function(
+            """() => {
+              const raw = sessionStorage.getItem("cmp.modeling.recent-session.v4");
+              if (!raw) return false;
+              const session = JSON.parse(raw);
+              const workspace = session.workspace || {};
+              return session.contextSelectionRequired === true
+                && !session.material
+                && !session.materialState
+                && !session.testData
+                && !session.mappingProfile
+                && Array.isArray(workspace.selectedTestDataRefs)
+                && workspace.selectedTestDataRefs.length === 0
+                && Array.isArray(workspace.selectedDocumentIds)
+                && workspace.selectedDocumentIds.length === 0
+                && Array.isArray(workspace.visibleTestDataKeys)
+                && workspace.visibleTestDataKeys.length === 0;
+            }""",
+            timeout=30_000,
+        )
+        empty_session = _modeling_session(page)
+        if empty_session.get("material") or empty_session.get("materialState") or empty_session.get("testData"):
+            raise RuntimeError(f"new Modeling Data session retained a pin: {empty_session}")
+        _capture(page, output / "modeling-data-empty-1440x900.png", 1440, 900)
+    finally:
+        page.context.close()
+
+    page = _new_page(browser, base_url, 1440, 900)
+    temporary_csv: Path | None = None
+    try:
+        # Start from the valid three-curve state so the blocked Local mapping
+        # capture proves that the last usable graph remains on screen.
+        _prepare_modeling(page, base_url)
+        _wait_for_data_plot(page)
+        page.get_by_role("tab", name="Local file", exact=True).click()
+        test_run = page.get_by_role("combobox", name="Local file Test Run", exact=True)
+        test_run.wait_for(timeout=30_000)
+        if test_run.locator("option").count() <= 1:
+            raise RuntimeError("no governed Test Run is available for invalid mapping capture")
+        test_run.select_option(index=1)
+        selected_run = test_run.input_value()
+        if not selected_run:
+            raise RuntimeError("invalid mapping capture did not select a Test Run")
+        long_strain = "Engineering strain measurement channel from extensometer (longitudinal)"
+        long_stress = "True stress observed channel [MPa]"
+        specimen_column = "Specimen identifier"
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".csv", prefix="cmp-invalid-", delete=False, encoding="utf-8"
+        ) as handle:
+            handle.write(
+                f"{long_strain},{long_stress},{specimen_column}\n"
+                "0.0000,0.0,Specimen 03\n"
+                "0.0100,410.0,Specimen 03\n"
+                "0.0200,520.0,Specimen 03\n"
+                "0.0300,610.0,Specimen 03\n"
+            )
+            temporary_csv = Path(handle.name)
+        page.get_by_label("Local test data file", exact=True).set_input_files(str(temporary_csv))
+        inspect = page.get_by_role("button", name="Inspect source", exact=True)
+        inspect.wait_for(state="visible", timeout=30_000)
+        if not inspect.is_enabled():
+            raise RuntimeError("Inspect source is disabled after selecting a Test Run and CSV")
+        inspect.click()
+        page.locator(".data-raw-table").wait_for(state="visible", timeout=30_000)
+        independent = page.get_by_role("combobox", name="Independent source column", exact=True)
+        dependent = page.get_by_role("combobox", name="Dependent source column", exact=True)
+        independent.wait_for(state="visible", timeout=30_000)
+        dependent.wait_for(state="visible", timeout=30_000)
+        independent.select_option(label=long_strain)
+        dependent.select_option(label=long_strain)
+        dependent_unit = page.get_by_role("combobox", name="Dependent original unit", exact=True)
+        dependent_unit.select_option(label="%")
+        reason = page.get_by_role("textbox", name="Mapping change reason", exact=True)
+        reason.fill("Review the measured source columns before saving this Test Data mapping.")
+        blockers = page.locator(".data-mapping-blockers[role=alert]")
+        blockers.wait_for(state="visible", timeout=30_000)
+        if not blockers.get_by_text(
+            "The same source column cannot be used for both required axes.", exact=True
+        ).count():
+            raise RuntimeError("invalid mapping capture did not expose duplicate-source blocker")
+        if not blockers.get_by_text(
+            re.compile(r"engineering stress unit .*%.*not supported", re.IGNORECASE)
+        ).count():
+            raise RuntimeError("invalid mapping capture did not expose unsupported-unit blocker")
+        for action in ("Update preview", "Save Test Data"):
+            button = page.get_by_role("button", name=action, exact=True)
+            for index in range(button.count()):
+                if not button.nth(index).is_disabled():
+                    raise RuntimeError(f"invalid mapping left {action} enabled")
+        _wait_for_data_plot(page)
+        if page.locator(".curve-line.data-observed").count() != 3:
+            raise RuntimeError("invalid mapping capture lost the last valid three-curve graph")
+        _capture(page, output / "modeling-data-invalid-1440x900.png", 1440, 900)
+    finally:
+        if temporary_csv is not None:
+            temporary_csv.unlink(missing_ok=True)
         page.context.close()
 
 

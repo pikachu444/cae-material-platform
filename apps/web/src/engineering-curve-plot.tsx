@@ -35,6 +35,13 @@ interface PlotSeries {
   className: string;
 }
 
+export interface ObservedCurveInput {
+  id: string;
+  label: string;
+  preview: CommonProcessingPreview;
+  color?: string;
+}
+
 interface PlotBand {
   id: string;
   label: string;
@@ -590,6 +597,7 @@ export function EngineeringCurvePlot({
   selectedModelOnly = false,
   interactionCommand,
   onInteractionStateChange,
+  observedCurves,
 }: {
   preview: CommonProcessingPreview;
   activeStage: CommonCurveStage;
@@ -603,6 +611,8 @@ export function EngineeringCurvePlot({
   selectedModelOnly?: boolean;
   interactionCommand?: PlotInteractionCommand | null;
   onInteractionStateChange?: (state: PlotInteractionState) => void;
+  /** Data-stage only: real server previews for each visible exact Test Data revision. */
+  observedCurves?: ObservedCurveInput[];
 }) {
   const [hiddenSeries, setHiddenSeries] = useState<string[]>([]);
   const [viewBounds, setViewBounds] = useState<PlotBounds | null>(null);
@@ -620,10 +630,32 @@ export function EngineeringCurvePlot({
   const isProny = !ensemblePreview && (activeStage.method_id === "polymer.prony_fit_compare"
     || activeStage.method_id === "polymer.dma_prony_fit_compare");
   const isDmaProny = activeStage.method_id === "polymer.dma_prony_fit_compare";
-  const model = useMemo(
-    () => ensemblePreview ? seriesForEnsemble(ensemblePreview) : seriesForStage(preview, activeStage, baseStage, activeStep, hardeningMode, pronyMode, fitSelection),
-    [activeStage, activeStep, baseStage, ensemblePreview, fitSelection, hardeningMode, preview, pronyMode],
-  );
+  const model = useMemo(() => {
+    const baseModel = ensemblePreview
+      ? seriesForEnsemble(ensemblePreview)
+      : seriesForStage(preview, activeStage, baseStage, activeStep, hardeningMode, pronyMode, fitSelection);
+    if (ensemblePreview || selectedModelOnly) return baseModel;
+    if (!observedCurves?.length) return baseModel;
+    const observedSeries: PlotSeries[] = observedCurves.flatMap((curve, index) => {
+      const stage = curve.preview.stages[0];
+      if (!stage) return [];
+      const x = stage.series.find((item) => item.quantity === curve.preview.independent_quantity);
+      const y = stage.series.find((item) => item.quantity !== curve.preview.independent_quantity);
+      if (!x || !y || x.values.length < 2 || x.values.length !== y.values.length) return [];
+      return [{
+        id: `observed.${curve.id}`,
+        label: curve.label,
+        xValues: x.values,
+        yValues: y.values,
+        color: curve.color ?? CANDIDATE_COLORS[index % CANDIDATE_COLORS.length],
+        className: "data-observed",
+      }];
+    });
+    // Data-stage observed previews are the measured source curves.  They
+    // replace the mapped/base series here so each exact source contributes one
+    // line and legend entry instead of a duplicate synthetic-looking line.
+    return { ...baseModel, series: observedSeries, band: undefined };
+  }, [activeStage, activeStep, baseStage, ensemblePreview, fitSelection, hardeningMode, observedCurves, pronyMode, preview, selectedModelOnly]);
   const visibleModelSeries = selectedModelOnly
     ? model.series.filter((item) => !item.className.includes("candidate"))
     : model.series;

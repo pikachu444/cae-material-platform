@@ -84,6 +84,11 @@ const documentResource = {
       missing_count: 0,
     },
   ],
+  governed_source: {
+    material: { aggregate_id: "material-a", revision_id: "material-a-r1" },
+    material_state: { aggregate_id: "state-a", revision_id: "state-a-r1" },
+    test_run: { aggregate_id: "run-a", revision_id: "run-a-r1" },
+  },
 };
 
 const replicateResource = {
@@ -469,7 +474,7 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByRole("tab", { name: "Library" })).toBeTruthy();
     expect(screen.getByRole("tab", { name: "Local file" })).toBeTruthy();
     expect(screen.getByRole("tab", { name: "Test Data JSON" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Verify source & channel mapping" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Select Test Data" })).toBeTruthy();
     expect(screen.queryByText("Metal hardening candidates")).toBeNull();
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:validate" } }));
     expect(await screen.findByRole("heading", { name: "Validation, review and release" })).toBeTruthy();
@@ -726,4 +731,107 @@ describe("Common Processing Workbench", () => {
     expect(onNewSession).toHaveBeenCalledWith("metal");
     expect(onNavigate).toHaveBeenLastCalledWith("/modeling?stage=data&family=metal");
   }, 20_000);
+
+  it("keeps restored exact Data refs while documents resolve before Material context", async () => {
+    const thirdResource = {
+      ...replicateResource,
+      test_data_document_id: "53000000-0000-4000-8000-000000000022",
+      current_revision: {
+        ...replicateResource.current_revision,
+        id: "53000000-0000-4000-8000-000000000023",
+        aggregate_id: "53000000-0000-4000-8000-000000000022",
+      },
+      document_key: "DP600-TENSILE-03",
+      specimen_id: "S-3",
+    };
+    const documents = [documentResource, replicateResource, thirdResource];
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.endsWith("/test-data-documents")) return jsonResponse({ items: documents });
+      if (url.endsWith("/mapping-profiles")) return jsonResponse({ items: [] });
+      if (url.endsWith("/processing-methods") || url.endsWith("/processing-outputs")
+        || url.endsWith("/processing-ensemble-methods") || url.endsWith("/common-processing-recipes")
+        || url.endsWith("/common-processing-batches")) return jsonResponse({ items: [] });
+      if (url.includes("/content")) {
+        return {
+          ok: true,
+          status: 200,
+          headers: new Headers({ "content-type": "application/json" }),
+          blob: async () => new Blob([JSON.stringify(documentJson)], { type: "application/json" }),
+        } as Response;
+      }
+      throw new Error(`unexpected request: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const refs = documents.map((item) => ({
+      id: item.test_data_document_id,
+      revisionId: item.current_revision.id,
+      label: item.document_key,
+      revisionNo: item.current_revision.revision_no,
+    }));
+    const initialSession = {
+      version: 4,
+      updatedAt: "2026-07-24T00:00:00Z",
+      materialFamily: "metal",
+      objective: "Keep exact Data sources",
+      material: { id: "material-a", revisionId: "material-a-r1", label: "DP600", revisionNo: 1 },
+      materialState: { id: "state-a", revisionId: "state-a-r1", label: "As received", revisionNo: 1 },
+      testData: refs[0],
+      workspace: {
+        activeStage: "data",
+        selectedDocumentIds: refs.map((ref) => ref.id),
+        selectedTestDataRefs: refs,
+        visibleTestDataKeys: refs.map((ref) => `${ref.id}:${ref.revisionId}`),
+        selectedStepIndex: 0,
+        selectedStageOrdinal: 0,
+        plotView: "pipeline",
+        settingsOpen: true,
+      },
+    };
+    const onSessionChange = vi.fn();
+    const material = {
+      material_id: "material-a",
+      current_revision: { id: "material-a-r1", revision_no: 1, content: { name: "DP600" } },
+    };
+    const materialState = {
+      material_state_id: "state-a",
+      current_revision: { id: "state-a-r1", revision_no: 1, content: { name: "As received" } },
+    };
+    const view = render(
+      <CommonProcessingWorkbench
+        config={{ baseUrl: "/api/v1", accessToken: "token" }}
+        initialSession={initialSession as never}
+        onNavigate={() => undefined}
+        onOpenConnection={() => undefined}
+        onSessionChange={onSessionChange}
+      />,
+    );
+    await waitFor(() => expect(
+      fetchMock.mock.calls.some(([input]) => String(input).endsWith("/test-data-documents")),
+    ).toBe(true));
+    await new Promise((resolve) => window.setTimeout(resolve, 0));
+
+    view.rerender(
+      <CommonProcessingWorkbench
+        config={{ baseUrl: "/api/v1", accessToken: "token" }}
+        initialSession={initialSession as never}
+        material={material as never}
+        materialState={materialState as never}
+        onNavigate={() => undefined}
+        onOpenConnection={() => undefined}
+        onSessionChange={onSessionChange}
+      />,
+    );
+    await waitFor(() => expect(document.querySelectorAll(".data-library-row")).toHaveLength(3));
+    await waitFor(() => {
+      const workspacePatches = onSessionChange.mock.calls
+        .map(([patch]) => (patch as Record<string, unknown>).workspace)
+        .filter((workspace): workspace is Record<string, unknown> => Boolean(workspace));
+      const latest = workspacePatches.at(-1);
+      expect(latest?.selectedTestDataRefs).toHaveLength(3);
+      expect(latest?.selectedDocumentIds).toHaveLength(3);
+      expect(latest?.visibleTestDataKeys).toHaveLength(3);
+    });
+  });
 });

@@ -81,13 +81,17 @@ Material Detail command bar, 왼쪽 `← Results`, 브라우저 뒤로 가기는
 ## 시험 데이터에서 card delivery 준비하기
 
 1. Modeling의 Data에서 canonical Test Data JSON, CSV 또는 XLSX를 선택합니다.
-2. JSON schema/channel/quantity semantics/original+normalized unit 또는 CSV/XLSX의 worksheet,
-   column/channel/unit mapping을 확인합니다.
-3. Process에서 원본을 보존한 채 crop, smoothing, resample과 반복시험 통계를 검토합니다.
-4. Fit의 한 표에서 candidate별 상태, 오차, 적용 범위와 경고를 비교하고 같은 그래프의
+2. Library에서 현재 재료와 상태에 연결된 정확한 Test Data revision을 한 개 이상 고릅니다. specimen,
+   revision, 채널과 원본/정규화 단위를 확인하고, 체크박스로 모델링에 포함할 곡선과 눈 아이콘으로 그래프에
+   표시할 곡선을 각각 정합니다. 여러 반복시험은 실제 곡선을 한 그래프에서 비교합니다.
+3. JSON schema/channel/quantity semantics/original+normalized unit 또는 CSV/XLSX의 worksheet,
+   column/channel/unit mapping을 확인합니다. 필수 채널 누락, 같은 열의 중복 사용, 지원하지 않는 원본 단위는
+   Update/Save를 막으며 파일과 마지막 정상 그래프를 유지한 채 수정·재시도할 수 있습니다.
+4. Process에서 원본을 보존한 채 crop, smoothing, resample과 반복시험 통계를 검토합니다.
+5. Fit의 한 표에서 candidate별 상태, 오차, 적용 범위와 경고를 비교하고 같은 그래프의
    response, residual, tangent modulus와 observed/extrapolated 경계를 확인합니다.
-5. 하나의 candidate를 명시적으로 선택하고 이유를 기록합니다. 추천 결과는 선택을 대신하지 않습니다.
-6. Export는 현재 작업에서 선택하고 저장한 재료, 상태, 시험 데이터 및 모델 결과가 서로 맞을 때만
+6. 하나의 candidate를 명시적으로 선택하고 이유를 기록합니다. 추천 결과는 선택을 대신하지 않습니다.
+7. Export는 현재 작업에서 선택하고 저장한 재료, 상태, 시험 데이터 및 모델 결과가 서로 맞을 때만
    해당 재료군의 전달 옵션을 엽니다. 내보내기 전에 필요한 값과 대상 조건을 다시 확인합니다. 하나라도
    최신이 아니거나 현재 작업과 맞지 않으면 **Blocked**로 남으며, 다른 작업의 결과로 대신 내보내지 않습니다.
 
@@ -117,11 +121,13 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
   `Data | Process | Fit | Export` stepper는 같은 세션의 일반 작업 단계를 전환합니다. 검증과
   review/release는 Advanced 또는 (향후) Activity queue의 별도 작업입니다.
   단계 이름만 간결하게 보이며, 준비 상태와 다음 행동은 hover/focus 설명과 접근성 레이블로 확인합니다. 단계와 material family는
-  URL에, 선택 curve·step·plot view·settings 상태는 clear 가능한 Modeling session v3에 저장됩니다.
+  URL에, 선택한 Test Data의 정확한 revision·curve·step·plot view·settings 상태는 clear 가능한 Modeling session v4에 저장됩니다.
   새 session은 항상 Data에서 시작하며, 진행 중이던 Material/State/Test Data/Mapping/Output
   pointer나 늦게 도착한 자동 선택 결과를 다시 pin하지 않습니다.
-- Data/Process/Fit의 왼쪽 `Curves`와 Process/Fit의 `Process`는 27 px 일반 문자열 행입니다. specimen 이름과 revision을
-  선택하고, 원본 document key와 exact revision은 hover/focus title에서 확인합니다.
+- Data/Process/Fit의 왼쪽 `Curves`와 Process/Fit의 `Process`는 27 px 일반 문자열 행입니다. Data에서는 specimen과
+  revision을 한 개 이상 포함할 수 있고, 체크박스는 모델링에 포함할 곡선, 눈 아이콘은 그래프에 표시할 곡선을 뜻합니다.
+  원본 document key와 exact revision은 hover/focus title에서 확인합니다. 서로 다른 반복시험은 실제 서버 preview 곡선으로
+  같은 그래프에 겹쳐 보며, 포함 선택은 reload 뒤에도 유지됩니다.
 - 가운데 그래프가 주 작업면입니다. Process와 Fit을 전환해도 선택 curve와 server preview가
   유지되며 response, residual, tangent 또는 extrapolation 보기를 같은 그래프에서 바꿉니다.
   현재 캡처 자동화는 렌더링된 가로축이 Modeling workspace 폭의 72% 미만이면 실패합니다.
@@ -139,7 +145,7 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
   approximated/ignored 항목은 바로 옆 확인을 요구합니다. 생성 뒤 native ASCII card와 mapping
   report를 내려받거나 Material의 CAE Cards로 이동할 수 있습니다.
 - Export를 열었다가 Fit으로 돌아와도 그래프 DOM, 선택 curve와 plot view는 그대로 유지됩니다.
-- Material revision/State/physical family/Test Data가 바뀌면 downstream current pointer는 clear되고,
+- Material revision/State/physical family/Test Data가 바뀌면 호환되지 않는 Test Data 선택은 추측 없이 clear되고 downstream current pointer도 clear되며,
   실제로 존재한 Review/Release history만 Stale evidence로 남습니다. history가 없으면 Review/Release는
   정책 prerequisite의 Blocked 상태입니다. mapping/process/fit/target 변경도 영향 범위를 표시해
   재계산 또는 재생성을 요구합니다. source revision과 Recipe step을 바꾼 뒤에는 command bar의 Undo/Redo로 draft를 되돌릴 수 있습니다.
@@ -241,3 +247,15 @@ UXC-01 Materials Search 이미지는 web과 API를 같은 코드로 재빌드한
 | Fit | ![Fit 1366](images/current/modeling-fit-1366x768.png) | ![Fit 1440](images/current/modeling-fit-1440x900.png) | ![Fit 1920](images/current/modeling-fit-1920x1080.png) |
 | Export | ![Export 1366](images/current/modeling-export-1366x768.png) | ![Export 1440](images/current/modeling-export-1440x900.png) | ![Export 1920](images/current/modeling-export-1920x1080.png) |
 | UXC-02 session shell | ![Session 1366](images/current/modeling-session-1366x768.png) | ![Session 1440](images/current/modeling-session-1440x900.png) | ![Session 1920](images/current/modeling-session-1920x1080.png) |
+
+Task 1 Data의 targeted capture는 실제 Library에서 고른 exact revision을 두 개 이상 Include하고,
+그래프의 Show를 바꾼 뒤 reload해 같은 선택이 남는지 확인합니다. 2560×1440과 3840×2160도 같은
+정상 흐름으로 확인하며, 1440×900에서는 새 session의 빈 Data와 실행 중 생성한 잘못된 CSV mapping
+상태를 별도 예외 화면으로 기록합니다. CSV는 저장소에 fixture로 남기지 않습니다.
+
+| Data evidence | 화면 |
+| --- | --- |
+| Wide 2560×1440 | ![Data 2560](images/current/modeling-data-2560x1440.png) |
+| Wide 3840×2160 | ![Data 3840](images/current/modeling-data-3840x2160.png) |
+| Empty new session 1440×900 | ![Data empty](images/current/modeling-data-empty-1440x900.png) |
+| Invalid runtime CSV 1440×900 | ![Data invalid](images/current/modeling-data-invalid-1440x900.png) |

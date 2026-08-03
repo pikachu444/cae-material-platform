@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   ModelingDataIntake,
   governedSourceFor,
+  mappingBlockers,
   profileMatchesPreview,
 } from "./modeling-data-intake";
 import type { GovernedImportPreview, GovernedImportProfileResponse } from "./types";
@@ -87,6 +88,34 @@ describe("Modeling data intake", () => {
       { ...profile, content: { ...profile.content, sheet_name: "Repeat" } },
       preview,
     )).toBe(false);
+  });
+
+  it("blocks missing, duplicate, and unsupported Test Data mappings", () => {
+    const quantities = ["engineering_strain", "engineering_stress"] as const;
+
+    expect(mappingBlockers({
+      independentColumn: "strain",
+      dependentColumn: "",
+      independentUnit: "%",
+      dependentUnit: "MPa",
+      quantities,
+    })).toContain("Choose the required engineering stress channel.");
+
+    expect(mappingBlockers({
+      independentColumn: "strain",
+      dependentColumn: "strain",
+      independentUnit: "%",
+      dependentUnit: "MPa",
+      quantities,
+    })).toContain("The same source column cannot be used for both required axes.");
+
+    expect(mappingBlockers({
+      independentColumn: "strain",
+      dependentColumn: "stress",
+      independentUnit: "%",
+      dependentUnit: "%",
+      quantities,
+    })).toContain("engineering stress unit “%” is not supported. Choose Pa, kPa, MPa, GPa.");
   });
 
   it("builds governed local-file proof from exact Material, State, and Test Run revisions", () => {
