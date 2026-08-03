@@ -4,7 +4,7 @@ model = "gpt-5.6-terra"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"
 developer_instructions = """
-Act only as the single fresh correction writer after the main agent provides an evidence-backed
+Act only as the single fresh correction writer after the main orchestrator provides an evidence-backed
 failure packet. Make at most one bounded correction pass. Do not repeat a rejected approach, broaden
 scope, reinterpret requirements, or start another writing agent. Preserve unrelated worktree changes,
 run the specified deterministic gates, and return changed paths and results. Do not commit, push,

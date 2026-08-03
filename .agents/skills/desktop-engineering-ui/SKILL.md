@@ -30,7 +30,7 @@ Port their region structure and CSS faithfully while wiring existing data and st
 invent replacement topology, route-specific override layers, fake data fallbacks or decorative
 technical content.
 
-Before calling a writer, the main agent opens the exact approved images plus named HTML/CSS at original
+Before calling a writer, the main orchestrator opens the exact approved images plus named HTML/CSS at original
 resolution, inspects the current live/capture state and stores one bounded packet naming:
 
 - the user task and exact assets/screens;
@@ -48,7 +48,7 @@ continuity, local scroll discoverability and absence of page overflow, clipping,
 plots. Capture live/reference comparisons and update the required current guide, screenshot manifest
 and live screenshots.
 
-After implementation and the packet's deterministic gates, the main agent opens every target/state image
+After implementation and the packet's deterministic gates, the main orchestrator opens every target/state image
 at original resolution, repeats the region-by-region comparison, records resolved and unresolved
 differences, and completes Q-01 through Q-20 once. Judge the whole screen before an isolated control:
 engineering credibility, information density, hierarchy, graph/table/tree dominance, whitespace,
@@ -57,13 +57,13 @@ supporting evidence.
 
 ## Independent review and approval
 
-Only after the main-agent gate passes, store one bounded reviewer packet containing issue acceptance,
+Only after the main-orchestrator gate passes, store one bounded reviewer packet containing issue acceptance,
 approved references, implementation diff, live/comparison paths, interaction/test results and the
 completed checklist. The configured fresh read-only reviewer checks only that evidence and returns
-actionable findings plus an approval disposition. It may disagree with the main-agent judgment using
+actionable findings plus an approval disposition. It may disagree with the main-orchestrator judgment using
 the named criteria, but it does not introduce new acceptance criteria.
 
-The main agent evaluates the findings. Reviewer completion alone does not trigger another full-screen
+The main orchestrator evaluates the findings. Reviewer completion alone does not trigger another full-screen
 checklist. If a correction changes implementation or evidence, rerun only the affected comparisons and
 gates before fresh review; when neither changed, do not request another reviewer. Follow `AGENTS.md` for
 correction, approval and publication boundaries.

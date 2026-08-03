@@ -710,17 +710,16 @@ whole task flow, region topology, information priority, readable density, graph/
 control-result continuity and absence of overlap, clipping and overflow; measurements prevent unsafe
 regressions rather than becoming the design objective.
 
-No visual implementation starts until the main agent has opened the exact approved target images.
-Every visual PR supplies registered reference/current side-by-side live captures to the main agent and
-product owner before merge. One correction and fresh re-review is the default. If it still fails, stop
-with exact findings; only explicit product-owner authorization opens one second bounded correction and
-fresh re-review. Never retry the same local CSS approach or run a third correction.
+No visual implementation starts until the main orchestrator has opened the exact approved target images.
+Every visual PR supplies registered reference/current side-by-side live captures to the main orchestrator
+and product owner before merge. Correction and fresh re-review follow `AGENTS.md`; the main orchestrator
+diagnoses each failure and supplies a bounded correction packet.
 
-The main agent and fresh read-only reviewer independently complete the
+The main orchestrator and fresh read-only reviewer independently complete the
 [mandatory qualitative owner checklist](visual-acceptance-matrix.md#mandatory-qualitative-owner-checklist)
 at original resolution. Numeric scoring and automated measurements cannot override a qualitative
-failure. The main agent repeats the judgment after reviewer disposition, and product-owner approval
-is the final visual decision.
+failure. The main orchestrator evaluates reviewer findings without repeating an unchanged completed
+checklist, and product-owner approval is the final visual decision.
 
 ## 15. Tooling and implementation approach
 
