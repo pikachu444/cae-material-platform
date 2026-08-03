@@ -242,6 +242,7 @@ test("clean demo exposes Search-first material-family journeys and progressive b
   await dp780Row.press("Enter");
   await expect(page).toHaveURL(/\/materials\/[0-9a-f-]+\?record_id=[0-9a-f-]+&record_revision_id=[0-9a-f-]+&material_revision_id=[0-9a-f-]+$/);
   const relatedRecord = page.locator(".material-related-context .related-record-list button").filter({ hasText: "DP780 reference Material State" });
+  await expect(relatedRecord).toBeVisible({ timeout: 15_000 });
   await expect(relatedRecord).toHaveCount(1);
   await relatedRecord.click();
   await expect(page).toHaveURL(/\/materials\/records\/[0-9a-f-]+\/revisions\/[0-9a-f-]+$/);
