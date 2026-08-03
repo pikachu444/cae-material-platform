@@ -141,6 +141,7 @@ export function NeutralSolverExport({
       const rendered = await previewNeutralHyperelasticSolverCard(
         config,
         result.data.solver_card_id,
+        result.data.current_revision.id,
       );
       setPreview(rendered.data);
       setShowReview(false);
@@ -156,7 +157,11 @@ export function NeutralSolverExport({
     setBusy("download");
     setError(null);
     try {
-      const result = await downloadNeutralHyperelasticSolverCard(config, card.solver_card_id);
+      const result = await downloadNeutralHyperelasticSolverCard(
+        config,
+        card.solver_card_id,
+        card.current_revision.id,
+      );
       save(result.data.blob, result.data.filename);
     } catch (cause) {
       setError(messageFor(cause));
@@ -170,7 +175,11 @@ export function NeutralSolverExport({
     setBusy("report");
     setError(null);
     try {
-      const result = await downloadNeutralHyperelasticMappingReport(config, card.solver_card_id);
+      const result = await downloadNeutralHyperelasticMappingReport(
+        config,
+        card.solver_card_id,
+        card.current_revision.id,
+      );
       save(result.data.blob, result.data.filename);
     } catch (cause) {
       setError(messageFor(cause));

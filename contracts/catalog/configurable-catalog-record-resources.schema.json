@@ -218,7 +218,33 @@
       "properties": {
         "record_id": {"$ref": "#/$defs/Uuid"},
         "table_id": {"$ref": "#/$defs/Uuid"},
-        "current_revision": {"$ref": "#/$defs/RecordRevision"}
+        "current_revision": {"$ref": "#/$defs/RecordRevision"},
+        "domain_binding": {"oneOf": [{"$ref": "#/$defs/DomainBindingProjection"}, {"type": "null"}]}
+      }
+    },
+    "DomainBindingKind": {
+      "type": "string",
+      "enum": [
+        "material", "material_state", "specimen", "test_run", "test_data",
+        "processing_output", "material_model", "neutral_material", "solver_card",
+        "neutral_solver_card", "release"
+      ]
+    },
+    "DomainBindingProjection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "binding_id", "record_id", "record_revision_id", "kind", "object_id",
+        "revision_id", "workbench_path"
+      ],
+      "properties": {
+        "binding_id": {"$ref": "#/$defs/Uuid"},
+        "record_id": {"$ref": "#/$defs/Uuid"},
+        "record_revision_id": {"$ref": "#/$defs/Uuid"},
+        "kind": {"$ref": "#/$defs/DomainBindingKind"},
+        "object_id": {"$ref": "#/$defs/Uuid"},
+        "revision_id": {"$ref": "#/$defs/Uuid"},
+        "workbench_path": {"type": "string", "pattern": "^/"}
       }
     },
     "DiscreteFilter": {
@@ -248,11 +274,17 @@
         "table_id": {"$ref": "#/$defs/Uuid"},
         "text": {"type": ["string", "null"], "minLength": 1, "maxLength": 200},
         "folder_id": {"type": ["string", "null"], "format": "uuid"},
+        "record_id": {"type": ["string", "null"], "format": "uuid"},
         "discrete_filters": {"type": "array", "maxItems": 20, "items": {"$ref": "#/$defs/DiscreteFilter"}},
         "number_filters": {"type": "array", "maxItems": 20, "items": {"$ref": "#/$defs/NumberFilter"}},
         "facet_attribute_ids": {"type": "array", "maxItems": 20, "items": {"$ref": "#/$defs/Uuid"}},
         "offset": {"type": "integer", "minimum": 0, "default": 0},
-        "limit": {"type": "integer", "minimum": 1, "maximum": 100, "default": 50}
+        "limit": {"type": "integer", "minimum": 1, "maximum": 100, "default": 50},
+        "domain_binding_kind": {"oneOf": [{"$ref": "#/$defs/DomainBindingKind"}, {"type": "null"}]},
+        "include_descendants": {"type": "boolean", "default": false},
+        "sort_by": {"type": "string", "enum": ["name", "external_key", "attribute"], "default": "name"},
+        "sort_attribute_id": {"type": ["string", "null"], "format": "uuid"},
+        "sort_direction": {"type": "string", "enum": ["ascending", "descending"], "default": "ascending"}
       }
     },
     "FacetBucket": {

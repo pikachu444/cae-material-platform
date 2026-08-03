@@ -75,6 +75,15 @@ class NeutralHyperelasticExportingRepository(Protocol):
         solver_card_id: UUID,
     ) -> NeutralHyperelasticSolverCardSnapshot: ...
 
+    def get_solver_card_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        solver_card_id: UUID,
+        solver_card_revision_id: UUID,
+    ) -> NeutralHyperelasticSolverCardSnapshot: ...
+
     def list_solver_cards_for_neutral_material(
         self,
         *,
@@ -225,6 +234,23 @@ class NeutralHyperelasticSolverCardService:
             context=context, decision=decision, solver_card_id=solver_card_id
         )
 
+    def get_card_revision(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        solver_card_id: UUID,
+        solver_card_revision_id: UUID,
+    ) -> NeutralHyperelasticSolverCardSnapshot:
+        """Read one exact immutable Neutral Solver Card revision under request scope."""
+
+        _require(context, decision, Permission.EXPORT_READ)
+        return self._repository.get_solver_card_revision(
+            context=context,
+            decision=decision,
+            solver_card_id=solver_card_id,
+            solver_card_revision_id=solver_card_revision_id,
+        )
+
     def list_cards(
         self,
         context: SecurityContext,
@@ -243,10 +269,20 @@ class NeutralHyperelasticSolverCardService:
         context: SecurityContext,
         decision: AuthorizationDecision,
         solver_card_id: UUID,
+        solver_card_revision_id: UUID | None = None,
     ) -> NeutralMappingReport:
         _require(context, decision, Permission.EXPORT_READ)
-        card = self._repository.get_solver_card(
-            context=context, decision=decision, solver_card_id=solver_card_id
+        card = (
+            self._repository.get_solver_card(
+                context=context, decision=decision, solver_card_id=solver_card_id
+            )
+            if solver_card_revision_id is None
+            else self._repository.get_solver_card_revision(
+                context=context,
+                decision=decision,
+                solver_card_id=solver_card_id,
+                solver_card_revision_id=solver_card_revision_id,
+            )
         )
         source = await self._neutral_materials.get_neutral_material_revision_for_export(
             context,

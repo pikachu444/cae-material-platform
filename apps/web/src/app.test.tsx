@@ -1,6 +1,20 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "./app";
+import { MaterialDetailPage } from "./material-library";
+
+vi.mock("./materials-browse-tree", async () => {
+  const React = await import("react");
+  return {
+    MaterialsBrowseTree: ({ subsetMode, onScopeChange }: { subsetMode: boolean; onScopeChange?: (scope: { tableId: string }) => void }) => {
+      React.useEffect(() => {
+        const timer = window.setTimeout(() => onScopeChange?.({ tableId: "demo-material-records" }), 0);
+        return () => window.clearTimeout(timer);
+      }, [onScopeChange]);
+      return <div><form role="search"><input aria-label="Find in tree" /></form>{subsetMode ? "Saved subsets" : "Browse tree"}</div>;
+    },
+  };
+});
 
 function jsonResponse(body: unknown, status = 200): Response {
   return {
@@ -57,6 +71,68 @@ const visibleMaterial = {
   links: { self: "/api/v1/materials/1", revisions: "/api/v1/materials/1/revisions", states: "/api/v1/materials/1/states" },
 };
 
+const materialCatalogTableId = "demo-material-records";
+const materialCatalogAttributes = [
+  { attribute_definition_id: "material-class", current_revision: { content: { key: "material_class" } } },
+  { attribute_definition_id: "provider", current_revision: { content: { key: "provider" } } },
+  { attribute_definition_id: "evidence-source", current_revision: { content: { key: "evidence_source" } } },
+  { attribute_definition_id: "material-family", current_revision: { content: { key: "material_family" } } },
+];
+
+function materialCatalogRecord(material: typeof visibleMaterial) {
+  const content = material.current_revision.content;
+  return {
+    record_id: `record-${material.material_id}`,
+    table_id: materialCatalogTableId,
+    domain_binding: { kind: "material", object_id: material.material_id, revision_id: material.current_revision.id },
+    current_revision: {
+      ...material.current_revision,
+      content: {
+        table_revision_id: "demo-material-records-r1",
+        name: content.name,
+        external_key: content.material_code,
+        description: content.description,
+        folder_id: null,
+        folder_revision_id: null,
+        values: [
+          { data_type: "discrete", attribute_definition_id: "material-class", value: content.material_class },
+          { data_type: "text", attribute_definition_id: "material-family", value: content.material_family ?? "" },
+          { data_type: "text", attribute_definition_id: "provider", value: "Demo provider" },
+          { data_type: "text", attribute_definition_id: "evidence-source", value: "Synthetic reference" },
+        ],
+      },
+    },
+  };
+}
+
+function materialCatalogResponse(materials: typeof visibleMaterial[], totalCount = materials.length, offset = 0) {
+  return {
+    items: materials.map(materialCatalogRecord),
+    total_count: totalCount,
+    offset,
+    limit: 50,
+    facets: [
+      ...new Map(materials.map((material) => [material.current_revision.content.material_class, material])).values(),
+    ].map((material) => ({ attribute_definition_id: "material-class", value: material.current_revision.content.material_class, count: totalCount })),
+  };
+}
+
+function materialCatalogFetch(
+  input: RequestInfo | URL,
+  init: RequestInit | undefined,
+  materials: typeof visibleMaterial[],
+  totalCount = materials.length,
+): Response | null {
+  const url = String(input);
+  if (url.endsWith("/catalog/tables")) return jsonResponse({ items: [{ table_id: materialCatalogTableId }] });
+  if (url.endsWith(`/catalog/tables/${materialCatalogTableId}/attributes`)) return jsonResponse({ items: materialCatalogAttributes });
+  if (url.endsWith("/catalog/records:search")) {
+    const request = JSON.parse(String(init?.body ?? "{}")) as { offset?: number };
+    return jsonResponse(materialCatalogResponse(materials, totalCount, request.offset ?? 0));
+  }
+  return null;
+}
+
 const demoSession = {
   access_token: "demo-token",
   token_type: "Bearer",
@@ -80,13 +156,25 @@ const generatedCardCandidate = {
   label: "Neutral openradioss native card · METAL_REFERENCE",
 };
 
+const neutralCardRevisionId = "00000000-0000-4000-8000-000000000023";
+
+function exactNeutralCardPath(cardId: string, suffix = ""): string {
+  return `/neutral-solver-cards/${cardId}${suffix}?revision_id=${neutralCardRevisionId}`;
+}
+
+function rejectUnpinnedNeutralCardRequest(url: string, cardId: string): void {
+  if (url.includes(`/neutral-solver-cards/${cardId}`)) {
+    throw new Error(`Neutral graph card request must pin ${neutralCardRevisionId}: ${url}`);
+  }
+}
+
 function neutralSolverCard(cardId: string) {
   return {
     solver_card_id: cardId,
     neutral_material_id: "00000000-0000-4000-8000-000000000030",
     target: { solver: "openradioss", version: "2025", unit_system: "kg_m_s" },
     current_revision: {
-      id: "00000000-0000-4000-8000-000000000023",
+      id: neutralCardRevisionId,
       revision_no: 1,
       lifecycle_state: "draft",
       content: {
@@ -149,9 +237,10 @@ describe("Material Catalog workbench", () => {
   });
 
   it("renders Material data returned by the real Catalog API contract", async () => {
-    mockProductFetch((input) => {
+    mockProductFetch((input, init) => {
       const url = String(input);
-      if (url.includes("/materials?")) return jsonResponse({ items: [visibleMaterial], total_count: 10_000, offset: 0, limit: 50, facets: { material_classes: [{ material_class: "metal", count: 10_000 }] } });
+      const catalog = materialCatalogFetch(input, init, [visibleMaterial], 10_000);
+      if (catalog) return catalog;
       if (url.endsWith(`/materials/${visibleMaterial.material_id}`)) {
         return jsonResponse({ material: visibleMaterial, states: [], property_sets: [] });
       }
@@ -174,7 +263,7 @@ describe("Material Catalog workbench", () => {
     expect(screen.getByRole("table", { name: "Material results" })).toBeTruthy();
     expect(screen.queryByRole("combobox", { name: "Material class" })).toBeNull();
     expect(screen.getByRole("columnheader", { name: /Family/ })).toBeTruthy();
-    expect(screen.getByRole("columnheader", { name: /Status/ })).toBeTruthy();
+    expect(screen.queryByRole("columnheader", { name: /Status/ })).toBeNull();
     expect(screen.queryByRole("columnheader", { name: /Form \/ condition|Release/ })).toBeNull();
     expect(screen.queryByText("Provider")).toBeNull();
     expect(screen.queryByText("Evidence source")).toBeNull();
@@ -220,9 +309,10 @@ describe("Material Catalog workbench", () => {
       },
     };
     window.history.pushState({}, "", `/materials?selected=${visibleMaterial.material_id}`);
-    mockProductFetch((input) => {
+    mockProductFetch((input, init) => {
       const url = String(input);
-      if (url.includes("/materials?")) return jsonResponse({ items: [alphabeticFirst, visibleMaterial], total_count: 2, offset: 0, limit: 50, facets: { material_classes: [] } });
+      const catalog = materialCatalogFetch(input, init, [alphabeticFirst, visibleMaterial]);
+      if (catalog) return catalog;
       if (url.endsWith(`/materials/${visibleMaterial.material_id}`)) return jsonResponse({ material: visibleMaterial, states: [], property_sets: [] });
       if (url.endsWith(`/materials/${alphabeticFirst.material_id}`)) return jsonResponse({ material: alphabeticFirst, states: [], property_sets: [] });
       if (url.includes("/catalog/domain-bindings:resolve")) return jsonResponse(null);
@@ -246,9 +336,10 @@ describe("Material Catalog workbench", () => {
         content: { ...visibleMaterial.current_revision.content, name: `Synthetic material ${index + 1}` },
       },
     }));
-    const fetchMock = mockProductFetch((input) => {
+    const fetchMock = mockProductFetch((input, init) => {
       const url = String(input);
-      if (url.includes("/materials?")) return jsonResponse({ items: pageItems, total_count: 10_000, offset: url.includes("offset=50") ? 50 : 0, limit: 50, facets: { material_classes: [{ material_class: "metal", count: 10_000 }] } });
+      const catalog = materialCatalogFetch(input, init, pageItems, 10_000);
+      if (catalog) return catalog;
       return jsonResponse({});
     });
 
@@ -257,11 +348,11 @@ describe("Material Catalog workbench", () => {
     expect(await screen.findByText("Synthetic material 1")).toBeTruthy();
     expect(screen.queryByText("Yield")).toBeNull();
     expect(screen.getByText(/10,000 matches/)).toBeTruthy();
-    expect(fetchMock.mock.calls.filter(([input]) => String(input).includes("/materials?")).length).toBe(1);
+    expect(fetchMock.mock.calls.filter(([input]) => String(input).endsWith("/catalog/records:search")).length).toBe(1);
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
-    await waitFor(() => expect(fetchMock.mock.calls.filter(([input]) => String(input).includes("/materials?")).length).toBe(2));
-    const materialRequests = fetchMock.mock.calls.filter(([input]) => String(input).includes("/materials?"));
-    expect(String(materialRequests[1]?.[0])).toContain("offset=50");
+    await waitFor(() => expect(fetchMock.mock.calls.filter(([input]) => String(input).endsWith("/catalog/records:search")).length).toBe(2));
+    const materialRequests = fetchMock.mock.calls.filter(([input]) => String(input).endsWith("/catalog/records:search"));
+    expect(JSON.parse(String(materialRequests[1]?.[1]?.body))).toMatchObject({ offset: 50, domain_binding_kind: "material" });
     expect(fetchMock.mock.calls.some(([input]) => /\/materials\/[0-9]/.test(String(input)))).toBe(false);
   });
 
@@ -270,9 +361,7 @@ describe("Material Catalog workbench", () => {
       ...visibleMaterial,
       current_revision: { ...visibleMaterial.current_revision, content: { ...visibleMaterial.current_revision.content, name: "Synthetic composite", material_class: "composite", material_family: "laminate" } },
     };
-    mockProductFetch((input) => String(input).includes("/materials?")
-      ? jsonResponse({ items: [composite], total_count: 1, offset: 0, limit: 50, facets: { material_classes: [{ material_class: "composite", count: 1 }] } })
-      : jsonResponse({}));
+    mockProductFetch((input, init) => materialCatalogFetch(input, init, [composite]) ?? jsonResponse({}));
 
     render(<App />);
 
@@ -465,6 +554,57 @@ describe("Material Catalog workbench", () => {
     expect(screen.getByRole("button", { name: "Materials" }).getAttribute("aria-current")).toBe("page");
   });
 
+  it("renders the Overview response plot and normalized response-point table", async () => {
+    const materialId = visibleMaterial.material_id;
+    const cardId = "00000000-0000-4000-8000-000000000099";
+    const recordId = "00000000-0000-4000-8000-000000000010";
+    const recordRevisionId = "00000000-0000-4000-8000-000000000011";
+    const fetchMock = mockProductFetch((input) => {
+      const url = String(input);
+      if (url.endsWith(`/materials/${materialId}`)) return jsonResponse({ material: visibleMaterial, states: [], property_sets: [] });
+      if (url.includes("/catalog/domain-bindings:resolve")) return jsonResponse({
+        binding_id: "00000000-0000-4000-8000-000000000013",
+        record_id: recordId,
+        record_revision_id: recordRevisionId,
+        kind: "material",
+        object_id: materialId,
+        revision_id: visibleMaterial.current_revision.id,
+        workbench_path: `/materials/${materialId}`,
+      });
+      if (url.includes("/catalog/workflow-explorer/")) {
+        const root = { record_id: recordId, record_revision_id: recordRevisionId, revision_no: 1, table_id: materialCatalogTableId, name: "Demo DP780 Steel", external_key: "DP780", domain_binding: null };
+        return jsonResponse({ root, nodes: [root, {
+          ...root,
+          record_id: "00000000-0000-4000-8000-000000000020",
+          record_revision_id: "00000000-0000-4000-8000-000000000021",
+          name: "DP780 OpenRadioss native material card",
+          domain_binding: { binding_id: "00000000-0000-4000-8000-000000000022", record_id: "00000000-0000-4000-8000-000000000020", record_revision_id: "00000000-0000-4000-8000-000000000021", kind: "neutral_solver_card", object_id: cardId, revision_id: "00000000-0000-4000-8000-000000000023", workbench_path: "/exports" },
+        }], links: [] });
+      }
+      if (url.includes("/bulk-export-candidates?")) throw new Error("Neutral graph card must not use bulk candidate fallback");
+      if (url.endsWith(exactNeutralCardPath(cardId, "/preview"))) return textResponse("/FUNCT/1\n0 450000000\n0.01 500000000\n0.02 550000000\n0.04 600000000\n0.08 620000000\n/END");
+      rejectUnpinnedNeutralCardRequest(url, cardId);
+      throw new Error(`Unexpected request: ${url}`);
+    });
+
+    render(<MaterialDetailPage config={{ baseUrl: "/api/v1", accessToken: "test-token" }} materialId={materialId} activeTab="overview" onNavigate={vi.fn()} />);
+
+    const graph = await screen.findByRole("img", { name: "Representative material response showing true stress in MPa versus true plastic strain" });
+    expect(fetchMock.mock.calls.some(([input]) => String(input).endsWith(exactNeutralCardPath(cardId, "/preview")))).toBe(true);
+    expect(graph.getAttribute("data-series-rows")).toBe("5");
+    expect(graph.getAttribute("data-x-label")).toBe("True plastic strain [1]");
+    expect(graph.getAttribute("data-y-label")).toBe("True stress (MPa)");
+    const table = screen.getByRole("table", { name: "Representative response points" });
+    expect(within(table).getByRole("columnheader", { name: "Point" })).toBeTruthy();
+    expect(within(table).getByRole("columnheader", { name: "True plastic strain" })).toBeTruthy();
+    expect(within(table).getByRole("columnheader", { name: "True stress (MPa)" })).toBeTruthy();
+    expect(table.querySelectorAll("tbody tr")).toHaveLength(5);
+    expect(table.querySelector("tbody tr")?.getAttribute("data-y-value")).toBe("450");
+    const responseRegion = screen.getByRole("region", { name: "Scrollable representative response points" });
+    expect(responseRegion.getAttribute("tabindex")).toBe("0");
+    expect(screen.getByText("Exact ordered series · 5 points")).toBeTruthy();
+  });
+
   it("opens a material-owned native solver card preview without routing through bulk export", async () => {
     const materialId = visibleMaterial.material_id;
     const cardId = "00000000-0000-4000-8000-000000000099";
@@ -513,11 +653,12 @@ describe("Material Catalog workbench", () => {
           },
         }], links: [] });
       }
-      if (url.endsWith(`/neutral-solver-cards/${cardId}/preview`)) {
+      if (url.endsWith(exactNeutralCardPath(cardId, "/preview"))) {
         return textResponse("** CMP material-model-revision card-r1\n** CMP mapping-report-sha256 abc123\n/MAT/LAW36/1\nDP780\n/FUNCT/1\n0 450000000\n0.01 500000000\n0.05 620000000\n/END");
       }
-      if (url.endsWith(`/neutral-solver-cards/${cardId}/mapping-report`)) return jsonResponse(neutralSolverMappingReport());
-      if (url.endsWith(`/neutral-solver-cards/${cardId}`)) return jsonResponse(neutralSolverCard(cardId));
+      if (url.endsWith(exactNeutralCardPath(cardId, "/mapping-report"))) return jsonResponse(neutralSolverMappingReport());
+      if (url.endsWith(exactNeutralCardPath(cardId))) return jsonResponse(neutralSolverCard(cardId));
+      rejectUnpinnedNeutralCardRequest(url, cardId);
       throw new Error(`Unexpected request: ${url}`);
     });
 
@@ -603,15 +744,16 @@ describe("Material Catalog workbench", () => {
           },
         }], links: [] });
       }
-      if (url.endsWith(`/neutral-solver-cards/${cardId}/preview`)) return textResponse("/MAT/LAW36/1\nDP780");
-      if (url.endsWith(`/neutral-solver-cards/${cardId}/mapping-report`)) return jsonResponse(neutralSolverMappingReport(true));
-      if (url.endsWith(`/neutral-solver-cards/${cardId}`)) return jsonResponse(neutralSolverCard(cardId));
-      if (url.endsWith(`/neutral-solver-cards/${cardId}/download`)) return {
+      if (url.endsWith(exactNeutralCardPath(cardId, "/preview"))) return textResponse("/MAT/LAW36/1\nDP780");
+      if (url.endsWith(exactNeutralCardPath(cardId, "/mapping-report"))) return jsonResponse(neutralSolverMappingReport(true));
+      if (url.endsWith(exactNeutralCardPath(cardId))) return jsonResponse(neutralSolverCard(cardId));
+      if (url.endsWith(exactNeutralCardPath(cardId, "/download"))) return {
         ok: true,
         status: 200,
         headers: new Headers({ "content-disposition": "attachment; filename=DP780.rad" }),
         blob: async () => new Blob(["/MAT/LAW36/1\nDP780"], { type: "text/plain" }),
       } as Response;
+      rejectUnpinnedNeutralCardRequest(url, cardId);
       throw new Error(`Unexpected request: ${url}`);
     });
 
@@ -627,7 +769,7 @@ describe("Material Catalog workbench", () => {
     expect((download as HTMLButtonElement).disabled).toBe(false);
     fireEvent.click(download);
 
-    await waitFor(() => expect(fetchMock.mock.calls.some(([input]) => String(input).endsWith(`/neutral-solver-cards/${cardId}/download`))).toBe(true));
+    await waitFor(() => expect(fetchMock.mock.calls.some(([input]) => String(input).endsWith(exactNeutralCardPath(cardId, "/download")))).toBe(true));
     expect(createObjectUrl).toHaveBeenCalled();
     expect(revokeObjectUrl).toHaveBeenCalledWith("blob:cmp-review-card");
     expect(anchorClick).toHaveBeenCalled();
@@ -658,16 +800,17 @@ describe("Material Catalog workbench", () => {
         const root = { record_id: recordId, record_revision_id: recordRevisionId, revision_no: 1, table_id: "00000000-0000-4000-8000-000000000012", name: "Demo DP780 Steel", external_key: "DP780", domain_binding: null };
         return jsonResponse({ root, nodes: [root, { ...root, record_id: "00000000-0000-4000-8000-000000000020", record_revision_id: "00000000-0000-4000-8000-000000000021", name: "DP780 OpenRadioss native material card", domain_binding: { binding_id: "00000000-0000-4000-8000-000000000022", record_id: "00000000-0000-4000-8000-000000000020", record_revision_id: "00000000-0000-4000-8000-000000000021", kind: "neutral_solver_card", object_id: cardId, revision_id: "00000000-0000-4000-8000-000000000023", workbench_path: "/exports" } }], links: [] });
       }
-      if (url.includes("/bulk-export-candidates?")) return jsonResponse({ items: [] });
-      if (url.endsWith(`/neutral-solver-cards/${cardId}/preview`)) return textResponse("/MAT/LAW36/1\nDP780");
-      if (url.endsWith(`/neutral-solver-cards/${cardId}/mapping-report`)) return jsonResponse(neutralSolverMappingReport());
-      if (url.endsWith(`/neutral-solver-cards/${cardId}`)) return jsonResponse(neutralSolverCard(cardId));
-      if (url.endsWith(`/neutral-solver-cards/${cardId}/download`)) return {
+      if (url.includes("/bulk-export-candidates?")) throw new Error("Neutral graph card must not use bulk candidate fallback");
+      if (url.endsWith(exactNeutralCardPath(cardId, "/preview"))) return textResponse("/MAT/LAW36/1\nDP780");
+      if (url.endsWith(exactNeutralCardPath(cardId, "/mapping-report"))) return jsonResponse(neutralSolverMappingReport());
+      if (url.endsWith(exactNeutralCardPath(cardId))) return jsonResponse(neutralSolverCard(cardId));
+      if (url.endsWith(exactNeutralCardPath(cardId, "/download"))) return {
         ok: true,
         status: 200,
         headers: new Headers({ "content-disposition": "attachment; filename=\"DP780.rad\"" }),
         blob: async () => new Blob(["/MAT/LAW36/1\nDP780"], { type: "text/plain" }),
       } as Response;
+      rejectUnpinnedNeutralCardRequest(url, cardId);
       throw new Error(`Unexpected request: ${url}`);
     });
 
@@ -675,7 +818,7 @@ describe("Material Catalog workbench", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Download .rad" }));
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalledWith(
-      expect.stringContaining(`/neutral-solver-cards/${cardId}/download`),
+      expect.stringContaining(exactNeutralCardPath(cardId, "/download")),
       expect.anything(),
     ));
     expect(createObjectUrl).toHaveBeenCalled();

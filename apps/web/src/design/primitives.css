@@ -61,6 +61,14 @@
   color: var(--ux-text);
 }
 
+.ux-select {
+  appearance: none;
+  padding-right: 30px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14' fill='none' stroke='%235d6874' stroke-width='1.35' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3.2 5 3.8 4 3.8-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 9px center;
+}
+
 .ux-field {
   display: grid;
   gap: var(--ux-space-1);
@@ -140,11 +148,30 @@
 }
 
 .ux-disclosure summary {
+  list-style: none;
   min-height: 40px;
   padding: var(--ux-space-3) 0;
   color: var(--ux-accent);
   font-weight: 650;
   cursor: pointer;
+}
+
+.ux-disclosure summary::-webkit-details-marker {
+  display: none;
+}
+
+.ux-disclosure summary::before {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 5px;
+  content: "";
+  vertical-align: -2px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14' fill='none' stroke='%235d6874' stroke-width='1.35' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 3.2 3.8 3.8L5 10.8'/%3E%3C/svg%3E") center / 14px 14px no-repeat;
+}
+
+.ux-disclosure[open] > summary::before {
+  transform: rotate(90deg);
 }
 
 .ux-notice,

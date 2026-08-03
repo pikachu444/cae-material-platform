@@ -81,7 +81,7 @@ export async function loadSolverCardEvidence(
   card: SolverCardSummary,
 ): Promise<SolverCardEvidence> {
   if (card.kind === "solver_card") {
-    const result = await getSolverCard(config, card.id);
+    const result = await getSolverCard(config, card.id, card.revisionId);
     const value = result.data;
     const report = value.current_revision.mapping_report;
     return {
@@ -104,8 +104,8 @@ export async function loadSolverCardEvidence(
   }
 
   const [cardResult, reportResult] = await Promise.all([
-    getNeutralSolverCard(config, card.id),
-    getNeutralSolverMappingReport(config, card.id),
+    getNeutralSolverCard(config, card.id, card.revisionId),
+    getNeutralSolverMappingReport(config, card.id, card.revisionId),
   ]);
   const value = cardResult.data;
   const report = reportResult.data;
@@ -136,8 +136,8 @@ export function previewSolverCardText(
   card: SolverCardSummary,
 ) {
   return card.kind === "neutral_solver_card"
-    ? previewNeutralHyperelasticSolverCard(config, card.id)
-    : previewSolverCard(config, card.id);
+    ? previewNeutralHyperelasticSolverCard(config, card.id, card.revisionId)
+    : previewSolverCard(config, card.id, card.revisionId);
 }
 
 export function downloadSolverCardArtifact(
@@ -145,8 +145,8 @@ export function downloadSolverCardArtifact(
   card: SolverCardSummary,
 ): Promise<{ data: SolverCardDownload; etag: string | null }> {
   return card.kind === "neutral_solver_card"
-    ? downloadNeutralHyperelasticSolverCard(config, card.id)
-    : downloadSolverCard(config, card.id);
+    ? downloadNeutralHyperelasticSolverCard(config, card.id, card.revisionId)
+    : downloadSolverCard(config, card.id, card.revisionId);
 }
 
 export async function downloadSolverMappingArtifact(
@@ -154,7 +154,13 @@ export async function downloadSolverMappingArtifact(
   evidence: SolverCardEvidence,
 ): Promise<{ blob: Blob; filename: string }> {
   if (evidence.card.kind === "neutral_solver_card") {
-    return (await downloadNeutralHyperelasticMappingReport(config, evidence.card.id)).data;
+    return (
+      await downloadNeutralHyperelasticMappingReport(
+        config,
+        evidence.card.id,
+        evidence.card.revisionId,
+      )
+    ).data;
   }
   return {
     blob: new Blob(

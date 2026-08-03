@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
+from dataclasses import replace
 from datetime import UTC, datetime
 from typing import cast
 from uuid import UUID, uuid4
@@ -18,8 +20,10 @@ from cmp.modules.exporting.domain.openradioss_elast import (
     ExportTarget,
     ReferenceMappingReport,
     ReferenceOpenRadiossCardContent,
+    SolverCardNotFound,
     build_reference_openradioss_card,
     preflight_reference_openradioss_elast,
+    render_reference_openradioss_elast_card,
 )
 from cmp.modules.identity_access.application.authorization import database_permissions_for
 from cmp.modules.identity_access.domain.authorization import (
@@ -53,6 +57,10 @@ MODEL = UUID("e2000000-0000-4000-8000-00000000000a")
 MODEL_REVISION = UUID("e2000000-0000-4000-8000-00000000000b")
 CARD = UUID("e2000000-0000-4000-8000-00000000000c")
 CARD_REVISION = UUID("e2000000-0000-4000-8000-00000000000d")
+CARD_REVISION_2 = UUID("e2000000-0000-4000-8000-00000000000e")
+OTHER_CARD = UUID("e2000000-0000-4000-8000-00000000000f")
+OTHER_CARD_REVISION = UUID("e2000000-0000-4000-8000-000000000010")
+CARD_R2_CONTENT_HASH = "f" * 64
 TRACE = "00-000000000000000000000000000000e2-00000000000000e2-01"
 TARGET = ExportTarget("openradioss", "2025", "kg_m_s")
 
@@ -111,17 +119,23 @@ def _source() -> ReferenceLinearElasticContent:
     )
 
 
-def _record() -> RevisionRecord:
+def _record(
+    revision_id: UUID = CARD_REVISION,
+    revision_no: int = 1,
+    content_hash: str = "e" * 64,
+    aggregate_id: UUID = CARD,
+    based_on_revision_id: UUID | None = None,
+) -> RevisionRecord:
     return RevisionRecord(
-        revision_id=CARD_REVISION,
+        revision_id=revision_id,
         aggregate_type=SOLVER_CARD_AGGREGATE_TYPE,
-        aggregate_id=CARD,
+        aggregate_id=aggregate_id,
         scope=TenantScope(ORG, PROJECT, DataClassification.INTERNAL.value),
-        revision_no=1,
-        based_on_revision_id=None,
+        revision_no=revision_no,
+        based_on_revision_id=based_on_revision_id,
         schema_id="urn:cmp:exporting:reference-openradioss-elast:1.0.0",
         schema_version="1.0.0",
-        content_hash="e" * 64,
+        content_hash=content_hash,
         created_at=NOW,
         created_by=ACTOR,
         change_reason="export reference card",
@@ -133,6 +147,7 @@ def _record() -> RevisionRecord:
 class _SolverCardService:
     def __init__(self) -> None:
         self.snapshot: SolverCardSnapshot | None = None
+        self.revisions: dict[UUID, RevisionSnapshot[ReferenceOpenRadiossCardContent]] = {}
 
     def preflight_reference_openradioss(
         self,
@@ -177,7 +192,60 @@ class _SolverCardService:
             command.solver_material_id,
             RevisionSnapshot(_record(), content),
         )
+        self.revisions[CARD_REVISION] = self.snapshot.current
+        self.revisions[OTHER_CARD_REVISION] = RevisionSnapshot(
+            _record(
+                revision_id=OTHER_CARD_REVISION,
+                aggregate_id=OTHER_CARD,
+            ),
+            content,
+        )
         return self.snapshot, report
+
+    def advance_current(self) -> None:
+        assert self.snapshot is not None
+        previous = self.snapshot.current
+        source_r2 = replace(
+            _source(),
+            source_yield_stress_pa=650_000_000.0,
+            applicable_temperature_min_k=273.15,
+        )
+        report_r2 = preflight_reference_openradioss_elast(
+            material_model_id=MODEL,
+            material_model_revision_id=MODEL_REVISION,
+            content=source_r2,
+            target=TARGET,
+        )
+        card_text_r2 = render_reference_openradioss_elast_card(
+            material_model_id=MODEL,
+            material_model_revision_id=MODEL_REVISION,
+            report=report_r2,
+            solver_material_id=previous.content.solver_material_id,
+            card_title="Reference steel revision 2",
+            density_kg_per_m3=previous.content.density_kg_per_m3,
+            youngs_modulus_pa=previous.content.youngs_modulus_pa,
+            poisson_ratio=previous.content.poisson_ratio,
+        )
+        content = replace(
+            previous.content,
+            card_title="Reference steel revision 2",
+            source_yield_stress_pa=650_000_000.0,
+            applicable_temperature_min_k=273.15,
+            mapping_report_sha256=report_r2.digest,
+            card_text=card_text_r2,
+            card_sha256=hashlib.sha256(card_text_r2.encode("utf-8")).hexdigest(),
+        )
+        current = RevisionSnapshot(
+            _record(
+                revision_id=CARD_REVISION_2,
+                revision_no=2,
+                content_hash=CARD_R2_CONTENT_HASH,
+                based_on_revision_id=previous.record.revision_id,
+            ),
+            content,
+        )
+        self.revisions[CARD_REVISION_2] = current
+        self.snapshot = replace(self.snapshot, current=current)
 
     def get_solver_card(
         self,
@@ -190,6 +258,28 @@ class _SolverCardService:
         assert solver_card_id == CARD
         assert self.snapshot is not None
         return self.snapshot
+
+    def get_solver_card_revision(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        solver_card_id: UUID,
+        solver_card_revision_id: UUID,
+    ) -> SolverCardSnapshot:
+        del context
+        assert decision is READ
+        assert solver_card_id == CARD
+        value = self.revisions.get(solver_card_revision_id)
+        if value is None or value.record.aggregate_id != solver_card_id:
+            raise SolverCardNotFound("Solver Card revision is not visible")
+        content = value.content
+        return SolverCardSnapshot(
+            CARD,
+            MODEL,
+            TARGET,
+            content.solver_material_id,
+            value,
+        )
 
     def list_solver_cards_for_model(
         self,
@@ -214,6 +304,7 @@ class _SolverCardService:
 def _application() -> FastAPI:
     application = FastAPI()
     service = _SolverCardService()
+    application.state.solver_card_service = service
 
     def security(request: Request) -> None:
         request.state.security_context = CONTEXT
@@ -322,3 +413,87 @@ def test_solver_card_api_preflights_creates_previews_and_downloads_a_frozen_card
     assert download.headers["content-disposition"] == (
         'attachment; filename="openradioss-mat-17.rad"'
     )
+
+
+def test_solver_card_api_pins_every_read_to_an_exact_revision_and_fails_closed() -> None:
+    application = _application()
+    target = {"solver": "openradioss", "version": "2025", "unit_system": "kg_m_s"}
+    preflight = _request(
+        application,
+        "POST",
+        f"/api/v1/material-models/{MODEL}/mapping-preflight",
+        json={"target": target},
+    )
+    created = _request(
+        application,
+        "POST",
+        f"/api/v1/material-models/{MODEL}/solver-cards",
+        json={
+            "material_model_revision_id": str(MODEL_REVISION),
+            "target": target,
+            "expected_mapping_report_sha256": preflight.json()["mapping_report_sha256"],
+            "solver_material_id": 17,
+            "card_title": "Reference steel",
+            "change_reason": "create reference solver card",
+        },
+    )
+    assert created.status_code == 201
+    service = cast(_SolverCardService, application.state.solver_card_service)
+    service.advance_current()
+
+    exact = _request(
+        application,
+        "GET",
+        f"/api/v1/solver-cards/{CARD}?revision_id={CARD_REVISION}",
+    )
+    assert exact.status_code == 200
+    assert exact.json()["current_revision"]["id"] == str(CARD_REVISION)
+    assert exact.json()["current_revision"]["content"]["card_title"] == "Reference steel"
+
+    current = _request(application, "GET", f"/api/v1/solver-cards/{CARD}")
+    assert current.status_code == 200
+    assert current.json()["current_revision"]["id"] == str(CARD_REVISION_2)
+    assert (
+        current.json()["current_revision"]["content"]["card_title"]
+        == "Reference steel revision 2"
+    )
+    assert (
+        current.json()["current_revision"]["content"]["source_yield_stress_pa"]
+        != exact.json()["current_revision"]["content"]["source_yield_stress_pa"]
+    )
+    assert (
+        current.json()["current_revision"]["content"]["card_sha256"]
+        != exact.json()["current_revision"]["content"]["card_sha256"]
+    )
+    assert (
+        current.json()["current_revision"]["mapping_report"]["mapping_report_sha256"]
+        != exact.json()["current_revision"]["mapping_report"]["mapping_report_sha256"]
+    )
+    assert current.json()["links"]["self"] == f"/api/v1/solver-cards/{CARD}"
+    assert exact.json()["links"]["self"] == (
+        f"/api/v1/solver-cards/{CARD}?revision_id={CARD_REVISION}"
+    )
+    assert exact.json()["links"]["preview"].endswith(f"/preview?revision_id={CARD_REVISION}")
+    assert exact.json()["links"]["download"].endswith(f"/download?revision_id={CARD_REVISION}")
+
+    preview = _request(
+        application,
+        "GET",
+        f"/api/v1/solver-cards/{CARD}/preview?revision_id={CARD_REVISION}",
+    )
+    download = _request(
+        application,
+        "GET",
+        f"/api/v1/solver-cards/{CARD}/download?revision_id={CARD_REVISION}",
+    )
+    assert preview.status_code == 200
+    assert download.status_code == 200
+    assert download.text == preview.text
+
+    for revision_id in (UUID(int=999), OTHER_CARD_REVISION):
+        missing = _request(
+            application,
+            "GET",
+            f"/api/v1/solver-cards/{CARD}?revision_id={revision_id}",
+        )
+        assert missing.status_code == 404

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MaterialDatasheetProjection } from "./material-datasheet-projection";
@@ -8,6 +8,8 @@ const recordId = "91000000-0000-4000-8000-000000000002";
 const tableRevisionId = "91000000-0000-4000-8000-000000000003";
 const densityId = "91000000-0000-4000-8000-000000000004";
 const curveId = "91000000-0000-4000-8000-000000000005";
+const technicalId = "91000000-0000-4000-8000-000000000010";
+const materialClassId = "91000000-0000-4000-8000-000000000011";
 
 function metadata(id: string, aggregateId: string) {
   return {
@@ -71,6 +73,43 @@ const curveAttribute = {
   },
 };
 
+const technicalAttribute = {
+  attribute_definition_id: technicalId,
+  table_id: tableId,
+  current_revision: {
+    ...metadata("91000000-0000-4000-8000-000000000016", technicalId),
+    content: {
+      ...densityAttribute.current_revision.content,
+      key: "internal_note",
+      name: "Internal note",
+      data_type: "text" as const,
+      required: false,
+      quantity_semantics: null,
+      normalized_unit: null,
+      help_text: "Technical-only evidence",
+    },
+  },
+};
+
+const materialClassAttribute = {
+  attribute_definition_id: materialClassId,
+  table_id: tableId,
+  current_revision: {
+    ...metadata("91000000-0000-4000-8000-000000000017", materialClassId),
+    content: {
+      ...densityAttribute.current_revision.content,
+      key: "material_class",
+      name: "Material class",
+      data_type: "discrete" as const,
+      required: true,
+      quantity_semantics: null,
+      normalized_unit: null,
+      allowed_values: ["metal", "polymer", "elastomer"],
+      help_text: null,
+    },
+  },
+};
+
 const record = {
   record_id: recordId,
   table_id: tableId,
@@ -93,11 +132,21 @@ const record = {
         normalized_unit: "kg/m^3",
         quantity_semantics: "mass density",
       }, {
+        attribute_definition_id: materialClassId,
+        attribute_definition_revision_id: materialClassAttribute.current_revision.id,
+        data_type: "discrete" as const,
+        value: "metal",
+      }, {
         attribute_definition_id: curveId,
         attribute_definition_revision_id: curveAttribute.current_revision.id,
         data_type: "curve" as const,
         artifact_id: "91000000-0000-4000-8000-000000000007",
         artifact_sha256: "b".repeat(64),
+      }, {
+        attribute_definition_id: technicalId,
+        attribute_definition_revision_id: technicalAttribute.current_revision.id,
+        data_type: "text" as const,
+        value: "Technical fixture outside the active Layout",
       }],
     },
   },
@@ -109,7 +158,7 @@ const layout = {
   revision: metadata("91000000-0000-4000-8000-000000000009", "91000000-0000-4000-8000-000000000008"),
   name: "Material datasheet",
   description: "Administrator-defined material layout",
-  items: [{ attribute_definition_id: densityId, attribute_definition_revision_id: densityAttribute.current_revision.id, section: "Physical", ordinal: 1 }, { attribute_definition_id: curveId, attribute_definition_revision_id: curveAttribute.current_revision.id, section: "Curves", ordinal: 2 }],
+  items: [{ attribute_definition_id: materialClassId, attribute_definition_revision_id: materialClassAttribute.current_revision.id, section: "Identity", ordinal: 1 }, { attribute_definition_id: densityId, attribute_definition_revision_id: densityAttribute.current_revision.id, section: "Physical", ordinal: 2 }, { attribute_definition_id: curveId, attribute_definition_revision_id: curveAttribute.current_revision.id, section: "Curves", ordinal: 3 }],
 };
 
 const mocks = vi.hoisted(() => ({ record: vi.fn(), attributes: vi.fn(), layouts: vi.fn() }));
@@ -128,25 +177,63 @@ describe("MaterialDatasheetProjection", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.record.mockResolvedValue({ data: record, etag: null });
-    mocks.attributes.mockResolvedValue({ data: { items: [densityAttribute, curveAttribute] }, etag: null });
+    mocks.attributes.mockResolvedValue({ data: { items: [densityAttribute, materialClassAttribute, curveAttribute, technicalAttribute] }, etag: null });
     mocks.layouts.mockResolvedValue({ data: { items: [layout] }, etag: null });
   });
 
-  it("projects administrator Layout order while preserving original and normalized quantity text", async () => {
+  it("projects the active Layout order with separate displayed values and units", async () => {
     render(<MaterialDatasheetProjection config={{ baseUrl: "/api/v1", accessToken: "test" }} tableId={tableId} recordId={recordId} mode="properties"/>);
 
     expect(await screen.findByRole("heading", { name: "Material datasheet" })).toBeTruthy();
-    expect(screen.getByText("7.85 g/cm^3")).toBeTruthy();
-    expect(screen.getByTitle("7850 kg/m^3 · mass density")).toBeTruthy();
+    expect(screen.getByText("7.85")).toBeTruthy();
+    expect(screen.getByText("g/cm^3")).toBeTruthy();
+    expect(screen.getByText("Metal")).toBeTruthy();
+    expect(screen.queryByText("metal")).toBeNull();
+    expect(screen.queryByText(/mass density/)).toBeNull();
+    expect(screen.queryByText("Original and normalized quantity")).toBeNull();
     expect(screen.queryByText("Stress–strain curve")).toBe(null);
+    expect(screen.queryByText("Internal note")).toBeNull();
   });
 
   it("keeps all typed Attribute data in the Evidence Layout disclosure", async () => {
     render(<MaterialDatasheetProjection config={{ baseUrl: "/api/v1", accessToken: "test" }} tableId={tableId} recordId={recordId} mode="evidence"/>);
 
-    expect(await screen.findByRole("combobox", { name: "Material Layout" })).toBeTruthy();
+    expect(await screen.findByRole("combobox", { name: "Material data view" })).toBeTruthy();
     expect(screen.getByText("Stress–strain curve")).toBeTruthy();
-    expect(screen.getByText("Curve artifact")).toBeTruthy();
-    expect(screen.getByTitle(/SHA-256/).textContent).toContain("b".repeat(64));
+    expect(screen.getByText("Curve available")).toBeTruthy();
+    expect(screen.getByText("Internal note")).toBeTruthy();
+    expect(screen.getByText("Technical-only evidence")).toBeTruthy();
+    expect(screen.queryByText(/SHA-256/)).toBeNull();
+  });
+
+  it("downloads human-readable active Layout CSV without internal identifiers", async () => {
+    const createObjectURL = vi.fn((value: Blob) => {
+      void value;
+      return "blob:layout";
+    });
+    vi.stubGlobal("URL", { ...URL, createObjectURL, revokeObjectURL: vi.fn() });
+    const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => undefined);
+    render(<MaterialDatasheetProjection config={{ baseUrl: "/api/v1", accessToken: "test" }} tableId={tableId} recordId={recordId} mode="properties"/>);
+
+    fireEvent.click(await screen.findByRole("button", { name: "Download CSV" }));
+    expect(createObjectURL).toHaveBeenCalledOnce();
+    const csv = await (createObjectURL.mock.calls[0][0] as Blob).text();
+    expect(csv).toContain("Section,Property,Value,Unit,Condition,Source");
+    expect(csv).toContain("Identity,Material class,metal,,,");
+    expect(csv).toContain("Physical,Density,7.85,g/cm^3,,");
+    expect(csv).not.toContain(densityId);
+    expect(csv).not.toContain("attribute_definition_id");
+    expect(csv).not.toContain("b".repeat(64));
+    expect(csv).not.toContain("Internal note");
+    expect(csv).not.toContain("Technical fixture outside the active Layout");
+    expect(click).toHaveBeenCalled();
+  });
+
+  it("shows a truthful empty state when no active Layout exists", async () => {
+    mocks.layouts.mockResolvedValue({ data: { items: [] }, etag: null });
+    render(<MaterialDatasheetProjection config={{ baseUrl: "/api/v1", accessToken: "test" }} tableId={tableId} recordId={recordId} mode="properties"/>);
+
+    expect(await screen.findByText("No saved datasheet layout is available.")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Download CSV" })).toBeNull();
   });
 });

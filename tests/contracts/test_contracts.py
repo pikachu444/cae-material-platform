@@ -124,6 +124,58 @@ def test_runtime_openapi_exposes_revision_etag_and_metadata_components() -> None
     assert "sha256" in etag["schema"]["pattern"]
 
 
+def test_configurable_record_contract_carries_live_search_and_binding_projection_fields() -> None:
+    schema = json.loads(
+        (
+            PROJECT_ROOT
+            / "contracts/catalog/configurable-catalog-record-resources.schema.json"
+        ).read_text(encoding="utf-8")
+    )
+    definitions = schema["$defs"]
+    request = definitions["RecordSearchRequest"]
+    response = definitions["RecordResponse"]
+    projection = definitions["DomainBindingProjection"]
+
+    live_request_fields = {
+        "record_id",
+        "domain_binding_kind",
+        "include_descendants",
+        "sort_by",
+        "sort_attribute_id",
+        "sort_direction",
+    }
+    assert live_request_fields.issubset(request["properties"])
+    assert request["required"] == ["table_id"]
+    assert request["properties"]["sort_by"] == {
+        "type": "string",
+        "enum": ["name", "external_key", "attribute"],
+        "default": "name",
+    }
+    assert request["properties"]["sort_direction"] == {
+        "type": "string",
+        "enum": ["ascending", "descending"],
+        "default": "ascending",
+    }
+
+    assert response["properties"]["domain_binding"] == {
+        "oneOf": [{"$ref": "#/$defs/DomainBindingProjection"}, {"type": "null"}]
+    }
+    assert projection["additionalProperties"] is False
+    assert set(projection["required"]) == {
+        "binding_id",
+        "record_id",
+        "record_revision_id",
+        "kind",
+        "object_id",
+        "revision_id",
+        "workbench_path",
+    }
+
+    runtime = app.openapi()["components"]["schemas"]
+    assert live_request_fields.issubset(runtime["RecordSearchRequest"]["properties"])
+    assert "domain_binding" in runtime["RecordResponse"]["properties"]
+
+
 def test_shear_relaxation_vertical_contract_matches_runtime_operations() -> None:
     source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
     runtime = app.openapi()

@@ -94,9 +94,14 @@ class CardResponse(BaseModel):
     links: dict[str, str]
 
     @classmethod
-    def from_snapshot(cls, value: NeutralHyperelasticSolverCardSnapshot) -> CardResponse:
+    def from_snapshot(
+        cls,
+        value: NeutralHyperelasticSolverCardSnapshot,
+        revision_id: UUID | None = None,
+    ) -> CardResponse:
         metadata = RevisionMetadataResponse.from_record(value.current.record, "draft")
         root = f"/api/v1/neutral-solver-cards/{value.id}"
+        revision_query = f"?revision_id={revision_id}" if revision_id is not None else ""
         return cls(
             solver_card_id=value.id,
             neutral_material_id=value.neutral_material_id,
@@ -109,10 +114,10 @@ class CardResponse(BaseModel):
                 **metadata.model_dump(), content=value.current.content.canonical()
             ),
             links={
-                "self": root,
-                "mapping_report": f"{root}/mapping-report",
-                "preview": f"{root}/preview",
-                "download": f"{root}/download",
+                "self": f"{root}{revision_query}",
+                "mapping_report": f"{root}/mapping-report{revision_query}",
+                "preview": f"{root}/preview{revision_query}",
+                "download": f"{root}/download{revision_query}",
             },
         )
 
@@ -285,12 +290,20 @@ def install_neutral_hyperelastic_solver_card_api(
             raise _translate(context, error) from error
         return CardListResponse(items=tuple(CardResponse.from_snapshot(value) for value in values))
 
-    def _get(request: Request, solver_card_id: UUID) -> NeutralHyperelasticSolverCardSnapshot:
+    def _get(
+        request: Request,
+        solver_card_id: UUID,
+        revision_id: UUID | None = None,
+    ) -> NeutralHyperelasticSolverCardSnapshot:
         context, decision = _scope(request)
         if service is None:
             raise ExportHttpError(context, 503, "service is unavailable")
         try:
-            return service.get_card(context, decision, solver_card_id)
+            return (
+                service.get_card(context, decision, solver_card_id)
+                if revision_id is None
+                else service.get_card_revision(context, decision, solver_card_id, revision_id)
+            )
         except Exception as error:
             raise _translate(context, error) from error
 
@@ -310,8 +323,15 @@ def install_neutral_hyperelastic_solver_card_api(
         dependencies=[Depends(security_dependency), Depends(read_dependency)],
         tags=["exporting"],
     )
-    def get_card(request: Request, solver_card_id: UUID) -> CardResponse:
-        return CardResponse.from_snapshot(_get(request, solver_card_id))
+    def get_card(
+        request: Request,
+        solver_card_id: UUID,
+        revision_id: UUID | None = None,
+    ) -> CardResponse:
+        return CardResponse.from_snapshot(
+            _get(request, solver_card_id, revision_id),
+            revision_id=revision_id,
+        )
 
     @application.get(
         "/api/v1/neutral-hyperelastic-solver-cards/{solver_card_id}/mapping-report",
@@ -330,13 +350,20 @@ def install_neutral_hyperelastic_solver_card_api(
         tags=["exporting"],
     )
     async def mapping_report(
-        request: Request, solver_card_id: UUID
+        request: Request,
+        solver_card_id: UUID,
+        revision_id: UUID | None = None,
     ) -> NeutralHyperelasticMappingReportResponse:
         context, decision = _scope(request)
         if service is None:
             raise ExportHttpError(context, 503, "service is unavailable")
         try:
-            report = await service.mapping_report(context, decision, solver_card_id)
+            report = await service.mapping_report(
+                context,
+                decision,
+                solver_card_id,
+                revision_id,
+            )
         except Exception as error:
             raise _translate(context, error) from error
         return NeutralHyperelasticMappingReportResponse.from_domain(report)
@@ -357,8 +384,14 @@ def install_neutral_hyperelastic_solver_card_api(
         dependencies=[Depends(security_dependency), Depends(read_dependency)],
         tags=["exporting"],
     )
-    def preview(request: Request, solver_card_id: UUID) -> PlainTextResponse:
-        return PlainTextResponse(_get(request, solver_card_id).current.content.card_text)
+    def preview(
+        request: Request,
+        solver_card_id: UUID,
+        revision_id: UUID | None = None,
+    ) -> PlainTextResponse:
+        return PlainTextResponse(
+            _get(request, solver_card_id, revision_id).current.content.card_text
+        )
 
     @application.get(
         "/api/v1/neutral-hyperelastic-solver-cards/{solver_card_id}/download",
@@ -374,8 +407,12 @@ def install_neutral_hyperelastic_solver_card_api(
         dependencies=[Depends(security_dependency), Depends(read_dependency)],
         tags=["exporting"],
     )
-    def download(request: Request, solver_card_id: UUID) -> Response:
-        snapshot = _get(request, solver_card_id)
+    def download(
+        request: Request,
+        solver_card_id: UUID,
+        revision_id: UUID | None = None,
+    ) -> Response:
+        snapshot = _get(request, solver_card_id, revision_id)
         suffix = "inp" if snapshot.target.is_abaqus else "rad"
         filename = f"{snapshot.material_name}-{snapshot.id}.{suffix}"
         return Response(

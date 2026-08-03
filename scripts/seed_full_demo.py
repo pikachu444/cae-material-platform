@@ -20,6 +20,44 @@ import seed_ogden_calibration_demo
 import seed_viscoelastic_master_demo
 from cmp.apps.demo_seed import DemoApi, DemoSeedError
 
+_DEMO_MATERIAL_FAMILY_VALUES = (
+    "dual-phase steel",
+    "linear viscoelastic polymer",
+    "Ogden hyper-viscoelastic elastomer",
+)
+_DEMO_WORKFLOW_FAMILY_VALUES = (
+    "Material state",
+    "Test data",
+    "Processing",
+    "Material model",
+    "Neutral material",
+    "Solver card",
+    "Release",
+)
+_NON_METAL_MATERIAL_DESCRIPTION = (
+    "Public synthetic T-60 reference data; not validated for engineering use."
+)
+_NON_METAL_STATE_DESCRIPTION = (
+    "Synthetic T-60 reference state; not validated for engineering use."
+)
+_SYNTHETIC_STATE_ROUTE = "Synthetic reference preparation; not for engineering use"
+_NON_METAL_SOURCE_REFERENCE = "Public synthetic T-60 reference data"
+_SYNTHETIC_APPLICABILITY_NOTE = (
+    "Synthetic reference conditions; not validated for engineering use."
+)
+_METAL_CATALOG_DESCRIPTION = (
+    "Synthetic reference data; not validated for engineering use."
+)
+
+
+def _catalog_material_family_allowed_values() -> tuple[str, ...]:
+    return _DEMO_MATERIAL_FAMILY_VALUES + _DEMO_WORKFLOW_FAMILY_VALUES
+
+
+def _preserve_material_family(content: Mapping[str, Any], fallback: str) -> str:
+    value = content.get("material_family")
+    return str(value if value is not None else fallback).strip()
+
 
 def _items(response: Mapping[str, Any]) -> list[dict[str, Any]]:
     value = response.get("items")
@@ -49,6 +87,39 @@ def _content(value: Mapping[str, Any]) -> Mapping[str, Any]:
     revision = value.get("current_revision")
     content = revision.get("content") if isinstance(revision, Mapping) else None
     return content if isinstance(content, Mapping) else {}
+
+
+def _catalog_record_content_matches(
+    existing_content: Mapping[str, Any], desired_content: Mapping[str, Any]
+) -> bool:
+    """Compare Catalog record content, treating typed values as keyed by Attribute."""
+
+    existing_without_values = dict(existing_content)
+    desired_without_values = dict(desired_content)
+    existing_values = existing_without_values.pop("values", None)
+    desired_values = desired_without_values.pop("values", None)
+    if existing_without_values != desired_without_values:
+        return False
+    if not isinstance(existing_values, list) or not isinstance(desired_values, list):
+        return False
+    existing_value_mappings = [item for item in existing_values if isinstance(item, Mapping)]
+    desired_value_mappings = [item for item in desired_values if isinstance(item, Mapping)]
+    if len(existing_value_mappings) != len(existing_values) or len(
+        desired_value_mappings
+    ) != len(desired_values):
+        return False
+    if not all(
+        isinstance(item.get("attribute_definition_id"), str)
+        for item in [*existing_value_mappings, *desired_value_mappings]
+    ):
+        return False
+    return sorted(
+        (dict(item) for item in existing_value_mappings),
+        key=lambda item: item["attribute_definition_id"],
+    ) == sorted(
+        (dict(item) for item in desired_value_mappings),
+        key=lambda item: item["attribute_definition_id"],
+    )
 
 
 def _find_by_content(
@@ -376,6 +447,35 @@ def _ensure_catalog_binding(
     ) -> dict[str, Any]:
         existing = _find_by_content(attributes, "key", key)
         if existing is not None:
+            if data_type == "discrete" and allowed_values:
+                desired_allowed_values = list(dict.fromkeys(allowed_values))
+                current_allowed_values = _content(existing).get("allowed_values")
+                if current_allowed_values != desired_allowed_values:
+                    revision = existing.get("current_revision")
+                    if not isinstance(revision, Mapping):
+                        raise DemoSeedError(
+                            f"Catalog Attribute {key} has no revision metadata"
+                        )
+                    revised = api.post(
+                        f"/catalog/attributes/{_id(existing, 'attribute_definition_id')}/revisions",
+                        {
+                            "content": {
+                                **_content(existing),
+                                "table_revision_id": table_revision_id,
+                                "allowed_values": desired_allowed_values,
+                            },
+                            "change_reason": (
+                                f"Align the demo {name} Attribute with its bounded "
+                                "synthetic values."
+                            ),
+                        },
+                        headers={"If-Match": _revision_etag(existing)},
+                    )
+                    for index, item in enumerate(attributes):
+                        if _content(item).get("key") == key:
+                            attributes[index] = revised
+                            break
+                    return revised
             return existing
         content: dict[str, Any] = {
             "table_revision_id": table_revision_id,
@@ -411,18 +511,18 @@ def _ensure_catalog_binding(
             "material_family",
             "Material family",
             "discrete",
-            allowed_values=(
-                "Steel",
-                "Material state",
-                "Test data",
-                "Processing",
-                "Material model",
-                "Neutral material",
-                "Solver card",
-                "Release",
-            ),
+            allowed_values=_catalog_material_family_allowed_values(),
+        ),
+        "material_class": ensure_attribute(
+            "material_class",
+            "Material class",
+            "discrete",
+            allowed_values=("metal", "polymer", "elastomer"),
         ),
         "manufacturer": ensure_attribute("manufacturer", "Manufacturer", "text"),
+        "provider": ensure_attribute("provider", "Provider", "text"),
+        "evidence_source": ensure_attribute("evidence_source", "Evidence source", "text"),
+        "condition_summary": ensure_attribute("condition_summary", "Condition", "text"),
         "grade": ensure_attribute("grade", "Grade", "text"),
         "density": ensure_attribute(
             "density",
@@ -460,37 +560,72 @@ def _ensure_catalog_binding(
     }
 
     layouts = _items(api.get(f"/catalog/tables/{table_id}/layouts"))
-    if not any(item.get("name") == "Material overview" for item in layouts):
-        sections = {
-            "material_code": "Identity",
-            "material_family": "Identity",
-            "manufacturer": "Identity",
-            "grade": "Identity",
-            "density": "Physical properties",
-            "youngs_modulus": "Elastic properties",
-            "poisson_ratio": "Elastic properties",
-            "yield_stress": "Plasticity",
+    sections = {
+        "material_code": "Identity",
+        "material_class": "Identity",
+        "material_family": "Identity",
+        "manufacturer": "Identity",
+        "provider": "Evidence",
+        "evidence_source": "Evidence",
+        "condition_summary": "Evidence",
+        "grade": "Identity",
+        "density": "Physical properties",
+        "youngs_modulus": "Elastic properties",
+        "poisson_ratio": "Elastic properties",
+        "yield_stress": "Plasticity",
+    }
+    desired_layout_items = [
+        {
+            "attribute_definition_id": _id(attribute_by_key[key], "attribute_definition_id"),
+            "attribute_definition_revision_id": _revision_id(attribute_by_key[key]),
+            "section": section,
+            "ordinal": ordinal,
         }
+        for ordinal, (key, section) in enumerate(sections.items())
+    ]
+    overview_layout = next(
+        (item for item in layouts if item.get("name") == "Material overview"),
+        None,
+    )
+    if overview_layout is None:
         api.post(
             f"/catalog/tables/{table_id}/layouts",
             {
                 "table_revision_id": table_revision_id,
                 "name": "Material overview",
                 "description": "Identity, physical, elastic and plastic properties for CAE use.",
-                "items": [
-                    {
-                        "attribute_definition_id": _id(
-                            attribute_by_key[key], "attribute_definition_id"
-                        ),
-                        "attribute_definition_revision_id": _revision_id(attribute_by_key[key]),
-                        "section": section,
-                        "ordinal": ordinal,
-                    }
-                    for ordinal, (key, section) in enumerate(sections.items())
-                ],
+                "items": desired_layout_items,
                 "change_reason": "Create the product Material overview datasheet Layout.",
             },
         )
+    else:
+        current_items = overview_layout.get("items")
+        current_ids = {
+            item.get("attribute_definition_id")
+            for item in current_items
+            if isinstance(item, Mapping)
+        } if isinstance(current_items, list) else set()
+        if current_ids != {item["attribute_definition_id"] for item in desired_layout_items}:
+            revision = overview_layout.get("revision")
+            if not isinstance(revision, Mapping):
+                raise DemoSeedError("Material overview Layout has no revision metadata")
+            api.post(
+                f"/catalog/layouts/{_id(overview_layout, 'layout_id')}/revisions",
+                {
+                    "table_revision_id": table_revision_id,
+                    "name": "Material overview",
+                    "description": (
+                        "Identity, physical, elastic and plastic properties for CAE use."
+                    ),
+                    "items": desired_layout_items,
+                    "change_reason": "Refresh the product Material overview datasheet Layout.",
+                },
+                headers={
+                    "If-Match": (
+                        f'"revision:{revision["revision_no"]}:sha256:{revision["content_hash"]}"'
+                    )
+                },
+            )
 
     def text_value(key: str, value: str) -> dict[str, Any]:
         definition = attribute_by_key[key]
@@ -522,13 +657,22 @@ def _ensure_catalog_binding(
             "quantity_semantics": content["quantity_semantics"],
         }
 
+    material_content = _content(material)
+    material_class = str(material_content.get("material_class") or "metal").lower()
+    material_family = _preserve_material_family(
+        material_content, _DEMO_MATERIAL_FAMILY_VALUES[0]
+    )
     material_values = [
         text_value(
             "material_code",
-            str(_content(material).get("material_code") or "CMP-DEMO-DP780"),
+            str(material_content.get("material_code") or "CMP-DEMO-DP780"),
         ),
-        text_value("material_family", "Steel"),
+        text_value("material_class", material_class),
+        text_value("material_family", material_family),
         text_value("manufacturer", "CMP Synthetic Materials"),
+        text_value("provider", "CMP Synthetic Materials"),
+        text_value("evidence_source", "Synthetic tensile reference"),
+        text_value("condition_summary", "Ambient · as received"),
         text_value("grade", "DP780 dual-phase sheet"),
         number_value("density", "7.85", "g/cm^3", "7850"),
         number_value("youngs_modulus", "210000", "MPa", "210000000000"),
@@ -618,6 +762,9 @@ def _ensure_catalog_binding(
         record_to_place: Mapping[str, Any],
         folder: Mapping[str, Any],
         values: Sequence[Mapping[str, Any]] | None = None,
+        *,
+        name: str | None = None,
+        description: str | None = None,
     ) -> dict[str, Any]:
         content = dict(_content(record_to_place))
         folder_id = _id(folder, "folder_id")
@@ -626,21 +773,22 @@ def _ensure_catalog_binding(
             content.get("folder_id") == folder_id
             and content.get("folder_revision_id") == folder_revision_id
         )
-        current_values = content.get("values")
-        values_match = values is None or (
-            isinstance(current_values, list)
-            and sorted(current_values, key=lambda item: str(item["attribute_definition_id"]))
-            == sorted(
-                [dict(item) for item in values],
-                key=lambda item: str(item["attribute_definition_id"]),
-            )
+        values_match = values is None or _catalog_record_content_matches(
+            content,
+            {**content, "values": list(values)},
         )
-        if already_placed and values_match:
+        name_match = name is None or content.get("name") == name
+        description_match = description is None or content.get("description") == description
+        if already_placed and values_match and name_match and description_match:
             return dict(record_to_place)
         content["folder_id"] = folder_id
         content["folder_revision_id"] = folder_revision_id
         if values is not None:
             content["values"] = list(values)
+        if name is not None:
+            content["name"] = name
+        if description is not None:
+            content["description"] = description
         return api.post(
             f"/catalog/records/{_id(record_to_place, 'record_id')}/revisions",
             {
@@ -655,6 +803,7 @@ def _ensure_catalog_binding(
 
     material_content = _content(material)
     material_code = str(material_content.get("material_code") or "CMP-DEMO-DP780")
+    material_name = str(material_content.get("name") or material_code)
     subsets = _items(api.get(f"/catalog/tables/{table_id}/subsets"))
     workflow_subset = next(
         (item for item in subsets if item.get("name") == "DP780 workflow records"),
@@ -695,9 +844,9 @@ def _ensure_catalog_binding(
                 "classification": "internal",
                 "content": {
                     "table_revision_id": table_revision_id,
-                    "name": str(material_content.get("name") or material_code),
+                    "name": material_name,
                     "external_key": material_code,
-                    "description": "Revision-pinned Catalog entry for the clean product demo.",
+                    "description": _METAL_CATALOG_DESCRIPTION,
                     "folder_id": _id(dp780_folder, "folder_id"),
                     "folder_revision_id": _revision_id(dp780_folder),
                     "values": material_values,
@@ -706,7 +855,13 @@ def _ensure_catalog_binding(
             },
         )
     else:
-        record = place_record(record, dp780_folder, material_values)
+        record = place_record(
+            record,
+            dp780_folder,
+            material_values,
+            name=material_name,
+            description=_METAL_CATALOG_DESCRIPTION,
+        )
     record_id = _id(record, "record_id")
     record_revision_id = _revision_id(record)
     binding_path = f"/catalog/records/{record_id}/revisions/{record_revision_id}/domain-binding"
@@ -890,6 +1045,266 @@ def _ensure_catalog_binding(
     }
 
 
+def _ensure_catalog_material_projections(
+    api: DemoApi,
+    *,
+    catalog: Mapping[str, str],
+    material_ids: Mapping[str, str],
+) -> dict[str, str]:
+    """Add the non-metal Materials to the same governed Catalog projection.
+
+    The Catalog table is the authoritative Materials search source.  These
+    records deliberately contain only typed, user-facing values and a
+    revision-pinned ``material`` domain binding; workflow records remain in
+    the metal journey and are not fabricated for polymer/elastomer fixtures.
+    """
+
+    table_id = catalog["catalog_table_id"]
+    table = api.get(f"/catalog/tables/{table_id}")
+    table_revision_id = _revision_id(table)
+    attributes = _items(api.get(f"/catalog/tables/{table_id}/attributes"))
+    attribute_by_key = {
+        str(_content(item).get("key")): item
+        for item in attributes
+        if _content(item).get("key")
+    }
+    required_keys = (
+        "material_code",
+        "material_class",
+        "material_family",
+        "manufacturer",
+        "provider",
+        "evidence_source",
+        "condition_summary",
+        "grade",
+        "density",
+        "youngs_modulus",
+        "poisson_ratio",
+    )
+    missing = [key for key in required_keys if key not in attribute_by_key]
+    if missing:
+        raise DemoSeedError(
+            "Catalog Materials projection is missing Attributes: "
+            f"{', '.join(missing)}"
+        )
+
+    def text_value(key: str, value: str) -> dict[str, Any]:
+        definition = attribute_by_key[key]
+        return {
+            "data_type": (
+                "discrete" if _content(definition).get("data_type") == "discrete" else "text"
+            ),
+            "attribute_definition_id": _id(definition, "attribute_definition_id"),
+            "attribute_definition_revision_id": _revision_id(definition),
+            "value": value,
+        }
+
+    def number_value(key: str, value: object, unit: str, semantics: str) -> dict[str, Any]:
+        definition = attribute_by_key[key]
+        return {
+            "data_type": "number",
+            "attribute_definition_id": _id(definition, "attribute_definition_id"),
+            "attribute_definition_revision_id": _revision_id(definition),
+            "original_value": str(value),
+            "original_unit_string": unit,
+            "normalized_value": str(value),
+            "normalized_unit": _content(definition).get("normalized_unit") or unit,
+            "quantity_semantics": _content(definition).get("quantity_semantics") or semantics,
+        }
+
+    folders = _items(api.get(f"/catalog/tables/{table_id}/folders"))
+
+    def ensure_folder(
+        name: str,
+        description: str,
+        parent: Mapping[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        parent_id = _id(parent, "folder_id") if parent is not None else None
+        existing = next(
+            (
+                item
+                for item in folders
+                if _content(item).get("name") == name
+                and _content(item).get("parent_folder_id") == parent_id
+            ),
+            None,
+        )
+        if existing is not None:
+            return existing
+        created = api.post(
+            f"/catalog/tables/{table_id}/folders",
+            {
+                "classification": "internal",
+                "content": {
+                    "table_revision_id": table_revision_id,
+                    "name": name,
+                    "description": description,
+                    "parent_folder_id": parent_id,
+                    "parent_folder_revision_id": _revision_id(parent) if parent else None,
+                },
+                "change_reason": f"Create the {name} Contents Tree folder for the clean demo.",
+            },
+        )
+        folders.append(created)
+        return created
+
+    material_library = ensure_folder(
+        "Material Library",
+        "Approved and working material records arranged by engineering family.",
+    )
+    non_metals = ensure_folder(
+        "Non-metal References",
+        "Public synthetic polymer and elastomer reference records.",
+        material_library,
+    )
+    family_folders = {
+        "polymer": ensure_folder(
+            "Polymers",
+            "Synthetic polymer records for the Materials workspace.",
+            non_metals,
+        ),
+        "elastomer": ensure_folder(
+            "Elastomers",
+            "Synthetic elastomer records for the Materials workspace.",
+            non_metals,
+        ),
+    }
+
+    projected: dict[str, str] = {}
+    for label, material_id in material_ids.items():
+        detail = api.get(f"/materials/{material_id}")
+        material = detail.get("material")
+        if not isinstance(material, Mapping):
+            raise DemoSeedError(f"{label} Material detail is incomplete")
+        content = _content(material)
+        material_class = str(content.get("material_class") or label).lower()
+        if material_class not in family_folders:
+            raise DemoSeedError(f"unsupported non-metal Material class: {material_class}")
+        material_code = str(content.get("material_code") or f"CMP-DEMO-{label.upper()}")
+        family_fallback = (
+            _DEMO_MATERIAL_FAMILY_VALUES[1]
+            if material_class == "polymer"
+            else _DEMO_MATERIAL_FAMILY_VALUES[2]
+        )
+        family = _preserve_material_family(content, family_fallback)
+        state_name = "Reference conditioned" if material_class == "polymer" else "Reference cured"
+        condition = f"{state_name}; 23 °C reference range"
+        grade = str(content.get("name") or material_code)
+        values = [
+            text_value("material_code", material_code),
+            text_value("material_class", material_class),
+            text_value("material_family", family),
+            text_value("manufacturer", "CMP Synthetic Materials"),
+            text_value("provider", "CMP Synthetic Materials"),
+            text_value("evidence_source", "Public synthetic T-60 reference properties"),
+            text_value("condition_summary", condition),
+            text_value("grade", grade),
+        ]
+        property_sets = detail.get("property_sets")
+        property_set = (
+            property_sets[0]
+            if isinstance(property_sets, list)
+            and property_sets
+            and isinstance(property_sets[0], Mapping)
+            else None
+        )
+        property_content = _content(property_set) if property_set is not None else {}
+        if property_content.get("density_kg_per_m3") is not None:
+            values.append(
+                number_value(
+                    "density", property_content["density_kg_per_m3"], "kg/m^3", "mass.density"
+                )
+            )
+        if property_content.get("youngs_modulus_pa") is not None:
+            values.append(
+                number_value(
+                    "youngs_modulus",
+                    property_content["youngs_modulus_pa"],
+                    "Pa",
+                    "modulus.elastic.young",
+                )
+            )
+        if property_content.get("poisson_ratio") is not None:
+            values.append(
+                number_value(
+                    "poisson_ratio", property_content["poisson_ratio"], "1", "ratio.poisson"
+                )
+            )
+        folder = family_folders[material_class]
+        searched = api.post(
+            "/catalog/records:search",
+            {
+                "table_id": table_id,
+                "text": material_code,
+                "domain_binding_kind": "material",
+                "sort_by": "external_key",
+                "limit": 20,
+            },
+        )
+        record = next(
+            (
+                item
+                for item in _items(searched)
+                if _content(item).get("external_key") == material_code
+                and isinstance(item.get("domain_binding"), Mapping)
+                and item["domain_binding"].get("kind") == "material"
+                and item["domain_binding"].get("object_id") == material_id
+            ),
+            None,
+        )
+        desired_content = {
+            "table_revision_id": table_revision_id,
+            "name": str(content.get("name") or material_code),
+            "external_key": material_code,
+            "description": str(
+                content.get("description") or "Public synthetic non-metal reference."
+            ),
+            "folder_id": _id(folder, "folder_id"),
+            "folder_revision_id": _revision_id(folder),
+            "values": values,
+        }
+        if record is None:
+            record = api.post(
+                f"/catalog/tables/{table_id}/records",
+                {
+                    "classification": "internal",
+                    "content": desired_content,
+                    "change_reason": (
+                        f"Create the governed Catalog projection for the {label} Material."
+                    ),
+                },
+            )
+        else:
+            existing_content = _content(record)
+            if not _catalog_record_content_matches(existing_content, desired_content):
+                record = api.post(
+                    f"/catalog/records/{_id(record, 'record_id')}/revisions",
+                    {
+                        "content": desired_content,
+                        "change_reason": f"Refresh the {label} Material Catalog projection.",
+                    },
+                    headers={"If-Match": _revision_etag(record)},
+                )
+        record_id = _id(record, "record_id")
+        record_revision_id = _revision_id(record)
+        binding_path = f"/catalog/records/{record_id}/revisions/{record_revision_id}/domain-binding"
+        try:
+            binding = api.get(binding_path)
+        except DemoSeedError:
+            binding = api.post(
+                binding_path,
+                {
+                    "kind": "material",
+                    "object_id": material_id,
+                    "revision_id": _revision_id(material),
+                },
+            )
+        projected[f"catalog_{label}_record_id"] = record_id
+        projected[f"catalog_{label}_record_revision_id"] = record_revision_id
+        projected[f"catalog_{label}_binding_id"] = _id(binding, "binding_id")
+    return projected
+
+
 def _ensure_governed_test_data_revision(
     api: DemoApi,
     test_data: Mapping[str, Any],
@@ -932,20 +1347,13 @@ def _governed_sources_for_tensile_documents(
     *,
     material: Mapping[str, Any],
     material_state: Mapping[str, Any],
+    specimens: Sequence[Mapping[str, Any]],
     test_runs: Sequence[Mapping[str, Any]],
 ) -> dict[str, dict[str, object]]:
-    """Pin every canonical tensile document to its own exact synthetic Test Run."""
+    """Pin each canonical tensile document to its exact Test Run lineage."""
 
-    shared = {
-        "material": {
-            "aggregate_id": _id(material, "material_id"),
-            "revision_id": _revision_id(material),
-        },
-        "material_state": {
-            "aggregate_id": _id(material_state, "material_state_id"),
-            "revision_id": _revision_id(material_state),
-        },
-    }
+    material_id = _id(material, "material_id")
+    material_state_id = _id(material_state, "material_state_id")
     sources: dict[str, dict[str, object]] = {}
     for document_key, run_label in _TENSILE_TEST_DATA_RUN_LABELS.items():
         matches = [item for item in test_runs if _content(item).get("run_label") == run_label]
@@ -954,8 +1362,58 @@ def _governed_sources_for_tensile_documents(
                 f"clean demo requires exactly one Test Run labeled {run_label!r} for {document_key}"
             )
         run = matches[0]
+        run_content = _content(run)
+        specimen_id = run_content.get("specimen_id")
+        specimen_revision_id = run_content.get("specimen_revision_id")
+        if not isinstance(specimen_id, str) or not specimen_id:
+            raise DemoSeedError(
+                f"clean demo Test Run {run_label!r} has no exact Specimen ID"
+            )
+        if not isinstance(specimen_revision_id, str) or not specimen_revision_id:
+            raise DemoSeedError(
+                f"clean demo Test Run {run_label!r} has no exact Specimen revision ID"
+            )
+        specimen_matches = [
+            item
+            for item in specimens
+            if item.get("specimen_id") == specimen_id
+            and _revision_id(item) == specimen_revision_id
+        ]
+        if len(specimen_matches) != 1:
+            raise DemoSeedError(
+                f"clean demo requires exactly one Specimen pinned by Test Run "
+                f"{run_label!r} ({specimen_id}, {specimen_revision_id})"
+            )
+        specimen_content = _content(specimen_matches[0])
+        if (
+            specimen_content.get("material_id") != material_id
+            or specimen_content.get("material_state_id") != material_state_id
+        ):
+            raise DemoSeedError(
+                f"clean demo Specimen pinned by Test Run {run_label!r} does not match "
+                "the current Material and Material State stable IDs"
+            )
+        specimen_material_revision_id = specimen_content.get("material_revision_id")
+        specimen_state_revision_id = specimen_content.get("material_state_revision_id")
+        if not isinstance(specimen_material_revision_id, str) or not specimen_material_revision_id:
+            raise DemoSeedError(
+                f"clean demo Specimen pinned by Test Run {run_label!r} has no exact "
+                "Material revision ID"
+            )
+        if not isinstance(specimen_state_revision_id, str) or not specimen_state_revision_id:
+            raise DemoSeedError(
+                f"clean demo Specimen pinned by Test Run {run_label!r} has no exact "
+                "Material State revision ID"
+            )
         sources[document_key] = {
-            **shared,
+            "material": {
+                "aggregate_id": specimen_content["material_id"],
+                "revision_id": specimen_material_revision_id,
+            },
+            "material_state": {
+                "aggregate_id": specimen_content["material_state_id"],
+                "revision_id": specimen_state_revision_id,
+            },
             "test_run": {
                 "aggregate_id": _id(run, "test_run_id"),
                 "revision_id": _revision_id(run),
@@ -1412,35 +1870,103 @@ def _ensure_material(
                     "material_code": material_code,
                     "material_family": material_family,
                     "material_class": material_class,
-                    "description": (
-                        "Public synthetic T-60 reference fixture; not validated engineering data."
-                    ),
+                    "description": _NON_METAL_MATERIAL_DESCRIPTION,
                 },
                 "change_reason": f"Create the synthetic {material_class} demo Material.",
             },
-        )
-    return api.get(f"/materials/{_id(material, 'material_id')}")
+    )
+    detail = api.get(f"/materials/{_id(material, 'material_id')}")
+    current = detail.get("material")
+    if not isinstance(current, Mapping):
+        raise DemoSeedError("full demo Material detail is incomplete")
+    current_content = _content(current)
+    if (
+        current_content.get("name") == name
+        and current_content.get("description") == _NON_METAL_MATERIAL_DESCRIPTION
+    ):
+        return detail
+    current_revision = current.get("current_revision")
+    change_reason = (
+        current_revision.get("change_reason")
+        if isinstance(current_revision, Mapping)
+        else None
+    )
+    revised = api.post(
+        f"/materials/{_id(material, 'material_id')}/revisions",
+        {
+            "content": {
+                "name": name,
+                "material_code": current_content.get("material_code") or material_code,
+                "material_family": current_content.get("material_family") or material_family,
+                "material_class": current_content.get("material_class") or material_class,
+                "description": _NON_METAL_MATERIAL_DESCRIPTION,
+            },
+            "change_reason": (
+                change_reason
+                if isinstance(change_reason, str) and change_reason
+                else f"Create the synthetic {material_class} demo Material."
+            ),
+        },
+        headers={"If-Match": _revision_etag(current)},
+    )
+    detail["material"] = revised
+    return detail
 
 
 def _ensure_state(
-    api: DemoApi, detail: Mapping[str, Any], *, name: str, lot: str
+    api: DemoApi,
+    detail: Mapping[str, Any],
+    *,
+    name: str,
+    lot: str,
 ) -> dict[str, Any]:
     material = detail.get("material")
     if not isinstance(material, Mapping):
         raise DemoSeedError("full demo Material detail is incomplete")
     state = _find_by_content(_items({"items": detail.get("states")}), "name", name)
     if state is not None:
-        return state
+        current_content = _content(state)
+        current_revision = state.get("current_revision")
+        if (
+            current_content.get("material_revision_id") == _revision_id(material)
+            and current_content.get("description") == _NON_METAL_STATE_DESCRIPTION
+            and current_content.get("manufacturing_route") == _SYNTHETIC_STATE_ROUTE
+        ):
+            return state
+        change_reason = (
+            current_revision.get("change_reason")
+            if isinstance(current_revision, Mapping)
+            else None
+        )
+        return api.post(
+            f"/material-states/{_id(state, 'material_state_id')}/revisions",
+            {
+                "content": {
+                    "material_revision_id": _revision_id(material),
+                    "name": current_content.get("name") or name,
+                    "manufacturing_route": _SYNTHETIC_STATE_ROUTE,
+                    "heat_treatment": current_content.get("heat_treatment"),
+                    "lot_or_batch": current_content.get("lot_or_batch") or lot,
+                    "description": _NON_METAL_STATE_DESCRIPTION,
+                },
+                "change_reason": (
+                    change_reason
+                    if isinstance(change_reason, str) and change_reason
+                    else "Create the synthetic modeling demo State."
+                ),
+            },
+            headers={"If-Match": _revision_etag(state)},
+        )
     return api.post(
         f"/materials/{_id(material, 'material_id')}/states",
         {
             "content": {
                 "material_revision_id": _revision_id(material),
                 "name": name,
-                "manufacturing_route": "Public synthetic reference route",
+                "manufacturing_route": _SYNTHETIC_STATE_ROUTE,
                 "heat_treatment": None,
                 "lot_or_batch": lot,
-                "description": "Deterministic T-60 demo state.",
+                "description": _NON_METAL_STATE_DESCRIPTION,
             },
             "change_reason": "Create the synthetic modeling demo State.",
         },
@@ -1466,8 +1992,48 @@ def _ensure_properties(
         None,
     )
     if existing is not None:
-        return existing
-    source = {"kind": "manual", "reference": "Public synthetic T-60 fixture"}
+        current_content = _content(existing)
+        current_revision = existing.get("current_revision")
+        source = {"kind": "manual", "reference": _NON_METAL_SOURCE_REFERENCE}
+        applicability = current_content.get("applicability")
+        desired_applicability = (
+            dict(applicability) if isinstance(applicability, Mapping) else {}
+        )
+        desired_applicability["note"] = _SYNTHETIC_APPLICABILITY_NOTE
+        desired_content = {
+            "material_state_revision_id": _revision_id(state),
+            "density_kg_per_m3": current_content.get("density_kg_per_m3", density),
+            "density_source": source,
+            "youngs_modulus_pa": current_content.get("youngs_modulus_pa", youngs_modulus),
+            "youngs_modulus_source": source,
+            "poisson_ratio": current_content.get("poisson_ratio", poisson_ratio),
+            "poisson_ratio_source": source,
+            "yield_stress_pa": current_content.get("yield_stress_pa"),
+            "yield_stress_source": (
+                source if current_content.get("yield_stress_source") is not None else None
+            ),
+            "applicability": desired_applicability,
+        }
+        if all(current_content.get(key) == value for key, value in desired_content.items()):
+            return existing
+        change_reason = (
+            current_revision.get("change_reason")
+            if isinstance(current_revision, Mapping)
+            else None
+        )
+        return api.post(
+            f"/property-sets/{_id(existing, 'property_set_id')}/revisions",
+            {
+                "content": desired_content,
+                "change_reason": (
+                    change_reason
+                    if isinstance(change_reason, str) and change_reason
+                    else "Create typed synthetic modeling properties."
+                ),
+            },
+            headers={"If-Match": _revision_etag(existing)},
+        )
+    source = {"kind": "manual", "reference": _NON_METAL_SOURCE_REFERENCE}
     return api.post(
         f"/material-states/{state_id}/property-sets",
         {
@@ -1486,7 +2052,7 @@ def _ensure_properties(
                     "temperature_max_k": 313.15,
                     "strain_rate_min_per_s": None,
                     "strain_rate_max_per_s": None,
-                    "note": "Public synthetic reference range only.",
+                    "note": _SYNTHETIC_APPLICABILITY_NOTE,
                 },
             },
             "change_reason": "Create typed synthetic modeling properties.",
@@ -1537,7 +2103,7 @@ def _fixture_complete(
 def _ensure_polymer_baseline(api: DemoApi) -> str:
     detail = _ensure_material(
         api,
-        name="Demo Polymer Prony",
+        name="Synthetic Polymer Prony",
         material_code="CMP-DEMO-POLYMER-PRONY",
         material_family="linear viscoelastic polymer",
         material_class="polymer",
@@ -2430,7 +2996,7 @@ def _ensure_polymer_processing_card(api: DemoApi, *, material_id: str) -> dict[s
 def _ensure_elastomer_baseline(api: DemoApi) -> str:
     detail = _ensure_material(
         api,
-        name="Demo Elastomer Ogden-Prony",
+        name="Synthetic Elastomer Ogden-Prony",
         material_code="CMP-DEMO-ELASTOMER-OGDEN",
         material_family="Ogden hyper-viscoelastic elastomer",
         material_class="elastomer",
@@ -2882,6 +3448,9 @@ def seed_full_demo(base_url: str) -> dict[str, str]:
     governed_sources = _governed_sources_for_tensile_documents(
         material=metal_material,
         material_state=metal_state,
+        specimens=_items(
+            api.get(f"/material-states/{_id(metal_state, 'material_state_id')}/specimens")
+        ),
         test_runs=metal_runs,
     )
     test_data = _ensure_test_json(api, governed_sources=governed_sources)
@@ -2953,6 +3522,11 @@ def seed_full_demo(base_url: str) -> dict[str, str]:
             },
         ),
     )
+    catalog_non_metal = _ensure_catalog_material_projections(
+        api,
+        catalog=catalog,
+        material_ids={"polymer": polymer_id, "elastomer": elastomer_id},
+    )
     bulk = _ensure_bulk_bundle(api, material_id=metal_id)
     polymer_bulk_source = _ensure_bulk_bundle(
         api,
@@ -2978,6 +3552,7 @@ def seed_full_demo(base_url: str) -> dict[str, str]:
         "polymer_material_id": polymer_id,
         "elastomer_material_id": elastomer_id,
         **catalog,
+        **catalog_non_metal,
         **test_data,
         **processing,
         **neutral,

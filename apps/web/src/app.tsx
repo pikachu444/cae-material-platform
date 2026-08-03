@@ -13,7 +13,7 @@ import type {
   MaterialClass,
   MaterialResponse,
 } from "./types";
-import type { MaterialTab } from "./material-library";
+import type { MaterialRevisionPin, MaterialTab } from "./material-library";
 import { ApplicationShell, publishWorkspaceStatus } from "./design/application-shell";
 
 const ReferenceTensileWorkflow = lazy(() =>
@@ -186,6 +186,17 @@ function errorMessage(error: unknown): string {
 function blankToNull(value: string): string | null {
   const trimmed = value.trim();
   return trimmed ? trimmed : null;
+}
+
+function exactPinFromLocation(location: string): MaterialRevisionPin | undefined {
+  const params = new URLSearchParams(location.includes("?") ? location.slice(location.indexOf("?") + 1) : "");
+  const values = [params.get("record_id"), params.get("record_revision_id"), params.get("material_revision_id")];
+  if (!values.some((value) => value !== null)) return undefined;
+  return {
+    recordId: values[0] ?? "",
+    recordRevisionId: values[1] ?? "",
+    materialRevisionId: values[2] ?? "",
+  };
 }
 
 function ProductSessionBoundary({ loading, onRetry }: { loading: boolean; onRetry: () => void }) {
@@ -593,16 +604,17 @@ export function App() {
   }, [path]);
   const searchFirstMaterialRoute = useMemo(() => {
     const match = path.match(/^\/materials\/([^/]+)(?:\/(overview|properties|curves|cards|evidence))?$/);
-    return match ? { materialId: match[1], tab: (match[2] ?? "overview") as MaterialTab } : null;
-  }, [path]);
+    if (!match) return null;
+    return { materialId: match[1], tab: (match[2] ?? "overview") as MaterialTab, exactPin: exactPinFromLocation(location) };
+  }, [location, path]);
   const exactMaterialRecordRoute = useMemo(() => {
     const match = path.match(/^\/materials\/records\/([^/]+)\/revisions\/([^/]+)$/);
     return match ? { recordId: match[1], revisionId: match[2] } : null;
   }, [path]);
   const solverCardRoute = useMemo(() => {
     const match = path.match(/^\/materials\/([^/]+)\/cards\/([^/]+)$/);
-    return match ? { materialId: match[1], cardId: match[2] } : null;
-  }, [path]);
+    return match ? { materialId: match[1], cardId: match[2], exactPin: exactPinFromLocation(location) } : null;
+  }, [location, path]);
   const catalogExplorerRoute = useMemo(() => {
     const match = path.match(/^\/catalog\/explorer(?:\/records\/([^/]+)\/revisions\/([^/]+))?$/);
     return match
@@ -626,7 +638,7 @@ export function App() {
 
   let page: React.ReactNode;
   if (solverCardRoute) {
-    page = <SolverCardPreviewPage config={config} materialId={solverCardRoute.materialId} cardId={solverCardRoute.cardId} onNavigate={navigate} />;
+    page = <SolverCardPreviewPage config={config} materialId={solverCardRoute.materialId} cardId={solverCardRoute.cardId} exactPin={solverCardRoute.exactPin} onNavigate={navigate} />;
   } else if (exactMaterialRecordRoute) {
     page = <ExactRecordDatasheetPage config={config} recordId={exactMaterialRecordRoute.recordId} revisionId={exactMaterialRecordRoute.revisionId} onNavigate={navigate} />;
   } else if (materialDatabaseRoute) {
@@ -652,7 +664,7 @@ export function App() {
   } else if (path === "/materials/new") {
     page = <MaterialCreatePage config={config} navigate={navigate} onOpenConnection={retrySession} />;
   } else if (searchFirstMaterialRoute) {
-    page = <SearchFirstMaterialDetailPage config={config} materialId={searchFirstMaterialRoute.materialId} activeTab={searchFirstMaterialRoute.tab} onNavigate={navigate} />;
+    page = <SearchFirstMaterialDetailPage config={config} materialId={searchFirstMaterialRoute.materialId} activeTab={searchFirstMaterialRoute.tab} exactPin={searchFirstMaterialRoute.exactPin} onNavigate={navigate} />;
   } else if (legacyMaterialRoute) {
     const legacyTab: Record<LegacyMaterialArea, MaterialTab> = {
       testing: "curves",

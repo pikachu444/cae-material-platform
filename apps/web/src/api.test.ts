@@ -3,14 +3,18 @@ import {
   ApiError,
   createReferenceImportMapping,
   detectReferenceImport,
+  downloadNeutralHyperelasticMappingReport,
   executeReferenceImport,
   getReferenceOgdenCalibrationRun,
   importReferenceTensileDataset,
   previewDatasetCurve,
   preflightSolverCardMapping,
   previewSolverCard,
+  getSolverCard,
+  getNeutralSolverMappingReport,
   requestLocalDemoAccessToken,
   listMaterials,
+  searchMaterialCatalogRecords,
 } from "./api";
 
 function jsonResponse(body: unknown, status = 200): Response {
@@ -47,6 +51,124 @@ describe("Catalog API client", () => {
       expect(error).toBeInstanceOf(ApiError);
       expect((error as ApiError).status).toBe(401);
     }
+  });
+
+  it("uses one governed Catalog search for Materials rows, facets, sort and binding scope", async () => {
+    const tableId = "00000000-0000-0000-0000-000000000010";
+    const tableRevisionId = "00000000-0000-0000-0000-000000000011";
+    const classAttributeId = "00000000-0000-0000-0000-000000000012";
+    const classAttributeRevisionId = "00000000-0000-0000-0000-000000000013";
+    const materialId = "00000000-0000-0000-0000-000000000014";
+    const recordId = "00000000-0000-0000-0000-000000000015";
+    const recordRevisionId = "00000000-0000-0000-0000-000000000016";
+    const metadata = (id: string) => ({
+      id,
+      aggregate_id: id,
+      revision_no: 1,
+      based_on_revision_id: null,
+      schema_id: "urn:cmp:catalog:record:1.0.0",
+      schema_version: "1.0.0",
+      content_hash: "a".repeat(64),
+      created_at: "2026-07-20T00:00:00Z",
+      created_by: "00000000-0000-0000-0000-000000000003",
+      change_reason: "fixture",
+      organization_id: "00000000-0000-0000-0000-000000000004",
+      project_id: "00000000-0000-0000-0000-000000000005",
+      classification: "internal",
+      lifecycle_state: "draft",
+    });
+    const fetchMock = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(jsonResponse({
+        items: [{
+          attribute_definition_id: classAttributeId,
+          table_id: tableId,
+          current_revision: {
+            ...metadata(classAttributeRevisionId),
+            content: {
+              table_revision_id: tableRevisionId,
+              key: "material_class",
+              name: "Material class",
+              data_type: "discrete",
+              required: false,
+              quantity_semantics: null,
+              normalized_unit: null,
+              minimum_number: null,
+              maximum_number: null,
+              minimum_length: null,
+              maximum_length: null,
+              pattern: null,
+              allowed_values: ["metal", "polymer", "elastomer"],
+              reference_table_id: null,
+              help_text: null,
+            },
+          },
+        }],
+      }))
+      .mockResolvedValueOnce(jsonResponse({
+        items: [{
+          record_id: recordId,
+          table_id: tableId,
+          domain_binding: {
+            binding_id: "00000000-0000-0000-0000-000000000017",
+            record_id: recordId,
+            record_revision_id: recordRevisionId,
+            kind: "material",
+            object_id: materialId,
+            revision_id: "00000000-0000-0000-0000-000000000018",
+            workbench_path: `/materials/${materialId}`,
+          },
+          current_revision: {
+            ...metadata(recordRevisionId),
+            content: {
+              table_revision_id: tableRevisionId,
+              name: "Demo DP780",
+              external_key: "DP780",
+              description: "Synthetic metal reference",
+              folder_id: null,
+              folder_revision_id: null,
+              values: [{
+                data_type: "discrete",
+                attribute_definition_id: classAttributeId,
+                attribute_definition_revision_id: classAttributeRevisionId,
+                value: "metal",
+              }],
+            },
+          },
+        }],
+        total_count: 1,
+        offset: 50,
+        limit: 50,
+        facets: [{ attribute_definition_id: classAttributeId, value: "metal", count: 1 }],
+      }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await searchMaterialCatalogRecords(
+      { baseUrl: "/api/v1", accessToken: "short-lived-token" },
+      { tableId, query: "DP780", materialClass: "metal", offset: 50, limit: 50, sortBy: "material_class", sortDirection: "descending" },
+    );
+
+    expect(result.data.items[0]?.material_id).toBe(materialId);
+    expect(result.data.items[0]?.material_revision_id).toBe("00000000-0000-0000-0000-000000000018");
+    expect(result.data.items[0]?.record_id).toBe(recordId);
+    expect(result.data.items[0]?.record_revision_id).toBe(recordRevisionId);
+    expect(result.data.items[0]?.record_revision_id).not.toBe(result.data.items[0]?.material_revision_id);
+    expect(result.data.items[0]?.record_revision_no).toBe(1);
+    expect(result.data.items[0]?.material_class).toBe("metal");
+    expect(result.data.total_count).toBe(1);
+    expect(result.data.facets.material_classes).toEqual([{ material_class: "metal", count: 1 }]);
+    const [url, init] = fetchMock.mock.calls[1];
+    expect(url).toBe("/api/v1/catalog/records:search");
+    expect(JSON.parse(String(init?.body))).toMatchObject({
+      table_id: tableId,
+      text: "DP780",
+      domain_binding_kind: "material",
+      include_descendants: false,
+      sort_by: "attribute",
+      sort_attribute_id: classAttributeId,
+      sort_direction: "descending",
+      offset: 50,
+      limit: 50,
+    });
   });
 
   it("preserves the problem code and trace ID in every user-visible API error", async () => {
@@ -146,6 +268,45 @@ describe("Catalog API client", () => {
     const [, init] = fetchMock.mock.calls[0];
     expect(new Headers(init?.headers).get("accept")).toBe("text/plain");
     expect(new Headers(init?.headers).get("authorization")).toBe("Bearer short-lived-token");
+  });
+
+  it("pins Solver Card reads, previews, and mapping downloads to one revision", async () => {
+    const fetchMock = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(jsonResponse({}))
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: new Headers({ "content-type": "text/plain" }),
+        text: async () => "exact-card",
+      } as Response)
+      .mockResolvedValueOnce(jsonResponse({}))
+      .mockResolvedValueOnce(jsonResponse({}));
+    vi.stubGlobal("fetch", fetchMock);
+    const config = { baseUrl: "/api/v1", accessToken: "short-lived-token" };
+    const cardId = "00000000-0000-0000-0000-000000000101";
+    const revisionId = "00000000-0000-0000-0000-000000000102";
+
+    await getSolverCard(config, cardId, revisionId);
+    await previewSolverCard(config, cardId, revisionId);
+    await getNeutralSolverMappingReport(config, cardId, revisionId);
+    await downloadNeutralHyperelasticMappingReport(config, cardId, revisionId);
+
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+      `/api/v1/solver-cards/${cardId}?revision_id=${revisionId}`,
+      `/api/v1/solver-cards/${cardId}/preview?revision_id=${revisionId}`,
+      `/api/v1/neutral-solver-cards/${cardId}/mapping-report?revision_id=${revisionId}`,
+      `/api/v1/neutral-solver-cards/${cardId}/mapping-report?revision_id=${revisionId}`,
+    ]);
+  });
+
+  it("keeps the current-head Solver Card URL unpinned when no revision is selected", async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({}));
+    vi.stubGlobal("fetch", fetchMock);
+    await getSolverCard(
+      { baseUrl: "/api/v1", accessToken: "short-lived-token" },
+      "00000000-0000-0000-0000-000000000101",
+    );
+    expect(fetchMock.mock.calls[0]?.[0]).toBe("/api/v1/solver-cards/00000000-0000-0000-0000-000000000101");
   });
 
   it("imports a Dataset only with pinned Test Run and Raw Artifact identities", async () => {

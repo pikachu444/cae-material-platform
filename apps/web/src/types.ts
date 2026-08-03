@@ -3708,6 +3708,7 @@ export interface ConfigurableCatalogRecordResponse {
   record_id: string;
   table_id: string;
   current_revision: RevisionMetadata & { content: ConfigurableCatalogRecordContent };
+  domain_binding?: DomainRevisionBinding | null;
 }
 
 export interface ConfigurableCatalogRecordSearchResponse {

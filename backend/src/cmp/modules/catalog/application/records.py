@@ -54,10 +54,22 @@ class FolderSnapshot:
 
 
 @dataclass(frozen=True, slots=True)
+class RecordDomainBinding:
+    """Minimal exact domain projection attached to a governed search row."""
+
+    binding_id: UUID
+    kind: str
+    object_id: UUID
+    revision_id: UUID
+    workbench_path: str
+
+
+@dataclass(frozen=True, slots=True)
 class RecordSnapshot:
     id: UUID
     table_id: UUID
     current: ConfigRevision[CatalogRecordContent]
+    domain_binding: RecordDomainBinding | None = None
 
 
 @dataclass(frozen=True, slots=True)

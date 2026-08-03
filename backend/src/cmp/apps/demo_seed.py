@@ -22,6 +22,12 @@ from uuid import uuid4
 
 _MATERIAL_CODE = "CMP-DEMO-DP780"
 _STATE_NAME = "As received · synthetic reference"
+_MATERIAL_NAME = "DP780 synthetic reference steel"
+_MATERIAL_DESCRIPTION = "Synthetic reference data; not validated for engineering use."
+_STATE_DESCRIPTION = "Synthetic reference material state; not validated for engineering use."
+_STATE_MANUFACTURING_ROUTE = "Synthetic reference preparation; not for engineering use"
+_PROPERTY_SOURCE_REFERENCE = "Synthetic reference data"
+_APPLICABILITY_NOTE = "Synthetic reference conditions; not validated for engineering use."
 _TENSILE_REPLICATES = (
     ("CMP-DEMO-DP780-T-001", "CMP demo tensile replicate 1", 0, 1.00),
     ("CMP-DEMO-DP780-T-002", "CMP demo tensile replicate 2", 1, 0.97),
@@ -185,22 +191,26 @@ def _ensure_material(api: DemoApi) -> dict[str, Any]:
         material = detail.get("material")
         current = material.get("current_revision") if isinstance(material, dict) else None
         content = current.get("content") if isinstance(current, dict) else None
-        if (
-            isinstance(current, dict)
-            and isinstance(content, dict)
-            and content.get("material_class") in {None, "unclassified"}
-        ):
+        if isinstance(current, dict) and isinstance(content, dict):
+            desired_content = {
+                "name": _MATERIAL_NAME,
+                "material_code": content.get("material_code"),
+                "material_family": content.get("material_family"),
+                "description": _MATERIAL_DESCRIPTION,
+                "material_class": "metal",
+            }
+            if all(content.get(key) == value for key, value in desired_content.items()):
+                return detail
+            change_reason = current.get("change_reason")
             revised = api.post(
                 f"/materials/{_current_id(found, 'material_id')}/revisions",
                 {
-                    "content": {
-                        "name": content.get("name"),
-                        "material_code": content.get("material_code"),
-                        "material_family": content.get("material_family"),
-                        "description": content.get("description"),
-                        "material_class": "metal",
-                    },
-                    "change_reason": "Classify the legacy demo Material as metal.",
+                    "content": desired_content,
+                    "change_reason": (
+                        change_reason
+                        if isinstance(change_reason, str) and change_reason
+                        else "Classify the legacy demo Material as metal."
+                    ),
                 },
                 headers={"If-Match": _revision_etag(current)},
             )
@@ -211,11 +221,11 @@ def _ensure_material(api: DemoApi) -> dict[str, Any]:
         {
             "classification": "internal",
             "content": {
-                "name": "DP780 synthetic demo steel",
+                "name": _MATERIAL_NAME,
                 "material_code": _MATERIAL_CODE,
                 "material_family": "dual-phase steel",
                 "material_class": "metal",
-                "description": "Synthetic local-demo data; not validated engineering data.",
+                "description": _MATERIAL_DESCRIPTION,
             },
             "change_reason": "Seed the local Material-to-card demonstration.",
         },
@@ -238,20 +248,29 @@ def _ensure_state(api: DemoApi, detail: Mapping[str, Any]) -> tuple[dict[str, An
         if (
             isinstance(current, dict)
             and isinstance(content, dict)
-            and content.get("material_revision_id") != str(_revision_id(material))
+                and (
+                content.get("material_revision_id") != str(_revision_id(material))
+                or content.get("description") != _STATE_DESCRIPTION
+                or content.get("manufacturing_route") != _STATE_MANUFACTURING_ROUTE
+            )
         ):
+            change_reason = current.get("change_reason")
             existing = api.post(
                 f"/material-states/{_current_id(existing, 'material_state_id')}/revisions",
                 {
                     "content": {
                         "material_revision_id": str(_revision_id(material)),
                         "name": content.get("name"),
-                        "manufacturing_route": content.get("manufacturing_route"),
+                        "manufacturing_route": _STATE_MANUFACTURING_ROUTE,
                         "heat_treatment": content.get("heat_treatment"),
                         "lot_or_batch": content.get("lot_or_batch"),
-                        "description": content.get("description"),
+                        "description": _STATE_DESCRIPTION,
                     },
-                    "change_reason": "Rebase the demo State to the classified Material revision.",
+                    "change_reason": (
+                        change_reason
+                        if isinstance(change_reason, str) and change_reason
+                        else "Rebase the demo State to the classified Material revision."
+                    ),
                 },
                 headers={"If-Match": _revision_etag(current)},
             )
@@ -262,10 +281,10 @@ def _ensure_state(api: DemoApi, detail: Mapping[str, Any]) -> tuple[dict[str, An
             "content": {
                 "material_revision_id": _revision_id(material),
                 "name": _STATE_NAME,
-                "manufacturing_route": "Synthetic reference production route",
+                "manufacturing_route": _STATE_MANUFACTURING_ROUTE,
                 "heat_treatment": None,
                 "lot_or_batch": "CMP-DEMO-LOT-001",
-                "description": "Reference-only state created by the local demo seed.",
+                "description": _STATE_DESCRIPTION,
             },
             "change_reason": "Seed the local Material State demonstration.",
         },
@@ -284,32 +303,44 @@ def _ensure_properties(
     if existing is not None:
         current = existing.get("current_revision")
         content = current.get("content") if isinstance(current, dict) else None
-        if (
-            isinstance(current, dict)
-            and isinstance(content, dict)
-            and content.get("material_state_revision_id") != str(_revision_id(state))
-        ):
+        if isinstance(current, dict) and isinstance(content, dict):
+            source = {"kind": "manual", "reference": _PROPERTY_SOURCE_REFERENCE}
+            applicability = content.get("applicability")
+            desired_applicability = (
+                dict(applicability) if isinstance(applicability, Mapping) else {}
+            )
+            desired_applicability["note"] = _APPLICABILITY_NOTE
+            desired_content = {
+                "material_state_revision_id": str(_revision_id(state)),
+                "density_kg_per_m3": content.get("density_kg_per_m3"),
+                "density_source": source,
+                "youngs_modulus_pa": content.get("youngs_modulus_pa"),
+                "youngs_modulus_source": source,
+                "poisson_ratio": content.get("poisson_ratio"),
+                "poisson_ratio_source": source,
+                "yield_stress_pa": content.get("yield_stress_pa"),
+                "yield_stress_source": (
+                    source if content.get("yield_stress_source") is not None else None
+                ),
+                "applicability": desired_applicability,
+            }
+            if all(content.get(key) == value for key, value in desired_content.items()):
+                return existing
+            change_reason = current.get("change_reason")
             existing = api.post(
                 f"/property-sets/{_current_id(existing, 'property_set_id')}/revisions",
                 {
-                    "content": {
-                        "material_state_revision_id": str(_revision_id(state)),
-                        "density_kg_per_m3": content.get("density_kg_per_m3"),
-                        "density_source": content.get("density_source"),
-                        "youngs_modulus_pa": content.get("youngs_modulus_pa"),
-                        "youngs_modulus_source": content.get("youngs_modulus_source"),
-                        "poisson_ratio": content.get("poisson_ratio"),
-                        "poisson_ratio_source": content.get("poisson_ratio_source"),
-                        "yield_stress_pa": content.get("yield_stress_pa"),
-                        "yield_stress_source": content.get("yield_stress_source"),
-                        "applicability": content.get("applicability"),
-                    },
-                    "change_reason": "Rebase demo properties to the classified State revision.",
+                    "content": desired_content,
+                    "change_reason": (
+                        change_reason
+                        if isinstance(change_reason, str) and change_reason
+                        else "Rebase demo properties to the classified State revision."
+                    ),
                 },
                 headers={"If-Match": _revision_etag(current)},
             )
         return existing
-    source = {"kind": "manual", "reference": "Synthetic local demo input"}
+    source = {"kind": "manual", "reference": _PROPERTY_SOURCE_REFERENCE}
     return api.post(
         f"/material-states/{state_id}/property-sets",
         {
@@ -328,7 +359,7 @@ def _ensure_properties(
                     "temperature_max_k": 293.15,
                     "strain_rate_min_per_s": None,
                     "strain_rate_max_per_s": None,
-                    "note": "Synthetic local demo scope only.",
+                    "note": _APPLICABILITY_NOTE,
                 },
             },
             "change_reason": "Seed typed basic properties for the local demo.",

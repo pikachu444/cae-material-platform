@@ -103,6 +103,15 @@ class ExportingRepository(Protocol):
         solver_card_id: UUID,
     ) -> SolverCardSnapshot: ...
 
+    def get_solver_card_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        solver_card_id: UUID,
+        solver_card_revision_id: UUID,
+    ) -> RevisionSnapshot[ReferenceOpenRadiossCardContent]: ...
+
     def list_solver_cards_for_model(
         self,
         *,
@@ -118,16 +127,6 @@ class ExportingRepository(Protocol):
         decision: AuthorizationDecision,
         solver_card_id: UUID,
     ) -> tuple[RevisionSnapshot[ReferenceOpenRadiossCardContent], ...]: ...
-
-    def get_solver_card_revision(
-        self,
-        *,
-        context: SecurityContext,
-        decision: AuthorizationDecision,
-        solver_card_id: UUID,
-        solver_card_revision_id: UUID,
-    ) -> RevisionSnapshot[ReferenceOpenRadiossCardContent]: ...
-
 
 def _require_decision(
     context: SecurityContext,
@@ -260,6 +259,35 @@ class SolverCardService:
             context=context,
             decision=decision,
             solver_card_id=solver_card_id,
+        )
+
+    def get_solver_card_revision(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        solver_card_id: UUID,
+        solver_card_revision_id: UUID,
+    ) -> SolverCardSnapshot:
+        """Read one exact immutable Solver Card revision under the request scope."""
+
+        _require_decision(context, decision, Permission.EXPORT_READ)
+        revision = self._repository.get_solver_card_revision(
+            context=context,
+            decision=decision,
+            solver_card_id=solver_card_id,
+            solver_card_revision_id=solver_card_revision_id,
+        )
+        content = revision.content
+        return SolverCardSnapshot(
+            id=solver_card_id,
+            material_model_id=content.material_model_id,
+            target=ExportTarget(
+                content.target_solver,
+                content.target_version,
+                content.target_unit_system,
+            ),
+            solver_material_id=content.solver_material_id,
+            current=revision,
         )
 
     def list_solver_cards_for_model(

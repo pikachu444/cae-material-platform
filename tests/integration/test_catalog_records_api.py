@@ -111,6 +111,7 @@ class _Service:
         self.folder: FolderSnapshot | None = None
         self.record: RecordSnapshot | None = None
         self.revisions: list[ConfigRevision[Any]] = []
+        self.last_query: Any | None = None
 
     def create_folder(self, context: Any, decision: Any, command: Any) -> FolderSnapshot:
         del context, decision
@@ -177,6 +178,7 @@ class _Service:
 
     def search_records(self, context: Any, decision: Any, query: Any) -> RecordSearchResult:
         del context, decision
+        self.last_query = query
         assert query.table_id == TABLE and self.record is not None
         return RecordSearchResult(
             (self.record,), 1, (RecordFacetBucket(ATTRIBUTE, "Steel", 1),)
@@ -319,10 +321,21 @@ async def test_record_api_preserves_units_searches_and_compares() -> None:
             "table_id": str(TABLE),
             "text": "DP600",
             "facet_attribute_ids": [str(ATTRIBUTE)],
+            "domain_binding_kind": "material",
+            "include_descendants": True,
+            "sort_by": "attribute",
+            "sort_attribute_id": str(ATTRIBUTE),
+            "sort_direction": "descending",
         },
     )
     assert searched.status_code == 200
     assert searched.json()["total_count"] == 1
+    assert service.last_query is not None
+    assert service.last_query.domain_binding_kind == "material"
+    assert service.last_query.include_descendants is True
+    assert service.last_query.sort_by == "attribute"
+    assert service.last_query.sort_attribute_id == ATTRIBUTE
+    assert service.last_query.sort_direction == "descending"
     assert searched.json()["facets"][0] == {
         "attribute_definition_id": str(ATTRIBUTE),
         "value": "Steel",

@@ -283,6 +283,34 @@ def test_record_round_trip_search_facet_compare_and_folder_cycle(postgres: Harne
             "add manufacturer",
         ),
     )
+    provider = postgres.schemas.create_attribute(
+        context,
+        write,
+        CreateAttribute(
+            AttributeDefinitionContent(
+                table.id,
+                table.current.record.revision_id,
+                "provider",
+                "Provider",
+                AttributeDataType.TEXT,
+            ),
+            "add provider",
+        ),
+    )
+    evidence_source = postgres.schemas.create_attribute(
+        context,
+        write,
+        CreateAttribute(
+            AttributeDefinitionContent(
+                table.id,
+                table.current.record.revision_id,
+                "evidence_source",
+                "Evidence source",
+                AttributeDataType.TEXT,
+            ),
+            "add evidence source",
+        ),
+    )
     root = postgres.records.create_folder(
         context,
         write,
@@ -325,7 +353,14 @@ def test_record_round_trip_search_facet_compare_and_folder_cycle(postgres: Harne
             ),
         )
 
-    def content(name: str, e_pa: str, category: str, manufacturer: str) -> CatalogRecordContent:
+    def content(
+        name: str,
+        e_pa: str,
+        category: str,
+        manufacturer: str,
+        provider_name: str = "CMP Demo Provider",
+        source_name: str = "Synthetic tensile reference",
+    ) -> CatalogRecordContent:
         return CatalogRecordContent(
             table.id,
             table.current.record.revision_id,
@@ -356,6 +391,18 @@ def test_record_round_trip_search_facet_compare_and_folder_cycle(postgres: Harne
                     AttributeDataType.TEXT,
                     value=manufacturer,
                 ),
+                CatalogRecordValue(
+                    provider.id,
+                    provider.current.record.revision_id,
+                    AttributeDataType.TEXT,
+                    value=provider_name,
+                ),
+                CatalogRecordValue(
+                    evidence_source.id,
+                    evidence_source.current.record.revision_id,
+                    AttributeDataType.TEXT,
+                    value=source_name,
+                ),
             ),
         )
 
@@ -373,7 +420,14 @@ def test_record_round_trip_search_facet_compare_and_folder_cycle(postgres: Harne
         write,
         CreateRecord(
             DataClassification.INTERNAL,
-            content("AA6061-T6", "69000000000", "Aluminum", "Reference Metals"),
+            content(
+                "AA6061-T6",
+                "69000000000",
+                "Aluminum",
+                "Reference Metals",
+                "Reference Provider",
+                "Reference dataset",
+            ),
             "create aluminum record",
         ),
     )
@@ -386,13 +440,42 @@ def test_record_round_trip_search_facet_compare_and_folder_cycle(postgres: Harne
             text="demo mill",
             discrete_filters=(DiscreteFilter(family.id, ("Steel",)),),
             number_filters=(NumberRangeFilter(modulus.id, minimum=Decimal("200000000000")),),
-            facet_attribute_ids=(family.id,),
+            facet_attribute_ids=(family.id, provider.id, evidence_source.id),
         ),
     )
     assert result.total_count == 1
     assert result.items[0].id == steel.id
-    assert result.facets[0].value == "Steel"
-    assert result.facets[0].count == 1
+    family_facet = next(
+        item for item in result.facets if item.attribute_definition_id == family.id
+    )
+    provider_facet = next(
+        item for item in result.facets if item.attribute_definition_id == provider.id
+    )
+    source_facet = next(
+        item for item in result.facets if item.attribute_definition_id == evidence_source.id
+    )
+    assert (family_facet.value, family_facet.count) == ("Steel", 1)
+    assert (provider_facet.value, provider_facet.count) == ("CMP Demo Provider", 1)
+    assert (source_facet.value, source_facet.count) == ("Synthetic tensile reference", 1)
+
+    scoped = postgres.records.search_records(
+        context,
+        read,
+        CatalogRecordQuery(
+            table.id,
+            discrete_filters=(
+                DiscreteFilter(provider.id, ("CMP Demo Provider",)),
+                DiscreteFilter(evidence_source.id, ("Synthetic tensile reference",)),
+            ),
+            facet_attribute_ids=(provider.id, evidence_source.id),
+        ),
+    )
+    assert scoped.total_count == 1
+    assert [item.id for item in scoped.items] == [steel.id]
+    assert {(item.value, item.count) for item in scoped.facets} == {
+        ("CMP Demo Provider", 1),
+        ("Synthetic tensile reference", 1),
+    }
 
     revised = postgres.records.revise_record(
         context,
@@ -423,7 +506,7 @@ def test_record_round_trip_search_facet_compare_and_folder_cycle(postgres: Harne
 
     with postgres.admin_engine.connect() as connection:
         version = connection.scalar(sa.text("SELECT version_num FROM alembic_version"))
-        assert version == "20260920_085_t89_dma_source"
+        assert version == "20260922_091_uxc07_evidence"
         validator = connection.execute(
             sa.text(
                 "SELECT p.prosecdef, p.proconfig, "
