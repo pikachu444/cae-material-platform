@@ -29,6 +29,7 @@ describe("ExactRecordDatasheetPage", () => {
   afterEach(() => vi.restoreAllMocks());
 
   it("renders the requested immutable revision instead of the record head", async () => {
+    vi.spyOn(window, "innerWidth", "get").mockReturnValue(1440);
     const revision1 = {
       ...metadata("revision-1", 1),
       content: {
@@ -84,6 +85,10 @@ describe("ExactRecordDatasheetPage", () => {
           },
         }],
       });
+      if (url.endsWith("/catalog/tables/table-1/layouts")) return response({ items: [{
+        layout_id: "layout-1", table_id: "table-1", revision: metadata("layout-revision-1", 1), name: "Material properties", description: null,
+        items: [{ attribute_definition_id: "attribute-1", attribute_definition_revision_id: "attribute-revision-1", section: "Mechanical", ordinal: 1 }],
+      }] });
       if (url.includes("/catalog/explorer/tables")) return response({ items: [] });
       if (url.includes("/workflow-graph")) return response({}, 404);
       throw new Error(`Unexpected request: ${url}`);
@@ -92,8 +97,12 @@ describe("ExactRecordDatasheetPage", () => {
     render(<ExactRecordDatasheetPage config={{ baseUrl: "/api/v1", accessToken: "test-token" }} recordId="record-1" revisionId="revision-1" onNavigate={vi.fn()} />);
 
     expect(await screen.findByRole("heading", { name: "Requested exact revision", level: 1 })).toBeTruthy();
-    expect(screen.getByText("450 MPa")).toBeTruthy();
-    expect(screen.getByText("450000000 Pa · stress")).toBeTruthy();
+    expect(await screen.findByText("450")).toBeTruthy();
+    expect(screen.getByText("MPa")).toBeTruthy();
+    expect(screen.queryByText(/450000000 Pa/)).toBeNull();
     expect(screen.queryByText("Current head must not render")).toBe(null);
+    const recordContextText = screen.getByLabelText("Revision and related record context").textContent ?? "";
+    expect(recordContextText).not.toMatch(/\bdraft\b/i);
+    expect(recordContextText).toContain("revision 1");
   });
 });

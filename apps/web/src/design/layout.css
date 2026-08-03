@@ -22,6 +22,13 @@
   padding-bottom: 0;
 }
 
+.materials-page {
+  width: 100%;
+  max-width: 1920px;
+  margin-inline: 0;
+  overflow-x: hidden;
+}
+
 .application-workspace:has(.administration-workspace) {
   padding: 0;
 }
@@ -153,6 +160,13 @@
   overflow: auto;
 }
 
+.materials-results {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 .materials-filters,
 .materials-results {
   border-right: 1px solid var(--ux-border);
@@ -275,9 +289,119 @@
 }
 
 .materials-result-table-wrap {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow: auto;
+  scrollbar-width: none;
+}
+
+.materials-result-table-wrap,
+.materials-tree-scroll {
+  scrollbar-width: none;
+}
+
+.materials-result-table-wrap:focus-visible,
+.materials-tree-scroll:focus-visible {
+  outline: 2px solid var(--ux-focus);
+  outline-offset: -2px;
+}
+
+.materials-result-table-wrap::-webkit-scrollbar,
+.materials-tree-scroll::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.materials-scroll-shell {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  overflow: hidden;
+  background: var(--ux-surface);
+}
+
+.materials-scroll-shell[data-scroll-y="true"] {
+  grid-template-columns: minmax(0, 1fr) 13px;
+}
+
+.materials-scroll-shell[data-scroll-x="true"] {
+  grid-template-rows: minmax(0, 1fr) 13px;
+}
+
+.materials-result-scroll-shell {
+  flex: 1 1 auto;
+  min-height: 0;
   margin: 0 -8px;
-  overflow-x: auto;
   border-top: 1px solid var(--ux-border);
+}
+
+.materials-tree-scroll-shell {
+  flex: 1 1 auto;
+  min-height: 180px;
+}
+
+.materials-scroll-rail {
+  position: relative;
+  z-index: 2;
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid #9bb1bb;
+  background: #dce7ec;
+  touch-action: none;
+  user-select: none;
+}
+
+.materials-scroll-rail-y {
+  grid-row: 1;
+  grid-column: 2;
+  border-width: 0 0 0 1px;
+}
+
+.materials-scroll-rail-x {
+  grid-row: 2;
+  grid-column: 1;
+  border-width: 1px 0 0;
+}
+
+.materials-scroll-thumb {
+  position: absolute;
+  display: block;
+  border: 1px solid #345b6d;
+  border-radius: 2px;
+  background: #4e8195;
+}
+
+.materials-scroll-rail-y .materials-scroll-thumb {
+  top: 2px;
+  right: 2px;
+  left: 2px;
+  min-height: 36px;
+}
+
+.materials-scroll-rail-x .materials-scroll-thumb {
+  top: 2px;
+  bottom: 2px;
+  left: 2px;
+  min-width: 36px;
+}
+
+.materials-scroll-rail:hover .materials-scroll-thumb {
+  background: #315f72;
+}
+
+.materials-scroll-rail:focus-visible {
+  outline: 2px solid var(--ux-focus);
+  outline-offset: -2px;
+}
+
+.materials-scroll-corner {
+  grid-row: 2;
+  grid-column: 2;
+  border-top: 1px solid #9bb1bb;
+  border-left: 1px solid #9bb1bb;
+  background: #dce7ec;
 }
 
 .materials-result-table {
@@ -315,6 +439,9 @@
 .materials-result-table th:nth-child(5) { width: 110px; }
 
 .materials-result-table th button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   min-height: 24px;
   padding: 0;
   border: 0;
@@ -323,8 +450,7 @@
   font: inherit;
 }
 
-.materials-result-table th[aria-sort="ascending"] button::after { content: " ↑"; }
-.materials-result-table th[aria-sort="descending"] button::after { content: " ↓"; }
+.materials-result-table th button svg { width: 12px; height: 12px; }
 
 .materials-result-table tr.selected td {
   background: var(--ux-accent-soft);
@@ -618,21 +744,24 @@
   border-block: 1px solid var(--ux-border);
   background: var(--ux-surface);
   outline: 0;
+  scrollbar-width: none;
 }
 
 .materials-tree-spacer {
   position: relative;
   min-width: 100%;
+  width: max-content;
 }
 
 .materials-tree-row {
   position: absolute;
-  right: 0;
   left: 0;
   display: grid;
-  grid-template-columns: 12px 20px minmax(0, 1fr);
+  grid-template-columns: 16px 20px minmax(0, 1fr);
   align-items: center;
   height: 26px;
+  min-width: 100%;
+  width: max-content;
   padding-inline-end: 7px;
   border-bottom: 1px solid transparent;
   color: var(--ux-text);
@@ -665,15 +794,25 @@
 
 .tree-disclosure,
 .tree-kind {
+  display: inline-grid;
+  width: 14px;
+  height: 14px;
+  place-items: center;
   color: var(--ux-text-muted);
   font-size: 10px;
   text-align: center;
 }
 
+.tree-disclosure svg,
+.tree-kind svg {
+  width: 13px;
+  height: 13px;
+}
+
 .tree-label {
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible;
+  text-overflow: clip;
   white-space: nowrap;
 }
 
@@ -980,25 +1119,153 @@
 .material-curve-preview {
   display: block;
   width: 100%;
-  min-height: 150px;
+  height: 240px;
+  min-height: 220px;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--ux-border);
+  background: var(--ux-surface-subtle);
+}
+
+.material-curve-preview .linked-response-plot {
+  width: 100%;
+  height: 100%;
+}
+
+.material-overview-response-cluster {
+  min-width: 0;
+}
+
+.material-response-points {
+  display: none;
+  min-width: 0;
+  height: 240px;
+  max-height: 240px;
+  min-height: 0;
+  flex-direction: column;
   border: 1px solid var(--ux-border);
   background: var(--ux-surface);
 }
 
-.material-curve-preview line {
-  stroke: var(--ux-border-strong);
-  stroke-width: 1;
+.material-response-points-heading {
+  display: flex;
+  min-width: 0;
+  min-height: 46px;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ux-space-2);
+  padding: 8px 10px 7px;
+  border-bottom: 1px solid var(--ux-border);
 }
 
-.material-curve-preview polyline {
-  fill: none;
-  stroke: var(--ux-accent);
-  stroke-width: 3;
+.material-response-points-heading > div {
+  min-width: 0;
 }
 
-.material-curve-preview text {
-  fill: var(--ux-text-muted);
+.material-response-points-heading h3 {
+  overflow: hidden;
+  margin: 0;
+  color: var(--ux-text);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 17px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.material-response-points-heading .section-subtitle,
+.material-response-points-heading .section-context {
+  color: var(--ux-text-muted);
   font-size: 11px;
+  line-height: 15px;
+}
+
+.material-response-points-heading .section-subtitle {
+  display: block;
+}
+
+.material-response-points-scroll-shell {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.material-response-points-scroll {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  background: var(--ux-surface);
+  scrollbar-width: none;
+}
+
+.material-response-points-scroll:focus-visible {
+  outline: 2px solid var(--ux-focus);
+  outline-offset: -2px;
+}
+
+.material-response-points-scroll::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.material-response-points table {
+  width: 100%;
+  min-width: 0;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.material-response-points caption {
+  text-align: left;
+}
+
+.material-response-points th,
+.material-response-points td {
+  height: 26px;
+  padding: 0 7px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--ux-border);
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.material-response-points thead th {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  height: 30px;
+  background: var(--ux-surface-subtle);
+  color: var(--ux-text-muted);
+  font-size: 11.5px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.material-response-points th:first-child,
+.material-response-points td:first-child {
+  width: 16%;
+}
+
+.material-response-points th:nth-child(2),
+.material-response-points td:nth-child(2) {
+  width: 34%;
+}
+
+.material-response-points th:nth-child(3),
+.material-response-points td:nth-child(3) {
+  width: 50%;
+}
+
+.material-response-points th:first-child,
+.material-response-points td:first-child {
+  text-align: left;
+}
+
+.material-response-points tbody th {
+  font-weight: 600;
 }
 
 .condition-summary {
@@ -4318,12 +4585,24 @@
 }
 
 @media (min-width: 1800px) {
+  .material-overview-response-cluster {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 330px);
+    gap: var(--ux-space-4);
+    align-items: start;
+  }
+
+  .material-response-points {
+    display: flex;
+  }
+
   .native-preview.has-linked-response {
     display: grid;
-    grid-template-rows: clamp(260px, 31vh, 320px) minmax(320px, 560px);
+    grid-template-rows: clamp(260px, 31vh, 320px) minmax(0, 1fr);
     gap: 8px;
     align-self: start;
-    max-height: 900px;
+    height: 100%;
+    max-height: min(900px, 100%);
   }
 
   .native-preview.has-linked-response > .preview-scroll-shell {

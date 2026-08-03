@@ -1,12 +1,12 @@
-version: 69
-verified_at: 2026-08-02
-scope: issue-157-clean-demo
-source_commit: aeb4cec
+version: 73
+verified_at: 2026-08-03
+scope: issue-159-materials-search-download
+source_commit: 960d476
 capture_script: ../../scripts/capture_current_product.py
-capture_command: uv run --with playwright python scripts/capture_current_product.py
+capture_command: uv run --with playwright==1.62.0 python scripts/capture_current_product.py
 notes:
   - "UXC-04E directly ports the approved modeling.html/review.css Fit topology: white 48 px product header, compact title/stage rows, 184–208 px curve/process rail, exact 31 px heading plus 72 px six-group ribbon, graph-adjacent Candidate parameters disclosure, separate compact graph header, dominant plot, and compact decision-relevant legend. The retired command/status bars do not consume Modeling graph space."
-  - "The current set contains 32 deterministic Compose captures; UXC-06C2 replaced the three Export viewports after a live migration, governed source recovery, atomic receipt/outbox delivery, and rebuilt API/web."
+  - "The current set contains 43 deterministic captures: 38 live Compose captures plus five route-intercepted Materials overflow states; MAT-DETAIL is retained at all five required desktop viewports and wide Materials search/detail remains registered for Q-20; UXC-06C2 replaced the three Export viewports after a live migration, governed source recovery, atomic receipt/outbox delivery, and rebuilt API/web."
   - "Fit capture asserts the four-row grouped metal rail, one-line Step 4 Fit heading, one ordered control row, a closed Candidate parameters row above a visible graph divider, a separate minimal graph header, one top-row Save fit & continue action, explicit selection before save, and persistent graph identity."
   - "Recommendation, engineer selection, saved result, downstream model evidence, and export eligibility remain separate states; a recommendation never mutates selection."
   - "Polymer candidate evidence exposes the actual server-produced term identity and measured range only; missing result evidence is never replaced by a fallback."
@@ -25,16 +25,20 @@ notes:
   - "PR #124 and DUI-01 through DUI-06 remain preserved. UXC-06C1 remains stateless; UXC-06C2 writes one immutable Solver Card and Exporting receipt/outbox event atomically. Materials CAE Card reuse remains canonical; Activity receipt projection is Not configured."
   - "UXC-00G adds the implemented User, Reviewer, and Administrator task presets. The current access screen deliberately shows readable included work instead of editable feature-grant checkboxes."
   - "UXC-01 remediation keeps Browse as the plain /materials default, moves Browse/Filters/Subsets into the local navigator, preserves that mode during Find, and removes unprojected query/context fields."
+  - "Issue #159 keeps the existing MAT-EXP and MAT-DETAIL routes, verifies server-scoped Material class, Provider and Evidence source filters, uses user-facing Family capitalization, and keeps current Layout CSV values human-readable without internal identifiers on normal surfaces."
+  - "Issue #159 Materials Overview keeps the response plot readable from 1366px through 3840px, caps the left-aligned workspace at 1920px, and exposes the exact normalized response points in a compact table from 1800px upward."
+  - "Issue #159 local scroll-rail captures cover long result/tree overflow, a short six-row result without a result rail, and an empty result without a result rail; the rails are pointer-, track-, wheel-, and keyboard-operable and remain inside the Materials workspace."
+  - "Issue #159 MAT-DETAIL captures map each current viewport to its approved MAT-DETAIL reference and bounded side-by-side comparison evidence; Response points reuse the shared MaterialsScrollRegion with genuine local overflow only."
 allowed_duplicate_pairs: []
 capture_provenance:
-  - source_commit: aeb4cec
-    captured_at: 2026-08-02T16:23:46+09:00
-    command: rebuilt the isolated cmp-issue157-final2 web image from base aeb4cec plus the Issue #157 worktree, then ran the targeted live review-submission capture at 1366x768, 1440x900 and 1920x1080; verifies the focusable native-card local scroll region with a proportional visible rail, the 1920 linked response from the selected card values with true plastic strain and MPa axes, the flat 312px delivery sheet, one adjacent delivery-note acknowledgement, exact card review submission and role-aware Activity rows
-    ids: [material-detail-1440, solver-card-preview-1366, solver-card-preview-1440, solver-card-preview-1920, activity-1366, activity-1440, activity-1920]
-  - source_commit: aeb4cec
-    captured_at: 2026-08-02T15:15:00+09:00
-    command: rebuilt the isolated cmp-issue157-final2 API/web images from base aeb4cec plus the Issue #157 worktree, then ran targeted live Playwright Materials and review-submission captures at 1366x768, 1440x900 and 1920x1080; verifies the approved MAT-CARD light native preview and flat 312px delivery sheet, one adjacent delivery-note acknowledgement, friendly normal status text without badge backgrounds or raw exporter terms, exact card review submission, role-aware Activity rows and no horizontal overflow
-    ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-browse-1440, material-cae-cards-1440]
+  - source_commit: 960d476
+    captured_at: 2026-08-03T11:11:24+09:00
+    command: rebuilt the canonical Compose demo from implementation commit 960d476, verified the full demo, and ran `--only-materials`; the retained images cover normal, long, short, empty and wide Materials states, valid persisted revision labels without raw lifecycle text, server-scoped Family values, genuine local rails and bounded wide layouts
+    ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-search-2560, materials-search-3840, materials-scroll-long-1366, materials-scroll-long-1440, materials-scroll-long-1920, materials-scroll-short-1440, materials-scroll-empty-1440, materials-browse-1440, material-detail-1366, material-detail-1920, material-detail-2560, material-detail-3840, material-cae-cards-1440]
+  - source_commit: 960d476
+    captured_at: 2026-08-03T11:13:16+09:00
+    command: ran `--only-review-submission` against the same verified 960d476 Compose demo; recaptured the exact solver-card review/download flow, its role-aware Activity rows and the final 1440 Material detail state without exposing raw lifecycle text
+    ids: [solver-card-preview-1366, solver-card-preview-1440, solver-card-preview-1920, activity-1366, activity-1440, activity-1920, material-detail-1440]
   - source_commit: 55cfa62
     captured_at: 2026-07-28T00:40:24+09:00
     command: rebuilt local web image, then targeted live Playwright Modeling consistency capture at 1366x768, 1440x900 and 1920x1080; verifies the approved white 48px Modeling shell, compact title/stage rows, 104px Fit ribbon, 184/192/208px rail, truthful specimen labels from the fixture, selected Swift/Voce blend graph evidence, drawable graph >=76%, unclipped axes and legend, and no page-level horizontal overflow or ribbon/graph collision
@@ -69,6 +73,55 @@ captures:
     image: images/current/materials-search-1920x1080.png
     width: 1920
     height: 1080
+  - id: materials-search-2560
+    route: /materials
+    workflow: browse-default-search-select-and-open-datasheet-wide-bounded
+    fixture: synthetic DP780 Material library with the left-aligned workspace capped at 1920px
+    image: images/current/materials-search-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: materials-search-3840
+    route: /materials
+    workflow: browse-default-search-select-and-open-datasheet-wide-bounded
+    fixture: synthetic DP780 Material library with the left-aligned workspace capped at 1920px
+    image: images/current/materials-search-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: materials-scroll-long-1366
+    route: /materials
+    workflow: long-result-and-hierarchy-local-scroll-rails
+    fixture: Materials Reference Table with governed reference rows and a complete stored hierarchy
+    image: images/current/materials-search-long-1366x768.png
+    width: 1366
+    height: 768
+  - id: materials-scroll-long-1440
+    route: /materials
+    workflow: long-result-and-hierarchy-local-scroll-rails
+    fixture: Materials Reference Table with governed reference rows and a complete stored hierarchy
+    image: images/current/materials-search-long-1440x900.png
+    width: 1440
+    height: 900
+  - id: materials-scroll-long-1920
+    route: /materials
+    workflow: long-result-and-hierarchy-local-scroll-rails
+    fixture: Materials Reference Table with governed reference rows and a complete stored hierarchy
+    image: images/current/materials-search-long-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: materials-scroll-short-1440
+    route: /materials
+    workflow: short-result-without-result-scroll-rail
+    fixture: six governed reference rows with a complete stored hierarchy
+    image: images/current/materials-search-short-1440x900.png
+    width: 1440
+    height: 900
+  - id: materials-scroll-empty-1440
+    route: /materials
+    workflow: empty-result-without-result-scroll-rail
+    fixture: no governed reference rows after an unmatched search with the hierarchy retained
+    image: images/current/materials-search-empty-1440x900.png
+    width: 1440
+    height: 900
   - id: materials-browse-1440
     route: /materials?mode=browse
     workflow: searchable-database-profile-table-folder-record-tree
@@ -83,6 +136,44 @@ captures:
     image: images/current/material-detail-1440x900.png
     width: 1440
     height: 900
+    approved_reference_ids: [materials-datasheet-overview-normal-1440x900]
+    comparison_evidence: docs/17-evidence/issue-159-mat-detail-comparison.md
+  - id: material-detail-1366
+    route: /materials/:materialId
+    workflow: persistent-tree-datasheet-direct-card-action-and-exact-review-status
+    fixture: draft synthetic DP780 exact Material revision with native cards and compact response topology
+    image: images/current/material-detail-1366x768.png
+    width: 1366
+    height: 768
+    approved_reference_ids: [materials-datasheet-overview-normal-1366x768]
+    comparison_evidence: docs/17-evidence/issue-159-mat-detail-comparison.md
+  - id: material-detail-1920
+    route: /materials/:materialId
+    workflow: persistent-tree-datasheet-direct-card-action-and-exact-review-status
+    fixture: draft synthetic DP780 exact Material revision with bounded response points and local rail
+    image: images/current/material-detail-1920x1080.png
+    width: 1920
+    height: 1080
+    approved_reference_ids: [materials-datasheet-overview-normal-1920x1080]
+    comparison_evidence: docs/17-evidence/issue-159-mat-detail-comparison.md
+  - id: material-detail-2560
+    route: /materials/:materialId
+    workflow: persistent-tree-datasheet-direct-card-action-and-exact-review-status-wide-bounded
+    fixture: draft synthetic DP780 exact Material revision with the left-aligned workspace capped at 1920px
+    image: images/current/material-detail-2560x1440.png
+    width: 2560
+    height: 1440
+    approved_reference_ids: [materials-datasheet-overview-normal-1920x1080]
+    comparison_evidence: docs/17-evidence/issue-159-mat-detail-comparison.md
+  - id: material-detail-3840
+    route: /materials/:materialId
+    workflow: persistent-tree-datasheet-direct-card-action-and-exact-review-status-wide-bounded
+    fixture: draft synthetic DP780 exact Material revision with the left-aligned workspace capped at 1920px
+    image: images/current/material-detail-3840x2160.png
+    width: 3840
+    height: 2160
+    approved_reference_ids: [materials-datasheet-overview-normal-1920x1080]
+    comparison_evidence: docs/17-evidence/issue-159-mat-detail-comparison.md
   - id: material-cae-cards-1440
     route: /materials/:materialId/cards
     workflow: native-card-preview-and-download-actions

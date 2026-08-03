@@ -1730,6 +1730,12 @@ def test_solver_card_is_source_pinned_immutable_provenanced_and_tenant_scoped(
     assert card.current.content.mapping_report_sha256 == report.digest
     assert "/MAT/ELAST/17/1" in card.current.content.card_text
     assert postgres.exporting.get_solver_card(context, export_read, card.id) == card
+    assert postgres.exporting.get_solver_card_revision(
+        context,
+        export_read,
+        card.id,
+        card.current.record.revision_id,
+    ) == card
     assert postgres.exporting.list_solver_cards_for_model(context, export_read, model.id) == (card,)
     assert postgres.exporting.list_solver_card_revisions(context, export_read, card.id) == (
         card.current,

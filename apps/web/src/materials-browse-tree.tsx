@@ -28,6 +28,8 @@ import type {
   ConfigurableTableResponse,
   ConfigurableLinkEndpoint,
 } from "./types";
+import { EngineeringIcon, type EngineeringIconName } from "./design/icon";
+import { MaterialsScrollRegion } from "./materials-scroll-rail";
 
 const ROW_HEIGHT = 26;
 const TREE_OVERSCAN = 8;
@@ -56,6 +58,13 @@ interface RequestedRecord {
   name: string;
 }
 
+export interface MaterialsBrowseScope {
+  tableId: string;
+  folderId?: string | null;
+  recordId?: string | null;
+  includeDescendants?: boolean;
+}
+
 interface Props {
   config: ApiConfig;
   subsetMode?: boolean;
@@ -65,11 +74,13 @@ interface Props {
     graph: CatalogWorkflowGraphResponse,
   ) => void;
   onOpenRecord: (record: ConfigurableCatalogRecordResponse) => void;
+  onScopeChange?: (scope: MaterialsBrowseScope) => void;
+  onScopeAvailabilityChange?: (availability: "loading" | "ready" | "unavailable") => void;
 }
 
 function messageFor(cause: unknown): string {
   if (cause instanceof ApiError) return cause.message;
-  return cause instanceof Error ? cause.message : "The governed Materials tree could not be loaded.";
+  return cause instanceof Error ? cause.message : "The Materials tree could not be loaded.";
 }
 
 function branchKey(tableId: string, folderId: string | null): string {
@@ -105,14 +116,17 @@ function folderAncestors(
   return ancestors;
 }
 
-function rowGlyph(row: TreeRow): string {
-  if (row.expandable) return row.expanded ? "▾" : "▸";
-  if (row.kind === "record") return "·";
-  if (row.kind === "loading") return "…";
-  return "";
+function rowGlyph(row: TreeRow): EngineeringIconName | null {
+  if (row.expandable) return row.expanded ? "chevron-down" : "chevron-right";
+  if (row.kind === "record") return "record";
+  if (row.kind === "database") return "database";
+  if (row.kind === "profile") return "profile";
+  if (row.kind === "table") return "table";
+  if (row.kind === "folder") return "folder";
+  return null;
 }
 
-export function MaterialsBrowseTree({ config, subsetMode = false, requestedRecord, onSelectRecord, onOpenRecord }: Props) {
+export function MaterialsBrowseTree({ config, subsetMode = false, requestedRecord, onSelectRecord, onOpenRecord, onScopeChange, onScopeAvailabilityChange }: Props) {
   const [tables, setTables] = useState<ConfigurableTableResponse[]>([]);
   const [children, setChildren] = useState<Record<string, CatalogExplorerChildrenResponse>>({});
   const [expanded, setExpanded] = useState<Set<string>>(new Set(["database", "profile"]));
@@ -133,8 +147,14 @@ export function MaterialsBrowseTree({ config, subsetMode = false, requestedRecor
   const [focusIndex, setFocusIndex] = useState(0);
   const [matchCursor, setMatchCursor] = useState(-1);
   const [pendingFocusRecordId, setPendingFocusRecordId] = useState<string | null>(null);
+  const [scopeAvailability, setScopeAvailability] = useState<"loading" | "ready" | "unavailable">("loading");
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const rowRefs = useRef(new Map<string, HTMLDivElement>());
+
+  const isMaterialsTableId = useCallback((tableId: string): boolean => (
+    tables.some((table) => table.table_id === tableId
+      && table.current_revision.content.key === "demo_material_records")
+  ), [tables]);
 
   const loadChildren = useCallback(async (tableId: string, folderId: string | null) => {
     const key = branchKey(tableId, folderId);
@@ -154,13 +174,19 @@ export function MaterialsBrowseTree({ config, subsetMode = false, requestedRecor
   useEffect(() => {
     let active = true;
     setLoadingKey("roots");
+    onScopeAvailabilityChange?.("loading");
     void listCatalogExplorerTables(config).then(async (result) => {
       if (!active) return;
       const items = Array.isArray(result.data.items) ? result.data.items : [];
       setTables(items);
-      const firstTableId = items[0]?.table_id ?? "";
-      setSelectedTableId((current) => current || firstTableId);
+      const firstTableId = items.find(
+        (item) => item.current_revision.content.key === "demo_material_records",
+      )?.table_id ?? "";
+      setSelectedTableId(firstTableId);
       if (firstTableId) {
+        setScopeAvailability("ready");
+        onScopeChange?.({ tableId: firstTableId });
+        onScopeAvailabilityChange?.("ready");
         setExpanded((current) => new Set(current).add(branchKey(firstTableId, null)));
         const [childResult, subsetResult] = await Promise.all([
           listCatalogExplorerChildren(config, firstTableId, null),
@@ -169,19 +195,28 @@ export function MaterialsBrowseTree({ config, subsetMode = false, requestedRecor
         if (!active) return;
         setChildren((current) => ({ ...current, [branchKey(firstTableId, null)]: childResult.data }));
         setSubsets(Array.isArray(subsetResult.data.items) ? subsetResult.data.items : []);
+      } else {
+        setScopeAvailability("unavailable");
+        onScopeAvailabilityChange?.("unavailable");
       }
       setError(null);
     }).catch((cause: unknown) => {
       if (!active) return;
       setError(messageFor(cause));
+      setScopeAvailability("unavailable");
+      onScopeAvailabilityChange?.("unavailable");
     }).finally(() => {
       if (active) setLoadingKey(null);
     });
     return () => { active = false; };
-  }, [config]);
+  }, [config, onScopeAvailabilityChange, onScopeChange]);
 
   const selectTable = useCallback(async (tableId: string) => {
     setSelectedTableId(tableId);
+    if (!isMaterialsTableId(tableId)) {
+      setScopeAvailability("unavailable");
+      onScopeAvailabilityChange?.("unavailable");
+    }
     setSelectedSubsetId("");
     setActiveFind("");
     setDraftFind("");
@@ -189,6 +224,11 @@ export function MaterialsBrowseTree({ config, subsetMode = false, requestedRecor
     setSearchFolders([]);
     setExpandedBeforeSearch(null);
     setExpanded((current) => new Set(current).add(branchKey(tableId, null)));
+    if (isMaterialsTableId(tableId)) {
+      setScopeAvailability("ready");
+      onScopeChange?.({ tableId });
+      onScopeAvailabilityChange?.("ready");
+    }
     setLoadingKey(branchKey(tableId, null));
     try {
       const [childResult, subsetResult] = await Promise.all([
@@ -205,14 +245,18 @@ export function MaterialsBrowseTree({ config, subsetMode = false, requestedRecor
     } finally {
       setLoadingKey(null);
     }
-  }, [children, config]);
+  }, [children, config, isMaterialsTableId, onScopeAvailabilityChange, onScopeChange]);
 
   const runSearch = useCallback(async (
     tableId: string,
     text: string,
     subset?: ConfigurableSubsetResponse,
   ) => {
-    if (!tableId) return;
+    if (!tableId || !isMaterialsTableId(tableId)) {
+      setScopeAvailability("unavailable");
+      onScopeAvailabilityChange?.("unavailable");
+      return;
+    }
     const definition = subset?.filter_definition ?? {};
     const discreteDefinition = definition.discrete_filters && typeof definition.discrete_filters === "object"
       ? definition.discrete_filters as Record<string, unknown>
@@ -262,7 +306,7 @@ export function MaterialsBrowseTree({ config, subsetMode = false, requestedRecor
     } finally {
       setLoadingKey(null);
     }
-  }, [config, expanded, expandedBeforeSearch]);
+  }, [config, expanded, expandedBeforeSearch, isMaterialsTableId, onScopeAvailabilityChange]);
 
   function submitFind(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();
@@ -301,11 +345,24 @@ export function MaterialsBrowseTree({ config, subsetMode = false, requestedRecor
     setExpanded((current) => new Set(current).add(key));
     if (row.kind === "table") {
       setSelectedTableId(row.tableId!);
+      if (isMaterialsTableId(row.tableId!)) {
+        setScopeAvailability("ready");
+        onScopeChange?.({ tableId: row.tableId! });
+        onScopeAvailabilityChange?.("ready");
+      } else {
+        setScopeAvailability("unavailable");
+        onScopeAvailabilityChange?.("unavailable");
+      }
       await loadChildren(row.tableId!, null);
     } else if (row.kind === "folder") {
+      if (isMaterialsTableId(row.tableId!)) {
+        setScopeAvailability("ready");
+        onScopeChange?.({ tableId: row.tableId!, folderId: row.folderId ?? null, includeDescendants: true });
+        onScopeAvailabilityChange?.("ready");
+      }
       await loadChildren(row.tableId!, row.folderId ?? null);
     }
-  }, [expanded, loadChildren]);
+  }, [expanded, isMaterialsTableId, loadChildren, onScopeAvailabilityChange, onScopeChange]);
 
   const normalRows = useMemo(() => {
     const rows: TreeRow[] = [];
@@ -320,7 +377,7 @@ export function MaterialsBrowseTree({ config, subsetMode = false, requestedRecor
       const key = branchKey(tableId, folderId);
       const branch = children[key];
       if (!branch && loadingKey === key) {
-        rows.push({ id: `loading:${key}`, parentId, kind: "loading", label: "Loading…", depth, expandable: false, expanded: false, match: false });
+        rows.push({ id: `loading:${key}`, parentId, kind: "loading", label: "Loading", depth, expandable: false, expanded: false, match: false });
         return;
       }
       for (const folder of branch?.folders ?? []) {
@@ -398,6 +455,9 @@ export function MaterialsBrowseTree({ config, subsetMode = false, requestedRecor
   }, [activeFind, searchFolders, searchRecords, selectedSubsetId, selectedTableId, tables]);
 
   const rows = searchedRows ?? normalRows;
+  const folderMatchCount = searchRecords
+    ? searchFolders.filter((folder) => folder.content.name.toLocaleLowerCase().includes(activeFind.toLocaleLowerCase())).length
+    : 0;
   const matchIndexes = useMemo(() => rows.flatMap((row, index) => row.match ? [index] : []), [rows]);
   const start = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - TREE_OVERSCAN);
   const visibleCount = Math.ceil(viewportHeight / ROW_HEIGHT) + TREE_OVERSCAN * 2;
@@ -426,6 +486,11 @@ export function MaterialsBrowseTree({ config, subsetMode = false, requestedRecor
 
   const selectRecord = useCallback(async (record: ConfigurableCatalogRecordResponse) => {
     setSelectedRecordId(record.record_id);
+    if (isMaterialsTableId(record.table_id)) {
+      setScopeAvailability("ready");
+      onScopeChange?.({ tableId: record.table_id, recordId: record.record_id });
+      onScopeAvailabilityChange?.("ready");
+    }
     setLoadingKey(`record:${record.record_id}`);
     try {
       const graph = await getCatalogWorkflowGraph(config, record.record_id, record.current_revision.id, 5);
@@ -436,7 +501,7 @@ export function MaterialsBrowseTree({ config, subsetMode = false, requestedRecor
     } finally {
       setLoadingKey(null);
     }
-  }, [config, onSelectRecord]);
+  }, [config, isMaterialsTableId, onScopeAvailabilityChange, onScopeChange, onSelectRecord]);
 
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>, row: TreeRow, index: number): void {
     if (event.key === "ArrowDown") {
@@ -541,21 +606,23 @@ export function MaterialsBrowseTree({ config, subsetMode = false, requestedRecor
         <label className="ux-field">Profile<select className="ux-select" aria-label="Profile"><option>Engineering Materials</option></select></label>
         <label className="ux-field">Table<select className="ux-select" aria-label="Browse table" value={selectedTableId} onChange={(event) => void selectTable(event.target.value)}>{tables.map((table) => <option key={table.table_id} value={table.table_id}>{table.current_revision.content.name}</option>)}</select></label>
       </div>
-      {subsetMode ? <div className="tree-subset-list" aria-label="Saved Subsets"><p>Saved Subsets</p>{subsets.length ? subsets.map((subset) => <button key={subset.subset_id} type="button" className={selectedSubsetId === subset.subset_id ? "active" : ""} onClick={() => applySubset(subset.subset_id)}><strong>{subset.name}</strong><span>{subset.description ?? "Reusable governed filter"}</span></button>) : <span className="ux-meta">No saved Subsets exist for this Table.</span>}</div> : <form className="tree-find" role="search" aria-label="Find in Materials tree" onSubmit={submitFind}>
+      {subsetMode ? <div className="tree-subset-list" aria-label="Saved Subsets"><p>Saved Subsets</p>{subsets.length ? subsets.map((subset) => <button key={subset.subset_id} type="button" className={selectedSubsetId === subset.subset_id ? "active" : ""} onClick={() => applySubset(subset.subset_id)}><strong>{subset.name}</strong><span>{subset.description ?? "Reusable saved filter"}</span></button>) : <span className="ux-meta">No saved Subsets exist for this Table.</span>}</div> : <form className="tree-find" role="search" aria-label="Find in Materials tree" onSubmit={submitFind}>
         <input className="ux-input" aria-label="Find in tree" value={draftFind} onChange={(event) => setDraftFind(event.target.value)} placeholder="Find folder or record" />
         <button className="ux-button tertiary" type="submit">Find</button>
       </form>}
       <div className="tree-search-status" aria-live="polite">
-        {searchRecords ? <span>{new Intl.NumberFormat().format(searchTotal)} record matches{searchTotal > SEARCH_LIMIT ? ` · first ${SEARCH_LIMIT}` : ""}</span> : <span>Expand a Table or Folder to load its children.</span>}
+        {scopeAvailability === "loading" ? <span>Finding Materials…</span> : scopeAvailability === "unavailable" ? <span>Materials are not available in this workspace.</span> : searchRecords ? <span>{folderMatchCount ? `${new Intl.NumberFormat().format(folderMatchCount)} folder ${folderMatchCount === 1 ? "match" : "matches"} · ` : ""}{new Intl.NumberFormat().format(searchTotal)} record matches{searchTotal > SEARCH_LIMIT ? ` · first ${SEARCH_LIMIT}` : ""}</span> : <span>Expand a Table or Folder to load its children.</span>}
         {searchRecords ? <button type="button" onClick={findNext} disabled={!matchIndexes.length}>Find next</button> : null}
       </div>
       {error ? <div className="ux-notice error" role="alert">{error}</div> : null}
-      <div
+      <MaterialsScrollRegion
+        id="materials-tree-scroll"
         className="materials-tree-scroll"
-        ref={viewportRef}
-        role="tree"
+        shellClassName="materials-tree-scroll-shell"
         aria-label="Database contents"
-        aria-busy={Boolean(loadingKey)}
+        role="tree"
+        ariaBusy={Boolean(loadingKey)}
+        ref={viewportRef}
         onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}
       >
         <div className="materials-tree-spacer" style={{ height: rows.length * ROW_HEIGHT }}>
@@ -578,14 +645,14 @@ export function MaterialsBrowseTree({ config, subsetMode = false, requestedRecor
                 onClick={() => row.record ? void selectRecord(row.record) : void toggleRow(row)}
                 onDoubleClick={() => { if (row.record) onOpenRecord(row.record); }}
               >
-                <span className="tree-disclosure" aria-hidden="true">{rowGlyph(row)}</span>
-                <span className="tree-kind" aria-hidden="true">{row.kind === "database" ? "DB" : row.kind === "profile" ? "P" : row.kind === "table" ? "T" : row.kind === "folder" ? "▱" : row.kind === "record" ? "R" : ""}</span>
+                <span className="tree-disclosure" aria-hidden="true">{row.expandable ? <EngineeringIcon name={row.expanded ? "chevron-down" : "chevron-right"}/> : null}</span>
+                <span className="tree-kind" aria-hidden="true">{rowGlyph(row) && !row.expandable ? <EngineeringIcon name={rowGlyph(row)!}/> : null}</span>
                 <span className="tree-label">{row.label}</span>
               </div>
             );
           })}
         </div>
-      </div>
+      </MaterialsScrollRegion>
       {!subsetMode ? <label className="ux-field tree-subset">Saved Subset<select className="ux-select" aria-label="Saved Subset" value={selectedSubsetId} onChange={(event) => applySubset(event.target.value)}><option value="">None</option>{subsets.map((subset) => <option key={subset.subset_id} value={subset.subset_id}>{subset.name}</option>)}</select></label> : null}
       <div className="materials-explorer-help ux-meta">Click selects a Record. Double-click opens its exact revision datasheet.</div>
     </div>

@@ -2,7 +2,7 @@
 
 Run against the deterministic Compose demo:
 
-    uv run --with playwright python scripts/capture_current_product.py
+    uv run --with playwright==1.62.0 python scripts/capture_current_product.py
 """
 
 from __future__ import annotations
@@ -17,11 +17,14 @@ import tempfile
 from collections.abc import Callable
 from pathlib import Path
 from typing import TYPE_CHECKING
+from urllib.parse import parse_qs, urlsplit
 
 if TYPE_CHECKING:
-    from playwright.sync_api import Browser, Page
+    from playwright.sync_api import Browser, Page, Route
 
 VIEWPORTS = ((1366, 768), (1440, 900), (1920, 1080))
+WIDE_VIEWPORTS = ((2560, 1440), (3840, 2160))
+REVISION_LABEL_PATTERN = re.compile(r"\br[1-9]\d*\b")
 MODELING_EXPORT_OUTPUTS = tuple(
     f"modeling-export-{width}x{height}.png" for width, height in VIEWPORTS
 )
@@ -57,9 +60,20 @@ CURRENT_CAPTURE_OUTPUTS = (
     "materials-search-1366x768.png",
     "materials-search-1440x900.png",
     "materials-search-1920x1080.png",
+    "materials-search-long-1366x768.png",
+    "materials-search-long-1440x900.png",
+    "materials-search-long-1920x1080.png",
+    "materials-search-short-1440x900.png",
+    "materials-search-empty-1440x900.png",
     "materials-browse-1440x900.png",
+    "material-detail-1366x768.png",
     "material-detail-1440x900.png",
+    "material-detail-1920x1080.png",
     "material-cae-cards-1440x900.png",
+    "materials-search-2560x1440.png",
+    "materials-search-3840x2160.png",
+    "material-detail-2560x1440.png",
+    "material-detail-3840x2160.png",
     "solver-card-preview-1366x768.png",
     "solver-card-preview-1440x900.png",
     "solver-card-preview-1920x1080.png",
@@ -95,6 +109,11 @@ STAGE_HEADINGS = {
 }
 UNFINISHED = re.compile(
     r"^(Checking|Loading|Calculating|Resolving|Updating|Preparing|Creating)\b.*(?:…|\.\.\.)$",
+    re.IGNORECASE,
+)
+NORMAL_SURFACE_TECHNICAL_LABELS = re.compile(
+    r"\b(?:draft|fixture|uuid|sha(?:256)?|hash|lifecycle[_\s-]?state)\b"
+    r"|\bissue\s*#\s*\d+\b|\bimplementation state\b",
     re.IGNORECASE,
 )
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
@@ -204,6 +223,20 @@ def _open_materials_search(page: Page, base_url: str) -> None:
         raise RuntimeError("Material enrichment is incomplete")
     rows.filter(has_text="DP780").first.click()
     page.get_by_text("Selected material", exact=True).wait_for(timeout=30_000)
+    page.locator(".application-status-bar").get_by_text(REVISION_LABEL_PATTERN).wait_for(
+        timeout=30_000
+    )
+    if page.get_by_role("columnheader", name="Status", exact=True).count():
+        raise RuntimeError("normal Materials results must not expose a Status column")
+    for selector in (".materials-results", ".materials-selection", ".application-status-bar"):
+        surface = page.locator(selector)
+        surface.wait_for(timeout=30_000)
+        surface_text = surface.inner_text()
+        if NORMAL_SURFACE_TECHNICAL_LABELS.search(surface_text):
+            raise RuntimeError(
+                "normal Materials surface exposes technical label in "
+                f"{selector}: {surface_text}"
+            )
 
 
 def _assert_material_pane_reset(page: Page, width: int) -> None:
@@ -258,6 +291,402 @@ def _assert_material_pane_reset(page: Page, width: int) -> None:
         )
 
 
+def _assert_wide_material_cluster(page: Page, width: int) -> None:
+    geometry = page.locator(".materials-page").evaluate(
+        "element => { const bounds = element.getBoundingClientRect(); "
+        "return { left: bounds.left, width: bounds.width }; }"
+    )
+    if geometry["left"] > 8 or geometry["width"] > min(width, 1920) + 1:
+        raise RuntimeError(
+            f"Materials workspace escaped its bounded left cluster at {width}px: {geometry}"
+        )
+    if page.evaluate("document.documentElement.scrollWidth > window.innerWidth"):
+        raise RuntimeError(f"Materials has page-level horizontal overflow at {width}px")
+
+
+def _assert_response_points_table(page: Page, width: int) -> None:
+    table = page.get_by_role("table", name="Representative response points")
+    if width < 1800:
+        if table.is_visible():
+            raise RuntimeError(f"response points table leaked into compact {width}px layout")
+        return
+    region = page.get_by_role("region", name="Scrollable representative response points")
+    region.wait_for(timeout=30_000)
+    table.wait_for(timeout=30_000)
+    geometry = region.evaluate(
+        """region => {
+          const shell = region.parentElement;
+          const header = region.querySelector('thead th');
+          const table = region.querySelector('table');
+          const rail = shell?.querySelector('.materials-scroll-rail-y');
+          const xRail = shell?.querySelector('.materials-scroll-rail-x');
+          const rect = element => {
+            if (!element) return null;
+            const bounds = element.getBoundingClientRect();
+            return {
+              left: bounds.left,
+              right: bounds.right,
+              top: bounds.top,
+              bottom: bounds.bottom,
+            };
+          };
+          const style = header ? getComputedStyle(header) : null;
+          return {
+            region: rect(region),
+            table: rect(table),
+            rail: rect(rail),
+            clientHeight: region.clientHeight,
+            scrollHeight: region.scrollHeight,
+            clientWidth: region.clientWidth,
+            scrollWidth: region.scrollWidth,
+            scrollTop: region.scrollTop,
+            tabIndex: region.tabIndex,
+            role: region.getAttribute('role'),
+            headerPosition: style?.position ?? null,
+            headerBackground: style?.backgroundColor ?? null,
+            scrollY: shell?.getAttribute('data-scroll-y') ?? null,
+            scrollX: shell?.getAttribute('data-scroll-x') ?? null,
+            hasHorizontalRail: Boolean(xRail),
+          };
+        }"""
+    )
+    if geometry["role"] != "region" or geometry["tabIndex"] != 0:
+        raise RuntimeError("response points region is not keyboard-focusable")
+    if geometry["headerPosition"] != "sticky" or geometry["headerBackground"] in (
+        None,
+        "rgba(0, 0, 0, 0)",
+    ):
+        raise RuntimeError("response points header is not visibly sticky")
+    if geometry["scrollY"] != "true" or geometry["scrollHeight"] <= geometry["clientHeight"]:
+        raise RuntimeError("response points vertical overflow rail is missing")
+    if (
+        geometry["scrollX"] != "false"
+        or geometry["hasHorizontalRail"]
+        or geometry["scrollWidth"] > geometry["clientWidth"] + 1
+    ):
+        raise RuntimeError("response points exposes an unexpected horizontal rail")
+    if (
+        not geometry["rail"]
+        or not geometry["table"]
+        or geometry["table"]["right"] > geometry["region"]["right"] + 1
+    ):
+        raise RuntimeError("response points table and visible rail overlap or are unavailable")
+    region.evaluate("element => { element.scrollTop = 0; element.scrollLeft = 0; }")
+    if region.evaluate("element => element.scrollTop") != 0:
+        raise RuntimeError("response points capture did not restore scroll position")
+
+
+_SCROLL_TABLE_ID = "materials-reference-table"
+
+
+def _scroll_metadata(entity_id: str, revision_no: int = 1) -> dict[str, object]:
+    return {
+        "id": f"{entity_id}-revision",
+        "aggregate_id": entity_id,
+        "revision_no": revision_no,
+        "based_on_revision_id": None,
+        "schema_id": "urn:cmp:materials-reference:1",
+        "schema_version": "1.0.0",
+        "content_hash": "a" * 64,
+        "created_at": "2026-08-03T00:00:00Z",
+        "created_by": "00000000-0000-0000-0000-000000000001",
+        "change_reason": "materials reference archive",
+        "organization_id": "00000000-0000-0000-0000-000000000002",
+        "project_id": "00000000-0000-0000-0000-000000000003",
+        "classification": "internal",
+        "lifecycle_state": "published",
+    }
+
+
+def _scroll_table() -> dict[str, object]:
+    return {
+        "table_id": _SCROLL_TABLE_ID,
+        "current_revision": {
+            **_scroll_metadata(f"{_SCROLL_TABLE_ID}-current"),
+            "content": {
+                "key": "demo_material_records",
+                "name": "Materials Reference Table",
+                "description": "Materials reference table",
+            },
+        },
+    }
+
+
+def _scroll_folder(folder_id: str, name: str, parent_folder_id: str | None) -> dict[str, object]:
+    return {
+        "folder_id": folder_id,
+        "table_id": _SCROLL_TABLE_ID,
+        "current_revision": _scroll_metadata(folder_id),
+        "content": {
+            "table_revision_id": f"{_SCROLL_TABLE_ID}-current-revision",
+            "name": name,
+            "description": None,
+            "parent_folder_id": parent_folder_id,
+            "parent_folder_revision_id": (
+                f"{parent_folder_id}-revision" if parent_folder_id else None
+            ),
+        },
+    }
+
+
+def _scroll_record(
+    record_id: str,
+    row: int,
+    name: str | None = None,
+) -> dict[str, object]:
+    names = (
+        "DP780 dual-phase steel",
+        "DP600 dual-phase steel",
+        "HSLA structural steel",
+        "AISI 304 stainless steel",
+        "PA66 glass-filled polymer",
+    )
+    material_name = name or f"{names[row % len(names)]} · reference {row:03}"
+    material_class = "polymer" if "PA66" in material_name else "metal"
+    return {
+        "record_id": record_id,
+        "table_id": _SCROLL_TABLE_ID,
+        "domain_binding": {
+            "binding_id": f"{record_id}-binding",
+            "record_id": record_id,
+            "record_revision_id": f"{record_id}-revision",
+            "kind": "material",
+            "object_id": f"{record_id}-material",
+            "revision_id": f"{record_id}-material-revision",
+            "workbench_path": f"/materials/{record_id}-material",
+        },
+        "current_revision": {
+            **_scroll_metadata(f"{record_id}-revision"),
+            "content": {
+                "table_revision_id": f"{_SCROLL_TABLE_ID}-current-revision",
+                "name": material_name,
+                "external_key": f"MAT-{row + 1:03}",
+                "description": "Materials reference record with governed response data",
+                "folder_id": None,
+                "folder_revision_id": None,
+                "values": [
+                    {
+                        "data_type": "discrete",
+                        "attribute_definition_id": "material-class",
+                        "attribute_definition_revision_id": "material-class-r1",
+                        "value": material_class,
+                    },
+                    {
+                        "data_type": "text",
+                        "attribute_definition_id": "provider",
+                        "attribute_definition_revision_id": "provider-r1",
+                        "value": "Northstar Materials",
+                    },
+                    {
+                        "data_type": "text",
+                        "attribute_definition_id": "evidence-source",
+                        "attribute_definition_revision_id": "evidence-source-r1",
+                        "value": "Governed reference",
+                    },
+                ],
+            },
+        },
+    }
+
+
+def _install_material_scroll_fixture(page: Page) -> None:
+    folder_names = (
+        "Cold-rolled steel reference archive for stamped body panels",
+        "Automotive body sheet grades",
+        "Structural plate and section data",
+        "Heat-treated alloy specifications",
+        "Stainless and corrosion-resistant grades",
+        "Polymer compound reference data",
+        "Supplier certificate imports",
+        "Qualification and acceptance records",
+        "Legacy design allowables",
+        "Temperature-conditioned studies",
+        "Welded joint material records",
+        "Surface-treated coil references",
+    )
+    root_folders = [
+        _scroll_folder(
+            f"folder-{index}",
+            f"{folder_names[index % len(folder_names)]} · {index + 1:03}",
+            None,
+        )
+        for index in range(90)
+    ]
+    short_names = (
+        "DP780 dual-phase steel",
+        "DP600 dual-phase steel",
+        "HSLA structural steel",
+        "AISI 304 stainless steel",
+        "IF mild steel",
+        "TRIP advanced high-strength steel",
+    )
+
+    def fulfill(route: Route, value: object) -> None:
+        route.fulfill(
+            status=200,
+            content_type="application/json",
+            body=json.dumps(value),
+        )
+
+    def handle(route: Route) -> None:
+        request = route.request
+        parsed = urlsplit(request.url)
+        request_path = parsed.path
+        if request_path.endswith("/catalog/explorer/tables"):
+            fulfill(route, {"items": [_scroll_table()]})
+            return
+        if request_path.endswith(
+            f"/catalog/explorer/tables/{_SCROLL_TABLE_ID}/children"
+        ):
+            parent = parse_qs(parsed.query).get("parent_folder_id", [None])[0]
+            folders = [] if parent else root_folders
+            fulfill(route, {"table": _scroll_table(), "folders": folders, "records": []})
+            return
+        if request_path.endswith(f"/catalog/tables/{_SCROLL_TABLE_ID}/subsets"):
+            fulfill(route, {"items": []})
+            return
+        if request_path.endswith(f"/catalog/tables/{_SCROLL_TABLE_ID}/attributes"):
+            fulfill(
+                route,
+                {
+                    "items": [
+                        {
+                            "attribute_definition_id": "material-class",
+                            "table_id": _SCROLL_TABLE_ID,
+                            "current_revision": {"content": {"key": "material_class"}},
+                        },
+                        {
+                            "attribute_definition_id": "provider",
+                            "table_id": _SCROLL_TABLE_ID,
+                            "current_revision": {"content": {"key": "provider"}},
+                        },
+                        {
+                            "attribute_definition_id": "evidence-source",
+                            "table_id": _SCROLL_TABLE_ID,
+                            "current_revision": {"content": {"key": "evidence_source"}},
+                        },
+                    ]
+                },
+            )
+            return
+        if request_path.endswith("/catalog/records:search"):
+            payload = request.post_data_json or {}
+            text = payload.get("text") if isinstance(payload, dict) else None
+            count = 0 if text == "magnesium" else 6 if text == "steel" else 50
+            total_count = 0 if count == 0 else 6 if count == 6 else 120
+            facets = [] if count == 0 else [
+                {
+                    "attribute_definition_id": attribute_id,
+                    "value": value,
+                    "count": total_count,
+                }
+                for attribute_id, value in (
+                    ("material-class", "metal"),
+                    ("provider", "Northstar Materials"),
+                    ("evidence-source", "Governed reference"),
+                )
+            ]
+            fulfill(
+                route,
+                {
+                    "items": [
+                        _scroll_record(
+                            f"record-{index}",
+                            index,
+                            short_names[index] if text == "steel" else None,
+                        )
+                        for index in range(count)
+                    ],
+                    "total_count": total_count,
+                    "offset": 0,
+                    "limit": 50,
+                    "facets": facets,
+                },
+            )
+            return
+        route.continue_()
+
+    page.route("**/api/v1/**", handle)
+
+
+def _open_material_scroll_state(page: Page, base_url: str, search_text: str) -> None:
+    page.goto(f"{base_url}/materials")
+    search = page.get_by_role("textbox", name="Search materials")
+    search.wait_for(timeout=30_000)
+    search.fill(search_text)
+    page.locator(".materials-search-form").get_by_role(
+        "button", name="Find", exact=True
+    ).click()
+    if search_text == "magnesium":
+        page.get_by_text("No materials match this search.", exact=True).wait_for(timeout=30_000)
+    else:
+        page.locator('table[aria-label="Material results"] tbody tr').first.wait_for(
+            timeout=30_000
+        )
+    _wait_for_settled(page)
+
+
+def _capture_material_scroll_states(browser: Browser, base_url: str, output: Path) -> None:
+    for width, height in VIEWPORTS:
+        page = _new_page(browser, base_url, width, height)
+        _install_material_scroll_fixture(page)
+        _open_material_scroll_state(page, base_url, "reference")
+        _capture(
+            page,
+            output / f"materials-search-long-{width}x{height}.png",
+            width,
+            height,
+        )
+        page.context.close()
+
+    for search_text, output_name in (
+        ("steel", "materials-search-short-1440x900.png"),
+        ("magnesium", "materials-search-empty-1440x900.png"),
+    ):
+        page = _new_page(browser, base_url, 1440, 900)
+        _install_material_scroll_fixture(page)
+        _open_material_scroll_state(page, base_url, search_text)
+        _capture(page, output / output_name, 1440, 900)
+        page.context.close()
+
+
+def _open_material_detail(page: Page, base_url: str) -> None:
+    _open_materials_search(page, base_url)
+    page.locator('table[aria-label="Material results"] tbody tr').filter(
+        has_text="DP780"
+    ).first.dblclick()
+    page.wait_for_url(
+        re.compile(
+            r"/materials/[0-9a-f-]+\?record_id=[0-9a-f-]+"
+            r"&record_revision_id=[0-9a-f-]+&material_revision_id=[0-9a-f-]+$"
+        ),
+        timeout=30_000,
+    )
+    page.get_by_role("heading", name="Key properties", exact=True).wait_for(timeout=30_000)
+    for tab_name in ("Overview", "Properties", "Curves", "CAE Cards", "Evidence"):
+        page.get_by_role("tab", name=tab_name, exact=True).wait_for(timeout=30_000)
+    _wait_for_settled(page)
+    page.get_by_text(
+        re.compile(r"^(Request review|Waiting for review|Approved|Changes requested)$")
+    ).first.wait_for(timeout=30_000)
+    page.locator(".application-status-bar").get_by_text(REVISION_LABEL_PATTERN).wait_for(
+        timeout=30_000
+    )
+    for selector in (
+        ".material-detail-header",
+        '[aria-label="Related exact records"]',
+        ".application-status-bar",
+    ):
+        surface = page.locator(selector)
+        surface.wait_for(timeout=30_000)
+        surface_text = surface.inner_text()
+        if NORMAL_SURFACE_TECHNICAL_LABELS.search(surface_text):
+            raise RuntimeError(
+                "normal Material detail surface exposes technical label in "
+                f"{selector}: {surface_text}"
+            )
+
+
 def _capture_materials(browser: Browser, base_url: str, output: Path) -> None:
     for width, height in VIEWPORTS:
         page = _new_page(browser, base_url, width, height)
@@ -265,6 +694,15 @@ def _capture_materials(browser: Browser, base_url: str, output: Path) -> None:
         _assert_material_pane_reset(page, width)
         _capture(page, output / f"materials-search-{width}x{height}.png", width, height)
         page.context.close()
+
+    for width, height in WIDE_VIEWPORTS:
+        page = _new_page(browser, base_url, width, height)
+        _open_materials_search(page, base_url)
+        _assert_wide_material_cluster(page, width)
+        _capture(page, output / f"materials-search-{width}x{height}.png", width, height)
+        page.context.close()
+
+    _capture_material_scroll_states(browser, base_url, output)
 
     width, height = 1440, 900
     page = _new_page(browser, base_url, width, height)
@@ -280,15 +718,12 @@ def _capture_materials(browser: Browser, base_url: str, output: Path) -> None:
     page.context.close()
 
     page = _new_page(browser, base_url, width, height)
-    _open_materials_search(page, base_url)
-    page.locator('table[aria-label="Material results"] tbody tr').filter(
-        has_text="DP780"
-    ).first.dblclick()
-    page.wait_for_url(re.compile(r"/materials/[0-9a-f-]+$"), timeout=30_000)
-    page.get_by_role("heading", name="Key properties", exact=True).wait_for(timeout=30_000)
+    _open_material_detail(page, base_url)
+    _assert_response_points_table(page, width)
     _capture(page, output / "material-detail-1440x900.png", width, height)
     page.get_by_role("tab", name="CAE Cards", exact=True).click()
     page.get_by_role("heading", name="CAE Cards", exact=True).wait_for(timeout=30_000)
+    _wait_for_settled(page)
     primary_delivery_actions = page.locator(
         ".material-detail-header .card-action-row button.ux-button.primary"
     )
@@ -300,6 +735,71 @@ def _capture_materials(browser: Browser, base_url: str, output: Path) -> None:
     _capture(page, output / "material-cae-cards-1440x900.png", width, height)
     page.context.close()
 
+    for width, height in ((1366, 768), (1920, 1080)):
+        page = _new_page(browser, base_url, width, height)
+        _open_material_detail(page, base_url)
+        _assert_response_points_table(page, width)
+        _capture(page, output / f"material-detail-{width}x{height}.png", width, height)
+        page.context.close()
+
+    for width, height in WIDE_VIEWPORTS:
+        page = _new_page(browser, base_url, width, height)
+        _open_material_detail(page, base_url)
+        _assert_wide_material_cluster(page, width)
+        _assert_response_points_table(page, width)
+        _capture(page, output / f"material-detail-{width}x{height}.png", width, height)
+        page.context.close()
+
+
+def _assert_linked_response_labels_visible(page: Page) -> None:
+    geometry = page.locator(".response-plot").evaluate(
+        """svg => {
+          const frame = svg.closest('.response-plot-frame')?.getBoundingClientRect();
+          const status = document.querySelector('.application-status-bar')?.getBoundingClientRect();
+          const rect = element => {
+            if (!element) return null;
+            const bounds = element.getBoundingClientRect();
+            return {
+              left: bounds.left,
+              right: bounds.right,
+              top: bounds.top,
+              bottom: bounds.bottom,
+            };
+          };
+          const xTickLabels = [...svg.querySelectorAll('.linked-response-tick-label')]
+            .filter(label => {
+              const tick = label.parentElement?.querySelector('.linked-response-tick');
+              return tick?.getAttribute('y1') !== tick?.getAttribute('y2');
+            });
+          return {
+            frame: frame
+              ? { left: frame.left, right: frame.right, top: frame.top, bottom: frame.bottom }
+              : null,
+            statusTop: status?.top ?? null,
+            xTicks: xTickLabels.map(rect),
+            xTitle: rect(svg.querySelector('.linked-response-axis-title:not([transform])')),
+          };
+        }"""
+    )
+    if not geometry["frame"] or geometry["statusTop"] is None:
+        raise RuntimeError("linked response plot frame or status bar is unavailable")
+    if not geometry["xTicks"] or not geometry["xTitle"]:
+        raise RuntimeError("linked response plot has no rendered x-axis ticks or title")
+    frame = geometry["frame"]
+    status_top = float(geometry["statusTop"])
+    for label in [*geometry["xTicks"], geometry["xTitle"]]:
+        if (
+            label["left"] < frame["left"] - 1
+            or label["right"] > frame["right"] + 1
+            or label["top"] < frame["top"] - 1
+            or label["bottom"] > frame["bottom"] + 1
+            or label["bottom"] > status_top + 1
+        ):
+            raise RuntimeError(
+                "linked response x-axis label is clipped: "
+                f"label={label}, frame={frame}, status_top={status_top}"
+            )
+
 
 def _capture_solver_delivery(browser: Browser, base_url: str, output: Path) -> None:
     for width, height in VIEWPORTS:
@@ -308,7 +808,13 @@ def _capture_solver_delivery(browser: Browser, base_url: str, output: Path) -> N
         page.locator('table[aria-label="Material results"] tbody tr').filter(
             has_text="DP780"
         ).first.dblclick()
-        page.wait_for_url(re.compile(r"/materials/[0-9a-f-]+$"), timeout=30_000)
+        page.wait_for_url(
+            re.compile(
+                r"/materials/[0-9a-f-]+\?record_id=[0-9a-f-]+"
+                r"&record_revision_id=[0-9a-f-]+&material_revision_id=[0-9a-f-]+$"
+            ),
+            timeout=30_000,
+        )
         if width == 1440:
             page.get_by_text(
                 re.compile(r"^(Request review|Waiting for review|Approved|Changes requested)$")
@@ -323,7 +829,10 @@ def _capture_solver_delivery(browser: Browser, base_url: str, output: Path) -> N
         openradioss = page.locator(".cae-card-table tbody tr").filter(has_text="OpenRadioss").first
         openradioss.get_by_role("button", name=re.compile(r"^Preview(?: card)?$")).click()
         page.wait_for_url(
-            re.compile(r"/materials/[0-9a-f-]+/cards/[0-9a-f-]+$"),
+            re.compile(
+                r"/materials/[0-9a-f-]+/cards/[0-9a-f-]+\?record_id=[0-9a-f-]+"
+                r"&record_revision_id=[0-9a-f-]+&material_revision_id=[0-9a-f-]+$"
+            ),
             timeout=30_000,
         )
         page.get_by_role("heading", name="Delivery check", exact=True).wait_for(timeout=30_000)
@@ -368,6 +877,7 @@ def _capture_solver_delivery(browser: Browser, base_url: str, output: Path) -> N
                 raise RuntimeError("linked response graph has an invalid stress range") from cause
             if len(y_bounds) != 2 or min(y_bounds) < 0 or max(y_bounds) >= 10_000:
                 raise RuntimeError("linked response graph is not displayed in MPa")
+            _assert_linked_response_labels_visible(page)
         elif linked_response.is_visible():
             raise RuntimeError("linked response graph must remain bounded to wide workspaces")
         if page.locator(".mapping-status.unsupported").count():
@@ -1170,7 +1680,7 @@ def main() -> int:
     parser.add_argument(
         "--only-materials",
         action="store_true",
-        help="Capture and replace only the six Materials workspace captures.",
+        help="Capture and replace only the seventeen Materials workspace captures.",
     )
     parser.add_argument(
         "--only-product-access",
@@ -1237,7 +1747,7 @@ def main() -> int:
         or args.only_review_submission
     ):
         names = (
-            CURRENT_CAPTURE_OUTPUTS[:6]
+            CURRENT_CAPTURE_OUTPUTS[:17]
             if args.only_materials
             else MODELING_EXPORT_OUTPUTS
             if args.only_modeling_export

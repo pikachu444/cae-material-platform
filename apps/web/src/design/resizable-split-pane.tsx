@@ -1,5 +1,6 @@
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { Group, Panel, Separator, useDefaultLayout, usePanelRef } from "react-resizable-panels";
+import { EngineeringIcon } from "./icon";
 
 export type DesktopViewportClass = "compact" | "standard" | "wide";
 
@@ -107,11 +108,11 @@ export function ResizableSplitPane({
         <div className="materials-workspace resizable-workspace-fallback">
           {navigatorOpen ? <div className="materials-workspace-panel navigator-panel">{navigator}</div> : null}
           <div className="materials-resize-handle" role="separator" aria-label={`Resize ${navigatorLabel}`} onDoubleClick={resetNavigator} title={`Double-click to reset ${navigatorLabel} width`}>
-            <button className="pane-divider-control" type="button" aria-label={`${navigatorOpen ? "Collapse" : "Expand"} ${navigatorLabel} pane`} aria-expanded={navigatorOpen} onClick={() => setNavigatorOpen((current) => !current)}><span aria-hidden="true">{navigatorOpen ? "‹" : "›"}</span></button>
+            <button className="pane-divider-control" type="button" aria-label={`${navigatorOpen ? "Collapse" : "Expand"} ${navigatorLabel} pane`} aria-expanded={navigatorOpen} onClick={() => setNavigatorOpen((current) => !current)}><EngineeringIcon name={navigatorOpen ? "chevron-left" : "chevron-right"}/></button>
           </div>
           <div className="materials-workspace-panel main-panel">{main}</div>
           <div className="materials-resize-handle" role="separator" aria-label={`Resize ${contextLabel}`} onDoubleClick={resetContext} title={`Double-click to reset ${contextLabel} width`}>
-            <button className="pane-divider-control" type="button" aria-label={`${contextOpen ? "Collapse" : "Expand"} ${contextLabel} pane`} aria-expanded={contextOpen} onClick={() => setContextOpen((current) => !current)}><span aria-hidden="true">{contextOpen ? "›" : "‹"}</span></button>
+            <button className="pane-divider-control" type="button" aria-label={`${contextOpen ? "Collapse" : "Expand"} ${contextLabel} pane`} aria-expanded={contextOpen} onClick={() => setContextOpen((current) => !current)}><EngineeringIcon name={contextOpen ? "chevron-right" : "chevron-left"}/></button>
           </div>
           {contextOpen ? <div className="materials-workspace-panel context-panel">{context}</div> : null}
         </div>
@@ -145,13 +146,13 @@ export function ResizableSplitPane({
           {navigator}
         </Panel>
         <Separator className="materials-resize-handle" aria-label={`Resize ${navigatorLabel}`} onDoubleClick={resetNavigator} title={`Double-click to reset ${navigatorLabel} width`}>
-          <button className="pane-divider-control" type="button" aria-label={`${navigatorOpen ? "Collapse" : "Expand"} ${navigatorLabel} pane`} aria-expanded={navigatorOpen} onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); toggleNavigator(); }}><span aria-hidden="true">{navigatorOpen ? "‹" : "›"}</span></button>
+          <button className="pane-divider-control" type="button" aria-label={`${navigatorOpen ? "Collapse" : "Expand"} ${navigatorLabel} pane`} aria-expanded={navigatorOpen} onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); toggleNavigator(); }}><EngineeringIcon name={navigatorOpen ? "chevron-left" : "chevron-right"}/></button>
         </Separator>
         <Panel id="main" className="materials-workspace-panel main-panel" minSize={720}>
           {main}
         </Panel>
         <Separator className="materials-resize-handle" aria-label={`Resize ${contextLabel}`} onDoubleClick={resetContext} title={`Double-click to reset ${contextLabel} width`}>
-          <button className="pane-divider-control" type="button" aria-label={`${contextOpen ? "Collapse" : "Expand"} ${contextLabel} pane`} aria-expanded={contextOpen} onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); toggleContext(); }}><span aria-hidden="true">{contextOpen ? "›" : "‹"}</span></button>
+          <button className="pane-divider-control" type="button" aria-label={`${contextOpen ? "Collapse" : "Expand"} ${contextLabel} pane`} aria-expanded={contextOpen} onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); toggleContext(); }}><EngineeringIcon name={contextOpen ? "chevron-right" : "chevron-left"}/></button>
         </Separator>
         <Panel
           id="context"

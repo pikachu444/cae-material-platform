@@ -1,4 +1,5 @@
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { EngineeringIcon } from "./icon";
 
 export interface WorkspaceStatusUpdate {
   selection?: string;
@@ -224,7 +225,7 @@ export function ApplicationShell({ path, navigate, children }: ApplicationShellP
           {navigation.map((item) => <button key={item.target} className={item.active ? "application-nav active" : "application-nav"} type="button" aria-current={item.active ? "page" : undefined} onClick={() => navigate(item.target)}>{item.label}</button>)}
         </nav>
         <div className="application-session">
-          <details className="application-user-menu"><summary>{workspace === "modeling" ? "Demo workspace ▾" : "Demo user"}</summary><div><button type="button" onClick={() => navigate("/administration")}>Administration</button><button type="button" onClick={() => navigate("/database")}>Browse database</button></div></details>
+          <details className="application-user-menu"><summary><span>{workspace === "modeling" ? "Demo workspace" : "Demo user"}</span><EngineeringIcon name="chevron-down"/></summary><div><button type="button" onClick={() => navigate("/administration")}>Administration</button><button type="button" onClick={() => navigate("/database")}>Browse database</button></div></details>
         </div>
       </header>
       <section className="workspace-command-bar" aria-label={`${commandModel.title} commands`} data-focus-region="commands" ref={commandRef} tabIndex={-1}>

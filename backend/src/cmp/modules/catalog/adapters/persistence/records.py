@@ -19,6 +19,7 @@ from cmp.modules.catalog.application.records import (
     RECORD_AGGREGATE_TYPE,
     CatalogRecordRepository,
     FolderSnapshot,
+    RecordDomainBinding,
     RecordFacetBucket,
     RecordSearchResult,
     RecordSnapshot,
@@ -110,6 +111,24 @@ catalog_record_revision = _revision_table(
     sa.Column("description", sa.Text(), nullable=True),
     sa.Column("folder_id", _uuid, nullable=True),
     sa.Column("folder_revision_id", _uuid, nullable=True),
+)
+# The binding tables are owned by the Catalog links adapter.  A read-only
+# declaration here lets the single server query constrain current Record
+# revisions without importing a domain/plugin implementation or issuing an
+# N+1 binding lookup.  The migration is the authority for constraints/RLS.
+domain_record_binding = sa.Table(
+    "domain_record_binding",
+    metadata,
+    sa.Column("id", _uuid, nullable=False),
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("record_id", _uuid, nullable=False),
+    sa.Column("record_revision_id", _uuid, nullable=False),
+    sa.Column("domain_kind", sa.String(32), nullable=False),
+    sa.Column("domain_object_id", _uuid, nullable=False),
+    sa.Column("domain_revision_id", _uuid, nullable=False),
+    schema="catalog",
 )
 
 
@@ -513,7 +532,9 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
 
     @staticmethod
     def _record_snapshot(
-        row: Any, values: dict[UUID, tuple[CatalogRecordValue, ...]]
+        row: Any,
+        values: dict[UUID, tuple[CatalogRecordValue, ...]],
+        bindings: dict[UUID, RecordDomainBinding] | None = None,
     ) -> RecordSnapshot:
         return RecordSnapshot(
             row["identity_id"],
@@ -522,7 +543,55 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                 _record(row, RECORD_AGGREGATE_TYPE),
                 _record_content(row, values.get(row["id"], ())),
             ),
+            None if bindings is None else bindings.get(row["id"]),
         )
+
+    @staticmethod
+    def _binding_path(kind: str, object_id: UUID, revision_id: UUID) -> str:
+        query = f"object_id={object_id}&revision_id={revision_id}"
+        roots = {
+            "material": f"/materials/{object_id}?revision_id={revision_id}",
+            "material_state": f"/materials?{query}",
+            "specimen": f"/tests?{query}",
+            "test_run": f"/tests?{query}",
+            "test_data": f"/datasets/test-json?{query}",
+            "processing_output": f"/datasets/processing?{query}",
+            "material_model": f"/models?{query}",
+            "neutral_material": f"/models?{query}",
+            "solver_card": f"/exports?{query}",
+            "neutral_solver_card": f"/exports?{query}",
+            "release": f"/governance?{query}",
+        }
+        return roots[kind]
+
+    def _bindings_by_revision(
+        self,
+        session: Session,
+        revision_ids: Sequence[UUID],
+        kind: str | None,
+    ) -> dict[UUID, RecordDomainBinding]:
+        if not revision_ids:
+            return {}
+        predicate: sa.ColumnElement[bool] = domain_record_binding.c.record_revision_id.in_(
+            revision_ids
+        )
+        if kind is not None:
+            predicate = sa.and_(predicate, domain_record_binding.c.domain_kind == kind)
+        rows = session.execute(
+            sa.select(domain_record_binding).where(predicate)
+        ).mappings()
+        bindings: dict[UUID, RecordDomainBinding] = {}
+        for row in rows:
+            bindings[row["record_revision_id"]] = RecordDomainBinding(
+                binding_id=row["id"],
+                kind=row["domain_kind"],
+                object_id=row["domain_object_id"],
+                revision_id=row["domain_revision_id"],
+                workbench_path=self._binding_path(
+                    row["domain_kind"], row["domain_object_id"], row["domain_revision_id"]
+                ),
+            )
+        return bindings
 
     def list_folders(
         self, *, context: SecurityContext, decision: AuthorizationDecision, table_id: UUID
@@ -695,19 +764,82 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                 )
             )
         if query.folder_id is not None:
-            statement = statement.where(catalog_record_revision.c.folder_id == query.folder_id)
-        for discrete_filter in query.discrete_filters:
+            if not query.include_descendants:
+                statement = statement.where(catalog_record_revision.c.folder_id == query.folder_id)
+            else:
+                # Keep Folder scope in the same SQL set as rows, totals and
+                # facets.  The recursive CTE follows exact current Folder
+                # revisions and is bounded by the requested Table.
+                folder_scope = sa.select(folder.c.id.label("folder_id")).where(
+                    folder.c.id == query.folder_id,
+                    folder.c.table_id == query.table_id,
+                ).cte("record_folder_scope", recursive=True)
+                child_folder = folder.alias("child_folder")
+                child_revision = folder_revision.alias("child_folder_revision")
+                folder_scope = folder_scope.union_all(
+                    sa.select(child_folder.c.id).select_from(
+                        child_folder.join(
+                            child_revision,
+                            sa.and_(
+                                child_revision.c.id == child_folder.c.current_revision_id,
+                                child_revision.c.aggregate_id == child_folder.c.id,
+                                child_revision.c.organization_id == child_folder.c.organization_id,
+                                child_revision.c.project_id == child_folder.c.project_id,
+                                child_revision.c.classification == child_folder.c.classification,
+                            ),
+                        ).join(
+                            folder_scope,
+                            child_revision.c.parent_folder_id == folder_scope.c.folder_id,
+                        )
+                    ).where(child_folder.c.table_id == query.table_id)
+                )
+                statement = statement.where(
+                    catalog_record_revision.c.folder_id.in_(
+                        sa.select(folder_scope.c.folder_id)
+                    )
+                )
+        if query.record_id is not None:
+            statement = statement.where(catalog_record.c.id == query.record_id)
+        if query.domain_binding_kind is not None:
             statement = statement.where(
                 sa.exists(
                     sa.select(1).where(
-                        record_discrete_value.c.organization_id
+                        domain_record_binding.c.organization_id
                         == catalog_record_revision.c.organization_id,
-                        record_discrete_value.c.project_id == catalog_record_revision.c.project_id,
-                        record_discrete_value.c.record_revision_id == catalog_record_revision.c.id,
-                        record_discrete_value.c.attribute_definition_id
-                        == discrete_filter.attribute_definition_id,
-                        record_discrete_value.c.value.in_(discrete_filter.values),
+                        domain_record_binding.c.project_id
+                        == catalog_record_revision.c.project_id,
+                        domain_record_binding.c.classification
+                        == catalog_record_revision.c.classification,
+                        domain_record_binding.c.record_id == catalog_record.c.id,
+                        domain_record_binding.c.record_revision_id
+                        == catalog_record_revision.c.id,
+                        domain_record_binding.c.domain_kind == query.domain_binding_kind,
                     )
+                )
+            )
+        for discrete_filter in query.discrete_filters:
+            discrete_predicates = (
+                record_discrete_value.c.organization_id
+                == catalog_record_revision.c.organization_id,
+                record_discrete_value.c.project_id == catalog_record_revision.c.project_id,
+                record_discrete_value.c.record_revision_id == catalog_record_revision.c.id,
+                record_discrete_value.c.attribute_definition_id
+                == discrete_filter.attribute_definition_id,
+                record_discrete_value.c.value.in_(discrete_filter.values),
+            )
+            text_predicates = (
+                record_text_value.c.organization_id
+                == catalog_record_revision.c.organization_id,
+                record_text_value.c.project_id == catalog_record_revision.c.project_id,
+                record_text_value.c.record_revision_id == catalog_record_revision.c.id,
+                record_text_value.c.attribute_definition_id
+                == discrete_filter.attribute_definition_id,
+                record_text_value.c.value.in_(discrete_filter.values),
+            )
+            statement = statement.where(
+                sa.or_(
+                    sa.exists(sa.select(1).where(*discrete_predicates)),
+                    sa.exists(sa.select(1).where(*text_predicates)),
                 )
             )
         for number_filter in query.number_filters:
@@ -744,9 +876,85 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
         )
         with self._transaction(context, decision) as session:
             total_count = int(session.scalar(sa.select(sa.func.count()).select_from(matched)) or 0)
+            sort_expression: Any
+            if query.sort_by == "name":
+                sort_expression = catalog_record_revision.c.name
+            elif query.sort_by == "external_key":
+                sort_expression = sa.func.coalesce(catalog_record_revision.c.external_key, "")
+            else:
+                assert query.sort_attribute_id is not None
+                attribute_predicates = (
+                    record_text_value.c.organization_id
+                    == catalog_record_revision.c.organization_id,
+                    record_text_value.c.project_id == catalog_record_revision.c.project_id,
+                    record_text_value.c.record_revision_id == catalog_record_revision.c.id,
+                    record_text_value.c.attribute_definition_id == query.sort_attribute_id,
+                )
+                discrete_predicates = (
+                    record_discrete_value.c.organization_id
+                    == catalog_record_revision.c.organization_id,
+                    record_discrete_value.c.project_id == catalog_record_revision.c.project_id,
+                    record_discrete_value.c.record_revision_id == catalog_record_revision.c.id,
+                    record_discrete_value.c.attribute_definition_id == query.sort_attribute_id,
+                )
+                number_predicates = (
+                    record_number_value.c.organization_id
+                    == catalog_record_revision.c.organization_id,
+                    record_number_value.c.project_id == catalog_record_revision.c.project_id,
+                    record_number_value.c.record_revision_id == catalog_record_revision.c.id,
+                    record_number_value.c.attribute_definition_id == query.sort_attribute_id,
+                )
+                integer_predicates = (
+                    record_integer_value.c.organization_id
+                    == catalog_record_revision.c.organization_id,
+                    record_integer_value.c.project_id == catalog_record_revision.c.project_id,
+                    record_integer_value.c.record_revision_id == catalog_record_revision.c.id,
+                    record_integer_value.c.attribute_definition_id == query.sort_attribute_id,
+                )
+                # Text/discrete values cover Material provider/source and
+                # grade facets; numeric values remain available as a numeric
+                # first branch for condition-aware properties.
+                numeric_sort = sa.func.coalesce(
+                    sa.select(record_number_value.c.normalized_value)
+                    .where(*number_predicates)
+                    .limit(1)
+                    .scalar_subquery(),
+                    sa.select(record_integer_value.c.value)
+                    .where(*integer_predicates)
+                    .limit(1)
+                    .scalar_subquery(),
+                )
+                text_sort = sa.func.coalesce(
+                    sa.select(record_text_value.c.value)
+                    .where(*attribute_predicates)
+                    .limit(1)
+                    .scalar_subquery(),
+                    sa.select(record_discrete_value.c.value)
+                    .where(*discrete_predicates)
+                    .limit(1)
+                    .scalar_subquery(),
+                )
+                # The two branches keep PostgreSQL from coercing numeric
+                # Attributes to text (which would make 10 sort before 2).
+                sort_expression = (numeric_sort, text_sort)
+            if isinstance(sort_expression, tuple):
+                direction = tuple(
+                    (
+                        item.desc()
+                        if query.sort_direction == "descending"
+                        else item.asc()
+                    ).nulls_last()
+                    for item in sort_expression
+                )
+            else:
+                direction = (
+                    sort_expression.desc().nulls_last()
+                    if query.sort_direction == "descending"
+                    else sort_expression.asc().nulls_last(),
+                )
             rows = (
                 session.execute(
-                    base.order_by(catalog_record_revision.c.name.asc(), catalog_record.c.id.asc())
+                    base.order_by(*direction, catalog_record.c.id.asc())
                     .offset(query.offset)
                     .limit(query.limit)
                 )
@@ -754,13 +962,38 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                 .all()
             )
             values = self._values_by_revision(session, tuple(row["id"] for row in rows))
+            bindings = self._bindings_by_revision(
+                session, tuple(row["id"] for row in rows), query.domain_binding_kind
+            )
             facets: tuple[RecordFacetBucket, ...] = ()
             if query.facet_attribute_ids:
-                facet_rows = session.execute(
+                facet_values = sa.union_all(
                     sa.select(
-                        record_discrete_value.c.attribute_definition_id,
-                        record_discrete_value.c.value,
-                        sa.func.count().label("bucket_count"),
+                        record_text_value.c.attribute_definition_id.label("attribute_definition_id"),
+                        record_text_value.c.value.label("value"),
+                    )
+                    .select_from(
+                        record_text_value.join(
+                            matched,
+                            sa.and_(
+                                matched.c.organization_id
+                                == record_text_value.c.organization_id,
+                                matched.c.project_id == record_text_value.c.project_id,
+                                matched.c.record_revision_id
+                                == record_text_value.c.record_revision_id,
+                            ),
+                        )
+                    )
+                    .where(
+                        record_text_value.c.attribute_definition_id.in_(
+                            query.facet_attribute_ids
+                        )
+                    ),
+                    sa.select(
+                        record_discrete_value.c.attribute_definition_id.label(
+                            "attribute_definition_id"
+                        ),
+                        record_discrete_value.c.value.label("value"),
                     )
                     .select_from(
                         record_discrete_value.join(
@@ -778,15 +1011,23 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                         record_discrete_value.c.attribute_definition_id.in_(
                             query.facet_attribute_ids
                         )
+                    ),
+                ).subquery("record_facet_values")
+                facet_rows = session.execute(
+                    sa.select(
+                        facet_values.c.attribute_definition_id,
+                        facet_values.c.value,
+                        sa.func.count().label("bucket_count"),
                     )
+                    .select_from(facet_values)
                     .group_by(
-                        record_discrete_value.c.attribute_definition_id,
-                        record_discrete_value.c.value,
+                        facet_values.c.attribute_definition_id,
+                        facet_values.c.value,
                     )
                     .order_by(
-                        record_discrete_value.c.attribute_definition_id.asc(),
+                        facet_values.c.attribute_definition_id.asc(),
                         sa.func.count().desc(),
-                        record_discrete_value.c.value.asc(),
+                        facet_values.c.value.asc(),
                     )
                 ).mappings()
                 facets = tuple(
@@ -796,7 +1037,7 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                     for row in facet_rows
                 )
             return RecordSearchResult(
-                tuple(self._record_snapshot(row, values) for row in rows),
+                tuple(self._record_snapshot(row, values, bindings) for row in rows),
                 total_count,
                 facets,
             )

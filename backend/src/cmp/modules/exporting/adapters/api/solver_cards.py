@@ -261,8 +261,13 @@ class SolverCardResponse(BaseModel):
     links: dict[str, str]
 
     @classmethod
-    def from_snapshot(cls, value: SolverCardSnapshot) -> SolverCardResponse:
+    def from_snapshot(
+        cls,
+        value: SolverCardSnapshot,
+        revision_id: UUID | None = None,
+    ) -> SolverCardResponse:
         root = f"/api/v1/solver-cards/{value.id}"
+        revision_query = f"?revision_id={revision_id}" if revision_id is not None else ""
         return cls(
             solver_card_id=value.id,
             material_model_id=value.material_model_id,
@@ -274,10 +279,10 @@ class SolverCardResponse(BaseModel):
             solver_material_id=value.solver_material_id,
             current_revision=SolverCardRevisionResponse.from_snapshot(value.id, value.current),
             links={
-                "self": root,
+                "self": f"{root}{revision_query}",
                 "revisions": f"{root}/revisions",
-                "preview": f"{root}/preview",
-                "download": f"{root}/download",
+                "preview": f"{root}/preview{revision_query}",
+                "download": f"{root}/download{revision_query}",
             },
         )
 
@@ -590,22 +595,32 @@ def install_solver_card_api(
         responses=errors,
         dependencies=[Depends(security_dependency), Depends(read_dependency)],
         tags=["exporting"],
-        summary="Read one current immutable Solver Card revision and its mapping report.",
+        summary=(
+            "Read the current head or an explicitly selected immutable Solver Card "
+            "revision and mapping report."
+        ),
     )
     def get_solver_card(
         request: Request,
         response: Response,
         solver_card_id: UUID,
+        revision_id: UUID | None = None,
     ) -> SolverCardResponse:
         context, decision = _scope(request)
         if service is None:
             raise _unavailable(context)
         try:
-            value = service.get_solver_card(context, decision, solver_card_id)
+            value = (
+                service.get_solver_card(context, decision, solver_card_id)
+                if revision_id is None
+                else service.get_solver_card_revision(
+                    context, decision, solver_card_id, revision_id
+                )
+            )
         except (ExportError, RevisionKernelError, IntegrityError, ValueError) as error:
             raise _translate(context, error) from error
         _etag(response, value.current.record)
-        return SolverCardResponse.from_snapshot(value)
+        return SolverCardResponse.from_snapshot(value, revision_id=revision_id)
 
     @application.get(
         "/api/v1/solver-cards/{solver_card_id}/revisions",
@@ -638,17 +653,35 @@ def install_solver_card_api(
     @application.get(
         "/api/v1/solver-cards/{solver_card_id}/preview",
         operation_id="previewSolverCard",
-        responses={**errors, 200: {"description": "Plain-text Solver Card preview."}},
+        responses={
+            **errors,
+            200: {
+                "description": (
+                    "Plain-text preview of the current head or explicitly selected "
+                    "immutable Solver Card revision."
+                )
+            },
+        },
         dependencies=[Depends(security_dependency), Depends(read_dependency)],
         tags=["exporting"],
-        summary="Preview the exact immutable Solver Card text.",
+        summary="Preview the exact current or explicitly selected immutable Solver Card text.",
     )
-    def preview_solver_card(request: Request, solver_card_id: UUID) -> PlainTextResponse:
+    def preview_solver_card(
+        request: Request,
+        solver_card_id: UUID,
+        revision_id: UUID | None = None,
+    ) -> PlainTextResponse:
         context, decision = _scope(request)
         if service is None:
             raise _unavailable(context)
         try:
-            value = service.get_solver_card(context, decision, solver_card_id)
+            value = (
+                service.get_solver_card(context, decision, solver_card_id)
+                if revision_id is None
+                else service.get_solver_card_revision(
+                    context, decision, solver_card_id, revision_id
+                )
+            )
         except (ExportError, RevisionKernelError, IntegrityError, ValueError) as error:
             raise _translate(context, error) from error
         return PlainTextResponse(
@@ -660,17 +693,35 @@ def install_solver_card_api(
     @application.get(
         "/api/v1/solver-cards/{solver_card_id}/download",
         operation_id="downloadSolverCard",
-        responses={**errors, 200: {"description": "Solver Card text attachment."}},
+        responses={
+            **errors,
+            200: {
+                "description": (
+                    "Solver Card text attachment for the current head or explicitly "
+                    "selected immutable revision."
+                )
+            },
+        },
         dependencies=[Depends(security_dependency), Depends(read_dependency)],
         tags=["exporting"],
-        summary="Download the exact immutable Solver Card text.",
+        summary="Download the exact current or explicitly selected immutable Solver Card text.",
     )
-    def download_solver_card(request: Request, solver_card_id: UUID) -> PlainTextResponse:
+    def download_solver_card(
+        request: Request,
+        solver_card_id: UUID,
+        revision_id: UUID | None = None,
+    ) -> PlainTextResponse:
         context, decision = _scope(request)
         if service is None:
             raise _unavailable(context)
         try:
-            value = service.get_solver_card(context, decision, solver_card_id)
+            value = (
+                service.get_solver_card(context, decision, solver_card_id)
+                if revision_id is None
+                else service.get_solver_card_revision(
+                    context, decision, solver_card_id, revision_id
+                )
+            )
         except (ExportError, RevisionKernelError, IntegrityError, ValueError) as error:
             raise _translate(context, error) from error
         filename = f"openradioss-mat-{value.solver_material_id}.rad"

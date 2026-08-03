@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { NeutralHyperelasticExport } from "./neutral-hyperelastic-export";
@@ -7,6 +7,7 @@ import type { NeutralMaterialResponse } from "./types";
 const neutralId = "e5700000-0000-4000-8000-000000000001";
 const neutralRevisionId = "e5700000-0000-4000-8000-000000000002";
 const cardId = "e5700000-0000-4000-8000-000000000003";
+const cardRevisionId = "e5700000-0000-4000-8000-000000000004";
 const sha = "a".repeat(64);
 const neutral: NeutralMaterialResponse = {
   neutral_material_id: neutralId,
@@ -115,7 +116,7 @@ describe("NeutralHyperelasticExport", () => {
       neutral_material_id: neutralId,
       target: report.report.target,
       current_revision: {
-        id: cardId,
+        id: cardRevisionId,
         aggregate_id: cardId,
         revision_no: 1,
         based_on_revision_id: null,
@@ -163,7 +164,9 @@ describe("NeutralHyperelasticExport", () => {
         expect(JSON.parse(String(init.body)).expected_mapping_report_sha256).toBe(sha);
         return json(card, 201);
       }
-      if (url.endsWith(`/neutral-solver-cards/${cardId}/preview`)) {
+      const exactCardPath = `/neutral-solver-cards/${cardId}`;
+      const exactRevision = `?revision_id=${cardRevisionId}`;
+      if (url.endsWith(`${exactCardPath}/preview${exactRevision}`)) {
         return {
           ok: true,
           status: 200,
@@ -172,8 +175,22 @@ describe("NeutralHyperelasticExport", () => {
             "/MAT/LAW1/301/1\nPOLYMER_REFERENCE\n/VISC/LPRONY/301/1\n",
         } as Response;
       }
+      if (url.endsWith(`${exactCardPath}/download${exactRevision}`)) {
+        return {
+          ok: true,
+          status: 200,
+          headers: new Headers({ "content-type": "text/plain", "content-disposition": 'attachment; filename="POLYMER_REFERENCE.rad"' }),
+          blob: async () => new Blob(["/MAT/LAW1/301/1\nPOLYMER_REFERENCE"], { type: "text/plain" }),
+        } as Response;
+      }
+      if (url.endsWith(`${exactCardPath}/mapping-report${exactRevision}`)) return json(report);
+      if (url.includes("/bulk-export-candidates?")) throw new Error("Neutral card must not use bulk candidate fallback");
+      if (url.includes(exactCardPath)) throw new Error(`Neutral card request lost exact revision: ${url}`);
       throw new Error(`unexpected request ${url}`);
     });
+    const createObjectUrl = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:neutral-card");
+    const revokeObjectUrl = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
+    const anchorClick = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => undefined);
     vi.stubGlobal("fetch", fetchMock);
     const onNavigate = vi.fn();
 
@@ -204,11 +221,19 @@ describe("NeutralHyperelasticExport", () => {
     fireEvent.click(create);
     expect(await screen.findByText(/openradioss card r1 created/)).toBeTruthy();
     expect(await screen.findByText(/\/VISC\/LPRONY\/301\/1/)).toBeTruthy();
+    expect(fetchMock.mock.calls.some(([input]) => String(input).endsWith(`/neutral-solver-cards/${cardId}/preview?revision_id=${cardRevisionId}`))).toBe(true);
     expect(screen.queryByLabelText("Exact reviewed evidence")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Review exact evidence and mapping" }));
     expect(screen.getByLabelText("Exact reviewed evidence")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Download native ASCII card" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Download mapping report JSON" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Download native ASCII card" }));
+    await waitFor(() => expect(fetchMock.mock.calls.some(([input]) => String(input).endsWith(`/neutral-solver-cards/${cardId}/download?revision_id=${cardRevisionId}`))).toBe(true));
+    fireEvent.click(screen.getByRole("button", { name: "Download mapping report JSON" }));
+    await waitFor(() => expect(fetchMock.mock.calls.some(([input]) => String(input).endsWith(`/neutral-solver-cards/${cardId}/mapping-report?revision_id=${cardRevisionId}`))).toBe(true));
+    expect(createObjectUrl).toHaveBeenCalled();
+    expect(revokeObjectUrl).toHaveBeenCalledWith("blob:neutral-card");
+    expect(anchorClick).toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "Add exact files to a bulk package" }));
     expect(onNavigate).toHaveBeenCalledWith("/exports");
     fireEvent.click(screen.getByRole("link", { name: "Open Material CAE Cards" }));

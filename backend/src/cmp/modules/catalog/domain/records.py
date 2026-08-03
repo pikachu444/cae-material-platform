@@ -6,7 +6,7 @@ import re
 from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
-from typing import Any
+from typing import Any, Literal
 from uuid import UUID
 
 from cmp.modules.catalog.domain.configurable import AttributeDataType
@@ -195,6 +195,15 @@ class CatalogRecordQuery:
     facet_attribute_ids: tuple[UUID, ...] = ()
     offset: int = 0
     limit: int = 50
+    # These fields are optional so existing table-scoped callers keep their
+    # original behaviour.  Materials uses the binding discriminator as its
+    # governed projection instead of maintaining a second search source.
+    domain_binding_kind: str | None = None
+    include_descendants: bool = False
+    sort_by: Literal["name", "external_key", "attribute"] = "name"
+    sort_attribute_id: UUID | None = None
+    sort_direction: Literal["ascending", "descending"] = "ascending"
+    record_id: UUID | None = None
 
     def __post_init__(self) -> None:
         if self.table_id.int == 0:
@@ -207,6 +216,26 @@ class CatalogRecordQuery:
             raise ValueError("record query supports at most 20 typed filters")
         if len(self.facet_attribute_ids) > 20:
             raise ValueError("record query supports at most 20 requested facets")
+        if self.domain_binding_kind is not None:
+            allowed_bindings = {
+                "material",
+                "material_state",
+                "specimen",
+                "test_run",
+                "test_data",
+                "processing_output",
+                "material_model",
+                "neutral_material",
+                "solver_card",
+                "neutral_solver_card",
+                "release",
+            }
+            if self.domain_binding_kind not in allowed_bindings:
+                raise ValueError("record query domain_binding_kind is not supported")
+        if self.sort_by == "attribute" and self.sort_attribute_id is None:
+            raise ValueError("attribute sort requires sort_attribute_id")
+        if self.sort_by != "attribute" and self.sort_attribute_id is not None:
+            raise ValueError("sort_attribute_id is valid only for attribute sorting")
 
 
 def folder_canonical(content: CatalogFolderContent) -> dict[str, Any]:

@@ -603,6 +603,46 @@ class SqlAlchemyNeutralHyperelasticExportingRepository(NeutralHyperelasticExport
                 raise NeutralHyperelasticSolverCardNotFound("solver card is not visible")
             return self._snapshot(session, row)
 
+    def get_solver_card_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        solver_card_id: UUID,
+        solver_card_revision_id: UUID,
+    ) -> NeutralHyperelasticSolverCardSnapshot:
+        """Read a concrete revision only when it belongs to the requested card and scope."""
+
+        identity = neutral_solver_card_table
+        revision = neutral_solver_card_revision_table
+        statement = sa.select(*(revision.c[column.name] for column in revision.c)).select_from(
+            identity.join(
+                revision,
+                sa.and_(
+                    revision.c.aggregate_id == identity.c.id,
+                    revision.c.organization_id == identity.c.organization_id,
+                    revision.c.project_id == identity.c.project_id,
+                ),
+            )
+        ).where(
+            identity.c.id == solver_card_id,
+            revision.c.id == solver_card_revision_id,
+            identity.c.organization_id == context.organization_id,
+            identity.c.project_id == context.project_id,
+        )
+        with self._session(context, decision) as session:
+            try:
+                row = session.execute(statement).mappings().one_or_none()
+            except DBAPIError as error:
+                raise NeutralHyperelasticSolverCardNotFound(
+                    "solver card revision is unavailable"
+                ) from error
+            if row is None:
+                raise NeutralHyperelasticSolverCardNotFound(
+                    "solver card revision is not visible"
+                )
+            return self._snapshot(session, row)
+
     def list_solver_cards_for_neutral_material(
         self,
         *,

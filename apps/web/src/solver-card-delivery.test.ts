@@ -59,7 +59,7 @@ describe("solver-card delivery policy", () => {
         ok: true,
         status: 200,
         headers: new Headers({ "content-type": "application/json" }),
-        json: async () => url.endsWith("/mapping-report") ? {
+        json: async () => url.includes("/mapping-report") ? {
           mapping_report_sha256: "b".repeat(64),
           exportable: true,
           report: { items: [] },

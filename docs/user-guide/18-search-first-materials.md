@@ -13,64 +13,70 @@ hover/focus title에 이유가 표시됩니다.
 ## 기존 Material과 CAE card 찾기
 
 1. `/materials`는 Browse Navigator로 시작합니다. 이름, grade, code 또는 family를 검색해도 현재 Navigator mode는 바뀌지 않습니다.
-2. 현재는 `Material class`, 정렬과 페이지를 사용해 결과를 좁힙니다. 공급자, 근거, 검증 가능 여부,
-   solver 준비 상태와 조건별 범위는 신뢰할 수 있는 정보가 준비될 때까지 사용할 수 없습니다. Yield는
+2. 현재는 `Material class`, `Provider`, `Evidence source`, 정렬과 페이지로 결과를 좁힙니다. Yield는
    모든 재료에 공통으로 표시하거나 필터하지 않습니다.
 3. 결과 행을 한 번 선택해 오른쪽 Context의 재료 계열과 다음 작업 가능 여부를 확인합니다. 행에서
    `Enter`를 누르거나 두 번 클릭하면 엽니다.
-4. Material은 같은 작업영역의 중앙 datasheet에 열립니다. 왼쪽 Navigator는 유지되며
+4. Material은 같은 작업영역의 중앙 datasheet에 열립니다. 요청한 자료를 읽을 수 없으면 임의의
+   최신 자료로 바꾸지 않고 오류와 `Retry`를 표시합니다. 왼쪽 Navigator는 유지되며
    `Overview | Properties | Curves | CAE Cards | Evidence`를 검토할 수 있습니다.
 5. Material Detail의 `Preview OpenRadioss`로 native ASCII를 확인한 뒤 `Download .rad`를 누릅니다.
    Preview가 필요 없다면 같은 compact record strip에서 바로 다운로드할 수 있습니다.
 
-Browse Tree는 검색의 대체 수단으로 Database, Profile, Table, Folder, Record 계층을 유지합니다.
-Table, Attribute, Layout, Subset, Link Type과 exact revision은 삭제되지 않으며 Browse, Evidence
-또는 Administration에서 접근합니다.
+Browse Tree에서도 저장된 자료를 찾을 수 있습니다.
 
-### Browse Tree에서 Record 찾기
+### Browse Tree에서 자료 찾기
 
 1. 왼쪽 Navigator의 `Browse`를 선택합니다.
-2. 왼쪽 Browse navigator에서 Database, Profile, Table을 확인합니다. `Browse | Filters | Subsets`
-   전환은 Navigator 한 곳에서만 수행합니다.
-3. Folder 앞의 disclosure를 열거나 고정된 `Find in tree`에 이름을 입력합니다. 검색 결과는
-   상위 Folder 경로를 유지합니다.
-4. 방향키와 Home/End로 이동하고, Left/Right로 접거나 펼치며, Enter로 Record를 선택합니다.
-5. Record를 한 번 선택하면 중앙 Material 결과와 exact revision 문맥이 연결됩니다. 두 번
-   누르면 Layout datasheet를 엽니다.
-6. `Subsets`에서는 관리자가 저장한 typed 검색 조건을 같은 Tree에 적용합니다.
+2. `Find in tree`에 이름을 입력하고, 방향키와 Home/End로 이동합니다.
+3. Left/Right로 항목을 접거나 펼치고 Enter로 선택합니다. 선택한 자료는 중앙 화면에서 엽니다.
 
-Tree는 자체 스크롤을 사용하므로 깊은 계층에서도 Database/Profile과 검색 동작을 다시 찾을
-수 있습니다. 긴 이름은 한 줄로 유지되고 hover/focus의 전체 이름으로 확인합니다.
+긴 목록은 손잡이, 마우스 휠 또는 키보드로 이동합니다. 결과가 짧거나 비어 있으면 불필요한
+스크롤 막대가 나타나지 않습니다.
 
-Navigator와 Context의 divider는 포인터 또는 키보드 방향키로 조절하고, divider를 두 번 누르면
-현재 viewport 기본 폭으로 돌아갑니다. 별도의 `Hide filters` /
-`Hide details` 행은 없으며 divider 위의 작은 화살표로 해당 pane만 접거나 다시 엽니다. 1366 px에서는
-Context를 기본으로 접고, 1440/1920 px에서는 각각 280/300 px로 엽니다. Navigator는 200–360 px,
-Context는 260–480 px 범위에서 조절되며 viewport 구간별 크기와 접힘 상태가 이 브라우저에
-저장됩니다. 세 pane은 서로 독립적으로 스크롤합니다.
+| 상태 | 캡처 |
+| --- | --- |
+| 긴 결과, 1366×768 | [긴 결과 1366](images/current/materials-search-long-1366x768.png) |
+| 긴 결과, 1440×900 | [긴 결과 1440](images/current/materials-search-long-1440x900.png) |
+| 긴 결과, 1920×1080 | [긴 결과 1920](images/current/materials-search-long-1920x1080.png) |
+| 짧은 결과, 막대 없음 | [짧은 결과](images/current/materials-search-short-1440x900.png) |
+| 빈 결과, 막대 없음 | [빈 결과](images/current/materials-search-empty-1440x900.png) |
 
-Find의 전체 수, 현재 행, Material class 필터와 정렬은 서로 같은 결과를 보여 줍니다. 각 행의
-상세, graph, card는 사용자가 열 때 확인합니다. 정렬 상태는
-각 sortable column의 table header가 `aria-sort`로 알립니다.
+넓은 화면에서도 작업 영역은 필요 이상으로 늘어나지 않고 페이지 전체 가로 스크롤이 생기지 않습니다.
 
-검색어, Material class, server sort/page, Browse/Subsets mode와 선택 Material은
-`/materials` URL에 저장됩니다. Material Detail command bar, 왼쪽 `← Results`, 브라우저 뒤로 가기는
-같은 검색 조건과 선택으로 돌아옵니다. Browse에서 선택한 exact Record는 현재 browser session에만
-보존되며 돌아올 때 실제 Table과 Folder ancestor를 다시 조회해 펼칩니다.
+| 경로 | 캡처 |
+| --- | --- |
+| 검색 결과, 2560×1440 | [넓은 검색 결과 2560](images/current/materials-search-2560x1440.png) |
+| 검색 결과, 3840×2160 | [넓은 검색 결과 3840](images/current/materials-search-3840x2160.png) |
+| 데이터시트, 2560×1440 | [넓은 데이터시트 2560](images/current/material-detail-2560x1440.png) |
+| 데이터시트, 3840×2160 | [넓은 데이터시트 3840](images/current/material-detail-3840x2160.png) |
+
+1920 px 이상에서는 그래프 오른쪽에 응답값 표가 함께 나타납니다. 행이 많을 때는 표 오른쪽
+손잡이를 끌거나 마우스 휠과 키보드를 사용해 나머지 값을 확인할 수 있습니다. 작은 화면에서는
+그래프를 먼저 보여 줍니다.
+
+| 데이터시트 화면 | 현재 캡처 |
+| --- | --- |
+| 1366×768 | [데이터시트 1366](images/current/material-detail-1366x768.png) |
+| 1440×900 | [데이터시트 1440](images/current/material-detail-1440x900.png) |
+| 1920×1080 | [데이터시트 1920](images/current/material-detail-1920x1080.png) |
+| 2560×1440 | [데이터시트 2560](images/current/material-detail-2560x1440.png) |
+| 3840×2160 | [데이터시트 3840](images/current/material-detail-3840x2160.png) |
+
+Find의 필터와 정렬은 결과에 반영됩니다. 각 행의 상세, graph, card는 사용자가 열 때 확인합니다.
+
+검색어, Material class, Provider, Evidence source와 선택 Material은 `/materials` URL에 저장됩니다.
+Material Detail의 탭과 관련 작업은 선택한 자료를 유지합니다.
+Material Detail command bar, 왼쪽 `← Results`, 브라우저 뒤로 가기는 같은 검색 조건과 선택으로
+돌아옵니다.
 
 ### Layout, Related와 Evidence 확인
 
-- `Properties`와 `Curves`는 관리자가 정의한 현재 Record Layout의 Attribute를 해당 일반 사용자
-  탭에 투영합니다.
-- `Evidence`의 Related Records는 Link Type의 forward/reverse label을 사용하고, Workflow는
-  Material에서 native solver card까지의 Record 순서를 표시합니다.
-- Related Record를 선택하면 `/materials/records/:recordId/revisions/:revisionId`의 정확 리비전을
-  중앙 datasheet에 엽니다. 이 화면은 요청한 리비전이 없을 때 head로 대체하지 않고 오류와 Retry를
-  표시하며, 원본 값/단위와 정규화 값/단위·quantity semantics를 함께 보여 줍니다.
-- 추가 Layout은 `Additional Layout datasheets and typed values`에서 선택합니다.
-- 상세 이력, 분류와 변경 사유는 Evidence의 `Technical revision and provenance identifiers`를
-  펼쳐 확인합니다.
-- 수량 Attribute는 원본 값/단위와 정규화 값/단위, quantity semantics를 함께 보존합니다.
+- `Properties`와 `Curves`에서 현재 자료의 속성과 곡선을 확인합니다.
+- Related records 목록에서 연결된 자료를 선택하면 중앙 datasheet에서 확인할 수 있습니다. 자료를
+  읽지 못하면 최신 자료로 바꾸지 않고 오류와 `Retry`를 표시합니다.
+- `Download CSV`는 현재 화면의 표 값을 내려받습니다. `Curves` 탭에서는 연결된 curve preview를
+  확인하고, `Related records`에서는 연결된 자료를 다시 엽니다.
 
 ## 시험 데이터에서 card delivery 준비하기
 
@@ -171,7 +177,7 @@ The only **Save fit & continue** action remains in the top action row.
 ## Activity에서 진행 상황 확인
 
 Material 상세 또는 Native Solver Card preview에서 **Request review**를 누르고 검토 사유를 적으면,
-현재 화면이 이미 읽어 온 정확한 revision으로 요청됩니다. ID나 hash를 직접 입력할 필요는 없습니다.
+현재 화면의 자료로 요청됩니다.
 같은 revision에 요청이 있으면 다시 보내지 않고 **Waiting for review**, **Approved**, 또는
 **Changes requested** 상태를 보입니다. 전송 오류는 사유를 유지한 채 **Retry request**로 다시 시도할 수
 있습니다. 승인이나 변경 요청 결정은 Activity의 Reviewer/Administrator만 기록합니다.

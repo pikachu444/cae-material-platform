@@ -34,7 +34,7 @@ const table = {
   table_id: tableId,
   current_revision: {
     ...metadata(tableRevisionId, tableId),
-    content: { key: "materials", name: "Material Records", description: null },
+    content: { key: "demo_material_records", name: "Material Records", description: null },
   },
 };
 
@@ -188,6 +188,73 @@ describe("MaterialsBrowseTree", () => {
     const mounted = screen.getAllByRole("treeitem");
     expect(mounted.length).toBeLessThan(150);
     expect(screen.queryByRole("treeitem", { name: /Material 09999/ })).toBe(null);
+  });
+
+  it("reports folder matches separately from record matches", async () => {
+    mocks.folders.mockResolvedValue({ data: { items: [folder("81000000-0000-4000-8000-000000000022", "Material Library", null)] }, etag: null });
+    mocks.search.mockResolvedValue({ data: { items: [], total_count: 0, offset: 0, limit: 100, facets: [] }, etag: null });
+    const user = userEvent.setup();
+    render(<MaterialsBrowseTree config={{ baseUrl: "/api/v1", accessToken: "test" }} onSelectRecord={() => undefined} onOpenRecord={() => undefined}/>);
+
+    const find = await screen.findByRole("textbox", { name: "Find in tree" });
+    await user.type(find, "Material Library");
+    await user.click(screen.getByRole("button", { name: "Find" }));
+    expect(await screen.findByText("1 folder match · 0 record matches")).toBeTruthy();
+  });
+
+  it("uses user-facing copy for an empty saved subset description", async () => {
+    mocks.subsets.mockResolvedValue({ data: { items: [{
+      subset_id: "81000000-0000-4000-8000-000000000050",
+      table_id: tableId,
+      revision: metadata("81000000-0000-4000-8000-000000000051", "81000000-0000-4000-8000-000000000050"),
+      name: "DP780 saved subset",
+      description: null,
+      filter_definition: null,
+    }] }, etag: null });
+    render(<MaterialsBrowseTree config={{ baseUrl: "/api/v1", accessToken: "test" }} subsetMode onSelectRecord={() => undefined} onOpenRecord={() => undefined}/>);
+
+    expect(await screen.findByText("Reusable saved filter")).toBeTruthy();
+    expect(screen.queryByText("Reusable governed filter")).toBeNull();
+  });
+
+  it("selects the exact Materials table when another table is listed first", async () => {
+    const workflowTable = {
+      ...table,
+      table_id: "81000000-0000-4000-8000-000000000099",
+      current_revision: {
+        ...table.current_revision,
+        aggregate_id: "81000000-0000-4000-8000-000000000099",
+        content: { key: "workflow_runs", name: "Workflow runs", description: null },
+      },
+    };
+    mocks.tables.mockResolvedValue({ data: { items: [workflowTable, table] }, etag: null });
+    const availability = vi.fn();
+
+    render(<MaterialsBrowseTree config={{ baseUrl: "/api/v1", accessToken: "test" }} onScopeAvailabilityChange={availability} onSelectRecord={() => undefined} onOpenRecord={() => undefined}/>);
+
+    await waitFor(() => expect(mocks.children).toHaveBeenCalledWith(expect.anything(), tableId, null));
+    expect((screen.getByRole("combobox", { name: "Browse table" }) as HTMLSelectElement).value).toBe(tableId);
+    expect(mocks.children).not.toHaveBeenCalledWith(expect.anything(), workflowTable.table_id, null);
+    expect(availability).toHaveBeenLastCalledWith("ready");
+  });
+
+  it("reports an unavailable Materials scope when the exact table is absent", async () => {
+    const workflowTable = {
+      ...table,
+      current_revision: {
+        ...table.current_revision,
+        content: { key: "workflow_runs", name: "Workflow runs", description: null },
+      },
+    };
+    mocks.tables.mockResolvedValue({ data: { items: [workflowTable] }, etag: null });
+    const availability = vi.fn();
+
+    render(<MaterialsBrowseTree config={{ baseUrl: "/api/v1", accessToken: "test" }} onScopeAvailabilityChange={availability} onSelectRecord={() => undefined} onOpenRecord={() => undefined}/>);
+
+    expect(await screen.findByText("Materials are not available in this workspace.")).toBeTruthy();
+    expect(availability).toHaveBeenLastCalledWith("unavailable");
+    expect(mocks.children).not.toHaveBeenCalled();
+    expect(mocks.search).not.toHaveBeenCalled();
   });
 
   it("restores an exact Record by expanding its governed ancestor path", async () => {

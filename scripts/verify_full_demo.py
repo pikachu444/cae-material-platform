@@ -18,6 +18,8 @@ MATERIALS = {
     "CMP-DEMO-POLYMER-PRONY": ("linear-viscoelastic-models", {"abaqus"}),
     "CMP-DEMO-ELASTOMER-OGDEN": ("ogden-prony-models", {"abaqus", "openradioss"}),
 }
+EXPECTED_SYNTHETIC_STATE_ROUTE = "Synthetic reference preparation; not for engineering use"
+FORBIDDEN_SYNTHETIC_STATE_ROUTE = "Synthetic reference production route"
 
 
 def _json(response: httpx.Response) -> dict[str, Any]:
@@ -98,6 +100,15 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             states = detail.get("states")
             if not isinstance(states, list) or not states or not isinstance(states[0], dict):
                 raise RuntimeError(f"{material_code} has no Material State")
+            state_content = _content(states[0])
+            route = state_content.get("manufacturing_route")
+            if material_code == "CMP-DEMO-DP780" and (
+                route != EXPECTED_SYNTHETIC_STATE_ROUTE
+                or route == FORBIDDEN_SYNTHETIC_STATE_ROUTE
+            ):
+                raise RuntimeError(
+                    f"{material_code} has an invalid synthetic State preparation label"
+                )
             state_id = str(states[0]["material_state_id"])
             models = _items(_json(client.get(f"/material-states/{state_id}/{model_path}")))
             if not models:
@@ -651,6 +662,56 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
         )
         if binding.get("object_id") != metal_id or binding.get("kind") != "material":
             raise RuntimeError("clean demo Catalog binding does not pin the metal Material")
+        catalog_attributes = _items(
+            _json(client.get(f"/catalog/tables/{table['table_id']}/attributes"))
+        )
+        attribute_keys = {
+            str(item.get("attribute_definition_id")): _content(item).get("key")
+            for item in catalog_attributes
+        }
+        projected = _json(
+            client.post(
+                "/catalog/records:search",
+                json={
+                    "table_id": table["table_id"],
+                    "domain_binding_kind": "material",
+                    "limit": 100,
+                },
+            )
+        )
+        for expected_code, expected_material in (
+            ("CMP-DEMO-POLYMER-PRONY", polymer),
+            ("CMP-DEMO-ELASTOMER-OGDEN", elastomer),
+        ):
+            projected_record = next(
+                (
+                    item
+                    for item in _items(projected)
+                    if _content(item).get("external_key") == expected_code
+                ),
+                None,
+            )
+            if not isinstance(projected_record, Mapping):
+                raise RuntimeError(f"clean demo Catalog is missing {expected_code} projection")
+            projected_binding = projected_record.get("domain_binding")
+            if (
+                not isinstance(projected_binding, Mapping)
+                or projected_binding.get("kind") != "material"
+                or projected_binding.get("object_id") != expected_material["material_id"]
+            ):
+                raise RuntimeError(f"clean demo Catalog binding does not pin {expected_code}")
+            value_keys = {
+                attribute_keys.get(str(value.get("attribute_definition_id")))
+                for value in _content(projected_record).get("values", [])
+                if isinstance(value, Mapping)
+            }
+            if not {
+                "material_class",
+                "provider",
+                "evidence_source",
+                "condition_summary",
+            } <= value_keys:
+                raise RuntimeError(f"clean demo {expected_code} projection lacks evidence fields")
         workflow = _json(
             client.get(
                 f"/catalog/workflow-explorer/{catalog_record['record_id']}/revisions/"
@@ -660,6 +721,18 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
         workflow_nodes = workflow.get("nodes")
         if not isinstance(workflow_nodes, list) or len(workflow_nodes) < 6:
             raise RuntimeError("clean demo Workflow Explorer does not reach the Neutral revision")
+        workflow_kinds = {
+            item.get("domain_binding", {}).get("kind")
+            for item in workflow_nodes
+            if isinstance(item, Mapping)
+        }
+        if not {
+            "test_data",
+            "processing_output",
+            "material_model",
+            "neutral_material",
+        } <= workflow_kinds:
+            raise RuntimeError("clean demo Workflow Explorer omits linked curve/model evidence")
         neutral_record = next(
             (
                 item

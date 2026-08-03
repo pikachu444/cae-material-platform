@@ -802,6 +802,7 @@ export function searchConfigurableCatalogRecords(
     table_id: string;
     text: string | null;
     folder_id: string | null;
+    record_id?: string | null;
     discrete_filters: Array<{ attribute_definition_id: string; values: string[] }>;
     number_filters: Array<{
       attribute_definition_id: string;
@@ -811,6 +812,11 @@ export function searchConfigurableCatalogRecords(
     facet_attribute_ids: string[];
     offset?: number;
     limit?: number;
+    domain_binding_kind?: DomainBindingKind;
+    include_descendants?: boolean;
+    sort_by?: "name" | "external_key" | "attribute";
+    sort_attribute_id?: string;
+    sort_direction?: "ascending" | "descending";
   },
 ): Promise<ApiResult<ConfigurableCatalogRecordSearchResponse>> {
   return request(config, "/catalog/records:search", {
@@ -951,6 +957,12 @@ function endpoint(config: ApiConfig, path: string): string {
   return `${config.baseUrl.replace(/\/$/, "")}${path}`;
 }
 
+function revisionPath(path: string, revisionId?: string): string {
+  if (!revisionId) return path;
+  const separator = path.includes("?") ? "&" : "?";
+  return `${path}${separator}revision_id=${encodeURIComponent(revisionId)}`;
+}
+
 function authenticatedHeaders(config: ApiConfig, init: RequestInit, accept: string): Headers {
   const token = config.accessToken.trim();
   if (!token) {
@@ -1031,6 +1043,12 @@ export async function requestLocalDemoAccessToken(
 export interface MaterialSearchRequest {
   query?: string;
   materialClass?: string;
+  provider?: string;
+  evidenceSource?: string;
+  tableId?: string;
+  folderId?: string | null;
+  recordId?: string | null;
+  includeDescendants?: boolean;
   offset?: number;
   limit?: number;
   sortBy?: "name" | "material_class";
@@ -1044,7 +1062,38 @@ export interface MaterialSearchResponse {
   limit: number;
   facets: {
     material_classes: Array<{ material_class: string; count: number }>;
+    providers: Array<{ provider: string; count: number }>;
+    evidence_sources: Array<{ evidence_source: string; count: number }>;
   };
+}
+
+/**
+ * A catalog-backed search result keeps the catalog revision and the bound
+ * Material revision as separate identities. It is intentionally not a
+ * MaterialResponse: catalog metadata must never be copied into a Material
+ * revision shape.
+ */
+export interface MaterialSearchRow {
+  material_id: string;
+  material_revision_id: string;
+  table_id: string;
+  record_id: string;
+  record_revision_id: string;
+  record_revision_no: number;
+  name: string;
+  material_code: string | null;
+  description: string | null;
+  material_family: string | null;
+  material_class: string;
+  lifecycle_state: string;
+}
+
+export interface MaterialCatalogSearchResponse {
+  items: MaterialSearchRow[];
+  total_count: number;
+  offset: number;
+  limit: number;
+  facets: MaterialSearchResponse["facets"];
 }
 
 export function listMaterials(
@@ -1065,6 +1114,110 @@ export function listMaterials(
   if (searchRequest.sortBy && searchRequest.sortBy !== "name") search.set("sort_by", searchRequest.sortBy);
   if (searchRequest.sortDirection && searchRequest.sortDirection !== "ascending") search.set("sort_direction", searchRequest.sortDirection);
   return request(config, `/materials?${search.toString()}`);
+}
+
+/** Query the Materials projection for the exact scope selected in Browse. */
+export async function searchMaterialCatalogRecords(
+  config: ApiConfig,
+  input: MaterialSearchRequest,
+): Promise<ApiResult<MaterialCatalogSearchResponse>> {
+  if (!input.tableId) {
+    throw new ApiError(400, "Choose a table in Browse before searching materials.");
+  }
+  const attributesResult = await listConfigurableCatalogAttributes(config, input.tableId);
+  const attributes = attributesResult.data.items;
+  const attributeByKey = new Map(attributes.map((attribute) => [attribute.current_revision.content.key, attribute]));
+  const classAttribute = attributeByKey.get("material_class");
+  const providerAttribute = attributeByKey.get("provider");
+  const evidenceSourceAttribute = attributeByKey.get("evidence_source");
+
+  const sortBy = input.sortBy === "material_class" && classAttribute
+    ? "attribute"
+    : "name";
+  const result = await searchConfigurableCatalogRecords(config, {
+    table_id: input.tableId,
+    text: input.query?.trim() || null,
+    folder_id: input.folderId ?? null,
+    record_id: input.recordId ?? null,
+    discrete_filters: [
+      input.materialClass && classAttribute
+        ? { attribute_definition_id: classAttribute.attribute_definition_id, values: [input.materialClass] }
+        : null,
+      input.provider && providerAttribute
+        ? { attribute_definition_id: providerAttribute.attribute_definition_id, values: [input.provider] }
+        : null,
+      input.evidenceSource && evidenceSourceAttribute
+        ? { attribute_definition_id: evidenceSourceAttribute.attribute_definition_id, values: [input.evidenceSource] }
+        : null,
+    ].filter((value): value is { attribute_definition_id: string; values: string[] } => value !== null),
+    number_filters: [],
+    facet_attribute_ids: [classAttribute, providerAttribute, evidenceSourceAttribute]
+      .flatMap((attribute) => attribute ? [attribute.attribute_definition_id] : []),
+    offset: input.offset ?? 0,
+    limit: input.limit ?? 50,
+    domain_binding_kind: "material",
+    include_descendants: input.includeDescendants ?? Boolean(input.folderId),
+    sort_by: sortBy,
+    sort_attribute_id: sortBy === "attribute" ? classAttribute?.attribute_definition_id : undefined,
+    sort_direction: input.sortDirection ?? "ascending",
+  });
+
+  function valueFor(
+    record: ConfigurableCatalogRecordResponse,
+    key: string,
+  ): string | null {
+    const definition = attributeByKey.get(key);
+    if (!definition) return null;
+    const value = record.current_revision.content.values.find(
+      (candidate) => candidate.attribute_definition_id === definition.attribute_definition_id,
+    );
+    if (!value) return null;
+    if (value.data_type === "number") return value.original_value;
+    if ("value" in value) return String(value.value);
+    return null;
+  }
+
+  function rowFromRecord(record: ConfigurableCatalogRecordResponse): MaterialSearchRow | null {
+    const binding = record.domain_binding;
+    if (!binding || binding.kind !== "material") return null;
+    const content = record.current_revision.content;
+    return {
+      material_id: binding.object_id,
+      material_revision_id: binding.revision_id,
+      table_id: record.table_id,
+      record_id: record.record_id,
+      record_revision_id: record.current_revision.id,
+      record_revision_no: record.current_revision.revision_no,
+      name: content.name,
+      material_code: content.external_key,
+      description: content.description,
+      material_family: valueFor(record, "material_family") ?? valueFor(record, "grade"),
+      material_class: valueFor(record, "material_class") ?? "unclassified",
+      lifecycle_state: record.current_revision.lifecycle_state,
+    };
+  }
+
+  const items = result.data.items.flatMap((record) => {
+    const row = rowFromRecord(record);
+    return row ? [row] : [];
+  });
+  const facetValues = (attribute: ConfigurableAttributeResponse | undefined) => result.data.facets
+    .filter((facet) => attribute?.attribute_definition_id === facet.attribute_definition_id)
+    .map((facet) => ({ value: facet.value, count: facet.count }));
+  return {
+    ...result,
+    data: {
+      items,
+      total_count: result.data.total_count,
+      offset: result.data.offset,
+      limit: result.data.limit,
+      facets: {
+        material_classes: facetValues(classAttribute).map(({ value, count }) => ({ material_class: value, count })),
+        providers: facetValues(providerAttribute).map(({ value, count }) => ({ provider: value, count })),
+        evidence_sources: facetValues(evidenceSourceAttribute).map(({ value, count }) => ({ evidence_source: value, count })),
+      },
+    },
+  };
 }
 
 export function listBulkExportCandidates(
@@ -1990,8 +2143,12 @@ export function listSolverCards(
 export function getSolverCard(
   config: ApiConfig,
   solverCardId: string,
+  revisionId?: string,
 ): Promise<ApiResult<SolverCardResponse>> {
-  return request(config, `/solver-cards/${encodeURIComponent(solverCardId)}`);
+  return request(
+    config,
+    revisionPath(`/solver-cards/${encodeURIComponent(solverCardId)}`, revisionId),
+  );
 }
 
 export function createSolverCard(
@@ -2008,11 +2165,15 @@ export function createSolverCard(
 export async function previewSolverCard(
   config: ApiConfig,
   solverCardId: string,
+  revisionId?: string,
 ): Promise<ApiResult<string>> {
   const init: RequestInit = {};
   const headers = authenticatedHeaders(config, init, "text/plain");
   const response = await fetch(
-    endpoint(config, `/solver-cards/${encodeURIComponent(solverCardId)}/preview`),
+    endpoint(
+      config,
+      revisionPath(`/solver-cards/${encodeURIComponent(solverCardId)}/preview`, revisionId),
+    ),
     { ...init, headers },
   );
   if (!response.ok) {
@@ -2029,11 +2190,15 @@ export interface SolverCardDownload {
 export async function downloadSolverCard(
   config: ApiConfig,
   solverCardId: string,
+  revisionId?: string,
 ): Promise<ApiResult<SolverCardDownload>> {
   const init: RequestInit = {};
   const headers = authenticatedHeaders(config, init, "text/plain");
   const response = await fetch(
-    endpoint(config, `/solver-cards/${encodeURIComponent(solverCardId)}/download`),
+    endpoint(
+      config,
+      revisionPath(`/solver-cards/${encodeURIComponent(solverCardId)}/download`, revisionId),
+    ),
     { ...init, headers },
   );
   if (!response.ok) {
@@ -2525,32 +2690,41 @@ export function createNeutralHyperelasticSolverCard(
 export function getNeutralSolverCard(
   config: ApiConfig,
   solverCardId: string,
+  revisionId?: string,
 ): Promise<ApiResult<NeutralHyperelasticSolverCardResponse>> {
   return request(
     config,
-    `/neutral-solver-cards/${encodeURIComponent(solverCardId)}`,
+    revisionPath(`/neutral-solver-cards/${encodeURIComponent(solverCardId)}`, revisionId),
   );
 }
 
 export function getNeutralSolverMappingReport(
   config: ApiConfig,
   solverCardId: string,
+  revisionId?: string,
 ): Promise<ApiResult<NeutralHyperelasticMappingReport>> {
   return request(
     config,
-    `/neutral-solver-cards/${encodeURIComponent(solverCardId)}/mapping-report`,
+    revisionPath(
+      `/neutral-solver-cards/${encodeURIComponent(solverCardId)}/mapping-report`,
+      revisionId,
+    ),
   );
 }
 
 export async function previewNeutralHyperelasticSolverCard(
   config: ApiConfig,
   solverCardId: string,
+  revisionId?: string,
 ): Promise<ApiResult<string>> {
   const headers = authenticatedHeaders(config, {}, "text/plain");
   const response = await fetch(
     endpoint(
       config,
-      `/neutral-solver-cards/${encodeURIComponent(solverCardId)}/preview`,
+      revisionPath(
+        `/neutral-solver-cards/${encodeURIComponent(solverCardId)}/preview`,
+        revisionId,
+      ),
     ),
     { headers },
   );
@@ -2561,12 +2735,16 @@ export async function previewNeutralHyperelasticSolverCard(
 export async function downloadNeutralHyperelasticSolverCard(
   config: ApiConfig,
   solverCardId: string,
+  revisionId?: string,
 ): Promise<ApiResult<SolverCardDownload>> {
   const headers = authenticatedHeaders(config, {}, "text/plain");
   const response = await fetch(
     endpoint(
       config,
-      `/neutral-solver-cards/${encodeURIComponent(solverCardId)}/download`,
+      revisionPath(
+        `/neutral-solver-cards/${encodeURIComponent(solverCardId)}/download`,
+        revisionId,
+      ),
     ),
     { headers },
   );
@@ -2582,10 +2760,14 @@ export async function downloadNeutralHyperelasticSolverCard(
 export async function downloadNeutralHyperelasticMappingReport(
   config: ApiConfig,
   solverCardId: string,
+  revisionId?: string,
 ): Promise<ApiResult<{ blob: Blob; filename: string }>> {
   const result = await request<NeutralHyperelasticMappingReport>(
     config,
-    `/neutral-solver-cards/${encodeURIComponent(solverCardId)}/mapping-report`,
+    revisionPath(
+      `/neutral-solver-cards/${encodeURIComponent(solverCardId)}/mapping-report`,
+      revisionId,
+    ),
   );
   return {
     data: {

@@ -6548,7 +6548,9 @@ paths:
       tags: [exporting]
       summary: Read the current immutable Solver Card revision and mapping report.
       security: [{BearerAuth: []}]
-      parameters: [{$ref: "#/components/parameters/SolverCardId"}]
+      parameters:
+        - {$ref: "#/components/parameters/SolverCardId"}
+        - {$ref: "#/components/parameters/SolverCardRevisionId"}
       responses:
         "200":
           description: Current immutable Solver Card revision.
@@ -6584,7 +6586,9 @@ paths:
       tags: [exporting]
       summary: Preview the exact immutable Solver Card text.
       security: [{BearerAuth: []}]
-      parameters: [{$ref: "#/components/parameters/SolverCardId"}]
+      parameters:
+        - {$ref: "#/components/parameters/SolverCardId"}
+        - {$ref: "#/components/parameters/SolverCardRevisionId"}
       responses:
         "200":
           description: Plain-text Solver Card preview.
@@ -6601,7 +6605,9 @@ paths:
       tags: [exporting]
       summary: Download the exact immutable Solver Card text.
       security: [{BearerAuth: []}]
-      parameters: [{$ref: "#/components/parameters/SolverCardId"}]
+      parameters:
+        - {$ref: "#/components/parameters/SolverCardId"}
+        - {$ref: "#/components/parameters/SolverCardRevisionId"}
       responses:
         "200":
           description: Solver Card text attachment.
@@ -8349,6 +8355,7 @@ paths:
       security: [{BearerAuth: []}]
       parameters:
         - {name: solver_card_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {$ref: "#/components/parameters/SolverCardRevisionId"}
       responses:
         "200":
           description: Card metadata and exact source pins.
@@ -8366,6 +8373,7 @@ paths:
       security: [{BearerAuth: []}]
       parameters:
         - {name: solver_card_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {$ref: "#/components/parameters/SolverCardRevisionId"}
       responses:
         "200":
           description: Reproduced report whose digest equals the card pin.
@@ -8384,6 +8392,7 @@ paths:
       security: [{BearerAuth: []}]
       parameters:
         - {name: solver_card_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {$ref: "#/components/parameters/SolverCardRevisionId"}
       responses:
         "200": {description: Exact native card text, content: {text/plain: {schema: {type: string}}}}
         "401": {description: Authentication required.}
@@ -8397,6 +8406,7 @@ paths:
       security: [{BearerAuth: []}]
       parameters:
         - {name: solver_card_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {$ref: "#/components/parameters/SolverCardRevisionId"}
       responses:
         "200":
           description: Exact `.inp` or `.rad` attachment.
@@ -8417,6 +8427,7 @@ paths:
       security: [{BearerAuth: []}]
       parameters:
         - {name: solver_card_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {$ref: "#/components/parameters/SolverCardRevisionId"}
       responses:
         "200":
           description: Card metadata and exact Neutral revision pins.
@@ -8434,6 +8445,7 @@ paths:
       security: [{BearerAuth: []}]
       parameters:
         - {name: solver_card_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {$ref: "#/components/parameters/SolverCardRevisionId"}
       responses:
         "200":
           description: Reproduced six-state mapping report.
@@ -8452,6 +8464,7 @@ paths:
       security: [{BearerAuth: []}]
       parameters:
         - {name: solver_card_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {$ref: "#/components/parameters/SolverCardRevisionId"}
       responses:
         "200": {description: Exact native card text, content: {text/plain: {schema: {type: string}}}}
         "401": {description: Authentication required.}
@@ -8465,6 +8478,7 @@ paths:
       security: [{BearerAuth: []}]
       parameters:
         - {name: solver_card_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {$ref: "#/components/parameters/SolverCardRevisionId"}
       responses:
         "200":
           description: Exact `.inp` or `.rad` attachment.
@@ -8684,6 +8698,12 @@ components:
       name: solver_card_id
       in: path
       required: true
+      schema: {type: string, format: uuid}
+    SolverCardRevisionId:
+      name: revision_id
+      in: query
+      required: false
+      description: Optional exact immutable Solver Card revision; omitted reads the current head.
       schema: {type: string, format: uuid}
     PluginPackageId:
       name: package_id

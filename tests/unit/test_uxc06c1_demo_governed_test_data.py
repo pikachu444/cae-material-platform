@@ -95,18 +95,55 @@ def _resource(
 
 
 def test_tensile_demo_documents_pin_their_matching_distinct_test_runs() -> None:
+    specimens = tuple(
+        _resource(
+            "specimen_id",
+            f"specimen-{index}",
+            f"specimen-r1-{index}",
+            {
+                "material_id": "material-1",
+                "material_revision_id": "material-r1",
+                "material_state_id": "state-1",
+                "material_state_revision_id": "state-r1",
+                "specimen_code": f"CMP-DEMO-DP780-T-00{index}",
+            },
+        )
+        for index in (1, 2, 3)
+    )
     sources = _governed_sources_for_tensile_documents(
-        material=_resource("material_id", "material-1", "material-r1", {}),
-        material_state=_resource("material_state_id", "state-1", "state-r1", {}),
+        material=_resource("material_id", "material-1", "material-r2", {}),
+        material_state=_resource("material_state_id", "state-1", "state-r2", {}),
+        specimens=specimens,
         test_runs=(
             _resource(
-                "test_run_id", "run-1", "run-r1", {"run_label": "CMP demo tensile replicate 1"}
+                "test_run_id",
+                "run-1",
+                "run-r1",
+                {
+                    "run_label": "CMP demo tensile replicate 1",
+                    "specimen_id": "specimen-1",
+                    "specimen_revision_id": "specimen-r1-1",
+                },
             ),
             _resource(
-                "test_run_id", "run-2", "run-r2", {"run_label": "CMP demo tensile replicate 2"}
+                "test_run_id",
+                "run-2",
+                "run-r2",
+                {
+                    "run_label": "CMP demo tensile replicate 2",
+                    "specimen_id": "specimen-2",
+                    "specimen_revision_id": "specimen-r1-2",
+                },
             ),
             _resource(
-                "test_run_id", "run-3", "run-r3", {"run_label": "CMP demo tensile replicate 3"}
+                "test_run_id",
+                "run-3",
+                "run-r3",
+                {
+                    "run_label": "CMP demo tensile replicate 3",
+                    "specimen_id": "specimen-3",
+                    "specimen_revision_id": "specimen-r1-3",
+                },
             ),
         ),
     )
@@ -130,11 +167,106 @@ def test_tensile_demo_documents_pin_their_matching_distinct_test_runs() -> None:
 
 
 def test_tensile_demo_governed_source_fails_closed_for_ambiguous_run_label() -> None:
-    run = _resource("test_run_id", "run-1", "run-r1", {"run_label": "CMP demo tensile replicate 1"})
+    run = _resource(
+        "test_run_id",
+        "run-1",
+        "run-r1",
+        {
+            "run_label": "CMP demo tensile replicate 1",
+            "specimen_id": "specimen-1",
+            "specimen_revision_id": "specimen-r1",
+        },
+    )
 
     with pytest.raises(DemoSeedError, match="exactly one Test Run"):
         _governed_sources_for_tensile_documents(
             material=_resource("material_id", "material-1", "material-r1", {}),
             material_state=_resource("material_state_id", "state-1", "state-r1", {}),
+            specimens=(),
             test_runs=(run, run),
+        )
+
+
+def test_tensile_demo_governed_source_fails_closed_for_missing_specimen_pin() -> None:
+    run = _resource(
+        "test_run_id",
+        "run-1",
+        "run-r1",
+        {
+            "run_label": "CMP demo tensile replicate 1",
+            "specimen_id": "specimen-1",
+            "specimen_revision_id": "specimen-r1",
+        },
+    )
+
+    with pytest.raises(DemoSeedError, match="exactly one Specimen"):
+        _governed_sources_for_tensile_documents(
+            material=_resource("material_id", "material-1", "material-r1", {}),
+            material_state=_resource("material_state_id", "state-1", "state-r1", {}),
+            specimens=(),
+            test_runs=(run,),
+        )
+
+
+def test_tensile_demo_governed_source_fails_closed_for_ambiguous_specimen_pin() -> None:
+    run = _resource(
+        "test_run_id",
+        "run-1",
+        "run-r1",
+        {
+            "run_label": "CMP demo tensile replicate 1",
+            "specimen_id": "specimen-1",
+            "specimen_revision_id": "specimen-r1",
+        },
+    )
+    specimen = _resource(
+        "specimen_id",
+        "specimen-1",
+        "specimen-r1",
+        {
+            "material_id": "material-1",
+            "material_revision_id": "material-r1",
+            "material_state_id": "state-1",
+            "material_state_revision_id": "state-r1",
+        },
+    )
+
+    with pytest.raises(DemoSeedError, match="exactly one Specimen"):
+        _governed_sources_for_tensile_documents(
+            material=_resource("material_id", "material-1", "material-r1", {}),
+            material_state=_resource("material_state_id", "state-1", "state-r1", {}),
+            specimens=(specimen, specimen),
+            test_runs=(run,),
+        )
+
+
+def test_tensile_demo_governed_source_fails_closed_for_mismatched_specimen_owner() -> None:
+    run = _resource(
+        "test_run_id",
+        "run-1",
+        "run-r1",
+        {
+            "run_label": "CMP demo tensile replicate 1",
+            "specimen_id": "specimen-1",
+            "specimen_revision_id": "specimen-r1",
+        },
+    )
+    specimen = _resource(
+        "specimen_id",
+        "specimen-1",
+        "specimen-r1",
+        {
+            "material_id": "other-material",
+            "material_revision_id": "material-r1",
+            "material_state_id": "state-1",
+            "material_state_revision_id": "state-r1",
+        },
+    )
+
+    with pytest.raises(DemoSeedError, match="does not match"):
+        _governed_sources_for_tensile_documents(
+            material=_resource("material_id", "material-1", "material-r1", {}),
+            material_state=_resource("material_state_id", "state-1", "state-r1", {}),
+            specimens=(specimen,),
+            test_runs=(run,),
         )

@@ -20,6 +20,7 @@ from cmp.modules.catalog.application.records import (
     CreateRecord,
     FolderSnapshot,
     RecordComparison,
+    RecordDomainBinding,
     RecordSearchResult,
     RecordSnapshot,
     ReviseFolder,
@@ -328,28 +329,55 @@ class RecordSearchRequest(BaseModel):
     table_id: UUID
     text: Annotated[str | None, StringConstraints(min_length=1, max_length=200)] = None
     folder_id: UUID | None = None
+    record_id: UUID | None = None
     discrete_filters: tuple[DiscreteFilterInput, ...] = ()
     number_filters: tuple[NumberRangeFilterInput, ...] = ()
     facet_attribute_ids: tuple[UUID, ...] = Field(default=(), max_length=20)
     offset: int = Field(default=0, ge=0)
     limit: int = Field(default=50, ge=1, le=100)
+    # Optional search refinements are deliberately additive to the existing
+    # table-scoped contract.  Materials supplies the binding discriminator so
+    # workflow records never appear in the normal result set.
+    domain_binding_kind: Literal[
+        "material",
+        "material_state",
+        "specimen",
+        "test_run",
+        "test_data",
+        "processing_output",
+        "material_model",
+        "neutral_material",
+        "solver_card",
+        "neutral_solver_card",
+        "release",
+    ] | None = None
+    include_descendants: bool = False
+    sort_by: Literal["name", "external_key", "attribute"] = "name"
+    sort_attribute_id: UUID | None = None
+    sort_direction: Literal["ascending", "descending"] = "ascending"
 
     def to_domain(self) -> CatalogRecordQuery:
         return CatalogRecordQuery(
-            self.table_id,
-            self.text,
-            self.folder_id,
-            tuple(
+            table_id=self.table_id,
+            text=self.text,
+            folder_id=self.folder_id,
+            discrete_filters=tuple(
                 DiscreteFilter(item.attribute_definition_id, item.values)
                 for item in self.discrete_filters
             ),
-            tuple(
+            number_filters=tuple(
                 NumberRangeFilter(item.attribute_definition_id, item.minimum, item.maximum)
                 for item in self.number_filters
             ),
-            self.facet_attribute_ids,
-            self.offset,
-            self.limit,
+            facet_attribute_ids=self.facet_attribute_ids,
+            offset=self.offset,
+            limit=self.limit,
+            domain_binding_kind=self.domain_binding_kind,
+            include_descendants=self.include_descendants,
+            sort_by=self.sort_by,
+            sort_attribute_id=self.sort_attribute_id,
+            sort_direction=self.sort_direction,
+            record_id=self.record_id,
         )
 
 
@@ -404,11 +432,41 @@ class RecordRevisionResponse(RevisionMetadataResponse):
         )
 
 
+class DomainBindingProjectionResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    binding_id: UUID
+    record_id: UUID
+    record_revision_id: UUID
+    kind: str
+    object_id: UUID
+    revision_id: UUID
+    workbench_path: str
+
+    @classmethod
+    def from_domain(
+        cls,
+        value: RecordDomainBinding,
+        *,
+        record_id: UUID,
+        record_revision_id: UUID,
+    ) -> DomainBindingProjectionResponse:
+        return cls(
+            binding_id=value.binding_id,
+            record_id=record_id,
+            record_revision_id=record_revision_id,
+            kind=value.kind,
+            object_id=value.object_id,
+            revision_id=value.revision_id,
+            workbench_path=value.workbench_path,
+        )
+
+
 class RecordResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     record_id: UUID
     table_id: UUID
     current_revision: RecordRevisionResponse
+    domain_binding: DomainBindingProjectionResponse | None = None
 
     @classmethod
     def from_snapshot(cls, value: RecordSnapshot) -> RecordResponse:
@@ -416,6 +474,15 @@ class RecordResponse(BaseModel):
             record_id=value.id,
             table_id=value.table_id,
             current_revision=RecordRevisionResponse.from_revision(value.current),
+            domain_binding=(
+                DomainBindingProjectionResponse.from_domain(
+                    value.domain_binding,
+                    record_id=value.id,
+                    record_revision_id=value.current.record.revision_id,
+                )
+                if value.domain_binding is not None
+                else None
+            ),
         )
 
 
