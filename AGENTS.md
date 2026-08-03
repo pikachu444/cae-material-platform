@@ -37,26 +37,27 @@
 
 ## Agent workflow
 
-- `/root` owns requirement and product/UX interpretation, implementation and correction packets,
-  integration, failure diagnosis and the final internal gate; it is not a subagent.
-- Before calling one configured writer, `/root` reads the exact issue, affected contracts and approved
+- The active main orchestrator (internally `/root`) owns requirement and product/UX interpretation,
+  implementation and correction packets, integration, failure diagnosis and the final internal gate;
+  it is not a subagent.
+- Before calling one configured writer, the main orchestrator reads the exact issue, affected contracts and approved
   assets, then persists one bounded packet naming the user outcome, exact sources, preserved behavior/data/
   states, component or contract mapping, forbidden shortcuts, owned files, captures and tests. The writer
   implements only that packet, reports unexpected conflicts and never calls another agent. Never run
   concurrent writers.
 - Writers, correction writers and reviewers do not reinterpret requirements or add product decisions,
-  acceptance criteria, scope or gates absent from their packet. `/root` alone revises a packet or routes
-  separately discovered work to the backlog.
-- For visual work, `/root` follows `.agents/skills/desktop-engineering-ui/SKILL.md`: compare the approved
+  acceptance criteria, scope or gates absent from their packet. The main orchestrator alone revises a
+  packet or routes separately discovered work to the backlog.
+- For visual work, the main orchestrator follows `.agents/skills/desktop-engineering-ui/SKILL.md`: compare the approved
   reference with the current screen before the writer, repeat the comparison once after implementation and
   deterministic gates, then send the same bounded evidence to one fresh read-only reviewer. Do not repeat
   an unchanged completed checklist.
-- When a deterministic, `/root` or reviewer gate fails, `/root` records the exact cause, failed evidence,
-  required change, preserved behavior and gates to rerun before the configured correction role makes one
-  bounded pass. Rerun only failed and directly affected gates. A work unit permits at most three correction
-  passes after its initial implementation; each pass requires a new `/root` diagnosis and packet. If the
-  third pass still fails, stop all further correction and re-review, preserve the evidence and report the
-  exact unresolved findings to the product owner.
+- When a deterministic, main-orchestrator or reviewer gate fails, the main orchestrator records the exact
+  cause, failed evidence, required change, preserved behavior and gates to rerun before the configured
+  correction role makes one bounded pass. Rerun only failed and directly affected gates. A work unit permits
+  at most three correction passes after its initial implementation; each pass requires a new main-orchestrator
+  diagnosis and packet. If the third pass still fails, stop all further correction and re-review, preserve
+  the evidence and report the exact unresolved findings to the product owner.
 - Commit, push, PR and merge are separate; await user or product-owner confirmation.
 
 ## Non-negotiable domain invariants
@@ -105,8 +106,8 @@ references until the corresponding open decision is approved.
   regression and browser tests.
 - Run only gates required by issue acceptance, affected contracts, the selected skill, changed behavior
   or project hooks. Do not invent precautionary audits or captures, run an unrelated full suite, or repeat
-  an unchanged passing gate. If an unforeseen material risk needs another gate, `/root` adds it to the
-  packet with its authority and reason before it runs.
+  an unchanged passing gate. If an unforeseen material risk needs another gate, the main orchestrator adds
+  it to the packet with its authority and reason before it runs.
 - A user-visible React/CSS change must update the current guide, screenshot manifest and live browser
   screenshots required by the documentation contract. An `app.tsx` navigation change also updates the
   navigation contract. Run affected browser scenarios at required viewports before commit.

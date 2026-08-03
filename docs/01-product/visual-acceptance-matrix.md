@@ -12,9 +12,9 @@ Administration database/table/attribute/layout/subset/link/access edit/publish, 
 1440×900 and 1920×1080 plus relevant long, empty, loading, blocked and error states.
 
 References are implementation authority, not vague inspiration: port their region structure and CSS
-faithfully while preserving backend/state/domain contracts. Each later visual PR gives the main agent
-and product owner direct reference/current side-by-side live captures, the interaction/test result and
-this rubric. Evaluate full-screen task flow, topology, information priority, readability, dominant
+faithfully while preserving backend/state/domain contracts. Each later visual PR gives the main
+orchestrator and product owner direct reference/current side-by-side live captures, the interaction/test
+result and this rubric. Evaluate full-screen task flow, topology, information priority, readability, dominant
 tree/table/graph region, control-result continuity, overlap, clipping and overflow. Pixel-perfect
 copying and arbitrary fine-number tuning are not acceptance goals; measurements are safety rails.
 
@@ -52,12 +52,12 @@ qualitative checklist blocks handoff regardless of score.
 ## Mandatory qualitative owner checklist
 
 This is the canonical record of the cumulative product-owner findings. Every visual
-implementer packet links it. After deterministic gates, both the main agent and fresh read-only
+implementer packet links it. After deterministic gates, both the main orchestrator and fresh read-only
 reviewer independently open every target/state image at original resolution and record `pass`,
 `fail`, or `not-applicable` plus direct image/path evidence for Q-01–Q-20. `Not-applicable` requires
 a screen-topology reason. A generic web-guideline audit supplements this checklist but cannot replace
-it. After reviewer disposition, the main agent repeats the full-screen judgment and the product owner
-makes the final visual approval.
+it. The main orchestrator evaluates reviewer findings without repeating an unchanged completed checklist,
+and the product owner makes the final visual approval.
 
 | ID | Qualitative review requirement |
 | --- | --- |

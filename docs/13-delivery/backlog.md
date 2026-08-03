@@ -77,7 +77,7 @@ packet, 검증, 검토, 제품 소유자 확인과 PR/merge를 거칩니다. iss
 - 새 작업의 첫 요청에는 `이전 단위가 병합된 최신 main에서 backlog의 첫 미완료 작업 단위를
   진행하라`고 적으면 됩니다. 대화 기억 대신 이 문서와 GitHub issue의 완료 표시를 사용합니다.
 - 작업 단위를 끝낼 때 GitHub issue와 이 표에서 완료 위치, PR, 다음 행과 남은 위험을 확인합니다.
-- 메인 에이전트가 exact issue와 현재 계약을 해석해 구현 packet을 GitHub issue에 저장합니다.
+- 메인 오케스트레이터가 exact issue와 현재 계약을 해석해 구현 packet을 GitHub issue에 저장합니다.
   구현자와 reviewer는 그 packet의 정확한 URL만 받습니다.
 - 모델, 수정 횟수, reviewer, 승인, commit/push/PR/merge 경계는 `AGENTS.md`와 `.codex` 설정을
   따릅니다. 이 문서나 issue 본문에서 중복 정의하지 않습니다.
