@@ -2038,7 +2038,7 @@
 /* UXC-04B: approved lower-reference topology. */
 .modeling-context-strip { min-height: 38px; }
 .modeling-work-title { display: flex; min-width: 0; align-items: baseline; gap: 8px; }
-.modeling-work-title strong { font-size: 14px; font-weight: 700; white-space: nowrap; }
+.modeling-work-title :is(h1, strong) { margin: 0; font-size: 14px; font-weight: 700; white-space: nowrap; }
 .modeling-work-title span { min-width: 0; overflow: hidden; color: var(--ux-text-muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
 .modeling-context-actions { display: flex; align-items: center; gap: 5px; margin-left: auto; }
 .modeling-context-actions .button { min-height: 26px; padding: 3px 9px; font-size: 11px; }
@@ -2958,7 +2958,50 @@
 }
 
 .modeling-task-ribbon:has(.modeling-data-intake) {
-  min-height: 78px;
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
+}
+
+/* Modeling Data is a bounded working cluster on very wide displays.  Other
+   stages retain the full available split-workspace width. */
+.modeling-workspace-shell {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.modeling-data-workspace-bounded {
+  width: min(100%, 1920px);
+  max-width: 1920px;
+  margin-right: auto;
+}
+
+/* Library is a normal-state result surface, not a clipped 86px strip.  The
+   local rail remains keyboard reachable and becomes independently scrollable
+   only when more revisions than the working band can show. */
+.modeling-task-ribbon:has(.data-library-list) {
+  min-height: 178px;
+  max-height: 220px;
+  overflow: visible;
+}
+
+.modeling-task-ribbon:has(.data-intake-local) {
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
+}
+
+.modeling-task-ribbon:has(.data-intake-local) .modeling-data-intake,
+.modeling-task-ribbon:has(.data-intake-local) .data-intake-local {
+  max-height: none;
+  overflow: visible;
+}
+
+.modeling-main-surface:has(.modeling-data-intake) {
+  grid-template-rows: minmax(0, auto) minmax(280px, 1fr);
 }
 
 .modeling-task-ribbon > .step-option-panel {
@@ -3020,6 +3063,7 @@
 .fit-stage-options .option-hint { display: none; }
 .fit-stage-options .slider-option { display: grid; gap: 2px; min-width: 0; color: var(--ux-text-muted); font-size: 10px; font-weight: 650; }
 .stage-process > .section-heading, .stage-fit > .section-heading { display: none; }
+.stage-data > .section-heading { display: none; }
 .fit-evidence-disclosure { position: static; grid-row: 3; justify-self: end; align-self: center; }
 .fit-evidence-disclosure > summary { color: var(--ux-text-muted); font-size: 11px; cursor: pointer; }
 .fit-evidence-disclosure:not([open]) { height: 16px; }
@@ -3184,6 +3228,11 @@
   min-width: 0;
 }
 
+.modeling-data-intake {
+  color: var(--ux-text);
+  font-size: 13px;
+}
+
 .data-intake-row {
   display: flex;
   align-items: end;
@@ -3197,7 +3246,7 @@
   gap: 2px;
   min-width: 150px;
   color: var(--ux-text-muted);
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 650;
 }
 
@@ -3207,25 +3256,27 @@
 .data-intake-attention select,
 .data-mapping-resolved input,
 .data-mapping-resolved select {
-  min-height: 28px;
-  font-size: 12px;
+  min-height: 30px;
+  font-size: 13px;
 }
 
 .data-intake-row p {
   margin: 0 0 6px;
   color: var(--ux-text-muted);
-  font-size: 12px;
+  font-size: 11.5px;
 }
 
 .compact-file-picker input {
   max-width: 240px;
-  min-height: 28px;
+  min-height: 30px;
   padding: 2px;
 }
 
 .data-intake-local {
   display: grid;
   gap: 6px;
+  max-height: none;
+  overflow: visible;
 }
 
 .mapping-context-row {
@@ -3300,7 +3351,7 @@
   flex-wrap: wrap;
   gap: 4px 10px;
   color: var(--ux-text-muted);
-  font-size: 11px;
+  font-size: 11.5px;
 }
 
 .data-source-evidence header strong,
@@ -3312,7 +3363,8 @@
 .data-intake-attention > p {
   margin: 4px 0;
   color: var(--ux-text-muted);
-  font-size: 11px;
+  font-size: 11.5px;
+  line-height: 1.25;
 }
 
 .data-raw-table,
@@ -3324,7 +3376,8 @@
 .data-mapping-table table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 11px;
+  table-layout: fixed;
+  font-size: 13px;
 }
 
 .data-raw-table th,
@@ -3332,15 +3385,319 @@
 .data-mapping-table th,
 .data-mapping-table td {
   border-bottom: 1px solid var(--ux-border);
-  padding: 3px 5px;
+  padding: 4px 5px;
   text-align: left;
-  white-space: nowrap;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.data-raw-table th,
+.data-mapping-table th {
+  color: var(--ux-text-muted);
+  font-size: 11.5px;
+  font-weight: 650;
+}
+
+.data-raw-table td,
+.data-mapping-table td {
+  color: var(--ux-text);
+  font-size: 13px;
 }
 
 .data-mapping-table select {
-  min-height: 25px;
-  max-width: 132px;
+  width: 100%;
+  min-height: 30px;
+  max-width: none;
+  font-size: 13px;
+}
+
+/* Modeling Data keeps long source material inside the ribbon/rail instead of
+   pushing the page; the graph remains the dominant workspace. */
+.data-library-list {
+  display: grid;
+  gap: 0;
+  min-width: min(100%, 560px);
+  min-height: 120px;
+  max-height: 154px;
+  overflow: auto;
+  scrollbar-gutter: stable;
+  border-top: 1px solid var(--ux-border);
+}
+
+.data-library-scroll-shell {
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+  border-top: 1px solid var(--ux-border);
+}
+
+.data-library-list:focus-visible {
+  outline: 2px solid var(--ux-focus);
+  outline-offset: -2px;
+}
+
+.data-library-list article {
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.data-library-list article.active {
+  background: var(--ux-accent-soft);
+}
+
+.data-library-row {
+  display: grid;
+  grid-template-columns: minmax(150px, .75fr) minmax(120px, .55fr) minmax(220px, 1fr);
+  gap: 8px;
+  width: 100%;
+  min-height: 42px;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 0;
+  color: var(--ux-text);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.data-library-row span,
+.data-library-row small {
+  overflow: hidden;
+  color: var(--ux-text-muted);
   font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.data-library-row:hover,
+.data-library-row:focus-visible {
+  background: var(--ux-accent-soft);
+}
+
+.data-intake-local {
+  max-height: none;
+  overflow: visible;
+}
+
+.data-source-decision-grid {
+  display: grid;
+  grid-template-columns: minmax(300px, .42fr) minmax(520px, 1fr);
+  align-items: start;
+  gap: 8px;
+  min-width: 0;
+  container-type: inline-size;
+}
+
+.data-mapping-decision {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  min-width: 0;
+}
+
+.data-mapping-decision .mapping-context-row {
+  display: none;
+}
+
+.data-mapping-decision .data-intake-attention {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 5px;
+  min-width: 0;
+  padding: 0 0 0 8px;
+  border-left: 3px solid var(--ux-warning);
+}
+
+.data-mapping-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  min-width: 0;
+  min-height: 22px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--ux-border);
+  gap: 8px;
+}
+
+.data-mapping-heading strong {
+  color: var(--ux-text);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.data-mapping-heading span {
+  overflow: hidden;
+  color: var(--ux-danger);
+  font-size: 11.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.data-mapping-decision .data-intake-attention > strong {
+  min-width: 0;
+}
+
+.data-mapping-decision .data-intake-attention > label {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+
+.data-mapping-decision .data-mapping-table {
+  overflow: visible;
+  padding-top: 2px;
+}
+
+.data-mapping-decision .data-mapping-table table {
+  table-layout: fixed;
+}
+
+.data-mapping-decision .data-mapping-table th,
+.data-mapping-decision .data-mapping-table td {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.data-mapping-decision .data-mapping-table select {
+  width: 100%;
+  max-width: none;
+}
+
+.data-source-decision-grid .data-raw-table {
+  overflow: hidden;
+}
+
+.data-source-decision-grid .data-raw-table table {
+  table-layout: fixed;
+}
+
+.data-source-decision-grid .data-raw-table th,
+.data-source-decision-grid .data-raw-table td {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.data-mapping-decision .data-mapping-blockers {
+  max-width: none;
+  gap: 3px;
+  padding: 6px 8px;
+  border-left: 3px solid var(--ux-danger);
+  background: color-mix(in srgb, var(--ux-danger-soft, #fce8e8) 58%, transparent);
+}
+
+.data-mapping-recovery-row {
+  display: grid;
+  grid-template-columns: minmax(190px, .85fr) minmax(300px, 1.15fr);
+  align-items: start;
+  gap: 8px;
+  min-width: 0;
+}
+
+.data-mapping-recovery-row .data-mapping-blockers {
+  min-width: 0;
+  max-width: none;
+  min-height: 30px;
+  padding: 6px 8px;
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.data-mapping-recovery-row .data-mapping-blockers.is-ready {
+  border-left-color: var(--ux-success);
+  background: color-mix(in srgb, var(--ux-success-soft, #e9f7ef) 58%, transparent);
+}
+
+.data-mapping-recovery-detail {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  min-width: 0;
+}
+
+.data-mapping-recovery-detail > label {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  color: var(--ux-text-muted);
+  font-size: 11.5px;
+  font-weight: 650;
+}
+
+.data-mapping-recovery-detail input {
+  min-width: 0;
+  min-height: 30px;
+  font-size: 13px;
+}
+
+.data-mapping-consequence {
+  margin: 0;
+  color: var(--ux-text-muted);
+  font-size: 11.5px;
+  line-height: 1.25;
+}
+
+.data-mapping-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 7px;
+  min-height: 30px;
+}
+
+.data-mapping-actions .button {
+  min-height: 30px;
+  padding: 4px 10px;
+  font-size: 13px;
+}
+
+.data-mapping-decision .data-mapping-attention,
+.data-mapping-decision > .data-mapping-resolved {
+  min-width: 0;
+}
+
+.data-source-advanced {
+  border-top: 1px solid var(--ux-border);
+  padding-top: 4px;
+}
+
+.data-source-advanced > summary {
+  color: var(--ux-text-muted);
+  cursor: pointer;
+  font-size: 11.5px;
+}
+
+.data-source-advanced > div {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 3px 8px;
+  max-width: 720px;
+  padding: 5px 0;
+  color: var(--ux-text-muted);
+  font-size: 11.5px;
+}
+
+.data-source-advanced code {
+  overflow-wrap: anywhere;
+  color: var(--ux-text);
+}
+
+.data-mapping-blockers {
+  display: grid;
+  gap: 2px;
+  min-width: 180px;
+  max-width: 360px;
+  color: var(--ux-danger);
+  font-size: 13px;
+}
+
+.data-mapping-blockers strong {
+  color: var(--ux-text);
+}
+
+.data-mapping-table td:last-child {
+  max-width: 180px;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .modeling-ribbon-actions {
@@ -3712,6 +4069,7 @@
   grid-column: 1;
   grid-row: 1 / 3;
   overflow: auto;
+  scrollbar-gutter: stable;
   border-width: 1px 0 1px 1px;
   border-radius: 0;
   padding: 0;
@@ -3835,6 +4193,97 @@
   position: static;
   margin: 0;
   background: var(--ux-surface);
+}
+
+.engineering-curve-plot-empty-frame {
+  position: relative;
+  display: block;
+  grid-column: 1 / -1;
+  grid-row: 2;
+  align-self: stretch;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--ux-surface);
+}
+
+.engineering-curve-plot-empty-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--ux-surface);
+}
+
+.engineering-curve-plot-empty-svg .chart-surface {
+  fill: var(--ux-surface);
+}
+
+.engineering-curve-plot-empty-svg .chart-grid {
+  stroke: color-mix(in srgb, var(--ux-border) 76%, transparent);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.engineering-curve-plot-empty-svg .chart-axis {
+  stroke: var(--ux-border-strong);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+
+.engineering-curve-plot-empty-svg .chart-tick,
+.engineering-curve-plot-empty-svg .chart-axis-label {
+  fill: var(--ux-text-muted);
+  font-size: 12px;
+}
+
+.engineering-curve-plot-empty-overlay {
+  position: absolute;
+  top: 50%;
+  left: 30%;
+  right: 30%;
+  display: grid;
+  justify-items: center;
+  gap: 7px;
+  min-width: 280px;
+  transform: translateY(-50%);
+  padding: 14px 18px 13px;
+  border-top: 3px solid var(--ux-accent);
+  border-bottom: 1px solid var(--ux-border);
+  background: color-mix(in srgb, var(--ux-surface) 94%, transparent);
+  text-align: center;
+}
+
+.engineering-curve-plot-empty-overlay strong {
+  color: var(--ux-text);
+  font-size: 14px;
+}
+
+.engineering-curve-plot-empty-overlay p {
+  max-width: 34rem;
+  margin: 0;
+  color: var(--ux-text-muted);
+  font-size: 12px;
+}
+
+.engineering-curve-plot-empty-overlay .button {
+  min-height: 28px;
+  padding: 4px 11px;
+}
+
+@media (max-width: 900px) {
+  .data-source-decision-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .engineering-curve-plot-empty-overlay {
+    left: 18%;
+    right: 18%;
+  }
 }
 
 /* The plot consumes its grid cell. Fixed minimums created a blank band at desktop heights. */
@@ -4698,5 +5147,530 @@
 
   .delivery-property-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Modeling Data uses the same shared resizable-panel primitive for its source
+   ribbon and persistent curve plot. The mode-specific Group id keeps a manual
+   resize from leaking an invalid layout into the compact library/empty state. */
+.modeling-main-surface.has-data-split {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+.modeling-data-split {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+}
+
+.modeling-data-ribbon-panel,
+.modeling-data-plot-panel {
+  min-width: 0;
+  min-height: 0;
+}
+
+.modeling-data-ribbon-panel {
+  overflow: visible;
+}
+
+.modeling-data-ribbon-panel > .modeling-task-ribbon {
+  height: 100%;
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
+}
+
+.modeling-data-plot-panel {
+  min-height: 240px;
+  overflow: hidden;
+}
+
+.modeling-data-plot-panel > .persistent-modeling-plot {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.modeling-data-divider {
+  z-index: 2;
+  min-height: 8px;
+  border-block: 1px solid var(--ux-border-strong);
+  background: var(--ux-surface-subtle);
+  cursor: row-resize;
+}
+
+.modeling-data-divider:hover,
+.modeling-data-divider:focus-visible,
+.modeling-data-divider[data-separator="modeling-data-ribbon-plot-divider"]:active {
+  background: var(--ux-accent-soft);
+}
+
+.modeling-data-divider:focus-visible {
+  outline: 2px solid var(--ux-focus);
+  outline-offset: -2px;
+}
+
+.modeling-main-surface:has(.data-intake-local) .data-source-decision-grid {
+  grid-template-columns: 400px minmax(0, 1fr);
+}
+
+/* The content-fit Data ribbon keeps source decisions readable without
+   spending a full control row on each field.  Scope this to the real mapping
+   decision surface so the compact grammar is not applied to Library rows or
+   other stages merely because a blocker class happens to be present. */
+.modeling-main-surface:has(.data-source-decision-grid) .data-intake-local > .data-intake-row > label,
+.modeling-main-surface:has(.data-source-decision-grid) .data-source-decision-grid .data-mapping-decision .data-intake-attention > label {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: center;
+  gap: 4px 8px;
+  min-width: 0;
+}
+
+.modeling-main-surface:has(.data-source-decision-grid) .data-intake-local > .data-intake-row > label > :is(input, select),
+.modeling-main-surface:has(.data-source-decision-grid) .data-source-decision-grid .data-mapping-decision .data-intake-attention > label > :is(input, select) {
+  grid-column: 2;
+  box-sizing: border-box;
+  min-height: 32px;
+  height: auto;
+  padding: 4px 8px;
+  font-size: 13px;
+}
+
+.modeling-main-surface:has(.data-source-decision-grid) .data-source-advanced:not([open]) {
+  box-sizing: border-box;
+  height: 22px;
+  display: grid;
+  grid-template-rows: auto;
+  gap: 0;
+  min-height: 22px;
+  padding-top: 0;
+  overflow: hidden;
+}
+
+.modeling-main-surface:has(.data-source-decision-grid) .data-source-advanced:not([open]) > summary {
+  min-height: 21px;
+  line-height: 1.2;
+}
+
+.modeling-main-surface:has(.data-source-decision-grid) .data-source-advanced:not([open]) > div {
+  display: none;
+}
+
+/* Keep the three real curve identities visible in a compact upper overlay,
+   clear of the toolbar and the bottom/left axes. Shared typography remains
+   authoritative at 12px. */
+.modeling-main-surface:has(.data-intake-local.has-mapping-blockers) .persistent-modeling-plot > .curve-legend.interactive {
+  top: 44px;
+  right: 16px;
+  bottom: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  width: min(520px, calc(100% - 32px));
+  max-width: calc(100% - 32px);
+  gap: 4px 10px;
+}
+
+/* Task 1 mapping controls use the native compact control grammar.  These
+   selectors intentionally outrank the page-wide workbench minimums without
+   changing controls in Process, Fit, or Export. */
+.modeling-main-surface.has-data-split .data-mapping-decision .data-mapping-table select {
+  box-sizing: border-box;
+  height: 26px;
+  min-height: 26px;
+  padding-block: 0;
+  padding-inline: 4px;
+  font-size: 13px;
+  line-height: normal;
+  appearance: auto;
+}
+
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row select[name="local-test-run"],
+.modeling-main-surface.has-data-split .data-mapping-decision select[name="local-data-schema"] {
+  box-sizing: border-box;
+  height: 28px;
+  min-height: 28px;
+  padding-block: 0;
+  padding-inline: 6px;
+  font-size: 13px;
+  line-height: normal;
+}
+
+.modeling-main-surface.has-data-split .data-source-decision-grid .data-mapping-decision .data-intake-attention > label > select[name="local-data-schema"] {
+  box-sizing: border-box;
+  height: 28px;
+  min-height: 28px;
+  padding-block: 0;
+  padding-inline: 6px;
+  font-size: 13px;
+  line-height: normal;
+}
+
+.modeling-main-surface.has-data-split .data-mapping-recovery-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-content: start;
+  column-gap: 8px;
+  row-gap: 4px;
+}
+
+.modeling-main-surface.has-data-split .data-mapping-recovery-detail > label {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: center;
+  gap: 4px 8px;
+  min-width: 0;
+}
+
+.modeling-main-surface.has-data-split .data-mapping-recovery-detail > label > input {
+  box-sizing: border-box;
+  grid-column: 2;
+  width: 100%;
+  height: 28px;
+  min-height: 28px;
+  padding: 0 6px;
+  font-size: 13px;
+  line-height: normal;
+}
+
+.modeling-main-surface.has-data-split .data-mapping-consequence {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: center;
+  min-width: 0;
+  margin: 0;
+  color: var(--ux-text-muted);
+  font-size: 11.5px;
+  line-height: 14px;
+  overflow-wrap: normal;
+}
+
+.modeling-main-surface.has-data-split .data-mapping-actions {
+  grid-column: 2;
+  grid-row: 2;
+  align-self: center;
+  min-height: 28px;
+  gap: 6px;
+}
+
+.modeling-main-surface.has-data-split .data-mapping-actions .button {
+  box-sizing: border-box;
+  height: 28px;
+  min-height: 28px;
+  padding: 0 10px;
+  font-size: 13px;
+  line-height: normal;
+}
+
+.modeling-main-surface.has-data-split .data-mapping-recovery-row {
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(480px, .85fr) minmax(360px, 1.15fr);
+  column-gap: 8px;
+  row-gap: 4px;
+}
+
+.modeling-main-surface.has-data-split .data-mapping-recovery-row .data-mapping-blockers {
+  box-sizing: border-box;
+  min-width: 480px;
+  min-height: 0;
+  max-width: none;
+  max-height: 70px;
+  padding: 4px 8px;
+  gap: 0;
+  color: var(--ux-danger);
+  font-size: 13px;
+  line-height: 16px;
+  white-space: normal;
+  overflow-wrap: normal;
+}
+
+.modeling-main-surface.has-data-split .data-mapping-recovery-row .data-mapping-blockers > :is(strong, span) {
+  white-space: normal;
+  overflow-wrap: normal;
+}
+
+.modeling-main-surface.has-data-split .data-mapping-decision .data-mapping-table th,
+.modeling-main-surface.has-data-split .data-mapping-decision .data-mapping-table td {
+  padding-block: 2px;
+}
+
+.modeling-main-surface.has-data-split .data-source-decision-grid .data-raw-table th,
+.modeling-main-surface.has-data-split .data-source-decision-grid .data-raw-table td {
+  padding-block: 2px;
+  padding-inline: 5px;
+}
+
+.modeling-main-surface.has-data-split .modeling-data-intake {
+  padding-block: 4px;
+  padding-inline: 12px;
+}
+
+.modeling-main-surface.has-data-split .data-source-advanced:not([open]) > summary {
+  box-sizing: border-box;
+  height: 21px;
+  min-height: 21px;
+  padding-block: 0;
+  line-height: 21px;
+}
+
+@container (max-width: 847px) {
+  .modeling-main-surface.has-data-split .data-mapping-recovery-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .modeling-main-surface.has-data-split .data-mapping-recovery-row .data-mapping-blockers {
+    min-width: 0;
+  }
+
+  .modeling-main-surface.has-data-split .data-mapping-recovery-detail {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .modeling-main-surface.has-data-split .data-mapping-recovery-detail > label {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .modeling-main-surface.has-data-split .data-mapping-recovery-detail > label > input,
+  .modeling-main-surface.has-data-split .data-mapping-consequence,
+  .modeling-main-surface.has-data-split .data-mapping-actions {
+    grid-column: 1;
+  }
+
+  .modeling-main-surface.has-data-split .data-mapping-recovery-detail > label > input {
+    grid-row: 2;
+  }
+
+  .modeling-main-surface.has-data-split .data-mapping-consequence,
+  .modeling-main-surface.has-data-split .data-mapping-actions {
+    grid-row: auto;
+  }
+
+  .modeling-main-surface.has-data-split .data-mapping-actions {
+    justify-content: flex-start;
+  }
+}
+
+/* Task 1 Data identity and library grammar.  The curve rail keeps the
+   specimen and exact revision as two normal-surface lines; only the curve
+   display name may ellipsize.  Process/Fit retain the established one-line
+   rail grammar above. */
+.modeling-data-curve-tree .curve-tree-group > details > article {
+  column-gap: 4px;
+  padding-left: 5px;
+}
+
+.modeling-data-curve-tree .curve-row-label {
+  min-width: 0;
+  min-height: 42px;
+  padding-right: 0;
+  overflow: hidden;
+}
+
+.modeling-data-curve-tree .curve-row-label > span {
+  display: grid;
+  align-content: center;
+  align-items: start;
+  min-width: 0;
+  gap: 0;
+  overflow: hidden;
+  white-space: normal;
+}
+
+.modeling-data-curve-tree .curve-row-label strong {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modeling-data-curve-tree .curve-row-label small.curve-secondary-identity {
+  display: grid;
+  min-width: 0;
+  margin: 0;
+  overflow: visible;
+  color: var(--ux-text-muted);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 14px;
+  white-space: normal;
+}
+
+.modeling-data-curve-tree .curve-secondary-identity > span {
+  display: block;
+  min-width: 0;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+.data-library-pane {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-width: 0;
+  min-height: 0;
+  gap: 0;
+}
+
+.data-library-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  min-width: 0;
+  min-height: 26px;
+  padding: 2px 6px;
+  border-bottom: 1px solid var(--ux-border);
+  color: var(--ux-text);
+  gap: 8px;
+}
+
+.data-library-heading strong {
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.data-library-heading span {
+  overflow: hidden;
+  color: var(--ux-text-muted);
+  font-size: 11.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.data-library-pane .data-library-scroll-shell {
+  min-width: 0;
+  min-height: 0;
+}
+
+.data-library-pane .data-library-list {
+  min-width: 0;
+  min-height: 0;
+  max-height: 112px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: auto;
+  scrollbar-gutter: stable;
+}
+
+.data-library-pane .data-library-row {
+  grid-template-columns: minmax(130px, .75fr) minmax(110px, .55fr) minmax(160px, 1fr);
+  min-height: 32px;
+  row-gap: 0;
+  column-gap: 8px;
+  padding-block: 1px;
+  padding-inline: 6px;
+}
+
+.data-library-pane .data-library-row > strong {
+  font-size: 13px;
+  line-height: 17px;
+}
+
+.data-library-pane .data-library-warning {
+  grid-column: 1 / -1;
+  min-width: 0;
+  overflow: visible;
+  color: var(--ux-warning);
+  font-size: 11.5px;
+  line-height: 14px;
+  white-space: normal;
+}
+
+.data-library-pane .data-library-row > strong,
+.data-library-pane .data-library-row > span,
+.data-library-pane .data-library-row > small:not(.data-library-warning) {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.data-library-pane .data-library-row > span,
+.data-library-pane .data-library-row > small:not(.data-library-warning) {
+  font-size: 11.5px;
+  line-height: 14px;
+}
+
+/* Data-only compact native controls.  The file input remains native and the
+   selector button stays inside the measured 28px outer control. */
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row > label,
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row > button {
+  align-self: end;
+}
+
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row select[name="local-test-run"],
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row input[type="file"],
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row > button {
+  box-sizing: border-box;
+  height: 28px;
+  min-height: 28px;
+  margin: 0;
+  padding-block: 0;
+  border-radius: 0;
+  box-shadow: none;
+  font-size: 13px;
+  line-height: normal;
+}
+
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row input[type="file"] {
+  padding-inline: 0;
+}
+
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row input[type="file"]::file-selector-button {
+  box-sizing: border-box;
+  height: 26px;
+  min-height: 26px;
+  margin: 0;
+  padding: 0 8px;
+  border: 0;
+  border-right: 1px solid var(--ux-border);
+  border-radius: 0;
+  background: var(--ux-surface-subtle);
+  color: var(--ux-text);
+  font: inherit;
+  line-height: normal;
+}
+
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row > button,
+.modeling-main-surface.has-data-split .data-mapping-actions .button {
+  border-radius: 0;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row > button:disabled,
+.modeling-main-surface.has-data-split .data-mapping-actions .button.is-prerequisite-blocked:disabled {
+  border-color: var(--ux-border-strong);
+  background: var(--ux-surface-subtle);
+  color: var(--ux-text-muted);
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+.modeling-main-surface.has-data-split .data-mapping-actions .button.is-prerequisite-blocked:disabled {
+  background: var(--ux-surface-subtle);
+}
+
+/* At very wide viewports the Data working cluster keeps the same usable
+   height as the 1920x1080 workspace.  Width and height caps apply only to the
+   Data stage; Process/Fit/Export retain their existing fill behavior. */
+@media (min-width: 1920px) {
+  .modeling-data-workspace-bounded {
+    align-self: flex-start;
+    height: min(100%, 878px);
+    max-height: 878px;
+    flex: 0 1 878px;
+    margin-left: 0;
+    margin-right: auto;
   }
 }

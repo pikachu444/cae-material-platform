@@ -1,7 +1,7 @@
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { derivativeValues, EngineeringCurvePlot, linearInterpolate, paddedPlotBounds, plotPoints, residualValues } from "./engineering-curve-plot";
+import { dataObservedPlotBounds, derivativeValues, EngineeringCurvePlot, EngineeringCurvePlotEmpty, linearInterpolate, paddedPlotBounds, plotPoints, residualValues } from "./engineering-curve-plot";
 import type { CommonCurveStage, CommonEnsemblePreview, CommonProcessingPreview } from "./types";
 
 const baseStage: CommonCurveStage = {
@@ -45,6 +45,21 @@ describe("EngineeringCurvePlot", () => {
     vi.unstubAllGlobals();
   });
 
+  it("keeps an actionable engineering SVG frame for an empty Data session", () => {
+    const onChooseLocal = vi.fn();
+    const { container } = render(<EngineeringCurvePlotEmpty width={760} height={420} onChooseLocal={onChooseLocal} />);
+
+    const plot = screen.getByRole("img", { name: "Empty engineering curve plot" });
+    expect(plot.getAttribute("viewBox")).toBe("0 0 760 420");
+    expect(container.querySelectorAll(".chart-grid")).toHaveLength(11);
+    expect(container.querySelectorAll(".chart-axis")).toHaveLength(2);
+    expect(container.querySelectorAll(".curve-line, polyline, path")).toHaveLength(0);
+    expect(screen.getByText("Engineering strain [1]")).toBeTruthy();
+    expect(screen.getByText("Engineering stress [MPa]")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Local file" }));
+    expect(onChooseLocal).toHaveBeenCalledTimes(1);
+  });
+
   it("keeps source and processed series on their own sampling grids", () => {
     const { container } = render(
       <EngineeringCurvePlot preview={preview} activeStage={activeStage} baseStage={baseStage} width={760} height={420} />,
@@ -55,6 +70,36 @@ describe("EngineeringCurvePlot", () => {
     expect(plotted[0].getAttribute("points")?.split(" ")).toHaveLength(3);
     expect(plotted[1].getAttribute("points")?.split(" ")).toHaveLength(4);
     expect(screen.getByText("Engineering stress [MPa]")).toBeTruthy();
+  });
+
+  it("overlays every visible real Data-stage curve with its own legend entry", () => {
+    const secondPreview: CommonProcessingPreview = {
+      ...preview,
+      source_document_sha256: "c".repeat(64),
+      stages: [{
+        ...baseStage,
+        series: [
+          { quantity: "strain.engineering", unit: "1", values: [0, 0.001, 0.002] },
+          { quantity: "stress.engineering", unit: "Pa", values: [0, 2.2e8, 3.2e8] },
+        ],
+      }, activeStage],
+    };
+    const { container } = render(
+      <EngineeringCurvePlot
+        preview={preview}
+        activeStage={activeStage}
+        baseStage={baseStage}
+        width={760}
+        height={420}
+        observedCurves={[
+          { id: "doc-1:r1", label: "Specimen 01 · r1", preview },
+          { id: "doc-2:r1", label: "Specimen 02 · r1", preview: secondPreview },
+        ]}
+      />,
+    );
+    expect(container.querySelectorAll("polyline.data-observed")).toHaveLength(2);
+    expect(screen.getByRole("button", { name: "Specimen 01 · r1" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Specimen 02 · r1" })).toBeTruthy();
   });
 
   it("supports legend visibility and explicit zoom reset controls", () => {
@@ -187,6 +232,30 @@ describe("EngineeringCurvePlot", () => {
     expect(bounds.xMax).toBeGreaterThan(1);
     expect(bounds.yMin).toBeLessThan(5);
     expect(bounds.yMax).toBeGreaterThan(5);
+  });
+
+  it("anchors non-negative observed engineering axes at zero without changing generic padding", () => {
+    const bounds = dataObservedPlotBounds(
+      [0, 0.001, 0.002],
+      [0, 2e8, 3e8],
+      "strain.engineering",
+      "stress.engineering",
+    );
+    expect(bounds.xMin).toBe(0);
+    expect(bounds.yMin).toBe(0);
+    expect(bounds.xMax).toBeGreaterThan(0.002);
+    expect(bounds.yMax).toBeGreaterThan(3e8);
+
+    const negative = dataObservedPlotBounds(
+      [-0.001, 0, 0.002],
+      [-2e8, 0, 3e8],
+      "strain.engineering",
+      "stress.engineering",
+    );
+    const generic = paddedPlotBounds([-0.001, 0, 0.002], [-2e8, 0, 3e8]);
+    expect(negative).toEqual(generic);
+    expect(dataObservedPlotBounds([0, 1], [0, 1], "strain.true_plastic", "stress.engineering")).toEqual(paddedPlotBounds([0, 1], [0, 1]));
+    expect(dataObservedPlotBounds([0, 1], [-1, 1], "strain.engineering", "predicted - measured")).toEqual(paddedPlotBounds([0, 1], [-1, 1]));
   });
 
   it("derives residual and tangent evidence from server-evaluated candidate curves", () => {

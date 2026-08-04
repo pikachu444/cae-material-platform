@@ -4,6 +4,7 @@ import {
   clearModelingSession,
   dispatchModelingSession,
   loadModelingSession,
+  modelingDataDocumentMatchesMaterialContext,
   modelingFamilyFromQuantities,
   reduceModelingSession,
   saveModelingSession,
@@ -22,7 +23,7 @@ function populatedSession() {
   return session;
 }
 
-describe("Modeling session v3 reducer", () => {
+describe("Modeling session v4 reducer", () => {
   beforeEach(() => clearModelingSession());
 
   it("starts a new session in Data without inheriting a prior current pointer", () => {
@@ -192,6 +193,82 @@ describe("Modeling session v3 reducer", () => {
     expect(reduceModelingSession(session, { type: "CHANGE_MAPPING", mappingProfile: ref("mapping") })).toBe(session);
   });
 
+  it("stores multiple exact Test Data revisions and promotes the first remaining focus", () => {
+    const first = ref("curve-1");
+    const second = ref("curve-2");
+    const selected = reduceModelingSession(null, { type: "SET_TEST_DATA_SELECTION", selectedTestDataRefs: [first, second] });
+    expect(selected.version).toBe(4);
+    expect(selected.workspace.selectedTestDataRefs).toEqual([first, second]);
+    expect(selected.testData).toEqual(first);
+    const promoted = reduceModelingSession(selected, { type: "SET_TEST_DATA_SELECTION", selectedTestDataRefs: [second] });
+    expect(promoted.workspace.selectedDocumentIds).toEqual([second.id]);
+    expect(promoted.testData).toEqual(second);
+    expect(promoted.invalidation?.reason).toBe("selection");
+  });
+
+  it("relinks the same Test Data identity without replacing the stored revision with a current head", () => {
+    const first = ref("curve-1");
+    const second = { ...first, revisionId: "curve-1-r2", revisionNo: 2 };
+    const selected = reduceModelingSession(null, { type: "SET_TEST_DATA_SELECTION", selectedTestDataRefs: [first] });
+    const relinked = reduceModelingSession(selected, { type: "PIN_TEST_DATA", testData: second });
+    expect(relinked.workspace.selectedTestDataRefs).toEqual([second]);
+    expect(relinked.testData).toEqual(second);
+  });
+
+  it("keeps every linked exact ref while Include and Show remain independent decisions", () => {
+    const first = ref("curve-1");
+    const second = ref("curve-2");
+    const third = ref("curve-3");
+    const selected = reduceModelingSession(null, { type: "SET_TEST_DATA_SELECTION", selectedTestDataRefs: [first, second, third] });
+    const includedSubset = reduceModelingSession(selected, {
+      type: "PATCH",
+      patch: {
+        workspace: {
+          ...selected.workspace,
+          selectedDocumentIds: [first.id, second.id],
+          visibleTestDataKeys: [first.id + ":" + first.revisionId, second.id + ":" + second.revisionId, third.id + ":" + third.revisionId],
+        },
+      },
+    });
+
+    expect(includedSubset.workspace.selectedTestDataRefs).toEqual([first, second, third]);
+    expect(includedSubset.workspace.selectedDocumentIds).toEqual([first.id, second.id]);
+    expect(includedSubset.workspace.visibleTestDataKeys).toEqual([
+      `${first.id}:${first.revisionId}`,
+      `${second.id}:${second.revisionId}`,
+      `${third.id}:${third.revisionId}`,
+    ]);
+    expect(loadModelingSession()).toBeNull();
+    saveModelingSession({ workspace: includedSubset.workspace });
+    expect(loadModelingSession()?.workspace).toMatchObject({
+      selectedTestDataRefs: [first, second, third],
+      selectedDocumentIds: [first.id, second.id],
+      visibleTestDataKeys: [
+        `${first.id}:${first.revisionId}`,
+        `${second.id}:${second.revisionId}`,
+        `${third.id}:${third.revisionId}`,
+      ],
+    });
+
+    const focused = reduceModelingSession(includedSubset, { type: "PIN_TEST_DATA", testData: third });
+    expect(focused.workspace.selectedDocumentIds).toEqual([first.id, second.id]);
+    expect(focused.workspace.visibleTestDataKeys).toEqual(includedSubset.workspace.visibleTestDataKeys);
+  });
+
+  it("accepts earlier Material and State revisions only when their aggregate identities match", () => {
+    const material = { material_id: "material", current_revision: { id: "material-r2" } };
+    const state = { material_state_id: "state", current_revision: { id: "state-r2" } };
+    expect(modelingDataDocumentMatchesMaterialContext({ governed_source: {
+      material: { aggregate_id: "material", revision_id: "material-r1" },
+      material_state: { aggregate_id: "state", revision_id: "state-r1" },
+    } }, material, state)).toBe(true);
+    expect(modelingDataDocumentMatchesMaterialContext({ governed_source: null }, material, state)).toBe(false);
+    expect(modelingDataDocumentMatchesMaterialContext({ governed_source: {
+      material: { aggregate_id: "other", revision_id: "material-r1" },
+      material_state: { aggregate_id: "state", revision_id: "state-r1" },
+    } }, material, state)).toBe(false);
+  });
+
   it("does not mutate an explicit candidate selection when a route/workspace patch is saved", () => {
     const session = populatedSession();
     const next = reduceModelingSession(session, { type: "PATCH", patch: {
@@ -212,7 +289,7 @@ describe("Modeling session v3 reducer", () => {
     }));
 
     expect(loadModelingSession()).toMatchObject({
-      version: 3,
+      version: 4,
       workspace: { activeStage: "data", selectedDocumentIds: [], plotView: "pipeline" },
     });
   });
@@ -227,8 +304,8 @@ describe("Modeling session v3 reducer", () => {
     }));
 
     expect(loadModelingSession()).toMatchObject({
-      version: 3,
-      workspace: { activeStage: "fit", selectedDocumentIds: ["curve-1"], selectedStepIndex: 2, plotView: "ensemble", settingsOpen: false },
+      version: 4,
+      workspace: { activeStage: "fit", selectedDocumentIds: [], selectedTestDataRefs: [], selectedStepIndex: 2, plotView: "ensemble", settingsOpen: false },
     });
   });
 
@@ -243,15 +320,15 @@ describe("Modeling session v3 reducer", () => {
     }));
 
     expect(loadModelingSession()).toMatchObject({
-      version: 3,
+      version: 4,
       testData: { id: "curve-1", revisionId: "curve-1-r1" },
-      workspace: { activeStage: "fit", selectedDocumentIds: [], plotView: "pipeline" },
+      workspace: { activeStage: "fit", selectedDocumentIds: ["curve-1"], selectedTestDataRefs: [ref("curve-1")], plotView: "pipeline" },
     });
   });
 
   it("preserves a resumed exact stage and plot state independently from the route", () => {
     saveModelingSession({ workspace: { activeStage: "process", selectedDocumentIds: ["curve-1"], selectedStepIndex: 2, selectedStageOrdinal: 3, plotView: "ensemble", settingsOpen: false } });
-    expect(loadModelingSession()?.workspace).toMatchObject({ activeStage: "process", selectedDocumentIds: ["curve-1"], plotView: "ensemble", settingsOpen: false });
+    expect(loadModelingSession()?.workspace).toMatchObject({ activeStage: "process", selectedDocumentIds: [], selectedTestDataRefs: [], plotView: "ensemble", settingsOpen: false });
   });
 
   it("selects a modeling family from quantity semantics", () => {

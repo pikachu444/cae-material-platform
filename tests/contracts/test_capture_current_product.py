@@ -11,6 +11,9 @@ import pytest
 _PROJECT_ROOT = Path(__file__).parents[2]
 _SCRIPT = runpy.run_path(str(_PROJECT_ROOT / "scripts/capture_current_product.py"))
 CURRENT_CAPTURE_OUTPUTS = cast(tuple[str, ...], _SCRIPT["CURRENT_CAPTURE_OUTPUTS"])
+MODELING_DATA_SESSION_OUTPUTS = cast(
+    tuple[str, ...], _SCRIPT["MODELING_DATA_SESSION_OUTPUTS"]
+)
 REVISION_LABEL_PATTERN = cast(re.Pattern[str], _SCRIPT["REVISION_LABEL_PATTERN"])
 _capture_to_empty_directory = cast(
     Callable[[Path, Callable[[Path], None]], int],
@@ -49,7 +52,14 @@ def test_incomplete_capture_cannot_reuse_files_from_previous_output(
 
 
 def test_current_capture_contract_contains_product_routes_only() -> None:
-    assert len(CURRENT_CAPTURE_OUTPUTS) == 43
+    assert len(CURRENT_CAPTURE_OUTPUTS) == 54
+    assert all(name in CURRENT_CAPTURE_OUTPUTS for name in MODELING_DATA_SESSION_OUTPUTS)
+    assert {
+        "modeling-data-2560x1440.png",
+        "modeling-data-3840x2160.png",
+        "modeling-data-empty-1440x900.png",
+        "modeling-data-invalid-1440x900.png",
+    } <= set(CURRENT_CAPTURE_OUTPUTS)
     assert all(not name.startswith("storybook-") for name in CURRENT_CAPTURE_OUTPUTS)
 
 

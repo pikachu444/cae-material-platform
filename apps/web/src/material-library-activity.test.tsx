@@ -71,6 +71,11 @@ describe("Activity Modeling resume", () => {
       workspace: {
         activeStage: "fit",
         selectedDocumentIds: ["curve-1", "curve-2"],
+        selectedTestDataRefs: [
+          { id: "curve-1", revisionId: "curve-1-r2", label: "DP780 tensile 1", revisionNo: 2 },
+          { id: "curve-2", revisionId: "curve-2-r4", label: "DP780 tensile 2", revisionNo: 4 },
+        ],
+        visibleTestDataKeys: ["curve-1:curve-1-r2", "curve-2:curve-2-r4"],
         selectedStepIndex: 4,
         selectedStageOrdinal: 5,
         plotView: "pipeline",

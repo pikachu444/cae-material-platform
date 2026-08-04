@@ -4,8 +4,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   ModelingDataIntake,
   governedSourceFor,
+  mappingBlockers,
+  mappingUnitConsequence,
   profileMatchesPreview,
+  unmatchedMappingNotice,
 } from "./modeling-data-intake";
+import { curveRailIdentity } from "./common-processing-workbench";
 import type { GovernedImportPreview, GovernedImportProfileResponse } from "./types";
 
 function jsonResponse(body: unknown, status = 200): Response {
@@ -87,6 +91,198 @@ describe("Modeling data intake", () => {
       { ...profile, content: { ...profile.content, sheet_name: "Repeat" } },
       preview,
     )).toBe(false);
+  });
+
+  it("blocks missing, duplicate, and unsupported Test Data mappings", () => {
+    const quantities = ["engineering_strain", "engineering_stress"] as const;
+
+    expect(mappingBlockers({
+      independentColumn: "strain",
+      dependentColumn: "",
+      independentUnit: "%",
+      dependentUnit: "MPa",
+      quantities,
+    })).toContain("Choose the required Engineering stress channel.");
+
+    expect(mappingBlockers({
+      independentColumn: "strain",
+      dependentColumn: "strain",
+      independentUnit: "%",
+      dependentUnit: "MPa",
+      quantities,
+    })).toContain("Use different source columns for Independent and Dependent.");
+
+    expect(mappingBlockers({
+      independentColumn: "strain",
+      dependentColumn: "stress",
+      independentUnit: "%",
+      dependentUnit: "%",
+      quantities,
+    })).toContain("Engineering stress cannot use “%”. Choose Pa, kPa, MPa, or GPa.");
+  });
+
+  it("explains original and normalized units in the mapping recovery decision", () => {
+    expect(mappingUnitConsequence("engineering_strain", "engineering_stress"))
+      .toBe("Stored units stay unchanged; preview uses 1 and Pa.");
+  });
+
+  it("does not repeat the no-approved-mapping notice below the recovery decision", () => {
+    expect(unmatchedMappingNotice(0)).toBe("");
+    expect(unmatchedMappingNotice(1)).toBe("");
+    expect(unmatchedMappingNotice(2)).toBe("More than one approved mapping matches. Choose the intended profile.");
+  });
+
+  it("keeps curve rail specimen and exact revision as two readable identity lines", () => {
+    expect(curveRailIdentity("S-03", 4, 4)).toEqual({
+      specimen: "Specimen 03",
+      revision: "Session revision r4",
+    });
+    expect(curveRailIdentity("Specimen 07", 2)).toEqual({
+      specimen: "Specimen 07",
+      revision: "Revision r2",
+    });
+  });
+
+  it("keeps the Test Data Library in a keyboard-focusable local scroll region", () => {
+    const onLayoutModeChange = vi.fn();
+    const documents = Array.from({ length: 4 }, (_, index) => ({
+      test_data_document_id: `document-${index + 1}`,
+      current_revision: { ...revision, id: `revision-${index + 1}`, revision_no: 1 },
+      document_key: `DP780-TENSILE-${index + 1}`,
+      material_maker: "CMP Demo",
+      material_grade: "DP780",
+      lot_batch: null,
+      test_date: "2026-07-18",
+      operator: "Tester",
+      laboratory: "Lab",
+      method: "tensile",
+      specimen_id: `S-${index + 1}`,
+      point_count: 3,
+      canonical_artifact_id: `canonical-${index + 1}`,
+      canonical_sha256: "a".repeat(64),
+      normalized_artifact_id: `normalized-${index + 1}`,
+      normalized_sha256: "b".repeat(64),
+      channels: [],
+    }));
+
+    const { container } = render(
+      <ModelingDataIntake
+        config={{ baseUrl: "/api/v1", accessToken: "" }}
+        documents={documents as never}
+        selectedDocumentId=""
+        processingMappingProfileText="{}"
+        onSelectDocument={() => undefined}
+        onPreviewDocument={() => undefined}
+        onImported={() => undefined}
+        onLayoutModeChange={onLayoutModeChange}
+      />,
+    );
+
+    const library = screen.getByRole("list", { name: "Saved Test Data revisions" });
+    expect(library.getAttribute("tabindex")).toBe("0");
+    expect(container.querySelector(".data-library-scroll-shell")).toBeTruthy();
+    expect(screen.getByText("Saved Test Data", { exact: true })).toBeTruthy();
+    expect(screen.getByText("4 exact revisions", { exact: true })).toBeTruthy();
+    expect(screen.queryByText(/Test Data records available/)).toBeNull();
+    expect(library.querySelectorAll("[role='listitem']")).toHaveLength(4);
+    expect(onLayoutModeChange).toHaveBeenCalledWith("compact");
+  });
+
+  it("renders unresolved mapping recovery as a direct full-width grid child", async () => {
+    const testRun = {
+      test_run_id: "test-run-1",
+      specimen_id: "S-1",
+      test_method_id: "method-1",
+      current_revision: {
+        ...revision,
+        content: {
+          run_label: "Reference tensile run",
+          performed_at: "2026-07-18T00:00:00Z",
+          specimen_id: "S-1",
+        },
+      },
+      links: {},
+    };
+    const upload = {
+      upload_id: "upload-1",
+      expected_part_count: 1,
+      part_size_bytes: 1024,
+    };
+    const preview: GovernedImportPreview = {
+      preview_report_id: "preview-1",
+      classification: "internal",
+      raw_asset_id: "raw-1",
+      raw_artifact_id: "artifact-1",
+      raw_sha256: "b".repeat(64),
+      file_format: "csv",
+      sheet_names: [],
+      selected_sheet_name: null,
+      header_row: 1,
+      encoding: "utf-8",
+      delimiter: ",",
+      decimal_separator: ".",
+      header_columns: ["strain", "stress"],
+      sample_rows: [["0", "0"]],
+      status: "needs_input",
+      report_sha256: "c".repeat(64),
+    };
+    const rawAsset = {
+      raw_asset_id: "raw-1",
+      organization_id: "org-1",
+      project_id: "project-1",
+      classification: "internal",
+      sha256: "a".repeat(64),
+      size_bytes: 15,
+      media_type: "text/csv",
+      original_filename: "source.csv",
+      storage_state: "staged_verified",
+    };
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+      const url = String(input);
+      if (url.endsWith("/material-states/state-1/test-runs")) return jsonResponse({ items: [testRun] });
+      if (url.endsWith("/import-profiles")) return jsonResponse({ items: [] });
+      if (url.endsWith("/uploads") && init?.method === "POST") {
+        return jsonResponse({ upload, upload_capability: "capability-1" });
+      }
+      if (url.endsWith("/uploads/upload-1/parts/1") && init?.method === "PUT") return jsonResponse(upload);
+      if (url.endsWith("/uploads/upload-1:complete") && init?.method === "POST") {
+        return jsonResponse({ upload, raw_asset: rawAsset, available_artifact_id: "artifact-1" });
+      }
+      if (url.endsWith("/tabular-import-previews") && init?.method === "POST") return jsonResponse(preview);
+      throw new Error(`unexpected request: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { container } = render(
+      <ModelingDataIntake
+        config={{ baseUrl: "/api/v1", accessToken: "token" }}
+        state={{ material_state_id: "state-1" } as never}
+        documents={[]}
+        selectedDocumentId=""
+        processingMappingProfileText="{}"
+        onSelectDocument={() => undefined}
+        onPreviewDocument={() => undefined}
+        onImported={() => undefined}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("tab", { name: "Local file" }));
+    const testRunSelect = await screen.findByRole("combobox", { name: "Local file Test Run" });
+    fireEvent.change(testRunSelect, { target: { value: "test-run-1" } });
+    const file = new File(["strain,stress\n0,0\n"], "source.csv", { type: "text/csv" });
+    fireEvent.change(screen.getByLabelText("Local test data file"), { target: { files: [file] } });
+    fireEvent.click(await screen.findByRole("button", { name: "Inspect source" }));
+
+    await waitFor(() => expect(container.querySelector(".data-source-decision-grid")).toBeTruthy());
+    const grid = container.querySelector(".data-source-decision-grid");
+    const mapping = container.querySelector(".data-mapping-decision");
+    const recovery = container.querySelector(".data-mapping-recovery-row");
+    expect(grid).toBeTruthy();
+    expect(mapping).toBeTruthy();
+    expect(recovery?.parentElement).toBe(grid);
+    expect(recovery?.closest(".data-mapping-decision")).toBeNull();
+    expect(grid?.firstElementChild?.classList.contains("data-source-evidence")).toBe(true);
+    expect(grid?.children[1]).toBe(mapping);
   });
 
   it("builds governed local-file proof from exact Material, State, and Test Run revisions", () => {

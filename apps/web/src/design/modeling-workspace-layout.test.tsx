@@ -1,9 +1,130 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { useState } from "react";
+import type { PanelImperativeHandle } from "react-resizable-panels";
 
-import { ModelingWorkspaceLayout } from "./modeling-workspace-layout";
+type PanelHandleEntry = {
+  kind: "ref" | "callback";
+  active: PanelImperativeHandle | null;
+  pending: PanelImperativeHandle | null | undefined;
+  commit?: (next: PanelImperativeHandle | null) => void;
+};
+
+type GroupLayoutEntry = {
+  id: string | number | undefined;
+  callback: ((layout: Record<string, number>, meta: { isUserInteraction: boolean }) => void) | undefined;
+};
+
+const panelHandleState = vi.hoisted(() => ({ entries: [] as PanelHandleEntry[] }));
+const groupLayoutState = vi.hoisted(() => ({ entries: [] as GroupLayoutEntry[] }));
+
+vi.mock("react-resizable-panels", async () => {
+  const actual = await vi.importActual<typeof import("react-resizable-panels")>("react-resizable-panels");
+  const react = await vi.importActual<typeof import("react")>("react");
+
+  function TrackingGroup(props: any) {
+    const entryRef = react.useRef<GroupLayoutEntry | null>(null);
+    if (entryRef.current === null) {
+      entryRef.current = { id: props.id, callback: props.onLayoutChanged };
+      groupLayoutState.entries.push(entryRef.current);
+    } else {
+      entryRef.current.id = props.id;
+      entryRef.current.callback = props.onLayoutChanged;
+    }
+    return react.createElement(actual.Group, props);
+  }
+
+  function useDeferredPanelRef() {
+    const entryRef = react.useRef<PanelHandleEntry | null>(null);
+    const holderRef = react.useRef<{ current: PanelImperativeHandle | null } | null>(null);
+    if (entryRef.current === null) {
+      entryRef.current = { kind: "ref", active: null, pending: undefined };
+      panelHandleState.entries.push(entryRef.current);
+    }
+    const entry = entryRef.current;
+    if (holderRef.current === null) {
+      const holder = {} as { current: PanelImperativeHandle | null };
+      Object.defineProperty(holder, "current", {
+        configurable: true,
+        enumerable: true,
+        get: () => entry.active,
+        set: (next: PanelImperativeHandle | null) => {
+          entry.pending = next;
+        },
+      });
+      holderRef.current = holder;
+    }
+    return holderRef.current;
+  }
+
+  function useDeferredPanelCallbackRef() {
+    const [active, setActive] = useState<PanelImperativeHandle | null>(null);
+    const entryRef = react.useRef<PanelHandleEntry | null>(null);
+    if (entryRef.current === null) {
+      entryRef.current = { kind: "callback", active: null, pending: undefined, commit: setActive };
+      panelHandleState.entries.push(entryRef.current);
+    } else {
+      entryRef.current.commit = setActive;
+    }
+    const entry = entryRef.current;
+    const callback = react.useCallback((next: PanelImperativeHandle | null) => {
+      entry.pending = next;
+    }, [entry]);
+    return [active, callback] as const;
+  }
+
+  return {
+    ...actual,
+    Group: TrackingGroup,
+    usePanelRef: useDeferredPanelRef,
+    usePanelCallbackRef: useDeferredPanelCallbackRef,
+  };
+});
+
+function flushLatePanelHandles(): void {
+  for (const entry of panelHandleState.entries) {
+    if (entry.pending === undefined) continue;
+    entry.active = entry.pending;
+    entry.commit?.(entry.pending);
+    entry.pending = undefined;
+  }
+}
+
+function latestPendingPanelHandle(): PanelImperativeHandle | null {
+  return [...panelHandleState.entries].reverse().find((entry) => entry.pending !== undefined && entry.pending !== null)?.pending ?? null;
+}
+
+function latestDataLayoutCallback(): NonNullable<GroupLayoutEntry["callback"]> {
+  const entry = [...groupLayoutState.entries].reverse().find((candidate) => String(candidate.id).includes("modeling-data-split"));
+  if (!entry?.callback) throw new Error("Data Group layout callback did not arrive");
+  return entry.callback;
+}
+
+import {
+  MODELING_DATA_DEFAULT_PLOT_SIZE,
+  MODELING_DATA_PLOT_MIN_SIZE,
+  MODELING_DATA_SPLIT_SEPARATOR_SIZE,
+  ModelingWorkspaceLayout,
+  modelingDataRibbonPreferredSize,
+} from "./modeling-workspace-layout";
+
+afterEach(() => {
+  cleanup();
+  panelHandleState.entries.length = 0;
+  groupLayoutState.entries.length = 0;
+  vi.unstubAllGlobals();
+});
 
 describe("ModelingWorkspaceLayout", () => {
+  it("keeps the adjustable Data ribbon preferred and reset size at 384px", () => {
+    expect(modelingDataRibbonPreferredSize("content-fit")).toBe(384);
+    expect(modelingDataRibbonPreferredSize("compact")).toBe(178);
+    expect(modelingDataRibbonPreferredSize(undefined)).toBe(178);
+    expect(MODELING_DATA_DEFAULT_PLOT_SIZE).toBeGreaterThanOrEqual(296);
+    expect(MODELING_DATA_PLOT_MIN_SIZE).toBe(240);
+    expect(MODELING_DATA_SPLIT_SEPARATOR_SIZE).toBe(8);
+  });
+
   it("keeps compact navigator and ribbon controls keyboard accessible", () => {
     const onRibbonOpenChange = vi.fn();
     render(
@@ -16,6 +137,8 @@ describe("ModelingWorkspaceLayout", () => {
         onRibbonOpenChange={onRibbonOpenChange}
       />,
     );
+
+    act(() => flushLatePanelHandles());
 
     fireEvent.click(screen.getByRole("button", { name: "Collapse curve and process navigator" }));
     expect(screen.queryByText("Curve navigator")).toBeNull();
@@ -39,5 +162,217 @@ describe("ModelingWorkspaceLayout", () => {
     expect(screen.queryByLabelText("Resize curve and process navigator")).toBeNull();
     expect(document.querySelector(".modeling-workspace-rail")).toBeNull();
     expect(container.querySelector(".modeling-split-workspace-no-navigator .modeling-main-surface")).toBeTruthy();
+  });
+
+  it("exposes an accessible vertical Data ribbon/plot divider in content-fit mode", () => {
+    class ResizeObserverMock {
+      observe(): void {}
+      disconnect(): void {}
+    }
+    vi.stubGlobal("ResizeObserver", ResizeObserverMock);
+
+    render(
+      <ModelingWorkspaceLayout
+        navigator={<span>Curve navigator</span>}
+        ribbon={<span>Mapping decision</span>}
+        plot={<span>Persistent plot</span>}
+        dataLayoutMode="content-fit"
+        ribbonOpen
+        onRibbonOpenChange={vi.fn()}
+      />,
+    );
+
+    const divider = screen.getByRole("separator", { name: "Resize Test Data controls and curve plot" });
+    expect(divider.getAttribute("aria-orientation")).toBe("horizontal");
+    expect(divider.getAttribute("tabindex")).toBe("0");
+    expect(screen.getByText("Mapping decision")).toBeTruthy();
+    expect(screen.getByText("Persistent plot")).toBeTruthy();
+  });
+
+  it("preserves stateful Data ribbon content when the layout mode changes", () => {
+    class ResizeObserverMock {
+      observe(): void {}
+      disconnect(): void {}
+    }
+    vi.stubGlobal("ResizeObserver", ResizeObserverMock);
+
+    function StatefulRibbon() {
+      const [value, setValue] = useState("");
+      return <label>Mapping decision<input aria-label="Mapping decision" value={value} onChange={(event) => setValue(event.target.value)} /></label>;
+    }
+
+    const props = {
+      navigator: <span>Curve navigator</span>,
+      ribbon: <StatefulRibbon />,
+      plot: <span>Persistent plot</span>,
+      ribbonOpen: true,
+      onRibbonOpenChange: vi.fn(),
+    };
+    const { rerender } = render(<ModelingWorkspaceLayout {...props} dataLayoutMode="compact" />);
+    fireEvent.change(screen.getByRole("textbox", { name: "Mapping decision" }), { target: { value: "Keep exact source units" } });
+
+    rerender(<ModelingWorkspaceLayout {...props} dataLayoutMode="content-fit" />);
+
+    expect((screen.getByRole("textbox", { name: "Mapping decision" }) as HTMLInputElement).value).toBe("Keep exact source units");
+    expect(screen.getByRole("separator", { name: "Resize Test Data controls and curve plot" })).toBeTruthy();
+  });
+
+  it("waits for a late Data panel handle before applying mode sizes and preserves user resizing", () => {
+    class ResizeObserverMock {
+      observe(): void {}
+      disconnect(): void {}
+    }
+    vi.stubGlobal("ResizeObserver", ResizeObserverMock);
+
+    const renderLayout = (dataLayoutMode: "compact" | "content-fit", ribbonOpen = true) => (
+      <ModelingWorkspaceLayout
+        navigator={<span>Curve navigator</span>}
+        ribbon={<span>Mapping decision</span>}
+        plot={<span>Persistent plot</span>}
+        dataLayoutMode={dataLayoutMode}
+        ribbonOpen={ribbonOpen}
+        onRibbonOpenChange={vi.fn()}
+      />
+    );
+
+    const { rerender } = render(renderLayout("compact"));
+    const dataRibbonPanel = latestPendingPanelHandle();
+    expect(dataRibbonPanel).not.toBeNull();
+    if (!dataRibbonPanel) throw new Error("Data panel handle did not arrive");
+
+    act(() => flushLatePanelHandles());
+    expect(panelHandleState.entries.some((entry) => entry.kind === "callback" && entry.active === dataRibbonPanel)).toBe(true);
+
+    const resize = vi.fn();
+    Object.defineProperty(dataRibbonPanel, "resize", {
+      configurable: true,
+      get: () => resize,
+      set: () => {},
+    });
+
+    dataRibbonPanel.resize(260);
+    rerender(renderLayout("compact", false));
+    expect(resize).toHaveBeenCalledTimes(1);
+
+    rerender(renderLayout("content-fit"));
+    expect(resize).toHaveBeenNthCalledWith(2, 384);
+
+    rerender(renderLayout("compact"));
+    expect(resize).toHaveBeenNthCalledWith(3, 178);
+  });
+
+  it("restores the desired ribbon size after a non-user constraint clamp", () => {
+    class ResizeObserverMock {
+      observe(): void {}
+      disconnect(): void {}
+    }
+    vi.stubGlobal("ResizeObserver", ResizeObserverMock);
+
+    render(
+      <ModelingWorkspaceLayout
+        navigator={<span>Curve navigator</span>}
+        ribbon={<span>Mapping decision</span>}
+        plot={<span>Persistent plot</span>}
+        dataLayoutMode="compact"
+        ribbonOpen
+        onRibbonOpenChange={vi.fn()}
+      />,
+    );
+
+    const dataRibbonPanel = latestPendingPanelHandle();
+    expect(dataRibbonPanel).not.toBeNull();
+    if (!dataRibbonPanel) throw new Error("Data panel handle did not arrive");
+    act(() => flushLatePanelHandles());
+
+    let panelPixels = 120;
+    const resize = vi.fn();
+    Object.defineProperty(dataRibbonPanel, "getSize", {
+      configurable: true,
+      value: () => ({ asPercentage: 0, inPixels: panelPixels }),
+    });
+    Object.defineProperty(dataRibbonPanel, "resize", {
+      configurable: true,
+      value: resize,
+    });
+
+    act(() => latestDataLayoutCallback()({}, { isUserInteraction: false }));
+    expect(resize).toHaveBeenCalledTimes(1);
+    expect(resize).toHaveBeenCalledWith(178);
+
+    panelPixels = 178;
+    act(() => latestDataLayoutCallback()({}, { isUserInteraction: false }));
+    expect(resize).toHaveBeenCalledTimes(1);
+  });
+
+  it("remembers a user splitter size for later non-user restoration", () => {
+    class ResizeObserverMock {
+      observe(): void {}
+      disconnect(): void {}
+    }
+    vi.stubGlobal("ResizeObserver", ResizeObserverMock);
+
+    render(
+      <ModelingWorkspaceLayout
+        navigator={<span>Curve navigator</span>}
+        ribbon={<span>Mapping decision</span>}
+        plot={<span>Persistent plot</span>}
+        dataLayoutMode="compact"
+        ribbonOpen
+        onRibbonOpenChange={vi.fn()}
+      />,
+    );
+
+    const dataRibbonPanel = latestPendingPanelHandle();
+    expect(dataRibbonPanel).not.toBeNull();
+    if (!dataRibbonPanel) throw new Error("Data panel handle did not arrive");
+    act(() => flushLatePanelHandles());
+
+    let panelPixels = 260;
+    const resize = vi.fn();
+    Object.defineProperty(dataRibbonPanel, "getSize", {
+      configurable: true,
+      value: () => ({ asPercentage: 0, inPixels: panelPixels }),
+    });
+    Object.defineProperty(dataRibbonPanel, "resize", {
+      configurable: true,
+      value: resize,
+    });
+
+    act(() => latestDataLayoutCallback()({}, { isUserInteraction: true }));
+    expect(resize).not.toHaveBeenCalled();
+
+    panelPixels = 120;
+    act(() => latestDataLayoutCallback()({}, { isUserInteraction: false }));
+    expect(resize).toHaveBeenCalledTimes(1);
+    expect(resize).toHaveBeenCalledWith(260);
+  });
+
+  it("uses the current mode preferred size for reset and mode changes", () => {
+    class ResizeObserverMock {
+      observe(): void {}
+      disconnect(): void {}
+    }
+    vi.stubGlobal("ResizeObserver", ResizeObserverMock);
+
+    const props = {
+      navigator: <span>Curve navigator</span>,
+      ribbon: <span>Mapping decision</span>,
+      plot: <span>Persistent plot</span>,
+      ribbonOpen: true,
+      onRibbonOpenChange: vi.fn(),
+    };
+    render(<ModelingWorkspaceLayout {...props} dataLayoutMode="compact" />);
+    const dataRibbonPanel = latestPendingPanelHandle();
+    expect(dataRibbonPanel).not.toBeNull();
+    if (!dataRibbonPanel) throw new Error("Data panel handle did not arrive");
+    act(() => flushLatePanelHandles());
+
+    const resize = vi.fn();
+    Object.defineProperty(dataRibbonPanel, "resize", {
+      configurable: true,
+      value: resize,
+    });
+    fireEvent.doubleClick(screen.getByRole("separator", { name: "Resize Test Data controls and curve plot" }));
+    expect(resize).toHaveBeenNthCalledWith(1, 178);
   });
 });

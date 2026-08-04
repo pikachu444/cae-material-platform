@@ -35,22 +35,50 @@
   contrived validation story. Keep recovery, negative, and technical failure cases separate. The packet
   names fixture/setup, user actions, visible and persistence outcomes, preserved data/state, owned files,
   forbidden shortcuts, captures, and implementation-adjacent gates.
+- Before implementation, the main orchestrator gives that packet and its exact authoritative sources to
+  one fresh configured requirements auditor. The auditor independently traces every in-scope requirement
+  to a user action, visible outcome, persistence outcome, preserved state, recovery behavior, and an
+  observable automated, live, or visual acceptance condition. `changes_requested` blocks implementation
+  until the main orchestrator revises and resubmits the packet; the auditor never writes or redesigns it.
+  For visual work, the auditor opens every packet-required approved viewport at original resolution and
+  requires explicit content-visibility, clipping, wrapping, identity/revision, interaction-reachability,
+  and relevant layout-bound checks. Tooltips, hidden text, and measurements alone do not prove normal-
+  surface usability.
+- Parallelize only genuinely independent read-only work by default. After the bounded packet exists, the
+  main orchestrator may use at most three read-only lanes in total, including the mandatory requirements
+  auditor, for non-overlapping requirements audit, code/contract mapping, and visual/browser evidence
+  inspection. Each agent receives one explicit question and returns a concise evidence summary rather
+  than raw logs. The main orchestrator waits for every requested result and consolidates all findings once
+  before any writer starts; do not spawn agents merely to use the available capacity.
 - The implementation writer changes only packet-owned files, runs only packet automated gates, reports
   exact unrun or blocked gates, and never claims main-orchestrator live acceptance. Writers do not
   reinterpret requirements, add scope/gates, or start another writer; unrelated changes remain untouched.
 - The main orchestrator owns requirement interpretation, packets, integration, failure diagnosis, and
-  final internal gate; it is not a subagent. Never run concurrent writers.
+  final internal gate; it is not a subagent. Never run concurrent writers in the same checkout. Keep the
+  implementation writer and every later correction writer fresh and sequential; do not bind them into a
+  standing team that can carry the implementation's confirmation bias into correction. Truly independent
+  write-heavy issues may run in separately created Codex worktree chats and branches, each with its own
+  orchestrator and gates, but dependent backlog units and work sharing one branch never qualify.
 - The main orchestrator independently performs live Compose, database, and browser acceptance. Writer
-  tests/screenshots are evidence, never a substitute. A visual reviewer opens/reports every
-  issue-required viewport at original resolution; a representative subset is not sufficient.
+  tests/screenshots are evidence, never a substitute. For visual work, main opens every issue-required
+  viewport at original resolution after the live capture; a representative subset is not sufficient.
+  After all implementation and main-orchestrator gates pass, one fresh independent read-only reviewer
+  reopens every required viewport at original resolution, completes the full bounded review, and must
+  return `approve` before publication.
 - Before any live Docker gate, main orchestrator runs `make compose-preflight`. The canonical
   composition is rebuilt/recreated for this work; stale or foreign environments are rejected.
   Ad-hoc projects use dynamic host ports, guaranteed `finally` cleanup, and post-cleanup verification.
   Preflight never removes or mutates containers, volumes, or data.
 - Before correction, root/main reproduces and diagnoses the whole UI -> request -> service -> DB -> reload
-  chain, consolidates same-cause failures, and gives one fresh configured correction writer one bounded
-  pass. A work unit permits at most three correction passes after implementation; each has a new diagnosis
-  and packet. If the third fails, stop and report the exact unresolved evidence.
+  chain. A failed checkpoint does not end discovery: continue every safe applicable check, collect all
+  failures from the frozen evidence, and consolidate related causes before giving one fresh configured
+  correction writer one bounded pass. Stop discovery early only when continuing would be unsafe or when
+  the failed prerequisite makes the remaining evidence invalid, and record that exact boundary. Each
+  correction pass has a new diagnosis and packet. After three failed correction passes, main runs a full
+  re-audit and re-plan checkpoint over authority, scope, user journey, packet, gates, and the complete
+  frozen evidence. Unless that checkpoint exposes a product decision, missing authority, unsafe action,
+  or external blocker that requires owner input, reset the correction-pass count and continue with one
+  fresh packet and writer. Never repeat the same failed packet merely because the count was reset.
 - Automation stays thin: one realistic high-value browser flow where applicable, lower-level regression
   tests for rules, and Docker preflight. Do not create a generic verification or review framework.
 

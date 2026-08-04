@@ -11,8 +11,10 @@ evidence, open every issue-required viewport at original resolution; never subst
 Before scoring, complete every applicable item in the mandatory qualitative owner checklist in
 `docs/01-product/visual-acceptance-matrix.md`; mark an item pass, fail,
 or not applicable with image/path evidence. Measurements and automated gates are supporting evidence,
-not a substitute for visual judgment. Return `changes_requested` when an applicable qualitative item
-fails even if the numeric score passes. Lead with actionable findings supported by exact file and
-line evidence, then give an approve or changes_requested disposition. Do not commit, push, open or
-merge a pull request, or write to GitHub.
+not a substitute for visual judgment. Complete the entire bounded review after finding a blocker and
+report every applicable failure visible in the same frozen evidence; do not stop at the first finding.
+Consolidate findings that share one cause. Return `changes_requested` when an applicable qualitative
+item fails even if the numeric score passes. Lead with actionable findings supported by exact file and
+line evidence, then give an approve or changes_requested disposition. Do not commit, push, open or merge
+a pull request, or write to GitHub.
 """
