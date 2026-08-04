@@ -118,6 +118,11 @@
 - Implement one issue or clearly bounded subset. Define or update contracts before adapters and add the
   specified unit, integration, regression, and browser tests. Run only gates required by issue acceptance,
   affected contracts, selected skills, changed behavior, or hooks; resolve hook failures.
+- A work unit remains incomplete until delivery tracking is synchronized: after a PR number exists and
+  before merge, the work PR updates `docs/13-delivery/backlog.md` with the completed numbered unit/PR
+  and next unfinished numbered row; immediately after merge and before the final report, the main
+  orchestrator records the PR, merge SHA, and next unit in the exact issue, checks the corresponding
+  parent-tracker item (#117 when applicable), and keeps a multi-unit issue open until all units finish.
 - User-visible React/CSS changes update the current guide, screenshot manifest, and required live
   screenshots. An `app.tsx` navigation change also updates the navigation contract.
 - Before handoff, run affected tests, `uv run cmp-check-user-guide --root .`, `make docs-impact`, and
