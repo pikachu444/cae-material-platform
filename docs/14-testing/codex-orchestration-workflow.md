@@ -33,6 +33,26 @@
 읽기 전용 조사는 독립적일 때만 병렬로 실행합니다. 같은 checkout에서 writer를 동시에 실행하지
 않으므로 수정 충돌과 책임 혼선을 피합니다. 조사 lane도 필요하지 않으면 만들지 않습니다.
 
+## 렌더링된 구성도
+
+아래 구성도는 표준 작업 흐름, 실패 후 교정 흐름, 실제로 설정된 에이전트의 역할·모델·추론
+수준을 함께 보여줍니다. 작은 표시는 역할 ID이며 모델과 추론 수준은 오른쪽 구성 카드에만
+표시합니다.
+
+![Codex 작업 흐름과 에이전트 오케스트레이션](codex-orchestration/workflow-ko.png)
+
+- [영문 PNG](codex-orchestration/workflow-en.png)
+- [한글 SVG](codex-orchestration/workflow-ko.svg) · [영문 SVG](codex-orchestration/workflow-en.svg)
+- [브라우저용 HTML](codex-orchestration/workflow.html)
+
+레이아웃과 문구의 편집 원본은 `codex-orchestration/workflow-template.html`입니다. 다음 명령은
+`.codex/config.toml`과 `.codex/agents/*.toml`에서 모델·추론·sandbox·병렬 실행 설정을 읽어
+HTML, 한글·영문 SVG와 PNG를 함께 다시 만듭니다. 생성된 파일은 직접 수정하지 않습니다.
+
+```powershell
+uv run --with playwright==1.62.0 python docs/14-testing/codex-orchestration/render.py
+```
+
 ## 전체 흐름
 
 ```mermaid
