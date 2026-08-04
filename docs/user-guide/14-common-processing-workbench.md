@@ -14,7 +14,8 @@ Metal/Polymer/Elastomer track을 제공합니다. `/datasets/processing`은 같�
 화면 왼쪽은 현재 재료군과 호환되는 시험 curve 및 Process 단계이고 나머지 폭은 실제 서버 계산
 결과를 표시하는 engineering graph입니다. 선택 단계 설정은 graph 위 ribbon에 있고 영구적인
 오른쪽 열은 없습니다. 1366 px에서도 설정은 한두 줄의 얕은 band 안에 있고 graph 축·눈금·범례가 첫 화면에
-모두 보입니다. 일반 작업에서는 내부 주소, 토큰 또는 식별자를 입력하지 않습니다. 범례를 눌러 series를 숨기거나 표시하고, plot을
+모두 보입니다. Process 범례는 x축 값과 제목을 가리지 않는 아래쪽 여백 위에 작게 놓입니다. 일반 작업에서는 내부 주소,
+토큰 또는 식별자를 입력하지 않습니다. 범례를 눌러 series를 숨기거나 표시하고, plot을
 드래그해 이동하며 wheel 또는 `Zoom in/out`으로 확대하고 `Reset`으로 전체 범위로 돌아갑니다.
 
 그래프에서 처리 범위를 지정하려면 Recipe 단계(예: **Metal elastic modulus**)를 먼저 고르고
@@ -32,8 +33,10 @@ Material, State, Test Data, Mapping Profile과 Recipe exact revision을 복원�
 현재 선택 가능한 head와 다르면 조용히 최신값으로 바꾸지 않고 검토 경고를 표시합니다.
 
 금속 **Metal elastic modulus** 단계에서는 current-step settings ribbon에서 Auto robust, Linear regression,
-Chord, Secant, Manual slope를 직접 선택합니다. 그래프의 **Select range** 또는 Start/End strain으로
-평가 구간을 정합니다. Manual slope에는 값·unit·engineering reason이 함께 필요하며 GPa/MPa 입력은
+Chord, Secant, Manual slope를 직접 선택합니다. 평가 method 버튼과 Start/End strain은 한 compact row에
+왼쪽 정렬되어 함께 보이며, 그래프의 **Select range**로도 같은 구간을 정할 수 있습니다. Manual slope의
+값·unit·engineering reason은 필요한 경우 다음 줄로 자연스럽게 감싸지지만 current-step band 안에서
+키보드로 이어서 접근할 수 있습니다. GPa/MPa 입력은
 canonical Pa로 변환해 실제 계산에 사용합니다. 선택한 necking point도 point index와 reason을 요구합니다.
 두 수동 workup은 원값/원 단위·canonical 값/단위·사유를 `workup_overrides`로 Processing Output revision과
 다운로드 Artifact에 함께 고정합니다. **Offset proof stress**는 선택한 offset/search range의 curve-derived
@@ -48,7 +51,9 @@ specimen별 26 px tree 행을 표시합니다. 예를 들어 tensile 문서는 `
 추정하지 않습니다. 시편 행은 들여쓰기로 계층을 표현하며 `└`/`ㄴ` 문자를 제목 앞에 붙이지 않습니다.
 시험 방법 그룹은 실제로 접고 펼칠 수 있는 native disclosure이며 키보드로도 작동합니다. 각 행의 checkbox는 **Include in processing/fit**이고, 끝의 눈 아이콘은 **Show on plot**만
 바꿉니다. 제목 오른쪽의 짧은 가로 색상 표본은 해당 curve의 plot 색상만 나타내며 제목 앞에 기호처럼 붙지 않습니다. 따라서 line을 숨겨도 fitting 포함 여부는 바뀌지 않습니다. 행에는 specimen 이름과 exact revision을
-짧게 표시하고 전체 document identity는 hover에서 확인합니다. 이 rail은 Validate, Review와
+짧게 표시합니다. Data는 specimen과 exact revision을 두 줄로, Process는 `Specimen 0N · rN` 한 줄로
+표시하므로 hover 없이도 현재 선택 identity를 확인할 수 있습니다. Fit은 기존 document label과
+specimen/revision 보조 줄을 유지합니다. 이 rail은 Validate, Review와
 Export에는 표시하지 않습니다. Process에서 호환되는 포함 curve가 두 개 이상일 때만 **Replicate analysis**를 열고 **Preview mean & band**를
 누를 수 있습니다. 그러면 가운데 plot이 **Mean & band** 보기로 전환되어 개별 curve,
 pointwise mean과 95% mean confidence band를 함께 표시합니다. 이 계산에는 `rows.*`와 `curve.*`

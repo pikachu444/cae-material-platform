@@ -20,6 +20,19 @@ function isFitMethodInRequest(methodId: string | undefined): boolean {
   return Boolean(methodId && (methodId.includes("hardening_fit") || methodId.includes("prony_fit") || methodId.includes("fit_compare")));
 }
 
+function processRailIdentities(): string[] {
+  return Array.from(document.querySelectorAll(".modeling-process-workspace-bounded .curve-row-label"), (row) =>
+    (row.textContent ?? "").replace(/\s+/g, " ").trim(),
+  );
+}
+
+function processRailButton(identity: string): HTMLElement {
+  const row = Array.from(document.querySelectorAll<HTMLElement>(".modeling-process-workspace-bounded .curve-row-label"))
+    .find((candidate) => (candidate.textContent ?? "").replace(/\s+/g, " ").trim() === identity);
+  if (!row) throw new Error(`Process rail identity is missing: ${identity}`);
+  return row;
+}
+
 function reverseJsonObjectKeys(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(reverseJsonObjectKeys);
   if (value && typeof value === "object") {
@@ -565,6 +578,16 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByRole("tab", { name: "Test Data JSON" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Select Test Data" })).toBeTruthy();
     expect(screen.queryByText("Metal hardening candidates")).toBeNull();
+    let dataIdentityRow: HTMLElement | undefined;
+    await waitFor(() => {
+      dataIdentityRow = Array.from(document.querySelectorAll<HTMLElement>(".modeling-data-curve-tree .curve-row-label"))
+        .find((row) => row.querySelector("strong")?.textContent === "Specimen 01");
+      expect(dataIdentityRow).toBeTruthy();
+    });
+    if (!dataIdentityRow) throw new Error("Data identity row is missing");
+    expect(dataIdentityRow.querySelector("strong")?.textContent).toBe("Specimen 01");
+    expect(dataIdentityRow.querySelector("small.curve-secondary-identity")?.textContent).toBe("Session revision r1");
+    expect(dataIdentityRow.querySelectorAll("small")).toHaveLength(1);
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:validate" } }));
     expect(await screen.findByRole("heading", { name: "Validation, review and release" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Submit · Not configured" }).hasAttribute("disabled")).toBe(true);
@@ -673,13 +696,13 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByRole("status", { name: "Loading Process controls" })).toBeTruthy();
     expect(await screen.findByRole("button", { name: "Save processed curves" })).toBeTruthy();
     expect(screen.queryByRole("status", { name: "Loading Process controls" })).toBeNull();
-    fireEvent.click(screen.getByTitle("DP600-TENSILE-01 · S-1 · revision r1"));
+    fireEvent.click(processRailButton("Specimen 01 · r1"));
     await waitFor(() => expect(document.querySelector(".persistent-modeling-plot > .modeling-plot-empty")).toBeTruthy());
     expect(await screen.findByText("No Process preview is active. Select Preview changes to preview the current Process settings.")).toBeTruthy();
     expect(screen.queryByText("Choose a saved Test Data revision. The graph compares real curves without changing saved data.")).toBeNull();
     expect(document.querySelector('[data-modeling-process-panel="ready"]')).toBeTruthy();
     const processSave = screen.getByRole("button", { name: "Save processed curves" }) as HTMLButtonElement;
-    fireEvent.click(screen.getByTitle("DP600-TENSILE-02 · S-2 · revision r1"));
+    fireEvent.click(processRailButton("Specimen 02 · r1"));
     expect(onSessionEvent).toHaveBeenCalledWith({
       type: "PIN_TEST_DATA",
       testData: {
@@ -731,9 +754,9 @@ describe("Common Processing Workbench", () => {
     expect(blockedRailButtons.every((button) => button.disabled)).toBe(true);
     expect(blockedRangeInputs.every((input) => input.matches(":disabled"))).toBe(true);
     fireEvent.click(screen.getByRole("checkbox", { name: "Include Specimen 01 in processing and fit" }));
-    fireEvent.click(screen.getByTitle("DP600-TENSILE-01 · S-1 · revision r1"));
+    fireEvent.click(processRailButton("Specimen 01 · r1"));
     fireEvent.click(screen.getByRole("checkbox", { name: "Include Specimen 02 in processing and fit" }));
-    fireEvent.click(screen.getByTitle("DP600-TENSILE-02 · S-2 · revision r1"));
+    fireEvent.click(processRailButton("Specimen 02 · r1"));
     await waitFor(() => expect((screen.getByRole("button", { name: "Preview changes" }) as HTMLButtonElement).disabled).toBe(false));
     fireEvent.click(screen.getByRole("button", { name: /\+ Sort and resolve duplicate/ }));
     expect(processSave.disabled).toBe(true);
@@ -869,8 +892,8 @@ describe("Common Processing Workbench", () => {
       "curve-row-label",
       "curve-visibility-toggle",
     ]);
-    const curveRow = screen.getByTitle("DP600-TENSILE-01 · S-1 · revision r1");
-    expect(curveRow.getAttribute("title")).toContain("DP600-TENSILE-01");
+    const curveRow = processRailButton("Specimen 01 · r1");
+    expect(curveRow.textContent).toBe("Specimen 01 · r1");
     const includeSpecimen = screen.getByRole("checkbox", { name: "Include Specimen 01 in processing and fit" });
     const plotVisibility = screen.getByRole("button", { name: "Hide Specimen 01 on plot" });
     expect(plotVisibility.getAttribute("aria-pressed")).toBe("true");
@@ -1277,6 +1300,9 @@ describe("Common Processing Workbench", () => {
     expect(document.querySelector(".persistent-modeling-plot > .modeling-plot-toolbar")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
     await waitFor(() => expect(screen.getByText(/Preview ready\./)).toBeTruthy(), { timeout: 5000 });
+    expect(processRailIdentities()).toEqual(expect.arrayContaining(["Specimen 01 · r1", "Specimen 02 · r1", "Specimen 03 · r1"]));
+    expect(processRailIdentities().every((text) => /^Specimen \d{2} · r[1-9]\d*$/.test(text))).toBe(true);
+    expect(Array.from(document.querySelectorAll(".modeling-process-workspace-bounded .curve-row-label small"))).toHaveLength(0);
     expect(document.querySelector(".process-band-source")?.textContent).toBe("Specimen 01 · r1");
     expect(document.querySelector(".process-band-result")?.textContent).toContain("210.0 GPa");
     const savedDetails = document.querySelector("details.process-saved-results") as HTMLDetailsElement;
@@ -1502,9 +1528,9 @@ describe("Common Processing Workbench", () => {
     const view = render(<CommonProcessingWorkbench config={{ baseUrl: "/api/v1", accessToken: "token" }} initialSession={session as never} material={material as never} materialState={materialState as never} locationSearch="?stage=process&family=metal" onNavigate={() => undefined} onOpenConnection={() => undefined} />);
     await screen.findByRole("button", { name: "Save processed curves" });
     await waitFor(() => expect(contentGets).toBe(1));
-    await waitFor(() => expect(screen.getByTitle("DP600-TENSILE-02 · S-2 · revision r1")).toBeTruthy());
+    await waitFor(() => expect(processRailIdentities()).toContain("Specimen 02 · r1"));
     const previewPostsBeforeFailure = previewPosts;
-    fireEvent.click(screen.getByTitle("DP600-TENSILE-02 · S-2 · revision r1"));
+    fireEvent.click(processRailButton("Specimen 02 · r1"));
     await waitFor(() => expect(screen.getByRole("button", { name: "Retry exact source" })).toBeTruthy());
     expect(contentGets).toBe(2);
     expect(screen.getByText("Exact source unavailable · r1")).toBeTruthy();
@@ -1519,7 +1545,7 @@ describe("Common Processing Workbench", () => {
     expect(contentGets).toBe(2);
     failedRead = false;
     fireEvent.click(screen.getByRole("button", { name: "Retry exact source" }));
-    await waitFor(() => expect(screen.getByText("Specimen 02 · r1")).toBeTruthy());
+    await waitFor(() => expect(processRailIdentities()).toContain("Specimen 02 · r1"));
     expect((screen.getByRole("button", { name: "Preview changes" }) as HTMLButtonElement).disabled).toBe(false);
     expect(outputPosts).toBe(0);
   });
@@ -1574,14 +1600,14 @@ describe("Common Processing Workbench", () => {
     const materialState = { material_state_id: "state-a", current_revision: { id: "state-a-r1", revision_no: 1, content: { name: "As received" } } };
     render(<CommonProcessingWorkbench config={{ baseUrl: "/api/v1", accessToken: "token" }} initialSession={session as never} material={material as never} materialState={materialState as never} locationSearch="?stage=process&family=metal" onNavigate={() => undefined} onOpenConnection={() => undefined} />);
     await waitFor(() => expect(contentRequests).toEqual([sourceId]));
-    await screen.findByText("Specimen 01 · r1");
-    fireEvent.click(await screen.findByTitle("DP600-TENSILE-02 · S-2 · revision r1"));
+    await waitFor(() => expect(processRailIdentities()).toContain("Specimen 01 · r1"));
+    fireEvent.click(processRailButton("Specimen 02 · r1"));
     await waitFor(() => expect(contentRequests).toEqual([sourceId, nextId]));
-    if (outcome === "success") await screen.findByText("Specimen 02 · r1");
+    if (outcome === "success") await waitFor(() => expect(processRailIdentities()).toContain("Specimen 02 · r1"));
     else await screen.findByRole("button", { name: "Retry exact source" });
-    fireEvent.click(screen.getByTitle("DP600-TENSILE-01 · S-1 · revision r1"));
+    fireEvent.click(processRailButton("Specimen 01 · r1"));
     await waitFor(() => expect(contentRequests).toEqual([sourceId, nextId, sourceId]));
-    await screen.findByText("Specimen 01 · r1");
+    await waitFor(() => expect(processRailIdentities()).toContain("Specimen 01 · r1"));
     expect(screen.queryByText("Exact source unavailable · r1")).toBeNull();
   });
 
@@ -1640,9 +1666,9 @@ describe("Common Processing Workbench", () => {
     const materialState = { material_state_id: "state-a", current_revision: { id: "state-a-r1", revision_no: 1, content: { name: "As received" } } };
     render(<CommonProcessingWorkbench config={{ baseUrl: "/api/v1", accessToken: "token" }} initialSession={session as never} material={material as never} materialState={materialState as never} locationSearch="?stage=process&family=metal" onNavigate={() => undefined} onOpenConnection={() => undefined} />);
     await waitFor(() => expect(contentGets).toBe(1));
-    fireEvent.click(await screen.findByTitle("DP600-TENSILE-02 · S-2 · revision r1"));
+    fireEvent.click(processRailButton("Specimen 02 · r1"));
     await waitFor(() => expect(contentGets).toBe(2));
-    if (outcome === "success") await waitFor(() => expect(screen.getByText("Specimen 02 · r1")).toBeTruthy());
+    if (outcome === "success") await waitFor(() => expect(processRailIdentities()).toContain("Specimen 02 · r1"));
     else await waitFor(() => expect(screen.getByRole("button", { name: "Retry exact source" })).toBeTruthy());
     resolveA?.({
       ok: true,
@@ -1653,8 +1679,8 @@ describe("Common Processing Workbench", () => {
     await new Promise((resolve) => setTimeout(resolve, 250));
     expect(contentGets).toBe(2);
     if (outcome === "success") {
-      expect(screen.getByText("Specimen 02 · r1")).toBeTruthy();
-      expect(screen.queryByText("Specimen 01 · r1")).toBeNull();
+      expect(processRailIdentities()).toContain("Specimen 02 · r1");
+      expect(document.querySelector(".process-band-source")?.textContent).toBe("Specimen 02 · r1");
     } else {
       expect(screen.getByText("Exact source unavailable · r1")).toBeTruthy();
       expect(screen.getByRole("button", { name: "Retry exact source" })).toBeTruthy();

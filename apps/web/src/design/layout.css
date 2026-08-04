@@ -3107,6 +3107,66 @@
   display: none;
 }
 
+/* Process elastic-modulus controls stay content-bound: the method buttons and
+   range fields share one left-justified row, while the optional manual
+   workup can wrap onto a second row inside the same current-step band. */
+.process-band-controls > .guided-step-options.elastic-modulus-options {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  align-items: flex-start;
+  gap: 5px 8px;
+  overflow: visible;
+}
+
+.process-band-controls .elastic-modulus-methods {
+  display: flex;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 3px;
+  width: max-content;
+  max-width: 100%;
+}
+
+.process-band-controls .elastic-modulus-range {
+  display: grid;
+  flex: 0 0 auto;
+  grid-template-columns: repeat(2, minmax(104px, auto));
+  gap: 4px;
+  width: max-content;
+  max-width: 100%;
+}
+
+.process-band-controls .elastic-modulus-range label,
+.process-band-controls .elastic-modulus-manual-row label {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+  color: var(--ux-text-muted);
+  font-size: 12px;
+}
+
+.process-band-controls .elastic-modulus-range input {
+  width: 104px;
+  max-width: 100%;
+}
+
+.process-band-controls .elastic-modulus-manual-row {
+  display: grid;
+  flex: 1 1 100%;
+  grid-template-columns: minmax(145px, 1fr) minmax(96px, .42fr) minmax(190px, 1.25fr);
+  gap: 4px 8px;
+  width: 100%;
+  min-width: 0;
+}
+
+.process-band-controls .elastic-modulus-manual-row :is(input, select) {
+  width: 100%;
+  min-width: 0;
+}
+
 .process-band-save {
   align-items: end;
   flex: 0 1 690px;
@@ -4392,6 +4452,24 @@
   line-height: 1.15;
 }
 
+/* Process-only plot chrome: keep the compact interactive key in the
+   curve-free lower-right, above EngineeringCurvePlot's fixed 52px x-axis
+   margin.  Data/Fit/Export keep their existing legend placement rules. */
+.modeling-process-workspace-bounded .persistent-modeling-plot > .curve-legend {
+  bottom: 60px;
+}
+
+.modeling-process-workspace-bounded .persistent-modeling-plot > .curve-legend.interactive {
+  max-width: 230px;
+}
+
+.modeling-process-workspace-bounded .persistent-modeling-plot > .curve-legend.interactive button {
+  min-height: 16px;
+  padding: 1px 3px;
+  font-size: 10px;
+  line-height: 1.15;
+}
+
 .persistent-modeling-plot > :is(.stage-diagnostics, .model-diagnostics-details, .digest-line) {
   display: none;
 }
@@ -4410,8 +4488,8 @@
     min-height: 0;
   }
 
-  .persistent-modeling-plot > .curve-legend {
-    bottom: 18px;
+  .modeling-process-workspace-bounded .persistent-modeling-plot > .curve-legend {
+    bottom: 60px;
   }
 
   .persistent-modeling-plot .processing-curve .chart-tick,

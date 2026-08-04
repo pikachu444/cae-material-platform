@@ -172,7 +172,7 @@ def test_default_capture_producer_runs_process_only_after_generic_modeling() -> 
 
 def test_modeling_process_capture_contract_covers_wide_and_settled_states() -> None:
     assert len(MODELING_PROCESS_OUTPUTS) == 8
-    assert {
+    assert MODELING_PROCESS_OUTPUTS == (
         "modeling-process-1366x768.png",
         "modeling-process-1440x900.png",
         "modeling-process-1920x1080.png",
@@ -181,7 +181,69 @@ def test_modeling_process_capture_contract_covers_wide_and_settled_states() -> N
         "modeling-process-blocked-1440x900.png",
         "modeling-process-exact-read-failed-1440x900.png",
         "modeling-process-siblings-1440x900.png",
-    } == set(MODELING_PROCESS_OUTPUTS)
+    )
+
+
+def test_process_geometry_contract_rejects_identity_clipping_chart_collisions_and_bad_control_gap() -> None:
+    geometry = _CAPTURE_SOURCE.split("def _measure_process_fit", 1)[1].split(
+        "def _wait_modeling_process_panel", 1
+    )[0]
+
+    assert 're.fullmatch(r"Specimen \\d{2} · r[1-9]\\d*"' in geometry
+    assert 'if measurement.get("processRowClipped"):' in geometry
+    assert "processRowClipped" in geometry
+    assert 'if measurement.get("legendTickOverlap") or measurement.get("legendAxisLabelOverlap") or measurement.get("legendAxisOverlap"):' in geometry
+    for overlap_key in ("legendTickOverlap", "legendAxisLabelOverlap", "legendAxisOverlap"):
+        assert overlap_key in geometry
+    assert 'if not isinstance(method_range_gap, (int, float)) or method_range_gap < 0 or method_range_gap > 20:' in geometry
+    assert "methodRangeGap" in geometry
+
+
+def test_process_capture_runs_manual_surface_after_initial_preview_before_1366_capture() -> None:
+    process_only = _CAPTURE_SOURCE.split(
+        "def _capture_modeling_process_only", 1
+    )[1].split("def _capture_modeling_data_viewports", 1)[0]
+    preview = process_only.index("_assert_modeling_process_preview(page)")
+    manual = process_only.index("_assert_modeling_process_manual_surface(page)")
+    capture = process_only.index("_capture(", manual)
+
+    assert preview < manual < capture
+    assert "if width == 1366:" in process_only
+
+
+def test_process_manual_surface_contract_uses_real_pointer_and_restores_server_result() -> None:
+    helper = _CAPTURE_SOURCE.split(
+        "def _assert_modeling_process_manual_surface", 1
+    )[1].split("def _assert_modeling_process_geometry", 1)[0]
+
+    assert "manual.click()" in helper
+    assert 'control.wait_for(state="visible", timeout=30_000)' in helper
+    assert 'control_box["left"] < panel_box["left"]' in helper
+    assert 'control_box["right"] > panel_box["right"]' in helper
+    assert 'control_box["top"] < panel_box["top"]' in helper
+    assert 'control_box["bottom"] > panel_box["bottom"]' in helper
+    assert "elementFromPoint" in helper
+    assert "own: Boolean(node && hit && (hit === node || node.contains(hit)))" in helper
+    assert "scrollWidth" in helper
+    assert "clientWidth" in helper
+    assert 'value.focus()' in helper
+    assert helper.count('page.keyboard.press("Tab")') == 2
+    assert '"Manual Young\'s modulus unit"' in helper
+    assert '"Manual Young\'s modulus reason"' in helper
+    assert 'plot_box["height"] < 280' in helper
+    assert 'svg_box["height"] < 230' in helper
+    assert "auto.click()" in helper
+    assert helper.index("auto.click()") < helper.index('preview.click()')
+    assert 'get_by_text("Preview ready", exact=False)' in helper
+    assert 'get_by_text("210.0 GPa", exact=True)' in helper
+
+
+def test_only_modeling_process_cli_help_and_output_contract_stay_at_eight() -> None:
+    parser_fragment = _CAPTURE_SOURCE.split(
+        '        "--only-modeling-process",', 1
+    )[1].split("    parser.add_argument(", 1)[0]
+    assert "eight Modeling Process viewports" in parser_fragment
+    assert len(MODELING_PROCESS_OUTPUTS) == 8
 
 
 def test_exact_document_success_wait_replaces_removed_notice_for_data_and_process() -> None:

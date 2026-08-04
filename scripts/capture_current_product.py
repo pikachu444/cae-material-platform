@@ -1402,7 +1402,9 @@ def _prepare_modeling(page: Page, base_url: str) -> None:
 def _prepare_modeling_process(page: Page, base_url: str) -> None:
     """Prepare Process on the exact Specimen 01 source and session pins."""
     _prepare_modeling(page, base_url)
-    exact_row = page.get_by_title(PROCESS_SOURCE_TITLE, exact=True)
+    exact_row = page.locator(
+        ".modeling-process-workspace-bounded .curve-row-label"
+    ).filter(has_text=PROCESS_SOURCE_VISIBLE_IDENTITY).first
     exact_row.wait_for(state="visible", timeout=30_000)
     exact_row.click()
     _wait_for_exact_document_load_settled(page)
@@ -2140,6 +2142,19 @@ def _measure_process_fit(page: Page, stage: str, width: int, height: int) -> dic
     measurement = page.evaluate(
         """() => {
           const box = selector => document.querySelector(selector)?.getBoundingClientRect();
+          const rect = node => {
+            const value = node?.getBoundingClientRect?.();
+            return value && node?.getClientRects?.().length
+              ? { left: value.left, right: value.right, top: value.top, bottom: value.bottom, width: value.width, height: value.height }
+              : null;
+          };
+          const overlaps = (first, second) => Boolean(
+            first && second
+              && first.left < Math.max(second.right, second.left + 1)
+              && Math.max(first.right, first.left + 1) > second.left
+              && first.top < Math.max(second.bottom, second.top + 1)
+              && Math.max(first.bottom, first.top + 1) > second.top
+          );
           const svg = document.querySelector('.persistent-modeling-plot svg[role=img]');
           const axis = [...(svg?.querySelectorAll('.chart-axis') ?? [])]
             .find(
@@ -2150,10 +2165,22 @@ def _measure_process_fit(page: Page, stage: str, width: int, height: int) -> dic
           const rail = box('.modeling-workspace-rail');
           const ribbon = box('.modeling-task-ribbon');
           const plot = box('.persistent-modeling-plot');
-          const legend = box('.curve-legend');
+          const legend = rect(document.querySelector('.modeling-process-workspace-bounded .persistent-modeling-plot > .curve-legend'));
           const svgBox = svg?.getBoundingClientRect();
-          const axisLabels = [...(svg?.querySelectorAll('.chart-axis-label') ?? [])];
-          const xAxisLabel = axisLabels.at(-2)?.getBoundingClientRect();
+          const ticks = [...(svg?.querySelectorAll('.chart-tick') ?? [])].map(rect).filter(Boolean);
+          const axisLabels = [...(svg?.querySelectorAll('.chart-axis-label') ?? [])].map(rect).filter(Boolean);
+          const axes = [...(svg?.querySelectorAll('.chart-axis') ?? [])].map(rect).filter(Boolean);
+          const xAxisLabel = axisLabels.at(-2);
+          const processRows = [...document.querySelectorAll('.modeling-process-workspace-bounded .modeling-dataset-list .curve-row-label')].map(row => {
+            const text = (row.textContent ?? '').replace(/\\s+/g, ' ').trim();
+            const descendants = [row, ...row.querySelectorAll('strong, small')];
+            const clipped = descendants.some(node => node.scrollWidth > node.clientWidth + 1 || node.scrollHeight > node.clientHeight + 1);
+            return { text, clipped };
+          });
+          const methods = [...document.querySelectorAll('.modeling-process-workspace-bounded .elastic-modulus-methods button')]
+            .map(button => rect(button)).filter(Boolean);
+          const range = rect(document.querySelector('.modeling-process-workspace-bounded .elastic-modulus-range'));
+          const lastMethod = methods.at(-1);
           return {
             svgHeight: svgBox?.height ?? 0,
             svgWidth: svgBox?.width ?? 0,
@@ -2168,6 +2195,12 @@ def _measure_process_fit(page: Page, stage: str, width: int, height: int) -> dic
             railWidth: rail?.width ?? 0, ribbonHeight: ribbon?.height ?? 0,
             plotBottom: plot?.bottom ?? 0, xAxisLabelBottom: xAxisLabel?.bottom ?? 0,
             legendBottom: legend?.bottom ?? 0,
+            legendTickOverlap: ticks.some(tick => overlaps(legend, tick)),
+            legendAxisLabelOverlap: axisLabels.some(label => overlaps(legend, label)),
+            legendAxisOverlap: axes.some(axisLine => overlaps(legend, axisLine)),
+            processRows,
+            processRowClipped: processRows.some(row => row.clipped),
+            methodRangeGap: lastMethod && range ? range.left - lastMethod.right : null,
             viewportHeight: window.innerHeight
           };
         }"""
@@ -2183,6 +2216,20 @@ def _measure_process_fit(page: Page, stage: str, width: int, height: int) -> dic
         raise RuntimeError(f"{stage} geometry gate failed at {width}x{height}: {measurement}")
     if width == 1440 and measurement["svgWidth"] < 1050:
         raise RuntimeError(f"{stage} 1440 graph-width gate failed: {measurement}")
+    if stage == "process":
+        rows = measurement.get("processRows")
+        if not isinstance(rows, list) or not rows:
+            raise RuntimeError(f"Process rail rows are missing at {width}x{height}: {measurement}")
+        for row in rows:
+            if not isinstance(row, dict) or not re.fullmatch(r"Specimen \d{2} · r[1-9]\d*", str(row.get("text", ""))):
+                raise RuntimeError(f"Process rail identity drifted at {width}x{height}: {measurement}")
+        if measurement.get("processRowClipped"):
+            raise RuntimeError(f"Process rail identity is clipped at {width}x{height}: {measurement}")
+        if measurement.get("legendTickOverlap") or measurement.get("legendAxisLabelOverlap") or measurement.get("legendAxisOverlap"):
+            raise RuntimeError(f"Process legend overlaps chart ticks/labels/axis at {width}x{height}: {measurement}")
+        method_range_gap = measurement.get("methodRangeGap")
+        if not isinstance(method_range_gap, (int, float)) or method_range_gap < 0 or method_range_gap > 20:
+            raise RuntimeError(f"Process elastic method/range gap is outside 0–20px at {width}x{height}: {measurement}")
     if stage == "process" and width >= 2560:
         if (
             measurement["processClusterWidth"] <= 0
@@ -2291,6 +2338,75 @@ def _assert_modeling_process_preview(
         controls.get_by_role("spinbutton", name=label, exact=True).wait_for(state="visible", timeout=30_000)
     if page.locator(".fit-evidence-disclosure").count() or page.get_by_text("Candidate equations", exact=True).count() or page.get_by_text("Fit domain", exact=True).count() or page.get_by_text("Selected blend", exact=True).count():
         raise RuntimeError("Process preview exposed Fit candidate controls")
+    _assert_modeling_process_geometry(page)
+
+
+def _assert_modeling_process_manual_surface(page: Page) -> None:
+    """Exercise the compact Process manual workup, then restore Auto robust."""
+    panel = page.locator('[data-modeling-process-panel="ready"]')
+    controls = panel.locator(".process-band-controls")
+    manual = controls.get_by_role("button", name="Manual slope", exact=True)
+    # Locator.click is a real pointer click in the live capture (not a
+    # synthetic React event), so the helper proves the normal interaction path.
+    manual.click()
+    value = controls.get_by_role("spinbutton", name="Manual Young's modulus", exact=True)
+    unit = controls.get_by_role("combobox", name="Manual Young's modulus unit", exact=True)
+    reason = controls.get_by_role("textbox", name="Manual Young's modulus reason", exact=True)
+    for control in (value, unit, reason):
+        control.wait_for(state="visible", timeout=30_000)
+    panel_box = panel.bounding_box()
+    if panel_box is None:
+        raise RuntimeError("Process manual controls have no current-step panel bounds")
+    for name, control in (("value", value), ("unit", unit), ("reason", reason)):
+        control_box = control.bounding_box()
+        if control_box is None or control_box["left"] < panel_box["left"] or control_box["right"] > panel_box["right"] or control_box["top"] < panel_box["top"] or control_box["bottom"] > panel_box["bottom"]:
+            raise RuntimeError(f"Process manual {name} control escaped the current-step band: panel={panel_box}, control={control_box}")
+    hit_tests = page.evaluate(
+        """() => [
+          '[data-modeling-process-panel="ready"] [aria-label="Manual Young\\'s modulus"]',
+          '[data-modeling-process-panel="ready"] [aria-label="Manual Young\\'s modulus unit"]',
+          '[data-modeling-process-panel="ready"] [aria-label="Manual Young\\'s modulus reason"]',
+        ].map(selector => {
+          const node = document.querySelector(selector);
+          const box = node?.getBoundingClientRect();
+          const hit = box ? document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2) : null;
+          return { selector, own: Boolean(node && hit && (hit === node || node.contains(hit))) };
+        })"""
+    )
+    if not isinstance(hit_tests, list) or any(not isinstance(item, dict) or not item.get("own") for item in hit_tests):
+        raise RuntimeError(f"Process manual controls failed center hit-testing: {hit_tests!r}")
+    overflow = page.evaluate(
+        """() => ({ scrollWidth: document.documentElement.scrollWidth, clientWidth: document.documentElement.clientWidth })"""
+    )
+    if not isinstance(overflow, dict) or float(overflow.get("scrollWidth", 0)) > float(overflow.get("clientWidth", 0)):
+        raise RuntimeError(f"Process manual surface introduced page horizontal overflow: {overflow!r}")
+    value.focus()
+    page.keyboard.press("Tab")
+    if page.evaluate("() => document.activeElement?.getAttribute('aria-label')") != "Manual Young's modulus unit":
+        raise RuntimeError("Process manual value did not Tab to Unit")
+    page.keyboard.press("Tab")
+    if page.evaluate("() => document.activeElement?.getAttribute('aria-label')") != "Manual Young's modulus reason":
+        raise RuntimeError("Process manual Unit did not Tab to reason")
+    plot_box = page.locator(".persistent-modeling-plot").bounding_box()
+    svg_box = page.locator(".persistent-modeling-plot svg[role=img]").bounding_box()
+    if plot_box is None or plot_box["height"] < 280 or svg_box is None or svg_box["height"] < 230:
+        raise RuntimeError(f"Process manual surface compressed the plot: plot={plot_box}, svg={svg_box}")
+    auto = controls.get_by_role("button", name="Auto robust", exact=True)
+    auto.click()
+    page.wait_for_function(
+        """() => document.querySelector('[data-modeling-process-panel="ready"] .elastic-modulus-methods button.active')
+          ?.textContent?.trim() === 'Auto robust'""",
+        timeout=30_000,
+    )
+    preview = page.get_by_role("button", name="Preview changes", exact=True)
+    preview.click()
+    page.get_by_text("Preview ready", exact=False).wait_for(timeout=30_000)
+    _wait_modeling_process_panel(page)
+    _wait_for_modeling_process_plot_size(page)
+    controls = page.locator('[data-modeling-process-panel="ready"] .process-band-controls')
+    if "active" not in (controls.get_by_role("button", name="Auto robust", exact=True).get_attribute("class") or ""):
+        raise RuntimeError("Process manual helper did not restore Auto robust")
+    page.locator('[data-modeling-process-panel="ready"] .process-band-result').get_by_text("210.0 GPa", exact=True).wait_for(timeout=30_000)
     _assert_modeling_process_geometry(page)
 
 
@@ -2474,6 +2590,8 @@ def _capture_modeling_process_only(
         ).wait_for(timeout=30_000)
         _wait_modeling_process_panel(page)
         _assert_modeling_process_preview(page)
+        if width == 1366:
+            _assert_modeling_process_manual_surface(page)
         _capture(
             page,
             output / f"modeling-process-{width}x{height}.png",
@@ -3562,7 +3680,7 @@ def main() -> int:
     parser.add_argument(
         "--only-modeling-process",
         action="store_true",
-        help="Capture and replace only the seven Modeling Process viewports and settled states.",
+        help="Capture and replace only the eight Modeling Process viewports and settled states.",
     )
     parser.add_argument(
         "--only-modeling-consistency",
