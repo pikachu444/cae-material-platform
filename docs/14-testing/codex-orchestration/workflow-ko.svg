@@ -62,8 +62,7 @@ html[lang="en"] .agent-desc { font-size: 14px; }
 <text class="document-title" x="42" y="53">Codex 작업 흐름과 에이전트 오케스트레이션</text>
 <text class="document-subtitle" x="42" y="79">화살표는 작업 순서만 표시하며, 오른쪽 카드의 색과 도형은 흐름 속 담당 역할과 일치합니다.</text>
 <g transform="translate(0 100)">
-
-    <title id="svg-title">Codex workflow and configured agent roles</title>
+<title id="svg-title">Codex workflow and configured agent roles</title>
     <desc id="svg-desc">A clear top-down delivery flow, a separate correction flow, and configured agent model and reasoning assignments.</desc>
     <defs>
       <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
@@ -280,6 +279,5 @@ html[lang="en"] .agent-desc { font-size: 14px; }
     <text class="agent-note" x="1696" y="1377" data-ko="역할 ID와 도형·색상 대응" data-en="Role IDs, shapes, and colors"><tspan x="1696" dy="0">역할 ID와 도형·색상 대응</tspan></text>
     <text class="agent-desc" x="1696" y="1406" data-ko="MAIN 파랑 · AUDIT 금색 · WRITE 청록 · FIX 빨강 · REVIEW 보라" data-en="MAIN blue · AUDIT gold · WRITE teal · FIX red · REVIEW purple"><tspan x="1696" dy="0">MAIN 파랑 · AUDIT 금색 · WRITE 청록 · FIX 빨강 · REVIEW 보라</tspan></text>
     <text class="agent-desc" x="1696" y="1434" data-ko="OWNER와 HOOK은 에이전트가 아닌 승인·게시 역할" data-en="OWNER and HOOK are approval/publication roles, not agents"><tspan x="1696" dy="0">OWNER와 HOOK은 에이전트가 아닌 승인·게시 역할</tspan></text>
-  
 </g>
 </svg>

@@ -175,6 +175,7 @@ def export_svg(page: Page, destination: Path, *, title: str, subtitle: str) -> N
           flow: document.querySelector('#flow').innerHTML,
         })"""
     )
+    flow = str(payload["flow"]).strip()
     svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1600" viewBox="0 0 2400 1600" role="img" aria-labelledby="document-title document-desc" style="display:block;width:2400px;height:1600px">
 <style><![CDATA[
 {payload['styles']}
@@ -189,7 +190,7 @@ def export_svg(page: Page, destination: Path, *, title: str, subtitle: str) -> N
 <text class="document-title" x="42" y="53">{html.escape(title)}</text>
 <text class="document-subtitle" x="42" y="79">{html.escape(subtitle)}</text>
 <g transform="translate(0 100)">
-{payload['flow']}
+{flow}
 </g>
 </svg>
 """
