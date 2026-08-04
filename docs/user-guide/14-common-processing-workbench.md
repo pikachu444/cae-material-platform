@@ -32,11 +32,12 @@ Modeling**은 해당 Test Data exact revision을 같은 방식으로 전달합�
 Material, State, Test Data, Mapping Profile과 Recipe exact revision을 복원하며, 저장된 revision이
 현재 선택 가능한 head와 다르면 조용히 최신값으로 바꾸지 않고 검토 경고를 표시합니다.
 
-금속 **Metal elastic modulus** 단계에서는 current-step settings ribbon에서 Auto robust, Linear regression,
-Chord, Secant, Manual slope를 직접 선택합니다. 평가 method 버튼과 Start/End strain은 한 compact row에
-왼쪽 정렬되어 함께 보이며, 그래프의 **Select range**로도 같은 구간을 정할 수 있습니다. Manual slope의
-값·unit·engineering reason은 필요한 경우 다음 줄로 자연스럽게 감싸지지만 current-step band 안에서
-키보드로 이어서 접근할 수 있습니다. GPa/MPa 입력은
+금속 **Metal elastic modulus** 단계에서는 current-step settings ribbon의 native **Evaluation method**
+select에서 Auto robust, Linear regression, Chord, Secant, Manual slope를 선택합니다. 내부 값은
+`robust_huber`, `linear_regression`, `chord`, `secant`, `manual`로 유지되며 Start/End strain은 같은
+Calculation group에 놓입니다. 그래프의 **Select range**로도 같은 구간을 정할 수 있습니다. Manual
+slope의 값·unit·engineering reason은 두 번째 줄에 나타나며 키보드 순서는 value → unit → reason입니다.
+GPa/MPa 입력은
 canonical Pa로 변환해 실제 계산에 사용합니다. 선택한 necking point도 point index와 reason을 요구합니다.
 두 수동 workup은 원값/원 단위·canonical 값/단위·사유를 `workup_overrides`로 Processing Output revision과
 다운로드 Artifact에 함께 고정합니다. **Offset proof stress**는 선택한 offset/search range의 curve-derived
@@ -80,7 +81,9 @@ stale/clear하며 이전 immutable revision은 history에 남습니다.
    - `reject` 또는 `drop_any` missing-data 정책
 6. 재사용할 매핑이면 **Save new profile**을 누릅니다. 기존 profile을 변경할 때는 변경 사유를
    입력하고 **Append profile revision**을 눌러 새 revision을 만듭니다. 기존 revision은 덮어쓰지 않습니다.
-7. Process/Fit의 **Add operation**, **Add fit method**와 얕은 settings band를 사용합니다.
+7. Process/Fit의 **Add operation**, **Add fit method**와 얕은 settings band를 사용합니다. Optional
+   smoothing 방법은 서버 registry/capability로 보존되며, 이 guide는 새 smoothing 단계나 별도
+   discoverability를 추가로 요구하지 않습니다.
 8. 처리 결과와 모델 후보는 같은 graph에서 비교합니다. 계산 식별자와 상세 수치 기록은 일반 graph를
    밀어내지 않고 Advanced/Evidence에서만 확인합니다.
 
@@ -218,7 +221,9 @@ Activity에 Delivered 상태나 링크를 만들지 않습니다. source/target 
 
 ### Process 상태와 저장 결과 비교
 
-Process band는 선택한 exact Test Data revision과 Mapping Profile을 항상 함께 표시합니다. 서버
+Process band는 선택한 exact Test Data revision과 Mapping Profile을 항상 함께 표시하고,
+Calculation | Preview | Save result 세 그룹을 얕은 한 줄 band로 정렬합니다. select, range input,
+processed-curve label, save reason과 Save 버튼은 같은 compact control height를 사용합니다. 서버
 preview가 성공한 동안에는 mapped input, 선택한 processed stage, server modulus fit을 하나의
 engineering graph에 겹쳐 보여 주며, draft option을 바꾸거나 재계산에 실패해도 마지막 유효
 server preview를 화면에 남깁니다. 실패한 응답은 저장 입력으로 승격되지 않습니다. exact source나
@@ -230,14 +235,18 @@ document/preview/scalar나 newest/current-head를 fallback으로 사용하지 �
 **Retry exact source** 또는 **Back to Data**로만 복구합니다. 같은 exact ref의 재시도는 한 번의
 새 요청이고 실패하면 다시 settled blocked 상태로 남습니다.
 
-**Saved results** disclosure는 현재 exact source/profile에 맞는 Processing Output만 보여 줍니다.
-각 row는 label, source revision, elastic method/range, artifact에서 다시 읽은 Young's modulus,
-output revision, `current`/`history` 상태를 한 줄로 표시합니다. Artifact를 읽지 못하거나 source,
-profile, output id, revision, ordered steps가 맞지 않으면 `Saved result unavailable`과 **Retry**를
-표시하고 값의 fallback을 만들지 않습니다. 성공적으로 읽은 row만 **Use settings**를 제공하며,
-이는 같은 settings를 새 draft로 복사하므로 preview 후 새 immutable output을 저장해야 합니다.
-같은 exact source에서 두 결과를 저장하면 이전 결과는 history로 보존되고 새 결과만 current가
-됩니다. upstream draft 변경은 current pointer를 지우지만 saved history는 삭제하지 않습니다.
+**Saved processing results (N)** disclosure는 현재 exact source/profile에 맞는 Processing Output만
+보여 주며, `Label | Method | Range | Result | Revision | State | Action` 일곱 열을 직접 제공합니다.
+Method 열은 `robust_huber` 같은 내부 ID 대신 Auto robust, Linear regression, Chord, Secant, Manual
+slope를 표시하고 Revision은 정확한 `r1` 형식으로 고정합니다. 각 row에 source 설명을 반복하지 않아
+1366px에서도 열과 Retry/Use settings action을 바로 사용할 수 있습니다. Artifact를 읽지 못하거나
+source, profile, output id, revision, ordered steps가 맞지 않으면 Result에 **Saved result unavailable**과
+row-local **Retry**를 표시하고 fallback을 만들지 않습니다. 성공적으로 읽은 row만 **Use settings**를
+제공하며, 같은 settings를 새 draft로 복사하므로 Preview 후 새 immutable output을 저장해야 합니다.
+Save한 결과는 새 current가 되고 이전 결과는 history로 남습니다. 그 뒤 오래된 row에서 **Use settings**를
+누르면 의도적으로 current pointer를 비우고 draft를 만들지만 세 immutable 결과는 모두 history로
+보존됩니다. Preview와 reload도 이 의도적 clear를 조용히 current로 되돌리지 않습니다. upstream draft
+변경은 current pointer를 지우지만 saved history는 삭제하지 않습니다.
 
 Process의 live evidence는 일반 viewport(1366×768, 1440×900, 1920×1080)와 wide viewport
 (2560×1440, 3840×2160), exact prerequisite blocked(1440×900), exact-read failed(1440×900), saved-result siblings(1440×900)

@@ -178,10 +178,331 @@ const mappingProfileResource = {
   },
 };
 
+function processPreviewFixture(scalarPa = 210e9) {
+  return {
+    execution_mode: "preview",
+    promotable: false,
+    source_document_sha256: "d".repeat(64),
+    mapping_profile_sha256: mappingProfileResource.current_revision.content_hash,
+    independent_quantity: "strain.engineering",
+    stages: [
+      {
+        ordinal: 0,
+        method_id: "mapping",
+        method_version: "1.0.0",
+        point_count: 3,
+        series: [
+          { quantity: "strain.engineering", unit: "1", values: [0, 0.001, 0.002] },
+          { quantity: "stress.engineering", unit: "Pa", values: [0, 2e8, 3e8] },
+        ],
+        diagnostics: [],
+        scalar_results: [],
+      },
+      {
+        ordinal: 1,
+        method_id: "metal.elastic_modulus",
+        method_version: "1.0.0",
+        point_count: 3,
+        series: [
+          { quantity: "strain.engineering", unit: "1", values: [0, 0.001, 0.002] },
+          { quantity: "stress.engineering", unit: "Pa", values: [0, 2e8, 3e8] },
+        ],
+        diagnostics: [],
+        scalar_results: [{ key: "youngs_modulus", quantity_semantics: "modulus.young", value: scalarPa, unit: "Pa" }],
+      },
+    ],
+  };
+}
+
+function processOutputFixture(
+  id: string,
+  label: string,
+  method: "robust_huber" | "chord" = "robust_huber",
+): Record<string, unknown> {
+  return {
+    processing_output_id: id,
+    current_revision: { ...revision, id: `${id}-revision`, aggregate_id: id },
+    label,
+    source_document: { aggregate_id: documentResource.test_data_document_id, revision_id: revision.id },
+    source_document_sha256: "d".repeat(64),
+    source_canonical_artifact_sha256: "e".repeat(64),
+    mapping_profile: { aggregate_id: mappingProfileResource.mapping_profile_id, revision_id: mappingProfileResource.current_revision.id },
+    mapping_profile_sha256: mappingProfileResource.current_revision.content_hash,
+    steps: [{
+      method_id: "metal.elastic_modulus",
+      method_version: "1.0.0",
+      options: { method, minimum_strain: method === "chord" ? 0.001 : 0.0002, maximum_strain: method === "chord" ? 0.003 : 0.002 },
+    }],
+    independent_quantity: "strain.engineering",
+    stage_count: 1,
+    final_point_count: 3,
+    output_artifact_id: `${id}-artifact`,
+    output_sha256: "f".repeat(64),
+    workup_overrides: [],
+    fit_decision: null,
+    export_provenance: null,
+  };
+}
+
+function processMethodFixtures() {
+  return [
+    ["rows.sort_unique", "Sort and resolve duplicate x values"],
+    ["metal.elastic_modulus", "Young's modulus"],
+    ["metal.proof_stress", "Proof stress"],
+    ["metal.necking_candidate", "Necking candidate"],
+    ["metal.engineering_to_true_plastic", "True/plastic conversion"],
+  ].map(([method_id, label]) => ({ method_id, version: "1.0.0", label, description: label, option_schema: {}, deterministic: true, allows_extrapolation: false }));
+}
+
 describe("Common Processing Workbench", () => {
   afterEach(() => {
     cleanup();
     vi.unstubAllGlobals();
+  });
+
+  it("preserves the valid Process preview and save fields across a failed output POST, then retries once", async () => {
+    const sourceRef = { id: documentResource.test_data_document_id, revisionId: revision.id, label: documentResource.document_key, revisionNo: 1 };
+    const session = {
+      version: 4,
+      updatedAt: "2026-07-24T00:00:00Z",
+      materialFamily: "metal",
+      objective: "Retry a failed Process save",
+      material: { id: "material-a", revisionId: "material-a-r1", label: "DP600", revisionNo: 1 },
+      materialState: { id: "state-a", revisionId: "state-a-r1", label: "As received", revisionNo: 1 },
+      testData: sourceRef,
+      mappingProfile: { id: mappingProfileResource.mapping_profile_id, revisionId: mappingProfileResource.current_revision.id, label: mappingProfileResource.content.label, revisionNo: 1 },
+      workspace: {
+        activeStage: "process",
+        selectedDocumentIds: [sourceRef.id],
+        selectedTestDataRefs: [sourceRef],
+        visibleTestDataKeys: [`${sourceRef.id}:${sourceRef.revisionId}`],
+        selectedStepIndex: 1,
+        selectedStageOrdinal: 1,
+        plotView: "pipeline",
+        settingsOpen: true,
+      },
+    };
+    const material = { material_id: "material-a", current_revision: { id: "material-a-r1", revision_no: 1, content: { name: "DP600" } } };
+    const materialState = { material_state_id: "state-a", current_revision: { id: "state-a-r1", revision_no: 1, content: { name: "As received" } } };
+    let failOutputPost = true;
+    let outputPosts = 0;
+    const committed: Record<string, unknown>[] = [];
+    const onSessionChange = vi.fn();
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+      const url = String(input);
+      if (url.endsWith("/test-data-documents")) return jsonResponse({ items: [documentResource] });
+      if (url.endsWith("/mapping-profiles")) return jsonResponse({ items: [mappingProfileResource] });
+      if (url.endsWith("/processing-methods")) return jsonResponse({ items: processMethodFixtures() });
+      if (url.endsWith("/processing-outputs") && init?.method === "POST") {
+        outputPosts += 1;
+        if (failOutputPost) return jsonResponse({ detail: "forced Process output failure" }, 503);
+        const body = JSON.parse(String(init.body ?? "{}")) as Record<string, unknown>;
+        const saved = processOutputFixture("process-retry-output", String(body.label ?? "Processed result"));
+        committed.push(saved);
+        return jsonResponse(saved, 201);
+      }
+      if (url.endsWith("/processing-outputs")) return jsonResponse({ items: committed });
+      if (url.endsWith("/processing-ensemble-methods") || url.endsWith("/common-processing-recipes") || url.endsWith("/common-processing-batches")) return jsonResponse({ items: [] });
+      if (url.includes("/test-data-documents/") && url.endsWith("/content")) return {
+        ok: true,
+        status: 200,
+        headers: new Headers({ "content-type": "application/json" }),
+        blob: async () => new Blob([JSON.stringify(documentJson)], { type: "application/json" }),
+      } as Response;
+      if (url.endsWith("/processing:preview") && init?.method === "POST") return jsonResponse(processPreviewFixture());
+      throw new Error(`unexpected request: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    render(
+      <CommonProcessingWorkbench
+        config={{ baseUrl: "/api/v1", accessToken: "token" }}
+        initialSession={session as never}
+        material={material as never}
+        materialState={materialState as never}
+        locationSearch="?stage=process&family=metal"
+        onNavigate={() => undefined}
+        onOpenConnection={() => undefined}
+        onSessionChange={onSessionChange}
+      />,
+    );
+    await screen.findByRole("button", { name: "Save processed curves" });
+    await waitFor(() => expect(screen.getByText("Preview ready.", { exact: false })).toBeTruthy());
+    const label = screen.getByRole("textbox", { name: "Processed curve label" }) as HTMLInputElement;
+    const reason = screen.getByRole("textbox", { name: "Save reason" }) as HTMLInputElement;
+    fireEvent.change(label, { target: { value: "Retry-preserved label" } });
+    fireEvent.change(reason, { target: { value: "Retry-preserved reason" } });
+    const save = screen.getByRole("button", { name: "Save processed curves" }) as HTMLButtonElement;
+    fireEvent.click(save);
+    await screen.findByText("forced Process output failure");
+    expect(label.value).toBe("Retry-preserved label");
+    expect(reason.value).toBe("Retry-preserved reason");
+    expect(save.disabled).toBe(false);
+    expect(screen.getByText("210.0 GPa")).toBeTruthy();
+    expect(committed).toHaveLength(0);
+    expect(onSessionChange.mock.calls.some(([patch]) => (patch as Record<string, unknown>).processingOutput !== undefined)).toBe(false);
+    failOutputPost = false;
+    fireEvent.click(save);
+    await waitFor(() => expect(committed).toHaveLength(1));
+    expect(outputPosts).toBe(2);
+    expect(screen.getByText("Processed result saved and current", { exact: false })).toBeTruthy();
+    expect(onSessionChange.mock.calls.filter(([patch]) => (patch as Record<string, unknown>).processingOutput !== undefined)).toHaveLength(1);
+  });
+
+  it("restores a saved Process current, then Use settings clears it across rerender and reload", async () => {
+    const sourceRef = { id: documentResource.test_data_document_id, revisionId: revision.id, label: documentResource.document_key, revisionNo: 1 };
+    const initialSession = {
+      version: 4,
+      updatedAt: "2026-07-24T00:00:00Z",
+      materialFamily: "metal",
+      objective: "Restore and intentionally clear Process current",
+      material: { id: "material-a", revisionId: "material-a-r1", label: "DP600", revisionNo: 1 },
+      materialState: { id: "state-a", revisionId: "state-a-r1", label: "As received", revisionNo: 1 },
+      testData: sourceRef,
+      mappingProfile: { id: mappingProfileResource.mapping_profile_id, revisionId: mappingProfileResource.current_revision.id, label: mappingProfileResource.content.label, revisionNo: 1 },
+      workspace: {
+        activeStage: "process",
+        selectedDocumentIds: [sourceRef.id],
+        selectedTestDataRefs: [sourceRef],
+        visibleTestDataKeys: [`${sourceRef.id}:${sourceRef.revisionId}`],
+        selectedStepIndex: 1,
+        selectedStageOrdinal: 1,
+        plotView: "pipeline",
+        settingsOpen: true,
+      },
+    };
+    const material = { material_id: "material-a", current_revision: { id: "material-a-r1", revision_no: 1, content: { name: "DP600" } } };
+    const materialState = { material_state_id: "state-a", current_revision: { id: "state-a-r1", revision_no: 1, content: { name: "As received" } } };
+    const serverOutputs = [
+      processOutputFixture("process-history-robust", "Robust history"),
+      processOutputFixture("process-history-chord", "Chord history", "chord"),
+    ];
+    let outputPosts = 0;
+    let restoredSession: Record<string, unknown> = initialSession;
+    const onSessionChange = vi.fn();
+    const onSessionEvent = vi.fn((event: { type?: string }) => {
+      if (event.type === "CHANGE_PROCESS") {
+        restoredSession = { ...restoredSession, processingOutput: undefined };
+      }
+    });
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+      const url = String(input);
+      if (url.endsWith("/test-data-documents")) return jsonResponse({ items: [documentResource] });
+      if (url.endsWith("/mapping-profiles")) return jsonResponse({ items: [mappingProfileResource] });
+      if (url.endsWith("/processing-methods")) return jsonResponse({ items: processMethodFixtures() });
+      if (url.endsWith("/processing-outputs") && init?.method === "POST") {
+        outputPosts += 1;
+        const body = JSON.parse(String(init.body ?? "{}")) as Record<string, unknown>;
+        const saved = processOutputFixture(`process-saved-${outputPosts}`, String(body.label ?? "New Process"));
+        serverOutputs.push(saved);
+        return jsonResponse(saved, 201);
+      }
+      if (url.endsWith("/processing-outputs")) return jsonResponse({ items: serverOutputs });
+      if (url.includes("/processing-outputs/") && url.endsWith("/content")) {
+        const outputId = decodeURIComponent(url.split("/processing-outputs/")[1].split("/content")[0]);
+        const saved = serverOutputs.find((item) => item.processing_output_id === outputId);
+        const method = (saved?.steps as Array<{ options?: { method?: string } }> | undefined)?.[0]?.options?.method;
+        const artifact = {
+          document_type: "cmp.processing-output",
+          output_id: outputId,
+          source_document: saved?.source_document,
+          mapping_profile: saved?.mapping_profile,
+          steps: saved?.steps,
+          result: { stages: [{ scalar_results: [{ key: "youngs_modulus", value: method === "chord" ? 120e9 : 210e9, unit: "Pa" }] }] },
+        };
+        return {
+          ok: true,
+          status: 200,
+          headers: new Headers({ "content-type": "application/vnd.cmp.processing-output+json" }),
+          blob: async () => new Blob([JSON.stringify(artifact)], { type: "application/json" }),
+        } as Response;
+      }
+      if (url.endsWith("/processing-ensemble-methods") || url.endsWith("/common-processing-recipes") || url.endsWith("/common-processing-batches")) return jsonResponse({ items: [] });
+      if (url.includes("/test-data-documents/") && url.endsWith("/content")) return {
+        ok: true,
+        status: 200,
+        headers: new Headers({ "content-type": "application/json" }),
+        blob: async () => new Blob([JSON.stringify(documentJson)], { type: "application/json" }),
+      } as Response;
+      if (url.endsWith("/processing:preview") && init?.method === "POST") return jsonResponse(processPreviewFixture());
+      throw new Error(`unexpected request: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const renderWorkbench = (session: Record<string, unknown>) => render(
+      <CommonProcessingWorkbench
+        config={{ baseUrl: "/api/v1", accessToken: "token" }}
+        initialSession={session as never}
+        material={material as never}
+        materialState={materialState as never}
+        locationSearch="?stage=process&family=metal"
+        onNavigate={() => undefined}
+        onOpenConnection={() => undefined}
+        onSessionChange={onSessionChange}
+        onSessionEvent={onSessionEvent as never}
+      />,
+    );
+
+    let view = renderWorkbench(restoredSession);
+    await screen.findByRole("button", { name: "Save processed curves" });
+    await waitFor(() => expect(screen.getByText("Preview ready.", { exact: false })).toBeTruthy());
+    fireEvent.change(screen.getByRole("textbox", { name: "Processed curve label" }), { target: { value: "New Process" } });
+    fireEvent.change(screen.getByRole("textbox", { name: "Save reason" }), { target: { value: "Persist a current Process result" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save processed curves" }));
+    await waitFor(() => expect(serverOutputs).toHaveLength(3));
+    const saved = serverOutputs[2] as Record<string, unknown>;
+    const savedRevision = saved.current_revision as Record<string, unknown>;
+    const savedRef = { id: saved.processing_output_id as string, revisionId: savedRevision.id as string, label: saved.label as string, revisionNo: 1 };
+    expect(onSessionChange).toHaveBeenCalledWith({ processingOutput: savedRef });
+
+    view.unmount();
+    restoredSession = { ...initialSession, processingOutput: savedRef };
+    view = renderWorkbench(restoredSession);
+    await screen.findByRole("button", { name: "Save processed curves" });
+    await waitFor(() => expect(screen.getByText("Preview ready.", { exact: false })).toBeTruthy());
+    const details = document.querySelector("details.process-saved-results") as HTMLDetailsElement;
+    fireEvent.click(details.querySelector(":scope > summary")!);
+    await waitFor(() => expect(details.querySelectorAll(".process-comparison-row")).toHaveLength(3));
+    await waitFor(() => expect(details.querySelectorAll(".process-comparison-row .text-button")).toHaveLength(3));
+    let rows = Array.from(details.querySelectorAll(".process-comparison-row"), (row) => row.textContent ?? "");
+    expect(rows.filter((text) => text.includes("current"))).toHaveLength(1);
+    expect(rows.find((text) => text.includes("New Process"))).toContain("current");
+
+    const currentRow = Array.from(details.querySelectorAll<HTMLElement>(".process-comparison-row"))
+      .find((row) => row.textContent?.includes("New Process"));
+    if (!currentRow) throw new Error("restored current Process row is missing");
+    fireEvent.click(within(currentRow).getByRole("button", { name: "Use settings" }));
+    await waitFor(() => expect(onSessionEvent.mock.calls.some(([event]) => (event as { type?: string }).type === "CHANGE_PROCESS")).toBe(true));
+    await waitFor(() => expect(restoredSession.processingOutput).toBeUndefined());
+    view.rerender(
+      <CommonProcessingWorkbench
+        config={{ baseUrl: "/api/v1", accessToken: "token" }}
+        initialSession={restoredSession as never}
+        material={material as never}
+        materialState={materialState as never}
+        locationSearch="?stage=process&family=metal"
+        onNavigate={() => undefined}
+        onOpenConnection={() => undefined}
+        onSessionChange={onSessionChange}
+        onSessionEvent={onSessionEvent as never}
+      />,
+    );
+    await waitFor(() => {
+      rows = Array.from(document.querySelectorAll(".process-comparison-row"), (row) => row.textContent ?? "");
+      expect(rows).toHaveLength(3);
+      expect(rows.every((text) => text.includes("history"))).toBe(true);
+    });
+    view.unmount();
+    view = renderWorkbench(restoredSession);
+    await screen.findByRole("button", { name: "Save processed curves" });
+    await waitFor(() => expect(screen.getByText("Preview ready.", { exact: false })).toBeTruthy());
+    const reloadedDetails = document.querySelector("details.process-saved-results") as HTMLDetailsElement;
+    fireEvent.click(reloadedDetails.querySelector(":scope > summary")!);
+    await waitFor(() => expect(reloadedDetails.querySelectorAll(".process-comparison-row")).toHaveLength(3));
+    await waitFor(() => {
+      const reloadedRows = Array.from(reloadedDetails.querySelectorAll(".process-comparison-row"), (row) => row.textContent ?? "");
+      expect(reloadedRows.every((text) => text.includes("history"))).toBe(true);
+      expect(reloadedRows.some((text) => text.includes("current"))).toBe(false);
+    });
+    expect(outputPosts).toBe(1);
   });
 
   it("loads exact Test Data and renders server stage overlays", async () => {
@@ -692,8 +1013,10 @@ describe("Common Processing Workbench", () => {
       },
     });
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:process" } }));
-    expect(screen.getByRole("heading", { name: "Prepare observed curves" })).toBeTruthy();
-    expect(screen.getByRole("status", { name: "Loading Process controls" })).toBeTruthy();
+    // Process is lazy-loaded; when this test runs after another Process test the
+    // module may already be warm, so the loading fallback is intentionally
+    // optional while the panel remains the same contract.
+    expect(await screen.findByRole("heading", { name: "Prepare observed curves" })).toBeTruthy();
     expect(await screen.findByRole("button", { name: "Save processed curves" })).toBeTruthy();
     expect(screen.queryByRole("status", { name: "Loading Process controls" })).toBeNull();
     fireEvent.click(processRailButton("Specimen 01 · r1"));
@@ -780,7 +1103,8 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByRole("img", { name: /(?:mapped and selected processing stage curve overlay|candidate and selected .*curves)/i })).toBeTruthy();
     const processPanel = () => document.querySelector('[data-modeling-process-panel="ready"]') as HTMLElement;
     await waitFor(() => expect(screen.getByText("Step 2 · Process · Young's modulus", { exact: true })).toBeTruthy());
-    expect(screen.getByRole("button", { name: "Auto robust" })).toBeTruthy();
+    expect(screen.getByRole("combobox", { name: "Evaluation method" })).toBeTruthy();
+    expect((screen.getByRole("combobox", { name: "Evaluation method" }) as HTMLSelectElement).value).toBe("robust_huber");
     expect(screen.getByLabelText("Elastic range start")).toBeTruthy();
     expect(screen.getByLabelText("Elastic range end")).toBeTruthy();
     expect(screen.queryByText("Candidate equations")).toBeNull();
@@ -818,7 +1142,7 @@ describe("Common Processing Workbench", () => {
     ]);
     expect(firstCommitBody.steps?.some((step) => isFitMethodInRequest(step.method_id))).toBe(false);
     expect(firstCommitBody.steps?.find((step) => step.method_id === "metal.elastic_modulus")?.options).toMatchObject({ method: "robust_huber", minimum_strain: 0.0002, maximum_strain: 0.002 });
-    fireEvent.click(screen.getByRole("button", { name: "Chord" }));
+    fireEvent.change(screen.getByRole("combobox", { name: "Evaluation method" }), { target: { value: "chord" } });
     fireEvent.change(screen.getByLabelText("Elastic range start"), { target: { value: "0.001" } });
     fireEvent.change(screen.getByLabelText("Elastic range end"), { target: { value: "0.003" } });
     fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
@@ -834,7 +1158,7 @@ describe("Common Processing Workbench", () => {
     expect(firstProcessOutput).not.toBe(secondProcessOutput);
     const savedDetails = document.querySelector("details.process-saved-results") as HTMLDetailsElement;
     expect(screen.getAllByText("DP600-TENSILE-02 · r1").length).toBeGreaterThan(0);
-    await waitFor(() => expect(savedDetails.querySelector("summary")?.textContent).toContain("Saved results (2)"));
+    await waitFor(() => expect(savedDetails.querySelector("summary")?.textContent).toContain("Saved processing results (2)"));
     fireEvent.click(savedDetails.querySelector(":scope > summary")!);
     await waitFor(() => expect(savedDetails.querySelectorAll(".process-comparison-row")).toHaveLength(2));
     await waitFor(() => expect(Array.from(savedDetails.querySelectorAll(".process-comparison-row"), (row) => row.textContent ?? "").join(" ")).toContain("210.0 GPa"));
@@ -844,8 +1168,8 @@ describe("Common Processing Workbench", () => {
       expect.stringContaining("Robust elastic"),
       expect.stringContaining("Chord elastic"),
     ]));
-    expect(savedRowText.every((text) => text.includes("Specimen 02 · r1"))).toBe(true);
-    expect(savedRowText.every((text) => text.includes("output r1"))).toBe(true);
+    expect(savedRowText.every((text) => !text.includes("Specimen 02 · r1"))).toBe(true);
+    expect(savedRowText.every((text) => text.includes("r1"))).toBe(true);
     expect(savedRowText.find((text) => text.includes("Robust elastic"))).toContain("210.0 GPa");
     expect(savedRowText.find((text) => text.includes("Robust elastic"))).toContain("history");
     expect(savedRowText.find((text) => text.includes("Chord elastic"))).toContain("120.0 GPa");
@@ -913,8 +1237,9 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByText("input rows sorted by independent quantity")).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: /2Young's modulus1\.0\.0/ }));
-    expect(screen.getByRole("button", { name: "Auto robust" }).className).toContain("active");
-    fireEvent.click(screen.getByRole("button", { name: "Manual slope" }));
+    const evaluationMethod = screen.getByRole("combobox", { name: "Evaluation method" }) as HTMLSelectElement;
+    expect(evaluationMethod.value).toBe("robust_huber");
+    fireEvent.change(evaluationMethod, { target: { value: "manual" } });
     fireEvent.change(screen.getByLabelText("Manual Young's modulus"), { target: { value: "205" } });
     expect(screen.getByLabelText("Manual Young's modulus unit")).toBeTruthy();
     fireEvent.change(screen.getByLabelText("Manual Young's modulus reason"), { target: { value: "Reconcile the measured elastic range." } });
@@ -1306,15 +1631,15 @@ describe("Common Processing Workbench", () => {
     expect(document.querySelector(".process-band-source")?.textContent).toBe("Specimen 01 · r1");
     expect(document.querySelector(".process-band-result")?.textContent).toContain("210.0 GPa");
     const savedDetails = document.querySelector("details.process-saved-results") as HTMLDetailsElement;
-    expect(savedDetails.querySelector("summary")?.textContent).toContain("Saved results (2)");
+    expect(savedDetails.querySelector("summary")?.textContent).toContain("Saved processing results (2)");
     fireEvent.click(savedDetails.querySelector(":scope > summary")!);
     await waitFor(() => expect(savedDetails.querySelectorAll(".process-comparison-row")).toHaveLength(2));
     await waitFor(() => {
       const rows = Array.from(savedDetails.querySelectorAll(".process-comparison-row"), (row) => row.textContent ?? "");
       expect(rows.find((text) => text.includes("Robust 210"))).toContain("210.0 GPa");
       expect(rows.find((text) => text.includes("Chord 120"))).toContain("120.0 GPa");
-      expect(rows.every((text) => text.includes("Specimen 01 · r1"))).toBe(true);
-      expect(rows.every((text) => text.includes("output r1"))).toBe(true);
+      expect(rows.every((text) => !text.includes("Specimen 01 · r1"))).toBe(true);
+      expect(rows.every((text) => text.includes("r1"))).toBe(true);
     });
     expect(Array.from(savedDetails.querySelectorAll(".process-comparison-row"), (row) => row.textContent ?? "").find((text) => text.includes("Chord 120"))).toContain("current");
     expect(fetchMock.mock.calls.filter(([input, init]) => String(input).endsWith("/processing-outputs") && init?.method !== "POST").length).toBeLessThanOrEqual(2);

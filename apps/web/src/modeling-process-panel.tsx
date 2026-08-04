@@ -118,8 +118,16 @@ function formatModulus(valuePa: number | undefined): string {
 
 function savedMethodRange(steps: CommonProcessingStep[]): { method: string; range: string } {
   const modulus = steps.find((step) => step.method_id === "metal.elastic_modulus");
+  const method = String(modulus?.options.method ?? "processing");
+  const methodLabels: Record<string, string> = {
+    robust_huber: "Auto robust",
+    linear_regression: "Linear regression",
+    chord: "Chord",
+    secant: "Secant",
+    manual: "Manual slope",
+  };
   return {
-    method: String(modulus?.options.method ?? "processing"),
+    method: methodLabels[method] ?? method,
     range: modulus
       ? `${String(modulus.options.minimum_strain ?? "—")}–${String(modulus.options.maximum_strain ?? "—")}`
       : "—",
@@ -185,7 +193,7 @@ export default function ModelingProcessPanel({
   const visibleSourceIdentity = onRetryExactSource && sourceIdentity
     ? `Exact source unavailable · ${sourceIdentity.split(" · ").at(-1)}`
     : sourceIdentity || "No exact Test Data";
-  const statusText = `${processReady ? (currentOutputId ? "Current exact source" : "Draft · not saved") : "Blocked · choose exact source in Data"} · Preview ${formatModulus(visibleScalarPa)} · ${notice ?? "No current Process result."}`;
+  const statusText = `${processReady ? (currentOutputId ? "Current exact source" : "Draft · not saved") : "Blocked · choose exact source in Data"} · ${notice ?? "No current Process result."}`;
   const saveDisabled = busy || !hasPreview || !processReady || !outputLabel.trim() || !outputReason.trim();
   const stepTitle = `Step ${stepNumber ?? "—"} · Process · ${stepLabel}`;
   return (
@@ -195,15 +203,26 @@ export default function ModelingProcessPanel({
         <span className="process-band-source">{visibleSourceIdentity}</span>
         <button className="text-button" type="button" onClick={() => onClose(false)}>Close</button>
       </div>
-      <fieldset className="process-band-controls" disabled={!processReady}>
-        <legend className="visually-hidden">Current Process settings</legend>
-        {stepControls}
-      </fieldset>
-      <div className="process-band-save">
-        <div className="process-band-result"><span>Calculated preview</span><strong>{formatModulus(visibleScalarPa)}</strong><small>{previewState}</small></div>
-        <label>Processed curve label<input aria-label="Processed curve label" value={outputLabel} onChange={(event) => onOutputLabelChange(event.target.value)} /></label>
-        <label>Save reason<input aria-label="Save reason" value={outputReason} onChange={(event) => onOutputReasonChange(event.target.value)} /></label>
-        <button className="button primary" type="button" disabled={saveDisabled} onClick={onSave}>Save processed curves</button>
+      <div className="process-band-groups">
+        <section className="process-band-group process-band-calculation" aria-labelledby="process-calculation-title">
+          <h3 id="process-calculation-title">Calculation</h3>
+          <fieldset className="process-band-controls" disabled={!processReady}>
+            <legend className="visually-hidden">Current Process settings</legend>
+            {stepControls}
+          </fieldset>
+        </section>
+        <section className="process-band-group process-band-preview" aria-labelledby="process-preview-title">
+          <h3 id="process-preview-title">Preview</h3>
+          <div className="process-band-result"><span>Calculated preview</span><strong>{formatModulus(visibleScalarPa)}</strong><small>{previewState}</small></div>
+        </section>
+        <section className="process-band-group process-band-save-result" aria-labelledby="process-save-result-title">
+          <h3 id="process-save-result-title">Save result</h3>
+          <div className="process-band-save">
+            <label>Processed curve label<input aria-label="Processed curve label" value={outputLabel} onChange={(event) => onOutputLabelChange(event.target.value)} /></label>
+            <label>Save reason<input aria-label="Save reason" value={outputReason} onChange={(event) => onOutputReasonChange(event.target.value)} /></label>
+            <button className="button primary" type="button" disabled={saveDisabled} onClick={onSave}>Save processed curves</button>
+          </div>
+        </section>
       </div>
       <div className={`process-band-status ${statusClass}`} role="status">
         <span>{statusText}</span>
@@ -218,22 +237,26 @@ export default function ModelingProcessPanel({
         requestedSavedOutputIds.current.clear();
         if (open) savedOutputs.forEach(requestSavedResult);
       }}>
-        <summary>Saved results ({savedOutputs.length})</summary>
+        <summary>Saved processing results ({savedOutputs.length})</summary>
         <div className="process-comparison-region">
-          {savedOutputs.length ? savedOutputs.map((output) => {
-            const state = savedResultStates[output.processing_output_id] ?? { status: "loading" as const };
-            const current = currentOutputId === output.processing_output_id;
-            const { method, range } = savedMethodRange(output.steps);
-            const value = state.status === "ready"
-              ? formatModulus(state.scalarPa)
-              : state.status === "loading" ? "Loading saved result…" : "Saved result unavailable";
-            return <article className="process-comparison-row" key={output.processing_output_id}>
-              <div>{output.label} · {visibleSourceIdentity} · {method} · {range} · {value} · output r{output.current_revision.revision_no} · {current ? "current" : "history"}</div>
-              {state.status === "error"
-                ? <button className="text-button" type="button" onClick={() => onLoadSavedResult(output)}>Retry</button>
-                : <button className="text-button" type="button" disabled={state.status !== "ready"} onClick={() => onUseSavedSettings(output)}>Use settings</button>}
-            </article>;
-          }) : <p className="muted">No saved results for this exact source.</p>}
+          {savedOutputs.length ? <table className="process-comparison-table" aria-label="Saved processing results">
+            <thead><tr><th scope="col">Label</th><th scope="col">Method</th><th scope="col">Range</th><th scope="col">Result</th><th scope="col">Revision</th><th scope="col">State</th><th scope="col">Action</th></tr></thead>
+            <tbody>{savedOutputs.map((output) => {
+              const state = savedResultStates[output.processing_output_id] ?? { status: "loading" as const };
+              const current = currentOutputId === output.processing_output_id;
+              const { method, range } = savedMethodRange(output.steps);
+              const value = state.status === "ready"
+                ? formatModulus(state.scalarPa)
+                : state.status === "loading" ? "Loading saved result…" : "Saved result unavailable";
+              return <tr className="process-comparison-row" key={output.processing_output_id}>
+                <td>{output.label}</td><td>{method}</td><td>{range}</td><td>{value}</td><td>r{output.current_revision.revision_no}</td><td>{current ? "current" : "history"}</td><td>
+                  {state.status === "error"
+                    ? <button className="text-button" type="button" onClick={() => onLoadSavedResult(output)}>Retry</button>
+                    : <button className="text-button" type="button" disabled={state.status !== "ready"} onClick={() => onUseSavedSettings(output)}>Use settings</button>}
+                </td>
+              </tr>;
+            })}</tbody>
+          </table> : <p className="muted">No saved results for this exact source.</p>}
         </div>
       </details>
     </aside>

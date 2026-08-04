@@ -197,6 +197,39 @@ def test_process_geometry_contract_rejects_identity_clipping_chart_collisions_an
         assert overlap_key in geometry
     assert 'if not isinstance(method_range_gap, (int, float)) or method_range_gap < 0 or method_range_gap > 20:' in geometry
     assert "methodRangeGap" in geometry
+    for field in ("processControls", "topActions", "processRibbon", "processPanel", "saveBand"):
+        assert field in geometry
+    for label in (
+        "Evaluation method",
+        "Elastic range start",
+        "Elastic range end",
+        "Manual Young's modulus",
+        "Manual Young's modulus unit",
+        "Manual Young's modulus reason",
+        "Processed curve label",
+        "Save reason",
+        "Save processed curves",
+    ):
+        assert label in geometry
+    assert "abs(height_px - 28) > 1" in geometry
+    assert 'control.get("whiteSpace") != "nowrap"' in geometry
+    assert "scrollHeight" in geometry
+    assert "_aligned(normal_row)" in geometry
+    assert "manual_row" in geometry
+    for label in (
+        "Manual Young's modulus",
+        "Manual Young's modulus unit",
+        "Manual Young's modulus reason",
+    ):
+        assert f'processRoot?.querySelector(`[aria-label="{label}"]`)' in geometry
+    assert '.modeling-context-actions > .modeling-advanced-menu > summary' in geometry
+    assert '.modeling-context-actions > button.button.secondary' in geometry
+    assert '.modeling-context-actions button[aria-label="Preview changes"], .modeling-context-actions button' not in geometry
+    assert 'expected_top_action_labels = ["Advanced", "Preview changes"]' in geometry
+    assert "actual_top_action_labels" in geometry
+    assert "if not _aligned(top_actions):" in geometry
+    assert "Process top action baselines drifted" in geometry
+    assert 'float(box.get("width", 0)) <= 0' in geometry
 
 
 def test_process_capture_runs_manual_surface_after_initial_preview_before_1366_capture() -> None:
@@ -240,7 +273,7 @@ def test_process_manual_surface_contract_uses_real_pointer_and_restores_server_r
         "def _assert_modeling_process_manual_surface", 1
     )[1].split("def _assert_modeling_process_geometry", 1)[0]
 
-    assert "manual.click()" in helper
+    assert 'manual.select_option("manual")' in helper
     assert 'control.wait_for(state="visible", timeout=30_000)' in helper
     assert "panel_box = _bounding_box_edges(panel.bounding_box())" in helper
     assert "control_box = _bounding_box_edges(control.bounding_box())" in helper
@@ -260,8 +293,8 @@ def test_process_manual_surface_contract_uses_real_pointer_and_restores_server_r
     assert '"Manual Young\'s modulus reason"' in helper
     assert 'plot_box["height"] < 280' in helper
     assert 'svg_box["height"] < 230' in helper
-    assert "auto.click()" in helper
-    assert helper.index("auto.click()") < helper.index('preview.click()')
+    assert 'auto.select_option("robust_huber")' in helper
+    assert helper.index('auto.select_option("robust_huber")') < helper.index('preview.click()')
     assert 'get_by_text("Preview ready", exact=False)' in helper
     assert 'get_by_text("210.0 GPa", exact=True)' in helper
 
@@ -346,8 +379,8 @@ def test_capture_settles_focus_and_paint_after_before_screenshot_callback() -> N
 
 def test_saved_process_rows_wait_on_embedded_scalars_and_reject_drift() -> None:
     row_text = [
-        "Robust elastic · Specimen 01 · r1 · robust_huber · 0.0002–0.002 · 210.0 GPa · output r1 · history",
-        "Chord elastic · Specimen 01 · r1 · chord · 0.001–0.003 · 120.0 GPa · output r1 · current",
+        "Robust elastic Auto robust 0.0002–0.002 210.0 GPa r1 history",
+        "Chord elastic Chord 0.001–0.003 120.0 GPa r1 current",
     ]
     page = _FakePage(row_text)
 
@@ -399,6 +432,15 @@ def test_saved_process_capture_rejects_graph_hit_test_occlusion() -> None:
     assert "Choose a saved Test Data revision. The graph compares real curves without changing saved data." not in reachability_assertion
     assert 'if layout.get("plotToolbarExists")' in reachability_assertion
     assert "_assert_modeling_process_saved_rows_reachable(siblings)" in _CAPTURE_SOURCE
+    table_assertion = _CAPTURE_SOURCE.split(
+        "def _assert_modeling_process_table_geometry", 1
+    )[1].split("def _assert_modeling_process_saved_rows_reachable", 1)[0]
+    assert "process-comparison-table" in table_assertion
+    assert "thead th" in table_assertion
+    assert "headers" in table_assertion
+    assert "horizontalOrder" in table_assertion
+    assert "actionTopmost" in table_assertion
+    assert "_assert_modeling_process_table_geometry(page)" in _CAPTURE_SOURCE
 
 
 def test_blocked_process_waits_for_hidden_registry_attachment_and_visible_rail() -> None:
