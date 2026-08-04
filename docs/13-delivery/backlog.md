@@ -20,8 +20,10 @@
   main `7d67ef2`에서 완료했습니다.
 - 순서 3 `#159 물성 데이터 등록·관리`는 제품 소유자 확인을 거쳐 PR #181에서
   완료했습니다. #159의 두 작업 단위가 모두 끝났습니다.
-- 첫 미완료 작업 단위는 순서 4 `#158 Modeling Data`입니다. PR #181 병합 뒤 최신
-  main에서 별도 Codex 작업으로 시작합니다.
+- 순서 4 `#158 Modeling Data`는 PR #183, main `f5c69d1`에서 완료했습니다.
+- 첫 미완료 작업 단위는 순서 5 `#158 Modeling Process`입니다. #158의 후속 Modeling Fit·Export가
+  남아 있으므로 issue는 열린 상태로 유지하며, PR #183 병합 뒤 최신 main에서 별도 Codex 작업으로
+  시작합니다.
 
 #167의 승인 target은 다시 만들거나 재승인하지 않습니다. 과거 packet, correction 이미지와 완료
 보고서는 working tree에 보관하지 않고 Git/PR 이력에서 조회합니다.
@@ -74,11 +76,15 @@ packet, 검증, 검토, 제품 소유자 확인과 PR/merge를 거칩니다. iss
 
 ## 새 Codex 작업 운영
 
-- 표의 첫 미완료 작업 단위만 진행하고 merge 후 다음 행을 새 Codex 작업에서 시작합니다. 서로
-  종속된 Data → Process → Fit → Export와 공개 흐름은 병렬로 구현하지 않습니다.
+- 표의 첫 미완료 작업 단위만 진행합니다. PR 번호가 생기면 merge 전에 작업 PR에서 이 표에 완료한
+  작업 단위·PR과 다음 미완료 행을 기록하고, 이 갱신이 끝날 때까지 작업 단위를 완료하지 않습니다.
+  merge 후에는 다음 행을 새 Codex 작업에서 시작합니다. 서로 종속된 Data → Process → Fit → Export와
+  공개 흐름은 병렬로 구현하지 않습니다.
 - 새 작업의 첫 요청에는 `이전 단위가 병합된 최신 main에서 backlog의 첫 미완료 작업 단위를
   진행하라`고 적으면 됩니다. 대화 기억 대신 이 문서와 GitHub issue의 완료 표시를 사용합니다.
-- 작업 단위를 끝낼 때 GitHub issue와 이 표에서 완료 위치, PR, 다음 행과 남은 위험을 확인합니다.
+- merge 직후 최종 보고 전에 메인 오케스트레이터가 exact issue에 PR·merge SHA·다음 단위를 기록하고,
+  해당하는 경우 parent tracker(`#117`)의 대응 항목을 체크합니다. 여러 작업 단위가 있는 issue는
+  모든 행이 끝날 때까지 열어 둡니다.
 - 메인 오케스트레이터가 exact issue와 현재 계약을 해석해 구현 packet을 GitHub issue에 저장합니다.
   구현자와 reviewer는 그 packet의 정확한 URL만 받습니다.
 - 모델, 수정 횟수, reviewer, 승인, commit/push/PR/merge 경계는 `AGENTS.md`와 `.codex` 설정을
