@@ -74,7 +74,7 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     report = verify_user_guide(root)
 
     assert report.document_count >= 10
-    assert report.capture_count == 43
+    assert report.capture_count == 59
     assert report.navigation_count == 3
     assert report.classified_markdown_count >= 100
     assert report.current_document_count >= 40
@@ -133,15 +133,39 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         for capture_id in provenance["ids"]
     ]
 
-    assert manifest["source_commit"] == "960d476"
+    process_commit = "c102289"
+    process_ids = {
+        "MOD-PROCESS-CURRENT-1366",
+        "MOD-PROCESS-CURRENT-1440",
+        "MOD-PROCESS-CURRENT-1920",
+        "MOD-PROCESS-CURRENT-2560",
+        "MOD-PROCESS-CURRENT-3840",
+        "MOD-PROCESS-CURRENT-BLOCKED-1440",
+        "MOD-PROCESS-CURRENT-EXACT-READ-FAILED-1440",
+        "MOD-PROCESS-CURRENT-SIBLINGS-1440",
+    }
+
+    assert manifest["scope"] == "issue-158-task2-modeling-process"
+    assert manifest["source_commit"] == process_commit
     assert len(provenance_ids) == len(set(provenance_ids))
     assert set(provenance_ids) == set(captures)
     assert {provenance["source_commit"] for provenance in manifest["capture_provenance"]} == {
+        process_commit,
+        "f5c69d1",
+        "25bd0d4",
         "960d476",
         "55cfa62",
-        "65eddb0",
         "3bfc0d7",
     }
+    process_provenance = [
+        provenance
+        for provenance in manifest["capture_provenance"]
+        if provenance["source_commit"] == process_commit
+    ]
+    assert len(process_provenance) == 1
+    assert set(process_provenance[0]["ids"]) == process_ids
+    assert "--only-modeling-process" in process_provenance[0]["command"]
+    assert "all eight outputs" in process_provenance[0]["command"]
     uxc04e_commands = [
         provenance["command"]
         for provenance in manifest["capture_provenance"]
@@ -217,10 +241,10 @@ def test_current_images_are_product_routes_and_storybook_captures_are_untracked(
         (root / "docs/user-guide/screenshot-manifest.yaml").read_text(encoding="utf-8")
     )
     current_images = root / "docs/user-guide/images/current"
-    assert len(manifest["captures"]) == 43
+    assert len(manifest["captures"]) == 59
     assert all(not capture["route"].startswith("/iframe.html") for capture in manifest["captures"])
     assert not list(current_images.glob("storybook-*.png"))
-    assert len(list(current_images.glob("*.png"))) == 43
+    assert len(list(current_images.glob("*.png"))) == 59
     assert not list((root / "docs/17-evidence/images").glob("**/storybook-*.png"))
 
 

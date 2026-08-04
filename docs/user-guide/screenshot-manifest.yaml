@@ -1,7 +1,7 @@
-version: 75
-verified_at: 2026-08-04
-scope: issue-158-task1-modeling-data
-source_commit: worktree
+version: 76
+verified_at: 2026-08-05
+scope: issue-158-task2-modeling-process
+source_commit: c102289
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright==1.62.0 python scripts/capture_current_product.py
 notes:
@@ -34,19 +34,19 @@ notes:
   - "Issue #158 Task 1 Data captures verify three exact refs, two included and three visible after route reload, a 178 px adjustable ribbon, pin-free empty-state Local file recovery, a collapsed optional navigator that reclaims graph space, invalid mapping that keeps the last valid graph and blocks Update preview/Save Test Data, and a 1920×878 wide working cap."
 allowed_duplicate_pairs: []
 capture_provenance:
-  - source_commit: worktree
-    captured_at: 2026-08-04T23:40:18+09:00
-    command: '`uv run python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --only-modeling-process`; rebuilt/recreated canonical Compose and verified exact Test Data/Profile pins, robust and chord server previews, immutable sibling outputs, prerequisite blocking, settled exact-read failure recovery, bounded wide layouts, and byte-identical hashes across two consecutive eight-image runs'
+  - source_commit: c102289
+    captured_at: 2026-08-05T01:02:17+09:00
+    command: '`uv run python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --only-modeling-process`; rebuilt/recreated canonical Compose and verified all eight outputs, exact Test Data/Profile pins, robust and chord server previews, immutable sibling outputs, prerequisite blocking, settled exact-read recovery, unclipped visible Process identities, legend/axis separation, compact control spacing, Manual pointer/keyboard reachability, and bounded wide layouts across repeated live runs'
     ids: [MOD-PROCESS-CURRENT-1366, MOD-PROCESS-CURRENT-1440, MOD-PROCESS-CURRENT-1920, MOD-PROCESS-CURRENT-2560, MOD-PROCESS-CURRENT-3840, MOD-PROCESS-CURRENT-BLOCKED-1440, MOD-PROCESS-CURRENT-EXACT-READ-FAILED-1440, MOD-PROCESS-CURRENT-SIBLINGS-1440]
-  - source_commit: worktree
+  - source_commit: f5c69d1
     captured_at: 2026-08-04T13:29:59+09:00
     command: '`uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --only-modeling-data-session`; rebuilt/recreated canonical Compose and validated the normal exact-selection/reload, collapsed-navigator session shell, pin-free empty recovery, invalid blocked mapping, adjustable ribbon, and wide-cap outcomes for all ten captures'
     ids: [modeling-data-1366, modeling-data-1440, modeling-data-1920, modeling-data-2560, modeling-data-3840, modeling-data-empty-1440, modeling-data-invalid-1440, modeling-session-1366, modeling-session-1440, modeling-session-1920]
-  - source_commit: worktree
+  - source_commit: 25bd0d4
     captured_at: 2026-08-03T16:20:10+09:00
     command: rebuilt the populated Compose demo after migration up/down/up verification, then ran `--only-administration-records`; every capture opens Multiple rows and gates the source controls, local overflow and absence of visible application errors
     ids: [administration-records-1366, administration-records-1440, administration-records-1920, administration-records-2560, administration-records-3840]
-  - source_commit: worktree
+  - source_commit: 25bd0d4
     captured_at: 2026-08-03T16:06:13+09:00
     command: rebuilt the populated Compose demo after migration up/down/up verification, then ran `--only-administration-database`; verifies the three-pane Database/Profile and Table-scoped property editor without horizontal overflow at all required viewports
     ids: [administration-database-1366, administration-database-1440, administration-database-1920, administration-database-2560, administration-database-3840]
@@ -61,11 +61,7 @@ capture_provenance:
   - source_commit: 55cfa62
     captured_at: 2026-07-28T00:40:24+09:00
     command: rebuilt local web image, then targeted live Playwright Modeling consistency capture at 1366x768, 1440x900 and 1920x1080; verifies the approved white 48px Modeling shell, compact title/stage rows, 104px Fit ribbon, 184/192/208px rail, truthful specimen labels from the fixture, selected Swift/Voce blend graph evidence, drawable graph >=76%, unclipped axes and legend, and no page-level horizontal overflow or ribbon/graph collision
-    ids: [modeling-data-1366, modeling-data-1440, modeling-data-1920, modeling-session-1366, modeling-session-1440, modeling-session-1920, MOD-PROCESS-CURRENT-1366, MOD-PROCESS-CURRENT-1440, MOD-PROCESS-CURRENT-1920, MOD-PROCESS-CURRENT-2560, MOD-PROCESS-CURRENT-3840, MOD-PROCESS-CURRENT-BLOCKED-1440, MOD-PROCESS-CURRENT-SIBLINGS-1440, modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-export-1366, modeling-export-1440, modeling-export-1920]
-  - source_commit: 65eddb0
-    captured_at: 2026-07-27T01:00:00+09:00
-    command: targeted live Playwright Administration capture at 1366x768, 1440x900 and 1920x1080; verifies the object navigator, table-scoped selector and no horizontal overflow
-    ids: [administration-database-1366, administration-database-1440, administration-database-1920]
+    ids: [modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-export-1366, modeling-export-1440, modeling-export-1920]
   - source_commit: 3bfc0d7
     captured_at: 2026-07-26T23:10:00+09:00
     command: targeted live Playwright Product Access capture at 1366x768 and 1440x900; selects the Reviewer preset, verifies readable included tasks and rejects the retired technical feature-checkbox editor
