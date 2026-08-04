@@ -1402,10 +1402,55 @@ def _prepare_modeling(page: Page, base_url: str) -> None:
 def _prepare_modeling_process(page: Page, base_url: str) -> None:
     """Prepare Process on the exact Specimen 01 source and session pins."""
     _prepare_modeling(page, base_url)
-    exact_row = page.locator(
-        ".modeling-process-workspace-bounded .curve-row-label"
-    ).filter(has_text=PROCESS_SOURCE_VISIBLE_IDENTITY).first
+    # _prepare_modeling intentionally leaves the page on the Data stage. Pick
+    # the exact source there before navigating to Process; a Process-scoped
+    # locator would not exist yet and could silently select an unrelated row.
+    data_rail = page.locator(
+        ".modeling-data-workspace-bounded .modeling-data-curve-tree"
+    )
+    data_rail.wait_for(state="visible", timeout=30_000)
+    data_rows = data_rail.locator(".curve-row-label")
+    exact_rows = (
+        data_rows
+        .filter(has=page.locator("strong").filter(has_text="Specimen 01"))
+        .filter(
+            has=page.locator(".curve-secondary-identity").filter(
+                has_text="Session revision r1"
+            )
+        )
+    )
+    if exact_rows.count() != 1:
+        raise RuntimeError(
+            "Data capture must expose exactly one visible Specimen 01 / "
+            f"Session revision r1 row, got {exact_rows.count()}"
+        )
+    exact_row = exact_rows.first
     exact_row.wait_for(state="visible", timeout=30_000)
+    data_identity = exact_row.evaluate(
+        """element => {
+          const primary = element.querySelector(':scope > span > strong');
+          const secondary = element.querySelector(
+            ':scope > span > .curve-secondary-identity'
+          );
+          return {
+            primary: primary?.textContent?.trim() ?? '',
+            secondary: secondary?.textContent?.trim() ?? '',
+            primaryVisible: Boolean(primary && primary.getClientRects().length),
+            secondaryVisible: Boolean(secondary && secondary.getClientRects().length),
+          };
+        }"""
+    )
+    if (
+        not isinstance(data_identity, dict)
+        or data_identity.get("primary") != "Specimen 01"
+        or data_identity.get("secondary") != "Session revision r1"
+        or data_identity.get("primaryVisible") is not True
+        or data_identity.get("secondaryVisible") is not True
+    ):
+        raise RuntimeError(
+            "Data capture selected a row without the exact visible Specimen 01 / "
+            f"Session revision r1 identity: {data_identity}"
+        )
     exact_row.click()
     _wait_for_exact_document_load_settled(page)
     page.wait_for_function(

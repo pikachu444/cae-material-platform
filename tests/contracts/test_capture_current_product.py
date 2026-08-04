@@ -211,6 +211,30 @@ def test_process_capture_runs_manual_surface_after_initial_preview_before_1366_c
     assert "if width == 1366:" in process_only
 
 
+def test_process_preparation_selects_exact_data_identity_before_opening_process() -> None:
+    process_flow = _CAPTURE_SOURCE.split(
+        "def _prepare_modeling_process(page: Page, base_url: str) -> None:", 1
+    )[1].split("def _list_processing_outputs", 1)[0]
+
+    data_stage = process_flow.index("_prepare_modeling(page, base_url)")
+    data_selector = process_flow.index(
+        '".modeling-data-workspace-bounded .modeling-data-curve-tree"'
+    )
+    identity_filters = process_flow.index('has_text="Specimen 01"')
+    revision_filter = process_flow.index('has_text="Session revision r1"')
+    identity_assertion = process_flow.index("data_identity = exact_row.evaluate")
+    click = process_flow.index("exact_row.click()")
+    open_process = process_flow.index('_open_modeling_stage(page, "process")')
+
+    assert data_stage < data_selector < identity_filters < revision_filter < identity_assertion < click < open_process
+    assert 'data_rows = data_rail.locator(".curve-row-label")' in process_flow
+    assert ".curve-secondary-identity" in process_flow
+    assert 'data_identity.get("primary") != "Specimen 01"' in process_flow
+    assert 'data_identity.get("secondary") != "Session revision r1"' in process_flow
+    assert 'data_identity.get("primaryVisible") is not True' in process_flow
+    assert 'data_identity.get("secondaryVisible") is not True' in process_flow
+
+
 def test_process_manual_surface_contract_uses_real_pointer_and_restores_server_result() -> None:
     helper = _CAPTURE_SOURCE.split(
         "def _assert_modeling_process_manual_surface", 1
