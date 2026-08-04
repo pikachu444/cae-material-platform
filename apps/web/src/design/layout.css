@@ -4909,6 +4909,18 @@
   font-weight: 400;
 }
 
+/* Process curve identities need to remain readable in the compact navigator
+   at its persisted minimum width.  Preserve the checkbox/swatch/visibility
+   columns and reclaim only redundant row indentation and label padding. */
+.modeling-process-workspace-bounded .curve-tree-group > details > article {
+  column-gap: 1px;
+  padding-left: 6px;
+}
+
+.modeling-process-workspace-bounded .curve-row-label {
+  padding-right: 4px;
+}
+
 .workspace-caption,
 .step-index {
   margin: 0;
