@@ -2979,6 +2979,235 @@
   margin-right: auto;
 }
 
+/* Process uses the same readable working cluster at very wide viewports; the
+   rail and graph do not stretch into an unbounded canvas. */
+.modeling-process-workspace-bounded {
+  width: min(100%, 1920px);
+  max-width: 1920px;
+  margin-right: auto;
+}
+
+/* Q-20 keeps the Process working cluster readable on the two approved ultra-
+   wide captures.  Leave the remainder of the page unused instead of letting
+   the persistent graph grow into an unbounded canvas. */
+@media (min-width: 2560px) {
+  .modeling-process-workspace-bounded {
+    height: min(878px, 100%);
+    max-height: 878px;
+    flex: 0 1 878px;
+    align-self: flex-start;
+    margin-bottom: auto;
+  }
+}
+
+.modeling-task-ribbon:has(.process-stage-options) {
+  position: relative;
+  z-index: 3;
+  min-height: 126px;
+  max-height: 210px;
+  overflow: visible;
+}
+
+/* Opening Saved results is a bounded, temporary disclosure. Reflow the
+   ribbon so the rows occupy real space above the persistent graph rather than
+   painting over its heading and controls. */
+.modeling-task-ribbon:has(.process-stage-options .process-saved-results[open]) {
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
+}
+
+.process-stage-options {
+  display: grid;
+  gap: 3px;
+  padding: 2px 9px;
+  min-height: 118px;
+  border: 0;
+  border-radius: 0;
+  background: var(--ux-surface);
+}
+
+.process-band-heading,
+.process-band-controls,
+.process-band-save,
+.process-band-status,
+.process-comparison-row {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 8px;
+}
+
+.process-band-heading {
+  justify-content: space-between;
+  min-height: 28px;
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.process-band-heading > div:first-child,
+.process-band-source,
+.process-band-result {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.process-band-heading strong,
+.process-band-source strong,
+.process-band-result strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.process-band-step,
+.process-band-source span,
+.process-band-result span,
+.process-band-result small {
+  color: var(--ux-text-muted);
+  font-size: 11px;
+}
+
+.process-band-source {
+  margin-left: auto;
+  max-width: 32%;
+}
+
+.process-band-controls {
+  align-items: stretch;
+  min-height: 48px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.process-band-controls > .guided-step-options {
+  display: grid;
+  grid-template-columns: minmax(260px, 1.25fr) minmax(180px, .75fr) minmax(140px, .6fr);
+  align-items: end;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 5px 8px;
+  overflow: hidden;
+}
+
+.process-band-controls .option-choice-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.process-band-controls .option-choice-grid button {
+  min-height: 25px;
+  padding: 3px 7px;
+}
+
+.process-band-controls .option-hint {
+  display: none;
+}
+
+.process-band-save {
+  align-items: end;
+  flex: 0 1 690px;
+}
+
+.process-band-save > label {
+  display: grid;
+  gap: 2px;
+  min-width: 130px;
+  color: var(--ux-text-muted);
+  font-size: 11px;
+}
+
+.process-band-save input {
+  min-height: 29px;
+}
+
+.process-band-result {
+  min-width: 112px;
+}
+
+.process-band-status {
+  justify-content: space-between;
+  min-height: 20px;
+  border-top: 1px solid var(--ux-border);
+  color: var(--ux-text-muted);
+  font-size: 11px;
+}
+
+.process-band-status > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status-current { color: var(--ux-success, #176b55); }
+.status-blocked { color: var(--ux-danger, #a33a2b); }
+
+.process-saved-results {
+  border-top: 1px solid var(--ux-border);
+  padding-top: 3px;
+}
+
+/* The open sibling disclosure is reflowed into the ribbon so its rows and
+   actions remain visible and hit-testable without covering the graph. */
+.process-saved-results[open] {
+  position: relative;
+  z-index: 1;
+  background: var(--ux-surface);
+}
+
+.process-saved-results > summary {
+  cursor: pointer;
+  color: var(--ux-text);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.process-comparison-region {
+  display: grid;
+  gap: 3px;
+  max-height: 124px;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  padding-top: 4px;
+}
+
+.process-comparison-row {
+  min-height: 28px;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--ux-border);
+  font-size: 11px;
+}
+
+.process-comparison-row > div {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: none;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+.process-comparison-row > div span,
+.process-comparison-row > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.process-comparison-row > span:nth-of-type(1) { min-width: 80px; }
+.process-comparison-row > span:nth-of-type(2) { min-width: 92px; }
+.process-comparison-row > span:nth-of-type(3) { min-width: 126px; }
+
+.process-preview-note {
+  margin: 0;
+  color: var(--ux-text-muted);
+  font-size: 11px;
+}
+
 /* Library is a normal-state result surface, not a clipped 86px strip.  The
    local rail remains keyboard reachable and becomes independently scrollable
    only when more revisions than the working band can show. */

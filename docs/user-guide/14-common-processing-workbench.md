@@ -211,6 +211,36 @@ Activity에 Delivered 상태나 링크를 만들지 않습니다. source/target 
 
 ## 불변 Processing Output 저장
 
+### Process 상태와 저장 결과 비교
+
+Process band는 선택한 exact Test Data revision과 Mapping Profile을 항상 함께 표시합니다. 서버
+preview가 성공한 동안에는 mapped input, 선택한 processed stage, server modulus fit을 하나의
+engineering graph에 겹쳐 보여 주며, draft option을 바꾸거나 재계산에 실패해도 마지막 유효
+server preview를 화면에 남깁니다. 실패한 응답은 저장 입력으로 승격되지 않습니다. exact source나
+profile을 복구할 수 없으면 graph는 `blocked` 상태와 **Back to Data** recovery를 표시하며
+`latest` revision으로 조용히 대체하지 않습니다.
+
+**Saved results** disclosure는 현재 exact source/profile에 맞는 Processing Output만 보여 줍니다.
+각 row는 label, source revision, elastic method/range, artifact에서 다시 읽은 Young's modulus,
+output revision, `current`/`history` 상태를 한 줄로 표시합니다. Artifact를 읽지 못하거나 source,
+profile, output id, revision, ordered steps가 맞지 않으면 `Saved result unavailable`과 **Retry**를
+표시하고 값의 fallback을 만들지 않습니다. 성공적으로 읽은 row만 **Use settings**를 제공하며,
+이는 같은 settings를 새 draft로 복사하므로 preview 후 새 immutable output을 저장해야 합니다.
+같은 exact source에서 두 결과를 저장하면 이전 결과는 history로 보존되고 새 결과만 current가
+됩니다. upstream draft 변경은 current pointer를 지우지만 saved history는 삭제하지 않습니다.
+
+Process의 live evidence는 일반 viewport(1366×768, 1440×900, 1920×1080)와 wide viewport
+(2560×1440, 3840×2160), exact prerequisite blocked(1440×900), saved-result siblings(1440×900)
+상태를 각각 확인합니다. 캡처가 `Loading Process controls…` fallback에서 settled panel로 전환되지
+않았거나 graph/axis가 잘리면 기존 capture directory를 교체하지 않습니다.
+
+| Process evidence | 화면 |
+| --- | --- |
+| Wide 2560×1440 | ![Process 2560](images/current/modeling-process-2560x1440.png) |
+| Wide 3840×2160 | ![Process 3840](images/current/modeling-process-3840x2160.png) |
+| Exact prerequisite blocked 1440×900 | ![Process blocked](images/current/modeling-process-blocked-1440x900.png) |
+| Saved-result siblings 1440×900 | ![Process saved results](images/current/modeling-process-siblings-1440x900.png) |
+
 1. Process preview 결과와 저장된 Mapping Profile revision이 일치하는지 확인합니다.
 2. current-step settings에서 Processed curve label과 저장 사유를 입력합니다.
 3. **Save processed curves**를 누릅니다. 이것이 Process의 유일한 primary action이고 preview는 secondary입니다.

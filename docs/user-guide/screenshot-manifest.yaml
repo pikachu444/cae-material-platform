@@ -57,7 +57,7 @@ capture_provenance:
   - source_commit: 55cfa62
     captured_at: 2026-07-28T00:40:24+09:00
     command: rebuilt local web image, then targeted live Playwright Modeling consistency capture at 1366x768, 1440x900 and 1920x1080; verifies the approved white 48px Modeling shell, compact title/stage rows, 104px Fit ribbon, 184/192/208px rail, truthful specimen labels from the fixture, selected Swift/Voce blend graph evidence, drawable graph >=76%, unclipped axes and legend, and no page-level horizontal overflow or ribbon/graph collision
-    ids: [modeling-data-1366, modeling-data-1440, modeling-data-1920, modeling-session-1366, modeling-session-1440, modeling-session-1920, modeling-process-1366, modeling-process-1440, modeling-process-1920, modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-export-1366, modeling-export-1440, modeling-export-1920]
+    ids: [modeling-data-1366, modeling-data-1440, modeling-data-1920, modeling-session-1366, modeling-session-1440, modeling-session-1920, MOD-PROCESS-CURRENT-1366, MOD-PROCESS-CURRENT-1440, MOD-PROCESS-CURRENT-1920, MOD-PROCESS-CURRENT-2560, MOD-PROCESS-CURRENT-3840, MOD-PROCESS-CURRENT-BLOCKED-1440, MOD-PROCESS-CURRENT-SIBLINGS-1440, modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-export-1366, modeling-export-1440, modeling-export-1920]
   - source_commit: 65eddb0
     captured_at: 2026-07-27T01:00:00+09:00
     command: targeted live Playwright Administration capture at 1366x768, 1440x900 and 1920x1080; verifies the object navigator, table-scoped selector and no horizontal overflow
@@ -287,27 +287,55 @@ captures:
     image: images/current/modeling-data-invalid-1440x900.png
     width: 1440
     height: 900
-  - id: modeling-process-1366
+  - id: MOD-PROCESS-CURRENT-1366
     route: /modeling?stage=process&family=metal
     workflow: UXC-04C shared rail/plot sizing; source-processed-preview-and-explicit-output-commit
     fixture: synthetic DP780 preview with explicit immutable output command; DUI-05 live acceptance
     image: images/current/modeling-process-1366x768.png
     width: 1366
     height: 768
-  - id: modeling-process-1440
+  - id: MOD-PROCESS-CURRENT-1440
     route: /modeling?stage=process&family=metal
     workflow: UXC-04C shared rail/plot sizing; source-processed-preview-and-explicit-output-commit
     fixture: synthetic DP780 preview with explicit immutable output command; DUI-05 live acceptance
     image: images/current/modeling-process-1440x900.png
     width: 1440
     height: 900
-  - id: modeling-process-1920
+  - id: MOD-PROCESS-CURRENT-1920
     route: /modeling?stage=process&family=metal
     workflow: UXC-04C shared rail/plot sizing; source-processed-preview-and-explicit-output-commit
     fixture: synthetic DP780 preview with explicit immutable output command; DUI-05 live acceptance
     image: images/current/modeling-process-1920x1080.png
     width: 1920
     height: 1080
+  - id: MOD-PROCESS-CURRENT-2560
+    route: /modeling?stage=process&family=metal
+    workflow: Process-only wide viewport; exact source/profile band, persistent overlay graph, and saved-result controls remain readable within the bounded workspace
+    fixture: synthetic DP780 preview with explicit immutable output command; wide viewport qualitative acceptance
+    image: images/current/modeling-process-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: MOD-PROCESS-CURRENT-3840
+    route: /modeling?stage=process&family=metal
+    workflow: Process-only wide viewport; exact source/profile band, persistent overlay graph, and saved-result controls remain readable within the bounded workspace
+    fixture: synthetic DP780 preview with explicit immutable output command; wide viewport qualitative acceptance
+    image: images/current/modeling-process-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: MOD-PROCESS-CURRENT-BLOCKED-1440
+    route: /modeling?stage=process&family=metal
+    workflow: Process prerequisite recovery; missing exact Test Data is visibly blocked and the user is directed back to Data without a latest fallback
+    fixture: synthetic session with Test Data selection cleared while the Process route remains active
+    image: images/current/modeling-process-blocked-1440x900.png
+    width: 1440
+    height: 900
+  - id: MOD-PROCESS-CURRENT-SIBLINGS-1440
+    route: /modeling?stage=process&family=metal
+    workflow: Process saved-result comparison; two exact-source siblings load content from their bound artifacts and expose current/history plus retry/use-settings actions
+    fixture: two deterministic synthetic Processing Outputs saved from the same exact source/profile
+    image: images/current/modeling-process-siblings-1440x900.png
+    width: 1440
+    height: 900
   - id: modeling-fit-1366
     route: /modeling?stage=fit&family=metal
     workflow: UXC-04E approved prototype topology, compact fit controls, graph response and explicit decision save

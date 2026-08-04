@@ -93,7 +93,8 @@ revision_table = sa.Table(
     sa.Column("output_artifact_id", sa.Uuid(), nullable=False),
     sa.Column("output_sha256", sa.CHAR(64), nullable=False),
     sa.Column("workup_overrides", sa.JSON(), nullable=False),
-    sa.Column("fit_decision", sa.JSON(), nullable=True),
+    # An absent fit decision is SQL NULL, not the JSON literal null.
+    sa.Column("fit_decision", sa.JSON(none_as_null=True), nullable=True),
     # Match migration 088: an absent proof is SQL NULL, not the JSON literal null.
     sa.Column("export_provenance", sa.JSON(none_as_null=True), nullable=True),
     schema="processing",

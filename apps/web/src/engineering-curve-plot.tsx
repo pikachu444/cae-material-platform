@@ -617,10 +617,19 @@ export function EngineeringCurvePlotEmpty({
   width,
   height,
   onChooseLocal,
+  blocked = false,
+  onBackToData,
+  title,
+  message,
 }: {
   width: number;
   height: number;
   onChooseLocal?: () => void;
+  /** Process keeps the same SVG frame while an exact source/profile is unavailable. */
+  blocked?: boolean;
+  onBackToData?: () => void;
+  title?: string;
+  message?: string;
 }) {
   const [renderedSize, setRenderedSize] = useState<{ width: number; height: number } | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -656,12 +665,12 @@ export function EngineeringCurvePlotEmpty({
       * (effectiveHeight - PLOT_MARGIN.top - PLOT_MARGIN.bottom);
 
   return (
-    <div className="engineering-curve-plot-empty-frame" data-plot-state="empty">
+    <div className="engineering-curve-plot-empty-frame" data-plot-state={blocked ? "blocked" : "empty"}>
       <svg
         ref={svgRef}
         className="processing-curve engineering-curve-plot-empty-svg"
         role="img"
-        aria-label="Empty engineering curve plot"
+        aria-label={blocked ? "Blocked engineering curve plot" : "Empty engineering curve plot"}
         viewBox={`0 0 ${effectiveWidth} ${effectiveHeight}`}
         preserveAspectRatio="xMidYMid meet"
       >
@@ -676,9 +685,9 @@ export function EngineeringCurvePlotEmpty({
         <text transform={`translate(15 ${(PLOT_MARGIN.top + effectiveHeight - PLOT_MARGIN.bottom) / 2}) rotate(-90)`} textAnchor="middle" className="chart-axis-label">Engineering stress [MPa]</text>
       </svg>
       <div className="engineering-curve-plot-empty-overlay" role="status">
-        <strong>No Test Data in this session</strong>
-        <p>Choose an exact saved revision or inspect a Local file to prepare the first preview.</p>
-        <button type="button" className="button primary" onClick={onChooseLocal}>Local file</button>
+        <strong>{title ?? (blocked ? "Processing is blocked" : "No Test Data in this session")}</strong>
+        <p>{message ?? (blocked ? "Choose the exact Test Data revision and Mapping Profile in Data before previewing." : "Choose an exact saved revision or inspect a Local file to prepare the first preview.")}</p>
+        {blocked ? <button type="button" className="button primary" onClick={onBackToData}>Back to Data</button> : <button type="button" className="button primary" onClick={onChooseLocal}>Local file</button>}
       </div>
     </div>
   );
@@ -698,6 +707,7 @@ export function EngineeringCurvePlot({
   interactionCommand,
   onInteractionStateChange,
   observedCurves,
+  processOverlay = false,
 }: {
   preview: CommonProcessingPreview;
   activeStage: CommonCurveStage;
@@ -713,6 +723,8 @@ export function EngineeringCurvePlot({
   onInteractionStateChange?: (state: PlotInteractionState) => void;
   /** Data-stage only: real server previews for each visible exact Test Data revision. */
   observedCurves?: ObservedCurveInput[];
+  /** Process-stage overlay: observed members + the focused processed stage and server fit. */
+  processOverlay?: boolean;
 }) {
   const [hiddenSeries, setHiddenSeries] = useState<string[]>([]);
   const [viewBounds, setViewBounds] = useState<PlotBounds | null>(null);
@@ -751,11 +763,28 @@ export function EngineeringCurvePlot({
         className: "data-observed",
       }];
     });
-    // Data-stage observed previews are the measured source curves.  They
-    // replace the mapped/base series here so each exact source contributes one
-    // line and legend entry instead of a duplicate synthetic-looking line.
-    return { ...baseModel, series: observedSeries, band: undefined };
-  }, [activeStage, activeStep, baseStage, ensemblePreview, fitSelection, hardeningMode, observedCurves, pronyMode, preview, selectedModelOnly]);
+    if (!processOverlay) {
+      // Data-stage observed previews are the measured source curves.  They
+      // replace the mapped/base series here so each exact source contributes one
+      // line and legend entry instead of a duplicate synthetic-looking line.
+      return { ...baseModel, series: observedSeries, band: undefined };
+    }
+    // Process explicitly keeps all observed members while adding the focused
+    // processed stage and the server-calculated fit line.  No client-side
+    // interpolation or scalar calculation is introduced here.
+    return {
+      ...baseModel,
+      series: [
+        ...observedSeries.map((series) => ({ ...series, className: "process-observed" })),
+        ...baseModel.series.map((series) => ({
+          ...series,
+          className: series.className === "source" ? "process-source" : series.className === "processed" ? "process-processed" : series.className,
+          label: series.className === "source" ? "Focused mapped input" : series.label,
+        })),
+      ],
+      band: undefined,
+    };
+  }, [activeStage, activeStep, baseStage, ensemblePreview, fitSelection, hardeningMode, observedCurves, pronyMode, preview, processOverlay, selectedModelOnly]);
   const visibleModelSeries = selectedModelOnly
     ? model.series.filter((item) => !item.className.includes("candidate"))
     : model.series;

@@ -33,6 +33,11 @@ MODELING_PROCESS_FIT_OUTPUTS = tuple(
     for stage in ("process", "fit")
     for width, height in VIEWPORTS
 )
+MODELING_PROCESS_OUTPUTS = (
+    *(f"modeling-process-{width}x{height}.png" for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)),
+    "modeling-process-blocked-1440x900.png",
+    "modeling-process-siblings-1440x900.png",
+)
 MODELING_CONSISTENCY_OUTPUTS = tuple(
     f"modeling-{stage}-{width}x{height}.png"
     for stage in ("data", "process", "fit", "export", "session")
@@ -99,6 +104,10 @@ CURRENT_CAPTURE_OUTPUTS = (
     "modeling-process-1366x768.png",
     "modeling-process-1440x900.png",
     "modeling-process-1920x1080.png",
+    "modeling-process-2560x1440.png",
+    "modeling-process-3840x2160.png",
+    "modeling-process-blocked-1440x900.png",
+    "modeling-process-siblings-1440x900.png",
     "modeling-fit-1366x768.png",
     "modeling-fit-1440x900.png",
     "modeling-fit-1920x1080.png",
@@ -127,6 +136,13 @@ STAGE_HEADINGS = {
     "fit": "Fit material response",
     "export": "Review & deliver solver card",
 }
+PROCESS_SOURCE_DOCUMENT_KEY = "CMP-DEMO-DP780-TEST-JSON"
+PROCESS_SOURCE_TITLE = f"{PROCESS_SOURCE_DOCUMENT_KEY} · Specimen 01 · revision r1"
+PROCESS_SOURCE_VISIBLE_IDENTITY = "Specimen 01 · r1"
+PROCESS_NO_PREVIEW_SAVED_INSTRUCTION = (
+    "No Process preview is active. Choose Use settings for a saved result, then select "
+    "Preview changes to preview the draft."
+)
 NORMAL_COMPACT_DATA_RIBBON_HEIGHT = 178
 UNFINISHED = re.compile(
     r"^(Checking|Loading|Calculating|Resolving|Updating|Preparing|Creating)\b.*(?:…|\.\.\.)$",
@@ -207,6 +223,7 @@ def _capture(
     height: int,
     *,
     focus_selector: str | None = None,
+    before_screenshot: Callable[[], None] | None = None,
 ) -> None:
     _wait_for_settled(page)
     overflow = page.evaluate(
@@ -236,6 +253,8 @@ def _capture(
     )
     if focus_selector is not None:
         page.locator(focus_selector).scroll_into_view_if_needed()
+    if before_screenshot is not None:
+        before_screenshot()
     page.screenshot(path=str(path), full_page=False)
     viewport = page.viewport_size
     if viewport != {"width": width, "height": height}:
@@ -1313,6 +1332,7 @@ def _prepare_modeling(page: Page, base_url: str) -> None:
     )
     _wait_for_data_plot(page)
     _wait_for_settled(page)
+
     _wait_for_modeling_data_ribbon(page)
     _assert_modeling_data_surface(page, page.viewport_size["width"], page.viewport_size["height"])
     before_reload = _data_session_snapshot(page)
@@ -1344,6 +1364,474 @@ def _prepare_modeling(page: Page, base_url: str) -> None:
     if page.locator('.modeling-workspace-rail .curve-visibility-toggle[aria-pressed="true"]').count() != 3:
         raise RuntimeError("reload did not preserve all 3 visible Test Data records")
     _wait_for_settled(page)
+
+
+def _prepare_modeling_process(page: Page, base_url: str) -> None:
+    """Prepare Process on the exact Specimen 01 source and session pins."""
+    _prepare_modeling(page, base_url)
+    exact_row = page.get_by_title(PROCESS_SOURCE_TITLE, exact=True)
+    exact_row.wait_for(state="visible", timeout=30_000)
+    exact_row.click()
+    page.get_by_text("Loaded saved dataset revision 1", exact=False).wait_for(timeout=30_000)
+    page.wait_for_function(
+        """expected => {
+          const raw = window.sessionStorage.getItem('cmp.modeling.recent-session.v4');
+          if (!raw) return false;
+          const session = JSON.parse(raw);
+          const focused = session.testData || {};
+          const workspace = session.workspace || {};
+          return focused.label === expected.label
+            && focused.revisionNo === 1
+            && Array.isArray(workspace.selectedTestDataRefs)
+            && workspace.selectedTestDataRefs.length === 3
+            && Array.isArray(workspace.selectedDocumentIds)
+            && workspace.selectedDocumentIds.length === 2
+            && Array.isArray(workspace.visibleTestDataKeys)
+            && workspace.visibleTestDataKeys.length === 3;
+        }""",
+        arg={"label": PROCESS_SOURCE_DOCUMENT_KEY},
+        timeout=30_000,
+    )
+    session = _modeling_session(page)
+    focused = session.get("testData")
+    workspace = session.get("workspace")
+    mapping = session.get("mappingProfile")
+    if not isinstance(focused, dict) or focused.get("label") != PROCESS_SOURCE_DOCUMENT_KEY or focused.get("revisionNo") != 1:
+        raise RuntimeError(f"Process capture did not focus exact Specimen 01 r1: {focused}")
+    if not isinstance(workspace, dict):
+        raise RuntimeError("Process capture session has no workspace state")
+    refs = workspace.get("selectedTestDataRefs")
+    if not isinstance(refs, list) or len(refs) != 3:
+        raise RuntimeError(f"Process capture must retain three exact Test Data refs: {workspace}")
+    focused_ref = next(
+        (
+            ref for ref in refs
+            if isinstance(ref, dict)
+            and ref.get("id") == focused.get("id")
+            and ref.get("revisionId") == focused.get("revisionId")
+            and ref.get("label") == PROCESS_SOURCE_DOCUMENT_KEY
+            and ref.get("revisionNo") == 1
+        ),
+        None,
+    )
+    if focused_ref is None:
+        raise RuntimeError(f"Process capture focused ref is not the exact Specimen 01 r1 pin: {refs}")
+    if len(workspace.get("selectedDocumentIds", [])) != 2 or len(workspace.get("visibleTestDataKeys", [])) != 3:
+        raise RuntimeError(f"Process capture must retain Include 2 and Show 3: {workspace}")
+    if (
+        not isinstance(mapping, dict)
+        or mapping.get("label") != "CMP demo tensile JSON mapping"
+        or not str(mapping.get("id") or "").strip()
+        or not str(mapping.get("revisionId") or "").strip()
+        or mapping.get("revisionNo") != 1
+    ):
+        raise RuntimeError(f"Process capture did not retain the exact Mapping Profile r1 session ref: {mapping}")
+    _open_modeling_stage(page, "process")
+    page.wait_for_url(re.compile(r"stage=process"), timeout=30_000)
+    page.locator(".modeling-work-title strong").get_by_text(
+        STAGE_HEADINGS["process"], exact=True
+    ).wait_for(timeout=30_000)
+    _wait_modeling_process_panel(page)
+    source = page.locator(".process-band-source")
+    source.wait_for(state="visible", timeout=30_000)
+    if source.inner_text().strip() != PROCESS_SOURCE_VISIBLE_IDENTITY:
+        raise RuntimeError(f"Process panel source drifted from exact Specimen 01 r1: {source.inner_text()!r}")
+
+
+def _list_processing_outputs(page: Page, base_url: str) -> list[dict[str, object]]:
+    """List immutable outputs through the capture page's authenticated session."""
+    payload = page.evaluate(
+        """async ({ baseUrl }) => {
+          const config = JSON.parse(
+            window.localStorage.getItem("cmp.material-platform.api-config") || "{}"
+          );
+          const response = await fetch(`${baseUrl}/api/v1/processing-outputs`, {
+            headers: {
+              "Accept": "application/json",
+              "Authorization": `Bearer ${config.accessToken}`,
+            },
+          });
+          if (!response.ok) throw new Error(`cannot list Processing Outputs: ${response.status}`);
+          return await response.json();
+        }""",
+        {"baseUrl": base_url},
+    )
+    if not isinstance(payload, dict) or not isinstance(payload.get("items"), list):
+        raise RuntimeError(f"Processing Output list has an unexpected shape: {payload!r}")
+    items = payload["items"]
+    if any(not isinstance(item, dict) for item in items):
+        raise RuntimeError("Processing Output list contains a non-object item")
+    return [item for item in items if isinstance(item, dict)]
+
+
+def _process_session_pins(page: Page) -> tuple[dict[str, object], dict[str, object]]:
+    session = _modeling_session(page)
+    source = session.get("testData")
+    profile = session.get("mappingProfile")
+    if not isinstance(source, dict) or not isinstance(profile, dict):
+        raise RuntimeError(f"Process capture session is missing exact source/profile pins: {session!r}")
+    for name, pin in (("source", source), ("profile", profile)):
+        if not all(isinstance(pin.get(key), str) and pin.get(key) for key in ("id", "revisionId")):
+            raise RuntimeError(f"Process capture {name} pin is not an exact id/revision pair: {pin!r}")
+    return source, profile
+
+
+def _is_fit_method_id(method_id: object) -> bool:
+    value = str(method_id or "")
+    return any(token in value for token in ("hardening_fit", "prony_fit", "fit_compare"))
+
+
+def _is_non_fit_process_output(output: dict[str, object]) -> bool:
+    if output.get("fit_decision") is not None:
+        return False
+    steps = output.get("steps")
+    if not isinstance(steps, list):
+        raise RuntimeError(f"Process output has no ordered steps: {output.get('processing_output_id')!r}")
+    for step in steps:
+        if not isinstance(step, dict):
+            raise RuntimeError(f"Process output contains a malformed step: {output.get('processing_output_id')!r}")
+        if _is_fit_method_id(step.get("method_id")):
+            return False
+    return True
+
+
+def _matching_process_outputs(
+    outputs: list[dict[str, object]],
+    source: dict[str, object],
+    profile: dict[str, object],
+) -> list[dict[str, object]]:
+    source_id = source["id"]
+    source_revision = source["revisionId"]
+    profile_id = profile["id"]
+    profile_revision = profile["revisionId"]
+    matching: list[dict[str, object]] = []
+    for output in outputs:
+        output_source = output.get("source_document")
+        output_profile = output.get("mapping_profile")
+        if not isinstance(output_source, dict) or not isinstance(output_profile, dict):
+            continue
+        if (
+            output_source.get("aggregate_id") == source_id
+            and output_source.get("revision_id") == source_revision
+            and output_profile.get("aggregate_id") == profile_id
+            and output_profile.get("revision_id") == profile_revision
+            and _is_non_fit_process_output(output)
+        ):
+            matching.append(output)
+    return matching
+
+
+def _assert_no_mis_pinned_capture_labels(
+    outputs: list[dict[str, object]],
+    source: dict[str, object],
+    profile: dict[str, object],
+) -> None:
+    """Reject capture-named outputs that belong to another exact input/profile."""
+    expected_pins = {
+        "source_document": {
+            "aggregate_id": source["id"],
+            "revision_id": source["revisionId"],
+        },
+        "mapping_profile": {
+            "aggregate_id": profile["id"],
+            "revision_id": profile["revisionId"],
+        },
+    }
+    for output in outputs:
+        if output.get("label") not in {"Robust elastic", "Chord elastic"}:
+            continue
+        if not _is_non_fit_process_output(output):
+            raise RuntimeError(
+                f"Capture-named Process output is Fit or malformed: {output.get('processing_output_id')!r}"
+            )
+        if (
+            output.get("source_document") != expected_pins["source_document"]
+            or output.get("mapping_profile") != expected_pins["mapping_profile"]
+        ):
+            raise RuntimeError(
+                f"Capture-named Process output has wrong exact pins: {output.get('processing_output_id')!r}"
+            )
+
+
+def _assert_process_output_configuration(
+    output: dict[str, object],
+    source: dict[str, object],
+    profile: dict[str, object],
+    *,
+    expected_label: str,
+    expected_method: str,
+    expected_minimum: float,
+    expected_maximum: float,
+) -> None:
+    output_id = output.get("processing_output_id")
+    revision = output.get("current_revision")
+    output_source = output.get("source_document")
+    output_profile = output.get("mapping_profile")
+    if not isinstance(output_id, str) or not output_id:
+        raise RuntimeError(f"Saved Process output has no stable identity: {output!r}")
+    if (
+        not isinstance(revision, dict)
+        or revision.get("revision_no") != 1
+        or not isinstance(revision.get("id"), str)
+        or not revision.get("id")
+    ):
+        raise RuntimeError(f"Saved Process output is not exact immutable r1: {output_id!r} {revision!r}")
+    if output.get("fit_decision") is not None or not _is_non_fit_process_output(output):
+        raise RuntimeError(f"Saved Process sibling must be non-Fit: {output_id!r}")
+    if output_source != {
+        "aggregate_id": source["id"],
+        "revision_id": source["revisionId"],
+    } or output_profile != {
+        "aggregate_id": profile["id"],
+        "revision_id": profile["revisionId"],
+    }:
+        raise RuntimeError(f"Saved Process sibling has wrong exact pins: {output_id!r}")
+    if output.get("label") != expected_label:
+        raise RuntimeError(
+            f"Saved Process sibling label drifted: expected {expected_label!r}, got {output.get('label')!r}"
+        )
+    steps = output.get("steps")
+    if not isinstance(steps, list):
+        raise RuntimeError(f"Saved Process sibling has no ordered steps: {output_id!r}")
+    modulus_steps = [
+        step for step in steps
+        if isinstance(step, dict) and step.get("method_id") == "metal.elastic_modulus"
+    ]
+    if len(modulus_steps) != 1:
+        raise RuntimeError(f"Saved Process sibling must have one elastic modulus step: {output_id!r}")
+    modulus = modulus_steps[0]
+    if modulus.get("method_version") != "1.0.0" or not isinstance(modulus.get("options"), dict):
+        raise RuntimeError(f"Saved Process sibling elastic step identity drifted: {output_id!r}")
+    options = modulus["options"]
+    if options.get("method") != expected_method:
+        raise RuntimeError(
+            f"Saved Process sibling method drifted: expected {expected_method!r}, got {options.get('method')!r}"
+        )
+    if (
+        isinstance(options.get("minimum_strain"), bool)
+        or not isinstance(options.get("minimum_strain"), (int, float))
+        or float(options["minimum_strain"]) != expected_minimum
+        or isinstance(options.get("maximum_strain"), bool)
+        or not isinstance(options.get("maximum_strain"), (int, float))
+        or float(options["maximum_strain"]) != expected_maximum
+    ):
+        raise RuntimeError(f"Saved Process sibling range drifted: {output_id!r} {options!r}")
+
+
+def _assert_modeling_process_saved_rows(
+    page: Page,
+    *,
+    require_current_and_history: bool = False,
+) -> list[str]:
+    details = page.locator("details.process-saved-results")
+    details.wait_for(state="visible", timeout=30_000)
+    if details.get_attribute("open") is None:
+        details.locator(":scope > summary").click()
+    rows = details.locator(".process-comparison-row")
+    rows.nth(1).wait_for(timeout=30_000)
+    for scalar in ("210.0 GPa", "120.0 GPa"):
+        rows.filter(has_text=scalar).first.wait_for(timeout=30_000)
+    row_text = rows.all_inner_texts()
+    if len(row_text) != 2:
+        raise RuntimeError(f"Saved Process comparison must contain exactly two rows: {row_text}")
+    for label, method, range_text, scalar in (
+        ("Robust elastic", "robust_huber", "0.0002–0.002", "210.0 GPa"),
+        ("Chord elastic", "chord", "0.001–0.003", "120.0 GPa"),
+    ):
+        matching = [text for text in row_text if label in text]
+        if (
+            len(matching) != 1
+            or PROCESS_SOURCE_VISIBLE_IDENTITY not in matching[0]
+            or method not in matching[0]
+            or range_text not in matching[0]
+            or scalar not in matching[0]
+            or "output r1" not in matching[0]
+        ):
+            raise RuntimeError(f"Saved Process row is missing exact {label} evidence: {row_text}")
+    if require_current_and_history:
+        robust = next(text for text in row_text if "Robust elastic" in text)
+        chord = next(text for text in row_text if "Chord elastic" in text)
+        if "history" not in robust or "current" not in chord:
+            raise RuntimeError(f"Saved Process current/history pointers drifted: {row_text}")
+    return row_text
+
+
+def _assert_modeling_process_saved_rows_reachable(page: Page) -> None:
+    """Reject Process captures where the graph paints over saved-row actions."""
+    checks = page.evaluate(
+        """() => {
+          const rows = [...document.querySelectorAll(
+            'details.process-saved-results[open] .process-comparison-row'
+          )];
+          const details = document.querySelector('details.process-saved-results[open]');
+          const region = details?.querySelector('.process-comparison-region');
+          const ribbon = document.querySelector('.modeling-task-ribbon');
+          const plot = document.querySelector('.persistent-modeling-plot');
+          const heading = plot?.querySelector(':scope > .section-heading');
+          const toolbar = plot?.querySelector(':scope > .modeling-plot-toolbar');
+          const emptyPlot = plot?.querySelector(':scope > .modeling-plot-empty');
+          const rect = node => node?.getBoundingClientRect() ?? null;
+          const plotBox = rect(plot);
+          const visible = node => {
+            const box = rect(node);
+            return Boolean(box && box.width > 0 && box.height > 0);
+          };
+          const inside = (child, parent) => {
+            const childBox = rect(child);
+            const parentBox = rect(parent);
+            return Boolean(
+              childBox && parentBox
+                && childBox.left >= parentBox.left - 1
+                && childBox.right <= parentBox.right + 1
+                && childBox.top >= parentBox.top - 1
+                && childBox.bottom <= parentBox.bottom + 1,
+            );
+          };
+          const hitWithin = (owner, rect) => {
+            if (!rect || rect.width <= 0 || rect.height <= 0) return false;
+            const hit = document.elementFromPoint(
+              rect.left + rect.width / 2,
+              rect.top + rect.height / 2,
+            );
+            return hit instanceof Element && (hit === owner || owner.contains(hit));
+          };
+          return rows.map((row) => {
+            const rowRect = row.getBoundingClientRect();
+            const action = row.querySelector('button');
+            const actionRect = action?.getBoundingClientRect() ?? null;
+            return {
+              label: row.textContent?.trim() || '',
+              rowTopmost: hitWithin(row, rowRect),
+              rowContained: inside(row, region) && inside(row, details) && inside(row, ribbon),
+              rowAbovePlot: Boolean(plot && rowRect.bottom <= plot.getBoundingClientRect().top + 1),
+              actionLabel: action?.textContent?.trim() || '',
+              actionVisible: Boolean(actionRect && actionRect.width > 0 && actionRect.height > 0),
+              actionEnabled: action instanceof HTMLButtonElement && !action.disabled,
+              actionTopmost: Boolean(action && hitWithin(action, actionRect)),
+            };
+          }).concat([{
+            layout: true,
+            rowCount: rows.length,
+            twoRowsWithoutScroll: Boolean(
+              region
+                && region.scrollHeight <= region.clientHeight + 1
+                && region.clientWidth >= region.scrollWidth - 1,
+            ),
+            disclosureContained: inside(details, ribbon),
+            disclosureAbovePlot: Boolean(
+              details && plot
+                && details.getBoundingClientRect().bottom <= plot.getBoundingClientRect().top + 1,
+            ),
+            plotUseful: Boolean(
+              visible(plot)
+                && plotBox
+                && plotBox.width >= 320
+                && plotBox.height >= 240,
+            ),
+            plotHeadingVisible: visible(heading),
+            plotHeadingTopmost: Boolean(heading && hitWithin(heading, rect(heading))),
+            plotToolbarExists: Boolean(toolbar),
+            plotToolbarVisible: visible(toolbar),
+            plotToolbarTopmost: Boolean(toolbar && hitWithin(toolbar, rect(toolbar))),
+            plotToolbarButtons: [...(toolbar?.querySelectorAll('button') ?? [])]
+              .filter(button => ['Reset view', 'Pan', 'Select range'].includes(button.textContent?.trim() || ''))
+              .map(button => ({
+                label: button.textContent?.trim() || '',
+                visible: visible(button),
+                enabled: button instanceof HTMLButtonElement && !button.disabled,
+                topmost: hitWithin(button, rect(button)),
+              })),
+            plotEmptyVisible: visible(emptyPlot),
+            plotEmptyTopmost: Boolean(emptyPlot && hitWithin(emptyPlot, rect(emptyPlot))),
+            plotEmptyContained: inside(emptyPlot, plot),
+            plotEmptyMessage: emptyPlot?.querySelector(':scope > strong')?.textContent?.trim() || '',
+            plotEmptyInstruction: emptyPlot?.querySelector(':scope > p')?.textContent?.trim() || '',
+          }]);
+        }"""
+    )
+    if not isinstance(checks, list) or len(checks) != 3:
+        raise RuntimeError(f"Saved Process reachability check found {checks!r}")
+    rows = checks[:-1]
+    layout = checks[-1]
+    if (
+        not isinstance(layout, dict)
+        or layout.get("layout") is not True
+        or layout.get("rowCount") != 2
+        or not layout.get("twoRowsWithoutScroll")
+        or not layout.get("disclosureContained")
+        or not layout.get("disclosureAbovePlot")
+        or not layout.get("plotUseful")
+        or not layout.get("plotHeadingVisible")
+        or not layout.get("plotHeadingTopmost")
+    ):
+        raise RuntimeError(f"Saved Process disclosure or persistent plot is not contained/reachable: {checks!r}")
+    if layout.get("plotToolbarExists"):
+        if not layout.get("plotToolbarVisible") or not layout.get("plotToolbarTopmost"):
+            raise RuntimeError(f"Saved Process plot toolbar is not visible/reachable: {checks!r}")
+        toolbar_buttons = layout.get("plotToolbarButtons")
+        if (
+            not isinstance(toolbar_buttons, list)
+            or len(toolbar_buttons) != 3
+            or any(
+                not isinstance(button, dict)
+                or not button.get("visible")
+                or not button.get("enabled")
+                or not button.get("topmost")
+                for button in toolbar_buttons
+            )
+        ):
+            raise RuntimeError(f"Saved Process plot toolbar controls are not reachable: {checks!r}")
+    else:
+        if (
+            not layout.get("plotEmptyVisible")
+            or not layout.get("plotEmptyTopmost")
+            or not layout.get("plotEmptyContained")
+            or layout.get("plotEmptyMessage")
+            != "The graph stays here while you prepare the curves."
+            or layout.get("plotEmptyInstruction")
+            != PROCESS_NO_PREVIEW_SAVED_INSTRUCTION
+        ):
+            raise RuntimeError(f"Saved Process reload plot is missing its honest no-preview state: {checks!r}")
+    for check in rows:
+        if (
+            not isinstance(check, dict)
+            or not check.get("rowTopmost")
+            or not check.get("rowContained")
+            or not check.get("rowAbovePlot")
+            or check.get("actionLabel") != "Use settings"
+            or not check.get("actionVisible")
+            or not check.get("actionEnabled")
+            or not check.get("actionTopmost")
+        ):
+            raise RuntimeError(f"Saved Process row or Use settings is occluded: {checks!r}")
+
+
+def _patch_capture_processing_output_pointer(
+    page: Page, output: dict[str, object]
+) -> None:
+    revision = output.get("current_revision")
+    output_id = output.get("processing_output_id")
+    if not isinstance(revision, dict) or not isinstance(output_id, str):
+        raise RuntimeError(f"Cannot patch capture pointer from malformed output: {output!r}")
+    pointer = {
+        "id": output_id,
+        "revisionId": revision.get("id"),
+        "label": output.get("label"),
+        "revisionNo": revision.get("revision_no"),
+    }
+    if not isinstance(pointer["revisionId"], str) or pointer["revisionNo"] != 1:
+        raise RuntimeError(f"Cannot patch capture pointer from non-r1 output: {output!r}")
+    page.evaluate(
+        """pointer => {
+          const key = "cmp.modeling.recent-session.v4";
+          const raw = window.sessionStorage.getItem(key);
+          if (!raw) throw new Error("Modeling session v4 is missing before pointer patch");
+          const session = JSON.parse(raw);
+          session.processingOutput = pointer;
+          window.sessionStorage.setItem(key, JSON.stringify(session));
+        }""",
+        pointer,
+    )
 
 
 def _save_exact_fit_selection(page: Page) -> None:
@@ -1621,6 +2109,7 @@ def _measure_process_fit(page: Page, stage: str, width: int, height: int) -> dic
               line => line.getAttribute('x1') !== line.getAttribute('x2')
             )?.getBoundingClientRect();
           const workspace = box('.modeling-split-workspace');
+          const processCluster = box('.modeling-process-workspace-bounded');
           const rail = box('.modeling-workspace-rail');
           const ribbon = box('.modeling-task-ribbon');
           const plot = box('.persistent-modeling-plot');
@@ -1633,6 +2122,12 @@ def _measure_process_fit(page: Page, stage: str, width: int, height: int) -> dic
             svgWidth: svgBox?.width ?? 0,
             svgBottom: svgBox?.bottom ?? 0,
             drawableRatio: workspace && axis ? axis.width / workspace.width : 0,
+            processClusterWidth: processCluster?.width ?? 0,
+            processClusterHeight: processCluster?.height ?? 0,
+            processClusterLeft: processCluster?.left ?? 0,
+            processClusterTop: processCluster?.top ?? 0,
+            workspaceLeft: workspace?.left ?? 0,
+            workspaceTop: workspace?.top ?? 0,
             railWidth: rail?.width ?? 0, ribbonHeight: ribbon?.height ?? 0,
             plotBottom: plot?.bottom ?? 0, xAxisLabelBottom: xAxisLabel?.bottom ?? 0,
             legendBottom: legend?.bottom ?? 0,
@@ -1651,6 +2146,16 @@ def _measure_process_fit(page: Page, stage: str, width: int, height: int) -> dic
         raise RuntimeError(f"{stage} geometry gate failed at {width}x{height}: {measurement}")
     if width == 1440 and measurement["svgWidth"] < 1050:
         raise RuntimeError(f"{stage} 1440 graph-width gate failed: {measurement}")
+    if stage == "process" and width >= 2560:
+        if (
+            measurement["processClusterWidth"] <= 0
+            or measurement["processClusterHeight"] <= 0
+            or measurement["processClusterWidth"] > 1920 + 1
+            or measurement["processClusterHeight"] > 879
+            or measurement["processClusterLeft"] > measurement["workspaceLeft"] + 1
+            or measurement["processClusterTop"] > measurement["workspaceTop"] + 1
+        ):
+            raise RuntimeError(f"Process wide cluster bound/alignment failed at {width}x{height}: {measurement}")
     if (
         measurement["svgBottom"] > measurement["plotBottom"] + 2.5
         or measurement["xAxisLabelBottom"] > measurement["plotBottom"] + 1
@@ -1659,6 +2164,167 @@ def _measure_process_fit(page: Page, stage: str, width: int, height: int) -> dic
     if measurement["legendBottom"] > measurement["viewportHeight"]:
         raise RuntimeError(f"{stage} legend is clipped at {width}x{height}: {measurement}")
     return measurement
+
+
+def _wait_modeling_process_panel(page: Page) -> None:
+    page.locator('[data-modeling-process-panel="ready"]').wait_for(timeout=30_000)
+    if page.get_by_role("status", name="Loading Process controls").count():
+        raise RuntimeError("Process capture settled with the lazy loading fallback visible")
+
+
+def _wait_for_modeling_process_destination_state(page: Page) -> None:
+    """Wait for the Process destination to retain its deliberately blocked session."""
+    page.wait_for_function(
+        """() => {
+          const raw = window.sessionStorage.getItem('cmp.modeling.recent-session.v4');
+          if (!raw) return false;
+          try {
+            const session = JSON.parse(raw);
+            const workspace = session.workspace;
+            return session.testData === undefined
+              && workspace !== null
+              && typeof workspace === 'object'
+              && Array.isArray(workspace.selectedTestDataRefs)
+              && workspace.selectedTestDataRefs.length === 0
+              && Array.isArray(workspace.selectedDocumentIds)
+              && workspace.selectedDocumentIds.length === 0
+              && Array.isArray(workspace.visibleTestDataKeys)
+              && workspace.visibleTestDataKeys.length === 0;
+          } catch {
+            return false;
+          }
+        }""",
+        timeout=30_000,
+    )
+
+
+def _wait_for_modeling_process_plot_size(page: Page) -> None:
+    """Wait until the responsive Process SVG viewBox matches its rendered frame."""
+    page.wait_for_function(
+        """() => {
+          const svg = document.querySelector('.persistent-modeling-plot svg[role="img"]');
+          if (!svg || svg.getClientRects().length === 0) return false;
+          const viewBox = svg.viewBox.baseVal;
+          const rendered = svg.getBoundingClientRect();
+          return viewBox.width > 0
+            && viewBox.height > 0
+            && rendered.width > 0
+            && rendered.height > 0
+            && Math.abs(viewBox.width - rendered.width) < 1
+            && Math.abs(viewBox.height - rendered.height) < 1;
+        }""",
+        timeout=30_000,
+    )
+
+
+def _assert_modeling_process_preview(
+    page: Page,
+    expected_modulus: str = "210.0 GPa",
+    method_label: str = "Auto robust",
+) -> None:
+    """Run the focused Process preview and assert its normal non-Fit surface."""
+    preview = page.get_by_role("button", name="Preview changes", exact=True)
+    preview.click()
+    page.get_by_text("Preview ready", exact=False).wait_for(timeout=30_000)
+    _wait_modeling_process_panel(page)
+    _wait_for_modeling_process_plot_size(page)
+    panel = page.locator('[data-modeling-process-panel="ready"]')
+    if panel.count() != 1 or not panel.is_visible():
+        raise RuntimeError("Process preview did not settle on its ready panel")
+    source = panel.locator(".process-band-source")
+    source.wait_for(state="visible", timeout=30_000)
+    if source.inner_text().strip() != PROCESS_SOURCE_VISIBLE_IDENTITY:
+        raise RuntimeError(f"Process preview source is not exact Specimen 01 r1: {source.inner_text()!r}")
+    heading = page.locator(".persistent-modeling-plot > .section-heading")
+    heading.get_by_text("Prepare test curves", exact=True).wait_for(state="visible", timeout=30_000)
+    toolbar = page.locator(".persistent-modeling-plot > .modeling-plot-toolbar")
+    toolbar.wait_for(state="visible", timeout=30_000)
+    for control in ("Reset view", "Pan", "Select range"):
+        button = toolbar.get_by_role("button", name=control, exact=True)
+        button.wait_for(state="visible", timeout=30_000)
+        if button.is_disabled():
+            raise RuntimeError(f"Process plot control is unexpectedly disabled: {control}")
+    result = panel.locator(".process-band-result")
+    result.get_by_text(expected_modulus, exact=True).wait_for(timeout=30_000)
+    save = panel.get_by_role("button", name="Save processed curves", exact=True)
+    save.wait_for(state="visible", timeout=30_000)
+    controls = panel.locator(".process-band-controls")
+    controls.get_by_role("button", name=method_label, exact=True).wait_for(state="visible", timeout=30_000)
+    for label in ("Elastic range start", "Elastic range end"):
+        controls.get_by_role("spinbutton", name=label, exact=True).wait_for(state="visible", timeout=30_000)
+    if page.locator(".fit-evidence-disclosure").count() or page.get_by_text("Candidate equations", exact=True).count() or page.get_by_text("Fit domain", exact=True).count() or page.get_by_text("Selected blend", exact=True).count():
+        raise RuntimeError("Process preview exposed Fit candidate controls")
+    _assert_modeling_process_geometry(page)
+
+
+def _assert_modeling_process_geometry(page: Page) -> None:
+    ribbon = _bounding_box_edges(page.locator(".modeling-task-ribbon").bounding_box())
+    panel = _bounding_box_edges(page.locator('[data-modeling-process-panel="ready"]').bounding_box())
+    plot = _bounding_box_edges(page.locator(".persistent-modeling-plot").bounding_box())
+    save_band = _bounding_box_edges(page.locator(".process-band-save").bounding_box())
+    save = page.get_by_role("button", name="Save processed curves", exact=True)
+    save_box = _bounding_box_edges(save.bounding_box())
+    if ribbon is None or panel is None or plot is None or save_band is None or save_box is None:
+        raise RuntimeError("Process preview geometry is unavailable")
+    if panel["left"] < ribbon["left"] - 1 or panel["right"] > ribbon["right"] + 1 or panel["top"] < ribbon["top"] - 1 or panel["bottom"] > ribbon["bottom"] + 1:
+        raise RuntimeError(f"Process panel escaped the task ribbon: panel={panel}, ribbon={ribbon}")
+    if save_band["bottom"] > plot["top"] + 1 or save_box["bottom"] > plot["top"] + 1:
+        raise RuntimeError(f"Process save band crosses the plot top: save_band={save_band}, save={save_box}, plot={plot}")
+    hit = page.evaluate(
+        """button => {
+          const box = button.getBoundingClientRect();
+          const element = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+          return {
+            insideSave: Boolean(element && button.contains(element)),
+            tag: element?.tagName ?? null,
+            graph: Boolean(element?.closest('.persistent-modeling-plot')),
+            svg: Boolean(element?.closest('svg')),
+          };
+        }""",
+        save.element_handle(),
+    )
+    if not hit["insideSave"] or hit["graph"] or hit["svg"]:
+        raise RuntimeError(f"Process Save center is intercepted by graph/SVG: {hit}")
+
+
+def _assert_modeling_process_blocked(page: Page) -> None:
+    frame = page.locator(
+        '.engineering-curve-plot-empty-frame[data-plot-state="blocked"]'
+    )
+    frame.wait_for(state="visible", timeout=30_000)
+    if frame.locator("svg .chart-axis").count() < 2 or frame.locator("svg .chart-grid").count() < 2:
+        raise RuntimeError("Process blocked capture lost the visible plot axes or grid")
+    if not frame.get_by_text("Restore inputs.", exact=True).is_visible():
+        raise RuntimeError("Process blocked capture is missing its Restore inputs reason")
+    if not page.get_by_role("button", name="Back to Data", exact=True).is_visible():
+        raise RuntimeError("Process blocked capture is missing the Back to Data recovery")
+    _wait_modeling_process_panel(page)
+    if page.get_by_role("status", name="Loading Process controls").count():
+        raise RuntimeError("Process blocked capture retained the lazy loading fallback")
+    preview = page.get_by_role("button", name="Preview changes", exact=True)
+    save = page.get_by_role("button", name="Save processed curves", exact=True)
+    if not preview.is_disabled() or not save.is_disabled():
+        raise RuntimeError("Process blocked capture left Preview or Save enabled")
+    method_buttons = page.locator(".method-library .method-pill")
+    rail_buttons = page.locator(".configured-step-list button:visible")
+    method_buttons.first.wait_for(state="attached", timeout=30_000)
+    rail_buttons.first.wait_for(timeout=30_000)
+    if method_buttons.count() == 0 or any(not button.is_disabled() for button in method_buttons.all()):
+        raise RuntimeError("Process blocked capture left an Add operation registry method enabled")
+    if rail_buttons.count() != 5 or any(not button.is_disabled() for button in rail_buttons.all()):
+        raise RuntimeError("Process blocked capture left a configured Process rail button enabled")
+    if page.locator('.method-library > summary[aria-disabled="true"]').count() != 1:
+        raise RuntimeError("Process blocked capture is missing the disabled Add operation summary")
+    process_inputs = page.locator(".process-band-controls input, .rail-statistics-action input")
+    if any(not control.is_disabled() for control in process_inputs.all()):
+        raise RuntimeError("Process blocked capture left a Process range or manual input enabled")
+
+
+def _assert_modeling_process_capture_ready(page: Page) -> None:
+    """Re-check blocked state and responsive plot geometry after capture settling."""
+    _wait_for_modeling_process_destination_state(page)
+    _wait_for_modeling_process_plot_size(page)
+    _assert_modeling_process_blocked(page)
 
 
 def _capture_modeling_process_fit(
@@ -1679,7 +2345,13 @@ def _capture_modeling_process_fit(
         page.locator(".modeling-workspace-rail .rail-heading").get_by_text(
             "Curves", exact=True
         ).wait_for(timeout=30_000)
-        _capture(page, output / f"modeling-process-{width}x{height}.png", width, height)
+        _capture(
+            page,
+            output / f"modeling-process-{width}x{height}.png",
+            width,
+            height,
+            before_screenshot=lambda: _wait_for_modeling_process_plot_size(page),
+        )
         measurements.append(
             {
                 "stage": "process",
@@ -1720,6 +2392,226 @@ def _capture_modeling_process_fit(
             }
         )
         page.context.close()
+    return measurements
+
+
+def _capture_modeling_process_only(
+    browser: Browser, base_url: str, output: Path
+) -> list[dict[str, float]]:
+    measurements: list[dict[str, float]] = []
+    for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS):
+        page = _new_page(browser, base_url, width, height)
+        _prepare_modeling_process(page, base_url)
+        page.wait_for_url(re.compile(r"stage=process"), timeout=30_000)
+        page.locator(".modeling-work-title strong").get_by_text(
+            STAGE_HEADINGS["process"], exact=True
+        ).wait_for(timeout=30_000)
+        page.locator(".modeling-workspace-rail .rail-heading").get_by_text(
+            "Curves", exact=True
+        ).wait_for(timeout=30_000)
+        _wait_modeling_process_panel(page)
+        _assert_modeling_process_preview(page)
+        _capture(
+            page,
+            output / f"modeling-process-{width}x{height}.png",
+            width,
+            height,
+            before_screenshot=lambda: _wait_for_modeling_process_plot_size(page),
+        )
+        measurements.append(
+            {
+                "stage": "process",
+                "viewport": f"{width}x{height}",
+                **_measure_process_fit(page, "process", width, height),
+            }
+        )
+        page.context.close()
+
+    blocked = _new_page(browser, base_url, 1440, 900)
+    _prepare_modeling_process(blocked, base_url)
+    blocked.add_init_script(
+        """(() => {
+          const key = 'cmp.modeling.recent-session.v4';
+          const session = JSON.parse(window.sessionStorage.getItem(key) || '{}');
+          delete session.testData;
+          session.workspace = {
+            ...(session.workspace || {}),
+            selectedTestDataRefs: [], selectedDocumentIds: [], visibleTestDataKeys: []
+          };
+          window.sessionStorage.setItem(key, JSON.stringify(session));
+        })();"""
+    )
+    blocked.goto(f"{base_url}/modeling?stage=process&family=metal")
+    _wait_for_settled(blocked)
+    _wait_for_modeling_process_destination_state(blocked)
+    _wait_for_modeling_process_plot_size(blocked)
+    _assert_modeling_process_blocked(blocked)
+    _capture(
+        blocked,
+        output / "modeling-process-blocked-1440x900.png",
+        1440,
+        900,
+        before_screenshot=lambda: _assert_modeling_process_capture_ready(blocked),
+    )
+    blocked.context.close()
+
+    siblings = _new_page(browser, base_url, 1440, 900)
+    _prepare_modeling_process(siblings, base_url)
+    source_pin, profile_pin = _process_session_pins(siblings)
+    listed_outputs = _list_processing_outputs(siblings, base_url)
+    _assert_no_mis_pinned_capture_labels(listed_outputs, source_pin, profile_pin)
+    initial_outputs = _matching_process_outputs(
+        listed_outputs, source_pin, profile_pin
+    )
+    if len(initial_outputs) not in (0, 2):
+        raise RuntimeError(
+            "Process capture requires exactly zero or two matching saved outputs before the sibling flow; "
+            f"got {len(initial_outputs)}"
+        )
+
+    if len(initial_outputs) == 2:
+        labels = [output.get("label") for output in initial_outputs]
+        if set(labels) != {"Robust elastic", "Chord elastic"} or len(set(labels)) != 2:
+            raise RuntimeError(f"Existing Process siblings have duplicate or missing labels: {labels!r}")
+        output_ids = [output.get("processing_output_id") for output in initial_outputs]
+        if any(not isinstance(output_id, str) or not output_id for output_id in output_ids) or len(set(output_ids)) != 2:
+            raise RuntimeError(f"Existing Process siblings have duplicate or missing identities: {output_ids!r}")
+        for saved_output in initial_outputs:
+            label = saved_output.get("label")
+            if label == "Robust elastic":
+                _assert_process_output_configuration(
+                    saved_output,
+                    source_pin,
+                    profile_pin,
+                    expected_label="Robust elastic",
+                    expected_method="robust_huber",
+                    expected_minimum=0.0002,
+                    expected_maximum=0.002,
+                )
+            elif label == "Chord elastic":
+                _assert_process_output_configuration(
+                    saved_output,
+                    source_pin,
+                    profile_pin,
+                    expected_label="Chord elastic",
+                    expected_method="chord",
+                    expected_minimum=0.001,
+                    expected_maximum=0.003,
+                )
+            else:
+                raise RuntimeError(f"Unexpected Process sibling label: {label!r}")
+        _assert_modeling_process_saved_rows(siblings)
+
+        # Read the real persisted Chord identity again from the authenticated
+        # browser session.  The pointer must never be manufactured from a
+        # capture constant or inferred from row order.
+        resumed_outputs = _matching_process_outputs(
+            _list_processing_outputs(siblings, base_url), source_pin, profile_pin
+        )
+        if len(resumed_outputs) != 2 or {
+            output.get("processing_output_id") for output in resumed_outputs
+        } != {
+            output.get("processing_output_id") for output in initial_outputs
+        }:
+            raise RuntimeError("Process sibling list changed while resuming the existing outputs")
+        for resumed_output in resumed_outputs:
+            label = resumed_output.get("label")
+            if label == "Robust elastic":
+                _assert_process_output_configuration(
+                    resumed_output,
+                    source_pin,
+                    profile_pin,
+                    expected_label="Robust elastic",
+                    expected_method="robust_huber",
+                    expected_minimum=0.0002,
+                    expected_maximum=0.002,
+                )
+            elif label == "Chord elastic":
+                _assert_process_output_configuration(
+                    resumed_output,
+                    source_pin,
+                    profile_pin,
+                    expected_label="Chord elastic",
+                    expected_method="chord",
+                    expected_minimum=0.001,
+                    expected_maximum=0.003,
+                )
+            else:
+                raise RuntimeError(f"Unexpected resumed Process sibling label: {label!r}")
+        chord_output = next(
+            resumed_output
+            for resumed_output in resumed_outputs
+            if resumed_output.get("label") == "Chord elastic"
+        )
+        _patch_capture_processing_output_pointer(siblings, chord_output)
+        siblings.reload()
+        siblings.wait_for_url(re.compile(r"stage=process"), timeout=30_000)
+        siblings.locator(".modeling-work-title strong").get_by_text(
+            STAGE_HEADINGS["process"], exact=True
+        ).wait_for(timeout=30_000)
+        _wait_modeling_process_panel(siblings)
+        _assert_modeling_process_saved_rows(siblings, require_current_and_history=True)
+    else:
+        _assert_modeling_process_preview(siblings)
+        label = siblings.get_by_role("textbox", name="Processed curve label")
+        reason = siblings.get_by_role("textbox", name="Save reason")
+        save = siblings.get_by_role("button", name="Save processed curves", exact=True)
+        label.fill("Robust elastic")
+        reason.fill("Capture deterministic saved-result sibling one")
+        save.click()
+        siblings.get_by_text("Processed result saved and current", exact=False).wait_for(timeout=30_000)
+        siblings.get_by_role("button", name="Chord", exact=True).click()
+        siblings.get_by_role("spinbutton", name="Elastic range start", exact=True).fill("0.001")
+        siblings.get_by_role("spinbutton", name="Elastic range end", exact=True).fill("0.003")
+        _assert_modeling_process_preview(siblings, expected_modulus="120.0 GPa", method_label="Chord")
+        label.fill("Chord elastic")
+        reason.fill("Capture deterministic saved-result sibling two")
+        save.click()
+        siblings.get_by_text("Processed result saved and current", exact=False).wait_for(timeout=30_000)
+        saved_outputs = _matching_process_outputs(
+            _list_processing_outputs(siblings, base_url), source_pin, profile_pin
+        )
+        if len(saved_outputs) != 2:
+            raise RuntimeError(f"Process capture did not create exactly two matching outputs: {saved_outputs!r}")
+        saved_ids = [output_item.get("processing_output_id") for output_item in saved_outputs]
+        if any(not isinstance(output_id, str) or not output_id for output_id in saved_ids) or len(set(saved_ids)) != 2:
+            raise RuntimeError(f"Newly saved Process siblings have duplicate or missing identities: {saved_ids!r}")
+        for output_item in saved_outputs:
+            label_value = output_item.get("label")
+            if label_value == "Robust elastic":
+                _assert_process_output_configuration(
+                    output_item,
+                    source_pin,
+                    profile_pin,
+                    expected_label="Robust elastic",
+                    expected_method="robust_huber",
+                    expected_minimum=0.0002,
+                    expected_maximum=0.002,
+                )
+            elif label_value == "Chord elastic":
+                _assert_process_output_configuration(
+                    output_item,
+                    source_pin,
+                    profile_pin,
+                    expected_label="Chord elastic",
+                    expected_method="chord",
+                    expected_minimum=0.001,
+                    expected_maximum=0.003,
+                )
+            else:
+                raise RuntimeError(f"Unexpected newly saved Process sibling label: {label_value!r}")
+        _assert_modeling_process_saved_rows(siblings, require_current_and_history=True)
+    if siblings.locator('[data-modeling-process-panel="ready"]').count() != 1:
+        raise RuntimeError("Saved sibling capture lost the ready Process panel")
+    _wait_modeling_process_panel(siblings)
+    _assert_modeling_process_saved_rows_reachable(siblings)
+    _capture(
+        siblings,
+        output / "modeling-process-siblings-1440x900.png",
+        1440,
+        900,
+    )
+    siblings.context.close()
     return measurements
 
 
@@ -2575,6 +3467,11 @@ def main() -> int:
         help="Capture and replace only the six Modeling Process/Fit viewports.",
     )
     parser.add_argument(
+        "--only-modeling-process",
+        action="store_true",
+        help="Capture and replace only the seven Modeling Process viewports and settled states.",
+    )
+    parser.add_argument(
         "--only-modeling-consistency",
         action="store_true",
         help=(
@@ -2599,6 +3496,7 @@ def main() -> int:
                 _capture_solver_delivery(browser, args.base_url, output)
                 _capture_modeling_session_shell(browser, args.base_url, output)
                 _capture_modeling(browser, args.base_url, output)
+                _capture_modeling_process_only(browser, args.base_url, output)
                 _capture_modeling_data_viewports(
                     browser, args.base_url, output, WIDE_VIEWPORTS
                 )
@@ -2611,6 +3509,7 @@ def main() -> int:
         args.only_materials
         or args.only_modeling_export
         or args.only_modeling_process_fit
+        or args.only_modeling_process
         or args.only_modeling_consistency
         or args.only_modeling_data_session
         or args.only_product_access
@@ -2626,6 +3525,8 @@ def main() -> int:
             if args.only_modeling_export
             else MODELING_PROCESS_FIT_OUTPUTS
             if args.only_modeling_process_fit
+            else MODELING_PROCESS_OUTPUTS
+            if args.only_modeling_process
             else MODELING_CONSISTENCY_OUTPUTS
             if args.only_modeling_consistency
             else MODELING_DATA_SESSION_OUTPUTS
@@ -2655,6 +3556,8 @@ def main() -> int:
                         if args.only_modeling_export
                         else _capture_modeling_process_fit(browser, args.base_url, staged)
                         if args.only_modeling_process_fit
+                        else _capture_modeling_process_only(browser, args.base_url, staged)
+                        if args.only_modeling_process
                         else _capture_modeling_consistency(browser, args.base_url, staged)
                         if args.only_modeling_consistency
                         else _capture_modeling_data_session(browser, args.base_url, staged)
