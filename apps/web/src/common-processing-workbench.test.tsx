@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -14,6 +14,35 @@ function jsonResponse(body: unknown, status = 200, headers: Record<string, strin
     headers: new Headers({ "content-type": "application/json", ...headers }),
     json: async () => body,
   } as Response;
+}
+
+function isFitMethodInRequest(methodId: string | undefined): boolean {
+  return Boolean(methodId && (methodId.includes("hardening_fit") || methodId.includes("prony_fit") || methodId.includes("fit_compare")));
+}
+
+function processRailIdentities(): string[] {
+  return Array.from(document.querySelectorAll(".modeling-process-workspace-bounded .curve-row-label"), (row) =>
+    (row.textContent ?? "").replace(/\s+/g, " ").trim(),
+  );
+}
+
+function processRailButton(identity: string): HTMLElement {
+  const row = Array.from(document.querySelectorAll<HTMLElement>(".modeling-process-workspace-bounded .curve-row-label"))
+    .find((candidate) => (candidate.textContent ?? "").replace(/\s+/g, " ").trim() === identity);
+  if (!row) throw new Error(`Process rail identity is missing: ${identity}`);
+  return row;
+}
+
+function reverseJsonObjectKeys(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(reverseJsonObjectKeys);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        .reverse()
+        .map(([key, nested]) => [key, reverseJsonObjectKeys(nested)]),
+    );
+  }
+  return value;
 }
 
 const revision = {
@@ -157,40 +186,103 @@ describe("Common Processing Workbench", () => {
 
   it("loads exact Test Data and renders server stage overlays", async () => {
     const committedOutputs: Array<Record<string, unknown>> = [];
+    const seededFitOutput: Record<string, unknown> = {
+      processing_output_id: "53000000-0000-4000-8000-000000000029",
+      current_revision: {
+        ...revision,
+        id: "53000000-0000-4000-8000-000000000028",
+        aggregate_id: "53000000-0000-4000-8000-000000000029",
+      },
+      label: "DP600 · seeded fit baseline",
+      source_document: {
+        aggregate_id: replicateResource.test_data_document_id,
+        revision_id: replicateResource.current_revision.id,
+      },
+      source_document_sha256: "0".repeat(64),
+      source_canonical_artifact_sha256: "1".repeat(64),
+      mapping_profile: {
+        aggregate_id: mappingProfileResource.mapping_profile_id,
+        revision_id: mappingProfileResource.current_revision.id,
+      },
+      mapping_profile_sha256: "2".repeat(64),
+      steps: [{
+        method_id: "metal.hardening_fit_extrapolate",
+        method_version: "1.0.0",
+        options: { primary_family: "swift" },
+      }],
+      independent_quantity: "strain.engineering",
+      stage_count: 1,
+      final_point_count: 3,
+      output_artifact_id: "53000000-0000-4000-8000-000000000027",
+      output_sha256: "3".repeat(64),
+      workup_overrides: [],
+      fit_decision: null,
+      export_provenance: null,
+    };
+    let failNextPreview = false;
+    let invalidArtifactId: string | null = null;
     const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
       const url = String(input);
       if (url.endsWith("/test-data-documents")) return jsonResponse({ items: [documentResource, replicateResource] });
       if (url.endsWith("/mapping-profiles")) return jsonResponse({ items: [mappingProfileResource] });
       if (url.endsWith("/processing-outputs") && init?.method === "POST") {
+        const body = JSON.parse(String(init.body ?? "{}")) as {
+          label?: string;
+          source_document?: unknown;
+          mapping_profile?: unknown;
+          steps?: unknown;
+        };
+        const outputNumber = 30 + committedOutputs.length;
+        const outputId = `53000000-0000-4000-8000-${String(outputNumber).padStart(12, "0")}`;
         const output = {
-          processing_output_id: "53000000-0000-4000-8000-000000000030",
+          processing_output_id: outputId,
           current_revision: {
             ...revision,
-            id: "53000000-0000-4000-8000-000000000031",
-            aggregate_id: "53000000-0000-4000-8000-000000000030",
+            id: `53000000-0000-4000-8000-${String(outputNumber + 1).padStart(12, "0")}`,
+            aggregate_id: outputId,
           },
-          label: "DP600 · swift selected fit",
-          source_document: {
+          label: committedOutputs.length === 0 ? "DP600 · swift selected fit" : body.label ?? "Processed result",
+          source_document: body.source_document ?? {
             aggregate_id: documentResource.test_data_document_id,
             revision_id: revision.id,
           },
-          mapping_profile: {
+          mapping_profile: body.mapping_profile ?? {
             aggregate_id: mappingProfileResource.mapping_profile_id,
             revision_id: mappingProfileResource.current_revision.id,
           },
-          steps: [{
-            method_id: "metal.hardening_fit_extrapolate",
-            method_version: "1.0.0",
-            options: { primary_family: "swift" },
-          }],
-          output_sha256: "9".repeat(64),
+          steps: body.steps ?? [],
+          output_sha256: String(outputNumber).repeat(64),
           final_point_count: 3,
           stage_count: 6,
         };
-        committedOutputs.splice(0, committedOutputs.length, output);
+        committedOutputs.push(output);
         return jsonResponse(output, 201);
       }
-      if (url.endsWith("/processing-outputs")) return jsonResponse({ items: committedOutputs });
+      if (url.includes("/processing-outputs/") && url.endsWith("/content")) {
+        const outputId = decodeURIComponent(url.split("/processing-outputs/")[1].split("/content")[0]);
+        const output = [seededFitOutput, ...committedOutputs].find((item) => item.processing_output_id === outputId);
+        const modulusStep = (output?.steps as Array<{ method_id?: string; options?: { method?: string } }> | undefined)
+          ?.find((step) => step.method_id === "metal.elastic_modulus");
+        const scalarPa = modulusStep?.options?.method === "chord" ? 120e9 : 210e9;
+        const artifact = {
+          document_type: "cmp.processing-output",
+          output_id: invalidArtifactId === outputId ? "wrong-output" : outputId,
+          source_document: output?.source_document,
+          mapping_profile: output?.mapping_profile,
+          // The released artifact is canonically key-sorted, while the list
+          // response preserves request insertion order.  Keep the same
+          // structure and array order to exercise order-independent validation.
+          steps: reverseJsonObjectKeys(output?.steps),
+          result: { stages: [{ scalar_results: [{ key: "youngs_modulus", value: scalarPa, unit: "Pa" }] }] },
+        };
+        return {
+          ok: true,
+          status: 200,
+          headers: new Headers({ "content-type": "application/vnd.cmp.processing-output+json" }),
+          blob: async () => new Blob([JSON.stringify(artifact)], { type: "application/json" }),
+        } as Response;
+      }
+      if (url.endsWith("/processing-outputs")) return jsonResponse({ items: [seededFitOutput, ...committedOutputs] });
       if (url.endsWith("/common-processing-recipes")) return jsonResponse({ items: [] });
       if (url.endsWith("/common-processing-batches")) return jsonResponse({ items: [] });
       if (url.endsWith("/processing-ensemble-methods")) {
@@ -244,6 +336,16 @@ describe("Common Processing Workbench", () => {
         } as Response;
       }
       if (url.endsWith("/processing:preview") && init?.method === "POST") {
+        if (failNextPreview) {
+          failNextPreview = false;
+          throw new Error("preview failed");
+        }
+        const body = JSON.parse(String(init.body ?? "{}")) as {
+          steps?: Array<{ method_id?: string; options?: { method?: string } }>;
+        };
+        const modulusPa = body.steps?.find((step) => step.method_id === "metal.elastic_modulus")?.options?.method === "chord"
+          ? 120e9
+          : 210e9;
         return jsonResponse({
           execution_mode: "preview",
           promotable: false,
@@ -277,7 +379,7 @@ describe("Common Processing Workbench", () => {
                 {
                   key: "youngs_modulus",
                   quantity_semantics: "modulus.young",
-                  value: 210e9,
+                  value: modulusPa,
                   unit: "Pa",
                 },
               ],
@@ -476,6 +578,16 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByRole("tab", { name: "Test Data JSON" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Select Test Data" })).toBeTruthy();
     expect(screen.queryByText("Metal hardening candidates")).toBeNull();
+    let dataIdentityRow: HTMLElement | undefined;
+    await waitFor(() => {
+      dataIdentityRow = Array.from(document.querySelectorAll<HTMLElement>(".modeling-data-curve-tree .curve-row-label"))
+        .find((row) => row.querySelector("strong")?.textContent === "Specimen 01");
+      expect(dataIdentityRow).toBeTruthy();
+    });
+    if (!dataIdentityRow) throw new Error("Data identity row is missing");
+    expect(dataIdentityRow.querySelector("strong")?.textContent).toBe("Specimen 01");
+    expect(dataIdentityRow.querySelector("small.curve-secondary-identity")?.textContent).toBe("Session revision r1");
+    expect(dataIdentityRow.querySelectorAll("small")).toHaveLength(1);
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:validate" } }));
     expect(await screen.findByRole("heading", { name: "Validation, review and release" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Submit · Not configured" }).hasAttribute("disabled")).toBe(true);
@@ -495,7 +607,7 @@ describe("Common Processing Workbench", () => {
       target: { value: documentResource.test_data_document_id },
     });
     fireEvent.click(screen.getByRole("button", { name: "Load exact JSON" }));
-    expect(await screen.findByText(/Loaded saved dataset revision 1/)).toBeTruthy();
+    await waitFor(() => expect((screen.getByLabelText("Test Data revision") as HTMLSelectElement).value).toBe(documentResource.test_data_document_id));
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:fit" } }));
     expect(await screen.findByRole(
       "img",
@@ -581,7 +693,180 @@ describe("Common Processing Workbench", () => {
     });
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:process" } }));
     expect(screen.getByRole("heading", { name: "Prepare observed curves" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Save processed curves" })).toBeTruthy();
+    expect(screen.getByRole("status", { name: "Loading Process controls" })).toBeTruthy();
+    expect(await screen.findByRole("button", { name: "Save processed curves" })).toBeTruthy();
+    expect(screen.queryByRole("status", { name: "Loading Process controls" })).toBeNull();
+    fireEvent.click(processRailButton("Specimen 01 · r1"));
+    await waitFor(() => expect(document.querySelector(".persistent-modeling-plot > .modeling-plot-empty")).toBeTruthy());
+    expect(await screen.findByText("No Process preview is active. Select Preview changes to preview the current Process settings.")).toBeTruthy();
+    expect(screen.queryByText("Choose a saved Test Data revision. The graph compares real curves without changing saved data.")).toBeNull();
+    expect(document.querySelector('[data-modeling-process-panel="ready"]')).toBeTruthy();
+    const processSave = screen.getByRole("button", { name: "Save processed curves" }) as HTMLButtonElement;
+    fireEvent.click(processRailButton("Specimen 02 · r1"));
+    expect(onSessionEvent).toHaveBeenCalledWith({
+      type: "PIN_TEST_DATA",
+      testData: {
+        id: replicateResource.test_data_document_id,
+        revisionId: replicateResource.current_revision.id,
+        label: replicateResource.document_key,
+        revisionNo: replicateResource.current_revision.revision_no,
+      },
+    });
+    onSessionEvent.mockClear();
+    fireEvent.click(screen.getByRole("checkbox", { name: "Include Specimen 02 in processing and fit" }));
+    expect(onSessionEvent).toHaveBeenNthCalledWith(1, {
+      type: "PIN_TEST_DATA",
+      testData: {
+        id: documentResource.test_data_document_id,
+        revisionId: documentResource.current_revision.id,
+        label: documentResource.document_key,
+        revisionNo: documentResource.current_revision.revision_no,
+      },
+    });
+    expect(onSessionEvent).toHaveBeenNthCalledWith(2, {
+      type: "SET_TEST_DATA_SELECTION",
+      selectedTestDataRefs: [{
+        id: documentResource.test_data_document_id,
+        revisionId: documentResource.current_revision.id,
+        label: documentResource.document_key,
+        revisionNo: documentResource.current_revision.revision_no,
+      }],
+    });
+    onSessionEvent.mockClear();
+    fireEvent.click(screen.getByRole("checkbox", { name: "Include Specimen 01 in processing and fit" }));
+    expect(onSessionEvent).toHaveBeenNthCalledWith(1, { type: "PIN_TEST_DATA" });
+    expect(onSessionEvent).toHaveBeenNthCalledWith(2, { type: "SET_TEST_DATA_SELECTION", selectedTestDataRefs: [] });
+    expect(screen.getByRole("img", { name: "Blocked engineering curve plot" })).toBeTruthy();
+    const blockedPlot = document.querySelector('.engineering-curve-plot-empty-frame[data-plot-state="blocked"]');
+    expect(blockedPlot?.querySelectorAll(".chart-axis").length).toBeGreaterThanOrEqual(2);
+    expect(blockedPlot?.querySelectorAll(".chart-grid").length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByRole("button", { name: "Back to Data" })).toBeTruthy();
+    expect((screen.getByRole("button", { name: "Preview changes" }) as HTMLButtonElement).disabled).toBe(true);
+    expect(processSave.disabled).toBe(true);
+    expect(document.querySelector('.method-library > summary[aria-disabled="true"]')).toBeTruthy();
+    const blockedMethodButtons = Array.from(document.querySelectorAll<HTMLButtonElement>(".method-library .method-pill"));
+    const blockedRailButtons = Array.from(document.querySelectorAll<HTMLButtonElement>(".configured-step-list button"));
+    const blockedRangeInputs = Array.from(document.querySelectorAll<HTMLInputElement>(".process-band-controls input"));
+    expect(blockedMethodButtons.length).toBeGreaterThan(0);
+    expect(blockedRailButtons.length).toBeGreaterThan(0);
+    expect(blockedRangeInputs.length).toBeGreaterThan(0);
+    expect(blockedMethodButtons.every((button) => button.disabled)).toBe(true);
+    expect(blockedRailButtons.every((button) => button.disabled)).toBe(true);
+    expect(blockedRangeInputs.every((input) => input.matches(":disabled"))).toBe(true);
+    fireEvent.click(screen.getByRole("checkbox", { name: "Include Specimen 01 in processing and fit" }));
+    fireEvent.click(processRailButton("Specimen 01 · r1"));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Include Specimen 02 in processing and fit" }));
+    fireEvent.click(processRailButton("Specimen 02 · r1"));
+    await waitFor(() => expect((screen.getByRole("button", { name: "Preview changes" }) as HTMLButtonElement).disabled).toBe(false));
+    fireEvent.click(screen.getByRole("button", { name: /\+ Sort and resolve duplicate/ }));
+    expect(processSave.disabled).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
+    await waitFor(() => expect(screen.getByText(/Preview ready/)).toBeTruthy());
+    const processPreviewRequest = fetchMock.mock.calls
+      .filter(([input, init]) => String(input).endsWith("/processing:preview") && init?.method === "POST")
+      .at(-1);
+    const processPreviewBody = JSON.parse(String(processPreviewRequest?.[1]?.body ?? "{}")) as {
+      steps?: Array<{ method_id?: string; options?: Record<string, unknown> }>;
+    };
+    expect(processPreviewBody.steps?.map((step) => step.method_id)).toEqual([
+      "rows.sort_unique",
+      "metal.elastic_modulus",
+      "metal.proof_stress",
+      "metal.necking_candidate",
+      "metal.engineering_to_true_plastic",
+      "rows.sort_unique",
+    ]);
+    expect(processPreviewBody.steps?.some((step) => isFitMethodInRequest(step.method_id))).toBe(false);
+    expect(screen.getByRole("img", { name: /(?:mapped and selected processing stage curve overlay|candidate and selected .*curves)/i })).toBeTruthy();
+    const processPanel = () => document.querySelector('[data-modeling-process-panel="ready"]') as HTMLElement;
+    await waitFor(() => expect(screen.getByText("Step 2 · Process · Young's modulus", { exact: true })).toBeTruthy());
+    expect(screen.getByRole("button", { name: "Auto robust" })).toBeTruthy();
+    expect(screen.getByLabelText("Elastic range start")).toBeTruthy();
+    expect(screen.getByLabelText("Elastic range end")).toBeTruthy();
+    expect(screen.queryByText("Candidate equations")).toBeNull();
+    expect(screen.queryByText("Fit domain")).toBeNull();
+    expect(screen.queryByText("Selected blend")).toBeNull();
+    const robustResult = processPanel().querySelector(".process-band-result");
+    expect(robustResult?.textContent ?? "").toMatch(/210\.0 GPa/);
+    expect(processPanel().querySelector(".guided-step-options")?.textContent ?? "").not.toMatch(/Auto\/calculated value preview/);
+    expect((screen.getByRole("button", { name: "Save processed curves" }) as HTMLButtonElement).disabled).toBe(false);
+    failNextPreview = true;
+    fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
+    await waitFor(() => expect(screen.getByText("The Processing Workbench operation failed.")).toBeTruthy());
+    expect(screen.getByRole("img", { name: /(?:mapped and selected processing stage curve overlay|candidate and selected .*curves)/i })).toBeTruthy();
+    const processLabel = screen.getByRole("textbox", { name: "Processed curve label" });
+    const processReason = screen.getByRole("textbox", { name: "Save reason" });
+    fireEvent.change(processLabel, { target: { value: "Robust elastic" } });
+    fireEvent.change(processReason, { target: { value: "Capture deterministic saved-result sibling one" } });
+    fireEvent.click(processSave);
+    await waitFor(() => expect(committedOutputs).toHaveLength(2));
+    const firstProcessOutput = String(committedOutputs[1].processing_output_id);
+    const firstCommitBody = JSON.parse(String(fetchMock.mock.calls.filter(([input, init]) => String(input).endsWith("/processing-outputs") && init?.method === "POST").at(-1)?.[1]?.body ?? "{}")) as {
+      source_document?: { aggregate_id?: string; revision_id?: string };
+      mapping_profile?: { aggregate_id?: string; revision_id?: string };
+      steps?: Array<{ method_id?: string; options?: Record<string, unknown> }>;
+    };
+    expect(firstCommitBody.source_document).toEqual({ aggregate_id: replicateResource.test_data_document_id, revision_id: replicateResource.current_revision.id });
+    expect(firstCommitBody.mapping_profile).toEqual({ aggregate_id: mappingProfileResource.mapping_profile_id, revision_id: mappingProfileResource.current_revision.id });
+    expect(firstCommitBody.steps?.map((step) => step.method_id)).toEqual([
+      "rows.sort_unique",
+      "metal.elastic_modulus",
+      "metal.proof_stress",
+      "metal.necking_candidate",
+      "metal.engineering_to_true_plastic",
+      "rows.sort_unique",
+    ]);
+    expect(firstCommitBody.steps?.some((step) => isFitMethodInRequest(step.method_id))).toBe(false);
+    expect(firstCommitBody.steps?.find((step) => step.method_id === "metal.elastic_modulus")?.options).toMatchObject({ method: "robust_huber", minimum_strain: 0.0002, maximum_strain: 0.002 });
+    fireEvent.click(screen.getByRole("button", { name: "Chord" }));
+    fireEvent.change(screen.getByLabelText("Elastic range start"), { target: { value: "0.001" } });
+    fireEvent.change(screen.getByLabelText("Elastic range end"), { target: { value: "0.003" } });
+    fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
+    await waitFor(() => expect(screen.getByText(/Preview ready/)).toBeTruthy());
+    const chordResult = processPanel().querySelector(".process-band-result");
+    expect(chordResult?.textContent ?? "").toMatch(/120\.0 GPa/);
+    expect(processPanel().querySelector(".guided-step-options")?.textContent ?? "").not.toMatch(/Auto\/calculated value preview/);
+    fireEvent.change(processLabel, { target: { value: "Chord elastic" } });
+    fireEvent.change(processReason, { target: { value: "Capture deterministic saved-result sibling two" } });
+    fireEvent.click(processSave);
+    await waitFor(() => expect(committedOutputs).toHaveLength(3));
+    const secondProcessOutput = String(committedOutputs[2].processing_output_id);
+    expect(firstProcessOutput).not.toBe(secondProcessOutput);
+    const savedDetails = document.querySelector("details.process-saved-results") as HTMLDetailsElement;
+    expect(screen.getAllByText("DP600-TENSILE-02 · r1").length).toBeGreaterThan(0);
+    await waitFor(() => expect(savedDetails.querySelector("summary")?.textContent).toContain("Saved results (2)"));
+    fireEvent.click(savedDetails.querySelector(":scope > summary")!);
+    await waitFor(() => expect(savedDetails.querySelectorAll(".process-comparison-row")).toHaveLength(2));
+    await waitFor(() => expect(Array.from(savedDetails.querySelectorAll(".process-comparison-row"), (row) => row.textContent ?? "").join(" ")).toContain("210.0 GPa"));
+    const savedRowText = Array.from(savedDetails.querySelectorAll(".process-comparison-row"), (row) => row.textContent ?? "");
+    expect(savedRowText.some((text) => text.includes("seeded fit baseline"))).toBe(false);
+    expect(savedRowText).toEqual(expect.arrayContaining([
+      expect.stringContaining("Robust elastic"),
+      expect.stringContaining("Chord elastic"),
+    ]));
+    expect(savedRowText.every((text) => text.includes("Specimen 02 · r1"))).toBe(true);
+    expect(savedRowText.every((text) => text.includes("output r1"))).toBe(true);
+    expect(savedRowText.find((text) => text.includes("Robust elastic"))).toContain("210.0 GPa");
+    expect(savedRowText.find((text) => text.includes("Robust elastic"))).toContain("history");
+    expect(savedRowText.find((text) => text.includes("Chord elastic"))).toContain("120.0 GPa");
+    expect(savedRowText.find((text) => text.includes("Chord elastic"))).toContain("current");
+    const firstRow = savedDetails.querySelectorAll(".process-comparison-row")[0] as HTMLElement;
+    expect(within(firstRow).getByRole("button", { name: "Use settings" })).toBeTruthy();
+    invalidArtifactId = firstProcessOutput;
+    fireEvent.click(savedDetails.querySelector(":scope > summary")!);
+    fireEvent.click(savedDetails.querySelector(":scope > summary")!);
+    await waitFor(() => expect(savedDetails.querySelectorAll(".process-comparison-row")[0]?.textContent).toContain("Saved result unavailable"));
+    const invalidRow = savedDetails.querySelectorAll(".process-comparison-row")[0] as HTMLElement;
+    fireEvent.click(within(invalidRow).getByRole("button", { name: "Retry" }));
+    await waitFor(() => expect(invalidRow.textContent).toContain("Saved result unavailable"));
+    invalidArtifactId = null;
+    fireEvent.click(within(invalidRow).getByRole("button", { name: "Retry" }));
+    await waitFor(() => expect(invalidRow.textContent).toContain("210.0 GPa"));
+    fireEvent.click(within(invalidRow).getByRole("button", { name: "Use settings" }));
+    expect(await screen.findByText(/Saved Process settings restored as a new draft/)).toBeTruthy();
+    expect((screen.getByRole("button", { name: "Save processed curves" }) as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
+    await waitFor(() => expect(screen.getByText(/Preview ready/)).toBeTruthy());
     expect(screen.getByText("Curves")).toBeTruthy();
     expect(screen.getByText("2 curves · 2 included")).toBeTruthy();
     expect(screen.getByRole("region", { name: "Tensile tests" })).toBeTruthy();
@@ -607,8 +892,8 @@ describe("Common Processing Workbench", () => {
       "curve-row-label",
       "curve-visibility-toggle",
     ]);
-    const curveRow = screen.getByTitle("DP600-TENSILE-01 · S-1 · revision r1");
-    expect(curveRow.getAttribute("title")).toContain("DP600-TENSILE-01");
+    const curveRow = processRailButton("Specimen 01 · r1");
+    expect(curveRow.textContent).toBe("Specimen 01 · r1");
     const includeSpecimen = screen.getByRole("checkbox", { name: "Include Specimen 01 in processing and fit" });
     const plotVisibility = screen.getByRole("button", { name: "Hide Specimen 01 on plot" });
     expect(plotVisibility.getAttribute("aria-pressed")).toBe("true");
@@ -624,7 +909,7 @@ describe("Common Processing Workbench", () => {
     fireEvent.click(screen.getByRole("button", {
       name: /1Sort and resolve duplicate x values1\.0\.0/,
     }));
-    expect(screen.getByRole("img", { name: "Mapped and selected processing stage curve overlay" })).toBeTruthy();
+    expect(screen.getByRole("img", { name: /(?:mapped and selected processing stage curve overlay|candidate and selected .*curves)/i })).toBeTruthy();
     expect(screen.getByText("input rows sorted by independent quantity")).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: /2Young's modulus1\.0\.0/ }));
@@ -637,11 +922,12 @@ describe("Common Processing Workbench", () => {
     const guidedSteps = JSON.parse((screen.getByLabelText("Ordered processing steps") as HTMLTextAreaElement).value) as Array<{ method_id: string; options: Record<string, unknown> }>;
     expect(guidedSteps[1].options.method).toBe("manual");
     expect(guidedSteps[1].options.manual_modulus_pa).toBe(205_000_000_000);
-    await screen.findByRole("img", { name: "Mapped and selected processing stage curve overlay" });
+    await screen.findByRole("img", { name: /(?:mapped and selected processing stage curve overlay|candidate and selected .*curves)/i });
     fireEvent.click(screen.getByRole("button", { name: /2Young's modulus1\.0\.0/ }));
-    const elasticPlot = screen.getByRole("img", { name: "Mapped and selected processing stage curve overlay" });
+    const elasticPlot = screen.getByRole("img", { name: /(?:mapped and selected processing stage curve overlay|candidate and selected .*curves)/i });
     Object.defineProperty(elasticPlot, "getBoundingClientRect", {
       value: () => ({ left: 0, top: 0, right: 760, bottom: 420, width: 760, height: 420, x: 0, y: 0, toJSON: () => ({}) }),
+      configurable: true,
     });
     fireEvent.click(screen.getByRole("button", { name: "Select range" }));
     fireEvent.pointerDown(elasticPlot, { button: 0, pointerId: 2, clientX: 100, clientY: 200 });
@@ -652,11 +938,14 @@ describe("Common Processing Workbench", () => {
     expect(appliedSteps[1].method_id).toBe("metal.elastic_modulus");
     expect(appliedSteps[1].options.minimum_strain).not.toBe(0.0002);
     fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
-    await screen.findByRole("img", { name: "Mapped and selected processing stage curve overlay" });
+    await screen.findByText(/Preview ready/);
+    await screen.findByRole("img", { name: /(?:mapped and selected processing stage curve overlay|candidate and selected .*curves)/i });
     fireEvent.click(screen.getByRole("button", { name: /4Necking candidate1\.0\.0/ }));
-    const neckingPlot = screen.getByRole("img", { name: "Mapped and selected processing stage curve overlay" });
+    await waitFor(() => expect(screen.getByText("Step 4 · Process · Necking candidate", { exact: true })).toBeTruthy());
+    const neckingPlot = screen.getByRole("img", { name: /(?:mapped and selected processing stage curve overlay|candidate and selected .*curves)/i });
     Object.defineProperty(neckingPlot, "getBoundingClientRect", {
       value: () => ({ left: 0, top: 0, right: 760, bottom: 420, width: 760, height: 420, x: 0, y: 0, toJSON: () => ({}) }),
+      configurable: true,
     });
     fireEvent.click(screen.getByRole("button", { name: "Pick point" }));
     fireEvent.pointerDown(neckingPlot, { button: 0, pointerId: 3, clientX: 620, clientY: 180 });
@@ -673,7 +962,7 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByText("sample standard deviation uses n - 1")).toBeTruthy();
     const ensembleRequest = fetchMock.mock.calls.find(([input]) => String(input).endsWith("/processing:preview-ensemble"));
     const ensembleBody = JSON.parse(String(ensembleRequest?.[1]?.body)) as { preprocessing_steps: Array<{ method_id: string }> };
-    expect(ensembleBody.preprocessing_steps.map((step) => step.method_id)).toEqual(["rows.sort_unique"]);
+    expect(ensembleBody.preprocessing_steps.map((step) => step.method_id)).toEqual(["rows.sort_unique", "rows.sort_unique"]);
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:export" } }));
     expect(screen.getByRole("heading", { name: "Review & deliver solver card" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Exact target preview is gated" })).toBeTruthy();
@@ -683,8 +972,10 @@ describe("Common Processing Workbench", () => {
     expect(screen.queryByRole("heading", { name: "Replicate statistics" })).toBeNull();
     expect(document.querySelector(".persistent-modeling-plot")).toBeTruthy();
     const exportGraph = await screen.findByRole("img", { name: "Test data and selected model response" });
-    expect(exportGraph.textContent).toContain("True plastic strain [1]");
-    expect(exportGraph.textContent).toContain("Hardening stress [MPa]");
+    expect(exportGraph.textContent).toContain("Engineering strain [1]");
+    expect(exportGraph.textContent).toContain("Engineering stress [MPa]");
+    expect(exportGraph.textContent).not.toContain("True plastic strain [1]");
+    expect(exportGraph.textContent).not.toContain("Hardening stress [MPa]");
     expect(exportGraph.textContent).not.toContain("strain.true_plastic");
     expect(exportGraph.textContent).not.toContain("stress.hardening");
     expect(screen.queryByRole("tab", { name: "Stress response" })).toBeNull();
@@ -833,5 +1124,567 @@ describe("Common Processing Workbench", () => {
       expect(latest?.selectedDocumentIds).toHaveLength(3);
       expect(latest?.visibleTestDataKeys).toHaveLength(3);
     });
+  });
+
+  it("defers Process reconciliation until Material context resolves without empty workspace patches", async () => {
+    const thirdResource = {
+      ...replicateResource,
+      test_data_document_id: "53000000-0000-4000-8000-000000000022",
+      current_revision: {
+        ...replicateResource.current_revision,
+        id: "53000000-0000-4000-8000-000000000023",
+        aggregate_id: "53000000-0000-4000-8000-000000000022",
+      },
+      document_key: "DP600-TENSILE-03",
+      specimen_id: "S-3",
+    };
+    const documents = [documentResource, replicateResource, thirdResource];
+    // The persisted workspace order is not the restored source focus. This
+    // mirrors the live reload where refs arrive as 03, 02, base while
+    // session.testData remains pinned to base.
+    const refs = [thirdResource, replicateResource, documentResource].map((item) => ({
+      id: item.test_data_document_id,
+      revisionId: item.current_revision.id,
+      label: item.document_key,
+      revisionNo: item.current_revision.revision_no,
+    }));
+    const baseRef = refs[2];
+    const replicateRef = refs[1];
+    const robustOutput = {
+      processing_output_id: "53000000-0000-4000-8000-000000000030",
+      current_revision: { ...revision, id: "53000000-0000-4000-8000-000000000031", aggregate_id: "53000000-0000-4000-8000-000000000030" },
+      label: "Robust 210",
+      source_document: { aggregate_id: baseRef.id, revision_id: baseRef.revisionId },
+      mapping_profile: { aggregate_id: mappingProfileResource.mapping_profile_id, revision_id: mappingProfileResource.current_revision.id },
+      steps: [{ method_id: "metal.elastic_modulus", method_version: "1.0.0", options: { method: "robust_huber", minimum_strain: 0.0002, maximum_strain: 0.002 } }],
+      output_sha256: "3".repeat(64),
+      final_point_count: 3,
+      stage_count: 2,
+    };
+    const chordOutput = {
+      ...robustOutput,
+      processing_output_id: "53000000-0000-4000-8000-000000000032",
+      current_revision: { ...revision, id: "53000000-0000-4000-8000-000000000033", aggregate_id: "53000000-0000-4000-8000-000000000032" },
+      label: "Chord 120",
+      steps: [{ method_id: "metal.elastic_modulus", method_version: "1.0.0", options: { method: "chord", minimum_strain: 0.001, maximum_strain: 0.003 } }],
+      output_sha256: "4".repeat(64),
+    };
+    const outputItems = [robustOutput, chordOutput];
+    const workspacePatches = (onSessionChange: ReturnType<typeof vi.fn>) => onSessionChange.mock.calls
+      .map(([patch]) => (patch as Record<string, unknown>).workspace)
+      .filter((workspace): workspace is Record<string, unknown> => Boolean(workspace));
+    let resolveDocuments: ((response: Response) => void) | undefined;
+    const documentsResponse = new Promise<Response>((resolve) => { resolveDocuments = resolve; });
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+      const url = String(input);
+      if (url.endsWith("/test-data-documents")) return documentsResponse;
+      if (url.endsWith("/mapping-profiles")) return jsonResponse({ items: [mappingProfileResource] });
+      if (url.endsWith("/processing-outputs") && init?.method !== "POST") return jsonResponse({ items: outputItems });
+      if (url.endsWith("/processing-methods")) return jsonResponse({ items: [
+        "rows.sort_unique", "metal.elastic_modulus", "metal.proof_stress", "metal.necking_candidate", "metal.engineering_to_true_plastic",
+      ].map((methodId) => ({ method_id: methodId, version: "1.0.0", label: methodId, description: methodId, option_schema: {}, deterministic: true, allows_extrapolation: false })) });
+      if (url.endsWith("/processing-ensemble-methods") || url.endsWith("/common-processing-recipes") || url.endsWith("/common-processing-batches")) return jsonResponse({ items: [] });
+      if (url.includes("/processing-outputs/") && url.endsWith("/content")) {
+        const outputId = decodeURIComponent(url.split("/processing-outputs/")[1].split("/content")[0]);
+        const output = outputItems.find((item) => item.processing_output_id === outputId);
+        const scalarPa = outputId === chordOutput.processing_output_id ? 120e9 : 210e9;
+        return {
+          ok: true,
+          status: 200,
+          headers: new Headers({ "content-type": "application/vnd.cmp.processing-output+json" }),
+          blob: async () => new Blob([JSON.stringify({
+            document_type: "cmp.processing-output",
+            output_id: outputId,
+            source_document: output?.source_document,
+            mapping_profile: output?.mapping_profile,
+            steps: output?.steps,
+            result: { stages: [{ scalar_results: [{ key: "youngs_modulus", value: scalarPa, unit: "Pa" }] }] },
+          })], { type: "application/json" }),
+        } as Response;
+      }
+      if (url.includes("/content")) return {
+        ok: true,
+        status: 200,
+        headers: new Headers({ "content-type": "application/json" }),
+        blob: async () => new Blob([JSON.stringify(documentJson)], { type: "application/json" }),
+      } as Response;
+      if (url.endsWith("/processing:preview") && init?.method === "POST") {
+        const body = JSON.parse(String(init.body ?? "{}")) as { steps?: Array<{ method_id?: string; options?: { method?: string } }> };
+        const scalarPa = body.steps?.find((step) => step.method_id === "metal.elastic_modulus")?.options?.method === "chord" ? 120e9 : 210e9;
+        return jsonResponse({
+          execution_mode: "preview",
+          promotable: false,
+          source_document_sha256: "d".repeat(64),
+          mapping_profile_sha256: mappingProfileResource.current_revision.content_hash,
+          independent_quantity: "strain.engineering",
+          stages: [
+            { ordinal: 0, method_id: "mapping", method_version: "1.0.0", point_count: 3, series: [{ quantity: "strain.engineering", unit: "1", values: [0, 0.001, 0.002] }, { quantity: "stress.engineering", unit: "Pa", values: [0, 2e8, 3e8] }], diagnostics: [], scalar_results: [] },
+            { ordinal: 1, method_id: "rows.sort_unique", method_version: "1.0.0", point_count: 3, series: [{ quantity: "strain.engineering", unit: "1", values: [0, 0.001, 0.002] }, { quantity: "stress.engineering", unit: "Pa", values: [0, 2e8, 3e8] }], diagnostics: [], scalar_results: [] },
+            { ordinal: 2, method_id: "metal.elastic_modulus", method_version: "1.0.0", point_count: 3, series: [{ quantity: "strain.engineering", unit: "1", values: [0, 0.001, 0.002] }, { quantity: "stress.engineering", unit: "Pa", values: [0, 2e8, 3e8] }], diagnostics: [], scalar_results: [{ key: "youngs_modulus", quantity_semantics: "modulus.young", value: scalarPa, unit: "Pa" }] },
+          ],
+        });
+      }
+      throw new Error(`unexpected request: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const initialSession = {
+      version: 4,
+      updatedAt: "2026-07-24T00:00:00Z",
+      materialFamily: "metal",
+      objective: "Restore Process exact revisions",
+      material: { id: "material-a", revisionId: "material-a-r1", label: "DP600", revisionNo: 1 },
+      materialState: { id: "state-a", revisionId: "state-a-r1", label: "As received", revisionNo: 1 },
+      testData: baseRef,
+      mappingProfile: { id: mappingProfileResource.mapping_profile_id, revisionId: mappingProfileResource.current_revision.id, label: mappingProfileResource.content.label, revisionNo: 1 },
+      processingOutput: { id: chordOutput.processing_output_id, revisionId: chordOutput.current_revision.id, label: chordOutput.label, revisionNo: 1 },
+      workspace: {
+        activeStage: "process",
+        selectedDocumentIds: [baseRef.id, replicateRef.id],
+        selectedTestDataRefs: refs,
+        visibleTestDataKeys: refs.map((ref) => `${ref.id}:${ref.revisionId}`),
+        selectedStepIndex: 1,
+        selectedStageOrdinal: 2,
+        plotView: "pipeline",
+        settingsOpen: true,
+      },
+    };
+    const material = { material_id: "material-a", current_revision: { id: "material-a-r1", revision_no: 1, content: { name: "DP600" } } };
+    const materialState = { material_state_id: "state-a", current_revision: { id: "state-a-r1", revision_no: 1, content: { name: "As received" } } };
+    const onSessionChange = vi.fn();
+    const view = render(
+      <CommonProcessingWorkbench
+        config={{ baseUrl: "/api/v1", accessToken: "token" }}
+        initialSession={initialSession as never}
+        locationSearch="?stage=process&family=metal"
+        onNavigate={() => undefined}
+        onOpenConnection={() => undefined}
+        onSessionChange={onSessionChange}
+      />,
+    );
+    await waitFor(() => expect(fetchMock.mock.calls.some(([input]) => String(input).endsWith("/test-data-documents"))).toBe(true));
+    resolveDocuments?.(jsonResponse({ items: documents }));
+    await waitFor(() => expect(document.querySelector(".method-library summary")?.textContent).toContain("5"));
+    expect(workspacePatches(onSessionChange).length).toBeGreaterThan(0);
+    const expectedRefKeys = refs.map((ref) => `${ref.id}:${ref.revisionId}`).join("|");
+    const expectedIncludedIds = [baseRef.id, replicateRef.id].join("|");
+    const assertRestoredWorkspace = () => expect(workspacePatches(onSessionChange).every((workspace) => {
+      const refsInPatch = workspace.selectedTestDataRefs as Array<{ id: string; revisionId: string }> | undefined;
+      const includedIds = workspace.selectedDocumentIds as string[] | undefined;
+      return refsInPatch?.length === 3
+        && refsInPatch.map((ref) => `${ref.id}:${ref.revisionId}`).join("|") === expectedRefKeys
+        && includedIds?.length === 2
+        && includedIds.join("|") === expectedIncludedIds;
+    })).toBe(true);
+    assertRestoredWorkspace();
+    expect(onSessionChange.mock.calls.map(([patch]) => (patch as Record<string, unknown>).testData).filter(Boolean)).toEqual([]);
+
+    view.rerender(
+      <CommonProcessingWorkbench
+        config={{ baseUrl: "/api/v1", accessToken: "token" }}
+        initialSession={initialSession as never}
+        material={material as never}
+        materialState={materialState as never}
+        locationSearch="?stage=process&family=metal"
+        onNavigate={() => undefined}
+        onOpenConnection={() => undefined}
+        onSessionChange={onSessionChange}
+      />,
+    );
+    await waitFor(() => expect(document.querySelectorAll(".curve-row-label")).toHaveLength(3));
+    await screen.findByRole("button", { name: "Save processed curves" });
+    assertRestoredWorkspace();
+    expect(onSessionChange.mock.calls.map(([patch]) => (patch as Record<string, unknown>).testData).filter(Boolean)).toEqual([]);
+    expect(await screen.findByText("No Process preview is active. Choose Use settings for a saved result, then select Preview changes to preview the draft.")).toBeTruthy();
+    expect(screen.queryByText("Choose a saved Test Data revision. The graph compares real curves without changing saved data.")).toBeNull();
+    expect(document.querySelector(".persistent-modeling-plot > .modeling-plot-toolbar")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
+    await waitFor(() => expect(screen.getByText(/Preview ready\./)).toBeTruthy(), { timeout: 5000 });
+    expect(processRailIdentities()).toEqual(expect.arrayContaining(["Specimen 01 · r1", "Specimen 02 · r1", "Specimen 03 · r1"]));
+    expect(processRailIdentities().every((text) => /^Specimen \d{2} · r[1-9]\d*$/.test(text))).toBe(true);
+    expect(Array.from(document.querySelectorAll(".modeling-process-workspace-bounded .curve-row-label small"))).toHaveLength(0);
+    expect(document.querySelector(".process-band-source")?.textContent).toBe("Specimen 01 · r1");
+    expect(document.querySelector(".process-band-result")?.textContent).toContain("210.0 GPa");
+    const savedDetails = document.querySelector("details.process-saved-results") as HTMLDetailsElement;
+    expect(savedDetails.querySelector("summary")?.textContent).toContain("Saved results (2)");
+    fireEvent.click(savedDetails.querySelector(":scope > summary")!);
+    await waitFor(() => expect(savedDetails.querySelectorAll(".process-comparison-row")).toHaveLength(2));
+    await waitFor(() => {
+      const rows = Array.from(savedDetails.querySelectorAll(".process-comparison-row"), (row) => row.textContent ?? "");
+      expect(rows.find((text) => text.includes("Robust 210"))).toContain("210.0 GPa");
+      expect(rows.find((text) => text.includes("Chord 120"))).toContain("120.0 GPa");
+      expect(rows.every((text) => text.includes("Specimen 01 · r1"))).toBe(true);
+      expect(rows.every((text) => text.includes("output r1"))).toBe(true);
+    });
+    expect(Array.from(savedDetails.querySelectorAll(".process-comparison-row"), (row) => row.textContent ?? "").find((text) => text.includes("Chord 120"))).toContain("current");
+    expect(fetchMock.mock.calls.filter(([input, init]) => String(input).endsWith("/processing-outputs") && init?.method !== "POST").length).toBeLessThanOrEqual(2);
+    expect(screen.queryByText(/ERR_INSUFFICIENT_RESOURCES|Maximum update depth exceeded/)).toBeNull();
+  });
+
+  it("preserves older exact refs, membership, visibility and focus when Data enters Process", async () => {
+    const currentRevision = {
+      ...revision,
+      id: "53000000-0000-4000-8000-000000000101",
+      aggregate_id: documentResource.test_data_document_id,
+      revision_no: 2,
+    };
+    const historicalDocuments = [
+      { ...documentResource, current_revision: currentRevision },
+      {
+        ...replicateResource,
+        current_revision: {
+          ...currentRevision,
+          id: "53000000-0000-4000-8000-000000000102",
+          aggregate_id: replicateResource.test_data_document_id,
+        },
+      },
+      {
+        ...replicateResource,
+        test_data_document_id: "53000000-0000-4000-8000-000000000022",
+        current_revision: {
+          ...currentRevision,
+          id: "53000000-0000-4000-8000-000000000103",
+          aggregate_id: "53000000-0000-4000-8000-000000000022",
+        },
+        document_key: "DP600-TENSILE-03",
+        specimen_id: "S-3",
+      },
+    ];
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+      const url = String(input);
+      if (url.endsWith("/test-data-documents")) return jsonResponse({ items: historicalDocuments });
+      if (url.endsWith("/mapping-profiles")) return jsonResponse({ items: [mappingProfileResource] });
+      if (url.endsWith("/processing-outputs") || url.endsWith("/processing-ensemble-methods")
+        || url.endsWith("/common-processing-recipes") || url.endsWith("/common-processing-batches")) return jsonResponse({ items: [] });
+      if (url.endsWith("/processing-methods")) return jsonResponse({ items: [
+        "rows.sort_unique", "metal.elastic_modulus", "metal.proof_stress", "metal.necking_candidate",
+        "metal.engineering_to_true_plastic", "metal.hardening_fit_extrapolate",
+      ].map((methodId) => ({ method_id: methodId, version: "1.0.0", label: methodId, description: methodId, option_schema: {}, deterministic: true, allows_extrapolation: false })) });
+      if (url.endsWith("/processing:preview") && init?.method === "POST") return jsonResponse({
+        execution_mode: "preview",
+        promotable: false,
+        source_document_sha256: "d".repeat(64),
+        mapping_profile_sha256: mappingProfileResource.current_revision.content_hash,
+        independent_quantity: "strain.engineering",
+        stages: [{
+          ordinal: 0,
+          method_id: "mapping",
+          method_version: "1.0.0",
+          point_count: 2,
+          series: [
+            { quantity: "strain.engineering", unit: "1", values: [0, 0.001] },
+            { quantity: "stress.engineering", unit: "Pa", values: [0, 2e8] },
+          ],
+          diagnostics: [],
+          scalar_results: [],
+        }],
+      });
+      if (url.includes("/content")) return {
+        ok: true,
+        status: 200,
+        headers: new Headers({ "content-type": "application/json" }),
+        blob: async () => new Blob([JSON.stringify(documentJson)], { type: "application/json" }),
+      } as Response;
+      throw new Error(`unexpected request: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const historicalRevisionIds = [revision.id, replicateResource.current_revision.id, "53000000-0000-4000-8000-000000000023"];
+    const refs = historicalDocuments.map((item, index) => ({
+      id: item.test_data_document_id,
+      revisionId: historicalRevisionIds[index],
+      label: item.document_key,
+      revisionNo: 1,
+    }));
+    const initialSession = {
+      version: 4,
+      updatedAt: "2026-07-24T00:00:00Z",
+      materialFamily: "metal",
+      objective: "Process exact older revisions",
+      material: { id: "material-a", revisionId: "material-a-r2", label: "DP600", revisionNo: 2 },
+      materialState: { id: "state-a", revisionId: "state-a-r2", label: "As received", revisionNo: 2 },
+      testData: refs[0],
+      mappingProfile: { id: mappingProfileResource.mapping_profile_id, revisionId: mappingProfileResource.current_revision.id, label: mappingProfileResource.content.label, revisionNo: 1 },
+      workspace: {
+        activeStage: "data",
+        selectedDocumentIds: refs.slice(0, 2).map((ref) => ref.id),
+        selectedTestDataRefs: refs,
+        visibleTestDataKeys: refs.map((ref) => `${ref.id}:${ref.revisionId}`),
+        selectedStepIndex: 0,
+        selectedStageOrdinal: 0,
+        plotView: "pipeline",
+        settingsOpen: true,
+      },
+    };
+    const material = {
+      material_id: "material-a",
+      current_revision: { id: "material-a-r2", revision_no: 2, content: { name: "DP600" } },
+    };
+    const materialState = {
+      material_state_id: "state-a",
+      current_revision: { id: "state-a-r2", revision_no: 2, content: { name: "As received" } },
+    };
+    render(
+      <CommonProcessingWorkbench
+        config={{ baseUrl: "/api/v1", accessToken: "token" }}
+        initialSession={initialSession as never}
+        material={material as never}
+        materialState={materialState as never}
+        locationSearch="?stage=data&family=metal"
+        onNavigate={() => undefined}
+        onOpenConnection={() => undefined}
+      />,
+    );
+    await waitFor(() => expect(document.querySelectorAll(".curve-row-label")).toHaveLength(3));
+    fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:process" } }));
+    await screen.findByRole("button", { name: "Save processed curves" });
+    await waitFor(() => expect(document.querySelectorAll(".curve-row-label")).toHaveLength(3));
+    expect(document.querySelector(".process-band-source")?.textContent).toContain("r1");
+    expect(screen.getByText("3 curves · 2 included")).toBeTruthy();
+    expect(screen.getAllByRole("checkbox", { name: /Include .* in processing and fit/ }).filter((input) => (input as HTMLInputElement).checked)).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: /Show .* on plot|Hide .* on plot/ }).filter((button) => button.getAttribute("aria-pressed") === "true")).toHaveLength(3);
+    expect(document.querySelectorAll(".modeling-dataset-list article.active")).toHaveLength(1);
+    expect((screen.getByRole("button", { name: "Preview changes" }) as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  it("settles one failed exact read, exposes explicit retry, and never falls back to stale bytes", async () => {
+    const sourceId = documentResource.test_data_document_id;
+    const missingId = replicateResource.test_data_document_id;
+    const sourceRef = { id: sourceId, revisionId: revision.id, label: documentResource.document_key, revisionNo: 1 };
+    const missingRef = { id: missingId, revisionId: replicateResource.current_revision.id, label: replicateResource.document_key, revisionNo: 1 };
+    const session = {
+      version: 4,
+      updatedAt: "2026-07-24T00:00:00Z",
+      materialFamily: "metal",
+      objective: "Exact read recovery",
+      material: { id: "material-a", revisionId: "material-a-r1", label: "DP600", revisionNo: 1 },
+      materialState: { id: "state-a", revisionId: "state-a-r1", label: "As received", revisionNo: 1 },
+      testData: sourceRef,
+      mappingProfile: { id: mappingProfileResource.mapping_profile_id, revisionId: mappingProfileResource.current_revision.id, label: mappingProfileResource.content.label, revisionNo: 1 },
+      workspace: {
+        activeStage: "process",
+        selectedDocumentIds: [sourceId],
+        selectedTestDataRefs: [sourceRef, missingRef],
+        visibleTestDataKeys: [`${sourceId}:${revision.id}`, `${missingId}:${replicateResource.current_revision.id}`],
+        selectedStepIndex: 1,
+        selectedStageOrdinal: 0,
+        plotView: "pipeline",
+        settingsOpen: true,
+      },
+    };
+    let failedRead = true;
+    let contentGets = 0;
+    let previewPosts = 0;
+    let outputPosts = 0;
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+      const url = String(input);
+      if (url.endsWith("/test-data-documents")) return jsonResponse({ items: [documentResource, replicateResource] });
+      if (url.endsWith("/mapping-profiles")) return jsonResponse({ items: [mappingProfileResource] });
+      if (url.endsWith("/processing-methods")) return jsonResponse({ items: [] });
+      if (url.endsWith("/processing-ensemble-methods") || url.endsWith("/common-processing-recipes") || url.endsWith("/common-processing-batches")) return jsonResponse({ items: [] });
+      if (url.endsWith("/processing-outputs") && init?.method === "POST") {
+        outputPosts += 1;
+        return jsonResponse({}, 201);
+      }
+      if (url.endsWith("/processing-outputs")) return jsonResponse({ items: [] });
+      if (url.includes("/test-data-documents/") && url.endsWith("/content")) {
+        contentGets += 1;
+        const requestedId = decodeURIComponent(url.split("/test-data-documents/")[1].split("/")[0]);
+        if (requestedId === missingId && failedRead) return jsonResponse({ detail: "missing exact source" }, 404);
+        return {
+          ok: true,
+          status: 200,
+          headers: new Headers({ "content-type": "application/json" }),
+          blob: async () => new Blob([JSON.stringify(documentJson)], { type: "application/json" }),
+        } as Response;
+      }
+      if (url.endsWith("/processing:preview") && init?.method === "POST") {
+        previewPosts += 1;
+        return jsonResponse({
+          execution_mode: "preview",
+          promotable: false,
+          source_document_sha256: "d".repeat(64),
+          mapping_profile_sha256: mappingProfileResource.current_revision.content_hash,
+          independent_quantity: "strain.engineering",
+          stages: [{
+            ordinal: 0,
+            method_id: "mapping",
+            method_version: "1.0.0",
+            point_count: 2,
+            series: [
+              { quantity: "strain.engineering", unit: "1", values: [0, 0.001] },
+              { quantity: "stress.engineering", unit: "Pa", values: [0, 2e8] },
+            ],
+            diagnostics: [],
+            scalar_results: [{ key: "youngs_modulus", quantity_semantics: "modulus.young", value: 210e9, unit: "Pa" }],
+          }],
+        });
+      }
+      throw new Error(`unexpected request: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const material = { material_id: "material-a", current_revision: { id: "material-a-r1", revision_no: 1, content: { name: "DP600" } } };
+    const materialState = { material_state_id: "state-a", current_revision: { id: "state-a-r1", revision_no: 1, content: { name: "As received" } } };
+    const view = render(<CommonProcessingWorkbench config={{ baseUrl: "/api/v1", accessToken: "token" }} initialSession={session as never} material={material as never} materialState={materialState as never} locationSearch="?stage=process&family=metal" onNavigate={() => undefined} onOpenConnection={() => undefined} />);
+    await screen.findByRole("button", { name: "Save processed curves" });
+    await waitFor(() => expect(contentGets).toBe(1));
+    await waitFor(() => expect(processRailIdentities()).toContain("Specimen 02 · r1"));
+    const previewPostsBeforeFailure = previewPosts;
+    fireEvent.click(processRailButton("Specimen 02 · r1"));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Retry exact source" })).toBeTruthy());
+    expect(contentGets).toBe(2);
+    expect(screen.getByText("Exact source unavailable · r1")).toBeTruthy();
+    expect((screen.getByRole("button", { name: "Preview changes" }) as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole("button", { name: "Save processed curves" }) as HTMLButtonElement).disabled).toBe(true);
+    const blockedProcessPanel = document.querySelector('[data-modeling-process-panel="ready"]');
+    expect(blockedProcessPanel?.textContent ?? "").not.toMatch(/(?:210|120)\.0 GPa/);
+    expect(screen.getByRole("img", { name: "Blocked engineering curve plot" })).toBeTruthy();
+    expect(previewPosts).toBe(previewPostsBeforeFailure);
+    view.rerender(<CommonProcessingWorkbench config={{ baseUrl: "/api/v1", accessToken: "token" }} initialSession={session as never} material={material as never} materialState={materialState as never} locationSearch="?stage=process&family=metal" onNavigate={() => undefined} onOpenConnection={() => undefined} />);
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    expect(contentGets).toBe(2);
+    failedRead = false;
+    fireEvent.click(screen.getByRole("button", { name: "Retry exact source" }));
+    await waitFor(() => expect(processRailIdentities()).toContain("Specimen 02 · r1"));
+    expect((screen.getByRole("button", { name: "Preview changes" }) as HTMLButtonElement).disabled).toBe(false);
+    expect(outputPosts).toBe(0);
+  });
+
+  it.each(["success", "failure"] as const)("re-reads A after an explicit A→B→A selection when B %s", async (outcome) => {
+    const sourceId = documentResource.test_data_document_id;
+    const nextId = replicateResource.test_data_document_id;
+    const sourceRef = { id: sourceId, revisionId: revision.id, label: documentResource.document_key, revisionNo: 1 };
+    const nextRef = { id: nextId, revisionId: replicateResource.current_revision.id, label: replicateResource.document_key, revisionNo: 1 };
+    const contentRequests: string[] = [];
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+      const url = String(input);
+      if (url.endsWith("/test-data-documents")) return jsonResponse({ items: [documentResource, replicateResource] });
+      if (url.endsWith("/mapping-profiles")) return jsonResponse({ items: [mappingProfileResource] });
+      if (url.endsWith("/processing-methods")) return jsonResponse({ items: [] });
+      if (url.endsWith("/processing-ensemble-methods") || url.endsWith("/common-processing-recipes") || url.endsWith("/common-processing-batches")) return jsonResponse({ items: [] });
+      if (url.endsWith("/processing-outputs")) return jsonResponse({ items: [] });
+      if (url.includes("/test-data-documents/") && url.endsWith("/content")) {
+        const requestedId = decodeURIComponent(url.split("/test-data-documents/")[1].split("/")[0]);
+        contentRequests.push(requestedId);
+        if (requestedId === nextId && outcome === "failure") return jsonResponse({ detail: "B unavailable" }, 404);
+        return {
+          ok: true,
+          status: 200,
+          headers: new Headers({ "content-type": "application/json" }),
+          blob: async () => new Blob([JSON.stringify(documentJson)], { type: "application/json" }),
+        } as Response;
+      }
+      if (url.endsWith("/processing:preview") && init?.method === "POST") return jsonResponse({
+        execution_mode: "preview",
+        promotable: false,
+        source_document_sha256: "d".repeat(64),
+        mapping_profile_sha256: mappingProfileResource.current_revision.content_hash,
+        independent_quantity: "strain.engineering",
+        stages: [{ ordinal: 0, method_id: "mapping", method_version: "1.0.0", point_count: 2, series: [], diagnostics: [], scalar_results: [] }],
+      });
+      throw new Error(`unexpected request: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const session = {
+      version: 4,
+      updatedAt: "2026-07-24T00:00:00Z",
+      materialFamily: "metal",
+      objective: "Exact A B A selection",
+      material: { id: "material-a", revisionId: "material-a-r1", label: "DP600", revisionNo: 1 },
+      materialState: { id: "state-a", revisionId: "state-a-r1", label: "As received", revisionNo: 1 },
+      testData: sourceRef,
+      mappingProfile: { id: mappingProfileResource.mapping_profile_id, revisionId: mappingProfileResource.current_revision.id, label: mappingProfileResource.content.label, revisionNo: 1 },
+      workspace: { activeStage: "process", selectedDocumentIds: [sourceId], selectedTestDataRefs: [sourceRef, nextRef], visibleTestDataKeys: [`${sourceId}:${revision.id}`, `${nextId}:${replicateResource.current_revision.id}`], selectedStepIndex: 0, selectedStageOrdinal: 0, plotView: "pipeline", settingsOpen: true },
+    };
+    const material = { material_id: "material-a", current_revision: { id: "material-a-r1", revision_no: 1, content: { name: "DP600" } } };
+    const materialState = { material_state_id: "state-a", current_revision: { id: "state-a-r1", revision_no: 1, content: { name: "As received" } } };
+    render(<CommonProcessingWorkbench config={{ baseUrl: "/api/v1", accessToken: "token" }} initialSession={session as never} material={material as never} materialState={materialState as never} locationSearch="?stage=process&family=metal" onNavigate={() => undefined} onOpenConnection={() => undefined} />);
+    await waitFor(() => expect(contentRequests).toEqual([sourceId]));
+    await waitFor(() => expect(processRailIdentities()).toContain("Specimen 01 · r1"));
+    fireEvent.click(processRailButton("Specimen 02 · r1"));
+    await waitFor(() => expect(contentRequests).toEqual([sourceId, nextId]));
+    if (outcome === "success") await waitFor(() => expect(processRailIdentities()).toContain("Specimen 02 · r1"));
+    else await screen.findByRole("button", { name: "Retry exact source" });
+    fireEvent.click(processRailButton("Specimen 01 · r1"));
+    await waitFor(() => expect(contentRequests).toEqual([sourceId, nextId, sourceId]));
+    await waitFor(() => expect(processRailIdentities()).toContain("Specimen 01 · r1"));
+    expect(screen.queryByText("Exact source unavailable · r1")).toBeNull();
+  });
+
+  it.each(["success", "failure"] as const)("keeps the newest exact request authoritative when A is pending and B %s", async (outcome) => {
+    const sourceId = documentResource.test_data_document_id;
+    const nextId = replicateResource.test_data_document_id;
+    const sourceRef = { id: sourceId, revisionId: revision.id, label: documentResource.document_key, revisionNo: 1 };
+    const nextRef = { id: nextId, revisionId: replicateResource.current_revision.id, label: replicateResource.document_key, revisionNo: 1 };
+    let contentGets = 0;
+    let resolveA: ((response: Response) => void) | undefined;
+    let rejectA: ((reason?: unknown) => void) | undefined;
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+      const url = String(input);
+      if (url.endsWith("/test-data-documents")) return jsonResponse({ items: [documentResource, replicateResource] });
+      if (url.endsWith("/mapping-profiles")) return jsonResponse({ items: [mappingProfileResource] });
+      if (url.endsWith("/processing-methods")) return jsonResponse({ items: [] });
+      if (url.endsWith("/processing-ensemble-methods") || url.endsWith("/common-processing-recipes") || url.endsWith("/common-processing-batches")) return jsonResponse({ items: [] });
+      if (url.endsWith("/processing-outputs")) return jsonResponse({ items: [] });
+      if (url.includes("/test-data-documents/") && url.endsWith("/content")) {
+        contentGets += 1;
+        const requestedId = decodeURIComponent(url.split("/test-data-documents/")[1].split("/")[0]);
+        if (requestedId === sourceId) {
+          return new Promise<Response>((resolve, reject) => { resolveA = resolve; rejectA = reject; });
+        }
+        if (outcome === "failure") return jsonResponse({ detail: "B unavailable" }, 404);
+        return {
+          ok: true,
+          status: 200,
+          headers: new Headers({ "content-type": "application/json" }),
+          blob: async () => new Blob([JSON.stringify(documentJson)], { type: "application/json" }),
+        } as Response;
+      }
+      if (url.endsWith("/processing:preview") && init?.method === "POST") return jsonResponse({
+        execution_mode: "preview",
+        promotable: false,
+        source_document_sha256: "d".repeat(64),
+        mapping_profile_sha256: mappingProfileResource.current_revision.content_hash,
+        independent_quantity: "strain.engineering",
+        stages: [{ ordinal: 0, method_id: "mapping", method_version: "1.0.0", point_count: 2, series: [], diagnostics: [], scalar_results: [] }],
+      });
+      throw new Error(`unexpected request: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const session = {
+      version: 4,
+      updatedAt: "2026-07-24T00:00:00Z",
+      materialFamily: "metal",
+      objective: "Exact request race",
+      material: { id: "material-a", revisionId: "material-a-r1", label: "DP600", revisionNo: 1 },
+      materialState: { id: "state-a", revisionId: "state-a-r1", label: "As received", revisionNo: 1 },
+      testData: sourceRef,
+      mappingProfile: { id: mappingProfileResource.mapping_profile_id, revisionId: mappingProfileResource.current_revision.id, label: mappingProfileResource.content.label, revisionNo: 1 },
+      workspace: { activeStage: "process", selectedDocumentIds: [sourceId], selectedTestDataRefs: [sourceRef, nextRef], visibleTestDataKeys: [`${sourceId}:${revision.id}`, `${nextId}:${replicateResource.current_revision.id}`], selectedStepIndex: 0, selectedStageOrdinal: 0, plotView: "pipeline", settingsOpen: true },
+    };
+    const material = { material_id: "material-a", current_revision: { id: "material-a-r1", revision_no: 1, content: { name: "DP600" } } };
+    const materialState = { material_state_id: "state-a", current_revision: { id: "state-a-r1", revision_no: 1, content: { name: "As received" } } };
+    render(<CommonProcessingWorkbench config={{ baseUrl: "/api/v1", accessToken: "token" }} initialSession={session as never} material={material as never} materialState={materialState as never} locationSearch="?stage=process&family=metal" onNavigate={() => undefined} onOpenConnection={() => undefined} />);
+    await waitFor(() => expect(contentGets).toBe(1));
+    fireEvent.click(processRailButton("Specimen 02 · r1"));
+    await waitFor(() => expect(contentGets).toBe(2));
+    if (outcome === "success") await waitFor(() => expect(processRailIdentities()).toContain("Specimen 02 · r1"));
+    else await waitFor(() => expect(screen.getByRole("button", { name: "Retry exact source" })).toBeTruthy());
+    resolveA?.({
+      ok: true,
+      status: 200,
+      headers: new Headers({ "content-type": "application/json" }),
+      blob: async () => new Blob([JSON.stringify(documentJson)], { type: "application/json" }),
+    } as Response);
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    expect(contentGets).toBe(2);
+    if (outcome === "success") {
+      expect(processRailIdentities()).toContain("Specimen 02 · r1");
+      expect(document.querySelector(".process-band-source")?.textContent).toBe("Specimen 02 · r1");
+    } else {
+      expect(screen.getByText("Exact source unavailable · r1")).toBeTruthy();
+      expect(screen.getByRole("button", { name: "Retry exact source" })).toBeTruthy();
+    }
+    rejectA?.(new Error("late A failure"));
   });
 });

@@ -23,7 +23,7 @@ review/release는 Modeling의 normal stage가 아니라 Advanced와 Activity의 
 | 영역 | 구현 상태 |
 | --- | --- |
 | Materials | Browse 기본의 explorer/result/datasheet workspace, server-scoped Material class 검색·정렬·pagination, Browse Tree, 선택 문맥, detail 5개 영역, solver card preview/download |
-| Modeling | exact Material/State/Test Data session pin, Data/Process/Fit/Export, processing·fitting, 선택 모델 저장, Material Model IR·Neutral·solver card 생성, upstream 변경에 따른 downstream clear/stale/regenerate |
+| Modeling | exact Material/State/Test Data session pin, Data/Process/Fit/Export, Process의 exact source/profile preview·last-valid blocked recovery·immutable saved-result comparison, processing·fitting, 선택 모델 저장, Material Model IR·Neutral·solver card 생성, upstream 변경에 따른 downstream clear/stale/regenerate |
 | Activity | review queue, Material/Solver Card 요청 진입, Reviewer 승인·반려. failed-job recovery, server receipt와 release projection은 아직 없음 |
 | Administration | Database/Profile과 configurable Table/Attribute/Layout/Subset/Link Type의 revision 관리·발행, Folder/Record tree, typed search·compare, 단건·다건 등록, exact Record links와 접근 관리 |
 | Exchange | CSV/TSV/XLSX governed import, versioned Test Data JSON, Neutral Material JSON, deterministic package |

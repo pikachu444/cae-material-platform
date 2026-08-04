@@ -1,12 +1,12 @@
-version: 75
-verified_at: 2026-08-04
-scope: issue-158-task1-modeling-data
-source_commit: worktree
+version: 76
+verified_at: 2026-08-05
+scope: issue-158-task2-modeling-process
+source_commit: c102289
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright==1.62.0 python scripts/capture_current_product.py
 notes:
   - "UXC-04E directly ports the approved modeling.html/review.css Fit topology: white 48 px product header, compact title/stage rows, 184–208 px curve/process rail, exact 31 px heading plus 72 px six-group ribbon, graph-adjacent Candidate parameters disclosure, separate compact graph header, dominant plot, and compact decision-relevant legend. The retired command/status bars do not consume Modeling graph space."
-  - "The current set contains 54 deterministic captures: 49 live Compose captures plus five route-intercepted Materials overflow states; Issue #159 task 2 adds Database design and Record registration at all five required desktop viewports."
+  - "The current set contains 59 deterministic captures, including the eight live Modeling Process states verified for Issue #158 Task 2; route-intercepted failure and overflow states remain deterministic product-route evidence."
   - "Fit capture asserts the four-row grouped metal rail, one-line Step 4 Fit heading, one ordered control row, a closed Candidate parameters row above a visible graph divider, a separate minimal graph header, one top-row Save fit & continue action, explicit selection before save, and persistent graph identity."
   - "Recommendation, engineer selection, saved result, downstream model evidence, and export eligibility remain separate states; a recommendation never mutates selection."
   - "Polymer candidate evidence exposes the actual server-produced term identity and measured range only; missing result evidence is never replaced by a fallback."
@@ -34,15 +34,19 @@ notes:
   - "Issue #158 Task 1 Data captures verify three exact refs, two included and three visible after route reload, a 178 px adjustable ribbon, pin-free empty-state Local file recovery, a collapsed optional navigator that reclaims graph space, invalid mapping that keeps the last valid graph and blocks Update preview/Save Test Data, and a 1920×878 wide working cap."
 allowed_duplicate_pairs: []
 capture_provenance:
-  - source_commit: worktree
+  - source_commit: c102289
+    captured_at: 2026-08-05T01:02:17+09:00
+    command: '`uv run python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --only-modeling-process`; rebuilt/recreated canonical Compose and verified all eight outputs, exact Test Data/Profile pins, robust and chord server previews, immutable sibling outputs, prerequisite blocking, settled exact-read recovery, unclipped visible Process identities, legend/axis separation, compact control spacing, Manual pointer/keyboard reachability, and bounded wide layouts across repeated live runs'
+    ids: [MOD-PROCESS-CURRENT-1366, MOD-PROCESS-CURRENT-1440, MOD-PROCESS-CURRENT-1920, MOD-PROCESS-CURRENT-2560, MOD-PROCESS-CURRENT-3840, MOD-PROCESS-CURRENT-BLOCKED-1440, MOD-PROCESS-CURRENT-EXACT-READ-FAILED-1440, MOD-PROCESS-CURRENT-SIBLINGS-1440]
+  - source_commit: f5c69d1
     captured_at: 2026-08-04T13:29:59+09:00
     command: '`uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --only-modeling-data-session`; rebuilt/recreated canonical Compose and validated the normal exact-selection/reload, collapsed-navigator session shell, pin-free empty recovery, invalid blocked mapping, adjustable ribbon, and wide-cap outcomes for all ten captures'
     ids: [modeling-data-1366, modeling-data-1440, modeling-data-1920, modeling-data-2560, modeling-data-3840, modeling-data-empty-1440, modeling-data-invalid-1440, modeling-session-1366, modeling-session-1440, modeling-session-1920]
-  - source_commit: worktree
+  - source_commit: 25bd0d4
     captured_at: 2026-08-03T16:20:10+09:00
     command: rebuilt the populated Compose demo after migration up/down/up verification, then ran `--only-administration-records`; every capture opens Multiple rows and gates the source controls, local overflow and absence of visible application errors
     ids: [administration-records-1366, administration-records-1440, administration-records-1920, administration-records-2560, administration-records-3840]
-  - source_commit: worktree
+  - source_commit: 25bd0d4
     captured_at: 2026-08-03T16:06:13+09:00
     command: rebuilt the populated Compose demo after migration up/down/up verification, then ran `--only-administration-database`; verifies the three-pane Database/Profile and Table-scoped property editor without horizontal overflow at all required viewports
     ids: [administration-database-1366, administration-database-1440, administration-database-1920, administration-database-2560, administration-database-3840]
@@ -57,11 +61,7 @@ capture_provenance:
   - source_commit: 55cfa62
     captured_at: 2026-07-28T00:40:24+09:00
     command: rebuilt local web image, then targeted live Playwright Modeling consistency capture at 1366x768, 1440x900 and 1920x1080; verifies the approved white 48px Modeling shell, compact title/stage rows, 104px Fit ribbon, 184/192/208px rail, truthful specimen labels from the fixture, selected Swift/Voce blend graph evidence, drawable graph >=76%, unclipped axes and legend, and no page-level horizontal overflow or ribbon/graph collision
-    ids: [modeling-data-1366, modeling-data-1440, modeling-data-1920, modeling-session-1366, modeling-session-1440, modeling-session-1920, modeling-process-1366, modeling-process-1440, modeling-process-1920, modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-export-1366, modeling-export-1440, modeling-export-1920]
-  - source_commit: 65eddb0
-    captured_at: 2026-07-27T01:00:00+09:00
-    command: targeted live Playwright Administration capture at 1366x768, 1440x900 and 1920x1080; verifies the object navigator, table-scoped selector and no horizontal overflow
-    ids: [administration-database-1366, administration-database-1440, administration-database-1920]
+    ids: [modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-export-1366, modeling-export-1440, modeling-export-1920]
   - source_commit: 3bfc0d7
     captured_at: 2026-07-26T23:10:00+09:00
     command: targeted live Playwright Product Access capture at 1366x768 and 1440x900; selects the Reviewer preset, verifies readable included tasks and rejects the retired technical feature-checkbox editor
@@ -287,27 +287,62 @@ captures:
     image: images/current/modeling-data-invalid-1440x900.png
     width: 1440
     height: 900
-  - id: modeling-process-1366
+  - id: MOD-PROCESS-CURRENT-1366
     route: /modeling?stage=process&family=metal
     workflow: UXC-04C shared rail/plot sizing; source-processed-preview-and-explicit-output-commit
     fixture: synthetic DP780 preview with explicit immutable output command; DUI-05 live acceptance
     image: images/current/modeling-process-1366x768.png
     width: 1366
     height: 768
-  - id: modeling-process-1440
+  - id: MOD-PROCESS-CURRENT-1440
     route: /modeling?stage=process&family=metal
     workflow: UXC-04C shared rail/plot sizing; source-processed-preview-and-explicit-output-commit
     fixture: synthetic DP780 preview with explicit immutable output command; DUI-05 live acceptance
     image: images/current/modeling-process-1440x900.png
     width: 1440
     height: 900
-  - id: modeling-process-1920
+  - id: MOD-PROCESS-CURRENT-1920
     route: /modeling?stage=process&family=metal
     workflow: UXC-04C shared rail/plot sizing; source-processed-preview-and-explicit-output-commit
     fixture: synthetic DP780 preview with explicit immutable output command; DUI-05 live acceptance
     image: images/current/modeling-process-1920x1080.png
     width: 1920
     height: 1080
+  - id: MOD-PROCESS-CURRENT-2560
+    route: /modeling?stage=process&family=metal
+    workflow: Process-only wide viewport; exact source/profile band, persistent overlay graph, and saved-result controls remain readable within the bounded workspace
+    fixture: synthetic DP780 preview with explicit immutable output command; wide viewport qualitative acceptance
+    image: images/current/modeling-process-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: MOD-PROCESS-CURRENT-3840
+    route: /modeling?stage=process&family=metal
+    workflow: Process-only wide viewport; exact source/profile band, persistent overlay graph, and saved-result controls remain readable within the bounded workspace
+    fixture: synthetic DP780 preview with explicit immutable output command; wide viewport qualitative acceptance
+    image: images/current/modeling-process-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: MOD-PROCESS-CURRENT-BLOCKED-1440
+    route: /modeling?stage=process&family=metal
+    workflow: Process prerequisite recovery; missing exact Test Data is visibly blocked and the user is directed back to Data without a latest fallback
+    fixture: synthetic session with Test Data selection cleared while the Process route remains active
+    image: images/current/modeling-process-blocked-1440x900.png
+    width: 1440
+    height: 900
+  - id: MOD-PROCESS-CURRENT-EXACT-READ-FAILED-1440
+    route: /modeling?stage=process&family=metal
+    workflow: Process exact-source read failure; the selected revision settles blocked with direct Retry exact source and Back to Data recovery
+    fixture: synthetic DP780 session with Specimen 01 exact revision pinned while its deterministic content GET returns one 503; no latest fallback, stale graph, or scalar is shown
+    image: images/current/modeling-process-exact-read-failed-1440x900.png
+    width: 1440
+    height: 900
+  - id: MOD-PROCESS-CURRENT-SIBLINGS-1440
+    route: /modeling?stage=process&family=metal
+    workflow: Process saved-result comparison; two exact-source siblings load content from their bound artifacts and expose current/history plus retry/use-settings actions
+    fixture: two deterministic synthetic Processing Outputs saved from the same exact source/profile
+    image: images/current/modeling-process-siblings-1440x900.png
+    width: 1440
+    height: 900
   - id: modeling-fit-1366
     route: /modeling?stage=fit&family=metal
     workflow: UXC-04E approved prototype topology, compact fit controls, graph response and explicit decision save

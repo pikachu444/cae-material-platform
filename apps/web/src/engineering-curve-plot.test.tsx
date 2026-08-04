@@ -60,6 +60,26 @@ describe("EngineeringCurvePlot", () => {
     expect(onChooseLocal).toHaveBeenCalledTimes(1);
   });
 
+  it("renders an exact-prerequisite blocked frame with a Data recovery action", () => {
+    const onBackToData = vi.fn();
+    const { container } = render(
+      <EngineeringCurvePlotEmpty
+        width={760}
+        height={420}
+        blocked
+        title="Processing is blocked"
+        message="Choose the exact Test Data revision in Data."
+        onBackToData={onBackToData}
+      />,
+    );
+
+    expect(container.querySelector('[data-plot-state="blocked"]')).toBeTruthy();
+    expect(screen.getByRole("img", { name: "Blocked engineering curve plot" })).toBeTruthy();
+    expect(screen.getByText("Processing is blocked")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Back to Data" }));
+    expect(onBackToData).toHaveBeenCalledOnce();
+  });
+
   it("keeps source and processed series on their own sampling grids", () => {
     const { container } = render(
       <EngineeringCurvePlot preview={preview} activeStage={activeStage} baseStage={baseStage} width={760} height={420} />,
@@ -100,6 +120,25 @@ describe("EngineeringCurvePlot", () => {
     expect(container.querySelectorAll("polyline.data-observed")).toHaveLength(2);
     expect(screen.getByRole("button", { name: "Specimen 01 · r1" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Specimen 02 · r1" })).toBeTruthy();
+  });
+
+  it("keeps observed curves as a separate Process overlay layer", () => {
+    const { container } = render(
+      <EngineeringCurvePlot
+        preview={preview}
+        activeStage={activeStage}
+        baseStage={baseStage}
+        width={760}
+        height={420}
+        processOverlay
+        observedCurves={[{ id: "doc-1:r1", label: "Specimen 01 · r1", preview }]}
+      />,
+    );
+
+    expect(container.querySelector("polyline.process-observed")).toBeTruthy();
+    expect(screen.getByText("Focused mapped input")).toBeTruthy();
+    expect(screen.getByText("Selected stage")).toBeTruthy();
+    expect(screen.getByText("Calculation notes")).toBeTruthy();
   });
 
   it("supports legend visibility and explicit zoom reset controls", () => {

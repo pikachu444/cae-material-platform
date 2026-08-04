@@ -14,7 +14,8 @@ Metal/Polymer/Elastomer track을 제공합니다. `/datasets/processing`은 같�
 화면 왼쪽은 현재 재료군과 호환되는 시험 curve 및 Process 단계이고 나머지 폭은 실제 서버 계산
 결과를 표시하는 engineering graph입니다. 선택 단계 설정은 graph 위 ribbon에 있고 영구적인
 오른쪽 열은 없습니다. 1366 px에서도 설정은 한두 줄의 얕은 band 안에 있고 graph 축·눈금·범례가 첫 화면에
-모두 보입니다. 일반 작업에서는 내부 주소, 토큰 또는 식별자를 입력하지 않습니다. 범례를 눌러 series를 숨기거나 표시하고, plot을
+모두 보입니다. Process 범례는 x축 값과 제목을 가리지 않는 아래쪽 여백 위에 작게 놓입니다. 일반 작업에서는 내부 주소,
+토큰 또는 식별자를 입력하지 않습니다. 범례를 눌러 series를 숨기거나 표시하고, plot을
 드래그해 이동하며 wheel 또는 `Zoom in/out`으로 확대하고 `Reset`으로 전체 범위로 돌아갑니다.
 
 그래프에서 처리 범위를 지정하려면 Recipe 단계(예: **Metal elastic modulus**)를 먼저 고르고
@@ -32,8 +33,10 @@ Material, State, Test Data, Mapping Profile과 Recipe exact revision을 복원�
 현재 선택 가능한 head와 다르면 조용히 최신값으로 바꾸지 않고 검토 경고를 표시합니다.
 
 금속 **Metal elastic modulus** 단계에서는 current-step settings ribbon에서 Auto robust, Linear regression,
-Chord, Secant, Manual slope를 직접 선택합니다. 그래프의 **Select range** 또는 Start/End strain으로
-평가 구간을 정합니다. Manual slope에는 값·unit·engineering reason이 함께 필요하며 GPa/MPa 입력은
+Chord, Secant, Manual slope를 직접 선택합니다. 평가 method 버튼과 Start/End strain은 한 compact row에
+왼쪽 정렬되어 함께 보이며, 그래프의 **Select range**로도 같은 구간을 정할 수 있습니다. Manual slope의
+값·unit·engineering reason은 필요한 경우 다음 줄로 자연스럽게 감싸지지만 current-step band 안에서
+키보드로 이어서 접근할 수 있습니다. GPa/MPa 입력은
 canonical Pa로 변환해 실제 계산에 사용합니다. 선택한 necking point도 point index와 reason을 요구합니다.
 두 수동 workup은 원값/원 단위·canonical 값/단위·사유를 `workup_overrides`로 Processing Output revision과
 다운로드 Artifact에 함께 고정합니다. **Offset proof stress**는 선택한 offset/search range의 curve-derived
@@ -48,7 +51,9 @@ specimen별 26 px tree 행을 표시합니다. 예를 들어 tensile 문서는 `
 추정하지 않습니다. 시편 행은 들여쓰기로 계층을 표현하며 `└`/`ㄴ` 문자를 제목 앞에 붙이지 않습니다.
 시험 방법 그룹은 실제로 접고 펼칠 수 있는 native disclosure이며 키보드로도 작동합니다. 각 행의 checkbox는 **Include in processing/fit**이고, 끝의 눈 아이콘은 **Show on plot**만
 바꿉니다. 제목 오른쪽의 짧은 가로 색상 표본은 해당 curve의 plot 색상만 나타내며 제목 앞에 기호처럼 붙지 않습니다. 따라서 line을 숨겨도 fitting 포함 여부는 바뀌지 않습니다. 행에는 specimen 이름과 exact revision을
-짧게 표시하고 전체 document identity는 hover에서 확인합니다. 이 rail은 Validate, Review와
+짧게 표시합니다. Data는 specimen과 exact revision을 두 줄로, Process는 `Specimen 0N · rN` 한 줄로
+표시하므로 hover 없이도 현재 선택 identity를 확인할 수 있습니다. Fit은 기존 document label과
+specimen/revision 보조 줄을 유지합니다. 이 rail은 Validate, Review와
 Export에는 표시하지 않습니다. Process에서 호환되는 포함 curve가 두 개 이상일 때만 **Replicate analysis**를 열고 **Preview mean & band**를
 누를 수 있습니다. 그러면 가운데 plot이 **Mean & band** 보기로 전환되어 개별 curve,
 pointwise mean과 95% mean confidence band를 함께 표시합니다. 이 계산에는 `rows.*`와 `curve.*`
@@ -210,6 +215,42 @@ Activity에 Delivered 상태나 링크를 만들지 않습니다. source/target 
 
 
 ## 불변 Processing Output 저장
+
+### Process 상태와 저장 결과 비교
+
+Process band는 선택한 exact Test Data revision과 Mapping Profile을 항상 함께 표시합니다. 서버
+preview가 성공한 동안에는 mapped input, 선택한 processed stage, server modulus fit을 하나의
+engineering graph에 겹쳐 보여 주며, draft option을 바꾸거나 재계산에 실패해도 마지막 유효
+server preview를 화면에 남깁니다. 실패한 응답은 저장 입력으로 승격되지 않습니다. exact source나
+profile을 복구할 수 없으면 graph는 `blocked` 상태와 **Back to Data** recovery를 표시하며
+`latest` revision으로 조용히 대체하지 않습니다. 선택한 exact ref 자체가 없는 경우에는
+**No exact Test Data**와 **Back to Data**만 보입니다. exact ref는 있지만 content read가 실패한
+경우에는 **Exact source unavailable · rN**으로 settled되고 자동 재시도하지 않습니다. 이전
+document/preview/scalar나 newest/current-head를 fallback으로 사용하지 않으며, 직접 보이는
+**Retry exact source** 또는 **Back to Data**로만 복구합니다. 같은 exact ref의 재시도는 한 번의
+새 요청이고 실패하면 다시 settled blocked 상태로 남습니다.
+
+**Saved results** disclosure는 현재 exact source/profile에 맞는 Processing Output만 보여 줍니다.
+각 row는 label, source revision, elastic method/range, artifact에서 다시 읽은 Young's modulus,
+output revision, `current`/`history` 상태를 한 줄로 표시합니다. Artifact를 읽지 못하거나 source,
+profile, output id, revision, ordered steps가 맞지 않으면 `Saved result unavailable`과 **Retry**를
+표시하고 값의 fallback을 만들지 않습니다. 성공적으로 읽은 row만 **Use settings**를 제공하며,
+이는 같은 settings를 새 draft로 복사하므로 preview 후 새 immutable output을 저장해야 합니다.
+같은 exact source에서 두 결과를 저장하면 이전 결과는 history로 보존되고 새 결과만 current가
+됩니다. upstream draft 변경은 current pointer를 지우지만 saved history는 삭제하지 않습니다.
+
+Process의 live evidence는 일반 viewport(1366×768, 1440×900, 1920×1080)와 wide viewport
+(2560×1440, 3840×2160), exact prerequisite blocked(1440×900), exact-read failed(1440×900), saved-result siblings(1440×900)
+상태를 각각 확인합니다. 캡처가 `Loading Process controls…` fallback에서 settled panel로 전환되지
+않았거나 graph/axis가 잘리면 기존 capture directory를 교체하지 않습니다.
+
+| Process evidence | 화면 |
+| --- | --- |
+| Wide 2560×1440 | ![Process 2560](images/current/modeling-process-2560x1440.png) |
+| Wide 3840×2160 | ![Process 3840](images/current/modeling-process-3840x2160.png) |
+| Exact prerequisite blocked 1440×900 | ![Process blocked](images/current/modeling-process-blocked-1440x900.png) |
+| Exact source read failed 1440×900 | ![Process exact source read failed](images/current/modeling-process-exact-read-failed-1440x900.png) |
+| Saved-result siblings 1440×900 | ![Process saved results](images/current/modeling-process-siblings-1440x900.png) |
 
 1. Process preview 결과와 저장된 Mapping Profile revision이 일치하는지 확인합니다.
 2. current-step settings에서 Processed curve label과 저장 사유를 입력합니다.

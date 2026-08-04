@@ -255,6 +255,45 @@ describe("Modeling session v4 reducer", () => {
     expect(focused.workspace.visibleTestDataKeys).toEqual(includedSubset.workspace.visibleTestDataKeys);
   });
 
+  it("keeps the current Process output for a same-focus Include decision", () => {
+    const first = ref("curve-1");
+    const second = ref("curve-2");
+    const output = ref("processed");
+    const selected = reduceModelingSession(null, { type: "SET_TEST_DATA_SELECTION", selectedTestDataRefs: [first, second] });
+    const session = reduceModelingSession(selected, { type: "PATCH", patch: { mappingProfile: ref("mapping"), processingOutput: output } });
+    const next = reduceModelingSession(session, { type: "CHANGE_SELECTION" });
+
+    expect(next.testData).toEqual(first);
+    expect(next.workspace.selectedTestDataRefs).toEqual([first, second]);
+    expect(next.processingOutput).toEqual(output);
+    expect(next.invalidation?.reason).toBe("selection");
+  });
+
+  it("clears Process when focus moves to a linked exact row and handles focused removal order", () => {
+    const first = ref("curve-1");
+    const second = ref("curve-2");
+    const selected = reduceModelingSession(null, { type: "SET_TEST_DATA_SELECTION", selectedTestDataRefs: [first, second] });
+    const focused = reduceModelingSession({ ...selected, processingOutput: ref("processed") }, { type: "PIN_TEST_DATA", testData: second });
+    expect(focused.testData).toEqual(second);
+    expect(focused.workspace.selectedTestDataRefs).toEqual([first, second]);
+    expect(focused.processingOutput).toBeUndefined();
+
+    const afterPinFirst = reduceModelingSession(focused, { type: "PIN_TEST_DATA", testData: first });
+    expect(afterPinFirst.testData).toEqual(first);
+    expect(afterPinFirst.workspace.selectedTestDataRefs).toEqual([second, first]);
+    expect(afterPinFirst.processingOutput).toBeUndefined();
+    const afterSetRemaining = reduceModelingSession(afterPinFirst, { type: "SET_TEST_DATA_SELECTION", selectedTestDataRefs: [first] });
+    expect(afterSetRemaining.workspace.selectedTestDataRefs).toEqual([first]);
+    expect(afterSetRemaining.workspace.selectedDocumentIds).toEqual([first.id]);
+
+    const emptied = reduceModelingSession(afterSetRemaining, { type: "PIN_TEST_DATA" });
+    expect(emptied.testData).toBeUndefined();
+    expect(emptied.workspace.selectedTestDataRefs).toEqual([]);
+    expect(emptied.workspace.selectedDocumentIds).toEqual([]);
+    expect(reduceModelingSession(emptied, { type: "PIN_TEST_DATA" })).toBe(emptied);
+    expect(reduceModelingSession(emptied, { type: "SET_TEST_DATA_SELECTION", selectedTestDataRefs: [] })).toBe(emptied);
+  });
+
   it("accepts earlier Material and State revisions only when their aggregate identities match", () => {
     const material = { material_id: "material", current_revision: { id: "material-r2" } };
     const state = { material_state_id: "state", current_revision: { id: "state-r2" } };

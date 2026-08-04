@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import hashlib
 import json
+from contextlib import contextmanager
 from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
@@ -32,6 +34,7 @@ from cmp.modules.processing.application.common_outputs import (
     FitDecisionSnapshot,
     ProcessingWorkupOverride,
     processing_output_document,
+    processing_output_content_canonical,
     validate_fit_decision,
     validate_workup_overrides,
 )
@@ -46,7 +49,7 @@ from cmp.modules.processing.domain.common_pipeline import (
     ScalarResult,
     preview_pipeline,
 )
-from cmp.shared.domain.revisions import canonical_json_bytes
+from cmp.shared.domain.revisions import RevisionRecord, canonical_json_bytes
 
 _ORG = UUID("d5400000-0000-4000-8000-000000000101")
 _PROJECT = UUID("d5400000-0000-4000-8000-000000000102")
@@ -373,6 +376,95 @@ class _NoCallPort:
         raise AssertionError("invalid workup evidence must not persist a revision")
 
 
+class _RecordingRevisionStore:
+    def __init__(self) -> None:
+        self.records: list[RevisionRecord] = []
+        self.staged: list[object] = []
+
+    def canonical_content(self, content: object) -> object:
+        return processing_output_content_canonical(cast(Any, content))
+
+    def output_store(self, *args: object, **kwargs: object) -> "_RecordingRevisionStore":
+        del args, kwargs
+        return self
+
+    @contextmanager
+    def transaction(self) -> Any:
+        yield self
+
+    def create(self, draft: Any) -> RevisionRecord:
+        record = RevisionRecord(
+            revision_id=draft.revision_id,
+            aggregate_type=draft.aggregate_type,
+            aggregate_id=draft.aggregate_id,
+            scope=draft.scope,
+            revision_no=1,
+            based_on_revision_id=None,
+            schema_id=draft.schema_id,
+            schema_version=draft.schema_version,
+            content_hash=draft.content_hash,
+            created_at=draft.created_at,
+            created_by=draft.created_by,
+            change_reason=draft.change_reason,
+            request_id=draft.request_id,
+            trace_id=draft.trace_id,
+        )
+        self.records.append(record)
+        return record
+
+    def stage(self, event: object) -> None:
+        self.staged.append(event)
+
+
+class _RecordingArtifacts:
+    def __init__(self, artifact_ids: tuple[UUID, ...]) -> None:
+        self.artifact_ids = iter(artifact_ids)
+        self.calls: list[dict[str, object]] = []
+
+    async def finalize_derived_bytes(self, *args: object, **kwargs: object) -> object:
+        del args
+        value = cast(bytes, kwargs["value"])
+        artifact_id = next(self.artifact_ids)
+        self.calls.append({"id": artifact_id, "value": value, "role": kwargs["artifact_role"]})
+        return SimpleNamespace(
+            artifact=SimpleNamespace(
+                id=artifact_id,
+                sha256=hashlib.sha256(value).hexdigest(),
+            )
+        )
+
+
+class _CommitSource:
+    def __init__(self, source_bytes: bytes, profile: MappingProfileContent) -> None:
+        self.source_bytes = source_bytes
+        self.profile = profile
+
+    async def export_document(self, *args: object) -> object:
+        del args
+        return (
+            SimpleNamespace(
+                current=SimpleNamespace(scope=SimpleNamespace(classification="internal")),
+                content=SimpleNamespace(
+                    canonical_sha256="c" * 64,
+                    governed_source=_EXPORT_PROVENANCE,
+                ),
+            ),
+            self.source_bytes,
+        )
+
+
+class _CommitProfile:
+    def __init__(self, profile: MappingProfileContent) -> None:
+        self.profile = profile
+
+    def get_profile_revision(self, *args: object) -> object:
+        del args
+        return SimpleNamespace(
+            current=SimpleNamespace(scope=SimpleNamespace(classification="internal")),
+            content=self.profile,
+        )
+
+
 def test_committed_output_document_contains_exact_pins_steps_and_every_stage() -> None:
     document = parse_canonical_test_data(
         json.loads(
@@ -438,6 +530,112 @@ def test_committed_output_document_contains_exact_pins_steps_and_every_stage() -
             "revision_id": str(_EXPORT_PROVENANCE.test_run.revision_id),
         },
     }
+
+
+def test_process_commits_two_exact_sibling_outputs_with_fresh_artifacts_and_revisions() -> None:
+    import asyncio
+
+    source_payload = json.loads(Path("contracts/examples/positive/canonical-test-data.json").read_text(encoding="utf-8"))
+    source_payload["channels"][0]["original_values"] = ["0", "0.1", "0.2", "0.3"]
+    source_payload["channels"][0]["normalized_values"] = ["0", "0.001", "0.002", "0.003"]
+    source_payload["channels"][0]["missing_reasons"] = [None, None, None, None]
+    source_payload["channels"][1]["original_values"] = ["0", "205", "410", "615"]
+    source_payload["channels"][1]["normalized_values"] = ["0", "205000000", "410000000", "615000000"]
+    source_payload["channels"][1]["missing_reasons"] = [None, None, None, None]
+    source_bytes = json.dumps(source_payload).encode("utf-8")
+    profile = MappingProfileContent(
+        profile_key="tensile",
+        label="Tensile mapping",
+        independent_quantity="strain.engineering",
+        missing_data_policy=MissingDataPolicy.DROP_ANY,
+        bindings=(
+            ChannelBinding("engineering_strain", "strain.engineering", ("1",)),
+            ChannelBinding("engineering_stress", "stress.engineering", ("Pa",)),
+        ),
+    )
+    source = ExactRevisionPin(
+        UUID("d5400000-0000-4000-8000-000000000121"),
+        UUID("d5400000-0000-4000-8000-000000000122"),
+    )
+    mapping = ExactRevisionPin(
+        UUID("d5400000-0000-4000-8000-000000000123"),
+        UUID("d5400000-0000-4000-8000-000000000124"),
+    )
+    robust_steps = (
+        ProcessingStep("rows.sort_unique", "1.0.0", {"duplicate_policy": "reject"}),
+        ProcessingStep(
+            "metal.elastic_modulus",
+            "1.0.0",
+            {
+                "strain_quantity": "strain.engineering",
+                "stress_quantity": "stress.engineering",
+                "method": "robust_huber",
+                "minimum_strain": 0.0002,
+                "maximum_strain": 0.002,
+                "manual_modulus_pa": 210_000_000_000,
+            },
+        ),
+    )
+    chord_steps = (
+        robust_steps[0],
+        replace(
+            robust_steps[1],
+            options={**robust_steps[1].options, "method": "chord", "minimum_strain": 0.001, "maximum_strain": 0.003},
+        ),
+    )
+    repository = _RecordingRevisionStore()
+    artifacts = _RecordingArtifacts((
+        UUID("d5400000-0000-4000-8000-000000000131"),
+        UUID("d5400000-0000-4000-8000-000000000132"),
+    ))
+    output_ids = iter((
+        UUID("d5400000-0000-4000-8000-000000000141"),
+        UUID("d5400000-0000-4000-8000-000000000142"),
+    ))
+    service = CommonProcessingOutputService(
+        repository=cast(Any, repository),
+        test_data=cast(Any, _CommitSource(source_bytes, profile)),
+        profiles=cast(Any, _CommitProfile(profile)),
+        artifacts=cast(Any, artifacts),
+        id_factory=lambda: next(output_ids),
+    )
+
+    robust = asyncio.run(service.commit(
+        _CONTEXT,
+        _DECISION,
+        CommitProcessingOutput(
+            classification=DataClassification.INTERNAL,
+            label="Robust Process result",
+            source_document=source,
+            mapping_profile=mapping,
+            steps=robust_steps,
+            change_reason="Save robust Process sibling.",
+        ),
+    ))
+    chord = asyncio.run(service.commit(
+        _CONTEXT,
+        _DECISION,
+        CommitProcessingOutput(
+            classification=DataClassification.INTERNAL,
+            label="Chord Process result",
+            source_document=source,
+            mapping_profile=mapping,
+            steps=chord_steps,
+            change_reason="Save chord Process sibling.",
+        ),
+    ))
+
+    assert robust.id != chord.id
+    assert robust.current.revision_no == chord.current.revision_no == 1
+    assert robust.content.source_document == chord.content.source_document == source
+    assert robust.content.mapping_profile == chord.content.mapping_profile == mapping
+    assert robust.content.steps[1].options["method"] == "robust_huber"
+    assert chord.content.steps[1].options["method"] == "chord"
+    assert len(repository.records) == 2
+    assert len(artifacts.calls) == 2
+    assert artifacts.calls[0]["id"] != artifacts.calls[1]["id"]
+    assert robust.content.output_artifact_id == artifacts.calls[0]["id"]
+    assert chord.content.output_artifact_id == artifacts.calls[1]["id"]
 
 
 def test_preflight_projects_proof_only_from_the_exact_test_data_revision() -> None:
