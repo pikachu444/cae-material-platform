@@ -21,9 +21,10 @@
 - 순서 3 `#159 물성 데이터 등록·관리`는 제품 소유자 확인을 거쳐 PR #181에서
   완료했습니다. #159의 두 작업 단위가 모두 끝났습니다.
 - 순서 4 `#158 Modeling Data`는 PR #183, main `f5c69d1`에서 완료했습니다.
-- 첫 미완료 작업 단위는 순서 5 `#158 Modeling Process`입니다. #158의 후속 Modeling Fit·Export가
-  남아 있으므로 issue는 열린 상태로 유지하며, PR #183 병합 뒤 최신 main에서 별도 Codex 작업으로
-  시작합니다.
+- 순서 5 `#158 Modeling Process`는 구현·검증·독립 검토를 완료했으며 Draft PR #188에서 제품
+  소유자 승인과 병합을 기다립니다. 병합 전에는 완료 처리하지 않습니다. 다음 미구현 단위는 순서 6
+  `#158 Modeling Fit`이지만 PR #188 병합 뒤 최신 main에서 별도 Codex 작업으로 시작하며, Modeling
+  Fit·Export가 모두 끝날 때까지 #158은 열린 상태로 유지합니다.
 
 #167의 승인 target은 다시 만들거나 재승인하지 않습니다. 과거 packet, correction 이미지와 완료
 보고서는 working tree에 보관하지 않고 Git/PR 이력에서 조회합니다.
