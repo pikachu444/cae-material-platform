@@ -2399,11 +2399,11 @@ def _assert_modeling_process_manual_surface(page: Page) -> None:
     reason = controls.get_by_role("textbox", name="Manual Young's modulus reason", exact=True)
     for control in (value, unit, reason):
         control.wait_for(state="visible", timeout=30_000)
-    panel_box = panel.bounding_box()
+    panel_box = _bounding_box_edges(panel.bounding_box())
     if panel_box is None:
         raise RuntimeError("Process manual controls have no current-step panel bounds")
     for name, control in (("value", value), ("unit", unit), ("reason", reason)):
-        control_box = control.bounding_box()
+        control_box = _bounding_box_edges(control.bounding_box())
         if control_box is None or control_box["left"] < panel_box["left"] or control_box["right"] > panel_box["right"] or control_box["top"] < panel_box["top"] or control_box["bottom"] > panel_box["bottom"]:
             raise RuntimeError(f"Process manual {name} control escaped the current-step band: panel={panel_box}, control={control_box}")
     hit_tests = page.evaluate(

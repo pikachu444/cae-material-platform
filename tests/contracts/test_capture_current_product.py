@@ -242,6 +242,10 @@ def test_process_manual_surface_contract_uses_real_pointer_and_restores_server_r
 
     assert "manual.click()" in helper
     assert 'control.wait_for(state="visible", timeout=30_000)' in helper
+    assert "panel_box = _bounding_box_edges(panel.bounding_box())" in helper
+    assert "control_box = _bounding_box_edges(control.bounding_box())" in helper
+    assert "panel_box = panel.bounding_box()" not in helper
+    assert "control_box = control.bounding_box()" not in helper
     assert 'control_box["left"] < panel_box["left"]' in helper
     assert 'control_box["right"] > panel_box["right"]' in helper
     assert 'control_box["top"] < panel_box["top"]' in helper
