@@ -133,7 +133,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         for capture_id in provenance["ids"]
     ]
 
-    process_commit = "c102289"
+    process_commit = "e2330a5"
     process_ids = {
         "MOD-PROCESS-CURRENT-1366",
         "MOD-PROCESS-CURRENT-1440",
@@ -145,7 +145,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "MOD-PROCESS-CURRENT-SIBLINGS-1440",
     }
 
-    assert manifest["scope"] == "issue-158-task2-modeling-process"
+    assert manifest["scope"] == "issue-158-modeling-process-consistency"
     assert manifest["source_commit"] == process_commit
     assert len(provenance_ids) == len(set(provenance_ids))
     assert set(provenance_ids) == set(captures)
