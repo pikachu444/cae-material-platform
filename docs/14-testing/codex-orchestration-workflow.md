@@ -36,51 +36,59 @@
 ## 전체 흐름
 
 ```mermaid
-flowchart TD
-    A["Main orchestrator<br/>issue·권한 확인, 사용자 흐름과 packet 작성"]
+flowchart TB
+    START([작업 시작<br/>Issue · backlog 단위 확정])
+    PACKET[Main orchestrator<br/>실제 사용자 흐름 · 범위 · 합격 조건 작성]
+    AUDIT{요구사항 감사<br/>통과?}
+    REVISE[빠진 행동 · 결과 · 복구 · 검증 조건 보완]
+    FREEZE[조사 결과 통합<br/>구현 packet 동결]
+    WRITE[Implementation writer 1명<br/>한정된 파일만 순차 구현]
+    LIVE[Main live acceptance<br/>Compose → DB → Browser → Reload<br/>필수 viewport 원본 확인]
+    GATE{모든 gate<br/>통과?}
+    REVIEW[Fresh final reviewer<br/>전체 동결 증거 독립 검토]
+    APPROVE{최종 승인?}
+    OWNER[제품 소유자<br/>게시 승인]
+    HOOK[결정적 publication hook]
+    HOOK_OK{Hook 통과?}
+    DONE([Commit → Push → Draft PR])
 
-    subgraph RO["독립 read-only 조사 · 동시 최대 3개, auditor 포함"]
-        B["Requirements auditor 1명<br/>fresh · traceability audit"]
-        C["필요 시<br/>code·contract mapping"]
-        D["필요 시<br/>visual·browser evidence inspection"]
-    end
+    DIAGNOSE[Main 전체 원인 진단<br/>UI → Request → Service → DB → Reload]
+    THREE{Checkpoint 뒤<br/>교정 실패 3회?}
+    CORRECT[Fresh correction writer<br/>새 진단으로 1회 한정 교정]
+    REAUDIT[전체 재감사 · 재계획<br/>범위 · packet · gate 다시 확인]
+    BLOCKER{제품 결정 · 추가 권한 ·<br/>외부 blocker 필요?}
+    ASK[/제품 소유자에게<br/>정확한 결정만 요청/]
+    RESET[새 packet 동결<br/>교정 횟수 초기화]
 
-    A --> B
-    A -->|필요 시| C
-    A -->|필요 시| D
-    B --> E{"audit disposition"}
-    E -->|changes_requested| A
-    E -->|approve| F["Main이 모든 조사 결과를 통합하고<br/>writer packet 동결"]
-    C --> F
-    D --> F
+    START --> PACKET --> AUDIT
+    AUDIT -->|아니오| REVISE --> PACKET
+    AUDIT -->|예| FREEZE --> WRITE --> LIVE --> GATE
+    GATE -->|예| REVIEW --> APPROVE
+    APPROVE -->|예| OWNER --> HOOK --> HOOK_OK
+    HOOK_OK -->|예| DONE
 
-    F --> G["Implementation writer 1명<br/>순차 bounded pass"]
-    G --> H["Main integrated acceptance<br/>compose-preflight → recreated Compose → DB → browser → reload<br/>모든 필수 viewport 원본 해상도 확인"]
-    H --> I{"필수 gate 통과?"}
+    GATE -->|아니오| DIAGNOSE
+    APPROVE -->|아니오| DIAGNOSE
+    HOOK_OK -->|아니오| DIAGNOSE
+    DIAGNOSE --> THREE
+    THREE -->|아니오| CORRECT --> LIVE
+    THREE -->|예| REAUDIT --> BLOCKER
+    BLOCKER -->|예| ASK -->|해소 후| REAUDIT
+    BLOCKER -->|아니오| RESET --> CORRECT
 
-    I -->|예| J["Independent final reviewer 1명<br/>fresh · read-only · frozen evidence"]
-    J --> K{"approve?"}
-    K -->|approve| L["Owner의 publication 승인"]
-    L --> M["결정적인 publication hook 실행"]
-    M --> N{"hook 통과?"}
-    N -->|예| O["Commit · push · Draft PR"]
+    classDef terminal fill:#173b63,color:#ffffff,stroke:#173b63,stroke-width:2px;
+    classDef main fill:#edf4fb,color:#172b3f,stroke:#4e78a0,stroke-width:1.5px;
+    classDef writer fill:#f2f5f7,color:#172b3f,stroke:#71808d,stroke-width:1.5px;
+    classDef decision fill:#fff6dc,color:#382f18,stroke:#b58a28,stroke-width:1.5px;
+    classDef recovery fill:#fff0ee,color:#442522,stroke:#ba6258,stroke-width:1.5px;
+    classDef publish fill:#edf7ef,color:#17331d,stroke:#5c8f65,stroke-width:1.5px;
 
-    I -->|아니오| P
-    K -->|changes_requested| P
-    N -->|아니오| P
-    P["Main이 전체 사용자 흐름과<br/>UI → request → service → DB → reload를 진단"]
-    P --> Q{"직전 checkpoint 뒤<br/>교정 실패가 3회인가?"}
-    Q -->|아니오| R["Fresh correction writer<br/>새 진단의 one-shot bounded pass"]
-    R --> H
-
-    Q -->|예| S["Full re-audit + re-plan checkpoint<br/>권한·범위·사용자 흐름·packet·gate 재검토"]
-    S --> T{"제품 결정·권한·외부 blocker인가?"}
-    T -->|예| U["Owner에게 정확한 blocker만 요청"]
-    U -->|해소 후| S
-    T -->|아니오| V["Requirements auditor 재감사"]
-    V -->|changes_requested| S
-    V -->|approve| W["Main이 새 packet을 동결하고<br/>교정 횟수 초기화"]
-    W --> R
+    class START,DONE terminal;
+    class PACKET,FREEZE,LIVE,REVIEW main;
+    class WRITE,CORRECT writer;
+    class AUDIT,GATE,APPROVE,HOOK_OK,THREE,BLOCKER decision;
+    class REVISE,DIAGNOSE,REAUDIT,ASK,RESET recovery;
+    class OWNER,HOOK publish;
 ```
 
 ## 실패를 모아서 고치는 방법
