@@ -117,7 +117,6 @@ type SavedResultLoadState = {
 };
 
 const PROCESS_DRAFT_NOTICE = "Current Process result cleared; saved results remain in history. Fit and Export require a new saved processed result.";
-const PROCESS_SOURCE_EMPTY = "No exact Test Data";
 
 const DEFAULT_PROFILE: CommonMappingProfileContent = {
   profile_key: "normalized-tensile",
@@ -478,7 +477,6 @@ function GuidedStepOptions({
   if (step.method_id === "metal.elastic_modulus") {
     const method = String(step.options.method);
     const unit = modulusDisplayUnit(step.options.manual_modulus_unit);
-    const modulusGpa = manualModulusDisplayValue(numberOption(step, "manual_modulus_pa"), "GPa");
     const manualValue = manualModulusDisplayValue(numberOption(step, "manual_modulus_pa"), unit);
     return <div className="guided-step-options">
       <fieldset className="option-choice-grid"><legend>Evaluation method</legend>{[
@@ -487,7 +485,7 @@ function GuidedStepOptions({
       <div className="guided-range-row"><label>Start strain<input aria-label="Elastic range start" type="number" step="any" value={numberOption(step, "minimum_strain")} onChange={(event) => onChange("minimum_strain", Number(event.target.value))}/></label><label>End strain<input aria-label="Elastic range end" type="number" step="any" value={numberOption(step, "maximum_strain")} onChange={(event) => onChange("maximum_strain", Number(event.target.value))}/></label></div>
       <p className="option-hint">Use <strong>Select range</strong> on the graph to set both limits directly.</p>
       <p className="option-hint">Calculated Young&apos;s modulus is derived from the selected elastic range. A manual value is a physical-workup override, not a Fit parameter.</p>
-      {method === "manual" ? <div className="guided-range-row"><label>Manual Young&apos;s modulus<input aria-label="Manual Young's modulus" type="number" min="0" step="any" value={manualValue} onChange={(event) => onChange("manual_modulus_pa", manualModulusPascals(Number(event.target.value), unit))} /></label><label>Unit<select aria-label="Manual Young's modulus unit" value={unit} onChange={(event) => onChange("manual_modulus_unit", event.target.value)}><option>GPa</option><option>MPa</option></select></label><label>Override reason<input aria-label="Manual Young's modulus reason" value={String(step.options.manual_modulus_reason ?? "")} onChange={(event) => onChange("manual_modulus_reason", event.target.value)} /></label></div> : <output>Auto/calculated value preview: {modulusGpa.toFixed(1)} GPa</output>}
+      {method === "manual" ? <div className="guided-range-row"><label>Manual Young&apos;s modulus<input aria-label="Manual Young's modulus" type="number" min="0" step="any" value={manualValue} onChange={(event) => onChange("manual_modulus_pa", manualModulusPascals(Number(event.target.value), unit))} /></label><label>Unit<select aria-label="Manual Young's modulus unit" value={unit} onChange={(event) => onChange("manual_modulus_unit", event.target.value)}><option>GPa</option><option>MPa</option></select></label><label>Override reason<input aria-label="Manual Young's modulus reason" value={String(step.options.manual_modulus_reason ?? "")} onChange={(event) => onChange("manual_modulus_reason", event.target.value)} /></label></div> : null}
     </div>;
   }
   if (step.method_id === "metal.proof_stress") {
@@ -823,6 +821,11 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   const [selectedProfileId, setSelectedProfileId] = useState("");
   const [selectedRecipeId, setSelectedRecipeId] = useState("");
   const [document, setDocument] = useState<Record<string, unknown> | null>(null);
+  // A Test Data aggregate id is not enough to bind Process. Keep the exact
+  // revision key that produced the currently parsed bytes alongside them.
+  // The document state update below supplies the render; the key itself does
+  // not need a second React state update.
+  const loadedExactRefKey = useRef<string | null>(null);
   const [profileText, setProfileText] = useState(JSON.stringify(DEFAULT_PROFILE, null, 2));
   const [stepsText, setStepsText] = useState(JSON.stringify(METAL_TENSILE_STEPS, null, 2));
   const [classification, setClassification] = useState<DataClassification>("internal");
@@ -871,16 +874,30 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   const [notice, setNotice] = useState<string | null>(null);
   const [recipeConflict, setRecipeConflict] = useState<{ recipeId: string } | null>(null);
   const autoPreviewKey = useRef("");
+  const exactDocumentGeneration = useRef(0);
+  const attemptedExactDocumentKey = useRef<string | null>(null);
   const intakePreviewActive = useRef(false);
   const previousWorkflowTask = useRef<ModelingWorkflowTask | null>(null);
   const exactContextKey = useRef<string | null>(null);
   const contextResetPending = useRef(false);
   const previewAbortController = useRef<AbortController | null>(null);
-  const previewRequestNo = useRef(0);
   const undoSteps = useRef<string[]>([]);
   const redoSteps = useRef<string[]>([]);
   const savedSteps = useRef(stepsText);
   const preferredStepContext = useRef("");
+
+  function clearExactDocumentBinding(): void {
+    exactDocumentGeneration.current += 1;
+    previewAbortController.current?.abort();
+    setBusy(false);
+    setPreviewBusy(false);
+    setDocument(null);
+    loadedExactRefKey.current = null;
+    setPreview(null);
+    setLastValidPreview(null);
+    setLocalCurrentOutput(null);
+    attemptedExactDocumentKey.current = null;
+  }
 
   useEffect(() => {
     if (workflowTask !== "data") setDataLayoutMode("compact");
@@ -949,18 +966,15 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     setSelectedStage(0);
     setWorkflowTask("data");
     setSelectedDocumentId("");
+    clearExactDocumentBinding();
     selectedTestDataRefsRef.current = [];
     setSelectedTestDataRefs([]);
     setEnsembleDocumentIds([]);
     setVisibleDocumentIds([]);
     setObservedCurves([]);
-    setDocument(null);
     setSelectedProfileId("");
     setSelectedRecipeId("");
     setPlotView("pipeline");
-    setPreview(null);
-    setLastValidPreview(null);
-    setLocalCurrentOutput(null);
     setSavedResultStates({});
     onNavigate(`/modeling?stage=data&family=${modelingTrack}`);
     setNotice("Started a new local Modeling session. Server revisions remain unchanged.");
@@ -1000,32 +1014,34 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       .catch((caught: unknown) => setError(errorMessage(caught)));
   }, [config]);
 
-  async function loadDocument(id: string, requestedRevisionId?: string): Promise<void> {
+  async function loadDocument(
+    id: string,
+    requestedRevisionId?: string,
+  ): Promise<void> {
     intakePreviewActive.current = false;
     autoPreviewKey.current = "";
     setSelectedDocumentId(id);
-    setPreview(null);
-    setLastValidPreview(null);
-    setLocalCurrentOutput(null);
     const item = documents.find((candidate) => candidate.test_data_document_id === id);
     if (!item) {
-      setDocument(null);
+      clearExactDocumentBinding();
       return;
     }
+    // Restored sessions may point at an older immutable revision than the
+    // list's current head; callers restoring a session pass that pin.
     const revisionId = requestedRevisionId ?? item.current_revision.id;
-    const existingRef = selectedTestDataRefs.find((ref) => ref.id === id && ref.revisionId === revisionId);
-    const selectedRef = existingRef ?? (revisionId === item.current_revision.id
-      ? modelingSessionRefFromRecord(item)
-      : selectedTestDataRefs.find((ref) => ref.id === id && ref.revisionId === revisionId));
-    const exactRef = selectedRef ?? {
-      id,
-      revisionId,
-      label: item.document_key,
-      revisionNo: selectedTestDataRefs.find((ref) => ref.id === id)?.revisionNo ?? item.current_revision.revision_no,
-    };
+    const exactRef = selectedTestDataRefsRef.current.find((ref) => ref.id === id && ref.revisionId === revisionId)
+      ?? modelingSessionRefFromRecord(item);
+    const key = exactRefKey(exactRef);
+    // Invalidate every source-dependent value before the request starts.  A
+    // late response from an older generation is ignored below.
+    clearExactDocumentBinding();
+    attemptedExactDocumentKey.current = key;
+    const generation = exactDocumentGeneration.current;
+    setBusy(true);
+    setError(null);
     if (workflowTask === "data") {
       const currentRefs = selectedTestDataRefsRef.current;
-      const isNewExactRef = !currentRefs.some((ref) => exactRefKey(ref) === exactRefKey(exactRef));
+      const isNewExactRef = !currentRefs.some((ref) => exactRefKey(ref) === key);
       if (isNewExactRef) {
         // A new revision for the same document is an explicit relink, not an
         // additional member with an ambiguous id-only identity.
@@ -1034,18 +1050,20 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         setSelectedTestDataRefs(next);
         setEnsembleDocumentIds((current) => current.includes(id) ? current : [...current, id]);
       }
-      setVisibleDocumentIds((current) => current.includes(exactRefKey(exactRef)) ? current : [...current, exactRefKey(exactRef)]);
+      setVisibleDocumentIds((current) => current.includes(key) ? current : [...current, key]);
     } else {
       setEnsembleDocumentIds((current) => current.includes(id) ? current : [...current, id]);
     }
-    setBusy(true);
     try {
       const result = await downloadCanonicalTestDataDocument(
         config,
-        item.test_data_document_id,
+        id,
         revisionId,
       );
-      setDocument(JSON.parse(await result.data.blob.text()) as Record<string, unknown>);
+      const parsedDocument = JSON.parse(await result.data.blob.text()) as Record<string, unknown>;
+      if (exactDocumentGeneration.current !== generation) return;
+      loadedExactRefKey.current = key;
+      setDocument(parsedDocument);
       if (modelingTrack === "polymer") {
         const dma = documentIsPolymerDma(item);
         const template = dma ? POLYMER_DMA_PROFILE : POLYMER_RELAXATION_PROFILE;
@@ -1058,13 +1076,17 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         replaceSavedSteps(JSON.stringify(steps, null, 2));
         setSelectedStepIndex(steps.length - 1);
       }
-      setNotice(`Loaded saved dataset revision ${exactRef.revisionNo}.`);
-      setError(null);
     } catch (caught) {
+      if (exactDocumentGeneration.current !== generation) return;
       setError(errorMessage(caught));
     } finally {
-      setBusy(false);
+      if (exactDocumentGeneration.current === generation) setBusy(false);
     }
+  }
+
+  function retryExactSource(): void {
+    if (!selectedSourceRef) return;
+    void loadDocument(selectedSourceRef.id, selectedSourceRef.revisionId);
   }
 
   function previewIntakeDocument(
@@ -1133,6 +1155,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     if (exactContextKey.current === nextKey) return;
     exactContextKey.current = nextKey;
     contextResetPending.current = true;
+    clearExactDocumentBinding();
     intakePreviewActive.current = false;
     autoPreviewKey.current = "";
     setSelectedDocumentId("");
@@ -1143,8 +1166,6 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     setObservedCurves([]);
     setSelectedProfileId("");
     setSelectedRecipeId("");
-    setDocument(null);
-    setPreview(null);
     setNotice("Material changed. Choose a saved dataset before continuing. Earlier results remain available in history.");
   }, [material, materialState]);
 
@@ -1167,9 +1188,12 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
 
   useEffect(() => {
     if (contextResetPending.current) return;
-    if (!selectedDocumentId || document || busy) return;
-    void loadDocument(selectedDocumentId);
-  }, [busy, document, selectedDocumentId]);
+    if (!selectedDocumentId || busy) return;
+    const expectedRef = selectedTestDataRefsRef.current.find((ref) => ref.id === selectedDocumentId);
+    const expectedKey = expectedRef ? exactRefKey(expectedRef) : null;
+    if (!expectedRef || loadedExactRefKey.current === expectedKey || attemptedExactDocumentKey.current === expectedKey) return;
+    void loadDocument(selectedDocumentId, expectedRef.revisionId);
+  }, [busy, document, selectedDocumentId, selectedTestDataRefs]);
 
   useEffect(() => {
     if (contextResetPending.current) return;
@@ -1226,6 +1250,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   function selectModelingTrack(track: ModelingTrack): void {
     applyModelingTrack(track);
     setWorkspaceInspector("step");
+    clearExactDocumentBinding();
     // A family switch changes the quantity contract. Do not silently carry a Test Data
     // revision from another family into the new track; the user must select the exact input.
     setSelectedDocumentId("");
@@ -1234,7 +1259,6 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     setEnsembleDocumentIds([]);
     setVisibleDocumentIds([]);
     setObservedCurves([]);
-    setDocument(null);
     setBatchDocumentIds([]);
     setEnsemblePreview(null);
     setPlotView("pipeline");
@@ -1581,19 +1605,15 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     const shouldSelectLastPreviewStage = workflowTask === "data"
       || workflowTask === "fit"
       || workflowTask === "export";
-    if (isProcessTask) {
-      const exactSource = selectedTestDataRefsRef.current.find((ref) => ref.id === selectedDocumentId);
-      const exactProfile = profiles.find((item) => item.mapping_profile_id === selectedProfileId);
-      if (!exactSource || !exactProfile) {
-        setError("Restore inputs in Data.");
-        return;
-      }
+    if (isProcessTask && !processSourceReady) {
+      setError("Restore inputs in Data.");
+      return;
     }
     previewAbortController.current?.abort();
     const controller = new AbortController();
     previewAbortController.current = controller;
-    const requestNo = previewRequestNo.current + 1;
-    previewRequestNo.current = requestNo;
+    const requestNo = exactDocumentGeneration.current + 1;
+    exactDocumentGeneration.current = requestNo;
     setPreviewBusy(true);
     setError(null);
     try {
@@ -1606,7 +1626,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         mapping_profile: JSON.parse(profileText) as CommonMappingProfileContent,
         steps: serverProcessingSteps(previewSteps),
       }, controller.signal);
-      if (previewRequestNo.current !== requestNo) return;
+      if (exactDocumentGeneration.current !== requestNo) return;
       setFitSelection(null);
       onSessionEvent?.({ type: "CHANGE_SELECTION" });
       setPreview(result.data);
@@ -1625,7 +1645,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       // The last valid Process preview remains displayed.  The failed
       // response is never promoted to a save input.
     } finally {
-      if (previewRequestNo.current === requestNo) {
+      if (exactDocumentGeneration.current === requestNo) {
         setPreviewBusy(false);
         previewAbortController.current = null;
       }
@@ -1652,7 +1672,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     const source = documents.find((item) => item.test_data_document_id === selectedDocumentId);
     const sourceRef = selectedTestDataRefsRef.current.find((ref) => ref.id === selectedDocumentId);
     const profile = profiles.find((item) => item.mapping_profile_id === selectedProfileId);
-    if (!preview || !source || !sourceRef || !profile) {
+    if (!preview || !source || !sourceRef || !profile || !exactSourceLoaded) {
       setError("Preview an exact Test Data revision with a saved Mapping Profile before commit.");
       return null;
     }
@@ -1832,10 +1852,8 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
           void loadDocument(nextFocus.id, nextFocus.revisionId);
         } else {
           onSessionEvent?.({ type: "PIN_TEST_DATA" });
+          clearExactDocumentBinding();
           setSelectedDocumentId("");
-          setDocument(null);
-          setPreview(null);
-          setLastValidPreview(null);
         }
         onSessionEvent?.({ type: "SET_TEST_DATA_SELECTION", selectedTestDataRefs: remaining });
         selectedTestDataRefsRef.current = remaining;
@@ -1961,16 +1979,14 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   // session ref still supplies the exact pinned revision; the internal
   // document key remains available to Evidence/Advanced surfaces and title
   // attributes, but must not replace the focused specimen here.
+  const selectedSourceKey = selectedSourceRef ? exactRefKey(selectedSourceRef) : null;
+  const exactSourceLoaded = Boolean(selectedSourceKey && loadedExactRefKey.current === selectedSourceKey && document);
   const processSourceIdentity = selectedSourceRef
-    && selectedTrackDocument
-    && selectedTrackDocument.current_revision.id === selectedSourceRef.revisionId
-    ? `${curveDisplayName(selectedTrackDocument)} · r${selectedSourceRef.revisionNo}`
-    : selectedSourceRef
-      ? `Exact source unavailable · r${selectedSourceRef.revisionNo}`
-      : PROCESS_SOURCE_EMPTY;
+    ? `${selectedTrackDocument ? curveDisplayName(selectedTrackDocument) : selectedSourceRef.label} · r${selectedSourceRef.revisionNo}`
+    : "";
   const selectedProfile = profiles.find((item) => item.mapping_profile_id === selectedProfileId);
   const processSourceReady = isProcessTask
-    ? Boolean(selectedSourceRef && document && selectedProfile)
+    ? Boolean(selectedProfile && exactSourceLoaded)
     : true;
   const processBlocked = !processSourceReady;
   const matchingSavedOutputs = useMemo(
@@ -2014,9 +2030,8 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     const exactIds = new Set(stageDocuments.map((item) => item.test_data_document_id));
     const exactKeys = new Set(stageDocuments.map((item) => modelingSessionRecordKey(item.test_data_document_id, item.current_revision.id)));
     if (!intakePreviewActive.current && selectedDocumentId && !exactIds.has(selectedDocumentId)) {
+      clearExactDocumentBinding();
       setSelectedDocumentId("");
-      setDocument(null);
-      setPreview(null);
     }
     if (workflowTask === "data") {
       setEnsembleDocumentIds((current) => current.filter((id) => exactIds.has(id)));
@@ -2552,6 +2567,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
             onSave={commitOutput}
             onLoadSavedResult={loadSavedResult}
             onUseSavedSettings={useSavedSettings}
+            onRetryExactSource={isProcessTask && selectedSourceKey && attemptedExactDocumentKey.current === selectedSourceKey && !exactSourceLoaded && !busy ? retryExactSource : undefined}
           /></Suspense> : <aside className={`step-option-panel ${workflowTask}-stage-options`}>
             <div className="workspace-inspector-heading"><p><strong>Current-step settings</strong><span> · fit and extrapolation</span></p><div className="modeling-ribbon-actions"><button className="text-button" type="button" onClick={() => setInspectorVisible(false)}>Close</button></div></div>
             {selectedConfiguredStep ? <>

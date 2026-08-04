@@ -218,7 +218,12 @@ preview가 성공한 동안에는 mapped input, 선택한 processed stage, serve
 engineering graph에 겹쳐 보여 주며, draft option을 바꾸거나 재계산에 실패해도 마지막 유효
 server preview를 화면에 남깁니다. 실패한 응답은 저장 입력으로 승격되지 않습니다. exact source나
 profile을 복구할 수 없으면 graph는 `blocked` 상태와 **Back to Data** recovery를 표시하며
-`latest` revision으로 조용히 대체하지 않습니다.
+`latest` revision으로 조용히 대체하지 않습니다. 선택한 exact ref 자체가 없는 경우에는
+**No exact Test Data**와 **Back to Data**만 보입니다. exact ref는 있지만 content read가 실패한
+경우에는 **Exact source unavailable · rN**으로 settled되고 자동 재시도하지 않습니다. 이전
+document/preview/scalar나 newest/current-head를 fallback으로 사용하지 않으며, 직접 보이는
+**Retry exact source** 또는 **Back to Data**로만 복구합니다. 같은 exact ref의 재시도는 한 번의
+새 요청이고 실패하면 다시 settled blocked 상태로 남습니다.
 
 **Saved results** disclosure는 현재 exact source/profile에 맞는 Processing Output만 보여 줍니다.
 각 row는 label, source revision, elastic method/range, artifact에서 다시 읽은 Young's modulus,
@@ -230,7 +235,7 @@ profile, output id, revision, ordered steps가 맞지 않으면 `Saved result un
 됩니다. upstream draft 변경은 current pointer를 지우지만 saved history는 삭제하지 않습니다.
 
 Process의 live evidence는 일반 viewport(1366×768, 1440×900, 1920×1080)와 wide viewport
-(2560×1440, 3840×2160), exact prerequisite blocked(1440×900), saved-result siblings(1440×900)
+(2560×1440, 3840×2160), exact prerequisite blocked(1440×900), exact-read failed(1440×900), saved-result siblings(1440×900)
 상태를 각각 확인합니다. 캡처가 `Loading Process controls…` fallback에서 settled panel로 전환되지
 않았거나 graph/axis가 잘리면 기존 capture directory를 교체하지 않습니다.
 
@@ -239,6 +244,7 @@ Process의 live evidence는 일반 viewport(1366×768, 1440×900, 1920×1080)와
 | Wide 2560×1440 | ![Process 2560](images/current/modeling-process-2560x1440.png) |
 | Wide 3840×2160 | ![Process 3840](images/current/modeling-process-3840x2160.png) |
 | Exact prerequisite blocked 1440×900 | ![Process blocked](images/current/modeling-process-blocked-1440x900.png) |
+| Exact source read failed 1440×900 | ![Process exact source read failed](images/current/modeling-process-exact-read-failed-1440x900.png) |
 | Saved-result siblings 1440×900 | ![Process saved results](images/current/modeling-process-siblings-1440x900.png) |
 
 1. Process preview 결과와 저장된 Mapping Profile revision이 일치하는지 확인합니다.

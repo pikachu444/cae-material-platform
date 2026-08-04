@@ -19,6 +19,9 @@ MODELING_DATA_SESSION_OUTPUTS = cast(
     tuple[str, ...], _SCRIPT["MODELING_DATA_SESSION_OUTPUTS"]
 )
 MODELING_PROCESS_OUTPUTS = cast(tuple[str, ...], _SCRIPT["MODELING_PROCESS_OUTPUTS"])
+_assert_modeling_process_exact_read_failed = cast(
+    Callable[[object, int | None], None], _SCRIPT["_assert_modeling_process_exact_read_failed"]
+)
 PROCESS_NO_PREVIEW_SAVED_INSTRUCTION = cast(
     str, _SCRIPT["PROCESS_NO_PREVIEW_SAVED_INSTRUCTION"]
 )
@@ -132,7 +135,7 @@ def test_incomplete_capture_cannot_reuse_files_from_previous_output(
 
 
 def test_current_capture_contract_contains_product_routes_only() -> None:
-    assert len(CURRENT_CAPTURE_OUTPUTS) == 58
+    assert len(CURRENT_CAPTURE_OUTPUTS) == 59
     assert all(name in CURRENT_CAPTURE_OUTPUTS for name in MODELING_DATA_SESSION_OUTPUTS)
     assert all(name in CURRENT_CAPTURE_OUTPUTS for name in MODELING_PROCESS_OUTPUTS)
     assert {
@@ -140,6 +143,7 @@ def test_current_capture_contract_contains_product_routes_only() -> None:
         "modeling-data-3840x2160.png",
         "modeling-data-empty-1440x900.png",
         "modeling-data-invalid-1440x900.png",
+        "modeling-process-exact-read-failed-1440x900.png",
     } <= set(CURRENT_CAPTURE_OUTPUTS)
     assert all(not name.startswith("storybook-") for name in CURRENT_CAPTURE_OUTPUTS)
 
@@ -167,7 +171,7 @@ def test_default_capture_producer_runs_process_only_after_generic_modeling() -> 
 
 
 def test_modeling_process_capture_contract_covers_wide_and_settled_states() -> None:
-    assert len(MODELING_PROCESS_OUTPUTS) == 7
+    assert len(MODELING_PROCESS_OUTPUTS) == 8
     assert {
         "modeling-process-1366x768.png",
         "modeling-process-1440x900.png",
@@ -175,8 +179,79 @@ def test_modeling_process_capture_contract_covers_wide_and_settled_states() -> N
         "modeling-process-2560x1440.png",
         "modeling-process-3840x2160.png",
         "modeling-process-blocked-1440x900.png",
+        "modeling-process-exact-read-failed-1440x900.png",
         "modeling-process-siblings-1440x900.png",
     } == set(MODELING_PROCESS_OUTPUTS)
+
+
+def test_exact_document_success_wait_replaces_removed_notice_for_data_and_process() -> None:
+    assert "Loaded saved dataset revision" not in _CAPTURE_SOURCE
+
+    helper = _CAPTURE_SOURCE.split(
+        "def _wait_for_exact_document_load_settled", 1
+    )[1].split("def _wait_for_data_plot", 1)[0]
+    for fragment in (
+        'select[aria-label="Test Data revision"]',
+        "selection.value",
+        "selected.value === selection.value",
+        "Load exact JSON",
+        "!load.disabled",
+        "!document.querySelector('.error-banner')",
+    ):
+        assert fragment in helper
+
+    generic_flow = _CAPTURE_SOURCE.split(
+        "def _prepare_modeling(page: Page, base_url: str) -> None:", 1
+    )[1].split("def _prepare_modeling_process", 1)[0]
+    assert "for index in range(3):" in generic_flow
+    assert generic_flow.count("_wait_for_exact_document_load_settled(page)") == 1
+    assert generic_flow.index("library_rows.nth(index).click()") < generic_flow.index(
+        "_wait_for_exact_document_load_settled(page)"
+    ) < generic_flow.index("_wait_for_data_session_counts")
+
+    process_flow = _CAPTURE_SOURCE.split(
+        "def _prepare_modeling_process(page: Page, base_url: str) -> None:", 1
+    )[1].split("def _list_processing_outputs", 1)[0]
+    assert process_flow.count("_wait_for_exact_document_load_settled(page)") == 1
+    assert process_flow.index("exact_row.click()") < process_flow.index(
+        "_wait_for_exact_document_load_settled(page)"
+    ) < process_flow.index("page.wait_for_function")
+    for fragment in (
+        "selectedTestDataRefs",
+        "selectedDocumentIds",
+        "visibleTestDataKeys",
+        "_wait_modeling_process_panel(page)",
+        "PROCESS_SOURCE_VISIBLE_IDENTITY",
+        'name="Preview changes"',
+        "preview.is_disabled()",
+    ):
+        assert fragment in process_flow
+
+    failed_flow = _CAPTURE_SOURCE.split(
+        "    failed = _new_page", 1
+    )[1].split("    siblings = _new_page", 1)[0]
+    assert "_wait_for_exact_document_load_settled(failed)" not in failed_flow
+    assert "failed.reload()" in failed_flow
+
+
+def test_capture_settles_focus_and_paint_after_before_screenshot_callback() -> None:
+    capture = _CAPTURE_SOURCE.split("def _capture(", 1)[1].split(
+        "def _open_materials_search", 1
+    )[0]
+    post_callback = capture.split("    if before_screenshot is not None:", 1)[1].split(
+        "    page.screenshot", 1
+    )[0]
+
+    assert post_callback.index("before_screenshot()") < post_callback.index("page.evaluate(")
+    assert post_callback.count("document.activeElement instanceof HTMLElement") == 1
+    assert post_callback.count("document.activeElement.blur()") == 1
+    assert post_callback.count("await new Promise(requestAnimationFrame);") == 2
+    assert post_callback.index("document.activeElement.blur()") < post_callback.index(
+        "await new Promise(requestAnimationFrame);"
+    )
+    assert capture.index("page.evaluate(", capture.index("before_screenshot()")) < capture.index(
+        "page.screenshot"
+    )
 
 
 def test_saved_process_rows_wait_on_embedded_scalars_and_reject_drift() -> None:
@@ -245,6 +320,30 @@ def test_blocked_process_waits_for_hidden_registry_attachment_and_visible_rail()
     assert 'method_buttons.first.wait_for(timeout=30_000)' not in blocked_assertion
     assert 'rail_buttons = page.locator(".configured-step-list button:visible")' in blocked_assertion
     assert 'rail_buttons.first.wait_for(timeout=30_000)' in blocked_assertion
+
+
+def test_exact_read_failure_capture_asserts_settled_retry_and_no_fallback() -> None:
+    failure_assertion = _CAPTURE_SOURCE.split(
+        "def _assert_modeling_process_exact_read_failed", 1
+    )[1].split("def _assert_modeling_process_capture_ready", 1)[0]
+    for fragment in (
+        "Retry exact source",
+        "Back to Data",
+        "Preview changes",
+        "Save processed curves",
+        "210\\.0",
+        "120\\.0",
+        "content_gets != 1",
+        "data-plot-state=\"blocked\"",
+    ):
+        assert fragment in failure_assertion
+    failed_flow = _CAPTURE_SOURCE.split(
+        "    failed = _new_page", 1
+    )[1].split("    siblings = _new_page", 1)[0]
+    assert "failed.route(" in failed_flow
+    assert "failed_content_gets" in failed_flow
+    assert "failed_content_gets)" in failed_flow
+    assert "modeling-process-exact-read-failed-1440x900.png" in failed_flow
 
 
 def test_blocked_process_fixture_seeds_the_destination_document_before_navigation() -> None:

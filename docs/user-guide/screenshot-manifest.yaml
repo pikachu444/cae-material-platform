@@ -6,7 +6,7 @@ capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright==1.62.0 python scripts/capture_current_product.py
 notes:
   - "UXC-04E directly ports the approved modeling.html/review.css Fit topology: white 48 px product header, compact title/stage rows, 184–208 px curve/process rail, exact 31 px heading plus 72 px six-group ribbon, graph-adjacent Candidate parameters disclosure, separate compact graph header, dominant plot, and compact decision-relevant legend. The retired command/status bars do not consume Modeling graph space."
-  - "The current set contains 54 deterministic captures: 49 live Compose captures plus five route-intercepted Materials overflow states; Issue #159 task 2 adds Database design and Record registration at all five required desktop viewports."
+  - "The current set contains 59 deterministic captures, including the eight live Modeling Process states verified for Issue #158 Task 2; route-intercepted failure and overflow states remain deterministic product-route evidence."
   - "Fit capture asserts the four-row grouped metal rail, one-line Step 4 Fit heading, one ordered control row, a closed Candidate parameters row above a visible graph divider, a separate minimal graph header, one top-row Save fit & continue action, explicit selection before save, and persistent graph identity."
   - "Recommendation, engineer selection, saved result, downstream model evidence, and export eligibility remain separate states; a recommendation never mutates selection."
   - "Polymer candidate evidence exposes the actual server-produced term identity and measured range only; missing result evidence is never replaced by a fallback."
@@ -34,6 +34,10 @@ notes:
   - "Issue #158 Task 1 Data captures verify three exact refs, two included and three visible after route reload, a 178 px adjustable ribbon, pin-free empty-state Local file recovery, a collapsed optional navigator that reclaims graph space, invalid mapping that keeps the last valid graph and blocks Update preview/Save Test Data, and a 1920×878 wide working cap."
 allowed_duplicate_pairs: []
 capture_provenance:
+  - source_commit: worktree
+    captured_at: 2026-08-04T23:40:18+09:00
+    command: '`uv run python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --only-modeling-process`; rebuilt/recreated canonical Compose and verified exact Test Data/Profile pins, robust and chord server previews, immutable sibling outputs, prerequisite blocking, settled exact-read failure recovery, bounded wide layouts, and byte-identical hashes across two consecutive eight-image runs'
+    ids: [MOD-PROCESS-CURRENT-1366, MOD-PROCESS-CURRENT-1440, MOD-PROCESS-CURRENT-1920, MOD-PROCESS-CURRENT-2560, MOD-PROCESS-CURRENT-3840, MOD-PROCESS-CURRENT-BLOCKED-1440, MOD-PROCESS-CURRENT-EXACT-READ-FAILED-1440, MOD-PROCESS-CURRENT-SIBLINGS-1440]
   - source_commit: worktree
     captured_at: 2026-08-04T13:29:59+09:00
     command: '`uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --only-modeling-data-session`; rebuilt/recreated canonical Compose and validated the normal exact-selection/reload, collapsed-navigator session shell, pin-free empty recovery, invalid blocked mapping, adjustable ribbon, and wide-cap outcomes for all ten captures'
@@ -327,6 +331,13 @@ captures:
     workflow: Process prerequisite recovery; missing exact Test Data is visibly blocked and the user is directed back to Data without a latest fallback
     fixture: synthetic session with Test Data selection cleared while the Process route remains active
     image: images/current/modeling-process-blocked-1440x900.png
+    width: 1440
+    height: 900
+  - id: MOD-PROCESS-CURRENT-EXACT-READ-FAILED-1440
+    route: /modeling?stage=process&family=metal
+    workflow: Process exact-source read failure; the selected revision settles blocked with direct Retry exact source and Back to Data recovery
+    fixture: synthetic DP780 session with Specimen 01 exact revision pinned while its deterministic content GET returns one 503; no latest fallback, stale graph, or scalar is shown
+    image: images/current/modeling-process-exact-read-failed-1440x900.png
     width: 1440
     height: 900
   - id: MOD-PROCESS-CURRENT-SIBLINGS-1440

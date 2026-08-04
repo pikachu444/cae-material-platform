@@ -36,8 +36,11 @@ type SavedProcessingOutputPins = readonly [
 function savedScalarFromDocument(document: SavedProcessingOutputDocument): number | null {
   const scalar = document.result?.stages?.flatMap((stage) => stage.scalar_results ?? [])
     .find((item) => item.key === "youngs_modulus");
-  const value = Number(scalar?.value);
-  return scalar?.unit === "Pa" && isFinite(value) ? value : null;
+  return scalar?.unit === "Pa"
+    && typeof scalar.value === "number"
+    && Number.isFinite(scalar.value)
+    ? scalar.value
+    : null;
 }
 
 function jsonStructureMatches(left: unknown, right: unknown): boolean {
@@ -73,7 +76,9 @@ export function parseSavedProcessingOutput(
     && parsed.output_id === output.processing_output_id
     && output.current_revision.revision_no === 1
     && jsonStructureMatches(parsed.steps, output.steps)
+    && exactOutputPinMatches(parsed.source_document, output.source_document.aggregate_id, output.source_document.revision_id)
     && exactOutputPinMatches(parsed.source_document, pins[0], pins[1])
+    && exactOutputPinMatches(parsed.mapping_profile, output.mapping_profile.aggregate_id, output.mapping_profile.revision_id)
     && exactOutputPinMatches(parsed.mapping_profile, pins[2], pins[3]);
   const scalarPa = valid ? savedScalarFromDocument(parsed) : null;
   if (!valid || scalarPa === null) {
@@ -104,6 +109,7 @@ export interface ModelingProcessPanelProps {
   onSave: () => void;
   onLoadSavedResult: (output: CommonProcessingOutputResponse) => void;
   onUseSavedSettings: (output: CommonProcessingOutputResponse) => void;
+  onRetryExactSource?: () => void;
 }
 
 function formatModulus(valuePa: number | undefined): string {
@@ -142,6 +148,7 @@ export default function ModelingProcessPanel({
   onSave,
   onLoadSavedResult,
   onUseSavedSettings,
+  onRetryExactSource,
 }: ModelingProcessPanelProps) {
   const [savedResultsOpen, setSavedResultsOpen] = useState(false);
   const requestedSavedOutputIds = useRef(new Set<string>());
@@ -174,14 +181,18 @@ export default function ModelingProcessPanel({
 
   const previewState = hasPreview ? "Server result · preview only" : hasLastValidPreview ? "Last valid server result · draft changed" : "No valid preview";
   const statusClass = processReady ? "status-current" : "status-blocked";
-  const statusText = `${processReady ? (currentOutputId ? "Current exact source" : "Draft · not saved") : "Blocked · choose exact source in Data"} · Preview ${formatModulus(scalarPa)} · ${notice ?? "No current Process result."}`;
+  const visibleScalarPa = processReady ? scalarPa : undefined;
+  const visibleSourceIdentity = onRetryExactSource && sourceIdentity
+    ? `Exact source unavailable · ${sourceIdentity.split(" · ").at(-1)}`
+    : sourceIdentity || "No exact Test Data";
+  const statusText = `${processReady ? (currentOutputId ? "Current exact source" : "Draft · not saved") : "Blocked · choose exact source in Data"} · Preview ${formatModulus(visibleScalarPa)} · ${notice ?? "No current Process result."}`;
   const saveDisabled = busy || !hasPreview || !processReady || !outputLabel.trim() || !outputReason.trim();
   const stepTitle = `Step ${stepNumber ?? "—"} · Process · ${stepLabel}`;
   return (
     <aside className="process-stage-options" aria-label="Process settings" data-modeling-process-panel="ready">
       <div className="process-band-heading">
         <strong>{stepTitle}</strong>
-        <span className="process-band-source">{sourceIdentity}</span>
+        <span className="process-band-source">{visibleSourceIdentity}</span>
         <button className="text-button" type="button" onClick={() => onClose(false)}>Close</button>
       </div>
       <fieldset className="process-band-controls" disabled={!processReady}>
@@ -189,12 +200,15 @@ export default function ModelingProcessPanel({
         {stepControls}
       </fieldset>
       <div className="process-band-save">
-        <div className="process-band-result"><span>Calculated preview</span><strong>{formatModulus(scalarPa)}</strong><small>{previewState}</small></div>
+        <div className="process-band-result"><span>Calculated preview</span><strong>{formatModulus(visibleScalarPa)}</strong><small>{previewState}</small></div>
         <label>Processed curve label<input aria-label="Processed curve label" value={outputLabel} onChange={(event) => onOutputLabelChange(event.target.value)} /></label>
         <label>Save reason<input aria-label="Save reason" value={outputReason} onChange={(event) => onOutputReasonChange(event.target.value)} /></label>
         <button className="button primary" type="button" disabled={saveDisabled} onClick={onSave}>Save processed curves</button>
       </div>
-      <div className={`process-band-status ${statusClass}`} role="status">{statusText}</div>
+      <div className={`process-band-status ${statusClass}`} role="status">
+        <span>{statusText}</span>
+        {onRetryExactSource ? <button className="text-button" type="button" disabled={busy} onClick={onRetryExactSource}>Retry exact source</button> : null}
+      </div>
       <details className="process-saved-results" onToggle={(event) => {
         const open = event.currentTarget.open;
         setSavedResultsOpen(open);
@@ -214,7 +228,7 @@ export default function ModelingProcessPanel({
               ? formatModulus(state.scalarPa)
               : state.status === "loading" ? "Loading saved result…" : "Saved result unavailable";
             return <article className="process-comparison-row" key={output.processing_output_id}>
-              <div>{output.label} · {sourceIdentity} · {method} · {range} · {value} · output r{output.current_revision.revision_no} · {current ? "current" : "history"}</div>
+              <div>{output.label} · {visibleSourceIdentity} · {method} · {range} · {value} · output r{output.current_revision.revision_no} · {current ? "current" : "history"}</div>
               {state.status === "error"
                 ? <button className="text-button" type="button" onClick={() => onLoadSavedResult(output)}>Retry</button>
                 : <button className="text-button" type="button" disabled={state.status !== "ready"} onClick={() => onUseSavedSettings(output)}>Use settings</button>}

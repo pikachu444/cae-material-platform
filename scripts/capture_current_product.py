@@ -36,6 +36,7 @@ MODELING_PROCESS_FIT_OUTPUTS = tuple(
 MODELING_PROCESS_OUTPUTS = (
     *(f"modeling-process-{width}x{height}.png" for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)),
     "modeling-process-blocked-1440x900.png",
+    "modeling-process-exact-read-failed-1440x900.png",
     "modeling-process-siblings-1440x900.png",
 )
 MODELING_CONSISTENCY_OUTPUTS = tuple(
@@ -107,6 +108,7 @@ CURRENT_CAPTURE_OUTPUTS = (
     "modeling-process-2560x1440.png",
     "modeling-process-3840x2160.png",
     "modeling-process-blocked-1440x900.png",
+    "modeling-process-exact-read-failed-1440x900.png",
     "modeling-process-siblings-1440x900.png",
     "modeling-fit-1366x768.png",
     "modeling-fit-1440x900.png",
@@ -255,6 +257,15 @@ def _capture(
         page.locator(focus_selector).scroll_into_view_if_needed()
     if before_screenshot is not None:
         before_screenshot()
+    page.evaluate(
+        """async () => {
+            if (document.activeElement instanceof HTMLElement) {
+              document.activeElement.blur();
+            }
+            await new Promise(requestAnimationFrame);
+            await new Promise(requestAnimationFrame);
+        }"""
+    )
     page.screenshot(path=str(path), full_page=False)
     viewport = page.viewport_size
     if viewport != {"width": width, "height": height}:
@@ -1102,6 +1113,28 @@ def _wait_for_data_session_counts(page: Page, refs: int, included: int, visible:
     )
 
 
+def _wait_for_exact_document_load_settled(page: Page) -> None:
+    """Wait for the selected exact Test Data read to finish successfully."""
+    page.wait_for_function(
+        """() => {
+          const selection = document.querySelector('select[aria-label="Test Data revision"]');
+          const selected = selection?.selectedOptions?.[0];
+          const load = [...document.querySelectorAll('.processing-input-card button')]
+            .find(button => button.textContent?.trim() === 'Load exact JSON');
+          return Boolean(
+            selection
+              && selection.value
+              && selected
+              && selected.value === selection.value
+              && load
+              && !load.disabled
+              && !document.querySelector('.error-banner')
+          );
+        }""",
+        timeout=30_000,
+    )
+
+
 def _wait_for_data_plot(page: Page, *, lines: int = 3, legends: int = 3) -> None:
     page.wait_for_function(
         """expected => document.querySelectorAll('.curve-line.data-observed').length === expected.lines
@@ -1282,7 +1315,7 @@ def _prepare_modeling(page: Page, base_url: str) -> None:
     # revision, rather than manufacturing a capture-only document identity.
     for index in range(3):
         library_rows.nth(index).click()
-        page.get_by_text(re.compile(r"Loaded saved dataset revision")).wait_for(timeout=30_000)
+        _wait_for_exact_document_load_settled(page)
         _wait_for_data_session_counts(page, refs=index + 1, included=index + 1, visible=index + 1)
     advanced_contract = page.locator("details.modeling-data-advanced")
     if not advanced_contract.get_attribute("open"):
@@ -1372,7 +1405,7 @@ def _prepare_modeling_process(page: Page, base_url: str) -> None:
     exact_row = page.get_by_title(PROCESS_SOURCE_TITLE, exact=True)
     exact_row.wait_for(state="visible", timeout=30_000)
     exact_row.click()
-    page.get_by_text("Loaded saved dataset revision 1", exact=False).wait_for(timeout=30_000)
+    _wait_for_exact_document_load_settled(page)
     page.wait_for_function(
         """expected => {
           const raw = window.sessionStorage.getItem('cmp.modeling.recent-session.v4');
@@ -1436,6 +1469,10 @@ def _prepare_modeling_process(page: Page, base_url: str) -> None:
     source.wait_for(state="visible", timeout=30_000)
     if source.inner_text().strip() != PROCESS_SOURCE_VISIBLE_IDENTITY:
         raise RuntimeError(f"Process panel source drifted from exact Specimen 01 r1: {source.inner_text()!r}")
+    preview = page.get_by_role("button", name="Preview changes", exact=True)
+    preview.wait_for(state="visible", timeout=30_000)
+    if preview.is_disabled():
+        raise RuntimeError("Process capture settled with Preview changes disabled")
 
 
 def _list_processing_outputs(page: Page, base_url: str) -> list[dict[str, object]]:
@@ -2320,6 +2357,32 @@ def _assert_modeling_process_blocked(page: Page) -> None:
         raise RuntimeError("Process blocked capture left a Process range or manual input enabled")
 
 
+def _assert_modeling_process_exact_read_failed(page: Page, content_gets: int | None = None) -> None:
+    """Assert the settled selected-ref exact-read failure without a fallback."""
+    _wait_modeling_process_panel(page)
+    page.locator(".error-banner").wait_for(state="visible", timeout=30_000)
+    source = page.locator(".process-band-source")
+    source.wait_for(state="visible", timeout=30_000)
+    if not re.fullmatch(r"Exact source unavailable · r[1-9]\d*", source.inner_text().strip()):
+        raise RuntimeError(f"Exact-read failure lost the selected revision identity: {source.inner_text()!r}")
+    if page.get_by_role("button", name="Retry exact source", exact=True).count() != 1:
+        raise RuntimeError("Exact-read failure is missing its explicit Retry exact source action")
+    if not page.get_by_role("button", name="Back to Data", exact=True).is_visible():
+        raise RuntimeError("Exact-read failure is missing the Back to Data recovery")
+    preview = page.get_by_role("button", name="Preview changes", exact=True)
+    save = page.get_by_role("button", name="Save processed curves", exact=True)
+    if not preview.is_disabled() or not save.is_disabled():
+        raise RuntimeError("Exact-read failure left Preview or Save enabled")
+    if page.get_by_text(re.compile(r"\b(?:210\.0|120\.0) GPa\b"), exact=False).count():
+        raise RuntimeError("Exact-read failure exposed a stale Process scalar")
+    frame = page.locator('.engineering-curve-plot-empty-frame[data-plot-state="blocked"]')
+    frame.wait_for(state="visible", timeout=30_000)
+    if frame.locator("svg .chart-axis").count() < 2 or frame.locator("svg .chart-grid").count() < 2:
+        raise RuntimeError("Exact-read failure lost the retained axes/grid recovery frame")
+    if content_gets is not None and content_gets != 1:
+        raise RuntimeError(f"Exact-read failure made {content_gets} content GETs instead of one settled attempt")
+
+
 def _assert_modeling_process_capture_ready(page: Page) -> None:
     """Re-check blocked state and responsive plot geometry after capture settling."""
     _wait_for_modeling_process_destination_state(page)
@@ -2454,6 +2517,36 @@ def _capture_modeling_process_only(
         before_screenshot=lambda: _assert_modeling_process_capture_ready(blocked),
     )
     blocked.context.close()
+
+    failed = _new_page(browser, base_url, 1440, 900)
+    _prepare_modeling_process(failed, base_url)
+    failed_content_gets = 0
+
+    def fail_exact_source(route: Route) -> None:
+        nonlocal failed_content_gets
+        failed_content_gets += 1
+        route.fulfill(
+            status=503,
+            content_type="application/json",
+            body='{"detail":"deterministic exact source read failure"}',
+        )
+
+    failed.route("**/api/v1/test-data-documents/**/content", fail_exact_source)
+    failed.reload()
+    failed.wait_for_url(re.compile(r"stage=process"), timeout=30_000)
+    failed.locator(".modeling-work-title strong").get_by_text(
+        STAGE_HEADINGS["process"], exact=True
+    ).wait_for(timeout=30_000)
+    failed.get_by_role("button", name="Retry exact source", exact=True).wait_for(timeout=30_000)
+    _assert_modeling_process_exact_read_failed(failed, failed_content_gets)
+    _capture(
+        failed,
+        output / "modeling-process-exact-read-failed-1440x900.png",
+        1440,
+        900,
+        before_screenshot=lambda: _assert_modeling_process_exact_read_failed(failed, failed_content_gets),
+    )
+    failed.context.close()
 
     siblings = _new_page(browser, base_url, 1440, 900)
     _prepare_modeling_process(siblings, base_url)

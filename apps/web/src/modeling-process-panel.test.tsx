@@ -1,20 +1,23 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import ModelingProcessPanel from "./modeling-process-panel";
+import ModelingProcessPanel, { parseSavedProcessingOutput } from "./modeling-process-panel";
 import type { CommonProcessingOutputResponse } from "./types";
 
 function output(id: string): CommonProcessingOutputResponse {
   return {
     processing_output_id: id,
-    current_revision: {} as CommonProcessingOutputResponse["current_revision"],
+    current_revision: { revision_no: 1 } as CommonProcessingOutputResponse["current_revision"],
     label: `Saved ${id}`,
     source_document: { aggregate_id: "source", revision_id: "source-r1" },
     source_document_sha256: "source-hash",
     source_canonical_artifact_sha256: "canonical-hash",
     mapping_profile: { aggregate_id: "profile", revision_id: "profile-r1" },
     mapping_profile_sha256: "profile-hash",
-    steps: [],
+    steps: [
+      { method_id: "rows.sort_unique", method_version: "1.0.0", options: { duplicate_policy: "reject" } },
+      { method_id: "metal.elastic_modulus", method_version: "1.0.0", options: { method: "robust_huber" } },
+    ],
     independent_quantity: "strain.engineering",
     stage_count: 1,
     final_point_count: 1,
@@ -44,6 +47,18 @@ const baseProps = {
   onLoadSavedResult: vi.fn(),
   onUseSavedSettings: vi.fn(),
 };
+
+function artifactFor(saved: CommonProcessingOutputResponse, overrides: Record<string, unknown> = {}): string {
+  return JSON.stringify({
+    document_type: "cmp.processing-output",
+    output_id: saved.processing_output_id,
+    source_document: saved.source_document,
+    mapping_profile: saved.mapping_profile,
+    steps: saved.steps,
+    result: { stages: [{ scalar_results: [{ key: "youngs_modulus", value: 210_000_000_000, unit: "Pa" }] }] },
+    ...overrides,
+  });
+}
 
 afterEach(() => {
   vi.clearAllMocks();
@@ -104,5 +119,109 @@ describe("ModelingProcessPanel saved result disclosure", () => {
     expect(onLoadSavedResult).not.toHaveBeenCalled();
     fireEvent.click(screen.getByText("Saved results (2)"));
     await waitFor(() => expect(onLoadSavedResult).toHaveBeenCalledTimes(2));
+  });
+
+  it("exposes only the settled exact-source retry and keeps it keyboard reachable", () => {
+    const onRetryExactSource = vi.fn();
+    const { rerender } = render(
+      <ModelingProcessPanel
+        {...baseProps}
+        savedOutputs={[]}
+        processReady={false}
+        sourceIdentity="Exact source unavailable · r1"
+        onRetryExactSource={onRetryExactSource}
+      />,
+    );
+    const retry = screen.getByRole("button", { name: "Retry exact source" });
+    expect(retry).toBeTruthy();
+    retry.focus();
+    expect(document.activeElement).toBe(retry);
+    fireEvent.click(retry);
+    expect(onRetryExactSource).toHaveBeenCalledTimes(1);
+    rerender(<ModelingProcessPanel {...baseProps} savedOutputs={[]} processReady={false} sourceIdentity="No exact Test Data" />);
+    expect(screen.queryByRole("button", { name: "Retry exact source" })).toBeNull();
+  });
+});
+
+describe("Saved Processing Output artifact contract", () => {
+  it("returns the finite Pa scalar only for a fully exact artifact", () => {
+    const saved = output("output-valid");
+    expect(parseSavedProcessingOutput(artifactFor(saved), saved, ["source", "source-r1", "profile", "profile-r1"])).toBe(210_000_000_000);
+  });
+
+  it.each([
+    ["document type", (artifact: Record<string, unknown>) => ({ ...artifact, document_type: "cmp.other" })],
+    ["output id", (artifact: Record<string, unknown>) => ({ ...artifact, output_id: "other-output" })],
+    ["ordered steps", (artifact: Record<string, unknown>) => ({ ...artifact, steps: [...(artifact.steps as unknown[]).slice().reverse()] })],
+    ["Artifact row source", (artifact: Record<string, unknown>) => ({ ...artifact, source_document: { aggregate_id: "other-source", revision_id: "source-r1" } })],
+    ["Artifact caller source", (artifact: Record<string, unknown>) => artifact],
+    ["Artifact row profile", (artifact: Record<string, unknown>) => ({ ...artifact, mapping_profile: { aggregate_id: "other-profile", revision_id: "profile-r1" } })],
+    ["Artifact caller profile", (artifact: Record<string, unknown>) => artifact],
+    ["unit", (artifact: Record<string, unknown>) => ({ ...artifact, result: { stages: [{ scalar_results: [{ key: "youngs_modulus", value: 210_000_000_000, unit: "MPa" }] }] } })],
+    ["non-number", (artifact: Record<string, unknown>) => ({ ...artifact, result: { stages: [{ scalar_results: [{ key: "youngs_modulus", value: "210000000000", unit: "Pa" }] }] } })],
+    ["non-finite", (artifact: Record<string, unknown>) => ({ ...artifact, result: { stages: [{ scalar_results: [{ key: "youngs_modulus", value: null, unit: "Pa" }] }] } })],
+  ] as const)("rejects %s without fallback", (_name, mutate) => {
+    const saved = output("output-invalid");
+    const artifact = JSON.parse(artifactFor(saved)) as Record<string, unknown>;
+    const text = artifactFor(saved, mutate(artifact));
+    const callerPins: [string | undefined, string | undefined, string | undefined, string | undefined] = ["source", "source-r1", "profile", "profile-r1"];
+    if (_name === "Artifact caller source") callerPins[0] = "other-source";
+    if (_name === "Artifact caller profile") callerPins[2] = "other-profile";
+    expect(() => parseSavedProcessingOutput(text, saved, callerPins)).toThrow("Saved result unavailable");
+  });
+
+  it("rejects a non-r1 row revision", () => {
+    const saved = output("output-revision");
+    const row = { ...saved, current_revision: { revision_no: 2 } as CommonProcessingOutputResponse["current_revision"] };
+    expect(() => parseSavedProcessingOutput(artifactFor(saved), row, ["source", "source-r1", "profile", "profile-r1"])).toThrow("Saved result unavailable");
+  });
+});
+
+describe("ModelingProcessPanel result surface states", () => {
+  it("keeps Use settings disabled while loading, offers row-local Retry on error, and enables ready rows", () => {
+    const saved = output("output-surface");
+    const onLoadSavedResult = vi.fn();
+    const onUseSavedSettings = vi.fn();
+    const { rerender } = render(
+      <ModelingProcessPanel
+        {...baseProps}
+        savedOutputs={[saved]}
+        savedResultStates={{ [saved.processing_output_id]: { status: "loading" } }}
+        onLoadSavedResult={onLoadSavedResult}
+        onUseSavedSettings={onUseSavedSettings}
+      />,
+    );
+    fireEvent.click(screen.getByText("Saved results (1)"));
+    expect(screen.getByText("Loading saved result…", { exact: false })).toBeTruthy();
+    expect((screen.getByRole("button", { name: "Use settings" }) as HTMLButtonElement).disabled).toBe(true);
+
+    rerender(
+      <ModelingProcessPanel
+        {...baseProps}
+        savedOutputs={[saved]}
+        savedResultStates={{ [saved.processing_output_id]: { status: "error" } }}
+        onLoadSavedResult={onLoadSavedResult}
+        onUseSavedSettings={onUseSavedSettings}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Retry" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    expect(onLoadSavedResult).toHaveBeenCalledWith(saved);
+
+    rerender(
+      <ModelingProcessPanel
+        {...baseProps}
+        savedOutputs={[saved]}
+        currentOutputId={saved.processing_output_id}
+        savedResultStates={{ [saved.processing_output_id]: { status: "ready", scalarPa: 210_000_000_000 } }}
+        onLoadSavedResult={onLoadSavedResult}
+        onUseSavedSettings={onUseSavedSettings}
+      />,
+    );
+    expect(screen.getByText(/210\.0 GPa/)).toBeTruthy();
+    expect(within(document.querySelector(".process-comparison-row") as HTMLElement).getByText(/current/)).toBeTruthy();
+    expect((screen.getByRole("button", { name: "Use settings" }) as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: "Use settings" }));
+    expect(onUseSavedSettings).toHaveBeenCalledWith(saved);
   });
 });
