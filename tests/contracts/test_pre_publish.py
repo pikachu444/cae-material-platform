@@ -17,6 +17,7 @@ from cmp.tools.pre_publish import (
     PublicationTarget,
     ReviewRequest,
     _base_images,
+    _default_whitespace_check,
     _fingerprint,
     _fingerprint_inputs,
     _is_ui_impact,
@@ -153,6 +154,10 @@ def _run(
         if events is not None:
             events.append("documentation")
 
+    def whitespace(_project: Path, _change: ChangeSet) -> None:
+        if events is not None:
+            events.append("whitespace")
+
     def collect(_project: Path) -> ChangeSet:
         if events is not None:
             events.append("diff")
@@ -169,6 +174,7 @@ def _run(
         cache_root=tmp_path / "cache",
         asset_root=asset_root,
         documentation_check=documentation,
+        whitespace_check=whitespace,
         deterministic_check=deterministic,
         change_collector=collect,
         change_revalidator=change_revalidator or (lambda _project: change),
@@ -176,6 +182,160 @@ def _run(
         emit=lambda _message: None,
         publication_target=publication_target,
     )
+
+
+def test_default_whitespace_check_uses_change_base_ref_and_read_only_git_args(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    marker = tmp_path / "marker.txt"
+    marker.write_text("unchanged\n", encoding="utf-8")
+    calls: list[tuple[Path, tuple[str, ...], dict[str, object]]] = []
+
+    def git(
+        project: Path,
+        arguments: tuple[str, ...],
+        *,
+        text: bool,
+        check: bool,
+    ) -> subprocess.CompletedProcess[str]:
+        calls.append((project, arguments, {"text": text, "check": check}))
+        return subprocess.CompletedProcess(["git", *arguments], 0, "", "")
+
+    monkeypatch.setattr("cmp.tools.pre_publish._git", git)
+    change = replace(_change(), base_ref="refs/heads/release")
+    _default_whitespace_check(tmp_path, change)
+
+    assert calls == [
+        (
+            tmp_path,
+            ("diff", "--check", "refs/heads/release...HEAD"),
+            {"text": True, "check": False},
+        )
+    ]
+    assert marker.read_text(encoding="utf-8") == "unchanged\n"
+
+
+def test_default_whitespace_check_preserves_git_diagnostics(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    diagnostics = "backend/src/example.py:7: trailing whitespace.\n+bad"
+
+    def git(*_args: Any, **_kwargs: Any) -> subprocess.CompletedProcess[str]:
+        return subprocess.CompletedProcess(["git"], 2, diagnostics, "ignored stderr")
+
+    monkeypatch.setattr("cmp.tools.pre_publish._git", git)
+
+    with pytest.raises(PrePublishError) as raised:
+        _default_whitespace_check(_ROOT, _change())
+
+    assert str(raised.value) == f"git diff --check failed: {diagnostics}"
+
+
+def test_default_whitespace_check_fails_closed_on_git_command_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def git_command_failure(*_args: Any, **_kwargs: Any) -> subprocess.CompletedProcess[str]:
+        raise OSError("git executable unavailable")
+
+    monkeypatch.setattr("cmp.tools.pre_publish.subprocess.run", git_command_failure)
+
+    with pytest.raises(PrePublishError, match=r"git diff --check origin/main\.\.\.HEAD failed"):
+        _default_whitespace_check(_ROOT, _change())
+
+
+def test_whitespace_failure_is_fail_fast_and_has_no_later_activity(tmp_path: Path) -> None:
+    events: list[str] = []
+    emitted: list[str] = []
+    reviewer = FakeReviewer([_code_result()], events)
+    change = _change()
+
+    def collect(_project: Path) -> ChangeSet:
+        events.append("collect")
+        return change
+
+    def whitespace(_project: Path, _change: ChangeSet) -> None:
+        events.append("whitespace")
+        raise PrePublishError("whitespace gate failed")
+
+    with pytest.raises(PrePublishError, match="whitespace gate failed"):
+        run_pre_publish_pipeline(
+            _ROOT,
+            independent_reviews=True,
+            runner=reviewer,
+            cache_root=tmp_path / "cache",
+            asset_root=_ROOT,
+            documentation_check=lambda _project: events.append("documentation"),
+            whitespace_check=whitespace,
+            deterministic_check=lambda _project, _change: events.append("deterministic"),
+            change_collector=collect,
+            change_revalidator=lambda _project: (events.append("revalidate") or change),
+            emit=emitted.append,
+        )
+
+    assert events == ["collect", "whitespace"]
+    assert reviewer.requests == []
+    assert not (tmp_path / "cache").exists()
+    assert not any("PASS" in message for message in emitted)
+
+
+def test_publication_target_validation_precedes_whitespace_gate(tmp_path: Path) -> None:
+    change = _change()
+    activity: list[str] = []
+    target = PublicationTarget(
+        action="ready",
+        selector="119",
+        hostname="github.com",
+        repository="owner/repository",
+        head_sha="d" * 40,
+        base_sha=change.base_sha,
+        base_ref="main",
+    )
+
+    with pytest.raises(PrePublishError, match="target PR head/base"):
+        run_pre_publish_pipeline(
+            _ROOT,
+            cache_root=tmp_path / "cache",
+            documentation_check=lambda _project: activity.append("documentation"),
+            whitespace_check=lambda _project, _change: activity.append("whitespace"),
+            deterministic_check=lambda _project, _change: activity.append("deterministic"),
+            change_collector=lambda _project: (activity.append("collect") or change),
+            change_revalidator=lambda _project: (activity.append("revalidate") or change),
+            emit=lambda _message: None,
+            publication_target=target,
+        )
+
+    assert activity == ["collect"]
+    assert not (tmp_path / "cache").exists()
+
+
+def test_clean_deterministic_pipeline_preserves_fingerprint_and_order(tmp_path: Path) -> None:
+    change = _change()
+    events: list[str] = []
+    expected = _fingerprint(
+        _fingerprint_inputs(
+            change,
+            {},
+            {"mode": "deterministic-only", "independent_reviews": False},
+        )
+    )
+
+    def collect(_project: Path) -> ChangeSet:
+        events.append("collect")
+        return change
+
+    fingerprint = run_pre_publish_pipeline(
+        _ROOT,
+        documentation_check=lambda _project: events.append("documentation"),
+        whitespace_check=lambda _project, _change: events.append("whitespace"),
+        deterministic_check=lambda _project, _change: events.append("deterministic"),
+        change_collector=collect,
+        change_revalidator=lambda _project: (events.append("revalidate") or change),
+        emit=lambda _message: None,
+    )
+
+    assert fingerprint == expected
+    assert events == ["collect", "whitespace", "documentation", "deterministic", "revalidate"]
+    assert not (tmp_path / "cache").exists()
 
 
 def test_automatic_pipeline_defaults_to_deterministic_checks_without_reviewer(
@@ -190,6 +350,7 @@ def test_automatic_pipeline_defaults_to_deterministic_checks_without_reviewer(
         runner=reviewer,
         cache_root=tmp_path / "cache",
         documentation_check=lambda _project: events.append("documentation"),
+        whitespace_check=lambda _project, _change: events.append("whitespace"),
         deterministic_check=lambda _project, _change: events.append("deterministic"),
         change_collector=lambda _project: change,
         change_revalidator=lambda _project: change,
@@ -197,7 +358,7 @@ def test_automatic_pipeline_defaults_to_deterministic_checks_without_reviewer(
     )
 
     assert fingerprint
-    assert events == ["documentation", "deterministic"]
+    assert events == ["whitespace", "documentation", "deterministic"]
     assert reviewer.requests == []
     assert not (tmp_path / "cache").exists()
 
@@ -454,7 +615,7 @@ def test_non_ui_pipeline_orders_documentation_code_and_skip_visual(tmp_path: Pat
 
     _run(tmp_path, reviewer, _change(), events=events)
 
-    assert events == ["documentation", "diff", "deterministic", "code"]
+    assert events == ["diff", "whitespace", "documentation", "deterministic", "code"]
     assert reviewer.requests[0].profile.model == "gpt-5.6-terra"
     assert reviewer.requests[0].profile.reasoning_effort == "medium"
     assert reviewer.requests[0].profile.timeout_seconds == 120
@@ -493,7 +654,7 @@ def test_ui_pipeline_runs_visual_only_after_code_passes(tmp_path: Path) -> None:
 
     _run(tmp_path, reviewer, _change(visual=True), events=events)
 
-    assert events == ["documentation", "diff", "deterministic", "code", "visual"]
+    assert events == ["diff", "whitespace", "documentation", "deterministic", "code", "visual"]
     assert reviewer.requests[1].images
     assert reviewer.requests[1].profile.model == "gpt-5.6-sol"
     assert reviewer.requests[1].profile.reasoning_effort == "high"

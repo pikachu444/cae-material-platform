@@ -229,6 +229,7 @@ class ReviewerRunner(Protocol):
 ProcessRunner = Callable[..., subprocess.CompletedProcess[str]]
 DocumentCheck = Callable[[Path], None]
 DeterministicCheck = Callable[[Path, ChangeSet], None]
+WhitespaceCheck = Callable[[Path, ChangeSet], None]
 ChangeCollector = Callable[[Path], ChangeSet]
 WorktreeReader = Callable[[Path], bytes]
 Emitter = Callable[[str], None]
@@ -687,7 +688,9 @@ def _default_documentation_check(project: Path) -> None:
     verify_documentation_impact(project, "range")
 
 
-def _default_deterministic_check(project: Path, change: ChangeSet) -> None:
+def _default_whitespace_check(project: Path, change: ChangeSet) -> None:
+    """Reject committed whitespace errors without changing repository state."""
+
     diff_check = _git(
         project,
         ("diff", "--check", f"{change.base_ref}...HEAD"),
@@ -696,6 +699,9 @@ def _default_deterministic_check(project: Path, change: ChangeSet) -> None:
     )
     if diff_check.returncode != 0:
         raise PrePublishError(f"git diff --check failed: {str(diff_check.stdout).strip()}")
+
+
+def _default_deterministic_check(project: Path, _change: ChangeSet) -> None:
     verify_user_guide(project)
 
 
@@ -1082,6 +1088,7 @@ def run_pre_publish_pipeline(
     cache_root: Path | None = None,
     asset_root: Path | None = None,
     documentation_check: DocumentCheck = _default_documentation_check,
+    whitespace_check: WhitespaceCheck = _default_whitespace_check,
     deterministic_check: DeterministicCheck = _default_deterministic_check,
     change_collector: ChangeCollector = collect_change_set,
     change_revalidator: ChangeCollector | None = None,
@@ -1098,13 +1105,15 @@ def run_pre_publish_pipeline(
     root = _repository_root(project)
     if os.environ.get("CMP_CODEX_REVIEW_ACTIVE") == "1":
         raise PrePublishError("recursive pre-publish review invocation was blocked")
-    step_total = 5 if independent_reviews else 3
-    emit(f"pre-publish 1/{step_total}: documentation impact")
-    documentation_check(root)
-    emit(f"pre-publish 2/{step_total}: committed diff and fingerprint inputs")
+    step_total = 6 if independent_reviews else 4
+    emit(f"pre-publish 1/{step_total}: committed diff and fingerprint inputs")
     change = change_collector(root)
     _validate_publication_target(change, publication_target)
-    emit(f"pre-publish 3/{step_total}: deterministic repository checks")
+    emit(f"pre-publish 2/{step_total}: whitespace checks")
+    whitespace_check(root, change)
+    emit(f"pre-publish 3/{step_total}: documentation impact")
+    documentation_check(root)
+    emit(f"pre-publish 4/{step_total}: deterministic repository checks")
     deterministic_check(root, change)
     if not independent_reviews:
         inputs = _fingerprint_inputs(
@@ -1177,7 +1186,7 @@ def run_pre_publish_pipeline(
     review_dir.mkdir(parents=True, exist_ok=True)
     _atomic_json(review_dir / "inputs.json", inputs)
     emit(
-        "pre-publish 4/5: independent read-only "
+        "pre-publish 5/6: independent read-only "
         f"{code_profile.name} review ({code_profile.model}, {code_profile.reasoning_effort})"
     )
     _run_one_review(
@@ -1191,7 +1200,7 @@ def run_pre_publish_pipeline(
         profile=code_profile,
     )
     if change.requires_visual_review:
-        emit("pre-publish 5/5: independent read-only visual review")
+        emit("pre-publish 6/6: independent read-only visual review")
         _run_one_review(
             kind="visual",
             project=root,
@@ -1203,7 +1212,7 @@ def run_pre_publish_pipeline(
             profile=_VISUAL_PROFILE,
         )
     else:
-        emit("pre-publish 5/5: visual review not required")
+        emit("pre-publish 6/6: visual review not required")
     _revalidate_change(
         root,
         change,
