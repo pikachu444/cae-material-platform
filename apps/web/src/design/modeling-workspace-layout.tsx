@@ -1,5 +1,5 @@
-import { type ReactNode, useEffect, useState } from "react";
-import { Group, Panel, Separator, useDefaultLayout, usePanelRef } from "react-resizable-panels";
+import { type ReactNode, useEffect, useRef, useState } from "react";
+import { Group, Panel, Separator, useDefaultLayout, usePanelCallbackRef, usePanelRef, type LayoutChangedMeta } from "react-resizable-panels";
 
 import { desktopViewportClass, type DesktopViewportClass } from "./resizable-split-pane";
 
@@ -8,6 +8,7 @@ interface ModelingWorkspaceLayoutProps {
   ribbon: ReactNode;
   plot: ReactNode;
   dock?: ReactNode;
+  dataLayoutMode?: "compact" | "content-fit";
   ribbonOpen: boolean;
   onRibbonOpenChange: (open: boolean) => void;
 }
@@ -18,11 +19,20 @@ const navigatorDefaults: Record<DesktopViewportClass, number> = {
   wide: 208,
 };
 
+export const MODELING_DATA_DEFAULT_PLOT_SIZE = 304;
+export const MODELING_DATA_PLOT_MIN_SIZE = 240;
+export const MODELING_DATA_SPLIT_SEPARATOR_SIZE = 8;
+
+export function modelingDataRibbonPreferredSize(dataLayoutMode?: "compact" | "content-fit"): number {
+  return dataLayoutMode === "content-fit" ? 384 : 178;
+}
+
 export function ModelingWorkspaceLayout({
   navigator,
   ribbon,
   plot,
   dock,
+  dataLayoutMode,
   ribbonOpen,
   onRibbonOpenChange,
 }: ModelingWorkspaceLayoutProps) {
@@ -36,12 +46,63 @@ export function ModelingWorkspaceLayout({
     panelIds: ["modeling-navigator", "modeling-main"],
     storage: typeof window === "undefined" ? undefined : window.localStorage,
   });
+  const [dataRibbonPanel, setDataRibbonPanel] = usePanelCallbackRef();
+  const dataRibbonDesiredSizeRef = useRef(modelingDataRibbonPreferredSize(dataLayoutMode));
+  const dataRibbonModeRef = useRef(dataLayoutMode);
+  const dataRibbonRestoreAttemptRef = useRef<{ desired: number; current: number } | null>(null);
 
   useEffect(() => {
     const update = () => setViewport(desktopViewportClass(window.innerWidth));
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
   }, []);
+
+  const dataRibbonPreferredSize = modelingDataRibbonPreferredSize(dataLayoutMode);
+
+  useEffect(() => {
+    const modeChanged = dataRibbonModeRef.current !== dataLayoutMode;
+    if (modeChanged) {
+      dataRibbonModeRef.current = dataLayoutMode;
+      dataRibbonDesiredSizeRef.current = dataRibbonPreferredSize;
+      dataRibbonRestoreAttemptRef.current = null;
+    }
+    if (!dataLayoutMode || !dataRibbonPanel) return;
+    dataRibbonPanel.resize(dataRibbonDesiredSizeRef.current);
+  }, [dataLayoutMode, dataRibbonPanel, dataRibbonPreferredSize]);
+
+  function resetDataRibbon(): void {
+    dataRibbonDesiredSizeRef.current = dataRibbonPreferredSize;
+    dataRibbonRestoreAttemptRef.current = null;
+    dataRibbonPanel?.resize(dataRibbonPreferredSize);
+  }
+
+  function onDataLayoutChanged(_layout: Record<string, number>, meta: LayoutChangedMeta): void {
+    const panel = dataRibbonPanel;
+    if (!panel) return;
+
+    const current = panel.getSize().inPixels;
+    if (meta.isUserInteraction) {
+      dataRibbonDesiredSizeRef.current = current;
+      dataRibbonRestoreAttemptRef.current = null;
+      return;
+    }
+
+    const desired = dataRibbonDesiredSizeRef.current;
+    if (Math.abs(current - desired) <= 1) {
+      dataRibbonRestoreAttemptRef.current = null;
+      return;
+    }
+
+    const previousAttempt = dataRibbonRestoreAttemptRef.current;
+    if (previousAttempt && previousAttempt.desired === desired && Math.abs(previousAttempt.current - current) <= 1) return;
+
+    const attempt = { desired, current };
+    dataRibbonRestoreAttemptRef.current = attempt;
+    panel.resize(desired);
+    queueMicrotask(() => {
+      if (dataRibbonRestoreAttemptRef.current === attempt) dataRibbonRestoreAttemptRef.current = null;
+    });
+  }
 
   function toggleNavigator(): void {
     const panel = navigatorRef.current;
@@ -50,12 +111,54 @@ export function ModelingWorkspaceLayout({
     else panel.collapse();
   }
 
-  const main = (
-    <section className={`modeling-main-surface${dock ? " has-dock" : ""}`} aria-label="Persistent Modeling graph and task controls">
+  const dataSplit = dataLayoutMode && typeof ResizeObserver !== "undefined" ? (
+    <Group
+      key={`modeling-data-split-v2-${viewport}`}
+      id={`modeling-data-split-v2-${viewport}`}
+      className="modeling-data-split"
+      orientation="vertical"
+      onLayoutChanged={onDataLayoutChanged}
+    >
+      <Panel
+        id="modeling-data-ribbon"
+        panelRef={setDataRibbonPanel}
+        className="modeling-data-ribbon-panel"
+        defaultSize={dataRibbonPreferredSize}
+        minSize={120}
+        groupResizeBehavior="preserve-pixel-size"
+      >
+        <section className="modeling-task-ribbon" hidden={!ribbonOpen} aria-label="Current-stage settings">
+          {ribbon}
+        </section>
+      </Panel>
+      <Separator
+        id="modeling-data-ribbon-plot-divider"
+        className="modeling-data-divider"
+        aria-label="Resize Test Data controls and curve plot"
+        aria-orientation="horizontal"
+        disableDoubleClick
+        onDoubleClick={resetDataRibbon}
+      />
+      <Panel
+        id="modeling-data-plot"
+        className="modeling-data-plot-panel"
+        minSize={MODELING_DATA_PLOT_MIN_SIZE}
+      >
+        {plot}
+      </Panel>
+    </Group>
+  ) : (
+    <>
       <section className="modeling-task-ribbon" hidden={!ribbonOpen} aria-label="Current-stage settings">
         {ribbon}
       </section>
       {plot}
+    </>
+  );
+
+  const main = (
+    <section className={`modeling-main-surface${dock ? " has-dock" : ""}${dataLayoutMode ? " has-data-split" : ""}`} aria-label="Persistent Modeling graph and task controls">
+      {dataSplit}
       {dock ? <section className="modeling-workspace-dock" aria-label="Delivery">{dock}</section> : null}
       <button
         className="modeling-ribbon-control"

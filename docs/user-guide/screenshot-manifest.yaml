@@ -1,12 +1,12 @@
-version: 74
-verified_at: 2026-08-03
-scope: issue-159-property-data-registration-management
+version: 75
+verified_at: 2026-08-04
+scope: issue-158-task1-modeling-data
 source_commit: worktree
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright==1.62.0 python scripts/capture_current_product.py
 notes:
   - "UXC-04E directly ports the approved modeling.html/review.css Fit topology: white 48 px product header, compact title/stage rows, 184–208 px curve/process rail, exact 31 px heading plus 72 px six-group ribbon, graph-adjacent Candidate parameters disclosure, separate compact graph header, dominant plot, and compact decision-relevant legend. The retired command/status bars do not consume Modeling graph space."
-  - "The current set contains 50 deterministic captures: 45 live Compose captures plus five route-intercepted Materials overflow states; Issue #159 task 2 adds Database design and Record registration at all five required desktop viewports."
+  - "The current set contains 54 deterministic captures: 49 live Compose captures plus five route-intercepted Materials overflow states; Issue #159 task 2 adds Database design and Record registration at all five required desktop viewports."
   - "Fit capture asserts the four-row grouped metal rail, one-line Step 4 Fit heading, one ordered control row, a closed Candidate parameters row above a visible graph divider, a separate minimal graph header, one top-row Save fit & continue action, explicit selection before save, and persistent graph identity."
   - "Recommendation, engineer selection, saved result, downstream model evidence, and export eligibility remain separate states; a recommendation never mutates selection."
   - "Polymer candidate evidence exposes the actual server-produced term identity and measured range only; missing result evidence is never replaced by a fallback."
@@ -31,8 +31,13 @@ notes:
   - "Issue #159 MAT-DETAIL captures map each current viewport to its approved MAT-DETAIL reference and bounded side-by-side comparison evidence; Response points reuse the shared MaterialsScrollRegion with genuine local overflow only."
   - "Issue #159 task 2 keeps Database/Profile, Table, Attribute, Layout, Subset and Link Type lifecycle controls in Administration, and gives Record registration a single/multiple-row workflow with immutable CSV/TSV/XLSX source evidence, field/unit/material-state mapping and correction before atomic registration."
   - "Normal Administration labels use user-facing names and value types. Internal identifiers, digests and exact source evidence remain outside the ordinary property editor."
+  - "Issue #158 Task 1 Data captures verify three exact refs, two included and three visible after route reload, a 178 px adjustable ribbon, pin-free empty-state Local file recovery, a collapsed optional navigator that reclaims graph space, invalid mapping that keeps the last valid graph and blocks Update preview/Save Test Data, and a 1920×878 wide working cap."
 allowed_duplicate_pairs: []
 capture_provenance:
+  - source_commit: worktree
+    captured_at: 2026-08-04T13:29:59+09:00
+    command: '`uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --only-modeling-data-session`; rebuilt/recreated canonical Compose and validated the normal exact-selection/reload, collapsed-navigator session shell, pin-free empty recovery, invalid blocked mapping, adjustable ribbon, and wide-cap outcomes for all ten captures'
+    ids: [modeling-data-1366, modeling-data-1440, modeling-data-1920, modeling-data-2560, modeling-data-3840, modeling-data-empty-1440, modeling-data-invalid-1440, modeling-session-1366, modeling-session-1440, modeling-session-1920]
   - source_commit: worktree
     captured_at: 2026-08-03T16:20:10+09:00
     command: rebuilt the populated Compose demo after migration up/down/up verification, then ran `--only-administration-records`; every capture opens Multiple rows and gates the source controls, local overflow and absence of visible application errors
@@ -215,70 +220,70 @@ captures:
   - id: modeling-data-1366
     route: /modeling?stage=data&family=metal
     workflow: integrated-library-local-json-and-graph-preview-with-exact-multi-curve-selection
-    fixture: synthetic DP780 material/state with three exact governed Test Data revisions; writer evidence only, main live acceptance pending
+    fixture: synthetic DP780 material/state with three exact governed Test Data revisions; 3 exact refs, 2 included and 3 visible persist after route reload
     image: images/current/modeling-data-1366x768.png
     width: 1366
     height: 768
   - id: modeling-session-1366
     route: /modeling?stage=data&family=metal
-    workflow: UXC-04C Data-first session shell with compact four-stage normal work path
-    fixture: synthetic DP780 Modeling context; no stale output fallback asserted
+    workflow: UXC-04C Data-first session shell with compact four-stage normal work path and collapsed optional navigator
+    fixture: pin-free new Modeling session with the optional curve navigator collapsed; reclaimed graph space retains real axes/grid and an operable Local file recovery action
     image: images/current/modeling-session-1366x768.png
     width: 1366
     height: 768
   - id: modeling-session-1440
     route: /modeling?stage=data&family=metal
-    workflow: UXC-04C Data-first session shell with compact four-stage normal work path
-    fixture: synthetic DP780 Modeling context; no stale output fallback asserted
+    workflow: UXC-04C Data-first session shell with compact four-stage normal work path and collapsed optional navigator
+    fixture: pin-free new Modeling session with the optional curve navigator collapsed; reclaimed graph space retains real axes/grid and an operable Local file recovery action
     image: images/current/modeling-session-1440x900.png
     width: 1440
     height: 900
   - id: modeling-session-1920
     route: /modeling?stage=data&family=metal
-    workflow: UXC-04C Data-first session shell with compact four-stage normal work path
-    fixture: synthetic DP780 Modeling context; no stale output fallback asserted
+    workflow: UXC-04C Data-first session shell with compact four-stage normal work path and collapsed optional navigator
+    fixture: pin-free new Modeling session with the optional curve navigator collapsed; reclaimed graph space retains real axes/grid and an operable Local file recovery action
     image: images/current/modeling-session-1920x1080.png
     width: 1920
     height: 1080
   - id: modeling-data-1440
     route: /modeling?stage=data&family=metal
     workflow: integrated-library-local-json-and-graph-preview-with-exact-multi-curve-selection
-    fixture: synthetic DP780 material/state with three exact governed Test Data revisions; writer evidence only, main live acceptance pending
+    fixture: synthetic DP780 material/state with three exact governed Test Data revisions; 3 exact refs, 2 included and 3 visible persist after route reload
     image: images/current/modeling-data-1440x900.png
     width: 1440
     height: 900
   - id: modeling-data-1920
     route: /modeling?stage=data&family=metal
     workflow: integrated-library-local-json-and-graph-preview-with-exact-multi-curve-selection
-    fixture: synthetic DP780 material/state with three exact governed Test Data revisions; writer evidence only, main live acceptance pending
+    fixture: synthetic DP780 material/state with three exact governed Test Data revisions; 3 exact refs, 2 included and 3 visible persist after route reload
     image: images/current/modeling-data-1920x1080.png
     width: 1920
     height: 1080
   - id: modeling-data-2560
     route: /modeling?stage=data&family=metal
     workflow: exact-library-multi-curve-selection-show-toggle-and-reload-persistence
-    fixture: synthetic DP780 material/state with three exact governed Test Data revisions; targeted live capture pending
+    fixture: synthetic DP780 material/state with three exact governed Test Data revisions; 3 exact refs, 2 included and 3 visible persist after route reload; working cluster capped at 1920×878
     image: images/current/modeling-data-2560x1440.png
     width: 2560
     height: 1440
   - id: modeling-data-3840
     route: /modeling?stage=data&family=metal
     workflow: exact-library-multi-curve-selection-show-toggle-and-reload-persistence
-    fixture: synthetic DP780 material/state with three exact governed Test Data revisions; targeted live capture pending
+    fixture: synthetic DP780 material/state with three exact governed Test Data revisions; 3 exact refs, 2 included and 3 visible persist after route reload; working cluster capped at 1920×878
     image: images/current/modeling-data-3840x2160.png
     width: 3840
     height: 2160
   - id: modeling-data-empty-1440
     route: /modeling?stage=data&family=metal
     workflow: new-session-empty-data-state
-    fixture: new Modeling session with no Material, State, or Test Data pin; targeted live capture pending
+    fixture: new Modeling session with no Material, State, or Test Data pin; real axes/grid remain and Local file recovery is operable
     image: images/current/modeling-data-empty-1440x900.png
     width: 1440
     height: 900
   - id: modeling-data-invalid-1440
     route: /modeling?stage=data&family=metal
     workflow: runtime-csv-invalid-channel-mapping
-    fixture: temporary runtime CSV with duplicate independent/dependent channel selection; no source fixture is persisted
+    fixture: temporary runtime CSV with duplicate independent/dependent channel selection; last valid graph remains, Update preview and Save Test Data are blocked, and no source fixture is persisted
     image: images/current/modeling-data-invalid-1440x900.png
     width: 1440
     height: 900

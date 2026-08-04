@@ -248,6 +248,9 @@ UXC-01 Materials Search 이미지는 web과 API를 같은 코드로 재빌드한
 | Export | ![Export 1366](images/current/modeling-export-1366x768.png) | ![Export 1440](images/current/modeling-export-1440x900.png) | ![Export 1920](images/current/modeling-export-1920x1080.png) |
 | UXC-02 session shell | ![Session 1366](images/current/modeling-session-1366x768.png) | ![Session 1440](images/current/modeling-session-1440x900.png) | ![Session 1920](images/current/modeling-session-1920x1080.png) |
 
+UXC-02 session shell 화면은 선택 사항인 곡선 탐색기를 접어 그래프 공간을 넓힌 실제 작업 상태를
+보여 줍니다. 아래 Empty new session 화면은 탐색기를 펼친 채 Local file로 복구하는 별도 상태입니다.
+
 Task 1 Data의 targeted capture는 실제 Library에서 고른 exact revision을 두 개 이상 Include하고,
 그래프의 Show를 바꾼 뒤 reload해 같은 선택이 남는지 확인합니다. 2560×1440과 3840×2160도 같은
 정상 흐름으로 확인하며, 1440×900에서는 새 session의 빈 Data와 실행 중 생성한 잘못된 CSV mapping

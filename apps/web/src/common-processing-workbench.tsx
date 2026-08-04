@@ -3,6 +3,7 @@ import type React from "react";
 
 import {
   EngineeringCurvePlot,
+  EngineeringCurvePlotEmpty,
   type ObservedCurveInput,
   type PlotInteractionCommand,
   type PlotInteractionMode,
@@ -744,8 +745,24 @@ function curveDisplayName(item: CanonicalTestDataDocumentResponse): string {
 
 function specimenDisplayName(value: string): string {
   const normalized = value.trim();
+  const numericSpecimen = normalized.match(/(?:specimen|sample|s)[-_ ]*(\d+)$/i) ?? normalized.match(/(\d+)$/);
+  if (numericSpecimen) return `Specimen ${numericSpecimen[1].padStart(2, "0")}`;
   if (/^(?:specimen|sample)\b/i.test(normalized)) return normalized;
   return normalized ? `Specimen ${normalized}` : "Specimen";
+}
+
+export function curveRailIdentity(
+  specimenId: string,
+  revisionNo: number,
+  sessionRevisionNo?: number,
+): { specimen: string; revision: string } {
+  const numericSpecimen = specimenId.match(/(?:specimen|sample|s)[-_ ]*(\d+)$/i) ?? specimenId.match(/(\d+)$/);
+  return {
+    specimen: numericSpecimen ? `Specimen ${numericSpecimen[1].padStart(2, "0")}` : specimenDisplayName(specimenId),
+    revision: sessionRevisionNo === undefined
+      ? `Revision r${revisionNo}`
+      : `Session revision r${sessionRevisionNo}`,
+  };
 }
 
 function curveGroupLabel(item: CanonicalTestDataDocumentResponse): string {
@@ -832,6 +849,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   const [ensemblePreview, setEnsemblePreview] = useState<CommonEnsemblePreview | null>(null);
   const [plotView, setPlotView] = useState<PlotView>(initialSession?.workspace.plotView ?? "pipeline");
   const [workflowTask, setWorkflowTask] = useState<ModelingWorkflowTask>(["data", "process", "fit", "validate", "review", "export"].includes(String(queryStage)) ? queryStage as ModelingWorkflowTask : initialSession?.workspace.activeStage ?? "data");
+  const [dataLayoutMode, setDataLayoutMode] = useState<"compact" | "content-fit">("compact");
   const [busy, setBusy] = useState(false);
   const [previewBusy, setPreviewBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -847,6 +865,10 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   const undoSteps = useRef<string[]>([]);
   const redoSteps = useRef<string[]>([]);
   const savedSteps = useRef(stepsText);
+
+  useEffect(() => {
+    if (workflowTask !== "data") setDataLayoutMode("compact");
+  }, [workflowTask]);
 
   const draftDirty = stepsText !== savedSteps.current;
 
@@ -1704,6 +1726,12 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     onSessionEvent?.({ type: "CHANGE_SELECTION" });
   }
 
+  // Keep the Data rail's compact JSX callback readable while preserving the
+  // existing Include behavior for every other Modeling stage.
+  function toggleEnsemble(id: string): void {
+    toggleEnsembleDocument(id);
+  }
+
   async function runEnsemblePreview(): Promise<void> {
     const selected = documents.filter((item) => ensembleDocumentIds.includes(item.test_data_document_id));
     if (selected.length < 2) {
@@ -1770,6 +1798,16 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   // earlier Material/State revision. Process/Fit retain the revision-strict
   // track above and therefore keep their existing behavior.
   const stageDocuments = workflowTask === "data" ? dataTrackDocuments : trackDocuments;
+  useEffect(() => {
+    // Preserve the established full document title for keyboard/browser users;
+    // the specimen and exact revision remain visible in the two-line identity
+    // rather than being tooltip-only.
+    window.document.querySelectorAll<HTMLButtonElement>(".curve-row-label").forEach((button) => {
+      const label = button.querySelector("strong")?.textContent?.trim();
+      const item = label ? stageDocuments.find((candidate) => curveDisplayName(candidate) === label) : undefined;
+      if (item) button.title = `${item.document_key} · ${item.specimen_id} · revision r${item.current_revision.revision_no}`;
+    });
+  }, [stageDocuments, selectedTestDataRefs]);
   const selectedTrackDocument = stageDocuments.find(
     (item) => item.test_data_document_id === selectedDocumentId,
   );
@@ -2248,14 +2286,15 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       /></Suspense> : null}
       {!elastomerWorkbenchTask && workflowTask !== "validate" && workflowTask !== "review" ? <section className={`workbench-card method-builder-card stage-${workflowTask}`} id="modeling-process">
         <div className="section-heading"><div><p className="workspace-caption">{workflowTask}</p><h2>{stageTitle}</h2></div><div className="modeling-section-actions">{workflowTask === "process" || workflowTask === "fit" ? <details className="method-library"><summary>{workflowTask === "fit" ? "Add fit method" : "Add operation"} <span>{trackMethods.filter((method) => workflowTask === "fit" ? isFitMethod(method.method_id) : !isFitMethod(method.method_id)).length}</span></summary><div className="method-registry-strip" aria-label={workflowTask === "fit" ? "Available fitting methods" : "Available processing operations"}>{trackMethods.filter((method) => workflowTask === "fit" ? isFitMethod(method.method_id) : !isFitMethod(method.method_id)).map((method) => <button type="button" className="method-pill" key={method.method_id} onClick={() => addMethod(method)} title={method.description}><strong>+ {method.label}</strong><small>{method.version}</small></button>)}</div></details> : null}{workflowTask === "export" ? <button className="button secondary" type="button" onClick={() => openWorkflowTask("fit")}>Back to Fit</button> : null}</div></div>
+        <div className={`modeling-workspace-shell${workflowTask === "data" ? " modeling-data-workspace-bounded" : ""}`}>
         <ModelingWorkspaceLayout
           navigator={workflowTask === "data" || workflowTask === "process" || workflowTask === "fit" ? <>
-            <div className={`modeling-dataset-list${isApprovedMetalFit ? " approved-fit-curve-tree" : ""}`}><div className="rail-heading"><p>Curves</p><span>{isApprovedMetalFit ? `${ensembleDocumentIds.length} included` : `${stageDocuments.length} curves · ${ensembleDocumentIds.length} included`}</span></div><label className="curve-filter"><span className="visually-hidden">Filter curves</span><input aria-label="Filter curves" placeholder="Filter curves" value={curveFilter} onChange={(event) => setCurveFilter(event.target.value)} /></label>{groupedTrackDocuments.map(([groupLabel, groupDocuments]) => <section className="curve-tree-group" aria-label={groupLabel} key={groupLabel}><details open><summary className="curve-group-row"><strong>{isApprovedMetalFit && groupLabel === "Tensile tests" ? "Tensile" : groupLabel}</strong><small>{groupDocuments.length}</small></summary>{groupDocuments.map((item) => { const label = curveDisplayName(item); const specimen = specimenDisplayName(item.specimen_id); const selectedRef = selectedTestDataRefs.find((ref) => ref.id === item.test_data_document_id); const key = selectedRef ? exactRefKey(selectedRef) : modelingSessionRecordKey(item.test_data_document_id, item.current_revision.id); const visible = visibleDocumentIds.includes(key); const curveIndex = stageDocuments.indexOf(item); return <article className={selectedDocumentId === item.test_data_document_id ? "active" : ""} key={key}><label className="curve-include-toggle" title="Include this revision in processing and fit"><input aria-label={`Include ${label} in processing and fit`} type="checkbox" checked={ensembleDocumentIds.includes(item.test_data_document_id)} onChange={() => toggleEnsembleDocument(item.test_data_document_id)}/></label><span className="dataset-curve-swatch" aria-label={`Plot color for ${label}`} role="img" style={{ "--curve-index": curveIndex } as React.CSSProperties}/><button type="button" className="curve-row-label" title={`${item.document_key} · ${item.specimen_id} · revision r${item.current_revision.revision_no}`} onClick={() => { setPlotView("pipeline"); void loadDocument(item.test_data_document_id, item.current_revision.id); }}><span><strong>{label}</strong><small>{specimen} · {selectedRef?.revisionId === item.current_revision.id ? `Session revision r${selectedRef.revisionNo}` : `r${item.current_revision.revision_no}`}</small></span></button><button type="button" className="curve-visibility-toggle" aria-pressed={visible} aria-label={`${visible ? "Hide" : "Show"} ${label} on plot`} title={`${visible ? "Hide" : "Show"} ${label} on plot`} onClick={() => setVisibleDocumentIds((current) => visible ? current.filter((candidate) => candidate !== key) : [...current, key])}><svg aria-hidden="true" viewBox="0 0 24 24" focusable="false"><path d="M2.5 12s3.5 6 9.5 6 9.5-6 9.5-6-3.5-6-9.5-6-9.5 6-9.5 6Z"/><circle cx="12" cy="12" r="2.75"/>{!visible ? <path d="M3 3l18 18"/> : null}</svg></button></article>; })}{isApprovedMetalFit && ensemblePreview ? <article><label className="curve-include-toggle"><input aria-label="Mean preview" type="checkbox" checked={meanPreviewVisible} onChange={toggleMeanPreview}/></label><span className="dataset-curve-swatch mean-confidence-swatch"/><span>Mean + confidence</span><button className="curve-visibility-toggle" aria-pressed={meanPreviewVisible} aria-label="Toggle mean preview" onClick={toggleMeanPreview}>◉</button></article> : null}</details></section>)}{!filteredTrackDocuments.length ? <p className="muted">No matching curves.</p> : null}{workflowTask === "process" && ensembleDocumentIds.length >= 2 ? <details className="rail-statistics-action"><summary>Replicate analysis</summary><label>Alignment points<input aria-label="Replicate alignment point count" type="number" min="5" max="1001" value={ensemblePointCount} onChange={(event) => { setEnsemblePointCount(Number(event.target.value)); setEnsemblePreview(null); }}/></label><button className="button secondary" type="button" disabled={busy} onClick={() => void runEnsemblePreview()}>{busy ? "Calculating…" : "Preview mean & band"}</button><small>Compatible observed-domain intersection only · no extrapolation</small></details> : null}</div>
+            <div className={`modeling-dataset-list${workflowTask === "data" ? " modeling-data-curve-tree" : ""}${isApprovedMetalFit ? " approved-fit-curve-tree" : ""}`}><div className="rail-heading"><p>Curves</p><span>{isApprovedMetalFit ? `${ensembleDocumentIds.length} included` : `${stageDocuments.length} curves · ${ensembleDocumentIds.length} included`}</span></div><label className="curve-filter"><span className="visually-hidden">Filter curves</span><input aria-label="Filter curves" placeholder="Filter curves" value={curveFilter} onChange={(event) => setCurveFilter(event.target.value)} /></label>{groupedTrackDocuments.map(([groupLabel, groupDocuments]) => <section className="curve-tree-group" aria-label={groupLabel} key={groupLabel}><details open><summary className="curve-group-row"><strong>{isApprovedMetalFit && groupLabel === "Tensile tests" ? "Tensile" : groupLabel}</strong><small>{groupDocuments.length}</small></summary>{groupDocuments.map((item) => { const label = curveDisplayName(item); const specimen = specimenDisplayName(item.specimen_id); const selectedRef = selectedTestDataRefs.find((ref) => ref.id === item.test_data_document_id); const key = selectedRef ? exactRefKey(selectedRef) : modelingSessionRecordKey(item.test_data_document_id, item.current_revision.id); const visible = visibleDocumentIds.includes(key); const curveIndex = stageDocuments.indexOf(item); const revisionIdentity = selectedRef?.revisionId === item.current_revision.id ? `Session revision r${selectedRef.revisionNo}` : `r${item.current_revision.revision_no}`; const identity = curveRailIdentity(item.specimen_id, item.current_revision.revision_no, selectedRef?.revisionId === item.current_revision.id ? selectedRef.revisionNo : undefined); return <article className={selectedDocumentId === item.test_data_document_id ? "active" : ""} key={key}><label className="curve-include-toggle" title="Include this revision in processing and fit"><input aria-label={`Include ${label} in processing and fit`} type="checkbox" checked={ensembleDocumentIds.includes(item.test_data_document_id)} onChange={() => toggleEnsemble(item.test_data_document_id)}/></label><span className="dataset-curve-swatch" aria-label={`Plot color for ${label}`} role="img" style={{ "--curve-index": curveIndex } as React.CSSProperties}/><button type="button" className="curve-row-label" onClick={() => { setPlotView("pipeline"); void loadDocument(item.test_data_document_id, item.current_revision.id); }}><span>{workflowTask === "data" ? <><strong>{identity.specimen}</strong><small className="curve-secondary-identity"><span>{identity.revision}</span></small></> : <><strong>{label}</strong><small>{specimen} · {revisionIdentity}</small></>}</span></button><button type="button" className="curve-visibility-toggle" aria-pressed={visible} aria-label={`${visible ? "Hide" : "Show"} ${label} on plot`} title={`${visible ? "Hide" : "Show"} ${label} on plot`} onClick={() => setVisibleDocumentIds((current) => visible ? current.filter((candidate) => candidate !== key) : [...current, key])}><svg aria-hidden="true" viewBox="0 0 24 24" focusable="false"><path d="M2.5 12s3.5 6 9.5 6 9.5-6 9.5-6-3.5-6-9.5-6-9.5 6-9.5 6Z"/><circle cx="12" cy="12" r="2.75"/>{!visible ? <path d="M3 3l18 18"/> : null}</svg></button></article>; })}{isApprovedMetalFit && ensemblePreview ? <article><label className="curve-include-toggle"><input aria-label="Mean preview" type="checkbox" checked={meanPreviewVisible} onChange={toggleMeanPreview}/></label><span className="dataset-curve-swatch mean-confidence-swatch"/><span>Mean + confidence</span><button className="curve-visibility-toggle" aria-pressed={meanPreviewVisible} aria-label="Toggle mean preview" onClick={toggleMeanPreview}>◉</button></article> : null}</details></section>)}{!filteredTrackDocuments.length ? <p className="muted">No matching curves.</p> : null}{workflowTask === "process" && ensembleDocumentIds.length >= 2 ? <details className="rail-statistics-action"><summary>Replicate analysis</summary><label>Alignment points<input aria-label="Replicate alignment point count" type="number" min="5" max="1001" value={ensemblePointCount} onChange={(event) => { setEnsemblePointCount(Number(event.target.value)); setEnsemblePreview(null); }}/></label><button className="button secondary" type="button" disabled={busy} onClick={() => void runEnsemblePreview()}>{busy ? "Calculating…" : "Preview mean & band"}</button><small>Compatible observed-domain intersection only · no extrapolation</small></details> : null}</div>
             {workflowTask === "process" || workflowTask === "fit" ? <div className={`configured-step-list${isApprovedMetalFit ? " approved-fit-process-tree" : ""}`}><p className="rail-title">{isApprovedMetalFit ? "Process" : stageRail}{isApprovedMetalFit ? <span>4 steps</span> : null}</p>{displayedRailEntries.map(({ step, index, label, title, railIndex }) => { const groupedFitRail = workflowTask === "fit" && modelingTrack === "metal"; return <button type="button" title={title} className={selectedStepIndex === index ? "active" : ""} key={`${index}:${step.method_id}`} onClick={() => focusConfiguredStep(index)}><span>{groupedFitRail ? railIndex + 1 : index + 1}</span><span><strong>{label}</strong>{!groupedFitRail ? <small>{step.method_version}</small> : null}</span></button>; })}{isApprovedMetalFit ? <footer className="curve-tree-foot">Details in Evidence</footer> : null}</div> : null}
           </> : null}
           plot={<article className="persistent-modeling-plot" id="modeling-fit">
             <div className="section-heading"><div><p className="workspace-caption">{workflowTask === "fit" ? "Stress response · observed evidence and hardening candidates" : workflowTask === "data" ? "Source preview" : workflowTask === "process" ? "Prepare test curves" : "Selected model response"}</p><h2>{activePlotView === "ensemble" ? "Replicate statistics" : workflowTask === "export" ? "Test data & selected model" : activeStage ? methods.find((method) => method.method_id === activeStage.method_id)?.label ?? methodDisplayName(activeStage.method_id) : "Load data and preview"}</h2></div>{workflowTask !== "export" && workflowTask !== "fit" ? <div className="plot-view-switch" role="group" aria-label="Curve plot view"><button type="button" className={activePlotView === "pipeline" ? "active" : ""} disabled={!preview} onClick={() => setPlotView("pipeline")}>Response</button>{ensemblePreview ? <button type="button" className={activePlotView === "ensemble" ? "active" : ""} onClick={() => setPlotView("ensemble")}>Mean &amp; band</button> : null}{preview || ensemblePreview ? <span className="plot-preview-state">Preview — not saved</span> : null}</div> : workflowTask === "export" && preview ? <span className="plot-preview-state">Current saved fit</span> : null}</div>
-            {preview && activeStage && baseStage ? <EngineeringCurvePlot preview={preview} activeStage={activeStage} baseStage={baseStage} activeStep={activeConfiguredStep} fitSelection={fitSelection} selectedModelOnly={workflowTask === "export"} width={chart.width} height={chart.height} observedCurves={workflowTask === "data" ? observedCurves : undefined} onApplySelection={activePlotView === "pipeline" && workflowTask !== "export" ? applyGraphSelection : undefined} ensemblePreview={activePlotView === "ensemble" ? ensemblePreview : null} interactionCommand={workflowTask === "fit" ? fitPlotCommand : null} onInteractionStateChange={workflowTask === "fit" ? setFitPlotInteraction : undefined} /> : <div className="modeling-plot-empty"><strong>{previewBusy ? "Updating the engineering preview…" : "The graph stays here while you prepare the curves."}</strong><p>{previewBusy ? "A newer processing change replaces the previous preview request." : "Choose a saved Test Data revision. The graph compares real curves without changing saved data."}</p></div>}
+            {preview && activeStage && baseStage ? <EngineeringCurvePlot preview={preview} activeStage={activeStage} baseStage={baseStage} activeStep={activeConfiguredStep} fitSelection={fitSelection} selectedModelOnly={workflowTask === "export"} width={chart.width} height={chart.height} observedCurves={workflowTask === "data" ? observedCurves : undefined} onApplySelection={activePlotView === "pipeline" && workflowTask !== "export" ? applyGraphSelection : undefined} ensemblePreview={activePlotView === "ensemble" ? ensemblePreview : null} interactionCommand={workflowTask === "fit" ? fitPlotCommand : null} onInteractionStateChange={workflowTask === "fit" ? setFitPlotInteraction : undefined} /> : workflowTask === "data" ? <EngineeringCurvePlotEmpty width={chart.width} height={chart.height} onChooseLocal={() => window.dispatchEvent(new CustomEvent("cmp:modeling-data-source", { detail: { source: "local" } }))} /> : <div className="modeling-plot-empty"><strong>{previewBusy ? "Updating the engineering preview…" : "The graph stays here while you prepare the curves."}</strong><p>{previewBusy ? "A newer processing change replaces the previous preview request." : "Choose a saved Test Data revision. The graph compares real curves without changing saved data."}</p></div>}
             {ensemblePreview && activePlotView === "ensemble" ? <div className="statistics-grid compact-statistics"><article><span>Included curves</span><strong>{ensemblePreview.members.length}</strong></article><article><span>Common points</span><strong>{ensemblePreview.grid.length}</strong></article><article><span>Domain policy</span><strong>Intersection</strong></article></div> : null}
           </article>}
           ribbon={workflowTask === "data" ? <Suspense fallback={<p className="loading-state">Loading data sources…</p>}><ModelingDataIntake
@@ -2264,6 +2303,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
               state={materialState}
               processingMappingProfileText={profileText}
               documents={stageDocuments}
+              emptySession={initialSession?.contextSelectionRequired === true}
               selectedTestDataRefs={selectedTestDataRefs}
               selectedDocumentId={selectedDocumentId}
               visibleDocumentKeys={visibleDocumentIds}
@@ -2271,6 +2311,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
               onPreviewDocument={previewIntakeDocument}
               onImported={registerIntakeDocument}
               onObservedCurves={setObservedCurves}
+              onLayoutModeChange={setDataLayoutMode}
             /></Suspense> : workflowTask === "export" ? <aside className="export-stage-ribbon">
             <div><span>Selected model</span><strong>{fitSelection?.displayLabel ?? "Select a model in Fit"}</strong></div>
             <div><span>Fit method</span><strong>{fitStepEntry ? methods.find((method) => method.method_id === fitStepEntry.step.method_id)?.label ?? methodDisplayName(fitStepEntry.step.method_id) : "No fit selected"}</strong></div>
@@ -2329,9 +2370,11 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
                   onSessionEvent={onSessionEvent}
                 />
             : undefined}
+          dataLayoutMode={workflowTask === "data" ? dataLayoutMode : undefined}
           ribbonOpen={inspectorVisible}
           onRibbonOpenChange={setInspectorVisible}
         />
+        </div>
         <details className="advanced-definition"><summary>Advanced Recipe JSON</summary><label>Ordered step JSON<textarea className="pipeline-editor" aria-label="Ordered processing steps" name="ordered-processing-steps" autoComplete="off" value={stepsText} onChange={(event) => applyDraftSteps(event.target.value)} spellCheck={false} /></label></details>
         <p className="mapping-note">Methods are deterministic. The common resampler declares <code>extrapolation: reject</code>; unsupported or hidden policies fail before calculation.</p>
       </section> : null}

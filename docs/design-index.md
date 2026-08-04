@@ -110,9 +110,10 @@ download를 포함한다. 실제 제공 기능과 남은 공백은 [구현 상�
 13. [MVP 및 후속 로드맵](12-roadmap/roadmap.md)
 14. [Epic·Story·Task 작업명세](13-delivery/backlog.md)
 15. [테스트 전략](14-testing/test-strategy.md)
-16. [위험·미결정·의사결정 로그](15-governance/risks-open-questions-decisions.md)
-17. [Codex 구현용 저장소 구조](16-repository/repository-blueprint.md)
-18. [승인 시각 target inventory](01-product/service-reference-inventory.yaml)
+16. [Codex 작업 오케스트레이션](14-testing/codex-orchestration-workflow.md)
+17. [위험·미결정·의사결정 로그](15-governance/risks-open-questions-decisions.md)
+18. [Codex 구현용 저장소 구조](16-repository/repository-blueprint.md)
+19. [승인 시각 target inventory](01-product/service-reference-inventory.yaml)
 
 ## 6. Production 승인 게이트
 

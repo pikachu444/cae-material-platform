@@ -77,6 +77,7 @@ export interface PlotInteractionState {
 const PLOT_MARGIN = { left: 80, right: 24, top: 24, bottom: 52 } as const;
 const CANDIDATE_COLORS = ["#64748b", "#0f766e", "#d97706", "#7c3aed", "#dc2626"];
 const QUANTITY_LABELS: Record<string, string> = {
+  "strain.engineering": "Engineering strain",
   "strain.true_plastic": "True plastic strain",
   "stress.hardening": "Hardening stress",
   "stress.true": "True stress",
@@ -584,6 +585,105 @@ function bandPolygon(band: PlotBand, width: number, height: number, bounds: Plot
   return [...upper, ...lower].join(" ");
 }
 
+/**
+ * Data-stage tensile plots keep the generic padded bounds contract while
+ * anchoring a genuinely non-negative engineering axis at zero.  The helper
+ * deliberately takes already-selected source values so residuals, fitted
+ * curves, and other quantities continue to use paddedPlotBounds unchanged.
+ */
+export function dataObservedPlotBounds(
+  x: number[],
+  y: number[],
+  xQuantity: string,
+  yQuantity: string,
+): PlotBounds {
+  const bounds = paddedPlotBounds(x, y);
+  if (xQuantity !== "strain.engineering" || yQuantity !== "stress.engineering") return bounds;
+  const finiteX = x.filter(Number.isFinite);
+  const finiteY = y.filter(Number.isFinite);
+  return {
+    ...bounds,
+    xMin: finiteX.length && finiteX.every((value) => value >= 0) ? 0 : bounds.xMin,
+    yMin: finiteY.length && finiteY.every((value) => value >= 0) ? 0 : bounds.yMin,
+  };
+}
+
+/**
+ * Keep the engineering plot frame mounted when a Modeling Data session has no
+ * source yet.  This intentionally contains no series data: it is the same
+ * axis/grid grammar as the responsive plot, with an actionable in-plot status.
+ */
+export function EngineeringCurvePlotEmpty({
+  width,
+  height,
+  onChooseLocal,
+}: {
+  width: number;
+  height: number;
+  onChooseLocal?: () => void;
+}) {
+  const [renderedSize, setRenderedSize] = useState<{ width: number; height: number } | null>(null);
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  useEffect(() => {
+    const target = svgRef.current;
+    if (!target) return undefined;
+    const update = (nextWidth: number, nextHeight: number) => {
+      if (!Number.isFinite(nextWidth) || !Number.isFinite(nextHeight) || nextWidth <= 0 || nextHeight <= 0) return;
+      setRenderedSize((current) => current && Math.abs(current.width - nextWidth) < 1 && Math.abs(current.height - nextHeight) < 1
+        ? current
+        : { width: nextWidth, height: nextHeight });
+    };
+    const rectangle = target.getBoundingClientRect();
+    update(rectangle.width, rectangle.height);
+    if (typeof ResizeObserver === "undefined") return undefined;
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) update(entry.contentRect.width, entry.contentRect.height);
+    });
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, []);
+  const effectiveWidth = Math.max(320, renderedSize?.width ?? width);
+  const effectiveHeight = Math.max(240, renderedSize?.height ?? height);
+  const bounds = { xMin: 0, xMax: 0.25, yMin: 0, yMax: 1000 };
+  const xTicks = [0, 0.05, 0.1, 0.15, 0.2, 0.25];
+  const yTicks = [0, 250, 500, 750, 1000];
+  const toX = (value: number) => PLOT_MARGIN.left
+    + ((value - bounds.xMin) / (bounds.xMax - bounds.xMin))
+      * (effectiveWidth - PLOT_MARGIN.left - PLOT_MARGIN.right);
+  const toY = (value: number) => effectiveHeight - PLOT_MARGIN.bottom
+    - ((value - bounds.yMin) / (bounds.yMax - bounds.yMin))
+      * (effectiveHeight - PLOT_MARGIN.top - PLOT_MARGIN.bottom);
+
+  return (
+    <div className="engineering-curve-plot-empty-frame" data-plot-state="empty">
+      <svg
+        ref={svgRef}
+        className="processing-curve engineering-curve-plot-empty-svg"
+        role="img"
+        aria-label="Empty engineering curve plot"
+        viewBox={`0 0 ${effectiveWidth} ${effectiveHeight}`}
+        preserveAspectRatio="xMidYMid meet"
+      >
+        <rect className="chart-surface" x="0" y="0" width={effectiveWidth} height={effectiveHeight} />
+        {xTicks.map((tick) => <line key={`empty-x-grid-${tick}`} x1={toX(tick)} y1={PLOT_MARGIN.top} x2={toX(tick)} y2={effectiveHeight - PLOT_MARGIN.bottom} className="chart-grid" />)}
+        {yTicks.map((tick) => <line key={`empty-y-grid-${tick}`} x1={PLOT_MARGIN.left} y1={toY(tick)} x2={effectiveWidth - PLOT_MARGIN.right} y2={toY(tick)} className="chart-grid" />)}
+        <line x1={PLOT_MARGIN.left} y1={effectiveHeight - PLOT_MARGIN.bottom} x2={effectiveWidth - PLOT_MARGIN.right} y2={effectiveHeight - PLOT_MARGIN.bottom} className="chart-axis" />
+        <line x1={PLOT_MARGIN.left} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left} y2={effectiveHeight - PLOT_MARGIN.bottom} className="chart-axis" />
+        {xTicks.map((tick) => <text key={`empty-x-tick-${tick}`} x={toX(tick)} y={effectiveHeight - 32} textAnchor="middle" className="chart-tick">{axisNumber(tick)}</text>)}
+        {yTicks.map((tick) => <text key={`empty-y-tick-${tick}`} x={PLOT_MARGIN.left - 8} y={toY(tick) + 4} textAnchor="end" className="chart-tick">{axisNumber(tick)}</text>)}
+        <text x={(PLOT_MARGIN.left + effectiveWidth - PLOT_MARGIN.right) / 2} y={effectiveHeight - 8} textAnchor="middle" className="chart-axis-label">Engineering strain [1]</text>
+        <text transform={`translate(15 ${(PLOT_MARGIN.top + effectiveHeight - PLOT_MARGIN.bottom) / 2}) rotate(-90)`} textAnchor="middle" className="chart-axis-label">Engineering stress [MPa]</text>
+      </svg>
+      <div className="engineering-curve-plot-empty-overlay" role="status">
+        <strong>No Test Data in this session</strong>
+        <p>Choose an exact saved revision or inspect a Local file to prepare the first preview.</p>
+        <button type="button" className="button primary" onClick={onChooseLocal}>Local file</button>
+      </div>
+    </div>
+  );
+}
+
 export function EngineeringCurvePlot({
   preview,
   activeStage,
@@ -684,9 +784,18 @@ export function EngineeringCurvePlot({
       ...(model.band?.upperValues ?? []),
     ],
   );
+  const observedEngineeringX = plottedSeries.flatMap((item) => item.xValues);
+  const observedEngineeringY = validSeries.flatMap((item) => item.yValues);
+  const isDataObservedEngineering = !ensemblePreview
+    && !selectedModelOnly
+    && Boolean(observedCurves?.length)
+    && model.xQuantity === "strain.engineering"
+    && model.yQuantity === "stress.engineering";
   const dataBounds = isDmaProny && pronyMode === "response"
     ? { ...paddedDataBounds, yMin: Math.max(0, paddedDataBounds.yMin) }
-    : paddedDataBounds;
+    : isDataObservedEngineering
+      ? dataObservedPlotBounds(observedEngineeringX, observedEngineeringY, model.xQuantity, model.yQuantity)
+      : paddedDataBounds;
   const bounds = viewBounds ?? dataBounds;
   const effectiveWidth = renderedSize?.width ?? fallbackWidth;
   const effectiveHeight = renderedSize?.height ?? fallbackHeight;
