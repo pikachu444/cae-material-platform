@@ -23,9 +23,10 @@
 - 순서 4 `#158 Modeling Data`는 PR #183, main `f5c69d1`에서 완료했습니다.
 - 순서 5 `#158 Modeling Process`는 제품 소유자 확인을 거쳐 PR #188, main `38571a8`에서
   완료했습니다. Modeling Process 시각 일관성 후속도 PR #191, main `e7c938b`에서 완료했습니다.
-- 현재 첫 미완료 단위는 순서 6 `#158 Modeling Process 7개 결과·저장 사용성 보정`입니다.
-  제품 소유자가 지적한 Process 화면만 보정하고 Fit·Export, 최신 비교 제품 조사 또는 계산 기능
-  확장을 시작하지 않습니다. Modeling Fit·Export가 모두 끝날 때까지 #158은 열린 상태로 유지합니다.
+- 순서 6 `#158 Modeling Process 7개 결과·저장 사용성 보정`은 제품 소유자 확인·승인을 거쳐 PR #192,
+  main `248e086`에서 완료했습니다. 현재 첫 미완료 단위는 순서 7 `#190 메인 오케스트레이터 acceptance 문서`입니다.
+  Modeling Fit과 Modeling Export가 모두 끝날 때까지 #158은 열린 상태로 유지합니다.
+  이번 동기화로 #190, Modeling Fit/Export, #189, 2026 Modeling expansion, #160, #161, #184, #162는 시작하지 않았습니다.
 
 #167의 승인 target은 다시 만들거나 재승인하지 않습니다. 과거 packet, correction 이미지와 완료
 보고서는 working tree에 보관하지 않고 Git/PR 이력에서 조회합니다.
