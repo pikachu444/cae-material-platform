@@ -4,13 +4,14 @@
 최종 권한은 저장소 루트의 `AGENTS.md`에 있으며, 이 문서는 역할과 흐름을 사람이 빨리 확인할 수
 있도록 풀어 쓴 안내서입니다.
 
-## 사용자 작업이 출발점
+## Full workflow 사용자 작업이 출발점
 
-검사는 테스트 자체를 만족시키기 위해 만들지 않습니다. 먼저 실제 사용자가 무엇을 선택하고,
-화면에서 무엇을 판단하며, 저장 후 무엇이 유지되어야 하고, 잘못된 입력에서 어떻게 회복하는지를
-한 흐름으로 적습니다. 자동 테스트와 화면 캡처는 이 흐름이 실제로 동작한다는 증거입니다.
+Full workflow에서는 검사를 테스트 자체를 만족시키기 위해 만들지 않습니다. 먼저 실제 사용자가
+무엇을 선택하고, 화면에서 무엇을 판단하며, 저장 후 무엇이 유지되어야 하고, 잘못된 입력에서
+어떻게 회복하는지를 한 흐름으로 적습니다. 자동 테스트와 화면 캡처는 이 흐름이 실제로
+동작한다는 증거입니다.
 
-구현 packet에는 다음 항목을 고정합니다.
+Full workflow 구현 packet에는 다음 항목을 고정합니다.
 
 1. 권한이 있는 issue, backlog 단위, 요구사항, 계약, 승인 화면
 2. 현실적인 주 사용자 흐름과 별도의 오류·회복 흐름
@@ -19,15 +20,42 @@
 5. 담당 파일, 금지된 우회 방법, 자동·Compose·DB·브라우저 gate
 6. 필요한 모든 viewport와 원본 해상도 화면 확인 조건
 
-## 역할과 병렬 실행 범위
+## 경로를 먼저 선택합니다
+
+Main은 시작할 때 `Administrative direct path`, `Trivial maintenance fast path`, `Full workflow`
+중 하나와 의미·운영 위험을 한 문장으로 선언하고, 일상적인 권한 질문은 하지 않습니다. 분류는
+파일·라인 수가 아니라 의미와 위험으로 하며, 명시적인 사용자 `full workflow` 또는 `main-direct`
+지시가 우선합니다. 외부 fact가 아닌 repository 변경, 새 정책·계약·요구사항·제품 판단,
+시각 승인, 범위 확대 또는 fast-path gate의 broader impact는 Full workflow로 승격합니다.
+
+- **Administrative direct path:** issue checkbox/comment, 이미 알려진 merge SHA 같은 외부 fact만
+  정확히 쓰고 다시 읽습니다. repository 파일을 바꾸지 않으며 dirty worktree를 보존하는
+  fingerprint를 전후 비교하고 auditor/writer/reviewer를 기계적으로 호출하지 않습니다.
+- **Trivial maintenance fast path:** 이미 승인된 사실의 의미 보존 docs/metadata 수선, typo,
+  내부 링크 복구만 대상으로 scoped diff, `git diff --check`, user-guide/docs-impact 및 변경 경로
+  gate를 실행합니다. 의미·범위가 넓어지면 Full workflow로 승격합니다.
+- **Full workflow:** code/UI/calculation/API/schema/data/migration, security/authorization,
+  test/build policy, product requirement, `AGENTS.md`, skill, orchestration policy, visual 또는
+  product-owner 판단 변경을 포함하며 아래 역할·gate loop를 적용합니다.
+
+세 경로의 9개 trace 필드와 N/A/deferred/stop, 권위 우선순위와 Process known-bad/accepted
+calibration은 [main orchestrator acceptance trace](main-orchestrator-acceptance.md)에 기록합니다.
+경로 분류는 commit, push, PR, ready-for-review 또는 merge 권한을 부여하지 않습니다. 이름이 적힌
+외부 행동만 별도 승인으로 허용되며 pre-publish 실패는 모든 경로에서 게시를 막습니다.
+
+## Full workflow 역할과 병렬 실행 범위
+
+다음 역할 경계와 병렬 실행 제한은 Full workflow에만 적용합니다. Administrative direct path와
+Trivial maintenance fast path는 각 경로의 계약을 따르며 이 역할 loop를 기계적으로 호출하지
+않습니다.
 
 | 역할 | 책임 |
 | --- | --- |
-| Main orchestrator | 요구사항 해석, packet 작성, 결과 통합, 전체 원인 진단, live Compose·DB·브라우저 확인, GitHub 전달을 책임집니다. |
-| Requirements auditor | 구현 전에 새 읽기 전용 상태로 packet과 원문을 대조합니다. 빠진 사용자 행동·화면·저장·회복·검증 조건이 있으면 구현을 막습니다. |
+| Main orchestrator | Full workflow의 요구사항 해석, packet 작성, 결과 통합, 전체 원인 진단, packet-applicable live gate 확인, GitHub 전달을 책임집니다. |
+| Requirements auditor | Full workflow 구현 전에 새 읽기 전용 상태로 packet과 원문을 대조합니다. 빠진 사용자 행동·화면·저장·회복·검증 조건이 있으면 구현을 막습니다. |
 | 선택적 조사 lane | 코드·계약 위치 확인이나 화면 증거 점검처럼 서로 독립적인 읽기 전용 질문만 처리합니다. auditor를 포함해 동시에 최대 3개입니다. |
 | Implementation/correction writer | 한 번에 한 명만 정해진 파일을 수정합니다. 교정 writer는 매번 새 상태로 시작합니다. |
-| Final reviewer | 모든 gate 뒤 새 읽기 전용 상태로 전체 증거와 모든 필수 viewport 원본을 다시 보고 승인 여부를 결정합니다. |
+| Final reviewer | Full workflow의 모든 applicable gate 뒤 새 읽기 전용 상태로 전체 증거와 모든 필수 viewport 원본을 다시 보고 승인 여부를 결정합니다. |
 | Publication hook | 문서·링크·이미지·diff 같은 결정적인 검사만 수행합니다. 모델 리뷰를 자동으로 호출하지 않습니다. |
 
 읽기 전용 조사는 독립적일 때만 병렬로 실행합니다. 같은 checkout에서 writer를 동시에 실행하지
@@ -35,9 +63,10 @@
 
 ## 렌더링된 구성도
 
-아래 구성도는 표준 작업 흐름, 실패 후 교정 흐름, 실제로 설정된 에이전트의 역할·모델·추론
-수준을 함께 보여줍니다. 작은 표시는 역할 ID이며 모델과 추론 수준은 오른쪽 구성 카드에만
-표시합니다.
+아래 구성도는 **Full workflow**의 표준 작업 흐름과 실패 후 교정 흐름, 실제로 설정된 에이전트의
+역할·모델·추론 수준을 보여줍니다. Administrative direct path와 Trivial maintenance fast path는
+이 loop를 기계적으로 실행하지 않습니다. 작은 표시는 역할 ID이며 모델과 추론 수준은 오른쪽
+구성 카드에만 표시합니다.
 
 ![Codex 작업 흐름과 에이전트 오케스트레이션](codex-orchestration/workflow-ko.png)
 
@@ -53,7 +82,11 @@ HTML, 한글·영문 SVG와 PNG를 함께 다시 만듭니다. 생성된 파일�
 uv run --with playwright==1.62.0 python docs/14-testing/codex-orchestration/render.py
 ```
 
-## 전체 흐름
+## Full workflow 전체 흐름
+
+다음 loop는 위에서 Full workflow로 분류한 작업에만 적용합니다. Main이 packet을 동결하고 새
+requirements auditor의 `approve`를 받은 뒤 한 명의 bounded writer, main acceptance, 새
+independent reviewer 순으로 진행합니다.
 
 ```mermaid
 flowchart TB
@@ -63,7 +96,7 @@ flowchart TB
     REVISE[빠진 행동 · 결과 · 복구 · 검증 조건 보완]
     FREEZE[조사 결과 통합<br/>구현 packet 동결]
     WRITE[Implementation writer 1명<br/>한정된 파일만 순차 구현]
-    LIVE[Main live acceptance<br/>Compose → DB → Browser → Reload<br/>필수 viewport 원본 확인]
+    LIVE[Main packet-applicable live gates<br/>Compose · DB · Browser · Reload (applicable only)<br/>visual이면 필수 viewport 원본 확인]
     GATE{모든 gate<br/>통과?}
     REVIEW[Fresh final reviewer<br/>전체 동결 증거 독립 검토]
     APPROVE{최종 승인?}
@@ -111,22 +144,30 @@ flowchart TB
     class OWNER,HOOK publish;
 ```
 
-## 실패를 모아서 고치는 방법
+그림의 `Commit → Push → Draft PR`는 해당 외부 행동이 명시적으로 승인된 경우에만 의미가
+있습니다. ready-for-review와 merge는 별도 권한이며 이 그림이나 경로 선언만으로 승인되지
+않습니다.
+
+## Full workflow 실패를 모아서 고치는 방법
 
 Main은 한 문제가 보였다고 즉시 같은 검사를 처음부터 반복하지 않습니다. 계속 확인해도 안전하고
-증거가 유효하면 해당 checkpoint의 나머지 검사를 끝까지 실행해 실패를 모두 수집합니다. 같은
-원인에서 나온 현상은 하나로 묶고, 새 진단과 관찰 가능한 합격 조건을 한 correction packet에
-담습니다.
+frozen evidence가 유효하면 해당 checkpoint의 나머지 안전한 applicable 검사를 끝까지 실행해
+실패를 모두 수집합니다. 계속하는 것이 unsafe하거나 실패한 prerequisite가 나머지 증거를 무효로
+만들 때만 discovery를 멈추며, 그 정확한 경계와 이후 검사가 유효하지 않은 이유를 기록합니다.
+같은 원인에서 나온 현상은 하나로 묶고, 새 진단과 관찰 가능한 합격 조건을 담은 **실질적으로
+바뀐** correction packet을 만듭니다. 변경하지 않은 packet은 다시 실행하지 않습니다.
 
 세 번의 교정 실패는 작업 포기가 아니라 재감사 지점입니다. Main과 auditor가 권한, 범위, 사용자
 흐름, packet, gate, 동결된 증거를 다시 검토합니다. 제품 결정, 추가 권한, 위험한 조치 또는 외부
 상태 변경이 정말 필요할 때만 사용자에게 요청합니다. 그렇지 않으면 실패 횟수를 초기화하고 새
 진단으로 계속합니다. 같은 지시를 그대로 반복하는 것은 새 시도로 세지 않습니다.
 
-## 최종 확인과 게시
+## Full workflow 최종 확인과 게시
 
-Main의 live 검사는 `compose-preflight`, 새로 build/recreate한 canonical Compose, DB 결과, 실제
-브라우저 행동, 저장 후 reload, 모든 필수 viewport 원본 확인 순으로 진행합니다. 그 뒤 fresh final
-reviewer가 동결된 전체 증거를 승인해야 합니다. 게시 승인을 받은 뒤 결정적인 pre-publish hook을
-통과한 commit만 push하고 Draft PR을 엽니다. 자동 모델 검토 정책과 명령은
+Full workflow에서 Main은 packet에 applicable로 고정한 live gate만 독립적으로 실행합니다. Compose
+gate가 적용되면 `compose-preflight` 뒤 canonical Compose를 새로 build/recreate하고, DB 결과,
+브라우저 행동, 저장 후 reload는 packet이 요구할 때 확인합니다. Visual 작업이면 모든 필수 viewport
+원본을 확인합니다. 적용되지 않는 gate 유형은 그 이유와 함께 N/A 또는 deferred로 기록합니다. 그
+뒤 fresh final reviewer가 동결된 전체 증거를 승인해야 합니다. 게시 승인을 받은 뒤 결정적인
+pre-publish hook을 통과한 commit만 push하고 Draft PR을 엽니다. 자동 모델 검토 정책과 명령은
 [Pre-publish 게이트와 독립 리뷰 실험](codex-pre-publish-review.md)에 따릅니다.
