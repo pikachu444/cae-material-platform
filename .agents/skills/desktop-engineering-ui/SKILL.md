@@ -6,7 +6,9 @@ description: Execute or review CAE Material Platform visual work, including appr
 # Desktop Engineering UI
 
 Build a compact browser-delivered engineering workspace, not a marketing site or generic card
-dashboard. Follow `AGENTS.md` for agent selection, correction limits, publication and current work.
+dashboard. Agent selection, correction limits, publication, and current-worktree boundaries are
+external to this visual skill. The main orchestrator fixes writer scope and escalation before applying
+the skill; correction and publication boundaries remain external.
 
 ## Route only the needed context
 
@@ -39,7 +41,8 @@ resolution, inspects the current live/capture state and stores one bounded packe
 - preserved behavior, loading/empty/blocked/error states and invalidation contracts;
 - forbidden shortcuts, required captures, interactions and tests.
 
-A family name or image list alone is insufficient. Writer scope and escalation follow `AGENTS.md`.
+A family name or image list alone is insufficient. Writer scope and escalation are fixed before this
+skill is applied; correction and publication boundaries remain external.
 
 ## Verify the complete screen
 
@@ -65,5 +68,5 @@ the named criteria, but it does not introduce new acceptance criteria.
 
 The main orchestrator evaluates the findings. Reviewer completion alone does not trigger another full-screen
 checklist. If a correction changes implementation or evidence, rerun only the affected comparisons and
-gates before fresh review; when neither changed, do not request another reviewer. Follow `AGENTS.md` for
-correction, approval and publication boundaries.
+gates before fresh review; when neither changed, do not request another reviewer. Correction, approval,
+and publication boundaries remain with the main orchestrator and the applicable workflow contract.
