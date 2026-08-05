@@ -262,6 +262,7 @@ Data selection 같은 일반 upstream draft 변경은 기존 invalidation 규칙
 
 | Process evidence | 화면 |
 | --- | --- |
+| Linear regression 1366×768 | ![Process Linear regression](images/current/modeling-process-linear-regression-1366x768.png) |
 | Wide 2560×1440 | ![Process 2560](images/current/modeling-process-2560x1440.png) |
 | Wide 3840×2160 | ![Process 3840](images/current/modeling-process-3840x2160.png) |
 | Exact prerequisite blocked 1440×900 | ![Process blocked](images/current/modeling-process-blocked-1440x900.png) |
