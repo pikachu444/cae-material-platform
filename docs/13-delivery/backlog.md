@@ -25,9 +25,9 @@
   완료했습니다. Modeling Process 시각 일관성 후속도 PR #191, main `e7c938b`에서 완료했습니다.
 - 순서 6 `#158 Modeling Process 7개 결과·저장 사용성 보정`은 제품 소유자 확인·승인을 거쳐 PR #192,
   main `248e086`에서 완료했습니다. 순서 7 `#190 메인 오케스트레이터 acceptance 문서`는 구현,
-  main acceptance와 독립 review를 통과해 Draft PR #194에서 merge 승인을 기다립니다. Merge 전에는
-  #190이 여전히 첫 미완료 단위입니다. Modeling Fit과 Modeling Export가 모두 끝날 때까지 #158은
-  열린 상태로 유지하며, Modeling Fit/Export, #189, 2026 Modeling expansion, #160, #161, #184,
+  main acceptance와 독립 review를 거쳐 PR #194에서 완료했습니다. 현재 첫 미완료 단위는 순서 8
+  `#158 Modeling Fit`입니다. Modeling Fit과 Modeling Export가 모두 끝날 때까지 #158은 열린
+  상태로 유지하며, Modeling Fit/Export, #189, 2026 Modeling expansion, #160, #161, #184,
   #162는 시작하지 않았습니다.
 
 #167의 승인 target은 다시 만들거나 재승인하지 않습니다. 과거 packet, correction 이미지와 완료
@@ -73,7 +73,7 @@ packet, 검증, 검토, 제품 소유자 확인과 PR/merge를 거칩니다. iss
 | 4 | [#158 Modeling Data](https://github.com/pikachu444/cae-material-platform/issues/158) | 재료와 하나 이상의 시험 데이터를 정확한 개정본으로 연결하고 사용할 곡선을 선택 | issue, visual skill, inventory의 `modeling-data`, 선택된 manifest entry, test-data/link/API/state/test | 연결·단위·채널·여러 시험 데이터·오류 복구, 시각 승인, merge |
 | 5 | [#158 Modeling Process](https://github.com/pikachu444/cae-material-platform/issues/158) | 원본을 바꾸지 않고 처리 방법별 결과를 만들어 비교·저장 | issue, `modeling-process` 승인 화면, processing·revision·invalidation 계약 | 처리 설정·결과·원본 연결·재실행·무효화, 그래프와 시각 승인, merge |
 | 6 | [#158 Modeling Process 7개 결과·저장 사용성 보정](https://github.com/pikachu444/cae-material-platform/issues/158) | 계산 결과와 저장 행동을 한눈에 구분하고 Process 화면을 현재 기준으로 확정 | issue의 병합 뒤 제품 소유자 피드백, `modeling-process` 승인 화면, Process React/CSS/state/test | 잘림 없는 method 선택, 직접 읽히는 결과, 충분한 저장 입력, 절제된 상태·보조 문구, 명확한 saved-results disclosure, 지속 그래프·오류 복구·current/history 보존, 시각 승인, merge |
-| 7 | [#190 메인 오케스트레이터 acceptance 문서](https://github.com/pikachu444/cae-material-platform/issues/190) | 이후 작업의 요구·실화면·보존 계약·검증 조건이 세션과 구현자를 넘어 일관되게 추적됨 | issue, root `AGENTS.md`, orchestration workflow, desktop-engineering-ui skill의 관련 절 | 짧은 acceptance trace와 AGENTS 라우팅, known-bad 실패 예시, 역할 경계와 과잉 집착 방지 규칙, merge |
+| 7 | [#190 메인 오케스트레이터 acceptance 문서](https://github.com/pikachu444/cae-material-platform/issues/190) ([PR #194](https://github.com/pikachu444/cae-material-platform/pull/194)) | 이후 작업의 요구·실화면·보존 계약·검증 조건이 세션과 구현자를 넘어 일관되게 추적됨 | issue, root `AGENTS.md`, orchestration workflow, desktop-engineering-ui skill의 관련 절 | 짧은 acceptance trace와 AGENTS 라우팅, known-bad 실패 예시, 역할 경계와 과잉 집착 방지 규칙, merge |
 | 8 | [#158 Modeling Fit](https://github.com/pikachu444/cae-material-platform/issues/158) | 같은 처리 결과에 여러 방법을 적용해 모델을 비교하고 사용할 모델을 명시적으로 선택 | issue, `modeling-fit` 승인 화면, Fit React/API/state/test | 추천·선택·저장 상태 분리, 여러 방법/결과 보존, 그래프·키보드·시각 승인, merge |
 | 9 | [#158 Modeling Export](https://github.com/pikachu444/cae-material-platform/issues/158) | 선택 모델에서 솔버별 카드를 생성·미리보기하고 Materials DB에 연결할 결과를 준비 | issue, `modeling-export` 승인 화면, selected-model·mapping·unit-system·solver-card 계약 | 솔버·버전·단위계별 결과, 지원 수준·차단 사유, 정확한 모델 연결, 시각 승인, merge |
 | 10 | [#189 lazy chunk 예산과 Workbench 분할 기준](https://github.com/pikachu444/cae-material-platform/issues/189) | 완성된 Process/Fit/Export의 실제 사용자 비용을 근거로 Workbench 성능과 분할 시점을 관리 | issue, production build 관찰값, bundle checker, test strategy, Process/Fit/Export 계약 | raw/gzip·실제 경로 비용, warning/error 근거와 분할 촉발 기준, 필요한 경우 별도 보존적 분할, merge |
