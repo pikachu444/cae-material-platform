@@ -71,7 +71,7 @@ describe("ModelingProcessPanel saved result disclosure", () => {
     const second = output("output-2");
     const view = render(<ModelingProcessPanel {...baseProps} savedOutputs={[]} onLoadSavedResult={onLoadSavedResult} />);
 
-    fireEvent.click(screen.getByText("Saved processing results (0)"));
+    fireEvent.click(screen.getByText("Saved results (0)"));
     expect(onLoadSavedResult).not.toHaveBeenCalled();
 
     view.rerender(<ModelingProcessPanel {...baseProps} savedOutputs={[first, second]} onLoadSavedResult={onLoadSavedResult} />);
@@ -87,14 +87,14 @@ describe("ModelingProcessPanel saved result disclosure", () => {
     const replacementLoad = vi.fn();
     const view = render(<ModelingProcessPanel {...baseProps} savedOutputs={[first, second]} onLoadSavedResult={initialLoad} />);
 
-    fireEvent.click(screen.getByText("Saved processing results (2)"));
+    fireEvent.click(screen.getByText("Saved results (2)"));
     await waitFor(() => expect(initialLoad).toHaveBeenCalledTimes(2));
     view.rerender(<ModelingProcessPanel {...baseProps} outputLabel="Unrelated rerender" savedOutputs={[first, second]} onLoadSavedResult={replacementLoad} />);
     await waitFor(() => expect(screen.getByDisplayValue("Unrelated rerender")).toBeTruthy());
     expect(initialLoad).toHaveBeenCalledTimes(2);
     expect(replacementLoad).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByText("Saved processing results (2)"));
-    fireEvent.click(screen.getByText("Saved processing results (2)"));
+    fireEvent.click(screen.getByText("Saved results (2)"));
+    fireEvent.click(screen.getByText("Saved results (2)"));
     await waitFor(() => expect(replacementLoad).toHaveBeenCalledTimes(2));
   });
 
@@ -103,7 +103,7 @@ describe("ModelingProcessPanel saved result disclosure", () => {
     const onLoadSavedResult = vi.fn();
     const view = render(<ModelingProcessPanel {...baseProps} savedOutputs={[saved]} onLoadSavedResult={onLoadSavedResult} />);
 
-    fireEvent.click(screen.getByText("Saved processing results (1)"));
+    fireEvent.click(screen.getByText("Saved results (1)"));
     await waitFor(() => expect(onLoadSavedResult).toHaveBeenCalledTimes(1));
     view.rerender(<ModelingProcessPanel {...baseProps} savedOutputs={[]} onLoadSavedResult={onLoadSavedResult} />);
     view.rerender(<ModelingProcessPanel {...baseProps} savedOutputs={[saved]} onLoadSavedResult={onLoadSavedResult} />);
@@ -117,7 +117,7 @@ describe("ModelingProcessPanel saved result disclosure", () => {
     render(<ModelingProcessPanel {...baseProps} savedOutputs={[first, second]} onLoadSavedResult={onLoadSavedResult} />);
 
     expect(onLoadSavedResult).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByText("Saved processing results (2)"));
+    fireEvent.click(screen.getByText("Saved results (2)"));
     await waitFor(() => expect(onLoadSavedResult).toHaveBeenCalledTimes(2));
   });
 
@@ -178,6 +178,42 @@ describe("Saved Processing Output artifact contract", () => {
 });
 
 describe("ModelingProcessPanel result surface states", () => {
+  it("labels the server response as Result and keeps normal completion feedback out of the visual band", () => {
+    render(
+      <ModelingProcessPanel
+        {...baseProps}
+        savedOutputs={[]}
+        scalarPa={210_000_000_000}
+        notice="Preview ready."
+      />,
+    );
+
+    expect(screen.getByRole("heading", { name: "Result" })).toBeTruthy();
+    expect(screen.getByText("Young's modulus")).toBeTruthy();
+    expect(screen.getByText("210.0 GPa")).toBeTruthy();
+    expect(screen.queryByText("Calculated preview", { exact: true })).toBeNull();
+    expect(screen.queryByText("Server result · preview only", { exact: true })).toBeNull();
+    expect(document.querySelector(".process-band-status")?.className).toContain("visually-hidden");
+    expect(screen.getByText("Saved results (0)")).toBeTruthy();
+  });
+
+  it("keeps the last server result visible and asks for a new preview only after draft changes", () => {
+    render(
+      <ModelingProcessPanel
+        {...baseProps}
+        savedOutputs={[]}
+        hasPreview={false}
+        hasLastValidPreview
+        scalarPa={210_000_000_000}
+        notice="Current Process result cleared; saved results remain in history. Fit and Export require a new saved processed result."
+      />,
+    );
+
+    expect(screen.getByText("210.0 GPa")).toBeTruthy();
+    expect(screen.getByText("Result retained; preview again to save changes.")).toBeTruthy();
+    expect(document.querySelector(".process-band-status")?.className).toContain("visually-hidden");
+  });
+
   it("keeps Use settings disabled while loading, offers row-local Retry on error, and enables ready rows", () => {
     const saved = output("output-surface");
     const onLoadSavedResult = vi.fn();
@@ -191,7 +227,7 @@ describe("ModelingProcessPanel result surface states", () => {
         onUseSavedSettings={onUseSavedSettings}
       />,
     );
-    fireEvent.click(screen.getByText("Saved processing results (1)"));
+    fireEvent.click(screen.getByText("Saved results (1)"));
     const table = screen.getByRole("table", { name: "Saved processing results" });
     expect(Array.from(table.querySelectorAll("thead th"), (header) => header.textContent)).toEqual([
       "Label", "Method", "Range", "Result", "Revision", "State", "Action",

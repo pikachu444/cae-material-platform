@@ -222,9 +222,10 @@ Activity에 Delivered 상태나 링크를 만들지 않습니다. source/target 
 ### Process 상태와 저장 결과 비교
 
 Process band는 선택한 exact Test Data revision과 Mapping Profile을 항상 함께 표시하고,
-Calculation | Preview | Save result 세 그룹을 얕은 한 줄 band로 정렬합니다. select, range input,
-processed-curve label, save reason과 Save 버튼은 같은 compact control height를 사용합니다. 서버
-preview가 성공한 동안에는 mapped input, 선택한 processed stage, server modulus fit을 하나의
+Calculation과 Result를 첫 줄에, Save result를 다음 전체 폭 줄에 둡니다. Evaluation method select의
+다섯 선택지와 range input, processed-curve label, save reason과 Save 버튼은 같은 28px compact
+control height를 사용합니다. Result에는 서버가 계산한 현재 step label과 modulus 값을 직접 표시합니다.
+서버 preview가 성공한 동안에는 mapped input, 선택한 processed stage, server modulus fit을 하나의
 engineering graph에 겹쳐 보여 주며, draft option을 바꾸거나 재계산에 실패해도 마지막 유효
 server preview를 화면에 남깁니다. 실패한 응답은 저장 입력으로 승격되지 않습니다. exact source나
 profile을 복구할 수 없으면 graph는 `blocked` 상태와 **Back to Data** recovery를 표시하며
@@ -235,7 +236,7 @@ document/preview/scalar나 newest/current-head를 fallback으로 사용하지 �
 **Retry exact source** 또는 **Back to Data**로만 복구합니다. 같은 exact ref의 재시도는 한 번의
 새 요청이고 실패하면 다시 settled blocked 상태로 남습니다.
 
-**Saved processing results (N)** disclosure는 현재 exact source/profile에 맞는 Processing Output만
+**Saved results (N)** disclosure는 현재 exact source/profile에 맞는 Processing Output만
 보여 주며, `Label | Method | Range | Result | Revision | State | Action` 일곱 열을 직접 제공합니다.
 Method 열은 `robust_huber` 같은 내부 ID 대신 Auto robust, Linear regression, Chord, Secant, Manual
 slope를 표시하고 Revision은 정확한 `r1` 형식으로 고정합니다. 각 row에 source 설명을 반복하지 않아
@@ -243,12 +244,18 @@ slope를 표시하고 Revision은 정확한 `r1` 형식으로 고정합니다. �
 source, profile, output id, revision, ordered steps가 맞지 않으면 Result에 **Saved result unavailable**과
 row-local **Retry**를 표시하고 fallback을 만들지 않습니다. 성공적으로 읽은 row만 **Use settings**를
 제공하며, 같은 settings를 새 draft로 복사하므로 Preview 후 새 immutable output을 저장해야 합니다.
-Save한 결과는 새 current가 되고 이전 결과는 history로 남습니다. 그 뒤 오래된 row에서 **Use settings**를
-누르면 의도적으로 current pointer를 비우고 draft를 만들지만 세 immutable 결과는 모두 history로
-보존됩니다. Preview와 reload도 이 의도적 clear를 조용히 current로 되돌리지 않습니다. upstream draft
-변경은 current pointer를 지우지만 saved history는 삭제하지 않습니다.
+Save한 결과는 새 current가 되고 이전 결과는 history로 남습니다. 오래된 row에서 **Use settings**를
+누르면 해당 history의 settings를 local draft로 복사하지만 새로 저장한 current result와 그 exact
+identity는 그대로 유지됩니다. 복사된 draft는 Preview changes를 다시 실행해야 하며, 실제로 새
+current가 되는 것은 **Save processed curves**를 눌렀을 때뿐입니다. Preview, rerender, reload와
+stage 이동 중에도 saved history와 current pointer는 바뀌지 않습니다. Material/State/family,
+Data selection 같은 일반 upstream draft 변경은 기존 invalidation 규칙을 따릅니다.
 
-Process의 live evidence는 일반 viewport(1366×768, 1440×900, 1920×1080)와 wide viewport
+정상 화면에는 `Preview — not saved` 같은 반복 상태 문구를 두지 않습니다. 설정을 바꿔 재계산이
+필요하거나 차단·실패한 경우에만 Result 옆의 한 줄 recovery 안내와 접근 가능한 live status를
+보여 줍니다. Process의 live evidence는 linear-regression을 별도 settled method로 포함한 9개
+출력(`modeling-process-linear-regression-1366x768.png` 포함)으로, 일반 viewport
+(1366×768, 1440×900, 1920×1080)와 wide viewport
 (2560×1440, 3840×2160), exact prerequisite blocked(1440×900), exact-read failed(1440×900), saved-result siblings(1440×900)
 상태를 각각 확인합니다. 캡처가 `Loading Process controls…` fallback에서 settled panel로 전환되지
 않았거나 graph/axis가 잘리면 기존 capture directory를 교체하지 않습니다.
@@ -262,7 +269,8 @@ Process의 live evidence는 일반 viewport(1366×768, 1440×900, 1920×1080)와
 | Saved-result siblings 1440×900 | ![Process saved results](images/current/modeling-process-siblings-1440x900.png) |
 
 1. Process preview 결과와 저장된 Mapping Profile revision이 일치하는지 확인합니다.
-2. current-step settings에서 Processed curve label과 저장 사유를 입력합니다.
+2. current-step settings에서 Processed curve label과 저장 사유를 입력합니다. Result 이름 입력은
+   1366px에서 최소 240px, 사유 입력은 최소 360px의 사용 가능한 폭을 유지합니다.
 3. **Save processed curves**를 누릅니다. 이것이 Process의 유일한 primary action이고 preview는 secondary입니다.
 4. 서버는 화면의 preview 배열을 저장하지 않고 exact Test Data revision과 exact Mapping Profile
    revision을 다시 읽어 동일한 ordered steps를 재실행합니다. 수동 modulus/necking workup이 있으면

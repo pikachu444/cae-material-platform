@@ -187,13 +187,29 @@ export default function ModelingProcessPanel({
     savedOutputs.forEach(requestSavedResult);
   }, [savedOutputs, savedResultsOpen]);
 
-  const previewState = hasPreview ? "Server result · preview only" : hasLastValidPreview ? "Last valid server result · draft changed" : "No valid preview";
   const statusClass = processReady ? "status-current" : "status-blocked";
   const visibleScalarPa = processReady ? scalarPa : undefined;
   const visibleSourceIdentity = onRetryExactSource && sourceIdentity
     ? `Exact source unavailable · ${sourceIdentity.split(" · ").at(-1)}`
     : sourceIdentity || "No exact Test Data";
-  const statusText = `${processReady ? (currentOutputId ? "Current exact source" : "Draft · not saved") : "Blocked · choose exact source in Data"} · ${notice ?? "No current Process result."}`;
+  const statusText = [
+    processReady
+      ? currentOutputId ? "Current Process result" : "Process draft ready"
+      : "Blocked · choose exact source in Data",
+    notice,
+  ].filter(Boolean).join(" · ");
+  // Normal and draft surfaces use the Result note as their single visible
+  // action message.  Keep the full notice in the live region for assistive
+  // technology, but only expose a second visible row for a blocked/retry
+  // state where the user has an explicit recovery action.
+  const statusNeedsAttention = !processReady || Boolean(onRetryExactSource);
+  const resultNote = hasPreview
+    ? null
+    : hasLastValidPreview
+      ? "Result retained; preview again to save changes."
+      : processReady
+        ? "Run Preview changes to calculate this result."
+        : "Restore an exact source in Data before calculating this result.";
   const saveDisabled = busy || !hasPreview || !processReady || !outputLabel.trim() || !outputReason.trim();
   const stepTitle = `Step ${stepNumber ?? "—"} · Process · ${stepLabel}`;
   return (
@@ -211,9 +227,9 @@ export default function ModelingProcessPanel({
             {stepControls}
           </fieldset>
         </section>
-        <section className="process-band-group process-band-preview" aria-labelledby="process-preview-title">
-          <h3 id="process-preview-title">Preview</h3>
-          <div className="process-band-result"><span>Calculated preview</span><strong>{formatModulus(visibleScalarPa)}</strong><small>{previewState}</small></div>
+        <section className="process-band-group process-band-preview" aria-labelledby="process-result-title">
+          <h3 id="process-result-title">Result</h3>
+          <div className="process-band-result"><span>{stepLabel}</span><strong>{formatModulus(visibleScalarPa)}</strong>{resultNote ? <small>{resultNote}</small> : null}</div>
         </section>
         <section className="process-band-group process-band-save-result" aria-labelledby="process-save-result-title">
           <h3 id="process-save-result-title">Save result</h3>
@@ -224,7 +240,7 @@ export default function ModelingProcessPanel({
           </div>
         </section>
       </div>
-      <div className={`process-band-status ${statusClass}`} role="status">
+      <div className={`process-band-status ${statusClass}${statusNeedsAttention ? "" : " visually-hidden"}`} role="status" aria-live="polite">
         <span>{statusText}</span>
         {onRetryExactSource ? <button className="text-button" type="button" disabled={busy} onClick={onRetryExactSource}>Retry exact source</button> : null}
       </div>
@@ -237,7 +253,7 @@ export default function ModelingProcessPanel({
         requestedSavedOutputIds.current.clear();
         if (open) savedOutputs.forEach(requestSavedResult);
       }}>
-        <summary>Saved processing results ({savedOutputs.length})</summary>
+        <summary>Saved results ({savedOutputs.length})</summary>
         <div className="process-comparison-region">
           {savedOutputs.length ? <table className="process-comparison-table" aria-label="Saved processing results">
             <thead><tr><th scope="col">Label</th><th scope="col">Method</th><th scope="col">Range</th><th scope="col">Result</th><th scope="col">Revision</th><th scope="col">State</th><th scope="col">Action</th></tr></thead>

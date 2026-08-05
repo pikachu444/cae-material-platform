@@ -348,13 +348,13 @@ describe("Common Processing Workbench", () => {
     expect(onSessionChange.mock.calls.filter(([patch]) => (patch as Record<string, unknown>).processingOutput !== undefined)).toHaveLength(1);
   });
 
-  it("restores a saved Process current, then Use settings clears it across rerender and reload", async () => {
+  it("restores history settings as a draft while preserving the saved Process current across rerender and reload", async () => {
     const sourceRef = { id: documentResource.test_data_document_id, revisionId: revision.id, label: documentResource.document_key, revisionNo: 1 };
     const initialSession = {
       version: 4,
       updatedAt: "2026-07-24T00:00:00Z",
       materialFamily: "metal",
-      objective: "Restore and intentionally clear Process current",
+      objective: "Restore history settings without replacing Process current",
       material: { id: "material-a", revisionId: "material-a-r1", label: "DP600", revisionNo: 1 },
       materialState: { id: "state-a", revisionId: "state-a-r1", label: "As received", revisionNo: 1 },
       testData: sourceRef,
@@ -377,13 +377,10 @@ describe("Common Processing Workbench", () => {
       processOutputFixture("process-history-chord", "Chord history", "chord"),
     ];
     let outputPosts = 0;
+    let previewPosts = 0;
     let restoredSession: Record<string, unknown> = initialSession;
     const onSessionChange = vi.fn();
-    const onSessionEvent = vi.fn((event: { type?: string }) => {
-      if (event.type === "CHANGE_PROCESS") {
-        restoredSession = { ...restoredSession, processingOutput: undefined };
-      }
-    });
+    const onSessionEvent = vi.fn();
     const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
       const url = String(input);
       if (url.endsWith("/test-data-documents")) return jsonResponse({ items: [documentResource] });
@@ -423,7 +420,12 @@ describe("Common Processing Workbench", () => {
         headers: new Headers({ "content-type": "application/json" }),
         blob: async () => new Blob([JSON.stringify(documentJson)], { type: "application/json" }),
       } as Response;
-      if (url.endsWith("/processing:preview") && init?.method === "POST") return jsonResponse(processPreviewFixture());
+      if (url.endsWith("/processing:preview") && init?.method === "POST") {
+        previewPosts += 1;
+        const body = JSON.parse(String(init.body ?? "{}")) as { steps?: Array<{ options?: { method?: string } }> };
+        const scalarPa = body.steps?.find((step) => step.options?.method === "chord") ? 120e9 : 210e9;
+        return jsonResponse(processPreviewFixture(scalarPa));
+      }
       throw new Error(`unexpected request: ${url}`);
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -469,9 +471,52 @@ describe("Common Processing Workbench", () => {
     const currentRow = Array.from(details.querySelectorAll<HTMLElement>(".process-comparison-row"))
       .find((row) => row.textContent?.includes("New Process"));
     if (!currentRow) throw new Error("restored current Process row is missing");
-    fireEvent.click(within(currentRow).getByRole("button", { name: "Use settings" }));
-    await waitFor(() => expect(onSessionEvent.mock.calls.some(([event]) => (event as { type?: string }).type === "CHANGE_PROCESS")).toBe(true));
-    await waitFor(() => expect(restoredSession.processingOutput).toBeUndefined());
+    const chordRow = Array.from(details.querySelectorAll<HTMLElement>(".process-comparison-row"))
+      .find((row) => row.textContent?.includes("Chord history"));
+    if (!chordRow) throw new Error("historical Chord Process row is missing");
+    const changeProcessEventsBeforeUse = onSessionEvent.mock.calls.filter(
+      ([event]) => (event as { type?: string }).type === "CHANGE_PROCESS",
+    ).length;
+    const previewPostsBeforeUse = previewPosts;
+    fireEvent.click(within(chordRow).getByRole("button", { name: "Use settings" }));
+    await screen.findByText(/Saved Process settings restored as a new draft/);
+    await new Promise((resolve) => window.setTimeout(resolve, 350));
+    expect(previewPosts).toBe(previewPostsBeforeUse);
+    expect(document.querySelector('[data-modeling-process-panel="ready"] .process-band-result')?.textContent).toContain("210.0 GPa");
+    expect(onSessionEvent.mock.calls.filter(
+      ([event]) => (event as { type?: string }).type === "CHANGE_PROCESS",
+    )).toHaveLength(changeProcessEventsBeforeUse);
+    expect(restoredSession.processingOutput).toEqual(savedRef);
+    expect((screen.getByRole("combobox", { name: "Evaluation method" }) as HTMLSelectElement).value).toBe("chord");
+    expect((screen.getByRole("spinbutton", { name: "Elastic range start" }) as HTMLInputElement).value).toBe("0.001");
+    expect((screen.getByRole("spinbutton", { name: "Elastic range end" }) as HTMLInputElement).value).toBe("0.003");
+    expect((screen.getByRole("button", { name: "Save processed curves" }) as HTMLButtonElement).disabled).toBe(true);
+    rows = Array.from(details.querySelectorAll(".process-comparison-row"), (row) => row.textContent ?? "");
+    expect(rows.filter((text) => text.includes("current"))).toHaveLength(1);
+    expect(rows.find((text) => text.includes("New Process"))).toContain("current");
+    const previewPostsBeforeStageRoundTrip = previewPosts;
+    for (const stage of ["data", "fit", "export", "process"] as const) {
+      fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: `modeling:${stage}` } }));
+      const heading = stage === "data"
+        ? "Select Test Data"
+        : stage === "fit"
+          ? "Fit material response"
+          : stage === "export"
+            ? "Review & deliver solver card"
+            : "Prepare observed curves";
+      await screen.findByRole("heading", { name: heading });
+    }
+    await new Promise((resolve) => window.setTimeout(resolve, 350));
+    expect(previewPosts).toBe(previewPostsBeforeStageRoundTrip);
+    expect((screen.getByRole("combobox", { name: "Evaluation method" }) as HTMLSelectElement).value).toBe("chord");
+    expect((screen.getByRole("spinbutton", { name: "Elastic range start" }) as HTMLInputElement).value).toBe("0.001");
+    expect((screen.getByRole("spinbutton", { name: "Elastic range end" }) as HTMLInputElement).value).toBe("0.003");
+    expect((screen.getByRole("button", { name: "Save processed curves" }) as HTMLButtonElement).disabled).toBe(true);
+    expect(document.querySelector('[data-modeling-process-panel="ready"] .process-band-result')?.textContent).toContain("210.0 GPa");
+    const roundTripDetails = document.querySelector("details.process-saved-results") as HTMLDetailsElement;
+    rows = Array.from(roundTripDetails.querySelectorAll(".process-comparison-row"), (row) => row.textContent ?? "");
+    expect(rows.filter((text) => text.includes("current"))).toHaveLength(1);
+    expect(rows.find((text) => text.includes("New Process"))).toContain("current");
     view.rerender(
       <CommonProcessingWorkbench
         config={{ baseUrl: "/api/v1", accessToken: "token" }}
@@ -488,7 +533,8 @@ describe("Common Processing Workbench", () => {
     await waitFor(() => {
       rows = Array.from(document.querySelectorAll(".process-comparison-row"), (row) => row.textContent ?? "");
       expect(rows).toHaveLength(3);
-      expect(rows.every((text) => text.includes("history"))).toBe(true);
+      expect(rows.filter((text) => text.includes("current"))).toHaveLength(1);
+      expect(rows.find((text) => text.includes("New Process"))).toContain("current");
     });
     view.unmount();
     view = renderWorkbench(restoredSession);
@@ -499,8 +545,8 @@ describe("Common Processing Workbench", () => {
     await waitFor(() => expect(reloadedDetails.querySelectorAll(".process-comparison-row")).toHaveLength(3));
     await waitFor(() => {
       const reloadedRows = Array.from(reloadedDetails.querySelectorAll(".process-comparison-row"), (row) => row.textContent ?? "");
-      expect(reloadedRows.every((text) => text.includes("history"))).toBe(true);
-      expect(reloadedRows.some((text) => text.includes("current"))).toBe(false);
+      expect(reloadedRows.filter((text) => text.includes("current"))).toHaveLength(1);
+      expect(reloadedRows.find((text) => text.includes("New Process"))).toContain("current");
     });
     expect(outputPosts).toBe(1);
   });
@@ -1112,6 +1158,24 @@ describe("Common Processing Workbench", () => {
     expect(screen.queryByText("Selected blend")).toBeNull();
     const robustResult = processPanel().querySelector(".process-band-result");
     expect(robustResult?.textContent ?? "").toMatch(/210\.0 GPa/);
+    expect(screen.getByText("Curve response", { exact: true })).toBeTruthy();
+    expect(screen.queryByText("Preview — not saved", { exact: true })).toBeNull();
+    expect(screen.getByRole("heading", { name: "Result" })).toBeTruthy();
+    const processMethodOptions = screen.getByRole("combobox", { name: "Evaluation method" }) as HTMLSelectElement;
+    expect(Array.from(processMethodOptions.options, (option) => option.text)).toEqual([
+      "Auto robust",
+      "Linear regression",
+      "Chord",
+      "Secant",
+      "Manual slope",
+    ]);
+    for (const value of ["robust_huber", "linear_regression", "chord", "secant", "manual"]) {
+      fireEvent.change(processMethodOptions, { target: { value } });
+      expect(processMethodOptions.value).toBe(value);
+    }
+    fireEvent.change(processMethodOptions, { target: { value: "robust_huber" } });
+    fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
+    await waitFor(() => expect(screen.getByText("Preview ready.", { exact: false })).toBeTruthy());
     expect(processPanel().querySelector(".guided-step-options")?.textContent ?? "").not.toMatch(/Auto\/calculated value preview/);
     expect((screen.getByRole("button", { name: "Save processed curves" }) as HTMLButtonElement).disabled).toBe(false);
     failNextPreview = true;
@@ -1158,7 +1222,7 @@ describe("Common Processing Workbench", () => {
     expect(firstProcessOutput).not.toBe(secondProcessOutput);
     const savedDetails = document.querySelector("details.process-saved-results") as HTMLDetailsElement;
     expect(screen.getAllByText("DP600-TENSILE-02 · r1").length).toBeGreaterThan(0);
-    await waitFor(() => expect(savedDetails.querySelector("summary")?.textContent).toContain("Saved processing results (2)"));
+    await waitFor(() => expect(savedDetails.querySelector("summary")?.textContent).toContain("Saved results (2)"));
     fireEvent.click(savedDetails.querySelector(":scope > summary")!);
     await waitFor(() => expect(savedDetails.querySelectorAll(".process-comparison-row")).toHaveLength(2));
     await waitFor(() => expect(Array.from(savedDetails.querySelectorAll(".process-comparison-row"), (row) => row.textContent ?? "").join(" ")).toContain("210.0 GPa"));
@@ -1631,7 +1695,7 @@ describe("Common Processing Workbench", () => {
     expect(document.querySelector(".process-band-source")?.textContent).toBe("Specimen 01 · r1");
     expect(document.querySelector(".process-band-result")?.textContent).toContain("210.0 GPa");
     const savedDetails = document.querySelector("details.process-saved-results") as HTMLDetailsElement;
-    expect(savedDetails.querySelector("summary")?.textContent).toContain("Saved processing results (2)");
+    expect(savedDetails.querySelector("summary")?.textContent).toContain("Saved results (2)");
     fireEvent.click(savedDetails.querySelector(":scope > summary")!);
     await waitFor(() => expect(savedDetails.querySelectorAll(".process-comparison-row")).toHaveLength(2));
     await waitFor(() => {
