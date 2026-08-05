@@ -22,9 +22,11 @@
   완료했습니다. #159의 두 작업 단위가 모두 끝났습니다.
 - 순서 4 `#158 Modeling Data`는 PR #183, main `f5c69d1`에서 완료했습니다.
 - 순서 5 `#158 Modeling Process`는 제품 소유자 확인을 거쳐 PR #188, main `38571a8`에서
-  완료했습니다. 다음 미구현 단위는 순서 6 `#158 Modeling Fit`이지만 별도 Codex 작업으로 시작하며,
-  Modeling Fit·Export가 모두 끝날 때까지 #158은 열린 상태로 유지합니다. 제품 소유자가 요청한
-  Modeling Process 시각 일관성 후속 보정은 완료 단위의 범위 안에서만 진행하고 Fit을 시작하지 않습니다.
+  완료했습니다. Modeling Process 시각 일관성 후속도 PR #191, main `e7c938b`에서 완료했습니다.
+- 현재 첫 미완료 단위는 순서 6 `#158 Modeling Process 결과·저장 명료성 및 2026 기능 레퍼런스
+  갱신`입니다. 비교 서비스는 화면 모양뿐 아니라 기능 흐름과 확장 방향의 근거로 사용하되, 이 단위는
+  Process만 보정하고 Fit·Export를 시작하지 않습니다. Modeling Fit·Export가 모두 끝날 때까지 #158은
+  열린 상태로 유지합니다.
 
 #167의 승인 target은 다시 만들거나 재승인하지 않습니다. 과거 packet, correction 이미지와 완료
 보고서는 working tree에 보관하지 않고 Git/PR 이력에서 조회합니다.
@@ -68,12 +70,16 @@ packet, 검증, 검토, 제품 소유자 확인과 PR/merge를 거칩니다. iss
 | 3 | [#159 물성 데이터 등록·관리](https://github.com/pikachu444/cae-material-platform/issues/159) | 사용자가 정한 Attribute와 단위·형식에 맞춰 물성 데이터를 등록하고 검증·공개 | issue, Administration 승인 화면, import·Table·Attribute·Layout·Link·revision·권한 계약 | 등록 미리보기, 열 연결, 단위·형식·행 오류, 정확한 개정본과 사용자 지정 화면, 시각 승인, merge |
 | 4 | [#158 Modeling Data](https://github.com/pikachu444/cae-material-platform/issues/158) | 재료와 하나 이상의 시험 데이터를 정확한 개정본으로 연결하고 사용할 곡선을 선택 | issue, visual skill, inventory의 `modeling-data`, 선택된 manifest entry, test-data/link/API/state/test | 연결·단위·채널·여러 시험 데이터·오류 복구, 시각 승인, merge |
 | 5 | [#158 Modeling Process](https://github.com/pikachu444/cae-material-platform/issues/158) | 원본을 바꾸지 않고 처리 방법별 결과를 만들어 비교·저장 | issue, `modeling-process` 승인 화면, processing·revision·invalidation 계약 | 처리 설정·결과·원본 연결·재실행·무효화, 그래프와 시각 승인, merge |
-| 6 | [#158 Modeling Fit](https://github.com/pikachu444/cae-material-platform/issues/158) | 같은 처리 결과에 여러 방법을 적용해 모델을 비교하고 사용할 모델을 명시적으로 선택 | issue, `modeling-fit` 승인 화면, Fit React/API/state/test | 추천·선택·저장 상태 분리, 여러 방법/결과 보존, 그래프·키보드·시각 승인, merge |
-| 7 | [#158 Modeling Export](https://github.com/pikachu444/cae-material-platform/issues/158) | 선택 모델에서 솔버별 카드를 생성·미리보기하고 Materials DB에 연결할 결과를 준비 | issue, `modeling-export` 승인 화면, selected-model·mapping·unit-system·solver-card 계약 | 솔버·버전·단위계별 결과, 지원 수준·차단 사유, 정확한 모델 연결, 시각 승인, merge |
-| 8 | [#160 검토·승인·DB 공개·복구](https://github.com/pikachu444/cae-material-platform/issues/160) | 요청을 검토·승인하고 승인 결과를 Materials DB에서 찾고 내려받으며 실패를 복구 | issue, Activity/Admin 승인 화면, review·release·publication·download·recovery·권한 계약 | 역할별 흐름, 승인 결과 공개와 불변성, 무효화·복구·다운로드, 시각 승인, merge |
-| 9 | [#161 공통 화면 정리](https://github.com/pikachu444/cae-material-platform/issues/161) | 트리·표·그래프·상태·키보드 조작이 모든 완료 화면에서 일관됨 | issue, visual/frontend skill, 활성 화면·공통 구성요소·사용 여부와 승인 화면 | 접근성·긴 이름·스크롤·넘침, 삭제 대상 참조 0, 전체 회귀와 시각 승인, merge |
-| 10 | [#162 Ubuntu VM·문서 최종 검증](https://github.com/pikachu444/cae-material-platform/issues/162) | 지원 환경에서 전체 흐름과 역할별 복구가 재현되고 현재 문서와 화면이 일치 | issue, 병합된 기능·화면, 전체 문서 목록. 이 단계에서만 임시 문서 묶음을 읽음 | Hyper-V Ubuntu VM의 깨끗한 실행, 전체 흐름·역추적, 문서/화면 일치, 임시 자료 정리, merge |
-| 11 | [#162 공개 실측 데이터 최종 검증](https://github.com/pikachu444/cae-material-platform/issues/162) | 인터넷에서 확보한 실제 측정 샘플을 제품에 등록해 솔버 카드와 Materials 재조회까지 완료 | issue의 고정 NIST Numisheet 2020 파일·공식 해시·이용조건, 병합된 실제 제품 흐름 | 원본 바이트·출처 보존, 실제 등록·처리·여러 모델·선택·카드 생성·검토·승인·재조회·다운로드·원본 역추적 자동 확인, 최종 승인, merge |
+| 6 | [#158 Modeling Process 결과·저장 명료성 및 2026 기능 레퍼런스 갱신](https://github.com/pikachu444/cae-material-platform/issues/158) | 계산 결과와 저장 행동을 한눈에 구분하고, 비교 제품의 최신 기능 흐름을 다음 Modeling 단위의 근거로 추적 | issue의 병합 뒤 피드백, `modeling-process` 승인 화면, Siemens 2026 공식 자료, Process React/CSS/state/test | 잘림 없는 method 선택, 직접 읽히는 결과, 충분한 저장 입력, 절제된 상태·보조 문구, 명확한 saved-results disclosure, 지속 그래프·오류 복구·current/history 보존, 레퍼런스 출처 등록, 시각 승인, merge |
+| 7 | [#190 메인 오케스트레이터 acceptance 문서](https://github.com/pikachu444/cae-material-platform/issues/190) | 이후 작업의 요구·실화면·보존 계약·검증 조건이 세션과 구현자를 넘어 일관되게 추적됨 | issue, root `AGENTS.md`, orchestration workflow, desktop-engineering-ui skill의 관련 절 | 짧은 acceptance trace와 AGENTS 라우팅, known-bad 실패 예시, 역할 경계와 과잉 집착 방지 규칙, merge |
+| 8 | [#158 Modeling Fit](https://github.com/pikachu444/cae-material-platform/issues/158) | 같은 처리 결과에 여러 방법을 적용해 모델을 비교하고 사용할 모델을 명시적으로 선택 | issue, `modeling-fit` 승인 화면, Fit React/API/state/test | 추천·선택·저장 상태 분리, 여러 방법/결과 보존, 그래프·키보드·시각 승인, merge |
+| 9 | [#158 Modeling Export](https://github.com/pikachu444/cae-material-platform/issues/158) | 선택 모델에서 솔버별 카드를 생성·미리보기하고 Materials DB에 연결할 결과를 준비 | issue, `modeling-export` 승인 화면, selected-model·mapping·unit-system·solver-card 계약 | 솔버·버전·단위계별 결과, 지원 수준·차단 사유, 정확한 모델 연결, 시각 승인, merge |
+| 10 | [#189 lazy chunk 예산과 Workbench 분할 기준](https://github.com/pikachu444/cae-material-platform/issues/189) | 기능을 줄이거나 임의로 byte를 맞추지 않고 실제 사용자 비용에 근거해 Workbench 성능과 분할 시점을 관리 | issue, production build 관찰값, bundle checker, test strategy, Process/Fit/Export 계약 | raw/gzip·실제 경로 비용, warning/error 근거와 분할 촉발 기준, 필요한 경우 별도 보존적 분할, merge |
+| 11 | [#160 검토·승인·DB 공개·복구](https://github.com/pikachu444/cae-material-platform/issues/160) | 요청을 검토·승인하고 승인 결과를 Materials DB에서 찾고 내려받으며 실패를 복구 | issue, Activity/Admin 승인 화면, review·release·publication·download·recovery·권한 계약 | 역할별 흐름, 승인 결과 공개와 불변성, 무효화·복구·다운로드, 시각 승인, merge |
+| 12 | [#161 공통 화면 정리](https://github.com/pikachu444/cae-material-platform/issues/161) | 트리·표·그래프·상태·키보드 조작이 모든 완료 화면에서 일관됨 | issue, visual/frontend skill, 활성 화면·공통 구성요소·사용 여부와 승인 화면 | 접근성·긴 이름·스크롤·넘침, 삭제 대상 참조 0, 전체 회귀와 시각 승인, merge |
+| 13 | [#184 4K·고DPI 전역 대응](https://github.com/pikachu444/cae-material-platform/issues/184) | 4K와 Windows 100%·150%·200% 배율에서도 핵심 화면을 읽고 조작할 수 있음 | issue, #161 결과, 공통 크기 토큰, 필수 정상·예외 viewport와 실제 Windows 표시 환경 | 공통 배율 체계, 1366~3840 정상·고위험 상태, 실제 고DPI 정성 검토와 제품 소유자 승인, merge |
+| 14 | [#162 Ubuntu VM·문서 최종 검증](https://github.com/pikachu444/cae-material-platform/issues/162) | 지원 환경에서 전체 흐름과 역할별 복구가 재현되고 현재 문서와 화면이 일치 | issue, 병합된 기능·화면, 전체 문서 목록. 이 단계에서만 임시 문서 묶음을 읽음 | Hyper-V Ubuntu VM의 깨끗한 실행, 전체 흐름·역추적, 문서/화면 일치, 임시 자료 정리, merge |
+| 15 | [#162 공개 실측 데이터 최종 검증](https://github.com/pikachu444/cae-material-platform/issues/162) | 인터넷에서 확보한 실제 측정 샘플을 제품에 등록해 솔버 카드와 Materials 재조회까지 완료 | issue의 고정 NIST Numisheet 2020 파일·공식 해시·이용조건, 병합된 실제 제품 흐름 | 원본 바이트·출처 보존, 실제 등록·처리·여러 모델·선택·카드 생성·검토·승인·재조회·다운로드·원본 역추적 자동 확인, 최종 승인, merge |
 
 ## 새 Codex 작업 운영
 
