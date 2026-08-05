@@ -878,6 +878,12 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   const attemptedExactDocumentKey = useRef<string | null>(null);
   const intakePreviewActive = useRef(false);
   const previousWorkflowTask = useRef<ModelingWorkflowTask | null>(null);
+  // Process drafts copied or edited on the Process stage require an explicit
+  // Preview changes action. Keep the marker across stage navigation so a
+  // copied Process draft is not implicitly calculated by a neighboring stage.
+  // The origin task lets a genuine Fit/Export edit retain that stage's normal
+  // auto-preview behavior without clearing the pending Process requirement.
+  const pendingExplicitProcessPreview = useRef<{ originTask: ModelingWorkflowTask } | null>(null);
   const exactContextKey = useRef<string | null>(null);
   const contextResetPending = useRef(false);
   const previewAbortController = useRef<AbortController | null>(null);
@@ -897,6 +903,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     setLastValidPreview(null);
     setLocalCurrentOutput(null);
     attemptedExactDocumentKey.current = null;
+    pendingExplicitProcessPreview.current = null;
   }
 
   useEffect(() => {
@@ -905,7 +912,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
 
   const draftDirty = stepsText !== savedSteps.current;
 
-  function applyDraftSteps(next: string, force = false): void {
+  function applyDraftSteps(next: string, force = false, preserveCurrentOutput = false): void {
     if (next === stepsText && !force) return;
     undoSteps.current.push(stepsText);
     if (undoSteps.current.length > 50) undoSteps.current.shift();
@@ -913,10 +920,20 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     setStepsText(next);
     setFitSelection(null);
     setPreview(null);
-    setLocalCurrentOutput(null);
-    // A draft is not a revision yet, but it must never leave a downstream current chain
-    // looking valid. Saving later creates the immutable Processing Output revision.
-    onSessionEvent?.({ type: "CHANGE_PROCESS" });
+    if (isProcessTask) {
+      pendingExplicitProcessPreview.current = { originTask: "process" };
+    } else if (pendingExplicitProcessPreview.current) {
+      pendingExplicitProcessPreview.current = { originTask: workflowTask };
+    }
+    if (!preserveCurrentOutput) {
+      setLocalCurrentOutput(null);
+      // A normal draft edit is not a revision yet, but it must never leave a
+      // downstream current chain looking valid. Saving later creates the
+      // immutable Processing Output revision. Copying settings from history
+      // is the explicit exception: it creates a local draft while the saved
+      // current output remains the downstream reference until a new save.
+      onSessionEvent?.({ type: "CHANGE_PROCESS" });
+    }
     setNotice(PROCESS_DRAFT_NOTICE);
   }
 
@@ -929,6 +946,11 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     setLastValidPreview(null);
     setLocalCurrentOutput(null);
     setFitSelection(null);
+    if (isProcessTask) {
+      pendingExplicitProcessPreview.current = { originTask: "process" };
+    } else if (pendingExplicitProcessPreview.current) {
+      pendingExplicitProcessPreview.current = { originTask: workflowTask };
+    }
   }
 
   function undoDraft(): void {
@@ -939,6 +961,11 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     setPreview(null);
     setLocalCurrentOutput(null);
     setFitSelection(null);
+    if (isProcessTask) {
+      pendingExplicitProcessPreview.current = { originTask: "process" };
+    } else if (pendingExplicitProcessPreview.current) {
+      pendingExplicitProcessPreview.current = { originTask: workflowTask };
+    }
     setNotice("Restored the previous local Recipe draft state.");
   }
 
@@ -949,6 +976,11 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     setStepsText(next);
     setPreview(null);
     setLocalCurrentOutput(null);
+    if (isProcessTask) {
+      pendingExplicitProcessPreview.current = { originTask: "process" };
+    } else if (pendingExplicitProcessPreview.current) {
+      pendingExplicitProcessPreview.current = { originTask: workflowTask };
+    }
     setNotice("Reapplied the next local Recipe draft state.");
   }
 
@@ -1198,6 +1230,8 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   useEffect(() => {
     if (contextResetPending.current) return;
     if (intakePreviewActive.current || !document || !selectedProfileId || preview) return;
+    const pendingDraft = pendingExplicitProcessPreview.current;
+    if (pendingDraft && !(pendingDraft.originTask === workflowTask && workflowTask !== "process")) return;
     const key = `${selectedDocumentId}:${selectedProfileId}:${stepsText}`;
     if (autoPreviewKey.current === key) return;
     const timer = window.setTimeout(() => {
@@ -1205,7 +1239,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       void runPreview();
     }, 300);
     return () => window.clearTimeout(timer);
-  }, [document, preview, selectedDocumentId, selectedProfileId, stepsText]);
+  }, [document, isProcessTask, preview, selectedDocumentId, selectedProfileId, stepsText, workflowTask]);
 
   function applyModelingTrack(track: ModelingTrack): void {
     setModelingTrack(track);
@@ -1631,7 +1665,10 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       onSessionEvent?.({ type: "CHANGE_SELECTION" });
       setPreview(result.data);
       setLastValidPreview(result.data);
-      if (isProcessTask) preferredStepContext.current = "";
+      if (isProcessTask) {
+        pendingExplicitProcessPreview.current = null;
+        preferredStepContext.current = "";
+      }
       if (shouldSelectLastPreviewStage) {
         setSelectedStage(result.data.stages.length - 1);
         setSelectedStepIndex(result.data.stages.length - 2);
@@ -1824,11 +1861,17 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   }
 
   function useSavedSettings(output: CommonProcessingOutputResponse): void {
+    const selectedMethodId = configuredSteps[selectedStepIndex]?.method_id;
     const nextSteps = JSON.stringify(output.steps, null, 2);
-    applyDraftSteps(nextSteps, true);
+    applyDraftSteps(nextSteps, true, true);
     setOutputLabel(output.label);
     setOutputReason(`Re-run ${output.label} with the selected exact source`);
-    setSelectedStepIndex(Math.max(0, output.steps.findIndex((step) => !isFitMethod(step.method_id))));
+    const restoredMethodIndex = selectedMethodId
+      ? output.steps.findIndex((step) => step.method_id === selectedMethodId)
+      : -1;
+    setSelectedStepIndex(restoredMethodIndex >= 0
+      ? restoredMethodIndex
+      : Math.max(0, output.steps.findIndex((step) => !isFitMethod(step.method_id))));
     setNotice("Saved Process settings restored as a new draft. Preview again before saving.");
   }
 
@@ -1931,7 +1974,12 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     }
   }
 
-  const graphPreview = isProcessTask ? preview ?? lastValidPreview : preview;
+  // A Process-originated draft invalidates the promotable preview, but the
+  // last server-valid graph remains visible while the engineer explicitly
+  // previews that draft. Keep that continuity when navigating through Fit or
+  // Export; only a successful Process preview replaces the retained graph.
+  const graphPreview = preview
+    ?? ((isProcessTask || pendingExplicitProcessPreview.current) ? lastValidPreview : null);
   const activeStage = graphPreview?.stages[selectedStage] ?? null;
   const baseStage = graphPreview?.stages[0] ?? null;
   const configuredSteps = useMemo(() => {
@@ -2029,47 +2077,52 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     previousWorkflowTask.current = workflowTask;
     const exactIds = new Set(stageDocuments.map((item) => item.test_data_document_id));
     const exactKeys = new Set(stageDocuments.map((item) => modelingSessionRecordKey(item.test_data_document_id, item.current_revision.id)));
-    if (!intakePreviewActive.current && selectedDocumentId && !exactIds.has(selectedDocumentId)) {
+    // Fit/Export intentionally expose revision-strict stage lists.  A source
+    // selected in Data/Process can be valid for the shared Process context
+    // while absent from those lists; stage navigation must not turn that
+    // visibility difference into a global source reset.  Data selection,
+    // family/material changes, and exact-read failures still use their own
+    // explicit invalidation paths above.
+    const preserveSharedExactBinding = (workflowTask === "fit" || workflowTask === "export")
+      && (Boolean(selectedDocumentId) || selectedTestDataRefsRef.current.length > 0);
+    if (!preserveSharedExactBinding && !intakePreviewActive.current && selectedDocumentId && !exactIds.has(selectedDocumentId)) {
       clearExactDocumentBinding();
       setSelectedDocumentId("");
     }
     if (workflowTask === "data") {
       setEnsembleDocumentIds((current) => current.filter((id) => exactIds.has(id)));
-    } else {
+    } else if (isProcessTask) {
       setEnsembleDocumentIds((current) => {
         const compatible = current.filter((id) => exactIds.has(id));
-        if (isProcessTask) {
-          // Preserve the Data-stage membership decision, including an empty
-          // decision. The historical bridge above makes selected older
-          // revisions compatible by aggregate identity, so entering Process
-          // must not replace them with the first two current rows.
-          if (compatible.length || selectedTestDataRefsRef.current.length) return compatible;
-          return enteredStage ? stageDocuments.slice(0, 2).map((item) => item.test_data_document_id) : compatible;
-        }
-        return enteredStage || !compatible.length
-          ? stageDocuments.slice(0, 2).map((item) => item.test_data_document_id)
-          : compatible;
+        // Preserve the Data-stage membership decision, including an empty
+        // decision. The historical bridge above makes selected older
+        // revisions compatible by aggregate identity, so entering Process
+        // must not replace them with the first two current rows.
+        if (compatible.length || selectedTestDataRefsRef.current.length) return compatible;
+        return enteredStage ? stageDocuments.slice(0, 2).map((item) => item.test_data_document_id) : compatible;
       });
     }
-    setVisibleDocumentIds((current) => {
-      const historicalKeys = workflowTask === "data" || isProcessTask
-        ? selectedTestDataRefsRef.current
+    if (workflowTask === "data" || isProcessTask) {
+      setVisibleDocumentIds((current) => {
+        const historicalKeys = selectedTestDataRefsRef.current
           .filter((ref) => exactIds.has(ref.id))
-          .map(exactRefKey)
-        : [];
-      const allowedKeys = new Set([...exactKeys, ...historicalKeys]);
-      return current.filter((id) => allowedKeys.has(id));
-    });
-    setBatchDocumentIds((current) => {
-      const compatible = current.filter((id) => exactIds.has(id));
-      return compatible.length ? compatible : stageDocuments.slice(0, 2).map((item) => item.test_data_document_id);
-    });
+          .map(exactRefKey);
+        const allowedKeys = new Set([...exactKeys, ...historicalKeys]);
+        return current.filter((id) => allowedKeys.has(id));
+      });
+      setBatchDocumentIds((current) => {
+        const compatible = current.filter((id) => exactIds.has(id));
+        return compatible.length ? compatible : stageDocuments.slice(0, 2).map((item) => item.test_data_document_id);
+      });
+    }
     const currentRefs = selectedTestDataRefsRef.current;
     const exactKeysForRefs = new Set(currentRefs.map(exactRefKey));
     const kept = currentRefs.filter((ref) => exactIds.has(ref.id));
-    const nextRefs = kept.length || workflowTask === "data" || isProcessTask || !stageDocuments.length
-      ? kept
-      : stageDocuments.slice(0, 2).map(modelingSessionRefFromRecord).filter((ref) => !exactKeysForRefs.has(exactRefKey(ref)));
+    const nextRefs = workflowTask === "fit" || workflowTask === "export"
+      ? currentRefs
+      : kept.length || workflowTask === "data" || isProcessTask || !stageDocuments.length
+        ? kept
+        : stageDocuments.slice(0, 2).map(modelingSessionRefFromRecord).filter((ref) => !exactKeysForRefs.has(exactRefKey(ref)));
     const refsChanged = JSON.stringify(nextRefs) !== JSON.stringify(currentRefs);
     if (refsChanged) {
       selectedTestDataRefsRef.current = nextRefs;
@@ -2351,6 +2404,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
 
   function openWorkflowTask(task: ModelingWorkflowTask): void {
     if (task === "export") setPlotView("pipeline");
+    if (task === "process" && pendingExplicitProcessPreview.current) setPreview(null);
     setWorkflowTask(task);
     setInspectorVisible(true);
     onNavigate(`/modeling?stage=${task}&family=${modelingTrack}`);
@@ -2522,7 +2576,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
             {isProcessTask || workflowTask === "fit" ? <div className={`configured-step-list${isApprovedMetalFit ? " approved-fit-process-tree" : ""}`}><p className="rail-title">{isApprovedMetalFit ? "Process" : stageRail}{isApprovedMetalFit ? <span>4 steps</span> : null}</p>{displayedRailEntries.map(({ step, index, label, title, railIndex }) => { const groupedFitRail = workflowTask === "fit" && modelingTrack === "metal"; return <button type="button" title={title} disabled={processBlocked} className={selectedStepIndex === index ? "active" : ""} key={`${index}:${step.method_id}`} onClick={() => focusConfiguredStep(index)}><span>{groupedFitRail ? railIndex + 1 : index + 1}</span><span><strong>{label}</strong>{!groupedFitRail ? <small>{step.method_version}</small> : null}</span></button>; })}{isApprovedMetalFit ? <footer className="curve-tree-foot">Details in Evidence</footer> : null}</div> : null}
           </> : null}
           plot={<article className="persistent-modeling-plot" id="modeling-fit">
-            <div className="section-heading"><div><p className="workspace-caption">{workflowTask === "fit" ? "Stress response · observed evidence and hardening candidates" : workflowTask === "data" ? "Source preview" : isProcessTask ? "Prepare test curves" : "Selected model response"}</p><h2>{activePlotView === "ensemble" ? "Replicate statistics" : workflowTask === "export" ? "Test data & selected model" : activeStage ? methods.find((method) => method.method_id === activeStage.method_id)?.label ?? methodDisplayName(activeStage.method_id) : "Load data and preview"}</h2></div>{workflowTask !== "export" && workflowTask !== "fit" ? <div className="plot-view-switch" role="group" aria-label="Curve plot view"><button type="button" className={activePlotView === "pipeline" ? "active" : ""} disabled={!preview} onClick={() => setPlotView("pipeline")}>Response</button>{ensemblePreview ? <button type="button" className={activePlotView === "ensemble" ? "active" : ""} onClick={() => setPlotView("ensemble")}>Mean &amp; band</button> : null}{preview || ensemblePreview ? <span className="plot-preview-state">Preview — not saved</span> : null}</div> : workflowTask === "export" && preview ? <span className="plot-preview-state">Current saved fit</span> : null}</div>
+            <div className="section-heading"><div><p className="workspace-caption">{workflowTask === "fit" ? "Stress response · observed evidence and hardening candidates" : workflowTask === "data" ? "Source preview" : isProcessTask ? "Curve response" : "Selected model response"}</p><h2>{activePlotView === "ensemble" ? "Replicate statistics" : workflowTask === "export" ? "Test data & selected model" : activeStage ? methods.find((method) => method.method_id === activeStage.method_id)?.label ?? methodDisplayName(activeStage.method_id) : "Load data and preview"}</h2></div>{workflowTask !== "export" && workflowTask !== "fit" ? <div className="plot-view-switch" role="group" aria-label="Curve plot view"><button type="button" className={activePlotView === "pipeline" ? "active" : ""} disabled={!preview} onClick={() => setPlotView("pipeline")}>Response</button>{ensemblePreview ? <button type="button" className={activePlotView === "ensemble" ? "active" : ""} onClick={() => setPlotView("ensemble")}>Mean &amp; band</button> : null}{(preview || ensemblePreview) && !isProcessTask ? <span className="plot-preview-state">Preview — not saved</span> : null}</div> : workflowTask === "export" && preview ? <span className="plot-preview-state">Current saved fit</span> : null}</div>
             {graphPreview && activeStage && baseStage ? <EngineeringCurvePlot key={`${activeStage.method_id}:${activeStage.ordinal}:${workflowTask}`} preview={graphPreview} activeStage={activeStage} baseStage={baseStage} activeStep={activeConfiguredStep} fitSelection={fitSelection} selectedModelOnly={workflowTask === "export"} width={chart.width} height={chart.height} observedCurves={workflowTask === "data" || isProcessTask ? observedCurves : undefined} processOverlay={isProcessTask} onApplySelection={activePlotView === "pipeline" && workflowTask !== "export" ? applyGraphSelection : undefined} ensemblePreview={activePlotView === "ensemble" ? ensemblePreview : null} interactionCommand={workflowTask === "fit" ? fitPlotCommand : null} onInteractionStateChange={workflowTask === "fit" ? setFitPlotInteraction : undefined} /> : workflowTask === "data" ? <EngineeringCurvePlotEmpty width={chart.width} height={chart.height} onChooseLocal={() => window.dispatchEvent(new CustomEvent("cmp:modeling-data-source", { detail: { source: "local" } }))} /> : isProcessTask && !processSourceReady ? <EngineeringCurvePlotEmpty width={chart.width} height={chart.height} blocked message="Restore inputs." onBackToData={() => openWorkflowTask("data")} /> : <div className="modeling-plot-empty"><strong>{previewBusy ? "Updating the engineering preview…" : "The graph stays here while you prepare the curves."}</strong><p>{previewBusy ? "A newer processing change replaces the previous preview request." : isProcessTask ? matchingSavedOutputs.length > 0 ? "No Process preview is active. Choose Use settings for a saved result, then select Preview changes to preview the draft." : "No Process preview is active. Select Preview changes to preview the current Process settings." : "Choose a saved Test Data revision. The graph compares real curves without changing saved data."}</p></div>}
             {ensemblePreview && activePlotView === "ensemble" ? <div className="statistics-grid compact-statistics"><article><span>Included curves</span><strong>{ensemblePreview.members.length}</strong></article><article><span>Common points</span><strong>{ensemblePreview.grid.length}</strong></article><article><span>Domain policy</span><strong>Intersection</strong></article></div> : null}
           </article>}
@@ -2642,7 +2696,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         <p className="mapping-note">Select multiple exact Test Data heads. Alignment uses only their observed domain intersection and rejects extrapolation; no raw curve or outlier is deleted.</p>
         <div className="ensemble-methods">{ensembleMethods.map((method) => <article key={method.method_id}><strong>{method.label}</strong><code>{method.method_id} · {method.version}</code><small>{method.description}</small></article>)}</div>
         <div className="ensemble-controls"><fieldset><legend>Exact Test Data members</legend>{trackDocuments.map((item) => <label key={item.test_data_document_id}><input type="checkbox" checked={ensembleDocumentIds.includes(item.test_data_document_id)} onChange={() => toggleEnsembleDocument(item.test_data_document_id)} />{item.document_key} · r{item.current_revision.revision_no}</label>)}</fieldset><label>Common grid points<input type="number" min="2" max="100000" value={ensemblePointCount} onChange={(event) => { setEnsemblePointCount(Number(event.target.value)); setEnsemblePreview(null); }} /></label><button className="button primary" type="button" disabled={busy || ensembleDocumentIds.length < 2} onClick={() => void runEnsemblePreview()}>Align and calculate</button></div>
-        {ensemblePreview && ensembleStatistic && ensembleBounds ? <div className="ensemble-results"><svg className="processing-curve ensemble-curve" role="img" aria-label="Aligned replicate curves with pointwise mean and confidence interval" viewBox={`0 0 ${chart.width} ${chart.height}`}><line x1="28" y1={chart.height - 24} x2={chart.width - 20} y2={chart.height - 24} className="chart-axis"/><line x1="28" y1="20" x2="28" y2={chart.height - 24} className="chart-axis"/>{ensemblePreview.members.map((member) => { const values = member.stage.series.find((series) => series.quantity === ensembleStatistic.quantity)?.values ?? []; return <polyline key={member.ordinal} points={xyPoints(ensemblePreview.grid, values, chart.width, chart.height, ensembleBounds)} className="curve-line ensemble-member"/>; })}<polyline points={xyPoints(ensemblePreview.grid, ensembleStatistic.confidence_95_lower, chart.width, chart.height, ensembleBounds)} className="curve-line confidence"/><polyline points={xyPoints(ensemblePreview.grid, ensembleStatistic.confidence_95_upper, chart.width, chart.height, ensembleBounds)} className="curve-line confidence"/><polyline points={xyPoints(ensemblePreview.grid, ensembleStatistic.mean, chart.width, chart.height, ensembleBounds)} className="curve-line ensemble-mean"/></svg><div className="curve-legend"><span><i className="ensemble-member"/>Members ({ensemblePreview.members.length})</span><span><i className="ensemble-mean"/>Mean</span><span><i className="confidence"/>95% mean CI</span></div><div className="statistics-grid"><article><span>Quantity</span><strong>{ensembleStatistic.quantity}</strong><small>{ensembleStatistic.unit}</small></article><article><span>Last mean</span><strong>{ensembleStatistic.mean.at(-1)?.toPrecision(6)}</strong></article><article><span>Sample SD</span><strong>{ensembleStatistic.standard_deviation.at(-1)?.toPrecision(6)}</strong></article><article><span>MAD</span><strong>{ensembleStatistic.mad.at(-1)?.toPrecision(6)}</strong></article><article><span>IQR</span><strong>{ensembleStatistic.q1.at(-1)?.toPrecision(4)} – {ensembleStatistic.q3.at(-1)?.toPrecision(4)}</strong></article></div><div className="stage-diagnostics">{ensemblePreview.diagnostics.map((item) => <p key={item}>{item}</p>)}</div></div> : <p className="muted">At least two imported Test Data identities are required. Import each replicate separately so its exact revision remains addressable.</p>}
+        {ensemblePreview && ensembleStatistic && ensembleBounds ? <div className="ensemble-results">{activePlotView !== "ensemble" ? <svg className="processing-curve ensemble-curve" role="img" aria-label="Aligned replicate curves with pointwise mean and confidence interval" viewBox={`0 0 ${chart.width} ${chart.height}`}><line x1="28" y1={chart.height - 24} x2={chart.width - 20} y2={chart.height - 24} className="chart-axis"/><line x1="28" y1="20" x2="28" y2={chart.height - 24} className="chart-axis"/>{ensemblePreview.members.map((member) => { const values = member.stage.series.find((series) => series.quantity === ensembleStatistic.quantity)?.values ?? []; return <polyline key={member.ordinal} points={xyPoints(ensemblePreview.grid, values, chart.width, chart.height, ensembleBounds)} className="curve-line ensemble-member"/>; })}<polyline points={xyPoints(ensemblePreview.grid, ensembleStatistic.confidence_95_lower, chart.width, chart.height, ensembleBounds)} className="curve-line confidence"/><polyline points={xyPoints(ensemblePreview.grid, ensembleStatistic.confidence_95_upper, chart.width, chart.height, ensembleBounds)} className="curve-line confidence"/><polyline points={xyPoints(ensemblePreview.grid, ensembleStatistic.mean, chart.width, chart.height, ensembleBounds)} className="curve-line ensemble-mean"/></svg> : null}<div className="curve-legend"><span><i className="ensemble-member"/>Members ({ensemblePreview.members.length})</span><span><i className="ensemble-mean"/>Mean</span><span><i className="confidence"/>95% mean CI</span></div><div className="statistics-grid"><article><span>Quantity</span><strong>{ensembleStatistic.quantity}</strong><small>{ensembleStatistic.unit}</small></article><article><span>Last mean</span><strong>{ensembleStatistic.mean.at(-1)?.toPrecision(6)}</strong></article><article><span>Sample SD</span><strong>{ensembleStatistic.standard_deviation.at(-1)?.toPrecision(6)}</strong></article><article><span>MAD</span><strong>{ensembleStatistic.mad.at(-1)?.toPrecision(6)}</strong></article><article><span>IQR</span><strong>{ensembleStatistic.q1.at(-1)?.toPrecision(4)} – {ensembleStatistic.q3.at(-1)?.toPrecision(4)}</strong></article></div>{activePlotView !== "ensemble" ? <div className="stage-diagnostics">{ensemblePreview.diagnostics.map((item) => <p key={item}>{item}</p>)}</div> : null}</div> : <p className="muted">At least two imported Test Data identities are required. Import each replicate separately so its exact revision remains addressable.</p>}
       </section></details> : null}
     </main>
   );

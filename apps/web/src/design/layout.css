@@ -3004,7 +3004,10 @@
   position: relative;
   z-index: 3;
   min-height: 126px;
-  max-height: 210px;
+  /* Process is a content-sized ribbon.  A fixed cap lets the save/action
+     rows paint into the persistent graph when a notice or manual controls
+     are present; the parent grid will give the graph the remaining height. */
+  max-height: none;
   overflow: visible;
 }
 
@@ -3074,7 +3077,10 @@
 
 .process-band-groups {
   display: grid;
-  grid-template-columns: minmax(440px, 1.55fr) minmax(120px, .55fr) minmax(500px, 1.45fr);
+  grid-template-columns: minmax(0, 1.55fr) minmax(220px, .55fr);
+  grid-template-areas:
+    "calculation result"
+    "save save";
   align-items: stretch;
   min-width: 0;
   border-bottom: 1px solid var(--ux-border);
@@ -3082,6 +3088,7 @@
 
 .process-band-group {
   display: grid;
+  grid-area: calculation;
   min-width: 0;
   align-content: start;
   gap: 3px;
@@ -3090,6 +3097,16 @@
 
 .process-band-group + .process-band-group {
   border-left: 1px solid var(--ux-border);
+}
+
+.process-band-preview {
+  grid-area: result;
+}
+
+.process-band-save-result {
+  grid-area: save;
+  border-top: 1px solid var(--ux-border);
+  border-left: 0;
 }
 
 .process-band-group > h3 {
@@ -3190,6 +3207,13 @@
   box-sizing: border-box;
   min-height: 28px;
   height: 28px;
+  padding-block: 0;
+  line-height: 1.2;
+}
+
+.process-band-controls :is(input, select) {
+  padding-inline: 6px;
+  font-size: 13px;
 }
 
 .process-band-controls input[type="range"] {
@@ -3218,6 +3242,10 @@
   min-width: 0;
   min-height: 28px;
   height: 28px;
+  padding-block: 0;
+  padding-inline: 6px;
+  line-height: 1.2;
+  font-size: 13px;
 }
 
 .process-band-result {
@@ -3232,6 +3260,12 @@
   line-height: 18px;
 }
 
+.process-band-result small {
+  max-width: 34rem;
+  line-height: 14px;
+  overflow-wrap: anywhere;
+}
+
 .process-band-status {
   justify-content: space-between;
   min-height: 20px;
@@ -3244,6 +3278,18 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* The Process result is the direct server response.  Keep its action-needed
+   note compact while letting the saved-results disclosure provide the optional
+   comparison surface below. */
+.modeling-process-workspace-bounded .persistent-modeling-plot {
+  min-height: 280px;
+}
+
+.modeling-process-workspace-bounded .persistent-modeling-plot .processing-curve.interactive,
+.modeling-process-workspace-bounded .persistent-modeling-plot .engineering-curve-plot-empty-svg {
+  min-height: 230px;
 }
 
 /* Process is the only normal surface whose top actions share a deliberately
@@ -5130,7 +5176,7 @@
 }
 
 .application-shell main.processing-workbench-page.stage-process .process-band-save {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) max-content;
+  grid-template-columns: minmax(240px, .8fr) minmax(360px, 1.2fr) max-content;
 }
 
 .application-shell main.processing-workbench-page.stage-process .process-band-save > .button {

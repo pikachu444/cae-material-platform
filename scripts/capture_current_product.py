@@ -20,7 +20,7 @@ from typing import TYPE_CHECKING
 from urllib.parse import parse_qs, urlsplit
 
 if TYPE_CHECKING:
-    from playwright.sync_api import Browser, Page, Route
+    from playwright.sync_api import Browser, Locator, Page, Route
 
 VIEWPORTS = ((1366, 768), (1440, 900), (1920, 1080))
 WIDE_VIEWPORTS = ((2560, 1440), (3840, 2160))
@@ -35,6 +35,7 @@ MODELING_PROCESS_FIT_OUTPUTS = tuple(
 )
 MODELING_PROCESS_OUTPUTS = (
     *(f"modeling-process-{width}x{height}.png" for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)),
+    "modeling-process-linear-regression-1366x768.png",
     "modeling-process-blocked-1440x900.png",
     "modeling-process-exact-read-failed-1440x900.png",
     "modeling-process-siblings-1440x900.png",
@@ -103,6 +104,7 @@ CURRENT_CAPTURE_OUTPUTS = (
     "modeling-data-empty-1440x900.png",
     "modeling-data-invalid-1440x900.png",
     "modeling-process-1366x768.png",
+    "modeling-process-linear-regression-1366x768.png",
     "modeling-process-1440x900.png",
     "modeling-process-1920x1080.png",
     "modeling-process-2560x1440.png",
@@ -1053,7 +1055,18 @@ def _ensure_activity_review_fixture(page: Page, base_url: str) -> None:
 
 
 def _open_modeling_stage(page: Page, stage: str) -> None:
-    page.locator(".modeling-stage-shell").get_by_text(stage.title(), exact=True).click()
+    stage_title = stage.title()
+    stage_button = page.locator(".modeling-stage-shell button:visible").filter(
+        has=page.locator("strong").filter(
+            has_text=re.compile(rf"^{re.escape(stage_title)}$")
+        )
+    )
+    stage_button.wait_for(state="visible", timeout=30_000)
+    if stage_button.count() != 1:
+        raise RuntimeError(
+            f"Modeling stage {stage_title!r} did not resolve to exactly one visible stage button"
+        )
+    stage_button.click()
 
 
 def _wait_for_modeling_data_surface(page: Page) -> None:
@@ -1622,7 +1635,11 @@ def _assert_no_mis_pinned_capture_labels(
         },
     }
     for output in outputs:
-        if output.get("label") not in {"Robust elastic", "Chord elastic"}:
+        if output.get("label") not in {
+            "Robust elastic",
+            "Chord elastic",
+            "Elastic window 0.0005-0.0025",
+        }:
             continue
         if not _is_non_fit_process_output(output):
             raise RuntimeError(
@@ -1702,6 +1719,88 @@ def _assert_process_output_configuration(
         raise RuntimeError(f"Saved Process sibling range drifted: {output_id!r} {options!r}")
 
 
+def _assert_resumable_modeling_process_outputs(
+    outputs: list[dict[str, object]],
+    source: dict[str, object],
+    profile: dict[str, object],
+) -> dict[str, dict[str, object]]:
+    """Validate the one exact three-output state produced by the interrupted capture."""
+    if len(outputs) != 3:
+        raise RuntimeError(
+            "Modeling Process resume requires exactly three matching outputs: "
+            f"got {len(outputs)}"
+        )
+    labels = [output.get("label") for output in outputs]
+    expected_labels = {
+        "Robust elastic",
+        "Chord elastic",
+        "Elastic window 0.0005-0.0025",
+    }
+    if (
+        any(not isinstance(label, str) for label in labels)
+        or set(labels) != expected_labels
+        or len(set(labels)) != 3
+    ):
+        raise RuntimeError(f"Interrupted Process outputs have wrong exact labels: {labels!r}")
+    output_ids = [output.get("processing_output_id") for output in outputs]
+    if (
+        any(not isinstance(output_id, str) or not output_id for output_id in output_ids)
+        or len({output_id for output_id in output_ids if isinstance(output_id, str)}) != 3
+    ):
+        raise RuntimeError(
+            "Interrupted Process outputs have duplicate or missing identities: "
+            f"{output_ids!r}"
+        )
+    revision_ids = [
+        output.get("current_revision", {}).get("id")
+        if isinstance(output.get("current_revision"), dict)
+        else None
+        for output in outputs
+    ]
+    if (
+        any(not isinstance(revision_id, str) or not revision_id for revision_id in revision_ids)
+        or len({revision_id for revision_id in revision_ids if isinstance(revision_id, str)}) != 3
+    ):
+        raise RuntimeError(
+            "Interrupted Process outputs have duplicate or missing revision identities: "
+            f"{revision_ids!r}"
+        )
+    configurations = {
+        "Robust elastic": {
+            "expected_method": "robust_huber",
+            "expected_minimum": 0.0002,
+            "expected_maximum": 0.002,
+        },
+        "Chord elastic": {
+            "expected_method": "chord",
+            "expected_minimum": 0.001,
+            "expected_maximum": 0.003,
+        },
+        "Elastic window 0.0005-0.0025": {
+            "expected_method": "robust_huber",
+            "expected_minimum": 0.0005,
+            "expected_maximum": 0.0025,
+        },
+    }
+    by_label: dict[str, dict[str, object]] = {}
+    for output in outputs:
+        label = output.get("label")
+        if not isinstance(label, str):
+            raise RuntimeError(f"Interrupted Process output label is not text: {output!r}")
+        expected = configurations[label]
+        _assert_process_output_configuration(
+            output,
+            source,
+            profile,
+            expected_label=label,
+            expected_method=str(expected["expected_method"]),
+            expected_minimum=float(expected["expected_minimum"]),
+            expected_maximum=float(expected["expected_maximum"]),
+        )
+        by_label[label] = output
+    return by_label
+
+
 def _assert_modeling_process_saved_rows(
     page: Page,
     *,
@@ -1736,6 +1835,132 @@ def _assert_modeling_process_saved_rows(
         chord = next(text for text in row_text if "Chord elastic" in text)
         if "history" not in robust or "current" not in chord:
             raise RuntimeError(f"Saved Process current/history pointers drifted: {row_text}")
+    return row_text
+
+
+def _is_modeling_process_saved_result_response(response: object) -> bool:
+    """Identify one lazy saved-result content response from the Process disclosure."""
+    request = getattr(response, "request", None)
+    path = urlsplit(str(getattr(response, "url", ""))).path.rstrip("/")
+    return (
+        str(getattr(request, "method", "")).upper() == "GET"
+        and re.fullmatch(r"/api/v1/processing-outputs/[^/]+/content", path) is not None
+    )
+
+
+def _wait_for_modeling_process_saved_rows_refresh(page: Page, summary: Locator) -> None:
+    """Wait for the toggle-triggered content requests and their settled render."""
+    content_responses: dict[str, object] = {}
+
+    def record_response(response: object) -> None:
+        if _is_modeling_process_saved_result_response(response):
+            content_responses.setdefault(str(getattr(response, "url", "")), response)
+
+    page.on("response", record_response)
+    try:
+        # The native disclosure toggle starts all three lazy content requests.
+        # Require the first response before observing the settled DOM so a cached
+        # ready render from before the toggle cannot satisfy the state check.
+        with page.expect_response(
+            _is_modeling_process_saved_result_response,
+            timeout=30_000,
+        ) as first_response_info:
+            summary.click()
+        first_response = first_response_info.value
+        record_response(first_response)
+        # The disclosure starts all three requests together.  Polling the real
+        # disclosure DOM after the first response both proves that the render
+        # consumed the responses and pumps Playwright's event loop so the
+        # response listener observes every remaining callback.  A second
+        # response wait would reintroduce the missed-event race.
+        page.wait_for_function(
+            """() => {
+              const details = document.querySelector('details.process-saved-results');
+              const rows = [...document.querySelectorAll(
+                'details.process-saved-results .process-comparison-row'
+              )];
+              return details instanceof HTMLDetailsElement
+                && details.open
+                && rows.length === 3
+                && rows.every(row => !(row.textContent ?? '').includes('Loading saved result…'));
+            }""",
+            timeout=30_000,
+        )
+        if len(content_responses) != 3:
+            raise RuntimeError(
+                "Saved Process content refresh expected exactly three unique content "
+                f"responses, got {len(content_responses)}: {sorted(content_responses)!r}"
+            )
+        responses = list(content_responses.values())
+        failed = []
+        for response in responses:
+            status = getattr(response, "status", None)
+            if (
+                not bool(getattr(response, "ok", False))
+                or not isinstance(status, int)
+                or not 200 <= status < 300
+            ):
+                failed.append(response)
+        if failed:
+            statuses = [getattr(response, "status", "unknown") for response in failed]
+            raise RuntimeError(
+                "Saved Process content refresh returned a non-2xx response: "
+                f"{statuses!r}"
+            )
+        # Keep the two-frame render boundary after response validation and
+        # before the scalar/current-history assertions in the caller.
+        page.evaluate(
+            """async () => {
+              await new Promise(requestAnimationFrame);
+              await new Promise(requestAnimationFrame);
+            }"""
+        )
+    finally:
+        page.remove_listener("response", record_response)
+
+
+def _assert_modeling_process_saved_rows_three(
+    page: Page,
+    *,
+    current_label: str,
+) -> list[str]:
+    """Verify the primary journey's current result plus two immutable siblings."""
+    details = page.locator("details.process-saved-results")
+    details.wait_for(state="visible", timeout=30_000)
+    rows = details.locator(".process-comparison-row")
+    disclosure_was_open = details.get_attribute("open") is not None
+    if not disclosure_was_open:
+        _wait_for_modeling_process_saved_rows_refresh(
+            page,
+            details.locator(":scope > summary"),
+        )
+    else:
+        page.wait_for_function(
+            """() => {
+              const rows = [...document.querySelectorAll(
+                'details.process-saved-results .process-comparison-row'
+              )];
+              return rows.length === 3
+                && rows.every(row => !(row.textContent ?? '').includes('Loading saved result…'));
+            }""",
+            timeout=30_000,
+        )
+    row_text = rows.all_inner_texts()
+    if len(row_text) != 3:
+        raise RuntimeError(f"Saved Process comparison must contain exactly three rows: {row_text}")
+    for label, scalar in (
+        ("Robust elastic", "210.0 GPa"),
+        ("Chord elastic", "120.0 GPa"),
+        (current_label, "210.0 GPa"),
+    ):
+        matching = [text for text in row_text if label in text]
+        if len(matching) != 1 or scalar not in matching[0] or "r1" not in matching[0]:
+            raise RuntimeError(f"Saved Process row is missing exact {label} evidence: {row_text}")
+    current_rows = [text for text in row_text if "current" in text]
+    if len(current_rows) != 1 or current_label not in current_rows[0]:
+        raise RuntimeError(f"Saved Process current pointer drifted: {row_text}")
+    if sum("history" in text for text in row_text) != 2:
+        raise RuntimeError(f"Saved Process history rows drifted: {row_text}")
     return row_text
 
 
@@ -1872,7 +2097,7 @@ def _assert_modeling_process_saved_rows_reachable(page: Page) -> None:
           }).concat([{
             layout: true,
             rowCount: rows.length,
-            twoRowsWithoutScroll: Boolean(
+            rowsWithoutScroll: Boolean(
               region
                 && region.scrollHeight <= region.clientHeight + 1
                 && region.clientWidth >= region.scrollWidth - 1,
@@ -1909,15 +2134,15 @@ def _assert_modeling_process_saved_rows_reachable(page: Page) -> None:
           }]);
         }"""
     )
-    if not isinstance(checks, list) or len(checks) != 3:
+    if not isinstance(checks, list) or len(checks) != 4:
         raise RuntimeError(f"Saved Process reachability check found {checks!r}")
     rows = checks[:-1]
     layout = checks[-1]
     if (
         not isinstance(layout, dict)
         or layout.get("layout") is not True
-        or layout.get("rowCount") != 2
-        or not layout.get("twoRowsWithoutScroll")
+        or layout.get("rowCount") != 3
+        or not layout.get("rowsWithoutScroll")
         or not layout.get("disclosureContained")
         or not layout.get("disclosureAbovePlot")
         or not layout.get("plotUseful")
@@ -1992,6 +2217,31 @@ def _patch_capture_processing_output_pointer(
         }""",
         pointer,
     )
+
+
+def _assert_capture_processing_output_pointer(
+    page: Page, output: dict[str, object]
+) -> None:
+    """Require session state to pin the exact immutable output after recovery."""
+    revision = output.get("current_revision")
+    output_id = output.get("processing_output_id")
+    if not isinstance(revision, dict) or not isinstance(output_id, str):
+        raise RuntimeError(f"Cannot verify capture pointer from malformed output: {output!r}")
+    expected = {
+        "id": output_id,
+        "revisionId": revision.get("id"),
+        "label": output.get("label"),
+        "revisionNo": revision.get("revision_no"),
+    }
+    pointer = page.evaluate(
+        """() => {
+          const raw = window.sessionStorage.getItem("cmp.modeling.recent-session.v4");
+          if (!raw) throw new Error("Modeling session v4 is missing after pointer restore");
+          return JSON.parse(raw).processingOutput || null;
+        }"""
+    )
+    if pointer != expected:
+        raise RuntimeError(f"Capture pointer did not restore the exact current output: {pointer!r}")
 
 
 def _save_exact_fit_selection(page: Page) -> None:
@@ -2259,7 +2509,14 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
         page.context.close()
 
 
-def _measure_process_fit(page: Page, stage: str, width: int, height: int) -> dict[str, float]:
+def _measure_process_fit(
+    page: Page,
+    stage: str,
+    width: int,
+    height: int,
+    *,
+    minimum_svg_height: int | None = None,
+) -> dict[str, float]:
     measurement = page.evaluate(
         """() => {
           const box = selector => document.querySelector(selector)?.getBoundingClientRect();
@@ -2381,9 +2638,10 @@ def _measure_process_fit(page: Page, stage: str, width: int, height: int) -> dic
         # Data keeps a slightly taller source-selection ribbon than Process/Fit.
         # Preserve a large graph without treating a single-digit pixel
         # difference at the 900px viewport as a structural failure.
-        minimum = 300 if height == 768 else 420
+        default_minimum = 300 if height == 768 else 420
     else:
-        minimum = 330 if height == 768 else 430
+        default_minimum = 330 if height == 768 else 430
+    minimum = minimum_svg_height if minimum_svg_height is not None else default_minimum
     if measurement["svgHeight"] < minimum or measurement["drawableRatio"] < 0.72:
         raise RuntimeError(f"{stage} geometry gate failed at {width}x{height}: {measurement}")
     if width == 1440 and measurement["svgWidth"] < 1050:
@@ -2575,15 +2833,41 @@ def _wait_for_modeling_process_plot_size(page: Page) -> None:
     )
 
 
+def _click_modeling_process_preview_and_wait(page: Page) -> None:
+    """Wait for the new Process preview POST, then require an idle action bar."""
+    preview = page.get_by_role("button", name="Preview changes", exact=True)
+    with page.expect_response(
+        lambda response: response.request.method == "POST"
+        and urlsplit(response.url).path.endswith("/processing:preview"),
+        timeout=30_000,
+    ) as response_info:
+        preview.click()
+    response = response_info.value
+    if not response.ok:
+        raise RuntimeError(f"Process preview request failed: {response.status}")
+    page.get_by_role("button", name="Preview changes", exact=True).wait_for(
+        state="visible", timeout=30_000
+    )
+    page.wait_for_function(
+        """() => {
+          const preview = [...document.querySelectorAll('button')]
+            .find(button => button.textContent?.trim() === 'Preview changes');
+          const updating = [...document.querySelectorAll('button')]
+            .some(button => button.textContent?.trim() === 'Updating…');
+          return Boolean(preview && !preview.disabled && !updating);
+        }""",
+        timeout=30_000,
+    )
+    page.get_by_text("Preview ready", exact=False).wait_for(timeout=30_000)
+
+
 def _assert_modeling_process_preview(
     page: Page,
     expected_modulus: str = "210.0 GPa",
     method_label: str = "Auto robust",
 ) -> None:
     """Run the focused Process preview and assert its normal non-Fit surface."""
-    preview = page.get_by_role("button", name="Preview changes", exact=True)
-    preview.click()
-    page.get_by_text("Preview ready", exact=False).wait_for(timeout=30_000)
+    _click_modeling_process_preview_and_wait(page)
     _wait_modeling_process_panel(page)
     _wait_for_modeling_process_plot_size(page)
     panel = page.locator('[data-modeling-process-panel="ready"]')
@@ -2594,7 +2878,7 @@ def _assert_modeling_process_preview(
     if source.inner_text().strip() != PROCESS_SOURCE_VISIBLE_IDENTITY:
         raise RuntimeError(f"Process preview source is not exact Specimen 01 r1: {source.inner_text()!r}")
     heading = page.locator(".persistent-modeling-plot > .section-heading")
-    heading.get_by_text("Prepare test curves", exact=True).wait_for(state="visible", timeout=30_000)
+    heading.get_by_text("Curve response", exact=True).wait_for(state="visible", timeout=30_000)
     toolbar = page.locator(".persistent-modeling-plot > .modeling-plot-toolbar")
     toolbar.wait_for(state="visible", timeout=30_000)
     for control in ("Reset view", "Pan", "Select range"):
@@ -2609,6 +2893,32 @@ def _assert_modeling_process_preview(
     controls = panel.locator(".process-band-controls")
     method = controls.get_by_role("combobox", name="Evaluation method", exact=True)
     method.wait_for(state="visible", timeout=30_000)
+    expected_methods = [
+        ("robust_huber", "Auto robust"),
+        ("linear_regression", "Linear regression"),
+        ("chord", "Chord"),
+        ("secant", "Secant"),
+        ("manual", "Manual slope"),
+    ]
+    if method.locator("option").all_inner_texts() != [label for _, label in expected_methods]:
+        raise RuntimeError("Process Evaluation method options drifted")
+    method_by_label = {label: value for value, label in expected_methods}
+    for value, label in expected_methods:
+        # select_option exercises the pointer path; Home/ArrowDown exercises
+        # the native keyboard path without replacing the native select.
+        method.select_option(value)
+        if method.input_value() != value:
+            raise RuntimeError(f"Process pointer method selection drifted: {label!r}")
+        method.focus()
+        method.press("Home")
+        for _ in range(expected_methods.index((value, label))):
+            method.press("ArrowDown")
+        if method.input_value() != value:
+            raise RuntimeError(f"Process keyboard method selection drifted: {label!r}")
+    method.select_option(method_by_label[method_label])
+    _wait_modeling_process_panel(page)
+    _click_modeling_process_preview_and_wait(page)
+    _wait_for_modeling_process_plot_size(page)
     if method.locator("option:checked").inner_text() != method_label:
         raise RuntimeError(f"Process preview method drifted: expected {method_label!r}")
     for label in ("Elastic range start", "Elastic range end"):
@@ -2669,7 +2979,13 @@ def _assert_modeling_process_manual_surface(page: Page) -> None:
     if plot_box is None or plot_box["height"] < 280 or svg_box is None or svg_box["height"] < 230:
         raise RuntimeError(f"Process manual surface compressed the plot: plot={plot_box}, svg={svg_box}")
     viewport = page.evaluate("() => ({ width: window.innerWidth, height: window.innerHeight })")
-    _measure_process_fit(page, "process", int(viewport["width"]), int(viewport["height"]))
+    _measure_process_fit(
+        page,
+        "process",
+        int(viewport["width"]),
+        int(viewport["height"]),
+        minimum_svg_height=230,
+    )
     auto = controls.get_by_role("combobox", name="Evaluation method", exact=True)
     auto.select_option("robust_huber")
     page.wait_for_function(
@@ -2677,9 +2993,7 @@ def _assert_modeling_process_manual_surface(page: Page) -> None:
           ?.value === 'robust_huber'""",
         timeout=30_000,
     )
-    preview = page.get_by_role("button", name="Preview changes", exact=True)
-    preview.click()
-    page.get_by_text("Preview ready", exact=False).wait_for(timeout=30_000)
+    _click_modeling_process_preview_and_wait(page)
     _wait_modeling_process_panel(page)
     _wait_for_modeling_process_plot_size(page)
     controls = page.locator('[data-modeling-process-panel="ready"] .process-band-controls')
@@ -2693,11 +3007,14 @@ def _assert_modeling_process_geometry(page: Page) -> None:
     ribbon = _bounding_box_edges(page.locator(".modeling-task-ribbon").bounding_box())
     panel = _bounding_box_edges(page.locator('[data-modeling-process-panel="ready"]').bounding_box())
     plot = _bounding_box_edges(page.locator(".persistent-modeling-plot").bounding_box())
+    svg = _bounding_box_edges(page.locator(".persistent-modeling-plot svg[role='img']").bounding_box())
     save_band = _bounding_box_edges(page.locator(".process-band-save").bounding_box())
     save = page.get_by_role("button", name="Save processed curves", exact=True)
     save_box = _bounding_box_edges(save.bounding_box())
-    if ribbon is None or panel is None or plot is None or save_band is None or save_box is None:
+    if ribbon is None or panel is None or plot is None or svg is None or save_band is None or save_box is None:
         raise RuntimeError("Process preview geometry is unavailable")
+    if plot["height"] < 280 or svg["height"] < 230:
+        raise RuntimeError(f"Process plot geometry fell below the required minima: plot={plot}, svg={svg}")
     if panel["left"] < ribbon["left"] - 1 or panel["right"] > ribbon["right"] + 1 or panel["top"] < ribbon["top"] - 1 or panel["bottom"] > ribbon["bottom"] + 1:
         raise RuntimeError(f"Process panel escaped the task ribbon: panel={panel}, ribbon={ribbon}")
     if save_band["bottom"] > plot["top"] + 1 or save_box["bottom"] > plot["top"] + 1:
@@ -2718,6 +3035,190 @@ def _assert_modeling_process_geometry(page: Page) -> None:
     if not hit["insideSave"] or hit["graph"] or hit["svg"]:
         raise RuntimeError(f"Process Save center is intercepted by graph/SVG: {hit}")
     _assert_modeling_process_table_geometry(page)
+
+
+def _assert_modeling_process_draft_geometry(page: Page) -> None:
+    """Exercise the action-needed draft height and restore a settled preview."""
+    method = page.locator(
+        '[data-modeling-process-panel="ready"] select[aria-label="Evaluation method"]'
+    )
+    method.wait_for(state="visible", timeout=30_000)
+    current = method.input_value()
+    draft = "chord" if current != "chord" else "linear_regression"
+    method.select_option(draft)
+    page.wait_for_function(
+        """() => {
+          const preview = [...document.querySelectorAll('button')]
+            .find(button => button.textContent?.trim() === 'Preview changes');
+          return Boolean(preview && !preview.disabled);
+        }""",
+        timeout=30_000,
+    )
+    _assert_modeling_process_geometry(page)
+    method.select_option(current)
+    _click_modeling_process_preview_and_wait(page)
+    _wait_for_modeling_process_plot_size(page)
+
+
+def _assert_modeling_process_stage_round_trip(
+    page: Page,
+    base_url: str,
+    *,
+    expected_current_output: dict[str, object],
+    expected_current_label: str,
+) -> None:
+    """Keep one copied history draft and the saved current through Data→Fit→Export→Process."""
+    panel = page.locator('[data-modeling-process-panel="ready"]')
+    panel.wait_for(state="visible", timeout=30_000)
+    source = panel.locator(".process-band-source")
+    if source.inner_text().strip() != PROCESS_SOURCE_VISIBLE_IDENTITY:
+        raise RuntimeError(f"Process round-trip source drifted: {source.inner_text()!r}")
+    label = panel.get_by_role("textbox", name="Processed curve label", exact=True)
+    reason = panel.get_by_role("textbox", name="Save reason", exact=True)
+    draft_label = label.input_value()
+    draft_reason = reason.input_value()
+    method = panel.get_by_role("combobox", name="Evaluation method", exact=True)
+    draft_method = method.input_value()
+    draft_range_start = panel.get_by_role("spinbutton", name="Elastic range start", exact=True).input_value()
+    draft_range_end = panel.get_by_role("spinbutton", name="Elastic range end", exact=True).input_value()
+    if draft_method != "chord" or draft_range_start != "0.001" or draft_range_end != "0.003":
+        raise RuntimeError(
+            "Process round-trip did not start from the copied Chord draft settings: "
+            f"method={draft_method!r}, range={draft_range_start!r}–{draft_range_end!r}"
+        )
+    panel.locator(".process-band-result").get_by_text("210.0 GPa", exact=True).wait_for(timeout=30_000)
+    graph = page.locator(".persistent-modeling-plot svg[role='img']")
+    graph.wait_for(state="visible", timeout=30_000)
+    graph_label = graph.get_attribute("aria-label")
+    graph_box = graph.bounding_box()
+    if not graph_label or graph_box is None or graph_box["width"] <= 0 or graph_box["height"] <= 0:
+        raise RuntimeError("Process round-trip graph is not a visible retained engineering graph")
+
+    expected_current_output_id = expected_current_output.get("processing_output_id")
+    if not isinstance(expected_current_output_id, str) or not expected_current_output_id:
+        raise RuntimeError(
+            "Process round-trip expected current output has no stable identity: "
+            f"{expected_current_output!r}"
+        )
+    source_pin, profile_pin = _process_session_pins(page)
+    before_outputs = _matching_process_outputs(
+        _list_processing_outputs(page, base_url), source_pin, profile_pin
+    )
+    before_by_id = {
+        str(item.get("processing_output_id")): item
+        for item in before_outputs
+        if item.get("processing_output_id")
+    }
+    before_rows = _assert_modeling_process_saved_rows_three(
+        page,
+        current_label=expected_current_label,
+    )
+    if not any(expected_current_label in row and "current" in row for row in before_rows):
+        raise RuntimeError("Process round-trip did not expose the newly saved output as the sole current row")
+    if expected_current_output_id not in before_by_id:
+        raise RuntimeError("Process round-trip current output identity is missing before stage navigation")
+
+    _assert_capture_processing_output_pointer(page, expected_current_output)
+
+    mutation_requests: list[str] = []
+    data_preview_requests: list[str] = []
+    forbidden_preview_requests: list[str] = []
+    mutation_tokens = ("processing-outputs", "selection", "export")
+    preview_path = "/processing:preview"
+    active_stage = "process"
+
+    def record_mutation(request: object) -> None:
+        method_name = str(getattr(request, "method", "")).upper()
+        path = urlsplit(str(getattr(request, "url", ""))).path.lower()
+        if method_name not in {"GET", "HEAD", "OPTIONS"} and any(
+            token in path for token in mutation_tokens
+        ):
+            mutation_requests.append(f"{method_name} {path}")
+        if path.endswith(preview_path):
+            try:
+                payload = getattr(request, "post_data_json", None)
+            except Exception:
+                payload = None
+            steps = payload.get("steps") if isinstance(payload, dict) else None
+            request_label = (
+                f"{method_name} {path} stage={active_stage} steps={steps!r}"
+            )
+            if active_stage == "data" and steps == []:
+                data_preview_requests.append(request_label)
+            else:
+                forbidden_preview_requests.append(request_label)
+
+    page.on("request", record_mutation)
+    # Close first so the row helper owns the new opening toggle and can gate its
+    # refresh responses before any stage navigation begins.
+    details = page.locator("details.process-saved-results")
+    if details.get_attribute("open") is not None:
+        details.locator(":scope > summary").click()
+    rerender_rows = _assert_modeling_process_saved_rows_three(
+        page,
+        current_label=expected_current_label,
+    )
+    if rerender_rows != before_rows:
+        raise RuntimeError("Process rerender changed saved row identities/settings or current pointer")
+    for stage in ("data", "fit", "export", "process"):
+        active_stage = stage
+        _open_modeling_stage(page, stage)
+        page.wait_for_url(re.compile(rf"stage={stage}"), timeout=30_000)
+        page.locator(".modeling-work-title strong").get_by_text(
+            STAGE_HEADINGS[stage], exact=True
+        ).wait_for(timeout=30_000)
+        _wait_for_settled(page)
+
+    _wait_modeling_process_panel(page)
+    returned_panel = page.locator('[data-modeling-process-panel="ready"]')
+    returned_panel.locator(".process-band-source").get_by_text(
+        PROCESS_SOURCE_VISIBLE_IDENTITY, exact=True
+    ).wait_for(timeout=30_000)
+    if returned_panel.get_by_role("textbox", name="Processed curve label", exact=True).input_value() != draft_label:
+        raise RuntimeError("Process round-trip lost the draft output label")
+    if returned_panel.get_by_role("textbox", name="Save reason", exact=True).input_value() != draft_reason:
+        raise RuntimeError("Process round-trip lost the draft save reason")
+    returned_method = returned_panel.get_by_role("combobox", name="Evaluation method", exact=True)
+    if returned_method.input_value() != draft_method:
+        raise RuntimeError("Process round-trip lost the copied Evaluation method")
+    if returned_panel.get_by_role("spinbutton", name="Elastic range start", exact=True).input_value() != draft_range_start:
+        raise RuntimeError("Process round-trip lost the copied elastic range start")
+    if returned_panel.get_by_role("spinbutton", name="Elastic range end", exact=True).input_value() != draft_range_end:
+        raise RuntimeError("Process round-trip lost the copied elastic range end")
+    if not returned_panel.get_by_role("button", name="Save processed curves", exact=True).is_disabled():
+        raise RuntimeError("Copied Process settings unexpectedly became saveable without a new preview")
+    returned_panel.locator(".process-band-result").get_by_text("210.0 GPa", exact=True).wait_for(timeout=30_000)
+    returned_graph = page.locator(".persistent-modeling-plot svg[role='img']")
+    returned_graph.wait_for(state="visible", timeout=30_000)
+    returned_graph_box = returned_graph.bounding_box()
+    if returned_graph.get_attribute("aria-label") != graph_label or returned_graph_box is None or returned_graph_box["width"] <= 0 or returned_graph_box["height"] <= 0:
+        raise RuntimeError("Process round-trip did not retain the same visible engineering graph")
+    after_outputs = _matching_process_outputs(
+        _list_processing_outputs(page, base_url), source_pin, profile_pin
+    )
+    after_by_id = {
+        str(item.get("processing_output_id")): item
+        for item in after_outputs
+        if item.get("processing_output_id")
+    }
+    _assert_capture_processing_output_pointer(page, expected_current_output)
+    if mutation_requests:
+        raise RuntimeError(f"Data→Fit→Export→Process navigation sent a forbidden mutation request: {mutation_requests!r}")
+    if forbidden_preview_requests:
+        raise RuntimeError(
+            "Data→Fit→Export→Process navigation sent a forbidden Process preview: "
+            f"{forbidden_preview_requests!r}"
+        )
+    if set(after_by_id) != set(before_by_id) or any(after_by_id[key] != before_by_id[key] for key in before_by_id):
+        raise RuntimeError("Data→Fit→Export→Process navigation changed saved output ids or settings")
+    after_rows = _assert_modeling_process_saved_rows_three(
+        page,
+        current_label=expected_current_label,
+    )
+    if after_rows != before_rows:
+        raise RuntimeError("Process stage round-trip changed saved row identities/settings or current pointer")
+    if expected_current_output_id not in after_by_id:
+        raise RuntimeError("Process round-trip current output identity is missing after stage navigation")
 
 
 def _assert_modeling_process_blocked(page: Page) -> None:
@@ -2855,7 +3356,11 @@ def _capture_modeling_process_fit(
 
 
 def _capture_modeling_process_only(
-    browser: Browser, base_url: str, output: Path
+    browser: Browser,
+    base_url: str,
+    output: Path,
+    *,
+    resume_modeling_process: bool = False,
 ) -> list[dict[str, float]]:
     measurements: list[dict[str, float]] = []
     for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS):
@@ -2870,7 +3375,24 @@ def _capture_modeling_process_only(
         ).wait_for(timeout=30_000)
         _wait_modeling_process_panel(page)
         _assert_modeling_process_preview(page)
+        _assert_modeling_process_draft_geometry(page)
         if width == 1366:
+            linear_method = page.locator(
+                '[data-modeling-process-panel="ready"] select[aria-label="Evaluation method"]'
+            )
+            linear_method.select_option("linear_regression")
+            _click_modeling_process_preview_and_wait(page)
+            _wait_for_modeling_process_plot_size(page)
+            if linear_method.input_value() != "linear_regression":
+                raise RuntimeError("Linear regression Process capture did not settle on its target method")
+            _assert_modeling_process_geometry(page)
+            _capture(
+                page,
+                output / "modeling-process-linear-regression-1366x768.png",
+                width,
+                height,
+                before_screenshot=lambda: _wait_for_modeling_process_plot_size(page),
+            )
             _assert_modeling_process_manual_surface(page)
         _capture(
             page,
@@ -2954,13 +3476,69 @@ def _capture_modeling_process_only(
     initial_outputs = _matching_process_outputs(
         listed_outputs, source_pin, profile_pin
     )
-    if len(initial_outputs) not in (0, 2):
+    resumed_existing_primary = False
+    if resume_modeling_process:
+        if len(initial_outputs) != 3:
+            raise RuntimeError(
+                "Modeling Process resume requires exactly three matching saved outputs; "
+                f"got {len(initial_outputs)}"
+            )
+        resumed_by_label = _assert_resumable_modeling_process_outputs(
+            initial_outputs, source_pin, profile_pin
+        )
+        elastic_output = resumed_by_label["Elastic window 0.0005-0.0025"]
+        resume_output_posts: list[str] = []
+
+        def record_resume_output_post(request: object) -> None:
+            if (
+                getattr(request, "method", "") == "POST"
+                and urlsplit(getattr(request, "url", "")).path.endswith("/processing-outputs")
+            ):
+                resume_output_posts.append(str(getattr(request, "url", "")))
+
+        siblings.on("request", record_resume_output_post)
+        _patch_capture_processing_output_pointer(siblings, elastic_output)
+        _assert_capture_processing_output_pointer(siblings, elastic_output)
+        siblings.reload()
+        siblings.wait_for_url(re.compile(r"stage=process"), timeout=30_000)
+        siblings.locator(".modeling-work-title strong").get_by_text(
+            STAGE_HEADINGS["process"], exact=True
+        ).wait_for(timeout=30_000)
+        _wait_modeling_process_panel(siblings)
+        _assert_capture_processing_output_pointer(siblings, elastic_output)
+        _assert_modeling_process_saved_rows_three(
+            siblings,
+            current_label="Elastic window 0.0005-0.0025",
+        )
+        if resume_output_posts:
+            raise RuntimeError(
+                "Modeling Process resume unexpectedly posted a Processing Output: "
+                f"{resume_output_posts!r}"
+            )
+        siblings.remove_listener("request", record_resume_output_post)
+        resumed_existing_primary = True
+        final_outputs = _matching_process_outputs(
+            _list_processing_outputs(siblings, base_url), source_pin, profile_pin
+        )
+        if {
+            output.get("processing_output_id") for output in final_outputs
+        } != {
+            output.get("processing_output_id") for output in initial_outputs
+        }:
+            raise RuntimeError("Modeling Process resume changed the immutable output identities")
+        final_output = final_outputs[
+            next(
+                index
+                for index, output in enumerate(final_outputs)
+                if output.get("processing_output_id") == elastic_output.get("processing_output_id")
+            )
+        ]
+    elif len(initial_outputs) not in (0, 2):
         raise RuntimeError(
             "Process capture requires exactly zero or two matching saved outputs before the sibling flow; "
             f"got {len(initial_outputs)}"
         )
-
-    if len(initial_outputs) == 2:
+    elif len(initial_outputs) == 2:
         labels = [output.get("label") for output in initial_outputs]
         if set(labels) != {"Robust elastic", "Chord elastic"} or len(set(labels)) != 2:
             raise RuntimeError(f"Existing Process siblings have duplicate or missing labels: {labels!r}")
@@ -3092,15 +3670,230 @@ def _capture_modeling_process_only(
             else:
                 raise RuntimeError(f"Unexpected newly saved Process sibling label: {label_value!r}")
         _assert_modeling_process_saved_rows(siblings, require_current_and_history=True)
+    if resumed_existing_primary:
+        # Resume keeps the three exact immutable outputs.  Copy the current
+        # Elastic window through the real row action so the saved current
+        # pointer survives while the exact draft is restored.
+        resume_output_posts: list[str] = []
+        resume_preview_posts: list[str] = []
+
+        def record_resume_action_request(request: object) -> None:
+            if getattr(request, "method", "") != "POST":
+                return
+            path = urlsplit(getattr(request, "url", "")).path
+            if path.endswith("/processing-outputs"):
+                resume_output_posts.append(str(getattr(request, "url", "")))
+            elif path.endswith("/processing:preview"):
+                resume_preview_posts.append(str(getattr(request, "url", "")))
+
+        siblings.on("request", record_resume_action_request)
+        resume_details = siblings.locator("details.process-saved-results")
+        resume_current_row = resume_details.locator(".process-comparison-row").filter(
+            has_text="Elastic window 0.0005-0.0025"
+        )
+        if resume_current_row.count() != 1:
+            raise RuntimeError(
+                "Resumed Process could not resolve exactly one current Elastic window row"
+            )
+        resume_current_row.get_by_role("button", name="Use settings", exact=True).click()
+        siblings.get_by_text(
+            "Saved Process settings restored as a new draft", exact=False
+        ).wait_for(timeout=30_000)
+        siblings.wait_for_timeout(350)
+        if resume_preview_posts:
+            raise RuntimeError(
+                "Current Elastic Use settings implicitly posted a Process preview: "
+                f"{resume_preview_posts!r}"
+            )
+        if resume_output_posts:
+            raise RuntimeError(
+                "Current Elastic Use settings unexpectedly posted a Processing Output: "
+                f"{resume_output_posts!r}"
+            )
+        _assert_capture_processing_output_pointer(siblings, elastic_output)
+        resume_panel = siblings.locator('[data-modeling-process-panel="ready"]')
+        resume_method = resume_panel.get_by_role(
+            "combobox", name="Evaluation method", exact=True
+        )
+        resume_start = resume_panel.get_by_role(
+            "spinbutton", name="Elastic range start", exact=True
+        )
+        resume_end = resume_panel.get_by_role(
+            "spinbutton", name="Elastic range end", exact=True
+        )
+        if (
+            resume_method.input_value() != "robust_huber"
+            or resume_start.input_value() != "0.0005"
+            or resume_end.input_value() != "0.0025"
+        ):
+            raise RuntimeError(
+                "Current Elastic Use settings did not copy robust_huber 0.0005–0.0025"
+            )
+        if not resume_panel.get_by_role(
+            "button", name="Save processed curves", exact=True
+        ).is_disabled():
+            raise RuntimeError(
+                "Current Elastic Use settings enabled Save before a new preview"
+            )
+        resume_rows_after_use = _assert_modeling_process_saved_rows_three(
+            siblings,
+            current_label="Elastic window 0.0005-0.0025",
+        )
+        if not any(
+            "Elastic window 0.0005-0.0025" in row and "current" in row
+            for row in resume_rows_after_use
+        ):
+            raise RuntimeError("Current Elastic Use settings changed the current pointer")
+
+        # Only the explicit Preview action may issue the Process preview; it
+        # must keep the exact current output and produce no new saved output.
+        preview_posts_before_explicit = len(resume_preview_posts)
+        _click_modeling_process_preview_and_wait(siblings)
+        resume_panel.locator(".process-band-result").get_by_text(
+            "210.0 GPa", exact=True
+        ).wait_for(timeout=30_000)
+        if (
+            len(resume_preview_posts) != preview_posts_before_explicit + 1
+            or resume_output_posts
+        ):
+            raise RuntimeError(
+                "Resumed Process explicit preview changed the forbidden request set: "
+                f"previews={resume_preview_posts!r}, outputs={resume_output_posts!r}"
+            )
+        if (
+            resume_method.input_value() != "robust_huber"
+            or resume_start.input_value() != "0.0005"
+            or resume_end.input_value() != "0.0025"
+        ):
+            raise RuntimeError(
+                "Resumed Process explicit preview drifted from the saved Elastic window settings"
+            )
+        _assert_capture_processing_output_pointer(siblings, elastic_output)
+        _wait_for_modeling_process_plot_size(siblings)
+        siblings.locator('.persistent-modeling-plot svg[role="img"]').wait_for(
+            state="visible", timeout=30_000
+        )
+        siblings.remove_listener("request", record_resume_action_request)
+    if not resumed_existing_primary:
+        # The primary journey adds one new immutable result after the deterministic
+        # two-sibling setup. Preview and save exactly once with the approved Auto
+        # robust elastic window before exercising historical Use settings.
+        primary_panel = siblings.locator('[data-modeling-process-panel="ready"]')
+        primary_method = primary_panel.get_by_role("combobox", name="Evaluation method", exact=True)
+        primary_start = primary_panel.get_by_role("spinbutton", name="Elastic range start", exact=True)
+        primary_end = primary_panel.get_by_role("spinbutton", name="Elastic range end", exact=True)
+        primary_method.select_option("robust_huber")
+        primary_start.fill("0.0005")
+        primary_end.fill("0.0025")
+        _click_modeling_process_preview_and_wait(siblings)
+        _wait_for_modeling_process_plot_size(siblings)
+        if primary_method.input_value() != "robust_huber":
+            raise RuntimeError("Primary Process preview method drifted from Auto robust")
+        if primary_start.input_value() != "0.0005" or primary_end.input_value() != "0.0025":
+            raise RuntimeError("Primary Process preview elastic range drifted from 0.0005–0.0025")
+        primary_panel.locator(".process-band-result").get_by_text("210.0 GPa", exact=True).wait_for(timeout=30_000)
+        primary_label = siblings.get_by_role("textbox", name="Processed curve label", exact=True)
+        primary_reason = siblings.get_by_role("textbox", name="Save reason", exact=True)
+        primary_save = siblings.get_by_role("button", name="Save processed curves", exact=True)
+        primary_label.fill("Elastic window 0.0005-0.0025")
+        primary_reason.fill("Baseline elastic evaluation for DP780 review")
+        primary_save.click()
+        siblings.get_by_text("Processed result saved and current", exact=False).wait_for(timeout=30_000)
+        final_outputs = _matching_process_outputs(
+            _list_processing_outputs(siblings, base_url), source_pin, profile_pin
+        )
+        if len(final_outputs) != 3:
+            raise RuntimeError(f"Process primary journey did not reach exactly three outputs: {final_outputs!r}")
+        final_output = next((item for item in final_outputs if item.get("label") == "Elastic window 0.0005-0.0025"), None)
+        if final_output is None:
+            raise RuntimeError("Process primary journey lost the new Elastic window output")
+        _assert_process_output_configuration(
+            final_output,
+            source_pin,
+            profile_pin,
+            expected_label="Elastic window 0.0005-0.0025",
+            expected_method="robust_huber",
+            expected_minimum=0.0005,
+            expected_maximum=0.0025,
+        )
+        _assert_modeling_process_saved_rows_three(siblings, current_label="Elastic window 0.0005-0.0025")
+
+    # History settings are a local draft action.  It must not create another
+    # persisted output or replace the newly saved output identity on the server.
+    history_output_posts: list[str] = []
+    history_preview_posts: list[str] = []
+
+    def record_history_output_post(request: object) -> None:
+        if getattr(request, "method", "") != "POST":
+            return
+        path = urlsplit(getattr(request, "url", "")).path
+        if path.endswith("/processing-outputs"):
+            history_output_posts.append(str(getattr(request, "url", "")))
+        elif path.endswith("/processing:preview"):
+            history_preview_posts.append(str(getattr(request, "url", "")))
+
+    siblings.on("request", record_history_output_post)
+    preview_posts_before_history = len(history_preview_posts)
+    details = siblings.locator("details.process-saved-results")
+    history_row = details.locator(".process-comparison-row").filter(has_text="Chord elastic")
+    history_row.get_by_role("button", name="Use settings", exact=True).click()
+    siblings.get_by_text("Saved Process settings restored as a new draft", exact=False).wait_for(timeout=30_000)
+    siblings.wait_for_timeout(350)
+    if len(history_preview_posts) != preview_posts_before_history:
+        raise RuntimeError(
+            "Use settings implicitly posted a Process preview: "
+            f"{history_preview_posts[preview_posts_before_history:]!r}"
+        )
+    if history_output_posts:
+        raise RuntimeError(f"Use settings unexpectedly posted a Processing Output: {history_output_posts!r}")
+    after_history_outputs = _matching_process_outputs(
+        _list_processing_outputs(siblings, base_url), source_pin, profile_pin
+    )
+    if {item.get("processing_output_id") for item in after_history_outputs} != {
+        item.get("processing_output_id") for item in final_outputs
+    }:
+        raise RuntimeError("Use settings changed the persisted Process output identities")
+    if not any(item.get("processing_output_id") == final_output.get("processing_output_id") for item in after_history_outputs):
+        raise RuntimeError("Use settings lost the newly saved current Process output identity")
+    history_panel = siblings.locator('[data-modeling-process-panel="ready"]')
+    if history_panel.get_by_role("combobox", name="Evaluation method", exact=True).input_value() != "chord":
+        raise RuntimeError("Chord Use settings did not copy Evaluation method=chord")
+    if (
+        history_panel.get_by_role("spinbutton", name="Elastic range start", exact=True).input_value() != "0.001"
+        or history_panel.get_by_role("spinbutton", name="Elastic range end", exact=True).input_value() != "0.003"
+    ):
+        raise RuntimeError("Chord Use settings did not copy the 0.001–0.003 elastic range")
+    if not history_panel.get_by_role("button", name="Save processed curves", exact=True).is_disabled():
+        raise RuntimeError("Chord Use settings enabled Save before a new preview")
+    history_panel.locator(".process-band-result").get_by_text("210.0 GPa", exact=True).wait_for(timeout=30_000)
+    history_rows = _assert_modeling_process_saved_rows_three(
+        siblings,
+        current_label="Elastic window 0.0005-0.0025",
+    )
+    if sum("current" in row for row in history_rows) != 1 or not any(
+        "Elastic window 0.0005-0.0025" in row and "current" in row
+        for row in history_rows
+    ):
+        raise RuntimeError("Chord Use settings changed the sole visible current Process row")
     if siblings.locator('[data-modeling-process-panel="ready"]').count() != 1:
         raise RuntimeError("Saved sibling capture lost the ready Process panel")
     _wait_modeling_process_panel(siblings)
     _assert_modeling_process_saved_rows_reachable(siblings)
+    _assert_modeling_process_stage_round_trip(
+        siblings,
+        base_url,
+        expected_current_output=final_output,
+        expected_current_label="Elastic window 0.0005-0.0025",
+    )
     _capture(
         siblings,
         output / "modeling-process-siblings-1440x900.png",
         1440,
         900,
+        before_screenshot=lambda: _assert_modeling_process_saved_rows_three(
+            siblings,
+            current_label="Elastic window 0.0005-0.0025",
+        ),
     )
     siblings.context.close()
     return measurements
@@ -3960,7 +4753,15 @@ def main() -> int:
     parser.add_argument(
         "--only-modeling-process",
         action="store_true",
-        help="Capture and replace only the eight Modeling Process viewports and settled states.",
+        help="Capture and replace only the nine Modeling Process viewports and settled states.",
+    )
+    parser.add_argument(
+        "--resume-modeling-process",
+        action="store_true",
+        help=(
+            "Resume only the interrupted three-output Modeling Process capture; "
+            "requires --only-modeling-process."
+        ),
     )
     parser.add_argument(
         "--only-modeling-consistency",
@@ -3978,6 +4779,23 @@ def main() -> int:
         ),
     )
     args = parser.parse_args()
+    if args.resume_modeling_process and not args.only_modeling_process:
+        parser.error("--resume-modeling-process requires --only-modeling-process")
+    if args.resume_modeling_process and any(
+        (
+            args.only_materials,
+            args.only_product_access,
+            args.only_administration_database,
+            args.only_administration_records,
+            args.only_activity,
+            args.only_review_submission,
+            args.only_modeling_export,
+            args.only_modeling_process_fit,
+            args.only_modeling_consistency,
+            args.only_modeling_data_session,
+        )
+    ):
+        parser.error("--resume-modeling-process cannot be combined with another capture selector")
 
     def produce(output: Path) -> None:
         with sync_playwright() as playwright:
@@ -4047,7 +4865,12 @@ def main() -> int:
                         if args.only_modeling_export
                         else _capture_modeling_process_fit(browser, args.base_url, staged)
                         if args.only_modeling_process_fit
-                        else _capture_modeling_process_only(browser, args.base_url, staged)
+                        else _capture_modeling_process_only(
+                            browser,
+                            args.base_url,
+                            staged,
+                            resume_modeling_process=args.resume_modeling_process,
+                        )
                         if args.only_modeling_process
                         else _capture_modeling_consistency(browser, args.base_url, staged)
                         if args.only_modeling_consistency
