@@ -343,7 +343,7 @@ describe("Reference elastoplastic workbench", () => {
         {
           method_id: "metal.hardening_fit_extrapolate",
           method_version: "1.0.0",
-          options: {},
+          options: { equation_contract: "altair-material-modeler-2025-v1" },
         },
       ],
       independent_quantity: "strain.true_plastic",

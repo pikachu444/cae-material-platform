@@ -1,0 +1,863 @@
+{
+  "schema_version": "1.0",
+  "fixture_id": "metal-hardening-reference-v1",
+  "title": "Independent deterministic metal hardening equation references",
+  "classification": "synthetic_non_confidential_non_production",
+  "reference_case_count": 4,
+  "curve_point_row_count": 24,
+  "normative_variant": {
+    "source_id": "altair-material-modeler-2025-curve-fitting",
+    "product": "Altair Material Modeler",
+    "version": "2025",
+    "url": "https://2025.help.altair.com/2025/material_modeler/topics/material_modeler/curve_fitting_t.htm",
+    "conflict_rule": "The published Altair 2025 equation table controls formula variants for this fixture; proprietary optimizer behavior is not inferred."
+  },
+  "generation": {
+    "method_id": "independent-decimal-closed-form-v1",
+    "runtime": "CPython 3.12.13 standard-library decimal.Decimal",
+    "decimal_precision_digits": 60,
+    "power_rule": "x**a = exp(a * ln(x)) for x > 0",
+    "serialization": "Each computed value was rounded once to 17 significant decimal digits and serialized as JSON.",
+    "production_functions_called": [],
+    "reproducibility_steps": [
+      "Set decimal context precision to 60 digits.",
+      "Parse every parameter and strain from decimal strings.",
+      "Evaluate the closed-form stress and analytical tangent shown in each family case.",
+      "Serialize finite values to 17 significant decimal digits; represent the Hockett-Sherby zero-strain singular tangent as null plus tangent_limit.",
+      "Record declarative fixture-only recovery, option, metamorphic, and canonical persistence contracts without changing the independently computed curve values.",
+      "Compute the persistence snapshot SHA-256 over sorted-key compact UTF-8 JSON and verify save/reload equality plus every declared tamper path.",
+      "Compute SHA-256 over the exact UTF-8 JSON bytes including the final newline."
+    ]
+  },
+  "units": {
+    "plastic_strain": {
+      "unit": "1",
+      "meaning": "true plastic strain"
+    },
+    "stress": {
+      "unit": "Pa",
+      "meaning": "true flow stress"
+    },
+    "tangent": {
+      "unit": "Pa",
+      "meaning": "d(true flow stress)/d(true plastic strain); strain is dimensionless"
+    },
+    "dimensionless_parameter": {
+      "unit": "1"
+    }
+  },
+  "tolerances": {
+    "strain_f64": {
+      "absolute": 1e-15,
+      "relative": 0,
+      "comparison": "abs(actual - expected) <= absolute"
+    },
+    "stress_f64": {
+      "absolute_pa": 0.000001,
+      "relative": 5e-13,
+      "comparison": "abs(actual - expected) <= max(absolute_pa, relative * abs(expected))"
+    },
+    "tangent_f64": {
+      "absolute_pa": 0.0001,
+      "relative": 2e-12,
+      "comparison": "abs(actual - expected) <= max(absolute_pa, relative * abs(expected))"
+    },
+    "residual_f64": {
+      "absolute_pa": 1e-9,
+      "relative": 0,
+      "comparison": "abs(actual - expected) <= absolute_pa"
+    },
+    "objective_f64": {
+      "absolute": 1e-20,
+      "relative": 5e-13,
+      "comparison": "abs(actual - expected) <= max(absolute, relative * abs(expected))"
+    },
+    "identifiable_parameter_recovery_fixture_only": {
+      "stress_parameter_absolute_pa": 0.01,
+      "dimensionless_parameter_absolute": 1e-9,
+      "relative": 1e-7,
+      "scope": "Noiseless synthetic recovery only; not a production material acceptance threshold."
+    }
+  },
+  "identifiability_method": {
+    "method": "Rank of the normalized, parameter-scaled analytical Jacobian at the fixture points.",
+    "scaled_jacobian": "J_scaled[:,j] = d(sigma/normalization_stress_pa)/d(theta_j) * max(abs(theta_j), scale_floor_j)",
+    "scale_floors": {
+      "1": 1e-12,
+      "Pa": 1
+    },
+    "rank_tolerance": "max(rows, columns) * IEEE-754 binary64 epsilon * largest singular value",
+    "condition_number_policy": "Record the value; this fixture does not define a production pass threshold."
+  },
+  "objective_contract": {
+    "residual_sign": "predicted_minus_observed",
+    "normalization_stress_pa": 100000000,
+    "normalized_residual": "r_i = (predicted_stress_i - observed_stress_i) / normalization_stress_pa",
+    "objective": "sum_squared_normalized_residuals = sum(r_i**2)",
+    "scipy_least_squares_cost_equivalent": "0.5 * sum_squared_normalized_residuals",
+    "perfect_noiseless_case": {
+      "observed_offset_pa": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_residual_pa": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_sum_squared_normalized_residuals": 0,
+      "expected_scipy_cost_equivalent": 0,
+      "expected_rmse_pa": 0
+    },
+    "deterministic_perturbation_case": {
+      "observed_offset_pa": [
+        1000,
+        -2000,
+        3000,
+        -4000,
+        5000,
+        -6000
+      ],
+      "expected_residual_pa": [
+        -1000,
+        2000,
+        -3000,
+        4000,
+        -5000,
+        6000
+      ],
+      "expected_sum_squared_normalized_residuals": 9.1e-9,
+      "expected_scipy_cost_equivalent": 4.55e-9,
+      "expected_rmse_pa": 3894.4404818493076
+    },
+    "applies_to_family_ids": [
+      "voce",
+      "swift",
+      "hockett_sherby",
+      "ghosh"
+    ],
+    "purpose": "Checks residual sign, normalization, aggregation, and exact-objective persistence independently of an optimizer."
+  },
+  "fixture_only_recovery_contract": {
+    "optimizer": "scipy.optimize.least_squares in the independent fixture test only",
+    "residual": "(predicted_stress_pa - expected_stress_pa) / 100000000",
+    "production_policy": "not_applicable; these starts and bounds are deterministic test inputs, not production optimizer policy",
+    "families": {
+      "voce": {
+        "parameter_names": ["sigma_0_pa", "q_pa", "b"],
+        "parameter_units": ["Pa", "Pa", "1"],
+        "expected": [300000000, 220000000, 11],
+        "initial": [280000000, 180000000, 8],
+        "lower": [1000000, 0, 0.00001],
+        "upper": [1000000000, 1000000000, 100],
+        "expected_scaled_jacobian_rank": 3
+      },
+      "swift": {
+        "parameter_names": ["k_pa", "epsilon_0", "n"],
+        "parameter_units": ["Pa", "1", "1"],
+        "expected": [650000000, 0.015, 0.24],
+        "initial": [600000000, 0.025, 0.3],
+        "lower": [1000000, 1e-8, 0.001],
+        "upper": [2000000000, 1, 1],
+        "expected_scaled_jacobian_rank": 3
+      },
+      "hockett_sherby": {
+        "parameter_names": ["sigma_0_pa", "q_pa", "b", "n"],
+        "parameter_units": ["Pa", "Pa", "1", "1"],
+        "expected": [310000000, 260000000, 8.5, 0.72],
+        "initial": [300000000, 220000000, 7, 0.8],
+        "lower": [1000000, 0, 0.000001, 0.05],
+        "upper": [1000000000, 1000000000, 100, 2],
+        "expected_scaled_jacobian_rank": 4
+      },
+      "ghosh": {
+        "parameter_names": ["k_pa", "epsilon_0", "delta_p_minus_n"],
+        "parameter_units": ["Pa", "1", "1"],
+        "expected": [420000000, 0.8, 0.24],
+        "initial": [390000000, 0.9, 0.2],
+        "lower": [1000000, 0.400001, 0.000001],
+        "upper": [2000000000, 10, 2],
+        "expected_scaled_jacobian_rank": 3,
+        "public_parameter_names_not_recovered": ["n", "p"]
+      }
+    }
+  },
+  "option_validation_contract": {
+    "equation_contract": "altair-material-modeler-2025-v1",
+    "base_options": {
+      "equation_contract": "altair-material-modeler-2025-v1",
+      "plastic_strain_quantity": "strain.true_plastic",
+      "stress_quantity": "stress.true",
+      "families": ["voce", "swift", "hockett_sherby", "ghosh"],
+      "fit_minimum_strain": 0,
+      "fit_maximum_strain": 0.4,
+      "extrapolation_maximum_strain": 0.6,
+      "output_point_count": 101,
+      "primary_family": "swift",
+      "secondary_family": "voce",
+      "primary_weight": 0.5,
+      "normalization_stress_pa": 100000000,
+      "maximum_function_evaluations": 10000,
+      "selection_reason": "Synthetic option contract only."
+    },
+    "normal_case_ids": ["base_four_family_blend"],
+    "boundary_cases": [
+      {"id": "two_families", "patch": {"families": ["voce", "ghosh"], "primary_family": "ghosh", "secondary_family": "voce"}},
+      {"id": "weight_zero", "patch": {"primary_weight": 0}},
+      {"id": "weight_one", "patch": {"primary_weight": 1}},
+      {"id": "minimum_output_and_evaluations", "patch": {"output_point_count": 21, "maximum_function_evaluations": 50}},
+      {"id": "maximum_output_and_evaluations", "patch": {"output_point_count": 501, "maximum_function_evaluations": 100000}}
+    ],
+    "error_cases": [
+      {"id": "missing_equation_contract", "remove": ["equation_contract"], "expected_error": "equation_contract"},
+      {"id": "legacy_equation_contract", "patch": {"equation_contract": "legacy"}, "expected_error": "equation_contract"},
+      {"id": "missing_plastic_strain_quantity", "remove": ["plastic_strain_quantity"], "expected_error": "plastic_strain_quantity"},
+      {"id": "missing_stress_quantity", "remove": ["stress_quantity"], "expected_error": "stress_quantity"},
+      {"id": "duplicate_family", "patch": {"families": ["voce", "voce"]}, "expected_error": "families"},
+      {"id": "selected_family_missing", "patch": {"families": ["voce", "ghosh"]}, "expected_error": "selected candidates"},
+      {"id": "reversed_fit_domain", "patch": {"fit_minimum_strain": 0.4, "fit_maximum_strain": 0.4}, "expected_error": "strain domains"},
+      {"id": "extrapolation_not_above_fit", "patch": {"extrapolation_maximum_strain": 0.4}, "expected_error": "strain domains"},
+      {"id": "boolean_output_points", "patch": {"output_point_count": true}, "expected_error": "output_point_count"},
+      {"id": "zero_normalization", "patch": {"normalization_stress_pa": 0}, "expected_error": "normalization"},
+      {"id": "blank_selection_reason", "patch": {"selection_reason": "   "}, "expected_error": "selection_reason"}
+    ]
+  },
+  "metamorphic_contract": [
+    {"id": "stress_and_normalization_scale", "relation": "Scaling all stresses, stress parameters, and normalization by the same positive factor leaves normalized objective unchanged."},
+    {"id": "ghosh_common_exponent_shift", "relation": "Replacing (n,p) with (n+c,p+c) leaves stress and tangent unchanged."},
+    {"id": "blend_commutativity", "relation": "w*A+(1-w)*B equals (1-w)*B+w*A."},
+    {"id": "candidate_order_invariance", "relation": "Reordering unique family evaluation leaves each family curve and metric unchanged."},
+    {"id": "fit_subset_invariance", "relation": "Adding observations outside the inclusive fit range leaves its objective unchanged."},
+    {"id": "nested_grid_common_coordinates", "relation": "Closed-form responses on common coordinates are identical for nested output grids."}
+  ],
+  "persistence_contract": {
+    "canonicalization": "UTF-8 JSON with sorted keys, separators comma/colon, ensure_ascii=false, allow_nan=false",
+    "snapshot": {
+      "equation_contract": "altair-material-modeler-2025-v1",
+      "input_processing_output_revision": "synthetic-processing-output-revision-v1",
+      "input_curve_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "objective": {
+        "residual_sign": "predicted_minus_observed",
+        "normalization_stress_pa": 100000000,
+        "aggregation": "sum_squared_normalized_residuals"
+      },
+      "ghosh_fit_evidence": {
+        "parameter_names": ["k_pa", "epsilon_0", "delta_p_minus_n"],
+        "parameter_values": [420000000, 0.8, 0.24],
+        "parameter_units": ["Pa", "1", "1"],
+        "public_parameters_not_recovered": ["n", "p"],
+        "formula_domain": "0 <= epsilon_p < epsilon_0"
+      },
+      "decision": {
+        "primary_family": "ghosh",
+        "secondary_family": "voce",
+        "primary_weight": 0.5,
+        "selection_reason": "Synthetic persistence contract only.",
+        "warning_acknowledged": true
+      }
+    },
+    "canonical_snapshot_sha256": "7f847d9ed69affe07ff3da9949671be0ae8b648a21ab138156daadec586944a9",
+    "tamper_paths": [
+      "equation_contract",
+      "input_curve_sha256",
+      "objective.residual_sign",
+      "objective.normalization_stress_pa",
+      "ghosh_fit_evidence.parameter_names",
+      "ghosh_fit_evidence.parameter_units",
+      "decision.primary_weight",
+      "decision.warning_acknowledged"
+    ]
+  },
+  "families": [
+    {
+      "id": "voce",
+      "display_name": "Voce",
+      "source_ids": [
+        "altair-material-modeler-2025-curve-fitting",
+        "voce-1948"
+      ],
+      "formula": "sigma = K0 + Q * (1 - exp(-B * epsilon_p))",
+      "tangent_formula": "d_sigma_d_epsilon_p = Q * B * exp(-B * epsilon_p)",
+      "domain": "epsilon_p >= 0; K0 > 0; Q >= 0; B >= 0",
+      "public_parameters": [
+        {
+          "symbol": "K0",
+          "platform_name": "sigma_0_pa",
+          "value": 300000000,
+          "unit": "Pa"
+        },
+        {
+          "symbol": "Q",
+          "platform_name": "q_pa",
+          "value": 220000000,
+          "unit": "Pa"
+        },
+        {
+          "symbol": "B",
+          "platform_name": "b",
+          "value": 11,
+          "unit": "1"
+        }
+      ],
+      "limits": [
+        {
+          "condition": "epsilon_p = 0",
+          "stress_pa": 300000000,
+          "tangent_pa": 2420000000
+        },
+        {
+          "condition": "epsilon_p -> positive_infinity",
+          "stress_pa": 520000000,
+          "tangent_pa": 0
+        }
+      ],
+      "identifiability": {
+        "expected_rank": 3,
+        "parameter_count": 3,
+        "decision": "parameter_recovery_when_scaled_jacobian_has_full_rank",
+        "boundary_warning": "Q = 0 makes B non-identifiable; a zero parameter value must not be used as a zero Jacobian column scale."
+      },
+      "recovery": {
+        "expected_parameters": [
+          "sigma_0_pa",
+          "q_pa",
+          "b"
+        ],
+        "criteria_tolerance_id": "identifiable_parameter_recovery_fixture_only",
+        "expected_curve_objective_case": "perfect_noiseless_case"
+      },
+      "expected_curve": [
+        {
+          "plastic_strain": 0,
+          "plastic_strain_unit": "1",
+          "stress_pa": 300000000,
+          "stress_unit": "Pa",
+          "stress_tolerance_id": "stress_f64",
+          "tangent_pa": 2420000000,
+          "tangent_unit": "Pa",
+          "tangent_tolerance_id": "tangent_f64"
+        },
+        {
+          "plastic_strain": 0.01,
+          "plastic_strain_unit": "1",
+          "stress_pa": 322916490.2347638,
+          "stress_unit": "Pa",
+          "stress_tolerance_id": "stress_f64",
+          "tangent_pa": 2167918607.4175982,
+          "tangent_unit": "Pa",
+          "tangent_tolerance_id": "tangent_f64"
+        },
+        {
+          "plastic_strain": 0.05,
+          "plastic_strain_unit": "1",
+          "stress_pa": 393071041.7162929,
+          "stress_unit": "Pa",
+          "stress_tolerance_id": "stress_f64",
+          "tangent_pa": 1396218541.1207778,
+          "tangent_unit": "Pa",
+          "tangent_tolerance_id": "tangent_f64"
+        },
+        {
+          "plastic_strain": 0.1,
+          "plastic_strain_unit": "1",
+          "stress_pa": 446768361.5864225,
+          "stress_unit": "Pa",
+          "stress_tolerance_id": "stress_f64",
+          "tangent_pa": 805548022.5493525,
+          "tangent_unit": "Pa",
+          "tangent_tolerance_id": "tangent_f64"
+        },
+        {
+          "plastic_strain": 0.2,
+          "plastic_strain_unit": "1",
+          "stress_pa": 495623305.16028655,
+          "stress_unit": "Pa",
+          "stress_tolerance_id": "stress_f64",
+          "tangent_pa": 268143643.236848,
+          "tangent_unit": "Pa",
+          "tangent_tolerance_id": "tangent_f64"
+        },
+        {
+          "plastic_strain": 0.4,
+          "plastic_strain_unit": "1",
+          "stress_pa": 517298985.2213249,
+          "stress_unit": "Pa",
+          "stress_tolerance_id": "stress_f64",
+          "tangent_pa": 29711162.565425627,
+          "tangent_unit": "Pa",
+          "tangent_tolerance_id": "tangent_f64"
+        }
+      ]
+    },
+    {
+      "id": "swift",
+      "display_name": "Swift",
+      "source_ids": [
+        "altair-material-modeler-2025-curve-fitting",
+        "swift-1952"
+      ],
+      "formula": "sigma = A * (epsilon_p + epsilon_0)**n",
+      "tangent_formula": "d_sigma_d_epsilon_p = A * n * (epsilon_p + epsilon_0)**(n - 1)",
+      "domain": "epsilon_p >= 0; A > 0; epsilon_0 > 0; n >= 0",
+      "public_parameters": [
+        {
+          "symbol": "A",
+          "platform_name": "k_pa",
+          "value": 650000000,
+          "unit": "Pa"
+        },
+        {
+          "symbol": "epsilon_0",
+          "platform_name": "epsilon_0",
+          "value": 0.015,
+          "unit": "1"
+        },
+        {
+          "symbol": "n",
+          "platform_name": "n",
+          "value": 0.24,
+          "unit": "1"
+        }
+      ],
+      "limits": [
+        {
+          "condition": "epsilon_p = 0",
+          "stress_pa": 237233086.2695078,
+          "tangent_pa": 3795729380.3121247
+        },
+        {
+          "condition": "n = 0",
+          "stress_expression": "A",
+          "tangent_pa": 0
+        }
+      ],
+      "identifiability": {
+        "expected_rank": 3,
+        "parameter_count": 3,
+        "decision": "parameter_recovery_when_scaled_jacobian_has_full_rank",
+        "boundary_warning": "n = 0 produces a constant curve and makes epsilon_0 non-identifiable."
+      },
+      "recovery": {
+        "expected_parameters": [
+          "k_pa",
+          "epsilon_0",
+          "n"
+        ],
+        "criteria_tolerance_id": "identifiable_parameter_recovery_fixture_only",
+        "expected_curve_objective_case": "perfect_noiseless_case"
+      },
+      "expected_curve": [
+        {
+          "plastic_strain": 0,
+          "plastic_strain_unit": "1",
+          "stress_pa": 237233086.2695078,
+          "stress_unit": "Pa",
+          "stress_tolerance_id": "stress_f64",
+          "tangent_pa": 3795729380.3121247,
+          "tangent_unit": "Pa",
+          "tangent_tolerance_id": "tangent_f64"
+        },
+        {
+          "plastic_strain": 0.01,
+          "plastic_strain_unit": "1",
+          "stress_pa": 268175413.3703174,
+          "stress_unit": "Pa",
+          "stress_tolerance_id": "stress_f64",
+          "tangent_pa": 2574483968.3550467,
+          "tangent_unit": "Pa",
+          "tangent_tolerance_id": "tangent_f64"
+        },
+        {
+          "plastic_strain": 0.05,
+          "plastic_strain_unit": "1",
+          "stress_pa": 337297065.0444857,
+          "stress_unit": "Pa",
+          "stress_tolerance_id": "stress_f64",
+          "tangent_pa": 1245404547.8565626,
+          "tangent_unit": "Pa",
+          "tangent_tolerance_id": "tangent_f64"
+        },
+        {
+          "plastic_strain": 0.1,
+          "plastic_strain_unit": "1",
+          "stress_pa": 386794988.3275335,
+          "stress_unit": "Pa",
+          "stress_tolerance_id": "stress_f64",
+          "tangent_pa": 807224323.4661568,
+          "tangent_unit": "Pa",
+          "tangent_tolerance_id": "tangent_f64"
+        },
+        {
+          "plastic_strain": 0.2,
+          "plastic_strain_unit": "1",
+          "stress_pa": 449467802.9166059,
+          "stress_unit": "Pa",
+          "stress_tolerance_id": "stress_f64",
+          "tangent_pa": 501731500.93016475,
+          "tangent_unit": "Pa",
+          "tangent_tolerance_id": "tangent_f64"
+        },
+        {
+          "plastic_strain": 0.4,
+          "plastic_strain_unit": "1",
+          "stress_pa": 526313972.6239755,
+          "stress_unit": "Pa",
+          "stress_tolerance_id": "stress_f64",
+          "tangent_pa": 304374345.6138653,
+          "tangent_unit": "Pa",
+          "tangent_tolerance_id": "tangent_f64"
+        }
+      ]
+    },
+    {
+      "id": "hockett_sherby",
+      "display_name": "Hockett-Sherby",
+      "source_ids": [
+        "altair-material-modeler-2025-curve-fitting",
+        "hockett-sherby-1975"
+      ],
+      "formula": "sigma = Qs - (Qs - Q0) * exp(-m * epsilon_p**n)",
+      "tangent_formula": "d_sigma_d_epsilon_p = (Qs - Q0) * m * n * epsilon_p**(n - 1) * exp(-m * epsilon_p**n)",
+      "domain": "epsilon_p >= 0; Qs >= Q0 > 0; m >= 0; n > 0",
+      "public_parameters": [
+        {
+          "symbol": "Qs",
+          "platform_mapping": "sigma_0_pa + q_pa",
+          "value": 570000000,
+          "unit": "Pa"
+        },
+        {
+          "symbol": "Q0",
+          "platform_name": "sigma_0_pa",
+          "value": 310000000,
+          "unit": "Pa"
+        },
+        {
+          "symbol": "m",
+          "platform_name": "b",
+          "value": 8.5,
+          "unit": "1"
+        },
+        {
+          "symbol": "n",
+          "platform_name": "n",
+          "value": 0.72,
+          "unit": "1"
+        }
+      ],
+      "platform_equivalent_parameters": [
+        {
+          "name": "sigma_0_pa",
+          "value": 310000000,
+          "unit": "Pa"
+        },
+        {
+          "name": "q_pa",
+          "value": 260000000,
+          "unit": "Pa"
+        },
+        {
+          "name": "b",
+          "value": 8.5,
+          "unit": "1"
+        },
+        {
+          "name": "n",
+          "value": 0.72,
+          "unit": "1"
+        }
+      ],
+      "limits": [
+        {
+          "condition": "epsilon_p = 0",
+          "stress_pa": 310000000,
+          "tangent_limit": "positive_infinity because 0 < n < 1"
+        },
+        {
+          "condition": "epsilon_p -> positive_infinity",
+          "stress_pa": 570000000,
+          "tangent_pa": 0
+        }
+      ],
+      "identifiability": {
+        "expected_rank": 4,
+        "parameter_count": 4,
+        "decision": "parameter_recovery_when_scaled_jacobian_has_full_rank",
+        "boundary_warning": "Qs = Q0 makes m and n non-identifiable."
+      },
+      "recovery": {
+        "expected_parameters": [
+          "sigma_0_pa",
+          "q_pa",
+          "b",
+          "n"
+        ],
+        "criteria_tolerance_id": "identifiable_parameter_recovery_fixture_only",
+        "expected_curve_objective_case": "perfect_noiseless_case"
+      },
+      "expected_curve": [
+        {
+          "plastic_strain": 0,
+          "plastic_strain_unit": "1",
+          "stress_pa": 310000000,
+          "stress_unit": "Pa",
+          "stress_tolerance_id": "stress_f64",
+          "tangent_pa": null,
+          "tangent_unit": "Pa",
+          "tangent_tolerance_id": "not_applicable",
+          "tangent_limit": "positive_infinity"
+        },
+        {
+          "plastic_strain": 0.01,
+          "plastic_strain_unit": "1",
+          "stress_pa": 379039751.28773516,
+          "stress_unit": "Pa",
+          "stress_tolerance_id": "stress_f64",
+          "tangent_pa": 4243208709.2208686,
+          "tangent_unit": "Pa",
+          "tangent_tolerance_id": "tangent_f64"
+        },
+        {
+          "plastic_strain": 0.05,
+          "plastic_strain_unit": "1",
+          "stress_pa": 472738682.3934137,
+          "stress_unit": "Pa",
+          "stress_tolerance_id": "stress_f64",
+          "tangent_pa": 1377145951.193516,
+          "tangent_unit": "Pa",
+          "tangent_tolerance_id": "tangent_f64"
+        },
+        {
+          "plastic_strain": 0.1,
+          "plastic_strain_unit": "1",
+          "stress_pa": 518527894.4694188,
+          "stress_unit": "Pa",
+          "stress_tolerance_id": "stress_f64",
+          "tangent_pa": 600237819.9754132,
+          "tangent_unit": "Pa",
+          "tangent_tolerance_id": "tangent_f64"
+        },
+        {
+          "plastic_strain": 0.2,
+          "plastic_strain_unit": "1",
+          "stress_pa": 551955569.6698443,
+          "stress_unit": "Pa",
+          "stress_tolerance_id": "stress_f64",
+          "tangent_pa": 173303047.24378324,
+          "tangent_unit": "Pa",
+          "tangent_tolerance_id": "tangent_f64"
+        },
+        {
+          "plastic_strain": 0.4,
+          "plastic_strain_unit": "1",
+          "stress_pa": 566790047.960047,
+          "stress_unit": "Pa",
+          "stress_tolerance_id": "stress_f64",
+          "tangent_pa": 25390611.95558318,
+          "tangent_unit": "Pa",
+          "tangent_tolerance_id": "tangent_f64"
+        }
+      ]
+    },
+    {
+      "id": "ghosh",
+      "display_name": "Ghosh (Altair Material Modeler 2025 variant)",
+      "source_ids": [
+        "altair-material-modeler-2025-curve-fitting",
+        "ghosh-1977"
+      ],
+      "formula": "sigma = K * (epsilon_0 - epsilon_p)**(n - p)",
+      "tangent_formula": "d_sigma_d_epsilon_p = K * (p - n) * (epsilon_0 - epsilon_p)**(n - p - 1)",
+      "domain": "0 <= epsilon_p < epsilon_0; this monotonic-hardening reference uses p > n",
+      "public_parameters": [
+        {
+          "symbol": "K",
+          "platform_name": "k_pa",
+          "value": 420000000,
+          "unit": "Pa"
+        },
+        {
+          "symbol": "epsilon_0",
+          "platform_name": "epsilon_0",
+          "value": 0.8,
+          "unit": "1"
+        },
+        {
+          "symbol": "n",
+          "public_only_name": "n",
+          "value": 0.18,
+          "unit": "1"
+        },
+        {
+          "symbol": "p",
+          "public_only_name": "p",
+          "value": 0.42,
+          "unit": "1"
+        }
+      ],
+      "identifiable_fit_parameterization": [
+        {
+          "name": "k_pa",
+          "value": 420000000,
+          "unit": "Pa"
+        },
+        {
+          "name": "epsilon_0",
+          "value": 0.8,
+          "unit": "1"
+        },
+        {
+          "name": "delta_p_minus_n",
+          "definition": "p - n",
+          "value": 0.24,
+          "unit": "1"
+        }
+      ],
+      "limits": [
+        {
+          "condition": "epsilon_p -> epsilon_0 from below with p > n",
+          "stress_limit": "positive_infinity",
+          "tangent_limit": "positive_infinity"
+        },
+        {
+          "condition": "n = p",
+          "stress_expression": "K",
+          "tangent_pa": 0
+        }
+      ],
+      "identifiability": {
+        "expected_public_rank": 3,
+        "public_parameter_count": 4,
+        "exact_dependency": "d_sigma_d_n = -d_sigma_d_p",
+        "invariant_transform": "(n, p) -> (n + c, p + c) leaves stress and tangent unchanged",
+        "expected_identifiable_fit_rank": 3,
+        "identifiable_fit_parameter_count": 3,
+        "decision": "Do not claim separate n or p recovery; fit and persist delta_p_minus_n = p - n."
+      },
+      "recovery": {
+        "expected_parameters": [
+          "k_pa",
+          "epsilon_0",
+          "delta_p_minus_n"
+        ],
+        "explicitly_not_recoverable": [
+          "n",
+          "p"
+        ],
+        "criteria_tolerance_id": "identifiable_parameter_recovery_fixture_only",
+        "expected_curve_objective_case": "perfect_noiseless_case"
+      },
+      "expected_curve": [
+        {
+          "plastic_strain": 0,
+          "plastic_strain_unit": "1",
+          "stress_pa": 443106064.03664255,
+          "stress_unit": "Pa",
+          "stress_tolerance_id": "stress_f64",
+          "tangent_pa": 132931819.21099277,
+          "tangent_unit": "Pa",
+          "tangent_tolerance_id": "tangent_f64"
+        },
+        {
+          "plastic_strain": 0.01,
+          "plastic_strain_unit": "1",
+          "stress_pa": 444445781.5827503,
+          "stress_unit": "Pa",
+          "stress_tolerance_id": "stress_f64",
+          "tangent_pa": 135021503.26564565,
+          "tangent_unit": "Pa",
+          "tangent_tolerance_id": "tangent_f64"
+        },
+        {
+          "plastic_strain": 0.05,
+          "plastic_strain_unit": "1",
+          "stress_pa": 450022872.2369103,
+          "stress_unit": "Pa",
+          "stress_tolerance_id": "stress_f64",
+          "tangent_pa": 144007319.1158113,
+          "tangent_unit": "Pa",
+          "tangent_tolerance_id": "tangent_f64"
+        },
+        {
+          "plastic_strain": 0.1,
+          "plastic_strain_unit": "1",
+          "stress_pa": 457536515.95372015,
+          "stress_unit": "Pa",
+          "stress_tolerance_id": "stress_f64",
+          "tangent_pa": 156869662.61270407,
+          "tangent_unit": "Pa",
+          "tangent_tolerance_id": "tangent_f64"
+        },
+        {
+          "plastic_strain": 0.2,
+          "plastic_strain_unit": "1",
+          "stress_pa": 474780627.72229093,
+          "stress_unit": "Pa",
+          "stress_tolerance_id": "stress_f64",
+          "tangent_pa": 189912251.08891636,
+          "tangent_unit": "Pa",
+          "tangent_tolerance_id": "tangent_f64"
+        },
+        {
+          "plastic_strain": 0.4,
+          "plastic_strain_unit": "1",
+          "stress_pa": 523305009.8621984,
+          "stress_unit": "Pa",
+          "stress_tolerance_id": "stress_f64",
+          "tangent_pa": 313983005.91731906,
+          "tangent_unit": "Pa",
+          "tangent_tolerance_id": "tangent_f64"
+        }
+      ]
+    }
+  ],
+  "source_catalog": [
+    {
+      "id": "altair-material-modeler-2025-curve-fitting",
+      "type": "official_technical_documentation",
+      "citation": "Altair Material Modeler 2025, Curve Fitting, Table 1: Curve Fitting Equations",
+      "url": "https://2025.help.altair.com/2025/material_modeler/topics/material_modeler/curve_fitting_t.htm",
+      "role": "Normative equation variant and public workflow source."
+    },
+    {
+      "id": "voce-1948",
+      "type": "primary_paper_bibliography",
+      "citation": "E. Voce, The relationship between stress and strain for homogeneous deformation, Journal of the Institute of Metals 74 (1948) 537-562.",
+      "url": "https://cir.nii.ac.jp/crid/1570854176063010304",
+      "role": "Original-family attribution; Altair 2025 controls this fixture's parameterization."
+    },
+    {
+      "id": "swift-1952",
+      "type": "primary_paper",
+      "citation": "H. W. Swift, Plastic instability under plane stress, Journal of the Mechanics and Physics of Solids 1(1) (1952) 1-18.",
+      "url": "https://doi.org/10.1016/0022-5096(52)90002-1",
+      "role": "Original-family attribution; Altair 2025 controls this fixture's parameterization."
+    },
+    {
+      "id": "hockett-sherby-1975",
+      "type": "primary_paper",
+      "citation": "J. E. Hockett and O. D. Sherby, Large strain deformation of polycrystalline metals at low homologous temperatures, Journal of the Mechanics and Physics of Solids 23(2) (1975) 87-98.",
+      "url": "https://doi.org/10.1016/0022-5096(75)90018-6",
+      "role": "Original-family attribution; Altair 2025 controls this fixture's parameterization."
+    },
+    {
+      "id": "ghosh-1977",
+      "type": "primary_paper",
+      "citation": "A. K. Ghosh, Tensile instability and necking in materials with strain hardening and strain-rate hardening, Acta Metallurgica 25(12) (1977) 1413-1424.",
+      "url": "https://doi.org/10.1016/0001-6160(77)90072-4",
+      "role": "Original-family attribution only. It does not override the explicitly selected Altair 2025 variant."
+    }
+  ],
+  "non_goals": [
+    "No production optimizer initial values, bounds, stopping policy, ranking policy, or material acceptance threshold is defined.",
+    "No proprietary Material Modeler optimizer behavior is inferred.",
+    "No solver-card or constitutive-model qualification is claimed."
+  ]
+}

@@ -151,6 +151,7 @@ def test_fit_preflight_rejects_missing_or_mismatched_decision_before_persistence
         "metal.hardening_fit_extrapolate",
         "1.0.0",
         {
+            "equation_contract": "altair-material-modeler-2025-v1",
             "families": ["swift"],
             "primary_family": "swift",
             "secondary_family": "swift",
@@ -200,6 +201,7 @@ def test_fit_preflight_binds_metal_selection_to_recomputed_scalar_evidence() -> 
         "metal.hardening_fit_extrapolate",
         "1.0.0",
         {
+            "equation_contract": "altair-material-modeler-2025-v1",
             "families": ["swift"],
             "primary_family": "swift",
             "secondary_family": "swift",
@@ -257,6 +259,12 @@ def test_fit_preflight_binds_metal_selection_to_recomputed_scalar_evidence() -> 
         warning_acknowledged=False,
     )
     validate_fit_decision((step,), preview, decision)
+    legacy_step = replace(
+        step,
+        options={key: value for key, value in step.options.items() if key != "equation_contract"},
+    )
+    with pytest.raises(CommonPipelineError, match="Altair Material Modeler 2025"):
+        validate_fit_decision((legacy_step,), preview, decision)
     with pytest.raises(CommonPipelineError, match="differs from recomputed"):
         validate_fit_decision((step,), preview, replace(decision, metric_value=0.02))
     with pytest.raises(CommonPipelineError, match="incomplete"):

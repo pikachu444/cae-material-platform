@@ -260,6 +260,9 @@ IR은 calibration raw log를 복사하지 않고 immutable run/evidence를 참�
 신규 IR은 schema `1.3.0`을 사용한다. `source_revisions`에는 exact Processing Output, published
 Processing Recipe, Batch/Member/Attempt와 attempt number를 함께 기록한다. PostgreSQL deferred
 constraint trigger는 Attempt가 `succeeded`이고 동일 Output revision을 생성했는지 검사한다.
+Promotion은 final step option의 `equation_contract`가
+`altair-material-modeler-2025-v1`인 Output만 받으며, 식 계약이 없는 legacy Recipe 결과를
+새 Ghosh 의미로 해석하지 않는다.
 Batch를 거치지 않은 과거 Output은 수정하지 않고 schema `1.2.0`으로 계속 읽는다.
 
 ## 9. Validation evidence

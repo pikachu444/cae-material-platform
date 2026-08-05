@@ -1,0 +1,109 @@
+schema_version: "1.0"
+fixture:
+  id: metal-hardening-reference-v1
+  path: fixtures/synthetic/metal-hardening-reference-v1.json
+  format: application/json
+  classification: synthetic_non_confidential_non_production
+  non_production: true
+  owner: CAE Material Platform maintainers
+  retention: >-
+    Retain with Git history while the v1 metal-hardening verification contract or any
+    derived test refers to this digest. Supersede only with a new versioned fixture;
+    do not rewrite or delete this version's provenance.
+  digest:
+    algorithm: sha256
+    value: 604164afe71aa7715a232e9ecf06332fc46d8684cd03db96cfcbad1bb1671f28
+    byte_contract: UTF-8, LF line endings, two-space JSON indentation, final newline included
+
+generation:
+  method_id: independent-decimal-closed-form-v1
+  generated_on: "2026-08-05"
+  runtime: CPython 3.12.13 standard-library decimal.Decimal
+  decimal_precision_digits: 60
+  production_functions_called: []
+  procedure: >-
+    Parse parameters and strains from decimal strings; evaluate the four published
+    closed-form equations and their analytical derivatives using exp(a * ln(x)) for
+    non-integer powers; round once to 17 significant decimal digits; add declarative
+    fixture-only recovery, option, metamorphic, and canonical persistence contracts;
+    serialize JSON; compute SHA-256 over the exact bytes.
+  data_character: deterministic synthetic values; not measured material data
+  optimizer_character: >-
+    No optimizer was used to generate expected stress, tangent, residual, objective, or
+    persistence digest values. Recovery starts and bounds are non-production test inputs
+    exercised only by the independent fixture integrity test.
+
+license:
+  fixture_data: >-
+    No repository LICENSE file existed at base commit
+    ce233ac4aa58bb909bc88fbc861c5b93def12953. This synthetic fixture has no
+    separate public license grant and is recorded for this repository's internal
+    verification use.
+  source_use: >-
+    Only equations and bibliographic facts from publicly accessible sources were
+    transcribed. No source page, figure, table styling, or proprietary optimizer
+    behavior is redistributed.
+
+sources:
+  - id: altair-material-modeler-2025-curve-fitting
+    type: official_technical_documentation
+    publisher: Altair Engineering, Inc.
+    product: Altair Material Modeler
+    version: "2025"
+    title: Curve Fitting
+    url: https://2025.help.altair.com/2025/material_modeler/topics/material_modeler/curve_fitting_t.htm
+    checked_on: "2026-08-05"
+    license_note: Copyright 2025 Altair Engineering, Inc.; equation facts only.
+    role: normative_formula_variant
+  - id: voce-1948
+    type: primary_paper_bibliography
+    authors: E. Voce
+    title: The relationship between stress and strain for homogeneous deformation
+    publication: Journal of the Institute of Metals 74 (1948) 537-562
+    version: published_article_1948
+    url: https://cir.nii.ac.jp/crid/1570854176063010304
+    checked_on: "2026-08-05"
+    license_note: Publisher copyright; citation metadata only.
+    role: original_family_attribution
+  - id: swift-1952
+    type: primary_paper
+    authors: H. W. Swift
+    title: Plastic instability under plane stress
+    publication: Journal of the Mechanics and Physics of Solids 1(1) (1952) 1-18
+    version: published_article
+    url: https://doi.org/10.1016/0022-5096(52)90002-1
+    checked_on: "2026-08-05"
+    license_note: Elsevier copyright; citation and DOI only.
+    role: original_family_attribution
+  - id: hockett-sherby-1975
+    type: primary_paper
+    authors: J. E. Hockett and O. D. Sherby
+    title: Large strain deformation of polycrystalline metals at low homologous temperatures
+    publication: Journal of the Mechanics and Physics of Solids 23(2) (1975) 87-98
+    version: published_article
+    url: https://doi.org/10.1016/0022-5096(75)90018-6
+    checked_on: "2026-08-05"
+    license_note: Elsevier copyright; citation and DOI only.
+    role: original_family_attribution
+  - id: ghosh-1977
+    type: primary_paper
+    authors: A. K. Ghosh
+    title: Tensile instability and necking in materials with strain hardening and strain-rate hardening
+    publication: Acta Metallurgica 25(12) (1977) 1413-1424
+    version: published_article
+    url: https://doi.org/10.1016/0001-6160(77)90072-4
+    checked_on: "2026-08-05"
+    license_note: Elsevier copyright; citation and DOI only.
+    role: original_family_attribution_only
+
+variant_resolution:
+  rule: >-
+    Altair Material Modeler 2025 is authoritative for formula conflicts in this
+    work item. Original papers provide family attribution but do not override the
+    selected published Altair parameterization.
+  ghosh: >-
+    Use sigma = K * (epsilon_0 - epsilon_p)^(n - p). The former repository
+    K * (epsilon_0 + epsilon_p)^n - d form is explicitly excluded.
+  proprietary_behavior: >-
+    Initial values, bounds, optimizer implementation, ranking, and acceptance
+    thresholds are not inferred from Material Modeler.

@@ -32,6 +32,7 @@ import type {
   TabulatedPlasticityModelResponse,
 } from "./types";
 import { NeutralSolverExport } from "./neutral-hyperelastic-export";
+import { METAL_HARDENING_EQUATION_CONTRACT } from "./modeling-fit-decision-contract";
 
 function messageFor(error: unknown): string {
   if (error instanceof ApiError) {
@@ -214,6 +215,7 @@ export function ReferenceElastoplasticWorkbench({
     () =>
       processingOutputs.filter(
         (output) => output.steps.at(-1)?.method_id === "metal.hardening_fit_extrapolate"
+          && output.steps.at(-1)?.options.equation_contract === METAL_HARDENING_EQUATION_CONTRACT
           && output.fit_decision?.mode !== undefined,
       ),
     [processingOutputs],
@@ -246,6 +248,7 @@ export function ReferenceElastoplasticWorkbench({
       setSelectedDatasetRevisionId((current) => current || eligible[0]?.current_revision.id || "");
       const eligibleOutputs = outputResult.data.items.filter(
         (output) => output.steps.at(-1)?.method_id === "metal.hardening_fit_extrapolate"
+          && output.steps.at(-1)?.options.equation_contract === METAL_HARDENING_EQUATION_CONTRACT
           && output.fit_decision?.mode !== undefined,
       );
       const preferredOutput = eligibleOutputs.find(

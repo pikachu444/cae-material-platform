@@ -268,6 +268,13 @@ def test_registry_exposes_versioned_solver_neutral_methods() -> None:
     assert {item.method_id for item in METHOD_REGISTRY if item.allows_extrapolation} == {
         "metal.hardening_fit_extrapolate"
     }
+    hardening = next(
+        item for item in METHOD_REGISTRY if item.method_id == "metal.hardening_fit_extrapolate"
+    )
+    assert hardening.option_schema["properties"]["equation_contract"] == {
+        "const": "altair-material-modeler-2025-v1"
+    }
+    assert "equation_contract" in hardening.option_schema["required"]
 
 
 def test_polymer_log_time_and_prony_candidates_are_explicit_and_deterministic() -> None:

@@ -1,6 +1,21 @@
 import type { CommonCurveStage, CommonProcessingStep } from "./types";
 
 export type FitDecisionMode = "single" | "blend";
+export const METAL_HARDENING_EQUATION_CONTRACT = "altair-material-modeler-2025-v1";
+
+export function hardeningCandidateWarning(
+  family: string,
+  parameterNearBound: boolean,
+): string | undefined {
+  const warnings: string[] = [];
+  if (family === "ghosh") {
+    warnings.push(
+      "Ghosh n and p are not separately identifiable; evidence stores p − n, and εp must remain below ε0",
+    );
+  }
+  if (parameterNearBound) warnings.push("Parameter near bound");
+  return warnings.length ? warnings.join("; ") : undefined;
+}
 
 /**
  * A local, explicit engineering choice. Recipe options are fit-run intent only;
@@ -61,6 +76,7 @@ export function buildFitDecisionSnapshot(
   const fitMinimum = Number(step.options.fit_minimum_strain);
   const fitMaximum = Number(step.options.fit_maximum_strain);
   if (step.method_id === "metal.hardening_fit_extrapolate") {
+    if (step.options.equation_contract !== METAL_HARDENING_EQUATION_CONTRACT) return null;
     const laws = selection.mode === "blend"
       ? [selection.primaryLaw, selection.secondaryLaw]
       : [selection.primaryLaw];
@@ -92,6 +108,14 @@ export function buildFitDecisionSnapshot(
       !metric
       || !Number.isFinite(extrapolationMaximum)
       || parameterSets.some((set) => !set.parameters.length)
+    ) return null;
+    const ghoshParameters = parameterSets.find((set) => set.law === "ghosh")?.parameters;
+    if (
+      ghoshParameters
+      && (
+        !ghoshParameters.some((item) => item.name === "delta_p_minus_n")
+        || ghoshParameters.some((item) => ["n", "p", "d_pa"].includes(item.name))
+      )
     ) return null;
     return {
       candidate_key: selection.mode === "blend"

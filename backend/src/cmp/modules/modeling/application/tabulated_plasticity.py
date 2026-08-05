@@ -60,6 +60,7 @@ from cmp.modules.modeling.domain.reference_voce_tabulated_plasticity import (
 )
 from cmp.modules.processing.application.common_batches import CommonBatchService
 from cmp.modules.processing.application.common_outputs import CommonProcessingOutputService
+from cmp.modules.processing.domain.metal_hardening import HARDENING_EQUATION_CONTRACT
 from cmp.shared.application.revisions import (
     CreateRevisionedAggregate,
     RevisionService,
@@ -403,6 +404,7 @@ class TabulatedPlasticityModelService:
                 stage["method_id"] != "metal.hardening_fit_extrapolate"
                 or step.method_id != stage["method_id"]
                 or step.method_version != "1.0.0"
+                or step.options.get("equation_contract") != HARDENING_EQUATION_CONTRACT
             ):
                 raise KeyError("final method")
             series = {item["quantity"]: item for item in stage["series"]}

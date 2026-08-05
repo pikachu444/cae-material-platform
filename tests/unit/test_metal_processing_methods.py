@@ -32,6 +32,7 @@ from cmp.modules.processing.domain.common_pipeline import (
     ProcessingStep,
     preview_pipeline,
 )
+from cmp.modules.processing.domain.metal_hardening import HARDENING_EQUATION_CONTRACT
 
 
 def _values(items: tuple[float, ...]) -> tuple[Decimal, ...]:
@@ -285,6 +286,7 @@ def test_processed_true_plastic_curve_feeds_bounded_hardening_candidates() -> No
         "metal.hardening_fit_extrapolate",
         COMMON_METHOD_VERSION,
         {
+            "equation_contract": HARDENING_EQUATION_CONTRACT,
             "plastic_strain_quantity": "strain.true_plastic",
             "stress_quantity": "stress.true",
             "families": ["voce", "swift", "hockett_sherby", "ghosh"],

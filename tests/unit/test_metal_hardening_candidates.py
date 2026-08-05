@@ -3,6 +3,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 from cmp.modules.processing.domain.metal_hardening import (
+    HARDENING_EQUATION_CONTRACT,
     MetalHardeningError,
     evaluate_hardening_family,
     fit_hardening_candidates,
@@ -19,7 +20,7 @@ from cmp.modules.processing.domain.metal_hardening import (
             (300.0, 200.0, 10.0, 0.8),
             300.0 + 200.0 * (1.0 - np.exp(-10.0 * 0.1**0.8)),
         ),
-        ("ghosh", (500.0, 0.01, 0.2, 20.0), 500.0 * 0.11**0.2 - 20.0),
+        ("ghosh", (500.0, 0.8, 0.18, 0.42), 500.0 * 0.7 ** (0.18 - 0.42)),
     ],
 )
 def test_public_hardening_equations_match_analytical_values(
@@ -31,6 +32,7 @@ def test_public_hardening_equations_match_analytical_values(
 
 def _options() -> dict[str, object]:
     return {
+        "equation_contract": HARDENING_EQUATION_CONTRACT,
         "plastic_strain_quantity": "strain.true_plastic",
         "stress_quantity": "stress.true",
         "families": ["voce", "swift", "hockett_sherby", "ghosh"],
@@ -68,9 +70,10 @@ def test_candidates_share_objective_and_combination_is_explicit_and_bounded() ->
         "stress.hardening.ghosh",
         "stress.hardening.selected",
     }
-    combined = 0.25 * result.columns["stress.hardening.swift"] + 0.75 * result.columns[
-        "stress.hardening.voce"
-    ]
+    combined = (
+        0.25 * result.columns["stress.hardening.swift"]
+        + 0.75 * result.columns["stress.hardening.voce"]
+    )
     assert result.columns["stress.hardening.selected"] == pytest.approx(combined)
     scalar = {item.key: item.value for item in result.scalars}
     assert scalar["voce.relative_rmse"] < 1e-8
@@ -81,10 +84,17 @@ def test_candidates_share_objective_and_combination_is_explicit_and_bounded() ->
     assert scalar["selection.primary_weight"] == 0.25
     assert scalar["fit.observed_maximum_strain"] == 0.15
     assert scalar["fit.extrapolation_maximum_strain"] == 0.5
+    assert "ghosh.parameter.delta_p_minus_n" in scalar
+    assert "ghosh.parameter.n" not in scalar
+    assert "ghosh.parameter.p" not in scalar
+    assert "ghosh.parameter.d_pa" not in scalar
+    assert f"equation_contract={HARDENING_EQUATION_CONTRACT}" in result.diagnostics
     assert "extrapolated domain (0.15, 0.5] is not observed" in result.diagnostics
+    assert any(
+        "public n and p are structurally non-identifiable" in item for item in result.diagnostics
+    )
     assert (
-        "selection reason: Best residual shape without late-strain softening."
-        in result.diagnostics
+        "selection reason: Best residual shape without late-strain softening." in result.diagnostics
     )
 
     repeated = fit_hardening_candidates(
@@ -110,3 +120,27 @@ def test_fit_rejects_hidden_or_unbounded_extrapolation() -> None:
             {"strain.true_plastic": "1", "stress.true": "Pa"},
             options,
         )
+
+
+def test_fit_rejects_legacy_recipe_without_explicit_equation_contract() -> None:
+    strain = np.linspace(0.001, 0.15, 31)
+    stress = evaluate_hardening_family("voce", (350e6, 250e6, 15.0), strain)
+    options = _options()
+    del options["equation_contract"]
+
+    with pytest.raises(MetalHardeningError, match="legacy hardening recipes"):
+        fit_hardening_candidates(
+            {"strain.true_plastic": strain, "stress.true": stress},
+            {"strain.true_plastic": "1", "stress.true": "Pa"},
+            options,
+        )
+
+
+def test_ghosh_public_variant_domain_and_structural_invariance() -> None:
+    strain = np.array([0.0, 0.1, 0.4])
+    reference = evaluate_hardening_family("ghosh", (420e6, 0.8, 0.18, 0.42), strain)
+    shifted = evaluate_hardening_family("ghosh", (420e6, 0.8, 0.28, 0.52), strain)
+
+    assert shifted == pytest.approx(reference)
+    with pytest.raises(MetalHardeningError, match="plastic strain < epsilon_0"):
+        evaluate_hardening_family("ghosh", (420e6, 0.8, 0.18, 0.42), np.array([0.8]))

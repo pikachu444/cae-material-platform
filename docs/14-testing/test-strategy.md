@@ -202,6 +202,16 @@ installed solver execution is not part of normal CI; an eventual production gate
 OpenRadioss Starter/dry-run and licensed Abaqus data-check fixtures under an approved version
 matrix.
 
+### Metal hardening reference gate
+
+`tests/unit/test_metal_hardening_reference_fixture.py` is the independent gate for the Voce,
+Swift, Hockett–Sherby, and Altair Material Modeler 2025 Ghosh equations. It must not import the
+production hardening evaluator or fitter. The gate verifies the manifest SHA-256, 24 independent
+stress/tangent rows, analytical limits and finite-difference cross-checks, residual/objective sign,
+scaled Jacobian rank, noiseless fixture-only recovery, option normal/boundary/error cases, declared
+metamorphic relations, and canonical snapshot reload/tamper detection. Production evaluator,
+fit-decision, browser warning, and model-promotion tests remain separate comparison gates.
+
 ## T-43 governed multi-test Ogden regression matrix
 
 The bounded elastomer calibration slice is verified independently of solver execution:
