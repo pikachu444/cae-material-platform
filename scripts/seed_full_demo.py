@@ -1706,6 +1706,7 @@ def _ensure_processing_journey(api: DemoApi, *, test_data: Mapping[str, str]) ->
                     "method_id": "metal.hardening_fit_extrapolate",
                     "method_version": "1.0.0",
                     "options": {
+                        "equation_contract": "altair-material-modeler-2025-v1",
                         "plastic_strain_quantity": "strain.true_plastic",
                         "stress_quantity": "stress.true",
                         "families": ["voce", "swift", "hockett_sherby", "ghosh"],

@@ -135,6 +135,10 @@ Hardening 단계는 Voce, Swift, Hockett–Sherby, Ghosh 중 2~4개를 같은 �
 `extrapolation_maximum_strain`은 관측되지 않은 출력 한계입니다. `primary_family`,
 `secondary_family`, `primary_weight`가 선택 조합을 완전히 정의합니다. 결과의 **Scalar results**에는
 후보별 RMSE와 parameter lower/initial/fitted/upper가 표시되므로 숨은 초기값이나 경계가 없습니다.
+Ghosh는 Altair Material Modeler 2025 식 계약을 따르며 `n`, `p` 대신 식별 가능한
+`delta_p_minus_n = p - n`만 저장합니다. 해당 행에는 구조적 비식별성과
+`plastic strain < epsilon_0` domain 경고가 항상 표시됩니다. 이 식 계약이 없는 과거 Recipe는
+자동 변환하지 않으므로 새 revision으로 명시적으로 저장해야 합니다.
 
 **Stress response**에서 observed plastic workup, single-law candidate와 현재 선택을 비교합니다.
 **Residual**은

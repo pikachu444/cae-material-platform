@@ -24,6 +24,8 @@
       "Parse every parameter and strain from decimal strings.",
       "Evaluate the closed-form stress and analytical tangent shown in each family case.",
       "Serialize finite values to 17 significant decimal digits; represent the Hockett-Sherby zero-strain singular tangent as null plus tangent_limit.",
+      "Record declarative fixture-only recovery, option, metamorphic, and canonical persistence contracts without changing the independently computed curve values.",
+      "Compute the persistence snapshot SHA-256 over sorted-key compact UTF-8 JSON and verify save/reload equality plus every declared tamper path.",
       "Compute SHA-256 over the exact UTF-8 JSON bytes including the final newline."
     ]
   },
@@ -142,6 +144,136 @@
       "ghosh"
     ],
     "purpose": "Checks residual sign, normalization, aggregation, and exact-objective persistence independently of an optimizer."
+  },
+  "fixture_only_recovery_contract": {
+    "optimizer": "scipy.optimize.least_squares in the independent fixture test only",
+    "residual": "(predicted_stress_pa - expected_stress_pa) / 100000000",
+    "production_policy": "not_applicable; these starts and bounds are deterministic test inputs, not production optimizer policy",
+    "families": {
+      "voce": {
+        "parameter_names": ["sigma_0_pa", "q_pa", "b"],
+        "parameter_units": ["Pa", "Pa", "1"],
+        "expected": [300000000, 220000000, 11],
+        "initial": [280000000, 180000000, 8],
+        "lower": [1000000, 0, 0.00001],
+        "upper": [1000000000, 1000000000, 100],
+        "expected_scaled_jacobian_rank": 3
+      },
+      "swift": {
+        "parameter_names": ["k_pa", "epsilon_0", "n"],
+        "parameter_units": ["Pa", "1", "1"],
+        "expected": [650000000, 0.015, 0.24],
+        "initial": [600000000, 0.025, 0.3],
+        "lower": [1000000, 1e-8, 0.001],
+        "upper": [2000000000, 1, 1],
+        "expected_scaled_jacobian_rank": 3
+      },
+      "hockett_sherby": {
+        "parameter_names": ["sigma_0_pa", "q_pa", "b", "n"],
+        "parameter_units": ["Pa", "Pa", "1", "1"],
+        "expected": [310000000, 260000000, 8.5, 0.72],
+        "initial": [300000000, 220000000, 7, 0.8],
+        "lower": [1000000, 0, 0.000001, 0.05],
+        "upper": [1000000000, 1000000000, 100, 2],
+        "expected_scaled_jacobian_rank": 4
+      },
+      "ghosh": {
+        "parameter_names": ["k_pa", "epsilon_0", "delta_p_minus_n"],
+        "parameter_units": ["Pa", "1", "1"],
+        "expected": [420000000, 0.8, 0.24],
+        "initial": [390000000, 0.9, 0.2],
+        "lower": [1000000, 0.400001, 0.000001],
+        "upper": [2000000000, 10, 2],
+        "expected_scaled_jacobian_rank": 3,
+        "public_parameter_names_not_recovered": ["n", "p"]
+      }
+    }
+  },
+  "option_validation_contract": {
+    "equation_contract": "altair-material-modeler-2025-v1",
+    "base_options": {
+      "equation_contract": "altair-material-modeler-2025-v1",
+      "plastic_strain_quantity": "strain.true_plastic",
+      "stress_quantity": "stress.true",
+      "families": ["voce", "swift", "hockett_sherby", "ghosh"],
+      "fit_minimum_strain": 0,
+      "fit_maximum_strain": 0.4,
+      "extrapolation_maximum_strain": 0.6,
+      "output_point_count": 101,
+      "primary_family": "swift",
+      "secondary_family": "voce",
+      "primary_weight": 0.5,
+      "normalization_stress_pa": 100000000,
+      "maximum_function_evaluations": 10000,
+      "selection_reason": "Synthetic option contract only."
+    },
+    "normal_case_ids": ["base_four_family_blend"],
+    "boundary_cases": [
+      {"id": "two_families", "patch": {"families": ["voce", "ghosh"], "primary_family": "ghosh", "secondary_family": "voce"}},
+      {"id": "weight_zero", "patch": {"primary_weight": 0}},
+      {"id": "weight_one", "patch": {"primary_weight": 1}},
+      {"id": "minimum_output_and_evaluations", "patch": {"output_point_count": 21, "maximum_function_evaluations": 50}},
+      {"id": "maximum_output_and_evaluations", "patch": {"output_point_count": 501, "maximum_function_evaluations": 100000}}
+    ],
+    "error_cases": [
+      {"id": "missing_equation_contract", "remove": ["equation_contract"], "expected_error": "equation_contract"},
+      {"id": "legacy_equation_contract", "patch": {"equation_contract": "legacy"}, "expected_error": "equation_contract"},
+      {"id": "missing_plastic_strain_quantity", "remove": ["plastic_strain_quantity"], "expected_error": "plastic_strain_quantity"},
+      {"id": "missing_stress_quantity", "remove": ["stress_quantity"], "expected_error": "stress_quantity"},
+      {"id": "duplicate_family", "patch": {"families": ["voce", "voce"]}, "expected_error": "families"},
+      {"id": "selected_family_missing", "patch": {"families": ["voce", "ghosh"]}, "expected_error": "selected candidates"},
+      {"id": "reversed_fit_domain", "patch": {"fit_minimum_strain": 0.4, "fit_maximum_strain": 0.4}, "expected_error": "strain domains"},
+      {"id": "extrapolation_not_above_fit", "patch": {"extrapolation_maximum_strain": 0.4}, "expected_error": "strain domains"},
+      {"id": "boolean_output_points", "patch": {"output_point_count": true}, "expected_error": "output_point_count"},
+      {"id": "zero_normalization", "patch": {"normalization_stress_pa": 0}, "expected_error": "normalization"},
+      {"id": "blank_selection_reason", "patch": {"selection_reason": "   "}, "expected_error": "selection_reason"}
+    ]
+  },
+  "metamorphic_contract": [
+    {"id": "stress_and_normalization_scale", "relation": "Scaling all stresses, stress parameters, and normalization by the same positive factor leaves normalized objective unchanged."},
+    {"id": "ghosh_common_exponent_shift", "relation": "Replacing (n,p) with (n+c,p+c) leaves stress and tangent unchanged."},
+    {"id": "blend_commutativity", "relation": "w*A+(1-w)*B equals (1-w)*B+w*A."},
+    {"id": "candidate_order_invariance", "relation": "Reordering unique family evaluation leaves each family curve and metric unchanged."},
+    {"id": "fit_subset_invariance", "relation": "Adding observations outside the inclusive fit range leaves its objective unchanged."},
+    {"id": "nested_grid_common_coordinates", "relation": "Closed-form responses on common coordinates are identical for nested output grids."}
+  ],
+  "persistence_contract": {
+    "canonicalization": "UTF-8 JSON with sorted keys, separators comma/colon, ensure_ascii=false, allow_nan=false",
+    "snapshot": {
+      "equation_contract": "altair-material-modeler-2025-v1",
+      "input_processing_output_revision": "synthetic-processing-output-revision-v1",
+      "input_curve_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "objective": {
+        "residual_sign": "predicted_minus_observed",
+        "normalization_stress_pa": 100000000,
+        "aggregation": "sum_squared_normalized_residuals"
+      },
+      "ghosh_fit_evidence": {
+        "parameter_names": ["k_pa", "epsilon_0", "delta_p_minus_n"],
+        "parameter_values": [420000000, 0.8, 0.24],
+        "parameter_units": ["Pa", "1", "1"],
+        "public_parameters_not_recovered": ["n", "p"],
+        "formula_domain": "0 <= epsilon_p < epsilon_0"
+      },
+      "decision": {
+        "primary_family": "ghosh",
+        "secondary_family": "voce",
+        "primary_weight": 0.5,
+        "selection_reason": "Synthetic persistence contract only.",
+        "warning_acknowledged": true
+      }
+    },
+    "canonical_snapshot_sha256": "7f847d9ed69affe07ff3da9949671be0ae8b648a21ab138156daadec586944a9",
+    "tamper_paths": [
+      "equation_contract",
+      "input_curve_sha256",
+      "objective.residual_sign",
+      "objective.normalization_stress_pa",
+      "ghosh_fit_evidence.parameter_names",
+      "ghosh_fit_evidence.parameter_units",
+      "decision.primary_weight",
+      "decision.warning_acknowledged"
+    ]
   },
   "families": [
     {

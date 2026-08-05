@@ -39,10 +39,10 @@ const candidateParameters = {
     ["hardening_exponent_n", "0.750", "lower 0.2 · upper 1.2"],
   ],
   ghosh: [
-    ["ghosh_coefficient_K", "1,400 MPa", "lower 800 · upper 1,600"],
-    ["ghosh_prestrain_epsilon_0", "0.0060", "lower 0 · upper 0.02"],
-    ["ghosh_exponent_n", "0.190", "lower 0.05 · upper 0.40"],
-    ["ghosh_offset_d", "217.6 MPa", "lower 0 · upper 400"],
+    ["ghosh_coefficient_K", "420 MPa", "Altair 2025 formula contract"],
+    ["ghosh_domain_epsilon_0", "0.800", "must exceed every evaluated plastic strain"],
+    ["ghosh_delta_p_minus_n", "0.240", "only identifiable exponent combination"],
+    ["ghosh_public_n_and_p", "not separate fit evidence", "structurally non-identifiable"],
   ],
   "blend-swift-voce": [
     ["Swift coefficient K", "1,035 MPa", "lower 700 · upper 1,400"],
@@ -56,8 +56,8 @@ const candidateParameters = {
 };
 
 // Deterministic, non-production public-law fixtures. This is a hardening response,
-// not a total stress–total strain curve: every law begins at the positive initial
-// yield stress when true plastic strain is zero.
+// not a total stress–total strain curve. Ghosh follows the Altair Material Modeler
+// 2025 equation contract and is evaluated only while plastic strain < epsilon_0.
 const INITIAL_YIELD_STRESS_MPA = 312;
 const FULL_STRAIN_SAMPLES = [0, 0.005, 0.015, 0.03, 0.05, 0.075, 0.1, 0.14, 0.18, 0.24, 0.3, 0.36, 0.42];
 const OBSERVED_STRAIN_SAMPLES = [0, 0.005, 0.015, 0.03, 0.05, 0.075, 0.1, 0.14, 0.18];
@@ -67,9 +67,10 @@ const swiftPrestrain = Math.pow(INITIAL_YIELD_STRESS_MPA / 1035, 1 / 0.235);
 const swiftStress = (strain) => 1035 * Math.pow(swiftPrestrain + strain, 0.235);
 const hockettStress = (strain) => 1260
   - (1260 - INITIAL_YIELD_STRESS_MPA) * Math.exp(-5.8 * Math.pow(strain, 0.75));
-const ghoshPrestrain = 0.006;
-const ghoshOffset = 1400 * Math.pow(ghoshPrestrain, 0.19) - INITIAL_YIELD_STRESS_MPA;
-const ghoshStress = (strain) => 1400 * Math.pow(ghoshPrestrain + strain, 0.19) - ghoshOffset;
+const ghoshDomainEpsilon0 = 0.8;
+const ghoshDeltaPMinusN = 0.24;
+const ghoshStress = (strain) => 420
+  * Math.pow(ghoshDomainEpsilon0 - strain, -ghoshDeltaPMinusN);
 const blendStress = (strain) => (swiftStress(strain) + voceStress(strain)) / 2;
 const observedOffsetsMpa = [0, 2, -3, 4, -2, 3, -4, 2, -1];
 const sampleSeries = (strains, evaluator) => strains.map((strain) => [strain, Number(evaluator(strain).toFixed(3))]);

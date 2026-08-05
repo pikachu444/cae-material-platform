@@ -14,12 +14,9 @@ from typing import Any
 from uuid import UUID
 
 import numpy as np
-from scipy.interpolate import UnivariateSpline  # type: ignore[import-untyped]
-from scipy.optimize import least_squares  # type: ignore[import-untyped]
-from scipy.signal import savgol_filter  # type: ignore[import-untyped]
-
 from cmp.modules.datasets.domain.canonical_test_data import CanonicalTestDataDocument
 from cmp.modules.processing.domain.metal_hardening import (
+    HARDENING_EQUATION_CONTRACT,
     MetalHardeningError,
     fit_hardening_candidates,
 )
@@ -30,6 +27,9 @@ from cmp.modules.processing.domain.polymer_viscoelastic import (
     log_time_resample,
 )
 from cmp.shared.domain.revisions import content_sha256
+from scipy.interpolate import UnivariateSpline  # type: ignore[import-untyped]
+from scipy.optimize import least_squares  # type: ignore[import-untyped]
+from scipy.signal import savgol_filter  # type: ignore[import-untyped]
 
 COMMON_METHOD_VERSION = "1.0.0"
 MAX_PREVIEW_POINTS = 100_000
@@ -468,6 +468,7 @@ METHOD_REGISTRY: tuple[MethodDefinition, ...] = (
             "type": "object",
             "additionalProperties": False,
             "properties": {
+                "equation_contract": {"const": HARDENING_EQUATION_CONTRACT},
                 "plastic_strain_quantity": {"type": "string", "minLength": 1},
                 "stress_quantity": {"type": "string", "minLength": 1},
                 "families": {
@@ -497,6 +498,7 @@ METHOD_REGISTRY: tuple[MethodDefinition, ...] = (
                 },
             },
             "required": [
+                "equation_contract",
                 "plastic_strain_quantity",
                 "stress_quantity",
                 "families",

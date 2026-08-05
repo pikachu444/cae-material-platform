@@ -12,7 +12,7 @@ fixture:
     do not rewrite or delete this version's provenance.
   digest:
     algorithm: sha256
-    value: de31c13b57497ef3180cb9b64eebd2d2b1103e62d9bb9b1502d0fb9dc78594c0
+    value: 604164afe71aa7715a232e9ecf06332fc46d8684cd03db96cfcbad1bb1671f28
     byte_contract: UTF-8, LF line endings, two-space JSON indentation, final newline included
 
 generation:
@@ -24,10 +24,14 @@ generation:
   procedure: >-
     Parse parameters and strains from decimal strings; evaluate the four published
     closed-form equations and their analytical derivatives using exp(a * ln(x)) for
-    non-integer powers; round once to 17 significant decimal digits; serialize JSON;
-    compute SHA-256 over the exact bytes.
+    non-integer powers; round once to 17 significant decimal digits; add declarative
+    fixture-only recovery, option, metamorphic, and canonical persistence contracts;
+    serialize JSON; compute SHA-256 over the exact bytes.
   data_character: deterministic synthetic values; not measured material data
-  optimizer_character: no optimizer was used to generate expected values
+  optimizer_character: >-
+    No optimizer was used to generate expected stress, tangent, residual, objective, or
+    persistence digest values. Recovery starts and bounds are non-production test inputs
+    exercised only by the independent fixture integrity test.
 
 license:
   fixture_data: >-

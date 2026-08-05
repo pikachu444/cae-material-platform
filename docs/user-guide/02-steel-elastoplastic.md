@@ -30,6 +30,9 @@ strain과 engineering stress 의미 및 원래 단위를 명시해야 합니다.
 8. 각 stage의 curve와 **Scalar results**를 확인합니다. 자동 necking 후보는 원본을 자르지 않습니다.
    hardening stage에서는 네 후보와 선택 조합, 후보별 RMSE, 각 parameter의 lower/initial/fitted/upper,
    관측 구간과 외삽 구간을 확인합니다. 외삽 구간은 시험 관측값으로 표시되지 않습니다.
+   Ghosh 후보는 Altair Material Modeler 2025 식을 사용하며 `delta_p_minus_n`만 fit evidence로
+   표시합니다. (n)과 (p)는 개별 식별할 수 없고 plastic strain은 `epsilon_0`보다 작아야 하므로,
+   선택 전 표시되는 경고를 확인하고 acknowledgement를 남깁니다.
    처리 조건을 반복 사용할 경우 Recipe 새 revision으로 저장·게시하고 다른 시험에 preflight/batch 실행합니다.
 
 

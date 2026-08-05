@@ -31,6 +31,7 @@ from cmp.modules.processing.domain.common_pipeline import (
     preview_pipeline,
     processing_preview_canonical,
 )
+from cmp.modules.processing.domain.metal_hardening import HARDENING_EQUATION_CONTRACT
 from cmp.shared.application.revisions import (
     CreateRevisionedAggregate,
     RevisionService,
@@ -318,6 +319,10 @@ def _option_number(step: ProcessingStep, key: str) -> float:
 def _validate_metal_fit_decision(
     step: ProcessingStep, scalar: dict[str, ScalarResult], decision: FitDecisionSnapshot
 ) -> None:
+    if step.options.get("equation_contract") != HARDENING_EQUATION_CONTRACT:
+        raise CommonPipelineError(
+            "metal fit decision requires the Altair Material Modeler 2025 equation contract"
+        )
     families = tuple(str(item) for item in step.options.get("families", []))
     primary = str(step.options.get("primary_family", ""))
     secondary = str(step.options.get("secondary_family", ""))

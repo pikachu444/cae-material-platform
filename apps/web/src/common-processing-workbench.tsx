@@ -66,6 +66,7 @@ import { ModelingTargetPreview } from "./modeling-target-preview";
 import {
   buildFitDecisionSnapshot,
   fitDecisionIdentityLabel,
+  METAL_HARDENING_EQUATION_CONTRACT,
   type FitDecisionSelection,
 } from "./modeling-fit-decision-contract";
 
@@ -325,6 +326,7 @@ const METAL_TENSILE_STEPS: CommonProcessingStep[] = [
     method_id: "metal.hardening_fit_extrapolate",
     method_version: "1.0.0",
     options: {
+      equation_contract: METAL_HARDENING_EQUATION_CONTRACT,
       plastic_strain_quantity: "strain.true_plastic",
       stress_quantity: "stress.true",
       families: ["voce", "swift", "hockett_sherby", "ghosh"],
@@ -578,6 +580,7 @@ function defaultOptions(methodId: string): Record<string, unknown> {
       negative_plastic_policy: "drop",
     },
     "metal.hardening_fit_extrapolate": {
+      equation_contract: METAL_HARDENING_EQUATION_CONTRACT,
       plastic_strain_quantity: "strain.true_plastic",
       stress_quantity: "stress.true",
       families: ["voce", "swift", "hockett_sherby", "ghosh"],

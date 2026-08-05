@@ -20,6 +20,7 @@ FloatArray = NDArray[np.float64]
 Evaluator = Callable[[FloatArray, FloatArray], FloatArray]
 
 HARDENING_FAMILIES = ("voce", "swift", "hockett_sherby", "ghosh")
+HARDENING_EQUATION_CONTRACT = "altair-material-modeler-2025-v1"
 
 
 class MetalHardeningError(ValueError):
@@ -218,6 +219,11 @@ def _number(options: dict[str, Any], key: str) -> float:
 def fit_hardening_candidates(
     columns: dict[str, FloatArray], units: dict[str, str], options: dict[str, Any]
 ) -> HardeningFitResult:
+    if options.get("equation_contract") != HARDENING_EQUATION_CONTRACT:
+        raise MetalHardeningError(
+            "equation_contract must be altair-material-modeler-2025-v1; "
+            "legacy hardening recipes require an explicit revision before re-execution"
+        )
     strain_key = options.get("plastic_strain_quantity")
     stress_key = options.get("stress_quantity")
     if not isinstance(strain_key, str) or strain_key not in columns:
@@ -293,6 +299,7 @@ def fit_hardening_candidates(
     result_columns: dict[str, FloatArray] = {strain_key: grid}
     result_units = {strain_key: "1"}
     diagnostics: list[str] = [
+        f"equation_contract={HARDENING_EQUATION_CONTRACT}",
         f"fit observed domain [{minimum}, {maximum}] with {len(fit_strain)} points",
         f"extrapolated domain ({maximum}, {extrapolation_maximum}] is not observed",
         "objective=uniform normalized predicted-minus-observed least squares",

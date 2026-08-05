@@ -545,6 +545,12 @@ Altair 2025에 표시된 parameterization을 다른 문헌 variant로 바꾸는 
 Material Modeler의 fit range, derivative 확인, 두 곡선 조합 흐름은 공개 workflow 근거일
 뿐 비공개 objective, initial value, bounds, stopping rule 또는 추천 정책의 근거가 아니다.
 
+Platform recipe는 `equation_contract=altair-material-modeler-2025-v1`을 반드시 저장한다.
+이 값이 없거나 다른 과거 hardening recipe는 새 수식으로 조용히 재실행하지 않고 명시적으로
+거부한다. 공통 processing method envelope의 version은 `1.0.0`을 유지하되, 저장된 식 계약과
+diagnostic이 constitutive equation 의미를 구분한다. 이 식별자는 Altair optimizer 정책이나
+production threshold를 뜻하지 않는다.
+
 | Family | 규범 수식·workflow | 원 출처 |
 | --- | --- | --- |
 | Voce | [Altair 2025 Curve Fitting](https://2025.help.altair.com/2025/material_modeler/topics/material_modeler/curve_fitting_t.htm) | E. Voce, *Journal of the Institute of Metals* 74 (1948) 537–562, [bibliographic record](https://cir.nii.ac.jp/crid/1570854176063010304) |
@@ -713,6 +719,10 @@ x^a=\exp(a\ln x)
 `positive_infinity` limit로 저장한다. JSON 마지막 newline을 포함한 정확한 byte의
 SHA-256은 manifest에 고정한다.
 
+`tests/unit/test_metal_hardening_reference_fixture.py`는 production evaluator나 fitter를
+import하지 않고 digest, 수식·tangent·limit, objective, scaled Jacobian rank, fixture-only
+recovery, option 정상·경계·오류, metamorphic relation과 canonical snapshot tamper를 검증한다.
+
 재현 순서는 다음과 같다.
 
 1. 모든 parameter와 strain을 decimal 문자열에서 읽는다.
@@ -839,8 +849,11 @@ fixture의 한 byte, manifest digest, source ID, unit, family ID, parameter 이�
 objective 부호를 변경한 tamper case는 거부한다. 과거 revision은 새 fit이나 upstream
 변경으로 덮어쓰지 않고 current pointer만 stale 처리한다.
 
-이번 초안은 persistence schema, API 또는 GUI를 구현하지 않는다. 위 항목은 후속 작업 3B가
-검증해야 할 저장 계약이다.
+3A의 canonical synthetic snapshot은 save/reload byte-equivalence와 지정 tamper path의
+digest 불일치를 전용 fixture test로 검증한다. Production persistence schema/API의 확장과
+실제 revision round-trip은 작업 3B의 범위다. 현재 production 경로는 새
+`equation_contract`가 없는 legacy recipe의 재실행·fit decision 저장·model promotion을
+거부하며, Ghosh 선택 화면은 (n,p) 비식별성과 (epsilon_p<epsilon_0) 경고를 명시한다.
 
 ### 21.13 Tolerance와 판정 근거
 
@@ -870,8 +883,8 @@ qualification tolerance는 별도 도메인 결정이다.
 | --- | --- |
 | `FR-CAL-001` | 독립 fixture 생성이 production evaluator/calibrator를 호출하지 않아 evaluator와 calibrator를 분리 |
 | `FR-CAL-002` | objective·normalization·bounds evidence 항목을 고정하되 production 값은 미결정 |
-| `FR-CAL-003` | fixture generation runtime·method와 digest 기록; production package/container 증거는 3B |
-| `FR-CAL-004` | response/residual/tangent/convergence/warning 저장 항목 정의; 실제 persistence는 3B |
+| `FR-CAL-003` | fixture generation runtime·method·digest와 전용 integrity test 기록; production package/container 증거는 3B |
+| `FR-CAL-004` | response/residual/tangent/convergence/warning 저장 항목과 canonical snapshot tamper gate 정의; 실제 production revision round-trip은 3B |
 | `FR-CAL-005` | candidate 순서·비교·명시적 blend 검증 계획; multistart 정책은 미결정 |
 | `FR-CAL-006` | calibration/holdout 분리는 기존 절을 유지하며 이 analytical fixture에는 N/A |
 | `FR-CAL-007` | scaled Jacobian과 structural non-identifiability 판정 정의 |
