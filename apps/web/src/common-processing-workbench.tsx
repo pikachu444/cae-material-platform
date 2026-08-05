@@ -479,9 +479,9 @@ function GuidedStepOptions({
     const unit = modulusDisplayUnit(step.options.manual_modulus_unit);
     const manualValue = manualModulusDisplayValue(numberOption(step, "manual_modulus_pa"), unit);
     return <div className="guided-step-options elastic-modulus-options">
-      <fieldset className="option-choice-grid elastic-modulus-methods"><legend>Evaluation method</legend>{[
+      <label className="elastic-modulus-method"><span>Evaluation method</span><select aria-label="Evaluation method" value={method} onChange={(event) => onChange("method", event.target.value)}>{[
         ["robust_huber", "Auto robust"], ["linear_regression", "Linear regression"], ["chord", "Chord"], ["secant", "Secant"], ["manual", "Manual slope"],
-      ].map(([value, label]) => <button type="button" className={method === value ? "active" : ""} key={value} onClick={() => onChange("method", value)}>{label}</button>)}</fieldset>
+      ].map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
       <div className="elastic-modulus-range"><label>Start strain<input aria-label="Elastic range start" type="number" step="any" value={numberOption(step, "minimum_strain")} onChange={(event) => onChange("minimum_strain", Number(event.target.value))}/></label><label>End strain<input aria-label="Elastic range end" type="number" step="any" value={numberOption(step, "maximum_strain")} onChange={(event) => onChange("maximum_strain", Number(event.target.value))}/></label></div>
       <p className="option-hint">Use <strong>Select range</strong> on the graph to set both limits directly.</p>
       <p className="option-hint">Calculated Young&apos;s modulus is derived from the selected elastic range. A manual value is a physical-workup override, not a Fit parameter.</p>
@@ -2166,6 +2166,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     if (family === "polymer") return modelingTrack === "polymer";
     return true;
   }), [methods, modelingTrack]);
+  const availableMethods = trackMethods.filter((method) => workflowTask === "fit" ? isFitMethod(method.method_id) : !isFitMethod(method.method_id));
   const chart = useMemo(() => ({ width: 1750, height: 420 }), []);
   const sessionContextMatchesLive = Boolean(
     material
@@ -2439,7 +2440,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   const toggleMeanPreview = () => setPlotView(meanPreviewVisible ? "pipeline" : "ensemble");
 
   return (
-    <main className="processing-workbench-page">
+    <main className={`processing-workbench-page stage-${workflowTask}`}>
       <header className="modeling-context-strip" aria-label="Modeling context">
         <div className="modeling-work-title"><strong>{stageTitle}</strong><span>{[initialSession?.material?.label, selectedTrackDocument ? curveGroupLabel(selectedTrackDocument) : ""].filter(Boolean).join(" / ") || "Select test data"}</span></div>
         <div className="modeling-context-actions">
@@ -2487,7 +2488,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         onNavigate={onNavigate}
       /></Suspense> : null}
       {!elastomerWorkbenchTask && workflowTask !== "validate" && workflowTask !== "review" ? <section className={`workbench-card method-builder-card stage-${workflowTask}`} id="modeling-process">
-        <div className="section-heading"><div><p className="workspace-caption">{workflowTask}</p><h2>{stageTitle}</h2></div><div className="modeling-section-actions">{isProcessTask || workflowTask === "fit" ? <details className="method-library" open={processBlocked || undefined}><summary aria-disabled={processBlocked}>{workflowTask === "fit" ? "Add fit method" : "Add operation"} <span>{trackMethods.filter((method) => workflowTask === "fit" ? isFitMethod(method.method_id) : !isFitMethod(method.method_id)).length}</span></summary><div className="method-registry-strip" aria-label={workflowTask === "fit" ? "Available fitting methods" : "Available processing operations"}>{trackMethods.filter((method) => workflowTask === "fit" ? isFitMethod(method.method_id) : !isFitMethod(method.method_id)).map((method) => <button type="button" className="method-pill" key={method.method_id} disabled={processBlocked} onClick={() => addMethod(method)}><strong>+ {method.label}</strong><small>{method.version}</small></button>)}</div></details> : null}{workflowTask === "export" ? <button className="button secondary" type="button" onClick={() => openWorkflowTask("fit")}>Back to Fit</button> : null}</div></div>
+        <div className="section-heading"><div><p className="workspace-caption">{workflowTask}</p><h2>{stageTitle}</h2></div><div className="modeling-section-actions">{isProcessTask || workflowTask === "fit" ? <details className="method-library" open={processBlocked || undefined}><summary aria-disabled={processBlocked}>{workflowTask === "fit" ? "Add fit method" : "Add operation"} <span>{availableMethods.length}</span></summary><div className="method-registry-strip" aria-label={workflowTask === "fit" ? "Available fitting methods" : "Available processing operations"}>{availableMethods.map((method) => <button type="button" className="method-pill" key={method.method_id} disabled={processBlocked} onClick={() => addMethod(method)}><strong>+ {method.label}</strong><small>{method.version}</small></button>)}</div></details> : null}{workflowTask === "export" ? <button className="button secondary" type="button" onClick={() => openWorkflowTask("fit")}>Back to Fit</button> : null}</div></div>
         <div className={`modeling-workspace-shell${workflowTask === "data" ? " modeling-data-workspace-bounded" : isProcessTask ? " modeling-process-workspace-bounded" : ""}`}>
         <ModelingWorkspaceLayout
           navigator={workflowTask === "data" || isProcessTask || workflowTask === "fit" ? <>

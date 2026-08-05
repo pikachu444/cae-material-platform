@@ -71,7 +71,7 @@ describe("ModelingProcessPanel saved result disclosure", () => {
     const second = output("output-2");
     const view = render(<ModelingProcessPanel {...baseProps} savedOutputs={[]} onLoadSavedResult={onLoadSavedResult} />);
 
-    fireEvent.click(screen.getByText("Saved results (0)"));
+    fireEvent.click(screen.getByText("Saved processing results (0)"));
     expect(onLoadSavedResult).not.toHaveBeenCalled();
 
     view.rerender(<ModelingProcessPanel {...baseProps} savedOutputs={[first, second]} onLoadSavedResult={onLoadSavedResult} />);
@@ -87,14 +87,14 @@ describe("ModelingProcessPanel saved result disclosure", () => {
     const replacementLoad = vi.fn();
     const view = render(<ModelingProcessPanel {...baseProps} savedOutputs={[first, second]} onLoadSavedResult={initialLoad} />);
 
-    fireEvent.click(screen.getByText("Saved results (2)"));
+    fireEvent.click(screen.getByText("Saved processing results (2)"));
     await waitFor(() => expect(initialLoad).toHaveBeenCalledTimes(2));
     view.rerender(<ModelingProcessPanel {...baseProps} outputLabel="Unrelated rerender" savedOutputs={[first, second]} onLoadSavedResult={replacementLoad} />);
     await waitFor(() => expect(screen.getByDisplayValue("Unrelated rerender")).toBeTruthy());
     expect(initialLoad).toHaveBeenCalledTimes(2);
     expect(replacementLoad).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByText("Saved results (2)"));
-    fireEvent.click(screen.getByText("Saved results (2)"));
+    fireEvent.click(screen.getByText("Saved processing results (2)"));
+    fireEvent.click(screen.getByText("Saved processing results (2)"));
     await waitFor(() => expect(replacementLoad).toHaveBeenCalledTimes(2));
   });
 
@@ -103,7 +103,7 @@ describe("ModelingProcessPanel saved result disclosure", () => {
     const onLoadSavedResult = vi.fn();
     const view = render(<ModelingProcessPanel {...baseProps} savedOutputs={[saved]} onLoadSavedResult={onLoadSavedResult} />);
 
-    fireEvent.click(screen.getByText("Saved results (1)"));
+    fireEvent.click(screen.getByText("Saved processing results (1)"));
     await waitFor(() => expect(onLoadSavedResult).toHaveBeenCalledTimes(1));
     view.rerender(<ModelingProcessPanel {...baseProps} savedOutputs={[]} onLoadSavedResult={onLoadSavedResult} />);
     view.rerender(<ModelingProcessPanel {...baseProps} savedOutputs={[saved]} onLoadSavedResult={onLoadSavedResult} />);
@@ -117,7 +117,7 @@ describe("ModelingProcessPanel saved result disclosure", () => {
     render(<ModelingProcessPanel {...baseProps} savedOutputs={[first, second]} onLoadSavedResult={onLoadSavedResult} />);
 
     expect(onLoadSavedResult).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByText("Saved results (2)"));
+    fireEvent.click(screen.getByText("Saved processing results (2)"));
     await waitFor(() => expect(onLoadSavedResult).toHaveBeenCalledTimes(2));
   });
 
@@ -191,7 +191,13 @@ describe("ModelingProcessPanel result surface states", () => {
         onUseSavedSettings={onUseSavedSettings}
       />,
     );
-    fireEvent.click(screen.getByText("Saved results (1)"));
+    fireEvent.click(screen.getByText("Saved processing results (1)"));
+    const table = screen.getByRole("table", { name: "Saved processing results" });
+    expect(Array.from(table.querySelectorAll("thead th"), (header) => header.textContent)).toEqual([
+      "Label", "Method", "Range", "Result", "Revision", "State", "Action",
+    ]);
+    expect(within(table).getByText("Auto robust")).toBeTruthy();
+    expect(table.textContent).not.toContain("Tensile · r1");
     expect(screen.getByText("Loading saved result…", { exact: false })).toBeTruthy();
     expect((screen.getByRole("button", { name: "Use settings" }) as HTMLButtonElement).disabled).toBe(true);
 

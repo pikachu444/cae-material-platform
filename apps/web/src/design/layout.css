@@ -3008,7 +3008,7 @@
   overflow: visible;
 }
 
-/* Opening Saved results is a bounded, temporary disclosure. Reflow the
+/* Opening Saved processing results is a bounded, temporary disclosure. Reflow the
    ribbon so the rows occupy real space above the persistent graph rather than
    painting over its heading and controls. */
 .modeling-task-ribbon:has(.process-stage-options .process-saved-results[open]) {
@@ -3030,8 +3030,7 @@
 .process-band-heading,
 .process-band-controls,
 .process-band-save,
-.process-band-status,
-.process-comparison-row {
+.process-band-status {
   display: flex;
   align-items: center;
   min-width: 0;
@@ -3073,9 +3072,39 @@
   max-width: 32%;
 }
 
+.process-band-groups {
+  display: grid;
+  grid-template-columns: minmax(440px, 1.55fr) minmax(120px, .55fr) minmax(500px, 1.45fr);
+  align-items: stretch;
+  min-width: 0;
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.process-band-group {
+  display: grid;
+  min-width: 0;
+  align-content: start;
+  gap: 3px;
+  padding: 4px 8px 5px;
+}
+
+.process-band-group + .process-band-group {
+  border-left: 1px solid var(--ux-border);
+}
+
+.process-band-group > h3 {
+  margin: 0;
+  color: var(--ux-text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  line-height: 14px;
+  text-transform: uppercase;
+}
+
 .process-band-controls {
   align-items: stretch;
-  min-height: 48px;
+  min-height: 0;
   min-width: 0;
   margin: 0;
   padding: 0;
@@ -3092,51 +3121,40 @@
   overflow: hidden;
 }
 
-.process-band-controls .option-choice-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px;
-}
-
-.process-band-controls .option-choice-grid button {
-  min-height: 25px;
-  padding: 3px 7px;
-}
-
 .process-band-controls .option-hint {
   display: none;
 }
 
-/* Process elastic-modulus controls stay content-bound: the method buttons and
-   range fields share one left-justified row, while the optional manual
-   workup can wrap onto a second row inside the same current-step band. */
+/* Process controls stay in one shallow calculation group.  Manual modulus
+   workup occupies a second row with the keyboard order value → unit → reason. */
 .process-band-controls > .guided-step-options.elastic-modulus-options {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(150px, .8fr) minmax(205px, 1.2fr);
+  grid-template-areas:
+    "method range"
+    "manual manual";
+  align-items: start;
   flex: 1 1 auto;
-  flex-wrap: wrap;
-  align-content: flex-start;
-  align-items: flex-start;
   gap: 5px 8px;
   overflow: visible;
 }
 
-.process-band-controls .elastic-modulus-methods {
-  display: flex;
-  flex: 0 1 auto;
-  flex-wrap: wrap;
-  align-content: flex-start;
-  gap: 3px;
-  width: max-content;
-  max-width: 100%;
+.process-band-controls .elastic-modulus-method {
+  display: grid;
+  grid-area: method;
+  min-width: 0;
+  gap: 2px;
+  color: var(--ux-text-muted);
+  font-size: 11px;
+  font-weight: 650;
 }
 
 .process-band-controls .elastic-modulus-range {
+  grid-area: range;
   display: grid;
-  flex: 0 0 auto;
-  grid-template-columns: repeat(2, minmax(104px, auto));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 4px;
-  width: max-content;
-  max-width: 100%;
+  min-width: 0;
 }
 
 .process-band-controls .elastic-modulus-range label,
@@ -3145,17 +3163,18 @@
   min-width: 0;
   gap: 2px;
   color: var(--ux-text-muted);
-  font-size: 12px;
+  font-size: 11px;
 }
 
-.process-band-controls .elastic-modulus-range input {
-  width: 104px;
-  max-width: 100%;
+.process-band-controls .elastic-modulus-range input,
+.process-band-controls .elastic-modulus-method select {
+  width: 100%;
+  min-width: 0;
 }
 
 .process-band-controls .elastic-modulus-manual-row {
+  grid-area: manual;
   display: grid;
-  flex: 1 1 100%;
   grid-template-columns: minmax(145px, 1fr) minmax(96px, .42fr) minmax(190px, 1.25fr);
   gap: 4px 8px;
   width: 100%;
@@ -3167,25 +3186,50 @@
   min-width: 0;
 }
 
+.process-band-controls :is(input, select, button) {
+  box-sizing: border-box;
+  min-height: 28px;
+  height: 28px;
+}
+
+.process-band-controls input[type="range"] {
+  height: 28px;
+  padding: 0;
+}
+
 .process-band-save {
+  display: grid;
+  grid-template-columns: minmax(170px, 1.1fr) minmax(185px, 1.3fr) max-content;
   align-items: end;
-  flex: 0 1 690px;
+  min-width: 0;
+  gap: 6px;
 }
 
 .process-band-save > label {
   display: grid;
   gap: 2px;
-  min-width: 130px;
+  min-width: 0;
   color: var(--ux-text-muted);
   font-size: 11px;
 }
 
 .process-band-save input {
-  min-height: 29px;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 28px;
+  height: 28px;
 }
 
 .process-band-result {
-  min-width: 112px;
+  align-content: start;
+  min-width: 0;
+  gap: 2px;
+}
+
+.process-band-result strong {
+  color: var(--ux-success, #176b55);
+  font-size: 14px;
+  line-height: 18px;
 }
 
 .process-band-status {
@@ -3200,6 +3244,18 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Process is the only normal surface whose top actions share a deliberately
+   equal compact control height.  Data/Fit/Export retain the established
+   context-bar dimensions above. */
+.processing-workbench-page.stage-process .modeling-context-actions .button,
+.processing-workbench-page.stage-process .modeling-context-actions .modeling-advanced-menu > summary {
+  box-sizing: border-box;
+  min-height: 28px;
+  height: 28px;
+  padding: 5px 9px;
+  line-height: 16px;
 }
 
 .status-current { color: var(--ux-success, #176b55); }
@@ -3226,8 +3282,7 @@
 }
 
 .process-comparison-region {
-  display: grid;
-  gap: 3px;
+  display: block;
   max-height: 124px;
   overflow-y: auto;
   scrollbar-gutter: stable;
@@ -3235,32 +3290,84 @@
 }
 
 .process-comparison-row {
-  min-height: 28px;
-  padding: 3px 0;
-  border-bottom: 1px solid var(--ux-border);
+  min-width: 0;
   font-size: 11px;
 }
 
-.process-comparison-row > div {
-  display: block;
-  flex: 1 1 auto;
+.process-comparison-table {
+  width: 100%;
   min-width: 0;
-  max-width: none;
-  overflow: visible;
-  text-overflow: clip;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.process-comparison-table th,
+.process-comparison-table td {
+  min-width: 0;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--ux-border);
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  vertical-align: middle;
   white-space: nowrap;
 }
 
-.process-comparison-row > div span,
+.process-comparison-table th {
+  color: var(--ux-text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+
+.process-comparison-table th:nth-child(1),
+.process-comparison-table td:nth-child(1) { width: 22%; }
+.process-comparison-table th:nth-child(2),
+.process-comparison-table td:nth-child(2) { width: 16%; }
+.process-comparison-table th:nth-child(3),
+.process-comparison-table td:nth-child(3) { width: 13%; }
+.process-comparison-table th:nth-child(4),
+.process-comparison-table td:nth-child(4) { width: 15%; }
+.process-comparison-table th:nth-child(5),
+.process-comparison-table td:nth-child(5) { width: 9%; }
+.process-comparison-table th:nth-child(6),
+.process-comparison-table td:nth-child(6) { width: 10%; }
+.process-comparison-table th:nth-child(7),
+.process-comparison-table td:nth-child(7) { width: 15%; }
+
+.process-comparison-table td:last-child {
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.process-comparison-table td:last-child .text-button {
+  min-height: 24px;
+  height: 24px;
+  padding: 2px 4px;
+  white-space: nowrap;
+}
+
+.process-comparison-table td:nth-child(4) {
+  color: var(--ux-success, #176b55);
+  font-variant-numeric: tabular-nums;
+}
+
+.process-comparison-table td:nth-child(5),
+.process-comparison-table td:nth-child(6) {
+  font-variant-numeric: tabular-nums;
+}
+
+.process-comparison-table td:nth-child(6) {
+  color: var(--ux-text-muted);
+}
+
+.process-comparison-row > div,
 .process-comparison-row > span {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-.process-comparison-row > span:nth-of-type(1) { min-width: 80px; }
-.process-comparison-row > span:nth-of-type(2) { min-width: 92px; }
-.process-comparison-row > span:nth-of-type(3) { min-width: 126px; }
 
 .process-preview-note {
   margin: 0;
@@ -4993,6 +5100,52 @@
 .processing-workbench-page input:not([type="checkbox"]):not([type="radio"]),
 .processing-workbench-page select {
   min-height: 32px;
+}
+
+/* The shared workbench baseline keeps larger form controls on Data/Fit/Export.
+   Process is a shallow ribbon: its normal and manual controls must resolve to
+   the same 28px track even though this block appears after the ribbon rules. */
+.application-shell main.processing-workbench-page.stage-process .modeling-context-actions .button,
+.application-shell main.processing-workbench-page.stage-process .modeling-context-actions .modeling-advanced-menu > summary {
+  box-sizing: border-box;
+  min-height: 28px;
+  height: 28px;
+  padding-block: 5px;
+  line-height: 16px;
+}
+
+.application-shell main.processing-workbench-page.stage-process .modeling-context-actions {
+  align-items: center;
+}
+
+.application-shell main.processing-workbench-page.stage-process .modeling-context-actions .modeling-advanced-menu {
+  gap: 0;
+}
+
+.application-shell main.processing-workbench-page.stage-process .process-band-controls :is(input, select, button),
+.application-shell main.processing-workbench-page.stage-process .process-band-save :is(input, button) {
+  box-sizing: border-box;
+  min-height: 28px;
+  height: 28px;
+}
+
+.application-shell main.processing-workbench-page.stage-process .process-band-save {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) max-content;
+}
+
+.application-shell main.processing-workbench-page.stage-process .process-band-save > .button {
+  padding: 4px 8px;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.application-shell main.processing-workbench-page.stage-process .process-band-controls input[type="range"] {
+  padding-block: 0;
+}
+
+.application-shell main.processing-workbench-page.stage-process .process-band-save > label,
+.application-shell main.processing-workbench-page.stage-process .process-band-save > .button {
+  white-space: nowrap;
 }
 
 .processing-workbench-page small,

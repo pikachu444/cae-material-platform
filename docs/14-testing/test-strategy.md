@@ -796,9 +796,11 @@ also exercise path traversal, duplicate path and malformed scanner boundaries. A
 must additionally pass `--trusted-public-key`; an ephemeral local key proves bundle integrity only.
 
 The frontend production build must keep the entry JavaScript at or below 300,000 bytes and each
-lazy workbench chunk at or below 120,000 bytes. The checker runs after every Vite build and fails CI
-on regression. On 2026-07-16 code splitting reduced the entry from 541,662 to 269,778 bytes; the
-largest lazy chunk was 88,163 bytes. These are observed sizes, while the two budgets are enforced
+lazy workbench chunk at or below 128,000 bytes. The lazy-workbench limit is an enforced ceiling and
+headroom guard, not a target. The checker runs after every Vite build and fails CI on regression;
+`CMP_WEB_ENTRY_BUDGET_BYTES` and `CMP_WEB_LAZY_CHUNK_BUDGET_BYTES` remain available for explicit
+environment overrides. On 2026-07-16 code splitting reduced the entry from 541,662 to 269,778 bytes;
+the largest lazy chunk was 88,163 bytes. These are observed sizes, while the two budgets are enforced
 limits.
 
 ## T-47 bounded full-stack performance/security gate

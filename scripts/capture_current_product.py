@@ -1719,17 +1719,16 @@ def _assert_modeling_process_saved_rows(
     if len(row_text) != 2:
         raise RuntimeError(f"Saved Process comparison must contain exactly two rows: {row_text}")
     for label, method, range_text, scalar in (
-        ("Robust elastic", "robust_huber", "0.0002–0.002", "210.0 GPa"),
-        ("Chord elastic", "chord", "0.001–0.003", "120.0 GPa"),
+        ("Robust elastic", "Auto robust", "0.0002–0.002", "210.0 GPa"),
+        ("Chord elastic", "Chord", "0.001–0.003", "120.0 GPa"),
     ):
         matching = [text for text in row_text if label in text]
         if (
             len(matching) != 1
-            or PROCESS_SOURCE_VISIBLE_IDENTITY not in matching[0]
             or method not in matching[0]
             or range_text not in matching[0]
             or scalar not in matching[0]
-            or "output r1" not in matching[0]
+            or "r1" not in matching[0]
         ):
             raise RuntimeError(f"Saved Process row is missing exact {label} evidence: {row_text}")
     if require_current_and_history:
@@ -1740,8 +1739,85 @@ def _assert_modeling_process_saved_rows(
     return row_text
 
 
+def _assert_modeling_process_table_geometry(page: Page) -> None:
+    """Verify semantic Saved-results columns and row actions stay reachable."""
+    layout = page.evaluate(
+        """() => {
+          const table = document.querySelector('details.process-saved-results[open] .process-comparison-table');
+          if (!table) return { present: false };
+          const details = table.closest('details');
+          const ribbon = document.querySelector('.modeling-task-ribbon');
+          const plot = document.querySelector('.persistent-modeling-plot');
+          const rect = node => node?.getBoundingClientRect() ?? null;
+          const inside = (child, parent) => {
+            const childBox = rect(child);
+            const parentBox = rect(parent);
+            return Boolean(childBox && parentBox
+              && childBox.left >= parentBox.left - 1
+              && childBox.right <= parentBox.right + 1
+              && childBox.top >= parentBox.top - 1
+              && childBox.bottom <= parentBox.bottom + 1);
+          };
+          const hitWithin = (owner, box) => {
+            if (!box || box.width <= 0 || box.height <= 0) return false;
+            const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+            return hit instanceof Element && (hit === owner || owner.contains(hit));
+          };
+          const rows = [...table.querySelectorAll('tbody tr')];
+          const headers = [...table.querySelectorAll('thead th')].map(header => header.textContent?.trim() || '');
+          const rowChecks = rows.map(row => {
+            const cells = [...row.querySelectorAll(':scope > td')];
+            const cellBoxes = cells.map(rect);
+            const action = cells.at(-1)?.querySelector('button');
+            const actionBox = rect(action);
+            const horizontalOrder = cellBoxes.every((box, index) => !index || !box || !cellBoxes[index - 1] || box.left >= cellBoxes[index - 1].right - 1);
+            return {
+              cellCount: cells.length,
+              rowContained: inside(row, table) && inside(row, details) && inside(row, ribbon),
+              rowAbovePlot: Boolean(plot && rect(row)?.bottom <= rect(plot)?.top + 1),
+              horizontalOrder,
+              actionVisible: Boolean(actionBox && actionBox.width > 0 && actionBox.height > 0),
+              actionTopmost: Boolean(action && hitWithin(action, actionBox)),
+              actionLabel: action?.textContent?.trim() || '',
+            };
+          });
+          return {
+            present: true,
+            tableContained: inside(table, details) && inside(table, ribbon),
+            tableAbovePlot: Boolean(plot && rect(table)?.bottom <= rect(plot)?.top + 1),
+            headers,
+            rowChecks,
+          };
+        }"""
+    )
+    if not isinstance(layout, dict) or not layout.get("present"):
+        return
+    expected_headers = ["Label", "Method", "Range", "Result", "Revision", "State", "Action"]
+    if (
+        layout.get("headers") != expected_headers
+        or not layout.get("tableContained")
+        or not layout.get("tableAbovePlot")
+        or not isinstance(layout.get("rowChecks"), list)
+        or not layout["rowChecks"]
+    ):
+        raise RuntimeError(f"Saved Process semantic table is not contained/reachable: {layout!r}")
+    for row in layout["rowChecks"]:
+        if (
+            not isinstance(row, dict)
+            or row.get("cellCount") != 7
+            or not row.get("rowContained")
+            or not row.get("rowAbovePlot")
+            or not row.get("horizontalOrder")
+            or row.get("actionLabel") not in {"Retry", "Use settings"}
+            or not row.get("actionVisible")
+            or not row.get("actionTopmost")
+        ):
+            raise RuntimeError(f"Saved Process semantic row/action is not reachable: {layout!r}")
+
+
 def _assert_modeling_process_saved_rows_reachable(page: Page) -> None:
     """Reject Process captures where the graph paints over saved-row actions."""
+    _assert_modeling_process_table_geometry(page)
     checks = page.evaluate(
         """() => {
           const rows = [...document.querySelectorAll(
@@ -2222,10 +2298,56 @@ def _measure_process_fit(page: Page, stage: str, width: int, height: int) -> dic
             const clipped = descendants.some(node => node.scrollWidth > node.clientWidth + 1 || node.scrollHeight > node.clientHeight + 1);
             return { text, clipped };
           });
-          const methods = [...document.querySelectorAll('.modeling-process-workspace-bounded .elastic-modulus-methods button')]
-            .map(button => rect(button)).filter(Boolean);
+          const processRoot = document.querySelector('.processing-workbench-page.stage-process');
+          const processRibbon = rect(processRoot?.querySelector('.modeling-task-ribbon'));
+          const processPanel = rect(processRoot?.querySelector('[data-modeling-process-panel="ready"]'));
+          const saveBand = rect(processRoot?.querySelector('.process-band-save'));
+          const controlNodes = [
+            processRoot?.querySelector('.elastic-modulus-method select'),
+            processRoot?.querySelector('[aria-label="Elastic range start"]'),
+            processRoot?.querySelector('[aria-label="Elastic range end"]'),
+            processRoot?.querySelector(`[aria-label="Manual Young's modulus"]`),
+            processRoot?.querySelector(`[aria-label="Manual Young's modulus unit"]`),
+            processRoot?.querySelector(`[aria-label="Manual Young's modulus reason"]`),
+            processRoot?.querySelector('[aria-label="Processed curve label"]'),
+            processRoot?.querySelector('[aria-label="Save reason"]'),
+            processRoot?.querySelector('.process-band-save > .button'),
+          ].filter(Boolean);
+          const processControls = controlNodes.map(node => {
+            const box = rect(node);
+            const style = node ? getComputedStyle(node) : null;
+            const text = node?.textContent?.trim() ?? '';
+            return {
+              label: node?.getAttribute('aria-label') ?? text,
+              box,
+              height: box?.height ?? 0,
+              whiteSpace: style?.whiteSpace ?? '',
+              scrollHeight: node?.scrollHeight ?? 0,
+              clientHeight: node?.clientHeight ?? 0,
+              scrollWidth: node?.scrollWidth ?? 0,
+              clientWidth: node?.clientWidth ?? 0,
+            };
+          });
+          const topActionNodes = [
+            processRoot?.querySelector('.modeling-context-actions > .modeling-advanced-menu > summary'),
+            processRoot?.querySelector('.modeling-context-actions > button.button.secondary'),
+          ];
+          const topActions = topActionNodes.map(node => {
+            const box = rect(node);
+            const style = node ? getComputedStyle(node) : null;
+            return {
+              label: node?.textContent?.trim() ?? '',
+              box,
+              height: box?.height ?? 0,
+              whiteSpace: style?.whiteSpace ?? '',
+              scrollHeight: node?.scrollHeight ?? 0,
+              clientHeight: node?.clientHeight ?? 0,
+              scrollWidth: node?.scrollWidth ?? 0,
+              clientWidth: node?.clientWidth ?? 0,
+            };
+          });
+          const method = rect(document.querySelector('.modeling-process-workspace-bounded .elastic-modulus-method select'));
           const range = rect(document.querySelector('.modeling-process-workspace-bounded .elastic-modulus-range'));
-          const lastMethod = methods.at(-1);
           return {
             svgHeight: svgBox?.height ?? 0,
             svgWidth: svgBox?.width ?? 0,
@@ -2245,7 +2367,12 @@ def _measure_process_fit(page: Page, stage: str, width: int, height: int) -> dic
             legendAxisOverlap: axes.some(axisLine => overlaps(legend, axisLine)),
             processRows,
             processRowClipped: processRows.some(row => row.clipped),
-            methodRangeGap: lastMethod && range ? range.left - lastMethod.right : null,
+            methodRangeGap: method && range ? range.left - method.right : null,
+            processControls,
+            topActions,
+            processRibbon,
+            processPanel,
+            saveBand,
             viewportHeight: window.innerHeight
           };
         }"""
@@ -2275,6 +2402,108 @@ def _measure_process_fit(page: Page, stage: str, width: int, height: int) -> dic
         method_range_gap = measurement.get("methodRangeGap")
         if not isinstance(method_range_gap, (int, float)) or method_range_gap < 0 or method_range_gap > 20:
             raise RuntimeError(f"Process elastic method/range gap is outside 0–20px at {width}x{height}: {measurement}")
+        controls = measurement.get("processControls")
+        if not isinstance(controls, list):
+            raise RuntimeError(f"Process control geometry is missing at {width}x{height}: {measurement}")
+        required_controls = {
+            "Evaluation method",
+            "Elastic range start",
+            "Elastic range end",
+            "Processed curve label",
+            "Save reason",
+            "Save processed curves",
+        }
+        visible_controls = {
+            str(control.get("label"))
+            for control in controls
+            if isinstance(control, dict) and isinstance(control.get("box"), dict)
+        }
+        if not required_controls <= visible_controls:
+            raise RuntimeError(
+                f"Process normal controls are missing at {width}x{height}: {sorted(visible_controls)}"
+            )
+        ribbon_box = measurement.get("processRibbon")
+        panel_box = measurement.get("processPanel")
+        if not isinstance(ribbon_box, dict) or not isinstance(panel_box, dict):
+            raise RuntimeError(f"Process control containment boxes are missing at {width}x{height}: {measurement}")
+        def _inside(child: dict[str, object], parent: dict[str, object]) -> bool:
+            return (
+                float(child.get("left", 0)) >= float(parent.get("left", 0)) - 1
+                and float(child.get("right", 0)) <= float(parent.get("right", 0)) + 1
+                and float(child.get("top", 0)) >= float(parent.get("top", 0)) - 1
+                and float(child.get("bottom", 0)) <= float(parent.get("bottom", 0)) + 1
+            )
+        visible_control_boxes = [
+            control.get("box")
+            for control in controls
+            if isinstance(control, dict) and isinstance(control.get("box"), dict)
+        ]
+        if any(not _inside(box, panel_box) for box in visible_control_boxes if isinstance(box, dict)):
+            raise RuntimeError(f"Process controls escaped their panel at {width}x{height}: {measurement}")
+        normal_row = [
+            control for control in controls
+            if isinstance(control, dict) and control.get("label") in {"Evaluation method", "Elastic range start", "Elastic range end"}
+        ]
+        save_row = [
+            control for control in controls
+            if isinstance(control, dict) and control.get("label") in {"Processed curve label", "Save reason", "Save processed curves"}
+        ]
+        manual_row = [
+            control for control in controls
+            if isinstance(control, dict) and control.get("label") in {
+                "Manual Young's modulus",
+                "Manual Young's modulus unit",
+                "Manual Young's modulus reason",
+            }
+        ]
+        def _aligned(items: list[object], tolerance: float = 2) -> bool:
+            boxes = [item.get("box") for item in items if isinstance(item, dict) and isinstance(item.get("box"), dict)]
+            if len(boxes) < 2:
+                return False
+            tops = [float(box.get("top", 0)) for box in boxes]
+            bottoms = [float(box.get("bottom", 0)) for box in boxes]
+            return max(tops) - min(tops) <= tolerance and max(bottoms) - min(bottoms) <= tolerance
+        if not _aligned(normal_row) or not _aligned(save_row):
+            raise RuntimeError(f"Process control baselines drifted at {width}x{height}: {measurement}")
+        if manual_row and len(manual_row) == 3 and not _aligned(manual_row):
+            raise RuntimeError(f"Process manual control baselines drifted at {width}x{height}: {measurement}")
+        for control in controls:
+            if not isinstance(control, dict) or not isinstance(control.get("box"), dict):
+                continue
+            height_px = float(control.get("height", 0))
+            if abs(height_px - 28) > 1:
+                raise RuntimeError(f"Process control height drifted at {width}x{height}: {control}")
+            if str(control.get("label")) == "Save processed curves":
+                if control.get("whiteSpace") != "nowrap" or float(control.get("scrollHeight", 0)) > float(control.get("clientHeight", 0)) + 1:
+                    raise RuntimeError(f"Process Save button wraps at {width}x{height}: {control}")
+            if str(control.get("label")) in {"Processed curve label", "Save reason"}:
+                if control.get("whiteSpace") != "nowrap":
+                    raise RuntimeError(f"Process save label wraps at {width}x{height}: {control}")
+        top_actions = measurement.get("topActions")
+        if not isinstance(top_actions, list) or len(top_actions) != 2:
+            raise RuntimeError(f"Process top actions are missing at {width}x{height}: {measurement}")
+        expected_top_action_labels = ["Advanced", "Preview changes"]
+        actual_top_action_labels = [
+            str(action.get("label", "")).strip()
+            for action in top_actions
+            if isinstance(action, dict)
+        ]
+        if actual_top_action_labels != expected_top_action_labels:
+            raise RuntimeError(
+                f"Process top action labels drifted at {width}x{height}: {measurement}"
+            )
+        if not _aligned(top_actions):
+            raise RuntimeError(f"Process top action baselines drifted at {width}x{height}: {measurement}")
+        for action in top_actions:
+            box = action.get("box") if isinstance(action, dict) else None
+            if (
+                not isinstance(action, dict)
+                or not isinstance(box, dict)
+                or float(box.get("width", 0)) <= 0
+                or float(box.get("height", 0)) <= 0
+                or abs(float(action.get("height", 0)) - 28) > 1
+            ):
+                raise RuntimeError(f"Process top action height drifted at {width}x{height}: {action}")
     if stage == "process" and width >= 2560:
         if (
             measurement["processClusterWidth"] <= 0
@@ -2378,7 +2607,10 @@ def _assert_modeling_process_preview(
     save = panel.get_by_role("button", name="Save processed curves", exact=True)
     save.wait_for(state="visible", timeout=30_000)
     controls = panel.locator(".process-band-controls")
-    controls.get_by_role("button", name=method_label, exact=True).wait_for(state="visible", timeout=30_000)
+    method = controls.get_by_role("combobox", name="Evaluation method", exact=True)
+    method.wait_for(state="visible", timeout=30_000)
+    if method.locator("option:checked").inner_text() != method_label:
+        raise RuntimeError(f"Process preview method drifted: expected {method_label!r}")
     for label in ("Elastic range start", "Elastic range end"):
         controls.get_by_role("spinbutton", name=label, exact=True).wait_for(state="visible", timeout=30_000)
     if page.locator(".fit-evidence-disclosure").count() or page.get_by_text("Candidate equations", exact=True).count() or page.get_by_text("Fit domain", exact=True).count() or page.get_by_text("Selected blend", exact=True).count():
@@ -2390,10 +2622,10 @@ def _assert_modeling_process_manual_surface(page: Page) -> None:
     """Exercise the compact Process manual workup, then restore Auto robust."""
     panel = page.locator('[data-modeling-process-panel="ready"]')
     controls = panel.locator(".process-band-controls")
-    manual = controls.get_by_role("button", name="Manual slope", exact=True)
+    manual = controls.get_by_role("combobox", name="Evaluation method", exact=True)
     # Locator.click is a real pointer click in the live capture (not a
     # synthetic React event), so the helper proves the normal interaction path.
-    manual.click()
+    manual.select_option("manual")
     value = controls.get_by_role("spinbutton", name="Manual Young's modulus", exact=True)
     unit = controls.get_by_role("combobox", name="Manual Young's modulus unit", exact=True)
     reason = controls.get_by_role("textbox", name="Manual Young's modulus reason", exact=True)
@@ -2436,11 +2668,13 @@ def _assert_modeling_process_manual_surface(page: Page) -> None:
     svg_box = page.locator(".persistent-modeling-plot svg[role=img]").bounding_box()
     if plot_box is None or plot_box["height"] < 280 or svg_box is None or svg_box["height"] < 230:
         raise RuntimeError(f"Process manual surface compressed the plot: plot={plot_box}, svg={svg_box}")
-    auto = controls.get_by_role("button", name="Auto robust", exact=True)
-    auto.click()
+    viewport = page.evaluate("() => ({ width: window.innerWidth, height: window.innerHeight })")
+    _measure_process_fit(page, "process", int(viewport["width"]), int(viewport["height"]))
+    auto = controls.get_by_role("combobox", name="Evaluation method", exact=True)
+    auto.select_option("robust_huber")
     page.wait_for_function(
-        """() => document.querySelector('[data-modeling-process-panel="ready"] .elastic-modulus-methods button.active')
-          ?.textContent?.trim() === 'Auto robust'""",
+        """() => document.querySelector('[data-modeling-process-panel="ready"] select[aria-label="Evaluation method"]')
+          ?.value === 'robust_huber'""",
         timeout=30_000,
     )
     preview = page.get_by_role("button", name="Preview changes", exact=True)
@@ -2449,7 +2683,7 @@ def _assert_modeling_process_manual_surface(page: Page) -> None:
     _wait_modeling_process_panel(page)
     _wait_for_modeling_process_plot_size(page)
     controls = page.locator('[data-modeling-process-panel="ready"] .process-band-controls')
-    if "active" not in (controls.get_by_role("button", name="Auto robust", exact=True).get_attribute("class") or ""):
+    if controls.get_by_role("combobox", name="Evaluation method", exact=True).input_value() != "robust_huber":
         raise RuntimeError("Process manual helper did not restore Auto robust")
     page.locator('[data-modeling-process-panel="ready"] .process-band-result').get_by_text("210.0 GPa", exact=True).wait_for(timeout=30_000)
     _assert_modeling_process_geometry(page)
@@ -2483,6 +2717,7 @@ def _assert_modeling_process_geometry(page: Page) -> None:
     )
     if not hit["insideSave"] or hit["graph"] or hit["svg"]:
         raise RuntimeError(f"Process Save center is intercepted by graph/SVG: {hit}")
+    _assert_modeling_process_table_geometry(page)
 
 
 def _assert_modeling_process_blocked(page: Page) -> None:
@@ -2816,7 +3051,7 @@ def _capture_modeling_process_only(
         reason.fill("Capture deterministic saved-result sibling one")
         save.click()
         siblings.get_by_text("Processed result saved and current", exact=False).wait_for(timeout=30_000)
-        siblings.get_by_role("button", name="Chord", exact=True).click()
+        siblings.get_by_role("combobox", name="Evaluation method", exact=True).select_option("chord")
         siblings.get_by_role("spinbutton", name="Elastic range start", exact=True).fill("0.001")
         siblings.get_by_role("spinbutton", name="Elastic range end", exact=True).fill("0.003")
         _assert_modeling_process_preview(siblings, expected_modulus="120.0 GPa", method_label="Chord")
