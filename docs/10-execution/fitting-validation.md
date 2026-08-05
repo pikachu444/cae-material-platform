@@ -529,4 +529,365 @@ Family-specific methods use the same registry and run contract:
 
 Actual licensed solver execution remains outside this Workbench. Mapping preflight and native card
 generation follow only after selection and promotion to an IR revision.
+## 21. 금속 hardening reference 검증 계약 v1
 
+### 21.1 범위와 권위
+
+이 절은 `FR-MOD-M-005~007`과 `FR-CAL-001~007` 가운데 금속 tensile
+reference fitting에 필요한 공학 검증 경계만 고정한다. 공개식 evaluator, synthetic
+reference 값, residual/objective 부호, 식별성 판정, 설정 경계와 저장 증거를 다룬다.
+실제 재료 적합성, production optimizer 정책, solver card qualification은 결정하지 않는다.
+
+수식 variant가 서로 다르면 이번 v1에서는
+[Altair Material Modeler 2025 Curve Fitting 표](https://2025.help.altair.com/2025/material_modeler/topics/material_modeler/curve_fitting_t.htm)를
+규범 정의로 사용한다. 원 논문은 family의 출처를 확인하는 primary bibliography이며,
+Altair 2025에 표시된 parameterization을 다른 문헌 variant로 바꾸는 근거로 사용하지 않는다.
+Material Modeler의 fit range, derivative 확인, 두 곡선 조합 흐름은 공개 workflow 근거일
+뿐 비공개 objective, initial value, bounds, stopping rule 또는 추천 정책의 근거가 아니다.
+
+| Family | 규범 수식·workflow | 원 출처 |
+| --- | --- | --- |
+| Voce | [Altair 2025 Curve Fitting](https://2025.help.altair.com/2025/material_modeler/topics/material_modeler/curve_fitting_t.htm) | E. Voce, *Journal of the Institute of Metals* 74 (1948) 537–562, [bibliographic record](https://cir.nii.ac.jp/crid/1570854176063010304) |
+| Swift | 같은 Altair 표 | H. W. Swift, *J. Mech. Phys. Solids* 1(1) (1952) 1–18, [DOI](https://doi.org/10.1016/0022-5096(52)90002-1) |
+| Hockett–Sherby | 같은 Altair 표의 `Sherby` 행 | J. E. Hockett and O. D. Sherby, *J. Mech. Phys. Solids* 23(2) (1975) 87–98, [DOI](https://doi.org/10.1016/0022-5096(75)90018-6) |
+| Ghosh | 같은 Altair 표 | A. K. Ghosh, *Acta Metallurgica* 25(12) (1977) 1413–1424, [DOI](https://doi.org/10.1016/0001-6160(77)90072-4) |
+
+### 21.2 공통 기호와 단위
+
+\(\epsilon_p\)는 true plastic strain이며 단위는 \(1\)이다. \(\sigma\)는 true flow
+stress이며 단위는 Pa다. analytical tangent는 다음과 같이 정의한다.
+
+\[
+H(\epsilon_p)=\frac{\mathrm d\sigma}{\mathrm d\epsilon_p}
+\]
+
+\(\epsilon_p\)가 무차원이므로 \(H\)의 단위도 Pa다. 모든 stress형 parameter는 Pa,
+지수·rate형 parameter와 strain offset은 \(1\)이다. Fixture는 SI 값만 저장하며 다른
+단위계 변환은 이 reference set의 범위가 아니다.
+
+### 21.3 Voce variant
+
+Altair 표의 \(K_0\)를 플랫폼의 \(\sigma_0\)와 같은 값으로 둔다.
+
+\[
+\sigma(\epsilon_p)=K_0+Q\left(1-\exp(-B\epsilon_p)\right)
+\]
+
+\[
+H(\epsilon_p)=QB\exp(-B\epsilon_p)
+\]
+
+| 기호 | 플랫폼 이름 | 단위 | 제약·의미 |
+| --- | --- | --- | --- |
+| \(K_0\) | `sigma_0_pa` | Pa | \(\epsilon_p=0\)에서의 stress |
+| \(Q\) | `q_pa` | Pa | saturation 증가량, reference에서 \(Q\ge0\) |
+| \(B\) | `b` | \(1\) | saturation rate, reference에서 \(B\ge0\) |
+
+\(\epsilon_p=0\)에서 \(\sigma=K_0\), \(H=QB\)다. \(B>0\)이면
+\(\epsilon_p\rightarrow\infty\)에서 \(\sigma\rightarrow K_0+Q\),
+\(H\rightarrow0\)다. \(Q=0\)이면 곡선은 상수가 되고 \(B\)는 식별되지 않는다.
+
+### 21.4 Swift variant
+
+Altair 표의 \(A\)를 플랫폼의 stress coefficient `k_pa`에 대응시킨다.
+
+\[
+\sigma(\epsilon_p)=A(\epsilon_p+\epsilon_0)^n
+\]
+
+\[
+H(\epsilon_p)=An(\epsilon_p+\epsilon_0)^{n-1}
+\]
+
+| 기호 | 플랫폼 이름 | 단위 | 제약·의미 |
+| --- | --- | --- | --- |
+| \(A\) | `k_pa` | Pa | stress coefficient, \(A>0\) |
+| \(\epsilon_0\) | `epsilon_0` | \(1\) | positive strain offset |
+| \(n\) | `n` | \(1\) | hardening exponent, reference에서 \(n\ge0\) |
+
+Reference 입력은 \(\epsilon_p\ge0\), \(\epsilon_0>0\)로 제한한다. \(n=0\)이면
+\(\sigma=A\), \(H=0\)이므로 \(\epsilon_0\)는 식별되지 않는다.
+
+### 21.5 Hockett–Sherby variant
+
+Altair 2025의 `Sherby` 행을 그대로 쓰면 다음과 같다.
+
+\[
+\sigma(\epsilon_p)=Q_s-(Q_s-Q_0)\exp(-m\epsilon_p^n)
+\]
+
+\[
+H(\epsilon_p)=(Q_s-Q_0)mn\epsilon_p^{n-1}
+\exp(-m\epsilon_p^n)
+\]
+
+플랫폼 evaluator의 기존 대수적 표현은
+\(\sigma_0+Q(1-\exp(-B\epsilon_p^n))\)이며 다음 mapping에서 완전히 같다.
+
+| Altair 기호 | 플랫폼 이름·mapping | 단위 |
+| --- | --- | --- |
+| \(Q_s\) | `sigma_0_pa + q_pa` | Pa |
+| \(Q_0\) | `sigma_0_pa` | Pa |
+| \(m\) | `b` | \(1\) |
+| \(n\) | `n` | \(1\) |
+
+Reference 제약은 \(Q_s\ge Q_0>0\), \(m\ge0\), \(n>0\)이다.
+\(\epsilon_p=0\)에서 \(\sigma=Q_0\), 큰 strain에서 \(\sigma\rightarrow Q_s\)와
+\(H\rightarrow0\)다. \(0<n<1\)이면 \(H(0^+)\rightarrow+\infty\)이므로
+zero-strain tangent를 임의의 큰 유한값으로 대체하지 않는다. \(Q_s=Q_0\)이면
+\(m\)과 \(n\)은 식별되지 않는다.
+
+### 21.6 Ghosh Altair 2025 variant와 구조적 식별성
+
+이번 v1의 Ghosh 정의는 다음 식이다.
+
+\[
+\sigma(\epsilon_p)=K(\epsilon_0-\epsilon_p)^{n-p}
+\]
+
+\[
+H(\epsilon_p)=K(p-n)(\epsilon_0-\epsilon_p)^{n-p-1}
+\]
+
+| 기호 | 공개 evaluator 이름 | 단위 | 제약·의미 |
+| --- | --- | --- | --- |
+| \(K\) | `k_pa` | Pa | positive stress coefficient |
+| \(\epsilon_0\) | `epsilon_0` | \(1\) | 식의 upper strain domain |
+| \(n\) | `n` | \(1\) | 공개식 exponent 성분 |
+| \(p\) | `p` | \(1\) | 공개식 exponent 성분 |
+
+실수 범위 계산에는 반드시
+
+\[
+0\le\epsilon_p<\epsilon_0
+\]
+
+조건이 필요하다. Monotonic hardening reference는 \(p>n\)으로 두며
+\(\epsilon_p\rightarrow\epsilon_0^-\)에서 stress와 tangent가 모두 발산한다.
+\(n=p\)이면 \(\sigma=K\), \(H=0\)이다.
+
+이 식은 \(n\)과 \(p\)를 각각 식별할 수 없다. 모든 \(c\)에 대해
+\((n,p)\rightarrow(n+c,p+c)\) 변환이 stress와 tangent를 바꾸지 않고,
+
+\[
+\frac{\partial\sigma}{\partial n}
+=-\frac{\partial\sigma}{\partial p}
+\]
+
+이기 때문이다. 따라서 공개식 evaluator는 \(K,\epsilon_0,n,p\) 네 값을 받아 식 자체를
+검증하지만, reference fitting과 evidence 저장은 다음 identifiable parameterization만
+사용한다.
+
+\[
+\delta=p-n,\qquad
+\sigma(\epsilon_p)=K(\epsilon_0-\epsilon_p)^{-\delta}
+\]
+
+저장 parameter는 `k_pa`, `epsilon_0`, `delta_p_minus_n`이다. Fitter가 \(n\)과
+\(p\)를 각각 복원했다고 표시하거나 두 값을 개별 parameter evidence로 저장하면 실패다.
+기존의 \(K(\epsilon_0+\epsilon_p)^n-d\) 식과 `d_pa`는 이 계약과 호환되지 않는다.
+
+### 21.7 독립 deterministic reference set
+
+`fixtures/synthetic/metal-hardening-reference-v1.json`은 family 4개, 각 6개 strain
+지점, 총 24개 stress/tangent 행을 고정한다. 공통 strain은
+\(0,0.01,0.05,0.1,0.2,0.4\)다.
+
+| Family | Reference parameter |
+| --- | --- |
+| Voce | \(K_0=300\,\mathrm{MPa}\), \(Q=220\,\mathrm{MPa}\), \(B=11\) |
+| Swift | \(A=650\,\mathrm{MPa}\), \(\epsilon_0=0.015\), \(n=0.24\) |
+| Hockett–Sherby | \(Q_s=570\,\mathrm{MPa}\), \(Q_0=310\,\mathrm{MPa}\), \(m=8.5\), \(n=0.72\) |
+| Ghosh | \(K=420\,\mathrm{MPa}\), \(\epsilon_0=0.8\), \(n=0.18\), \(p=0.42\), \(\delta=0.24\) |
+
+Expected 값은 production `evaluate_hardening_family` 또는
+`fit_hardening_candidates`를 호출하지 않고 CPython 3.12.13 표준
+`decimal.Decimal` 60자리 정밀도로 계산했다. Non-integer power는 positive base에서
+
+\[
+x^a=\exp(a\ln x)
+\]
+
+로 계산하고, stress와 위 analytical tangent를 각각 독립 평가한 뒤 17자리 유효숫자로
+한 번만 반올림했다. Hockett–Sherby의 zero-strain singular tangent는 JSON `null`과
+`positive_infinity` limit로 저장한다. JSON 마지막 newline을 포함한 정확한 byte의
+SHA-256은 manifest에 고정한다.
+
+재현 순서는 다음과 같다.
+
+1. 모든 parameter와 strain을 decimal 문자열에서 읽는다.
+2. 위 네 식과 tangent 식을 60자리 Decimal로 평가한다.
+3. 유한값을 17자리 유효숫자로 직렬화하고 singular limit는 명시 상태로 기록한다.
+4. two-space indent, LF, final newline인 JSON byte에 SHA-256을 계산한다.
+5. JSON의 source ID, case 수, 단위와 digest를 manifest와 대조한다.
+
+### 21.8 Residual과 objective reference
+
+Residual 부호는 predicted-minus-observed로 고정한다.
+
+\[
+r_i=\frac{\sigma_i^{\mathrm{pred}}-\sigma_i^{\mathrm{obs}}}
+{S},\qquad S=100\,\mathrm{MPa}
+\]
+
+\[
+J=\sum_i r_i^2,\qquad
+\mathrm{cost}_{\mathrm{SciPy}}=\frac12J,\qquad
+\mathrm{RMSE}=\sqrt{\frac1N\sum_i
+(\sigma_i^{\mathrm{pred}}-\sigma_i^{\mathrm{obs}})^2}
+\]
+
+Noiseless curve는 residual, \(J\), cost와 RMSE가 모두 정확히 0이다. Residual 부호와
+aggregation이 우연히 0이라서 가려지는 것을 막기 위해, 각 family curve에 공통으로
+\([1000,-2000,3000,-4000,5000,-6000]\) Pa를 observed offset으로 적용하는 별도
+deterministic case를 둔다. Expected predicted-minus-observed residual은
+\([-1000,2000,-3000,4000,-5000,6000]\) Pa이고,
+
+\[
+J=9.1\times10^{-9},\qquad
+\mathrm{cost}_{\mathrm{SciPy}}=4.55\times10^{-9}
+\]
+
+\[
+\mathrm{RMSE}=3894.4404818493075\ \mathrm{Pa}
+\]
+
+이다. 이 값은 optimizer 성능 기준이 아니라 objective 구현과 저장 round-trip의 기준이다.
+
+### 21.9 Parameter recovery와 identifiability 판정
+
+Synthetic curve 재현, parameter recovery와 material validity는 서로 다른 판정이다.
+
+1. **Equation reproduction**은 알려진 parameter에서 stress와 tangent가 fixture와 tolerance
+   내 일치하는지만 본다.
+2. **Noiseless recovery**는 같은 식으로 만든 곡선에서 optimizer가 parameter를 되찾는
+   수치 회귀다. 먼저 scaled analytical Jacobian의 rank가 full인지 확인해야 한다.
+3. **Identifiability**가 부족하면 개별 parameter 일치를 요구하지 않는다. Curve,
+   residual/objective, Jacobian rank, bound evidence와 식별 가능한 parameter 조합으로
+   판정한다.
+4. **Material validity/production acceptance**는 이 fixture로 판정하지 않는다.
+
+Rank에는 다음 scaled Jacobian을 사용한다.
+
+\[
+J^{\mathrm{scaled}}_{ij}=
+\frac{1}{S}\frac{\partial\sigma_i}{\partial\theta_j}
+\max(|\theta_j|,s_j^{\mathrm{floor}})
+\]
+
+Fixture scale floor는 stress parameter에 \(1\) Pa, dimensionless parameter에
+\(10^{-12}\)를 사용한다. 따라서 실제 parameter가 0인 boundary case도 Jacobian column
+scale이 0이 되지 않는다. Binary64 rank tolerance는
+\(\max(N,P)\epsilon_{\mathrm{mach}}s_{\max}\)다. Condition number는 evidence로 기록하지만
+v1은 production pass threshold를 정하지 않는다.
+
+Voce, Swift, Hockett–Sherby reference case는 각각 rank 3, 3, 4를 기대한다. Ghosh의
+공개 네 parameter Jacobian은 \(n,p\) column dependency 때문에 rank 3만 기대한다.
+\(K,\epsilon_0,\delta\) fit parameterization은 rank 3을 기대한다. Ghosh의 \(n,p\)
+개별 recovery test는 반드시 `not_applicable_structural_non_identifiability`다.
+
+Fixture-only recovery 비교는 stress parameter에 absolute \(10^{-2}\) Pa,
+dimensionless parameter에 absolute \(10^{-9}\), 전체에 relative \(10^{-7}\)를 사용한다.
+이는 noiseless synthetic numerical regression용이며 production 합격 기준이 아니다.
+
+### 21.10 Analytical stress, tangent와 limit gate
+
+| Gate | 방법 | 실패 예 |
+| --- | --- | --- |
+| Stress | 각 fixture point에서 독립 closed form과 production evaluator를 각각 fixture에 비교 | 식의 부호·parameter 순서·mapping 오류 |
+| Tangent | 위 analytical derivative를 fixture에 비교하고 내부점에서 감소하는 \(h\)의 central difference와 교차 확인 | 지수의 \(-1\), chain-rule 부호 누락 |
+| Initial limit | \(\epsilon_p=0\)의 finite 값 또는 명시 singular limit 확인 | Hockett singular tangent를 임의 유한값으로 저장 |
+| Asymptotic/domain limit | Voce/Hockett saturation, Ghosh \(\epsilon_0^-\) domain, constant boundary 확인 | Ghosh에서 \(\epsilon_p\ge\epsilon_0\) 허용 |
+| Monotonicity | Reference grid의 analytical tangent 부호와 response difference를 함께 확인 | Ghosh \(n-p\)와 \(p-n\) 부호 혼동 |
+
+Finite difference는 fixture expected 값을 생성하는 수단이 아니며 derivative 구현의
+독립 교차 검사다. Boundary와 singular point에서는 one-sided limit 또는 closed-form
+limit를 쓰고 central difference 합격을 요구하지 않는다.
+
+### 21.11 정상·경계·오류·metamorphic 검증 계획
+
+| 대상 | 정상 | 경계 | 오류 | Metamorphic |
+| --- | --- | --- | --- | --- |
+| Formula | 4 family × 6 points의 stress/tangent | \(\epsilon_p=0\), saturation/constant/singular limit | NaN/Inf, negative strain, 잘못된 parameter 수, Ghosh \(\epsilon_p\ge\epsilon_0\) | stress 단위 scale을 parameter·prediction·normalization에 같이 적용하면 normalized residual 불변 |
+| Identifiability | full-rank family의 fixture-only recovery | Voce \(Q=0\), Swift \(n=0\), Hockett \(Q_s=Q_0\), Ghosh \(n=p\) | rank deficient인데 개별 recovery 성공으로 표시 | Ghosh \((n,p)\rightarrow(n+c,p+c)\)에서 curve/tangent 불변 |
+| Fit range | 정렬된 관측점 5개 이상과 내부 range | minimum 0, endpoint 포함 | minimum \(\ge\) maximum, range 안 point 5개 미만 | 같은 subset과 설정이면 원본에 range 밖 점을 더해도 objective 불변 |
+| Extrapolation | fitted와 extrapolated domain을 분리 표시 | existing reference upper bound, Ghosh \(\epsilon_0\) 바로 아래 | extrapolation maximum이 fit maximum 이하, reference upper bound 초과, Ghosh domain 침범 | output point 수가 달라도 공통 좌표의 closed-form response 일치 |
+| Candidate order | 2~4개 unique family, primary/secondary 모두 포함 | family 2개·4개 | 중복/unknown family, 선택 후보 누락 | family 평가 순서를 바꿔도 family별 metric과 curve 불변 |
+| Blend | \(0<w<1\)의 명시적 두 후보 조합 | \(w=0\), \(w=1\) | \(w<0\), \(w>1\) | \(wA+(1-w)B=(1-w)B+wA\) |
+| Normalization | positive finite \(S\) | 작은 positive finite 값 | 0, negative, NaN/Inf | stress·\(S\)를 같은 양의 scale로 바꾸면 normalized objective 불변 |
+| Output points | integer 21~501 | 21, 501 | bool, non-integer, 범위 밖 | nested grid의 공통 좌표 response 일치 |
+| Maximum evaluations | integer 50~100000 | 50, 100000 | bool, non-integer, 범위 밖 | evaluation budget만 늘려 이미 수렴한 deterministic result를 악화시키지 않음 |
+
+표의 수치 경계는 현재 bounded non-production reference adapter의 회귀 범위다. Altair의
+비공개 설정을 추정한 값도 아니고 향후 production optimizer 정책도 아니다.
+
+### 21.12 Persistence와 tamper rejection 계획
+
+작업 3B의 save/reload 검증은 다음 값을 exact revision evidence로 보존해야 한다.
+
+- input Processing Output revision과 curve digest
+- family order, fit/extrapolation range, output points, normalization, maximum evaluations
+- objective/residual 부호·aggregation version
+- candidate별 response, residual, analytical tangent, parameter와 lower/initial/fitted/upper
+- convergence, function evaluations, Jacobian rank/condition과 identifiability status
+- primary/secondary, blend weight, selection reason과 warning acknowledgement
+- fitted domain과 extrapolated domain
+
+Reload 뒤 수치 배열, 단위, parameter 이름, decision과 digest가 같아야 한다. Ghosh는
+`delta_p_minus_n`만 fit evidence로 복원하며 \(n,p\) 개별값을 합성하지 않는다. JSON
+fixture의 한 byte, manifest digest, source ID, unit, family ID, parameter 이름 또는
+objective 부호를 변경한 tamper case는 거부한다. 과거 revision은 새 fit이나 upstream
+변경으로 덮어쓰지 않고 current pointer만 stale 처리한다.
+
+이번 초안은 persistence schema, API 또는 GUI를 구현하지 않는다. 위 항목은 후속 작업 3B가
+검증해야 할 저장 계약이다.
+
+### 21.13 Tolerance와 판정 근거
+
+Binary64 비교는 다음 규칙을 사용한다.
+
+\[
+|x-x_{\mathrm{ref}}|\le
+\max(\mathrm{atol},\mathrm{rtol}|x_{\mathrm{ref}}|)
+\]
+
+| Quantity | Absolute tolerance | Relative tolerance | 근거 |
+| --- | ---: | ---: | --- |
+| strain | \(10^{-15}\) | 0 | JSON에 고정한 단순 decimal 좌표 |
+| stress | \(10^{-6}\) Pa | \(5\times10^{-13}\) | 60자리 reference를 17자리로 직렬화한 뒤 binary64 `exp/pow`와 비교 |
+| tangent | \(10^{-4}\) Pa | \(2\times10^{-12}\) | chain rule과 singular 근처의 더 큰 condition을 허용하되 식 오류보다 충분히 작음 |
+| residual | \(10^{-9}\) Pa | 0 | deterministic integer perturbation |
+| objective | \(10^{-20}\) | \(5\times10^{-13}\) | 여섯 항의 명시적 합과 직렬화 오차만 허용 |
+
+`atol`만 쓰면 큰 stress에서 지나치게 엄격하고 `rtol`만 쓰면 0 residual과 limit를
+보호하지 못하므로 둘을 함께 쓴다. Tolerance를 넓혀 formula variant, 부호, 단위 또는
+parameter mapping 오류를 통과시키면 안 된다. 실제 시험 산포, 재료모델 선택, solver
+qualification tolerance는 별도 도메인 결정이다.
+
+### 21.14 요구사항 trace와 미결정 경계
+
+| Requirement | 이번 v1 판정 |
+| --- | --- |
+| `FR-CAL-001` | 독립 fixture 생성이 production evaluator/calibrator를 호출하지 않아 evaluator와 calibrator를 분리 |
+| `FR-CAL-002` | objective·normalization·bounds evidence 항목을 고정하되 production 값은 미결정 |
+| `FR-CAL-003` | fixture generation runtime·method와 digest 기록; production package/container 증거는 3B |
+| `FR-CAL-004` | response/residual/tangent/convergence/warning 저장 항목 정의; 실제 persistence는 3B |
+| `FR-CAL-005` | candidate 순서·비교·명시적 blend 검증 계획; multistart 정책은 미결정 |
+| `FR-CAL-006` | calibration/holdout 분리는 기존 절을 유지하며 이 analytical fixture에는 N/A |
+| `FR-CAL-007` | scaled Jacobian과 structural non-identifiability 판정 정의 |
+| `FR-MOD-M-001~004` | upstream Process 범위이므로 이 reference set에는 N/A |
+| `FR-MOD-M-005` | 네 공개식, tangent, residual과 독립 fixture로 직접 적용 |
+| `FR-MOD-M-006` | blend 정상·경계·오류·metamorphic 및 persistence 계획으로 적용 |
+| `FR-MOD-M-007` | fitted/extrapolated/Ghosh formula domain을 분리해 적용 |
+
+다음은 이 절과 fixture가 결정하지 않는다.
+
+- production 재료군·시험표준·구성방정식 승인
+- optimizer, initial value, bounds, scaling, multistart, stop 및 ranking 정책
+- 실제 시험 데이터의 합격 RMSE, parameter uncertainty threshold 또는 extrapolation 허용치
+- 자동 추천·자동 선택·자동 승인
+- solver mapping, card 생성 또는 virtual specimen qualification
+- Material Modeler의 비공개 계산 방식
+
+따라서 fixture 통과는 “공개 수식과 reference 계산 계약을 재현했다”는 뜻일 뿐
+“재료모델이 생산 사용에 적합하다”는 뜻이 아니다.

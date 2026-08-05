@@ -47,6 +47,8 @@ class _FamilyDefinition:
     parameter_names: tuple[str, ...]
     parameter_units: tuple[str, ...]
     evaluator: Evaluator
+    public_parameter_names: tuple[str, ...] | None = None
+    public_evaluator: Evaluator | None = None
 
 
 def _voce(parameters: FloatArray, strain: FloatArray) -> FloatArray:
@@ -64,21 +66,28 @@ def _hockett_sherby(parameters: FloatArray, strain: FloatArray) -> FloatArray:
     return cast(FloatArray, sigma_0 + q * (1.0 - np.exp(-b * np.power(strain, n))))
 
 
-def _ghosh(parameters: FloatArray, strain: FloatArray) -> FloatArray:
-    k, epsilon_0, n, d = parameters
-    return cast(FloatArray, k * np.power(epsilon_0 + strain, n) - d)
+def _ghosh_public(parameters: FloatArray, strain: FloatArray) -> FloatArray:
+    k, epsilon_0, n, p = parameters
+    return cast(FloatArray, k * np.power(epsilon_0 - strain, n - p))
+
+
+def _ghosh_fit(parameters: FloatArray, strain: FloatArray) -> FloatArray:
+    k, epsilon_0, delta_p_minus_n = parameters
+    return cast(FloatArray, k * np.power(epsilon_0 - strain, -delta_p_minus_n))
 
 
 _FAMILIES = {
-    "voce": _FamilyDefinition(
-        ("sigma_0_pa", "q_pa", "b"), ("Pa", "Pa", "1"), _voce
-    ),
+    "voce": _FamilyDefinition(("sigma_0_pa", "q_pa", "b"), ("Pa", "Pa", "1"), _voce),
     "swift": _FamilyDefinition(("k_pa", "epsilon_0", "n"), ("Pa", "1", "1"), _swift),
     "hockett_sherby": _FamilyDefinition(
         ("sigma_0_pa", "q_pa", "b", "n"), ("Pa", "Pa", "1", "1"), _hockett_sherby
     ),
     "ghosh": _FamilyDefinition(
-        ("k_pa", "epsilon_0", "n", "d_pa"), ("Pa", "1", "1", "Pa"), _ghosh
+        ("k_pa", "epsilon_0", "delta_p_minus_n"),
+        ("Pa", "1", "1"),
+        _ghosh_fit,
+        ("k_pa", "epsilon_0", "n", "p"),
+        _ghosh_public,
     ),
 }
 
@@ -91,22 +100,29 @@ def evaluate_hardening_family(
     definition = _FAMILIES.get(family)
     if definition is None:
         raise MetalHardeningError(f"unsupported hardening family {family}")
+    parameter_names = definition.public_parameter_names or definition.parameter_names
+    evaluator = definition.public_evaluator or definition.evaluator
     values = np.asarray(parameters, dtype=np.float64)
-    if len(values) != len(definition.parameter_names):
-        raise MetalHardeningError(f"{family} requires {len(definition.parameter_names)} parameters")
+    if len(values) != len(parameter_names):
+        raise MetalHardeningError(f"{family} requires {len(parameter_names)} parameters")
     if np.any(~np.isfinite(values)) or np.any(values < 0.0):
         raise MetalHardeningError("hardening parameters must be finite and non-negative")
     strain = np.asarray(plastic_strain, dtype=np.float64)
     if np.any(~np.isfinite(strain)) or np.any(strain < 0.0):
         raise MetalHardeningError("plastic strain must be finite and non-negative")
-    response = definition.evaluator(values, strain)
+    if family == "ghosh" and np.any(strain >= float(values[1])):
+        raise MetalHardeningError("ghosh requires plastic strain < epsilon_0")
+    response = evaluator(values, strain)
     if np.any(~np.isfinite(response)):
         raise MetalHardeningError(f"{family} produced a non-finite response")
     return response
 
 
 def _fit_bounds(
-    family: str, strain: FloatArray, stress: FloatArray
+    family: str,
+    strain: FloatArray,
+    stress: FloatArray,
+    evaluation_maximum_strain: float,
 ) -> tuple[FloatArray, FloatArray, FloatArray]:
     first = max(float(stress[0]), 1.0)
     maximum = max(float(np.max(stress)), first)
@@ -134,13 +150,19 @@ def _fit_bounds(
             np.array([2.0 * maximum, 20.0 * maximum, 1_000.0, 2.0]),
         )
     if family == "ghosh":
-        n = 0.2
-        epsilon_0 = min(max(0.1 * x_max, 1e-5), 0.1)
-        k = maximum / ((epsilon_0 + x_max) ** n)
+        delta_p_minus_n = 0.2
+        domain_margin = max(1e-8, 1e-6 * max(1.0, evaluation_maximum_strain))
+        epsilon_0_lower = evaluation_maximum_strain + domain_margin
+        epsilon_0 = max(
+            1.5 * epsilon_0_lower,
+            evaluation_maximum_strain + max(x_max, 0.1),
+        )
+        epsilon_0_upper = max(epsilon_0_lower + 10.0, 10.0 * epsilon_0)
+        k = maximum * ((epsilon_0 - x_max) ** delta_p_minus_n)
         return (
-            np.array([0.01 * first, 1e-8, 0.01, 0.0]),
-            np.array([k, epsilon_0, n, 0.05 * first]),
-            np.array([100.0 * maximum, 1.0, 2.0, 2.0 * maximum]),
+            np.array([0.01 * first, epsilon_0_lower, 1e-6]),
+            np.array([k, epsilon_0, delta_p_minus_n]),
+            np.array([100.0 * maximum, epsilon_0_upper, 2.0]),
         )
     raise MetalHardeningError(f"unsupported hardening family {family}")
 
@@ -151,14 +173,14 @@ def _fit_family(
     stress: FloatArray,
     normalization_stress_pa: float,
     maximum_function_evaluations: int,
+    evaluation_maximum_strain: float,
 ) -> tuple[FloatArray, FloatArray, FloatArray, FloatArray, float, float, int, str]:
     definition = _FAMILIES[family]
-    lower, initial, upper = _fit_bounds(family, strain, stress)
+    lower, initial, upper = _fit_bounds(family, strain, stress, evaluation_maximum_strain)
     optimized = least_squares(
         lambda parameters: (
-            definition.evaluator(parameters, strain) - stress
-        )
-        / normalization_stress_pa,
+            (definition.evaluator(parameters, strain) - stress) / normalization_stress_pa
+        ),
         initial,
         bounds=(lower, upper),
         method="trf",
@@ -284,6 +306,7 @@ def fit_hardening_candidates(
             fit_stress,
             normalization,
             maximum_evaluations_value,
+            extrapolation_maximum,
         )
         response = _FAMILIES[family].evaluator(parameters, grid)
         if np.any(~np.isfinite(response)) or np.any(response <= 0.0):
@@ -297,11 +320,14 @@ def fit_hardening_candidates(
         diagnostics.append(
             f"{family}: rmse={rmse} Pa, relative_rmse={relative_rmse}, nfev={nfev}, {message}"
         )
+        if family == "ghosh":
+            diagnostics.append(
+                "ghosh: fitted delta_p_minus_n=p-n; public n and p are "
+                "structurally non-identifiable"
+            )
         scalars.extend(
             (
-                HardeningScalar(
-                    f"{family}.rmse_pa", "statistics.rmse", rmse, "Pa"
-                ),
+                HardeningScalar(f"{family}.rmse_pa", "statistics.rmse", rmse, "Pa"),
                 HardeningScalar(
                     f"{family}.relative_rmse", "statistics.relative_rmse", relative_rmse, "1"
                 ),
@@ -346,9 +372,10 @@ def fit_hardening_candidates(
                 )
             )
 
-    selected = primary_weight * responses[str(primary)] + (1.0 - primary_weight) * responses[
-        str(secondary)
-    ]
+    selected = (
+        primary_weight * responses[str(primary)]
+        + (1.0 - primary_weight) * responses[str(secondary)]
+    )
     result_columns["stress.hardening.selected"] = selected
     result_units["stress.hardening.selected"] = "Pa"
     scalars.extend(
@@ -367,9 +394,7 @@ def fit_hardening_candidates(
             ),
         )
     )
-    diagnostics.append(
-        f"selected={primary_weight}*{primary}+{1.0 - primary_weight}*{secondary}"
-    )
+    diagnostics.append(f"selected={primary_weight}*{primary}+{1.0 - primary_weight}*{secondary}")
     if isinstance(selection_reason, str):
         diagnostics.append(f"selection reason: {selection_reason.strip()}")
     return HardeningFitResult(
