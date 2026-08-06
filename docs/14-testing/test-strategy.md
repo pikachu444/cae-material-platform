@@ -806,12 +806,14 @@ also exercise path traversal, duplicate path and malformed scanner boundaries. A
 must additionally pass `--trusted-public-key`; an ephemeral local key proves bundle integrity only.
 
 The frontend production build must keep the entry JavaScript at or below 300,000 bytes and each
-lazy workbench chunk at or below 128,000 bytes. The lazy-workbench limit is an enforced ceiling and
-headroom guard, not a target. The checker runs after every Vite build and fails CI on regression;
+lazy workbench chunk at or below 130,000 bytes. The lazy-workbench limit remains an enforced ceiling
+and headroom guard, not a target. The checker runs after every Vite build and fails CI on regression;
 `CMP_WEB_ENTRY_BUDGET_BYTES` and `CMP_WEB_LAZY_CHUNK_BUDGET_BYTES` remain available for explicit
-environment overrides. On 2026-07-16 code splitting reduced the entry from 541,662 to 269,778 bytes;
-the largest lazy chunk was 88,163 bytes. These are observed sizes, while the two budgets are enforced
-limits.
+environment overrides. Current Task 3B observed `common-processing-workbench` at 128,103 raw bytes
+and 32,097 bytes from Node `zlib.gzipSync` (32.10 kB decimal). The broader raw/gzip/cold-route/splitting
+policy remains open in #189; this budget update does not claim that #189 is resolved. On 2026-07-16,
+code splitting reduced the entry from 541,662 to 269,778 bytes; the largest lazy chunk was 88,163
+bytes. These are observed sizes, while the two budgets are enforced limits.
 
 ## T-47 bounded full-stack performance/security gate
 

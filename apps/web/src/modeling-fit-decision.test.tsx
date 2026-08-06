@@ -60,8 +60,12 @@ describe("HardeningCandidateEvidence", () => {
       />,
     );
 
-    expect(screen.getByText("Structural identifiability")).toBeTruthy();
-    expect(screen.getAllByText(/n and p are not separately identifiable/).length).toBeGreaterThan(0);
+    expect(screen.getByText("Structural non-identifiability")).toBeTruthy();
+    expect(
+      screen.getAllByText(
+        "Ghosh n and p are not separately identifiable; evidence stores p − n, and εp must remain below ε0",
+      ),
+    ).toHaveLength(2);
     fireEvent.click(screen.getByRole("button", { name: "Select ghosh candidate" }));
     expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({
       primaryLaw: "ghosh",

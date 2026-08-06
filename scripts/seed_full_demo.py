@@ -49,6 +49,18 @@ _METAL_CATALOG_DESCRIPTION = (
     "Synthetic reference data; not validated for engineering use."
 )
 
+# The canonical metal journey is intentionally pinned to one immutable Recipe
+# revision and one separately named Batch.  Keep these values here (rather than
+# deriving them from a prior run) so a rerun can recover an interrupted demo
+# without ever replaying a legacy output.
+_CANONICAL_RECIPE_KEY = "cmp_demo_tensile_cleanup"
+_CANONICAL_BATCH_LABEL = "CMP clean demo canonical JSON batch · 2025 hardening contract"
+_HARDENING_EQUATION_CONTRACT = "altair-material-modeler-2025-v1"
+_HARDENING_FAMILIES = ("voce", "swift", "hockett_sherby", "ghosh")
+_BATCH_PENDING_STATUSES = frozenset({"planned", "running"})
+_BATCH_POLL_ATTEMPTS = 30
+_BATCH_POLL_DELAY_SECONDS = 1.0
+
 
 def _catalog_material_family_allowed_values() -> tuple[str, ...]:
     return _DEMO_MATERIAL_FAMILY_VALUES + _DEMO_WORKFLOW_FAMILY_VALUES
@@ -1629,6 +1641,274 @@ def _ensure_test_json(
     }
 
 
+def _canonical_recipe_content(
+    *, profile_id: str, profile_revision_id: str, profile_hash: str
+) -> dict[str, Any]:
+    """Return the exact clean-demo Recipe content for a new revision."""
+
+    return {
+        "recipe_key": _CANONICAL_RECIPE_KEY,
+        "label": "CMP demo tensile cleanup",
+        "description": "Deterministic reusable clean-up of canonical tensile JSON.",
+        "mapping_profile_id": profile_id,
+        "mapping_profile_revision_id": profile_revision_id,
+        "mapping_profile_sha256": profile_hash,
+        "steps": [
+            {
+                "method_id": "rows.sort_unique",
+                "method_version": "1.0.0",
+                "options": {"duplicate_policy": "reject"},
+            },
+            {
+                "method_id": "metal.engineering_to_true_plastic",
+                "method_version": "1.0.0",
+                "options": {
+                    "strain_quantity": "strain.engineering",
+                    "stress_quantity": "stress.engineering",
+                    "youngs_modulus_pa": 210000000000,
+                    "necking_policy": "manual_index",
+                    "manual_necking_index": 10,
+                    "negative_plastic_policy": "drop",
+                },
+            },
+            {
+                "method_id": "metal.hardening_fit_extrapolate",
+                "method_version": "1.0.0",
+                "options": {
+                    "equation_contract": _HARDENING_EQUATION_CONTRACT,
+                    "plastic_strain_quantity": "strain.true_plastic",
+                    "stress_quantity": "stress.true",
+                    "families": list(_HARDENING_FAMILIES),
+                    "fit_minimum_strain": 0,
+                    "fit_maximum_strain": 0.1,
+                    "extrapolation_maximum_strain": 1.0,
+                    "output_point_count": 101,
+                    "primary_family": "swift",
+                    "secondary_family": "voce",
+                    "primary_weight": 0.5,
+                    "normalization_stress_pa": 100000000,
+                    "maximum_function_evaluations": 5000,
+                },
+            },
+        ],
+        "lifecycle_state": "draft",
+    }
+
+
+def _exact_hardening_contract(content: Mapping[str, Any]) -> bool:
+    """Return whether the final Recipe step is the required hardening contract."""
+
+    steps = content.get("steps")
+    if not isinstance(steps, list) or not steps or not isinstance(steps[-1], Mapping):
+        return False
+    final_step = steps[-1]
+    if final_step.get("method_id") != "metal.hardening_fit_extrapolate":
+        return False
+    options = final_step.get("options")
+    return (
+        isinstance(options, Mapping)
+        and options.get("equation_contract") == _HARDENING_EQUATION_CONTRACT
+        and options.get("families") == list(_HARDENING_FAMILIES)
+    )
+
+
+def _ensure_canonical_recipe(
+    api: DemoApi,
+    *,
+    profile: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Create, recover, or idempotently reuse the exact canonical Recipe revision."""
+
+    profile_id = _id(profile, "mapping_profile_id")
+    profile_revision_id = _revision_id(profile)
+    profile_hash = _revision_hash(profile)
+    desired_content = _canonical_recipe_content(
+        profile_id=profile_id,
+        profile_revision_id=profile_revision_id,
+        profile_hash=profile_hash,
+    )
+    recipes = [
+        item
+        for item in _items(api.get("/common-processing-recipes"))
+        if _content(item).get("recipe_key") == _CANONICAL_RECIPE_KEY
+    ]
+    if len(recipes) > 1:
+        raise DemoSeedError("clean demo has multiple canonical Processing Recipes")
+    recipe = recipes[0] if recipes else None
+
+    if recipe is None:
+        recipe = api.post(
+            "/common-processing-recipes",
+            {
+                "classification": "internal",
+                "content": desired_content,
+                "change_reason": "Draft the reusable clean demo Processing Recipe.",
+            },
+        )
+        published_content = deepcopy(desired_content)
+        published_content["lifecycle_state"] = "published"
+        return api.post(
+            f"/common-processing-recipes/{_id(recipe, 'processing_recipe_id')}/revisions",
+            {
+                "content": published_content,
+                "change_reason": "Publish the reviewed clean demo Processing Recipe.",
+            },
+            headers={"If-Match": _revision_etag(recipe)},
+        )
+
+    current_content = _content(recipe)
+    lifecycle = current_content.get("lifecycle_state")
+    exact_contract = _exact_hardening_contract(current_content)
+    if lifecycle == "published" and exact_contract:
+        return recipe
+    if lifecycle == "draft" and not exact_contract:
+        raise DemoSeedError("clean demo canonical Recipe has a mismatched draft")
+    if lifecycle not in {"draft", "published"}:
+        raise DemoSeedError("clean demo canonical Recipe has an unsupported lifecycle state")
+
+    if lifecycle == "draft":
+        published_content = deepcopy(dict(current_content))
+        published_content["lifecycle_state"] = "published"
+        return api.post(
+            f"/common-processing-recipes/{_id(recipe, 'processing_recipe_id')}/revisions",
+            {
+                "content": published_content,
+                "change_reason": "Publish the exact 2025 hardening contract for the clean demo.",
+            },
+            headers={"If-Match": _revision_etag(recipe)},
+        )
+
+    # A legacy published revision is immutable evidence.  Append exactly one
+    # exact-contract draft, then publish that draft with its own ETag.
+    draft = api.post(
+        f"/common-processing-recipes/{_id(recipe, 'processing_recipe_id')}/revisions",
+        {
+            "content": deepcopy(desired_content),
+            "change_reason": (
+                "Append the exact 2025 hardening contract draft; legacy outputs are not replayed."
+            ),
+        },
+        headers={"If-Match": _revision_etag(recipe)},
+    )
+    published_content = deepcopy(desired_content)
+    published_content["lifecycle_state"] = "published"
+    return api.post(
+        f"/common-processing-recipes/{_id(recipe, 'processing_recipe_id')}/revisions",
+        {
+            "content": published_content,
+            "change_reason": "Publish the exact 2025 hardening contract after legacy isolation.",
+        },
+        headers={"If-Match": _revision_etag(draft)},
+    )
+
+
+def _poll_processing_batch(api: DemoApi, batch: Mapping[str, Any]) -> dict[str, Any]:
+    """Poll a planned/running canonical Batch a bounded number of times."""
+
+    batch_id = _id(batch, "batch_id")
+    current = dict(batch)
+    for attempt in range(_BATCH_POLL_ATTEMPTS):
+        status = current.get("status")
+        if status not in _BATCH_PENDING_STATUSES:
+            return current
+        if attempt == _BATCH_POLL_ATTEMPTS - 1:
+            break
+        time.sleep(_BATCH_POLL_DELAY_SECONDS)
+        current = api.get(f"/common-processing-batches/{batch_id}")
+    raise DemoSeedError(
+        f"clean demo canonical JSON batch {batch_id} remained nonterminal after bounded polling"
+    )
+
+
+def _settle_canonical_batch(
+    api: DemoApi, batch: Mapping[str, Any], *, allow_retry: bool = True
+) -> dict[str, Any]:
+    """Require a canonical Batch to succeed, retrying one failed attempt once."""
+
+    current = (
+        _poll_processing_batch(api, batch)
+        if batch.get("status") in _BATCH_PENDING_STATUSES
+        else dict(batch)
+    )
+    if current.get("status") == "failed" and allow_retry:
+        retried = api.post(
+            f"/common-processing-batches/{_id(current, 'batch_id')}:retry-failed", {}
+        )
+        if retried.get("status") != "succeeded":
+            raise DemoSeedError("clean demo canonical JSON batch retry did not succeed")
+        current = retried
+    if current.get("status") != "succeeded":
+        raise DemoSeedError("clean demo canonical JSON batch did not succeed")
+    return current
+
+
+def _batch_matches_canonical_recipe(
+    batch: Mapping[str, Any],
+    *,
+    recipe_id: str,
+    recipe_revision_id: str,
+    recipe_hash: str,
+) -> bool:
+    return (
+        batch.get("label") == _CANONICAL_BATCH_LABEL
+        and batch.get("recipe_id") == recipe_id
+        and batch.get("recipe_revision_id") == recipe_revision_id
+        and batch.get("recipe_sha256") == recipe_hash
+    )
+
+
+def _ensure_canonical_batch(
+    api: DemoApi,
+    *,
+    recipe_id: str,
+    recipe_revision_id: str,
+    recipe_hash: str,
+    source: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Select exactly one canonical Batch and recover it without legacy replay."""
+
+    exact = [
+        item
+        for item in _items(api.get("/common-processing-batches"))
+        if _batch_matches_canonical_recipe(
+            item,
+            recipe_id=recipe_id,
+            recipe_revision_id=recipe_revision_id,
+            recipe_hash=recipe_hash,
+        )
+    ]
+    if len(exact) > 1:
+        raise DemoSeedError("clean demo has multiple canonical JSON batches for the exact Recipe")
+    if exact:
+        return _settle_canonical_batch(api, exact[0])
+
+    preflight = api.post(
+        "/common-processing-batches:preflight",
+        {
+            "classification": "internal",
+            "recipe_id": recipe_id,
+            "recipe_revision_id": recipe_revision_id,
+            "sources": [dict(source)],
+        },
+    )
+    if preflight.get("compatible") is not True:
+        raise DemoSeedError(
+            f"clean demo Processing Recipe preflight was not compatible: {preflight!r}"
+        )
+    created = api.post(
+        "/common-processing-batches",
+        {
+            "classification": "internal",
+            "recipe_id": recipe_id,
+            "recipe_revision_id": recipe_revision_id,
+            "sources": [dict(source)],
+            "label": _CANONICAL_BATCH_LABEL,
+            "change_reason": "Execute the exact published Recipe against canonical Test JSON.",
+        },
+    )
+    return _settle_canonical_batch(api, created)
+
+
 def _ensure_processing_journey(api: DemoApi, *, test_data: Mapping[str, str]) -> dict[str, str]:
     profile = next(
         (
@@ -1666,81 +1946,8 @@ def _ensure_processing_journey(api: DemoApi, *, test_data: Mapping[str, str]) ->
         )
     profile_id = _id(profile, "mapping_profile_id")
     profile_revision_id = _revision_id(profile)
-    profile_hash = _revision_hash(profile)
 
-    recipe = next(
-        (
-            item
-            for item in _items(api.get("/common-processing-recipes"))
-            if item.get("content", {}).get("recipe_key") == "cmp_demo_tensile_cleanup"
-        ),
-        None,
-    )
-    if recipe is None:
-        content = {
-            "recipe_key": "cmp_demo_tensile_cleanup",
-            "label": "CMP demo tensile cleanup",
-            "description": "Deterministic reusable clean-up of canonical tensile JSON.",
-            "mapping_profile_id": profile_id,
-            "mapping_profile_revision_id": profile_revision_id,
-            "mapping_profile_sha256": profile_hash,
-            "steps": [
-                {
-                    "method_id": "rows.sort_unique",
-                    "method_version": "1.0.0",
-                    "options": {"duplicate_policy": "reject"},
-                },
-                {
-                    "method_id": "metal.engineering_to_true_plastic",
-                    "method_version": "1.0.0",
-                    "options": {
-                        "strain_quantity": "strain.engineering",
-                        "stress_quantity": "stress.engineering",
-                        "youngs_modulus_pa": 210000000000,
-                        "necking_policy": "manual_index",
-                        "manual_necking_index": 10,
-                        "negative_plastic_policy": "drop",
-                    },
-                },
-                {
-                    "method_id": "metal.hardening_fit_extrapolate",
-                    "method_version": "1.0.0",
-                    "options": {
-                        "equation_contract": "altair-material-modeler-2025-v1",
-                        "plastic_strain_quantity": "strain.true_plastic",
-                        "stress_quantity": "stress.true",
-                        "families": ["voce", "swift", "hockett_sherby", "ghosh"],
-                        "fit_minimum_strain": 0.0001,
-                        "fit_maximum_strain": 0.1,
-                        "extrapolation_maximum_strain": 0.5,
-                        "output_point_count": 101,
-                        "primary_family": "swift",
-                        "secondary_family": "voce",
-                        "primary_weight": 0.5,
-                        "normalization_stress_pa": 100000000,
-                        "maximum_function_evaluations": 10000,
-                    },
-                },
-            ],
-            "lifecycle_state": "draft",
-        }
-        recipe = api.post(
-            "/common-processing-recipes",
-            {
-                "classification": "internal",
-                "content": content,
-                "change_reason": "Draft the reusable clean demo Processing Recipe.",
-            },
-        )
-        content["lifecycle_state"] = "published"
-        recipe = api.post(
-            f"/common-processing-recipes/{_id(recipe, 'processing_recipe_id')}/revisions",
-            {
-                "content": content,
-                "change_reason": "Publish the reviewed clean demo Processing Recipe.",
-            },
-            headers={"If-Match": _revision_etag(recipe)},
-        )
+    recipe = _ensure_canonical_recipe(api, profile=profile)
     recipe_id = _id(recipe, "processing_recipe_id")
     recipe_revision_id = _revision_id(recipe)
     recipe_steps = _content(recipe).get("steps")
@@ -1783,48 +1990,19 @@ def _ensure_processing_journey(api: DemoApi, *, test_data: Mapping[str, str]) ->
         "canonical_unit": "observed-point-index",
         "reason": "Confirm the existing synthetic manual necking boundary from the preview.",
     }
-    batch_label = "CMP clean demo canonical JSON batch"
-    batch = next(
-        (
-            item
-            for item in _items(api.get("/common-processing-batches"))
-            if item.get("label") == batch_label
-        ),
-        None,
-    )
     source = {
         "document_id": test_data["test_data_document_id"],
         "revision_id": test_data["test_data_document_revision_id"],
         "workup_overrides": [metal_necking_override],
         "fit_decision": metal_fit_decision,
     }
-    if batch is None:
-        preflight = api.post(
-            "/common-processing-batches:preflight",
-            {
-                "classification": "internal",
-                "recipe_id": recipe_id,
-                "recipe_revision_id": recipe_revision_id,
-                "sources": [source],
-            },
-        )
-        if preflight.get("compatible") is not True:
-            raise DemoSeedError(
-                f"clean demo Processing Recipe preflight was not compatible: {preflight!r}"
-            )
-        batch = api.post(
-            "/common-processing-batches",
-            {
-                "classification": "internal",
-                "recipe_id": recipe_id,
-                "recipe_revision_id": recipe_revision_id,
-                "sources": [source],
-                "label": batch_label,
-                "change_reason": "Execute the exact published Recipe against canonical Test JSON.",
-            },
-        )
-    if batch.get("status") != "succeeded":
-        raise DemoSeedError("clean demo canonical JSON batch did not succeed")
+    batch = _ensure_canonical_batch(
+        api,
+        recipe_id=recipe_id,
+        recipe_revision_id=recipe_revision_id,
+        recipe_hash=_revision_hash(recipe),
+        source=source,
+    )
     attempts = batch.get("attempts")
     if not isinstance(attempts, list):
         raise DemoSeedError("clean demo canonical JSON batch has no attempts")

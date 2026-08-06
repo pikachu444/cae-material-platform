@@ -14,13 +14,17 @@ import re
 import shutil
 import struct
 import tempfile
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 from urllib.parse import parse_qs, urlsplit
 
+# Embedded Playwright snippets and exact UI labels intentionally exceed Ruff's
+# line length and preserve typographic punctuation for source-contract checks.
+# ruff: noqa: E501, RUF001
+
 if TYPE_CHECKING:
-    from playwright.sync_api import Browser, Locator, Page, Route
+    from playwright.sync_api import Browser, FloatRect, Locator, Page, Route
 
 VIEWPORTS = ((1366, 768), (1440, 900), (1920, 1080))
 WIDE_VIEWPORTS = ((2560, 1440), (3840, 2160))
@@ -28,10 +32,29 @@ REVISION_LABEL_PATTERN = re.compile(r"\br[1-9]\d*\b")
 MODELING_EXPORT_OUTPUTS = tuple(
     f"modeling-export-{width}x{height}.png" for width, height in VIEWPORTS
 )
-MODELING_PROCESS_FIT_OUTPUTS = tuple(
-    f"modeling-{stage}-{width}x{height}.png"
-    for stage in ("process", "fit")
-    for width, height in VIEWPORTS
+MODELING_FIT_STATE_OUTPUTS = (
+    "modeling-fit-candidate-parameters-long-1440x900.png",
+    "modeling-fit-candidate-evidence-scrolled-1440x900.png",
+    "modeling-fit-calculation-failed-1440x900.png",
+    "modeling-fit-save-failed-1440x900.png",
+    "modeling-fit-exact-source-blocked-1440x900.png",
+    "modeling-fit-exact-read-failed-1440x900.png",
+    "modeling-fit-restored-1440x900.png",
+)
+MODELING_PROCESS_FIT_OUTPUTS = (
+    *(f"modeling-process-{width}x{height}.png" for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)),
+    "modeling-fit-1366x768.png",
+    "modeling-fit-1440x900.png",
+    "modeling-fit-1920x1080.png",
+    "modeling-fit-2560x1440.png",
+    "modeling-fit-3840x2160.png",
+    "modeling-fit-candidate-parameters-long-1440x900.png",
+    "modeling-fit-candidate-evidence-scrolled-1440x900.png",
+    "modeling-fit-calculation-failed-1440x900.png",
+    "modeling-fit-save-failed-1440x900.png",
+    "modeling-fit-exact-source-blocked-1440x900.png",
+    "modeling-fit-exact-read-failed-1440x900.png",
+    "modeling-fit-restored-1440x900.png",
 )
 MODELING_PROCESS_OUTPUTS = (
     *(f"modeling-process-{width}x{height}.png" for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)),
@@ -115,6 +138,15 @@ CURRENT_CAPTURE_OUTPUTS = (
     "modeling-fit-1366x768.png",
     "modeling-fit-1440x900.png",
     "modeling-fit-1920x1080.png",
+    "modeling-fit-2560x1440.png",
+    "modeling-fit-3840x2160.png",
+    "modeling-fit-candidate-parameters-long-1440x900.png",
+    "modeling-fit-candidate-evidence-scrolled-1440x900.png",
+    "modeling-fit-calculation-failed-1440x900.png",
+    "modeling-fit-save-failed-1440x900.png",
+    "modeling-fit-exact-source-blocked-1440x900.png",
+    "modeling-fit-exact-read-failed-1440x900.png",
+    "modeling-fit-restored-1440x900.png",
     "modeling-export-1366x768.png",
     "modeling-export-1440x900.png",
     "modeling-export-1920x1080.png",
@@ -140,6 +172,7 @@ STAGE_HEADINGS = {
     "fit": "Fit material response",
     "export": "Review & deliver solver card",
 }
+EXPECTED_EXACT_FIT_RESTORE_ERROR = "Saved Fit result unavailable · Retry exact saved result."
 PROCESS_SOURCE_DOCUMENT_KEY = "CMP-DEMO-DP780-TEST-JSON"
 PROCESS_SOURCE_TITLE = f"{PROCESS_SOURCE_DOCUMENT_KEY} · Specimen 01 · revision r1"
 PROCESS_SOURCE_VISIBLE_IDENTITY = "Specimen 01 · r1"
@@ -178,12 +211,15 @@ def _new_page(browser: Browser, base_url: str, width: int, height: int) -> Page:
     return page
 
 
-def _bounding_box_edges(box: dict[str, float] | None) -> dict[str, float] | None:
+def _bounding_box_edges(box: FloatRect | None) -> dict[str, float] | None:
     """Add viewport edges to Playwright's x/y/width/height bounding box."""
     if box is None:
         return None
     return {
-        **box,
+        "x": box["x"],
+        "y": box["y"],
+        "width": box["width"],
+        "height": box["height"],
         "left": box["x"],
         "right": box["x"] + box["width"],
         "top": box["y"],
@@ -227,7 +263,7 @@ def _capture(
     height: int,
     *,
     focus_selector: str | None = None,
-    before_screenshot: Callable[[], None] | None = None,
+    before_screenshot: Callable[[], object] | None = None,
 ) -> None:
     _wait_for_settled(page)
     overflow = page.evaluate(
@@ -1108,6 +1144,13 @@ def _data_session_snapshot(page: Page) -> dict[str, object]:
     }
 
 
+def _session_list(snapshot: dict[str, object], key: str) -> list[object]:
+    value = snapshot.get(key)
+    if not isinstance(value, list):
+        raise RuntimeError(f"Modeling Data session field {key!r} is not a list")
+    return value
+
+
 def _wait_for_data_session_counts(page: Page, refs: int, included: int, visible: int) -> None:
     page.wait_for_function(
         """expected => {
@@ -1380,13 +1423,16 @@ def _prepare_modeling(page: Page, base_url: str) -> None:
     _wait_for_settled(page)
 
     _wait_for_modeling_data_ribbon(page)
-    _assert_modeling_data_surface(page, page.viewport_size["width"], page.viewport_size["height"])
+    viewport_size = page.viewport_size
+    if viewport_size is None:
+        raise RuntimeError("Modeling Data capture lost its viewport size")
+    _assert_modeling_data_surface(page, viewport_size["width"], viewport_size["height"])
     before_reload = _data_session_snapshot(page)
-    if len(before_reload["selectedTestDataRefs"]) != 3:
+    if len(_session_list(before_reload, "selectedTestDataRefs")) != 3:
         raise RuntimeError(f"expected 3 selected exact refs before reload, got {before_reload}")
-    if len(before_reload["selectedDocumentIds"]) != 2:
+    if len(_session_list(before_reload, "selectedDocumentIds")) != 2:
         raise RuntimeError(f"expected exactly 2 included Test Data ids before reload, got {before_reload}")
-    if len(before_reload["visibleTestDataKeys"]) != 3:
+    if len(_session_list(before_reload, "visibleTestDataKeys")) != 3:
         raise RuntimeError(f"expected 3 visible exact refs before reload, got {before_reload}")
     # Reload through the actual route and require the selected exact rows to
     # remain included. This catches the old id-only/current-head regression.
@@ -1561,6 +1607,15 @@ def _list_processing_outputs(page: Page, base_url: str) -> list[dict[str, object
     return [item for item in items if isinstance(item, dict)]
 
 
+def _has_processing_output_revision(
+    item: dict[str, object], output_id: object, revision_id: object
+) -> bool:
+    if item.get("processing_output_id") != output_id:
+        return False
+    revision = item.get("current_revision")
+    return isinstance(revision, dict) and revision.get("id") == revision_id
+
+
 def _process_session_pins(page: Page) -> tuple[dict[str, object], dict[str, object]]:
     session = _modeling_session(page)
     source = session.get("testData")
@@ -1616,6 +1671,77 @@ def _matching_process_outputs(
         ):
             matching.append(output)
     return matching
+
+
+_PROCESS_CAPTURE_LABELS = frozenset(
+    {
+        "Robust elastic",
+        "Chord elastic",
+        "Elastic window 0.0005-0.0025",
+    }
+)
+
+
+def _as_float(value: object, default: float = 0.0) -> float:
+    """Read a browser-measured scalar without laundering arbitrary objects."""
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        try:
+            return float(value)
+        except ValueError:
+            return default
+    return default
+
+
+def _matching_capture_process_outputs(
+    outputs: list[dict[str, object]],
+    source: dict[str, object],
+    profile: dict[str, object],
+) -> list[dict[str, object]]:
+    """Keep only the exact Process siblings owned by this capture journey."""
+
+    return [
+        output
+        for output in _matching_process_outputs(outputs, source, profile)
+        if output.get("label") in _PROCESS_CAPTURE_LABELS
+    ]
+
+
+def _filter_capture_process_output_list(
+    page: Page,
+    source: dict[str, object],
+    profile: dict[str, object],
+) -> None:
+    """Keep Fit-source outputs out of the Process sibling disclosure during capture."""
+
+    expected_source = {
+        "aggregate_id": source["id"],
+        "revision_id": source["revisionId"],
+    }
+    expected_profile = {
+        "aggregate_id": profile["id"],
+        "revision_id": profile["revisionId"],
+    }
+
+    def route_outputs(route: Route) -> None:
+        if route.request.method != "GET":
+            route.continue_()
+            return
+        response = route.fetch()
+        payload = response.json()
+        if isinstance(payload, dict) and isinstance(payload.get("items"), list):
+            payload["items"] = [
+                item
+                for item in payload["items"]
+                if isinstance(item, dict)
+                and item.get("label") in _PROCESS_CAPTURE_LABELS
+                and item.get("source_document") == expected_source
+                and item.get("mapping_profile") == expected_profile
+            ]
+        route.fulfill(response=response, json=payload)
+
+    page.route("**/api/v1/processing-outputs", route_outputs)
 
 
 def _assert_no_mis_pinned_capture_labels(
@@ -1751,12 +1877,10 @@ def _assert_resumable_modeling_process_outputs(
             "Interrupted Process outputs have duplicate or missing identities: "
             f"{output_ids!r}"
         )
-    revision_ids = [
-        output.get("current_revision", {}).get("id")
-        if isinstance(output.get("current_revision"), dict)
-        else None
-        for output in outputs
-    ]
+    revision_ids: list[object] = []
+    for output in outputs:
+        revision = output.get("current_revision")
+        revision_ids.append(revision.get("id") if isinstance(revision, dict) else None)
     if (
         any(not isinstance(revision_id, str) or not revision_id for revision_id in revision_ids)
         or len({revision_id for revision_id in revision_ids if isinstance(revision_id, str)}) != 3
@@ -1765,7 +1889,7 @@ def _assert_resumable_modeling_process_outputs(
             "Interrupted Process outputs have duplicate or missing revision identities: "
             f"{revision_ids!r}"
         )
-    configurations = {
+    configurations: dict[str, dict[str, str | float]] = {
         "Robust elastic": {
             "expected_method": "robust_huber",
             "expected_minimum": 0.0002,
@@ -2244,20 +2368,25 @@ def _assert_capture_processing_output_pointer(
         raise RuntimeError(f"Capture pointer did not restore the exact current output: {pointer!r}")
 
 
-def _save_exact_fit_selection(page: Page) -> None:
+def _save_exact_fit_selection(
+    page: Page,
+    *,
+    allow_expected_exact_restore_failure: bool = False,
+) -> None:
+    """Save the selected Fit output and leave the workflow on the Fit stage."""
     _open_modeling_stage(page, "fit")
     page.wait_for_url(re.compile(r"stage=fit"), timeout=30_000)
     page.locator(".modeling-work-title strong").get_by_text(
         STAGE_HEADINGS["fit"], exact=True
     ).wait_for(timeout=30_000)
+    if parse_qs(urlsplit(page.url).query).get("stage") != ["fit"]:
+        raise RuntimeError(f"Fit selection started on an unexpected route: {page.url}")
     show_settings = page.get_by_role("button", name="Show current-stage settings", exact=True)
     if show_settings.count():
         show_settings.click()
-    disclosure = page.locator("details.fit-evidence-disclosure")
-    disclosure.locator(":scope > summary").click()
-    candidate_table = page.get_by_role("table", name="Hardening candidate comparison")
-    candidate_table.wait_for(timeout=30_000)
-    candidate_table.get_by_role("button", name=re.compile(r"^Select .+ candidate$")).last.click()
+    trigger, _body, candidate_table = _open_fit_evidence(page)
+    _assert_fit_candidate_surface(page, candidate_table)
+    _select_warned_fit_candidate(candidate_table)
     page.get_by_role("textbox", name="Candidate selection reason").fill(
         "Best agreement over the measured strain range."
     )
@@ -2266,6 +2395,10 @@ def _save_exact_fit_selection(page: Page) -> None:
     )
     if warning_acknowledgement.count():
         warning_acknowledgement.check()
+    else:
+        raise RuntimeError("Selected warned Fit candidate is missing its acknowledgement")
+    _assert_fit_selected_evidence(page)
+    previous_pointer = _modeling_session(page).get("processingOutput")
     save_candidate = page.get_by_role("button", name="Save fit & continue", exact=True)
     page.wait_for_function(
         """() => [...document.querySelectorAll("button")].some(
@@ -2274,18 +2407,49 @@ def _save_exact_fit_selection(page: Page) -> None:
         )""",
         timeout=30_000,
     )
-    disclosure.locator(":scope > summary").click()
+    _close_fit_evidence(page, trigger)
     save_candidate.click()
+    page.get_by_text(
+        "New immutable Fit Output saved and current",
+        exact=False,
+    ).wait_for(timeout=30_000)
+    if parse_qs(urlsplit(page.url).query).get("stage") != ["fit"]:
+        raise RuntimeError(f"Fit save unexpectedly navigated away from Fit: {page.url}")
     page.wait_for_function(
-        """() => [...document.querySelectorAll("h1, h2, h3")].some(
-            heading => heading.textContent?.trim() ===
-              "Review & deliver solver card"
-        ) || document.querySelector(".error-banner")""",
+        """() => {
+          const raw = window.sessionStorage.getItem('cmp.modeling.recent-session.v4');
+          if (!raw) return false;
+          const pointer = JSON.parse(raw).processingOutput;
+          return Boolean(
+            pointer
+              && typeof pointer.id === 'string'
+              && pointer.id
+              && typeof pointer.revisionId === 'string'
+              && pointer.revisionId
+          );
+        }""",
         timeout=30_000,
     )
+    pointer = _modeling_session(page).get("processingOutput")
+    if not isinstance(pointer, dict) or not all(
+        isinstance(pointer.get(key), str) and pointer.get(key)
+        for key in ("id", "revisionId")
+    ):
+        raise RuntimeError(f"Fit save did not pin an exact session output pointer: {pointer!r}")
+    if isinstance(previous_pointer, dict) and all(
+        isinstance(previous_pointer.get(key), str) and previous_pointer.get(key)
+        for key in ("id", "revisionId")
+    ) and all(pointer.get(key) == previous_pointer.get(key) for key in ("id", "revisionId")):
+        raise RuntimeError(
+            f"Fit save did not advance to a new immutable output pointer: {pointer!r}"
+        )
     error_banner = page.locator(".error-banner")
-    if error_banner.count():
-        raise RuntimeError(f"Fit selected-output save failed: {error_banner.inner_text().strip()}")
+    if error_banner.count() and error_banner.is_visible():
+        error_text = error_banner.inner_text().strip()
+        if not allow_expected_exact_restore_failure or not error_text.startswith(
+            EXPECTED_EXACT_FIT_RESTORE_ERROR
+        ):
+            raise RuntimeError(f"Fit selected-output save failed: {error_text}")
 
 
 def _prepare_exact_target_preview(page: Page) -> None:
@@ -2377,8 +2541,14 @@ def _prepare_exact_target_preview(page: Page) -> None:
 def _capture_modeling_export_only(browser: Browser, base_url: str, output: Path) -> None:
     for width, height in VIEWPORTS:
         page = _new_page(browser, base_url, width, height)
-        _prepare_modeling(page, base_url)
+        _prepare_fit_from_saved_process(
+            page,
+            base_url,
+            label=f"Fit source Process result {width}x{height}",
+        )
         _save_exact_fit_selection(page)
+        _open_modeling_stage(page, "export")
+        page.wait_for_url(re.compile(r"stage=export"), timeout=30_000)
         _prepare_exact_target_preview(page)
         _capture(
             page,
@@ -2390,51 +2560,49 @@ def _capture_modeling_export_only(browser: Browser, base_url: str, output: Path)
         page.context.close()
 
 
-def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
-    for width, height in VIEWPORTS:
+def _capture_modeling(
+    browser: Browser,
+    base_url: str,
+    output: Path,
+    *,
+    include_process_normals: bool = True,
+) -> None:
+    for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS):
         page = _new_page(browser, base_url, width, height)
         _prepare_modeling(page, base_url)
         plot = page.locator(".persistent-modeling-plot svg[role=img]")
         for stage, heading in STAGE_HEADINGS.items():
+            if stage == "export" and (width, height) not in VIEWPORTS:
+                continue
             _open_modeling_stage(page, stage)
             page.wait_for_url(re.compile(rf"stage={stage}"), timeout=30_000)
             page.locator(".modeling-work-title strong").get_by_text(heading, exact=True).wait_for(
                 timeout=30_000
             )
+            if stage == "process":
+                _save_process_output_for_fit(
+                    page,
+                    label=f"Fit source Process result {width}x{height}",
+                    reason="Bind one immutable Process result as the exact Fit source.",
+                )
             if stage == "fit":
+                _click_modeling_fit_preview_and_wait(page)
                 show_settings = page.get_by_role(
                     "button", name="Show current-stage settings", exact=True
                 )
                 if show_settings.count():
                     show_settings.click()
                 _wait_for_settled(page)
-                disclosure = page.locator("details.fit-evidence-disclosure")
-                disclosure.locator(":scope > summary").click()
-                candidate_table = page.get_by_role("table", name="Hardening candidate comparison")
-                candidate_table.wait_for(timeout=30_000)
+                trigger, _body, candidate_table = _open_fit_evidence(page)
                 if candidate_table.locator("tbody tr").count() != 5:
                     raise RuntimeError(
                         "Fit must expose four calculated single-law candidates "
                         "and the exact calculated preview blend"
                     )
+                _assert_fit_candidate_surface(page, candidate_table)
                 page.get_by_text(re.compile(r"^Preview blend · .+ · fitted domain$")).wait_for(
                     timeout=30_000
                 )
-                for column in (
-                    "Decision",
-                    "Model / law",
-                    "Recommendation",
-                    "Metric",
-                    "Fit / extrapolation range",
-                    "Stability",
-                    "Compatibility",
-                    "Warning",
-                ):
-                    if (
-                        candidate_table.get_by_role("columnheader", name=column, exact=True).count()
-                        != 1
-                    ):
-                        raise RuntimeError(f"Fit candidate table is missing {column}")
                 save_candidate = page.get_by_role("button", name="Save fit & continue", exact=True)
                 if save_candidate.count() != 1:
                     raise RuntimeError("Fit is missing its sole top-row save action")
@@ -2442,10 +2610,7 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
                     raise RuntimeError(
                         "Fit save must remain disabled before an explicit row selection"
                     )
-                select_candidate = candidate_table.get_by_role(
-                    "button", name=re.compile(r"^Select .+ candidate$")
-                ).first
-                select_candidate.click()
+                _select_warned_fit_candidate(candidate_table)
                 page.get_by_text(re.compile(r"^Selected · .+ · fitted domain$")).wait_for(
                     timeout=30_000
                 )
@@ -2464,11 +2629,14 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
                 )
                 if warning_acknowledgement.count():
                     warning_acknowledgement.check()
+                else:
+                    raise RuntimeError("Selected warned Fit candidate is missing its acknowledgement")
+                _assert_fit_selected_evidence(page)
                 if save_candidate.is_disabled():
                     raise RuntimeError(
                         "Fit save did not become ready after selection evidence was completed"
                     )
-                disclosure.locator(":scope > summary").click()
+                _close_fit_evidence(page, trigger)
             if stage == "export":
                 _prepare_exact_target_preview(page)
             plot.wait_for(timeout=30_000)
@@ -2496,16 +2664,16 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
                     f"Modeling plot drawable is only {drawable_ratio:.1%} "
                     f"of workspace for {stage} at {width}x{height}: {plot_geometry}"
                 )
-            _capture(
-                page,
-                output / f"modeling-{stage}-{width}x{height}.png",
-                width,
-                height,
-                focus_selector=None,
-            )
+            if stage != "process" or include_process_normals:
+                _capture(
+                    page,
+                    output / f"modeling-{stage}-{width}x{height}.png",
+                    width,
+                    height,
+                    focus_selector=None,
+                )
             if stage == "fit":
-                page.get_by_role("button", name="Save fit & continue", exact=True).click()
-                page.wait_for_url(re.compile(r"stage=export"), timeout=30_000)
+                _save_exact_fit_selection(page)
         page.context.close()
 
 
@@ -2517,7 +2685,7 @@ def _measure_process_fit(
     *,
     minimum_svg_height: int | None = None,
 ) -> dict[str, float]:
-    measurement = page.evaluate(
+    measurement = cast(dict[str, float], page.evaluate(
         """() => {
           const box = selector => document.querySelector(selector)?.getBoundingClientRect();
           const rect = node => {
@@ -2533,6 +2701,36 @@ def _measure_process_fit(
               && first.top < Math.max(second.bottom, second.top + 1)
               && Math.max(first.bottom, first.top + 1) > second.top
           );
+          const segmentIntersectsRect = (first, second, target) => {
+            if (!first || !second || !target) return false;
+            const dx = second.x - first.x;
+            const dy = second.y - first.y;
+            let enter = 0;
+            let leave = 1;
+            const clip = (p, q) => {
+              if (Math.abs(p) < 1e-9) return q >= 0;
+              const ratio = q / p;
+              if (p < 0) {
+                if (ratio > leave) return false;
+                if (ratio > enter) enter = ratio;
+              } else {
+                if (ratio < enter) return false;
+                if (ratio < leave) leave = ratio;
+              }
+              return true;
+            };
+            return clip(-dx, first.x - target.left)
+              && clip(dx, target.right - first.x)
+              && clip(-dy, first.y - target.top)
+              && clip(dy, target.bottom - first.y)
+              && enter <= leave;
+          };
+          const screenPoint = (element, x, y) => {
+            const matrix = element?.getScreenCTM?.();
+            if (!matrix || !Number.isFinite(x) || !Number.isFinite(y)) return null;
+            const point = new DOMPoint(x, y).matrixTransform(matrix);
+            return { x: point.x, y: point.y };
+          };
           const svg = document.querySelector('.persistent-modeling-plot svg[role=img]');
           const axis = [...(svg?.querySelectorAll('.chart-axis') ?? [])]
             .find(
@@ -2540,15 +2738,46 @@ def _measure_process_fit(
             )?.getBoundingClientRect();
           const workspace = box('.modeling-split-workspace');
           const processCluster = box('.modeling-process-workspace-bounded');
+          const fitCluster = box('.modeling-fit-workspace-bounded');
           const rail = box('.modeling-workspace-rail');
           const ribbon = box('.modeling-task-ribbon');
           const plot = box('.persistent-modeling-plot');
-          const legend = rect(document.querySelector('.modeling-process-workspace-bounded .persistent-modeling-plot > .curve-legend'));
+          const legend = rect(document.querySelector('.modeling-process-workspace-bounded .persistent-modeling-plot > .curve-legend')
+            ?? document.querySelector('.modeling-fit-workspace-bounded .persistent-modeling-plot > .curve-legend'));
           const svgBox = svg?.getBoundingClientRect();
           const ticks = [...(svg?.querySelectorAll('.chart-tick') ?? [])].map(rect).filter(Boolean);
           const axisLabels = [...(svg?.querySelectorAll('.chart-axis-label') ?? [])].map(rect).filter(Boolean);
           const axes = [...(svg?.querySelectorAll('.chart-axis') ?? [])].map(rect).filter(Boolean);
           const xAxisLabel = axisLabels.at(-2);
+          const xTickLabels = [...(svg?.querySelectorAll('g') ?? [])]
+            .filter(group => [...group.querySelectorAll('line.chart-grid')]
+              .some(line => line.getAttribute('x1') === line.getAttribute('x2')))
+            .map(group => group.querySelector('text.chart-tick'))
+            .map(rect)
+            .filter(Boolean);
+          const lastXTick = xTickLabels.at(-1) ?? null;
+          const xTicksWithinSvg = Boolean(svgBox) && xTickLabels.every(tick => (
+            tick.left >= svgBox.left - 1
+              && tick.right <= svgBox.right + 1
+              && tick.top >= svgBox.top - 1
+              && tick.bottom <= svgBox.bottom + 1
+          ));
+          const curveSegments = [...(svg?.querySelectorAll('polyline.curve-line') ?? [])]
+            .filter(polyline => polyline.getClientRects().length)
+            .flatMap(polyline => {
+              const values = (polyline.getAttribute('points') ?? '')
+                .trim()
+                .split(/\\s+/)
+                .map(pair => pair.split(',').map(Number))
+                .filter(pair => pair.length === 2 && pair.every(Number.isFinite));
+              const points = values.map(pair => screenPoint(polyline, pair[0], pair[1])).filter(Boolean);
+              return points.slice(1).map((point, index) => ({ first: points[index], second: point }));
+            });
+          const extrapolationBoundary = rect(svg?.querySelector('.extrapolation-region line'));
+          const extrapolationLabel = rect(svg?.querySelector('.extrapolation-region text'));
+          const stateOverlays = [...(svg?.querySelectorAll(
+            '.graph-range-selection, .graph-point-selection, .graph-point-marker, .engineering-result-marker, .chart-crosshair',
+          ) ?? [])].map(rect).filter(Boolean);
           const processRows = [...document.querySelectorAll('.modeling-process-workspace-bounded .modeling-dataset-list .curve-row-label')].map(row => {
             const text = (row.textContent ?? '').replace(/\\s+/g, ' ').trim();
             const descendants = [row, ...row.querySelectorAll('strong, small')];
@@ -2614,16 +2843,46 @@ def _measure_process_fit(
             processClusterHeight: processCluster?.height ?? 0,
             processClusterLeft: processCluster?.left ?? 0,
             processClusterTop: processCluster?.top ?? 0,
+            fitClusterWidth: fitCluster?.width ?? 0,
+            fitClusterHeight: fitCluster?.height ?? 0,
+            fitClusterLeft: fitCluster?.left ?? 0,
+            fitClusterTop: fitCluster?.top ?? 0,
             workspaceLeft: workspace?.left ?? 0,
             workspaceTop: workspace?.top ?? 0,
             railWidth: rail?.width ?? 0, ribbonHeight: ribbon?.height ?? 0,
             plotBottom: plot?.bottom ?? 0, xAxisLabelBottom: xAxisLabel?.bottom ?? 0,
             legendBottom: legend?.bottom ?? 0,
+            legendInPlot: Boolean(legend && plot
+              && legend.left >= plot.left - 1
+              && legend.right <= plot.right + 1
+              && legend.top >= plot.top - 1
+              && legend.bottom <= plot.bottom + 1),
+            legendOutsideSvg: Boolean(legend && svgBox
+              && (legend.left < svgBox.left - 1
+                || legend.right > svgBox.right + 1
+                || legend.top < svgBox.top - 1
+                || legend.bottom > svgBox.bottom + 1)),
             legendTickOverlap: ticks.some(tick => overlaps(legend, tick)),
             legendAxisLabelOverlap: axisLabels.some(label => overlaps(legend, label)),
             legendAxisOverlap: axes.some(axisLine => overlaps(legend, axisLine)),
+            legendCurveSegmentOverlap: curveSegments.some(segment => segmentIntersectsRect(segment.first, segment.second, legend)),
+            legendExtrapolationBoundaryOverlap: overlaps(legend, extrapolationBoundary),
+            legendExtrapolationLabelOverlap: overlaps(legend, extrapolationLabel),
+            legendStateOverlayOverlap: stateOverlays.some(overlay => overlaps(legend, overlay)),
+            lastXTickWithinSvg: Boolean(lastXTick && xTicksWithinSvg),
+            xTicksWithinSvg,
+            xTickCount: xTickLabels.length,
             processRows,
             processRowClipped: processRows.some(row => row.clipped),
+            fitRows: [...document.querySelectorAll('.modeling-fit-workspace-bounded .modeling-dataset-list .curve-row-label')].map(row => {
+              const rowBox = row.getBoundingClientRect();
+              const descendants = [row, ...row.querySelectorAll('strong, small')];
+              const clipped = descendants.some(node => node.scrollWidth > node.clientWidth + 1 || node.scrollHeight > node.clientHeight + 1);
+              return { text: (row.textContent ?? '').replace(/\\s+/g, ' ').trim(), visible: row.getClientRects().length > 0, clipped, box: { top: rowBox.top, bottom: rowBox.bottom } };
+            }),
+            fitRowsIncluded: document.querySelector('.modeling-fit-workspace-bounded .modeling-dataset-list .rail-heading > span')?.textContent?.trim() ?? '',
+            fitNoMatchingCurves: [...document.querySelectorAll('.modeling-fit-workspace-bounded .modeling-dataset-list .muted')]
+              .some(node => node.getClientRects().length && (node.textContent ?? '').trim() === 'No matching curves.'),
             methodRangeGap: method && range ? range.left - method.right : null,
             processControls,
             topActions,
@@ -2633,7 +2892,7 @@ def _measure_process_fit(
             viewportHeight: window.innerHeight
           };
         }"""
-    )
+    ))
     if stage == "data":
         # Data keeps a slightly taller source-selection ribbon than Process/Fit.
         # Preserve a large graph without treating a single-digit pixel
@@ -2686,10 +2945,10 @@ def _measure_process_fit(
             raise RuntimeError(f"Process control containment boxes are missing at {width}x{height}: {measurement}")
         def _inside(child: dict[str, object], parent: dict[str, object]) -> bool:
             return (
-                float(child.get("left", 0)) >= float(parent.get("left", 0)) - 1
-                and float(child.get("right", 0)) <= float(parent.get("right", 0)) + 1
-                and float(child.get("top", 0)) >= float(parent.get("top", 0)) - 1
-                and float(child.get("bottom", 0)) <= float(parent.get("bottom", 0)) + 1
+                _as_float(child.get("left")) >= _as_float(parent.get("left")) - 1
+                and _as_float(child.get("right")) <= _as_float(parent.get("right")) + 1
+                and _as_float(child.get("top")) >= _as_float(parent.get("top")) - 1
+                and _as_float(child.get("bottom")) <= _as_float(parent.get("bottom")) + 1
             )
         visible_control_boxes = [
             control.get("box")
@@ -2714,12 +2973,12 @@ def _measure_process_fit(
                 "Manual Young's modulus reason",
             }
         ]
-        def _aligned(items: list[object], tolerance: float = 2) -> bool:
+        def _aligned(items: Sequence[object], tolerance: float = 2) -> bool:
             boxes = [item.get("box") for item in items if isinstance(item, dict) and isinstance(item.get("box"), dict)]
             if len(boxes) < 2:
                 return False
-            tops = [float(box.get("top", 0)) for box in boxes]
-            bottoms = [float(box.get("bottom", 0)) for box in boxes]
+            tops = [_as_float(box.get("top")) for box in boxes]
+            bottoms = [_as_float(box.get("bottom")) for box in boxes]
             return max(tops) - min(tops) <= tolerance and max(bottoms) - min(bottoms) <= tolerance
         if not _aligned(normal_row) or not _aligned(save_row):
             raise RuntimeError(f"Process control baselines drifted at {width}x{height}: {measurement}")
@@ -2772,6 +3031,49 @@ def _measure_process_fit(
             or measurement["processClusterTop"] > measurement["workspaceTop"] + 1
         ):
             raise RuntimeError(f"Process wide cluster bound/alignment failed at {width}x{height}: {measurement}")
+    if stage == "fit":
+        rows = measurement.get("fitRows")
+        if not isinstance(rows, list) or len(rows) != 3:
+            raise RuntimeError(f"Fit rail must expose exactly three exact rows at {width}x{height}: {measurement}")
+        for row in rows:
+            if (
+                not isinstance(row, dict)
+                or row.get("visible") is not True
+                or row.get("clipped") is True
+                or not re.fullmatch(r"Specimen \d{2} · r[1-9]\d*", str(row.get("text", "")))
+            ):
+                raise RuntimeError(f"Fit rail identity is missing or clipped at {width}x{height}: {measurement}")
+        if measurement.get("fitRowsIncluded") != "2 included":
+            raise RuntimeError(f"Fit rail selected included count drifted at {width}x{height}: {measurement}")
+        if measurement.get("fitNoMatchingCurves"):
+            raise RuntimeError(f"Fit rail exposed No matching curves at {width}x{height}: {measurement}")
+        if measurement["fitClusterWidth"] <= 0 or measurement["fitClusterWidth"] > 1920 + 1:
+            raise RuntimeError(f"Fit workspace width escaped its bounded cluster at {width}x{height}: {measurement}")
+        if width >= 2560 and (
+            measurement["fitClusterHeight"] <= 0
+            or measurement["fitClusterHeight"] > 879
+            or measurement["fitClusterLeft"] > measurement["workspaceLeft"] + 1
+            or measurement["fitClusterTop"] > measurement["workspaceTop"] + 1
+        ):
+            raise RuntimeError(f"Fit wide cluster bound/alignment failed at {width}x{height}: {measurement}")
+        if not 184 <= measurement["railWidth"] <= 210:
+            raise RuntimeError(f"Fit compact curve rail width drifted at {width}x{height}: {measurement}")
+        if abs(measurement["ribbonHeight"] - 104) > 1:
+            raise RuntimeError(f"Fit ribbon must remain exactly 104px (31+72) at {width}x{height}: {measurement}")
+        if (
+            not measurement.get("legendInPlot")
+            or measurement.get("legendOutsideSvg")
+            or measurement.get("legendTickOverlap")
+            or measurement.get("legendAxisLabelOverlap")
+            or measurement.get("legendAxisOverlap")
+            or measurement.get("legendCurveSegmentOverlap")
+            or measurement.get("legendExtrapolationBoundaryOverlap")
+            or measurement.get("legendExtrapolationLabelOverlap")
+            or measurement.get("legendStateOverlayOverlap")
+        ):
+            raise RuntimeError(f"Fit legend collides with plot content at {width}x{height}: {measurement}")
+        if not measurement.get("lastXTickWithinSvg") or not measurement.get("xTicksWithinSvg"):
+            raise RuntimeError(f"Fit final x tick is clipped at {width}x{height}: {measurement}")
     if (
         measurement["svgBottom"] > measurement["plotBottom"] + 2.5
         or measurement["xAxisLabelBottom"] > measurement["plotBottom"] + 1
@@ -2833,6 +3135,17 @@ def _wait_for_modeling_process_plot_size(page: Page) -> None:
     )
 
 
+def _wait_for_process_plot_before_capture(page: Page) -> None:
+    _wait_for_modeling_process_plot_size(page)
+
+
+def _process_plot_capture_callback(page: Page) -> Callable[[], None]:
+    def callback() -> None:
+        _wait_for_process_plot_before_capture(page)
+
+    return callback
+
+
 def _click_modeling_process_preview_and_wait(page: Page) -> None:
     """Wait for the new Process preview POST, then require an idle action bar."""
     preview = page.get_by_role("button", name="Preview changes", exact=True)
@@ -2859,6 +3172,286 @@ def _click_modeling_process_preview_and_wait(page: Page) -> None:
         timeout=30_000,
     )
     page.get_by_text("Preview ready", exact=False).wait_for(timeout=30_000)
+
+
+def _click_modeling_fit_preview_and_wait(page: Page) -> None:
+    """Wait for the one persisted exact-source Fit run and its settled result."""
+    preview = page.get_by_role("button", name="Preview changes", exact=True)
+    with page.expect_response(
+        lambda response: response.request.method == "POST"
+        and urlsplit(response.url).path.endswith("/metal-fit-runs"),
+        timeout=30_000,
+    ) as response_info:
+        preview.click()
+    response = response_info.value
+    if not response.ok:
+        raise RuntimeError(f"Fit calculation request failed: {response.status}")
+    page.wait_for_function(
+        """() => {
+          const preview = [...document.querySelectorAll('button')]
+            .find(button => button.textContent?.trim() === 'Preview changes');
+          const updating = [...document.querySelectorAll('button')]
+            .some(button => button.textContent?.trim() === 'Updating…');
+          return Boolean(preview && !preview.disabled && !updating);
+        }""",
+        timeout=30_000,
+    )
+    page.get_by_text("Preview ready", exact=False).wait_for(timeout=30_000)
+
+
+def _save_process_output_for_fit(
+    page: Page,
+    *,
+    label: str,
+    reason: str,
+) -> dict[str, object]:
+    """Persist one Process-only result before any Fit preview is requested."""
+    _assert_modeling_process_preview(page)
+    panel = page.locator('[data-modeling-process-panel="ready"]')
+    output_label = panel.get_by_role("textbox", name="Processed curve label", exact=True)
+    output_reason = panel.get_by_role("textbox", name="Save reason", exact=True)
+    save = panel.get_by_role("button", name="Save processed curves", exact=True)
+    output_label.fill(label)
+    output_reason.fill(reason)
+    with page.expect_response(
+        lambda response: response.request.method == "POST"
+        and urlsplit(response.url).path.endswith("/processing-outputs"),
+        timeout=30_000,
+    ) as response_info:
+        save.click()
+    response = response_info.value
+    if not response.ok:
+        raise RuntimeError(f"Process source save failed before Fit: {response.status}")
+    page.get_by_text("Processed result saved and current", exact=False).wait_for(timeout=30_000)
+    session = _modeling_session(page)
+    pointer = session.get("processingOutput")
+    if not isinstance(pointer, dict):
+        raise RuntimeError("Process save did not pin an exact Processing Output for Fit")
+    if not all(
+        isinstance(pointer.get(key), str) and pointer.get(key)
+        for key in ("id", "revisionId", "label")
+    ):
+        raise RuntimeError(f"Process save pinned an incomplete output identity: {pointer!r}")
+    if pointer.get("revisionNo") != 1:
+        raise RuntimeError(f"Process save did not pin Processing Output revision r1: {pointer!r}")
+    return pointer
+
+
+def _prepare_fit_from_saved_process(
+    page: Page,
+    base_url: str,
+    *,
+    label: str = "Fit source Process result",
+) -> dict[str, object]:
+    """Prepare Fit from a real exact Process Output rather than a raw Test Data preview."""
+    _prepare_modeling_process(page, base_url)
+    pointer = _save_process_output_for_fit(
+        page,
+        label=label,
+        reason="Bind one immutable Process result as the exact Fit source.",
+    )
+    _open_modeling_stage(page, "fit")
+    page.wait_for_url(re.compile(r"stage=fit"), timeout=30_000)
+    page.locator(".modeling-work-title strong").get_by_text(
+        STAGE_HEADINGS["fit"], exact=True
+    ).wait_for(timeout=30_000)
+    page.get_by_text(re.compile(r"Exact Process source"), exact=False).wait_for(timeout=30_000)
+    return pointer
+
+
+def _open_fit_evidence(page: Page) -> tuple[Locator, Locator, Locator]:
+    """Open the controlled Fit drawer and expose its single local body scrollport."""
+    trigger = page.get_by_role("button", name="Candidate parameters", exact=True)
+    trigger.wait_for(state="visible", timeout=30_000)
+    if trigger.get_attribute("aria-expanded") != "true":
+        trigger.click()
+    if trigger.get_attribute("aria-expanded") != "true":
+        raise RuntimeError("Fit evidence trigger did not expose aria-expanded=true")
+    if trigger.get_attribute("aria-controls") != "fit-evidence-dock":
+        raise RuntimeError("Fit evidence trigger lost its controlled dock identity")
+    drawer = page.locator(".fit-evidence-drawer#fit-evidence-dock")
+    drawer.wait_for(state="visible", timeout=30_000)
+    if page.get_by_role("region", name="Candidate parameters", exact=True).count() != 1:
+        raise RuntimeError("Fit evidence dock lost its Candidate parameters outer label")
+    drawer.get_by_role("button", name="Close", exact=True).wait_for(state="visible", timeout=30_000)
+    drawer.get_by_role("status").filter(has_text="Calculated evidence").wait_for(state="visible", timeout=30_000)
+    body = drawer.locator(".fit-evidence-body")
+    body.wait_for(state="visible", timeout=30_000)
+    if body.get_attribute("tabindex") != "0":
+        raise RuntimeError("Fit evidence body must be the focusable local scrollport")
+    if drawer.locator(".fit-evidence-scroll-rail").count():
+        raise RuntimeError("Fit evidence drawer contains a fake scrollbar rail")
+    table = page.get_by_role("table", name="Hardening candidate comparison")
+    table.wait_for(state="visible", timeout=30_000)
+    return trigger, body, table
+
+
+def _close_fit_evidence(page: Page, trigger: Locator) -> None:
+    """Close through the explicit action and require React focus restoration."""
+    drawer = page.locator(".fit-evidence-drawer#fit-evidence-dock")
+    drawer.get_by_role("button", name="Close", exact=True).click()
+    page.wait_for_function(
+        """() => {
+          const trigger = document.querySelector('button.fit-evidence-trigger');
+          const drawer = document.querySelector('.fit-evidence-drawer#fit-evidence-dock');
+          return Boolean(trigger && trigger.getAttribute('aria-expanded') === 'false' && !drawer);
+        }""",
+        timeout=30_000,
+    )
+    if page.evaluate("() => document.activeElement?.textContent?.trim()") != "Candidate parameters":
+        raise RuntimeError("Fit evidence Close did not restore trigger focus")
+    if trigger.get_attribute("aria-expanded") != "false":
+        raise RuntimeError("Fit evidence trigger remained expanded after Close")
+
+
+def _assert_fit_candidate_surface(page: Page, table: Locator) -> None:
+    """Assert the numerical identity, decision, and recovery fields in Fit."""
+    for column in (
+        "Decision",
+        "Model / law",
+        "Recommendation",
+        "Metric",
+        "Fit / extrapolation range",
+        "Stability",
+        "Compatibility",
+        "Warning",
+    ):
+        if table.get_by_role("columnheader", name=column, exact=True).count() != 1:
+            raise RuntimeError(f"Fit candidate table is missing {column}")
+    for text, message in (
+        ("RMSE", "RMSE evidence"),
+        ("Converged", "convergence evidence"),
+        ("active bound", "active-bound evidence"),
+        ("identifiability", "identifiability evidence"),
+        ("Select candidate", "candidate selection action"),
+    ):
+        if table.get_by_text(re.compile(text, re.IGNORECASE)).count() == 0:
+            raise RuntimeError(f"Fit candidate table is missing {message}")
+    page.get_by_role("button", name="Close", exact=True).wait_for(state="visible", timeout=30_000)
+
+
+def _assert_fit_display_scale(page: Page, context: str) -> None:
+    """Keep Ghosh's epsilon_0 tail out of the normal graph scale only."""
+    plot = page.locator(".persistent-modeling-plot")
+    plot.wait_for(state="visible", timeout=30_000)
+    axis_labels = [text.strip() for text in plot.locator(".chart-axis-label").all_text_contents()]
+    if not any(label.startswith("Hardening stress") and "[MPa]" in label for label in axis_labels):
+        raise RuntimeError(f"Fit {context} graph is not readable in MPa: {axis_labels!r}")
+    plot_text = plot.inner_text()
+    if re.search(r"1e\d+\s*GPa", plot_text, re.IGNORECASE):
+        raise RuntimeError(f"Fit {context} graph exposed an epsilon_0-scale GPa label: {plot_text!r}")
+    note = plot.locator(".ghosh-display-scale-note")
+    note.wait_for(state="visible", timeout=30_000)
+    note_metrics = note.evaluate(
+        "element => ({ height: element.getBoundingClientRect().height, scrollHeight: element.scrollHeight, clientHeight: element.clientHeight, text: element.textContent?.trim() || '' })"
+    )
+    if note_metrics["scrollHeight"] > note_metrics["clientHeight"] + 1:
+        raise RuntimeError(f"Fit {context} Ghosh display note is clipped: {note_metrics!r}")
+
+
+def _select_warned_fit_candidate(table: Locator) -> None:
+    """Select the first candidate whose Warning column contains a warning."""
+    rows = table.locator("tbody tr")
+    for index in range(rows.count()):
+        row = rows.nth(index)
+        warning = row.locator("td").last.inner_text().strip()
+        if warning and warning.casefold() != "none":
+            row.get_by_role(
+                "button", name=re.compile(r"^Select .+ candidate$")
+            ).click()
+            return
+    raise RuntimeError("Fit candidate table did not expose a warned candidate")
+
+
+def _assert_fit_selected_evidence(page: Page) -> None:
+    parameter_table = page.get_by_role(
+        "table", name="Selected candidate parameters and bounds"
+    )
+    parameter_table.wait_for(state="visible", timeout=30_000)
+    for column in ("Law", "Parameter", "Unit", "Lower", "Initial", "Fitted", "Upper", "Bound / condition"):
+        if parameter_table.get_by_role("columnheader", name=column, exact=True).count() != 1:
+            raise RuntimeError(f"Selected Fit parameter table is missing {column}")
+    if parameter_table.locator("tbody tr").count() < 1:
+        raise RuntimeError("Selected Fit candidate must expose parameter and bound evidence")
+    page.get_by_role("textbox", name="Candidate selection reason", exact=True).wait_for(state="visible", timeout=30_000)
+    page.get_by_role("button", name="Close", exact=True).wait_for(state="visible", timeout=30_000)
+
+
+def _scroll_fit_evidence_locally(
+    page: Page,
+    body: Locator,
+    *,
+    close_escape: bool = True,
+) -> None:
+    """Exercise PageDown, wheel, native-thumb drag, and optionally Escape on one body."""
+    body.evaluate(
+        """el => {
+          el.scrollTop = 0;
+          el.scrollLeft = 0;
+          el.focus({ preventScroll: true });
+        }"""
+    )
+    before = page.evaluate("() => window.scrollY")
+    metrics = body.evaluate(
+        """el => ({
+          scrollTop: el.scrollTop,
+          scrollLeft: el.scrollLeft,
+          scrollHeight: el.scrollHeight,
+          scrollWidth: el.scrollWidth,
+          clientHeight: el.clientHeight,
+          clientWidth: el.clientWidth,
+          offsetHeight: el.offsetHeight,
+          offsetWidth: el.offsetWidth,
+          rect: el.getBoundingClientRect().toJSON(),
+        })"""
+    )
+    if metrics["scrollHeight"] <= metrics["clientHeight"]:
+        raise RuntimeError(f"Fit evidence body is not vertically overflowing: {metrics!r}")
+    gutter = metrics["offsetWidth"] - metrics["clientWidth"]
+    if not 12 <= gutter <= 16:
+        raise RuntimeError(
+            "Fit evidence body must reserve a genuine native scrollbar gutter "
+            f"of 12-16 px inclusive: {metrics!r}"
+        )
+    body.press("PageDown")
+    page.wait_for_function(
+        """() => {
+          const body = document.querySelector('.fit-evidence-body');
+          return Boolean(body && body.scrollTop > 0 && body.scrollTop < body.scrollHeight - body.clientHeight + 1);
+        }""",
+        timeout=30_000,
+    )
+    after_page_down = body.evaluate("el => el.scrollTop")
+    page.mouse.move(metrics["rect"]["left"] + metrics["clientWidth"] / 2, metrics["rect"]["top"] + metrics["clientHeight"] / 2)
+    page.mouse.wheel(0, 92)
+    after_wheel = body.evaluate("el => el.scrollTop")
+    if after_wheel <= after_page_down:
+        raise RuntimeError("Fit evidence wheel did not move the local body")
+    body.evaluate("el => { el.scrollTop = 0; el.scrollLeft = 0; }")
+    refreshed = body.evaluate("el => ({ rect: el.getBoundingClientRect().toJSON(), clientHeight: el.clientHeight, scrollHeight: el.scrollHeight })")
+    track_x = refreshed["rect"]["right"] - 6
+    thumb_height = max(20, refreshed["clientHeight"] * refreshed["clientHeight"] / refreshed["scrollHeight"])
+    thumb_start = refreshed["rect"]["top"] + thumb_height / 2
+    page.mouse.move(track_x, thumb_start)
+    page.mouse.down()
+    page.mouse.move(track_x, thumb_start + 22, steps=4)
+    page.mouse.up()
+    after_drag = body.evaluate("el => el.scrollTop")
+    if after_drag <= 0:
+        raise RuntimeError("Fit evidence native scrollbar thumb drag did not move the local body")
+    if page.evaluate("() => window.scrollY") != before:
+        raise RuntimeError("Fit evidence local scrolling changed the page scroll position")
+    if close_escape:
+        page.keyboard.press("Escape")
+        active_after_escape = page.evaluate(
+            """() => ({
+              tag: document.activeElement?.tagName || null,
+              text: document.activeElement?.textContent?.trim() || null,
+              triggerExpanded: document.querySelector('button.fit-evidence-trigger')?.getAttribute('aria-expanded') || null,
+            })"""
+        )
+        if active_after_escape["text"] != "Candidate parameters" or active_after_escape["triggerExpanded"] != "false":
+            raise RuntimeError(f"Fit evidence Escape recovery did not restore trigger focus: {active_after_escape!r}")
 
 
 def _assert_modeling_process_preview(
@@ -2923,7 +3516,7 @@ def _assert_modeling_process_preview(
         raise RuntimeError(f"Process preview method drifted: expected {method_label!r}")
     for label in ("Elastic range start", "Elastic range end"):
         controls.get_by_role("spinbutton", name=label, exact=True).wait_for(state="visible", timeout=30_000)
-    if page.locator(".fit-evidence-disclosure").count() or page.get_by_text("Candidate equations", exact=True).count() or page.get_by_text("Fit domain", exact=True).count() or page.get_by_text("Selected blend", exact=True).count():
+    if page.locator(".fit-evidence-drawer").count() or page.get_by_text("Candidate equations", exact=True).count() or page.get_by_text("Fit domain", exact=True).count() or page.get_by_text("Selected blend", exact=True).count():
         raise RuntimeError("Process preview exposed Fit candidate controls")
     _assert_modeling_process_geometry(page)
 
@@ -3287,17 +3880,415 @@ def _assert_modeling_process_capture_ready(page: Page) -> None:
     _assert_modeling_process_blocked(page)
 
 
+def _capture_modeling_fit_states(browser: Browser, base_url: str, output: Path) -> None:
+    """Capture the Fit drawer, failure, exact-source, and restored states."""
+
+    def prepared_fit(label: str) -> Page:
+        page = _new_page(browser, base_url, 1440, 900)
+        _prepare_fit_from_saved_process(page, base_url, label=label)
+        _click_modeling_fit_preview_and_wait(page)
+        return page
+
+    long_drawer = prepared_fit("Fit candidate drawer source")
+    _long_trigger, _long_body, table = _open_fit_evidence(long_drawer)
+    _assert_fit_candidate_surface(long_drawer, table)
+    _assert_fit_display_scale(long_drawer, "candidate-parameters-long")
+    if table.locator("tbody tr").count() < 5:
+        raise RuntimeError("Fit candidate parameters drawer did not expose calculated evidence")
+    _capture(
+        long_drawer,
+        output / "modeling-fit-candidate-parameters-long-1440x900.png",
+        1440,
+        900,
+        focus_selector=".fit-evidence-drawer",
+    )
+    long_drawer.context.close()
+
+    scrolled = prepared_fit("Fit candidate evidence source")
+    _scrolled_trigger, scrolled_body, scrolled_table = _open_fit_evidence(scrolled)
+    _assert_fit_candidate_surface(scrolled, scrolled_table)
+    _select_warned_fit_candidate(scrolled_table)
+    scrolled.get_by_role("textbox", name="Candidate selection reason", exact=True).fill(
+        "Capture the full numerical evidence before the explicit engineering decision."
+    )
+    acknowledgement = scrolled.get_by_role(
+        "checkbox", name="Acknowledge selected candidate warning", exact=True
+    )
+    if acknowledgement.count():
+        acknowledgement.check()
+    else:
+        raise RuntimeError("Selected warned Fit candidate is missing its acknowledgement")
+    _assert_fit_selected_evidence(scrolled)
+    _scroll_fit_evidence_locally(scrolled, scrolled_body)
+    _scrolled_trigger, scrolled_body, _scrolled_table = _open_fit_evidence(scrolled)
+
+    def prepare_scrolled_capture() -> None:
+        _scroll_fit_evidence_locally(scrolled, scrolled_body, close_escape=False)
+        # Clear browser text selection only after the real keyboard/wheel/native
+        # scrollbar interactions have been proven, so the screenshot records
+        # the collapsed text-selection state rather than a synthetic highlight.
+        scrolled.evaluate("() => window.getSelection()?.removeAllRanges()")
+
+    _capture(
+        scrolled,
+        output / "modeling-fit-candidate-evidence-scrolled-1440x900.png",
+        1440,
+        900,
+        focus_selector=".fit-evidence-drawer",
+        before_screenshot=prepare_scrolled_capture,
+    )
+    scrolled.context.close()
+
+    calculation_failed = prepared_fit("Fit calculation failure source")
+    calculation_failed.route(
+        "**/api/v1/metal-fit-runs",
+        lambda route: route.fulfill(
+            status=503,
+            content_type="application/json",
+            body='{"detail":"deterministic Fit calculation failure"}',
+        ),
+    )
+    calculation_failed.get_by_role("button", name="Preview changes", exact=True).click()
+    calculation_failed.get_by_role("alert").wait_for(state="visible", timeout=30_000)
+    calculation_failed.locator(".persistent-modeling-plot svg[role=img]").wait_for(
+        state="visible", timeout=30_000
+    )
+    _assert_fit_display_scale(calculation_failed, "calculation-failed")
+    if calculation_failed.get_by_role(
+        "button", name=re.compile(r"Preview changes|Update candidates"), exact=False
+    ).count() != 1:
+        raise RuntimeError("Fit calculation failure lost its explicit retry/update action")
+    _capture(
+        calculation_failed,
+        output / "modeling-fit-calculation-failed-1440x900.png",
+        1440,
+        900,
+    )
+    calculation_failed.context.close()
+
+    save_failed = prepared_fit("Fit save failure source")
+    save_trigger, _save_body, save_table = _open_fit_evidence(save_failed)
+    _assert_fit_candidate_surface(save_failed, save_table)
+    _select_warned_fit_candidate(save_table)
+    save_failed.get_by_role("textbox", name="Candidate selection reason", exact=True).fill(
+        "Persist the selected candidate only after reviewing numerical evidence."
+    )
+    save_acknowledgement = save_failed.get_by_role(
+        "checkbox", name="Acknowledge selected candidate warning"
+    )
+    if save_acknowledgement.count():
+        save_acknowledgement.check()
+    else:
+        raise RuntimeError("Selected warned Fit candidate is missing its acknowledgement")
+    _assert_fit_selected_evidence(save_failed)
+    _close_fit_evidence(save_failed, save_trigger)
+    save_failed.route(
+        "**/api/v1/processing-outputs",
+        lambda route: route.fulfill(
+            status=503,
+            content_type="application/json",
+            body='{"detail":"deterministic Fit save failure"}',
+        ),
+    )
+    save_failed.get_by_role("button", name="Save fit & continue", exact=True).click()
+    save_failed.get_by_role("alert").wait_for(state="visible", timeout=30_000)
+    if (
+        save_failed.get_by_role(
+            "button", name=re.compile(r"Save fit & continue|Retry save"), exact=False
+        ).count()
+        < 1
+    ):
+        raise RuntimeError("Fit save failure lost its explicit retry action")
+    save_failed.locator(".persistent-modeling-plot svg[role=img]").wait_for(
+        state="visible", timeout=30_000
+    )
+    _capture(save_failed, output / "modeling-fit-save-failed-1440x900.png", 1440, 900)
+    save_failed.context.close()
+
+    fit_blocked = _new_page(browser, base_url, 1440, 900)
+    _prepare_fit_from_saved_process(fit_blocked, base_url, label="Fit blocked source")
+    fit_blocked.evaluate(
+        """() => {
+          const key = 'cmp.modeling.recent-session.v4';
+          const session = JSON.parse(window.sessionStorage.getItem(key) || '{}');
+          delete session.processingOutput;
+          window.sessionStorage.setItem(key, JSON.stringify(session));
+        }"""
+    )
+    fit_blocked.goto(f"{base_url}/modeling?stage=fit&family=metal")
+    fit_blocker_message = "No saved Process Output is bound. Save Process before calculating Fit."
+    fit_plot_overlay = fit_blocked.locator(
+        "#modeling-fit .engineering-curve-plot-empty-overlay"
+    )
+    fit_plot_overlay.get_by_text(
+        fit_blocker_message,
+        exact=True,
+    ).wait_for(state="visible", timeout=30_000)
+    fit_source_binding = fit_blocked.locator(".fit-source-binding.missing")
+    fit_source_binding.wait_for(state="visible", timeout=30_000)
+    if fit_source_binding.inner_text().strip() != fit_blocker_message:
+        raise RuntimeError("Fit exact-source blocker lost its settings binding status")
+    fit_blocked.get_by_role("button", name="Back to Process", exact=True).wait_for(
+        state="visible", timeout=30_000
+    )
+    process_stage = fit_blocked.get_by_role("button", name=re.compile(r"^Process\b"))
+    if process_stage.count() != 1 or not process_stage.is_visible():
+        raise RuntimeError("Fit exact-source blocker lost its visible return-to-Process recovery")
+    blocked_session = _modeling_session(fit_blocked)
+    blocked_workspace = blocked_session.get("workspace")
+    if not isinstance(blocked_workspace, dict):
+        raise RuntimeError("Fit blocked capture lost its workspace session state")
+    blocked_history = {
+        item.get("processing_output_id")
+        for item in _list_processing_outputs(fit_blocked, base_url)
+    }
+    _capture(fit_blocked, output / "modeling-fit-exact-source-blocked-1440x900.png", 1440, 900)
+    # Arm the recovery-only request assertion after the blocked screenshot has
+    # settled.  The screenshot path may refresh read-only data while it settles;
+    # only the explicit Back to Process action and its readback belong here.
+    blocked_requests: list[str] = []
+
+    def record_blocked_recovery_request(request: object) -> None:
+        method = str(getattr(request, "method", "")).upper()
+        url = str(getattr(request, "url", ""))
+        blocked_requests.append(f"{method} {url}")
+
+    fit_blocked.on("request", record_blocked_recovery_request)
+    try:
+        fit_blocked.get_by_role("button", name="Back to Process", exact=True).click()
+        fit_blocked.wait_for_url(re.compile(r"stage=process"), timeout=30_000)
+        recovered_session = _modeling_session(fit_blocked)
+        recovered_workspace = recovered_session.get("workspace")
+        if not isinstance(recovered_workspace, dict):
+            raise RuntimeError("Fit blocked recovery lost its workspace session state")
+        if recovered_workspace.get("selectedTestDataRefs") != blocked_workspace.get("selectedTestDataRefs"):
+            raise RuntimeError("Fit blocked recovery changed the exact selected Test Data refs")
+        if recovered_workspace.get("visibleTestDataKeys") != blocked_workspace.get("visibleTestDataKeys"):
+            raise RuntimeError("Fit blocked recovery changed visible exact Test Data identities")
+        if recovered_session.get("processingOutput") != blocked_session.get("processingOutput"):
+            raise RuntimeError("Fit blocked recovery changed the saved-output pointer")
+        recovered_history = {
+            item.get("processing_output_id")
+            for item in _list_processing_outputs(fit_blocked, base_url)
+        }
+        if recovered_history != blocked_history:
+            raise RuntimeError("Fit blocked recovery changed Processing Output history")
+        if any(not request.startswith("GET ") for request in blocked_requests):
+            raise RuntimeError(f"Fit blocked recovery issued a mutation request: {blocked_requests!r}")
+    finally:
+        fit_blocked.remove_listener("request", record_blocked_recovery_request)
+    fit_blocked.context.close()
+
+    exact_read_failed = prepared_fit("Fit exact-read failure source")
+    fit_saved = False
+    exact_content_requests: list[str] = []
+    request_methods: list[str] = []
+    exact_read_failed.on(
+        "request",
+        lambda request: request_methods.append(request.method),
+    )
+
+    def arm_after_fit_save(route: Route) -> None:
+        nonlocal fit_saved
+        if route.request.method == "POST":
+            fit_saved = True
+        route.continue_()
+
+    def fail_saved_fit_content(route: Route) -> None:
+        if not fit_saved:
+            route.continue_()
+            return
+        exact_content_requests.append(route.request.url)
+        route.fulfill(
+            status=503,
+            content_type="application/json",
+            body='{"detail":"deterministic saved Fit exact-read failure"}',
+        )
+
+    # The Fit save itself remains real.  Once its immutable pointer exists,
+    # fail only the exact saved-output content GET; this keeps the previously
+    # valid Fit graph/selection visible while exercising the restore retry.
+    exact_read_failed.route("**/api/v1/processing-outputs", arm_after_fit_save)
+    exact_read_failed.route(
+        "**/api/v1/processing-outputs/*/content", fail_saved_fit_content
+    )
+    _save_exact_fit_selection(
+        exact_read_failed,
+        allow_expected_exact_restore_failure=True,
+    )
+    saved_fit_pointer = _modeling_session(exact_read_failed).get("processingOutput")
+    if not isinstance(saved_fit_pointer, dict) or not isinstance(saved_fit_pointer.get("id"), str):
+        raise RuntimeError("Fit exact-read failure setup did not produce an exact saved pointer")
+    exact_read_failed.get_by_text(
+        "Saved Fit result unavailable", exact=False
+    ).wait_for(timeout=30_000)
+    retry_saved_fit = exact_read_failed.get_by_role(
+        "button", name="Retry exact saved Fit", exact=True
+    )
+    if retry_saved_fit.count() != 1:
+        raise RuntimeError("Fit exact saved-output read failure lost its explicit retry action")
+    if exact_read_failed.get_by_role(
+        "img", name="Hardening candidate and selected extrapolation curves", exact=True
+    ).count() != 1:
+        raise RuntimeError("Fit exact-read failure replaced the last valid graph")
+    failed_trigger, _failed_body, _failed_table = _open_fit_evidence(exact_read_failed)
+    _assert_fit_selected_evidence(exact_read_failed)
+    if exact_read_failed.get_by_role(
+        "textbox", name="Candidate selection reason", exact=True
+    ).input_value() != "Best agreement over the measured strain range.":
+        raise RuntimeError("Fit exact-read failure lost the original selection reason")
+    if exact_read_failed.get_by_role(
+        "checkbox", name="Acknowledge selected candidate warning", exact=True
+    ).is_checked() is not True:
+        raise RuntimeError("Fit exact-read failure lost the warning acknowledgement")
+    _close_fit_evidence(exact_read_failed, failed_trigger)
+    if len(exact_content_requests) != 1:
+        raise RuntimeError(
+            f"Fit exact-read failure made {len(exact_content_requests)} exact content GETs before retry"
+        )
+    expected_content_url = (
+        f"{base_url}/api/v1/processing-outputs/{saved_fit_pointer['id']}/content"
+    )
+    if exact_content_requests != [expected_content_url]:
+        raise RuntimeError(
+            f"Fit exact-read failure did not read the pinned saved Fit URL: {exact_content_requests!r}"
+        )
+    methods_before_retry = len(request_methods)
+    pointer_before_retry = _modeling_session(exact_read_failed).get("processingOutput")
+    retry_saved_fit.click()
+    exact_read_failed.get_by_text(
+        "Saved Fit result unavailable", exact=False
+    ).wait_for(timeout=30_000)
+    if len(exact_content_requests) != 2 or exact_content_requests[1] != expected_content_url:
+        raise RuntimeError(
+            f"Fit exact saved-output retry did not repeat the same exact URL: {exact_content_requests!r}"
+        )
+    if any(method != "GET" for method in request_methods[methods_before_retry:]):
+        raise RuntimeError(
+            f"Fit exact saved-output retry issued a non-GET mutation: {request_methods[methods_before_retry:]!r}"
+        )
+    if _modeling_session(exact_read_failed).get("processingOutput") != pointer_before_retry:
+        raise RuntimeError("Fit exact saved-output retry mutated the current pointer")
+    _capture(
+        exact_read_failed,
+        output / "modeling-fit-exact-read-failed-1440x900.png",
+        1440,
+        900,
+    )
+    exact_read_failed.context.close()
+
+    restored = prepared_fit("Fit restored source")
+    _save_exact_fit_selection(restored)
+    restored_session = _modeling_session(restored)
+    restored_pointer = restored_session.get("processingOutput")
+    if not isinstance(restored_pointer, dict) or not all(
+        isinstance(restored_pointer.get(key), str) and restored_pointer.get(key)
+        for key in ("id", "revisionId", "label")
+    ):
+        raise RuntimeError("Fit save did not leave an exact session output pointer for restore")
+    restore_requests: list[tuple[str, str]] = []
+    restored.on(
+        "request",
+        lambda request: restore_requests.append((request.method, request.url)),
+    )
+    restored.goto(f"{base_url}/modeling?stage=fit&family=metal")
+    restored.get_by_text(
+        "Saved immutable Fit Output restored with its exact Process source and decision.",
+        exact=False,
+    ).wait_for(timeout=30_000)
+    restored.get_by_role("img", name="Hardening candidate and selected extrapolation curves", exact=True).wait_for(
+        state="visible", timeout=30_000
+    )
+    restored.get_by_role("button", name="Preview changes", exact=True).wait_for(timeout=30_000)
+    persisted_outputs = _list_processing_outputs(restored, base_url)
+    persisted = next(
+        (
+            item for item in persisted_outputs
+            if _has_processing_output_revision(
+                item, restored_pointer.get("id"), restored_pointer.get("revisionId")
+            )
+        ),
+        None,
+    )
+    decision = persisted.get("fit_decision") if isinstance(persisted, dict) else None
+    if (
+        not isinstance(decision, dict)
+        or not decision.get("candidate_key")
+        or not decision.get("selection_reason")
+    ):
+        raise RuntimeError("Restored Fit output lost its selected candidate/reason evidence")
+    if decision.get("warning_acknowledged") is not True:
+        raise RuntimeError("Restored Fit output lost its warning acknowledgement")
+    if not isinstance(persisted.get("steps") if isinstance(persisted, dict) else None, list):
+        raise RuntimeError("Restored Fit output lost its ordered calculation steps")
+    source_pin = persisted.get("source_processing_output") if isinstance(persisted, dict) else None
+    source_output = next(
+        (
+            item for item in persisted_outputs
+            if isinstance(source_pin, dict)
+            and _has_processing_output_revision(
+                item, source_pin.get("aggregate_id"), source_pin.get("revision_id")
+            )
+        ),
+        None,
+    )
+    if not isinstance(source_output, dict) or not isinstance(source_output.get("current_revision"), dict):
+        raise RuntimeError("Restored Fit output lost its exact Process source identity")
+    source_binding_text = restored.locator(".fit-source-binding").inner_text()
+    source_revision_record = source_output.get("current_revision")
+    if not isinstance(source_revision_record, dict):
+        raise RuntimeError("Restored Fit source revision record is unavailable")
+    source_revision = source_revision_record.get("revision_no")
+    source_digest = source_output.get("output_sha256")
+    source_label = source_output.get("label")
+    if (
+        not isinstance(source_label, str)
+        or source_label not in source_binding_text
+        or f"r{source_revision}" not in source_binding_text
+        or not isinstance(source_digest, str)
+        or source_digest[:12] not in source_binding_text
+    ):
+        raise RuntimeError(f"Restored Fit source binding lost label/revision/digest: {source_binding_text!r}")
+    saved_binding_text = restored.locator(".fit-source-binding").inner_text()
+    saved_revision_record = persisted.get("current_revision") if isinstance(persisted, dict) else None
+    if not isinstance(saved_revision_record, dict):
+        raise RuntimeError("Restored Fit output revision identity is unavailable")
+    saved_revision_no = saved_revision_record.get("revision_no")
+    if (
+        not isinstance(restored_pointer.get("label"), str)
+        or restored_pointer["label"] not in saved_binding_text
+        or f"r{saved_revision_no}" not in saved_binding_text
+    ):
+        raise RuntimeError("Restored Fit output lost its saved label/revision identity")
+    restore_trigger, _restore_body, restore_table = _open_fit_evidence(restored)
+    _assert_fit_selected_evidence(restored)
+    selected_rows = restore_table.locator("tbody tr.selected")
+    if selected_rows.count() != 1:
+        raise RuntimeError("Restored Fit output lost the selected candidate row")
+    if restored.get_by_role("textbox", name="Candidate selection reason", exact=True).input_value() != "Best agreement over the measured strain range.":
+        raise RuntimeError("Restored Fit output lost the original selection reason")
+    if restored.get_by_role("checkbox", name="Acknowledge selected candidate warning", exact=True).is_checked() is not True:
+        raise RuntimeError("Restored Fit output lost the checked warning acknowledgement")
+    _close_fit_evidence(restored, restore_trigger)
+    content_urls = [url for method, url in restore_requests if method == "GET" and urlsplit(url).path.endswith("/content")]
+    if len(content_urls) != 1:
+        raise RuntimeError(f"Restored Fit reload made {len(content_urls)} exact content GETs: {restore_requests!r}")
+    expected_restore_url = f"{base_url}/api/v1/processing-outputs/{restored_pointer['id']}/content"
+    if content_urls != [expected_restore_url]:
+        raise RuntimeError(f"Restored Fit reload used a non-exact content URL: {content_urls!r}")
+    if any(method != "GET" for method, _url in restore_requests):
+        raise RuntimeError(f"Restored Fit reload issued a non-GET request: {restore_requests!r}")
+    _capture(restored, output / "modeling-fit-restored-1440x900.png", 1440, 900)
+    restored.context.close()
+
+
 def _capture_modeling_process_fit(
     browser: Browser, base_url: str, output: Path
-) -> list[dict[str, float]]:
-    measurements: list[dict[str, float]] = []
-    for width, height in VIEWPORTS:
+) -> list[dict[str, object]]:
+    measurements: list[dict[str, object]] = []
+    for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS):
         page = _new_page(browser, base_url, width, height)
-        _prepare_modeling(page, base_url)
-        _open_modeling_stage(page, "process")
-        page.locator(".modeling-work-title strong").get_by_text(
-            STAGE_HEADINGS["process"], exact=True
-        ).wait_for(timeout=30_000)
+        _prepare_modeling_process(page, base_url)
         if page.locator(".modeling-stage-number:visible").count():
             raise RuntimeError("Process/Fit capture received the retired numbered stage strip")
         if page.locator(".stage-process > .section-heading:visible").count():
@@ -3305,12 +4296,17 @@ def _capture_modeling_process_fit(
         page.locator(".modeling-workspace-rail .rail-heading").get_by_text(
             "Curves", exact=True
         ).wait_for(timeout=30_000)
+        _save_process_output_for_fit(
+            page,
+            label=f"Fit source Process result {width}x{height}",
+            reason="Bind one immutable Process result as the exact Fit source.",
+        )
         _capture(
             page,
             output / f"modeling-process-{width}x{height}.png",
             width,
             height,
-            before_screenshot=lambda: _wait_for_modeling_process_plot_size(page),
+            before_screenshot=_process_plot_capture_callback(page),
         )
         measurements.append(
             {
@@ -3324,14 +4320,12 @@ def _capture_modeling_process_fit(
         page.locator(".modeling-work-title strong").get_by_text(
             STAGE_HEADINGS["fit"], exact=True
         ).wait_for(timeout=30_000)
-        page.get_by_role("button", name="Preview changes", exact=True).click()
-        disclosure = page.locator("details.fit-evidence-disclosure")
-        disclosure.locator(":scope > summary").click()
-        table = page.get_by_role("table", name="Hardening candidate comparison")
-        table.wait_for(timeout=30_000)
+        _click_modeling_fit_preview_and_wait(page)
+        trigger, _body, table = _open_fit_evidence(page)
+        _assert_fit_candidate_surface(page, table)
         if page.get_by_role("button", name="Save fit & continue", exact=True).count() != 1:
             raise RuntimeError("Fit must expose one top-row Save fit & continue action")
-        table.get_by_role("button", name=re.compile(r"^Select .+ candidate$")).last.click()
+        _select_warned_fit_candidate(table)
         page.get_by_role("textbox", name="Candidate selection reason").fill(
             "Best agreement over the measured strain range."
         )
@@ -3340,9 +4334,13 @@ def _capture_modeling_process_fit(
         )
         if acknowledgement.count():
             acknowledgement.check()
+        else:
+            raise RuntimeError("Selected warned Fit candidate is missing its acknowledgement")
+        _assert_fit_selected_evidence(page)
         if page.get_by_role("button", name="Save fit & continue", exact=True).is_disabled():
             raise RuntimeError("Fit selection did not enable the top-row save action")
-        disclosure.locator(":scope > summary").click()
+        _close_fit_evidence(page, trigger)
+        _assert_fit_display_scale(page, "normal")
         _capture(page, output / f"modeling-fit-{width}x{height}.png", width, height)
         measurements.append(
             {
@@ -3352,6 +4350,8 @@ def _capture_modeling_process_fit(
             }
         )
         page.context.close()
+
+    _capture_modeling_fit_states(browser, base_url, output)
     return measurements
 
 
@@ -3361,8 +4361,8 @@ def _capture_modeling_process_only(
     output: Path,
     *,
     resume_modeling_process: bool = False,
-) -> list[dict[str, float]]:
-    measurements: list[dict[str, float]] = []
+) -> list[dict[str, object]]:
+    measurements: list[dict[str, object]] = []
     for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS):
         page = _new_page(browser, base_url, width, height)
         _prepare_modeling_process(page, base_url)
@@ -3391,7 +4391,7 @@ def _capture_modeling_process_only(
                 output / "modeling-process-linear-regression-1366x768.png",
                 width,
                 height,
-                before_screenshot=lambda: _wait_for_modeling_process_plot_size(page),
+                before_screenshot=_process_plot_capture_callback(page),
             )
             _assert_modeling_process_manual_surface(page)
         _capture(
@@ -3399,7 +4399,7 @@ def _capture_modeling_process_only(
             output / f"modeling-process-{width}x{height}.png",
             width,
             height,
-            before_screenshot=lambda: _wait_for_modeling_process_plot_size(page),
+            before_screenshot=_process_plot_capture_callback(page),
         )
         measurements.append(
             {
@@ -3473,10 +4473,18 @@ def _capture_modeling_process_only(
     source_pin, profile_pin = _process_session_pins(siblings)
     listed_outputs = _list_processing_outputs(siblings, base_url)
     _assert_no_mis_pinned_capture_labels(listed_outputs, source_pin, profile_pin)
-    initial_outputs = _matching_process_outputs(
+    initial_outputs = _matching_capture_process_outputs(
         listed_outputs, source_pin, profile_pin
     )
+    _filter_capture_process_output_list(siblings, source_pin, profile_pin)
+    siblings.reload()
+    siblings.wait_for_url(re.compile(r"stage=process"), timeout=30_000)
+    siblings.locator(".modeling-work-title strong").get_by_text(
+        STAGE_HEADINGS["process"], exact=True
+    ).wait_for(timeout=30_000)
+    _wait_modeling_process_panel(siblings)
     resumed_existing_primary = False
+    resume_output_posts: list[str] = []
     if resume_modeling_process:
         if len(initial_outputs) != 3:
             raise RuntimeError(
@@ -3487,8 +4495,6 @@ def _capture_modeling_process_only(
             initial_outputs, source_pin, profile_pin
         )
         elastic_output = resumed_by_label["Elastic window 0.0005-0.0025"]
-        resume_output_posts: list[str] = []
-
         def record_resume_output_post(request: object) -> None:
             if (
                 getattr(request, "method", "") == "POST"
@@ -3517,7 +4523,7 @@ def _capture_modeling_process_only(
             )
         siblings.remove_listener("request", record_resume_output_post)
         resumed_existing_primary = True
-        final_outputs = _matching_process_outputs(
+        final_outputs = _matching_capture_process_outputs(
             _list_processing_outputs(siblings, base_url), source_pin, profile_pin
         )
         if {
@@ -3574,7 +4580,7 @@ def _capture_modeling_process_only(
         # Read the real persisted Chord identity again from the authenticated
         # browser session.  The pointer must never be manufactured from a
         # capture constant or inferred from row order.
-        resumed_outputs = _matching_process_outputs(
+        resumed_outputs = _matching_capture_process_outputs(
             _list_processing_outputs(siblings, base_url), source_pin, profile_pin
         )
         if len(resumed_outputs) != 2 or {
@@ -3637,7 +4643,7 @@ def _capture_modeling_process_only(
         reason.fill("Capture deterministic saved-result sibling two")
         save.click()
         siblings.get_by_text("Processed result saved and current", exact=False).wait_for(timeout=30_000)
-        saved_outputs = _matching_process_outputs(
+        saved_outputs = _matching_capture_process_outputs(
             _list_processing_outputs(siblings, base_url), source_pin, profile_pin
         )
         if len(saved_outputs) != 2:
@@ -3674,7 +4680,6 @@ def _capture_modeling_process_only(
         # Resume keeps the three exact immutable outputs.  Copy the current
         # Elastic window through the real row action so the saved current
         # pointer survives while the exact draft is restored.
-        resume_output_posts: list[str] = []
         resume_preview_posts: list[str] = []
 
         def record_resume_action_request(request: object) -> None:
@@ -3799,14 +4804,19 @@ def _capture_modeling_process_only(
         primary_reason.fill("Baseline elastic evaluation for DP780 review")
         primary_save.click()
         siblings.get_by_text("Processed result saved and current", exact=False).wait_for(timeout=30_000)
-        final_outputs = _matching_process_outputs(
+        final_outputs = _matching_capture_process_outputs(
             _list_processing_outputs(siblings, base_url), source_pin, profile_pin
         )
         if len(final_outputs) != 3:
             raise RuntimeError(f"Process primary journey did not reach exactly three outputs: {final_outputs!r}")
-        final_output = next((item for item in final_outputs if item.get("label") == "Elastic window 0.0005-0.0025"), None)
-        if final_output is None:
-            raise RuntimeError("Process primary journey lost the new Elastic window output")
+        try:
+            final_output = next(
+                item
+                for item in final_outputs
+                if item.get("label") == "Elastic window 0.0005-0.0025"
+            )
+        except StopIteration as cause:
+            raise RuntimeError("Process primary journey lost the new Elastic window output") from cause
         _assert_process_output_configuration(
             final_output,
             source_pin,
@@ -3846,7 +4856,7 @@ def _capture_modeling_process_only(
         )
     if history_output_posts:
         raise RuntimeError(f"Use settings unexpectedly posted a Processing Output: {history_output_posts!r}")
-    after_history_outputs = _matching_process_outputs(
+    after_history_outputs = _matching_capture_process_outputs(
         _list_processing_outputs(siblings, base_url), source_pin, profile_pin
     )
     if {item.get("processing_output_id") for item in after_history_outputs} != {
@@ -3912,8 +4922,8 @@ def _assert_modeling_normal_shell(page: Page) -> None:
 
 def _capture_modeling_consistency(
     browser: Browser, base_url: str, output: Path
-) -> list[dict[str, float]]:
-    measurements: list[dict[str, float]] = []
+) -> list[dict[str, object]]:
+    measurements: list[dict[str, object]] = []
     _capture_modeling_session_shell(browser, base_url, output)
     for width, height in VIEWPORTS:
         page = _new_page(browser, base_url, width, height)
@@ -3972,6 +4982,8 @@ def _capture_modeling_consistency(
                 page.get_by_role("button", name="Preview changes", exact=True).click()
             if stage == "export":
                 _save_exact_fit_selection(page)
+                _open_modeling_stage(page, "export")
+                page.wait_for_url(re.compile(r"stage=export"), timeout=30_000)
                 _prepare_exact_target_preview(page)
             _capture(page, output / f"modeling-{stage}-{width}x{height}.png", width, height)
             measurements.append(
@@ -3990,8 +5002,8 @@ def _capture_modeling_data_viewports(
     base_url: str,
     output: Path,
     viewports: tuple[tuple[int, int], ...],
-) -> list[dict[str, float]]:
-    measurements: list[dict[str, float]] = []
+) -> list[dict[str, object]]:
+    measurements: list[dict[str, object]] = []
     for width, height in viewports:
         page = _new_page(browser, base_url, width, height)
         _prepare_modeling(page, base_url)
@@ -4037,7 +5049,7 @@ def _capture_modeling_data_viewports(
 
 def _capture_modeling_data_session(
     browser: Browser, base_url: str, output: Path
-) -> list[dict[str, float]]:
+) -> list[dict[str, object]]:
     """Capture exact Library selection, reload persistence, and Data exceptions."""
     _capture_modeling_session_shell(browser, base_url, output)
     measurements = _capture_modeling_data_viewports(
@@ -4215,7 +5227,7 @@ def _capture_modeling_data_exceptions(browser: Browser, base_url: str, output: P
         page.context.close()
 
     page = _new_page(browser, base_url, 1440, 900)
-    temporary_directory: tempfile.TemporaryDirectory | None = None
+    temporary_directory: tempfile.TemporaryDirectory[str] | None = None
     try:
         # Start from the valid three-curve state so the blocked Local mapping
         # capture proves that the last usable graph remains on screen.
@@ -4748,7 +5760,10 @@ def main() -> int:
     parser.add_argument(
         "--only-modeling-process-fit",
         action="store_true",
-        help="Capture and replace only the six Modeling Process/Fit viewports.",
+        help=(
+            "Capture and replace the five Process/Fit viewports plus candidate-evidence, "
+            "calculation/save failure, exact-source/read failure, and restored Fit states."
+        ),
     )
     parser.add_argument(
         "--only-modeling-process",
@@ -4804,8 +5819,14 @@ def main() -> int:
                 _capture_materials(browser, args.base_url, output)
                 _capture_solver_delivery(browser, args.base_url, output)
                 _capture_modeling_session_shell(browser, args.base_url, output)
-                _capture_modeling(browser, args.base_url, output)
+                _capture_modeling(
+                    browser,
+                    args.base_url,
+                    output,
+                    include_process_normals=False,
+                )
                 _capture_modeling_process_only(browser, args.base_url, output)
+                _capture_modeling_fit_states(browser, args.base_url, output)
                 _capture_modeling_data_viewports(
                     browser, args.base_url, output, WIDE_VIEWPORTS
                 )
@@ -4858,34 +5879,40 @@ def main() -> int:
             with sync_playwright() as playwright:
                 browser = playwright.chromium.launch(headless=True)
                 try:
-                    measurements = (
+                    measurements: list[dict[str, object]] = []
+                    if args.only_materials:
                         _capture_materials(browser, args.base_url, staged)
-                        if args.only_materials
-                        else _capture_modeling_export_only(browser, args.base_url, staged)
-                        if args.only_modeling_export
-                        else _capture_modeling_process_fit(browser, args.base_url, staged)
-                        if args.only_modeling_process_fit
-                        else _capture_modeling_process_only(
+                    elif args.only_modeling_export:
+                        _capture_modeling_export_only(browser, args.base_url, staged)
+                    elif args.only_modeling_process_fit:
+                        measurements = _capture_modeling_process_fit(
+                            browser, args.base_url, staged
+                        )
+                    elif args.only_modeling_process:
+                        measurements = _capture_modeling_process_only(
                             browser,
                             args.base_url,
                             staged,
                             resume_modeling_process=args.resume_modeling_process,
                         )
-                        if args.only_modeling_process
-                        else _capture_modeling_consistency(browser, args.base_url, staged)
-                        if args.only_modeling_consistency
-                        else _capture_modeling_data_session(browser, args.base_url, staged)
-                        if args.only_modeling_data_session
-                        else _capture_activity(browser, args.base_url, staged)
-                        if args.only_activity
-                        else _capture_solver_delivery(browser, args.base_url, staged)
-                        if args.only_review_submission
-                        else _capture_supporting_screens(browser, args.base_url, staged)
-                        if args.only_product_access
-                        else _capture_administration_records(browser, args.base_url, staged)
-                        if args.only_administration_records
-                        else _capture_administration_database(browser, args.base_url, staged)
-                    )
+                    elif args.only_modeling_consistency:
+                        measurements = _capture_modeling_consistency(
+                            browser, args.base_url, staged
+                        )
+                    elif args.only_modeling_data_session:
+                        measurements = _capture_modeling_data_session(
+                            browser, args.base_url, staged
+                        )
+                    elif args.only_activity:
+                        _capture_activity(browser, args.base_url, staged)
+                    elif args.only_review_submission:
+                        _capture_solver_delivery(browser, args.base_url, staged)
+                    elif args.only_product_access:
+                        _capture_supporting_screens(browser, args.base_url, staged)
+                    elif args.only_administration_records:
+                        _capture_administration_records(browser, args.base_url, staged)
+                    else:
+                        _capture_administration_database(browser, args.base_url, staged)
                 finally:
                     browser.close()
             actual_outputs = {path.name for path in staged.iterdir() if path.is_file()}
@@ -4916,6 +5943,7 @@ def main() -> int:
                     args.only_administration_database
                     or args.only_administration_records
                     or args.only_modeling_data_session
+                    or args.only_modeling_process_fit
                 )
                 else VIEWPORTS
             )

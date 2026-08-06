@@ -9,6 +9,7 @@ import json
 import os
 import zipfile
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from typing import Any, cast
 
 import httpx
@@ -20,6 +21,379 @@ MATERIALS = {
 }
 EXPECTED_SYNTHETIC_STATE_ROUTE = "Synthetic reference preparation; not for engineering use"
 FORBIDDEN_SYNTHETIC_STATE_ROUTE = "Synthetic reference production route"
+CANONICAL_RECIPE_KEY = "cmp_demo_tensile_cleanup"
+CANONICAL_BATCH_LABEL = "CMP clean demo canonical JSON batch · 2025 hardening contract"
+HARDENING_EQUATION_CONTRACT = "altair-material-modeler-2025-v1"
+HARDENING_FAMILIES = ["voce", "swift", "hockett_sherby", "ghosh"]
+
+
+class ProcessingLineageError(ValueError):
+    """The model projection does not resolve to one exact Processing execution."""
+
+
+@dataclass(frozen=True, slots=True)
+class ProcessingContractExecutionIdentity:
+    """The exact execution/output tuple currently required by the demo contract.
+
+    The verifier uses every field.  The optional fields make the pure resolver useful for
+    focused checks that only have the stable execution identities available.
+    """
+
+    recipe_id: str | None = None
+    recipe_revision_id: str | None = None
+    recipe_sha256: str | None = None
+    batch_id: str | None = None
+    batch_member_id: str | None = None
+    batch_attempt_id: str | None = None
+    batch_attempt_no: int | None = None
+    output_id: str | None = None
+    output_revision_id: str | None = None
+    output_sha256: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class ProcessingLineageResolution:
+    """Resolved immutable lineage and its relationship to the current contract execution."""
+
+    recipe_id: str
+    recipe_revision_id: str
+    recipe_sha256: str
+    batch_id: str
+    batch_member_id: str
+    batch_attempt_id: str
+    batch_attempt_no: int
+    output_id: str
+    output_revision_id: str
+    output_sha256: str
+    batch: Mapping[str, Any]
+    attempt: Mapping[str, Any]
+    output: Mapping[str, Any]
+    is_current_contract_execution: bool
+    is_immutable_predecessor: bool
+
+    @property
+    def is_predecessor(self) -> bool:
+        """Compatibility alias for callers that use the shorter state name."""
+
+        return self.is_immutable_predecessor
+
+
+def _required_text(value: object, *, field: str) -> str:
+    if not isinstance(value, str) or not value:
+        raise ProcessingLineageError(f"{field} must be a non-empty string")
+    return value
+
+
+def _required_attempt_no(value: object, *, field: str) -> int:
+    if isinstance(value, bool) or not isinstance(value, int) or value < 1:
+        raise ProcessingLineageError(f"{field} must be a positive integer")
+    return value
+
+
+def _normalise_sha256(value: object, *, field: str) -> str:
+    digest = _required_text(value, field=field)
+    return digest.removeprefix("sha256:")
+
+
+def _mapping(value: object, *, field: str) -> Mapping[str, Any]:
+    if not isinstance(value, Mapping):
+        raise ProcessingLineageError(f"{field} must be an object")
+    return value
+
+
+def _identity_value(
+    identity: Mapping[str, Any],
+    *,
+    nested: Mapping[str, Any] | None,
+    keys: Sequence[str],
+) -> object | None:
+    for key in keys:
+        if key in identity:
+            return cast(object, identity[key])
+    if nested is not None:
+        for key in keys:
+            if key in nested:
+                return cast(object, nested[key])
+    return None
+
+
+def _current_identity(
+    value: ProcessingContractExecutionIdentity | Mapping[str, Any],
+) -> ProcessingContractExecutionIdentity:
+    if isinstance(value, ProcessingContractExecutionIdentity):
+        return value
+    identity = _mapping(value, field="current contract execution/output identity")
+    recipe = next(
+        (
+            candidate
+            for key in ("processing_recipe", "recipe")
+            if isinstance((candidate := identity.get(key)), Mapping)
+        ),
+        None,
+    )
+    batch = next(
+        (
+            candidate
+            for key in ("processing_batch", "batch")
+            if isinstance((candidate := identity.get(key)), Mapping)
+        ),
+        None,
+    )
+    attempt = next(
+        (
+            candidate
+            for key in ("batch_attempt", "attempt")
+            if isinstance((candidate := identity.get(key)), Mapping)
+        ),
+        None,
+    )
+    output = next(
+        (
+            candidate
+            for key in ("processing_output", "output")
+            if isinstance((candidate := identity.get(key)), Mapping)
+        ),
+        None,
+    )
+
+    def optional_text(keys: Sequence[str], nested: Mapping[str, Any] | None) -> str | None:
+        found = _identity_value(identity, nested=nested, keys=keys)
+        return None if found is None else _required_text(found, field=keys[0])
+
+    def optional_digest(keys: Sequence[str], nested: Mapping[str, Any] | None) -> str | None:
+        found = _identity_value(identity, nested=nested, keys=keys)
+        return None if found is None else _normalise_sha256(found, field=keys[0])
+
+    attempt_no_value = _identity_value(
+        identity,
+        nested=attempt,
+        keys=("batch_attempt_no", "attempt_no"),
+    )
+    if attempt_no_value is not None:
+        attempt_no = _required_attempt_no(attempt_no_value, field="batch_attempt_no")
+    else:
+        attempt_no = None
+    return ProcessingContractExecutionIdentity(
+        recipe_id=optional_text(("recipe_id", "processing_recipe_id"), recipe),
+        recipe_revision_id=optional_text(
+            ("recipe_revision_id", "processing_recipe_revision_id"), recipe
+        ),
+        recipe_sha256=optional_digest(
+            ("recipe_sha256", "processing_recipe_sha256"), recipe
+        ),
+        batch_id=optional_text(("batch_id", "processing_batch_id"), batch),
+        batch_member_id=optional_text(("batch_member_id", "processing_batch_member_id"), batch),
+        batch_attempt_id=optional_text(
+            ("batch_attempt_id", "processing_batch_attempt_id", "attempt_id"), attempt
+        ),
+        batch_attempt_no=attempt_no,
+        output_id=optional_text(("output_id", "processing_output_id"), output),
+        output_revision_id=optional_text(
+            ("output_revision_id", "processing_output_revision_id"), output
+        ),
+        output_sha256=optional_digest(
+            ("output_sha256", "processing_output_sha256"), output
+        ),
+    )
+
+
+def resolve_processing_projection_lineage(
+    processing_projection: Mapping[str, Any],
+    batch_responses: Sequence[Mapping[str, Any]],
+    processing_output_responses: Sequence[Mapping[str, Any]],
+    current_contract_execution: ProcessingContractExecutionIdentity | Mapping[str, Any],
+) -> ProcessingLineageResolution:
+    """Resolve a projection through one exact immutable Recipe/Batch/Output execution.
+
+    Every lookup is fail-closed: missing, duplicate, mismatched, or non-successful records are
+    rejected.  A resolved tuple is either the supplied current contract execution or a distinct
+    immutable predecessor; a predecessor may not reuse any current revision/execution/output ID.
+    """
+
+    projection = _mapping(processing_projection, field="processing_projection")
+    recipe_batch = _mapping(
+        projection.get("recipe_batch"), field="processing_projection.recipe_batch"
+    )
+    processing_recipe = _mapping(
+        recipe_batch.get("processing_recipe"),
+        field="processing_projection.recipe_batch.processing_recipe",
+    )
+    recipe_id = _required_text(processing_recipe.get("id"), field="processing recipe id")
+    recipe_revision_id = _required_text(
+        processing_recipe.get("revision_id"), field="processing recipe revision id"
+    )
+    recipe_sha256 = _normalise_sha256(
+        processing_recipe.get("sha256"), field="processing recipe sha256"
+    )
+    batch_id = _required_text(
+        recipe_batch.get("processing_batch_id"), field="processing batch id"
+    )
+    batch_member_id = _required_text(
+        recipe_batch.get("batch_member_id"), field="processing batch member id"
+    )
+    batch_attempt_id = _required_text(
+        recipe_batch.get("batch_attempt_id"), field="processing batch attempt id"
+    )
+    batch_attempt_no = _required_attempt_no(
+        recipe_batch.get("batch_attempt_no"), field="processing batch attempt no"
+    )
+    output_id = _required_text(projection.get("output_id"), field="processing output id")
+    output_revision_id = _required_text(
+        projection.get("output_revision_id"), field="processing output revision id"
+    )
+    output_sha256 = _normalise_sha256(
+        projection.get("output_sha256"), field="processing output sha256"
+    )
+
+    matching_batches = [
+        item
+        for item in batch_responses
+        if isinstance(item, Mapping) and item.get("batch_id") == batch_id
+    ]
+    if len(matching_batches) != 1:
+        raise ProcessingLineageError(
+            f"processing batch {batch_id} must resolve to exactly one response"
+        )
+    batch = matching_batches[0]
+    if (
+        batch.get("recipe_id") != recipe_id
+        or batch.get("recipe_revision_id") != recipe_revision_id
+        or _normalise_sha256(batch.get("recipe_sha256"), field="batch recipe sha256")
+        != recipe_sha256
+    ):
+        raise ProcessingLineageError("processing batch recipe pin does not match the projection")
+
+    members = batch.get("members")
+    if not isinstance(members, list):
+        raise ProcessingLineageError("processing batch has no member records")
+    matching_members = [
+        member
+        for member in members
+        if isinstance(member, Mapping) and member.get("member_id") == batch_member_id
+    ]
+    if len(matching_members) != 1:
+        raise ProcessingLineageError(
+            f"processing batch member {batch_member_id} must resolve to exactly one record"
+        )
+
+    attempts = batch.get("attempts")
+    if not isinstance(attempts, list):
+        raise ProcessingLineageError("processing batch has no attempt records")
+    matching_attempts = [
+        attempt
+        for attempt in attempts
+        if isinstance(attempt, Mapping)
+        and attempt.get("attempt_id") == batch_attempt_id
+        and attempt.get("member_id") == batch_member_id
+    ]
+    if len(matching_attempts) != 1:
+        raise ProcessingLineageError(
+            f"processing batch attempt {batch_attempt_id} must resolve to exactly one "
+            "member attempt"
+        )
+    attempt = matching_attempts[0]
+    if (
+        attempt.get("status") != "succeeded"
+        or attempt.get("attempt_no") != batch_attempt_no
+        or attempt.get("output_id") != output_id
+        or attempt.get("output_revision_id") != output_revision_id
+    ):
+        raise ProcessingLineageError(
+            "processing batch attempt is not the successful exact projection output"
+        )
+
+    matching_outputs = [
+        item
+        for item in processing_output_responses
+        if isinstance(item, Mapping) and item.get("processing_output_id") == output_id
+    ]
+    if len(matching_outputs) != 1:
+        raise ProcessingLineageError(
+            f"processing output {output_id} must resolve to exactly one response"
+        )
+    output = matching_outputs[0]
+    output_revision = _mapping(
+        output.get("current_revision"), field="processing output current revision"
+    )
+    if output_revision.get("id") != output_revision_id:
+        raise ProcessingLineageError(
+            "processing output current revision does not match the projection"
+        )
+    if (
+        _normalise_sha256(output.get("output_sha256"), field="processing output sha256")
+        != output_sha256
+    ):
+        raise ProcessingLineageError("processing output digest does not match the projection")
+
+    current = _current_identity(current_contract_execution)
+    resolved_values: dict[str, str | int] = {
+        "recipe_id": recipe_id,
+        "recipe_revision_id": recipe_revision_id,
+        "recipe_sha256": recipe_sha256,
+        "batch_id": batch_id,
+        "batch_member_id": batch_member_id,
+        "batch_attempt_id": batch_attempt_id,
+        "batch_attempt_no": batch_attempt_no,
+        "output_id": output_id,
+        "output_revision_id": output_revision_id,
+        "output_sha256": output_sha256,
+    }
+    current_values: dict[str, str | int] = {
+        key: value
+        for key, value in (
+            ("recipe_id", current.recipe_id),
+            ("recipe_revision_id", current.recipe_revision_id),
+            ("recipe_sha256", current.recipe_sha256),
+            ("batch_id", current.batch_id),
+            ("batch_member_id", current.batch_member_id),
+            ("batch_attempt_id", current.batch_attempt_id),
+            ("batch_attempt_no", current.batch_attempt_no),
+            ("output_id", current.output_id),
+            ("output_revision_id", current.output_revision_id),
+            ("output_sha256", current.output_sha256),
+        )
+        if value is not None
+    }
+    is_current = bool(current_values) and all(
+        resolved_values[key] == value for key, value in current_values.items()
+    )
+    predecessor_identity_fields = (
+        "recipe_revision_id",
+        "batch_id",
+        "batch_attempt_id",
+        "output_id",
+        "output_revision_id",
+    )
+    if not is_current and any(
+        key in current_values and resolved_values[key] == current_values[key]
+        for key in predecessor_identity_fields
+    ):
+        raise ProcessingLineageError(
+            "immutable predecessor reuses a current recipe revision, batch, attempt, or "
+            "output identity"
+        )
+
+    return ProcessingLineageResolution(
+        recipe_id=recipe_id,
+        recipe_revision_id=recipe_revision_id,
+        recipe_sha256=recipe_sha256,
+        batch_id=batch_id,
+        batch_member_id=batch_member_id,
+        batch_attempt_id=batch_attempt_id,
+        batch_attempt_no=batch_attempt_no,
+        output_id=output_id,
+        output_revision_id=output_revision_id,
+        output_sha256=output_sha256,
+        batch=batch,
+        attempt=attempt,
+        output=output,
+        is_current_contract_execution=is_current,
+        is_immutable_predecessor=not is_current,
+    )
+
+
+# Keep the shorter name available to lightweight callers and focused tests.
+resolve_processing_lineage = resolve_processing_projection_lineage
 
 
 def _json(response: httpx.Response) -> dict[str, Any]:
@@ -788,30 +1162,76 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             for item in _items(_json(client.get("/mapping-profiles")))
             if item.get("content", {}).get("profile_key") == "cmp_demo_tensile_json"
         )
-        recipe = next(
+        recipes = [
             item
             for item in _items(_json(client.get("/common-processing-recipes")))
-            if item.get("content", {}).get("recipe_key") == "cmp_demo_tensile_cleanup"
-        )
-        if recipe.get("content", {}).get("lifecycle_state") != "published":
-            raise RuntimeError("clean demo Processing Recipe is not published")
-        batch = next(
+            if item.get("content", {}).get("recipe_key") == CANONICAL_RECIPE_KEY
+        ]
+        if len(recipes) != 1:
+            raise RuntimeError("clean demo must expose exactly one canonical Processing Recipe")
+        recipe = recipes[0]
+        recipe_content = recipe.get("content")
+        recipe_revision = recipe.get("current_revision")
+        if (
+            not isinstance(recipe_content, Mapping)
+            or recipe_content.get("lifecycle_state") != "published"
+            or not isinstance(recipe_revision, Mapping)
+            or not isinstance(recipe_revision.get("id"), str)
+            or not isinstance(recipe_revision.get("content_hash"), str)
+        ):
+            raise RuntimeError(
+                "clean demo canonical Processing Recipe is not an exact published revision"
+            )
+        recipe_steps = recipe_content.get("steps")
+        if (
+            not isinstance(recipe_steps, list)
+            or not recipe_steps
+            or not isinstance(recipe_steps[-1], Mapping)
+            or recipe_steps[-1].get("method_id") != "metal.hardening_fit_extrapolate"
+            or not isinstance(recipe_steps[-1].get("options"), Mapping)
+        ):
+            raise RuntimeError("clean demo canonical Recipe has no final hardening step")
+        hardening_options = recipe_steps[-1]["options"]
+        if (
+            hardening_options.get("equation_contract") != HARDENING_EQUATION_CONTRACT
+            or hardening_options.get("families") != HARDENING_FAMILIES
+        ):
+            raise RuntimeError("clean demo canonical Recipe has the wrong hardening contract")
+        all_batch_responses = _items(_json(client.get("/common-processing-batches")))
+        canonical_batches = [
             item
-            for item in _items(_json(client.get("/common-processing-batches")))
-            if item.get("label") == "CMP clean demo canonical JSON batch"
-        )
+            for item in all_batch_responses
+            if (
+                item.get("label") == CANONICAL_BATCH_LABEL
+                and item.get("recipe_id") == recipe.get("processing_recipe_id")
+                and item.get("recipe_revision_id") == recipe_revision.get("id")
+                and item.get("recipe_sha256") == recipe_revision.get("content_hash")
+            )
+        ]
+        if len(canonical_batches) != 1:
+            raise RuntimeError(
+                "clean demo must expose exactly one canonical Batch pinned to the current Recipe"
+            )
+        batch = canonical_batches[0]
         if batch.get("status") != "succeeded":
             raise RuntimeError("clean demo Processing Batch did not succeed")
-        batch_attempt = next(
+        succeeded_attempts = [
             item
             for item in batch.get("attempts", [])
             if isinstance(item, Mapping) and item.get("status") == "succeeded"
-        )
-        metal_output = next(
+        ]
+        if len(succeeded_attempts) != 1:
+            raise RuntimeError("clean demo canonical Batch must have exactly one succeeded attempt")
+        batch_attempt = succeeded_attempts[0]
+        all_processing_output_responses = _items(_json(client.get("/processing-outputs")))
+        matching_metal_outputs = [
             item
-            for item in _items(_json(client.get("/processing-outputs")))
+            for item in all_processing_output_responses
             if item.get("processing_output_id") == batch_attempt.get("output_id")
-        )
+        ]
+        if len(matching_metal_outputs) != 1:
+            raise RuntimeError("clean demo canonical Batch output must resolve exactly once")
+        metal_output = matching_metal_outputs[0]
         metal_members = batch.get("members")
         metal_source = (
             metal_members[0].get("source")
@@ -823,6 +1243,7 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
         metal_workup = (
             metal_source.get("workup_overrides") if isinstance(metal_source, Mapping) else None
         )
+        metal_output_revision = metal_output.get("current_revision")
         if (
             not isinstance(metal_members, list)
             or len(metal_members) != 1
@@ -834,6 +1255,10 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             or metal_source.get("fit_decision") is None
             or metal_output.get("fit_decision") != metal_source.get("fit_decision")
             or metal_output.get("workup_overrides") != metal_workup
+            or batch_attempt.get("member_id") != metal_members[0].get("member_id")
+            or batch_attempt.get("output_id") != metal_output.get("processing_output_id")
+            or not isinstance(metal_output_revision, Mapping)
+            or batch_attempt.get("output_revision_id") != metal_output_revision.get("id")
         ):
             raise RuntimeError("metal batch/output did not preserve fit and necking evidence")
         metal_detail = _json(client.get(f"/materials/{metal_id}"))
@@ -854,6 +1279,34 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
         metal_review = _pending_model_review(
             client, model=metal_model, label="metal selected model"
         )
+        if not isinstance(metal_output_revision, Mapping):
+            raise RuntimeError("clean demo canonical Processing Output has no current revision")
+        metal_output_sha256 = metal_output.get("output_sha256")
+        if not isinstance(metal_output_sha256, str) or not metal_output_sha256:
+            raise RuntimeError("clean demo canonical Processing Output has no output digest")
+        current_contract = ProcessingContractExecutionIdentity(
+            recipe_id=str(recipe["processing_recipe_id"]),
+            recipe_revision_id=str(recipe_revision["id"]),
+            recipe_sha256=str(recipe_revision["content_hash"]),
+            batch_id=str(batch["batch_id"]),
+            batch_member_id=str(metal_members[0]["member_id"]),
+            batch_attempt_id=str(batch_attempt["attempt_id"]),
+            batch_attempt_no=(
+                int(batch_attempt["attempt_no"])
+                if isinstance(batch_attempt.get("attempt_no"), int)
+                and not isinstance(batch_attempt.get("attempt_no"), bool)
+                else None
+            ),
+            output_id=str(metal_output["processing_output_id"]),
+            output_revision_id=str(metal_output_revision["id"]),
+            output_sha256=metal_output_sha256,
+        )
+        metal_lineage = resolve_processing_projection_lineage(
+            metal_projection,
+            all_batch_responses,
+            all_processing_output_responses,
+            current_contract,
+        )
         metal_recipe_batch = metal_projection.get("recipe_batch")
         exact_metal_recipe = (
             metal_recipe_batch.get("processing_recipe")
@@ -862,15 +1315,38 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
         )
         if (
             not isinstance(exact_metal_recipe, Mapping)
-            or exact_metal_recipe.get("id") != recipe.get("processing_recipe_id")
-            or exact_metal_recipe.get("revision_id") != recipe.get("current_revision", {}).get("id")
+            or exact_metal_recipe.get("id") != metal_lineage.recipe_id
+            or exact_metal_recipe.get("revision_id") != metal_lineage.recipe_revision_id
             or not isinstance(metal_recipe_batch, Mapping)
             or not isinstance(batch_attempt, Mapping)
-            or metal_recipe_batch.get("processing_batch_id") != batch.get("batch_id")
-            or metal_recipe_batch.get("batch_attempt_id") != batch_attempt.get("attempt_id")
-            or metal_projection.get("output_revision_id") != batch_attempt.get("output_revision_id")
+            or metal_recipe_batch.get("processing_batch_id") != metal_lineage.batch_id
+            or metal_recipe_batch.get("batch_attempt_id") != metal_lineage.batch_attempt_id
+            or metal_projection.get("output_id") != metal_lineage.output_id
+            or metal_projection.get("output_revision_id") != metal_lineage.output_revision_id
         ):
             raise RuntimeError("metal IR does not pin the exact Recipe/Batch/Output execution")
+        if metal_lineage.is_immutable_predecessor:
+            current_claims = {
+                "recipe_revision_id": current_contract.recipe_revision_id,
+                "batch_id": current_contract.batch_id,
+                "batch_attempt_id": current_contract.batch_attempt_id,
+                "output_id": current_contract.output_id,
+                "output_revision_id": current_contract.output_revision_id,
+            }
+            predecessor_claims = {
+                "recipe_revision_id": metal_lineage.recipe_revision_id,
+                "batch_id": metal_lineage.batch_id,
+                "batch_attempt_id": metal_lineage.batch_attempt_id,
+                "output_id": metal_lineage.output_id,
+                "output_revision_id": metal_lineage.output_revision_id,
+            }
+            if any(
+                current_value is not None and predecessor_claims[key] == current_value
+                for key, current_value in current_claims.items()
+            ):
+                raise RuntimeError(
+                    "metal predecessor IR claims a current Recipe/Batch/Attempt/Output identity"
+                )
 
         candidates = _items(_json(client.get(f"/bulk-export-candidates?material_id={metal_id}")))
         neutral_source = next(
@@ -885,13 +1361,35 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
         ):
             raise RuntimeError("clean demo selected Neutral JSON is not the metal family")
         neutral_recipe = neutral["document"]["sources"]["processing_recipe"]
+        neutral_selection = neutral["document"].get("candidate_selection")
+        neutral_output = (
+            neutral_selection.get("processing_output")
+            if isinstance(neutral_selection, Mapping)
+            else None
+        )
+        neutral_output_sha256 = (
+            neutral_selection.get("processing_output_sha256")
+            if isinstance(neutral_selection, Mapping)
+            else None
+        )
         if (
-            neutral_recipe.get("status") != "exact_revision"
-            or neutral_recipe.get("reference", {}).get("id") != recipe.get("processing_recipe_id")
+            not isinstance(neutral_recipe, Mapping)
+            or neutral_recipe.get("status") != "exact_revision"
+            or neutral_recipe.get("reference", {}).get("id") != metal_lineage.recipe_id
             or neutral_recipe.get("reference", {}).get("revision_id")
-            != recipe.get("current_revision", {}).get("id")
+            != metal_lineage.recipe_revision_id
+            or not isinstance(neutral_output, Mapping)
+            or neutral_output.get("id") != metal_lineage.output_id
+            or neutral_output.get("revision_id") != metal_lineage.output_revision_id
+            or not isinstance(neutral_output_sha256, str)
+            or _normalise_sha256(
+                neutral_output_sha256, field="neutral processing output sha256"
+            )
+            != metal_lineage.output_sha256
         ):
-            raise RuntimeError("metal Neutral JSON does not pin the exact Processing Recipe")
+            raise RuntimeError(
+                "metal Neutral JSON does not pin the exact resolved Processing Recipe/Output"
+            )
         neutral_download = client.get(f"/neutral-materials/{neutral_id}/download")
         neutral_download.raise_for_status()
         if (

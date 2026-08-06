@@ -56,6 +56,7 @@ from cmp.bootstrap.processing import (
     build_common_processing_output_service,
     build_common_recipe_service,
     build_mapping_profile_service,
+    build_metal_fit_run_service,
     build_processing_service,
     build_shear_relaxation_processing_service,
     build_viscoelastic_master_service,
@@ -619,10 +620,12 @@ def create_app(
         resolved_mapping_profiles,
         resolved_artifacts,
     )
+    resolved_metal_fit_runs = build_metal_fit_run_service(services, resolved_common_outputs)
     install_common_processing_api(
         application,
         service=resolved_mapping_profiles,
         output_service=resolved_common_outputs,
+        fit_run_service=resolved_metal_fit_runs,
         security_dependency=security_dependency,
         read_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.PROCESSING_READ

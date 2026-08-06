@@ -4,7 +4,7 @@ import asyncio
 import hashlib
 import os
 import tempfile
-from collections.abc import AsyncIterator, Iterator
+from collections.abc import AsyncIterator, Callable, Iterator
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -340,6 +340,7 @@ async def _stage_derived(
     idempotency_key: str,
     *,
     schema_ref: str = "urn:cmp:schema:generic-binary:1",
+    commit_hook: Callable[[Session, FinalizedArtifact], None] | None = None,
 ) -> FinalizedArtifact:
     staging_key = f"staging/{ORG}/{context.project_id}/{uuid4()}.derived"
     await store.write_for_testing(staging_key, payload)
@@ -357,6 +358,7 @@ async def _stage_derived(
             staging_object_key=staging_key,
             idempotency_key=idempotency_key,
         ),
+        commit_hook=commit_hook,
     )
 
 
@@ -683,7 +685,7 @@ def test_outbox_sequence_crash_reclaim_poison_and_inbox_dedup(
     assert inbox_count == 1
 
 
-def test_artifact_and_outbox_roll_back_together_when_later_hook_fails(
+def test_artifact_outbox_and_custom_commit_hook_roll_back_together_when_hook_fails(
     postgres: PostgresHarness,
 ) -> None:
     def fail_after_outbox(session: Session, result: FinalizedArtifact) -> None:
@@ -693,7 +695,7 @@ def test_artifact_and_outbox_roll_back_together_when_later_hook_fails(
     repository = SqlAlchemyArtifactRepository(
         session_factory=postgres.sessions,
         rls_context=postgres.rls,
-        available_hooks=(SqlArtifactAvailableOutboxHook(), fail_after_outbox),
+        available_hooks=(SqlArtifactAvailableOutboxHook(),),
     )
     service = ArtifactService(
         repository=repository,
@@ -710,6 +712,7 @@ def test_artifact_and_outbox_roll_back_together_when_later_hook_fails(
                 _context(),
                 b"atomic-artifact-and-outbox",
                 idempotency_key,
+                commit_hook=fail_after_outbox,
             )
         )
 

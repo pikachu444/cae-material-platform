@@ -202,6 +202,55 @@ function displayScale(unit: string, values: number[]): { divisor: number; label:
   return { divisor: 1, label: "Pa" };
 }
 
+/**
+ * Ghosh's epsilon_0 bound can make the declared tail numerically enormous
+ * while the engineer is still reviewing the measured fit domain.  This is a
+ * display-only predicate: it never changes the server response arrays or the
+ * plotted polyline.  Keep the check deliberately exact so an unrelated bound
+ * (or a similarly named parameter) cannot silently alter the graph scale.
+ */
+export function isGhoshTailDisplayTrim(
+  activeStage: CommonCurveStage,
+  activeStep: CommonProcessingStep | undefined,
+  fitSelection: FitDecisionSelection | null | undefined,
+  mode: HardeningPlotMode = "response",
+): boolean {
+  if (
+    mode === "residual"
+    || activeStage.method_id !== "metal.hardening_fit_extrapolate"
+  ) return false;
+  const ghosh = (activeStage.fit_candidates ?? []).find((candidate) => candidate.family === "ghosh");
+  return Boolean(
+    ghosh?.active_bound.includes("epsilon_0")
+    && Number.isFinite(Number(activeStep?.options.fit_maximum_strain)),
+  );
+}
+
+function isGhoshSeries(series: PlotSeries): boolean {
+  return series.id.toLowerCase().includes("ghosh") || series.label.toLowerCase().includes("ghosh");
+}
+
+/**
+ * A selected hardening blend is represented by one `fit.decision.*` series,
+ * so its id no longer names each contributing law.  Keep the display-only
+ * epsilon_0 trim attached to that series only when the explicit decision (or
+ * the unselected recipe preview) actually contains Ghosh.  Other candidates
+ * and blends remain full-domain evidence.
+ */
+function selectedSeriesContainsGhosh(
+  series: PlotSeries,
+  activeStep: CommonProcessingStep | undefined,
+  fitSelection: FitDecisionSelection | null | undefined,
+): boolean {
+  if (!series.className.includes("hardening-selected") && series.id !== "stress.hardening.selected") {
+    return false;
+  }
+  const decisionLaws = fitSelection
+    ? [fitSelection.candidateKey, fitSelection.primaryLaw, fitSelection.secondaryLaw]
+    : [activeStep?.options.primary_family, activeStep?.options.secondary_family];
+  return decisionLaws.some((law) => String(law ?? "").toLowerCase().includes("ghosh"));
+}
+
 function axisNumber(value: number): string {
   const absolute = Math.abs(value);
   if (absolute !== 0 && (absolute >= 10000 || absolute < 0.001)) return value.toExponential(2);
@@ -233,6 +282,7 @@ function seriesForStage(
       (item) => item.quantity.startsWith("stress.hardening.") && item.quantity !== "stress.hardening.selected",
     );
     const previewBlend = activeStage.series.find((item) => item.quantity === "stress.hardening.selected");
+    const numericalByFamily = new Map((activeStage.fit_candidates ?? []).map((item) => [item.family, item]));
     const fitMinimum = Number(activeStep?.options.fit_minimum_strain ?? 0);
     const fitMaximum = Number(activeStep?.options.fit_maximum_strain ?? activeX?.values.at(-1) ?? 0);
     const previousStage = preview.stages.find((item) => item.ordinal === activeStage.ordinal - 1);
@@ -302,8 +352,23 @@ function seriesForStage(
       const fitY = inFitDomain.map(({ index }) => observedY[index]);
       const comparison = [...candidateSeries, ...(selectedSeries ? [selectedSeries] : [])]
         .map((item) => {
-          const residual = residualValues(fitX, fitY, item.xValues, item.yValues);
-          return { ...item, ...residual, label: `${item.label} residual` };
+          const family = item.id.replace("stress.hardening.", "");
+          const evidence = numericalByFamily.get(
+            item.id.startsWith("fit.decision.")
+              ? String(fitSelection?.candidateKey ?? `${String(activeStep?.options.primary_family ?? "")}+${String(activeStep?.options.secondary_family ?? "")}`)
+              : family,
+          );
+          if (evidence && evidence.residual.length === fitX.length) {
+            return { ...item, xValues: fitX, yValues: evidence.residual, label: `${item.label} residual` };
+          }
+          if (!(activeStage.fit_candidates ?? []).length) {
+            const residual = residualValues(fitX, fitY, item.xValues, item.yValues);
+            return { ...item, ...residual, label: `${item.label} residual` };
+          }
+          // A selected blend has its own server evidence row.  If a legacy
+          // response has no such row, leave it out rather than rebuilding a
+          // residual client-side.
+          return { ...item, xValues: [], yValues: [], label: `${item.label} residual` };
         });
       return {
         xQuantity,
@@ -320,11 +385,30 @@ function seriesForStage(
         xUnit: activeX?.unit ?? "1",
         yQuantity: "d(stress) / d(plastic strain)",
         yUnit: decisionSeries?.unit ?? candidates[0]?.unit ?? "Pa",
-        series: [...candidateSeries, ...(selectedSeries ? [selectedSeries] : [])].map((item) => ({
-          ...item,
-          ...derivativeValues(item.xValues, item.yValues),
-          label: `${item.label} tangent`,
-        })),
+        series: [...candidateSeries, ...(selectedSeries ? [selectedSeries] : [])].map((item) => {
+          const family = item.id.replace("stress.hardening.", "");
+          const evidence = numericalByFamily.get(
+            item.id.startsWith("fit.decision.")
+              ? String(fitSelection?.candidateKey ?? `${String(activeStep?.options.primary_family ?? "")}+${String(activeStep?.options.secondary_family ?? "")}`)
+              : family,
+          );
+          if (!evidence) {
+            if (!(activeStage.fit_candidates ?? []).length) {
+              const derivative = derivativeValues(item.xValues, item.yValues);
+              return { ...item, ...derivative, label: `${item.label} tangent` };
+            }
+            return { ...item, xValues: [], yValues: [], label: `${item.label} tangent` };
+          }
+          const tangentX: number[] = [];
+          const tangentY: number[] = [];
+          evidence.tangent.forEach((value, index) => {
+            if (value !== null && Number.isFinite(value)) {
+              tangentX.push((activeX?.values ?? [])[index]);
+              tangentY.push(value);
+            }
+          });
+          return { ...item, xValues: tangentX, yValues: tangentY, label: `${item.label} tangent` };
+        }),
         extrapolationStart: fitMaximum,
       };
     }
@@ -619,6 +703,7 @@ export function EngineeringCurvePlotEmpty({
   onChooseLocal,
   blocked = false,
   onBackToData,
+  blockedActionLabel,
   title,
   message,
 }: {
@@ -628,6 +713,7 @@ export function EngineeringCurvePlotEmpty({
   /** Process keeps the same SVG frame while an exact source/profile is unavailable. */
   blocked?: boolean;
   onBackToData?: () => void;
+  blockedActionLabel?: string;
   title?: string;
   message?: string;
 }) {
@@ -687,7 +773,7 @@ export function EngineeringCurvePlotEmpty({
       <div className="engineering-curve-plot-empty-overlay" role="status">
         <strong>{title ?? (blocked ? "Processing is blocked" : "No Test Data in this session")}</strong>
         <p>{message ?? (blocked ? "Choose the exact Test Data revision and Mapping Profile in Data before previewing." : "Choose an exact saved revision or inspect a Local file to prepare the first preview.")}</p>
-        {blocked ? <button type="button" className="button primary" onClick={onBackToData}>Back to Data</button> : <button type="button" className="button primary" onClick={onChooseLocal}>Local file</button>}
+        {blocked ? <button type="button" className="button primary" onClick={onBackToData}>{blockedActionLabel ?? "Back to Data"}</button> : <button type="button" className="button primary" onClick={onChooseLocal}>Local file</button>}
       </div>
     </div>
   );
@@ -789,7 +875,7 @@ export function EngineeringCurvePlot({
     ? model.series.filter((item) => !item.className.includes("candidate"))
     : model.series;
   const hardeningResponseSeries = isHardening && hardeningMode === "response"
-    ? visibleModelSeries.filter((item) => !item.className.includes("candidate") || /^(Voce|Hockett–Sherby)$/.test(item.label))
+    ? visibleModelSeries
     : visibleModelSeries;
   const validSeries = visibleModelSeries.filter(
     (item) => item.xValues.length >= 2 && item.xValues.length === item.yValues.length
@@ -805,10 +891,19 @@ export function EngineeringCurvePlot({
     ...model.band,
     xValues: model.band.xValues.map(toPlotX),
   } : undefined;
+  const ghoshTailDisplayTrim = isGhoshTailDisplayTrim(activeStage, activeStep, fitSelection, hardeningMode);
+  const ghoshFitMaximum = Number(activeStep?.options.fit_maximum_strain);
+  const displayBoundYValues = validSeries.flatMap((item) => {
+    if (
+      !ghoshTailDisplayTrim
+      || (!isGhoshSeries(item) && !selectedSeriesContainsGhosh(item, activeStep, fitSelection))
+    ) return item.yValues;
+    return item.yValues.filter((_, index) => item.xValues[index] <= ghoshFitMaximum);
+  });
   const paddedDataBounds = paddedPlotBounds(
     plottedSeries.flatMap((item) => item.xValues),
     [
-      ...validSeries.flatMap((item) => item.yValues),
+      ...displayBoundYValues,
       ...(model.band?.lowerValues ?? []),
       ...(model.band?.upperValues ?? []),
     ],
@@ -831,7 +926,7 @@ export function EngineeringCurvePlot({
   // Keep every geometric calculation on the same responsive coordinate system as the SVG viewBox.
   const width = effectiveWidth;
   const height = effectiveHeight;
-  const yScale = displayScale(model.yUnit, validSeries.flatMap((item) => item.yValues));
+  const yScale = displayScale(model.yUnit, displayBoundYValues);
   const xTicks = model.xScale === "log10"
     ? Array.from(
         { length: Math.max(0, Math.floor(bounds.xMax) - Math.ceil(bounds.xMin) + 1) },
@@ -1000,6 +1095,7 @@ export function EngineeringCurvePlot({
         {(["response", "residual"] as PronyPlotMode[]).map((mode) => <button type="button" role="tab" aria-selected={pronyMode === mode} className={pronyMode === mode ? "active" : ""} key={mode} onClick={() => setPronyMode(mode)}>{mode === "response" ? isDmaProny ? "Storage & loss" : "Relaxation response" : "Residual"}</button>)}
         <span>{pronyMode === "response" ? isDmaProny ? `Measured storage/loss + ${fitSelection ? "explicit engineer selection" : "server result preview"}` : `Measured modulus + every fitted term count + ${fitSelection ? "explicit engineer selection" : "server result preview"}` : isDmaProny ? "Joint storage/loss residual on the observed log-frequency grid" : "Predicted minus measured modulus on the observed log-time grid"}</span>
       </div> : null}
+      {ghoshTailDisplayTrim ? <p className="ghosh-display-scale-note" role="note">Ghosh tail near ε0 exceeds the display scale; exact values remain in Candidate parameters.</p> : null}
       <svg
         ref={svgRef}
         className={`processing-curve interactive interaction-${interactionMode} ${drag ? "is-panning" : ""}`}

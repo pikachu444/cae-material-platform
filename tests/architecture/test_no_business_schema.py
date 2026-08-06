@@ -98,6 +98,8 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260920_085_T89_dma_neutral_source.py",
         "20260921_086_UXC03_workup_override_provenance.py",
         "20260922_091_UXC07_batch_evidence.py",
+        "20260923_092_uxc08_catalog_management.py",
+        "20260924_093_issue158_metal_fit.py",
     ]
 
 

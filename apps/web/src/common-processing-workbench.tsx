@@ -28,6 +28,7 @@ import {
   listCommonProcessingMethods,
   listCommonProcessingEnsembleMethods,
   previewCommonProcessing,
+  executeMetalFitRun,
   previewCommonProcessingEnsemble,
   preflightCommonProcessingBatch,
   executeCommonProcessingBatch,
@@ -50,7 +51,7 @@ import type {
   CommonProcessingPreview,
   CommonProcessingStep,
   CommonProcessingWorkupOverride,
-  CommonCurveStage,
+  CommonExactRevisionPin,
   DataClassification,
   GraphSelectionCommand,
   MaterialResponse,
@@ -117,7 +118,35 @@ type SavedResultLoadState = {
   scalarPa?: number;
 };
 
+type ExactFitRestore = {
+  preview: CommonProcessingPreview;
+  selection: FitDecisionSelection | null;
+};
+
+type FitRestoreInFlight = {
+  identity: string;
+  promise: Promise<ExactFitRestore>;
+};
+
 const PROCESS_DRAFT_NOTICE = "Current Process result cleared; saved results remain in history. Fit and Export require a new saved processed result.";
+
+/**
+ * Serialize exact restore inputs without depending on object insertion order.
+ * Arrays retain their order because ordered processing steps are part of the
+ * pinned identity.  The serializer deliberately includes every enumerable
+ * field, including fields added by a newer response, so an unrecognised
+ * metadata change cannot join an older in-flight request.
+ */
+function deterministicSerialize(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(deterministicSerialize).join(",")}]`;
+  if (value !== null && typeof value === "object") {
+    const entries = Object.entries(value as Record<string, unknown>)
+      .sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0)
+      .map(([key, nested]) => `${JSON.stringify(key)}:${deterministicSerialize(nested)}`);
+    return `{${entries.join(",")}}`;
+  }
+  return value === undefined ? "undefined" : typeof value === "string" ? JSON.stringify(value) : String(value);
+}
 
 const DEFAULT_PROFILE: CommonMappingProfileContent = {
   profile_key: "normalized-tensile",
@@ -775,6 +804,16 @@ export function curveRailIdentity(
   };
 }
 
+/** Fit keeps the exact pinned revision on one readable normal-surface line. */
+export function fitRailIdentity(
+  specimenId: string,
+  libraryRevisionNo: number,
+  exactRevisionNo?: number,
+): string {
+  const specimen = specimenDisplayName(specimenId);
+  return `${specimen} · r${exactRevisionNo ?? libraryRevisionNo}`;
+}
+
 function curveGroupLabel(item: CanonicalTestDataDocumentResponse): string {
   const method = item.method.trim().toLowerCase();
   if (method === "tensile" || method === "uniaxial tensile reference method") return "Tensile tests";
@@ -845,8 +884,19 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   const [lastValidPreview, setLastValidPreview] = useState<CommonProcessingPreview | null>(null);
   const [savedResultStates, setSavedResultStates] = useState<Record<string, SavedResultLoadState>>({});
   const [localCurrentOutput, setLocalCurrentOutput] = useState<{ id: string; revisionId: string } | null>(null);
+  // Keep the mounted workbench's locally saved current pointer available to
+  // exact-restore continuations without adding it to the restore effect's
+  // identity/dependency set. This preserves one GET coalescing under
+  // StrictMode while distinguishing a just-saved output from a fresh reload.
+  const localCurrentOutputRef = useRef<{ id: string; revisionId: string } | null>(null);
+  const updateLocalCurrentOutput = (next: { id: string; revisionId: string } | null): void => {
+    localCurrentOutputRef.current = next;
+    setLocalCurrentOutput(next);
+  };
   // Selection is a working engineer decision, intentionally independent of Recipe intent.
   const [fitSelection, setFitSelection] = useState<FitDecisionSelection | null>(null);
+  const [metalFitRunId, setMetalFitRunId] = useState<string | null>(null);
+  const [fitEvidenceOpen, setFitEvidenceOpen] = useState(false);
   const [fitPlotCommand, setFitPlotCommand] = useState<PlotInteractionCommand | null>(null);
   const [fitPlotInteraction, setFitPlotInteraction] = useState<PlotInteractionState>({ mode: "pan", hasSelection: false });
   const [selectedStage, setSelectedStage] = useState(initialSession?.workspace.selectedStageOrdinal ?? 0);
@@ -894,6 +944,46 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   const redoSteps = useRef<string[]>([]);
   const savedSteps = useRef(stepsText);
   const preferredStepContext = useRef("");
+  // A restore attempt is settled only after the exact content request has
+  // succeeded or failed.  React effect cleanup (for example, StrictMode's
+  // setup/cleanup cycle) can re-subscribe to the same in-flight request; the
+  // generation below makes only the newest subscription able to update the
+  // workspace.
+  const fitRestoreRequestGeneration = useRef(0);
+  const fitRestoreInFlight = useRef<FitRestoreInFlight | null>(null);
+  const fitRestoreSettledKey = useRef<string | null>(null);
+  const [fitRestoreGeneration, setFitRestoreGeneration] = useState(0);
+  const [fitRestoreError, setFitRestoreError] = useState<string | null>(null);
+  const fitEvidenceTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const fitEvidenceBodyRef = useRef<HTMLDivElement | null>(null);
+
+  function closeFitEvidence(): void {
+    setFitEvidenceOpen(false);
+    // Restore focus after React removes the dock.  The deferred focus keeps
+    // Escape/Close from landing on a detached body while preserving the
+    // discoverable trigger as the user's return point.
+    queueMicrotask(() => fitEvidenceTriggerRef.current?.focus());
+  }
+
+  useEffect(() => {
+    if (!fitEvidenceOpen) return;
+    const frame = window.requestAnimationFrame(() => fitEvidenceBodyRef.current?.focus());
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      event.stopPropagation();
+      closeFitEvidence();
+    };
+    window.addEventListener("keydown", onKeyDown, true);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("keydown", onKeyDown, true);
+    };
+  }, [fitEvidenceOpen]);
+
+  useEffect(() => {
+    if (workflowTask !== "fit" && fitEvidenceOpen) setFitEvidenceOpen(false);
+  }, [fitEvidenceOpen, workflowTask]);
 
   function clearExactDocumentBinding(): void {
     exactDocumentGeneration.current += 1;
@@ -904,7 +994,9 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     loadedExactRefKey.current = null;
     setPreview(null);
     setLastValidPreview(null);
-    setLocalCurrentOutput(null);
+    updateLocalCurrentOutput(null);
+    setMetalFitRunId(null);
+    setFitRestoreError(null);
     attemptedExactDocumentKey.current = null;
     pendingExplicitProcessPreview.current = null;
   }
@@ -929,7 +1021,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       pendingExplicitProcessPreview.current = { originTask: workflowTask };
     }
     if (!preserveCurrentOutput) {
-      setLocalCurrentOutput(null);
+      updateLocalCurrentOutput(null);
       // A normal draft edit is not a revision yet, but it must never leave a
       // downstream current chain looking valid. Saving later creates the
       // immutable Processing Output revision. Copying settings from history
@@ -947,7 +1039,8 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     redoSteps.current = [];
     setPreview(null);
     setLastValidPreview(null);
-    setLocalCurrentOutput(null);
+    updateLocalCurrentOutput(null);
+    setMetalFitRunId(null);
     setFitSelection(null);
     if (isProcessTask) {
       pendingExplicitProcessPreview.current = { originTask: "process" };
@@ -962,7 +1055,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     redoSteps.current.push(stepsText);
     setStepsText(previous);
     setPreview(null);
-    setLocalCurrentOutput(null);
+    updateLocalCurrentOutput(null);
     setFitSelection(null);
     if (isProcessTask) {
       pendingExplicitProcessPreview.current = { originTask: "process" };
@@ -978,7 +1071,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     undoSteps.current.push(stepsText);
     setStepsText(next);
     setPreview(null);
-    setLocalCurrentOutput(null);
+    updateLocalCurrentOutput(null);
     if (isProcessTask) {
       pendingExplicitProcessPreview.current = { originTask: "process" };
     } else if (pendingExplicitProcessPreview.current) {
@@ -1122,6 +1215,14 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   function retryExactSource(): void {
     if (!selectedSourceRef) return;
     void loadDocument(selectedSourceRef.id, selectedSourceRef.revisionId);
+  }
+
+  function retryExactSavedFit(): void {
+    if (!exactSessionOutput?.source_processing_output || workflowTask !== "fit") return;
+    fitRestoreSettledKey.current = null;
+    setFitRestoreError(null);
+    setError(null);
+    setFitRestoreGeneration((current) => current + 1);
   }
 
   function previewIntakeDocument(
@@ -1635,7 +1736,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   }
 
   async function runPreview(): Promise<void> {
-    if (!document) {
+    if (!document && workflowTask !== "fit") {
       setError("Choose a saved dataset before previewing processing.");
       return;
     }
@@ -1644,6 +1745,10 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       || workflowTask === "export";
     if (isProcessTask && !processSourceReady) {
       setError("Restore inputs in Data.");
+      return;
+    }
+    if (workflowTask === "fit" && !fitSourceOutput) {
+      setError("Fit requires a saved exact Process Output. Return to Process and save the current result before fitting.");
       return;
     }
     previewAbortController.current?.abort();
@@ -1655,14 +1760,39 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     setError(null);
     try {
       const draftSteps = JSON.parse(stepsText) as CommonProcessingStep[];
-      const previewSteps = isProcessTask
-        ? draftSteps.filter((step) => !isFitMethod(step.method_id))
-        : draftSteps;
-      const result = await previewCommonProcessing(config, {
-        document,
-        mapping_profile: JSON.parse(profileText) as CommonMappingProfileContent,
-        steps: serverProcessingSteps(previewSteps),
-      }, controller.signal);
+      const result = workflowTask === "fit"
+        ? await (async () => {
+          const fitStep = draftSteps.find((step) => isFitMethod(step.method_id));
+          if (!fitStep || !fitSourceOutput) {
+            throw new Error("Fit requires a saved exact Process Output. Return to Process and save the current result before fitting.");
+          }
+          const source_processing_output: CommonExactRevisionPin = {
+            aggregate_id: fitSourceOutput.processing_output_id,
+            revision_id: fitSourceOutput.current_revision.id,
+          };
+          const run = await executeMetalFitRun(config, {
+            classification: fitSourceOutput.current_revision.classification,
+            source_processing_output,
+            fit_step: serverProcessingSteps([fitStep])[0],
+            change_reason: "Calculate metal Fit candidates",
+          }, controller.signal);
+          setMetalFitRunId(run.data.id);
+          if (!run.data.preview) {
+            throw new Error(run.data.failure_reason ?? "The persisted metal Fit run returned no preview evidence.");
+          }
+          if (run.data.status !== "succeeded") {
+            setNotice(`Calculation failed; persisted run ${run.data.id} retains the failure evidence.`);
+            throw new Error(run.data.failure_reason ?? "Metal Fit calculation failed.");
+          }
+          return { data: run.data.preview, etag: run.etag };
+        })()
+        : await previewCommonProcessing(config, {
+          document: document as Record<string, unknown>,
+          mapping_profile: JSON.parse(profileText) as CommonMappingProfileContent,
+          steps: serverProcessingSteps(isProcessTask
+            ? draftSteps.filter((step) => !isFitMethod(step.method_id))
+            : draftSteps),
+        }, controller.signal);
       if (exactDocumentGeneration.current !== requestNo) return;
       setFitSelection(null);
       onSessionEvent?.({ type: "CHANGE_SELECTION" });
@@ -1709,18 +1839,36 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       setError("A manual necking boundary needs its value, unit, and engineering reason before saving processed curves.");
       return null;
     }
+    const fitSource = overrides?.fitDecision ? fitSourceOutput : undefined;
     const source = documents.find((item) => item.test_data_document_id === selectedDocumentId);
-    const sourceRef = selectedTestDataRefsRef.current.find((ref) => ref.id === selectedDocumentId);
+    const sourceRef = fitSource?.source_document
+      ?? (() => {
+        const ref = selectedTestDataRefsRef.current.find((item) => item.id === selectedDocumentId);
+        return ref ? { aggregate_id: ref.id, revision_id: ref.revisionId } : undefined;
+      })();
     const profile = profiles.find((item) => item.mapping_profile_id === selectedProfileId);
-    if (!preview || !source || !sourceRef || !profile || !exactSourceLoaded) {
-      setError("Preview an exact Test Data revision with a saved Mapping Profile before commit.");
+    const profilePin = fitSource?.mapping_profile
+      ?? (profile ? { aggregate_id: profile.mapping_profile_id, revision_id: profile.current_revision.id } : undefined);
+    const outputClassification = fitSource?.current_revision.classification
+      ?? source?.current_revision.classification;
+    if (!preview || (!fitSource && (!source || !exactSourceLoaded)) || !sourceRef || !profilePin) {
+      setError(fitSource
+        ? "The exact Process Output source is unavailable. Restore that saved result before committing Fit."
+        : "Preview an exact Test Data revision with a saved Mapping Profile before commit.");
       return null;
     }
-    if (preview.mapping_profile_sha256 !== profile.current_revision.content_hash) {
+    if (!outputClassification) {
+      setError("The selected source has no classification for commit.");
+      return null;
+    }
+    if (fitSource
+      ? preview.mapping_profile_sha256 !== fitSource.mapping_profile_sha256
+        || preview.source_document_sha256 !== fitSource.source_document_sha256
+      : !profile || preview.mapping_profile_sha256 !== profile.current_revision.content_hash) {
       setError("The preview differs from the selected exact input/profile. Save changes and preview again.");
       return null;
     }
-    if (source.current_revision.classification !== profile.current_revision.classification) {
+    if (!fitSource && source && profile && source.current_revision.classification !== profile.current_revision.classification) {
       setError("Exact Test Data and Mapping Profile revisions must share classification.");
       return null;
     }
@@ -1728,16 +1876,13 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     setError(null);
     try {
       const result = await commitCommonProcessingOutput(config, {
-        classification: source.current_revision.classification as DataClassification,
+        classification: outputClassification as DataClassification,
         label: overrides?.label ?? outputLabel,
         source_document: {
-          aggregate_id: sourceRef.id,
-          revision_id: sourceRef.revisionId,
+          aggregate_id: sourceRef.aggregate_id,
+          revision_id: sourceRef.revision_id,
         },
-        mapping_profile: {
-          aggregate_id: profile.mapping_profile_id,
-          revision_id: profile.current_revision.id,
-        },
+        mapping_profile: profilePin,
         steps: serverProcessingSteps(
           isProcessTask && !overrides?.fitDecision
             ? draftSteps.filter((step) => !isFitMethod(step.method_id))
@@ -1746,11 +1891,19 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         change_reason: overrides?.reason ?? outputReason,
         workup_overrides: workupOverridesFromSteps(draftSteps),
         ...(overrides?.fitDecision ? { fit_decision: overrides.fitDecision } : {}),
+        ...(fitSource ? {
+          source_processing_output: {
+            aggregate_id: fitSource.processing_output_id,
+            revision_id: fitSource.current_revision.id,
+          },
+        } : {}),
       });
       const refreshed = await listCommonProcessingOutputs(config);
       setOutputs(refreshed.data.items);
-      setNotice("Processed result saved and current; earlier results remain in history.");
-      setLocalCurrentOutput({ id: result.data.processing_output_id, revisionId: result.data.current_revision.id });
+      setNotice(overrides?.fitDecision
+        ? "New immutable Fit Output saved and current; earlier revisions remain. Modeling Export is separate and has not started."
+        : "Processed result saved and current; earlier results remain in history.");
+      updateLocalCurrentOutput({ id: result.data.processing_output_id, revisionId: result.data.current_revision.id });
       const outputRef = {
         id: result.data.processing_output_id,
         revisionId: result.data.current_revision.id,
@@ -1799,7 +1952,6 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     await commitOutput({
       label: `${material?.current_revision.content.name ?? modelingTrack} · ${fitDecisionIdentityLabel(fitSelection)} selected candidate`,
       reason: fitSelection.reason.trim(),
-      nextTask: "export",
       fitDecision,
     });
   }
@@ -1843,14 +1995,12 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     setSavedResultStates((current) => ({ ...current, [output.processing_output_id]: { status: "loading" } }));
     try {
       const result = await downloadCommonProcessingOutput(config, output.processing_output_id);
-      const sourceRef = selectedTestDataRefsRef.current.find((ref) => ref.id === selectedDocumentId);
-      const profile = profiles.find((item) => item.mapping_profile_id === selectedProfileId);
       const { parseSavedProcessingOutput } = await import("./modeling-process-panel");
       const scalarPa = parseSavedProcessingOutput(await result.data.blob.text(), output, [
-        sourceRef?.id,
-        sourceRef?.revisionId,
-        profile?.mapping_profile_id,
-        profile?.current_revision.id,
+        output.source_document.aggregate_id,
+        output.source_document.revision_id,
+        output.mapping_profile.aggregate_id,
+        output.mapping_profile.revision_id,
       ]);
       setSavedResultStates((current) => ({ ...current, [output.processing_output_id]: { status: "ready", scalarPa } }));
     } catch {
@@ -1869,6 +2019,9 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     applyDraftSteps(nextSteps, true, true);
     setOutputLabel(output.label);
     setOutputReason(`Re-run ${output.label} with the selected exact source`);
+    if (output.source_processing_output) {
+      updateLocalCurrentOutput({ id: output.source_processing_output.aggregate_id, revisionId: output.source_processing_output.revision_id });
+    }
     const restoredMethodIndex = selectedMethodId
       ? output.steps.findIndex((step) => step.method_id === selectedMethodId)
       : -1;
@@ -2011,7 +2164,24 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         : modelingDocumentMatchesMaterialContext(item, material, materialState, hasGovernedDocuments))),
     [documents, hasGovernedDocuments, material, materialState, modelingTrack, selectedTestDataRefs, workflowTask],
   );
-  const stageDocuments = workflowTask === "data" ? dataTrackDocuments : trackDocuments;
+  // Fit is downstream of Process: bridge the exact refs selected in the
+  // Process workspace into its rail, even when the library's current head is
+  // on a newer Material/State revision.  The visible row still comes from the
+  // server document identity, while `selectedTestDataRefs` supplies the exact
+  // revision requested by the session.  Never broaden this bridge to the
+  // unpinned current-head list.
+  const fitTrackDocuments = useMemo(() => {
+    if (workflowTask !== "fit") return [];
+    const selectedIds = new Set(selectedTestDataRefs.map((ref) => ref.id));
+    return documents.filter((item) => selectedIds.has(item.test_data_document_id)
+      && documentMatchesTrack(item, modelingTrack)
+      && modelingDataDocumentMatchesMaterialContext(item, material, materialState));
+  }, [documents, material, materialState, modelingTrack, selectedTestDataRefs, workflowTask]);
+  const stageDocuments = workflowTask === "data"
+    ? dataTrackDocuments
+    : workflowTask === "fit"
+      ? fitTrackDocuments
+      : trackDocuments;
   useEffect(() => {
     // Preserve the established full document title for keyboard/browser users;
     // the specimen and exact revision remain visible in the two-line identity
@@ -2057,6 +2227,96 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     ? outputs.find((output) => output.processing_output_id === initialSession.processingOutput?.id
       && output.current_revision.id === initialSession.processingOutput.revisionId)
     : undefined, [initialSession?.processingOutput, outputs]);
+  const fitSourceOutput = useMemo(() => {
+    if (workflowTask !== "fit") return undefined;
+    const pinned = exactSessionOutput?.source_processing_output;
+    if (pinned) {
+      return outputs.find((output) => output.processing_output_id === pinned.aggregate_id
+        && output.current_revision.id === pinned.revision_id
+        && !output.steps.some((step) => isFitMethod(step.method_id)));
+    }
+    const local = localCurrentOutput
+      ? outputs.find((output) => output.processing_output_id === localCurrentOutput.id
+        && output.current_revision.id === localCurrentOutput.revisionId)
+      : undefined;
+    if (local && !local.steps.some((step) => isFitMethod(step.method_id))) return local;
+    const session = initialSession?.processingOutput
+      ? outputs.find((output) => output.processing_output_id === initialSession.processingOutput?.id
+        && output.current_revision.id === initialSession.processingOutput.revisionId)
+      : undefined;
+    return session && !session.steps.some((step) => isFitMethod(step.method_id)) ? session : undefined;
+  }, [exactSessionOutput, initialSession?.processingOutput, localCurrentOutput, outputs, workflowTask]);
+  useEffect(() => {
+    if (workflowTask !== "fit" || !exactSessionOutput?.steps.some((step) => isFitMethod(step.method_id)) || !fitSourceOutput) return;
+    // The complete identity is intentionally conservative.  In particular,
+    // serializing both output objects (rather than selecting a few fields)
+    // keeps new metadata from joining an older request, while the retry
+    // generation makes an explicit retry a distinct request.
+    const restoreIdentity = deterministicSerialize([
+      fitRestoreGeneration,
+      config.baseUrl,
+      config.accessToken,
+      exactSessionOutput,
+      fitSourceOutput,
+    ]);
+    if (fitRestoreSettledKey.current === restoreIdentity) return;
+    const requestGeneration = fitRestoreRequestGeneration.current + 1;
+    fitRestoreRequestGeneration.current = requestGeneration;
+    let active = true;
+    let inFlight = fitRestoreInFlight.current;
+    if (!inFlight || inFlight.identity !== restoreIdentity) {
+      const promise = (async (): Promise<ExactFitRestore> => {
+        const result = await downloadCommonProcessingOutput(config, exactSessionOutput.processing_output_id);
+        const { parseExactSavedFitOutput, readVerifiedExactOutput } = await import("./modeling-fit-output");
+        return parseExactSavedFitOutput(
+          await readVerifiedExactOutput(result, exactSessionOutput.output_sha256),
+          exactSessionOutput,
+          fitSourceOutput,
+        );
+      })();
+      inFlight = { identity: restoreIdentity, promise };
+      fitRestoreInFlight.current = inFlight;
+      // Only the exact promise that created the ref may clear it.  A newer
+      // identity can start while this request is pending; its ref must remain
+      // intact when the older request settles.
+      void promise.then(
+        () => {
+          if (fitRestoreInFlight.current?.promise === promise) fitRestoreInFlight.current = null;
+        },
+        () => {
+          if (fitRestoreInFlight.current?.promise === promise) fitRestoreInFlight.current = null;
+        },
+      );
+    }
+    const promise = inFlight.promise;
+    void promise.then(
+      (restored) => {
+        if (!active || fitRestoreRequestGeneration.current !== requestGeneration) return;
+        fitRestoreSettledKey.current = restoreIdentity;
+        setPreview(restored.preview);
+        setLastValidPreview(restored.preview);
+        setFitSelection(restored.selection);
+        setFitRestoreError(null);
+        setSelectedStage(restored.preview.stages.length - 1);
+        setSelectedStepIndex(restored.preview.stages.length - 2);
+        const restoredOutputIsLocalCurrent = localCurrentOutputRef.current?.id === exactSessionOutput.processing_output_id
+          && localCurrentOutputRef.current.revisionId === exactSessionOutput.current_revision.id;
+        if (!restoredOutputIsLocalCurrent) {
+          setNotice("Saved immutable Fit Output restored with its exact Process source and decision.");
+        }
+        setError(null);
+      },
+      (caught) => {
+        if (!active || fitRestoreRequestGeneration.current !== requestGeneration) return;
+        // Preserve the last valid graph/input/selection.  A tampered or
+        // unreadable saved result is never replaced by a raw/latest fallback.
+        fitRestoreSettledKey.current = restoreIdentity;
+        setFitRestoreError(errorMessage(caught));
+        setError(`Saved Fit result unavailable · Retry exact saved result. ${errorMessage(caught)}`);
+      },
+    );
+    return () => { active = false; };
+  }, [config.accessToken, config.baseUrl, exactSessionOutput, fitRestoreGeneration, fitSourceOutput, workflowTask]);
   const exactExportPrerequisites = exportPrerequisites({
     session: initialSession,
     material,
@@ -2492,6 +2752,23 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     && workflowTask === "fit"
     && familyWorkbench !== undefined;
 
+  const fitEvidenceContent = selectedConfiguredStep && activeStage ? <>
+    {selectedConfiguredStep.method_id === "metal.hardening_fit_extrapolate" && activeStage.method_id === "metal.hardening_fit_extrapolate" ? <Suspense fallback={<p className="loading-state">Loading fit evidence…</p>}><HardeningCandidateEvidence stage={activeStage} step={selectedConfiguredStep} selection={fitSelection} onSelect={(selection) => { setFitSelection(selection); onSessionEvent?.({ type: "CHANGE_SELECTION" }); }} onChangeSelection={(selection) => { setFitSelection(selection); onSessionEvent?.({ type: "CHANGE_SELECTION" }); }} /></Suspense> : null}
+    {(selectedConfiguredStep.method_id === "polymer.prony_fit_compare" || selectedConfiguredStep.method_id === "polymer.dma_prony_fit_compare") && activeStage.method_id === selectedConfiguredStep.method_id ? <Suspense fallback={<p className="loading-state">Loading fit evidence…</p>}><PronyCandidateEvidence stage={activeStage} step={selectedConfiguredStep} selection={fitSelection} onSelect={(selection) => { setFitSelection(selection); onSessionEvent?.({ type: "CHANGE_SELECTION" }); }} onChangeSelection={(selection) => { setFitSelection(selection); onSessionEvent?.({ type: "CHANGE_SELECTION" }); }} /></Suspense> : null}
+  </> : <p className="muted">Run Fit preview to calculate candidate evidence.</p>;
+  const fitEvidenceDock = workflowTask === "fit" && fitEvidenceOpen ? (
+    <div className="fit-evidence-drawer" id="fit-evidence-dock">
+      <header className="fit-evidence-drawer-header">
+        <strong>Candidate parameters</strong>
+        <span className="fit-evidence-drawer-status" role="status">Calculated evidence · not saved</span>
+        <button className="text-button" type="button" onClick={closeFitEvidence}>Close</button>
+      </header>
+      <div className="fit-evidence-body" ref={fitEvidenceBodyRef} tabIndex={0} aria-label="Candidate parameters evidence">
+        {fitEvidenceContent}
+      </div>
+    </div>
+  ) : undefined;
+
   const activePlotView: PlotView = workflowTask === "export" ? "pipeline" : plotView;
   const meanPreviewVisible = activePlotView === "ensemble";
   const toggleMeanPreview = () => setPlotView(meanPreviewVisible ? "pipeline" : "ensemble");
@@ -2503,11 +2780,13 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         <div className="modeling-context-actions">
           <details className="modeling-advanced-menu"><summary>Advanced</summary><div role="tablist" aria-label="Material modeling family"><button type="button" role="tab" aria-selected={modelingTrack === "metal"} onClick={() => selectModelingTrack("metal")}>Metal · elastoplastic</button><button type="button" role="tab" aria-selected={modelingTrack === "polymer"} onClick={() => selectModelingTrack("polymer")}>Polymer · viscoelastic</button><button type="button" role="tab" aria-selected={modelingTrack === "elastomer"} onClick={() => selectModelingTrack("elastomer")}>Elastomer · hyper-viscoelastic</button><button type="button" onClick={() => openWorkflowTask("validate")}>Validation & review</button></div></details>
           {isProcessTask || workflowTask === "fit" ? <button className="button secondary" type="button" disabled={busy || previewBusy || (isProcessTask && !processSourceReady)} onClick={() => void runPreview()}>{previewBusy ? "Updating…" : "Preview changes"}</button> : null}
-          {workflowTask === "fit" ? <button className="button primary" type="button" disabled={busy || !fitDecisionReady || !selectedProfileId} onClick={() => void saveSelectedFitOutput()}>Save fit &amp; continue</button> : null}
+          {workflowTask === "fit" ? <button className="button primary" type="button" disabled={busy || !fitDecisionReady || (!selectedProfileId && !fitSourceOutput)} onClick={() => void saveSelectedFitOutput()}>Save fit &amp; continue</button> : null}
         </div>
       </header>
       <ModelingStageShell session={initialSession ?? null} activeStage={workflowTask} onStageChange={openWorkflowTask} />
       {error ? <div className="error-banner" role="alert">{error}</div> : null}
+      {fitRestoreError && workflowTask === "fit" && exactSessionOutput?.source_processing_output ? <div className="modeling-notice-line" role="status"><span>Saved Fit restore failed; the prior valid workspace state remains active.</span><button className="button secondary" type="button" disabled={busy || previewBusy} onClick={retryExactSavedFit}>Retry exact saved Fit</button></div> : null}
+      {notice && workflowTask === "fit" ? <div className="modeling-notice-line" role="status" title={notice}>{notice}</div> : null}
       {recipeConflict ? <section className="modeling-conflict-banner" role="alert" aria-label="Stale Recipe revision conflict">
         <div><strong>The Recipe changed after this draft was opened.</strong><span>Reload the current revision, or preserve these local steps as a new revision.</span></div>
         <div><button className="button secondary" type="button" disabled={busy} onClick={() => void resolveRecipeConflict("reload")}>Reload current</button><button className="button primary" type="button" disabled={busy} onClick={() => void resolveRecipeConflict("keep-local")}>Keep local draft as new revision</button><button className="text-button" type="button" disabled={busy} onClick={() => setRecipeConflict(null)}>Cancel</button></div>
@@ -2546,7 +2825,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       /></Suspense> : null}
       {!elastomerWorkbenchTask && workflowTask !== "validate" && workflowTask !== "review" ? <section className={`workbench-card method-builder-card stage-${workflowTask}`} id="modeling-process">
         <div className="section-heading"><div><p className="workspace-caption">{workflowTask}</p><h2>{stageTitle}</h2></div><div className="modeling-section-actions">{isProcessTask || workflowTask === "fit" ? <details className="method-library" open={processBlocked || undefined}><summary aria-disabled={processBlocked}>{workflowTask === "fit" ? "Add fit method" : "Add operation"} <span>{availableMethods.length}</span></summary><div className="method-registry-strip" aria-label={workflowTask === "fit" ? "Available fitting methods" : "Available processing operations"}>{availableMethods.map((method) => <button type="button" className="method-pill" key={method.method_id} disabled={processBlocked} onClick={() => addMethod(method)}><strong>+ {method.label}</strong><small>{method.version}</small></button>)}</div></details> : null}{workflowTask === "export" ? <button className="button secondary" type="button" onClick={() => openWorkflowTask("fit")}>Back to Fit</button> : null}</div></div>
-        <div className={`modeling-workspace-shell${workflowTask === "data" ? " modeling-data-workspace-bounded" : isProcessTask ? " modeling-process-workspace-bounded" : ""}`}>
+        <div className={`modeling-workspace-shell${workflowTask === "data" ? " modeling-data-workspace-bounded" : isProcessTask ? " modeling-process-workspace-bounded" : workflowTask === "fit" ? " modeling-fit-workspace-bounded" : ""}`}>
         <ModelingWorkspaceLayout
           navigator={workflowTask === "data" || isProcessTask || workflowTask === "fit" ? <>
             <div className={`modeling-dataset-list${workflowTask === "data" ? " modeling-data-curve-tree" : ""}${isApprovedMetalFit ? " approved-fit-curve-tree" : ""}`}>
@@ -2566,7 +2845,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
                     return <article className={selectedDocumentId === item.test_data_document_id ? "active" : ""} key={key}>
                       <label className="curve-include-toggle" title="Include this revision in processing and fit"><input aria-label={`Include ${label} in processing and fit`} type="checkbox" checked={ensembleDocumentIds.includes(item.test_data_document_id)} onChange={() => toggleEnsemble(item.test_data_document_id)} /></label>
                       <span className="dataset-curve-swatch" aria-label={`Plot color for ${label}`} role="img" style={{ "--curve-index": curveIndex } as React.CSSProperties} />
-                      <button type="button" className="curve-row-label" onClick={() => focusExactDocument(item)}><span>{workflowTask === "data" ? <><strong>{identity.specimen}</strong><small className="curve-secondary-identity"><span>{identity.revision}</span></small></> : workflowTask === "process" ? <strong>{identity.specimen} · {revisionIdentity.split(" ").pop()}</strong> : <><strong>{label}</strong><small>{specimen} · {revisionIdentity}</small></>}</span></button>
+                      <button type="button" className="curve-row-label" onClick={() => focusExactDocument(item)}><span>{workflowTask === "data" ? <><strong>{identity.specimen}</strong><small className="curve-secondary-identity"><span>{identity.revision}</span></small></> : workflowTask === "process" ? <strong>{identity.specimen} · {revisionIdentity.split(" ").pop()}</strong> : workflowTask === "fit" ? <strong>{fitRailIdentity(item.specimen_id, item.current_revision.revision_no, selectedRef?.revisionNo)}</strong> : <><strong>{label}</strong><small>{specimen} · {revisionIdentity}</small></>}</span></button>
                       <button type="button" className="curve-visibility-toggle" aria-pressed={visible} aria-label={`${visible ? "Hide" : "Show"} ${label} on plot`} title={`${visible ? "Hide" : "Show"} ${label} on plot`} onClick={() => setVisibleDocumentIds((current) => visible ? current.filter((candidate) => candidate !== key) : [...current, key])}><svg aria-hidden="true" viewBox="0 0 24 24" focusable="false"><path d="M2.5 12s3.5 6 9.5 6 9.5-6 9.5-6-3.5-6-9.5-6-9.5 6-9.5 6Z" /><circle cx="12" cy="12" r="2.75" />{!visible ? <path d="M3 3l18 18" /> : null}</svg></button>
                     </article>;
                   })}
@@ -2580,7 +2859,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
           </> : null}
           plot={<article className="persistent-modeling-plot" id="modeling-fit">
             <div className="section-heading"><div><p className="workspace-caption">{workflowTask === "fit" ? "Stress response · observed evidence and hardening candidates" : workflowTask === "data" ? "Source preview" : isProcessTask ? "Curve response" : "Selected model response"}</p><h2>{activePlotView === "ensemble" ? "Replicate statistics" : workflowTask === "export" ? "Test data & selected model" : activeStage ? methods.find((method) => method.method_id === activeStage.method_id)?.label ?? methodDisplayName(activeStage.method_id) : "Load data and preview"}</h2></div>{workflowTask !== "export" && workflowTask !== "fit" ? <div className="plot-view-switch" role="group" aria-label="Curve plot view"><button type="button" className={activePlotView === "pipeline" ? "active" : ""} disabled={!preview} onClick={() => setPlotView("pipeline")}>Response</button>{ensemblePreview ? <button type="button" className={activePlotView === "ensemble" ? "active" : ""} onClick={() => setPlotView("ensemble")}>Mean &amp; band</button> : null}{(preview || ensemblePreview) && !isProcessTask ? <span className="plot-preview-state">Preview — not saved</span> : null}</div> : workflowTask === "export" && preview ? <span className="plot-preview-state">Current saved fit</span> : null}</div>
-            {graphPreview && activeStage && baseStage ? <EngineeringCurvePlot key={`${activeStage.method_id}:${activeStage.ordinal}:${workflowTask}`} preview={graphPreview} activeStage={activeStage} baseStage={baseStage} activeStep={activeConfiguredStep} fitSelection={fitSelection} selectedModelOnly={workflowTask === "export"} width={chart.width} height={chart.height} observedCurves={workflowTask === "data" || isProcessTask ? observedCurves : undefined} processOverlay={isProcessTask} onApplySelection={activePlotView === "pipeline" && workflowTask !== "export" ? applyGraphSelection : undefined} ensemblePreview={activePlotView === "ensemble" ? ensemblePreview : null} interactionCommand={workflowTask === "fit" ? fitPlotCommand : null} onInteractionStateChange={workflowTask === "fit" ? setFitPlotInteraction : undefined} /> : workflowTask === "data" ? <EngineeringCurvePlotEmpty width={chart.width} height={chart.height} onChooseLocal={() => window.dispatchEvent(new CustomEvent("cmp:modeling-data-source", { detail: { source: "local" } }))} /> : isProcessTask && !processSourceReady ? <EngineeringCurvePlotEmpty width={chart.width} height={chart.height} blocked message="Restore inputs." onBackToData={() => openWorkflowTask("data")} /> : <div className="modeling-plot-empty"><strong>{previewBusy ? "Updating the engineering preview…" : "The graph stays here while you prepare the curves."}</strong><p>{previewBusy ? "A newer processing change replaces the previous preview request." : isProcessTask ? matchingSavedOutputs.length > 0 ? "No Process preview is active. Choose Use settings for a saved result, then select Preview changes to preview the draft." : "No Process preview is active. Select Preview changes to preview the current Process settings." : "Choose a saved Test Data revision. The graph compares real curves without changing saved data."}</p></div>}
+            {workflowTask === "fit" && !fitSourceOutput ? <EngineeringCurvePlotEmpty width={chart.width} height={chart.height} blocked title="Fit is blocked" message="No saved Process Output is bound. Save Process before calculating Fit." blockedActionLabel="Back to Process" onBackToData={() => openWorkflowTask("process")} /> : graphPreview && activeStage && baseStage ? <EngineeringCurvePlot key={`${activeStage.method_id}:${activeStage.ordinal}:${workflowTask}`} preview={graphPreview} activeStage={activeStage} baseStage={baseStage} activeStep={activeConfiguredStep} fitSelection={fitSelection} selectedModelOnly={workflowTask === "export"} width={chart.width} height={chart.height} observedCurves={workflowTask === "data" || isProcessTask ? observedCurves : undefined} processOverlay={isProcessTask} onApplySelection={activePlotView === "pipeline" && workflowTask !== "export" ? applyGraphSelection : undefined} ensemblePreview={activePlotView === "ensemble" ? ensemblePreview : null} interactionCommand={workflowTask === "fit" ? fitPlotCommand : null} onInteractionStateChange={workflowTask === "fit" ? setFitPlotInteraction : undefined} /> : workflowTask === "data" ? <EngineeringCurvePlotEmpty width={chart.width} height={chart.height} onChooseLocal={() => window.dispatchEvent(new CustomEvent("cmp:modeling-data-source", { detail: { source: "local" } }))} /> : isProcessTask && !processSourceReady ? <EngineeringCurvePlotEmpty width={chart.width} height={chart.height} blocked message="Restore inputs." onBackToData={() => openWorkflowTask("data")} /> : <div className="modeling-plot-empty"><strong>{previewBusy ? "Updating the engineering preview…" : "The graph stays here while you prepare the curves."}</strong><p>{previewBusy ? "A newer processing change replaces the previous preview request." : isProcessTask ? matchingSavedOutputs.length > 0 ? "No Process preview is active. Choose Use settings for a saved result, then select Preview changes to preview the draft." : "No Process preview is active. Select Preview changes to preview the current Process settings." : "Choose a saved Test Data revision. The graph compares real curves without changing saved data."}</p></div>}
             {ensemblePreview && activePlotView === "ensemble" ? <div className="statistics-grid compact-statistics"><article><span>Included curves</span><strong>{ensemblePreview.members.length}</strong></article><article><span>Common points</span><strong>{ensemblePreview.grid.length}</strong></article><article><span>Domain policy</span><strong>Intersection</strong></article></div> : null}
           </article>}
           ribbon={workflowTask === "data" ? <Suspense fallback={<p className="loading-state">Loading data sources…</p>}><ModelingDataIntake
@@ -2630,8 +2909,9 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
             <div className="workspace-inspector-heading"><p><strong>Current-step settings</strong><span> · fit and extrapolation</span></p><div className="modeling-ribbon-actions"><button className="text-button" type="button" onClick={() => setInspectorVisible(false)}>Close</button></div></div>
             {selectedConfiguredStep ? <>
               <div className="section-heading"><h3>Step {workflowTask === "fit" && modelingTrack === "metal" ? Math.max(1, fitRailEntries.findIndex((entry) => entry.index === selectedStepIndex) + 1) : selectedStepIndex + 1} · {selectedConfiguredStep.method_id === "metal.hardening_fit_extrapolate" ? "Hardening fit and extrapolation" : methods.find((method) => method.method_id === selectedConfiguredStep.method_id)?.label ?? methodDisplayName(selectedConfiguredStep.method_id)}</h3><div className="fit-heading-actions"><p className="fit-step-impact">All controls affect the persistent preview below</p><span aria-hidden="true">·</span><button className="text-button" type="button" onClick={removeSelectedStep}>Remove step</button></div></div>
+              {workflowTask === "fit" ? <p className={`fit-source-binding${fitSourceOutput ? "" : " missing"}`} role="status">{fitSourceOutput ? <>Exact Process source · <strong>{fitSourceOutput.label}</strong> · r{fitSourceOutput.current_revision.revision_no} · <code>{fitSourceOutput.output_sha256.slice(0, 12)}…</code>{exactSessionOutput?.steps.some((step) => isFitMethod(step.method_id)) ? <> · Saved Fit Output · <strong>{exactSessionOutput.label}</strong> · r{exactSessionOutput.current_revision.revision_no}</> : null}{metalFitRunId ? <> · run <code>{metalFitRunId.slice(0, 12)}…</code></> : null}</> : "No saved Process Output is bound. Save Process before calculating Fit."}</p> : null}
               <GuidedStepOptions step={selectedConfiguredStep} onChange={updateStepOption} graphInteraction={{ mode: fitPlotInteraction.mode, canApply: fitPlotInteraction.hasSelection, available: workflowTask === "fit" && activePlotView === "pipeline" && Boolean(preview && activeStage && activeStage.method_id === selectedConfiguredStep.method_id) }} onGraphModeChange={requestFitPlotMode} onApplyGraphSelection={applyFitPlotSelection} />
-              {workflowTask === "fit" ? <details className="fit-evidence-disclosure"><summary>Candidate parameters</summary>{selectedConfiguredStep.method_id === "metal.hardening_fit_extrapolate" && activeStage?.method_id === "metal.hardening_fit_extrapolate" ? <Suspense fallback={<p className="loading-state">Loading fit evidence…</p>}><HardeningCandidateEvidence stage={activeStage} step={selectedConfiguredStep} selection={fitSelection} onSelect={(selection) => { setFitSelection(selection); onSessionEvent?.({ type: "CHANGE_SELECTION" }); }} onChangeSelection={(selection) => { setFitSelection(selection); onSessionEvent?.({ type: "CHANGE_SELECTION" }); }} /></Suspense> : null}{(selectedConfiguredStep.method_id === "polymer.prony_fit_compare" || selectedConfiguredStep.method_id === "polymer.dma_prony_fit_compare") && activeStage?.method_id === selectedConfiguredStep.method_id ? <Suspense fallback={<p className="loading-state">Loading fit evidence…</p>}><PronyCandidateEvidence stage={activeStage} step={selectedConfiguredStep} selection={fitSelection} onSelect={(selection) => { setFitSelection(selection); onSessionEvent?.({ type: "CHANGE_SELECTION" }); }} onChangeSelection={(selection) => { setFitSelection(selection); onSessionEvent?.({ type: "CHANGE_SELECTION" }); }} /></Suspense> : null}</details> : null}
+              {workflowTask === "fit" ? <button ref={fitEvidenceTriggerRef} className="fit-evidence-trigger" type="button" aria-expanded={fitEvidenceOpen} aria-controls="fit-evidence-dock" onClick={() => fitEvidenceOpen ? closeFitEvidence() : setFitEvidenceOpen(true)}>Candidate parameters</button> : null}
               {modelingTrack === "polymer" && selectedConfiguredStep.method_id === "polymer.prony_fit_compare" ? familyInspector : null}
             </> : <p className="muted">Add or select a processing step.</p>}
             <details className="advanced-workflow-settings">
@@ -2661,7 +2941,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
             </div> : null}
             </details>
           </aside>}
-          dock={workflowTask === "export"
+          dock={fitEvidenceDock ?? (workflowTask === "export"
             ? exactExportPrerequisites.every((item) => item.status === "current")
               ? <ModelingTargetPreview
                   config={config}
@@ -2678,7 +2958,8 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
                   prerequisites={exactExportPrerequisites}
                   onSessionEvent={onSessionEvent}
                 />
-            : undefined}
+            : undefined)}
+          dockLabel={fitEvidenceDock ? "Candidate parameters" : undefined}
           dataLayoutMode={workflowTask === "data" ? dataLayoutMode : undefined}
           ribbonOpen={inspectorVisible}
           onRibbonOpenChange={setInspectorVisible}

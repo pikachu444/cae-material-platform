@@ -82,6 +82,13 @@ class FinalizedArtifact:
     replayed: bool
 
 
+# A bounded consumer may add its own immutable revision rows while the Artifact
+# finalization transaction is still open.  The application layer intentionally
+# treats the transaction object as opaque; SQL adapters provide the concrete
+# session type.
+ArtifactCommitHook = Callable[[Any, FinalizedArtifact], None]
+
+
 @dataclass(frozen=True, slots=True)
 class ArtifactDownloadGrant:
     artifact_id: UUID
@@ -194,6 +201,7 @@ class ArtifactRepository(Protocol):
         stored: StoredObject,
         observation_id: UUID,
         now: datetime,
+        commit_hook: ArtifactCommitHook | None = None,
     ) -> FinalizedArtifact: ...
 
     def get_artifact(
@@ -455,6 +463,7 @@ class ArtifactService:
         media_type: str,
         value: bytes,
         idempotency_key: str,
+        commit_hook: ArtifactCommitHook | None = None,
     ) -> ArtifactRecord:
         """Persist one small derived payload through the immutable Artifact lifecycle.
 
@@ -493,6 +502,7 @@ class ArtifactService:
                 staging_object_key=staging_key,
                 idempotency_key=idempotency_key,
             ),
+            commit_hook=commit_hook,
         )
         if result.replayed:
             try:
@@ -603,6 +613,8 @@ class ArtifactService:
         context: SecurityContext,
         decision: AuthorizationDecision,
         command: PrepareArtifact,
+        *,
+        commit_hook: ArtifactCommitHook | None = None,
     ) -> FinalizedArtifact:
         _require_database_capability(context, decision, Permission.ARTIFACT_WRITE)
         if not decision.allows(
@@ -677,7 +689,7 @@ class ArtifactService:
             pending=pending,
         )
         return await self._finalize_pending(
-            context, decision, persisted, replayed=replayed
+            context, decision, persisted, replayed=replayed, commit_hook=commit_hook
         )
 
     async def _finalize_pending(
@@ -687,6 +699,7 @@ class ArtifactService:
         pending: PendingArtifact,
         *,
         replayed: bool,
+        commit_hook: ArtifactCommitHook | None = None,
     ) -> FinalizedArtifact:
         if pending.state is PendingArtifactState.AVAILABLE:
             if pending.available_artifact_id is None:
@@ -760,14 +773,17 @@ class ArtifactService:
                 now=self._clock(),
             )
             raise ArtifactIntegrityError("promoted object differs from its manifest")
-        committed = self._repository.commit_available(
-            context=context,
-            decision=decision,
-            pending_id=promoting.id,
-            stored=stored,
-            observation_id=self._id(),
-            now=self._clock(),
-        )
+        commit_kwargs: dict[str, Any] = {
+            "context": context,
+            "decision": decision,
+            "pending_id": promoting.id,
+            "stored": stored,
+            "observation_id": self._id(),
+            "now": self._clock(),
+        }
+        if commit_hook is not None:
+            commit_kwargs["commit_hook"] = commit_hook
+        committed = self._repository.commit_available(**commit_kwargs)
         try:
             if promoting.staging_object_key != promoting.final_object_key:
                 await self._store.discard(promoting.staging_object_key)

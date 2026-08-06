@@ -84,6 +84,7 @@ from cmp.modules.processing.application.common_outputs import (
     ProcessingOutputSnapshot,
 )
 from cmp.modules.processing.domain.common_pipeline import ProcessingStep
+from cmp.modules.processing.domain.metal_hardening import HARDENING_EQUATION_CONTRACT
 from cmp.shared.application.revisions import RevisionStore, RevisionTransaction
 from cmp.shared.domain.revisions import (
     RevisionCreated,
@@ -315,6 +316,7 @@ class _ProcessingOutputs:
             "1.0.0",
             {
                 "families": ["voce", "swift"],
+                "equation_contract": HARDENING_EQUATION_CONTRACT,
                 "fit_minimum_strain": 0.0001,
                 "fit_maximum_strain": 0.1,
                 "extrapolation_maximum_strain": 0.5,

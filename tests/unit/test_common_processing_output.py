@@ -32,9 +32,10 @@ from cmp.modules.processing.application.common_outputs import (
     FitDecisionParameter,
     FitDecisionParameterSet,
     FitDecisionSnapshot,
+    ProcessingOutputSnapshot,
     ProcessingWorkupOverride,
-    processing_output_document,
     processing_output_content_canonical,
+    processing_output_document,
     validate_fit_decision,
     validate_workup_overrides,
 )
@@ -392,7 +393,7 @@ class _RecordingRevisionStore:
     def canonical_content(self, content: object) -> object:
         return processing_output_content_canonical(cast(Any, content))
 
-    def output_store(self, *args: object, **kwargs: object) -> "_RecordingRevisionStore":
+    def output_store(self, *args: object, **kwargs: object) -> _RecordingRevisionStore:
         del args, kwargs
         return self
 
@@ -543,12 +544,19 @@ def test_committed_output_document_contains_exact_pins_steps_and_every_stage() -
 def test_process_commits_two_exact_sibling_outputs_with_fresh_artifacts_and_revisions() -> None:
     import asyncio
 
-    source_payload = json.loads(Path("contracts/examples/positive/canonical-test-data.json").read_text(encoding="utf-8"))
+    source_payload = json.loads(
+        Path("contracts/examples/positive/canonical-test-data.json").read_text(encoding="utf-8")
+    )
     source_payload["channels"][0]["original_values"] = ["0", "0.1", "0.2", "0.3"]
     source_payload["channels"][0]["normalized_values"] = ["0", "0.001", "0.002", "0.003"]
     source_payload["channels"][0]["missing_reasons"] = [None, None, None, None]
     source_payload["channels"][1]["original_values"] = ["0", "205", "410", "615"]
-    source_payload["channels"][1]["normalized_values"] = ["0", "205000000", "410000000", "615000000"]
+    source_payload["channels"][1]["normalized_values"] = [
+        "0",
+        "205000000",
+        "410000000",
+        "615000000",
+    ]
     source_payload["channels"][1]["missing_reasons"] = [None, None, None, None]
     source_bytes = json.dumps(source_payload).encode("utf-8")
     profile = MappingProfileContent(
@@ -588,7 +596,12 @@ def test_process_commits_two_exact_sibling_outputs_with_fresh_artifacts_and_revi
         robust_steps[0],
         replace(
             robust_steps[1],
-            options={**robust_steps[1].options, "method": "chord", "minimum_strain": 0.001, "maximum_strain": 0.003},
+            options={
+                **robust_steps[1].options,
+                "method": "chord",
+                "minimum_strain": 0.001,
+                "maximum_strain": 0.003,
+            },
         ),
     )
     repository = _RecordingRevisionStore()
@@ -708,6 +721,53 @@ def test_preflight_projects_proof_only_from_the_exact_test_data_revision() -> No
 
     resolved = asyncio.run(service.preflight(_CONTEXT, _DECISION, command))
     assert resolved.export_provenance == _EXPORT_PROVENANCE
+
+
+def test_preview_from_exact_output_rejects_digest_mismatch_without_raw_fallback() -> None:
+    """Fit must fail closed when its pinned Process Output bytes are not exact."""
+
+    import asyncio
+
+    source = SimpleNamespace(
+        id=UUID("d5400000-0000-4000-8000-000000000151"),
+        current=SimpleNamespace(scope=SimpleNamespace(classification="internal")),
+        content=SimpleNamespace(output_sha256="a" * 64),
+    )
+    raw_test_data = _NoCallPort()
+    service = CommonProcessingOutputService(
+        repository=cast(Any, _NoCallPort()),
+        test_data=cast(Any, raw_test_data),
+        profiles=cast(Any, _NoCallPort()),
+        artifacts=cast(Any, _NoCallPort()),
+    )
+
+    async def export_exact(
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        output_id: UUID,
+        output_revision_id: UUID,
+    ) -> tuple[ProcessingOutputSnapshot, bytes]:
+        del context, decision, output_id, output_revision_id
+        return cast(ProcessingOutputSnapshot, source), b'{"document_type":"cmp.processing-output"}'
+
+    cast(Any, service).export_exact = export_exact
+    fit_step = ProcessingStep(
+        "metal.hardening_fit_extrapolate",
+        "1.0.0",
+        {"equation_contract": "altair-material-modeler-2025-v1"},
+    )
+
+    with pytest.raises(CommonPipelineError, match="content digest does not match"):
+        asyncio.run(
+            service.preview_from_exact_output(
+                _CONTEXT,
+                _DECISION,
+                ExactRevisionPin(source.id, UUID("d5400000-0000-4000-8000-000000000152")),
+                fit_step,
+            )
+        )
+
+    assert raw_test_data.calls == 0
 
 
 def test_committed_output_document_preserves_structured_manual_workup_evidence() -> None:

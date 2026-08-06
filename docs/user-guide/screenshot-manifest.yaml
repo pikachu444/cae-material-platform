@@ -1,12 +1,12 @@
-version: 78
-verified_at: 2026-08-05
+version: 79
+verified_at: 2026-08-06
 scope: issue-158-modeling-process-consistency
-source_commit: b11dcb7
+source_commit: 31f9a3f+task3b-worktree
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright==1.62.0 python scripts/capture_current_product.py
 notes:
   - "UXC-04E directly ports the approved modeling.html/review.css Fit topology: white 48 px product header, compact title/stage rows, 184–208 px curve/process rail, exact 31 px heading plus 72 px six-group ribbon, graph-adjacent Candidate parameters disclosure, separate compact graph header, dominant plot, and compact decision-relevant legend. The retired command/status bars do not consume Modeling graph space."
-  - "The current set contains 60 deterministic captures, including the nine live Modeling Process states reverified for the Issue #158 visual-consistency follow-up; route-intercepted failure and overflow states remain deterministic product-route evidence."
+  - "The current set contains 69 deterministic synthetic product-route captures. Issue #158 Task 3B Process/Fit root live capture and qualitative visual acceptance completed on 2026-08-06; all required viewports were opened at original resolution."
   - "Fit capture asserts the four-row grouped metal rail, one-line Step 4 Fit heading, one ordered control row, a closed Candidate parameters row above a visible graph divider, a separate minimal graph header, one top-row Save fit & continue action, explicit selection before save, and persistent graph identity."
   - "Recommendation, engineer selection, saved result, downstream model evidence, and export eligibility remain separate states; a recommendation never mutates selection."
   - "Polymer candidate evidence exposes the actual server-produced term identity and measured range only; missing result evidence is never replaced by a fallback."
@@ -32,15 +32,17 @@ notes:
   - "Issue #159 task 2 keeps Database/Profile, Table, Attribute, Layout, Subset and Link Type lifecycle controls in Administration, and gives Record registration a single/multiple-row workflow with immutable CSV/TSV/XLSX source evidence, field/unit/material-state mapping and correction before atomic registration."
   - "Normal Administration labels use user-facing names and value types. Internal identifiers, digests and exact source evidence remain outside the ordinary property editor."
   - "Issue #158 Task 1 Data captures verify three exact refs, two included and three visible after route reload, a 178 px adjustable ribbon, pin-free empty-state Local file recovery, a collapsed optional navigator that reclaims graph space, invalid mapping that keeps the last valid graph and blocks Update preview/Save Test Data, and a 1920×878 wide working cap."
+  - "Issue #158 Task 3B Fit captures must bind the Fit source to one saved Process Output id/revision/digest, show the server candidate response/residual/tangent and diagnostic evidence, preserve the last valid preview after an exact-source read or Fit failure, and show an explicit blocked recovery when the pinned Process Output is missing or stale; Fit save requests carry the exact source pin and never fall back to raw Test Data."
+  - "Issue #158 Task 3B current Fit images are registered for route, content and completed qualitative visual acceptance evidence; source remains the uncommitted 31f9a3f+task3b-worktree."
 allowed_duplicate_pairs: []
 capture_provenance:
-  - source_commit: b11dcb7
-    captured_at: 2026-08-05T13:27:34+09:00
-    command: '`uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --output docs/user-guide/images/current --only-modeling-process --resume-modeling-process`; rebuilt/recreated the official Compose environment and verified all nine outputs, exact Test Data/Profile pins, all five native Evaluation method choices plus a settled Linear regression capture, aligned 28 px controls and top actions, full-width save inputs, direct Result evidence, one-line recovery copy, persistent plot minima, three settled immutable saved-result rows, exact current/history pointer preservation through Use settings and Data/Fit/Export/Process navigation, prerequisite blocking, settled exact-read recovery, Manual keyboard reachability, unclipped identities, legend/axis separation, intentionally bounded wide layouts, and the exact approved database delta with zero nonterminal artifacts'
-    ids: [MOD-PROCESS-CURRENT-1366, MOD-PROCESS-CURRENT-LINEAR-1366, MOD-PROCESS-CURRENT-1440, MOD-PROCESS-CURRENT-1920, MOD-PROCESS-CURRENT-2560, MOD-PROCESS-CURRENT-3840, MOD-PROCESS-CURRENT-BLOCKED-1440, MOD-PROCESS-CURRENT-EXACT-READ-FAILED-1440, MOD-PROCESS-CURRENT-SIBLINGS-1440]
-  - source_commit: f5c69d1
-    captured_at: 2026-08-04T13:29:59+09:00
-    command: '`uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --only-modeling-data-session`; rebuilt/recreated canonical Compose and validated the normal exact-selection/reload, collapsed-navigator session shell, pin-free empty recovery, invalid blocked mapping, adjustable ribbon, and wide-cap outcomes for all ten captures'
+  - source_commit: 31f9a3f+task3b-worktree
+    captured_at: 2026-08-06T10:35:08+09:00
+    command: '`uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --output docs/user-guide/images/current --only-modeling-process --resume-modeling-process` prepared the four additional Process recovery/state artifacts from base 31f9a3f; the root orchestrator opened them at original resolution and accepted the qualitative visual checks'
+    ids: [MOD-PROCESS-CURRENT-LINEAR-1366, MOD-PROCESS-CURRENT-BLOCKED-1440, MOD-PROCESS-CURRENT-EXACT-READ-FAILED-1440, MOD-PROCESS-CURRENT-SIBLINGS-1440]
+  - source_commit: 31f9a3f+task3b-worktree
+    captured_at: 2026-08-06T10:23:14+09:00
+    command: '`uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --output docs/user-guide/images/current --only-modeling-data-session` prepared the current Data-route artifacts from base 31f9a3f; the root orchestrator opened the same-day captures at original resolution and accepted the Data non-regression checks'
     ids: [modeling-data-1366, modeling-data-1440, modeling-data-1920, modeling-data-2560, modeling-data-3840, modeling-data-empty-1440, modeling-data-invalid-1440, modeling-session-1366, modeling-session-1440, modeling-session-1920]
   - source_commit: 25bd0d4
     captured_at: 2026-08-03T16:20:10+09:00
@@ -60,8 +62,12 @@ capture_provenance:
     ids: [solver-card-preview-1366, solver-card-preview-1440, solver-card-preview-1920, activity-1366, activity-1440, activity-1920, material-detail-1440]
   - source_commit: 55cfa62
     captured_at: 2026-07-28T00:40:24+09:00
-    command: rebuilt local web image, then targeted live Playwright Modeling consistency capture at 1366x768, 1440x900 and 1920x1080; verifies the approved white 48px Modeling shell, compact title/stage rows, 104px Fit ribbon, 184/192/208px rail, truthful specimen labels from the fixture, selected Swift/Voce blend graph evidence, drawable graph >=76%, unclipped axes and legend, and no page-level horizontal overflow or ribbon/graph collision
-    ids: [modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-export-1366, modeling-export-1440, modeling-export-1920]
+    command: rebuilt local web image, then targeted live Playwright Modeling Export capture at 1366x768, 1440x900 and 1920x1080; verifies the approved white 48px Modeling shell, compact title/stage rows, exact target preflight and immutable delivery surface
+    ids: [modeling-export-1366, modeling-export-1440, modeling-export-1920]
+  - source_commit: 31f9a3f+task3b-worktree
+    captured_at: 2026-08-06T11:32:40+09:00
+    command: '`uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --output docs/user-guide/images/current --only-modeling-process-fit` completed the final 17 Process/Fit captures from base 31f9a3f (five Process viewports, five Fit viewports and seven Fit recovery/evidence states); the root orchestrator opened every required image at original resolution and accepted the qualitative visual checks'
+    ids: [MOD-PROCESS-CURRENT-1366, MOD-PROCESS-CURRENT-1440, MOD-PROCESS-CURRENT-1920, MOD-PROCESS-CURRENT-2560, MOD-PROCESS-CURRENT-3840, modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-fit-2560, modeling-fit-3840, modeling-fit-candidate-parameters-long-1440, modeling-fit-candidate-evidence-scrolled-1440, modeling-fit-calculation-failed-1440, modeling-fit-save-failed-1440, modeling-fit-exact-source-blocked-1440, modeling-fit-exact-read-failed-1440, modeling-fit-restored-1440]
   - source_commit: 3bfc0d7
     captured_at: 2026-07-26T23:10:00+09:00
     command: targeted live Playwright Product Access capture at 1366x768 and 1440x900; selects the Reviewer preset, verifies readable included tasks and rejects the retired technical feature-checkbox editor
@@ -371,6 +377,69 @@ captures:
     image: images/current/modeling-fit-1920x1080.png
     width: 1920
     height: 1080
+  - id: modeling-fit-2560
+    route: /modeling?stage=fit&family=metal
+    workflow: Fit-only wide viewport; exact Process source binding, candidate graph and decision controls remain within the bounded workspace
+    fixture: synthetic four single-law candidates plus exact calculated blend; root live visual acceptance complete
+    image: images/current/modeling-fit-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: modeling-fit-3840
+    route: /modeling?stage=fit&family=metal
+    workflow: Fit-only wide viewport; exact Process source binding, candidate graph and decision controls remain within the bounded workspace
+    fixture: synthetic four single-law candidates plus exact calculated blend; root live visual acceptance complete
+    image: images/current/modeling-fit-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: modeling-fit-candidate-parameters-long-1440
+    route: /modeling?stage=fit&family=metal
+    workflow: Fit candidate parameters evidence drawer with full calculated columns
+    fixture: synthetic saved Process Output with five candidate rows and exact response/residual/tangent evidence; root live visual acceptance complete
+    image: images/current/modeling-fit-candidate-parameters-long-1440x900.png
+    width: 1440
+    height: 900
+  - id: modeling-fit-candidate-evidence-scrolled-1440
+    route: /modeling?stage=fit&family=metal
+    workflow: Fit candidate evidence local scroll with explicit selection reason and warning acknowledgement
+    fixture: synthetic saved Process Output with selected candidate evidence; root live visual acceptance complete
+    image: images/current/modeling-fit-candidate-evidence-scrolled-1440x900.png
+    width: 1440
+    height: 900
+  - id: modeling-fit-calculation-failed-1440
+    route: /modeling?stage=fit&family=metal
+    workflow: Fit calculation failure preserves the last valid graph and exposes an explicit retry/update action
+    fixture: deterministic Fit calculation 503 after an exact Process source is bound; root live visual acceptance complete
+    image: images/current/modeling-fit-calculation-failed-1440x900.png
+    width: 1440
+    height: 900
+  - id: modeling-fit-save-failed-1440
+    route: /modeling?stage=fit&family=metal
+    workflow: Fit save failure preserves candidate selection and exposes an explicit save retry action
+    fixture: deterministic Fit save 503 after selected candidate evidence and acknowledgement; root live visual acceptance complete
+    image: images/current/modeling-fit-save-failed-1440x900.png
+    width: 1440
+    height: 900
+  - id: modeling-fit-exact-source-blocked-1440
+    route: /modeling?stage=fit&family=metal
+    workflow: Fit prerequisite blocker directs the user back to Process without mutating pinned refs, history or pointer
+    fixture: synthetic session with saved Process Output binding removed while exact Test Data refs and history remain; root live visual acceptance complete
+    image: images/current/modeling-fit-exact-source-blocked-1440x900.png
+    width: 1440
+    height: 900
+  - id: modeling-fit-exact-read-failed-1440
+    route: /modeling?stage=fit&family=metal
+    workflow: Saved Fit exact-content read failure preserves the last valid graph and retries the same immutable URL
+    fixture: deterministic saved Fit content 503 with exact pointer, selected candidate reason and warning acknowledgement preserved; root live visual acceptance complete
+    image: images/current/modeling-fit-exact-read-failed-1440x900.png
+    width: 1440
+    height: 900
+  - id: modeling-fit-restored-1440
+    route: /modeling?stage=fit&family=metal
+    workflow: Reload restores the exact saved Fit output, source binding and selected candidate decision evidence
+    fixture: synthetic session reloaded from an immutable saved Fit Output id/revision/digest; root live visual acceptance complete
+    image: images/current/modeling-fit-restored-1440x900.png
+    width: 1440
+    height: 900
   - id: modeling-export-1366
     route: /modeling?stage=export&family=metal
     workflow: uxc-06c2-exact-target-preflight-and-atomic-delivery

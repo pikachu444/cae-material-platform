@@ -74,7 +74,7 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     report = verify_user_guide(root)
 
     assert report.document_count >= 10
-    assert report.capture_count == 59
+    assert report.capture_count == 69
     assert report.navigation_count == 3
     assert report.classified_markdown_count >= 100
     assert report.current_document_count >= 40
@@ -133,25 +133,20 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         for capture_id in provenance["ids"]
     ]
 
-    process_commit = "e2330a5"
+    process_commit = "31f9a3f+task3b-worktree"
     process_ids = {
-        "MOD-PROCESS-CURRENT-1366",
-        "MOD-PROCESS-CURRENT-1440",
-        "MOD-PROCESS-CURRENT-1920",
-        "MOD-PROCESS-CURRENT-2560",
-        "MOD-PROCESS-CURRENT-3840",
+        "MOD-PROCESS-CURRENT-LINEAR-1366",
         "MOD-PROCESS-CURRENT-BLOCKED-1440",
         "MOD-PROCESS-CURRENT-EXACT-READ-FAILED-1440",
         "MOD-PROCESS-CURRENT-SIBLINGS-1440",
     }
 
     assert manifest["scope"] == "issue-158-modeling-process-consistency"
-    assert manifest["source_commit"] == process_commit
+    assert manifest["source_commit"] == "31f9a3f+task3b-worktree"
     assert len(provenance_ids) == len(set(provenance_ids))
     assert set(provenance_ids) == set(captures)
     assert {provenance["source_commit"] for provenance in manifest["capture_provenance"]} == {
         process_commit,
-        "f5c69d1",
         "25bd0d4",
         "960d476",
         "55cfa62",
@@ -161,20 +156,49 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         provenance
         for provenance in manifest["capture_provenance"]
         if provenance["source_commit"] == process_commit
+        and "--only-modeling-process" in provenance["command"]
+        and "--only-modeling-process-fit" not in provenance["command"]
     ]
     assert len(process_provenance) == 1
     assert set(process_provenance[0]["ids"]) == process_ids
     assert "--only-modeling-process" in process_provenance[0]["command"]
-    assert "all eight outputs" in process_provenance[0]["command"]
+    assert "accepted the qualitative visual checks" in process_provenance[0]["command"]
     uxc04e_commands = [
         provenance["command"]
         for provenance in manifest["capture_provenance"]
         if provenance["source_commit"] == "55cfa62"
     ]
     assert any(
-        "targeted live Playwright Modeling consistency capture" in command
+        "targeted live Playwright Modeling Export capture" in command
         for command in uxc04e_commands
     )
+    process_fit_provenance = [
+        provenance
+        for provenance in manifest["capture_provenance"]
+        if provenance["source_commit"] == process_commit
+        and "--only-modeling-process-fit" in provenance["command"]
+    ]
+    assert len(process_fit_provenance) == 1
+    assert {
+        "MOD-PROCESS-CURRENT-1366",
+        "MOD-PROCESS-CURRENT-1440",
+        "MOD-PROCESS-CURRENT-1920",
+        "MOD-PROCESS-CURRENT-2560",
+        "MOD-PROCESS-CURRENT-3840",
+        "modeling-fit-1366",
+        "modeling-fit-1440",
+        "modeling-fit-1920",
+        "modeling-fit-2560",
+        "modeling-fit-3840",
+        "modeling-fit-candidate-parameters-long-1440",
+        "modeling-fit-candidate-evidence-scrolled-1440",
+        "modeling-fit-calculation-failed-1440",
+        "modeling-fit-save-failed-1440",
+        "modeling-fit-exact-source-blocked-1440",
+        "modeling-fit-exact-read-failed-1440",
+        "modeling-fit-restored-1440",
+    } == set(process_fit_provenance[0]["ids"])
+    assert "accepted the qualitative visual checks" in process_fit_provenance[0]["command"]
 
     activity = captures["activity-1440"]
     assert activity["workflow"] == "role-aware-review-queue-with-resume-and-outcomes"
@@ -241,10 +265,10 @@ def test_current_images_are_product_routes_and_storybook_captures_are_untracked(
         (root / "docs/user-guide/screenshot-manifest.yaml").read_text(encoding="utf-8")
     )
     current_images = root / "docs/user-guide/images/current"
-    assert len(manifest["captures"]) == 59
+    assert len(manifest["captures"]) == 69
     assert all(not capture["route"].startswith("/iframe.html") for capture in manifest["captures"])
     assert not list(current_images.glob("storybook-*.png"))
-    assert len(list(current_images.glob("*.png"))) == 59
+    assert len(list(current_images.glob("*.png"))) == 69
     assert not list((root / "docs/17-evidence/images").glob("**/storybook-*.png"))
 
 

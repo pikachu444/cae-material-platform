@@ -196,9 +196,11 @@ import type {
   CommonProcessingRecipeResponse,
   CommonProcessingFitDecision,
   CommonProcessingWorkupOverride,
+  CommonExactRevisionPin,
   CommonEnsemblePreview,
   CommonProcessingOutputResponse,
   CommonProcessingPreview,
+  MetalFitRunResponse,
   CommonProcessingStep,
   GrantProductAccessInput,
   AuthenticatedPrincipal,
@@ -682,6 +684,38 @@ export function previewCommonProcessing(
   });
 }
 
+export function previewCommonProcessingFromOutput(
+  config: ApiConfig,
+  input: {
+    source_processing_output: CommonExactRevisionPin;
+    fit_step: CommonProcessingStep;
+  },
+  signal?: AbortSignal,
+): Promise<ApiResult<CommonProcessingPreview>> {
+  return request(config, "/processing:preview-from-output", {
+    method: "POST",
+    body: JSON.stringify(input),
+    signal,
+  });
+}
+
+export function executeMetalFitRun(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    source_processing_output: CommonExactRevisionPin;
+    fit_step: CommonProcessingStep;
+    change_reason: string;
+  },
+  signal?: AbortSignal,
+): Promise<ApiResult<MetalFitRunResponse>> {
+  return request(config, "/metal-fit-runs", {
+    method: "POST",
+    body: JSON.stringify(input),
+    signal,
+  });
+}
+
 export function previewCommonProcessingEnsemble(
   config: ApiConfig,
   input: {
@@ -720,6 +754,7 @@ export function commitCommonProcessingOutput(
     change_reason: string;
       workup_overrides?: CommonProcessingWorkupOverride[];
       fit_decision?: CommonProcessingFitDecision | null;
+      source_processing_output?: CommonExactRevisionPin | null;
   },
 ): Promise<ApiResult<CommonProcessingOutputResponse>> {
   return request(config, "/processing-outputs", {

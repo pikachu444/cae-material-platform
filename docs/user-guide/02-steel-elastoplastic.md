@@ -45,6 +45,17 @@ strain과 engineering stress 의미 및 원래 단위를 명시해야 합니다.
    Output points는 Fit 설정 띠에서 조정한 뒤 primary/secondary, blend ratio와
    **Selection reason**을 정합니다.
 
+   서버 evidence의 Ghosh candidate에 `active_bound`가 정확히 `epsilon_0`만 포함되면,
+   현재 선택과 무관하게 `fit_maximum_strain` 이후의 Ghosh tail은 response/tangent의
+   **표시 scale**에서만 제외됩니다. 선택 preview/blend도 Ghosh를 포함할 때 같은 표시 규칙을
+   적용합니다. 전체 x-domain과 정확한 response/residual/tangent 배열·polyline은 유지되며, 화면에
+   “Ghosh tail near ε0 exceeds the display scale; exact values remain in Candidate parameters.”라는
+   안내가 나타납니다. 다른 후보와 외삽 경계는 바뀌지 않습니다. 저장 후 **Save fit & continue**는
+   Fit에 머물고 Export는 별도 작업으로 시작하지 않습니다. Fit source가 없거나 stale이면 graph
+   중앙의 **Fit is blocked · Back to Process**에서 Process로 돌아가며 source refs/history/pointer는
+   그대로입니다. 저장된 Fit exact content를 읽지 못하면 마지막 유효 graph와 선택 사유·경고 확인을
+   유지한 채 **Retry exact saved Fit**으로 같은 revision만 다시 읽습니다.
+
 
 9. 여러 반복시험이면 Selection을 만들고 명시적 common-grid alignment를 실행합니다.
 10. 통계 band와 outlier Candidate를 확인합니다. Candidate는 원본 curve를 삭제하지 않습니다.
@@ -62,7 +73,8 @@ strain과 engineering stress 의미 및 원래 단위를 명시해야 합니다.
     revision**과 **Successful Batch attempt**가 표시됩니다. **Open Recipe library and Batch
     monitor**를 눌러 정확히 같은 Recipe revision, 옵션, Attempt와 Output으로 돌아갈 수 있습니다.
     이 정보가 없는 과거 direct Output은 schema `1.2.0`으로 유지되며 Recipe 재사용을 주장하지
-    않습니다.
+    않습니다. 새 Metal Fit output은 source Process Output exact pin/digest와 후보별 서버 residual·tangent
+    evidence를 함께 저장하며 validation/review/release는 자동으로 시작하지 않습니다.
 
 
 
