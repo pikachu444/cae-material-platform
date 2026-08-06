@@ -56,6 +56,12 @@ Ghosh는 `k_pa`, `epsilon_0`, `delta_p_minus_n`만 저장하며 `plastic strain 
 acknowledgement가 모두 필요합니다. exact source/digest 또는 계산·저장이 실패해도 마지막 정상
 graph와 입력을 유지하며 명시적인 Retry action만 재시도합니다.
 
+Fit 상단 상태는 `Calculating`(previewBusy), `Saved current`(정확한 Fit Output 복원과 사용 가능한
+preview가 모두 검증됨), `Preview not saved`(현재 preview만 사용 가능), `Saved result stale`(Fit
+history는 있으나 현재 preview/pointer가 검증되지 않음), `Not calculated`(그 밖의 상태)로 고정됩니다.
+복원 read 실패는 `Saved current`가 될 수 없고, 저장 실패는 현재 preview를 유지하되 `Preview not saved`로
+남습니다.
+
 Data/Process/Fit 단계 왼쪽 **Curves** rail은 `N curves · N included` 요약 뒤 시험 방법 그룹과
 specimen별 26 px tree 행을 표시합니다. 예를 들어 tensile 문서는 `Tensile tests` 아래에 놓입니다.
 온도·변형률 속도 조건은 서버가 정확한 조건 메타데이터를 제공할 때만 하위 그룹으로 보이며 화면이
@@ -154,7 +160,7 @@ scale 계산에서 `fit_maximum_strain` 이후 tail을 제외합니다. 실제 r
 evidence 배열과 polyline은 그대로이며, 선택 preview/blend는 Ghosh를 포함할 때 같은 표시 규칙을
 적용합니다.
 
-**Stress response**에서 observed plastic workup, single-law candidate와 현재 선택을 비교합니다.
+**Hardening response**에서 observed plastic workup, single-law candidate와 현재 선택을 비교합니다.
 **Residual**은
 선택 fit domain에서 `predicted - observed`를, **Tangent modulus**는 후보별 수치 미분을 보여줍니다.
 황색 배경과 점선의 `EXTRAPOLATED · UNOBSERVED` 영역은 시험 관측값이 아닙니다. 후보 비교 표와
@@ -174,8 +180,9 @@ Output에 저장합니다. 저장 전에는
 Material Model IR이나 Neutral Material로 승격할 수 없습니다.
 
 Fit rail의 Curves는 Process에서 선택한 Test Data ref의 이름과 revision을 그대로 이어받습니다.
-현재 head나 `latest`를 대신 바인딩하지 않으며, 상단 source line에는 exact Process Output의
-label/revision/digest가 표시됩니다. Process Output이 없거나 stale이면 graph 중앙에
+현재 head나 `latest`를 대신 바인딩하지 않으며, 상단에는 사람이 읽는 exact Process Output
+label/revision과 Fit surface state가 표시됩니다. 전체 source digest, method key/version, run과
+저장된 Fit Output revision은 **Candidate parameters → Source evidence**에서 확인합니다. Process Output이 없거나 stale이면 graph 중앙에
 **Fit is blocked**와 **Back to Process**가 나타나고, 이 복구는 ref/history/pointer를 바꾸지 않는
 탐색만 수행합니다. Fit 계산/저장 실패에서는 이전 유효 graph와 decision reason, warning acknowledgement를
 유지하고, 저장된 Fit을 다시 읽지 못하면 **Saved Fit result unavailable**과 **Retry exact saved Fit**만
@@ -184,7 +191,8 @@ Output을 fallback으로 사용하지 않습니다. 저장 후에도 현재 task
 시작하지 않습니다.
 
 현재 Fit capture topology는 5개 viewport(1366×768, 1440×900, 1920×1080, 2560×1440,
-3840×2160)와 7개 1440×900 recovery/evidence state입니다. `parameters-long`은 Candidate
+3840×2160)와 Candidate parameters 두 개 1440×900 evidence state, 다섯 개 1920×1080
+recovery/state입니다. `parameters-long`은 Candidate
 parameters disclosure를, `evidence-scrolled`는 keyboard/PageDown·wheel·native scrollbar와
 collapsed text selection을, `calculation-failed`/`save-failed`/`exact-source-blocked`/
 `exact-read-failed`/`restored`는 각각 실패·차단·정확한 복구를 기록합니다. 2026-08-06 root
@@ -200,11 +208,11 @@ live capture와 qualitative visual acceptance가 완료되었고, 17개 Process/
 | Wide 3840×2160 | ![Fit 3840](images/current/modeling-fit-3840x2160.png) |
 | Candidate parameters (long) | ![Fit candidate parameters](images/current/modeling-fit-candidate-parameters-long-1440x900.png) |
 | Candidate evidence scrolled | ![Fit candidate evidence scrolled](images/current/modeling-fit-candidate-evidence-scrolled-1440x900.png) |
-| Calculation failed | ![Fit calculation failed](images/current/modeling-fit-calculation-failed-1440x900.png) |
-| Save failed | ![Fit save failed](images/current/modeling-fit-save-failed-1440x900.png) |
-| Exact Process source blocked | ![Fit exact source blocked](images/current/modeling-fit-exact-source-blocked-1440x900.png) |
-| Exact saved Fit read failed | ![Fit exact read failed](images/current/modeling-fit-exact-read-failed-1440x900.png) |
-| Restored saved Fit | ![Fit restored](images/current/modeling-fit-restored-1440x900.png) |
+| Calculation failed | ![Fit calculation failed](images/current/modeling-fit-calculation-failed-1920x1080.png) |
+| Save failed | ![Fit save failed](images/current/modeling-fit-save-failed-1920x1080.png) |
+| Exact Process source blocked | ![Fit exact source blocked](images/current/modeling-fit-exact-source-blocked-1920x1080.png) |
+| Exact saved Fit read failed | ![Fit exact read failed](images/current/modeling-fit-exact-read-failed-1920x1080.png) |
+| Restored saved Fit | ![Fit restored](images/current/modeling-fit-restored-1920x1080.png) |
 
 
 

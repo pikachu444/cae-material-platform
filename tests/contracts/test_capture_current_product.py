@@ -437,11 +437,11 @@ def test_modeling_fit_capture_contract_covers_five_viewports_and_recovery_states
     assert MODELING_FIT_STATE_OUTPUTS == (
         "modeling-fit-candidate-parameters-long-1440x900.png",
         "modeling-fit-candidate-evidence-scrolled-1440x900.png",
-        "modeling-fit-calculation-failed-1440x900.png",
-        "modeling-fit-save-failed-1440x900.png",
-        "modeling-fit-exact-source-blocked-1440x900.png",
-        "modeling-fit-exact-read-failed-1440x900.png",
-        "modeling-fit-restored-1440x900.png",
+        "modeling-fit-calculation-failed-1920x1080.png",
+        "modeling-fit-save-failed-1920x1080.png",
+        "modeling-fit-exact-source-blocked-1920x1080.png",
+        "modeling-fit-exact-read-failed-1920x1080.png",
+        "modeling-fit-restored-1920x1080.png",
     )
     assert MODELING_PROCESS_FIT_OUTPUTS == (
         tuple(
@@ -501,11 +501,87 @@ def test_modeling_fit_capture_saves_exact_process_source_and_scrolls_evidence_lo
     assert "Acknowledge selected candidate warning" in _CAPTURE_SOURCE
 
 
+def test_modeling_fit_scrolled_capture_positions_the_local_decision_surface() -> None:
+    assert "def _position_fit_evidence_decision_surface" in _CAPTURE_SOURCE
+    position_start = _CAPTURE_SOURCE.index("def _position_fit_evidence_decision_surface")
+    position_end = _CAPTURE_SOURCE.index(
+        "\ndef _assert_modeling_process_preview", position_start
+    )
+    position_source = _CAPTURE_SOURCE[position_start:position_end]
+    assert 'table[aria-label="Selected candidate parameters and bounds"]' in position_source
+    assert 'Candidate selection reason' in position_source
+    assert 'Acknowledge selected candidate warning' in position_source
+    assert "window.scrollY" in position_source
+    assert "const meaningfulVisiblePx = 12;" in position_source
+    assert "const intersectionBounds" in position_source
+    assert "const tableBottomBounds" in position_source
+    assert "const warningTextSurface" in position_source
+    assert "document.createRange()" in position_source
+    assert "range.getClientRects()" in position_source
+    assert "Fit warning text range has no rendered text rects" in position_source
+    assert "const acknowledgementInputSurface" in position_source
+    assert "const acknowledgementInputIntersection" in position_source
+    assert "const feasibleLower = Math.max" in position_source
+    assert "const feasibleUpper = Math.min" in position_source
+    assert "const integerLower = Math.ceil(feasibleLower);" in position_source
+    assert "const integerUpper = Math.floor(feasibleUpper);" in position_source
+    assert "const hasFeasibleInteger = integerLower <= integerUpper;" in position_source
+    assert "const targetScrollTop = hasFeasibleInteger" in position_source
+    assert "if (targetScrollTop !== null)" in position_source
+    assert "el.scrollTop = targetScrollTop" in position_source
+    assert "const visibleRange = (rangeSurface)" in position_source
+    assert "warningText: visibleRange(warningTextSurface)" in position_source
+    assert "acknowledgementInput: visible(acknowledgement)" in position_source
+    assert "intersection," in position_source
+    assert "intersects: intersection >= meaningfulVisiblePx" in position_source
+    assert 'metrics["targetScrollTop"] is None' in position_source
+    assert "no feasible local scroll interval" in position_source
+    assert 'metrics[key]["intersection"] < metrics["meaningfulVisiblePx"]' in position_source
+    assert position_source.index("const feasibleLower = Math.max") < position_source.index(
+        "const targetScrollTop = hasFeasibleInteger"
+    )
+    assert position_source.index("const targetScrollTop = hasFeasibleInteger") < position_source.index(
+        "el.scrollTop = targetScrollTop"
+    )
+    assert position_source.index('metrics["targetScrollTop"] is None') < position_source.index(
+        'metrics["scrollTop"] <= 0'
+    )
+    callback_start = _CAPTURE_SOURCE.index("def prepare_scrolled_capture")
+    callback_end = _CAPTURE_SOURCE.index("\n\n    _capture(", callback_start)
+    callback_source = _CAPTURE_SOURCE[callback_start:callback_end]
+    assert callback_source.index("_scroll_fit_evidence_locally") < callback_source.index(
+        "_position_fit_evidence_decision_surface"
+    )
+
+
 def test_modeling_fit_capture_enforces_bounded_shell_rows_scale_and_collision_geometry() -> None:
     assert "_assert_fit_display_scale" in _CAPTURE_SOURCE
     assert ".modeling-fit-workspace-bounded" in _CAPTURE_SOURCE
     assert "fitRowsIncluded" in _CAPTURE_SOURCE
     assert "fitNoMatchingCurves" in _CAPTURE_SOURCE
+    assert "fitGroups" in _CAPTURE_SOURCE
+    assert "fitRemoveStep" in _CAPTURE_SOURCE
+    assert "fitEvidenceTrigger" in _CAPTURE_SOURCE
+    assert "fitTopActions" in _CAPTURE_SOURCE
+    for style_key in (
+        "borderRadius",
+        "fontSize",
+        "fontWeight",
+        "backgroundColor",
+        "borderColor",
+        "color",
+    ):
+        assert style_key in _CAPTURE_SOURCE
+    assert 'style_key in ("borderRadius", "fontSize", "fontWeight")' in _CAPTURE_SOURCE
+    assert 'style_key in ("backgroundColor", "borderColor", "color")' in _CAPTURE_SOURCE
+    assert "Fit Advanced/Preview secondary" in _CAPTURE_SOURCE
+    assert "Ghosh exceeds chart scale" in _CAPTURE_SOURCE
+    assert "extrapolation-annotation-layer text" in _CAPTURE_SOURCE
+    assert "extrapolation-region rect" in _CAPTURE_SOURCE
+    assert "typeof node.getBBox !== 'function'" in _CAPTURE_SOURCE
+    assert "label_geometry.get(\"bottom\")" in _CAPTURE_SOURCE
+    assert "shade_geometry.get(\"top\")" in _CAPTURE_SOURCE
+    assert "escaped the SVG/plot bounds" in _CAPTURE_SOURCE
     assert 're.fullmatch(r"Specimen \\d{2} · r[1-9]\\d*"' in _CAPTURE_SOURCE
     assert 'not 184 <= measurement["railWidth"] <= 210' in _CAPTURE_SOURCE
     assert 'abs(measurement["ribbonHeight"] - 104)' in _CAPTURE_SOURCE
@@ -517,6 +593,25 @@ def test_modeling_fit_capture_enforces_bounded_shell_rows_scale_and_collision_ge
     assert "lastXTickWithinSvg" in _CAPTURE_SOURCE
     assert "xTicksWithinSvg" in _CAPTURE_SOURCE
     assert "legendOutsideSvg" in _CAPTURE_SOURCE
+
+
+def test_modeling_fit_capture_resolves_hardening_clip_path_and_curve_containment() -> None:
+    assert "hardening-series-clip" in _CAPTURE_SOURCE
+    assert "const hardeningGroup = svg.querySelector('.hardening-series-clip')" in _CAPTURE_SOURCE
+    assert "const clipPathUrl = hardeningGroup?.getAttribute('clip-path') || ''" in _CAPTURE_SOURCE
+    assert "const clipPathMatch = clipPathUrl.match" in _CAPTURE_SOURCE
+    assert "const clipPathId = clipPathMatch?.[1] || ''" in _CAPTURE_SOURCE
+    assert "svg.ownerDocument?.getElementById(clipPathId)" in _CAPTURE_SOURCE
+    assert "const clipRect = attributeBox(clipPath?.querySelector('rect'))" in _CAPTURE_SOURCE
+    assert "curveLines.every(line => hardeningGroup.contains(line))" in _CAPTURE_SOURCE
+    assert "curveLinesContained" in _CAPTURE_SOURCE
+    assert "hardeningClip" in _CAPTURE_SOURCE
+    assert "hardening_clip_rect" in _CAPTURE_SOURCE
+    assert "hardening_clip_geometry.get(\"curveLinesContained\") is not True" in _CAPTURE_SOURCE
+    assert "hardening_clip_rect.get(\"top\")" in _CAPTURE_SOURCE
+    assert "shade_geometry.get(\"top\")" in _CAPTURE_SOURCE
+    assert "label_geometry.get(\"bottom\")" in _CAPTURE_SOURCE
+    assert "hardening curves are not contained by a resolved clipPath" in _CAPTURE_SOURCE
 
 
 def test_modeling_fit_capture_states_route_calculation_save_and_exact_read_failures() -> None:
@@ -558,8 +653,8 @@ def test_fit_exact_source_blocker_scopes_duplicate_copy_to_plot_overlay() -> Non
 
     assert 'fit_plot_overlay = fit_blocked.locator(\n        "#modeling-fit .engineering-curve-plot-empty-overlay"\n    )' in blocker_flow
     assert 'fit_plot_overlay.get_by_text(\n        fit_blocker_message,\n        exact=True,\n    )' in blocker_flow
-    assert 'fit_source_binding = fit_blocked.locator(".fit-source-binding.missing")' in blocker_flow
-    assert "fit_source_binding.inner_text().strip() != fit_blocker_message" in blocker_flow
+    assert 'fit_source_binding = fit_blocked.locator(".fit-context-source")' in blocker_flow
+    assert 'fit_source_binding.inner_text().strip() != "No saved Process Output"' in blocker_flow
     assert "fit_blocked.get_by_text(" not in blocker_flow
     assert ".first" not in blocker_flow
 
@@ -569,7 +664,7 @@ def test_fit_exact_source_recovery_assertion_starts_after_blocked_screenshot() -
         "    fit_blocked = _new_page", 1
     )[1].split("    exact_read_failed = _new_page", 1)[0]
     screenshot = blocker_flow.index(
-        'output / "modeling-fit-exact-source-blocked-1440x900.png"'
+        'output / "modeling-fit-exact-source-blocked-1920x1080.png"'
     )
     evidence_reset = blocker_flow.index("blocked_requests: list[str] = []")
     listener = blocker_flow.index(
@@ -582,9 +677,7 @@ def test_fit_exact_source_recovery_assertion_starts_after_blocked_screenshot() -
         'fit_blocked.remove_listener("request", record_blocked_recovery_request)'
     )
     recovered_history = blocker_flow.index("recovered_history = {")
-    non_get_check = blocker_flow.index(
-        'if any(not request.startswith("GET ") for request in blocked_requests):'
-    )
+    non_get_check = blocker_flow.index("allowed_preview_path = \"/api/v1/processing:preview\"")
 
     assert (
         screenshot
@@ -598,7 +691,8 @@ def test_fit_exact_source_recovery_assertion_starts_after_blocked_screenshot() -
     assert "method = str(getattr(request, \"method\", \"\")).upper()" in blocker_flow
     assert "url = str(getattr(request, \"url\", \"\"))" in blocker_flow
     assert 'blocked_requests.append(f"{method} {url}")' in blocker_flow
-    assert 'not request.startswith("GET ")' in blocker_flow
+    assert 'request.startswith("POST ")' in blocker_flow
+    assert 'urlsplit(request.split(" ", 1)[1]).path == allowed_preview_path' in blocker_flow
     assert "blocked_requests: list[str] = []\n    fit_blocked.on(\"request\", lambda" not in blocker_flow
 
 

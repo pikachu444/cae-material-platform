@@ -15,6 +15,7 @@ import shutil
 import struct
 import tempfile
 from collections.abc import Callable, Sequence
+from itertools import pairwise
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
 from urllib.parse import parse_qs, urlsplit
@@ -35,11 +36,11 @@ MODELING_EXPORT_OUTPUTS = tuple(
 MODELING_FIT_STATE_OUTPUTS = (
     "modeling-fit-candidate-parameters-long-1440x900.png",
     "modeling-fit-candidate-evidence-scrolled-1440x900.png",
-    "modeling-fit-calculation-failed-1440x900.png",
-    "modeling-fit-save-failed-1440x900.png",
-    "modeling-fit-exact-source-blocked-1440x900.png",
-    "modeling-fit-exact-read-failed-1440x900.png",
-    "modeling-fit-restored-1440x900.png",
+    "modeling-fit-calculation-failed-1920x1080.png",
+    "modeling-fit-save-failed-1920x1080.png",
+    "modeling-fit-exact-source-blocked-1920x1080.png",
+    "modeling-fit-exact-read-failed-1920x1080.png",
+    "modeling-fit-restored-1920x1080.png",
 )
 MODELING_PROCESS_FIT_OUTPUTS = (
     *(f"modeling-process-{width}x{height}.png" for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)),
@@ -50,11 +51,11 @@ MODELING_PROCESS_FIT_OUTPUTS = (
     "modeling-fit-3840x2160.png",
     "modeling-fit-candidate-parameters-long-1440x900.png",
     "modeling-fit-candidate-evidence-scrolled-1440x900.png",
-    "modeling-fit-calculation-failed-1440x900.png",
-    "modeling-fit-save-failed-1440x900.png",
-    "modeling-fit-exact-source-blocked-1440x900.png",
-    "modeling-fit-exact-read-failed-1440x900.png",
-    "modeling-fit-restored-1440x900.png",
+    "modeling-fit-calculation-failed-1920x1080.png",
+    "modeling-fit-save-failed-1920x1080.png",
+    "modeling-fit-exact-source-blocked-1920x1080.png",
+    "modeling-fit-exact-read-failed-1920x1080.png",
+    "modeling-fit-restored-1920x1080.png",
 )
 MODELING_PROCESS_OUTPUTS = (
     *(f"modeling-process-{width}x{height}.png" for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)),
@@ -142,11 +143,11 @@ CURRENT_CAPTURE_OUTPUTS = (
     "modeling-fit-3840x2160.png",
     "modeling-fit-candidate-parameters-long-1440x900.png",
     "modeling-fit-candidate-evidence-scrolled-1440x900.png",
-    "modeling-fit-calculation-failed-1440x900.png",
-    "modeling-fit-save-failed-1440x900.png",
-    "modeling-fit-exact-source-blocked-1440x900.png",
-    "modeling-fit-exact-read-failed-1440x900.png",
-    "modeling-fit-restored-1440x900.png",
+    "modeling-fit-calculation-failed-1920x1080.png",
+    "modeling-fit-save-failed-1920x1080.png",
+    "modeling-fit-exact-source-blocked-1920x1080.png",
+    "modeling-fit-exact-read-failed-1920x1080.png",
+    "modeling-fit-restored-1920x1080.png",
     "modeling-export-1366x768.png",
     "modeling-export-1440x900.png",
     "modeling-export-1920x1080.png",
@@ -2774,7 +2775,7 @@ def _measure_process_fit(
               return points.slice(1).map((point, index) => ({ first: points[index], second: point }));
             });
           const extrapolationBoundary = rect(svg?.querySelector('.extrapolation-region line'));
-          const extrapolationLabel = rect(svg?.querySelector('.extrapolation-region text'));
+          const extrapolationLabel = rect(svg?.querySelector('.extrapolation-annotation-layer text'));
           const stateOverlays = [...(svg?.querySelectorAll(
             '.graph-range-selection, .graph-point-selection, .graph-point-marker, .engineering-result-marker, .chart-crosshair',
           ) ?? [])].map(rect).filter(Boolean);
@@ -2832,6 +2833,56 @@ def _measure_process_fit(
               clientWidth: node?.clientWidth ?? 0,
             };
           });
+          const fitRoot = document.querySelector('.processing-workbench-page.stage-fit');
+          const fitPlotHeadingNodes = fitRoot?.querySelectorAll('.persistent-modeling-plot .fit-plot-heading') ?? [];
+          const fitPlotHeadingNode = fitPlotHeadingNodes[0];
+          const fitPlotHeadingBox = rect(fitPlotHeadingNode);
+          const fitPlotHeadingStyle = fitPlotHeadingNode ? getComputedStyle(fitPlotHeadingNode) : null;
+          const fitPlotHeading = {
+            count: fitPlotHeadingNodes.length,
+            text: fitPlotHeadingNode?.textContent?.trim() ?? '',
+            display: fitPlotHeadingStyle?.display ?? '',
+            box: fitPlotHeadingBox,
+            scrollHeight: fitPlotHeadingNode?.scrollHeight ?? 0,
+            clientHeight: fitPlotHeadingNode?.clientHeight ?? 0,
+            scrollWidth: fitPlotHeadingNode?.scrollWidth ?? 0,
+            clientWidth: fitPlotHeadingNode?.clientWidth ?? 0,
+          };
+          const fitTopActionNodes = [
+            fitRoot?.querySelector('.modeling-context-actions > .modeling-advanced-menu > summary'),
+            fitRoot?.querySelector('.modeling-context-actions > button.button.secondary'),
+            fitRoot?.querySelector('.modeling-context-actions > button.button.primary'),
+          ];
+          const fitTopActions = fitTopActionNodes.map(node => {
+            const value = rect(node);
+            const style = node ? getComputedStyle(node) : null;
+            return {
+              label: node?.textContent?.trim() ?? '',
+              box: value,
+              height: value?.height ?? 0,
+              borderRadius: style?.borderRadius ?? '',
+              fontSize: style?.fontSize ?? '',
+              fontWeight: style?.fontWeight ?? '',
+              backgroundColor: style?.backgroundColor ?? '',
+              borderColor: style?.borderColor ?? '',
+              color: style?.color ?? '',
+              whiteSpace: style?.whiteSpace ?? '',
+              scrollHeight: node?.scrollHeight ?? 0,
+              clientHeight: node?.clientHeight ?? 0,
+              scrollWidth: node?.scrollWidth ?? 0,
+              clientWidth: node?.clientWidth ?? 0,
+            };
+          });
+          const fitTopActionsContainer = rect(fitRoot?.querySelector('.modeling-context-actions'));
+          const fitRibbon = rect(fitRoot?.querySelector('.modeling-task-ribbon'));
+          const fitGroups = [...(fitRoot?.querySelectorAll('.fit-stage-options .fit-control-group') ?? [])].map(group => ({
+            label: group.querySelector('legend')?.textContent?.trim() ?? '',
+            box: rect(group),
+          }));
+          const fitRemoveStep = rect(fitRoot?.querySelector('.fit-heading-actions .text-button'));
+          const fitEvidenceTrigger = rect(fitRoot?.querySelector('.fit-evidence-trigger'));
+          const fitHeaderSource = rect(fitRoot?.querySelector('.fit-context-source'));
+          const fitHeaderState = rect(fitRoot?.querySelector('.fit-surface-state'));
           const method = rect(document.querySelector('.modeling-process-workspace-bounded .elastic-modulus-method select'));
           const range = rect(document.querySelector('.modeling-process-workspace-bounded .elastic-modulus-range'));
           return {
@@ -2886,6 +2937,15 @@ def _measure_process_fit(
             methodRangeGap: method && range ? range.left - method.right : null,
             processControls,
             topActions,
+            fitTopActions,
+            fitTopActionsContainer,
+            fitPlotHeading,
+            fitRibbon,
+            fitGroups,
+            fitRemoveStep,
+            fitEvidenceTrigger,
+            fitHeaderSource,
+            fitHeaderState,
             processRibbon,
             processPanel,
             saveBand,
@@ -3060,6 +3120,119 @@ def _measure_process_fit(
             raise RuntimeError(f"Fit compact curve rail width drifted at {width}x{height}: {measurement}")
         if abs(measurement["ribbonHeight"] - 104) > 1:
             raise RuntimeError(f"Fit ribbon must remain exactly 104px (31+72) at {width}x{height}: {measurement}")
+        fit_plot_heading = measurement.get("fitPlotHeading")
+        fit_plot_heading_box = fit_plot_heading.get("box") if isinstance(fit_plot_heading, dict) else None
+        if (
+            not isinstance(fit_plot_heading, dict)
+            or fit_plot_heading.get("count") != 1
+            or fit_plot_heading.get("text") != "Hardening response"
+            or fit_plot_heading.get("display") == "none"
+            or not isinstance(fit_plot_heading_box, dict)
+            or _as_float(fit_plot_heading_box.get("width")) <= 0
+            or _as_float(fit_plot_heading_box.get("height")) <= 0
+            or _as_float(fit_plot_heading.get("scrollHeight")) > _as_float(fit_plot_heading.get("clientHeight")) + 1
+            or _as_float(fit_plot_heading.get("scrollWidth")) > _as_float(fit_plot_heading.get("clientWidth")) + 1
+        ):
+            raise RuntimeError(f"Fit plot heading is hidden, clipped, duplicated, or mislabeled at {width}x{height}: {measurement}")
+        fit_top_actions = measurement.get("fitTopActions")
+        if not isinstance(fit_top_actions, list) or len(fit_top_actions) != 3:
+            raise RuntimeError(f"Fit top actions are missing at {width}x{height}: {measurement}")
+        expected_fit_top_actions = ["Advanced", "Preview changes", "Save fit & continue"]
+        actual_fit_top_actions = [
+            str(action.get("label", "")).strip()
+            for action in fit_top_actions
+            if isinstance(action, dict)
+        ]
+        if actual_fit_top_actions != expected_fit_top_actions:
+            raise RuntimeError(f"Fit top action labels drifted at {width}x{height}: {measurement}")
+        fit_top_actions_container = measurement.get("fitTopActionsContainer")
+        if not isinstance(fit_top_actions_container, dict) or _as_float(fit_top_actions_container.get("width")) <= 0 or _as_float(fit_top_actions_container.get("height")) <= 0:
+            raise RuntimeError(f"Fit top action container is not visible at {width}x{height}: {measurement}")
+        fit_top_boxes = [
+            action.get("box") for action in fit_top_actions
+            if isinstance(action, dict) and isinstance(action.get("box"), dict)
+        ]
+        if len(fit_top_boxes) != 3 or max(_as_float(box.get("top")) for box in fit_top_boxes) - min(_as_float(box.get("top")) for box in fit_top_boxes) > 2 or max(_as_float(box.get("bottom")) for box in fit_top_boxes) - min(_as_float(box.get("bottom")) for box in fit_top_boxes) > 2:
+            raise RuntimeError(f"Fit top action baselines drifted at {width}x{height}: {measurement}")
+        for style_key in ("borderRadius", "fontSize", "fontWeight"):
+            style_values = {str(action.get(style_key, "")) for action in fit_top_actions if isinstance(action, dict)}
+            if len(style_values) != 1:
+                raise RuntimeError(f"Fit top action {style_key} drifted at {width}x{height}: {measurement}")
+        for style_key in ("backgroundColor", "borderColor", "color"):
+            advanced_style = fit_top_actions[0].get(style_key) if isinstance(fit_top_actions[0], dict) else None
+            preview_style = fit_top_actions[1].get(style_key) if isinstance(fit_top_actions[1], dict) else None
+            if advanced_style != preview_style:
+                raise RuntimeError(f"Fit Advanced/Preview secondary {style_key} drifted at {width}x{height}: {measurement}")
+        def fit_top_action_inside(child: dict[str, object], parent: dict[str, object]) -> bool:
+            return (
+                _as_float(child.get("left")) >= _as_float(parent.get("left")) - 1
+                and _as_float(child.get("right")) <= _as_float(parent.get("right")) + 1
+                and _as_float(child.get("top")) >= _as_float(parent.get("top")) - 1
+                and _as_float(child.get("bottom")) <= _as_float(parent.get("bottom")) + 1
+            )
+        if any(not fit_top_action_inside(box, fit_top_actions_container) for box in fit_top_boxes):
+            raise RuntimeError(f"Fit top actions escaped their action container at {width}x{height}: {measurement}")
+        ordered_fit_top_boxes = sorted(fit_top_boxes, key=lambda box: _as_float(box.get("left")))
+        if any(_as_float(first.get("right")) > _as_float(second.get("left")) + 1 for first, second in pairwise(ordered_fit_top_boxes)):
+            raise RuntimeError(f"Fit top actions overlap at {width}x{height}: {measurement}")
+        for action in fit_top_actions:
+            box = action.get("box") if isinstance(action, dict) else None
+            if (
+                not isinstance(action, dict)
+                or not isinstance(box, dict)
+                or _as_float(box.get("width")) <= 0
+                or _as_float(box.get("height")) <= 0
+                or abs(_as_float(action.get("height")) - 28) > 1
+                or action.get("whiteSpace") != "nowrap"
+                or _as_float(action.get("scrollHeight")) > _as_float(action.get("clientHeight")) + 1
+                or _as_float(action.get("scrollWidth")) > _as_float(action.get("clientWidth")) + 1
+            ):
+                raise RuntimeError(f"Fit top action height drifted at {width}x{height}: {action}")
+        fit_ribbon = measurement.get("fitRibbon")
+        fit_groups = measurement.get("fitGroups")
+        required_fit_groups = (
+            "Candidate equations",
+            "Fit domain",
+            "Selected blend",
+            "Primary contribution",
+            "Extrapolation",
+            "Graph interaction",
+        )
+        if not isinstance(fit_ribbon, dict) or not isinstance(fit_groups, list):
+            raise RuntimeError(f"Fit ribbon group geometry is missing at {width}x{height}: {measurement}")
+        group_by_label = {
+            str(group.get("label")): group.get("box")
+            for group in fit_groups
+            if isinstance(group, dict) and isinstance(group.get("box"), dict)
+        }
+        if any(label not in group_by_label for label in required_fit_groups):
+            raise RuntimeError(f"Fit ribbon groups are missing at {width}x{height}: {measurement}")
+        def fit_inside(child: object, parent: dict[str, object]) -> bool:
+            return isinstance(child, dict) and (
+                _as_float(child.get("left")) >= _as_float(parent.get("left")) - 1
+                and _as_float(child.get("right")) <= _as_float(parent.get("right")) + 1
+                and _as_float(child.get("top")) >= _as_float(parent.get("top")) - 1
+                and _as_float(child.get("bottom")) <= _as_float(parent.get("bottom")) + 1
+            )
+        ordered_group_boxes = []
+        for label in required_fit_groups:
+            box = group_by_label.get(label)
+            if not isinstance(box, dict) or _as_float(box.get("width")) <= 0 or _as_float(box.get("height")) <= 0:
+                raise RuntimeError(f"Fit ribbon group is not visible at {width}x{height}: {label!r} {box!r}")
+            if not fit_inside(box, fit_ribbon):
+                raise RuntimeError(f"Fit ribbon group escaped its 104px ribbon at {width}x{height}: {label!r} {box!r}")
+            ordered_group_boxes.append(box)
+        ordered_group_boxes.sort(key=lambda box: _as_float(box.get("left")))
+        if any(_as_float(first.get("right")) > _as_float(second.get("left")) + 1 for first, second in pairwise(ordered_group_boxes)):
+            raise RuntimeError(f"Fit ribbon groups overlap at {width}x{height}: {fit_groups!r}")
+        for key in ("fitRemoveStep", "fitEvidenceTrigger"):
+            box = measurement.get(key)
+            if not isinstance(box, dict) or _as_float(box.get("width")) <= 0 or _as_float(box.get("height")) <= 0 or not fit_inside(box, fit_ribbon):
+                raise RuntimeError(f"Fit {key} is not visible/reachable inside the ribbon at {width}x{height}: {box!r}")
+        for key in ("fitHeaderSource", "fitHeaderState"):
+            box = measurement.get(key)
+            if not isinstance(box, dict) or _as_float(box.get("width")) <= 0 or _as_float(box.get("height")) <= 0:
+                raise RuntimeError(f"Fit header {key} is not visible at {width}x{height}: {box!r}")
         if (
             not measurement.get("legendInPlot")
             or measurement.get("legendOutsideSvg")
@@ -3255,7 +3428,14 @@ def _prepare_fit_from_saved_process(
     page.locator(".modeling-work-title strong").get_by_text(
         STAGE_HEADINGS["fit"], exact=True
     ).wait_for(timeout=30_000)
-    page.get_by_text(re.compile(r"Exact Process source"), exact=False).wait_for(timeout=30_000)
+    page.wait_for_function(
+        """() => {
+          const source = document.querySelector('.fit-context-source');
+          return Boolean(source && source.getClientRects().length
+            && !source.textContent?.includes('No saved Process Output'));
+        }""",
+        timeout=30_000,
+    )
     return pointer
 
 
@@ -3274,7 +3454,7 @@ def _open_fit_evidence(page: Page) -> tuple[Locator, Locator, Locator]:
     if page.get_by_role("region", name="Candidate parameters", exact=True).count() != 1:
         raise RuntimeError("Fit evidence dock lost its Candidate parameters outer label")
     drawer.get_by_role("button", name="Close", exact=True).wait_for(state="visible", timeout=30_000)
-    drawer.get_by_role("status").filter(has_text="Calculated evidence").wait_for(state="visible", timeout=30_000)
+    drawer.get_by_role("status").wait_for(state="visible", timeout=30_000)
     body = drawer.locator(".fit-evidence-body")
     body.wait_for(state="visible", timeout=30_000)
     if body.get_attribute("tabindex") != "0":
@@ -3306,6 +3486,11 @@ def _close_fit_evidence(page: Page, trigger: Locator) -> None:
 
 def _assert_fit_candidate_surface(page: Page, table: Locator) -> None:
     """Assert the numerical identity, decision, and recovery fields in Fit."""
+    source_evidence = page.locator(".fit-source-evidence")
+    source_evidence.wait_for(state="visible", timeout=30_000)
+    source_evidence.get_by_text("Process source", exact=True).wait_for(state="visible", timeout=30_000)
+    source_evidence.get_by_text("Source digest", exact=True).wait_for(state="visible", timeout=30_000)
+    source_evidence.get_by_text("Fit method", exact=True).wait_for(state="visible", timeout=30_000)
     for column in (
         "Decision",
         "Model / law",
@@ -3342,11 +3527,120 @@ def _assert_fit_display_scale(page: Page, context: str) -> None:
         raise RuntimeError(f"Fit {context} graph exposed an epsilon_0-scale GPa label: {plot_text!r}")
     note = plot.locator(".ghosh-display-scale-note")
     note.wait_for(state="visible", timeout=30_000)
+    if note.inner_text().strip() != "Ghosh exceeds chart scale":
+        raise RuntimeError(f"Fit {context} graph exposed verbose scale helper text")
     note_metrics = note.evaluate(
         "element => ({ height: element.getBoundingClientRect().height, scrollHeight: element.scrollHeight, clientHeight: element.clientHeight, text: element.textContent?.trim() || '' })"
     )
     if note_metrics["scrollHeight"] > note_metrics["clientHeight"] + 1:
         raise RuntimeError(f"Fit {context} Ghosh display note is clipped: {note_metrics!r}")
+    extrapolation_geometry = plot.locator("svg[role=img]").evaluate(
+        """svg => {
+          const box = node => {
+            if (!node || typeof node.getBBox !== 'function') return null;
+            const value = node.getBBox();
+            return {
+              left: value.x,
+              top: value.y,
+              right: value.x + value.width,
+              bottom: value.y + value.height,
+              width: value.width,
+              height: value.height,
+            };
+          };
+          const attributeBox = node => {
+            if (!node) return null;
+            const x = Number(node.getAttribute('x'));
+            const y = Number(node.getAttribute('y'));
+            const width = Number(node.getAttribute('width'));
+            const height = Number(node.getAttribute('height'));
+            if (![x, y, width, height].every(Number.isFinite)) return null;
+            return { left: x, top: y, right: x + width, bottom: y + height, width, height };
+          };
+          const label = box(svg.querySelector('.extrapolation-annotation-layer text'));
+          const shade = attributeBox(svg.querySelector('.extrapolation-region rect'));
+          const hardeningGroup = svg.querySelector('.hardening-series-clip');
+          const clipPathUrl = hardeningGroup?.getAttribute('clip-path') || '';
+          const clipPathMatch = clipPathUrl.match(/^url\\(\\s*["']?#([^"')]+)["']?\\s*\\)$/);
+          const clipPathId = clipPathMatch?.[1] || '';
+          const clipPath = clipPathId ? svg.ownerDocument?.getElementById(clipPathId) : null;
+          const clipRect = attributeBox(clipPath?.querySelector('rect'));
+          const curveLines = [...svg.querySelectorAll('polyline.curve-line')];
+          const curveLinesContained = Boolean(hardeningGroup)
+            && curveLines.length > 0
+            && curveLines.every(line => hardeningGroup.contains(line));
+          const verticalAxis = [...svg.querySelectorAll('line.chart-axis')]
+            .find(line => line.getAttribute('x1') === line.getAttribute('x2'));
+          const horizontalAxis = [...svg.querySelectorAll('line.chart-axis')]
+            .find(line => line.getAttribute('y1') === line.getAttribute('y2'));
+          const viewBox = svg.viewBox?.baseVal;
+          const plotLeft = Number(verticalAxis?.getAttribute('x1'));
+          const plotRight = Number(horizontalAxis?.getAttribute('x2'));
+          const svgLeft = Number(viewBox?.x);
+          const svgRight = svgLeft + Number(viewBox?.width);
+          if (!label || !shade || !Number.isFinite(plotLeft) || !Number.isFinite(plotRight)
+            || !Number.isFinite(svgLeft) || !Number.isFinite(svgRight)) return null;
+          return {
+            label,
+            shade,
+            plot: { left: plotLeft, right: plotRight },
+            svg: { left: svgLeft, right: svgRight },
+            hardeningClip: {
+              groupPresent: Boolean(hardeningGroup),
+              clipPathUrl,
+              clipPathId,
+              rect: clipRect,
+              curveLineCount: curveLines.length,
+              curveLinesContained,
+            },
+          };
+        }"""
+    )
+    if not isinstance(extrapolation_geometry, dict):
+        raise RuntimeError(f"Fit {context} extrapolation label/shade geometry is unavailable")
+    label_geometry = extrapolation_geometry.get("label")
+    shade_geometry = extrapolation_geometry.get("shade")
+    plot_geometry = extrapolation_geometry.get("plot")
+    svg_geometry = extrapolation_geometry.get("svg")
+    hardening_clip_geometry = extrapolation_geometry.get("hardeningClip")
+    if not all(isinstance(value, dict) for value in (label_geometry, shade_geometry, plot_geometry, svg_geometry, hardening_clip_geometry)):
+        raise RuntimeError(f"Fit {context} extrapolation label/shade geometry is malformed: {extrapolation_geometry!r}")
+    label_geometry = cast(dict[str, object], label_geometry)
+    shade_geometry = cast(dict[str, object], shade_geometry)
+    plot_geometry = cast(dict[str, object], plot_geometry)
+    svg_geometry = cast(dict[str, object], svg_geometry)
+    hardening_clip_geometry = cast(dict[str, object], hardening_clip_geometry)
+    hardening_clip_rect = hardening_clip_geometry.get("rect")
+    if (
+        hardening_clip_geometry.get("groupPresent") is not True
+        or not isinstance(hardening_clip_geometry.get("clipPathUrl"), str)
+        or not hardening_clip_geometry.get("clipPathUrl")
+        or not isinstance(hardening_clip_geometry.get("clipPathId"), str)
+        or not hardening_clip_geometry.get("clipPathId")
+        or hardening_clip_geometry.get("curveLinesContained") is not True
+        or not isinstance(hardening_clip_rect, dict)
+    ):
+        raise RuntimeError(f"Fit {context} hardening curves are not contained by a resolved clipPath: {extrapolation_geometry!r}")
+    hardening_clip_rect = cast(dict[str, object], hardening_clip_rect)
+    geometry_tolerance = 1.0
+    if (
+        _as_float(label_geometry.get("width")) <= 0
+        or _as_float(label_geometry.get("height")) <= 0
+        or _as_float(shade_geometry.get("width")) <= 0
+        or _as_float(shade_geometry.get("height")) <= 0
+        or _as_float(hardening_clip_rect.get("width")) <= 0
+        or _as_float(hardening_clip_rect.get("height")) <= 0
+        or abs(_as_float(hardening_clip_rect.get("top")) - _as_float(shade_geometry.get("top"))) > geometry_tolerance
+        or _as_float(label_geometry.get("bottom")) > _as_float(hardening_clip_rect.get("top")) + geometry_tolerance
+    ):
+        raise RuntimeError(f"Fit {context} extrapolation label overlaps the clipped hardening data area: {extrapolation_geometry!r}")
+    horizontal_left = max(_as_float(plot_geometry.get("left")), _as_float(svg_geometry.get("left")))
+    horizontal_right = min(_as_float(plot_geometry.get("right")), _as_float(svg_geometry.get("right")))
+    if (
+        _as_float(label_geometry.get("left")) < horizontal_left - geometry_tolerance
+        or _as_float(label_geometry.get("right")) > horizontal_right + geometry_tolerance
+    ):
+        raise RuntimeError(f"Fit {context} extrapolation label escaped the SVG/plot bounds: {extrapolation_geometry!r}")
 
 
 def _select_warned_fit_candidate(table: Locator) -> None:
@@ -3452,6 +3746,180 @@ def _scroll_fit_evidence_locally(
         )
         if active_after_escape["text"] != "Candidate parameters" or active_after_escape["triggerExpanded"] != "false":
             raise RuntimeError(f"Fit evidence Escape recovery did not restore trigger focus: {active_after_escape!r}")
+
+
+def _position_fit_evidence_decision_surface(page: Page, body: Locator) -> None:
+    """Place the final evidence capture on the local decision surface.
+
+    The drawer is intentionally a short, native scrollport at the 1440 x 900
+    reference viewport.  The full parameter table and the decision controls do
+    not fit at once, so solve for a local scroll position where the selected
+    parameter table, selection reason, warning checkbox, and actual warning
+    text each have a meaningful visible intersection.  The warning text is
+    measured from a DOM Range over its rendered text nodes, rather than from
+    the surrounding label, so a visible checkbox cannot mask clipped warning
+    copy.  The table bottom and warning text receive an inset as well, keeping
+    those decision landmarks inside the body rather than on a one-pixel edge.
+    The body is the only element whose scroll position may change; page scroll
+    must remain untouched.
+    """
+    before = page.evaluate("() => window.scrollY")
+    metrics = body.evaluate(
+        """el => {
+          const table = el.querySelector('table[aria-label="Selected candidate parameters and bounds"]');
+          const reason = el.querySelector('[aria-label="Candidate selection reason"]');
+          const acknowledgement = el.querySelector('[aria-label="Acknowledge selected candidate warning"]');
+          const warningLabel = acknowledgement?.closest('label');
+          if (!table || !reason || !acknowledgement || !warningLabel) {
+            throw new Error('Fit decision surface is missing table, selection reason, warning checkbox, or warning label');
+          }
+          const bodyRect = el.getBoundingClientRect();
+          const surface = (node) => {
+            const rect = node.getBoundingClientRect();
+            return {
+              top: rect.top - bodyRect.top + el.scrollTop,
+              bottom: rect.bottom - bodyRect.top + el.scrollTop,
+            };
+          };
+          const labelledSurface = (node) => surface(node.closest('label') || node);
+          const textRangeSurface = (root) => {
+            const range = document.createRange();
+            const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+            const rects = [];
+            while (walker.nextNode()) {
+              const text = walker.currentNode;
+              if (!text.textContent?.trim()) continue;
+              range.selectNodeContents(text);
+              for (const rect of range.getClientRects()) {
+                if (rect.width > 0 && rect.height > 0) {
+                  rects.push({
+                    top: rect.top - bodyRect.top + el.scrollTop,
+                    bottom: rect.bottom - bodyRect.top + el.scrollTop,
+                  });
+                }
+              }
+            }
+            if (!rects.length) throw new Error('Fit warning text range has no rendered text rects');
+            return {
+              top: Math.min(...rects.map((rect) => rect.top)),
+              bottom: Math.max(...rects.map((rect) => rect.bottom)),
+              rects,
+            };
+          };
+          const tableSurface = surface(table);
+          const reasonSurface = labelledSurface(reason);
+          const acknowledgementSurface = labelledSurface(acknowledgement);
+          const acknowledgementInputSurface = surface(acknowledgement);
+          const warningTextSurface = textRangeSurface(warningLabel);
+          const maxScrollTop = Math.max(0, el.scrollHeight - el.clientHeight);
+          const meaningfulVisiblePx = 12;
+          const intersectionBounds = ({ top, bottom }) => ({
+            lower: top + meaningfulVisiblePx - el.clientHeight,
+            upper: bottom - meaningfulVisiblePx,
+          });
+          const tableIntersection = intersectionBounds(tableSurface);
+          const reasonIntersection = intersectionBounds(reasonSurface);
+          const acknowledgementIntersection = intersectionBounds(acknowledgementSurface);
+          const acknowledgementInputIntersection = intersectionBounds(acknowledgementInputSurface);
+          const warningTextIntersection = intersectionBounds(warningTextSurface);
+          // Keep the table bottom and actual warning text comfortably inside
+          // the body.  These content-coordinate bounds are intersected with
+          // the normal visibility bounds above before selecting a scrollTop.
+          const tableBottomBounds = {
+            lower: tableSurface.bottom - el.clientHeight + meaningfulVisiblePx,
+            upper: tableSurface.bottom - meaningfulVisiblePx,
+          };
+          const feasibleLower = Math.max(
+            0,
+            tableIntersection.lower,
+            reasonIntersection.lower,
+            acknowledgementIntersection.lower,
+            acknowledgementInputIntersection.lower,
+            warningTextIntersection.lower,
+            tableBottomBounds.lower,
+          );
+          const feasibleUpper = Math.min(
+            maxScrollTop,
+            tableIntersection.upper,
+            reasonIntersection.upper,
+            acknowledgementIntersection.upper,
+            acknowledgementInputIntersection.upper,
+            warningTextIntersection.upper,
+            tableBottomBounds.upper,
+          );
+          const integerLower = Math.ceil(feasibleLower);
+          const integerUpper = Math.floor(feasibleUpper);
+          const hasFeasibleInteger = integerLower <= integerUpper;
+          const targetScrollTop = hasFeasibleInteger
+            ? Math.floor((integerLower + integerUpper) / 2)
+            : null;
+          if (targetScrollTop !== null) {
+            // This is a deterministic local scroll, not a screenshot crop or
+            // UI resize.  No ancestor or window scroll position is mutated.
+            el.scrollTop = targetScrollTop;
+          }
+          const viewportTop = bodyRect.top;
+          const viewportBottom = viewportTop + el.clientHeight;
+          const visible = (node) => {
+            const target = node.closest('label') || node;
+            const rect = target.getBoundingClientRect();
+            const intersection = Math.max(
+              0,
+              Math.min(rect.bottom, viewportBottom) - Math.max(rect.top, viewportTop),
+            );
+            return {
+              top: rect.top,
+              bottom: rect.bottom,
+              intersection,
+              intersects: intersection >= meaningfulVisiblePx,
+            };
+          };
+          const visibleRange = (rangeSurface) => {
+            const intersections = rangeSurface.rects.map((contentRect) => {
+              const top = viewportTop + contentRect.top - el.scrollTop;
+              const bottom = viewportTop + contentRect.bottom - el.scrollTop;
+              return Math.max(0, Math.min(bottom, viewportBottom) - Math.max(top, viewportTop));
+            });
+            const intersection = Math.max(0, ...intersections);
+            return {
+              top: viewportTop + rangeSurface.top - el.scrollTop,
+              bottom: viewportTop + rangeSurface.bottom - el.scrollTop,
+              intersection,
+              intersects: intersection >= meaningfulVisiblePx,
+            };
+          };
+          return {
+            scrollTop: el.scrollTop,
+            maxScrollTop,
+            windowScrollY: window.scrollY,
+            meaningfulVisiblePx,
+            feasibleLower,
+            feasibleUpper,
+            integerLower,
+            integerUpper,
+            targetScrollTop,
+            tableSurface,
+            reasonSurface,
+            acknowledgementSurface,
+            acknowledgementInputSurface,
+            warningTextSurface,
+            table: visible(table),
+            reason: visible(reason.closest('label') || reason),
+            acknowledgement: visible(acknowledgement.closest('label') || acknowledgement),
+            acknowledgementInput: visible(acknowledgement),
+            warningText: visibleRange(warningTextSurface),
+          };
+        }"""
+    )
+    if page.evaluate("() => window.scrollY") != before or metrics["windowScrollY"] != before:
+        raise RuntimeError("Fit decision surface positioning changed the page scroll position")
+    if metrics["targetScrollTop"] is None:
+        raise RuntimeError(f"Fit decision surface has no feasible local scroll interval: {metrics!r}")
+    if metrics["scrollTop"] <= 0:
+        raise RuntimeError(f"Fit decision surface did not move the local body: {metrics!r}")
+    for key in ("table", "reason", "acknowledgementInput", "warningText"):
+        if not metrics[key]["intersects"] or metrics[key]["intersection"] < metrics["meaningfulVisiblePx"]:
+            raise RuntimeError(f"Fit decision surface is not visible in the local body: {metrics!r}")
 
 
 def _assert_modeling_process_preview(
@@ -3880,13 +4348,26 @@ def _assert_modeling_process_capture_ready(page: Page) -> None:
     _assert_modeling_process_blocked(page)
 
 
+def _assert_fit_title_state(page: Page, expected: str) -> None:
+    """Assert the normal Fit title-row state, never a drawer or overlay copy."""
+    state = page.locator(
+        ".processing-workbench-page.stage-fit .modeling-work-title > .fit-surface-state"
+    )
+    if state.count() != 1 or not state.is_visible():
+        raise RuntimeError(f"Fit title-row state is not uniquely visible: {state.count()}")
+    actual = state.inner_text().strip()
+    if actual != expected:
+        raise RuntimeError(f"Fit title-row state drifted: expected {expected!r}, got {actual!r}")
+
+
 def _capture_modeling_fit_states(browser: Browser, base_url: str, output: Path) -> None:
     """Capture the Fit drawer, failure, exact-source, and restored states."""
 
-    def prepared_fit(label: str) -> Page:
-        page = _new_page(browser, base_url, 1440, 900)
+    def prepared_fit(label: str, width: int = 1440, height: int = 900) -> Page:
+        page = _new_page(browser, base_url, width, height)
         _prepare_fit_from_saved_process(page, base_url, label=label)
         _click_modeling_fit_preview_and_wait(page)
+        _assert_fit_title_state(page, "Preview not saved")
         return page
 
     long_drawer = prepared_fit("Fit candidate drawer source")
@@ -3924,6 +4405,7 @@ def _capture_modeling_fit_states(browser: Browser, base_url: str, output: Path) 
 
     def prepare_scrolled_capture() -> None:
         _scroll_fit_evidence_locally(scrolled, scrolled_body, close_escape=False)
+        _position_fit_evidence_decision_surface(scrolled, scrolled_body)
         # Clear browser text selection only after the real keyboard/wheel/native
         # scrollbar interactions have been proven, so the screenshot records
         # the collapsed text-selection state rather than a synthetic highlight.
@@ -3939,7 +4421,7 @@ def _capture_modeling_fit_states(browser: Browser, base_url: str, output: Path) 
     )
     scrolled.context.close()
 
-    calculation_failed = prepared_fit("Fit calculation failure source")
+    calculation_failed = prepared_fit("Fit calculation failure source", 1920, 1080)
     calculation_failed.route(
         "**/api/v1/metal-fit-runs",
         lambda route: route.fulfill(
@@ -3953,6 +4435,7 @@ def _capture_modeling_fit_states(browser: Browser, base_url: str, output: Path) 
     calculation_failed.locator(".persistent-modeling-plot svg[role=img]").wait_for(
         state="visible", timeout=30_000
     )
+    _assert_fit_title_state(calculation_failed, "Preview not saved")
     _assert_fit_display_scale(calculation_failed, "calculation-failed")
     if calculation_failed.get_by_role(
         "button", name=re.compile(r"Preview changes|Update candidates"), exact=False
@@ -3960,13 +4443,13 @@ def _capture_modeling_fit_states(browser: Browser, base_url: str, output: Path) 
         raise RuntimeError("Fit calculation failure lost its explicit retry/update action")
     _capture(
         calculation_failed,
-        output / "modeling-fit-calculation-failed-1440x900.png",
-        1440,
-        900,
+        output / "modeling-fit-calculation-failed-1920x1080.png",
+        1920,
+        1080,
     )
     calculation_failed.context.close()
 
-    save_failed = prepared_fit("Fit save failure source")
+    save_failed = prepared_fit("Fit save failure source", 1920, 1080)
     save_trigger, _save_body, save_table = _open_fit_evidence(save_failed)
     _assert_fit_candidate_surface(save_failed, save_table)
     _select_warned_fit_candidate(save_table)
@@ -4002,10 +4485,11 @@ def _capture_modeling_fit_states(browser: Browser, base_url: str, output: Path) 
     save_failed.locator(".persistent-modeling-plot svg[role=img]").wait_for(
         state="visible", timeout=30_000
     )
-    _capture(save_failed, output / "modeling-fit-save-failed-1440x900.png", 1440, 900)
+    _assert_fit_title_state(save_failed, "Preview not saved")
+    _capture(save_failed, output / "modeling-fit-save-failed-1920x1080.png", 1920, 1080)
     save_failed.context.close()
 
-    fit_blocked = _new_page(browser, base_url, 1440, 900)
+    fit_blocked = _new_page(browser, base_url, 1920, 1080)
     _prepare_fit_from_saved_process(fit_blocked, base_url, label="Fit blocked source")
     fit_blocked.evaluate(
         """() => {
@@ -4024,10 +4508,11 @@ def _capture_modeling_fit_states(browser: Browser, base_url: str, output: Path) 
         fit_blocker_message,
         exact=True,
     ).wait_for(state="visible", timeout=30_000)
-    fit_source_binding = fit_blocked.locator(".fit-source-binding.missing")
+    fit_source_binding = fit_blocked.locator(".fit-context-source")
     fit_source_binding.wait_for(state="visible", timeout=30_000)
-    if fit_source_binding.inner_text().strip() != fit_blocker_message:
-        raise RuntimeError("Fit exact-source blocker lost its settings binding status")
+    if fit_source_binding.inner_text().strip() != "No saved Process Output":
+        raise RuntimeError("Fit exact-source blocker lost its header source status")
+    _assert_fit_title_state(fit_blocked, "Not calculated")
     fit_blocked.get_by_role("button", name="Back to Process", exact=True).wait_for(
         state="visible", timeout=30_000
     )
@@ -4042,7 +4527,7 @@ def _capture_modeling_fit_states(browser: Browser, base_url: str, output: Path) 
         item.get("processing_output_id")
         for item in _list_processing_outputs(fit_blocked, base_url)
     }
-    _capture(fit_blocked, output / "modeling-fit-exact-source-blocked-1440x900.png", 1440, 900)
+    _capture(fit_blocked, output / "modeling-fit-exact-source-blocked-1920x1080.png", 1920, 1080)
     # Arm the recovery-only request assertion after the blocked screenshot has
     # settled.  The screenshot path may refresh read-only data while it settles;
     # only the explicit Back to Process action and its readback belong here.
@@ -4073,13 +4558,22 @@ def _capture_modeling_fit_states(browser: Browser, base_url: str, output: Path) 
         }
         if recovered_history != blocked_history:
             raise RuntimeError("Fit blocked recovery changed Processing Output history")
-        if any(not request.startswith("GET ") for request in blocked_requests):
-            raise RuntimeError(f"Fit blocked recovery issued a mutation request: {blocked_requests!r}")
+        allowed_preview_path = "/api/v1/processing:preview"
+        unexpected = [
+            request for request in blocked_requests
+            if not request.startswith("GET ")
+            and not (
+                request.startswith("POST ")
+                and urlsplit(request.split(" ", 1)[1]).path == allowed_preview_path
+            )
+        ]
+        if unexpected:
+            raise RuntimeError(f"Fit blocked recovery issued a forbidden mutation request: {unexpected!r}")
     finally:
         fit_blocked.remove_listener("request", record_blocked_recovery_request)
     fit_blocked.context.close()
 
-    exact_read_failed = prepared_fit("Fit exact-read failure source")
+    exact_read_failed = prepared_fit("Fit exact-read failure source", 1920, 1080)
     fit_saved = False
     exact_content_requests: list[str] = []
     request_methods: list[str] = []
@@ -4122,6 +4616,7 @@ def _capture_modeling_fit_states(browser: Browser, base_url: str, output: Path) 
     exact_read_failed.get_by_text(
         "Saved Fit result unavailable", exact=False
     ).wait_for(timeout=30_000)
+    _assert_fit_title_state(exact_read_failed, "Preview not saved")
     retry_saved_fit = exact_read_failed.get_by_role(
         "button", name="Retry exact saved Fit", exact=True
     )
@@ -4159,6 +4654,7 @@ def _capture_modeling_fit_states(browser: Browser, base_url: str, output: Path) 
     exact_read_failed.get_by_text(
         "Saved Fit result unavailable", exact=False
     ).wait_for(timeout=30_000)
+    _assert_fit_title_state(exact_read_failed, "Preview not saved")
     if len(exact_content_requests) != 2 or exact_content_requests[1] != expected_content_url:
         raise RuntimeError(
             f"Fit exact saved-output retry did not repeat the same exact URL: {exact_content_requests!r}"
@@ -4171,13 +4667,13 @@ def _capture_modeling_fit_states(browser: Browser, base_url: str, output: Path) 
         raise RuntimeError("Fit exact saved-output retry mutated the current pointer")
     _capture(
         exact_read_failed,
-        output / "modeling-fit-exact-read-failed-1440x900.png",
-        1440,
-        900,
+        output / "modeling-fit-exact-read-failed-1920x1080.png",
+        1920,
+        1080,
     )
     exact_read_failed.context.close()
 
-    restored = prepared_fit("Fit restored source")
+    restored = prepared_fit("Fit restored source", 1920, 1080)
     _save_exact_fit_selection(restored)
     restored_session = _modeling_session(restored)
     restored_pointer = restored_session.get("processingOutput")
@@ -4196,6 +4692,7 @@ def _capture_modeling_fit_states(browser: Browser, base_url: str, output: Path) 
         "Saved immutable Fit Output restored with its exact Process source and decision.",
         exact=False,
     ).wait_for(timeout=30_000)
+    _assert_fit_title_state(restored, "Saved current")
     restored.get_by_role("img", name="Hardening candidate and selected extrapolation curves", exact=True).wait_for(
         state="visible", timeout=30_000
     )
@@ -4234,7 +4731,7 @@ def _capture_modeling_fit_states(browser: Browser, base_url: str, output: Path) 
     )
     if not isinstance(source_output, dict) or not isinstance(source_output.get("current_revision"), dict):
         raise RuntimeError("Restored Fit output lost its exact Process source identity")
-    source_binding_text = restored.locator(".fit-source-binding").inner_text()
+    source_binding_text = restored.locator(".fit-context-source").inner_text()
     source_revision_record = source_output.get("current_revision")
     if not isinstance(source_revision_record, dict):
         raise RuntimeError("Restored Fit source revision record is unavailable")
@@ -4246,21 +4743,18 @@ def _capture_modeling_fit_states(browser: Browser, base_url: str, output: Path) 
         or source_label not in source_binding_text
         or f"r{source_revision}" not in source_binding_text
         or not isinstance(source_digest, str)
-        or source_digest[:12] not in source_binding_text
     ):
-        raise RuntimeError(f"Restored Fit source binding lost label/revision/digest: {source_binding_text!r}")
-    saved_binding_text = restored.locator(".fit-source-binding").inner_text()
+        raise RuntimeError(f"Restored Fit source header lost label/revision: {source_binding_text!r}")
     saved_revision_record = persisted.get("current_revision") if isinstance(persisted, dict) else None
     if not isinstance(saved_revision_record, dict):
         raise RuntimeError("Restored Fit output revision identity is unavailable")
     saved_revision_no = saved_revision_record.get("revision_no")
-    if (
-        not isinstance(restored_pointer.get("label"), str)
-        or restored_pointer["label"] not in saved_binding_text
-        or f"r{saved_revision_no}" not in saved_binding_text
-    ):
-        raise RuntimeError("Restored Fit output lost its saved label/revision identity")
     restore_trigger, _restore_body, restore_table = _open_fit_evidence(restored)
+    source_evidence_text = restored.locator(".fit-source-evidence").inner_text()
+    if not isinstance(source_digest, str) or source_digest not in source_evidence_text:
+        raise RuntimeError("Restored Fit candidate evidence lost the full source digest")
+    if restored_pointer["label"] not in source_evidence_text or f"r{saved_revision_no}" not in source_evidence_text:
+        raise RuntimeError("Restored Fit candidate evidence lost the saved output identity")
     _assert_fit_selected_evidence(restored)
     selected_rows = restore_table.locator("tbody tr.selected")
     if selected_rows.count() != 1:
@@ -4278,7 +4772,7 @@ def _capture_modeling_fit_states(browser: Browser, base_url: str, output: Path) 
         raise RuntimeError(f"Restored Fit reload used a non-exact content URL: {content_urls!r}")
     if any(method != "GET" for method, _url in restore_requests):
         raise RuntimeError(f"Restored Fit reload issued a non-GET request: {restore_requests!r}")
-    _capture(restored, output / "modeling-fit-restored-1440x900.png", 1440, 900)
+    _capture(restored, output / "modeling-fit-restored-1920x1080.png", 1920, 1080)
     restored.context.close()
 
 
