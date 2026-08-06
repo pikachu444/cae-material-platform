@@ -356,11 +356,38 @@ describe("EngineeringCurvePlot", () => {
     expect(screen.getByText("Preview Swift/Voce blend")).toBeTruthy();
     expect(screen.getByText("Shaded: extrapolated/unobserved")).toBeTruthy();
     expect(container.querySelector(".extrapolation-region")).toBeTruthy();
+    const shade = container.querySelector(".extrapolation-region rect");
+    const annotationLayer = container.querySelector(".extrapolation-annotation-layer");
+    const annotationLabel = annotationLayer?.querySelector("text.extrapolation-label");
+    const hardeningClipGroup = container.querySelector("g.hardening-series-clip");
+    const hardeningClipReference = hardeningClipGroup?.getAttribute("clip-path");
+    const hardeningClipId = hardeningClipReference?.match(/^url\(#(.+)\)$/)?.[1];
+    const hardeningClipPath = Array.from(container.querySelectorAll("clipPath")).find((node) => node.id === hardeningClipId);
+    const hardeningClipRect = hardeningClipPath?.querySelector("rect");
+    const candidateLines = container.querySelectorAll("polyline.curve-line");
+    expect(shade).toBeTruthy();
+    expect(annotationLayer).toBeTruthy();
+    expect(annotationLabel).toBeTruthy();
+    expect(hardeningClipGroup).toBeTruthy();
+    expect(hardeningClipReference).toMatch(/^url\(#.+\)$/);
+    expect(container.querySelectorAll("clipPath")).toHaveLength(1);
+    expect(hardeningClipRect).toBeTruthy();
+    expect(Number(hardeningClipRect?.getAttribute("x"))).toBe(80);
+    expect(Number(hardeningClipRect?.getAttribute("y"))).toBe(Number(shade?.getAttribute("y")));
+    expect(Number(hardeningClipRect?.getAttribute("width"))).toBe(656);
+    expect(Number(hardeningClipRect?.getAttribute("height"))).toBe(344);
+    expect(Array.from(candidateLines).every((line) => hardeningClipGroup?.contains(line))).toBe(true);
+    expect(annotationLayer?.querySelector("rect")).toBeNull();
+    expect(container.querySelector(".extrapolation-region text")).toBeNull();
+    expect(hardeningClipGroup?.compareDocumentPosition(annotationLayer!)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(Number(annotationLabel?.getAttribute("y"))).toBeLessThan(Number(shade?.getAttribute("y")));
     fireEvent.click(screen.getByRole("tab", { name: "Residual" }));
     expect(screen.getByText("predicted - observed [MPa]")).toBeTruthy();
     expect(container.querySelectorAll("polyline.curve-line")).toHaveLength(3);
+    expect(Array.from(container.querySelectorAll("polyline.curve-line")).every((line) => hardeningClipGroup?.contains(line))).toBe(true);
     fireEvent.click(screen.getByRole("tab", { name: "Tangent modulus" }));
     expect(container.querySelectorAll(".chart-axis-label")[1]?.textContent).toMatch(/d\(stress\) \/ d\(plastic strain\) \[(M|G)Pa\]/);
+    expect(Array.from(container.querySelectorAll("polyline.curve-line")).every((line) => hardeningClipGroup?.contains(line))).toBe(true);
   });
 
   it("uses the explicit engineer fit identity instead of labeling the preview blend as selected", () => {
@@ -524,12 +551,28 @@ describe("EngineeringCurvePlot", () => {
     expect(isGhoshTailDisplayTrim(ghosh, step, ghoshBlendSelection, "response")).toBe(true);
     expect(isGhoshTailDisplayTrim(ghosh, step, selected, "residual")).toBe(false);
     expect(isGhoshTailDisplayTrim(ghosh, step, selected, "derivative")).toBe(true);
-    expect(screen.getByText("Ghosh tail near ε0 exceeds the display scale; exact values remain in Candidate parameters.")).toBeTruthy();
+    expect(screen.getByText("Ghosh exceeds chart scale")).toBeTruthy();
     expect(screen.getByText("Hardening stress [MPa]")).toBeTruthy();
     // The exact response array remains fully plotted, including the tail point.
     const ghoshLine = container.querySelector("polyline.hardening-candidate[style*='rgb']")
       ?? container.querySelector("polyline.hardening-candidate");
     expect(ghoshLine?.getAttribute("points")?.split(" ")).toHaveLength(4);
+    const hardeningClipGroup = container.querySelector("g.hardening-series-clip");
+    const hardeningClipReference = hardeningClipGroup?.getAttribute("clip-path");
+    const hardeningClipId = hardeningClipReference?.match(/^url\(#(.+)\)$/)?.[1];
+    const hardeningClipPath = Array.from(container.querySelectorAll("clipPath")).find((node) => node.id === hardeningClipId);
+    const hardeningClipRect = hardeningClipPath?.querySelector("rect");
+    const shade = container.querySelector(".extrapolation-region rect");
+    const annotationLayer = container.querySelector(".extrapolation-annotation-layer");
+    const annotationLabel = annotationLayer?.querySelector("text.extrapolation-label");
+    expect(hardeningClipGroup).toBeTruthy();
+    expect(hardeningClipRect).toBeTruthy();
+    expect(Number(hardeningClipRect?.getAttribute("y"))).toBe(Number(shade?.getAttribute("y")));
+    expect(Number(hardeningClipRect?.getAttribute("width"))).toBe(656);
+    expect(Number(hardeningClipRect?.getAttribute("height"))).toBe(344);
+    expect(Array.from(container.querySelectorAll("polyline.curve-line")).every((line) => hardeningClipGroup?.contains(line))).toBe(true);
+    expect(hardeningClipGroup?.compareDocumentPosition(annotationLayer!)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(Number(annotationLabel?.getAttribute("y"))).toBeLessThanOrEqual(Number(hardeningClipRect?.getAttribute("y")));
     expect(container.querySelectorAll("polyline.curve-line").length).toBeGreaterThanOrEqual(4);
     fireEvent.click(screen.getByRole("tab", { name: "Tangent modulus" }));
     expect(screen.getByText("d(stress) / d(plastic strain) [Pa]")).toBeTruthy();

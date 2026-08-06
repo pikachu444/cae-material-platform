@@ -4,10 +4,31 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   CommonProcessingWorkbench,
+  fitSurfaceState,
   fitRailIdentity,
   manualModulusDisplayValue,
   manualModulusPascals,
 } from "./common-processing-workbench";
+
+describe("Fit surface state mapping", () => {
+  const base = {
+    previewBusy: false,
+    usablePreview: false,
+    verifiedSavedFit: false,
+    fitHistoryExists: false,
+  };
+
+  it("keeps calculating and saved-current precedence exact", () => {
+    expect(fitSurfaceState({ ...base, previewBusy: true, usablePreview: true })).toBe("calculating");
+    expect(fitSurfaceState({ ...base, usablePreview: true, verifiedSavedFit: true })).toBe("saved-current");
+    expect(fitSurfaceState({ ...base, usablePreview: true, verifiedSavedFit: false })).toBe("preview-not-saved");
+  });
+
+  it("distinguishes stale history from an uncalculated source", () => {
+    expect(fitSurfaceState({ ...base, fitHistoryExists: true })).toBe("saved-result-stale");
+    expect(fitSurfaceState(base)).toBe("not-calculated");
+  });
+});
 
 function jsonResponse(body: unknown, status = 200, headers: Record<string, string> = {}): Response {
   return {
@@ -1250,6 +1271,8 @@ describe("Common Processing Workbench", () => {
     expect((screen.getByLabelText("Ordered processing steps") as HTMLTextAreaElement).value).toContain(
       '"method_id": "metal.hardening_fit_extrapolate"',
     );
+    expect(document.querySelector(".modeling-context-actions > .modeling-advanced-menu > summary")?.className)
+      .toContain("button secondary");
     if (settingsControl.getAttribute("aria-expanded") === "false") fireEvent.click(settingsControl);
     fireEvent.click(screen.getByText("Advanced · Recipe and Batch"));
     fireEvent.click(screen.getByRole("button", { name: /Recipe/ }));
@@ -1281,12 +1304,18 @@ describe("Common Processing Workbench", () => {
     expect(screen.queryByRole("button", { name: "Apply" })).toBeNull();
     expect(screen.getByLabelText("Output points").closest("fieldset")).toBeTruthy();
     expect(screen.getByLabelText("Secondary hardening law").closest("fieldset")?.className).toContain("selected-blend-group");
-    expect(screen.getByText("Stress response · observed evidence and hardening candidates")).toBeTruthy();
+    const fitPlotHeading = screen.getByRole("heading", { name: "Hardening response", level: 2 });
+    expect(fitPlotHeading).toBeTruthy();
+    expect(screen.queryAllByText("Hardening response", { exact: true })
+      .filter((node) => node.tagName.toLowerCase() !== "h2")).toHaveLength(0);
     expect(screen.queryByRole("button", { name: "Select range" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Select fit range" }));
     expect(screen.getByRole("button", { name: "Select fit range" }).getAttribute("aria-pressed")).toBe("true");
     expect(screen.getByText("Candidate parameters")).toBeTruthy();
     fireEvent.click(screen.getByText("Candidate parameters"));
+    const sourceEvidence = screen.getByLabelText("Source evidence");
+    expect(within(sourceEvidence).getByText("Source digest")).toBeTruthy();
+    expect(within(sourceEvidence).getByText("Fit method")).toBeTruthy();
     expect(screen.getByText("voce relative rmse")).toBeTruthy();
     expect(await screen.findByRole("columnheader", { name: "Recommendation" })).toBeTruthy();
     expect(screen.getAllByRole("button", { name: "Save fit & continue" })).toHaveLength(1);
@@ -2485,13 +2514,13 @@ describe("Common Processing Workbench", () => {
       await waitFor(() => expect(contentGets).toBe(1));
       await waitFor(() => expect(screen.getByText(/New immutable Fit Output saved and current/i)).toBeTruthy());
       expect(screen.queryByText(restoredNotice)).toBeNull();
-      expect(document.querySelector(".persistent-modeling-plot h2")?.textContent ?? "").toContain("Hardening fit");
+      expect(document.querySelector(".persistent-modeling-plot h2")?.textContent ?? "").toContain("Hardening response");
 
       view.unmount();
       view = render(renderWorkbench(savedSession));
       await screen.findByText(restoredNotice);
       expect(contentGets).toBe(2);
-      expect(document.querySelector(".persistent-modeling-plot h2")?.textContent ?? "").toContain("Hardening fit");
+      expect(document.querySelector(".persistent-modeling-plot h2")?.textContent ?? "").toContain("Hardening response");
     } finally {
       view?.unmount();
       vi.doUnmock("./modeling-fit-output");
@@ -2525,7 +2554,7 @@ describe("Common Processing Workbench", () => {
       await new Promise((resolve) => setTimeout(resolve, 50));
       expect(document.querySelector(".persistent-modeling-plot h2")?.textContent ?? "").not.toContain("Proof stress");
       fetchState.pendingContent[1].resolve(fitRestoreContentResponse("B"));
-      await waitFor(() => expect(document.querySelector(".persistent-modeling-plot h2")?.textContent ?? "").toContain("Hardening fit"));
+      await waitFor(() => expect(document.querySelector(".persistent-modeling-plot h2")?.textContent ?? "").toContain("Hardening response"));
     } finally {
       view?.unmount();
       vi.doUnmock("./modeling-fit-output");

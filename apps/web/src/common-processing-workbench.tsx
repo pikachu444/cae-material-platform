@@ -118,6 +118,34 @@ type SavedResultLoadState = {
   scalarPa?: number;
 };
 
+export type FitSurfaceState =
+  | "calculating"
+  | "saved-current"
+  | "preview-not-saved"
+  | "saved-result-stale"
+  | "not-calculated";
+
+export function fitSurfaceState(input: {
+  previewBusy: boolean;
+  usablePreview: boolean;
+  verifiedSavedFit: boolean;
+  fitHistoryExists: boolean;
+}): FitSurfaceState {
+  if (input.previewBusy) return "calculating";
+  if (input.verifiedSavedFit && input.usablePreview) return "saved-current";
+  if (input.usablePreview) return "preview-not-saved";
+  if (input.fitHistoryExists) return "saved-result-stale";
+  return "not-calculated";
+}
+
+const FIT_SURFACE_STATE_LABELS: Record<FitSurfaceState, string> = {
+  calculating: "Calculating",
+  "saved-current": "Saved current",
+  "preview-not-saved": "Preview not saved",
+  "saved-result-stale": "Saved result stale",
+  "not-calculated": "Not calculated",
+};
+
 type ExactFitRestore = {
   preview: CommonProcessingPreview;
   selection: FitDecisionSelection | null;
@@ -896,6 +924,9 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   // Selection is a working engineer decision, intentionally independent of Recipe intent.
   const [fitSelection, setFitSelection] = useState<FitDecisionSelection | null>(null);
   const [metalFitRunId, setMetalFitRunId] = useState<string | null>(null);
+  // A saved pointer is verified only after the exact Fit Output has been
+  // restored successfully (or saved in this mounted session).
+  const [verifiedFitOutputKey, setVerifiedFitOutputKey] = useState<string | null>(null);
   const [fitEvidenceOpen, setFitEvidenceOpen] = useState(false);
   const [fitPlotCommand, setFitPlotCommand] = useState<PlotInteractionCommand | null>(null);
   const [fitPlotInteraction, setFitPlotInteraction] = useState<PlotInteractionState>({ mode: "pan", hasSelection: false });
@@ -996,6 +1027,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     setLastValidPreview(null);
     updateLocalCurrentOutput(null);
     setMetalFitRunId(null);
+    setVerifiedFitOutputKey(null);
     setFitRestoreError(null);
     attemptedExactDocumentKey.current = null;
     pendingExplicitProcessPreview.current = null;
@@ -1015,6 +1047,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     setStepsText(next);
     setFitSelection(null);
     setPreview(null);
+    setVerifiedFitOutputKey(null);
     if (isProcessTask) {
       pendingExplicitProcessPreview.current = { originTask: "process" };
     } else if (pendingExplicitProcessPreview.current) {
@@ -1042,6 +1075,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     updateLocalCurrentOutput(null);
     setMetalFitRunId(null);
     setFitSelection(null);
+    setVerifiedFitOutputKey(null);
     if (isProcessTask) {
       pendingExplicitProcessPreview.current = { originTask: "process" };
     } else if (pendingExplicitProcessPreview.current) {
@@ -1057,6 +1091,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     setPreview(null);
     updateLocalCurrentOutput(null);
     setFitSelection(null);
+    setVerifiedFitOutputKey(null);
     if (isProcessTask) {
       pendingExplicitProcessPreview.current = { originTask: "process" };
     } else if (pendingExplicitProcessPreview.current) {
@@ -1072,6 +1107,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     setStepsText(next);
     setPreview(null);
     updateLocalCurrentOutput(null);
+    setVerifiedFitOutputKey(null);
     if (isProcessTask) {
       pendingExplicitProcessPreview.current = { originTask: "process" };
     } else if (pendingExplicitProcessPreview.current) {
@@ -1756,6 +1792,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     previewAbortController.current = controller;
     const requestNo = exactDocumentGeneration.current + 1;
     exactDocumentGeneration.current = requestNo;
+    if (workflowTask === "fit") setVerifiedFitOutputKey(null);
     setPreviewBusy(true);
     setError(null);
     try {
@@ -1873,6 +1910,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       return null;
     }
     setBusy(true);
+    if (overrides?.fitDecision) setVerifiedFitOutputKey(null);
     setError(null);
     try {
       const result = await commitCommonProcessingOutput(config, {
@@ -1904,6 +1942,9 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         ? "New immutable Fit Output saved and current; earlier revisions remain. Modeling Export is separate and has not started."
         : "Processed result saved and current; earlier results remain in history.");
       updateLocalCurrentOutput({ id: result.data.processing_output_id, revisionId: result.data.current_revision.id });
+      if (overrides?.fitDecision) {
+        setVerifiedFitOutputKey(`${result.data.processing_output_id}:${result.data.current_revision.id}`);
+      }
       const outputRef = {
         id: result.data.processing_output_id,
         revisionId: result.data.current_revision.id,
@@ -2246,6 +2287,32 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       : undefined;
     return session && !session.steps.some((step) => isFitMethod(step.method_id)) ? session : undefined;
   }, [exactSessionOutput, initialSession?.processingOutput, localCurrentOutput, outputs, workflowTask]);
+  const currentFitOutput = useMemo(() => {
+    if (workflowTask !== "fit") return undefined;
+    if (exactSessionOutput?.steps.some((step) => isFitMethod(step.method_id))) return exactSessionOutput;
+    if (localCurrentOutput) {
+      const local = outputs.find((output) => output.processing_output_id === localCurrentOutput.id
+        && output.current_revision.id === localCurrentOutput.revisionId);
+      if (local?.steps.some((step) => isFitMethod(step.method_id))) return local;
+    }
+    return undefined;
+  }, [exactSessionOutput, localCurrentOutput, outputs, workflowTask]);
+  const fitHistoryExists = workflowTask === "fit"
+    && outputs.some((output) => output.steps.some((step) => isFitMethod(step.method_id)));
+  const fitPreviewUsable = workflowTask === "fit"
+    && Boolean(preview?.stages.some((stage) => isFitMethod(stage.method_id)));
+  const verifiedSavedFit = Boolean(
+    currentFitOutput
+      && verifiedFitOutputKey === `${currentFitOutput.processing_output_id}:${currentFitOutput.current_revision.id}`
+      && !fitRestoreError,
+  );
+  const fitState = fitSurfaceState({
+    previewBusy,
+    usablePreview: fitPreviewUsable,
+    verifiedSavedFit,
+    fitHistoryExists: Boolean(fitSourceOutput) && fitHistoryExists,
+  });
+  const fitStateLabel = FIT_SURFACE_STATE_LABELS[fitState];
   useEffect(() => {
     if (workflowTask !== "fit" || !exactSessionOutput?.steps.some((step) => isFitMethod(step.method_id)) || !fitSourceOutput) return;
     // The complete identity is intentionally conservative.  In particular,
@@ -2296,6 +2363,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         setPreview(restored.preview);
         setLastValidPreview(restored.preview);
         setFitSelection(restored.selection);
+        setVerifiedFitOutputKey(`${exactSessionOutput.processing_output_id}:${exactSessionOutput.current_revision.id}`);
         setFitRestoreError(null);
         setSelectedStage(restored.preview.stages.length - 1);
         setSelectedStepIndex(restored.preview.stages.length - 2);
@@ -2311,6 +2379,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         // Preserve the last valid graph/input/selection.  A tampered or
         // unreadable saved result is never replaced by a raw/latest fallback.
         fitRestoreSettledKey.current = restoreIdentity;
+        setVerifiedFitOutputKey(null);
         setFitRestoreError(errorMessage(caught));
         setError(`Saved Fit result unavailable · Retry exact saved result. ${errorMessage(caught)}`);
       },
@@ -2752,15 +2821,33 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     && workflowTask === "fit"
     && familyWorkbench !== undefined;
 
-  const fitEvidenceContent = selectedConfiguredStep && activeStage ? <>
-    {selectedConfiguredStep.method_id === "metal.hardening_fit_extrapolate" && activeStage.method_id === "metal.hardening_fit_extrapolate" ? <Suspense fallback={<p className="loading-state">Loading fit evidence…</p>}><HardeningCandidateEvidence stage={activeStage} step={selectedConfiguredStep} selection={fitSelection} onSelect={(selection) => { setFitSelection(selection); onSessionEvent?.({ type: "CHANGE_SELECTION" }); }} onChangeSelection={(selection) => { setFitSelection(selection); onSessionEvent?.({ type: "CHANGE_SELECTION" }); }} /></Suspense> : null}
-    {(selectedConfiguredStep.method_id === "polymer.prony_fit_compare" || selectedConfiguredStep.method_id === "polymer.dma_prony_fit_compare") && activeStage.method_id === selectedConfiguredStep.method_id ? <Suspense fallback={<p className="loading-state">Loading fit evidence…</p>}><PronyCandidateEvidence stage={activeStage} step={selectedConfiguredStep} selection={fitSelection} onSelect={(selection) => { setFitSelection(selection); onSessionEvent?.({ type: "CHANGE_SELECTION" }); }} onChangeSelection={(selection) => { setFitSelection(selection); onSessionEvent?.({ type: "CHANGE_SELECTION" }); }} /></Suspense> : null}
-  </> : <p className="muted">Run Fit preview to calculate candidate evidence.</p>;
+  const updateFitSelection = (selection: FitDecisionSelection | null): void => {
+    setFitSelection(selection);
+    setVerifiedFitOutputKey(null);
+    onSessionEvent?.({ type: "CHANGE_SELECTION" });
+  };
+  const fitSourceEvidence = <section className="fit-source-evidence" aria-label="Source evidence">
+    <div className="fit-source-evidence-heading"><h3>Source evidence</h3><span>Exact revisions</span></div>
+    {fitSourceOutput ? <dl>
+      <div><dt>Process source</dt><dd>{fitSourceOutput.label} · r{fitSourceOutput.current_revision.revision_no}</dd></div>
+      <div><dt>Source digest</dt><dd><code>{fitSourceOutput.output_sha256}</code></dd></div>
+      <div><dt>Fit method</dt><dd>{selectedConfiguredStep ? <><strong>{selectedConfiguredStep.method_id}</strong>{methods.find((method) => method.method_id === selectedConfiguredStep.method_id) ? ` · ${methods.find((method) => method.method_id === selectedConfiguredStep.method_id)?.version}` : ""}</> : "Not selected"}</dd></div>
+      {metalFitRunId ? <div><dt>Fit run</dt><dd><code>{metalFitRunId}</code></dd></div> : null}
+      {currentFitOutput ? <div><dt>Saved Fit Output</dt><dd>{currentFitOutput.label} · r{currentFitOutput.current_revision.revision_no}</dd></div> : null}
+    </dl> : <p className="muted">No saved Process Output is bound. Save Process before calculating Fit.</p>}
+  </section>;
+  const fitEvidenceContent = <>
+    {fitSourceEvidence}
+    {selectedConfiguredStep && activeStage ? <>
+      {selectedConfiguredStep.method_id === "metal.hardening_fit_extrapolate" && activeStage.method_id === "metal.hardening_fit_extrapolate" ? <Suspense fallback={<p className="loading-state">Loading fit evidence…</p>}><HardeningCandidateEvidence stage={activeStage} step={selectedConfiguredStep} selection={fitSelection} onSelect={updateFitSelection} onChangeSelection={updateFitSelection} /></Suspense> : null}
+      {(selectedConfiguredStep.method_id === "polymer.prony_fit_compare" || selectedConfiguredStep.method_id === "polymer.dma_prony_fit_compare") && activeStage.method_id === selectedConfiguredStep.method_id ? <Suspense fallback={<p className="loading-state">Loading fit evidence…</p>}><PronyCandidateEvidence stage={activeStage} step={selectedConfiguredStep} selection={fitSelection} onSelect={updateFitSelection} onChangeSelection={updateFitSelection} /></Suspense> : null}
+    </> : <p className="muted">Run Fit preview to calculate candidate evidence.</p>}
+  </>;
   const fitEvidenceDock = workflowTask === "fit" && fitEvidenceOpen ? (
     <div className="fit-evidence-drawer" id="fit-evidence-dock">
       <header className="fit-evidence-drawer-header">
         <strong>Candidate parameters</strong>
-        <span className="fit-evidence-drawer-status" role="status">Calculated evidence · not saved</span>
+        <span className="fit-evidence-drawer-status" role="status">{fitStateLabel}</span>
         <button className="text-button" type="button" onClick={closeFitEvidence}>Close</button>
       </header>
       <div className="fit-evidence-body" ref={fitEvidenceBodyRef} tabIndex={0} aria-label="Candidate parameters evidence">
@@ -2776,9 +2863,9 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   return (
     <main className={`processing-workbench-page stage-${workflowTask}`}>
       <header className="modeling-context-strip" aria-label="Modeling context">
-        <div className="modeling-work-title"><strong>{stageTitle}</strong><span>{[initialSession?.material?.label, selectedTrackDocument ? curveGroupLabel(selectedTrackDocument) : ""].filter(Boolean).join(" / ") || "Select test data"}</span></div>
+        <div className="modeling-work-title"><strong>{stageTitle}</strong>{workflowTask === "fit" ? <><span className="fit-context-source" title={fitSourceOutput ? `${fitSourceOutput.label} · r${fitSourceOutput.current_revision.revision_no}` : "No saved Process Output is bound"}>{fitSourceOutput ? `${fitSourceOutput.label} · r${fitSourceOutput.current_revision.revision_no}` : "No saved Process Output"}</span><span className={`fit-surface-state fit-surface-state-${fitState}`} role="status">{fitStateLabel}</span></> : <span>{[initialSession?.material?.label, selectedTrackDocument ? curveGroupLabel(selectedTrackDocument) : ""].filter(Boolean).join(" / ") || "Select test data"}</span>}</div>
         <div className="modeling-context-actions">
-          <details className="modeling-advanced-menu"><summary>Advanced</summary><div role="tablist" aria-label="Material modeling family"><button type="button" role="tab" aria-selected={modelingTrack === "metal"} onClick={() => selectModelingTrack("metal")}>Metal · elastoplastic</button><button type="button" role="tab" aria-selected={modelingTrack === "polymer"} onClick={() => selectModelingTrack("polymer")}>Polymer · viscoelastic</button><button type="button" role="tab" aria-selected={modelingTrack === "elastomer"} onClick={() => selectModelingTrack("elastomer")}>Elastomer · hyper-viscoelastic</button><button type="button" onClick={() => openWorkflowTask("validate")}>Validation & review</button></div></details>
+          <details className="modeling-advanced-menu"><summary className="button secondary">Advanced</summary><div role="tablist" aria-label="Material modeling family"><button type="button" role="tab" aria-selected={modelingTrack === "metal"} onClick={() => selectModelingTrack("metal")}>Metal · elastoplastic</button><button type="button" role="tab" aria-selected={modelingTrack === "polymer"} onClick={() => selectModelingTrack("polymer")}>Polymer · viscoelastic</button><button type="button" role="tab" aria-selected={modelingTrack === "elastomer"} onClick={() => selectModelingTrack("elastomer")}>Elastomer · hyper-viscoelastic</button><button type="button" onClick={() => openWorkflowTask("validate")}>Validation & review</button></div></details>
           {isProcessTask || workflowTask === "fit" ? <button className="button secondary" type="button" disabled={busy || previewBusy || (isProcessTask && !processSourceReady)} onClick={() => void runPreview()}>{previewBusy ? "Updating…" : "Preview changes"}</button> : null}
           {workflowTask === "fit" ? <button className="button primary" type="button" disabled={busy || !fitDecisionReady || (!selectedProfileId && !fitSourceOutput)} onClick={() => void saveSelectedFitOutput()}>Save fit &amp; continue</button> : null}
         </div>
@@ -2858,7 +2945,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
             {isProcessTask || workflowTask === "fit" ? <div className={`configured-step-list${isApprovedMetalFit ? " approved-fit-process-tree" : ""}`}><p className="rail-title">{isApprovedMetalFit ? "Process" : stageRail}{isApprovedMetalFit ? <span>4 steps</span> : null}</p>{displayedRailEntries.map(({ step, index, label, title, railIndex }) => { const groupedFitRail = workflowTask === "fit" && modelingTrack === "metal"; return <button type="button" title={title} disabled={processBlocked} className={selectedStepIndex === index ? "active" : ""} key={`${index}:${step.method_id}`} onClick={() => focusConfiguredStep(index)}><span>{groupedFitRail ? railIndex + 1 : index + 1}</span><span><strong>{label}</strong>{!groupedFitRail ? <small>{step.method_version}</small> : null}</span></button>; })}{isApprovedMetalFit ? <footer className="curve-tree-foot">Details in Evidence</footer> : null}</div> : null}
           </> : null}
           plot={<article className="persistent-modeling-plot" id="modeling-fit">
-            <div className="section-heading"><div><p className="workspace-caption">{workflowTask === "fit" ? "Stress response · observed evidence and hardening candidates" : workflowTask === "data" ? "Source preview" : isProcessTask ? "Curve response" : "Selected model response"}</p><h2>{activePlotView === "ensemble" ? "Replicate statistics" : workflowTask === "export" ? "Test data & selected model" : activeStage ? methods.find((method) => method.method_id === activeStage.method_id)?.label ?? methodDisplayName(activeStage.method_id) : "Load data and preview"}</h2></div>{workflowTask !== "export" && workflowTask !== "fit" ? <div className="plot-view-switch" role="group" aria-label="Curve plot view"><button type="button" className={activePlotView === "pipeline" ? "active" : ""} disabled={!preview} onClick={() => setPlotView("pipeline")}>Response</button>{ensemblePreview ? <button type="button" className={activePlotView === "ensemble" ? "active" : ""} onClick={() => setPlotView("ensemble")}>Mean &amp; band</button> : null}{(preview || ensemblePreview) && !isProcessTask ? <span className="plot-preview-state">Preview — not saved</span> : null}</div> : workflowTask === "export" && preview ? <span className="plot-preview-state">Current saved fit</span> : null}</div>
+            <div className="section-heading"><div>{workflowTask === "fit" ? <h2 className="fit-plot-heading">Hardening response</h2> : <><p className="workspace-caption">{workflowTask === "data" ? "Source preview" : isProcessTask ? "Curve response" : "Selected model response"}</p><h2>{activePlotView === "ensemble" ? "Replicate statistics" : workflowTask === "export" ? "Test data & selected model" : activeStage ? methods.find((method) => method.method_id === activeStage.method_id)?.label ?? methodDisplayName(activeStage.method_id) : "Load data and preview"}</h2></>}</div>{workflowTask !== "export" && workflowTask !== "fit" ? <div className="plot-view-switch" role="group" aria-label="Curve plot view"><button type="button" className={activePlotView === "pipeline" ? "active" : ""} disabled={!preview} onClick={() => setPlotView("pipeline")}>Response</button>{ensemblePreview ? <button type="button" className={activePlotView === "ensemble" ? "active" : ""} onClick={() => setPlotView("ensemble")}>Mean &amp; band</button> : null}{(preview || ensemblePreview) && !isProcessTask ? <span className="plot-preview-state">Preview — not saved</span> : null}</div> : workflowTask === "export" && preview ? <span className="plot-preview-state">Current saved fit</span> : null}</div>
             {workflowTask === "fit" && !fitSourceOutput ? <EngineeringCurvePlotEmpty width={chart.width} height={chart.height} blocked title="Fit is blocked" message="No saved Process Output is bound. Save Process before calculating Fit." blockedActionLabel="Back to Process" onBackToData={() => openWorkflowTask("process")} /> : graphPreview && activeStage && baseStage ? <EngineeringCurvePlot key={`${activeStage.method_id}:${activeStage.ordinal}:${workflowTask}`} preview={graphPreview} activeStage={activeStage} baseStage={baseStage} activeStep={activeConfiguredStep} fitSelection={fitSelection} selectedModelOnly={workflowTask === "export"} width={chart.width} height={chart.height} observedCurves={workflowTask === "data" || isProcessTask ? observedCurves : undefined} processOverlay={isProcessTask} onApplySelection={activePlotView === "pipeline" && workflowTask !== "export" ? applyGraphSelection : undefined} ensemblePreview={activePlotView === "ensemble" ? ensemblePreview : null} interactionCommand={workflowTask === "fit" ? fitPlotCommand : null} onInteractionStateChange={workflowTask === "fit" ? setFitPlotInteraction : undefined} /> : workflowTask === "data" ? <EngineeringCurvePlotEmpty width={chart.width} height={chart.height} onChooseLocal={() => window.dispatchEvent(new CustomEvent("cmp:modeling-data-source", { detail: { source: "local" } }))} /> : isProcessTask && !processSourceReady ? <EngineeringCurvePlotEmpty width={chart.width} height={chart.height} blocked message="Restore inputs." onBackToData={() => openWorkflowTask("data")} /> : <div className="modeling-plot-empty"><strong>{previewBusy ? "Updating the engineering preview…" : "The graph stays here while you prepare the curves."}</strong><p>{previewBusy ? "A newer processing change replaces the previous preview request." : isProcessTask ? matchingSavedOutputs.length > 0 ? "No Process preview is active. Choose Use settings for a saved result, then select Preview changes to preview the draft." : "No Process preview is active. Select Preview changes to preview the current Process settings." : "Choose a saved Test Data revision. The graph compares real curves without changing saved data."}</p></div>}
             {ensemblePreview && activePlotView === "ensemble" ? <div className="statistics-grid compact-statistics"><article><span>Included curves</span><strong>{ensemblePreview.members.length}</strong></article><article><span>Common points</span><strong>{ensemblePreview.grid.length}</strong></article><article><span>Domain policy</span><strong>Intersection</strong></article></div> : null}
           </article>}
@@ -2909,7 +2996,6 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
             <div className="workspace-inspector-heading"><p><strong>Current-step settings</strong><span> · fit and extrapolation</span></p><div className="modeling-ribbon-actions"><button className="text-button" type="button" onClick={() => setInspectorVisible(false)}>Close</button></div></div>
             {selectedConfiguredStep ? <>
               <div className="section-heading"><h3>Step {workflowTask === "fit" && modelingTrack === "metal" ? Math.max(1, fitRailEntries.findIndex((entry) => entry.index === selectedStepIndex) + 1) : selectedStepIndex + 1} · {selectedConfiguredStep.method_id === "metal.hardening_fit_extrapolate" ? "Hardening fit and extrapolation" : methods.find((method) => method.method_id === selectedConfiguredStep.method_id)?.label ?? methodDisplayName(selectedConfiguredStep.method_id)}</h3><div className="fit-heading-actions"><p className="fit-step-impact">All controls affect the persistent preview below</p><span aria-hidden="true">·</span><button className="text-button" type="button" onClick={removeSelectedStep}>Remove step</button></div></div>
-              {workflowTask === "fit" ? <p className={`fit-source-binding${fitSourceOutput ? "" : " missing"}`} role="status">{fitSourceOutput ? <>Exact Process source · <strong>{fitSourceOutput.label}</strong> · r{fitSourceOutput.current_revision.revision_no} · <code>{fitSourceOutput.output_sha256.slice(0, 12)}…</code>{exactSessionOutput?.steps.some((step) => isFitMethod(step.method_id)) ? <> · Saved Fit Output · <strong>{exactSessionOutput.label}</strong> · r{exactSessionOutput.current_revision.revision_no}</> : null}{metalFitRunId ? <> · run <code>{metalFitRunId.slice(0, 12)}…</code></> : null}</> : "No saved Process Output is bound. Save Process before calculating Fit."}</p> : null}
               <GuidedStepOptions step={selectedConfiguredStep} onChange={updateStepOption} graphInteraction={{ mode: fitPlotInteraction.mode, canApply: fitPlotInteraction.hasSelection, available: workflowTask === "fit" && activePlotView === "pipeline" && Boolean(preview && activeStage && activeStage.method_id === selectedConfiguredStep.method_id) }} onGraphModeChange={requestFitPlotMode} onApplyGraphSelection={applyFitPlotSelection} />
               {workflowTask === "fit" ? <button ref={fitEvidenceTriggerRef} className="fit-evidence-trigger" type="button" aria-expanded={fitEvidenceOpen} aria-controls="fit-evidence-dock" onClick={() => fitEvidenceOpen ? closeFitEvidence() : setFitEvidenceOpen(true)}>Candidate parameters</button> : null}
               {modelingTrack === "polymer" && selectedConfiguredStep.method_id === "polymer.prony_fit_compare" ? familyInspector : null}

@@ -133,7 +133,8 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         for capture_id in provenance["ids"]
     ]
 
-    process_commit = "31f9a3f+task3b-worktree"
+    prior_source = "31f9a3f+task3b-worktree"
+    correction_source = "7394070+fit-ui-correction-worktree"
     process_ids = {
         "MOD-PROCESS-CURRENT-LINEAR-1366",
         "MOD-PROCESS-CURRENT-BLOCKED-1440",
@@ -141,12 +142,13 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "MOD-PROCESS-CURRENT-SIBLINGS-1440",
     }
 
-    assert manifest["scope"] == "issue-158-modeling-process-consistency"
-    assert manifest["source_commit"] == "31f9a3f+task3b-worktree"
+    assert manifest["scope"] == "issue-158-modeling-fit-ui-correction"
+    assert manifest["source_commit"] == correction_source
     assert len(provenance_ids) == len(set(provenance_ids))
     assert set(provenance_ids) == set(captures)
     assert {provenance["source_commit"] for provenance in manifest["capture_provenance"]} == {
-        process_commit,
+        prior_source,
+        correction_source,
         "25bd0d4",
         "960d476",
         "55cfa62",
@@ -155,7 +157,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     process_provenance = [
         provenance
         for provenance in manifest["capture_provenance"]
-        if provenance["source_commit"] == process_commit
+        if provenance["source_commit"] == prior_source
         and "--only-modeling-process" in provenance["command"]
         and "--only-modeling-process-fit" not in provenance["command"]
     ]
@@ -172,10 +174,26 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "targeted live Playwright Modeling Export capture" in command
         for command in uxc04e_commands
     )
+    data_provenance = [
+        provenance
+        for provenance in manifest["capture_provenance"]
+        if provenance["source_commit"] == correction_source
+        and "--only-modeling-data-session" in provenance["command"]
+    ]
+    assert len(data_provenance) == 1
+    assert set(data_provenance[0]["ids"]) == {
+        "modeling-data-1366",
+        "modeling-data-1440",
+        "modeling-data-1920",
+        "modeling-data-2560",
+        "modeling-data-3840",
+    }
+    assert "temporary staging" in data_provenance[0]["command"]
+    assert "copied into the tracked current directory" in data_provenance[0]["command"]
     process_fit_provenance = [
         provenance
         for provenance in manifest["capture_provenance"]
-        if provenance["source_commit"] == process_commit
+        if provenance["source_commit"] == correction_source
         and "--only-modeling-process-fit" in provenance["command"]
     ]
     assert len(process_fit_provenance) == 1
@@ -192,11 +210,11 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "modeling-fit-3840",
         "modeling-fit-candidate-parameters-long-1440",
         "modeling-fit-candidate-evidence-scrolled-1440",
-        "modeling-fit-calculation-failed-1440",
-        "modeling-fit-save-failed-1440",
-        "modeling-fit-exact-source-blocked-1440",
-        "modeling-fit-exact-read-failed-1440",
-        "modeling-fit-restored-1440",
+        "modeling-fit-calculation-failed-1920",
+        "modeling-fit-save-failed-1920",
+        "modeling-fit-exact-source-blocked-1920",
+        "modeling-fit-exact-read-failed-1920",
+        "modeling-fit-restored-1920",
     } == set(process_fit_provenance[0]["ids"])
     assert "accepted the qualitative visual checks" in process_fit_provenance[0]["command"]
 

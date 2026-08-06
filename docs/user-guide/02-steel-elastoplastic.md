@@ -36,7 +36,7 @@ strain과 engineering stress 의미 및 원래 단위를 명시해야 합니다.
    처리 조건을 반복 사용할 경우 Recipe 새 revision으로 저장·게시하고 다른 시험에 preflight/batch 실행합니다.
 
 
-   Fit rail에서 실제 처리와 hardening fit 단계를 확인합니다. 한 줄 Fit 설정 띠에서 Candidate equations,
+   Fit rail에서 실제 처리와 hardening fit 단계를 확인합니다. 104px 고정 Fit 설정 띠에서 Candidate equations,
    Fit domain(Start/End), Selected blend(Primary/Secondary), Primary contribution와 Review metric,
    Extrapolation(Target strain/Output points) 및 Graph interaction을 조정하고
    **Stress response / Residual / Tangent modulus**를 차례로 확인합니다. observed 영역 이후의 황색
@@ -49,8 +49,11 @@ strain과 engineering stress 의미 및 원래 단위를 명시해야 합니다.
    현재 선택과 무관하게 `fit_maximum_strain` 이후의 Ghosh tail은 response/tangent의
    **표시 scale**에서만 제외됩니다. 선택 preview/blend도 Ghosh를 포함할 때 같은 표시 규칙을
    적용합니다. 전체 x-domain과 정확한 response/residual/tangent 배열·polyline은 유지되며, 화면에
-   “Ghosh tail near ε0 exceeds the display scale; exact values remain in Candidate parameters.”라는
-   안내가 나타납니다. 다른 후보와 외삽 경계는 바뀌지 않습니다. 저장 후 **Save fit & continue**는
+   “Ghosh exceeds chart scale”이라는 한 줄 안내가 나타납니다. 다른 후보와 외삽 경계는 바뀌지
+   않습니다. 상단에는 사람용 Process source label/revision과 `Calculating`, `Saved current`,
+   `Preview not saved`, `Saved result stale`, `Not calculated` 상태만 표시되며, 전체 source digest,
+   method key/version과 run은 **Candidate parameters → Source evidence**에서 확인합니다. 저장 후
+   **Save fit & continue**는
    Fit에 머물고 Export는 별도 작업으로 시작하지 않습니다. Fit source가 없거나 stale이면 graph
    중앙의 **Fit is blocked · Back to Process**에서 Process로 돌아가며 source refs/history/pointer는
    그대로입니다. 저장된 Fit exact content를 읽지 못하면 마지막 유효 graph와 선택 사유·경고 확인을

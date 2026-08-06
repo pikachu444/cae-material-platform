@@ -2042,8 +2042,25 @@
 .modeling-work-title span { min-width: 0; overflow: hidden; color: var(--ux-text-muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
 .modeling-context-actions { display: flex; align-items: center; gap: 5px; margin-left: auto; }
 .modeling-context-actions .button { min-height: 26px; padding: 3px 9px; font-size: 11px; }
-.modeling-advanced-menu { position: relative; }
-.modeling-advanced-menu > summary { min-height: 26px; padding: 5px 9px; border: 1px solid var(--ux-border); color: var(--ux-text); font-size: 11px; cursor: pointer; list-style: none; }
+.application-shell main.processing-workbench-page .modeling-context-actions :is(.button, .modeling-advanced-menu > summary) {
+  box-sizing: border-box;
+  height: 28px;
+  min-height: 28px;
+  padding: 5px 9px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+.fit-context-source { max-width: min(42vw, 420px); }
+.fit-surface-state { color: var(--ux-text) !important; font-weight: 650; }
+.fit-surface-state-calculating { color: var(--ux-accent) !important; }
+.fit-surface-state-saved-result-stale { color: var(--ux-warning) !important; }
+.modeling-advanced-menu {
+  position: relative;
+  box-sizing: border-box;
+  height: 28px;
+  min-height: 28px;
+}
+.modeling-advanced-menu > summary { cursor: pointer; list-style: none; }
 .modeling-advanced-menu > summary::-webkit-details-marker { display: none; }
 .modeling-advanced-menu > div { position: absolute; z-index: 20; right: 0; top: calc(100% + 2px); display: grid; min-width: 208px; padding: 4px; border: 1px solid var(--ux-border-strong); background: var(--ux-surface); box-shadow: var(--ux-shadow-float); }
 .modeling-advanced-menu button { padding: 6px 8px; border: 0; background: transparent; color: var(--ux-text); font: inherit; font-size: 12px; text-align: left; cursor: pointer; }
@@ -3309,9 +3326,7 @@
   min-height: 230px;
 }
 
-/* Process is the only normal surface whose top actions share a deliberately
-   equal compact control height.  Data/Fit/Export retain the established
-   context-bar dimensions above. */
+/* All normal surfaces use the same compact top-action grammar. */
 .processing-workbench-page.stage-process .modeling-context-actions .button,
 .processing-workbench-page.stage-process .modeling-context-actions .modeling-advanced-menu > summary {
   box-sizing: border-box;
@@ -4808,6 +4823,19 @@
 .persistent-modeling-plot > .section-heading { display: flex; align-items: center; min-width: 0; }
 .persistent-modeling-plot > .section-heading .workspace-caption { margin: 0; color: var(--ux-text); font-size: 12px; font-weight: 650; white-space: nowrap; }
 .persistent-modeling-plot > .section-heading h2 { display: none; }
+.application-shell main.processing-workbench-page .persistent-modeling-plot > .section-heading h2.fit-plot-heading {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  overflow: hidden;
+  color: var(--ux-text);
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .persistent-modeling-plot > .hardening-analysis-tabs { grid-column: 2; justify-self: end; }
 .persistent-modeling-plot > .modeling-plot-toolbar { grid-column: 3; }
 .persistent-modeling-plot > .modeling-plot-toolbar > div:first-child { display: flex; align-items: center; }
@@ -5336,12 +5364,13 @@
 .application-shell main.processing-workbench-page .fit-stage-options > .guided-step-options {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1.1fr 1.1fr 1.25fr;
-  min-width: 900px;
+  min-width: 0;
   height: 72px;
   gap: 0;
 }
 
 .application-shell main.processing-workbench-page .fit-stage-options .fit-control-group {
+  min-width: 0;
   min-height: 72px;
   height: 72px;
   padding: 5px 8px;
@@ -5354,6 +5383,7 @@
 .application-shell main.processing-workbench-page .fit-stage-options .candidate-check-grid { gap: 5px 8px; padding: 0; }
 .application-shell main.processing-workbench-page .fit-stage-options .candidate-check-grid label { min-height: 13px; font-size: 11px; }
 .application-shell main.processing-workbench-page .fit-stage-options .fit-control-group > label { gap: 3px; font-size: 10.5px; }
+.application-shell main.processing-workbench-page .fit-stage-options .fit-control-group :is(label, legend, output, span, strong) { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .application-shell main.processing-workbench-page .fit-stage-options :is(input:not([type="checkbox"]):not([type="range"]), select) { height: 26px; min-height: 26px; font-size: 11.5px; }
 .application-shell main.processing-workbench-page .fit-stage-options .selected-blend-group,
 .application-shell main.processing-workbench-page .fit-stage-options .extrapolation-group { display: grid; grid-template-columns: 1fr 1fr; column-gap: 6px; align-content: start; }
@@ -5390,8 +5420,17 @@
   background: transparent;
 }
 
+@media (max-width: 1500px) {
+  .application-shell main.processing-workbench-page .fit-stage-options > .guided-step-options {
+    grid-template-columns: minmax(166px, 1.55fr) minmax(104px, .95fr) minmax(112px, 1fr) minmax(120px, 1.05fr) minmax(122px, 1.05fr) minmax(138px, 1.15fr);
+  }
+  .application-shell main.processing-workbench-page .fit-stage-options .fit-control-group { padding-inline: 5px; }
+  .application-shell main.processing-workbench-page .fit-stage-options .fit-control-group legend { margin-bottom: 4px; font-size: 10.5px; }
+  .application-shell main.processing-workbench-page .fit-stage-options .fit-control-group > label { font-size: 10px; }
+}
+
 .application-shell main.processing-workbench-page .modeling-main-surface.has-fit-evidence-dock {
-  grid-template-rows: minmax(0, auto) minmax(0, 1fr) min(18vh, 148px);
+  grid-template-rows: minmax(0, auto) minmax(0, 1fr) min(25vh, 220px);
 }
 
 .application-shell main.processing-workbench-page .modeling-main-surface.has-fit-evidence-dock > .persistent-modeling-plot {
@@ -5399,8 +5438,8 @@
 }
 
 .application-shell main.processing-workbench-page .modeling-main-surface.has-fit-evidence-dock > .modeling-workspace-dock {
-  height: min(18vh, 148px);
-  max-height: min(18vh, 148px);
+  height: min(25vh, 220px);
+  max-height: min(25vh, 220px);
   min-height: 0;
   overflow: hidden;
   scrollbar-gutter: auto;
@@ -5466,6 +5505,70 @@
 .application-shell main.processing-workbench-page .fit-evidence-body:focus-visible {
   outline: 2px solid var(--ux-focus);
   outline-offset: -2px;
+}
+
+.application-shell main.processing-workbench-page .fit-source-evidence {
+  margin: 0 0 8px;
+  padding: 0 0 7px;
+  border-bottom: 1px solid var(--ux-border);
+}
+.application-shell main.processing-workbench-page .fit-source-evidence-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.application-shell main.processing-workbench-page .fit-source-evidence-heading h3 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 650;
+}
+.application-shell main.processing-workbench-page .fit-source-evidence-heading span {
+  color: var(--ux-text-muted);
+  font-size: 10px;
+}
+.application-shell main.processing-workbench-page .fit-source-evidence dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3px 12px;
+  margin: 0;
+}
+.application-shell main.processing-workbench-page .fit-source-evidence dl > div { min-width: 0; }
+.application-shell main.processing-workbench-page .fit-source-evidence dt {
+  color: var(--ux-text-muted);
+  font-size: 10px;
+}
+.application-shell main.processing-workbench-page .fit-source-evidence dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 11px;
+}
+.application-shell main.processing-workbench-page .fit-source-evidence code { font-size: 10px; }
+
+/* The warning acknowledgement is a decision control, not a full-width field.
+   Keep the native checkbox compact while allowing the warning copy to wrap in
+   the evidence drawer without creating a horizontal overflow bar. */
+.application-shell main.processing-workbench-page .fit-evidence-body .warning-acknowledgement {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+.application-shell main.processing-workbench-page .fit-evidence-body .warning-acknowledgement input[type="checkbox"] {
+  flex: 0 0 13px;
+  align-self: flex-start;
+  width: 13px;
+  min-width: 13px;
+  height: 13px;
+  min-height: 13px;
+  margin: 2px 0 0;
+  padding: 0;
 }
 
 .application-shell main.processing-workbench-page .fit-evidence-body::-webkit-scrollbar {
