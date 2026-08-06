@@ -14,9 +14,14 @@ from typing import Any
 from uuid import UUID
 
 import numpy as np
+from scipy.interpolate import UnivariateSpline  # type: ignore[import-untyped]
+from scipy.optimize import least_squares  # type: ignore[import-untyped]
+from scipy.signal import savgol_filter  # type: ignore[import-untyped]
+
 from cmp.modules.datasets.domain.canonical_test_data import CanonicalTestDataDocument
 from cmp.modules.processing.domain.metal_hardening import (
     HARDENING_EQUATION_CONTRACT,
+    HardeningCandidateEvidence,
     MetalHardeningError,
     fit_hardening_candidates,
 )
@@ -27,9 +32,6 @@ from cmp.modules.processing.domain.polymer_viscoelastic import (
     log_time_resample,
 )
 from cmp.shared.domain.revisions import content_sha256
-from scipy.interpolate import UnivariateSpline  # type: ignore[import-untyped]
-from scipy.optimize import least_squares  # type: ignore[import-untyped]
-from scipy.signal import savgol_filter  # type: ignore[import-untyped]
 
 COMMON_METHOD_VERSION = "1.0.0"
 MAX_PREVIEW_POINTS = 100_000
@@ -151,6 +153,7 @@ class CurveStage:
     series: tuple[QuantitySeries, ...]
     diagnostics: tuple[str, ...]
     scalar_results: tuple[ScalarResult, ...] = ()
+    fit_candidates: tuple[HardeningCandidateEvidence, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -191,6 +194,39 @@ def processing_preview_canonical(value: ProcessingPreview) -> dict[str, object]:
                         "unit": item.unit,
                     }
                     for item in stage.scalar_results
+                ],
+                "fit_candidates": [
+                    {
+                        "family": candidate.family,
+                        "response": [float(item) for item in candidate.response],
+                        "residual": [float(item) for item in candidate.residual],
+                        "tangent": [
+                            None if not math.isfinite(float(item)) else float(item)
+                            for item in candidate.tangent
+                        ],
+                        "parameter_names": list(candidate.parameter_names),
+                        "parameter_units": list(candidate.parameter_units),
+                        "lower": [float(item) for item in candidate.lower],
+                        "initial": [float(item) for item in candidate.initial],
+                        "fitted": [float(item) for item in candidate.fitted],
+                        "upper": [float(item) for item in candidate.upper],
+                        "rmse_pa": candidate.rmse_pa,
+                        "relative_rmse": candidate.relative_rmse,
+                        "objective": candidate.objective,
+                        "scipy_cost": candidate.scipy_cost,
+                        "convergence": candidate.convergence,
+                        "nfev": candidate.nfev,
+                        "active_bound": list(candidate.active_bound),
+                        "jacobian_rank": candidate.jacobian_rank,
+                        "jacobian_tolerance": candidate.jacobian_tolerance,
+                        "jacobian_condition": candidate.jacobian_condition,
+                        "identifiability": candidate.identifiability,
+                        "uncertainty": candidate.uncertainty,
+                        "objective_history": list(candidate.objective_history),
+                        "optimizer_status": candidate.optimizer_status,
+                        "optimizer_message": candidate.optimizer_message,
+                    }
+                    for candidate in stage.fit_candidates
                 ],
             }
             for stage in value.stages
@@ -713,6 +749,7 @@ def _stage(
     units: dict[str, str],
     diagnostics: tuple[str, ...],
     scalar_results: tuple[ScalarResult, ...] = (),
+    fit_candidates: tuple[HardeningCandidateEvidence, ...] = (),
 ) -> CurveStage:
     return CurveStage(
         ordinal=ordinal,
@@ -725,6 +762,7 @@ def _stage(
         ),
         diagnostics=diagnostics,
         scalar_results=scalar_results,
+        fit_candidates=fit_candidates,
     )
 
 
@@ -1006,12 +1044,21 @@ def _sort_unique(
     return averaged, (f"resolved {duplicate_count} duplicate rows with mean",)
 
 
-def _apply_step(
+def _apply_step_core(
     columns: dict[str, np.ndarray],
     units: dict[str, str],
     x_key: str,
     step: ProcessingStep,
-) -> tuple[dict[str, np.ndarray], tuple[str, ...], tuple[ScalarResult, ...]]:
+) -> tuple[
+    dict[str, np.ndarray],
+    tuple[str, ...],
+    tuple[ScalarResult, ...],
+] | tuple[
+    dict[str, np.ndarray],
+    tuple[str, ...],
+    tuple[ScalarResult, ...],
+    tuple[HardeningCandidateEvidence, ...],
+]:
     definition = _METHODS.get(step.method_id)
     if definition is None:
         raise CommonPipelineError(f"unknown processing method {step.method_id}")
@@ -1117,6 +1164,7 @@ def _apply_step(
                 ScalarResult(item.key, item.quantity_semantics, item.value, item.unit)
                 for item in fitted.scalars
             ),
+            fitted.candidates,
         )
     if step.method_id == "polymer.log_time_resample":
         try:
@@ -1156,6 +1204,26 @@ def _apply_step(
     raise CommonPipelineError(f"method {step.method_id} is not executable")
 
 
+def _apply_step(
+    columns: dict[str, np.ndarray],
+    units: dict[str, str],
+    x_key: str,
+    step: ProcessingStep,
+) -> tuple[
+    dict[str, np.ndarray],
+    tuple[str, ...],
+    tuple[ScalarResult, ...],
+    tuple[HardeningCandidateEvidence, ...],
+]:
+    """Normalize processing method results to include optional fit evidence."""
+
+    result = _apply_step_core(columns, units, x_key, step)
+    if len(result) == 4:
+        return result
+    current, diagnostics, scalar_results = result
+    return current, diagnostics, scalar_results, ()
+
+
 def preview_pipeline(
     document: CanonicalTestDataDocument,
     profile: MappingProfileContent,
@@ -1177,7 +1245,7 @@ def preview_pipeline(
     stages = [_stage(0, "mapping", columns, units, ("canonical normalized values mapped",))]
     current = columns
     for ordinal, step in enumerate(steps, start=1):
-        current, diagnostics, scalar_results = _apply_step(
+        current, diagnostics, scalar_results, fit_candidates = _apply_step(
             current, units, profile.independent_quantity, step
         )
         if any(not np.all(np.isfinite(values)) for values in current.values()):
@@ -1190,6 +1258,7 @@ def preview_pipeline(
                 units,
                 diagnostics,
                 scalar_results,
+                fit_candidates,
             )
         )
     return ProcessingPreview(

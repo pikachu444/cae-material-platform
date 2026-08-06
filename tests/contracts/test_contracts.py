@@ -17,6 +17,23 @@ from jsonschema import Draft202012Validator, FormatChecker
 PROJECT_ROOT = Path(__file__).parents[2]
 
 
+def test_metal_fit_reference_assets_are_explicitly_lf_only() -> None:
+    """Keep the independent v1 digest stable across checkout platforms."""
+
+    attributes = (PROJECT_ROOT / ".gitattributes").read_text(encoding="utf-8")
+    expected = (
+        "fixtures/synthetic/metal-hardening-reference-v1.json text eol=lf",
+        "fixtures/manifests/metal-hardening-reference-v1.yaml text eol=lf",
+    )
+    assert all(rule in attributes.splitlines() for rule in expected)
+    for relative in (
+        "fixtures/synthetic/metal-hardening-reference-v1.json",
+        "fixtures/manifests/metal-hardening-reference-v1.yaml",
+    ):
+        value = (PROJECT_ROOT / relative).read_bytes()
+        assert b"\r" not in value, relative
+
+
 def test_all_contracts_and_examples_validate() -> None:
     assert validate_contracts(PROJECT_ROOT) == []
 

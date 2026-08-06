@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 const repository = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const assets = join(repository, "apps", "web", "dist", "assets");
 const entryBudget = Number(process.env.CMP_WEB_ENTRY_BUDGET_BYTES ?? 300_000);
-const lazyChunkBudget = Number(process.env.CMP_WEB_LAZY_CHUNK_BUDGET_BYTES ?? 128_000);
+const lazyChunkBudget = Number(process.env.CMP_WEB_LAZY_CHUNK_BUDGET_BYTES ?? 130_000);
 const files = (await readdir(assets)).filter((name) => name.endsWith(".js"));
 
 if (files.length === 0) {

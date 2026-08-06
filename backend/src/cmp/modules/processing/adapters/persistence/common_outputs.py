@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from contextlib import contextmanager
+from datetime import datetime
 from typing import Any, Literal, Protocol, cast
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import sqlalchemy as sa
 from sqlalchemy.orm import Session, sessionmaker
@@ -18,6 +19,8 @@ from cmp.modules.identity_access.domain.authorization import AuthorizationDecisi
 from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.processing.application.common_outputs import (
     PROCESSING_OUTPUT_AGGREGATE_TYPE,
+    PROCESSING_OUTPUT_SCHEMA_ID,
+    PROCESSING_OUTPUT_SCHEMA_VERSION,
     ExactRevisionPin,
     FitDecisionParameter,
     FitDecisionParameterSet,
@@ -36,7 +39,13 @@ from cmp.shared.adapters.persistence.revisions import (
     TypedRevisionTables,
 )
 from cmp.shared.application.revisions import RevisionStore
-from cmp.shared.domain.revisions import RevisionDraft, RevisionRecord, TenantScope, content_sha256
+from cmp.shared.domain.revisions import (
+    RevisionCreated,
+    RevisionDraft,
+    RevisionRecord,
+    TenantScope,
+    content_sha256,
+)
 
 
 class RlsContext(Protocol):
@@ -92,6 +101,9 @@ revision_table = sa.Table(
     sa.Column("final_point_count", sa.Integer(), nullable=False),
     sa.Column("output_artifact_id", sa.Uuid(), nullable=False),
     sa.Column("output_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("source_processing_output_id", sa.Uuid(), nullable=True),
+    sa.Column("source_processing_output_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("source_processing_output_sha256", sa.CHAR(64), nullable=True),
     sa.Column("workup_overrides", sa.JSON(), nullable=False),
     # An absent fit decision is SQL NULL, not the JSON literal null.
     sa.Column("fit_decision", sa.JSON(none_as_null=True), nullable=True),
@@ -132,6 +144,17 @@ def _values(value: ProcessingOutputContent) -> dict[str, object]:
         "final_point_count": value.final_point_count,
         "output_artifact_id": value.output_artifact_id,
         "output_sha256": value.output_sha256,
+        "source_processing_output_id": (
+            value.source_processing_output.aggregate_id
+            if value.source_processing_output is not None
+            else None
+        ),
+        "source_processing_output_revision_id": (
+            value.source_processing_output.revision_id
+            if value.source_processing_output is not None
+            else None
+        ),
+        "source_processing_output_sha256": value.source_processing_output_sha256,
         "workup_overrides": [
             {
                 "kind": override.kind,
@@ -280,6 +303,19 @@ def _content(row: Any, steps: Sequence[Any]) -> ProcessingOutputContent:
         final_point_count=int(row["final_point_count"]),
         output_artifact_id=cast(UUID, row["output_artifact_id"]),
         output_sha256=str(row["output_sha256"]),
+        source_processing_output=(
+            None
+            if row["source_processing_output_id"] is None
+            else ExactRevisionPin(
+                cast(UUID, row["source_processing_output_id"]),
+                cast(UUID, row["source_processing_output_revision_id"]),
+            )
+        ),
+        source_processing_output_sha256=(
+            None
+            if row["source_processing_output_sha256"] is None
+            else str(row["source_processing_output_sha256"])
+        ),
         workup_overrides=tuple(
             ProcessingWorkupOverride(
                 kind=cast(
@@ -386,6 +422,105 @@ class SqlAlchemyCommonProcessingOutputRepository(ProcessingOutputRepository):
             hooks=self._hooks,
             session_binder=lambda session: self._bind(session, context, decision),
         )
+
+    def commit_in_artifact_session(
+        self,
+        *,
+        session: object,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        output_id: UUID,
+        classification: str,
+        content: ProcessingOutputContent,
+        change_reason: str,
+        artifact_created_at: datetime,
+    ) -> ProcessingOutputSnapshot:
+        """Insert an output revision in the Artifact finalization transaction.
+
+        The Artifact repository invokes this callback after inserting the immutable
+        Artifact and integrity rows, but before its transaction commits.  Keeping the
+        typed output identity, revision, and step rows on that same SQLAlchemy session
+        makes a failure in either aggregate roll back both authoritative records.
+        """
+
+        if not isinstance(session, Session):
+            raise TypeError("Artifact commit hook supplied a non-SQLAlchemy session")
+        self._bind(session, context, decision)
+        revision_id = uuid4()
+        scope = TenantScope(
+            context.organization_id,
+            context.project_id,
+            classification,
+        )
+        draft = RevisionDraft(
+            revision_id=revision_id,
+            aggregate_type=PROCESSING_OUTPUT_AGGREGATE_TYPE,
+            aggregate_id=output_id,
+            scope=scope,
+            schema_id=PROCESSING_OUTPUT_SCHEMA_ID,
+            schema_version=PROCESSING_OUTPUT_SCHEMA_VERSION,
+            content=content,
+            content_hash=content_sha256(processing_output_content_canonical(content)),
+            created_at=artifact_created_at,
+            created_by=context.principal.id,
+            change_reason=change_reason,
+            request_id=context.request_id,
+            trace_id=context.trace_id,
+        )
+        identity_values = _TABLES.encode_identity_values(content)
+        session.execute(
+            sa.insert(output_table).values(
+                id=output_id,
+                organization_id=scope.organization_id,
+                project_id=scope.project_id,
+                classification=scope.classification,
+                current_revision_id=revision_id,
+                created_at=draft.created_at,
+                created_by=draft.created_by,
+                updated_at=draft.created_at,
+                **identity_values,
+            )
+        )
+        revision_values: dict[str, object] = {
+            "id": revision_id,
+            "aggregate_id": output_id,
+            "organization_id": scope.organization_id,
+            "project_id": scope.project_id,
+            "classification": scope.classification,
+            "revision_no": 1,
+            "based_on_revision_id": None,
+            "schema_id": draft.schema_id,
+            "schema_version": draft.schema_version,
+            "content_hash": draft.content_hash,
+            "created_at": draft.created_at,
+            "created_by": draft.created_by,
+            "change_reason": draft.change_reason,
+            "request_id": draft.request_id,
+            "trace_id": draft.trace_id,
+        }
+        revision_values.update(_values(content))
+        session.execute(sa.insert(revision_table).values(revision_values))
+        _write_steps(session, draft)
+        record = RevisionRecord(
+            revision_id=revision_id,
+            aggregate_type=PROCESSING_OUTPUT_AGGREGATE_TYPE,
+            aggregate_id=output_id,
+            scope=scope,
+            revision_no=1,
+            based_on_revision_id=None,
+            schema_id=draft.schema_id,
+            schema_version=draft.schema_version,
+            content_hash=draft.content_hash,
+            created_at=draft.created_at,
+            created_by=draft.created_by,
+            change_reason=draft.change_reason,
+            request_id=draft.request_id,
+            trace_id=draft.trace_id,
+        )
+        event = RevisionCreated(record, "draft")
+        for hook in self._hooks:
+            hook(session, event)
+        return ProcessingOutputSnapshot(output_id, record, content)
 
     @staticmethod
     def _snapshot(session: Session, row: Any) -> ProcessingOutputSnapshot:

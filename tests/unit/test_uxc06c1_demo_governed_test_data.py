@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import sys
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from copy import deepcopy
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pytest
 
@@ -19,6 +19,11 @@ _ensure_governed_test_data_revision = _SEED_FULL_DEMO._ensure_governed_test_data
 _governed_sources_for_tensile_documents = (
     _SEED_FULL_DEMO._governed_sources_for_tensile_documents
 )
+_canonical_recipe_content = _SEED_FULL_DEMO._canonical_recipe_content
+_ensure_canonical_recipe = _SEED_FULL_DEMO._ensure_canonical_recipe
+_ensure_canonical_batch = _SEED_FULL_DEMO._ensure_canonical_batch
+_CANONICAL_BATCH_LABEL = _SEED_FULL_DEMO._CANONICAL_BATCH_LABEL
+_BATCH_POLL_ATTEMPTS = _SEED_FULL_DEMO._BATCH_POLL_ATTEMPTS
 DemoSeedError = _SEED_FULL_DEMO.DemoSeedError
 
 
@@ -270,3 +275,268 @@ def test_tensile_demo_governed_source_fails_closed_for_mismatched_specimen_owner
             specimens=(specimen,),
             test_runs=(run,),
         )
+
+
+_PROFILE = {
+    "mapping_profile_id": "profile-1",
+    "current_revision": {
+        "id": "profile-r1",
+        "revision_no": 1,
+        "content_hash": "p" * 64,
+    },
+}
+
+
+def _recipe(content: Mapping[str, Any], *, revision_no: int = 1) -> dict[str, Any]:
+    return {
+        "processing_recipe_id": "recipe-1",
+        "content": deepcopy(dict(content)),
+        "current_revision": {
+            "id": f"recipe-r{revision_no}",
+            "revision_no": revision_no,
+            "content_hash": chr(96 + revision_no) * 64,
+        },
+    }
+
+
+class _RecipeApi:
+    def __init__(self, recipe: Mapping[str, Any] | None = None) -> None:
+        self.recipe = deepcopy(dict(recipe)) if recipe is not None else None
+        self.writes: list[dict[str, Any]] = []
+
+    def get(self, path: str) -> dict[str, Any]:
+        assert path == "/common-processing-recipes"
+        return {"items": [deepcopy(self.recipe)] if self.recipe is not None else []}
+
+    def post(
+        self,
+        path: str,
+        payload: Mapping[str, Any],
+        *,
+        headers: Mapping[str, str] | None = None,
+    ) -> dict[str, Any]:
+        self.writes.append(
+            {"path": path, "payload": deepcopy(dict(payload)), "headers": headers}
+        )
+        if path == "/common-processing-recipes":
+            self.recipe = _recipe(payload["content"])
+            return deepcopy(self.recipe)
+        assert path == "/common-processing-recipes/recipe-1/revisions"
+        assert self.recipe is not None
+        revision_no = int(self.recipe["current_revision"]["revision_no"]) + 1
+        self.recipe = _recipe(payload["content"], revision_no=revision_no)
+        return deepcopy(self.recipe)
+
+
+def test_canonical_recipe_absent_uses_draft_then_published_flow() -> None:
+    api = _RecipeApi()
+
+    result = _ensure_canonical_recipe(api, profile=_PROFILE)
+
+    assert result["content"]["lifecycle_state"] == "published"
+    assert [write["path"] for write in api.writes] == [
+        "/common-processing-recipes",
+        "/common-processing-recipes/recipe-1/revisions",
+    ]
+    assert api.writes[1]["headers"] == {"If-Match": '"revision:1:sha256:' + "a" * 64 + '"'}
+
+
+def test_canonical_recipe_legacy_published_appends_one_draft_then_publishes_with_etags() -> None:
+    desired = _canonical_recipe_content(
+        profile_id="profile-1", profile_revision_id="profile-r1", profile_hash="p" * 64
+    )
+    legacy = deepcopy(desired)
+    legacy["lifecycle_state"] = "published"
+    legacy["steps"][-1]["options"]["equation_contract"] = "legacy-contract"
+    api = _RecipeApi(_recipe(legacy))
+
+    result = _ensure_canonical_recipe(api, profile=_PROFILE)
+
+    assert result["content"]["lifecycle_state"] == "published"
+    assert len(api.writes) == 2
+    assert "legacy outputs are not replayed" in api.writes[0]["payload"]["change_reason"]
+    assert api.writes[0]["headers"] == {"If-Match": '"revision:1:sha256:' + "a" * 64 + '"'}
+    assert api.writes[1]["headers"] == {"If-Match": '"revision:2:sha256:' + "b" * 64 + '"'}
+    assert api.writes[0]["payload"]["content"]["steps"][-1]["options"]["equation_contract"] == (
+        "altair-material-modeler-2025-v1"
+    )
+    assert api.writes[0]["payload"]["change_reason"] != api.writes[1]["payload"]["change_reason"]
+
+
+def test_canonical_recipe_exact_draft_publishes_without_extra_draft() -> None:
+    desired = _canonical_recipe_content(
+        profile_id="profile-1", profile_revision_id="profile-r1", profile_hash="p" * 64
+    )
+    api = _RecipeApi(_recipe(desired))
+
+    result = _ensure_canonical_recipe(api, profile=_PROFILE)
+
+    assert result["content"]["lifecycle_state"] == "published"
+    assert len(api.writes) == 1
+    assert api.writes[0]["payload"]["content"]["lifecycle_state"] == "published"
+
+
+def test_canonical_recipe_exact_published_is_idempotently_reused() -> None:
+    desired = _canonical_recipe_content(
+        profile_id="profile-1", profile_revision_id="profile-r1", profile_hash="p" * 64
+    )
+    desired["lifecycle_state"] = "published"
+    api = _RecipeApi(_recipe(desired))
+
+    result = _ensure_canonical_recipe(api, profile=_PROFILE)
+
+    assert result["current_revision"]["id"] == "recipe-r1"
+    assert api.writes == []
+
+
+def test_canonical_recipe_mismatched_draft_fails_closed() -> None:
+    desired = _canonical_recipe_content(
+        profile_id="profile-1", profile_revision_id="profile-r1", profile_hash="p" * 64
+    )
+    desired["steps"][-1]["options"]["families"] = ["voce"]
+    api = _RecipeApi(_recipe(desired))
+
+    with pytest.raises(DemoSeedError, match="mismatched draft"):
+        _ensure_canonical_recipe(api, profile=_PROFILE)
+    assert api.writes == []
+
+
+def _batch(*, status: str, batch_id: str = "batch-1") -> dict[str, Any]:
+    return {
+        "batch_id": batch_id,
+        "label": _CANONICAL_BATCH_LABEL,
+        "recipe_id": "recipe-1",
+        "recipe_revision_id": "recipe-r2",
+        "recipe_sha256": "r" * 64,
+        "status": status,
+        "attempts": [
+            {
+                "attempt_id": "attempt-1",
+                "status": "succeeded" if status == "succeeded" else "failed",
+                "output_id": "output-1" if status == "succeeded" else None,
+                "output_revision_id": "output-r1" if status == "succeeded" else None,
+            }
+        ],
+    }
+
+
+class _BatchApi:
+    def __init__(
+        self,
+        listed: Sequence[Mapping[str, Any]],
+        *,
+        details: Sequence[Mapping[str, Any]] = (),
+        created: Mapping[str, Any] | None = None,
+        retried: Mapping[str, Any] | None = None,
+    ) -> None:
+        self.listed = [deepcopy(dict(item)) for item in listed]
+        self.details = [deepcopy(dict(item)) for item in details]
+        self.created = (
+            deepcopy(dict(created)) if created is not None else _batch(status="succeeded")
+        )
+        self.retried = (
+            deepcopy(dict(retried)) if retried is not None else _batch(status="succeeded")
+        )
+        self.writes: list[dict[str, Any]] = []
+        self.get_paths: list[str] = []
+
+    def get(self, path: str) -> dict[str, Any]:
+        self.get_paths.append(path)
+        if path == "/common-processing-batches":
+            return {"items": deepcopy(self.listed)}
+        assert path.startswith("/common-processing-batches/")
+        return self.details.pop(0) if self.details else deepcopy(self.listed[0])
+
+    def post(
+        self,
+        path: str,
+        payload: Mapping[str, Any],
+        *,
+        headers: Mapping[str, str] | None = None,
+    ) -> dict[str, Any]:
+        self.writes.append(
+            {"path": path, "payload": deepcopy(dict(payload)), "headers": headers}
+        )
+        if path == "/common-processing-batches:preflight":
+            return {"compatible": True}
+        if path == "/common-processing-batches":
+            return deepcopy(self.created)
+        assert path.endswith(":retry-failed")
+        return deepcopy(self.retried)
+
+
+def _ensure_batch(api: _BatchApi) -> dict[str, Any]:
+    return cast(
+        dict[str, Any],
+        _ensure_canonical_batch(
+            api,
+            recipe_id="recipe-1",
+            recipe_revision_id="recipe-r2",
+            recipe_hash="r" * 64,
+            source={"document_id": "document-1", "revision_id": "document-r1"},
+        ),
+    )
+
+
+def test_canonical_batch_zero_selection_preflights_and_creates_literal_contract_batch() -> None:
+    api = _BatchApi([])
+
+    result = _ensure_batch(api)
+
+    assert result["status"] == "succeeded"
+    assert [write["path"] for write in api.writes] == [
+        "/common-processing-batches:preflight",
+        "/common-processing-batches",
+    ]
+    assert api.writes[1]["payload"]["label"] == _CANONICAL_BATCH_LABEL
+
+
+def test_canonical_batch_succeeded_selection_is_reused_without_writes() -> None:
+    api = _BatchApi([_batch(status="succeeded")])
+
+    assert _ensure_batch(api)["batch_id"] == "batch-1"
+    assert api.writes == []
+
+
+def test_canonical_batch_failed_selection_retries_once_and_requires_success() -> None:
+    api = _BatchApi([_batch(status="failed")], retried=_batch(status="succeeded"))
+
+    assert _ensure_batch(api)["status"] == "succeeded"
+    assert [write["path"] for write in api.writes] == [
+        "/common-processing-batches/batch-1:retry-failed"
+    ]
+
+
+def test_canonical_batch_running_selection_polls_to_success(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(_SEED_FULL_DEMO, "_BATCH_POLL_DELAY_SECONDS", 0)
+    api = _BatchApi(
+        [_batch(status="running")],
+        details=[_batch(status="running"), _batch(status="succeeded")],
+    )
+
+    assert _ensure_batch(api)["status"] == "succeeded"
+    assert api.get_paths == [
+        "/common-processing-batches",
+        "/common-processing-batches/batch-1",
+        "/common-processing-batches/batch-1",
+    ]
+
+
+def test_canonical_batch_nonterminal_polling_fails_closed(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(_SEED_FULL_DEMO, "_BATCH_POLL_DELAY_SECONDS", 0)
+    monkeypatch.setattr(_SEED_FULL_DEMO, "_BATCH_POLL_ATTEMPTS", 2)
+    api = _BatchApi([_batch(status="running")], details=[_batch(status="running")])
+
+    with pytest.raises(DemoSeedError, match="bounded polling"):
+        _ensure_batch(api)
+    assert api.writes == []
+
+
+def test_canonical_batch_ambiguity_fails_closed_without_touching_candidates() -> None:
+    api = _BatchApi([_batch(status="succeeded"), _batch(status="succeeded", batch_id="batch-2")])
+
+    with pytest.raises(DemoSeedError, match="multiple canonical JSON batches"):
+        _ensure_batch(api)
+    assert api.writes == []

@@ -6,6 +6,7 @@ from collections.abc import Callable
 from typing import Annotated, Any, Literal
 from uuid import UUID
 
+import numpy as np
 from fastapi import Depends, FastAPI, Header, HTTPException, Request, Response, status
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 from sqlalchemy.exc import IntegrityError
@@ -38,6 +39,11 @@ from cmp.modules.processing.application.mapping_profiles import (
     MappingProfileSnapshot,
     ReviseMappingProfile,
 )
+from cmp.modules.processing.application.metal_fit_runs import (
+    ExecuteMetalFitRun,
+    MetalFitRunDetail,
+    MetalFitRunService,
+)
 from cmp.modules.processing.domain.common_ensemble import (
     ENSEMBLE_METHOD_REGISTRY,
     EnsembleAlignmentOptions,
@@ -57,6 +63,7 @@ from cmp.modules.processing.domain.common_pipeline import (
     ProcessingStep,
     preview_pipeline,
 )
+from cmp.modules.processing.domain.metal_hardening import HardeningCandidateEvidence
 from cmp.shared.contracts.revisions import (
     InvalidRevisionETag,
     RevisionETag,
@@ -239,6 +246,68 @@ class ScalarResultResponse(BaseModel):
     unit: str
 
 
+class HardeningCandidateResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    family: str
+    response: tuple[float, ...]
+    residual: tuple[float, ...]
+    tangent: tuple[float | None, ...]
+    parameter_names: tuple[str, ...]
+    parameter_units: tuple[str, ...]
+    lower: tuple[float, ...]
+    initial: tuple[float, ...]
+    fitted: tuple[float, ...]
+    upper: tuple[float, ...]
+    rmse_pa: float
+    relative_rmse: float
+    objective: float
+    scipy_cost: float
+    convergence: bool
+    nfev: int
+    active_bound: tuple[str, ...]
+    jacobian_rank: int
+    jacobian_tolerance: float
+    jacobian_condition: float | None
+    identifiability: str
+    uncertainty: str
+    objective_history: tuple[float, ...]
+    optimizer_status: int = 0
+    optimizer_message: str = ""
+
+    @classmethod
+    def from_domain(cls, value: HardeningCandidateEvidence) -> HardeningCandidateResponse:
+        return cls(
+            family=value.family,
+            response=tuple(float(item) for item in value.response),
+            residual=tuple(float(item) for item in value.residual),
+            tangent=tuple(
+                None if not isinstance(item, (int, float)) or not np.isfinite(item) else float(item)
+                for item in value.tangent
+            ),
+            parameter_names=value.parameter_names,
+            parameter_units=value.parameter_units,
+            lower=tuple(float(item) for item in value.lower),
+            initial=tuple(float(item) for item in value.initial),
+            fitted=tuple(float(item) for item in value.fitted),
+            upper=tuple(float(item) for item in value.upper),
+            rmse_pa=value.rmse_pa,
+            relative_rmse=value.relative_rmse,
+            objective=value.objective,
+            scipy_cost=value.scipy_cost,
+            convergence=value.convergence,
+            nfev=value.nfev,
+            active_bound=value.active_bound,
+            jacobian_rank=value.jacobian_rank,
+            jacobian_tolerance=value.jacobian_tolerance,
+            jacobian_condition=value.jacobian_condition,
+            identifiability=value.identifiability,
+            uncertainty=value.uncertainty,
+            objective_history=value.objective_history,
+            optimizer_status=value.optimizer_status,
+            optimizer_message=value.optimizer_message,
+        )
+
+
 class CurveStageResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     ordinal: int
@@ -248,6 +317,7 @@ class CurveStageResponse(BaseModel):
     series: tuple[QuantitySeriesResponse, ...]
     diagnostics: tuple[str, ...]
     scalar_results: tuple[ScalarResultResponse, ...]
+    fit_candidates: tuple[HardeningCandidateResponse, ...] = ()
 
 
 class ProcessingPreviewResponse(BaseModel):
@@ -291,6 +361,10 @@ class ProcessingPreviewResponse(BaseModel):
                         )
                         for item in stage.scalar_results
                     ),
+                    fit_candidates=tuple(
+                        HardeningCandidateResponse.from_domain(item)
+                        for item in stage.fit_candidates
+                    ),
                 )
                 for stage in value.stages
             ),
@@ -304,6 +378,12 @@ class ExactRevisionPinInput(BaseModel):
 
     def to_domain(self) -> ExactRevisionPin:
         return ExactRevisionPin(self.aggregate_id, self.revision_id)
+
+
+class ExactProcessingFitPreviewRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    source_processing_output: ExactRevisionPinInput
+    fit_step: ProcessingStepInput
 
 
 class ProcessingWorkupOverrideInput(BaseModel):
@@ -398,6 +478,7 @@ class CommitProcessingOutputRequest(BaseModel):
     change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
     workup_overrides: Annotated[tuple[ProcessingWorkupOverrideInput, ...], Field(max_length=2)] = ()
     fit_decision: FitDecisionInput | None = None
+    source_processing_output: ExactRevisionPinInput | None = None
 
 
 class ExportProvenanceResponse(BaseModel):
@@ -425,6 +506,8 @@ class ProcessingOutputResponse(BaseModel):
     final_point_count: int
     output_artifact_id: UUID
     output_sha256: str
+    source_processing_output: ExactRevisionPinInput | None
+    source_processing_output_sha256: str | None
     workup_overrides: tuple[ProcessingWorkupOverrideInput, ...]
     fit_decision: FitDecisionInput | None
     export_provenance: ExportProvenanceResponse | None
@@ -433,6 +516,10 @@ class ProcessingOutputResponse(BaseModel):
     def from_snapshot(cls, value: ProcessingOutputSnapshot) -> ProcessingOutputResponse:
         content = value.content
         fit_decision = getattr(content, "fit_decision", None)
+        source_processing_output = getattr(content, "source_processing_output", None)
+        source_processing_output_sha256 = getattr(
+            content, "source_processing_output_sha256", None
+        )
         return cls(
             processing_output_id=value.id,
             current_revision=RevisionMetadataResponse.from_record(value.current, "published"),
@@ -461,6 +548,13 @@ class ProcessingOutputResponse(BaseModel):
             final_point_count=content.final_point_count,
             output_artifact_id=content.output_artifact_id,
             output_sha256=content.output_sha256,
+            source_processing_output=None
+            if source_processing_output is None
+            else ExactRevisionPinInput(
+                aggregate_id=source_processing_output.aggregate_id,
+                revision_id=source_processing_output.revision_id,
+            ),
+            source_processing_output_sha256=source_processing_output_sha256,
             workup_overrides=tuple(
                 ProcessingWorkupOverrideInput(
                     kind=override.kind,
@@ -529,6 +623,99 @@ class ProcessingOutputResponse(BaseModel):
 class ProcessingOutputListResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     items: tuple[ProcessingOutputResponse, ...]
+
+
+class MetalFitRunRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    classification: DataClassification
+    source_processing_output: ExactRevisionPinInput
+    fit_step: ProcessingStepInput
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
+class MetalFitRunAttemptResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    id: UUID
+    run_id: UUID
+    ordinal: int
+    family: str
+    status: str
+    result: dict[str, Any] | None
+    objective_history: tuple[float, ...]
+    failure_code: str | None
+    failure_reason: str | None
+
+
+class MetalFitRunResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    id: UUID
+    classification: DataClassification
+    source_processing_output: ExactRevisionPinInput
+    source_processing_output_sha256: str
+    source_document: ExactRevisionPinInput
+    mapping_profile: ExactRevisionPinInput
+    options: dict[str, Any]
+    reproducibility_evidence: dict[str, Any]
+    status: str
+    failure_code: str | None
+    failure_reason: str | None
+    attempts: tuple[MetalFitRunAttemptResponse, ...]
+    preview: ProcessingPreviewResponse | None = None
+    created_by: UUID | None = None
+    request_id: UUID | None = None
+    trace_id: str | None = None
+    started_at: str | None = None
+    ended_at: str | None = None
+
+    @classmethod
+    def from_domain(cls, value: MetalFitRunDetail) -> MetalFitRunResponse:
+        run = value.run
+        return cls(
+            id=run.id,
+            classification=run.classification,
+            source_processing_output=ExactRevisionPinInput(
+                aggregate_id=run.source_processing_output.aggregate_id,
+                revision_id=run.source_processing_output.revision_id,
+            ),
+            source_processing_output_sha256=run.source_processing_output_sha256,
+            source_document=ExactRevisionPinInput(
+                aggregate_id=run.source_document.aggregate_id,
+                revision_id=run.source_document.revision_id,
+            ),
+            mapping_profile=ExactRevisionPinInput(
+                aggregate_id=run.mapping_profile.aggregate_id,
+                revision_id=run.mapping_profile.revision_id,
+            ),
+            options=run.options,
+            reproducibility_evidence=run.reproducibility_evidence,
+            status=run.status.value,
+            failure_code=run.failure_code,
+            failure_reason=run.failure_reason,
+            attempts=tuple(
+                MetalFitRunAttemptResponse(
+                    id=item.id,
+                    run_id=item.run_id,
+                    ordinal=item.ordinal,
+                    family=item.family,
+                    status=item.status.value,
+                    result=item.result,
+                    objective_history=item.objective_history,
+                    failure_code=item.failure_code,
+                    failure_reason=item.failure_reason,
+                )
+                for item in value.attempts
+            ),
+            preview=(
+                None
+                if value.preview is None
+                else ProcessingPreviewResponse.from_domain(value.preview)
+            ),
+            created_by=run.created_by,
+            request_id=run.request_id,
+            trace_id=run.trace_id,
+            started_at=run.started_at.isoformat(),
+            ended_at=None if run.ended_at is None else run.ended_at.isoformat(),
+        )
 
 
 class EnsembleAlignmentInput(BaseModel):
@@ -648,6 +835,7 @@ def install_common_processing_api(
     *,
     service: MappingProfileService | None = None,
     output_service: CommonProcessingOutputService | None = None,
+    fit_run_service: MetalFitRunService | None = None,
     security_dependency: Dependency,
     read_dependency: Dependency,
     execute_dependency: Dependency,
@@ -813,6 +1001,32 @@ def install_common_processing_api(
             raise HTTPException(status_code=422, detail=str(error)) from error
 
     @app.post(
+        "/api/v1/processing:preview-from-output",
+        response_model=ProcessingPreviewResponse,
+        status_code=status.HTTP_200_OK,
+        dependencies=[Depends(security_dependency), Depends(execute_dependency)],
+        tags=["processing-workbench"],
+    )
+    async def preview_processing_fit_from_output(
+        body: ExactProcessingFitPreviewRequest, request: Request
+    ) -> ProcessingPreviewResponse:
+        context, decision = scope(request)
+        if output_service is None:
+            raise HTTPException(status_code=503, detail="Processing Output store unavailable")
+        try:
+            result = await output_service.preview_from_exact_output(
+                context,
+                decision,
+                body.source_processing_output.to_domain(),
+                body.fit_step.to_domain(),
+            )
+            return ProcessingPreviewResponse.from_domain(result)
+        except ProcessingOutputNotFound as error:
+            raise HTTPException(status_code=404, detail=str(error)) from error
+        except (CommonPipelineError, ValueError, TypeError) as error:
+            raise HTTPException(status_code=422, detail=str(error)) from error
+
+    @app.post(
         "/api/v1/processing:preview-ensemble",
         response_model=EnsemblePreviewResponse,
         status_code=status.HTTP_200_OK,
@@ -859,6 +1073,11 @@ def install_common_processing_api(
                         override.to_domain() for override in body.workup_overrides
                     ),
                     fit_decision=body.fit_decision.to_domain() if body.fit_decision else None,
+                    source_processing_output=(
+                        body.source_processing_output.to_domain()
+                        if body.source_processing_output is not None
+                        else None
+                    ),
                 ),
             )
             return ProcessingOutputResponse.from_snapshot(snapshot)
@@ -909,3 +1128,63 @@ def install_common_processing_api(
                 "Cache-Control": "no-store",
             },
         )
+
+    @app.post(
+        "/api/v1/metal-fit-runs",
+        response_model=MetalFitRunResponse,
+        status_code=status.HTTP_201_CREATED,
+        dependencies=[Depends(security_dependency), Depends(execute_dependency)],
+        tags=["processing-workbench"],
+    )
+    async def execute_metal_fit_run(
+        body: MetalFitRunRequest, request: Request
+    ) -> MetalFitRunResponse:
+        context, decision = scope(request)
+        if fit_run_service is None:
+            raise HTTPException(status_code=503, detail="metal Fit run store unavailable")
+        try:
+            value = await fit_run_service.execute(
+                context,
+                decision,
+                ExecuteMetalFitRun(
+                    classification=body.classification,
+                    source_processing_output=body.source_processing_output.to_domain(),
+                    fit_step=body.fit_step.to_domain(),
+                    change_reason=body.change_reason,
+                ),
+            )
+            return MetalFitRunResponse.from_domain(value)
+        except ProcessingOutputNotFound as error:
+            raise HTTPException(status_code=404, detail=str(error)) from error
+        except (CommonPipelineError, ValueError) as error:
+            raise HTTPException(status_code=422, detail=str(error)) from error
+
+    @app.get(
+        "/api/v1/metal-fit-runs",
+        response_model=tuple[MetalFitRunResponse, ...],
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["processing-workbench"],
+    )
+    def list_metal_fit_runs(request: Request) -> tuple[MetalFitRunResponse, ...]:
+        context, decision = scope(request)
+        if fit_run_service is None:
+            raise HTTPException(status_code=503, detail="metal Fit run store unavailable")
+        return tuple(
+            MetalFitRunResponse.from_domain(fit_run_service.get(context, decision, item.id))
+            for item in fit_run_service.list(context, decision)
+        )
+
+    @app.get(
+        "/api/v1/metal-fit-runs/{run_id}",
+        response_model=MetalFitRunResponse,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["processing-workbench"],
+    )
+    def get_metal_fit_run(run_id: UUID, request: Request) -> MetalFitRunResponse:
+        context, decision = scope(request)
+        if fit_run_service is None:
+            raise HTTPException(status_code=503, detail="metal Fit run store unavailable")
+        try:
+            return MetalFitRunResponse.from_domain(fit_run_service.get(context, decision, run_id))
+        except ProcessingOutputNotFound as error:
+            raise HTTPException(status_code=404, detail=str(error)) from error

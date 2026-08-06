@@ -2,14 +2,23 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 from collections.abc import Callable
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Literal, Protocol
 from uuid import UUID, uuid4
 
-from cmp.modules.artifacts.application.content import ArtifactService
+import numpy as np
+
+from cmp.modules.artifacts.application.content import (
+    ArtifactCommitHook,
+    ArtifactService,
+    FinalizedArtifact,
+)
+from cmp.modules.artifacts.domain.content import ArtifactRecord
 from cmp.modules.datasets.application.canonical_test_data import (
     CanonicalTestDataService,
     GovernedTestDataSource,
@@ -27,11 +36,15 @@ from cmp.modules.processing.domain.common_pipeline import (
     CurveStage,
     ProcessingPreview,
     ProcessingStep,
+    QuantitySeries,
     ScalarResult,
     preview_pipeline,
     processing_preview_canonical,
 )
-from cmp.modules.processing.domain.metal_hardening import HARDENING_EQUATION_CONTRACT
+from cmp.modules.processing.domain.metal_hardening import (
+    HARDENING_EQUATION_CONTRACT,
+    fit_hardening_candidates,
+)
 from cmp.shared.application.revisions import (
     CreateRevisionedAggregate,
     RevisionService,
@@ -46,8 +59,8 @@ from cmp.shared.domain.revisions import (
 __all__ = ["CommonPipelineError"]
 
 PROCESSING_OUTPUT_AGGREGATE_TYPE = "processing.common_output"
-PROCESSING_OUTPUT_SCHEMA_ID = "urn:cmp:processing:common-output:1.2.0"
-PROCESSING_OUTPUT_SCHEMA_VERSION = "1.2.0"
+PROCESSING_OUTPUT_SCHEMA_ID = "urn:cmp:processing:common-output:1.3.0"
+PROCESSING_OUTPUT_SCHEMA_VERSION = "1.3.0"
 PROCESSING_OUTPUT_MEDIA_TYPE = "application/vnd.cmp.processing-output+json"
 
 
@@ -299,7 +312,7 @@ def validate_fit_decision(
     stage = preview.stages[ordinal]
     scalar = {item.key: item for item in stage.scalar_results}
     if step.method_id == "metal.hardening_fit_extrapolate":
-        _validate_metal_fit_decision(step, scalar, decision)
+        _validate_metal_fit_decision(step, stage, scalar, decision)
     else:
         _validate_polymer_fit_decision(
             step, stage, preview.independent_quantity, decision
@@ -317,7 +330,10 @@ def _option_number(step: ProcessingStep, key: str) -> float:
 
 
 def _validate_metal_fit_decision(
-    step: ProcessingStep, scalar: dict[str, ScalarResult], decision: FitDecisionSnapshot
+    step: ProcessingStep,
+    stage: CurveStage,
+    scalar: dict[str, ScalarResult],
+    decision: FitDecisionSnapshot,
 ) -> None:
     if step.options.get("equation_contract") != HARDENING_EQUATION_CONTRACT:
         raise CommonPipelineError(
@@ -355,6 +371,24 @@ def _validate_metal_fit_decision(
         raise CommonPipelineError("metal fit decision extrapolation policy must be bounded")
     if len(decision.parameter_sets) != len(laws):
         raise CommonPipelineError("fit decision parameter sets do not match selected metal laws")
+    candidate_by_family = {candidate.family: candidate for candidate in stage.fit_candidates}
+    selected_evidence = candidate_by_family.get(decision.candidate_key)
+    if selected_evidence is None:
+        selected_evidence = candidate_by_family.get(decision.primary_law)
+    warning_required = any(
+        family == "ghosh"
+        or bool(
+            candidate_by_family.get(family)
+            and candidate_by_family[family].active_bound
+        )
+        for family in laws
+    )
+    if selected_evidence is not None and selected_evidence.active_bound:
+        warning_required = True
+    if warning_required and not decision.warning_acknowledged:
+        raise CommonPipelineError(
+            "fit decision warning acknowledgement is required for selected candidate evidence"
+        )
     for parameter_set, law in zip(decision.parameter_sets, laws, strict=True):
         if parameter_set.law != law:
             raise CommonPipelineError("fit decision parameter-set law differs from selected law")
@@ -559,6 +593,10 @@ class ProcessingOutputContent:
     final_point_count: int
     output_artifact_id: UUID
     output_sha256: str
+    # A Fit output may pin one immutable Process-only Processing Output.  Legacy
+    # rows remain readable with both fields NULL.
+    source_processing_output: ExactRevisionPin | None = None
+    source_processing_output_sha256: str | None = None
     workup_overrides: tuple[ProcessingWorkupOverride, ...] = ()
     fit_decision: FitDecisionSnapshot | None = None
     export_provenance: GovernedTestDataSource | None = None
@@ -572,6 +610,12 @@ class ProcessingOutputContent:
             raise CommonPipelineError("Processing Output stage or point count is inconsistent")
         if len({override.kind for override in self.workup_overrides}) != len(self.workup_overrides):
             raise CommonPipelineError("a Processing Output may contain one override per kind")
+        if (self.source_processing_output is None) != (
+            self.source_processing_output_sha256 is None
+        ):
+            raise CommonPipelineError(
+                "source Processing Output pin and digest must be provided together"
+            )
 
 
 @dataclass(frozen=True, slots=True)
@@ -588,6 +632,7 @@ class ProcessingOutputPreflight:
     mapping_profile_sha256: str
     preview: ProcessingPreview
     export_provenance: GovernedTestDataSource | None = None
+    source_processing_output_sha256: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -600,6 +645,7 @@ class CommitProcessingOutput:
     change_reason: str
     workup_overrides: tuple[ProcessingWorkupOverride, ...] = ()
     fit_decision: FitDecisionSnapshot | None = None
+    source_processing_output: ExactRevisionPin | None = None
 
 
 class ProcessingOutputRepository(Protocol):
@@ -618,6 +664,19 @@ class ProcessingOutputRepository(Protocol):
     def list_outputs(
         self, *, context: SecurityContext, decision: AuthorizationDecision
     ) -> tuple[ProcessingOutputSnapshot, ...]: ...
+
+    def commit_in_artifact_session(
+        self,
+        *,
+        session: object,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        output_id: UUID,
+        classification: str,
+        content: ProcessingOutputContent,
+        change_reason: str,
+        artifact_created_at: datetime,
+    ) -> ProcessingOutputSnapshot: ...
 
 
 def processing_output_content_canonical(value: ProcessingOutputContent) -> dict[str, object]:
@@ -647,6 +706,13 @@ def processing_output_content_canonical(value: ProcessingOutputContent) -> dict[
         "final_point_count": value.final_point_count,
         "output_artifact_id": str(value.output_artifact_id),
         "output_sha256": value.output_sha256,
+        "source_processing_output": None
+        if value.source_processing_output is None
+        else {
+            "aggregate_id": str(value.source_processing_output.aggregate_id),
+            "revision_id": str(value.source_processing_output.revision_id),
+        },
+        "source_processing_output_sha256": value.source_processing_output_sha256,
         "workup_overrides": [
             {
                 "kind": override.kind,
@@ -720,6 +786,292 @@ def _export_provenance_canonical(value: GovernedTestDataSource | None) -> dict[s
     }
 
 
+def _preview_from_exact_processing_output(
+    *,
+    source: ProcessingOutputSnapshot,
+    source_bytes: bytes,
+    fit_step: ProcessingStep,
+) -> ProcessingPreview:
+    """Read one saved Process result and append exactly one metal Fit stage.
+
+    This deliberately consumes the authoritative Processing Output artifact rather than
+    falling back to its raw Test Data source.  The output document is treated as an
+    immutable, versioned wire contract and is rechecked before any calculation starts.
+    """
+
+    if hashlib.sha256(source_bytes).hexdigest() != source.content.output_sha256:
+        raise CommonPipelineError("exact Processing Output content digest does not match its pin")
+    try:
+        document = json.loads(source_bytes)
+    except (TypeError, json.JSONDecodeError) as error:
+        raise CommonPipelineError("exact Processing Output content is malformed JSON") from error
+    if not isinstance(document, dict):
+        raise CommonPipelineError("exact Processing Output document is malformed")
+    required_document_keys = {
+        "document_type",
+        "document_version",
+        "output_id",
+        "source_processing_output",
+        "source_processing_output_sha256",
+        "source_document",
+        "source_canonical_artifact_sha256",
+        "mapping_profile",
+        "steps",
+        "result",
+        "workup_overrides",
+        "fit_decision",
+        "export_provenance",
+    }
+    if not required_document_keys <= document.keys():
+        raise CommonPipelineError("exact Processing Output document metadata is incomplete")
+    expected_version = getattr(source.current, "schema_version", PROCESSING_OUTPUT_SCHEMA_VERSION)
+    if document.get("document_type") != "cmp.processing-output":
+        raise CommonPipelineError("exact Processing Output document identity is incompatible")
+    if document.get("document_version") != expected_version:
+        raise CommonPipelineError(
+            "exact Processing Output document version does not match its revision"
+        )
+    if document.get("output_id") != str(source.id):
+        raise CommonPipelineError(
+            "exact Processing Output document identity does not match output id"
+        )
+    saved_steps = tuple(source.content.steps)
+    if not saved_steps or any(step.method_id in _FIT_METHODS for step in saved_steps):
+        raise CommonPipelineError("Fit requires a Process-only Processing Output source")
+    if fit_step.method_id != "metal.hardening_fit_extrapolate":
+        raise CommonPipelineError("exact Process source accepts one metal hardening Fit step")
+
+    def _pin(value: ExactRevisionPin) -> dict[str, str]:
+        return {"aggregate_id": str(value.aggregate_id), "revision_id": str(value.revision_id)}
+
+    if document.get("source_processing_output") is not None:
+        raise CommonPipelineError("Process-only source must not pin another Processing Output")
+    if document.get("source_processing_output_sha256") is not None:
+        raise CommonPipelineError(
+            "Process-only source must not contain a source Processing Output digest"
+        )
+    if document.get("source_document") != _pin(source.content.source_document):
+        raise CommonPipelineError("exact Processing Output source document pin drifted")
+    if (
+        document.get("source_canonical_artifact_sha256")
+        != source.content.source_canonical_artifact_sha256
+    ):
+        raise CommonPipelineError("exact Processing Output source artifact digest drifted")
+    if document.get("mapping_profile") != _pin(source.content.mapping_profile):
+        raise CommonPipelineError("exact Processing Output Mapping Profile pin drifted")
+    expected_steps = [
+        {
+            "method_id": step.method_id,
+            "method_version": step.method_version,
+            "options": step.options,
+        }
+        for step in saved_steps
+    ]
+    if document.get("steps") != expected_steps:
+        raise CommonPipelineError("exact Processing Output steps drifted from the pinned revision")
+    if document.get("workup_overrides") != [
+        {
+            "kind": override.kind,
+            "original_value": override.original_value,
+            "original_unit": override.original_unit,
+            "canonical_value": override.canonical_value,
+            "canonical_unit": override.canonical_unit,
+            "reason": override.reason,
+        }
+        for override in source.content.workup_overrides
+    ]:
+        raise CommonPipelineError("exact Processing Output workup metadata drifted")
+    if document.get("fit_decision") != fit_decision_canonical(source.content.fit_decision):
+        raise CommonPipelineError("Process-only source contains fit decision metadata")
+    if (
+        document.get("export_provenance")
+        != _export_provenance_canonical(source.content.export_provenance)
+    ):
+        raise CommonPipelineError("exact Processing Output provenance metadata drifted")
+
+    result = document.get("result")
+    if not isinstance(result, dict) or not isinstance(result.get("stages"), list):
+        raise CommonPipelineError("exact Processing Output result is missing persisted stages")
+    result_keys = {
+        "source_document_sha256",
+        "mapping_profile_sha256",
+        "independent_quantity",
+        "stages",
+    }
+    if set(result) != result_keys:
+        raise CommonPipelineError("exact Processing Output result metadata is incomplete")
+    if result.get("source_document_sha256") != source.content.source_document_sha256:
+        raise CommonPipelineError("exact Processing Output source document digest drifted")
+    if result.get("mapping_profile_sha256") != source.content.mapping_profile_sha256:
+        raise CommonPipelineError("exact Processing Output Mapping Profile digest drifted")
+    if result.get("independent_quantity") != source.content.independent_quantity:
+        raise CommonPipelineError("exact Processing Output independent quantity drifted")
+    raw_stages = result["stages"]
+    if len(raw_stages) != source.content.stage_count:
+        raise CommonPipelineError("exact Processing Output stage count does not match its revision")
+    if source.content.stage_count != len(saved_steps) + 1:
+        raise CommonPipelineError("exact Processing Output stored stage count is inconsistent")
+    stages: list[CurveStage] = []
+    for ordinal, raw_stage in enumerate(raw_stages):
+        if not isinstance(raw_stage, dict):
+            raise CommonPipelineError("exact Processing Output stage is malformed")
+        stage_keys = {
+            "ordinal",
+            "method_id",
+            "method_version",
+            "point_count",
+            "series",
+            "diagnostics",
+            "scalar_results",
+            "fit_candidates",
+        }
+        if set(raw_stage) != stage_keys:
+            raise CommonPipelineError("exact Processing Output stage metadata is incomplete")
+        expected_method_id = "mapping" if ordinal == 0 else saved_steps[ordinal - 1].method_id
+        expected_method_version = (
+            "1.0.0" if ordinal == 0 else saved_steps[ordinal - 1].method_version
+        )
+        if (
+            raw_stage.get("ordinal") != ordinal
+            or raw_stage.get("method_id") != expected_method_id
+            or raw_stage.get("method_version") != expected_method_version
+        ):
+            raise CommonPipelineError(
+                "exact Processing Output stage ordinal or method identity drifted"
+            )
+        point_count = raw_stage.get("point_count")
+        if isinstance(point_count, bool) or not isinstance(point_count, int) or point_count < 1:
+            raise CommonPipelineError("exact Processing Output stage point count is invalid")
+        raw_series = raw_stage.get("series")
+        if not isinstance(raw_series, list) or not raw_series:
+            raise CommonPipelineError("exact Processing Output stage series are missing or empty")
+        series: list[QuantitySeries] = []
+        quantities: set[str] = set()
+        for item in raw_series:
+            if not isinstance(item, dict) or set(item) != {"quantity", "unit", "values"}:
+                raise CommonPipelineError("exact Processing Output series metadata is malformed")
+            quantity, unit, values = item.get("quantity"), item.get("unit"), item.get("values")
+            if (
+                not isinstance(quantity, str)
+                or not quantity
+                or not isinstance(unit, str)
+                or not unit
+            ):
+                raise CommonPipelineError("exact Processing Output series identity is invalid")
+            if quantity in quantities or not isinstance(values, list) or len(values) != point_count:
+                raise CommonPipelineError(
+                    "exact Processing Output series length or identity is invalid"
+                )
+            if not values or any(
+                isinstance(value, bool)
+                or not isinstance(value, int | float)
+                or not math.isfinite(float(value))
+                for value in values
+            ):
+                raise CommonPipelineError(
+                    "exact Processing Output series contains non-finite or empty values"
+                )
+            quantities.add(quantity)
+            series.append(QuantitySeries(quantity, unit, tuple(float(value) for value in values)))
+        diagnostics = raw_stage.get("diagnostics")
+        if not isinstance(diagnostics, list) or any(
+            not isinstance(item, str) for item in diagnostics
+        ):
+            raise CommonPipelineError("exact Processing Output diagnostics are malformed")
+        raw_scalars = raw_stage.get("scalar_results")
+        if not isinstance(raw_scalars, list):
+            raise CommonPipelineError("exact Processing Output scalar results are malformed")
+        stage_scalar_results: list[ScalarResult] = []
+        scalar_keys: set[str] = set()
+        for item in raw_scalars:
+            if not isinstance(item, dict) or set(item) != {
+                "key",
+                "quantity_semantics",
+                "value",
+                "unit",
+            }:
+                raise CommonPipelineError("exact Processing Output scalar metadata is malformed")
+            key, semantics, value, unit = (
+                item.get("key"), item.get("quantity_semantics"), item.get("value"), item.get("unit")
+            )
+            if (
+                not isinstance(key, str)
+                or not key
+                or key in scalar_keys
+                or not isinstance(semantics, str)
+                or not semantics
+                or not isinstance(unit, str)
+                or not unit
+                or isinstance(value, bool)
+                or not isinstance(value, int | float)
+                or not math.isfinite(float(value))
+            ):
+                raise CommonPipelineError("exact Processing Output scalar values are malformed")
+            scalar_keys.add(key)
+            stage_scalar_results.append(ScalarResult(key, semantics, float(value), unit))
+        fit_candidates = raw_stage.get("fit_candidates")
+        if not isinstance(fit_candidates, list) or fit_candidates:
+            raise CommonPipelineError(
+                "Process-only source contains unexpected fit candidate evidence"
+            )
+        stages.append(
+            CurveStage(
+                ordinal,
+                expected_method_id,
+                expected_method_version,
+                point_count,
+                tuple(series),
+                tuple(diagnostics),
+                tuple(stage_scalar_results),
+            )
+        )
+    if not stages:
+        raise CommonPipelineError("exact Processing Output has no persisted stages")
+    final = stages[-1]
+    if final.point_count != source.content.final_point_count:
+        raise CommonPipelineError(
+            "exact Processing Output final point count does not match its revision"
+        )
+    if source.content.independent_quantity not in {item.quantity for item in final.series}:
+        raise CommonPipelineError(
+            "exact Processing Output independent quantity is missing from final series"
+        )
+    columns = {item.quantity: np.asarray(item.values, dtype=np.float64) for item in final.series}
+    units = {item.quantity: item.unit for item in final.series}
+    options = dict(fit_step.options)
+    try:
+        fitted = fit_hardening_candidates(columns, units, options)
+    except (TypeError, ValueError) as error:
+        raise CommonPipelineError(str(error)) from error
+    scalar_results = tuple(
+        ScalarResult(item.key, item.quantity_semantics, item.value, item.unit)
+        for item in fitted.scalars
+    )
+    fit_series = tuple(
+        QuantitySeries(quantity, unit, tuple(float(item) for item in values))
+        for quantity, values in fitted.columns.items()
+        for unit in (fitted.units[quantity],)
+    )
+    stages.append(
+        CurveStage(
+            len(stages),
+            fit_step.method_id,
+            fit_step.method_version,
+            len(next(iter(fitted.columns.values()))),
+            fit_series,
+            fitted.diagnostics,
+            scalar_results,
+            fitted.candidates,
+        )
+    )
+    return ProcessingPreview(
+        source_document_sha256=source.content.source_document_sha256,
+        mapping_profile_sha256=source.content.mapping_profile_sha256,
+        independent_quantity=source.content.independent_quantity,
+        stages=tuple(stages),
+    )
+
+
 def processing_output_document(
     *,
     output_id: UUID,
@@ -731,11 +1083,20 @@ def processing_output_document(
     workup_overrides: tuple[ProcessingWorkupOverride, ...] = (),
     fit_decision: FitDecisionSnapshot | None = None,
     export_provenance: GovernedTestDataSource | None = None,
+    source_processing_output: ExactRevisionPin | None = None,
+    source_processing_output_sha256: str | None = None,
 ) -> dict[str, object]:
     return {
         "document_type": "cmp.processing-output",
         "document_version": PROCESSING_OUTPUT_SCHEMA_VERSION,
         "output_id": str(output_id),
+        "source_processing_output": None
+        if source_processing_output is None
+        else {
+            "aggregate_id": str(source_processing_output.aggregate_id),
+            "revision_id": str(source_processing_output.revision_id),
+        },
+        "source_processing_output_sha256": source_processing_output_sha256,
         "source_document": {
             "aggregate_id": str(source.aggregate_id),
             "revision_id": str(source.revision_id),
@@ -805,11 +1166,58 @@ class CommonProcessingOutputService:
         context: SecurityContext,
         decision: AuthorizationDecision,
         command: CommitProcessingOutput,
+        *,
+        validate_selection: bool = True,
     ) -> ProcessingOutputPreflight:
         """Validate exact inputs and execute without persisting an output."""
 
         _require(context, decision, Permission.PROCESSING_EXECUTE)
         validate_workup_overrides(command.steps, command.workup_overrides)
+        if command.source_processing_output is not None:
+            if (
+                len(command.steps) < 1
+                or command.steps[-1].method_id != "metal.hardening_fit_extrapolate"
+            ):
+                raise CommonPipelineError(
+                    "a source Processing Output fit must append exactly one metal hardening step"
+                )
+            source_output, source_bytes = await self.export_exact(
+                context,
+                decision,
+                command.source_processing_output.aggregate_id,
+                command.source_processing_output.revision_id,
+            )
+            if source_output.current.scope.classification != command.classification.value:
+                raise CommonPipelineError(
+                    "Processing Output classification must match the exact Process source"
+                )
+            if command.source_document != source_output.content.source_document:
+                raise CommonPipelineError(
+                    "Fit source Test Data pin differs from the exact Process Output source"
+                )
+            if command.mapping_profile != source_output.content.mapping_profile:
+                raise CommonPipelineError(
+                    "Fit source Mapping Profile pin differs from the exact Process Output source"
+                )
+            if tuple(command.steps[:-1]) != tuple(source_output.content.steps):
+                raise CommonPipelineError(
+                    "Fit steps must include every stored Process step in exact order"
+                )
+            preview = _preview_from_exact_processing_output(
+                source=source_output,
+                source_bytes=source_bytes,
+                fit_step=command.steps[-1],
+            )
+            if validate_selection:
+                validate_fit_decision(command.steps, preview, command.fit_decision)
+            return ProcessingOutputPreflight(
+                source_document_sha256=source_output.content.source_document_sha256,
+                source_canonical_artifact_sha256=source_output.content.source_canonical_artifact_sha256,
+                mapping_profile_sha256=source_output.content.mapping_profile_sha256,
+                preview=preview,
+                export_provenance=source_output.content.export_provenance,
+                source_processing_output_sha256=source_output.content.output_sha256,
+            )
         source_snapshot, source_bytes = await self._test_data.export_document(
             context,
             decision,
@@ -831,7 +1239,8 @@ class CommonProcessingOutputService:
             )
         document = parse_canonical_test_data(json.loads(source_bytes))
         preview = preview_pipeline(document, profile_snapshot.content, command.steps)
-        validate_fit_decision(command.steps, preview, command.fit_decision)
+        if validate_selection:
+            validate_fit_decision(command.steps, preview, command.fit_decision)
         if preview.mapping_profile_sha256 != profile_snapshot.content.digest:
             raise CommonPipelineError("Mapping Profile digest pin differs from executed profile")
         return ProcessingOutputPreflight(
@@ -840,6 +1249,46 @@ class CommonProcessingOutputService:
             mapping_profile_sha256=preview.mapping_profile_sha256,
             preview=preview,
             export_provenance=source_snapshot.content.governed_source,
+            source_processing_output_sha256=None,
+        )
+
+    async def preview_from_exact_output(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        source_processing_output: ExactRevisionPin,
+        fit_step: ProcessingStep,
+    ) -> ProcessingPreview:
+        """Calculate one Fit preview from a pinned Process Output artifact.
+
+        Fit never re-reads the raw Test Data path.  The exact output revision and
+        its byte digest are checked before the persisted Process stages are used.
+        Selection/commit validation remains a separate concern for ``preflight``.
+        """
+
+        _require(context, decision, Permission.PROCESSING_EXECUTE)
+        source_output, source_bytes = await self.export_exact(
+            context,
+            decision,
+            source_processing_output.aggregate_id,
+            source_processing_output.revision_id,
+        )
+        try:
+            source_classification = DataClassification(source_output.current.scope.classification)
+        except ValueError as error:
+            raise CommonPipelineError(
+                "exact Processing Output classification is invalid"
+            ) from error
+        if not decision.allows(
+            context.organization_id,
+            context.project_id,
+            source_classification,
+        ):
+            raise CommonPipelineError("exact Processing Output classification is not authorized")
+        return _preview_from_exact_processing_output(
+            source=source_output,
+            source_bytes=source_bytes,
+            fit_step=fit_step,
         )
 
     async def commit(
@@ -862,8 +1311,51 @@ class CommonProcessingOutputService:
                 workup_overrides=command.workup_overrides,
                 fit_decision=command.fit_decision,
                 export_provenance=resolved.export_provenance,
+                source_processing_output=command.source_processing_output,
+                source_processing_output_sha256=resolved.source_processing_output_sha256,
             )
         )
+        def _content(artifact_record: ArtifactRecord) -> ProcessingOutputContent:
+            return ProcessingOutputContent(
+                label=command.label,
+                source_document=command.source_document,
+                source_document_sha256=preview.source_document_sha256,
+                source_canonical_artifact_sha256=resolved.source_canonical_artifact_sha256,
+                mapping_profile=command.mapping_profile,
+                mapping_profile_sha256=preview.mapping_profile_sha256,
+                steps=command.steps,
+                independent_quantity=preview.independent_quantity,
+                stage_count=len(preview.stages),
+                final_point_count=preview.stages[-1].point_count,
+                output_artifact_id=artifact_record.artifact.id,
+                output_sha256=artifact_record.artifact.sha256,
+                source_processing_output=command.source_processing_output,
+                source_processing_output_sha256=resolved.source_processing_output_sha256,
+                workup_overrides=command.workup_overrides,
+                fit_decision=command.fit_decision,
+                export_provenance=resolved.export_provenance,
+            )
+
+        atomic_writer = getattr(self._repository, "commit_in_artifact_session", None)
+        committed: dict[str, ProcessingOutputSnapshot] = {}
+        commit_hook: ArtifactCommitHook | None = None
+        if callable(atomic_writer):
+
+            def _commit_hook(session: object, finalized: FinalizedArtifact) -> None:
+                final_record = finalized.record
+                committed["snapshot"] = atomic_writer(
+                    session=session,
+                    context=context,
+                    decision=decision,
+                    output_id=output_id,
+                    classification=command.classification.value,
+                    content=_content(final_record),
+                    change_reason=command.change_reason,
+                    artifact_created_at=final_record.artifact.created_at,
+                )
+
+            commit_hook = _commit_hook
+
         artifact = await self._artifacts.finalize_derived_bytes(
             context,
             decision,
@@ -873,24 +1365,11 @@ class CommonProcessingOutputService:
             media_type=PROCESSING_OUTPUT_MEDIA_TYPE,
             value=output_bytes,
             idempotency_key=f"common-processing-output:{output_id}",
+            **({"commit_hook": commit_hook} if commit_hook is not None else {}),
         )
-        content = ProcessingOutputContent(
-            label=command.label,
-            source_document=command.source_document,
-            source_document_sha256=preview.source_document_sha256,
-            source_canonical_artifact_sha256=resolved.source_canonical_artifact_sha256,
-            mapping_profile=command.mapping_profile,
-            mapping_profile_sha256=preview.mapping_profile_sha256,
-            steps=command.steps,
-            independent_quantity=preview.independent_quantity,
-            stage_count=len(preview.stages),
-            final_point_count=preview.stages[-1].point_count,
-            output_artifact_id=artifact.artifact.id,
-            output_sha256=artifact.artifact.sha256,
-            workup_overrides=command.workup_overrides,
-            fit_decision=command.fit_decision,
-            export_provenance=resolved.export_provenance,
-        )
+        if "snapshot" in committed:
+            return committed["snapshot"]
+        content = _content(artifact)
         record = RevisionService(
             aggregate_type=PROCESSING_OUTPUT_AGGREGATE_TYPE,
             store=self._repository.output_store(context, decision),

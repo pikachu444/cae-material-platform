@@ -8,6 +8,7 @@ interface ModelingWorkspaceLayoutProps {
   ribbon: ReactNode;
   plot: ReactNode;
   dock?: ReactNode;
+  dockLabel?: string;
   dataLayoutMode?: "compact" | "content-fit";
   ribbonOpen: boolean;
   onRibbonOpenChange: (open: boolean) => void;
@@ -32,6 +33,7 @@ export function ModelingWorkspaceLayout({
   ribbon,
   plot,
   dock,
+  dockLabel = "Delivery",
   dataLayoutMode,
   ribbonOpen,
   onRibbonOpenChange,
@@ -157,9 +159,9 @@ export function ModelingWorkspaceLayout({
   );
 
   const main = (
-    <section className={`modeling-main-surface${dock ? " has-dock" : ""}${dataLayoutMode ? " has-data-split" : ""}`} aria-label="Persistent Modeling graph and task controls">
+    <section className={`modeling-main-surface${dock ? " has-dock" : ""}${dockLabel === "Candidate parameters" ? " has-fit-evidence-dock" : ""}${dataLayoutMode ? " has-data-split" : ""}`} aria-label="Persistent Modeling graph and task controls">
       {dataSplit}
-      {dock ? <section className="modeling-workspace-dock" aria-label="Delivery">{dock}</section> : null}
+      {dock ? <section className="modeling-workspace-dock" aria-label={dockLabel}>{dock}</section> : null}
       <button
         className="modeling-ribbon-control"
         type="button"

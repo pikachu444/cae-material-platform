@@ -156,10 +156,46 @@
         "unit": {"type": "string", "minLength": 1}
       }
     },
+    "ExactProcessingFitPreviewRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_processing_output", "fit_step"],
+      "properties": {
+        "source_processing_output": {"$ref": "#/$defs/ExactRevisionPin"},
+        "fit_step": {"$ref": "#/$defs/ProcessingStep"}
+      }
+    },
+    "HardeningCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["family", "response", "residual", "tangent", "parameter_names", "parameter_units", "lower", "initial", "fitted", "upper", "rmse_pa", "relative_rmse", "objective", "scipy_cost", "convergence", "nfev", "active_bound", "jacobian_rank", "jacobian_tolerance", "jacobian_condition", "identifiability", "uncertainty", "objective_history"],
+      "properties": {
+        "family": {"type": "string"},
+        "response": {"type": "array", "items": {"type": "number"}},
+        "residual": {"type": "array", "items": {"type": "number"}},
+        "tangent": {"type": "array", "items": {"type": ["number", "null"]}},
+        "parameter_names": {"type": "array", "items": {"type": "string"}},
+        "parameter_units": {"type": "array", "items": {"type": "string"}},
+        "lower": {"type": "array", "items": {"type": "number"}},
+        "initial": {"type": "array", "items": {"type": "number"}},
+        "fitted": {"type": "array", "items": {"type": "number"}},
+        "upper": {"type": "array", "items": {"type": "number"}},
+        "rmse_pa": {"type": "number"}, "relative_rmse": {"type": "number"},
+        "objective": {"type": "number"}, "scipy_cost": {"type": "number"},
+        "convergence": {"type": "boolean"}, "nfev": {"type": "integer"},
+        "active_bound": {"type": "array", "items": {"type": "string"}},
+        "jacobian_rank": {"type": "integer"}, "jacobian_tolerance": {"type": "number"},
+        "jacobian_condition": {"type": ["number", "null"]},
+        "identifiability": {"type": "string"}, "uncertainty": {"type": "string"},
+        "objective_history": {"type": "array", "items": {"type": "number"}},
+        "optimizer_status": {"type": "integer"},
+        "optimizer_message": {"type": "string"}
+      }
+    },
     "CurveStage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["ordinal", "method_id", "method_version", "point_count", "series", "diagnostics", "scalar_results"],
+      "required": ["ordinal", "method_id", "method_version", "point_count", "series", "diagnostics", "scalar_results", "fit_candidates"],
       "properties": {
         "ordinal": {"type": "integer", "minimum": 0},
         "method_id": {"type": "string"},
@@ -167,7 +203,8 @@
         "point_count": {"type": "integer", "minimum": 2, "maximum": 100000},
         "series": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/QuantitySeries"}},
         "diagnostics": {"type": "array", "items": {"type": "string"}},
-        "scalar_results": {"type": "array", "items": {"$ref": "#/$defs/ScalarResult"}}
+        "scalar_results": {"type": "array", "items": {"$ref": "#/$defs/ScalarResult"}},
+        "fit_candidates": {"type": "array", "items": {"$ref": "#/$defs/HardeningCandidate"}}
       }
     },
     "PreviewResponse": {
@@ -278,12 +315,13 @@
         "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
         "workup_overrides": {"type": "array", "maxItems": 2, "items": {"$ref": "#/$defs/ProcessingWorkupOverride"}},
         "fit_decision": {"anyOf": [{"$ref": "#/$defs/FitDecision"}, {"type": "null"}]}
+        ,"source_processing_output": {"anyOf": [{"$ref": "#/$defs/ExactRevisionPin"}, {"type": "null"}]}
       }
     },
     "ProcessingOutputResponse": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["processing_output_id", "current_revision", "label", "source_document", "source_document_sha256", "source_canonical_artifact_sha256", "mapping_profile", "mapping_profile_sha256", "steps", "independent_quantity", "stage_count", "final_point_count", "output_artifact_id", "output_sha256", "workup_overrides", "fit_decision", "export_provenance"],
+      "required": ["processing_output_id", "current_revision", "label", "source_document", "source_document_sha256", "source_canonical_artifact_sha256", "mapping_profile", "mapping_profile_sha256", "steps", "independent_quantity", "stage_count", "final_point_count", "output_artifact_id", "output_sha256", "source_processing_output", "source_processing_output_sha256", "workup_overrides", "fit_decision", "export_provenance"],
       "properties": {
         "processing_output_id": {"type": "string", "format": "uuid"},
         "current_revision": {"$ref": "../revisions/revision-metadata.schema.json"},
@@ -299,6 +337,8 @@
         "final_point_count": {"type": "integer", "minimum": 2, "maximum": 100000},
         "output_artifact_id": {"type": "string", "format": "uuid"},
         "output_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "source_processing_output": {"anyOf": [{"$ref": "#/$defs/ExactRevisionPin"}, {"type": "null"}]},
+        "source_processing_output_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
         "workup_overrides": {"type": "array", "maxItems": 2, "items": {"$ref": "#/$defs/ProcessingWorkupOverride"}},
         "fit_decision": {"anyOf": [{"$ref": "#/$defs/FitDecision"}, {"type": "null"}]},
         "export_provenance": {"anyOf": [{"$ref": "#/$defs/ExportProvenance"}, {"type": "null"}]}
@@ -359,6 +399,48 @@
       "required": ["items"],
       "properties": {
         "items": {"type": "array", "items": {"$ref": "#/$defs/ProcessingOutputResponse"}}
+      }
+    },
+    "MetalFitRunRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["classification", "source_processing_output", "fit_step", "change_reason"],
+      "properties": {
+        "classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
+        "source_processing_output": {"$ref": "#/$defs/ExactRevisionPin"},
+        "fit_step": {"$ref": "#/$defs/ProcessingStep"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "MetalFitRunAttemptResponse": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "run_id", "ordinal", "family", "status", "result", "objective_history", "failure_code", "failure_reason"],
+      "properties": {
+        "id": {"type": "string", "format": "uuid"}, "run_id": {"type": "string", "format": "uuid"},
+        "ordinal": {"type": "integer", "minimum": 0}, "family": {"type": "string"}, "status": {"type": "string"},
+        "result": {"type": ["object", "null"]}, "objective_history": {"type": "array", "items": {"type": "number"}},
+        "failure_code": {"type": ["string", "null"]}, "failure_reason": {"type": ["string", "null"]}
+      }
+    },
+    "MetalFitRunResponse": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "classification", "source_processing_output", "source_processing_output_sha256", "source_document", "mapping_profile", "options", "reproducibility_evidence", "status", "failure_code", "failure_reason", "attempts", "preview", "created_by", "request_id", "trace_id", "started_at", "ended_at"],
+      "properties": {
+        "id": {"type": "string", "format": "uuid"},
+        "classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
+        "source_processing_output": {"$ref": "#/$defs/ExactRevisionPin"},
+        "source_processing_output_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "source_document": {"$ref": "#/$defs/ExactRevisionPin"},
+        "mapping_profile": {"$ref": "#/$defs/ExactRevisionPin"},
+        "options": {"type": "object"}, "reproducibility_evidence": {"type": "object"},
+        "status": {"type": "string"}, "failure_code": {"type": ["string", "null"]},
+        "failure_reason": {"type": ["string", "null"]},
+        "attempts": {"type": "array", "items": {"$ref": "#/$defs/MetalFitRunAttemptResponse"}},
+        "preview": {"anyOf": [{"$ref": "#/$defs/PreviewResponse"}, {"type": "null"}]},
+        "created_by": {"type": "string", "format": "uuid"},
+        "request_id": {"type": "string", "format": "uuid"},
+        "trace_id": {"type": "string"},
+        "started_at": {"type": "string", "format": "date-time"},
+        "ended_at": {"type": ["string", "null"], "format": "date-time"}
       }
     },
     "CommonRecipeContent": {

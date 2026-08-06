@@ -12,7 +12,7 @@ from sqlalchemy.dialects import postgresql
 from sqlalchemy.engine import RowMapping
 from sqlalchemy.orm import Session, sessionmaker
 
-from cmp.modules.artifacts.application.content import FinalizedArtifact
+from cmp.modules.artifacts.application.content import ArtifactCommitHook, FinalizedArtifact
 from cmp.modules.artifacts.domain.content import (
     Artifact,
     ArtifactConflict,
@@ -547,6 +547,7 @@ class SqlAlchemyArtifactRepository:
         stored: StoredObject,
         observation_id: UUID,
         now: datetime,
+        commit_hook: ArtifactCommitHook | None = None,
     ) -> FinalizedArtifact:
         with self._sessions() as session, session.begin():
             self._bind(session, context, decision)
@@ -640,6 +641,8 @@ class SqlAlchemyArtifactRepository:
             )
             for hook in self._available_hooks:
                 hook(session, result)
+            if commit_hook is not None:
+                commit_hook(session, result)
             return result
 
     def get_artifact(

@@ -9,6 +9,10 @@ from typing import cast
 
 import pytest
 
+# Embedded Playwright snippets and exact UI labels intentionally exceed Ruff's
+# line length and preserve typographic punctuation for source-contract checks.
+# ruff: noqa: E501, RUF001
+
 _PROJECT_ROOT = Path(__file__).parents[2]
 _CAPTURE_SOURCE = (_PROJECT_ROOT / "scripts/capture_current_product.py").read_text(
     encoding="utf-8"
@@ -19,15 +23,24 @@ MODELING_DATA_SESSION_OUTPUTS = cast(
     tuple[str, ...], _SCRIPT["MODELING_DATA_SESSION_OUTPUTS"]
 )
 MODELING_PROCESS_OUTPUTS = cast(tuple[str, ...], _SCRIPT["MODELING_PROCESS_OUTPUTS"])
+MODELING_PROCESS_FIT_OUTPUTS = cast(
+    tuple[str, ...], _SCRIPT["MODELING_PROCESS_FIT_OUTPUTS"]
+)
+MODELING_FIT_STATE_OUTPUTS = cast(
+    tuple[str, ...], _SCRIPT["MODELING_FIT_STATE_OUTPUTS"]
+)
 _assert_modeling_process_exact_read_failed = cast(
     Callable[[object, int | None], None], _SCRIPT["_assert_modeling_process_exact_read_failed"]
+)
+_select_warned_fit_candidate = cast(
+    Callable[[object], None], _SCRIPT["_select_warned_fit_candidate"]
 )
 PROCESS_NO_PREVIEW_SAVED_INSTRUCTION = cast(
     str, _SCRIPT["PROCESS_NO_PREVIEW_SAVED_INSTRUCTION"]
 )
 REVISION_LABEL_PATTERN = cast(re.Pattern[str], _SCRIPT["REVISION_LABEL_PATTERN"])
 _assert_modeling_process_saved_rows = cast(
-    Callable[[object], list[str]], _SCRIPT["_assert_modeling_process_saved_rows"]
+    Callable[..., list[str]], _SCRIPT["_assert_modeling_process_saved_rows"]
 )
 _assert_modeling_process_saved_rows_three = cast(
     Callable[..., list[str]], _SCRIPT["_assert_modeling_process_saved_rows_three"]
@@ -57,14 +70,112 @@ class _FakeRows:
         self.index_waits: list[int] = []
         self.scalar_waits: list[str] = []
 
-    def nth(self, index: int) -> "_FakeRowsWait":
+    def nth(self, index: int) -> _FakeRowsWait:
         return _FakeRowsWait(self, index=index)
 
-    def filter(self, *, has_text: str) -> "_FakeRowsWait":
+    def filter(self, *, has_text: str) -> _FakeRowsWait:
         return _FakeRowsWait(self, scalar=has_text)
 
     def all_inner_texts(self) -> list[str]:
         return list(self.row_text)
+
+
+class _FakeCandidateCell:
+    def __init__(self, text: str) -> None:
+        self.text = text
+
+    def inner_text(self) -> str:
+        return self.text
+
+
+class _FakeCandidateCells:
+    def __init__(self, cells: list[str]) -> None:
+        self.cells = cells
+
+    @property
+    def last(self) -> _FakeCandidateCell:
+        return _FakeCandidateCell(self.cells[-1])
+
+
+class _FakeCandidateButton:
+    def __init__(self, table: _FakeCandidateTable, index: int) -> None:
+        self.table = table
+        self.index = index
+
+    def click(self) -> None:
+        self.table.selected_index = self.index
+
+
+class _FakeCandidateRow:
+    def __init__(self, table: _FakeCandidateTable, index: int, cells: list[str]) -> None:
+        self.table = table
+        self.index = index
+        self.cells = cells
+
+    @property
+    def text(self) -> str:
+        return " ".join(self.cells)
+
+    def locator(self, selector: str) -> _FakeCandidateCells:
+        assert selector == "td"
+        return _FakeCandidateCells(self.cells)
+
+    def get_by_role(self, role: str, **_: object) -> _FakeCandidateButton:
+        assert role == "button"
+        return _FakeCandidateButton(self.table, self.index)
+
+
+class _FakeCandidateButtons:
+    def __init__(self, table: _FakeCandidateTable, rows: list[_FakeCandidateRow]) -> None:
+        self.table = table
+        self.rows = rows
+
+    def count(self) -> int:
+        return len(self.rows)
+
+    @property
+    def first(self) -> _FakeCandidateButton:
+        return self.rows[0].get_by_role("button")
+
+    @property
+    def last(self) -> _FakeCandidateButton:
+        return self.rows[-1].get_by_role("button")
+
+
+class _FakeCandidateRows:
+    def __init__(self, table: _FakeCandidateTable, rows: list[_FakeCandidateRow]) -> None:
+        self.table = table
+        self.rows = rows
+
+    def count(self) -> int:
+        return len(self.rows)
+
+    def nth(self, index: int) -> _FakeCandidateRow:
+        return self.rows[index]
+
+    def filter(self, *, has_text: re.Pattern[str]) -> _FakeCandidateRows:
+        return type(self)(self.table, [row for row in self.rows if has_text.search(row.text)])
+
+    def get_by_role(self, role: str, **_: object) -> _FakeCandidateButtons:
+        assert role == "button"
+        return _FakeCandidateButtons(self.table, self.rows)
+
+
+class _FakeCandidateTable:
+    def __init__(self, rows: list[list[str]]) -> None:
+        self.selected_index: int | None = None
+        candidate_rows = [
+            _FakeCandidateRow(self, index, cells) for index, cells in enumerate(rows)
+        ]
+        self.rows = _FakeCandidateRows(self, candidate_rows)
+
+    def locator(self, selector: str) -> _FakeCandidateRows:
+        assert selector == "tbody tr"
+        return self.rows
+
+    def get_by_role(self, role: str, **_: object) -> _FakeCandidateButtons:
+        assert role == "button"
+        return _FakeCandidateButtons(self, self.rows.rows)
 
 
 class _FakeRowsWait:
@@ -80,7 +191,7 @@ class _FakeRowsWait:
         self.scalar = scalar
 
     @property
-    def first(self) -> "_FakeRowsWait":
+    def first(self) -> _FakeRowsWait:
         return self
 
     def wait_for(self, **_: object) -> None:
@@ -169,7 +280,7 @@ class _FakeResponse:
 
 
 class _RefreshingFakeSummary:
-    def __init__(self, page: "_RefreshingFakePage") -> None:
+    def __init__(self, page: _RefreshingFakePage) -> None:
         self.page = page
 
     def click(self) -> None:
@@ -180,7 +291,7 @@ class _RefreshingFakeSummary:
 
 
 class _RefreshingFakeDetails:
-    def __init__(self, page: "_RefreshingFakePage") -> None:
+    def __init__(self, page: _RefreshingFakePage) -> None:
         self.page = page
         self.summary = _RefreshingFakeSummary(page)
 
@@ -199,12 +310,12 @@ class _RefreshingFakeDetails:
 
 
 class _RefreshingExpectation:
-    def __init__(self, page: "_RefreshingFakePage", predicate: Callable[[object], bool]) -> None:
+    def __init__(self, page: _RefreshingFakePage, predicate: Callable[[object], bool]) -> None:
         self.page = page
         self.predicate = predicate
         self.value: object | None = None
 
-    def __enter__(self) -> "_RefreshingExpectation":
+    def __enter__(self) -> _RefreshingExpectation:
         self.page.expectation = self
         return self
 
@@ -305,7 +416,7 @@ def test_incomplete_capture_cannot_reuse_files_from_previous_output(
 
 
 def test_current_capture_contract_contains_product_routes_only() -> None:
-    assert len(CURRENT_CAPTURE_OUTPUTS) == 60
+    assert len(CURRENT_CAPTURE_OUTPUTS) == 69
     assert all(name in CURRENT_CAPTURE_OUTPUTS for name in MODELING_DATA_SESSION_OUTPUTS)
     assert all(name in CURRENT_CAPTURE_OUTPUTS for name in MODELING_PROCESS_OUTPUTS)
     assert {
@@ -316,6 +427,329 @@ def test_current_capture_contract_contains_product_routes_only() -> None:
         "modeling-process-exact-read-failed-1440x900.png",
     } <= set(CURRENT_CAPTURE_OUTPUTS)
     assert all(not name.startswith("storybook-") for name in CURRENT_CAPTURE_OUTPUTS)
+
+
+def test_modeling_fit_capture_contract_covers_five_viewports_and_recovery_states() -> None:
+    fit_viewports = tuple(
+        f"modeling-fit-{width}x{height}.png"
+        for width, height in ((1366, 768), (1440, 900), (1920, 1080), (2560, 1440), (3840, 2160))
+    )
+    assert MODELING_FIT_STATE_OUTPUTS == (
+        "modeling-fit-candidate-parameters-long-1440x900.png",
+        "modeling-fit-candidate-evidence-scrolled-1440x900.png",
+        "modeling-fit-calculation-failed-1440x900.png",
+        "modeling-fit-save-failed-1440x900.png",
+        "modeling-fit-exact-source-blocked-1440x900.png",
+        "modeling-fit-exact-read-failed-1440x900.png",
+        "modeling-fit-restored-1440x900.png",
+    )
+    assert MODELING_PROCESS_FIT_OUTPUTS == (
+        tuple(
+            f"modeling-process-{width}x{height}.png"
+            for width, height in (
+                (1366, 768),
+                (1440, 900),
+                (1920, 1080),
+                (2560, 1440),
+                (3840, 2160),
+            )
+        )
+        + fit_viewports
+        + MODELING_FIT_STATE_OUTPUTS
+    )
+    assert all(
+        name in CURRENT_CAPTURE_OUTPUTS
+        for name in fit_viewports + MODELING_FIT_STATE_OUTPUTS
+    )
+
+
+def test_modeling_fit_capture_saves_exact_process_source_and_scrolls_evidence_locally() -> None:
+    assert "_save_process_output_for_fit(" in _CAPTURE_SOURCE
+    assert "_prepare_modeling_process(page, base_url)" in _CAPTURE_SOURCE
+    assert "processingOutput" in _CAPTURE_SOURCE
+    assert "metal-fit-runs" in _CAPTURE_SOURCE
+    assert 'get_by_role("button", name="Candidate parameters", exact=True)' in _CAPTURE_SOURCE
+    assert 'fit-evidence-drawer#fit-evidence-dock' in _CAPTURE_SOURCE
+    assert 'drawer.locator(".fit-evidence-body")' in _CAPTURE_SOURCE
+    assert 'get_by_role("button", name="Close", exact=True)' in _CAPTURE_SOURCE
+    assert "scrollbar gutter" in _CAPTURE_SOURCE
+    scroll_fn_start = _CAPTURE_SOURCE.index("def _scroll_fit_evidence_locally")
+    scroll_fn_end = _CAPTURE_SOURCE.index(
+        "\ndef _assert_modeling_process_preview", scroll_fn_start
+    )
+    scroll_fn_source = _CAPTURE_SOURCE[scroll_fn_start:scroll_fn_end]
+    assert "12 <= gutter <= 16" in scroll_fn_source
+    assert "12-16 px inclusive" in scroll_fn_source
+    reset_index = scroll_fn_source.index("el.scrollTop = 0;")
+    reset_left_index = scroll_fn_source.index("el.scrollLeft = 0;", reset_index)
+    focus_index = scroll_fn_source.index(
+        "el.focus({ preventScroll: true });", reset_left_index
+    )
+    metrics_index = scroll_fn_source.index("metrics = body.evaluate", focus_index)
+    page_down_index = scroll_fn_source.index(
+        'body.press("PageDown")', metrics_index
+    )
+    assert (
+        reset_index < reset_left_index < focus_index < metrics_index < page_down_index
+    )
+    assert "native-thumb drag" in _CAPTURE_SOURCE
+    assert "page.mouse.down()" in _CAPTURE_SOURCE
+    assert "window.scrollY" in _CAPTURE_SOURCE
+    assert 'body.press("PageDown")' in _CAPTURE_SOURCE
+    assert "page.keyboard.press(\"Escape\")" in _CAPTURE_SOURCE
+    assert "Candidate selection reason" in _CAPTURE_SOURCE
+    assert "Acknowledge selected candidate warning" in _CAPTURE_SOURCE
+
+
+def test_modeling_fit_capture_enforces_bounded_shell_rows_scale_and_collision_geometry() -> None:
+    assert "_assert_fit_display_scale" in _CAPTURE_SOURCE
+    assert ".modeling-fit-workspace-bounded" in _CAPTURE_SOURCE
+    assert "fitRowsIncluded" in _CAPTURE_SOURCE
+    assert "fitNoMatchingCurves" in _CAPTURE_SOURCE
+    assert 're.fullmatch(r"Specimen \\d{2} · r[1-9]\\d*"' in _CAPTURE_SOURCE
+    assert 'not 184 <= measurement["railWidth"] <= 210' in _CAPTURE_SOURCE
+    assert 'abs(measurement["ribbonHeight"] - 104)' in _CAPTURE_SOURCE
+    assert "segmentIntersectsRect" in _CAPTURE_SOURCE
+    assert "legendCurveSegmentOverlap" in _CAPTURE_SOURCE
+    assert "legendExtrapolationBoundaryOverlap" in _CAPTURE_SOURCE
+    assert "legendExtrapolationLabelOverlap" in _CAPTURE_SOURCE
+    assert "legendStateOverlayOverlap" in _CAPTURE_SOURCE
+    assert "lastXTickWithinSvg" in _CAPTURE_SOURCE
+    assert "xTicksWithinSvg" in _CAPTURE_SOURCE
+    assert "legendOutsideSvg" in _CAPTURE_SOURCE
+
+
+def test_modeling_fit_capture_states_route_calculation_save_and_exact_read_failures() -> None:
+    for path in MODELING_FIT_STATE_OUTPUTS:
+        assert f'output / "{path}"' in _CAPTURE_SOURCE
+    assert '"**/api/v1/metal-fit-runs"' in _CAPTURE_SOURCE
+    assert '"**/api/v1/processing-outputs"' in _CAPTURE_SOURCE
+    assert '"**/api/v1/processing-outputs/*/content"' in _CAPTURE_SOURCE
+    assert "deterministic Fit calculation failure" in _CAPTURE_SOURCE
+    assert "deterministic Fit save failure" in _CAPTURE_SOURCE
+    assert "deterministic saved Fit exact-read failure" in _CAPTURE_SOURCE
+    assert "Retry exact saved Fit" in _CAPTURE_SOURCE
+    assert '"Saved Fit result unavailable", exact=False' in _CAPTURE_SOURCE
+    assert (
+        "No saved Process Output is bound. Save Process before calculating Fit."
+        in _CAPTURE_SOURCE
+    )
+    assert 'get_by_role("button", name="Back to Process", exact=True)' in _CAPTURE_SOURCE
+    assert "blocked_history" in _CAPTURE_SOURCE
+    assert "blocked_requests" in _CAPTURE_SOURCE
+    assert "Restored Fit output lost its selected candidate/reason evidence" in _CAPTURE_SOURCE
+
+
+def test_fit_exact_source_blocker_uses_visible_anchored_process_stage_name() -> None:
+    blocker_flow = _CAPTURE_SOURCE.split(
+        "    fit_blocked = _new_page", 1
+    )[1].split("    exact_read_failed = _new_page", 1)[0]
+
+    assert 'get_by_role("button", name=re.compile(r"^Process\\b"))' in blocker_flow
+    assert "process_stage.count() != 1" in blocker_flow
+    assert "process_stage.is_visible()" in blocker_flow
+    assert 'get_by_role("button", name="Process", exact=True)' not in blocker_flow
+
+
+def test_fit_exact_source_blocker_scopes_duplicate_copy_to_plot_overlay() -> None:
+    blocker_flow = _CAPTURE_SOURCE.split(
+        "    fit_blocked = _new_page", 1
+    )[1].split("    exact_read_failed = _new_page", 1)[0]
+
+    assert 'fit_plot_overlay = fit_blocked.locator(\n        "#modeling-fit .engineering-curve-plot-empty-overlay"\n    )' in blocker_flow
+    assert 'fit_plot_overlay.get_by_text(\n        fit_blocker_message,\n        exact=True,\n    )' in blocker_flow
+    assert 'fit_source_binding = fit_blocked.locator(".fit-source-binding.missing")' in blocker_flow
+    assert "fit_source_binding.inner_text().strip() != fit_blocker_message" in blocker_flow
+    assert "fit_blocked.get_by_text(" not in blocker_flow
+    assert ".first" not in blocker_flow
+
+
+def test_fit_exact_source_recovery_assertion_starts_after_blocked_screenshot() -> None:
+    blocker_flow = _CAPTURE_SOURCE.split(
+        "    fit_blocked = _new_page", 1
+    )[1].split("    exact_read_failed = _new_page", 1)[0]
+    screenshot = blocker_flow.index(
+        'output / "modeling-fit-exact-source-blocked-1440x900.png"'
+    )
+    evidence_reset = blocker_flow.index("blocked_requests: list[str] = []")
+    listener = blocker_flow.index(
+        'fit_blocked.on("request", record_blocked_recovery_request)'
+    )
+    recovery_click = blocker_flow.index(
+        'fit_blocked.get_by_role("button", name="Back to Process", exact=True).click()'
+    )
+    listener_cleanup = blocker_flow.index(
+        'fit_blocked.remove_listener("request", record_blocked_recovery_request)'
+    )
+    recovered_history = blocker_flow.index("recovered_history = {")
+    non_get_check = blocker_flow.index(
+        'if any(not request.startswith("GET ") for request in blocked_requests):'
+    )
+
+    assert (
+        screenshot
+        < evidence_reset
+        < listener
+        < recovery_click
+        < recovered_history
+        < non_get_check
+        < listener_cleanup
+    )
+    assert "method = str(getattr(request, \"method\", \"\")).upper()" in blocker_flow
+    assert "url = str(getattr(request, \"url\", \"\"))" in blocker_flow
+    assert 'blocked_requests.append(f"{method} {url}")' in blocker_flow
+    assert 'not request.startswith("GET ")' in blocker_flow
+    assert "blocked_requests: list[str] = []\n    fit_blocked.on(\"request\", lambda" not in blocker_flow
+
+
+def test_fit_save_stays_on_fit_and_explicitly_navigates_export_only_at_callers() -> None:
+    module = ast.parse(_CAPTURE_SOURCE)
+    save_node = next(
+        node
+        for node in ast.walk(module)
+        if isinstance(node, ast.FunctionDef)
+        and node.name == "_save_exact_fit_selection"
+    )
+    save_source = ast.get_source_segment(_CAPTURE_SOURCE, save_node)
+    assert save_source is not None
+    assert "New immutable Fit Output saved and current" in save_source
+    assert 'parse_qs(urlsplit(page.url).query).get("stage") != ["fit"]' in save_source
+    assert "processingOutput" in save_source
+    assert 'pointer.get(key)' in save_source
+    assert "_prepare_exact_target_preview" not in save_source
+    assert "stage=export" not in save_source
+
+    export_only = _CAPTURE_SOURCE.split(
+        "def _capture_modeling_export_only", 1
+    )[1].split("def _capture_modeling(", 1)[0]
+    assert export_only.index("_save_exact_fit_selection(page)") < export_only.index(
+        '_open_modeling_stage(page, "export")'
+    ) < export_only.index("_prepare_exact_target_preview(page)")
+
+    generic = _CAPTURE_SOURCE.split(
+        "def _capture_modeling(", 1
+    )[1].split("def _measure_process_fit", 1)[0]
+    assert "for stage, heading in STAGE_HEADINGS.items()" in generic
+    assert '_open_modeling_stage(page, stage)' in generic
+    assert "_save_exact_fit_selection(page)" in generic
+    assert (
+        'page.get_by_role("button", name="Save fit & continue", exact=True).click()'
+        not in generic
+    )
+
+    consistency = _CAPTURE_SOURCE.split(
+        "def _capture_modeling_consistency", 1
+    )[1].split("def _capture_modeling_data_viewports", 1)[0]
+    assert consistency.index("_save_exact_fit_selection(page)") < consistency.index(
+        '_open_modeling_stage(page, "export")'
+    ) < consistency.index("_prepare_exact_target_preview(page)")
+
+
+def test_fit_save_allows_only_the_expected_exact_restore_error_after_commit_proof() -> None:
+    module = ast.parse(_CAPTURE_SOURCE)
+    save_node = next(
+        node
+        for node in ast.walk(module)
+        if isinstance(node, ast.FunctionDef)
+        and node.name == "_save_exact_fit_selection"
+    )
+    save_source = ast.get_source_segment(_CAPTURE_SOURCE, save_node)
+    assert save_source is not None
+    assert "allow_expected_exact_restore_failure: bool = False" in save_source
+    assert "EXPECTED_EXACT_FIT_RESTORE_ERROR" in save_source
+    assert "not allow_expected_exact_restore_failure or not error_text.startswith(" in save_source
+    assert "New immutable Fit Output saved and current" in save_source
+    assert save_source.index("New immutable Fit Output saved and current") < save_source.rindex(
+        'parse_qs(urlsplit(page.url).query).get("stage") != ["fit"]'
+    )
+    assert save_source.index('pointer.get(key)') < save_source.index('error_banner = page.locator(".error-banner")')
+
+    exact_read_failed_flow = _CAPTURE_SOURCE.split(
+        "    exact_read_failed = prepared_fit", 1
+    )[1].split("    restored = prepared_fit", 1)[0]
+    assert (
+        "_save_exact_fit_selection(\n"
+        "        exact_read_failed,\n"
+        "        allow_expected_exact_restore_failure=True,\n"
+        "    )"
+    ) in exact_read_failed_flow
+
+    for caller in (
+        "_capture_modeling_export_only",
+        "_capture_modeling(",
+        "_capture_modeling_consistency",
+    ):
+        caller_source = _CAPTURE_SOURCE.split(f"def {caller}", 1)[1]
+        if caller == "_capture_modeling(":
+            caller_source = caller_source.split("def _measure_process_fit", 1)[0]
+        elif caller == "_capture_modeling_export_only":
+            caller_source = caller_source.split("def _capture_modeling(", 1)[0]
+        else:
+            caller_source = caller_source.split("def _capture_modeling_data_viewports", 1)[0]
+        assert "allow_expected_exact_restore_failure=True" not in caller_source
+
+
+def test_warned_fit_candidate_selection_uses_warning_cell_not_stability_text() -> None:
+    table = _FakeCandidateTable(
+        [
+            [
+                "Select candidate",
+                "Voce",
+                "Recommended",
+                "RMSE",
+                "strain range",
+                "Converged · active bound none",
+                "Identifiable · active bound none",
+                "None",
+            ],
+            [
+                "Select candidate",
+                "Ghosh",
+                "—",
+                "RMSE",
+                "strain range",
+                "Converged · active bound none",
+                "Structurally identifiable combination",
+                "Ghosh n and p are not separately identifiable",
+            ],
+        ]
+    )
+
+    _select_warned_fit_candidate(table)
+
+    assert table.selected_index == 1
+
+
+def test_warned_fit_candidate_selection_rejects_rows_without_warning() -> None:
+    table = _FakeCandidateTable(
+        [
+            [
+                "Select candidate",
+                "Voce",
+                "Recommended",
+                "RMSE",
+                "strain range",
+                "Converged · active bound none",
+                "Identifiable · active bound none",
+                "None",
+            ],
+            [
+                "Select candidate",
+                "Swift",
+                "—",
+                "RMSE",
+                "strain range",
+                "Converged · active bound none",
+                "Identifiable · active bound none",
+                "None",
+            ],
+        ]
+    )
+
+    with pytest.raises(RuntimeError, match="did not expose a warned candidate"):
+        _select_warned_fit_candidate(table)
+
+    assert table.selected_index is None
 
 
 def test_default_capture_producer_runs_process_only_after_generic_modeling() -> None:
@@ -338,6 +772,39 @@ def test_default_capture_producer_runs_process_only_after_generic_modeling() -> 
     assert call_names.index("_capture_modeling") < call_names.index(
         "_capture_modeling_process_only"
     ) < call_names.index("_capture_modeling_data_viewports")
+    assert call_names.index("_capture_modeling_process_only") < call_names.index(
+        "_capture_modeling_fit_states"
+    ) < call_names.index("_capture_modeling_data_viewports")
+
+
+def test_fit_viewport_capture_routes_all_states_for_targeted_and_default_producers() -> None:
+    module = ast.parse(_CAPTURE_SOURCE)
+    process_fit = next(
+        node
+        for node in ast.walk(module)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and node.name == "_capture_modeling_process_fit"
+    )
+    assert any(
+        isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Name)
+        and node.func.id == "_capture_modeling_fit_states"
+        for node in ast.walk(process_fit)
+    )
+    producer = next(
+        node
+        for node in ast.walk(module)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and node.name == "produce"
+    )
+    producer_calls = {
+        node.func.id
+        for node in ast.walk(producer)
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+    }
+    assert "_capture_modeling_fit_states" in producer_calls
+    assert set(MODELING_FIT_STATE_OUTPUTS).issubset(set(CURRENT_CAPTURE_OUTPUTS))
+    assert "include_process_normals=False" in _CAPTURE_SOURCE
 
 
 def test_modeling_process_capture_contract_covers_wide_and_settled_states() -> None:
@@ -525,6 +992,7 @@ def test_process_manual_fit_override_preserves_normal_svg_threshold() -> None:
     )
     assert isinstance(override_keyword.value, ast.Constant)
     assert override_keyword.value.value == 230
+    assert manual.end_lineno is not None
     assert manual.lineno < override.lineno <= manual.end_lineno
 
 
@@ -995,8 +1463,8 @@ def _resume_output(
 
 
 def test_resume_validation_requires_unique_ids_labels_and_all_three_exact_configurations() -> None:
-    source = {"id": "source-1", "revisionId": "source-r1"}
-    profile = {"id": "profile-1", "revisionId": "profile-r1"}
+    source: dict[str, object] = {"id": "source-1", "revisionId": "source-r1"}
+    profile: dict[str, object] = {"id": "profile-1", "revisionId": "profile-r1"}
     outputs = [
         _resume_output(
             output_id="out-robust",
@@ -1040,7 +1508,7 @@ def test_resume_validation_requires_unique_ids_labels_and_all_three_exact_config
         minimum=0.0005,
         maximum=0.0025,
     )
-    with pytest.raises(RuntimeError, match="range drifted|method drifted"):
+    with pytest.raises(RuntimeError, match=r"range drifted|method drifted"):
         _assert_resumable_modeling_process_outputs(invalid, source, profile)
 
 
@@ -1176,7 +1644,7 @@ def test_fresh_process_saves_wait_for_success_before_listing_outputs() -> None:
 
     assert fresh_branch.count(success_wait) == 3
     assert fresh_branch.index(success_wait) < fresh_branch.index(
-        "saved_outputs = _matching_process_outputs"
+        "saved_outputs = _matching_capture_process_outputs"
     )
 
 

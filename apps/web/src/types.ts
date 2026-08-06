@@ -4052,6 +4052,35 @@ export interface CommonCurveStage {
     value: number;
     unit: string;
   }>;
+  fit_candidates?: CommonHardeningCandidate[];
+}
+
+export interface CommonHardeningCandidate {
+  family: string;
+  response: number[];
+  residual: number[];
+  tangent: Array<number | null>;
+  parameter_names: string[];
+  parameter_units: string[];
+  lower: number[];
+  initial: number[];
+  fitted: number[];
+  upper: number[];
+  rmse_pa: number;
+  relative_rmse: number;
+  objective: number;
+  scipy_cost: number;
+  convergence: boolean;
+  nfev: number;
+  active_bound: string[];
+  jacobian_rank: number;
+  jacobian_tolerance: number;
+  jacobian_condition: number | null;
+  identifiability: string;
+  uncertainty: string;
+  objective_history: number[];
+  optimizer_status?: number;
+  optimizer_message?: string;
 }
 
 export type GraphSelectionCommand =
@@ -4081,6 +4110,39 @@ export interface CommonProcessingPreview {
   stages: CommonCurveStage[];
 }
 
+export interface MetalFitRunAttemptResponse {
+  id: string;
+  run_id: string;
+  ordinal: number;
+  family: string;
+  status: "executing" | "succeeded" | "failed" | "cancelled" | string;
+  result: Record<string, unknown> | null;
+  objective_history: number[];
+  failure_code: string | null;
+  failure_reason: string | null;
+}
+
+export interface MetalFitRunResponse {
+  id: string;
+  classification: DataClassification;
+  source_processing_output: CommonExactRevisionPin;
+  source_processing_output_sha256: string;
+  source_document: CommonExactRevisionPin;
+  mapping_profile: CommonExactRevisionPin;
+  options: Record<string, unknown>;
+  reproducibility_evidence: Record<string, unknown>;
+  status: string;
+  failure_code: string | null;
+  failure_reason: string | null;
+  attempts: MetalFitRunAttemptResponse[];
+  preview: CommonProcessingPreview | null;
+  created_by?: string | null;
+  request_id?: string | null;
+  trace_id?: string | null;
+  started_at?: string | null;
+  ended_at?: string | null;
+}
+
 export interface CommonExactRevisionPin {
   aggregate_id: string;
   revision_id: string;
@@ -4101,6 +4163,8 @@ export interface CommonProcessingOutputResponse {
   final_point_count: number;
   output_artifact_id: string;
   output_sha256: string;
+  source_processing_output?: CommonExactRevisionPin | null;
+  source_processing_output_sha256?: string | null;
   workup_overrides: CommonProcessingWorkupOverride[];
   fit_decision: CommonProcessingFitDecision | null;
   export_provenance: CommonExportProvenance | null;

@@ -23,6 +23,9 @@ from cmp.modules.processing.adapters.persistence.common_recipes import (
 from cmp.modules.processing.adapters.persistence.mapping_profiles import (
     SqlAlchemyMappingProfileRepository,
 )
+from cmp.modules.processing.adapters.persistence.metal_fit_runs import (
+    SqlAlchemyMetalFitRunRepository,
+)
 from cmp.modules.processing.adapters.persistence.repository import SqlAlchemyProcessingRepository
 from cmp.modules.processing.adapters.persistence.shear_relaxation_repository import (
     SqlAlchemyShearRelaxationProcessingRepository,
@@ -34,6 +37,7 @@ from cmp.modules.processing.application.common_batches import CommonBatchService
 from cmp.modules.processing.application.common_outputs import CommonProcessingOutputService
 from cmp.modules.processing.application.common_recipes import CommonRecipeService
 from cmp.modules.processing.application.mapping_profiles import MappingProfileService
+from cmp.modules.processing.application.metal_fit_runs import MetalFitRunService
 from cmp.modules.processing.application.service import ProcessingService
 from cmp.modules.processing.application.shear_relaxation import (
     ShearRelaxationProcessingService,
@@ -91,6 +95,22 @@ def build_common_processing_output_service(
         test_data=test_data,
         profiles=profiles,
         artifacts=artifacts,
+    )
+
+
+def build_metal_fit_run_service(
+    identity: IdentityServices,
+    outputs: CommonProcessingOutputService | None,
+) -> MetalFitRunService | None:
+    if identity.engine is None or identity.rls_context is None or outputs is None:
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    return MetalFitRunService(
+        repository=SqlAlchemyMetalFitRunRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+        ),
+        outputs=outputs,
     )
 
 

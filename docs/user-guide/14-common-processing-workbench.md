@@ -46,6 +46,16 @@ canonical Pa로 변환해 실제 계산에 사용합니다. 선택한 necking po
 workup은 Metal elastoplastic Process에만 보이며 Fit, Polymer, Elastomer에는 노출하지 않습니다. **Metal hardening candidates**에서는 Voce/Swift/Hockett-Sherby/Ghosh, primary/secondary,
 혼합비와 외삽 strain을 직접 바꿉니다. 모든 조작은 Recipe draft와 서버 preview에 반영됩니다.
 
+실제 Metal Fit은 저장된 Process-only Processing Output의 exact `id/rN`과 digest를 소스로
+사용합니다. 서버는 true plastic strain(unit `1`)과 true stress(Pa)를 같은 normalized
+least-squares objective로 네 law에 적용하고, 각 후보의 response·predicted-minus-observed
+residual·analytical tangent, Lower/Initial/Fitted/Upper, RMSE, convergence/nfev, active bound,
+Jacobian rank/condition, identifiability와 `uncertainty=not_provided`를 Fit evidence로 반환합니다.
+Ghosh는 `k_pa`, `epsilon_0`, `delta_p_minus_n`만 저장하며 `plastic strain < epsilon_0`를 벗어나면
+차단합니다. 추천은 선택과 별도이고, 저장에는 단일 law 또는 strict two-law blend와 사유·warning
+acknowledgement가 모두 필요합니다. exact source/digest 또는 계산·저장이 실패해도 마지막 정상
+graph와 입력을 유지하며 명시적인 Retry action만 재시도합니다.
+
 Data/Process/Fit 단계 왼쪽 **Curves** rail은 `N curves · N included` 요약 뒤 시험 방법 그룹과
 specimen별 26 px tree 행을 표시합니다. 예를 들어 tensile 문서는 `Tensile tests` 아래에 놓입니다.
 온도·변형률 속도 조건은 서버가 정확한 조건 메타데이터를 제공할 때만 하위 그룹으로 보이며 화면이
@@ -138,7 +148,11 @@ Hardening 단계는 Voce, Swift, Hockett–Sherby, Ghosh 중 2~4개를 같은 �
 Ghosh는 Altair Material Modeler 2025 식 계약을 따르며 `n`, `p` 대신 식별 가능한
 `delta_p_minus_n = p - n`만 저장합니다. 해당 행에는 구조적 비식별성과
 `plastic strain < epsilon_0` domain 경고가 항상 표시됩니다. 이 식 계약이 없는 과거 Recipe는
-자동 변환하지 않으므로 새 revision으로 명시적으로 저장해야 합니다.
+자동 변환하지 않으므로 새 revision으로 명시적으로 저장해야 합니다. 서버 Ghosh candidate의
+`active_bound`에 정확히 `epsilon_0`가 포함되면 현재 선택과 무관하게 response/tangent의 표시
+scale 계산에서 `fit_maximum_strain` 이후 tail을 제외합니다. 실제 response/residual/tangent
+evidence 배열과 polyline은 그대로이며, 선택 preview/blend는 Ghosh를 포함할 때 같은 표시 규칙을
+적용합니다.
 
 **Stress response**에서 observed plastic workup, single-law candidate와 현재 선택을 비교합니다.
 **Residual**은
@@ -158,6 +172,39 @@ ratio, 두 parameter set을 하나의 decision identity로 보존합니다. sing
 **Save fit & continue**는 상단 action row에 한 번만 나타나며 이 decision을 immutable Processing
 Output에 저장합니다. 저장 전에는
 Material Model IR이나 Neutral Material로 승격할 수 없습니다.
+
+Fit rail의 Curves는 Process에서 선택한 Test Data ref의 이름과 revision을 그대로 이어받습니다.
+현재 head나 `latest`를 대신 바인딩하지 않으며, 상단 source line에는 exact Process Output의
+label/revision/digest가 표시됩니다. Process Output이 없거나 stale이면 graph 중앙에
+**Fit is blocked**와 **Back to Process**가 나타나고, 이 복구는 ref/history/pointer를 바꾸지 않는
+탐색만 수행합니다. Fit 계산/저장 실패에서는 이전 유효 graph와 decision reason, warning acknowledgement를
+유지하고, 저장된 Fit을 다시 읽지 못하면 **Saved Fit result unavailable**과 **Retry exact saved Fit**만
+표시합니다. retry는 같은 saved Output revision의 content URL을 다시 읽으며 raw Test Data나 최신
+Output을 fallback으로 사용하지 않습니다. 저장 후에도 현재 task는 Fit에 남고 Export는 별도 task로
+시작하지 않습니다.
+
+현재 Fit capture topology는 5개 viewport(1366×768, 1440×900, 1920×1080, 2560×1440,
+3840×2160)와 7개 1440×900 recovery/evidence state입니다. `parameters-long`은 Candidate
+parameters disclosure를, `evidence-scrolled`는 keyboard/PageDown·wheel·native scrollbar와
+collapsed text selection을, `calculation-failed`/`save-failed`/`exact-source-blocked`/
+`exact-read-failed`/`restored`는 각각 실패·차단·정확한 복구를 기록합니다. 2026-08-06 root
+live capture와 qualitative visual acceptance가 완료되었고, 17개 Process/Fit 캡처를 모두
+필수 viewport 원본 해상도로 열어 확인했습니다.
+
+| Fit evidence | 화면 |
+| --- | --- |
+| 1366×768 | ![Fit 1366](images/current/modeling-fit-1366x768.png) |
+| 1440×900 | ![Fit 1440](images/current/modeling-fit-1440x900.png) |
+| 1920×1080 | ![Fit 1920](images/current/modeling-fit-1920x1080.png) |
+| Wide 2560×1440 | ![Fit 2560](images/current/modeling-fit-2560x1440.png) |
+| Wide 3840×2160 | ![Fit 3840](images/current/modeling-fit-3840x2160.png) |
+| Candidate parameters (long) | ![Fit candidate parameters](images/current/modeling-fit-candidate-parameters-long-1440x900.png) |
+| Candidate evidence scrolled | ![Fit candidate evidence scrolled](images/current/modeling-fit-candidate-evidence-scrolled-1440x900.png) |
+| Calculation failed | ![Fit calculation failed](images/current/modeling-fit-calculation-failed-1440x900.png) |
+| Save failed | ![Fit save failed](images/current/modeling-fit-save-failed-1440x900.png) |
+| Exact Process source blocked | ![Fit exact source blocked](images/current/modeling-fit-exact-source-blocked-1440x900.png) |
+| Exact saved Fit read failed | ![Fit exact read failed](images/current/modeling-fit-exact-read-failed-1440x900.png) |
+| Restored saved Fit | ![Fit restored](images/current/modeling-fit-restored-1440x900.png) |
 
 
 

@@ -15,6 +15,7 @@ import {
   requestLocalDemoAccessToken,
   listMaterials,
   searchMaterialCatalogRecords,
+  previewCommonProcessingFromOutput,
 } from "./api";
 
 function jsonResponse(body: unknown, status = 200): Response {
@@ -27,6 +28,36 @@ function jsonResponse(body: unknown, status = 200): Response {
 }
 
 describe("Catalog API client", () => {
+  it("pins Fit preview requests to one exact Process Output revision", async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({ execution_mode: "preview", promotable: false, source_document_sha256: "a".repeat(64), mapping_profile_sha256: "b".repeat(64), independent_quantity: "strain.engineering", stages: [] }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await previewCommonProcessingFromOutput(
+      { baseUrl: "/api/v1", accessToken: "short-lived-token" },
+      {
+        source_processing_output: {
+          aggregate_id: "00000000-0000-4000-8000-000000000101",
+          revision_id: "00000000-0000-4000-8000-000000000102",
+        },
+        fit_step: {
+          method_id: "metal.hardening_fit_extrapolate",
+          method_version: "1.0.0",
+          options: { equation_contract: "altair-material-modeler-2025-v1", families: ["voce"] },
+        },
+      },
+    );
+
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe("/api/v1/processing:preview-from-output");
+    expect(JSON.parse(String(init?.body))).toMatchObject({
+      source_processing_output: {
+        aggregate_id: "00000000-0000-4000-8000-000000000101",
+        revision_id: "00000000-0000-4000-8000-000000000102",
+      },
+      fit_step: { method_id: "metal.hardening_fit_extrapolate" },
+    });
+  });
+
   it("sends the tenant-scoped bearer token to the configured Material endpoint", async () => {
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({ items: [] }));
     vi.stubGlobal("fetch", fetchMock);

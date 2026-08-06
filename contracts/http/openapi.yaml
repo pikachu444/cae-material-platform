@@ -4050,6 +4050,29 @@ paths:
         "401": {description: Authentication required.}
         "403": {description: Processing execution is not authorized.}
         "422": {description: Mapping, units, method composition, or numerical options are invalid.}
+  /api/v1/processing:preview-from-output:
+    post:
+      operationId: previewCommonProcessingFitFromOutput
+      tags: [processing-workbench]
+      summary: Recalculate one Fit preview from an exact immutable Process Output artifact.
+      description: The server verifies the pinned output revision and digest before appending the requested Fit method; raw Test Data is not re-read.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/ExactProcessingFitPreviewRequest"}
+      responses:
+        "200":
+          description: Deterministic Fit candidates calculated from the exact Process Output stages.
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/PreviewResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing execution is not authorized.}
+        "404": {description: Exact Process Output is not visible.}
+        "422": {description: Pinned output bytes, Fit method, or numerical options are invalid.}
+        "503": {description: Processing Output store unavailable.}
   /api/v1/processing:preview-ensemble:
     post:
       operationId: previewCommonProcessingEnsemble
@@ -4131,6 +4154,65 @@ paths:
         "404": {description: Processing Output is not visible.}
         "409": {description: Immutable Artifact integrity is inconsistent.}
         "503": {description: Processing Output store unavailable.}
+  /api/v1/metal-fit-runs:
+    post:
+      operationId: executeMetalFitRun
+      tags: [processing-workbench]
+      summary: Execute one deterministic exact-source metal hardening Fit run.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/MetalFitRunRequest"}
+      responses:
+        "201":
+          description: Persist one exact-source Fit run and its per-candidate attempts, returning the same server-calculated preview used by the Fit workspace without creating a saved Processing Output.
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/MetalFitRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing execution is not authorized.}
+        "404": {description: Exact Process source is not visible.}
+        "422": {description: Source, method, domain, or calculation options are invalid.}
+        "503": {description: Metal Fit run store unavailable.}
+    get:
+      operationId: listMetalFitRuns
+      tags: [processing-workbench]
+      summary: List visible metal Fit runs and their preserved attempts.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Searchable successful and failed runs.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: "../processing/common-processing-resources.schema.json#/$defs/MetalFitRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing read is not authorized.}
+        "503": {description: Metal Fit run store unavailable.}
+  /api/v1/metal-fit-runs/{run_id}:
+    get:
+      operationId: getMetalFitRun
+      tags: [processing-workbench]
+      summary: Read one metal Fit run with all candidate attempts.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Run detail.
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/MetalFitRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing read is not authorized.}
+        "404": {description: Run is not visible.}
+        "503": {description: Metal Fit run store unavailable.}
   /api/v1/processing-recipes/reference-shear-relaxation-crop:
     post:
       operationId: createReferenceShearRelaxationCropRecipe

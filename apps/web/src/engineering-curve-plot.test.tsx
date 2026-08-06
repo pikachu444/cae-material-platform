@@ -1,7 +1,7 @@
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { dataObservedPlotBounds, derivativeValues, EngineeringCurvePlot, EngineeringCurvePlotEmpty, linearInterpolate, paddedPlotBounds, plotPoints, residualValues } from "./engineering-curve-plot";
+import { dataObservedPlotBounds, derivativeValues, EngineeringCurvePlot, EngineeringCurvePlotEmpty, isGhoshTailDisplayTrim, linearInterpolate, paddedPlotBounds, plotPoints, residualValues } from "./engineering-curve-plot";
 import type { CommonCurveStage, CommonEnsemblePreview, CommonProcessingPreview } from "./types";
 
 const baseStage: CommonCurveStage = {
@@ -424,6 +424,123 @@ describe("EngineeringCurvePlot", () => {
     expect(screen.getByText("Selected · swift")).toBeTruthy();
     expect(screen.queryByText(/Selected blend/)).toBeNull();
     expect(screen.queryByText(/explicit engineer selection/)).toBeNull();
+  });
+
+  it("trims every Ghosh epsilon_0 response/tangent tail independent of selection", () => {
+    const observed: CommonCurveStage = {
+      ordinal: 1,
+      method_id: "metal.engineering_to_true_plastic",
+      method_version: "1.0.0",
+      point_count: 4,
+      series: [
+        { quantity: "strain.true_plastic", unit: "1", values: [0, 0.05, 0.1, 0.2] },
+        { quantity: "stress.true", unit: "Pa", values: [3e8, 4e8, 5e8, 6e8] },
+      ],
+      diagnostics: [],
+      scalar_results: [],
+    };
+    const ghosh: CommonCurveStage = {
+      ordinal: 2,
+      method_id: "metal.hardening_fit_extrapolate",
+      method_version: "1.0.0",
+      point_count: 4,
+      series: [
+        { quantity: "strain.true_plastic", unit: "1", values: [0, 0.05, 0.1, 0.2] },
+        { quantity: "stress.hardening.ghosh", unit: "Pa", values: [3e8, 4e8, 5e8, 1e12] },
+        { quantity: "stress.hardening.swift", unit: "Pa", values: [3.1e8, 4.1e8, 5.1e8, 6.2e8] },
+        { quantity: "stress.hardening.selected", unit: "Pa", values: [3e8, 4e8, 5e8, 6e8] },
+      ],
+      diagnostics: [],
+      scalar_results: [],
+      fit_candidates: [{
+        family: "ghosh",
+        response: [3e8, 4e8, 5e8, 1e12],
+        residual: [0, 1, 2, 3],
+        tangent: [100, 200, 300, 400],
+        parameter_names: ["epsilon_0"],
+        parameter_units: ["1"],
+        lower: [0],
+        initial: [0.1],
+        fitted: [0.1],
+        upper: [1],
+        rmse_pa: 1,
+        relative_rmse: 0.1,
+        objective: 1,
+        scipy_cost: 1,
+        convergence: true,
+        nfev: 1,
+        active_bound: ["epsilon_0"],
+        jacobian_rank: 1,
+        jacobian_tolerance: 1e-8,
+        jacobian_condition: null,
+        identifiability: "structural",
+        uncertainty: "not_provided",
+        objective_history: [1],
+      }],
+    };
+    const selected = {
+      candidateKey: "ghosh",
+      displayLabel: "Ghosh",
+      mode: "single" as const,
+      primaryLaw: "ghosh",
+      reason: "review",
+      warningAcknowledged: true,
+      fitRange: "0–0.1 measured",
+    };
+    const step = {
+      method_id: "metal.hardening_fit_extrapolate",
+      method_version: "1.0.0",
+      options: { fit_minimum_strain: 0, fit_maximum_strain: 0.1 },
+    };
+    const hardeningPreview = { ...preview, independent_quantity: "strain.true_plastic", stages: [baseStage, observed, ghosh] };
+    const { container, rerender } = render(<EngineeringCurvePlot preview={hardeningPreview} activeStage={ghosh} baseStage={observed} activeStep={step} fitSelection={selected} width={760} height={420} />);
+
+    const swiftSelection = {
+      ...selected,
+      candidateKey: "swift",
+      displayLabel: "Swift",
+      primaryLaw: "swift",
+      warningAcknowledged: false,
+    };
+    const swiftBlendSelection = {
+      ...selected,
+      candidateKey: "swift+voce",
+      displayLabel: "Swift / Voce blend",
+      mode: "blend" as const,
+      primaryLaw: "swift",
+      secondaryLaw: "voce",
+      warningAcknowledged: false,
+    };
+    const ghoshBlendSelection = {
+      ...selected,
+      candidateKey: "ghosh+voce",
+      displayLabel: "Ghosh / Voce blend",
+      mode: "blend" as const,
+      secondaryLaw: "voce",
+    };
+    expect(isGhoshTailDisplayTrim(ghosh, step, null, "response")).toBe(true);
+    expect(isGhoshTailDisplayTrim(ghosh, step, swiftSelection, "response")).toBe(true);
+    expect(isGhoshTailDisplayTrim(ghosh, step, swiftBlendSelection, "response")).toBe(true);
+    expect(isGhoshTailDisplayTrim(ghosh, step, ghoshBlendSelection, "response")).toBe(true);
+    expect(isGhoshTailDisplayTrim(ghosh, step, selected, "residual")).toBe(false);
+    expect(isGhoshTailDisplayTrim(ghosh, step, selected, "derivative")).toBe(true);
+    expect(screen.getByText("Ghosh tail near ε0 exceeds the display scale; exact values remain in Candidate parameters.")).toBeTruthy();
+    expect(screen.getByText("Hardening stress [MPa]")).toBeTruthy();
+    // The exact response array remains fully plotted, including the tail point.
+    const ghoshLine = container.querySelector("polyline.hardening-candidate[style*='rgb']")
+      ?? container.querySelector("polyline.hardening-candidate");
+    expect(ghoshLine?.getAttribute("points")?.split(" ")).toHaveLength(4);
+    expect(container.querySelectorAll("polyline.curve-line").length).toBeGreaterThanOrEqual(4);
+    fireEvent.click(screen.getByRole("tab", { name: "Tangent modulus" }));
+    expect(screen.getByText("d(stress) / d(plastic strain) [Pa]")).toBeTruthy();
+    fireEvent.click(screen.getByRole("tab", { name: "Response" }));
+
+    // A non-Ghosh explicit choice keeps its own full series while the Ghosh
+    // candidate still cannot inflate the shared auto scale.
+    rerender(<EngineeringCurvePlot preview={hardeningPreview} activeStage={ghosh} baseStage={observed} activeStep={step} fitSelection={swiftSelection} width={760} height={420} />);
+    expect(screen.getByText("Hardening stress [MPa]")).toBeTruthy();
+    rerender(<EngineeringCurvePlot preview={hardeningPreview} activeStage={ghosh} baseStage={observed} activeStep={step} fitSelection={ghoshBlendSelection} width={760} height={420} />);
+    expect(screen.getByText("Hardening stress [MPa]")).toBeTruthy();
   });
 
   it("compares measured Prony relaxation and residuals on a logarithmic time axis", () => {

@@ -1,8 +1,10 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { StrictMode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   CommonProcessingWorkbench,
+  fitRailIdentity,
   manualModulusDisplayValue,
   manualModulusPascals,
 } from "./common-processing-workbench";
@@ -73,7 +75,6 @@ describe("manual Young's modulus unit conversion", () => {
     expect(manualModulusDisplayValue(205_000_000_000, "MPa")).toBe(205_000);
   });
 });
-
 const documentResource = {
   test_data_document_id: "53000000-0000-4000-8000-000000000002",
   current_revision: revision,
@@ -242,6 +243,215 @@ function processOutputFixture(
     fit_decision: null,
     export_provenance: null,
   };
+}
+
+describe("Fit rail exact identities", () => {
+  it("uses the pinned revision rather than the library current head", () => {
+    expect(fitRailIdentity("Specimen 01", 7, 2)).toBe("Specimen 01 · r2");
+    expect(fitRailIdentity("sample-03", 4, 1)).toBe("Specimen 03 · r1");
+  });
+});
+
+function deferred<T>(): {
+  promise: Promise<T>;
+  resolve: (value: T) => void;
+  reject: (reason?: unknown) => void;
+} {
+  let resolve!: (value: T) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+  return { promise, resolve, reject };
+}
+
+function fitRestorePreview(marker: string): Record<string, unknown> {
+  const methodId = marker === "A" ? "metal.proof_stress" : "metal.hardening_fit_extrapolate";
+  const stage = (ordinal: number, method_id: string) => ({
+    ordinal,
+    method_id,
+    method_version: "1.0.0",
+    point_count: 2,
+    series: [
+      { quantity: "strain.engineering", unit: "1", values: [0, 0.001] },
+      { quantity: "stress.engineering", unit: "Pa", values: [0, 2e8] },
+    ],
+    diagnostics: [marker],
+    scalar_results: [],
+  });
+  return {
+    execution_mode: "preview",
+    promotable: false,
+    source_document_sha256: "d".repeat(64),
+    mapping_profile_sha256: mappingProfileResource.current_revision.content_hash,
+    independent_quantity: "strain.engineering",
+    stages: [stage(0, "mapping"), stage(1, methodId)],
+  };
+}
+
+function metalFitCalculationPreview(): Record<string, unknown> {
+  const stage = (ordinal: number, method_id: string, scalar_results: Array<Record<string, unknown>> = []) => ({
+    ordinal,
+    method_id,
+    method_version: "1.0.0",
+    point_count: 2,
+    series: [
+      { quantity: "strain.engineering", unit: "1", values: [0, 0.001] },
+      { quantity: "stress.engineering", unit: "Pa", values: [0, 2e8] },
+    ],
+    diagnostics: [],
+    scalar_results,
+  });
+  return {
+    execution_mode: "preview",
+    promotable: false,
+    source_document_sha256: "d".repeat(64),
+    mapping_profile_sha256: mappingProfileResource.current_revision.content_hash,
+    independent_quantity: "strain.engineering",
+    stages: [
+      stage(0, "mapping"),
+      stage(1, "rows.sort_unique"),
+      stage(2, "metal.elastic_modulus"),
+      stage(3, "metal.proof_stress"),
+      stage(4, "metal.necking_candidate"),
+      stage(5, "metal.engineering_to_true_plastic"),
+      stage(6, "metal.hardening_fit_extrapolate", [
+        { key: "swift.relative_rmse", quantity_semantics: "statistics.relative_rmse", value: 0.01, unit: "1" },
+        { key: "swift.parameter.K", quantity_semantics: "model.parameter.K", value: 5e8, unit: "Pa" },
+        { key: "swift.parameter.K.lower", quantity_semantics: "model.parameter.bound.lower.K", value: 1, unit: "Pa" },
+        { key: "swift.parameter.K.upper", quantity_semantics: "model.parameter.bound.upper.K", value: 1e9, unit: "Pa" },
+      ]),
+    ],
+  };
+}
+
+function fitRestoreFixtures(): {
+  process: Record<string, unknown>;
+  fit: Record<string, unknown>;
+  session: Record<string, unknown>;
+  material: Record<string, unknown>;
+  materialState: Record<string, unknown>;
+} {
+  const process = processOutputFixture("restore-process-output", "Restored Process source");
+  const processRevision = process.current_revision as Record<string, unknown>;
+  const fit = {
+    ...process,
+    processing_output_id: "restore-fit-output",
+    current_revision: {
+      ...processRevision,
+      id: "restore-fit-output-revision",
+      aggregate_id: "restore-fit-output",
+    },
+    label: "Restored Fit output",
+    steps: [
+      ...(process.steps as Array<Record<string, unknown>>),
+      { method_id: "metal.hardening_fit_extrapolate", method_version: "1.0.0", options: { law: "swift" } },
+    ],
+    stage_count: 2,
+    output_artifact_id: "restore-fit-output-artifact",
+    output_sha256: "9".repeat(64),
+    source_processing_output: {
+      aggregate_id: process.processing_output_id,
+      revision_id: processRevision.id,
+    },
+    source_processing_output_sha256: process.output_sha256,
+    fit_decision: null,
+  };
+  const sourceRef = {
+    id: documentResource.test_data_document_id,
+    revisionId: revision.id,
+    label: documentResource.document_key,
+    revisionNo: 1,
+  };
+  const profileRef = {
+    id: mappingProfileResource.mapping_profile_id,
+    revisionId: mappingProfileResource.current_revision.id,
+    label: mappingProfileResource.content.label,
+    revisionNo: 1,
+  };
+  const session = {
+    version: 4,
+    updatedAt: "2026-07-24T00:00:00Z",
+    materialFamily: "metal",
+    objective: "Restore exact Fit output",
+    material: { id: "material-a", revisionId: "material-a-r1", label: "DP600", revisionNo: 1 },
+    materialState: { id: "state-a", revisionId: "state-a-r1", label: "As received", revisionNo: 1 },
+    testData: sourceRef,
+    mappingProfile: profileRef,
+    processingOutput: {
+      id: fit.processing_output_id,
+      revisionId: (fit.current_revision as Record<string, unknown>).id,
+      label: fit.label,
+      revisionNo: 1,
+    },
+    workspace: {
+      activeStage: "fit",
+      selectedDocumentIds: [sourceRef.id],
+      selectedTestDataRefs: [sourceRef],
+      visibleTestDataKeys: [`${sourceRef.id}:${sourceRef.revisionId}`],
+      selectedStepIndex: 0,
+      selectedStageOrdinal: 1,
+      plotView: "pipeline",
+      settingsOpen: true,
+    },
+  };
+  return {
+    process,
+    fit,
+    session,
+    material: { material_id: "material-a", current_revision: { id: "material-a-r1", revision_no: 1, content: { name: "DP600" } } },
+    materialState: { material_state_id: "state-a", current_revision: { id: "state-a-r1", revision_no: 1, content: { name: "As received" } } },
+  };
+}
+
+function installFitRestoreParserMock(): void {
+  vi.doMock("./modeling-fit-output", () => ({
+    readVerifiedExactOutput: async (result: { data: { blob: Blob } }) => result.data.blob.text(),
+    parseExactSavedFitOutput: (text: string) => ({ preview: fitRestorePreview(text), selection: null }),
+  }));
+}
+
+function fitRestoreContentResponse(marker: string, status = 200): Response {
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    headers: new Headers({ "content-type": "application/vnd.cmp.processing-output+json" }),
+    blob: async () => new Blob([marker], { type: "application/json" }),
+    json: async () => ({ detail: marker }),
+  } as Response;
+}
+
+function stubFitRestoreFetch(outputs: Array<Record<string, unknown>> | (() => Array<Record<string, unknown>>)): {
+  contentGets: () => number;
+  pendingContent: Array<ReturnType<typeof deferred<Response>>>;
+} {
+  let contentGetCount = 0;
+  const pendingContent: Array<ReturnType<typeof deferred<Response>>> = [];
+  const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input) => {
+    const url = String(input);
+    if (url.endsWith("/test-data-documents")) return jsonResponse({ items: [documentResource] });
+    if (url.endsWith("/mapping-profiles")) return jsonResponse({ items: [mappingProfileResource] });
+    if (url.endsWith("/processing-methods")) return jsonResponse({ items: [
+      ...processMethodFixtures(),
+      { method_id: "metal.hardening_fit_extrapolate", version: "1.0.0", label: "Hardening fit", description: "Hardening fit", option_schema: {}, deterministic: true, allows_extrapolation: true },
+    ] });
+    if (url.endsWith("/processing-ensemble-methods") || url.endsWith("/common-processing-recipes") || url.endsWith("/common-processing-batches")) return jsonResponse({ items: [] });
+    if (url.includes("/processing-outputs/") && url.endsWith("/content")) {
+      contentGetCount += 1;
+      const next = deferred<Response>();
+      pendingContent.push(next);
+      return next.promise;
+    }
+    if (url.endsWith("/processing-outputs")) {
+      const currentOutputs = typeof outputs === "function" ? outputs() : outputs;
+      return jsonResponse({ items: currentOutputs.map((item) => JSON.parse(JSON.stringify(item))) });
+    }
+    if (url.includes("/test-data-documents/") && url.endsWith("/content")) return fitRestoreContentResponse(JSON.stringify(documentJson));
+    throw new Error(`unexpected request: ${url}`);
+  });
+  vi.stubGlobal("fetch", fetchMock);
+  return { contentGets: () => contentGetCount, pendingContent };
 }
 
 function processMethodFixtures() {
@@ -586,6 +796,46 @@ describe("Common Processing Workbench", () => {
       fit_decision: null,
       export_provenance: null,
     };
+    const seededProcessOutput: Record<string, unknown> = {
+      processing_output_id: "53000000-0000-4000-8000-000000000026",
+      current_revision: {
+        ...revision,
+        id: "53000000-0000-4000-8000-000000000025",
+        aggregate_id: "53000000-0000-4000-8000-000000000026",
+      },
+      label: "DP600 · seeded Process source",
+      source_document: {
+        aggregate_id: documentResource.test_data_document_id,
+        revision_id: revision.id,
+      },
+      source_document_sha256: "d".repeat(64),
+      source_canonical_artifact_sha256: "e".repeat(64),
+      mapping_profile: {
+        aggregate_id: mappingProfileResource.mapping_profile_id,
+        revision_id: mappingProfileResource.current_revision.id,
+      },
+      mapping_profile_sha256: mappingProfileResource.current_revision.content_hash,
+      steps: [{
+        method_id: "rows.sort_unique",
+        method_version: "1.0.0",
+        options: {},
+      }],
+      independent_quantity: "strain.engineering",
+      stage_count: 2,
+      final_point_count: 3,
+      output_artifact_id: "53000000-0000-4000-8000-000000000024",
+      output_sha256: "4".repeat(64),
+      source_processing_output: null,
+      source_processing_output_sha256: null,
+      workup_overrides: [],
+      fit_decision: null,
+      export_provenance: null,
+    };
+    seededFitOutput.source_processing_output = {
+      aggregate_id: seededProcessOutput.processing_output_id,
+      revision_id: (seededProcessOutput.current_revision as { id: string }).id,
+    };
+    seededFitOutput.source_processing_output_sha256 = seededProcessOutput.output_sha256;
     let failNextPreview = false;
     let invalidArtifactId: string | null = null;
     const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
@@ -649,7 +899,7 @@ describe("Common Processing Workbench", () => {
           blob: async () => new Blob([JSON.stringify(artifact)], { type: "application/json" }),
         } as Response;
       }
-      if (url.endsWith("/processing-outputs")) return jsonResponse({ items: [seededFitOutput, ...committedOutputs] });
+      if (url.endsWith("/processing-outputs")) return jsonResponse({ items: [seededProcessOutput, seededFitOutput, ...committedOutputs] });
       if (url.endsWith("/common-processing-recipes")) return jsonResponse({ items: [] });
       if (url.endsWith("/common-processing-batches")) return jsonResponse({ items: [] });
       if (url.endsWith("/processing-ensemble-methods")) {
@@ -702,7 +952,7 @@ describe("Common Processing Workbench", () => {
           blob: async () => new Blob([JSON.stringify(documentJson)], { type: "application/json" }),
         } as Response;
       }
-      if (url.endsWith("/processing:preview") && init?.method === "POST") {
+      if ((url.endsWith("/processing:preview") || url.endsWith("/processing:preview-from-output") || url.endsWith("/metal-fit-runs")) && init?.method === "POST") {
         if (failNextPreview) {
           failNextPreview = false;
           throw new Error("preview failed");
@@ -713,7 +963,7 @@ describe("Common Processing Workbench", () => {
         const modulusPa = body.steps?.find((step) => step.method_id === "metal.elastic_modulus")?.options?.method === "chord"
           ? 120e9
           : 210e9;
-        return jsonResponse({
+        const fitPreview = {
           execution_mode: "preview",
           promotable: false,
           source_document_sha256: "d".repeat(64),
@@ -825,7 +1075,17 @@ describe("Common Processing Workbench", () => {
               ],
             },
           ],
-        });
+        };
+        if (url.endsWith("/metal-fit-runs")) {
+          return jsonResponse({
+            id: "53000000-0000-4000-8000-000000000099",
+            status: "succeeded",
+            preview: fitPreview,
+            failure_code: null,
+            failure_reason: null,
+          });
+        }
+        return jsonResponse(fitPreview);
       }
       if (url.endsWith("/processing:preview-ensemble") && init?.method === "POST") {
         return jsonResponse({
@@ -909,6 +1169,12 @@ describe("Common Processing Workbench", () => {
       materialState: { id: "state-a", revisionId: "state-a-r1", label: "As received", revisionNo: 1 },
       testData: { id: documentResource.test_data_document_id, revisionId: revision.id, label: documentResource.document_key, revisionNo: 1 },
       mappingProfile: { id: mappingProfileResource.mapping_profile_id, revisionId: mappingProfileResource.current_revision.id, label: mappingProfileResource.content.label, revisionNo: 1 },
+      processingOutput: {
+        id: seededProcessOutput.processing_output_id,
+        revisionId: (seededProcessOutput.current_revision as { id: string }).id,
+        label: seededProcessOutput.label,
+        revisionNo: 1,
+      },
       workspace: { activeStage: "data", selectedDocumentIds: [], selectedStepIndex: 0, selectedStageOrdinal: 0, plotView: "pipeline", settingsOpen: true },
     };
     const view = render(
@@ -992,8 +1258,12 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByLabelText("Processing Batch label")).toBeTruthy();
     expect((await screen.findAllByText("DP600-TENSILE-01 · r1")).length).toBeGreaterThanOrEqual(1);
     fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
-    expect(screen.getByRole("img", { name: "Hardening candidate and selected extrapolation curves" })).toBeTruthy();
-    expect(screen.getByText("Preview Swift/Voce blend")).toBeTruthy();
+    expect(await screen.findByRole(
+      "img",
+      { name: "Hardening candidate and selected extrapolation curves" },
+      { timeout: 5000 },
+    )).toBeTruthy();
+    expect(await screen.findByText("Preview Swift/Voce blend")).toBeTruthy();
     const fitRail = document.querySelector(".configured-step-list");
     expect(fitRail?.querySelector(".rail-title")?.textContent).toContain("Process");
     expect(fitRail?.querySelectorAll("button")).toHaveLength(4);
@@ -1046,10 +1316,11 @@ describe("Common Processing Workbench", () => {
       target: { value: "Re-select Swift after the successful candidate recomputation." },
     });
     fireEvent.click(screen.getByRole("button", { name: "Save fit & continue" }));
-    expect(await screen.findByRole("heading", { name: "Review & deliver solver card" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Exact target preview is gated" })).toBeTruthy();
-    expect(screen.getByText("Server provenance proof")).toBeTruthy();
-    expect(screen.getByText(/stale, different-material, or unverified output is never used as a fallback/i)).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "Fit material response" })).toBeTruthy();
+    expect(screen.getByText(/New immutable Fit Output saved and current/i)).toBeTruthy();
+    expect(screen.getByText(/Modeling Export is separate and has not started/i)).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "Review & deliver solver card" })).toBeNull();
+    expect(onNavigate.mock.calls.some(([path]) => String(path).includes("export"))).toBe(false);
     expect(onSessionChange).toHaveBeenCalledWith({
       processingOutput: {
         id: "53000000-0000-4000-8000-000000000030",
@@ -1067,7 +1338,6 @@ describe("Common Processing Workbench", () => {
     expect(screen.queryByRole("status", { name: "Loading Process controls" })).toBeNull();
     fireEvent.click(processRailButton("Specimen 01 · r1"));
     await waitFor(() => expect(document.querySelector(".persistent-modeling-plot > .modeling-plot-empty")).toBeTruthy());
-    expect(await screen.findByText("No Process preview is active. Select Preview changes to preview the current Process settings.")).toBeTruthy();
     expect(screen.queryByText("Choose a saved Test Data revision. The graph compares real curves without changing saved data.")).toBeNull();
     expect(document.querySelector('[data-modeling-process-panel="ready"]')).toBeTruthy();
     const processSave = screen.getByRole("button", { name: "Save processed curves" }) as HTMLButtonElement;
@@ -2075,5 +2345,441 @@ describe("Common Processing Workbench", () => {
       expect(screen.getByRole("button", { name: "Retry exact source" })).toBeTruthy();
     }
     rejectA?.(new Error("late A failure"));
+  });
+
+  it("coalesces StrictMode exact Fit restore, applies once, and settles the identity", async () => {
+    installFitRestoreParserMock();
+    const fixtures = fitRestoreFixtures();
+    const fetchState = stubFitRestoreFetch([fixtures.fit, fixtures.process]);
+    let view: ReturnType<typeof render> | undefined;
+    try {
+      view = render(
+        <StrictMode>
+          <CommonProcessingWorkbench
+            config={{ baseUrl: "/api/v1", accessToken: "token" }}
+            initialSession={fixtures.session as never}
+            material={fixtures.material as never}
+            materialState={fixtures.materialState as never}
+            locationSearch="?stage=fit&family=metal"
+            onNavigate={() => undefined}
+            onOpenConnection={() => undefined}
+          />
+        </StrictMode>,
+      );
+      await waitFor(() => expect(fetchState.contentGets()).toBe(1));
+      expect(fetchState.pendingContent).toHaveLength(1);
+      fetchState.pendingContent[0].resolve(fitRestoreContentResponse("B"));
+      await screen.findByText("Saved immutable Fit Output restored with its exact Process source and decision.");
+      expect(screen.getAllByText("Saved immutable Fit Output restored with its exact Process source and decision.")).toHaveLength(1);
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(fetchState.contentGets()).toBe(1);
+    } finally {
+      view?.unmount();
+      vi.doUnmock("./modeling-fit-output");
+    }
+  });
+
+  it("keeps a mounted Fit save notice through exact restore and restores the notice after remount", async () => {
+    installFitRestoreParserMock();
+    const fixtures = fitRestoreFixtures();
+    const processRevision = fixtures.process.current_revision as Record<string, unknown>;
+    const processRef = {
+      id: fixtures.process.processing_output_id,
+      revisionId: processRevision.id,
+      label: fixtures.process.label,
+      revisionNo: processRevision.revision_no,
+    };
+    const fixtureWorkspace = fixtures.session.workspace as Record<string, unknown>;
+    const initialSession = {
+      ...fixtures.session,
+      processingOutput: processRef,
+      workspace: { ...fixtureWorkspace, selectedStageOrdinal: 0 },
+    };
+    const committed: Array<Record<string, unknown>> = [];
+    const fitPreview = metalFitCalculationPreview();
+    let contentGets = 0;
+    const onSessionChange = vi.fn();
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+      const url = String(input);
+      if (url.endsWith("/test-data-documents")) return jsonResponse({ items: [documentResource] });
+      if (url.endsWith("/mapping-profiles")) return jsonResponse({ items: [mappingProfileResource] });
+      if (url.endsWith("/processing-methods")) return jsonResponse({ items: [
+        ...processMethodFixtures(),
+        { method_id: "metal.hardening_fit_extrapolate", version: "1.0.0", label: "Hardening fit", description: "Hardening fit", option_schema: {}, deterministic: true, allows_extrapolation: true },
+      ] });
+      if (url.endsWith("/processing-ensemble-methods") || url.endsWith("/common-processing-recipes") || url.endsWith("/common-processing-batches")) return jsonResponse({ items: [] });
+      if (url.endsWith("/metal-fit-runs") && init?.method === "POST") return jsonResponse({
+        id: "fit-run-save-restore",
+        status: "succeeded",
+        preview: fitPreview,
+        failure_code: null,
+        failure_reason: null,
+      });
+      if (url.endsWith("/processing-outputs") && init?.method === "POST") {
+        const body = JSON.parse(String(init.body ?? "{}")) as Record<string, unknown>;
+        const saved = {
+          ...fixtures.process,
+          processing_output_id: "saved-fit-output",
+          current_revision: { ...processRevision, id: "saved-fit-output-revision", aggregate_id: "saved-fit-output" },
+          label: String(body.label ?? "Saved Fit output"),
+          source_document: body.source_document,
+          mapping_profile: body.mapping_profile,
+          steps: body.steps,
+          source_processing_output: body.source_processing_output,
+          source_processing_output_sha256: fixtures.process.output_sha256,
+          output_sha256: "8".repeat(64),
+          stage_count: 7,
+          fit_decision: body.fit_decision ?? null,
+        };
+        committed.push(saved);
+        return jsonResponse(saved, 201);
+      }
+      if (url.includes("/processing-outputs/") && url.endsWith("/content")) {
+        contentGets += 1;
+        return fitRestoreContentResponse("B");
+      }
+      if (url.endsWith("/processing-outputs")) return jsonResponse({ items: [fixtures.process, ...committed] });
+      if (url.includes("/test-data-documents/") && url.endsWith("/content")) return fitRestoreContentResponse(JSON.stringify(documentJson));
+      throw new Error(`unexpected request: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const renderWorkbench = (session: Record<string, unknown>) => (
+      <CommonProcessingWorkbench
+        config={{ baseUrl: "/api/v1", accessToken: "token" }}
+        initialSession={session as never}
+        material={fixtures.material as never}
+        materialState={fixtures.materialState as never}
+        locationSearch="?stage=fit&family=metal"
+        onNavigate={() => undefined}
+        onOpenConnection={() => undefined}
+        onSessionChange={onSessionChange}
+      />
+    );
+    let view: ReturnType<typeof render> | undefined;
+    const restoredNotice = "Saved immutable Fit Output restored with its exact Process source and decision.";
+    try {
+      view = render(renderWorkbench(initialSession));
+      await waitFor(() => expect(screen.getByText("Preview ready.", { exact: false })).toBeTruthy(), { timeout: 5000 });
+      expect(document.querySelector(".modeling-fit-workspace-bounded")).toBeTruthy();
+      fireEvent.click(screen.getByText("Candidate parameters"));
+      await screen.findByText("Fit evidence");
+      fireEvent.click(await screen.findByRole("button", { name: /Select swift candidate/i }));
+      fireEvent.change(screen.getByLabelText("Candidate selection reason"), { target: { value: "Select Swift for the deterministic save/restore regression." } });
+      fireEvent.click(screen.getByRole("button", { name: "Save fit & continue" }));
+      await screen.findByText(/New immutable Fit Output saved and current/i);
+      expect(committed).toHaveLength(1);
+
+      const saved = committed[0];
+      const savedRevision = saved.current_revision as Record<string, unknown>;
+      const savedSession = {
+        ...initialSession,
+        processingOutput: {
+          id: saved.processing_output_id,
+          revisionId: savedRevision.id,
+          label: saved.label,
+          revisionNo: savedRevision.revision_no,
+        },
+        workspace: { ...(initialSession.workspace as Record<string, unknown>), selectedStageOrdinal: 6 },
+      };
+      view.rerender(renderWorkbench(savedSession));
+      await waitFor(() => expect(contentGets).toBe(1));
+      await waitFor(() => expect(screen.getByText(/New immutable Fit Output saved and current/i)).toBeTruthy());
+      expect(screen.queryByText(restoredNotice)).toBeNull();
+      expect(document.querySelector(".persistent-modeling-plot h2")?.textContent ?? "").toContain("Hardening fit");
+
+      view.unmount();
+      view = render(renderWorkbench(savedSession));
+      await screen.findByText(restoredNotice);
+      expect(contentGets).toBe(2);
+      expect(document.querySelector(".persistent-modeling-plot h2")?.textContent ?? "").toContain("Hardening fit");
+    } finally {
+      view?.unmount();
+      vi.doUnmock("./modeling-fit-output");
+    }
+  });
+
+  it("gives a changed restore identity a distinct request and ignores the stale response", async () => {
+    installFitRestoreParserMock();
+    const fixtures = fitRestoreFixtures();
+    const fetchState = stubFitRestoreFetch([fixtures.fit, fixtures.process]);
+    let view: ReturnType<typeof render> | undefined;
+    try {
+      const renderRestore = (accessToken: string) => (
+        <StrictMode>
+          <CommonProcessingWorkbench
+            config={{ baseUrl: "/api/v1", accessToken }}
+            initialSession={fixtures.session as never}
+            material={fixtures.material as never}
+            materialState={fixtures.materialState as never}
+            locationSearch="?stage=fit&family=metal"
+            onNavigate={() => undefined}
+            onOpenConnection={() => undefined}
+          />
+        </StrictMode>
+      );
+      view = render(renderRestore("token-a"));
+      await waitFor(() => expect(fetchState.contentGets()).toBe(1));
+      view.rerender(renderRestore("token-b"));
+      await waitFor(() => expect(fetchState.contentGets()).toBe(2));
+      fetchState.pendingContent[0].resolve(fitRestoreContentResponse("A"));
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(document.querySelector(".persistent-modeling-plot h2")?.textContent ?? "").not.toContain("Proof stress");
+      fetchState.pendingContent[1].resolve(fitRestoreContentResponse("B"));
+      await waitFor(() => expect(document.querySelector(".persistent-modeling-plot h2")?.textContent ?? "").toContain("Hardening fit"));
+    } finally {
+      view?.unmount();
+      vi.doUnmock("./modeling-fit-output");
+    }
+  });
+
+  it("settles a failed restore without a loop and retries exactly once", async () => {
+    installFitRestoreParserMock();
+    const fixtures = fitRestoreFixtures();
+    const fetchState = stubFitRestoreFetch([fixtures.fit, fixtures.process]);
+    let view: ReturnType<typeof render> | undefined;
+    try {
+      view = render(
+        <StrictMode>
+          <CommonProcessingWorkbench
+            config={{ baseUrl: "/api/v1", accessToken: "token" }}
+            initialSession={fixtures.session as never}
+            material={fixtures.material as never}
+            materialState={fixtures.materialState as never}
+            locationSearch="?stage=fit&family=metal"
+            onNavigate={() => undefined}
+            onOpenConnection={() => undefined}
+          />
+        </StrictMode>,
+      );
+      await waitFor(() => expect(fetchState.contentGets()).toBe(1));
+      fetchState.pendingContent[0].resolve(fitRestoreContentResponse("forced restore failure", 503));
+      const retry = await screen.findByRole("button", { name: "Retry exact saved Fit" });
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(fetchState.contentGets()).toBe(1);
+      fireEvent.click(retry);
+      await waitFor(() => expect(fetchState.contentGets()).toBe(2));
+      expect(fetchState.pendingContent).toHaveLength(2);
+      fetchState.pendingContent[1].resolve(fitRestoreContentResponse("B"));
+      await screen.findByText("Saved immutable Fit Output restored with its exact Process source and decision.");
+      expect(fetchState.contentGets()).toBe(2);
+    } finally {
+      view?.unmount();
+      vi.doUnmock("./modeling-fit-output");
+    }
+  });
+
+  it("keeps an unmounted Fit restore response inert", async () => {
+    installFitRestoreParserMock();
+    const fixtures = fitRestoreFixtures();
+    const fetchState = stubFitRestoreFetch([fixtures.fit, fixtures.process]);
+    let view: ReturnType<typeof render> | undefined;
+    try {
+      view = render(
+        <StrictMode>
+          <CommonProcessingWorkbench
+            config={{ baseUrl: "/api/v1", accessToken: "token" }}
+            initialSession={fixtures.session as never}
+            material={fixtures.material as never}
+            materialState={fixtures.materialState as never}
+            locationSearch="?stage=fit&family=metal"
+            onNavigate={() => undefined}
+            onOpenConnection={() => undefined}
+          />
+        </StrictMode>,
+      );
+      await waitFor(() => expect(fetchState.contentGets()).toBe(1));
+      view.unmount();
+      fetchState.pendingContent[0].resolve(fitRestoreContentResponse("B"));
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(screen.queryByText("Saved immutable Fit Output restored with its exact Process source and decision.")).toBeNull();
+    } finally {
+      view?.unmount();
+      vi.doUnmock("./modeling-fit-output");
+    }
+  });
+
+  it("treats every pinned Fit/Process identity determinant as a distinct restore request", async () => {
+    installFitRestoreParserMock();
+    type RestoreMutation = {
+      label: string;
+      apply: (fit: Record<string, unknown>, process: Record<string, unknown>, session: Record<string, unknown>) => string;
+    };
+    const mutations: RestoreMutation[] = [
+      { label: "base URL", apply: () => "/api/v2" },
+      {
+        label: "Fit aggregate",
+        apply: (fit, _process, session) => {
+          fit.processing_output_id = "restore-fit-output-next";
+          (fit.current_revision as Record<string, unknown>).aggregate_id = fit.processing_output_id;
+          (session.processingOutput as Record<string, unknown>).id = fit.processing_output_id;
+          return "/api/v1";
+        },
+      },
+      {
+        label: "Fit revision id",
+        apply: (fit, _process, session) => {
+          const nextRevisionId = "restore-fit-revision-next";
+          (fit.current_revision as Record<string, unknown>).id = nextRevisionId;
+          (session.processingOutput as Record<string, unknown>).revisionId = nextRevisionId;
+          return "/api/v1";
+        },
+      },
+      {
+        label: "Fit revision number",
+        apply: (fit) => {
+          (fit.current_revision as Record<string, unknown>).revision_no = 2;
+          return "/api/v1";
+        },
+      },
+      {
+        label: "Fit revision hash",
+        apply: (fit) => {
+          (fit.current_revision as Record<string, unknown>).content_hash = "b".repeat(64);
+          return "/api/v1";
+        },
+      },
+      {
+        label: "Fit output digest",
+        apply: (fit) => {
+          fit.output_sha256 = "8".repeat(64);
+          return "/api/v1";
+        },
+      },
+      {
+        label: "Process aggregate",
+        apply: (fit, process) => {
+          process.processing_output_id = "restore-process-output-next";
+          (process.current_revision as Record<string, unknown>).aggregate_id = process.processing_output_id;
+          (fit.source_processing_output as Record<string, unknown>).aggregate_id = process.processing_output_id;
+          return "/api/v1";
+        },
+      },
+      {
+        label: "Process revision id",
+        apply: (fit, process) => {
+          const nextRevisionId = "restore-process-revision-next";
+          (process.current_revision as Record<string, unknown>).id = nextRevisionId;
+          (fit.source_processing_output as Record<string, unknown>).revision_id = nextRevisionId;
+          return "/api/v1";
+        },
+      },
+      {
+        label: "Process revision number",
+        apply: (_fit, process) => {
+          (process.current_revision as Record<string, unknown>).revision_no = 2;
+          return "/api/v1";
+        },
+      },
+      {
+        label: "Process revision hash",
+        apply: (_fit, process) => {
+          (process.current_revision as Record<string, unknown>).content_hash = "c".repeat(64);
+          return "/api/v1";
+        },
+      },
+      {
+        label: "Process output digest",
+        apply: (_fit, process) => {
+          process.output_sha256 = "7".repeat(64);
+          return "/api/v1";
+        },
+      },
+      {
+        label: "Test Data pin",
+        apply: (_fit, process) => {
+          (process.source_document as Record<string, unknown>).revision_id = "test-data-revision-next";
+          return "/api/v1";
+        },
+      },
+      {
+        label: "Test Data digest",
+        apply: (_fit, process) => {
+          process.source_document_sha256 = "6".repeat(64);
+          return "/api/v1";
+        },
+      },
+      {
+        label: "Profile pin",
+        apply: (_fit, process) => {
+          (process.mapping_profile as Record<string, unknown>).revision_id = "profile-revision-next";
+          return "/api/v1";
+        },
+      },
+      {
+        label: "Profile digest",
+        apply: (_fit, process) => {
+          process.mapping_profile_sha256 = "5".repeat(64);
+          return "/api/v1";
+        },
+      },
+      {
+        label: "canonical digest",
+        apply: (_fit, process) => {
+          process.source_canonical_artifact_sha256 = "4".repeat(64);
+          return "/api/v1";
+        },
+      },
+      {
+        label: "ordered steps",
+        apply: (_fit, process) => {
+          process.steps = [{ method_id: "rows.sort_unique", method_version: "1.0.0", options: {} }, ...(process.steps as Array<Record<string, unknown>>)];
+          return "/api/v1";
+        },
+      },
+      {
+        label: "stage count",
+        apply: (_fit, process) => {
+          process.stage_count = Number(process.stage_count) + 1;
+          return "/api/v1";
+        },
+      },
+      {
+        label: "independent quantity",
+        apply: (_fit, process) => {
+          process.independent_quantity = "time";
+          return "/api/v1";
+        },
+      },
+    ];
+    let currentFit: Record<string, unknown>;
+    let currentProcess: Record<string, unknown>;
+    const first = fitRestoreFixtures();
+    currentFit = first.fit;
+    currentProcess = first.process;
+    const fetchState = stubFitRestoreFetch(() => [currentFit, currentProcess]);
+    let view: ReturnType<typeof render> | undefined;
+    try {
+      const renderRestore = (session: Record<string, unknown>, baseUrl: string) => (
+        <StrictMode>
+          <CommonProcessingWorkbench
+            config={{ baseUrl, accessToken: "token" }}
+            initialSession={session as never}
+            material={first.material as never}
+            materialState={first.materialState as never}
+            locationSearch="?stage=fit&family=metal"
+            onNavigate={() => undefined}
+            onOpenConnection={() => undefined}
+          />
+        </StrictMode>
+      );
+      view = render(renderRestore(first.session, "/api/v1"));
+      await waitFor(() => expect(fetchState.contentGets()).toBe(1));
+      fetchState.pendingContent[0].resolve(fitRestoreContentResponse("B"));
+      await screen.findByText("Saved immutable Fit Output restored with its exact Process source and decision.");
+      for (const [index, mutation] of mutations.entries()) {
+        const next = fitRestoreFixtures();
+        const nextBaseUrl = mutation.apply(next.fit, next.process, next.session);
+        currentFit = next.fit;
+        currentProcess = next.process;
+        view.rerender(renderRestore(next.session, nextBaseUrl));
+        await waitFor(() => expect(fetchState.contentGets()).toBe(index + 2), { timeout: 3000 });
+        fetchState.pendingContent[index + 1].resolve(fitRestoreContentResponse("B"));
+        await new Promise((resolve) => setTimeout(resolve, 20));
+      }
+      expect(fetchState.contentGets()).toBe(mutations.length + 1);
+    } finally {
+      view?.unmount();
+      vi.doUnmock("./modeling-fit-output");
+    }
   });
 });
