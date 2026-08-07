@@ -69,15 +69,15 @@ demote a task after work has started. The reusable trace and Process calibration
 - Entry is every exclusion above, including code, UI, engineering calculation, API/schema,
   data/migration, security/authorization, test/build policy, product requirement, `AGENTS.md`, skill,
   orchestration workflow, visual approval, or product-owner judgment changes.
-- Main freezes the packet; a fresh configured requirements auditor must approve; one bounded writer
-  changes only packet-owned files; main independently performs the issue-specific acceptance; then a
-  fresh read-only reviewer approves. Compose/DB/browser/viewport gates are required only when the
+- Main freezes the packet; one configured requirements auditor must approve; one bounded writer changes
+  only packet-owned files; main independently performs the issue-specific acceptance; then one
+  independent read-only reviewer approves. Compose/DB/browser/viewport gates are required only when the
   issue, contract, skill, or changed behavior makes them relevant and are otherwise marked N/A or
   deferred with a reason.
 - On a failed checkpoint, main continues every safe applicable check while frozen evidence remains
   valid and records all failures. Stop discovery early only when continuing would be unsafe or the
   failed prerequisite makes remaining evidence invalid; record that exact boundary and why. Consolidate
-  related causes into a fresh, materially revised correction packet. Never replay an unchanged packet.
+  related causes into a new, materially revised correction packet. Never replay an unchanged packet.
   After three failed correction passes, re-audit and re-plan authority, scope, journey, packet, gates,
   and evidence; stop for a product decision, missing authority, unsafe action, external blocker, or
   scope-changing ambiguity, otherwise freeze a materially revised packet, reset the count, and continue.
@@ -113,7 +113,12 @@ boundaries.
   packet names fixture/setup, user actions, visible and persistence outcomes, preserved data/state,
   owned files, forbidden shortcuts, captures, and implementation-adjacent gates.
 - Before Full workflow implementation, the main orchestrator gives that packet and its exact
-  authoritative sources to one fresh configured requirements auditor. The auditor independently traces
+  authoritative sources to one configured requirements auditor. On that role's first creation in the
+  current root task, use `spawn_agent` with `fork_turns: "none"` and the bounded packet; this creates a
+  new agent without parent-turn inheritance and is never described as resetting an existing agent. The
+  same canonical auditor receives materially revised packets and later re-audit packets through
+  `followup_task`. On every invocation it reopens the named authority; retained context and prior
+  dispositions are not authority. The auditor independently traces
   every in-scope requirement to a user action, visible outcome, persistence outcome, preserved state,
   recovery behavior, and an observable automated, live, or visual acceptance condition.
   `changes_requested` blocks implementation until the main orchestrator revises and resubmits the
@@ -128,24 +133,38 @@ boundaries.
   evidence summary rather than raw logs. The main orchestrator waits for every requested result and
   consolidates all findings once before any writer starts; do not spawn agents merely to use the
   available capacity.
+- Agent lifecycle is bounded per root task. Create each configured role at most once, always with
+  `fork_turns: "none"` on its initial `spawn_agent` call, then use `followup_task` when that same role
+  must examine a materially revised versioned packet. `fork_turns: "none"` applies only to new-agent
+  creation; neither it nor `interrupt_agent` resets an existing agent. The normal maximum is the
+  canonical auditor, up to two additional read-only lanes, one implementation writer, one correction
+  writer created only if needed, and one reviewer. The configured limit of 12 is recovery headroom for
+  threads that the current runtime may not reclaim, not a spawning target. Record every completed result
+  and never create a replacement merely to claim freshness. If a mandatory canonical role becomes
+  unavailable, checkpoint authority, packet, evidence, branch, base, status, and next action, then
+  continue in a new root task instead of accumulating replacements in the current task.
 - The Full workflow implementation writer changes only packet-owned files, runs only packet automated
   gates, reports exact unrun or blocked gates, and never claims main-orchestrator live acceptance.
   Writers do not reinterpret requirements, add scope/gates, or start another writer; unrelated changes
   remain untouched.
 - The Full workflow main orchestrator owns requirement interpretation, packets, integration, failure
   diagnosis, and final internal gate; it is not a subagent. Never run concurrent writers in the same
-  checkout. Keep the implementation writer and every later correction writer fresh and sequential; do
-  not bind them into a standing team that can carry the implementation's confirmation bias into
-  correction. Truly independent write-heavy issues may run in separately created Codex worktree chats
+  checkout. Keep the implementation writer and correction writer as distinct configured roles and run
+  them sequentially. Create the correction writer on the first correction need and reuse that same role
+  for later versioned correction packets, at most one bounded pass per invocation. Main's new diagnosis
+  and current evidence, not either writer's retained context, control every correction. Truly independent
+  write-heavy issues may run in separately created Codex worktree chats
   and branches, each with its own orchestrator and gates, but dependent backlog units and work sharing
   one branch never qualify.
 - For Full workflow, the main orchestrator independently performs every packet-applicable live gate,
   including Compose, database, browser, reload, or required viewport checks. Writer tests/screenshots
   are evidence, never a substitute. For visual work, main opens every issue-required viewport at
   original resolution after the live capture; a representative subset is not sufficient. After all
-  implementation and main-orchestrator gates pass, one fresh independent read-only reviewer reopens
-  every required viewport at original resolution, completes the full bounded review, and must return
-  `approve` before publication.
+  implementation and main-orchestrator gates pass, create one independent read-only reviewer with
+  `fork_turns: "none"`. That canonical reviewer reopens every required viewport at original resolution,
+  completes the full bounded review, and must return `approve` before publication. If correction changes
+  implementation or evidence, send the reviewer a new versioned packet with `followup_task`; it reopens
+  the current evidence, and its prior verdict is not authority.
 - Before any packet-applicable live Docker gate, the Full workflow main orchestrator runs
   `make compose-preflight`. The canonical composition is rebuilt/recreated for this work; stale or
   foreign environments are rejected. Ad-hoc projects use dynamic host ports, guaranteed `finally`
@@ -153,14 +172,19 @@ boundaries.
   data.
 - Before correction, root/main reproduces and diagnoses the whole UI -> request -> service -> DB -> reload
   chain. A failed checkpoint does not end discovery: continue every safe applicable check, collect all
-  failures from the frozen evidence, and consolidate related causes before giving one fresh configured
+  failures from the frozen evidence, and consolidate related causes before giving the canonical
   correction writer one bounded pass. Stop discovery early only when continuing would be unsafe or when
   the failed prerequisite makes the remaining evidence invalid, and record that exact boundary. Each
   correction pass has a new diagnosis and packet. After three failed correction passes, main runs a full
   re-audit and re-plan checkpoint over authority, scope, user journey, packet, gates, and the complete
-  frozen evidence. Unless that checkpoint exposes a product decision, missing authority, unsafe action,
-  or external blocker that requires owner input, reset the correction-pass count and continue with one
-  fresh packet and writer. Never repeat the same failed packet merely because the count was reset.
+  frozen evidence. Reuse the canonical requirements auditor for this re-audit. Unless that checkpoint
+  exposes a product decision, missing authority, unsafe action, or external blocker that requires owner
+  input, reset the correction-pass count and continue with a materially revised packet and the same
+  correction writer. Never repeat the same failed packet merely because the count was reset. If evidence
+  contradicts the selected issue, authority, material or model family, contract set, scope, journey, or
+  fixture classification, main stops correction immediately, reclassifies existing work as complete,
+  partial, or missing, and re-plans with the canonical auditor; repeated Compose or test execution never
+  substitutes for that semantic diagnosis.
 - Automation stays thin: one realistic high-value browser flow where applicable, lower-level regression
   tests for rules, and Docker preflight. Do not create a generic verification or review framework.
 

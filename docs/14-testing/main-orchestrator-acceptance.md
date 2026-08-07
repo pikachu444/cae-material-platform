@@ -68,8 +68,9 @@ Trivial maintenance fast path는 이미 승인·병합된 사실을 동기화하
 Full workflow는 위 제외에 해당하지 않는 code/UI/calculation/API/schema/data/migration,
 security/authorization, test/build policy, product requirement, `AGENTS.md`, skill,
 orchestration workflow, visual approval, product-owner judgment 변경을 포함한다. Main packet 동결
-→ 새 requirements auditor `approve` → 한 명의 bounded writer → main 독립 acceptance → 새
-read-only reviewer `approve` 순서를 지킨다. Main은 packet에 실제 적용 대상으로 고정된 모든
+→ canonical requirements auditor `approve` → 한 명의 bounded writer → main 독립 acceptance →
+canonical read-only reviewer `approve` 순서를 지킨다. 각 역할은 root task에서 처음 한 번만
+`fork_turns: "none"`으로 만들고 수정 packet은 같은 역할에 전달한다. Main은 packet에 실제 적용 대상으로 고정된 모든
 live gate를 독립적으로 수행한다. Docker gate가 적용되면 Compose preflight와 canonical
 recreate를 먼저 실행하고, visual 작업이면 모든 필수 viewport를 원본 해상도로 확인한다. 적용되지
 않는 gate 유형은 이유와 함께 N/A 또는 deferred로 기록한다.

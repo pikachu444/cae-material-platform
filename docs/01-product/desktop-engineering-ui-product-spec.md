@@ -712,10 +712,10 @@ regressions rather than becoming the design objective.
 
 No visual implementation starts until the main orchestrator has opened the exact approved target images.
 Every visual PR supplies registered reference/current side-by-side live captures to the main orchestrator
-and product owner before merge. Correction and fresh re-review follow `AGENTS.md`; the main orchestrator
+and product owner before merge. Correction and canonical re-review follow `AGENTS.md`; the main orchestrator
 diagnoses each failure and supplies a bounded correction packet.
 
-The main orchestrator and fresh read-only reviewer independently complete the
+The main orchestrator and canonical read-only reviewer independently complete the
 [mandatory qualitative owner checklist](visual-acceptance-matrix.md#mandatory-qualitative-owner-checklist)
 at original resolution. Numeric scoring and automated measurements cannot override a qualitative
 failure. The main orchestrator evaluates reviewer findings without repeating an unchanged completed
