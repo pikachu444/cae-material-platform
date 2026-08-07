@@ -154,6 +154,13 @@ class TargetDeliveryService:
         elif command.acknowledgement_identity != preview.acknowledgement_identity:
             raise TargetDeliveryConflict("the required mapping acknowledgement is missing or stale")
 
+        try:
+            source_material_model_ir_revision_id = UUID(
+                preview.source["material_model_ir_revision_id"]
+            )
+        except (KeyError, TypeError, ValueError) as error:
+            raise TargetDeliveryConflict("target preview source is malformed") from error
+
         existing = self._receipts.find_by_delivery_identity(
             context=context,
             decision=decision,
@@ -180,6 +187,7 @@ class TargetDeliveryService:
                         "Deliver exact UXC-06C2 native solver artifact with immutable receipt"
                     ),
                     expected_card_sha256=preview.native_sha256,
+                    source_material_model_ir_revision_id=source_material_model_ir_revision_id,
                 ),
                 additional_hooks=(hook,),
             )

@@ -10,6 +10,7 @@ from fastapi import Depends, FastAPI, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
+from cmp.modules.exporting.adapters.api.target_preview import TargetPreviewTargetResponse
 from cmp.modules.exporting.application.target_delivery import (
     CreateTargetDelivery,
     DeliveryReceipt,
@@ -57,7 +58,7 @@ class TargetDeliveryResponse(BaseModel):
     mapping_report_sha256: Sha256
     mapping_statuses: tuple[str, ...]
     source: dict[str, str]
-    target: dict[str, str]
+    target: TargetPreviewTargetResponse
     occurred_at: str
     recorded_by: UUID
     links: dict[str, str]
@@ -161,22 +162,22 @@ def install_target_delivery_api(
 def _response(receipt: DeliveryReceipt) -> TargetDeliveryResponse:
     root = f"/api/v1/neutral-solver-cards/{receipt.solver_card_id}"
     return TargetDeliveryResponse(
-            receipt_id=receipt.receipt_id,
-            delivery_identity=receipt.delivery_identity,
-            solver_card_id=receipt.solver_card_id,
-            solver_card_revision_id=receipt.solver_card_revision_id,
-            filename=receipt.filename,
-            native_sha256=receipt.native_sha256,
-            mapping_report_sha256=receipt.mapping_report_sha256,
-            mapping_statuses=receipt.mapping_statuses,
-            source=receipt.source,
-            target=receipt.target,
-            occurred_at=receipt.occurred_at,
-            recorded_by=receipt.recorded_by,
-            links={
-                "solver_card": root,
-                "preview": f"{root}/preview",
-                "download": f"{root}/download",
-                "receipt": f"/api/v1/exporting/target-deliveries/{receipt.receipt_id}",
-            },
-        )
+        receipt_id=receipt.receipt_id,
+        delivery_identity=receipt.delivery_identity,
+        solver_card_id=receipt.solver_card_id,
+        solver_card_revision_id=receipt.solver_card_revision_id,
+        filename=receipt.filename,
+        native_sha256=receipt.native_sha256,
+        mapping_report_sha256=receipt.mapping_report_sha256,
+        mapping_statuses=receipt.mapping_statuses,
+        source=receipt.source,
+        target=TargetPreviewTargetResponse.model_validate(receipt.target),
+        occurred_at=receipt.occurred_at,
+        recorded_by=receipt.recorded_by,
+        links={
+            "solver_card": root,
+            "preview": f"{root}/preview",
+            "download": f"{root}/download",
+            "receipt": f"/api/v1/exporting/target-deliveries/{receipt.receipt_id}",
+        },
+    )

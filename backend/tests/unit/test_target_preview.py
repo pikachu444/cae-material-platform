@@ -30,10 +30,20 @@ from cmp.modules.modeling.application.neutral_material import (
     NeutralMaterialNotFound,
     NeutralMaterialService,
 )
+from cmp.modules.modeling.application.tabulated_plasticity import (
+    TabulatedPlasticityModelService,
+)
 from cmp.modules.modeling.domain.neutral_material import (
     NeutralMaterialDocument,
     NeutralProcessingSelection,
+    NeutralPronyProcessingSelection,
     RevisionReference,
+)
+from cmp.modules.modeling.domain.reference_isotropic_tabulated_plasticity import (
+    TabulatedPlasticityConflict,
+)
+from cmp.modules.modeling.domain.reference_processed_tabulated_plasticity import (
+    ReferenceProcessedTabulatedPlasticityContent,
 )
 from cmp.modules.processing.application.common_outputs import (
     CommonPipelineError,
@@ -96,6 +106,68 @@ class Resolver:
         )
 
 
+def _processed_model(
+    *,
+    processing_output_id: UUID = IDS[0],
+    processing_output_revision_id: UUID = IDS[1],
+    processing_output_sha256: str = "b" * 64,
+    material_id: UUID = IDS[2],
+    material_revision_id: UUID = IDS[3],
+    material_state_id: UUID = IDS[4],
+    material_state_revision_id: UUID = IDS[5],
+    revision_id: UUID = IDS[6],
+) -> object:
+    content = ReferenceProcessedTabulatedPlasticityContent(
+        material_id=material_id,
+        material_revision_id=material_revision_id,
+        material_state_id=material_state_id,
+        material_state_revision_id=material_state_revision_id,
+        property_set_id=UUID(int=20),
+        property_set_revision_id=UUID(int=21),
+        processing_output_id=processing_output_id,
+        processing_output_revision_id=processing_output_revision_id,
+        processing_output_sha256=processing_output_sha256,
+        source_test_data_id=UUID(int=22),
+        source_test_data_revision_id=UUID(int=23),
+        mapping_profile_id=UUID(int=24),
+        mapping_profile_revision_id=UUID(int=25),
+        candidate_families=("swift", "voce"),
+        primary_family="swift",
+        secondary_family=None,
+        primary_weight=None,
+        fit_minimum_true_plastic_strain=0.01,
+        characterized_max_true_plastic_strain=0.1,
+        extension_max_true_plastic_strain=0.2,
+        hardening_curve_artifact_id=UUID(int=26),
+        hardening_curve_sha256="c" * 64,
+        hardening_curve_point_count=21,
+        density_kg_per_m3=7_850.0,
+        youngs_modulus_pa=210e9,
+        poisson_ratio=0.3,
+        initial_yield_stress_pa=350e6,
+        post_necking_approximation_acknowledged=True,
+    )
+    return SimpleNamespace(
+        material_model_id=UUID(int=30),
+        revision=SimpleNamespace(
+            record=SimpleNamespace(revision_id=revision_id, aggregate_id=UUID(int=30)),
+            content=content,
+        ),
+    )
+
+
+class _TabulatedModels:
+    def __init__(self, result: object | Exception) -> None:
+        self.result = result
+        self.calls = 0
+
+    def resolve_processing_output_for_export(self, *_: object) -> object:
+        self.calls += 1
+        if isinstance(self.result, Exception):
+            raise self.result
+        return self.result
+
+
 def context_and_decision(
     permission: Permission = Permission.EXPORT_READ,
 ) -> tuple[SecurityContext, AuthorizationDecision]:
@@ -155,7 +227,7 @@ def test_preview_is_deterministic_and_has_no_persistence_side_effect(
     assert first.preview_identity == second.preview_identity
     assert first.native_sha256 == second.native_sha256
     assert first.acknowledgement_identity == first.preview_identity
-    assert first.delivery_status == "unavailable_pending_uxc_06c2"
+    assert first.delivery_status == "preview_only"
     assert (
         resolver.calls == 2
     )  # resolver is read-only; service has no repository/artifact/card port
@@ -258,13 +330,14 @@ def _source_snapshots(
     neutral_material_revision_id: UUID = IDS[3],
     neutral_material_state_id: UUID = IDS[4],
     neutral_material_state_revision_id: UUID = IDS[5],
+    selection: object | None = None,
 ) -> tuple[object, object]:
     output = SimpleNamespace(
         id=IDS[0],
         current=SimpleNamespace(revision_id=IDS[1]),
         content=SimpleNamespace(export_provenance=proof, output_sha256="b" * 64),
     )
-    selection = NeutralProcessingSelection(
+    selection = selection or NeutralProcessingSelection(
         processing_output=RevisionReference(selected_output_id, selected_output_revision_id),
         processing_output_sha256=selected_output_sha256,
         reason="Use the exact governed Processing Output.",
@@ -327,16 +400,19 @@ def _resolve(adapter: TargetPreviewSourceAdapter) -> ExactPreviewSource:
 
 def test_source_adapter_requires_the_exact_governed_output_and_self_pinned_neutral_chain() -> None:
     output, neutral = _source_snapshots()
+    tabulated_models = _TabulatedModels(_processed_model())
     resolved = _resolve(
         TargetPreviewSourceAdapter(
             outputs=cast(CommonProcessingOutputService, _Outputs(output)),
             neutral_materials=cast(NeutralMaterialService, _NeutralMaterials(neutral)),
+            tabulated_models=cast(TabulatedPlasticityModelService, tabulated_models),
         )
     )
 
     assert resolved.processing_output_sha256 == "b" * 64
-    assert resolved.material_model_ir_revision_id == IDS[8]
+    assert resolved.material_model_ir_revision_id == IDS[6]
     assert resolved.neutral_material_revision_id == IDS[8]
+    assert tabulated_models.calls == 1
 
     for keyword, values in (
         ("governed", {"proof": None}),
@@ -355,6 +431,9 @@ def test_source_adapter_requires_the_exact_governed_output_and_self_pinned_neutr
                 TargetPreviewSourceAdapter(
                     outputs=cast(CommonProcessingOutputService, _Outputs(bad_output)),
                     neutral_materials=cast(NeutralMaterialService, _NeutralMaterials(bad_neutral)),
+                    tabulated_models=cast(
+                        TabulatedPlasticityModelService, _TabulatedModels(_processed_model())
+                    ),
                 )
             )
 
@@ -374,6 +453,9 @@ def test_source_adapter_does_not_leak_missing_or_restricted_scope_details(
     adapter = TargetPreviewSourceAdapter(
         outputs=cast(CommonProcessingOutputService, _Outputs(failure)),
         neutral_materials=cast(NeutralMaterialService, _NeutralMaterials(neutral)),
+        tabulated_models=cast(
+            TabulatedPlasticityModelService, _TabulatedModels(_processed_model())
+        ),
     )
 
     with pytest.raises(
@@ -383,3 +465,86 @@ def test_source_adapter_does_not_leak_missing_or_restricted_scope_details(
 
     assert "not found" not in str(error.value)
     assert "restricted" not in str(error.value)
+
+
+@pytest.mark.parametrize(
+    "failure",
+    [
+        TabulatedPlasticityConflict("restricted model"),
+        TabulatedPlasticityConflict("ambiguous model"),
+        TabulatedPlasticityConflict("missing model"),
+    ],
+)
+def test_source_adapter_does_not_leak_tabulated_resolver_conflicts(
+    failure: Exception,
+) -> None:
+    output, neutral = _source_snapshots()
+    adapter = TargetPreviewSourceAdapter(
+        outputs=cast(CommonProcessingOutputService, _Outputs(output)),
+        neutral_materials=cast(NeutralMaterialService, _NeutralMaterials(neutral)),
+        tabulated_models=cast(TabulatedPlasticityModelService, _TabulatedModels(failure)),
+    )
+
+    with pytest.raises(
+        TargetPreviewConflict, match="exact target-preview source is unavailable"
+    ) as error:
+        _resolve(adapter)
+    assert "restricted" not in str(error.value)
+    assert "ambiguous" not in str(error.value)
+    assert "missing" not in str(error.value)
+
+
+def test_source_adapter_rejects_a_mismatched_resolved_processed_model_generically() -> None:
+    output, neutral = _source_snapshots()
+    adapter = TargetPreviewSourceAdapter(
+        outputs=cast(CommonProcessingOutputService, _Outputs(output)),
+        neutral_materials=cast(NeutralMaterialService, _NeutralMaterials(neutral)),
+        tabulated_models=cast(
+            TabulatedPlasticityModelService,
+            _TabulatedModels(_processed_model(processing_output_sha256="e" * 64)),
+        ),
+    )
+    with pytest.raises(TargetPreviewConflict, match="Neutral/IR") as error:
+        _resolve(adapter)
+    assert "e" * 64 not in str(error.value)
+
+
+def test_source_adapter_blocks_candidate_or_hyperelastic_selection_before_resolution() -> None:
+    output, neutral = _source_snapshots(selection=object())
+    tabulated_models = _TabulatedModels(AssertionError("resolver must not run"))
+    adapter = TargetPreviewSourceAdapter(
+        outputs=cast(CommonProcessingOutputService, _Outputs(output)),
+        neutral_materials=cast(NeutralMaterialService, _NeutralMaterials(neutral)),
+        tabulated_models=cast(TabulatedPlasticityModelService, tabulated_models),
+    )
+    with pytest.raises(TargetPreviewConflict, match="governed"):
+        _resolve(adapter)
+    assert tabulated_models.calls == 0
+
+
+def test_source_adapter_preserves_prony_identity_without_tabulated_resolution() -> None:
+    selection = NeutralPronyProcessingSelection(
+        processing_output=RevisionReference(IDS[0], IDS[1]),
+        processing_output_sha256="b" * 64,
+        reason="Use exact Prony output.",
+        selected_series="shear",
+        selection_mode="manual",
+        selected_term_count=1,
+        normalized_rmse=0.01,
+        bic=1.0,
+        fitted_instantaneous_shear_modulus_pa=1e6,
+        catalog_instantaneous_shear_modulus_pa=1e6,
+        instantaneous_modulus_relative_mismatch=0.0,
+        acknowledged_maximum_relative_mismatch=0.1,
+    )
+    output, neutral = _source_snapshots(selection=selection)
+    tabulated_models = _TabulatedModels(AssertionError("Prony must not resolve tabulated models"))
+    resolved = _resolve(
+        TargetPreviewSourceAdapter(
+            outputs=cast(CommonProcessingOutputService, _Outputs(output)),
+            neutral_materials=cast(NeutralMaterialService, _NeutralMaterials(neutral)),
+            tabulated_models=cast(TabulatedPlasticityModelService, tabulated_models),
+        )
+    )
+    assert resolved.material_model_ir_revision_id == IDS[8]
+    assert tabulated_models.calls == 0

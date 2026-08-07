@@ -57,6 +57,17 @@ export interface DeliveryActivity {
   extension: SolverCardSummary["extension"];
 }
 
+export interface MappingDisplayRow {
+  /** Product-facing engineering quantity, not an exporter status key. */
+  quantity: string;
+  /** Concise source-to-target expression shown on the normal surface. */
+  expression: string;
+  /** Consequence the engineer must act on. */
+  consequence: string;
+  /** Technical evidence retained for Advanced/details surfaces. */
+  item: MappingItem;
+}
+
 const ACTIVITY_STORAGE_KEY = "cmp.solver-card.recent-activity.v1";
 const MAX_ACTIVITY_ITEMS = 20;
 
@@ -64,6 +75,58 @@ export function mappingDisposition(items: ReadonlyArray<Pick<MappingItem, "statu
   if (items.some((item) => item.status === "unsupported")) return "blocked";
   if (items.some((item) => item.status === "approximated" || item.status === "ignored")) return "review";
   return "direct";
+}
+
+const MAPPING_QUANTITY_LABELS: Record<string, string> = {
+  density: "Density",
+  constitutive_parameters: "Constitutive response",
+  volumetric_response: "Volumetric response",
+  applicability: "Applicability",
+  calibration_evidence: "Calibration evidence",
+  unit_system: "Unit system",
+  youngs_modulus: "Young’s modulus",
+  poisson_ratio: "Poisson ratio",
+  initial_yield_stress: "Initial yield stress",
+  hardening_curve: "Hardening curve",
+  post_necking_extension: "Post-necking extension",
+};
+
+export function mappingQuantityLabel(name: string): string {
+  return MAPPING_QUANTITY_LABELS[name]
+    ?? name.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+export function mappingConsequence(status: MappingStatus): string {
+  switch (status) {
+    case "exact": return "Values unchanged";
+    case "transformed": return "Converted";
+    case "approximated":
+    case "ignored": return "Review required";
+    case "unsupported": return "Not supported";
+    case "not_applicable": return "Context only";
+    default: return "Check compatibility";
+  }
+}
+
+function mappingSourceLabel(item: MappingItem): string {
+  const path = item.ir_path.split("/").filter(Boolean).at(-1);
+  return path ? mappingQuantityLabel(path) : mappingQuantityLabel(item.name);
+}
+
+export function mappingSourceTargetExpression(item: MappingItem): string {
+  const source = mappingSourceLabel(item);
+  const target = item.target_representation?.trim() || "not emitted";
+  return `${source} → ${target}`;
+}
+
+/** Shared normal-surface mapping grammar used by Materials and Export. */
+export function projectMappingRows(items: ReadonlyArray<MappingItem>): MappingDisplayRow[] {
+  return items.map((item) => ({
+    quantity: mappingQuantityLabel(item.name),
+    expression: mappingSourceTargetExpression(item),
+    consequence: mappingConsequence(item.status),
+    item,
+  }));
 }
 
 function mappingItemsFromStatuses(statuses: Record<string, MappingStatus>): MappingItem[] {

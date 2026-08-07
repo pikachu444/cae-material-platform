@@ -446,25 +446,60 @@ captures:
     height: 1080
   - id: modeling-export-1366
     route: /modeling?stage=export&family=metal
-    workflow: uxc-06c2-exact-target-preflight-and-atomic-delivery
-    fixture: synthetic DP780 session with exact governed Output, model and Neutral revisions; Abaqus 2025 kg-m-s reference preview, required acknowledgement and one immutable card/receipt; Activity receipt projection Not configured
+    workflow: uxc-06c2-capability-backed-preview-and-atomic-delivery
+    fixture: synthetic DP780 session with exact governed Output, model and Neutral revisions; dedicated Setup/native-preview/Mapping-Fit context workspace, capability-declared Abaqus 2025 kg-m-s tuple, preview_only state, required acknowledgement and one immutable card/receipt
     image: images/current/modeling-export-1366x768.png
     width: 1366
     height: 768
   - id: modeling-export-1440
     route: /modeling?stage=export&family=metal
-    workflow: uxc-06c2-exact-target-preflight-and-atomic-delivery
-    fixture: synthetic DP780 session with exact governed Output, model and Neutral revisions; Abaqus 2025 kg-m-s reference preview, required acknowledgement and one immutable card/receipt; Activity receipt projection Not configured
+    workflow: uxc-06c2-capability-backed-preview-and-atomic-delivery
+    fixture: synthetic DP780 session with exact governed Output, model and Neutral revisions; dedicated Setup/native-preview/Mapping-Fit context workspace, capability-declared Abaqus 2025 kg-m-s tuple, preview_only state, required acknowledgement and one immutable card/receipt
     image: images/current/modeling-export-1440x900.png
     width: 1440
     height: 900
   - id: modeling-export-1920
     route: /modeling?stage=export&family=metal
-    workflow: uxc-06c2-exact-target-preflight-and-atomic-delivery
-    fixture: synthetic DP780 session with exact governed Output, model and Neutral revisions; Abaqus 2025 kg-m-s reference preview, required acknowledgement and one immutable card/receipt; Activity receipt projection Not configured
+    workflow: uxc-06c2-capability-backed-preview-and-atomic-delivery
+    fixture: synthetic DP780 session with exact governed Output, model and Neutral revisions; dedicated Setup/native-preview/Mapping-Fit context workspace, capability-declared Abaqus 2025 kg-m-s tuple, preview_only state, required acknowledgement and one immutable card/receipt
     image: images/current/modeling-export-1920x1080.png
     width: 1920
     height: 1080
+  - id: modeling-export-2560
+    route: /modeling?stage=export&family=metal
+    workflow: uxc-06c2-capability-backed-preview-and-atomic-delivery
+    fixture: synthetic DP780 session with exact governed Output, model and Neutral revisions; the same bounded three-pane Export workspace at a wide viewport
+    image: images/current/modeling-export-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: modeling-export-3840
+    route: /modeling?stage=export&family=metal
+    workflow: uxc-06c2-capability-backed-preview-and-atomic-delivery
+    fixture: synthetic DP780 session with exact governed Output, model and Neutral revisions; the same bounded three-pane Export workspace at a wide viewport
+    image: images/current/modeling-export-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: modeling-export-source-blocked
+    route: /modeling?stage=export&family=metal
+    workflow: exact-source-recovery-before-preview
+    fixture: synthetic DP780 session after exact Fit save with Material Model IR and Neutral pins absent; source refs and recovery inputs preserved
+    image: images/current/modeling-export-source-blocked-1440x900.png
+    width: 1440
+    height: 900
+  - id: modeling-export-approximation-blocked
+    route: /modeling?stage=export&family=metal
+    workflow: capability-backed-approximation-acknowledgement
+    fixture: synthetic DP780 session with current exact source and OpenRadioss 2025 kg-m-s tuple; preview_only mapping requires acknowledgement before creation
+    image: images/current/modeling-export-approximation-blocked-1440x900.png
+    width: 1440
+    height: 900
+  - id: modeling-export-delivered
+    route: /modeling?stage=export&family=metal
+    workflow: atomic-solver-card-delivery-and-open
+    fixture: synthetic DP780 session with current exact preview, required acknowledgement, one Solver Card receipt, and Open solver card action
+    image: images/current/modeling-export-delivered-1440x900.png
+    width: 1440
+    height: 900
   - id: activity-1366
     route: /activity
     workflow: role-aware-review-queue-with-resume-and-outcomes

@@ -220,9 +220,25 @@ live capture와 qualitative visual acceptance가 완료되었고, 17개 Process/
 
 Fit 검토 뒤 상단 **Export** task를 열면 current Material, Material State, Test Data, Mapping Profile,
 Processing Output pin과 `Processing Output → Material Model IR → Neutral → target preflight → native card`
-lineage를 먼저 확인합니다. 선택 model graph의 축은 internal quantity key 대신 사람이 읽는 물성명과
-unit(예: `True plastic strain [1]`, `Hardening stress [MPa]`)으로 표시됩니다. source가 없거나 다른 revision이면 artifact, adapter, Preview, Deliver control은
-전혀 표시되지 않습니다. **Back to Fit**은 같은 session과 Recipe draft를 유지합니다.
+lineage를 먼저 확인합니다. Export는 Setup(왼쪽), native preview(가운데), Mapping/Fit context(오른쪽)가
+한 화면에 있는 전용 workspace이며 native preview가 가장 넓은 pane을 차지합니다. 선택 model graph의 축은
+internal quantity key 대신 사람이 읽는 물성명과 unit(예: `True plastic strain [1]`, `Hardening stress [MPa]`)으로
+표시됩니다. source가 없거나 다른 revision이면 Export check가 **Cannot create**가 되고 source 복구 안내만
+표시됩니다. **Back to Fit**은 같은 session과 Recipe draft를 유지합니다.
+
+Export는 모든 상태에서 같은 세 칸 작업 묶음(Setup 300–340 px, 넓은 native preview,
+Mapping/Fit context 326–360 px)을 유지합니다. 1366×768, 1440×900, 1920×1080,
+2560×1440, 3840×2160 정상 화면과 1440×900 source-blocked,
+approximation-blocked, delivered 상태를 캡처 계약으로 관리합니다. Wide 화면에서도 이 묶음은
+왼쪽 위 1920 px 안에 머물며 남는 공간은 오른쪽에 둡니다.
+
+| Export evidence | Capture |
+| --- | --- |
+| Wide 2560×1440 | [modeling-export-2560x1440.png](images/current/modeling-export-2560x1440.png) |
+| Wide 3840×2160 | [modeling-export-3840x2160.png](images/current/modeling-export-3840x2160.png) |
+| Source blocked · 1440×900 | [modeling-export-source-blocked-1440x900.png](images/current/modeling-export-source-blocked-1440x900.png) |
+| Approximation blocked · 1440×900 | [modeling-export-approximation-blocked-1440x900.png](images/current/modeling-export-approximation-blocked-1440x900.png) |
+| Delivered · 1440×900 | [modeling-export-delivered-1440x900.png](images/current/modeling-export-delivered-1440x900.png) |
 
 Modeling의 **Local file** 경로에서 exact Test Run을 선택하고 저장한 새 Test Data revision은 서버가
 `Test Run → Specimen → Material State → Material` exact revision 관계를 검증합니다. 이후 그 Test Data로
@@ -235,11 +251,17 @@ Modeling의 **Local file** 경로에서 exact Test Run을 선택하고 저장한
 Artifact 자체에는 proof가 추가되지 않으며, immutable revision content에만 저장됩니다. Omitted proof로 revise하면
 새 revision은 unqualified 상태가 됩니다.
 
-source proof와 current Material Model IR/Neutral pin이 모두 current일 때만 **Reference target**을 직접
-선택해 stateless native preview를 생성할 수 있습니다. 선택지는 capability manifest의 synthetic
-non-production Abaqus/OpenRadioss 2025 kg-m-s tuple뿐이며 production support를 뜻하지 않습니다. Mapping의
-`exact`/`transformed`/`approximated`/`unsupported` 상태와 native text를 함께 검토합니다. target 또는 source를
-바꾸면 preview는 사라지지만 입력값은 재시도를 위해 남습니다.
+source proof와 current Material Model IR/Neutral pin이 모두 current일 때만 capability manifest가 선언한
+solver/version/unit tuple을 선택해 stateless native preview를 생성할 수 있습니다. 현재 선택지는 synthetic
+non-production Abaqus/OpenRadioss 2025 kg-m-s tuple뿐이며 production support를 뜻하지 않습니다. Output
+unit select에는 capability가 선언한 `kg_m_s` 선택지와 함께 실제로 선택할 수 없는
+`Other unit systems — unavailable (not declared by this exporter capability).` disabled option을 둡니다.
+Export check의 상태는 **Ready to create**, **Review required**, **Cannot create** 중 하나이며 Mapping
+normal row는 `quantity · source → target expression · consequence`로 표시합니다. raw
+status/count/digest/ID는 Advanced evidence에만 둡니다. C1 preview가 없으면 primary **Run Export check**,
+stale 또는 실패한 C1이면 **Retry Export check**, current C1이면 **Create solver card**만 primary로
+노출합니다. approximation acknowledgement가 없으면 Create가 disabled입니다. target 또는 source를
+바꾸면 preview와 delivery pointer는 사라지지만 exact upstream 입력은 재시도를 위해 남습니다.
 
 금속에서 source proof는 current인데 Model IR/Neutral pin만 없으면 같은 Export checklist 아래의
 **Prepare exact metal source**를 사용합니다. 이 action은 선택된 Processing Output revision, current
@@ -252,17 +274,29 @@ revision을 추측해 보내지 않고 exact Neutral revision을 보내며 serve
 Polymer와 Elastomer에는 이 recovery path가 아직 **Not configured**이며 다른 material family의 model을 대신
 선택하지 않습니다.
 
-이 preview는 card, Artifact, receipt, download, Activity, Material CAE Card link 또는 `exportArtifact`를 만들지
-않습니다. approximation이 있으면 Evidence disclosure의 acknowledgement identity는 **UXC-06C2 delivery 입력**일
-뿐 C1에서 승인·기록되지 않습니다.
+Recovery가 끝나면 같은 workspace에서 capability가 선언한 solver/version/unit tuple을 고르고
+`preview_only` native 결과를 확인합니다. C1 heading은 **Current preview · not created**이며 filename과
+mapping consequence를 함께 검토합니다. Approximation이 있으면 exact acknowledgement를 먼저 기록하고,
+그 뒤 별도의 **Create solver card**로 immutable card와 receipt를 만듭니다. Delivered 화면의 normal
+surface에는 filename/status만 남기고 receipt를 inline으로 반복하지 않습니다. 대신 keyboard-reachable
+**Delivery details** disclosure를 열어 `solver_card`, `preview`, `download`, `receipt` 네 typed API
+resource link와 exact card/revision/receipt IDs 및 native/mapping digests를 확인합니다. source의 exact
+IDs와 digests는 별도 **Advanced · exact source** disclosure에만 둡니다. Delivered의 primary는
+**Open solver card**이며, source/target 변경이나 실패는 upstream revision을 바꾸지 않고 현재
+preview/delivery pointer만 지웁니다.
 
-**Deliver native card**는 current preview와 정확히 같은 source/target/mapping identity를 다시 검증합니다.
+이 preview는 card, Artifact, receipt, download, Activity, Material CAE Card link 또는 `exportArtifact`를 만들지
+않습니다. 응답의 delivery status는 `preview_only`이며 approximation이 있으면 Evidence disclosure의
+acknowledgement identity는 **UXC-06C2 delivery 입력**일 뿐 C1에서 승인·기록되지 않습니다.
+
+**Create solver card**는 current preview와 정확히 같은 source/target/mapping identity를 다시 검증합니다.
 경고 mapping이면 해당 acknowledgement identity를 명시적으로 확인해야 하며, exact mapping에는 acknowledgement를
 제출할 수 없습니다. 성공하면 immutable Solver Card와 filename/checksum·exact revision chain·mapping digest·actor·timestamp를
 포함한 immutable Exporting receipt/outbox event가 하나의 transaction에서 함께 기록됩니다. Materials CAE Cards는 기존
 canonical card API로 delivered card를 재사용합니다. 같은 preview identity로 다시 요청하면 새 card를 만들지 않고 기존
-receipt를 반환합니다. 성공 영역에는 `Solver card delivered`, filename, 전달 시각, card/receipt 링크만 표시합니다.
-receipt UUID, checksum, source chain과 mapping 상태는 receipt 또는 **Preview & mapping evidence**에서 확인하며,
+receipt를 반환합니다. 성공 영역에는 `Solver Card created`와 filename/status만 표시하며, card/receipt 리소스는
+**Delivery details** disclosure 안에서 확인합니다. receipt UUID, checksum, source chain과 mapping 상태는 receipt 또는
+**Preview & mapping evidence**에서 확인하며,
 구성되지 않은 Activity projection 같은 내부 구조 용어는 일반 경로에 노출하지 않습니다. 현재 Activity 연결이 없으므로
 Activity에 Delivered 상태나 링크를 만들지 않습니다. source/target 변경, 실패 또는 재시도는 기존 immutable delivery를
 수정하지 않고 current preview/delivery pointer만 지웁니다.

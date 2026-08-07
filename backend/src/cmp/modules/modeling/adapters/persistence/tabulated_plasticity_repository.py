@@ -19,6 +19,7 @@ from cmp.modules.modeling.adapters.persistence.repository import (
 )
 from cmp.modules.modeling.application.service import MATERIAL_MODEL_AGGREGATE_TYPE, RevisionSnapshot
 from cmp.modules.modeling.application.tabulated_plasticity import (
+    TabulatedPlasticityModelRevision,
     TabulatedPlasticityModelSnapshot,
     TabulatedPlasticityRepository,
 )
@@ -674,3 +675,41 @@ class SqlAlchemyTabulatedPlasticityRepository(TabulatedPlasticityRepository):
                 "tabulated-plasticity Material Model revision is not visible in this tenant"
             )
         return RevisionSnapshot(_record(row), _content(row))
+
+    def list_processed_model_revisions_for_export(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        processing_output_id: UUID,
+        processing_output_revision_id: UUID,
+    ) -> tuple[TabulatedPlasticityModelRevision, ...]:
+        """Return every exact processed revision row for one output pin.
+
+        This query intentionally targets revision rows directly.  It does not
+        join the mutable identity/current-head table, order rows, or choose a
+        default, so ambiguity remains visible to the application service.
+        """
+
+        revision = material_model_revision_table
+        statement = sa.select(*_revision_columns(revision), *_content_columns(revision)).where(
+            revision.c.model_family_id == REFERENCE_PROCESSED_TABULATED_PLASTICITY_FAMILY_ID,
+            revision.c.processing_output_id == processing_output_id,
+            revision.c.processing_output_revision_id == processing_output_revision_id,
+            revision.c.organization_id == context.organization_id,
+            revision.c.project_id == context.project_id,
+        )
+        with self._session(context, decision) as session:
+            try:
+                rows = session.execute(statement).mappings().all()
+            except DBAPIError as error:
+                raise TabulatedPlasticityNotFound(
+                    "processed tabulated-plasticity export revisions are not available"
+                ) from error
+        return tuple(
+            TabulatedPlasticityModelRevision(
+                material_model_id=cast(UUID, row["aggregate_id"]),
+                revision=RevisionSnapshot(_record(row), _content(row)),
+            )
+            for row in rows
+        )

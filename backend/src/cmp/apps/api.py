@@ -1094,6 +1094,7 @@ def create_app(
             resolver=TargetPreviewSourceAdapter(
                 outputs=resolved_common_outputs,
                 neutral_materials=resolved_neutral_material,
+                tabulated_models=resolved_tabulated_plasticity,
             )
         )
         if resolved_common_outputs is not None and resolved_neutral_material is not None

@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import cast
 from uuid import UUID
 
+import cmp.modules.exporting.domain.neutral_solver as neutral_solver
 import pytest
 from cmp.modules.exporting.domain.neutral_hyperelastic import (
     InvalidNeutralHyperelasticExport,
@@ -211,10 +212,10 @@ def test_neutral_material_requires_all_observed_predicted_and_residual_stages() 
         )
 
 
-def test_metal_neutral_material_round_trip_preserves_selected_hardening_evidence() -> None:
+def _metal_document() -> NeutralMaterialDocument:
     source = _document()
     dataset = source.source_datasets[0].dataset
-    metal = replace(
+    return replace(
         source,
         calibration_plan=OptionalRevisionEvidence(
             EvidenceStatus.NOT_APPLICABLE,
@@ -289,6 +290,10 @@ def test_metal_neutral_material_round_trip_preserves_selected_hardening_evidence
         applicable_strain_max=0.4,
     )
 
+
+def test_metal_neutral_material_round_trip_preserves_selected_hardening_evidence() -> None:
+    metal = _metal_document()
+
     decoded = neutral_material_from_json_bytes(metal.to_json_bytes())
 
     assert decoded == metal
@@ -306,6 +311,7 @@ def test_metal_neutral_material_round_trip_preserves_selected_hardening_evidence
         _, card = build_neutral_solver_card(
             neutral_material_id=metal.document_id,
             neutral_material_revision_id=metal.material_model_ir.model.revision_id,
+            source_material_model_ir_revision_id=metal.material_model_ir.model.revision_id,
             source=metal,
             target=target,
             expected_mapping_report_sha256=report.digest,
@@ -315,6 +321,61 @@ def test_metal_neutral_material_round_trip_preserves_selected_hardening_evidence
         assert keyword in card.card_text
         assert isinstance(card, NeutralFamilySolverCardContent)
         assert card.model_family.value == "isotropic_tabulated_plasticity"
+
+
+def test_metal_native_cards_pin_the_explicit_upstream_ir_revision() -> None:
+    metal = _metal_document()
+    upstream_revision = UUID(int=101)
+    for solver in ("abaqus", "openradioss"):
+        target = NeutralHyperelasticExportTarget(solver, "2025", "kg_m_s")
+        report = preflight_neutral_solver_export(
+            neutral_material_id=metal.document_id,
+            neutral_material_revision_id=metal.material_model_ir.model.revision_id,
+            source=metal,
+            target=target,
+        )
+        _, card = build_neutral_solver_card(
+            neutral_material_id=metal.document_id,
+            neutral_material_revision_id=metal.material_model_ir.model.revision_id,
+            source_material_model_ir_revision_id=upstream_revision,
+            source=metal,
+            target=target,
+            expected_mapping_report_sha256=report.digest,
+            solver_material_id=301,
+            material_name="STEEL_REFERENCE",
+        )
+        assert f"material-model-revision {upstream_revision}" in card.card_text
+        assert str(metal.material_model_ir.model.revision_id) not in card.card_text
+
+
+def test_native_solver_validator_rejects_injected_malformed_output_before_persistence(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = _metal_document()
+    report = preflight_neutral_solver_export(
+        neutral_material_id=source.document_id,
+        neutral_material_revision_id=source.material_model_ir.model.revision_id,
+        source=source,
+        target=NeutralHyperelasticExportTarget("abaqus", "2025", "kg_m_s"),
+    )
+    # Simulate a metal renderer fault between render and the bounded syntax
+    # validator. The malformed text is never allowed to become card content.
+    monkeypatch.setattr(
+        neutral_solver,
+        "render_reference_abaqus_plastic_card",
+        lambda **_: "BROKEN",
+    )
+    with pytest.raises(InvalidNeutralHyperelasticExport, match="missing declared keyword/field"):
+        build_neutral_solver_card(
+            neutral_material_id=source.document_id,
+            neutral_material_revision_id=source.material_model_ir.model.revision_id,
+            source_material_model_ir_revision_id=source.material_model_ir.model.revision_id,
+            source=source,
+            target=NeutralHyperelasticExportTarget("abaqus", "2025", "kg_m_s"),
+            expected_mapping_report_sha256=report.digest,
+            solver_material_id=301,
+            material_name="REFERENCE",
+        )
 
 
 def test_polymer_neutral_material_round_trip_preserves_generalized_maxwell_terms() -> None:
@@ -380,6 +441,7 @@ def test_polymer_neutral_material_round_trip_preserves_generalized_maxwell_terms
     _, card = build_neutral_solver_card(
         neutral_material_id=polymer.document_id,
         neutral_material_revision_id=polymer.material_model_ir.model.revision_id,
+        source_material_model_ir_revision_id=polymer.material_model_ir.model.revision_id,
         source=polymer,
         target=abaqus,
         expected_mapping_report_sha256=report.digest,
@@ -417,6 +479,7 @@ def test_polymer_neutral_material_round_trip_preserves_generalized_maxwell_terms
     _, lprony_card = build_neutral_solver_card(
         neutral_material_id=nearly_incompressible.document_id,
         neutral_material_revision_id=nearly_incompressible.material_model_ir.model.revision_id,
+        source_material_model_ir_revision_id=nearly_incompressible.material_model_ir.model.revision_id,
         source=nearly_incompressible,
         target=openradioss,
         expected_mapping_report_sha256=lprony_report.digest,
@@ -545,6 +608,7 @@ def test_processed_polymer_neutral_round_trip_exports_ten_term_abaqus_card() -> 
     _, card = build_neutral_solver_card(
         neutral_material_id=polymer.document_id,
         neutral_material_revision_id=polymer.material_model_ir.model.revision_id,
+        source_material_model_ir_revision_id=polymer.material_model_ir.model.revision_id,
         source=decoded,
         target=target,
         expected_mapping_report_sha256=report.digest,
@@ -586,6 +650,7 @@ def test_hyperelastic_neutral_material_can_pin_an_exact_prony_overlay() -> None:
     _, abaqus_card = build_neutral_solver_card(
         neutral_material_id=overlaid.document_id,
         neutral_material_revision_id=overlaid.material_model_ir.model.revision_id,
+        source_material_model_ir_revision_id=overlaid.material_model_ir.model.revision_id,
         source=overlaid,
         target=abaqus,
         expected_mapping_report_sha256=abaqus_report.digest,
@@ -606,6 +671,7 @@ def test_hyperelastic_neutral_material_can_pin_an_exact_prony_overlay() -> None:
         build_neutral_solver_card(
             neutral_material_id=overlaid.document_id,
             neutral_material_revision_id=overlaid.material_model_ir.model.revision_id,
+            source_material_model_ir_revision_id=overlaid.material_model_ir.model.revision_id,
             source=overlaid,
             target=openradioss,
             expected_mapping_report_sha256=blocked.digest,
@@ -631,6 +697,7 @@ def test_hyperelastic_neutral_material_can_pin_an_exact_prony_overlay() -> None:
     _, law62 = build_neutral_solver_card(
         neutral_material_id=ogden.document_id,
         neutral_material_revision_id=ogden.material_model_ir.model.revision_id,
+        source_material_model_ir_revision_id=ogden.material_model_ir.model.revision_id,
         source=ogden,
         target=openradioss,
         expected_mapping_report_sha256=law62_report.digest,

@@ -11,6 +11,9 @@ from cmp.modules.exporting.adapters.persistence import target_delivery_receipts
 from cmp.modules.exporting.adapters.persistence.target_delivery_receipts import (
     SqlTargetDeliveryReceiptRecorder,
 )
+from cmp.modules.exporting.application.neutral_hyperelastic_service import (
+    NeutralHyperelasticSolverCardConflict,
+)
 from cmp.modules.exporting.application.target_delivery import (
     CreateTargetDelivery,
     DeliveryReceipt,
@@ -104,11 +107,15 @@ class Cards:
     def __init__(self) -> None:
         self.hooks: tuple[object, ...] = ()
         self.error: Exception | None = None
+        self.calls = 0
+        self.command: object | None = None
 
-    async def create_card(self, *_: object, additional_hooks: tuple[object, ...]):
+    async def create_card(self, *args: object, additional_hooks: tuple[object, ...]):
+        self.calls += 1
         if self.error is not None:
             raise self.error
         self.hooks = additional_hooks
+        self.command = args[2]
         content = SimpleNamespace(card_sha256="b" * 64)
         card = SimpleNamespace(
             id=IDS[4],
@@ -182,6 +189,24 @@ def test_delivery_binds_current_preview_acknowledgement_and_card_hook() -> None:
     assert receipt.solver_card_id == IDS[4]
     assert receipt.delivery_identity == "a" * 64
     assert len(cards.hooks) == 1
+
+
+def test_delivery_passes_revalidated_upstream_ir_to_card_and_receipt() -> None:
+    cards, receipts = Cards(), Receipts()
+    delivered_preview, receipt = asyncio.run(
+        TargetDeliveryService(
+            previews=cast(object, Previews(preview())),
+            cards=cast(object, cards),
+            receipts=receipts,
+        ).deliver(CONTEXT, DECISION, command())
+    )
+
+    assert delivered_preview.source["material_model_ir_revision_id"] == str(IDS[10])
+    assert cards.command is not None
+    assert cards.command.source_material_model_ir_revision_id == IDS[10]
+    assert cards.command.source_material_model_ir_revision_id != IDS[5]
+    assert receipt.source["material_model_ir_revision_id"] == str(IDS[10])
+    assert receipt.native_sha256 == delivered_preview.native_sha256
 
 
 @pytest.mark.parametrize(
@@ -264,6 +289,24 @@ def test_delivery_race_fails_closed_when_the_rolled_back_receipt_is_not_visible(
 
     with pytest.raises(TargetDeliveryConflict, match="no immutable receipt"):
         asyncio.run(service.deliver(CONTEXT, DECISION, command()))
+
+
+def test_injected_malformed_native_card_fails_before_receipt_write() -> None:
+    """A renderer/validator fault must leave both card and receipt stores unchanged."""
+
+    cards, receipts = Cards(), Receipts()
+    cards.error = NeutralHyperelasticSolverCardConflict(
+        "generated card differs from the approved target preview"
+    )
+    service = TargetDeliveryService(
+        previews=cast(object, Previews(preview())), cards=cast(object, cards), receipts=receipts
+    )
+
+    with pytest.raises(NeutralHyperelasticSolverCardConflict, match="generated card differs"):
+        asyncio.run(service.deliver(CONTEXT, DECISION, command()))
+    assert cards.calls == 1
+    assert receipts.created == 0
+    assert receipts.existing is None
 
 
 def test_receipt_hook_translates_only_expected_delivery_identity_duplicate(

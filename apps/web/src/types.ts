@@ -607,6 +607,24 @@ export interface ExportTarget {
   unit_system: string;
 }
 
+/** Bounded metal elastoplastic capability declaration used to populate Export controls. */
+export interface ElastoplasticExportCapabilities {
+  model_family_id: string;
+  model_schema_version: string;
+  model_schema_digest: string;
+  exporters: Array<{
+    exporter_id: string;
+    exporter_version: string;
+    exporter_digest: string;
+    solver: string;
+    version: string;
+    unit_system: string;
+    keywords: string[];
+  }>;
+  mapping_statuses: readonly MappingStatus[];
+  non_production: true;
+}
+
 /** UXC-06C1 ephemeral output; it is never an immutable Solver Card. */
 export interface TargetPreviewResponse {
   preview_identity: string;
@@ -630,7 +648,7 @@ export interface TargetPreviewResponse {
   target: ExportTarget & { solver_material_id: number; material_name: string };
   acknowledgement_identity: string | null;
   non_production: true;
-  delivery_status: "unavailable_pending_uxc_06c2";
+  delivery_status: "preview_only";
 }
 
 /** UXC-06C2 immutable card plus transactional outbox receipt. */
@@ -648,7 +666,15 @@ export interface TargetDeliveryResponse {
   target: TargetPreviewResponse["target"];
   occurred_at: string;
   recorded_by: string;
-  links: Record<string, string>;
+  /** The API contract is a closed, typed resource-link set. */
+  links: TargetDeliveryLinks;
+}
+
+export interface TargetDeliveryLinks {
+  solver_card: string;
+  preview: string;
+  download: string;
+  receipt: string;
 }
 
 export type MappingStatus =

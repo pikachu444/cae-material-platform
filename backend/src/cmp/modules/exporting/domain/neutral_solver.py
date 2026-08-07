@@ -806,10 +806,43 @@ class NeutralFamilySolverCardContent:
         }
 
 
+def validate_neutral_elastoplastic_solver_card(
+    content: NeutralFamilySolverCardContent,
+) -> None:
+    """Run the bounded metal native-card syntax gate before persistence.
+
+    This is intentionally a structural validator, not a solver parser.  It
+    checks the immutable UTF-8 digest and the metal target keywords promised by
+    the reference elastoplastic exporters. Existing nonmetal paths are outside
+    this #158 gate and remain unchanged.
+    """
+
+    if content.model_family is not NeutralModelFamily.ISOTROPIC_TABULATED_PLASTICITY:
+        return
+    card_text = content.card_text
+    if not card_text or len(card_text) > 2_000_000:
+        raise InvalidNeutralHyperelasticExport("card_text must contain 1..2000000 characters")
+    if hashlib.sha256(card_text.encode("utf-8")).hexdigest() != content.card_sha256:
+        raise InvalidNeutralHyperelasticExport("card_sha256 does not match UTF-8 card_text")
+    if not content.target.supported:
+        raise InvalidNeutralHyperelasticExport("card target is not declared by the exporter")
+
+    if content.target.is_abaqus:
+        required = ("*MATERIAL", "*DENSITY", "*ELASTIC", "*PLASTIC")
+    else:
+        required = ("/MAT/", "/FUNCT/")
+    missing = tuple(keyword for keyword in required if keyword not in card_text)
+    if missing:
+        raise InvalidNeutralHyperelasticExport(
+            "native card is missing declared keyword/field: " + ", ".join(missing)
+        )
+
+
 def build_neutral_solver_card(
     *,
     neutral_material_id: UUID,
     neutral_material_revision_id: UUID,
+    source_material_model_ir_revision_id: UUID,
     source: NeutralMaterialDocument,
     target: NeutralHyperelasticExportTarget,
     expected_mapping_report_sha256: str,
@@ -849,7 +882,7 @@ def build_neutral_solver_card(
         points = _hardening_points(source)
         card_text = (
             render_reference_abaqus_plastic_card(
-                material_model_revision_id=neutral_material_revision_id,
+                material_model_revision_id=source_material_model_ir_revision_id,
                 mapping_report_sha256=report.digest,
                 material_name=material_name,
                 density_kg_per_m3=ir.density_kg_per_m3,
@@ -859,7 +892,7 @@ def build_neutral_solver_card(
             )
             if target.is_abaqus
             else render_reference_openradioss_law36_card(
-                material_model_revision_id=neutral_material_revision_id,
+                material_model_revision_id=source_material_model_ir_revision_id,
                 mapping_report_sha256=report.digest,
                 solver_material_id=solver_material_id,
                 material_name=material_name,
@@ -933,6 +966,7 @@ def build_neutral_solver_card(
         report.exporter_version,
         report.exporter_digest,
     )
+    validate_neutral_elastoplastic_solver_card(content)
     return report, content
 
 

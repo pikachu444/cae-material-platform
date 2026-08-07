@@ -25,13 +25,16 @@ from urllib.parse import parse_qs, urlsplit
 # ruff: noqa: E501, RUF001
 
 if TYPE_CHECKING:
-    from playwright.sync_api import Browser, FloatRect, Locator, Page, Route
+    from playwright.sync_api import Browser, Dialog, FloatRect, Locator, Page, Route
 
 VIEWPORTS = ((1366, 768), (1440, 900), (1920, 1080))
 WIDE_VIEWPORTS = ((2560, 1440), (3840, 2160))
 REVISION_LABEL_PATTERN = re.compile(r"\br[1-9]\d*\b")
-MODELING_EXPORT_OUTPUTS = tuple(
-    f"modeling-export-{width}x{height}.png" for width, height in VIEWPORTS
+MODELING_EXPORT_OUTPUTS = (
+    *(f"modeling-export-{width}x{height}.png" for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)),
+    "modeling-export-source-blocked-1440x900.png",
+    "modeling-export-approximation-blocked-1440x900.png",
+    "modeling-export-delivered-1440x900.png",
 )
 MODELING_FIT_STATE_OUTPUTS = (
     "modeling-fit-candidate-parameters-long-1440x900.png",
@@ -151,6 +154,11 @@ CURRENT_CAPTURE_OUTPUTS = (
     "modeling-export-1366x768.png",
     "modeling-export-1440x900.png",
     "modeling-export-1920x1080.png",
+    "modeling-export-2560x1440.png",
+    "modeling-export-3840x2160.png",
+    "modeling-export-source-blocked-1440x900.png",
+    "modeling-export-approximation-blocked-1440x900.png",
+    "modeling-export-delivered-1440x900.png",
     "activity-1366x768.png",
     "activity-1440x900.png",
     "activity-1920x1080.png",
@@ -174,6 +182,7 @@ STAGE_HEADINGS = {
     "export": "Review & deliver solver card",
 }
 EXPECTED_EXACT_FIT_RESTORE_ERROR = "Saved Fit result unavailable · Retry exact saved result."
+EXPORT_RECOVERY_REASON = "Prepare the exact selected output for synthetic non-production target preview."
 PROCESS_SOURCE_DOCUMENT_KEY = "CMP-DEMO-DP780-TEST-JSON"
 PROCESS_SOURCE_TITLE = f"{PROCESS_SOURCE_DOCUMENT_KEY} · Specimen 01 · revision r1"
 PROCESS_SOURCE_VISIBLE_IDENTITY = "Specimen 01 · r1"
@@ -265,6 +274,7 @@ def _capture(
     *,
     focus_selector: str | None = None,
     before_screenshot: Callable[[], object] | None = None,
+    after_animation: Callable[[], object] | None = None,
 ) -> None:
     _wait_for_settled(page)
     overflow = page.evaluate(
@@ -284,6 +294,11 @@ def _capture(
               ".step-option-panel",
               ".native-card-preview",
               ".card-preview-actions",
+              ".export-properties",
+              ".export-main",
+              ".export-result",
+              "#modeling-export-native-preview-viewport",
+              ".mapping-scroll",
             ]) {
               document.querySelectorAll(selector).forEach(element => {
                 element.scrollTop = 0;
@@ -305,10 +320,183 @@ def _capture(
             await new Promise(requestAnimationFrame);
         }"""
     )
+    if after_animation is not None:
+        after_animation()
     page.screenshot(path=str(path), full_page=False)
     viewport = page.viewport_size
     if viewport != {"width": width, "height": height}:
         raise RuntimeError(f"viewport drift for {path.name}: {viewport}")
+
+
+def _assert_export_action_visible(page: Page, label: str) -> None:
+    """Keep the one Export primary action in the first viewport capture."""
+    action = page.get_by_role("button", name=label, exact=True)
+    if action.count() != 1 or not action.is_visible():
+        raise RuntimeError(f"Export capture must expose one visible {label!r} action")
+    box = _bounding_box_edges(action.bounding_box())
+    viewport = page.viewport_size
+    if box is None or viewport is None or box["top"] < 0 or box["bottom"] > viewport["height"]:
+        raise RuntimeError(f"Export {label!r} action is clipped outside the first viewport: {box}")
+    if page.evaluate("() => window.scrollY") != 0:
+        raise RuntimeError("Export capture must keep application/page scroll at the top")
+    advanced = page.locator("details.export-advanced-input")
+    if advanced.count() and advanced.get_attribute("open") is not None:
+        raise RuntimeError("Export capture must keep native card options Advanced disclosure closed")
+
+
+def _assert_export_capture_shell(page: Page) -> None:
+    """Reject a displaced Export capture while leaving local content scrollports alone."""
+    metrics = page.evaluate(
+        """() => {
+          const workspace = document.querySelector('.application-workspace');
+          const workbench = document.querySelector('main.processing-workbench-page.stage-export');
+          const exportRegion = document.querySelector('section.modeling-target-preview.export-workspace');
+          const nativeViewport = document.querySelector('#modeling-export-native-preview-viewport');
+          const mappingViewport = document.querySelector('#modeling-export-mapping-viewport');
+          const appShell = workspace?.closest('.application-shell');
+          const appBar = appShell?.querySelector(':scope > .application-menu-bar');
+          const context = workbench?.querySelector(':scope > .modeling-context-strip');
+          const stage = workbench?.querySelector(':scope > .modeling-stage-shell');
+          if (!(workspace instanceof HTMLElement)
+            || !(workbench instanceof HTMLElement)
+            || !(exportRegion instanceof HTMLElement)
+            || !(nativeViewport instanceof HTMLElement)
+            || !(mappingViewport instanceof HTMLElement)
+            || !(appBar instanceof HTMLElement)
+            || !(context instanceof HTMLElement)
+            || !(stage instanceof HTMLElement)) return null;
+          const rect = node => {
+            const value = node.getBoundingClientRect();
+            return {
+              top: value.top,
+              right: value.right,
+              bottom: value.bottom,
+              left: value.left,
+              width: value.width,
+              height: value.height,
+            };
+          };
+          const appBarRect = rect(appBar);
+          const workspaceRect = rect(workspace);
+          const contextRect = rect(context);
+          const stageRect = rect(stage);
+          const exportRect = rect(exportRegion);
+          const fullyVisible = value => value.width > 0
+            && value.height > 0
+            && value.top >= -1
+            && value.bottom <= window.innerHeight + 1;
+          const scrollOrigins = {
+            windowY: window.scrollY,
+            documentY: document.documentElement.scrollTop,
+            bodyY: document.body.scrollTop,
+            workspace: workspace.scrollTop,
+            workbench: workbench.scrollTop,
+            exportRegion: exportRegion.scrollTop,
+          };
+          const exportLocalScrollOrigins = {
+            nativeTop: nativeViewport.scrollTop,
+            nativeLeft: nativeViewport.scrollLeft,
+            mappingTop: mappingViewport.scrollTop,
+            mappingLeft: mappingViewport.scrollLeft,
+          };
+          const outerScrollZero = Object.values(scrollOrigins).every(value => value === 0);
+          const exportLocalScrollZero = Object.values(exportLocalScrollOrigins).every(value => value === 0);
+          const shellVisible = [appBarRect, contextRect, stageRect, exportRect].every(fullyVisible);
+          const shellStacked = appBarRect.bottom <= workspaceRect.top + 1
+            && contextRect.top >= workspaceRect.top - 1
+            && contextRect.bottom <= stageRect.top + 1
+            && stageRect.bottom <= exportRect.top + 1
+            && exportRect.top >= workspaceRect.top - 1
+            && exportRect.left >= workspaceRect.left - 1
+            && exportRect.right <= workspaceRect.right + 1
+            && exportRect.bottom <= workspaceRect.bottom + 1;
+          return {
+            scrollOrigins,
+            exportLocalScrollOrigins,
+            outerScrollZero,
+            exportLocalScrollZero,
+            shellVisible,
+            shellStacked,
+            appBarRect,
+            workspaceRect,
+            contextRect,
+            stageRect,
+            exportRect,
+          };
+        }"""
+    )
+    if not metrics:
+        raise RuntimeError("Export capture is missing the application shell or Export region")
+    if not metrics["outerScrollZero"]:
+        raise RuntimeError(f"Export capture has nonzero outer scroll origin: {metrics}")
+    if not metrics["exportLocalScrollZero"]:
+        raise RuntimeError(f"Export capture has nonzero native or Mapping local scroll origin: {metrics}")
+    if not metrics["shellVisible"] or not metrics["shellStacked"]:
+        raise RuntimeError(f"Export capture shell or header/ribbon is displaced or clipped: {metrics}")
+
+
+def _assert_export_recovery_capture(page: Page) -> None:
+    """Keep the source recovery visible while prerequisite evidence stays collapsed."""
+    metrics = page.evaluate(
+        """() => {
+          const pane = document.querySelector('.modeling-export-blocked .export-properties');
+          const evidence = document.querySelector('.modeling-export-blocked details.export-prerequisite-evidence');
+          const recovery = document.querySelector('.modeling-export-recovery');
+          if (!(pane instanceof HTMLElement) || !(evidence instanceof HTMLDetailsElement) || !(recovery instanceof HTMLElement)) return null;
+          const paneRect = pane.getBoundingClientRect();
+          const recoveryRect = recovery.getBoundingClientRect();
+          // The recovery is the normal-surface consequence. Align it only
+          // when its visible controls would otherwise be clipped by the
+          // local setup scrollport; never open or scroll hidden evidence.
+          if (recoveryRect.top < paneRect.top + 4 || recoveryRect.bottom > paneRect.bottom - 4) {
+            const maxScroll = Math.max(0, pane.scrollHeight - pane.clientHeight);
+            const target = recoveryRect.top - paneRect.top + pane.scrollTop - 4;
+            pane.scrollTop = Math.min(maxScroll, Math.max(0, target));
+          }
+          const nextPaneRect = pane.getBoundingClientRect();
+          const within = node => {
+            if (!(node instanceof HTMLElement)) return false;
+            const rect = node.getBoundingClientRect();
+            return rect.top >= nextPaneRect.top + 4 && rect.bottom <= nextPaneRect.bottom - 4;
+          };
+          const visibleRecoveryNodes = [
+            recovery,
+            recovery.querySelector('h3'),
+            recovery.querySelector('label:first-of-type'),
+            recovery.querySelector('input[aria-label="Metal promotion reason"]'),
+            recovery.querySelector('button.primary'),
+          ];
+          const visibleRecoveryClipped = visibleRecoveryNodes.some(node => {
+            if (!(node instanceof HTMLElement)) return true;
+            const rect = node.getBoundingClientRect();
+            return rect.top < nextPaneRect.top + 2 || rect.bottom > nextPaneRect.bottom - 2;
+          });
+          return {
+            pageScrollY: window.scrollY,
+            paneScrollTop: pane.scrollTop,
+            paneClientHeight: pane.clientHeight,
+            paneScrollHeight: pane.scrollHeight,
+            localOverflow: pane.scrollHeight > pane.clientHeight,
+            evidenceClosed: evidence.getAttribute('open') === null && !evidence.open,
+            recovery: within(recovery),
+            recoveryHeading: within(recovery.querySelector('h3')),
+            acknowledgement: within(recovery.querySelector('label:first-of-type')),
+            reason: within(recovery.querySelector('input[aria-label="Metal promotion reason"]')),
+            prepare: within(recovery.querySelector('button.primary')),
+            visibleRecoveryClipped,
+          };
+        }"""
+    )
+    if not metrics:
+        raise RuntimeError("source-blocked Export capture is missing its local recovery pane")
+    if metrics["pageScrollY"] != 0:
+        raise RuntimeError("source-blocked Export capture must keep application/page scroll at the top")
+    if not metrics["evidenceClosed"]:
+        raise RuntimeError(f"source-blocked Export capture must keep prerequisite evidence collapsed: {metrics}")
+    if not metrics["recovery"] or not metrics["recoveryHeading"] or not metrics["acknowledgement"] or not metrics["reason"] or not metrics["prepare"]:
+        raise RuntimeError(f"source-blocked Export recovery is clipped: {metrics}")
+    if metrics["visibleRecoveryClipped"]:
+        raise RuntimeError(f"source-blocked Export capture leaves a clipped recovery control: {metrics}")
 
 
 def _open_materials_search(page: Page, base_url: str) -> None:
@@ -2373,6 +2561,8 @@ def _save_exact_fit_selection(
     page: Page,
     *,
     allow_expected_exact_restore_failure: bool = False,
+    candidate_key: str | None = None,
+    require_warning: bool = True,
 ) -> None:
     """Save the selected Fit output and leave the workflow on the Fit stage."""
     _open_modeling_stage(page, "fit")
@@ -2387,7 +2577,10 @@ def _save_exact_fit_selection(
         show_settings.click()
     trigger, _body, candidate_table = _open_fit_evidence(page)
     _assert_fit_candidate_surface(page, candidate_table)
-    _select_warned_fit_candidate(candidate_table)
+    if candidate_key is None:
+        _select_warned_fit_candidate(candidate_table)
+    else:
+        _select_exact_fit_candidate(candidate_table, candidate_key=candidate_key)
     page.get_by_role("textbox", name="Candidate selection reason").fill(
         "Best agreement over the measured strain range."
     )
@@ -2396,7 +2589,7 @@ def _save_exact_fit_selection(
     )
     if warning_acknowledgement.count():
         warning_acknowledgement.check()
-    else:
+    elif require_warning:
         raise RuntimeError("Selected warned Fit candidate is missing its acknowledgement")
     _assert_fit_selected_evidence(page)
     previous_pointer = _modeling_session(page).get("processingOutput")
@@ -2453,85 +2646,253 @@ def _save_exact_fit_selection(
             raise RuntimeError(f"Fit selected-output save failed: {error_text}")
 
 
-def _prepare_exact_target_preview(page: Page) -> None:
-    page.get_by_role("heading", name=STAGE_HEADINGS["export"], exact=True).wait_for(timeout=30_000)
-    target_heading = page.get_by_role("heading", name="Choose delivery target", exact=True)
-    if not target_heading.count():
-        page.get_by_role("heading", name="Prepare exact metal source", exact=True).wait_for(
-            timeout=30_000
-        )
-        page.get_by_role(
-            "checkbox",
-            name="I acknowledge the selected bounded extrapolation for this reference model.",
-            exact=True,
-        ).check()
-        page.get_by_role("textbox", name="Metal promotion reason").fill(
-            "Prepare the exact selected output for synthetic non-production target preview."
-        )
-        page.get_by_role("button", name="Prepare exact model and Neutral", exact=True).click()
-        page.wait_for_function(
-            """() => [...document.querySelectorAll("h1, h2, h3")].some(
-                heading => heading.textContent?.trim() === "Choose delivery target"
-            ) || document.querySelector('[role="alert"]')""",
-            timeout=30_000,
-        )
-        recovery_error = page.get_by_role("alert")
-        if recovery_error.count():
-            raise RuntimeError(
-                f"Exact model/Neutral recovery failed: {recovery_error.inner_text().strip()}"
-            )
-        target_heading.wait_for(timeout=30_000)
+def _prepare_exact_metal_source_if_needed(page: Page) -> None:
+    """Recover the exact metal model chain before entering target preview.
 
-    page.get_by_role("combobox", name="Solver target").select_option("abaqus")
-    page.get_by_role("textbox", name="Native material name").fill("DP780_C1_REFERENCE")
-    page.get_by_role("button", name="Generate preview", exact=True).click()
+    A newly saved Fit Output intentionally starts without a Material Model IR or
+    Neutral pin.  The Export page therefore opens on the bounded recovery
+    surface.  Existing current sources render the three-pane target workspace
+    directly, so this helper is a no-op in that case.  Native browser dialogs
+    are dismissed and reported instead of being allowed to block the capture.
+    """
+    recovery_heading = page.get_by_role(
+        "heading", name="Prepare exact metal source", exact=True
+    )
+    target = page.get_by_role("combobox", name="Solver target", exact=True)
     page.wait_for_function(
-        """() => document.querySelector(
-            '[aria-label="Target mapping preflight"]'
-        ) || document.querySelector('[role="alert"]')""",
-        timeout=30_000,
-    )
-    preview_error = page.get_by_role("alert")
-    if preview_error.count():
-        raise RuntimeError(f"Exact target preview failed: {preview_error.inner_text().strip()}")
-    page.get_by_role("region", name="Target mapping preflight", exact=True).wait_for(timeout=30_000)
-    page.get_by_role("region", name="Native preview", exact=True).locator("pre").wait_for(
-        timeout=30_000
-    )
-    deliver = page.get_by_role("button", name="Deliver native card", exact=True)
-    deliver.wait_for(timeout=30_000)
-    acknowledgement = page.get_by_role(
-        "checkbox", name="Acknowledge mapped approximations", exact=True
-    )
-    acknowledgement.wait_for(timeout=30_000)
-    acknowledgement.check()
-    page.wait_for_function(
-        """() => ![...document.querySelectorAll("button")].some(
-          button => button.textContent?.trim() === "Deliver native card" && button.disabled
+        """() => Boolean(
+          [...document.querySelectorAll('h1, h2, h3')]
+            .some(heading => heading.textContent?.trim() === 'Prepare exact metal source')
+          || document.querySelector('[aria-label="Solver target"]')
         )""",
         timeout=30_000,
     )
-    if deliver.is_disabled():
-        raise RuntimeError("UXC-06C2 Deliver must be enabled after its exact acknowledgement")
-    deliver.click()
+    if not recovery_heading.count():
+        target.wait_for(state="visible", timeout=30_000)
+        return
+
+    acknowledgement = page.get_by_role(
+        "checkbox",
+        name="I acknowledge the selected bounded extrapolation for this reference model.",
+        exact=True,
+    )
+    acknowledgement.wait_for(state="visible", timeout=30_000)
+    if acknowledgement.count() != 1:
+        raise RuntimeError("Exact metal recovery must expose one bounded-extrapolation acknowledgement")
+    if not acknowledgement.is_checked():
+        acknowledgement.check()
+    reason = page.get_by_role("textbox", name="Metal promotion reason", exact=True)
+    reason.wait_for(state="visible", timeout=30_000)
+    reason.fill(EXPORT_RECOVERY_REASON)
+    prepare = page.get_by_role(
+        "button", name="Prepare exact model and Neutral", exact=True
+    )
+    if not prepare.count():
+        # A pinned model can leave the recovery surface visible while only the
+        # Neutral promotion needs retrying.  Reuse that immutable model rather
+        # than creating another one.
+        prepare = page.get_by_role("button", name="Retry Neutral promotion", exact=True)
+    prepare.wait_for(state="visible", timeout=30_000)
+    if prepare.is_disabled():
+        raise RuntimeError("Exact metal recovery action stayed disabled after acknowledgement and reason")
+
+    rejected_dialogs: list[str] = []
+
+    def reject_dialog(dialog: Dialog) -> None:
+        rejected_dialogs.append(dialog.message)
+        dialog.dismiss()
+
+    page.on("dialog", reject_dialog)
+    try:
+        prepare.click()
+        page.wait_for_function(
+            """() => Boolean(
+              document.querySelector('section.modeling-target-preview.export-workspace .export-workspace-grid [aria-label="Solver target"]')
+              || document.querySelector('[role="alert"]')
+            )""",
+            timeout=30_000,
+        )
+    finally:
+        page.remove_listener("dialog", reject_dialog)
+    if rejected_dialogs:
+        raise RuntimeError(f"Exact metal recovery raised a browser alert: {rejected_dialogs!r}")
+    recovery_error = page.get_by_role("alert")
+    if recovery_error.count() and recovery_error.first.is_visible():
+        raise RuntimeError(
+            f"Exact model/Neutral recovery failed: {recovery_error.first.inner_text().strip()}"
+        )
+    page.locator("section.modeling-target-preview.export-workspace").wait_for(
+        state="visible", timeout=30_000
+    )
+    page.locator(".export-workspace-grid").wait_for(state="visible", timeout=30_000)
+    target.wait_for(state="visible", timeout=30_000)
+
+
+def _prepare_exact_target_preview(
+    page: Page,
+    *,
+    target_value: str = "abaqus/2025/kg_m_s",
+    acknowledge: bool = True,
+    create: bool = False,
+) -> None:
+    export_region = page.locator("section.modeling-target-preview.export-workspace")
+    export_region.wait_for(state="visible", timeout=30_000)
+    export_grid = export_region.locator(":scope > .export-workspace-grid")
+    export_grid.wait_for(state="visible", timeout=30_000)
+    target = export_grid.get_by_role("combobox", name="Solver target", exact=True)
+    target.wait_for(timeout=30_000)
+    if target_value == "abaqus/2025/kg_m_s":
+        target.select_option("abaqus/2025/kg_m_s")
+    else:
+        target.select_option(target_value)
+    advanced = page.locator("details.export-advanced-input")
+    if advanced.count() != 1:
+        raise RuntimeError("Export must expose exactly one native card options disclosure")
+    summary = advanced.locator(":scope > summary")
+    if summary.count() != 1:
+        raise RuntimeError("Native card options disclosure must expose exactly one summary")
+    summary.wait_for(state="visible", timeout=30_000)
+    if summary.inner_text().strip() != "Advanced · native card options":
+        raise RuntimeError("Native card options disclosure label drifted")
+    if advanced.get_attribute("open") is None:
+        summary.click()
+    if advanced.get_attribute("open") is None:
+        raise RuntimeError("Native card options disclosure did not open")
+    native_name = page.get_by_role("textbox", name="Native material name", exact=True)
+    native_name.wait_for(state="visible", timeout=30_000)
+    if native_name.count() != 1:
+        raise RuntimeError("Export must expose exactly one visible native material name input")
+    native_name.fill("DP780_C1_REFERENCE")
+    if advanced.get_attribute("open") is not None:
+        summary.click()
+    if advanced.get_attribute("open") is not None:
+        raise RuntimeError("Native card options disclosure must close before C1")
+    initial_primary = page.locator(".export-check .ux-button.primary:visible")
+    if initial_primary.count() != 1:
+        raise RuntimeError("Export task must expose exactly one visible primary action before C1")
+    page.get_by_role("button", name="Run Export check", exact=True).click()
+    page.wait_for_function(
+        """() => {
+          const visible = element => Boolean(
+            element
+              && element.getClientRects().length > 0
+              && getComputedStyle(element).visibility !== "hidden"
+              && getComputedStyle(element).display !== "none"
+          );
+          const terminalHeading = [...document.querySelectorAll(
+            '.export-main .export-preview-state'
+          )]
+            .some(heading => visible(heading)
+              && heading.textContent?.trim() === "Current preview · not created");
+          const visibleAlert = [...document.querySelectorAll('[role="alert"]')]
+            .some(alert => visible(alert));
+          return terminalHeading || visibleAlert;
+        }""",
+        timeout=30_000,
+    )
+    preview_error = page.locator('[role="alert"]:visible')
+    if preview_error.count():
+        raise RuntimeError(f"Exact target preview failed: {preview_error.first.inner_text().strip()}")
+    terminal_state = page.locator(".export-main .export-preview-state")
+    terminal_state.wait_for(state="visible", timeout=30_000)
+    page.get_by_label("Native preview", exact=True).locator("pre").wait_for(
+        timeout=30_000
+    )
+    if terminal_state.count() != 1 or terminal_state.inner_text().strip() != "Current preview · not created":
+        raise RuntimeError("C1 must expose the exact Current preview · not created state")
+    primary = page.locator(".export-check .ux-button.primary:visible")
+    if primary.count() != 1:
+        raise RuntimeError("Current Export task must expose exactly one visible primary action")
+    create_button = page.get_by_role("button", name="Create solver card", exact=True)
+    create_button.wait_for(state="visible", timeout=30_000)
+    if create_button.count() != 1:
+        raise RuntimeError(
+            "Current preview must expose exactly one Create solver card action before delivery"
+        )
+    acknowledgement = page.get_by_role(
+        "checkbox", name="Acknowledge mapped approximations", exact=True
+    )
+    acknowledgement.wait_for(state="visible", timeout=30_000)
+    if acknowledgement.count() != 1:
+        raise RuntimeError("Current preview must expose exactly one mapping acknowledgement control")
+    if acknowledge:
+        acknowledgement.check()
+    elif acknowledgement.is_checked():
+        acknowledgement.uncheck()
+    status = page.locator(".export-check .export-status")
+    status.wait_for(state="visible", timeout=30_000)
+    expected_status = "Ready to create" if acknowledge else "Review required"
+    page.wait_for_function(
+        """expected => {
+          const status = document.querySelector('.export-check .export-status');
+          const create = [...document.querySelectorAll('button')]
+            .find(button => button.textContent?.trim() === 'Create solver card');
+          return Boolean(
+            status
+              && status.textContent?.trim() === expected
+              && create
+              && create.disabled === (expected === 'Review required')
+          );
+        }""",
+        arg=expected_status,
+        timeout=30_000,
+    )
+    if status.inner_text().strip() != expected_status:
+        raise RuntimeError(
+            f"Export preview status drifted: expected {expected_status!r}, got {status.inner_text()!r}"
+        )
+    should_be_disabled = not acknowledge
+    if create_button.is_disabled() != should_be_disabled:
+        state = "disabled" if create_button.is_disabled() else "enabled"
+        expected_state = "disabled" if not acknowledge else "enabled"
+        raise RuntimeError(
+            f"Export preview Create solver card must be {expected_state}, got {state}"
+        )
+    if not create:
+        if page.get_by_role("status").filter(has_text="Solver card created").count():
+            raise RuntimeError("preview_only Export must not expose a delivered success status")
+        if page.locator(".export-delivery-details").count():
+            raise RuntimeError("preview_only Export must not expose a delivery receipt")
+        if page.get_by_role("button", name="Open solver card", exact=True).count():
+            raise RuntimeError("preview_only Export must not expose an Open solver card pointer")
+        session = _modeling_session(page)
+        if session.get("exportArtifact") is not None:
+            raise RuntimeError("preview_only Export must not pin a delivered card pointer")
+        _wait_for_settled(page)
+        return
+    page.wait_for_function(
+        """() => ![...document.querySelectorAll("button")].some(
+          button => button.textContent?.trim() === "Create solver card" && button.disabled
+        )""",
+        timeout=30_000,
+    )
+    if create_button.is_disabled():
+        raise RuntimeError("UXC-06C2 Create solver card must be enabled after its exact acknowledgement")
+    create_button.click()
     page.wait_for_function(
         """() => document.querySelector('[role="alert"]')
           || [...document.querySelectorAll('[role="status"]')].some(
-            element => element.textContent?.includes("Solver card delivered")
+            element => element.textContent?.includes("Solver card created")
           )""",
         timeout=30_000,
     )
     delivery_error = page.get_by_role("alert")
     if delivery_error.count():
         raise RuntimeError(f"UXC-06C2 delivery failed: {delivery_error.inner_text().strip()}")
-    delivery_status = page.get_by_role("status").filter(has_text="Solver card delivered")
+    delivery_status = page.get_by_role("status").filter(has_text="Solver card created")
     delivery_status.wait_for(timeout=30_000)
-    if delivery_status.get_by_role("link", name="Receipt").count() != 1:
-        raise RuntimeError("delivered solver card must expose its immutable receipt link")
-    if page.get_by_role("button", name=re.compile(r"^Deliver\b")).count():
-        raise RuntimeError("completed C2 delivery must not retain an active Deliver action")
-    if page.get_by_role("button", name="Change solver target", exact=True).count() != 1:
-        raise RuntimeError("completed delivery must offer an explicit target-change action")
+    delivery_details = page.locator("details.export-delivery-details")
+    delivery_details.wait_for(state="visible", timeout=30_000)
+    delivery_details.locator("summary").click()
+    for resource in ("solver_card", "preview", "download", "receipt"):
+        if delivery_details.get_by_role("link", name=resource, exact=True).count() != 1:
+            raise RuntimeError(f"delivered solver card must expose its typed {resource} resource link")
+    if page.get_by_role("button", name=re.compile(r"^Create solver card\b")).count():
+        raise RuntimeError("completed C2 delivery must not retain an active Create action")
+    if page.get_by_role("button", name="Open solver card", exact=True).count() != 1:
+        raise RuntimeError("completed delivery must expose its immutable solver-card link")
+    if page.locator(".export-check .ux-button.primary:visible").count() != 1:
+        raise RuntimeError("Delivered Export task must expose exactly one visible primary action")
     if page.locator(".modeling-curve-tree, .neutral-solver-export").count():
         raise RuntimeError(
             "Export must not restore the curve rail or legacy Neutral export surface"
@@ -2540,25 +2901,106 @@ def _prepare_exact_target_preview(page: Page) -> None:
 
 
 def _capture_modeling_export_only(browser: Browser, base_url: str, output: Path) -> None:
-    for width, height in VIEWPORTS:
+    for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS):
         page = _new_page(browser, base_url, width, height)
-        _prepare_fit_from_saved_process(
+        _prepare_fit_for_export(
             page,
             base_url,
             label=f"Fit source Process result {width}x{height}",
         )
-        _save_exact_fit_selection(page)
+        _save_exact_fit_selection(page, candidate_key="swift+voce", require_warning=False)
         _open_modeling_stage(page, "export")
         page.wait_for_url(re.compile(r"stage=export"), timeout=30_000)
+        _prepare_exact_metal_source_if_needed(page)
         _prepare_exact_target_preview(page)
+        if page.get_by_role("heading", name="Prepare exact metal source", exact=True).count():
+            raise RuntimeError("normal Export capture did not expose a current exact model source")
         _capture(
             page,
             output / f"modeling-export-{width}x{height}.png",
             width,
             height,
-            focus_selector=".modeling-target-preview .ux-notice.success",
+            focus_selector=".modeling-target-preview .export-native-preview-shell",
+            before_screenshot=lambda page=page: _assert_export_action_visible(page, "Create solver card"),
+            after_animation=lambda page=page: _assert_export_capture_shell(page),
         )
         page.context.close()
+
+    source_blocked_page = _new_page(browser, base_url, 1440, 900)
+    _prepare_fit_for_export(
+        source_blocked_page,
+        base_url,
+        label="Export source-blocked Process result",
+    )
+    _save_exact_fit_selection(source_blocked_page, candidate_key="swift+voce", require_warning=False)
+    _open_modeling_stage(source_blocked_page, "export")
+    source_blocked_page.get_by_role("heading", name="Prepare exact metal source", exact=True).wait_for(timeout=30_000)
+    if source_blocked_page.get_by_role("button", name=re.compile(r"^(Run|Retry) Export check$"), exact=True).count():
+        raise RuntimeError("source-blocked Export must not expose a preview action")
+    _capture(
+        source_blocked_page,
+        output / "modeling-export-source-blocked-1440x900.png",
+        1440,
+        900,
+        focus_selector=".modeling-export-recovery",
+        before_screenshot=lambda: _assert_export_recovery_capture(source_blocked_page),
+    )
+    source_blocked_page.context.close()
+
+    approximation = _new_page(browser, base_url, 1440, 900)
+    _prepare_fit_for_export(
+        approximation,
+        base_url,
+        label="Export approximation Process result",
+    )
+    _save_exact_fit_selection(approximation, candidate_key="swift+voce", require_warning=False)
+    _open_modeling_stage(approximation, "export")
+    _prepare_exact_metal_source_if_needed(approximation)
+    _prepare_exact_target_preview(
+        approximation,
+        target_value="openradioss/2025/kg_m_s",
+        acknowledge=False,
+        create=False,
+    )
+    if approximation.get_by_text("Review required", exact=True).count() != 1:
+        raise RuntimeError("approximation-blocked Export must expose one Review required state")
+    if approximation.get_by_role("checkbox", name="Acknowledge mapped approximations", exact=True).is_checked():
+        raise RuntimeError("approximation-blocked Export must retain an unchecked acknowledgement")
+    _capture(
+        approximation,
+        output / "modeling-export-approximation-blocked-1440x900.png",
+        1440,
+        900,
+        focus_selector=".export-check .export-status",
+        before_screenshot=lambda: _assert_export_action_visible(approximation, "Create solver card"),
+        after_animation=lambda: _assert_export_capture_shell(approximation),
+    )
+    approximation.context.close()
+
+    delivered = _new_page(browser, base_url, 1440, 900)
+    _prepare_fit_for_export(
+        delivered,
+        base_url,
+        label="Export delivered Process result",
+    )
+    _save_exact_fit_selection(delivered, candidate_key="swift+voce", require_warning=False)
+    _open_modeling_stage(delivered, "export")
+    _prepare_exact_metal_source_if_needed(delivered)
+    _prepare_exact_target_preview(delivered, acknowledge=True, create=True)
+    _capture(
+        delivered,
+        output / "modeling-export-delivered-1440x900.png",
+        1440,
+        900,
+        focus_selector=".ux-notice.success",
+        before_screenshot=lambda: _assert_export_action_visible(delivered, "Open solver card"),
+        after_animation=lambda: _assert_export_capture_shell(delivered),
+    )
+    open_card = delivered.get_by_role("button", name="Open solver card", exact=True)
+    open_card.wait_for(timeout=30_000)
+    open_card.click()
+    delivered.wait_for_url(re.compile(r"/materials/"), timeout=30_000)
+    delivered.context.close()
 
 
 def _capture_modeling(
@@ -2574,6 +3016,11 @@ def _capture_modeling(
         plot = page.locator(".persistent-modeling-plot svg[role=img]")
         for stage, heading in STAGE_HEADINGS.items():
             if stage == "export" and (width, height) not in VIEWPORTS:
+                continue
+            if stage == "export":
+                # Export has its own dedicated three-pane workspace and no
+                # persistent modeling plot locator.  The complete Export
+                # evidence set is produced by _capture_modeling_export_only.
                 continue
             _open_modeling_stage(page, stage)
             page.wait_for_url(re.compile(rf"stage={stage}"), timeout=30_000)
@@ -3439,6 +3886,17 @@ def _prepare_fit_from_saved_process(
     return pointer
 
 
+def _prepare_fit_for_export(
+    page: Page,
+    base_url: str,
+    *,
+    label: str,
+) -> None:
+    """Calculate the exact Fit candidates before selecting one for Export."""
+    _prepare_fit_from_saved_process(page, base_url, label=label)
+    _click_modeling_fit_preview_and_wait(page)
+
+
 def _open_fit_evidence(page: Page) -> tuple[Locator, Locator, Locator]:
     """Open the controlled Fit drawer and expose its single local body scrollport."""
     trigger = page.get_by_role("button", name="Candidate parameters", exact=True)
@@ -3655,6 +4113,25 @@ def _select_warned_fit_candidate(table: Locator) -> None:
             ).click()
             return
     raise RuntimeError("Fit candidate table did not expose a warned candidate")
+
+
+def _select_exact_fit_candidate(table: Locator, *, candidate_key: str) -> None:
+    """Select the approved combined Swift + Voce 50/50 candidate by identity."""
+    labels = {
+        "swift+voce": re.compile(
+            r"^Select swift \+ voce 50[/]50 candidate$",
+            re.IGNORECASE,
+        ),
+    }
+    label = labels.get(candidate_key)
+    if label is None:
+        raise RuntimeError(f"Unsupported exact Fit capture candidate: {candidate_key}")
+    candidate = table.get_by_role("button", name=label)
+    if candidate.count() != 1:
+        raise RuntimeError(
+            f"Fit candidate table did not expose exactly one {candidate_key!r} action"
+        )
+    candidate.click()
 
 
 def _assert_fit_selected_evidence(page: Page) -> None:
@@ -6249,7 +6726,7 @@ def main() -> int:
     parser.add_argument(
         "--only-modeling-export",
         action="store_true",
-        help="Capture and replace only the three Modeling Export viewports.",
+        help="Capture and replace the five Modeling Export viewports plus source-blocked, approximation-blocked, and delivered states.",
     )
     parser.add_argument(
         "--only-modeling-process-fit",
@@ -6319,6 +6796,7 @@ def main() -> int:
                     output,
                     include_process_normals=False,
                 )
+                _capture_modeling_export_only(browser, args.base_url, output)
                 _capture_modeling_process_only(browser, args.base_url, output)
                 _capture_modeling_fit_states(browser, args.base_url, output)
                 _capture_modeling_data_viewports(

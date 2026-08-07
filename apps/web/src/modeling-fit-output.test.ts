@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  exactFitPlotData,
   parseExactSavedFitOutput,
   readVerifiedExactOutput,
 } from "./modeling-fit-output";
@@ -8,7 +9,6 @@ import type { CommonProcessingOutputResponse } from "./types";
 
 type FitFixtureOptions = {
   families?: string[];
-  pointCount?: number;
   responseLength?: number;
   tangentLength?: number;
   residualLength?: number;
@@ -19,13 +19,24 @@ type FitFixtureOptions = {
 };
 
 function fitFixture(options: FitFixtureOptions = {}) {
-  const pointCount = options.pointCount ?? 2;
+  // Mirror the canonical metal output: the true/plastic workup retains the
+  // seven observed samples while hardening extrapolation persists its own
+  // 101-point response grid.  The x arrays intentionally differ so the
+  // frontend cannot hide a shared-grid assumption.
+  const observedPointCount = 7;
+  const selectedPointCount = 101;
+  const observedStrain = [0, 0.01, 0.025, 0.04, 0.06, 0.08, 0.1];
+  const observedStress = [3.2e8, 3.6e8, 4.1e8, 4.5e8, 4.9e8, 5.2e8, 5.45e8];
+  const selectedStrain = Array.from({ length: selectedPointCount }, (_, index) => index / 100);
+  const selectedStress = Array.from({ length: selectedPointCount }, (_, index) => 3.2e8 + index * 2.5e6);
   const families = options.families ?? ["voce"];
-  const processStep = {
-    method_id: "metal.elastic_modulus",
-    method_version: "1.0.0",
-    options: { method: "automatic" },
-  };
+  const processSteps = [
+    { method_id: "rows.sort_unique", method_version: "1.0.0", options: { duplicate_policy: "reject" } },
+    { method_id: "metal.elastic_modulus", method_version: "1.0.0", options: { method: "automatic" } },
+    { method_id: "metal.proof_stress", method_version: "1.0.0", options: { offset: 0.002 } },
+    { method_id: "metal.necking_candidate", method_version: "1.0.0", options: { policy: "manual_index" } },
+    { method_id: "metal.engineering_to_true_plastic", method_version: "1.0.0", options: { necking_policy: "manual_index", manual_necking_index: 6 } },
+  ];
   const fitStep = {
     method_id: "metal.hardening_fit_extrapolate",
     method_version: "1.0.0",
@@ -38,9 +49,9 @@ function fitFixture(options: FitFixtureOptions = {}) {
       : [family === "ghosh" ? "delta_p_minus_n" : "coefficient"];
     return {
       family,
-      response: Array.from({ length: options.responseLength ?? pointCount }, () => 1),
+       response: Array.from({ length: options.responseLength ?? selectedPointCount }, () => 1),
       residual: Array.from({ length: options.residualLength ?? 2 }, () => 0.1),
-      tangent: Array.from({ length: options.tangentLength ?? pointCount }, () => 1),
+       tangent: Array.from({ length: options.tangentLength ?? selectedPointCount }, () => 1),
       parameter_names: parameterNames,
       parameter_units: parameterNames.map(() => "Pa"),
       lower: parameterNames.map(() => 0),
@@ -67,22 +78,42 @@ function fitFixture(options: FitFixtureOptions = {}) {
     };
   };
   const candidates = families.map(candidateFor);
+  const genericSeries = Array.from({ length: observedPointCount }, (_, index) => index / 100);
   const stages = [
-    "mapping",
-    processStep.method_id,
-    fitStep.method_id,
-  ].map((method_id, ordinal) => ({
+    { method_id: "mapping", point_count: observedPointCount, series: [
+      { quantity: "strain.engineering", unit: "1", values: genericSeries },
+      { quantity: "stress.engineering", unit: "Pa", values: observedStress },
+    ] },
+    ...processSteps.slice(0, 4).map((step) => ({
+      method_id: step.method_id,
+      point_count: observedPointCount,
+      series: [
+        { quantity: "strain.engineering", unit: "1", values: genericSeries },
+        { quantity: "stress.engineering", unit: "Pa", values: observedStress },
+      ],
+    })),
+    { method_id: "metal.engineering_to_true_plastic", point_count: observedPointCount, series: [
+      { quantity: "strain.true_plastic", unit: "1", values: observedStrain },
+      { quantity: "stress.true", unit: "Pa", values: observedStress },
+    ] },
+    { method_id: fitStep.method_id, point_count: selectedPointCount, series: [
+      { quantity: "strain.true_plastic", unit: "1", values: selectedStrain },
+      ...families.filter((family) => !family.includes("+")).map((family) => ({
+        quantity: `stress.hardening.${family}`,
+        unit: "Pa",
+        values: selectedStress,
+      })),
+      { quantity: "stress.hardening.selected", unit: "Pa", values: selectedStress },
+    ] },
+  ].map((stage, ordinal) => ({
     ordinal,
-    method_id,
+    method_id: stage.method_id,
     method_version: "1.0.0",
-    point_count: pointCount,
-    series: [
-      { quantity: "strain.plastic", unit: "1", values: Array.from({ length: pointCount }, () => 0.1) },
-      { quantity: "stress", unit: "Pa", values: Array.from({ length: pointCount }, () => 1) },
-    ],
+    point_count: stage.point_count,
+    series: stage.series,
     diagnostics: [],
     scalar_results: [],
-    fit_candidates: ordinal === 2 ? candidates : [],
+    fit_candidates: ordinal === 6 ? candidates : [],
   }));
   const processSource = {
     processing_output_id: "process-output",
@@ -92,9 +123,9 @@ function fitFixture(options: FitFixtureOptions = {}) {
     source_document_sha256: "d".repeat(64),
     mapping_profile: { aggregate_id: "profile", revision_id: "profile-revision" },
     mapping_profile_sha256: "m".repeat(64),
-    independent_quantity: "strain.plastic",
-    steps: [processStep],
-    stage_count: 2,
+    independent_quantity: "strain.engineering",
+    steps: processSteps,
+    stage_count: 6,
   };
   const output = {
     processing_output_id: "fit-output",
@@ -108,9 +139,9 @@ function fitFixture(options: FitFixtureOptions = {}) {
     mapping_profile: processSource.mapping_profile,
     mapping_profile_sha256: processSource.mapping_profile_sha256,
     independent_quantity: processSource.independent_quantity,
-    steps: [processStep, fitStep],
-    stage_count: 3,
-    final_point_count: pointCount,
+    steps: [...processSteps, fitStep],
+    stage_count: 7,
+    final_point_count: selectedPointCount,
   };
   const blend = families.includes("voce+swift");
   const selectedLaws = blend ? ["voce", "swift"] : [families[0]];
@@ -274,7 +305,7 @@ describe("exact saved Fit output verification", () => {
     )).toThrow("Saved Fit result candidate evidence is invalid");
 
     const inconsistent = fitFixture({ families: ["voce", "swift"] });
-    inconsistent.document.result.stages[2].fit_candidates[1].residual = [0.1, 0.1, 0.1];
+    inconsistent.document.result.stages[6].fit_candidates[1].residual = [0.1, 0.1, 0.1];
     expect(() => parseExactSavedFitOutput(
       JSON.stringify(inconsistent.document),
       inconsistent.output,
@@ -291,7 +322,7 @@ describe("exact saved Fit output verification", () => {
     )).not.toThrow();
 
     const tampered = fitFixture({ families: ["voce", "swift", "voce+swift"] });
-    tampered.document.result.stages[2].fit_candidates[2].objective_history = [
+    tampered.document.result.stages[6].fit_candidates[2].objective_history = [
       0.1,
       "not-a-number" as unknown as number,
     ];
@@ -316,5 +347,80 @@ describe("exact saved Fit output verification", () => {
       activeBound.output,
       activeBound.processSource,
     )).toThrow("Saved Fit decision warning must be acknowledged");
+  });
+
+  it("rejects a Fit without persisted true stress/strain and selected hardening series", () => {
+    const fixture = fitFixture();
+    fixture.document.result.stages[5].series = [
+      { quantity: "strain.engineering", unit: "1", values: Array.from({ length: 7 }, (_, index) => index / 100) },
+      { quantity: "stress.engineering", unit: "Pa", values: Array.from({ length: 7 }, () => 1) },
+    ];
+    expect(() => parseExactSavedFitOutput(
+      JSON.stringify(fixture.document),
+      fixture.output,
+      fixture.processSource,
+    )).toThrow("missing true plastic strain, true stress, or selected hardening series");
+  });
+
+  it("returns the original persisted sample arrays for the metal Fit graph", () => {
+    const fixture = fitFixture();
+    const parsed = parseExactSavedFitOutput(
+      JSON.stringify(fixture.document),
+      fixture.output,
+      fixture.processSource,
+    );
+    expect(exactFitPlotData(parsed.preview, parsed.selection!)).toMatchObject({
+      observedX: [0, 0.01, 0.025, 0.04, 0.06, 0.08, 0.1],
+      observed: [3.2e8, 3.6e8, 4.1e8, 4.5e8, 4.9e8, 5.2e8, 5.45e8],
+      selectedX: Array.from({ length: 101 }, (_, index) => index / 100),
+      selected: Array.from({ length: 101 }, (_, index) => 3.2e8 + index * 2.5e6),
+      xUnit: "1",
+      stressUnit: "Pa",
+      selectedQuantity: "stress.hardening.voce",
+    });
+  });
+
+  it("fails closed when persisted plot units are not true-plastic 1 and stress Pa", () => {
+    const xUnitMismatch = fitFixture();
+    xUnitMismatch.document.result.stages[5].series[0].unit = "mm";
+    expect(() => parseExactSavedFitOutput(
+      JSON.stringify(xUnitMismatch.document),
+      xUnitMismatch.output,
+      xUnitMismatch.processSource,
+    )).toThrow("matching units");
+
+    const stressUnitMismatch = fitFixture();
+    stressUnitMismatch.document.result.stages[6].series[1].unit = "MPa";
+    expect(() => parseExactSavedFitOutput(
+      JSON.stringify(stressUnitMismatch.document),
+      stressUnitMismatch.output,
+      stressUnitMismatch.processSource,
+    )).toThrow("matching units");
+  });
+
+  it("rejects duplicate or ambiguous persisted pair quantities", () => {
+    const duplicateObserved = fitFixture();
+    duplicateObserved.document.result.stages[5].series.push({
+      quantity: "stress.true",
+      unit: "Pa",
+      values: Array.from({ length: 7 }, () => 1),
+    });
+    expect(() => parseExactSavedFitOutput(
+      JSON.stringify(duplicateObserved.document),
+      duplicateObserved.output,
+      duplicateObserved.processSource,
+    )).toThrow("matching units");
+
+    const duplicateSelected = fitFixture();
+    duplicateSelected.document.result.stages[6].series.push({
+      quantity: "stress.hardening.voce",
+      unit: "Pa",
+      values: Array.from({ length: 101 }, () => 1),
+    });
+    expect(() => parseExactSavedFitOutput(
+      JSON.stringify(duplicateSelected.document),
+      duplicateSelected.output,
+      duplicateSelected.processSource,
+    )).toThrow("matching units");
   });
 });

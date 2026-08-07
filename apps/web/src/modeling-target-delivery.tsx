@@ -52,7 +52,7 @@ export function TargetDeliveryAction({ config, preview, source, onDelivered }: {
 
   return <section className="target-delivery-action" aria-label="Target delivery">
     {requiresAck && !delivery ? <label className="delivery-acknowledgement"><input aria-label="Acknowledge mapped approximations" type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)}/>I acknowledge the mapping warnings for this exact preview.</label> : null}
-    {!delivery ? <button className="ux-button primary" type="button" disabled={busy || (requiresAck && !acknowledged)} onClick={() => void deliver()}>{busy ? "Delivering solver card…" : "Deliver native card"}</button> : null}
+    {!delivery ? <button className="ux-button primary" type="button" disabled={busy || (requiresAck && !acknowledged)} onClick={() => void deliver()}>{busy ? "Creating solver card…" : "Create solver card"}</button> : null}
     {error ? <p className="ux-notice error" role="alert">{error}</p> : null}
     {delivery ? <p className="ux-notice success" role="status"><strong>Solver card delivered</strong> · <a href={delivery.links.preview}>{delivery.filename}</a> · {deliveredAt(delivery.occurred_at)} · <a href={delivery.links.receipt}>Receipt</a></p> : null}
   </section>;

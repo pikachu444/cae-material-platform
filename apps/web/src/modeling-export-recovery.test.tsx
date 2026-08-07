@@ -40,8 +40,18 @@ const sourcePrerequisites = ["Material", "Material State", "Test Data", "Mapping
 const preview = {
   preview_identity: "a".repeat(64), filename: "REFERENCE.inp", native_text: "*MATERIAL, NAME=REFERENCE\n", native_sha256: "c".repeat(64), mapping_report_sha256: "d".repeat(64),
   mapping: { items: [] },
-  source: { processing_output_id: "output", processing_output_revision_id: "output-r1", processing_output_sha256: "b".repeat(64), material_id: "material", material_revision_id: "material-r1", material_state_id: "state", material_state_revision_id: "state-r1", material_model_ir_revision_id: "neutral-r1", neutral_material_id: "neutral", neutral_material_revision_id: "neutral-r1" },
-  target: { solver: "abaqus", version: "2025", unit_system: "kg_m_s", solver_material_id: 1, material_name: "REFERENCE" }, acknowledgement_identity: null, non_production: true as const, delivery_status: "unavailable_pending_uxc_06c2" as const,
+  source: { processing_output_id: "output", processing_output_revision_id: "output-r1", processing_output_sha256: "b".repeat(64), material_id: "material", material_revision_id: "material-r1", material_state_id: "state", material_state_revision_id: "state-r1", material_model_ir_revision_id: "ir-r1", neutral_material_id: "neutral", neutral_material_revision_id: "neutral-r1" },
+  target: { solver: "abaqus", version: "2025", unit_system: "kg_m_s", solver_material_id: 1, material_name: "REFERENCE" }, acknowledgement_identity: null, non_production: true as const, delivery_status: "preview_only" as const,
+};
+const capabilityManifest = {
+  model_family_id: "urn:cmp:reference:isotropic-tabulated-plasticity:1.0.0",
+  model_schema_version: "1.0.0",
+  model_schema_digest: "f".repeat(64),
+  exporters: [
+    { exporter_id: "cmp.reference.abaqus-isotropic-plasticity", exporter_version: "1.0.0", exporter_digest: "e".repeat(64), solver: "abaqus", version: "2025", unit_system: "kg_m_s", keywords: ["*ELASTIC", "*PLASTIC"] },
+  ],
+  mapping_statuses: ["exact", "transformed", "approximated", "ignored", "unsupported", "not_applicable"] as const,
+  non_production: true as const,
 };
 
 function RecoveryFlow() {
@@ -56,7 +66,7 @@ function RecoveryFlow() {
     <output aria-label="Current session pins">{`${current.materialModelIr?.revisionId ?? "none"}/${current.neutralModel?.revisionId ?? "none"}`}</output>
     {!current.materialModelIr || !current.neutralModel
       ? <ModelingExportPrerequisites config={{ baseUrl: "http://test", accessToken: "test" }} session={current} output={output as never} propertySet={propertySet as never} prerequisites={prerequisites} onSessionEvent={onSessionEvent} />
-      : <ModelingTargetPreview config={{ baseUrl: "http://test", accessToken: "test" }} session={current} output={output as never} prerequisites={prerequisites} onSessionEvent={onSessionEvent} />}
+      : <ModelingTargetPreview config={{ baseUrl: "http://test", accessToken: "test" }} session={current} output={output as never} prerequisites={prerequisites} capabilityManifest={capabilityManifest} onSessionEvent={onSessionEvent} />}
   </>;
 }
 
@@ -76,8 +86,17 @@ describe("metal Export recovery", () => {
     } as never, etag: null });
     vi.mocked(createExactTargetPreview).mockResolvedValue({ data: preview, etag: null });
 
-    render(<RecoveryFlow />);
+    const { container } = render(<RecoveryFlow />);
     expect(screen.getByLabelText("Current session pins").textContent).toBe("none/none");
+    expect(container.querySelector(".export-properties > .export-pane-heading")?.textContent?.trim()).toBe("Export setup");
+    expect(screen.getByText("Selected model", { exact: true })).toBeTruthy();
+    expect(screen.getByText("Model", { exact: true })).toBeTruthy();
+    const evidence = container.querySelector<HTMLDetailsElement>("details.export-prerequisite-evidence");
+    expect(evidence).toBeTruthy();
+    expect(evidence?.open).toBe(false);
+    expect(screen.getByRole("heading", { name: "Prepare exact metal source" })).toBeTruthy();
+    expect(screen.getByRole("checkbox", { name: /acknowledge the selected bounded extrapolation/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Prepare exact model and Neutral" })).toBeTruthy();
     fireEvent.click(screen.getByLabelText(/acknowledge the selected bounded extrapolation/i));
     fireEvent.click(screen.getByRole("button", { name: "Prepare exact model and Neutral" }));
 
@@ -87,9 +106,10 @@ describe("metal Export recovery", () => {
     }));
     expect(promoteModelToNeutralMaterial).toHaveBeenCalledWith(expect.anything(), "metal", expect.objectContaining({ material_model_id: "upstream-model", material_model_revision_id: "upstream-model-r1" }));
 
-    fireEvent.change(screen.getByLabelText("Solver target"), { target: { value: "abaqus" } });
+    fireEvent.change(screen.getByLabelText("Solver target"), { target: { value: "abaqus/2025/kg_m_s" } });
     fireEvent.change(screen.getByLabelText("Native material name"), { target: { value: "REFERENCE" } });
-    fireEvent.click(screen.getByRole("button", { name: "Generate preview" }));
+    await waitFor(() => expect((screen.getByRole("button", { name: "Run Export check" }) as HTMLButtonElement).disabled).toBe(false));
+    fireEvent.click(screen.getByRole("button", { name: "Run Export check" }));
     await waitFor(() => expect(screen.getByLabelText("Native preview")).toBeTruthy());
     expect(createExactTargetPreview).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
       processing_output_id: "output", processing_output_revision_id: "output-r1", neutral_material_id: "neutral", neutral_material_revision_id: "neutral-r1",

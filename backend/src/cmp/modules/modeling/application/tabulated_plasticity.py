@@ -105,6 +105,14 @@ class TabulatedPlasticityModelSnapshot:
     current: RevisionSnapshot[TabulatedPlasticityContent]
 
 
+@dataclass(frozen=True, slots=True)
+class TabulatedPlasticityModelRevision:
+    """One exact processed model revision selected for an export relation."""
+
+    material_model_id: UUID
+    revision: RevisionSnapshot[TabulatedPlasticityContent]
+
+
 class TabulatedPlasticityRepository(Protocol):
     def material_model_store(
         self, context: SecurityContext, decision: AuthorizationDecision
@@ -134,6 +142,15 @@ class TabulatedPlasticityRepository(Protocol):
         material_model_id: UUID,
         material_model_revision_id: UUID,
     ) -> RevisionSnapshot[TabulatedPlasticityContent]: ...
+
+    def list_processed_model_revisions_for_export(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        processing_output_id: UUID,
+        processing_output_revision_id: UUID,
+    ) -> tuple[TabulatedPlasticityModelRevision, ...]: ...
 
 
 def _require_decision(
@@ -594,6 +611,52 @@ class TabulatedPlasticityModelService:
             material_model_id=material_model_id,
             material_model_revision_id=material_model_revision_id,
         )
+
+    def resolve_processing_output_for_export(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        processing_output_id: UUID,
+        processing_output_revision_id: UUID,
+    ) -> TabulatedPlasticityModelRevision:
+        """Resolve one exact processed model revision for a governed export.
+
+        The repository deliberately returns every matching revision row.  A
+        caller may proceed only when the exact output tuple maps to one stable
+        model identity and revision; no current/head/default selection is
+        allowed here.
+        """
+
+        if decision.permission not in {Permission.EXPORT_READ, Permission.EXPORT_EXECUTE}:
+            raise TabulatedPlasticityConflict(
+                "authorization decision lacks the tabulated-plasticity export capability"
+            )
+        _require_decision(context, decision, decision.permission)
+        _require_capability(context, decision, Permission.EXPORT_READ)
+        matches = self._repository.list_processed_model_revisions_for_export(
+            context=context,
+            decision=decision,
+            processing_output_id=processing_output_id,
+            processing_output_revision_id=processing_output_revision_id,
+        )
+        if len(matches) != 1:
+            raise TabulatedPlasticityConflict(
+                "exact Processing Output maps to zero or multiple tabulated-plasticity revisions"
+            )
+        match = matches[0]
+        if not isinstance(match.revision.content, ReferenceProcessedTabulatedPlasticityContent):
+            raise TabulatedPlasticityConflict(
+                "exact Processing Output maps to a non-processed tabulated-plasticity revision"
+            )
+        content = match.revision.content
+        if (
+            content.processing_output_id != processing_output_id
+            or content.processing_output_revision_id != processing_output_revision_id
+        ):
+            raise TabulatedPlasticityConflict(
+                "processed tabulated-plasticity revision does not pin the requested output"
+            )
+        return match
 
     async def read_hardening_curve_for_export(
         self,

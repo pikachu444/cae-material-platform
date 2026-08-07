@@ -167,7 +167,12 @@ def test_delivery_post_and_receipt_get_return_the_same_immutable_evidence() -> N
     assert delivered.status_code == 200
     assert receipt.status_code == 200
     assert delivered.json() == receipt.json()
-    assert delivered.json()["links"]["receipt"].endswith(str(RECEIPT.receipt_id))
+    response = delivered.json()
+    assert response["links"]["receipt"].endswith(str(RECEIPT.receipt_id))
+    assert response["target"]["solver_material_id"] == 1
+    assert isinstance(response["target"]["solver_material_id"], int)
+    assert receipt.json()["target"]["solver_material_id"] == 1
+    assert isinstance(receipt.json()["target"]["solver_material_id"], int)
 
 
 def test_delivery_api_fail_closes_conflict_missing_receipt_and_unconfigured_service() -> None:

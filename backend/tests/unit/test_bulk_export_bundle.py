@@ -185,3 +185,67 @@ def test_canonical_package_source_rejects_cross_kind_identifiers() -> None:
             mapping_profile_id=_id(4),
             mapping_profile_revision_id=_id(5),
         )
+
+
+def test_neutral_json_and_native_card_are_distinct_manifest_components() -> None:
+    neutral_value = b'{"neutral_material":"neutral-r1"}\n'
+    native_value = b"*MATERIAL, NAME=REFERENCE\n"
+    neutral = ExportSelectionMember(
+        ordinal=1,
+        source=ExportSourceRef(
+            ExportMemberKind.NEUTRAL_MATERIAL_JSON,
+            artifact_id=_id(30),
+            neutral_material_id=_id(31),
+            neutral_material_revision_id=_id(32),
+        ),
+        archive_path="neutral/neutral-material.json",
+        source_sha256=hashlib.sha256(neutral_value).hexdigest(),
+        source_size_bytes=len(neutral_value),
+        media_type="application/json",
+        classification=DataClassification.INTERNAL,
+        label="Neutral material JSON",
+    )
+    native = ExportSelectionMember(
+        ordinal=2,
+        source=ExportSourceRef(
+            ExportMemberKind.NEUTRAL_SOLVER_CARD_NATIVE,
+            neutral_solver_card_id=_id(33),
+            neutral_solver_card_revision_id=_id(34),
+        ),
+        archive_path="solver-cards/reference.inp",
+        source_sha256=hashlib.sha256(native_value).hexdigest(),
+        source_size_bytes=len(native_value),
+        media_type="text/plain",
+        classification=DataClassification.INTERNAL,
+        label="Native solver card",
+    )
+    content = ExportSelectionContent("Neutral export pair", (neutral, native), ())
+    bundle = build_deterministic_bundle(
+        selection_id=_id(35),
+        selection_revision_id=_id(36),
+        content=content,
+        files=(
+            ResolvedBundleFile(neutral, neutral_value),
+            ResolvedBundleFile(native, native_value),
+        ),
+    )
+
+    with zipfile.ZipFile(io.BytesIO(bundle.archive)) as archive:
+        manifest = json.loads(archive.read("manifest.json"))
+        components = manifest["components"]
+        assert [component["source"]["kind"] for component in components] == [
+            "neutral_material_json",
+            "neutral_solver_card_native",
+        ]
+        assert [component["archive_path"] for component in components] == [
+            "neutral/neutral-material.json",
+            "solver-cards/reference.inp",
+        ]
+        assert components[0]["source"]["neutral_material_id"] == str(_id(31))
+        assert components[0]["source"]["neutral_material_revision_id"] == str(_id(32))
+        assert components[1]["source"]["neutral_solver_card_id"] == str(_id(33))
+        assert components[1]["source"]["neutral_solver_card_revision_id"] == str(_id(34))
+        assert components[0]["media_type"] == "application/json"
+        assert components[1]["media_type"] == "text/plain"
+        assert archive.read("neutral/neutral-material.json") == neutral_value
+        assert archive.read("solver-cards/reference.inp") == native_value

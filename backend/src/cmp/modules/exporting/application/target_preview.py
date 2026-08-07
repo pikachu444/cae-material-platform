@@ -93,7 +93,9 @@ class TargetPreview:
     target: dict[str, str]
     acknowledgement_identity: str | None
     non_production: bool = True
-    delivery_status: str = "unavailable_pending_uxc_06c2"
+    # C1 is an ephemeral, stateless preview.  Delivery is a separate C2
+    # command; the preview itself is never a pending delivery artifact.
+    delivery_status: str = "preview_only"
 
 
 def _canonical_digest(value: object) -> str:
@@ -187,6 +189,7 @@ class TargetPreviewService:
                 expected_mapping_report_sha256=report.digest,
                 solver_material_id=command.solver_material_id,
                 material_name=command.material_name,
+                source_material_model_ir_revision_id=source.material_model_ir_revision_id,
             )
         except NeutralHyperelasticExportError as error:
             raise TargetPreviewConflict("target mapping cannot produce a native preview") from error

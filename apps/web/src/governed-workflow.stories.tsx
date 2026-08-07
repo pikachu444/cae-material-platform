@@ -34,7 +34,7 @@ const preview = {
   native_text: "** reference/non-production preview\n*MATERIAL, NAME=REFERENCE\n*DENSITY\n7.80e-09\n",
   native_sha256: "a".repeat(64), mapping_report_sha256: "b".repeat(64), mapping: { items: mappingItems },
   source: { processing_output_id: "synthetic-output", processing_output_revision_id: "synthetic-output-r4", processing_output_sha256: "c".repeat(64), material_id: "synthetic-material", material_revision_id: "synthetic-material-r2", material_state_id: "synthetic-state", material_state_revision_id: "synthetic-state-r1", material_model_ir_revision_id: "synthetic-ir-r1", neutral_material_id: "synthetic-neutral", neutral_material_revision_id: "synthetic-neutral-r1" },
-  target: { solver: "reference-target", version: "non-production", unit_system: "SI", solver_material_id: 101, material_name: "REFERENCE_NON_PRODUCTION" }, acknowledgement_identity: "reference/non-production-acknowledgement-001", non_production: true, delivery_status: "unavailable_pending_uxc_06c2",
+  target: { solver: "reference-target", version: "non-production", unit_system: "SI", solver_material_id: 101, material_name: "REFERENCE_NON_PRODUCTION" }, acknowledgement_identity: "reference/non-production-acknowledgement-001", non_production: true, delivery_status: "preview_only",
 } satisfies TargetPreviewResponse;
 
 const meta = { title: "Governed/WorkflowComponents" } satisfies Meta;

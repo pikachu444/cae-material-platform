@@ -30,10 +30,11 @@
   `작업 3B — 실제 Fit 구현`은 구현과 독립 review를 완료해 [PR #198](https://github.com/pikachu444/cae-material-platform/pull/198)에
   기록했습니다. 순서 10 `#158 Modeling Fit UI 정보 위계·공통 액션 보정`은
   [PR #199](https://github.com/pikachu444/cae-material-platform/pull/199), main `c7d0143`에서
-  완료했습니다. 현재 첫 미완료 단위는 순서 11 `#158 Modeling Export`입니다.
-  Modeling Fit과 Modeling Export의 구현·review·merge가 모두 끝날 때까지 #158은 열린 상태로 유지하며,
-  Modeling Export, #189, 2026 Modeling expansion, #160,
-  #161, #184, #162는 시작하지 않았습니다.
+  완료했습니다. 순서 11 `#158 Modeling Export`는 구현, main acceptance, 독립 review와 제품 소유자
+  최종 시각 승인을 완료해 [PR #202](https://github.com/pikachu444/cae-material-platform/pull/202)에
+  기록했습니다. merge 전까지 순서 11과 #158은 열린 상태로 유지하며, merge 뒤 첫 미완료 단위는
+  순서 12 `#189 lazy chunk 예산과 Workbench 분할 기준`입니다. #189, 2026 Modeling expansion,
+  #160, #161, #184, #162는 시작하지 않았습니다.
 
 #167의 승인 target은 다시 만들거나 재승인하지 않습니다. 과거 packet, correction 이미지와 완료
 보고서는 working tree에 보관하지 않고 Git/PR 이력에서 조회합니다.
@@ -82,7 +83,7 @@ packet, 검증, 검토, 제품 소유자 확인과 PR/merge를 거칩니다. iss
 | 8 | [#158 Modeling Fit 작업 3A — 공학 검증 계약과 reference set](https://github.com/pikachu444/cae-material-platform/issues/158) ([PR #197](https://github.com/pikachu444/cae-material-platform/pull/197)) | 네 금속 hardening 공개식과 독립 reference 값·식별성·검증 경계를 후속 구현이 재현할 수 있음 | issue의 작업 3A, fitting validation, synthetic fixture/manifest, production hardening 식과 관련 test | Altair 2025 식 계약, 독립 stress/tangent/objective/recovery·tamper gate, provenance digest, reviewer 승인, merge |
 | 9 | [#158 Modeling Fit 작업 3B — 실제 Fit 구현](https://github.com/pikachu444/cae-material-platform/issues/158) ([PR #198](https://github.com/pikachu444/cae-material-platform/pull/198)) | 같은 처리 결과에 여러 방법을 적용해 모델을 비교하고 사용할 모델을 명시적으로 선택 | merge된 3A 계약, issue의 작업 3B, `modeling-fit` 승인 화면, Fit React/API/state/test | 추천·선택·저장 상태 분리, 여러 방법/결과 보존, production persistence와 실제 revision round-trip, 그래프·키보드·시각 승인, merge |
 | 10 | [#158 Modeling Fit UI 정보 위계·공통 액션 보정](https://github.com/pikachu444/cae-material-platform/issues/158) ([PR #199](https://github.com/pikachu444/cae-material-platform/pull/199)) | Fit 상단 source/state 위계를 정리하고 104px ribbon, 여섯 그룹, Candidate evidence와 1366–3840 responsive geometry를 일관되게 제공 | issue 작업 3B 후속 packet, `modeling-fit` 승인 화면, Fit React/CSS/capture/document contracts | 공통 28px action baseline, source digest/method/run Evidence 이동, 상태 매핑·실패 복구·1920 recovery captures, 독립 visual acceptance |
-| 11 | [#158 Modeling Export](https://github.com/pikachu444/cae-material-platform/issues/158) | 선택 모델에서 솔버별 카드를 생성·미리보기하고 Materials DB에 연결할 결과를 준비 | issue, `modeling-export` 승인 화면, selected-model·mapping·unit-system·solver-card 계약 | 솔버·버전·단위계별 결과, 지원 수준·차단 사유, 정확한 모델 연결, 시각 승인, merge |
+| 11 | [#158 Modeling Export](https://github.com/pikachu444/cae-material-platform/issues/158) ([PR #202](https://github.com/pikachu444/cae-material-platform/pull/202)) | 선택 모델에서 솔버별 카드를 생성·미리보기하고 Materials DB에 연결할 결과를 준비 | issue, `modeling-export` 승인 화면, selected-model·mapping·unit-system·solver-card 계약 | 솔버·버전·단위계별 결과, 지원 수준·차단 사유, 정확한 모델 연결, 시각 승인, merge |
 | 12 | [#189 lazy chunk 예산과 Workbench 분할 기준](https://github.com/pikachu444/cae-material-platform/issues/189) | 완성된 Process/Fit/Export의 실제 사용자 비용을 근거로 Workbench 성능과 분할 시점을 관리 | issue, production build 관찰값, bundle checker, test strategy, Process/Fit/Export 계약 | raw/gzip·실제 경로 비용, warning/error 근거와 분할 촉발 기준, 필요한 경우 별도 보존적 분할, merge |
 | 13 | 2026 Modeling 스타일·공학 계산 확장 (기획 시작 시 별도 issue 생성) | 완성된 기본 Modeling 흐름을 기준으로 공식 Material Modeler/MCalibration 자료의 기능과 계산 trace를 선별해 확장 | 제품 소유자가 승인한 별도 issue, 공식 manual·release 자료, 병합된 Process/Fit/Export 계약 | 상세 기획에서 범위·계산 입력·단위·수치 검증·UX migration을 승인한 뒤 별도 구현 단위로 분해; 이 행에서는 생산 모델·optimizer·threshold를 임의 결정하지 않음 |
 | 14 | [#160 검토·승인·DB 공개·복구](https://github.com/pikachu444/cae-material-platform/issues/160) | 요청을 검토·승인하고 승인 결과를 Materials DB에서 찾고 내려받으며 실패를 복구 | issue, Activity/Admin 승인 화면, review·release·publication·download·recovery·권한 계약 | 역할별 흐름, 승인 결과 공개와 불변성, 무효화·복구·다운로드, 시각 승인, merge |

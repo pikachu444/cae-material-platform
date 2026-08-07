@@ -5,6 +5,7 @@ import hashlib
 import json
 from collections.abc import Iterator
 from contextlib import AbstractContextManager, contextmanager
+from dataclasses import replace
 from datetime import UTC, datetime
 from typing import cast
 from uuid import UUID, uuid4
@@ -50,10 +51,12 @@ from cmp.modules.modeling.application.service import (
     MATERIAL_MODEL_AGGREGATE_TYPE,
     MaterialModelService,
     ReferencePropertySource,
+    RevisionSnapshot,
 )
 from cmp.modules.modeling.application.tabulated_plasticity import (
     CreateReferenceTabulatedPlasticityModel,
     PromoteProcessingOutputToTabulatedPlasticity,
+    TabulatedPlasticityModelRevision,
     TabulatedPlasticityModelService,
     TabulatedPlasticityRepository,
 )
@@ -149,6 +152,19 @@ WRITE = AuthorizationDecision(
     permission=Permission.MODELING_WRITE,
     roles=(Role.MATERIAL_MODELER,),
     database_permissions=database_permissions_for(Permission.MODELING_WRITE),
+    max_classification=DataClassification.INTERNAL,
+    allow_export_controlled=False,
+    request_id=CONTEXT.request_id,
+    trace_id=TRACE,
+    decided_at=NOW,
+)
+EXPORT_READ = AuthorizationDecision(
+    principal_id=ACTOR,
+    organization_id=ORG,
+    project_id=PROJECT,
+    permission=Permission.EXPORT_READ,
+    roles=(Role.MATERIAL_MODELER,),
+    database_permissions=database_permissions_for(Permission.EXPORT_READ),
     max_classification=DataClassification.INTERNAL,
     allow_export_controlled=False,
     request_id=CONTEXT.request_id,
@@ -510,6 +526,25 @@ class _Repository:
         return self.store
 
 
+class _ExportRepository(_Repository):
+    def __init__(self) -> None:
+        super().__init__()
+        self.export_matches: tuple[TabulatedPlasticityModelRevision, ...] = ()
+
+    def list_processed_model_revisions_for_export(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        processing_output_id: UUID,
+        processing_output_revision_id: UUID,
+    ) -> tuple[TabulatedPlasticityModelRevision, ...]:
+        assert context is CONTEXT and decision is EXPORT_READ
+        assert processing_output_id == PROCESSING_OUTPUT
+        assert processing_output_revision_id == PROCESSING_OUTPUT_REVISION
+        return self.export_matches
+
+
 def _service(
     repository: _Repository,
     artifacts: _Artifacts,
@@ -677,3 +712,92 @@ def test_service_preserves_saved_recipe_and_successful_batch_origin() -> None:
     assert content.recipe_batch is not None
     assert content.recipe_batch.recipe_revision_id == UUID(int=302)
     assert content.recipe_batch.batch_attempt_id == UUID(int=305)
+
+
+def _export_service(repository: _ExportRepository) -> TabulatedPlasticityModelService:
+    return _service(repository, _Artifacts(), processing_outputs=_ProcessingOutputs())
+
+
+def _export_match(repository: _ExportRepository) -> TabulatedPlasticityModelRevision:
+    snapshot = asyncio.run(
+        _service(
+            repository, _Artifacts(), processing_outputs=_ProcessingOutputs()
+        ).promote_processing_output(
+            CONTEXT,
+            WRITE,
+            PromoteProcessingOutputToTabulatedPlasticity(
+                material_state_id=STATE,
+                property_set_revision_id=PROPERTY_REVISION,
+                processing_output_id=PROCESSING_OUTPUT,
+                processing_output_revision_id=PROCESSING_OUTPUT_REVISION,
+                acknowledge_bounded_extrapolation=True,
+                change_reason="prepare exact export resolver fixture",
+            ),
+        )
+    )
+    return TabulatedPlasticityModelRevision(
+        material_model_id=snapshot.id,
+        revision=RevisionSnapshot(snapshot.current.record, snapshot.current.content),
+    )
+
+
+def test_export_resolver_returns_the_one_stable_model_and_exact_revision() -> None:
+    repository = _ExportRepository()
+    match = _export_match(repository)
+    repository.export_matches = (match,)
+
+    resolved = _export_service(repository).resolve_processing_output_for_export(
+        CONTEXT,
+        EXPORT_READ,
+        PROCESSING_OUTPUT,
+        PROCESSING_OUTPUT_REVISION,
+    )
+
+    assert resolved.material_model_id == MODEL
+    assert resolved.revision.record.revision_id == match.revision.record.revision_id
+    assert resolved.revision.content.processing_output_id == PROCESSING_OUTPUT
+    assert resolved.revision.content.processing_output_revision_id == PROCESSING_OUTPUT_REVISION
+
+
+@pytest.mark.parametrize("matches", [(), ("duplicate", "duplicate")])
+def test_export_resolver_rejects_zero_or_multiple_exact_matches(
+    matches: tuple[object, ...],
+) -> None:
+    repository = _ExportRepository()
+    match = _export_match(repository)
+    repository.export_matches = () if not matches else (match, match)
+
+    with pytest.raises(TabulatedPlasticityConflict, match="zero or multiple"):
+        _export_service(repository).resolve_processing_output_for_export(
+            CONTEXT,
+            EXPORT_READ,
+            PROCESSING_OUTPUT,
+            PROCESSING_OUTPUT_REVISION,
+        )
+
+
+@pytest.mark.parametrize(
+    "decision",
+    [
+        WRITE,
+        replace(
+            EXPORT_READ,
+            permission=Permission.MODELING_READ,
+            database_permissions=(Permission.MODELING_READ.value,),
+        ),
+    ],
+)
+def test_export_resolver_requires_an_exact_export_capability(
+    decision: AuthorizationDecision,
+) -> None:
+    repository = _ExportRepository()
+    match = _export_match(repository)
+    repository.export_matches = (match,)
+
+    with pytest.raises(TabulatedPlasticityConflict, match=r"authorization|capability"):
+        _export_service(repository).resolve_processing_output_for_export(
+            CONTEXT,
+            decision,
+            PROCESSING_OUTPUT,
+            PROCESSING_OUTPUT_REVISION,
+        )

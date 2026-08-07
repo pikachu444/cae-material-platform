@@ -1502,7 +1502,7 @@ def test_target_preview_contract_matches_runtime_operation_and_typed_lineage() -
         "neutral_material_revision_id",
         "solver_material_id",
         "acknowledgement_identity",
-        "unavailable_pending_uxc_06c2",
+        "preview_only",
     ):
         assert required in serialized
 
@@ -1525,6 +1525,11 @@ def test_target_delivery_contract_matches_atomic_runtime_and_receipt_evidence() 
             encoding="utf-8"
         )
     )
+    preview_schema = json.loads(
+        (PROJECT_ROOT / "contracts/exporting/target-preview-resource.schema.json").read_text(
+            encoding="utf-8"
+        )
+    )
     serialized = json.dumps(schema)
     for required in (
         "delivery_identity",
@@ -1536,3 +1541,16 @@ def test_target_delivery_contract_matches_atomic_runtime_and_receipt_evidence() 
         "receipt",
     ):
         assert required in serialized
+    runtime_response = runtime["components"]["schemas"]["TargetDeliveryResponse"]
+    runtime_target_ref = runtime_response["properties"]["target"]["$ref"]
+    runtime_target_name = runtime_target_ref.rsplit("/", maxsplit=1)[-1]
+    runtime_target = runtime["components"]["schemas"][runtime_target_name]
+    resolved_target = preview_schema["$defs"]["ResolvedTarget"]
+    assert runtime_target["additionalProperties"] is False
+    assert set(runtime_target["required"]) == set(resolved_target["required"])
+    for field in ("solver", "version", "unit_system", "solver_material_id", "material_name"):
+        assert (
+            runtime_target["properties"][field]["type"]
+            == resolved_target["properties"][field]["type"]
+        )
+    assert runtime_target["properties"]["solver_material_id"]["type"] == "integer"
