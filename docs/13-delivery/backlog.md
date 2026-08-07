@@ -31,7 +31,7 @@
   기록했습니다. 순서 10 `#158 Modeling Fit UI 정보 위계·공통 액션 보정`은
   [PR #199](https://github.com/pikachu444/cae-material-platform/pull/199), main `c7d0143`에서
   완료했습니다. 순서 11 `#158 Modeling Export`는 구현, main acceptance, 독립 review와 제품 소유자
-  최종 시각 승인을 완료해 [Draft PR #202](https://github.com/pikachu444/cae-material-platform/pull/202)에
+  최종 시각 승인을 완료해 [PR #202](https://github.com/pikachu444/cae-material-platform/pull/202)에
   기록했습니다. merge 전까지 순서 11과 #158은 열린 상태로 유지하며, merge 뒤 첫 미완료 단위는
   순서 12 `#189 lazy chunk 예산과 Workbench 분할 기준`입니다. #189, 2026 Modeling expansion,
   #160, #161, #184, #162는 시작하지 않았습니다.
