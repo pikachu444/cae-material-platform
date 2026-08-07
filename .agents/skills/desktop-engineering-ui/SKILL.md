@@ -62,11 +62,12 @@ supporting evidence.
 
 Only after the main-orchestrator gate passes, store one bounded reviewer packet containing issue acceptance,
 approved references, implementation diff, live/comparison paths, interaction/test results and the
-completed checklist. The configured fresh read-only reviewer checks only that evidence and returns
+completed checklist. The configured canonical read-only reviewer reopens only that evidence and returns
 actionable findings plus an approval disposition. It may disagree with the main-orchestrator judgment using
 the named criteria, but it does not introduce new acceptance criteria.
 
 The main orchestrator evaluates the findings. Reviewer completion alone does not trigger another full-screen
 checklist. If a correction changes implementation or evidence, rerun only the affected comparisons and
-gates before fresh review; when neither changed, do not request another reviewer. Correction, approval,
+gates before review through the same canonical reviewer; when neither changed, do not request another
+review. Correction, approval,
 and publication boundaries remain with the main orchestrator and the applicable workflow contract.

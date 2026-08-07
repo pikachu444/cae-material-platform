@@ -230,7 +230,7 @@ html[lang="en"] .agent-desc { font-size: 14px; }
     <text class="agent-meta" id="config-main" x="1776" y="179">gpt-5.6-sol · reasoning xhigh</text>
     <text class="agent-desc" x="1696" y="218" data-ko="서브 에이전트가 아님 · 요구사항 해석, packet, 통합, 진단 소유" data-en="Not a sub-agent · owns interpretation, packets, integration, and diagnosis"><tspan x="1696" dy="0">서브 에이전트가 아님 · 요구사항 해석, packet, 통합, 진단 소유</tspan></text>
     <text class="agent-desc" x="1696" y="245" data-ko="Compose · DB · 브라우저 live acceptance와 최종 내부 gate 수행" data-en="Performs Compose, DB, browser live acceptance, and the final internal gate"><tspan x="1696" dy="0">Compose · DB · 브라우저 live acceptance와 최종 내부 gate 수행</tspan></text>
-    <text class="agent-desc" x="1696" y="272" data-ko="구현·교정 실패를 모아 한 번에 새 packet으로 전달" data-en="Consolidates related failures into one fresh correction packet"><tspan x="1696" dy="0">구현·교정 실패를 모아 한 번에 새 packet으로 전달</tspan></text>
+    <text class="agent-desc" x="1696" y="272" data-ko="구현·교정 실패를 모아 실질적으로 바뀐 packet으로 전달" data-en="Consolidates related failures into one materially revised packet"><tspan x="1696" dy="0">구현·교정 실패를 모아 실질적으로 바뀐 packet으로 전달</tspan></text>
 
     <rect class="agent-card agent-audit" x="1670" y="320" width="664" height="175" rx="8"></rect>
     <polygon class="audit-node" points="1723,343 1750,370 1723,397 1696,370"></polygon>
@@ -238,7 +238,7 @@ html[lang="en"] .agent-desc { font-size: 14px; }
     <text class="agent-title" x="1776" y="356" data-ko="Requirements auditor" data-en="Requirements auditor"><tspan x="1776" dy="0">Requirements auditor</tspan></text>
     <text class="agent-meta" id="config-audit" x="1776" y="385">gpt-5.6-sol · reasoning high · read-only</text>
     <text class="agent-desc" x="1696" y="429" data-ko="구현 전 원문과 packet의 추적성을 독립 감사" data-en="Independently audits source-to-packet traceability before writing"><tspan x="1696" dy="0">구현 전 원문과 packet의 추적성을 독립 감사</tspan></text>
-    <text class="agent-desc" x="1696" y="456" data-ko="빠진 행동·화면·저장·복구·검증 조건을 한 번에 수집" data-en="Collects all missing action, UI, persistence, recovery, and gate conditions"><tspan x="1696" dy="0">빠진 행동·화면·저장·복구·검증 조건을 한 번에 수집</tspan></text>
+    <text class="agent-desc" x="1696" y="456" data-ko="수정 packet마다 원문·증거를 다시 열어 독립 확인" data-en="Reopens sources and evidence independently for every revised packet"><tspan x="1696" dy="0">수정 packet마다 원문·증거를 다시 열어 독립 확인</tspan></text>
     <text class="agent-desc" x="1696" y="483" data-ko="changes_requested면 writer 시작을 차단" data-en="A changes_requested result blocks the writer"><tspan x="1696" dy="0">changes_requested면 writer 시작을 차단</tspan></text>
 
     <rect class="agent-card agent-writer" x="1670" y="520" width="664" height="165" rx="8"></rect>
@@ -254,7 +254,7 @@ html[lang="en"] .agent-desc { font-size: 14px; }
     <text class="actor-tag tag-correction" data-agent-role="FIX" x="1723" y="770">FIX</text>
     <text class="agent-title" x="1776" y="748" data-ko="Correction writer" data-en="Correction writer"><tspan x="1776" dy="0">Correction writer</tspan></text>
     <text class="agent-meta" id="config-fix" x="1776" y="777">gpt-5.6-luna · reasoning max · workspace-write</text>
-    <text class="agent-desc" x="1696" y="822" data-ko="매 교정마다 새 상태로 시작 · 새 진단의 1회 한정 수정" data-en="Fresh for every pass · one bounded change from a new diagnosis"><tspan x="1696" dy="0">매 교정마다 새 상태로 시작 · 새 진단의 1회 한정 수정</tspan></text>
+    <text class="agent-desc" x="1696" y="822" data-ko="첫 교정 때 한 번 생성 · 새 진단마다 1회 한정 수정" data-en="Created once at first correction · one bounded change per new diagnosis"><tspan x="1696" dy="0">첫 교정 때 한 번 생성 · 새 진단마다 1회 한정 수정</tspan></text>
     <text class="agent-desc" x="1696" y="849" data-ko="동시 writer 금지 · 거절된 접근 반복 금지" data-en="Never concurrent with another writer · never repeats a rejected approach"><tspan x="1696" dy="0">동시 writer 금지 · 거절된 접근 반복 금지</tspan></text>
     <text class="agent-desc" x="1696" y="876" data-ko="검증은 Main으로 되돌려 독립 수행" data-en="Returns verification to Main for independent acceptance"><tspan x="1696" dy="0">검증은 Main으로 되돌려 독립 수행</tspan></text>
 
@@ -263,17 +263,17 @@ html[lang="en"] .agent-desc { font-size: 14px; }
     <text class="actor-tag tag-review" data-agent-role="REVIEW" x="1723" y="970">REVIEW</text>
     <text class="agent-title" x="1776" y="948" data-ko="Final reviewer" data-en="Final reviewer"><tspan x="1776" dy="0">Final reviewer</tspan></text>
     <text class="agent-meta" id="config-review" x="1776" y="977">gpt-5.6-terra · reasoning high · read-only</text>
-    <text class="agent-desc" x="1696" y="1022" data-ko="모든 gate 뒤 새 상태로 동결 증거 전체를 재검토" data-en="Fresh after all gates; reviews the complete frozen evidence"><tspan x="1696" dy="0">모든 gate 뒤 새 상태로 동결 증거 전체를 재검토</tspan></text>
+    <text class="agent-desc" x="1696" y="1022" data-ko="모든 gate 뒤 한 번 생성 · 재검토마다 현재 증거를 다시 확인" data-en="Created once after all gates · reopens current evidence on every review"><tspan x="1696" dy="0">모든 gate 뒤 한 번 생성 · 재검토마다 현재 증거를 다시 확인</tspan></text>
     <text class="agent-desc" x="1696" y="1049" data-ko="UI면 모든 필수 viewport를 원본 해상도로 확인" data-en="For UI work, opens every required viewport at original resolution"><tspan x="1696" dy="0">UI면 모든 필수 viewport를 원본 해상도로 확인</tspan></text>
     <text class="agent-desc" x="1696" y="1076" data-ko="approve 전에는 게시 단계로 이동하지 않음" data-en="Publication cannot proceed without approve"><tspan x="1696" dy="0">approve 전에는 게시 단계로 이동하지 않음</tspan></text>
 
     <rect class="capacity-box" x="1670" y="1110" width="664" height="220" rx="8"></rect>
     <text class="agent-title" x="1696" y="1147" data-ko="병렬 실행 제한" data-en="Concurrency limits"><tspan x="1696" dy="0">병렬 실행 제한</tspan></text>
-    <text class="agent-meta" id="config-concurrency" x="1696" y="1181">max_concurrent_threads_per_session = 3</text>
+    <text class="agent-meta" id="config-concurrency" x="1696" y="1181">max_concurrent_threads_per_session = 12</text>
     <text class="agent-desc" x="1696" y="1218" data-ko="· auditor 포함 독립 read-only lane은 최대 3개" data-en="· Up to three independent read-only lanes, including the auditor"><tspan x="1696" dy="0">· auditor 포함 독립 read-only lane은 최대 3개</tspan></text>
     <text class="agent-desc" x="1696" y="1247" data-ko="· writer는 구현·교정을 포함해 항상 한 명씩 순차 실행" data-en="· Implementation and correction writers always run one at a time"><tspan x="1696" dy="0">· writer는 구현·교정을 포함해 항상 한 명씩 순차 실행</tspan></text>
     <text class="agent-desc" x="1696" y="1276" data-ko="· Main은 서브 에이전트가 아니며 모든 결과를 통합" data-en="· Main is not a sub-agent and consolidates every result"><tspan x="1696" dy="0">· Main은 서브 에이전트가 아니며 모든 결과를 통합</tspan></text>
-    <text class="agent-desc" x="1696" y="1305" data-ko="· 필요하지 않은 lane은 빈 자리를 채우려고 만들지 않음" data-en="· Lanes are not created merely to fill available capacity"><tspan x="1696" dy="0">· 필요하지 않은 lane은 빈 자리를 채우려고 만들지 않음</tspan></text>
+    <text class="agent-desc" x="1696" y="1305" data-ko="· 전체 한도는 회수되지 않은 thread 여유이며 생성 목표가 아님" data-en="· The overall limit is unreclaimed-thread headroom, not a spawning target"><tspan x="1696" dy="0">· 전체 한도는 회수되지 않은 thread 여유이며 생성 목표가 아님</tspan></text>
 
     <rect class="legend-box" x="1670" y="1345" width="664" height="100" rx="8"></rect>
     <text class="agent-note" x="1696" y="1377" data-ko="역할 ID와 도형·색상 대응" data-en="Role IDs, shapes, and colors"><tspan x="1696" dy="0">역할 ID와 도형·색상 대응</tspan></text>
