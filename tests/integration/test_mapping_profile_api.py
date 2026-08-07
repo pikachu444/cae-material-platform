@@ -204,6 +204,8 @@ def test_mapping_profile_create_list_and_append_revision() -> None:
             listed = await client.get("/api/v1/mapping-profiles")
             assert listed.status_code == 200
             assert listed.json()["items"][0]["mapping_profile_id"] == str(PROFILE)
+            assert listed.json()["items"][0]["current_revision"]["revision_no"] == 1
+            assert listed.json()["items"][0]["content"]["label"] == "Reusable tensile mapping"
 
             missing_precondition = await client.post(
                 f"/api/v1/mapping-profiles/{PROFILE}/revisions",
@@ -227,5 +229,20 @@ def test_mapping_profile_create_list_and_append_revision() -> None:
             assert revised.json()["current_revision"]["based_on_revision_id"] == str(
                 REVISION_ONE
             )
+            assert revised.json()["content"]["label"] == "Revised mapping"
+            assert revised.headers["etag"].startswith('"revision:2:sha256:')
+
+            stale = await client.post(
+                f"/api/v1/mapping-profiles/{PROFILE}/revisions",
+                headers={"If-Match": '"revision:1:sha256:' + "f" * 64 + '"'},
+                json={
+                    "content": _content("Stale mapping must not append"),
+                    "change_reason": "stale revision",
+                },
+            )
+            assert stale.status_code == 412
+            assert service.snapshot is not None
+            assert service.snapshot.current.revision_no == 2
+            assert service.snapshot.content.label == "Revised mapping"
 
     asyncio.run(scenario())

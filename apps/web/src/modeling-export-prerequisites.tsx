@@ -184,6 +184,7 @@ export function ModelingExportPrerequisites({
   propertySet,
   prerequisites,
   onSessionEvent,
+  onNavigate,
 }: {
   config?: ApiConfig;
   session?: ModelingSessionSummary | null;
@@ -191,48 +192,72 @@ export function ModelingExportPrerequisites({
   propertySet?: PropertySetResponse;
   prerequisites: ExportPrerequisite[];
   onSessionEvent?: (event: ModelingSessionEvent) => void;
+  onNavigate?: (path: string) => void;
 }) {
   const outputStatus = prerequisites.find((item) => item.label === "Processing Output")?.status;
+  const modelStatus = prerequisites.find((item) => item.label === "Material Model IR")?.status;
+  const neutralStatus = prerequisites.find((item) => item.label === "Neutral representation")?.status;
+  const sourceReady = sourcePrerequisitesCurrent(prerequisites);
   const canPrepareMetal = session?.materialFamily === "metal"
-    && sourcePrerequisitesCurrent(prerequisites)
+    && sourceReady
     && Boolean(config && session && output && propertySet && currentPropertySet(session, propertySet));
   return (
-    <section className="modeling-export-blocked" aria-label="Export prerequisites">
-      <header>
+    <section className="modeling-export-blocked export-workspace" aria-label="Export prerequisites">
+      <header className="export-workspace-header">
         <div>
-          <p className="workspace-caption">Exact Export</p>
-          <h2>Exact target preview is gated</h2>
+          <p className="workspace-caption">Export</p>
+          <h2>Review &amp; deliver solver card</h2>
+          <span className="export-header-subtitle">Prepare the exact source before choosing a declared solver destination.</span>
         </div>
-        <span className="status-chip warning">Blocked</span>
+        <span className="status-chip warning">Cannot create</span>
       </header>
-      <p>
-        Native preview is produced only after the current source chain is proven by the server.
-        A stale, different-material, or unverified output is never used as a fallback.
-      </p>
-      <ul className="modeling-export-prerequisite-list" aria-label="Exact Export prerequisite checklist">
-        {prerequisites.map((item) => (
-          <li key={item.label}>
-            <span className={`mapping-status ${item.status}`}>{item.status.replaceAll("-", " ")}</span>
-            <span><strong>{item.label}</strong><small>{item.detail}</small></span>
-          </li>
-        ))}
-      </ul>
-      <section className="modeling-export-lineage" aria-label="Exact Export lineage">
-        <strong>Required lineage</strong>
-        <ol>
-          <li className={outputStatus === "current" ? "current" : outputStatus === "stale" ? "stale" : "missing"}>Processing Output</li>
-          <li className="missing">Material Model IR</li>
-          <li className="missing">Neutral representation</li>
-          <li className="missing">Target mapping preflight and ephemeral native preview</li>
-          <li className="missing">Reference delivery unavailable — UXC-06C2 atomic receipt pending</li>
-        </ol>
-        <small>Preview is <strong>reference / non-production</strong>. Review and Release remain <strong>Not configured</strong>; delivery has no primary action in this stage.</small>
-      </section>
-      {canPrepareMetal && config && session && output && propertySet
-        ? <ModelingMetalExportRecovery config={config} session={session} output={output} propertySet={propertySet} onSessionEvent={onSessionEvent} />
-        : session?.materialFamily !== "metal"
-          ? <p className="ux-notice" role="status">Exact model promotion is Not configured for this material family. No substitute model or Neutral revision is selected.</p>
-          : null}
+      <div className="export-workspace-grid">
+        <aside className="export-properties" aria-label="Export setup">
+          <div className="export-pane-heading"><h3>Export setup</h3></div>
+          <div className="export-subsection-heading">Selected model</div>
+          <div className="export-property-row"><span>Model</span><strong>{session?.materialModelIr?.label ?? "Not selected"}</strong>{session?.materialModelIr ? <small>Exact revision {session.materialModelIr.revisionNo}</small> : null}</div>
+          {onNavigate ? <button type="button" className="text-button" onClick={() => onNavigate("/modeling?stage=fit")}>Back to Fit</button> : null}
+          <div className="export-check" aria-label="Export check">
+            <div className="export-pane-heading"><p className="workspace-caption">Export check</p><h3 className="visually-hidden">Exact target preview is gated</h3><strong className="export-status export-status-cannot-create">Cannot create</strong></div>
+            <p className="ux-notice" role="status">{sourceReady ? "Prepare the exact metal source, then retry Neutral promotion." : "Resolve the listed source prerequisite before preparing the model."}</p>
+          </div>
+          {canPrepareMetal && config && session && output && propertySet
+            ? <ModelingMetalExportRecovery config={config} session={session} output={output} propertySet={propertySet} onSessionEvent={onSessionEvent} />
+            : session?.materialFamily !== "metal"
+              ? <p className="ux-notice" role="status">Exact model promotion is unavailable for this material family. No substitute model or Neutral revision is selected.</p>
+              : null}
+          <details className="export-advanced export-prerequisite-evidence">
+            <summary>Advanced · prerequisite evidence</summary>
+            <ul className="modeling-export-prerequisite-list" aria-label="Exact Export prerequisite checklist">
+              {prerequisites.map((item) => (
+                <li key={item.label}>
+                  <span className={`mapping-status ${item.status}`}>{item.status.replaceAll("-", " ")}</span>
+                  <span><strong>{item.label}</strong><small>{item.detail}</small></span>
+                </li>
+              ))}
+            </ul>
+            <section className="modeling-export-lineage" aria-label="Exact Export lineage">
+              <strong>Required lineage</strong>
+              <ol>
+                <li className={outputStatus === "current" ? "current" : outputStatus === "stale" ? "stale" : "missing"}>Processing Output</li>
+                <li className={modelStatus === "current" ? "current" : modelStatus === "stale" ? "stale" : "missing"}>Material Model IR</li>
+                <li className={neutralStatus === "current" ? "current" : neutralStatus === "stale" ? "stale" : "missing"}>Neutral representation</li>
+                <li className="missing">Target mapping preflight and preview_only</li>
+                <li className="missing">Create Solver Card after current preview and required acknowledgement</li>
+              </ol>
+              <small>Preview is <strong>preview_only</strong>. Creating a Solver Card is a separate action that becomes available only after a current preview and any required acknowledgement.</small>
+            </section>
+          </details>
+        </aside>
+        <main className="export-main" aria-label="Native preview workspace">
+          <div className="export-pane-heading"><p className="workspace-caption">Native preview</p><h3>Solver Card preview</h3><span>Unavailable · model required</span></div>
+          <div className="export-native-preview-shell"><div className="native-preview export-preview-blocked" tabIndex={0} aria-label="Native preview unavailable"><span>No preview</span><small>Prepare the exact source to generate a preview_only result.</small></div></div>
+        </main>
+        <aside className="export-result" aria-label="Export result context">
+          <section className="mapping-sheet" aria-label="Mapping details"><div className="export-context-heading"><h3>Mapping details</h3><span>Unavailable</span></div><div className="mapping-scroll export-mapping-placeholder"><p><strong>No mapping available</strong><span>Selected model required</span></p><span className="mapping-status blocked">Blocked</span></div></section>
+          <section className="export-fit-source" aria-label="Fit source"><div className="export-context-heading"><h3>Fit source</h3><span>Read-only</span></div><p className="muted">{session?.materialModelIr?.label ?? "No selected model"}</p><div className="fit-source-plot export-fit-source-blocked" role="img" aria-label="Fit source unavailable"><span>Unavailable</span></div></section>
+        </aside>
+      </div>
     </section>
   );
 }

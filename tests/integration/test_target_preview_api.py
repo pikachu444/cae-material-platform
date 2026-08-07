@@ -164,7 +164,7 @@ def test_target_preview_api_returns_ephemeral_mapping_and_native_text() -> None:
         }
     ]
     assert response.json()["acknowledgement_identity"] == "a" * 64
-    assert response.json()["delivery_status"] == "unavailable_pending_uxc_06c2"
+    assert response.json()["delivery_status"] == "preview_only"
     assert len(service.commands) == 1
 
 

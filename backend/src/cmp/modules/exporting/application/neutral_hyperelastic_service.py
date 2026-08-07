@@ -46,6 +46,7 @@ class CreateNeutralHyperelasticSolverCard:
     material_name: str
     change_reason: str
     expected_card_sha256: str | None = None
+    source_material_model_ir_revision_id: UUID | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -164,6 +165,11 @@ class NeutralHyperelasticSolverCardService:
             command.neutral_material_id,
             command.neutral_material_revision_id,
         )
+        source_material_model_ir_revision_id = (
+            command.source_material_model_ir_revision_id
+            if command.source_material_model_ir_revision_id is not None
+            else source.document.material_model_ir.model.revision_id
+        )
         report, content = build_neutral_solver_card(
             neutral_material_id=source.id,
             neutral_material_revision_id=source.current.revision_id,
@@ -172,6 +178,7 @@ class NeutralHyperelasticSolverCardService:
             expected_mapping_report_sha256=command.expected_mapping_report_sha256,
             solver_material_id=command.solver_material_id,
             material_name=command.material_name,
+            source_material_model_ir_revision_id=source_material_model_ir_revision_id,
         )
         if (
             command.expected_card_sha256 is not None

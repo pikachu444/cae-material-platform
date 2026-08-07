@@ -491,6 +491,86 @@ describe("Common Processing Workbench", () => {
     vi.unstubAllGlobals();
   });
 
+  it("keeps Data Mapping Profile identity and JSON synchronized when selecting a saved revision", async () => {
+    const session = {
+      version: 4,
+      updatedAt: "2026-07-24T00:00:00Z",
+      materialFamily: "metal",
+      objective: "Edit a mapping profile",
+      material: { id: "material-a", revisionId: "material-a-r1", label: "DP600", revisionNo: 1 },
+      materialState: { id: "state-a", revisionId: "state-a-r1", label: "As received", revisionNo: 1 },
+      testData: undefined,
+      mappingProfile: {
+        id: mappingProfileResource.mapping_profile_id,
+        revisionId: mappingProfileResource.current_revision.id,
+        label: mappingProfileResource.content.label,
+        revisionNo: 1,
+      },
+      workspace: {
+        activeStage: "data",
+        selectedDocumentIds: [],
+        selectedTestDataRefs: [],
+        visibleTestDataKeys: [],
+        selectedStepIndex: 0,
+        selectedStageOrdinal: 0,
+        plotView: "pipeline",
+        settingsOpen: true,
+      },
+    };
+    const material = { material_id: "material-a", current_revision: { id: "material-a-r1", revision_no: 1, content: { name: "DP600" } } };
+    const materialState = { material_state_id: "state-a", current_revision: { id: "state-a-r1", revision_no: 1, content: { name: "As received" } } };
+    const onSessionEvent = vi.fn();
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.endsWith("/test-data-documents")) return jsonResponse({ items: [documentResource] });
+      if (url.endsWith("/mapping-profiles")) return jsonResponse({ items: [mappingProfileResource] });
+      if (url.endsWith("/processing-methods")) return jsonResponse({ items: processMethodFixtures() });
+      if (url.endsWith("/processing-outputs")) return jsonResponse({ items: [] });
+      if (url.endsWith("/processing-ensemble-methods") || url.endsWith("/common-processing-recipes") || url.endsWith("/common-processing-batches")) return jsonResponse({ items: [] });
+      if (url.includes("/material-states/") && url.endsWith("/test-runs")) return jsonResponse({ items: [] });
+      if (url.endsWith("/import-profiles")) return jsonResponse({ items: [] });
+      throw new Error(`unexpected request: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const view = render(
+      <CommonProcessingWorkbench
+        config={{ baseUrl: "/api/v1", accessToken: "token" }}
+        initialSession={session as never}
+        material={material as never}
+        materialState={materialState as never}
+        locationSearch="?stage=data&family=metal"
+        onNavigate={() => undefined}
+        onOpenConnection={() => undefined}
+        onSessionEvent={onSessionEvent}
+      />,
+    );
+    try {
+      const savedProfile = await screen.findByLabelText("Saved Mapping Profile");
+      await waitFor(() => expect((savedProfile as HTMLSelectElement).value).toBe(mappingProfileResource.mapping_profile_id));
+      fireEvent.click(screen.getByText("Advanced source settings"));
+      const profileJson = screen.getByLabelText("Mapping Profile JSON") as HTMLTextAreaElement;
+      expect(JSON.parse(profileJson.value)).toMatchObject({ profile_key: mappingProfileResource.content.profile_key });
+      fireEvent.change(savedProfile, { target: { value: "" } });
+      expect(onSessionEvent).toHaveBeenLastCalledWith({ type: "CHANGE_MAPPING" });
+      fireEvent.change(savedProfile, { target: { value: mappingProfileResource.mapping_profile_id } });
+      await waitFor(() => expect(JSON.parse(profileJson.value)).toMatchObject({ profile_key: mappingProfileResource.content.profile_key }));
+      expect(onSessionEvent).toHaveBeenLastCalledWith({
+        type: "CHANGE_MAPPING",
+        mappingProfile: {
+          id: mappingProfileResource.mapping_profile_id,
+          revisionId: mappingProfileResource.current_revision.id,
+          label: mappingProfileResource.content.label,
+          revisionNo: 1,
+        },
+      });
+      await screen.findByLabelText("Test Data revision");
+      await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(9));
+    } finally {
+      view.unmount();
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+  });
+
   it("preserves the valid Process preview and save fields across a failed output POST, then retries once", async () => {
     const sourceRef = { id: documentResource.test_data_document_id, revisionId: revision.id, label: documentResource.document_key, revisionNo: 1 };
     const session = {
@@ -609,6 +689,7 @@ describe("Common Processing Workbench", () => {
     ];
     let outputPosts = 0;
     let previewPosts = 0;
+    let observedPreviewPosts = 0;
     let restoredSession: Record<string, unknown> = initialSession;
     const onSessionChange = vi.fn();
     const onSessionEvent = vi.fn();
@@ -652,8 +733,9 @@ describe("Common Processing Workbench", () => {
         blob: async () => new Blob([JSON.stringify(documentJson)], { type: "application/json" }),
       } as Response;
       if (url.endsWith("/processing:preview") && init?.method === "POST") {
-        previewPosts += 1;
         const body = JSON.parse(String(init.body ?? "{}")) as { steps?: Array<{ options?: { method?: string } }> };
+        if (body.steps?.length) previewPosts += 1;
+        else observedPreviewPosts += 1;
         const scalarPa = body.steps?.find((step) => step.options?.method === "chord") ? 120e9 : 210e9;
         return jsonResponse(processPreviewFixture(scalarPa));
       }
@@ -739,6 +821,7 @@ describe("Common Processing Workbench", () => {
     }
     await new Promise((resolve) => window.setTimeout(resolve, 350));
     expect(previewPosts).toBe(previewPostsBeforeStageRoundTrip);
+    expect(observedPreviewPosts).toBeGreaterThan(0);
     expect((screen.getByRole("combobox", { name: "Evaluation method" }) as HTMLSelectElement).value).toBe("chord");
     expect((screen.getByRole("spinbutton", { name: "Elastic range start" }) as HTMLInputElement).value).toBe("0.001");
     expect((screen.getByRole("spinbutton", { name: "Elastic range end" }) as HTMLInputElement).value).toBe("0.003");
@@ -1652,25 +1735,18 @@ describe("Common Processing Workbench", () => {
     const ensembleBody = JSON.parse(String(ensembleRequest?.[1]?.body)) as { preprocessing_steps: Array<{ method_id: string }> };
     expect(ensembleBody.preprocessing_steps.map((step) => step.method_id)).toEqual(["rows.sort_unique", "rows.sort_unique"]);
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:export" } }));
-    expect(screen.getByRole("heading", { name: "Review & deliver solver card" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "Review & deliver solver card" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Exact target preview is gated" })).toBeTruthy();
     expect(screen.queryByText("Test data")).toBeNull();
     expect(screen.queryByLabelText("Resize curve and process navigator")).toBeNull();
     expect(screen.queryByRole("button", { name: "Mean & band" })).toBeNull();
     expect(screen.queryByRole("heading", { name: "Replicate statistics" })).toBeNull();
-    expect(document.querySelector(".persistent-modeling-plot")).toBeTruthy();
-    const exportGraph = await screen.findByRole("img", { name: "Test data and selected model response" });
-    expect(exportGraph.textContent).toContain("Engineering strain [1]");
-    expect(exportGraph.textContent).toContain("Engineering stress [MPa]");
-    expect(exportGraph.textContent).not.toContain("True plastic strain [1]");
-    expect(exportGraph.textContent).not.toContain("Hardening stress [MPa]");
-    expect(exportGraph.textContent).not.toContain("strain.true_plastic");
-    expect(exportGraph.textContent).not.toContain("stress.hardening");
+    expect(document.querySelector(".persistent-modeling-plot")).toBeNull();
+    expect(screen.queryByRole("img", { name: "Test data and selected model response" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Generate preview" })).toBeNull();
     expect(screen.queryByRole("tab", { name: "Stress response" })).toBeNull();
     expect(screen.queryByText("Calculation notes")).toBeNull();
     expect(screen.queryByText("Exact Neutral and solver delivery fixture")).toBeNull();
-    expect(document.querySelector("#modeling-process:not([hidden]) .persistent-modeling-plot")).toBeTruthy();
-    expect(screen.getByText("Saved source revision")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Back to Fit" }));
     expect(screen.queryByRole("img", { name: "Aligned replicate curves with pointwise mean and confidence interval" })).toBeNull();
     onSessionChange.mockClear();

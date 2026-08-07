@@ -2318,6 +2318,727 @@ dd {
   min-width: 0;
   margin: 0;
 }
+
+/* Dedicated Export workspace: flat setup/result panes with a dominant native
+   preview.  The 1920px cap keeps wide monitors left/top aligned while each
+   evidence surface owns its own overflow. */
+.export-workspace {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: min(100%, 1920px);
+  max-width: 1920px;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+  overflow: hidden;
+}
+.modeling-export-blocked.export-workspace { border: 0; }
+.export-workspace > .export-workspace-header { display: none; }
+.export-workspace-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem 0.85rem;
+  border-bottom: 1px solid var(--line);
+}
+.export-workspace-header h2,
+.export-workspace-header p,
+.export-workspace-header span { margin: 0; }
+.export-header-subtitle { display: block; color: var(--muted); font-size: 0.78rem; margin-top: 0.25rem !important; }
+.export-workspace-grid {
+  display: grid;
+  grid-template-columns: minmax(300px, 340px) minmax(0, 1fr) minmax(326px, 360px);
+  height: min(720px, calc(100vh - 14rem));
+  max-height: 100%;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+.export-properties,
+.export-main,
+.export-result { min-width: 0; min-height: 0; padding: 1rem 1.1rem; }
+.export-properties { border-right: 1px solid var(--line); display: grid; align-content: start; gap: 0.8rem; overflow: auto; overscroll-behavior: contain; }
+.export-main { display: grid; grid-template-rows: max-content minmax(0, 1fr) max-content; gap: 0.75rem; overflow: auto; overscroll-behavior: contain; }
+.export-result { border-left: 1px solid var(--line); display: grid; align-content: start; gap: 1rem; overflow: auto; overscroll-behavior: contain; }
+.export-pane-heading,
+.export-context-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 0.6rem; }
+.export-pane-heading h3,
+.export-context-heading h3 { margin: 0; font-size: 0.98rem; }
+.export-main > .export-pane-heading > .workspace-caption { display: none; }
+.export-reference-marker { color: var(--muted); font-size: 0.7rem; font-weight: 650; }
+.export-pane-heading p,
+.export-context-heading span { margin: 0; color: var(--muted); font-size: 0.72rem; }
+.export-pane-heading > span { color: var(--muted); font-size: 0.74rem; }
+.export-property-row { display: grid; gap: 0.15rem; padding-bottom: 0.65rem; border-bottom: 1px solid var(--line); }
+.export-property-row span,
+.export-field > span { color: var(--muted); font-size: 0.73rem; }
+.export-property-row strong { font-size: 0.88rem; font-weight: 650; }
+.export-property-row small { color: var(--muted); font-size: 0.7rem; }
+.modeling-export-recovery { display: grid; gap: 0.5rem; padding-top: 0.35rem; border-top: 1px solid var(--line); }
+.modeling-export-recovery h3,
+.modeling-export-recovery p { margin: 0; }
+.modeling-export-recovery h3 { font-size: 0.85rem; }
+.modeling-export-recovery p { color: var(--muted); font-size: 0.72rem; line-height: 1.35; }
+.modeling-export-recovery label { display: grid; gap: 0.25rem; color: var(--muted); font-size: 0.72rem; }
+.modeling-export-recovery label:first-of-type { display: flex; align-items: start; gap: 0.35rem; }
+.modeling-export-recovery label:first-of-type input { flex: 0 0 auto; width: auto; min-width: 0; margin: 0.15rem 0 0; padding: 0; }
+.modeling-export-recovery input:not([type="checkbox"]) { min-width: 0; }
+.modeling-export-recovery .button { width: 100%; }
+.export-field { display: grid; gap: 0.25rem; }
+.export-field input,
+.export-field select { width: 100%; min-width: 0; }
+.export-check { display: grid; gap: 0.55rem; padding-top: 0.4rem; border-top: 1px solid var(--line); }
+.export-status { font-size: 0.8rem; font-weight: 700; }
+.export-status-ready-to-create { color: #276b49; }
+.export-status-review-required { color: #8a5a13; }
+.export-status-cannot-create { color: #923b2b; }
+.export-action-row { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.export-native-preview-shell { min-width: 0; min-height: 0; height: 100%; max-height: 100%; overflow: hidden; }
+.native-preview { min-height: 0; height: 100%; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #fbfcfd; }
+.export-native-preview-shell > .materials-scroll-shell { width: 100%; height: 100%; }
+.export-native-preview-shell > .materials-scroll-shell > .native-preview:not(.export-preview-blocked) { display: block; min-width: 0; min-height: 0; width: 100%; height: 100%; max-height: 100%; overflow: auto; overscroll-behavior: contain; scrollbar-gutter: auto; }
+.export-native-preview-shell > .materials-scroll-shell > .native-preview:not(.export-preview-blocked) pre { width: max-content; min-width: 100%; min-height: 0; overflow: visible; }
+.export-native-preview-shell > .native-preview.export-preview-blocked { display: grid; }
+.native-preview pre { min-height: 100%; margin: 0; padding: 1rem; overflow: auto; white-space: pre; font: 0.78rem/1.55 ui-monospace, SFMono-Regular, Consolas, monospace; }
+.export-preview-blocked { display: grid; place-content: center; justify-items: center; gap: 0.35rem; color: var(--muted); text-align: center; }
+.export-preview-blocked span { font-size: 0.9rem; font-weight: 650; }
+.export-preview-blocked small { max-width: 24rem; font-size: 0.75rem; }
+.preview-scroll,
+.mapping-scroll { scrollbar-gutter: stable; overflow: auto; }
+.mapping-sheet { min-width: 0; }
+.mapping-scroll { max-height: 290px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.mapping-scroll table { width: 100%; border-collapse: collapse; font-size: 0.72rem; }
+.export-mapping-placeholder { display: grid; grid-template-columns: minmax(0, 1fr) max-content; align-items: start; gap: 0.5rem; padding: 0.75rem 0.35rem; }
+.export-mapping-placeholder p { display: grid; gap: 0.15rem; margin: 0; }
+.export-mapping-placeholder p span { color: var(--muted); font-size: 0.72rem; }
+.mapping-scroll th,
+.mapping-scroll td { padding: 0.48rem 0.35rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+.mapping-scroll thead th { color: var(--muted); font-size: 0.67rem; font-weight: 650; }
+.mapping-scroll tbody th { font-weight: 650; }
+.export-advanced { font-size: 0.72rem; }
+.export-advanced summary { cursor: pointer; color: var(--accent-strong); }
+.export-advanced ul,
+.export-advanced dl { display: grid; gap: 0.35rem; margin: 0.5rem 0 0; padding: 0; list-style: none; }
+.export-advanced li { display: grid; gap: 0.1rem; }
+.export-advanced li small { color: var(--muted); }
+.export-advanced li code,
+.export-advanced dd code { display: block; overflow-wrap: anywhere; color: var(--muted); font-size: 0.64rem; }
+.export-advanced dl { grid-template-columns: max-content minmax(0, 1fr); }
+.export-advanced dt { color: var(--muted); }
+.export-advanced dd { min-width: 0; margin: 0; }
+.export-delivery-details { margin-top: 0.15rem; padding-top: 0.55rem; border-top: 1px solid var(--line); }
+.export-delivery-details a { overflow-wrap: anywhere; }
+.export-fit-source { min-width: 0; }
+.fit-source-plot { position: relative; min-height: 150px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 0.35rem 0.15rem 1.15rem; }
+.fit-source-plot svg { display: block; width: 100%; height: 145px; }
+.fit-source-axis { fill: none; stroke: #aab4bd; stroke-width: 1; }
+.fit-source-frame { fill: #fbfcfd; stroke: #aab8bf; stroke-width: 1; }
+.fit-source-grid line { stroke: #dce4e8; stroke-width: 1; }
+.fit-source-ticks line { stroke: #7c8b92; stroke-width: 1; }
+.fit-source-tick,
+.fit-source-axis-title,
+.fit-source-svg-legend text {
+  fill: #52636d;
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 9.5px;
+}
+.fit-source-axis-title { font-size: 10.5px; font-weight: 500; }
+.fit-source-svg-legend line { fill: none; stroke-width: 2; }
+.fit-source-svg-legend .fit-source-legend-observed { stroke: #536f68; stroke-dasharray: 3 2; }
+.fit-source-svg-legend .fit-source-legend-selected { stroke: #276b49; }
+.fit-source-observed,
+.fit-source-selected { fill: none; stroke-width: 2; vector-effect: non-scaling-stroke; }
+.fit-source-observed { stroke: #536f68; stroke-dasharray: 3 2; }
+.fit-source-selected { stroke: #276b49; }
+.fit-source-legend { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 0.35rem; color: var(--muted); font-size: 0.65rem; }
+.fit-source-legend span { display: inline-flex; align-items: center; gap: 0.25rem; }
+.fit-source-legend i { display: inline-block; width: 1.1rem; border-top: 2px solid #276b49; }
+.fit-source-legend-observed { border-top-color: #536f68 !important; border-top-style: dashed; }
+.export-fit-source-blocked { display: grid; place-items: center; min-height: 150px; border: 1px dashed var(--line); color: var(--muted); font-size: 0.75rem; }
+.fit-source-axis-labels { position: absolute; inset: auto 0.3rem 0.15rem; display: flex; justify-content: space-between; color: var(--muted); font-size: 0.62rem; }
+.export-fit-source > p { margin: 0.45rem 0 0; font-size: 0.7rem; }
+
+@media (max-width: 1100px) {
+  .export-workspace-grid { grid-template-columns: minmax(270px, 320px) minmax(0, 1fr); }
+  .export-result { grid-column: 1 / -1; border-top: 1px solid var(--line); border-left: 0; grid-template-columns: minmax(0, 1fr) minmax(260px, 0.8fr); }
+}
+@media (max-width: 760px) {
+  .export-workspace-header { padding-inline: 0.75rem; }
+  .export-workspace-grid { display: block; height: auto; max-height: none; flex: none; }
+  .export-properties,
+  .export-main,
+  .export-result { border: 0; border-bottom: 1px solid var(--line); min-height: auto; overflow: visible; }
+  .export-result { display: grid; grid-template-columns: 1fr; }
+  .export-native-preview-shell { height: min(60vh, 520px); }
+}
+/* Approved Export reference geometry: the normal surface is a four-region
+   workbench (setup, divider, native preview, bounded context). Keep the
+   prerequisite variant on its existing three-region topology while sharing
+   the same compact grammar and local scroll ownership. */
+@media (min-width: 1101px) {
+  .application-shell main.processing-workbench-page > .export-workspace {
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 0;
+  }
+
+  .export-workspace > .export-workspace-grid {
+    height: 100%;
+    max-height: none;
+    min-height: 0;
+  }
+
+  .modeling-target-preview .export-workspace-grid {
+    grid-template-columns: clamp(300px, 22vw, 326px) 8px minmax(0, 1fr) clamp(326px, 25vw, 360px);
+  }
+
+  .modeling-export-blocked .export-workspace-grid {
+    grid-template-columns: clamp(300px, 22vw, 326px) minmax(0, 1fr) clamp(326px, 25vw, 360px);
+  }
+
+  .modeling-target-preview .export-divider {
+    width: 8px;
+    min-width: 8px;
+    min-height: 0;
+    background: #c9d1d6;
+  }
+
+  .modeling-target-preview .export-properties,
+  .modeling-export-blocked .export-properties {
+    min-height: 0;
+    padding: 0;
+    border-right: 1px solid #c9d1d6;
+    background: #f7f9fa;
+    gap: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+
+  .modeling-target-preview .export-main,
+  .modeling-export-blocked .export-main {
+    min-height: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    gap: 0;
+    overflow: hidden;
+    overscroll-behavior: contain;
+  }
+
+  .modeling-target-preview .export-result,
+  .modeling-export-blocked .export-result {
+    min-height: 0;
+    padding: 0;
+    border-left: 1px solid #c9d1d6;
+    background: #fff;
+    overflow: hidden;
+    overscroll-behavior: contain;
+  }
+
+  .modeling-target-preview .export-result {
+    grid-template-rows: minmax(0, 1fr) clamp(272px, 34vh, 318px);
+    gap: 0;
+  }
+
+  .modeling-target-preview .export-pane-heading,
+  .modeling-export-blocked .export-pane-heading,
+  .modeling-target-preview .export-context-heading,
+  .modeling-export-blocked .export-context-heading {
+    min-height: 34px;
+    margin: 0;
+    padding: 0 10px;
+    border-bottom: 1px solid #c9d1d6;
+    align-items: center;
+  }
+
+  .modeling-target-preview .export-pane-heading h3,
+  .modeling-export-blocked .export-pane-heading h3,
+  .modeling-target-preview .export-context-heading h3,
+  .modeling-export-blocked .export-context-heading h3 {
+    font-size: 13.5px;
+    font-weight: 600;
+  }
+
+  .modeling-target-preview .export-pane-heading > span,
+  .modeling-export-blocked .export-pane-heading > span,
+  .modeling-target-preview .export-context-heading > span,
+  .modeling-export-blocked .export-context-heading > span {
+    color: #5d6a71;
+    font-size: 11px;
+  }
+
+  .modeling-target-preview .export-properties > .export-pane-heading {
+    padding-inline: 10px;
+  }
+
+  .modeling-target-preview .export-property-row,
+  .modeling-export-blocked .export-property-row {
+    gap: 3px;
+    padding: 10px;
+    border-bottom: 1px solid #c9d1d6;
+  }
+
+  .modeling-target-preview .export-property-row span,
+  .modeling-export-blocked .export-property-row span,
+  .modeling-target-preview .export-field > span,
+  .modeling-export-blocked .export-field > span {
+    color: #5d6a71;
+    font-size: 11px;
+  }
+
+  .modeling-target-preview .export-property-row strong,
+  .modeling-export-blocked .export-property-row strong {
+    font-size: 12px;
+    font-weight: 650;
+  }
+
+  .modeling-target-preview .export-property-row small,
+  .modeling-export-blocked .export-property-row small {
+    color: #5d6a71;
+    font-size: 10.5px;
+  }
+
+  .modeling-target-preview .export-properties > .text-button,
+  .modeling-export-blocked .export-properties > .text-button {
+    margin: 0 10px;
+    padding: 0;
+    justify-self: start;
+    font-size: 11px;
+  }
+
+  .modeling-target-preview .export-subsection-heading,
+  .modeling-export-blocked .export-subsection-heading {
+    padding: 9px 10px 4px;
+    color: #1f2a30;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .modeling-target-preview .export-field,
+  .modeling-export-blocked .export-field {
+    display: grid;
+    grid-template-columns: 34% minmax(0, 1fr);
+    align-items: center;
+    gap: 9px;
+    min-height: 32px;
+    padding: 7px 10px;
+    border-bottom: 1px solid #e2e7ea;
+  }
+
+  .modeling-target-preview .export-field input,
+  .modeling-target-preview .export-field select,
+  .modeling-export-blocked .export-field input,
+  .modeling-export-blocked .export-field select {
+    height: 29px;
+    min-height: 29px;
+    padding: 0 7px;
+    border: 1px solid #aab5bb;
+    border-radius: 3px;
+    font-size: 11.5px;
+  }
+
+  .modeling-target-preview .export-check,
+  .modeling-export-blocked .export-check {
+    display: grid;
+    gap: 6px;
+    padding: 9px 10px 10px;
+    border-top: 1px solid #c9d1d6;
+  }
+
+  .modeling-target-preview .export-check > .export-pane-heading,
+  .modeling-export-blocked .export-check > .export-pane-heading {
+    min-height: 23px;
+    padding: 0;
+    border-bottom: 0;
+  }
+
+  .modeling-target-preview .export-check > .export-pane-heading .workspace-caption,
+  .modeling-export-blocked .export-check > .export-pane-heading .workspace-caption {
+    display: block;
+    margin: 0;
+    color: #1f2a30;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .modeling-target-preview .export-status,
+  .modeling-export-blocked .export-status {
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .modeling-target-preview .export-check .ux-notice,
+  .modeling-export-blocked .export-check .ux-notice {
+    margin: 0;
+    padding: 5px 8px;
+    border: 0;
+    border-left: 3px solid #b6c9d2;
+    border-radius: 0;
+    background: #f7f9fa;
+    color: #52636d;
+    font-size: 11px;
+    line-height: 1.3;
+  }
+
+  .modeling-target-preview .export-check .ux-notice.error,
+  .modeling-export-blocked .export-check .ux-notice.error {
+    border-left-color: #923b2b;
+    color: #923b2b;
+  }
+
+  .modeling-target-preview .export-check .ux-notice.success,
+  .modeling-export-blocked .export-check .ux-notice.success {
+    border-left-color: #276b49;
+    color: #276b49;
+  }
+
+  .modeling-target-preview .export-action-row,
+  .modeling-export-blocked .export-action-row {
+    display: block;
+  }
+
+  .modeling-target-preview .export-action-row .ux-button.primary,
+  .modeling-export-blocked .export-action-row .ux-button.primary {
+    width: 100%;
+    min-height: 31px;
+    padding: 0 10px;
+    font-size: 11.5px;
+  }
+
+  .modeling-target-preview .export-advanced-input {
+    margin: 0 10px 10px;
+    padding-top: 7px;
+    border-top: 1px solid #c9d1d6;
+    font-size: 11px;
+  }
+
+  .modeling-target-preview .export-advanced-input summary {
+    color: #176b94;
+    font-size: 11px;
+  }
+
+  .modeling-target-preview .export-advanced-input .export-field {
+    padding-inline: 0;
+  }
+
+  .modeling-target-preview .export-main > .export-pane-heading {
+    min-height: 42px;
+    padding: 10px 12px 0;
+    border-bottom: 0;
+    align-items: baseline;
+  }
+
+  .modeling-target-preview .export-main > .export-pane-heading h3 {
+    font-size: 15px;
+  }
+
+  .modeling-target-preview .export-main > .export-pane-heading > span {
+    color: #5d6a71;
+    font-size: 11px;
+  }
+
+  .modeling-target-preview .export-preview-heading {
+    align-items: center;
+    gap: 12px;
+  }
+
+  .modeling-target-preview .export-preview-heading .export-heading-copy {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .modeling-target-preview .export-preview-heading .export-heading-copy > span {
+    min-width: 0;
+    overflow: hidden;
+    color: #5d6a71;
+    font-size: 11px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .modeling-target-preview .export-preview-heading .export-preview-state {
+    flex: 0 0 auto;
+    color: #5d6a71;
+    font-size: 11px;
+    text-align: right;
+  }
+
+  .modeling-target-preview .export-native-preview-shell {
+    height: auto;
+    max-height: none;
+    margin: 0 10px 10px 12px;
+  }
+
+  .modeling-target-preview .export-native-preview-shell > .modeling-target-preview-native-scroll-shell {
+    width: 100%;
+    height: 100%;
+  }
+
+  .modeling-target-preview .export-native-preview-shell > .modeling-target-preview-native-scroll-shell > .native-preview:not(.export-preview-blocked) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    padding: 0;
+    border: 1px solid #aab5bb;
+    background: #f7f9fa;
+  }
+
+  .modeling-target-preview .export-native-preview-shell > .modeling-target-preview-native-scroll-shell > .native-preview:not(.export-preview-blocked) pre {
+    min-height: 100%;
+    padding: 16px 18px 22px;
+    color: #25343d;
+    font: 12.5px/19px ui-monospace, SFMono-Regular, Consolas, monospace;
+  }
+
+  .modeling-target-preview .export-mapping {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .modeling-target-preview .export-mapping .export-context-heading {
+    flex: 0 0 38px;
+    min-height: 38px;
+  }
+
+  .modeling-target-preview .mapping-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    border: 0;
+  }
+
+  .modeling-target-preview .export-mapping > .modeling-target-preview-mapping-scroll-shell {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    max-height: none;
+    border: 0;
+  }
+
+  .modeling-target-preview .export-mapping-list {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .modeling-target-preview .export-mapping-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) max-content;
+    align-items: start;
+    gap: 8px;
+    padding: 7px 10px;
+    border-bottom: 1px solid #e2e7ea;
+  }
+
+  .modeling-target-preview .export-mapping-row > div {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .modeling-target-preview .export-mapping-row strong {
+    color: #1f2a30;
+    font-size: 11.5px;
+    font-weight: 650;
+  }
+
+  .modeling-target-preview .export-mapping-row > div > span {
+    color: #5d6a71;
+    font-size: 10.5px;
+    line-height: 1.25;
+  }
+
+  .modeling-target-preview .export-mapping-status {
+    padding-top: 1px;
+    color: #236a56;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .modeling-target-preview .export-mapping-status.transformed { color: #826100; }
+  .modeling-target-preview .export-mapping-status.approximated,
+  .modeling-target-preview .export-mapping-status.ignored { color: #826100; }
+  .modeling-target-preview .export-mapping-status.unsupported { color: #923b2b; }
+  .modeling-target-preview .export-mapping-status.not_applicable { color: #5d6a71; }
+
+  .modeling-target-preview .export-mapping > .export-advanced {
+    flex: 0 0 auto;
+    margin: 0 10px 8px;
+    padding-top: 7px;
+    border-top: 1px solid #c9d1d6;
+  }
+
+  .modeling-target-preview .export-fit-source {
+    display: grid;
+    grid-template-rows: 38px minmax(0, 1fr) max-content;
+    min-height: 0;
+    overflow: hidden;
+    border-top: 1px solid #c9d1d6;
+  }
+
+  .modeling-target-preview .export-fit-source .export-context-heading {
+    min-height: 38px;
+  }
+
+  .modeling-target-preview .export-fit-source > p {
+    margin: 7px 10px 0;
+    color: #5d6a71;
+    font-size: 10.5px;
+  }
+
+  .modeling-target-preview .fit-source-plot {
+    display: flex;
+    min-height: 0;
+    margin: 5px 10px 8px;
+    padding: 0;
+    border: 0;
+  }
+
+  .modeling-target-preview .fit-source-plot svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+  }
+
+  .modeling-target-preview .fit-source-plot .fit-source-legend {
+    display: block;
+    margin: 0;
+  }
+
+  .modeling-target-preview .fit-source-legend {
+    gap: 10px;
+    margin: 3px 0 0;
+    font-size: 10px;
+  }
+
+  .modeling-export-blocked .modeling-export-recovery {
+    gap: 6px;
+    padding: 8px 10px 10px;
+    border-top: 1px solid #c9d1d6;
+  }
+
+  .modeling-export-blocked .modeling-export-recovery h3 { font-size: 12px; }
+  .modeling-export-blocked .modeling-export-recovery p,
+  .modeling-export-blocked .modeling-export-recovery label { font-size: 11px; }
+  .modeling-export-blocked .modeling-export-recovery .button.primary { min-height: 31px; }
+
+  .modeling-export-blocked .export-prerequisite-evidence {
+    margin: 0 10px 8px;
+    padding-top: 7px;
+    border-top: 1px solid #c9d1d6;
+    font-size: 11px;
+  }
+
+  .modeling-export-blocked .export-prerequisite-evidence > summary {
+    cursor: pointer;
+    color: #176b94;
+    font-size: 11px;
+  }
+
+  .modeling-export-blocked .modeling-export-prerequisite-list {
+    margin: 7px 0 0;
+    padding: 0;
+    border-top: 1px solid #e2e7ea;
+  }
+
+  .modeling-export-blocked .modeling-export-lineage {
+    margin: 0 10px 10px;
+    padding-top: 8px;
+    border-top: 1px solid #c9d1d6;
+  }
+}
+
+.modeling-target-preview :is(.preview-scroll, .mapping-scroll, .export-properties),
+.modeling-export-blocked :is(.preview-scroll, .mapping-scroll, .export-properties) {
+  scrollbar-gutter: stable;
+  scrollbar-color: #4e8195 #dce7ec;
+}
+
+.modeling-target-preview :is(.preview-scroll, .mapping-scroll, .export-properties)::-webkit-scrollbar,
+.modeling-export-blocked :is(.preview-scroll, .mapping-scroll, .export-properties)::-webkit-scrollbar {
+  width: 13px;
+  height: 13px;
+}
+
+.modeling-target-preview :is(.preview-scroll, .mapping-scroll, .export-properties)::-webkit-scrollbar-track,
+.modeling-export-blocked :is(.preview-scroll, .mapping-scroll, .export-properties)::-webkit-scrollbar-track {
+  background: #dce7ec;
+  border: 1px solid #b6c9d2;
+}
+
+.modeling-target-preview :is(.preview-scroll, .mapping-scroll, .export-properties)::-webkit-scrollbar-thumb,
+.modeling-export-blocked :is(.preview-scroll, .mapping-scroll, .export-properties)::-webkit-scrollbar-thumb {
+  min-height: 34px;
+  border: 2px solid #dce7ec;
+  border-radius: 8px;
+  background: #4e8195;
+}
+
+.modeling-target-preview :is(.preview-scroll, .mapping-scroll, .export-properties):focus-visible,
+.modeling-export-blocked :is(.preview-scroll, .mapping-scroll, .export-properties):focus-visible {
+  outline: 2px solid #4e8195;
+  outline-offset: -2px;
+}
+
+/* MaterialsScrollRegion owns the visible rail for these two viewports. Keep
+   the native viewport scrollable for wheel/keyboard semantics while removing
+   only the browser scrollbar so it cannot create a second rail. */
+.modeling-target-preview :is(.export-native-preview-viewport, .export-mapping-viewport) {
+  scrollbar-width: none;
+  scrollbar-gutter: auto;
+  scrollbar-color: transparent transparent;
+}
+
+.modeling-target-preview :is(.export-native-preview-viewport, .export-mapping-viewport)::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.application-shell main.processing-workbench-page.stage-export > #modeling-output {
+  flex: 0 0 32px;
+  min-height: 32px;
+  margin: 0;
+  border: 0;
+  border-top: 1px solid #c9d1d6;
+  border-radius: 0;
+  background: #f7f9fa;
+  overflow: hidden;
+}
+
+.application-shell main.processing-workbench-page.stage-export > #modeling-output > summary {
+  min-height: 32px;
+  height: 32px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 0;
+  font-size: 11px;
+}
+
+.application-shell main.processing-workbench-page.stage-export > #modeling-output > summary strong {
+  font-size: 11px;
+}
+
+.application-shell main.processing-workbench-page.stage-export > #modeling-output > summary small,
+.application-shell main.processing-workbench-page.stage-export > #modeling-output > summary > span:last-child {
+  font-size: 10px;
+}
+
+.application-shell main.processing-workbench-page.stage-export > #modeling-output[open] {
+  flex: 0 0 auto;
+  max-height: min(42vh, 360px);
+  overflow: auto;
+}
+
 .target-delivery-action .ux-notice {
   min-width: 0;
 }

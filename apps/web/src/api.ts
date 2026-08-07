@@ -1,5 +1,6 @@
 import type {
   ExportTarget,
+  ElastoplasticExportCapabilities,
   TargetPreviewResponse,
   TargetDeliveryResponse,
   ElastoplasticCardCreatedResponse,
@@ -2910,6 +2911,12 @@ export function createExactTargetPreview(
     method: "POST",
     body: JSON.stringify(input),
   });
+}
+
+export function getReferenceElastoplasticExportCapabilities(
+  config: ApiConfig,
+): Promise<ApiResult<ElastoplasticExportCapabilities>> {
+  return request(config, "/exporters/reference-elastoplastic/capabilities");
 }
 
 export function deliverExactTargetPreview(

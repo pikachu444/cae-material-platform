@@ -19,6 +19,7 @@ _CAPTURE_SOURCE = (_PROJECT_ROOT / "scripts/capture_current_product.py").read_te
 )
 _SCRIPT = runpy.run_path(str(_PROJECT_ROOT / "scripts/capture_current_product.py"))
 CURRENT_CAPTURE_OUTPUTS = cast(tuple[str, ...], _SCRIPT["CURRENT_CAPTURE_OUTPUTS"])
+MODELING_EXPORT_OUTPUTS = cast(tuple[str, ...], _SCRIPT["MODELING_EXPORT_OUTPUTS"])
 MODELING_DATA_SESSION_OUTPUTS = cast(
     tuple[str, ...], _SCRIPT["MODELING_DATA_SESSION_OUTPUTS"]
 )
@@ -416,7 +417,7 @@ def test_incomplete_capture_cannot_reuse_files_from_previous_output(
 
 
 def test_current_capture_contract_contains_product_routes_only() -> None:
-    assert len(CURRENT_CAPTURE_OUTPUTS) == 69
+    assert len(CURRENT_CAPTURE_OUTPUTS) == 74
     assert all(name in CURRENT_CAPTURE_OUTPUTS for name in MODELING_DATA_SESSION_OUTPUTS)
     assert all(name in CURRENT_CAPTURE_OUTPUTS for name in MODELING_PROCESS_OUTPUTS)
     assert {
@@ -461,6 +462,254 @@ def test_modeling_fit_capture_contract_covers_five_viewports_and_recovery_states
         name in CURRENT_CAPTURE_OUTPUTS
         for name in fit_viewports + MODELING_FIT_STATE_OUTPUTS
     )
+
+
+def test_modeling_export_capture_contract_uses_declared_preview_and_atomic_create_flow() -> None:
+    export_viewports = tuple(
+        f"modeling-export-{width}x{height}.png"
+        for width, height in (
+            (1366, 768),
+            (1440, 900),
+            (1920, 1080),
+            (2560, 1440),
+            (3840, 2160),
+        )
+    )
+    assert MODELING_EXPORT_OUTPUTS == (
+        *export_viewports,
+        "modeling-export-source-blocked-1440x900.png",
+        "modeling-export-approximation-blocked-1440x900.png",
+        "modeling-export-delivered-1440x900.png",
+    )
+    assert set(MODELING_EXPORT_OUTPUTS) <= set(CURRENT_CAPTURE_OUTPUTS)
+    recovery_helper = _CAPTURE_SOURCE.split(
+        "def _prepare_exact_metal_source_if_needed", 1
+    )[1].split("def _prepare_exact_target_preview", 1)[0]
+    assert 'get_by_role(\n        "heading", name="Prepare exact metal source", exact=True' in recovery_helper
+    assert 'get_by_role(\n        "checkbox",\n        name="I acknowledge the selected bounded extrapolation for this reference model.",' in recovery_helper
+    assert 'get_by_role("textbox", name="Metal promotion reason", exact=True)' in recovery_helper
+    assert 'get_by_role(\n        "button", name="Prepare exact model and Neutral", exact=True' in recovery_helper
+    assert "EXPORT_RECOVERY_REASON" in recovery_helper
+    assert "Retry Neutral promotion" in recovery_helper
+    assert 'page.on("dialog", reject_dialog)' in recovery_helper
+    assert "dialog.dismiss()" in recovery_helper
+    assert "page.remove_listener(\"dialog\", reject_dialog)" in recovery_helper
+    assert "section.modeling-target-preview.export-workspace .export-workspace-grid" in recovery_helper
+    assert recovery_helper.index("if not recovery_heading.count()") < recovery_helper.index(
+        "acknowledgement.wait_for"
+    )
+    assert recovery_helper.index("reason.fill(EXPORT_RECOVERY_REASON)") < recovery_helper.index(
+        "prepare.click()"
+    )
+    assert recovery_helper.index("prepare.click()") < recovery_helper.index(
+        "page.wait_for_function(", recovery_helper.index("prepare.click()")
+    )
+
+    module = ast.parse(_CAPTURE_SOURCE)
+    fit_export_helper = next(
+        node
+        for node in ast.walk(module)
+        if isinstance(node, ast.FunctionDef) and node.name == "_prepare_fit_for_export"
+    )
+    fit_export_helper_source = ast.get_source_segment(_CAPTURE_SOURCE, fit_export_helper)
+    assert fit_export_helper_source is not None
+    assert "_prepare_fit_from_saved_process(page, base_url, label=label)" in fit_export_helper_source
+    assert "_click_modeling_fit_preview_and_wait(page)" in fit_export_helper_source
+    assert fit_export_helper_source.index(
+        "_prepare_fit_from_saved_process(page, base_url, label=label)"
+    ) < fit_export_helper_source.index("_click_modeling_fit_preview_and_wait(page)")
+
+    export_capture = _CAPTURE_SOURCE.split(
+        "def _capture_modeling_export_only", 1
+    )[1].split("def _capture_modeling(", 1)[0]
+    assert export_capture.count("_prepare_fit_for_export(") == 4
+    assert export_capture.count("_save_exact_fit_selection(") == 4
+    normal_flow = export_capture.split("    for width, height", 1)[1].split(
+        "    source_blocked_page =", 1
+    )[0]
+    approximation_flow = export_capture.split("    approximation =", 1)[1].split(
+        "    delivered =", 1
+    )[0]
+    delivered_flow = export_capture.split("    delivered =", 1)[1]
+    source_blocked_flow = export_capture.split("    source_blocked_page =", 1)[1].split(
+        "    approximation =", 1
+    )[0]
+    normal_fit_prepare = normal_flow.index("_prepare_fit_for_export(")
+    normal_fit_save = normal_flow.index(
+        '_save_exact_fit_selection(page, candidate_key="swift+voce", require_warning=False)'
+    )
+    normal_open = normal_flow.index('_open_modeling_stage(page, "export")')
+    normal_recovery = normal_flow.index("_prepare_exact_metal_source_if_needed(page)")
+    normal_preview = normal_flow.index("_prepare_exact_target_preview(page)")
+    assert normal_fit_prepare < normal_fit_save < normal_open < normal_recovery < normal_preview
+    assert 'if page.get_by_role("button", name="Create solver card", exact=True).count()' not in normal_flow
+    source_fit_prepare = source_blocked_flow.index("_prepare_fit_for_export(")
+    source_fit_save = source_blocked_flow.index(
+        '_save_exact_fit_selection(source_blocked_page, candidate_key="swift+voce", require_warning=False)'
+    )
+    source_open = source_blocked_flow.index('_open_modeling_stage(source_blocked_page, "export")')
+    source_heading = source_blocked_flow.index(
+        'source_blocked_page.get_by_role("heading", name="Prepare exact metal source", exact=True)'
+    )
+    source_capture = source_blocked_flow.index("_capture(source_blocked_page")
+    assert source_fit_prepare < source_fit_save < source_open < source_heading < source_capture
+    approximation_open = approximation_flow.index('_open_modeling_stage(approximation, "export")')
+    approximation_recovery = approximation_flow.index(
+        "_prepare_exact_metal_source_if_needed(approximation)"
+    )
+    approximation_preview = approximation_flow.index("_prepare_exact_target_preview(")
+    assert approximation_flow.index("_prepare_fit_for_export(") < approximation_flow.index(
+        '_save_exact_fit_selection(approximation, candidate_key="swift+voce", require_warning=False)'
+    ) < approximation_open < approximation_recovery < approximation_preview
+    delivered_open = delivered_flow.index('_open_modeling_stage(delivered, "export")')
+    delivered_recovery = delivered_flow.index("_prepare_exact_metal_source_if_needed(delivered)")
+    delivered_preview = delivered_flow.index("_prepare_exact_target_preview(delivered")
+    assert delivered_flow.index("_prepare_fit_for_export(") < delivered_flow.index(
+        '_save_exact_fit_selection(delivered, candidate_key="swift+voce", require_warning=False)'
+    ) < delivered_open < delivered_recovery < delivered_preview
+    assert "_prepare_exact_metal_source_if_needed" not in source_blocked_flow
+
+    export_flow = _CAPTURE_SOURCE.split(
+        "def _prepare_exact_target_preview", 1
+    )[1].split("def _capture_modeling_export_only", 1)[0]
+    assert 'page.get_by_role("heading", name=STAGE_HEADINGS["export"], exact=True)' not in export_flow
+    assert 'export_region = page.locator("section.modeling-target-preview.export-workspace")' in export_flow
+    assert 'export_grid = export_region.locator(":scope > .export-workspace-grid")' in export_flow
+    assert 'export_region.wait_for(state="visible", timeout=30_000)' in export_flow
+    assert 'export_grid.wait_for(state="visible", timeout=30_000)' in export_flow
+    assert 'target = export_grid.get_by_role("combobox", name="Solver target", exact=True)' in export_flow
+    region_wait = export_flow.index('export_region.wait_for(state="visible", timeout=30_000)')
+    grid_locator = export_flow.index('export_grid = export_region.locator(":scope > .export-workspace-grid")')
+    grid_wait = export_flow.index('export_grid.wait_for(state="visible", timeout=30_000)')
+    target_locator = export_flow.index('target = export_grid.get_by_role("combobox", name="Solver target", exact=True)')
+    assert region_wait < grid_locator < grid_wait < target_locator
+    assert 'get_by_role("combobox", name="Solver target", exact=True)' in export_flow
+    assert 'select_option("abaqus/2025/kg_m_s")' in export_flow
+    assert 'page.locator("details.export-advanced-input")' in export_flow
+    assert 'advanced.locator(":scope > summary")' in export_flow
+    assert 'summary.inner_text().strip() != "Advanced · native card options"' in export_flow
+    assert 'advanced.get_attribute("open") is None' in export_flow
+    assert 'summary.click()' in export_flow
+    assert 'native_name.wait_for(state="visible", timeout=30_000)' in export_flow
+    assert 'native_name.fill("DP780_C1_REFERENCE")' in export_flow
+    target_selection = export_flow.index("target.select_option")
+    disclosure_open = export_flow.index("summary.click()")
+    native_name_fill = export_flow.index('native_name.fill("DP780_C1_REFERENCE")')
+    assert target_selection < disclosure_open < native_name_fill
+    assert ".fill(\"DP780_C1_REFERENCE\", force=True)" not in export_flow
+    assert "evaluate(\"" not in export_flow
+    assert 'get_by_label("Native preview", exact=True).locator("pre").wait_for' in export_flow
+    assert 'document.querySelector(\'[aria-label="Native preview"] pre\')\n          ||' not in export_flow
+    assert 'document.querySelectorAll(\n            \'.export-main .export-preview-state\'\n          )' in export_flow
+    assert 'document.querySelectorAll(\'[role="heading"]\')' not in export_flow
+    assert 'heading.textContent?.trim() === "Current preview · not created"' in export_flow
+    assert 'document.querySelector(\'[role="alert"]\')' in export_flow
+    assert 'get_by_role("button", name="Run Export check", exact=True)' in export_flow
+    assert 'create_button.count() != 1' in export_flow
+    assert 'expected_status = "Ready to create" if acknowledge else "Review required"' in export_flow
+    assert "should_be_disabled = not acknowledge" in export_flow
+    assert "Current Export task must expose exactly one visible primary action" in export_flow
+    assert "Export task must expose exactly one visible primary action before C1" in export_flow
+    run_check = export_flow.index(
+        'get_by_role("button", name="Run Export check", exact=True)'
+    )
+    terminal_wait = export_flow.index('terminalHeading || visibleAlert')
+    native_preview_wait = export_flow.index(
+        'get_by_label("Native preview", exact=True).locator("pre").wait_for',
+        terminal_wait,
+    )
+    assert run_check < terminal_wait < native_preview_wait
+    assert "preview_only Export must not expose a delivered success status" in export_flow
+    assert "preview_only Export must not expose a delivery receipt" in export_flow
+    assert "preview_only Export must not expose an Open solver card pointer" in export_flow
+    assert 'details.export-delivery-details' in export_flow
+    assert 'for resource in ("solver_card", "preview", "download", "receipt")' in export_flow
+    assert 'get_by_role("button", name="Open solver card", exact=True)' in export_flow
+    assert "after_animation: Callable[[], object] | None = None" in _CAPTURE_SOURCE
+    assert "def _assert_export_capture_shell(page: Page)" in _CAPTURE_SOURCE
+    assert "application-workspace" in _CAPTURE_SOURCE
+    assert "outerScrollZero" in _CAPTURE_SOURCE
+    assert "shellVisible" in _CAPTURE_SOURCE
+    assert "shellStacked" in _CAPTURE_SOURCE
+    assert "workspace: workspace.scrollTop" in _CAPTURE_SOURCE
+    assert "workbench: workbench.scrollTop" in _CAPTURE_SOURCE
+    assert "exportRegion: exportRegion.scrollTop" in _CAPTURE_SOURCE
+    assert "#modeling-export-native-preview-viewport" in _CAPTURE_SOURCE
+    assert "#modeling-export-mapping-viewport" in _CAPTURE_SOURCE
+    assert "exportLocalScrollOrigins" in _CAPTURE_SOURCE
+    assert "exportLocalScrollZero" in _CAPTURE_SOURCE
+    capture_helper = _CAPTURE_SOURCE.split("def _capture(", 1)[1].split(
+        "def _assert_export_action_visible", 1
+    )[0]
+    assert capture_helper.index("await new Promise(requestAnimationFrame)") < capture_helper.index(
+        "if after_animation is not None:"
+    ) < capture_helper.index("page.screenshot")
+    assert "def _assert_export_action_visible(page: Page, label: str)" in _CAPTURE_SOURCE
+    assert 'page.get_by_role("button", name=label, exact=True)' in _CAPTURE_SOURCE
+    assert 'page.evaluate("() => window.scrollY")' in _CAPTURE_SOURCE
+    assert 'details.export-advanced-input' in _CAPTURE_SOURCE
+    assert "def _assert_export_recovery_capture(page: Page)" in _CAPTURE_SOURCE
+    assert "pane.scrollTop =" in _CAPTURE_SOURCE
+    assert "paneScrollTop: pane.scrollTop" in _CAPTURE_SOURCE
+    assert "details.export-prerequisite-evidence" in _CAPTURE_SOURCE
+    assert "evidenceClosed: evidence.getAttribute('open') === null && !evidence.open" in _CAPTURE_SOURCE
+    assert "localOverflow: pane.scrollHeight > pane.clientHeight" in _CAPTURE_SOURCE
+    assert "visibleRecoveryClipped" in _CAPTURE_SOURCE
+    assert 'metrics["visibleRecoveryClipped"]' in _CAPTURE_SOURCE
+    assert 'metrics["paneScrollTop"] <= 0' not in _CAPTURE_SOURCE
+    recovery_capture = _CAPTURE_SOURCE.split(
+        "def _assert_export_recovery_capture", 1
+    )[1].split("def _open_materials_search", 1)[0]
+    assert recovery_capture.index("const evidence =") < recovery_capture.index(
+        "const visibleRecoveryNodes ="
+    ) < recovery_capture.index("visibleRecoveryClipped") < recovery_capture.index(
+        'metrics["visibleRecoveryClipped"]'
+    )
+    assert "before_screenshot=lambda page=page: _assert_export_action_visible(page, \"Create solver card\")" in _CAPTURE_SOURCE
+    assert "after_animation=lambda page=page: _assert_export_capture_shell(page)" in _CAPTURE_SOURCE
+    assert "before_screenshot=lambda: _assert_export_recovery_capture(source_blocked_page)" in _CAPTURE_SOURCE
+    assert "before_screenshot=lambda: _assert_export_action_visible(approximation, \"Create solver card\")" in _CAPTURE_SOURCE
+    assert "after_animation=lambda: _assert_export_capture_shell(approximation)" in _CAPTURE_SOURCE
+    assert "before_screenshot=lambda: _assert_export_action_visible(delivered, \"Open solver card\")" in _CAPTURE_SOURCE
+    assert "after_animation=lambda: _assert_export_capture_shell(delivered)" in _CAPTURE_SOURCE
+    assert 'get_by_role("heading", name="Prepare exact metal source", exact=True)' in _CAPTURE_SOURCE
+    assert 'target_value="openradioss/2025/kg_m_s"' in _CAPTURE_SOURCE
+    assert 'modeling-export-source-blocked-1440x900.png' in _CAPTURE_SOURCE
+    assert 'modeling-export-approximation-blocked-1440x900.png' in _CAPTURE_SOURCE
+    assert 'modeling-export-delivered-1440x900.png' in _CAPTURE_SOURCE
+    assert 'open_card.click()' in _CAPTURE_SOURCE
+    assert 'get_by_role("button", name="Deliver native card", exact=True)' not in export_flow
+    assert 'get_by_role("button", name="Change solver target", exact=True)' not in export_flow
+    assert '".export-properties"' in _CAPTURE_SOURCE
+    assert '".export-main"' in _CAPTURE_SOURCE
+    assert '".export-result"' in _CAPTURE_SOURCE
+    assert '".export-native-preview-shell > .native-preview"' not in _CAPTURE_SOURCE
+    assert '".mapping-scroll"' in _CAPTURE_SOURCE
+
+
+def test_capture_contract_rejects_positional_wait_for_function_arguments() -> None:
+    module = ast.parse(_CAPTURE_SOURCE)
+    wait_calls = [
+        node
+        for node in ast.walk(module)
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Attribute)
+        and node.func.attr == "wait_for_function"
+    ]
+    assert wait_calls
+    assert [node.lineno for node in wait_calls if len(node.args) > 1] == []
+
+    target_preview_call = next(
+        node
+        for node in wait_calls
+        if any(
+            keyword.arg == "arg"
+            and isinstance(keyword.value, ast.Name)
+            and keyword.value.id == "expected_status"
+            for keyword in node.keywords
+        )
+    )
+    assert len(target_preview_call.args) == 1
 
 
 def test_modeling_fit_capture_saves_exact_process_source_and_scrolls_evidence_locally() -> None:
@@ -716,7 +965,9 @@ def test_fit_save_stays_on_fit_and_explicitly_navigates_export_only_at_callers()
     export_only = _CAPTURE_SOURCE.split(
         "def _capture_modeling_export_only", 1
     )[1].split("def _capture_modeling(", 1)[0]
-    assert export_only.index("_save_exact_fit_selection(page)") < export_only.index(
+    assert export_only.index(
+        '_save_exact_fit_selection(page, candidate_key="swift+voce", require_warning=False)'
+    ) < export_only.index(
         '_open_modeling_stage(page, "export")'
     ) < export_only.index("_prepare_exact_target_preview(page)")
 
@@ -844,6 +1095,21 @@ def test_warned_fit_candidate_selection_rejects_rows_without_warning() -> None:
         _select_warned_fit_candidate(table)
 
     assert table.selected_index is None
+
+
+def test_exact_fit_export_candidate_selector_is_anchored_case_insensitive_and_unique() -> None:
+    helper = _CAPTURE_SOURCE.split("def _select_exact_fit_candidate", 1)[1].split(
+        "def _assert_fit_selected_evidence", 1
+    )[0]
+
+    assert 're.compile(\n            r"^Select swift \\+ voce 50[/]50 candidate$",\n            re.IGNORECASE,\n        )' in helper
+    assert '50/50 candidate$' not in helper
+    assert 'table.get_by_role("button", name=label)' in helper
+    assert "candidate.count() != 1" in helper
+    assert "_select_warned_fit_candidate" not in helper
+    assert ".first" not in helper
+    assert ".last" not in helper
+    assert "exact=True" not in helper
 
 
 def test_default_capture_producer_runs_process_only_after_generic_modeling() -> None:

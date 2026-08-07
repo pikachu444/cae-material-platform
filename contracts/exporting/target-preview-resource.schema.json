@@ -91,7 +91,7 @@
         "target": {"$ref": "#/$defs/ResolvedTarget"},
         "acknowledgement_identity": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
         "non_production": {"type": "boolean", "const": true},
-        "delivery_status": {"type": "string", "const": "unavailable_pending_uxc_06c2"}
+        "delivery_status": {"type": "string", "const": "preview_only"}
       }
     },
     "Problem": {

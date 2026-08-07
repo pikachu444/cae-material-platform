@@ -11,6 +11,8 @@ import {
   downloadSolverCardArtifact,
   loadSolverCardEvidence,
   mappingDisposition,
+  mappingConsequence,
+  projectMappingRows,
   recordDeliveryActivity,
   type SolverCardEvidence,
   type SolverCardSummary,
@@ -58,21 +60,7 @@ function activityFor(
  * mapping evidence.
  */
 export function deliveryStatusLabel(status: MappingStatus): string {
-  switch (status) {
-    case "exact":
-      return "Values unchanged";
-    case "transformed":
-      return "Converted";
-    case "approximated":
-    case "ignored":
-      return "Review required";
-    case "unsupported":
-      return "Not supported";
-    case "not_applicable":
-      return "Context only";
-    default:
-      return "Check compatibility";
-  }
+  return mappingConsequence(status);
 }
 
 function deliveryDetailLabel(status: MappingStatus, name: string): string {
@@ -169,11 +157,14 @@ export function MappingStatusList({
 }) {
   const reviewIndex = items.findIndex((item) => item.status === "approximated" || item.status === "ignored");
   return <ul className="delivery-mapping-list" aria-label="Delivery checks">
-    {items.map((item, index) => <li className={`delivery-mapping-row${item.status === "approximated" || item.status === "ignored" ? " delivery-mapping-row-review" : ""}`} key={`${item.name}:${item.ir_path}`}>
-      <span className="delivery-mapping-copy"><strong>{item.name.replaceAll("_", " ")}</strong><small>{deliveryDetailLabel(item.status, item.name)}</small></span>
-      <span className={`mapping-status ${item.status}`}>{deliveryStatusLabel(item.status)}</span>
-      {reviewAcknowledgement && index === reviewIndex ? reviewAcknowledgement : null}
-    </li>)}
+    {projectMappingRows(items).map((row, index) => {
+      const item = row.item;
+      return <li className={`delivery-mapping-row${item.status === "approximated" || item.status === "ignored" ? " delivery-mapping-row-review" : ""}`} key={`${item.name}:${item.ir_path}`}>
+        <span className="delivery-mapping-copy"><strong>{row.quantity}</strong><small>{row.expression}</small><span className="visually-hidden">{deliveryDetailLabel(item.status, item.name)}</span><details data-mapping-status={item.status}><summary>Advanced evidence</summary><small>{deliveryDetailLabel(item.status, item.name)} · {item.detail}</small><code>{item.ir_path}</code></details></span>
+        <span className={`mapping-status ${item.status}`}>{row.consequence}</span>
+        {reviewAcknowledgement && index === reviewIndex ? reviewAcknowledgement : null}
+      </li>;
+    })}
   </ul>;
 }
 

@@ -12,6 +12,92 @@ import {
   type FitDecisionSelection,
 } from "./modeling-fit-decision-contract";
 
+export interface ExactFitPlotData {
+  /** The persisted true-plastic-strain samples paired with observations. */
+  observedX: number[];
+  /** The persisted true-stress observations, in Pa. */
+  observed: number[];
+  /** The persisted true-plastic-strain samples paired with the selected response. */
+  selectedX: number[];
+  /** The persisted selected hardening response, in Pa. */
+  selected: number[];
+  xUnit: string;
+  stressUnit: string;
+  selectedQuantity: string;
+}
+
+const PLOT_DATA_ERROR = "Saved Fit result is missing true plastic strain, true stress, or selected hardening series with matching units";
+
+type PersistedSeriesPair = {
+  x: number[];
+  y: number[];
+  xUnit: string;
+  yUnit: string;
+};
+
+function lastPersistedSeriesPair(
+  stages: CommonCurveStage[],
+  yQuantity: string,
+): PersistedSeriesPair | undefined {
+  let last: PersistedSeriesPair | undefined;
+  for (const stage of stages) {
+    if (!stage || !Array.isArray(stage.series)) throw new Error(PLOT_DATA_ERROR);
+    const xSeries = stage.series.filter((item) => item.quantity === "strain.true_plastic");
+    const ySeries = stage.series.filter((item) => item.quantity === yQuantity);
+    // A stage may legitimately contain only one half of a pair (the live
+    // 7-point observed stage and 101-point selected stage are separate).  A
+    // duplicate quantity in either stage, however, is ambiguous and cannot be
+    // selected by ordinal or by client-side heuristics.
+    if (xSeries.length > 1 || ySeries.length > 1) throw new Error(PLOT_DATA_ERROR);
+    if (xSeries.length !== 1 || ySeries.length !== 1) continue;
+    const x = xSeries[0];
+    const y = ySeries[0];
+    if (
+      !Array.isArray(x.values)
+      || !Array.isArray(y.values)
+      || x.values.length < 2
+      || x.values.length !== y.values.length
+      || x.unit !== "1"
+      || y.unit !== "Pa"
+      || x.values.some((value) => !Number.isFinite(value))
+      || y.values.some((value) => !Number.isFinite(value))
+    ) {
+      throw new Error(PLOT_DATA_ERROR);
+    }
+    last = { x: [...x.values], y: [...y.values], xUnit: x.unit, yUnit: y.unit };
+  }
+  return last;
+}
+
+/**
+ * Returns only the persisted samples used by the metal Fit plot.  The helper
+ * intentionally does not resample, smooth, or interpolate: a malformed or
+ * incomplete saved document is rejected by the caller instead of receiving a
+ * client-side curve fallback.
+ */
+export function exactFitPlotData(
+  preview: CommonProcessingPreview,
+  selection: FitDecisionSelection,
+): ExactFitPlotData {
+  const selectedQuantity = selection.mode === "blend"
+    ? "stress.hardening.selected"
+    : `stress.hardening.${selection.primaryLaw}`;
+  const observed = lastPersistedSeriesPair(preview.stages, "stress.true");
+  const selected = lastPersistedSeriesPair(preview.stages, selectedQuantity);
+  if (!observed || !selected || observed.xUnit !== selected.xUnit || observed.yUnit !== selected.yUnit) {
+    throw new Error(PLOT_DATA_ERROR);
+  }
+  return {
+    observedX: observed.x,
+    observed: observed.y,
+    selectedX: selected.x,
+    selected: selected.y,
+    xUnit: observed.xUnit,
+    stressUnit: observed.yUnit,
+    selectedQuantity,
+  };
+}
+
 type SavedFitDocument = {
   document_type?: unknown;
   document_version?: unknown;
@@ -354,7 +440,47 @@ export function parseExactSavedFitOutput(
   if (warning && !decision.warning_acknowledged) {
     throw new Error("Saved Fit decision warning must be acknowledged");
   }
+  // A saved Fit is exportable only when its persisted response contains the
+  // real metal quantities used by the engineering graph.  Do this check
+  // after decision identity validation so a missing/ambiguous selected series
+  // cannot be hidden behind a fabricated client curve.
   const fitRange = `${decision.fit_minimum.toPrecision(3)}–${decision.fit_maximum.toPrecision(3)} measured; to ${decision.extrapolation_maximum?.toPrecision(3) ?? "declared limit"} extrapolated`;
+  // Keep the numeric persisted bounds alongside the human selection label so
+  // the Export-side Fit source can filter existing samples without parsing or
+  // inventing a view range from rendered text.
+  const selection: FitDecisionSelection & { fitMinimum: number; fitMaximum: number } = {
+    candidateKey: decision.candidate_key,
+    displayLabel: fitDecisionIdentityLabel({
+      mode: decision.mode,
+      primaryLaw: decision.primary_law,
+      secondaryLaw: decision.secondary_law ?? undefined,
+      primaryWeight: decision.primary_weight ?? undefined,
+      actualTermCount: decision.actual_term_count ?? undefined,
+    }),
+    mode: decision.mode,
+    primaryLaw: decision.primary_law,
+    secondaryLaw: decision.secondary_law ?? undefined,
+    primaryWeight: decision.primary_weight ?? undefined,
+    actualTermCount: decision.actual_term_count ?? undefined,
+    requestedTermPolicy: decision.requested_term_policy ?? undefined,
+    reason: decision.selection_reason,
+    warningAcknowledged: decision.warning_acknowledged,
+    fitRange,
+    warning,
+    fitMinimum: decision.fit_minimum,
+    fitMaximum: decision.fit_maximum,
+  };
+  exactFitPlotData(
+    {
+      execution_mode: "preview",
+      promotable: false,
+      source_document_sha256: String(parsed.result?.source_document_sha256),
+      mapping_profile_sha256: String(parsed.result?.mapping_profile_sha256),
+      independent_quantity: String(parsed.result?.independent_quantity),
+      stages,
+    },
+    selection,
+  );
   return {
     preview: {
       execution_mode: "preview",
@@ -364,27 +490,6 @@ export function parseExactSavedFitOutput(
       independent_quantity: String(parsed.result?.independent_quantity),
       stages,
     },
-    selection: selectedCandidate
-      ? {
-        candidateKey: decision.candidate_key,
-        displayLabel: fitDecisionIdentityLabel({
-          mode: decision.mode,
-          primaryLaw: decision.primary_law,
-          secondaryLaw: decision.secondary_law ?? undefined,
-          primaryWeight: decision.primary_weight ?? undefined,
-          actualTermCount: decision.actual_term_count ?? undefined,
-        }),
-        mode: decision.mode,
-        primaryLaw: decision.primary_law,
-        secondaryLaw: decision.secondary_law ?? undefined,
-        primaryWeight: decision.primary_weight ?? undefined,
-        actualTermCount: decision.actual_term_count ?? undefined,
-        requestedTermPolicy: decision.requested_term_policy ?? undefined,
-        reason: decision.selection_reason,
-        warningAcknowledged: decision.warning_acknowledged,
-        fitRange,
-        warning,
-      }
-      : null,
+    selection: selectedCandidate ? selection : null,
   };
 }
