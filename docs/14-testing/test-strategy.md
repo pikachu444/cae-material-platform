@@ -805,16 +805,86 @@ Unit regressions substitute manifest bytes, signature bytes, the public key and 
 also exercise path traversal, duplicate path and malformed scanner boundaries. A production signer
 must additionally pass `--trusted-public-key`; an ephemeral local key proves bundle integrity only.
 
-The frontend production build must keep the entry JavaScript at or below 300,000 bytes and each
-lazy workbench chunk at or below 131,000 bytes. The lazy-workbench limit remains an enforced ceiling
-and headroom guard, not a target. The checker runs after every Vite build and fails CI on regression;
-`CMP_WEB_ENTRY_BUDGET_BYTES` and `CMP_WEB_LAZY_CHUNK_BUDGET_BYTES` remain available for explicit
-environment overrides. The prior merged Task 3B measured `common-processing-workbench` at 128,103
-raw bytes / 32,097 gzip bytes; the current UI patch measures 130,231 raw bytes / 32,580 gzip bytes,
-an exact increase of +2,128 raw / +483 gzip (+1.66% / +1.50%), leaving 769 bytes of hard headroom.
-The broader raw/gzip/cold-route/splitting policy remains open and unresolved in #189; this update
-provides no performance qualification and does not start a split or byte-shaving effort. These are
-observed sizes, while the two budgets are enforced limits.
+Issue #189 closes the frontend budget and cold-route measurement contract. Run the deterministic
+bundle gate and route harness from the repository root (the latter requires a production dist):
+
+```powershell
+npm run test:bundle-budget --workspace @cmp/web
+npm run build --workspace @cmp/web
+npm run measure:modeling-route --workspace @cmp/web
+npm run measure:modeling-route --workspace @cmp/web -- --compare docs/14-testing/baselines/modeling-web-route.json
+```
+
+The checker measures exact JavaScript raw bytes (`Buffer.byteLength`/`stat`) and records gzip only as
+`node:zlib.gzipSync(..., { level: 9 })` observation. Defaults are entry warning/error 285,000/300,000
+and lazy warning/error 128,000/131,000 bytes. Raw values below warning are `ok`, warning through
+the inclusive error value are `warning`, and values above error are `error`; headroom is
+`error - raw`. Raw is the build policy and gzip never changes status. The four overrides
+(`CMP_WEB_ENTRY_WARNING_BYTES`, `CMP_WEB_ENTRY_BUDGET_BYTES`, `CMP_WEB_LAZY_CHUNK_WARNING_BYTES`,
+`CMP_WEB_LAZY_CHUNK_BUDGET_BYTES`) accept positive safe integers only and must keep warning below
+error. Overrides are explicit owner-authorized diagnostics, never acceptance evidence, baselines or
+trend triggers. The checker rejects missing assets, a non-exact hashed logical name, duplicate
+logical names and anything other than one `index` entry; its compatibility `violations` list contains
+errors only. Rationale: [Vite chunkSizeWarningLimit](https://vite.dev/config/build-options.html#build-chunksizewarninglimit)
+describes a raw execution warning, [webpack performance budgets](https://webpack.js.org/configuration/performance/)
+separate warning/error hints, [Angular budgets](https://angular.dev/tools/cli/build) distinguish bundle
+types and severities, and [web.dev performance budgets](https://web.dev/articles/performance-budgets-101)
+supports combining transfer and execution signals rather than copying another tool's number.
+
+The route harness is the `cmp.web-modeling-route-profile.v1` profile: Process, Fit and Export are
+measured in that order, five fresh headless Chromium processes each, 1440×900/DPR1, `en-US`, light,
+reduced motion, disabled cache/service workers, CDP CPU throttle 4, 100 µs profiler, 10,000,000 /
+5,000,000 bits/s and 40 ms latency, with a fixed 400 ms settle (greater than the product timer).
+Process performs one non-persisting `processing:preview` with process-only steps; Fit performs the
+single Candidate-evidence drawer action after exact saved Fit restore; Export restores the exact Fit
+and reads the declared exporter capability without creating a target. The synthetic fixture is
+non-production metal only, pins all session references and revisions, serves only the documented
+GETs, rejects every durable/persistence mutation (the one Process preview POST is explicitly
+non-persisting), and records zero durable writes. Resource Timing `encodedBodySize`
+must equal the filesystem gzip observation for every same-origin `/assets/*.js`; transfer bytes/span,
+trace parse (`v8.parseOnBackground`/`v8.compileModule`), CDP ScriptDuration and CPU-profile node
+URLs are attributed per emitted chunk, while leaf samples provide the sampled CPU cost (which may be
+zero for a required chunk). Each route aggregate is the sorted-middle median of five;
+bytes are integers and milliseconds are rounded to three decimals after the median.
+
+The baseline is append-only and owner-controlled. `docs/14-testing/baselines/modeling-web-route.json`
+has the exact `cmp.web-modeling-route-baseline.v1` envelope; no automatic write or `--write-baseline`
+mode exists. A reviewed accepted-main observation stores the complete profile, hashes, environment,
+policy, bundle, fixture and route/chunk rows with sequence 1, then strictly increasing sequences;
+active overrides are rejected. Profile, fixture, action or metric semantic changes require a profile
+version bump and a new owner baseline. Measurement-profile, harness, fixture or policy mismatches are
+`not_comparable`; build fingerprints may differ between observations. Numeric candidates require both
+strict thresholds: transfer bytes >5% and >4096 B, transfer span >10% and >20 ms, parse >10% and >2
+ms, execute >10% and >10 ms. Required/loaded logical-chunk changes are candidates. Equality is not a
+candidate. A candidate is advisory and does not fail the command; malformed baselines fail with the
+contracted `BASELINE_*` diagnostics.
+
+The current inventory is common 118,572 raw / 29,811 gzip; Data Intake 25,912 / 7,399; Process Panel
+6,578 / 2,299; Fit Hardening Options 4,058 / 1,162; Fit Decision 13,795 / 3,773; Export
+Prerequisites 10,965 / 3,051; Target Preview 24,290 / 7,038; Validation 12,797 / 3,748. Common is
+below the 128,000 warning and 131,000 error, so no production React/CSS split is part of #189.
+Its remaining responsibilities are exact hydration/session invalidation/stage navigation/persistent
+graph/current-history; Data/Mapping authoring; closed Advanced Recipe/Batch; the Process controller;
+the Fit controller (including the exact restore consumed by Export); and a small Export bridge.
+Ordered future candidates are: (A) disclosure-only Advanced processing library (Recipe/Batch
+state/API/JSX, preserving draft callbacks, exact revisions, conflict and batch read-back); (B) the
+Data-only mapping-definition author/retry surface with the shared verified profile reference and
+canonical JSON; (C) a Process controller for preview/sanitize/workup/commit/history/ensemble with
+immutable snapshots to the shared graph; (D) a Fit controller plus one separate exact-fit-restore
+shared module preserving coalesced GET/digest/saved/stale/recovery/selection/export plot; and (E) no
+Export split unless attribution identifies a concrete remainder. At each candidate, remeasure every
+route, run contract tests, reject byte shuffling or state breaks, and stop when the trigger resolves.
+
+Triggers are analysis, never automatic splitting: raw >131,000 is an immediate error; two consecutive
+accepted observations with common status warning/error start review; persistent sub-warning growth
+needs three consecutive accepted observations with both common transitions ≥1,024 raw bytes and ≥1.0%.
+One, flat, decreasing or below-either transition does not trigger. Gzip-only movement never triggers;
+only a confirmed cold-route regression can establish material gzip impact. A route candidate becomes
+a split trigger only when the same route and metric repeats in two independently invoked five-sample
+compares with identical current build, profile, harness, fixture and environment. A default increase
+requires a product-owner comment naming old/new values and exact diff, the accepted-main full table,
+two independent comparable five-sample reports, the dependency inventory, a measured split experiment
+or contract rejection for every candidate, affected regressions, and proposed headroom/follow-up.
 
 ## T-47 bounded full-stack performance/security gate
 

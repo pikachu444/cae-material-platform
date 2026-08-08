@@ -11,7 +11,9 @@
     "build-storybook": "storybook build --output-dir storybook-static",
     "check:storybook": "npm run build-storybook",
     "test": "vitest run",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:bundle-budget": "node --test ../../scripts/check_web_bundle.test.mjs ../../scripts/measure_modeling_route.test.mjs",
+    "measure:modeling-route": "node ../../scripts/measure_modeling_route.mjs"
   },
   "dependencies": {
     "react": "19.2.7",
