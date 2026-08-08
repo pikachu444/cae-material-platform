@@ -46,7 +46,7 @@ React/CSS 기준은 `55cfa62`(PR #156), 승인된 시각 target은 `7601ec8`(PR 
 
 - [현재 전달 backlog](13-delivery/backlog.md)
 - [테스트 전략](14-testing/test-strategy.md)
-- [Codex 작업 오케스트레이션](14-testing/codex-orchestration-workflow.md)
+- [제품 작업 합격 조건과 증거](14-testing/product-work-acceptance.md)
 - [현재 screenshot manifest](user-guide/screenshot-manifest.yaml)
 - [사용자 가이드와 이미지 유지 규칙](user-guide/MAINTENANCE.md)
 - [승인 시각 target inventory](01-product/service-reference-inventory.yaml)

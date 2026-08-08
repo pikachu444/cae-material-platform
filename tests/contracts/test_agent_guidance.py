@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import tomllib
 from pathlib import Path
 
 from cmp.tools.user_guide import _documentation_classes
@@ -8,65 +7,70 @@ from cmp.tools.user_guide import _documentation_classes
 ROOT = Path(__file__).parents[2]
 AGENTS = ROOT / "AGENTS.md"
 AGENTS_MAX_BYTES = 8 * 1024
-AGENTS_DIR = ROOT / ".codex" / "agents"
 BACKLOG = ROOT / "docs" / "13-delivery" / "backlog.md"
-
-
-def _agent_config(filename: str) -> dict[str, object]:
-    return tomllib.loads((AGENTS_DIR / filename).read_text(encoding="utf-8"))
 
 
 def test_root_agent_guidance_stays_within_context_budget() -> None:
     assert len(AGENTS.read_bytes()) <= AGENTS_MAX_BYTES
 
 
-def test_root_agent_guidance_keeps_required_authority_and_safety_routes() -> None:
+def test_root_agent_guidance_keeps_authority_and_acceptance_boundaries() -> None:
     guidance = AGENTS.read_text(encoding="utf-8")
 
     for required in (
-        ".codex/config.toml",
-        ".codex/agents/*.toml",
         "docs/13-delivery/backlog.md",
+        "docs/14-testing/product-work-acceptance.md",
         ".agents/skills/desktop-engineering-ui",
         "docs/01-product/visual-acceptance-matrix.md",
         "git pull --ff-only origin main",
-        "active issue stays on",
+        "active issue",
         "all its listed units finish",
-        "configured role actually loaded",
-        "report the exact error",
+        "primary user journey",
+        "visible outcome",
+        "persistence/read-back outcome",
+        "preserved contract/state",
+        "Database/Profile/Table/Folder/Record",
+        "dominant persistent graph",
         "`make compose-preflight`",
+        "explicit owner instruction",
+        "failure or scope",
+        "renewed authority",
+        "expected base/head/diff/paths",
+        "inspect the pending diff",
+        "After commit and before publication",
+        "inspect the exact commit diff",
+        "fetch and read back remote state",
+        "Immediately after merge",
+        "verify the remote `main` merge SHA",
         "git reset",
         "git clean",
         "stash",
     ):
         assert required in guidance
 
-    for removed_instruction in ("#119", "automatic LLM review"):
-        assert removed_instruction not in guidance
+    for personal_instruction in (
+        ".codex/config.toml",
+        ".codex/agents",
+        "gpt-5.6",
+        "fork_turns",
+        "followup_task",
+        "close_agent",
+        "max_concurrent_threads_per_session",
+        "Full workflow",
+        "Balanced",
+    ):
+        assert personal_instruction not in guidance
 
-    for duplicated_model_instruction in ("GPT-", "Luna", "Terra", "Extra High"):
-        assert duplicated_model_instruction not in guidance
 
-
-def test_agent_role_configs_encode_writer_reviewer_and_correction_boundaries() -> None:
-    assert not (AGENTS_DIR / "correction-terra-high.toml").exists()
-
-    correction = _agent_config("correction-luna-max.toml")
-    assert correction["model"] == "gpt-5.6-luna"
-    assert correction["model_reasoning_effort"] == "max"
-    assert "Fresh one-shot" in str(correction["description"])
-
-    implementer = _agent_config("implementer-luna-max.toml")
-    implementer_instructions = str(implementer["developer_instructions"])
-    assert "packet's automated gates" in implementer_instructions
-    assert "unrun or blocked gates" in implementer_instructions
-    assert "never claim main-orchestrator live acceptance" in implementer_instructions
-
-    reviewer = _agent_config("reviewer-terra-high.toml")
-    reviewer_instructions = str(reviewer["developer_instructions"])
-    assert "every issue-required viewport" in reviewer_instructions
-    assert "original resolution" in reviewer_instructions
-    assert "never substitute a representative subset" in reviewer_instructions
+def test_personal_orchestration_files_are_absent_from_repository() -> None:
+    for relative in (
+        ".codex/config.toml",
+        ".codex/agents",
+        "docs/14-testing/codex-orchestration-workflow.md",
+        "docs/14-testing/codex-orchestration",
+        "docs/14-testing/main-orchestrator-acceptance.md",
+    ):
+        assert not (ROOT / relative).exists()
 
 
 def test_cold_start_routes_user_work_in_product_order() -> None:
@@ -100,6 +104,8 @@ def test_retired_instruction_documents_are_absent_and_unreferenced() -> None:
         "CODEX_DESKTOP_ENGINEERING_UI_START.md",
         "desktop-engineering-ui-backlog.md",
         "production-pilot-execution-plan.md",
+        "codex-orchestration-workflow.md",
+        "main-orchestrator-acceptance.md",
     )
     stale_reference_paths = (
         "docs/00-research/ux-layout-review/modeling.html",
