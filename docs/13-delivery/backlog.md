@@ -33,8 +33,10 @@
 - 2026-08-08 기획 gate에서 내부 전체 기획서와 동적 JSON Schema 참고 포맷을 현재 구현에 대조하고
   [#204~#216 계획](../12-roadmap/schema-driven-material-integration-plan.md)으로 분해했습니다. 이 gate는
   구현을 앞당기지 않습니다.
-- 현재 첫 미완료 단위는 순서 12 `#189 lazy chunk 예산과 Workbench 분할 기준`입니다. 그 다음은
-  #160이며, 새 확장 구현은 #189와 #160을 건너뛰어 시작하지 않습니다.
+- 순서 12 `#189 lazy chunk 예산과 Workbench 분할 기준`은
+  [PR #218](https://github.com/pikachu444/cae-material-platform/pull/218)에서 완료했습니다. 다음 미완료
+  단위는 순서 14 `#160 검토·승인·DB 공개·복구`이며, 새 확장 구현은 #160을 건너뛰어 시작하지
+  않습니다.
 
 #167의 승인 target은 다시 만들거나 재승인하지 않습니다. 과거 packet, correction 이미지와 완료
 보고서는 working tree에 보관하지 않고 Git/PR 이력에서 조회합니다.
@@ -84,7 +86,7 @@ packet, 검증, 검토, 제품 소유자 확인과 PR/merge를 거칩니다. iss
 | 9 | [#158 Modeling Fit 작업 3B — 실제 Fit 구현](https://github.com/pikachu444/cae-material-platform/issues/158) ([PR #198](https://github.com/pikachu444/cae-material-platform/pull/198)) | 같은 처리 결과에 여러 방법을 적용해 모델을 비교하고 사용할 모델을 명시적으로 선택 | merge된 3A 계약, issue의 작업 3B, `modeling-fit` 승인 화면, Fit React/API/state/test | 추천·선택·저장 상태 분리, 여러 방법/결과 보존, production persistence와 실제 revision round-trip, 그래프·키보드·시각 승인, merge |
 | 10 | [#158 Modeling Fit UI 정보 위계·공통 액션 보정](https://github.com/pikachu444/cae-material-platform/issues/158) ([PR #199](https://github.com/pikachu444/cae-material-platform/pull/199)) | Fit 상단 source/state 위계를 정리하고 104px ribbon, 여섯 그룹, Candidate evidence와 1366–3840 responsive geometry를 일관되게 제공 | issue 작업 3B 후속 packet, `modeling-fit` 승인 화면, Fit React/CSS/capture/document contracts | 공통 28px action baseline, source digest/method/run Evidence 이동, 상태 매핑·실패 복구·1920 recovery captures, 독립 visual acceptance |
 | 11 | [#158 Modeling Export](https://github.com/pikachu444/cae-material-platform/issues/158) ([PR #202](https://github.com/pikachu444/cae-material-platform/pull/202)) | 선택 모델에서 솔버별 카드를 생성·미리보기하고 Materials DB에 연결할 결과를 준비 | issue, `modeling-export` 승인 화면, selected-model·mapping·unit-system·solver-card 계약 | 솔버·버전·단위계별 결과, 지원 수준·차단 사유, 정확한 모델 연결, 시각 승인, merge |
-| 12 | [#189 lazy chunk 예산과 Workbench 분할 기준](https://github.com/pikachu444/cae-material-platform/issues/189) | 완성된 Process/Fit/Export의 실제 사용자 비용을 근거로 Workbench 성능과 분할 시점을 관리 | issue, production build 관찰값, bundle checker, test strategy, Process/Fit/Export 계약 | raw/gzip·실제 경로 비용, warning/error 근거와 분할 촉발 기준, 필요한 경우 별도 보존적 분할, merge |
+| 12 | [#189 lazy chunk 예산과 Workbench 분할 기준](https://github.com/pikachu444/cae-material-platform/issues/189) ([PR #218](https://github.com/pikachu444/cae-material-platform/pull/218)) | 완성된 Process/Fit/Export의 실제 사용자 비용을 근거로 Workbench 성능과 분할 시점을 관리 | issue, production build 관찰값, bundle checker, test strategy, Process/Fit/Export 계약 | raw/gzip·실제 경로 비용, warning/error 근거와 분할 촉발 기준, 필요한 경우 별도 보존적 분할, merge |
 | 13 | 2026 스키마 기반 확장 기획 gate (승인·issue 분해 완료) | 내부 기획과 동적 JSON Schema 참고 포맷을 현재 구현에 맞는 bounded issue로 전환 | [승인된 계획](../12-roadmap/schema-driven-material-integration-plan.md), #204~#216 | 고정 schema/EAV 오해 제거, 중복·충돌·의존성·결정 gate와 공개 보관 경계 기록 |
 | 14 | [#160 검토·승인·DB 공개·복구](https://github.com/pikachu444/cae-material-platform/issues/160) | 요청을 검토·승인하고 승인 결과를 Materials DB에서 찾고 내려받으며 실패를 복구 | issue, Activity/Admin 승인 화면, Record/Test Data subject, review·release·publication·download·recovery·권한 계약 | 역할별 흐름, 승인 결과 공개와 불변성, 무효화·복구·다운로드, 시각 승인, merge |
 | 15 | [#204 동적 JSON Schema 정의 bundle 계약·plan](https://github.com/pikachu444/cae-material-platform/issues/204) | 관리자가 임의 개수의 schema 정의를 적용 전에 검증하고 변경 계획을 확인 | issue, configurable Catalog/Artifact/Provenance, FR-CFG/LNK/JSON | versioned contract, deterministic no-write plan, arbitrary-cardinality fixture, merge |
