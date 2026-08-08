@@ -1,0 +1,1476 @@
+{
+  "schemaVersion": "cmp.web-modeling-route-baseline.v1",
+  "updatePolicy": {
+    "authority": "product_owner",
+    "automaticWritesAllowed": false,
+    "method": "append_reviewed_accepted_main_observation",
+    "compareCommand": "npm run measure:modeling-route --workspace @cmp/web -- --compare docs/14-testing/baselines/modeling-web-route.json"
+  },
+  "observations": [
+    {
+      "buildFingerprintSha256": "68ee4186ef8126f63a97aa2af8bf228b7f76024b2c55ee707933a1e6f5e49da5",
+      "profile": {
+        "version": "cmp.web-modeling-route-profile.v1",
+        "window": "cold_route_plus_required_action",
+        "routes": [
+          {
+            "id": "process",
+            "path": "/modeling?stage=process&family=metal",
+            "actions": [
+              "auto preview from the pinned Process session"
+            ],
+            "readinessSelectors": [
+              ".processing-workbench-page.stage-process .modeling-process-workspace-bounded",
+              "svg.processing-curve[aria-label=\"Mapped and selected processing stage curve overlay\"] polyline.curve-line",
+              "text=Preview ready."
+            ],
+            "requiredChunks": [
+              "common-processing-workbench",
+              "modeling-process-panel"
+            ]
+          },
+          {
+            "id": "fit",
+            "path": "/modeling?stage=fit&family=metal",
+            "actions": [
+              "click button.fit-evidence-trigger once"
+            ],
+            "readinessSelectors": [
+              ".processing-workbench-page.stage-fit .modeling-fit-workspace-bounded",
+              ".fit-surface-state-saved-current",
+              "svg.processing-curve polyline.curve-line",
+              "#fit-evidence-dock .fit-evidence-body[aria-label=\"Candidate parameters evidence\"]",
+              ".hardening-candidate-evidence[aria-label=\"Hardening candidate numerical comparison\"]"
+            ],
+            "requiredChunks": [
+              "common-processing-workbench",
+              "fit-hardening-options",
+              "modeling-fit-decision"
+            ]
+          },
+          {
+            "id": "export",
+            "path": "/modeling?stage=export&family=metal",
+            "actions": [
+              "restore exact saved Fit and inspect the Solver target capability"
+            ],
+            "readinessSelectors": [
+              ".processing-workbench-page.stage-export",
+              ".modeling-target-preview",
+              "select[aria-label=\"Solver target\"]:enabled",
+              "svg.fit-source-graph[aria-label=\"True plastic strain and true stress response\"]"
+            ],
+            "requiredChunks": [
+              "common-processing-workbench",
+              "modeling-target-preview"
+            ]
+          }
+        ],
+        "sampleCount": 5,
+        "timeoutMs": 15000,
+        "settleMs": 400,
+        "browser": {
+          "headless": true,
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "deviceScaleFactor": 1,
+          "locale": "en-US",
+          "colorScheme": "light",
+          "reducedMotion": "reduce",
+          "cacheDisabled": true,
+          "serviceWorkers": "block"
+        },
+        "network": {
+          "downloadBitsPerSecond": 10000000,
+          "uploadBitsPerSecond": 5000000,
+          "latencyMs": 40
+        },
+        "cpu": {
+          "throttleRate": 4,
+          "profilerSampleIntervalUs": 100
+        },
+        "gzip": {
+          "level": 9
+        },
+        "formulas": {
+          "transferBytes": "sum(resourceTiming.encodedBodySize)",
+          "transferSpanMs": "max(startTime+duration)-min(startTime)",
+          "parseMs": "sum(trace.v8.parseOnBackground+trace.v8.compileModule dur)/1000",
+          "executeMs": "(Performance.ScriptDuration_after-Performance.ScriptDuration_before)*1000",
+          "sampledCpuMs": "leafCpuSamples*0.1"
+        },
+        "categories": [
+          "devtools.timeline",
+          "v8",
+          "disabled-by-default-v8.compile",
+          "blink.user_timing"
+        ],
+        "events": [
+          "v8.parseOnBackground",
+          "v8.compileModule",
+          "ResourceTiming",
+          "Performance.ScriptDuration",
+          "Profiler.cpuProfile"
+        ],
+        "aggregation": {
+          "median": "sorted_middle_of_5",
+          "bytes": "integer",
+          "milliseconds": "round_3_after_median"
+        },
+        "regressionOrder": [
+          "requiredChunks",
+          "transferBytes",
+          "transferSpanMs",
+          "parseMs",
+          "executeMs"
+        ],
+        "regressionThresholds": {
+          "transferBytes": {
+            "relative": 0.05,
+            "absolute": 4096
+          },
+          "transferSpanMs": {
+            "relative": 0.1,
+            "absolute": 20
+          },
+          "parseMs": {
+            "relative": 0.1,
+            "absolute": 2
+          },
+          "executeMs": {
+            "relative": 0.1,
+            "absolute": 10
+          }
+        }
+      },
+      "measurementProfileSha256": "922356fac68915de59757c30c9a2b230fa1b5164d7db1eada33f071931dce1f4",
+      "harnessSha256": "7cd30116014ee79d26576331350bf85b33a3a8d1e003c717a2d438828e2dd781",
+      "environment": {
+        "nodeVersion": "v24.18.0",
+        "platform": "win32",
+        "osRelease": "10.0.26200",
+        "arch": "x64",
+        "cpuModel": "11th Gen Intel(R) Core(TM) i9-11900H @ 2.50GHz",
+        "chromiumVersion": "149.0.7827.55",
+        "headless": true,
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "deviceScaleFactor": 1,
+        "locale": "en-US",
+        "colorScheme": "light",
+        "reducedMotion": "reduce",
+        "cpuThrottleRate": 4,
+        "network": {
+          "downloadBitsPerSecond": 10000000,
+          "uploadBitsPerSecond": 5000000,
+          "latencyMs": 40
+        },
+        "profilerSampleIntervalUs": 100,
+        "sampleCount": 5,
+        "gzipLevel": 9
+      },
+      "policy": {
+        "measurement": "raw_bytes",
+        "gzip": "observation_only_node_zlib_level_9",
+        "overrideActive": false,
+        "activeOverrides": [],
+        "entry": {
+          "warningBytes": 285000,
+          "errorBytes": 300000,
+          "warningPurpose": "review growth before the hard entry ceiling",
+          "errorPurpose": "fail the production build"
+        },
+        "lazy": {
+          "warningBytes": 128000,
+          "errorBytes": 131000,
+          "warningPurpose": "start prospective Workbench trend review",
+          "errorPurpose": "fail the production build"
+        },
+        "overrideNames": {
+          "entryWarning": "CMP_WEB_ENTRY_WARNING_BYTES",
+          "entryError": "CMP_WEB_ENTRY_BUDGET_BYTES",
+          "lazyWarning": "CMP_WEB_LAZY_CHUNK_WARNING_BYTES",
+          "lazyError": "CMP_WEB_LAZY_CHUNK_BUDGET_BYTES"
+        }
+      },
+      "bundle": {
+        "observations": [
+          {
+            "kind": "entry",
+            "logicalName": "index",
+            "emittedFile": "index-BP3UIJHH.js",
+            "rawBytes": 258101,
+            "gzipBytes": 73773,
+            "warningBytes": 285000,
+            "errorBytes": 300000,
+            "headroomBytes": 41899,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "bulk-export-center",
+            "emittedFile": "bulk-export-center-B1E05ImY.js",
+            "rawBytes": 9932,
+            "gzipBytes": 3210,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 121068,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "canonical-test-data-workbench",
+            "emittedFile": "canonical-test-data-workbench-Cw77_DP0.js",
+            "rawBytes": 13800,
+            "gzipBytes": 4136,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 117200,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "catalog-explorer",
+            "emittedFile": "catalog-explorer-zORwtOBr.js",
+            "rawBytes": 18718,
+            "gzipBytes": 4784,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 112282,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "catalog-genealogy-workbench",
+            "emittedFile": "catalog-genealogy-workbench-tkKOWPHh.js",
+            "rawBytes": 16692,
+            "gzipBytes": 4146,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 114308,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "common-processing-workbench",
+            "emittedFile": "common-processing-workbench-CCranWNW.js",
+            "rawBytes": 118572,
+            "gzipBytes": 29811,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 12428,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "configurable-catalog-admin",
+            "emittedFile": "configurable-catalog-admin-slokKxyy.js",
+            "rawBytes": 45988,
+            "gzipBytes": 7704,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 85012,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "configurable-catalog-records",
+            "emittedFile": "configurable-catalog-records-D_vWO9oo.js",
+            "rawBytes": 31040,
+            "gzipBytes": 7443,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 99960,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "domain-workflow-links",
+            "emittedFile": "domain-workflow-links-DicazwYM.js",
+            "rawBytes": 2658,
+            "gzipBytes": 1145,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 128342,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "engineering-curve-plot",
+            "emittedFile": "engineering-curve-plot-B-nbVDdS.js",
+            "rawBytes": 42332,
+            "gzipBytes": 12940,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 88668,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "fit-hardening-options",
+            "emittedFile": "fit-hardening-options-CTjbUp54.js",
+            "rawBytes": 4058,
+            "gzipBytes": 1162,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 126942,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "governance-evidence-workbench",
+            "emittedFile": "governance-evidence-workbench-BXwiV6t1.js",
+            "rawBytes": 11839,
+            "gzipBytes": 3049,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 119161,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "governed-import-route",
+            "emittedFile": "governed-import-route-CmCAvF3S.js",
+            "rawBytes": 14050,
+            "gzipBytes": 4215,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 116950,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "material-database-explorer",
+            "emittedFile": "material-database-explorer-DEVAGbQG.js",
+            "rawBytes": 30541,
+            "gzipBytes": 7081,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 100459,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "material-library",
+            "emittedFile": "material-library-Du5h-zAH.js",
+            "rawBytes": 100983,
+            "gzipBytes": 25440,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 30017,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "material-modeling-workspace",
+            "emittedFile": "material-modeling-workspace-DZRa2Etl.js",
+            "rawBytes": 10122,
+            "gzipBytes": 3214,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 120878,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "materials-scroll-rail",
+            "emittedFile": "materials-scroll-rail-CZlfxS3I.js",
+            "rawBytes": 4138,
+            "gzipBytes": 1618,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 126862,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "modeling-data-intake",
+            "emittedFile": "modeling-data-intake-DIYlfTV1.js",
+            "rawBytes": 25912,
+            "gzipBytes": 7399,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 105088,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "modeling-export-prerequisites",
+            "emittedFile": "modeling-export-prerequisites-DUKOytDy.js",
+            "rawBytes": 10965,
+            "gzipBytes": 3051,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 120035,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "modeling-fit-decision",
+            "emittedFile": "modeling-fit-decision-E_0qs-bx.js",
+            "rawBytes": 13795,
+            "gzipBytes": 3773,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 117205,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "modeling-fit-output",
+            "emittedFile": "modeling-fit-output-CVj0rNOI.js",
+            "rawBytes": 10339,
+            "gzipBytes": 3114,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 120661,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "modeling-process-panel",
+            "emittedFile": "modeling-process-panel-Bq9cgKkL.js",
+            "rawBytes": 6578,
+            "gzipBytes": 2299,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 124422,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "modeling-session-context",
+            "emittedFile": "modeling-session-context-Iock0LEh.js",
+            "rawBytes": 10593,
+            "gzipBytes": 3061,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 120407,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "modeling-target-preview",
+            "emittedFile": "modeling-target-preview-Bon5coq7.js",
+            "rawBytes": 24290,
+            "gzipBytes": 7038,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 106710,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "modeling-validation-stage",
+            "emittedFile": "modeling-validation-stage-D1pOZv5V.js",
+            "rawBytes": 12797,
+            "gzipBytes": 3748,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 118203,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "neutral-hyperelastic-export",
+            "emittedFile": "neutral-hyperelastic-export-BfNXJ4Q5.js",
+            "rawBytes": 11781,
+            "gzipBytes": 3559,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 119219,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "operations-dashboard",
+            "emittedFile": "operations-dashboard-CvmS2PBE.js",
+            "rawBytes": 3163,
+            "gzipBytes": 1211,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 127837,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "product-access-center",
+            "emittedFile": "product-access-center-aoc3iTPY.js",
+            "rawBytes": 8807,
+            "gzipBytes": 2768,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 122193,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "reference-calibration-workbench",
+            "emittedFile": "reference-calibration-workbench-GWv1c6GX.js",
+            "rawBytes": 16569,
+            "gzipBytes": 4545,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 114431,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "reference-elastoplastic-workbench",
+            "emittedFile": "reference-elastoplastic-workbench-VVTzquPV.js",
+            "rawBytes": 22252,
+            "gzipBytes": 6147,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 108748,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "reference-linear-viscoelastic-workbench",
+            "emittedFile": "reference-linear-viscoelastic-workbench-Cuh5BTDO.js",
+            "rawBytes": 19627,
+            "gzipBytes": 5357,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 111373,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "reference-ogden-prony-workbench",
+            "emittedFile": "reference-ogden-prony-workbench-Bh4tYTA3.js",
+            "rawBytes": 41317,
+            "gzipBytes": 10141,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 89683,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "reference-shear-relaxation-workflow",
+            "emittedFile": "reference-shear-relaxation-workflow-DuAbUgFT.js",
+            "rawBytes": 19689,
+            "gzipBytes": 5302,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 111311,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "reference-tensile-workflow",
+            "emittedFile": "reference-tensile-workflow-DLnJ9tw6.js",
+            "rawBytes": 88005,
+            "gzipBytes": 18576,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 42995,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "reference-validation-workbench",
+            "emittedFile": "reference-validation-workbench-BTeOku7y.js",
+            "rawBytes": 20194,
+            "gzipBytes": 5132,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 110806,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "release-workbench",
+            "emittedFile": "release-workbench-PRUkd9bk.js",
+            "rawBytes": 8379,
+            "gzipBytes": 2602,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 122621,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "resizable-split-pane",
+            "emittedFile": "resizable-split-pane-Cym9KNhB.js",
+            "rawBytes": 38267,
+            "gzipBytes": 12007,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 92733,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "rolldown-runtime",
+            "emittedFile": "rolldown-runtime-D9-fqq9M.js",
+            "rawBytes": 86,
+            "gzipBytes": 88,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 130914,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "solver-card-delivery",
+            "emittedFile": "solver-card-delivery-C1BJnuO1.js",
+            "rawBytes": 4268,
+            "gzipBytes": 1726,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 126732,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "test-context-workbench",
+            "emittedFile": "test-context-workbench-DWE-L4K9.js",
+            "rawBytes": 12430,
+            "gzipBytes": 3395,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 118570,
+            "status": "ok"
+          },
+          {
+            "kind": "lazy",
+            "logicalName": "viscoelastic-master-workbench",
+            "emittedFile": "viscoelastic-master-workbench-5H3nUaT9.js",
+            "rawBytes": 10830,
+            "gzipBytes": 3551,
+            "warningBytes": 128000,
+            "errorBytes": 131000,
+            "headroomBytes": 120170,
+            "status": "ok"
+          }
+        ],
+        "summary": {
+          "status": "ok",
+          "warningCount": 0,
+          "errorCount": 0,
+          "largestRaw": {
+            "kind": "entry",
+            "logicalName": "index",
+            "emittedFile": "index-BP3UIJHH.js",
+            "bytes": 258101
+          },
+          "largestGzip": {
+            "kind": "entry",
+            "logicalName": "index",
+            "emittedFile": "index-BP3UIJHH.js",
+            "bytes": 73773
+          }
+        }
+      },
+      "fixture": {
+        "fixtureId": "issue-189-synthetic-metal-v1",
+        "fixtureSha256": "8fcbe4aa5dd8b316e07d5a9644da1fd69c2d8f2eef58244b186229e344b6b14a",
+        "nonProduction": true,
+        "materialFamily": "metal",
+        "sessionStorageKey": "cmp.modeling.recent-session.v4",
+        "routes": [
+          {
+            "id": "process",
+            "requests": [
+              {
+                "method": "GET",
+                "path": "/api/v1/catalog/domain-bindings:resolve?kind=processing_output&object_id=18900000-0000-4000-8000-000000000013&revision_id=18900000-0000-4000-8000-000000000014",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/catalog/domain-bindings:resolve?kind=processing_output&object_id=18900000-0000-4000-8000-000000000016&revision_id=18900000-0000-4000-8000-000000000017",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/common-processing-batches",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/common-processing-recipes",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/demo-identity/token",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/mapping-profiles",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/materials/18900000-0000-4000-8000-000000000001",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/materials?limit=50&offset=0&material_class=metal",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/processing-ensemble-methods",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/processing-methods",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/processing-outputs",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/test-data-documents",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/test-data-documents/18900000-0000-4000-8000-000000000007/revisions/18900000-0000-4000-8000-000000000008/content",
+                "count": 5
+              },
+              {
+                "method": "POST",
+                "path": "/api/v1/processing:preview",
+                "count": 5
+              }
+            ],
+            "allowedPreviewPosts": 1,
+            "persistentWrites": 0,
+            "unexpectedRequests": 0
+          },
+          {
+            "id": "fit",
+            "requests": [
+              {
+                "method": "GET",
+                "path": "/api/v1/catalog/domain-bindings:resolve?kind=processing_output&object_id=18900000-0000-4000-8000-000000000013&revision_id=18900000-0000-4000-8000-000000000014",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/catalog/domain-bindings:resolve?kind=processing_output&object_id=18900000-0000-4000-8000-000000000016&revision_id=18900000-0000-4000-8000-000000000017",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/common-processing-batches",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/common-processing-recipes",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/demo-identity/token",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/mapping-profiles",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/materials/18900000-0000-4000-8000-000000000001",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/materials?limit=50&offset=0&material_class=metal",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/processing-ensemble-methods",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/processing-methods",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/processing-outputs",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/processing-outputs/18900000-0000-4000-8000-000000000016/content",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/test-data-documents",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/test-data-documents/18900000-0000-4000-8000-000000000007/revisions/18900000-0000-4000-8000-000000000008/content",
+                "count": 5
+              }
+            ],
+            "allowedPreviewPosts": 0,
+            "persistentWrites": 0,
+            "unexpectedRequests": 0
+          },
+          {
+            "id": "export",
+            "requests": [
+              {
+                "method": "GET",
+                "path": "/api/v1/catalog/domain-bindings:resolve?kind=processing_output&object_id=18900000-0000-4000-8000-000000000013&revision_id=18900000-0000-4000-8000-000000000014",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/catalog/domain-bindings:resolve?kind=processing_output&object_id=18900000-0000-4000-8000-000000000016&revision_id=18900000-0000-4000-8000-000000000017",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/common-processing-batches",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/common-processing-recipes",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/demo-identity/token",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/exporters/reference-elastoplastic/capabilities",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/mapping-profiles",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/materials/18900000-0000-4000-8000-000000000001",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/materials?limit=50&offset=0&material_class=metal",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/processing-ensemble-methods",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/processing-methods",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/processing-outputs",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/processing-outputs/18900000-0000-4000-8000-000000000016/content",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/test-data-documents",
+                "count": 5
+              },
+              {
+                "method": "GET",
+                "path": "/api/v1/test-data-documents/18900000-0000-4000-8000-000000000007/revisions/18900000-0000-4000-8000-000000000008/content",
+                "count": 5
+              }
+            ],
+            "allowedPreviewPosts": 0,
+            "persistentWrites": 0,
+            "unexpectedRequests": 0
+          }
+        ]
+      },
+      "routes": [
+        {
+          "id": "process",
+          "path": "/modeling?stage=process&family=metal",
+          "window": "cold_route_plus_required_action",
+          "readinessSelectors": [
+            ".processing-workbench-page.stage-process .modeling-process-workspace-bounded",
+            "svg.processing-curve[aria-label=\"Mapped and selected processing stage curve overlay\"] polyline.curve-line",
+            "text=Preview ready."
+          ],
+          "actions": [
+            "auto preview from the pinned Process session"
+          ],
+          "requiredChunks": [
+            "common-processing-workbench",
+            "modeling-process-panel"
+          ],
+          "sampleCount": 5,
+          "loadedChunks": [
+            "common-processing-workbench",
+            "domain-workflow-links",
+            "engineering-curve-plot",
+            "index",
+            "material-modeling-workspace",
+            "modeling-process-panel",
+            "modeling-session-context",
+            "resizable-split-pane",
+            "rolldown-runtime",
+            "viscoelastic-master-workbench"
+          ],
+          "transferBytes": 141889,
+          "transferSpanMs": 933.7,
+          "parseMs": 220.76,
+          "executeMs": 417.408,
+          "chunks": [
+            {
+              "logicalName": "common-processing-workbench",
+              "emittedFile": "common-processing-workbench-CCranWNW.js",
+              "rawBytes": 118572,
+              "gzipBytes": 29811,
+              "policyStatus": "ok",
+              "headroomBytes": 12428,
+              "transferBytes": 29811,
+              "transferDurationMs": 99.2,
+              "parseMs": 34.036,
+              "sampledCpuMs": 7
+            },
+            {
+              "logicalName": "domain-workflow-links",
+              "emittedFile": "domain-workflow-links-DicazwYM.js",
+              "rawBytes": 2658,
+              "gzipBytes": 1145,
+              "policyStatus": "ok",
+              "headroomBytes": 128342,
+              "transferBytes": 1145,
+              "transferDurationMs": 63.3,
+              "parseMs": 0.38,
+              "sampledCpuMs": 0.2
+            },
+            {
+              "logicalName": "engineering-curve-plot",
+              "emittedFile": "engineering-curve-plot-B-nbVDdS.js",
+              "rawBytes": 42332,
+              "gzipBytes": 12940,
+              "policyStatus": "ok",
+              "headroomBytes": 88668,
+              "transferBytes": 12940,
+              "transferDurationMs": 95.8,
+              "parseMs": 30.93,
+              "sampledCpuMs": 3.7
+            },
+            {
+              "logicalName": "index",
+              "emittedFile": "index-BP3UIJHH.js",
+              "rawBytes": 258101,
+              "gzipBytes": 73773,
+              "policyStatus": "ok",
+              "headroomBytes": 41899,
+              "transferBytes": 73773,
+              "transferDurationMs": 193.9,
+              "parseMs": 130.182,
+              "sampledCpuMs": 46.1
+            },
+            {
+              "logicalName": "material-modeling-workspace",
+              "emittedFile": "material-modeling-workspace-DZRa2Etl.js",
+              "rawBytes": 10122,
+              "gzipBytes": 3214,
+              "policyStatus": "ok",
+              "headroomBytes": 120878,
+              "transferBytes": 3214,
+              "transferDurationMs": 68.4,
+              "parseMs": 0.629,
+              "sampledCpuMs": 0.6
+            },
+            {
+              "logicalName": "modeling-process-panel",
+              "emittedFile": "modeling-process-panel-Bq9cgKkL.js",
+              "rawBytes": 6578,
+              "gzipBytes": 2299,
+              "policyStatus": "ok",
+              "headroomBytes": 124422,
+              "transferBytes": 2299,
+              "transferDurationMs": 70.1,
+              "parseMs": 0.446,
+              "sampledCpuMs": 0.5
+            },
+            {
+              "logicalName": "modeling-session-context",
+              "emittedFile": "modeling-session-context-Iock0LEh.js",
+              "rawBytes": 10593,
+              "gzipBytes": 3061,
+              "policyStatus": "ok",
+              "headroomBytes": 120407,
+              "transferBytes": 3061,
+              "transferDurationMs": 69.2,
+              "parseMs": 0.974,
+              "sampledCpuMs": 2.2
+            },
+            {
+              "logicalName": "resizable-split-pane",
+              "emittedFile": "resizable-split-pane-Cym9KNhB.js",
+              "rawBytes": 38267,
+              "gzipBytes": 12007,
+              "policyStatus": "ok",
+              "headroomBytes": 92733,
+              "transferBytes": 12007,
+              "transferDurationMs": 81.4,
+              "parseMs": 16.408,
+              "sampledCpuMs": 41.8
+            },
+            {
+              "logicalName": "rolldown-runtime",
+              "emittedFile": "rolldown-runtime-D9-fqq9M.js",
+              "rawBytes": 86,
+              "gzipBytes": 88,
+              "policyStatus": "ok",
+              "headroomBytes": 130914,
+              "transferBytes": 88,
+              "transferDurationMs": 65.9,
+              "parseMs": 0.494,
+              "sampledCpuMs": 0
+            },
+            {
+              "logicalName": "viscoelastic-master-workbench",
+              "emittedFile": "viscoelastic-master-workbench-5H3nUaT9.js",
+              "rawBytes": 10830,
+              "gzipBytes": 3551,
+              "policyStatus": "ok",
+              "headroomBytes": 120170,
+              "transferBytes": 3551,
+              "transferDurationMs": 68.2,
+              "parseMs": 0.84,
+              "sampledCpuMs": 0
+            }
+          ]
+        },
+        {
+          "id": "fit",
+          "path": "/modeling?stage=fit&family=metal",
+          "window": "cold_route_plus_required_action",
+          "readinessSelectors": [
+            ".processing-workbench-page.stage-fit .modeling-fit-workspace-bounded",
+            ".fit-surface-state-saved-current",
+            "svg.processing-curve polyline.curve-line",
+            "#fit-evidence-dock .fit-evidence-body[aria-label=\"Candidate parameters evidence\"]",
+            ".hardening-candidate-evidence[aria-label=\"Hardening candidate numerical comparison\"]"
+          ],
+          "actions": [
+            "click button.fit-evidence-trigger once"
+          ],
+          "requiredChunks": [
+            "common-processing-workbench",
+            "fit-hardening-options",
+            "modeling-fit-decision"
+          ],
+          "sampleCount": 5,
+          "loadedChunks": [
+            "common-processing-workbench",
+            "domain-workflow-links",
+            "engineering-curve-plot",
+            "fit-hardening-options",
+            "index",
+            "material-modeling-workspace",
+            "modeling-fit-decision",
+            "modeling-fit-output",
+            "modeling-session-context",
+            "resizable-split-pane",
+            "rolldown-runtime",
+            "viscoelastic-master-workbench"
+          ],
+          "transferBytes": 147639,
+          "transferSpanMs": 1863.7,
+          "parseMs": 223.365,
+          "executeMs": 434.949,
+          "chunks": [
+            {
+              "logicalName": "common-processing-workbench",
+              "emittedFile": "common-processing-workbench-CCranWNW.js",
+              "rawBytes": 118572,
+              "gzipBytes": 29811,
+              "policyStatus": "ok",
+              "headroomBytes": 12428,
+              "transferBytes": 29811,
+              "transferDurationMs": 101.1,
+              "parseMs": 32.184,
+              "sampledCpuMs": 6.4
+            },
+            {
+              "logicalName": "domain-workflow-links",
+              "emittedFile": "domain-workflow-links-DicazwYM.js",
+              "rawBytes": 2658,
+              "gzipBytes": 1145,
+              "policyStatus": "ok",
+              "headroomBytes": 128342,
+              "transferBytes": 1145,
+              "transferDurationMs": 58.9,
+              "parseMs": 0.26,
+              "sampledCpuMs": 0.2
+            },
+            {
+              "logicalName": "engineering-curve-plot",
+              "emittedFile": "engineering-curve-plot-B-nbVDdS.js",
+              "rawBytes": 42332,
+              "gzipBytes": 12940,
+              "policyStatus": "ok",
+              "headroomBytes": 88668,
+              "transferBytes": 12940,
+              "transferDurationMs": 95.7,
+              "parseMs": 30.963,
+              "sampledCpuMs": 4.7
+            },
+            {
+              "logicalName": "fit-hardening-options",
+              "emittedFile": "fit-hardening-options-CTjbUp54.js",
+              "rawBytes": 4058,
+              "gzipBytes": 1162,
+              "policyStatus": "ok",
+              "headroomBytes": 126942,
+              "transferBytes": 1162,
+              "transferDurationMs": 62,
+              "parseMs": 0.425,
+              "sampledCpuMs": 0.4
+            },
+            {
+              "logicalName": "index",
+              "emittedFile": "index-BP3UIJHH.js",
+              "rawBytes": 258101,
+              "gzipBytes": 73773,
+              "policyStatus": "ok",
+              "headroomBytes": 41899,
+              "transferBytes": 73773,
+              "transferDurationMs": 197.8,
+              "parseMs": 132.934,
+              "sampledCpuMs": 51.1
+            },
+            {
+              "logicalName": "material-modeling-workspace",
+              "emittedFile": "material-modeling-workspace-DZRa2Etl.js",
+              "rawBytes": 10122,
+              "gzipBytes": 3214,
+              "policyStatus": "ok",
+              "headroomBytes": 120878,
+              "transferBytes": 3214,
+              "transferDurationMs": 66.8,
+              "parseMs": 0.706,
+              "sampledCpuMs": 0.6
+            },
+            {
+              "logicalName": "modeling-fit-decision",
+              "emittedFile": "modeling-fit-decision-E_0qs-bx.js",
+              "rawBytes": 13795,
+              "gzipBytes": 3773,
+              "policyStatus": "ok",
+              "headroomBytes": 117205,
+              "transferBytes": 3773,
+              "transferDurationMs": 62.3,
+              "parseMs": 0.542,
+              "sampledCpuMs": 0.4
+            },
+            {
+              "logicalName": "modeling-fit-output",
+              "emittedFile": "modeling-fit-output-CVj0rNOI.js",
+              "rawBytes": 10339,
+              "gzipBytes": 3114,
+              "policyStatus": "ok",
+              "headroomBytes": 120661,
+              "transferBytes": 3114,
+              "transferDurationMs": 62.5,
+              "parseMs": 0.479,
+              "sampledCpuMs": 1.3
+            },
+            {
+              "logicalName": "modeling-session-context",
+              "emittedFile": "modeling-session-context-Iock0LEh.js",
+              "rawBytes": 10593,
+              "gzipBytes": 3061,
+              "policyStatus": "ok",
+              "headroomBytes": 120407,
+              "transferBytes": 3061,
+              "transferDurationMs": 70.1,
+              "parseMs": 0.665,
+              "sampledCpuMs": 1.6
+            },
+            {
+              "logicalName": "resizable-split-pane",
+              "emittedFile": "resizable-split-pane-Cym9KNhB.js",
+              "rawBytes": 38267,
+              "gzipBytes": 12007,
+              "policyStatus": "ok",
+              "headroomBytes": 92733,
+              "transferBytes": 12007,
+              "transferDurationMs": 82.9,
+              "parseMs": 15.632,
+              "sampledCpuMs": 49.8
+            },
+            {
+              "logicalName": "rolldown-runtime",
+              "emittedFile": "rolldown-runtime-D9-fqq9M.js",
+              "rawBytes": 86,
+              "gzipBytes": 88,
+              "policyStatus": "ok",
+              "headroomBytes": 130914,
+              "transferBytes": 88,
+              "transferDurationMs": 66.1,
+              "parseMs": 0.52,
+              "sampledCpuMs": 0.1
+            },
+            {
+              "logicalName": "viscoelastic-master-workbench",
+              "emittedFile": "viscoelastic-master-workbench-5H3nUaT9.js",
+              "rawBytes": 10830,
+              "gzipBytes": 3551,
+              "policyStatus": "ok",
+              "headroomBytes": 120170,
+              "transferBytes": 3551,
+              "transferDurationMs": 68.9,
+              "parseMs": 0.489,
+              "sampledCpuMs": 0
+            }
+          ]
+        },
+        {
+          "id": "export",
+          "path": "/modeling?stage=export&family=metal",
+          "window": "cold_route_plus_required_action",
+          "readinessSelectors": [
+            ".processing-workbench-page.stage-export",
+            ".modeling-target-preview",
+            "select[aria-label=\"Solver target\"]:enabled",
+            "svg.fit-source-graph[aria-label=\"True plastic strain and true stress response\"]"
+          ],
+          "actions": [
+            "restore exact saved Fit and inspect the Solver target capability"
+          ],
+          "requiredChunks": [
+            "common-processing-workbench",
+            "modeling-target-preview"
+          ],
+          "sampleCount": 5,
+          "loadedChunks": [
+            "common-processing-workbench",
+            "domain-workflow-links",
+            "engineering-curve-plot",
+            "index",
+            "material-modeling-workspace",
+            "materials-scroll-rail",
+            "modeling-export-prerequisites",
+            "modeling-fit-output",
+            "modeling-session-context",
+            "modeling-target-preview",
+            "resizable-split-pane",
+            "rolldown-runtime",
+            "solver-card-delivery",
+            "viscoelastic-master-workbench"
+          ],
+          "transferBytes": 156137,
+          "transferSpanMs": 1371.9,
+          "parseMs": 232.057,
+          "executeMs": 293.412,
+          "chunks": [
+            {
+              "logicalName": "common-processing-workbench",
+              "emittedFile": "common-processing-workbench-CCranWNW.js",
+              "rawBytes": 118572,
+              "gzipBytes": 29811,
+              "policyStatus": "ok",
+              "headroomBytes": 12428,
+              "transferBytes": 29811,
+              "transferDurationMs": 100.2,
+              "parseMs": 32.776,
+              "sampledCpuMs": 4.6
+            },
+            {
+              "logicalName": "domain-workflow-links",
+              "emittedFile": "domain-workflow-links-DicazwYM.js",
+              "rawBytes": 2658,
+              "gzipBytes": 1145,
+              "policyStatus": "ok",
+              "headroomBytes": 128342,
+              "transferBytes": 1145,
+              "transferDurationMs": 67.3,
+              "parseMs": 0.422,
+              "sampledCpuMs": 0.3
+            },
+            {
+              "logicalName": "engineering-curve-plot",
+              "emittedFile": "engineering-curve-plot-B-nbVDdS.js",
+              "rawBytes": 42332,
+              "gzipBytes": 12940,
+              "policyStatus": "ok",
+              "headroomBytes": 88668,
+              "transferBytes": 12940,
+              "transferDurationMs": 89.4,
+              "parseMs": 30.275,
+              "sampledCpuMs": 1.1
+            },
+            {
+              "logicalName": "index",
+              "emittedFile": "index-BP3UIJHH.js",
+              "rawBytes": 258101,
+              "gzipBytes": 73773,
+              "policyStatus": "ok",
+              "headroomBytes": 41899,
+              "transferBytes": 73773,
+              "transferDurationMs": 200.9,
+              "parseMs": 136.067,
+              "sampledCpuMs": 38.7
+            },
+            {
+              "logicalName": "material-modeling-workspace",
+              "emittedFile": "material-modeling-workspace-DZRa2Etl.js",
+              "rawBytes": 10122,
+              "gzipBytes": 3214,
+              "policyStatus": "ok",
+              "headroomBytes": 120878,
+              "transferBytes": 3214,
+              "transferDurationMs": 70.3,
+              "parseMs": 0.537,
+              "sampledCpuMs": 0.4
+            },
+            {
+              "logicalName": "materials-scroll-rail",
+              "emittedFile": "materials-scroll-rail-CZlfxS3I.js",
+              "rawBytes": 4138,
+              "gzipBytes": 1618,
+              "policyStatus": "ok",
+              "headroomBytes": 126862,
+              "transferBytes": 1618,
+              "transferDurationMs": 65.2,
+              "parseMs": 0.356,
+              "sampledCpuMs": 17.6
+            },
+            {
+              "logicalName": "modeling-export-prerequisites",
+              "emittedFile": "modeling-export-prerequisites-DUKOytDy.js",
+              "rawBytes": 10965,
+              "gzipBytes": 3051,
+              "policyStatus": "ok",
+              "headroomBytes": 120035,
+              "transferBytes": 3051,
+              "transferDurationMs": 65,
+              "parseMs": 0.762,
+              "sampledCpuMs": 0.2
+            },
+            {
+              "logicalName": "modeling-fit-output",
+              "emittedFile": "modeling-fit-output-CVj0rNOI.js",
+              "rawBytes": 10339,
+              "gzipBytes": 3114,
+              "policyStatus": "ok",
+              "headroomBytes": 120661,
+              "transferBytes": 3114,
+              "transferDurationMs": 63.3,
+              "parseMs": 0.553,
+              "sampledCpuMs": 1.3
+            },
+            {
+              "logicalName": "modeling-session-context",
+              "emittedFile": "modeling-session-context-Iock0LEh.js",
+              "rawBytes": 10593,
+              "gzipBytes": 3061,
+              "policyStatus": "ok",
+              "headroomBytes": 120407,
+              "transferBytes": 3061,
+              "transferDurationMs": 68.5,
+              "parseMs": 0.722,
+              "sampledCpuMs": 1.5
+            },
+            {
+              "logicalName": "modeling-target-preview",
+              "emittedFile": "modeling-target-preview-Bon5coq7.js",
+              "rawBytes": 24290,
+              "gzipBytes": 7038,
+              "policyStatus": "ok",
+              "headroomBytes": 106710,
+              "transferBytes": 7038,
+              "transferDurationMs": 72.8,
+              "parseMs": 6.243,
+              "sampledCpuMs": 1.3
+            },
+            {
+              "logicalName": "resizable-split-pane",
+              "emittedFile": "resizable-split-pane-Cym9KNhB.js",
+              "rawBytes": 38267,
+              "gzipBytes": 12007,
+              "policyStatus": "ok",
+              "headroomBytes": 92733,
+              "transferBytes": 12007,
+              "transferDurationMs": 81.4,
+              "parseMs": 15.479,
+              "sampledCpuMs": 0.1
+            },
+            {
+              "logicalName": "rolldown-runtime",
+              "emittedFile": "rolldown-runtime-D9-fqq9M.js",
+              "rawBytes": 86,
+              "gzipBytes": 88,
+              "policyStatus": "ok",
+              "headroomBytes": 130914,
+              "transferBytes": 88,
+              "transferDurationMs": 60.3,
+              "parseMs": 0.505,
+              "sampledCpuMs": 0
+            },
+            {
+              "logicalName": "solver-card-delivery",
+              "emittedFile": "solver-card-delivery-C1BJnuO1.js",
+              "rawBytes": 4268,
+              "gzipBytes": 1726,
+              "policyStatus": "ok",
+              "headroomBytes": 126732,
+              "transferBytes": 1726,
+              "transferDurationMs": 64.1,
+              "parseMs": 0.318,
+              "sampledCpuMs": 0
+            },
+            {
+              "logicalName": "viscoelastic-master-workbench",
+              "emittedFile": "viscoelastic-master-workbench-5H3nUaT9.js",
+              "rawBytes": 10830,
+              "gzipBytes": 3551,
+              "policyStatus": "ok",
+              "headroomBytes": 120170,
+              "transferBytes": 3551,
+              "transferDurationMs": 68.4,
+              "parseMs": 0.726,
+              "sampledCpuMs": 0
+            }
+          ]
+        }
+      ],
+      "sequence": 1,
+      "acceptedMainSha": "50f544572fae5888979264e72124d13bdec35974"
+    }
+  ]
+}
