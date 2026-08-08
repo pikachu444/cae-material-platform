@@ -36,8 +36,13 @@ Production 표준, plugin, solver correlation과 validation threshold는 domain 
 
 ## 알려진 공백
 
-- production UI는 PR #156 기능 기준선이며, PR #170의 승인 target은 아직 #158부터 #161까지
-  화면별로 React에 이식해야 합니다.
+- 관리자가 임의 개수의 JSON Schema 정의를 bundle로 계획·적용·내보내는 기능은 아직 없습니다.
+  현재 configurable Catalog CRUD와 publication 기반을 재사용하는 [#204~#216 통합 계획](docs/12-roadmap/schema-driven-material-integration-plan.md)을
+  승인했으며, 예시 schema의 이름이나 개수는 제품 고정 형식이 아닙니다. 첫 구현 단위는 현재
+  backlog의 #189와 #160 이후에 시작합니다.
+- #158 Data/Process/Fit/Export production UI는 PR #183~#202에서 현재 화면에 연결했습니다. 남은
+  Activity/Administration 공개·복구 화면은 #160, 공통 화면 정리는 #161이 소유하며, 새 기획의
+  Administration/Template/OIDC 화면은 각각 #208, #214, #215에서 별도 검수합니다.
 - Materials의 provider/evidence source, condition-aware property, validation·solver readiness는
   실제 governed query projection이 없는 상태에서 추론하지 않습니다.
 - Activity의 실패 작업 복구, delivery receipt와 release projection은 #160 범위입니다.
