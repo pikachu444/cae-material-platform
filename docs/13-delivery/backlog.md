@@ -79,7 +79,7 @@ packet, 검증, 검토, 제품 소유자 확인과 PR/merge를 거칩니다. iss
 | 4 | [#158 Modeling Data](https://github.com/pikachu444/cae-material-platform/issues/158) | 재료와 하나 이상의 시험 데이터를 정확한 개정본으로 연결하고 사용할 곡선을 선택 | issue, visual skill, inventory의 `modeling-data`, 선택된 manifest entry, test-data/link/API/state/test | 연결·단위·채널·여러 시험 데이터·오류 복구, 시각 승인, merge |
 | 5 | [#158 Modeling Process](https://github.com/pikachu444/cae-material-platform/issues/158) | 원본을 바꾸지 않고 처리 방법별 결과를 만들어 비교·저장 | issue, `modeling-process` 승인 화면, processing·revision·invalidation 계약 | 처리 설정·결과·원본 연결·재실행·무효화, 그래프와 시각 승인, merge |
 | 6 | [#158 Modeling Process 7개 결과·저장 사용성 보정](https://github.com/pikachu444/cae-material-platform/issues/158) | 계산 결과와 저장 행동을 한눈에 구분하고 Process 화면을 현재 기준으로 확정 | issue의 병합 뒤 제품 소유자 피드백, `modeling-process` 승인 화면, Process React/CSS/state/test | 잘림 없는 method 선택, 직접 읽히는 결과, 충분한 저장 입력, 절제된 상태·보조 문구, 명확한 saved-results disclosure, 지속 그래프·오류 복구·current/history 보존, 시각 승인, merge |
-| 7 | [#190 메인 오케스트레이터 acceptance 문서](https://github.com/pikachu444/cae-material-platform/issues/190) ([PR #194](https://github.com/pikachu444/cae-material-platform/pull/194)) | 이후 작업의 요구·실화면·보존 계약·검증 조건이 세션과 구현자를 넘어 일관되게 추적됨 | issue, root `AGENTS.md`, orchestration workflow, desktop-engineering-ui skill의 관련 절 | 짧은 acceptance trace와 AGENTS 라우팅, known-bad 실패 예시, 역할 경계와 과잉 집착 방지 규칙, merge |
+| 7 | [#190 메인 오케스트레이터 acceptance 문서](https://github.com/pikachu444/cae-material-platform/issues/190) ([PR #194](https://github.com/pikachu444/cae-material-platform/pull/194)) | 이후 작업의 요구·실화면·보존 계약·검증 조건이 세션과 구현자를 넘어 일관되게 추적됨 | issue, root `AGENTS.md`, 현재 `product-work-acceptance`, desktop-engineering-ui skill의 관련 절 | 짧은 acceptance trace와 known-bad 실패 예시, 사용자 결과·보존·검증 경계, merge |
 | 8 | [#158 Modeling Fit 작업 3A — 공학 검증 계약과 reference set](https://github.com/pikachu444/cae-material-platform/issues/158) ([PR #197](https://github.com/pikachu444/cae-material-platform/pull/197)) | 네 금속 hardening 공개식과 독립 reference 값·식별성·검증 경계를 후속 구현이 재현할 수 있음 | issue의 작업 3A, fitting validation, synthetic fixture/manifest, production hardening 식과 관련 test | Altair 2025 식 계약, 독립 stress/tangent/objective/recovery·tamper gate, provenance digest, reviewer 승인, merge |
 | 9 | [#158 Modeling Fit 작업 3B — 실제 Fit 구현](https://github.com/pikachu444/cae-material-platform/issues/158) ([PR #198](https://github.com/pikachu444/cae-material-platform/pull/198)) | 같은 처리 결과에 여러 방법을 적용해 모델을 비교하고 사용할 모델을 명시적으로 선택 | merge된 3A 계약, issue의 작업 3B, `modeling-fit` 승인 화면, Fit React/API/state/test | 추천·선택·저장 상태 분리, 여러 방법/결과 보존, production persistence와 실제 revision round-trip, 그래프·키보드·시각 승인, merge |
 | 10 | [#158 Modeling Fit UI 정보 위계·공통 액션 보정](https://github.com/pikachu444/cae-material-platform/issues/158) ([PR #199](https://github.com/pikachu444/cae-material-platform/pull/199)) | Fit 상단 source/state 위계를 정리하고 104px ribbon, 여섯 그룹, Candidate evidence와 1366–3840 responsive geometry를 일관되게 제공 | issue 작업 3B 후속 packet, `modeling-fit` 승인 화면, Fit React/CSS/capture/document contracts | 공통 28px action baseline, source digest/method/run Evidence 이동, 상태 매핑·실패 복구·1920 recovery captures, 독립 visual acceptance |
@@ -100,13 +100,12 @@ packet, 검증, 검토, 제품 소유자 확인과 PR/merge를 거칩니다. iss
   공개 흐름은 병렬로 구현하지 않습니다.
 - 새 작업의 첫 요청에는 `이전 단위가 병합된 최신 main에서 backlog의 첫 미완료 작업 단위를
   진행하라`고 적으면 됩니다. 대화 기억 대신 이 문서와 GitHub issue의 완료 표시를 사용합니다.
-- merge 직후 최종 보고 전에 메인 오케스트레이터가 exact issue에 PR·merge SHA·다음 단위를 기록하고,
+- merge 직후 최종 보고 전에 작업 책임자가 exact issue에 PR·merge SHA·다음 단위를 기록하고,
   해당하는 경우 parent tracker(`#117`)의 대응 항목을 체크합니다. 여러 작업 단위가 있는 issue는
   모든 행이 끝날 때까지 열어 둡니다.
-- 메인 오케스트레이터가 exact issue와 현재 계약을 해석해 구현 packet을 GitHub issue에 저장합니다.
-  구현자와 reviewer는 그 packet의 정확한 URL만 받습니다.
-- 모델, 수정 횟수, reviewer, 승인, commit/push/PR/merge 경계는 `AGENTS.md`와 `.codex` 설정을
-  따릅니다. 이 문서나 issue 본문에서 중복 정의하지 않습니다.
+- exact issue와 현재 계약에서 범위·사용자 결과·보존 상태·검증 조건을 정해 GitHub issue에
+  기록합니다. 작업 방식과 개인 도구 설정은 저장소 밖에서 관리하며 이 문서에 중복 정의하지
+  않습니다. 승인과 commit/push/PR/merge 경계는 `AGENTS.md`를 따릅니다.
 - 대형 spec과 manifest는 처음부터 읽지 않습니다. `rg`로 ID·family·component를 찾아 관련 절과
   선택된 entry만 읽고, 시각 작업에서는 승인 이미지를 원본 해상도로 직접 확인합니다.
 - `docs/_incoming/2026-07-24-organic-ux-update/`는 #162 전에는 읽거나 삭제하지 않습니다.
