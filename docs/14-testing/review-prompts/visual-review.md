@@ -17,8 +17,11 @@ images only. Do not call shell, MCP, browser, network, or other tools:
 
 Inspect every attached current PNG directly. Compare a base-revision image when supplied and open
 the relevant repository reference images. Verify the manifest route, fixture, dimensions, and
-pending-feature semantics. Evaluate every target at 1366×768 and 1440×900 and at 1920×1080 when
-the manifest or layout requires it.
+pending-feature semantics. Evaluate every user-visible React/CSS target at 1366×768, 1440×900,
+1920×1080, 2560×1440, and 3840×2160. Open the original-resolution image and the supplied 100%-pixel
+crops; a scaled contact sheet is insufficient. At 2560/3840, explicitly reject a one-sided 1920 px
+work island, dominant void caused by an arbitrary shell cap, tiny fixed-density controls, uniform
+stretching, route-specific 4K overrides, fabricated filler, and non-uniform plot geometry.
 
 Use only the authoritative V-01 through V-16 matrix and its route-specific gates. Check topology,
 dominant area, nested persistent cards, overflow, typography and density, primary commands,
