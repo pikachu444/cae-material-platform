@@ -24,17 +24,17 @@
 - 순서 5 `#158 Modeling Process`는 제품 소유자 확인을 거쳐 PR #188, main `38571a8`에서
   완료했습니다. Modeling Process 시각 일관성 후속도 PR #191, main `e7c938b`에서 완료했습니다.
 - 순서 6 `#158 Modeling Process 7개 결과·저장 사용성 보정`은 제품 소유자 확인·승인을 거쳐 PR #192,
-  main `248e086`에서 완료했습니다. 순서 7 `#190 메인 오케스트레이터 acceptance 문서`는 구현,
-  main acceptance와 독립 review를 거쳐 PR #194에서 완료했습니다. 순서 8 `#158 Modeling Fit 작업 3A —
-  공학 검증 계약과 reference set`은 PR #197, main `31f9a3f`에서 완료했습니다. 순서 9
-  `작업 3B — 실제 Fit 구현`은 구현과 독립 review를 완료해 [PR #198](https://github.com/pikachu444/cae-material-platform/pull/198)에
-  기록했습니다. 순서 10 `#158 Modeling Fit UI 정보 위계·공통 액션 보정`은
-  [PR #199](https://github.com/pikachu444/cae-material-platform/pull/199), main `c7d0143`에서
-  완료했습니다. 순서 11 `#158 Modeling Export`는 구현, main acceptance, 독립 review와 제품 소유자
-  최종 시각 승인을 완료해 [PR #202](https://github.com/pikachu444/cae-material-platform/pull/202)에
-  기록했습니다. merge 전까지 순서 11과 #158은 열린 상태로 유지하며, merge 뒤 첫 미완료 단위는
-  순서 12 `#189 lazy chunk 예산과 Workbench 분할 기준`입니다. #189, 2026 Modeling expansion,
-  #160, #161, #184, #162는 시작하지 않았습니다.
+  main `248e086`에서 완료했습니다. 순서 7 `#190 메인 오케스트레이터 acceptance 문서`는 PR #194,
+  순서 8 `#158 Modeling Fit 작업 3A`는 PR #197, 순서 9 실제 Fit은 PR #198, 순서 10 Fit UI
+  보정은 PR #199에서 완료했습니다.
+- 순서 11 `#158 Modeling Export`는 구현, main acceptance, 독립 review와 제품 소유자 최종 시각
+  승인을 거쳐 [PR #202](https://github.com/pikachu444/cae-material-platform/pull/202), main
+  `94387e4`에서 완료했고 #158을 닫았습니다.
+- 2026-08-08 기획 gate에서 내부 전체 기획서와 동적 JSON Schema 참고 포맷을 현재 구현에 대조하고
+  [#204~#216 계획](../12-roadmap/schema-driven-material-integration-plan.md)으로 분해했습니다. 이 gate는
+  구현을 앞당기지 않습니다.
+- 현재 첫 미완료 단위는 순서 12 `#189 lazy chunk 예산과 Workbench 분할 기준`입니다. 그 다음은
+  #160이며, 새 확장 구현은 #189와 #160을 건너뛰어 시작하지 않습니다.
 
 #167의 승인 target은 다시 만들거나 재승인하지 않습니다. 과거 packet, correction 이미지와 완료
 보고서는 working tree에 보관하지 않고 Git/PR 이력에서 조회합니다.
@@ -85,12 +85,25 @@ packet, 검증, 검토, 제품 소유자 확인과 PR/merge를 거칩니다. iss
 | 10 | [#158 Modeling Fit UI 정보 위계·공통 액션 보정](https://github.com/pikachu444/cae-material-platform/issues/158) ([PR #199](https://github.com/pikachu444/cae-material-platform/pull/199)) | Fit 상단 source/state 위계를 정리하고 104px ribbon, 여섯 그룹, Candidate evidence와 1366–3840 responsive geometry를 일관되게 제공 | issue 작업 3B 후속 packet, `modeling-fit` 승인 화면, Fit React/CSS/capture/document contracts | 공통 28px action baseline, source digest/method/run Evidence 이동, 상태 매핑·실패 복구·1920 recovery captures, 독립 visual acceptance |
 | 11 | [#158 Modeling Export](https://github.com/pikachu444/cae-material-platform/issues/158) ([PR #202](https://github.com/pikachu444/cae-material-platform/pull/202)) | 선택 모델에서 솔버별 카드를 생성·미리보기하고 Materials DB에 연결할 결과를 준비 | issue, `modeling-export` 승인 화면, selected-model·mapping·unit-system·solver-card 계약 | 솔버·버전·단위계별 결과, 지원 수준·차단 사유, 정확한 모델 연결, 시각 승인, merge |
 | 12 | [#189 lazy chunk 예산과 Workbench 분할 기준](https://github.com/pikachu444/cae-material-platform/issues/189) | 완성된 Process/Fit/Export의 실제 사용자 비용을 근거로 Workbench 성능과 분할 시점을 관리 | issue, production build 관찰값, bundle checker, test strategy, Process/Fit/Export 계약 | raw/gzip·실제 경로 비용, warning/error 근거와 분할 촉발 기준, 필요한 경우 별도 보존적 분할, merge |
-| 13 | 2026 Modeling 스타일·공학 계산 확장 (기획 시작 시 별도 issue 생성) | 완성된 기본 Modeling 흐름을 기준으로 공식 Material Modeler/MCalibration 자료의 기능과 계산 trace를 선별해 확장 | 제품 소유자가 승인한 별도 issue, 공식 manual·release 자료, 병합된 Process/Fit/Export 계약 | 상세 기획에서 범위·계산 입력·단위·수치 검증·UX migration을 승인한 뒤 별도 구현 단위로 분해; 이 행에서는 생산 모델·optimizer·threshold를 임의 결정하지 않음 |
-| 14 | [#160 검토·승인·DB 공개·복구](https://github.com/pikachu444/cae-material-platform/issues/160) | 요청을 검토·승인하고 승인 결과를 Materials DB에서 찾고 내려받으며 실패를 복구 | issue, Activity/Admin 승인 화면, review·release·publication·download·recovery·권한 계약 | 역할별 흐름, 승인 결과 공개와 불변성, 무효화·복구·다운로드, 시각 승인, merge |
-| 15 | [#161 공통 화면 정리](https://github.com/pikachu444/cae-material-platform/issues/161) | 트리·표·그래프·상태·키보드 조작이 모든 완료 화면에서 일관됨 | issue, visual/frontend skill, 활성 화면·공통 구성요소·사용 여부와 승인 화면 | 접근성·긴 이름·스크롤·넘침, 삭제 대상 참조 0, 전체 회귀와 시각 승인, merge |
-| 16 | [#184 4K·고DPI 전역 대응](https://github.com/pikachu444/cae-material-platform/issues/184) | 4K와 Windows 100%·150%·200% 배율에서도 핵심 화면을 읽고 조작할 수 있음 | issue, #161 결과, 공통 크기 토큰, 필수 정상·예외 viewport와 실제 Windows 표시 환경 | 공통 배율 체계, 1366~3840 정상·고위험 상태, 실제 고DPI 정성 검토와 제품 소유자 승인, merge |
-| 17 | [#162 Ubuntu VM·문서 최종 검증](https://github.com/pikachu444/cae-material-platform/issues/162) | 지원 환경에서 전체 흐름과 역할별 복구가 재현되고 현재 문서와 화면이 일치 | issue, 병합된 기능·화면, 전체 문서 목록. 이 단계에서만 임시 문서 묶음을 읽음 | Hyper-V Ubuntu VM의 깨끗한 실행, 전체 흐름·역추적, 문서/화면 일치, 임시 자료 정리, merge |
-| 18 | [#162 공개 실측 데이터 최종 검증](https://github.com/pikachu444/cae-material-platform/issues/162) | 인터넷에서 확보한 실제 측정 샘플을 제품에 등록해 솔버 카드와 Materials 재조회까지 완료 | issue의 고정 NIST Numisheet 2020 파일·공식 해시·이용조건, 병합된 실제 제품 흐름 | 원본 바이트·출처 보존, 실제 등록·처리·여러 모델·선택·카드 생성·검토·승인·재조회·다운로드·원본 역추적 자동 확인, 최종 승인, merge |
+| 13 | 2026 스키마 기반 확장 기획 gate (승인·issue 분해 완료) | 내부 기획과 동적 JSON Schema 참고 포맷을 현재 구현에 맞는 bounded issue로 전환 | [승인된 계획](../12-roadmap/schema-driven-material-integration-plan.md), #204~#216 | 고정 schema/EAV 오해 제거, 중복·충돌·의존성·결정 gate와 공개 보관 경계 기록 |
+| 14 | [#160 검토·승인·DB 공개·복구](https://github.com/pikachu444/cae-material-platform/issues/160) | 요청을 검토·승인하고 승인 결과를 Materials DB에서 찾고 내려받으며 실패를 복구 | issue, Activity/Admin 승인 화면, Record/Test Data subject, review·release·publication·download·recovery·권한 계약 | 역할별 흐름, 승인 결과 공개와 불변성, 무효화·복구·다운로드, 시각 승인, merge |
+| 15 | [#204 동적 JSON Schema 정의 bundle 계약·plan](https://github.com/pikachu444/cae-material-platform/issues/204) | 관리자가 임의 개수의 schema 정의를 적용 전에 검증하고 변경 계획을 확인 | issue, configurable Catalog/Artifact/Provenance, FR-CFG/LNK/JSON | versioned contract, deterministic no-write plan, arbitrary-cardinality fixture, merge |
+| 16 | [#205 공통 CAE unit과 Unit Profile](https://github.com/pikachu444/cae-material-platform/issues/205) | 등록부터 Export까지 같은 차원·단위와 profile을 사용 | issue, 기존 13개 registration mapping, canonical Test Data와 Export unit 계약 | 공통 service/profile, 기존 호환성, dimension·round-trip 검증, merge |
+| 17 | [#206 curve channel metadata와 deviation](https://github.com/pikachu444/cae-material-platform/issues/206) | Chart·Statistics·Fit가 곡선 채널·단위·편차를 같은 의미로 표시 | issue, #205, curve/Test Data/Artifact 계약 | additive metadata, 과거 adapter, contract·chart 회귀, merge |
+| 18 | [#207 정의 bundle apply/export와 provenance](https://github.com/pikachu444/cae-material-platform/issues/207) | 승인한 plan을 원자적으로 적용하고 source JSON까지 역추적·재내보내기 | issue, #204~#205, Catalog publication/Revision/Artifact/Provenance | 멱등 apply, rollback, semantic round-trip, exact lineage, merge |
+| 19 | [#210 scalar distribution fitting](https://github.com/pikachu444/cae-material-platform/issues/210) | 반복 scalar 값의 후보 분포와 적합 근거를 비교·선택·저장 | issue, #205, Statistics/Calibration 계약 | Normal/Lognormal/Weibull 후보, 수치·재현·persistence 검증, merge |
+| 20 | [#212 explicit toe compensation](https://github.com/pikachu444/cae-material-platform/issues/212) | 원본을 보존하며 명시적으로 선택한 toe 보정 결과와 영향을 비교 | issue의 method/tolerance 결정 gate, #158 Process/Fit 계약 | 승인된 단일 방법, replay·failure·overlay·Fit input 검증, merge |
+| 21 | [#208 Definition Bundle Administration UI](https://github.com/pikachu444/cae-material-platform/issues/208) | 관리자가 upload → plan → apply → read-back/export를 안전하게 수행 | issue, #204/#207, Administration 승인 화면과 권한 | stale/conflict/recovery, 역할·browser·viewport 검증, merge |
+| 22 | [#209 DMA·FLD governed import](https://github.com/pikachu444/cae-material-platform/issues/209) | DMA/FLD 원본을 검증해 canonical Test Data로 등록·연결 | issue, #160, #205~#207, governed import/Test Data | 두 독립 profile, 품질·unit·provenance·review/browser 검증, merge |
+| 23 | [#211 representative envelope와 approved Fit input](https://github.com/pikachu444/cae-material-platform/issues/211) | 반복 곡선의 mean/p05/p95를 검토하고 승인된 exact revision을 Fit에 사용 | issue, #160, #206/#210, Statistics/Fit 계약 | alignment/quantile·lineage·review·Fit selection 검증, merge |
+| 24 | [#213 governed solver-card Template 기반](https://github.com/pikachu444/cae-material-platform/issues/213) | 기존 Export 결과를 보존하며 검토된 Template로 안전하게 render | issue의 sandbox ADR gate, #160/#205, #158 Export | renderer 호환성, isolation, exact Template/Mapping provenance, merge |
+| 25 | [#214 LS-DYNA MAT_024·다중 단위·Template UI](https://github.com/pikachu444/cae-material-platform/issues/214) | released Template로 MAT_024와 여러 Unit Profile 카드를 생성·관리 | issue, #160/#205/#213, solver mapping/Administration | golden·unit·review·preview/download checksum·기존 solver 회귀, merge |
+| 26 | [#215 SPA OIDC Code+PKCE](https://github.com/pikachu444/cae-material-platform/issues/215) | production SPA login·logout·expiry/권한 오류를 안전하게 복구 | issue, #160, identity/security 계약과 deployment config | provider·negative·role·production bypass E2E, merge |
+| 27 | [#216 제품 command audit wiring](https://github.com/pikachu444/cae-material-platform/issues/216) | 주요 command의 성공·거절·복구를 기존 hash chain에서 누락 없이 추적 | issue, #160, 필요 시 #213/#215, Audit 계약 | event matrix, atomicity, redaction, integrity·restore 검증, merge |
+| 28 | [#161 공통 화면 정리](https://github.com/pikachu444/cae-material-platform/issues/161) | 트리·표·그래프·상태·키보드 조작이 모든 완료 화면에서 일관됨 | issue, visual/frontend skill, 활성 화면·공통 구성요소·사용 여부와 승인 화면 | 접근성·긴 이름·스크롤·넘침, 삭제 대상 참조 0, 전체 회귀와 시각 승인, merge |
+| 29 | [#184 4K·고DPI 전역 대응](https://github.com/pikachu444/cae-material-platform/issues/184) | 4K와 Windows 100%·150%·200% 배율에서도 핵심 화면을 읽고 조작할 수 있음 | issue, #161 결과, 공통 크기 토큰, 필수 정상·예외 viewport와 실제 Windows 표시 환경 | 공통 배율 체계, 1366~3840 정상·고위험 상태, 실제 고DPI 정성 검토와 제품 소유자 승인, merge |
+| 30 | [#162 Ubuntu VM·문서 최종 검증](https://github.com/pikachu444/cae-material-platform/issues/162) | 지원 환경에서 전체 흐름과 역할별 복구가 재현되고 현재 문서와 화면이 일치 | issue, 병합된 기능·화면, 전체 문서 목록. 이 단계에서만 임시 문서 묶음을 읽음 | Hyper-V Ubuntu VM의 깨끗한 실행, 전체 흐름·역추적, 문서/화면 일치, 임시 자료 정리, merge |
+| 31 | [#162 공개 실측 데이터 최종 검증](https://github.com/pikachu444/cae-material-platform/issues/162) | 인터넷에서 확보한 실제 측정 샘플을 제품에 등록해 솔버 카드와 Materials 재조회까지 완료 | issue의 고정 NIST Numisheet 2020 파일·공식 해시·이용조건, 병합된 실제 제품 흐름 | 원본 바이트·출처 보존, 실제 등록·처리·여러 모델·선택·카드 생성·검토·승인·재조회·다운로드·원본 역추적 자동 확인, 최종 승인, merge |
 
 ## 새 Codex 작업 운영
 
