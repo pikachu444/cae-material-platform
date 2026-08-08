@@ -43,9 +43,26 @@
   original assets, affected contracts, and `docs/01-product/visual-acceptance-matrix.md`.
 - Use `frontend-ui-engineering` for React/CSS, `web-design-guidelines` for explicit UI audits, and
   `webapp-testing` for browser evidence.
-- Open every required viewport at original resolution; check visibility, clipping, wrapping, exact
-  identity/revision, interaction reachability, and layout bounds. Hidden text and measurements do not
-  replace normal-surface usability. The owner checklist and final visual approval are hard gates.
+- For every user-visible React/CSS change, capture the live before/after state at 1366×768,
+  1440×900, 1920×1080, 2560×1440, and 3840×2160 with browser zoom fixed at 100%. Open every image at
+  original resolution and also provide 100%-pixel crops of the header, navigator, table/form controls,
+  and graph or native preview where applicable. A scaled contact sheet alone is not approval evidence.
+- The application shell uses the full viewport. Inside it, graphs, tables, and native previews may grow
+  while extra space improves comparison or interaction; navigators, property forms, and prose retain
+  readable bounds. A one-sided 1920 px work island, unrelated internal void, or tiny fixed-density UI at
+  2560/3840 fails, as does uniformly stretching every row, sentence, form, or plot merely to fill space.
+- Only #160 and #161 may carry an already-existing global high-DPI failure forward to #184, and only
+  with the before/after evidence, exact affected routes/states, no new page-specific workaround, and an
+  explicit product-owner disposition. After #184 merges, no later visual task may defer this gate.
+- Implement display tiers only through shared typography, control, row, spacing, pane, and plot tokens.
+  Do not use route-specific 4K overrides, CSS `zoom`, blanket `transform: scale`, fabricated filler, or
+  non-uniform SVG stretching. Automated viewport capture proves geometry, not physical readability;
+  #184 additionally records actual Windows 4K 100%, 150%, and 200% scale, CSS viewport, and device pixel
+  ratio.
+- Check visibility, clipping, wrapping, exact identity/revision, interaction reachability, and layout
+  bounds. Hidden text and measurements do not replace normal-surface usability. Present the original
+  1920/2560/3840 comparison to the product owner and do not merge before the owner checklist and final
+  visual approval pass.
 
 ## Domain invariants
 

@@ -61,6 +61,9 @@ The application has four modes. These are workspaces, not separate mini-products
 
 ### 4.2 Dimensions
 
+Unless stated otherwise, the numeric dimensions below are compact-tier baselines. #184 may introduce
+shared high-DPI tiers after actual Windows display-scale review; route-specific values remain forbidden.
+
 - Global application bar: 44–48 px.
 - Workspace controls are workspace-specific. Materials, Activity, and Administration do not claim a
   permanent generic command/status band when their current route does not render one.
@@ -71,36 +74,44 @@ The application has four modes. These are workspaces, not separate mini-products
 - Persistent pane padding: 8–12 px.
 - Standard data row: 26–30 px.
 - Page/pane title: 14–18 px depending on hierarchy.
-- Data/control text: 13–13.5 px.
-- Metadata: 11.5–12 px.
+- Compact-tier data/control text: 13–13.5 px.
+- Compact-tier metadata: 11.5–12 px.
+- Shared high-DPI tiers may increase typography, control, row, spacing, pane, and plot tokens after
+  actual Windows display-scale comparison; pages do not select private scale values.
 
 ### 4.2.1 Wide-screen semantic elasticity
 
 The 1366×768 and 1440×900 references establish the compact safety topology; they are not a
-maximum-content template stretched across every larger display. At 1920×1080 and above, bounded
-navigator, list, form, graph and preview regions keep readable dimensions. Related task components
-form one left- and top-aligned working cluster with only the normal divider or gutter between them.
-Unused space is permitted after that cluster, primarily at the far right and bottom.
+maximum-content template stretched across every larger display. At 1920×1080 and above, the
+application shell uses the full viewport. Related task components stay adjacent, but each region
+expands or stops according to its function instead of inheriting one global 1920 px cap.
 
-- Graphs, data grids, native previews and real Layout/Record previews grow only while additional
-  size improves reading, comparison or interaction; they stop at a useful bound rather than
-  stretching merely to fill the viewport.
+- Graphs, data grids, native previews and real Layout/Record previews grow while additional size
+  improves reading, comparison or interaction; they stop at a useful bound rather than stretching
+  merely to fill the viewport.
 - Navigation rails, compact control bands and property forms remain bounded; their rows and prose
   do not stretch merely to occupy pixels.
+- When a bounded region stops growing, remaining gutters are balanced around that region or allocated
+  to a truthful adjacent task region. The complete application must not remain as a one-sided 1920 px
+  island on a 2560/3840 viewport.
 - Additional wide-screen content must come from the same current record, layout, mapping, curve or
   workflow projection. Explanatory filler, duplicated labels and invented technical metadata are not
   accepted.
-- A large void inside the working cluster is a qualitative failure when it separates related
-  components or hides an existing contract-backed result. Trailing right/bottom whitespace is not a
-  failure by itself; forced stretching or fabricated content used only to eliminate it is a failure.
+- A large void inside the task or a dominant trailing void caused by an arbitrary shell cap is a
+  qualitative failure when a graph, table, preview or existing contract-backed result can use that
+  space meaningfully. Modest balanced gutters after truthful content reaches its useful bound are
+  acceptable; forced stretching or fabricated content used only to eliminate whitespace is not.
 - A normal pageable search reference uses a representative complete server page when that page is
   already available from the scoped query. An intentionally under-filled demo fixture is not a
   sparse-state exception and cannot justify a large empty result grid.
 - Responsive graph geometry is recomputed from the rendered plot box. SVG is acceptable when its
   viewBox and marks use the same aspect ratio; non-uniform stretching is forbidden. Canvas or WebGL
   is reserved for point density or interaction cost that SVG cannot meet, not for repairing layout.
-- 2560×1440 and 3840×2160 are deterministic wide-screen evidence viewports. They do not add approval
-  inventory items unless their topology differs materially from the registered 1920×1080 target.
+- 2560×1440 and 3840×2160 are mandatory deterministic wide-screen evidence viewports for every
+  user-visible React/CSS change. They do not rewrite #167's approved static inventory, but their live
+  original-resolution comparison and product-owner disposition are required before merge. #184 also
+  verifies actual Windows 4K 100%, 150%, and 200% display scale because emulated viewports do not prove
+  physical readability.
 
 ### 4.3 Command hierarchy
 
@@ -366,12 +377,13 @@ Commands:
 
 Every operation shows its effect as a graph overlay before commit. The source curve remains visible or recoverable.
 
-At 2560×1440 and 3840×2160, the Process graph does not grow indefinitely or introduce a separate
-response table merely to occupy the viewport. Its plot keeps the 1920 useful pixel size and aspect, while its
-right edge aligns with the bounded operation settings and `Save processed curves` action above.
-The graph and settings therefore read as one left/top task cluster; unused space remains only after
-that cluster at the far right and bottom. These wide viewports retain the 1920 topology and are
-deterministic support evidence rather than separate approval lifecycle targets.
+At 2560×1440 and 3840×2160, the Process graph expands while additional plot area improves curve
+comparison and point/range interaction, then stops at a measured useful bound. Its right edge remains
+coherent with the operation settings and `Save processed curves` action above. The full shell still
+uses the viewport, bounded controls keep readable dimensions, and any remaining gutters are balanced;
+the task must not remain as a one-sided 1920 px island. A separate response table or unrelated content
+is not introduced merely to occupy pixels. These live wide-screen captures require product-owner
+disposition even though they do not rewrite #167's static approval inventory.
 
 ### 7.5 Fit stage
 
@@ -515,7 +527,7 @@ uses a representative page from the existing `listReviewRequests(..., { limit: 5
 instead of an intentionally under-filled one-row fixture. The queue remains one flat, locally
 scrolling work table with `Task | Request reason | Status | Updated | Action`; it does not fabricate
 Material or Owner display names that the response does not supply. At 1920×1080, 2560×1440 and
-3840×2160, additional height exposes more complete rows at the same compact density rather than
+3840×2160, additional height exposes more complete rows at the active shared display tier rather than
 stretching rows, adding explanatory cards or leaving an avoidable dominant blank region.
 
 Advanced disclosure:
@@ -613,11 +625,11 @@ Use plain consequences instead: identify a user or team, state what the role can
 links keep the selected versions, and tell the Administrator whether publishing is available.
 
 Administration reference captures enforce the shared typography system rather than merely checking
-an upper bound. Data values and controls use the 13 px data token; visible metadata, help, revision
-and status text use the 11.5–12 px metadata tokens. Ordinary rows, buttons and explanatory text do
-not use weight 650 or greater. Ellipsis remains a last resort for genuinely long identities with an
-immediate full-value affordance; ordinary example identities, related Record targets and solver-card
-names must not be clipped simply to preserve a narrow list or preview column.
+an upper bound. The compact tier uses the 13 px data token and 11.5–12 px metadata tokens; an approved
+shared high-DPI tier may increase them without route-specific overrides. Ordinary rows, buttons and
+explanatory text do not use weight 650 or greater. Ellipsis remains a last resort for genuinely long
+identities with an immediate full-value affordance; ordinary example identities, related Record
+targets and solver-card names must not be clipped simply to preserve a narrow list or preview column.
 
 ## 10. Loading, empty, error and job states
 
@@ -769,7 +781,9 @@ Required Playwright scenarios:
 6. Link Type → Related Records navigation;
 7. interrupted session → Activity → exact resume context.
 
-Required viewports: 1366×768, 1440×900 and 1920×1080.
+Required live viewports: 1366×768, 1440×900, 1920×1080, 2560×1440, and 3840×2160.
+#184 and later shared display-tier changes also require actual Windows 4K 100%, 150%, and 200%
+physical-readability evidence.
 
 ## 17. Non-goals
 

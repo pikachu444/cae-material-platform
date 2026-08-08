@@ -42,7 +42,7 @@ If Figma is used, create these pages:
 5. Modeling workbench
 6. Administration
 7. Component states
-8. Responsive 1366 / 1440 / 1920
+8. Responsive 1366 / 1440 / 1920 / 2560 / 3840 and Windows 4K scale review
 
 ## 2. Codex project Skill — implementation discipline
 
@@ -105,6 +105,14 @@ Required viewport baselines:
 - 1366 × 768
 - 1440 × 900
 - 1920 × 1080
+- 2560 × 1440
+- 3840 × 2160
+
+Use browser zoom 100% for every baseline. Open the PNGs at original resolution and supply
+100%-pixel crops of the header, navigator, table/form controls, and graph or native preview. For
+#184 and later shared display-tier changes, also record actual Windows 4K at 100%, 150%, and 200%
+scale, the CSS viewport, and `devicePixelRatio`; Playwright emulation does not prove physical
+readability.
 
 Required screen baselines:
 
@@ -158,7 +166,7 @@ Run the same loop for every target screen:
     inspect current route and relevant local reference images
     → implement against existing API/controller/state
     → run route/domain regression tests
-    → capture and exercise the live app at 1366×768, 1440×900 and 1920×1080
+    → capture and exercise the live app at 1366×768, 1440×900, 1920×1080, 2560×1440 and 3840×2160
     → audit with desktop-engineering-ui and web-design-guidelines
     → verify task flow and browser errors with webapp-testing
     → fix every hard-gate failure

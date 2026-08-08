@@ -8,8 +8,10 @@ Before production React/CSS work, use #167's approved static HTML/CSS and render
 every target screen/state. The register records direct source/image paths, image hash, viewport, date,
 status, main-agent evaluation and product-owner approval. Required coverage is Materials
 search/tree/detail/card; Modeling Data/Process/Fit/Export; Activity user/reviewer/recovery; and
-Administration database/table/attribute/layout/subset/link/access edit/publish, at 1366×768,
-1440×900 and 1920×1080 plus relevant long, empty, loading, blocked and error states.
+Administration database/table/attribute/layout/subset/link/access edit/publish. The approved #167
+reference inventory remains 1366×768, 1440×900, and 1920×1080; every user-visible React/CSS change
+also supplies deterministic 2560×1440 and 3840×2160 responsive evidence plus relevant long, empty,
+loading, blocked, and error states.
 
 References are implementation authority, not vague inspiration: port their region structure and CSS
 faithfully while preserving backend/state/domain contracts. Each later visual PR gives the main
@@ -20,7 +22,8 @@ copying and arbitrary fine-number tuning are not acceptance goals; measurements 
 
 ## UXC measurement and state evidence additions
 
-Every target route is measured at 1366×768, 1440×900 and 1920×1080 from a live deterministic demo.
+Every target route is measured at 1366×768, 1440×900, 1920×1080, 2560×1440, and 3840×2160 from a
+live deterministic demo with browser zoom fixed at 100%.
 The screenshot manifest records executable UI source commit, capture command/date, route, fixture and
 viewport; a commit identifier without an actual capture is not capture evidence. The capture settles
 async work, has no page-level horizontal overflow, and shows no unfinished checking/loading/
@@ -63,8 +66,8 @@ and the product owner makes the final visual approval.
 | --- | --- |
 | Q-01 | Long navigator trees expose a visible, independent local scrollbar. |
 | Q-02 | Long result lists expose a visible, independent local scrollbar; empty results show no fake result scrollbar. |
-| Q-03 | Materials navigation uses compact 24–26 px rows, economical indentation/type glyphs, reachable complete identities and no scrollbar/text collision. Disclosure, type glyph and label share one grid row and vertical center; implicit auto-placement onto a second line fails. |
-| Q-04 | Fit controls and status do not squeeze the graph: the six groups remain visible within the fixed 104 px (31 px heading + 72 px controls) ribbon at 1366/1440/1920/2560/3840, shared top actions stay 28 px and baseline-aligned, Remove step and Candidate parameters remain reachable, and the on-demand evidence drawer owns its local scroll. |
+| Q-03 | At the compact tier, Materials navigation uses 24–26 px rows, economical indentation/type glyphs, reachable complete identities and no scrollbar/text collision. An approved high-DPI tier changes row and glyph size only through shared tokens. Disclosure, type glyph and label share one grid row and vertical center; implicit auto-placement onto a second line fails. |
+| Q-04 | Fit controls and status do not squeeze the graph: at the compact tier the six groups remain visible within the 104 px (31 px heading + 72 px controls) ribbon and shared top actions stay 28 px. An approved high-DPI tier may increase ribbon and action tokens while preserving all six groups, baseline alignment, graph dominance, reachable Remove step/Candidate parameters, and local evidence-drawer scrolling. |
 | Q-05 | Engineering axes use compact, consistent typography; values, titles and frame do not collide, the x title is not detached, units appear in titles and unused whitespace is materially minimized. |
 | Q-06 | Multiple curve identities do not form a wide footer or compete with decision status; the curve legend remains compact and semantically separate. |
 | Q-07 | Responsive plots preserve real glyph/stroke proportions; measured plot geometry is recomputed without non-uniform SVG stretching. |
@@ -80,11 +83,18 @@ and the product owner makes the final visual approval.
 | Q-17 | Administration Object lists use identity-first, family-specific columns. The Name cell contains only the complete/reachable identity; clipped descriptions, quantity/help sentences and duplicated property prose are forbidden. Tables use `Name | Rev`; Attributes use `Name | Value type | Rev`, with full semantics in the adjacent editor. Normal Administration copy uses governed object/task language and excludes infrastructure prose such as identity-provider, feature-grant, server-query, endpoint, row-policy, pin/latest-alias or capability-boundary wording. Ordinary sample identities, related Record targets and solver-card names remain visibly readable; ellipsis is reserved for genuinely long values with an immediate full-value affordance. |
 | Q-18 | Administration Add commands open a real new-definition draft in the right pane without replacing the navigator, current Table scope or list. Add Table and Add Attribute are exercised; Attribute type changes expose only applicable fields. A later saved projection proves that user-selected exact Attribute revisions drive stored Record values: `Record preview` and `Layout definition` are task-selectable views rather than simultaneous miniature tables, the active long table receives useful height and genuine local scrolling, compact preview opening has a visible return path, and an unrelated scalar Attribute edit does not show a saved curve merely to fill space. |
 | Q-19 | Administration Link Type and Related/workflow evidence preserve configured `one`/`many` endpoint cardinality and exact revision pins. The UI must support visible one-to-many/many-to-many branching where allowed and must not flatten Material/Test Data/Processing Output/model/Neutral/Solver Card lineage into an implied one-to-one or `latest` chain. |
-| Q-20 | At 1920×1080, 2560×1440 and 3840×2160, truthful task components keep readable bounded dimensions and form a left/top-aligned working cluster with only normal dividers or gutters between related regions. Width or height grows only while it improves reading, comparison or interaction; the Fit cluster is bounded to 1920 px while 1366/1440 compress the same six groups without clipping. The computed typography remains on the shared 13 px data and 11.5–12 px metadata tokens at every viewport; shrinking text to make a bounded cluster fit is a failure. A large internal void that separates related components, omitted contract-backed content, uniformly stretched rows/prose/plots, fabricated filler and non-uniform SVG geometry fail. Unused space after the bounded working cluster may remain at the far right and bottom and is not a failure by itself. A deliberately under-filled normal search fixture still fails when the scoped API already supplies a fuller server page. A sparse Datasheet curve also fails when it expands indefinitely although the same linked response already supplies exact points for a synchronized compact grid. An Administration graph likewise fails when it dominates a wide display while saved Record/Layout content remains a tiny fixed-height strip; linked curves are conditional, secondary and bounded. Activity likewise fails when its existing 50-request list contract is replaced by a one-row normal fixture; role-correct request rows and local history must remain semantically distinct. |
+| Q-20 | At 1920×1080, 2560×1440, and 3840×2160, the application shell spans the viewport and related task regions remain adjacent. Graphs, tables, and native previews expand while extra space materially improves reading, comparison, or interaction; navigators, property forms, and prose retain readable bounds and balanced gutters. A one-sided 1920 px work island, large trailing void caused by an arbitrary shell cap, large internal void between related regions, or tiny fixed-density controls at 2560/3840 fails. Uniformly stretched rows/prose/plots, fabricated filler, route-specific 4K overrides, CSS `zoom`, blanket `transform: scale`, and non-uniform SVG geometry also fail. The compact 13 px data and 11.5–12 px metadata baseline remains valid for standard desktop tiers; shared high-DPI tiers may increase typography, control, row, spacing, pane, and plot tokens only after actual Windows 4K 100%/150%/200% comparison. Exact scale values are not presumed. A deliberately under-filled normal search fixture still fails when the scoped API already supplies a fuller server page. Sparse plots and secondary Administration graphs remain bounded by task usefulness rather than raw viewport size, while contract-backed companion data may occupy truthful wide-screen space. Activity keeps the full role-correct request list and distinct local history. |
 
 An `approve` disposition must include the completed Q-01–Q-20 result. Automated measurements support
 the evidence but do not prove visual quality. Any unresolved applicable `fail` requires
 `changes_requested`.
+
+The only transition exception is an already-existing Q-20 global high-DPI failure observed during
+#160 or #161. The reviewer still records `fail`; the main-agent and owner may accept it only as an
+explicit #184 carryover with original-resolution evidence, every affected route/state, proof that no
+new page-specific workaround was added, and an explicit product-owner disposition. It is not a final
+Q-20 pass, blocks #204–#216, and is unavailable after #184 merges. Every other qualitative failure
+remains a merge blocker.
 
 ## Criteria
 
@@ -92,10 +102,10 @@ the evidence but do not prove visual quality. Any unresolved applicable `fail` r
 | --- | --- | --- | --- |
 | V-01 | Main task/data appears in first viewport | yes | screenshot |
 | V-02 | Desktop menu and command bars replace marketing header | yes | DOM + screenshot |
-| V-03 | Workspace uses full width without centered max-width shell | yes | measurement |
+| V-03 | Application shell uses the full viewport; bounded semantic subregions have justified limits and balanced gutters | yes | measurement + screenshot |
 | V-04 | Persistent panes use flat divider grammar | yes | screenshot/CSS |
 | V-05 | Required panes are resizable or have approved collapse behavior | no | interaction test |
-| V-06 | Data/body typography follows 13 px system | yes | computed style |
+| V-06 | Typography follows shared display-tier tokens; compact baseline and approved high-DPI tier are both readable | yes | computed style + actual-display review |
 | V-07 | Pane titles and hierarchy are restrained | no | computed style/screenshot |
 | V-08 | Row and control density matches blueprint | yes | measurement |
 | V-09 | At most one filled primary command per task context | yes | DOM review |
@@ -131,7 +141,7 @@ Additional checks:
 
 Additional checks:
 
-- 24–26 px rows;
+- compact-tier 24–26 px rows; approved high-DPI tiers use the shared row token;
 - local search fixed above tree;
 - Database/Profile/Table/Folder/Record depth is visible;
 - tree scroll is independent;
@@ -173,7 +183,7 @@ Additional checks:
 - plot remains mounted through task changes;
 - actual plot width is at least 72% of workspace at 1440 px;
 - curve rows separate inclusion checkbox from icon-only plot visibility;
-- curve tree is 184–210 px and controls do not create a permanent third column;
+- compact-tier curve tree is 184–210 px and controls do not create a permanent third column;
 - the Modeling rail and Materials navigator read as one desktop product: flat headings, sentence-case
   section labels, regular 12–13 px identities, aligned hierarchy indentation and the same restrained
   leading-accent selection grammar; stage-specific curve controls remain distinct rather than being
@@ -261,19 +271,25 @@ marks a production route complete; live implementation still requires browser ev
 
 Every visual PR records:
 
-| Metric | 1366 | 1440 | 1920 |
-| --- | ---: | ---: | ---: |
-| Menu + command height | | | |
-| Workspace outer margin | | | |
-| Navigator width | | | |
-| Main data/plot width | | | |
-| Inspector width | | | |
-| Normal pane padding | | | |
-| Data row height | | | |
-| Body font size | | | |
-| Primary command count | | | |
-| Nested persistent card count | | | |
-| Page horizontal overflow | | | |
+| Metric | 1366 | 1440 | 1920 | 2560 | 3840 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Menu + command height | | | | | |
+| Workspace used width | | | | | |
+| Left/right outer gutter | | | | | |
+| Navigator width | | | | | |
+| Main data/plot width | | | | | |
+| Inspector width | | | | | |
+| Normal pane padding | | | | | |
+| Data row height | | | | | |
+| Body font size | | | | | |
+| Active display tier | | | | | |
+| Primary command count | | | | | |
+| Nested persistent card count | | | | | |
+| Page horizontal overflow | | | | | |
+
+For #184 and any later change to shared display tiers, also record the physical monitor resolution,
+Windows display scale, CSS viewport, `devicePixelRatio`, browser zoom, and product-owner readability
+disposition. Automated emulation cannot replace this actual-display record.
 
 ## Legacy selector report
 

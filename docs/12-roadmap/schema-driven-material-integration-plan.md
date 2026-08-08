@@ -102,19 +102,21 @@ module 경계로 분해했다.
 | 권장 순서 | Issue | 개발 단위 | 직접 선행 |
 | ---: | --- | --- | --- |
 | 1 | [#160](https://github.com/pikachu444/cae-material-platform/issues/160) | Record/Test Data를 포함한 검토·승인·공개·복구 기반 | #189 |
-| 2 | [#204](https://github.com/pikachu444/cae-material-platform/issues/204) | 동적 JSON Schema 정의 bundle 계약과 no-write plan | #189, 기획 gate |
-| 3 | [#205](https://github.com/pikachu444/cae-material-platform/issues/205) | 공통 CAE unit/dimension과 Unit Profile | #189, 기획 gate |
-| 4 | [#206](https://github.com/pikachu444/cae-material-platform/issues/206) | curve channel metadata와 deviation | #205 |
-| 5 | [#207](https://github.com/pikachu444/cae-material-platform/issues/207) | bundle apply/export와 provenance | #204, #205 |
-| 6 | [#210](https://github.com/pikachu444/cae-material-platform/issues/210) | scalar distribution fitting | #205 |
-| 7 | [#212](https://github.com/pikachu444/cae-material-platform/issues/212) | explicit toe compensation | method/tolerance 결정 gate |
-| 8 | [#208](https://github.com/pikachu444/cae-material-platform/issues/208) | bundle Administration plan/apply UI | #204, #207 |
-| 9 | [#209](https://github.com/pikachu444/cae-material-platform/issues/209) | DMA·FLD governed import | #160, #205~#207 |
-| 10 | [#211](https://github.com/pikachu444/cae-material-platform/issues/211) | representative envelope와 approved Fit input | #160, #206, #210 |
-| 11 | [#213](https://github.com/pikachu444/cae-material-platform/issues/213) | governed solver-card Template/renderer | #160, #205, sandbox ADR |
-| 12 | [#214](https://github.com/pikachu444/cae-material-platform/issues/214) | LS-DYNA MAT_024·다중 단위·Template UI | #160, #205, #213 |
-| 13 | [#215](https://github.com/pikachu444/cae-material-platform/issues/215) | SPA OIDC Code+PKCE | #160, role policy |
-| 14 | [#216](https://github.com/pikachu444/cae-material-platform/issues/216) | 제품 command audit wiring/coverage | #160, 필요 시 #213/#215 |
+| 2 | [#161](https://github.com/pikachu444/cae-material-platform/issues/161) | 공통 UI token·전역 shell·오래된 스타일 정리 | #160 |
+| 3 | [#184](https://github.com/pikachu444/cae-material-platform/issues/184) | 4K·고DPI scale tier와 실제 Windows 표시 검증 | #161 |
+| 4 | [#204](https://github.com/pikachu444/cae-material-platform/issues/204) | 동적 JSON Schema 정의 bundle 계약과 no-write plan | #189, #184, 기획 gate |
+| 5 | [#205](https://github.com/pikachu444/cae-material-platform/issues/205) | 공통 CAE unit/dimension과 Unit Profile | #189, #184, 기획 gate |
+| 6 | [#206](https://github.com/pikachu444/cae-material-platform/issues/206) | curve channel metadata와 deviation | #205 |
+| 7 | [#207](https://github.com/pikachu444/cae-material-platform/issues/207) | bundle apply/export와 provenance | #204, #205 |
+| 8 | [#210](https://github.com/pikachu444/cae-material-platform/issues/210) | scalar distribution fitting | #205 |
+| 9 | [#212](https://github.com/pikachu444/cae-material-platform/issues/212) | explicit toe compensation | #184, method/tolerance 결정 gate |
+| 10 | [#208](https://github.com/pikachu444/cae-material-platform/issues/208) | bundle Administration plan/apply UI | #184, #204, #207 |
+| 11 | [#209](https://github.com/pikachu444/cae-material-platform/issues/209) | DMA·FLD governed import | #160, #184, #205~#207 |
+| 12 | [#211](https://github.com/pikachu444/cae-material-platform/issues/211) | representative envelope와 approved Fit input | #160, #184, #206, #210 |
+| 13 | [#213](https://github.com/pikachu444/cae-material-platform/issues/213) | governed solver-card Template/renderer | #160, #184, #205, sandbox ADR |
+| 14 | [#214](https://github.com/pikachu444/cae-material-platform/issues/214) | LS-DYNA MAT_024·다중 단위·Template UI | #160, #184, #205, #213 |
+| 15 | [#215](https://github.com/pikachu444/cae-material-platform/issues/215) | SPA OIDC Code+PKCE | #160, #184, role policy |
+| 16 | [#216](https://github.com/pikachu444/cae-material-platform/issues/216) | 제품 command audit wiring/coverage | #160, #184, 필요 시 #213/#215 |
 
 #195와 #196은 각각 polymer/elastomer Fit의 별도 deferred issue다. DMA import나 공통 Template 기반을
 이유로 자동 착수하지 않으며, family별 수치·입력·모델 상세 기획 승인이 필요하다.
@@ -122,7 +124,10 @@ module 경계로 분해했다.
 ## 5. 권장 실행과 제한된 병렬화
 
 저장소의 기본 규칙은 `docs/13-delivery/backlog.md`의 첫 미완료 단위 하나만 진행하는 것이다.
-현재 첫 미완료 단위는 #189이며, 다음은 #160이다. 위 확장 구현은 이를 건너뛰지 않는다.
+순서상 선행 단위 #189는 PR #218에서 완료됐고, 현재 첫 미완료 단위는
+`#160 → #161 → #184`의 첫 단계인 #160이다. 위 확장 구현은 이 선행 작업을 건너뛰지 않는다.
+#161과 #184는 원래 schema 기능 분해가 아니라, 이후 UI가 잘못된
+1920px 전역 cap과 고정 density를 반복하지 않도록 제품 소유자가 앞당긴 공통 기반이다.
 
 제품 소유자가 별도 branch/worktree, 소유 파일과 shared contract 동결을 명시적으로 승인한 경우에만
 다음 병렬 묶음을 검토할 수 있다.
@@ -146,7 +151,8 @@ Data → Fit → Export → Publication처럼 downstream이 exact upstream revis
 - unsupported, approximation, missing evidence와 failure를 성공처럼 표시하지 않는다.
 - schema/API positive·negative contract, unit/domain, PostgreSQL integration과 applicable browser
   journey를 검증한다.
-- UI 변경은 keyboard/focus, 긴 이름, 오류 복구와 필수 viewport를 검수한다.
+- UI 변경은 keyboard/focus, 긴 이름, 오류 복구와 1366/1440/1920/2560/3840 원본 화면을
+  검수한다. 1920/2560/3840 전체 화면과 100% 핵심 영역 crop을 제품 소유자가 직접 승인한다.
 - 공개 fixture는 synthetic/non-production이며 내부 원본을 파생해도 식별 가능한 기밀 값은 넣지 않는다.
 - 구현 PR마다 current docs, `IMPLEMENTATION_STATUS.md`와 backlog를 동기화한다.
 

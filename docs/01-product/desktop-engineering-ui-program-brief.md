@@ -179,7 +179,7 @@ specification and domain invariants remain authoritative if a generic external r
 conflicts with the desktop workbench contract.
 
 For every screen, the tooling-defined loop is mandatory: inspect the current route and references,
-implement against actual state/API, test the real flow at all three desktop viewports, audit, correct
+implement against actual state/API, test the real flow at all five desktop viewports, audit, correct
 every hard-gate failure, then recapture/retest and update evidence.
 
 ## 8. Completion definition

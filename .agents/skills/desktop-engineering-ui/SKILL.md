@@ -1,6 +1,6 @@
 ---
 name: desktop-engineering-ui
-description: Execute or review CAE Material Platform visual work, including approved-reference selection, React/CSS porting, screenshots, and full-screen qualitative acceptance.
+description: Execute or review CAE Material Platform visual work, including approved-reference selection, React/CSS porting, five-viewport and Windows 4K/high-DPI evidence, screenshots, and full-screen qualitative acceptance.
 ---
 
 # Desktop Engineering UI
@@ -46,10 +46,31 @@ skill is applied; correction and publication boundaries remain external.
 
 ## Verify the complete screen
 
-At the issue's required viewports, verify the task flow, keyboard path, state recovery, selection
+For every user-visible React/CSS change, capture the task at 1366×768, 1440×900, 1920×1080,
+2560×1440, and 3840×2160 with browser zoom fixed at 100%. Capture the live state before implementation
+and after each proposed correction. Verify the task flow, keyboard path, state recovery, selection
 continuity, local scroll discoverability and absence of page overflow, clipping, overlap or distorted
 plots. Capture live/reference comparisons and update the required current guide, screenshot manifest
 and live screenshots.
+
+Open each capture at original resolution. Return the 1920/2560/3840 full-screen comparison plus
+100%-pixel crops of the header, navigator, table/form controls, and graph or native preview to the
+product owner. Do not approve from a scaled contact sheet, DOM measurements, or image dimensions alone.
+Automated viewport capture proves CSS geometry; #184 also requires actual Windows 4K at 100%, 150%,
+and 200% scale with the CSS viewport and device pixel ratio recorded.
+
+Judge wide screens by semantic elasticity. The application shell uses the full viewport; graphs,
+tables, and native previews grow while extra space improves the task, while navigators, property forms,
+and prose keep readable limits and balanced gutters. Fail a one-sided 1920 px work island, a large void
+between related regions, or tiny fixed-density controls at 2560/3840. Also fail uniform stretching,
+fabricated filler, route-specific 4K overrides, CSS `zoom`, blanket `transform: scale`, and non-uniform
+SVG stretching. Implement scale tiers only through shared typography, control, row, spacing, pane, and
+plot tokens.
+
+Only #160 and #161 may record an inherited global high-DPI failure as an explicit #184 carryover. The
+packet must retain the original-resolution evidence, name every affected route/state, prove no new
+page-specific workaround was added, and include the product-owner disposition. Do not allow this
+deferment after #184 merges.
 
 After implementation and the packet's deterministic gates, the main orchestrator opens every target/state image
 at original resolution, repeats the region-by-region comparison, records resolved and unresolved
