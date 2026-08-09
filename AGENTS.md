@@ -51,13 +51,16 @@
   while extra space improves comparison or interaction; navigators, property forms, and prose retain
   readable bounds. A one-sided 1920 px work island, unrelated internal void, or tiny fixed-density UI at
   2560/3840 fails, as does uniformly stretching every row, sentence, form, or plot merely to fill space.
-- Only #160 and #161 may carry an already-existing global high-DPI failure forward to #184, and only
-  with the before/after evidence, exact affected routes/states, no new page-specific workaround, and an
-  explicit product-owner disposition. After #184 merges, no later visual task may defer this gate.
+- Only #160 and #161 may carry an already-existing global high-DPI failure forward. #221 selects the
+  shared layout and density policy from representative actual-display evidence; #184 applies it to every
+  route/state. Carryover still requires before/after evidence, exact affected routes/states, no new
+  page-specific workaround, and explicit product-owner disposition. After #184 merges, no later visual
+  task may defer this gate.
 - Implement display tiers only through shared typography, control, row, spacing, pane, and plot tokens.
   Do not use route-specific 4K overrides, CSS `zoom`, blanket `transform: scale`, fabricated filler, or
   non-uniform SVG stretching. Automated viewport capture proves geometry, not physical readability;
-  #184 additionally records actual Windows 4K 100%, 150%, and 200% scale, CSS viewport, and device pixel
+  #221 records actual Windows 4K 100%, 150%, and 200% scale and selects the shared policy; #184
+  revalidates the approved policy across every route/state. Both record CSS viewport and device pixel
   ratio.
 - Check visibility, clipping, wrapping, exact identity/revision, interaction reachability, and layout
   bounds. Hidden text and measurements do not replace normal-surface usability. Present the original
