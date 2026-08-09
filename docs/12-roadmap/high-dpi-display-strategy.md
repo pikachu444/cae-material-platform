@@ -1,10 +1,10 @@
 # 4K·고DPI 화면 대응 전략과 결정 기록
 
-상태: **#221 결정 입력, 값 미승인**  
-기준선: `main@53e4a698235e4c7dad8c87e0156bc2627866989f`  
-상위 추적: [#117](https://github.com/pikachu444/cae-material-platform/issues/117)  
-결정 게이트: [#221](https://github.com/pikachu444/cae-material-platform/issues/221)  
-전체 적용: [#184](https://github.com/pikachu444/cae-material-platform/issues/184)
+- 상태: **#221 결정 입력, 값 미승인**
+- 기준선: `main@53e4a698235e4c7dad8c87e0156bc2627866989f`
+- 상위 추적: [#117](https://github.com/pikachu444/cae-material-platform/issues/117)
+- 결정 게이트: [#221](https://github.com/pikachu444/cae-material-platform/issues/221)
+- 전체 적용: [#184](https://github.com/pikachu444/cae-material-platform/issues/184)
 
 이 문서는 4K 전용 CSS 값을 미리 확정하지 않는다. 외부 제품과 웹 플랫폼의 공개 근거, 현재
 코드의 제약, 비교할 후보와 측정 방법을 고정하여 #221의 실제 Windows 원본 화면 검토가 같은
