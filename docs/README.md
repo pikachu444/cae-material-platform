@@ -32,6 +32,7 @@ React/CSS 기준은 `55cfa62`(PR #156), 승인된 시각 target은 `7601ec8`(PR 
 - [UI 제품·상호작용 명세](01-product/desktop-engineering-ui-product-spec.md)
 - [UI 컴포넌트 명세](01-product/desktop-engineering-ui-spec.md)
 - [시각 수용 매트릭스](01-product/visual-acceptance-matrix.md)
+- [4K·고DPI 화면 대응 전략과 결정 기록](12-roadmap/high-dpi-display-strategy.md)
 - [Desktop engineering UI 도구·검수 절차](01-product/desktop-engineering-ui-tooling.md)
 - [현재 delivery backlog](13-delivery/backlog.md)
 - [요구사항](02-requirements/requirements.md)

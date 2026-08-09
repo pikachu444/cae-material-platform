@@ -61,8 +61,9 @@ The application has four modes. These are workspaces, not separate mini-products
 
 ### 4.2 Dimensions
 
-Unless stated otherwise, the numeric dimensions below are compact-tier baselines. #184 may introduce
-shared high-DPI tiers after actual Windows display-scale review; route-specific values remain forbidden.
+Unless stated otherwise, the numeric dimensions below are compact-tier baselines. #221 may approve
+shared high-DPI tiers after actual Windows display-scale review; #184 applies that decision across all
+routes. Route-specific values remain forbidden.
 
 - Global application bar: 44–48 px.
 - Workspace controls are workspace-specific. Materials, Activity, and Administration do not claim a
@@ -109,9 +110,9 @@ expands or stops according to its function instead of inheriting one global 1920
   is reserved for point density or interaction cost that SVG cannot meet, not for repairing layout.
 - 2560×1440 and 3840×2160 are mandatory deterministic wide-screen evidence viewports for every
   user-visible React/CSS change. They do not rewrite #167's approved static inventory, but their live
-  original-resolution comparison and product-owner disposition are required before merge. #184 also
-  verifies actual Windows 4K 100%, 150%, and 200% display scale because emulated viewports do not prove
-  physical readability.
+  original-resolution comparison and product-owner disposition are required before merge. #221 uses
+  actual Windows 4K 100%, 150%, and 200% display scale to select the shared policy, and #184 revalidates
+  it across all routes because emulated viewports do not prove physical readability.
 
 ### 4.3 Command hierarchy
 
@@ -783,8 +784,8 @@ Required Playwright scenarios:
 7. interrupted session → Activity → exact resume context.
 
 Required live viewports: 1366×768, 1440×900, 1920×1080, 2560×1440, and 3840×2160.
-#184 and later shared display-tier changes also require actual Windows 4K 100%, 150%, and 200%
-physical-readability evidence.
+#221, #184, and later shared display-tier changes also require actual Windows 4K 100%, 150%, and 200%
+physical-readability evidence. #221 selects the policy; #184 applies and revalidates it across all routes.
 
 ## 17. Non-goals
 
