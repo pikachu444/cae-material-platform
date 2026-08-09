@@ -56,8 +56,9 @@ and live screenshots.
 Open each capture at original resolution. Return the 1920/2560/3840 full-screen comparison plus
 100%-pixel crops of the header, navigator, table/form controls, and graph or native preview to the
 product owner. Do not approve from a scaled contact sheet, DOM measurements, or image dimensions alone.
-Automated viewport capture proves CSS geometry; #184 also requires actual Windows 4K at 100%, 150%,
-and 200% scale with the CSS viewport and device pixel ratio recorded.
+Automated viewport capture proves CSS geometry. #221 compares representative candidates on actual
+Windows 4K at 100%, 150%, and 200% and fixes the shared decision; #184 revalidates that decision across
+every route/state. Both record the CSS viewport and device pixel ratio.
 
 Judge wide screens by semantic elasticity. The application shell uses the full viewport; graphs,
 tables, and native previews grow while extra space improves the task, while navigators, property forms,
@@ -67,10 +68,11 @@ fabricated filler, route-specific 4K overrides, CSS `zoom`, blanket `transform: 
 SVG stretching. Implement scale tiers only through shared typography, control, row, spacing, pane, and
 plot tokens.
 
-Only #160 and #161 may record an inherited global high-DPI failure as an explicit #184 carryover. The
-packet must retain the original-resolution evidence, name every affected route/state, prove no new
-page-specific workaround was added, and include the product-owner disposition. Do not allow this
-deferment after #184 merges.
+Only #160 and #161 may record an inherited global high-DPI failure for the #221 decision packet and
+subsequent #184 carryover. The packet must retain the original-resolution evidence, name every affected
+route/state, prove no new page-specific workaround was added, and include the product-owner
+disposition. #221 approves the shared policy, not every route; #184 completes the full application.
+Do not allow deferment after #184 merges.
 
 After implementation and the packet's deterministic gates, the main orchestrator opens every target/state image
 at original resolution, repeats the region-by-region comparison, records resolved and unresolved
