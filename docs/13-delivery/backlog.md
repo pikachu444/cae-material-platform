@@ -34,16 +34,18 @@
   [#204~#216 계획](../12-roadmap/schema-driven-material-integration-plan.md)으로 분해했습니다. 이 gate는
   구현을 앞당기지 않습니다.
 - 순서 12 `#189 lazy chunk 예산과 Workbench 분할 기준`은
-  [PR #218](https://github.com/pikachu444/cae-material-platform/pull/218)에서 완료했습니다. 현재 첫
-  미완료 단위는 순서 14 `#160`이며, 새 확장 구현은 `#160 → #161 → #221 → #184`를 건너뛰어 시작하지
-  않습니다.
+  [PR #218](https://github.com/pikachu444/cae-material-platform/pull/218)에서 완료했습니다. 순서 14
+  `#160` Task 2는 [PR #224](https://github.com/pikachu444/cae-material-platform/pull/224)에서 완료했습니다.
+  현재 첫 미완료 단위는 순서 15 `#161`입니다. 새 확장 구현은
+  `#161 → #221 → #184`를 건너뛰어 시작하지 않습니다.
 - 순서 14 `#160` Task 1은 [PR #220](https://github.com/pikachu444/cae-material-platform/pull/220),
-  main `53e4a698235e4c7dad8c87e0156bc2627866989f`에서 병합했습니다. `#160`은 [ ] 미완료로
-  유지하며, 다음 작업 단위는 `#160` Task 2입니다. Reviewer Activity `Needs attention`의
-  2560×1440·3840×2160 고정 밀도 control/text Q20 실패는 다음 Task 2에서 보정합니다. 2026-08-09
+  main `53e4a698235e4c7dad8c87e0156bc2627866989f`에서 병합했습니다. Task 2는
+  [PR #224](https://github.com/pikachu444/cae-material-platform/pull/224)에서 병합해 `#160`을 [x]로
+  완료했습니다. Reviewer Activity `Needs attention`의 2560×1440·3840×2160 고정 밀도 control/text
+  Q20 실패는 Task 2의 공통 compact token과 Activity layout/geometry 범위에서 보정했습니다. 2026-08-09
   제품 소유자 disposition에 따라 실제 Windows 4K 100%·150%·200% 물리 가독성 최종 판정은
   [#223](https://github.com/pikachu444/cae-material-platform/issues/223)으로 이관하고 전체 순서의
-  마지막에 둡니다. Task 2 구현 PR 병합과 delivery tracking 동기화 뒤 `#160`을 완료 처리하며,
+  마지막에 둡니다. PR #224 병합과 delivery tracking을 동기화했으며,
   공통 기반 전환 전까지 경로 전용 4K workaround를 추가하지 않습니다.
   #162 작업 1·2는 모든 기능과 고해상도 기준이 병합된 뒤 수행하는 최종 제품 흐름 검증이고,
   #223은 그 뒤 수행하는 Activity 실제 장비 최종 검증입니다.
@@ -98,7 +100,7 @@ packet, 검증, 검토, 제품 소유자 확인과 PR/merge를 거칩니다. iss
 | 11 | [#158 Modeling Export](https://github.com/pikachu444/cae-material-platform/issues/158) ([PR #202](https://github.com/pikachu444/cae-material-platform/pull/202)) | 선택 모델에서 솔버별 카드를 생성·미리보기하고 Materials DB에 연결할 결과를 준비 | issue, `modeling-export` 승인 화면, selected-model·mapping·unit-system·solver-card 계약 | 솔버·버전·단위계별 결과, 지원 수준·차단 사유, 정확한 모델 연결, 시각 승인, merge |
 | 12 | [#189 lazy chunk 예산과 Workbench 분할 기준](https://github.com/pikachu444/cae-material-platform/issues/189) ([PR #218](https://github.com/pikachu444/cae-material-platform/pull/218)) | 완성된 Process/Fit/Export의 실제 사용자 비용을 근거로 Workbench 성능과 분할 시점을 관리 | issue, production build 관찰값, bundle checker, test strategy, Process/Fit/Export 계약 | raw/gzip·실제 경로 비용, warning/error 근거와 분할 촉발 기준, 필요한 경우 별도 보존적 분할, merge |
 | 13 | 2026 스키마 기반 확장 기획 gate (승인·issue 분해 완료) | 내부 기획과 동적 JSON Schema 참고 포맷을 현재 구현에 맞는 bounded issue로 전환 | [승인된 계획](../12-roadmap/schema-driven-material-integration-plan.md), #204~#216 | 고정 schema/EAV 오해 제거, 중복·충돌·의존성·결정 gate와 공개 보관 경계 기록 |
-| 14 | [ ] [#160 검토·승인·DB 공개·복구](https://github.com/pikachu444/cae-material-platform/issues/160) — Task 1 PR #220 | 요청을 검토·승인하고 승인 결과를 Materials DB에서 찾고 내려받으며 실패를 복구 | issue, Activity/Admin 승인 화면, Record/Test Data subject, review·release·publication·download·recovery·권한 계약 | Task 1은 PR #220, main `53e4a698235e4c7dad8c87e0156bc2627866989f`에서 병합. 다음 작업 단위는 `#160` Task 2. Task 2 구현·다섯 viewport 증거·회귀·문서·한정 화면 승인과 PR 병합 뒤 issue 완료. 실제 Windows 4K 100%·150%·200% 최종 물리 판정은 #223으로 이관 |
+| 14 | [x] [#160 검토·승인·DB 공개·복구](https://github.com/pikachu444/cae-material-platform/issues/160) — Task 1 PR #220, Task 2 PR #224 | 요청을 검토·승인하고 승인 결과를 Materials DB에서 찾고 내려받으며 실패를 복구 | issue, Activity/Admin 승인 화면, Record/Test Data subject, review·release·publication·download·recovery·권한 계약 | Task 1은 PR #220, main `53e4a698235e4c7dad8c87e0156bc2627866989f`에서 병합. Task 2 구현·다섯 viewport 증거·회귀·문서·한정 화면 승인은 PR #224에서 완료. 실제 Windows 4K 100%·150%·200% 최종 물리 판정은 #223으로 이관. 다음 단위는 #161 |
 | 15 | [#161 공통 화면·전역 레이아웃 기반](https://github.com/pikachu444/cae-material-platform/issues/161) | 트리·표·그래프·상태·키보드와 글자·control·pane·plot token이 모든 현재 화면에서 일관됨 | issue, visual/frontend skill, 활성 화면·공통 구성요소·1920 cap 사용처·승인 화면 | 공통 token, 1920 작은 섬과 내부 공백 해소 기반, 접근성·스크롤·넘침, 삭제 대상 참조 0, 다섯 viewport 시각 승인, merge |
 | 16 | [#221 4K·고DPI 레이아웃·밀도 결정 게이트](https://github.com/pikachu444/cae-material-platform/issues/221) | 실제 4K에서 대표 화면 후보를 비교해 공통 layout·pane·density·table·plot 정책을 승인 | issue, #161 결과, [고해상도 전략](../12-roadmap/high-dpi-display-strategy.md), 실제 Windows 표시 환경과 결정 review prompt | P1/P2/P3 비교, 정확한 token·setting 계약, 대표 화면 원본/crop과 제품 소유자 승인, decision packet, merge |
 | 17 | [#184 4K·고DPI 전역 대응](https://github.com/pikachu444/cae-material-platform/issues/184) | #221에서 승인한 정책으로 모든 핵심 화면과 고위험 상태를 4K에서도 읽고 조작 | issue, #221 승인 packet, 공통 token, 전체 정상·예외 다섯 viewport와 실제 Windows 표시 환경 | 승인된 scale/pane 정책의 전체 route 적용, 실제 고DPI 원본·100% crop 최종 검토와 제품 소유자 승인, merge |
