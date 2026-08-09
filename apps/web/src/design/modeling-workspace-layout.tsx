@@ -1,7 +1,11 @@
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { Group, Panel, Separator, useDefaultLayout, usePanelCallbackRef, usePanelRef, type LayoutChangedMeta } from "react-resizable-panels";
 
-import { desktopViewportClass, type DesktopViewportClass } from "./resizable-split-pane";
+import {
+  desktopViewportClass,
+  MODELING_PANE_METRICS,
+  type DesktopViewportClass,
+} from "./metrics";
 
 interface ModelingWorkspaceLayoutProps {
   navigator?: ReactNode;
@@ -15,17 +19,19 @@ interface ModelingWorkspaceLayoutProps {
 }
 
 const navigatorDefaults: Record<DesktopViewportClass, number> = {
-  compact: 184,
-  standard: 192,
-  wide: 208,
+  compact: MODELING_PANE_METRICS.navigator.defaults.compact,
+  standard: MODELING_PANE_METRICS.navigator.defaults.standard,
+  wide: MODELING_PANE_METRICS.navigator.defaults.wide,
 };
 
-export const MODELING_DATA_DEFAULT_PLOT_SIZE = 304;
-export const MODELING_DATA_PLOT_MIN_SIZE = 240;
-export const MODELING_DATA_SPLIT_SEPARATOR_SIZE = 8;
+export const MODELING_DATA_DEFAULT_PLOT_SIZE = MODELING_PANE_METRICS.dataPlot.preferred;
+export const MODELING_DATA_PLOT_MIN_SIZE = MODELING_PANE_METRICS.dataPlot.min;
+export const MODELING_DATA_SPLIT_SEPARATOR_SIZE = MODELING_PANE_METRICS.dataPlot.separator;
 
 export function modelingDataRibbonPreferredSize(dataLayoutMode?: "compact" | "content-fit"): number {
-  return dataLayoutMode === "content-fit" ? 384 : 178;
+  return dataLayoutMode === "content-fit"
+    ? MODELING_PANE_METRICS.dataRibbon.contentFit
+    : MODELING_PANE_METRICS.dataRibbon.compact;
 }
 
 export function ModelingWorkspaceLayout({
@@ -211,8 +217,8 @@ export function ModelingWorkspaceLayout({
         panelRef={navigatorRef}
         className="modeling-workspace-rail"
         defaultSize={navigatorDefaults[viewport]}
-        minSize={180}
-        maxSize={240}
+        minSize={MODELING_PANE_METRICS.navigator.min}
+        maxSize={MODELING_PANE_METRICS.navigator.max}
         collapsedSize={0}
         collapsible
         groupResizeBehavior="preserve-pixel-size"
@@ -223,7 +229,7 @@ export function ModelingWorkspaceLayout({
       <Separator className="modeling-pane-divider" aria-label="Resize curve and process navigator">
         <button type="button" aria-label={`${navigatorOpen ? "Collapse" : "Expand"} curve and process navigator`} aria-expanded={navigatorOpen} onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); toggleNavigator(); }}><span aria-hidden="true">{navigatorOpen ? "‹" : "›"}</span></button>
       </Separator>
-      <Panel id="modeling-main" minSize={720} className="modeling-main-panel">
+      <Panel id="modeling-main" minSize={MODELING_PANE_METRICS.main.min} className="modeling-main-panel">
         {main}
       </Panel>
     </Group>

@@ -467,7 +467,7 @@ def test_activity_capture_contract_is_role_correct_for_requesters_and_reviewers(
     assert 'data-scroll-y") != "true"' in _CAPTURE_SOURCE
     assert "_seed_activity_delivery_history(page)" in _CAPTURE_SOURCE
     assert "Activity decision error did not retain the review reason" in _CAPTURE_SOURCE
-    assert "_assert_activity_compact_density(page, width)" in _CAPTURE_SOURCE
+    assert "_assert_activity_shared_density(page, width)" in _CAPTURE_SOURCE
     assert '"data": "13px"' in _CAPTURE_SOURCE
     assert '"metadata": "12px"' in _CAPTURE_SOURCE
     assert "if viewport_width == 3840:" in _CAPTURE_SOURCE
@@ -479,6 +479,25 @@ def test_activity_capture_contract_is_role_correct_for_requesters_and_reviewers(
     assert new_page.index("context.add_init_script") < new_page.index("page = context.new_page()")
     assert new_page.index("page = context.new_page()") < new_page.index("page.goto(base_url)")
     assert "No review actions are assigned to this role." not in _CAPTURE_SOURCE
+
+
+def test_current_capture_rejects_fixed_width_islands_in_shared_workspaces() -> None:
+    capture_source = _CAPTURE_SOURCE.split("def _assert_shared_workspace_geometry", 1)[1].split(
+        "def _assert_export_action_visible", 1
+    )[0]
+
+    assert "shell_box[\"width\"] < width * 0.97" in capture_source
+    assert "workspace[\"width\"] < width * 0.8" in capture_source
+    assert '".modeling-workspace-shell"' in capture_source
+    assert '".materials-page"' in capture_source
+    assert '".material-detail-shell"' in capture_source
+    assert '".export-workspace"' in capture_source
+    assert '".activity-shell"' in capture_source
+    assert '".administration-workspace"' in capture_source
+    assert '".administration-record-workbench"' in capture_source
+    assert '".material-database-page"' in capture_source
+    assert '".governed-import-route"' in capture_source
+    assert "_assert_shared_workspace_geometry(page, width, path.name)" in capture_source
 
 
 def test_modeling_fit_capture_contract_covers_five_viewports_and_recovery_states() -> None:
@@ -854,9 +873,9 @@ def test_modeling_fit_scrolled_capture_positions_the_local_decision_surface() ->
     )
 
 
-def test_modeling_fit_capture_enforces_bounded_shell_rows_scale_and_collision_geometry() -> None:
+def test_modeling_fit_capture_enforces_elastic_shell_rows_scale_and_collision_geometry() -> None:
     assert "_assert_fit_display_scale" in _CAPTURE_SOURCE
-    assert ".modeling-fit-workspace-bounded" in _CAPTURE_SOURCE
+    assert ".modeling-workspace-stage-fit" in _CAPTURE_SOURCE
     assert "fitRowsIncluded" in _CAPTURE_SOURCE
     assert "fitNoMatchingCurves" in _CAPTURE_SOURCE
     assert "fitGroups" in _CAPTURE_SOURCE
@@ -1315,7 +1334,7 @@ def test_process_preparation_selects_exact_data_identity_before_opening_process(
 
     data_stage = process_flow.index("_prepare_modeling(page, base_url)")
     data_selector = process_flow.index(
-        '".modeling-data-workspace-bounded .modeling-data-curve-tree"'
+        '".modeling-workspace-stage-data .modeling-data-curve-tree"'
     )
     identity_filters = process_flow.index('has_text="Specimen 01"')
     revision_filter = process_flow.index('has_text="Session revision r1"')

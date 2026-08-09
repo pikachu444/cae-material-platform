@@ -4,7 +4,7 @@
 .ux-input,
 .ux-select,
 .ux-result-row {
-  min-height: 32px;
+  min-height: var(--ux-interactive-min-block-size);
   border-radius: var(--ux-radius-control);
   font: inherit;
 }
@@ -14,7 +14,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--ux-space-2);
-  min-height: 36px;
+  min-height: var(--ux-control-min-block-size);
   padding: 0 var(--ux-space-4);
   border: 1px solid var(--ux-border-strong);
   background: var(--ux-surface);
@@ -54,7 +54,7 @@
 .ux-input,
 .ux-select {
   width: 100%;
-  min-height: 38px;
+  min-height: var(--ux-input-min-block-size);
   padding: 0 var(--ux-space-3);
   border: 1px solid var(--ux-border-strong);
   background: var(--ux-surface);
@@ -129,7 +129,7 @@
 
 .ux-table th,
 .ux-table td {
-  padding: 11px var(--ux-space-3);
+  padding: var(--ux-table-cell-padding-block) var(--ux-table-cell-padding-inline);
   border-bottom: 1px solid var(--ux-border);
   text-align: left;
   vertical-align: top;
@@ -138,7 +138,7 @@
 .ux-table th {
   background: var(--ux-surface-subtle);
   color: var(--ux-text-muted);
-  font-size: 12px;
+  font-size: var(--ux-metadata-font-size);
   font-weight: 700;
   letter-spacing: 0.025em;
 }
@@ -180,11 +180,40 @@
   border: 1px solid var(--ux-border);
   border-radius: var(--ux-radius-panel);
   background: var(--ux-surface-subtle);
+  overflow-wrap: anywhere;
 }
 
 .ux-notice.error {
   border-color: color-mix(in srgb, var(--ux-danger) 40%, var(--ux-border));
   color: var(--ux-danger);
+}
+
+.ux-notice.warning {
+  border-color: color-mix(in srgb, var(--ux-warning) 40%, var(--ux-border));
+  color: var(--ux-warning);
+}
+
+.ux-notice.success {
+  border-color: color-mix(in srgb, var(--ux-success) 40%, var(--ux-border));
+  color: var(--ux-success);
+}
+
+.ux-table tbody tr:hover > *,
+.ux-table tbody tr:focus-within > * {
+  background: var(--ux-surface-subtle);
+}
+
+.ux-table tbody tr[aria-selected="true"] > * {
+  background: var(--ux-accent-soft);
+  box-shadow: inset 0 1px 0 var(--ux-accent), inset 0 -1px 0 var(--ux-accent);
+}
+
+.ux-input:disabled,
+.ux-select:disabled {
+  cursor: not-allowed;
+  background: var(--ux-surface-subtle);
+  color: var(--ux-text-muted);
+  opacity: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {

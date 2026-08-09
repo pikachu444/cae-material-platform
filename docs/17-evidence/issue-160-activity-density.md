@@ -43,25 +43,26 @@ local history, and recovery, but Activity did not consume a shared compact seman
     documentation gates, independent read-only review pass, and bounded Product Owner visual approval.
     Actual Windows 4K physical-readability approval is the explicit #223 follow-up, not Task 2 acceptance.
 
-## Implemented compact baseline and consumers
+## Implemented baseline and later shared names
 
-The semantic declarations live in `apps/web/src/design/tokens.css`. Repository search proves every
-current consumer is inside the Activity block in `apps/web/src/design/layout.css`; no other route
-inherits a changed value. The live capture assertion checks computed styles so source-only token use
-cannot pass.
+At the #160 capture boundary the declarations lived in `apps/web/src/design/tokens.css` under
+Activity-scoped `--ux-compact-*` names. #161 later promoted the same computed Activity values to
+shared semantic names so common primitives and other workspaces can consume them without a private
+route scale. This historical evidence still describes the captured geometry; the mapping below keeps
+its source terminology auditable.
 
-| Token | Value | Activity consumers | Other consumers |
-| --- | ---: | --- | --- |
-| `--ux-compact-data-font-size` | 13 px | saved-view tabs, reason, row action | none |
-| `--ux-compact-emphasis-font-size` | 14 px | task identity | none |
-| `--ux-compact-metadata-font-size` | 12 px | role/count/description, status, updated time, error/recovery metadata | none |
-| `--ux-compact-table-heading-font-size` | 11 px | table heading | none |
-| `--ux-compact-control-min-height` | 36 px | row action | none |
-| `--ux-compact-row-min-height` | 46 px | request/history row minimum | none |
-| `--ux-compact-pane-padding` | 12 px | local queue pane | none |
-| `--ux-compact-cell-padding-block` | 8 px | section heading, table heading/cell | none |
-| `--ux-compact-cell-padding-inline` | 7 px | section heading, table heading/cell | none |
-| `--ux-compact-wide-content-max` | 166 rem | local queue pane, section heading, table | none |
+| #160 capture name | Current shared name | Value | Activity consumers |
+| --- | --- | ---: | --- |
+| `--ux-compact-data-font-size` | `--ux-data-font-size` | 13 px | saved-view tabs, reason, row action |
+| `--ux-compact-emphasis-font-size` | `--ux-emphasis-font-size` | 14 px | task identity |
+| `--ux-compact-metadata-font-size` | `--ux-metadata-font-size` | 12 px | role/count/description, status, updated time, error/recovery metadata |
+| `--ux-compact-table-heading-font-size` | `--ux-table-heading-font-size` | 11 px | table heading |
+| `--ux-compact-control-min-height` | `--ux-control-min-block-size` | 36 px | row action |
+| `--ux-compact-row-min-height` | `--ux-work-row-min-block-size` | 46 px | request/history row minimum |
+| `--ux-compact-pane-padding` | `--ux-pane-padding` | 12 px | local queue pane |
+| `--ux-compact-cell-padding-block` | `--ux-cell-padding-block` | 8 px | section heading, table heading/cell |
+| `--ux-compact-cell-padding-inline` | `--ux-cell-padding-inline` | 7 px | section heading, table heading/cell |
+| `--ux-compact-wide-content-max` | `--ux-comparison-table-max-inline-size` | 166 rem | local queue pane, section heading, table |
 
 The semantic `colgroup` keeps `Task | Request/recovery reason | Status | Updated | Action` at
 `20% | 48% | 12% | 12% | 8%`. At 3840 the centered local queue pane is 2656 px wide and its

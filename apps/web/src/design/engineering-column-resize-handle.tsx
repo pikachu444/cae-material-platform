@@ -1,4 +1,5 @@
 import type { KeyboardEvent, PointerEvent } from "react";
+import { COLUMN_RESIZE_KEYBOARD_STEP } from "./metrics";
 
 interface EngineeringColumnResizeHandleProps {
   label: string;
@@ -29,7 +30,7 @@ export function EngineeringColumnResizeHandle({ label, width, min, max, onChange
   function resizeWithKeyboard(event: KeyboardEvent<HTMLSpanElement>): void {
     if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
     event.preventDefault();
-    onChange(clamp(width + (event.key === "ArrowRight" ? 8 : -8)));
+    onChange(clamp(width + (event.key === "ArrowRight" ? COLUMN_RESIZE_KEYBOARD_STEP : -COLUMN_RESIZE_KEYBOARD_STEP)));
   }
 
   return <span className="engineering-column-resize-handle" role="separator" aria-label={`Resize ${label} column`} aria-orientation="vertical" aria-valuemin={min} aria-valuemax={max} aria-valuenow={width} tabIndex={0} onPointerDown={beginResize} onKeyDown={resizeWithKeyboard} />;

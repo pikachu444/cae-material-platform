@@ -18,7 +18,8 @@ Database와 Profile을 먼저 만들고, 그 안에 Table, Attribute, Layout, Su
 6. Link Type에서는 출발/도착 Table, 양방향으로 읽을 문구와 한 항목당 연결 수를 정한다. 저장할 때
    두 Table의 현재 정의 revision이 함께 고정된다.
 
-넓은 화면에서도 Database design 작업 영역은 왼쪽 위에 읽기 좋은 폭으로 유지된다. 같은 화면을
+넓은 화면에서는 Database design shell이 viewport를 사용하되 Objects navigator와 속성 form은 읽기
+좋은 공통 범위에 남고, 가운데 정의 목록이 남는 폭을 사용한다. 같은 화면을
 [2560×1440](images/current/administration-database-2560x1440.png)과
 [3840×2160](images/current/administration-database-3840x2160.png)에서도 확인할 수 있다.
 

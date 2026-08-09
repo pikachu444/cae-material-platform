@@ -293,6 +293,45 @@ def _wait_for_settled(page: Page) -> None:
         raise RuntimeError(f"unfinished UI state remains: {pending_lines}")
 
 
+def _assert_shared_workspace_geometry(page: Page, width: int, path_name: str) -> None:
+    shell_box = _bounding_box_edges(page.locator(".application-workspace").bounding_box())
+    if shell_box is None or shell_box["width"] < width * 0.97:
+        raise RuntimeError(
+            f"application shell does not span the viewport for {path_name}: {shell_box}"
+        )
+
+    if width < 1920:
+        return
+
+    workspaces = page.evaluate(
+        """selectors => selectors.flatMap(selector =>
+            [...document.querySelectorAll(selector)]
+              .filter(element => element.getClientRects().length > 0)
+              .map(element => {
+                const box = element.getBoundingClientRect();
+                return { selector, width: box.width, left: box.left, right: box.right };
+              })
+        )""",
+        [
+            ".materials-page",
+            ".material-detail-shell",
+            ".card-preview-shell",
+            ".modeling-workspace-shell",
+            ".export-workspace",
+            ".activity-shell",
+            ".administration-workspace",
+            ".administration-record-workbench",
+            ".material-database-page",
+            ".governed-import-route",
+        ],
+    )
+    narrow = [workspace for workspace in workspaces if workspace["width"] < width * 0.8]
+    if narrow:
+        raise RuntimeError(
+            f"wide workspace collapsed into a fixed-width island for {path_name}: {narrow}"
+        )
+
+
 def _capture(
     page: Page,
     path: Path,
@@ -349,6 +388,7 @@ def _capture(
     )
     if after_animation is not None:
         after_animation()
+    _assert_shared_workspace_geometry(page, width, path.name)
     page.screenshot(path=str(path), full_page=False)
     viewport = page.viewport_size
     if viewport != {"width": width, "height": height}:
@@ -1322,7 +1362,7 @@ def _capture_activity(browser: Browser, base_url: str, output: Path) -> None:
         _ensure_activity_review_fixture(page, base_url)
         page.goto(f"{base_url}/activity")
         _wait_for_activity_queue(page)
-        _assert_activity_compact_density(page, width)
+        _assert_activity_shared_density(page, width)
         _capture(page, output / f"activity-{width}x{height}.png", width, height)
         page.context.close()
     _capture_activity_history(browser, base_url, output)
@@ -1332,8 +1372,8 @@ def _capture_activity(browser: Browser, base_url: str, output: Path) -> None:
     _capture_activity_recovery(browser, base_url, output)
 
 
-def _assert_activity_compact_density(page: Page, viewport_width: int) -> None:
-    """Prove the shared compact tokens reach the live Activity surface."""
+def _assert_activity_shared_density(page: Page, viewport_width: int) -> None:
+    """Prove the shared desktop tokens reach the live Activity surface."""
     measurements = page.evaluate(
         """() => {
           const fontSize = selector =>
@@ -1373,10 +1413,10 @@ def _assert_activity_compact_density(page: Page, viewport_width: int) -> None:
     actual_fonts = {name: measurements[name] for name in expected_fonts}
     if actual_fonts != expected_fonts:
         raise RuntimeError(
-            f"Activity compact tokens are not live: expected {expected_fonts}, got {actual_fonts}"
+            f"Activity shared tokens are not live: expected {expected_fonts}, got {actual_fonts}"
         )
     if measurements["rowHeight"] < 46 or measurements["actionHeight"] < 36:
-        raise RuntimeError(f"Activity compact row/control bounds regressed: {measurements}")
+        raise RuntimeError(f"Activity shared row/control bounds regressed: {measurements}")
     if measurements["tableWidth"] > 2656.5:
         raise RuntimeError(f"Activity table exceeded its readable wide bound: {measurements}")
     if viewport_width == 3840:
@@ -1828,15 +1868,15 @@ def _assert_modeling_data_surface(page: Page, width: int, height: int) -> None:
     if negative_ticks:
         raise RuntimeError(f"non-negative tensile Data plot exposed negative ticks at {width}x{height}: {negative_ticks}")
 
-    workspace = page.locator(".modeling-data-workspace-bounded")
+    workspace = page.locator(".modeling-workspace-stage-data")
     workspace_box = _bounding_box_edges(workspace.bounding_box())
     plot_box = _bounding_box_edges(page.locator(".persistent-modeling-plot").bounding_box())
     if workspace_box is None or plot_box is None:
-        raise RuntimeError("bounded Modeling Data workspace geometry is unavailable")
-    if width >= 1920 and workspace_box["height"] > 879:
-        raise RuntimeError(f"wide Modeling Data workspace height escaped its cap: {workspace_box}")
-    if width >= 2560 and plot_box["height"] > 711:
-        raise RuntimeError(f"wide Modeling Data graph remains too tall: {plot_box}")
+        raise RuntimeError("elastic Modeling Data workspace geometry is unavailable")
+    if plot_box["height"] < 280:
+        raise RuntimeError(f"Modeling Data graph is too short to preserve axes and legend: {plot_box}")
+    if plot_box["bottom"] > workspace_box["bottom"] + 1:
+        raise RuntimeError(f"Modeling Data graph escapes its workspace: workspace={workspace_box}, plot={plot_box}")
 
 
 def _assert_local_initial_controls(page: Page) -> None:
@@ -1985,7 +2025,7 @@ def _prepare_modeling_process(page: Page, base_url: str) -> None:
     # the exact source there before navigating to Process; a Process-scoped
     # locator would not exist yet and could silently select an unrelated row.
     data_rail = page.locator(
-        ".modeling-data-workspace-bounded .modeling-data-curve-tree"
+        ".modeling-workspace-stage-data .modeling-data-curve-tree"
     )
     data_rail.wait_for(state="visible", timeout=30_000)
     data_rows = data_rail.locator(".curve-row-label")
@@ -3525,13 +3565,13 @@ def _measure_process_fit(
               line => line.getAttribute('x1') !== line.getAttribute('x2')
             )?.getBoundingClientRect();
           const workspace = box('.modeling-split-workspace');
-          const processCluster = box('.modeling-process-workspace-bounded');
-          const fitCluster = box('.modeling-fit-workspace-bounded');
+          const processCluster = box('.modeling-workspace-stage-process');
+          const fitCluster = box('.modeling-workspace-stage-fit');
           const rail = box('.modeling-workspace-rail');
           const ribbon = box('.modeling-task-ribbon');
           const plot = box('.persistent-modeling-plot');
-          const legend = rect(document.querySelector('.modeling-process-workspace-bounded .persistent-modeling-plot > .curve-legend')
-            ?? document.querySelector('.modeling-fit-workspace-bounded .persistent-modeling-plot > .curve-legend'));
+          const legend = rect(document.querySelector('.modeling-workspace-stage-process .persistent-modeling-plot > .curve-legend')
+            ?? document.querySelector('.modeling-workspace-stage-fit .persistent-modeling-plot > .curve-legend'));
           const svgBox = svg?.getBoundingClientRect();
           const ticks = [...(svg?.querySelectorAll('.chart-tick') ?? [])].map(rect).filter(Boolean);
           const axisLabels = [...(svg?.querySelectorAll('.chart-axis-label') ?? [])].map(rect).filter(Boolean);
@@ -3566,7 +3606,7 @@ def _measure_process_fit(
           const stateOverlays = [...(svg?.querySelectorAll(
             '.graph-range-selection, .graph-point-selection, .graph-point-marker, .engineering-result-marker, .chart-crosshair',
           ) ?? [])].map(rect).filter(Boolean);
-          const processRows = [...document.querySelectorAll('.modeling-process-workspace-bounded .modeling-dataset-list .curve-row-label')].map(row => {
+          const processRows = [...document.querySelectorAll('.modeling-workspace-stage-process .modeling-dataset-list .curve-row-label')].map(row => {
             const text = (row.textContent ?? '').replace(/\\s+/g, ' ').trim();
             const descendants = [row, ...row.querySelectorAll('strong, small')];
             const clipped = descendants.some(node => node.scrollWidth > node.clientWidth + 1 || node.scrollHeight > node.clientHeight + 1);
@@ -3670,8 +3710,8 @@ def _measure_process_fit(
           const fitEvidenceTrigger = rect(fitRoot?.querySelector('.fit-evidence-trigger'));
           const fitHeaderSource = rect(fitRoot?.querySelector('.fit-context-source'));
           const fitHeaderState = rect(fitRoot?.querySelector('.fit-surface-state'));
-          const method = rect(document.querySelector('.modeling-process-workspace-bounded .elastic-modulus-method select'));
-          const range = rect(document.querySelector('.modeling-process-workspace-bounded .elastic-modulus-range'));
+          const method = rect(document.querySelector('.modeling-workspace-stage-process .elastic-modulus-method select'));
+          const range = rect(document.querySelector('.modeling-workspace-stage-process .elastic-modulus-range'));
           return {
             svgHeight: svgBox?.height ?? 0,
             svgWidth: svgBox?.width ?? 0,
@@ -3712,14 +3752,14 @@ def _measure_process_fit(
             xTickCount: xTickLabels.length,
             processRows,
             processRowClipped: processRows.some(row => row.clipped),
-            fitRows: [...document.querySelectorAll('.modeling-fit-workspace-bounded .modeling-dataset-list .curve-row-label')].map(row => {
+            fitRows: [...document.querySelectorAll('.modeling-workspace-stage-fit .modeling-dataset-list .curve-row-label')].map(row => {
               const rowBox = row.getBoundingClientRect();
               const descendants = [row, ...row.querySelectorAll('strong, small')];
               const clipped = descendants.some(node => node.scrollWidth > node.clientWidth + 1 || node.scrollHeight > node.clientHeight + 1);
               return { text: (row.textContent ?? '').replace(/\\s+/g, ' ').trim(), visible: row.getClientRects().length > 0, clipped, box: { top: rowBox.top, bottom: rowBox.bottom } };
             }),
-            fitRowsIncluded: document.querySelector('.modeling-fit-workspace-bounded .modeling-dataset-list .rail-heading > span')?.textContent?.trim() ?? '',
-            fitNoMatchingCurves: [...document.querySelectorAll('.modeling-fit-workspace-bounded .modeling-dataset-list .muted')]
+            fitRowsIncluded: document.querySelector('.modeling-workspace-stage-fit .modeling-dataset-list .rail-heading > span')?.textContent?.trim() ?? '',
+            fitNoMatchingCurves: [...document.querySelectorAll('.modeling-workspace-stage-fit .modeling-dataset-list .muted')]
               .some(node => node.getClientRects().length && (node.textContent ?? '').trim() === 'No matching curves.'),
             methodRangeGap: method && range ? range.left - method.right : null,
             processControls,
@@ -6339,14 +6379,14 @@ def _capture_modeling_data_viewports(
         _capture(page, output / f"modeling-data-{width}x{height}.png", width, height)
         data_measurement = _measure_process_fit(page, "data", width, height)
         if width > 1920:
-            workspace_box = page.locator(".modeling-data-workspace-bounded").bounding_box()
+            workspace_box = page.locator(".modeling-workspace-stage-data").bounding_box()
             plot_box = page.locator(".persistent-modeling-plot").bounding_box()
-            if workspace_box is None or plot_box is None or workspace_box["width"] > 1920.5 or plot_box["width"] > 1920.5:
+            if workspace_box is None or plot_box is None or workspace_box["width"] < width * 0.8:
                 raise RuntimeError(
-                    f"wide Modeling Data workspace exceeded the bounded working width at {width}x{height}: "
+                    f"wide Modeling Data workspace collapsed into a fixed-width island at {width}x{height}: "
                     f"workspace={workspace_box}, plot={plot_box}"
                 )
-            data_measurement.update({"boundedWorkspaceWidth": workspace_box["width"], "boundedPlotWidth": plot_box["width"]})
+            data_measurement.update({"elasticWorkspaceWidth": workspace_box["width"], "elasticPlotWidth": plot_box["width"]})
         measurements.append(
             {
                 "stage": "data",

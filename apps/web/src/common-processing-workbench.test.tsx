@@ -44,13 +44,13 @@ function isFitMethodInRequest(methodId: string | undefined): boolean {
 }
 
 function processRailIdentities(): string[] {
-  return Array.from(document.querySelectorAll(".modeling-process-workspace-bounded .curve-row-label"), (row) =>
+  return Array.from(document.querySelectorAll(".modeling-workspace-stage-process .curve-row-label"), (row) =>
     (row.textContent ?? "").replace(/\s+/g, " ").trim(),
   );
 }
 
 function processRailButton(identity: string): HTMLElement {
-  const row = Array.from(document.querySelectorAll<HTMLElement>(".modeling-process-workspace-bounded .curve-row-label"))
+  const row = Array.from(document.querySelectorAll<HTMLElement>(".modeling-workspace-stage-process .curve-row-label"))
     .find((candidate) => (candidate.textContent ?? "").replace(/\s+/g, " ").trim() === identity);
   if (!row) throw new Error(`Process rail identity is missing: ${identity}`);
   return row;
@@ -2066,7 +2066,7 @@ describe("Common Processing Workbench", () => {
     await waitFor(() => expect(screen.getByText(/Preview ready\./)).toBeTruthy(), { timeout: 5000 });
     expect(processRailIdentities()).toEqual(expect.arrayContaining(["Specimen 01 · r1", "Specimen 02 · r1", "Specimen 03 · r1"]));
     expect(processRailIdentities().every((text) => /^Specimen \d{2} · r[1-9]\d*$/.test(text))).toBe(true);
-    expect(Array.from(document.querySelectorAll(".modeling-process-workspace-bounded .curve-row-label small"))).toHaveLength(0);
+    expect(Array.from(document.querySelectorAll(".modeling-workspace-stage-process .curve-row-label small"))).toHaveLength(0);
     expect(document.querySelector(".process-band-source")?.textContent).toBe("Specimen 01 · r1");
     expect(document.querySelector(".process-band-result")?.textContent).toContain("210.0 GPa");
     const savedDetails = document.querySelector("details.process-saved-results") as HTMLDetailsElement;
@@ -2565,7 +2565,7 @@ describe("Common Processing Workbench", () => {
     try {
       view = render(renderWorkbench(initialSession));
       await waitFor(() => expect(screen.getByText("Preview ready.", { exact: false })).toBeTruthy(), { timeout: 5000 });
-      expect(document.querySelector(".modeling-fit-workspace-bounded")).toBeTruthy();
+      expect(document.querySelector(".modeling-workspace-stage-fit")).toBeTruthy();
       fireEvent.click(screen.getByText("Candidate parameters"));
       await screen.findByText("Fit evidence");
       fireEvent.click(await screen.findByRole("button", { name: /Select swift candidate/i }));

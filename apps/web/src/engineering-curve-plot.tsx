@@ -19,6 +19,7 @@ import {
   fitDecisionIdentityLabel,
   type FitDecisionSelection,
 } from "./modeling-fit-decision-contract";
+import { ENGINEERING_PLOT_MARGIN } from "./design/metrics";
 
 export interface PlotBounds {
   xMin: number;
@@ -75,8 +76,8 @@ export interface PlotInteractionState {
   hasSelection: boolean;
 }
 
-const PLOT_MARGIN = { left: 80, right: 24, top: 24, bottom: 52 } as const;
 const EXTRAPOLATION_LABEL = "EXTRAPOLATED · UNOBSERVED";
+const PLOT_MARGIN = ENGINEERING_PLOT_MARGIN;
 // Keep a conservative width budget for the normal 12px label so a narrow
 // extrapolation domain can anchor the annotation back inside the plot gutter.
 const EXTRAPOLATION_LABEL_WIDTH = 250;
@@ -163,7 +164,7 @@ export function plotPoints(
   width: number,
   height: number,
   bounds: PlotBounds,
-  margins: { left: number; right: number; top: number; bottom: number } = PLOT_MARGIN,
+  margins: { left: number; right: number; top: number; bottom: number } = ENGINEERING_PLOT_MARGIN,
 ): string {
   if (x.length < 2 || x.length !== y.length) return "";
   const xRange = bounds.xMax - bounds.xMin || 1;

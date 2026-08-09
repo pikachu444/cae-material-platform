@@ -12,6 +12,8 @@ import {
   type UIEventHandler,
 } from "react";
 
+import { SCROLL_RAIL_METRICS } from "./design/metrics";
+
 type ScrollAxis = "x" | "y";
 
 interface ScrollMetrics {
@@ -78,10 +80,10 @@ function MaterialsScrollRail({ ariaLabel, axis, labelledBy, metrics, onScrollTo 
   const viewport = viewportSize(metrics, axis);
   const railPixels = railRef.current ? trackSize(railRef.current, axis) : 0;
   const thumbPixels = Math.min(
-    Math.max(36, viewport > 0 && metrics[axis === "x" ? "scrollWidth" : "scrollHeight"] > 0
+    Math.max(SCROLL_RAIL_METRICS.thumbMinimum, viewport > 0 && metrics[axis === "x" ? "scrollWidth" : "scrollHeight"] > 0
       ? (viewport / metrics[axis === "x" ? "scrollWidth" : "scrollHeight"]) * railPixels
-      : 36),
-    Math.max(36, railPixels),
+      : SCROLL_RAIL_METRICS.thumbMinimum),
+    Math.max(SCROLL_RAIL_METRICS.thumbMinimum, railPixels),
   );
   const available = Math.max(0, railPixels - thumbPixels);
   const offset = maximum > 0 ? (scroll / maximum) * available : 0;
@@ -131,8 +133,8 @@ function MaterialsScrollRail({ ariaLabel, axis, labelledBy, metrics, onScrollTo 
     if (maximum <= 0) return;
     const page = viewport * 0.8;
     const delta = axis === "x"
-      ? event.key === "ArrowRight" ? 36 : event.key === "ArrowLeft" ? -36 : null
-      : event.key === "ArrowDown" ? 36 : event.key === "ArrowUp" ? -36 : null;
+      ? event.key === "ArrowRight" ? SCROLL_RAIL_METRICS.keyboardStep : event.key === "ArrowLeft" ? -SCROLL_RAIL_METRICS.keyboardStep : null
+      : event.key === "ArrowDown" ? SCROLL_RAIL_METRICS.keyboardStep : event.key === "ArrowUp" ? -SCROLL_RAIL_METRICS.keyboardStep : null;
     if (event.key === "Home") onScrollTo(axis, 0);
     else if (event.key === "End") onScrollTo(axis, maximum);
     else if (event.key === "PageDown") onScrollTo(axis, scroll + page);

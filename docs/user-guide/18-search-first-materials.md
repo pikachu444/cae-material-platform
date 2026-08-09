@@ -42,7 +42,9 @@ Browse Tree에서도 저장된 자료를 찾을 수 있습니다.
 | 짧은 결과, 막대 없음 | [짧은 결과](images/current/materials-search-short-1440x900.png) |
 | 빈 결과, 막대 없음 | [빈 결과](images/current/materials-search-empty-1440x900.png) |
 
-넓은 화면에서도 작업 영역은 필요 이상으로 늘어나지 않고 페이지 전체 가로 스크롤이 생기지 않습니다.
+넓은 화면에서는 Materials shell과 결과·데이터시트 작업면이 남는 viewport를 사용합니다. Navigator와
+Context는 의미 있는 공통 범위 안에 남고, 표·그래프가 가운데 작업면을 사용하므로 1920px 고정 섬이나
+페이지 전체 가로 스크롤이 생기지 않습니다.
 
 | 경로 | 캡처 |
 | --- | --- |
@@ -208,8 +210,9 @@ Subset과 Link Type 목록이 해당 Table 문맥으로 바뀌며, Link Type은 
 
 ## Desktop viewport evidence
 
-1366 px에서는 optional 상세와 settings를 접어 result/graph 폭을 지키고, 1920 px에서는 중앙 작업면이
-남는 폭을 확장합니다. 모든 panel을 같은 비율로 늘리거나 좁은 중앙 max-width에 가두지 않습니다.
+1366 px에서는 optional 상세와 settings를 접어 result/graph 폭을 지키고, 1920·2560·3840 px에서는
+중앙 작업면이 남는 폭을 확장합니다. 모든 panel을 같은 비율로 늘리거나 좁은 중앙 max-width에
+가두지 않습니다.
 현재 캡처는 가로축 drawable이 전체 Modeling workspace의 약 75% 이상을 차지하며, 캡처 자동화가
 Data/Process/Fit/Export의 세 viewport 모두에서 72% hard gate를 적용합니다.
 

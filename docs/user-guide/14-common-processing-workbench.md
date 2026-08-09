@@ -229,8 +229,8 @@ internal quantity key 대신 사람이 읽는 물성명과 unit(예: `True plast
 Export는 모든 상태에서 같은 세 칸 작업 묶음(Setup 300–340 px, 넓은 native preview,
 Mapping/Fit context 326–360 px)을 유지합니다. 1366×768, 1440×900, 1920×1080,
 2560×1440, 3840×2160 정상 화면과 1440×900 source-blocked,
-approximation-blocked, delivered 상태를 캡처 계약으로 관리합니다. Wide 화면에서도 이 묶음은
-왼쪽 위 1920 px 안에 머물며 남는 공간은 오른쪽에 둡니다.
+approximation-blocked, delivered 상태를 캡처 계약으로 관리합니다. Wide 화면에서는 Export shell과
+native preview가 남는 폭을 사용하고 Setup·Mapping/Fit context만 읽기 좋은 pane 범위를 유지합니다.
 
 | Export evidence | Capture |
 | --- | --- |
