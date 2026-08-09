@@ -29,6 +29,7 @@ if TYPE_CHECKING:
 
 VIEWPORTS = ((1366, 768), (1440, 900), (1920, 1080))
 WIDE_VIEWPORTS = ((2560, 1440), (3840, 2160))
+ACTIVITY_HISTORY_VIEWPORTS = (VIEWPORTS[1], VIEWPORTS[2], *WIDE_VIEWPORTS)
 REVISION_LABEL_PATTERN = re.compile(r"\br[1-9]\d*\b")
 MODELING_EXPORT_OUTPUTS = (
     *(f"modeling-export-{width}x{height}.png" for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)),
@@ -92,7 +93,11 @@ ADMINISTRATION_RECORDS_OUTPUTS = tuple(
 )
 ACTIVITY_OUTPUTS = (
     *(f"activity-{width}x{height}.png" for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)),
-    "activity-history-1440x900.png",
+    *(f"activity-history-{width}x{height}.png" for width, height in ACTIVITY_HISTORY_VIEWPORTS),
+    "activity-user-1440x900.png",
+    "activity-administrator-1440x900.png",
+    "activity-decision-error-1440x900.png",
+    "activity-recovery-1440x900.png",
 )
 REVIEW_SUBMISSION_OUTPUTS = (
     *(
@@ -168,6 +173,13 @@ CURRENT_CAPTURE_OUTPUTS = (
     "activity-2560x1440.png",
     "activity-3840x2160.png",
     "activity-history-1440x900.png",
+    "activity-history-1920x1080.png",
+    "activity-history-2560x1440.png",
+    "activity-history-3840x2160.png",
+    "activity-user-1440x900.png",
+    "activity-administrator-1440x900.png",
+    "activity-decision-error-1440x900.png",
+    "activity-recovery-1440x900.png",
     "administration-database-1366x768.png",
     "administration-database-1440x900.png",
     "administration-database-1920x1080.png",
@@ -1310,25 +1322,218 @@ def _capture_activity(browser: Browser, base_url: str, output: Path) -> None:
         _ensure_activity_review_fixture(page, base_url)
         page.goto(f"{base_url}/activity")
         _wait_for_activity_queue(page)
+        _assert_activity_compact_density(page, width)
         _capture(page, output / f"activity-{width}x{height}.png", width, height)
         page.context.close()
     _capture_activity_history(browser, base_url, output)
+    _capture_activity_role_default(browser, base_url, output, persona="user")
+    _capture_activity_role_default(browser, base_url, output, persona="administrator")
+    _capture_activity_decision_error(browser, base_url, output)
+    _capture_activity_recovery(browser, base_url, output)
+
+
+def _assert_activity_compact_density(page: Page, viewport_width: int) -> None:
+    """Prove the shared compact tokens reach the live Activity surface."""
+    measurements = page.evaluate(
+        """() => {
+          const fontSize = selector =>
+            getComputedStyle(document.querySelector(selector)).fontSize;
+          const table = document.querySelector('.activity-table').getBoundingClientRect();
+          const queue = document.querySelector('#activity-queue-scroll').getBoundingClientRect();
+          const row = document.querySelector('.activity-table tbody tr').getBoundingClientRect();
+          const action = document.querySelector('.activity-cell-action .ux-button').getBoundingClientRect();
+          return {
+            tab: fontSize('.activity-saved-view'),
+            task: fontSize('.activity-cell-task strong'),
+            data: fontSize('.activity-cell-reason'),
+            metadata: fontSize('.activity-cell-status'),
+            updated: fontSize('.activity-cell-updated'),
+            heading: fontSize('.activity-table th'),
+            action: fontSize('.activity-cell-action .ux-button'),
+            rowHeight: row.height,
+            actionHeight: action.height,
+            tableLeft: table.left,
+            tableRight: table.right,
+            tableWidth: table.width,
+            queueWidth: queue.width,
+            queueLeft: queue.left,
+            queueRight: queue.right,
+          };
+        }"""
+    )
+    expected_fonts = {
+        "tab": "13px",
+        "task": "14px",
+        "data": "13px",
+        "metadata": "12px",
+        "updated": "12px",
+        "heading": "11px",
+        "action": "13px",
+    }
+    actual_fonts = {name: measurements[name] for name in expected_fonts}
+    if actual_fonts != expected_fonts:
+        raise RuntimeError(
+            f"Activity compact tokens are not live: expected {expected_fonts}, got {actual_fonts}"
+        )
+    if measurements["rowHeight"] < 46 or measurements["actionHeight"] < 36:
+        raise RuntimeError(f"Activity compact row/control bounds regressed: {measurements}")
+    if measurements["tableWidth"] > 2656.5:
+        raise RuntimeError(f"Activity table exceeded its readable wide bound: {measurements}")
+    if viewport_width == 3840:
+        left_gutter = measurements["tableLeft"] - measurements["queueLeft"]
+        right_gutter = measurements["queueRight"] - measurements["tableRight"]
+        if measurements["queueWidth"] > 2656.5:
+            raise RuntimeError(
+                f"Activity 4K local queue exceeded its readable wide bound: {measurements}"
+            )
+        if abs(left_gutter - right_gutter) > 1 or max(left_gutter, right_gutter) > 32:
+            raise RuntimeError(
+                f"Activity 4K table and local rail are not adjacent: {measurements}"
+            )
 
 
 def _capture_activity_history(browser: Browser, base_url: str, output: Path) -> None:
-    """Capture one long Recent outcomes view only when the real queue overflows."""
+    """Capture truthful server outcomes plus bounded browser-local card history overflow."""
+    for width, height in ACTIVITY_HISTORY_VIEWPORTS:
+        page = _new_page(browser, base_url, width, height, persona="reviewer")
+        try:
+            _ensure_activity_review_fixture(page, base_url)
+            _seed_activity_delivery_history(page)
+            page.goto(f"{base_url}/activity")
+            _wait_for_activity_queue(page, expected_view="needs-attention")
+            page.get_by_role("tab", name="Recent outcomes", exact=True).click()
+            page.get_by_role("tabpanel").filter(has=page.get_by_role("heading", name="Recent outcomes", exact=True)).wait_for(timeout=30_000)
+            scroll = page.locator("#activity-queue-scroll")
+            scroll.wait_for(timeout=30_000)
+            if page.locator(".activity-queue-scroll-shell").get_attribute("data-scroll-y") != "true":
+                raise RuntimeError(
+                    f"Activity Recent outcomes fixture did not produce a real local overflow rail at {width}x{height}"
+                )
+            _capture(page, output / f"activity-history-{width}x{height}.png", width, height)
+        finally:
+            page.context.close()
+
+
+def _seed_activity_delivery_history(page: Page) -> None:
+    """Exercise the existing 20-item browser-local card history beside server outcomes."""
+    activities = [
+        {
+            "version": 1,
+            "action": "download" if index % 2 == 0 else "preview",
+            "occurredAt": f"2026-08-08T{23 - index:02d}:30:00Z",
+            "materialId": "material-dp780",
+            "materialRevisionId": "material-dp780-r19",
+            "materialLabel": "DP780 Dual-Phase Steel",
+            "cardId": f"solver-card-history-{index + 1:02d}",
+            "cardRevisionId": f"solver-card-history-{index + 1:02d}-r1",
+            "cardLabel": f"DP780 OpenRadioss card {index + 1:02d}",
+            "solver": "OpenRadioss",
+            "extension": ".rad",
+        }
+        for index in range(20)
+    ]
+    page.evaluate(
+        "items => sessionStorage.setItem('cmp.solver-card.recent-activity.v1', JSON.stringify(items))",
+        activities,
+    )
+
+
+def _capture_activity_role_default(
+    browser: Browser,
+    base_url: str,
+    output: Path,
+    *,
+    persona: str,
+) -> None:
+    page = _new_page(browser, base_url, 1440, 900, persona=persona)
+    try:
+        page.goto(f"{base_url}/activity")
+        _wait_for_activity_queue(
+            page,
+            expect_review_action=False,
+            expected_view="in-progress",
+        )
+        if page.get_by_role("button", name="Approve", exact=True).count():
+            raise RuntimeError(f"{persona} Activity default exposed a decision action")
+        _capture(page, output / f"activity-{persona}-1440x900.png", 1440, 900)
+    finally:
+        page.context.close()
+
+
+def _capture_activity_decision_error(browser: Browser, base_url: str, output: Path) -> None:
     page = _new_page(browser, base_url, 1440, 900, persona="reviewer")
     try:
         _ensure_activity_review_fixture(page, base_url)
+        page.route(
+            "**/api/v1/review-requests/*/decisions",
+            lambda route: route.fulfill(
+                status=503,
+                content_type="application/problem+json",
+                body=json.dumps(
+                    {
+                        "title": "Review service unavailable",
+                        "status": 503,
+                        "detail": "The selected request and reason remain available; retry when the review service is available.",
+                    }
+                ),
+            ),
+        )
         page.goto(f"{base_url}/activity")
-        _wait_for_activity_queue(page, expected_view="needs-attention")
-        page.get_by_role("tab", name="Recent outcomes", exact=True).click()
-        page.get_by_role("tabpanel").filter(has=page.get_by_role("heading", name="Recent outcomes", exact=True)).wait_for(timeout=30_000)
-        scroll = page.locator("#activity-queue-scroll")
-        scroll.wait_for(timeout=30_000)
-        if page.locator(".activity-queue-scroll-shell").get_attribute("data-scroll-y") != "true":
-            raise RuntimeError("Activity Recent outcomes fixture did not produce a real local overflow rail")
-        _capture(page, output / "activity-history-1440x900.png", 1440, 900)
+        _wait_for_activity_queue(page)
+        page.get_by_role("button", name="Review", exact=True).first.click()
+        reason = page.get_by_role("textbox", name="Review reason", exact=True)
+        retained_reason = (
+            "Units, source text, test condition, and exact revision are complete; "
+            "retain this reason while the review service recovers."
+        )
+        reason.fill(retained_reason)
+        page.get_by_role("button", name="Approve", exact=True).click()
+        page.get_by_role("alert").wait_for(timeout=30_000)
+        if reason.input_value() != retained_reason:
+            raise RuntimeError("Activity decision error did not retain the review reason")
+        _capture(page, output / "activity-decision-error-1440x900.png", 1440, 900)
+    finally:
+        page.context.close()
+
+
+def _capture_activity_recovery(browser: Browser, base_url: str, output: Path) -> None:
+    page = _new_page(browser, base_url, 1440, 900, persona="reviewer")
+    try:
+        page.evaluate(
+            """async ({ baseUrl }) => {
+              const config = JSON.parse(localStorage.getItem("cmp.material-platform.api-config") || "{}");
+              const response = await fetch(`${baseUrl}/api/v1/me`, {
+                headers: { "Accept": "application/json", "Authorization": `Bearer ${config.accessToken}` },
+              });
+              if (!response.ok) throw new Error(`cannot read Activity principal: ${response.status}`);
+              const principal = await response.json();
+              const key = `cmp.activity.recovery.v1:${principal.organization_id}:${principal.project_id}:${principal.principal_id}:activity`;
+              localStorage.setItem(key, JSON.stringify([{
+                schemaVersion: 1,
+                id: "activity-density-recovery",
+                principalId: principal.principal_id,
+                organizationId: principal.organization_id,
+                projectId: principal.project_id,
+                workspace: "activity",
+                context: {
+                  kind: "selected_model_json",
+                  path: "/modeling?stage=fit&family=metal",
+                  materialModelId: "dp780-selected-model",
+                  materialModelRevisionId: "dp780-selected-model-r3",
+                  target: "selected-model.json",
+                },
+                status: "failed",
+                message: "Selected model download failed; the exact model revision remains selected for retry.",
+                occurredAt: "2026-08-09T05:35:00Z",
+              }]));
+            }""",
+            {"baseUrl": base_url},
+        )
+        page.goto(f"{base_url}/activity")
+        _wait_for_activity_queue(page)
+        page.get_by_role("heading", name="Recovery needed", exact=True).wait_for(timeout=30_000)
+        page.get_by_role("button", name="Open exact selection", exact=True).wait_for(timeout=30_000)
+        _capture(page, output / "activity-recovery-1440x900.png", 1440, 900)
     finally:
         page.context.close()
 
@@ -6881,7 +7086,7 @@ def main() -> int:
     parser.add_argument(
         "--only-activity",
         action="store_true",
-        help="Capture and replace only the five role-aware Activity queue viewports.",
+        help="Capture the five Activity viewports plus wide history, role defaults, decision error, and recovery states.",
     )
     parser.add_argument(
         "--only-review-submission",

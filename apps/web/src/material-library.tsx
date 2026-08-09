@@ -1637,7 +1637,7 @@ function ActivityTable({
   expandedKey?: string | null;
   expanded?: (row: ActivityTableRow) => ReactNode;
 }) {
-  return <table className="activity-table"><caption className="visually-hidden">{caption}</caption><thead><tr><th scope="col">Task</th><th scope="col">Request/recovery reason</th><th scope="col">Status</th><th scope="col">Updated</th><th scope="col">Action</th></tr></thead><tbody>{rows.map((row) => <Fragment key={row.key}>
+  return <table className="activity-table"><caption className="visually-hidden">{caption}</caption><colgroup><col className="activity-column-task" /><col className="activity-column-reason" /><col className="activity-column-status" /><col className="activity-column-updated" /><col className="activity-column-action" /></colgroup><thead><tr><th scope="col">Task</th><th scope="col">Request/recovery reason</th><th scope="col">Status</th><th scope="col">Updated</th><th scope="col">Action</th></tr></thead><tbody>{rows.map((row) => <Fragment key={row.key}>
     <tr key={row.key} data-testid={row.testId}>
       <td className="activity-cell-task"><strong>{row.task}</strong></td>
       <td className="activity-cell-reason">{row.reason}</td>

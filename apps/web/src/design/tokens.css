@@ -24,6 +24,16 @@
   --ux-space-5: 24px;
   --ux-space-6: 32px;
   --ux-space-7: 48px;
+  --ux-compact-data-font-size: 13px;
+  --ux-compact-emphasis-font-size: 14px;
+  --ux-compact-metadata-font-size: 12px;
+  --ux-compact-table-heading-font-size: 11px;
+  --ux-compact-control-min-height: 36px;
+  --ux-compact-row-min-height: 46px;
+  --ux-compact-pane-padding: 12px;
+  --ux-compact-cell-padding-block: 8px;
+  --ux-compact-cell-padding-inline: 7px;
+  --ux-compact-wide-content-max: 166rem;
   --ux-application-bar-height: 46px;
   --ux-command-bar-height: 38px;
   --ux-status-bar-height: 24px;
