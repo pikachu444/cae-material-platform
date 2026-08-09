@@ -110,9 +110,11 @@ Required viewport baselines:
 
 Use browser zoom 100% for every baseline. Open the PNGs at original resolution and supply
 100%-pixel crops of the header, navigator, table/form controls, and graph or native preview. For
-#184 and later shared display-tier changes, also record actual Windows 4K at 100%, 150%, and 200%
-scale, the CSS viewport, and `devicePixelRatio`; Playwright emulation does not prove physical
-readability.
+#221, #184, and later shared display-tier changes, also record actual Windows 4K at 100%, 150%, and
+200% scale, the CSS viewport, and `devicePixelRatio`; Playwright emulation does not prove physical
+readability. #221 candidate selection uses
+[`high-dpi-decision-review.md`](../14-testing/review-prompts/high-dpi-decision-review.md); #184 then
+uses the normal full-screen visual review across every route/state.
 
 Required screen baselines:
 
