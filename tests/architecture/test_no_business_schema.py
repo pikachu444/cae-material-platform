@@ -100,6 +100,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260922_091_UXC07_batch_evidence.py",
         "20260923_092_uxc08_catalog_management.py",
         "20260924_093_issue158_metal_fit.py",
+        "20260925_094_issue160_review_publication.py",
     ]
 
 

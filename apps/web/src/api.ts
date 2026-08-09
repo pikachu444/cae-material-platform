@@ -406,10 +406,13 @@ export function getCatalogWorkflowGraph(
   recordId: string,
   revisionId: string,
   depth = 3,
+  publishedOnly = false,
 ): Promise<ApiResult<CatalogWorkflowGraphResponse>> {
+  const query = new URLSearchParams({ depth: String(depth) });
+  if (publishedOnly) query.set("published_only", "true");
   return request(
     config,
-    `/catalog/workflow-explorer/${encodeURIComponent(recordId)}/revisions/${encodeURIComponent(revisionId)}?depth=${depth}`,
+    `/catalog/workflow-explorer/${encodeURIComponent(recordId)}/revisions/${encodeURIComponent(revisionId)}?${query.toString()}`,
   );
 }
 
@@ -1155,6 +1158,7 @@ export interface LocalDemoAccessToken {
   organization_id: string;
   project_id: string;
   group: string;
+  persona?: "user" | "reviewer";
 }
 
 interface ProblemDocument {
@@ -1766,6 +1770,13 @@ export function listMaterialModels(
   return request(config, `/material-states/${encodeURIComponent(materialStateId)}/material-models`);
 }
 
+export function getMaterialModel(
+  config: ApiConfig,
+  materialModelId: string,
+): Promise<ApiResult<MaterialModelResponse>> {
+  return request(config, `/material-models/${encodeURIComponent(materialModelId)}`);
+}
+
 export function createReferenceMaterialModel(
   config: ApiConfig,
   materialStateId: string,
@@ -2142,11 +2153,11 @@ export function previewReferenceValidationResultCurve(
 export function createReviewRequest(
   config: ApiConfig,
   input: {
-    classification: DataClassification;
+    classification?: DataClassification;
     aggregate_type: string;
     aggregate_id: string;
     revision_id: string;
-    manifest_sha256: string;
+    manifest_sha256?: string;
     reason: string;
   },
 ): Promise<ApiResult<ReviewRequestResponse>> {
@@ -2911,6 +2922,31 @@ export function createExactTargetPreview(
     method: "POST",
     body: JSON.stringify(input),
   });
+}
+
+/** Download the exact Neutral revision selected by the Material Model export gate. */
+export async function downloadSelectedModelNeutralMaterial(
+  config: ApiConfig,
+  neutralMaterialId: string,
+  neutralMaterialRevisionId: string,
+): Promise<ApiResult<{ blob: Blob; filename: string }>> {
+  const init: RequestInit = {};
+  const headers = authenticatedHeaders(config, init, "application/json");
+  const response = await fetch(
+    endpoint(
+      config,
+      `/neutral-materials/${encodeURIComponent(neutralMaterialId)}/revisions/${encodeURIComponent(neutralMaterialRevisionId)}/download`,
+    ),
+    { ...init, headers },
+  );
+  if (!response.ok) return throwResponseError(response);
+  const disposition = response.headers.get("content-disposition") ?? "";
+  const filename = /filename="([^"]+)"/i.exec(disposition)?.[1]
+    ?? `selected-model-${neutralMaterialRevisionId}.cmp-neutral.json`;
+  return {
+    data: { blob: await response.blob(), filename },
+    etag: response.headers.get("etag"),
+  };
 }
 
 export function getReferenceElastoplasticExportCapabilities(

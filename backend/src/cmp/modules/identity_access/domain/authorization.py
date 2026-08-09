@@ -118,7 +118,19 @@ class FeatureGrant(StrEnum):
 
 
 PRODUCT_ROLE_PRESETS: dict[ProductRole, tuple[FeatureGrant, ...]] = {
-    ProductRole.ADMINISTRATOR: tuple(sorted(FeatureGrant, key=str)),
+    # Administrator manages schema/catalog/processing/export.  Review decisions and
+    # review-backed publication are deliberately reserved for the distinct Reviewer role.
+    ProductRole.ADMINISTRATOR: tuple(
+        sorted(
+            (
+                FeatureGrant.SCHEMA_CONFIGURATION,
+                FeatureGrant.CATALOG_EDIT,
+                FeatureGrant.PROCESSING_CALIBRATION,
+                FeatureGrant.SOLVER_CARD_EXPORT,
+            ),
+            key=str,
+        )
+    ),
     ProductRole.REVIEWER: tuple(
         sorted(
             (
@@ -251,6 +263,10 @@ class ProductAccessAssignment:
     valid_from: datetime
     expires_at: datetime | None = None
     revoked_at: datetime | None = None
+    # Internal migration-era preset discriminator.  It is intentionally not part of
+    # the product-facing API response; historical v1 Administrator rows remain
+    # readable only after revocation while all new writes use v2.
+    preset_version: int = 2
 
     def __post_init__(self) -> None:
         if self.id.int == 0 or self.organization_id.int == 0:
@@ -259,12 +275,24 @@ class ProductAccessAssignment:
             raise ValueError("project UUID must be non-zero when present")
         if tuple(sorted(set(self.feature_grants), key=str)) != self.feature_grants:
             raise ValueError("feature grants must be sorted and unique")
-        if self.product_role in {ProductRole.ADMINISTRATOR, ProductRole.REVIEWER} and (
+        if self.preset_version not in {1, 2}:
+            raise ValueError("preset_version must be 1 or 2")
+        if self.product_role is ProductRole.ADMINISTRATOR:
+            legacy = tuple(sorted(FeatureGrant, key=str))
+            if self.preset_version == 1:
+                if self.feature_grants != legacy or self.revoked_at is None:
+                    raise ValueError(
+                        "Administrator v1 assignments are legacy five-grant rows "
+                        "and must be revoked"
+                    )
+            elif self.feature_grants != product_role_preset(self.product_role):
+                raise ValueError(
+                    "Administrator v2 assignments must contain the corrected four-grant preset"
+                )
+        elif self.product_role is ProductRole.REVIEWER and (
             self.feature_grants != product_role_preset(self.product_role)
         ):
-            raise ValueError(
-                f"{self.product_role.value} assignments must contain their fixed product preset"
-            )
+            raise ValueError("Reviewer assignments must contain their fixed product preset")
         if self.max_classification is DataClassification.EXPORT_CONTROLLED:
             raise ValueError("use allow_export_controlled for the export compartment")
         _aware("valid_from", self.valid_from)
@@ -274,8 +302,7 @@ class ProductAccessAssignment:
                 raise ValueError("expires_at must follow valid_from")
         if self.revoked_at is not None:
             _aware("revoked_at", self.revoked_at)
-            if self.revoked_at < self.valid_from:
-                raise ValueError("revoked_at cannot precede valid_from")
+            # A future assignment may be cancelled before it becomes effective.
 
     def applies_to(self, context: SecurityContext, observed_at: datetime) -> bool:
         _aware("observed_at", observed_at)

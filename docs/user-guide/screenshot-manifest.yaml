@@ -1,12 +1,13 @@
-version: 82
-verified_at: 2026-08-06
-scope: issue-158-modeling-fit-ui-correction
-source_commit: 7394070+fit-ui-correction-worktree
+version: 85
+verified_at: 2026-08-09
+scope: issue-160-review-publication
+source_commit: working-tree-issue-160
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright==1.62.0 python scripts/capture_current_product.py
 notes:
   - "UXC-04E directly ports the approved modeling.html/review.css Fit topology: white 48 px product header, compact title/stage rows, 184–208 px curve/process rail, exact 31 px heading plus 72 px six-group ribbon, graph-adjacent Candidate parameters disclosure, separate compact graph header, dominant plot, and compact decision-relevant legend. The retired command/status bars do not consume Modeling graph space."
-  - "The current set contains 69 deterministic synthetic product-route captures. Issue #158 Task 3B Process/Fit root live capture and qualitative visual acceptance completed on 2026-08-06; all required viewports were opened at original resolution."
+  - "The current set contains 77 deterministic synthetic product-route captures. Issue #160 review-submission and Reviewer-persona Activity evidence is current working-tree evidence from the isolated queue; the root opened all ten final originals and accepted Q03, Q09 and Q16 visibility, wrapping, local-scroll and wide-layout topology checks. Reviewer Activity Needs attention Q20 remains FAIL at 2560×1440 and 3840×2160 because controls and text are tiny fixed-density. The Product Owner explicitly authorizes publication/merge of the current Task 1 PR with this exact failure carried as the next #160 Task 2 and global #184 evidence; this is not Q20 approval, #160 completion, or Task 2 implementation. #160 adds no route-specific 4K CSS, CSS zoom, blanket transform, fabricated filler, or other workaround."
+  - "The final Activity before/current comparison is recorded in docs/17-evidence/images/issue-160-review-publication/visual-evidence.yaml: origin/main b993542 before references, current 1366/1440/1920/2560/3840 originals, the 1440 history, and direct 1:1 crops with exact rectangles, SHA-256 and dimensions. These evidence artifacts are not current user-guide captures; the current capture count remains 77."
   - "Fit capture asserts the four-row grouped metal rail, one-line Step 4 Fit heading, a fixed 104 px six-group control ribbon, shared 28 px top actions, concise source/state header, Candidate parameters source evidence, explicit selection before save, and persistent graph identity."
   - "Recommendation, engineer selection, saved result, downstream model evidence, and export eligibility remain separate states; a recommendation never mutates selection."
   - "Polymer candidate evidence exposes the actual server-produced term identity and measured range only; missing result evidence is never replaced by a fallback."
@@ -15,9 +16,9 @@ notes:
   - "New session increments the parent context generation so in-flight Material/State discovery cannot repin an automatic fallback after the pin-free Data reset."
   - "The capture script rejects aria-busy, unfinished async status text, horizontal overflow, incomplete Fit candidate columns, a missing selected-fit output save, multiple primary CAE Card downloads, unacknowledged approximations, unsupported demo mappings, and a Modeling drawable below 72% of its workspace."
   - "All current images are deterministic synthetic non-production product-route captures. Storybook component-QA evidence is historical and is not part of this manifest or current-image directory."
-  - "Activity is a compact Needs attention | In progress | Recent outcomes queue. The clean demo shows one pending DP780 Selected model review. Reviewer and Administrator can open the submitted row, enter a reason, and record an existing API decision; User sees pending requests in progress without decision controls."
+  - "Activity is a compact Needs attention | In progress | Recent outcomes queue. The isolated Issue #160 queue shows pending exact-revision DP780 Selected model and Solver card reviews alongside preserved immutable prior outcomes. Reviewer can open the submitted row, enter a reason, and record an existing API decision; User and Administrator see their own pending requests in progress without decision controls. Failed jobs retain exact retry context."
   - "The legacy /jobs-reviews deep link renders the same Activity queue; the retired raw aggregate/revision/hash request form and standalone decision control are absent. /governance remains an Advanced Operations, Release and Governance Evidence route."
-  - "The deterministic capture reuses the clean-demo Selected model review. Only when the synthetic demo has no review does it create one real review request for a draft synthetic Material; it never creates a duplicate or records a decision. The current review API does not expose readable submitted-item or actor names, so the normal queue uses task labels and request reason while exact identifiers stay in Advanced evidence."
+  - "The deterministic capture reuses the clean-demo Selected model review. Only when the synthetic demo has no review does it create one real review request for a draft synthetic Material; it never creates a duplicate or records a decision. The review API supplies an immutable requester display-name snapshot; the normal queue uses task labels and request reason while exact identifiers stay in Advanced evidence."
   - "DUI-08B submits or reuses one real review request for the exact draft OpenRadioss card revision already loaded by Native Card Preview. The normal header then shows Waiting for review, and Activity shows the corresponding Solver card review row; no decision or release is fabricated."
   - "Data, Process and Fit use the same compact Curves tree: the canonical test-method group is a real native disclosure above specimen/revision rows, a 3×17 px vertical plot-color swatch is placed between the inclusion checkbox and flexible label, inclusion checkbox and icon-only plot visibility remain independent, and Export has no permanent curve rail. Data overlays each visible exact Test Data revision from a server preview and persists included revisions across reload."
   - "The normal stage strip visibly contains only Data, Process, Fit and Export. Its readiness details remain in hover/focus labels; Validate and Review are Advanced/Activity governed contracts. Mean & band is absent until an ensemble preview exists."
@@ -35,6 +36,27 @@ notes:
   - "Issue #158 Task 3B Fit captures bind the Fit source to one saved Process Output id/revision/digest in Candidate parameters Evidence, show the server candidate response/residual/tangent and diagnostic evidence, preserve the last valid preview after an exact-source read or Fit failure, and show an explicit blocked recovery when the pinned Process Output is missing or stale; Fit save requests carry the exact source pin and never fall back to raw Test Data."
   - "Issue #158 Task 3B current Fit images are registered for route, content and completed qualitative visual acceptance evidence from main 7394070 plus the Fit UI correction worktree."
 allowed_duplicate_pairs: []
+visual_evidence:
+  sidecar: docs/17-evidence/images/issue-160-review-publication/visual-evidence.yaml
+  route: /activity
+  state: Reviewer Needs attention
+  baseline_source: 'origin/main@b993542'
+  current_source: working-tree-issue-160
+  evidence_artifacts_are_not_current_captures: true
+  current_capture_count: 77
+  before_reference_originals:
+    - docs/17-evidence/images/issue-160-review-publication/before/activity-before-1366x768.png
+    - docs/17-evidence/images/issue-160-review-publication/before/activity-before-1440x900.png
+    - docs/17-evidence/images/issue-160-review-publication/before/activity-before-1920x1080.png
+    - docs/17-evidence/images/issue-160-review-publication/before/activity-before-2560x1440.png
+    - docs/17-evidence/images/issue-160-review-publication/before/activity-before-3840x2160.png
+  current_originals:
+    - docs/user-guide/images/current/activity-1366x768.png
+    - docs/user-guide/images/current/activity-1440x900.png
+    - docs/user-guide/images/current/activity-1920x1080.png
+    - docs/user-guide/images/current/activity-2560x1440.png
+    - docs/user-guide/images/current/activity-3840x2160.png
+    - docs/user-guide/images/current/activity-history-1440x900.png
 capture_provenance:
   - source_commit: 31f9a3f+task3b-worktree
     captured_at: 2026-08-06T10:35:08+09:00
@@ -60,10 +82,18 @@ capture_provenance:
     captured_at: 2026-08-03T11:11:24+09:00
     command: rebuilt the canonical Compose demo from implementation commit 960d476, verified the full demo, and ran `--only-materials`; the retained images cover normal, long, short, empty and wide Materials states, valid persisted revision labels without raw lifecycle text, server-scoped Family values, genuine local rails and bounded wide layouts
     ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-search-2560, materials-search-3840, materials-scroll-long-1366, materials-scroll-long-1440, materials-scroll-long-1920, materials-scroll-short-1440, materials-scroll-empty-1440, materials-browse-1440, material-detail-1366, material-detail-1920, material-detail-2560, material-detail-3840, material-cae-cards-1440]
-  - source_commit: 960d476
-    captured_at: 2026-08-03T11:13:16+09:00
-    command: ran `--only-review-submission` against the same verified 960d476 Compose demo; recaptured the exact solver-card review/download flow, its role-aware Activity rows and the final 1440 Material detail state without exposing raw lifecycle text
-    ids: [solver-card-preview-1366, solver-card-preview-1440, solver-card-preview-1920, activity-1366, activity-1440, activity-1920, material-detail-1440]
+  - source_commit: working-tree-issue-160
+    captured_at: '2026-08-09T07:27:34+09:00 through 2026-08-09T07:28:03+09:00'
+    command: '`uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:15173 --output docs/user-guide/images/current --only-review-submission` wrote 7 captures from 2026-08-09T07:27:34+09:00 through 2026-08-09T07:28:03+09:00: User exact OpenRadioss pending review, delivery acknowledgement, clean Material r19 detail, and role-aware Activity rows'
+    ids: [solver-card-preview-1366, solver-card-preview-1440, solver-card-preview-1920, material-detail-1440]
+  - source_commit: working-tree-issue-160
+    captured_at: '2026-08-09T07:34:59+09:00 through 2026-08-09T07:35:19+09:00'
+    command: '`uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:15173 --output docs/user-guide/images/current --only-activity` wrote 6 Reviewer-persona captures from 2026-08-09T07:34:59+09:00 through 2026-08-09T07:35:19+09:00 at 1366/1440/1920/2560/3840 plus Recent outcomes history; the isolated Issue #160 queue preserves pending exact reviews, immutable prior outcomes and genuine local overflow'
+    ids: [activity-1366, activity-1440, activity-1920, activity-2560, activity-3840, activity-history-1440]
+  - source_commit: 94387e4
+    captured_at: 2026-08-07
+    command: rebuilt the local web image after the solver-card export delivery update, then ran the targeted Modeling Export capture; the two wide and three recovery/delivery captures passed the route and native-preview gates
+    ids: [modeling-export-2560, modeling-export-3840, modeling-export-source-blocked, modeling-export-approximation-blocked, modeling-export-delivered]
   - source_commit: 55cfa62
     captured_at: 2026-07-28T00:40:24+09:00
     command: rebuilt local web image, then targeted live Playwright Modeling Export capture at 1366x768, 1440x900 and 1920x1080; verifies the approved white 48px Modeling shell, compact title/stage rows, exact target preflight and immutable delivery surface
@@ -503,24 +533,45 @@ captures:
   - id: activity-1366
     route: /activity
     workflow: role-aware-review-queue-with-resume-and-outcomes
-    fixture: clean demo queue after card review submission with pending exact-revision DP780 Selected model and Solver card reviews, without a decision or release
+    fixture: 'isolated Issue #160 queue with pending exact-revision DP780 Selected model and Solver card reviews plus preserved immutable prior outcomes; no new decision or release'
     image: images/current/activity-1366x768.png
     width: 1366
     height: 768
   - id: activity-1440
     route: /activity
     workflow: role-aware-review-queue-with-resume-and-outcomes
-    fixture: clean demo queue after card review submission with pending exact-revision DP780 Selected model and Solver card reviews, without a decision or release
+    fixture: 'isolated Issue #160 queue with pending exact-revision DP780 Selected model and Solver card reviews plus preserved immutable prior outcomes; no new decision or release'
     image: images/current/activity-1440x900.png
     width: 1440
     height: 900
   - id: activity-1920
     route: /activity
     workflow: role-aware-review-queue-with-resume-and-outcomes
-    fixture: clean demo queue after card review submission with pending exact-revision DP780 Selected model and Solver card reviews, without a decision or release
+    fixture: 'isolated Issue #160 queue with pending exact-revision DP780 Selected model and Solver card reviews plus preserved immutable prior outcomes; no new decision or release'
     image: images/current/activity-1920x1080.png
     width: 1920
     height: 1080
+  - id: activity-2560
+    route: /activity
+    workflow: role-aware-review-queue-with-resume-and-outcomes
+    fixture: 'isolated Issue #160 queue with pending exact-revision DP780 Selected model and Solver card reviews plus preserved immutable prior outcomes; no new decision or release'
+    image: images/current/activity-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: activity-3840
+    route: /activity
+    workflow: role-aware-review-queue-with-resume-and-outcomes
+    fixture: 'isolated Issue #160 queue with pending exact-revision DP780 Selected model and Solver card reviews plus preserved immutable prior outcomes; no new decision or release'
+    image: images/current/activity-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: activity-history-1440
+    route: /activity
+    workflow: reviewer-recent-outcomes-local-history-overflow
+    fixture: 'Reviewer Recent outcomes with 24 immutable decided rows and a genuine local overflow rail at 1440x900'
+    image: images/current/activity-history-1440x900.png
+    width: 1440
+    height: 900
   - id: administration-database-1366
     route: /administration/database
     workflow: three-pane-table-scoped-schema-property-editor

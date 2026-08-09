@@ -32,6 +32,18 @@ describe("immutable review request action", () => {
     expect((await screen.findByRole("status")).textContent).toContain("Waiting for review");
   });
 
+  it("submits once without submitting an enclosing record form", async () => {
+    mocks.list.mockResolvedValue({ data: { items: [] } });
+    mocks.create.mockResolvedValue({ data: request });
+    const recordSubmit = vi.fn();
+    render(<form onSubmit={recordSubmit}><ReviewRequestAction config={config} subject={subject} /></form>);
+    fireEvent.click(await screen.findByRole("button", { name: "Request review" }));
+    fireEvent.change(screen.getByLabelText("Review request reason"), { target: { value: "Check source" } });
+    fireEvent.click(screen.getByRole("button", { name: "Send request" }));
+    await waitFor(() => expect(mocks.create).toHaveBeenCalledTimes(1));
+    expect(recordSubmit).not.toHaveBeenCalled();
+  });
+
   it.each([["review", null, "Waiting for review"], ["approved", { decision: "approved" }, "Approved"], ["changes_requested", { decision: "changes_requested" }, "Changes requested"]] as const)("does not duplicate an existing %s request", async (lifecycle, decision, label) => {
     mocks.list.mockResolvedValue({ data: { items: [{ ...request, lifecycle_state: lifecycle, decision: decision ? { ...request, ...decision } : null }] } });
     render(<ReviewRequestAction config={config} subject={subject} />);

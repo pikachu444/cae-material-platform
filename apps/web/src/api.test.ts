@@ -4,6 +4,7 @@ import {
   createReferenceImportMapping,
   detectReferenceImport,
   downloadNeutralHyperelasticMappingReport,
+  downloadSelectedModelNeutralMaterial,
   executeReferenceImport,
   getReferenceOgdenCalibrationRun,
   importReferenceTensileDataset,
@@ -28,6 +29,31 @@ function jsonResponse(body: unknown, status = 200): Response {
 }
 
 describe("Catalog API client", () => {
+  it("downloads the exact selected-model Neutral revision and preserves server headers", async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: new Headers({
+        "content-disposition": 'attachment; filename="selected-model-r4.cmp-neutral.json"',
+        etag: '"neutral-digest"',
+      }),
+      blob: async () => new Blob(["{}"], { type: "application/json" }),
+    } as Response);
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await downloadSelectedModelNeutralMaterial(
+      { baseUrl: "/api/v1", accessToken: "short-lived-token" },
+      "neutral-id",
+      "neutral-revision",
+    );
+
+    expect(result.data.filename).toBe("selected-model-r4.cmp-neutral.json");
+    expect(result.etag).toBe('"neutral-digest"');
+    expect(fetchMock.mock.calls[0][0]).toBe(
+      "/api/v1/neutral-materials/neutral-id/revisions/neutral-revision/download",
+    );
+  });
+
   it("pins Fit preview requests to one exact Process Output revision", async () => {
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({ execution_mode: "preview", promotable: false, source_document_sha256: "a".repeat(64), mapping_profile_sha256: "b".repeat(64), independent_quantity: "strain.engineering", stages: [] }));
     vi.stubGlobal("fetch", fetchMock);

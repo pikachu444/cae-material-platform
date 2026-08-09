@@ -75,12 +75,14 @@ Deactivate를 사용합니다. 사용자는 Related records 패널과 Workflow E
 
 - `User`: 재료 검색·조회·다운로드, 업로드·검토 요청, 처리·보정과 Solver Card 요청
 - `Reviewer`: User 업무와 재료·Solver Card 변경 요청, 승인, publish
-- `Administrator`: 모든 접근·편집·구성·검토·승인과 역할 관리
+- `Administrator`: 접근·편집·구성·review request·정확한 Activity 복구와 역할 관리. 승인 결정은
+  분리된 Reviewer가 기록합니다.
 
 새 역할을 부여하면 역할에 맞는 작업 묶음이 함께 적용됩니다. User에는 Processing &
 calibration과 Solver Card export가, Reviewer에는 여기에 Model approval이 추가됩니다.
-Administrator에는 Schema configuration과 Catalog editing을 포함한 모든 제품 작업이
-적용됩니다. 일반 관리 화면에서는 이 내부 기능을 개별적으로 조합하지 않습니다.
+Administrator에는 Schema configuration과 Catalog editing을 포함한 관리 작업이 적용됩니다.
+Model approval/release publish는 Reviewer preset에만 있고 일반 관리 화면에서는 내부 기능을
+개별적으로 조합하지 않습니다.
 
 제품 화면에서는 사용자 또는 팀 이름만 선택합니다. identity-provider issuer, principal UUID,
 project/organization scope와 classification enforcement는 배포 identity directory 및 내부 정책

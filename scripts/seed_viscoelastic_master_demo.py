@@ -17,6 +17,7 @@ from uuid import uuid4
 import httpx
 
 BASE_URL = os.getenv("CMP_DEMO_API_BASE_URL", "http://127.0.0.1:5173/api/v1")
+TARGET_MATERIAL_NAME = "Synthetic Polymer Prony"
 TEMPERATURE_SHIFTS = ((273.15, 1.6), (293.15, 0.0), (313.15, -1.15))
 
 
@@ -105,7 +106,7 @@ def main() -> None:
         material = next(
             item
             for item in materials
-            if item["current_revision"]["content"]["name"] == "Demo Polymer Prony"
+            if item["current_revision"]["content"]["name"] == TARGET_MATERIAL_NAME
         )
         detail = _json(client.get(f"/materials/{material['material_id']}"))
         state = cast(list[dict[str, Any]], detail["states"])[0]

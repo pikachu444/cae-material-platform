@@ -90,7 +90,10 @@ ADMINISTRATION_RECORDS_OUTPUTS = tuple(
     f"administration-records-{width}x{height}.png"
     for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)
 )
-ACTIVITY_OUTPUTS = tuple(f"activity-{width}x{height}.png" for width, height in VIEWPORTS)
+ACTIVITY_OUTPUTS = (
+    *(f"activity-{width}x{height}.png" for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)),
+    "activity-history-1440x900.png",
+)
 REVIEW_SUBMISSION_OUTPUTS = (
     *(
         f"{screen}-{width}x{height}.png"
@@ -162,6 +165,9 @@ CURRENT_CAPTURE_OUTPUTS = (
     "activity-1366x768.png",
     "activity-1440x900.png",
     "activity-1920x1080.png",
+    "activity-2560x1440.png",
+    "activity-3840x2160.png",
+    "activity-history-1440x900.png",
     "administration-database-1366x768.png",
     "administration-database-1440x900.png",
     "administration-database-1920x1080.png",
@@ -203,21 +209,30 @@ NORMAL_SURFACE_TECHNICAL_LABELS = re.compile(
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 
 
-def _new_page(browser: Browser, base_url: str, width: int, height: int) -> Page:
+def _new_page(
+    browser: Browser,
+    base_url: str,
+    width: int,
+    height: int,
+    persona: str = "administrator",
+) -> Page:
     context = browser.new_context(viewport={"width": width, "height": height})
-    token_response = context.request.get(f"{base_url}/api/v1/demo-identity/token")
+    token_response = context.request.get(
+        f"{base_url}/api/v1/demo-identity/token?persona={persona}"
+    )
     if not token_response.ok:
         raise RuntimeError("local demo identity is unavailable")
     access_token = token_response.json()["access_token"]
+    serialized_config = json.dumps({"baseUrl": "/api/v1", "accessToken": access_token})
+    context.add_init_script(
+        script=(
+            "window.localStorage.setItem("
+            f"'cmp.material-platform.api-config', {json.dumps(serialized_config)}"
+            ");"
+        )
+    )
     page = context.new_page()
     page.goto(base_url)
-    page.evaluate(
-        """token => window.localStorage.setItem(
-            "cmp.material-platform.api-config",
-            JSON.stringify({baseUrl: "/api/v1", accessToken: token})
-        )""",
-        access_token,
-    )
     return page
 
 
@@ -342,6 +357,79 @@ def _assert_export_action_visible(page: Page, label: str) -> None:
     advanced = page.locator("details.export-advanced-input")
     if advanced.count() and advanced.get_attribute("open") is not None:
         raise RuntimeError("Export capture must keep native card options Advanced disclosure closed")
+
+
+def _assert_export_exact_source_surface(
+    page: Page,
+    *,
+    verify_neutral_download: bool = False,
+    require_review_action: bool = False,
+) -> None:
+    """Assert the exact selected model/Neutral controls and optional review action."""
+    selected_model = page.get_by_text("Selected model", exact=True)
+    if selected_model.count() != 1 or not selected_model.is_visible():
+        raise RuntimeError("Export must expose one visible Selected model section")
+    model_value = page.locator(".export-properties .export-property-row").filter(
+        has_text="Model"
+    )
+    model_value.wait_for(state="visible", timeout=30_000)
+    if model_value.inner_text().strip().endswith("Exact Fit selection unavailable"):
+        raise RuntimeError("Export must retain the exact saved Fit model selection")
+    neutral_download = page.get_by_role(
+        "button", name="Download exact selected Neutral", exact=True
+    )
+    neutral_download.wait_for(state="visible", timeout=30_000)
+    if neutral_download.count() != 1:
+        raise RuntimeError("Export must expose one exact selected Neutral download action")
+    exact_source = page.locator("details.export-advanced").filter(
+        has_text="Advanced · exact source"
+    )
+    exact_source.wait_for(state="visible", timeout=30_000)
+    summary = exact_source.locator(":scope > summary")
+    if exact_source.get_attribute("open") is None:
+        summary.click()
+    exact_source.get_by_text("Material Model IR", exact=True).wait_for(
+        state="visible", timeout=30_000
+    )
+    exact_source.get_by_text("Neutral revision", exact=True).wait_for(
+        state="visible", timeout=30_000
+    )
+    neutral_revision = exact_source.locator("dt").filter(has_text="Neutral revision").locator(
+        "xpath=following-sibling::dd[1]"
+    )
+    if not neutral_revision.inner_text().strip() or "unavailable" in neutral_revision.inner_text():
+        raise RuntimeError("Export exact source evidence is missing the selected Neutral revision")
+    if exact_source.get_attribute("open") is not None:
+        summary.click()
+    if verify_neutral_download:
+        with page.expect_response(
+            lambda response: "/neutral-materials/" in response.url
+            and "/revisions/" in response.url
+            and response.url.endswith("/download")
+        ) as response_info:
+            neutral_download.click()
+        response = response_info.value
+        if not response.ok:
+            raise RuntimeError(
+                f"exact selected Neutral download failed with HTTP {response.status}"
+            )
+    if require_review_action:
+        review_status = page.get_by_text(
+            re.compile(r"^(Request review|Waiting for review|Approved|Changes requested)$")
+        ).filter(visible=True)
+        review_status.nth(0).wait_for(state="visible", timeout=30_000)
+        request_review = page.get_by_role("button", name="Request review", exact=True)
+        if request_review.count() == 1:
+            request_review.click()
+            reason = page.get_by_role("textbox", name="Review request reason", exact=True)
+            reason.wait_for(state="visible", timeout=30_000)
+            reason.fill(
+                "Review this exact solver-card revision, selected model, Neutral identity, and delivery mapping before release."
+            )
+            page.get_by_role("button", name="Send request", exact=True).click()
+            page.get_by_text("Waiting for review", exact=True).wait_for(
+                state="visible", timeout=30_000
+            )
 
 
 def _assert_export_capture_shell(page: Page) -> None:
@@ -1089,9 +1177,11 @@ def _assert_linked_response_labels_visible(page: Page) -> None:
             )
 
 
-def _capture_solver_delivery(browser: Browser, base_url: str, output: Path) -> None:
+def _capture_solver_delivery(
+    browser: Browser, base_url: str, output: Path, *, persona: str = "user"
+) -> None:
     for width, height in VIEWPORTS:
-        page = _new_page(browser, base_url, width, height)
+        page = _new_page(browser, base_url, width, height, persona=persona)
         _open_materials_search(page, base_url)
         page.locator('table[aria-label="Material results"] tbody tr').filter(
             has_text="DP780"
@@ -1203,31 +1293,67 @@ def _capture_solver_delivery(browser: Browser, base_url: str, output: Path) -> N
         )
         _ensure_activity_review_fixture(page, base_url)
         page.goto(f"{base_url}/activity")
-        _wait_for_activity_queue(page)
-        solver_review = page.get_by_role("listitem").filter(has_text="Solver card review").first
+        _wait_for_activity_queue(page, expect_review_action=False, expected_view="in-progress")
+        page.get_by_role("heading", name="In progress", exact=True).wait_for(timeout=30_000)
+        solver_review = page.get_by_role("row").filter(has_text="Solver card review").first
         solver_review.wait_for(timeout=30_000)
-        solver_review.get_by_role("button", name="Review", exact=True).wait_for(timeout=30_000)
+        solver_review.get_by_text("Waiting for review", exact=True).wait_for(timeout=30_000)
+        if solver_review.get_by_role("button", name="Review", exact=True).count():
+            raise RuntimeError("requester Activity row must not expose the Reviewer action")
         _capture(page, output / f"activity-{width}x{height}.png", width, height)
         page.context.close()
 
 
 def _capture_activity(browser: Browser, base_url: str, output: Path) -> None:
-    for width, height in VIEWPORTS:
-        page = _new_page(browser, base_url, width, height)
+    for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS):
+        page = _new_page(browser, base_url, width, height, persona="reviewer")
         _ensure_activity_review_fixture(page, base_url)
         page.goto(f"{base_url}/activity")
         _wait_for_activity_queue(page)
         _capture(page, output / f"activity-{width}x{height}.png", width, height)
         page.context.close()
+    _capture_activity_history(browser, base_url, output)
 
 
-def _wait_for_activity_queue(page: Page) -> None:
+def _capture_activity_history(browser: Browser, base_url: str, output: Path) -> None:
+    """Capture one long Recent outcomes view only when the real queue overflows."""
+    page = _new_page(browser, base_url, 1440, 900, persona="reviewer")
+    try:
+        _ensure_activity_review_fixture(page, base_url)
+        page.goto(f"{base_url}/activity")
+        _wait_for_activity_queue(page, expected_view="needs-attention")
+        page.get_by_role("tab", name="Recent outcomes", exact=True).click()
+        page.get_by_role("tabpanel").filter(has=page.get_by_role("heading", name="Recent outcomes", exact=True)).wait_for(timeout=30_000)
+        scroll = page.locator("#activity-queue-scroll")
+        scroll.wait_for(timeout=30_000)
+        if page.locator(".activity-queue-scroll-shell").get_attribute("data-scroll-y") != "true":
+            raise RuntimeError("Activity Recent outcomes fixture did not produce a real local overflow rail")
+        _capture(page, output / "activity-history-1440x900.png", 1440, 900)
+    finally:
+        page.context.close()
+
+
+def _wait_for_activity_queue(
+    page: Page,
+    *,
+    expect_review_action: bool = True,
+    expected_view: str | None = None,
+) -> None:
     page.get_by_role("heading", name="Activity", exact=True).wait_for(timeout=30_000)
-    page.get_by_role("heading", name="Needs attention", exact=True).wait_for(timeout=30_000)
-    page.get_by_text(re.compile(r"^(Selected model review|Material data review)$")).first.wait_for(
-        timeout=30_000
-    )
-    page.get_by_role("button", name="Review", exact=True).first.wait_for(timeout=30_000)
+    view = expected_view or ("needs-attention" if expect_review_action else "in-progress")
+    view_label = {"needs-attention": "Needs attention", "in-progress": "In progress", "recent-outcomes": "Recent outcomes"}[view]
+    page.get_by_role("tab", name=view_label, exact=True).click()
+    page.get_by_role("heading", name=view_label, exact=True).wait_for(timeout=30_000)
+    if not expect_review_action:
+        if page.get_by_role("button", name="Review", exact=True).count():
+            raise RuntimeError("requester Activity view exposed a Reviewer-only Review action")
+    else:
+        review_task = page.get_by_text(
+            re.compile(r"^(Selected model review|Material data review|Solver card review|Test data review)$")
+        ).first
+        review_button = page.get_by_role("button", name="Review", exact=True)
+        review_button.first.wait_for(timeout=30_000)
+        review_task.wait_for(timeout=30_000)
 
 
 def _ensure_activity_review_fixture(page: Page, base_url: str) -> None:
@@ -2915,6 +3041,10 @@ def _capture_modeling_export_only(browser: Browser, base_url: str, output: Path)
         _prepare_exact_target_preview(page)
         if page.get_by_role("heading", name="Prepare exact metal source", exact=True).count():
             raise RuntimeError("normal Export capture did not expose a current exact model source")
+        _assert_export_exact_source_surface(
+            page,
+            verify_neutral_download=(width, height) == (1440, 900),
+        )
         _capture(
             page,
             output / f"modeling-export-{width}x{height}.png",
@@ -2987,6 +3117,11 @@ def _capture_modeling_export_only(browser: Browser, base_url: str, output: Path)
     _open_modeling_stage(delivered, "export")
     _prepare_exact_metal_source_if_needed(delivered)
     _prepare_exact_target_preview(delivered, acknowledge=True, create=True)
+    _assert_export_exact_source_surface(
+        delivered,
+        verify_neutral_download=True,
+        require_review_action=True,
+    )
     _capture(
         delivered,
         output / "modeling-export-delivered-1440x900.png",
@@ -6586,6 +6721,36 @@ def _capture_administration_records(browser: Browser, base_url: str, output: Pat
             timeout=30_000
         )
         page.get_by_role("heading", name="Create Record", exact=True).wait_for(timeout=30_000)
+        single_entry = page.get_by_role("button", name="Single entry", exact=True)
+        single_entry.wait_for(state="visible", timeout=30_000)
+        if "active" not in (single_entry.get_attribute("class") or ""):
+            raise RuntimeError(f"Administration must open in Single entry mode at {width}x{height}")
+        page.get_by_role("button", name="Create record", exact=True).wait_for(
+            state="visible", timeout=30_000
+        )
+        record_rows = page.locator(".record-result")
+        record_rows.nth(0).wait_for(state="visible", timeout=30_000)
+        record_rows.nth(0).click()
+        page.get_by_role("heading", name=re.compile(r"^Edit revision \d+$")).wait_for(
+            state="visible", timeout=30_000
+        )
+        review_status = page.get_by_text(
+            re.compile(r"^(Request review|Waiting for review|Approved|Changes requested)$")
+        ).filter(visible=True)
+        review_status.nth(0).wait_for(state="visible", timeout=30_000)
+        if page.get_by_role("button", name="Request review", exact=True).count() == 1:
+            page.get_by_role("button", name="Request review", exact=True).click()
+            reason = page.get_by_role("textbox", name="Review request reason", exact=True)
+            reason.wait_for(state="visible", timeout=30_000)
+            reason.fill(
+                "Check this single Catalog record revision, its immutable values, and the linked Material before publication."
+            )
+            if not reason.input_value().startswith("Check this single Catalog record revision"):
+                raise RuntimeError("single-record review reason did not retain long text")
+            page.get_by_role("button", name="Cancel", exact=True).click()
+            page.get_by_role("button", name="Request review", exact=True).wait_for(
+                state="visible", timeout=30_000
+            )
         multiple_rows = page.get_by_role("button", name="Multiple rows", exact=True)
         multiple_rows.wait_for(timeout=30_000)
         multiple_rows.click()
@@ -6716,7 +6881,7 @@ def main() -> int:
     parser.add_argument(
         "--only-activity",
         action="store_true",
-        help="Capture and replace only the three role-aware Activity queue viewports.",
+        help="Capture and replace only the five role-aware Activity queue viewports.",
     )
     parser.add_argument(
         "--only-review-submission",
@@ -6789,6 +6954,7 @@ def main() -> int:
             try:
                 _capture_materials(browser, args.base_url, output)
                 _capture_solver_delivery(browser, args.base_url, output)
+                _capture_activity(browser, args.base_url, output)
                 _capture_modeling_session_shell(browser, args.base_url, output)
                 _capture_modeling(
                     browser,
@@ -6914,6 +7080,8 @@ def main() -> int:
                 if (
                     args.only_administration_database
                     or args.only_administration_records
+                    or args.only_activity
+                    or args.only_modeling_export
                     or args.only_modeling_data_session
                     or args.only_modeling_process_fit
                 )

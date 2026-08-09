@@ -21,7 +21,7 @@ from uuid import uuid4
 import httpx
 
 BASE_URL = os.getenv("CMP_DEMO_API_BASE_URL", "http://127.0.0.1:5173/api/v1")
-TARGET_MATERIAL_NAME = "Demo Elastomer Ogden-Prony"
+TARGET_MATERIAL_NAME = "Synthetic Elastomer Ogden-Prony"
 
 
 @dataclass(frozen=True)

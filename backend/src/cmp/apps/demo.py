@@ -19,6 +19,8 @@ from cmp.bootstrap.demo_identity import (
     DEMO_GROUP,
     DEMO_ORGANIZATION_ID,
     DEMO_PROJECT_ID,
+    DEMO_REVIEWER_GROUP,
+    DEMO_USER_GROUP,
     DemoIdentity,
 )
 from cmp.bootstrap.settings import Settings
@@ -176,6 +178,66 @@ def _seed_demo_role_bindings(connection: Connection, issuer: str) -> None:
                 "created_by": _BOOTSTRAP_PRINCIPAL_ID,
             },
         )
+    # Keep a separate reviewer group/persona for the end-to-end review journey.
+    # Administrator deliberately has no MODEL_APPROVAL grant; the reviewer rows
+    # below are the only demo bindings that can decide and publish a request.
+    for role in ("domain_reviewer", "release_approver"):
+        connection.execute(
+            sa.text(
+                """
+                INSERT INTO identity.role_binding (
+                  id, organization_id, project_id, classification, subject_type,
+                  principal_id, group_issuer, group_name, role, max_classification,
+                  allow_export_controlled, valid_from, created_at, created_by, grant_reason,
+                  revoked_at, revoked_by, revocation_reason
+                ) VALUES (
+                  :id, :organization_id, :project_id, 'restricted', 'group',
+                  NULL, :issuer, :group_name, :role, 'restricted',
+                  false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :created_by,
+                  'Grant the explicit local demo reviewer the minimum decision roles.',
+                  NULL, NULL, NULL
+                ) ON CONFLICT (id) DO NOTHING
+                """
+            ),
+            {
+                "id": uuid5(_BINDING_NAMESPACE, f"reviewer-{role}"),
+                "organization_id": DEMO_ORGANIZATION_ID,
+                "project_id": DEMO_PROJECT_ID,
+                "issuer": issuer,
+                "group_name": DEMO_REVIEWER_GROUP,
+                "role": role,
+                "created_by": _BOOTSTRAP_PRINCIPAL_ID,
+            },
+        )
+    connection.execute(
+        sa.text(
+            """
+            INSERT INTO identity.product_access_assignment (
+              id, organization_id, project_id, classification, subject_type,
+              principal_id, group_issuer, group_name, product_role,
+              schema_configuration, catalog_edit, processing_calibration,
+              model_approval, solver_card_export, max_classification,
+              allow_export_controlled, valid_from, created_at, created_by, grant_reason,
+              revoked_at, revoked_by, revocation_reason
+            ) VALUES (
+              :id, :organization_id, :project_id, 'restricted', 'group',
+              NULL, :issuer, :group_name, 'user',
+              false, false, true, false, true, 'restricted',
+              false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :created_by,
+              'Grant the local demo User assignment for the review-request journey.',
+              NULL, NULL, NULL
+            ) ON CONFLICT DO NOTHING
+            """
+        ),
+        {
+            "id": uuid5(_BINDING_NAMESPACE, "product-access-user"),
+            "organization_id": DEMO_ORGANIZATION_ID,
+            "project_id": DEMO_PROJECT_ID,
+            "issuer": issuer,
+            "group_name": DEMO_USER_GROUP,
+            "created_by": _BOOTSTRAP_PRINCIPAL_ID,
+        },
+    )
     connection.execute(
         sa.text(
             """
@@ -189,7 +251,7 @@ def _seed_demo_role_bindings(connection: Connection, issuer: str) -> None:
             ) VALUES (
               :id, :organization_id, :project_id, 'restricted', 'group',
               NULL, :issuer, :group_name, 'administrator',
-              true, true, true, true, true, 'restricted',
+              true, true, true, false, true, 'restricted',
               false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :created_by,
               'Grant the local demo group the product-facing Administrator assignment.',
               NULL, NULL, NULL
@@ -202,6 +264,35 @@ def _seed_demo_role_bindings(connection: Connection, issuer: str) -> None:
             "project_id": DEMO_PROJECT_ID,
             "issuer": issuer,
             "group_name": DEMO_GROUP,
+            "created_by": _BOOTSTRAP_PRINCIPAL_ID,
+        },
+    )
+    connection.execute(
+        sa.text(
+            """
+            INSERT INTO identity.product_access_assignment (
+              id, organization_id, project_id, classification, subject_type,
+              principal_id, group_issuer, group_name, product_role,
+              schema_configuration, catalog_edit, processing_calibration,
+              model_approval, solver_card_export, max_classification,
+              allow_export_controlled, valid_from, created_at, created_by, grant_reason,
+              revoked_at, revoked_by, revocation_reason
+            ) VALUES (
+              :id, :organization_id, :project_id, 'restricted', 'group',
+              NULL, :issuer, :group_name, 'reviewer',
+              false, false, true, true, true, 'restricted',
+              false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :created_by,
+              'Grant the local demo Reviewer assignment for the review/publication journey.',
+              NULL, NULL, NULL
+            ) ON CONFLICT DO NOTHING
+            """
+        ),
+        {
+            "id": uuid5(_BINDING_NAMESPACE, "product-access-reviewer"),
+            "organization_id": DEMO_ORGANIZATION_ID,
+            "project_id": DEMO_PROJECT_ID,
+            "issuer": issuer,
+            "group_name": DEMO_REVIEWER_GROUP,
             "created_by": _BOOTSTRAP_PRINCIPAL_ID,
         },
     )

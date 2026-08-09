@@ -39,7 +39,10 @@ Record나 과거 revision을 바꾸지 않는다.
 6. 이름·설명·text Attribute, Folder, discrete facet 또는 normalized 수치 범위로 검색한다.
 7. 현재 검색을 이름과 함께 Subset revision으로 저장하고, 저장된 chip으로 다시 적용한다.
 8. 두 revision 이상인 Record를 열면 revision 1과 current 사이의 Attribute 차이를 확인한다.
-9. 여러 건은 **Multiple rows**를 선택해 CSV/TSV/XLSX 내용을 확인하고 원본 열, Attribute, 값 형식,
+9. **Single entry**에서 검색 결과의 Record를 열면 current revision의 **Request review** action이
+   같은 화면에 나타난다. 사유를 입력했다가 취소하거나 전송하면 Activity에서 해당 exact revision의
+   상태를 이어서 확인한다.
+10. 여러 건은 **Multiple rows**를 선택해 CSV/TSV/XLSX 내용을 확인하고 원본 열, Attribute, 값 형식,
    원본 단위와 재료 상태를 매핑한다. **Check rows**에서 행별 오류를 고친 뒤 모든 행이 유효할 때만
    **Register checked rows**를 누른다. 이미 데이터가 연결된 재료 상태는 검색 결과에서 기존 Record를
    열어 수정한다. 등록 과정에서 기존 재료나 상태를 자동으로 만들거나 덮어쓰지 않는다.

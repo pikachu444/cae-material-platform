@@ -83,7 +83,7 @@ Recipe, Batch, exact revision identifiers, mapping profiles and audit detail sup
 | --- | --- | --- |
 | User | Materials | search/view/download; request upload review; process, fit and request card review |
 | Reviewer | Activity | all User work plus material/card review, change request, approval and publish |
-| Administrator | Materials, with Administration in the application menu | all access/edit/configure/review/approve work |
+| Administrator | Materials, Activity, with Administration in the application menu | access/edit/configure, review-request and exact recovery work; approval remains Reviewer-only |
 
 A role changes default commands and access. It must not produce a different visual product shell.
 Current implementation exposes User, Reviewer, and Administrator task presets. Internal RBAC/RLS
@@ -348,14 +348,13 @@ Users can leave a long operation and return without hunting through technical jo
 - Items requiring review or acknowledgement
 - Recently generated cards and packages
 
-Activity is organized as `Needs attention | In progress | Recent outcomes`. A User's pending review
-request remains In progress; a Reviewer or Administrator receives a row-specific Review action and
-must give a reason before approving or requesting changes. Browser-local Modeling resume and card
-history remain in the appropriate sections. The current review API lacks display names for submitted
-items and people, so the normal row uses a human task label, request reason, state and time while
-identifiers stay under Advanced evidence. Request entry, job monitoring and release projection are
-not placeholder rows: exact Material and Solver Card request entry is implemented, while job
-monitoring and release projection remain follow-up slices.
+Activity is organized as `Needs attention | In progress | Recent outcomes`. A User or Administrator's
+pending review request remains In progress; a Reviewer receives a row-specific Review action and must
+give a reason before approving or requesting changes. Browser-local Modeling resume, Processing Batch
+context/retry, and card history remain in the appropriate sections. The review response supplies a
+requester display-name snapshot; the normal row uses the human task label, request reason, state,
+requester label and time while exact identifiers stay under Advanced evidence. Approved requests project the
+exact current Record/revision marker used by Materials search; stale current pointers are rejected.
 
 ### Progressive advanced view
 

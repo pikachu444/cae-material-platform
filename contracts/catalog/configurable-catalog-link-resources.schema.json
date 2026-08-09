@@ -160,7 +160,7 @@
     },
     "LinkEndpoint": {
       "type": "object",
-      "required": ["record_id", "record_revision_id", "revision_no", "table_id", "name", "external_key", "domain_binding"],
+      "required": ["record_id", "record_revision_id", "revision_no", "table_id", "name", "external_key", "domain_binding", "domain_bindings"],
       "properties": {
         "record_id": {"$ref": "#/$defs/Uuid"},
         "record_revision_id": {"$ref": "#/$defs/Uuid"},
@@ -168,7 +168,8 @@
         "table_id": {"$ref": "#/$defs/Uuid"},
         "name": {"type": "string", "minLength": 1, "maxLength": 200},
         "external_key": {"type": ["string", "null"], "minLength": 1, "maxLength": 255},
-        "domain_binding": {"oneOf": [{"$ref": "#/$defs/DomainRevisionBindingResponse"}, {"type": "null"}]}
+        "domain_binding": {"oneOf": [{"$ref": "#/$defs/DomainRevisionBindingResponse"}, {"type": "null"}]},
+        "domain_bindings": {"type": "array", "items": {"$ref": "#/$defs/DomainRevisionBindingResponse"}}
       },
       "additionalProperties": false
     },
@@ -188,6 +189,12 @@
       "type": "object",
       "required": ["items"],
       "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/RecordLinkView"}}},
+      "additionalProperties": false
+    },
+    "DomainRevisionBindingListResponse": {
+      "type": "object",
+      "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/DomainRevisionBindingResponse"}}},
       "additionalProperties": false
     },
     "ExplorerTableListResponse": {

@@ -87,6 +87,8 @@ class FakeReviewRepository:
     def create_request(self, **kwargs: object) -> ReviewRequestRecord:
         command = kwargs["command"]
         assert isinstance(command, SubmitReviewRequest)
+        assert command.classification is not None
+        assert command.manifest_sha256 is not None
         self.value = ReviewRequestRecord(
             id=cast(UUID, kwargs["review_request_id"]),
             organization_id=ORG,

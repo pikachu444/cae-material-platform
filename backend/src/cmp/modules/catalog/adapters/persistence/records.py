@@ -127,6 +127,16 @@ catalog_record_revision = _revision_table(
     sa.Column("folder_id", _uuid, nullable=True),
     sa.Column("folder_revision_id", _uuid, nullable=True),
 )
+schema_table = sa.Table(
+    "schema_table",
+    metadata,
+    sa.Column("id", _uuid, nullable=False),
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("current_revision_id", _uuid, nullable=False),
+    schema="catalog",
+)
 # The binding tables are owned by the Catalog links adapter.  A read-only
 # declaration here lets the single server query constrain current Record
 # revisions without importing a domain/plugin implementation or issuing an
@@ -236,6 +246,163 @@ publication_marker = sa.Table(
     sa.Column("published_at", sa.DateTime(timezone=True), nullable=False),
     sa.Column("published_by", _uuid, nullable=False),
     schema="catalog",
+)
+review_publication_projection = sa.Table(
+    "review_publication_projection",
+    metadata,
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("review_request_id", _uuid, nullable=False),
+    sa.Column("subject_type", sa.String(64), nullable=False),
+    sa.Column("subject_id", _uuid, nullable=False),
+    sa.Column("subject_revision_id", _uuid, nullable=False),
+    sa.Column("neutral_material_id", _uuid, nullable=True),
+    sa.Column("neutral_material_revision_id", _uuid, nullable=True),
+    sa.Column("neutral_artifact_sha256", sa.CHAR(64), nullable=True),
+    sa.Column("record_id", _uuid, nullable=False),
+    sa.Column("record_revision_id", _uuid, nullable=False),
+    sa.Column("record_table_id", _uuid, nullable=False),
+    sa.Column("record_table_revision_id", _uuid, nullable=False),
+    schema="governance",
+)
+
+_test_data_document = sa.Table(
+    "test_data_document",
+    metadata,
+    sa.Column("id", _uuid, nullable=False),
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("current_revision_id", _uuid, nullable=False),
+    schema="datasets",
+)
+_test_data_document_revision = sa.Table(
+    "test_data_document_revision",
+    metadata,
+    sa.Column("id", _uuid, nullable=False),
+    sa.Column("aggregate_id", _uuid, nullable=False),
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("governed_source", sa.JSON(), nullable=True),
+    schema="datasets",
+)
+_test_run = sa.Table(
+    "test_run",
+    metadata,
+    sa.Column("id", _uuid, nullable=False),
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("current_revision_id", _uuid, nullable=False),
+    schema="testing",
+)
+_material_model = sa.Table(
+    "material_model",
+    metadata,
+    sa.Column("id", _uuid, nullable=False),
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("current_revision_id", _uuid, nullable=False),
+    schema="modeling",
+)
+_material_model_revision = sa.Table(
+    "material_model_revision",
+    metadata,
+    sa.Column("id", _uuid, nullable=False),
+    sa.Column("aggregate_id", _uuid, nullable=False),
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("material_id", _uuid, nullable=False),
+    sa.Column("material_revision_id", _uuid, nullable=False),
+    sa.Column("material_state_id", _uuid, nullable=False),
+    sa.Column("material_state_revision_id", _uuid, nullable=False),
+    sa.Column("source_dataset_id", _uuid, nullable=True),
+    sa.Column("source_dataset_revision_id", _uuid, nullable=True),
+    sa.Column("processing_output_id", _uuid, nullable=True),
+    sa.Column("processing_output_revision_id", _uuid, nullable=True),
+    schema="modeling",
+)
+_processing_output = sa.Table(
+    "common_processing_output",
+    metadata,
+    sa.Column("id", _uuid, nullable=False),
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("current_revision_id", _uuid, nullable=False),
+    schema="processing",
+)
+_solver_card = sa.Table(
+    "solver_card",
+    metadata,
+    sa.Column("id", _uuid, nullable=False),
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("current_revision_id", _uuid, nullable=False),
+    schema="exporting",
+)
+_solver_card_revision = sa.Table(
+    "solver_card_revision",
+    metadata,
+    sa.Column("id", _uuid, nullable=False),
+    sa.Column("aggregate_id", _uuid, nullable=False),
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("material_model_id", _uuid, nullable=False),
+    sa.Column("material_model_revision_id", _uuid, nullable=False),
+    schema="exporting",
+)
+_neutral_solver_card = sa.Table(
+    "neutral_solver_card",
+    metadata,
+    sa.Column("id", _uuid, nullable=False),
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("current_revision_id", _uuid, nullable=False),
+    schema="exporting",
+)
+_neutral_solver_card_revision = sa.Table(
+    "neutral_solver_card_revision",
+    metadata,
+    sa.Column("id", _uuid, nullable=False),
+    sa.Column("aggregate_id", _uuid, nullable=False),
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("neutral_material_id", _uuid, nullable=False),
+    sa.Column("neutral_material_revision_id", _uuid, nullable=False),
+    schema="exporting",
+)
+_neutral_material = sa.Table(
+    "neutral_material",
+    metadata,
+    sa.Column("id", _uuid, nullable=False),
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("current_revision_id", _uuid, nullable=False),
+    schema="modeling",
+)
+_neutral_material_revision = sa.Table(
+    "neutral_material_revision",
+    metadata,
+    sa.Column("id", _uuid, nullable=False),
+    sa.Column("aggregate_id", _uuid, nullable=False),
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("prony_overlay_model_id", _uuid, nullable=True),
+    sa.Column("prony_overlay_model_revision_id", _uuid, nullable=True),
+    sa.Column("processing_output_id", _uuid, nullable=True),
+    sa.Column("processing_output_revision_id", _uuid, nullable=True),
+    schema="modeling",
 )
 domain_record_identity_binding = sa.Table(
     "domain_record_identity_binding",
@@ -1115,12 +1282,14 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
             "material_state": f"/materials?{query}",
             "specimen": f"/tests?{query}",
             "test_run": f"/tests?{query}",
-            "test_data": f"/datasets/test-json?{query}",
+            "test_data": f"/datasets/test-json?document_id={object_id}&revision_id={revision_id}",
             "processing_output": f"/datasets/processing?{query}",
-            "material_model": f"/models?{query}",
-            "neutral_material": f"/models?{query}",
-            "solver_card": f"/exports?{query}",
-            "neutral_solver_card": f"/exports?{query}",
+            "material_model": f"/models/material-models/{object_id}/revisions/{revision_id}",
+            "neutral_material": f"/models/neutral-materials/{object_id}/revisions/{revision_id}",
+            "solver_card": f"/exports/cards/{object_id}/revisions/{revision_id}?kind=solver_card",
+            "neutral_solver_card": (
+                f"/exports/cards/{object_id}/revisions/{revision_id}?kind=neutral_solver_card"
+            ),
             "release": f"/governance?{query}",
         }
         return roots[kind]
@@ -1304,6 +1473,29 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
             )
 
     @staticmethod
+    def _review_subject_heads() -> sa.Subquery:
+        """Current heads used to re-evaluate review-backed Record publication."""
+
+        def head(table: sa.Table, subject_type: str) -> sa.Select[Any]:
+            return sa.select(
+                table.c.organization_id.label("organization_id"),
+                table.c.project_id.label("project_id"),
+                table.c.classification.label("classification"),
+                sa.literal(subject_type).label("subject_type"),
+                table.c.id.label("subject_id"),
+                table.c.current_revision_id.label("subject_revision_id"),
+            )
+
+        return sa.union_all(
+            head(material, "catalog.material"),
+            head(catalog_record, "catalog.configurable_record"),
+            head(_test_data_document, "datasets.test_data_document"),
+            head(_material_model, "modeling.material_model"),
+            head(_solver_card, "exporting.solver_card"),
+            head(_neutral_solver_card, "exporting.neutral_solver_card"),
+        ).subquery("review_subject_current_head")
+
+    @staticmethod
     def _filtered_statement(query: CatalogRecordQuery) -> sa.Select[Any]:
         if query.published_only:
             published_revision = catalog_record_revision.alias("published_record_revision")
@@ -1329,8 +1521,560 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                 .limit(1)
                 .scalar_subquery()
             )
+            # Legacy markers predate review-backed currentness.  A marker may still
+            # point at a superseded immutable revision, so keep the same head check
+            # used by the review projection branch before exposing it as published.
+            # Review-backed markers are evaluated by the subject-currentness branch below.
+            # Treating those rows as legacy markers would keep a Record visible after its
+            # upstream immutable subject advances, because the marker itself still names the
+            # old Record revision.  Only markers with no review projection retain legacy
+            # current-head semantics.
+            review_marker = sa.exists(
+                sa.select(1).where(
+                    review_publication_projection.c.organization_id
+                    == catalog_record.c.organization_id,
+                    review_publication_projection.c.project_id == catalog_record.c.project_id,
+                    review_publication_projection.c.classification
+                    == catalog_record_revision.c.classification,
+                    review_publication_projection.c.record_id == catalog_record.c.id,
+                    review_publication_projection.c.record_revision_id
+                    == catalog_record_revision.c.id,
+                )
+            )
+            legacy_published = sa.and_(
+                catalog_record_revision.c.id == latest_published_revision_id,
+                sa.not_(review_marker),
+            )
+            subject_heads = SqlAlchemyCatalogRecordRepository._review_subject_heads()
+            subject_binding_match: sa.ColumnElement[bool] = sa.true()
+            if (
+                query.domain_binding_kind is not None
+                and query.domain_binding_object_id is not None
+                and query.domain_binding_revision_id is not None
+            ):
+                subject_type_for_binding = {
+                    "material": "catalog.material",
+                    "test_data": "datasets.test_data_document",
+                    "material_model": "modeling.material_model",
+                    "solver_card": "exporting.solver_card",
+                    "neutral_solver_card": "exporting.neutral_solver_card",
+                }.get(query.domain_binding_kind)
+                if subject_type_for_binding is None:
+                    subject_binding_match = sa.false()
+                else:
+                    subject_binding_match = sa.and_(
+                        review_publication_projection.c.subject_type
+                        == subject_type_for_binding,
+                        review_publication_projection.c.subject_id
+                        == query.domain_binding_object_id,
+                        review_publication_projection.c.subject_revision_id
+                        == query.domain_binding_revision_id,
+                    )
+                # A Record review may publish a requested domain binding only
+                # when that exact binding is attached to the same immutable
+                # Record revision.  Keep this scoped to the Record subject so
+                # an approved solver card or another Record cannot expose a
+                # sibling or stale binding through this query.
+                exact_record_binding = sa.exists(
+                    sa.select(1).where(
+                        domain_record_binding.c.organization_id
+                        == review_publication_projection.c.organization_id,
+                        domain_record_binding.c.project_id
+                        == review_publication_projection.c.project_id,
+                        domain_record_binding.c.classification
+                        == review_publication_projection.c.classification,
+                        domain_record_binding.c.record_id
+                        == review_publication_projection.c.record_id,
+                        domain_record_binding.c.record_revision_id
+                        == review_publication_projection.c.record_revision_id,
+                        domain_record_binding.c.domain_kind == query.domain_binding_kind,
+                        domain_record_binding.c.domain_object_id
+                        == query.domain_binding_object_id,
+                        domain_record_binding.c.domain_revision_id
+                        == query.domain_binding_revision_id,
+                    )
+                )
+                subject_binding_match = sa.or_(
+                    subject_binding_match,
+                    sa.and_(
+                        review_publication_projection.c.subject_type
+                        == "catalog.configurable_record",
+                        review_publication_projection.c.subject_id
+                        == review_publication_projection.c.record_id,
+                        review_publication_projection.c.subject_revision_id
+                        == review_publication_projection.c.record_revision_id,
+                        exact_record_binding,
+                    ),
+                )
+            # Keep the current Material binding as a safe Materials context when
+            # another exact subject (Test Data, selected model, or card) is the
+            # approved review subject.  This lets Materials open its row and
+            # datasheet while the per-binding projection below still hides
+            # unrelated unapproved siblings.
+            if query.domain_binding_kind == "material":
+                material_context = [
+                    domain_record_binding.c.organization_id
+                    == catalog_record.c.organization_id,
+                    domain_record_binding.c.project_id == catalog_record.c.project_id,
+                    domain_record_binding.c.classification
+                    == catalog_record_revision.c.classification,
+                    domain_record_binding.c.record_id == catalog_record.c.id,
+                    domain_record_binding.c.record_revision_id
+                    == catalog_record_revision.c.id,
+                    domain_record_binding.c.domain_kind == "material",
+                ]
+                if query.domain_binding_object_id is not None:
+                    material_context.extend(
+                        (
+                            domain_record_binding.c.domain_object_id
+                            == query.domain_binding_object_id,
+                            domain_record_binding.c.domain_revision_id
+                            == query.domain_binding_revision_id,
+                        )
+                    )
+                context_match = sa.exists(sa.select(1).where(*material_context))
+                subject_binding_match = sa.or_(subject_binding_match, context_match)
+            review_current_subject = sa.exists(
+                sa.select(1)
+                .select_from(
+                    review_publication_projection.join(
+                        subject_heads,
+                        sa.and_(
+                            review_publication_projection.c.organization_id
+                            == subject_heads.c.organization_id,
+                            review_publication_projection.c.project_id
+                            == subject_heads.c.project_id,
+                            review_publication_projection.c.classification
+                            == subject_heads.c.classification,
+                            review_publication_projection.c.subject_type
+                            == subject_heads.c.subject_type,
+                            review_publication_projection.c.subject_id
+                            == subject_heads.c.subject_id,
+                            review_publication_projection.c.subject_revision_id
+                            == subject_heads.c.subject_revision_id,
+                        ),
+                    )
+                )
+                .where(
+                    review_publication_projection.c.organization_id
+                    == catalog_record.c.organization_id,
+                    review_publication_projection.c.project_id == catalog_record.c.project_id,
+                    review_publication_projection.c.classification
+                    == catalog_record_revision.c.classification,
+                    review_publication_projection.c.record_id == catalog_record.c.id,
+                    review_publication_projection.c.record_revision_id
+                    == catalog_record_revision.c.id,
+                    catalog_record.c.current_revision_id == catalog_record_revision.c.id,
+                    review_publication_projection.c.record_table_id
+                    == catalog_record_revision.c.table_id,
+                    review_publication_projection.c.record_table_revision_id
+                    == catalog_record_revision.c.table_revision_id,
+                    subject_binding_match,
+                    sa.or_(
+                        sa.and_(
+                            review_publication_projection.c.subject_type
+                            == "catalog.configurable_record",
+                            review_publication_projection.c.subject_id == catalog_record.c.id,
+                            review_publication_projection.c.subject_revision_id
+                            == catalog_record_revision.c.id,
+                        ),
+                        sa.exists(
+                            sa.select(1).where(
+                                domain_record_binding.c.organization_id
+                                == review_publication_projection.c.organization_id,
+                                domain_record_binding.c.project_id
+                                == review_publication_projection.c.project_id,
+                                domain_record_binding.c.classification
+                                == review_publication_projection.c.classification,
+                                domain_record_binding.c.record_id
+                                == review_publication_projection.c.record_id,
+                                domain_record_binding.c.record_revision_id
+                                == review_publication_projection.c.record_revision_id,
+                                domain_record_binding.c.domain_object_id
+                                == review_publication_projection.c.subject_id,
+                                domain_record_binding.c.domain_revision_id
+                                == review_publication_projection.c.subject_revision_id,
+                                sa.or_(
+                                    sa.and_(
+                                        review_publication_projection.c.subject_type
+                                        == "catalog.material",
+                                        domain_record_binding.c.domain_kind == "material",
+                                    ),
+                                    sa.and_(
+                                        review_publication_projection.c.subject_type
+                                        == "datasets.test_data_document",
+                                        domain_record_binding.c.domain_kind == "test_data",
+                                    ),
+                                    sa.and_(
+                                        review_publication_projection.c.subject_type
+                                        == "modeling.material_model",
+                                        domain_record_binding.c.domain_kind == "material_model",
+                                    ),
+                                    sa.and_(
+                                        review_publication_projection.c.subject_type
+                                        == "exporting.solver_card",
+                                        domain_record_binding.c.domain_kind == "solver_card",
+                                    ),
+                                    sa.and_(
+                                        review_publication_projection.c.subject_type
+                                        == "exporting.neutral_solver_card",
+                                        domain_record_binding.c.domain_kind
+                                        == "neutral_solver_card",
+                                    ),
+                                ),
+                            )
+                        ),
+                    ),
+                    sa.or_(
+                        review_publication_projection.c.neutral_material_id.is_(None),
+                        sa.exists(
+                            sa.select(1).where(
+                                _neutral_material.c.organization_id
+                                == review_publication_projection.c.organization_id,
+                                _neutral_material.c.project_id
+                                == review_publication_projection.c.project_id,
+                                _neutral_material.c.classification
+                                == review_publication_projection.c.classification,
+                                _neutral_material.c.id
+                                == review_publication_projection.c.neutral_material_id,
+                                _neutral_material.c.current_revision_id
+                                == review_publication_projection.c.neutral_material_revision_id,
+                            )
+                        ),
+                    ),
+                    # A reviewed Record is also tied to the exact current Table
+                    # schema used to interpret its values.  Advancing that schema
+                    # invalidates the published read model without mutating history.
+                    sa.exists(
+                        sa.select(1).where(
+                            schema_table.c.organization_id
+                            == catalog_record_revision.c.organization_id,
+                            schema_table.c.project_id == catalog_record_revision.c.project_id,
+                            schema_table.c.classification
+                            == catalog_record_revision.c.classification,
+                            schema_table.c.id == catalog_record_revision.c.table_id,
+                            schema_table.c.current_revision_id
+                            == catalog_record_revision.c.table_revision_id,
+                        )
+                    ),
+                    # Material Model revisions carry typed exact Material,
+                    # Material State, Test Data and Processing Output pins.  A
+                    # later head in any of those aggregates invalidates a card's
+                    # approved Record projection.
+                    sa.or_(
+                        sa.not_(
+                            review_publication_projection.c.subject_type.in_(
+                                (
+                                    "modeling.material_model",
+                                    "exporting.solver_card",
+                                )
+                            )
+                        ),
+                        sa.exists(
+                            sa.select(1).where(
+                                _material_model_revision.c.organization_id
+                                == review_publication_projection.c.organization_id,
+                                _material_model_revision.c.project_id
+                                == review_publication_projection.c.project_id,
+                                _material_model_revision.c.classification
+                                == review_publication_projection.c.classification,
+                                _material_model_revision.c.aggregate_id
+                                == sa.case(
+                                    (
+                                        review_publication_projection.c.subject_type
+                                        == "modeling.material_model",
+                                        review_publication_projection.c.subject_id,
+                                    ),
+                                    (
+                                        review_publication_projection.c.subject_type
+                                        == "exporting.solver_card",
+                                        sa.select(_solver_card_revision.c.material_model_id)
+                                        .where(
+                                            _solver_card_revision.c.organization_id
+                                            == review_publication_projection.c.organization_id,
+                                            _solver_card_revision.c.project_id
+                                            == review_publication_projection.c.project_id,
+                                            _solver_card_revision.c.classification
+                                            == review_publication_projection.c.classification,
+                                            _solver_card_revision.c.aggregate_id
+                                            == review_publication_projection.c.subject_id,
+                                            _solver_card_revision.c.id
+                                            == review_publication_projection.c.subject_revision_id,
+                                        )
+                                        .scalar_subquery(),
+                                    ),
+                                ),
+                                _material_model_revision.c.id
+                                == sa.case(
+                                    (
+                                        review_publication_projection.c.subject_type
+                                        == "modeling.material_model",
+                                        review_publication_projection.c.subject_revision_id,
+                                    ),
+                                    (
+                                        review_publication_projection.c.subject_type
+                                        == "exporting.solver_card",
+                                        sa.select(_solver_card_revision.c.material_model_revision_id)
+                                        .where(
+                                            _solver_card_revision.c.organization_id
+                                            == review_publication_projection.c.organization_id,
+                                            _solver_card_revision.c.project_id
+                                            == review_publication_projection.c.project_id,
+                                            _solver_card_revision.c.classification
+                                            == review_publication_projection.c.classification,
+                                            _solver_card_revision.c.aggregate_id
+                                            == review_publication_projection.c.subject_id,
+                                            _solver_card_revision.c.id
+                                            == review_publication_projection.c.subject_revision_id,
+                                        )
+                                        .scalar_subquery(),
+                                    ),
+                                ),
+                                sa.exists(
+                                    sa.select(1).where(
+                                        material.c.organization_id
+                                        == _material_model_revision.c.organization_id,
+                                        material.c.project_id
+                                        == _material_model_revision.c.project_id,
+                                        material.c.classification
+                                        == _material_model_revision.c.classification,
+                                        material.c.id == _material_model_revision.c.material_id,
+                                        material.c.current_revision_id
+                                        == _material_model_revision.c.material_revision_id,
+                                    )
+                                ),
+                                sa.exists(
+                                    sa.select(1).where(
+                                        material_state.c.organization_id
+                                        == _material_model_revision.c.organization_id,
+                                        material_state.c.project_id
+                                        == _material_model_revision.c.project_id,
+                                        material_state.c.classification
+                                        == _material_model_revision.c.classification,
+                                        material_state.c.id
+                                        == _material_model_revision.c.material_state_id,
+                                        material_state.c.current_revision_id
+                                        == _material_model_revision.c.material_state_revision_id,
+                                    )
+                                ),
+                                sa.or_(
+                                    _material_model_revision.c.source_dataset_id.is_(None),
+                                    sa.exists(
+                                        sa.select(1).where(
+                                            _test_data_document.c.organization_id
+                                            == _material_model_revision.c.organization_id,
+                                            _test_data_document.c.project_id
+                                            == _material_model_revision.c.project_id,
+                                            _test_data_document.c.classification
+                                            == _material_model_revision.c.classification,
+                                            _test_data_document.c.id
+                                            == _material_model_revision.c.source_dataset_id,
+                                            _test_data_document.c.current_revision_id
+                                            == (
+                                                _material_model_revision.c.source_dataset_revision_id
+                                            ),
+                                        )
+                                    ),
+                                ),
+                                sa.or_(
+                                    _material_model_revision.c.processing_output_id.is_(None),
+                                    sa.exists(
+                                        sa.select(1).where(
+                                            _processing_output.c.organization_id
+                                            == _material_model_revision.c.organization_id,
+                                            _processing_output.c.project_id
+                                            == _material_model_revision.c.project_id,
+                                            _processing_output.c.classification
+                                            == _material_model_revision.c.classification,
+                                            _processing_output.c.id
+                                            == _material_model_revision.c.processing_output_id,
+                                            _processing_output.c.current_revision_id
+                                            == (
+                                                _material_model_revision.c.processing_output_revision_id
+                                            ),
+                                        )
+                                    ),
+                                ),
+                            )
+                        ),
+                    ),
+                    # Neutral Solver Cards carry a typed exact Neutral pin.  Keep
+                    # that pin current independently of the projection's copy.
+                    sa.or_(
+                        review_publication_projection.c.subject_type
+                        != "exporting.neutral_solver_card",
+                        sa.exists(
+                            sa.select(1).where(
+                                _neutral_solver_card_revision.c.organization_id
+                                == review_publication_projection.c.organization_id,
+                                _neutral_solver_card_revision.c.project_id
+                                == review_publication_projection.c.project_id,
+                                _neutral_solver_card_revision.c.classification
+                                == review_publication_projection.c.classification,
+                                _neutral_solver_card_revision.c.aggregate_id
+                                == review_publication_projection.c.subject_id,
+                                _neutral_solver_card_revision.c.id
+                                == review_publication_projection.c.subject_revision_id,
+                                _neutral_solver_card_revision.c.neutral_material_id
+                                == review_publication_projection.c.neutral_material_id,
+                                _neutral_solver_card_revision.c.neutral_material_revision_id
+                                == review_publication_projection.c.neutral_material_revision_id,
+                            )
+                        ),
+                    ),
+                    # Canonical Test Data embeds typed governed Material and
+                    # Material State references.  Re-evaluate those heads so a
+                    # stale document cannot remain in Materials after an
+                    # upstream condition revision advances.
+                    sa.or_(
+                        review_publication_projection.c.subject_type
+                        != "datasets.test_data_document",
+                        sa.exists(
+                            sa.select(1).where(
+                                _test_data_document_revision.c.organization_id
+                                == review_publication_projection.c.organization_id,
+                                _test_data_document_revision.c.project_id
+                                == review_publication_projection.c.project_id,
+                                _test_data_document_revision.c.classification
+                                == review_publication_projection.c.classification,
+                                _test_data_document_revision.c.aggregate_id
+                                == review_publication_projection.c.subject_id,
+                                _test_data_document_revision.c.id
+                                == review_publication_projection.c.subject_revision_id,
+                                sa.or_(
+                                    _test_data_document_revision.c.governed_source.is_(None),
+                                    sa.and_(
+                                        sa.exists(
+                                            sa.select(1).where(
+                                                material.c.organization_id
+                                                == _test_data_document_revision.c.organization_id,
+                                                material.c.project_id
+                                                == _test_data_document_revision.c.project_id,
+                                                material.c.classification
+                                                == _test_data_document_revision.c.classification,
+                                                material.c.id
+                                                == sa.cast(
+                                                    _test_data_document_revision.c.governed_source[
+                                                        "material"
+                                                    ]["aggregate_id"].as_string(),
+                                                    _uuid,
+                                                ),
+                                                material.c.current_revision_id
+                                                == sa.cast(
+                                                    _test_data_document_revision.c.governed_source[
+                                                        "material"
+                                                    ]["revision_id"].as_string(),
+                                                    _uuid,
+                                                ),
+                                            )
+                                        ),
+                                        sa.exists(
+                                            sa.select(1).where(
+                                                material_state.c.organization_id
+                                                == _test_data_document_revision.c.organization_id,
+                                                material_state.c.project_id
+                                                == _test_data_document_revision.c.project_id,
+                                                material_state.c.classification
+                                                == _test_data_document_revision.c.classification,
+                                                material_state.c.id
+                                                == sa.cast(
+                                                    _test_data_document_revision.c.governed_source[
+                                                        "material_state"
+                                                    ]["aggregate_id"].as_string(),
+                                                    _uuid,
+                                                ),
+                                                material_state.c.current_revision_id
+                                                == sa.cast(
+                                                    _test_data_document_revision.c.governed_source[
+                                                        "material_state"
+                                                    ]["revision_id"].as_string(),
+                                                    _uuid,
+                                                ),
+                                            )
+                                        ),
+                                        sa.exists(
+                                            sa.select(1).where(
+                                                _test_run.c.organization_id
+                                                == _test_data_document_revision.c.organization_id,
+                                                _test_run.c.project_id
+                                                == _test_data_document_revision.c.project_id,
+                                                _test_run.c.classification
+                                                == _test_data_document_revision.c.classification,
+                                                _test_run.c.id
+                                                == sa.cast(
+                                                    _test_data_document_revision.c.governed_source[
+                                                        "test_run"
+                                                    ]["aggregate_id"].as_string(),
+                                                    _uuid,
+                                                ),
+                                                _test_run.c.current_revision_id
+                                                == sa.cast(
+                                                    _test_data_document_revision.c.governed_source[
+                                                        "test_run"
+                                                    ]["revision_id"].as_string(),
+                                                    _uuid,
+                                                ),
+                                            )
+                                        ),
+                                    ),
+                                ),
+                            )
+                        ),
+                    ),
+                    # A reviewed Material Model may publish the Neutral revision
+                    # selected by its exact model or Processing Output pin.  Do
+                    # not expose the Record if that Neutral revision no longer
+                    # carries either exact lineage pin.
+                    sa.or_(
+                        review_publication_projection.c.subject_type
+                        != "modeling.material_model",
+                        sa.exists(
+                            sa.select(1).where(
+                                _neutral_material_revision.c.organization_id
+                                == review_publication_projection.c.organization_id,
+                                _neutral_material_revision.c.project_id
+                                == review_publication_projection.c.project_id,
+                                _neutral_material_revision.c.classification
+                                == review_publication_projection.c.classification,
+                                _neutral_material_revision.c.aggregate_id
+                                == review_publication_projection.c.neutral_material_id,
+                                _neutral_material_revision.c.id
+                                == review_publication_projection.c.neutral_material_revision_id,
+                                sa.or_(
+                                    sa.and_(
+                                        _neutral_material_revision.c.prony_overlay_model_id
+                                        == review_publication_projection.c.subject_id,
+                                        _neutral_material_revision.c.prony_overlay_model_revision_id
+                                        == review_publication_projection.c.subject_revision_id,
+                                    ),
+                                    sa.exists(
+                                        sa.select(1).where(
+                                            _material_model_revision.c.organization_id
+                                            == _neutral_material_revision.c.organization_id,
+                                            _material_model_revision.c.project_id
+                                            == _neutral_material_revision.c.project_id,
+                                            _material_model_revision.c.classification
+                                            == _neutral_material_revision.c.classification,
+                                            _material_model_revision.c.aggregate_id
+                                            == review_publication_projection.c.subject_id,
+                                            _material_model_revision.c.id
+                                            == review_publication_projection.c.subject_revision_id,
+                                            _material_model_revision.c.processing_output_id
+                                            == _neutral_material_revision.c.processing_output_id,
+                                            _material_model_revision.c.processing_output_revision_id
+                                            == (
+                                                _neutral_material_revision.c.processing_output_revision_id
+                                            ),
+                                        )
+                                    ),
+                                ),
+                            )
+                        ),
+                    ),
+                )
+            )
             statement = SqlAlchemyCatalogRecordRepository._record_statement(current=False).where(
-                catalog_record_revision.c.id == latest_published_revision_id
+                sa.or_(legacy_published, review_current_subject)
             )
         else:
             statement = SqlAlchemyCatalogRecordRepository._record_statement(current=True)
@@ -1410,6 +2154,16 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                         domain_record_binding.c.record_id == catalog_record.c.id,
                         domain_record_binding.c.record_revision_id == catalog_record_revision.c.id,
                         domain_record_binding.c.domain_kind == query.domain_binding_kind,
+                        *(
+                            ()
+                            if query.domain_binding_object_id is None
+                            else (
+                                domain_record_binding.c.domain_object_id
+                                == query.domain_binding_object_id,
+                                domain_record_binding.c.domain_revision_id
+                                == query.domain_binding_revision_id,
+                            )
+                        ),
                     )
                 )
             )

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:governance:review-subject-evidence:1.0.0",
+  "title": "CMP registered review subject evidence snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["subject_type", "subject_id", "subject_revision_id", "label", "classification", "schema", "server_manifest", "source_artifact", "validation", "created", "change_reason", "exact_input_use", "affected_materials", "affected_table_id", "affected_table_revision_id", "output_artifact_sha256", "neutral"],
+  "properties": {
+    "subject_type": {"enum": ["catalog.material", "catalog.configurable_record", "datasets.test_data_document", "modeling.material_model", "exporting.solver_card", "exporting.neutral_solver_card"]},
+    "subject_id": {"type": "string", "format": "uuid"},
+    "subject_revision_id": {"type": "string", "format": "uuid"},
+    "label": {"type": "string", "minLength": 1, "maxLength": 255},
+    "classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
+    "schema": {"type": "object", "additionalProperties": false, "required": ["ref", "version"], "properties": {"ref": {"type": "string", "minLength": 1, "maxLength": 500}, "version": {"type": "string", "minLength": 1, "maxLength": 64}}},
+    "server_manifest": {"type": "object", "additionalProperties": false, "required": ["sha256"], "properties": {"sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}},
+    "source_artifact": {"type": "object", "additionalProperties": false, "required": ["state", "id", "sha256"], "properties": {"state": {"enum": ["attached", "unattached"]}, "id": {"type": ["string", "null"], "format": "uuid"}, "sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"}}},
+    "validation": {"type": "object", "additionalProperties": false, "required": ["status", "summary"], "properties": {"status": {"enum": ["valid", "warning", "blocked"]}, "summary": {"type": "string", "minLength": 1, "maxLength": 2000}}},
+    "created": {"type": "object", "additionalProperties": false, "required": ["by", "at"], "properties": {"by": {"type": "string", "format": "uuid"}, "at": {"type": "string", "format": "date-time"}}},
+    "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+    "exact_input_use": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1, "maxLength": 500}},
+    "affected_materials": {"type": "object", "additionalProperties": false, "required": ["record_id", "record_revision_id", "path"], "properties": {"record_id": {"type": ["string", "null"], "format": "uuid"}, "record_revision_id": {"type": ["string", "null"], "format": "uuid"}, "path": {"type": ["string", "null"], "maxLength": 500}}},
+    "affected_table_id": {"type": ["string", "null"], "format": "uuid"},
+    "affected_table_revision_id": {"type": ["string", "null"], "format": "uuid"},
+    "output_artifact_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "neutral": {"type": "object", "additionalProperties": false, "required": ["material_id", "material_revision_id", "artifact_sha256"], "properties": {"material_id": {"type": ["string", "null"], "format": "uuid"}, "material_revision_id": {"type": ["string", "null"], "format": "uuid"}, "artifact_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"}}}
+  }
+}

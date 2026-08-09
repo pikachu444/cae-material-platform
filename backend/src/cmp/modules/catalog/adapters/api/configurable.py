@@ -629,23 +629,17 @@ def install_configurable_catalog_api(
         request: Request, body: PublicationRequest
     ) -> PublicationValidationResponse:
         context, decision = _scope(request)
-        try:
-            value = required(context).publish_revision(
-                context,
-                decision,
-                PublishRevision(body.aggregate_type, body.aggregate_id, body.revision_id),
-            )
-            return PublicationValidationResponse(
-                aggregate_type=value.aggregate_type,
-                aggregate_id=value.aggregate_id,
-                revision_id=value.revision_id,
-                valid=value.valid,
-                errors=value.errors,
-            )
-        except CatalogHttpError:
-            raise
-        except Exception as error:
-            raise _error(context, error) from error
+        # Direct Catalog publication is intentionally no longer a mutating authority.
+        # Review approval projects the exact Record marker atomically; callers use the
+        # validation endpoint for readiness and the governed review request endpoint to
+        # enter the publication workflow.
+        del decision, body
+        raise _error(
+            context,
+            ConfigurableCatalogConflict(
+                "direct publication is disabled; submit the exact revision for review"
+            ),
+        )
 
     @application.get(
         "/api/v1/catalog/databases",

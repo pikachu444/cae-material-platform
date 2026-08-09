@@ -32,20 +32,21 @@
       "additionalProperties": false,
       "required": [
         "review_request_id", "classification", "aggregate_type", "aggregate_id", "revision_id",
-        "manifest_sha256", "required_role", "requested_by", "requested_at", "reason",
-        "lifecycle_state", "decision", "links"
+        "manifest_sha256", "required_role", "requested_by", "requested_by_display_name", "requested_at", "reason",
+        "lifecycle_state", "decision", "links", "evidence"
       ],
       "properties": {
         "review_request_id": {"$ref": "#/$defs/Uuid"},
         "classification": {
           "enum": ["internal", "confidential", "restricted", "export_controlled"]
         },
-        "aggregate_type": {"$ref": "#/$defs/AggregateType"},
+        "aggregate_type": {"enum": ["catalog.material", "catalog.configurable_record", "datasets.test_data_document", "modeling.material_model", "exporting.solver_card", "exporting.neutral_solver_card", "validation.result"]},
         "aggregate_id": {"$ref": "#/$defs/Uuid"},
         "revision_id": {"$ref": "#/$defs/Uuid"},
         "manifest_sha256": {"$ref": "#/$defs/Sha256"},
         "required_role": {"const": "domain_reviewer"},
         "requested_by": {"$ref": "#/$defs/Uuid"},
+        "requested_by_display_name": {"type": "string", "minLength": 1, "maxLength": 255},
         "requested_at": {"type": "string", "format": "date-time"},
         "reason": {"$ref": "#/$defs/Reason"},
         "lifecycle_state": {
@@ -57,6 +58,12 @@
         "links": {
           "type": "object",
           "additionalProperties": {"type": "string"}
+        },
+        "evidence": {
+          "oneOf": [
+            {"$ref": "review-subject-evidence.schema.json"},
+            {"type": "null"}
+          ]
         }
       }
     },
@@ -75,13 +82,13 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "classification", "aggregate_type", "aggregate_id", "revision_id", "manifest_sha256", "reason"
+        "aggregate_type", "aggregate_id", "revision_id", "reason"
       ],
       "properties": {
         "classification": {
           "enum": ["internal", "confidential", "restricted", "export_controlled"]
         },
-        "aggregate_type": {"$ref": "#/$defs/AggregateType"},
+        "aggregate_type": {"enum": ["catalog.material", "catalog.configurable_record", "datasets.test_data_document", "modeling.material_model", "exporting.solver_card", "exporting.neutral_solver_card", "validation.result"]},
         "aggregate_id": {"$ref": "#/$defs/Uuid"},
         "revision_id": {"$ref": "#/$defs/Uuid"},
         "manifest_sha256": {"$ref": "#/$defs/Sha256"},

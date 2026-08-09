@@ -255,6 +255,7 @@ describe("CatalogExplorer", () => {
         }],
         facet_attribute_ids: [],
         limit: 100,
+        published_only: true,
       },
     ));
     expect(screen.getByText("1 matching record")).toBeTruthy();

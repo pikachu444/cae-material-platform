@@ -4,6 +4,8 @@ import {
   ApiError,
   createExactTargetPreview,
   deliverExactTargetPreview,
+  downloadSelectedModelNeutralMaterial,
+  getAuthenticatedPrincipal,
   getReferenceElastoplasticExportCapabilities,
   type ApiConfig,
 } from "./api";
@@ -15,6 +17,8 @@ import {
   mappingDisposition,
   projectMappingRows,
 } from "./solver-card-delivery";
+import { ReviewRequestAction } from "./review-request-action";
+import { appendActivityFailure, appendActivityOutcome, type ActivityRecoveryContext } from "./activity-recovery";
 import { MaterialsScrollRegion } from "./materials-scroll-rail";
 import type {
   CommonProcessingOutputResponse,
@@ -28,6 +32,38 @@ import type {
 } from "./types";
 
 type CapabilityTarget = ExportTarget & { label?: string };
+
+async function recordModelingRecovery(
+  config: ApiConfig,
+  context: ActivityRecoveryContext,
+  status: "failed" | "succeeded",
+  message: string,
+): Promise<void> {
+  try {
+    const principal = await getAuthenticatedPrincipal(config);
+    const args = [
+      principal.data.principal_id,
+      principal.data.organization_id,
+      principal.data.project_id,
+      "activity" as const,
+      context,
+      message,
+    ] as const;
+    if (status === "failed") appendActivityFailure(...args);
+    else appendActivityOutcome(...args);
+  } catch {
+    // The exact download remains server-authoritative when local recovery storage is unavailable.
+  }
+}
+
+function triggerBlobDownload(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
 
 function errorMessage(error: unknown): string {
   if (error instanceof ApiError) return error.message;
@@ -484,6 +520,7 @@ export function ModelingTargetPreview({
   const [busy, setBusy] = useState<"preview" | "delivery" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [deliveryError, setDeliveryError] = useState(false);
+  const [neutralDownloadBusy, setNeutralDownloadBusy] = useState(false);
   const requestGeneration = useRef(0);
   const currentSourceKey = sourceKey(session);
 
@@ -553,6 +590,35 @@ export function ModelingTargetPreview({
     : primaryAction === "Create solver card" || primaryAction === "Retry create"
       ? !canDeliver
       : !canPreview;
+
+  async function downloadSelectedNeutral(): Promise<void> {
+    if (!session?.materialModelIr || !session.neutralModel || neutralDownloadBusy) return;
+    const context: ActivityRecoveryContext = {
+      kind: "selected_model_json",
+      path: "/modeling?stage=export",
+      materialModelId: session.materialModelIr.id,
+      materialModelRevisionId: session.materialModelIr.revisionId,
+      neutralMaterialId: session.neutralModel.id,
+      neutralMaterialRevisionId: session.neutralModel.revisionId,
+    };
+    setNeutralDownloadBusy(true);
+    setError(null);
+    try {
+      const result = await downloadSelectedModelNeutralMaterial(
+        config,
+        session.neutralModel.id,
+        session.neutralModel.revisionId,
+      );
+      triggerBlobDownload(result.data.blob, result.data.filename);
+      void recordModelingRecovery(config, context, "succeeded", "Downloaded the exact selected-model Neutral JSON.");
+    } catch (cause: unknown) {
+      const message = errorMessage(cause);
+      setError(message);
+      void recordModelingRecovery(config, context, "failed", message);
+    } finally {
+      setNeutralDownloadBusy(false);
+    }
+  }
 
   useEffect(() => {
     requestGeneration.current += 1;
@@ -676,11 +742,34 @@ export function ModelingTargetPreview({
         throw new Error("Create failed: the delivery receipt does not match the current exact source, target, or typed links.");
       }
       setDelivery(result.data);
+      void recordModelingRecovery(
+        config,
+        {
+          kind: "receipt_json",
+          path: result.data.links.receipt,
+          receiptId: result.data.receipt_id,
+          deliveryId: result.data.delivery_identity,
+          solverCardId: result.data.solver_card_id,
+          solverCardRevisionId: result.data.solver_card_revision_id,
+        },
+        "succeeded",
+        "Created the immutable target-delivery receipt.",
+      );
       onSessionEvent?.({ type: "SET_CURRENT", key: "exportArtifact", value: { id: result.data.solver_card_id, revisionId: result.data.solver_card_revision_id, label: result.data.filename, revisionNo: 1 } });
     } catch (cause: unknown) {
       if (generation === requestGeneration.current) {
         setDeliveryError(true);
-        setError(errorMessage(cause));
+        const message = errorMessage(cause);
+        setError(message);
+        void recordModelingRecovery(
+          config,
+          {
+            kind: "receipt_json",
+            path: "/modeling?stage=export",
+          },
+          "failed",
+          message,
+        );
       }
     } finally {
       if (generation === requestGeneration.current) setBusy(null);
@@ -708,6 +797,12 @@ export function ModelingTargetPreview({
         <div className="export-subsection-heading">Selected model</div>
         <div className="export-property-row"><span>Model</span><strong>{fitSelection?.displayLabel ?? "Exact Fit selection unavailable"}</strong></div>
         <button type="button" className="text-button" onClick={() => onNavigate?.("/modeling?stage=fit")}>Open in Fit</button>
+        {session?.materialModelIr && session.neutralModel ? <button
+          type="button"
+          className="text-button"
+          disabled={neutralDownloadBusy}
+          onClick={() => void downloadSelectedNeutral()}
+        >{neutralDownloadBusy ? "Preparing selected Neutral…" : "Download exact selected Neutral"}</button> : null}
         <div className="export-subsection-heading">Destination</div>
         <label className="export-field"><span>Solver / format</span><select aria-label="Solver target" value={targetKeyValue} disabled={capabilityLoading || Boolean(capabilityError) || !targets.length} onChange={(event) => changeTarget(event.target.value)}><option value="">Select a destination</option>{targets.map((target) => <option key={targetKey(target)} value={targetKey(target)}>{formatTarget(target)}</option>)}</select></label>
         <label className="export-field"><span>Output unit system</span><select aria-label="Output unit system" value={selectedTarget?.unit_system ?? ""} disabled={!selectedTarget}>{selectedTarget ? <option value={selectedTarget.unit_system}>{selectedTarget.unit_system.replaceAll("_", " · ")}</option> : <option value="">Select a solver first</option>}<option disabled value="__other_units_unavailable">Other unit systems — unavailable (not declared by this exporter capability).</option></select></label>
@@ -735,6 +830,16 @@ export function ModelingTargetPreview({
         </MaterialsScrollRegion></div>
         {error ? <p className="ux-notice error" role="alert">{error}</p> : null}
         {delivery ? <p className="ux-notice success" role="status"><strong>Solver card created</strong> · {delivery.filename}</p> : null}
+        {delivery && output ? <ReviewRequestAction
+          config={config}
+          subject={{
+            aggregateType: "exporting.neutral_solver_card",
+            aggregateId: delivery.solver_card_id,
+            revisionId: delivery.solver_card_revision_id,
+            classification: output.current_revision.classification,
+            lifecycleState: "draft",
+          }}
+        /> : null}
         <DeliveryDetails delivery={delivery} />
       </main>
       <aside className="export-result" aria-label="Export result context">

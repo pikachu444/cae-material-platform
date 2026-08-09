@@ -24,7 +24,7 @@ review/release는 Modeling의 normal stage가 아니라 Advanced와 Activity의 
 | --- | --- |
 | Materials | Browse 기본의 explorer/result/datasheet workspace, server-scoped Material class 검색·정렬·pagination, Browse Tree, 선택 문맥, detail 5개 영역, solver card preview/download |
 | Modeling | exact Material/State/Test Data session pin, Data/Process/Fit/Export, Process의 exact source/profile preview·last-valid blocked recovery·immutable saved-result comparison, processing·fitting, 선택 모델 저장, Material Model IR·Neutral·solver card 생성, upstream 변경에 따른 downstream clear/stale/regenerate |
-| Activity | review queue, Material/Solver Card 요청 진입, Reviewer 승인·반려. failed-job recovery, server receipt와 release projection은 아직 없음 |
+| Activity | role-aware review queue, exact Material/Solver Card request entry, Reviewer-only approval/change decisions, Processing Batch context/retry, browser recovery facts, and review-backed Record publication projection |
 | Administration | Database/Profile과 configurable Table/Attribute/Layout/Subset/Link Type의 revision 관리·발행, Folder/Record tree, typed search·compare, 단건·다건 등록, exact Record links와 접근 관리 |
 | Exchange | CSV/TSV/XLSX governed import, versioned Test Data JSON, Neutral Material JSON, deterministic package |
 | Governance | immutable review/release/artifact, exact revision, provenance/audit, organization/project 권한 |
@@ -41,11 +41,12 @@ Production 표준, plugin, solver correlation과 validation threshold는 domain 
   승인했으며, 예시 schema의 이름이나 개수는 제품 고정 형식이 아닙니다. 첫 구현 단위는 현재
   backlog의 #189와 #160 이후에 시작합니다.
 - #158 Data/Process/Fit/Export production UI는 PR #183~#202에서 현재 화면에 연결했습니다. 남은
-  Activity/Administration 공개·복구 화면은 #160, 공통 화면 정리는 #161이 소유하며, 새 기획의
+  Administration 공개·복구 refinement는 #161이 소유하며, 새 기획의
   Administration/Template/OIDC 화면은 각각 #208, #214, #215에서 별도 검수합니다.
 - Materials의 provider/evidence source, condition-aware property, validation·solver readiness는
   실제 governed query projection이 없는 상태에서 추론하지 않습니다.
-- Activity의 실패 작업 복구, delivery receipt와 release projection은 #160 범위입니다.
+- Activity의 실패 작업 복구와 review-backed Record publication은 #160 범위입니다. Authoritative
+  delivery receipt producer와 full release package projection은 아직 명시적으로 준비되지 않았습니다.
 - `docs/_incoming/2026-07-24-organic-ux-update/`의 유효 내용 흡수와 삭제는 #162 범위입니다.
 - 실제 identity provider/directory, 운영 object storage/KMS/WORM, credential rotation/outage,
   external receiver와 장시간 endurance는 production 환경 수용이 남아 있습니다.

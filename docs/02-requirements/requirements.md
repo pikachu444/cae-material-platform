@@ -218,7 +218,7 @@
 | `FR-ACC-003` | 기존 세부 permission과 RLS는 feature grant의 내부 enforcement로 유지해야 한다. | 기존 token과 tenant isolation regression이 유지된다. |
 | `FR-ACC-004` | 권한 설명은 작업 중심이어야 하며 보안 foundation을 제품 핵심 흐름보다 앞세우지 않아야 한다. | README와 UI가 가능한 작업과 필요한 grant를 먼저 설명한다. |
 | `FR-ACC-005` | 제품 역할 UI는 User, Reviewer, Administrator 작업 preset을 제공하되 내부 enforcement는 resource/action/scope 확장이 가능해야 한다. | 사용자가 policy vocabulary를 입력하지 않아도 역할별 작업을 관리하고, 새 세부 scope를 schema rewrite 없이 추가할 수 있다. |
-| `FR-ACC-006` | 제품 역할은 User, Reviewer, Administrator로 제공해야 한다. User는 검색·조회·다운로드와 upload/review request, processing/fitting/card request를 수행하고, Reviewer는 이를 포함해 material/card 변경 요청·승인·publish를 수행하며, Administrator는 모든 접근·편집·구성·검토·승인을 수행한다. | 역할별 task preset, service authorization, PostgreSQL role/preset constraint 및 RLS 회귀가 함께 통과한다. |
+| `FR-ACC-006` | 제품 역할은 User, Reviewer, Administrator로 제공해야 한다. User와 Administrator는 검색·조회·다운로드와 upload/review request, processing/fitting/card request를 수행하고, Reviewer는 이를 포함해 material/card 변경 요청·승인·publish를 수행한다. Administrator는 review request를 만들고 자신의 Activity 항목을 복구하지만 다른 사용자의 승인 결정을 내리지 않는다. | 역할별 task preset, Reviewer-only decision authorization, PostgreSQL versioned preset constraint 및 RLS 회귀가 함께 통과한다. |
 | `FR-UX-001` | GUI 변경 Task는 task-oriented user/admin guide와 deterministic screenshot을 함께 갱신해야 한다. | guide manifest가 stale/missing capture를 차단한다. |
 | `FR-UX-002` | Dashboard에서 Catalog 탐색, 시험 처리와 card 생성 시작점을 제공해야 한다. | E2E가 각 시작점에서 실제 workbench까지 이동한다. |
 | `FR-UX-003` | API error를 domain action과 해결 방법으로 표시해야 한다. | 사용자가 trace ID와 수정 가능한 입력을 확인한다. |

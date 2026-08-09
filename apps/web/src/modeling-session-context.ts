@@ -1,3 +1,5 @@
+import type { DataClassification } from "./types";
+
 export type ModelingMaterialFamily = "metal" | "polymer" | "elastomer";
 export type ModelingStage = "data" | "process" | "fit" | "validate" | "review" | "export";
 export type ModelingPlotView = "pipeline" | "ensemble";
@@ -21,6 +23,10 @@ export interface ModelingSessionRecordRef {
   revisionId: string;
   label: string;
   revisionNo: number;
+  /** Optional server evidence carried when a review-capable surface loaded the revision. */
+  manifestSha256?: string;
+  classification?: DataClassification;
+  lifecycleState?: "draft" | "published";
 }
 
 export function modelingSessionRecordKey(id: string, revisionId: string): string {

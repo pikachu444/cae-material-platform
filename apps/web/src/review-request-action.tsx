@@ -4,11 +4,17 @@ import { ApiError, createReviewRequest, listReviewRequests, type ApiConfig } fro
 import type { DataClassification, ReviewRequestResponse } from "./types";
 
 export interface ReviewSubject {
-  aggregateType: "catalog.material" | "exporting.solver_card" | "exporting.neutral_solver_card";
+  aggregateType:
+    | "catalog.material"
+    | "catalog.configurable_record"
+    | "datasets.test_data_document"
+    | "modeling.material_model"
+    | "exporting.solver_card"
+    | "exporting.neutral_solver_card";
   aggregateId: string;
   revisionId: string;
-  manifestSha256: string;
-  classification: DataClassification;
+  manifestSha256?: string;
+  classification?: DataClassification;
   lifecycleState: string;
 }
 
@@ -69,11 +75,12 @@ export function ReviewRequestAction({ config, subject }: { config: ApiConfig; su
     setSubmitError(null);
     try {
       const result = await createReviewRequest(config, {
-        classification: subject.classification,
         aggregate_type: subject.aggregateType,
         aggregate_id: subject.aggregateId,
         revision_id: subject.revisionId,
-        manifest_sha256: subject.manifestSha256,
+        ...(subject.classification && subject.manifestSha256
+          ? { classification: subject.classification, manifest_sha256: subject.manifestSha256 }
+          : {}),
         reason: trimmed,
       });
       setExisting(result.data);
@@ -91,10 +98,10 @@ export function ReviewRequestAction({ config, subject }: { config: ApiConfig; su
   if (loadError) return <div className="review-request-control"><span className="review-request-load-error" role="alert">Review status unavailable. <button className="ux-button tertiary" type="button" onClick={() => setReload((value) => value + 1)}>Retry status</button></span></div>;
   if (subject.lifecycleState !== "draft") return <div className="review-request-control"><span className="review-request-state" role="status">{subject.lifecycleState.replaceAll("_", " ")}</span></div>;
   if (!expanded) return <div className="review-request-control"><button className="ux-button" type="button" onClick={() => setExpanded(true)}>Request review</button></div>;
-  return <div className="review-request-control"><form className="review-request-action" onSubmit={(event) => { event.preventDefault(); void submit(); }}>
+  return <div className="review-request-control"><div className="review-request-action">
     <label>Review reason<textarea aria-label="Review request reason" value={reason} onChange={(event) => setReason(event.target.value)} placeholder="What should the reviewer check?" disabled={submitting} /></label>
     {submitError ? <p role="alert">{submitError} {submitting ? "" : "Correct the reason or Retry."}</p> : null}
-    <button className="ux-button" type="submit" disabled={submitting}>{submitting ? "Sending…" : submitError ? "Retry request" : "Send request"}</button>
+    <button className="ux-button" type="button" disabled={submitting} onClick={() => void submit()}>{submitting ? "Sending…" : submitError ? "Retry request" : "Send request"}</button>
     <button className="ux-button tertiary" type="button" disabled={submitting} onClick={() => { setExpanded(false); setReason(""); setSubmitError(null); }}>Cancel</button>
-  </form></div>;
+  </div></div>;
 }

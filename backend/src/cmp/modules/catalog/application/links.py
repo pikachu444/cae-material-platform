@@ -19,11 +19,15 @@ from cmp.modules.catalog.application.records import (
     FolderSnapshot,
     RecordSnapshot,
 )
-from cmp.modules.catalog.domain.configurable import ConfigurableCatalogConflict
+from cmp.modules.catalog.domain.configurable import (
+    ConfigurableCatalogConflict,
+    ConfigurableCatalogNotFound,
+)
 from cmp.modules.catalog.domain.links import (
     LinkTypeContent,
     RecordLinkContent,
 )
+from cmp.modules.catalog.domain.records import CatalogRecordQuery
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
     DataClassification,
@@ -98,6 +102,10 @@ class LinkEndpoint:
     name: str
     external_key: str | None
     domain_binding: DomainRevisionBinding | None = None
+    # All exact governed revisions pinned to this Record revision.  The
+    # singular field remains as a deterministic compatibility projection of
+    # the first item in this ordered collection.
+    domain_bindings: tuple[DomainRevisionBinding, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -230,6 +238,15 @@ class CatalogLinkRepository(Protocol):
         record_id: UUID,
         record_revision_id: UUID,
     ) -> DomainRevisionBinding | None: ...
+
+    def list_domain_bindings(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        record_id: UUID,
+        record_revision_id: UUID,
+    ) -> tuple[DomainRevisionBinding, ...]: ...
 
     def find_domain_binding(
         self,
@@ -379,6 +396,8 @@ class CatalogLinkService:
         decision: AuthorizationDecision,
         record_id: UUID,
         revision_id: UUID,
+        *,
+        published_only: bool = False,
     ) -> LinkEndpoint:
         revision = self._records.get_record_revision(
             context=context,
@@ -386,6 +405,51 @@ class CatalogLinkService:
             record_id=record_id,
             revision_id=revision_id,
         )
+        domain_bindings = self._repository.list_domain_bindings(
+            context=context,
+            decision=decision,
+            record_id=record_id,
+            record_revision_id=revision_id,
+        )
+        if published_only:
+            published = self._records.search_records(
+                context=context,
+                decision=decision,
+                query=CatalogRecordQuery(
+                    table_id=revision.content.table_id,
+                    record_id=record_id,
+                    limit=1,
+                    published_only=True,
+                ),
+            )
+            if not any(
+                item.id == record_id and item.current.record.revision_id == revision_id
+                for item in published.items
+            ):
+                raise ConfigurableCatalogNotFound(
+                    "Catalog Record revision is not published for Materials"
+                )
+            filtered_bindings: list[DomainRevisionBinding] = []
+            for binding in domain_bindings:
+                exact = self._records.search_records(
+                    context=context,
+                    decision=decision,
+                    query=CatalogRecordQuery(
+                        table_id=revision.content.table_id,
+                        record_id=record_id,
+                        limit=1,
+                        published_only=True,
+                        domain_binding_kind=binding.kind.value,
+                        domain_binding_object_id=binding.object_id,
+                        domain_binding_revision_id=binding.revision_id,
+                    ),
+                )
+                if any(
+                    item.id == record_id and item.current.record.revision_id == revision_id
+                    for item in exact.items
+                ):
+                    filtered_bindings.append(binding)
+            domain_bindings = tuple(filtered_bindings)
         return LinkEndpoint(
             record_id,
             revision_id,
@@ -393,12 +457,8 @@ class CatalogLinkService:
             revision.content.table_id,
             revision.content.name,
             revision.content.external_key,
-            self._repository.get_domain_binding(
-                context=context,
-                decision=decision,
-                record_id=record_id,
-                record_revision_id=revision_id,
-            ),
+            domain_bindings[0] if domain_bindings else None,
+            domain_bindings,
         )
 
     def bind_domain_revision(
@@ -445,6 +505,27 @@ class CatalogLinkService:
             revision_id=record_revision_id,
         )
         return self._repository.get_domain_binding(
+            context=context,
+            decision=decision,
+            record_id=record_id,
+            record_revision_id=record_revision_id,
+        )
+
+    def list_domain_bindings(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        record_id: UUID,
+        record_revision_id: UUID,
+    ) -> tuple[DomainRevisionBinding, ...]:
+        _require(context, decision, Permission.CATALOG_READ)
+        self._records.get_record_revision(
+            context=context,
+            decision=decision,
+            record_id=record_id,
+            revision_id=record_revision_id,
+        )
+        return self._repository.list_domain_bindings(
             context=context,
             decision=decision,
             record_id=record_id,
@@ -641,6 +722,8 @@ class CatalogLinkService:
         context: SecurityContext,
         decision: AuthorizationDecision,
         link: RecordLinkSnapshot,
+        *,
+        published_only: bool = False,
     ) -> RecordLinkView:
         content = link.current.content
         link_type = self._repository.get_link_type_revision(
@@ -653,10 +736,18 @@ class CatalogLinkService:
             link,
             link_type,
             self._record_endpoint(
-                context, decision, content.source_record_id, content.source_record_revision_id
+                context,
+                decision,
+                content.source_record_id,
+                content.source_record_revision_id,
+                published_only=published_only,
             ),
             self._record_endpoint(
-                context, decision, content.target_record_id, content.target_record_revision_id
+                context,
+                decision,
+                content.target_record_id,
+                content.target_record_revision_id,
+                published_only=published_only,
             ),
         )
 
@@ -668,9 +759,23 @@ class CatalogLinkService:
         *,
         record_revision_id: UUID | None = None,
         include_inactive: bool = False,
+        published_only: bool = False,
     ) -> tuple[RecordLinkView, ...]:
         _require(context, decision, Permission.CATALOG_READ)
-        self._records.get_record(context=context, decision=decision, record_id=record_id)
+        if published_only:
+            self._record_endpoint(
+                context,
+                decision,
+                record_id,
+                record_revision_id
+                if record_revision_id is not None
+                else self._records.get_record(
+                    context=context, decision=decision, record_id=record_id
+                ).current.record.revision_id,
+                published_only=True,
+            )
+        else:
+            self._records.get_record(context=context, decision=decision, record_id=record_id)
         links = self._repository.list_record_links(
             context=context,
             decision=decision,
@@ -678,7 +783,14 @@ class CatalogLinkService:
             record_revision_id=record_revision_id,
             include_inactive=include_inactive,
         )
-        return tuple(self._view(context, decision, link) for link in links)
+        visible: list[RecordLinkView] = []
+        for link in links:
+            try:
+                visible.append(self._view(context, decision, link, published_only=published_only))
+            except ConfigurableCatalogNotFound:
+                if not published_only:
+                    raise
+        return tuple(visible)
 
     def workflow_graph(
         self,
@@ -688,11 +800,14 @@ class CatalogLinkService:
         revision_id: UUID,
         *,
         depth: int = 3,
+        published_only: bool = False,
     ) -> WorkflowGraph:
         _require(context, decision, Permission.CATALOG_READ)
         if not 1 <= depth <= 8:
             raise ValueError("workflow depth must be between 1 and 8")
-        root = self._record_endpoint(context, decision, record_id, revision_id)
+        root = self._record_endpoint(
+            context, decision, record_id, revision_id, published_only=published_only
+        )
         nodes: dict[tuple[UUID, UUID], LinkEndpoint] = {
             (root.record_id, root.record_revision_id): root
         }
@@ -710,6 +825,7 @@ class CatalogLinkService:
                 decision,
                 endpoint.record_id,
                 record_revision_id=endpoint.record_revision_id,
+                published_only=published_only,
             ):
                 links[view.link.id] = view
                 for candidate in (view.source, view.target):

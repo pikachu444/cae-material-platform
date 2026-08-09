@@ -246,6 +246,7 @@ class LinkEndpointResponse(BaseModel):
     name: str
     external_key: str | None
     domain_binding: DomainRevisionBindingResponse | None = None
+    domain_bindings: tuple[DomainRevisionBindingResponse, ...] = ()
 
     @classmethod
     def from_endpoint(cls, value: LinkEndpoint) -> LinkEndpointResponse:
@@ -260,6 +261,10 @@ class LinkEndpointResponse(BaseModel):
                 None
                 if value.domain_binding is None
                 else DomainRevisionBindingResponse.from_domain(value.domain_binding)
+            ),
+            domain_bindings=tuple(
+                DomainRevisionBindingResponse.from_domain(binding)
+                for binding in value.domain_bindings
             ),
         )
 
@@ -286,6 +291,11 @@ class RecordLinkViewResponse(BaseModel):
 class RecordLinkListResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     items: tuple[RecordLinkViewResponse, ...]
+
+
+class DomainRevisionBindingListResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    items: tuple[DomainRevisionBindingResponse, ...]
 
 
 class ExplorerTableListResponse(BaseModel):
@@ -632,6 +642,28 @@ def install_catalog_link_api(
             raise _error(context, error) from error
 
     @application.get(
+        "/api/v1/catalog/records/{record_id}/revisions/{revision_id}/domain-bindings",
+        response_model=DomainRevisionBindingListResponse,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["catalog-explorer"],
+    )
+    def list_domain_revision_bindings(
+        request: Request, record_id: UUID, revision_id: UUID
+    ) -> DomainRevisionBindingListResponse:
+        context, decision = _scope(request)
+        try:
+            values = required(context).list_domain_bindings(
+                context, decision, record_id, revision_id
+            )
+            return DomainRevisionBindingListResponse(
+                items=tuple(DomainRevisionBindingResponse.from_domain(value) for value in values)
+            )
+        except CatalogHttpError:
+            raise
+        except Exception as error:
+            raise _error(context, error) from error
+
+    @application.get(
         "/api/v1/catalog/domain-bindings:resolve",
         response_model=DomainRevisionBindingResponse | None,
         dependencies=[Depends(security_dependency), Depends(read_dependency)],
@@ -665,12 +697,18 @@ def install_catalog_link_api(
         record_id: UUID,
         revision_id: UUID,
         depth: int = Query(default=3, ge=1, le=8),
+        published_only: bool = Query(default=False),
     ) -> WorkflowGraphResponse:
         context, decision = _scope(request)
         try:
             return WorkflowGraphResponse.from_graph(
                 required(context).workflow_graph(
-                    context, decision, record_id, revision_id, depth=depth
+                    context,
+                    decision,
+                    record_id,
+                    revision_id,
+                    depth=depth,
+                    published_only=published_only,
                 )
             )
         except CatalogHttpError:

@@ -132,7 +132,7 @@ activity_workspace:
   role_visibility:
     user: [pending-review-in-progress, no-decision-controls]
     reviewer: [pending-review-needs-attention, row-review-action]
-    administrator: [pending-review-needs-attention, row-review-action]
+    administrator: [own-pending-review-in-progress, no-decision-controls]
   decision:
     requires: [existing-review-request, expected-manifest-sha256, non-empty-reason]
     result: returned-immutable-review-request-replaces-one-row
@@ -143,4 +143,4 @@ activity_workspace:
   legacy_removal:
     removed: [raw-aggregate-type-input, raw-aggregate-id-input, raw-revision-id-input, raw-manifest-sha256-input, standalone-record-decision]
     governance_remains: [operations-dashboard, release-workbench, governance-evidence-workbench]
-  pending_projections: [failed-job-recovery, server-delivery-receipt, release]
+  pending_projections: [server-delivery-receipt, full-release-package]

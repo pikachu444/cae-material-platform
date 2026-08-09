@@ -51,6 +51,7 @@ PRODUCT_ACCESS_ASSIGNMENT = sa.Table(
     sa.Column("revoked_at", sa.DateTime(timezone=True)),
     sa.Column("revoked_by", sa.Uuid()),
     sa.Column("revocation_reason", sa.Text()),
+    sa.Column("preset_version", sa.SmallInteger()),
     schema="identity",
 )
 
@@ -82,11 +83,7 @@ class SqlAlchemyProductAccessRepository:
         )
         grants = tuple(
             sorted(
-                (
-                    grant
-                    for grant, column in _FEATURE_COLUMNS.items()
-                    if bool(getattr(row, column))
-                ),
+                (grant for grant, column in _FEATURE_COLUMNS.items() if bool(getattr(row, column))),
                 key=str,
             )
         )
@@ -102,6 +99,7 @@ class SqlAlchemyProductAccessRepository:
             valid_from=row.valid_from,
             expires_at=row.expires_at,
             revoked_at=row.revoked_at,
+            preset_version=int(row.preset_version or 1),
         )
 
     @staticmethod
@@ -111,19 +109,23 @@ class SqlAlchemyProductAccessRepository:
     def find_applicable(
         self, context: SecurityContext, observed_at: datetime
     ) -> tuple[ProductAccessAssignment, ...]:
-        query = self._select().where(
-            PRODUCT_ACCESS_ASSIGNMENT.c.organization_id == context.organization_id,
-            sa.or_(
-                PRODUCT_ACCESS_ASSIGNMENT.c.project_id.is_(None),
-                PRODUCT_ACCESS_ASSIGNMENT.c.project_id == context.project_id,
-            ),
-            PRODUCT_ACCESS_ASSIGNMENT.c.revoked_at.is_(None),
-            PRODUCT_ACCESS_ASSIGNMENT.c.valid_from <= observed_at,
-            sa.or_(
-                PRODUCT_ACCESS_ASSIGNMENT.c.expires_at.is_(None),
-                PRODUCT_ACCESS_ASSIGNMENT.c.expires_at > observed_at,
-            ),
-        ).order_by(PRODUCT_ACCESS_ASSIGNMENT.c.id)
+        query = (
+            self._select()
+            .where(
+                PRODUCT_ACCESS_ASSIGNMENT.c.organization_id == context.organization_id,
+                sa.or_(
+                    PRODUCT_ACCESS_ASSIGNMENT.c.project_id.is_(None),
+                    PRODUCT_ACCESS_ASSIGNMENT.c.project_id == context.project_id,
+                ),
+                PRODUCT_ACCESS_ASSIGNMENT.c.revoked_at.is_(None),
+                PRODUCT_ACCESS_ASSIGNMENT.c.valid_from <= observed_at,
+                sa.or_(
+                    PRODUCT_ACCESS_ASSIGNMENT.c.expires_at.is_(None),
+                    PRODUCT_ACCESS_ASSIGNMENT.c.expires_at > observed_at,
+                ),
+            )
+            .order_by(PRODUCT_ACCESS_ASSIGNMENT.c.id)
+        )
         return self._read(context=context, decision=None, query=query)
 
     def list_assignments(
@@ -132,16 +134,20 @@ class SqlAlchemyProductAccessRepository:
         context: SecurityContext,
         decision: AuthorizationDecision,
     ) -> tuple[ProductAccessAssignment, ...]:
-        query = self._select().where(
-            PRODUCT_ACCESS_ASSIGNMENT.c.organization_id == context.organization_id,
-            sa.or_(
-                PRODUCT_ACCESS_ASSIGNMENT.c.project_id.is_(None),
-                PRODUCT_ACCESS_ASSIGNMENT.c.project_id == context.project_id,
-            ),
-        ).order_by(
-            PRODUCT_ACCESS_ASSIGNMENT.c.revoked_at.is_not(None),
-            PRODUCT_ACCESS_ASSIGNMENT.c.created_at.desc(),
-            PRODUCT_ACCESS_ASSIGNMENT.c.id,
+        query = (
+            self._select()
+            .where(
+                PRODUCT_ACCESS_ASSIGNMENT.c.organization_id == context.organization_id,
+                sa.or_(
+                    PRODUCT_ACCESS_ASSIGNMENT.c.project_id.is_(None),
+                    PRODUCT_ACCESS_ASSIGNMENT.c.project_id == context.project_id,
+                ),
+            )
+            .order_by(
+                PRODUCT_ACCESS_ASSIGNMENT.c.revoked_at.is_not(None),
+                PRODUCT_ACCESS_ASSIGNMENT.c.created_at.desc(),
+                PRODUCT_ACCESS_ASSIGNMENT.c.id,
+            )
         )
         return self._read(context=context, decision=decision, query=query)
 
@@ -182,8 +188,7 @@ class SqlAlchemyProductAccessRepository:
             "group_name": assignment.subject.group_name,
         }
         feature_values = {
-            column: grant in assignment.feature_grants
-            for grant, column in _FEATURE_COLUMNS.items()
+            column: grant in assignment.feature_grants for grant, column in _FEATURE_COLUMNS.items()
         }
         try:
             with self._session_factory() as session, session.begin():
@@ -204,6 +209,7 @@ class SqlAlchemyProductAccessRepository:
                         created_at=created_at,
                         created_by=context.principal.id,
                         grant_reason=grant_reason,
+                        preset_version=2,
                     )
                 )
         except sa.exc.IntegrityError as error:

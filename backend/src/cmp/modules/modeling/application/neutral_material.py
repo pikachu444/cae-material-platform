@@ -694,13 +694,9 @@ class NeutralMaterialService:
                 "metal IR no longer resolves to its exact Processing/Profile/Test evidence"
             )
         output_fit_decision = output.content.fit_decision
-        if (
-            (output_fit_decision is None) != (content.fit_decision is None)
-            or (
-                output_fit_decision is not None
-                and modeling_fit_decision_evidence(output_fit_decision)
-                != content.fit_decision
-            )
+        if (output_fit_decision is None) != (content.fit_decision is None) or (
+            output_fit_decision is not None
+            and modeling_fit_decision_evidence(output_fit_decision) != content.fit_decision
         ):
             raise NeutralMaterialConflict(
                 "metal IR fit evidence no longer matches the exact Processing Output"
@@ -862,13 +858,10 @@ class NeutralMaterialService:
                 processing_evidence.processing_output_revision_id,
             )
             output_fit_decision = output.content.fit_decision
-            if (
-                (output_fit_decision is None) != (processing_evidence.fit_decision is None)
-                or (
-                    output_fit_decision is not None
-                    and modeling_fit_decision_evidence(output_fit_decision)
-                    != processing_evidence.fit_decision
-                )
+            if (output_fit_decision is None) != (processing_evidence.fit_decision is None) or (
+                output_fit_decision is not None
+                and modeling_fit_decision_evidence(output_fit_decision)
+                != processing_evidence.fit_decision
             ):
                 raise NeutralMaterialConflict(
                     "polymer model fit evidence no longer matches the exact Processing Output"
@@ -1325,8 +1318,12 @@ class NeutralMaterialService:
     ) -> NeutralMaterialSnapshot:
         """Expose one exact immutable Neutral revision through the Exporting boundary."""
 
-        if decision.permission not in {Permission.EXPORT_READ, Permission.EXPORT_EXECUTE}:
-            raise NeutralMaterialConflict("Neutral Material export permission is required")
+        if decision.permission not in {
+            Permission.MODELING_READ,
+            Permission.EXPORT_READ,
+            Permission.EXPORT_EXECUTE,
+        }:
+            raise NeutralMaterialConflict("Neutral Material exact-download permission is required")
         _require(context, decision, decision.permission)
         stored = self._repository.get_revision(
             context=context,

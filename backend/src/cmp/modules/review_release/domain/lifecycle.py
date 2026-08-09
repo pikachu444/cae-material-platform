@@ -14,6 +14,21 @@ from enum import StrEnum
 from uuid import UUID
 
 from cmp.modules.identity_access.domain.authorization import DataClassification
+from cmp.modules.review_release.domain.evidence import ReviewSubjectEvidence
+
+REGISTERED_REVIEW_TYPES = frozenset(
+    {
+        "catalog.material",
+        "catalog.configurable_record",
+        "datasets.test_data_document",
+        "modeling.material_model",
+        "exporting.solver_card",
+        "exporting.neutral_solver_card",
+        # Legacy T-29 consumers still submit validation results with an explicit
+        # digest.  New Issue #160 subjects use the closed evidence registry.
+        "validation.result",
+    }
+)
 
 _AGGREGATE_TYPE = re.compile(r"^[a-z][a-z0-9_.-]{0,99}$")
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
@@ -77,6 +92,8 @@ def validate_manifest_sha256(value: str) -> str:
 def validate_aggregate_type(value: str) -> str:
     if _AGGREGATE_TYPE.fullmatch(value) is None:
         raise InvalidReview("aggregate_type must be a stable namespaced token")
+    if value not in REGISTERED_REVIEW_TYPES:
+        raise InvalidReview("aggregate_type is not registered for review")
     return value
 
 
@@ -95,7 +112,9 @@ class ReviewRequestRecord:
     requested_at: datetime
     reason: str
     lifecycle_state: LifecycleState
+    requested_by_display_name: str | None = None
     decision: ReviewDecisionRecord | None = None
+    evidence: ReviewSubjectEvidence | None = None
 
     def __post_init__(self) -> None:
         for name, value in (
@@ -110,8 +129,19 @@ class ReviewRequestRecord:
         validate_aggregate_type(self.aggregate_type)
         validate_manifest_sha256(self.manifest_sha256)
         _non_blank("required_role", self.required_role, 100)
+        if self.requested_by_display_name is not None:
+            _non_blank("requested_by_display_name", self.requested_by_display_name, 255)
         _non_blank("reason", self.reason, 2000)
         _aware("requested_at", self.requested_at)
+        if self.evidence is not None:
+            if (
+                self.evidence.subject_type != self.aggregate_type
+                or self.evidence.subject_id != self.aggregate_id
+                or self.evidence.subject_revision_id != self.revision_id
+                or self.evidence.classification is not self.classification
+                or self.evidence.server_manifest_sha256 != self.manifest_sha256
+            ):
+                raise InvalidReview("subject evidence does not match the immutable review target")
 
 
 @dataclass(frozen=True, slots=True)
@@ -149,19 +179,36 @@ class ReviewDecisionRecord:
 
 @dataclass(frozen=True, slots=True)
 class SubmitReviewRequest:
-    classification: DataClassification
+    classification: DataClassification | None
     aggregate_type: str
     aggregate_id: UUID
     revision_id: UUID
-    manifest_sha256: str
+    manifest_sha256: str | None
     reason: str
+    evidence: ReviewSubjectEvidence | None = None
 
     def __post_init__(self) -> None:
         validate_aggregate_type(self.aggregate_type)
-        validate_manifest_sha256(self.manifest_sha256)
+        if self.classification is not None and self.manifest_sha256 is not None:
+            validate_manifest_sha256(self.manifest_sha256)
+        elif self.classification is not None or self.manifest_sha256 is not None:
+            raise InvalidReview("classification and manifest_sha256 must be provided together")
         _uuid("aggregate_id", self.aggregate_id)
         _uuid("revision_id", self.revision_id)
         _non_blank("reason", self.reason, 2000)
+        if self.evidence is not None:
+            if self.classification is None or self.manifest_sha256 is None:
+                raise InvalidReview(
+                    "subject evidence requires resolved classification and manifest"
+                )
+            if (
+                self.evidence.subject_type != self.aggregate_type
+                or self.evidence.subject_id != self.aggregate_id
+                or self.evidence.subject_revision_id != self.revision_id
+                or self.evidence.classification is not self.classification
+                or self.evidence.server_manifest_sha256 != self.manifest_sha256
+            ):
+                raise InvalidReview("subject evidence does not match the immutable review target")
 
 
 @dataclass(frozen=True, slots=True)

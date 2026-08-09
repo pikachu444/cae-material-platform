@@ -30,7 +30,11 @@ def test_holdout_migration_has_typed_disjoint_lineage_and_no_solver_or_eav() -> 
         "60174f00940a5e371613f941649a61af20714b5664b8b95672e34e1a718251bd",
     ):
         assert value in sql
-    holdout_sql = sql[sql.index("CREATE TABLE validation.voce_holdout_plan (") :]
+    holdout_start = sql.index("CREATE TABLE validation.voce_holdout_plan (")
+    # Alembic's offline output includes later migrations as well.  Bound the
+    # assertion to the holdout migration before the next schema alteration.
+    holdout_end = sql.index("ALTER TABLE catalog.material_revision", holdout_start)
+    holdout_sql = sql[holdout_start:holdout_end]
     assert " JSON" not in holdout_sql
     assert " JSONB" not in holdout_sql
     assert "OpenRadioss" not in holdout_sql

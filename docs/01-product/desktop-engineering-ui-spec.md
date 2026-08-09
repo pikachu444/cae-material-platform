@@ -70,7 +70,7 @@ This authoritative annex retains the component-specific contract. Each compact r
 | `E-07a` Solver Card preview | Let the engineer inspect the native ASCII result before creating an immutable card. | Dominant center result region on a light code surface with independent scrolling. | Stateless preview succeeds. | Exact preview bytes and target tuple. | Current source, target and mapping digest. | Source/target change removes the current preview pointer. | unavailable, preparing, ephemeral, stale, failed, created. | Preserve setup/mapping context and offer one specific retry. |
 | `E-07b` Fit source preview | Retain compact visual continuity with the selected model without squeezing the native preview. | Bottom of the bounded read-only result column; `Open full graph` returns to the full Fit graph. | The selected family has a meaningful response projection. | Exact selected Fit result and family-specific quantities. | Current selected model. | A source change replaces the plot. | metal-response, viscoelastic-response, hyperelastic-mode, unavailable. | Preserve textual source identity when a plot cannot be produced; never reuse metal axes for another family. The compact plot derives headroom from the displayed data span, preserves a meaningful zero anchor where applicable, uses uniform SVG geometry and places its compact legend in a curve-free quadrant. |
 | `E-08` Create/open and Delivery details | Create exactly one immutable Solver Card, then open it; expose the separate receipt through plain-language delivery details. | One filled action in Export check; a secondary `Delivery details` action appears only after creation. | Ready/create/created states and permission allow it. | Atomic delivery response and exact retry identity. | Zero blockers and any required acknowledgement. | A source/target change clears only the current delivery pointer. | disabled-with-reason, creating, created, failed, retry. | Exact retry returns the original result; duplicate submission is blocked and no review/release/Activity event is implied. |
-| A-01–03 queue/item/job | Show `Needs attention | In progress | Recent outcomes`, resume exact browser-local Modeling/card context, and record a role-gated decision on an existing review request. User pending requests stay in progress; Reviewer/Administrator pending requests receive one row-level Review action. Queue loading/error/empty states retain context and offer Refresh/Retry; object/person IDs stay in Advanced evidence. | Placeholder dashboard, generic job history, decision controls for User, fake release/publish, stale-response overwrite, or a duplicate review request; DUI-08A current queue/decision boundary. |
+| A-01–03 queue/item/job | Show `Needs attention | In progress | Recent outcomes`, resume exact browser-local Modeling/card context, and record a role-gated decision on an existing review request. User and Administrator pending requests stay in progress; only Reviewer pending requests receive one row-level Review action. Queue loading/error/empty states retain context and offer Refresh/Retry; object/person IDs stay in Advanced evidence. | Placeholder dashboard, generic job history, decision controls for User or Administrator, fake release/publish, stale-response overwrite, or a duplicate review request; DUI-08A current queue/decision boundary. |
 
 ### Fit component and field contracts (`F-01`–`F-11`)
 
@@ -518,12 +518,13 @@ receipt, and release projections remain separate work.
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Materials explorer/result/datasheet | find, compare and assess a material without leaving context | continuous Tree/filter → dominant results/datasheet → optional context | Materials | one scoped Material query plus selected record | permitted scope | query/selection changes replace only current view | loading, empty, selected, unavailable, error | retain query/selection; retry or broaden search |
 | Administration object tools | configure schema and preview its user effect | object tree → list/grid → property editor/live record preview | Administrator | revisioned catalog definitions | Administrator permission and valid draft | draft edits invalidate preview only | clean, dirty, validating, blocked, saved, error | keep draft; expose field error; reload or save new revision |
-| Activity action queue | resume work or decide one submitted review action without confusing it with release | compact `Needs attention | In progress | Recent outcomes` rows | User sees own pending review work in progress; Reviewer/Administrator see pending review rows in Needs attention; every role sees saved local session/card history | authenticated principal plus effective product access and immutable review-request response; browser-local session/card history | readable available context and an existing request manifest for a decision | returned immutable response replaces only that queue row; later source changes never erase history | loading, attention, in-progress, changes-requested, approved, empty, error | Refresh/Retry preserves the current rows; a decision failure keeps entered reason and request; exact identifiers remain Advanced until the projection returns display names |
-| Role-gated command | expose only the action a role may take | command bar, selected row, or governed action disclosure | role and object state permit action | service authorization plus database enforcement | User/Reviewer/Administrator grant and state prerequisites | action input changes mark downstream pointers stale | hidden, available, disabled-with-reason, running, denied | preserve context; explain prerequisite or request review/access |
+| Activity action queue | resume work or decide one submitted review action without confusing it with release | compact `Needs attention | In progress | Recent outcomes` rows | User sees own pending review work in progress; Reviewer sees pending review rows in Needs attention; every role sees saved local session/card history | authenticated principal plus effective product access and immutable review-request response, including the requester display-name snapshot; browser-local session/card history | readable available context and an existing request manifest for a decision | returned immutable response replaces only that queue row; later source changes never erase history | loading, attention, in-progress, changes-requested, approved, empty, error | Refresh/Retry preserves the current rows; a decision failure keeps entered reason and request; exact identifiers remain Advanced while the normal row uses the supplied requester label |
+| Role-gated command | expose only the action a role may take | command bar, selected row, or governed action disclosure | role and object state permit action | service authorization plus database enforcement | User/Reviewer/Administrator grant and state prerequisites; only Reviewer may decide | action input changes mark downstream pointers stale | hidden, available, disabled-with-reason, running, denied | preserve context; explain prerequisite or request review/access |
 
 Role target: **User** searches/views/downloads, requests upload review, processes/fits and requests
 card review; **Reviewer** additionally reviews material/card data, requests changes, approves and
-publishes downloads; **Administrator** has all access/edit/configure/review/approve actions. Current
+publishes downloads; **Administrator** has access/edit/configure and recovery actions but cannot decide
+another user's review request. Current
 implementation exposes User, Reviewer, and Administrator task presets. Internal RBAC/RLS remains
 extensible and is not a normal-user vocabulary; future failed-job, receipt, and release projections
 remain separate from the implemented Activity and Administration workspaces.
@@ -592,10 +593,11 @@ Task | Request reason | Status | Updated | Action
 
 Reviews, jobs and releases are tabs or saved views. No dashboard cards or large summary tiles in the normal view.
 
-The current review response does not provide readable Material or Owner names. Those columns are not
-filled with identifiers, hashes or invented labels; the table uses the request task type and supplied
-human reason until a readable projection exists. User-owned pending requests belong in `In progress`;
-Reviewer/Administrator decision work belongs in `Needs attention`. The role-appropriate view is the
+The current review response supplies an immutable requester display-name snapshot. The table does not
+invent Material labels; it uses the request task type, supplied requester label, and human reason while
+exact object names remain in the governed detail view. User-owned pending requests belong in `In progress`;
+Reviewer decision work belongs in `Needs attention`; Administrator sees their own pending requests in
+`In progress` without decision controls. The role-appropriate view is the
 default selected tab.
 
 The normal reference exercises a representative page from the existing 50-request list contract.
@@ -614,7 +616,7 @@ Modeling resume and solver-card history stay distinguishable from immutable serv
 Both controls query `aggregate_type + aggregate_id + revision_id` first and do not expose IDs, hashes,
 classification or a decision control in the normal UI. Material uses `catalog.material`; Solver Card uses
 `exporting.solver_card` (or `exporting.neutral_solver_card` for a Neutral card). Approval and
-changes-request controls remain Activity Reviewer/Administrator work.
+changes-request controls remain Reviewer Activity work.
 
 ## 9. Legacy removal contract
 

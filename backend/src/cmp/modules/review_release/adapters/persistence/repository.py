@@ -14,9 +14,17 @@ from sqlalchemy.orm import Session, sessionmaker
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
     DataClassification,
+    Role,
 )
 from cmp.modules.identity_access.domain.security import SecurityContext
+from cmp.modules.review_release.adapters.persistence.publication import (
+    ReviewApprovalProjector,
+)
 from cmp.modules.review_release.application.service import ReviewRepository
+from cmp.modules.review_release.domain.evidence import (
+    REGISTERED_REVIEW_SUBJECT_TYPES,
+    ReviewSubjectEvidence,
+)
 from cmp.modules.review_release.domain.lifecycle import (
     REQUIRED_REVIEW_ROLE,
     DecideReviewRequest,
@@ -91,8 +99,10 @@ review_request_table = sa.Table(
     sa.Column("manifest_sha256", sa.CHAR(64), nullable=False),
     sa.Column("required_role", sa.String(100), nullable=False),
     sa.Column("requested_by", sa.Uuid(), nullable=False),
+    sa.Column("requested_by_display_name", sa.String(255), nullable=False),
     sa.Column("requested_at", sa.DateTime(timezone=True), nullable=False),
     sa.Column("reason", sa.Text(), nullable=False),
+    sa.Column("subject_evidence", sa.JSON(), nullable=True),
     sa.Column("request_id", sa.Uuid(), nullable=False),
     sa.Column("trace_id", sa.String(255), nullable=False),
     schema="governance",
@@ -118,6 +128,63 @@ review_decision_table = sa.Table(
     sa.Column("trace_id", sa.String(255), nullable=False),
     schema="governance",
 )
+
+_subject_identity_tables = {
+    "catalog.material": sa.Table(
+        "material",
+        metadata,
+        sa.Column("organization_id", sa.Uuid(), nullable=False),
+        sa.Column("project_id", sa.Uuid(), nullable=False),
+        sa.Column("id", sa.Uuid(), nullable=False),
+        sa.Column("current_revision_id", sa.Uuid(), nullable=False),
+        schema="catalog",
+    ),
+    "catalog.configurable_record": sa.Table(
+        "catalog_record",
+        metadata,
+        sa.Column("organization_id", sa.Uuid(), nullable=False),
+        sa.Column("project_id", sa.Uuid(), nullable=False),
+        sa.Column("id", sa.Uuid(), nullable=False),
+        sa.Column("current_revision_id", sa.Uuid(), nullable=False),
+        schema="catalog",
+    ),
+    "datasets.test_data_document": sa.Table(
+        "test_data_document",
+        metadata,
+        sa.Column("organization_id", sa.Uuid(), nullable=False),
+        sa.Column("project_id", sa.Uuid(), nullable=False),
+        sa.Column("id", sa.Uuid(), nullable=False),
+        sa.Column("current_revision_id", sa.Uuid(), nullable=False),
+        schema="datasets",
+    ),
+    "modeling.material_model": sa.Table(
+        "material_model",
+        metadata,
+        sa.Column("organization_id", sa.Uuid(), nullable=False),
+        sa.Column("project_id", sa.Uuid(), nullable=False),
+        sa.Column("id", sa.Uuid(), nullable=False),
+        sa.Column("current_revision_id", sa.Uuid(), nullable=False),
+        schema="modeling",
+    ),
+    "exporting.solver_card": sa.Table(
+        "solver_card",
+        metadata,
+        sa.Column("organization_id", sa.Uuid(), nullable=False),
+        sa.Column("project_id", sa.Uuid(), nullable=False),
+        sa.Column("id", sa.Uuid(), nullable=False),
+        sa.Column("current_revision_id", sa.Uuid(), nullable=False),
+        schema="exporting",
+    ),
+    "exporting.neutral_solver_card": sa.Table(
+        "neutral_solver_card",
+        metadata,
+        sa.Column("organization_id", sa.Uuid(), nullable=False),
+        sa.Column("project_id", sa.Uuid(), nullable=False),
+        sa.Column("id", sa.Uuid(), nullable=False),
+        sa.Column("current_revision_id", sa.Uuid(), nullable=False),
+        schema="exporting",
+    ),
+}
 
 
 def _scope_clause(table: sa.Table, context: SecurityContext) -> sa.ColumnElement[bool]:
@@ -156,10 +223,20 @@ def _request_record(row: Any, decision_row: Any | None = None) -> ReviewRequestR
         manifest_sha256=str(row["manifest_sha256"]),
         required_role=str(row["required_role"]),
         requested_by=cast(UUID, row["requested_by"]),
+        requested_by_display_name=(
+            str(row.get("requested_by_display_name"))
+            if row.get("requested_by_display_name")
+            else None
+        ),
         requested_at=cast(datetime, row["requested_at"]),
         reason=str(row["reason"]),
         lifecycle_state=LifecycleState(str(row["lifecycle_state"])),
         decision=decision,
+        evidence=(
+            ReviewSubjectEvidence.from_document(row["subject_evidence"])
+            if row.get("subject_evidence") is not None
+            else None
+        ),
     )
 
 
@@ -172,10 +249,12 @@ class SqlAlchemyReviewRepository(ReviewRepository):
         session_factory: sessionmaker[Session],
         rls_context: RlsContext,
         id_factory: Callable[[], UUID] = uuid4,
+        approval_projector: ReviewApprovalProjector | None = None,
     ) -> None:
         self._sessions = session_factory
         self._rls = rls_context
         self._id_factory = id_factory
+        self._approval_projector = approval_projector
 
     @contextmanager
     def _session(self, context: SecurityContext, decision: AuthorizationDecision) -> Any:
@@ -200,8 +279,83 @@ class SqlAlchemyReviewRepository(ReviewRepository):
             lifecycle_projection_table.c.revision_id == revision_id,
         )
         if for_update:
-            statement = statement.with_for_update()
+            # ``review_request`` is immutable and intentionally has no UPDATE policy.  Lock
+            # the mutable lifecycle projection instead; PostgreSQL otherwise hides the joined
+            # request row under SELECT ... FOR UPDATE when no UPDATE policy exists.
+            statement = statement.with_for_update(of=lifecycle_projection_table)
         return session.execute(statement).mappings().one_or_none()
+
+    @staticmethod
+    def _assert_current_subject(
+        session: Session,
+        *,
+        context: SecurityContext,
+        aggregate_type: str,
+        aggregate_id: UUID,
+        revision_id: UUID,
+    ) -> None:
+        identity = _subject_identity_tables.get(aggregate_type)
+        if identity is None:
+            return
+        current_revision_id = session.execute(
+            sa.select(identity.c.current_revision_id)
+            .where(
+                identity.c.organization_id == context.organization_id,
+                identity.c.project_id == context.project_id,
+                identity.c.id == aggregate_id,
+            )
+        ).scalar_one_or_none()
+        if current_revision_id is None:
+            raise ReviewNotFound("review subject identity is not visible")
+        if current_revision_id != revision_id:
+            raise ReviewConflict("review subject revision changed while submitting")
+
+    @staticmethod
+    def _insert_request_if_current(
+        session: Session,
+        *,
+        context: SecurityContext,
+        aggregate_type: str,
+        aggregate_id: UUID,
+        revision_id: UUID,
+        values: dict[str, Any],
+    ) -> None:
+        """Insert a request only when its subject head matches this statement snapshot.
+
+        Subject identity rows are readable by ordinary review requesters but not writable,
+        so row-locking them would apply PostgreSQL UPDATE RLS and hide valid candidates.  An
+        INSERT ... SELECT guard instead makes the final current-head check atomic with the
+        request fact: a concurrent head update committed before this statement yields zero
+        inserted rows and a stale-review conflict, while a commit after this statement is
+        ordered after the request was accepted.
+        """
+        identity = _subject_identity_tables.get(aggregate_type)
+        if identity is None:
+            session.execute(sa.insert(review_request_table).values(**values))
+            return
+        column_names = tuple(values)
+        target_columns = tuple(review_request_table.c[name] for name in column_names)
+        bind_values = tuple(
+            sa.bindparam(
+                f"review_request_{name}",
+                value=values[name],
+                type_=review_request_table.c[name].type,
+            )
+            for name in column_names
+        )
+        guarded_values = sa.select(*bind_values).select_from(identity).where(
+            identity.c.organization_id == context.organization_id,
+            identity.c.project_id == context.project_id,
+            identity.c.id == aggregate_id,
+            identity.c.current_revision_id == revision_id,
+        )
+        inserted_id = session.execute(
+            sa.insert(review_request_table)
+            .from_select(target_columns, guarded_values)
+            .returning(review_request_table.c.id)
+        ).scalar_one_or_none()
+        if inserted_id != values["id"]:
+            raise ReviewConflict("review subject revision changed while submitting")
 
     @staticmethod
     def _decision_row(
@@ -215,8 +369,10 @@ class SqlAlchemyReviewRepository(ReviewRepository):
             _scope_clause(review_decision_table, context),
             review_decision_table.c.review_request_id == review_request_id,
         )
-        if for_update:
-            statement = statement.with_for_update()
+        # ``review_decision`` is an immutable fact and intentionally has no UPDATE policy.
+        # Do not issue SELECT ... FOR UPDATE here: PostgreSQL would apply UPDATE-policy
+        # visibility and hide an existing decision.  The caller locks the mutable lifecycle
+        # projection before checking/inserting this unique fact.
         return session.execute(statement).mappings().one_or_none()
 
     def _request_row(
@@ -225,32 +381,44 @@ class SqlAlchemyReviewRepository(ReviewRepository):
         *,
         context: SecurityContext,
         review_request_id: UUID,
+        reviewer: bool = False,
         for_update: bool = False,
     ) -> Any | None:
-        statement = sa.select(
-            review_request_table,
-            lifecycle_projection_table.c.lifecycle_state,
-        ).select_from(
-            review_request_table.join(
-                lifecycle_projection_table,
-                sa.and_(
-                    lifecycle_projection_table.c.organization_id
-                    == review_request_table.c.organization_id,
-                    lifecycle_projection_table.c.project_id == review_request_table.c.project_id,
-                    lifecycle_projection_table.c.aggregate_type
-                    == review_request_table.c.aggregate_type,
-                    lifecycle_projection_table.c.aggregate_id
-                    == review_request_table.c.aggregate_id,
-                    lifecycle_projection_table.c.revision_id
-                    == review_request_table.c.revision_id,
+        statement = (
+            sa.select(
+                review_request_table,
+                lifecycle_projection_table.c.lifecycle_state,
+            )
+            .select_from(
+                review_request_table.join(
+                    lifecycle_projection_table,
+                    sa.and_(
+                        lifecycle_projection_table.c.organization_id
+                        == review_request_table.c.organization_id,
+                        lifecycle_projection_table.c.project_id
+                        == review_request_table.c.project_id,
+                        lifecycle_projection_table.c.aggregate_type
+                        == review_request_table.c.aggregate_type,
+                        lifecycle_projection_table.c.aggregate_id
+                        == review_request_table.c.aggregate_id,
+                        lifecycle_projection_table.c.revision_id
+                        == review_request_table.c.revision_id,
+                    ),
+                )
+            )
+            .where(
+                _scope_clause(review_request_table, context),
+                review_request_table.c.id == review_request_id,
+                sa.or_(
+                    review_request_table.c.requested_by == context.principal.id,
+                    sa.true() if reviewer else sa.false(),
                 ),
             )
-        ).where(
-            _scope_clause(review_request_table, context),
-            review_request_table.c.id == review_request_id,
         )
         if for_update:
-            statement = statement.with_for_update()
+            # Lock only the mutable projection.  Locking the immutable review request would
+            # require an UPDATE policy and PostgreSQL would hide the otherwise visible row.
+            statement = statement.with_for_update(of=lifecycle_projection_table)
         return session.execute(statement).mappings().one_or_none()
 
     def _append_transition(
@@ -316,6 +484,17 @@ class SqlAlchemyReviewRepository(ReviewRepository):
         occurred_at: datetime,
     ) -> ReviewRequestRecord:
         with self._session(context, decision) as session:
+            # Serialize against a concurrent immutable revision append and re-check the
+            # current head after evidence resolution.  The resolver runs in its own
+            # transaction, so this lock closes the stale-submit race before the request fact
+            # is inserted.
+            self._assert_current_subject(
+                session,
+                context=context,
+                aggregate_type=command.aggregate_type,
+                aggregate_id=command.aggregate_id,
+                revision_id=command.revision_id,
+            )
             projection = self._projection(
                 session,
                 context=context,
@@ -326,7 +505,10 @@ class SqlAlchemyReviewRepository(ReviewRepository):
             )
             if projection is None:
                 raise ReviewNotFound("immutable lifecycle target is not visible")
-            if projection["classification"] != command.classification.value:
+            classification = command.classification
+            if classification is None or command.manifest_sha256 is None:
+                raise ReviewConflict("review subject evidence must be resolved server-side")
+            if projection["classification"] != classification.value:
                 raise ReviewConflict("review classification does not match the immutable target")
             if projection["lifecycle_state"] != LifecycleState.DRAFT.value:
                 raise ReviewConflict(
@@ -343,23 +525,32 @@ class SqlAlchemyReviewRepository(ReviewRepository):
             ).scalar_one_or_none()
             if existing is not None:
                 raise ReviewConflict("one review request is allowed per immutable revision")
-            session.execute(
-                sa.insert(review_request_table).values(
-                    id=review_request_id,
-                    organization_id=context.organization_id,
-                    project_id=context.project_id,
-                    classification=command.classification.value,
-                    aggregate_type=command.aggregate_type,
-                    aggregate_id=command.aggregate_id,
-                    revision_id=command.revision_id,
-                    manifest_sha256=command.manifest_sha256,
-                    required_role=REQUIRED_REVIEW_ROLE,
-                    requested_by=actor_id,
-                    requested_at=occurred_at,
-                    reason=command.reason,
-                    request_id=context.request_id,
-                    trace_id=context.trace_id,
-                )
+            self._insert_request_if_current(
+                session,
+                context=context,
+                aggregate_type=command.aggregate_type,
+                aggregate_id=command.aggregate_id,
+                revision_id=command.revision_id,
+                values={
+                    "id": review_request_id,
+                    "organization_id": context.organization_id,
+                    "project_id": context.project_id,
+                    "classification": classification.value,
+                    "aggregate_type": command.aggregate_type,
+                    "aggregate_id": command.aggregate_id,
+                    "revision_id": command.revision_id,
+                    "manifest_sha256": command.manifest_sha256,
+                    "required_role": REQUIRED_REVIEW_ROLE,
+                    "requested_by": actor_id,
+                    "requested_by_display_name": context.principal.display_name,
+                    "requested_at": occurred_at,
+                    "reason": command.reason,
+                    "subject_evidence": (
+                        command.evidence.to_document() if command.evidence else None
+                    ),
+                    "request_id": context.request_id,
+                    "trace_id": context.trace_id,
+                },
             )
             self._append_transition(
                 session,
@@ -374,6 +565,7 @@ class SqlAlchemyReviewRepository(ReviewRepository):
                 session,
                 context=context,
                 review_request_id=review_request_id,
+                reviewer=Role.DOMAIN_REVIEWER in decision.roles,
             )
             if row is None:
                 raise ReviewConflict("created review request could not be reloaded")
@@ -391,6 +583,7 @@ class SqlAlchemyReviewRepository(ReviewRepository):
                 session,
                 context=context,
                 review_request_id=review_request_id,
+                reviewer=Role.DOMAIN_REVIEWER in decision.roles,
             )
             if row is None:
                 raise ReviewNotFound("review request is not visible")
@@ -414,18 +607,41 @@ class SqlAlchemyReviewRepository(ReviewRepository):
         revision_id: UUID | None = None,
     ) -> tuple[ReviewRequestRecord, ...]:
         with self._session(context, decision) as session:
-            statement = (
-                sa.select(review_request_table.c.id)
-                .where(_scope_clause(review_request_table, context))
-                .order_by(review_request_table.c.requested_at.desc())
-                .limit(limit)
-            )
+            if Role.DOMAIN_REVIEWER in decision.roles:
+                # Reviewers are intentionally tenant-scoped rather than assignment-scoped:
+                # without an assignment model they must be able to read pending work and the
+                # append-only outcomes they just recorded after the lifecycle leaves ``review``.
+                statement = sa.select(review_request_table.c.id).select_from(
+                    review_request_table.join(
+                        lifecycle_projection_table,
+                        sa.and_(
+                            lifecycle_projection_table.c.organization_id
+                            == review_request_table.c.organization_id,
+                            lifecycle_projection_table.c.project_id
+                            == review_request_table.c.project_id,
+                            lifecycle_projection_table.c.aggregate_type
+                            == review_request_table.c.aggregate_type,
+                            lifecycle_projection_table.c.aggregate_id
+                            == review_request_table.c.aggregate_id,
+                            lifecycle_projection_table.c.revision_id
+                            == review_request_table.c.revision_id,
+                        ),
+                    )
+                ).where(
+                    _scope_clause(review_request_table, context),
+                )
+            else:
+                statement = sa.select(review_request_table.c.id).where(
+                    _scope_clause(review_request_table, context),
+                    review_request_table.c.requested_by == context.principal.id,
+                )
             if aggregate_type is not None:
                 statement = statement.where(review_request_table.c.aggregate_type == aggregate_type)
             if aggregate_id is not None:
                 statement = statement.where(review_request_table.c.aggregate_id == aggregate_id)
             if revision_id is not None:
                 statement = statement.where(review_request_table.c.revision_id == revision_id)
+            statement = statement.order_by(review_request_table.c.requested_at.desc()).limit(limit)
             ids = tuple(session.execute(statement).scalars())
             values: list[ReviewRequestRecord] = []
             for review_request_id in ids:
@@ -433,6 +649,7 @@ class SqlAlchemyReviewRepository(ReviewRepository):
                     session,
                     context=context,
                     review_request_id=review_request_id,
+                    reviewer=Role.DOMAIN_REVIEWER in decision.roles,
                 )
                 if row is None:
                     continue
@@ -464,6 +681,7 @@ class SqlAlchemyReviewRepository(ReviewRepository):
                 session,
                 context=context,
                 review_request_id=review_request_id,
+                reviewer=Role.DOMAIN_REVIEWER in decision.roles,
                 for_update=True,
             )
             if row is None:
@@ -476,12 +694,15 @@ class SqlAlchemyReviewRepository(ReviewRepository):
                 )
             if row["requested_by"] == actor_id:
                 raise ReviewConflict("separation of duties forbids the author from deciding")
-            if self._decision_row(
-                session,
-                context=context,
-                review_request_id=review_request_id,
-                for_update=True,
-            ) is not None:
+            if (
+                self._decision_row(
+                    session,
+                    context=context,
+                    review_request_id=review_request_id,
+                    for_update=True,
+                )
+                is not None
+            ):
                 raise ReviewConflict(
                     "review decisions are append-only and this request is already decided"
                 )
@@ -520,6 +741,35 @@ class SqlAlchemyReviewRepository(ReviewRepository):
                     trace_id=context.trace_id,
                 )
             )
+            if command.decision is ReviewDecisionKind.APPROVED:
+                evidence = _request_record(
+                    row,
+                    self._decision_row(
+                        session,
+                        context=context,
+                        review_request_id=review_request_id,
+                    ),
+                ).evidence
+                # Issue #160 subjects are projected from their immutable typed evidence
+                # snapshot.  ``validation.result`` predates that closed registry and has
+                # intentionally null evidence; preserve its existing decision lifecycle
+                # while keeping the new subject set fail-closed.
+                if (
+                    self._approval_projector is not None
+                    and row["aggregate_type"] in REGISTERED_REVIEW_SUBJECT_TYPES
+                ):
+                    if evidence is None:
+                        raise ReviewConflict(
+                            "approved review request has no immutable subject evidence"
+                        )
+                    self._approval_projector.project(
+                        session=session,
+                        context=context,
+                        review_request_id=review_request_id,
+                        evidence=evidence,
+                        published_by=actor_id,
+                        occurred_at=occurred_at,
+                    )
             projection = self._projection(
                 session,
                 context=context,
@@ -547,6 +797,7 @@ class SqlAlchemyReviewRepository(ReviewRepository):
                 session,
                 context=context,
                 review_request_id=review_request_id,
+                reviewer=Role.DOMAIN_REVIEWER in decision.roles,
             )
             if updated is None:
                 raise ReviewConflict("decided review request could not be reloaded")

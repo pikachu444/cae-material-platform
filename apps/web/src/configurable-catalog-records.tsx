@@ -16,7 +16,6 @@ import {
   listMaterials,
   previewConfigurableCatalogRecordRegistration,
   publishConfigurableCatalogRecordRegistration,
-  publishConfigurableCatalogRevision,
   reviseConfigurableCatalogFolder,
   reviseConfigurableCatalogRecord,
   searchConfigurableCatalogRecords,
@@ -39,6 +38,7 @@ import type {
   MaterialResponse,
   MaterialStateResponse,
 } from "./types";
+import { ReviewRequestAction } from "./review-request-action";
 
 interface DraftValue {
   enabled: boolean;
@@ -188,11 +188,13 @@ export function ConfigurableCatalogRecords({
   onNavigate,
   onOpenConnection,
   productMode = false,
+  locationSearch = "",
 }: {
   config: ApiConfig;
   onNavigate: (path: string) => void;
   onOpenConnection: () => void;
   productMode?: boolean;
+  locationSearch?: string;
 }) {
   const [tables, setTables] = useState<ConfigurableTableResponse[]>([]);
   const [tableId, setTableId] = useState("");
@@ -455,6 +457,17 @@ export function ConfigurableCatalogRecords({
   useEffect(() => void loadTables(), [loadTables]);
   useEffect(() => void loadDefinition(), [loadDefinition]);
   useEffect(() => void search(), [search]);
+  useEffect(() => {
+    const queryParams = new URLSearchParams(locationSearch);
+    const requestedRecordId = queryParams.get("record_id");
+    if (!requestedRecordId || selected || attributes.length === 0) return;
+    void selectRecord(requestedRecordId).then(() => {
+      const requestedRevisionId = queryParams.get("revision_id");
+      if (requestedRevisionId) {
+        setNotice(`Loaded the record editor for review revision ${requestedRevisionId}. Save creates a new immutable revision from the current head.`);
+      }
+    });
+  }, [attributes.length, locationSearch, selected]);
 
   function resetEditor() {
     setSelected(null);
@@ -805,7 +818,7 @@ export function ConfigurableCatalogRecords({
     aggregateType: string,
     aggregateId: string,
     revisionId: string,
-    publish: boolean,
+    _publish: boolean,
   ) {
     setBusy(true);
     setError(null);
@@ -815,15 +828,9 @@ export function ConfigurableCatalogRecords({
         aggregate_id: aggregateId,
         revision_id: revisionId,
       };
-      const result = publish
-        ? await publishConfigurableCatalogRevision(config, input)
-        : await validateConfigurableCatalogPublication(config, input);
+      const result = await validateConfigurableCatalogPublication(config, input);
       if (!result.data.valid) throw new Error(result.data.errors.join(" "));
-      setNotice(
-        publish
-          ? "The checked revision is now visible in Materials."
-          : "No publication errors were found.",
-      );
+      setNotice("No publication errors were found. Request review to publish this revision.");
       await loadDefinition();
       await search();
     } catch (caught) {
@@ -1725,21 +1732,17 @@ export function ConfigurableCatalogRecords({
                   >
                     Check
                   </button>
-                  <button
-                    className="button primary"
-                    type="button"
-                    disabled={busy}
-                    onClick={() =>
-                      void checkOrPublishResource(
-                        "catalog.configurable_record",
-                        selected.record_id,
-                        selected.current_revision.id,
-                        true,
-                      )
-                    }
-                  >
-                    Publish
-                  </button>
+                  <ReviewRequestAction
+                    config={config}
+                    subject={{
+                      aggregateType: "catalog.configurable_record",
+                      aggregateId: selected.record_id,
+                      revisionId: selected.current_revision.id,
+                      manifestSha256: selected.current_revision.content_hash,
+                      classification: selected.current_revision.classification,
+                      lifecycleState: selected.current_revision.lifecycle_state,
+                    }}
+                  />
                 </>
               ) : null}
             </div>

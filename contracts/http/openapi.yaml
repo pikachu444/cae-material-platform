@@ -240,6 +240,12 @@ paths:
       description: >-
         Available only when the API was explicitly started with CMP_ENVIRONMENT=demo
         and CMP_DEMO_IDENTITY=true. It is not present in normal or production deployments.
+      parameters:
+        - name: persona
+          in: query
+          required: false
+          description: Explicit local-demo persona. The default is the Administrator/User fixture.
+          schema: {type: string, enum: [administrator, user, reviewer], default: administrator}
       responses:
         "200":
           description: A signed, 15-minute synthetic demo access token.
@@ -2189,12 +2195,13 @@ paths:
     get:
       operationId: getCatalogWorkflowGraph
       tags: [catalog-explorer]
-      summary: Traverse a bounded graph of exact revision-pinned Record Links.
+      summary: Traverse a bounded graph of exact revision-pinned Record Links, optionally restricted to approved Materials subjects.
       security: [{BearerAuth: []}]
       parameters:
         - {name: record_id, in: path, required: true, schema: {type: string, format: uuid}}
         - {name: revision_id, in: path, required: true, schema: {type: string, format: uuid}}
         - {name: depth, in: query, required: false, schema: {type: integer, minimum: 1, maximum: 5, default: 3}}
+        - {name: published_only, in: query, required: false, schema: {type: boolean, default: false}, description: Return only Record endpoints whose exact governed subject revision is approved and current for Materials.}
       responses:
         "200":
           description: Cycle-safe workflow graph with exact Record revisions and typed edges.
@@ -2264,6 +2271,22 @@ paths:
         "404": {description: Record revision or governed target revision is not visible.}
         "409": {description: Record revision is already bound or the target is already represented.}
         "422": {description: Domain kind or exact UUID request is invalid.}
+  /api/v1/catalog/records/{record_id}/revisions/{revision_id}/domain-bindings:
+    get:
+      operationId: listCatalogRecordDomainRevisionBindings
+      tags: [catalog-explorer]
+      summary: Read every exact governed domain revision pinned by one configurable Record revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: record_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: revision_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Ordered exact typed bindings, empty when the Record revision is not bound.
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-link-resources.schema.json#/$defs/DomainRevisionBindingListResponse"}
+        "404": {description: Record revision is not visible.}
   /api/v1/materials:
     get:
       operationId: listMaterials
@@ -8236,6 +8259,26 @@ paths:
         "404": {description: Neutral Material is not visible.}
         "409": {description: Stored Artifact digest or revision pin conflicts.}
         "503": {description: Modeling service unavailable.}
+  /api/v1/neutral-materials/{neutral_material_id}/revisions/{neutral_material_revision_id}/download:
+    get:
+      operationId: downloadSelectedModelNeutralMaterial
+      tags: [modeling]
+      summary: Download one exact selected-model Neutral revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: neutral_material_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: neutral_material_revision_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Canonical JSON attachment pinned to exact Material Model and Neutral revisions.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/neutral-material.schema.json"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: Neutral Material revision is not visible.}
+        "409": {description: Stored Artifact or exact revision pin conflicts.}
+        "503": {description: Modeling service unavailable.}
   /api/v1/neutral-hyperelastic-export-capabilities:
     get:
       operationId: getNeutralHyperelasticExportCapabilities
@@ -8972,7 +9015,7 @@ components:
       type: object
       additionalProperties: false
       required:
-        [access_token, token_type, expires_in_seconds, organization_id, project_id, group]
+        [access_token, token_type, expires_in_seconds, organization_id, project_id, group, persona]
       properties:
         access_token: {type: string, minLength: 1}
         token_type: {type: string, enum: [Bearer]}
@@ -8980,6 +9023,7 @@ components:
         organization_id: {type: string, format: uuid}
         project_id: {type: string, format: uuid}
         group: {type: string, minLength: 1}
+        persona: {type: string, enum: [administrator, user, reviewer]}
     RevisionMetadata:
       $ref: ../revisions/revision-metadata.schema.json
     MeResponse:

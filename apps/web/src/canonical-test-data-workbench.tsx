@@ -7,6 +7,7 @@ import {
   downloadCanonicalTestDataPackage,
   importCanonicalTestData,
   listCanonicalTestDataDocuments,
+  getAuthenticatedPrincipal,
   reviseCanonicalTestData,
   validateCanonicalTestData,
   type ApiConfig,
@@ -18,11 +19,14 @@ import type {
 } from "./types";
 import { DomainWorkflowLinks } from "./domain-workflow-links";
 import { modelingFamilyFromQuantities, saveModelingSession } from "./modeling-session-context";
+import { ReviewRequestAction } from "./review-request-action";
+import { appendActivityFailure, appendActivityOutcome } from "./activity-recovery";
 
 interface Props {
   config: ApiConfig;
   onNavigate: (path: string) => void;
   onOpenConnection: () => void;
+  locationSearch?: string;
 }
 
 const SAMPLE = `{
@@ -79,7 +83,30 @@ function errorMessage(error: unknown): string {
   return error instanceof ApiError ? error.message : "The Test Data JSON operation failed.";
 }
 
-export function CanonicalTestDataWorkbench({ config, onNavigate }: Props) {
+async function recordTestDataRecovery(
+  config: ApiConfig,
+  context: { documentId?: string; documentRevisionId?: string; path: string },
+  status: "failed" | "succeeded",
+  message: string,
+): Promise<void> {
+  try {
+    const principal = await getAuthenticatedPrincipal(config);
+    const args = [
+      principal.data.principal_id,
+      principal.data.organization_id,
+      principal.data.project_id,
+      "activity" as const,
+      { kind: "test_data_json" as const, ...context },
+      message,
+    ] as const;
+    if (status === "failed") appendActivityFailure(...args);
+    else appendActivityOutcome(...args);
+  } catch {
+    // A local recovery fact never blocks the exact server download.
+  }
+}
+
+export function CanonicalTestDataWorkbench({ config, onNavigate, locationSearch = "" }: Props) {
   const [source, setSource] = useState(SAMPLE);
   const [fileName, setFileName] = useState("built-in DP600 example");
   const [tabularFile, setTabularFile] = useState<File | null>(null);
@@ -94,13 +121,24 @@ export function CanonicalTestDataWorkbench({ config, onNavigate }: Props) {
 
   useEffect(() => {
     void loadDocuments();
-  }, [config.baseUrl, config.accessToken]);
+  }, [config.baseUrl, config.accessToken, locationSearch]);
 
   async function loadDocuments(): Promise<void> {
     try {
       const result = await listCanonicalTestDataDocuments(config);
       setDocuments(result.data.items);
-      setError(null);
+      const query = new URLSearchParams(locationSearch);
+      const documentId = query.get("document_id");
+      const revisionId = query.get("revision_id");
+      if (documentId && revisionId) {
+        const content = await downloadCanonicalTestDataDocument(config, documentId, revisionId);
+        setSource(await content.data.blob.text());
+        setFileName(`${documentId} · exact revision ${revisionId}`);
+        setPreview(null);
+        setNotice(`Loaded exact Test Data revision ${revisionId}. Validate the source, then append a revised immutable version.`);
+        setError(null);
+      }
+      else setError(null);
     } catch (caught) {
       setError(errorMessage(caught));
     }
@@ -209,8 +247,28 @@ export function CanonicalTestDataWorkbench({ config, onNavigate }: Props) {
       link.download = result.data.filename;
       link.click();
       URL.revokeObjectURL(url);
+      void recordTestDataRecovery(
+        config,
+        {
+          documentId: item.test_data_document_id,
+          documentRevisionId: item.current_revision.id,
+          path: `/datasets/test-data/${item.test_data_document_id}/revisions/${item.current_revision.id}`,
+        },
+        "succeeded",
+        `Downloaded exact Test Data revision ${item.current_revision.revision_no}.`,
+      );
     } catch (caught) {
       setError(errorMessage(caught));
+      void recordTestDataRecovery(
+        config,
+        {
+          documentId: item.test_data_document_id,
+          documentRevisionId: item.current_revision.id,
+          path: `/datasets/test-data/${item.test_data_document_id}/revisions/${item.current_revision.id}`,
+        },
+        "failed",
+        errorMessage(caught),
+      );
     }
   }
 
@@ -230,8 +288,20 @@ export function CanonicalTestDataWorkbench({ config, onNavigate }: Props) {
       link.download = result.data.filename;
       link.click();
       URL.revokeObjectURL(url);
+      void recordTestDataRecovery(
+        config,
+        { path: "/datasets/test-data" },
+        "succeeded",
+        `Downloaded the current JSON+ZIP package for ${documents.length} Test Data documents.`,
+      );
     } catch (caught) {
       setError(errorMessage(caught));
+      void recordTestDataRecovery(
+        config,
+        { path: "/datasets/test-data" },
+        "failed",
+        errorMessage(caught),
+      );
     }
   }
 
@@ -325,6 +395,17 @@ export function CanonicalTestDataWorkbench({ config, onNavigate }: Props) {
                   });
                   onNavigate("/modeling");
                 }}>Open in Material Modeling</button>
+                <ReviewRequestAction
+                  config={config}
+                  subject={{
+                    aggregateType: "datasets.test_data_document",
+                    aggregateId: item.test_data_document_id,
+                    revisionId: item.current_revision.id,
+                    manifestSha256: item.current_revision.content_hash,
+                    classification: item.current_revision.classification,
+                    lifecycleState: item.current_revision.lifecycle_state,
+                  }}
+                />
                 <DomainWorkflowLinks
                   compact
                   config={config}

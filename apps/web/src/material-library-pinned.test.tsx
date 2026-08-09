@@ -196,7 +196,39 @@ function installFetch(mismatch = false, withCard = false) {
     if (url.startsWith("/api/v1/review-requests?")) return response({ items: [] });
     if (url.endsWith(`/catalog/records/${recordId}/revisions`)) return response({ items: [record2, record1] });
     if (url.endsWith(`/catalog/records/${recordId}`)) return response({ record_id: recordId, table_id: "table-1", current_revision: record2 });
+    if (url.includes("/catalog/domain-bindings:resolve")) {
+      const current = url.includes(`revision_id=${materialRevision2}`);
+      return response({
+        binding_id: current ? "binding-current" : "binding-1",
+        record_id: recordId,
+        record_revision_id: current ? recordRevision2 : recordRevision1,
+        kind: "material",
+        object_id: materialId,
+        revision_id: current ? materialRevision2 : materialRevision1,
+        workbench_path: `/materials/${materialId}`,
+      });
+    }
     if (url.includes(`/catalog/workflow-explorer/${recordId}/revisions/${recordRevision1}`)) return response(exactGraph(mismatch, withCard));
+    if (url.includes(`/catalog/workflow-explorer/${recordId}/revisions/${recordRevision2}`)) {
+      const root = {
+        record_id: recordId,
+        record_revision_id: recordRevision2,
+        revision_no: 4,
+        table_id: "table-1",
+        name: "Current Head m2",
+        external_key: "REC-2",
+        domain_binding: {
+          binding_id: "binding-current",
+          record_id: recordId,
+          record_revision_id: recordRevision2,
+          kind: "material",
+          object_id: materialId,
+          revision_id: materialRevision2,
+          workbench_path: `/materials/${materialId}`,
+        },
+      };
+      return response({ root, nodes: [root], links: [] });
+    }
     if (url.endsWith("/catalog/tables/table-1/attributes")) return response({ items: [{
       attribute_definition_id: "attribute-1",
       table_id: "table-1",
@@ -321,7 +353,7 @@ describe("pinned Material detail", () => {
     expect(requests.some((url) => url.startsWith(cardEndpoint) && !url.includes(exactRevision))).toBe(false);
     expect(requests.some((url) => url.includes("/bulk-export-candidates?"))).toBe(false);
     expect(requests.some((url) => url.includes("material-2"))).toBe(false);
-    expect(requests).toContain(`/api/v1/catalog/workflow-explorer/${recordId}/revisions/${recordRevision1}?depth=6`);
+    expect(requests).toContain(`/api/v1/catalog/workflow-explorer/${recordId}/revisions/${recordRevision1}?depth=6&published_only=true`);
 
     fireEvent.click(await screen.findByRole("button", { name: "Download .rad" }));
     await waitFor(() => expect(fetchMock.mock.calls.map(([input]) => String(input))).toContain(`${cardEndpoint}/download${exactRevision}`));
