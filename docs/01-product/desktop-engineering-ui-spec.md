@@ -195,7 +195,8 @@ Technical identifiers remain available through a status-bar disclosure or Eviden
 
 Weight 650 or above is not used for ordinary rows, buttons or explanatory text.
 Shared high-DPI display tiers may increase these sizes and the matching control, row, spacing, pane,
-and plot tokens only after actual Windows 4K comparison. Route-specific scale values are forbidden.
+and plot tokens only after #221 actual Windows 4K comparison and product-owner decision. #184 applies
+that decision across all routes. Route-specific scale values are forbidden.
 
 ### 3.2 Spacing
 
@@ -249,8 +250,9 @@ Responsive layout uses semantic elasticity rather than uniform scaling:
 
 Registered #167 static targets remain 1366×768, 1440×900 and 1920×1080. Every user-visible React/CSS
 change also records deterministic 2560×1440 and 3840×2160 live evidence and obtains product-owner
-disposition before merge. These captures do not rewrite the static inventory; #184 separately records
-actual Windows 4K 100%, 150%, and 200% physical readability.
+disposition before merge. These captures do not rewrite the static inventory; #221 records the
+representative actual Windows 4K 100%, 150%, and 200% decision, and #184 revalidates the approved
+policy across all routes and high-risk states.
 
 ## 4. Materials workspace
 
