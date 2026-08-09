@@ -1,11 +1,12 @@
-# Independent #221 high-DPI decision review
+# Independent #221 provisional high-DPI decision review
 
 You are the final independent, read-only reviewer for issue #221. Do not modify files, create commits,
 push, open or update pull requests, approve a GitHub pull request, or merge anything.
 
 The review decides whether the evidence is sufficient for the product owner to select one shared
-4K/high-DPI policy before issue #184 applies it to every route. It does not approve #184, every
-application screen, or a new route-specific visual design.
+implementation policy before issue #184 applies it to every route. It approves logical layout and
+provisional density behavior only. Actual Windows 4K physical readability remains the final #223 gate.
+It does not approve #184, #223, every application screen, or a new route-specific visual design.
 
 ## Required inputs
 
@@ -17,14 +18,15 @@ The review packet must embed or attach the exact version of:
 - the same representative data and state rendered for P1, P2 and P3;
 - original 1366×768, 1440×900, 1920×1080, 2560×1440 and 3840×2160 captures;
 - 100%-pixel crops of header, navigator, table/form control and graph/native preview;
-- actual Windows 4K 100%, 150% and 200% records with monitor size/resolution, Windows scale,
-  browser zoom, CSS viewport, `devicePixelRatio`, selected density and original/crop paths;
+- the available-display record, including monitor size/resolution, Windows scale, browser zoom, CSS
+  viewport and `devicePixelRatio`, plus an explicit `COMPLETE` or `DEFERRED_TO_223` physical status;
 - pane resize/collapse/reset/persistence, table sizing, plot resize and browser-zoom-200% results;
 - completed Q-01 through Q-20 results for every representative screen.
 
-If actual Windows evidence is missing, mismatched, scaled down, or does not identify the environment,
-return `BLOCKED_PHYSICAL_EVIDENCE`. Playwright viewport emulation, DOM measurements and contact sheets do
-not replace the physical record.
+Missing actual Windows 4K evidence does not block this provisional decision when the packet identifies
+the unavailable device condition and routes the exact physical matrix to #223. Playwright viewport
+emulation, DOM measurements and contact sheets still do not replace or imply the physical record. If
+the packet claims physical readability from those substitutes, return `NEEDS_CHANGES`.
 
 ## Review questions
 
@@ -48,6 +50,8 @@ not replace the physical record.
 12. Does browser zoom 200% retain content, functionality and reachable actions without unjustified
     two-axis page scrolling?
 13. Are rejected candidates and the remaining #184 route/state migration list explicit?
+14. Is unavailable actual-device evidence recorded as `DEFERRED_TO_223` without a physical-readability
+    claim, and does the #223 handoff cover every representative route and high-risk state?
 
 ## Disposition
 
@@ -55,8 +59,9 @@ Return exactly one JSON object and no prose outside it:
 
 ```json
 {
-  "disposition": "APPROVE_DECISION | NEEDS_CHANGES | BLOCKED_PHYSICAL_EVIDENCE",
+  "disposition": "APPROVE_PROVISIONAL_DECISION | NEEDS_CHANGES",
   "selected_candidate": "P1 | P2 | P3 | null",
+  "physical_evidence_status": "COMPLETE | DEFERRED_TO_223",
   "actual_windows_4k_complete": false,
   "five_viewport_matrix_complete": false,
   "compact_topology_preserved": false,
@@ -69,11 +74,15 @@ Return exactly one JSON object and no prose outside it:
   "blocking_findings": [],
   "non_blocking_findings": [],
   "approved_token_summary": null,
-  "issue_184_handoff": []
+  "issue_184_handoff": [],
+  "issue_223_physical_handoff": []
 }
 ```
 
-`APPROVE_DECISION` requires every boolean to be true, no blocking finding, one selected candidate,
-exact shared token/default/reset/persistence terms when applicable, and direct original-resolution
-product-owner evidence. Reviewer approval is evidence for the product owner; it does not publish,
-merge or replace the owner's explicit decision.
+`APPROVE_PROVISIONAL_DECISION` requires every boolean except `actual_windows_4k_complete` to be true,
+no blocking finding, one selected candidate, exact provisional shared token/default/reset/persistence
+terms when applicable, original-resolution five-viewport product-owner evidence, and complete handoff
+lists for #184 implementation and #223 physical validation. When actual 4K is unavailable,
+`physical_evidence_status` must be `DEFERRED_TO_223` and `actual_windows_4k_complete` must remain false.
+Reviewer approval is evidence for the product owner; it does not publish, merge, replace the owner's
+explicit implementation decision, or claim final physical readability.

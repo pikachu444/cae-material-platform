@@ -48,7 +48,11 @@
   마지막에 둡니다. PR #224 병합과 delivery tracking을 동기화했으며,
   공통 기반 전환 전까지 경로 전용 4K workaround를 추가하지 않습니다.
   #162 작업 1·2는 모든 기능과 고해상도 기준이 병합된 뒤 수행하는 최종 제품 흐름 검증이고,
-  #223은 그 뒤 수행하는 Activity 실제 장비 최종 검증입니다.
+  #223은 그 뒤 Activity를 포함한 제품 전체를 실제 장비에서 최종 검증합니다.
+- 현재 작업 환경에는 실제 3840×2160 디스플레이가 없습니다. #221은 다섯 CSS viewport에서 공통
+  layout·pane·density·table·plot의 구현용 잠정 정책을 결정하고, #184는 이를 전체 route와 고위험
+  상태에 적용해 자동 geometry Q-20을 완료합니다. 실제 Windows 4K 100%·150%·200% 물리 가독성만
+  #223으로 이관합니다. 알려진 잘림·겹침·overflow·상호작용 결함은 #223으로 미룰 수 없습니다.
 
 #167의 승인 target은 다시 만들거나 재승인하지 않습니다. 과거 packet, correction 이미지와 완료
 보고서는 working tree에 보관하지 않고 Git/PR 이력에서 조회합니다.
@@ -102,8 +106,8 @@ packet, 검증, 검토, 제품 소유자 확인과 PR/merge를 거칩니다. iss
 | 13 | 2026 스키마 기반 확장 기획 gate (승인·issue 분해 완료) | 내부 기획과 동적 JSON Schema 참고 포맷을 현재 구현에 맞는 bounded issue로 전환 | [승인된 계획](../12-roadmap/schema-driven-material-integration-plan.md), #204~#216 | 고정 schema/EAV 오해 제거, 중복·충돌·의존성·결정 gate와 공개 보관 경계 기록 |
 | 14 | [x] [#160 검토·승인·DB 공개·복구](https://github.com/pikachu444/cae-material-platform/issues/160) — Task 1 PR #220, Task 2 PR #224 | 요청을 검토·승인하고 승인 결과를 Materials DB에서 찾고 내려받으며 실패를 복구 | issue, Activity/Admin 승인 화면, Record/Test Data subject, review·release·publication·download·recovery·권한 계약 | Task 1은 PR #220, main `53e4a698235e4c7dad8c87e0156bc2627866989f`에서 병합. Task 2 구현·다섯 viewport 증거·회귀·문서·한정 화면 승인은 PR #224에서 완료. 실제 Windows 4K 100%·150%·200% 최종 물리 판정은 #223으로 이관. 다음 단위는 #161 |
 | 15 | [#161 공통 화면·전역 레이아웃 기반](https://github.com/pikachu444/cae-material-platform/issues/161) | 트리·표·그래프·상태·키보드와 글자·control·pane·plot token이 모든 현재 화면에서 일관됨 | issue, visual/frontend skill, 활성 화면·공통 구성요소·1920 cap 사용처·승인 화면 | 공통 token, 1920 작은 섬과 내부 공백 해소 기반, 접근성·스크롤·넘침, 삭제 대상 참조 0, 다섯 viewport 시각 승인, merge |
-| 16 | [#221 4K·고DPI 레이아웃·밀도 결정 게이트](https://github.com/pikachu444/cae-material-platform/issues/221) | 실제 4K에서 대표 화면 후보를 비교해 공통 layout·pane·density·table·plot 정책을 승인 | issue, #161 결과, [고해상도 전략](../12-roadmap/high-dpi-display-strategy.md), 실제 Windows 표시 환경과 결정 review prompt | P1/P2/P3 비교, 정확한 token·setting 계약, 대표 화면 원본/crop과 제품 소유자 승인, decision packet, merge |
-| 17 | [#184 4K·고DPI 전역 대응](https://github.com/pikachu444/cae-material-platform/issues/184) | #221에서 승인한 정책으로 모든 핵심 화면과 고위험 상태를 4K에서도 읽고 조작 | issue, #221 승인 packet, 공통 token, 전체 정상·예외 다섯 viewport와 실제 Windows 표시 환경 | 승인된 scale/pane 정책의 전체 route 적용, 실제 고DPI 원본·100% crop 최종 검토와 제품 소유자 승인, merge |
+| 16 | [#221 4K·고DPI 레이아웃·밀도 결정 게이트](https://github.com/pikachu444/cae-material-platform/issues/221) | 다섯 viewport에서 대표 후보를 비교해 구현용 잠정 layout·pane·density·table·plot 정책을 승인 | issue, #161 결과, [고해상도 전략](../12-roadmap/high-dpi-display-strategy.md), 원본/crop과 결정 review prompt | P1/P2/P3 비교, 잠정 token·setting 계약, 가상 증거의 한계와 #223 이관, 제품 소유자 구현 승인, decision packet, merge |
+| 17 | [#184 4K·고DPI 전역 대응](https://github.com/pikachu444/cae-material-platform/issues/184) | #221의 잠정 정책을 모든 핵심 화면과 고위험 상태에 적용하고 넓은 화면 geometry를 완성 | issue, #221 승인 packet, 공통 token, 전체 정상·예외 다섯 viewport | 승인된 layout/density 정책의 전체 route 적용, 원본·100% crop geometry 검토, 실제 장비만 #223 이관, 제품 소유자 구현 승인, merge |
 | 18 | [#204 동적 JSON Schema 정의 bundle 계약·plan](https://github.com/pikachu444/cae-material-platform/issues/204) | 관리자가 임의 개수의 schema 정의를 적용 전에 검증하고 변경 계획을 확인 | issue, configurable Catalog/Artifact/Provenance, FR-CFG/LNK/JSON | versioned contract, deterministic no-write plan, arbitrary-cardinality fixture, merge |
 | 19 | [#205 공통 CAE unit과 Unit Profile](https://github.com/pikachu444/cae-material-platform/issues/205) | 등록부터 Export까지 같은 차원·단위와 profile을 사용 | issue, 기존 13개 registration mapping, canonical Test Data와 Export unit 계약 | 공통 service/profile, 기존 호환성, dimension·round-trip 검증, merge |
 | 20 | [#206 curve channel metadata와 deviation](https://github.com/pikachu444/cae-material-platform/issues/206) | Chart·Statistics·Fit가 곡선 채널·단위·편차를 같은 의미로 표시 | issue, #205, curve/Test Data/Artifact 계약 | additive metadata, 과거 adapter, contract·chart 회귀, merge |
@@ -119,7 +123,7 @@ packet, 검증, 검토, 제품 소유자 확인과 PR/merge를 거칩니다. iss
 | 30 | [#216 제품 command audit wiring](https://github.com/pikachu444/cae-material-platform/issues/216) | 주요 command의 성공·거절·복구를 기존 hash chain에서 누락 없이 추적 | issue, #160/#184, 필요 시 #213/#215, Audit 계약 | event matrix, atomicity, redaction, integrity·restore 검증, merge |
 | 31 | [#162 Ubuntu VM·문서 최종 검증](https://github.com/pikachu444/cae-material-platform/issues/162) | 지원 환경에서 전체 흐름과 역할별 복구가 재현되고 현재 문서와 화면이 일치 | issue, 병합된 기능·화면, 전체 문서 목록. 이 단계에서만 임시 문서 묶음을 읽음 | Hyper-V Ubuntu VM의 깨끗한 실행, 전체 흐름·역추적, 문서/화면 일치, 임시 자료 정리, merge |
 | 32 | [#162 공개 실측 데이터 최종 검증](https://github.com/pikachu444/cae-material-platform/issues/162) | 인터넷에서 확보한 실제 측정 샘플을 제품에 등록해 솔버 카드와 Materials 재조회까지 완료 | issue의 고정 NIST Numisheet 2020 파일·공식 해시·이용조건, 병합된 실제 제품 흐름 | 원본 바이트·출처 보존, 실제 등록·처리·여러 모델·선택·카드 생성·검토·승인·재조회·다운로드·원본 역추적 자동 확인, 최종 승인, merge |
-| 33 | [#223 Activity 실제 Windows 4K 최종 물리 가독성 검증](https://github.com/pikachu444/cae-material-platform/issues/223) | Activity 대표 상태를 실제 Windows 4K 100%·150%·200%에서 읽고 조작할 수 있음을 최종 확인 | issue, #160 Task 2 증거, #221 승인 정책, #184 전역 적용, #162 작업 2 완료 상태 | 세 배율의 환경 메타데이터·원본·1:1 crop, 물리 가독성·상호작용·복구·read-back 검증, 제품 소유자 최종 판정, 발견 결함 별도 라우팅, merge |
+| 33 | [#223 제품 전체 실제 Windows 4K 최종 물리 가독성 검증](https://github.com/pikachu444/cae-material-platform/issues/223) | Materials·Modeling·Activity·Administration을 실제 Windows 4K 100%·150%·200%에서 읽고 조작할 수 있음을 최종 확인 | issue, #221 잠정 정책, #184 전역 적용, #160 Activity 증거, #162 작업 2 완료 상태 | 세 배율의 환경 메타데이터·대표 route/state 원본·1:1 crop, 물리 가독성·상호작용·복구·read-back 검증, 제품 소유자 최종 판정, 발견 결함 bounded bug와 재검증, merge |
 
 ## 새 Codex 작업 운영
 

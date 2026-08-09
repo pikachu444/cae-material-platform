@@ -103,8 +103,8 @@ module 경계로 분해했다.
 | ---: | --- | --- | --- |
 | 1 | [#160](https://github.com/pikachu444/cae-material-platform/issues/160) | Record/Test Data를 포함한 검토·승인·공개·복구 기반 | #189 |
 | 2 | [#161](https://github.com/pikachu444/cae-material-platform/issues/161) | 공통 UI token·전역 shell·오래된 스타일 정리 | #160 |
-| 3 | [#221](https://github.com/pikachu444/cae-material-platform/issues/221) | 실제 4K 대표 화면에서 layout·pane·density·table·plot 정책 결정 | #161 |
-| 4 | [#184](https://github.com/pikachu444/cae-material-platform/issues/184) | #221 승인 정책의 전체 route 적용과 실제 Windows 최종 검증 | #221 |
+| 3 | [#221](https://github.com/pikachu444/cae-material-platform/issues/221) | 다섯 viewport 대표 화면에서 구현용 잠정 layout·pane·density·table·plot 정책 결정 | #161 |
+| 4 | [#184](https://github.com/pikachu444/cae-material-platform/issues/184) | #221 잠정 정책의 전체 route 적용과 자동 geometry 검증; 실제 장비는 #223 | #221 |
 | 5 | [#204](https://github.com/pikachu444/cae-material-platform/issues/204) | 동적 JSON Schema 정의 bundle 계약과 no-write plan | #189, #184, 기획 gate |
 | 6 | [#205](https://github.com/pikachu444/cae-material-platform/issues/205) | 공통 CAE unit/dimension과 Unit Profile | #189, #184, 기획 gate |
 | 7 | [#206](https://github.com/pikachu444/cae-material-platform/issues/206) | curve channel metadata와 deviation | #205 |
@@ -126,9 +126,11 @@ module 경계로 분해했다.
 
 저장소의 기본 규칙은 `docs/13-delivery/backlog.md`의 첫 미완료 단위 하나만 진행하는 것이다.
 순서상 선행 단위 #189는 PR #218에서 완료됐고, 현재 첫 미완료 단위는
-`#160 → #161 → #221 → #184`의 첫 단계인 #160이다. 위 확장 구현은 이 선행 작업을 건너뛰지 않는다.
+`#161 → #221 → #184`의 첫 단계인 #161이다. 위 확장 구현은 이 선행 작업을 건너뛰지 않는다.
 #161, #221과 #184는 원래 schema 기능 분해가 아니라, 이후 UI가 잘못된
 1920px 전역 cap과 고정 density를 반복하지 않도록 제품 소유자가 앞당긴 공통 기반이다.
+실제 Windows 4K 물리 가독성은 전체 기능·흐름 검증 뒤 #223에서 최종 판정하며, 이 이관은 #221의
+잠정 정책 결정이나 #184의 전체 route geometry 적용을 막지 않는다.
 
 제품 소유자가 별도 branch/worktree, 소유 파일과 shared contract 동결을 명시적으로 승인한 경우에만
 다음 병렬 묶음을 검토할 수 있다.

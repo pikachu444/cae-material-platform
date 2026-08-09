@@ -62,8 +62,9 @@ The application has four modes. These are workspaces, not separate mini-products
 ### 4.2 Dimensions
 
 Unless stated otherwise, the numeric dimensions below are compact-tier baselines. #221 may approve
-shared high-DPI tiers after actual Windows display-scale review; #184 applies that decision across all
-routes. Route-specific values remain forbidden.
+provisional shared high-DPI tiers from the deterministic five-viewport review; #184 applies that
+decision across all routes. #223 performs final actual Windows display-scale approval. Route-specific
+values remain forbidden.
 
 - Global application bar: 44–48 px.
 - Workspace controls are workspace-specific. Materials, Activity, and Administration do not claim a
@@ -77,8 +78,9 @@ routes. Route-specific values remain forbidden.
 - Page/pane title: 14–18 px depending on hierarchy.
 - Compact-tier data/control text: 13–13.5 px.
 - Compact-tier metadata: 11.5–12 px.
-- Shared high-DPI tiers may increase typography, control, row, spacing, pane, and plot tokens after
-  actual Windows display-scale comparison; pages do not select private scale values.
+- Provisional shared high-DPI tiers may increase typography, control, row, spacing, pane, and plot
+  tokens after #221's five-viewport comparison; #223 provides final physical calibration. Pages do not
+  select private scale values.
 
 ### 4.2.1 Wide-screen semantic elasticity
 
@@ -110,9 +112,10 @@ expands or stops according to its function instead of inheriting one global 1920
   is reserved for point density or interaction cost that SVG cannot meet, not for repairing layout.
 - 2560×1440 and 3840×2160 are mandatory deterministic wide-screen evidence viewports for every
   user-visible React/CSS change. They do not rewrite #167's approved static inventory, but their live
-  original-resolution comparison and product-owner disposition are required before merge. #221 uses
-  actual Windows 4K 100%, 150%, and 200% display scale to select the shared policy, and #184 revalidates
-  it across all routes because emulated viewports do not prove physical readability.
+  original-resolution comparison and product-owner geometry disposition are required before merge.
+  #221 selects a provisional shared policy and #184 revalidates it across all routes. These captures do
+  not prove physical readability; #223 performs that final product-wide check on actual Windows 4K at
+  100%, 150%, and 200% display scale.
 
 ### 4.3 Command hierarchy
 
@@ -784,8 +787,10 @@ Required Playwright scenarios:
 7. interrupted session → Activity → exact resume context.
 
 Required live viewports: 1366×768, 1440×900, 1920×1080, 2560×1440, and 3840×2160.
-#221, #184, and later shared display-tier changes also require actual Windows 4K 100%, 150%, and 200%
-physical-readability evidence. #221 selects the policy; #184 applies and revalidates it across all routes.
+#221 selects the provisional policy from these originals; #184 applies and revalidates it across all
+routes. When an actual 4K display is unavailable, both record the physical check as deferred rather than
+blocking their geometry work. #223 requires actual Windows 4K 100%, 150%, and 200%
+physical-readability evidence before final product closure.
 
 ## 17. Non-goals
 
