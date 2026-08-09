@@ -150,7 +150,7 @@ def test_user_feature_grants_authorize_only_the_selected_product_capability() ->
         service.authorize(_context(), Permission.CALIBRATION_EXECUTE)
 
 
-def test_administrator_has_all_features_and_identity_management() -> None:
+def test_administrator_has_corrected_features_and_identity_management() -> None:
     assignment = _product_assignment(ProductRole.ADMINISTRATOR)
     service = AuthorizationService(
         bindings=_Bindings(),
@@ -162,9 +162,11 @@ def test_administrator_has_all_features_and_identity_management() -> None:
     decision = service.authorize(_context(), Permission.IDENTITY_MANAGE)
 
     assert summary.product_role is ProductRole.ADMINISTRATOR
-    assert set(summary.feature_grants) == set(FeatureGrant)
+    assert summary.feature_grants == product_role_preset(ProductRole.ADMINISTRATOR)
     assert not summary.legacy_compatible
     assert Role.ORG_ADMIN in decision.roles
+    with pytest.raises(AuthorizationDenied, match="permission_denied"):
+        service.authorize(_context(), Permission.REVIEW_DECIDE)
 
 
 def test_reviewer_has_the_fixed_review_preset_without_access_administration() -> None:
@@ -183,6 +185,8 @@ def test_reviewer_has_the_fixed_review_preset_without_access_administration() ->
     assert summary.feature_grants == product_role_preset(ProductRole.REVIEWER)
     assert Role.DOMAIN_REVIEWER in review.roles
     assert Role.CAE_ANALYST in export.roles
+    assert Permission.CATALOG_READ.value in export.database_permissions
+    assert Permission.CATALOG_WRITE.value in export.database_permissions
     with pytest.raises(AuthorizationDenied, match="permission_denied"):
         service.authorize(_context(), Permission.IDENTITY_MANAGE)
     with pytest.raises(AuthorizationDenied, match="permission_denied"):
@@ -319,6 +323,21 @@ def test_each_role_action_also_grants_its_typed_database_dependencies() -> None:
                     "audit.append",
                 }
             }
+                # Closed subject resolution, target delivery, and the published Materials
+                # projection carry bounded cross-module capabilities only in the command
+                # transaction. They intentionally are not public grants on the reviewer or
+                # CAE_ANALYST roles.
+            typed_dependencies.difference_update(
+                {
+                    Permission.CATALOG_READ,
+                    Permission.CATALOG_WRITE,
+                    Permission.DATASET_READ,
+                    Permission.EXPORT_READ,
+                    Permission.MODELING_READ,
+                    Permission.PROCESSING_READ,
+                    Permission.TESTING_READ,
+                }
+            )
             assert typed_dependencies.issubset(permissions)
 
 
@@ -416,6 +435,34 @@ def test_write_decision_expands_only_required_read_and_governance_permissions() 
         "provenance.write",
         "testing.read",
     )
+
+
+def test_review_request_decision_can_resolve_each_registered_subject_domain() -> None:
+    decision = _service(_binding(Role.MATERIAL_MODELER)).authorize(
+        _context(), Permission.REVIEW_REQUEST
+    )
+
+    assert {
+        "catalog.read",
+        "dataset.read",
+        "export.read",
+        "modeling.read",
+    }.issubset(decision.database_permissions)
+
+
+def test_catalog_read_decision_can_recheck_published_cross_domain_heads() -> None:
+    decision = _service(_binding(Role.DOMAIN_REVIEWER)).authorize(
+        _context(), Permission.CATALOG_READ
+    )
+
+    assert {
+        "catalog.read",
+        "dataset.read",
+        "export.read",
+        "modeling.read",
+        "processing.read",
+        "testing.read",
+    }.issubset(decision.database_permissions)
 
 
 def test_cross_module_execution_decision_contains_only_explicit_dependencies() -> None:

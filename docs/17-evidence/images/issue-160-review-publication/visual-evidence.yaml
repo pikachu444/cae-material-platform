@@ -1,0 +1,133 @@
+schema_version: 1
+issue: 160
+route: /activity
+state: Reviewer Needs attention
+purpose: >-
+  Original-resolution before/reference and current Activity evidence for the final #160 visual
+  review. This sidecar is evidence metadata only; its PNGs are not additional current user-guide
+  captures.
+
+capture_provenance:
+  before_reference:
+    source_ref: origin/main
+    source_commit: b993542
+    frontend: read-only baseline frontend connected to the same current deterministic API dataset
+    browser: headless Chromium
+    browser_zoom_percent: 100
+    css_viewports: [1366x768, 1440x900, 1920x1080, 2560x1440, 3840x2160]
+    artifact_write_window: '2026-08-09T10:03:25+09:00 through 2026-08-09T10:03:33+09:00'
+    root_opened_every_original_at_original_resolution: true
+  after_current:
+    source_commit: working-tree-issue-160
+    frontend: current frontend connected to the same current deterministic API dataset
+    browser: headless Chromium
+    browser_zoom_percent: 100
+    css_viewports: [1366x768, 1440x900, 1920x1080, 2560x1440, 3840x2160]
+    captured_at: '2026-08-09T07:34:59+09:00 through 2026-08-09T07:35:19+09:00'
+    root_opened_every_original_at_original_resolution: true
+  crop_policy:
+    scale: 1
+    interpolation: none
+    pixel_mapping: direct 1:1 pixel clone from the listed source image
+    root_opened_every_crop_at_original_resolution: true
+
+comparisons:
+  - viewport: 1366x768
+    before_reference: docs/17-evidence/images/issue-160-review-publication/before/activity-before-1366x768.png
+    current: docs/user-guide/images/current/activity-1366x768.png
+    crops: []
+  - viewport: 1440x900
+    before_reference: docs/17-evidence/images/issue-160-review-publication/before/activity-before-1440x900.png
+    current: docs/user-guide/images/current/activity-1440x900.png
+    crops: []
+  - viewport: 1920x1080
+    before_reference: docs/17-evidence/images/issue-160-review-publication/before/activity-before-1920x1080.png
+    current: docs/user-guide/images/current/activity-1920x1080.png
+    crops:
+      - name: shell-header
+        before: {path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-1920x1080-shell-header-100pct.png, rect: {x: 0, y: 0, width: 1100, height: 160}}
+        after: {path: docs/17-evidence/images/issue-160-review-publication/after/activity-after-1920x1080-shell-header-100pct.png, rect: {x: 0, y: 0, width: 1100, height: 160}}
+      - name: saved-view-area-to-tabs
+        before: {path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-1920x1080-saved-view-area-100pct.png, rect: {x: 20, y: 145, width: 900, height: 70}, proves_saved_view_tabs_absent: true}
+        after: {path: docs/17-evidence/images/issue-160-review-publication/after/activity-after-1920x1080-saved-view-tabs-100pct.png, rect: {x: 20, y: 150, width: 900, height: 60}}
+      - name: queue-row-to-grid-row
+        before: {path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-1920x1080-queue-row-100pct.png, rect: {x: 20, y: 195, width: 1300, height: 125}}
+        after: {path: docs/17-evidence/images/issue-160-review-publication/after/activity-after-1920x1080-grid-row-100pct.png, rect: {x: 20, y: 220, width: 1300, height: 350}}
+      - name: row-action
+        before: {path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-1920x1080-row-action-100pct.png, rect: {x: 1160, y: 195, width: 740, height: 125}}
+        after: {path: docs/17-evidence/images/issue-160-review-publication/after/activity-after-1920x1080-row-action-100pct.png, rect: {x: 1160, y: 245, width: 740, height: 325}}
+  - viewport: 2560x1440
+    before_reference: docs/17-evidence/images/issue-160-review-publication/before/activity-before-2560x1440.png
+    current: docs/user-guide/images/current/activity-2560x1440.png
+    crops:
+      - name: shell-header
+        before: {path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-2560x1440-shell-header-100pct.png, rect: {x: 0, y: 0, width: 1440, height: 160}}
+        after: {path: docs/17-evidence/images/issue-160-review-publication/after/activity-after-2560x1440-shell-header-100pct.png, rect: {x: 0, y: 0, width: 1440, height: 160}}
+      - name: saved-view-area-to-tabs
+        before: {path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-2560x1440-saved-view-area-100pct.png, rect: {x: 20, y: 145, width: 1200, height: 70}, proves_saved_view_tabs_absent: true}
+        after: {path: docs/17-evidence/images/issue-160-review-publication/after/activity-after-2560x1440-saved-view-tabs-100pct.png, rect: {x: 20, y: 150, width: 1200, height: 60}}
+      - name: queue-row-to-grid-row
+        before: {path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-2560x1440-queue-row-100pct.png, rect: {x: 20, y: 195, width: 1800, height: 125}}
+        after: {path: docs/17-evidence/images/issue-160-review-publication/after/activity-after-2560x1440-grid-row-100pct.png, rect: {x: 20, y: 220, width: 1800, height: 350}}
+      - name: row-action
+        before: {path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-2560x1440-row-action-100pct.png, rect: {x: 1540, y: 195, width: 1000, height: 125}}
+        after: {path: docs/17-evidence/images/issue-160-review-publication/after/activity-after-2560x1440-row-action-100pct.png, rect: {x: 1540, y: 245, width: 1000, height: 325}}
+  - viewport: 3840x2160
+    before_reference: docs/17-evidence/images/issue-160-review-publication/before/activity-before-3840x2160.png
+    current: docs/user-guide/images/current/activity-3840x2160.png
+    crops:
+      - name: shell-header
+        before: {path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-3840x2160-shell-header-100pct.png, rect: {x: 0, y: 0, width: 1920, height: 160}}
+        after: {path: docs/17-evidence/images/issue-160-review-publication/after/activity-after-3840x2160-shell-header-100pct.png, rect: {x: 0, y: 0, width: 1920, height: 160}}
+      - name: saved-view-area-to-tabs
+        before: {path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-3840x2160-saved-view-area-100pct.png, rect: {x: 20, y: 145, width: 1600, height: 70}, proves_saved_view_tabs_absent: true}
+        after: {path: docs/17-evidence/images/issue-160-review-publication/after/activity-after-3840x2160-saved-view-tabs-100pct.png, rect: {x: 20, y: 150, width: 1600, height: 60}}
+      - name: queue-row-to-grid-row
+        before: {path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-3840x2160-queue-row-100pct.png, rect: {x: 20, y: 195, width: 2600, height: 125}}
+        after: {path: docs/17-evidence/images/issue-160-review-publication/after/activity-after-3840x2160-grid-row-100pct.png, rect: {x: 20, y: 220, width: 2600, height: 350}}
+      - name: row-action
+        before: {path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-3840x2160-row-action-100pct.png, rect: {x: 2580, y: 195, width: 1240, height: 125}}
+        after: {path: docs/17-evidence/images/issue-160-review-publication/after/activity-after-3840x2160-row-action-100pct.png, rect: {x: 2580, y: 245, width: 1240, height: 325}}
+  - viewport: 1440x900-history
+    current: docs/user-guide/images/current/activity-history-1440x900.png
+    crop:
+      name: local-scrollbar
+      after: {path: docs/17-evidence/images/issue-160-review-publication/after/activity-after-history-1440x900-local-scrollbar-100pct.png, rect: {x: 1160, y: 190, width: 270, height: 610}}
+
+artifacts:
+  - {role: before-original, path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-1366x768.png, viewport: 1366x768, width: 1366, height: 768, sha256: 2d8bf4f8f31f9f91cb14e575d9d1421dce52d38ed4b589084aa5f310b3cee983}
+  - {role: before-original, path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-1440x900.png, viewport: 1440x900, width: 1440, height: 900, sha256: bedf99dcd10502533fda3c7f9444c1122da964d21bcac272169bccbffd966eee}
+  - {role: before-original, path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-1920x1080.png, viewport: 1920x1080, width: 1920, height: 1080, sha256: ea8b1886588ceec5879ede281a57d4dc5c7c33156b6e1faee7cf45298e3e01b9}
+  - {role: before-original, path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-2560x1440.png, viewport: 2560x1440, width: 2560, height: 1440, sha256: 44afaab5020d9eda31182e417c07703c558c6479c0cbc3a0c9d1d1f02ccaa3ac}
+  - {role: before-original, path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-3840x2160.png, viewport: 3840x2160, width: 3840, height: 2160, sha256: 105768d63989126d138ac6f3d4fd0ee4755e351d24c981c13d97f22856b90c1c}
+  - {role: current-original, path: docs/user-guide/images/current/activity-1366x768.png, viewport: 1366x768, width: 1366, height: 768, sha256: 7157f44a036372c4f86b4bca2fdc4067868c98388d3bb74a330df5ec8035a390}
+  - {role: current-original, path: docs/user-guide/images/current/activity-1440x900.png, viewport: 1440x900, width: 1440, height: 900, sha256: cdd98a682716ecfc96db8333c466a02188417faac0cf29c924895e7c46ccaead}
+  - {role: current-original, path: docs/user-guide/images/current/activity-1920x1080.png, viewport: 1920x1080, width: 1920, height: 1080, sha256: e00a646918bd0dbfdb636e814c94df5bdba8f6c9ec04d5e109fe10211107f903}
+  - {role: current-original, path: docs/user-guide/images/current/activity-2560x1440.png, viewport: 2560x1440, width: 2560, height: 1440, sha256: 6cc5ce974535c45eeaed60299af91f0d4ff97b95e0241cf9b63ef03e5f41e786}
+  - {role: current-original, path: docs/user-guide/images/current/activity-3840x2160.png, viewport: 3840x2160, width: 3840, height: 2160, sha256: 3d647130bca322c4371997484b1a52823b081422e5287c060d6b23ca73378e3b}
+  - {role: current-original, path: docs/user-guide/images/current/activity-history-1440x900.png, viewport: 1440x900, width: 1440, height: 900, sha256: 9be36d3092dadbfe135bb4a6af4ea295e5e5368e4a282b943f5a399915721467}
+  - {role: before-crop, name: shell-header, source: docs/17-evidence/images/issue-160-review-publication/before/activity-before-1920x1080.png, path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-1920x1080-shell-header-100pct.png, rect: {x: 0, y: 0, width: 1100, height: 160}, width: 1100, height: 160, sha256: bb0ab48d89d3606ef288619a6d1c62bfcfc481269a35150a289fce79e54816d3}
+  - {role: before-crop, name: saved-view-area, source: docs/17-evidence/images/issue-160-review-publication/before/activity-before-1920x1080.png, path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-1920x1080-saved-view-area-100pct.png, rect: {x: 20, y: 145, width: 900, height: 70}, width: 900, height: 70, sha256: 3646d1959af037224c9bedc903a5015391c82b6d44d35dad9f67905be831344d}
+  - {role: before-crop, name: queue-row, source: docs/17-evidence/images/issue-160-review-publication/before/activity-before-1920x1080.png, path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-1920x1080-queue-row-100pct.png, rect: {x: 20, y: 195, width: 1300, height: 125}, width: 1300, height: 125, sha256: 599996deedd1f83ae5224971dc7456a8ebdac7d893fa269396dabc2adb9e56fa}
+  - {role: before-crop, name: row-action, source: docs/17-evidence/images/issue-160-review-publication/before/activity-before-1920x1080.png, path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-1920x1080-row-action-100pct.png, rect: {x: 1160, y: 195, width: 740, height: 125}, width: 740, height: 125, sha256: 5b95552450d6fc8e04b9a197975c48073962e37f42357546496bdaa059050ef9}
+  - {role: before-crop, name: shell-header, source: docs/17-evidence/images/issue-160-review-publication/before/activity-before-2560x1440.png, path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-2560x1440-shell-header-100pct.png, rect: {x: 0, y: 0, width: 1440, height: 160}, width: 1440, height: 160, sha256: 1310abd0885cb585977ed1be1528db82be1a73ce8bfc2d1a5a81b0ca641b15f6}
+  - {role: before-crop, name: saved-view-area, source: docs/17-evidence/images/issue-160-review-publication/before/activity-before-2560x1440.png, path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-2560x1440-saved-view-area-100pct.png, rect: {x: 20, y: 145, width: 1200, height: 70}, width: 1200, height: 70, sha256: d8ce2ea951ff9147347a7a13ee7712e88e14f3018f636da6573e7dfe4ccacb71}
+  - {role: before-crop, name: queue-row, source: docs/17-evidence/images/issue-160-review-publication/before/activity-before-2560x1440.png, path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-2560x1440-queue-row-100pct.png, rect: {x: 20, y: 195, width: 1800, height: 125}, width: 1800, height: 125, sha256: 043c9370e453a623b2e35651e15b812a282b6e139df35411d2991fea476a6395}
+  - {role: before-crop, name: row-action, source: docs/17-evidence/images/issue-160-review-publication/before/activity-before-2560x1440.png, path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-2560x1440-row-action-100pct.png, rect: {x: 1540, y: 195, width: 1000, height: 125}, width: 1000, height: 125, sha256: a080cda1cf3cae088d01b586a4c3ff5db6175a33f8005a38bf22dea9849b57de}
+  - {role: before-crop, name: shell-header, source: docs/17-evidence/images/issue-160-review-publication/before/activity-before-3840x2160.png, path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-3840x2160-shell-header-100pct.png, rect: {x: 0, y: 0, width: 1920, height: 160}, width: 1920, height: 160, sha256: be06c8a8bd1ecbbd1d20be55c9d544d44b827ecc58ca5ea796fec4e30f7fd687}
+  - {role: before-crop, name: saved-view-area, source: docs/17-evidence/images/issue-160-review-publication/before/activity-before-3840x2160.png, path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-3840x2160-saved-view-area-100pct.png, rect: {x: 20, y: 145, width: 1600, height: 70}, width: 1600, height: 70, sha256: 401c87a4a496120a21324540519df4c37cd9077e8f03cf8522f24ae6c641d169}
+  - {role: before-crop, name: queue-row, source: docs/17-evidence/images/issue-160-review-publication/before/activity-before-3840x2160.png, path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-3840x2160-queue-row-100pct.png, rect: {x: 20, y: 195, width: 2600, height: 125}, width: 2600, height: 125, sha256: 5f6a1846ed889bba69ac3aa68d8ed6f176cdcf555c41e2a7f99986b0bab76433}
+  - {role: before-crop, name: row-action, source: docs/17-evidence/images/issue-160-review-publication/before/activity-before-3840x2160.png, path: docs/17-evidence/images/issue-160-review-publication/before/activity-before-3840x2160-row-action-100pct.png, rect: {x: 2580, y: 195, width: 1240, height: 125}, width: 1240, height: 125, sha256: ef7394485e8c28179c9bbe8915b9d6ca3b399a5bfbf50c0e20c88795601e9658}
+  - {role: after-crop, name: shell-header, source: docs/user-guide/images/current/activity-1920x1080.png, path: docs/17-evidence/images/issue-160-review-publication/after/activity-after-1920x1080-shell-header-100pct.png, rect: {x: 0, y: 0, width: 1100, height: 160}, width: 1100, height: 160, sha256: 98702ad96d3d442df68c72e4ac568766499ce4670e6a8375016c1eea9dec23f5}
+  - {role: after-crop, name: saved-view-tabs, source: docs/user-guide/images/current/activity-1920x1080.png, path: docs/17-evidence/images/issue-160-review-publication/after/activity-after-1920x1080-saved-view-tabs-100pct.png, rect: {x: 20, y: 150, width: 900, height: 60}, width: 900, height: 60, sha256: fcdd49d21a2bce0bb7e314335e9ef36347fd38fc246bb583755272c970194057}
+  - {role: after-crop, name: grid-row, source: docs/user-guide/images/current/activity-1920x1080.png, path: docs/17-evidence/images/issue-160-review-publication/after/activity-after-1920x1080-grid-row-100pct.png, rect: {x: 20, y: 220, width: 1300, height: 350}, width: 1300, height: 350, sha256: 6b027517e816a7212419050d3cc479eeca4fdf904fe8a8b418711649b98a1630}
+  - {role: after-crop, name: row-action, source: docs/user-guide/images/current/activity-1920x1080.png, path: docs/17-evidence/images/issue-160-review-publication/after/activity-after-1920x1080-row-action-100pct.png, rect: {x: 1160, y: 245, width: 740, height: 325}, width: 740, height: 325, sha256: 689e541e297e89ce275026d8fbc35e2c4c64c6b37119695255cc647a5c65368b}
+  - {role: after-crop, name: shell-header, source: docs/user-guide/images/current/activity-2560x1440.png, path: docs/17-evidence/images/issue-160-review-publication/after/activity-after-2560x1440-shell-header-100pct.png, rect: {x: 0, y: 0, width: 1440, height: 160}, width: 1440, height: 160, sha256: 5ce4875f6041e9a4ef68ca51db5825d22a6c00364039fff940d9d945c4fdada6}
+  - {role: after-crop, name: saved-view-tabs, source: docs/user-guide/images/current/activity-2560x1440.png, path: docs/17-evidence/images/issue-160-review-publication/after/activity-after-2560x1440-saved-view-tabs-100pct.png, rect: {x: 20, y: 150, width: 1200, height: 60}, width: 1200, height: 60, sha256: d212d17fc97560d027afa4d17bc81d03b5fcf41087843cba1f2051995935a78d}
+  - {role: after-crop, name: grid-row, source: docs/user-guide/images/current/activity-2560x1440.png, path: docs/17-evidence/images/issue-160-review-publication/after/activity-after-2560x1440-grid-row-100pct.png, rect: {x: 20, y: 220, width: 1800, height: 350}, width: 1800, height: 350, sha256: 4c1a25b0907e45f6c076a62e60266318b1bce63934f3d6a41277d86ac931c9a1}
+  - {role: after-crop, name: row-action, source: docs/user-guide/images/current/activity-2560x1440.png, path: docs/17-evidence/images/issue-160-review-publication/after/activity-after-2560x1440-row-action-100pct.png, rect: {x: 1540, y: 245, width: 1000, height: 325}, width: 1000, height: 325, sha256: 2d0be15adca99d98d15a5e2a9f5dcd420b2e64e7cffe67b97d009a96c4cce06e}
+  - {role: after-crop, name: shell-header, source: docs/user-guide/images/current/activity-3840x2160.png, path: docs/17-evidence/images/issue-160-review-publication/after/activity-after-3840x2160-shell-header-100pct.png, rect: {x: 0, y: 0, width: 1920, height: 160}, width: 1920, height: 160, sha256: d1e36d3c705f432d062cef0d117dfde3de09db01c39bbad37e7f4547131c7a47}
+  - {role: after-crop, name: saved-view-tabs, source: docs/user-guide/images/current/activity-3840x2160.png, path: docs/17-evidence/images/issue-160-review-publication/after/activity-after-3840x2160-saved-view-tabs-100pct.png, rect: {x: 20, y: 150, width: 1600, height: 60}, width: 1600, height: 60, sha256: 32859b92f7562ca4a55c9530f9ac5cc89bca343e82b773362d3a44a5e73a2c83}
+  - {role: after-crop, name: grid-row, source: docs/user-guide/images/current/activity-3840x2160.png, path: docs/17-evidence/images/issue-160-review-publication/after/activity-after-3840x2160-grid-row-100pct.png, rect: {x: 20, y: 220, width: 2600, height: 350}, width: 2600, height: 350, sha256: 8dfb4fa96d13f9c4ae6a69bce344c02e83a69d3631c104bd6754e6399786fa2e}
+  - {role: after-crop, name: row-action, source: docs/user-guide/images/current/activity-3840x2160.png, path: docs/17-evidence/images/issue-160-review-publication/after/activity-after-3840x2160-row-action-100pct.png, rect: {x: 2580, y: 245, width: 1240, height: 325}, width: 1240, height: 325, sha256: 1aa0081f5471838aafc855b64e9f2d37000829bf0a7c206e3524fb23fcae3440}
+  - {role: after-crop, name: local-scrollbar, source: docs/user-guide/images/current/activity-history-1440x900.png, path: docs/17-evidence/images/issue-160-review-publication/after/activity-after-history-1440x900-local-scrollbar-100pct.png, rect: {x: 1160, y: 190, width: 270, height: 610}, width: 270, height: 610, sha256: 0ebbf6073c4e1e4b745aa095857cfa763b823fde8964cdff4d469545581389ff}

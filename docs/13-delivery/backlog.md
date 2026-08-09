@@ -37,6 +37,11 @@
   [PR #218](https://github.com/pikachu444/cae-material-platform/pull/218)에서 완료했습니다. 현재 첫
   미완료 단위는 순서 14 `#160`이며, 새 확장 구현은 `#160 → #161 → #184`를 건너뛰어 시작하지
   않습니다.
+- 순서 14 `#160` Task 1은 [PR #220](https://github.com/pikachu444/cae-material-platform/pull/220)으로
+  제출했습니다. `#160`은 [ ] 미완료로 유지하며, 다음 작업 단위는 `#160` Task 2입니다. Reviewer
+  Activity `Needs attention`의 2560×1440·3840×2160 고정 밀도 control/text Q20 실패는 다음 Task 2와
+  전역 #184 근거로 carryover합니다. 이는 Q20 통과나 `#160` 완료가 아니며, 전역 기반 전환 전까지
+  경로 전용 4K workaround를 추가하지 않습니다.
   #162 작업 1·2는 모든 기능과 고해상도 기준이 병합된 뒤 수행하는 최종 검증입니다.
 
 #167의 승인 target은 다시 만들거나 재승인하지 않습니다. 과거 packet, correction 이미지와 완료
@@ -89,7 +94,7 @@ packet, 검증, 검토, 제품 소유자 확인과 PR/merge를 거칩니다. iss
 | 11 | [#158 Modeling Export](https://github.com/pikachu444/cae-material-platform/issues/158) ([PR #202](https://github.com/pikachu444/cae-material-platform/pull/202)) | 선택 모델에서 솔버별 카드를 생성·미리보기하고 Materials DB에 연결할 결과를 준비 | issue, `modeling-export` 승인 화면, selected-model·mapping·unit-system·solver-card 계약 | 솔버·버전·단위계별 결과, 지원 수준·차단 사유, 정확한 모델 연결, 시각 승인, merge |
 | 12 | [#189 lazy chunk 예산과 Workbench 분할 기준](https://github.com/pikachu444/cae-material-platform/issues/189) ([PR #218](https://github.com/pikachu444/cae-material-platform/pull/218)) | 완성된 Process/Fit/Export의 실제 사용자 비용을 근거로 Workbench 성능과 분할 시점을 관리 | issue, production build 관찰값, bundle checker, test strategy, Process/Fit/Export 계약 | raw/gzip·실제 경로 비용, warning/error 근거와 분할 촉발 기준, 필요한 경우 별도 보존적 분할, merge |
 | 13 | 2026 스키마 기반 확장 기획 gate (승인·issue 분해 완료) | 내부 기획과 동적 JSON Schema 참고 포맷을 현재 구현에 맞는 bounded issue로 전환 | [승인된 계획](../12-roadmap/schema-driven-material-integration-plan.md), #204~#216 | 고정 schema/EAV 오해 제거, 중복·충돌·의존성·결정 gate와 공개 보관 경계 기록 |
-| 14 | [#160 검토·승인·DB 공개·복구](https://github.com/pikachu444/cae-material-platform/issues/160) | 요청을 검토·승인하고 승인 결과를 Materials DB에서 찾고 내려받으며 실패를 복구 | issue, Activity/Admin 승인 화면, Record/Test Data subject, review·release·publication·download·recovery·권한 계약 | 역할별 흐름, 승인 결과 공개와 불변성, 무효화·복구·다운로드, 시각 승인, merge |
+| 14 | [ ] [#160 검토·승인·DB 공개·복구](https://github.com/pikachu444/cae-material-platform/issues/160) — Task 1 PR #220 | 요청을 검토·승인하고 승인 결과를 Materials DB에서 찾고 내려받으며 실패를 복구 | issue, Activity/Admin 승인 화면, Record/Test Data subject, review·release·publication·download·recovery·권한 계약 | Task 1 PR #220 handoff 후 다음 작업 단위는 `#160` Task 2. Reviewer Activity `Needs attention` 2560×1440·3840×2160 고정 밀도 Q20 실패는 전역 #184 경계와 함께 유지하며, Q20 통과나 issue 완료를 뜻하지 않음 |
 | 15 | [#161 공통 화면·전역 레이아웃 기반](https://github.com/pikachu444/cae-material-platform/issues/161) | 트리·표·그래프·상태·키보드와 글자·control·pane·plot token이 모든 현재 화면에서 일관됨 | issue, visual/frontend skill, 활성 화면·공통 구성요소·1920 cap 사용처·승인 화면 | 공통 token, 1920 작은 섬과 내부 공백 해소 기반, 접근성·스크롤·넘침, 삭제 대상 참조 0, 다섯 viewport 시각 승인, merge |
 | 16 | [#184 4K·고DPI 전역 대응](https://github.com/pikachu444/cae-material-platform/issues/184) | 4K와 Windows 100%·150%·200% 배율에서도 핵심 화면을 읽고 조작할 수 있음 | issue, #161 결과, 공통 크기·레이아웃 token, 정상·예외 다섯 viewport와 실제 Windows 표시 환경 | 전역 scale tier, full shell과 의미 기반 영역 확장, 실제 고DPI 원본·100% crop 검토와 제품 소유자 승인, merge |
 | 17 | [#204 동적 JSON Schema 정의 bundle 계약·plan](https://github.com/pikachu444/cae-material-platform/issues/204) | 관리자가 임의 개수의 schema 정의를 적용 전에 검증하고 변경 계획을 확인 | issue, configurable Catalog/Artifact/Provenance, FR-CFG/LNK/JSON | versioned contract, deterministic no-write plan, arbitrary-cardinality fixture, merge |

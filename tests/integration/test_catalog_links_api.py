@@ -242,6 +242,7 @@ class _Service:
             "DP780",
             "dp780",
             self.binding,
+            () if self.binding is None else (self.binding,),
         )
         return WorkflowGraph(
             material,
@@ -276,6 +277,13 @@ class _Service:
         del context, decision
         assert record_id == MATERIAL and revision_id == MATERIAL_REV
         return self.binding
+
+    def list_domain_bindings(
+        self, context: Any, decision: Any, record_id: UUID, revision_id: UUID
+    ) -> tuple[DomainRevisionBinding, ...]:
+        del context, decision
+        assert record_id == MATERIAL and revision_id == MATERIAL_REV
+        return () if self.binding is None else (self.binding,)
 
     def resolve_domain_binding(
         self,
@@ -414,6 +422,7 @@ async def test_explorer_link_create_reverse_graph_and_deactivation_contract() ->
     )
     assert graph.status_code == 200
     assert {node["name"] for node in graph.json()["nodes"]} == {"DP780", "Tensile run 1"}
+    assert graph.json()["root"]["domain_bindings"] == []
 
     revised_body = _link_body(active=False)
     revised_body.pop("classification")
@@ -461,6 +470,14 @@ async def test_record_revision_can_pin_and_open_an_exact_domain_revision() -> No
     assert fetched.status_code == 200
     assert fetched.json()["revision_id"] == str(DOMAIN_MATERIAL_REV)
 
+    listed = await _request(
+        app,
+        "GET",
+        f"/api/v1/catalog/records/{MATERIAL}/revisions/{MATERIAL_REV}/domain-bindings",
+    )
+    assert listed.status_code == 200
+    assert listed.json()["items"][0]["revision_id"] == str(DOMAIN_MATERIAL_REV)
+
     resolved = await _request(
         app,
         "GET",
@@ -493,3 +510,4 @@ async def test_record_revision_can_pin_and_open_an_exact_domain_revision() -> No
     )
     assert graph.status_code == 200
     assert graph.json()["root"]["domain_binding"]["kind"] == "material"
+    assert [item["kind"] for item in graph.json()["root"]["domain_bindings"]] == ["material"]

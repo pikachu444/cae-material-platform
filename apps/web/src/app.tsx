@@ -13,7 +13,9 @@ import {
   getMaterialDetail,
   listMaterials,
   defaultApiConfig,
+  loadApiConfig,
   requestLocalDemoAccessToken,
+  saveApiConfig,
 } from "./api";
 import type {
   DataClassification,
@@ -149,6 +151,21 @@ const ExactRecordDatasheetPage = lazy(() =>
 const SolverCardPreviewPage = lazy(() =>
   import("./material-library").then((module) => ({
     default: module.SolverCardPreviewPage,
+  })),
+);
+const ExactMaterialModelPage = lazy(() =>
+  import("./exact-domain-pages").then((module) => ({
+    default: module.ExactMaterialModelPage,
+  })),
+);
+const ExactNeutralMaterialPage = lazy(() =>
+  import("./exact-domain-pages").then((module) => ({
+    default: module.ExactNeutralMaterialPage,
+  })),
+);
+const ExactSolverCardPage = lazy(() =>
+  import("./exact-domain-pages").then((module) => ({
+    default: module.ExactSolverCardPage,
   })),
 );
 const ActivityPage = lazy(() =>
@@ -828,10 +845,10 @@ function MaterialCreatePage({
 export function App() {
   const [location, navigate] = useLocationPath();
   const path = location.split("?")[0] || "/";
-  const [config, setConfig] = useState<ApiConfig>(defaultApiConfig);
+  const [config, setConfig] = useState<ApiConfig>(() => loadApiConfig());
   const [sessionStatus, setSessionStatus] = useState<
     "loading" | "ready" | "signed_out"
-  >("loading");
+  >(() => config.accessToken.trim() ? "ready" : "loading");
   const [sessionAttempt, setSessionAttempt] = useState(0);
 
   useEffect(() => {
@@ -845,6 +862,7 @@ export function App() {
     let refreshTimer: number | undefined;
 
     async function establishSession(): Promise<void> {
+      if (config.accessToken.trim()) return;
       setSessionStatus("loading");
       try {
         const result = await requestLocalDemoAccessToken({
@@ -852,6 +870,10 @@ export function App() {
         });
         if (!current) return;
         setConfig({
+          ...defaultApiConfig,
+          accessToken: result.data.access_token,
+        });
+        saveApiConfig({
           ...defaultApiConfig,
           accessToken: result.data.access_token,
         });
@@ -872,7 +894,7 @@ export function App() {
       current = false;
       if (refreshTimer !== undefined) window.clearTimeout(refreshTimer);
     };
-  }, [sessionAttempt]);
+  }, [config.accessToken, sessionAttempt]);
 
   const retrySession = () => setSessionAttempt((attempt) => attempt + 1);
   const legacyMaterialRoute = useMemo(() => {
@@ -935,6 +957,23 @@ export function App() {
         }
       : null;
   }, [path]);
+  const exactModelRoute = useMemo(() => {
+    const match = path.match(/^\/models\/material-models\/([^/]+)\/revisions\/([^/]+)$/);
+    return match ? { materialModelId: match[1], revisionId: match[2] } : null;
+  }, [path]);
+  const exactNeutralMaterialRoute = useMemo(() => {
+    const match = path.match(/^\/models\/neutral-materials\/([^/]+)\/revisions\/([^/]+)$/);
+    return match ? { neutralMaterialId: match[1], revisionId: match[2] } : null;
+  }, [path]);
+  const exactSolverCardRoute = useMemo(() => {
+    const match = path.match(/^\/exports\/cards\/([^/]+)\/revisions\/([^/]+)$/);
+    if (!match) return null;
+    const query = new URLSearchParams(location.includes("?") ? location.slice(location.indexOf("?")) : "");
+    const kind = query.get("kind");
+    return kind === "solver_card" || kind === "neutral_solver_card"
+      ? { cardId: match[1], revisionId: match[2], kind }
+      : null;
+  }, [location, path]);
 
   if (sessionStatus !== "ready") {
     return (
@@ -950,7 +989,35 @@ export function App() {
   }
 
   let page: React.ReactNode;
-  if (solverCardRoute) {
+  if (exactSolverCardRoute) {
+    page = (
+      <ExactSolverCardPage
+        config={config}
+        cardId={exactSolverCardRoute.cardId}
+        revisionId={exactSolverCardRoute.revisionId}
+        kind={exactSolverCardRoute.kind as "solver_card" | "neutral_solver_card"}
+        onNavigate={navigate}
+      />
+    );
+  } else if (exactModelRoute) {
+    page = (
+      <ExactMaterialModelPage
+        config={config}
+        materialModelId={exactModelRoute.materialModelId}
+        revisionId={exactModelRoute.revisionId}
+        onNavigate={navigate}
+      />
+    );
+  } else if (exactNeutralMaterialRoute) {
+    page = (
+      <ExactNeutralMaterialPage
+        config={config}
+        neutralMaterialId={exactNeutralMaterialRoute.neutralMaterialId}
+        revisionId={exactNeutralMaterialRoute.revisionId}
+        onNavigate={navigate}
+      />
+    );
+  } else if (solverCardRoute) {
     page = (
       <SolverCardPreviewPage
         config={config}
@@ -1047,6 +1114,9 @@ export function App() {
         config={config}
         onNavigate={navigate}
         onOpenConnection={retrySession}
+        locationSearch={
+          location.includes("?") ? location.slice(location.indexOf("?")) : ""
+        }
       />
     );
   } else if (path === "/exports") {
@@ -1066,6 +1136,9 @@ export function App() {
         config={config}
         onNavigate={navigate}
         onOpenConnection={retrySession}
+        locationSearch={
+          location.includes("?") ? location.slice(location.indexOf("?")) : ""
+        }
       />
     );
   } else if (path === "/datasets/import") {

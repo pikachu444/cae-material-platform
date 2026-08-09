@@ -43,6 +43,7 @@ from cmp.modules.exporting.application.neutral_hyperelastic_service import (
 from cmp.modules.exporting.application.ogden_prony_service import OgdenPronySolverCardService
 from cmp.modules.exporting.application.service import SolverCardService
 from cmp.modules.exporting.application.target_delivery import DeliveryReceiptRecorder
+from cmp.modules.jobs.adapters.persistence.events import SqlAlchemyOutboxWriter
 from cmp.modules.modeling.application.linear_viscoelasticity import (
     LinearViscoelasticModelService,
 )
@@ -216,4 +217,5 @@ def build_target_delivery_receipt_recorder(
     return SqlTargetDeliveryReceiptRecorder(
         session_factory=sessions,
         rls_context=identity.rls_context,
+        writer=SqlAlchemyOutboxWriter(),
     )

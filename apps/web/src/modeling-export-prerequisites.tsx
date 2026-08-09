@@ -6,6 +6,7 @@ import {
   promoteProcessingOutputToTabulatedPlasticity,
   type ApiConfig,
 } from "./api";
+import { ReviewRequestAction } from "./review-request-action";
 import type { ExportPrerequisite } from "./modeling-export-eligibility";
 import type { ModelingSessionEvent, ModelingSessionSummary } from "./modeling-session-context";
 import type { CommonProcessingOutputResponse, PropertySetResponse } from "./types";
@@ -14,6 +15,9 @@ interface UpstreamModelRef {
   id: string;
   revisionId: string;
   revisionNo: number;
+  manifestSha256?: string;
+  classification?: import("./types").DataClassification;
+  lifecycleState?: "draft" | "published";
 }
 
 function errorMessage(error: unknown): string {
@@ -87,6 +91,9 @@ function ModelingMetalExportRecovery({
     id: session.materialModelIr.id,
     revisionId: session.materialModelIr.revisionId,
     revisionNo: session.materialModelIr.revisionNo,
+    manifestSha256: session.materialModelIr.manifestSha256,
+    classification: session.materialModelIr.classification,
+    lifecycleState: session.materialModelIr.lifecycleState,
   } : null;
   const modelForNeutral = promotedModel ?? existingModel;
   const canPrepare = (modelForNeutral !== null || acknowledged) && reason.trim().length > 0 && !busy;
@@ -98,6 +105,9 @@ function ModelingMetalExportRecovery({
       revisionId: model.revisionId,
       label: "Selected metal tabulated-plasticity model",
       revisionNo: model.revisionNo,
+      manifestSha256: model.manifestSha256,
+      classification: model.classification,
+      lifecycleState: model.lifecycleState,
     } });
   }
 
@@ -152,6 +162,9 @@ function ModelingMetalExportRecovery({
           id: created.data.material_model_id,
           revisionId: created.data.current_revision.id,
           revisionNo: created.data.current_revision.revision_no,
+          manifestSha256: created.data.current_revision.content_hash,
+          classification: created.data.current_revision.classification,
+          lifecycleState: created.data.current_revision.lifecycle_state,
         };
         // Preserve the successful immutable model even if Neutral promotion
         // fails. The next action retries Neutral only; it never creates a
@@ -216,6 +229,24 @@ export function ModelingExportPrerequisites({
           <div className="export-pane-heading"><h3>Export setup</h3></div>
           <div className="export-subsection-heading">Selected model</div>
           <div className="export-property-row"><span>Model</span><strong>{session?.materialModelIr?.label ?? "Not selected"}</strong>{session?.materialModelIr ? <small>Exact revision {session.materialModelIr.revisionNo}</small> : null}</div>
+          {config
+            && session?.materialModelIr?.manifestSha256
+            && session.materialModelIr.classification
+            && session.materialModelIr.lifecycleState
+            && session.neutralModel
+            && neutralStatus === "current"
+            ? <ReviewRequestAction
+                config={config}
+                subject={{
+                  aggregateType: "modeling.material_model",
+                  aggregateId: session.materialModelIr.id,
+                  revisionId: session.materialModelIr.revisionId,
+                  manifestSha256: session.materialModelIr.manifestSha256,
+                  classification: session.materialModelIr.classification,
+                  lifecycleState: session.materialModelIr.lifecycleState,
+                }}
+              />
+            : null}
           {onNavigate ? <button type="button" className="text-button" onClick={() => onNavigate("/modeling?stage=fit")}>Back to Fit</button> : null}
           <div className="export-check" aria-label="Export check">
             <div className="export-pane-heading"><p className="workspace-caption">Export check</p><h3 className="visually-hidden">Exact target preview is gated</h3><strong className="export-status export-status-cannot-create">Cannot create</strong></div>

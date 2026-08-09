@@ -90,7 +90,26 @@ describe("ExactRecordDatasheetPage", () => {
         items: [{ attribute_definition_id: "attribute-1", attribute_definition_revision_id: "attribute-revision-1", section: "Mechanical", ordinal: 1 }],
       }] });
       if (url.includes("/catalog/explorer/tables")) return response({ items: [] });
-      if (url.includes("/workflow-graph")) return response({}, 404);
+      if (url.includes("/catalog/workflow-explorer/")) {
+        const root = {
+          record_id: "record-1",
+          record_revision_id: "revision-1",
+          revision_no: 1,
+          table_id: "table-1",
+          name: "Requested exact revision",
+          external_key: null,
+          domain_binding: {
+            binding_id: "binding-1",
+            record_id: "record-1",
+            record_revision_id: "revision-1",
+            kind: "material",
+            object_id: "material-1",
+            revision_id: "material-revision-1",
+            workbench_path: "/materials/material-1",
+          },
+        };
+        return response({ root, nodes: [root], links: [] });
+      }
       throw new Error(`Unexpected request: ${url}`);
     }));
 

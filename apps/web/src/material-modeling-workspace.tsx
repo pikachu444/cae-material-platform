@@ -216,9 +216,16 @@ function FamilyModelingPanel({
 }
 
 export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection, locationSearch = "" }: Props) {
+  const initialQuery = useMemo(() => new URLSearchParams(locationSearch), [locationSearch]);
+  const queryFamily = initialQuery.get("family");
+  const queryMaterialId = initialQuery.get("material_id");
+  const queryMaterialRevisionId = initialQuery.get("material_revision_id");
+  const queryMaterialStateId = initialQuery.get("material_state_id");
+  const queryMaterialStateRevisionId = initialQuery.get("material_state_revision_id");
+  const queryContextRequested = Boolean(queryMaterialId || queryMaterialStateId);
   const [initialSession] = useState<ModelingSessionSummary | null>(() => loadModelingSession());
   const [session, setSession] = useState<ModelingSessionSummary | null>(initialSession);
-  const [track, setTrack] = useState<ModelingTrack>(session?.materialFamily ?? "metal");
+  const [track, setTrack] = useState<ModelingTrack>(["metal", "polymer", "elastomer"].includes(String(queryFamily)) ? queryFamily as ModelingTrack : session?.materialFamily ?? "metal");
   const [materials, setMaterials] = useState<MaterialResponse[]>([]);
   const [selectedMaterialId, setSelectedMaterialId] = useState("");
   const [detail, setDetail] = useState<MaterialDetail | null>(null);
@@ -226,7 +233,7 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const contextGeneration = useRef(0);
-  const contextSelectionEnabled = useRef(initialSession?.contextSelectionRequired !== true);
+  const contextSelectionEnabled = useRef(initialSession?.contextSelectionRequired !== true || queryContextRequested);
   const updateSession = useCallback((patch: Partial<Omit<ModelingSessionSummary, "version" | "updatedAt">>) => {
     setSession(saveModelingSession(patch));
   }, []);
@@ -263,10 +270,16 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
           setLoading(false);
           return;
         }
-        const restored = items.find((item) => item.material_id === initialSession?.material?.id
-          && item.current_revision.id === initialSession.material.revisionId);
+        const restored = queryMaterialId
+          ? items.find((item) => item.material_id === queryMaterialId
+            && (!queryMaterialRevisionId || item.current_revision.id === queryMaterialRevisionId))
+          : items.find((item) => item.material_id === initialSession?.material?.id
+            && item.current_revision.id === initialSession.material.revisionId);
         setSelectedMaterialId(restored?.material_id ?? items[0]?.material_id ?? "");
-        if (initialSession?.material && !restored) {
+        if (queryMaterialId && !restored) {
+          setSelectedMaterialId("");
+          setError("The Processing Batch Material revision is no longer the current selectable head. Exact recovery is blocked until a new current context is chosen.");
+        } else if (initialSession?.material && !restored) {
           setError(`The recent ${initialSession.material.label} r${initialSession.material.revisionNo} revision is no longer a current selectable head. A compatible current Material was selected for review.`);
         }
         if (!items.length) setLoading(false);
@@ -279,7 +292,7 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
         setLoading(false);
       });
     return () => { active = false; };
-  }, [config, initialSession, track]);
+  }, [config, initialSession, queryMaterialId, queryMaterialRevisionId, track]);
 
   useEffect(() => {
     if (!selectedMaterialId) return;
@@ -291,9 +304,16 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
       .then((result) => {
         if (!active || generation !== contextGeneration.current || !contextSelectionEnabled.current) return;
         setDetail(result.data);
-        const restored = result.data.states.find((item) => item.material_state_id === initialSession?.materialState?.id
-          && item.current_revision.id === initialSession.materialState.revisionId);
+        const restored = queryMaterialStateId
+          ? result.data.states.find((item) => item.material_state_id === queryMaterialStateId
+            && (!queryMaterialStateRevisionId || item.current_revision.id === queryMaterialStateRevisionId))
+          : result.data.states.find((item) => item.material_state_id === initialSession?.materialState?.id
+            && item.current_revision.id === initialSession.materialState.revisionId);
         setSelectedStateId(restored?.material_state_id ?? result.data.states[0]?.material_state_id ?? "");
+        if (queryMaterialStateId && !restored) {
+          setSelectedStateId("");
+          setError("The Processing Batch Material State revision is no longer the current selectable head. Exact recovery is blocked until a new current context is chosen.");
+        }
         setLoading(false);
       })
       .catch((cause: unknown) => {
@@ -304,7 +324,7 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
         setLoading(false);
       });
     return () => { active = false; };
-  }, [config, initialSession, selectedMaterialId]);
+  }, [config, initialSession, queryMaterialStateId, queryMaterialStateRevisionId, selectedMaterialId]);
 
   useEffect(() => {
     if (!contextSelectionEnabled.current) return;

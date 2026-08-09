@@ -48,6 +48,9 @@ _SYNTHETIC_APPLICABILITY_NOTE = (
 _METAL_CATALOG_DESCRIPTION = (
     "Synthetic reference data; not validated for engineering use."
 )
+# The demo fixture stays in the supported SI unit so reseeding exercises the
+# typed Catalog contract without adding a production conversion rule.
+_DEMO_METAL_DENSITY_FIXTURE = ("7850", "kg/m^3", "7850")
 
 # The canonical metal journey is intentionally pinned to one immutable Recipe
 # revision and one separately named Batch.  Keep these values here (rather than
@@ -686,7 +689,7 @@ def _ensure_catalog_binding(
         text_value("evidence_source", "Synthetic tensile reference"),
         text_value("condition_summary", "Ambient · as received"),
         text_value("grade", "DP780 dual-phase sheet"),
-        number_value("density", "7.85", "g/cm^3", "7850"),
+        number_value("density", *_DEMO_METAL_DENSITY_FIXTURE),
         number_value("youngs_modulus", "210000", "MPa", "210000000000"),
         number_value("poisson_ratio", "0.30", "1", "0.30"),
         number_value("yield_stress", "560", "MPa", "560000000"),
@@ -3409,6 +3412,7 @@ def _ensure_metal_neutral_and_cards(
         )
 
     neutral: dict[str, Any] | None = None
+    neutral_candidates: list[tuple[dict[str, Any], Mapping[str, Any] | None]] = []
     candidates = _items(api.get(f"/bulk-export-candidates?material_id={material_id}"))
     for candidate in candidates:
         source = candidate.get("source")
@@ -3420,8 +3424,23 @@ def _ensure_metal_neutral_and_cards(
         value = api.get(f"/neutral-materials/{candidate_id}")
         ir = value.get("document", {}).get("material_model_ir", {})
         if isinstance(ir, Mapping) and ir.get("model_family") == "isotropic_tabulated_plasticity":
-            neutral = value
-            break
+            candidate_model = _model_for_neutral_processing_output(models, value)
+            neutral_candidates.append((value, candidate_model))
+            # Interrupted demo runs can leave several immutable Neutral candidates. Prefer
+            # the one whose exact model already has a current Catalog binding; an unbound
+            # candidate would make review evidence fail closed on the next seed step.
+            if candidate_model is not None and _has_current_model_catalog_binding(
+                api, candidate_model
+            ):
+                neutral = value
+                break
+    if neutral is None and neutral_candidates:
+        # On a first run no Catalog workflow node exists yet. Reuse the first exact
+        # candidate and let _ensure_catalog_binding create its binding below.
+        neutral = next(
+            (value for value, candidate_model in neutral_candidates if candidate_model is not None),
+            neutral_candidates[0][0],
+        )
     if neutral is None:
         neutral = api.post(
             "/neutral-materials:promote-metal",
@@ -3434,6 +3453,16 @@ def _ensure_metal_neutral_and_cards(
                 "change_reason": "Promote the exact metal IR to canonical Neutral Material JSON.",
             },
         )
+    else:
+        # A persisted demo volume can contain several immutable Processing Output
+        # projections from interrupted seed attempts.  Reuse the exact model pinned
+        # by the existing Neutral document instead of whichever model sorts first.
+        selected_model = _model_for_neutral_processing_output(models, neutral)
+        if selected_model is None:
+            raise DemoSeedError(
+                "clean demo existing Neutral does not expose its exact selected model"
+            )
+        model = selected_model
 
     neutral_id = _id(neutral, "neutral_material_id")
     neutral_revision_id = _id(neutral, "neutral_material_revision_id")
@@ -3476,6 +3505,59 @@ def _ensure_metal_neutral_and_cards(
         result[f"{solver}_neutral_solver_card_id"] = _id(card, "solver_card_id")
         result[f"{solver}_neutral_solver_card_revision_id"] = _revision_id(card)
     return result
+
+
+def _model_for_neutral_processing_output(
+    models: Sequence[Mapping[str, Any]], neutral: Mapping[str, Any]
+) -> Mapping[str, Any] | None:
+    """Find the model revision whose Processing Output is pinned by a Neutral document."""
+
+    document = neutral.get("document")
+    candidate_selection = (
+        document.get("candidate_selection") if isinstance(document, Mapping) else None
+    )
+    processing_output = (
+        candidate_selection.get("processing_output")
+        if isinstance(candidate_selection, Mapping)
+        else None
+    )
+    if not isinstance(processing_output, Mapping):
+        return None
+    output_id = processing_output.get("id")
+    output_revision_id = processing_output.get("revision_id")
+    if not isinstance(output_id, str) or not isinstance(output_revision_id, str):
+        return None
+    for model in models:
+        projection = _content(model).get("processing_projection")
+        if not isinstance(projection, Mapping):
+            continue
+        if (
+            projection.get("output_id") == output_id
+            and projection.get("output_revision_id") == output_revision_id
+        ):
+            return model
+    return None
+
+
+def _has_current_model_catalog_binding(api: DemoApi, model: Mapping[str, Any]) -> bool:
+    """Return whether one exact Material Model revision is bound to a current Record."""
+
+    model_id = _id(model, "material_model_id")
+    revision_id = _revision_id(model)
+    path = (
+        "/catalog/domain-bindings:resolve?kind=material_model&object_id="
+        f"{model_id}&revision_id={revision_id}"
+    )
+    try:
+        binding = api.get(path)
+    except DemoSeedError as error:
+        # The protected endpoint returns JSON null when no exact current binding exists;
+        # DemoApi deliberately rejects non-object payloads, so treat that one response as
+        # the expected unbound candidate rather than masking transport failures.
+        if "returned an unexpected payload" in str(error):
+            return False
+        raise
+    return bool(binding.get("binding_id"))
 
 
 def _ensure_bulk_bundle(

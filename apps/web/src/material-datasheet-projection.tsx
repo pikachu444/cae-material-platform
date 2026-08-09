@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import {
   getConfigurableCatalogRecord,
+  getAuthenticatedPrincipal,
   listConfigurableCatalogAttributes,
   listConfigurableCatalogLayouts,
   listConfigurableCatalogRecordRevisions,
@@ -13,6 +14,7 @@ import type {
   ConfigurableLayoutResponse,
   ConfigurableRecordValue,
 } from "./types";
+import { appendActivityFailure, appendActivityOutcome } from "./activity-recovery";
 
 type ProjectionMode = "properties" | "curves" | "evidence";
 
@@ -78,11 +80,12 @@ function projectedCsvValue(value: ConfigurableRecordValue | null): string {
   return String(value.value);
 }
 
-function downloadLayoutCsv(
+async function downloadLayoutCsv(
+  config: ApiConfig,
   record: ConfigurableCatalogRecordResponse,
   layout: ConfigurableLayoutResponse | null,
   values: ProjectedValue[],
-): void {
+): Promise<void> {
   const rows = [["Section", "Property", "Value", "Unit", "Condition", "Source"]];
   const contextValue = (keys: string[]): string => {
     const item = values.find((candidate) => keys.includes(candidate.attribute.current_revision.content.key));
@@ -103,17 +106,52 @@ function downloadLayoutCsv(
   }
   const csv = rows.map((row) => row.map(csvCell).join(",")).join("\r\n");
   const blob = new Blob([`${csv}\r\n`], { type: "text/csv;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
   const safeName = (layout?.name ?? record.current_revision.content.name)
     .replace(/[^a-z0-9_-]+/gi, "-")
     .replace(/^-|-$/g, "") || "material-datasheet";
-  anchor.href = url;
-  anchor.download = `${safeName}.csv`;
-  document.body.appendChild(anchor);
-  anchor.click();
-  anchor.remove();
-  URL.revokeObjectURL(url);
+  try {
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `${safeName}.csv`;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+    const principal = await getAuthenticatedPrincipal(config);
+    appendActivityOutcome(
+      principal.data.principal_id,
+      principal.data.organization_id,
+      principal.data.project_id,
+      "activity",
+      {
+        kind: "csv_blob",
+        path: `/materials/records/${record.record_id}/revisions/${record.current_revision.id}`,
+        recordId: record.record_id,
+        recordRevisionId: record.current_revision.id,
+      },
+      `Downloaded ${safeName}.csv from the exact Record revision.`,
+    );
+  } catch (cause) {
+    try {
+      const principal = await getAuthenticatedPrincipal(config);
+      appendActivityFailure(
+        principal.data.principal_id,
+        principal.data.organization_id,
+        principal.data.project_id,
+        "activity",
+        {
+          kind: "csv_blob",
+          path: `/materials/records/${record.record_id}/revisions/${record.current_revision.id}`,
+          recordId: record.record_id,
+          recordRevisionId: record.current_revision.id,
+        },
+        cause instanceof Error ? cause.message : "CSV download failed.",
+      );
+    } catch {
+      // Best-effort local recovery only.
+    }
+  }
 }
 
 export function MaterialDatasheetProjection({ config, tableId, recordId, mode, revisionId }: Props) {
@@ -210,8 +248,8 @@ export function MaterialDatasheetProjection({ config, tableId, recordId, mode, r
   })}</tbody></table></section>)}</div>;
 
   if (mode !== "evidence") {
-    return <section className="layout-projection"><div className="detail-section-heading"><div><p className="ux-kicker">Material data</p><h2>{selectedLayout?.name ?? "Properties"}</h2></div><button className="ux-button tertiary" type="button" onClick={() => record && downloadLayoutCsv(record, selectedLayout, values)}>Download CSV</button></div>{content}</section>;
+    return <section className="layout-projection"><div className="detail-section-heading"><div><p className="ux-kicker">Material data</p><h2>{selectedLayout?.name ?? "Properties"}</h2></div><button className="ux-button tertiary" type="button" onClick={() => record && void downloadLayoutCsv(config, record, selectedLayout, values)}>Download CSV</button></div>{content}</section>;
   }
 
-  return <details className="ux-disclosure layout-projection"><summary>Additional data and technical values</summary><div className="layout-selector-row"><label className="ux-field">View<select className="ux-select" aria-label="Material data view" value={selectedLayout.layout_id} onChange={(event) => setLayoutId(event.target.value)}>{layouts.map((layout) => <option key={layout.layout_id} value={layout.layout_id}>{layout.name}</option>)}</select></label><span className="ux-meta">{selectedLayout.description ?? "Saved display order and sections"}</span><button className="ux-button tertiary" type="button" onClick={() => record && downloadLayoutCsv(record, selectedLayout, values)}>Download CSV</button></div>{content}</details>;
+  return <details className="ux-disclosure layout-projection"><summary>Additional data and technical values</summary><div className="layout-selector-row"><label className="ux-field">View<select className="ux-select" aria-label="Material data view" value={selectedLayout.layout_id} onChange={(event) => setLayoutId(event.target.value)}>{layouts.map((layout) => <option key={layout.layout_id} value={layout.layout_id}>{layout.name}</option>)}</select></label><span className="ux-meta">{selectedLayout.description ?? "Saved display order and sections"}</span><button className="ux-button tertiary" type="button" onClick={() => record && void downloadLayoutCsv(config, record, selectedLayout, values)}>Download CSV</button></div>{content}</details>;
 }

@@ -147,10 +147,16 @@ def postgres() -> Iterator[Harness]:
                 {"id": ACTOR, "now": NOW},
             )
             connection.exec_driver_sql(
-                f'GRANT USAGE ON SCHEMA catalog, access_control, revisioning TO "{app_role}"'
+                f'GRANT USAGE ON SCHEMA catalog, governance, access_control, revisioning, '
+                f'datasets, modeling, exporting, processing, testing TO "{app_role}"'
             )
             connection.exec_driver_sql(
                 "GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA catalog "
+                f'TO "{app_role}"'
+            )
+            connection.exec_driver_sql(
+                "GRANT SELECT ON ALL TABLES IN SCHEMA governance, datasets, modeling, "
+                "exporting, processing, testing "
                 f'TO "{app_role}"'
             )
             connection.exec_driver_sql(
@@ -512,7 +518,7 @@ def test_record_round_trip_search_facet_compare_and_folder_cycle(postgres: Harne
 
     with postgres.admin_engine.connect() as connection:
         version = connection.scalar(sa.text("SELECT version_num FROM alembic_version"))
-        assert version == "20260923_092_uxc08"
+        assert version == "20260925_094_issue160"
         validator = connection.execute(
             sa.text(
                 "SELECT p.prosecdef, p.proconfig, "
@@ -661,6 +667,29 @@ def test_dual_explorer_exact_links_reverse_query_cardinality_and_deactivation(
     assert binding.workbench_path == (
         f"/materials/{governed_material.id}?revision_id={governed_material.current.record.revision_id}"
     )
+    governed_state = postgres.catalog.create_material_state(
+        context,
+        write,
+        CreateMaterialState(
+            MaterialStateContent(
+                governed_material.id,
+                governed_material.current.record.revision_id,
+                "As received",
+            ),
+            "create governed Material State for multi-binding graph readback",
+        ),
+    )
+    state_binding = postgres.links.bind_domain_revision(
+        context,
+        write,
+        material.id,
+        material.current.record.revision_id,
+        BindDomainRevision(
+            DomainBindingKind.MATERIAL_STATE,
+            governed_state.id,
+            governed_state.current.record.revision_id,
+        ),
+    )
     resolved_binding = postgres.links.resolve_domain_binding(
         context,
         read,
@@ -703,6 +732,15 @@ def test_dual_explorer_exact_links_reverse_query_cardinality_and_deactivation(
     )
     assert {node.name for node in graph.nodes} == {"DP780", "DP780 tensile run 1"}
     assert graph.root.domain_binding == binding
+    assert graph.root.domain_bindings == tuple(
+        sorted((binding, state_binding), key=lambda item: (item.kind.value, str(item.id)))
+    )
+    assert postgres.links.get_domain_binding(
+        context, read, material.id, material.current.record.revision_id
+    ) == graph.root.domain_binding
+    assert postgres.links.list_domain_bindings(
+        context, read, material.id, material.current.record.revision_id
+    ) == graph.root.domain_bindings
     with pytest.raises(sa.exc.IntegrityError, match="exact revision in the same scope"):
         postgres.links.bind_domain_revision(
             context,

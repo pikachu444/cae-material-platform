@@ -21,11 +21,10 @@ from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
     BindingSubject,
     DataClassification,
-    FeatureGrant,
     ProductAccessAssignment,
     ProductRole,
-    Role,
     RoleBinding,
+    product_role_preset,
 )
 from cmp.modules.identity_access.domain.security import (
     Principal,
@@ -161,20 +160,23 @@ def _request(
 def test_administrator_assigns_task_presets_and_reviewer_receives_review_access() -> None:
     idp = DevelopmentTestIdp()
     assignments = _Assignments()
-    admin_binding = RoleBinding(
-        id=uuid4(),
-        organization_id=ORG,
-        project_id=PROJECT,
-        subject=BindingSubject.for_group(idp.issuer, "administrators"),
-        role=Role.ORG_ADMIN,
-        max_classification=DataClassification.RESTRICTED,
-        allow_export_controlled=False,
-        valid_from=NOW - timedelta(days=1),
-    )
     authorization = AuthorizationService(
-        bindings=_Bindings(admin_binding),
+        bindings=_Bindings(),
         product_assignments=assignments,
         clock=lambda: NOW,
+    )
+    assignments.items.append(
+        ProductAccessAssignment(
+            id=uuid4(),
+            organization_id=ORG,
+            project_id=PROJECT,
+            subject=BindingSubject.for_group(idp.issuer, "administrators"),
+            product_role=ProductRole.ADMINISTRATOR,
+            feature_grants=product_role_preset(ProductRole.ADMINISTRATOR),
+            max_classification=DataClassification.RESTRICTED,
+            allow_export_controlled=False,
+            valid_from=NOW - timedelta(days=1),
+        )
     )
     access = ProductAccessAdministrationService(
         authorization=authorization,
@@ -246,9 +248,10 @@ def test_administrator_assigns_task_presets_and_reviewer_receives_review_access(
 
     assert admin_summary.status_code == 200
     assert admin_summary.json()["product_role"] == ProductRole.ADMINISTRATOR
-    assert set(admin_summary.json()["feature_grants"]) == {
-        grant.value for grant in FeatureGrant
-    }
+    assert admin_summary.json()["feature_grants"] == [
+        grant.value for grant in product_role_preset(ProductRole.ADMINISTRATOR)
+    ]
+    assert "model_approval" not in admin_summary.json()["feature_grants"]
     assert created.status_code == 201
     assert created.json()["feature_grants"] == ["processing_calibration", "solver_card_export"]
     assert user_summary.status_code == 200

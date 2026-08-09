@@ -30,11 +30,13 @@ type Label = Annotated[str, StringConstraints(min_length=1, max_length=255)]
 class ReviewRequestCreateRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    classification: DataClassification
+    # These legacy hints are accepted only as expected values.  The server resolver is the
+    # authority for classification and manifest evidence.
+    classification: DataClassification | None = None
     aggregate_type: Annotated[str, StringConstraints(min_length=1, max_length=100)]
     aggregate_id: UUID
     revision_id: UUID
-    manifest_sha256: Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
+    manifest_sha256: Annotated[str | None, StringConstraints(pattern=r"^[0-9a-f]{64}$")] = None
     reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
 
 
@@ -72,11 +74,15 @@ class ReviewRequestResponse(BaseModel):
     manifest_sha256: str
     required_role: str
     requested_by: UUID
+    # The persistence adapter preserves a snapshot for every current request;
+    # legacy rows are normalized by ``from_domain`` before crossing the API.
+    requested_by_display_name: str
     requested_at: str
     reason: str
     lifecycle_state: str
     decision: ReviewDecisionResponse | None
     links: dict[str, str]
+    evidence: dict[str, Any] | None = None
 
     @classmethod
     def from_domain(cls, value: ReviewRequestRecord) -> ReviewRequestResponse:
@@ -90,6 +96,9 @@ class ReviewRequestResponse(BaseModel):
             manifest_sha256=value.manifest_sha256,
             required_role=value.required_role,
             requested_by=value.requested_by,
+            requested_by_display_name=(
+                value.requested_by_display_name or "Requester name unavailable"
+            ),
             requested_at=value.requested_at.isoformat(),
             reason=value.reason,
             lifecycle_state=value.lifecycle_state.value,
@@ -113,6 +122,7 @@ class ReviewRequestResponse(BaseModel):
                 "self": f"/api/v1/review-requests/{value.id}",
                 "decisions": f"/api/v1/review-requests/{value.id}/decisions",
             },
+            evidence=value.evidence.to_document() if value.evidence is not None else None,
         )
 
 
@@ -219,9 +229,7 @@ def install_review_api(
     decide_dependency: Dependency,
 ) -> None:
     @application.exception_handler(ReviewHttpError)
-    async def review_error_handler(
-        request: Request, error: ReviewHttpError
-    ) -> JSONResponse:
+    async def review_error_handler(request: Request, error: ReviewHttpError) -> JSONResponse:
         del request
         return JSONResponse(
             status_code=error.problem.status,

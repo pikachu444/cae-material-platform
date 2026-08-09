@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
+from datetime import datetime
 from typing import Any, Protocol, cast
-from uuid import UUID
+from uuid import NAMESPACE_URL, UUID, uuid5
 
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
@@ -15,6 +16,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from cmp.modules.exporting.application.target_delivery import (
     DeliveryReceipt,
     DeliveryReceiptRecorder,
+    TargetDeliveryConflict,
     TargetDeliveryDuplicate,
 )
 from cmp.modules.exporting.application.target_preview import TargetPreview
@@ -23,7 +25,6 @@ from cmp.modules.identity_access.domain.authorization import (
     DataClassification,
 )
 from cmp.modules.identity_access.domain.security import SecurityContext
-from cmp.modules.jobs.adapters.persistence.events import SqlAlchemyOutboxWriter, outbox_event_table
 from cmp.modules.jobs.domain.events import CloudEventDraft, EventConflict
 from cmp.shared.domain.revisions import RevisionCreated
 
@@ -49,6 +50,62 @@ delivery_receipt_table = sa.Table(
     sa.Column("recorded_by", sa.Uuid(), nullable=False),
     schema="exporting",
 )
+domain_record_identity_binding_table = sa.Table(
+    "domain_record_identity_binding",
+    metadata,
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("domain_kind", sa.String(32), nullable=False),
+    sa.Column("domain_object_id", sa.Uuid(), nullable=False),
+    sa.Column("domain_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("record_id", sa.Uuid(), nullable=False),
+    sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("created_by", sa.Uuid(), nullable=False),
+    sa.Column("request_id", sa.Uuid(), nullable=False),
+    sa.Column("trace_id", sa.String(255), nullable=False),
+    schema="catalog",
+)
+catalog_record_table = sa.Table(
+    "catalog_record",
+    metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("current_revision_id", sa.Uuid(), nullable=False),
+    schema="catalog",
+)
+domain_record_binding_table = sa.Table(
+    "domain_record_binding",
+    metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("record_id", sa.Uuid(), nullable=False),
+    sa.Column("record_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("domain_kind", sa.String(32), nullable=False),
+    sa.Column("domain_object_id", sa.Uuid(), nullable=False),
+    sa.Column("domain_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("created_by", sa.Uuid(), nullable=False),
+    sa.Column("request_id", sa.Uuid(), nullable=False),
+    sa.Column("trace_id", sa.String(255), nullable=False),
+    schema="catalog",
+)
+neutral_solver_card_revision_table = sa.Table(
+    "neutral_solver_card_revision",
+    metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("aggregate_id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("neutral_material_id", sa.Uuid(), nullable=False),
+    sa.Column("neutral_material_revision_id", sa.Uuid(), nullable=False),
+    schema="exporting",
+)
 
 
 class RlsContext(Protocol):
@@ -58,6 +115,18 @@ class RlsContext(Protocol):
         context: SecurityContext,
         decision: AuthorizationDecision,
     ) -> None: ...
+
+
+class OutboxWriter(Protocol):
+    """Composition-bound outbox port; exporting owns no Job adapter imports."""
+
+    def append(
+        self,
+        session: Session,
+        draft: CloudEventDraft,
+        *,
+        recorded_at: datetime,
+    ) -> Any: ...
 
 
 def _receipt(row: Any) -> DeliveryReceipt:
@@ -86,7 +155,7 @@ def _is_expected_delivery_duplicate(error: IntegrityError) -> bool:
     return (
         table == delivery_receipt_table.name and "delivery_identity" in constraint
     ) or (
-        table == outbox_event_table.name and constraint == "uq_events_outbox_deduplication"
+        table == "outbox_event" and constraint == "uq_events_outbox_deduplication"
     )
 
 
@@ -96,11 +165,11 @@ class SqlTargetDeliveryReceiptRecorder(DeliveryReceiptRecorder):
         *,
         session_factory: sessionmaker[Session],
         rls_context: RlsContext,
-        writer: SqlAlchemyOutboxWriter | None = None,
+        writer: OutboxWriter,
     ) -> None:
         self._sessions = session_factory
         self._rls = rls_context
-        self._writer = writer or SqlAlchemyOutboxWriter()
+        self._writer = writer
 
     @contextmanager
     def _session(
@@ -161,6 +230,130 @@ class SqlTargetDeliveryReceiptRecorder(DeliveryReceiptRecorder):
             if not isinstance(session, Session):
                 raise RuntimeError("target delivery receipt requires a SQL transaction")
             revision = created.revision
+            if getattr(revision, "aggregate_type", None) == "exporting.neutral_solver_card":
+                try:
+                    neutral_id = UUID(preview.source["neutral_material_id"])
+                    neutral_revision_id = UUID(preview.source["neutral_material_revision_id"])
+                except (KeyError, TypeError, ValueError) as error:
+                    raise TargetDeliveryConflict(
+                        "target delivery source is missing an exact Neutral Material revision"
+                    ) from error
+                card_source = session.execute(
+                    sa.select(
+                        neutral_solver_card_revision_table.c.neutral_material_id,
+                        neutral_solver_card_revision_table.c.neutral_material_revision_id,
+                    ).where(
+                        neutral_solver_card_revision_table.c.organization_id
+                        == context.organization_id,
+                        neutral_solver_card_revision_table.c.project_id == context.project_id,
+                        neutral_solver_card_revision_table.c.classification
+                        == revision.scope.classification,
+                        neutral_solver_card_revision_table.c.aggregate_id
+                        == revision.aggregate_id,
+                        neutral_solver_card_revision_table.c.id == revision.revision_id,
+                    )
+                ).mappings().one_or_none()
+                if (
+                    card_source is None
+                    or card_source["neutral_material_id"] != neutral_id
+                    or card_source["neutral_material_revision_id"] != neutral_revision_id
+                ):
+                    raise TargetDeliveryConflict(
+                        "target delivery Solver Card source does not match its exact "
+                        "Neutral revision"
+                    )
+                record_row = session.execute(
+                    sa.select(
+                        domain_record_binding_table.c.record_id,
+                        domain_record_binding_table.c.record_revision_id,
+                    )
+                    .join(
+                        catalog_record_table,
+                        sa.and_(
+                            catalog_record_table.c.organization_id
+                            == domain_record_binding_table.c.organization_id,
+                            catalog_record_table.c.project_id
+                            == domain_record_binding_table.c.project_id,
+                            catalog_record_table.c.classification
+                            == domain_record_binding_table.c.classification,
+                            catalog_record_table.c.id == domain_record_binding_table.c.record_id,
+                            catalog_record_table.c.current_revision_id
+                            == domain_record_binding_table.c.record_revision_id,
+                        ),
+                    )
+                    .where(
+                        domain_record_binding_table.c.organization_id == context.organization_id,
+                        domain_record_binding_table.c.project_id == context.project_id,
+                        domain_record_binding_table.c.classification
+                        == revision.scope.classification,
+                        domain_record_binding_table.c.domain_kind == "neutral_material",
+                        domain_record_binding_table.c.domain_object_id == neutral_id,
+                        domain_record_binding_table.c.domain_revision_id == neutral_revision_id,
+                    )
+                ).mappings().one_or_none()
+                if record_row is None:
+                    raise TargetDeliveryConflict(
+                        "target delivery Neutral Material has no Materials Record binding"
+                    )
+                record_id = cast(UUID, record_row["record_id"])
+                record_revision_id = cast(UUID, record_row["record_revision_id"])
+                binding_key = (
+                    f"{context.organization_id}:{context.project_id}:"
+                    f"{revision.scope.classification}:neutral_solver_card:"
+                    f"{revision.aggregate_id}:{revision.revision_id}"
+                )
+                binding_id = uuid5(NAMESPACE_URL, f"urn:cmp:{binding_key}")
+                identity_values = {
+                    "organization_id": context.organization_id,
+                    "project_id": context.project_id,
+                    "classification": revision.scope.classification,
+                    "domain_kind": "neutral_solver_card",
+                    "domain_object_id": revision.aggregate_id,
+                    "domain_revision_id": revision.revision_id,
+                    "record_id": record_id,
+                    "created_at": revision.created_at,
+                    "created_by": context.principal.id,
+                    "request_id": context.request_id,
+                    "trace_id": context.trace_id,
+                }
+                session.execute(
+                    postgresql.insert(domain_record_identity_binding_table)
+                    .values(**identity_values)
+                    .on_conflict_do_nothing()
+                )
+                session.execute(
+                    postgresql.insert(domain_record_binding_table)
+                    .values(
+                        id=binding_id,
+                        record_revision_id=record_revision_id,
+                        **identity_values,
+                    )
+                    .on_conflict_do_nothing()
+                )
+                persisted = session.execute(
+                    sa.select(
+                        domain_record_binding_table.c.record_id,
+                        domain_record_binding_table.c.record_revision_id,
+                        domain_record_binding_table.c.domain_kind,
+                        domain_record_binding_table.c.domain_object_id,
+                        domain_record_binding_table.c.domain_revision_id,
+                    ).where(
+                        domain_record_binding_table.c.id == binding_id,
+                        domain_record_binding_table.c.organization_id == context.organization_id,
+                        domain_record_binding_table.c.project_id == context.project_id,
+                    )
+                ).mappings().one_or_none()
+                if (
+                    persisted is None
+                    or persisted["record_id"] != record_id
+                    or persisted["record_revision_id"] != record_revision_id
+                    or persisted["domain_kind"] != "neutral_solver_card"
+                    or persisted["domain_object_id"] != revision.aggregate_id
+                    or persisted["domain_revision_id"] != revision.revision_id
+                ):
+                    raise TargetDeliveryConflict(
+                        "target delivery Solver Card binding does not match its Neutral Record"
+                    )
             data = {
                 "receipt_id": str(receipt_id),
                 "delivery_identity": preview.preview_identity,

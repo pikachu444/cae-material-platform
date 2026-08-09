@@ -205,6 +205,11 @@ class CatalogRecordQuery:
     sort_direction: Literal["ascending", "descending"] = "ascending"
     record_id: UUID | None = None
     published_only: bool = False
+    # Materials workflow reads can require one exact governed binding in addition
+    # to the Record publication marker.  Search/filter callers that only need a
+    # binding kind leave these pins unset.
+    domain_binding_object_id: UUID | None = None
+    domain_binding_revision_id: UUID | None = None
 
     def __post_init__(self) -> None:
         if self.table_id.int == 0:
@@ -233,6 +238,19 @@ class CatalogRecordQuery:
             }
             if self.domain_binding_kind not in allowed_bindings:
                 raise ValueError("record query domain_binding_kind is not supported")
+        if (self.domain_binding_object_id is None) != (
+            self.domain_binding_revision_id is None
+        ):
+            raise ValueError("domain binding object and revision pins must be paired")
+        if self.domain_binding_object_id is not None:
+            if self.domain_binding_kind is None:
+                raise ValueError("domain binding pins require domain_binding_kind")
+            if (
+                self.domain_binding_object_id.int == 0
+                or self.domain_binding_revision_id is None
+                or self.domain_binding_revision_id.int == 0
+            ):
+                raise ValueError("domain binding pins must be non-zero UUIDs")
         if self.sort_by == "attribute" and self.sort_attribute_id is None:
             raise ValueError("attribute sort requires sort_attribute_id")
         if self.sort_by != "attribute" and self.sort_attribute_id is not None:

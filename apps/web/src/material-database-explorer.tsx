@@ -25,6 +25,7 @@ import type {
   ConfigurableRecordValue,
   ConfigurableSubsetResponse,
   ConfigurableTableResponse,
+  DomainRevisionBinding,
 } from "./types";
 
 interface Props {
@@ -45,6 +46,21 @@ function errorText(error: unknown): string {
 
 function recordType(endpoint: ConfigurableLinkEndpoint, tableName: string | undefined): string {
   return endpoint.domain_binding?.kind.replaceAll("_", " ") ?? tableName ?? "record";
+}
+
+function endpointBindings(endpoint: ConfigurableLinkEndpoint): DomainRevisionBinding[] {
+  const bindings = endpoint.domain_bindings?.length
+    ? endpoint.domain_bindings
+    : endpoint.domain_binding
+      ? [endpoint.domain_binding]
+      : [];
+  const seen = new Set<string>();
+  return bindings.filter((binding) => {
+    const identity = `${endpoint.record_id}:${endpoint.record_revision_id}:${binding.kind}:${binding.object_id}:${binding.revision_id}`;
+    if (seen.has(identity)) return false;
+    seen.add(identity);
+    return true;
+  });
 }
 
 function valueLabel(value: ConfigurableRecordValue): string {
@@ -644,9 +660,9 @@ export function MaterialDatabaseExplorer({
               </section> : null}
               {activeTab === "properties" ? <section className="layout-datasheet-card"><div className="datasheet-title"><div><p className="eyebrow">Typed values</p><h3>Properties and units</h3></div></div><div className="property-tile-grid">{orderedAttributes.filter((attribute) => !["curve", "file", "record_reference"].includes(attribute.current_revision.content.data_type)).map((attribute) => { const value = selectedValueMap.get(attribute.attribute_definition_id); return <article key={attribute.attribute_definition_id}><small>{attribute.current_revision.content.quantity_semantics ?? attribute.current_revision.content.data_type}</small><h4>{attribute.current_revision.content.name}</h4><strong>{value ? valueLabel(value) : "Not set"}</strong></article>; })}</div></section> : null}
               {activeTab === "curves" ? <section className="layout-datasheet-card"><div className="datasheet-title"><div><p className="eyebrow">Curve data</p><h3>Test and property curves</h3></div></div>{selectedValues.filter((value) => value.data_type === "curve").map((value) => <div className="curve-artifact-row" key={value.attribute_definition_id}><strong>{selectedAttributeMap.get(value.attribute_definition_id)?.current_revision.content.name ?? "Curve"}</strong><span>{valueLabel(value)}</span></div>)}{!selectedValues.some((value) => value.data_type === "curve") ? <div className="empty-tab-state"><p>No curve Attribute is stored on this record revision.</p><p>Open the linked Test Data record to inspect raw and normalized curves.</p></div> : null}</section> : null}
-              {activeTab === "tests" ? <section className="layout-datasheet-card"><div className="datasheet-title"><div><p className="eyebrow">Experimental evidence</p><h3>Test data and datasets</h3></div></div><div className="linked-delivery-grid">{selectedGraph.nodes.filter((node) => ["test_data", "dataset", "processing_output"].includes(node.domain_binding?.kind ?? "")).map((node) => <button type="button" key={`${node.record_id}:${node.record_revision_id}`} onClick={() => openEndpoint(node)}><small>{node.domain_binding?.kind.replaceAll("_", " ")}</small><strong>{node.name}</strong><span>Exact revision {node.revision_no}</span></button>)}</div></section> : null}
-              {activeTab === "models" ? <section className="layout-datasheet-card"><div className="datasheet-title"><div><p className="eyebrow">Modeling evidence</p><h3>Processing and material models</h3></div></div><div className="linked-delivery-grid">{selectedGraph.nodes.filter((node) => ["processing_output", "neutral_material", "material_model_ir"].includes(node.domain_binding?.kind ?? "")).map((node) => <button type="button" key={`${node.record_id}:${node.record_revision_id}`} onClick={() => openEndpoint(node)}><small>{node.domain_binding?.kind.replaceAll("_", " ")}</small><strong>{node.name}</strong><span>Exact revision {node.revision_no}</span></button>)}</div></section> : null}
-              {activeTab === "cards" ? <section className="layout-datasheet-card"><div className="datasheet-title"><div><p className="eyebrow">CAE delivery</p><h3>Linked solver cards</h3></div></div><div className="linked-delivery-grid">{selectedGraph.nodes.filter((node) => ["solver_card", "neutral_solver_card"].includes(node.domain_binding?.kind ?? "")).map((node) => <button type="button" key={`${node.record_id}:${node.record_revision_id}`} onClick={() => openEndpoint(node)}><small>{node.domain_binding?.kind.replaceAll("_", " ")}</small><strong>{node.name}</strong><span>Exact revision {node.revision_no}</span></button>)}</div></section> : null}
+              {activeTab === "tests" ? <section className="layout-datasheet-card"><div className="datasheet-title"><div><p className="eyebrow">Experimental evidence</p><h3>Test data and datasets</h3></div></div><div className="linked-delivery-grid">{selectedGraph.nodes.flatMap((node) => endpointBindings(node).filter((binding) => ["test_data", "dataset", "processing_output"].includes(binding.kind)).map((binding) => ({ node, binding }))).map(({ node, binding }) => <button type="button" key={`${node.record_id}:${node.record_revision_id}:${binding.kind}:${binding.object_id}:${binding.revision_id}`} onClick={() => openEndpoint(node)}><small>{binding.kind.replaceAll("_", " ")}</small><strong>{node.name}</strong><span>Exact revision {node.revision_no}</span></button>)}</div></section> : null}
+              {activeTab === "models" ? <section className="layout-datasheet-card"><div className="datasheet-title"><div><p className="eyebrow">Modeling evidence</p><h3>Processing and material models</h3></div></div><div className="linked-delivery-grid">{selectedGraph.nodes.flatMap((node) => endpointBindings(node).filter((binding) => ["processing_output", "neutral_material", "material_model_ir"].includes(binding.kind)).map((binding) => ({ node, binding }))).map(({ node, binding }) => <button type="button" key={`${node.record_id}:${node.record_revision_id}:${binding.kind}:${binding.object_id}:${binding.revision_id}`} onClick={() => openEndpoint(node)}><small>{binding.kind.replaceAll("_", " ")}</small><strong>{node.name}</strong><span>Exact revision {node.revision_no}</span></button>)}</div></section> : null}
+              {activeTab === "cards" ? <section className="layout-datasheet-card"><div className="datasheet-title"><div><p className="eyebrow">CAE delivery</p><h3>Linked solver cards</h3></div></div><div className="linked-delivery-grid">{selectedGraph.nodes.flatMap((node) => endpointBindings(node).filter((binding) => ["solver_card", "neutral_solver_card"].includes(binding.kind)).map((binding) => ({ node, binding }))).map(({ node, binding }) => <button type="button" key={`${node.record_id}:${node.record_revision_id}:${binding.kind}:${binding.object_id}:${binding.revision_id}`} onClick={() => openEndpoint(node)}><small>{binding.kind.replaceAll("_", " ")}</small><strong>{node.name}</strong><span>Exact revision {node.revision_no}</span></button>)}</div></section> : null}
               {activeTab === "links" ? <section className="layout-datasheet-card"><div className="datasheet-title"><div><p className="eyebrow">Exact relationships</p><h3>Forward and reverse links</h3></div></div><div className="linked-delivery-grid">{directLinks.map((link) => { const forward = link.source.record_id === selected.record_id && link.source.record_revision_id === selected.record_revision_id; const endpoint = forward ? link.target : link.source; return <button type="button" key={link.record_link_id} onClick={() => openEndpoint(endpoint)}><small>{forward ? link.link_type_revision.content.forward_label : link.link_type_revision.content.reverse_label}</small><strong>{endpoint.name}</strong><span>Exact r{endpoint.revision_no}</span></button>; })}</div></section> : null}
             </div>
           ) : (

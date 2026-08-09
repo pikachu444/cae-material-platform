@@ -394,7 +394,9 @@ def _worker_token(
     settings: Settings,
     demo: DemoIdentity | None,
 ) -> Callable[[], str] | None:
-    token = demo.issue_access_token if demo is not None else None
+    token: Callable[[], str] | None = (
+        (lambda: demo.issue_access_token()) if demo is not None else None
+    )
     if token is None and settings.worker_access_token_file is not None:
         token = RotatingTextFile(Path(settings.worker_access_token_file))
     if token is None and settings.worker_access_token is not None:

@@ -88,11 +88,33 @@ export interface ReviewRequestResponse {
   manifest_sha256: string;
   required_role: "domain_reviewer";
   requested_by: string;
+  requested_by_display_name: string;
   requested_at: string;
   reason: string;
   lifecycle_state: LifecycleState;
   decision: ReviewDecisionResponse | null;
   links: Record<string, string>;
+  evidence: ReviewSubjectEvidence | null;
+}
+
+export interface ReviewSubjectEvidence {
+  subject_type: string;
+  subject_id: string;
+  subject_revision_id: string;
+  label: string;
+  classification: DataClassification;
+  schema: { ref: string; version: string };
+  server_manifest: { sha256: string };
+  source_artifact: { state: "attached" | "unattached"; id: string | null; sha256: string | null };
+  validation: { status: "valid" | "warning" | "blocked"; summary: string };
+  created: { by: string; at: string };
+  change_reason: string;
+  exact_input_use: string[];
+  affected_materials: { record_id: string | null; record_revision_id: string | null; path: string | null };
+  affected_table_id: string | null;
+  affected_table_revision_id: string | null;
+  output_artifact_sha256: string | null;
+  neutral: { material_id: string | null; material_revision_id: string | null; artifact_sha256: string | null };
 }
 
 export interface ReviewRequestListResponse {
@@ -3852,6 +3874,9 @@ export interface ConfigurableLinkEndpoint {
   name: string;
   external_key: string | null;
   domain_binding: DomainRevisionBinding | null;
+  /** All approved bindings on this exact record revision.  `domain_binding`
+   * remains the backwards-compatible primary summary. */
+  domain_bindings?: DomainRevisionBinding[];
 }
 
 export type DomainBindingKind =

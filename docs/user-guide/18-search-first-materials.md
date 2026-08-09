@@ -186,9 +186,9 @@ Material 상세 또는 Native Solver Card preview에서 **Request review**를 �
 현재 화면의 자료로 요청됩니다.
 같은 revision에 요청이 있으면 다시 보내지 않고 **Waiting for review**, **Approved**, 또는
 **Changes requested** 상태를 보입니다. 전송 오류는 사유를 유지한 채 **Retry request**로 다시 시도할 수
-있습니다. 승인이나 변경 요청 결정은 Activity의 Reviewer/Administrator만 기록합니다.
+있습니다. 승인이나 변경 요청 결정은 Activity의 Reviewer만 기록합니다.
 
-현재 Activity 캡처는 실제 pending review request를 사용해 Reviewer/Administrator의 **Review**
+현재 Activity 캡처는 실제 pending review request를 사용해 Reviewer의 **Review**
 동작과 User의 **In progress** 상태를 검증합니다. 브라우저에 Modeling session이 있으면 exact
 stage·revision·curve 선택으로 복귀하고, 없으면 **Start Modeling** 복구 동작을 표시합니다.
 

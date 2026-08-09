@@ -118,6 +118,52 @@ def test_catalog_material_families_remain_fixture_text_and_allowed_values() -> N
         ) == family
 
 
+def test_demo_density_fixture_is_supported_si_and_non_production() -> None:
+    assert _SEED_FULL_DEMO._DEMO_METAL_DENSITY_FIXTURE == ("7850", "kg/m^3", "7850")
+    assert "not validated for engineering use" in _SEED_FULL_DEMO._METAL_CATALOG_DESCRIPTION
+
+
+def test_existing_neutral_selects_its_exact_processing_model() -> None:
+    models = [
+        {
+            "material_model_id": "model-wrong",
+            "current_revision": {
+                "content": {
+                    "processing_projection": {
+                        "output_id": "output-other",
+                        "output_revision_id": "output-other-r1",
+                    }
+                }
+            },
+        },
+        {
+            "material_model_id": "model-exact",
+            "current_revision": {
+                "content": {
+                    "processing_projection": {
+                        "output_id": "output-exact",
+                        "output_revision_id": "output-exact-r1",
+                    }
+                }
+            },
+        },
+    ]
+    neutral = {
+        "document": {
+            "candidate_selection": {
+                "processing_output": {
+                    "id": "output-exact",
+                    "revision_id": "output-exact-r1",
+                }
+            }
+        }
+    }
+
+    selected = _SEED_FULL_DEMO._model_for_neutral_processing_output(models, neutral)
+
+    assert selected is models[1]
+
+
 class _LegacyMaterialApi:
     def __init__(self) -> None:
         self.material: dict[str, Any] = {

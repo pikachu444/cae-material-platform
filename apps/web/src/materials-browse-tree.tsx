@@ -68,6 +68,7 @@ export interface MaterialsBrowseScope {
 interface Props {
   config: ApiConfig;
   subsetMode?: boolean;
+  publishedOnly?: boolean;
   requestedRecord?: ConfigurableLinkEndpoint | null;
   onSelectRecord: (
     record: ConfigurableCatalogRecordResponse,
@@ -126,7 +127,7 @@ function rowGlyph(row: TreeRow): EngineeringIconName | null {
   return null;
 }
 
-export function MaterialsBrowseTree({ config, subsetMode = false, requestedRecord, onSelectRecord, onOpenRecord, onScopeChange, onScopeAvailabilityChange }: Props) {
+export function MaterialsBrowseTree({ config, subsetMode = false, publishedOnly = false, requestedRecord, onSelectRecord, onOpenRecord, onScopeChange, onScopeAvailabilityChange }: Props) {
   const [tables, setTables] = useState<ConfigurableTableResponse[]>([]);
   const [children, setChildren] = useState<Record<string, CatalogExplorerChildrenResponse>>({});
   const [expanded, setExpanded] = useState<Set<string>>(new Set(["database", "profile"]));
@@ -293,6 +294,7 @@ export function MaterialsBrowseTree({ config, subsetMode = false, requestedRecor
           }] : [],
           facet_attribute_ids: [],
           limit: SEARCH_LIMIT,
+          published_only: publishedOnly,
         }),
       ]);
       setActiveFind(normalizedText || (typeof definition.text === "string" ? definition.text : subset?.name ?? "Subset"));
@@ -306,7 +308,7 @@ export function MaterialsBrowseTree({ config, subsetMode = false, requestedRecor
     } finally {
       setLoadingKey(null);
     }
-  }, [config, expanded, expandedBeforeSearch, isMaterialsTableId, onScopeAvailabilityChange]);
+  }, [config, expanded, expandedBeforeSearch, isMaterialsTableId, onScopeAvailabilityChange, publishedOnly]);
 
   function submitFind(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();
@@ -493,7 +495,7 @@ export function MaterialsBrowseTree({ config, subsetMode = false, requestedRecor
     }
     setLoadingKey(`record:${record.record_id}`);
     try {
-      const graph = await getCatalogWorkflowGraph(config, record.record_id, record.current_revision.id, 5);
+      const graph = await getCatalogWorkflowGraph(config, record.record_id, record.current_revision.id, 5, publishedOnly);
       onSelectRecord(record, graph.data);
       setError(null);
     } catch (cause) {
@@ -501,7 +503,7 @@ export function MaterialsBrowseTree({ config, subsetMode = false, requestedRecor
     } finally {
       setLoadingKey(null);
     }
-  }, [config, isMaterialsTableId, onScopeAvailabilityChange, onScopeChange, onSelectRecord]);
+  }, [config, isMaterialsTableId, onScopeAvailabilityChange, onScopeChange, onSelectRecord, publishedOnly]);
 
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>, row: TreeRow, index: number): void {
     if (event.key === "ArrowDown") {

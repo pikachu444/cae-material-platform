@@ -417,7 +417,7 @@ def test_incomplete_capture_cannot_reuse_files_from_previous_output(
 
 
 def test_current_capture_contract_contains_product_routes_only() -> None:
-    assert len(CURRENT_CAPTURE_OUTPUTS) == 74
+    assert len(CURRENT_CAPTURE_OUTPUTS) == 77
     assert all(name in CURRENT_CAPTURE_OUTPUTS for name in MODELING_DATA_SESSION_OUTPUTS)
     assert all(name in CURRENT_CAPTURE_OUTPUTS for name in MODELING_PROCESS_OUTPUTS)
     assert {
@@ -428,6 +428,34 @@ def test_current_capture_contract_contains_product_routes_only() -> None:
         "modeling-process-exact-read-failed-1440x900.png",
     } <= set(CURRENT_CAPTURE_OUTPUTS)
     assert all(not name.startswith("storybook-") for name in CURRENT_CAPTURE_OUTPUTS)
+
+
+def test_activity_capture_contract_is_role_correct_for_requesters_and_reviewers() -> None:
+    new_page = _CAPTURE_SOURCE.split("def _new_page", 1)[1].split(
+        "def _bounding_box_edges", 1
+    )[0]
+    solver_flow = _CAPTURE_SOURCE.split("def _capture_solver_delivery", 1)[1].split(
+        "def _capture_activity", 1
+    )[0]
+    activity_wait = _CAPTURE_SOURCE.split("def _wait_for_activity_queue", 1)[1].split(
+        "def _ensure_activity_review_fixture", 1
+    )[0]
+
+    assert '_wait_for_activity_queue(page, expect_review_action=False, expected_view="in-progress")' in solver_flow
+    assert 'solver_review.get_by_text("Waiting for review", exact=True).wait_for' in solver_flow
+    assert "requester Activity row must not expose the Reviewer action" in solver_flow
+    assert "expect_review_action: bool = True" in activity_wait
+    assert 'expected_view: str | None = None' in activity_wait
+    assert 'page.get_by_role("tab", name=view_label, exact=True).click()' in activity_wait
+    assert "review_button.first.wait_for" in activity_wait
+    assert "activity-history-1440x900.png" in _CAPTURE_SOURCE
+    assert 'data-scroll-y") != "true"' in _CAPTURE_SOURCE
+    assert "context.add_init_script" in new_page
+    assert "json.dumps" in new_page
+    assert "page.evaluate" not in new_page
+    assert new_page.index("context.add_init_script") < new_page.index("page = context.new_page()")
+    assert new_page.index("page = context.new_page()") < new_page.index("page.goto(base_url)")
+    assert "No review actions are assigned to this role." not in _CAPTURE_SOURCE
 
 
 def test_modeling_fit_capture_contract_covers_five_viewports_and_recovery_states() -> None:

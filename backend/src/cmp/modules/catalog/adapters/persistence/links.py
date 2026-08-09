@@ -176,12 +176,22 @@ def _workbench_path(kind: DomainBindingKind, object_id: UUID, revision_id: UUID)
         DomainBindingKind.MATERIAL_STATE: f"/materials?{query}",
         DomainBindingKind.SPECIMEN: f"/tests?{query}",
         DomainBindingKind.TEST_RUN: f"/tests?{query}",
-        DomainBindingKind.TEST_DATA: f"/datasets/test-json?{query}",
+        DomainBindingKind.TEST_DATA: (
+            f"/datasets/test-json?document_id={object_id}&revision_id={revision_id}"
+        ),
         DomainBindingKind.PROCESSING_OUTPUT: f"/datasets/processing?{query}",
-        DomainBindingKind.MATERIAL_MODEL: f"/models?{query}",
-        DomainBindingKind.NEUTRAL_MATERIAL: f"/models?{query}",
-        DomainBindingKind.SOLVER_CARD: f"/exports?{query}",
-        DomainBindingKind.NEUTRAL_SOLVER_CARD: f"/exports?{query}",
+        DomainBindingKind.MATERIAL_MODEL: (
+            f"/models/material-models/{object_id}/revisions/{revision_id}"
+        ),
+        DomainBindingKind.NEUTRAL_MATERIAL: (
+            f"/models/neutral-materials/{object_id}/revisions/{revision_id}"
+        ),
+        DomainBindingKind.SOLVER_CARD: (
+            f"/exports/cards/{object_id}/revisions/{revision_id}?kind=solver_card"
+        ),
+        DomainBindingKind.NEUTRAL_SOLVER_CARD: (
+            f"/exports/cards/{object_id}/revisions/{revision_id}?kind=neutral_solver_card"
+        ),
         DomainBindingKind.RELEASE: f"/governance?{query}",
     }
     return roots[kind]
@@ -647,18 +657,41 @@ class SqlAlchemyCatalogLinkRepository(CatalogLinkRepository):
         record_id: UUID,
         record_revision_id: UUID,
     ) -> DomainRevisionBinding | None:
+        bindings = self.list_domain_bindings(
+            context=context,
+            decision=decision,
+            record_id=record_id,
+            record_revision_id=record_revision_id,
+        )
+        return bindings[0] if bindings else None
+
+    def list_domain_bindings(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        record_id: UUID,
+        record_revision_id: UUID,
+    ) -> tuple[DomainRevisionBinding, ...]:
+        """Return every exact binding in a stable compatibility order."""
+
         with self._transaction(context, decision) as session:
-            row = (
+            rows = (
                 session.execute(
-                    sa.select(domain_record_binding).where(
+                    sa.select(domain_record_binding)
+                    .where(
                         domain_record_binding.c.record_id == record_id,
                         domain_record_binding.c.record_revision_id == record_revision_id,
                     )
+                    .order_by(
+                        domain_record_binding.c.domain_kind.asc(),
+                        domain_record_binding.c.id.asc(),
+                    )
                 )
                 .mappings()
-                .one_or_none()
+                .all()
             )
-            return None if row is None else _domain_binding(row)
+            return tuple(_domain_binding(row) for row in rows)
 
     def find_domain_binding(
         self,

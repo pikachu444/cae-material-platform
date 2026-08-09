@@ -348,6 +348,51 @@ def install_neutral_material_api(
             },
         )
 
+    @application.get(
+        "/api/v1/neutral-materials/{neutral_material_id}/revisions/{neutral_material_revision_id}/download",
+        operation_id="downloadSelectedModelNeutralMaterial",
+        responses={
+            200: {
+                "description": "Exact canonical selected-model Neutral JSON",
+                "content": {"application/json": {}},
+            },
+            **errors,
+        },
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["modeling"],
+    )
+    async def download_exact_revision(
+        request: Request,
+        neutral_material_id: UUID,
+        neutral_material_revision_id: UUID,
+    ) -> Response:
+        context, decision = _scope(request)
+        if service is None:
+            raise NeutralMaterialHttpError(context, 503, "service is unavailable")
+        try:
+            value = await service.get_neutral_material_revision_for_export(
+                context, decision, neutral_material_id, neutral_material_revision_id
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        model_ref = value.document.material_model_ir.model
+        return Response(
+            value.document.to_json_bytes(),
+            media_type="application/json",
+            headers={
+                "Content-Disposition": (
+                    'attachment; filename="selected-model-r'
+                    f'{value.current.revision_no}.cmp-neutral.json"'
+                ),
+                "ETag": f'"{value.document.content_sha256}"',
+                "X-Content-SHA256": value.document.content_sha256,
+                "X-Material-Model-ID": str(model_ref.object_id),
+                "X-Material-Model-Revision-ID": str(model_ref.revision_id),
+                "X-Neutral-Material-ID": str(value.id),
+                "X-Neutral-Material-Revision-ID": str(value.current.revision_id),
+            },
+        )
+
     @application.post(
         "/api/v1/neutral-materials:validate",
         operation_id="validateNeutralMaterial",

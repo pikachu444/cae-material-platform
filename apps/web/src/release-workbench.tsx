@@ -4,6 +4,7 @@ import {
   type ApiConfig,
   createRelease,
   downloadRelease,
+  getAuthenticatedPrincipal,
   getReleaseImpact,
   listReleases,
   supersedeRelease,
@@ -15,6 +16,7 @@ import type {
   ReleaseImpactResponse,
   ReleaseResponse,
 } from "./types";
+import { appendActivityFailure, appendActivityOutcome } from "./activity-recovery";
 
 const classifications: DataClassification[] = [
   "internal",
@@ -79,6 +81,30 @@ const emptyInput: ReleaseCreateInput = {
 function errorMessage(error: unknown): string {
   if (error instanceof ApiError) return error.message;
   return error instanceof Error ? error.message : "Release request failed.";
+}
+
+async function recordReleaseRecovery(
+  config: ApiConfig,
+  releaseId: string,
+  status: "failed" | "succeeded",
+  message: string,
+): Promise<void> {
+  try {
+    const principal = await getAuthenticatedPrincipal(config);
+    const context = { kind: "release_manifest" as const, path: `/releases/${releaseId}/download`, releaseId };
+    const args = [
+      principal.data.principal_id,
+      principal.data.organization_id,
+      principal.data.project_id,
+      "activity" as const,
+      context,
+      message,
+    ] as const;
+    if (status === "failed") appendActivityFailure(...args);
+    else appendActivityOutcome(...args);
+  } catch {
+    // Local recovery is optional; release state and package digest remain server-authoritative.
+  }
 }
 
 function labelFor(field: TextField): string {
@@ -155,8 +181,10 @@ export function ReleaseWorkbench({ config }: { config: ApiConfig }) {
       anchor.download = result.data.filename;
       anchor.click();
       URL.revokeObjectURL(url);
+      void recordReleaseRecovery(config, selected.release_id, "succeeded", "Downloaded the exact released package manifest.");
     } catch (cause) {
       setError(errorMessage(cause));
+      void recordReleaseRecovery(config, selected.release_id, "failed", errorMessage(cause));
     } finally {
       setDownloading(false);
     }

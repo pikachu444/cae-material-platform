@@ -242,6 +242,9 @@ _PRODUCT_BASE_PERMISSIONS = frozenset(
         Permission.EXPORT_READ,
         Permission.VALIDATION_READ,
         Permission.REVIEW_READ,
+        # Every product assignment may submit its own immutable work for review;
+        # deciding and review-backed publication remain Reviewer-only grants.
+        Permission.REVIEW_REQUEST,
         Permission.RELEASE_READ,
         Permission.PROVENANCE_READ,
         Permission.JOB_READ,
@@ -275,7 +278,6 @@ PRODUCT_FEATURE_PERMISSIONS: Mapping[FeatureGrant, frozenset[Permission]] = {
     ),
     FeatureGrant.MODEL_APPROVAL: frozenset(
         {
-            Permission.REVIEW_REQUEST,
             Permission.REVIEW_DECIDE,
             Permission.RELEASE_PUBLISH,
         }
@@ -347,6 +349,32 @@ _MODIFYING_OPERATIONS = frozenset(
     }
 )
 _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = {
+    # Published Materials is one server-scoped projection.  Its currentness query
+    # re-checks exact heads for Test Data, Material Models, Neutral/Solver Cards,
+    # Processing Outputs, and Testing lineage in the same SQL statement.  Carry
+    # those read capabilities into the catalog transaction only; this does not
+    # authorize any of their HTTP APIs.
+    Permission.CATALOG_READ: frozenset(
+        {
+            Permission.DATASET_READ,
+            Permission.MODELING_READ,
+            Permission.EXPORT_READ,
+            Permission.PROCESSING_READ,
+            Permission.TESTING_READ,
+        }
+    ),
+    # Review evidence is resolved server-side from the immutable subject revision
+    # before the governance row is inserted.  The resolver supports one closed set
+    # of subject domains, so the review command carries their read capabilities into
+    # the transaction-local RLS settings while retaining the normal review scope.
+    Permission.REVIEW_REQUEST: frozenset(
+        {
+            Permission.CATALOG_READ,
+            Permission.DATASET_READ,
+            Permission.MODELING_READ,
+            Permission.EXPORT_READ,
+        }
+    ),
     # Catalog registration parses a verified immutable source Artifact before it creates
     # typed Record revisions. This is an internal command capability only; the public
     # Artifact endpoints continue to require artifact.read explicitly.
@@ -446,6 +474,11 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
         {
             Permission.ARTIFACT_READ,
             Permission.ARTIFACT_WRITE,
+            # Target delivery records the immutable solver-card relationship in Catalog's
+            # identity and revision binding tables.  These are transaction-local capabilities
+            # for the already-authorized export command; they do not grant Catalog HTTP writes.
+            Permission.CATALOG_READ,
+            Permission.CATALOG_WRITE,
             Permission.DATASET_READ,
             Permission.EXPORT_READ,
             Permission.MODELING_READ,
@@ -469,7 +502,21 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
             Permission.VALIDATION_READ,
         }
     ),
-    Permission.REVIEW_DECIDE: frozenset({Permission.REVIEW_READ, Permission.PROVENANCE_READ}),
+    # Approval projects exact subject evidence and writes the Materials publication
+    # marker in the same transaction.  Carry every closed subject-domain read plus
+    # Catalog write into transaction-local RLS; public endpoints still authorize
+    # each operation independently.
+    Permission.REVIEW_DECIDE: frozenset(
+        {
+            Permission.CATALOG_READ,
+            Permission.CATALOG_WRITE,
+            Permission.DATASET_READ,
+            Permission.EXPORT_READ,
+            Permission.MODELING_READ,
+            Permission.PROVENANCE_READ,
+            Permission.REVIEW_READ,
+        }
+    ),
     Permission.RELEASE_PUBLISH: frozenset(
         {
             Permission.REVIEW_READ,
@@ -652,12 +699,18 @@ class AuthorizationService:
         legacy_roles = {item.role for item in legacy}
         grants = _legacy_feature_grants(legacy_roles)
         grants.update(grant for item in product for grant in item.feature_grants)
+        # Administrator v2 assignments are deliberately projected to their
+        # corrected four-grant preset.  In particular, a migrated v1 row must
+        # not leak the historical model-approval grant into the product summary.
+        has_product_administrator = any(
+            item.product_role is ProductRole.ADMINISTRATOR for item in product
+        )
+        if has_product_administrator:
+            grants = set(product_role_preset(ProductRole.ADMINISTRATOR))
         administrator = any(
             item.product_role is ProductRole.ADMINISTRATOR for item in product
         ) or bool(legacy_roles & {Role.ORG_ADMIN, Role.PLATFORM_ADMIN})
         reviewer = any(item.product_role is ProductRole.REVIEWER for item in product)
-        if administrator:
-            grants.update(FeatureGrant)
         return ProductAccessSummary(
             product_role=(
                 ProductRole.ADMINISTRATOR

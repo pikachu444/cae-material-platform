@@ -46,6 +46,7 @@ from fastapi import FastAPI, Request
 NOW = datetime(2026, 7, 18, tzinfo=UTC)
 IDS = tuple(UUID(int=value) for value in range(1, 32))
 ORG, PROJECT, ACTOR, NEUTRAL, REVISION, CANDIDATE, ARTIFACT = IDS[:7]
+MODEL, MODEL_REVISION = IDS[28:30]
 TRACE = "00-000000000000000000000000000000d1-00000000000000d1-01"
 CONTEXT = SecurityContext(
     principal=Principal(ACTOR, PrincipalType.USER, "Modeler", True),
@@ -137,7 +138,7 @@ def _document() -> NeutralMaterialDocument:
             ("no_holdout_data",),
         ),
         material_model_ir=NeutralHyperelasticIR(
-            RevisionReference(NEUTRAL, REVISION),
+            RevisionReference(MODEL, MODEL_REVISION),
             "urn:cmp:modeling:neutral-hyperelastic-ir:1.0.0",
             "1.0.0",
             "d" * 64,
@@ -217,6 +218,18 @@ class _Service:
     ) -> NeutralMaterialSnapshot:
         assert context is CONTEXT and decision.permission is Permission.MODELING_READ
         assert neutral_material_id == NEUTRAL
+        return SNAPSHOT
+
+    async def get_neutral_material_revision_for_export(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        neutral_material_id: UUID,
+        neutral_material_revision_id: UUID,
+    ) -> NeutralMaterialSnapshot:
+        assert context is CONTEXT and decision.permission is Permission.MODELING_READ
+        assert neutral_material_id == NEUTRAL
+        assert neutral_material_revision_id == REVISION
         return SNAPSHOT
 
     async def import_neutral_material(
@@ -299,6 +312,21 @@ async def _exercise() -> None:
         assert downloaded.status_code == 200
         assert downloaded.content == DOCUMENT.to_json_bytes()
         assert downloaded.headers["content-disposition"].endswith(f'{NEUTRAL}.json"')
+
+        exact_downloaded = await client.get(
+            f"/api/v1/neutral-materials/{NEUTRAL}/revisions/{REVISION}/download"
+        )
+        assert exact_downloaded.status_code == 200
+        assert exact_downloaded.content == DOCUMENT.to_json_bytes()
+        assert exact_downloaded.headers["etag"] == f'"{DOCUMENT.content_sha256}"'
+        assert exact_downloaded.headers["x-material-model-id"] == str(MODEL)
+        assert exact_downloaded.headers["x-material-model-revision-id"] == str(MODEL_REVISION)
+        assert exact_downloaded.headers["x-neutral-material-id"] == str(NEUTRAL)
+        assert exact_downloaded.headers["x-neutral-material-revision-id"] == str(REVISION)
+        assert (
+            "selected-model-r1.cmp-neutral.json"
+            in exact_downloaded.headers["content-disposition"]
+        )
 
         validated = await client.post(
             "/api/v1/neutral-materials:validate", json=DOCUMENT.canonical()

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import Final
+from typing import Final, Literal
 from uuid import UUID
 
 from fastapi import FastAPI, Response
@@ -22,7 +22,12 @@ from cmp.modules.identity_access.adapters.development.test_idp import Developmen
 DEMO_ORGANIZATION_ID: Final = UUID("d0000000-0000-4000-8000-000000000001")
 DEMO_PROJECT_ID: Final = UUID("d0000000-0000-4000-8000-000000000002")
 DEMO_GROUP: Final = "cmp-demo-material-team"
-DEMO_SUBJECT: Final = "cmp-demo-user"
+DEMO_SUBJECT: Final = "cmp-demo-administrator"
+DEMO_USER_GROUP: Final = "cmp-demo-user-team"
+DEMO_USER_SUBJECT: Final = "cmp-demo-user"
+DEMO_REVIEWER_GROUP: Final = "cmp-demo-reviewer-team"
+DEMO_REVIEWER_SUBJECT: Final = "cmp-demo-reviewer"
+DemoPersona = Literal["administrator", "user", "reviewer"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -50,15 +55,35 @@ class DemoIdentity:
         audience = settings.demo_identity_audience.strip()
         return cls(issuer, audience, DevelopmentTestIdp(issuer=issuer, audience=audience))
 
-    def issue_access_token(self) -> str:
-        """Issue a deliberately short-lived browser token for the synthetic demo tenant."""
+    def issue_access_token(self, persona: DemoPersona = "administrator") -> str:
+        """Issue a deliberately short-lived browser token for one demo persona.
 
+        The two personas are intentionally local-only fixtures.  The default remains
+        the historical Administrator token so existing seed scripts keep their
+        deterministic behavior; ``user`` and ``reviewer`` are explicit additional
+        personas used by the review/publication browser journey.
+        """
+
+        if persona == "reviewer":
+            subject = DEMO_REVIEWER_SUBJECT
+            display_name = "CMP local demo reviewer"
+            groups = (DEMO_REVIEWER_GROUP,)
+        elif persona == "user":
+            subject = DEMO_USER_SUBJECT
+            display_name = "CMP local demo user"
+            groups = (DEMO_USER_GROUP,)
+        elif persona == "administrator":
+            subject = DEMO_SUBJECT
+            display_name = "CMP local demo administrator"
+            groups = (DEMO_GROUP,)
+        else:  # pragma: no cover - Literal callers and the HTTP query constrain this.
+            raise ValueError(f"unsupported demo persona: {persona}")
         return self.idp.issue_user_token(
-            subject=DEMO_SUBJECT,
+            subject=subject,
             organization_id=DEMO_ORGANIZATION_ID,
             project_id=DEMO_PROJECT_ID,
-            display_name="CMP local demo user",
-            groups=(DEMO_GROUP,),
+            display_name=display_name,
+            groups=groups,
             scopes=("openid", "profile"),
             lifetime=timedelta(minutes=15),
         )
@@ -75,6 +100,7 @@ class DemoAccessTokenResponse(BaseModel):
     organization_id: UUID
     project_id: UUID
     group: str
+    persona: DemoPersona
 
 
 def install_demo_identity_api(application: FastAPI, identity: DemoIdentity | None) -> None:
@@ -91,12 +117,21 @@ def install_demo_identity_api(application: FastAPI, identity: DemoIdentity | Non
         tags=["development"],
         summary="Issue a short-lived token for the explicit local demo tenant.",
     )
-    def issue_local_demo_access_token(response: Response) -> DemoAccessTokenResponse:
+    def issue_local_demo_access_token(
+        response: Response,
+        persona: DemoPersona = "administrator",
+        ) -> DemoAccessTokenResponse:
         response.headers["Cache-Control"] = "no-store"
+        group = {
+            "administrator": DEMO_GROUP,
+            "user": DEMO_USER_GROUP,
+            "reviewer": DEMO_REVIEWER_GROUP,
+        }[persona]
         return DemoAccessTokenResponse(
-            access_token=identity.issue_access_token(),
+            access_token=identity.issue_access_token(persona),
             expires_in_seconds=15 * 60,
             organization_id=DEMO_ORGANIZATION_ID,
             project_id=DEMO_PROJECT_ID,
-            group=DEMO_GROUP,
+            group=group,
+            persona=persona,
         )

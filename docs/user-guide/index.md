@@ -54,7 +54,8 @@ Modeling Data(JSON/CSV/XLSX) → Process → Fit → Export → Material Library
 - Modeling은 compact curve/process explorer와 넓은 graph를 유지하고 설정은 ribbon/drawer로 엽니다.
 - full UUID, hash, classification, exact revision, JSON과 provenance graph는 Evidence/Advanced에 둡니다.
 - Table/Attribute/Layout/Subset/Link Type 관리는 role-gated Administration에서 수행합니다.
-- Reviewer 역할과 Activity 검토 queue, Administration 작업영역 재설계는 아직 준비 중입니다.
+- Reviewer-only Activity 검토 queue와 failed-job exact retry를 사용할 수 있습니다. Administrator는
+  자신의 요청을 In progress에서 확인하며 승인 결정은 Reviewer만 기록합니다.
 
 ![Searchable Browse Tree](images/current/materials-browse-1440x900.png)
 

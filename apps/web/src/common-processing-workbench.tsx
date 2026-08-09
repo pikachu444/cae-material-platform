@@ -881,11 +881,24 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   const initialQuery = useMemo(() => new URLSearchParams(locationSearch), [locationSearch]);
   const queryStage = initialQuery.get("stage");
   const queryFamily = initialQuery.get("family");
+  const queryBatchId = initialQuery.get("batch_id");
+  const queryRecipeId = initialQuery.get("recipe_id");
+  const queryRecipeRevisionId = initialQuery.get("recipe_revision_id");
+  const querySourceRefs = useMemo<ModelingSessionRecordRef[]>(() => {
+    const documentIds = initialQuery.getAll("source_document_id");
+    const revisionIds = initialQuery.getAll("source_revision_id");
+    return documentIds.flatMap((id, index) => {
+      const revisionId = revisionIds[index];
+      return id && revisionId ? [{ id, revisionId, label: id, revisionNo: 0 }] : [];
+    });
+  }, [initialQuery]);
   const initialTestDataRefs = useMemo<ModelingSessionRecordRef[]>(
-    () => initialSession?.workspace.selectedTestDataRefs?.length
+    () => querySourceRefs.length
+      ? querySourceRefs
+      : initialSession?.workspace.selectedTestDataRefs?.length
       ? initialSession.workspace.selectedTestDataRefs
       : initialSession?.testData ? [initialSession.testData] : [],
-    [initialSession],
+    [initialSession, querySourceRefs],
   );
   const initialIncludedDocumentIds = useMemo(
     () => Array.isArray(initialSession?.workspace.selectedDocumentIds)
@@ -1380,6 +1393,30 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   }, [initialSession, modelingTrack, profiles, selectedProfileId]);
 
   useEffect(() => {
+    if (!queryRecipeId || !queryRecipeRevisionId || selectedRecipeId) return;
+    const exactRecipe = recipes.find((item) => item.processing_recipe_id === queryRecipeId
+      && item.current_revision.id === queryRecipeRevisionId);
+    if (exactRecipe) selectRecipe(exactRecipe.processing_recipe_id);
+  }, [queryRecipeId, queryRecipeRevisionId, recipes, selectedRecipeId]);
+
+  useEffect(() => {
+    if (!querySourceRefs.length || !documents.length) return;
+    const sourceIds = querySourceRefs
+      .filter((ref) => documents.some((item) => item.test_data_document_id === ref.id))
+      .map((ref) => ref.id);
+    if (!sourceIds.length) return;
+    setBatchDocumentIds((current) => current.length ? current : sourceIds);
+  }, [documents, querySourceRefs]);
+
+  useEffect(() => {
+    if (!queryBatchId || !batches.length) return;
+    const exactBatch = batches.find((item) => item.batch_id === queryBatchId);
+    if (!exactBatch) return;
+    setBatchLabel(exactBatch.label);
+    setBatchDocumentIds(exactBatch.members.map((member) => member.source.document_id));
+  }, [batches, queryBatchId]);
+
+  useEffect(() => {
     if (contextResetPending.current) return;
     if (!selectedDocumentId || busy) return;
     const expectedRef = selectedTestDataRefsRef.current.find((ref) => ref.id === selectedDocumentId);
@@ -1520,7 +1557,12 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       setError("Select an exact published Recipe revision before batch preflight.");
       return null;
     }
-    const selected = documents.filter((item) => batchDocumentIds.includes(item.test_data_document_id));
+    const selected = batchDocumentIds.flatMap((id) => {
+      const exactRef = selectedTestDataRefs.find((item) => item.id === id);
+      if (exactRef) return [exactRef];
+      const current = documents.find((item) => item.test_data_document_id === id);
+      return current ? [modelingSessionRefFromRecord(current)] : [];
+    });
     if (!selected.length) {
       setError("Select at least one exact Test Data revision for the batch.");
       return null;
@@ -1528,8 +1570,8 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     return {
       recipe,
       sources: selected.map((item) => ({
-        document_id: item.test_data_document_id,
-        revision_id: item.current_revision.id,
+        document_id: item.id,
+        revision_id: item.revisionId,
       })),
     };
   }

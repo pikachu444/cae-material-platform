@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
+from cmp.apps import demo_seed
 from cmp.apps.demo_seed import _ensure_elastoplastic_models_and_cards, seed_demo
 
 
@@ -138,6 +139,35 @@ def test_seed_uses_the_protected_material_to_card_and_dataset_http_flow() -> Non
     assert api.calls.count(
         ("post", "/tabulated-plasticity-models/plastic-model-1/solver-cards")
     ) == 2
+
+
+def test_demo_api_authenticates_as_administrator(monkeypatch: Any) -> None:
+    requests: list[Any] = []
+
+    class _Response:
+        def __enter__(self) -> _Response:
+            return self
+
+        def __exit__(self, *args: Any) -> None:
+            del args
+
+        def read(self) -> bytes:
+            return b'{"access_token":"administrator-token"}'
+
+    def fake_urlopen(request: Any, timeout: int) -> _Response:
+        assert timeout == 30
+        requests.append(request)
+        return _Response()
+
+    monkeypatch.setattr(demo_seed, "urlopen", fake_urlopen)
+
+    api = demo_seed.DemoApi("http://demo.local/api/v1")
+    api.authenticate()
+
+    assert len(requests) == 1
+    assert requests[0].full_url == (
+        "http://demo.local/api/v1/demo-identity/token?persona=administrator"
+    )
 
 
 class _ExistingElastoplasticApi:

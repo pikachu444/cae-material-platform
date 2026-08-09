@@ -24,13 +24,19 @@ candidate manifest without importing Material, Dataset, solver, or calibration i
 5. `changes_requested` never mutates the rejected revision. Resubmission is possible only through
    the new immutable revision's initial `draft` lifecycle projection.
 6. Review requests and decisions use explicit PostgreSQL tables, composite tenant keys, forced
-   RLS, immutable triggers, and no generic EAV or opaque business payload.
+   RLS, immutable triggers, and no generic EAV or opaque business payload. A registered subject is
+   resolved server-side into a closed evidence snapshot containing schema, validation, artifact,
+   exact input, and affected Materials Record references; clients may provide only expected hints.
+7. An approved request is projected atomically into an immutable publication projection and the
+   Catalog publication marker. The projection requires the exact affected Record revision to remain
+   current and rejects stale bindings; no direct catalog publish bypasses review evidence.
 
 ## Consequences
 
 - Review state is queryable through the existing lifecycle projection and event history.
 - Candidate domain modules remain independent of governance storage and APIs.
 - T-30 can consume approved requests and verify the exact digest before composing a Release.
-- Comments, evidence attachments, legal signatures, configurable multi-role approvals, and Release
-  publication remain outside T-29.
+- Comments, evidence attachments, legal signatures, configurable multi-role approvals, and full
+  Release package composition remain outside T-29. Issue #160 owns the evidence-backed Record
+  publication projection, exact selected-model download, and Activity recovery surface.
 

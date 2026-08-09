@@ -74,7 +74,7 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     report = verify_user_guide(root)
 
     assert report.document_count >= 10
-    assert report.capture_count == 69
+    assert report.capture_count == 77
     assert report.navigation_count == 3
     assert report.classified_markdown_count >= 100
     assert report.current_document_count >= 40
@@ -142,8 +142,8 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "MOD-PROCESS-CURRENT-SIBLINGS-1440",
     }
 
-    assert manifest["scope"] == "issue-158-modeling-fit-ui-correction"
-    assert manifest["source_commit"] == correction_source
+    assert manifest["scope"] == "issue-160-review-publication"
+    assert manifest["source_commit"] == "working-tree-issue-160"
     assert len(provenance_ids) == len(set(provenance_ids))
     assert set(provenance_ids) == set(captures)
     assert {provenance["source_commit"] for provenance in manifest["capture_provenance"]} == {
@@ -153,6 +153,8 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "960d476",
         "55cfa62",
         "3bfc0d7",
+        "94387e4",
+        "working-tree-issue-160",
     }
     process_provenance = [
         provenance
@@ -236,7 +238,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         capture = captures[capture_id]
         assert (
             capture["workflow"]
-            == "uxc-06c2-exact-target-preflight-and-atomic-delivery"
+            == "uxc-06c2-capability-backed-preview-and-atomic-delivery"
         )
         assert "one immutable card/receipt" in capture["fixture"]
 
@@ -283,10 +285,10 @@ def test_current_images_are_product_routes_and_storybook_captures_are_untracked(
         (root / "docs/user-guide/screenshot-manifest.yaml").read_text(encoding="utf-8")
     )
     current_images = root / "docs/user-guide/images/current"
-    assert len(manifest["captures"]) == 69
+    assert len(manifest["captures"]) == 77
     assert all(not capture["route"].startswith("/iframe.html") for capture in manifest["captures"])
     assert not list(current_images.glob("storybook-*.png"))
-    assert len(list(current_images.glob("*.png"))) == 69
+    assert len(list(current_images.glob("*.png"))) == 77
     assert not list((root / "docs/17-evidence/images").glob("**/storybook-*.png"))
 
 

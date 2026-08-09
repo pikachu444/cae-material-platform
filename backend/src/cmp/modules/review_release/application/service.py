@@ -15,10 +15,12 @@ from cmp.modules.identity_access.domain.authorization import (
     Role,
 )
 from cmp.modules.identity_access.domain.security import SecurityContext
+from cmp.modules.review_release.domain.evidence import ReviewSubjectEvidenceRegistry
 from cmp.modules.review_release.domain.lifecycle import (
     DecideReviewRequest,
     InvalidReview,
     ReviewConflict,
+    ReviewNotFound,
     ReviewRequestRecord,
     SubmitReviewRequest,
 )
@@ -75,6 +77,7 @@ class ReviewService:
     repository: ReviewRepository
     id_factory: Callable[[], UUID] = uuid4
     clock: Callable[[], datetime] = lambda: datetime.now(UTC)
+    evidence_registry: ReviewSubjectEvidenceRegistry | None = None
 
     @staticmethod
     def _assert_context(
@@ -113,9 +116,39 @@ class ReviewService:
         decision: AuthorizationDecision,
         command: SubmitReviewRequest,
     ) -> ReviewRequestRecord:
-        self._assert_context(context, decision, Permission.REVIEW_REQUEST)
-        self._assert_scope(context, decision, command.classification)
         now = self.clock()
+        # Reject an untrusted/mismatched authorization decision before touching
+        # the subject resolver.  Evidence lookup must not become an existence
+        # or revision side channel for callers without REVIEW_REQUEST access.
+        self._assert_context(context, decision, Permission.REVIEW_REQUEST)
+        if self.evidence_registry is not None and command.evidence is None:
+            evidence = self.evidence_registry.resolve(
+                subject_type=command.aggregate_type,
+                organization_id=context.organization_id,
+                project_id=context.project_id,
+                subject_id=command.aggregate_id,
+                subject_revision_id=command.revision_id,
+                expected_manifest_sha256=command.manifest_sha256,
+                expected_classification=command.classification,
+                requested_by=context.principal.id,
+                reason=command.reason,
+                occurred_at=now,
+                _context=context,
+                _authorization_decision=decision,
+            )
+            if evidence is not None:
+                command = SubmitReviewRequest(
+                    classification=evidence.classification,
+                    aggregate_type=command.aggregate_type,
+                    aggregate_id=command.aggregate_id,
+                    revision_id=command.revision_id,
+                    manifest_sha256=evidence.server_manifest_sha256,
+                    reason=command.reason,
+                    evidence=evidence,
+                )
+        if command.classification is None or command.manifest_sha256 is None:
+            raise InvalidReview("review subject evidence must be resolved server-side")
+        self._assert_scope(context, decision, command.classification)
         return self.repository.create_request(
             context=context,
             decision=decision,
@@ -134,8 +167,28 @@ class ReviewService:
         self._assert_context(context, decision, Permission.REVIEW_READ)
         if review_request_id.int == 0:
             raise InvalidReview("review_request_id must be a non-zero UUID")
-        return self.repository.get_request(
+        value = self.repository.get_request(
             context=context, decision=decision, review_request_id=review_request_id
+        )
+        if not self._visible_to_reader(context, decision, value):
+            # Keep direct reads closed even when a repository implementation is less
+            # restrictive than the PostgreSQL RLS policy.
+            raise ReviewNotFound("review request is not visible")
+        return value
+
+    @staticmethod
+    def _visible_to_reader(
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        value: ReviewRequestRecord,
+    ) -> bool:
+        return (
+            value.organization_id == context.organization_id
+            and value.project_id == context.project_id
+            and (
+                Role.DOMAIN_REVIEWER in decision.roles
+                or value.requested_by == context.principal.id
+            )
         )
 
     def list_requests(
@@ -151,13 +204,16 @@ class ReviewService:
         self._assert_context(context, decision, Permission.REVIEW_READ)
         if not 1 <= limit <= 200:
             raise InvalidReview("limit must be between 1 and 200")
-        return self.repository.list_requests(
+        values = self.repository.list_requests(
             context=context,
             decision=decision,
             limit=limit,
             aggregate_type=aggregate_type,
             aggregate_id=aggregate_id,
             revision_id=revision_id,
+        )
+        return tuple(
+            value for value in values if self._visible_to_reader(context, decision, value)
         )
 
     def decide(

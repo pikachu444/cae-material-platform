@@ -21,9 +21,9 @@ link는 보존하지만 일반 사용자의 전역 메뉴에는 나타나지 않
 3. 카드가 있으면 Header 또는 CAE Cards에서 native preview/download를 실행합니다.
 4. 카드가 없을 때 **Modeling → Data**에서 JSON/CSV/XLSX와 channel/unit을 고정합니다.
 5. Process와 Fit의 같은 graph에서 처리·후보·residual·extrapolation을 검토하고 Export로 이동합니다.
-6. 검토 요청은 **Activity**에서 상태와 요청 사유를 확인합니다. Reviewer와 Administrator는
-   행의 **Review**에서 사유를 남기고 승인하거나 변경을 요청합니다. 일반 사용자는 자신의
-   요청이 결정되기 전까지 **In progress**에서 확인합니다.
+6. 검토 요청은 **Activity**에서 상태와 요청 사유를 확인합니다. Reviewer는 행의 **Review**에서
+   사유를 남기고 승인하거나 변경을 요청합니다. User와 Administrator는 자신의 요청이 결정되기
+   전까지 **In progress**에서 확인하고, 실패한 작업은 정확한 입력으로 재시도합니다.
 7. 상세 이력과 식별 정보는 Evidence에서, 재사용 처리 설정과 일괄 실행은 Advanced에서 확인합니다.
 
 ![통합 Materials 검색·결과·선택 문맥](images/current/materials-search-1440x900.png)
@@ -32,11 +32,26 @@ link는 보존하지만 일반 사용자의 전역 메뉴에는 나타나지 않
 
 ![Activity 검토·재개·결과 작업 큐](images/current/activity-1440x900.png)
 
+**Recent outcomes**는 승인·변경 요청 결과를 같은 요청 행의 이력으로 보여 줍니다. 1440px 화면에서는
+긴 이력이 작업 영역 안에서만 스크롤되며 페이지 전체 레이아웃은 유지됩니다.
+
+![Activity Recent outcomes 로컬 이력](images/current/activity-history-1440x900.png)
+
 1366×768과 1920×1080에서도 같은 행 우선 구조를 유지합니다.
 
 ![1366px Activity 작업 큐](images/current/activity-1366x768.png)
 
 ![1920px Activity 작업 큐](images/current/activity-1920x1080.png)
+
+2560×1440과 3840×2160에서도 queue와 Review action은 같은 exact revision 행 구조로 유지됩니다.
+다만 Reviewer의 `Needs attention` 상태는 작은 고정 밀도 control/text 때문에 Q20 **실패**로 기록됩니다.
+Product Owner는 이 실패를 다음 #160 Task 2와 전역 #184 근거로 남기는 조건으로 현재 #160 Task 1
+PR 공개·병합을 명시적으로 허용했습니다. 이는 Q20 통과나 #160 완료가 아니며, 경로 전용 4K CSS,
+CSS `zoom`, 일괄 `transform`, 채우기용 콘텐츠 또는 기타 우회는 추가하지 않았습니다.
+
+![2560px Activity 작업 큐](images/current/activity-2560x1440.png)
+
+![3840px Activity 작업 큐](images/current/activity-3840x2160.png)
 
 ## 운영 상태
 
@@ -49,7 +64,8 @@ review 요청을 여러 번 만들지 않으며, 승인·변경 요청 결과는
 
 기존 `/jobs-reviews` 링크는 같은 Activity 큐를 엽니다. 이 경로에서는 Aggregate type/ID, revision
 ID, manifest hash를 직접 입력하거나 독립적으로 결정을 기록하지 않습니다. 요청은 Material 또는
-Solver Card의 현재 화면에서 만들고, 기존 요청의 역할별 결정은 Activity에서 처리합니다. `/governance`
+Solver Card의 현재 화면에서 만들고, Reviewer의 기존 요청 결정은 Activity에서 처리합니다. 승인된
+Record와 exact revision은 Materials 검색·다운로드에서 다시 찾을 수 있습니다. `/governance`
 는 일반 검토 진입점이 아니며 Operations, Release, Governance Evidence의 고급 운영 화면을 유지합니다.
 
 서비스 상태와 복구 절차는 일반 사용자 메뉴가 아니라 운영 담당자의

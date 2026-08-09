@@ -31,7 +31,12 @@ def test_voce_projection_migration_has_typed_selection_lineage_and_no_eav() -> N
         "revisioning.reject_immutable_row_mutation()",
     ):
         assert value in sql
-    projection_sql = sql[sql.index("CREATE TABLE modeling.voce_candidate_selection (") :]
+    projection_start = sql.index("CREATE TABLE modeling.voce_candidate_selection (")
+    # The SQL buffer contains every migration through ``head``.  Stop at the
+    # next P1 migration so future JSON/solver columns cannot be mistaken for
+    # part of the typed VOCE projection.
+    projection_end = sql.index("CREATE TABLE validation.voce_holdout_plan (", projection_start)
+    projection_sql = sql[projection_start:projection_end]
     assert " JSON" not in projection_sql
     assert " JSONB" not in projection_sql
     assert "*PLASTIC" not in projection_sql

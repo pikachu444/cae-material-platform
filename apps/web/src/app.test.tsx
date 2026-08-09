@@ -543,7 +543,35 @@ describe("Material Catalog workbench", () => {
     window.history.pushState({}, "", `/materials/${materialId}/models`);
     mockProductFetch((input) => {
       const url = String(input);
-      if (url.includes("/catalog/domain-bindings:resolve")) return jsonResponse(null);
+      if (url.includes("/catalog/domain-bindings:resolve")) return jsonResponse({
+        binding_id: "00000000-0000-0000-0000-000000000013",
+        record_id: "00000000-0000-0000-0000-000000000020",
+        record_revision_id: "00000000-0000-0000-0000-000000000021",
+        kind: "material",
+        object_id: materialId,
+        revision_id: visibleMaterial.current_revision.id,
+        workbench_path: `/materials/${materialId}`,
+      });
+      if (url.includes("/catalog/workflow-explorer/")) {
+        const root = {
+          record_id: "00000000-0000-0000-0000-000000000020",
+          record_revision_id: "00000000-0000-0000-0000-000000000021",
+          revision_no: 1,
+          table_id: materialCatalogTableId,
+          name: "Demo DP780 Steel",
+          external_key: "DP780",
+          domain_binding: {
+            binding_id: "00000000-0000-0000-0000-000000000013",
+            record_id: "00000000-0000-0000-0000-000000000020",
+            record_revision_id: "00000000-0000-0000-0000-000000000021",
+            kind: "material",
+            object_id: materialId,
+            revision_id: visibleMaterial.current_revision.id,
+            workbench_path: `/materials/${materialId}`,
+          },
+        };
+        return jsonResponse({ root, nodes: [root], links: [] });
+      }
       return jsonResponse({ material: visibleMaterial, states: [], property_sets: [] });
     });
 
@@ -572,7 +600,7 @@ describe("Material Catalog workbench", () => {
         workbench_path: `/materials/${materialId}`,
       });
       if (url.includes("/catalog/workflow-explorer/")) {
-        const root = { record_id: recordId, record_revision_id: recordRevisionId, revision_no: 1, table_id: materialCatalogTableId, name: "Demo DP780 Steel", external_key: "DP780", domain_binding: null };
+        const root = { record_id: recordId, record_revision_id: recordRevisionId, revision_no: 1, table_id: materialCatalogTableId, name: "Demo DP780 Steel", external_key: "DP780", domain_binding: { binding_id: "00000000-0000-4000-8000-000000000013", record_id: recordId, record_revision_id: recordRevisionId, kind: "material", object_id: materialId, revision_id: visibleMaterial.current_revision.id, workbench_path: `/materials/${materialId}` } };
         return jsonResponse({ root, nodes: [root, {
           ...root,
           record_id: "00000000-0000-4000-8000-000000000020",
@@ -635,7 +663,7 @@ describe("Material Catalog workbench", () => {
           table_id: "00000000-0000-4000-8000-000000000012",
           name: "Demo DP780 Steel",
           external_key: "DP780",
-          domain_binding: null,
+          domain_binding: { binding_id: "00000000-0000-4000-8000-000000000013", record_id: recordId, record_revision_id: recordRevisionId, kind: "material", object_id: materialId, revision_id: visibleMaterial.current_revision.id, workbench_path: `/materials/${materialId}` },
         };
         return jsonResponse({ root, nodes: [root, {
           ...root,
@@ -727,7 +755,7 @@ describe("Material Catalog workbench", () => {
         workbench_path: `/materials/${materialId}`,
       });
       if (url.includes("/catalog/workflow-explorer/")) {
-        const root = { record_id: recordId, record_revision_id: recordRevisionId, revision_no: 1, table_id: "00000000-0000-4000-8000-000000000012", name: "Demo DP780 Steel", external_key: "DP780", domain_binding: null };
+        const root = { record_id: recordId, record_revision_id: recordRevisionId, revision_no: 1, table_id: "00000000-0000-4000-8000-000000000012", name: "Demo DP780 Steel", external_key: "DP780", domain_binding: { binding_id: "00000000-0000-4000-8000-000000000013", record_id: recordId, record_revision_id: recordRevisionId, kind: "material", object_id: materialId, revision_id: visibleMaterial.current_revision.id, workbench_path: `/materials/${materialId}` } };
         return jsonResponse({ root, nodes: [root, {
           ...root,
           record_id: "00000000-0000-4000-8000-000000000020",
@@ -797,7 +825,7 @@ describe("Material Catalog workbench", () => {
         workbench_path: `/materials/${materialId}`,
       });
       if (url.includes("/catalog/workflow-explorer/")) {
-        const root = { record_id: recordId, record_revision_id: recordRevisionId, revision_no: 1, table_id: "00000000-0000-4000-8000-000000000012", name: "Demo DP780 Steel", external_key: "DP780", domain_binding: null };
+        const root = { record_id: recordId, record_revision_id: recordRevisionId, revision_no: 1, table_id: "00000000-0000-4000-8000-000000000012", name: "Demo DP780 Steel", external_key: "DP780", domain_binding: { binding_id: "00000000-0000-4000-8000-000000000013", record_id: recordId, record_revision_id: recordRevisionId, kind: "material", object_id: materialId, revision_id: visibleMaterial.current_revision.id, workbench_path: `/materials/${materialId}` } };
         return jsonResponse({ root, nodes: [root, { ...root, record_id: "00000000-0000-4000-8000-000000000020", record_revision_id: "00000000-0000-4000-8000-000000000021", name: "DP780 OpenRadioss native material card", domain_binding: { binding_id: "00000000-0000-4000-8000-000000000022", record_id: "00000000-0000-4000-8000-000000000020", record_revision_id: "00000000-0000-4000-8000-000000000021", kind: "neutral_solver_card", object_id: cardId, revision_id: "00000000-0000-4000-8000-000000000023", workbench_path: "/exports" } }], links: [] });
       }
       if (url.includes("/bulk-export-candidates?")) throw new Error("Neutral graph card must not use bulk candidate fallback");
@@ -868,7 +896,15 @@ describe("Material Catalog workbench", () => {
           return jsonResponse({ material: visibleMaterial, states: [], property_sets: [] });
         }
         if (url.includes("/catalog/domain-bindings:resolve")) {
-          return jsonResponse(null);
+          return jsonResponse({
+            binding_id: "00000000-0000-0000-0000-000000000013",
+            record_id: recordId,
+            record_revision_id: recordRevisionId,
+            kind: "material",
+            object_id: materialId,
+            revision_id: materialRevisionId,
+            workbench_path: `/materials/${materialId}`,
+          });
         }
         throw new Error(`Unexpected request: ${url}`);
       });

@@ -43,7 +43,7 @@ The application has four modes. These are workspaces, not separate mini-products
 | --- | --- | --- |
 | Materials | Search, browse, compare and download | navigator, selected Record, result state |
 | Modeling | Convert test data into a selected model/card | session, curves, active stage, selected output |
-| Activity | Current compact resume/review action queue; job recovery and release projections remain follow-up | current user, item context |
+| Activity | Compact role-aware review, job recovery, exact resume, and publication-outcome queue | current user, item context |
 | Administration | Current: PR #143의 3-pane object navigator/list/property editor로 database/access를 관리; 남은 product-level refinement는 #160/#161에서 별도 검토 | selected schema object, draft changes |
 
 ## 4. Global desktop shell
@@ -510,23 +510,23 @@ Default view is one compact queue, not a dashboard:
 Needs attention | In progress | Recent outcomes
 ```
 
-- **Needs attention** contains pending review requests only for Reviewer and Administrator, with one
-  row-level Review command.
+- **Needs attention** contains pending review requests only for Reviewer, with one row-level Review
+  command. Administrator sees their own submitted requests in progress and does not decide them.
 - **In progress** contains the browser-local Modeling session and a User's own pending review
   requests. A User cannot approve or request changes here.
-- **Recent outcomes** contains returned immutable review decisions and browser-local solver-card
-  preview/download history.
-- The review API currently supplies immutable request/revision data but not readable submitted-item
-  or actor names. The normal row therefore states task type, request reason, state and time; exact
-  identifiers remain in Advanced evidence until a readable projection exists.
+- **Recent outcomes** contains returned immutable review decisions, Processing Batch outcomes, browser-local
+  solver-card preview/download history, and exact recovery facts.
+- The review API supplies immutable request/revision data and a requester display-name snapshot.
+  The normal row therefore states task type, request reason, state, requester label and time; exact
+  identifiers remain in Advanced evidence.
 
-The role-aware default and large-screen density are contractual. A User opens `In progress`, where
-their own pending review requests appear with the browser-local Modeling session. A Reviewer or
-Administrator opens `Needs attention`, where requests they may decide appear. The normal reference
+The role-aware default and large-screen density are contractual. A User or Administrator opens
+`In progress`, where their own pending review requests appear with the browser-local Modeling
+session. A Reviewer opens `Needs attention`, where pending requests they may decide appear. The normal reference
 uses a representative page from the existing `listReviewRequests(..., { limit: 50 })` contract
 instead of an intentionally under-filled one-row fixture. The queue remains one flat, locally
-scrolling work table with `Task | Request reason | Status | Updated | Action`; it does not fabricate
-Material or Owner display names that the response does not supply. At 1920×1080, 2560×1440 and
+scrolling work table with `Task | Request reason | Status | Updated | Action`; it uses the supplied
+requester display-name snapshot and never fabricates a Material/Owner label. At 1920×1080, 2560×1440 and
 3840×2160, additional height exposes more complete rows at the active shared display tier rather than
 stretching rows, adding explanatory cards or leaving an avoidable dominant blank region.
 
@@ -537,10 +537,11 @@ Advanced disclosure:
 - bulk packages;
 - low-level attempts and diagnostics.
 
-Selecting an item returns to the exact workspace context instead of a generic dashboard. A Review
+Selecting an item returns to the exact workspace context instead of a generic dashboard. A Reviewer Review
 action requires a non-empty reason and calls the existing decision API with the request's manifest;
-the returned immutable request replaces that row. Request entry, job monitoring and release
-projection are follow-up work, not synthetic queue rows.
+the returned immutable request replaces that row. Failed Processing Batches expose an exact retry, while
+approved requests atomically project the exact Record/revision marker used by Materials search and
+download. Review evidence remains immutable and stale current pointers are rejected.
 
 ## 9. Administration workspace
 
