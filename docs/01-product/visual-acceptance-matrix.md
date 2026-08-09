@@ -83,7 +83,7 @@ and the product owner makes the final visual approval.
 | Q-17 | Administration Object lists use identity-first, family-specific columns. The Name cell contains only the complete/reachable identity; clipped descriptions, quantity/help sentences and duplicated property prose are forbidden. Tables use `Name | Rev`; Attributes use `Name | Value type | Rev`, with full semantics in the adjacent editor. Normal Administration copy uses governed object/task language and excludes infrastructure prose such as identity-provider, feature-grant, server-query, endpoint, row-policy, pin/latest-alias or capability-boundary wording. Ordinary sample identities, related Record targets and solver-card names remain visibly readable; ellipsis is reserved for genuinely long values with an immediate full-value affordance. |
 | Q-18 | Administration Add commands open a real new-definition draft in the right pane without replacing the navigator, current Table scope or list. Add Table and Add Attribute are exercised; Attribute type changes expose only applicable fields. A later saved projection proves that user-selected exact Attribute revisions drive stored Record values: `Record preview` and `Layout definition` are task-selectable views rather than simultaneous miniature tables, the active long table receives useful height and genuine local scrolling, compact preview opening has a visible return path, and an unrelated scalar Attribute edit does not show a saved curve merely to fill space. |
 | Q-19 | Administration Link Type and Related/workflow evidence preserve configured `one`/`many` endpoint cardinality and exact revision pins. The UI must support visible one-to-many/many-to-many branching where allowed and must not flatten Material/Test Data/Processing Output/model/Neutral/Solver Card lineage into an implied one-to-one or `latest` chain. |
-| Q-20 | At 1920×1080, 2560×1440, and 3840×2160, the application shell spans the viewport and related task regions remain adjacent. Graphs, tables, and native previews expand while extra space materially improves reading, comparison, or interaction; navigators, property forms, and prose retain readable bounds and balanced gutters. A one-sided 1920 px work island, large trailing void caused by an arbitrary shell cap, large internal void between related regions, or tiny fixed-density controls at 2560/3840 fails. Uniformly stretched rows/prose/plots, fabricated filler, route-specific 4K overrides, CSS `zoom`, blanket `transform: scale`, and non-uniform SVG geometry also fail. The compact 13 px data and 11.5–12 px metadata baseline remains valid for standard desktop tiers; shared high-DPI tiers may increase typography, control, row, spacing, pane, and plot tokens only after actual Windows 4K 100%/150%/200% comparison. Exact scale values are not presumed. A deliberately under-filled normal search fixture still fails when the scoped API already supplies a fuller server page. Sparse plots and secondary Administration graphs remain bounded by task usefulness rather than raw viewport size, while contract-backed companion data may occupy truthful wide-screen space. Activity keeps the full role-correct request list and distinct local history. |
+| Q-20 | At 1920×1080, 2560×1440, and 3840×2160, the application shell spans the viewport and related task regions remain adjacent. Graphs, tables, and native previews expand while extra space materially improves reading, comparison, or interaction; navigators, property forms, and prose retain readable bounds and balanced gutters. A one-sided 1920 px work island, large trailing void caused by an arbitrary shell cap, large internal void between related regions, or tiny fixed-density controls at 2560/3840 fails. Uniformly stretched rows/prose/plots, fabricated filler, route-specific 4K overrides, CSS `zoom`, blanket `transform: scale`, and non-uniform SVG geometry also fail. The compact 13 px data and 11.5–12 px metadata baseline remains valid for standard desktop tiers; shared high-DPI tiers may increase typography, control, row, spacing, pane, and plot tokens only after #221 actual Windows 4K 100%/150%/200% comparison and product-owner decision. #184 applies that shared decision across every route/state; exact values are not presumed before #221. A deliberately under-filled normal search fixture still fails when the scoped API already supplies a fuller server page. Sparse plots and secondary Administration graphs remain bounded by task usefulness rather than raw viewport size, while contract-backed companion data may occupy truthful wide-screen space. Activity keeps the full role-correct request list and distinct local history. |
 
 An `approve` disposition must include the completed Q-01–Q-20 result. Automated measurements support
 the evidence but do not prove visual quality. Any unresolved applicable `fail` requires
@@ -91,10 +91,11 @@ the evidence but do not prove visual quality. Any unresolved applicable `fail` r
 
 The only transition exception is an already-existing Q-20 global high-DPI failure observed during
 #160 or #161. The reviewer still records `fail`; the main-agent and owner may accept it only as an
-explicit #184 carryover with original-resolution evidence, every affected route/state, proof that no
-new page-specific workaround was added, and an explicit product-owner disposition. It is not a final
-Q-20 pass, blocks #204–#216, and is unavailable after #184 merges. Every other qualitative failure
-remains a merge blocker.
+explicit #221 decision input and subsequent #184 carryover with original-resolution evidence, every
+affected route/state, proof that no new page-specific workaround was added, and an explicit
+product-owner disposition. #221 approves the shared policy but is not a product-wide Q-20 pass; #184
+applies it to all routes and high-risk states. The exception blocks #204–#216 and is unavailable after
+#184 merges. Every other qualitative failure remains a merge blocker.
 
 ## Criteria
 
@@ -287,9 +288,11 @@ Every visual PR records:
 | Nested persistent card count | | | | | |
 | Page horizontal overflow | | | | | |
 
-For #184 and any later change to shared display tiers, also record the physical monitor resolution,
-Windows display scale, CSS viewport, `devicePixelRatio`, browser zoom, and product-owner readability
-disposition. Automated emulation cannot replace this actual-display record.
+For #221, #184, and any later change to shared display tiers, also record the physical monitor
+resolution and size, Windows display scale, CSS viewport, `devicePixelRatio`, browser zoom, active
+density, and product-owner readability disposition. #221 compares candidates; #184 revalidates the
+approved candidate across every route/state. Automated emulation cannot replace this actual-display
+record.
 
 ## Legacy selector report
 
