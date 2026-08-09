@@ -1,14 +1,16 @@
 # 4K·고DPI 화면 대응 전략과 결정 기록
 
-- 상태: **#221 결정 입력, 값 미승인**
-- 기준선: `main@53e4a698235e4c7dad8c87e0156bc2627866989f`
+- 상태: **#221 구현용 잠정 결정 입력, 실제 장비 최종 판정은 #223**
+- 기준선: `main@fa94f41448207dad148eae6cce78607c81834ea4`
 - 상위 추적: [#117](https://github.com/pikachu444/cae-material-platform/issues/117)
 - 결정 게이트: [#221](https://github.com/pikachu444/cae-material-platform/issues/221)
 - 전체 적용: [#184](https://github.com/pikachu444/cae-material-platform/issues/184)
+- 실제 장비 최종 검증: [#223](https://github.com/pikachu444/cae-material-platform/issues/223)
 
 이 문서는 4K 전용 CSS 값을 미리 확정하지 않는다. 외부 제품과 웹 플랫폼의 공개 근거, 현재
-코드의 제약, 비교할 후보와 측정 방법을 고정하여 #221의 실제 Windows 원본 화면 검토가 같은
-질문에 답하도록 한다. #221에서 승인된 결정만 #184의 전체 route 구현 권한이 된다.
+코드의 제약, 비교할 후보와 측정 방법을 고정한다. #221은 다섯 CSS viewport의 원본 화면과 측정값으로
+논리적 레이아웃과 구현용 잠정 density 정책을 결정하고, #184는 이를 전체 route에 적용한다. 실제
+Windows 4K 100%·150%·200%의 물리적 가독성은 전체 기능이 끝난 뒤 #223에서 최종 판정한다.
 
 ## 1. 해결할 두 문제
 
@@ -31,6 +33,11 @@
 `devicePixelRatio`는 브라우저 page zoom에도 변한다. 따라서 DPR 또는 CSS resolution만으로
 물리적 4K를 추정해 화면 밀도를 자동 선택하지 않는다. 실제 환경 기록과 명시적 사용자 설정을
 분리한다. [MDN devicePixelRatio](https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio)
+
+현재 작업 환경에 실제 3840×2160 디스플레이가 없어도 headless Playwright는 2560×1440과
+3840×2160 CSS viewport를 원본 픽셀로 생성할 수 있다. 이 증거는 shell·pane·table·plot의 배치,
+넘침, 잘림과 상호작용을 검증하지만 모니터의 물리적 글자·control 크기를 증명하지 않는다. 따라서
+가상 viewport 검증은 #221/#184의 병합 조건으로 유지하고, 실제 장비 판정만 #223으로 분리한다.
 
 ## 2. 공개 제품과 구현 참고에서 확인한 패턴
 
@@ -64,8 +71,9 @@
 - 10~11.5px 글자 크기와 control/row 크기가 여러 route에 개별 선언되어 있다.
 - route별 고정값은 같은 물리적 크기 정책을 재사용하거나 사용자가 밀도를 바꾸기 어렵게 한다.
 
-#161은 이 고정값을 공통 semantic token과 full-shell 경계로 이동한다. #221은 그 기반 위에서 실제
-표시 값을 고르고, #184는 승인된 값을 전체 route와 고위험 상태에 적용한다.
+#161은 이 고정값을 공통 semantic token과 full-shell 경계로 이동한다. #221은 그 기반 위에서 구현용
+잠정 layout·pane·density·table·plot 정책을 고르고, #184는 승인된 값을 전체 route와 고위험 상태에
+적용한다. #223은 실제 장비에서 잠정 값을 최종 승인하거나 공통 보정 bug를 요구한다.
 
 ## 4. #221에서 비교할 세 후보
 
@@ -75,8 +83,9 @@
 | P2 | P1 + 공통 `Compact / Standard / Large` density | 사용자가 정보량과 가독성을 직접 조절, route 간 일관성 | token과 persistence 계약이 필요 | **우선 검토**, 아직 미승인 |
 | P3 | viewport/DPR/resolution에 따른 자동 density | 사용자의 초기 조작이 적음 | browser zoom·PPI·OS scale을 오판하고 route 예외가 늘 수 있음 | 기각 근거 확인용 |
 
-P2를 먼저 비교하되 원본 화면과 실제 Windows 측정 전에는 채택하지 않는다. 자동 추천 문구를
-제공할 수는 있지만 사용자 선택을 조용히 덮어쓰지 않는다.
+P2를 먼저 비교하되 #221에서는 다섯 viewport 원본과 100% crop을 근거로 구현용 잠정 후보만
+선택한다. 실제 Windows 측정 전에는 물리적 가독성이나 최종 기본 tier를 승인했다고 주장하지
+않는다. 자동 추천 문구를 제공할 수는 있지만 사용자 선택을 조용히 덮어쓰지 않는다.
 
 ## 5. 의미 기반 레이아웃 계약
 
@@ -116,7 +125,8 @@ P2를 먼저 비교하되 원본 화면과 실제 Windows 측정 전에는 채�
 
 ## 6. 화면 밀도 prototype 값
 
-아래 값은 #221 비교 시작점이며 제품 계약이 아니다. 실제 4K 원본 화면에서 수정·기각할 수 있다.
+아래 값은 #221 비교 시작점이다. #221에서 다섯 viewport용 구현 값으로 잠정 승인할 수 있지만,
+실제 4K 물리 가독성에 대한 최종 제품 계약은 #223 판정 전까지 아니다.
 
 | 후보 tier | Body | Metadata | Control | Data row | 예상 용도 |
 | --- | ---: | ---: | ---: | ---: | --- |
@@ -126,7 +136,7 @@ P2를 먼저 비교하되 원본 화면과 실제 Windows 측정 전에는 채�
 
 각 tier는 typography만 바꾸지 않고 control, row, spacing, pane, splitter와 plot label token을 함께
 조절한다. 전체 화면을 동일 비율로 확대하지 않는다. 기본 tier, 사용자 변경, reset과 persistence는
-#221에서 함께 승인한다.
+#221에서 구현용 잠정 계약으로 승인하고 #223에서 실제 장비 기준으로 최종 확인한다.
 
 ## 7. 대표 화면과 전체 적용 경계
 
@@ -159,7 +169,7 @@ P2를 먼저 비교하되 원본 화면과 실제 Windows 측정 전에는 채�
 각 칸은 full-screen 원본, 100% header/navigator/table-or-form/plot-or-preview crop, CSS viewport,
 workspace/pane/plot 측정과 Q-01~Q-20 disposition을 가리킨다.
 
-### 8.2 실제 Windows 표
+### 8.2 실제 Windows 표 — #223 최종 증거
 
 | Monitor 크기·해상도 | Windows scale | Browser zoom | CSS viewport | DPR | Density | 원본/crop | Owner disposition |
 | --- | ---: | ---: | ---: | ---: | --- | --- | --- |
@@ -167,8 +177,10 @@ workspace/pane/plot 측정과 Q-01~Q-20 disposition을 가리킨다.
 | | 150% | 100% | | | | | |
 | | 200% | 100% | | | | | |
 
-실제 표시 기록이 없으면 #221은 `BLOCKED_PHYSICAL_EVIDENCE`다. 자동 viewport와 축소 contact sheet만으로
-scale tier를 승인하지 않는다.
+실제 표시 기록이 없으면 #221과 #184는 `DEFERRED_TO_223`을 기록한다. 이 상태는 다섯 viewport
+geometry, 원본/crop 검토, 접근성 및 금지 방식 검사가 모두 통과한 경우에만 병합을 막지 않는다.
+자동 viewport와 축소 contact sheet를 실제 물리 가독성 증거로 표시해서는 안 된다. #223은 이 표를
+실제 값으로 채우지 못하면 완료할 수 없다.
 
 ### 8.3 접근성 분리 검증
 
@@ -179,11 +191,12 @@ scroll을 확인한다. 이 검사는 Windows 4K 100/150/200% 원본 검토를 �
 
 | Issue | 책임 | 완료로 주장하지 않는 것 |
 | --- | --- | --- |
-| #161 | 공통 token/shell/pane 기반, 오래된 값과 1920px cap 정리 | 정확한 4K tier와 실제 물리 가독성 승인 |
-| #221 | 실제 4K 측정, P1/P2/P3 비교, 대표 화면 prototype, 정확한 공통 결정 | 모든 route와 모든 고위험 상태 완료 |
-| #184 | 승인된 결정을 전체 route/state에 적용하고 제품 전체 Q-20 최종 승인 | 새로운 route별 scale 체계 재결정 |
+| #161 | 공통 token/shell/pane 기반, 오래된 값과 1920px cap 정리 | 잠정 density 후보와 실제 물리 가독성 승인 |
+| #221 | P1/P2/P3 비교, 대표 화면 prototype, 다섯 viewport 기반 구현용 잠정 공통 결정 | 모든 route 적용과 실제 Windows 물리 가독성 최종 승인 |
+| #184 | 잠정 결정을 전체 route/state에 적용하고 자동 geometry Q-20 완료 | 실제 Windows 물리 가독성 최종 승인이나 route별 scale 재결정 |
+| #223 | 전체 제품을 실제 Windows 4K 100%·150%·200%에서 검증하고 최종 판정 | route별 임시 보정이나 새 기능 설계 |
 
-실행 순서는 `#160 → #161 → #221 → #184 → #204~#216 → #162`다.
+실행 순서는 `#160 → #161 → #221 → #184 → #204~#216 → #162 → #223`이다.
 
 ## 10. 금지 방식
 
@@ -193,18 +206,20 @@ scroll을 확인한다. 이 검사는 Windows 4K 100/150/200% 원본 검토를 �
 - 1920px 전체 workbench cap과 한쪽 정렬
 - 가짜 행, 설명, 카드 또는 기술 metadata로 빈 공간 채우기
 - 모든 table column, row, form, prose와 plot의 균일 확대
-- 실제 표시 원본 없이 exact tier 값을 승인
+- 실제 표시 원본 없이 잠정 tier 값을 물리 가독성 최종 승인으로 표시
 
 ## 11. 결정 기록
 
 | 항목 | 상태 |
 | --- | --- |
-| 선택 후보 | 미결정 — #221 제품 소유자 승인 필요 |
-| Compact/Standard/Large 정확한 token | 미결정 |
-| 기본 tier와 사용자 변경/reset | 미결정 |
+| 구현용 잠정 선택 후보 | 미결정 — #221 제품 소유자 승인 필요 |
+| Compact/Standard/Large 잠정 token | 미결정 |
+| 잠정 기본 tier와 사용자 변경/reset | 미결정 |
 | pane/column preference 저장 범위 | 미결정 |
 | 기각 후보와 근거 | 미결정 |
 | 전체 route 이식 목록 | #221 승인 뒤 #184로 전달 |
+| 실제 Windows 4K 물리 판정 | `DEFERRED_TO_223` |
 
-#221 PR은 이 표를 실제 값과 직접 evidence 경로로 교체한다. 대화 기억, 축소 이미지 또는 자동 수치만
-근거로 완료 표시하지 않는다.
+#221 PR은 잠정 선택·값과 직접 evidence 경로로 이 표를 교체한다. 대화 기억, 축소 이미지 또는 자동
+수치만으로 물리 가독성을 완료 표시하지 않는다. #223은 실제 장비 증거와 최종 승인 또는 후속 공통
+보정 bug를 기록한다.

@@ -51,21 +51,24 @@
   while extra space improves comparison or interaction; navigators, property forms, and prose retain
   readable bounds. A one-sided 1920 px work island, unrelated internal void, or tiny fixed-density UI at
   2560/3840 fails, as does uniformly stretching every row, sentence, form, or plot merely to fill space.
-- Only #160 and #161 may carry an already-existing global high-DPI failure forward. #221 selects the
-  shared layout and density policy from representative actual-display evidence; #184 applies it to every
-  route/state. Carryover still requires before/after evidence, exact affected routes/states, no new
-  page-specific workaround, and explicit product-owner disposition. After #184 merges, no later visual
-  task may defer this gate.
+- Only #160 and #161 may carry an already-existing global layout or density failure into #221. #221
+  selects the shared implementation policy from representative five-viewport evidence; #184 applies it
+  to every route/state. When an actual 4K display is unavailable, #221 and #184 may defer only the
+  physical-readability record to #223. Known geometry, clipping, overflow or interaction failures still
+  block merge. Carryover requires before/after evidence, exact affected routes/states, no new page-specific
+  workaround, and explicit product-owner disposition.
 - Implement display tiers only through shared typography, control, row, spacing, pane, and plot tokens.
   Do not use route-specific 4K overrides, CSS `zoom`, blanket `transform: scale`, fabricated filler, or
-  non-uniform SVG stretching. Automated viewport capture proves geometry, not physical readability;
-  #221 records actual Windows 4K 100%, 150%, and 200% scale and selects the shared policy; #184
-  revalidates the approved policy across every route/state. Both record CSS viewport and device pixel
-  ratio.
+  non-uniform SVG stretching. Automated viewport capture proves geometry, not physical readability.
+  #221 selects a provisional shared policy and #184 revalidates it across every route/state using the
+  five deterministic CSS viewports. Both record the available display, CSS viewport and device pixel
+  ratio without presenting emulation as actual hardware. #223 performs the final product-wide Windows
+  4K 100%, 150%, and 200% physical-readability gate.
 - Check visibility, clipping, wrapping, exact identity/revision, interaction reachability, and layout
   bounds. Hidden text and measurements do not replace normal-surface usability. Present the original
-  1920/2560/3840 comparison to the product owner and do not merge before the owner checklist and final
-  visual approval pass.
+  1920/2560/3840 comparison to the product owner and do not merge before the owner checklist and visual
+  geometry approval pass. This #221/#184 approval is not final actual-device readability when the
+  physical record is explicitly deferred to #223.
 
 ## Domain invariants
 
