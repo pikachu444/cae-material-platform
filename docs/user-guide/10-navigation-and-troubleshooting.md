@@ -32,8 +32,9 @@ link는 보존하지만 일반 사용자의 전역 메뉴에는 나타나지 않
 
 ![Activity 검토·재개·결과 작업 큐](images/current/activity-1440x900.png)
 
-**Recent outcomes**는 승인·변경 요청 결과를 같은 요청 행의 이력으로 보여 줍니다. 1440px 화면에서는
-긴 이력이 작업 영역 안에서만 스크롤되며 페이지 전체 레이아웃은 유지됩니다.
+**Recent outcomes**는 승인·변경 요청 결과와 이 브라우저에서 열거나 내려받은 solver card 이력을
+구분해 보여 줍니다. 긴 이력은 화면 크기와 관계없이 Activity 작업 영역 안에서만 스크롤되며 페이지
+전체 레이아웃은 유지됩니다. 서버가 돌려준 요청 목록을 화면을 채우기 위해 늘리지 않습니다.
 
 ![Activity Recent outcomes 로컬 이력](images/current/activity-history-1440x900.png)
 
@@ -44,14 +45,28 @@ link는 보존하지만 일반 사용자의 전역 메뉴에는 나타나지 않
 ![1920px Activity 작업 큐](images/current/activity-1920x1080.png)
 
 2560×1440과 3840×2160에서도 queue와 Review action은 같은 exact revision 행 구조로 유지됩니다.
-다만 Reviewer의 `Needs attention` 상태는 작은 고정 밀도 control/text 때문에 Q20 **실패**로 기록됩니다.
-Product Owner는 이 실패를 다음 #160 Task 2와 전역 #184 근거로 남기는 조건으로 현재 #160 Task 1
-PR 공개·병합을 명시적으로 허용했습니다. 이는 Q20 통과나 #160 완료가 아니며, 경로 전용 4K CSS,
-CSS `zoom`, 일괄 `transform`, 채우기용 콘텐츠 또는 기타 우회는 추가하지 않았습니다.
+Activity는 공통 compact 기준을 사용합니다. task identity는 14px, tab·data·action은 13px,
+metadata는 12px이며 action 높이는 최소 36px입니다. 3840px에서는 2656px 로컬 작업 영역 안에
+2602px 다섯 열과 scrollbar를 나란히 두고 가운데 정렬해 상태와 행동 사이가 과도하게 벌어지지
+않습니다. 1920px 고정 작업 섬, 해상도별 CSS, CSS `zoom`, 일괄 확대, 채우기용 행은 사용하지
+않습니다.
+
+이 보정은 새 고해상도 표시 단계를 정한 것이 아닙니다. 공통 표시 단계는 #221에서 비교·결정하고,
+전체 화면 적용은 #184에서 검증합니다. Activity의 실제 Windows 4K 100%·150%·200% 물리적 판독성은
+전체 제품 흐름 검증 뒤 마지막 #223에서 최종 판정합니다. 현재 증거 장비는 2560×1440 100%이며,
+자동 3840×2160 캡처를 실제 4K 장비 판정으로 대신하지 않습니다.
 
 ![2560px Activity 작업 큐](images/current/activity-2560x1440.png)
 
 ![3840px Activity 작업 큐](images/current/activity-3840x2160.png)
+
+3840px의 긴 이력에서도 오른쪽 로컬 scrollbar가 실제 콘텐츠 길이에 맞춰 나타납니다.
+
+![1920px Activity Recent outcomes](images/current/activity-history-1920x1080.png)
+
+![2560px Activity Recent outcomes](images/current/activity-history-2560x1440.png)
+
+![3840px Activity Recent outcomes](images/current/activity-history-3840x2160.png)
 
 ## 운영 상태
 
@@ -61,6 +76,19 @@ review 요청을 여러 번 만들지 않으며, 승인·변경 요청 결과는
 또는 solver card 검토를 요청하는 진입점은 각각 Material 상세와 Native Card Preview에 있습니다.
 두 화면은 이미 열어 둔 정확한 revision을 사용하므로 사용자가 식별자나 hash를 직접 입력할 필요가
 없습니다.
+
+User와 Administrator의 기본 화면은 **In progress**이며 Reviewer 전용 결정 버튼이 없습니다.
+Reviewer의 결정 저장이 실패하면 입력한 사유와 선택한 요청을 유지해 다시 시도할 수 있습니다.
+다운로드 같은 작업이 실패한 경우에는 **Recovery needed**에서 **Open exact selection**으로 원래
+선택을 다시 엽니다.
+
+![User Activity 기본 화면](images/current/activity-user-1440x900.png)
+
+![Administrator Activity 기본 화면](images/current/activity-administrator-1440x900.png)
+
+![Activity 결정 실패 시 입력 보존](images/current/activity-decision-error-1440x900.png)
+
+![Activity exact selection 복구](images/current/activity-recovery-1440x900.png)
 
 기존 `/jobs-reviews` 링크는 같은 Activity 큐를 엽니다. 이 경로에서는 Aggregate type/ID, revision
 ID, manifest hash를 직접 입력하거나 독립적으로 결정을 기록하지 않습니다. 요청은 Material 또는

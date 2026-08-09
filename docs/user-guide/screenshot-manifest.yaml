@@ -1,13 +1,13 @@
-version: 85
+version: 86
 verified_at: 2026-08-09
-scope: issue-160-review-publication
-source_commit: working-tree-issue-160
+scope: issue-160-activity-density
+source_commit: working-tree-issue-160-task-2
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright==1.62.0 python scripts/capture_current_product.py
 notes:
   - "UXC-04E directly ports the approved modeling.html/review.css Fit topology: white 48 px product header, compact title/stage rows, 184–208 px curve/process rail, exact 31 px heading plus 72 px six-group ribbon, graph-adjacent Candidate parameters disclosure, separate compact graph header, dominant plot, and compact decision-relevant legend. The retired command/status bars do not consume Modeling graph space."
-  - "The current set contains 77 deterministic synthetic product-route captures. Issue #160 review-submission and Reviewer-persona Activity evidence is current working-tree evidence from the isolated queue; the root opened all ten final originals and accepted Q03, Q09 and Q16 visibility, wrapping, local-scroll and wide-layout topology checks. Reviewer Activity Needs attention Q20 remains FAIL at 2560×1440 and 3840×2160 because controls and text are tiny fixed-density. The Product Owner explicitly authorizes publication/merge of the current Task 1 PR with this exact failure carried as the next #160 Task 2 and global #184 evidence; this is not Q20 approval, #160 completion, or Task 2 implementation. #160 adds no route-specific 4K CSS, CSS zoom, blanket transform, fabricated filler, or other workaround."
-  - "The final Activity before/current comparison is recorded in docs/17-evidence/images/issue-160-review-publication/visual-evidence.yaml: origin/main b993542 before references, current 1366/1440/1920/2560/3840 originals, the 1440 history, and direct 1:1 crops with exact rectangles, SHA-256 and dimensions. These evidence artifacts are not current user-guide captures; the current capture count remains 77."
+  - "The current set contains 84 deterministic synthetic product-route captures. Issue #160 Task 2 connects Activity to the shared compact semantic baseline and keeps its related five-column table and local scrollbar adjacent inside a balanced 2656px pane at 3840. The root opened all 13 final Activity originals and all 30 before/after crops. Q02 and Q09 pass; Activity's bounded compact-token/geometry portion of Q20 passes without resolution-specific media, CSS zoom, blanket transform, fabricated filler, or a new display profile. The active display is 2560x1440 at 100%; actual Windows 4K 100%/150%/200% and Product Owner final physical-readability disposition are deferred to final backlog unit #223 and no longer block #160 after the Task 2 merge. #221 and #184 retain their policy and product-wide responsibilities."
+  - "The Task 2 Activity comparison is recorded in docs/17-evidence/images/issue-160-activity-density/visual-evidence.yaml: latest-main Task 1 before originals, current 13-state originals, and matching 1920/2560/3840 shell/header, saved-view, grid, action and local-scrollbar 1:1 crops with exact rectangles, SHA-256 and dimensions. The immutable evidence copies are not additional current captures; the current capture count is 84."
   - "Fit capture asserts the four-row grouped metal rail, one-line Step 4 Fit heading, a fixed 104 px six-group control ribbon, shared 28 px top actions, concise source/state header, Candidate parameters source evidence, explicit selection before save, and persistent graph identity."
   - "Recommendation, engineer selection, saved result, downstream model evidence, and export eligibility remain separate states; a recommendation never mutates selection."
   - "Polymer candidate evidence exposes the actual server-produced term identity and measured range only; missing result evidence is never replaced by a fallback."
@@ -37,19 +37,19 @@ notes:
   - "Issue #158 Task 3B current Fit images are registered for route, content and completed qualitative visual acceptance evidence from main 7394070 plus the Fit UI correction worktree."
 allowed_duplicate_pairs: []
 visual_evidence:
-  sidecar: docs/17-evidence/images/issue-160-review-publication/visual-evidence.yaml
+  sidecar: docs/17-evidence/images/issue-160-activity-density/visual-evidence.yaml
   route: /activity
   state: Reviewer Needs attention
-  baseline_source: 'origin/main@b993542'
-  current_source: working-tree-issue-160
+  baseline_source: 'main@00955c83ffc21da97f38a58884079a33691b789d'
+  current_source: working-tree-issue-160-task-2
   evidence_artifacts_are_not_current_captures: true
-  current_capture_count: 77
+  current_capture_count: 84
   before_reference_originals:
-    - docs/17-evidence/images/issue-160-review-publication/before/activity-before-1366x768.png
-    - docs/17-evidence/images/issue-160-review-publication/before/activity-before-1440x900.png
-    - docs/17-evidence/images/issue-160-review-publication/before/activity-before-1920x1080.png
-    - docs/17-evidence/images/issue-160-review-publication/before/activity-before-2560x1440.png
-    - docs/17-evidence/images/issue-160-review-publication/before/activity-before-3840x2160.png
+    - docs/17-evidence/images/issue-160-activity-density/before/activity-1366x768.png
+    - docs/17-evidence/images/issue-160-activity-density/before/activity-1440x900.png
+    - docs/17-evidence/images/issue-160-activity-density/before/activity-1920x1080.png
+    - docs/17-evidence/images/issue-160-activity-density/before/activity-2560x1440.png
+    - docs/17-evidence/images/issue-160-activity-density/before/activity-3840x2160.png
   current_originals:
     - docs/user-guide/images/current/activity-1366x768.png
     - docs/user-guide/images/current/activity-1440x900.png
@@ -57,6 +57,13 @@ visual_evidence:
     - docs/user-guide/images/current/activity-2560x1440.png
     - docs/user-guide/images/current/activity-3840x2160.png
     - docs/user-guide/images/current/activity-history-1440x900.png
+    - docs/user-guide/images/current/activity-history-1920x1080.png
+    - docs/user-guide/images/current/activity-history-2560x1440.png
+    - docs/user-guide/images/current/activity-history-3840x2160.png
+    - docs/user-guide/images/current/activity-user-1440x900.png
+    - docs/user-guide/images/current/activity-administrator-1440x900.png
+    - docs/user-guide/images/current/activity-decision-error-1440x900.png
+    - docs/user-guide/images/current/activity-recovery-1440x900.png
 capture_provenance:
   - source_commit: 31f9a3f+task3b-worktree
     captured_at: 2026-08-06T10:35:08+09:00
@@ -86,10 +93,10 @@ capture_provenance:
     captured_at: '2026-08-09T07:27:34+09:00 through 2026-08-09T07:28:03+09:00'
     command: '`uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:15173 --output docs/user-guide/images/current --only-review-submission` wrote 7 captures from 2026-08-09T07:27:34+09:00 through 2026-08-09T07:28:03+09:00: User exact OpenRadioss pending review, delivery acknowledgement, clean Material r19 detail, and role-aware Activity rows'
     ids: [solver-card-preview-1366, solver-card-preview-1440, solver-card-preview-1920, material-detail-1440]
-  - source_commit: working-tree-issue-160
-    captured_at: '2026-08-09T07:34:59+09:00 through 2026-08-09T07:35:19+09:00'
-    command: '`uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:15173 --output docs/user-guide/images/current --only-activity` wrote 6 Reviewer-persona captures from 2026-08-09T07:34:59+09:00 through 2026-08-09T07:35:19+09:00 at 1366/1440/1920/2560/3840 plus Recent outcomes history; the isolated Issue #160 queue preserves pending exact reviews, immutable prior outcomes and genuine local overflow'
-    ids: [activity-1366, activity-1440, activity-1920, activity-2560, activity-3840, activity-history-1440]
+  - source_commit: working-tree-issue-160-task-2
+    captured_at: '2026-08-09T14:50:58+09:00 through 2026-08-09T14:51:37+09:00'
+    command: '`uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --output docs/user-guide/images/current --only-activity` wrote 13 Activity captures at 1366/1440/1920/2560/3840, four genuine-overflow Recent outcomes viewports, User and Administrator defaults, retained decision error, and exact-selection recovery; the live assertion proves computed compact tokens, minimum row/control bounds, the 2656px local-pane bound, adjacent rail, and balanced 3840 gutters'
+    ids: [activity-1366, activity-1440, activity-1920, activity-2560, activity-3840, activity-history-1440, activity-history-1920, activity-history-2560, activity-history-3840, activity-user-1440, activity-administrator-1440, activity-decision-error-1440, activity-recovery-1440]
   - source_commit: 94387e4
     captured_at: 2026-08-07
     command: rebuilt the local web image after the solver-card export delivery update, then ran the targeted Modeling Export capture; the two wide and three recovery/delivery captures passed the route and native-preview gates
@@ -568,8 +575,57 @@ captures:
   - id: activity-history-1440
     route: /activity
     workflow: reviewer-recent-outcomes-local-history-overflow
-    fixture: 'Reviewer Recent outcomes with 24 immutable decided rows and a genuine local overflow rail at 1440x900'
+    fixture: 'Reviewer Recent outcomes with 26 immutable server decisions, 20 browser-local solver-card activities, and a genuine local overflow rail at 1440x900'
     image: images/current/activity-history-1440x900.png
+    width: 1440
+    height: 900
+  - id: activity-history-1920
+    route: /activity
+    workflow: reviewer-recent-outcomes-local-history-overflow
+    fixture: 'Reviewer Recent outcomes with 26 immutable server decisions, 20 browser-local solver-card activities, and a genuine local overflow rail at 1920x1080'
+    image: images/current/activity-history-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: activity-history-2560
+    route: /activity
+    workflow: reviewer-recent-outcomes-local-history-overflow
+    fixture: 'Reviewer Recent outcomes with 26 immutable server decisions, 20 browser-local solver-card activities, and a genuine local overflow rail at 2560x1440'
+    image: images/current/activity-history-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: activity-history-3840
+    route: /activity
+    workflow: reviewer-recent-outcomes-local-history-overflow
+    fixture: 'Reviewer Recent outcomes with 26 immutable server decisions, 20 browser-local solver-card activities, and a genuine local overflow rail at 3840x2160'
+    image: images/current/activity-history-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: activity-user-1440
+    route: /activity
+    workflow: user-role-default-without-reviewer-decision-action
+    fixture: 'User In progress view with five owned exact-revision requests and no Reviewer action'
+    image: images/current/activity-user-1440x900.png
+    width: 1440
+    height: 900
+  - id: activity-administrator-1440
+    route: /activity
+    workflow: administrator-role-default-without-reviewer-decision-action
+    fixture: 'Administrator In progress view with one owned selected-model request and no Reviewer action'
+    image: images/current/activity-administrator-1440x900.png
+    width: 1440
+    height: 900
+  - id: activity-decision-error-1440
+    route: /activity
+    workflow: reviewer-decision-error-retains-request-and-reason
+    fixture: 'Reviewer decision POST intercepted with a synthetic 503; the exact request and entered reason remain available without a database mutation'
+    image: images/current/activity-decision-error-1440x900.png
+    width: 1440
+    height: 900
+  - id: activity-recovery-1440
+    route: /activity
+    workflow: failed-selected-model-download-reopens-exact-selection
+    fixture: 'Browser-local failed selected-model download retaining its exact revision and Open exact selection action'
+    image: images/current/activity-recovery-1440x900.png
     width: 1440
     height: 900
   - id: administration-database-1366

@@ -19,6 +19,7 @@ _CAPTURE_SOURCE = (_PROJECT_ROOT / "scripts/capture_current_product.py").read_te
 )
 _SCRIPT = runpy.run_path(str(_PROJECT_ROOT / "scripts/capture_current_product.py"))
 CURRENT_CAPTURE_OUTPUTS = cast(tuple[str, ...], _SCRIPT["CURRENT_CAPTURE_OUTPUTS"])
+ACTIVITY_OUTPUTS = cast(tuple[str, ...], _SCRIPT["ACTIVITY_OUTPUTS"])
 MODELING_EXPORT_OUTPUTS = cast(tuple[str, ...], _SCRIPT["MODELING_EXPORT_OUTPUTS"])
 MODELING_DATA_SESSION_OUTPUTS = cast(
     tuple[str, ...], _SCRIPT["MODELING_DATA_SESSION_OUTPUTS"]
@@ -417,7 +418,7 @@ def test_incomplete_capture_cannot_reuse_files_from_previous_output(
 
 
 def test_current_capture_contract_contains_product_routes_only() -> None:
-    assert len(CURRENT_CAPTURE_OUTPUTS) == 77
+    assert len(CURRENT_CAPTURE_OUTPUTS) == 84
     assert all(name in CURRENT_CAPTURE_OUTPUTS for name in MODELING_DATA_SESSION_OUTPUTS)
     assert all(name in CURRENT_CAPTURE_OUTPUTS for name in MODELING_PROCESS_OUTPUTS)
     assert {
@@ -448,8 +449,30 @@ def test_activity_capture_contract_is_role_correct_for_requesters_and_reviewers(
     assert 'expected_view: str | None = None' in activity_wait
     assert 'page.get_by_role("tab", name=view_label, exact=True).click()' in activity_wait
     assert "review_button.first.wait_for" in activity_wait
-    assert "activity-history-1440x900.png" in _CAPTURE_SOURCE
+    assert ACTIVITY_OUTPUTS == (
+        "activity-1366x768.png",
+        "activity-1440x900.png",
+        "activity-1920x1080.png",
+        "activity-2560x1440.png",
+        "activity-3840x2160.png",
+        "activity-history-1440x900.png",
+        "activity-history-1920x1080.png",
+        "activity-history-2560x1440.png",
+        "activity-history-3840x2160.png",
+        "activity-user-1440x900.png",
+        "activity-administrator-1440x900.png",
+        "activity-decision-error-1440x900.png",
+        "activity-recovery-1440x900.png",
+    )
     assert 'data-scroll-y") != "true"' in _CAPTURE_SOURCE
+    assert "_seed_activity_delivery_history(page)" in _CAPTURE_SOURCE
+    assert "Activity decision error did not retain the review reason" in _CAPTURE_SOURCE
+    assert "_assert_activity_compact_density(page, width)" in _CAPTURE_SOURCE
+    assert '"data": "13px"' in _CAPTURE_SOURCE
+    assert '"metadata": "12px"' in _CAPTURE_SOURCE
+    assert "if viewport_width == 3840:" in _CAPTURE_SOURCE
+    assert 'name="Recovery needed"' in _CAPTURE_SOURCE
+    assert 'expect_review_action=False' in _CAPTURE_SOURCE
     assert "context.add_init_script" in new_page
     assert "json.dumps" in new_page
     assert "page.evaluate" not in new_page
