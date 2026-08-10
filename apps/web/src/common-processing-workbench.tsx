@@ -1425,9 +1425,20 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     void loadDocument(selectedDocumentId, expectedRef.revisionId);
   }, [busy, document, selectedDocumentId, selectedTestDataRefs]);
 
+  const pinnedSavedFitPending = Boolean(
+    (workflowTask === "fit" || workflowTask === "export")
+      && initialSession?.processingOutput
+      && outputs.some((output) => output.processing_output_id === initialSession.processingOutput?.id
+        && output.current_revision.id === initialSession.processingOutput.revisionId
+        && output.steps.some((step) => isFitMethod(step.method_id))),
+  );
   useEffect(() => {
     if (contextResetPending.current) return;
     if (intakePreviewActive.current || !document || !selectedProfileId || preview) return;
+    // A pinned Fit Output has its own exact, digest-verified restore path.
+    // Do not let the source-document auto-preview race that restore and turn
+    // the saved decision back into an unsaved preview after it settles.
+    if (pinnedSavedFitPending) return;
     const pendingDraft = pendingExplicitProcessPreview.current;
     if (pendingDraft && !(pendingDraft.originTask === workflowTask && workflowTask !== "process")) return;
     const key = `${selectedDocumentId}:${selectedProfileId}:${stepsText}`;
@@ -1437,7 +1448,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       void runPreview();
     }, 300);
     return () => window.clearTimeout(timer);
-  }, [document, isProcessTask, preview, selectedDocumentId, selectedProfileId, stepsText, workflowTask]);
+  }, [document, isProcessTask, pinnedSavedFitPending, preview, selectedDocumentId, selectedProfileId, stepsText, workflowTask]);
 
   function applyModelingTrack(track: ModelingTrack): void {
     setModelingTrack(track);

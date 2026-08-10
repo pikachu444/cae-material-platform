@@ -34,6 +34,7 @@ def test_shared_semantic_tokens_own_desktop_density_and_layout_boundaries() -> N
         "--ux-workspace-max-inline-size: none",
         "--ux-workspace-max-block-size: none",
         "--ux-readable-form-max-inline-size",
+        "--ux-bounded-workgroup-max-inline-size",
         "--ux-comparison-table-max-inline-size",
         "--ux-splitter-inline-size",
         "--ux-scrollbar-thumb-min-size",
@@ -107,3 +108,16 @@ def test_administration_structure_has_one_active_owner() -> None:
     for selector in selectors:
         assert selector in LAYOUT
         assert selector not in LEGACY
+
+
+def test_administration_bounded_workgroups_use_shared_semantic_boundaries() -> None:
+    assert ".schema-editor-header," in LAYOUT
+    assert ".schema-editor-grid {" in LAYOUT
+    assert "width: min(100%, var(--ux-bounded-workgroup-max-inline-size))" in LAYOUT
+    assert "var(--ux-readable-form-max-inline-size)" in LAYOUT
+
+    assert ".administration-record-workbench" in LEGACY
+    assert "width: min(100%, var(--ux-bounded-workgroup-max-inline-size))" in LEGACY
+    assert "var(--ux-navigator-max-inline-size)" in LEGACY
+    assert "var(--ux-context-max-inline-size)" in LEGACY
+    assert "var(--ux-readable-form-max-inline-size)" in LEGACY

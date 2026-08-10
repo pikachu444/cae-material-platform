@@ -66,6 +66,10 @@ scroll region에서 확인하고 scrollbar가 데이터나 조작 손잡이를 �
 ![3840px Activity 작업 큐](images/current/activity-3840x2160.png)
 
 3840px의 긴 이력에서도 오른쪽 로컬 scrollbar가 실제 콘텐츠 길이에 맞춰 나타납니다.
+현재 긴 이력 캡처는 canonical demo의 immutable server 결정 10건과 브라우저 로컬 solver-card 활동
+20건, 성공한 복구 결과 20건을 함께 사용합니다. 복구 결과는 캡처용 브라우저 저장소에만 추가되며
+제품 데이터나 review 결정을 만들지 않습니다. 캡처 자동화는 네 이력 viewport 모두에서 실제 overflow와
+로컬 rail이 없으면 실패합니다.
 
 ![1920px Activity Recent outcomes](images/current/activity-history-1920x1080.png)
 

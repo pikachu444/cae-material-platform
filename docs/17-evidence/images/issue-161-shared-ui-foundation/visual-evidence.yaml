@@ -1,0 +1,1636 @@
+schema_version: 1
+issue: 161
+pull_request: 226
+status: product-owner-review-pending
+purpose: Deterministic before/after geometry evidence for the shared desktop UI foundation. The evidence preserves the existing product topology
+  and does not select a display profile.
+baseline:
+  source_commit: e095ef5d1f4d26af65ad38ebbbef922f129626cf
+  source_ref: HEAD of agent/issue-161-shared-ui-foundation before the current working-tree corrections
+  manifest_version: 86
+  original_extraction: Exact PNG blobs were extracted from Git HEAD with git archive. They were neither recaptured nor relabeled from the after
+    set.
+  comparison_original_count: 31
+after:
+  source_commit: 'e095ef5d1f4d26af65ad38ebbbef922f129626cf + uncommitted PR #226 working tree'
+  branch: agent/issue-161-shared-ui-foundation
+  manifest_version: 87
+  capture_count: 84
+  capture_window: 2026-08-09T22:55:39+09:00 through 2026-08-09T23:45:52+09:00
+  full_capture_command: uv run --with playwright python scripts/capture_current_product.py --base-url http://127.0.0.1:5173
+  targeted_recapture_commands:
+  - uv run --with playwright python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --only-administration-database
+  - uv run --with playwright python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --only-administration-records
+  - uv run --with playwright python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --only-activity
+  targeted_recapture_reason: The root original-resolution review found that the existing Administration workgroup still formed a one-sided cluster
+    and allowed the Records form to stretch at 3840. The existing three-pane topology was retained, its semantic workgroup boundary was centered,
+    and only those two route families were recaptured after rebuilding the web service.
+  activity_recapture_reason: The 3840 original-resolution crop review found that the canonical server supplied only 10 decided requests, so the
+    prior 20-card browser history fit without a local rail. The capture-only long-state fixture now adds 20 bounded successful browser-local recovery
+    outcomes and rejects missing overflow at every registered history viewport; all 13 Activity images were recaptured from the running product.
+environment:
+  canonical_compose:
+    project: cmp-local-demo
+    configuration: deploy/compose/docker-compose.demo.yml
+    preflight: pass
+    services: PostgreSQL, API, worker, and web healthy
+    docker: 29.6.1
+    docker_compose: 5.3.1
+    api_base_url: http://127.0.0.1:5173/api/v1
+  browser:
+    engine: Chromium 151.0.7922.34
+    playwright: 1.62.0
+    mode: headless
+    browser_zoom_percent: 100
+    device_pixel_ratio: 1
+  host:
+    operating_system: Microsoft Windows 11 Home Single Language 10.0.26200 (64-bit)
+    active_display: \\.\DISPLAY5
+    active_display_pixels: 2560x1440
+    active_display_dpi: 96
+    active_display_scale_percent: 100
+    physical_4k_tested: false
+  fixture: Canonical deterministic synthetic non-production demo. Review approvals and Catalog bindings used product APIs; no direct database
+    mutation, data reset, or validation bypass.
+capture_policy:
+  required_css_viewports:
+  - 1366x768
+  - 1440x900
+  - 1920x1080
+  - 2560x1440
+  - 3840x2160
+  all_five_viewports_present: true
+  atomic_current_set_replacement: true
+  evidence_artifacts_are_not_additional_current_captures: true
+  root_opened_all_approved_references_at_original_resolution: true
+  root_opened_all_after_originals_at_original_resolution: true
+  root_opened_all_before_originals_at_original_resolution: true
+  root_opened_all_crops_at_original_resolution: true
+crop_policy:
+  scale: 100 percent / 1:1 source pixels
+  interpolation: none
+  pixel_mapping: Pillow direct crop from the listed source rectangle; no resize or resampling
+  required_viewports:
+  - 1920x1080
+  - 2560x1440
+  - 3840x2160
+  coverage:
+  - shell edge
+  - navigator/main boundary
+  - table/local scrollbar
+  - graph axis
+  - graph legend
+  - native preview
+  - readable Administration property workgroup
+  - long tree label at its registered 1920 state
+approved_reference_originals:
+- path: docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: 57f136268f52386c99cb13970f694cf40a30bdb57a6bc3badcab0b70a24ed3ae
+- path: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: 8ac1d48195a233d385743d3d9d936bcea8047f25967a63f0cff9a8a984ab06f0
+- path: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: 963ac2613b244caadde2e9f576c9078ebbf6f6138177b8c25c30018797d77fb4
+- path: docs/17-evidence/images/issue-167-service-reference/modeling-data-normal-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: fc3fc35693718f5aa5e3902d6b7ade39f8f2009f33c6507fadc6733b517a0fbe
+- path: docs/17-evidence/images/issue-167-service-reference/modeling-process-normal-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: 87a861aa3e8822e4fe19645230f426f902ced609eea09e62b6fdae67f1a9cf09
+- path: docs/17-evidence/images/issue-167-service-reference/modeling-fit-normal-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: f7a6aaf8720659bdadf1559347e08b8d1c5b920633c8ce954b34ba39aa7ee261
+- path: docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: 363516b847e3298ed85ca7c7c06e1bef564fbaddca93ff17baba1cc8bd2d7a85
+- path: docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: 8c27fa20576d259be8bd84ff215cdc64ab122a497d3f27f57872be843e4fbaf6
+- path: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: dd5bc7fecbe53bf6e97c94e5da99e86a2085b4f4672dfe483a56b8cdd1050d7c
+- path: docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: eace016ff08a9b76577ba30761e35e99a43eee3d525b39f66c65e7c2d6fc6909
+- path: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: da0965abe9a9d0627979b549a71ae6a5fcaa0c5483e6f395ae751b422578810e
+- path: docs/17-evidence/images/issue-167-service-reference/administration-layout-edit-draft-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: 2b8feeced8fe13f26c00d5c0d84f46e823ce7e952276b664ecfa6363c200c1ec
+- path: docs/17-evidence/images/issue-167-service-reference/administration-subset-edit-draft-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: 3c47bd6bfce907fb552e1d420f0595592b14fd443897726fa4f0a22d7d9aadcd
+- path: docs/17-evidence/images/issue-167-service-reference/administration-link-type-edit-draft-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: b6cc86a9255c1f1afb9e70feac549a3b6b376192e36f8f3ff5e67fea197a19ce
+comparison_originals:
+- state: materials-search
+  viewport: 1920x1080
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/materials-search-1920x1080.png
+    width: 1920
+    height: 1080
+    sha256: a33e661e6216d48d7953233813dbb07f885667a49aaf7bb3e9f4b0da6069da1a
+  after:
+    path: docs/user-guide/images/current/materials-search-1920x1080.png
+    width: 1920
+    height: 1080
+    sha256: 9de75b9789c59bb6ecdfa112393e6a112f0b7d98c39605c654de01eb32b562cf
+- state: materials-search
+  viewport: 2560x1440
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/materials-search-2560x1440.png
+    width: 2560
+    height: 1440
+    sha256: 1bfd1da0e926c3a6f4c507180727a5432488b7194782af0c50e05385b6b65aa5
+  after:
+    path: docs/user-guide/images/current/materials-search-2560x1440.png
+    width: 2560
+    height: 1440
+    sha256: 92ed5de640dd7715919b15b141c76a4faefe857ff39a943642a0aa6b02ab2a05
+- state: materials-search
+  viewport: 3840x2160
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/materials-search-3840x2160.png
+    width: 3840
+    height: 2160
+    sha256: 41877f55094f9bfde0c66fd75501a7beede8c0ffd70c02a13f3db3b6b1b99201
+  after:
+    path: docs/user-guide/images/current/materials-search-3840x2160.png
+    width: 3840
+    height: 2160
+    sha256: a3b0864bf0c938f02456ff26105cf3a068549a54b66324466c0c77e40a076ac1
+- state: material-detail
+  viewport: 1920x1080
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/material-detail-1920x1080.png
+    width: 1920
+    height: 1080
+    sha256: 12f4e5a20238bc0d73dc4ee790f115bdea06ebc4c2336df648514122797a2d8c
+  after:
+    path: docs/user-guide/images/current/material-detail-1920x1080.png
+    width: 1920
+    height: 1080
+    sha256: 35b2c6e63bebbd953031884230d3aee18ef1794d256806a5c1414e9094db8b82
+- state: material-detail
+  viewport: 2560x1440
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/material-detail-2560x1440.png
+    width: 2560
+    height: 1440
+    sha256: 1acc2359ef7370fddd20af843d45cc3bb44813ace6861e258ff8f7e2b4827825
+  after:
+    path: docs/user-guide/images/current/material-detail-2560x1440.png
+    width: 2560
+    height: 1440
+    sha256: 821d9571da37ba103862793bb67686bc513315914e5e47c93d7cc401bf482aaa
+- state: material-detail
+  viewport: 3840x2160
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/material-detail-3840x2160.png
+    width: 3840
+    height: 2160
+    sha256: eeade985d4b1b4a5eac1aea31a2ab22a6d8c0f07fa3f695863dcdf5d7f257bd3
+  after:
+    path: docs/user-guide/images/current/material-detail-3840x2160.png
+    width: 3840
+    height: 2160
+    sha256: 7a3e8dc50d01876d6ec4982fff7e205831b09f4e9d9f254265721ea5344881e5
+- state: modeling-data
+  viewport: 1920x1080
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/modeling-data-1920x1080.png
+    width: 1920
+    height: 1080
+    sha256: 1d18b4917ed83fc1eddac1a400c19abb2e6d447c410ce92f9522d81f29c613ed
+  after:
+    path: docs/user-guide/images/current/modeling-data-1920x1080.png
+    width: 1920
+    height: 1080
+    sha256: 9f5ba7c7b4e74059c4a6a9a54ff7ea477edfc035280d8266d7925a7778b74b2b
+- state: modeling-data
+  viewport: 2560x1440
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/modeling-data-2560x1440.png
+    width: 2560
+    height: 1440
+    sha256: 433d311c4c4bd919a6cf518147895b705d9d8f1addebec5768801331e2e490e5
+  after:
+    path: docs/user-guide/images/current/modeling-data-2560x1440.png
+    width: 2560
+    height: 1440
+    sha256: 5071099a0bcc5626365eb90b3bf81e6b6c51d1bdfde1a5c75008cc366e0db1ca
+- state: modeling-data
+  viewport: 3840x2160
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/modeling-data-3840x2160.png
+    width: 3840
+    height: 2160
+    sha256: 6fb48c2f754e9f6a919372987a98aae8fd2b553c12bae659f25f4d7921c32af4
+  after:
+    path: docs/user-guide/images/current/modeling-data-3840x2160.png
+    width: 3840
+    height: 2160
+    sha256: 5cdd103260be29867c5d571cc7a2e116d0922875c7de9b958aba008cb3133f3f
+- state: modeling-process
+  viewport: 1920x1080
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/modeling-process-1920x1080.png
+    width: 1920
+    height: 1080
+    sha256: fcac737e2218a2838ea92e14706c242e01f36d48a3b706dae8c801a944e13452
+  after:
+    path: docs/user-guide/images/current/modeling-process-1920x1080.png
+    width: 1920
+    height: 1080
+    sha256: e55ce820e7c3bdc4cb34ef69040269f45ce20442d1a9acecfc0193fe4cb56223
+- state: modeling-process
+  viewport: 2560x1440
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/modeling-process-2560x1440.png
+    width: 2560
+    height: 1440
+    sha256: 8989cc047a0a43b834bb26c8090b2e86b4152e2f1de9a4ced3d9610a8487ed49
+  after:
+    path: docs/user-guide/images/current/modeling-process-2560x1440.png
+    width: 2560
+    height: 1440
+    sha256: 62d2296abf789c0c8534bb1e9f0b64d7148ca163daa5b659349e2b93f9a470cb
+- state: modeling-process
+  viewport: 3840x2160
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/modeling-process-3840x2160.png
+    width: 3840
+    height: 2160
+    sha256: 274d9bd2cd584ef9c53f83555a7b96d9c44bd903a9349cb9892d6080a2afc5c5
+  after:
+    path: docs/user-guide/images/current/modeling-process-3840x2160.png
+    width: 3840
+    height: 2160
+    sha256: 362ef245ffa4df29a987f1151861a3043e41f6856102e00a804d355f28633a65
+- state: modeling-fit
+  viewport: 1920x1080
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/modeling-fit-1920x1080.png
+    width: 1920
+    height: 1080
+    sha256: 72dbe28e3e09dfd9c8191f4a1500f1c738b5c517aa38bc91f4a407c5b8c32872
+  after:
+    path: docs/user-guide/images/current/modeling-fit-1920x1080.png
+    width: 1920
+    height: 1080
+    sha256: 72dbe28e3e09dfd9c8191f4a1500f1c738b5c517aa38bc91f4a407c5b8c32872
+- state: modeling-fit
+  viewport: 2560x1440
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/modeling-fit-2560x1440.png
+    width: 2560
+    height: 1440
+    sha256: e8a8c4ce3eff369d32925c2e151f8eb4681de7afd2974e70ac759b1e83b1d064
+  after:
+    path: docs/user-guide/images/current/modeling-fit-2560x1440.png
+    width: 2560
+    height: 1440
+    sha256: b539b900cf6f70db00f4871674e0f8c80e6afd6c0e984aee5d446fdf2966f3a1
+- state: modeling-fit
+  viewport: 3840x2160
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/modeling-fit-3840x2160.png
+    width: 3840
+    height: 2160
+    sha256: 0db3a18bb9e268f2f9a05c9acfa2b062d93d5ae11dbe5a58ce56dcadece3d212
+  after:
+    path: docs/user-guide/images/current/modeling-fit-3840x2160.png
+    width: 3840
+    height: 2160
+    sha256: f02d8f9fbf2cd0550829039e905eb34857a7948e44942166f3c25dd7d2471807
+- state: modeling-export
+  viewport: 1920x1080
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/modeling-export-1920x1080.png
+    width: 1920
+    height: 1080
+    sha256: 5667cd0a1fa28c74a2e831b19bd5c9f89f03ac5b12dca6cca1129ab12673f69e
+  after:
+    path: docs/user-guide/images/current/modeling-export-1920x1080.png
+    width: 1920
+    height: 1080
+    sha256: 66c6221e67994bc88c61021a09cd13ca1c3da838f63ebff1609e21c4972e1119
+- state: modeling-export
+  viewport: 2560x1440
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/modeling-export-2560x1440.png
+    width: 2560
+    height: 1440
+    sha256: 6f752edd59b31ef25bf9c7a911105e35bcb4ab3eec2594357bee37fd2bf70e42
+  after:
+    path: docs/user-guide/images/current/modeling-export-2560x1440.png
+    width: 2560
+    height: 1440
+    sha256: a6326b6ce7f051d1104fc4420122e3385c20314189cc3fa359bd465a93e72fae
+- state: modeling-export
+  viewport: 3840x2160
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/modeling-export-3840x2160.png
+    width: 3840
+    height: 2160
+    sha256: 74b0cf29b38f675017c1c44768032cf9cc1914246f2b7b16ab0ef5a210bc7840
+  after:
+    path: docs/user-guide/images/current/modeling-export-3840x2160.png
+    width: 3840
+    height: 2160
+    sha256: 9e09cd5cfb93180f8fc7e01a7028decaa0673ce3c9192e125eb4bdd14266e0b8
+- state: activity
+  viewport: 1920x1080
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/activity-1920x1080.png
+    width: 1920
+    height: 1080
+    sha256: 73e4b4446e42bafb1f20bdb17be3c6ed6f25541db7002db9f1caf59b7f16b359
+  after:
+    path: docs/user-guide/images/current/activity-1920x1080.png
+    width: 1920
+    height: 1080
+    sha256: 395a8f6e88ee933437bf494c35b5aef684111c27d9b637b6b786990d0f9445a2
+- state: activity
+  viewport: 2560x1440
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/activity-2560x1440.png
+    width: 2560
+    height: 1440
+    sha256: b04446ab89e77bdbc992b340018ec6418dec4ab703de69fcdf42e4aa75a49d34
+  after:
+    path: docs/user-guide/images/current/activity-2560x1440.png
+    width: 2560
+    height: 1440
+    sha256: ad410a400218feaae5d6e2efe2e3cf4ee885b6b224174203fc7800f2a91e449e
+- state: activity
+  viewport: 3840x2160
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/activity-3840x2160.png
+    width: 3840
+    height: 2160
+    sha256: 31743d16bc1fba7a04f0e8b4b491f8c86c017b9da57629939cf4eee5dc5dad72
+  after:
+    path: docs/user-guide/images/current/activity-3840x2160.png
+    width: 3840
+    height: 2160
+    sha256: 796ccd2719af229f02c224a7027633a7eaf99089d263a4c1f19e8ed9ec44dc31
+- state: activity-history
+  viewport: 1920x1080
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/activity-history-1920x1080.png
+    width: 1920
+    height: 1080
+    sha256: aab3783ad61f082ee2ca2a23255eaa4a35ab0ddd2755e7b7baa3b618f4c34d0b
+  after:
+    path: docs/user-guide/images/current/activity-history-1920x1080.png
+    width: 1920
+    height: 1080
+    sha256: 15d72b1b3ae0be7c75ffbd48b1026ce254a4ae6066c86d6224d04a624024b9f0
+- state: activity-history
+  viewport: 2560x1440
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/activity-history-2560x1440.png
+    width: 2560
+    height: 1440
+    sha256: a334f26103172e062d9da30b888acd4ba8f9acc55558e8a09f16aa38dd80e483
+  after:
+    path: docs/user-guide/images/current/activity-history-2560x1440.png
+    width: 2560
+    height: 1440
+    sha256: 1fb8880fa09d51b2b1c914e7f0f1bcf3ad1f56dbef05b89465989d5895f4eb61
+- state: activity-history
+  viewport: 3840x2160
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/activity-history-3840x2160.png
+    width: 3840
+    height: 2160
+    sha256: 48b7c3ee79a063cbefa7790290f025fdd015b9a7bc761d431d03a9c1fcfeb1d0
+  after:
+    path: docs/user-guide/images/current/activity-history-3840x2160.png
+    width: 3840
+    height: 2160
+    sha256: 3956573b9a1e68582e4502148ccf04f4658281685e323d4e8a0ab73feaa1c8fd
+- state: administration-database
+  viewport: 1920x1080
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/administration-database-1920x1080.png
+    width: 1920
+    height: 1080
+    sha256: 90a9784599102100853db5cc0ead3921c44ac34a85c6fd959ca2ed1df9b29a15
+  after:
+    path: docs/user-guide/images/current/administration-database-1920x1080.png
+    width: 1920
+    height: 1080
+    sha256: aa86492e1dadbfc289d0297d6fc6839bba59f972ad4f3038e77e52c7e485f410
+- state: administration-database
+  viewport: 2560x1440
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/administration-database-2560x1440.png
+    width: 2560
+    height: 1440
+    sha256: 89ed25d7285941c099cceee3b7de0a7852914a8096a89b6c6bfbe436ef0870d9
+  after:
+    path: docs/user-guide/images/current/administration-database-2560x1440.png
+    width: 2560
+    height: 1440
+    sha256: 98a11c7dccb27501297c2c5b6d69e91fb5bc6fb90f63164c560e6952ce4c9220
+- state: administration-database
+  viewport: 3840x2160
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/administration-database-3840x2160.png
+    width: 3840
+    height: 2160
+    sha256: 44b9102a3f51b7e4e2c940f6fa532d16002cf2c4406b362ee953daf6f14d3e43
+  after:
+    path: docs/user-guide/images/current/administration-database-3840x2160.png
+    width: 3840
+    height: 2160
+    sha256: 217210504e51adf14dd5d543cd0ca741362ec86d813f71077db363c1ddc74111
+- state: administration-records
+  viewport: 1920x1080
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/administration-records-1920x1080.png
+    width: 1920
+    height: 1080
+    sha256: 5abb28ca485450d47f3152634d9bc53be5c4248fae1f2118e9b6037b6330d206
+  after:
+    path: docs/user-guide/images/current/administration-records-1920x1080.png
+    width: 1920
+    height: 1080
+    sha256: 3301c3f2179eaa1cbfd0f3ac52fec44fac64ab9b62203ba4ee2564b0bfd9c144
+- state: administration-records
+  viewport: 2560x1440
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/administration-records-2560x1440.png
+    width: 2560
+    height: 1440
+    sha256: f3542933f61c15b144037b1badbc7919dc49fbe4fd9e2f00b53730982863b1cc
+  after:
+    path: docs/user-guide/images/current/administration-records-2560x1440.png
+    width: 2560
+    height: 1440
+    sha256: 185d44beead19023397fc36f02cd01b963413f8eeff94c9822866382042bc444
+- state: administration-records
+  viewport: 3840x2160
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/administration-records-3840x2160.png
+    width: 3840
+    height: 2160
+    sha256: fa734867031b665e659e845d8604eebe0b7e7857950cb6dac05d39307713a658
+  after:
+    path: docs/user-guide/images/current/administration-records-3840x2160.png
+    width: 3840
+    height: 2160
+    sha256: fd6a591112f4d4df4fea73281eabfd92f795da846684843b06e909d138125ba5
+long_state_comparison:
+  state: materials-search-long
+  viewport: 1920x1080
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/before/materials-search-long-1920x1080.png
+    width: 1920
+    height: 1080
+    sha256: 9095ed033ddd4821d0579f7c982bf691fb47c90dd2e09b82a0f07054fdd2bb21
+  after:
+    path: docs/user-guide/images/current/materials-search-long-1920x1080.png
+    width: 1920
+    height: 1080
+    sha256: 0b19a46beb012b3f09283c50aae405f67f6087818b64f4b9de082c5333dd9fa7
+crops:
+- name: shell-header
+  state: materials-search
+  viewport: 1920x1080
+  scale: '1:1'
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/materials-search-1920x1080-shell-header-100pct.png
+    width: 1920
+    height: 160
+    sha256: 0f0f4df7a2ac874dd8aa04af7fc65d6ef12bbb17eff444804d98e65f2b442f23
+    role: before-crop
+    name: shell-header
+    viewport: 1920x1080
+    source: docs/17-evidence/images/issue-161-shared-ui-foundation/before/materials-search-1920x1080.png
+    rect:
+      x: 0
+      y: 0
+      width: 1920
+      height: 160
+  after:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/after/materials-search-1920x1080-shell-header-100pct.png
+    width: 1920
+    height: 160
+    sha256: c41c48c318be96a837b0d877b1e7a4da30e8c7a0fdf7eb44a5726e97516817ef
+    role: after-crop
+    name: shell-header
+    viewport: 1920x1080
+    source: docs/user-guide/images/current/materials-search-1920x1080.png
+    rect:
+      x: 0
+      y: 0
+      width: 1920
+      height: 160
+- name: navigator-main-boundary
+  state: materials-search
+  viewport: 1920x1080
+  scale: '1:1'
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/materials-search-1920x1080-navigator-main-boundary-100pct.png
+    width: 1500
+    height: 760
+    sha256: a16727df598e821c941c3e680f70af21194b79638c8ac5e5e1e8139e7dbe92cd
+    role: before-crop
+    name: navigator-main-boundary
+    viewport: 1920x1080
+    source: docs/17-evidence/images/issue-161-shared-ui-foundation/before/materials-search-1920x1080.png
+    rect:
+      x: 0
+      y: 130
+      width: 1500
+      height: 760
+  after:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/after/materials-search-1920x1080-navigator-main-boundary-100pct.png
+    width: 1500
+    height: 760
+    sha256: ffdd6bae350b91b2ee874cf2352537abe0dac71a55ba8ed94b022ef17b0afc6b
+    role: after-crop
+    name: navigator-main-boundary
+    viewport: 1920x1080
+    source: docs/user-guide/images/current/materials-search-1920x1080.png
+    rect:
+      x: 0
+      y: 130
+      width: 1500
+      height: 760
+- name: local-history-scrollbar
+  state: activity-history
+  viewport: 1920x1080
+  scale: '1:1'
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/activity-history-1920x1080-local-history-scrollbar-100pct.png
+    width: 220
+    height: 780
+    sha256: 9fd6053836c26af0a4f2398a4404e03472ff6328dc8118d31dd330892a0468e5
+    role: before-crop
+    name: local-history-scrollbar
+    viewport: 1920x1080
+    source: docs/17-evidence/images/issue-161-shared-ui-foundation/before/activity-history-1920x1080.png
+    rect:
+      x: 1700
+      y: 200
+      width: 220
+      height: 780
+  after:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/after/activity-history-1920x1080-local-history-scrollbar-100pct.png
+    width: 220
+    height: 780
+    sha256: f3bb2fa794c9b42493dae7e46f415f1de80f44e0165f034a06fa9a13810042da
+    role: after-crop
+    name: local-history-scrollbar
+    viewport: 1920x1080
+    source: docs/user-guide/images/current/activity-history-1920x1080.png
+    rect:
+      x: 1700
+      y: 200
+      width: 220
+      height: 780
+- name: graph-axis
+  state: modeling-process
+  viewport: 1920x1080
+  scale: '1:1'
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/modeling-process-1920x1080-graph-axis-100pct.png
+    width: 1780
+    height: 380
+    sha256: a056302c45c14ba119f183c0d7948db9e648c6e60b974da2ad5cd0b1fca4e2b9
+    role: before-crop
+    name: graph-axis
+    viewport: 1920x1080
+    source: docs/17-evidence/images/issue-161-shared-ui-foundation/before/modeling-process-1920x1080.png
+    rect:
+      x: 120
+      y: 680
+      width: 1780
+      height: 380
+  after:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/after/modeling-process-1920x1080-graph-axis-100pct.png
+    width: 1780
+    height: 380
+    sha256: a056302c45c14ba119f183c0d7948db9e648c6e60b974da2ad5cd0b1fca4e2b9
+    role: after-crop
+    name: graph-axis
+    viewport: 1920x1080
+    source: docs/user-guide/images/current/modeling-process-1920x1080.png
+    rect:
+      x: 120
+      y: 680
+      width: 1780
+      height: 380
+- name: graph-legend
+  state: modeling-fit
+  viewport: 1920x1080
+  scale: '1:1'
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/modeling-fit-1920x1080-graph-legend-100pct.png
+    width: 400
+    height: 380
+    sha256: 3907c37f40a7aa15aeb71c54820e49bb188afa1656ed61149c8f68498c8e631f
+    role: before-crop
+    name: graph-legend
+    viewport: 1920x1080
+    source: docs/17-evidence/images/issue-161-shared-ui-foundation/before/modeling-fit-1920x1080.png
+    rect:
+      x: 1500
+      y: 670
+      width: 400
+      height: 380
+  after:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/after/modeling-fit-1920x1080-graph-legend-100pct.png
+    width: 400
+    height: 380
+    sha256: 3907c37f40a7aa15aeb71c54820e49bb188afa1656ed61149c8f68498c8e631f
+    role: after-crop
+    name: graph-legend
+    viewport: 1920x1080
+    source: docs/user-guide/images/current/modeling-fit-1920x1080.png
+    rect:
+      x: 1500
+      y: 670
+      width: 400
+      height: 380
+- name: native-preview
+  state: modeling-export
+  viewport: 1920x1080
+  scale: '1:1'
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/modeling-export-1920x1080-native-preview-100pct.png
+    width: 1300
+    height: 820
+    sha256: 575de453ad327c21aa5e6c0f538cadc6d33220837a712587a84e5549a6e4a002
+    role: before-crop
+    name: native-preview
+    viewport: 1920x1080
+    source: docs/17-evidence/images/issue-161-shared-ui-foundation/before/modeling-export-1920x1080.png
+    rect:
+      x: 300
+      y: 130
+      width: 1300
+      height: 820
+  after:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/after/modeling-export-1920x1080-native-preview-100pct.png
+    width: 1500
+    height: 820
+    sha256: 6d0f62412d73cf159c9b1333235e8775a8d761fa88c2ef97038969fb08abbab7
+    role: after-crop
+    name: native-preview
+    viewport: 1920x1080
+    source: docs/user-guide/images/current/modeling-export-1920x1080.png
+    rect:
+      x: 300
+      y: 130
+      width: 1500
+      height: 820
+- name: readable-property-workgroup
+  state: administration-database
+  viewport: 1920x1080
+  scale: '1:1'
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/administration-database-1920x1080-readable-property-workgroup-100pct.png
+    width: 1760
+    height: 750
+    sha256: 23f9e9c9342719c3d0e38cdd9cfd473759c82cbc80a809fe216b81423fa242ae
+    role: before-crop
+    name: readable-property-workgroup
+    viewport: 1920x1080
+    source: docs/17-evidence/images/issue-161-shared-ui-foundation/before/administration-database-1920x1080.png
+    rect:
+      x: 140
+      y: 70
+      width: 1760
+      height: 750
+  after:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/after/administration-database-1920x1080-readable-property-workgroup-100pct.png
+    width: 1624
+    height: 750
+    sha256: a78db6dd2fe1ffa15a655d532fd59c7bf383f865d6971ee92a2fcfe72c7fdce9
+    role: after-crop
+    name: readable-property-workgroup
+    viewport: 1920x1080
+    source: docs/user-guide/images/current/administration-database-1920x1080.png
+    rect:
+      x: 280
+      y: 70
+      width: 1624
+      height: 750
+- name: shell-header
+  state: materials-search
+  viewport: 2560x1440
+  scale: '1:1'
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/materials-search-2560x1440-shell-header-100pct.png
+    width: 2560
+    height: 160
+    sha256: 597a62527df4058256a438d64a41e3264e459792ebf06cf1c614358616987411
+    role: before-crop
+    name: shell-header
+    viewport: 2560x1440
+    source: docs/17-evidence/images/issue-161-shared-ui-foundation/before/materials-search-2560x1440.png
+    rect:
+      x: 0
+      y: 0
+      width: 2560
+      height: 160
+  after:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/after/materials-search-2560x1440-shell-header-100pct.png
+    width: 2560
+    height: 160
+    sha256: 829d9a148b457cf7237391ec2e2eed3ef4ddbbdaf3aae6913a04d6e725bcb62b
+    role: after-crop
+    name: shell-header
+    viewport: 2560x1440
+    source: docs/user-guide/images/current/materials-search-2560x1440.png
+    rect:
+      x: 0
+      y: 0
+      width: 2560
+      height: 160
+- name: navigator-main-boundary
+  state: materials-search
+  viewport: 2560x1440
+  scale: '1:1'
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/materials-search-2560x1440-navigator-main-boundary-100pct.png
+    width: 1500
+    height: 760
+    sha256: a16727df598e821c941c3e680f70af21194b79638c8ac5e5e1e8139e7dbe92cd
+    role: before-crop
+    name: navigator-main-boundary
+    viewport: 2560x1440
+    source: docs/17-evidence/images/issue-161-shared-ui-foundation/before/materials-search-2560x1440.png
+    rect:
+      x: 0
+      y: 130
+      width: 1500
+      height: 760
+  after:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/after/materials-search-2560x1440-navigator-main-boundary-100pct.png
+    width: 1500
+    height: 760
+    sha256: dc93dc005f5e742a70b46044a2e63349244581d7df8957c625aa4e75d851690f
+    role: after-crop
+    name: navigator-main-boundary
+    viewport: 2560x1440
+    source: docs/user-guide/images/current/materials-search-2560x1440.png
+    rect:
+      x: 0
+      y: 130
+      width: 1500
+      height: 760
+- name: local-history-scrollbar
+  state: activity-history
+  viewport: 2560x1440
+  scale: '1:1'
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/activity-history-2560x1440-local-history-scrollbar-100pct.png
+    width: 220
+    height: 1140
+    sha256: e3406ec477ba3de2054c51d10ed2462cdde7eb85fdd4b2ece5c6d1abb1eb8832
+    role: before-crop
+    name: local-history-scrollbar
+    viewport: 2560x1440
+    source: docs/17-evidence/images/issue-161-shared-ui-foundation/before/activity-history-2560x1440.png
+    rect:
+      x: 2340
+      y: 200
+      width: 220
+      height: 1140
+  after:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/after/activity-history-2560x1440-local-history-scrollbar-100pct.png
+    width: 220
+    height: 1140
+    sha256: 8e8b8d006e6ad323a1b05d01d6501b43339c3a15847585969959b42bde89f1f4
+    role: after-crop
+    name: local-history-scrollbar
+    viewport: 2560x1440
+    source: docs/user-guide/images/current/activity-history-2560x1440.png
+    rect:
+      x: 2340
+      y: 200
+      width: 220
+      height: 1140
+- name: graph-axis
+  state: modeling-process
+  viewport: 2560x1440
+  scale: '1:1'
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/modeling-process-2560x1440-graph-axis-100pct.png
+    width: 1780
+    height: 380
+    sha256: 5b7d2a8d04dbcbf83debb4dd1ad8415a3b9018606db491bc95d75e4c75edd0d8
+    role: before-crop
+    name: graph-axis
+    viewport: 2560x1440
+    source: docs/17-evidence/images/issue-161-shared-ui-foundation/before/modeling-process-2560x1440.png
+    rect:
+      x: 120
+      y: 680
+      width: 1780
+      height: 380
+  after:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/after/modeling-process-2560x1440-graph-axis-100pct.png
+    width: 2400
+    height: 380
+    sha256: bf65697856cc08b740717bcb5075bb887d0ca37a7479b45c5e9d162647f33542
+    role: after-crop
+    name: graph-axis
+    viewport: 2560x1440
+    source: docs/user-guide/images/current/modeling-process-2560x1440.png
+    rect:
+      x: 120
+      y: 1040
+      width: 2400
+      height: 380
+- name: graph-legend
+  state: modeling-fit
+  viewport: 2560x1440
+  scale: '1:1'
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/modeling-fit-2560x1440-graph-legend-100pct.png
+    width: 400
+    height: 380
+    sha256: d10a1647ed7b766530be0a2b820b5480b7519b84a46a61942dd1e08a003165b1
+    role: before-crop
+    name: graph-legend
+    viewport: 2560x1440
+    source: docs/17-evidence/images/issue-161-shared-ui-foundation/before/modeling-fit-2560x1440.png
+    rect:
+      x: 1500
+      y: 670
+      width: 400
+      height: 380
+  after:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/after/modeling-fit-2560x1440-graph-legend-100pct.png
+    width: 400
+    height: 380
+    sha256: f4e9f1d4d1380ec096d69e4bb2af3803448982df9246f41babc8616178b7fa96
+    role: after-crop
+    name: graph-legend
+    viewport: 2560x1440
+    source: docs/user-guide/images/current/modeling-fit-2560x1440.png
+    rect:
+      x: 2140
+      y: 1030
+      width: 400
+      height: 380
+- name: native-preview
+  state: modeling-export
+  viewport: 2560x1440
+  scale: '1:1'
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/modeling-export-2560x1440-native-preview-100pct.png
+    width: 1300
+    height: 820
+    sha256: 5e40c3fcf16f17aba669d6843464bb5402e6ba42ecaf96ead9d33ce4e8af55a8
+    role: before-crop
+    name: native-preview
+    viewport: 2560x1440
+    source: docs/17-evidence/images/issue-161-shared-ui-foundation/before/modeling-export-2560x1440.png
+    rect:
+      x: 300
+      y: 130
+      width: 1300
+      height: 820
+  after:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/after/modeling-export-2560x1440-native-preview-100pct.png
+    width: 1500
+    height: 820
+    sha256: 831b50fe6e64846823fc04f39e55547a5712ca4ea68b08812cefa638d7a3beae
+    role: after-crop
+    name: native-preview
+    viewport: 2560x1440
+    source: docs/user-guide/images/current/modeling-export-2560x1440.png
+    rect:
+      x: 300
+      y: 130
+      width: 1500
+      height: 820
+- name: readable-property-workgroup
+  state: administration-database
+  viewport: 2560x1440
+  scale: '1:1'
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/administration-database-2560x1440-readable-property-workgroup-100pct.png
+    width: 1760
+    height: 750
+    sha256: ae2bc57599acdd4c3c95d58e06e8deecc4f59b915832d66f3c5132fc1abc357a
+    role: before-crop
+    name: readable-property-workgroup
+    viewport: 2560x1440
+    source: docs/17-evidence/images/issue-161-shared-ui-foundation/before/administration-database-2560x1440.png
+    rect:
+      x: 140
+      y: 70
+      width: 1760
+      height: 750
+  after:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/after/administration-database-2560x1440-readable-property-workgroup-100pct.png
+    width: 1632
+    height: 750
+    sha256: e7e3731a115a36099f523606f28aaff2c42aa60cd2ce6278abdbfe4ca7299b89
+    role: after-crop
+    name: readable-property-workgroup
+    viewport: 2560x1440
+    source: docs/user-guide/images/current/administration-database-2560x1440.png
+    rect:
+      x: 596
+      y: 70
+      width: 1632
+      height: 750
+- name: shell-header
+  state: materials-search
+  viewport: 3840x2160
+  scale: '1:1'
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/materials-search-3840x2160-shell-header-100pct.png
+    width: 3840
+    height: 160
+    sha256: 718b89603264cc10846a62aeff9c113690c023a06e3ee3620c412bd3c928a6e5
+    role: before-crop
+    name: shell-header
+    viewport: 3840x2160
+    source: docs/17-evidence/images/issue-161-shared-ui-foundation/before/materials-search-3840x2160.png
+    rect:
+      x: 0
+      y: 0
+      width: 3840
+      height: 160
+  after:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/after/materials-search-3840x2160-shell-header-100pct.png
+    width: 3840
+    height: 160
+    sha256: 1feb796fc9344d7cf296da8d7d4a1201b908eb163a0f87cfa1005b689e9e0c93
+    role: after-crop
+    name: shell-header
+    viewport: 3840x2160
+    source: docs/user-guide/images/current/materials-search-3840x2160.png
+    rect:
+      x: 0
+      y: 0
+      width: 3840
+      height: 160
+- name: navigator-main-boundary
+  state: materials-search
+  viewport: 3840x2160
+  scale: '1:1'
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/materials-search-3840x2160-navigator-main-boundary-100pct.png
+    width: 1500
+    height: 760
+    sha256: 83110b0fb164feb223161cee50e17c3eeb6b6851c4693a8ff8c1f9db6b197bd0
+    role: before-crop
+    name: navigator-main-boundary
+    viewport: 3840x2160
+    source: docs/17-evidence/images/issue-161-shared-ui-foundation/before/materials-search-3840x2160.png
+    rect:
+      x: 0
+      y: 130
+      width: 1500
+      height: 760
+  after:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/after/materials-search-3840x2160-navigator-main-boundary-100pct.png
+    width: 1500
+    height: 760
+    sha256: d9230efee2f87f45b58bc977add01dc009bb2e2a25c5a3bdfc7eb10cf50e9ed8
+    role: after-crop
+    name: navigator-main-boundary
+    viewport: 3840x2160
+    source: docs/user-guide/images/current/materials-search-3840x2160.png
+    rect:
+      x: 0
+      y: 130
+      width: 1500
+      height: 760
+- name: local-history-scrollbar
+  state: activity-history
+  viewport: 3840x2160
+  scale: '1:1'
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/activity-history-3840x2160-local-history-scrollbar-100pct.png
+    width: 220
+    height: 1860
+    sha256: c851d3fb1ffa35f895b3b7995753372820f1a3720fce2a744e782f005a540f67
+    role: before-crop
+    name: local-history-scrollbar
+    viewport: 3840x2160
+    source: docs/17-evidence/images/issue-161-shared-ui-foundation/before/activity-history-3840x2160.png
+    rect:
+      x: 3028
+      y: 200
+      width: 220
+      height: 1860
+  after:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/after/activity-history-3840x2160-local-history-scrollbar-100pct.png
+    width: 220
+    height: 1860
+    sha256: 6f84a8f93440a379d5d98ebe14d760529832a1123cb539268acab3501b9cf29d
+    role: after-crop
+    name: local-history-scrollbar
+    viewport: 3840x2160
+    source: docs/user-guide/images/current/activity-history-3840x2160.png
+    rect:
+      x: 3028
+      y: 200
+      width: 220
+      height: 1860
+- name: graph-axis
+  state: modeling-process
+  viewport: 3840x2160
+  scale: '1:1'
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/modeling-process-3840x2160-graph-axis-100pct.png
+    width: 1780
+    height: 380
+    sha256: 5b7d2a8d04dbcbf83debb4dd1ad8415a3b9018606db491bc95d75e4c75edd0d8
+    role: before-crop
+    name: graph-axis
+    viewport: 3840x2160
+    source: docs/17-evidence/images/issue-161-shared-ui-foundation/before/modeling-process-3840x2160.png
+    rect:
+      x: 120
+      y: 680
+      width: 1780
+      height: 380
+  after:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/after/modeling-process-3840x2160-graph-axis-100pct.png
+    width: 2400
+    height: 380
+    sha256: 550d8561eba71a7fc3eb753ae8cc1302ca25cf6c0797be48558b78b6f21eb382
+    role: after-crop
+    name: graph-axis
+    viewport: 3840x2160
+    source: docs/user-guide/images/current/modeling-process-3840x2160.png
+    rect:
+      x: 120
+      y: 1760
+      width: 2400
+      height: 380
+- name: graph-legend
+  state: modeling-fit
+  viewport: 3840x2160
+  scale: '1:1'
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/modeling-fit-3840x2160-graph-legend-100pct.png
+    width: 400
+    height: 380
+    sha256: d10a1647ed7b766530be0a2b820b5480b7519b84a46a61942dd1e08a003165b1
+    role: before-crop
+    name: graph-legend
+    viewport: 3840x2160
+    source: docs/17-evidence/images/issue-161-shared-ui-foundation/before/modeling-fit-3840x2160.png
+    rect:
+      x: 1500
+      y: 670
+      width: 400
+      height: 380
+  after:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/after/modeling-fit-3840x2160-graph-legend-100pct.png
+    width: 400
+    height: 380
+    sha256: f4028f5dc47cca8f10c9bfffc3f310b2ac2c316c010e13ee49e7387c2b884ab1
+    role: after-crop
+    name: graph-legend
+    viewport: 3840x2160
+    source: docs/user-guide/images/current/modeling-fit-3840x2160.png
+    rect:
+      x: 3420
+      y: 1750
+      width: 400
+      height: 380
+- name: native-preview
+  state: modeling-export
+  viewport: 3840x2160
+  scale: '1:1'
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/modeling-export-3840x2160-native-preview-100pct.png
+    width: 1300
+    height: 820
+    sha256: 744486e2c9551ded641dd53dd428212f0a7f9d9b04889a87f5902555aadf894e
+    role: before-crop
+    name: native-preview
+    viewport: 3840x2160
+    source: docs/17-evidence/images/issue-161-shared-ui-foundation/before/modeling-export-3840x2160.png
+    rect:
+      x: 300
+      y: 130
+      width: 1300
+      height: 820
+  after:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/after/modeling-export-3840x2160-native-preview-100pct.png
+    width: 1500
+    height: 820
+    sha256: 101de0c99b45fb403a744528c3813ff0834a2bfac3e73807e411cd103f3a19fd
+    role: after-crop
+    name: native-preview
+    viewport: 3840x2160
+    source: docs/user-guide/images/current/modeling-export-3840x2160.png
+    rect:
+      x: 300
+      y: 130
+      width: 1500
+      height: 820
+- name: readable-property-workgroup
+  state: administration-database
+  viewport: 3840x2160
+  scale: '1:1'
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/administration-database-3840x2160-readable-property-workgroup-100pct.png
+    width: 1760
+    height: 750
+    sha256: ae2bc57599acdd4c3c95d58e06e8deecc4f59b915832d66f3c5132fc1abc357a
+    role: before-crop
+    name: readable-property-workgroup
+    viewport: 3840x2160
+    source: docs/17-evidence/images/issue-161-shared-ui-foundation/before/administration-database-3840x2160.png
+    rect:
+      x: 140
+      y: 70
+      width: 1760
+      height: 750
+  after:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/after/administration-database-3840x2160-readable-property-workgroup-100pct.png
+    width: 1632
+    height: 750
+    sha256: c3337ba0c17bd67e536d5f2b2000b3882234fab2fe5b45d2442466ce2fe6ae2a
+    role: after-crop
+    name: readable-property-workgroup
+    viewport: 3840x2160
+    source: docs/user-guide/images/current/administration-database-3840x2160.png
+    rect:
+      x: 1236
+      y: 70
+      width: 1632
+      height: 750
+- name: long-tree-label
+  state: materials-search-long
+  viewport: 1920x1080
+  scale: '1:1'
+  before:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/materials-search-long-1920x1080-long-tree-label-100pct.png
+    width: 760
+    height: 700
+    sha256: ed37ebb473d268012db378633062dbfb740d1d7021ccb5f3058024a7f662b1d1
+    role: before-crop
+    name: long-tree-label
+    viewport: 1920x1080
+    source: docs/17-evidence/images/issue-161-shared-ui-foundation/before/materials-search-long-1920x1080.png
+    rect:
+      x: 0
+      y: 130
+      width: 760
+      height: 700
+  after:
+    path: docs/17-evidence/images/issue-161-shared-ui-foundation/crops/after/materials-search-long-1920x1080-long-tree-label-100pct.png
+    width: 760
+    height: 700
+    sha256: 67250ff39a6543734f230df28e332b18eb441fc821b02a46911435c43c1078a2
+    role: after-crop
+    name: long-tree-label
+    viewport: 1920x1080
+    source: docs/user-guide/images/current/materials-search-long-1920x1080.png
+    rect:
+      x: 0
+      y: 130
+      width: 760
+      height: 700
+current_originals:
+- path: docs/user-guide/images/current/activity-1366x768.png
+  width: 1366
+  height: 768
+  sha256: 7ae5c24584392daa176d073f1fd19958f90af0e8beb2f41fdd8999af265733d9
+- path: docs/user-guide/images/current/activity-1440x900.png
+  width: 1440
+  height: 900
+  sha256: da3244c699c1670c870ed428c3da6903ac26962c047913c7bd029209cf6a6225
+- path: docs/user-guide/images/current/activity-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: 395a8f6e88ee933437bf494c35b5aef684111c27d9b637b6b786990d0f9445a2
+- path: docs/user-guide/images/current/activity-2560x1440.png
+  width: 2560
+  height: 1440
+  sha256: ad410a400218feaae5d6e2efe2e3cf4ee885b6b224174203fc7800f2a91e449e
+- path: docs/user-guide/images/current/activity-3840x2160.png
+  width: 3840
+  height: 2160
+  sha256: 796ccd2719af229f02c224a7027633a7eaf99089d263a4c1f19e8ed9ec44dc31
+- path: docs/user-guide/images/current/activity-administrator-1440x900.png
+  width: 1440
+  height: 900
+  sha256: e35056345d0e5b2365901180939ec5cf157584e7189da6b1c8750a0a7eccb6e2
+- path: docs/user-guide/images/current/activity-decision-error-1440x900.png
+  width: 1440
+  height: 900
+  sha256: 65dd567ef8982d5687690c218c27b1decc1cc00cd975741e894b861c153cb176
+- path: docs/user-guide/images/current/activity-history-1440x900.png
+  width: 1440
+  height: 900
+  sha256: f4f05332268e272dbb73222fb1b3dd5691429b62134e9e1aa3401caf652c83c1
+- path: docs/user-guide/images/current/activity-history-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: 15d72b1b3ae0be7c75ffbd48b1026ce254a4ae6066c86d6224d04a624024b9f0
+- path: docs/user-guide/images/current/activity-history-2560x1440.png
+  width: 2560
+  height: 1440
+  sha256: 1fb8880fa09d51b2b1c914e7f0f1bcf3ad1f56dbef05b89465989d5895f4eb61
+- path: docs/user-guide/images/current/activity-history-3840x2160.png
+  width: 3840
+  height: 2160
+  sha256: 3956573b9a1e68582e4502148ccf04f4658281685e323d4e8a0ab73feaa1c8fd
+- path: docs/user-guide/images/current/activity-recovery-1440x900.png
+  width: 1440
+  height: 900
+  sha256: 32cd65d63a72ec8cdc9c098a9dd16a4c3856c87c5fdfbd82c310bd667714c453
+- path: docs/user-guide/images/current/activity-user-1440x900.png
+  width: 1440
+  height: 900
+  sha256: 13d8f543551f1da33cd345bfdc79b14a70b13449b4c72639040e9f343c8b77dc
+- path: docs/user-guide/images/current/administration-access-1366x768.png
+  width: 1366
+  height: 768
+  sha256: 898ed3d949e5f0418cbec4f9854ffea79f9ad177457d4e424ca5e5837e2a008f
+- path: docs/user-guide/images/current/administration-access-1440x900.png
+  width: 1440
+  height: 900
+  sha256: 037382ed8d46ffa7cb30a0840b2746ab052382261d3efdc185fc12c76569b6f7
+- path: docs/user-guide/images/current/administration-database-1366x768.png
+  width: 1366
+  height: 768
+  sha256: 8fbcb402e1bb6676caf742d7cea4d962e4915108314ad3a0419e8212ebc9f95b
+- path: docs/user-guide/images/current/administration-database-1440x900.png
+  width: 1440
+  height: 900
+  sha256: eb1f782a28f424aa71eb2dacb2630cd02a91f989ae87eea4a0e880f301565244
+- path: docs/user-guide/images/current/administration-database-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: aa86492e1dadbfc289d0297d6fc6839bba59f972ad4f3038e77e52c7e485f410
+- path: docs/user-guide/images/current/administration-database-2560x1440.png
+  width: 2560
+  height: 1440
+  sha256: 98a11c7dccb27501297c2c5b6d69e91fb5bc6fb90f63164c560e6952ce4c9220
+- path: docs/user-guide/images/current/administration-database-3840x2160.png
+  width: 3840
+  height: 2160
+  sha256: 217210504e51adf14dd5d543cd0ca741362ec86d813f71077db363c1ddc74111
+- path: docs/user-guide/images/current/administration-records-1366x768.png
+  width: 1366
+  height: 768
+  sha256: 61cf0243d8881972ee39e78ff09fef5e72dd4629df54723f8ac4682c9509d09c
+- path: docs/user-guide/images/current/administration-records-1440x900.png
+  width: 1440
+  height: 900
+  sha256: b9863d6c1fb9533c438d6d0e23810ee39ae7cf80ca8503901b6d21a812a16350
+- path: docs/user-guide/images/current/administration-records-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: 3301c3f2179eaa1cbfd0f3ac52fec44fac64ab9b62203ba4ee2564b0bfd9c144
+- path: docs/user-guide/images/current/administration-records-2560x1440.png
+  width: 2560
+  height: 1440
+  sha256: 185d44beead19023397fc36f02cd01b963413f8eeff94c9822866382042bc444
+- path: docs/user-guide/images/current/administration-records-3840x2160.png
+  width: 3840
+  height: 2160
+  sha256: fd6a591112f4d4df4fea73281eabfd92f795da846684843b06e909d138125ba5
+- path: docs/user-guide/images/current/material-cae-cards-1440x900.png
+  width: 1440
+  height: 900
+  sha256: e1081d2fcc788e0a35d8aaf433d83cf4eacc7698e642d8c6a520a2b3eac782be
+- path: docs/user-guide/images/current/material-detail-1366x768.png
+  width: 1366
+  height: 768
+  sha256: 8cc801aa33f3720bd8fe761b6500466824ba008a0b3111daf1ac448e37642608
+- path: docs/user-guide/images/current/material-detail-1440x900.png
+  width: 1440
+  height: 900
+  sha256: 29681921584747cf2026e7f8ecc54c46337329fcc48b471ff39f5b06676e91ca
+- path: docs/user-guide/images/current/material-detail-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: 35b2c6e63bebbd953031884230d3aee18ef1794d256806a5c1414e9094db8b82
+- path: docs/user-guide/images/current/material-detail-2560x1440.png
+  width: 2560
+  height: 1440
+  sha256: 821d9571da37ba103862793bb67686bc513315914e5e47c93d7cc401bf482aaa
+- path: docs/user-guide/images/current/material-detail-3840x2160.png
+  width: 3840
+  height: 2160
+  sha256: 7a3e8dc50d01876d6ec4982fff7e205831b09f4e9d9f254265721ea5344881e5
+- path: docs/user-guide/images/current/materials-browse-1440x900.png
+  width: 1440
+  height: 900
+  sha256: 89399b68d4db4204121e4a546b35fe00fd8f9636c7e1fa6b92daebcce4e6f9d4
+- path: docs/user-guide/images/current/materials-search-1366x768.png
+  width: 1366
+  height: 768
+  sha256: 2568bb1a4c43bdf6bd5cf8f23f10aeb6b6405ae81145bd504f4447f0f78a3974
+- path: docs/user-guide/images/current/materials-search-1440x900.png
+  width: 1440
+  height: 900
+  sha256: cef24be4d9d5ab19451da5ba209ea9259749a3ca2f97fe9e9e40604db24dd1b0
+- path: docs/user-guide/images/current/materials-search-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: 9de75b9789c59bb6ecdfa112393e6a112f0b7d98c39605c654de01eb32b562cf
+- path: docs/user-guide/images/current/materials-search-2560x1440.png
+  width: 2560
+  height: 1440
+  sha256: 92ed5de640dd7715919b15b141c76a4faefe857ff39a943642a0aa6b02ab2a05
+- path: docs/user-guide/images/current/materials-search-3840x2160.png
+  width: 3840
+  height: 2160
+  sha256: a3b0864bf0c938f02456ff26105cf3a068549a54b66324466c0c77e40a076ac1
+- path: docs/user-guide/images/current/materials-search-empty-1440x900.png
+  width: 1440
+  height: 900
+  sha256: 9fc41acfaf82d8ff73a9f28464bd48714e5fb0458420e8b58479036603f5fe9a
+- path: docs/user-guide/images/current/materials-search-long-1366x768.png
+  width: 1366
+  height: 768
+  sha256: b3d972ceb43857c3fe7153764eca60ce14ff0dec63c79c26d730405a84fabed2
+- path: docs/user-guide/images/current/materials-search-long-1440x900.png
+  width: 1440
+  height: 900
+  sha256: b27cff699a1e697949657e8b50226e73aa051e0eeae8865a602588da396ee5c5
+- path: docs/user-guide/images/current/materials-search-long-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: 0b19a46beb012b3f09283c50aae405f67f6087818b64f4b9de082c5333dd9fa7
+- path: docs/user-guide/images/current/materials-search-short-1440x900.png
+  width: 1440
+  height: 900
+  sha256: a060e19c8e04bb496440bcf3eef4844312819c5d4a91b65b3fca3c74dd38689b
+- path: docs/user-guide/images/current/modeling-data-1366x768.png
+  width: 1366
+  height: 768
+  sha256: cf6bc3a11b22f4d0c9c70b764b66b91c35ab7622162b3e4f8ad9a5844d4233ac
+- path: docs/user-guide/images/current/modeling-data-1440x900.png
+  width: 1440
+  height: 900
+  sha256: 275f92b432f71ac689632f3c919755ea630873772a4adf33f293cb5c7c915d21
+- path: docs/user-guide/images/current/modeling-data-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: 9f5ba7c7b4e74059c4a6a9a54ff7ea477edfc035280d8266d7925a7778b74b2b
+- path: docs/user-guide/images/current/modeling-data-2560x1440.png
+  width: 2560
+  height: 1440
+  sha256: 5071099a0bcc5626365eb90b3bf81e6b6c51d1bdfde1a5c75008cc366e0db1ca
+- path: docs/user-guide/images/current/modeling-data-3840x2160.png
+  width: 3840
+  height: 2160
+  sha256: 5cdd103260be29867c5d571cc7a2e116d0922875c7de9b958aba008cb3133f3f
+- path: docs/user-guide/images/current/modeling-data-empty-1440x900.png
+  width: 1440
+  height: 900
+  sha256: d32aa460079aee381a7e1ade050bef019728b30f5231bac37d7920a90bc31b5c
+- path: docs/user-guide/images/current/modeling-data-invalid-1440x900.png
+  width: 1440
+  height: 900
+  sha256: 5dd13f87df0743dee5f80ad75bdb0599c1e3293f7057ea71a27469360cf408c0
+- path: docs/user-guide/images/current/modeling-export-1366x768.png
+  width: 1366
+  height: 768
+  sha256: 94c9076aca554181b6b62d6b6706adf33503dbf8f002e161f2d7f0e0e7abdbc8
+- path: docs/user-guide/images/current/modeling-export-1440x900.png
+  width: 1440
+  height: 900
+  sha256: c0e7a216e626c6cd6f16e49f1151e2c251cc04d07d2b752f8f42c2fa33f5fdf6
+- path: docs/user-guide/images/current/modeling-export-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: 66c6221e67994bc88c61021a09cd13ca1c3da838f63ebff1609e21c4972e1119
+- path: docs/user-guide/images/current/modeling-export-2560x1440.png
+  width: 2560
+  height: 1440
+  sha256: a6326b6ce7f051d1104fc4420122e3385c20314189cc3fa359bd465a93e72fae
+- path: docs/user-guide/images/current/modeling-export-3840x2160.png
+  width: 3840
+  height: 2160
+  sha256: 9e09cd5cfb93180f8fc7e01a7028decaa0673ce3c9192e125eb4bdd14266e0b8
+- path: docs/user-guide/images/current/modeling-export-approximation-blocked-1440x900.png
+  width: 1440
+  height: 900
+  sha256: 5e94df7817f18de8825d354909dbba2547d57438b13dd706fd7cdf3a656530ff
+- path: docs/user-guide/images/current/modeling-export-delivered-1440x900.png
+  width: 1440
+  height: 900
+  sha256: bfaab361dd492facd1cc11fa89dcb7687d5893da1448de0c52a31dc4594622c8
+- path: docs/user-guide/images/current/modeling-export-source-blocked-1440x900.png
+  width: 1440
+  height: 900
+  sha256: b28f435a924d516228753ff73b937cf38512a7995341bb0aa9e3b5a46bd87d90
+- path: docs/user-guide/images/current/modeling-fit-1366x768.png
+  width: 1366
+  height: 768
+  sha256: 0f5b1c07d1d60eb30d2e67088ba40d2412fa7c5abc8d7605eee721eb1152ce49
+- path: docs/user-guide/images/current/modeling-fit-1440x900.png
+  width: 1440
+  height: 900
+  sha256: e85e162076c3fb92c56fb35368a45ced89d1eacb584affac1f6b12f638ddefc1
+- path: docs/user-guide/images/current/modeling-fit-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: 72dbe28e3e09dfd9c8191f4a1500f1c738b5c517aa38bc91f4a407c5b8c32872
+- path: docs/user-guide/images/current/modeling-fit-2560x1440.png
+  width: 2560
+  height: 1440
+  sha256: b539b900cf6f70db00f4871674e0f8c80e6afd6c0e984aee5d446fdf2966f3a1
+- path: docs/user-guide/images/current/modeling-fit-3840x2160.png
+  width: 3840
+  height: 2160
+  sha256: f02d8f9fbf2cd0550829039e905eb34857a7948e44942166f3c25dd7d2471807
+- path: docs/user-guide/images/current/modeling-fit-calculation-failed-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: c4b1fe3ee96bba026975708780b39fad1a7b000f5fde0830f63de712fae310d1
+- path: docs/user-guide/images/current/modeling-fit-candidate-evidence-scrolled-1440x900.png
+  width: 1440
+  height: 900
+  sha256: bec7754b3cca7fc57a96666b4048a80b5340f3675238a96d84bb7a5482086cb4
+- path: docs/user-guide/images/current/modeling-fit-candidate-parameters-long-1440x900.png
+  width: 1440
+  height: 900
+  sha256: 8501fbf822481da3bf5626b4e8cd8255e8b6bda43909d45a50451cd530e88469
+- path: docs/user-guide/images/current/modeling-fit-exact-read-failed-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: 5fd9504fc6304961da7c757a11d667f52d5250b499945fd96e964340cda25b4d
+- path: docs/user-guide/images/current/modeling-fit-exact-source-blocked-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: 418c671b44b028112fd7dba134a00713b796f2150da8b48a540d6b37cbd8bef7
+- path: docs/user-guide/images/current/modeling-fit-restored-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: 7e6d7657d4e42742fbb67035ee4e0f2cc77cb8a3d38710003c30947a4b71702c
+- path: docs/user-guide/images/current/modeling-fit-save-failed-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: 405c21d77721245040b021faf6a86dae071eebbbf304e5cd80ac5af3e09836d5
+- path: docs/user-guide/images/current/modeling-process-1366x768.png
+  width: 1366
+  height: 768
+  sha256: cbb38edb0e7715f9d82e18b70d0c6d91bffc9a58248d568e601dc77c2294a73b
+- path: docs/user-guide/images/current/modeling-process-1440x900.png
+  width: 1440
+  height: 900
+  sha256: b4d35633261fbf5ad73919c98c528c0e122822989ea4a8ec42e3c686963e50ec
+- path: docs/user-guide/images/current/modeling-process-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: e55ce820e7c3bdc4cb34ef69040269f45ce20442d1a9acecfc0193fe4cb56223
+- path: docs/user-guide/images/current/modeling-process-2560x1440.png
+  width: 2560
+  height: 1440
+  sha256: 62d2296abf789c0c8534bb1e9f0b64d7148ca163daa5b659349e2b93f9a470cb
+- path: docs/user-guide/images/current/modeling-process-3840x2160.png
+  width: 3840
+  height: 2160
+  sha256: 362ef245ffa4df29a987f1151861a3043e41f6856102e00a804d355f28633a65
+- path: docs/user-guide/images/current/modeling-process-blocked-1440x900.png
+  width: 1440
+  height: 900
+  sha256: 6f7a60da7dafeabb0e105f23e03dcd0358e1d4c86185f50a5e0fd9eff8c41978
+- path: docs/user-guide/images/current/modeling-process-exact-read-failed-1440x900.png
+  width: 1440
+  height: 900
+  sha256: 11622d07dd432ed11628742131dbd8f407d83c1b0b7a8c66eb71bf5013f5284c
+- path: docs/user-guide/images/current/modeling-process-linear-regression-1366x768.png
+  width: 1366
+  height: 768
+  sha256: 90e2f9ad21b91c955e17bc7e34c3c3554744a88234dbf93b0956e197207dd27f
+- path: docs/user-guide/images/current/modeling-process-siblings-1440x900.png
+  width: 1440
+  height: 900
+  sha256: aa44130686b1d030c0ab4d3a3696458f82253045bff31585c2e125d75683ae76
+- path: docs/user-guide/images/current/modeling-session-1366x768.png
+  width: 1366
+  height: 768
+  sha256: cb4dfe04f5cdbb9f14be2abb284fae01ba1fe268dfae1f3d927ed8fbc01b6a5d
+- path: docs/user-guide/images/current/modeling-session-1440x900.png
+  width: 1440
+  height: 900
+  sha256: 1765e3c28e9dbecb6748b223dd0f1e85c6819df28226b2d3a8fc65f0ad3072ae
+- path: docs/user-guide/images/current/modeling-session-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: d1e63203872baaa92042a6f001d0c9b8fa4e00ade449a7fb12fc35686102f32a
+- path: docs/user-guide/images/current/solver-card-preview-1366x768.png
+  width: 1366
+  height: 768
+  sha256: a5396cedc3616c601ce32b20b8e83ab36272c5d8b2291d089b00def89c4bbed1
+- path: docs/user-guide/images/current/solver-card-preview-1440x900.png
+  width: 1440
+  height: 900
+  sha256: fe8a57f3a2bac4e1c74fdf32b4785caa12041c92fd414038aa531089272b44e3
+- path: docs/user-guide/images/current/solver-card-preview-1920x1080.png
+  width: 1920
+  height: 1080
+  sha256: 672ab995bbe2df5f3b287c85226cb236dfd7ab237e7859d33f3b7a742b0d55c3
+verification:
+  compose_preflight: pass
+  pre_capture_full_demo: pass
+  post_capture_full_demo:
+    status: blocked
+    reason: metal selected model does not have exactly one pending review request
+    boundary: The evidence-producing capture flows appended 44 legitimate immutable projected models. Only one retained the seeded pending review;
+      no data reset, clean-demo verifier relaxation, or database bypass was used.
+  focused_python_contracts:
+    status: pass
+    passed: 99
+  focused_common_processing_vitest:
+    status: pass
+    passed: 23
+  full_python:
+    passed: 1165
+    skipped: 88
+    failed: 2
+    baseline_failures:
+    - test_root_agent_guidance_stays_within_context_budget: unchanged AGENTS.md is 10319 checkout bytes against the stale 8192-byte cap
+    - test_cold_start_routes_user_work_in_product_order: unchanged backlog no longer contains the retired exact text '#161 공통 화면 정리'
+  ruff: pass
+  architecture: pass
+  contract_lint: pass
+  contract_compatibility: pass
+  full_mypy:
+    status: baseline-fail
+    errors: 63
+    files: 10
+    changed_issue_161_files_reported: 0
+  web_build: pass
+  full_web_vitest:
+    status: pass
+    files: 60
+    tests: 316
+  canonical_compose_playwright_e2e:
+    status: pass
+    tests: 7
+    duration: 2.0 minutes
+  post_e2e_product_recovery:
+    method: Reviewer decision and active Record Link revisions through product APIs only
+    exact_current_links_read_back: 2
+    status: pass
+  user_guide_inventory:
+    status: pass
+    guides: 20
+    current_captures: 84
+    navigation_entries: 3
+    classified_markdown: 129
+    links: 351
+    images: 325
+  documentation_impact:
+    status: pass
+    changed_files: 181
+    visual_sources: 11
+  diff_check: pass
+visual_review:
+  root_status: pass
+  root_completed_at: 2026-08-09T23:58:20+09:00
+  root_findings:
+  - The application shell spans 1920, 2560, and 3840 while Materials results/datasheets, Modeling plots, and the Export native preview use available width.
+  - Navigators, context panes, prose, the 2656px Activity comparison pane, the centered 1600px Administration workgroup, and the 736px Administration form retain readable bounds and balanced gutters.
+  - The first Activity 3840 long-state review exposed a missing genuine rail; the final set contains 50 truthful outcomes and a visible proportional local thumb at every history viewport.
+  - No page-level horizontal overflow, 1920px work island, route-specific high-resolution override, CSS zoom, blanket transform, fabricated filler, SVG distortion, axis/legend collision, or primary-control clipping was observed.
+  qualitative_checklist: docs/17-evidence/issue-161-shared-ui-foundation.md#main-qualitative-review--q-01-through-q-20
+  independent_read_only_status: pass
+  independent_read_only_completed_at: 2026-08-10T00:47:31+09:00
+  independent_verdict: approve
+  independent_findings: []
+  independent_original_resolution_review:
+    current_originals_opened: 84
+    immutable_before_originals_opened: 31
+    direct_100_percent_crops_opened: 44
+    q20_1920_2560_3840_supported: true
+  product_owner_status: pending
+known_boundary:
+  actual_windows_4k_physical_readability: 'not evaluated; remains owned by issue #223'
+  display_profile_selection: 'not made; remains owned by issues #221 and #184'

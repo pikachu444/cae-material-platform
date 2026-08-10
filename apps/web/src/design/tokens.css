@@ -55,6 +55,10 @@
   --ux-workspace-max-block-size: none;
   --ux-comparison-table-max-inline-size: 166rem;
   --ux-readable-form-max-inline-size: 760px;
+  --ux-bounded-workgroup-max-inline-size: calc(
+    var(--ux-navigator-max-inline-size) + var(--ux-context-max-inline-size) +
+      var(--ux-readable-form-max-inline-size)
+  );
   --ux-navigator-min-inline-size: 200px;
   --ux-navigator-max-inline-size: 360px;
   --ux-navigator-default-inline-size: 264px;

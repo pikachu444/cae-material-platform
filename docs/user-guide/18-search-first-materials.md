@@ -215,6 +215,10 @@ Subset과 Link Type 목록이 해당 Table 문맥으로 바뀌며, Link Type은 
 가두지 않습니다.
 현재 캡처는 가로축 drawable이 전체 Modeling workspace의 약 75% 이상을 차지하며, 캡처 자동화가
 Data/Process/Fit/Export의 세 viewport 모두에서 72% hard gate를 적용합니다.
+Issue #161의 1920·2560·3840 전후 원본과 1:1 crop, 승인 레퍼런스 hash와 캡처 환경은
+[`shared UI foundation evidence`](../17-evidence/issue-161-shared-ui-foundation.md)에 기록합니다.
+자동 3840×2160 CSS viewport는 실제 Windows 4K 물리 가독성 판정을 대신하지 않으며, 그 판정은
+#223에 남습니다.
 
 ![Materials at 1366](images/current/materials-search-1366x768.png)
 

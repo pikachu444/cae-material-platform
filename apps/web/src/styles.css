@@ -148,6 +148,20 @@
   max-width: var(--ux-workspace-max-inline-size);
 }
 
+.administration-record-workbench
+  > :is(
+    .record-administration-header,
+    .catalog-search-panel,
+    .registration-panel,
+    .catalog-record-grid,
+    .error-banner,
+    .success-banner
+  ) {
+  width: min(100%, var(--ux-bounded-workgroup-max-inline-size));
+  box-sizing: border-box;
+  margin-inline: auto;
+}
+
 .administration-record-workbench > .content-card,
 .administration-record-workbench .catalog-record-grid > .content-card {
   border: 0;
@@ -169,6 +183,18 @@
 .administration-record-workbench .catalog-record-grid {
   border-top: 1px solid var(--border);
   gap: 0;
+  grid-template-columns:
+    clamp(
+      var(--ux-navigator-min-inline-size),
+      18vw,
+      var(--ux-navigator-max-inline-size)
+    )
+    clamp(
+      var(--ux-context-min-inline-size),
+      27vw,
+      var(--ux-context-max-inline-size)
+    )
+    minmax(0, var(--ux-readable-form-max-inline-size));
 }
 
 .administration-record-workbench

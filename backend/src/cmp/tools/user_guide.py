@@ -23,6 +23,7 @@ _PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 _JPEG_SIGNATURE = b"\xff\xd8\xff"
 _NON_CURRENT_IMAGE = re.compile(r"docs/17-evidence/images/")
 _CURRENT_IMAGE_PREFIX = "docs/user-guide/images/current/"
+_EVIDENCE_IMAGE_PREFIX = "docs/17-evidence/images/"
 _REPOSITORY_LITERAL = re.compile(
     r"`((?:apps|backend|contracts|deploy|docs|fixtures|plugins|scripts|tests)/"
     r"[^`\s]+\.(?:css|json|md|mjs|png|jpg|jpeg|py|tsx|yaml|yml))`",
@@ -30,7 +31,9 @@ _REPOSITORY_LITERAL = re.compile(
 )
 _STRUCTURED_IMAGE_MANIFESTS: tuple[str, ...] = ()
 _STRUCTURED_IMAGE_MANIFEST_GLOBS: tuple[str, ...] = ()
-_STRUCTURED_IMAGE_YAML_MANIFESTS: tuple[str, ...] = ()
+_STRUCTURED_IMAGE_YAML_MANIFESTS: tuple[str, ...] = (
+    "docs/17-evidence/images/issue-161-shared-ui-foundation/visual-evidence.yaml",
+)
 _IMAGE_PATH_MANIFESTS: tuple[str, ...] = ()
 _STALE_CURRENT_PATTERNS = {
     "retired global navigation": re.compile(
@@ -404,7 +407,7 @@ def _structured_manifest_images(project: Path) -> set[str]:
     def visit(value: object, manifest: Path) -> None:
         if isinstance(value, dict):
             for key, item in value.items():
-                if key in {"image", "file"}:
+                if key in {"image", "file", "path"}:
                     if not isinstance(item, str):
                         raise UserGuideContractError(
                             f"image manifest reference must be text: {manifest} -> {key}"
@@ -544,7 +547,6 @@ def _duplicate_allowances(
 ) -> set[frozenset[str]]:
     entries = _sequence(manifest.get("allowed_duplicate_groups", []), "duplicate allowances")
     allowances: set[frozenset[str]] = set()
-    reference_root = project / "docs" / "17-evidence" / "images" / "issue-167-service-reference"
     for ordinal, raw_entry in enumerate(entries, start=1):
         entry = _mapping(raw_entry, f"duplicate allowance {ordinal}")
         _text(entry.get("rationale"), f"duplicate allowance {ordinal} rationale")
@@ -566,10 +568,10 @@ def _duplicate_allowances(
                 )
             image = _inside(
                 project / image_ref,
-                reference_root,
+                project,
                 f"duplicate allowance {ordinal} image {image_ordinal}",
             )
-            if not image.is_file():
+            if not image.is_file() or image.suffix.lower() not in {".png", ".jpg", ".jpeg"}:
                 raise UserGuideContractError(
                     f"duplicate allowance target is missing: {image_ref}"
                 )
@@ -583,6 +585,12 @@ def _duplicate_allowances(
             raise UserGuideContractError(
                 f"duplicate image allowance is repeated: {sorted(group)}"
             )
+        lifecycle_counts = Counter(_image_lifecycle(path) for path in paths)
+        if not _allowed_duplicate_lifecycles(lifecycle_counts):
+            raise UserGuideContractError(
+                "duplicate allowance has an unsupported lifecycle mix: "
+                f"{dict(lifecycle_counts)}"
+            )
         allowances.add(group)
     return allowances
 
@@ -594,7 +602,20 @@ def _image_lifecycle(relative: str) -> str:
         return "reference"
     if relative.startswith("docs/00-research/"):
         return "reference"
+    if relative.startswith(_EVIDENCE_IMAGE_PREFIX):
+        return "evidence"
     return "unclassified"
+
+
+def _allowed_duplicate_lifecycles(lifecycle_counts: Counter[str]) -> bool:
+    lifecycles = set(lifecycle_counts)
+    if lifecycles == {"reference"} or lifecycles == {"evidence"}:
+        return True
+    return (
+        lifecycles <= {"evidence", "current"}
+        and lifecycle_counts["evidence"] >= 1
+        and lifecycle_counts["current"] <= 1
+    )
 
 
 def _verify_image_inventory(
@@ -642,16 +663,15 @@ def _verify_image_inventory(
         relative_paths = sorted(_relative(path, project) for path in paths)
         lifecycle_counts = dict(Counter(_image_lifecycle(path) for path in relative_paths))
         group = frozenset(relative_paths)
-        if (
-            all(_image_lifecycle(path) == "reference" for path in relative_paths)
-            and group in allowed_duplicate_groups
+        if group in allowed_duplicate_groups and _allowed_duplicate_lifecycles(
+            Counter(_image_lifecycle(path) for path in relative_paths)
         ):
             actual_allowed_groups.add(group)
             continue
         invalid_duplicate_groups.append((relative_paths, lifecycle_counts))
     if invalid_duplicate_groups:
         raise UserGuideContractError(
-            "duplicate image hashes require one explicit reference group: "
+            "duplicate image hashes require one explicit duplicate group: "
             f"{invalid_duplicate_groups}"
         )
     stale_allowances = allowed_duplicate_groups - actual_allowed_groups
@@ -794,7 +814,9 @@ def verify_user_guide(root: Path) -> UserGuideReport:
         ),
         "service reference duplicate manifest",
     )
-    allowed_duplicate_groups = _duplicate_allowances(project, duplicate_manifest)
+    allowed_duplicate_groups = _duplicate_allowances(
+        project, duplicate_manifest
+    ) | _duplicate_allowances(project, manifest)
     image_count, orphan_image_count, duplicate_image_group_count = _verify_image_inventory(
         project, referenced_images, allowed_duplicate_groups
     )

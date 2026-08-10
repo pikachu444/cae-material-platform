@@ -2865,6 +2865,12 @@
   min-width: 0;
 }
 
+.schema-editor-header,
+.schema-editor-grid {
+  width: min(100%, var(--ux-bounded-workgroup-max-inline-size));
+  margin-inline: auto;
+}
+
 .schema-editor-header {
   display: flex;
   align-items: end;
@@ -2901,7 +2907,18 @@
 
 .schema-editor-grid {
   display: grid;
-  grid-template-columns: clamp(220px, 18vw, 260px) clamp(280px, 27vw, 380px) minmax(0, 1fr);
+  grid-template-columns:
+    clamp(
+      var(--ux-navigator-min-inline-size),
+      18vw,
+      var(--ux-navigator-max-inline-size)
+    )
+    clamp(
+      var(--ux-context-min-inline-size),
+      27vw,
+      var(--ux-context-max-inline-size)
+    )
+    minmax(0, var(--ux-readable-form-max-inline-size));
   min-height: calc(100vh - var(--ux-shell-top-height) - var(--ux-status-bar-height) - 90px);
   border-bottom: 1px solid var(--ux-border);
 }
