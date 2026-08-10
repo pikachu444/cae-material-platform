@@ -4,6 +4,7 @@
 
 - 상태: **`PENDING_PRODUCT_OWNER`**
 - 기준선: `main@ca7c97869522e3fe5d889fdc5f834bd963f85340`
+- 검토 경계: [draft PR #228](https://github.com/pikachu444/cae-material-platform/pull/228); ready 전환·merge·#221 완료 처리 금지
 - Codex 권고: **P2 — OS/browser 배율 존중 + 공통 `Compact / Standard / Large` density**, 잠정 기본은
   `Standard`
 - 제품 결정: 아직 없음. 이 packet과 후보 화면을 제품 소유자가 승인하기 전에는 설정을 제품 기능으로

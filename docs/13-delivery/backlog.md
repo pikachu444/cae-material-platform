@@ -39,8 +39,9 @@
   순서 15 `#161`은 [PR #226](https://github.com/pikachu444/cae-material-platform/pull/226)과
   [PR #227](https://github.com/pikachu444/cae-material-platform/pull/227), main
   `ca7c97869522e3fe5d889fdc5f834bd963f85340`에서 완료했습니다. 현재 첫 미완료 단위는 순서 16
-  `#221`이며 [decision packet](../17-evidence/issue-221-high-dpi-decision.md)의 제품 소유자 결정이
-  남아 있습니다. `#221 → #184`를 건너뛰어 새 확장 구현을 시작하지 않습니다.
+  `#221`이며 [draft PR #228](https://github.com/pikachu444/cae-material-platform/pull/228)의
+  [decision packet](../17-evidence/issue-221-high-dpi-decision.md)에 대한 제품 소유자 결정이 남아 있습니다.
+  `#221 → #184`를 건너뛰어 새 확장 구현을 시작하지 않습니다.
 - 순서 14 `#160` Task 1은 [PR #220](https://github.com/pikachu444/cae-material-platform/pull/220),
   main `53e4a698235e4c7dad8c87e0156bc2627866989f`에서 병합했습니다. Task 2는
   [PR #224](https://github.com/pikachu444/cae-material-platform/pull/224)에서 병합해 `#160`을 [x]로
@@ -109,7 +110,7 @@ packet, 검증, 검토, 제품 소유자 확인과 PR/merge를 거칩니다. iss
 | 13 | 2026 스키마 기반 확장 기획 gate (승인·issue 분해 완료) | 내부 기획과 동적 JSON Schema 참고 포맷을 현재 구현에 맞는 bounded issue로 전환 | [승인된 계획](../12-roadmap/schema-driven-material-integration-plan.md), #204~#216 | 고정 schema/EAV 오해 제거, 중복·충돌·의존성·결정 gate와 공개 보관 경계 기록 |
 | 14 | [x] [#160 검토·승인·DB 공개·복구](https://github.com/pikachu444/cae-material-platform/issues/160) — Task 1 PR #220, Task 2 PR #224 | 요청을 검토·승인하고 승인 결과를 Materials DB에서 찾고 내려받으며 실패를 복구 | issue, Activity/Admin 승인 화면, Record/Test Data subject, review·release·publication·download·recovery·권한 계약 | Task 1은 PR #220, main `53e4a698235e4c7dad8c87e0156bc2627866989f`에서 병합. Task 2 구현·다섯 viewport 증거·회귀·문서·한정 화면 승인은 PR #224에서 완료. 실제 Windows 4K 100%·150%·200% 최종 물리 판정은 #223으로 이관. 다음 단위는 #161 |
 | 15 | [x] [#161 공통 화면·전역 레이아웃 기반](https://github.com/pikachu444/cae-material-platform/issues/161) — PR #226, 후속 PR #227 | 트리·표·그래프·상태·키보드와 글자·control·pane·plot token이 모든 현재 화면에서 일관됨 | issue, visual/frontend skill, 활성 화면·공통 구성요소·1920 cap 사용처·승인 화면 | PR #226과 #227이 main `ca7c97869522e3fe5d889fdc5f834bd963f85340`에서 완료. 다음 단위는 #221 |
-| 16 | [#221 4K·고DPI 레이아웃·밀도 결정 게이트](https://github.com/pikachu444/cae-material-platform/issues/221) — **active, Product Owner decision pending** | 다섯 viewport에서 대표 후보를 비교해 구현용 잠정 layout·pane·density·table·plot 정책을 승인 | issue, #161 결과, [고해상도 전략](../12-roadmap/high-dpi-display-strategy.md), [decision packet](../17-evidence/issue-221-high-dpi-decision.md)의 원본/crop과 review prompt | P1/P2/P3 비교와 Codex P2/Standard 권고는 기록됨. 제품 소유자 disposition, draft PR 검토와 merge 전에는 완료 아님; #184 시작 금지 |
+| 16 | [#221 4K·고DPI 레이아웃·밀도 결정 게이트](https://github.com/pikachu444/cae-material-platform/issues/221) — [draft PR #228](https://github.com/pikachu444/cae-material-platform/pull/228), **active, Product Owner decision pending** | 다섯 viewport에서 대표 후보를 비교해 구현용 잠정 layout·pane·density·table·plot 정책을 승인 | issue, #161 결과, [고해상도 전략](../12-roadmap/high-dpi-display-strategy.md), [decision packet](../17-evidence/issue-221-high-dpi-decision.md)의 원본/crop과 review prompt | P1/P2/P3 비교와 Codex P2/Standard 권고는 기록됨. 제품 소유자 disposition, draft PR 검토와 merge 전에는 완료 아님; #184 시작 금지 |
 | 17 | [#184 4K·고DPI 전역 대응](https://github.com/pikachu444/cae-material-platform/issues/184) | #221의 잠정 정책을 모든 핵심 화면과 고위험 상태에 적용하고 넓은 화면 geometry를 완성 | issue, #221 승인 packet, 공통 token, 전체 정상·예외 다섯 viewport | 승인된 layout/density 정책의 전체 route 적용, 원본·100% crop geometry 검토, 실제 장비만 #223 이관, 제품 소유자 구현 승인, merge |
 | 18 | [#204 동적 JSON Schema 정의 bundle 계약·plan](https://github.com/pikachu444/cae-material-platform/issues/204) | 관리자가 임의 개수의 schema 정의를 적용 전에 검증하고 변경 계획을 확인 | issue, configurable Catalog/Artifact/Provenance, FR-CFG/LNK/JSON | versioned contract, deterministic no-write plan, arbitrary-cardinality fixture, merge |
 | 19 | [#205 공통 CAE unit과 Unit Profile](https://github.com/pikachu444/cae-material-platform/issues/205) | 등록부터 Export까지 같은 차원·단위와 profile을 사용 | issue, 기존 13개 registration mapping, canonical Test Data와 Export unit 계약 | 공통 service/profile, 기존 호환성, dimension·round-trip 검증, merge |
