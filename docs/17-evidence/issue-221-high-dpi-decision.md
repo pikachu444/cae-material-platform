@@ -355,7 +355,7 @@ preserved the existing contract under the prototype. Product-owner policy approv
 | Latest Web Interface Guidelines audit | pass for issue-owned CSS/harness against the 2026-08-10 fetched upstream checklist; no production interactive markup added and no forbidden focus/zoom/transition pattern |
 | User-guide checker / docs impact / whitespace | pass; 20 guides / 1,236 images, 891 changed files / 0 visual sources, `git diff --check` clean |
 | Final full-demo verifier | environment-state failure; preserved append-only state has a selected model without exactly one pending review request; no reset or verifier relaxation performed |
-| Pre-publish | pending commit and clean-worktree boundary |
+| Pre-publish | pass at the committed clean-worktree boundary; deterministic fingerprint `a0fcd83c36eedb58a8c15634d0e38f5b5d25444c474da302452b4f67f4d089c3` |
 | Independent read-only visual audit | pass on re-audit; first-pass Materials 200% direct-action change request was corrected and cleared, with no remaining actionable findings |
 | Product Owner decision | **pending** |
 
