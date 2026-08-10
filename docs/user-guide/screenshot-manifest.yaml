@@ -1,12 +1,17 @@
-version: 86
+version: 87
 verified_at: 2026-08-09
-scope: issue-160-activity-density
-source_commit: working-tree-issue-160-task-2
+scope: issue-161-shared-ui-foundation
+source_commit: 'e095ef5d1f4d26af65ad38ebbbef922f129626cf + pull-request-226-working-tree'
 capture_script: ../../scripts/capture_current_product.py
-capture_command: uv run --with playwright==1.62.0 python scripts/capture_current_product.py
+capture_command: uv run --with playwright python scripts/capture_current_product.py --base-url http://127.0.0.1:5173
 notes:
+  - "Issue #161 was recaptured from the canonical cmp-local-demo Compose project after PostgreSQL, API, worker, and web reported healthy and scripts/verify_full_demo.py passed. The current directory contains 84 deterministic synthetic non-production product-route captures at browser zoom 100%, device pixel ratio 1, and all five required CSS viewports."
+  - "The root opened all 14 approved-reference originals, 31 immutable pre-#161 originals, all 84 current originals, and all 44 direct 1:1 crops at original resolution. Exact paths, dimensions, SHA-256 values, crop rectangles, commands, environment, and before/after pairing are recorded in docs/17-evidence/images/issue-161-shared-ui-foundation/visual-evidence.yaml."
+  - "The #161 shared boundary keeps the application shell elastic while bounding navigators, context panes, forms, and prose. Materials results and datasheets, Modeling graphs, and the Export native preview use available width; Administration keeps a centered 1600px semantic workgroup with a readable form bound. No 2560/3840 route override, CSS zoom, blanket transform, fabricated filler, or display-profile decision was introduced."
+  - "Activity Recent outcomes uses 10 immutable server decisions, 20 browser-local solver-card activities, and 20 bounded browser-local successful recovery outcomes. The capture gate requires genuine local overflow at every registered history viewport, including 3840x2160."
+  - "The active Windows display used for host evidence is 2560x1440 at 96 DPI and 100% scale. Automated 3840x2160 CSS viewport evidence does not claim physical 4K readability; Windows 4K 100%/150%/200% remains owned by issue #223. Product Owner review remains pending, so PR #226 stays draft."
   - "UXC-04E directly ports the approved modeling.html/review.css Fit topology: white 48 px product header, compact title/stage rows, 184–208 px curve/process rail, exact 31 px heading plus 72 px six-group ribbon, graph-adjacent Candidate parameters disclosure, separate compact graph header, dominant plot, and compact decision-relevant legend. The retired command/status bars do not consume Modeling graph space."
-  - "The current set contains 84 deterministic synthetic product-route captures. Issue #160 Task 2 connects Activity to the shared compact semantic baseline and keeps its related five-column table and local scrollbar adjacent inside a balanced 2656px pane at 3840. The root opened all 13 final Activity originals and all 30 before/after crops. Q02 and Q09 pass; Activity's bounded compact-token/geometry portion of Q20 passes without resolution-specific media, CSS zoom, blanket transform, fabricated filler, or a new display profile. The active display is 2560x1440 at 100%; actual Windows 4K 100%/150%/200% and Product Owner final physical-readability disposition are deferred to final backlog unit #223 and no longer block #160 after the Task 2 merge. #221 and #184 retain their policy and product-wide responsibilities."
+  - "Issue #160 Task 2 remains the source of Activity's shared compact semantic baseline and balanced 2656px comparison pane. The #161 recapture preserves that topology and adds a truthful 50-item long-history fixture so the local rail remains visible at 3840."
   - "The Task 2 Activity comparison is recorded in docs/17-evidence/images/issue-160-activity-density/visual-evidence.yaml: latest-main Task 1 before originals, current 13-state originals, and matching 1920/2560/3840 shell/header, saved-view, grid, action and local-scrollbar 1:1 crops with exact rectangles, SHA-256 and dimensions. The immutable evidence copies are not additional current captures; the current capture count is 84."
   - "Fit capture asserts the four-row grouped metal rail, one-line Step 4 Fit heading, a fixed 104 px six-group control ribbon, shared 28 px top actions, concise source/state header, Candidate parameters source evidence, explicit selection before save, and persistent graph identity."
   - "Recommendation, engineer selection, saved result, downstream model evidence, and export eligibility remain separate states; a recommendation never mutates selection."
@@ -27,44 +32,75 @@ notes:
   - "UXC-00G adds the implemented User, Reviewer, and Administrator task presets. The current access screen deliberately shows readable included work instead of editable feature-grant checkboxes."
   - "UXC-01 remediation keeps Browse as the plain /materials default, moves Browse/Filters/Subsets into the local navigator, preserves that mode during Find, and removes unprojected query/context fields."
   - "Issue #159 keeps the existing MAT-EXP and MAT-DETAIL routes, verifies server-scoped Material class, Provider and Evidence source filters, uses user-facing Family capitalization, and keeps current Layout CSV values human-readable without internal identifiers on normal surfaces."
-  - "Issue #159 Materials Overview keeps the response plot readable from 1366px through 3840px, caps the left-aligned workspace at 1920px, and exposes the exact normalized response points in a compact table from 1800px upward."
+  - "Issue #159 Materials Overview keeps the response plot readable from 1366px through 3840px and exposes exact normalized response points in a compact table from 1800px upward. Issue #161 removes the former 1920px outer cap while preserving bounded navigator/context panes."
   - "Issue #159 local scroll-rail captures cover long result/tree overflow, a short six-row result without a result rail, and an empty result without a result rail; the rails are pointer-, track-, wheel-, and keyboard-operable and remain inside the Materials workspace."
   - "Issue #159 MAT-DETAIL captures map each current viewport to its approved MAT-DETAIL reference and bounded side-by-side comparison evidence; Response points reuse the shared MaterialsScrollRegion with genuine local overflow only."
   - "Issue #159 task 2 keeps Database/Profile, Table, Attribute, Layout, Subset and Link Type lifecycle controls in Administration, and gives Record registration a single/multiple-row workflow with immutable CSV/TSV/XLSX source evidence, field/unit/material-state mapping and correction before atomic registration."
   - "Normal Administration labels use user-facing names and value types. Internal identifiers, digests and exact source evidence remain outside the ordinary property editor."
-  - "Issue #158 Task 1 Data captures verify three exact refs, two included and three visible after route reload, a 178 px adjustable ribbon, pin-free empty-state Local file recovery, a collapsed optional navigator that reclaims graph space, invalid mapping that keeps the last valid graph and blocks Update preview/Save Test Data, and a 1920×878 wide working cap."
+  - "Issue #158 Task 1 Data captures verify three exact refs, two included and three visible after route reload, a 178 px adjustable ribbon, pin-free empty-state Local file recovery, a collapsed optional navigator that reclaims graph space, and invalid mapping that keeps the last valid graph and blocks Update preview/Save Test Data. Issue #161 replaces the former 1920×878 outer working cap with the shared elastic workspace."
   - "Issue #158 Task 3B Fit captures bind the Fit source to one saved Process Output id/revision/digest in Candidate parameters Evidence, show the server candidate response/residual/tangent and diagnostic evidence, preserve the last valid preview after an exact-source read or Fit failure, and show an explicit blocked recovery when the pinned Process Output is missing or stale; Fit save requests carry the exact source pin and never fall back to raw Test Data."
   - "Issue #158 Task 3B current Fit images are registered for route, content and completed qualitative visual acceptance evidence from main 7394070 plus the Fit UI correction worktree."
-allowed_duplicate_pairs: []
+allowed_duplicate_groups:
+  - rationale: "Issue #161 independently direct-cropped its immutable Activity 1920 baseline; the source pixels match the retained Issue #160 accepted after crop exactly."
+    images:
+      - docs/17-evidence/images/issue-160-activity-density/crops/after/activity-1920x1080-local-scrollbar.png
+      - docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/activity-history-1920x1080-local-history-scrollbar-100pct.png
+  - rationale: "Issue #161 independently direct-cropped its immutable Activity 2560 baseline; the source pixels match the retained Issue #160 accepted after crop exactly."
+    images:
+      - docs/17-evidence/images/issue-160-activity-density/crops/after/activity-2560x1440-local-scrollbar.png
+      - docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/activity-history-2560x1440-local-history-scrollbar-100pct.png
+  - rationale: "Issue #161 independently direct-cropped its immutable Activity 3840 baseline; the source pixels match the retained Issue #160 accepted after crop exactly."
+    images:
+      - docs/17-evidence/images/issue-160-activity-density/crops/after/activity-3840x2160-local-scrollbar.png
+      - docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/activity-history-3840x2160-local-history-scrollbar-100pct.png
+  - rationale: "The independently live-captured Fit 1920 after original is pixel-identical to the immutable pre-change original because #161 changes the wide shared boundary without altering this settled 1920 state."
+    images:
+      - docs/17-evidence/images/issue-161-shared-ui-foundation/before/modeling-fit-1920x1080.png
+      - docs/user-guide/images/current/modeling-fit-1920x1080.png
+  - rationale: "The direct 1920 Fit legend before and after crops are pixel-identical; the wide boundary change does not move this curve-free legend at 1920."
+    images:
+      - docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/modeling-fit-1920x1080-graph-legend-100pct.png
+      - docs/17-evidence/images/issue-161-shared-ui-foundation/crops/after/modeling-fit-1920x1080-graph-legend-100pct.png
+  - rationale: "The direct 1920 Process axis before and after crops are pixel-identical; the shared elastic change becomes observable above the former boundary."
+    images:
+      - docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/modeling-process-1920x1080-graph-axis-100pct.png
+      - docs/17-evidence/images/issue-161-shared-ui-foundation/crops/after/modeling-process-1920x1080-graph-axis-100pct.png
+  - rationale: "The two immutable Administration baseline crops contain the same former fixed workgroup pixels at 2560 and 3840; only the external trailing void differed in the full originals."
+    images:
+      - docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/administration-database-2560x1440-readable-property-workgroup-100pct.png
+      - docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/administration-database-3840x2160-readable-property-workgroup-100pct.png
+  - rationale: "The immutable Materials 1920 and 2560 baseline navigator crops are pixel-identical because the old capped workspace preserved the same navigator boundary."
+    images:
+      - docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/materials-search-1920x1080-navigator-main-boundary-100pct.png
+      - docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/materials-search-2560x1440-navigator-main-boundary-100pct.png
+  - rationale: "The immutable Fit 2560 and 3840 baseline legend crops are pixel-identical because both were taken from the same former capped plot geometry."
+    images:
+      - docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/modeling-fit-2560x1440-graph-legend-100pct.png
+      - docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/modeling-fit-3840x2160-graph-legend-100pct.png
+  - rationale: "The immutable Process 2560 and 3840 baseline axis crops are pixel-identical because both were taken from the same former capped plot geometry."
+    images:
+      - docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/modeling-process-2560x1440-graph-axis-100pct.png
+      - docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/modeling-process-3840x2160-graph-axis-100pct.png
 visual_evidence:
-  sidecar: docs/17-evidence/images/issue-160-activity-density/visual-evidence.yaml
-  route: /activity
-  state: Reviewer Needs attention
-  baseline_source: 'main@00955c83ffc21da97f38a58884079a33691b789d'
-  current_source: working-tree-issue-160-task-2
+  sidecar: docs/17-evidence/images/issue-161-shared-ui-foundation/visual-evidence.yaml
+  routes: [/materials, '/materials/:materialId', /modeling, /activity, /administration/database, /administration/records]
+  states: [normal, long, empty, invalid, blocked, failed, restored, delivered, role-aware]
+  baseline_source: e095ef5d1f4d26af65ad38ebbbef922f129626cf
+  current_source: 'e095ef5d1f4d26af65ad38ebbbef922f129626cf + pull-request-226-working-tree'
   evidence_artifacts_are_not_current_captures: true
   current_capture_count: 84
-  before_reference_originals:
-    - docs/17-evidence/images/issue-160-activity-density/before/activity-1366x768.png
-    - docs/17-evidence/images/issue-160-activity-density/before/activity-1440x900.png
-    - docs/17-evidence/images/issue-160-activity-density/before/activity-1920x1080.png
-    - docs/17-evidence/images/issue-160-activity-density/before/activity-2560x1440.png
-    - docs/17-evidence/images/issue-160-activity-density/before/activity-3840x2160.png
-  current_originals:
-    - docs/user-guide/images/current/activity-1366x768.png
-    - docs/user-guide/images/current/activity-1440x900.png
-    - docs/user-guide/images/current/activity-1920x1080.png
-    - docs/user-guide/images/current/activity-2560x1440.png
-    - docs/user-guide/images/current/activity-3840x2160.png
-    - docs/user-guide/images/current/activity-history-1440x900.png
-    - docs/user-guide/images/current/activity-history-1920x1080.png
-    - docs/user-guide/images/current/activity-history-2560x1440.png
-    - docs/user-guide/images/current/activity-history-3840x2160.png
-    - docs/user-guide/images/current/activity-user-1440x900.png
-    - docs/user-guide/images/current/activity-administrator-1440x900.png
-    - docs/user-guide/images/current/activity-decision-error-1440x900.png
-    - docs/user-guide/images/current/activity-recovery-1440x900.png
+  comparison_original_count: 31
+  direct_crop_count: 44
+  crop_scale: '100 percent / direct 1:1 source pixels'
+  root_original_and_crop_review: pass
+  independent_read_only_review: pending
+  product_owner_review: pending
 capture_provenance:
+  - source_commit: 'e095ef5d1f4d26af65ad38ebbbef922f129626cf + pull-request-226-working-tree'
+    captured_at: '2026-08-09T22:55:39+09:00 through 2026-08-09T23:45:52+09:00'
+    command: '`uv run --with playwright python scripts/capture_current_product.py --base-url http://127.0.0.1:5173` atomically replaced the complete 84-image set after all registered captures passed. Administration Database and Records were then recaptured after the shared centered workgroup correction, and Activity was recaptured after its 3840 long-state fixture was made truthfully overflowing. The root opened every final original and direct crop at original resolution.'
+    ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-search-2560, materials-search-3840, materials-scroll-long-1366, materials-scroll-long-1440, materials-scroll-long-1920, materials-scroll-short-1440, materials-scroll-empty-1440, materials-browse-1440, material-detail-1440, material-detail-1366, material-detail-1920, material-detail-2560, material-detail-3840, material-cae-cards-1440, solver-card-preview-1366, solver-card-preview-1440, solver-card-preview-1920, modeling-data-1366, modeling-session-1366, modeling-session-1440, modeling-session-1920, modeling-data-1440, modeling-data-1920, modeling-data-2560, modeling-data-3840, modeling-data-empty-1440, modeling-data-invalid-1440, MOD-PROCESS-CURRENT-1366, MOD-PROCESS-CURRENT-LINEAR-1366, MOD-PROCESS-CURRENT-1440, MOD-PROCESS-CURRENT-1920, MOD-PROCESS-CURRENT-2560, MOD-PROCESS-CURRENT-3840, MOD-PROCESS-CURRENT-BLOCKED-1440, MOD-PROCESS-CURRENT-EXACT-READ-FAILED-1440, MOD-PROCESS-CURRENT-SIBLINGS-1440, modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-fit-2560, modeling-fit-3840, modeling-fit-candidate-parameters-long-1440, modeling-fit-candidate-evidence-scrolled-1440, modeling-fit-calculation-failed-1920, modeling-fit-save-failed-1920, modeling-fit-exact-source-blocked-1920, modeling-fit-exact-read-failed-1920, modeling-fit-restored-1920, modeling-export-1366, modeling-export-1440, modeling-export-1920, modeling-export-2560, modeling-export-3840, modeling-export-source-blocked, modeling-export-approximation-blocked, modeling-export-delivered, activity-1366, activity-1440, activity-1920, activity-2560, activity-3840, activity-history-1440, activity-history-1920, activity-history-2560, activity-history-3840, activity-user-1440, activity-administrator-1440, activity-decision-error-1440, activity-recovery-1440, administration-database-1366, administration-database-1440, administration-database-1920, administration-database-2560, administration-database-3840, administration-records-1366, administration-records-1440, administration-records-1920, administration-records-2560, administration-records-3840, administration-access-1366, administration-access-1440]
+previous_capture_provenance:
   - source_commit: 31f9a3f+task3b-worktree
     captured_at: 2026-08-06T10:35:08+09:00
     command: '`uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --output docs/user-guide/images/current --only-modeling-process --resume-modeling-process` prepared the four additional Process recovery/state artifacts from base 31f9a3f; the root orchestrator opened them at original resolution and accepted the qualitative visual checks'
@@ -137,15 +173,15 @@ captures:
     height: 1080
   - id: materials-search-2560
     route: /materials
-    workflow: browse-default-search-select-and-open-datasheet-wide-bounded
-    fixture: synthetic DP780 Material library with the left-aligned workspace capped at 1920px
+    workflow: browse-default-search-select-and-open-datasheet-wide-elastic
+    fixture: synthetic DP780 Material library with bounded navigator/context panes and an elastic result workspace
     image: images/current/materials-search-2560x1440.png
     width: 2560
     height: 1440
   - id: materials-search-3840
     route: /materials
-    workflow: browse-default-search-select-and-open-datasheet-wide-bounded
-    fixture: synthetic DP780 Material library with the left-aligned workspace capped at 1920px
+    workflow: browse-default-search-select-and-open-datasheet-wide-elastic
+    fixture: synthetic DP780 Material library with bounded navigator/context panes and an elastic result workspace
     image: images/current/materials-search-3840x2160.png
     width: 3840
     height: 2160
@@ -220,8 +256,8 @@ captures:
     comparison_evidence: docs/17-evidence/issue-159-mat-detail-comparison.md
   - id: material-detail-2560
     route: /materials/:materialId
-    workflow: persistent-tree-datasheet-direct-card-action-and-exact-review-status-wide-bounded
-    fixture: draft synthetic DP780 exact Material revision with the left-aligned workspace capped at 1920px
+    workflow: persistent-tree-datasheet-direct-card-action-and-exact-review-status-wide-elastic
+    fixture: draft synthetic DP780 exact Material revision with bounded navigation and an elastic datasheet/response workspace
     image: images/current/material-detail-2560x1440.png
     width: 2560
     height: 1440
@@ -229,8 +265,8 @@ captures:
     comparison_evidence: docs/17-evidence/issue-159-mat-detail-comparison.md
   - id: material-detail-3840
     route: /materials/:materialId
-    workflow: persistent-tree-datasheet-direct-card-action-and-exact-review-status-wide-bounded
-    fixture: draft synthetic DP780 exact Material revision with the left-aligned workspace capped at 1920px
+    workflow: persistent-tree-datasheet-direct-card-action-and-exact-review-status-wide-elastic
+    fixture: draft synthetic DP780 exact Material revision with bounded navigation and an elastic datasheet/response workspace
     image: images/current/material-detail-3840x2160.png
     width: 3840
     height: 2160
@@ -309,14 +345,14 @@ captures:
   - id: modeling-data-2560
     route: /modeling?stage=data&family=metal
     workflow: exact-library-multi-curve-selection-show-toggle-and-reload-persistence
-    fixture: synthetic DP780 material/state with three exact governed Test Data revisions; 3 exact refs, 2 included and 3 visible persist after route reload; working cluster capped at 1920×878
+    fixture: synthetic DP780 material/state with three exact governed Test Data revisions; 3 exact refs, 2 included and 3 visible persist after route reload; bounded curve rail and elastic graph workspace
     image: images/current/modeling-data-2560x1440.png
     width: 2560
     height: 1440
   - id: modeling-data-3840
     route: /modeling?stage=data&family=metal
     workflow: exact-library-multi-curve-selection-show-toggle-and-reload-persistence
-    fixture: synthetic DP780 material/state with three exact governed Test Data revisions; 3 exact refs, 2 included and 3 visible persist after route reload; working cluster capped at 1920×878
+    fixture: synthetic DP780 material/state with three exact governed Test Data revisions; 3 exact refs, 2 included and 3 visible persist after route reload; bounded curve rail and elastic graph workspace
     image: images/current/modeling-data-3840x2160.png
     width: 3840
     height: 2160
@@ -364,15 +400,15 @@ captures:
     height: 1080
   - id: MOD-PROCESS-CURRENT-2560
     route: /modeling?stage=process&family=metal
-    workflow: Process-only wide viewport; exact source/profile band, persistent overlay graph, and saved-result controls remain readable within the bounded workspace
-    fixture: synthetic DP780 preview with explicit immutable output command; wide viewport qualitative acceptance
+    workflow: Process-only wide viewport; exact source/profile band and saved-result controls remain bounded while the persistent overlay graph uses available width
+    fixture: synthetic DP780 preview with explicit immutable output command; shared elastic-workspace qualitative acceptance
     image: images/current/modeling-process-2560x1440.png
     width: 2560
     height: 1440
   - id: MOD-PROCESS-CURRENT-3840
     route: /modeling?stage=process&family=metal
-    workflow: Process-only wide viewport; exact source/profile band, persistent overlay graph, and saved-result controls remain readable within the bounded workspace
-    fixture: synthetic DP780 preview with explicit immutable output command; wide viewport qualitative acceptance
+    workflow: Process-only wide viewport; exact source/profile band and saved-result controls remain bounded while the persistent overlay graph uses available width
+    fixture: synthetic DP780 preview with explicit immutable output command; shared elastic-workspace qualitative acceptance
     image: images/current/modeling-process-3840x2160.png
     width: 3840
     height: 2160
@@ -420,14 +456,14 @@ captures:
     height: 1080
   - id: modeling-fit-2560
     route: /modeling?stage=fit&family=metal
-    workflow: Fit-only wide viewport; exact Process source binding, candidate graph and decision controls remain within the bounded workspace
+    workflow: Fit-only wide viewport; exact Process source binding and decision controls remain bounded while the candidate graph uses available width
     fixture: synthetic four single-law candidates plus exact calculated blend; root live visual acceptance complete
     image: images/current/modeling-fit-2560x1440.png
     width: 2560
     height: 1440
   - id: modeling-fit-3840
     route: /modeling?stage=fit&family=metal
-    workflow: Fit-only wide viewport; exact Process source binding, candidate graph and decision controls remain within the bounded workspace
+    workflow: Fit-only wide viewport; exact Process source binding and decision controls remain bounded while the candidate graph uses available width
     fixture: synthetic four single-law candidates plus exact calculated blend; root live visual acceptance complete
     image: images/current/modeling-fit-3840x2160.png
     width: 3840
@@ -505,14 +541,14 @@ captures:
   - id: modeling-export-2560
     route: /modeling?stage=export&family=metal
     workflow: uxc-06c2-capability-backed-preview-and-atomic-delivery
-    fixture: synthetic DP780 session with exact governed Output, model and Neutral revisions; the same bounded three-pane Export workspace at a wide viewport
+    fixture: synthetic DP780 session with exact governed Output, model and Neutral revisions; bounded Setup/context panes and an elastic native-preview pane
     image: images/current/modeling-export-2560x1440.png
     width: 2560
     height: 1440
   - id: modeling-export-3840
     route: /modeling?stage=export&family=metal
     workflow: uxc-06c2-capability-backed-preview-and-atomic-delivery
-    fixture: synthetic DP780 session with exact governed Output, model and Neutral revisions; the same bounded three-pane Export workspace at a wide viewport
+    fixture: synthetic DP780 session with exact governed Output, model and Neutral revisions; bounded Setup/context panes and an elastic native-preview pane
     image: images/current/modeling-export-3840x2160.png
     width: 3840
     height: 2160
@@ -575,28 +611,28 @@ captures:
   - id: activity-history-1440
     route: /activity
     workflow: reviewer-recent-outcomes-local-history-overflow
-    fixture: 'Reviewer Recent outcomes with 26 immutable server decisions, 20 browser-local solver-card activities, and a genuine local overflow rail at 1440x900'
+    fixture: 'Reviewer Recent outcomes with 10 immutable server decisions, 20 browser-local solver-card activities, 20 browser-local successful recovery outcomes, and a genuine local overflow rail at 1440x900'
     image: images/current/activity-history-1440x900.png
     width: 1440
     height: 900
   - id: activity-history-1920
     route: /activity
     workflow: reviewer-recent-outcomes-local-history-overflow
-    fixture: 'Reviewer Recent outcomes with 26 immutable server decisions, 20 browser-local solver-card activities, and a genuine local overflow rail at 1920x1080'
+    fixture: 'Reviewer Recent outcomes with 10 immutable server decisions, 20 browser-local solver-card activities, 20 browser-local successful recovery outcomes, and a genuine local overflow rail at 1920x1080'
     image: images/current/activity-history-1920x1080.png
     width: 1920
     height: 1080
   - id: activity-history-2560
     route: /activity
     workflow: reviewer-recent-outcomes-local-history-overflow
-    fixture: 'Reviewer Recent outcomes with 26 immutable server decisions, 20 browser-local solver-card activities, and a genuine local overflow rail at 2560x1440'
+    fixture: 'Reviewer Recent outcomes with 10 immutable server decisions, 20 browser-local solver-card activities, 20 browser-local successful recovery outcomes, and a genuine local overflow rail at 2560x1440'
     image: images/current/activity-history-2560x1440.png
     width: 2560
     height: 1440
   - id: activity-history-3840
     route: /activity
     workflow: reviewer-recent-outcomes-local-history-overflow
-    fixture: 'Reviewer Recent outcomes with 26 immutable server decisions, 20 browser-local solver-card activities, and a genuine local overflow rail at 3840x2160'
+    fixture: 'Reviewer Recent outcomes with 10 immutable server decisions, 20 browser-local solver-card activities, 20 browser-local successful recovery outcomes, and a genuine local overflow rail at 3840x2160'
     image: images/current/activity-history-3840x2160.png
     width: 3840
     height: 2160
@@ -652,14 +688,14 @@ captures:
   - id: administration-database-2560
     route: /administration/database
     workflow: three-pane-table-scoped-schema-property-editor
-    fixture: deterministic demo Administrator; bounded Database/Profile and Table configuration workspace
+    fixture: deterministic demo Administrator; full shell with a centered 1600px Database/Profile/Table semantic workgroup and readable property form
     image: images/current/administration-database-2560x1440.png
     width: 2560
     height: 1440
   - id: administration-database-3840
     route: /administration/database
     workflow: three-pane-table-scoped-schema-property-editor
-    fixture: deterministic demo Administrator; bounded Database/Profile and Table configuration workspace
+    fixture: deterministic demo Administrator; full shell with a centered 1600px Database/Profile/Table semantic workgroup and readable property form
     image: images/current/administration-database-3840x2160.png
     width: 3840
     height: 2160
@@ -687,14 +723,14 @@ captures:
   - id: administration-records-2560
     route: /administration/records
     workflow: select-table-layout-and-open-checked-multiple-row-registration
-    fixture: deterministic demo Administrator; bounded registration workspace at a wide viewport
+    fixture: deterministic demo Administrator; full shell with a centered bounded registration/search workgroup at a wide viewport
     image: images/current/administration-records-2560x1440.png
     width: 2560
     height: 1440
   - id: administration-records-3840
     route: /administration/records
     workflow: select-table-layout-and-open-checked-multiple-row-registration
-    fixture: deterministic demo Administrator; bounded registration workspace at a wide viewport
+    fixture: deterministic demo Administrator; full shell with a centered bounded registration/search workgroup at a wide viewport
     image: images/current/administration-records-3840x2160.png
     width: 3840
     height: 2160

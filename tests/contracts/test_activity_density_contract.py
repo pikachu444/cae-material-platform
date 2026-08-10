@@ -11,18 +11,18 @@ _ACTIVITY = _LAYOUT.split(".activity-shell", 1)[1].split(
 _MARKUP = (_ROOT / "apps/web/src/material-library.tsx").read_text(encoding="utf-8")
 
 
-def test_activity_consumes_the_shared_compact_baseline() -> None:
+def test_activity_consumes_the_shared_desktop_baseline() -> None:
     expected_tokens = {
-        "--ux-compact-data-font-size": "13px",
-        "--ux-compact-emphasis-font-size": "14px",
-        "--ux-compact-metadata-font-size": "12px",
-        "--ux-compact-table-heading-font-size": "11px",
-        "--ux-compact-control-min-height": "36px",
-        "--ux-compact-row-min-height": "46px",
-        "--ux-compact-pane-padding": "12px",
-        "--ux-compact-cell-padding-block": "8px",
-        "--ux-compact-cell-padding-inline": "7px",
-        "--ux-compact-wide-content-max": "166rem",
+        "--ux-data-font-size": "13px",
+        "--ux-emphasis-font-size": "14px",
+        "--ux-metadata-font-size": "12px",
+        "--ux-table-heading-font-size": "11px",
+        "--ux-control-min-block-size": "36px",
+        "--ux-work-row-min-block-size": "46px",
+        "--ux-pane-padding": "12px",
+        "--ux-cell-padding-block": "8px",
+        "--ux-cell-padding-inline": "7px",
+        "--ux-comparison-table-max-inline-size": "166rem",
     }
     for name, value in expected_tokens.items():
         assert f"{name}: {value};" in _TOKENS
@@ -37,8 +37,8 @@ def test_activity_consumes_the_shared_compact_baseline() -> None:
 
 
 def test_activity_grid_keeps_semantic_columns_adjacent_without_a_high_dpi_override() -> None:
-    assert "max-width: var(--ux-compact-wide-content-max);" in _ACTIVITY
-    assert "width: min(100%, var(--ux-compact-wide-content-max));" in _ACTIVITY
+    assert "max-width: var(--ux-comparison-table-max-inline-size);" in _ACTIVITY
+    assert "width: min(100%, var(--ux-comparison-table-max-inline-size));" in _ACTIVITY
     assert ".activity-column-task { width: 20%; }" in _ACTIVITY
     assert ".activity-column-reason { width: 48%; }" in _ACTIVITY
     assert ".activity-column-status { width: 12%; }" in _ACTIVITY

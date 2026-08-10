@@ -18,7 +18,9 @@ Database와 Profile을 먼저 만들고, 그 안에 Table, Attribute, Layout, Su
 6. Link Type에서는 출발/도착 Table, 양방향으로 읽을 문구와 한 항목당 연결 수를 정한다. 저장할 때
    두 Table의 현재 정의 revision이 함께 고정된다.
 
-넓은 화면에서도 Database design 작업 영역은 왼쪽 위에 읽기 좋은 폭으로 유지된다. 같은 화면을
+넓은 화면에서는 Database design shell이 viewport를 사용하되 Objects navigator, 정의 목록, 속성
+form으로 이루어진 작업 묶음은 가운데의 읽기 좋은 공통 범위에 남는다. 속성 form은 남는 화면 폭만큼
+늘어나지 않고, 작업 묶음 양쪽 여백은 균형을 유지한다. 같은 화면을
 [2560×1440](images/current/administration-database-2560x1440.png)과
 [3840×2160](images/current/administration-database-3840x2160.png)에서도 확인할 수 있다.
 
@@ -52,8 +54,9 @@ Record나 과거 revision을 바꾸지 않는다.
 같은 등록 화면은 [1366×768](images/current/administration-records-1366x768.png),
 [1920×1080](images/current/administration-records-1920x1080.png),
 [2560×1440](images/current/administration-records-2560x1440.png),
-[3840×2160](images/current/administration-records-3840x2160.png)에서도 원본 파일과 행 검사 명령을
-첫 화면에 유지한다.
+[3840×2160](images/current/administration-records-3840x2160.png)에서도 확인할 수 있다. shell은 전체
+viewport를 사용하지만 검색·등록 작업 묶음과 입력 form은 가운데의 읽기 좋은 범위에 남으며, 원본
+파일과 행 검사 명령을 첫 화면에 유지한다.
 
 아래 화면은 실제 Docker API와 PostgreSQL에 저장한 DP600 및 AA6061-T6 Record를 조회한 결과다.
 왼쪽 facet은 재료군별 건수를 집계하고, 가운데 검색 결과는 각 Record의 current revision을 표시하며,

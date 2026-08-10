@@ -37,6 +37,30 @@ def test_structured_image_references_must_be_exact_existing_repository_paths(
     assert user_guide._structured_manifest_images(tmp_path) == {image_relative}
 
 
+def test_structured_yaml_path_references_register_visual_evidence(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    manifest_relative = "docs/17-evidence/images/issue-161/visual-evidence.yaml"
+    image_relative = "docs/17-evidence/images/issue-161/before.png"
+    image = tmp_path / image_relative
+    image.parent.mkdir(parents=True)
+    image.write_bytes(_PNG)
+    manifest = tmp_path / manifest_relative
+    manifest.parent.mkdir(parents=True, exist_ok=True)
+    manifest.write_text(
+        yaml.safe_dump({"comparison": {"before": {"path": image_relative}}}),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(user_guide, "_STRUCTURED_IMAGE_MANIFESTS", ())
+    monkeypatch.setattr(user_guide, "_STRUCTURED_IMAGE_MANIFEST_GLOBS", ())
+    monkeypatch.setattr(
+        user_guide, "_STRUCTURED_IMAGE_YAML_MANIFESTS", (manifest_relative,)
+    )
+    monkeypatch.setattr(user_guide, "_IMAGE_PATH_MANIFESTS", ())
+
+    assert user_guide._structured_manifest_images(tmp_path) == {image_relative}
+
+
 @pytest.mark.parametrize(
     ("image_ref", "message"),
     [
@@ -74,14 +98,14 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     report = verify_user_guide(root)
 
     assert report.document_count >= 10
-    assert report.capture_count == 77
+    assert report.capture_count == 84
     assert report.navigation_count == 3
     assert report.classified_markdown_count >= 100
     assert report.current_document_count >= 40
     assert report.local_link_count >= 150
     assert report.image_count >= 120
     assert report.orphan_image_count == 0
-    assert report.duplicate_image_group_count == 0
+    assert report.duplicate_image_group_count == 10
 
 
 def test_incoming_integration_package_is_reference_not_authoritative() -> None:
@@ -132,6 +156,12 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         for provenance in manifest["capture_provenance"]
         for capture_id in provenance["ids"]
     ]
+    previous_provenance = manifest["previous_capture_provenance"]
+    previous_provenance_ids = [
+        capture_id
+        for provenance in previous_provenance
+        for capture_id in provenance["ids"]
+    ]
 
     prior_source = "31f9a3f+task3b-worktree"
     correction_source = "7394070+fit-ui-correction-worktree"
@@ -142,11 +172,20 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "MOD-PROCESS-CURRENT-SIBLINGS-1440",
     }
 
-    assert manifest["scope"] == "issue-160-review-publication"
-    assert manifest["source_commit"] == "working-tree-issue-160"
+    current_source = (
+        "e095ef5d1f4d26af65ad38ebbbef922f129626cf + "
+        "pull-request-226-working-tree"
+    )
+    assert manifest["scope"] == "issue-161-shared-ui-foundation"
+    assert manifest["source_commit"] == current_source
     assert len(provenance_ids) == len(set(provenance_ids))
     assert set(provenance_ids) == set(captures)
     assert {provenance["source_commit"] for provenance in manifest["capture_provenance"]} == {
+        current_source
+    }
+    assert len(previous_provenance_ids) == len(set(previous_provenance_ids))
+    assert set(previous_provenance_ids) == set(captures)
+    assert {
         prior_source,
         correction_source,
         "25bd0d4",
@@ -155,10 +194,14 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "3bfc0d7",
         "94387e4",
         "working-tree-issue-160",
-    }
+        "working-tree-issue-160-task-2",
+    } == {provenance["source_commit"] for provenance in previous_provenance}
+    assert "atomically replaced the complete 84-image set" in manifest[
+        "capture_provenance"
+    ][0]["command"]
     process_provenance = [
         provenance
-        for provenance in manifest["capture_provenance"]
+        for provenance in previous_provenance
         if provenance["source_commit"] == prior_source
         and "--only-modeling-process" in provenance["command"]
         and "--only-modeling-process-fit" not in provenance["command"]
@@ -169,7 +212,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     assert "accepted the qualitative visual checks" in process_provenance[0]["command"]
     uxc04e_commands = [
         provenance["command"]
-        for provenance in manifest["capture_provenance"]
+        for provenance in previous_provenance
         if provenance["source_commit"] == "55cfa62"
     ]
     assert any(
@@ -178,7 +221,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     )
     data_provenance = [
         provenance
-        for provenance in manifest["capture_provenance"]
+        for provenance in previous_provenance
         if provenance["source_commit"] == correction_source
         and "--only-modeling-data-session" in provenance["command"]
     ]
@@ -194,7 +237,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     assert "copied into the tracked current directory" in data_provenance[0]["command"]
     process_fit_provenance = [
         provenance
-        for provenance in manifest["capture_provenance"]
+        for provenance in previous_provenance
         if provenance["source_commit"] == correction_source
         and "--only-modeling-process-fit" in provenance["command"]
     ]
@@ -285,10 +328,10 @@ def test_current_images_are_product_routes_and_storybook_captures_are_untracked(
         (root / "docs/user-guide/screenshot-manifest.yaml").read_text(encoding="utf-8")
     )
     current_images = root / "docs/user-guide/images/current"
-    assert len(manifest["captures"]) == 77
+    assert len(manifest["captures"]) == 84
     assert all(not capture["route"].startswith("/iframe.html") for capture in manifest["captures"])
     assert not list(current_images.glob("storybook-*.png"))
-    assert len(list(current_images.glob("*.png"))) == 77
+    assert len(list(current_images.glob("*.png"))) == 84
     assert not list((root / "docs/17-evidence/images").glob("**/storybook-*.png"))
 
 
@@ -334,7 +377,7 @@ def test_duplicate_group_mixing_current_and_reference_files_is_rejected(
         image.write_bytes(_PNG + b"-same")
     allowed_group = frozenset(relative_paths[:2])
 
-    with pytest.raises(UserGuideContractError, match="explicit reference group"):
+    with pytest.raises(UserGuideContractError, match="explicit duplicate group"):
         _verify_image_inventory(tmp_path, set(relative_paths), {allowed_group})
 
 
@@ -357,6 +400,47 @@ def test_exact_explicit_reference_duplicate_group_is_allowed(
     )
 
     assert result == (2, 0, 1)
+
+
+def test_exact_evidence_and_current_duplicate_group_is_allowed(
+    tmp_path: Path,
+) -> None:
+    relative_paths = (
+        "docs/17-evidence/images/issue-161/before.png",
+        "docs/user-guide/images/current/after.png",
+    )
+    for relative in relative_paths:
+        image = tmp_path / relative
+        image.parent.mkdir(parents=True, exist_ok=True)
+        image.write_bytes(_PNG + b"-same-independent-pixels")
+
+    result = _verify_image_inventory(
+        tmp_path,
+        set(relative_paths),
+        {frozenset(relative_paths)},
+    )
+
+    assert result == (2, 0, 1)
+
+
+def test_duplicate_group_with_two_current_images_is_rejected(
+    tmp_path: Path,
+) -> None:
+    relative_paths = (
+        "docs/user-guide/images/current/first.png",
+        "docs/user-guide/images/current/second.png",
+    )
+    for relative in relative_paths:
+        image = tmp_path / relative
+        image.parent.mkdir(parents=True, exist_ok=True)
+        image.write_bytes(_PNG + b"-same-current-pixels")
+
+    with pytest.raises(UserGuideContractError, match="explicit duplicate group"):
+        _verify_image_inventory(
+            tmp_path,
+            set(relative_paths),
+            {frozenset(relative_paths)},
+        )
 
 
 @pytest.mark.parametrize(
@@ -406,7 +490,7 @@ def test_exact_explicit_reference_duplicate_group_is_allowed(
                     "docs/17-evidence/images/issue-167-service-reference/second.png",
                 ],
             },
-            "escapes",
+            "unsupported lifecycle mix",
         ),
     ],
 )

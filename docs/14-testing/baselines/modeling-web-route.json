@@ -20,7 +20,7 @@
               "auto preview from the pinned Process session"
             ],
             "readinessSelectors": [
-              ".processing-workbench-page.stage-process .modeling-process-workspace-bounded",
+              ".processing-workbench-page.stage-process .modeling-workspace-stage-process",
               "svg.processing-curve[aria-label=\"Mapped and selected processing stage curve overlay\"] polyline.curve-line",
               "text=Preview ready."
             ],
@@ -36,7 +36,7 @@
               "click button.fit-evidence-trigger once"
             ],
             "readinessSelectors": [
-              ".processing-workbench-page.stage-fit .modeling-fit-workspace-bounded",
+              ".processing-workbench-page.stage-fit .modeling-workspace-stage-fit",
               ".fit-surface-state-saved-current",
               "svg.processing-curve polyline.curve-line",
               "#fit-evidence-dock .fit-evidence-body[aria-label=\"Candidate parameters evidence\"]",
@@ -923,7 +923,7 @@
           "path": "/modeling?stage=process&family=metal",
           "window": "cold_route_plus_required_action",
           "readinessSelectors": [
-            ".processing-workbench-page.stage-process .modeling-process-workspace-bounded",
+            ".processing-workbench-page.stage-process .modeling-workspace-stage-process",
             "svg.processing-curve[aria-label=\"Mapped and selected processing stage curve overlay\"] polyline.curve-line",
             "text=Preview ready."
           ],
@@ -1079,7 +1079,7 @@
           "path": "/modeling?stage=fit&family=metal",
           "window": "cold_route_plus_required_action",
           "readinessSelectors": [
-            ".processing-workbench-page.stage-fit .modeling-fit-workspace-bounded",
+            ".processing-workbench-page.stage-fit .modeling-workspace-stage-fit",
             ".fit-surface-state-saved-current",
             "svg.processing-curve polyline.curve-line",
             "#fit-evidence-dock .fit-evidence-body[aria-label=\"Candidate parameters evidence\"]",

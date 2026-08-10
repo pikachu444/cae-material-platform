@@ -29,10 +29,11 @@ import type {
   ConfigurableLinkEndpoint,
 } from "./types";
 import { EngineeringIcon, type EngineeringIconName } from "./design/icon";
+import { MATERIALS_TREE_METRICS } from "./design/metrics";
 import { MaterialsScrollRegion } from "./materials-scroll-rail";
 
-const ROW_HEIGHT = 26;
-const TREE_OVERSCAN = 8;
+const ROW_HEIGHT = MATERIALS_TREE_METRICS.rowHeight;
+const TREE_OVERSCAN = MATERIALS_TREE_METRICS.overscanRows;
 const SEARCH_LIMIT = 100;
 
 type TreeKind = "database" | "profile" | "table" | "folder" | "record" | "loading";
@@ -635,7 +636,11 @@ export function MaterialsBrowseTree({ config, subsetMode = false, publishedOnly 
                 key={row.id}
                 ref={(node) => { if (node) rowRefs.current.set(row.id, node); else rowRefs.current.delete(row.id); }}
                 className={`materials-tree-row kind-${row.kind}${row.match ? " match" : ""}${row.record?.record_id === selectedRecordId ? " selected" : ""}`}
-                style={{ top: index * ROW_HEIGHT, paddingInlineStart: 8 + row.depth * 12 }}
+                style={{
+                  top: index * ROW_HEIGHT,
+                  paddingInlineStart: MATERIALS_TREE_METRICS.baseIndent
+                    + row.depth * MATERIALS_TREE_METRICS.levelIndent,
+                }}
                 role="treeitem"
                 aria-level={row.depth + 1}
                 aria-expanded={row.expandable ? row.expanded : undefined}

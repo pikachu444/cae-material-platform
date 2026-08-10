@@ -100,11 +100,16 @@ class _FakeCandidateCells:
 
 
 class _FakeCandidateButton:
-    def __init__(self, table: _FakeCandidateTable, index: int) -> None:
+    def __init__(self, table: _FakeCandidateTable, index: int, *, matches: bool = True) -> None:
         self.table = table
         self.index = index
+        self.matches = matches
+
+    def count(self) -> int:
+        return int(self.matches)
 
     def click(self) -> None:
+        assert self.matches
         self.table.selected_index = self.index
 
 
@@ -122,9 +127,19 @@ class _FakeCandidateRow:
         assert selector == "td"
         return _FakeCandidateCells(self.cells)
 
-    def get_by_role(self, role: str, **_: object) -> _FakeCandidateButton:
+    def get_by_role(self, role: str, **options: object) -> _FakeCandidateButton:
         assert role == "button"
-        return _FakeCandidateButton(self.table, self.index)
+        name = options.get("name")
+        matches = True
+        if isinstance(name, re.Pattern):
+            selected = self.table.selected_index == self.index
+            label = (
+                f"{self.cells[1]} candidate selected"
+                if selected
+                else f"Select {self.cells[1]} candidate"
+            )
+            matches = name.search(label) is not None
+        return _FakeCandidateButton(self.table, self.index, matches=matches)
 
 
 class _FakeCandidateButtons:
@@ -464,10 +479,14 @@ def test_activity_capture_contract_is_role_correct_for_requesters_and_reviewers(
         "activity-decision-error-1440x900.png",
         "activity-recovery-1440x900.png",
     )
-    assert 'data-scroll-y") != "true"' in _CAPTURE_SOURCE
+    assert 'if not has_overflow' in _CAPTURE_SOURCE
+    assert 'rail_visible != has_overflow' in _CAPTURE_SOURCE
     assert "_seed_activity_delivery_history(page)" in _CAPTURE_SOURCE
+    assert "_seed_activity_recovery_history(page, base_url)" in _CAPTURE_SOURCE
+    assert "Array.from({ length: 20 }" in _CAPTURE_SOURCE
+    assert "cmp.activity.recovery.v1:" in _CAPTURE_SOURCE
     assert "Activity decision error did not retain the review reason" in _CAPTURE_SOURCE
-    assert "_assert_activity_compact_density(page, width)" in _CAPTURE_SOURCE
+    assert "_assert_activity_shared_density(page, width)" in _CAPTURE_SOURCE
     assert '"data": "13px"' in _CAPTURE_SOURCE
     assert '"metadata": "12px"' in _CAPTURE_SOURCE
     assert "if viewport_width == 3840:" in _CAPTURE_SOURCE
@@ -479,6 +498,44 @@ def test_activity_capture_contract_is_role_correct_for_requesters_and_reviewers(
     assert new_page.index("context.add_init_script") < new_page.index("page = context.new_page()")
     assert new_page.index("page = context.new_page()") < new_page.index("page.goto(base_url)")
     assert "No review actions are assigned to this role." not in _CAPTURE_SOURCE
+
+
+def test_current_capture_rejects_fixed_width_islands_in_shared_workspaces() -> None:
+    capture_source = _CAPTURE_SOURCE.split("def _assert_shared_workspace_geometry", 1)[1].split(
+        "def _assert_export_action_visible", 1
+    )[0]
+
+    assert "shell_box[\"width\"] < width * 0.97" in capture_source
+    assert "workspace[\"width\"] < width * 0.8" in capture_source
+    assert '".modeling-workspace-shell"' in capture_source
+    assert '".materials-page"' in capture_source
+    assert '".materials-workspace"' in capture_source
+    assert '".material-detail-shell"' not in capture_source
+    assert '".export-workspace"' in capture_source
+    assert '".activity-shell"' in capture_source
+    assert '".administration-workspace"' in capture_source
+    assert '".administration-record-workbench"' in capture_source
+    assert '".material-database-page"' in capture_source
+    assert '".governed-import-route"' in capture_source
+    assert "_assert_shared_workspace_geometry(page, width, path.name)" in capture_source
+    assert "_assert_wide_material_cluster" not in _CAPTURE_SOURCE
+    assert "bounded left cluster" not in _CAPTURE_SOURCE
+
+
+def test_administration_capture_checks_bounded_balanced_workgroups() -> None:
+    geometry_source = _CAPTURE_SOURCE.split(
+        "def _assert_bounded_workgroup_geometry", 1
+    )[1].split("def _capture", 1)[0]
+
+    assert "--ux-navigator-max-inline-size" in geometry_source
+    assert "--ux-context-max-inline-size" in geometry_source
+    assert "--ux-readable-form-max-inline-size" in geometry_source
+    assert 'abs(left_margin - right_margin) > 2' in geometry_source
+    assert 'form["width"] > geometry["readableFormMaximum"] + 1' in geometry_source
+    assert 'group_selector=".schema-editor-grid"' in _CAPTURE_SOURCE
+    assert 'form_selector=".schema-property-editor .property-sheet"' in _CAPTURE_SOURCE
+    assert 'group_selector=".catalog-record-grid"' in _CAPTURE_SOURCE
+    assert 'form_selector=".catalog-datasheet > form"' in _CAPTURE_SOURCE
 
 
 def test_modeling_fit_capture_contract_covers_five_viewports_and_recovery_states() -> None:
@@ -513,6 +570,24 @@ def test_modeling_fit_capture_contract_covers_five_viewports_and_recovery_states
         name in CURRENT_CAPTURE_OUTPUTS
         for name in fit_viewports + MODELING_FIT_STATE_OUTPUTS
     )
+    assert 'name=re.compile(r"^Preview .+\\/.+ blend$")' in _CAPTURE_SOURCE
+    assert 'name=re.compile(r"^Selected · .+$")' in _CAPTURE_SOURCE
+    assert "fitted domain$" not in _CAPTURE_SOURCE
+    warned_selection = _CAPTURE_SOURCE.split(
+        "def _select_warned_fit_candidate", 1
+    )[1].split("def _select_exact_fit_candidate", 1)[0]
+    assert 'name=re.compile(r"^.+ candidate selected$")' in warned_selection
+    assert 'name=re.compile(r"^Select .+ candidate$")' in warned_selection
+    measurement_gate = _CAPTURE_SOURCE.split(
+        "def _measure_process_fit", 1
+    )[1].split("def _assert_modeling_process_saved_rows", 1)[0]
+    assert "def _assert_elastic_stage_workspace" in measurement_gate
+    assert '_assert_elastic_stage_workspace("process", "Process")' in measurement_gate
+    assert '_assert_elastic_stage_workspace("fit", "Fit")' in measurement_gate
+    assert 'measurement["workspaceWidth"]' in measurement_gate
+    assert 'measurement["workspaceHeight"]' in measurement_gate
+    assert "1920 + 1" not in measurement_gate
+    assert "> 879" not in measurement_gate
 
 
 def test_modeling_export_capture_contract_uses_declared_preview_and_atomic_create_flow() -> None:
@@ -614,11 +689,24 @@ def test_modeling_export_capture_contract_uses_declared_preview_and_atomic_creat
     ) < approximation_open < approximation_recovery < approximation_preview
     delivered_open = delivered_flow.index('_open_modeling_stage(delivered, "export")')
     delivered_recovery = delivered_flow.index("_prepare_exact_metal_source_if_needed(delivered)")
+    delivered_binding = delivered_flow.index(
+        "_ensure_neutral_material_record_binding(delivered, base_url)"
+    )
     delivered_preview = delivered_flow.index("_prepare_exact_target_preview(delivered")
     assert delivered_flow.index("_prepare_fit_for_export(") < delivered_flow.index(
         '_save_exact_fit_selection(delivered, candidate_key="swift+voce", require_warning=False)'
-    ) < delivered_open < delivered_recovery < delivered_preview
+    ) < delivered_open < delivered_recovery < delivered_binding < delivered_preview
     assert "_prepare_exact_metal_source_if_needed" not in source_blocked_flow
+
+    binding_helper = _CAPTURE_SOURCE.split(
+        "def _ensure_neutral_material_record_binding", 1
+    )[1].split("def _prepare_exact_target_preview", 1)[0]
+    assert "/api/v1/catalog/domain-bindings:resolve" in binding_helper
+    assert "published_only=true" in binding_helper
+    assert "/domain-binding`" in binding_helper
+    assert 'kind: "neutral_material"' in binding_helper
+    assert 'status: "created"' in binding_helper
+    assert 'status: "reused"' in binding_helper
 
     export_flow = _CAPTURE_SOURCE.split(
         "def _prepare_exact_target_preview", 1
@@ -676,6 +764,7 @@ def test_modeling_export_capture_contract_uses_declared_preview_and_atomic_creat
     assert 'details.export-delivery-details' in export_flow
     assert 'for resource in ("solver_card", "preview", "download", "receipt")' in export_flow
     assert 'get_by_role("button", name="Open solver card", exact=True)' in export_flow
+    assert "delivery_error.all_inner_texts()" in export_flow
     assert "after_animation: Callable[[], object] | None = None" in _CAPTURE_SOURCE
     assert "def _assert_export_capture_shell(page: Page)" in _CAPTURE_SOURCE
     assert "application-workspace" in _CAPTURE_SOURCE
@@ -854,9 +943,9 @@ def test_modeling_fit_scrolled_capture_positions_the_local_decision_surface() ->
     )
 
 
-def test_modeling_fit_capture_enforces_bounded_shell_rows_scale_and_collision_geometry() -> None:
+def test_modeling_fit_capture_enforces_elastic_shell_rows_scale_and_collision_geometry() -> None:
     assert "_assert_fit_display_scale" in _CAPTURE_SOURCE
-    assert ".modeling-fit-workspace-bounded" in _CAPTURE_SOURCE
+    assert ".modeling-workspace-stage-fit" in _CAPTURE_SOURCE
     assert "fitRowsIncluded" in _CAPTURE_SOURCE
     assert "fitNoMatchingCurves" in _CAPTURE_SOURCE
     assert "fitGroups" in _CAPTURE_SOURCE
@@ -1069,6 +1158,16 @@ def test_fit_save_allows_only_the_expected_exact_restore_error_after_commit_proo
         "        allow_expected_exact_restore_failure=True,\n"
         "    )"
     ) in exact_read_failed_flow
+
+
+def test_restored_fit_counts_only_the_exact_processing_output_content_read() -> None:
+    restored_flow = _CAPTURE_SOURCE.split(
+        "    restored = prepared_fit", 1
+    )[1].split("def _capture_modeling_process_fit", 1)[0]
+
+    assert 'r"/api/v1/processing-outputs/[^/]+/content"' in restored_flow
+    assert "urlsplit(url).path" in restored_flow
+    assert "expected_restore_url" in restored_flow
 
     for caller in (
         "_capture_modeling_export_only",
@@ -1315,7 +1414,7 @@ def test_process_preparation_selects_exact_data_identity_before_opening_process(
 
     data_stage = process_flow.index("_prepare_modeling(page, base_url)")
     data_selector = process_flow.index(
-        '".modeling-data-workspace-bounded .modeling-data-curve-tree"'
+        '".modeling-workspace-stage-data .modeling-data-curve-tree"'
     )
     identity_filters = process_flow.index('has_text="Specimen 01"')
     revision_filter = process_flow.index('has_text="Session revision r1"')
@@ -1552,6 +1651,9 @@ def test_only_modeling_process_cli_help_and_output_contract_stay_at_nine() -> No
     )[1].split("    parser.add_argument(", 1)[0]
     assert "nine Modeling Process viewports" in parser_fragment
     assert len(MODELING_PROCESS_OUTPUTS) == 9
+    main_source = _CAPTURE_SOURCE.split("def main()", 1)[1]
+    assert "selected_output_names: Sequence[str] = CURRENT_CAPTURE_OUTPUTS" in main_source
+    assert 'name.endswith(f"-{width}x{height}.png")' in _CAPTURE_SOURCE
 
 
 def test_exact_document_success_wait_replaces_removed_notice_for_data_and_process() -> None:
@@ -1827,14 +1929,15 @@ def test_saved_process_reachability_requires_three_rows_plus_layout_without_scro
     assert "twoRowsWithoutScroll" not in reachability_assertion
 
 
-def test_modeling_process_resume_flag_is_scoped_and_default_guard_stays_zero_or_two() -> None:
+def test_modeling_process_resume_flag_is_scoped_and_full_capture_reuses_exact_three() -> None:
     process_only = _CAPTURE_SOURCE.split(
         "def _capture_modeling_process_only", 1
     )[1].split("def _capture_modeling_data_viewports", 1)[0]
     assert "resume_modeling_process: bool = False" in process_only
     assert "elif len(initial_outputs) not in (0, 2)" in process_only
-    assert "if resume_modeling_process:" in process_only
-    assert "if len(initial_outputs) != 3" in process_only
+    assert "if resume_modeling_process and len(initial_outputs) != 3" in process_only
+    assert "if len(initial_outputs) == 3" in process_only
+    assert 'siblings.unroute_all(behavior="wait")' in process_only
 
     parser = _CAPTURE_SOURCE.split('    parser.add_argument(\n        "--resume-modeling-process"', 1)[1]
     assert "requires --only-modeling-process" in parser

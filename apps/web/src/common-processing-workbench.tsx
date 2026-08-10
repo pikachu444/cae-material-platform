@@ -1425,9 +1425,20 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     void loadDocument(selectedDocumentId, expectedRef.revisionId);
   }, [busy, document, selectedDocumentId, selectedTestDataRefs]);
 
+  const pinnedSavedFitPending = Boolean(
+    (workflowTask === "fit" || workflowTask === "export")
+      && initialSession?.processingOutput
+      && outputs.some((output) => output.processing_output_id === initialSession.processingOutput?.id
+        && output.current_revision.id === initialSession.processingOutput.revisionId
+        && output.steps.some((step) => isFitMethod(step.method_id))),
+  );
   useEffect(() => {
     if (contextResetPending.current) return;
     if (intakePreviewActive.current || !document || !selectedProfileId || preview) return;
+    // A pinned Fit Output has its own exact, digest-verified restore path.
+    // Do not let the source-document auto-preview race that restore and turn
+    // the saved decision back into an unsaved preview after it settles.
+    if (pinnedSavedFitPending) return;
     const pendingDraft = pendingExplicitProcessPreview.current;
     if (pendingDraft && !(pendingDraft.originTask === workflowTask && workflowTask !== "process")) return;
     const key = `${selectedDocumentId}:${selectedProfileId}:${stepsText}`;
@@ -1437,7 +1448,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       void runPreview();
     }, 300);
     return () => window.clearTimeout(timer);
-  }, [document, isProcessTask, preview, selectedDocumentId, selectedProfileId, stepsText, workflowTask]);
+  }, [document, isProcessTask, pinnedSavedFitPending, preview, selectedDocumentId, selectedProfileId, stepsText, workflowTask]);
 
   function applyModelingTrack(track: ModelingTrack): void {
     setModelingTrack(track);
@@ -3069,7 +3080,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       /></Suspense> : null}
       {!elastomerWorkbenchTask && workflowTask !== "validate" && workflowTask !== "review" && workflowTask !== "export" ? <section className={`workbench-card method-builder-card stage-${workflowTask}`} id="modeling-process">
         <div className="section-heading"><div><p className="workspace-caption">{workflowTask}</p><h2>{stageTitle}</h2></div><div className="modeling-section-actions">{isProcessTask || workflowTask === "fit" ? <details className="method-library" open={processBlocked || undefined}><summary aria-disabled={processBlocked}>{workflowTask === "fit" ? "Add fit method" : "Add operation"} <span>{availableMethods.length}</span></summary><div className="method-registry-strip" aria-label={workflowTask === "fit" ? "Available fitting methods" : "Available processing operations"}>{availableMethods.map((method) => <button type="button" className="method-pill" key={method.method_id} disabled={processBlocked} onClick={() => addMethod(method)}><strong>+ {method.label}</strong><small>{method.version}</small></button>)}</div></details> : null}</div></div>
-        <div className={`modeling-workspace-shell${workflowTask === "data" ? " modeling-data-workspace-bounded" : isProcessTask ? " modeling-process-workspace-bounded" : workflowTask === "fit" ? " modeling-fit-workspace-bounded" : ""}`}>
+        <div className={`modeling-workspace-shell${workflowTask === "data" ? " modeling-workspace-stage-data" : isProcessTask ? " modeling-workspace-stage-process" : workflowTask === "fit" ? " modeling-workspace-stage-fit" : ""}`}>
         <ModelingWorkspaceLayout
           navigator={workflowTask === "data" || isProcessTask || workflowTask === "fit" ? <>
             <div className={`modeling-dataset-list${workflowTask === "data" ? " modeling-data-curve-tree" : ""}${isApprovedMetalFit ? " approved-fit-curve-tree" : ""}`}>

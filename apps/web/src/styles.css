@@ -145,7 +145,21 @@
 
 .administration-record-workbench {
   gap: 0;
-  max-width: 120rem;
+  max-width: var(--ux-workspace-max-inline-size);
+}
+
+.administration-record-workbench
+  > :is(
+    .record-administration-header,
+    .catalog-search-panel,
+    .registration-panel,
+    .catalog-record-grid,
+    .error-banner,
+    .success-banner
+  ) {
+  width: min(100%, var(--ux-bounded-workgroup-max-inline-size));
+  box-sizing: border-box;
+  margin-inline: auto;
 }
 
 .administration-record-workbench > .content-card,
@@ -169,6 +183,18 @@
 .administration-record-workbench .catalog-record-grid {
   border-top: 1px solid var(--border);
   gap: 0;
+  grid-template-columns:
+    clamp(
+      var(--ux-navigator-min-inline-size),
+      18vw,
+      var(--ux-navigator-max-inline-size)
+    )
+    clamp(
+      var(--ux-context-min-inline-size),
+      27vw,
+      var(--ux-context-max-inline-size)
+    )
+    minmax(0, var(--ux-readable-form-max-inline-size));
 }
 
 .administration-record-workbench
@@ -2320,14 +2346,14 @@ dd {
 }
 
 /* Dedicated Export workspace: flat setup/result panes with a dominant native
-   preview.  The 1920px cap keeps wide monitors left/top aligned while each
-   evidence surface owns its own overflow. */
+   preview. The outer task is elastic while each evidence surface owns its
+   own overflow and the setup/context columns retain readable bounds. */
 .export-workspace {
   display: flex;
   flex-direction: column;
   min-height: 0;
-  width: min(100%, 1920px);
-  max-width: 1920px;
+  width: 100%;
+  max-width: var(--ux-workspace-max-inline-size);
   margin: 0;
   padding: 0;
   border-top: 1px solid var(--line);
@@ -3662,8 +3688,9 @@ summary {
 }
 
 .application-workspace:has(.governed-import-route) {
-  width: calc(100% - 2rem);
-  max-width: 1760px;
+  width: calc(100% - var(--ux-shell-inline-gutter) - var(--ux-shell-inline-gutter));
+  max-width: var(--ux-workspace-max-inline-size);
+  margin-inline: auto;
   padding: 1rem 0 3rem;
 }
 
@@ -4022,7 +4049,8 @@ summary {
 }
 
 .bulk-export-center {
-  max-width: 1320px;
+  width: calc(100% - var(--ux-shell-inline-gutter) - var(--ux-shell-inline-gutter));
+  max-width: var(--ux-comparison-table-max-inline-size);
   margin: 0 auto;
 }
 
@@ -6024,129 +6052,6 @@ summary {
   margin: 0 0 1.25rem;
 }
 
-.workspace-choice-icon {
-  align-items: center;
-  background: #e8f3ee;
-  border-radius: 10px;
-  color: #28634f;
-  display: flex;
-  font-size: 0.78rem;
-  font-weight: 800;
-  height: 2.7rem;
-  justify-content: center;
-  width: 2.7rem;
-}
-.administration-workspace {
-  align-items: start;
-  display: grid;
-  grid-template-columns: 250px minmax(0, 1fr);
-  min-height: calc(100vh - 74px);
-}
-.administration-navigation {
-  align-self: stretch;
-  background: #102f35;
-  color: #edf6f3;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  min-height: calc(100vh - 74px);
-  padding: 2rem 1.3rem;
-}
-.administration-navigation h2 {
-  color: #edf6f3;
-  font-size: 1.25rem;
-  margin: 0.3rem 0 0;
-}
-.administration-navigation nav {
-  display: grid;
-  gap: 0.35rem;
-}
-.administration-navigation nav button {
-  align-items: center;
-  background: transparent;
-  border: 0;
-  border-radius: 7px;
-  color: #cce0d9;
-  cursor: pointer;
-  display: grid;
-  gap: 0.75rem;
-  grid-template-columns: 2rem 1fr;
-  padding: 0.8rem;
-  text-align: left;
-}
-.administration-navigation nav button span {
-  color: #78a99a;
-  font-size: 0.72rem;
-}
-.administration-navigation nav button.active,
-.administration-navigation nav button:hover {
-  background: #1b4a4c;
-  color: #fff;
-}
-.administration-navigation > .text-button {
-  color: #a9d7c9;
-  margin-top: auto;
-  text-align: left;
-}
-.administration-content {
-  min-width: 0;
-  padding: 2rem;
-}
-.administration-task-grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-.administration-task-grid > button {
-  align-items: start;
-  background: #fff;
-  border: 1px solid #cfdeda;
-  border-radius: 12px;
-  color: var(--ink);
-  cursor: pointer;
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: auto 1fr;
-  padding: 1.4rem;
-  text-align: left;
-}
-.administration-task-grid > button:hover {
-  border-color: var(--accent);
-  box-shadow: 0 12px 30px rgb(20 66 57 / 10%);
-}
-.administration-task-grid > button > span:nth-child(2) {
-  display: grid;
-  gap: 0.35rem;
-}
-.administration-task-grid small {
-  color: var(--accent);
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-.administration-task-grid strong {
-  font-family: var(--heading-font);
-  font-size: 1.25rem;
-}
-.administration-task-grid p {
-  color: var(--muted);
-  line-height: 1.5;
-  margin: 0;
-}
-.administration-task-grid em {
-  color: var(--accent);
-  font-style: normal;
-  grid-column: 2;
-}
-.administration-principle {
-  background: #e9f2ef;
-  border-left: 4px solid var(--accent);
-  margin-top: 1.25rem;
-  padding: 1.4rem;
-}
-.administration-principle h2 {
-  margin: 0.3rem 0;
-}
 .link-type-administration {
   margin-top: 1rem;
 }
@@ -6178,24 +6083,12 @@ summary {
   .product-user-badge {
     display: none;
   }
-  .administration-workspace {
-    grid-template-columns: 1fr;
-  }
-  .administration-navigation {
-    min-height: 0;
-  }
-  .administration-task-grid,
   .link-type-admin-grid {
     grid-template-columns: 1fr;
   }
 }
 
 /* T-76 product Material Database: persistent GRANTA-style contents and linked-record workspace. */
-.application-workspace:has(.material-database-page) {
-  width: min(1540px, calc(100% - 2rem));
-  padding-top: 1.25rem;
-}
-
 .material-database-page {
   display: grid;
   gap: 0.85rem;
@@ -8147,7 +8040,7 @@ summary {
   .ogden-calibration-workbench
   > .section-heading.compact-heading
   .muted {
-  max-width: 760px;
+  max-width: var(--ux-readable-form-max-inline-size);
   margin: 4px 0 0;
   font-size: 0.69rem;
   line-height: 1.35;

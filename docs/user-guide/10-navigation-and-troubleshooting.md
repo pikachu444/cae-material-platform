@@ -45,11 +45,16 @@ link는 보존하지만 일반 사용자의 전역 메뉴에는 나타나지 않
 ![1920px Activity 작업 큐](images/current/activity-1920x1080.png)
 
 2560×1440과 3840×2160에서도 queue와 Review action은 같은 exact revision 행 구조로 유지됩니다.
-Activity는 공통 compact 기준을 사용합니다. task identity는 14px, tab·data·action은 13px,
-metadata는 12px이며 action 높이는 최소 36px입니다. 3840px에서는 2656px 로컬 작업 영역 안에
+Activity는 공통 desktop 기준을 사용합니다. task identity는 14px, tab·data·action은 13px,
+metadata는 12px이며 action 높이는 최소 36px입니다. 3840px에서는 2656px 비교 작업 영역 안에
 2602px 다섯 열과 scrollbar를 나란히 두고 가운데 정렬해 상태와 행동 사이가 과도하게 벌어지지
 않습니다. 1920px 고정 작업 섬, 해상도별 CSS, CSS `zoom`, 일괄 확대, 채우기용 행은 사용하지
 않습니다.
+
+Materials·Modeling·Administration의 app shell과 주 data/graph/native-preview 영역은 남는 viewport를
+사용합니다. Navigator·Context·읽기형 form/prose와 비교 table은 작업 의미에 맞는 폭을 유지하므로,
+넓은 화면에서 모든 열이나 문장을 억지로 늘리지 않습니다. tree/table의 긴 값은 해당 pane의 실제
+scroll region에서 확인하고 scrollbar가 데이터나 조작 손잡이를 덮지 않습니다.
 
 이 보정은 새 고해상도 표시 단계를 정한 것이 아닙니다. 공통 표시 단계는 #221에서 비교·결정하고,
 전체 화면 적용은 #184에서 검증합니다. Activity의 실제 Windows 4K 100%·150%·200% 물리적 판독성은
@@ -61,6 +66,10 @@ metadata는 12px이며 action 높이는 최소 36px입니다. 3840px에서는 26
 ![3840px Activity 작업 큐](images/current/activity-3840x2160.png)
 
 3840px의 긴 이력에서도 오른쪽 로컬 scrollbar가 실제 콘텐츠 길이에 맞춰 나타납니다.
+현재 긴 이력 캡처는 canonical demo의 immutable server 결정 10건과 브라우저 로컬 solver-card 활동
+20건, 성공한 복구 결과 20건을 함께 사용합니다. 복구 결과는 캡처용 브라우저 저장소에만 추가되며
+제품 데이터나 review 결정을 만들지 않습니다. 캡처 자동화는 네 이력 viewport 모두에서 실제 overflow와
+로컬 rail이 없으면 실패합니다.
 
 ![1920px Activity Recent outcomes](images/current/activity-history-1920x1080.png)
 

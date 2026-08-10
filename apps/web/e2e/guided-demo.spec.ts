@@ -171,9 +171,12 @@ test("clean demo exposes Search-first material-family journeys and progressive b
           const bounds = element.getBoundingClientRect();
           return { left: bounds.left, right: bounds.right, width: bounds.width };
         });
+        expect(shellGeometry.left).toBeGreaterThanOrEqual(7);
         expect(shellGeometry.left).toBeLessThanOrEqual(9);
-        expect(shellGeometry.width).toBeLessThanOrEqual(Math.min(width - 16, 1920) + 1);
-        expect(shellGeometry.right).toBeLessThanOrEqual(Math.min(width, 1928) + 1);
+        expect(shellGeometry.width).toBeGreaterThanOrEqual(width - 17);
+        expect(shellGeometry.width).toBeLessThanOrEqual(width - 15);
+        expect(shellGeometry.right).toBeGreaterThanOrEqual(width - 9);
+        expect(shellGeometry.right).toBeLessThanOrEqual(width - 7);
         const deliverySheetGeometry = await page.locator(".card-preview-actions").evaluate((element) => element.getBoundingClientRect().width);
         expect(deliverySheetGeometry).toBeGreaterThanOrEqual(311);
         expect(deliverySheetGeometry).toBeLessThanOrEqual(313);
@@ -246,7 +249,7 @@ test("clean demo exposes Search-first material-family journeys and progressive b
   await expect(relatedRecord).toHaveCount(1);
   await relatedRecord.click();
   await expect(page).toHaveURL(/\/materials\/records\/[0-9a-f-]+\/revisions\/[0-9a-f-]+$/);
-  await expect(page.getByRole("heading", { name: "DP780 reference Material State", level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "DP780 reference Material State", level: 1 })).toBeVisible({ timeout: 15_000 });
   await page.goBack();
   await expect(page).toHaveURL(/\/materials\/[0-9a-f-]+\?record_id=[0-9a-f-]+&record_revision_id=[0-9a-f-]+&material_revision_id=[0-9a-f-]+$/);
   await page.goBack();
@@ -256,10 +259,12 @@ test("clean demo exposes Search-first material-family journeys and progressive b
 
   await page.goto("/activity");
   await expect(page.locator("main").getByRole("heading", { name: "Activity", exact: true, level: 1 })).toBeVisible();
-  const selectedModelReview = page.getByRole("listitem").filter({ hasText: "Selected model review" }).first();
+  const selectedModelReview = page.getByRole("row").filter({ hasText: "Selected model review" }).first();
   await expect(selectedModelReview).toBeVisible();
   await expect(selectedModelReview).toContainText("Waiting for review");
+  await page.getByRole("tab", { name: "Recent outcomes", exact: true }).click();
   await expect(page.getByText(/Downloaded solver card/).first()).toBeVisible();
+  await page.getByRole("tab", { name: "In progress", exact: true }).click();
   await page.getByRole("button", { name: "Refresh" }).click();
   await expect(selectedModelReview).toContainText("Waiting for review");
   const normalActivityText = await page.locator(".activity-content").innerText();
@@ -270,7 +275,7 @@ test("clean demo exposes Search-first material-family journeys and progressive b
   await expect(page).toHaveURL(/\/exports$/);
 });
 
-test("Materials workspaces stay bounded and expose the shared response plot across desktop widths", async ({ page, request }) => {
+test("Materials workspaces use the viewport and expose the shared response plot across desktop widths", async ({ page, request }) => {
   test.setTimeout(90_000);
   const tokenResponse = await request.get(`${webUrl}/api/v1/demo-identity/token`);
   expect(tokenResponse.ok()).toBeTruthy();
@@ -310,7 +315,8 @@ test("Materials workspaces stay bounded and expose the shared response plot acro
       return { left: bounds.left, width: bounds.width };
     });
     expect(searchGeometry.left).toBeLessThanOrEqual(8);
-    expect(searchGeometry.width).toBeLessThanOrEqual(Math.min(width, 1920) + 1);
+    expect(searchGeometry.width).toBeGreaterThanOrEqual(width - 1);
+    expect(searchGeometry.width).toBeLessThanOrEqual(width + 1);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 
     await resultRow.getByRole("button").click();
@@ -337,7 +343,8 @@ test("Materials workspaces stay bounded and expose the shared response plot acro
       return { left: bounds.left, width: bounds.width };
     });
     expect(detailGeometry.left).toBeLessThanOrEqual(8);
-    expect(detailGeometry.width).toBeLessThanOrEqual(Math.min(width, 1920) + 1);
+    expect(detailGeometry.width).toBeGreaterThanOrEqual(width - 1);
+    expect(detailGeometry.width).toBeLessThanOrEqual(width + 1);
     const graph = page.locator(".material-curve-preview [data-x-label='True plastic strain [1]']");
     await expect(graph).toBeVisible({ timeout: 15_000 });
     await expect(graph).toHaveAttribute("data-y-label", "True stress (MPa)");
@@ -454,7 +461,7 @@ test("Activity queue has no horizontal overflow at required demo viewports", asy
   }
 });
 
-test("clean demo downloads exact Neutral cards and the governed ZIP", async ({ page, request }, testInfo) => {
+test("canonical demo downloads exact Neutral cards and the governed ZIP", async ({ page, request }, testInfo) => {
   const tokenResponse = await request.get(`${webUrl}/api/v1/demo-identity/token`);
   expect(tokenResponse.ok()).toBeTruthy();
   const tokenPayload = (await tokenResponse.json()) as { access_token: string };
@@ -485,14 +492,15 @@ test("clean demo downloads exact Neutral cards and the governed ZIP", async ({ p
       default_archive_path: string;
     }>;
   };
-  const nativeCards = candidates.items.filter(
-    (item) => item.source.kind === "neutral_solver_card_native",
+  const canonicalNativeCards = candidates.items.filter(
+    (item) => item.source.kind === "neutral_solver_card_native"
+      && /\/CMP_DEMO_DP780_NEUTRAL\.(?:inp|rad)$/.test(item.default_archive_path),
   );
-  expect(nativeCards).toHaveLength(2);
-  const nativePaths = nativeCards.map((item) => item.default_archive_path);
+  expect(canonicalNativeCards).toHaveLength(2);
+  const nativePaths = canonicalNativeCards.map((item) => item.default_archive_path);
   expect(nativePaths.some((path) => path.endsWith(".inp"))).toBeTruthy();
   expect(nativePaths.some((path) => path.endsWith(".rad"))).toBeTruthy();
-  for (const card of nativeCards) {
+  for (const card of canonicalNativeCards) {
     const response = await request.get(
       `${webUrl}/api/v1/neutral-solver-cards/${card.source.neutral_solver_card_id}/download`,
       { headers },

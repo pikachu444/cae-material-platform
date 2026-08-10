@@ -44,13 +44,13 @@ function isFitMethodInRequest(methodId: string | undefined): boolean {
 }
 
 function processRailIdentities(): string[] {
-  return Array.from(document.querySelectorAll(".modeling-process-workspace-bounded .curve-row-label"), (row) =>
+  return Array.from(document.querySelectorAll(".modeling-workspace-stage-process .curve-row-label"), (row) =>
     (row.textContent ?? "").replace(/\s+/g, " ").trim(),
   );
 }
 
 function processRailButton(identity: string): HTMLElement {
-  const row = Array.from(document.querySelectorAll<HTMLElement>(".modeling-process-workspace-bounded .curve-row-label"))
+  const row = Array.from(document.querySelectorAll<HTMLElement>(".modeling-workspace-stage-process .curve-row-label"))
     .find((candidate) => (candidate.textContent ?? "").replace(/\s+/g, " ").trim() === identity);
   if (!row) throw new Error(`Process rail identity is missing: ${identity}`);
   return row;
@@ -445,11 +445,13 @@ function fitRestoreContentResponse(marker: string, status = 200): Response {
 
 function stubFitRestoreFetch(outputs: Array<Record<string, unknown>> | (() => Array<Record<string, unknown>>)): {
   contentGets: () => number;
+  fitRunPosts: () => number;
   pendingContent: Array<ReturnType<typeof deferred<Response>>>;
 } {
   let contentGetCount = 0;
+  let fitRunPostCount = 0;
   const pendingContent: Array<ReturnType<typeof deferred<Response>>> = [];
-  const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input) => {
+  const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
     const url = String(input);
     if (url.endsWith("/test-data-documents")) return jsonResponse({ items: [documentResource] });
     if (url.endsWith("/mapping-profiles")) return jsonResponse({ items: [mappingProfileResource] });
@@ -468,11 +470,25 @@ function stubFitRestoreFetch(outputs: Array<Record<string, unknown>> | (() => Ar
       const currentOutputs = typeof outputs === "function" ? outputs() : outputs;
       return jsonResponse({ items: currentOutputs.map((item) => JSON.parse(JSON.stringify(item))) });
     }
+    if (url.endsWith("/metal-fit-runs") && init?.method === "POST") {
+      fitRunPostCount += 1;
+      return jsonResponse({
+        id: "unexpected-auto-fit-run",
+        status: "succeeded",
+        preview: fitRestorePreview("auto-preview"),
+        failure_code: null,
+        failure_reason: null,
+      });
+    }
     if (url.includes("/test-data-documents/") && url.endsWith("/content")) return fitRestoreContentResponse(JSON.stringify(documentJson));
     throw new Error(`unexpected request: ${url}`);
   });
   vi.stubGlobal("fetch", fetchMock);
-  return { contentGets: () => contentGetCount, pendingContent };
+  return {
+    contentGets: () => contentGetCount,
+    fitRunPosts: () => fitRunPostCount,
+    pendingContent,
+  };
 }
 
 function processMethodFixtures() {
@@ -636,7 +652,14 @@ describe("Common Processing Workbench", () => {
         onSessionChange={onSessionChange}
       />,
     );
-    await screen.findByRole("button", { name: "Save processed curves" });
+    // The Process panel is a lazy chunk; the full parallel Vitest suite can
+    // take longer than Testing Library's 1 s default even though the settled
+    // panel and mocked requests are correct.
+    await screen.findByRole(
+      "button",
+      { name: "Save processed curves" },
+      { timeout: 5_000 },
+    );
     await waitFor(() => expect(screen.getByText("Preview ready.", { exact: false })).toBeTruthy());
     const label = screen.getByRole("textbox", { name: "Processed curve label" }) as HTMLInputElement;
     const reason = screen.getByRole("textbox", { name: "Save reason" }) as HTMLInputElement;
@@ -1463,6 +1486,7 @@ describe("Common Processing Workbench", () => {
         revisionNo: replicateResource.current_revision.revision_no,
       },
     });
+    await waitFor(() => expect(onSessionEvent).toHaveBeenLastCalledWith({ type: "CHANGE_SELECTION" }));
     onSessionEvent.mockClear();
     fireEvent.click(screen.getByRole("checkbox", { name: "Include Specimen 02 in processing and fit" }));
     expect(onSessionEvent).toHaveBeenNthCalledWith(1, {
@@ -2066,7 +2090,7 @@ describe("Common Processing Workbench", () => {
     await waitFor(() => expect(screen.getByText(/Preview ready\./)).toBeTruthy(), { timeout: 5000 });
     expect(processRailIdentities()).toEqual(expect.arrayContaining(["Specimen 01 · r1", "Specimen 02 · r1", "Specimen 03 · r1"]));
     expect(processRailIdentities().every((text) => /^Specimen \d{2} · r[1-9]\d*$/.test(text))).toBe(true);
-    expect(Array.from(document.querySelectorAll(".modeling-process-workspace-bounded .curve-row-label small"))).toHaveLength(0);
+    expect(Array.from(document.querySelectorAll(".modeling-workspace-stage-process .curve-row-label small"))).toHaveLength(0);
     expect(document.querySelector(".process-band-source")?.textContent).toBe("Specimen 01 · r1");
     expect(document.querySelector(".process-band-result")?.textContent).toContain("210.0 GPa");
     const savedDetails = document.querySelector("details.process-saved-results") as HTMLDetailsElement;
@@ -2476,8 +2500,11 @@ describe("Common Processing Workbench", () => {
       fetchState.pendingContent[0].resolve(fitRestoreContentResponse("B"));
       await screen.findByText("Saved immutable Fit Output restored with its exact Process source and decision.");
       expect(screen.getAllByText("Saved immutable Fit Output restored with its exact Process source and decision.")).toHaveLength(1);
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await screen.findByText("Saved current", { exact: true });
+      await new Promise((resolve) => setTimeout(resolve, 400));
       expect(fetchState.contentGets()).toBe(1);
+      expect(fetchState.fitRunPosts()).toBe(0);
+      expect(screen.getByText("Saved current", { exact: true })).toBeTruthy();
     } finally {
       view?.unmount();
       vi.doUnmock("./modeling-fit-output");
@@ -2565,7 +2592,7 @@ describe("Common Processing Workbench", () => {
     try {
       view = render(renderWorkbench(initialSession));
       await waitFor(() => expect(screen.getByText("Preview ready.", { exact: false })).toBeTruthy(), { timeout: 5000 });
-      expect(document.querySelector(".modeling-fit-workspace-bounded")).toBeTruthy();
+      expect(document.querySelector(".modeling-workspace-stage-fit")).toBeTruthy();
       fireEvent.click(screen.getByText("Candidate parameters"));
       await screen.findByText("Fit evidence");
       fireEvent.click(await screen.findByRole("button", { name: /Select swift candidate/i }));

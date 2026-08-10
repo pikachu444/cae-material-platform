@@ -1,8 +1,15 @@
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { Group, Panel, Separator, useDefaultLayout, usePanelRef } from "react-resizable-panels";
 import { EngineeringIcon } from "./icon";
+import {
+  desktopViewportClass,
+  MATERIALS_PANE_METRICS,
+  materialsPaneDefaults,
+  type DesktopViewportClass,
+} from "./metrics";
 
-export type DesktopViewportClass = "compact" | "standard" | "wide";
+export { desktopViewportClass, materialsPaneDefaults } from "./metrics";
+export type { DesktopViewportClass } from "./metrics";
 
 interface ResizableSplitPaneProps {
   id: string;
@@ -12,18 +19,6 @@ interface ResizableSplitPaneProps {
   navigatorLabel?: string;
   contextLabel?: string;
 }
-
-export function desktopViewportClass(width: number): DesktopViewportClass {
-  if (width <= 1390) return "compact";
-  if (width >= 1600) return "wide";
-  return "standard";
-}
-
-export const materialsPaneDefaults: Record<DesktopViewportClass, { navigator: number; main: number; context: number }> = {
-  compact: { navigator: 244, main: 1102, context: 0 },
-  standard: { navigator: 264, main: 856, context: 280 },
-  wide: { navigator: 280, main: 1292, context: 300 },
-};
 
 export function ResizableSplitPane({
   id,
@@ -126,7 +121,7 @@ export function ResizableSplitPane({
         key={`${id}-v5-${viewport}`}
         id={`${id}-v5-${viewport}`}
         className="materials-workspace"
-        style={{ width: "calc(100% - 16px)", height: "100%" }}
+        style={{ height: "100%" }}
         orientation="horizontal"
         defaultLayout={initialLayout}
         onLayoutChanged={persistence.onLayoutChanged}
@@ -136,8 +131,8 @@ export function ResizableSplitPane({
           panelRef={navigatorRef}
           className="materials-workspace-panel navigator-panel"
           defaultSize={materialsPaneDefaults[viewport].navigator}
-          minSize={200}
-          maxSize={360}
+          minSize={MATERIALS_PANE_METRICS.navigator.min}
+          maxSize={MATERIALS_PANE_METRICS.navigator.max}
           collapsedSize={0}
           collapsible
           groupResizeBehavior="preserve-pixel-size"
@@ -148,7 +143,7 @@ export function ResizableSplitPane({
         <Separator className="materials-resize-handle" aria-label={`Resize ${navigatorLabel}`} onDoubleClick={resetNavigator} title={`Double-click to reset ${navigatorLabel} width`}>
           <button className="pane-divider-control" type="button" aria-label={`${navigatorOpen ? "Collapse" : "Expand"} ${navigatorLabel} pane`} aria-expanded={navigatorOpen} onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); toggleNavigator(); }}><EngineeringIcon name={navigatorOpen ? "chevron-left" : "chevron-right"}/></button>
         </Separator>
-        <Panel id="main" className="materials-workspace-panel main-panel" minSize={720}>
+        <Panel id="main" className="materials-workspace-panel main-panel" minSize={MATERIALS_PANE_METRICS.main.min}>
           {main}
         </Panel>
         <Separator className="materials-resize-handle" aria-label={`Resize ${contextLabel}`} onDoubleClick={resetContext} title={`Double-click to reset ${contextLabel} width`}>
@@ -159,8 +154,8 @@ export function ResizableSplitPane({
           panelRef={contextRef}
           className="materials-workspace-panel context-panel"
           defaultSize={materialsPaneDefaults[viewport].context}
-          minSize={260}
-          maxSize={480}
+          minSize={MATERIALS_PANE_METRICS.context.min}
+          maxSize={MATERIALS_PANE_METRICS.context.max}
           collapsedSize={0}
           collapsible
           groupResizeBehavior="preserve-pixel-size"

@@ -60,7 +60,9 @@ Fit 상단 상태는 `Calculating`(previewBusy), `Saved current`(정확한 Fit O
 preview가 모두 검증됨), `Preview not saved`(현재 preview만 사용 가능), `Saved result stale`(Fit
 history는 있으나 현재 preview/pointer가 검증되지 않음), `Not calculated`(그 밖의 상태)로 고정됩니다.
 복원 read 실패는 `Saved current`가 될 수 없고, 저장 실패는 현재 preview를 유지하되 `Preview not saved`로
-남습니다.
+남습니다. 정확한 saved Fit을 복원한 직후 자동 preview 조건이 다시 평가되더라도 복원된
+`Saved current` graph와 pointer를 새 계산으로 덮어쓰지 않습니다. 사용자가 입력을 바꾸고
+**Preview changes**를 실행한 경우에만 새 preview가 시작됩니다.
 
 Data/Process/Fit 단계 왼쪽 **Curves** rail은 `N curves · N included` 요약 뒤 시험 방법 그룹과
 specimen별 26 px tree 행을 표시합니다. 예를 들어 tensile 문서는 `Tensile tests` 아래에 놓입니다.
@@ -229,8 +231,8 @@ internal quantity key 대신 사람이 읽는 물성명과 unit(예: `True plast
 Export는 모든 상태에서 같은 세 칸 작업 묶음(Setup 300–340 px, 넓은 native preview,
 Mapping/Fit context 326–360 px)을 유지합니다. 1366×768, 1440×900, 1920×1080,
 2560×1440, 3840×2160 정상 화면과 1440×900 source-blocked,
-approximation-blocked, delivered 상태를 캡처 계약으로 관리합니다. Wide 화면에서도 이 묶음은
-왼쪽 위 1920 px 안에 머물며 남는 공간은 오른쪽에 둡니다.
+approximation-blocked, delivered 상태를 캡처 계약으로 관리합니다. Wide 화면에서는 Export shell과
+native preview가 남는 폭을 사용하고 Setup·Mapping/Fit context만 읽기 좋은 pane 범위를 유지합니다.
 
 | Export evidence | Capture |
 | --- | --- |

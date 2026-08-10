@@ -20,7 +20,7 @@
 }
 
 .exact-domain-section {
-  max-width: 760px;
+  max-width: var(--ux-readable-form-max-inline-size);
   margin: var(--ux-space-5) auto 0;
   padding: var(--ux-space-4) 0;
   border-block: 1px solid var(--ux-border);
@@ -67,7 +67,7 @@
 
 .materials-page {
   width: 100%;
-  max-width: 1920px;
+  max-width: var(--ux-workspace-max-inline-size);
   margin-inline: 0;
   overflow-x: hidden;
 }
@@ -131,10 +131,11 @@
 
 .materials-workspace {
   display: flex;
+  width: calc(100% - var(--ux-shell-inline-gutter) - var(--ux-shell-inline-gutter));
   min-width: 0;
   height: 100%;
   min-height: 0;
-  margin: 0 8px;
+  margin: 0 var(--ux-shell-inline-gutter);
   border-inline: 1px solid var(--ux-border);
   background: var(--ux-surface);
 }
@@ -145,14 +146,14 @@
   overflow: hidden;
 }
 
-.resizable-workspace-fallback .navigator-panel { flex: 0 0 248px; }
+.resizable-workspace-fallback .navigator-panel { flex: 0 0 var(--ux-navigator-default-inline-size); }
 .resizable-workspace-fallback .main-panel { flex: 1 1 auto; }
-.resizable-workspace-fallback .context-panel { flex: 0 0 280px; }
+.resizable-workspace-fallback .context-panel { flex: 0 0 var(--ux-context-default-inline-size); }
 
 .materials-resize-handle {
   position: relative;
-  width: 5px;
-  flex: 0 0 5px;
+  width: var(--ux-splitter-inline-size);
+  flex: 0 0 var(--ux-splitter-inline-size);
   border-inline: 1px solid var(--ux-border);
   background: var(--ux-surface-subtle);
   outline: none;
@@ -370,11 +371,11 @@
 }
 
 .materials-scroll-shell[data-scroll-y="true"] {
-  grid-template-columns: minmax(0, 1fr) 13px;
+  grid-template-columns: minmax(0, 1fr) var(--ux-scrollbar-track-size);
 }
 
 .materials-scroll-shell[data-scroll-x="true"] {
-  grid-template-rows: minmax(0, 1fr) 13px;
+  grid-template-rows: minmax(0, 1fr) var(--ux-scrollbar-track-size);
 }
 
 .materials-result-scroll-shell {
@@ -424,14 +425,14 @@
   top: 2px;
   right: 2px;
   left: 2px;
-  min-height: 36px;
+  min-height: var(--ux-scrollbar-thumb-min-size);
 }
 
 .materials-scroll-rail-x .materials-scroll-thumb {
   top: 2px;
   bottom: 2px;
   left: 2px;
-  min-width: 36px;
+  min-width: var(--ux-scrollbar-thumb-min-size);
 }
 
 .materials-scroll-rail:hover .materials-scroll-thumb {
@@ -806,7 +807,7 @@
   display: grid;
   grid-template-columns: 16px 20px minmax(0, 1fr);
   align-items: center;
-  height: 26px;
+  height: var(--ux-navigator-row-block-size);
   min-width: 100%;
   width: max-content;
   padding-inline-end: 7px;
@@ -1091,18 +1092,18 @@
 .activity-shell {
   display: flex;
   flex-direction: column;
-  width: calc(100% - 16px);
+  width: calc(100% - var(--ux-shell-inline-gutter) - var(--ux-shell-inline-gutter));
   height: 100%;
   min-height: 0;
   max-width: none;
-  margin: 0 8px;
+  margin: 0 var(--ux-shell-inline-gutter);
   background: var(--ux-surface);
 }
 
 .card-preview-shell {
   display: flex;
   height: calc(100vh - var(--ux-shell-top-height) - var(--ux-status-bar-height));
-  max-width: 1920px;
+  max-width: var(--ux-workspace-max-inline-size);
   min-height: 0;
   flex-direction: column;
   overflow: hidden;
@@ -1868,7 +1869,7 @@
 
 .activity-role-context {
   color: var(--ux-text-muted);
-  font-size: var(--ux-compact-metadata-font-size);
+  font-size: var(--ux-metadata-font-size);
   font-weight: 500;
 }
 
@@ -1882,7 +1883,7 @@
 .activity-queue-status,
 .activity-section-count {
   color: var(--ux-text-muted);
-  font-size: var(--ux-compact-metadata-font-size);
+  font-size: var(--ux-metadata-font-size);
   font-variant-numeric: tabular-nums;
 }
 
@@ -1902,7 +1903,7 @@
   border-bottom: 3px solid transparent;
   background: transparent;
   color: var(--ux-text-muted);
-  font-size: var(--ux-compact-data-font-size);
+  font-size: var(--ux-data-font-size);
   text-align: left;
   cursor: pointer;
 }
@@ -1931,7 +1932,7 @@
 .activity-queue-scroll-shell {
   flex: 1 1 auto;
   width: 100%;
-  max-width: var(--ux-compact-wide-content-max);
+  max-width: var(--ux-comparison-table-max-inline-size);
   margin-inline: auto;
   min-height: 0;
   border-block: 1px solid var(--ux-border);
@@ -1941,7 +1942,7 @@
   height: 100%;
   min-height: 0;
   overflow: auto;
-  padding: 0 var(--ux-compact-pane-padding) var(--ux-space-4);
+  padding: 0 var(--ux-pane-padding) var(--ux-space-4);
   scrollbar-gutter: stable both-edges;
 }
 
@@ -1958,7 +1959,7 @@
 .activity-row-state {
   margin: 2px 0 0;
   color: var(--ux-text-muted);
-  font-size: var(--ux-compact-metadata-font-size);
+  font-size: var(--ux-metadata-font-size);
 }
 
 .activity-section {
@@ -1968,10 +1969,10 @@
 
 .activity-section-heading {
   align-items: end;
-  width: min(100%, var(--ux-compact-wide-content-max));
+  width: min(100%, var(--ux-comparison-table-max-inline-size));
   min-height: 47px;
   margin: 0 auto;
-  padding: 11px var(--ux-compact-cell-padding-inline) var(--ux-compact-cell-padding-block);
+  padding: 11px var(--ux-cell-padding-inline) var(--ux-cell-padding-block);
   border-bottom: 1px solid var(--ux-border-strong);
 }
 
@@ -1984,7 +1985,7 @@
 }
 
 .activity-table {
-  width: min(100%, var(--ux-compact-wide-content-max));
+  width: min(100%, var(--ux-comparison-table-max-inline-size));
   margin-inline: auto;
   table-layout: fixed;
   border-collapse: collapse;
@@ -1999,10 +2000,10 @@
 }
 
 .activity-table th {
-  padding: var(--ux-compact-cell-padding-block) var(--ux-compact-cell-padding-inline);
+  padding: var(--ux-cell-padding-block) var(--ux-cell-padding-inline);
   border-bottom: 1px solid var(--ux-border-strong);
   color: var(--ux-text-muted);
-  font-size: var(--ux-compact-table-heading-font-size);
+  font-size: var(--ux-table-heading-font-size);
   font-weight: 650;
   letter-spacing: .01em;
   text-align: left;
@@ -2018,9 +2019,9 @@
 .activity-table th:last-child { text-align: right; }
 
 .activity-table td {
-  height: var(--ux-compact-row-min-height);
+  height: var(--ux-work-row-min-block-size);
   min-width: 0;
-  padding: var(--ux-compact-cell-padding-block) var(--ux-compact-cell-padding-inline);
+  padding: var(--ux-cell-padding-block) var(--ux-cell-padding-inline);
   border-bottom: 1px solid var(--ux-border);
   vertical-align: middle;
 }
@@ -2038,18 +2039,18 @@
 
 .activity-cell-task strong {
   color: var(--ux-text);
-  font-size: var(--ux-compact-emphasis-font-size);
+  font-size: var(--ux-emphasis-font-size);
   font-weight: 650;
 }
 
 .activity-table .activity-cell-reason {
   color: var(--ux-text-muted);
-  font-size: var(--ux-compact-data-font-size);
+  font-size: var(--ux-data-font-size);
 }
 
 .activity-table .activity-cell-status {
   color: var(--ux-text-muted);
-  font-size: var(--ux-compact-metadata-font-size);
+  font-size: var(--ux-metadata-font-size);
 }
 
 .activity-table .activity-cell-status strong {
@@ -2059,7 +2060,7 @@
 
 .activity-table .activity-cell-updated {
   color: var(--ux-text-muted);
-  font-size: var(--ux-compact-metadata-font-size);
+  font-size: var(--ux-metadata-font-size);
   font-variant-numeric: tabular-nums;
 }
 
@@ -2068,8 +2069,8 @@
 }
 
 .activity-cell-action .ux-button {
-  min-height: var(--ux-compact-control-min-height);
-  font-size: var(--ux-compact-data-font-size);
+  min-height: var(--ux-control-min-block-size);
+  font-size: var(--ux-data-font-size);
   white-space: nowrap;
 }
 
@@ -2138,7 +2139,7 @@
   display: grid;
   gap: 3px;
   color: var(--ux-text-muted);
-  font-size: var(--ux-compact-metadata-font-size);
+  font-size: var(--ux-metadata-font-size);
   font-weight: 650;
 }
 
@@ -2150,7 +2151,7 @@
 .activity-review-form p {
   margin: 0;
   color: var(--ux-danger);
-  font-size: var(--ux-compact-metadata-font-size);
+  font-size: var(--ux-metadata-font-size);
 }
 
 .activity-review-form > div {
@@ -2167,7 +2168,7 @@
   padding-block: var(--ux-space-2);
   border-block: 1px solid var(--ux-border);
   color: var(--ux-danger);
-  font-size: var(--ux-compact-metadata-font-size);
+  font-size: var(--ux-metadata-font-size);
 }
 
 .activity-context-line {
@@ -2366,7 +2367,7 @@
 .modeling-stage-placeholder h2,
 .modeling-export-blocked h2 { margin: 0 0 var(--ux-space-2); font-size: 16px; }
 .modeling-stage-placeholder p,
-.modeling-export-blocked p { max-width: 760px; margin: 0; color: var(--ux-text-muted); }
+.modeling-export-blocked p { max-width: var(--ux-readable-form-max-inline-size); margin: 0; color: var(--ux-text-muted); }
 
 .modeling-governance-stage {
   display: grid;
@@ -2665,14 +2666,24 @@
 }
 
 .administration-workspace {
+  display: grid;
+  align-items: start;
   width: 100%;
   max-width: none;
-  grid-template-columns: 220px minmax(0, 1fr);
+  grid-template-columns: clamp(
+      var(--ux-navigator-min-inline-size),
+      15vw,
+      var(--ux-navigator-default-inline-size)
+    ) minmax(0, 1fr);
+  min-height: calc(100vh - var(--ux-shell-top-height) - var(--ux-status-bar-height));
   background: var(--ux-canvas);
   color: var(--ux-text);
 }
 
 .administration-navigation {
+  display: flex;
+  align-self: stretch;
+  flex-direction: column;
   min-height: calc(100vh - var(--ux-shell-top-height) - var(--ux-status-bar-height));
   gap: var(--ux-space-5);
   padding: var(--ux-space-5) var(--ux-space-3);
@@ -2697,11 +2708,14 @@
 }
 
 .administration-navigation nav {
+  display: grid;
   gap: 0;
   border-top: 1px solid var(--ux-border);
 }
 
 .administration-navigation nav button {
+  display: grid;
+  align-items: center;
   min-height: 34px;
   gap: var(--ux-space-2);
   grid-template-columns: 22px minmax(0, 1fr);
@@ -2726,6 +2740,7 @@
 }
 
 .administration-navigation > .text-button {
+  margin-top: auto;
   color: var(--ux-accent);
   font-size: 12px;
 }
@@ -2746,12 +2761,14 @@
 }
 
 .administration-task-grid {
+  display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
   border-top: 1px solid var(--ux-border);
 }
 
 .administration-task-grid > button {
+  display: grid;
   align-items: center;
   grid-template-columns: 34px minmax(0, 1fr) auto;
   gap: var(--ux-space-3);
@@ -2761,6 +2778,9 @@
   border-bottom: 1px solid var(--ux-border);
   border-radius: 0;
   background: transparent;
+  color: var(--ux-text);
+  cursor: pointer;
+  text-align: left;
 }
 
 .administration-task-grid > button:hover {
@@ -2770,6 +2790,9 @@
 }
 
 .administration-task-grid .workspace-choice-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 30px;
   height: 30px;
   border: 1px solid var(--ux-border-strong);
@@ -2794,6 +2817,8 @@
 }
 
 .administration-task-grid p {
+  margin: 0;
+  color: var(--ux-text-muted);
   font-size: 13px;
   line-height: 1.4;
 }
@@ -2805,6 +2830,7 @@
   padding-right: var(--ux-space-2);
   color: var(--ux-accent);
   font-size: 12px;
+  font-style: normal;
 }
 
 .administration-principle {
@@ -2821,8 +2847,28 @@
   font-weight: 650;
 }
 
+@media (max-width: 900px) {
+  .administration-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .administration-navigation {
+    min-height: 0;
+  }
+
+  .administration-task-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 .catalog-schema-editor {
   min-width: 0;
+}
+
+.schema-editor-header,
+.schema-editor-grid {
+  width: min(100%, var(--ux-bounded-workgroup-max-inline-size));
+  margin-inline: auto;
 }
 
 .schema-editor-header {
@@ -2861,7 +2907,18 @@
 
 .schema-editor-grid {
   display: grid;
-  grid-template-columns: clamp(220px, 18vw, 260px) clamp(280px, 27vw, 380px) minmax(0, 1fr);
+  grid-template-columns:
+    clamp(
+      var(--ux-navigator-min-inline-size),
+      18vw,
+      var(--ux-navigator-max-inline-size)
+    )
+    clamp(
+      var(--ux-context-min-inline-size),
+      27vw,
+      var(--ux-context-max-inline-size)
+    )
+    minmax(0, var(--ux-readable-form-max-inline-size));
   min-height: calc(100vh - var(--ux-shell-top-height) - var(--ux-status-bar-height) - 90px);
   border-bottom: 1px solid var(--ux-border);
 }
@@ -3006,7 +3063,7 @@
 }
 
 .property-sheet {
-  max-width: 760px;
+  max-width: var(--ux-readable-form-max-inline-size);
 }
 
 .property-sheet > header {
@@ -3231,7 +3288,7 @@
   position: relative;
   display: grid;
   height: 100%;
-  grid-template-rows: auto minmax(360px, 1fr);
+  grid-template-rows: auto minmax(var(--ux-plot-min-block-size), 1fr);
 }
 
 .modeling-task-ribbon {
@@ -3253,58 +3310,16 @@
   overflow: visible;
 }
 
-/* Modeling Data is a bounded working cluster on very wide displays.  Other
-   stages retain the full available split-workspace width. */
 .modeling-workspace-shell {
   display: flex;
+  width: 100%;
   min-width: 0;
   min-height: 0;
+  max-width: var(--ux-workspace-max-inline-size);
+  max-height: var(--ux-workspace-max-block-size);
   flex: 1 1 auto;
+  margin-inline: 0;
   overflow: hidden;
-}
-
-.modeling-data-workspace-bounded {
-  width: min(100%, 1920px);
-  max-width: 1920px;
-  margin-right: auto;
-}
-
-/* Process uses the same readable working cluster at very wide viewports; the
-   rail and graph do not stretch into an unbounded canvas. */
-.modeling-process-workspace-bounded {
-  width: min(100%, 1920px);
-  max-width: 1920px;
-  margin-right: auto;
-}
-
-/* Fit keeps the same readable working-cluster width, while remaining an
-   explicit selector so its wide-screen height and plot chrome do not alter
-   Data or Process. */
-.modeling-fit-workspace-bounded {
-  width: min(100%, 1920px);
-  max-width: 1920px;
-  margin-right: auto;
-}
-
-/* Q-20 keeps the Process working cluster readable on the two approved ultra-
-   wide captures.  Leave the remainder of the page unused instead of letting
-   the persistent graph grow into an unbounded canvas. */
-@media (min-width: 2560px) {
-  .modeling-process-workspace-bounded {
-    height: min(878px, 100%);
-    max-height: 878px;
-    flex: 0 1 878px;
-    align-self: flex-start;
-    margin-bottom: auto;
-  }
-
-  .modeling-fit-workspace-bounded {
-    height: min(878px, 100%);
-    max-height: 878px;
-    flex: 0 1 878px;
-    align-self: flex-start;
-    margin-bottom: auto;
-  }
 }
 
 .modeling-task-ribbon:has(.process-stage-options) {
@@ -3590,12 +3605,12 @@
 /* The Process result is the direct server response.  Keep its action-needed
    note compact while letting the saved-results disclosure provide the optional
    comparison surface below. */
-.modeling-process-workspace-bounded .persistent-modeling-plot {
+.modeling-workspace-stage-process .persistent-modeling-plot {
   min-height: 280px;
 }
 
-.modeling-process-workspace-bounded .persistent-modeling-plot .processing-curve.interactive,
-.modeling-process-workspace-bounded .persistent-modeling-plot .engineering-curve-plot-empty-svg {
+.modeling-workspace-stage-process .persistent-modeling-plot .processing-curve.interactive,
+.modeling-workspace-stage-process .persistent-modeling-plot .engineering-curve-plot-empty-svg {
   min-height: 230px;
 }
 
@@ -4745,8 +4760,8 @@
 .modeling-pane-divider {
   position: relative;
   z-index: 4;
-  flex: 0 0 5px;
-  width: 5px;
+  flex: 0 0 var(--ux-splitter-inline-size);
+  width: var(--ux-splitter-inline-size);
   background: var(--ux-border);
   cursor: col-resize;
   touch-action: none;
@@ -4932,15 +4947,15 @@
 /* Process-only plot chrome: keep the compact interactive key in the
    curve-free lower-right, above EngineeringCurvePlot's fixed 52px x-axis
    margin.  Data/Fit/Export keep their existing legend placement rules. */
-.modeling-process-workspace-bounded .persistent-modeling-plot > .curve-legend {
+.modeling-workspace-stage-process .persistent-modeling-plot > .curve-legend {
   bottom: 60px;
 }
 
-.modeling-process-workspace-bounded .persistent-modeling-plot > .curve-legend.interactive {
+.modeling-workspace-stage-process .persistent-modeling-plot > .curve-legend.interactive {
   max-width: 230px;
 }
 
-.modeling-process-workspace-bounded .persistent-modeling-plot > .curve-legend.interactive button {
+.modeling-workspace-stage-process .persistent-modeling-plot > .curve-legend.interactive button {
   min-height: 16px;
   padding: 1px 3px;
   font-size: 10px;
@@ -4950,17 +4965,17 @@
 /* Fit's key is intentionally overlaid in the lower-right plot gutter.  The
    92px bottom inset clears the final x tick and axis title while retaining a
    native, compact legend instead of adding a permanent inspector column. */
-.modeling-fit-workspace-bounded .persistent-modeling-plot > .curve-legend {
+.modeling-workspace-stage-fit .persistent-modeling-plot > .curve-legend {
   right: 24px;
   bottom: 92px;
   max-width: calc(100% - 48px);
 }
 
-.modeling-fit-workspace-bounded .persistent-modeling-plot > .curve-legend.interactive {
+.modeling-workspace-stage-fit .persistent-modeling-plot > .curve-legend.interactive {
   max-width: 230px;
 }
 
-.modeling-fit-workspace-bounded .persistent-modeling-plot > .curve-legend.interactive button {
+.modeling-workspace-stage-fit .persistent-modeling-plot > .curve-legend.interactive button {
   min-height: 16px;
   padding: 1px 3px;
   font-size: 10px;
@@ -4985,7 +5000,7 @@
     min-height: 0;
   }
 
-  .modeling-process-workspace-bounded .persistent-modeling-plot > .curve-legend {
+  .modeling-workspace-stage-process .persistent-modeling-plot > .curve-legend {
     bottom: 60px;
   }
 
@@ -5422,12 +5437,12 @@
 /* Process curve identities need to remain readable in the compact navigator
    at its persisted minimum width.  Preserve the checkbox/swatch/visibility
    columns and reclaim only redundant row indentation and label padding. */
-.modeling-process-workspace-bounded .curve-tree-group > details > article {
+.modeling-workspace-stage-process .curve-tree-group > details > article {
   column-gap: 1px;
   padding-left: 6px;
 }
 
-.modeling-process-workspace-bounded .curve-row-label {
+.modeling-workspace-stage-process .curve-row-label {
   padding-right: 4px;
 }
 
@@ -6294,7 +6309,7 @@
 
 .modeling-data-divider {
   z-index: 2;
-  min-height: 8px;
+  min-height: var(--ux-workbench-splitter-size);
   border-block: 1px solid var(--ux-border-strong);
   background: var(--ux-surface-subtle);
   cursor: row-resize;
@@ -6753,18 +6768,4 @@
 
 .modeling-main-surface.has-data-split .data-mapping-actions .button.is-prerequisite-blocked:disabled {
   background: var(--ux-surface-subtle);
-}
-
-/* At very wide viewports the Data working cluster keeps the same usable
-   height as the 1920x1080 workspace.  Width and height caps apply only to the
-   Data stage; Process/Fit/Export retain their existing fill behavior. */
-@media (min-width: 1920px) {
-  .modeling-data-workspace-bounded {
-    align-self: flex-start;
-    height: min(100%, 878px);
-    max-height: 878px;
-    flex: 0 1 878px;
-    margin-left: 0;
-    margin-right: auto;
-  }
 }

@@ -57,23 +57,26 @@ Windows 4K 100%·150%·200%의 물리적 가독성은 전체 기능이 끝난 �
 위 제품의 모양을 복제하지 않는다. 공통 패턴은 **OS 배율 존중, 역할별 pane, 중앙 작업영역 우선,
 사용자 조절, 실제 표시 검증**이다.
 
-## 3. 현재 기준선의 구체적 위험
+## 3. #161 공통 기반과 남은 결정
 
-현재 shell은 이미 viewport 전체 크기를 사용할 수 있고 Grid/Flex 및 일부 container query 기반도
-있다. 전면 재작성보다 공통 token과 layout 경계의 정리가 먼저다.
+#161 이전 기준선에는 Materials·Modeling Data/Process/Fit·Export의 `max-width: 1920px`, Modeling의
+`max-height: 878px`, Administration record workspace의 `max-width: 120rem`과 route별 control/row/pane
+값이 흩어져 있었다. 2560·3840 CSS viewport에서 shell은 넓어져도 실제 task가 왼쪽 1920px 섬에
+남는 직접 원인이었다.
 
-- `apps/web/src/design/layout.css`
-  - `.modeling-data-workspace-bounded`의 `max-width: 1920px`
-  - 1920px 이상에서 적용되는 `max-height: 878px`
-- `apps/web/src/styles.css`
-  - `.export-workspace`의 `max-width: 1920px`
-  - `.administration-record-workbench`의 `max-width: 120rem`
-- 10~11.5px 글자 크기와 control/row 크기가 여러 route에 개별 선언되어 있다.
-- route별 고정값은 같은 물리적 크기 정책을 재사용하거나 사용자가 밀도를 바꾸기 어렵게 한다.
+#161은 다음 기반만 제공한다.
 
-#161은 이 고정값을 공통 semantic token과 full-shell 경계로 이동한다. #221은 그 기반 위에서 구현용
-잠정 layout·pane·density·table·plot 정책을 고르고, #184는 승인된 값을 전체 route와 고위험 상태에
-적용한다. #223은 실제 장비에서 잠정 값을 최종 승인하거나 공통 보정 bug를 요구한다.
+- app shell과 1차 data/graph/native-preview workspace는 공통 elastic boundary를 사용한다.
+- navigator, context, 읽기형 form/prose와 비교 table만 의미에 맞는 공통 상한을 유지한다.
+- typography, control/row, pane/splitter, tree, scroll rail과 plot 지표를 공통 CSS/TypeScript metric으로
+  이동한다.
+- 캡처 계약은 1920px 상한을 승인하지 않고, 1920px 이상에서 보이는 1차 workspace가 viewport 폭의
+  80% 미만인 고정폭 섬으로 줄어들면 실패한다.
+- route 전용 2560/3840 media rule, CSS `zoom`, 일괄 `scale`, 채우기용 행은 금지한다.
+
+이 기반은 Compact/Standard/Large 표시 단계나 기본값을 결정하지 않는다. #221은 구현용 잠정
+layout·pane·density·table·plot 정책을 고르고, #184는 승인된 값을 전체 route와 고위험 상태에 적용한다.
+#223은 실제 Windows 4K 장비에서 잠정 값을 최종 승인하거나 공통 보정 bug를 요구한다.
 
 ## 4. #221에서 비교할 세 후보
 
