@@ -370,7 +370,8 @@ $$P_P=\sum_i\frac{2\mu_i^A}{\alpha_i}\left(\lambda^{\alpha_i-1}-\lambda^{-\alpha
 
 $$P_B=\sum_i\frac{2\mu_i^A}{\alpha_i}\left(\lambda^{\alpha_i-1}-\lambda^{-2\alpha_i-1}\right).$$
 
-OpenRadioss LAW42/LAW69 instead documents:
+OpenRadioss LAW42의 명시적 계수 입력과 LAW69가 입력 곡선에서 내부 적합해 산출하는 Ogden
+계수는 다음 에너지 convention을 사용한다:
 
 $$W_\mathrm{dev}^{R}=\sum_i\frac{\mu_i^R}{\alpha_i}\left(\sum_a\bar\lambda_a^{\alpha_i}-3\right),\qquad G_0=\frac{1}{2}\sum_i\mu_i^R\alpha_i.$$
 
@@ -381,11 +382,19 @@ $$\mu_i^R=\frac{2\mu_i^A}{\alpha_i},\qquad \mu_i^A=\frac{\alpha_i\mu_i^R}{2}.$$
 | Representation | Coefficient before stretch sum | Initial shear | Mooney--Rivlin specialization |
 |---|---:|---:|---|
 | Current IR / Abaqus / LAW82 | $2\mu_i^A/\alpha_i^2$ | $\sum\mu_i^A$ | $(2C_{10},2)$ and $(2C_{01},-2)$ |
-| LAW42 / LAW69 | $\mu_i^R/\alpha_i$ | $\frac12\sum\mu_i^R\alpha_i$ | $(2C_{10},2)$ and $(-2C_{01},-2)$ |
+| LAW42 explicit input / LAW69 fitted-pair interpretation | $\mu_i^R/\alpha_i$ | $\frac12\sum\mu_i^R\alpha_i$ | $(2C_{10},2)$ and $(-2C_{01},-2)$ |
 
 Neo-Hookean with $\alpha=2$ can appear to copy unchanged and conceal a broken general conversion.
 `PROPOSED_DECISION` — every typed Ogden payload must identify the convention; a bare `mu_i` field
 without it is invalid. Every exporter needs energy and mode-response round-trip fixtures.
+
+`CONFIRMED_CURRENT` — LAW69의 카드 입력은 $(\mu_i^R,\alpha_i)$ 계수 배열이 아니라 단축 인장·압축
+공학 응력–공학 변형률 곡선, pair 수와 fitting-control 항목이다. Starter가 nonlinear least-squares로
+계수를 계산한다. 따라서 위 변환식은 LAW69가 산출한 계수를 해석·비교하는 oracle일 뿐, typed
+Candidate 계수를 LAW69 카드로 직접 내보내거나 exact/transformed round-trip이라고 분류할 근거가
+아니다. LAW69 경로를 추가하려면 곡선 생성 규칙, 허용 mode/domain/quantity, Starter 재적합과 그
+오차를 별도 evidence로 고정하고 mapping status를 `approximated`로 표시해야 한다. 그 전에는 direct
+LAW69 coefficient export를 `unsupported`로 차단한다.
 
 ### 6.6 Current bounded parameter policy and identification risk
 
@@ -629,7 +638,7 @@ Production sequential/joint policy, waveform handling, term count, bulk branch a
 | Target | Current bounded behavior | Future preflight requirement |
 |---|---|---|
 | Abaqus | Four current hyperelastic potentials may carry normalized Prony rows; one-term reference uses `MODULI=INSTANTANEOUS`. | Reconfirm target version, base semantics, volumetric terms, term alignment and element compatibility for every new versioned IR. |
-| OpenRadioss current product | Only one-term Ogden plus exact baseline overlay maps to current LAW62; other family overlays are blocked. | Keep that matrix until official target-version evidence and independent energy/response fixtures qualify LAW42/LAW69/LAW82 plus external `/VISC/PRONY`. LAW94 overlay remains unsupported without direct evidence. |
+| OpenRadioss current product | Only one-term Ogden plus exact baseline overlay maps to current LAW62; other family overlays are blocked. | Keep that matrix until official target-version evidence and independent energy/response fixtures qualify LAW42/LAW82 plus external `/VISC/PRONY`. LAW69 is curve-driven internal fitting, so direct coefficient export is `unsupported`; a separately approved curve-generation/Starter-refit path is `approximated`, never `exact` or merely `transformed`. LAW94 overlay remains unsupported without direct evidence. |
 
 No public solver term maximum, automatic fitting rule, error tolerance or stability default becomes a
 platform policy.
@@ -773,7 +782,7 @@ revision, but prior revisions, raw bytes, released Artifacts and solver cards ne
 | H01 Neo-Hookean uniaxial analytical | $C_{10}=0.5$ MPa; $\lambda=0.8,1.0,1.25$; $P=2C_{10}(\lambda-\lambda^{-2})$. | $P(0.8)=-0.7625$ MPa, $P(1)=0$, $P(1.25)=0.61$ MPa. | Closed-form float tolerance. Failure means strain, sign, nominal stress or coefficient convention is wrong. |
 | H02 Mooney--Rivlin multi-mode recovery | $C_{10}=0.3$, $C_{01}=0.2$ MPa; noiseless U/P/B grids over $\lambda=1.0..1.5$. | At $\lambda=1.5$: U $0.9148148148$, P $1.2037037037$, B $2.0524691358$ MPa; joint fit recovers the identifiable pair. | Closed-form response plus condition-aware parameter tolerance. Failure means mode equation, aggregation or binding is wrong. |
 | H03 Yeoh large strain | $(C_{10},C_{20},C_{30})=(0.4,0.05,0.01)$ MPa; uniaxial $\lambda=1..2$. | At $\lambda=2$, $x=2$, $Q=0.72$ MPa and $P=2.52$ MPa. | Closed-form response. Failure means invariant/power/order implementation is wrong. |
-| H04 Ogden convention conversion | Abaqus/LAW82 $(\mu^A,\alpha)=((0.6,1.3),(0.4,-2.2))$ MPa. | LAW42/69 $\mu^R=(0.9230769231,-0.3636363636)$ MPa; uniaxial $P(1.4)=0.7434847676$ MPa in both conventions. | Energy and three-mode stress round-trip. Failure means a coefficient was copied by name or sign. |
+| H04 Ogden convention conversion | Abaqus/LAW82 $(\mu^A,\alpha)=((0.6,1.3),(0.4,-2.2))$ MPa. | LAW42 explicit-input / LAW69 fitted-pair convention $\mu^R=(0.9230769231,-0.3636363636)$ MPa; uniaxial $P(1.4)=0.7434847676$ MPa in both equations. | Energy and three-mode stress round-trip for coefficient conventions only. It does not qualify direct LAW69 export. Failure means a coefficient was copied by name/sign or a solver input boundary was lost. |
 | H05 joint U/P/B fitting | Generate three modes from H02 on equal stretch grids; explicit equal-mode fixture weights. | One parameter set reproduces all modes; each mode objective and effective weight are reconstructable. | Response/objective equality. Failure means one mode or weighting was omitted. |
 | H06 volumetric/compressibility | Abaqus-reference $D_1=0.02$ MPa$^{-1}$, $J=0.98,1,1.02$. | $K_0=100$ MPa and compression-positive $p=2,0,-2$ MPa. | Closed-form pressure/tangent and unit check. Failure means sign, $J$ or reciprocal-pressure convention is wrong. |
 | H07 holdout mode | Fit H02 U/P only; keep B entirely out of the objective. | B residual is reported as holdout and objective contribution is exactly absent. | Exact membership/aggregation. Failure means leakage. |
@@ -781,8 +790,8 @@ revision, but prior revisions, raw bytes, released Artifacts and solver cards ne
 | H09 parameter non-identifiability | Planar-only Mooney--Rivlin data from H02. | Only $C_{10}+C_{01}=0.5$ MPa is identifiable; rank/condition or equivalent diagnostic reports the flat direction. | Diagnostic status and response, not individual coefficients. Failure means false certainty. |
 | H10 local basin and multistart | Two-term Ogden H04 data; fixed starts near truth/permutation and a distant constrained basin; retain every Attempt. Cross-reference the public Ogden--Saccomandi--Sgura nonuniqueness result. | Deterministic Attempt set; best response is selected by the declared rule; distinct parameter sets/local or symmetric basins are not collapsed. | Attempt persistence, gradient/termination and objective ordering. Failure means multistart evidence was discarded or “unique” was claimed. |
 | H11 invalid initial modulus | Neo-Hookean $C_{10}=-0.5$ MPa; Mooney--Rivlin sum $\le0$; Ogden $\sum\mu_i^A\le0$. | Candidate is rejected or gets hard physical-constraint failure before selected-model save. | Exact diagnostic/error class. Failure means optimizer success overrode invalid modulus. |
-| H12 stability-violating Candidate | Yeoh $(0.5,-0.2,0.01)$ MPa over uniaxial $\lambda=1..3$. | It is positive/monotonic only in a bounded early range and turns negative later. | Bounded scan with explicit domain. Failure means domain was hidden or global stability claimed. |
-| H13 fit pass / extrapolation fail | Fit H12 only through $\lambda=1.5$; extrapolate to 2.0. | $P(1.5)=0.5845138889$ MPa while $P(2)=-0.63$ MPa; fit and extrapolation statuses differ. | Closed-form endpoint and separate statuses. Failure means extrapolation was treated as fitted validation. |
+| H12 stability-violating Candidate | Yeoh $(0.5,-0.2,0.01)$ MPa over uniaxial $\lambda=1..3$. | It is positive and monotonic only in a bounded early range, reaches its response maximum at the first root of $dP/d\lambda$ near $\lambda=1.401837$, and turns negative later. | Evaluate the closed-form response and derivative on 20,001 uniform points over $[1,3]$ (step $10^{-4}$), bracket every derivative sign change, and refine roots independently. Failure means the domain was hidden or global stability claimed. |
+| H13 fit pass / extrapolation fail | Fit H12 only through $\lambda=1.4$; extrapolate to 2.0. | The closed-form derivative remains positive through $\lambda=1.4$ (endpoint $dP/d\lambda=0.0141520652$ MPa), with $P(1.4)=0.6212573988$ MPa, while $P(2)=-0.63$ MPa; fit and extrapolation statuses differ. | Closed-form endpoint, the declared derivative/response scan and separate statuses. Failure means extrapolation was treated as fitted validation. |
 | H14 stress-measure mismatch | Supply H01 numeric Cauchy stress while descriptor requests nominal stress without current area/$\mathbf F$. | Normalization rejects the source; it does not fit the values as nominal. | Exact validation error. Failure means a hidden stress conversion. |
 | H15 sign-convention error | Supply compression-positive H01 compression values but label tensile-positive without transform evidence. | Sign validation/review blocks the Plan or produces an explicit mismatch error. | Exact evidence/error. Failure means compression can be mirrored silently. |
 | H16 unit mismatch | Supply H02 MPa values once correctly converted and once mislabeled as Pa. | Correct path multiplies by $10^6$; mislabeled data trigger scale/unit evidence failure rather than a “good” rescaled fit. | Exact unit round-trip and factor check. |
@@ -791,7 +800,7 @@ revision, but prior revisions, raw bytes, released Artifacts and solver cards ne
 | H19 tampered source digest | Mutate one normalized point or Artifact byte after Plan construction. | Execute/save rejects the digest mismatch; prior evidence remains unchanged. | Exact digest/read-back. |
 | H20 save/reload | Select exact H02 Candidate with reason and any warning acknowledgements; save and reload. | Canonical Plan/Run/Attempt/Candidate/Recommendation/Selection/selected-model fields and Artifact digests match exactly. | Byte/canonical-decimal contract. |
 | H21 upstream stale | Advance one input stable identity to a new revision after H20. | Historical selected model still reloads; current workspace is stale and cannot silently reuse the old Candidate. | Exact revision/CAS state. |
-| H22 solver mapping preflight | Promote H01–H04 approved typed fixtures with and without H17 overlay to declared Abaqus/OpenRadioss targets. | Energy/stress convention round-trip, six-state mapping, acknowledgement identity and report/card digests match; unsupported combinations fail preflight. | Algebraic oracle plus golden bytes only after independent review. |
+| H22 solver mapping preflight | Promote H01–H04 approved typed fixtures with and without H17 overlay to declared Abaqus/OpenRadioss targets. | Energy/stress convention round-trip, six-state mapping, acknowledgement identity and report/card digests match; unsupported combinations fail preflight. Direct LAW69 coefficient export must fail as `unsupported`. Any future LAW69 curve path pins the generated engineering stress–strain curve, mode/domain/quantity, Starter-refit provenance and error, and reports `approximated`, never `exact`/`transformed`. | Algebraic oracle plus golden bytes only after independent review. A pass on H04 cannot qualify LAW69 card syntax. |
 
 ### 12.3 Solver-oracle separation
 
@@ -946,7 +955,7 @@ private optimizer, automatic recommendation rule, bound, weighting or threshold 
 | [Ansys Material Calibration Standalone Help](https://ansyshelp.ansys.com/public/Views/Secured/Granta/v252/en/pdf/Ansys_Material_Calibration_Standalone_Help.pdf) | 2025 R2 official, `FACT_PUBLIC` | supported hyperelastic modes, unit consistency, user-edited initials/bounds and staged combined hyperelastic/Prony workflow |
 | [Abaqus Hyperelastic Behavior](https://docs.software.vt.edu/abaqusv2025/English/SIMACAEMATRefMap/simamat-c-hyperelastic.htm) | Abaqus 2025, `CONFIRMED_CURRENT` for public solver convention | energies, initial moduli, nominal test data/modes, volumetric data, solver fitting objective and bounded Drucker diagnostic; its defaults are not platform policy |
 | [Abaqus Time Domain Viscoelasticity](https://docs.software.vt.edu/abaqusv2024/English/SIMACAEMATRefMap/simamat-c-timevisco.htm) and [finite-strain theory](https://docs.software.vt.edu/abaqusv2024/English/SIMACAETHERefMap/simathe-c-finitestrvisco.htm) | Abaqus 2024 official, `CONFIRMED_CURRENT` for public solver convention | normalized instantaneous Prony, long-term conversion and finite-strain hereditary push-forward |
-| OpenRadioss [LAW42](https://help.altair.com/hwsolvers/rad/topics/solvers/rad/mat_law42_ogden_starter_r.htm), [LAW82](https://help.altair.com/hwsolvers/rad/topics/solvers/rad/mat_law82_starter_r.htm), [LAW94](https://help.altair.com/hwsolvers/rad/topics/solvers/rad/mat_law94_starter_r.htm), [`/VISC/PRONY`](https://help.altair.com/hwsolvers/rad/topics/solvers/rad/visc_prony_starter_r.htm) | 2026 official, `CONFIRMED_CURRENT` for public solver convention | law-specific Ogden/volumetric conventions, initial shear relations, dimensional branches/rates and declared law compatibility |
+| OpenRadioss [LAW42](https://help.altair.com/hwsolvers/rad/topics/solvers/rad/mat_law42_ogden_starter_r.htm), [LAW69](https://help.altair.com/hwsolvers/rad/topics/solvers/rad/mat_law69_starter_r.htm), [LAW82](https://help.altair.com/hwsolvers/rad/topics/solvers/rad/mat_law82_starter_r.htm), [LAW94](https://help.altair.com/hwsolvers/rad/topics/solvers/rad/mat_law94_starter_r.htm), [`/VISC/PRONY`](https://help.altair.com/hwsolvers/rad/topics/solvers/rad/visc_prony_starter_r.htm) | 2026 official, `CONFIRMED_CURRENT` for public solver convention | law-specific Ogden/volumetric conventions, LAW69 curve-input/internal-fit boundary, initial shear relations, dimensional branches/rates and declared law compatibility |
 | [Mooney 1940](https://doi.org/10.1063/1.1712836), [Rivlin 1948](https://doi.org/10.1098/rsta.1948.0002), [Treloar 1943](https://pubs.rsc.org/en/content/articlepdf/1943/tf/tf9433900241) | primary papers, `FACT_PUBLIC` | historical invariant/rubber-elasticity model provenance |
 | [Ogden incompressible 1972](https://doi.org/10.1098/rspa.1972.0026), [Ogden compressible 1972](https://doi.org/10.1098/rspa.1972.0096), [Yeoh 1993](https://doi.org/10.5254/1.3538343) | primary papers, `FACT_PUBLIC` | model-form provenance and finite-strain context; solver parameter names still require solver documentation |
 | [Ogden, Saccomandi and Sgura 2004](https://link.springer.com/article/10.1007/s00466-004-0593-y) | peer-reviewed primary research, `FACT_PUBLIC` | nonlinear parameter-fit nonuniqueness and different downstream responses |
@@ -958,8 +967,9 @@ private optimizer, automatic recommendation rule, bound, weighting or threshold 
 
 ### 16.1 Evidence conflict disposition
 
-- Current code, current IR, Abaqus and LAW82 align on the $2\mu/\alpha^2$ Ogden convention; LAW42/69
-  use a different coefficient convention and require the explicit conversion in Section 6.5.
+- Current code, current IR, Abaqus and LAW82 align on the $2\mu/\alpha^2$ Ogden convention. LAW42
+  explicit input and LAW69 internally fitted pairs use the different coefficient convention in Section
+  6.5, but LAW69 accepts a curve rather than direct pair input and therefore is not a coefficient exporter.
 - #195 and Abaqus align on normalized instantaneous Prony storage. OpenRadioss dimensional/long-term
   target inputs require explicit conversion rather than a second internal convention.
 - Abaqus' residual objective and bounded Drucker scan are solver facts, not recommended production
@@ -971,18 +981,21 @@ private optimizer, automatic recommendation rule, bound, weighting or threshold 
 
 ## 17. Independent review record
 
-This section is completed after a read-only reviewer audits the full packet and exact evidence. The final
-publication gate requires the reviewed commit SHA to equal the PR head SHA.
+The independent read-only reviewer first audited commit
+`f7d47877f726086ecf6e46d878b854fd8f84f8a4` and returned `changes_requested`. The table records every
+finding and its packet disposition. Because recording a verdict changes the document SHA, the final
+publication gate is a same-reviewer read-back of the corrected exact PR head; that exact-head verdict is
+kept in PR delivery evidence, and no content edit may follow it without another review.
 
 | Review item | Finding | Disposition |
 |---|---|---|
-| Current implementation versus new scope | Pending independent review. | Pending. |
-| Mode, quantity, stress/strain and sign equations | Pending independent review. | Pending. |
-| Family and Ogden solver conventions | Pending independent review. | Pending. |
-| Incompressibility and volumetric response | Pending independent review. | Pending. |
-| Fitting, weighting, holdout, identifiability and recovery | Pending independent review. | Pending. |
-| Stability taxonomy and domain claims | Pending independent review. | Pending. |
-| #195 Prony reuse and finite-strain boundary | Pending independent review. | Pending. |
-| Recommendation, Selection and immutable evidence | Pending independent review. | Pending. |
-| Independent reference matrix and solver oracle | Pending independent review. | Pending. |
-| Dependencies, exclusions and direct-source support | Pending independent review. | Pending. |
+| Current implementation versus new scope | Pass: the `narrow` recommendation and gap matrix do not re-plan the bounded reference path. | No change required. |
+| Mode, quantity, stress/strain and sign equations | Pass: equations and normalization boundaries are internally consistent. | No change required. |
+| Family and Ogden solver conventions | Major: LAW69 shares the fitted-pair equation convention but does not accept direct coefficients; the first draft could be read as qualifying coefficient export. | Sections 6.5, 9.5, H04, H22 and the source/conflict record now forbid direct LAW69 coefficient export. A separately evidenced curve/Starter-refit path is `approximated`, not `exact`/`transformed`. |
+| Incompressibility and volumetric response | Pass: constraint pressure and compressibility evidence remain distinct. | No change required. |
+| Fitting, weighting, holdout, identifiability and recovery | Pass: the production policy remains `OPEN_DECISION` and fixture rules are reconstructable. | No change required. |
+| Stability taxonomy and domain claims | Reviewer pass; Main's post-review dense scan found that H13's first fitted endpoint, $\lambda=1.5$, extended beyond the response maximum. | H12/H13 now bound the fit at $\lambda=1.4$, record $P(1.4)=0.6212573988$ MPa, $dP/d\lambda=0.0141520652$ MPa there and the first derivative root near $1.401837$, and keep $P(2)=-0.63$ MPa as extrapolation failure. |
+| #195 Prony reuse and finite-strain boundary | Pass: shared normalized Prony evidence is referenced rather than forked, while finite-strain coupling/base conversion is elastomer-specific. | No change required. |
+| Recommendation, Selection and immutable evidence | Pass: machine recommendation, engineer Selection and immutable exact-revision evidence are separate states. | No change required. |
+| Independent reference matrix and solver oracle | Blocker: the first draft left the review record pending. The numerical oracles themselves had no reported equation error; LAW69 needed the boundary above. | This completed finding/disposition record replaces placeholders; final merge still requires same-reviewer approval of the corrected exact PR head. |
+| Dependencies, exclusions and direct-source support | Pass: dependencies and exclusions are bounded, production TBDs are not approved, and direct public sources support the claims. | LAW69's official source is now explicit in the source register. |
