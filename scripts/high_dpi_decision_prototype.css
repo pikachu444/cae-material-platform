@@ -1,0 +1,143 @@
+/*
+ * Issue #221 evidence-only display policy prototype.
+ *
+ * This file is never imported by the product bundle.  The deterministic
+ * Playwright decision harness injects it into the live canonical Compose UI
+ * and activates it with data attributes.  Candidate rules are semantic: the
+ * harness maps existing regions to navigator/primary/form roles, while this
+ * stylesheet contains no route, viewport-width, DPR, or hardware-query selectors.
+ */
+
+html[data-cmp-prototype="p1"] [data-cmp-prototype-workspace="three-pane"],
+html[data-cmp-prototype="p2"] [data-cmp-prototype-workspace="three-pane"] {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+  grid-template-columns:
+    minmax(0, var(--ux-navigator-default-inline-size))
+    minmax(18rem, 1fr)
+    minmax(0, var(--ux-readable-form-max-inline-size));
+}
+
+html[data-cmp-prototype="p1"] [data-cmp-prototype-span="workspace"],
+html[data-cmp-prototype="p2"] [data-cmp-prototype-span="workspace"] {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+}
+
+/*
+ * A context pane that cannot satisfy the shared pane minima after an explicit
+ * user expansion is presented as a bounded overlay. The capture harness sets
+ * the semantic pane-mode attribute only after measuring an allocation of zero;
+ * no viewport, route, DPR, or hardware signal selects this behavior.
+ */
+html[data-cmp-prototype="p1"] [data-cmp-prototype-workspace="resizable-panes"],
+html[data-cmp-prototype="p2"] [data-cmp-prototype-workspace="resizable-panes"] {
+  position: relative;
+}
+
+html[data-cmp-prototype="p1"] [data-cmp-prototype-pane="context"][data-cmp-prototype-pane-mode="overlay"],
+html[data-cmp-prototype="p2"] [data-cmp-prototype-pane="context"][data-cmp-prototype-pane-mode="overlay"] {
+  position: absolute !important;
+  z-index: 4;
+  inset-block: 0;
+  inset-inline-end: 0;
+  width: min(
+    var(--ux-context-default-inline-size),
+    calc(100% - var(--ux-space-4) - var(--ux-space-4))
+  ) !important;
+  max-width: calc(100% - var(--ux-space-4) - var(--ux-space-4)) !important;
+  height: 100% !important;
+  flex: none !important;
+  overflow: hidden !important;
+  border-inline-start: 1px solid var(--ux-border-strong);
+  background: var(--ux-surface);
+}
+
+html[data-cmp-prototype="p1"],
+html[data-cmp-prototype="p2"] {
+  --ux-native-preview-min-block-size: 240px;
+}
+
+html[data-cmp-prototype="p1"] [data-cmp-region="preview"],
+html[data-cmp-prototype="p2"] [data-cmp-region="preview"] {
+  min-block-size: var(--ux-native-preview-min-block-size);
+}
+
+/* Compact deliberately inherits the exact current-main values. */
+html[data-cmp-prototype="p2"][data-cmp-density="standard"] {
+  --ux-space-1: 5px;
+  --ux-space-2: 10px;
+  --ux-space-3: 14px;
+  --ux-space-4: 18px;
+  --ux-data-font-size: 14px;
+  --ux-emphasis-font-size: 15px;
+  --ux-metadata-font-size: 13px;
+  --ux-table-heading-font-size: 12px;
+  --ux-control-min-block-size: 38px;
+  --ux-interactive-min-block-size: 34px;
+  --ux-input-min-block-size: 40px;
+  --ux-work-row-min-block-size: 48px;
+  --ux-navigator-row-block-size: 30px;
+  --ux-pane-padding: 14px;
+  --ux-cell-padding-block: 9px;
+  --ux-cell-padding-inline: 8px;
+  --ux-table-cell-padding-block: 12px;
+  --ux-table-cell-padding-inline: 14px;
+  --ux-navigator-min-inline-size: 216px;
+  --ux-navigator-default-inline-size: 288px;
+  --ux-navigator-max-inline-size: 384px;
+  --ux-context-min-inline-size: 280px;
+  --ux-context-default-inline-size: 304px;
+  --ux-context-max-inline-size: 512px;
+  --ux-readable-form-max-inline-size: 800px;
+  --ux-splitter-inline-size: 6px;
+  --ux-workbench-splitter-size: 9px;
+  --ux-scrollbar-track-size: 14px;
+  --ux-scrollbar-thumb-min-size: 40px;
+  --ux-plot-min-block-size: 400px;
+  --ux-native-preview-min-block-size: 320px;
+  --ux-application-bar-height: 50px;
+  --ux-command-bar-height: 42px;
+  --ux-status-bar-height: 26px;
+}
+
+html[data-cmp-prototype="p2"][data-cmp-density="large"] {
+  --ux-space-1: 6px;
+  --ux-space-2: 12px;
+  --ux-space-3: 16px;
+  --ux-space-4: 20px;
+  --ux-data-font-size: 16px;
+  --ux-emphasis-font-size: 17px;
+  --ux-metadata-font-size: 14px;
+  --ux-table-heading-font-size: 13px;
+  --ux-control-min-block-size: 40px;
+  --ux-interactive-min-block-size: 38px;
+  --ux-input-min-block-size: 44px;
+  --ux-work-row-min-block-size: 52px;
+  --ux-navigator-row-block-size: 34px;
+  --ux-pane-padding: 16px;
+  --ux-cell-padding-block: 10px;
+  --ux-cell-padding-inline: 9px;
+  --ux-table-cell-padding-block: 14px;
+  --ux-table-cell-padding-inline: 16px;
+  --ux-navigator-min-inline-size: 232px;
+  --ux-navigator-default-inline-size: 312px;
+  --ux-navigator-max-inline-size: 416px;
+  --ux-context-min-inline-size: 300px;
+  --ux-context-default-inline-size: 328px;
+  --ux-context-max-inline-size: 544px;
+  --ux-readable-form-max-inline-size: 840px;
+  --ux-splitter-inline-size: 7px;
+  --ux-workbench-splitter-size: 10px;
+  --ux-scrollbar-track-size: 15px;
+  --ux-scrollbar-thumb-min-size: 44px;
+  --ux-plot-min-block-size: 440px;
+  --ux-native-preview-min-block-size: 360px;
+  --ux-application-bar-height: 54px;
+  --ux-command-bar-height: 46px;
+  --ux-status-bar-height: 28px;
+}

@@ -98,6 +98,13 @@ pass; #184 applies it to all routes and high-risk states. The exception blocks #
 merges. After #184, only unavailable actual-device physical readability may remain explicitly deferred
 to #223; known geometry, clipping, overflow or interaction failures remain merge blockers.
 
+The [#221 decision packet](../17-evidence/issue-221-high-dpi-decision.md) records the baseline-first
+five-viewport comparison, browser-zoom audit and Codex recommendation of P2 with a Standard default.
+That recommendation is `PENDING_PRODUCT_OWNER`: it does not change this matrix into an approved density
+contract, does not authorize exposing a product setting, and does not start #184. Candidate 3 is rejected
+because measured browser zoom alone changes CSS viewport and `devicePixelRatio`, so those signals cannot
+reliably identify physical display scale.
+
 ## Criteria
 
 | ID | Criterion | Hard gate | Verification |

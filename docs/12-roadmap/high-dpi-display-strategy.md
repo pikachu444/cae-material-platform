@@ -1,16 +1,17 @@
 # 4K·고DPI 화면 대응 전략과 결정 기록
 
-- 상태: **#221 구현용 잠정 결정 입력, 실제 장비 최종 판정은 #223**
-- 기준선: `main@fa94f41448207dad148eae6cce78607c81834ea4`
+- 상태: **#221 비교 완료 — Codex는 P2/Standard를 권고, 제품 소유자 결정 대기; 실제 장비 최종 판정은 #223**
+- 기준선: `main@ca7c97869522e3fe5d889fdc5f834bd963f85340`
 - 상위 추적: [#117](https://github.com/pikachu444/cae-material-platform/issues/117)
 - 결정 게이트: [#221](https://github.com/pikachu444/cae-material-platform/issues/221)
 - 전체 적용: [#184](https://github.com/pikachu444/cae-material-platform/issues/184)
 - 실제 장비 최종 검증: [#223](https://github.com/pikachu444/cae-material-platform/issues/223)
 
-이 문서는 4K 전용 CSS 값을 미리 확정하지 않는다. 외부 제품과 웹 플랫폼의 공개 근거, 현재
-코드의 제약, 비교할 후보와 측정 방법을 고정한다. #221은 다섯 CSS viewport의 원본 화면과 측정값으로
-논리적 레이아웃과 구현용 잠정 density 정책을 결정하고, #184는 이를 전체 route에 적용한다. 실제
-Windows 4K 100%·150%·200%의 물리적 가독성은 전체 기능이 끝난 뒤 #223에서 최종 판정한다.
+이 문서는 4K 전용 CSS 값을 확정하지 않는다. 외부 제품과 웹 플랫폼의 공개 근거, 현재 코드의 제약,
+비교할 후보와 측정 방법을 고정하고 [#221 decision packet](../17-evidence/issue-221-high-dpi-decision.md)의
+실측 결과를 연결한다. Codex는 P2와 `Standard` 기본을 권고하지만 제품 소유자가 후보 화면을 확인하기
+전에는 정책이 아니다. 승인 뒤 #184가 모든 route/state에 적용한다. 실제 Windows 4K
+100%·150%·200%의 물리적 가독성은 전체 기능이 끝난 뒤 #223에서 최종 판정한다.
 
 ## 1. 해결할 두 문제
 
@@ -82,13 +83,15 @@ layout·pane·density·table·plot 정책을 고르고, #184는 승인된 값을
 
 | 후보 | 구성 | 장점 | 위험 | 현재 입장 |
 | --- | --- | --- | --- | --- |
-| P1 | OS/browser scale + 의미 기반 full-shell layout | 단순하고 플랫폼 동작을 그대로 사용 | 4K 100%에서 개인별 가독성 차이를 앱에서 보완하기 어려움 | 비교 필요 |
-| P2 | P1 + 공통 `Compact / Standard / Large` density | 사용자가 정보량과 가독성을 직접 조절, route 간 일관성 | token과 persistence 계약이 필요 | **우선 검토**, 아직 미승인 |
-| P3 | viewport/DPR/resolution에 따른 자동 density | 사용자의 초기 조작이 적음 | browser zoom·PPI·OS scale을 오판하고 route 예외가 늘 수 있음 | 기각 근거 확인용 |
+| P1 | OS/browser scale + 의미 기반 full-shell layout | 단순하고 플랫폼 동작을 그대로 사용 | 4K 100%에서 개인별 가독성 차이를 앱에서 보완하기 어려움 | layout 기반으로 유효, 단독 채택은 비권고 |
+| P2 | P1 + 공통 `Compact / Standard / Large` density | 사용자가 정보량과 가독성을 직접 조절, route 간 일관성 | token과 persistence 계약이 필요 | **Codex 권고: Standard 기본, 아직 미승인** |
+| P3 | viewport/DPR/resolution에 따른 자동 density | 사용자의 초기 조작이 적음 | browser zoom·PPI·OS scale을 오판하고 route 예외가 늘 수 있음 | **기각 — 제품 prototype 없음** |
 
-P2를 먼저 비교하되 #221에서는 다섯 viewport 원본과 100% crop을 근거로 구현용 잠정 후보만
-선택한다. 실제 Windows 측정 전에는 물리적 가독성이나 최종 기본 tier를 승인했다고 주장하지
-않는다. 자동 추천 문구를 제공할 수는 있지만 사용자 선택을 조용히 덮어쓰지 않는다.
+동일 상태의 baseline을 먼저 측정한 뒤 P1, P2 Compact/Standard/Large를 다섯 viewport와 browser
+zoom 200%에서 비교했다. P3는 100%에서 DPR 1이던 같은 browser가 zoom 200%에서 DPR 2를 내보내
+OS/device scale과 구분할 수 없었으므로 자동 적용 code 없이 기각했다. 실제 Windows 측정 전에는
+물리적 가독성이나 최종 기본 tier를 승인했다고 주장하지 않는다. 자동 추천 문구를 제공할 수는 있지만
+사용자 선택을 조용히 덮어쓰지 않는다.
 
 ## 5. 의미 기반 레이아웃 계약
 
@@ -97,6 +100,9 @@ P2를 먼저 비교하되 #221에서는 다섯 viewport 원본과 100% crop을 �
 - application shell은 viewport 전체를 사용한다.
 - navigator와 inspector는 공통 `min / ideal / max` 범위, keyboard-accessible splitter, collapse와
   reset을 갖는다.
+- 사용자가 context를 펼쳤지만 shared pane minima 때문에 실제 배정 폭이 0이면 actual allocation을
+  관찰해 bounded overlay 또는 동등한 공통 disclosure로 전환한다. viewport, DPR, resolution이나 route
+  이름으로 이 상태를 추정하지 않는다.
 - 중앙 table, plot와 native preview가 남은 공간을 우선 사용한다.
 - bounded 영역이 유용한 최대 크기에 도달하면 관련 companion evidence를 배치하거나 균형 잡힌
   gutter를 유지한다. 전체 작업을 왼쪽 1920px 섬으로 남기지 않는다.
@@ -131,11 +137,11 @@ P2를 먼저 비교하되 #221에서는 다섯 viewport 원본과 100% crop을 �
 아래 값은 #221 비교 시작점이다. #221에서 다섯 viewport용 구현 값으로 잠정 승인할 수 있지만,
 실제 4K 물리 가독성에 대한 최종 제품 계약은 #223 판정 전까지 아니다.
 
-| 후보 tier | Body | Metadata | Control | Data row | 예상 용도 |
+| 후보 tier | Data / emphasis | Metadata / table heading | Control / input min | Work / navigator row | 예상 용도 |
 | --- | ---: | ---: | ---: | ---: | --- |
-| Compact | 약 13px | 11.5~12px | 약 28px | 26~28px | 1366/1440 및 높은 OS 배율의 dense 작업 |
-| Standard | 약 14px | 12.5~13px | 약 32px | 30~32px | 기본 후보 |
-| Large | 약 15~16px | 13.5~14px | 36~40px | 34~36px | 4K 100% 가독성 비교 |
+| Compact | 13 / 14px | 12 / 11px | 36 / 38px | 46 / 26px | 1366/1440 및 높은 OS 배율의 dense 작업 |
+| Standard | 14 / 15px | 13 / 12px | 38 / 40px | 48 / 30px | **Codex 기본 권고, 제품 소유자 승인 대기** |
+| Large | 16 / 17px | 14 / 13px | 40 / 44px | 52 / 34px | 명시적 사용자 선택 상한과 실제 4K 비교 |
 
 각 tier는 typography만 바꾸지 않고 control, row, spacing, pane, splitter와 plot label token을 함께
 조절한다. 전체 화면을 동일 비율로 확대하지 않는다. 기본 tier, 사용자 변경, reset과 persistence는
@@ -162,15 +168,18 @@ P2를 먼저 비교하되 #221에서는 다섯 viewport 원본과 100% crop을 �
 
 | Route/state | 1366×768 | 1440×900 | 1920×1080 | 2560×1440 | 3840×2160 |
 | --- | --- | --- | --- | --- | --- |
-| Materials | | | | | |
-| Modeling Data | | | | | |
-| Modeling Fit | | | | | |
-| Modeling Export | | | | | |
-| Activity | | | | | |
-| Administration | | | | | |
+| Materials | 2 surfaces × 5 variants pass | pass | pass | pass | pass |
+| Modeling Data | 5 variants pass | pass | pass | pass | pass |
+| Modeling Fit | 5 variants pass | pass | pass | pass | pass |
+| Modeling Export | 5 variants pass | pass | pass | pass | pass |
+| Activity | 4 states × 5 variants pass | pass | pass | pass | pass |
+| Administration | 2 surfaces × 5 variants pass | pass | pass | pass | pass |
 
-각 칸은 full-screen 원본, 100% header/navigator/table-or-form/plot-or-preview crop, CSS viewport,
-workspace/pane/plot 측정과 Q-01~Q-20 disposition을 가리킨다.
+각 칸의 full-screen 원본, 100% header/navigator/table-or-form/plot-or-preview crop, CSS viewport,
+workspace/pane/plot 측정과 Q-01~Q-20 disposition은
+[#221 decision packet](../17-evidence/issue-221-high-dpi-decision.md)과 그 structured measurement manifest를
+가리킨다. `pass`는 대표 geometry 비교가 완료됐다는 뜻이며 제품 소유자 정책 승인이나 #184의
+product-wide Q-20 완료가 아니다.
 
 ### 8.2 실제 Windows 표 — #223 최종 증거
 
@@ -215,14 +224,14 @@ scroll을 확인한다. 이 검사는 Windows 4K 100/150/200% 원본 검토를 �
 
 | 항목 | 상태 |
 | --- | --- |
-| 구현용 잠정 선택 후보 | 미결정 — #221 제품 소유자 승인 필요 |
-| Compact/Standard/Large 잠정 token | 미결정 |
-| 잠정 기본 tier와 사용자 변경/reset | 미결정 |
-| pane/column preference 저장 범위 | 미결정 |
-| 기각 후보와 근거 | 미결정 |
-| 전체 route 이식 목록 | #221 승인 뒤 #184로 전달 |
+| 구현용 잠정 선택 후보 | **Codex 권고 P2 — 제품 소유자 승인 필요, 아직 결정 아님** |
+| Compact/Standard/Large 잠정 token | packet의 실측 13/14/16px data font, 26/30/34px navigator row와 연동 control/pane/plot 범위 |
+| 잠정 기본 tier와 사용자 변경/reset | `Standard` 기본, 세 tier만 사용자 변경, reset은 `Standard` — 승인 대기 |
+| pane/column preference 저장 범위 | 기존 경계와 같은 browser-local product preference 제안; route URL/backend/cross-device sync 제외 — 승인 대기 |
+| 기각 후보와 근거 | P3 기각: browser zoom 200%만으로 DPR 1→2, CSS viewport 1920→960이 되어 OS/device scale과 구분 불가 |
+| 전체 route 이식 목록 | [decision packet의 #184 목록](../17-evidence/issue-221-high-dpi-decision.md#184-transplant-list-after-owner-approval); 승인 전 시작 금지 |
 | 실제 Windows 4K 물리 판정 | `DEFERRED_TO_223` |
 
-#221 PR은 잠정 선택·값과 직접 evidence 경로로 이 표를 교체한다. 대화 기억, 축소 이미지 또는 자동
-수치만으로 물리 가독성을 완료 표시하지 않는다. #223은 실제 장비 증거와 최종 승인 또는 후속 공통
-보정 bug를 기록한다.
+#221 packet은 Codex 권고·잠정 값과 직접 evidence 경로를 기록했다. 이 표는 제품 소유자 disposition
+전까지 미승인 상태다. 대화 기억, 축소 이미지 또는 자동 수치만으로 물리 가독성을 완료 표시하지
+않는다. #223은 실제 장비 증거와 최종 승인 또는 후속 공통 보정 bug를 기록한다.

@@ -29,7 +29,9 @@ _REPOSITORY_LITERAL = re.compile(
     r"[^`\s]+\.(?:css|json|md|mjs|png|jpg|jpeg|py|tsx|yaml|yml))`",
     re.IGNORECASE,
 )
-_STRUCTURED_IMAGE_MANIFESTS: tuple[str, ...] = ()
+_STRUCTURED_IMAGE_MANIFESTS: tuple[str, ...] = (
+    "docs/17-evidence/images/issue-221-high-dpi-decision/measurements.json",
+)
 _STRUCTURED_IMAGE_MANIFEST_GLOBS: tuple[str, ...] = ()
 _STRUCTURED_IMAGE_YAML_MANIFESTS: tuple[str, ...] = (
     "docs/17-evidence/images/issue-161-shared-ui-foundation/visual-evidence.yaml",
@@ -817,6 +819,14 @@ def verify_user_guide(root: Path) -> UserGuideReport:
     allowed_duplicate_groups = _duplicate_allowances(
         project, duplicate_manifest
     ) | _duplicate_allowances(project, manifest)
+    for relative in _STRUCTURED_IMAGE_MANIFESTS:
+        structured_manifest = _mapping(
+            json.loads((project / relative).read_text(encoding="utf-8")),
+            f"structured image manifest {relative}",
+        )
+        allowed_duplicate_groups |= _duplicate_allowances(
+            project, structured_manifest
+        )
     image_count, orphan_image_count, duplicate_image_group_count = _verify_image_inventory(
         project, referenced_images, allowed_duplicate_groups
     )
