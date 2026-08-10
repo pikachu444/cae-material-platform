@@ -276,13 +276,18 @@ describe("ConfigurableCatalogRecords", () => {
 
     await screen.findByRole("heading", { name: "Create Record" });
     await user.click(screen.getByRole("button", { name: "Multiple rows" }));
+    const readColumns = screen.getByRole("button", { name: "Read columns" });
+    const registerRows = screen.getByRole("button", { name: "Register checked rows" });
+    expect(readColumns.className).toBe("ux-button");
+    expect(registerRows.className).toBe("ux-button primary");
+    expect((registerRows as HTMLButtonElement).disabled).toBe(true);
     await user.upload(
       screen.getByLabelText("Source file"),
       new File(["Record name;Record code\nSteel B;B"], "records.csv", {
         type: "text/csv",
       }),
     );
-    await user.click(screen.getByRole("button", { name: "Read columns" }));
+    await user.click(readColumns);
     expect(await screen.findByText("Rows to correct")).toBeTruthy();
     await user.selectOptions(
       screen.getByLabelText("Elastic modulus field"),
@@ -297,6 +302,7 @@ describe("ConfigurableCatalogRecords", () => {
     );
     await user.click(screen.getByRole("button", { name: "Check rows" }));
     expect(await screen.findByText("All rows are valid.")).toBeTruthy();
+    expect((registerRows as HTMLButtonElement).disabled).toBe(false);
     expect(mocks.previewRegistration).toHaveBeenLastCalledWith(
       expect.anything(),
       expect.objectContaining({
@@ -308,9 +314,7 @@ describe("ConfigurableCatalogRecords", () => {
         }),
       }),
     );
-    await user.click(
-      screen.getByRole("button", { name: "Register checked rows" }),
-    );
+    await user.click(registerRows);
     await waitFor(() =>
       expect(mocks.publishRegistration).toHaveBeenCalledOnce(),
     );

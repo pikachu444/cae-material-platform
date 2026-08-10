@@ -80,8 +80,10 @@ MODELING_DATA_SESSION_OUTPUTS = (
     "modeling-data-invalid-1440x900.png",
 )
 PRODUCT_ACCESS_OUTPUTS = (
-    "administration-access-1366x768.png",
-    "administration-access-1440x900.png",
+    *(
+        f"administration-access-{width}x{height}.png"
+        for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)
+    ),
 )
 ADMINISTRATION_DATABASE_OUTPUTS = tuple(
     f"administration-database-{width}x{height}.png"
@@ -192,6 +194,9 @@ CURRENT_CAPTURE_OUTPUTS = (
     "administration-records-3840x2160.png",
     "administration-access-1366x768.png",
     "administration-access-1440x900.png",
+    "administration-access-1920x1080.png",
+    "administration-access-2560x1440.png",
+    "administration-access-3840x2160.png",
 )
 STAGE_HEADINGS = {
     "data": "Select Test Data",
@@ -7272,10 +7277,8 @@ def _capture_administration_records(browser: Browser, base_url: str, output: Pat
         page.context.close()
 
 
-def _capture_supporting_screens(browser: Browser, base_url: str, output: Path) -> None:
-    _capture_administration_database(browser, base_url, output)
-    _capture_administration_records(browser, base_url, output)
-    for width, height in ((1366, 768), (1440, 900)):
+def _capture_product_access(browser: Browser, base_url: str, output: Path) -> None:
+    for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS):
         page = _new_page(browser, base_url, width, height)
         page.goto(f"{base_url}/administration/access")
         page.get_by_role("heading", name="Choose what each team can do", exact=True).wait_for(
@@ -7295,6 +7298,12 @@ def _capture_supporting_screens(browser: Browser, base_url: str, output: Path) -
             focus_selector="#role-task-summary",
         )
         page.context.close()
+
+
+def _capture_supporting_screens(browser: Browser, base_url: str, output: Path) -> None:
+    _capture_administration_database(browser, base_url, output)
+    _capture_administration_records(browser, base_url, output)
+    _capture_product_access(browser, base_url, output)
 
 
 def _validate_capture_outputs(output: Path) -> int:
@@ -7370,7 +7379,7 @@ def main() -> int:
     parser.add_argument(
         "--only-product-access",
         action="store_true",
-        help="Capture and replace only the two Product Access role-preset viewports.",
+        help="Capture and replace only the five Product Access role-preset viewports.",
     )
     parser.add_argument(
         "--only-administration-database",
@@ -7552,7 +7561,7 @@ def main() -> int:
                     elif args.only_review_submission:
                         _capture_solver_delivery(browser, args.base_url, staged)
                     elif args.only_product_access:
-                        _capture_supporting_screens(browser, args.base_url, staged)
+                        _capture_product_access(browser, args.base_url, staged)
                     elif args.only_administration_records:
                         _capture_administration_records(browser, args.base_url, staged)
                     else:
@@ -7560,8 +7569,6 @@ def main() -> int:
                 finally:
                     browser.close()
             actual_outputs = {path.name for path in staged.iterdir() if path.is_file()}
-            if args.only_product_access:
-                actual_outputs = {name for name in actual_outputs if name in names}
             if actual_outputs != set(names):
                 raise RuntimeError(
                     f"targeted capture output drift: actual={sorted(actual_outputs)}"

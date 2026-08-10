@@ -35,6 +35,10 @@
 3. 역할 설명에서 포함되는 작업을 확인합니다. 일반 화면에서는 개별 기술 권한을 조합하지 않습니다.
 4. **Create assignment**를 누릅니다. 새 역할에서 허용된 작업만 사용할 수 있습니다.
 
+**Create assignment**는 파란색 주요 동작이며 저장 중에는 **Saving…**으로 바뀌어 중복 실행을
+막습니다. 기존 assignment의 **Revoke**는 삭제·회수 의미를 분명히 하도록 빨간색 위험 동작으로
+표시됩니다. 녹색 상태 표시는 일반 실행 버튼과 구분됩니다.
+
 권한이 없는 동작은 화면에서 실행할 수 없으며, 필요한 경우 검토 요청 또는 관리자 문의 방법을
 안내합니다. 기존 작업 문맥은 유지됩니다.
 
@@ -58,3 +62,8 @@ assignment form이 여러 열로 배치됩니다.
 ![1366px에서 Reviewer 역할의 포함 작업을 보여주는 Products Access 화면](images/current/administration-access-1366x768.png)
 
 ![1440px에서 기술 권한 체크박스 없이 Reviewer 역할을 선택하는 Products Access 화면](images/current/administration-access-1440x900.png)
+
+넓은 화면의 assignment 생성과 권한 회수 동작은
+[1920×1080](images/current/administration-access-1920x1080.png),
+[2560×1440](images/current/administration-access-2560x1440.png),
+[3840×2160](images/current/administration-access-3840x2160.png)에서도 확인할 수 있습니다.

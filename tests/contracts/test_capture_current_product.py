@@ -19,6 +19,7 @@ _CAPTURE_SOURCE = (_PROJECT_ROOT / "scripts/capture_current_product.py").read_te
 )
 _SCRIPT = runpy.run_path(str(_PROJECT_ROOT / "scripts/capture_current_product.py"))
 CURRENT_CAPTURE_OUTPUTS = cast(tuple[str, ...], _SCRIPT["CURRENT_CAPTURE_OUTPUTS"])
+PRODUCT_ACCESS_OUTPUTS = cast(tuple[str, ...], _SCRIPT["PRODUCT_ACCESS_OUTPUTS"])
 ACTIVITY_OUTPUTS = cast(tuple[str, ...], _SCRIPT["ACTIVITY_OUTPUTS"])
 MODELING_EXPORT_OUTPUTS = cast(tuple[str, ...], _SCRIPT["MODELING_EXPORT_OUTPUTS"])
 MODELING_DATA_SESSION_OUTPUTS = cast(
@@ -433,7 +434,15 @@ def test_incomplete_capture_cannot_reuse_files_from_previous_output(
 
 
 def test_current_capture_contract_contains_product_routes_only() -> None:
-    assert len(CURRENT_CAPTURE_OUTPUTS) == 84
+    assert len(CURRENT_CAPTURE_OUTPUTS) == 87
+    assert PRODUCT_ACCESS_OUTPUTS == (
+        "administration-access-1366x768.png",
+        "administration-access-1440x900.png",
+        "administration-access-1920x1080.png",
+        "administration-access-2560x1440.png",
+        "administration-access-3840x2160.png",
+    )
+    assert all(name in CURRENT_CAPTURE_OUTPUTS for name in PRODUCT_ACCESS_OUTPUTS)
     assert all(name in CURRENT_CAPTURE_OUTPUTS for name in MODELING_DATA_SESSION_OUTPUTS)
     assert all(name in CURRENT_CAPTURE_OUTPUTS for name in MODELING_PROCESS_OUTPUTS)
     assert {

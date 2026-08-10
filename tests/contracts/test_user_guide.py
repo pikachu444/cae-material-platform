@@ -98,14 +98,14 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     report = verify_user_guide(root)
 
     assert report.document_count >= 10
-    assert report.capture_count == 84
+    assert report.capture_count == 87
     assert report.navigation_count == 3
     assert report.classified_markdown_count >= 100
     assert report.current_document_count >= 40
     assert report.local_link_count >= 150
     assert report.image_count >= 120
     assert report.orphan_image_count == 0
-    assert report.duplicate_image_group_count == 10
+    assert report.duplicate_image_group_count == 11
 
 
 def test_incoming_integration_package_is_reference_not_authoritative() -> None:
@@ -173,10 +173,10 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     }
 
     current_source = (
-        "e095ef5d1f4d26af65ad38ebbbef922f129626cf + "
-        "pull-request-226-working-tree"
+        "c2283fb0912df93dc4201f216a68aaedea75460b + "
+        "issue-161-administration-button-semantics-working-tree"
     )
-    assert manifest["scope"] == "issue-161-shared-ui-foundation"
+    assert manifest["scope"] == "issue-161-administration-button-semantics-follow-up"
     assert manifest["source_commit"] == current_source
     assert len(provenance_ids) == len(set(provenance_ids))
     assert set(provenance_ids) == set(captures)
@@ -184,7 +184,12 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         current_source
     }
     assert len(previous_provenance_ids) == len(set(previous_provenance_ids))
-    assert set(previous_provenance_ids) == set(captures)
+    new_access_viewports = {
+        "administration-access-1920",
+        "administration-access-2560",
+        "administration-access-3840",
+    }
+    assert set(previous_provenance_ids) == set(captures) - new_access_viewports
     assert {
         prior_source,
         correction_source,
@@ -196,9 +201,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "working-tree-issue-160",
         "working-tree-issue-160-task-2",
     } == {provenance["source_commit"] for provenance in previous_provenance}
-    assert "atomically replaced the complete 84-image set" in manifest[
-        "capture_provenance"
-    ][0]["command"]
+    assert "complete 87-image current set" in manifest["capture_provenance"][0]["command"]
     process_provenance = [
         provenance
         for provenance in previous_provenance
@@ -328,10 +331,10 @@ def test_current_images_are_product_routes_and_storybook_captures_are_untracked(
         (root / "docs/user-guide/screenshot-manifest.yaml").read_text(encoding="utf-8")
     )
     current_images = root / "docs/user-guide/images/current"
-    assert len(manifest["captures"]) == 84
+    assert len(manifest["captures"]) == 87
     assert all(not capture["route"].startswith("/iframe.html") for capture in manifest["captures"])
     assert not list(current_images.glob("storybook-*.png"))
-    assert len(list(current_images.glob("*.png"))) == 84
+    assert len(list(current_images.glob("*.png"))) == 87
     assert not list((root / "docs/17-evidence/images").glob("**/storybook-*.png"))
 
 

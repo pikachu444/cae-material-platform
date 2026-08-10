@@ -282,10 +282,17 @@ describe("ConfigurableCatalogAdmin", () => {
 
     await screen.findByRole("heading", { name: "Database design" });
     await user.click(screen.getByRole("button", { name: "Tables" }));
+    const check = screen.getByRole("button", { name: "Check" });
+    const save = screen.getByRole("button", { name: "Save draft" });
+    const publish = screen.getByRole("button", { name: "Publish" });
+    expect(check.className).toBe("ux-button");
+    expect(save.className).toBe("ux-button");
+    expect(publish.className).toBe("ux-button primary");
+    expect(publish.closest("footer")?.querySelectorAll(".ux-button.primary")).toHaveLength(1);
     const name = screen.getByRole("textbox", { name: "Display name" });
     await user.clear(name);
     await user.type(name, "Engineering materials");
-    await user.click(screen.getByRole("button", { name: "Save draft" }));
+    await user.click(save);
     await waitFor(() => expect(mocks.reviseTable).toHaveBeenCalledOnce());
     expect(mocks.reviseTable).toHaveBeenCalledWith(
       expect.anything(),
@@ -296,11 +303,11 @@ describe("ConfigurableCatalogAdmin", () => {
       }),
     );
 
-    await user.click(screen.getByRole("button", { name: "Check" }));
+    await user.click(check);
     await waitFor(() =>
       expect(mocks.validatePublication).toHaveBeenCalledOnce(),
     );
-    await user.click(screen.getByRole("button", { name: "Publish" }));
+    await user.click(publish);
     await waitFor(() => expect(mocks.publishRevision).toHaveBeenCalledOnce());
     expect(mocks.publishRevision).toHaveBeenCalledWith(expect.anything(), {
       aggregate_type: "catalog.configurable_table",

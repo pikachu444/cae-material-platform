@@ -1,0 +1,156 @@
+import { mkdir } from "node:fs/promises";
+import { join } from "node:path";
+
+import { expect, test, type Locator, type Page } from "@playwright/test";
+
+const webUrl = process.env.CMP_DEMO_WEB_URL ?? "http://127.0.0.1:5173";
+const evidenceDirectory = process.env.CMP_ADMIN_BUTTON_EVIDENCE_DIR;
+
+async function captureState(page: Page, name: string): Promise<void> {
+  if (!evidenceDirectory) {
+    return;
+  }
+  await mkdir(evidenceDirectory, { recursive: true });
+  await page.screenshot({ path: join(evidenceDirectory, `${name}-1440x900.png`) });
+}
+
+async function installAdministrator(page: Page): Promise<void> {
+  const response = await page.request.get(
+    `${webUrl}/api/v1/demo-identity/token?persona=administrator`,
+  );
+  expect(response.ok()).toBeTruthy();
+  const token = ((await response.json()) as { access_token: string }).access_token;
+  await page.addInitScript(
+    ({ accessToken }) => {
+      window.localStorage.setItem(
+        "cmp.material-platform.api-config",
+        JSON.stringify({ baseUrl: "/api/v1", accessToken }),
+      );
+    },
+    { accessToken: token },
+  );
+}
+
+async function buttonStyle(button: Locator) {
+  return button.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return {
+      backgroundColor: style.backgroundColor,
+      borderColor: style.borderColor,
+      borderRadius: style.borderRadius,
+      boxShadow: style.boxShadow,
+      color: style.color,
+      cursor: style.cursor,
+      height: style.height,
+      opacity: style.opacity,
+      outlineStyle: style.outlineStyle,
+      outlineWidth: style.outlineWidth,
+    };
+  });
+}
+
+async function expectSharedGeometry(button: Locator): Promise<void> {
+  const style = await buttonStyle(button);
+  expect(style.height).toBe("36px");
+  expect(style.borderRadius).toBe("4px");
+  expect(style.boxShadow).toBe("none");
+}
+
+test("Administration uses one shared semantic button hierarchy across its three workspaces", async ({
+  page,
+}) => {
+  test.setTimeout(90_000);
+  await installAdministrator(page);
+
+  await page.goto("/administration/database");
+  await expect(page.getByRole("heading", { name: "Database design", exact: true })).toBeVisible();
+  await expect(page.getByText("1 shown", { exact: true })).toBeVisible();
+  await expect(page.locator(".administration-workspace .button.primary")).toHaveCount(0);
+  const addTable = page.getByRole("button", { name: "Add Table", exact: true });
+  await expect(addTable).toHaveClass("ux-button primary");
+  await expectSharedGeometry(addTable);
+  expect((await buttonStyle(addTable)).backgroundColor).toBe("rgb(36, 94, 168)");
+  await addTable.hover();
+  expect((await buttonStyle(addTable)).backgroundColor).toBe("rgb(24, 75, 139)");
+  await captureState(page, "database-primary-hover");
+
+  const editorFooter = page.locator(".schema-property-editor .property-sheet footer");
+  const check = editorFooter.getByRole("button", { name: "Check", exact: true });
+  const saveDraft = editorFooter.getByRole("button", { name: "Save draft", exact: true });
+  const publish = editorFooter.getByRole("button", { name: "Publish", exact: true });
+  await expect(check).toHaveClass("ux-button");
+  await expect(saveDraft).toHaveClass("ux-button");
+  await expect(publish).toHaveClass("ux-button primary");
+  await expect(editorFooter.locator(".ux-button.primary")).toHaveCount(1);
+  await expectSharedGeometry(check);
+  await expectSharedGeometry(saveDraft);
+  await expectSharedGeometry(publish);
+  await publish.focus();
+  expect(await publish.evaluate((element) => element.matches(":focus-visible"))).toBe(true);
+  const focusStyle = await buttonStyle(publish);
+  expect(focusStyle.outlineStyle).toBe("solid");
+  expect(focusStyle.outlineWidth).toBe("3px");
+  await captureState(page, "database-primary-focus");
+
+  await page.goto("/administration/records");
+  await expect(page.getByRole("heading", { name: "Single entry or multiple rows", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "10 records", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Multiple rows", exact: true }).click();
+  const readColumns = page.getByRole("button", { name: "Read columns", exact: true });
+  const registerRows = page.getByRole("button", { name: "Register checked rows", exact: true });
+  await expect(readColumns).toHaveClass("ux-button");
+  await expect(registerRows).toHaveClass("ux-button primary");
+  await expect(registerRows).toBeDisabled();
+  await expectSharedGeometry(readColumns);
+  await expectSharedGeometry(registerRows);
+  const disabledStyle = await buttonStyle(registerRows);
+  expect(disabledStyle.backgroundColor).toBe("rgb(36, 94, 168)");
+  expect(disabledStyle.cursor).toBe("not-allowed");
+  expect(disabledStyle.opacity).toBe("0.5");
+  await captureState(page, "records-primary-disabled");
+  await expect(page.locator(".administration-workspace .button.primary")).toHaveCount(0);
+
+  await page.goto("/administration/access");
+  await expect(page.getByRole("heading", { name: "Choose what each team can do", exact: true })).toBeVisible();
+  await page.getByRole("combobox", { name: "Role", exact: true }).selectOption("reviewer");
+  const createAssignment = page.getByRole("button", { name: "Create assignment", exact: true });
+  await createAssignment.scrollIntoViewIfNeeded();
+  await expect(createAssignment).toHaveClass("ux-button primary");
+  await expectSharedGeometry(createAssignment);
+  const revoke = page.getByRole("button", { name: "Revoke", exact: true }).first();
+  await revoke.scrollIntoViewIfNeeded();
+  await expect(revoke).toHaveClass("ux-button danger");
+  await expectSharedGeometry(revoke);
+  const dangerStyle = await buttonStyle(revoke);
+  expect(dangerStyle.backgroundColor).toBe("rgb(252, 232, 232)");
+  expect(dangerStyle.color).toBe("rgb(166, 41, 41)");
+  await revoke.hover();
+  await captureState(page, "access-danger-hover");
+
+  await page.route("**/api/v1/product-access/assignments", async (route) => {
+    if (route.request().method() !== "POST") {
+      await route.continue();
+      return;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 2_000));
+    await route.fulfill({
+      status: 503,
+      contentType: "application/json",
+      body: JSON.stringify({ detail: "Synthetic loading-state evidence" }),
+    });
+  });
+  await createAssignment.click();
+  const saving = page.getByRole("button", { name: "Saving…", exact: true });
+  await expect(saving).toBeDisabled();
+  await expect(saving).toHaveAttribute("aria-busy", "true");
+  const loadingStyle = await buttonStyle(saving);
+  expect(loadingStyle.cursor).toBe("progress");
+  expect(loadingStyle.opacity).toBe("0.72");
+  await captureState(page, "access-primary-loading");
+  await expect(page.getByRole("alert")).toContainText("Synthetic loading-state evidence");
+  await expect(page.getByRole("button", { name: "Create assignment", exact: true })).toHaveAttribute(
+    "aria-busy",
+    "false",
+  );
+  await expect(page.locator(".administration-workspace .button.primary")).toHaveCount(0);
+});

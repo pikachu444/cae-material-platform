@@ -20,6 +20,7 @@
   background: var(--ux-surface);
   color: var(--ux-text);
   font-weight: 650;
+  box-shadow: var(--ux-shadow-none);
   cursor: pointer;
 }
 
@@ -46,9 +47,26 @@
   color: var(--ux-accent);
 }
 
+.ux-button.danger {
+  border-color: color-mix(in srgb, var(--ux-danger) 55%, var(--ux-border));
+  background: var(--ux-danger-soft);
+  color: var(--ux-danger);
+}
+
+.ux-button.danger:hover:not(:disabled) {
+  border-color: var(--ux-danger);
+  background: color-mix(in srgb, var(--ux-danger) 12%, var(--ux-surface));
+  color: var(--ux-danger);
+}
+
 .ux-button:disabled {
   cursor: not-allowed;
   opacity: 0.5;
+}
+
+.ux-button[aria-busy="true"] {
+  cursor: progress;
+  opacity: 0.72;
 }
 
 .ux-input,

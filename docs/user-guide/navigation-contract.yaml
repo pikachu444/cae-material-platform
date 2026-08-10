@@ -1,4 +1,4 @@
-version: 20
+version: 21
 shell:
   product_header_px: [44, 48]
   generic_command_status_bands: absent
@@ -15,7 +15,7 @@ items:
     route: /activity
     guide: 10-navigation-and-troubleshooting.md
 administration_workspace:
-  task: Issue #159 task 2
+  task: Issue #159 task 2; Issue #161 semantic-button follow-up
   routes:
     overview: /administration
     database_design: /administration/database
@@ -25,6 +25,15 @@ administration_workspace:
     legacy_records: /catalog/records
   access: authorized-workspace-menu-only
   normal_navigation: [Materials, Modeling, Activity]
+  button_semantics:
+    primitive: ux-button
+    primary_action: ux-accent
+    secondary_and_text_actions: neutral
+    destructive_action: ux-danger
+    success: status-only
+    action_group: at-most-one-filled-primary
+    states: [hover, focus-visible, disabled, aria-busy]
+    route_and_command_behavior: unchanged
   database_design:
     topology: [object-navigator, object-list, property-editor]
     objects: [Database, Profile, Table, Attribute, Layout, Subset, Link Type]
