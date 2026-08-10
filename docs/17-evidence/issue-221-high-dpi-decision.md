@@ -2,13 +2,15 @@
 
 ## Disposition
 
-- 상태: **`PENDING_PRODUCT_OWNER`**
+- 상태: **`PRODUCT_OWNER_APPROVED_FOR_MERGE`**
 - 기준선: `main@ca7c97869522e3fe5d889fdc5f834bd963f85340`
-- 검토 경계: [draft PR #228](https://github.com/pikachu444/cae-material-platform/pull/228); ready 전환·merge·#221 완료 처리 금지
+- 승인 경계: 제품 소유자가 2026-08-10에 원본·100% crop·측정표와 독립 검수 결과를 확인하고
+  [PR #228](https://github.com/pikachu444/cae-material-platform/pull/228)의 ready 전환과 squash merge를 승인했다.
 - Codex 권고: **P2 — OS/browser 배율 존중 + 공통 `Compact / Standard / Large` density**, 잠정 기본은
   `Standard`
-- 제품 결정: 아직 없음. 이 packet과 후보 화면을 제품 소유자가 승인하기 전에는 설정을 제품 기능으로
-  노출하거나 #184에 이식하지 않는다.
+- 제품 결정: **P2를 #184의 구현용 잠정 정책으로 승인**한다. 잠정 기본은 `Standard`, 사용자 범위는
+  `Compact | Standard | Large`, reset은 `Standard`, 저장·복원은 browser-local product-wide preference다.
+  #221은 설정을 제품 기능으로 노출하지 않으며 실제 이식과 전체 route 검증은 별도 #184에서 수행한다.
 - 실제 Windows 4K 100%·150%·200% 물리 가독성: **`DEFERRED_TO_223`**
 
 #221은 제품 전체의 high-DPI 구현이 아니라 대표 화면에서 공통 정책 후보를 비교하는 결정 gate다.
@@ -358,7 +360,7 @@ preserved the existing contract under the prototype. Product-owner policy approv
 | Final full-demo verifier | environment-state failure; preserved append-only state has a selected model without exactly one pending review request; no reset or verifier relaxation performed |
 | Pre-publish | pass at the committed clean-worktree boundary; deterministic fingerprint `a0fcd83c36eedb58a8c15634d0e38f5b5d25444c474da302452b4f67f4d089c3` |
 | Independent read-only visual audit | pass on re-audit; first-pass Materials 200% direct-action change request was corrected and cleared, with no remaining actionable findings |
-| Product Owner decision | **pending** |
+| Product Owner decision | **pass**; 2026-08-10에 P2/`Standard` 잠정 정책, ready 전환과 squash merge 승인 |
 
 ## Remaining risks and publication boundary
 
@@ -375,9 +377,7 @@ preserved the existing contract under the prototype. Product-owner policy approv
 - Final full-demo clean-state verification may be blocked by immutable evidence accumulated by approved E2E runs;
   no data reset or verifier relaxation is permitted. Any such result is recorded as environment state, not hidden.
 
-The draft PR must remain draft. Do not mark #221 complete, transition ready, merge, start #184 or describe this
-recommendation as the Product Owner's final policy. The owner decision requested by this packet is:
-
-1. approve P2 as the provisional #184 policy with `Standard` default and the proposed local preference contract;
-2. request bounded token/layout changes and recapture; or
-3. choose P1 and explicitly accept the absence of an application density control.
+The Product Owner approved option 1 on 2026-08-10 and authorized PR #228 to transition from draft and squash
+merge. This is the provisional implementation policy for #184, not the final actual-device readability decision.
+Do not start #184 in this task; begin it only as a separate task from the resulting latest `main`. Physical Windows
+4K 100%·150%·200% readability remains `DEFERRED_TO_223`.
