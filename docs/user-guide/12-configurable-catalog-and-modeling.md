@@ -18,6 +18,11 @@ Database와 Profile을 먼저 만들고, 그 안에 Table, Attribute, Layout, Su
 6. Link Type에서는 출발/도착 Table, 양방향으로 읽을 문구와 한 항목당 연결 수를 정한다. 저장할 때
    두 Table의 현재 정의 revision이 함께 고정된다.
 
+Administration에서는 한 작업 묶음의 다음 주요 동작 하나만 파란색으로 강조한다. 기존 정의를
+편집할 때 **Check**와 **Save draft**는 보조 동작이고 **Publish**가 주요 동작이다. 여러 행 등록에서는
+검사가 끝나기 전 **Register checked rows**가 흐리게 비활성화되며, 모든 행이 유효해진 뒤에만 실행할
+수 있다. 녹색은 저장 성공 같은 상태 표시에만 사용한다.
+
 넓은 화면에서는 Database design shell이 viewport를 사용하되 Objects navigator, 정의 목록, 속성
 form으로 이루어진 작업 묶음은 가운데의 읽기 좋은 공통 범위에 남는다. 속성 form은 남는 화면 폭만큼
 늘어나지 않고, 작업 묶음 양쪽 여백은 균형을 유지한다. 같은 화면을

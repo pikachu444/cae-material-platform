@@ -1,5 +1,10 @@
 # Issue #161 — shared UI foundation evidence
 
+> 2026-08-10 제한 후속: PR #226은 `c2283fb0912df93dc4201f216a68aaedea75460b`로 squash
+> 병합됐다. Administration의 legacy 청록색 버튼 이관은
+> [별도 후속 evidence](issue-161-administration-button-semantics.md)에 기록한다. Product Owner 승인과
+> 후속 병합 전에는 #161/#117을 완료 처리하지 않으며 #221도 시작하지 않는다.
+
 ## Disposition
 
 PR #226의 기존 설계를 유지한 채 canonical Compose 제품에서 #161의 shared desktop boundary를

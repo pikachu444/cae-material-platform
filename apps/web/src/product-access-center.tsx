@@ -183,7 +183,7 @@ export function ProductAccessCenter({
       <section className="empty-state">
         <p className="eyebrow">Sign-in required</p>
         <h2>Sign in before inspecting product access.</h2>
-        <button className="button primary" type="button" onClick={onOpenConnection}>
+        <button className="ux-button primary" type="button" onClick={onOpenConnection}>
           Try again
         </button>
       </section>
@@ -305,7 +305,7 @@ export function ProductAccessCenter({
                 Reason
                 <input value={reason} onChange={(event) => setReason(event.target.value)} required />
               </label> : null}
-              <button className="button primary" type="submit" disabled={saving}>
+              <button className="ux-button primary" type="submit" disabled={saving} aria-busy={saving}>
                 {saving ? "Saving…" : "Create assignment"}
               </button>
             </form>
@@ -331,7 +331,7 @@ export function ProductAccessCenter({
                   {assignment.revoked_at ? (
                     <span className="mapping-status ignored">revoked</span>
                   ) : (
-                    <button className="button secondary" type="button" disabled={saving} onClick={() => void revoke(assignment)}>
+                    <button className="ux-button danger" type="button" disabled={saving} onClick={() => void revoke(assignment)}>
                       Revoke
                     </button>
                   )}

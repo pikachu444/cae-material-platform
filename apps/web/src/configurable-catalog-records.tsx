@@ -898,7 +898,7 @@ export function ConfigurableCatalogRecords({
         <p className="eyebrow">Configurable Catalog</p>
         <h1>Sign in to open the Material Database</h1>
         <button
-          className="button primary"
+          className="ux-button primary"
           type="button"
           onClick={onOpenConnection}
         >
@@ -936,14 +936,14 @@ export function ConfigurableCatalogRecords({
           </div>
           <div className="hero-actions">
             <button
-              className="button secondary"
+              className="ux-button"
               type="button"
               onClick={() => onNavigate("/catalog/explorer")}
             >
               Explorer
             </button>
             <button
-              className="button secondary"
+              className="ux-button"
               type="button"
               onClick={() => onNavigate("/catalog/schema")}
             >
@@ -1032,7 +1032,7 @@ export function ConfigurableCatalogRecords({
             placeholder="Maximum in standard unit"
           />
           <button
-            className="button primary"
+            className="ux-button primary"
             type="button"
             onClick={() => void search()}
             disabled={busy}
@@ -1058,7 +1058,7 @@ export function ConfigurableCatalogRecords({
             placeholder="Save current search as…"
           />
           <button
-            className="text-button"
+            className="ux-button tertiary"
             type="button"
             onClick={() => void saveSubset()}
           >
@@ -1268,7 +1268,7 @@ export function ConfigurableCatalogRecords({
             ) : null}
             <div className="hero-actions">
               <button
-                className="button secondary"
+                className="ux-button"
                 type="button"
                 onClick={() => void previewBulkRegistration()}
                 disabled={busy || (!bulkFile && !bulkSource)}
@@ -1276,7 +1276,7 @@ export function ConfigurableCatalogRecords({
                 {bulkColumns.length ? "Check rows" : "Read columns"}
               </button>
               <button
-                className="button primary"
+                className="ux-button primary"
                 type="button"
                 onClick={() => void publishBulkRegistration()}
                 disabled={busy || !bulkPreview?.valid}
@@ -1420,7 +1420,7 @@ export function ConfigurableCatalogRecords({
             <div className="section-heading">
               <h3>Folders</h3>
               <button
-                className="text-button"
+                className="ux-button tertiary"
                 type="button"
                 onClick={() => setSelectedFolderId("")}
               >
@@ -1475,7 +1475,7 @@ export function ConfigurableCatalogRecords({
                 </select>
                 <div className="hero-actions">
                   <button
-                    className="button secondary"
+                    className="ux-button"
                     type="button"
                     disabled={busy}
                     onClick={() =>
@@ -1490,14 +1490,14 @@ export function ConfigurableCatalogRecords({
                     Check
                   </button>
                   <button
-                    className="button secondary"
+                    className="ux-button"
                     type="submit"
                     disabled={busy}
                   >
                     Save draft
                   </button>
                   <button
-                    className="button primary"
+                    className="ux-button primary"
                     type="button"
                     disabled={busy}
                     onClick={() =>
@@ -1536,7 +1536,7 @@ export function ConfigurableCatalogRecords({
                   ))}
                 </select>
                 <button
-                  className="button secondary"
+                  className="ux-button"
                   type="submit"
                   disabled={busy}
                 >
@@ -1555,7 +1555,7 @@ export function ConfigurableCatalogRecords({
               </h2>
             </div>
             <button
-              className="button secondary"
+              className="ux-button"
               type="button"
               onClick={resetEditor}
             >
@@ -1709,7 +1709,7 @@ export function ConfigurableCatalogRecords({
             </div>
             <div className="hero-actions">
               <button
-                className="button primary"
+                className="ux-button primary"
                 type="submit"
                 disabled={busy || !recordName.trim()}
               >
@@ -1718,7 +1718,7 @@ export function ConfigurableCatalogRecords({
               {selected ? (
                 <>
                   <button
-                    className="button secondary"
+                    className="ux-button"
                     type="button"
                     disabled={busy}
                     onClick={() =>

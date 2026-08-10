@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -150,5 +150,73 @@ describe("ProductAccessCenter", () => {
     expect(screen.queryByLabelText("Principal ID")).toBeNull();
     expect(screen.queryByLabelText("Maximum classification")).toBeNull();
     expect(screen.queryByText("legacy compatible")).toBeNull();
+  });
+
+  it("uses shared primary, loading, and danger semantics for access commands", async () => {
+    let resolveGrant!: (value: Awaited<ReturnType<typeof mocks.grant>>) => void;
+    const pendingGrant = new Promise<Awaited<ReturnType<typeof mocks.grant>>>((resolve) => {
+      resolveGrant = resolve;
+    });
+    mocks.grant.mockReturnValue(pendingGrant);
+    mocks.listAssignments.mockResolvedValue({
+      data: {
+        items: [
+          {
+            assignment_id: "59000000-0000-4000-8000-000000000011",
+            subject_type: "group",
+            principal_id: null,
+            group_issuer: "http://cmp-demo-idp.local",
+            group_name: "material-reviewers",
+            product_role: "reviewer",
+            feature_grants: ["model_approval"],
+            revoked_at: null,
+          },
+        ],
+      },
+      etag: null,
+    });
+    const user = userEvent.setup();
+    render(
+      <ProductAccessCenter
+        config={{ baseUrl: "/api/v1", accessToken: "administrator-token" }}
+        onOpenConnection={() => undefined}
+        productMode
+      />,
+    );
+
+    const create = await screen.findByRole("button", { name: "Create assignment" });
+    const revoke = screen.getByRole("button", { name: "Revoke" });
+    expect(create.className).toBe("ux-button primary");
+    expect(create.getAttribute("aria-busy")).toBe("false");
+    expect(revoke.className).toBe("ux-button danger");
+
+    await user.click(create);
+    expect(await screen.findByRole("button", { name: "Saving…" })).toBe(create);
+    expect((create as HTMLButtonElement).disabled).toBe(true);
+    expect(create.getAttribute("aria-busy")).toBe("true");
+
+    await act(async () => {
+      resolveGrant({
+        data: {
+          assignment_id: "59000000-0000-4000-8000-000000000001",
+          organization_id: "59000000-0000-4000-8000-000000000002",
+          project_id: "59000000-0000-4000-8000-000000000003",
+          subject_type: "group",
+          principal_id: null,
+          group_issuer: "http://cmp-demo-idp.local",
+          group_name: "material-users",
+          product_role: "user",
+          feature_grants: ["processing_calibration", "solver_card_export"],
+          max_classification: "confidential",
+          allow_export_controlled: false,
+          valid_from: "2026-09-09T09:00:00Z",
+          expires_at: null,
+          revoked_at: null,
+        },
+        etag: null,
+      });
+      await pendingGrant;
+    });
+    await waitFor(() => expect(screen.getByRole("button", { name: "Create assignment" })).toBeTruthy());
   });
 });

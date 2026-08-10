@@ -343,7 +343,7 @@ function AdministrationWorkspace({
           </button>
         </nav>
         <button
-          className="text-button"
+          className="ux-button tertiary"
           type="button"
           onClick={() => navigate("/database")}
         >

@@ -2739,9 +2739,8 @@
   box-shadow: inset 3px 0 0 var(--ux-accent);
 }
 
-.administration-navigation > .text-button {
+.administration-navigation > .ux-button.tertiary {
   margin-top: auto;
-  color: var(--ux-accent);
   font-size: 12px;
 }
 
