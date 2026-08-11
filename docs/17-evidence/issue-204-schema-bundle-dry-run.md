@@ -2,12 +2,14 @@
 
 ## Disposition
 
-- 상태: **`INDEPENDENT_REAUDIT_PENDING`**
+- 상태: **`INDEPENDENT_AUDIT_PASSED; FINAL_EVIDENCE_SHA_REAUDIT_PENDING`**
 - 시작 기준선: `main@a8189656a79058df000de1fb28c4dfda111e4bd9`
 - 작업 branch: `agent/issue-204-schema-bundle-dry-run`
 - managed worktree: `C:\SourceCodes\cae-material-platform-issue204`
 - PR: [#233](https://github.com/pikachu444/cae-material-platform/pull/233) (draft)
-- merge/independent review: final PR head 감수 뒤 동기화
+- merge: pending
+- independent review: correction SHA `3e30bb55c67869f70a079d2396a530b7d4fdcdd6` PASS; 이 결과를
+  포함한 final evidence-only SHA 확인 예정
 - 계약: Schema Definition Bundle `1.0.0`, dry-run plan `1.0.0`, HTTP `0.33.0`
 
 ## 시작 시 구현 분류
@@ -107,8 +109,8 @@ acceptance는 전체 table content digest의 전/중간/후 동일성과 read-on
 | frontend/browser/viewport | N/A — backend/contract/API 범위, UI 변경 없음 |
 | canonical Compose | PASS — managed worktree에서 `--profile test --build --force-recreate`; API container health `200`, version `0.33.0`, PostgreSQL test 재실행 PASS |
 | documentation impact/user-guide/diff | PASS — docs impact 31 changed files, visual source 없음; user-guide와 `git diff --check` PASS |
-| pre-publish | PASS — manual `58e2849a440d91ee7d17939456b0c4d8ce83c7aa8166e0f2566689cd36943406`; git pre-push `b7c98104b8f93509e1f72ab5aef268a258db66833b693b5dcc4014177d631214` |
-| independent Balanced audit | initial SHA `8ff133093fa343b1251f489a551b4637623067d1`: CHANGES_REQUESTED — nested `$id`/`$schema` machine contract/runtime parity major 1건. Root/nested contract 분리와 negative fixture·parity 회귀를 추가했고 같은 감수자의 final SHA 재감수 예정 |
+| pre-publish | PASS — correction head manual `7c67669123aec639091fa28bd22a71e8f475bd90240c8534a6802741fd358166`; git pre-push `33b187d05e4272dd9ce1f2bcc5ac31981891f17b25a2bbb3b45916f4cb966aa6` |
+| independent Balanced audit | initial SHA `8ff133093fa343b1251f489a551b4637623067d1`: CHANGES_REQUESTED — nested `$id`/`$schema` machine contract/runtime parity major 1건. Root/nested contract 분리와 negative fixture·parity 회귀 후 correction SHA `3e30bb55c67869f70a079d2396a530b7d4fdcdd6`: PASS — no findings, blocker/unresolved major 없음. 이 기록을 포함한 evidence-only final SHA 확인 예정 |
 
 비범위 전체 `tests/contracts` 탐색 실행에서는 기준 `origin/main`과 동일한 3건(현재 8 KiB를 넘는
 root `AGENTS.md`, 과거 backlog 문구를 기대하는 cold-start test, 다른 worktree 절대경로를 가진
