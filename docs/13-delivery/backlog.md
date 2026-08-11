@@ -50,7 +50,10 @@
   완료하도록 결정했습니다. 순서 18 `#204`는
   [PR #233](https://github.com/pikachu444/cae-material-platform/pull/233)에서 구현·검증을 완료했으며,
   순서 19 `#205`는 [PR #234](https://github.com/pikachu444/cae-material-platform/pull/234)에서
-  구현·검증을 완료했습니다. 다음 첫 미완료 단위는 순서 20 `#206`입니다.
+  구현·검증을 완료했습니다. 순서 20 `#206`은
+  [PR #235](https://github.com/pikachu444/cae-material-platform/pull/235)에서 구현·검증과 제품 소유자
+  화면 승인을 완료하고 main `9535ee00adfd880990c31e6d623c5f9c39af99ea`에 병합했습니다. 다음 첫
+  미완료 단위는 순서 21 `#207`입니다.
 - 순서 14 `#160` Task 1은 [PR #220](https://github.com/pikachu444/cae-material-platform/pull/220),
   main `53e4a698235e4c7dad8c87e0156bc2627866989f`에서 병합했습니다. Task 2는
   [PR #224](https://github.com/pikachu444/cae-material-platform/pull/224)에서 병합해 `#160`을 [x]로
@@ -124,7 +127,7 @@ packet, 검증, 검토, 제품 소유자 확인과 PR/merge를 거칩니다. iss
 | 17 | [x] [#184 4K·고DPI 전역 대응](https://github.com/pikachu444/cae-material-platform/issues/184) — [PR #231](https://github.com/pikachu444/cae-material-platform/pull/231), main `ab27e3947817cefa997e49c5dc1d237ec5035adb` | #221의 잠정 정책을 모든 핵심 화면과 고위험 상태에 적용하고 넓은 화면 geometry를 완성 | issue, #221 승인 packet, 공통 token, 전체 정상·예외 다섯 viewport, [issue-owned evidence](../17-evidence/issue-184-high-dpi-global-implementation.md) | 2026-08-11 제품 소유자 결정으로 production 구현과 #184를 완료. 독립 감수의 `CHANGES_REQUESTED`를 PASS로 바꾸지 않고 fixture 의존 density별 10개 상태, 총 30개 원본·manifest·재감수를 #223으로 명시적으로 인계. 실제 장비 판정도 #223. 다음 단위는 #204 |
 | 18 | [x] [#204 동적 JSON Schema 정의 bundle 계약·plan](https://github.com/pikachu444/cae-material-platform/issues/204) — [PR #233](https://github.com/pikachu444/cae-material-platform/pull/233) | 관리자가 임의 개수의 schema 정의를 적용 전에 검증하고 변경 계획을 확인 | issue, configurable Catalog/Artifact/Provenance, FR-CFG/LNK/JSON | Bundle/plan `1.0.0`, HTTP `0.33.0`, deterministic PostgreSQL no-write plan, arbitrary-cardinality synthetic fixture와 독립 감수. 다음 단위는 #205 |
 | 19 | [x] [#205 공통 CAE unit과 Unit Profile](https://github.com/pikachu444/cae-material-platform/issues/205) — [PR #234](https://github.com/pikachu444/cae-material-platform/pull/234) | 등록부터 Export까지 같은 차원·단위와 profile을 사용 | issue, 기존 13개 registration mapping, canonical Test Data와 Export unit 계약 | bounded 공통 service와 immutable exact profile revision, 기존 13개·`kg_m_s`·profile-free bytes 호환, domain/API/PostgreSQL/Compose/독립 감수 완료. 다음 단위는 #206 |
-| 20 | [#206 curve channel metadata와 deviation](https://github.com/pikachu444/cae-material-platform/issues/206) | Chart·Statistics·Fit가 곡선 채널·단위·편차를 같은 의미로 표시 | issue, #205, curve/Test Data/Artifact 계약 | additive metadata, 과거 adapter, contract·chart 회귀, merge |
+| 20 | [x] [#206 curve channel metadata와 deviation](https://github.com/pikachu444/cae-material-platform/issues/206) — [PR #235](https://github.com/pikachu444/cae-material-platform/pull/235), main `9535ee00adfd880990c31e6d623c5f9c39af99ea` | Chart·Statistics·Fit가 곡선 채널·단위·편차를 같은 의미로 표시 | issue, #205, curve/Test Data/Artifact 계약 | metadata `1.0.0`, HTTP `0.35.0`, 기존 Artifact adapter와 exact revision/provenance, Materials·Modeling 공유 표시, PostgreSQL·Compose·브라우저·다섯 viewport·독립 감수·제품 소유자 승인 완료. 다음 단위는 #207 |
 | 21 | [#207 정의 bundle apply/export와 provenance](https://github.com/pikachu444/cae-material-platform/issues/207) | 승인한 plan을 원자적으로 적용하고 source JSON까지 역추적·재내보내기 | issue, #204~#205, Catalog publication/Revision/Artifact/Provenance | 멱등 apply, rollback, semantic round-trip, exact lineage, merge |
 | 22 | [#210 scalar distribution fitting](https://github.com/pikachu444/cae-material-platform/issues/210) | 반복 scalar 값의 후보 분포와 적합 근거를 비교·선택·저장 | issue, #205, Statistics/Calibration 계약 | Normal/Lognormal/Weibull 후보, 수치·재현·persistence 검증, merge |
 | 23 | [#212 explicit toe compensation](https://github.com/pikachu444/cae-material-platform/issues/212) | 원본을 보존하며 명시적으로 선택한 toe 보정 결과와 영향을 비교 | issue의 method/tolerance 결정 gate, #158 Process/Fit 계약 | 승인된 단일 방법, replay·failure·overlay·Fit input 검증, merge |
