@@ -103,8 +103,8 @@ classification reads returned not found without leaking the records.
 | Current-source canonical Compose | PASS — preflight, rebuild/recreate, migration/reference plugin/seed exit 0, API/Web health and full demo verifier |
 | User-guide inventory, documentation impact and whitespace | PASS — 20 guides, 95 current captures, structured evidence duplicate declarations and `git diff --check` |
 | Five-viewport originals/crops, Web Interface Guidelines and Q01–Q20 Main review | PASS — deterministic geometry; actual Windows 4K physical readability remains #223 |
-| Clean-worktree pre-publish | PASS — manual gate fingerprint `4e3fd42b37fa07dfbf74ae5fe3a6d9bc1c0930e3a20369cf77baa8595f82746a` at commit `59ca26b6e8ca37e8149a72be7b84d2188e45a4bf` |
-| Independent exact-SHA Balanced audit | PENDING final Main acceptance and commit |
+| Clean-worktree pre-publish | PASS — manual gate fingerprint `df646662367f0e87bd96476b5d1445b399939d9a1ea5c60e51da8b2f5a724038` at commit `3493ed718f986893493f82b25a6a56aea765b941` |
+| Independent exact-SHA Balanced audit | PASS for draft publication at `3493ed718f986893493f82b25a6a56aea765b941` — blocker 0, major 0, material minor 0 |
 | Product Owner visual approval | PENDING; draft PR must remain draft |
 
 The broad repository tests expose three unchanged baseline checks already recorded by issue #205:
@@ -190,7 +190,11 @@ reachability, overflow, text clipping or non-pointer operation.
 
 ## Independent audit and publication
 
-The exact audited commit, findings, correction loop, draft PR, visual approval and remote head
-read-back will be recorded here before publication. Ready transition and squash merge are forbidden
-until the Product Owner directly approves the registered 1920/2560/3840 originals and crops and all
-required gates remain green at the same audited SHA.
+The independent read-only auditor approved exact commit
+`3493ed718f986893493f82b25a6a56aea765b941` for draft publication with no implementation,
+contract, persistence, regression, visual-evidence or scope finding. The expected Product Owner
+approval is an external post-audit gate: the PR must remain draft until the owner directly approves
+the registered 1920/2560/3840 originals and crops. This tracking-only annotation changes no code or
+pixels; the same auditor must review its final commit, whose exact SHA and disposition are recorded
+in the draft PR because a commit cannot contain its own hash. Ready transition and squash merge are
+forbidden until owner approval and all required gates remain green at that same audited remote head.

@@ -112,7 +112,7 @@ visual_evidence:
   root_original_and_crop_review: pass
   physical_4k_readability: DEFERRED_TO_223
   fixture_dependent_capture_status: complete_for_issue_206
-  independent_read_only_review: pending_exact_sha
+  independent_read_only_review: approve_for_draft_at_3493ed718f986893493f82b25a6a56aea765b941
   product_owner_review: pending
 capture_provenance:
   - source_commit: e9b523a7f7b613d8d6efc0396160f0ceb2aff2c4
