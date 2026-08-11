@@ -1,7 +1,7 @@
 version: 90
 verified_at: 2026-08-11
 scope: issue-184-high-dpi-global-implementation
-source_commit: PENDING_IMPLEMENTATION_COMMIT
+source_commit: 97f850acf454a8fb6d8caeb8cf5e9ccb5d413a16
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright python scripts/capture_current_product.py --base-url http://127.0.0.1:5173
 notes:
@@ -94,7 +94,7 @@ visual_evidence:
   routes: [/materials, '/materials/:materialId', /modeling, /activity, /administration/database, /administration/records, /administration/access]
   states: [normal, long, empty, invalid, blocked, failed, restored, delivered, role-aware, popup, drawer, file-input, pane-overlay, resize, collapse, reset, reload]
   baseline_source: 36e8312fa85253ad8fee88f63a3a4bf096d92a9c
-  current_source: PENDING_IMPLEMENTATION_COMMIT
+  current_source: 97f850acf454a8fb6d8caeb8cf5e9ccb5d413a16
   evidence_artifacts_are_not_current_captures: true
   current_capture_count: 90
   issue_184_recaptured_current_count: 80
@@ -110,7 +110,7 @@ visual_evidence:
   independent_read_only_review: changes_requested_fixture_coverage
   product_owner_review: pending
 capture_provenance:
-  - source_commit: PENDING_IMPLEMENTATION_COMMIT
+  - source_commit: 97f850acf454a8fb6d8caeb8cf5e9ccb5d413a16
     captured_at: '2026-08-11'
     command: 'Canonical Compose capture_current_product.py runs at Compact, Standard, and Large across five CSS viewports, issue-owned browser zoom 200 and direct 100%-pixel crop scripts, and root original-resolution inspection. Eighty Standard images replace the current guide; ten fixture-dependent baseline images are explicitly retained without being claimed as current recaptures.'
     ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-search-2560, materials-search-3840, materials-scroll-long-1366, materials-scroll-long-1440, materials-scroll-long-1920, materials-scroll-short-1440, materials-scroll-empty-1440, materials-browse-1440, modeling-data-1366, modeling-session-1366, modeling-session-1440, modeling-session-1920, modeling-data-1440, modeling-data-1920, modeling-data-2560, modeling-data-3840, modeling-data-empty-1440, modeling-data-invalid-1440, modeling-data-invalid-scrolled-1440, MOD-PROCESS-CURRENT-1366, MOD-PROCESS-CURRENT-LINEAR-1366, MOD-PROCESS-CURRENT-MANUAL-1366, MOD-PROCESS-CURRENT-1440, MOD-PROCESS-CURRENT-1920, MOD-PROCESS-CURRENT-2560, MOD-PROCESS-CURRENT-3840, MOD-PROCESS-CURRENT-BLOCKED-1440, MOD-PROCESS-CURRENT-EXACT-READ-FAILED-1440, MOD-PROCESS-CURRENT-SIBLINGS-1440, modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-fit-2560, modeling-fit-3840, modeling-fit-candidate-parameters-long-1440, modeling-fit-candidate-evidence-scrolled-1440, modeling-fit-calculation-failed-1920, modeling-fit-save-failed-1920, modeling-fit-exact-source-blocked-1920, modeling-fit-exact-read-failed-1920, modeling-fit-restored-1920, modeling-export-1366, modeling-export-1440, modeling-export-1920, modeling-export-2560, modeling-export-3840, modeling-export-source-blocked, modeling-export-approximation-blocked, activity-1366, activity-1440, activity-1920, activity-2560, activity-3840, activity-history-1440, activity-history-1920, activity-history-2560, activity-history-3840, activity-user-1440, activity-administrator-1440, activity-decision-error-1440, activity-recovery-1440, administration-database-1366, administration-database-1440, administration-database-1920, administration-database-2560, administration-database-3840, administration-records-1366, administration-records-1440, administration-records-1920, administration-records-2560, administration-records-3840, administration-access-1366, administration-access-1440, administration-access-1920, administration-access-2560, administration-access-3840, administration-access-role-control-1366]

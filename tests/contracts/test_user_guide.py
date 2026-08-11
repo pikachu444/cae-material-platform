@@ -214,9 +214,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
 
     current_source = manifest["source_commit"]
     assert manifest["scope"] == "issue-184-high-dpi-global-implementation"
-    assert current_source == "PENDING_IMPLEMENTATION_COMMIT" or re.fullmatch(
-        r"[0-9a-f]{40}", current_source
-    )
+    assert re.fullmatch(r"[0-9a-f]{40}", current_source)
     assert manifest["source_commit"] == current_source
     assert len(provenance_ids) == len(set(provenance_ids))
     preserved_fixture_ids = {
