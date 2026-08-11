@@ -92,3 +92,17 @@ reports only unchanged baseline files; every changed/new Python file passes a no
 
 Final documentation, lint/type, pre-publish and independent Balanced audit results are recorded
 before the PR leaves draft. #206 and later work are not started by this issue.
+
+## Independent audit and publication
+
+Draft [PR #234](https://github.com/pikachu444/cae-material-platform/pull/234) was created from the
+issue-owned branch after the remote head read back as the audited commit. Independent review first
+rejected `0635cf45a50b00921c30cea30a70a14a3972f719` because the public conversion boundary did not
+validate original unit display text. Review then rejected
+`8734e3c3222526db5b940df3e5669d9403db0fa6` because an unsupported display string returned FastAPI's
+generic validation body instead of the declared structured Unit error. Both findings were corrected.
+
+The complete 87-file diff at `06eaecc96ea4a570929421ce396f3c2e8c7a4f5c` received independent
+approval with no blocker, major or material minor finding. The final tracking-only commit changes
+this evidence and `docs/13-delivery/backlog.md`; PR #234 records its required exact-SHA read-back and
+independent re-audit before ready transition and merge.
