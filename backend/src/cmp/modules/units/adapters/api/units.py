@@ -81,6 +81,37 @@ type UnitIdInput = Literal[
     "1",
     "%",
 ]
+_ORIGINAL_UNIT_TEXTS = (
+    "Pa",
+    "kPa",
+    "MPa",
+    "GPa",
+    "m",
+    "cm",
+    "mm",
+    "um",
+    "µm",
+    "μm",
+    "s",
+    "ms",
+    "min",
+    "h",
+    "N",
+    "kN",
+    "kg",
+    "g",
+    "mg",
+    "kg/m3",
+    "kg/m^3",
+    "g/cm3",
+    "g/cm^3",
+    "K",
+    "Cel",
+    "degC",
+    "°C",
+    "1",
+    "%",
+)
 type OriginalUnitTextInput = Literal[
     "Pa",
     "kPa",
@@ -112,6 +143,11 @@ type OriginalUnitTextInput = Literal[
     "1",
     "%",
 ]
+type OriginalUnitTextRequest = Annotated[
+    str,
+    StringConstraints(min_length=1, max_length=64),
+    Field(json_schema_extra={"enum": list(_ORIGINAL_UNIT_TEXTS)}),
+]
 
 
 class QuantityReferenceInput(BaseModel):
@@ -128,7 +164,7 @@ class UnitConversionRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     location: Annotated[str, StringConstraints(min_length=1, max_length=255)]
     value: DecimalText
-    original_unit_string: OriginalUnitTextInput
+    original_unit_string: OriginalUnitTextRequest
     source: QuantityReferenceInput
     target: QuantityReferenceInput
 

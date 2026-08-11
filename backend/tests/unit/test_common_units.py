@@ -201,6 +201,15 @@ def test_conversion_api_rejects_unbounded_and_source_mismatched_original_unit() 
     with TestClient(test_app) as client:
         unsupported = client.post("/api/v1/unit-conversions", json=payload)
         assert unsupported.status_code == 422
+        assert unsupported.json() == {
+            "detail": {
+                "code": "CMP-UNIT-0001",
+                "message": "unsupported unit identifier: inch",
+                "location": "geometry.gauge_length.original_unit_string",
+                "source_dimension": None,
+                "target_dimension": None,
+            }
+        }
 
         payload["original_unit_string"] = "mm"
         mismatched = client.post("/api/v1/unit-conversions", json=payload)

@@ -272,10 +272,15 @@ def test_common_units_profiles_and_export_usage_match_runtime_contracts() -> Non
     )
 
     unit_schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    runtime_components = runtime["components"]["schemas"]
     original_unit_text = unit_schema["$defs"]["OriginalUnitText"]["enum"]
     assert runtime["components"]["schemas"]["OriginalUnitTextInput"]["enum"] == (
         original_unit_text
     )
+    assert runtime_components["UnitConversionRequest"]["properties"][
+        "original_unit_string"
+    ] == {"$ref": "#/components/schemas/OriginalUnitTextRequest"}
+    assert runtime_components["OriginalUnitTextRequest"]["enum"] == original_unit_text
     assert unit_schema["$defs"]["UnitConversionRequest"]["properties"][
         "original_unit_string"
     ] == {"$ref": "#/$defs/OriginalUnitText"}
@@ -292,7 +297,6 @@ def test_common_units_profiles_and_export_usage_match_runtime_contracts() -> Non
         "temperature",
         "strain",
     }
-    runtime_components = runtime["components"]["schemas"]
     assert {"profile_id", "revision_id", "content_sha256"} == set(
         runtime_components["UnitProfilePinInput"]["required"]
     )
