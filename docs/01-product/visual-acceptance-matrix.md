@@ -95,8 +95,11 @@ explicit #221 decision input and subsequent #184 carryover with original-resolut
 affected route/state, proof that no new page-specific workaround was added, and an explicit
 product-owner disposition. #221 approves the provisional shared policy but is not a product-wide Q-20
 pass; #184 applies it to all routes and high-risk states. The exception blocks #204–#216 until #184
-merges. After #184, only unavailable actual-device physical readability may remain explicitly deferred
-to #223; known geometry, clipping, overflow or interaction failures remain merge blockers.
+merges. After #184, unavailable actual-device physical readability normally is the only item explicitly
+deferred to #223. A one-time 2026-08-11 product-owner disposition also transferred #184's exact 30
+fixture-blocked originals, structured-manifest completion, and independent original-resolution re-audit
+to #223 while retaining `CHANGES_REQUESTED`; those originals are not PASS. This does not permit a known
+geometry, clipping, overflow, or interaction failure to be deferred.
 
 The [#221 decision packet](../17-evidence/issue-221-high-dpi-decision.md) records the baseline-first
 five-viewport comparison, browser-zoom audit and Codex recommendation of P2 with a Standard default.
@@ -105,8 +108,9 @@ into `main`. #184 therefore exposes one product-wide `Compact | Standard | Large
 as default/reset and browser-local active-user/workspace persistence. Candidate 3 remains rejected because
 measured browser zoom alone changes CSS viewport and `devicePixelRatio`, so those signals cannot reliably
 identify physical display scale. The [#184 evidence](../17-evidence/issue-184-high-dpi-global-implementation.md)
-records the production transplant and its current incomplete fixture boundary; neither #221 approval nor
-automated #184 geometry is actual Windows 4K physical-readability approval.
+records the production transplant completed in PR #231/main
+`ab27e3947817cefa997e49c5dc1d237ec5035adb` and the exact fixture evidence boundary inherited by #223;
+neither #221 approval nor automated #184 geometry is actual Windows 4K physical-readability approval.
 
 ## Criteria
 

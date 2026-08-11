@@ -2,22 +2,24 @@
 
 ## Disposition
 
-- 상태: **`IMPLEMENTED; MERGE_AUTHORIZED_WITH_BASELINE_FIXTURE_CARRYOVER`**
+- 상태: **`IMPLEMENTATION_COMPLETE; EVIDENCE_CARRYOVER_TRACKED_IN_223`**
 - 기준선: `main@36e8312fa85253ad8fee88f63a3a4bf096d92a9c`
 - 작업 branch: `agent/issue-184-high-dpi-global-implementation`
 - PR: [#231](https://github.com/pikachu444/cae-material-platform/pull/231)
+- merge commit: `ab27e3947817cefa997e49c5dc1d237ec5035adb`
 - capture commit: `97f850acf454a8fb6d8caeb8cf5e9ccb5d413a16`
 - 승인 정책: **P2**, 기본/reset `Standard`, 사용자 선택 `Compact | Standard | Large`
-- 제품 소유자 disposition: **2026-08-11 구현 PR merge 지시; fixture 누락은 미해결 carryover**
+- 제품 소유자 disposition: **2026-08-11 #184 완료; fixture 누락은 미해결 상태로 #223 인계**
 - 실제 Windows 4K 100%·150%·200% 물리 가독성: **`DEFERRED_TO_223`**
 
 Production 코드와 현재 만들 수 있는 route/state의 자동·시각 증거는 준비됐다. 그러나 canonical
 append-only fixture에서 exact Material datasheet/card projection이 `CMP-CATALOG-0015`로 차단되어
 density별 90개 중 10개 원본을 다시 만들지 못했다. 독립 읽기 전용 감수는 사용 가능한 334개 원본을
 모두 실제 해상도로 확인한 뒤 이 30개 coverage 누락만 blocking finding으로 남겼다. 제품 소유자는
-2026-08-11에 이 누락과 실제 Windows 4K 판정 유보를 보고받은 뒤 구현 PR의 merge를 지시했다. 이
-disposition은 누락 증거를 통과로 바꾸거나 #184/#117을 완료하는 승인이 아니다. 누락 상태와
-`DEFERRED_TO_223` 경계는 그대로 보존하며 #204 이후 작업도 시작하지 않는다.
+2026-08-11에 이 누락과 실제 Windows 4K 판정 유보를 보고받은 뒤 구현 PR을 merge하고 #184를
+완료하도록 결정했다. 이 disposition은 누락 증거를 통과로 바꾸지 않는다. 정확한 30개 원본,
+structured manifest 완성, 독립 원본 재감수와 `DEFERRED_TO_223` 물리 판정은 #223에 그대로 인계했다.
+#117은 열린 상태를 유지하며 다음 미완료 단위 #204는 별도 세션에서 시작한다.
 
 ## 시작 시 구현 분류
 
@@ -202,13 +204,14 @@ Main 작업자의 구현·증거 gate 결과다. exact-main baseline 실패는 �
 | Web Interface Guidelines review | PASS — semantic controls, visible focus, overlay focus trap·Escape·focus return, no changed zoom/outline/transition anti-pattern |
 | full-demo | `BLOCKED_BASELINE_FIXTURE`; 위 clean/current 결과로 구분 |
 | independent visual audit | `CHANGES_REQUESTED` — manifest 334개(59 before, 240 after, 21 direct crop, 14 zoom-200)를 모두 원본 해상도로 열고 path/SHA/dimension을 확인했다. 사용 가능한 Q-01–Q-20 상태에는 새 visual defect가 없고, density별 exact datasheet/card/delivered 30개 누락만 blocking finding이다. Activity 3840은 #221 승인 comparison bound와 일치해 finding에서 철회됐다. |
-| product-owner disposition | `MERGE_AUTHORIZED_WITH_CARRYOVER` — 2026-08-11; 사용 가능한 원본·측정과 독립 감수 결과, 누락 경계를 보고받은 뒤 구현 PR merge를 지시했다. 누락 30개는 해결 또는 PASS로 간주하지 않는다. |
+| product-owner disposition | `ISSUE_184_COMPLETE_WITH_223_EVIDENCE_CARRYOVER` — 2026-08-11; PR #231/main `ab27e3947817cefa997e49c5dc1d237ec5035adb`의 production 구현과 #184 완료를 승인했다. 누락 30개는 해결 또는 PASS로 간주하지 않고 #223의 선행 gate로 인계한다. |
 
-## 남은 위험과 merge 경계
+## 남은 위험과 #223 인계 경계
 
 - density별 exact Material datasheet/card/delivered 10개, 총 30개 원본이 아직 없다.
 - 실제 Windows 4K 100%·150%·200% 물리 판독성은 전혀 판정하지 않았으며 #223 인계 대상이다.
 - 독립 감수의 유일한 blocking finding인 fixture 의존 원본 30개를 현재 허용 범위에서는 해소할 수 없다.
-- 제품 소유자는 2026-08-11에 위 위험을 보고받은 뒤 구현 PR merge를 지시했다. 이 예외 disposition은
-  #184/#117 완료 처리, 독립 감수 PASS 또는 누락 30개 해소를 뜻하지 않는다. #204 이후 작업도
-  시작하지 않는다.
+- 제품 소유자는 2026-08-11에 위 위험을 보고받은 뒤 구현 PR merge와 #184 완료를 승인했다. 이
+  disposition은 독립 감수 PASS 또는 누락 30개 해소를 뜻하지 않는다. 정확한 30개 파일과 manifest,
+  독립 원본 재감수는 [#223 handoff](issue-184-to-223-windows-4k-handoff.md)의 선행 gate다.
+- #117은 남은 단위 때문에 열린 상태다. backlog의 다음 미완료 단위 #204는 별도 세션에서 시작한다.
