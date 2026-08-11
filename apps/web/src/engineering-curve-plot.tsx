@@ -19,7 +19,11 @@ import {
   fitDecisionIdentityLabel,
   type FitDecisionSelection,
 } from "./modeling-fit-decision-contract";
-import { ENGINEERING_PLOT_MARGIN } from "./design/metrics";
+import { useDisplayDensity } from "./design/display-density";
+import {
+  ENGINEERING_PLOT_MARGIN,
+  engineeringPlotMarginsForDensity,
+} from "./design/metrics";
 
 export interface PlotBounds {
   xMin: number;
@@ -669,9 +673,15 @@ function seriesForEnsemble(preview: CommonEnsemblePreview): PlotModel {
   };
 }
 
-function bandPolygon(band: PlotBand, width: number, height: number, bounds: PlotBounds): string {
-  const upper = plotPoints(band.xValues, band.upperValues, width, height, bounds).split(" ");
-  const lower = plotPoints(band.xValues, band.lowerValues, width, height, bounds).split(" ").reverse();
+function bandPolygon(
+  band: PlotBand,
+  width: number,
+  height: number,
+  bounds: PlotBounds,
+  margins: { left: number; right: number; top: number; bottom: number },
+): string {
+  const upper = plotPoints(band.xValues, band.upperValues, width, height, bounds, margins).split(" ");
+  const lower = plotPoints(band.xValues, band.lowerValues, width, height, bounds, margins).split(" ").reverse();
   return [...upper, ...lower].join(" ");
 }
 
@@ -744,8 +754,11 @@ export function EngineeringCurvePlotEmpty({
     observer.observe(target);
     return () => observer.disconnect();
   }, []);
-  const effectiveWidth = Math.max(320, renderedSize?.width ?? width);
-  const effectiveHeight = Math.max(240, renderedSize?.height ?? height);
+  // Props provide a stable first-render fallback, but once the semantic frame
+  // has a real size it is authoritative. Clamping an observed pane kept the
+  // SVG larger than its frame at constrained pane sizes and browser zoom.
+  const effectiveWidth = renderedSize?.width ?? Math.max(320, width);
+  const effectiveHeight = renderedSize?.height ?? Math.max(240, height);
   const bounds = { xMin: 0, xMax: 0.25, yMin: 0, yMax: 1000 };
   const xTicks = [0, 0.05, 0.1, 0.15, 0.2, 0.25];
   const yTicks = [0, 250, 500, 750, 1000];
@@ -818,6 +831,8 @@ export function EngineeringCurvePlot({
   /** Process-stage overlay: observed members + the focused processed stage and server fit. */
   processOverlay?: boolean;
 }) {
+  const { density } = useDisplayDensity();
+  const plotMargin = engineeringPlotMarginsForDensity(density);
   const [hiddenSeries, setHiddenSeries] = useState<string[]>([]);
   const [viewBounds, setViewBounds] = useState<PlotBounds | null>(null);
   const [cursor, setCursor] = useState<{ x: number; y: number } | null>(null);
@@ -944,8 +959,8 @@ export function EngineeringCurvePlot({
   const extrapolationPlotStart = model.extrapolationStart === undefined
     ? undefined
     : toPlotX(model.extrapolationStart);
-  const plotLeft = PLOT_MARGIN.left;
-  const plotRight = width - PLOT_MARGIN.right;
+  const plotLeft = plotMargin.left;
+  const plotRight = width - plotMargin.right;
   const plotWidth = Math.max(0, plotRight - plotLeft);
   const extrapolationStartX = extrapolationPlotStart === undefined
     ? undefined
@@ -1041,11 +1056,11 @@ export function EngineeringCurvePlot({
 
   function pointerCoordinates(event: ReactPointerEvent<SVGSVGElement>): { x: number; y: number } {
     const rectangle = event.currentTarget.getBoundingClientRect();
-    const px = Math.min(effectiveWidth - PLOT_MARGIN.right, Math.max(PLOT_MARGIN.left, ((event.clientX - rectangle.left) / rectangle.width) * effectiveWidth));
-    const py = Math.min(effectiveHeight - PLOT_MARGIN.bottom, Math.max(PLOT_MARGIN.top, ((event.clientY - rectangle.top) / rectangle.height) * effectiveHeight));
+    const px = Math.min(effectiveWidth - plotMargin.right, Math.max(plotMargin.left, ((event.clientX - rectangle.left) / rectangle.width) * effectiveWidth));
+    const py = Math.min(effectiveHeight - plotMargin.bottom, Math.max(plotMargin.top, ((event.clientY - rectangle.top) / rectangle.height) * effectiveHeight));
     return {
-      x: bounds.xMin + ((px - PLOT_MARGIN.left) / (effectiveWidth - PLOT_MARGIN.left - PLOT_MARGIN.right)) * (bounds.xMax - bounds.xMin),
-      y: bounds.yMax - ((py - PLOT_MARGIN.top) / (effectiveHeight - PLOT_MARGIN.top - PLOT_MARGIN.bottom)) * (bounds.yMax - bounds.yMin),
+      x: bounds.xMin + ((px - plotMargin.left) / (effectiveWidth - plotMargin.left - plotMargin.right)) * (bounds.xMax - bounds.xMin),
+      y: bounds.yMax - ((py - plotMargin.top) / (effectiveHeight - plotMargin.top - plotMargin.bottom)) * (bounds.yMax - bounds.yMin),
     };
   }
 
@@ -1093,7 +1108,7 @@ export function EngineeringCurvePlot({
 
   const plottedCurveLines = plottedSeries
     .filter((series) => hardeningResponseSeries.some((item) => item.id === series.id))
-    .map((series) => hiddenSeries.includes(series.id) ? null : <polyline key={series.id} points={plotPoints(series.xValues, series.yValues, effectiveWidth, effectiveHeight, bounds)} className={`curve-line ${series.className}`} style={{ stroke: series.color }} />);
+    .map((series) => hiddenSeries.includes(series.id) ? null : <polyline key={series.id} points={plotPoints(series.xValues, series.yValues, effectiveWidth, effectiveHeight, bounds, plotMargin)} className={`curve-line ${series.className}`} style={{ stroke: series.color }} />);
 
   return (
     <>
@@ -1120,6 +1135,7 @@ export function EngineeringCurvePlot({
         <span>{pronyMode === "response" ? isDmaProny ? `Measured storage/loss + ${fitSelection ? "explicit engineer selection" : "server result preview"}` : `Measured modulus + every fitted term count + ${fitSelection ? "explicit engineer selection" : "server result preview"}` : isDmaProny ? "Joint storage/loss residual on the observed log-frequency grid" : "Predicted minus measured modulus on the observed log-time grid"}</span>
       </div> : null}
       {ghoshTailDisplayTrim ? <p className="ghosh-display-scale-note" role="note">Ghosh exceeds chart scale</p> : null}
+      <div className="engineering-plot-frame">
       <svg
         ref={svgRef}
         className={`processing-curve interactive interaction-${interactionMode} ${drag ? "is-panning" : ""}`}
@@ -1147,33 +1163,34 @@ export function EngineeringCurvePlot({
         onWheel={onWheel}
       >
         <defs>
-          {isHardening ? <clipPath id={hardeningClipId} clipPathUnits="userSpaceOnUse"><rect x={PLOT_MARGIN.left} y={PLOT_MARGIN.top} width={plotWidth} height={height - PLOT_MARGIN.top - PLOT_MARGIN.bottom} /></clipPath> : null}
+          {isHardening ? <clipPath id={hardeningClipId} clipPathUnits="userSpaceOnUse"><rect x={plotMargin.left} y={plotMargin.top} width={plotWidth} height={height - plotMargin.top - plotMargin.bottom} /></clipPath> : null}
         </defs>
         {xTicks.map((tick) => {
-          const px = PLOT_MARGIN.left + ((tick - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (effectiveWidth - PLOT_MARGIN.left - PLOT_MARGIN.right);
-          return <g key={`x-${tick}`}><line x1={px} y1={PLOT_MARGIN.top} x2={px} y2={effectiveHeight - PLOT_MARGIN.bottom} className="chart-grid"/><text x={px} y={effectiveHeight - 32} textAnchor="middle" className="chart-tick">{axisNumber(fromPlotX(tick))}</text></g>;
+          const px = plotMargin.left + ((tick - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (effectiveWidth - plotMargin.left - plotMargin.right);
+          return <g key={`x-${tick}`}><line x1={px} y1={plotMargin.top} x2={px} y2={effectiveHeight - plotMargin.bottom} className="chart-grid"/><text x={px} y={effectiveHeight - 32} textAnchor="middle" className="chart-tick">{axisNumber(fromPlotX(tick))}</text></g>;
         })}
         {yTicks.map((tick) => {
-          const py = effectiveHeight - PLOT_MARGIN.bottom - ((tick - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (effectiveHeight - PLOT_MARGIN.top - PLOT_MARGIN.bottom);
-          return <g key={`y-${tick}`}><line x1={PLOT_MARGIN.left} y1={py} x2={effectiveWidth - PLOT_MARGIN.right} y2={py} className="chart-grid"/><text x={PLOT_MARGIN.left - 8} y={py + 4} textAnchor="end" className="chart-tick">{axisNumber(tick / yScale.divisor)}</text></g>;
+          const py = effectiveHeight - plotMargin.bottom - ((tick - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (effectiveHeight - plotMargin.top - plotMargin.bottom);
+          return <g key={`y-${tick}`}><line x1={plotMargin.left} y1={py} x2={effectiveWidth - plotMargin.right} y2={py} className="chart-grid"/><text x={plotMargin.left - 8} y={py + 4} textAnchor="end" className="chart-tick">{axisNumber(tick / yScale.divisor)}</text></g>;
         })}
-        {extrapolationPlotStart !== undefined && extrapolationPlotStart < bounds.xMax ? <g className="extrapolation-region"><rect x={PLOT_MARGIN.left + ((Math.max(extrapolationPlotStart, bounds.xMin) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * plotWidth} y={PLOT_MARGIN.top} width={Math.max(0, ((bounds.xMax - Math.max(extrapolationPlotStart, bounds.xMin)) / (bounds.xMax - bounds.xMin || 1)) * plotWidth)} height={height - PLOT_MARGIN.top - PLOT_MARGIN.bottom}/><line x1={extrapolationStartX} y1={PLOT_MARGIN.top} x2={extrapolationStartX} y2={height - PLOT_MARGIN.bottom}/></g> : null}
-        <line x1={PLOT_MARGIN.left} y1={effectiveHeight - PLOT_MARGIN.bottom} x2={effectiveWidth - PLOT_MARGIN.right} y2={effectiveHeight - PLOT_MARGIN.bottom} className="chart-axis" />
-        <line x1={PLOT_MARGIN.left} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left} y2={effectiveHeight - PLOT_MARGIN.bottom} className="chart-axis" />
-        {plottedBand && plottedBand.xValues.length >= 2 ? <polygon points={bandPolygon(plottedBand, effectiveWidth, effectiveHeight, bounds)} className="ensemble-confidence-band" /> : null}
+        {extrapolationPlotStart !== undefined && extrapolationPlotStart < bounds.xMax ? <g className="extrapolation-region"><rect x={plotMargin.left + ((Math.max(extrapolationPlotStart, bounds.xMin) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * plotWidth} y={plotMargin.top} width={Math.max(0, ((bounds.xMax - Math.max(extrapolationPlotStart, bounds.xMin)) / (bounds.xMax - bounds.xMin || 1)) * plotWidth)} height={height - plotMargin.top - plotMargin.bottom}/><line x1={extrapolationStartX} y1={plotMargin.top} x2={extrapolationStartX} y2={height - plotMargin.bottom}/></g> : null}
+        <line x1={plotMargin.left} y1={effectiveHeight - plotMargin.bottom} x2={effectiveWidth - plotMargin.right} y2={effectiveHeight - plotMargin.bottom} className="chart-axis" />
+        <line x1={plotMargin.left} y1={plotMargin.top} x2={plotMargin.left} y2={effectiveHeight - plotMargin.bottom} className="chart-axis" />
+        {plottedBand && plottedBand.xValues.length >= 2 ? <polygon points={bandPolygon(plottedBand, effectiveWidth, effectiveHeight, bounds, plotMargin)} className="ensemble-confidence-band" /> : null}
         {isHardening ? <g className="hardening-series-clip" clipPath={`url(#${hardeningClipId})`}>{plottedCurveLines}</g> : plottedCurveLines}
-        {extrapolationPlotStart !== undefined && extrapolationPlotStart < bounds.xMax && extrapolationLabelX !== undefined ? <g className="extrapolation-annotation-layer" aria-label="Extrapolated unobserved domain"><text className="extrapolation-label" x={extrapolationLabelX} y={PLOT_MARGIN.top - 8} textAnchor="start" textLength={plotWidth <= EXTRAPOLATION_LABEL_WIDTH ? extrapolationLabelWidth : undefined} lengthAdjust={plotWidth <= EXTRAPOLATION_LABEL_WIDTH ? "spacingAndGlyphs" : undefined} style={{ fill: "#9a5f16", fontSize: "12px", fontWeight: 800, letterSpacing: "0.08em" }}>{EXTRAPOLATION_LABEL}</text></g> : null}
-        {marker ? <g className="engineering-result-marker"><line x1={PLOT_MARGIN.left + ((toPlotX(marker.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left + ((toPlotX(marker.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y2={height - PLOT_MARGIN.bottom}/><circle cx={PLOT_MARGIN.left + ((toPlotX(marker.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} cy={height - PLOT_MARGIN.bottom - ((marker.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom)} r="5"/><text x={PLOT_MARGIN.left + ((toPlotX(marker.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right) + 8} y={Math.max(PLOT_MARGIN.top + 12, height - PLOT_MARGIN.bottom - ((marker.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom) - 8)}>{marker.label}</text></g> : null}
-        {selection?.kind === "range" ? <rect className="graph-range-selection" x={PLOT_MARGIN.left + ((toPlotX(selection.minimum) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y={PLOT_MARGIN.top} width={Math.max(1, ((toPlotX(selection.maximum) - toPlotX(selection.minimum)) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right))} height={height - PLOT_MARGIN.top - PLOT_MARGIN.bottom} /> : null}
-        {selection?.kind === "point" ? <><line className="graph-point-selection" x1={PLOT_MARGIN.left + ((toPlotX(selection.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left + ((toPlotX(selection.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y2={height - PLOT_MARGIN.bottom} /><circle className="graph-point-marker" cx={PLOT_MARGIN.left + ((toPlotX(selection.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} cy={height - PLOT_MARGIN.bottom - ((selection.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom)} r="5" /></> : null}
-        {cursor ? <><line x1={PLOT_MARGIN.left + ((cursor.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left + ((cursor.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y2={height - PLOT_MARGIN.bottom} className="chart-crosshair"/><line x1={PLOT_MARGIN.left} y1={height - PLOT_MARGIN.bottom - ((cursor.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom)} x2={width - PLOT_MARGIN.right} y2={height - PLOT_MARGIN.bottom - ((cursor.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom)} className="chart-crosshair"/></> : null}
-        <text x={(PLOT_MARGIN.left + width - PLOT_MARGIN.right) / 2} y={height - 8} textAnchor="middle" className="chart-axis-label">{quantityLabel(model.xQuantity)} [{model.xUnit}]{model.xScale === "log10" ? " · logarithmic" : ""}</text>
-        <text transform={`translate(15 ${(PLOT_MARGIN.top + height - PLOT_MARGIN.bottom) / 2}) rotate(-90)`} textAnchor="middle" className="chart-axis-label">{quantityLabel(model.yQuantity)} [{yScale.label}]</text>
+        {extrapolationPlotStart !== undefined && extrapolationPlotStart < bounds.xMax && extrapolationLabelX !== undefined ? <g className="extrapolation-annotation-layer" aria-label="Extrapolated unobserved domain"><text className="extrapolation-label" x={extrapolationLabelX} y={plotMargin.top - 8} textAnchor="start" textLength={plotWidth <= EXTRAPOLATION_LABEL_WIDTH ? extrapolationLabelWidth : undefined} lengthAdjust={plotWidth <= EXTRAPOLATION_LABEL_WIDTH ? "spacingAndGlyphs" : undefined} style={{ fill: "#9a5f16", fontSize: "12px", fontWeight: 800, letterSpacing: "0.08em" }}>{EXTRAPOLATION_LABEL}</text></g> : null}
+        {marker ? <g className="engineering-result-marker"><line x1={plotMargin.left + ((toPlotX(marker.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right)} y1={plotMargin.top} x2={plotMargin.left + ((toPlotX(marker.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right)} y2={height - plotMargin.bottom}/><circle cx={plotMargin.left + ((toPlotX(marker.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right)} cy={height - plotMargin.bottom - ((marker.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - plotMargin.top - plotMargin.bottom)} r="5"/><text x={plotMargin.left + ((toPlotX(marker.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right) + 8} y={Math.max(plotMargin.top + 12, height - plotMargin.bottom - ((marker.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - plotMargin.top - plotMargin.bottom) - 8)}>{marker.label}</text></g> : null}
+        {selection?.kind === "range" ? <rect className="graph-range-selection" x={plotMargin.left + ((toPlotX(selection.minimum) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right)} y={plotMargin.top} width={Math.max(1, ((toPlotX(selection.maximum) - toPlotX(selection.minimum)) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right))} height={height - plotMargin.top - plotMargin.bottom} /> : null}
+        {selection?.kind === "point" ? <><line className="graph-point-selection" x1={plotMargin.left + ((toPlotX(selection.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right)} y1={plotMargin.top} x2={plotMargin.left + ((toPlotX(selection.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right)} y2={height - plotMargin.bottom} /><circle className="graph-point-marker" cx={plotMargin.left + ((toPlotX(selection.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right)} cy={height - plotMargin.bottom - ((selection.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - plotMargin.top - plotMargin.bottom)} r="5" /></> : null}
+        {cursor ? <><line x1={plotMargin.left + ((cursor.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right)} y1={plotMargin.top} x2={plotMargin.left + ((cursor.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right)} y2={height - plotMargin.bottom} className="chart-crosshair"/><line x1={plotMargin.left} y1={height - plotMargin.bottom - ((cursor.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - plotMargin.top - plotMargin.bottom)} x2={width - plotMargin.right} y2={height - plotMargin.bottom - ((cursor.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - plotMargin.top - plotMargin.bottom)} className="chart-crosshair"/></> : null}
+        <text x={(plotMargin.left + width - plotMargin.right) / 2} y={height - 8} textAnchor="middle" className="chart-axis-label">{quantityLabel(model.xQuantity)} [{model.xUnit}]{model.xScale === "log10" ? " · logarithmic" : ""}</text>
+        <text transform={`translate(15 ${(plotMargin.top + height - plotMargin.bottom) / 2}) rotate(-90)`} textAnchor="middle" className="chart-axis-label">{quantityLabel(model.yQuantity)} [{yScale.label}]</text>
       </svg>
       <div className="curve-legend interactive" aria-label="Curve visibility">
         {validSeries.filter((series, index, all) => hardeningResponseSeries.some((item) => item.id === series.id) && (!isHardening || !series.className.includes("extrapolated-domain")) && (!isHardening || index === all.findIndex((item) => item.id.split(".observed")[0] === series.id.split(".observed")[0]))).map((series) => <button type="button" className={hiddenSeries.includes(series.id) ? "hidden" : ""} key={series.id} onClick={() => setHiddenSeries((current) => current.includes(series.id) ? current.filter((item) => item !== series.id) : [...current, series.id])} aria-pressed={!hiddenSeries.includes(series.id)}><i style={{ background: series.color }} />{isHardening && series.className.includes("fitted-domain") ? series.label.replace(" · fit", "") : series.label}</button>)}
         {isHardening && hardeningMode === "response" ? <span className="curve-band-legend">Shaded: extrapolated/unobserved</span> : null}
         {model.band ? <span className="curve-band-legend"><i />{model.band.label}</span> : null}
+      </div>
       </div>
       {!selectedModelOnly && (ensemblePreview?.diagnostics ?? activeStage.diagnostics).length ? <details className="stage-diagnostics"><summary>{ensemblePreview ? "Alignment and statistics notes" : "Calculation notes"} <span>{(ensemblePreview?.diagnostics ?? activeStage.diagnostics).length}</span></summary>{(ensemblePreview?.diagnostics ?? activeStage.diagnostics).map((item) => <p key={item}>{item}</p>)}</details> : null}
       {!selectedModelOnly && !ensemblePreview && (activeStage.scalar_results ?? []).length ? <details className="model-diagnostics-details"><summary>Parameters and numerical evidence ({activeStage.scalar_results?.length})</summary><div className="metal-scalar-grid" aria-label="Processing scalar results">{(activeStage.scalar_results ?? []).map((item) => <article key={item.key}><span>{item.key.replaceAll("_", " ").replaceAll(".", " ")}</span><strong>{item.unit === "Pa" ? `${(item.value / 1e9).toPrecision(6)} GPa` : item.value.toPrecision(7)}</strong><small>{item.quantity_semantics} · {item.unit}</small></article>)}</div></details> : null}

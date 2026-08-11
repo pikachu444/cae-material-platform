@@ -292,6 +292,25 @@ export function ModelingDataIntake({
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const observedPreviewCache = useRef(new Map<string, CommonProcessingPreview>());
+  const observedConfigKey = `${config.baseUrl}\u0000${config.accessToken ?? ""}`;
+  const observedDocumentKey = documents
+    .map((item) => `${item.test_data_document_id}:${item.current_revision.id}:${item.specimen_id}`)
+    .join("|");
+  const observedRefKey = selectedTestDataRefs
+    .map((ref) => `${ref.id}:${ref.revisionId}:${ref.revisionNo}:${ref.label}`)
+    .join("|");
+  const observedVisibilityKey = visibleDocumentKeys.join("|");
+  const observedRequestKey = [
+    observedConfigKey,
+    observedDocumentKey,
+    observedRefKey,
+    observedVisibilityKey,
+    processingMappingProfileText,
+  ].join("\u0001");
+  // Advance only from a committed effect. Mutating a "latest key" ref during
+  // render lets an interrupted concurrent render invalidate the request owned
+  // by the last committed surface without ever starting a replacement.
+  const observedHydrationGeneration = useRef(0);
 
   useEffect(() => {
     const selectLocalSource = (event: Event) => {
@@ -361,22 +380,30 @@ export function ModelingDataIntake({
   }, [config, state]);
 
   useEffect(() => {
+    const generation = observedHydrationGeneration.current + 1;
+    observedHydrationGeneration.current = generation;
     const controller = new AbortController();
     const visibleRefs = selectedTestDataRefs.filter((ref) => visibleDocumentKeys.includes(`${ref.id}:${ref.revisionId}`));
     if (!visibleRefs.length) {
       onObservedCurves([]);
-      return () => controller.abort();
+      return () => {
+        controller.abort();
+        if (observedHydrationGeneration.current === generation) observedHydrationGeneration.current += 1;
+      };
     }
     let profile: CommonMappingProfileContent;
     try {
       profile = JSON.parse(processingMappingProfileText) as CommonMappingProfileContent;
     } catch {
       onObservedCurves([]);
-      return () => controller.abort();
+      return () => {
+        controller.abort();
+        if (observedHydrationGeneration.current === generation) observedHydrationGeneration.current += 1;
+      };
     }
     void Promise.allSettled(visibleRefs.map(async (ref) => {
       const item = documents.find((candidate) => candidate.test_data_document_id === ref.id);
-      const key = `${ref.id}:${ref.revisionId}`;
+      const key = `${ref.id}:${ref.revisionId}:${processingMappingProfileText}`;
       const cached = observedPreviewCache.current.get(key);
       if (cached) return { ref, item, preview: cached };
       const downloaded = await downloadCanonicalTestDataDocument(config, ref.id, ref.revisionId);
@@ -390,7 +417,7 @@ export function ModelingDataIntake({
       observedPreviewCache.current.set(key, result.data);
       return { ref, item, preview: result.data };
     })).then((results) => {
-      if (controller.signal.aborted) return;
+      if (controller.signal.aborted || observedHydrationGeneration.current !== generation) return;
       const curves = results.flatMap((result, index) => {
         if (result.status !== "fulfilled" || !result.value) return [];
         const { ref, item, preview } = result.value;
@@ -402,12 +429,20 @@ export function ModelingDataIntake({
         }];
       });
       onObservedCurves(curves);
+      if (curves.length !== visibleRefs.length) {
+        setNotice("One or more Test Data curves could not be previewed; available curves remain visible.");
+      }
     }).catch((caught: unknown) => {
       if (caught instanceof Error && caught.name === "AbortError") return;
-      if (!controller.signal.aborted) setNotice("One or more Test Data curves could not be previewed; available curves remain visible.");
+      if (!controller.signal.aborted && observedHydrationGeneration.current === generation) {
+        setNotice("One or more Test Data curves could not be previewed; available curves remain visible.");
+      }
     });
-    return () => controller.abort();
-  }, [config, documents, onObservedCurves, processingMappingProfileText, selectedTestDataRefs, visibleDocumentKeys]);
+    return () => {
+      controller.abort();
+      if (observedHydrationGeneration.current === generation) observedHydrationGeneration.current += 1;
+    };
+  }, [observedRequestKey, onObservedCurves]);
 
   useEffect(() => {
     if (!selectedRun) return;

@@ -120,9 +120,12 @@
 }
 
 .resizable-workspace {
+  position: relative;
+  width: calc(100% - var(--ux-shell-inline-gutter) - var(--ux-shell-inline-gutter));
   min-width: 0;
   height: calc(100vh - var(--ux-shell-top-height) - var(--ux-status-bar-height) - 40px);
   min-height: 520px;
+  margin-inline: var(--ux-shell-inline-gutter);
 }
 
 .materials-datasheet-page .resizable-workspace {
@@ -131,11 +134,12 @@
 
 .materials-workspace {
   display: flex;
-  width: calc(100% - var(--ux-shell-inline-gutter) - var(--ux-shell-inline-gutter));
+  width: 100%;
   min-width: 0;
   height: 100%;
   min-height: 0;
-  margin: 0 var(--ux-shell-inline-gutter);
+  box-sizing: border-box;
+  margin: 0;
   border-inline: 1px solid var(--ux-border);
   background: var(--ux-surface);
 }
@@ -1949,7 +1953,7 @@
 .activity-heading h1,
 .activity-section-heading h2 {
   margin: 0;
-  font-size: 16px;
+  font-size: var(--ux-emphasis-font-size);
   font-weight: 650;
 }
 
@@ -2010,11 +2014,11 @@
   text-transform: uppercase;
 }
 
-.activity-column-task { width: 20%; }
-.activity-column-reason { width: 48%; }
-.activity-column-status { width: 12%; }
-.activity-column-updated { width: 12%; }
-.activity-column-action { width: 8%; }
+.activity-column-task { width: clamp(220px, 20%, 420px); }
+.activity-column-reason { width: auto; }
+.activity-column-status { width: 168px; }
+.activity-column-updated { width: 160px; }
+.activity-column-action { width: 128px; }
 
 .activity-table th:last-child { text-align: right; }
 
@@ -2069,9 +2073,54 @@
 }
 
 .activity-cell-action .ux-button {
+  max-width: 100%;
   min-height: var(--ux-control-min-block-size);
+  padding-inline: var(--ux-space-2);
   font-size: var(--ux-data-font-size);
-  white-space: nowrap;
+  white-space: normal;
+}
+
+.materials-context-overlay {
+  position: absolute;
+  z-index: 12;
+  inset-block: 0;
+  inset-inline-end: var(--ux-shell-inline-gutter);
+  display: grid;
+  grid-template-rows: max-content minmax(0, 1fr);
+  width: min(
+    var(--ux-context-default-inline-size),
+    calc(100% - var(--ux-space-4) - var(--ux-space-4))
+  );
+  max-width: calc(100% - var(--ux-space-4) - var(--ux-space-4));
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+  border-inline-start: 1px solid var(--ux-border-strong);
+  background: var(--ux-surface);
+  box-shadow: var(--ux-shadow-overlay);
+}
+
+.materials-context-overlay > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ux-space-2);
+  min-height: var(--ux-command-bar-height);
+  padding: 0 var(--ux-pane-padding);
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.materials-context-overlay > header h2 {
+  margin: 0;
+  font-size: var(--ux-emphasis-font-size);
+  text-transform: capitalize;
+}
+
+.materials-context-overlay-content {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
 }
 
 .activity-decision-row > td {
@@ -2866,8 +2915,9 @@
 
 .schema-editor-header,
 .schema-editor-grid {
-  width: min(100%, var(--ux-bounded-workgroup-max-inline-size));
-  margin-inline: auto;
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
 }
 
 .schema-editor-header {
@@ -2907,16 +2957,8 @@
 .schema-editor-grid {
   display: grid;
   grid-template-columns:
-    clamp(
-      var(--ux-navigator-min-inline-size),
-      18vw,
-      var(--ux-navigator-max-inline-size)
-    )
-    clamp(
-      var(--ux-context-min-inline-size),
-      27vw,
-      var(--ux-context-max-inline-size)
-    )
+    minmax(0, var(--ux-navigator-default-inline-size))
+    minmax(18rem, 1fr)
     minmax(0, var(--ux-readable-form-max-inline-size));
   min-height: calc(100vh - var(--ux-shell-top-height) - var(--ux-status-bar-height) - 90px);
   border-bottom: 1px solid var(--ux-border);
@@ -2926,7 +2968,7 @@
 .schema-object-list,
 .schema-property-editor {
   min-width: 0;
-  padding: var(--ux-space-3);
+  padding: var(--ux-pane-padding);
   border-right: 1px solid var(--ux-border);
 }
 
@@ -2937,7 +2979,7 @@
 .schema-object-navigator > p {
   margin: 0 0 6px;
   color: var(--ux-text-muted);
-  font-size: 12px;
+  font-size: var(--ux-metadata-font-size);
   font-weight: 650;
 }
 
@@ -2946,14 +2988,14 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  min-height: 32px;
-  padding: 5px 8px;
+  min-height: var(--ux-navigator-row-block-size);
+  padding: var(--ux-space-1) var(--ux-space-2);
   border: 0;
   border-bottom: 1px solid var(--ux-border);
   border-radius: 0;
   background: transparent;
   color: var(--ux-text);
-  font-size: 12.5px;
+  font-size: var(--ux-data-font-size);
   text-align: left;
 }
 
@@ -2966,7 +3008,7 @@
 .schema-object-list header span,
 .property-sheet header span {
   color: var(--ux-text-muted);
-  font-size: 11.5px;
+  font-size: var(--ux-metadata-font-size);
   font-weight: 500;
 }
 
@@ -2981,7 +3023,7 @@
 .schema-table-context label,
 .property-fields label {
   color: var(--ux-text-muted);
-  font-size: 12px;
+  font-size: var(--ux-metadata-font-size);
   font-weight: 600;
 }
 
@@ -2990,18 +3032,18 @@
 .property-fields select,
 .property-fields textarea {
   width: 100%;
-  min-height: 34px;
+  min-height: var(--ux-input-min-block-size);
   box-sizing: border-box;
   padding: 6px 8px;
   border-radius: var(--ux-radius-control);
   font: inherit;
-  font-size: 13px;
+  font-size: var(--ux-data-font-size);
 }
 
 .schema-table-context p {
   margin: 0;
   color: var(--ux-text-muted);
-  font-size: 12px;
+  font-size: var(--ux-metadata-font-size);
   line-height: 1.4;
 }
 
@@ -3014,7 +3056,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 32px;
+  min-height: var(--ux-interactive-min-block-size);
   padding: 0 var(--ux-space-3) 7px;
   border-bottom: 1px solid var(--ux-border);
 }
@@ -3023,7 +3065,7 @@
   display: grid;
   gap: 2px;
   width: 100%;
-  min-height: 50px;
+  min-height: var(--ux-work-row-min-block-size);
   padding: 7px var(--ux-space-3);
   border: 0;
   border-bottom: 1px solid var(--ux-border);
@@ -3039,21 +3081,21 @@
 }
 
 .schema-list-rows strong {
-  font-size: 13px;
+  font-size: var(--ux-data-font-size);
   font-weight: 600;
 }
 
 .schema-list-rows small {
   overflow: hidden;
   color: var(--ux-text-muted);
-  font-size: 12px;
+  font-size: var(--ux-metadata-font-size);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .schema-list-rows .muted {
   padding: var(--ux-space-3);
-  font-size: 12.5px;
+  font-size: var(--ux-data-font-size);
 }
 
 .schema-property-editor {
@@ -3069,7 +3111,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 34px;
+  min-height: var(--ux-interactive-min-block-size);
   padding-bottom: var(--ux-space-3);
   border-bottom: 1px solid var(--ux-border);
 }
@@ -3127,7 +3169,7 @@
   display: grid;
   gap: var(--ux-space-2);
   grid-template-columns: auto minmax(120px, 1fr) minmax(120px, 1fr);
-  min-height: 38px;
+  min-height: var(--ux-input-min-block-size);
 }
 
 .layout-field-picker input {
@@ -3147,7 +3189,7 @@
   display: grid;
   grid-template-columns: 150px minmax(0, 1fr);
   gap: var(--ux-space-3);
-  min-height: 34px;
+  min-height: var(--ux-interactive-min-block-size);
   padding: 7px 0;
   border-bottom: 1px solid var(--ux-border);
 }
@@ -3155,7 +3197,7 @@
 .property-sheet dt,
 .property-sheet dd {
   margin: 0;
-  font-size: 12.5px;
+  font-size: var(--ux-data-font-size);
 }
 
 .property-sheet dt {
@@ -3601,16 +3643,19 @@
   white-space: nowrap;
 }
 
-/* The Process result is the direct server response.  Keep its action-needed
-   note compact while letting the saved-results disclosure provide the optional
-   comparison surface below. */
-.modeling-workspace-stage-process .persistent-modeling-plot {
-  min-height: 280px;
-}
-
-.modeling-workspace-stage-process .persistent-modeling-plot .processing-curve.interactive,
-.modeling-workspace-stage-process .persistent-modeling-plot .engineering-curve-plot-empty-svg {
-  min-height: 230px;
+/* Active and empty graphs are sized by their semantic plot frame. The shared
+   workspace allocation owns the minimum; a child SVG must never preserve an
+   older fixed minimum after the ribbon, pane, or browser zoom changes the
+   frame. ResizeObserver then keeps the viewBox, axes, labels, legend and hit
+   regions on this same measured rectangle. */
+.persistent-modeling-plot .engineering-plot-frame > .processing-curve,
+.persistent-modeling-plot .engineering-plot-frame > .engineering-curve-plot-empty-svg {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: 100%;
 }
 
 /* All normal surfaces use the same compact top-action grammar. */
@@ -4904,79 +4949,55 @@
   grid-row: 1;
 }
 
-.persistent-modeling-plot .processing-curve.interactive {
+.persistent-modeling-plot > .engineering-plot-frame {
   grid-column: 1 / -1;
   grid-row: 2;
   align-self: stretch;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+}
+
+.persistent-modeling-plot .processing-curve.interactive {
+  display: block;
   width: 100%;
   height: 100%;
   min-height: 0;
 }
 
-.persistent-modeling-plot > .curve-legend {
+.persistent-modeling-plot .engineering-plot-frame > .curve-legend {
   position: absolute;
   z-index: 2;
-  right: 16px;
-  bottom: 18px;
-  max-width: calc(100% - 32px);
+  right: var(--ux-space-4);
+  top: var(--ux-space-2);
+  bottom: auto;
+  max-width: calc(100% - var(--ux-space-4) - var(--ux-space-4));
+  max-height: calc(100% - var(--ux-space-2) - var(--ux-space-2));
   margin: 0;
-  padding: 4px 6px;
+  padding: var(--ux-space-1) var(--ux-space-2);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
   background: color-mix(in srgb, var(--ux-surface) 90%, transparent);
 }
 
-.persistent-modeling-plot > .curve-legend.interactive {
+.persistent-modeling-plot .engineering-plot-frame > .curve-legend.interactive {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   width: auto;
-  max-width: 230px;
-  gap: 1px;
+  max-width: var(--ux-plot-legend-max-inline-size);
+  gap: var(--ux-space-1);
 }
 
-.persistent-modeling-plot > .curve-legend.interactive button {
+.persistent-modeling-plot .engineering-plot-frame > .curve-legend.interactive button {
   min-height: 16px;
   justify-content: start;
   padding: 1px 3px;
   border: 0;
   border-radius: 0;
   background: transparent;
-  font-size: 10px;
-  line-height: 1.15;
-}
-
-/* Process-only plot chrome: keep the compact interactive key in the
-   curve-free lower-right, above EngineeringCurvePlot's fixed 52px x-axis
-   margin.  Data/Fit/Export keep their existing legend placement rules. */
-.modeling-workspace-stage-process .persistent-modeling-plot > .curve-legend {
-  bottom: 60px;
-}
-
-.modeling-workspace-stage-process .persistent-modeling-plot > .curve-legend.interactive {
-  max-width: 230px;
-}
-
-.modeling-workspace-stage-process .persistent-modeling-plot > .curve-legend.interactive button {
-  min-height: 16px;
-  padding: 1px 3px;
-  font-size: 10px;
-  line-height: 1.15;
-}
-
-/* Fit's key is intentionally overlaid in the lower-right plot gutter.  The
-   92px bottom inset clears the final x tick and axis title while retaining a
-   native, compact legend instead of adding a permanent inspector column. */
-.modeling-workspace-stage-fit .persistent-modeling-plot > .curve-legend {
-  right: 24px;
-  bottom: 92px;
-  max-width: calc(100% - 48px);
-}
-
-.modeling-workspace-stage-fit .persistent-modeling-plot > .curve-legend.interactive {
-  max-width: 230px;
-}
-
-.modeling-workspace-stage-fit .persistent-modeling-plot > .curve-legend.interactive button {
-  min-height: 16px;
-  padding: 1px 3px;
   font-size: 10px;
   line-height: 1.15;
 }
@@ -4997,10 +5018,6 @@
   .persistent-modeling-plot .processing-curve.interactive {
     height: 100%;
     min-height: 0;
-  }
-
-  .modeling-workspace-stage-process .persistent-modeling-plot > .curve-legend {
-    bottom: 60px;
   }
 
   .persistent-modeling-plot .processing-curve .chart-tick,
@@ -5859,8 +5876,8 @@
 }
 
 .application-shell main.processing-workbench-page .fit-evidence-body::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
+  width: var(--ux-scrollbar-track-size);
+  height: var(--ux-scrollbar-track-size);
 }
 
 .application-shell main.processing-workbench-page .fit-evidence-body::-webkit-scrollbar-track {
@@ -5869,7 +5886,7 @@
 }
 
 .application-shell main.processing-workbench-page .fit-evidence-body::-webkit-scrollbar-thumb {
-  min-height: 24px;
+  min-height: var(--ux-scrollbar-thumb-min-size);
   border: 2px solid var(--ux-surface-subtle);
   background: var(--ux-border-strong);
 }
@@ -6284,14 +6301,25 @@
 }
 
 .modeling-data-ribbon-panel {
-  overflow: visible;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .modeling-data-ribbon-panel > .modeling-task-ribbon {
   height: 100%;
   min-height: 0;
   max-height: none;
-  overflow: visible;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+.modeling-data-ribbon-panel > .modeling-task-ribbon-scrollable {
+  box-sizing: border-box;
+  padding-block-end: var(--ux-space-2);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-padding-block: var(--ux-space-2);
+  scrollbar-gutter: stable;
 }
 
 .modeling-data-plot-panel {
@@ -6338,7 +6366,7 @@
   display: grid;
   grid-template-columns: max-content minmax(0, 1fr);
   align-items: center;
-  gap: 4px 8px;
+  gap: var(--ux-space-1) var(--ux-space-2);
   min-width: 0;
 }
 
@@ -6346,25 +6374,25 @@
 .modeling-main-surface:has(.data-source-decision-grid) .data-source-decision-grid .data-mapping-decision .data-intake-attention > label > :is(input, select) {
   grid-column: 2;
   box-sizing: border-box;
-  min-height: 32px;
-  height: auto;
-  padding: 4px 8px;
-  font-size: 13px;
+  min-height: var(--ux-input-min-block-size);
+  height: var(--ux-input-min-block-size);
+  padding: var(--ux-space-1) var(--ux-space-2);
+  font-size: var(--ux-data-font-size);
 }
 
 .modeling-main-surface:has(.data-source-decision-grid) .data-source-advanced:not([open]) {
   box-sizing: border-box;
-  height: 22px;
+  height: var(--ux-interactive-min-block-size);
   display: grid;
   grid-template-rows: auto;
   gap: 0;
-  min-height: 22px;
+  min-height: var(--ux-interactive-min-block-size);
   padding-top: 0;
   overflow: hidden;
 }
 
 .modeling-main-surface:has(.data-source-decision-grid) .data-source-advanced:not([open]) > summary {
-  min-height: 21px;
+  min-height: var(--ux-interactive-min-block-size);
   line-height: 1.2;
 }
 
@@ -6372,31 +6400,16 @@
   display: none;
 }
 
-/* Keep the three real curve identities visible in a compact upper overlay,
-   clear of the toolbar and the bottom/left axes. Shared typography remains
-   authoritative at 12px. */
-.modeling-main-surface:has(.data-intake-local.has-mapping-blockers) .persistent-modeling-plot > .curve-legend.interactive {
-  top: 44px;
-  right: 16px;
-  bottom: auto;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  width: min(520px, calc(100% - 32px));
-  max-width: calc(100% - 32px);
-  gap: 4px 10px;
-}
-
 /* Task 1 mapping controls use the native compact control grammar.  These
    selectors intentionally outrank the page-wide workbench minimums without
    changing controls in Process, Fit, or Export. */
 .modeling-main-surface.has-data-split .data-mapping-decision .data-mapping-table select {
   box-sizing: border-box;
-  height: 26px;
-  min-height: 26px;
+  height: var(--ux-input-min-block-size);
+  min-height: var(--ux-input-min-block-size);
   padding-block: 0;
-  padding-inline: 4px;
-  font-size: 13px;
+  padding-inline: var(--ux-space-2);
+  font-size: var(--ux-data-font-size);
   line-height: normal;
   appearance: auto;
 }
@@ -6404,21 +6417,21 @@
 .modeling-main-surface.has-data-split .data-intake-local > .data-intake-row select[name="local-test-run"],
 .modeling-main-surface.has-data-split .data-mapping-decision select[name="local-data-schema"] {
   box-sizing: border-box;
-  height: 28px;
-  min-height: 28px;
+  height: var(--ux-input-min-block-size);
+  min-height: var(--ux-input-min-block-size);
   padding-block: 0;
-  padding-inline: 6px;
-  font-size: 13px;
+  padding-inline: var(--ux-space-2);
+  font-size: var(--ux-data-font-size);
   line-height: normal;
 }
 
 .modeling-main-surface.has-data-split .data-source-decision-grid .data-mapping-decision .data-intake-attention > label > select[name="local-data-schema"] {
   box-sizing: border-box;
-  height: 28px;
-  min-height: 28px;
+  height: var(--ux-input-min-block-size);
+  min-height: var(--ux-input-min-block-size);
   padding-block: 0;
-  padding-inline: 6px;
-  font-size: 13px;
+  padding-inline: var(--ux-space-2);
+  font-size: var(--ux-data-font-size);
   line-height: normal;
 }
 
@@ -6427,8 +6440,8 @@
   grid-template-columns: minmax(0, 1fr) auto;
   grid-template-rows: auto auto;
   align-content: start;
-  column-gap: 8px;
-  row-gap: 4px;
+  column-gap: var(--ux-space-2);
+  row-gap: var(--ux-space-1);
 }
 
 .modeling-main-surface.has-data-split .data-mapping-recovery-detail > label {
@@ -6436,7 +6449,7 @@
   grid-column: 1 / -1;
   grid-template-columns: max-content minmax(0, 1fr);
   align-items: center;
-  gap: 4px 8px;
+  gap: var(--ux-space-1) var(--ux-space-2);
   min-width: 0;
 }
 
@@ -6444,10 +6457,10 @@
   box-sizing: border-box;
   grid-column: 2;
   width: 100%;
-  height: 28px;
-  min-height: 28px;
-  padding: 0 6px;
-  font-size: 13px;
+  height: var(--ux-input-min-block-size);
+  min-height: var(--ux-input-min-block-size);
+  padding: 0 var(--ux-space-2);
+  font-size: var(--ux-data-font-size);
   line-height: normal;
 }
 
@@ -6458,8 +6471,8 @@
   min-width: 0;
   margin: 0;
   color: var(--ux-text-muted);
-  font-size: 11.5px;
-  line-height: 14px;
+  font-size: var(--ux-metadata-font-size);
+  line-height: 1.2;
   overflow-wrap: normal;
 }
 
@@ -6467,24 +6480,24 @@
   grid-column: 2;
   grid-row: 2;
   align-self: center;
-  min-height: 28px;
-  gap: 6px;
+  min-height: var(--ux-control-min-block-size);
+  gap: var(--ux-space-1);
 }
 
 .modeling-main-surface.has-data-split .data-mapping-actions .button {
   box-sizing: border-box;
-  height: 28px;
-  min-height: 28px;
-  padding: 0 10px;
-  font-size: 13px;
+  height: var(--ux-control-min-block-size);
+  min-height: var(--ux-control-min-block-size);
+  padding: 0 var(--ux-space-2);
+  font-size: var(--ux-data-font-size);
   line-height: normal;
 }
 
 .modeling-main-surface.has-data-split .data-mapping-recovery-row {
   grid-column: 1 / -1;
   grid-template-columns: minmax(480px, .85fr) minmax(360px, 1.15fr);
-  column-gap: 8px;
-  row-gap: 4px;
+  column-gap: var(--ux-space-2);
+  row-gap: var(--ux-space-1);
 }
 
 .modeling-main-surface.has-data-split .data-mapping-recovery-row .data-mapping-blockers {
@@ -6492,12 +6505,12 @@
   min-width: 480px;
   min-height: 0;
   max-width: none;
-  max-height: 70px;
-  padding: 4px 8px;
+  max-height: calc(var(--ux-interactive-min-block-size) * 2);
+  padding: var(--ux-space-1) var(--ux-space-2);
   gap: 0;
   color: var(--ux-danger);
-  font-size: 13px;
-  line-height: 16px;
+  font-size: var(--ux-data-font-size);
+  line-height: 1.2;
   white-space: normal;
   overflow-wrap: normal;
 }
@@ -6509,26 +6522,26 @@
 
 .modeling-main-surface.has-data-split .data-mapping-decision .data-mapping-table th,
 .modeling-main-surface.has-data-split .data-mapping-decision .data-mapping-table td {
-  padding-block: 2px;
+  padding-block: var(--ux-table-cell-padding-block);
 }
 
 .modeling-main-surface.has-data-split .data-source-decision-grid .data-raw-table th,
 .modeling-main-surface.has-data-split .data-source-decision-grid .data-raw-table td {
-  padding-block: 2px;
-  padding-inline: 5px;
+  padding-block: var(--ux-table-cell-padding-block);
+  padding-inline: var(--ux-table-cell-padding-inline);
 }
 
 .modeling-main-surface.has-data-split .modeling-data-intake {
-  padding-block: 4px;
-  padding-inline: 12px;
+  padding-block: var(--ux-space-1);
+  padding-inline: var(--ux-pane-padding);
 }
 
 .modeling-main-surface.has-data-split .data-source-advanced:not([open]) > summary {
   box-sizing: border-box;
-  height: 21px;
-  min-height: 21px;
+  height: var(--ux-interactive-min-block-size);
+  min-height: var(--ux-interactive-min-block-size);
   padding-block: 0;
-  line-height: 21px;
+  line-height: normal;
 }
 
 @container (max-width: 847px) {
@@ -6709,24 +6722,35 @@
   line-height: 14px;
 }
 
-/* Data-only compact native controls.  The file input remains native and the
-   selector button stays inside the measured 28px outer control. */
+/* Data-only native controls consume the same density contract as the rest of
+   the workbench. The file selector remains native inside the shared input. */
 .modeling-main-surface.has-data-split .data-intake-local > .data-intake-row > label,
 .modeling-main-surface.has-data-split .data-intake-local > .data-intake-row > button {
   align-self: end;
 }
 
 .modeling-main-surface.has-data-split .data-intake-local > .data-intake-row select[name="local-test-run"],
-.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row input[type="file"],
-.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row > button {
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row input[type="file"] {
   box-sizing: border-box;
-  height: 28px;
-  min-height: 28px;
+  height: var(--ux-input-min-block-size);
+  min-height: var(--ux-input-min-block-size);
   margin: 0;
   padding-block: 0;
   border-radius: 0;
   box-shadow: none;
-  font-size: 13px;
+  font-size: var(--ux-data-font-size);
+  line-height: normal;
+}
+
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row > button {
+  box-sizing: border-box;
+  height: var(--ux-control-min-block-size);
+  min-height: var(--ux-control-min-block-size);
+  margin: 0;
+  padding-block: 0;
+  border-radius: 0;
+  box-shadow: none;
+  font-size: var(--ux-data-font-size);
   line-height: normal;
 }
 
@@ -6736,10 +6760,10 @@
 
 .modeling-main-surface.has-data-split .data-intake-local > .data-intake-row input[type="file"]::file-selector-button {
   box-sizing: border-box;
-  height: 26px;
-  min-height: 26px;
+  height: calc(var(--ux-input-min-block-size) - 2px);
+  min-height: calc(var(--ux-input-min-block-size) - 2px);
   margin: 0;
-  padding: 0 8px;
+  padding: 0 var(--ux-space-2);
   border: 0;
   border-right: 1px solid var(--ux-border);
   border-radius: 0;
@@ -6767,4 +6791,595 @@
 
 .modeling-main-surface.has-data-split .data-mapping-actions .button.is-prerequisite-blocked:disabled {
   background: var(--ux-surface-subtle);
+}
+
+/* Issue #184: every active Modeling surface consumes the #221-approved shared
+   density contract. These are component bindings only: tier values remain in
+   tokens.css and no route, viewport, DPR, or resolution selects a density. */
+.processing-workbench-page {
+  font-size: var(--ux-data-font-size);
+}
+
+.processing-workbench-page > .method-builder-card > .section-heading,
+.modeling-context-strip {
+  min-height: var(--ux-control-min-block-size);
+}
+
+.processing-workbench-page > .method-builder-card > .section-heading {
+  flex-basis: var(--ux-control-min-block-size);
+}
+
+.modeling-context-strip {
+  flex-basis: var(--ux-control-min-block-size);
+  padding-inline: var(--ux-pane-padding);
+}
+
+.modeling-work-title :is(h1, strong),
+.persistent-modeling-plot > .section-heading .workspace-caption,
+.application-shell main.processing-workbench-page .persistent-modeling-plot > .section-heading .workspace-caption,
+.application-shell main.processing-workbench-page .persistent-modeling-plot > .section-heading h2.fit-plot-heading {
+  font-size: var(--ux-emphasis-font-size);
+}
+
+.modeling-work-title span,
+.modeling-notice-line,
+.modeling-stage-shell strong,
+.processing-workbench-page :is(small, .eyebrow, .option-hint, .workspace-caption, .step-index),
+.processing-workbench-page :is(label, legend, code),
+.processing-workbench-page .stage-chip-rail :is(span, strong, small),
+.processing-workbench-page .rail-heading > span {
+  font-size: var(--ux-metadata-font-size);
+}
+
+.modeling-notice-line {
+  min-height: var(--ux-status-bar-height);
+  padding: var(--ux-space-1) var(--ux-space-2);
+}
+
+.application-shell:has(.processing-workbench-page) .modeling-stage-shell,
+.application-shell:has(.processing-workbench-page) .modeling-stage-shell button {
+  min-height: var(--ux-interactive-min-block-size);
+}
+
+.application-shell:has(.processing-workbench-page) .modeling-stage-shell {
+  flex-basis: var(--ux-interactive-min-block-size);
+}
+
+.modeling-stage-shell button {
+  gap: var(--ux-space-1);
+  padding: var(--ux-space-1) var(--ux-space-2);
+}
+
+.application-shell main.processing-workbench-page .modeling-context-actions :is(.button, .modeling-advanced-menu > summary),
+.application-shell main.processing-workbench-page .modeling-advanced-menu,
+.processing-workbench-page .button,
+.processing-workbench-page .plot-view-switch > button,
+.processing-workbench-page .modeling-plot-toolbar button,
+.processing-workbench-page .hardening-analysis-tabs button {
+  min-height: var(--ux-interactive-min-block-size);
+  height: auto;
+  font-size: var(--ux-metadata-font-size);
+}
+
+.modeling-context-actions,
+.modeling-section-actions,
+.modeling-ribbon-actions {
+  gap: var(--ux-space-2);
+}
+
+.application-shell main.processing-workbench-page .modeling-context-actions > .modeling-advanced-menu {
+  display: flex;
+  align-self: center;
+  align-items: center;
+  min-height: 0;
+  height: auto;
+}
+
+.modeling-advanced-menu > div {
+  min-width: var(--ux-navigator-min-inline-size);
+  padding: var(--ux-space-1);
+}
+
+.modeling-advanced-menu button {
+  min-height: var(--ux-interactive-min-block-size);
+  padding: var(--ux-space-1) var(--ux-space-2);
+  font-size: var(--ux-metadata-font-size);
+}
+
+.modeling-workspace-rail::-webkit-scrollbar {
+  width: var(--ux-scrollbar-track-size);
+  height: var(--ux-scrollbar-track-size);
+}
+
+.modeling-workspace-rail::-webkit-scrollbar-thumb {
+  min-height: var(--ux-scrollbar-thumb-min-size);
+}
+
+.curve-filter {
+  padding: var(--ux-space-1) var(--ux-space-2);
+}
+
+.curve-filter input,
+.rail-statistics-action :is(input, .button) {
+  min-height: var(--ux-interactive-min-block-size);
+  padding-inline: var(--ux-space-2);
+  font-size: var(--ux-data-font-size);
+}
+
+.curve-tree-group > details > article,
+.configured-step-list > button,
+.curve-group-row,
+.curve-row-label,
+.curve-include-toggle,
+.curve-visibility-toggle {
+  min-height: var(--ux-navigator-row-block-size);
+}
+
+.curve-visibility-toggle {
+  width: var(--ux-navigator-row-block-size);
+  height: var(--ux-navigator-row-block-size);
+}
+
+.curve-group-row,
+.curve-row-label strong,
+.configured-step-list > button strong,
+.rail-heading,
+.configured-step-list > .rail-title {
+  font-size: var(--ux-data-font-size);
+}
+
+.curve-group-row > small,
+.curve-row-label small,
+.configured-step-list > button small,
+.rail-statistics-action label {
+  font-size: var(--ux-metadata-font-size);
+}
+
+.rail-heading,
+.configured-step-list > .rail-title {
+  min-height: var(--ux-interactive-min-block-size);
+  padding-inline: var(--ux-space-2);
+}
+
+.data-library-pane .data-library-list {
+  max-height: calc(
+    var(--ux-navigator-row-block-size)
+    + var(--ux-navigator-row-block-size)
+    + var(--ux-navigator-row-block-size)
+    + var(--ux-space-1)
+  );
+}
+
+.data-library-pane .data-library-row,
+.data-library-row {
+  min-height: var(--ux-navigator-row-block-size);
+  column-gap: var(--ux-space-2);
+  padding-inline: var(--ux-space-2);
+}
+
+.data-library-pane .data-library-row > strong,
+.data-library-row :is(strong, td) {
+  font-size: var(--ux-data-font-size);
+}
+
+.data-library-pane .data-library-row > :is(span, small),
+.data-library-row :is(span, small) {
+  font-size: var(--ux-metadata-font-size);
+}
+
+.modeling-data-intake,
+.data-raw-table table,
+.data-mapping-table table,
+.data-raw-table td,
+.data-mapping-table td,
+.data-mapping-blockers,
+.data-mapping-recovery-row .data-mapping-blockers {
+  font-size: var(--ux-data-font-size);
+}
+
+.data-intake-row label,
+.data-intake-attention label,
+.data-mapping-resolved label,
+.data-raw-table th,
+.data-mapping-table th,
+.data-mapping-heading span,
+.data-mapping-recovery-detail > label,
+.data-mapping-consequence,
+.data-source-evidence :is(header, p),
+.data-provenance-group,
+.data-source-advanced > :is(summary, div) {
+  font-size: var(--ux-metadata-font-size);
+}
+
+.data-raw-table th,
+.data-raw-table td,
+.data-mapping-table th,
+.data-mapping-table td,
+.fit-candidate-table th,
+.fit-candidate-table td {
+  padding: var(--ux-cell-padding-block) var(--ux-cell-padding-inline);
+}
+
+.data-intake-row :is(input, select),
+.data-intake-attention :is(input, select),
+.data-mapping-resolved :is(input, select),
+.data-mapping-table select,
+.data-mapping-recovery-detail input,
+.modeling-ribbon-actions input,
+.processing-workbench-page input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.processing-workbench-page select,
+.processing-workbench-page textarea {
+  min-height: var(--ux-input-min-block-size);
+  height: auto;
+  font-size: var(--ux-data-font-size);
+}
+
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row select[name="local-test-run"],
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row input[type="file"] {
+  height: var(--ux-input-min-block-size);
+  min-height: var(--ux-input-min-block-size);
+  font-size: var(--ux-data-font-size);
+}
+
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row > button {
+  height: var(--ux-control-min-block-size);
+  min-height: var(--ux-control-min-block-size);
+  font-size: var(--ux-data-font-size);
+}
+
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row input[type="file"]::file-selector-button {
+  height: calc(var(--ux-input-min-block-size) - 2px);
+  min-height: calc(var(--ux-input-min-block-size) - 2px);
+  padding-inline: var(--ux-space-2);
+}
+
+.data-mapping-actions,
+.data-mapping-actions .button,
+.modeling-ribbon-actions .button {
+  min-height: var(--ux-control-min-block-size);
+}
+
+.data-mapping-actions .button,
+.modeling-ribbon-actions .button {
+  padding-inline: var(--ux-space-2);
+  font-size: var(--ux-data-font-size);
+}
+
+.process-stage-options {
+  container-type: inline-size;
+  gap: var(--ux-space-1);
+  padding: var(--ux-space-1) var(--ux-pane-padding);
+}
+
+@container (max-width: 820px) {
+  .application-shell main.processing-workbench-page .process-stage-options .process-band-save {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .application-shell main.processing-workbench-page .process-stage-options .process-band-save > .button {
+    grid-column: 1 / -1;
+    justify-self: end;
+  }
+}
+
+.process-band-heading,
+.process-band-controls,
+.process-band-save,
+.process-band-status {
+  gap: var(--ux-space-2);
+}
+
+.process-band-heading {
+  min-height: var(--ux-interactive-min-block-size);
+}
+
+.process-band-group {
+  gap: var(--ux-space-1);
+  padding: var(--ux-space-1) var(--ux-space-2) var(--ux-space-2);
+}
+
+.process-band-group > h3,
+.process-band-step,
+.process-band-source span,
+.process-band-result span,
+.process-band-result small,
+.process-band-controls :is(label, .elastic-modulus-method),
+.process-band-save > label,
+.process-band-status {
+  font-size: var(--ux-metadata-font-size);
+}
+
+.application-shell main.processing-workbench-page.stage-process .modeling-context-actions .button,
+.application-shell main.processing-workbench-page.stage-process .modeling-context-actions .modeling-advanced-menu > summary,
+.application-shell main.processing-workbench-page.stage-process .process-band-controls :is(input, select, button),
+.application-shell main.processing-workbench-page.stage-process .process-band-save :is(input, button) {
+  min-height: var(--ux-input-min-block-size);
+  height: var(--ux-input-min-block-size);
+  font-size: var(--ux-data-font-size);
+}
+
+.process-band-result strong {
+  font-size: var(--ux-emphasis-font-size);
+}
+
+.modeling-main-surface,
+.modeling-main-surface:has(.modeling-data-intake) {
+  grid-template-rows: minmax(0, auto) minmax(0, 1fr);
+}
+
+.modeling-main-surface:has(> .modeling-task-ribbon .process-stage-options) {
+  grid-template-rows:
+    fit-content(calc(100% - var(--ux-plot-allocated-min-block-size)))
+    minmax(var(--ux-plot-allocated-min-block-size), 1fr);
+}
+
+.persistent-modeling-plot,
+.modeling-workspace-stage-process .persistent-modeling-plot {
+  min-height: var(--ux-plot-allocated-min-block-size);
+  padding: var(--ux-space-2);
+  gap: var(--ux-space-1) var(--ux-space-2);
+}
+
+/* A content-sized Process ribbon may gain a manual-input row. Bound it by the
+   actual shared plot allocation so the graph remains reachable; any extra
+   controls use one local vertical scrollbar instead of escaping the shell. */
+.application-shell main.processing-workbench-page .modeling-task-ribbon:has(.process-stage-options) {
+  height: auto;
+  max-height: none;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.persistent-modeling-plot .processing-curve :is(.chart-tick, .chart-axis-label),
+.engineering-curve-plot-empty-svg :is(.chart-tick, .chart-axis-label) {
+  font-size: var(--ux-plot-label-font-size);
+}
+
+.persistent-modeling-plot .engineering-plot-frame > .curve-legend {
+  right: var(--ux-space-4);
+  max-width: calc(100% - var(--ux-space-4) - var(--ux-space-4));
+  padding: var(--ux-space-1) var(--ux-space-2);
+}
+
+.persistent-modeling-plot .engineering-plot-frame > .curve-legend.interactive button,
+.modeling-workspace-stage-process .persistent-modeling-plot .engineering-plot-frame > .curve-legend.interactive button,
+.modeling-workspace-stage-fit .persistent-modeling-plot .engineering-plot-frame > .curve-legend.interactive button {
+  min-height: var(--ux-interactive-min-block-size);
+  padding: var(--ux-space-1) var(--ux-space-2);
+  font-size: var(--ux-metadata-font-size);
+}
+
+.engineering-curve-plot-empty-overlay {
+  gap: var(--ux-space-2);
+  min-width: var(--ux-context-min-inline-size);
+  padding: var(--ux-pane-padding);
+}
+
+.engineering-curve-plot-empty-overlay strong {
+  font-size: var(--ux-emphasis-font-size);
+}
+
+.engineering-curve-plot-empty-overlay p {
+  font-size: var(--ux-metadata-font-size);
+}
+
+.engineering-curve-plot-empty-overlay .button {
+  min-height: var(--ux-control-min-block-size);
+}
+
+.application-shell main.processing-workbench-page .modeling-task-ribbon:has(.fit-stage-options) {
+  min-height: var(--ux-workbench-ribbon-block-size);
+  max-height: var(--ux-workbench-ribbon-block-size);
+}
+
+.application-shell main.processing-workbench-page .modeling-task-ribbon > .step-option-panel.fit-stage-options {
+  container-type: inline-size;
+  grid-template-rows:
+    var(--ux-workbench-ribbon-header-block-size)
+    var(--ux-workbench-ribbon-band-block-size);
+  min-height: calc(var(--ux-workbench-ribbon-block-size) - 1px);
+  max-height: calc(var(--ux-workbench-ribbon-block-size) - 1px);
+}
+
+.application-shell main.processing-workbench-page .modeling-task-ribbon > .fit-stage-options > .section-heading {
+  min-height: var(--ux-workbench-ribbon-header-block-size);
+  padding-inline: var(--ux-space-2);
+}
+
+.application-shell main.processing-workbench-page .fit-stage-options > .guided-step-options,
+.application-shell main.processing-workbench-page .fit-stage-options .fit-control-group {
+  height: var(--ux-workbench-ribbon-band-block-size);
+  min-height: var(--ux-workbench-ribbon-band-block-size);
+}
+
+.application-shell main.processing-workbench-page .fit-stage-options .fit-control-group {
+  align-content: start;
+  padding: var(--ux-space-1) var(--ux-space-2);
+}
+
+.application-shell main.processing-workbench-page .fit-stage-options .contribution-group {
+  display: block;
+}
+
+.application-shell main.processing-workbench-page .fit-stage-options .contribution-control-stack {
+  display: grid;
+  grid-auto-rows: max-content;
+  align-content: start;
+  gap: var(--ux-space-1);
+}
+
+.application-shell main.processing-workbench-page .fit-stage-options .contribution-group .slider-option > span {
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1fr) max-content;
+}
+
+.application-shell main.processing-workbench-page .fit-stage-options .contribution-group .slider-option {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.application-shell main.processing-workbench-page .fit-stage-options .contribution-group .slider-option input[type="range"] {
+  grid-column: auto;
+  margin-inline: 0;
+}
+
+.application-shell main.processing-workbench-page .fit-stage-options .contribution-group .slider-option output {
+  min-width: max-content;
+  overflow: visible;
+}
+
+.application-shell main.processing-workbench-page .fit-stage-options > .section-heading h3,
+.application-shell main.processing-workbench-page .fit-stage-options .fit-control-group :is(label, legend, output, span, strong),
+.application-shell main.processing-workbench-page .fit-heading-actions .text-button {
+  font-size: var(--ux-metadata-font-size);
+}
+
+.application-shell main.processing-workbench-page .fit-stage-options :is(input:not([type="checkbox"]):not([type="range"]), select) {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  height: var(--ux-input-min-block-size);
+  min-height: var(--ux-input-min-block-size);
+  font-size: var(--ux-data-font-size);
+}
+
+.application-shell main.processing-workbench-page .fit-stage-options :is(.selected-blend-group, .extrapolation-group) {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.application-shell main.processing-workbench-page .fit-stage-options .fit-paired-controls {
+  display: flex;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  gap: var(--ux-space-1);
+  overflow: hidden;
+}
+
+.application-shell main.processing-workbench-page .fit-stage-options .fit-paired-controls > label {
+  width: 0;
+  min-width: 0;
+  max-width: none;
+  flex: 1 1 0;
+}
+
+.application-shell main.processing-workbench-page .fit-stage-options .graph-interaction-group button {
+  height: var(--ux-navigator-row-block-size);
+  min-height: var(--ux-navigator-row-block-size);
+  font-size: var(--ux-metadata-font-size);
+}
+
+/* When browser zoom, pane resizing, or a narrow shell allocation reduces the
+   Fit ribbon itself, distribute the same six semantic groups across the real
+   component width. This is allocation-driven; no route, viewport, DPR, or
+   density value selects the layout. */
+@container (max-width: 800px) {
+  .application-shell main.processing-workbench-page .fit-stage-options > .guided-step-options {
+    grid-template-columns:
+      minmax(0, 1.4fr)
+      minmax(0, .9fr)
+      minmax(0, 1.25fr)
+      minmax(0, 1fr)
+      minmax(0, 1.05fr)
+      minmax(0, 1.15fr);
+  }
+
+  .application-shell main.processing-workbench-page .fit-stage-options .fit-control-group {
+    padding-inline: var(--ux-space-1);
+  }
+
+  .application-shell main.processing-workbench-page .fit-stage-options .fit-paired-controls {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .application-shell main.processing-workbench-page .fit-stage-options .fit-paired-controls > label {
+    flex: 0 0 auto;
+    width: 100%;
+    gap: 0;
+  }
+
+  .application-shell main.processing-workbench-page .fit-stage-options .contribution-control-stack {
+    gap: 0;
+  }
+
+  .application-shell main.processing-workbench-page .fit-stage-options .graph-interaction-group > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Candidate evidence normally receives a third grid row. If opening it has
+   actually collapsed the semantic graph frame below one CSS pixel, preserve
+   the graph allocation and present the same controlled drawer as a bounded
+   overlay. The layout component latches this presentation until the explicit
+   disclosure closes, preventing resize feedback loops. */
+.application-shell main.processing-workbench-page .modeling-main-surface.has-fit-evidence-dock.has-dock-overlay {
+  position: relative;
+  grid-template-rows: minmax(0, auto) minmax(0, 1fr);
+}
+
+.application-shell main.processing-workbench-page .modeling-main-surface.has-fit-evidence-dock.has-dock-overlay > .modeling-workspace-dock {
+  position: absolute;
+  z-index: 6;
+  grid-row: auto;
+  grid-column: auto;
+  inset-inline: 0;
+  inset-block-end: 0;
+  height: min(25vh, 220px);
+  max-height: calc(100% - var(--ux-workbench-ribbon-header-block-size));
+  border-top: 1px solid var(--ux-border-strong);
+  box-shadow: var(--ux-shadow-overlay);
+}
+
+.fit-candidate-table {
+  font-size: var(--ux-data-font-size);
+}
+
+.fit-candidate-table thead th,
+.fit-candidate-table tbody small,
+.selected-parameter-inspector > summary {
+  font-size: var(--ux-table-heading-font-size);
+}
+
+.fit-candidate-table button {
+  min-height: var(--ux-interactive-min-block-size);
+  padding: var(--ux-space-1) var(--ux-space-2);
+}
+
+.application-shell main.processing-workbench-page .fit-evidence-drawer {
+  grid-template-rows: var(--ux-interactive-min-block-size) minmax(0, 1fr);
+}
+
+.application-shell main.processing-workbench-page .fit-evidence-drawer-header {
+  min-height: var(--ux-interactive-min-block-size);
+  height: var(--ux-interactive-min-block-size);
+  gap: var(--ux-space-2);
+  padding-inline: var(--ux-space-2);
+}
+
+.application-shell main.processing-workbench-page .fit-evidence-drawer-header > strong,
+.application-shell main.processing-workbench-page .fit-source-evidence-heading h3,
+.application-shell main.processing-workbench-page .fit-evidence-body dd {
+  font-size: var(--ux-data-font-size);
+}
+
+.application-shell main.processing-workbench-page .fit-evidence-drawer-status,
+.application-shell main.processing-workbench-page .fit-evidence-drawer-header .text-button,
+.application-shell main.processing-workbench-page .fit-source-evidence :is(dt, code, span) {
+  font-size: var(--ux-metadata-font-size);
+}
+
+.application-shell main.processing-workbench-page .fit-evidence-drawer-header .text-button {
+  min-height: var(--ux-interactive-min-block-size);
+}
+
+.application-shell main.processing-workbench-page .fit-evidence-body {
+  padding: var(--ux-pane-padding);
 }

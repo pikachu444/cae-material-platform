@@ -18,6 +18,12 @@ Metal/Polymer/Elastomer track을 제공합니다. `/datasets/processing`은 같�
 토큰 또는 식별자를 입력하지 않습니다. 범례를 눌러 series를 숨기거나 표시하고, plot을
 드래그해 이동하며 wheel 또는 `Zoom in/out`으로 확대하고 `Reset`으로 전체 범위로 돌아갑니다.
 
+왼쪽 Navigator의 divider를 끌어 폭을 바꾸고 **Collapse navigator**로 접을 수 있습니다. divider를
+두 번 누르거나 **Reset navigator**를 실행하면 현재 표시 밀도의 공통 기본 폭으로 돌아갑니다. 이
+배치는 같은 브라우저에서 route 이동과 reload 뒤에도 유지되며 표시 밀도 reset과는 별개입니다.
+Data/Process/Fit graph는 Navigator, ribbon, candidate evidence pane 또는 표시 밀도가 바뀔 때 실제
+container를 다시 측정해 frame, SVG viewBox, axis, legend, label과 pointer hit region을 함께 갱신합니다.
+
 그래프에서 처리 범위를 지정하려면 Recipe 단계(예: **Metal elastic modulus**)를 먼저 고르고
 **Select range**를 누른 뒤 x-domain을 드래그합니다. necking처럼 한 점을 고르는 단계는
 **Pick point**를 사용합니다. 선택 영역과 marker는 임시 상태이며 **Apply selection**을 눌러야
@@ -78,6 +84,11 @@ Export에는 표시하지 않습니다. Process에서 호환되는 포함 curve�
 pointwise mean과 95% mean confidence band를 함께 표시합니다. 이 계산에는 `rows.*`와 `curve.*`
 공통 전처리만 적용되며, hardening이나 Prony 같은 모델 fitting 단계는 반복 실행하지 않습니다.
 
+Candidate parameters처럼 사용자가 명시적으로 펼친 보조 pane은 실제 graph 배정 폭이 1px 미만이
+될 때만 bounded overlay로 전환됩니다. 화면 크기나 DPR을 보고 미리 overlay로 바꾸지 않습니다.
+Overlay는 닫기 버튼과 `Escape`를 지원하고 닫은 뒤 원래 control로 focus를 돌려줍니다. Materials의
+같은 공통 disclosure도 **Open datasheet**를 overlay 안에서 직접 실행할 수 있습니다.
+
 
 ## 처리 미리보기
 
@@ -90,6 +101,11 @@ pointwise mean과 95% mean confidence band를 함께 표시합니다. 이 계산
 저장 실패 시 file, sheet/header, mapping, provenance와 graph preview를 유지하므로 원인을 고치고
 같은 입력으로 다시 시도할 수 있습니다. mapping 변경은 Process부터 Export까지의 current pointer를
 stale/clear하며 이전 immutable revision은 history에 남습니다.
+
+잘못된 channel mapping이 길어지면 setup 안의 실제 local scrollbar로 validation과 recovery action까지
+이동할 수 있고 마지막 정상 graph는 유지됩니다.
+
+![잘못된 Data mapping의 local scroll과 복구](images/current/modeling-data-invalid-scrolled-1440x900.png)
 
 재사용할 처리 설정을 관리할 때만 **Advanced mapping definition**의 JSON에서 다음 항목을 확인합니다.
    - `independent_quantity`
@@ -141,6 +157,11 @@ review는 Activity에서 Reviewer가 별도로 승인하거나 변경을 요청�
 - 자동 necking 후보: `metal.necking_candidate`
 - engineering → true/true-plastic 변환: `metal.engineering_to_true_plastic`
 - hardening 후보 비교·조합·제한 외삽: `metal.hardening_fit_extrapolate`
+
+1366×768의 Manual slope 설정도 control 영역 안에서만 스크롤되며 graph와 **Save processed curves**는
+직접 도달할 수 있습니다.
+
+![Manual Process local scroll과 저장 동작](images/current/modeling-process-manual-1366x768.png)
 
 탄성계수, proof stress와 necking 위치는 선택한 stage의 **Scalar results**에 값과 단위로 나타납니다.
 자동 necking 단계는 후보 index만 보고하며 curve를 자르거나 확정하지 않습니다. 변환 단계에서

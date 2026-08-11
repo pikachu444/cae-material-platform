@@ -34,6 +34,13 @@ Browse Tree에서도 저장된 자료를 찾을 수 있습니다.
 긴 목록은 손잡이, 마우스 휠 또는 키보드로 이동합니다. 결과가 짧거나 비어 있으면 불필요한
 스크롤 막대가 나타나지 않습니다.
 
+Navigator와 선택 Context의 divider를 끌어 폭을 조절하고 각 pane을 접거나 reset할 수 있습니다.
+배치는 같은 브라우저에서 reload해도 유지되며 **Reset display density**로는 바뀌지 않습니다.
+사용자가 Context를 펼쳤지만 공통 pane 최소폭 때문에 중앙 결과에 실제로 배정할 폭이 1px 미만이면
+Context가 bounded overlay로 열립니다. 이때 **Open datasheet**를 바로 실행하거나 닫은 뒤 원래
+Context control로 돌아갈 수 있습니다. 이 전환은 route, viewport 또는 DPR이 아니라 실제 pane
+allocation만 사용합니다.
+
 | 상태 | 캡처 |
 | --- | --- |
 | 긴 결과, 1366×768 | [긴 결과 1366](images/current/materials-search-long-1366x768.png) |

@@ -1,0 +1,2606 @@
+{
+  "schema_version": 1,
+  "issue": 184,
+  "browser_zoom_percent": 100,
+  "dpr": 1,
+  "numeric_density_scope": "standard",
+  "all_density_geometry_evidence": "visual-evidence.json",
+  "density_token_profiles": {
+    "compact": {
+      "data_font": 13,
+      "metadata_font": 12,
+      "control": 36,
+      "input": 38,
+      "work_row": 46,
+      "navigator_row": 26,
+      "splitter": 5,
+      "scrollbar": 13,
+      "plot_min": 360
+    },
+    "standard": {
+      "data_font": 14,
+      "metadata_font": 13,
+      "control": 38,
+      "input": 40,
+      "work_row": 48,
+      "navigator_row": 30,
+      "splitter": 6,
+      "scrollbar": 14,
+      "plot_min": 400
+    },
+    "large": {
+      "data_font": 16,
+      "metadata_font": 14,
+      "control": 40,
+      "input": 44,
+      "work_row": 52,
+      "navigator_row": 34,
+      "splitter": 7,
+      "scrollbar": 15,
+      "plot_min": 440
+    }
+  },
+  "physical_4k_readability": "DEFERRED_TO_223",
+  "records": [
+    {
+      "route": "/materials",
+      "state": "explorer-result-selected",
+      "density": "standard",
+      "viewport": "1366x768",
+      "metrics": {
+        "viewport": {
+          "width": 1366,
+          "height": 768
+        },
+        "document": {
+          "clientWidth": 1366,
+          "scrollWidth": 1366,
+          "clientHeight": 768,
+          "scrollHeight": 768,
+          "horizontalOverflow": false
+        },
+        "tokens": {
+          "--ux-data-font-size": "14px",
+          "--ux-emphasis-font-size": "15px",
+          "--ux-metadata-font-size": "13px",
+          "--ux-table-heading-font-size": "12px",
+          "--ux-control-min-block-size": "38px",
+          "--ux-input-min-block-size": "40px",
+          "--ux-work-row-min-block-size": "48px",
+          "--ux-navigator-row-block-size": "30px",
+          "--ux-pane-padding": "14px",
+          "--ux-navigator-default-inline-size": "288px",
+          "--ux-context-default-inline-size": "304px",
+          "--ux-splitter-inline-size": "6px",
+          "--ux-scrollbar-track-size": "14px",
+          "--ux-scrollbar-thumb-min-size": "40px",
+          "--ux-plot-min-block-size": "400px",
+          "--ux-native-preview-min-block-size": "320px"
+        },
+        "boxes": {
+          "shell": {
+            "left": 0,
+            "right": 1366,
+            "top": 0,
+            "bottom": 768,
+            "width": 1366,
+            "height": 768,
+            "clientWidth": 1366,
+            "clientHeight": 768,
+            "scrollWidth": 1366,
+            "scrollHeight": 768
+          },
+          "applicationWorkspace": {
+            "left": 0,
+            "right": 1366,
+            "top": 92,
+            "bottom": 742,
+            "width": 1366,
+            "height": 650,
+            "clientWidth": 1366,
+            "clientHeight": 650,
+            "scrollWidth": 1366,
+            "scrollHeight": 659
+          },
+          "taskWorkspace": {
+            "left": 8,
+            "right": 1358,
+            "top": 132,
+            "bottom": 742,
+            "width": 1350,
+            "height": 610,
+            "clientWidth": 1348,
+            "clientHeight": 610,
+            "scrollWidth": 1353,
+            "scrollHeight": 610
+          },
+          "navigator": {
+            "left": 9,
+            "right": 297,
+            "top": 132,
+            "bottom": 742,
+            "width": 288,
+            "height": 610,
+            "clientWidth": 288,
+            "clientHeight": 610,
+            "scrollWidth": 288,
+            "scrollHeight": 610
+          },
+          "main": {
+            "left": 303,
+            "right": 1351,
+            "top": 132,
+            "bottom": 742,
+            "width": 1048,
+            "height": 610,
+            "clientWidth": 1048,
+            "clientHeight": 610,
+            "scrollWidth": 1048,
+            "scrollHeight": 610
+          },
+          "context": {
+            "left": 1357,
+            "right": 1357,
+            "top": 132,
+            "bottom": 742,
+            "width": 0,
+            "height": 610,
+            "clientWidth": 0,
+            "clientHeight": 610,
+            "scrollWidth": 16,
+            "scrollHeight": 610
+          },
+          "table": {
+            "left": 303,
+            "right": 1350,
+            "top": 182.09,
+            "bottom": 734,
+            "width": 1047,
+            "height": 551.91,
+            "clientWidth": 1047,
+            "clientHeight": 552,
+            "scrollWidth": 1047,
+            "scrollHeight": 552
+          }
+        },
+        "tableColumns": [
+          {
+            "label": "Compare",
+            "width": 103.47
+          },
+          {
+            "label": "Material / grade",
+            "width": 380.44
+          },
+          {
+            "label": "Family",
+            "width": 243.48
+          },
+          {
+            "label": "Description",
+            "width": 319.61
+          }
+        ]
+      }
+    },
+    {
+      "route": "/materials",
+      "state": "explorer-result-selected",
+      "density": "standard",
+      "viewport": "1440x900",
+      "metrics": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "document": {
+          "clientWidth": 1440,
+          "scrollWidth": 1440,
+          "clientHeight": 900,
+          "scrollHeight": 900,
+          "horizontalOverflow": false
+        },
+        "tokens": {
+          "--ux-data-font-size": "14px",
+          "--ux-emphasis-font-size": "15px",
+          "--ux-metadata-font-size": "13px",
+          "--ux-table-heading-font-size": "12px",
+          "--ux-control-min-block-size": "38px",
+          "--ux-input-min-block-size": "40px",
+          "--ux-work-row-min-block-size": "48px",
+          "--ux-navigator-row-block-size": "30px",
+          "--ux-pane-padding": "14px",
+          "--ux-navigator-default-inline-size": "288px",
+          "--ux-context-default-inline-size": "304px",
+          "--ux-splitter-inline-size": "6px",
+          "--ux-scrollbar-track-size": "14px",
+          "--ux-scrollbar-thumb-min-size": "40px",
+          "--ux-plot-min-block-size": "400px",
+          "--ux-native-preview-min-block-size": "320px"
+        },
+        "boxes": {
+          "shell": {
+            "left": 0,
+            "right": 1440,
+            "top": 0,
+            "bottom": 900,
+            "width": 1440,
+            "height": 900,
+            "clientWidth": 1440,
+            "clientHeight": 900,
+            "scrollWidth": 1440,
+            "scrollHeight": 900
+          },
+          "applicationWorkspace": {
+            "left": 0,
+            "right": 1440,
+            "top": 92,
+            "bottom": 874,
+            "width": 1440,
+            "height": 782,
+            "clientWidth": 1440,
+            "clientHeight": 782,
+            "scrollWidth": 1440,
+            "scrollHeight": 791
+          },
+          "taskWorkspace": {
+            "left": 8,
+            "right": 1432,
+            "top": 132,
+            "bottom": 874,
+            "width": 1424,
+            "height": 742,
+            "clientWidth": 1422,
+            "clientHeight": 742,
+            "scrollWidth": 1422,
+            "scrollHeight": 742
+          },
+          "navigator": {
+            "left": 9,
+            "right": 297,
+            "top": 132,
+            "bottom": 874,
+            "width": 288,
+            "height": 742,
+            "clientWidth": 288,
+            "clientHeight": 742,
+            "scrollWidth": 288,
+            "scrollHeight": 742
+          },
+          "main": {
+            "left": 303,
+            "right": 1121,
+            "top": 132,
+            "bottom": 874,
+            "width": 818,
+            "height": 742,
+            "clientWidth": 818,
+            "clientHeight": 742,
+            "scrollWidth": 818,
+            "scrollHeight": 742
+          },
+          "context": {
+            "left": 1127,
+            "right": 1431,
+            "top": 132,
+            "bottom": 874,
+            "width": 304,
+            "height": 742,
+            "clientWidth": 304,
+            "clientHeight": 742,
+            "scrollWidth": 304,
+            "scrollHeight": 742
+          },
+          "table": {
+            "left": 303,
+            "right": 1120,
+            "top": 182.09,
+            "bottom": 866,
+            "width": 817,
+            "height": 683.91,
+            "clientWidth": 817,
+            "clientHeight": 684,
+            "scrollWidth": 817,
+            "scrollHeight": 684
+          }
+        },
+        "tableColumns": [
+          {
+            "label": "Compare",
+            "width": 80.75
+          },
+          {
+            "label": "Material / grade",
+            "width": 296.88
+          },
+          {
+            "label": "Family",
+            "width": 190
+          },
+          {
+            "label": "Description",
+            "width": 249.38
+          }
+        ]
+      }
+    },
+    {
+      "route": "/materials",
+      "state": "explorer-result-selected",
+      "density": "standard",
+      "viewport": "1920x1080",
+      "metrics": {
+        "viewport": {
+          "width": 1920,
+          "height": 1080
+        },
+        "document": {
+          "clientWidth": 1920,
+          "scrollWidth": 1920,
+          "clientHeight": 1080,
+          "scrollHeight": 1080,
+          "horizontalOverflow": false
+        },
+        "tokens": {
+          "--ux-data-font-size": "14px",
+          "--ux-emphasis-font-size": "15px",
+          "--ux-metadata-font-size": "13px",
+          "--ux-table-heading-font-size": "12px",
+          "--ux-control-min-block-size": "38px",
+          "--ux-input-min-block-size": "40px",
+          "--ux-work-row-min-block-size": "48px",
+          "--ux-navigator-row-block-size": "30px",
+          "--ux-pane-padding": "14px",
+          "--ux-navigator-default-inline-size": "288px",
+          "--ux-context-default-inline-size": "304px",
+          "--ux-splitter-inline-size": "6px",
+          "--ux-scrollbar-track-size": "14px",
+          "--ux-scrollbar-thumb-min-size": "40px",
+          "--ux-plot-min-block-size": "400px",
+          "--ux-native-preview-min-block-size": "320px"
+        },
+        "boxes": {
+          "shell": {
+            "left": 0,
+            "right": 1920,
+            "top": 0,
+            "bottom": 1080,
+            "width": 1920,
+            "height": 1080,
+            "clientWidth": 1920,
+            "clientHeight": 1080,
+            "scrollWidth": 1920,
+            "scrollHeight": 1080
+          },
+          "applicationWorkspace": {
+            "left": 0,
+            "right": 1920,
+            "top": 92,
+            "bottom": 1054,
+            "width": 1920,
+            "height": 962,
+            "clientWidth": 1920,
+            "clientHeight": 962,
+            "scrollWidth": 1920,
+            "scrollHeight": 971
+          },
+          "taskWorkspace": {
+            "left": 8,
+            "right": 1912,
+            "top": 132,
+            "bottom": 1054,
+            "width": 1904,
+            "height": 922,
+            "clientWidth": 1902,
+            "clientHeight": 922,
+            "scrollWidth": 1902,
+            "scrollHeight": 922
+          },
+          "navigator": {
+            "left": 9,
+            "right": 297,
+            "top": 132,
+            "bottom": 1054,
+            "width": 288,
+            "height": 922,
+            "clientWidth": 288,
+            "clientHeight": 922,
+            "scrollWidth": 288,
+            "scrollHeight": 922
+          },
+          "main": {
+            "left": 303,
+            "right": 1601,
+            "top": 132,
+            "bottom": 1054,
+            "width": 1298,
+            "height": 922,
+            "clientWidth": 1298,
+            "clientHeight": 922,
+            "scrollWidth": 1298,
+            "scrollHeight": 922
+          },
+          "context": {
+            "left": 1607,
+            "right": 1911,
+            "top": 132,
+            "bottom": 1054,
+            "width": 304,
+            "height": 922,
+            "clientWidth": 304,
+            "clientHeight": 922,
+            "scrollWidth": 304,
+            "scrollHeight": 922
+          },
+          "table": {
+            "left": 303,
+            "right": 1600,
+            "top": 182.09,
+            "bottom": 1046,
+            "width": 1297,
+            "height": 863.91,
+            "clientWidth": 1297,
+            "clientHeight": 864,
+            "scrollWidth": 1297,
+            "scrollHeight": 864
+          }
+        },
+        "tableColumns": [
+          {
+            "label": "Compare",
+            "width": 128.19
+          },
+          {
+            "label": "Material / grade",
+            "width": 471.28
+          },
+          {
+            "label": "Family",
+            "width": 301.62
+          },
+          {
+            "label": "Description",
+            "width": 395.91
+          }
+        ]
+      }
+    },
+    {
+      "route": "/materials",
+      "state": "explorer-result-selected",
+      "density": "standard",
+      "viewport": "2560x1440",
+      "metrics": {
+        "viewport": {
+          "width": 2560,
+          "height": 1440
+        },
+        "document": {
+          "clientWidth": 2560,
+          "scrollWidth": 2560,
+          "clientHeight": 1440,
+          "scrollHeight": 1440,
+          "horizontalOverflow": false
+        },
+        "tokens": {
+          "--ux-data-font-size": "14px",
+          "--ux-emphasis-font-size": "15px",
+          "--ux-metadata-font-size": "13px",
+          "--ux-table-heading-font-size": "12px",
+          "--ux-control-min-block-size": "38px",
+          "--ux-input-min-block-size": "40px",
+          "--ux-work-row-min-block-size": "48px",
+          "--ux-navigator-row-block-size": "30px",
+          "--ux-pane-padding": "14px",
+          "--ux-navigator-default-inline-size": "288px",
+          "--ux-context-default-inline-size": "304px",
+          "--ux-splitter-inline-size": "6px",
+          "--ux-scrollbar-track-size": "14px",
+          "--ux-scrollbar-thumb-min-size": "40px",
+          "--ux-plot-min-block-size": "400px",
+          "--ux-native-preview-min-block-size": "320px"
+        },
+        "boxes": {
+          "shell": {
+            "left": 0,
+            "right": 2560,
+            "top": 0,
+            "bottom": 1440,
+            "width": 2560,
+            "height": 1440,
+            "clientWidth": 2560,
+            "clientHeight": 1440,
+            "scrollWidth": 2560,
+            "scrollHeight": 1440
+          },
+          "applicationWorkspace": {
+            "left": 0,
+            "right": 2560,
+            "top": 92,
+            "bottom": 1414,
+            "width": 2560,
+            "height": 1322,
+            "clientWidth": 2560,
+            "clientHeight": 1322,
+            "scrollWidth": 2560,
+            "scrollHeight": 1331
+          },
+          "taskWorkspace": {
+            "left": 8,
+            "right": 2552,
+            "top": 132,
+            "bottom": 1414,
+            "width": 2544,
+            "height": 1282,
+            "clientWidth": 2542,
+            "clientHeight": 1282,
+            "scrollWidth": 2542,
+            "scrollHeight": 1282
+          },
+          "navigator": {
+            "left": 9,
+            "right": 296.98,
+            "top": 132,
+            "bottom": 1414,
+            "width": 287.98,
+            "height": 1282,
+            "clientWidth": 288,
+            "clientHeight": 1282,
+            "scrollWidth": 288,
+            "scrollHeight": 1282
+          },
+          "main": {
+            "left": 302.98,
+            "right": 2241,
+            "top": 132,
+            "bottom": 1414,
+            "width": 1938.02,
+            "height": 1282,
+            "clientWidth": 1938,
+            "clientHeight": 1282,
+            "scrollWidth": 1938,
+            "scrollHeight": 1282
+          },
+          "context": {
+            "left": 2247,
+            "right": 2551,
+            "top": 132,
+            "bottom": 1414,
+            "width": 304,
+            "height": 1282,
+            "clientWidth": 304,
+            "clientHeight": 1282,
+            "scrollWidth": 304,
+            "scrollHeight": 1282
+          },
+          "table": {
+            "left": 302.98,
+            "right": 2240,
+            "top": 182.09,
+            "bottom": 1406,
+            "width": 1937.02,
+            "height": 1223.91,
+            "clientWidth": 1937,
+            "clientHeight": 1224,
+            "scrollWidth": 1937,
+            "scrollHeight": 1224
+          }
+        },
+        "tableColumns": [
+          {
+            "label": "Compare",
+            "width": 191.44
+          },
+          {
+            "label": "Material / grade",
+            "width": 703.84
+          },
+          {
+            "label": "Family",
+            "width": 450.47
+          },
+          {
+            "label": "Description",
+            "width": 591.27
+          }
+        ]
+      }
+    },
+    {
+      "route": "/materials",
+      "state": "explorer-result-selected",
+      "density": "standard",
+      "viewport": "3840x2160",
+      "metrics": {
+        "viewport": {
+          "width": 3840,
+          "height": 2160
+        },
+        "document": {
+          "clientWidth": 3840,
+          "scrollWidth": 3840,
+          "clientHeight": 2160,
+          "scrollHeight": 2160,
+          "horizontalOverflow": false
+        },
+        "tokens": {
+          "--ux-data-font-size": "14px",
+          "--ux-emphasis-font-size": "15px",
+          "--ux-metadata-font-size": "13px",
+          "--ux-table-heading-font-size": "12px",
+          "--ux-control-min-block-size": "38px",
+          "--ux-input-min-block-size": "40px",
+          "--ux-work-row-min-block-size": "48px",
+          "--ux-navigator-row-block-size": "30px",
+          "--ux-pane-padding": "14px",
+          "--ux-navigator-default-inline-size": "288px",
+          "--ux-context-default-inline-size": "304px",
+          "--ux-splitter-inline-size": "6px",
+          "--ux-scrollbar-track-size": "14px",
+          "--ux-scrollbar-thumb-min-size": "40px",
+          "--ux-plot-min-block-size": "400px",
+          "--ux-native-preview-min-block-size": "320px"
+        },
+        "boxes": {
+          "shell": {
+            "left": 0,
+            "right": 3840,
+            "top": 0,
+            "bottom": 2160,
+            "width": 3840,
+            "height": 2160,
+            "clientWidth": 3840,
+            "clientHeight": 2160,
+            "scrollWidth": 3840,
+            "scrollHeight": 2160
+          },
+          "applicationWorkspace": {
+            "left": 0,
+            "right": 3840,
+            "top": 92,
+            "bottom": 2134,
+            "width": 3840,
+            "height": 2042,
+            "clientWidth": 3840,
+            "clientHeight": 2042,
+            "scrollWidth": 3840,
+            "scrollHeight": 2051
+          },
+          "taskWorkspace": {
+            "left": 8,
+            "right": 3832,
+            "top": 132,
+            "bottom": 2134,
+            "width": 3824,
+            "height": 2002,
+            "clientWidth": 3822,
+            "clientHeight": 2002,
+            "scrollWidth": 3822,
+            "scrollHeight": 2002
+          },
+          "navigator": {
+            "left": 9,
+            "right": 297,
+            "top": 132,
+            "bottom": 2134,
+            "width": 288,
+            "height": 2002,
+            "clientWidth": 288,
+            "clientHeight": 2002,
+            "scrollWidth": 288,
+            "scrollHeight": 2002
+          },
+          "main": {
+            "left": 303,
+            "right": 3521,
+            "top": 132,
+            "bottom": 2134,
+            "width": 3218,
+            "height": 2002,
+            "clientWidth": 3218,
+            "clientHeight": 2002,
+            "scrollWidth": 3218,
+            "scrollHeight": 2002
+          },
+          "context": {
+            "left": 3527,
+            "right": 3831,
+            "top": 132,
+            "bottom": 2134,
+            "width": 304,
+            "height": 2002,
+            "clientWidth": 304,
+            "clientHeight": 2002,
+            "scrollWidth": 304,
+            "scrollHeight": 2002
+          },
+          "table": {
+            "left": 303,
+            "right": 3520,
+            "top": 182.09,
+            "bottom": 2126,
+            "width": 3217,
+            "height": 1943.91,
+            "clientWidth": 3217,
+            "clientHeight": 1944,
+            "scrollWidth": 3217,
+            "scrollHeight": 1944
+          }
+        },
+        "tableColumns": [
+          {
+            "label": "Compare",
+            "width": 317.95
+          },
+          {
+            "label": "Material / grade",
+            "width": 1168.95
+          },
+          {
+            "label": "Family",
+            "width": 748.12
+          },
+          {
+            "label": "Description",
+            "width": 981.97
+          }
+        ]
+      }
+    },
+    {
+      "route": "/modeling?stage=data&family=metal",
+      "state": "three-exact-curves",
+      "density": "standard",
+      "viewport": "1366x768",
+      "metrics": {
+        "viewport": {
+          "width": 1366,
+          "height": 768
+        },
+        "document": {
+          "clientWidth": 1366,
+          "scrollWidth": 1366,
+          "clientHeight": 768,
+          "scrollHeight": 768,
+          "horizontalOverflow": false
+        },
+        "tokens": {
+          "--ux-data-font-size": "14px",
+          "--ux-emphasis-font-size": "15px",
+          "--ux-metadata-font-size": "13px",
+          "--ux-table-heading-font-size": "12px",
+          "--ux-control-min-block-size": "38px",
+          "--ux-input-min-block-size": "40px",
+          "--ux-work-row-min-block-size": "48px",
+          "--ux-navigator-row-block-size": "30px",
+          "--ux-pane-padding": "14px",
+          "--ux-navigator-default-inline-size": "288px",
+          "--ux-context-default-inline-size": "304px",
+          "--ux-splitter-inline-size": "6px",
+          "--ux-scrollbar-track-size": "14px",
+          "--ux-scrollbar-thumb-min-size": "40px",
+          "--ux-plot-min-block-size": "400px",
+          "--ux-native-preview-min-block-size": "320px"
+        },
+        "boxes": {
+          "shell": {
+            "left": 0,
+            "right": 1366,
+            "top": 0,
+            "bottom": 768,
+            "width": 1366,
+            "height": 768,
+            "clientWidth": 1366,
+            "clientHeight": 768,
+            "scrollWidth": 1366,
+            "scrollHeight": 768
+          },
+          "applicationWorkspace": {
+            "left": 0,
+            "right": 1366,
+            "top": 50,
+            "bottom": 768,
+            "width": 1366,
+            "height": 718,
+            "clientWidth": 1366,
+            "clientHeight": 718,
+            "scrollWidth": 1366,
+            "scrollHeight": 718
+          },
+          "taskWorkspace": {
+            "left": 8,
+            "right": 1358,
+            "top": 162,
+            "bottom": 724,
+            "width": 1350,
+            "height": 562,
+            "clientWidth": 1350,
+            "clientHeight": 560,
+            "scrollWidth": 1350,
+            "scrollHeight": 560
+          },
+          "navigator": {
+            "left": 8,
+            "right": 296,
+            "top": 163,
+            "bottom": 723,
+            "width": 288,
+            "height": 560,
+            "clientWidth": 273,
+            "clientHeight": 560,
+            "scrollWidth": 277,
+            "scrollHeight": 560
+          },
+          "main": {
+            "left": 302,
+            "right": 1358,
+            "top": 163,
+            "bottom": 723,
+            "width": 1056,
+            "height": 560,
+            "clientWidth": 1056,
+            "clientHeight": 560,
+            "scrollWidth": 1056,
+            "scrollHeight": 560
+          },
+          "graph": {
+            "left": 302,
+            "right": 1358,
+            "top": 350,
+            "bottom": 723,
+            "width": 1056,
+            "height": 373,
+            "clientWidth": 1056,
+            "clientHeight": 373,
+            "scrollWidth": 1056,
+            "scrollHeight": 373
+          },
+          "plotFrame": {
+            "left": 311,
+            "right": 1349,
+            "top": 392,
+            "bottom": 715,
+            "width": 1038,
+            "height": 323,
+            "clientWidth": 1038,
+            "clientHeight": 323,
+            "scrollWidth": 1038,
+            "scrollHeight": 323
+          },
+          "svg": {
+            "left": 311,
+            "right": 1349,
+            "top": 392,
+            "bottom": 715,
+            "width": 1038,
+            "height": 323,
+            "clientWidth": 1038,
+            "clientHeight": 323,
+            "scrollWidth": 1038,
+            "scrollHeight": 323
+          },
+          "legend": {
+            "left": 1159.17,
+            "right": 1331,
+            "top": 402,
+            "bottom": 532.19,
+            "width": 171.83,
+            "height": 130.19,
+            "clientWidth": 157,
+            "clientHeight": 130,
+            "scrollWidth": 157,
+            "scrollHeight": 130
+          }
+        },
+        "graphContract": {
+          "svgWidth": 1038,
+          "svgHeight": 323,
+          "plotWidth": null,
+          "plotHeight": null,
+          "axisWidth": null,
+          "legendBottom": 532.19,
+          "lastXTickWithinSvg": true,
+          "xTicksWithinSvg": true,
+          "legendOutsideSvg": false,
+          "legendTickOverlap": false,
+          "legendAxisLabelOverlap": false,
+          "legendCurveSegmentOverlap": false
+        }
+      }
+    },
+    {
+      "route": "/modeling?stage=data&family=metal",
+      "state": "three-exact-curves",
+      "density": "standard",
+      "viewport": "1440x900",
+      "metrics": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "document": {
+          "clientWidth": 1440,
+          "scrollWidth": 1440,
+          "clientHeight": 900,
+          "scrollHeight": 900,
+          "horizontalOverflow": false
+        },
+        "tokens": {
+          "--ux-data-font-size": "14px",
+          "--ux-emphasis-font-size": "15px",
+          "--ux-metadata-font-size": "13px",
+          "--ux-table-heading-font-size": "12px",
+          "--ux-control-min-block-size": "38px",
+          "--ux-input-min-block-size": "40px",
+          "--ux-work-row-min-block-size": "48px",
+          "--ux-navigator-row-block-size": "30px",
+          "--ux-pane-padding": "14px",
+          "--ux-navigator-default-inline-size": "288px",
+          "--ux-context-default-inline-size": "304px",
+          "--ux-splitter-inline-size": "6px",
+          "--ux-scrollbar-track-size": "14px",
+          "--ux-scrollbar-thumb-min-size": "40px",
+          "--ux-plot-min-block-size": "400px",
+          "--ux-native-preview-min-block-size": "320px"
+        },
+        "boxes": {
+          "shell": {
+            "left": 0,
+            "right": 1440,
+            "top": 0,
+            "bottom": 900,
+            "width": 1440,
+            "height": 900,
+            "clientWidth": 1440,
+            "clientHeight": 900,
+            "scrollWidth": 1440,
+            "scrollHeight": 900
+          },
+          "applicationWorkspace": {
+            "left": 0,
+            "right": 1440,
+            "top": 50,
+            "bottom": 900,
+            "width": 1440,
+            "height": 850,
+            "clientWidth": 1440,
+            "clientHeight": 850,
+            "scrollWidth": 1440,
+            "scrollHeight": 850
+          },
+          "taskWorkspace": {
+            "left": 8,
+            "right": 1432,
+            "top": 162,
+            "bottom": 856,
+            "width": 1424,
+            "height": 694,
+            "clientWidth": 1424,
+            "clientHeight": 692,
+            "scrollWidth": 1424,
+            "scrollHeight": 692
+          },
+          "navigator": {
+            "left": 8,
+            "right": 296,
+            "top": 163,
+            "bottom": 855,
+            "width": 288,
+            "height": 692,
+            "clientWidth": 273,
+            "clientHeight": 692,
+            "scrollWidth": 277,
+            "scrollHeight": 692
+          },
+          "main": {
+            "left": 302,
+            "right": 1432,
+            "top": 163,
+            "bottom": 855,
+            "width": 1130,
+            "height": 692,
+            "clientWidth": 1130,
+            "clientHeight": 692,
+            "scrollWidth": 1130,
+            "scrollHeight": 692
+          },
+          "graph": {
+            "left": 302,
+            "right": 1432,
+            "top": 350,
+            "bottom": 855,
+            "width": 1130,
+            "height": 505,
+            "clientWidth": 1130,
+            "clientHeight": 505,
+            "scrollWidth": 1130,
+            "scrollHeight": 505
+          },
+          "plotFrame": {
+            "left": 311,
+            "right": 1423,
+            "top": 392,
+            "bottom": 847,
+            "width": 1112,
+            "height": 455,
+            "clientWidth": 1112,
+            "clientHeight": 455,
+            "scrollWidth": 1112,
+            "scrollHeight": 455
+          },
+          "svg": {
+            "left": 311,
+            "right": 1423,
+            "top": 392,
+            "bottom": 847,
+            "width": 1112,
+            "height": 455,
+            "clientWidth": 1112,
+            "clientHeight": 455,
+            "scrollWidth": 1112,
+            "scrollHeight": 455
+          },
+          "legend": {
+            "left": 1233.17,
+            "right": 1405,
+            "top": 402,
+            "bottom": 532.19,
+            "width": 171.83,
+            "height": 130.19,
+            "clientWidth": 157,
+            "clientHeight": 130,
+            "scrollWidth": 157,
+            "scrollHeight": 130
+          }
+        },
+        "graphContract": {
+          "svgWidth": 1112,
+          "svgHeight": 455,
+          "plotWidth": null,
+          "plotHeight": null,
+          "axisWidth": null,
+          "legendBottom": 532.19,
+          "lastXTickWithinSvg": true,
+          "xTicksWithinSvg": true,
+          "legendOutsideSvg": false,
+          "legendTickOverlap": false,
+          "legendAxisLabelOverlap": false,
+          "legendCurveSegmentOverlap": false
+        }
+      }
+    },
+    {
+      "route": "/modeling?stage=data&family=metal",
+      "state": "three-exact-curves",
+      "density": "standard",
+      "viewport": "1920x1080",
+      "metrics": {
+        "viewport": {
+          "width": 1920,
+          "height": 1080
+        },
+        "document": {
+          "clientWidth": 1920,
+          "scrollWidth": 1920,
+          "clientHeight": 1080,
+          "scrollHeight": 1080,
+          "horizontalOverflow": false
+        },
+        "tokens": {
+          "--ux-data-font-size": "14px",
+          "--ux-emphasis-font-size": "15px",
+          "--ux-metadata-font-size": "13px",
+          "--ux-table-heading-font-size": "12px",
+          "--ux-control-min-block-size": "38px",
+          "--ux-input-min-block-size": "40px",
+          "--ux-work-row-min-block-size": "48px",
+          "--ux-navigator-row-block-size": "30px",
+          "--ux-pane-padding": "14px",
+          "--ux-navigator-default-inline-size": "288px",
+          "--ux-context-default-inline-size": "304px",
+          "--ux-splitter-inline-size": "6px",
+          "--ux-scrollbar-track-size": "14px",
+          "--ux-scrollbar-thumb-min-size": "40px",
+          "--ux-plot-min-block-size": "400px",
+          "--ux-native-preview-min-block-size": "320px"
+        },
+        "boxes": {
+          "shell": {
+            "left": 0,
+            "right": 1920,
+            "top": 0,
+            "bottom": 1080,
+            "width": 1920,
+            "height": 1080,
+            "clientWidth": 1920,
+            "clientHeight": 1080,
+            "scrollWidth": 1920,
+            "scrollHeight": 1080
+          },
+          "applicationWorkspace": {
+            "left": 0,
+            "right": 1920,
+            "top": 50,
+            "bottom": 1080,
+            "width": 1920,
+            "height": 1030,
+            "clientWidth": 1920,
+            "clientHeight": 1030,
+            "scrollWidth": 1920,
+            "scrollHeight": 1030
+          },
+          "taskWorkspace": {
+            "left": 8,
+            "right": 1912,
+            "top": 162,
+            "bottom": 1036,
+            "width": 1904,
+            "height": 874,
+            "clientWidth": 1904,
+            "clientHeight": 872,
+            "scrollWidth": 1904,
+            "scrollHeight": 872
+          },
+          "navigator": {
+            "left": 8,
+            "right": 296,
+            "top": 163,
+            "bottom": 1035,
+            "width": 288,
+            "height": 872,
+            "clientWidth": 273,
+            "clientHeight": 872,
+            "scrollWidth": 277,
+            "scrollHeight": 872
+          },
+          "main": {
+            "left": 302,
+            "right": 1912,
+            "top": 163,
+            "bottom": 1035,
+            "width": 1610,
+            "height": 872,
+            "clientWidth": 1610,
+            "clientHeight": 872,
+            "scrollWidth": 1610,
+            "scrollHeight": 872
+          },
+          "graph": {
+            "left": 302,
+            "right": 1912,
+            "top": 350,
+            "bottom": 1035,
+            "width": 1610,
+            "height": 685,
+            "clientWidth": 1610,
+            "clientHeight": 685,
+            "scrollWidth": 1610,
+            "scrollHeight": 685
+          },
+          "plotFrame": {
+            "left": 311,
+            "right": 1903,
+            "top": 392,
+            "bottom": 1027,
+            "width": 1592,
+            "height": 635,
+            "clientWidth": 1592,
+            "clientHeight": 635,
+            "scrollWidth": 1592,
+            "scrollHeight": 635
+          },
+          "svg": {
+            "left": 311,
+            "right": 1903,
+            "top": 392,
+            "bottom": 1027,
+            "width": 1592,
+            "height": 635,
+            "clientWidth": 1592,
+            "clientHeight": 635,
+            "scrollWidth": 1592,
+            "scrollHeight": 635
+          },
+          "legend": {
+            "left": 1713.17,
+            "right": 1885,
+            "top": 402,
+            "bottom": 532.19,
+            "width": 171.83,
+            "height": 130.19,
+            "clientWidth": 157,
+            "clientHeight": 130,
+            "scrollWidth": 157,
+            "scrollHeight": 130
+          }
+        },
+        "graphContract": {
+          "svgWidth": 1592,
+          "svgHeight": 635,
+          "plotWidth": null,
+          "plotHeight": null,
+          "axisWidth": null,
+          "legendBottom": 532.19,
+          "lastXTickWithinSvg": true,
+          "xTicksWithinSvg": true,
+          "legendOutsideSvg": false,
+          "legendTickOverlap": false,
+          "legendAxisLabelOverlap": false,
+          "legendCurveSegmentOverlap": false
+        }
+      }
+    },
+    {
+      "route": "/modeling?stage=data&family=metal",
+      "state": "three-exact-curves",
+      "density": "standard",
+      "viewport": "2560x1440",
+      "metrics": {
+        "viewport": {
+          "width": 2560,
+          "height": 1440
+        },
+        "document": {
+          "clientWidth": 2560,
+          "scrollWidth": 2560,
+          "clientHeight": 1440,
+          "scrollHeight": 1440,
+          "horizontalOverflow": false
+        },
+        "tokens": {
+          "--ux-data-font-size": "14px",
+          "--ux-emphasis-font-size": "15px",
+          "--ux-metadata-font-size": "13px",
+          "--ux-table-heading-font-size": "12px",
+          "--ux-control-min-block-size": "38px",
+          "--ux-input-min-block-size": "40px",
+          "--ux-work-row-min-block-size": "48px",
+          "--ux-navigator-row-block-size": "30px",
+          "--ux-pane-padding": "14px",
+          "--ux-navigator-default-inline-size": "288px",
+          "--ux-context-default-inline-size": "304px",
+          "--ux-splitter-inline-size": "6px",
+          "--ux-scrollbar-track-size": "14px",
+          "--ux-scrollbar-thumb-min-size": "40px",
+          "--ux-plot-min-block-size": "400px",
+          "--ux-native-preview-min-block-size": "320px"
+        },
+        "boxes": {
+          "shell": {
+            "left": 0,
+            "right": 2560,
+            "top": 0,
+            "bottom": 1440,
+            "width": 2560,
+            "height": 1440,
+            "clientWidth": 2560,
+            "clientHeight": 1440,
+            "scrollWidth": 2560,
+            "scrollHeight": 1440
+          },
+          "applicationWorkspace": {
+            "left": 0,
+            "right": 2560,
+            "top": 50,
+            "bottom": 1440,
+            "width": 2560,
+            "height": 1390,
+            "clientWidth": 2560,
+            "clientHeight": 1390,
+            "scrollWidth": 2560,
+            "scrollHeight": 1390
+          },
+          "taskWorkspace": {
+            "left": 8,
+            "right": 2552,
+            "top": 162,
+            "bottom": 1396,
+            "width": 2544,
+            "height": 1234,
+            "clientWidth": 2544,
+            "clientHeight": 1232,
+            "scrollWidth": 2544,
+            "scrollHeight": 1232
+          },
+          "navigator": {
+            "left": 8,
+            "right": 296.02,
+            "top": 163,
+            "bottom": 1395,
+            "width": 288.02,
+            "height": 1232,
+            "clientWidth": 273,
+            "clientHeight": 1232,
+            "scrollWidth": 277,
+            "scrollHeight": 1232
+          },
+          "main": {
+            "left": 302.02,
+            "right": 2552,
+            "top": 163,
+            "bottom": 1395,
+            "width": 2249.98,
+            "height": 1232,
+            "clientWidth": 2250,
+            "clientHeight": 1232,
+            "scrollWidth": 2250,
+            "scrollHeight": 1232
+          },
+          "graph": {
+            "left": 302.02,
+            "right": 2552,
+            "top": 350,
+            "bottom": 1395,
+            "width": 2249.98,
+            "height": 1045,
+            "clientWidth": 2250,
+            "clientHeight": 1045,
+            "scrollWidth": 2250,
+            "scrollHeight": 1045
+          },
+          "plotFrame": {
+            "left": 311.02,
+            "right": 2543,
+            "top": 392,
+            "bottom": 1387,
+            "width": 2231.98,
+            "height": 995,
+            "clientWidth": 2232,
+            "clientHeight": 995,
+            "scrollWidth": 2232,
+            "scrollHeight": 995
+          },
+          "svg": {
+            "left": 311.02,
+            "right": 2543,
+            "top": 392,
+            "bottom": 1387,
+            "width": 2231.98,
+            "height": 995,
+            "clientWidth": 2232,
+            "clientHeight": 995,
+            "scrollWidth": 2232,
+            "scrollHeight": 995
+          },
+          "legend": {
+            "left": 2353.17,
+            "right": 2525,
+            "top": 402,
+            "bottom": 532.19,
+            "width": 171.83,
+            "height": 130.19,
+            "clientWidth": 157,
+            "clientHeight": 130,
+            "scrollWidth": 157,
+            "scrollHeight": 130
+          }
+        },
+        "graphContract": {
+          "svgWidth": 2231.98,
+          "svgHeight": 995,
+          "plotWidth": null,
+          "plotHeight": null,
+          "axisWidth": null,
+          "legendBottom": 532.19,
+          "lastXTickWithinSvg": true,
+          "xTicksWithinSvg": true,
+          "legendOutsideSvg": false,
+          "legendTickOverlap": false,
+          "legendAxisLabelOverlap": false,
+          "legendCurveSegmentOverlap": false
+        }
+      }
+    },
+    {
+      "route": "/modeling?stage=data&family=metal",
+      "state": "three-exact-curves",
+      "density": "standard",
+      "viewport": "3840x2160",
+      "metrics": {
+        "viewport": {
+          "width": 3840,
+          "height": 2160
+        },
+        "document": {
+          "clientWidth": 3840,
+          "scrollWidth": 3840,
+          "clientHeight": 2160,
+          "scrollHeight": 2160,
+          "horizontalOverflow": false
+        },
+        "tokens": {
+          "--ux-data-font-size": "14px",
+          "--ux-emphasis-font-size": "15px",
+          "--ux-metadata-font-size": "13px",
+          "--ux-table-heading-font-size": "12px",
+          "--ux-control-min-block-size": "38px",
+          "--ux-input-min-block-size": "40px",
+          "--ux-work-row-min-block-size": "48px",
+          "--ux-navigator-row-block-size": "30px",
+          "--ux-pane-padding": "14px",
+          "--ux-navigator-default-inline-size": "288px",
+          "--ux-context-default-inline-size": "304px",
+          "--ux-splitter-inline-size": "6px",
+          "--ux-scrollbar-track-size": "14px",
+          "--ux-scrollbar-thumb-min-size": "40px",
+          "--ux-plot-min-block-size": "400px",
+          "--ux-native-preview-min-block-size": "320px"
+        },
+        "boxes": {
+          "shell": {
+            "left": 0,
+            "right": 3840,
+            "top": 0,
+            "bottom": 2160,
+            "width": 3840,
+            "height": 2160,
+            "clientWidth": 3840,
+            "clientHeight": 2160,
+            "scrollWidth": 3840,
+            "scrollHeight": 2160
+          },
+          "applicationWorkspace": {
+            "left": 0,
+            "right": 3840,
+            "top": 50,
+            "bottom": 2160,
+            "width": 3840,
+            "height": 2110,
+            "clientWidth": 3840,
+            "clientHeight": 2110,
+            "scrollWidth": 3840,
+            "scrollHeight": 2110
+          },
+          "taskWorkspace": {
+            "left": 8,
+            "right": 3832,
+            "top": 162,
+            "bottom": 2116,
+            "width": 3824,
+            "height": 1954,
+            "clientWidth": 3824,
+            "clientHeight": 1952,
+            "scrollWidth": 3824,
+            "scrollHeight": 1952
+          },
+          "navigator": {
+            "left": 8,
+            "right": 295.98,
+            "top": 163,
+            "bottom": 2115,
+            "width": 287.98,
+            "height": 1952,
+            "clientWidth": 273,
+            "clientHeight": 1952,
+            "scrollWidth": 277,
+            "scrollHeight": 1952
+          },
+          "main": {
+            "left": 301.98,
+            "right": 3832,
+            "top": 163,
+            "bottom": 2115,
+            "width": 3530.02,
+            "height": 1952,
+            "clientWidth": 3530,
+            "clientHeight": 1952,
+            "scrollWidth": 3530,
+            "scrollHeight": 1952
+          },
+          "graph": {
+            "left": 301.98,
+            "right": 3832,
+            "top": 350,
+            "bottom": 2115,
+            "width": 3530.02,
+            "height": 1765,
+            "clientWidth": 3530,
+            "clientHeight": 1765,
+            "scrollWidth": 3530,
+            "scrollHeight": 1765
+          },
+          "plotFrame": {
+            "left": 310.98,
+            "right": 3823,
+            "top": 392,
+            "bottom": 2107,
+            "width": 3512.02,
+            "height": 1715,
+            "clientWidth": 3512,
+            "clientHeight": 1715,
+            "scrollWidth": 3512,
+            "scrollHeight": 1715
+          },
+          "svg": {
+            "left": 310.98,
+            "right": 3823,
+            "top": 392,
+            "bottom": 2107,
+            "width": 3512.02,
+            "height": 1715,
+            "clientWidth": 3512,
+            "clientHeight": 1715,
+            "scrollWidth": 3512,
+            "scrollHeight": 1715
+          },
+          "legend": {
+            "left": 3633.17,
+            "right": 3805,
+            "top": 402,
+            "bottom": 532.19,
+            "width": 171.83,
+            "height": 130.19,
+            "clientWidth": 157,
+            "clientHeight": 130,
+            "scrollWidth": 157,
+            "scrollHeight": 130
+          }
+        },
+        "graphContract": {
+          "svgWidth": 3512.02,
+          "svgHeight": 1715,
+          "plotWidth": null,
+          "plotHeight": null,
+          "axisWidth": null,
+          "legendBottom": 532.19,
+          "lastXTickWithinSvg": true,
+          "xTicksWithinSvg": true,
+          "legendOutsideSvg": false,
+          "legendTickOverlap": false,
+          "legendAxisLabelOverlap": false,
+          "legendCurveSegmentOverlap": false
+        }
+      }
+    },
+    {
+      "route": "/activity",
+      "state": "normal",
+      "density": "standard",
+      "viewport": "1366x768",
+      "metrics": {
+        "viewport": {
+          "width": 1366,
+          "height": 768
+        },
+        "document": {
+          "clientWidth": 1366,
+          "scrollWidth": 1366,
+          "clientHeight": 768,
+          "scrollHeight": 768,
+          "horizontalOverflow": false
+        },
+        "tokens": {
+          "--ux-data-font-size": "14px",
+          "--ux-emphasis-font-size": "15px",
+          "--ux-metadata-font-size": "13px",
+          "--ux-table-heading-font-size": "12px",
+          "--ux-control-min-block-size": "38px",
+          "--ux-input-min-block-size": "40px",
+          "--ux-work-row-min-block-size": "48px",
+          "--ux-navigator-row-block-size": "30px",
+          "--ux-pane-padding": "14px",
+          "--ux-navigator-default-inline-size": "288px",
+          "--ux-context-default-inline-size": "304px",
+          "--ux-splitter-inline-size": "6px",
+          "--ux-scrollbar-track-size": "14px",
+          "--ux-scrollbar-thumb-min-size": "40px",
+          "--ux-plot-min-block-size": "400px",
+          "--ux-native-preview-min-block-size": "320px"
+        },
+        "boxes": {
+          "shell": {
+            "left": 0,
+            "right": 1366,
+            "top": 0,
+            "bottom": 768,
+            "width": 1366,
+            "height": 768,
+            "clientWidth": 1366,
+            "clientHeight": 768,
+            "scrollWidth": 1366,
+            "scrollHeight": 768
+          },
+          "applicationWorkspace": {
+            "left": 0,
+            "right": 1366,
+            "top": 92,
+            "bottom": 742,
+            "width": 1366,
+            "height": 650,
+            "clientWidth": 1366,
+            "clientHeight": 650,
+            "scrollWidth": 1366,
+            "scrollHeight": 650
+          },
+          "taskWorkspace": {
+            "left": 8,
+            "right": 1358,
+            "top": 92,
+            "bottom": 742,
+            "width": 1350,
+            "height": 650,
+            "clientWidth": 1350,
+            "clientHeight": 650,
+            "scrollWidth": 1350,
+            "scrollHeight": 650
+          },
+          "main": {
+            "left": 8,
+            "right": 1358,
+            "top": 92,
+            "bottom": 742,
+            "width": 1350,
+            "height": 650,
+            "clientWidth": 1350,
+            "clientHeight": 650,
+            "scrollWidth": 1350,
+            "scrollHeight": 650
+          },
+          "table": {
+            "left": 49,
+            "right": 1303,
+            "top": 286.28,
+            "bottom": 781.72,
+            "width": 1254,
+            "height": 495.44,
+            "clientWidth": 1254,
+            "clientHeight": 495,
+            "scrollWidth": 1254,
+            "scrollHeight": 495
+          }
+        }
+      }
+    },
+    {
+      "route": "/activity",
+      "state": "normal",
+      "density": "standard",
+      "viewport": "1440x900",
+      "metrics": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "document": {
+          "clientWidth": 1440,
+          "scrollWidth": 1440,
+          "clientHeight": 900,
+          "scrollHeight": 900,
+          "horizontalOverflow": false
+        },
+        "tokens": {
+          "--ux-data-font-size": "14px",
+          "--ux-emphasis-font-size": "15px",
+          "--ux-metadata-font-size": "13px",
+          "--ux-table-heading-font-size": "12px",
+          "--ux-control-min-block-size": "38px",
+          "--ux-input-min-block-size": "40px",
+          "--ux-work-row-min-block-size": "48px",
+          "--ux-navigator-row-block-size": "30px",
+          "--ux-pane-padding": "14px",
+          "--ux-navigator-default-inline-size": "288px",
+          "--ux-context-default-inline-size": "304px",
+          "--ux-splitter-inline-size": "6px",
+          "--ux-scrollbar-track-size": "14px",
+          "--ux-scrollbar-thumb-min-size": "40px",
+          "--ux-plot-min-block-size": "400px",
+          "--ux-native-preview-min-block-size": "320px"
+        },
+        "boxes": {
+          "shell": {
+            "left": 0,
+            "right": 1440,
+            "top": 0,
+            "bottom": 900,
+            "width": 1440,
+            "height": 900,
+            "clientWidth": 1440,
+            "clientHeight": 900,
+            "scrollWidth": 1440,
+            "scrollHeight": 900
+          },
+          "applicationWorkspace": {
+            "left": 0,
+            "right": 1440,
+            "top": 92,
+            "bottom": 874,
+            "width": 1440,
+            "height": 782,
+            "clientWidth": 1440,
+            "clientHeight": 782,
+            "scrollWidth": 1440,
+            "scrollHeight": 782
+          },
+          "taskWorkspace": {
+            "left": 8,
+            "right": 1432,
+            "top": 92,
+            "bottom": 874,
+            "width": 1424,
+            "height": 782,
+            "clientWidth": 1424,
+            "clientHeight": 782,
+            "scrollWidth": 1424,
+            "scrollHeight": 782
+          },
+          "main": {
+            "left": 8,
+            "right": 1432,
+            "top": 92,
+            "bottom": 874,
+            "width": 1424,
+            "height": 782,
+            "clientWidth": 1424,
+            "clientHeight": 782,
+            "scrollWidth": 1424,
+            "scrollHeight": 782
+          },
+          "table": {
+            "left": 49,
+            "right": 1377,
+            "top": 286.55,
+            "bottom": 781.98,
+            "width": 1328,
+            "height": 495.44,
+            "clientWidth": 1328,
+            "clientHeight": 495,
+            "scrollWidth": 1328,
+            "scrollHeight": 495
+          }
+        }
+      }
+    },
+    {
+      "route": "/activity",
+      "state": "normal",
+      "density": "standard",
+      "viewport": "1920x1080",
+      "metrics": {
+        "viewport": {
+          "width": 1920,
+          "height": 1080
+        },
+        "document": {
+          "clientWidth": 1920,
+          "scrollWidth": 1920,
+          "clientHeight": 1080,
+          "scrollHeight": 1080,
+          "horizontalOverflow": false
+        },
+        "tokens": {
+          "--ux-data-font-size": "14px",
+          "--ux-emphasis-font-size": "15px",
+          "--ux-metadata-font-size": "13px",
+          "--ux-table-heading-font-size": "12px",
+          "--ux-control-min-block-size": "38px",
+          "--ux-input-min-block-size": "40px",
+          "--ux-work-row-min-block-size": "48px",
+          "--ux-navigator-row-block-size": "30px",
+          "--ux-pane-padding": "14px",
+          "--ux-navigator-default-inline-size": "288px",
+          "--ux-context-default-inline-size": "304px",
+          "--ux-splitter-inline-size": "6px",
+          "--ux-scrollbar-track-size": "14px",
+          "--ux-scrollbar-thumb-min-size": "40px",
+          "--ux-plot-min-block-size": "400px",
+          "--ux-native-preview-min-block-size": "320px"
+        },
+        "boxes": {
+          "shell": {
+            "left": 0,
+            "right": 1920,
+            "top": 0,
+            "bottom": 1080,
+            "width": 1920,
+            "height": 1080,
+            "clientWidth": 1920,
+            "clientHeight": 1080,
+            "scrollWidth": 1920,
+            "scrollHeight": 1080
+          },
+          "applicationWorkspace": {
+            "left": 0,
+            "right": 1920,
+            "top": 92,
+            "bottom": 1054,
+            "width": 1920,
+            "height": 962,
+            "clientWidth": 1920,
+            "clientHeight": 962,
+            "scrollWidth": 1920,
+            "scrollHeight": 962
+          },
+          "taskWorkspace": {
+            "left": 8,
+            "right": 1912,
+            "top": 92,
+            "bottom": 1054,
+            "width": 1904,
+            "height": 962,
+            "clientWidth": 1904,
+            "clientHeight": 962,
+            "scrollWidth": 1904,
+            "scrollHeight": 962
+          },
+          "main": {
+            "left": 8,
+            "right": 1912,
+            "top": 92,
+            "bottom": 1054,
+            "width": 1904,
+            "height": 962,
+            "clientWidth": 1904,
+            "clientHeight": 962,
+            "scrollWidth": 1904,
+            "scrollHeight": 962
+          },
+          "table": {
+            "left": 49,
+            "right": 1871,
+            "top": 288.58,
+            "bottom": 682.53,
+            "width": 1822,
+            "height": 393.95,
+            "clientWidth": 1822,
+            "clientHeight": 394,
+            "scrollWidth": 1822,
+            "scrollHeight": 394
+          }
+        }
+      }
+    },
+    {
+      "route": "/activity",
+      "state": "normal",
+      "density": "standard",
+      "viewport": "2560x1440",
+      "metrics": {
+        "viewport": {
+          "width": 2560,
+          "height": 1440
+        },
+        "document": {
+          "clientWidth": 2560,
+          "scrollWidth": 2560,
+          "clientHeight": 1440,
+          "scrollHeight": 1440,
+          "horizontalOverflow": false
+        },
+        "tokens": {
+          "--ux-data-font-size": "14px",
+          "--ux-emphasis-font-size": "15px",
+          "--ux-metadata-font-size": "13px",
+          "--ux-table-heading-font-size": "12px",
+          "--ux-control-min-block-size": "38px",
+          "--ux-input-min-block-size": "40px",
+          "--ux-work-row-min-block-size": "48px",
+          "--ux-navigator-row-block-size": "30px",
+          "--ux-pane-padding": "14px",
+          "--ux-navigator-default-inline-size": "288px",
+          "--ux-context-default-inline-size": "304px",
+          "--ux-splitter-inline-size": "6px",
+          "--ux-scrollbar-track-size": "14px",
+          "--ux-scrollbar-thumb-min-size": "40px",
+          "--ux-plot-min-block-size": "400px",
+          "--ux-native-preview-min-block-size": "320px"
+        },
+        "boxes": {
+          "shell": {
+            "left": 0,
+            "right": 2560,
+            "top": 0,
+            "bottom": 1440,
+            "width": 2560,
+            "height": 1440,
+            "clientWidth": 2560,
+            "clientHeight": 1440,
+            "scrollWidth": 2560,
+            "scrollHeight": 1440
+          },
+          "applicationWorkspace": {
+            "left": 0,
+            "right": 2560,
+            "top": 92,
+            "bottom": 1414,
+            "width": 2560,
+            "height": 1322,
+            "clientWidth": 2560,
+            "clientHeight": 1322,
+            "scrollWidth": 2560,
+            "scrollHeight": 1322
+          },
+          "taskWorkspace": {
+            "left": 8,
+            "right": 2552,
+            "top": 92,
+            "bottom": 1414,
+            "width": 2544,
+            "height": 1322,
+            "clientWidth": 2544,
+            "clientHeight": 1322,
+            "scrollWidth": 2544,
+            "scrollHeight": 1322
+          },
+          "main": {
+            "left": 8,
+            "right": 2552,
+            "top": 92,
+            "bottom": 1414,
+            "width": 2544,
+            "height": 1322,
+            "clientWidth": 2544,
+            "clientHeight": 1322,
+            "scrollWidth": 2544,
+            "scrollHeight": 1322
+          },
+          "table": {
+            "left": 49,
+            "right": 2511,
+            "top": 288.58,
+            "bottom": 670.94,
+            "width": 2462,
+            "height": 382.36,
+            "clientWidth": 2462,
+            "clientHeight": 382,
+            "scrollWidth": 2462,
+            "scrollHeight": 382
+          }
+        }
+      }
+    },
+    {
+      "route": "/activity",
+      "state": "normal",
+      "density": "standard",
+      "viewport": "3840x2160",
+      "metrics": {
+        "viewport": {
+          "width": 3840,
+          "height": 2160
+        },
+        "document": {
+          "clientWidth": 3840,
+          "scrollWidth": 3840,
+          "clientHeight": 2160,
+          "scrollHeight": 2160,
+          "horizontalOverflow": false
+        },
+        "tokens": {
+          "--ux-data-font-size": "14px",
+          "--ux-emphasis-font-size": "15px",
+          "--ux-metadata-font-size": "13px",
+          "--ux-table-heading-font-size": "12px",
+          "--ux-control-min-block-size": "38px",
+          "--ux-input-min-block-size": "40px",
+          "--ux-work-row-min-block-size": "48px",
+          "--ux-navigator-row-block-size": "30px",
+          "--ux-pane-padding": "14px",
+          "--ux-navigator-default-inline-size": "288px",
+          "--ux-context-default-inline-size": "304px",
+          "--ux-splitter-inline-size": "6px",
+          "--ux-scrollbar-track-size": "14px",
+          "--ux-scrollbar-thumb-min-size": "40px",
+          "--ux-plot-min-block-size": "400px",
+          "--ux-native-preview-min-block-size": "320px"
+        },
+        "boxes": {
+          "shell": {
+            "left": 0,
+            "right": 3840,
+            "top": 0,
+            "bottom": 2160,
+            "width": 3840,
+            "height": 2160,
+            "clientWidth": 3840,
+            "clientHeight": 2160,
+            "scrollWidth": 3840,
+            "scrollHeight": 2160
+          },
+          "applicationWorkspace": {
+            "left": 0,
+            "right": 3840,
+            "top": 92,
+            "bottom": 2134,
+            "width": 3840,
+            "height": 2042,
+            "clientWidth": 3840,
+            "clientHeight": 2042,
+            "scrollWidth": 3840,
+            "scrollHeight": 2042
+          },
+          "taskWorkspace": {
+            "left": 8,
+            "right": 3832,
+            "top": 92,
+            "bottom": 2134,
+            "width": 3824,
+            "height": 2042,
+            "clientWidth": 3824,
+            "clientHeight": 2042,
+            "scrollWidth": 3824,
+            "scrollHeight": 2042
+          },
+          "main": {
+            "left": 8,
+            "right": 3832,
+            "top": 92,
+            "bottom": 2134,
+            "width": 3824,
+            "height": 2042,
+            "clientWidth": 3824,
+            "clientHeight": 2042,
+            "scrollWidth": 3824,
+            "scrollHeight": 2042
+          },
+          "table": {
+            "left": 621,
+            "right": 3219,
+            "top": 288.58,
+            "bottom": 613.47,
+            "width": 2598,
+            "height": 324.89,
+            "clientWidth": 2598,
+            "clientHeight": 325,
+            "scrollWidth": 2598,
+            "scrollHeight": 325
+          }
+        }
+      }
+    },
+    {
+      "route": "/administration/database",
+      "state": "normal",
+      "density": "standard",
+      "viewport": "1366x768",
+      "metrics": {
+        "viewport": {
+          "width": 1366,
+          "height": 768
+        },
+        "document": {
+          "clientWidth": 1366,
+          "scrollWidth": 1366,
+          "clientHeight": 768,
+          "scrollHeight": 768,
+          "horizontalOverflow": false
+        },
+        "tokens": {
+          "--ux-data-font-size": "14px",
+          "--ux-emphasis-font-size": "15px",
+          "--ux-metadata-font-size": "13px",
+          "--ux-table-heading-font-size": "12px",
+          "--ux-control-min-block-size": "38px",
+          "--ux-input-min-block-size": "40px",
+          "--ux-work-row-min-block-size": "48px",
+          "--ux-navigator-row-block-size": "30px",
+          "--ux-pane-padding": "14px",
+          "--ux-navigator-default-inline-size": "288px",
+          "--ux-context-default-inline-size": "304px",
+          "--ux-splitter-inline-size": "6px",
+          "--ux-scrollbar-track-size": "14px",
+          "--ux-scrollbar-thumb-min-size": "40px",
+          "--ux-plot-min-block-size": "400px",
+          "--ux-native-preview-min-block-size": "320px"
+        },
+        "boxes": {
+          "shell": {
+            "left": 0,
+            "right": 1366,
+            "top": 0,
+            "bottom": 768,
+            "width": 1366,
+            "height": 768,
+            "clientWidth": 1366,
+            "clientHeight": 768,
+            "scrollWidth": 1366,
+            "scrollHeight": 768
+          },
+          "applicationWorkspace": {
+            "left": 0,
+            "right": 1366,
+            "top": 92,
+            "bottom": 742,
+            "width": 1366,
+            "height": 650,
+            "clientWidth": 1366,
+            "clientHeight": 650,
+            "scrollWidth": 1366,
+            "scrollHeight": 665
+          },
+          "taskWorkspace": {
+            "left": 239.22,
+            "right": 1342.78,
+            "top": 172.5,
+            "bottom": 732.5,
+            "width": 1103.56,
+            "height": 560,
+            "clientWidth": 1104,
+            "clientHeight": 559,
+            "scrollWidth": 1104,
+            "scrollHeight": 559
+          },
+          "navigator": {
+            "left": 239.22,
+            "right": 527.22,
+            "top": 172.5,
+            "bottom": 731.5,
+            "width": 288,
+            "height": 559,
+            "clientWidth": 287,
+            "clientHeight": 559,
+            "scrollWidth": 287,
+            "scrollHeight": 559
+          },
+          "main": {
+            "left": 527.22,
+            "right": 815.22,
+            "top": 172.5,
+            "bottom": 731.5,
+            "width": 288,
+            "height": 559,
+            "clientWidth": 287,
+            "clientHeight": 559,
+            "scrollWidth": 287,
+            "scrollHeight": 559
+          },
+          "form": {
+            "left": 815.22,
+            "right": 1342.78,
+            "top": 172.5,
+            "bottom": 731.5,
+            "width": 527.56,
+            "height": 559,
+            "clientWidth": 528,
+            "clientHeight": 559,
+            "scrollWidth": 528,
+            "scrollHeight": 559
+          }
+        }
+      }
+    },
+    {
+      "route": "/administration/database",
+      "state": "normal",
+      "density": "standard",
+      "viewport": "1440x900",
+      "metrics": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "document": {
+          "clientWidth": 1440,
+          "scrollWidth": 1440,
+          "clientHeight": 900,
+          "scrollHeight": 900,
+          "horizontalOverflow": false
+        },
+        "tokens": {
+          "--ux-data-font-size": "14px",
+          "--ux-emphasis-font-size": "15px",
+          "--ux-metadata-font-size": "13px",
+          "--ux-table-heading-font-size": "12px",
+          "--ux-control-min-block-size": "38px",
+          "--ux-input-min-block-size": "40px",
+          "--ux-work-row-min-block-size": "48px",
+          "--ux-navigator-row-block-size": "30px",
+          "--ux-pane-padding": "14px",
+          "--ux-navigator-default-inline-size": "288px",
+          "--ux-context-default-inline-size": "304px",
+          "--ux-splitter-inline-size": "6px",
+          "--ux-scrollbar-track-size": "14px",
+          "--ux-scrollbar-thumb-min-size": "40px",
+          "--ux-plot-min-block-size": "400px",
+          "--ux-native-preview-min-block-size": "320px"
+        },
+        "boxes": {
+          "shell": {
+            "left": 0,
+            "right": 1440,
+            "top": 0,
+            "bottom": 900,
+            "width": 1440,
+            "height": 900,
+            "clientWidth": 1440,
+            "clientHeight": 900,
+            "scrollWidth": 1440,
+            "scrollHeight": 900
+          },
+          "applicationWorkspace": {
+            "left": 0,
+            "right": 1440,
+            "top": 92,
+            "bottom": 874,
+            "width": 1440,
+            "height": 782,
+            "clientWidth": 1440,
+            "clientHeight": 782,
+            "scrollWidth": 1440,
+            "scrollHeight": 797
+          },
+          "taskWorkspace": {
+            "left": 240.47,
+            "right": 1415.53,
+            "top": 172.5,
+            "bottom": 864.5,
+            "width": 1175.06,
+            "height": 692,
+            "clientWidth": 1175,
+            "clientHeight": 691,
+            "scrollWidth": 1175,
+            "scrollHeight": 691
+          },
+          "navigator": {
+            "left": 240.47,
+            "right": 528.47,
+            "top": 172.5,
+            "bottom": 863.5,
+            "width": 288,
+            "height": 691,
+            "clientWidth": 287,
+            "clientHeight": 691,
+            "scrollWidth": 287,
+            "scrollHeight": 691
+          },
+          "main": {
+            "left": 528.47,
+            "right": 816.47,
+            "top": 172.5,
+            "bottom": 863.5,
+            "width": 288,
+            "height": 691,
+            "clientWidth": 287,
+            "clientHeight": 691,
+            "scrollWidth": 287,
+            "scrollHeight": 691
+          },
+          "form": {
+            "left": 816.47,
+            "right": 1415.53,
+            "top": 172.5,
+            "bottom": 863.5,
+            "width": 599.06,
+            "height": 691,
+            "clientWidth": 599,
+            "clientHeight": 691,
+            "scrollWidth": 599,
+            "scrollHeight": 691
+          }
+        }
+      }
+    },
+    {
+      "route": "/administration/database",
+      "state": "normal",
+      "density": "standard",
+      "viewport": "1920x1080",
+      "metrics": {
+        "viewport": {
+          "width": 1920,
+          "height": 1080
+        },
+        "document": {
+          "clientWidth": 1920,
+          "scrollWidth": 1920,
+          "clientHeight": 1080,
+          "scrollHeight": 1080,
+          "horizontalOverflow": false
+        },
+        "tokens": {
+          "--ux-data-font-size": "14px",
+          "--ux-emphasis-font-size": "15px",
+          "--ux-metadata-font-size": "13px",
+          "--ux-table-heading-font-size": "12px",
+          "--ux-control-min-block-size": "38px",
+          "--ux-input-min-block-size": "40px",
+          "--ux-work-row-min-block-size": "48px",
+          "--ux-navigator-row-block-size": "30px",
+          "--ux-pane-padding": "14px",
+          "--ux-navigator-default-inline-size": "288px",
+          "--ux-context-default-inline-size": "304px",
+          "--ux-splitter-inline-size": "6px",
+          "--ux-scrollbar-track-size": "14px",
+          "--ux-scrollbar-thumb-min-size": "40px",
+          "--ux-plot-min-block-size": "400px",
+          "--ux-native-preview-min-block-size": "320px"
+        },
+        "boxes": {
+          "shell": {
+            "left": 0,
+            "right": 1920,
+            "top": 0,
+            "bottom": 1080,
+            "width": 1920,
+            "height": 1080,
+            "clientWidth": 1920,
+            "clientHeight": 1080,
+            "scrollWidth": 1920,
+            "scrollHeight": 1080
+          },
+          "applicationWorkspace": {
+            "left": 0,
+            "right": 1920,
+            "top": 92,
+            "bottom": 1054,
+            "width": 1920,
+            "height": 962,
+            "clientWidth": 1920,
+            "clientHeight": 962,
+            "scrollWidth": 1920,
+            "scrollHeight": 977
+          },
+          "taskWorkspace": {
+            "left": 320,
+            "right": 1888,
+            "top": 172.5,
+            "bottom": 1044.5,
+            "width": 1568,
+            "height": 872,
+            "clientWidth": 1568,
+            "clientHeight": 871,
+            "scrollWidth": 1568,
+            "scrollHeight": 871
+          },
+          "navigator": {
+            "left": 320,
+            "right": 608,
+            "top": 172.5,
+            "bottom": 1043.5,
+            "width": 288,
+            "height": 871,
+            "clientWidth": 287,
+            "clientHeight": 871,
+            "scrollWidth": 287,
+            "scrollHeight": 871
+          },
+          "main": {
+            "left": 608,
+            "right": 1088,
+            "top": 172.5,
+            "bottom": 1043.5,
+            "width": 480,
+            "height": 871,
+            "clientWidth": 479,
+            "clientHeight": 871,
+            "scrollWidth": 479,
+            "scrollHeight": 871
+          },
+          "form": {
+            "left": 1088,
+            "right": 1888,
+            "top": 172.5,
+            "bottom": 1043.5,
+            "width": 800,
+            "height": 871,
+            "clientWidth": 800,
+            "clientHeight": 871,
+            "scrollWidth": 800,
+            "scrollHeight": 871
+          }
+        }
+      }
+    },
+    {
+      "route": "/administration/database",
+      "state": "normal",
+      "density": "standard",
+      "viewport": "2560x1440",
+      "metrics": {
+        "viewport": {
+          "width": 2560,
+          "height": 1440
+        },
+        "document": {
+          "clientWidth": 2560,
+          "scrollWidth": 2560,
+          "clientHeight": 1440,
+          "scrollHeight": 1440,
+          "horizontalOverflow": false
+        },
+        "tokens": {
+          "--ux-data-font-size": "14px",
+          "--ux-emphasis-font-size": "15px",
+          "--ux-metadata-font-size": "13px",
+          "--ux-table-heading-font-size": "12px",
+          "--ux-control-min-block-size": "38px",
+          "--ux-input-min-block-size": "40px",
+          "--ux-work-row-min-block-size": "48px",
+          "--ux-navigator-row-block-size": "30px",
+          "--ux-pane-padding": "14px",
+          "--ux-navigator-default-inline-size": "288px",
+          "--ux-context-default-inline-size": "304px",
+          "--ux-splitter-inline-size": "6px",
+          "--ux-scrollbar-track-size": "14px",
+          "--ux-scrollbar-thumb-min-size": "40px",
+          "--ux-plot-min-block-size": "400px",
+          "--ux-native-preview-min-block-size": "320px"
+        },
+        "boxes": {
+          "shell": {
+            "left": 0,
+            "right": 2560,
+            "top": 0,
+            "bottom": 1440,
+            "width": 2560,
+            "height": 1440,
+            "clientWidth": 2560,
+            "clientHeight": 1440,
+            "scrollWidth": 2560,
+            "scrollHeight": 1440
+          },
+          "applicationWorkspace": {
+            "left": 0,
+            "right": 2560,
+            "top": 92,
+            "bottom": 1414,
+            "width": 2560,
+            "height": 1322,
+            "clientWidth": 2560,
+            "clientHeight": 1322,
+            "scrollWidth": 2560,
+            "scrollHeight": 1337
+          },
+          "taskWorkspace": {
+            "left": 320,
+            "right": 2528,
+            "top": 172.5,
+            "bottom": 1404.5,
+            "width": 2208,
+            "height": 1232,
+            "clientWidth": 2208,
+            "clientHeight": 1231,
+            "scrollWidth": 2208,
+            "scrollHeight": 1231
+          },
+          "navigator": {
+            "left": 320,
+            "right": 608,
+            "top": 172.5,
+            "bottom": 1403.5,
+            "width": 288,
+            "height": 1231,
+            "clientWidth": 287,
+            "clientHeight": 1231,
+            "scrollWidth": 287,
+            "scrollHeight": 1231
+          },
+          "main": {
+            "left": 608,
+            "right": 1728,
+            "top": 172.5,
+            "bottom": 1403.5,
+            "width": 1120,
+            "height": 1231,
+            "clientWidth": 1119,
+            "clientHeight": 1231,
+            "scrollWidth": 1119,
+            "scrollHeight": 1231
+          },
+          "form": {
+            "left": 1728,
+            "right": 2528,
+            "top": 172.5,
+            "bottom": 1403.5,
+            "width": 800,
+            "height": 1231,
+            "clientWidth": 800,
+            "clientHeight": 1231,
+            "scrollWidth": 800,
+            "scrollHeight": 1231
+          }
+        }
+      }
+    },
+    {
+      "route": "/administration/database",
+      "state": "normal",
+      "density": "standard",
+      "viewport": "3840x2160",
+      "metrics": {
+        "viewport": {
+          "width": 3840,
+          "height": 2160
+        },
+        "document": {
+          "clientWidth": 3840,
+          "scrollWidth": 3840,
+          "clientHeight": 2160,
+          "scrollHeight": 2160,
+          "horizontalOverflow": false
+        },
+        "tokens": {
+          "--ux-data-font-size": "14px",
+          "--ux-emphasis-font-size": "15px",
+          "--ux-metadata-font-size": "13px",
+          "--ux-table-heading-font-size": "12px",
+          "--ux-control-min-block-size": "38px",
+          "--ux-input-min-block-size": "40px",
+          "--ux-work-row-min-block-size": "48px",
+          "--ux-navigator-row-block-size": "30px",
+          "--ux-pane-padding": "14px",
+          "--ux-navigator-default-inline-size": "288px",
+          "--ux-context-default-inline-size": "304px",
+          "--ux-splitter-inline-size": "6px",
+          "--ux-scrollbar-track-size": "14px",
+          "--ux-scrollbar-thumb-min-size": "40px",
+          "--ux-plot-min-block-size": "400px",
+          "--ux-native-preview-min-block-size": "320px"
+        },
+        "boxes": {
+          "shell": {
+            "left": 0,
+            "right": 3840,
+            "top": 0,
+            "bottom": 2160,
+            "width": 3840,
+            "height": 2160,
+            "clientWidth": 3840,
+            "clientHeight": 2160,
+            "scrollWidth": 3840,
+            "scrollHeight": 2160
+          },
+          "applicationWorkspace": {
+            "left": 0,
+            "right": 3840,
+            "top": 92,
+            "bottom": 2134,
+            "width": 3840,
+            "height": 2042,
+            "clientWidth": 3840,
+            "clientHeight": 2042,
+            "scrollWidth": 3840,
+            "scrollHeight": 2057
+          },
+          "taskWorkspace": {
+            "left": 320,
+            "right": 3808,
+            "top": 172.5,
+            "bottom": 2124.5,
+            "width": 3488,
+            "height": 1952,
+            "clientWidth": 3488,
+            "clientHeight": 1951,
+            "scrollWidth": 3488,
+            "scrollHeight": 1951
+          },
+          "navigator": {
+            "left": 320,
+            "right": 608,
+            "top": 172.5,
+            "bottom": 2123.5,
+            "width": 288,
+            "height": 1951,
+            "clientWidth": 287,
+            "clientHeight": 1951,
+            "scrollWidth": 287,
+            "scrollHeight": 1951
+          },
+          "main": {
+            "left": 608,
+            "right": 3008,
+            "top": 172.5,
+            "bottom": 2123.5,
+            "width": 2400,
+            "height": 1951,
+            "clientWidth": 2399,
+            "clientHeight": 1951,
+            "scrollWidth": 2399,
+            "scrollHeight": 1951
+          },
+          "form": {
+            "left": 3008,
+            "right": 3808,
+            "top": 172.5,
+            "bottom": 2123.5,
+            "width": 800,
+            "height": 1951,
+            "clientWidth": 800,
+            "clientHeight": 1951,
+            "scrollWidth": 800,
+            "scrollHeight": 1951
+          }
+        }
+      }
+    }
+  ]
+}

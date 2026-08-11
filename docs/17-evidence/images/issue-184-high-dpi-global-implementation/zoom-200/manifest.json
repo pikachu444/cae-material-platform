@@ -1,0 +1,5209 @@
+{
+  "schema_version": 1,
+  "capture": "issue-184-production-browser-zoom-200",
+  "physical_4k_readability": "DEFERRED_TO_223",
+  "images": [
+    {
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/zoom-200/activity-history-outer-1920x1080-css-960x540.png",
+      "surface": "activity-history",
+      "outer_viewport": "1920x1080",
+      "css_viewport": "960x540",
+      "browser_zoom_percent": 200,
+      "dpr": 2,
+      "density": "standard",
+      "sha256": "3ddff5f61b57e5ec79adff1c72b4e5fd25d67941614b5946449759b5355eeeab",
+      "state_fingerprint": "bee8a51eebba879e9885577232350e2453c0d2b88de8f639ea041d872e04ae9f",
+      "environment": {
+        "innerWidth": 960,
+        "innerHeight": 540,
+        "outerWidth": 1920,
+        "outerHeight": 1080,
+        "devicePixelRatio": 2,
+        "screenWidth": 1920,
+        "screenHeight": 1080,
+        "visualViewportScale": 1,
+        "documentWidth": 960,
+        "documentScrollWidth": 960,
+        "density": "standard"
+      },
+      "geometry": {
+        "page": {
+          "clientWidth": 960,
+          "clientHeight": 540,
+          "scrollWidth": 960,
+          "scrollHeight": 2781
+        },
+        "localScroll": [
+          {
+            "tag": "html",
+            "id": null,
+            "className": "",
+            "x": false,
+            "y": true,
+            "clientWidth": 960,
+            "clientHeight": 540,
+            "scrollWidth": 960,
+            "scrollHeight": 2781
+          },
+          {
+            "tag": "h1",
+            "id": null,
+            "className": "",
+            "x": false,
+            "y": true,
+            "clientWidth": 128,
+            "clientHeight": 16,
+            "scrollWidth": 128,
+            "scrollHeight": 18
+          },
+          {
+            "tag": "div",
+            "id": "activity-queue-scroll",
+            "className": "activity-queue-scroll",
+            "x": false,
+            "y": true,
+            "clientWidth": 891,
+            "clientHeight": 184,
+            "scrollWidth": 891,
+            "scrollHeight": 5463
+          },
+          {
+            "tag": "caption",
+            "id": null,
+            "className": "visually-hidden",
+            "x": true,
+            "y": true,
+            "clientWidth": 1,
+            "clientHeight": 1,
+            "scrollWidth": 155,
+            "scrollHeight": 20
+          },
+          {
+            "tag": "caption",
+            "id": null,
+            "className": "visually-hidden",
+            "x": true,
+            "y": true,
+            "clientWidth": 1,
+            "clientHeight": 1,
+            "scrollWidth": 184,
+            "scrollHeight": 20
+          }
+        ],
+        "dualAxisLocalScrollCount": 2,
+        "boxes": {
+          ".application-workspace": {
+            "left": 0,
+            "right": 960,
+            "top": 92,
+            "bottom": 514,
+            "width": 960,
+            "height": 422
+          },
+          ".materials-workspace": null,
+          ".modeling-workspace-shell": null,
+          ".modeling-workspace-rail": null,
+          ".persistent-modeling-plot": null,
+          ".modeling-task-ribbon": null,
+          ".export-workspace": null,
+          ".native-preview": null,
+          ".activity-shell": {
+            "left": 8,
+            "right": 952,
+            "top": 92,
+            "bottom": 514,
+            "width": 944,
+            "height": 422
+          },
+          ".administration-workspace": null,
+          ".administration-record-workbench": null
+        }
+      },
+      "interactions": [
+        "recent outcomes selected",
+        "history scroll region focused"
+      ]
+    },
+    {
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/zoom-200/administration-access-outer-1920x1080-css-960x540.png",
+      "surface": "administration-access",
+      "outer_viewport": "1920x1080",
+      "css_viewport": "960x540",
+      "browser_zoom_percent": 200,
+      "dpr": 2,
+      "density": "standard",
+      "sha256": "5d7cee2824c529f21ed69e9e33567444f28768fb8b2eea9fef20d438ae20149f",
+      "state_fingerprint": "7c60e4d79f271457e29ae383d70c2afc9f9488b989dc51bb2660be9f0ad63aad",
+      "environment": {
+        "innerWidth": 960,
+        "innerHeight": 540,
+        "outerWidth": 1920,
+        "outerHeight": 1080,
+        "devicePixelRatio": 2,
+        "screenWidth": 1920,
+        "screenHeight": 1080,
+        "visualViewportScale": 1,
+        "documentWidth": 960,
+        "documentScrollWidth": 960,
+        "density": "standard"
+      },
+      "geometry": {
+        "page": {
+          "clientWidth": 960,
+          "clientHeight": 540,
+          "scrollWidth": 960,
+          "scrollHeight": 540
+        },
+        "localScroll": [
+          {
+            "tag": "h1",
+            "id": null,
+            "className": "",
+            "x": false,
+            "y": true,
+            "clientWidth": 128,
+            "clientHeight": 16,
+            "scrollWidth": 128,
+            "scrollHeight": 18
+          },
+          {
+            "tag": "main",
+            "id": null,
+            "className": "application-workspace",
+            "x": false,
+            "y": true,
+            "clientWidth": 960,
+            "clientHeight": 422,
+            "scrollWidth": 960,
+            "scrollHeight": 1363
+          },
+          {
+            "tag": "small",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 378,
+            "clientHeight": 20,
+            "scrollWidth": 527,
+            "scrollHeight": 20
+          }
+        ],
+        "dualAxisLocalScrollCount": 0,
+        "boxes": {
+          ".application-workspace": {
+            "left": 0,
+            "right": 960,
+            "top": 92,
+            "bottom": 514,
+            "width": 960,
+            "height": 422
+          },
+          ".materials-workspace": null,
+          ".modeling-workspace-shell": null,
+          ".modeling-workspace-rail": null,
+          ".persistent-modeling-plot": null,
+          ".modeling-task-ribbon": null,
+          ".export-workspace": null,
+          ".native-preview": null,
+          ".activity-shell": null,
+          ".administration-workspace": {
+            "left": 0,
+            "right": 960,
+            "top": 92,
+            "bottom": 1454.5078125,
+            "width": 960,
+            "height": 1362.5078125
+          },
+          ".administration-record-workbench": null
+        }
+      },
+      "interactions": [
+        "Users and access route top",
+        "shared workspace width"
+      ]
+    },
+    {
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/zoom-200/administration-access-role-control-outer-1920x1080-css-960x540.png",
+      "surface": "administration-access-role-control",
+      "outer_viewport": "1920x1080",
+      "css_viewport": "960x540",
+      "browser_zoom_percent": 200,
+      "dpr": 2,
+      "density": "standard",
+      "sha256": "864bc393dbdc9aa16f4813bac0ea29c95b48108a414efc487b1f2e08f652169a",
+      "state_fingerprint": "ec79166c7a47c676eedd883753002a8e000b90f923a7e0507e5c0fe524c480b3",
+      "environment": {
+        "innerWidth": 960,
+        "innerHeight": 540,
+        "outerWidth": 1920,
+        "outerHeight": 1080,
+        "devicePixelRatio": 2,
+        "screenWidth": 1920,
+        "screenHeight": 1080,
+        "visualViewportScale": 1,
+        "documentWidth": 960,
+        "documentScrollWidth": 960,
+        "density": "standard"
+      },
+      "geometry": {
+        "page": {
+          "clientWidth": 960,
+          "clientHeight": 540,
+          "scrollWidth": 960,
+          "scrollHeight": 540
+        },
+        "localScroll": [
+          {
+            "tag": "h1",
+            "id": null,
+            "className": "",
+            "x": false,
+            "y": true,
+            "clientWidth": 128,
+            "clientHeight": 16,
+            "scrollWidth": 128,
+            "scrollHeight": 18
+          },
+          {
+            "tag": "main",
+            "id": null,
+            "className": "application-workspace",
+            "x": false,
+            "y": true,
+            "clientWidth": 960,
+            "clientHeight": 422,
+            "scrollWidth": 960,
+            "scrollHeight": 1363
+          },
+          {
+            "tag": "small",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 378,
+            "clientHeight": 20,
+            "scrollWidth": 527,
+            "scrollHeight": 20
+          }
+        ],
+        "dualAxisLocalScrollCount": 0,
+        "boxes": {
+          ".application-workspace": {
+            "left": 0,
+            "right": 960,
+            "top": 92,
+            "bottom": 514,
+            "width": 960,
+            "height": 422
+          },
+          ".materials-workspace": null,
+          ".modeling-workspace-shell": null,
+          ".modeling-workspace-rail": null,
+          ".persistent-modeling-plot": null,
+          ".modeling-task-ribbon": null,
+          ".export-workspace": null,
+          ".native-preview": null,
+          ".activity-shell": null,
+          ".administration-workspace": {
+            "left": 0,
+            "right": 960,
+            "top": -355.5,
+            "bottom": 1007.0078125,
+            "width": 960,
+            "height": 1362.5078125
+          },
+          ".administration-record-workbench": null
+        }
+      },
+      "interactions": [
+        "reviewer role selected",
+        "role control focused",
+        "one-axis workspace scroll"
+      ]
+    },
+    {
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/zoom-200/administration-database-outer-1920x1080-css-960x540.png",
+      "surface": "administration-database",
+      "outer_viewport": "1920x1080",
+      "css_viewport": "960x540",
+      "browser_zoom_percent": 200,
+      "dpr": 2,
+      "density": "standard",
+      "sha256": "541100094404eb37a5df6f59ddd69becb63556e2ad9f94866e46468ed254165a",
+      "state_fingerprint": "5dd47a1f12886bbf02b8a8a415bfa1a7d530abf75931bd65f5ef90c4ba09a8b7",
+      "environment": {
+        "innerWidth": 960,
+        "innerHeight": 540,
+        "outerWidth": 1920,
+        "outerHeight": 1080,
+        "devicePixelRatio": 2,
+        "screenWidth": 1920,
+        "screenHeight": 1080,
+        "visualViewportScale": 1,
+        "documentWidth": 960,
+        "documentScrollWidth": 960,
+        "density": "standard"
+      },
+      "geometry": {
+        "page": {
+          "clientWidth": 960,
+          "clientHeight": 540,
+          "scrollWidth": 960,
+          "scrollHeight": 540
+        },
+        "localScroll": [
+          {
+            "tag": "h1",
+            "id": null,
+            "className": "",
+            "x": false,
+            "y": true,
+            "clientWidth": 128,
+            "clientHeight": 16,
+            "scrollWidth": 128,
+            "scrollHeight": 18
+          },
+          {
+            "tag": "main",
+            "id": null,
+            "className": "application-workspace",
+            "x": false,
+            "y": true,
+            "clientWidth": 960,
+            "clientHeight": 422,
+            "scrollWidth": 960,
+            "scrollHeight": 686
+          },
+          {
+            "tag": "small",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 259,
+            "clientHeight": 17,
+            "scrollWidth": 385,
+            "scrollHeight": 17
+          },
+          {
+            "tag": "input",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 83,
+            "clientHeight": 38,
+            "scrollWidth": 173,
+            "scrollHeight": 38
+          },
+          {
+            "tag": "textarea",
+            "id": null,
+            "className": "",
+            "x": false,
+            "y": true,
+            "clientWidth": 182,
+            "clientHeight": 49,
+            "scrollWidth": 182,
+            "scrollHeight": 86
+          }
+        ],
+        "dualAxisLocalScrollCount": 0,
+        "boxes": {
+          ".application-workspace": {
+            "left": 0,
+            "right": 960,
+            "top": 92,
+            "bottom": 514,
+            "width": 960,
+            "height": 422
+          },
+          ".materials-workspace": null,
+          ".modeling-workspace-shell": null,
+          ".modeling-workspace-rail": null,
+          ".persistent-modeling-plot": null,
+          ".modeling-task-ribbon": null,
+          ".export-workspace": null,
+          ".native-preview": null,
+          ".activity-shell": null,
+          ".administration-workspace": {
+            "left": 0,
+            "right": 960,
+            "top": 92,
+            "bottom": 778,
+            "width": 960,
+            "height": 686
+          },
+          ".administration-record-workbench": null
+        }
+      },
+      "interactions": [
+        "three-pane database surface",
+        "route top restored"
+      ]
+    },
+    {
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/zoom-200/administration-database-table-control-outer-1920x1080-css-960x540.png",
+      "surface": "administration-database-table-control",
+      "outer_viewport": "1920x1080",
+      "css_viewport": "960x540",
+      "browser_zoom_percent": 200,
+      "dpr": 2,
+      "density": "standard",
+      "sha256": "43fc45f4772a9ba45b0615c038533c1c71b019e5b439ed929f2054d0ae74cb48",
+      "state_fingerprint": "841cedc324d4b17f703da59b1278cafb73660fda3b497eb77aac98c2f50703c2",
+      "environment": {
+        "innerWidth": 960,
+        "innerHeight": 540,
+        "outerWidth": 1920,
+        "outerHeight": 1080,
+        "devicePixelRatio": 2,
+        "screenWidth": 1920,
+        "screenHeight": 1080,
+        "visualViewportScale": 1,
+        "documentWidth": 960,
+        "documentScrollWidth": 960,
+        "density": "standard"
+      },
+      "geometry": {
+        "page": {
+          "clientWidth": 960,
+          "clientHeight": 540,
+          "scrollWidth": 960,
+          "scrollHeight": 540
+        },
+        "localScroll": [
+          {
+            "tag": "h1",
+            "id": null,
+            "className": "",
+            "x": false,
+            "y": true,
+            "clientWidth": 128,
+            "clientHeight": 16,
+            "scrollWidth": 128,
+            "scrollHeight": 18
+          },
+          {
+            "tag": "main",
+            "id": null,
+            "className": "application-workspace",
+            "x": false,
+            "y": true,
+            "clientWidth": 960,
+            "clientHeight": 422,
+            "scrollWidth": 960,
+            "scrollHeight": 686
+          },
+          {
+            "tag": "small",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 259,
+            "clientHeight": 17,
+            "scrollWidth": 385,
+            "scrollHeight": 17
+          },
+          {
+            "tag": "input",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 83,
+            "clientHeight": 38,
+            "scrollWidth": 173,
+            "scrollHeight": 38
+          },
+          {
+            "tag": "textarea",
+            "id": null,
+            "className": "",
+            "x": false,
+            "y": true,
+            "clientWidth": 182,
+            "clientHeight": 49,
+            "scrollWidth": 182,
+            "scrollHeight": 86
+          }
+        ],
+        "dualAxisLocalScrollCount": 0,
+        "boxes": {
+          ".application-workspace": {
+            "left": 0,
+            "right": 960,
+            "top": 92,
+            "bottom": 514,
+            "width": 960,
+            "height": 422
+          },
+          ".materials-workspace": null,
+          ".modeling-workspace-shell": null,
+          ".modeling-workspace-rail": null,
+          ".persistent-modeling-plot": null,
+          ".modeling-task-ribbon": null,
+          ".export-workspace": null,
+          ".native-preview": null,
+          ".activity-shell": null,
+          ".administration-workspace": {
+            "left": 0,
+            "right": 960,
+            "top": -147,
+            "bottom": 539,
+            "width": 960,
+            "height": 686
+          },
+          ".administration-record-workbench": null
+        }
+      },
+      "interactions": [
+        "table control focused",
+        "one-axis workspace scroll",
+        "form action reachable"
+      ]
+    },
+    {
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/zoom-200/administration-records-file-input-outer-1920x1080-css-960x540.png",
+      "surface": "administration-records-file-input",
+      "outer_viewport": "1920x1080",
+      "css_viewport": "960x540",
+      "browser_zoom_percent": 200,
+      "dpr": 2,
+      "density": "standard",
+      "sha256": "02dcaa68816ec26183dc37c046442c63dbf74fef9f3ffb4c183c11844b635ac2",
+      "state_fingerprint": "83bc23999f3ebb9b08a44bc0a337bf549fa5fd16d9f36256ef384944d7bc2a7f",
+      "environment": {
+        "innerWidth": 960,
+        "innerHeight": 540,
+        "outerWidth": 1920,
+        "outerHeight": 1080,
+        "devicePixelRatio": 2,
+        "screenWidth": 1920,
+        "screenHeight": 1080,
+        "visualViewportScale": 1,
+        "documentWidth": 960,
+        "documentScrollWidth": 960,
+        "density": "standard"
+      },
+      "geometry": {
+        "page": {
+          "clientWidth": 960,
+          "clientHeight": 540,
+          "scrollWidth": 960,
+          "scrollHeight": 540
+        },
+        "localScroll": [
+          {
+            "tag": "h1",
+            "id": null,
+            "className": "",
+            "x": false,
+            "y": true,
+            "clientWidth": 128,
+            "clientHeight": 16,
+            "scrollWidth": 128,
+            "scrollHeight": 18
+          },
+          {
+            "tag": "main",
+            "id": null,
+            "className": "application-workspace",
+            "x": false,
+            "y": true,
+            "clientWidth": 960,
+            "clientHeight": 422,
+            "scrollWidth": 960,
+            "scrollHeight": 1334
+          }
+        ],
+        "dualAxisLocalScrollCount": 0,
+        "boxes": {
+          ".application-workspace": {
+            "left": 0,
+            "right": 960,
+            "top": 92,
+            "bottom": 514,
+            "width": 960,
+            "height": 422
+          },
+          ".materials-workspace": null,
+          ".modeling-workspace-shell": null,
+          ".modeling-workspace-rail": null,
+          ".persistent-modeling-plot": null,
+          ".modeling-task-ribbon": null,
+          ".export-workspace": null,
+          ".native-preview": null,
+          ".activity-shell": null,
+          ".administration-workspace": {
+            "left": 0,
+            "right": 960,
+            "top": 92,
+            "bottom": 1425.796875,
+            "width": 960,
+            "height": 1333.796875
+          },
+          ".administration-record-workbench": {
+            "left": 232.3125,
+            "right": 943.6875,
+            "top": 116,
+            "bottom": 1401.796875,
+            "width": 711.375,
+            "height": 1285.796875
+          }
+        }
+      },
+      "interactions": [
+        "multiple rows selected",
+        "native file input focused"
+      ]
+    },
+    {
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/zoom-200/materials-context-overlay-outer-1920x1080-css-960x540.png",
+      "surface": "materials-context-overlay",
+      "outer_viewport": "1920x1080",
+      "css_viewport": "960x540",
+      "browser_zoom_percent": 200,
+      "dpr": 2,
+      "density": "standard",
+      "sha256": "d89686763505bbe5d53599b613deb83c763653546af4164d1c8d42adba07e382",
+      "state_fingerprint": "28bad52142a7851f41d8848e07be893e7cfacdaca0a094249d2118535e0bdf52",
+      "environment": {
+        "innerWidth": 960,
+        "innerHeight": 540,
+        "outerWidth": 1920,
+        "outerHeight": 1080,
+        "devicePixelRatio": 2,
+        "screenWidth": 1920,
+        "screenHeight": 1080,
+        "visualViewportScale": 1,
+        "documentWidth": 960,
+        "documentScrollWidth": 960,
+        "density": "standard"
+      },
+      "geometry": {
+        "page": {
+          "clientWidth": 960,
+          "clientHeight": 540,
+          "scrollWidth": 960,
+          "scrollHeight": 540
+        },
+        "localScroll": [
+          {
+            "tag": "h1",
+            "id": null,
+            "className": "",
+            "x": false,
+            "y": true,
+            "clientWidth": 128,
+            "clientHeight": 16,
+            "scrollWidth": 128,
+            "scrollHeight": 18
+          },
+          {
+            "tag": "main",
+            "id": null,
+            "className": "application-workspace",
+            "x": false,
+            "y": true,
+            "clientWidth": 960,
+            "clientHeight": 422,
+            "scrollWidth": 960,
+            "scrollHeight": 569
+          },
+          {
+            "tag": "span",
+            "id": null,
+            "className": "sr-only",
+            "x": true,
+            "y": true,
+            "clientWidth": 1,
+            "clientHeight": 1,
+            "scrollWidth": 247,
+            "scrollHeight": 20
+          },
+          {
+            "tag": "div",
+            "id": "cmp-materials-results-v5-compact",
+            "className": "materials-workspace",
+            "x": true,
+            "y": false,
+            "clientWidth": 942,
+            "clientHeight": 520,
+            "scrollWidth": 947,
+            "scrollHeight": 520
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "className": "materials-explorer",
+            "x": false,
+            "y": true,
+            "clientWidth": 214,
+            "clientHeight": 489,
+            "scrollWidth": 214,
+            "scrollHeight": 520
+          },
+          {
+            "tag": "span",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 186,
+            "clientHeight": 17,
+            "scrollWidth": 234,
+            "scrollHeight": 17
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "className": "materials-tree-spacer",
+            "x": false,
+            "y": true,
+            "clientWidth": 214,
+            "clientHeight": 156,
+            "scrollWidth": 214,
+            "scrollHeight": 160
+          },
+          {
+            "tag": "div",
+            "id": "_r_2_",
+            "className": "materials-resize-handle",
+            "x": true,
+            "y": false,
+            "clientWidth": 4,
+            "clientHeight": 520,
+            "scrollWidth": 10,
+            "scrollHeight": 520
+          },
+          {
+            "tag": "div",
+            "id": "materials-result-scroll",
+            "className": "materials-result-table-wrap",
+            "x": true,
+            "y": false,
+            "clientWidth": 714,
+            "clientHeight": 448,
+            "scrollWidth": 780,
+            "scrollHeight": 448
+          },
+          {
+            "tag": "th",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 77,
+            "clientHeight": 32,
+            "scrollWidth": 80,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "th",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 283,
+            "clientHeight": 32,
+            "scrollWidth": 286,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "th",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 181,
+            "clientHeight": 32,
+            "scrollWidth": 184,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "th",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 238,
+            "clientHeight": 32,
+            "scrollWidth": 241,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 77,
+            "clientHeight": 32,
+            "scrollWidth": 98,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "span",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 173,
+            "clientHeight": 20,
+            "scrollWidth": 199,
+            "scrollHeight": 20
+          },
+          {
+            "tag": "small",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 95,
+            "clientHeight": 17,
+            "scrollWidth": 109,
+            "scrollHeight": 17
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 238,
+            "clientHeight": 32,
+            "scrollWidth": 380,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "div",
+            "id": "_r_4_",
+            "className": "materials-resize-handle",
+            "x": true,
+            "y": false,
+            "clientWidth": 4,
+            "clientHeight": 520,
+            "scrollWidth": 10,
+            "scrollHeight": 520
+          }
+        ],
+        "dualAxisLocalScrollCount": 1,
+        "boxes": {
+          ".application-workspace": {
+            "left": 0,
+            "right": 960,
+            "top": 92,
+            "bottom": 514,
+            "width": 960,
+            "height": 422
+          },
+          ".materials-workspace": {
+            "left": 8,
+            "right": 952,
+            "top": 141,
+            "bottom": 661,
+            "width": 944,
+            "height": 520
+          },
+          ".modeling-workspace-shell": null,
+          ".modeling-workspace-rail": null,
+          ".persistent-modeling-plot": null,
+          ".modeling-task-ribbon": null,
+          ".export-workspace": null,
+          ".native-preview": null,
+          ".activity-shell": null,
+          ".administration-workspace": null,
+          ".administration-record-workbench": null
+        }
+      },
+      "interactions": [
+        "allocation<1px overlay opened",
+        "focus moved to Close",
+        "Escape closed overlay",
+        "focus returned",
+        "Open datasheet navigated"
+      ]
+    },
+    {
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/zoom-200/modeling-data-collapsed-outer-1920x1080-css-960x540.png",
+      "surface": "modeling-data-collapsed",
+      "outer_viewport": "1920x1080",
+      "css_viewport": "960x540",
+      "browser_zoom_percent": 200,
+      "dpr": 2,
+      "density": "standard",
+      "sha256": "5c7fa5f17bac47a5c9036eeee3c724ceda0f46d8f6d470ac82dcc5d4cf9961f1",
+      "state_fingerprint": "8661bd521fb491589bc7c665ed7d0f8ed2ab93ab5232db455220b23487d2da2d",
+      "environment": {
+        "innerWidth": 960,
+        "innerHeight": 540,
+        "outerWidth": 1920,
+        "outerHeight": 1080,
+        "devicePixelRatio": 2,
+        "screenWidth": 1920,
+        "screenHeight": 1080,
+        "visualViewportScale": 1,
+        "documentWidth": 960,
+        "documentScrollWidth": 960,
+        "density": "standard"
+      },
+      "geometry": {
+        "page": {
+          "clientWidth": 960,
+          "clientHeight": 540,
+          "scrollWidth": 960,
+          "scrollHeight": 540
+        },
+        "localScroll": [
+          {
+            "tag": "textarea",
+            "id": null,
+            "className": "mapping-profile-editor",
+            "x": false,
+            "y": true,
+            "clientWidth": 590,
+            "clientHeight": 68,
+            "scrollWidth": 590,
+            "scrollHeight": 635
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "className": "modeling-workspace-rail",
+            "x": true,
+            "y": false,
+            "clientWidth": 0,
+            "clientHeight": 332,
+            "scrollWidth": 117,
+            "scrollHeight": 332
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "className": "modeling-dataset-list modeling-data-curve-tree",
+            "x": true,
+            "y": false,
+            "clientWidth": 113,
+            "clientHeight": 274,
+            "scrollWidth": 117,
+            "scrollHeight": 274
+          },
+          {
+            "tag": "span",
+            "id": null,
+            "className": "visually-hidden",
+            "x": true,
+            "y": true,
+            "clientWidth": 1,
+            "clientHeight": 1,
+            "scrollWidth": 70,
+            "scrollHeight": 16
+          },
+          {
+            "tag": "section",
+            "id": null,
+            "className": "curve-tree-group",
+            "x": true,
+            "y": false,
+            "clientWidth": 113,
+            "clientHeight": 171,
+            "scrollWidth": 117,
+            "scrollHeight": 171
+          },
+          {
+            "tag": "details",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 113,
+            "clientHeight": 171,
+            "scrollWidth": 117,
+            "scrollHeight": 171
+          },
+          {
+            "tag": "article",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 113,
+            "clientHeight": 42,
+            "scrollWidth": 117,
+            "scrollHeight": 42
+          },
+          {
+            "tag": "span",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 39,
+            "clientHeight": 32,
+            "scrollWidth": 93,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "strong",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 39,
+            "clientHeight": 18,
+            "scrollWidth": 82,
+            "scrollHeight": 18
+          },
+          {
+            "tag": "small",
+            "id": null,
+            "className": "curve-secondary-identity",
+            "x": true,
+            "y": false,
+            "clientWidth": 39,
+            "clientHeight": 14,
+            "scrollWidth": 93,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "span",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 39,
+            "clientHeight": 14,
+            "scrollWidth": 93,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "article",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 113,
+            "clientHeight": 42,
+            "scrollWidth": 117,
+            "scrollHeight": 42
+          },
+          {
+            "tag": "span",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 39,
+            "clientHeight": 32,
+            "scrollWidth": 93,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "strong",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 39,
+            "clientHeight": 18,
+            "scrollWidth": 82,
+            "scrollHeight": 18
+          },
+          {
+            "tag": "small",
+            "id": null,
+            "className": "curve-secondary-identity",
+            "x": true,
+            "y": false,
+            "clientWidth": 39,
+            "clientHeight": 14,
+            "scrollWidth": 93,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "span",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 39,
+            "clientHeight": 14,
+            "scrollWidth": 93,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "article",
+            "id": null,
+            "className": "active",
+            "x": true,
+            "y": false,
+            "clientWidth": 113,
+            "clientHeight": 42,
+            "scrollWidth": 117,
+            "scrollHeight": 42
+          },
+          {
+            "tag": "span",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 39,
+            "clientHeight": 32,
+            "scrollWidth": 93,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "strong",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 39,
+            "clientHeight": 18,
+            "scrollWidth": 82,
+            "scrollHeight": 18
+          },
+          {
+            "tag": "small",
+            "id": null,
+            "className": "curve-secondary-identity",
+            "x": true,
+            "y": false,
+            "clientWidth": 39,
+            "clientHeight": 14,
+            "scrollWidth": 93,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "span",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 39,
+            "clientHeight": 14,
+            "scrollWidth": 93,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "div",
+            "id": "_r_2_",
+            "className": "modeling-pane-divider",
+            "x": true,
+            "y": false,
+            "clientWidth": 6,
+            "clientHeight": 332,
+            "scrollWidth": 10,
+            "scrollHeight": 332
+          },
+          {
+            "tag": "div",
+            "id": "modeling-data-split-v2-compact",
+            "className": "modeling-data-split",
+            "x": false,
+            "y": true,
+            "clientWidth": 938,
+            "clientHeight": 332,
+            "scrollWidth": 938,
+            "scrollHeight": 357
+          },
+          {
+            "tag": "section",
+            "id": null,
+            "className": "modeling-task-ribbon",
+            "x": false,
+            "y": true,
+            "clientWidth": 938,
+            "clientHeight": 107,
+            "scrollWidth": 938,
+            "scrollHeight": 163
+          },
+          {
+            "tag": "div",
+            "id": "modeling-data-plot",
+            "className": "",
+            "x": false,
+            "y": true,
+            "clientWidth": 938,
+            "clientHeight": 215,
+            "scrollWidth": 938,
+            "scrollHeight": 240
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "className": "section-heading",
+            "x": false,
+            "y": true,
+            "clientWidth": 458,
+            "clientHeight": 30,
+            "scrollWidth": 458,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "className": "modeling-plot-toolbar",
+            "x": false,
+            "y": true,
+            "clientWidth": 442,
+            "clientHeight": 31,
+            "scrollWidth": 442,
+            "scrollHeight": 35
+          },
+          {
+            "tag": "text",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": true,
+            "clientWidth": 39,
+            "clientHeight": 2,
+            "scrollWidth": 154,
+            "scrollHeight": 17
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "className": "modeling-ribbon-control",
+            "x": false,
+            "y": true,
+            "clientWidth": 26,
+            "clientHeight": 14,
+            "scrollWidth": 26,
+            "scrollHeight": 20
+          }
+        ],
+        "dualAxisLocalScrollCount": 2,
+        "boxes": {
+          ".application-workspace": {
+            "left": 0,
+            "right": 960,
+            "top": 50,
+            "bottom": 540,
+            "width": 960,
+            "height": 490
+          },
+          ".materials-workspace": null,
+          ".modeling-workspace-shell": {
+            "left": 8,
+            "right": 952,
+            "top": 162,
+            "bottom": 496,
+            "width": 944,
+            "height": 334
+          },
+          ".modeling-workspace-rail": {
+            "left": 8,
+            "right": 8,
+            "top": 163,
+            "bottom": 495,
+            "width": 0,
+            "height": 332
+          },
+          ".persistent-modeling-plot": {
+            "left": 14,
+            "right": 952,
+            "top": 279.6640625,
+            "bottom": 519.6640625,
+            "width": 938,
+            "height": 240
+          },
+          ".modeling-task-ribbon": {
+            "left": 14,
+            "right": 952,
+            "top": 163,
+            "bottom": 270.6640625,
+            "width": 938,
+            "height": 107.6640625
+          },
+          ".export-workspace": null,
+          ".native-preview": null,
+          ".activity-shell": null,
+          ".administration-workspace": null,
+          ".administration-record-workbench": null
+        }
+      },
+      "interactions": [
+        "navigator collapsed"
+      ]
+    },
+    {
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/zoom-200/modeling-data-expanded-outer-1920x1080-css-960x540.png",
+      "surface": "modeling-data-expanded",
+      "outer_viewport": "1920x1080",
+      "css_viewport": "960x540",
+      "browser_zoom_percent": 200,
+      "dpr": 2,
+      "density": "standard",
+      "sha256": "5f8216173652fe44cc540c7065fb7bf25e6b0d827231966da144f6aaf9093bdc",
+      "state_fingerprint": "d59a38c07a1b1be3ed3de5c595f5181ec2294e0d081c44617439c2d910d130e2",
+      "environment": {
+        "innerWidth": 960,
+        "innerHeight": 540,
+        "outerWidth": 1920,
+        "outerHeight": 1080,
+        "devicePixelRatio": 2,
+        "screenWidth": 1920,
+        "screenHeight": 1080,
+        "visualViewportScale": 1,
+        "documentWidth": 960,
+        "documentScrollWidth": 960,
+        "density": "standard"
+      },
+      "geometry": {
+        "page": {
+          "clientWidth": 960,
+          "clientHeight": 540,
+          "scrollWidth": 960,
+          "scrollHeight": 540
+        },
+        "localScroll": [
+          {
+            "tag": "textarea",
+            "id": null,
+            "className": "mapping-profile-editor",
+            "x": false,
+            "y": true,
+            "clientWidth": 590,
+            "clientHeight": 68,
+            "scrollWidth": 590,
+            "scrollHeight": 635
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "className": "modeling-workspace-rail",
+            "x": true,
+            "y": false,
+            "clientWidth": 211,
+            "clientHeight": 332,
+            "scrollWidth": 215,
+            "scrollHeight": 332
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "className": "modeling-dataset-list modeling-data-curve-tree",
+            "x": true,
+            "y": false,
+            "clientWidth": 211,
+            "clientHeight": 256,
+            "scrollWidth": 215,
+            "scrollHeight": 256
+          },
+          {
+            "tag": "span",
+            "id": null,
+            "className": "visually-hidden",
+            "x": true,
+            "y": true,
+            "clientWidth": 1,
+            "clientHeight": 1,
+            "scrollWidth": 70,
+            "scrollHeight": 16
+          },
+          {
+            "tag": "section",
+            "id": null,
+            "className": "curve-tree-group",
+            "x": true,
+            "y": false,
+            "clientWidth": 211,
+            "clientHeight": 171,
+            "scrollWidth": 215,
+            "scrollHeight": 171
+          },
+          {
+            "tag": "details",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 211,
+            "clientHeight": 171,
+            "scrollWidth": 215,
+            "scrollHeight": 171
+          },
+          {
+            "tag": "article",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 211,
+            "clientHeight": 42,
+            "scrollWidth": 215,
+            "scrollHeight": 42
+          },
+          {
+            "tag": "article",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 211,
+            "clientHeight": 42,
+            "scrollWidth": 215,
+            "scrollHeight": 42
+          },
+          {
+            "tag": "article",
+            "id": null,
+            "className": "active",
+            "x": true,
+            "y": false,
+            "clientWidth": 211,
+            "clientHeight": 42,
+            "scrollWidth": 215,
+            "scrollHeight": 42
+          },
+          {
+            "tag": "div",
+            "id": "_r_2_",
+            "className": "modeling-pane-divider",
+            "x": true,
+            "y": false,
+            "clientWidth": 6,
+            "clientHeight": 332,
+            "scrollWidth": 10,
+            "scrollHeight": 332
+          },
+          {
+            "tag": "div",
+            "id": "modeling-data-split-v2-compact",
+            "className": "modeling-data-split",
+            "x": false,
+            "y": true,
+            "clientWidth": 720,
+            "clientHeight": 332,
+            "scrollWidth": 720,
+            "scrollHeight": 357
+          },
+          {
+            "tag": "section",
+            "id": null,
+            "className": "modeling-task-ribbon",
+            "x": false,
+            "y": true,
+            "clientWidth": 720,
+            "clientHeight": 107,
+            "scrollWidth": 720,
+            "scrollHeight": 163
+          },
+          {
+            "tag": "strong",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 210,
+            "clientHeight": 28,
+            "scrollWidth": 230,
+            "scrollHeight": 28
+          },
+          {
+            "tag": "span",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 154,
+            "clientHeight": 28,
+            "scrollWidth": 198,
+            "scrollHeight": 28
+          },
+          {
+            "tag": "small",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 280,
+            "clientHeight": 28,
+            "scrollWidth": 283,
+            "scrollHeight": 28
+          },
+          {
+            "tag": "strong",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 210,
+            "clientHeight": 28,
+            "scrollWidth": 230,
+            "scrollHeight": 28
+          },
+          {
+            "tag": "span",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 154,
+            "clientHeight": 28,
+            "scrollWidth": 198,
+            "scrollHeight": 28
+          },
+          {
+            "tag": "small",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 280,
+            "clientHeight": 28,
+            "scrollWidth": 283,
+            "scrollHeight": 28
+          },
+          {
+            "tag": "span",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 154,
+            "clientHeight": 28,
+            "scrollWidth": 198,
+            "scrollHeight": 28
+          },
+          {
+            "tag": "small",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 280,
+            "clientHeight": 28,
+            "scrollWidth": 283,
+            "scrollHeight": 28
+          },
+          {
+            "tag": "div",
+            "id": "modeling-data-plot",
+            "className": "",
+            "x": false,
+            "y": true,
+            "clientWidth": 720,
+            "clientHeight": 215,
+            "scrollWidth": 720,
+            "scrollHeight": 240
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "className": "section-heading",
+            "x": true,
+            "y": true,
+            "clientWidth": 240,
+            "clientHeight": 30,
+            "scrollWidth": 314,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "className": "modeling-plot-toolbar",
+            "x": false,
+            "y": true,
+            "clientWidth": 442,
+            "clientHeight": 31,
+            "scrollWidth": 442,
+            "scrollHeight": 35
+          },
+          {
+            "tag": "text",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": true,
+            "clientWidth": 39,
+            "clientHeight": 2,
+            "scrollWidth": 171,
+            "scrollHeight": 17
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "className": "modeling-ribbon-control",
+            "x": false,
+            "y": true,
+            "clientWidth": 26,
+            "clientHeight": 14,
+            "scrollWidth": 26,
+            "scrollHeight": 20
+          }
+        ],
+        "dualAxisLocalScrollCount": 3,
+        "boxes": {
+          ".application-workspace": {
+            "left": 0,
+            "right": 960,
+            "top": 50,
+            "bottom": 540,
+            "width": 960,
+            "height": 490
+          },
+          ".materials-workspace": null,
+          ".modeling-workspace-shell": {
+            "left": 8,
+            "right": 952,
+            "top": 162,
+            "bottom": 496,
+            "width": 944,
+            "height": 334
+          },
+          ".modeling-workspace-rail": {
+            "left": 8,
+            "right": 226,
+            "top": 163,
+            "bottom": 495,
+            "width": 218,
+            "height": 332
+          },
+          ".persistent-modeling-plot": {
+            "left": 232,
+            "right": 952,
+            "top": 279.6640625,
+            "bottom": 519.6640625,
+            "width": 720,
+            "height": 240
+          },
+          ".modeling-task-ribbon": {
+            "left": 232,
+            "right": 952,
+            "top": 163,
+            "bottom": 270.6640625,
+            "width": 720,
+            "height": 107.6640625
+          },
+          ".export-workspace": null,
+          ".native-preview": null,
+          ".activity-shell": null,
+          ".administration-workspace": null,
+          ".administration-record-workbench": null
+        }
+      },
+      "interactions": [
+        "exact Data graph restored",
+        "navigator expanded",
+        "navigator reset",
+        "graph recalculated"
+      ]
+    },
+    {
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/zoom-200/modeling-data-graph-reachable-outer-1920x1080-css-960x540.png",
+      "surface": "modeling-data-graph-reachable",
+      "outer_viewport": "1920x1080",
+      "css_viewport": "960x540",
+      "browser_zoom_percent": 200,
+      "dpr": 2,
+      "density": "standard",
+      "sha256": "4ef6af42e7f6c2b6865e7dafaa768b4e4e0010e32813058fbb810cd2fcfd295f",
+      "state_fingerprint": "b401ecd274925e2913eb9089609b53a75fa22b76474756a206f7043e27d9b158",
+      "environment": {
+        "innerWidth": 960,
+        "innerHeight": 540,
+        "outerWidth": 1920,
+        "outerHeight": 1080,
+        "devicePixelRatio": 2,
+        "screenWidth": 1920,
+        "screenHeight": 1080,
+        "visualViewportScale": 1,
+        "documentWidth": 960,
+        "documentScrollWidth": 960,
+        "density": "standard"
+      },
+      "geometry": {
+        "page": {
+          "clientWidth": 960,
+          "clientHeight": 540,
+          "scrollWidth": 960,
+          "scrollHeight": 540
+        },
+        "localScroll": [
+          {
+            "tag": "textarea",
+            "id": null,
+            "className": "mapping-profile-editor",
+            "x": false,
+            "y": true,
+            "clientWidth": 590,
+            "clientHeight": 68,
+            "scrollWidth": 590,
+            "scrollHeight": 635
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "className": "modeling-workspace-rail",
+            "x": true,
+            "y": false,
+            "clientWidth": 211,
+            "clientHeight": 332,
+            "scrollWidth": 215,
+            "scrollHeight": 332
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "className": "modeling-dataset-list modeling-data-curve-tree",
+            "x": true,
+            "y": false,
+            "clientWidth": 211,
+            "clientHeight": 256,
+            "scrollWidth": 215,
+            "scrollHeight": 256
+          },
+          {
+            "tag": "span",
+            "id": null,
+            "className": "visually-hidden",
+            "x": true,
+            "y": true,
+            "clientWidth": 1,
+            "clientHeight": 1,
+            "scrollWidth": 70,
+            "scrollHeight": 16
+          },
+          {
+            "tag": "section",
+            "id": null,
+            "className": "curve-tree-group",
+            "x": true,
+            "y": false,
+            "clientWidth": 211,
+            "clientHeight": 171,
+            "scrollWidth": 215,
+            "scrollHeight": 171
+          },
+          {
+            "tag": "details",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 211,
+            "clientHeight": 171,
+            "scrollWidth": 215,
+            "scrollHeight": 171
+          },
+          {
+            "tag": "article",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 211,
+            "clientHeight": 42,
+            "scrollWidth": 215,
+            "scrollHeight": 42
+          },
+          {
+            "tag": "article",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 211,
+            "clientHeight": 42,
+            "scrollWidth": 215,
+            "scrollHeight": 42
+          },
+          {
+            "tag": "article",
+            "id": null,
+            "className": "active",
+            "x": true,
+            "y": false,
+            "clientWidth": 211,
+            "clientHeight": 42,
+            "scrollWidth": 215,
+            "scrollHeight": 42
+          },
+          {
+            "tag": "div",
+            "id": "_r_2_",
+            "className": "modeling-pane-divider",
+            "x": true,
+            "y": false,
+            "clientWidth": 6,
+            "clientHeight": 332,
+            "scrollWidth": 10,
+            "scrollHeight": 332
+          },
+          {
+            "tag": "div",
+            "id": "modeling-data-split-v2-compact",
+            "className": "modeling-data-split",
+            "x": false,
+            "y": true,
+            "clientWidth": 720,
+            "clientHeight": 332,
+            "scrollWidth": 720,
+            "scrollHeight": 357
+          },
+          {
+            "tag": "section",
+            "id": null,
+            "className": "modeling-task-ribbon",
+            "x": false,
+            "y": true,
+            "clientWidth": 720,
+            "clientHeight": 107,
+            "scrollWidth": 720,
+            "scrollHeight": 163
+          },
+          {
+            "tag": "strong",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 210,
+            "clientHeight": 28,
+            "scrollWidth": 230,
+            "scrollHeight": 28
+          },
+          {
+            "tag": "span",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 154,
+            "clientHeight": 28,
+            "scrollWidth": 198,
+            "scrollHeight": 28
+          },
+          {
+            "tag": "small",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 280,
+            "clientHeight": 28,
+            "scrollWidth": 283,
+            "scrollHeight": 28
+          },
+          {
+            "tag": "strong",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 210,
+            "clientHeight": 28,
+            "scrollWidth": 230,
+            "scrollHeight": 28
+          },
+          {
+            "tag": "span",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 154,
+            "clientHeight": 28,
+            "scrollWidth": 198,
+            "scrollHeight": 28
+          },
+          {
+            "tag": "small",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 280,
+            "clientHeight": 28,
+            "scrollWidth": 283,
+            "scrollHeight": 28
+          },
+          {
+            "tag": "span",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 154,
+            "clientHeight": 28,
+            "scrollWidth": 198,
+            "scrollHeight": 28
+          },
+          {
+            "tag": "small",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 280,
+            "clientHeight": 28,
+            "scrollWidth": 283,
+            "scrollHeight": 28
+          },
+          {
+            "tag": "div",
+            "id": "modeling-data-plot",
+            "className": "",
+            "x": false,
+            "y": true,
+            "clientWidth": 720,
+            "clientHeight": 215,
+            "scrollWidth": 720,
+            "scrollHeight": 240
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "className": "section-heading",
+            "x": true,
+            "y": true,
+            "clientWidth": 240,
+            "clientHeight": 30,
+            "scrollWidth": 314,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "className": "modeling-plot-toolbar",
+            "x": false,
+            "y": true,
+            "clientWidth": 442,
+            "clientHeight": 31,
+            "scrollWidth": 442,
+            "scrollHeight": 35
+          },
+          {
+            "tag": "text",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": true,
+            "clientWidth": 39,
+            "clientHeight": 2,
+            "scrollWidth": 154,
+            "scrollHeight": 17
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "className": "modeling-ribbon-control",
+            "x": false,
+            "y": true,
+            "clientWidth": 26,
+            "clientHeight": 14,
+            "scrollWidth": 26,
+            "scrollHeight": 20
+          }
+        ],
+        "dualAxisLocalScrollCount": 3,
+        "boxes": {
+          ".application-workspace": {
+            "left": 0,
+            "right": 960,
+            "top": 50,
+            "bottom": 540,
+            "width": 960,
+            "height": 490
+          },
+          ".materials-workspace": null,
+          ".modeling-workspace-shell": {
+            "left": 8,
+            "right": 952,
+            "top": 162,
+            "bottom": 496,
+            "width": 944,
+            "height": 334
+          },
+          ".modeling-workspace-rail": {
+            "left": 8,
+            "right": 226,
+            "top": 163,
+            "bottom": 495,
+            "width": 218,
+            "height": 332
+          },
+          ".persistent-modeling-plot": {
+            "left": 232,
+            "right": 952,
+            "top": 255.1640625,
+            "bottom": 495.1640625,
+            "width": 720,
+            "height": 240
+          },
+          ".modeling-task-ribbon": {
+            "left": 232,
+            "right": 952,
+            "top": 138.5,
+            "bottom": 246.1640625,
+            "width": 720,
+            "height": 107.6640625
+          },
+          ".export-workspace": null,
+          ".native-preview": null,
+          ".activity-shell": null,
+          ".administration-workspace": null,
+          ".administration-record-workbench": null
+        }
+      },
+      "interactions": [
+        "one-axis local scroll",
+        "x axis and legend visible",
+        "graph hit region reachable"
+      ]
+    },
+    {
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/zoom-200/modeling-export-preview-outer-1920x1080-css-960x540.png",
+      "surface": "modeling-export-preview",
+      "outer_viewport": "1920x1080",
+      "css_viewport": "960x540",
+      "browser_zoom_percent": 200,
+      "dpr": 2,
+      "density": "standard",
+      "sha256": "03503737c13cd6f409d23f0281708f9b402131cafcefe26f57991076dc38057e",
+      "state_fingerprint": "082834fb75863e36d64339d7bb99324def91cc150fb16b9988696ef331722a9c",
+      "environment": {
+        "innerWidth": 960,
+        "innerHeight": 540,
+        "outerWidth": 1920,
+        "outerHeight": 1080,
+        "devicePixelRatio": 2,
+        "screenWidth": 1920,
+        "screenHeight": 1080,
+        "visualViewportScale": 1,
+        "documentWidth": 960,
+        "documentScrollWidth": 960,
+        "density": "standard"
+      },
+      "geometry": {
+        "page": {
+          "clientWidth": 960,
+          "clientHeight": 540,
+          "scrollWidth": 960,
+          "scrollHeight": 540
+        },
+        "localScroll": [
+          {
+            "tag": "aside",
+            "id": null,
+            "className": "export-properties",
+            "x": false,
+            "y": true,
+            "clientWidth": 313,
+            "clientHeight": 105,
+            "scrollWidth": 313,
+            "scrollHeight": 723
+          },
+          {
+            "tag": "h3",
+            "id": null,
+            "className": "visually-hidden",
+            "x": true,
+            "y": true,
+            "clientWidth": 1,
+            "clientHeight": 1,
+            "scrollWidth": 219,
+            "scrollHeight": 21
+          },
+          {
+            "tag": "main",
+            "id": null,
+            "className": "export-main",
+            "x": false,
+            "y": true,
+            "clientWidth": 272,
+            "clientHeight": 105,
+            "scrollWidth": 272,
+            "scrollHeight": 427
+          },
+          {
+            "tag": "div",
+            "id": "modeling-export-native-preview-viewport",
+            "className": "native-preview preview-scroll export-native-preview-viewport",
+            "x": true,
+            "y": true,
+            "clientWidth": 223,
+            "clientHeight": 306,
+            "scrollWidth": 692,
+            "scrollHeight": 2196
+          },
+          {
+            "tag": "aside",
+            "id": null,
+            "className": "export-result",
+            "x": false,
+            "y": true,
+            "clientWidth": 944,
+            "clientHeight": 105,
+            "scrollWidth": 944,
+            "scrollHeight": 371
+          },
+          {
+            "tag": "div",
+            "id": "modeling-export-mapping-viewport",
+            "className": "mapping-scroll export-mapping-viewport",
+            "x": false,
+            "y": true,
+            "clientWidth": 482,
+            "clientHeight": 290,
+            "scrollWidth": 482,
+            "scrollHeight": 343
+          },
+          {
+            "tag": "text",
+            "id": null,
+            "className": "",
+            "x": false,
+            "y": true,
+            "clientWidth": 61,
+            "clientHeight": 7,
+            "scrollWidth": 61,
+            "scrollHeight": 10
+          },
+          {
+            "tag": "details",
+            "id": "modeling-output",
+            "className": "modeling-support-drawer",
+            "x": false,
+            "y": true,
+            "clientWidth": 944,
+            "clientHeight": 33,
+            "scrollWidth": 944,
+            "scrollHeight": 46
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 332,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 332,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 332,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 332,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 332,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 332,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 332,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 332,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 332,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 332,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 332,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 332,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 332,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 332,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 332,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 332,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 332,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 332,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 332,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 332,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 332,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 332,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 332,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 332,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 332,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          },
+          {
+            "tag": "code",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 325,
+            "clientHeight": 14,
+            "scrollWidth": 422,
+            "scrollHeight": 14
+          }
+        ],
+        "dualAxisLocalScrollCount": 2,
+        "boxes": {
+          ".application-workspace": {
+            "left": 0,
+            "right": 960,
+            "top": 50,
+            "bottom": 540,
+            "width": 960,
+            "height": 490
+          },
+          ".materials-workspace": null,
+          ".modeling-workspace-shell": null,
+          ".modeling-workspace-rail": null,
+          ".persistent-modeling-plot": null,
+          ".modeling-task-ribbon": null,
+          ".export-workspace": {
+            "left": 8,
+            "right": 952,
+            "top": 134,
+            "bottom": 450,
+            "width": 944,
+            "height": 316
+          },
+          ".native-preview": {
+            "left": 49.59375,
+            "right": 272.40625,
+            "top": 138.8359375,
+            "bottom": 444.8359375,
+            "width": 222.8125,
+            "height": 306
+          },
+          ".activity-shell": null,
+          ".administration-workspace": null,
+          ".administration-record-workbench": null
+        }
+      },
+      "interactions": [
+        "native preview generated",
+        "preview reached by one-axis scroll"
+      ]
+    },
+    {
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/zoom-200/modeling-fit-evidence-outer-1920x1080-css-960x540.png",
+      "surface": "modeling-fit-evidence",
+      "outer_viewport": "1920x1080",
+      "css_viewport": "960x540",
+      "browser_zoom_percent": 200,
+      "dpr": 2,
+      "density": "standard",
+      "sha256": "70d1cb20a430c904abf0c062cac06db0100b55aff1d8e8fce5b11a7d8b4c0659",
+      "state_fingerprint": "7a6e8795de33733dc7c194f3e655c8c940e4969ea6ef773a1b8399c65e250d87",
+      "environment": {
+        "innerWidth": 960,
+        "innerHeight": 540,
+        "outerWidth": 1920,
+        "outerHeight": 1080,
+        "devicePixelRatio": 2,
+        "screenWidth": 1920,
+        "screenHeight": 1080,
+        "visualViewportScale": 1,
+        "documentWidth": 960,
+        "documentScrollWidth": 960,
+        "density": "standard"
+      },
+      "geometry": {
+        "page": {
+          "clientWidth": 960,
+          "clientHeight": 540,
+          "scrollWidth": 960,
+          "scrollHeight": 540
+        },
+        "localScroll": [
+          {
+            "tag": "span",
+            "id": null,
+            "className": "fit-context-source",
+            "x": true,
+            "y": false,
+            "clientWidth": 268,
+            "clientHeight": 17,
+            "scrollWidth": 270,
+            "scrollHeight": 17
+          },
+          {
+            "tag": "span",
+            "id": null,
+            "className": "visually-hidden",
+            "x": true,
+            "y": true,
+            "clientWidth": 1,
+            "clientHeight": 1,
+            "scrollWidth": 70,
+            "scrollHeight": 16
+          },
+          {
+            "tag": "div",
+            "id": "_r_6_",
+            "className": "modeling-pane-divider",
+            "x": true,
+            "y": false,
+            "clientWidth": 6,
+            "clientHeight": 376,
+            "scrollWidth": 10,
+            "scrollHeight": 376
+          },
+          {
+            "tag": "label",
+            "id": null,
+            "className": "",
+            "x": false,
+            "y": true,
+            "clientWidth": 65,
+            "clientHeight": 14,
+            "scrollWidth": 65,
+            "scrollHeight": 16
+          },
+          {
+            "tag": "label",
+            "id": null,
+            "className": "",
+            "x": false,
+            "y": true,
+            "clientWidth": 65,
+            "clientHeight": 14,
+            "scrollWidth": 65,
+            "scrollHeight": 16
+          },
+          {
+            "tag": "label",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 65,
+            "clientHeight": 29,
+            "scrollWidth": 71,
+            "scrollHeight": 30
+          },
+          {
+            "tag": "input",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 39,
+            "clientHeight": 38,
+            "scrollWidth": 49,
+            "scrollHeight": 38
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "className": "modeling-plot-toolbar",
+            "x": false,
+            "y": true,
+            "clientWidth": 84,
+            "clientHeight": 31,
+            "scrollWidth": 84,
+            "scrollHeight": 33
+          },
+          {
+            "tag": "text",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": true,
+            "clientWidth": 170,
+            "clientHeight": 10,
+            "scrollWidth": 207,
+            "scrollHeight": 16
+          },
+          {
+            "tag": "text",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": true,
+            "clientWidth": 36,
+            "clientHeight": 2,
+            "scrollWidth": 146,
+            "scrollHeight": 17
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "className": "curve-legend interactive",
+            "x": false,
+            "y": true,
+            "clientWidth": 177,
+            "clientHeight": 104,
+            "scrollWidth": 177,
+            "scrollHeight": 306
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "className": "fit-evidence-body",
+            "x": true,
+            "y": true,
+            "clientWidth": 713,
+            "clientHeight": 100,
+            "scrollWidth": 1010,
+            "scrollHeight": 1025
+          },
+          {
+            "tag": "section",
+            "id": null,
+            "className": "hardening-candidate-evidence",
+            "x": true,
+            "y": false,
+            "clientWidth": 685,
+            "clientHeight": 858,
+            "scrollWidth": 996,
+            "scrollHeight": 858
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "className": "fit-candidate-table-wrap",
+            "x": true,
+            "y": false,
+            "clientWidth": 683,
+            "clientHeight": 758,
+            "scrollWidth": 995,
+            "scrollHeight": 758
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "className": "modeling-ribbon-control",
+            "x": false,
+            "y": true,
+            "clientWidth": 26,
+            "clientHeight": 14,
+            "scrollWidth": 26,
+            "scrollHeight": 20
+          }
+        ],
+        "dualAxisLocalScrollCount": 4,
+        "boxes": {
+          ".application-workspace": {
+            "left": 0,
+            "right": 960,
+            "top": 50,
+            "bottom": 540,
+            "width": 960,
+            "height": 490
+          },
+          ".materials-workspace": null,
+          ".modeling-workspace-shell": {
+            "left": 8,
+            "right": 952,
+            "top": 162,
+            "bottom": 540,
+            "width": 944,
+            "height": 378
+          },
+          ".modeling-workspace-rail": {
+            "left": 8,
+            "right": 226,
+            "top": 163,
+            "bottom": 539,
+            "width": 218,
+            "height": 376
+          },
+          ".persistent-modeling-plot": {
+            "left": 232,
+            "right": 952,
+            "top": 344,
+            "bottom": 539,
+            "width": 720,
+            "height": 195
+          },
+          ".modeling-task-ribbon": {
+            "left": 232,
+            "right": 952,
+            "top": 163,
+            "bottom": 344,
+            "width": 720,
+            "height": 181
+          },
+          ".export-workspace": null,
+          ".native-preview": null,
+          ".activity-shell": null,
+          ".administration-workspace": null,
+          ".administration-record-workbench": null
+        }
+      },
+      "interactions": [
+        "candidate evidence drawer opened",
+        "focus moved",
+        "bounded overlay",
+        "graph geometry pass",
+        "drawer closed",
+        "focus returned",
+        "drawer reopened"
+      ]
+    },
+    {
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/zoom-200/modeling-process-manual-controls-outer-1920x1080-css-960x540.png",
+      "surface": "modeling-process-manual-controls",
+      "outer_viewport": "1920x1080",
+      "css_viewport": "960x540",
+      "browser_zoom_percent": 200,
+      "dpr": 2,
+      "density": "standard",
+      "sha256": "cf2b2f7d58a9d3aede3b6e71b5b6524bb2e65615a15b7c1f05e37c371efca538",
+      "state_fingerprint": "3ceea50640df61740a0ae999d8f8194020125386c51be1c1782da11da441d27a",
+      "environment": {
+        "innerWidth": 960,
+        "innerHeight": 540,
+        "outerWidth": 1920,
+        "outerHeight": 1080,
+        "devicePixelRatio": 2,
+        "screenWidth": 1920,
+        "screenHeight": 1080,
+        "visualViewportScale": 1,
+        "documentWidth": 960,
+        "documentScrollWidth": 960,
+        "density": "standard"
+      },
+      "geometry": {
+        "page": {
+          "clientWidth": 960,
+          "clientHeight": 540,
+          "scrollWidth": 960,
+          "scrollHeight": 540
+        },
+        "localScroll": [
+          {
+            "tag": "div",
+            "id": null,
+            "className": "modeling-workspace-rail",
+            "x": true,
+            "y": true,
+            "clientWidth": 211,
+            "clientHeight": 404,
+            "scrollWidth": 215,
+            "scrollHeight": 448
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "className": "modeling-dataset-list",
+            "x": true,
+            "y": false,
+            "clientWidth": 211,
+            "clientHeight": 253,
+            "scrollWidth": 215,
+            "scrollHeight": 253
+          },
+          {
+            "tag": "span",
+            "id": null,
+            "className": "visually-hidden",
+            "x": true,
+            "y": true,
+            "clientWidth": 1,
+            "clientHeight": 1,
+            "scrollWidth": 70,
+            "scrollHeight": 16
+          },
+          {
+            "tag": "section",
+            "id": null,
+            "className": "curve-tree-group",
+            "x": true,
+            "y": false,
+            "clientWidth": 211,
+            "clientHeight": 135,
+            "scrollWidth": 215,
+            "scrollHeight": 135
+          },
+          {
+            "tag": "details",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 211,
+            "clientHeight": 135,
+            "scrollWidth": 215,
+            "scrollHeight": 135
+          },
+          {
+            "tag": "article",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 211,
+            "clientHeight": 30,
+            "scrollWidth": 215,
+            "scrollHeight": 30
+          },
+          {
+            "tag": "article",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 211,
+            "clientHeight": 30,
+            "scrollWidth": 215,
+            "scrollHeight": 30
+          },
+          {
+            "tag": "article",
+            "id": null,
+            "className": "active",
+            "x": true,
+            "y": false,
+            "clientWidth": 211,
+            "clientHeight": 30,
+            "scrollWidth": 215,
+            "scrollHeight": 30
+          },
+          {
+            "tag": "div",
+            "id": "_r_6_",
+            "className": "modeling-pane-divider",
+            "x": true,
+            "y": false,
+            "clientWidth": 6,
+            "clientHeight": 404,
+            "scrollWidth": 10,
+            "scrollHeight": 404
+          },
+          {
+            "tag": "section",
+            "id": null,
+            "className": "modeling-task-ribbon",
+            "x": false,
+            "y": true,
+            "clientWidth": 713,
+            "clientHeight": 176,
+            "scrollWidth": 713,
+            "scrollHeight": 385
+          },
+          {
+            "tag": "h3",
+            "id": "process-calculation-title",
+            "className": "",
+            "x": false,
+            "y": true,
+            "clientWidth": 445,
+            "clientHeight": 14,
+            "scrollWidth": 445,
+            "scrollHeight": 16
+          },
+          {
+            "tag": "fieldset",
+            "id": null,
+            "className": "process-band-controls",
+            "x": true,
+            "y": false,
+            "clientWidth": 445,
+            "clientHeight": 121,
+            "scrollWidth": 447,
+            "scrollHeight": 121
+          },
+          {
+            "tag": "legend",
+            "id": null,
+            "className": "visually-hidden",
+            "x": true,
+            "y": true,
+            "clientWidth": 1,
+            "clientHeight": 1,
+            "scrollWidth": 132,
+            "scrollHeight": 16
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "className": "guided-step-options elastic-modulus-options",
+            "x": true,
+            "y": false,
+            "clientWidth": 445,
+            "clientHeight": 121,
+            "scrollWidth": 447,
+            "scrollHeight": 121
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "className": "elastic-modulus-manual-row",
+            "x": true,
+            "y": false,
+            "clientWidth": 445,
+            "clientHeight": 58,
+            "scrollWidth": 447,
+            "scrollHeight": 58
+          },
+          {
+            "tag": "h3",
+            "id": "process-result-title",
+            "className": "",
+            "x": false,
+            "y": true,
+            "clientWidth": 199,
+            "clientHeight": 14,
+            "scrollWidth": 199,
+            "scrollHeight": 16
+          },
+          {
+            "tag": "h3",
+            "id": "process-save-result-title",
+            "className": "",
+            "x": false,
+            "y": true,
+            "clientWidth": 664,
+            "clientHeight": 14,
+            "scrollWidth": 664,
+            "scrollHeight": 16
+          },
+          {
+            "tag": "span",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 1,
+            "clientHeight": 17,
+            "scrollWidth": 209,
+            "scrollHeight": 17
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "className": "process-comparison-region",
+            "x": false,
+            "y": true,
+            "clientWidth": 677,
+            "clientHeight": 124,
+            "scrollWidth": 677,
+            "scrollHeight": 10950
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 192,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 196,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 190,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 190,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 190,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 184,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 184,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 192,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 196,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 190,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 190,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 190,
+            "scrollHeight": 32
+          }
+        ],
+        "dualAxisLocalScrollCount": 3,
+        "boxes": {
+          ".application-workspace": {
+            "left": 0,
+            "right": 960,
+            "top": 50,
+            "bottom": 540,
+            "width": 960,
+            "height": 490
+          },
+          ".materials-workspace": null,
+          ".modeling-workspace-shell": {
+            "left": 8,
+            "right": 952,
+            "top": 134,
+            "bottom": 540,
+            "width": 944,
+            "height": 406
+          },
+          ".modeling-workspace-rail": {
+            "left": 8,
+            "right": 226,
+            "top": 135,
+            "bottom": 539,
+            "width": 218,
+            "height": 404
+          },
+          ".persistent-modeling-plot": {
+            "left": 232,
+            "right": 952,
+            "top": 312.1953125,
+            "bottom": 539,
+            "width": 720,
+            "height": 226.8046875
+          },
+          ".modeling-task-ribbon": {
+            "left": 232,
+            "right": 952,
+            "top": 135,
+            "bottom": 312.1953125,
+            "width": 720,
+            "height": 177.1953125
+          },
+          ".export-workspace": null,
+          ".native-preview": null,
+          ".activity-shell": null,
+          ".administration-workspace": null,
+          ".administration-record-workbench": null
+        }
+      },
+      "interactions": [
+        "manual controls visible",
+        "graph recalculated after density-sized ribbon"
+      ]
+    },
+    {
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/zoom-200/modeling-process-save-reachable-outer-1920x1080-css-960x540.png",
+      "surface": "modeling-process-save-reachable",
+      "outer_viewport": "1920x1080",
+      "css_viewport": "960x540",
+      "browser_zoom_percent": 200,
+      "dpr": 2,
+      "density": "standard",
+      "sha256": "e6fa9e7f01139a80606804879ee3cd02ce65b85bd7443321824e992e981fcead",
+      "state_fingerprint": "0d43c7f96bce9a9d6d3a09e2b202df344e96489e2a3a4fe17b31d5a59425190c",
+      "environment": {
+        "innerWidth": 960,
+        "innerHeight": 540,
+        "outerWidth": 1920,
+        "outerHeight": 1080,
+        "devicePixelRatio": 2,
+        "screenWidth": 1920,
+        "screenHeight": 1080,
+        "visualViewportScale": 1,
+        "documentWidth": 960,
+        "documentScrollWidth": 960,
+        "density": "standard"
+      },
+      "geometry": {
+        "page": {
+          "clientWidth": 960,
+          "clientHeight": 540,
+          "scrollWidth": 960,
+          "scrollHeight": 540
+        },
+        "localScroll": [
+          {
+            "tag": "div",
+            "id": null,
+            "className": "modeling-workspace-rail",
+            "x": true,
+            "y": true,
+            "clientWidth": 211,
+            "clientHeight": 404,
+            "scrollWidth": 215,
+            "scrollHeight": 448
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "className": "modeling-dataset-list",
+            "x": true,
+            "y": false,
+            "clientWidth": 211,
+            "clientHeight": 253,
+            "scrollWidth": 215,
+            "scrollHeight": 253
+          },
+          {
+            "tag": "span",
+            "id": null,
+            "className": "visually-hidden",
+            "x": true,
+            "y": true,
+            "clientWidth": 1,
+            "clientHeight": 1,
+            "scrollWidth": 70,
+            "scrollHeight": 16
+          },
+          {
+            "tag": "section",
+            "id": null,
+            "className": "curve-tree-group",
+            "x": true,
+            "y": false,
+            "clientWidth": 211,
+            "clientHeight": 135,
+            "scrollWidth": 215,
+            "scrollHeight": 135
+          },
+          {
+            "tag": "details",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 211,
+            "clientHeight": 135,
+            "scrollWidth": 215,
+            "scrollHeight": 135
+          },
+          {
+            "tag": "article",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 211,
+            "clientHeight": 30,
+            "scrollWidth": 215,
+            "scrollHeight": 30
+          },
+          {
+            "tag": "article",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 211,
+            "clientHeight": 30,
+            "scrollWidth": 215,
+            "scrollHeight": 30
+          },
+          {
+            "tag": "article",
+            "id": null,
+            "className": "active",
+            "x": true,
+            "y": false,
+            "clientWidth": 211,
+            "clientHeight": 30,
+            "scrollWidth": 215,
+            "scrollHeight": 30
+          },
+          {
+            "tag": "div",
+            "id": "_r_6_",
+            "className": "modeling-pane-divider",
+            "x": true,
+            "y": false,
+            "clientWidth": 6,
+            "clientHeight": 404,
+            "scrollWidth": 10,
+            "scrollHeight": 404
+          },
+          {
+            "tag": "section",
+            "id": null,
+            "className": "modeling-task-ribbon",
+            "x": false,
+            "y": true,
+            "clientWidth": 713,
+            "clientHeight": 176,
+            "scrollWidth": 713,
+            "scrollHeight": 385
+          },
+          {
+            "tag": "h3",
+            "id": "process-calculation-title",
+            "className": "",
+            "x": false,
+            "y": true,
+            "clientWidth": 445,
+            "clientHeight": 14,
+            "scrollWidth": 445,
+            "scrollHeight": 16
+          },
+          {
+            "tag": "fieldset",
+            "id": null,
+            "className": "process-band-controls",
+            "x": true,
+            "y": false,
+            "clientWidth": 445,
+            "clientHeight": 121,
+            "scrollWidth": 447,
+            "scrollHeight": 121
+          },
+          {
+            "tag": "legend",
+            "id": null,
+            "className": "visually-hidden",
+            "x": true,
+            "y": true,
+            "clientWidth": 1,
+            "clientHeight": 1,
+            "scrollWidth": 132,
+            "scrollHeight": 16
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "className": "guided-step-options elastic-modulus-options",
+            "x": true,
+            "y": false,
+            "clientWidth": 445,
+            "clientHeight": 121,
+            "scrollWidth": 447,
+            "scrollHeight": 121
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "className": "elastic-modulus-manual-row",
+            "x": true,
+            "y": false,
+            "clientWidth": 445,
+            "clientHeight": 58,
+            "scrollWidth": 447,
+            "scrollHeight": 58
+          },
+          {
+            "tag": "h3",
+            "id": "process-result-title",
+            "className": "",
+            "x": false,
+            "y": true,
+            "clientWidth": 199,
+            "clientHeight": 14,
+            "scrollWidth": 199,
+            "scrollHeight": 16
+          },
+          {
+            "tag": "h3",
+            "id": "process-save-result-title",
+            "className": "",
+            "x": false,
+            "y": true,
+            "clientWidth": 664,
+            "clientHeight": 14,
+            "scrollWidth": 664,
+            "scrollHeight": 16
+          },
+          {
+            "tag": "span",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 1,
+            "clientHeight": 17,
+            "scrollWidth": 209,
+            "scrollHeight": 17
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "className": "process-comparison-region",
+            "x": false,
+            "y": true,
+            "clientWidth": 677,
+            "clientHeight": 124,
+            "scrollWidth": 677,
+            "scrollHeight": 10950
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 220,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 192,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 196,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 190,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 190,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 190,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 184,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 184,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 192,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 196,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 190,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 190,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 102,
+            "clientHeight": 32,
+            "scrollWidth": 123,
+            "scrollHeight": 32
+          },
+          {
+            "tag": "td",
+            "id": null,
+            "className": "",
+            "x": true,
+            "y": false,
+            "clientWidth": 149,
+            "clientHeight": 32,
+            "scrollWidth": 190,
+            "scrollHeight": 32
+          }
+        ],
+        "dualAxisLocalScrollCount": 3,
+        "boxes": {
+          ".application-workspace": {
+            "left": 0,
+            "right": 960,
+            "top": 50,
+            "bottom": 540,
+            "width": 960,
+            "height": 490
+          },
+          ".materials-workspace": null,
+          ".modeling-workspace-shell": {
+            "left": 8,
+            "right": 952,
+            "top": 134,
+            "bottom": 540,
+            "width": 944,
+            "height": 406
+          },
+          ".modeling-workspace-rail": {
+            "left": 8,
+            "right": 226,
+            "top": 135,
+            "bottom": 539,
+            "width": 218,
+            "height": 404
+          },
+          ".persistent-modeling-plot": {
+            "left": 232,
+            "right": 952,
+            "top": 312.1953125,
+            "bottom": 539,
+            "width": 720,
+            "height": 226.8046875
+          },
+          ".modeling-task-ribbon": {
+            "left": 232,
+            "right": 952,
+            "top": 135,
+            "bottom": 312.1953125,
+            "width": 720,
+            "height": 177.1953125
+          },
+          ".export-workspace": null,
+          ".native-preview": null,
+          ".activity-shell": null,
+          ".administration-workspace": null,
+          ".administration-record-workbench": null
+        }
+      },
+      "interactions": [
+        "local ribbon scroll",
+        "Save focus/hit",
+        "graph geometry pass"
+      ]
+    }
+  ]
+}

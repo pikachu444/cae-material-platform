@@ -1,7 +1,14 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { useRef, useState } from "react";
+import { describe, expect, it, vi } from "vitest";
 
-import { desktopViewportClass, materialsPaneDefaults, ResizableSplitPane } from "./resizable-split-pane";
+import {
+  ContextPaneOverlay,
+  desktopViewportClass,
+  materialsPaneDefaults,
+  ResizableSplitPane,
+  shouldUseContextOverlay,
+} from "./resizable-split-pane";
 
 describe("ResizableSplitPane", () => {
   it("uses the three approved desktop viewport classes", () => {
@@ -31,5 +38,60 @@ describe("ResizableSplitPane", () => {
 
     expect(screen.getByRole("separator", { name: "Resize filters" }).getAttribute("title")).toContain("reset filters width");
     expect(screen.getByRole("separator", { name: "Resize details" }).getAttribute("title")).toContain("reset details width");
+  });
+
+  it("uses an overlay only after explicit expansion receives less than one pixel", () => {
+    expect(shouldUseContextOverlay(false, 0)).toBe(false);
+    expect(shouldUseContextOverlay(true, 0.99)).toBe(true);
+    expect(shouldUseContextOverlay(true, 1)).toBe(false);
+  });
+
+  it("closes the allocation-driven context overlay, returns focus, and preserves its direct action", () => {
+    const openDatasheet = vi.fn();
+    vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
+      callback(0);
+      return 1;
+    });
+
+    function Harness() {
+      const [open, setOpen] = useState(false);
+      const triggerRef = useRef<HTMLButtonElement>(null);
+      return (
+        <>
+          <button ref={triggerRef} type="button" onClick={() => setOpen(true)}>Show details</button>
+          <ContextPaneOverlay
+            open={open}
+            label="details"
+            triggerRef={triggerRef}
+            onClose={() => setOpen(false)}
+          >
+            <button type="button" onClick={openDatasheet}>Open datasheet</button>
+          </ContextPaneOverlay>
+        </>
+      );
+    }
+
+    render(<Harness />);
+    const trigger = screen.getByRole("button", { name: "Show details" });
+    fireEvent.click(trigger);
+    expect(screen.getByRole("dialog", { name: "details pane" })).toBeTruthy();
+    expect(document.activeElement).toBe(
+      screen.getByRole("button", { name: "Close details pane" }),
+    );
+
+    const directAction = screen.getByRole("button", { name: "Open datasheet" });
+    fireEvent.keyDown(document.activeElement!, { key: "Tab", shiftKey: true });
+    expect(document.activeElement).toBe(directAction);
+    fireEvent.keyDown(directAction, { key: "Tab" });
+    expect(document.activeElement).toBe(
+      screen.getByRole("button", { name: "Close details pane" }),
+    );
+    fireEvent.click(directAction);
+    expect(openDatasheet).toHaveBeenCalledTimes(1);
+    fireEvent.keyDown(directAction, { key: "Escape" });
+
+    expect(screen.queryByRole("dialog", { name: "details pane" })).toBeNull();
+    expect(document.activeElement).toBe(trigger);
+    vi.restoreAllMocks();
   });
 });

@@ -1,6 +1,6 @@
 .ux-page {
   color: var(--ux-text);
-  font-size: 14px;
+  font-size: var(--ux-data-font-size);
   line-height: 1.45;
 }
 
@@ -37,19 +37,19 @@
 .ux-page button,
 .ux-page input,
 .ux-page select {
-  font-size: 14px;
+  font-size: var(--ux-data-font-size);
 }
 
 .ux-meta {
   color: var(--ux-text-muted);
-  font-size: 12px;
+  font-size: var(--ux-metadata-font-size);
   line-height: 1.4;
 }
 
 .ux-kicker {
   margin-bottom: var(--ux-space-2);
   color: var(--ux-accent);
-  font-size: 12px;
+  font-size: var(--ux-metadata-font-size);
   font-weight: 600;
   letter-spacing: 0;
 }

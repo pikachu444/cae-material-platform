@@ -1,4 +1,8 @@
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import {
+  DISPLAY_DENSITY_CHOICES,
+  useDisplayDensity,
+} from "./display-density";
 import { EngineeringIcon } from "./icon";
 
 export interface WorkspaceStatusUpdate {
@@ -114,6 +118,7 @@ function commandsFor(path: string, navigate: (path: string) => void, activeComma
 }
 
 export function ApplicationShell({ path, navigate, children }: ApplicationShellProps) {
+  const { density, setDensity, resetDensity } = useDisplayDensity();
   const workspace = workspaceFor(path);
   const [activeCommand, setActiveCommand] = useState(() => initialActiveCommand(path));
   const commandModel = useMemo(() => commandsFor(path, navigate, activeCommand), [activeCommand, navigate, path]);
@@ -225,7 +230,38 @@ export function ApplicationShell({ path, navigate, children }: ApplicationShellP
           {navigation.map((item) => <button key={item.target} className={item.active ? "application-nav active" : "application-nav"} type="button" aria-current={item.active ? "page" : undefined} onClick={() => navigate(item.target)}>{item.label}</button>)}
         </nav>
         <div className="application-session">
-          <details className="application-user-menu"><summary><span>{workspace === "modeling" ? "Demo workspace" : "Demo user"}</span><EngineeringIcon name="chevron-down"/></summary><div><button type="button" onClick={() => navigate("/administration")}>Administration</button><button type="button" onClick={() => navigate("/database")}>Browse database</button></div></details>
+          <details
+            className="application-user-menu"
+            onKeyDown={(event) => {
+              if (event.key !== "Escape" || !event.currentTarget.open) return;
+              event.preventDefault();
+              event.stopPropagation();
+              event.currentTarget.open = false;
+              event.currentTarget.querySelector<HTMLElement>("summary")?.focus();
+            }}
+          >
+            <summary><span>{workspace === "modeling" ? "Demo workspace" : "Demo user"}</span><EngineeringIcon name="chevron-down"/></summary>
+            <div className="application-utility-menu">
+              <button type="button" onClick={() => navigate("/administration")}>Administration</button>
+              <button type="button" onClick={() => navigate("/database")}>Browse database</button>
+              <fieldset className="display-density-control" aria-label="Display density">
+                <legend>Display density</legend>
+                {DISPLAY_DENSITY_CHOICES.map((choice) => (
+                  <label className="display-density-option" key={choice.value}>
+                    <input
+                      type="radio"
+                      name="display-density"
+                      value={choice.value}
+                      checked={density === choice.value}
+                      onChange={() => setDensity(choice.value)}
+                    />
+                    <span>{choice.label}</span>
+                  </label>
+                ))}
+                <button className="display-density-reset" type="button" onClick={resetDensity}>Reset display density</button>
+              </fieldset>
+            </div>
+          </details>
         </div>
       </header>
       <section className="workspace-command-bar" aria-label={`${commandModel.title} commands`} data-focus-region="commands" ref={commandRef} tabIndex={-1}>

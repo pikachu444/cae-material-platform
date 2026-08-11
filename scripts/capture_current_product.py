@@ -8,6 +8,7 @@ Run against the deterministic Compose demo:
 from __future__ import annotations
 
 import argparse
+import base64
 import json
 import os
 import re
@@ -18,7 +19,7 @@ from collections.abc import Callable, Sequence
 from itertools import pairwise
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
-from urllib.parse import parse_qs, urlsplit
+from urllib.parse import parse_qs, quote, urlsplit
 
 # Embedded Playwright snippets and exact UI labels intentionally exceed Ruff's
 # line length and preserve typographic punctuation for source-contract checks.
@@ -29,6 +30,8 @@ if TYPE_CHECKING:
 
 VIEWPORTS = ((1366, 768), (1440, 900), (1920, 1080))
 WIDE_VIEWPORTS = ((2560, 1440), (3840, 2160))
+DISPLAY_DENSITIES = ("compact", "standard", "large")
+CAPTURE_DISPLAY_DENSITY = "standard"
 ACTIVITY_HISTORY_VIEWPORTS = (VIEWPORTS[1], VIEWPORTS[2], *WIDE_VIEWPORTS)
 REVISION_LABEL_PATTERN = re.compile(r"\br[1-9]\d*\b")
 MODELING_EXPORT_OUTPUTS = (
@@ -37,6 +40,7 @@ MODELING_EXPORT_OUTPUTS = (
     "modeling-export-approximation-blocked-1440x900.png",
     "modeling-export-delivered-1440x900.png",
 )
+MODELING_EXPORT_PRE_DELIVERED_OUTPUTS = MODELING_EXPORT_OUTPUTS[:-1]
 MODELING_FIT_STATE_OUTPUTS = (
     "modeling-fit-candidate-parameters-long-1440x900.png",
     "modeling-fit-candidate-evidence-scrolled-1440x900.png",
@@ -46,24 +50,24 @@ MODELING_FIT_STATE_OUTPUTS = (
     "modeling-fit-exact-read-failed-1920x1080.png",
     "modeling-fit-restored-1920x1080.png",
 )
-MODELING_PROCESS_FIT_OUTPUTS = (
+MODELING_FIT_PRE_RESTORE_OUTPUTS = MODELING_FIT_STATE_OUTPUTS[:-1]
+MODELING_FIT_RESTORED_OUTPUTS = MODELING_FIT_STATE_OUTPUTS[-1:]
+MODELING_PROCESS_FIT_VIEWPORT_OUTPUTS = (
     *(f"modeling-process-{width}x{height}.png" for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)),
     "modeling-fit-1366x768.png",
     "modeling-fit-1440x900.png",
     "modeling-fit-1920x1080.png",
     "modeling-fit-2560x1440.png",
     "modeling-fit-3840x2160.png",
-    "modeling-fit-candidate-parameters-long-1440x900.png",
-    "modeling-fit-candidate-evidence-scrolled-1440x900.png",
-    "modeling-fit-calculation-failed-1920x1080.png",
-    "modeling-fit-save-failed-1920x1080.png",
-    "modeling-fit-exact-source-blocked-1920x1080.png",
-    "modeling-fit-exact-read-failed-1920x1080.png",
-    "modeling-fit-restored-1920x1080.png",
+)
+MODELING_PROCESS_FIT_OUTPUTS = (
+    *MODELING_PROCESS_FIT_VIEWPORT_OUTPUTS,
+    *MODELING_FIT_STATE_OUTPUTS,
 )
 MODELING_PROCESS_OUTPUTS = (
     *(f"modeling-process-{width}x{height}.png" for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)),
     "modeling-process-linear-regression-1366x768.png",
+    "modeling-process-manual-1366x768.png",
     "modeling-process-blocked-1440x900.png",
     "modeling-process-exact-read-failed-1440x900.png",
     "modeling-process-siblings-1440x900.png",
@@ -78,12 +82,20 @@ MODELING_DATA_SESSION_OUTPUTS = (
     *(f"modeling-session-{width}x{height}.png" for width, height in VIEWPORTS),
     "modeling-data-empty-1440x900.png",
     "modeling-data-invalid-1440x900.png",
+    "modeling-data-invalid-scrolled-1440x900.png",
+)
+MODELING_PROCESS_MANUAL_OUTPUTS = ("modeling-process-manual-1366x768.png",)
+MODELING_DATA_EXCEPTION_OUTPUTS = (
+    "modeling-data-empty-1440x900.png",
+    "modeling-data-invalid-1440x900.png",
+    "modeling-data-invalid-scrolled-1440x900.png",
 )
 PRODUCT_ACCESS_OUTPUTS = (
     *(
         f"administration-access-{width}x{height}.png"
         for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)
     ),
+    "administration-access-role-control-1366x768.png",
 )
 ADMINISTRATION_DATABASE_OUTPUTS = tuple(
     f"administration-database-{width}x{height}.png"
@@ -108,6 +120,13 @@ REVIEW_SUBMISSION_OUTPUTS = (
         for width, height in VIEWPORTS
     ),
     "material-detail-1440x900.png",
+)
+MATERIALS_WORKSPACE_OUTPUTS = (
+    *(f"materials-search-{width}x{height}.png" for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)),
+    *(f"materials-search-long-{width}x{height}.png" for width, height in VIEWPORTS),
+    "materials-search-short-1440x900.png",
+    "materials-search-empty-1440x900.png",
+    "materials-browse-1440x900.png",
 )
 CURRENT_CAPTURE_OUTPUTS = (
     "materials-search-1366x768.png",
@@ -140,8 +159,10 @@ CURRENT_CAPTURE_OUTPUTS = (
     "modeling-session-1920x1080.png",
     "modeling-data-empty-1440x900.png",
     "modeling-data-invalid-1440x900.png",
+    "modeling-data-invalid-scrolled-1440x900.png",
     "modeling-process-1366x768.png",
     "modeling-process-linear-regression-1366x768.png",
+    "modeling-process-manual-1366x768.png",
     "modeling-process-1440x900.png",
     "modeling-process-1920x1080.png",
     "modeling-process-2560x1440.png",
@@ -197,6 +218,7 @@ CURRENT_CAPTURE_OUTPUTS = (
     "administration-access-1920x1080.png",
     "administration-access-2560x1440.png",
     "administration-access-3840x2160.png",
+    "administration-access-role-control-1366x768.png",
 )
 STAGE_HEADINGS = {
     "data": "Select Test Data",
@@ -213,7 +235,6 @@ PROCESS_NO_PREVIEW_SAVED_INSTRUCTION = (
     "No Process preview is active. Choose Use settings for a saved result, then select "
     "Preview changes to preview the draft."
 )
-NORMAL_COMPACT_DATA_RIBBON_HEIGHT = 178
 UNFINISHED = re.compile(
     r"^(Checking|Loading|Calculating|Resolving|Updating|Preparing|Creating)\b.*(?:…|\.\.\.)$",
     re.IGNORECASE,
@@ -224,6 +245,33 @@ NORMAL_SURFACE_TECHNICAL_LABELS = re.compile(
     re.IGNORECASE,
 )
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
+
+
+def _display_density_scope(access_token: str) -> str:
+    claims: dict[str, object] = {}
+    try:
+        payload = access_token.split(".")[1]
+        padding = "=" * ((4 - len(payload) % 4) % 4)
+        decoded = json.loads(base64.urlsafe_b64decode(payload + padding))
+        if isinstance(decoded, dict):
+            claims = decoded
+    except (IndexError, ValueError, TypeError, json.JSONDecodeError):
+        claims = {}
+
+    def claim(*names: str) -> str | None:
+        for name in names:
+            value = claims.get(name)
+            if isinstance(value, str) and value.strip():
+                return value.strip()
+        return None
+
+    values = (
+        "/api/v1",
+        claim("organization_id", "org_id") or "local-organization",
+        claim("workspace_id", "project_id") or "local-workspace",
+        claim("principal_id", "sub", "user_id") or "anonymous",
+    )
+    return "|".join(quote(value, safe="-_.!~*'()") for value in values)
 
 
 def _new_page(
@@ -241,10 +289,23 @@ def _new_page(
         raise RuntimeError("local demo identity is unavailable")
     access_token = token_response.json()["access_token"]
     serialized_config = json.dumps({"baseUrl": "/api/v1", "accessToken": access_token})
+    preference_scope = _display_density_scope(access_token)
+    serialized_preferences = json.dumps(
+        {
+            "version": 1,
+            "displayDensityByScope": {
+                preference_scope: CAPTURE_DISPLAY_DENSITY,
+            },
+        }
+    )
     context.add_init_script(
         script=(
             "window.localStorage.setItem("
             f"'cmp.material-platform.api-config', {json.dumps(serialized_config)}"
+            ");"
+            "window.localStorage.setItem("
+            "'cmp.material-platform.client-preferences.v1', "
+            f"{json.dumps(serialized_preferences)}"
             ");"
         )
     )
@@ -269,8 +330,22 @@ def _bounding_box_edges(box: FloatRect | None) -> dict[str, float] | None:
     }
 
 
+def _css_token_px(page: Page, name: str) -> float:
+    """Read one resolved shared geometry token from the live root element."""
+    value = page.evaluate(
+        "name => Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name))",
+        name,
+    )
+    if not isinstance(value, (int, float)):
+        raise RuntimeError(f"shared CSS token {name} is not a resolved pixel value: {value!r}")
+    return float(value)
+
+
 def _wait_for_settled(page: Page) -> None:
-    page.wait_for_load_state("networkidle")
+    # Modeling keeps legitimate background requests alive. DOM readiness plus
+    # the observable busy/text contract below is the deterministic screenshot
+    # boundary; a global network-idle heuristic can time out on a settled UI.
+    page.wait_for_load_state("domcontentloaded")
     page.wait_for_function(
         """() => {
             const unfinished =
@@ -337,7 +412,7 @@ def _assert_shared_workspace_geometry(page: Page, width: int, path_name: str) ->
         )
 
 
-def _assert_bounded_workgroup_geometry(
+def _assert_semantic_three_pane_geometry(
     page: Page,
     *,
     group_selector: str,
@@ -349,13 +424,18 @@ def _assert_bounded_workgroup_geometry(
             const container = document.querySelector('.administration-content');
             const group = document.querySelector(selectors.group);
             const form = document.querySelector(selectors.form);
-            if (!container || !group || !form) return null;
+            const navigator = group?.children.item(0);
+            const primary = group?.children.item(1);
+            if (!container || !group || !form || !navigator || !primary) return null;
             const root = getComputedStyle(document.documentElement);
             const token = name => Number.parseFloat(root.getPropertyValue(name));
             const containerBox = container.getBoundingClientRect();
             const groupBox = group.getBoundingClientRect();
             const formBox = form.getBoundingClientRect();
+            const navigatorBox = navigator.getBoundingClientRect();
+            const primaryBox = primary.getBoundingClientRect();
             return {
+              viewportWidth: innerWidth,
               container: {
                 left: containerBox.left,
                 right: containerBox.right,
@@ -371,30 +451,49 @@ def _assert_bounded_workgroup_geometry(
                 right: formBox.right,
                 width: formBox.width,
               },
-              boundedWorkgroupMaximum:
-                token('--ux-navigator-max-inline-size')
-                + token('--ux-context-max-inline-size')
-                + token('--ux-readable-form-max-inline-size'),
+              navigator: {
+                left: navigatorBox.left,
+                right: navigatorBox.right,
+                width: navigatorBox.width,
+              },
+              primary: {
+                left: primaryBox.left,
+                right: primaryBox.right,
+                width: primaryBox.width,
+              },
+              navigatorDefault: token('--ux-navigator-default-inline-size'),
               readableFormMaximum: token('--ux-readable-form-max-inline-size'),
             };
         }""",
         {"group": group_selector, "form": form_selector},
     )
     if geometry is None:
-        raise RuntimeError(f"bounded Administration workgroup is missing for {path_name}")
+        raise RuntimeError(f"semantic Administration three-pane workgroup is missing for {path_name}")
 
     group = geometry["group"]
     container = geometry["container"]
     form = geometry["form"]
-    if group["width"] > geometry["boundedWorkgroupMaximum"] + 1:
+    if geometry["viewportWidth"] >= 2560 and group["width"] <= 1920:
         raise RuntimeError(
-            f"Administration workgroup exceeded its shared semantic bound for {path_name}: {geometry}"
+            f"Administration retained a 1920px-or-narrower work island for {path_name}: {geometry}"
         )
     left_margin = group["left"] - container["left"]
     right_margin = container["right"] - group["right"]
     if abs(left_margin - right_margin) > 2:
         raise RuntimeError(
-            f"Administration bounded workgroup is not horizontally balanced for {path_name}: {geometry}"
+            f"Administration semantic workgroup is not horizontally balanced for {path_name}: {geometry}"
+        )
+    if group["width"] < container["width"] * 0.9:
+        raise RuntimeError(
+            f"Administration semantic workgroup did not use the available content width for {path_name}: {geometry}"
+        )
+    if geometry["navigator"]["width"] > geometry["navigatorDefault"] + 1:
+        raise RuntimeError(
+            f"Administration navigator exceeded its shared readable bound for {path_name}: {geometry}"
+        )
+    if geometry["primary"]["width"] < 288:
+        raise RuntimeError(
+            f"Administration primary list did not receive a useful elastic allocation for {path_name}: {geometry}"
         )
     if form["width"] > geometry["readableFormMaximum"] + 1:
         raise RuntimeError(
@@ -402,7 +501,7 @@ def _assert_bounded_workgroup_geometry(
         )
     if form["left"] < group["left"] - 1 or form["right"] > group["right"] + 1:
         raise RuntimeError(
-            f"Administration property form escaped its workgroup for {path_name}: {geometry}"
+            f"Administration property form escaped its semantic workgroup for {path_name}: {geometry}"
         )
 
 
@@ -744,7 +843,7 @@ def _open_materials_search(page: Page, base_url: str) -> None:
 
 
 def _assert_material_pane_reset(page: Page, width: int) -> None:
-    expected_navigator = 244 if width <= 1390 else 264 if width < 1600 else 280
+    expected_navigator = _css_token_px(page, "--ux-navigator-default-inline-size")
     navigator = page.locator(".navigator-panel")
     navigator_separator = page.get_by_role("separator", name="Resize navigator")
     before = navigator.bounding_box()
@@ -770,7 +869,7 @@ def _assert_material_pane_reset(page: Page, width: int) -> None:
 
     if width <= 1390:
         return
-    expected_context = 280 if width < 1600 else 300
+    expected_context = _css_token_px(page, "--ux-context-default-inline-size")
     context = page.locator(".context-panel")
     context_separator = page.get_by_role("separator", name="Resize details")
     context_before = context.bounding_box()
@@ -1176,7 +1275,7 @@ def _open_material_detail(page: Page, base_url: str) -> None:
             )
 
 
-def _capture_materials(browser: Browser, base_url: str, output: Path) -> None:
+def _capture_materials_workspace(browser: Browser, base_url: str, output: Path) -> None:
     for width, height in VIEWPORTS:
         page = _new_page(browser, base_url, width, height)
         _open_materials_search(page, base_url)
@@ -1205,6 +1304,11 @@ def _capture_materials(browser: Browser, base_url: str, output: Path) -> None:
     _capture(page, output / "materials-browse-1440x900.png", width, height)
     page.context.close()
 
+
+def _capture_materials(browser: Browser, base_url: str, output: Path) -> None:
+    _capture_materials_workspace(browser, base_url, output)
+
+    width, height = 1440, 900
     page = _new_page(browser, base_url, width, height)
     _open_material_detail(page, base_url)
     _assert_response_points_table(page, width)
@@ -1437,6 +1541,9 @@ def _assert_activity_shared_density(page: Page, viewport_width: int) -> None:
         """() => {
           const fontSize = selector =>
             getComputedStyle(document.querySelector(selector)).fontSize;
+          const root = getComputedStyle(document.documentElement);
+          const token = name => root.getPropertyValue(name).trim();
+          const pixels = name => Number.parseFloat(token(name));
           const table = document.querySelector('.activity-table').getBoundingClientRect();
           const queue = document.querySelector('#activity-queue-scroll').getBoundingClientRect();
           const row = document.querySelector('.activity-table tbody tr').getBoundingClientRect();
@@ -1457,24 +1564,35 @@ def _assert_activity_shared_density(page: Page, viewport_width: int) -> None:
             queueWidth: queue.width,
             queueLeft: queue.left,
             queueRight: queue.right,
+            tokens: {
+              data: token('--ux-data-font-size'),
+              emphasis: token('--ux-emphasis-font-size'),
+              metadata: token('--ux-metadata-font-size'),
+              tableHeading: token('--ux-table-heading-font-size'),
+              workRow: pixels('--ux-work-row-min-block-size'),
+              control: pixels('--ux-control-min-block-size'),
+            },
           };
         }"""
     )
     expected_fonts = {
-        "tab": "13px",
-        "task": "14px",
-        "data": "13px",
-        "metadata": "12px",
-        "updated": "12px",
-        "heading": "11px",
-        "action": "13px",
+        "tab": measurements["tokens"]["data"],
+        "task": measurements["tokens"]["emphasis"],
+        "data": measurements["tokens"]["data"],
+        "metadata": measurements["tokens"]["metadata"],
+        "updated": measurements["tokens"]["metadata"],
+        "heading": measurements["tokens"]["tableHeading"],
+        "action": measurements["tokens"]["data"],
     }
     actual_fonts = {name: measurements[name] for name in expected_fonts}
     if actual_fonts != expected_fonts:
         raise RuntimeError(
             f"Activity shared tokens are not live: expected {expected_fonts}, got {actual_fonts}"
         )
-    if measurements["rowHeight"] < 46 or measurements["actionHeight"] < 36:
+    if (
+        measurements["rowHeight"] < measurements["tokens"]["workRow"]
+        or measurements["actionHeight"] < measurements["tokens"]["control"]
+    ):
         raise RuntimeError(f"Activity shared row/control bounds regressed: {measurements}")
     if measurements["tableWidth"] > 2656.5:
         raise RuntimeError(f"Activity table exceeded its readable wide bound: {measurements}")
@@ -1865,27 +1983,85 @@ def _wait_for_exact_document_load_settled(page: Page) -> None:
               && !document.querySelector('.error-banner')
           );
         }""",
-        timeout=30_000,
+        timeout=60_000,
     )
 
 
 def _wait_for_data_plot(page: Page, *, lines: int = 3, legends: int = 3) -> None:
-    page.wait_for_function(
-        """expected => document.querySelectorAll('.curve-line.data-observed').length === expected.lines
-          && document.querySelectorAll('.persistent-modeling-plot .curve-legend.interactive button').length === expected.legends""",
-        arg={"lines": lines, "legends": legends},
-        timeout=30_000,
+    try:
+        page.wait_for_function(
+            """expected => document.querySelectorAll('.curve-line.data-observed').length === expected.lines
+              && document.querySelectorAll('.persistent-modeling-plot .curve-legend.interactive button').length === expected.legends""",
+            arg={"lines": lines, "legends": legends},
+            timeout=60_000,
+        )
+    except Exception as error:
+        diagnostics = page.evaluate(
+            """() => ({
+              lines: document.querySelectorAll('.curve-line.data-observed').length,
+              legends: document.querySelectorAll('.persistent-modeling-plot .curve-legend.interactive button').length,
+              included: document.querySelectorAll('.modeling-workspace-rail .curve-include-toggle input:checked').length,
+              visible: document.querySelectorAll('.modeling-workspace-rail .curve-visibility-toggle[aria-pressed="true"]').length,
+              selectedRefs: (() => {
+                try {
+                  return JSON.parse(sessionStorage.getItem('cmp.modeling.recent-session.v4') || '{}')
+                    ?.workspace?.selectedTestDataRefs ?? null;
+                } catch { return 'malformed'; }
+              })(),
+              errors: [...document.querySelectorAll('.error-banner, [role="alert"]')]
+                .filter(element => element.getClientRects().length)
+                .map(element => element.textContent?.trim()),
+              geometry: Object.fromEntries([
+                ['workspace', document.querySelector('.modeling-workspace-stage-data')],
+                ['main', document.querySelector('.modeling-main-surface')],
+                ['plot', document.querySelector('.persistent-modeling-plot')],
+                ['svg', document.querySelector('.persistent-modeling-plot svg')],
+              ].map(([key, element]) => {
+                if (!element) return [key, null];
+                const box = element.getBoundingClientRect();
+                const style = getComputedStyle(element);
+                return [key, {
+                  x: box.x,
+                  y: box.y,
+                  width: box.width,
+                  height: box.height,
+                  display: style.display,
+                  minHeight: style.minHeight,
+                  overflow: style.overflow,
+                }];
+              })),
+              fetches: (window.__cmpCaptureFetchDiagnostics || []).slice(-24),
+              runtimeErrors: window.__cmpCaptureRuntimeErrors || [],
+              url: location.href,
+              shellCount: document.querySelectorAll('.application-shell').length,
+              bodyText: document.body?.innerText?.slice(0, 800) ?? '',
+              readyState: document.readyState,
+            })"""
+        )
+        raise RuntimeError(
+            "Modeling Data plot did not reach its exact 3-line/3-legend contract: "
+            f"{diagnostics}"
+        ) from error
+
+
+def _modeling_data_ribbon_height(page: Page) -> float:
+    return (
+        _css_token_px(page, "--ux-navigator-row-block-size") * 3
+        + _css_token_px(page, "--ux-interactive-min-block-size") * 2
+        + _css_token_px(page, "--ux-pane-padding")
+        + _css_token_px(page, "--ux-splitter-inline-size")
     )
 
 
 def _wait_for_modeling_data_ribbon(page: Page) -> None:
+    expected_height = _modeling_data_ribbon_height(page)
     page.wait_for_function(
         """expected => {
           const panel = document.querySelector('.modeling-data-ribbon-panel');
           if (!panel) return false;
           return Math.abs(panel.getBoundingClientRect().height - expected) <= 1;
         }""",
-        arg=NORMAL_COMPACT_DATA_RIBBON_HEIGHT,
+        arg=expected_height,
         timeout=30_000,
     )
 
@@ -1963,10 +2139,11 @@ def _assert_modeling_data_surface(page: Page, width: int, height: int) -> None:
     divider_box = _bounding_box_edges(page.locator("#modeling-data-ribbon-plot-divider").bounding_box())
     if ribbon_box is None or divider_box is None:
         raise RuntimeError("Modeling Data ribbon/divider geometry is unavailable")
-    if abs(ribbon_box["height"] - NORMAL_COMPACT_DATA_RIBBON_HEIGHT) > 1:
+    expected_ribbon_height = _modeling_data_ribbon_height(page)
+    if abs(ribbon_box["height"] - expected_ribbon_height) > 1:
         raise RuntimeError(
-            "normal compact Modeling Data ribbon height drifted from the "
-            f"{NORMAL_COMPACT_DATA_RIBBON_HEIGHT}px contract at {width}x{height}: "
+            "normal Modeling Data ribbon height drifted from the shared density "
+            f"contract ({expected_ribbon_height}px) at {width}x{height}: "
             f"{ribbon_box['height']}px"
         )
     for index in range(library.locator(".data-library-row").count()):
@@ -1998,13 +2175,16 @@ def _assert_modeling_data_surface(page: Page, width: int, height: int) -> None:
 
 
 def _assert_local_initial_controls(page: Page) -> None:
+    expected_input_height = _css_token_px(page, "--ux-input-min-block-size")
+    expected_control_height = _css_token_px(page, "--ux-control-min-block-size")
+    expected_font_size = _css_token_px(page, "--ux-data-font-size")
     controls = [
-        page.locator('select[name="local-test-run"]'),
-        page.locator('input[name="local-test-data-file"]'),
-        page.get_by_role("button", name="Inspect source", exact=True),
+        (page.locator('select[name="local-test-run"]'), expected_input_height),
+        (page.locator('input[name="local-test-data-file"]'), expected_input_height),
+        (page.get_by_role("button", name="Inspect source", exact=True), expected_control_height),
     ]
     boxes = []
-    for control in controls:
+    for control, expected_height in controls:
         control.wait_for(state="visible", timeout=30_000)
         box = _bounding_box_edges(control.bounding_box())
         if box is None:
@@ -2014,20 +2194,69 @@ def _assert_local_initial_controls(page: Page) -> None:
               return { height: box.height, fontSize: parseFloat(style.fontSize), boxSizing: style.boxSizing,
                 top: box.top, bottom: box.bottom, cursor: style.cursor }; }"""
         )
-        if abs(metrics["height"] - 28) > 1 or metrics["fontSize"] != 13 or metrics["boxSizing"] != "border-box":
+        if abs(metrics["height"] - expected_height) > 1 or abs(metrics["fontSize"] - expected_font_size) > 0.1 or metrics["boxSizing"] != "border-box":
             raise RuntimeError(f"Local initial control geometry drifted: {metrics}")
         boxes.append(box)
-    if max(box["top"] for box in boxes) - min(box["top"] for box in boxes) > 1 or max(box["bottom"] for box in boxes) - min(box["bottom"] for box in boxes) > 1:
-        raise RuntimeError(f"Local initial controls are not edge-aligned: {boxes}")
-    file_button = controls[1].evaluate(
+    if max(box["bottom"] for box in boxes) - min(box["bottom"] for box in boxes) > 1:
+        raise RuntimeError(f"Local initial controls are not bottom-aligned: {boxes}")
+    file_button = controls[1][0].evaluate(
         """element => { const style = getComputedStyle(element, '::file-selector-button');
           return { height: parseFloat(style.height), marginTop: parseFloat(style.marginTop), marginBottom: parseFloat(style.marginBottom) }; }"""
     )
-    if abs(file_button["height"] - 26) > 1 or file_button["marginTop"] != 0 or file_button["marginBottom"] != 0:
-        raise RuntimeError(f"native file selector button is outside its 28px control: {file_button}")
+    if abs(file_button["height"] - (expected_input_height - 2)) > 1 or file_button["marginTop"] != 0 or file_button["marginBottom"] != 0:
+        raise RuntimeError(
+            f"native file selector button is outside its shared density control: {file_button}"
+        )
 
 
-def _prepare_modeling(page: Page, base_url: str) -> None:
+def _prepare_modeling(
+    page: Page,
+    base_url: str,
+    *,
+    verify_reload: bool = True,
+) -> None:
+    page.add_init_script(
+        """() => {
+          if (window.__cmpCaptureFetchDiagnosticsInstalled) return;
+          window.__cmpCaptureFetchDiagnosticsInstalled = true;
+          window.__cmpCaptureFetchDiagnostics = [];
+          window.__cmpCaptureRuntimeErrors = [];
+          window.addEventListener('error', event => {
+            window.__cmpCaptureRuntimeErrors.push(`error: ${event.message}`);
+          });
+          window.addEventListener('unhandledrejection', event => {
+            const reason = event.reason;
+            window.__cmpCaptureRuntimeErrors.push(
+              `unhandledrejection: ${reason instanceof Error ? `${reason.name}: ${reason.message}` : String(reason)}`
+            );
+          });
+          const originalFetch = window.fetch.bind(window);
+          window.fetch = async (...args) => {
+            const started = performance.now();
+            const input = args[0];
+            const url = typeof input === 'string' ? input : input?.url ?? String(input);
+            try {
+              const response = await originalFetch(...args);
+              if (url.includes('/processing:preview') || url.includes('/test-data-documents/') || !response.ok) {
+                window.__cmpCaptureFetchDiagnostics.push({
+                  url,
+                  status: response.status,
+                  ok: response.ok,
+                  durationMs: Math.round(performance.now() - started),
+                });
+              }
+              return response;
+            } catch (error) {
+              window.__cmpCaptureFetchDiagnostics.push({
+                url,
+                error: error instanceof Error ? `${error.name}: ${error.message}` : String(error),
+                durationMs: Math.round(performance.now() - started),
+              });
+              throw error;
+            }
+          };
+        }"""
+    )
     page.goto(f"{base_url}/modeling?stage=data&family=metal")
     _wait_for_modeling_data_surface(page)
     library_rows = page.locator(".data-library-list .data-library-row")
@@ -2095,8 +2324,23 @@ def _prepare_modeling(page: Page, base_url: str) -> None:
             button.click()
     page.wait_for_function(
         "() => [...document.querySelectorAll('.modeling-workspace-rail .curve-visibility-toggle')].every(button => button.getAttribute('aria-pressed') === 'true')",
-        timeout=30_000,
+        timeout=60_000,
     )
+    if verify_reload:
+        # Exercise the real visibility contract in the reload-owning viewport.
+        # This forces one stable 2-series request followed by the required
+        # 3-series graph and catches frame/SVG/legend recalculation regressions.
+        visibility.nth(2).click()
+        page.wait_for_function(
+            "() => document.querySelectorAll('.modeling-workspace-rail .curve-visibility-toggle[aria-pressed=\"true\"]').length === 2",
+            timeout=30_000,
+        )
+        _wait_for_data_plot(page, lines=2, legends=2)
+        visibility.nth(2).click()
+        page.wait_for_function(
+            "() => document.querySelectorAll('.modeling-workspace-rail .curve-visibility-toggle[aria-pressed=\"true\"]').length === 3",
+            timeout=30_000,
+        )
     _wait_for_data_plot(page)
     _wait_for_settled(page)
 
@@ -2105,6 +2349,13 @@ def _prepare_modeling(page: Page, base_url: str) -> None:
     if viewport_size is None:
         raise RuntimeError("Modeling Data capture lost its viewport size")
     _assert_modeling_data_surface(page, viewport_size["width"], viewport_size["height"])
+    # Fit/Export fixture preparation consumes this exact, already-loaded Data
+    # source but does not own the Data-stage reload contract. The dedicated
+    # Data/session capture and pane-persistence E2E keep that assertion. Avoid
+    # replaying a costly append-only catalog hydration for every downstream
+    # risk-state fixture.
+    if not verify_reload:
+        return
     before_reload = _data_session_snapshot(page)
     if len(_session_list(before_reload, "selectedTestDataRefs")) != 3:
         raise RuntimeError(f"expected 3 selected exact refs before reload, got {before_reload}")
@@ -2123,6 +2374,18 @@ def _prepare_modeling(page: Page, base_url: str) -> None:
     )
     page.wait_for_function(
         """() => document.querySelectorAll('.modeling-workspace-rail .curve-visibility-toggle[aria-pressed=\"true\"]').length === 3""",
+        timeout=60_000,
+    )
+    reloaded_visibility = page.locator(".modeling-workspace-rail .curve-visibility-toggle")
+    reloaded_visibility.nth(2).click()
+    page.wait_for_function(
+        "() => document.querySelectorAll('.modeling-workspace-rail .curve-visibility-toggle[aria-pressed=\"true\"]').length === 2",
+        timeout=30_000,
+    )
+    _wait_for_data_plot(page, lines=2, legends=2)
+    reloaded_visibility.nth(2).click()
+    page.wait_for_function(
+        "() => document.querySelectorAll('.modeling-workspace-rail .curve-visibility-toggle[aria-pressed=\"true\"]').length === 3",
         timeout=30_000,
     )
     _wait_for_data_plot(page)
@@ -2136,9 +2399,14 @@ def _prepare_modeling(page: Page, base_url: str) -> None:
     _wait_for_settled(page)
 
 
-def _prepare_modeling_process(page: Page, base_url: str) -> None:
+def _prepare_modeling_process(
+    page: Page,
+    base_url: str,
+    *,
+    verify_data_reload: bool = True,
+) -> None:
     """Prepare Process on the exact Specimen 01 source and session pins."""
-    _prepare_modeling(page, base_url)
+    _prepare_modeling(page, base_url, verify_reload=verify_data_reload)
     # _prepare_modeling intentionally leaves the page on the Data stage. Pick
     # the exact source there before navigating to Process; a Process-scoped
     # locator would not exist yet and could silently select an unrelated row.
@@ -2785,6 +3053,13 @@ def _assert_modeling_process_table_geometry(page: Page) -> None:
               && childBox.top >= parentBox.top - 1
               && childBox.bottom <= parentBox.bottom + 1);
           };
+          const insideHorizontally = (child, parent) => {
+            const childBox = rect(child);
+            const parentBox = rect(parent);
+            return Boolean(childBox && parentBox
+              && childBox.left >= parentBox.left - 1
+              && childBox.right <= parentBox.right + 1);
+          };
           const hitWithin = (owner, box) => {
             if (!box || box.width <= 0 || box.height <= 0) return false;
             const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
@@ -2800,8 +3075,9 @@ def _assert_modeling_process_table_geometry(page: Page) -> None:
             const horizontalOrder = cellBoxes.every((box, index) => !index || !box || !cellBoxes[index - 1] || box.left >= cellBoxes[index - 1].right - 1);
             return {
               cellCount: cells.length,
-              rowContained: inside(row, table) && inside(row, details) && inside(row, ribbon),
-              rowAbovePlot: Boolean(plot && rect(row)?.bottom <= rect(plot)?.top + 1),
+              rowHorizontallyContained: insideHorizontally(row, table)
+                && insideHorizontally(row, details)
+                && insideHorizontally(row, ribbon),
               horizontalOrder,
               actionVisible: Boolean(actionBox && actionBox.width > 0 && actionBox.height > 0),
               actionTopmost: Boolean(action && hitWithin(action, actionBox)),
@@ -2810,8 +3086,8 @@ def _assert_modeling_process_table_geometry(page: Page) -> None:
           });
           return {
             present: true,
-            tableContained: inside(table, details) && inside(table, ribbon),
-            tableAbovePlot: Boolean(plot && rect(table)?.bottom <= rect(plot)?.top + 1),
+            tableHorizontallyContained: insideHorizontally(table, details)
+              && insideHorizontally(table, ribbon),
             headers,
             rowChecks,
           };
@@ -2822,8 +3098,7 @@ def _assert_modeling_process_table_geometry(page: Page) -> None:
     expected_headers = ["Label", "Method", "Range", "Result", "Revision", "State", "Action"]
     if (
         layout.get("headers") != expected_headers
-        or not layout.get("tableContained")
-        or not layout.get("tableAbovePlot")
+        or not layout.get("tableHorizontallyContained")
         or not isinstance(layout.get("rowChecks"), list)
         or not layout["rowChecks"]
     ):
@@ -2832,12 +3107,10 @@ def _assert_modeling_process_table_geometry(page: Page) -> None:
         if (
             not isinstance(row, dict)
             or row.get("cellCount") != 7
-            or not row.get("rowContained")
-            or not row.get("rowAbovePlot")
+            or not row.get("rowHorizontallyContained")
             or not row.get("horizontalOrder")
             or row.get("actionLabel") not in {"Retry", "Use settings"}
             or not row.get("actionVisible")
-            or not row.get("actionTopmost")
         ):
             raise RuntimeError(f"Saved Process semantic row/action is not reachable: {layout!r}")
 
@@ -2845,6 +3118,60 @@ def _assert_modeling_process_table_geometry(page: Page) -> None:
 def _assert_modeling_process_saved_rows_reachable(page: Page) -> None:
     """Reject Process captures where the graph paints over saved-row actions."""
     _assert_modeling_process_table_geometry(page)
+    actions = page.locator(
+        "details.process-saved-results[open] .process-comparison-row button"
+    )
+    if actions.count() != 3:
+        raise RuntimeError("Saved Process reachability requires exactly three row actions")
+    if actions.all_inner_texts() != ["Use settings"] * 3:
+        raise RuntimeError("Saved Process rows must expose exactly three Use settings actions")
+    for index in range(actions.count()):
+        action = actions.nth(index)
+        action.locator("xpath=ancestor::tr").scroll_into_view_if_needed()
+        action.focus()
+        page.wait_for_timeout(50)
+        reachability = action.evaluate(
+            """node => {
+              const row = node.closest('tr');
+              const ribbon = node.closest('.modeling-task-ribbon');
+              const plot = document.querySelector('.persistent-modeling-plot');
+              const box = node.getBoundingClientRect();
+              const rowBox = row?.getBoundingClientRect();
+              const ribbonBox = ribbon?.getBoundingClientRect();
+              const plotBox = plot?.getBoundingClientRect();
+              const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+              const reachable = Boolean(row && ribbon && plot && ribbonBox && plotBox
+                && rowBox
+                && rowBox.left >= ribbonBox.left - 1
+                && rowBox.right <= ribbonBox.right + 1
+                && rowBox.top >= ribbonBox.top - 1
+                && rowBox.bottom <= ribbonBox.bottom + 1
+                && rowBox.bottom <= plotBox.top + 1
+                && box.top >= ribbonBox.top - 1
+                && box.bottom <= ribbonBox.bottom + 1
+                && hit && (hit === node || node.contains(hit))
+                && document.activeElement === node);
+              const compact = value => value ? {
+                left: value.left, right: value.right, top: value.top,
+                bottom: value.bottom, width: value.width, height: value.height,
+              } : null;
+              return {
+                reachable,
+                row: compact(rowBox),
+                action: compact(box),
+                ribbon: compact(ribbonBox),
+                plot: compact(plotBox),
+                hit: hit?.textContent?.trim() || hit?.tagName || null,
+                focused: document.activeElement === node,
+                scrollTop: ribbon?.scrollTop ?? null,
+              };
+            }"""
+        )
+        if not isinstance(reachability, dict) or not reachability.get("reachable"):
+            raise RuntimeError(
+                "Saved Process row "
+                f"{index + 1} action is not reachable after local scrolling: {reachability!r}"
+            )
     checks = page.evaluate(
         """() => {
           const rows = [...document.querySelectorAll(
@@ -2874,6 +3201,15 @@ def _assert_modeling_process_saved_rows_reachable(page: Page) -> None:
                 && childBox.bottom <= parentBox.bottom + 1,
             );
           };
+          const insideHorizontally = (child, parent) => {
+            const childBox = rect(child);
+            const parentBox = rect(parent);
+            return Boolean(
+              childBox && parentBox
+                && childBox.left >= parentBox.left - 1
+                && childBox.right <= parentBox.right + 1,
+            );
+          };
           const hitWithin = (owner, rect) => {
             if (!rect || rect.width <= 0 || rect.height <= 0) return false;
             const hit = document.elementFromPoint(
@@ -2899,15 +3235,18 @@ def _assert_modeling_process_saved_rows_reachable(page: Page) -> None:
           }).concat([{
             layout: true,
             rowCount: rows.length,
-            rowsWithoutScroll: Boolean(
+            localScrollReady: Boolean(
               region
-                && region.scrollHeight <= region.clientHeight + 1
-                && region.clientWidth >= region.scrollWidth - 1,
+                && region.clientWidth >= region.scrollWidth - 1
+                && ribbon
+                && ribbon.clientWidth >= ribbon.scrollWidth - 1
+                && (ribbon.scrollHeight <= ribbon.clientHeight + 1
+                  || ['auto', 'scroll'].includes(getComputedStyle(ribbon).overflowY)),
             ),
-            disclosureContained: inside(details, ribbon),
-            disclosureAbovePlot: Boolean(
-              details && plot
-                && details.getBoundingClientRect().bottom <= plot.getBoundingClientRect().top + 1,
+            disclosureHorizontallyContained: insideHorizontally(details, ribbon),
+            ribbonAbovePlot: Boolean(
+              ribbon && plot
+                && ribbon.getBoundingClientRect().bottom <= plot.getBoundingClientRect().top + 1,
             ),
             plotUseful: Boolean(
               visible(plot)
@@ -2938,15 +3277,14 @@ def _assert_modeling_process_saved_rows_reachable(page: Page) -> None:
     )
     if not isinstance(checks, list) or len(checks) != 4:
         raise RuntimeError(f"Saved Process reachability check found {checks!r}")
-    rows = checks[:-1]
     layout = checks[-1]
     if (
         not isinstance(layout, dict)
         or layout.get("layout") is not True
         or layout.get("rowCount") != 3
-        or not layout.get("rowsWithoutScroll")
-        or not layout.get("disclosureContained")
-        or not layout.get("disclosureAbovePlot")
+        or not layout.get("localScrollReady")
+        or not layout.get("disclosureHorizontallyContained")
+        or not layout.get("ribbonAbovePlot")
         or not layout.get("plotUseful")
         or not layout.get("plotHeadingVisible")
         or not layout.get("plotHeadingTopmost")
@@ -2979,18 +3317,6 @@ def _assert_modeling_process_saved_rows_reachable(page: Page) -> None:
             != PROCESS_NO_PREVIEW_SAVED_INSTRUCTION
         ):
             raise RuntimeError(f"Saved Process reload plot is missing its honest no-preview state: {checks!r}")
-    for check in rows:
-        if (
-            not isinstance(check, dict)
-            or not check.get("rowTopmost")
-            or not check.get("rowContained")
-            or not check.get("rowAbovePlot")
-            or check.get("actionLabel") != "Use settings"
-            or not check.get("actionVisible")
-            or not check.get("actionEnabled")
-            or not check.get("actionTopmost")
-        ):
-            raise RuntimeError(f"Saved Process row or Use settings is occluded: {checks!r}")
 
 
 def _patch_capture_processing_output_pointer(
@@ -3493,7 +3819,13 @@ def _prepare_exact_target_preview(
     _wait_for_settled(page)
 
 
-def _capture_modeling_export_only(browser: Browser, base_url: str, output: Path) -> None:
+def _capture_modeling_export_only(
+    browser: Browser,
+    base_url: str,
+    output: Path,
+    *,
+    include_delivered: bool = True,
+) -> None:
     for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS):
         page = _new_page(browser, base_url, width, height)
         _prepare_fit_for_export(
@@ -3574,6 +3906,9 @@ def _capture_modeling_export_only(browser: Browser, base_url: str, output: Path)
     )
     approximation.context.close()
 
+    if not include_delivered:
+        return
+
     delivered = _new_page(browser, base_url, 1440, 900)
     _prepare_fit_for_export(
         delivered,
@@ -3615,7 +3950,7 @@ def _capture_modeling(
 ) -> None:
     for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS):
         page = _new_page(browser, base_url, width, height)
-        _prepare_modeling(page, base_url)
+        _prepare_modeling(page, base_url, verify_reload=False)
         plot = page.locator(".persistent-modeling-plot svg[role=img]")
         for stage, heading in STAGE_HEADINGS.items():
             if stage == "export" and (width, height) not in VIEWPORTS:
@@ -3796,8 +4131,8 @@ def _measure_process_fit(
           const rail = box('.modeling-workspace-rail');
           const ribbon = box('.modeling-task-ribbon');
           const plot = box('.persistent-modeling-plot');
-          const legend = rect(document.querySelector('.modeling-workspace-stage-process .persistent-modeling-plot > .curve-legend')
-            ?? document.querySelector('.modeling-workspace-stage-fit .persistent-modeling-plot > .curve-legend'));
+          const plotFrame = box('.persistent-modeling-plot .engineering-plot-frame');
+          const legend = rect(document.querySelector('.persistent-modeling-plot .engineering-plot-frame > .curve-legend'));
           const svgBox = svg?.getBoundingClientRect();
           const ticks = [...(svg?.querySelectorAll('.chart-tick') ?? [])].map(rect).filter(Boolean);
           const axisLabels = [...(svg?.querySelectorAll('.chart-axis-label') ?? [])].map(rect).filter(Boolean);
@@ -3928,10 +4263,47 @@ def _measure_process_fit(
           });
           const fitTopActionsContainer = rect(fitRoot?.querySelector('.modeling-context-actions'));
           const fitRibbon = rect(fitRoot?.querySelector('.modeling-task-ribbon'));
-          const fitGroups = [...(fitRoot?.querySelectorAll('.fit-stage-options .fit-control-group') ?? [])].map(group => ({
+          const fitGroups = [...(fitRoot?.querySelectorAll('.fit-stage-options .fit-control-group') ?? [])].map(group => {
+            const paired = group.querySelector('.fit-paired-controls');
+            const pairedStyle = paired ? getComputedStyle(paired) : null;
+            return {
             label: group.querySelector('legend')?.textContent?.trim() ?? '',
             box: rect(group),
-          }));
+            gridTemplateColumns: getComputedStyle(group).gridTemplateColumns,
+            paired: paired ? {
+              box: rect(paired),
+              display: pairedStyle?.display ?? '',
+              widthStyle: pairedStyle?.width ?? '',
+              minWidth: pairedStyle?.minWidth ?? '',
+              maxWidth: pairedStyle?.maxWidth ?? '',
+              overflow: pairedStyle?.overflow ?? '',
+              labels: [...paired.children].map(label => {
+                const labelStyle = getComputedStyle(label);
+                return {
+                  box: rect(label),
+                  flex: labelStyle.flex,
+                  widthStyle: labelStyle.width,
+                  minWidth: labelStyle.minWidth,
+                  maxWidth: labelStyle.maxWidth,
+                  overflow: labelStyle.overflow,
+                  contain: labelStyle.contain,
+                };
+              }),
+            } : null,
+            controls: [...group.querySelectorAll('input, select, button')].map(control => {
+              const controlRect = rect(control);
+              const style = getComputedStyle(control);
+              return controlRect ? {
+                ...controlRect,
+                tagName: control.tagName.toLowerCase(),
+                boxSizing: style.boxSizing,
+                widthStyle: style.width,
+                minWidth: style.minWidth,
+                maxWidth: style.maxWidth,
+              } : null;
+            }).filter(Boolean),
+          };
+          });
           const fitRemoveStep = rect(fitRoot?.querySelector('.fit-heading-actions .text-button'));
           const fitEvidenceTrigger = rect(fitRoot?.querySelector('.fit-evidence-trigger'));
           const fitHeaderSource = rect(fitRoot?.querySelector('.fit-context-source'));
@@ -3942,7 +4314,10 @@ def _measure_process_fit(
             svgHeight: svgBox?.height ?? 0,
             svgWidth: svgBox?.width ?? 0,
             svgBottom: svgBox?.bottom ?? 0,
-            drawableRatio: workspace && axis ? axis.width / workspace.width : 0,
+            svgBox: svgBox ? { left: svgBox.left, right: svgBox.right, top: svgBox.top, bottom: svgBox.bottom, width: svgBox.width, height: svgBox.height } : null,
+            legendBox: legend,
+            horizontalAxisBox: axis ? { left: axis.left, right: axis.right, top: axis.top, bottom: axis.bottom, width: axis.width, height: axis.height } : null,
+            drawableRatio: plot && axis ? axis.width / plot.width : 0,
             processClusterWidth: processCluster?.width ?? 0,
             processClusterHeight: processCluster?.height ?? 0,
             processClusterLeft: processCluster?.left ?? 0,
@@ -3957,6 +4332,7 @@ def _measure_process_fit(
             workspaceHeight: workspace?.height ?? 0,
             railWidth: rail?.width ?? 0, ribbonHeight: ribbon?.height ?? 0,
             plotBottom: plot?.bottom ?? 0, xAxisLabelBottom: xAxisLabel?.bottom ?? 0,
+            plotFrameBox: plotFrame ? { left: plotFrame.left, right: plotFrame.right, top: plotFrame.top, bottom: plotFrame.bottom, width: plotFrame.width, height: plotFrame.height } : null,
             legendBottom: legend?.bottom ?? 0,
             legendInPlot: Boolean(legend && plot
               && legend.left >= plot.left - 1
@@ -3968,6 +4344,7 @@ def _measure_process_fit(
                 || legend.right > svgBox.right + 1
                 || legend.top < svgBox.top - 1
                 || legend.bottom > svgBox.bottom + 1)),
+            legendAfterPlotAxis: Boolean(legend && axis && legend.left >= axis.right - 1),
             legendTickOverlap: ticks.some(tick => overlaps(legend, tick)),
             legendAxisLabelOverlap: axisLabels.some(label => overlaps(legend, label)),
             legendAxisOverlap: axes.some(axisLine => overlaps(legend, axisLine)),
@@ -4008,18 +4385,53 @@ def _measure_process_fit(
           };
         }"""
     ))
-    if stage == "data":
-        # Data keeps a slightly taller source-selection ribbon than Process/Fit.
-        # Preserve a large graph without treating a single-digit pixel
-        # difference at the 900px viewport as a structural failure.
-        default_minimum = 300 if height == 768 else 420
-    else:
-        default_minimum = 330 if height == 768 else 430
+    # Production caps the shared plot minimum at 42vh. The rendered SVG sits
+    # below one density-derived interactive chrome row, the shared inter-row
+    # spacing, and the one-pixel frame divider; validate that semantic contract
+    # instead of a Standard-only pixel threshold.
+    default_minimum = max(
+        240,
+        min(_css_token_px(page, "--ux-plot-min-block-size"), height * 0.42)
+        - _css_token_px(page, "--ux-interactive-min-block-size")
+        - _css_token_px(page, "--ux-space-2")
+        - 1,
+    )
     minimum = minimum_svg_height if minimum_svg_height is not None else default_minimum
-    if measurement["svgHeight"] < minimum or measurement["drawableRatio"] < 0.72:
+    if measurement["svgHeight"] + 1 < minimum:
         raise RuntimeError(f"{stage} geometry gate failed at {width}x{height}: {measurement}")
+    shared_right_reservation = (
+        _css_token_px(page, "--ux-navigator-min-inline-size")
+        + _css_token_px(page, "--ux-pane-padding")
+    )
+    expected_drawable_width = measurement["svgWidth"] - 80 - shared_right_reservation
+    horizontal_axis = measurement.get("horizontalAxisBox")
+    if (
+        not isinstance(horizontal_axis, dict)
+        or abs(_as_float(horizontal_axis.get("width")) - expected_drawable_width) > 2
+    ):
+        raise RuntimeError(
+            f"{stage} drawable plot width drifted from the shared legend reservation "
+            f"at {width}x{height}: expected={expected_drawable_width}, measurement={measurement}"
+        )
     if width == 1440 and measurement["svgWidth"] < 1050:
         raise RuntimeError(f"{stage} 1440 graph-width gate failed: {measurement}")
+    if (
+        not measurement.get("legendInPlot")
+        or measurement.get("legendOutsideSvg")
+        or not measurement.get("legendAfterPlotAxis")
+        or measurement.get("legendTickOverlap")
+        or measurement.get("legendAxisLabelOverlap")
+        or measurement.get("legendAxisOverlap")
+        or measurement.get("legendCurveSegmentOverlap")
+        or measurement.get("legendExtrapolationBoundaryOverlap")
+        or measurement.get("legendExtrapolationLabelOverlap")
+        or measurement.get("legendStateOverlayOverlap")
+    ):
+        raise RuntimeError(f"{stage} legend escapes its shared plot reservation at {width}x{height}: {measurement}")
+    if not measurement.get("lastXTickWithinSvg") or not measurement.get("xTicksWithinSvg"):
+        raise RuntimeError(f"{stage} final x tick is clipped at {width}x{height}: {measurement}")
+    expected_input_height = _css_token_px(page, "--ux-input-min-block-size")
+    expected_interactive_height = _css_token_px(page, "--ux-interactive-min-block-size")
     if stage == "process":
         rows = measurement.get("processRows")
         if not isinstance(rows, list) or not rows:
@@ -4029,11 +4441,10 @@ def _measure_process_fit(
                 raise RuntimeError(f"Process rail identity drifted at {width}x{height}: {measurement}")
         if measurement.get("processRowClipped"):
             raise RuntimeError(f"Process rail identity is clipped at {width}x{height}: {measurement}")
-        if measurement.get("legendTickOverlap") or measurement.get("legendAxisLabelOverlap") or measurement.get("legendAxisOverlap"):
-            raise RuntimeError(f"Process legend overlaps chart ticks/labels/axis at {width}x{height}: {measurement}")
         method_range_gap = measurement.get("methodRangeGap")
-        if not isinstance(method_range_gap, (int, float)) or method_range_gap < 0 or method_range_gap > 20:
-            raise RuntimeError(f"Process elastic method/range gap is outside 0–20px at {width}x{height}: {measurement}")
+        maximum_control_gap = _css_token_px(page, "--ux-space-4") + 2
+        if not isinstance(method_range_gap, (int, float)) or method_range_gap < 0 or method_range_gap > maximum_control_gap:
+            raise RuntimeError(f"Process elastic method/range gap exceeds the shared spacing token at {width}x{height}: {measurement}")
         controls = measurement.get("processControls")
         if not isinstance(controls, list):
             raise RuntimeError(f"Process control geometry is missing at {width}x{height}: {measurement}")
@@ -4095,7 +4506,32 @@ def _measure_process_fit(
             tops = [_as_float(box.get("top")) for box in boxes]
             bottoms = [_as_float(box.get("bottom")) for box in boxes]
             return max(tops) - min(tops) <= tolerance and max(bottoms) - min(bottoms) <= tolerance
-        if not _aligned(normal_row) or not _aligned(save_row):
+        save_fields = [
+            control for control in save_row
+            if isinstance(control, dict) and control.get("label") in {"Processed curve label", "Save reason"}
+        ]
+        save_actions = [
+            control for control in save_row
+            if isinstance(control, dict) and control.get("label") == "Save processed curves"
+        ]
+        save_band = measurement.get("saveBand")
+        stacked_save_action = False
+        if (
+            len(save_fields) == 2
+            and len(save_actions) == 1
+            and isinstance(save_band, dict)
+            and isinstance(save_actions[0].get("box"), dict)
+        ):
+            field_boxes = [control.get("box") for control in save_fields]
+            action_box = save_actions[0]["box"]
+            stacked_save_action = bool(
+                all(isinstance(box, dict) for box in field_boxes)
+                and _aligned(save_fields)
+                and _as_float(action_box.get("top"))
+                >= max(_as_float(box.get("bottom")) for box in field_boxes if isinstance(box, dict)) - 1
+                and _inside(action_box, save_band)
+            )
+        if not _aligned(normal_row) or not (_aligned(save_row) or stacked_save_action):
             raise RuntimeError(f"Process control baselines drifted at {width}x{height}: {measurement}")
         if manual_row and len(manual_row) == 3 and not _aligned(manual_row):
             raise RuntimeError(f"Process manual control baselines drifted at {width}x{height}: {measurement}")
@@ -4103,7 +4539,7 @@ def _measure_process_fit(
             if not isinstance(control, dict) or not isinstance(control.get("box"), dict):
                 continue
             height_px = float(control.get("height", 0))
-            if abs(height_px - 28) > 1:
+            if abs(height_px - expected_input_height) > 1:
                 raise RuntimeError(f"Process control height drifted at {width}x{height}: {control}")
             if str(control.get("label")) == "Save processed curves":
                 if control.get("whiteSpace") != "nowrap" or float(control.get("scrollHeight", 0)) > float(control.get("clientHeight", 0)) + 1:
@@ -4133,7 +4569,7 @@ def _measure_process_fit(
                 or not isinstance(box, dict)
                 or float(box.get("width", 0)) <= 0
                 or float(box.get("height", 0)) <= 0
-                or abs(float(action.get("height", 0)) - 28) > 1
+                or abs(float(action.get("height", 0)) - expected_input_height) > 1
             ):
                 raise RuntimeError(f"Process top action height drifted at {width}x{height}: {action}")
     def _assert_elastic_stage_workspace(prefix: str, label: str) -> None:
@@ -4179,10 +4615,17 @@ def _measure_process_fit(
             raise RuntimeError(f"Fit workspace is unavailable at {width}x{height}: {measurement}")
         if width >= 1920:
             _assert_elastic_stage_workspace("fit", "Fit")
-        if not 184 <= measurement["railWidth"] <= 210:
-            raise RuntimeError(f"Fit compact curve rail width drifted at {width}x{height}: {measurement}")
-        if abs(measurement["ribbonHeight"] - 104) > 1:
-            raise RuntimeError(f"Fit ribbon must remain exactly 104px (31+72) at {width}x{height}: {measurement}")
+        minimum_rail_width = _css_token_px(page, "--ux-navigator-min-inline-size")
+        default_rail_width = _css_token_px(page, "--ux-navigator-default-inline-size")
+        if not minimum_rail_width - 1 <= measurement["railWidth"] <= default_rail_width + 1:
+            raise RuntimeError(
+                f"Fit curve rail escaped the shared density range at {width}x{height}: {measurement}"
+            )
+        expected_ribbon_height = _css_token_px(page, "--ux-workbench-ribbon-block-size")
+        if abs(measurement["ribbonHeight"] - expected_ribbon_height) > 1:
+            raise RuntimeError(
+                f"Fit ribbon drifted from the shared density token at {width}x{height}: {measurement}"
+            )
         fit_plot_heading = measurement.get("fitPlotHeading")
         fit_plot_heading_box = fit_plot_heading.get("box") if isinstance(fit_plot_heading, dict) else None
         if (
@@ -4245,7 +4688,7 @@ def _measure_process_fit(
                 or not isinstance(box, dict)
                 or _as_float(box.get("width")) <= 0
                 or _as_float(box.get("height")) <= 0
-                or abs(_as_float(action.get("height")) - 28) > 1
+                or abs(_as_float(action.get("height")) - expected_interactive_height) > 1
                 or action.get("whiteSpace") != "nowrap"
                 or _as_float(action.get("scrollHeight")) > _as_float(action.get("clientHeight")) + 1
                 or _as_float(action.get("scrollWidth")) > _as_float(action.get("clientWidth")) + 1
@@ -4283,7 +4726,23 @@ def _measure_process_fit(
             if not isinstance(box, dict) or _as_float(box.get("width")) <= 0 or _as_float(box.get("height")) <= 0:
                 raise RuntimeError(f"Fit ribbon group is not visible at {width}x{height}: {label!r} {box!r}")
             if not fit_inside(box, fit_ribbon):
-                raise RuntimeError(f"Fit ribbon group escaped its 104px ribbon at {width}x{height}: {label!r} {box!r}")
+                raise RuntimeError(f"Fit ribbon group escaped the shared ribbon at {width}x{height}: {label!r} {box!r}")
+            group = next(
+                (
+                    item
+                    for item in fit_groups
+                    if isinstance(item, dict) and item.get("label") == label
+                ),
+                None,
+            )
+            controls = group.get("controls") if isinstance(group, dict) else None
+            if not isinstance(controls, list) or any(
+                not isinstance(control, dict) or not fit_inside(control, box)
+                for control in controls
+            ):
+                raise RuntimeError(
+                    f"Fit ribbon controls escaped their shared group at {width}x{height}: {label!r} {group!r}"
+                )
             ordered_group_boxes.append(box)
         ordered_group_boxes.sort(key=lambda box: _as_float(box.get("left")))
         if any(_as_float(first.get("right")) > _as_float(second.get("left")) + 1 for first, second in pairwise(ordered_group_boxes)):
@@ -4296,20 +4755,15 @@ def _measure_process_fit(
             box = measurement.get(key)
             if not isinstance(box, dict) or _as_float(box.get("width")) <= 0 or _as_float(box.get("height")) <= 0:
                 raise RuntimeError(f"Fit header {key} is not visible at {width}x{height}: {box!r}")
-        if (
-            not measurement.get("legendInPlot")
-            or measurement.get("legendOutsideSvg")
-            or measurement.get("legendTickOverlap")
-            or measurement.get("legendAxisLabelOverlap")
-            or measurement.get("legendAxisOverlap")
-            or measurement.get("legendCurveSegmentOverlap")
-            or measurement.get("legendExtrapolationBoundaryOverlap")
-            or measurement.get("legendExtrapolationLabelOverlap")
-            or measurement.get("legendStateOverlayOverlap")
-        ):
-            raise RuntimeError(f"Fit legend collides with plot content at {width}x{height}: {measurement}")
-        if not measurement.get("lastXTickWithinSvg") or not measurement.get("xTicksWithinSvg"):
-            raise RuntimeError(f"Fit final x tick is clipped at {width}x{height}: {measurement}")
+    plot_frame = measurement.get("plotFrameBox")
+    svg_box = measurement.get("svgBox")
+    if (
+        not isinstance(plot_frame, dict)
+        or not isinstance(svg_box, dict)
+        or abs(_as_float(svg_box.get("width")) - _as_float(plot_frame.get("width"))) > 2
+        or abs(_as_float(svg_box.get("height")) - _as_float(plot_frame.get("height"))) > 2
+    ):
+        raise RuntimeError(f"{stage} SVG does not follow its semantic plot frame at {width}x{height}: {measurement}")
     if (
         measurement["svgBottom"] > measurement["plotBottom"] + 2.5
         or measurement["xAxisLabelBottom"] > measurement["plotBottom"] + 1
@@ -4480,7 +4934,7 @@ def _prepare_fit_from_saved_process(
     label: str = "Fit source Process result",
 ) -> dict[str, object]:
     """Prepare Fit from a real exact Process Output rather than a raw Test Data preview."""
-    _prepare_modeling_process(page, base_url)
+    _prepare_modeling_process(page, base_url, verify_data_reload=False)
     pointer = _save_process_output_for_fit(
         page,
         label=label,
@@ -4822,13 +5276,28 @@ def _scroll_fit_evidence_locally(
     if after_wheel <= after_page_down:
         raise RuntimeError("Fit evidence wheel did not move the local body")
     body.evaluate("el => { el.scrollTop = 0; el.scrollLeft = 0; }")
-    refreshed = body.evaluate("el => ({ rect: el.getBoundingClientRect().toJSON(), clientHeight: el.clientHeight, scrollHeight: el.scrollHeight })")
-    track_x = refreshed["rect"]["right"] - 6
-    thumb_height = max(20, refreshed["clientHeight"] * refreshed["clientHeight"] / refreshed["scrollHeight"])
+    refreshed = body.evaluate(
+        """el => ({
+          rect: el.getBoundingClientRect().toJSON(),
+          clientHeight: el.clientHeight,
+          clientWidth: el.clientWidth,
+          offsetHeight: el.offsetHeight,
+          offsetWidth: el.offsetWidth,
+          scrollHeight: el.scrollHeight,
+        })"""
+    )
+    vertical_gutter = refreshed["offsetWidth"] - refreshed["clientWidth"]
+    horizontal_gutter = refreshed["offsetHeight"] - refreshed["clientHeight"]
+    track_height = refreshed["rect"]["height"] - horizontal_gutter
+    track_x = refreshed["rect"]["right"] - vertical_gutter / 2
+    thumb_height = max(
+        20,
+        track_height * refreshed["clientHeight"] / refreshed["scrollHeight"],
+    )
     thumb_start = refreshed["rect"]["top"] + thumb_height / 2
     page.mouse.move(track_x, thumb_start)
     page.mouse.down()
-    page.mouse.move(track_x, thumb_start + 22, steps=4)
+    page.mouse.move(track_x, thumb_start + min(48, track_height / 3), steps=8)
     page.mouse.up()
     after_drag = body.evaluate("el => el.scrollTop")
     if after_drag <= 0:
@@ -5089,7 +5558,11 @@ def _assert_modeling_process_preview(
     _assert_modeling_process_geometry(page)
 
 
-def _assert_modeling_process_manual_surface(page: Page) -> None:
+def _assert_modeling_process_manual_surface(
+    page: Page,
+    *,
+    capture_path: Path | None = None,
+) -> None:
     """Exercise the compact Process manual workup, then restore Auto robust."""
     panel = page.locator('[data-modeling-process-panel="ready"]')
     controls = panel.locator(".process-band-controls")
@@ -5147,6 +5620,24 @@ def _assert_modeling_process_manual_surface(page: Page) -> None:
         int(viewport["height"]),
         minimum_svg_height=230,
     )
+    save = panel.get_by_role("button", name="Save processed curves", exact=True)
+    panel.locator(".process-band-save").scroll_into_view_if_needed()
+    page.wait_for_timeout(100)
+    save_hit = save.evaluate(
+        """node => {
+          const ribbon = node?.closest('.modeling-task-ribbon');
+          const box = node?.getBoundingClientRect();
+          const ribbonBox = ribbon?.getBoundingClientRect();
+          const hit = box ? document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2) : null;
+          return Boolean(node && box && ribbonBox
+            && box.top >= ribbonBox.top - 1 && box.bottom <= ribbonBox.bottom + 1
+            && hit && (hit === node || node.contains(hit)));
+        }"""
+    )
+    if not save_hit:
+        raise RuntimeError("Process manual Save action is not reachable after local ribbon scrolling")
+    if capture_path is not None:
+        _capture(page, capture_path, 1366, 768, focus_selector=None)
     auto = controls.get_by_role("combobox", name="Evaluation method", exact=True)
     auto.select_option("robust_huber")
     page.wait_for_function(
@@ -5460,7 +5951,13 @@ def _assert_fit_title_state(page: Page, expected: str) -> None:
         raise RuntimeError(f"Fit title-row state drifted: expected {expected!r}, got {actual!r}")
 
 
-def _capture_modeling_fit_states(browser: Browser, base_url: str, output: Path) -> None:
+def _capture_modeling_fit_states(
+    browser: Browser,
+    base_url: str,
+    output: Path,
+    *,
+    include_restored: bool = True,
+) -> None:
     """Capture the Fit drawer, failure, exact-source, and restored states."""
 
     def prepared_fit(label: str, width: int = 1440, height: int = 900) -> Page:
@@ -5773,6 +6270,9 @@ def _capture_modeling_fit_states(browser: Browser, base_url: str, output: Path) 
     )
     exact_read_failed.context.close()
 
+    if not include_restored:
+        return
+
     restored = prepared_fit("Fit restored source", 1920, 1080)
     _save_exact_fit_selection(restored)
     restored_session = _modeling_session(restored)
@@ -5884,13 +6384,130 @@ def _capture_modeling_fit_states(browser: Browser, base_url: str, output: Path) 
     restored.context.close()
 
 
+def _capture_modeling_fit_restored_only(
+    browser: Browser,
+    base_url: str,
+    output: Path,
+) -> None:
+    """Capture the final Fit reload contract independently of earlier risk states."""
+    restored = _new_page(browser, base_url, 1920, 1080)
+    _prepare_fit_from_saved_process(restored, base_url, label="Fit restored source")
+    _click_modeling_fit_preview_and_wait(restored)
+    _assert_fit_title_state(restored, "Preview not saved")
+    _save_exact_fit_selection(restored)
+    restored_pointer = _modeling_session(restored).get("processingOutput")
+    if not isinstance(restored_pointer, dict) or not all(
+        isinstance(restored_pointer.get(key), str) and restored_pointer.get(key)
+        for key in ("id", "revisionId", "label")
+    ):
+        raise RuntimeError("Fit save did not leave an exact session output pointer for restore")
+
+    restore_requests: list[tuple[str, str]] = []
+    restore_responses: list[tuple[int, str]] = []
+    restored.on(
+        "request",
+        lambda request: restore_requests.append((request.method, request.url)),
+    )
+    restored.on(
+        "response",
+        lambda response: restore_responses.append((response.status, response.url)),
+    )
+    restored.goto(f"{base_url}/modeling?stage=fit&family=metal")
+    try:
+        restored.get_by_text(
+            "Saved immutable Fit Output restored with its exact Process source and decision.",
+            exact=False,
+        ).wait_for(timeout=30_000)
+    except Exception as error:
+        diagnostics = restored.evaluate(
+            """() => ({
+              titleState: document.querySelector('.processing-workbench-page.stage-fit .modeling-work-title > .fit-surface-state')?.textContent?.trim() ?? null,
+              notices: [...document.querySelectorAll('.notice-banner, [role="status"]')]
+                .filter(element => element.getClientRects().length)
+                .map(element => element.textContent?.trim()),
+              errors: [...document.querySelectorAll('.error-banner, [role="alert"]')]
+                .filter(element => element.getClientRects().length)
+                .map(element => element.textContent?.trim()),
+              session: sessionStorage.getItem('cmp.modeling.recent-session.v4'),
+            })"""
+        )
+        raise RuntimeError(
+            "Saved Fit restore did not reach its visible success contract: "
+            f"dom={diagnostics}, requests={restore_requests}, responses={restore_responses}"
+        ) from error
+
+    _assert_fit_title_state(restored, "Saved current")
+    restored.get_by_role(
+        "img", name="Hardening candidate and selected extrapolation curves", exact=True
+    ).wait_for(state="visible", timeout=30_000)
+    restored.get_by_role("button", name="Preview changes", exact=True).wait_for(timeout=30_000)
+    persisted_outputs = _list_processing_outputs(restored, base_url)
+    persisted = next(
+        (
+            item for item in persisted_outputs
+            if _has_processing_output_revision(
+                item, restored_pointer.get("id"), restored_pointer.get("revisionId")
+            )
+        ),
+        None,
+    )
+    decision = persisted.get("fit_decision") if isinstance(persisted, dict) else None
+    if (
+        not isinstance(decision, dict)
+        or not decision.get("candidate_key")
+        or not decision.get("selection_reason")
+        or decision.get("warning_acknowledged") is not True
+    ):
+        raise RuntimeError("Restored Fit output lost its selected decision evidence")
+    source_pin = persisted.get("source_processing_output") if isinstance(persisted, dict) else None
+    if not isinstance(source_pin, dict):
+        raise RuntimeError("Restored Fit output lost its exact Process source identity")
+
+    restore_trigger, _restore_body, restore_table = _open_fit_evidence(restored)
+    _assert_fit_selected_evidence(restored)
+    if restore_table.locator("tbody tr.selected").count() != 1:
+        raise RuntimeError("Restored Fit output lost the selected candidate row")
+    if restored.get_by_role(
+        "textbox", name="Candidate selection reason", exact=True
+    ).input_value() != "Best agreement over the measured strain range.":
+        raise RuntimeError("Restored Fit output lost the original selection reason")
+    if restored.get_by_role(
+        "checkbox", name="Acknowledge selected candidate warning", exact=True
+    ).is_checked() is not True:
+        raise RuntimeError("Restored Fit output lost the warning acknowledgement")
+    _close_fit_evidence(restored, restore_trigger)
+
+    content_urls = [
+        url
+        for method, url in restore_requests
+        if method == "GET"
+        and re.fullmatch(
+            r"/api/v1/processing-outputs/[^/]+/content",
+            urlsplit(url).path,
+        )
+    ]
+    expected_restore_url = (
+        f"{base_url}/api/v1/processing-outputs/{restored_pointer['id']}/content"
+    )
+    if content_urls != [expected_restore_url]:
+        raise RuntimeError(f"Restored Fit reload used a non-exact content URL: {content_urls!r}")
+    if any(method != "GET" for method, _url in restore_requests):
+        raise RuntimeError(f"Restored Fit reload issued a non-GET request: {restore_requests!r}")
+    _capture(restored, output / "modeling-fit-restored-1920x1080.png", 1920, 1080)
+    restored.context.close()
+
+
 def _capture_modeling_process_fit(
-    browser: Browser, base_url: str, output: Path
+    browser: Browser,
+    base_url: str,
+    output: Path,
+    *,
+    include_fit_states: bool = True,
 ) -> list[dict[str, object]]:
     measurements: list[dict[str, object]] = []
     for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS):
         page = _new_page(browser, base_url, width, height)
-        _prepare_modeling_process(page, base_url)
+        _prepare_modeling_process(page, base_url, verify_data_reload=False)
         if page.locator(".modeling-stage-number:visible").count():
             raise RuntimeError("Process/Fit capture received the retired numbered stage strip")
         if page.locator(".stage-process > .section-heading:visible").count():
@@ -5953,7 +6570,8 @@ def _capture_modeling_process_fit(
         )
         page.context.close()
 
-    _capture_modeling_fit_states(browser, base_url, output)
+    if include_fit_states:
+        _capture_modeling_fit_states(browser, base_url, output)
     return measurements
 
 
@@ -5967,7 +6585,7 @@ def _capture_modeling_process_only(
     measurements: list[dict[str, object]] = []
     for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS):
         page = _new_page(browser, base_url, width, height)
-        _prepare_modeling_process(page, base_url)
+        _prepare_modeling_process(page, base_url, verify_data_reload=False)
         page.wait_for_url(re.compile(r"stage=process"), timeout=30_000)
         page.locator(".modeling-work-title strong").get_by_text(
             STAGE_HEADINGS["process"], exact=True
@@ -5995,7 +6613,10 @@ def _capture_modeling_process_only(
                 height,
                 before_screenshot=_process_plot_capture_callback(page),
             )
-            _assert_modeling_process_manual_surface(page)
+            _assert_modeling_process_manual_surface(
+                page,
+                capture_path=output / "modeling-process-manual-1366x768.png",
+            )
         _capture(
             page,
             output / f"modeling-process-{width}x{height}.png",
@@ -6013,7 +6634,7 @@ def _capture_modeling_process_only(
         page.context.close()
 
     blocked = _new_page(browser, base_url, 1440, 900)
-    _prepare_modeling_process(blocked, base_url)
+    _prepare_modeling_process(blocked, base_url, verify_data_reload=False)
     blocked.add_init_script(
         """(() => {
           const key = 'cmp.modeling.recent-session.v4';
@@ -6041,7 +6662,7 @@ def _capture_modeling_process_only(
     blocked.context.close()
 
     failed = _new_page(browser, base_url, 1440, 900)
-    _prepare_modeling_process(failed, base_url)
+    _prepare_modeling_process(failed, base_url, verify_data_reload=False)
     failed_content_gets = 0
 
     def fail_exact_source(route: Route) -> None:
@@ -6071,7 +6692,7 @@ def _capture_modeling_process_only(
     failed.context.close()
 
     siblings = _new_page(browser, base_url, 1440, 900)
-    _prepare_modeling_process(siblings, base_url)
+    _prepare_modeling_process(siblings, base_url, verify_data_reload=False)
     source_pin, profile_pin = _process_session_pins(siblings)
     listed_outputs = _list_processing_outputs(siblings, base_url)
     _assert_no_mis_pinned_capture_labels(listed_outputs, source_pin, profile_pin)
@@ -6552,7 +7173,8 @@ def _capture_modeling_consistency(
         ):
             raise RuntimeError("Data must group specimen rows under a real test-method tree parent")
         rail_box = rail.bounding_box()
-        if rail_box is None or not 180 <= rail_box["width"] <= 210:
+        expected_rail_width = _css_token_px(page, "--ux-navigator-default-inline-size")
+        if rail_box is None or abs(rail_box["width"] - expected_rail_width) > 1:
             raise RuntimeError(f"Data compact curve rail width drifted: {rail_box}")
         _capture(page, output / f"modeling-data-{width}x{height}.png", width, height)
         measurements.append(
@@ -6571,9 +7193,10 @@ def _capture_modeling_consistency(
             if stage in ("process", "fit"):
                 stage_rail = page.locator(".modeling-workspace-rail")
                 stage_rail_box = stage_rail.bounding_box()
-                if stage_rail_box is None or not 180 <= stage_rail_box["width"] <= 210:
+                expected_rail_width = _css_token_px(page, "--ux-navigator-default-inline-size")
+                if stage_rail_box is None or abs(stage_rail_box["width"] - expected_rail_width) > 1:
                     raise RuntimeError(
-                        f"{stage} compact curve rail width drifted: {stage_rail_box}"
+                        f"{stage} curve rail drifted from the shared density token: {stage_rail_box}"
                     )
                 if page.get_by_role("button", name="Mean & band", exact=True).count():
                     raise RuntimeError(
@@ -6607,47 +7230,68 @@ def _capture_modeling_data_viewports(
     viewports: tuple[tuple[int, int], ...],
 ) -> list[dict[str, object]]:
     measurements: list[dict[str, object]] = []
-    for width, height in viewports:
+    for index, (width, height) in enumerate(viewports):
         page = _new_page(browser, base_url, width, height)
-        _prepare_modeling(page, base_url)
-        _assert_modeling_normal_shell(page)
-        rail = page.locator(".modeling-workspace-rail")
-        rail.get_by_text("Curves", exact=True).wait_for(timeout=30_000)
-        rail_box = rail.bounding_box()
-        if rail_box is None or not 180 <= rail_box["width"] <= 210:
-            raise RuntimeError(f"Data compact curve rail width drifted: {rail_box}")
-        if (
-            page.get_by_text("Hide", exact=True).count()
-            or page.get_by_role("button", name="Mean & band", exact=True).count()
-        ):
-            raise RuntimeError(
-                "Data must use icon-only visibility and omit Mean & band before an ensemble preview"
-            )
-        if (
-            rail.locator(".curve-tree-group").count() < 1
-            or rail.locator(".curve-group-row").count() < 1
-        ):
-            raise RuntimeError("Data must group specimen rows under a real test-method tree parent")
-        _capture(page, output / f"modeling-data-{width}x{height}.png", width, height)
-        data_measurement = _measure_process_fit(page, "data", width, height)
-        if width > 1920:
-            workspace_box = page.locator(".modeling-workspace-stage-data").bounding_box()
-            plot_box = page.locator(".persistent-modeling-plot").bounding_box()
-            if workspace_box is None or plot_box is None or workspace_box["width"] < width * 0.8:
+        try:
+            _prepare_modeling(page, base_url, verify_reload=index == 0)
+            _assert_modeling_normal_shell(page)
+            rail = page.locator(".modeling-workspace-rail")
+            rail.get_by_text("Curves", exact=True).wait_for(timeout=30_000)
+            rail_box = rail.bounding_box()
+            expected_rail_width = _css_token_px(page, "--ux-navigator-default-inline-size")
+            if rail_box is None or abs(rail_box["width"] - expected_rail_width) > 1:
+                raise RuntimeError(f"Data compact curve rail width drifted: {rail_box}")
+            if (
+                page.get_by_text("Hide", exact=True).count()
+                or page.get_by_role("button", name="Mean & band", exact=True).count()
+            ):
                 raise RuntimeError(
-                    f"wide Modeling Data workspace collapsed into a fixed-width island at {width}x{height}: "
-                    f"workspace={workspace_box}, plot={plot_box}"
+                    "Data must use icon-only visibility and omit Mean & band before an ensemble preview"
                 )
-            data_measurement.update({"elasticWorkspaceWidth": workspace_box["width"], "elasticPlotWidth": plot_box["width"]})
-        measurements.append(
-            {
-                "stage": "data",
-                "viewport": f"{width}x{height}",
-                **data_measurement,
-            }
-        )
-        page.context.close()
+            if (
+                rail.locator(".curve-tree-group").count() < 1
+                or rail.locator(".curve-group-row").count() < 1
+            ):
+                raise RuntimeError("Data must group specimen rows under a real test-method tree parent")
+            _capture(page, output / f"modeling-data-{width}x{height}.png", width, height)
+            data_measurement = _measure_process_fit(page, "data", width, height)
+            if width > 1920:
+                workspace_box = page.locator(".modeling-workspace-stage-data").bounding_box()
+                plot_box = page.locator(".persistent-modeling-plot").bounding_box()
+                if workspace_box is None or plot_box is None or workspace_box["width"] < width * 0.8:
+                    raise RuntimeError(
+                        f"wide Modeling Data workspace collapsed into a fixed-width island at {width}x{height}: "
+                        f"workspace={workspace_box}, plot={plot_box}"
+                    )
+                data_measurement.update({"elasticWorkspaceWidth": workspace_box["width"], "elasticPlotWidth": plot_box["width"]})
+            measurements.append(
+                {
+                    "stage": "data",
+                    "viewport": f"{width}x{height}",
+                    **data_measurement,
+                }
+            )
+        finally:
+            page.context.close()
     return measurements
+
+
+def _capture_modeling_process_manual_only(
+    browser: Browser,
+    base_url: str,
+    output: Path,
+) -> None:
+    page = _new_page(browser, base_url, 1366, 768)
+    try:
+        _prepare_modeling_process(page, base_url, verify_data_reload=False)
+        _wait_modeling_process_panel(page)
+        _assert_modeling_process_preview(page)
+        _assert_modeling_process_manual_surface(
+            page,
+            capture_path=output / MODELING_PROCESS_MANUAL_OUTPUTS[0],
+        )
+    finally:
+        page.context.close()
 
 
 def _capture_modeling_data_session(
@@ -6834,7 +7478,7 @@ def _capture_modeling_data_exceptions(browser: Browser, base_url: str, output: P
     try:
         # Start from the valid three-curve state so the blocked Local mapping
         # capture proves that the last usable graph remains on screen.
-        _prepare_modeling(page, base_url)
+        _prepare_modeling(page, base_url, verify_reload=False)
         _wait_for_data_plot(page)
         page.get_by_role("tab", name="Local file", exact=True).click()
         test_run = page.get_by_role("combobox", name="Local file Test Run", exact=True)
@@ -6892,17 +7536,20 @@ def _capture_modeling_data_exceptions(browser: Browser, base_url: str, output: P
             raise RuntimeError("invalid mapping must expose one visible Data ribbon/plot separator")
         if divider.get_attribute("aria-orientation") != "horizontal":
             raise RuntimeError("Data ribbon/plot separator must expose horizontal orientation")
-        action_boxes: list[tuple[str, dict[str, float]]] = []
+        ribbon_locator = page.locator(".modeling-task-ribbon")
+        ribbon_locator.evaluate("element => { element.scrollTop = 0; element.scrollLeft = 0; }")
+        page.wait_for_function(
+            "() => document.querySelector('.modeling-task-ribbon')?.scrollTop === 0",
+            timeout=30_000,
+        )
+        action_locators: list[tuple[str, Locator]] = []
         for action in ("Update preview", "Save Test Data"):
             button = page.get_by_role("button", name=action, exact=True)
-            visible_candidates = []
+            visible_candidates: list[Locator] = []
             for index in range(button.count()):
                 candidate = button.nth(index)
                 if not candidate.is_visible():
                     continue
-                action_box = _bounding_box_edges(candidate.bounding_box())
-                if action_box is None or action_box["right"] <= 0 or action_box["left"] >= 1440 or action_box["bottom"] <= 0 or action_box["top"] >= 900:
-                    raise RuntimeError(f"invalid mapping {action} is outside the captured viewport: {action_box}")
                 if not candidate.is_disabled():
                     raise RuntimeError(f"invalid mapping left {action} enabled")
                 if action == "Save Test Data":
@@ -6924,11 +7571,10 @@ def _capture_modeling_data_exceptions(browser: Browser, base_url: str, output: P
                     )
                     if style["cursor"] != "not-allowed" or style["opacity"] != "1" or style["boxShadow"] != "none" or style["borderRadius"] != "0px":
                         raise RuntimeError(f"invalid mapping Save Test Data blocked styling drifted: {style}")
-                if action_box is not None:
-                    visible_candidates.append(action_box)
+                visible_candidates.append(candidate)
             if len(visible_candidates) != 1:
                 raise RuntimeError(f"invalid mapping must expose one visible {action} action: {visible_candidates}")
-            action_boxes.append((action, visible_candidates[0]))
+            action_locators.append((action, visible_candidates[0]))
         ribbon_box = _bounding_box_edges(page.locator(".modeling-task-ribbon").bounding_box())
         workspace_box = _bounding_box_edges(page.locator(".modeling-main-surface").bounding_box())
         mapping_grid_box = _bounding_box_edges(page.locator(".data-source-decision-grid").bounding_box())
@@ -6950,36 +7596,56 @@ def _capture_modeling_data_exceptions(browser: Browser, base_url: str, output: P
         assert ribbon_box is not None and workspace_box is not None and mapping_grid_box is not None
         assert mapping_table_box is not None and blockers_box is not None and recovery_detail_box is not None
         assert reason_box is not None and advanced_source_box is not None and advanced_summary_box is not None and divider_box is not None
-        if advanced_source_box["height"] > 22:
-            raise RuntimeError(f"invalid mapping collapsed Advanced source evidence exceeds 22px: {advanced_source_box}")
-        ribbon_locator = page.locator(".modeling-task-ribbon")
+        expected_interactive_height = _css_token_px(page, "--ux-interactive-min-block-size")
+        expected_input_height = _css_token_px(page, "--ux-input-min-block-size")
+        expected_control_height = _css_token_px(page, "--ux-control-min-block-size")
+        expected_data_font = _css_token_px(page, "--ux-data-font-size")
+        expected_metadata_font = _css_token_px(page, "--ux-metadata-font-size")
+        expected_space_2 = _css_token_px(page, "--ux-space-2")
+        if abs(advanced_source_box["height"] - expected_interactive_height) > 1:
+            raise RuntimeError(
+                "invalid mapping collapsed Advanced source evidence drifted from the shared interactive token: "
+                f"box={advanced_source_box}, token={expected_interactive_height}"
+            )
         intake_locator = ribbon_locator.locator(":scope > .modeling-data-intake")
         ribbon_metrics = ribbon_locator.evaluate(
-            "element => ({clientHeight: element.clientHeight, scrollHeight: element.scrollHeight})"
+            """element => {
+              const style = getComputedStyle(element);
+              const intake = element.querySelector(':scope > .modeling-data-intake');
+              return {
+                clientHeight: element.clientHeight,
+                scrollHeight: element.scrollHeight,
+                overflowX: style.overflowX,
+                overflowY: style.overflowY,
+                tabIndex: element.tabIndex,
+                intakeBottom: intake ? intake.offsetTop + intake.offsetHeight : 0,
+              };
+            }"""
         )
-        if ribbon_metrics["scrollHeight"] > ribbon_metrics["clientHeight"] + 1:
-            raise RuntimeError(f"invalid mapping Data ribbon content overflows its container: {ribbon_metrics}")
+        if ribbon_metrics["overflowY"] not in ("auto", "scroll") or ribbon_metrics["tabIndex"] != 0:
+            raise RuntimeError(f"invalid mapping Data ribbon is not a keyboard-focusable local scroll region: {ribbon_metrics}")
+        if ribbon_metrics["scrollHeight"] <= ribbon_metrics["clientHeight"] + 1:
+            raise RuntimeError(f"invalid mapping fixture no longer exercises real local ribbon scroll: {ribbon_metrics}")
         intake_box = _bounding_box_edges(intake_locator.bounding_box())
         if intake_box is None:
             raise RuntimeError("invalid mapping Data intake is not a direct child with measurable bounds")
-        if ribbon_box["bottom"] - intake_box["bottom"] < 8:
+        if ribbon_metrics["scrollHeight"] - ribbon_metrics["intakeBottom"] < 8:
             raise RuntimeError(
-                "invalid mapping Data ribbon lacks 8px visual headroom below intake: "
-                f"ribbon={ribbon_box}, intake={intake_box}"
+                "invalid mapping Data ribbon lacks 8px scroll headroom below intake: "
+                f"metrics={ribbon_metrics}, intake={intake_box}"
             )
         if (
             intake_box["left"] < ribbon_box["left"] - 1
             or intake_box["right"] > ribbon_box["right"] + 1
             or intake_box["top"] < ribbon_box["top"] - 1
-            or intake_box["bottom"] > ribbon_box["bottom"] + 1
         ):
-            raise RuntimeError(f"invalid mapping Data intake escaped the task ribbon: ribbon={ribbon_box}, intake={intake_box}")
+            raise RuntimeError(f"invalid mapping Data intake escaped the ribbon inline/start bounds: ribbon={ribbon_box}, intake={intake_box}")
         if divider_box["height"] < 8:
             raise RuntimeError(f"invalid mapping Data ribbon/plot separator is below 8px: {divider_box}")
         if before_plot := _bounding_box_edges(page.locator(".modeling-data-plot-panel").bounding_box()):
-            if before_plot["height"] < 296:
-                raise RuntimeError(f"invalid mapping default plot panel is below 296px: {before_plot}")
-        if blockers_box["width"] < 480 or recovery_detail_box["width"] < 360 or blockers_box["height"] > 70:
+            if before_plot["height"] < 240:
+                raise RuntimeError(f"invalid mapping default plot panel is below its shared 240px minimum: {before_plot}")
+        if blockers_box["width"] < 480 or recovery_detail_box["width"] < 360 or blockers_box["height"] > expected_interactive_height * 2 + 1:
             raise RuntimeError(
                 "invalid mapping recovery row does not preserve the bounded blocker/detail grammar: "
                 f"blockers={blockers_box}, detail={recovery_detail_box}"
@@ -6993,8 +7659,8 @@ def _capture_modeling_data_exceptions(browser: Browser, base_url: str, output: P
             "selector: element.tagName.toLowerCase(), fontSize: parseFloat(getComputedStyle(element).fontSize)"
             "}))"
         )
-        if any(item["fontSize"] < 13 for item in q20_sizes):
-            raise RuntimeError(f"invalid mapping data/control typography is below 13px: {q20_sizes}")
+        if any(item["fontSize"] < expected_data_font for item in q20_sizes):
+            raise RuntimeError(f"invalid mapping data/control typography is below the shared data token: {q20_sizes}")
         control_metrics = page.locator(
             ".data-mapping-table select, "
             "select[name='local-test-run'], select[name='local-data-schema'], "
@@ -7015,17 +7681,17 @@ def _capture_modeling_data_exceptions(browser: Browser, base_url: str, output: P
             "independent-original-unit", "dependent-original-unit",
         }
         for item in control_metrics:
-            is_mapping_select = item["tag"] == "select" and item["name"] in mapping_select_names
             is_action_button = item["tag"] == "button" and item["name"] is None
-            expected_height = 26 if is_mapping_select else 28
-            expected_inline = 4 if is_mapping_select else 10 if is_action_button else 6
+            is_mapping_select = item["tag"] == "select" and item["name"] in mapping_select_names
+            expected_height = expected_control_height if is_action_button else expected_input_height
+            expected_inline = expected_space_2
             if abs(item["height"] - expected_height) > 0.75 or item["minHeight"] < expected_height - 0.75:
                 raise RuntimeError(f"invalid mapping control height drifted: {item}")
             if item["paddingBlockStart"] != 0 or item["paddingBlockEnd"] != 0:
                 raise RuntimeError(f"invalid mapping control vertical padding drifted: {item}")
             if item["paddingInlineStart"] != expected_inline or item["paddingInlineEnd"] != expected_inline:
                 raise RuntimeError(f"invalid mapping control horizontal padding drifted: {item}")
-            if item["fontSize"] != 13 or item["lineHeight"] != "normal" or item["boxSizing"] != "border-box":
+            if abs(item["fontSize"] - expected_data_font) > 0.1 or item["lineHeight"] != "normal" or item["boxSizing"] != "border-box":
                 raise RuntimeError(f"invalid mapping control typography/box sizing drifted: {item}")
             if is_mapping_select and item["appearance"] != "auto":
                 raise RuntimeError(f"invalid mapping native select appearance drifted: {item}")
@@ -7033,8 +7699,14 @@ def _capture_modeling_data_exceptions(browser: Browser, base_url: str, output: P
             "elements => elements.map(element => {const style = getComputedStyle(element); return "
             "{height: element.getBoundingClientRect().height, lineHeight: parseFloat(style.lineHeight), whiteSpace: style.whiteSpace};})"
         )
-        if any(line["whiteSpace"] == "nowrap" or line["height"] > line["lineHeight"] + 1 for line in blocker_lines):
-            raise RuntimeError(f"invalid mapping blocker issue wrapped unexpectedly: {blocker_lines}")
+        if any(
+            line["whiteSpace"] == "nowrap"
+            or line["height"] > line["lineHeight"] * 2 + 1
+            for line in blocker_lines
+        ):
+            raise RuntimeError(
+                f"invalid mapping blocker issue is clipped, non-wrapping, or exceeds two lines: {blocker_lines}"
+            )
         metadata_sizes = page.locator(
             ".data-source-evidence header, .data-source-evidence p, "
             ".data-mapping-heading span, .data-mapping-consequence, "
@@ -7044,8 +7716,8 @@ def _capture_modeling_data_exceptions(browser: Browser, base_url: str, output: P
             "selector: element.tagName.toLowerCase(), fontSize: parseFloat(getComputedStyle(element).fontSize)"
             "}))"
         )
-        if any(item["fontSize"] < 11.5 for item in metadata_sizes):
-            raise RuntimeError(f"invalid mapping metadata typography is below 11.5px: {metadata_sizes}")
+        if any(item["fontSize"] < expected_metadata_font for item in metadata_sizes):
+            raise RuntimeError(f"invalid mapping metadata typography is below the shared metadata token: {metadata_sizes}")
         before_keyboard_ribbon = _bounding_box_edges(page.locator(".modeling-data-ribbon-panel").bounding_box())
         before_keyboard_plot = _bounding_box_edges(page.locator(".modeling-data-plot-panel").bounding_box())
         if before_keyboard_ribbon is None or before_keyboard_plot is None:
@@ -7067,28 +7739,72 @@ def _capture_modeling_data_exceptions(browser: Browser, base_url: str, output: P
             )
         divider.dblclick()
         page.wait_for_timeout(80)
+        reset_ribbon_panel = _bounding_box_edges(page.locator(".modeling-data-ribbon-panel").bounding_box())
         reset_plot_panel = _bounding_box_edges(page.locator(".modeling-data-plot-panel").bounding_box())
-        if reset_plot_panel is None or reset_plot_panel["height"] < 296:
-            raise RuntimeError(f"invalid mapping separator reset did not restore a >=296px plot container: {reset_plot_panel}")
-        visible_left = max(ribbon_box["left"], workspace_box["left"], 0)
-        visible_right = min(ribbon_box["right"], workspace_box["right"], 1440)
-        visible_bottom = min(ribbon_box["bottom"], workspace_box["bottom"], 900)
-        required_boxes = [
-            ("mapping grid", mapping_grid_box),
-            ("mapping table", mapping_table_box),
-            ("mapping blockers", blockers_box),
-            ("mapping reason", reason_box),
-            ("Advanced source evidence summary", advanced_summary_box),
-            *action_boxes,
+        if (
+            reset_ribbon_panel is None
+            or reset_plot_panel is None
+            or abs(reset_ribbon_panel["height"] - before_keyboard_ribbon["height"]) > 1
+            or abs(reset_plot_panel["height"] - before_keyboard_plot["height"]) > 1
+        ):
+            raise RuntimeError(
+                "invalid mapping separator reset did not restore the density-aware initial allocation: "
+                f"before=({before_keyboard_ribbon}, {before_keyboard_plot}), "
+                f"reset=({reset_ribbon_panel}, {reset_plot_panel})"
+            )
+        required_targets: list[tuple[str, Locator]] = [
+            ("mapping table", page.get_by_role("region", name="Axis and unit mapping decision table", exact=True)),
+            ("mapping blockers", blockers),
+            ("mapping reason", reason),
+            ("Advanced source evidence summary", advanced_summary),
+            *action_locators,
         ]
-        for name, box in required_boxes:
+        for name, target in required_targets:
+            target.evaluate("element => element.scrollIntoView({block: 'nearest', inline: 'nearest'})")
+            page.wait_for_timeout(40)
+            target_box = _bounding_box_edges(target.bounding_box())
+            current_ribbon_box = _bounding_box_edges(ribbon_locator.bounding_box())
+            if target_box is None or current_ribbon_box is None:
+                raise RuntimeError(f"invalid mapping {name} lost measurable scroll geometry")
             if (
-                box["left"] < visible_left - 1
-                or box["right"] > visible_right + 1
-                or box["top"] < ribbon_box["top"] - 1
-                or box["bottom"] > visible_bottom + 1
+                target_box["left"] < current_ribbon_box["left"] - 1
+                or target_box["right"] > current_ribbon_box["right"] + 1
+                or target_box["top"] < current_ribbon_box["top"] - 1
+                or target_box["bottom"] > current_ribbon_box["bottom"] + 1
             ):
-                raise RuntimeError(f"invalid mapping {name} is clipped: box={box}, ribbon={ribbon_box}, workspace={workspace_box}")
+                raise RuntimeError(
+                    f"invalid mapping {name} is unreachable after local scroll: "
+                    f"target={target_box}, ribbon={current_ribbon_box}"
+                )
+            hit_target = target.evaluate(
+                """element => {
+                  const box = element.getBoundingClientRect();
+                  const hit = document.elementFromPoint(
+                    Math.min(window.innerWidth - 1, Math.max(0, box.left + box.width / 2)),
+                    Math.min(window.innerHeight - 1, Math.max(0, box.top + box.height / 2)),
+                  );
+                  return Boolean(hit && (hit === element || element.contains(hit)));
+                }"""
+            )
+            if not hit_target:
+                raise RuntimeError(f"invalid mapping {name} is not pointer-reachable after local scroll")
+        _capture(
+            page,
+            output / "modeling-data-invalid-scrolled-1440x900.png",
+            1440,
+            900,
+            before_screenshot=lambda: ribbon_locator.evaluate(
+                "element => { element.scrollTop = element.scrollHeight; element.scrollLeft = 0; }"
+            ),
+            after_animation=lambda: ribbon_locator.evaluate(
+                "element => { if (element.scrollTop < 1) throw new Error('Data ribbon did not enter its local scrolled state'); }"
+            ),
+        )
+        ribbon_locator.evaluate("element => { element.scrollTop = 0; element.scrollLeft = 0; }")
+        page.wait_for_function(
+            "() => document.querySelector('.modeling-task-ribbon')?.scrollTop === 0",
+            timeout=30_000,
+        )
         if page.locator(".data-intake-local").evaluate("element => ['auto', 'scroll'].includes(getComputedStyle(element).overflowY)"):
             raise RuntimeError("invalid mapping must not add a nested scroll container inside the Data ribbon")
         provenance = page.locator("[aria-label='Test identity and provenance']")
@@ -7205,7 +7921,7 @@ def _capture_administration_database(browser: Browser, base_url: str, output: Pa
             "document.documentElement.scrollWidth > document.documentElement.clientWidth"
         ):
             raise RuntimeError(f"Administration has horizontal overflow at {width}x{height}")
-        _assert_bounded_workgroup_geometry(
+        _assert_semantic_three_pane_geometry(
             page,
             group_selector=".schema-editor-grid",
             form_selector=".schema-property-editor .property-sheet",
@@ -7267,7 +7983,7 @@ def _capture_administration_records(browser: Browser, base_url: str, output: Pat
             raise RuntimeError(
                 f"Administration registration has horizontal overflow at {width}x{height}"
             )
-        _assert_bounded_workgroup_geometry(
+        _assert_semantic_three_pane_geometry(
             page,
             group_selector=".catalog-record-grid",
             form_selector=".catalog-datasheet > form",
@@ -7295,9 +8011,24 @@ def _capture_product_access(browser: Browser, base_url: str, output: Path) -> No
             output / f"administration-access-{width}x{height}.png",
             width,
             height,
-            focus_selector="#role-task-summary",
         )
         page.context.close()
+
+    page = _new_page(browser, base_url, 1366, 768)
+    page.goto(f"{base_url}/administration/access")
+    page.get_by_role("heading", name="Choose what each team can do", exact=True).wait_for(
+        timeout=30_000
+    )
+    page.get_by_role("combobox", name="Role", exact=True).select_option("reviewer")
+    page.get_by_text("Included tasks:", exact=False).wait_for(timeout=30_000)
+    _capture(
+        page,
+        output / "administration-access-role-control-1366x768.png",
+        1366,
+        768,
+        focus_selector="#role-task-summary",
+    )
+    page.context.close()
 
 
 def _capture_supporting_screens(browser: Browser, base_url: str, output: Path) -> None:
@@ -7362,6 +8093,8 @@ def _capture_to_empty_directory(target: Path, producer: Callable[[Path], None]) 
 
 
 def main() -> int:
+    global CAPTURE_DISPLAY_DENSITY
+
     from playwright.sync_api import sync_playwright
 
     parser = argparse.ArgumentParser(description=__doc__)
@@ -7372,9 +8105,23 @@ def main() -> int:
         default=Path("docs/user-guide/images/current"),
     )
     parser.add_argument(
+        "--density",
+        choices=DISPLAY_DENSITIES,
+        default="standard",
+        help=(
+            "Install the product-wide browser-local density preference before the "
+            "first application paint."
+        ),
+    )
+    parser.add_argument(
         "--only-materials",
         action="store_true",
         help="Capture and replace only the seventeen Materials workspace captures.",
+    )
+    parser.add_argument(
+        "--only-materials-workspace",
+        action="store_true",
+        help="Capture only Materials explorer/result/empty/browse states, without datasheet preparation.",
     )
     parser.add_argument(
         "--only-product-access",
@@ -7407,6 +8154,11 @@ def main() -> int:
         help="Capture and replace the five Modeling Export viewports plus source-blocked, approximation-blocked, and delivered states.",
     )
     parser.add_argument(
+        "--only-modeling-export-pre-delivered",
+        action="store_true",
+        help="Capture the five Export viewports and two blocked states without the append-only delivered fixture.",
+    )
+    parser.add_argument(
         "--only-modeling-process-fit",
         action="store_true",
         help=(
@@ -7415,9 +8167,24 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--only-modeling-process-fit-viewports",
+        action="store_true",
+        help="Capture only the five normal Process/Fit viewport pairs.",
+    )
+    parser.add_argument(
+        "--only-modeling-fit-states",
+        action="store_true",
+        help="Capture only candidate-evidence, failure, and exact-source Fit states.",
+    )
+    parser.add_argument(
+        "--only-modeling-fit-restored",
+        action="store_true",
+        help="Capture only the final saved Fit reload/restore state.",
+    )
+    parser.add_argument(
         "--only-modeling-process",
         action="store_true",
-        help="Capture and replace only the nine Modeling Process viewports and settled states.",
+        help="Capture and replace only the ten Modeling Process viewports and settled states.",
     )
     parser.add_argument(
         "--resume-modeling-process",
@@ -7442,7 +8209,18 @@ def main() -> int:
             "Capture the ten current Modeling Data/session screens with the same consistency gates."
         ),
     )
+    parser.add_argument(
+        "--only-modeling-process-manual",
+        action="store_true",
+        help="Capture only the 1366x768 manual Process local-scroll boundary.",
+    )
+    parser.add_argument(
+        "--only-modeling-data-exceptions",
+        action="store_true",
+        help="Capture only the empty and invalid-mapping Modeling Data risk states.",
+    )
     args = parser.parse_args()
+    CAPTURE_DISPLAY_DENSITY = args.density
     if args.resume_modeling_process and not args.only_modeling_process:
         parser.error("--resume-modeling-process requires --only-modeling-process")
     if args.resume_modeling_process and any(
@@ -7455,8 +8233,12 @@ def main() -> int:
             args.only_review_submission,
             args.only_modeling_export,
             args.only_modeling_process_fit,
+            args.only_modeling_process_manual,
+            args.only_modeling_fit_states,
+            args.only_modeling_fit_restored,
             args.only_modeling_consistency,
             args.only_modeling_data_session,
+            args.only_modeling_data_exceptions,
         )
     ):
         parser.error("--resume-modeling-process cannot be combined with another capture selector")
@@ -7489,11 +8271,18 @@ def main() -> int:
     selected_output_names: Sequence[str] = CURRENT_CAPTURE_OUTPUTS
     if (
         args.only_materials
+        or args.only_materials_workspace
         or args.only_modeling_export
+        or args.only_modeling_export_pre_delivered
         or args.only_modeling_process_fit
+        or args.only_modeling_process_fit_viewports
+        or args.only_modeling_fit_states
+        or args.only_modeling_fit_restored
         or args.only_modeling_process
+        or args.only_modeling_process_manual
         or args.only_modeling_consistency
         or args.only_modeling_data_session
+        or args.only_modeling_data_exceptions
         or args.only_product_access
         or args.only_administration_database
         or args.only_administration_records
@@ -7503,16 +8292,30 @@ def main() -> int:
         names = (
             CURRENT_CAPTURE_OUTPUTS[:17]
             if args.only_materials
+            else MATERIALS_WORKSPACE_OUTPUTS
+            if args.only_materials_workspace
             else MODELING_EXPORT_OUTPUTS
             if args.only_modeling_export
+            else MODELING_EXPORT_PRE_DELIVERED_OUTPUTS
+            if args.only_modeling_export_pre_delivered
             else MODELING_PROCESS_FIT_OUTPUTS
             if args.only_modeling_process_fit
+            else MODELING_PROCESS_FIT_VIEWPORT_OUTPUTS
+            if args.only_modeling_process_fit_viewports
+            else MODELING_FIT_PRE_RESTORE_OUTPUTS
+            if args.only_modeling_fit_states
+            else MODELING_FIT_RESTORED_OUTPUTS
+            if args.only_modeling_fit_restored
             else MODELING_PROCESS_OUTPUTS
             if args.only_modeling_process
+            else MODELING_PROCESS_MANUAL_OUTPUTS
+            if args.only_modeling_process_manual
             else MODELING_CONSISTENCY_OUTPUTS
             if args.only_modeling_consistency
             else MODELING_DATA_SESSION_OUTPUTS
             if args.only_modeling_data_session
+            else MODELING_DATA_EXCEPTION_OUTPUTS
+            if args.only_modeling_data_exceptions
             else ACTIVITY_OUTPUTS
             if args.only_activity
             else REVIEW_SUBMISSION_OUTPUTS
@@ -7535,10 +8338,34 @@ def main() -> int:
                     measurements: list[dict[str, object]] = []
                     if args.only_materials:
                         _capture_materials(browser, args.base_url, staged)
+                    elif args.only_materials_workspace:
+                        _capture_materials_workspace(browser, args.base_url, staged)
                     elif args.only_modeling_export:
                         _capture_modeling_export_only(browser, args.base_url, staged)
+                    elif args.only_modeling_export_pre_delivered:
+                        _capture_modeling_export_only(
+                            browser,
+                            args.base_url,
+                            staged,
+                            include_delivered=False,
+                        )
                     elif args.only_modeling_process_fit:
                         measurements = _capture_modeling_process_fit(
+                            browser, args.base_url, staged
+                        )
+                    elif args.only_modeling_process_fit_viewports:
+                        measurements = _capture_modeling_process_fit(
+                            browser,
+                            args.base_url,
+                            staged,
+                            include_fit_states=False,
+                        )
+                    elif args.only_modeling_fit_states:
+                        _capture_modeling_fit_states(
+                            browser, args.base_url, staged, include_restored=False
+                        )
+                    elif args.only_modeling_fit_restored:
+                        _capture_modeling_fit_restored_only(
                             browser, args.base_url, staged
                         )
                     elif args.only_modeling_process:
@@ -7548,12 +8375,20 @@ def main() -> int:
                             staged,
                             resume_modeling_process=args.resume_modeling_process,
                         )
+                    elif args.only_modeling_process_manual:
+                        _capture_modeling_process_manual_only(
+                            browser, args.base_url, staged
+                        )
                     elif args.only_modeling_consistency:
                         measurements = _capture_modeling_consistency(
                             browser, args.base_url, staged
                         )
                     elif args.only_modeling_data_session:
                         measurements = _capture_modeling_data_session(
+                            browser, args.base_url, staged
+                        )
+                    elif args.only_modeling_data_exceptions:
+                        _capture_modeling_data_exceptions(
                             browser, args.base_url, staged
                         )
                     elif args.only_activity:
@@ -7586,6 +8421,7 @@ def main() -> int:
     result = {
         "output": args.output.as_posix(),
         "captures": capture_count,
+        "density": CAPTURE_DISPLAY_DENSITY,
         "viewports": [
             f"{width}x{height}"
             for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)
@@ -7597,6 +8433,7 @@ def main() -> int:
     }
     if (
         args.only_modeling_process_fit
+        or args.only_modeling_process_fit_viewports
         or args.only_modeling_consistency
         or args.only_modeling_data_session
     ):

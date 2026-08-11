@@ -100,6 +100,10 @@ function latestDataLayoutCallback(): NonNullable<GroupLayoutEntry["callback"]> {
   return entry.callback;
 }
 
+function activeNavigatorHandle(): PanelImperativeHandle | null {
+  return panelHandleState.entries.find((entry) => entry.kind === "ref")?.active ?? null;
+}
+
 import {
   MODELING_DATA_DEFAULT_PLOT_SIZE,
   MODELING_DATA_PLOT_MIN_SIZE,
@@ -116,10 +120,14 @@ afterEach(() => {
 });
 
 describe("ModelingWorkspaceLayout", () => {
-  it("keeps the adjustable Data ribbon preferred and reset size at 384px", () => {
-    expect(modelingDataRibbonPreferredSize("content-fit")).toBe(384);
-    expect(modelingDataRibbonPreferredSize("compact")).toBe(178);
-    expect(modelingDataRibbonPreferredSize(undefined)).toBe(178);
+  it("derives the adjustable Data ribbon preferred and reset sizes from shared density tokens", () => {
+    expect(modelingDataRibbonPreferredSize("content-fit", "compact")).toBe(384);
+    expect(modelingDataRibbonPreferredSize("compact", "compact")).toBe(159);
+    expect(modelingDataRibbonPreferredSize("content-fit", "standard")).toBe(384);
+    expect(modelingDataRibbonPreferredSize("compact", "standard")).toBe(178);
+    expect(modelingDataRibbonPreferredSize(undefined, "standard")).toBe(178);
+    expect(modelingDataRibbonPreferredSize("content-fit", "large")).toBe(384);
+    expect(modelingDataRibbonPreferredSize("compact", "large")).toBe(201);
     expect(MODELING_DATA_DEFAULT_PLOT_SIZE).toBeGreaterThanOrEqual(296);
     expect(MODELING_DATA_PLOT_MIN_SIZE).toBe(240);
     expect(MODELING_DATA_SPLIT_SEPARATOR_SIZE).toBe(8);
@@ -148,6 +156,41 @@ describe("ModelingWorkspaceLayout", () => {
     expect(screen.getByText("Export delivery")).toBeTruthy();
   });
 
+  it("resets the Modeling navigator independently from display density and ribbon state", () => {
+    class ResizeObserverMock {
+      observe(): void {}
+      disconnect(): void {}
+    }
+    vi.stubGlobal("ResizeObserver", ResizeObserverMock);
+    render(
+      <ModelingWorkspaceLayout
+        navigator={<span>Curve navigator</span>}
+        ribbon={<span>Fit settings</span>}
+        plot={<span>Persistent plot</span>}
+        ribbonOpen
+        onRibbonOpenChange={vi.fn()}
+      />,
+    );
+    act(() => flushLatePanelHandles());
+    const navigator = activeNavigatorHandle();
+    expect(navigator).not.toBeNull();
+    if (!navigator) throw new Error("Navigator panel handle did not arrive");
+    const resize = vi.fn();
+    Object.defineProperty(navigator, "resize", {
+      configurable: true,
+      value: resize,
+    });
+
+    const divider = screen.getByRole("separator", {
+      name: "Resize curve and process navigator",
+    });
+    expect(divider.getAttribute("title")).toContain("reset curve and process navigator width");
+    fireEvent.doubleClick(divider);
+
+    expect(resize).toHaveBeenCalledWith(288);
+    expect(screen.getByText("Fit settings")).toBeTruthy();
+  });
+
   it("reclaims the navigator region when a task does not supply one", () => {
     const { container } = render(
       <ModelingWorkspaceLayout
@@ -162,6 +205,67 @@ describe("ModelingWorkspaceLayout", () => {
     expect(screen.queryByLabelText("Resize curve and process navigator")).toBeNull();
     expect(document.querySelector(".modeling-workspace-rail")).toBeNull();
     expect(container.querySelector(".modeling-split-workspace-no-navigator .modeling-main-surface")).toBeTruthy();
+  });
+
+  it("uses a bounded dock overlay only after the actual Candidate parameters plot frame collapses", () => {
+    class ResizeObserverMock {
+      observe(): void {}
+      disconnect(): void {}
+    }
+    vi.stubGlobal("ResizeObserver", ResizeObserverMock);
+    const props = {
+      navigator: <span>Curve navigator</span>,
+      ribbon: <span>Fit settings</span>,
+      plot: <div className="engineering-plot-frame">Persistent plot</div>,
+      ribbonOpen: true,
+      onRibbonOpenChange: vi.fn(),
+    };
+    const { container, rerender } = render(
+      <ModelingWorkspaceLayout
+        {...props}
+        dock={<span>Candidate evidence</span>}
+        dockLabel="Candidate parameters"
+      />,
+    );
+    const surface = container.querySelector(".modeling-main-surface");
+
+    expect(surface?.getAttribute("data-dock-presentation")).toBe("overlay");
+    expect(surface?.classList.contains("has-dock-overlay")).toBe(true);
+
+    rerender(<ModelingWorkspaceLayout {...props} />);
+    expect(surface?.getAttribute("data-dock-presentation")).toBe("allocated");
+    expect(surface?.classList.contains("has-dock-overlay")).toBe(false);
+  });
+
+  it("keeps Candidate parameters allocated when the actual graph frame has space", () => {
+    class ResizeObserverMock {
+      observe(): void {}
+      disconnect(): void {}
+    }
+    vi.stubGlobal("ResizeObserver", ResizeObserverMock);
+    const original = HTMLElement.prototype.getBoundingClientRect;
+    HTMLElement.prototype.getBoundingClientRect = function getBoundingClientRect() {
+      if (this.classList.contains("engineering-plot-frame")) {
+        return { x: 0, y: 0, top: 0, right: 700, bottom: 120, left: 0, width: 700, height: 120, toJSON: () => ({}) };
+      }
+      return original.call(this);
+    };
+    try {
+      const { container } = render(
+        <ModelingWorkspaceLayout
+          navigator={<span>Curve navigator</span>}
+          ribbon={<span>Fit settings</span>}
+          plot={<div className="engineering-plot-frame">Persistent plot</div>}
+          dock={<span>Candidate evidence</span>}
+          dockLabel="Candidate parameters"
+          ribbonOpen
+          onRibbonOpenChange={vi.fn()}
+        />,
+      );
+      expect(container.querySelector(".modeling-main-surface")?.getAttribute("data-dock-presentation")).toBe("allocated");
+    } finally {
+      HTMLElement.prototype.getBoundingClientRect = original;
+    }
   });
 
   it("exposes an accessible vertical Data ribbon/plot divider in content-fit mode", () => {
@@ -185,6 +289,9 @@ describe("ModelingWorkspaceLayout", () => {
     const divider = screen.getByRole("separator", { name: "Resize Test Data controls and curve plot" });
     expect(divider.getAttribute("aria-orientation")).toBe("horizontal");
     expect(divider.getAttribute("tabindex")).toBe("0");
+    const ribbon = screen.getByRole("region", { name: "Current-stage settings" });
+    expect(ribbon.getAttribute("tabindex")).toBe("0");
+    expect(ribbon.classList.contains("modeling-task-ribbon-scrollable")).toBe(true);
     expect(screen.getByText("Mapping decision")).toBeTruthy();
     expect(screen.getByText("Persistent plot")).toBeTruthy();
   });

@@ -110,14 +110,15 @@ def test_administration_structure_has_one_active_owner() -> None:
         assert selector not in LEGACY
 
 
-def test_administration_bounded_workgroups_use_shared_semantic_boundaries() -> None:
+def test_administration_elastic_workgroups_keep_forms_on_shared_semantic_boundaries() -> None:
     assert ".schema-editor-header," in LAYOUT
     assert ".schema-editor-grid {" in LAYOUT
-    assert "width: min(100%, var(--ux-bounded-workgroup-max-inline-size))" in LAYOUT
+    assert "minmax(0, var(--ux-navigator-default-inline-size))" in LAYOUT
+    assert "minmax(18rem, 1fr)" in LAYOUT
     assert "var(--ux-readable-form-max-inline-size)" in LAYOUT
 
     assert ".administration-record-workbench" in LEGACY
-    assert "width: min(100%, var(--ux-bounded-workgroup-max-inline-size))" in LEGACY
-    assert "var(--ux-navigator-max-inline-size)" in LEGACY
-    assert "var(--ux-context-max-inline-size)" in LEGACY
+    assert "max-width: var(--ux-workspace-max-inline-size)" in LEGACY
+    assert "minmax(0, var(--ux-navigator-default-inline-size))" in LEGACY
+    assert "minmax(18rem, 1fr)" in LEGACY
     assert "var(--ux-readable-form-max-inline-size)" in LEGACY

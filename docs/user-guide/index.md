@@ -52,6 +52,8 @@ Modeling Data(JSON/CSV/XLSX) → Process → Fit → Export → Material Library
 - Materials의 Browse Tree는 Database/Profile/Table/Folder/Record 계층과 검색을 유지합니다.
 - Material Detail은 `Overview | Properties | Curves | CAE Cards | Evidence`로 투영합니다.
 - Modeling은 compact curve/process explorer와 넓은 graph를 유지하고 설정은 ribbon/drawer로 엽니다.
+- 우측 사용자 메뉴의 Display density는 Compact/Standard/Large를 제품 전체에 적용하며 Standard로
+  reset할 수 있습니다. 자세한 저장·복원 경계는 [메뉴·route와 문제 해결](10-navigation-and-troubleshooting.md)을 참고합니다.
 - full UUID, hash, classification, exact revision, JSON과 provenance graph는 Evidence/Advanced에 둡니다.
 - Table/Attribute/Layout/Subset/Link Type 관리는 role-gated Administration에서 수행합니다.
 - Reviewer-only Activity 검토 queue와 failed-job exact retry를 사용할 수 있습니다. Administrator는

@@ -100,10 +100,13 @@ to #223; known geometry, clipping, overflow or interaction failures remain merge
 
 The [#221 decision packet](../17-evidence/issue-221-high-dpi-decision.md) records the baseline-first
 five-viewport comparison, browser-zoom audit and Codex recommendation of P2 with a Standard default.
-That recommendation is `PENDING_PRODUCT_OWNER`: it does not change this matrix into an approved density
-contract, does not authorize exposing a product setting, and does not start #184. Candidate 3 is rejected
-because measured browser zoom alone changes CSS viewport and `devicePixelRatio`, so those signals cannot
-reliably identify physical display scale.
+The product owner approved that provisional implementation contract on 2026-08-10 and PR #228 merged it
+into `main`. #184 therefore exposes one product-wide `Compact | Standard | Large` setting with `Standard`
+as default/reset and browser-local active-user/workspace persistence. Candidate 3 remains rejected because
+measured browser zoom alone changes CSS viewport and `devicePixelRatio`, so those signals cannot reliably
+identify physical display scale. The [#184 evidence](../17-evidence/issue-184-high-dpi-global-implementation.md)
+records the production transplant and its current incomplete fixture boundary; neither #221 approval nor
+automated #184 geometry is actual Windows 4K physical-readability approval.
 
 ## Criteria
 

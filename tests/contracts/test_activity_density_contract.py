@@ -39,11 +39,11 @@ def test_activity_consumes_the_shared_desktop_baseline() -> None:
 def test_activity_grid_keeps_semantic_columns_adjacent_without_a_high_dpi_override() -> None:
     assert "max-width: var(--ux-comparison-table-max-inline-size);" in _ACTIVITY
     assert "width: min(100%, var(--ux-comparison-table-max-inline-size));" in _ACTIVITY
-    assert ".activity-column-task { width: 20%; }" in _ACTIVITY
-    assert ".activity-column-reason { width: 48%; }" in _ACTIVITY
-    assert ".activity-column-status { width: 12%; }" in _ACTIVITY
-    assert ".activity-column-updated { width: 12%; }" in _ACTIVITY
-    assert ".activity-column-action { width: 8%; }" in _ACTIVITY
+    assert ".activity-column-task { width: clamp(220px, 20%, 420px); }" in _ACTIVITY
+    assert ".activity-column-reason { width: auto; }" in _ACTIVITY
+    assert ".activity-column-status { width: 168px; }" in _ACTIVITY
+    assert ".activity-column-updated { width: 160px; }" in _ACTIVITY
+    assert ".activity-column-action { width: 128px; }" in _ACTIVITY
     assert '<col className="activity-column-task" />' in _MARKUP
     assert "@media (min-width" not in _ACTIVITY
     assert "zoom:" not in _ACTIVITY

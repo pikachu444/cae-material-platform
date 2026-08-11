@@ -31,6 +31,7 @@ _REPOSITORY_LITERAL = re.compile(
 )
 _STRUCTURED_IMAGE_MANIFESTS: tuple[str, ...] = (
     "docs/17-evidence/images/issue-221-high-dpi-decision/measurements.json",
+    "docs/17-evidence/images/issue-184-high-dpi-global-implementation/visual-evidence.json",
 )
 _STRUCTURED_IMAGE_MANIFEST_GLOBS: tuple[str, ...] = ()
 _STRUCTURED_IMAGE_YAML_MANIFESTS: tuple[str, ...] = (
@@ -676,7 +677,17 @@ def _verify_image_inventory(
             "duplicate image hashes require one explicit duplicate group: "
             f"{invalid_duplicate_groups}"
         )
-    stale_allowances = allowed_duplicate_groups - actual_allowed_groups
+    # A historical evidence manifest may record that its immutable original was
+    # byte-identical to the then-current guide image. The current lifecycle path
+    # is intentionally replaceable on a later visual issue, so that historical
+    # evidence-to-current declaration expires without editing the old manifest.
+    # Evidence-only duplicate declarations remain strict and must still match.
+    stale_allowances = {
+        group
+        for group in allowed_duplicate_groups - actual_allowed_groups
+        if not any(path.startswith(_CURRENT_IMAGE_PREFIX) for path in group)
+        and not any(group < actual_group for actual_group in actual_allowed_groups)
+    }
     if stale_allowances:
         raise UserGuideContractError(
             "duplicate image allowances no longer match equal bytes: "
