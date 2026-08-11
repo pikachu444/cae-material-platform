@@ -115,7 +115,7 @@ acceptance는 전체 table content digest의 전/중간/후 동일성과 read-on
 비범위 전체 `tests/contracts` 탐색 실행에서는 기준 `origin/main`과 동일한 3건(현재 8 KiB를 넘는
 root `AGENTS.md`, 과거 backlog 문구를 기대하는 cold-start test, 다른 worktree 절대경로를 가진
 #184 crop manifest)이 실패하고 나머지 325건이 통과했다. 실패 파일과 자료는 이 branch에서
-변경하지 않았으며, #204가 추가한 machine contract는 전체 contract lint와 위 91-test 영향 범위에서
+변경하지 않았으며, #204가 추가한 machine contract는 전체 contract lint와 위 92-test 영향 범위에서
 통과했다. 저장소 pre-publish의 실제 deterministic 경로는 별도로 최종 실행한다.
 
 ## Scope handoff
