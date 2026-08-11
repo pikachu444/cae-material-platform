@@ -103,7 +103,7 @@ classification reads returned not found without leaking the records.
 | Current-source canonical Compose | PASS — preflight, rebuild/recreate, migration/reference plugin/seed exit 0, API/Web health and full demo verifier |
 | User-guide inventory, documentation impact and whitespace | PASS — 20 guides, 95 current captures, structured evidence duplicate declarations and `git diff --check` |
 | Five-viewport originals/crops, Web Interface Guidelines and Q01–Q20 Main review | PASS — deterministic geometry; actual Windows 4K physical readability remains #223 |
-| Clean-worktree pre-publish | PENDING final evidence commit |
+| Clean-worktree pre-publish | PASS — manual gate fingerprint `4e3fd42b37fa07dfbf74ae5fe3a6d9bc1c0930e3a20369cf77baa8595f82746a` at commit `59ca26b6e8ca37e8149a72be7b84d2188e45a4bf` |
 | Independent exact-SHA Balanced audit | PENDING final Main acceptance and commit |
 | Product Owner visual approval | PENDING; draft PR must remain draft |
 
