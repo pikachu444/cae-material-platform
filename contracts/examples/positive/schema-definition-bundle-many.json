@@ -1,0 +1,130 @@
+{
+  "$schema": "https://cmp.example/contracts/catalog/schema-definition-bundle.schema.json",
+  "contract_version": "1.0.0",
+  "bundle_key": "synthetic_dependency_chain",
+  "bundle_version": "1.0.0",
+  "scope": {
+    "organization_id": "20400000-0000-4000-8000-000000000001",
+    "project_id": "20400000-0000-4000-8000-000000000002",
+    "classification": "internal"
+  },
+  "catalog": {
+    "database": {
+      "key": "synthetic_engineering",
+      "name": "Synthetic engineering",
+      "description": "Non-production schema bundle fixture."
+    },
+    "profile": {
+      "key": "synthetic_materials",
+      "name": "Synthetic materials",
+      "description": "Non-production profile fixture."
+    }
+  },
+  "record_schemas": [
+    {
+      "key": "curves",
+      "name": "Synthetic curves",
+      "description": "Synthetic curve pointer records.",
+      "schema_sha256": "e7c7d15eb8527067564bf64b53e173eedd3b47aa8e5ebcfcf08f5e8a9c9e3f9c",
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:cmp:catalog-schema:curves:1.0.0",
+        "type": "object",
+        "properties": {
+          "curve_id": {
+            "type": "string",
+            "title": "Curve ID",
+            "x-business-key": true
+          },
+          "test_id": {
+            "$ref": "urn:cmp:catalog-schema:tensile_tests:1.0.0#/properties/test_id",
+            "title": "Test",
+            "x-reference": {
+              "link_key": "curve_tensile_test",
+              "forward_label": "test",
+              "reverse_label": "curves",
+              "source_cardinality": "many",
+              "target_cardinality": "one"
+            }
+          },
+          "stress_strain_curve": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Stress strain curve",
+            "x-curve": true,
+            "x-unit": "MPa",
+            "x-indexed": false,
+            "x-searchable": false
+          }
+        },
+        "required": ["curve_id", "test_id"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "key": "materials",
+      "name": "Synthetic materials",
+      "description": "Synthetic material records.",
+      "schema_sha256": "698ae9cdba06b9ace0fe1a89059eded258866b57db17a88eb247e2c7cae4458b",
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:cmp:catalog-schema:materials:1.0.0",
+        "type": "object",
+        "properties": {
+          "record_id": {
+            "type": "string",
+            "title": "Record ID",
+            "x-business-key": true,
+            "x-indexed": true,
+            "x-searchable": true
+          },
+          "grade": {
+            "type": "string",
+            "title": "Grade",
+            "enum": ["synthetic_a", "synthetic_b"],
+            "x-searchable": true
+          }
+        },
+        "required": ["record_id"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "key": "tensile_tests",
+      "name": "Synthetic tensile tests",
+      "description": "Synthetic tensile test records.",
+      "schema_sha256": "d8b1c1fa9d00dabe0612732024b4a5d83e590fd26651517fd4a9b612eb6b7695",
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:cmp:catalog-schema:tensile_tests:1.0.0",
+        "type": "object",
+        "properties": {
+          "test_id": {
+            "type": "string",
+            "title": "Test ID",
+            "x-business-key": true
+          },
+          "material_id": {
+            "$ref": "urn:cmp:catalog-schema:materials:1.0.0#/properties/record_id",
+            "title": "Material",
+            "x-reference": {
+              "link_key": "tensile_test_material",
+              "forward_label": "material",
+              "reverse_label": "tensile tests",
+              "source_cardinality": "many",
+              "target_cardinality": "one"
+            }
+          },
+          "temperature": {
+            "type": ["number", "null"],
+            "title": "Temperature",
+            "x-unit": "K",
+            "x-indexed": true
+          }
+        },
+        "required": ["test_id", "material_id"],
+        "additionalProperties": false
+      }
+    }
+  ]
+}

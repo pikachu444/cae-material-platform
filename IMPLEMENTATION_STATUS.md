@@ -26,6 +26,7 @@ review/release는 Modeling의 normal stage가 아니라 Advanced와 Activity의 
 | Modeling | exact Material/State/Test Data session pin, Data/Process/Fit/Export, Process의 exact source/profile preview·last-valid blocked recovery·immutable saved-result comparison, processing·fitting, 선택 모델 저장, Material Model IR·Neutral·solver card 생성, upstream 변경에 따른 downstream clear/stale/regenerate |
 | Activity | role-aware review queue, exact Material/Solver Card request entry, Reviewer-only approval/change decisions, Processing Batch context/retry, browser recovery facts, and review-backed Record publication projection |
 | Administration | Database/Profile과 configurable Table/Attribute/Layout/Subset/Link Type의 revision 관리·발행, Folder/Record tree, typed search·compare, 단건·다건 등록, exact Record links와 접근 관리 |
+| Catalog schema planning | exact immutable Artifact의 임의 개수 JSON Schema draft 2020-12 정의를 bundle 내부에서만 resolve하고 기존 configurable Catalog 대비 결정론적 no-write plan 생성 |
 | Exchange | CSV/TSV/XLSX governed import, versioned Test Data JSON, Neutral Material JSON, deterministic package |
 | Governance | immutable review/release/artifact, exact revision, provenance/audit, organization/project 권한 |
 | Operations | Compose demo, worker/job, observability, recovery·performance·security 검증 도구. clean full-demo는 preview에서 선택한 fit evidence와 metal manual necking override를 exact revision으로 보존하고, DP780 selected model review request 하나와 Materials의 solver card preview·검토 후 다운로드를 검증 |
@@ -36,10 +37,12 @@ Production 표준, plugin, solver correlation과 validation threshold는 domain 
 
 ## 알려진 공백
 
-- 관리자가 임의 개수의 JSON Schema 정의를 bundle로 계획·적용·내보내는 기능은 아직 없습니다.
-  현재 configurable Catalog CRUD와 publication 기반을 재사용하는 [#204~#216 통합 계획](docs/12-roadmap/schema-driven-material-integration-plan.md)을
-  승인했으며, 예시 schema의 이름이나 개수는 제품 고정 형식이 아닙니다. 첫 구현 단위는 현재
-  backlog의 #189와 #160 이후에 시작합니다.
+- 관리자가 임의 개수의 JSON Schema 정의를 bundle로 검증하고 no-write plan을 만드는 backend와
+  Bundle/plan `1.0.0`, HTTP `0.33.0` 계약은 구현했습니다. 실제 apply/publish/rollback/export와
+  source-to-revision provenance는 #207, 공통 Unit Profile은 #205, Administration UI는 #208 범위이며
+  현재 endpoint는 plan 결과를 저장하지 않습니다. 예시 schema 이름과 개수는 제품 고정 형식이
+  아닙니다. 상세 순서는
+  [#204~#216 통합 계획](docs/12-roadmap/schema-driven-material-integration-plan.md)과 backlog가 소유합니다.
 - #158 Data/Process/Fit/Export production UI는 PR #183~#202에서 현재 화면에 연결했습니다. 남은
   Administration 공개·복구 refinement는 #161이 소유하며, 새 기획의
   Administration/Template/OIDC 화면은 각각 #208, #214, #215에서 별도 검수합니다.

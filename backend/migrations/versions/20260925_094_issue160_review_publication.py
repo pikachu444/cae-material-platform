@@ -448,6 +448,12 @@ def downgrade() -> None:
     ):
         op.drop_constraint(name, "product_access_assignment", schema="identity", if_exists=True)
     op.create_check_constraint(
+        "ck_product_access_role",
+        "product_access_assignment",
+        "product_role IN ('administrator', 'reviewer', 'user')",
+        schema="identity",
+    )
+    op.create_check_constraint(
         "ck_product_access_administrator_features",
         "product_access_assignment",
         "product_role <> 'administrator' OR "

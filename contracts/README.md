@@ -3,7 +3,7 @@
 Status: foundation `T-02` through `T-18`, plus reference vertical subsets `T-07`, `T-08`,
 `T-11`, `T-12`, `T-19`, `T-20`, `T-21`, `T-22`, `T-25`, `T-26`, `T-27`, `T-28`, `T-29`,
 the `T-32` workbench, and product-depth slices `T-39` through `T-42`. HTTP contract version
-`0.32.0`.
+`0.33.0`.
 
 ## Files
 
@@ -22,6 +22,10 @@ the `T-32` workbench, and product-depth slices `T-39` through `T-42`. HTTP contr
 - `plugins/plugin-package-registration.schema.json`: signed package/SBOM/schema registration input
 - `plugins/plugin-package-resource.schema.json`: immutable package and state-history resource
 - `plugins/plugin-problem.schema.json`: sanitized registry problem response
+- `catalog/schema-definition-bundle.schema.json`: arbitrary-cardinality Catalog Schema Definition
+  Bundle v1 with a closed draft 2020-12 keyword/extension subset and bundle-local references only
+- `catalog/schema-definition-plan.schema.json`: exact Artifact-bound deterministic
+  `create/update/no-op/conflict/error` dry-run result with an explicit empty write set
 - `ir/material-model-ir-envelope.schema.json`: common IR envelope baseline
 - `datasets/reference-tensile-resources.schema.json`: typed reference tensile Dataset, curve, and
   immutable one-member Selection resources
@@ -73,6 +77,14 @@ the `T-32` workbench, and product-depth slices `T-39` through `T-42`. HTTP contr
   processing, IR, and solver semantics; they make no production qualification claim.
 - Revision content remains resource-specific; the common schema must never gain a generic
   `content`/EAV payload.
+- Schema Definition Bundle v1 preserves its exact immutable Artifact identity and accepts only local
+  fragments or exact record `$id` references declared inside the same bundle. Source and bundle
+  organization/project/classification must match. Unknown keywords,
+  external URL/file/network references and unrepresentable Catalog projection fail closed. Planning
+  reads an RLS-bound repeatable read-only snapshot and treats stale exact dependency revision pins as
+  updates. It folds append-only placement history by logical Profile/Table key, never deletes missing
+  Catalog objects and never writes a revision pointer, publication marker, outbox, audit or provenance
+  row. Apply/export and source-to-revision provenance remain #207.
 - `/api/v1/me` accepts bearer access tokens; ID tokens are not an interchangeable credential.
 - Identity responses require both organization and project UUIDs. `/me` remains an authenticated
   identity/context response and does not imply authorization. Each protected endpoint must bind an

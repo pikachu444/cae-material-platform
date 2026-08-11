@@ -32,6 +32,20 @@ form으로 이루어진 작업 묶음은 가운데의 읽기 좋은 공통 범�
 Table/Attribute/Layout/Subset은 stable identity와 immutable revision으로 저장되며, 새 정의는 기존
 Record나 과거 revision을 바꾸지 않는다.
 
+### JSON Schema 정의를 적용 전에 확인하기
+
+여러 record schema를 한 번에 준비하는 관리자는 현재 API에서 Schema Definition Bundle dry-run을
+실행할 수 있다. JSON 원문을 immutable Artifact로 저장한 뒤 Artifact ID와 lowercase SHA-256을
+`POST /api/v1/catalog/schema-definition-bundles:plan`에 보낸다. 응답은 현재 Catalog와 비교한
+`create`, `update`, `no-op`, `conflict`, `error`와 수정 위치를 반환한다. 같은 bundle 안의 local
+JSON Pointer와 선언된 record `$id`만 참조할 수 있다.
+
+오류가 있으면 기존 Artifact를 수정하지 않고 새 Artifact로 다시 요청한다. 이 기능은 계획만 만들며
+Catalog revision, current pointer, publication과 감사 이력을 바꾸지 않는다. Bundle에 없는 기존
+객체도 삭제하지 않는다. Administration의 upload/apply 화면과 실제 적용·발행은 아직 제공되지 않는다.
+운영 절차와 no-write 응답 필드는 [관리자 가이드](../admin-guide/index.md#21-api로-schema-definition-bundle-점검)를
+참고한다.
+
 
 ## Catalog Record 등록·검색·비교
 

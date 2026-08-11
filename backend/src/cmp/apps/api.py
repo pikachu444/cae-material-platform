@@ -15,6 +15,7 @@ from cmp.bootstrap.catalog import (
     build_catalog_record_service,
     build_catalog_service,
     build_configurable_catalog_service,
+    build_schema_bundle_planner_service,
 )
 from cmp.bootstrap.datasets import (
     build_canonical_test_data_service,
@@ -88,6 +89,8 @@ from cmp.modules.catalog.adapters.api.catalog import install_catalog_api
 from cmp.modules.catalog.adapters.api.configurable import install_configurable_catalog_api
 from cmp.modules.catalog.adapters.api.links import install_catalog_link_api
 from cmp.modules.catalog.adapters.api.records import install_catalog_record_api
+from cmp.modules.catalog.adapters.api.schema_bundles import install_schema_bundle_planner_api
+from cmp.modules.catalog.application.schema_bundles import SchemaBundlePlannerService
 from cmp.modules.catalog.application.service import CatalogService
 from cmp.modules.datasets.adapters.api.canonical_test_data import install_canonical_test_data_api
 from cmp.modules.datasets.adapters.api.datasets import install_dataset_api
@@ -284,6 +287,7 @@ def create_app(
     provenance_lineage_service: ProvenanceLineageService | None = None,
     audit_service: AuditService | None = None,
     catalog_service: CatalogService | None = None,
+    schema_bundle_planner_service: SchemaBundlePlannerService | None = None,
     testing_service: TestingService | None = None,
     test_context_service: TestContextService | None = None,
     dataset_service: DatasetService | None = None,
@@ -471,6 +475,17 @@ def create_app(
         read_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.CATALOG_READ
         ),
+        write_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.CATALOG_WRITE
+        ),
+    )
+    install_schema_bundle_planner_api(
+        application,
+        service=(
+            schema_bundle_planner_service
+            or build_schema_bundle_planner_service(services, resolved_artifacts)
+        ),
+        security_dependency=security_dependency,
         write_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.CATALOG_WRITE
         ),

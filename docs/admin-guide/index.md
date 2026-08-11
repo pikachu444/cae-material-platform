@@ -39,6 +39,25 @@ divider 목록이고, Database design은 20 px 제목, 340 px Table 열과 나�
 revision으로 보존됩니다. 수치값은 원본 값·원본 단위 문자열·정규화 값·정규화 단위·quantity
 semantics를 함께 저장합니다.
 
+### 2.1 API로 Schema Definition Bundle 점검
+
+여러 Table 정의를 JSON Schema로 준비한 관리자는 적용 전에
+`POST /api/v1/catalog/schema-definition-bundles:plan`을 호출해 변경 계획을 확인할 수 있습니다.
+이 기능은 현재 API에서만 제공되며 Administration 화면의 upload/apply 기능은 아직 없습니다.
+
+1. JSON Schema draft 2020-12 record 정의를 하나 이상의 임의 개수로 묶고, 각 schema의 canonical
+   SHA-256과 organization/project/classification을 기록합니다.
+2. JSON 원문을 기존 Artifact 절차로 저장합니다. 계획 요청에는 immutable Artifact ID와 저장된
+   lowercase SHA-256을 함께 보냅니다.
+3. 응답에서 `create`, `update`, `no-op`, `conflict`, `error`와 각 diagnostic의 위치·조치 방법을
+   확인합니다. `$ref`는 같은 bundle의 local pointer와 선언된 record `$id`만 허용됩니다.
+4. 오류가 있으면 기존 Artifact를 고치지 말고 수정한 JSON을 새 Artifact로 저장해 다시 요청합니다.
+
+dry-run은 Catalog current pointer, publication, outbox, audit와 provenance를 바꾸지 않습니다. Bundle에
+없는 기존 객체도 삭제하거나 자동으로 소유하지 않습니다. 응답의 `mutations_applied=false`,
+`delete_missing=false`, 빈 `write_set`이 이 경계를 나타냅니다. 실제 적용·발행·rollback은 후속 기능
+범위이며 이 endpoint에서 실행되지 않습니다.
+
 ## 3. Folder와 Record 운영
 
 **Catalog records** 또는 **Catalog Explorer**에서 Table을 선택한 뒤 Folder와 Record를

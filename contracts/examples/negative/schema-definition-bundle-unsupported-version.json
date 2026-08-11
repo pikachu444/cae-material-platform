@@ -1,0 +1,38 @@
+{
+  "$schema": "https://cmp.example/contracts/catalog/schema-definition-bundle.schema.json",
+  "contract_version": "2.0.0",
+  "bundle_key": "synthetic_unsupported",
+  "bundle_version": "1.0.0",
+  "scope": {
+    "organization_id": "20400000-0000-4000-8000-000000000001",
+    "project_id": "20400000-0000-4000-8000-000000000002",
+    "classification": "internal"
+  },
+  "catalog": {
+    "database": {
+      "key": "synthetic_engineering",
+      "name": "Synthetic engineering",
+      "description": null
+    },
+    "profile": {
+      "key": "synthetic_materials",
+      "name": "Synthetic materials",
+      "description": null
+    }
+  },
+  "record_schemas": [
+    {
+      "key": "records",
+      "name": "Synthetic records",
+      "description": null,
+      "schema_sha256": "71a2a4bd47e6c5b0ec7abfc8e2ffbd4d79971b85fa1e481d3eb7a6adb4fe1cf5",
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:cmp:catalog-schema:records:1.0.0",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    }
+  ]
+}

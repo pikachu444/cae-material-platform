@@ -320,6 +320,46 @@ database transaction: failure commits neither card nor receipt/outbox row. It re
 Materials CAE Card API for delivered-card access. No canonical Activity receipt projection producer
 exists, so the UI returns `Not configured` rather than fabricating an Activity Delivered state.
 
+### 7.4 Schema Definition Bundle planning boundary
+
+The Catalog Schema Definition Bundle adapter consumes one exact, integrity-verified immutable
+Artifact. It preserves the Artifact ID, organization/project/classification, original media type,
+byte count and SHA-256 in the result, then parses strict UTF-8 JSON with duplicate-member rejection.
+Bundle scope must match that immutable Artifact scope and the authenticated request context. Bundle
+v1 supports JSON Schema draft 2020-12 only. Resolution is confined to local JSON Pointer fragments
+and exact `$id` values declared by records in the same bundle; URL, filesystem and network resolution
+never enter the adapter.
+
+```mermaid
+flowchart LR
+    A[Immutable Bundle Artifact] --> V[Validate strict JSON and v1 schema]
+    V --> R[Resolve bundle-local refs]
+    R --> P[Project existing Catalog types]
+    P --> S[Repeatable-read Catalog snapshot]
+    S --> D[Deterministic no-write plan]
+    D --> C[Correct bundle and retry]
+```
+
+Projection targets the existing Database, Profile, Table, Attribute, Layout, profile placement and
+Link Type contracts. Scalar values remain typed, curve fields remain immutable Artifact references,
+and record references become existing Link Type/record-reference definitions; no generic EAV or
+opaque JSON authority is introduced. `x-business-key`, `x-reference`, `x-curve`, `x-unit`,
+`x-indexed` and `x-searchable` are the closed v1 extension allow-list. Unsupported keywords or
+unrepresentable semantics fail with a location and remediation instead of being dropped.
+
+The Catalog adapter opens one RLS-bound PostgreSQL `REPEATABLE READ READ ONLY` transaction and reads
+only current heads, exact revisions, layouts, placements, Link Types and publication markers. The
+snapshot compares every persisted dependency revision pin with its current head; an unchanged
+projected object whose Profile/Database, Attribute/Layout/Table, Layout item/Attribute, placement or
+Link Type/Table pin is stale is therefore an `update`, not a false `no-op`. Append-only placement
+history is folded by logical Profile/Table key without deleting or adopting any row. A stable key
+owned by another immutable classification is a conflict. The result carries the snapshot
+fingerprint and always declares `mutations_applied=false`,
+`delete_missing=false` and an empty `write_set`. It does not change current pointers, publication,
+outbox, audit or provenance and does not claim objects absent from the bundle. Actual apply,
+publication, rollback, bundle ownership/provenance and export remain #207; common unit semantics
+remain #205 and Administration UI remains #208.
+
 ## 8. Plugin 및 solver 실행 plane
 
 ### 8.1 개발 환경
