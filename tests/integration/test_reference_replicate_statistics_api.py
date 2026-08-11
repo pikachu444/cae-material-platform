@@ -6,6 +6,12 @@ from typing import cast
 from uuid import UUID, uuid4
 
 import httpx
+from cmp.modules.datasets.domain.curve_metadata import (
+    ArtifactPin,
+    CurveMetadata,
+    MetadataState,
+    RevisionPin,
+)
 from cmp.modules.identity_access.application.authorization import database_permissions_for
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
@@ -20,6 +26,7 @@ from cmp.modules.statistics.adapters.api.replicate_statistics import (
 from cmp.modules.statistics.application.replicate_service import (
     REPLICATE_STATISTICAL_PLAN_AGGREGATE_TYPE,
     REPLICATE_STATISTICAL_RESULT_AGGREGATE_TYPE,
+    ReplicateCurvePreview,
     ReplicateRevisionSnapshot,
     ReplicateStatisticalPlanSnapshot,
     ReplicateStatisticalResultSnapshot,
@@ -33,10 +40,12 @@ from cmp.modules.statistics.domain.reference_tensile_pair import (
     StatisticalRunStatus,
 )
 from cmp.modules.statistics.domain.reference_tensile_replicates import (
+    REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMA_V1,
     ReferenceTensileReplicatePlanContent,
     ReferenceTensileReplicateResultContent,
     ReplicateCurvePoint,
     ReplicateScalarStatistics,
+    reference_tensile_replicate_curve_series,
 )
 from cmp.shared.domain.revisions import RevisionRecord, TenantScope
 from fastapi import FastAPI, Request
@@ -237,12 +246,31 @@ class _Service:
         result_id: UUID,
         *,
         maximum_points: int,
-    ) -> tuple[ReplicateCurvePoint, ...]:
+    ) -> ReplicateCurvePreview:
         assert context is CONTEXT and decision is READ and result_id == RESULT
         assert maximum_points == 1000
-        return (
+        points = (
             ReplicateCurvePoint(0.0, SCALAR),
             ReplicateCurvePoint(0.03, SCALAR),
+        )
+        series = reference_tensile_replicate_curve_series(points)
+        return ReplicateCurvePreview(
+            result=RESULT_SNAPSHOT,
+            points=points,
+            metadata=CurveMetadata(
+                state=MetadataState.LEGACY_COMPATIBLE,
+                definition=series.definition,
+                owning_revision=RevisionPin(
+                    "replicate_statistical_result", RESULT, RESULT_REVISION
+                ),
+                artifact=ArtifactPin(
+                    CURVE_ARTIFACT,
+                    RESULT_SNAPSHOT.current.content.curve_sha256,
+                    REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMA_V1,
+                    "application/vnd.apache.parquet",
+                ),
+            ),
+            series=series.preview(maximum_points),
         )
 
 

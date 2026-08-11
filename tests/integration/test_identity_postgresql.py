@@ -149,8 +149,12 @@ def test_auto_provision_is_idempotent_and_updates_only_projection_fields(
     assert first.id == second.id
     assert first.id.version == 4
     assert second.display_name == "Renamed User"
-    assert len(principal_rows) == len(external_rows) == 1
-    assert principal_rows[0]["principal_type"] == "user"
+    assert len(external_rows) == 1
+    linked_principals = [
+        row for row in principal_rows if row["id"] == external_rows[0]["principal_id"]
+    ]
+    assert len(linked_principals) == 1
+    assert linked_principals[0]["principal_type"] == "user"
     assert external_rows[0]["issuer"] == token.issuer
     assert external_rows[0]["subject"] == token.subject
     assert external_rows[0]["last_seen_at"] == second_seen

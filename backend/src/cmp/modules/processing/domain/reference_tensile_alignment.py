@@ -9,7 +9,12 @@ from enum import StrEnum
 from itertools import pairwise
 
 from cmp.modules.datasets.domain.reference_tensile import CurvePoint
-from cmp.modules.processing.domain.reference_tensile_crop import InvalidProcessingRequest
+from cmp.modules.processing.domain.reference_tensile_crop import (
+    REFERENCE_TENSILE_CROP_INPUT_SCHEMA,
+    REFERENCE_TENSILE_CROP_OUTPUT_SCHEMA,
+    REFERENCE_TENSILE_CROP_SCHEMA_PAIRS,
+    InvalidProcessingRequest,
+)
 
 REFERENCE_TENSILE_ALIGNMENT_RECIPE_KIND = "reference_tensile_common_grid_linear"
 REFERENCE_TENSILE_ALIGNMENT_SCHEMA_VERSION = "1.0.0"
@@ -49,6 +54,8 @@ class ReferenceTensileAlignmentRecipeContent:
     domain_policy: AlignmentDomainPolicy
     interpolation_policy: AlignmentInterpolationPolicy
     extrapolation_policy: AlignmentExtrapolationPolicy
+    input_schema_ref: str = REFERENCE_TENSILE_CROP_INPUT_SCHEMA
+    output_schema_ref: str = REFERENCE_TENSILE_CROP_OUTPUT_SCHEMA
 
     def __post_init__(self) -> None:
         if (
@@ -80,6 +87,12 @@ class ReferenceTensileAlignmentRecipeContent:
             )
         if self.extrapolation_policy is not AlignmentExtrapolationPolicy.REJECT:
             raise InvalidProcessingRequest("extrapolation must be explicitly rejected")
+        if (self.input_schema_ref, self.output_schema_ref) not in (
+            REFERENCE_TENSILE_CROP_SCHEMA_PAIRS
+        ):
+            raise InvalidProcessingRequest(
+                "reference tensile Recipe input/output schema versions must form a reviewed pair"
+            )
 
 
 @dataclass(frozen=True, slots=True)
@@ -99,8 +112,8 @@ def reference_tensile_alignment_canonical(
 ) -> dict[str, object]:
     return {
         "recipe_kind": REFERENCE_TENSILE_ALIGNMENT_RECIPE_KIND,
-        "input_schema_ref": "urn:cmp:datasets:reference-tensile-normalized-parquet:1.0.0",
-        "output_schema_ref": "urn:cmp:datasets:reference-tensile-processed-parquet:1.0.0",
+        "input_schema_ref": value.input_schema_ref,
+        "output_schema_ref": value.output_schema_ref,
         "steps": [
             {
                 "ordinal": 0,

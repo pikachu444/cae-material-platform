@@ -18,6 +18,7 @@ from cmp.modules.artifacts.domain.content import (
     ArtifactNotFound,
     InvalidArtifact,
 )
+from cmp.modules.datasets.contracts import CurveMetadataResponse, CurveSeriesPreviewResponse
 from cmp.modules.datasets.domain.reference_tensile import DatasetError, DatasetNotFound
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
@@ -59,7 +60,6 @@ from cmp.modules.statistics.domain.reference_tensile_outlier import (
 from cmp.modules.statistics.domain.reference_tensile_pair import (
     REFERENCE_TENSILE_PAIR_ASSUMPTION_PROFILE,
     REFERENCE_TENSILE_PAIR_CI_STATUS,
-    REFERENCE_TENSILE_PAIR_CURVE_SCHEMA,
     REFERENCE_TENSILE_PAIR_GRID_POLICY,
     REFERENCE_TENSILE_PAIR_PLAN_KIND,
     REFERENCE_TENSILE_PAIR_QUANTILE_METHOD,
@@ -167,13 +167,13 @@ class ReferenceTensilePairPlanContentResponse(BaseModel):
             first_selection_revision_id=value.first_selection_revision_id,
             second_selection_id=value.second_selection_id,
             second_selection_revision_id=value.second_selection_revision_id,
-            input_schema_ref="urn:cmp:datasets:reference-tensile-normalized-parquet:1.0.0",
+            input_schema_ref=value.input_schema_ref,
             scalar_feature=REFERENCE_TENSILE_PAIR_SCALAR_FEATURE,
             curve_grid_policy=REFERENCE_TENSILE_PAIR_GRID_POLICY,
             assumption_profile=REFERENCE_TENSILE_PAIR_ASSUMPTION_PROFILE,
             quantile_method=REFERENCE_TENSILE_PAIR_QUANTILE_METHOD,
             confidence_interval_status=REFERENCE_TENSILE_PAIR_CI_STATUS,
-            curve_output_schema_ref=REFERENCE_TENSILE_PAIR_CURVE_SCHEMA,
+            curve_output_schema_ref=value.curve_output_schema_ref,
         )
 
 
@@ -467,6 +467,8 @@ class StatisticalCurvePreviewResponse(BaseModel):
     strain_unit: str
     stress_unit: str
     points: tuple[ReferenceTensilePairCurvePointResponse, ...]
+    curve_metadata: CurveMetadataResponse
+    curve_series: CurveSeriesPreviewResponse
 
 
 class ReferenceTensilePairOutlierDetectionPlanInput(BaseModel):
@@ -1413,8 +1415,7 @@ def install_statistics_api(
         if service is None:
             raise _unavailable(context)
         try:
-            result = service.get_result(context, decision, result_id)
-            points = await service.preview_reference_tensile_pair_result_curve(
+            preview = await service.preview_reference_tensile_pair_result_curve(
                 context,
                 decision,
                 result_id,
@@ -1423,13 +1424,16 @@ def install_statistics_api(
         except Exception as error:
             raise _translate(context, error) from error
         return StatisticalCurvePreviewResponse(
-            statistical_result_id=result.id,
-            point_count=result.current.content.curve_point_count,
-            returned_point_count=len(points),
-            sampled=len(points) != result.current.content.curve_point_count,
+            statistical_result_id=preview.result.id,
+            point_count=preview.series.point_count,
+            returned_point_count=preview.series.returned_point_count,
+            sampled=preview.series.sampled,
             strain_unit="1",
             stress_unit="Pa",
             points=tuple(
-                ReferenceTensilePairCurvePointResponse.from_domain(item) for item in points
+                ReferenceTensilePairCurvePointResponse.from_domain(item)
+                for item in preview.points
             ),
+            curve_metadata=CurveMetadataResponse.from_domain(preview.metadata),
+            curve_series=CurveSeriesPreviewResponse.from_domain(preview.series),
         )

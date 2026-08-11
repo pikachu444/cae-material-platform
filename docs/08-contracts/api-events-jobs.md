@@ -183,7 +183,7 @@ commit 또는 Bundle revision을 덮어쓰지 않는다.
 
 ### 3.5 Common unit and Unit Profile
 
-HTTP contract `0.34.0` references
+HTTP contract `0.35.0` references
 `contracts/units/unit-resources.schema.json` contract `1.0.0` directly.
 
 | Method/path | 목적 |
@@ -231,6 +231,35 @@ profile-bearing 결과에서 이 trace를 보존한다. Profile-free legacy 요�
 `message`, `location`, `source_dimension`, `target_dimension`을 제공하며 unsupported unit,
 cross-dimension, semantics 변경, numeric 범위, 누락 selection, 보이지 않는 revision,
 authorization 불일치와 잘못된 exact hash를 silent fallback 없이 구분한다.
+
+### 3.6 Curve channel metadata and deviation
+
+HTTP contract `0.35.0` references
+`contracts/datasets/curve-channel-metadata.schema.json` contract `1.0.0`. Dataset, canonical Test
+Data, Processing stage/ensemble and Statistics curve responses add the same `curve_metadata` and
+bounded same-index series shape. The following exact reads are the primary public entry points.
+
+| Method/path | 목적 |
+| --- | --- |
+| `GET /test-data-documents/{document_id}/revisions/{revision_id}/curve` | exact canonical Test Data revision의 검증된 curve와 channel/unit definition 조회 |
+| `GET /dataset-revisions/{dataset_revision_id}/curve` | raw/normalized/processed Dataset Artifact의 bounded preview 조회 |
+| `GET /catalog/records/{record_id}/revisions/{record_revision_id}/curve-values/{attribute_definition_id}/preview` | exact Catalog Record revision의 curve pointer, metadata 상태와 Modeling eligibility 조회 |
+| `GET /statistical-results/{result_id}/curve` | reference pair의 exact pointwise 통계 의미와 source/calculation evidence 조회 |
+| `GET /replicate-statistical-results/{result_id}/curve` | replicate 통계의 SD/MAD/IQR/CV/CI와 pointwise source count 조회 |
+
+`curve_metadata`는 definition JSON과 SHA-256, owning revision, Artifact ID/digest/schema ref,
+exact source revision/digest와 calculation plan/run/result provenance pointer를 반환한다. 채널은
+role, quantity semantics, original unit 목록, normalized/display unit, exact scale/offset와 저장
+값 basis를 갖는다. 편차는 scalar 또는 pointwise이며 kind, method/version, direction/band group,
+source count와 종류별 confidence/coverage/ddof/quantile parameters를 보존한다.
+
+서버는 전체 Artifact의 digest, columns, 같은-index 길이, definition hash, unit dimension과
+source/provenance 일치를 확인한 뒤에만 preview를 sampling한다. 알려진 legacy schema adapter는
+`legacy_compatible`, 알 수 없는 과거 Artifact는 값과 availability를 유지한 `absent`를 반환한다.
+`absent`는 채널·단위·편차 또는 Fit eligibility를 추정하지 않는다. 알려진 형식이나 declared
+metadata가 손상된 경우 `CMP-CURVE-0001..0038`의 `code`, `location`, `message`를 가진 structured
+error로 실패한다. 새로 생성하거나 실제로 변경하는 Catalog curve pointer는 declared 또는 reviewed
+legacy adapter를 통과해야 하지만, 변경하지 않은 역사적 unknown pointer는 계속 읽을 수 있다.
 
 ## 4. Revision create 예시
 

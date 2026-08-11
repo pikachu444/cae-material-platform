@@ -103,7 +103,9 @@
       "properties": {
         "recipe_label": {"type": "string", "minLength": 1, "maxLength": 160},
         "minimum_engineering_strain": {"type": "number", "minimum": 0},
-        "maximum_engineering_strain": {"type": "number"}
+        "maximum_engineering_strain": {"type": "number"},
+        "input_schema_ref": {"enum": ["urn:cmp:datasets:reference-tensile-normalized-parquet:1.0.0", "urn:cmp:datasets:reference-tensile-normalized-parquet:1.1.0"], "default": "urn:cmp:datasets:reference-tensile-normalized-parquet:1.1.0"},
+        "output_schema_ref": {"enum": ["urn:cmp:datasets:reference-tensile-processed-parquet:1.0.0", "urn:cmp:datasets:reference-tensile-processed-parquet:1.1.0"], "default": "urn:cmp:datasets:reference-tensile-processed-parquet:1.1.0"}
       }
     },
     "CreateReferenceTensileCropRecipeRequest": {
@@ -130,7 +132,9 @@
         "grid_point_count": {"type": "integer", "minimum": 2, "maximum": 100000},
         "domain_policy": {"const": "intersection"},
         "interpolation_policy": {"const": "piecewise_linear"},
-        "extrapolation_policy": {"const": "reject"}
+        "extrapolation_policy": {"const": "reject"},
+        "input_schema_ref": {"enum": ["urn:cmp:datasets:reference-tensile-normalized-parquet:1.0.0", "urn:cmp:datasets:reference-tensile-normalized-parquet:1.1.0"], "default": "urn:cmp:datasets:reference-tensile-normalized-parquet:1.1.0"},
+        "output_schema_ref": {"enum": ["urn:cmp:datasets:reference-tensile-processed-parquet:1.0.0", "urn:cmp:datasets:reference-tensile-processed-parquet:1.1.0"], "default": "urn:cmp:datasets:reference-tensile-processed-parquet:1.1.0"}
       }
     },
     "CreateReferenceTensileAlignmentRecipeRequest": {
@@ -155,6 +159,8 @@
         "recipe_label": {"type": "string", "minLength": 1, "maxLength": 160},
         "minimum_engineering_strain": {"type": "number", "minimum": 0},
         "maximum_engineering_strain": {"type": "number"},
+        "input_schema_ref": {"enum": ["urn:cmp:datasets:reference-tensile-normalized-parquet:1.0.0", "urn:cmp:datasets:reference-tensile-normalized-parquet:1.1.0"]},
+        "output_schema_ref": {"enum": ["urn:cmp:datasets:reference-tensile-processed-parquet:1.0.0", "urn:cmp:datasets:reference-tensile-processed-parquet:1.1.0"]},
         "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
       }
     },
@@ -170,8 +176,8 @@
         "step_count": {"const": 1},
         "minimum_engineering_strain": {"type": "number", "minimum": 0},
         "maximum_engineering_strain": {"type": "number"},
-        "input_schema_ref": {"const": "urn:cmp:datasets:reference-tensile-normalized-parquet:1.0.0"},
-        "output_schema_ref": {"const": "urn:cmp:datasets:reference-tensile-processed-parquet:1.0.0"},
+        "input_schema_ref": {"enum": ["urn:cmp:datasets:reference-tensile-normalized-parquet:1.0.0", "urn:cmp:datasets:reference-tensile-normalized-parquet:1.1.0"]},
+        "output_schema_ref": {"enum": ["urn:cmp:datasets:reference-tensile-processed-parquet:1.0.0", "urn:cmp:datasets:reference-tensile-processed-parquet:1.1.0"]},
         "diagnostics_schema_ref": {"const": "urn:cmp:processing:reference-tensile-crop-diagnostics:1.0.0"},
         "boundary_policy": {"const": "select_observed_points_inclusive_no_interpolation"}
       }
@@ -194,8 +200,8 @@
         "domain_policy": {"const": "intersection"},
         "interpolation_policy": {"const": "piecewise_linear"},
         "extrapolation_policy": {"const": "reject"},
-        "input_schema_ref": {"const": "urn:cmp:datasets:reference-tensile-normalized-parquet:1.0.0"},
-        "output_schema_ref": {"const": "urn:cmp:datasets:reference-tensile-processed-parquet:1.0.0"},
+        "input_schema_ref": {"enum": ["urn:cmp:datasets:reference-tensile-normalized-parquet:1.0.0", "urn:cmp:datasets:reference-tensile-normalized-parquet:1.1.0"]},
+        "output_schema_ref": {"enum": ["urn:cmp:datasets:reference-tensile-processed-parquet:1.0.0", "urn:cmp:datasets:reference-tensile-processed-parquet:1.1.0"]},
         "diagnostics_schema_ref": {"const": "urn:cmp:processing:reference-tensile-common-grid-diagnostics:1.0.0"}
       }
     },

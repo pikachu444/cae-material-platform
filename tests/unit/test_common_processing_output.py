@@ -656,6 +656,14 @@ def test_profile_bearing_processing_output_pins_exact_revision_and_application_l
     document = json.loads(cast(bytes, artifacts.calls[0]["value"]))
     assert document["unit_profile"]["revision_id"] == str(pin.revision_id)
     assert document["unit_applications"][0]["role"] == "input"
+    first_stage_channels = {
+        item["quantity_semantics"]: item
+        for item in document["result"]["stages"][0]["curve_definition"]["channels"]
+    }
+    assert first_stage_channels["strain.engineering"]["display_unit"] == "%"
+    assert first_stage_channels["strain.engineering"]["display_scale"] == "1E+2"
+    assert first_stage_channels["stress.engineering"]["display_unit"] == "MPa"
+    assert first_stage_channels["stress.engineering"]["display_scale"] == "0.000001"
 
 
 def test_process_commits_two_exact_sibling_outputs_with_fresh_artifacts_and_revisions() -> None:

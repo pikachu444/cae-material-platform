@@ -7,6 +7,15 @@ from dataclasses import dataclass
 import numpy as np
 
 from cmp.modules.datasets.domain.canonical_test_data import CanonicalTestDataDocument
+from cmp.modules.datasets.domain.curve_metadata import (
+    BoundDirection,
+    Coverage,
+    CurveDefinition,
+    CurveDeviation,
+    CurveSeries,
+    DeviationKind,
+    DeviationScope,
+)
 from cmp.modules.processing.domain.common_pipeline import (
     COMMON_METHOD_VERSION,
     MAX_PREVIEW_POINTS,
@@ -16,6 +25,7 @@ from cmp.modules.processing.domain.common_pipeline import (
     MethodDefinition,
     ProcessingStep,
     QuantitySeries,
+    curve_stage_series,
     preview_pipeline,
 )
 
@@ -107,6 +117,128 @@ class EnsemblePreview:
     members: tuple[EnsembleMember, ...]
     statistics: tuple[PointwiseStatistics, ...]
     diagnostics: tuple[str, ...]
+
+
+def pointwise_statistics_curve(
+    value: EnsemblePreview, statistic: PointwiseStatistics
+) -> CurveSeries:
+    """Project existing evidence only; this function performs no new statistics."""
+
+    source_count = len(value.members)
+    stage = CurveStage(
+        ordinal=1,
+        method_id=STATISTICS_METHOD_ID,
+        method_version=COMMON_METHOD_VERSION,
+        point_count=len(value.grid),
+        series=(
+            QuantitySeries(value.independent_quantity, value.grid_unit, value.grid),
+            QuantitySeries(statistic.quantity, statistic.unit, statistic.mean),
+        ),
+        diagnostics=value.diagnostics,
+    )
+    base = curve_stage_series(stage, value.independent_quantity)
+    prefix = statistic.quantity
+    deviations = (
+        CurveDeviation(
+            key=f"{prefix}.standard_deviation",
+            target_channel_key=statistic.quantity,
+            scope=DeviationScope.POINTWISE,
+            kind=DeviationKind.STANDARD_DEVIATION,
+            method_id="sample.standard_deviation",
+            method_version=COMMON_METHOD_VERSION,
+            unit=statistic.unit,
+            series_key=f"{prefix}.standard_deviation.values",
+            source_count=source_count,
+            ddof=1,
+        ),
+        CurveDeviation(
+            key=f"{prefix}.mad",
+            target_channel_key=statistic.quantity,
+            scope=DeviationScope.POINTWISE,
+            kind=DeviationKind.MEDIAN_ABSOLUTE_DEVIATION,
+            method_id="median_absolute_deviation.unscaled",
+            method_version=COMMON_METHOD_VERSION,
+            unit=statistic.unit,
+            series_key=f"{prefix}.mad.values",
+            source_count=source_count,
+        ),
+        CurveDeviation(
+            key=f"{prefix}.q1",
+            target_channel_key=statistic.quantity,
+            scope=DeviationScope.POINTWISE,
+            kind=DeviationKind.QUANTILE,
+            method_id="quantile.linear",
+            method_version=COMMON_METHOD_VERSION,
+            unit=statistic.unit,
+            bound_direction=BoundDirection.LOWER,
+            band_group=f"{prefix}.interquartile_quantiles",
+            series_key=f"{prefix}.q1.values",
+            source_count=source_count,
+            quantile_probability=0.25,
+            quantile_method="linear",
+        ),
+        CurveDeviation(
+            key=f"{prefix}.q3",
+            target_channel_key=statistic.quantity,
+            scope=DeviationScope.POINTWISE,
+            kind=DeviationKind.QUANTILE,
+            method_id="quantile.linear",
+            method_version=COMMON_METHOD_VERSION,
+            unit=statistic.unit,
+            bound_direction=BoundDirection.UPPER,
+            band_group=f"{prefix}.interquartile_quantiles",
+            series_key=f"{prefix}.q3.values",
+            source_count=source_count,
+            quantile_probability=0.75,
+            quantile_method="linear",
+        ),
+        CurveDeviation(
+            key=f"{prefix}.mean_ci_95_lower",
+            target_channel_key=statistic.quantity,
+            scope=DeviationScope.POINTWISE,
+            kind=DeviationKind.CONFIDENCE_BOUND,
+            method_id="normal_approximation.mean_two_sided",
+            method_version=COMMON_METHOD_VERSION,
+            unit=statistic.unit,
+            bound_direction=BoundDirection.LOWER,
+            band_group=f"{prefix}.mean_ci_95",
+            series_key=f"{prefix}.mean_ci_95_lower.values",
+            source_count=source_count,
+            confidence_level=0.95,
+            coverage=Coverage.POINTWISE,
+            ddof=1,
+        ),
+        CurveDeviation(
+            key=f"{prefix}.mean_ci_95_upper",
+            target_channel_key=statistic.quantity,
+            scope=DeviationScope.POINTWISE,
+            kind=DeviationKind.CONFIDENCE_BOUND,
+            method_id="normal_approximation.mean_two_sided",
+            method_version=COMMON_METHOD_VERSION,
+            unit=statistic.unit,
+            bound_direction=BoundDirection.UPPER,
+            band_group=f"{prefix}.mean_ci_95",
+            series_key=f"{prefix}.mean_ci_95_upper.values",
+            source_count=source_count,
+            confidence_level=0.95,
+            coverage=Coverage.POINTWISE,
+            ddof=1,
+        ),
+    )
+    definition = CurveDefinition(channels=base.definition.channels, deviations=deviations)
+    return CurveSeries(
+        definition=definition,
+        channels=base.channels,
+        deviations={
+            f"{prefix}.standard_deviation.values": statistic.standard_deviation,
+            f"{prefix}.mad.values": statistic.mad,
+            f"{prefix}.q1.values": statistic.q1,
+            f"{prefix}.q3.values": statistic.q3,
+            f"{prefix}.mean_ci_95_lower.values": statistic.confidence_95_lower,
+            f"{prefix}.mean_ci_95_upper.values": statistic.confidence_95_upper,
+        },
+        source_counts={},
+    )
 
 
 def _series(stage: CurveStage) -> dict[str, QuantitySeries]:

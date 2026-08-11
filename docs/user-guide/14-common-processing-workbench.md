@@ -81,7 +81,8 @@ specimen별 26 px tree 행을 표시합니다. 예를 들어 tensile 문서는 `
 specimen/revision 보조 줄을 유지합니다. 이 rail은 Validate, Review와
 Export에는 표시하지 않습니다. Process에서 호환되는 포함 curve가 두 개 이상일 때만 **Replicate analysis**를 열고 **Preview mean & band**를
 누를 수 있습니다. 그러면 가운데 plot이 **Mean & band** 보기로 전환되어 개별 curve,
-pointwise mean과 95% mean confidence band를 함께 표시합니다. 이 계산에는 `rows.*`와 `curve.*`
+pointwise mean과 서버 metadata에 기록된 confidence band를 함께 표시합니다. 범례와 tooltip은
+고정 문구 대신 method, confidence level, pointwise/simultaneous 여부와 source count를 읽습니다. 이 계산에는 `rows.*`와 `curve.*`
 공통 전처리만 적용되며, hardening이나 Prony 같은 모델 fitting 단계는 반복 실행하지 않습니다.
 
 Candidate parameters처럼 사용자가 명시적으로 펼친 보조 pane은 실제 graph 배정 폭이 1px 미만이
@@ -421,11 +422,14 @@ Data selection 같은 일반 upstream draft 변경은 기존 invalidation 규칙
 4. 서버는 각 문서에 같은 Mapping Profile과 ordered preprocessing steps를 적용합니다.
 5. 모든 curve에서 실제로 관측된 x-domain의 교집합만 사용해 선형 보간합니다. 교집합 밖
    extrapolation은 허용하지 않습니다.
-6. member curve, 평균, 95% 평균 신뢰구간을 함께 확인하고, 마지막 grid point의 표본 표준편차,
-   MAD와 IQR을 검토합니다.
+6. member curve, 평균과 metadata가 선언한 band를 함께 확인하고, 마지막 grid point의 표본 표준편차,
+   MAD와 IQR을 검토합니다. Pointer 또는 graph focus 뒤 Arrow key로 point를 옮기면 축 label/unit,
+   값, band kind·method·coverage와 `n`이 같은 tooltip/live text에 나타납니다. `Escape`는 탐색을
+   끝내고 legend toggle은 현재 graph에서만 series visibility를 바꿉니다.
 
-통계 계약은 표본 표준편차 `ddof=1`, unscaled MAD, linear q1/q3 quantile, normal-approximation
-95% mean CI를 명시합니다. 이 결과는 T-53 preview이며, T-54에서 exact Selection과 versioned
+현재 Processing ensemble 통계 계약은 표본 표준편차 `ddof=1`, unscaled MAD, linear q1/q3
+quantile, normal-approximation pointwise 95% mean CI를 명시합니다. 화면은 이 기존 method evidence를
+그대로 표시하며 새 통계를 계산하거나 모든 band를 95% CI로 추정하지 않습니다. 이 결과는 T-53 preview이며, T-54에서 exact Selection과 versioned
 Recipe/Batch 실행 결과로 저장됩니다.
 
 

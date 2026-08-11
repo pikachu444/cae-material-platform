@@ -144,6 +144,26 @@ Feature 이름만 같고 extraction method가 다르면 같은 값으로 합치�
 
 Pointwise mean curve가 실제 가능한 material response인지 자동 가정하지 않는다. 보정 입력으로 사용하려면 별도 Selection/Processing decision이 필요하다.
 
+### 7.4 공유 curve metadata와 band 표시
+
+Curve Artifact와 preview는 `urn:cmp:datasets:curve-channel-metadata:1.0.0`을 사용한다. 각 통계
+series는 대상 channel, `channel_scalar | pointwise`, kind, method ID/version, unit, bound direction,
+band group과 scalar 또는 pointwise source count를 기록한다. Standard deviation/error,
+confidence/prediction/tolerance bound, quantile, MAD, IQR, range bound와 coefficient of variation은
+서로 다른 kind이며 화면이 모두를 일반적인 "편차"로 축약하지 않는다.
+
+Confidence level, pointwise/simultaneous coverage, `ddof`, quantile probability/method는 해당
+kind에서만 사용한다. 같은 target/method/unit/coverage/source-count를 가진 explicit lower/upper
+pair만 채워진 band로 표시한다. 단일 bound, SD/MAD/IQR/CV 또는 metadata 없는 legacy 값으로 band를
+추정하지 않는다. Bounded preview는 full Artifact 검증 뒤 같은 index를 sampling하므로 계산용 full
+array와 display array를 혼용하지 않는다.
+
+현재 pair와 replicate 결과의 기존 계산 evidence만 projection한다. Reference pair는 CI가 없고
+`ddof=1` SD와 range를 유지한다. Replicate 결과는 `ddof=1` SD, unscaled MAD, linear q1/q3,
+Student-t pointwise mean 95% CI와 `n(x)`를 유지한다. Processing ensemble의 기존
+normal-approximation pointwise 95% mean CI도 method를 그대로 밝힌다. 이 metadata 계약은 계산,
+alignment, resampling, smoothing, 대표곡선 생성 또는 Fit 승인을 추가하지 않는다.
+
 ## 8. Outlier candidate와 판정
 
 ### 8.1 후보 방법
@@ -265,6 +285,7 @@ MVP는 반복시험 descriptive scatter를 제공하되 이를 완전한 measure
 - 동일 scale/units로 비교; 자동 단위 변환 시 표시
 - specimen/lot/batch/condition filter
 - curve hover에서 specimen/test-run provenance
+- pointer와 keyboard tooltip에서 axis label/unit, 값, band kind/method/coverage와 `n(x)` 표시
 - outlier candidate를 숨기지 않고 style로 표시
 - exclusion on/off에 따른 결과 비교
 - `n(x)`가 감소하는 domain 표시

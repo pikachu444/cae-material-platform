@@ -6,14 +6,25 @@ import math
 from dataclasses import dataclass
 from enum import StrEnum
 
-from cmp.modules.datasets.domain.reference_tensile import CurvePoint, InvalidDatasetData
+from cmp.modules.datasets.domain.reference_tensile import (
+    REFERENCE_TENSILE_PARQUET_SCHEMA,
+    REFERENCE_TENSILE_PARQUET_SCHEMA_V1,
+    REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA,
+    REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA_V1,
+    CurvePoint,
+    InvalidDatasetData,
+)
 
 REFERENCE_TENSILE_CROP_RECIPE_KIND = "reference_tensile_inclusive_crop"
-REFERENCE_TENSILE_CROP_INPUT_SCHEMA = (
-    "urn:cmp:datasets:reference-tensile-normalized-parquet:1.0.0"
-)
-REFERENCE_TENSILE_CROP_OUTPUT_SCHEMA = (
-    "urn:cmp:datasets:reference-tensile-processed-parquet:1.0.0"
+REFERENCE_TENSILE_CROP_INPUT_SCHEMA_V1 = REFERENCE_TENSILE_PARQUET_SCHEMA_V1
+REFERENCE_TENSILE_CROP_INPUT_SCHEMA = REFERENCE_TENSILE_PARQUET_SCHEMA
+REFERENCE_TENSILE_CROP_OUTPUT_SCHEMA_V1 = REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA_V1
+REFERENCE_TENSILE_CROP_OUTPUT_SCHEMA = REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA
+REFERENCE_TENSILE_CROP_SCHEMA_PAIRS = frozenset(
+    {
+        (REFERENCE_TENSILE_CROP_INPUT_SCHEMA_V1, REFERENCE_TENSILE_CROP_OUTPUT_SCHEMA_V1),
+        (REFERENCE_TENSILE_CROP_INPUT_SCHEMA, REFERENCE_TENSILE_CROP_OUTPUT_SCHEMA),
+    }
 )
 REFERENCE_TENSILE_CROP_DIAGNOSTICS_SCHEMA = (
     "urn:cmp:processing:reference-tensile-crop-diagnostics:1.0.0"
@@ -58,6 +69,8 @@ class ReferenceTensileCropRecipeContent:
     recipe_label: str
     minimum_engineering_strain: float
     maximum_engineering_strain: float
+    input_schema_ref: str = REFERENCE_TENSILE_CROP_INPUT_SCHEMA
+    output_schema_ref: str = REFERENCE_TENSILE_CROP_OUTPUT_SCHEMA
 
     def __post_init__(self) -> None:
         _label(self.recipe_label)
@@ -68,6 +81,12 @@ class ReferenceTensileCropRecipeContent:
         if self.maximum_engineering_strain <= self.minimum_engineering_strain:
             raise InvalidProcessingRequest(
                 "maximum_engineering_strain must be greater than minimum_engineering_strain"
+            )
+        if (self.input_schema_ref, self.output_schema_ref) not in (
+            REFERENCE_TENSILE_CROP_SCHEMA_PAIRS
+        ):
+            raise InvalidProcessingRequest(
+                "reference tensile Recipe input/output schema versions must form a reviewed pair"
             )
 
 
@@ -95,8 +114,8 @@ def reference_tensile_crop_canonical(
 
     return {
         "recipe_kind": REFERENCE_TENSILE_CROP_RECIPE_KIND,
-        "input_schema_ref": REFERENCE_TENSILE_CROP_INPUT_SCHEMA,
-        "output_schema_ref": REFERENCE_TENSILE_CROP_OUTPUT_SCHEMA,
+        "input_schema_ref": value.input_schema_ref,
+        "output_schema_ref": value.output_schema_ref,
         "steps": [
             {
                 "ordinal": 0,

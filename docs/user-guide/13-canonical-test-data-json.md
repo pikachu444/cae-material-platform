@@ -40,9 +40,17 @@ Processing Workbench에 직접 연결합니다.
 - 채널별 quantity semantics, original unit, normalized unit, 변환 scale/offset와 결측 수
 - canonical JSON Artifact UUID/SHA-256
 - 계산용 normalized Parquet Artifact UUID/SHA-256
+- normalized Parquet의 curve definition `1.0.0`과 SHA-256, independent/dependent/auxiliary role,
+  original/normalized/display unit와 exact scale/offset
 
 같은 `document_id`를 다시 검증하면 화면은 현재 ETag를 사용해 새 immutable revision을
 추가합니다. 기존 revision과 Artifact는 덮어쓰지 않습니다. 다른 stable identity의 최초 등록과
 revision 추가는 서버에서 구분됩니다. JSON+ZIP은 UUID 기반 안전 경로와 고정 ZIP metadata를
 사용하므로 같은 exact revision 선택은 같은 byte digest를 만듭니다. 후속 T-52 increment는
 CSV/XLSX adapter와 package import/대용량 chunk 확장을 제공합니다.
+
+Exact revision의 curve preview는 먼저 전체 immutable Parquet와 definition hash를 검증한 뒤 같은
+index로 화면용 point를 줄입니다. #205 공통 registry에 속한 quantity는 exact Unit Profile과 공통
+unit service를 사용합니다. registry 밖의 기존 canonical quantity(예: `frequency.cyclic`/`Hz`)는
+저장된 semantics와 명시적 scale/offset을 그대로 유지하며 자동으로 registry에 추가하거나 추론하지
+않습니다. metadata가 기록되지 않은 과거 Artifact에는 band나 단위를 채워 넣지 않습니다.

@@ -182,6 +182,7 @@ import type {
   ConfigurableRecordLinkView,
   CatalogExplorerChildrenResponse,
   CatalogWorkflowGraphResponse,
+  CatalogCurvePreviewResponse,
   DomainBindingKind,
   DomainRevisionBinding,
   RevisionMetadata,
@@ -1133,6 +1134,20 @@ export function listConfigurableCatalogRecordRevisions(
   recordId: string,
 ): Promise<ApiResult<ConfigurableCatalogRecordRevisionList>> {
   return request(config, `/catalog/records/${encodeURIComponent(recordId)}/revisions`);
+}
+
+export function previewExactCatalogCurveValue(
+  config: ApiConfig,
+  recordId: string,
+  recordRevisionId: string,
+  attributeDefinitionId: string,
+  maximumPoints = 1000,
+): Promise<ApiResult<CatalogCurvePreviewResponse>> {
+  const query = new URLSearchParams({ maximum_points: String(maximumPoints) });
+  return request(
+    config,
+    `/catalog/records/${encodeURIComponent(recordId)}/revisions/${encodeURIComponent(recordRevisionId)}/curve-values/${encodeURIComponent(attributeDefinitionId)}/preview?${query.toString()}`,
+  );
 }
 
 export function compareConfigurableCatalogRecordRevisions(

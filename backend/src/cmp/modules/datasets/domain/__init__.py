@@ -2,6 +2,7 @@
 
 from cmp.modules.datasets.domain.reference_tensile import (
     REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA,
+    REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA_V1,
     DatasetConflict,
     DatasetContent,
     DatasetError,
@@ -18,6 +19,7 @@ from cmp.modules.datasets.domain.selection import (
 __all__ = [
     "REFERENCE_DATASET_SELECTION_SCHEMA_VERSION",
     "REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA",
+    "REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA_V1",
     "DatasetConflict",
     "DatasetContent",
     "DatasetError",

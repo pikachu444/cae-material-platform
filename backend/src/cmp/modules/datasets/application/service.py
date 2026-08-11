@@ -8,10 +8,25 @@ from uuid import NAMESPACE_URL, UUID, uuid5
 
 from cmp.modules.artifacts.application.content import ArtifactService
 from cmp.modules.artifacts.domain.content import ArtifactKind, ArtifactRecord, IntegrityStatus
+from cmp.modules.datasets.curve_artifacts import LegacyParquetAdapter, resolve_curve_artifact
+from cmp.modules.datasets.domain.curve_metadata import (
+    ArtifactPin,
+    CurveMetadata,
+    CurveSeries,
+    CurveSeriesPreview,
+    MetadataState,
+    ProvenanceKind,
+    ProvenancePointer,
+    RevisionPin,
+    SourcePin,
+    ValueBasis,
+)
 from cmp.modules.datasets.domain.reference_tensile import (
     MAX_REFERENCE_TENSILE_POINTS,
     REFERENCE_TENSILE_PARQUET_SCHEMA,
+    REFERENCE_TENSILE_PARQUET_SCHEMA_V1,
     REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA,
+    REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA_V1,
     REFERENCE_TENSILE_SCHEMA_VERSION,
     CurvePoint,
     DatasetConflict,
@@ -23,7 +38,7 @@ from cmp.modules.datasets.domain.reference_tensile import (
     normalized_parquet_bytes,
     normalized_points_from_parquet,
     parse_reference_tensile_csv,
-    preview_points,
+    reference_tensile_curve_definition,
 )
 from cmp.modules.datasets.domain.selection import (
     REFERENCE_DATASET_SELECTION_SCHEMA_VERSION,
@@ -192,6 +207,8 @@ class CurvePreview:
     strain_unit: str
     stress_unit: str
     points: tuple[CurvePoint, ...]
+    curve_metadata: CurveMetadata
+    curve_series: CurveSeriesPreview
 
 
 class DatasetRepository(Protocol):
@@ -985,7 +1002,11 @@ class DatasetService:
         if (
             artifact.integrity_status is not IntegrityStatus.VERIFIED
             or artifact.artifact.artifact_kind is not ArtifactKind.DERIVED
-            or artifact.artifact.schema_ref != REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA
+            or artifact.artifact.schema_ref
+            not in {
+                REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA,
+                REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA_V1,
+            }
             or artifact.artifact.media_type != "application/vnd.apache.parquet"
             or artifact.artifact.organization_id != context.organization_id
             or artifact.artifact.project_id != context.project_id
@@ -1154,7 +1175,7 @@ class DatasetService:
                     "deterministic Dataset identity is already bound to a different raw source"
                 ) from error
             raw_record_revision = existing.current.record
-        normalized_bytes = normalized_parquet_bytes(parsed.normalized_points)
+        normalized_bytes = normalized_parquet_bytes(parsed.normalized_points, command.mapping)
         derived = await self._artifacts.finalize_derived_bytes(
             context,
             decision,
@@ -1257,32 +1278,150 @@ class DatasetService:
             dataset_revision_id=dataset_revision_id,
         )
         content = snapshot.revision.content
-        _, data = await self._artifacts.read_verified_bytes(
+        artifact_record, data = await self._artifacts.read_verified_bytes(
             context,
             decision,
             content.data_artifact_id,
             maximum_bytes=16 * 1024 * 1024,
         )
+        artifact = artifact_record.artifact
+        if artifact.id != content.data_artifact_id or artifact.sha256 != content.data_sha256:
+            raise InvalidDatasetData(
+                "Dataset Artifact identity or digest differs from the immutable revision"
+            )
         if content.representation is DatasetRepresentation.RAW:
             parsed: ParsedReferenceTensile = parse_reference_tensile_csv(data, content.mapping)
             points = parsed.raw_points
             strain_unit = content.mapping.strain_unit
             stress_unit = content.mapping.stress_unit
+            definition = reference_tensile_curve_definition(
+                content.mapping, value_basis=ValueBasis.ORIGINAL
+            )
+            series = CurveSeries(
+                definition=definition,
+                channels={
+                    "engineering_strain": tuple(
+                        point.engineering_strain for point in points
+                    ),
+                    "engineering_stress": tuple(
+                        point.engineering_stress for point in points
+                    ),
+                },
+                deviations={},
+                source_counts={},
+            )
+            metadata_state = MetadataState.LEGACY_COMPATIBLE
         else:
             points = normalized_points_from_parquet(data)
             strain_unit = "1"
             stress_unit = "Pa"
+            definition = reference_tensile_curve_definition(
+                content.mapping,
+                value_basis=(
+                    ValueBasis.NORMALIZED
+                    if content.representation is DatasetRepresentation.NORMALIZED
+                    else ValueBasis.DERIVED
+                ),
+            )
+            schema_ref = artifact.schema_ref
+            if content.representation is DatasetRepresentation.NORMALIZED:
+                if schema_ref not in {
+                    REFERENCE_TENSILE_PARQUET_SCHEMA,
+                    REFERENCE_TENSILE_PARQUET_SCHEMA_V1,
+                }:
+                    raise InvalidDatasetData(
+                        "normalized Dataset Artifact schema differs from its typed revision"
+                    )
+                declared_required = schema_ref == REFERENCE_TENSILE_PARQUET_SCHEMA
+            else:
+                if schema_ref not in {
+                    REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA,
+                    REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA_V1,
+                }:
+                    raise InvalidDatasetData(
+                        "processed Dataset Artifact schema differs from its typed revision"
+                    )
+                declared_required = schema_ref == REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA
+            resolution = resolve_curve_artifact(
+                data,
+                schema_ref=schema_ref,
+                expected_sha256=artifact.sha256,
+                legacy_adapter=LegacyParquetAdapter(
+                    definition=definition,
+                    channel_columns={
+                        "engineering_strain": "engineering_strain",
+                        "engineering_stress": "engineering_stress_pa",
+                    },
+                    deviation_columns={},
+                    source_count_columns={},
+                ),
+                declared_required=declared_required,
+            )
+            assert resolution.series is not None
+            series = resolution.series
+            metadata_state = resolution.state
         if len(points) != content.point_count:
             raise InvalidDatasetData("Dataset Artifact point count differs from immutable revision")
-        preview = preview_points(points, maximum_points)
+        series_preview = series.preview(maximum_points)
+        preview = tuple(points[index] for index in series_preview.indices)
+        sources: tuple[SourcePin, ...] = ()
+        provenance: tuple[ProvenancePointer, ...] = ()
+        if content.source_dataset_revision_id is not None:
+            source = self._repository.get_dataset_revision(
+                context=context,
+                decision=decision,
+                dataset_revision_id=content.source_dataset_revision_id,
+            )
+            sources = (
+                SourcePin(
+                    entity_type="dataset",
+                    entity_id=source.dataset_id,
+                    revision_id=source.revision.record.revision_id,
+                    artifact_id=source.revision.content.data_artifact_id,
+                    artifact_sha256=source.revision.content.data_sha256,
+                ),
+            )
+            provenance = (
+                ProvenancePointer(
+                    kind=ProvenanceKind.INPUT_USAGE,
+                    entity_id=source.dataset_id,
+                    revision_id=source.revision.record.revision_id,
+                ),
+            )
+        if content.processing_run_id is not None:
+            provenance += (
+                ProvenancePointer(
+                    kind=ProvenanceKind.CALCULATION_RUN,
+                    entity_id=content.processing_run_id,
+                ),
+            )
+        metadata = CurveMetadata(
+            state=metadata_state,
+            definition=series.definition,
+            owning_revision=RevisionPin(
+                entity_type="dataset",
+                entity_id=snapshot.dataset_id,
+                revision_id=snapshot.revision.record.revision_id,
+            ),
+            artifact=ArtifactPin(
+                artifact_id=artifact.id,
+                sha256=artifact.sha256,
+                schema_ref=artifact.schema_ref,
+                media_type=artifact.media_type,
+            ),
+            sources=sources,
+            provenance=provenance,
+        )
         return CurvePreview(
             dataset_id=snapshot.dataset_id,
             dataset_revision_id=snapshot.revision.record.revision_id,
             representation=content.representation,
             point_count=len(points),
-            returned_point_count=len(preview),
-            sampled=len(preview) != len(points),
+            returned_point_count=series_preview.returned_point_count,
+            sampled=series_preview.sampled,
             strain_unit=strain_unit,
             stress_unit=stress_unit,
             points=preview,
+            curve_metadata=metadata,
+            curve_series=series_preview,
         )

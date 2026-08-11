@@ -42,9 +42,8 @@ from cmp.modules.processing.domain.reference_tensile_alignment import (
 )
 from cmp.modules.processing.domain.reference_tensile_crop import (
     REFERENCE_TENSILE_CROP_DIAGNOSTICS_SCHEMA,
-    REFERENCE_TENSILE_CROP_INPUT_SCHEMA,
-    REFERENCE_TENSILE_CROP_OUTPUT_SCHEMA,
     REFERENCE_TENSILE_CROP_RECIPE_KIND,
+    REFERENCE_TENSILE_CROP_SCHEMA_PAIRS,
     ProcessingConflict,
     ProcessingNotFound,
     ProcessingRunStatus,
@@ -211,8 +210,11 @@ def _content(row: Any) -> ProcessingRecipeContent:
     kind = str(row["recipe_kind"])
     if (
         int(row["step_ordinal"]) != 0
-        or str(row["input_schema_ref"]) != REFERENCE_TENSILE_CROP_INPUT_SCHEMA
-        or str(row["output_schema_ref"]) != REFERENCE_TENSILE_CROP_OUTPUT_SCHEMA
+        or (
+            str(row["input_schema_ref"]),
+            str(row["output_schema_ref"]),
+        )
+        not in REFERENCE_TENSILE_CROP_SCHEMA_PAIRS
     ):
         raise ProcessingConflict("Processing Recipe revision violates its typed contract")
     if kind == REFERENCE_TENSILE_CROP_RECIPE_KIND:
@@ -222,6 +224,8 @@ def _content(row: Any) -> ProcessingRecipeContent:
             recipe_label=str(row["recipe_label"]),
             minimum_engineering_strain=float(row["minimum_engineering_strain"]),
             maximum_engineering_strain=float(row["maximum_engineering_strain"]),
+            input_schema_ref=str(row["input_schema_ref"]),
+            output_schema_ref=str(row["output_schema_ref"]),
         )
     if kind == REFERENCE_TENSILE_ALIGNMENT_RECIPE_KIND:
         if str(row["diagnostics_schema_ref"]) != REFERENCE_TENSILE_ALIGNMENT_DIAGNOSTICS_SCHEMA:
@@ -238,6 +242,8 @@ def _content(row: Any) -> ProcessingRecipeContent:
             extrapolation_policy=AlignmentExtrapolationPolicy(
                 str(row["extrapolation_policy"])
             ),
+            input_schema_ref=str(row["input_schema_ref"]),
+            output_schema_ref=str(row["output_schema_ref"]),
         )
     raise ProcessingConflict("Processing Recipe kind is unsupported")
 
@@ -245,8 +251,8 @@ def _content(row: Any) -> ProcessingRecipeContent:
 def _values(value: ProcessingRecipeContent) -> dict[str, object]:
     common: dict[str, object] = {
         "step_ordinal": 0,
-        "input_schema_ref": REFERENCE_TENSILE_CROP_INPUT_SCHEMA,
-        "output_schema_ref": REFERENCE_TENSILE_CROP_OUTPUT_SCHEMA,
+        "input_schema_ref": value.input_schema_ref,
+        "output_schema_ref": value.output_schema_ref,
         "minimum_engineering_strain": None,
         "maximum_engineering_strain": None,
         "grid_start_engineering_strain": None,

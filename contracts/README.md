@@ -3,7 +3,7 @@
 Status: foundation `T-02` through `T-18`, plus reference vertical subsets `T-07`, `T-08`,
 `T-11`, `T-12`, `T-19`, `T-20`, `T-21`, `T-22`, `T-25`, `T-26`, `T-27`, `T-28`, `T-29`,
 the `T-32` workbench, and product-depth slices `T-39` through `T-42`. HTTP contract version
-`0.34.0`.
+`0.35.0`.
 
 ## Files
 
@@ -29,6 +29,10 @@ the `T-32` workbench, and product-depth slices `T-39` through `T-42`. HTTP contr
 - `units/unit-resources.schema.json`: bounded common CAE dimension/unit registry, explicit
   conversions, structured errors, and immutable Unit Profile resources; `kg_m_s` remains a
   compatibility identifier rather than a production default
+- `datasets/curve-channel-metadata.schema.json`: additive curve definition contract `1.0.0` for
+  channel roles and quantity semantics, original/normalized/display units, exact scale/offset,
+  typed scalar or pointwise deviation evidence, immutable Artifact/revision/source pins, and
+  calculation provenance
 - `ir/material-model-ir-envelope.schema.json`: common IR envelope baseline
 - `datasets/reference-tensile-resources.schema.json`: typed reference tensile Dataset, curve, and
   immutable one-member Selection resources
@@ -131,6 +135,15 @@ the `T-32` workbench, and product-depth slices `T-39` through `T-42`. HTTP contr
   Test Runs. Curve statistics require identical observed engineering-strain grids; the contract
   explicitly forbids implicit alignment/resampling and marks the two-sample confidence interval as
   `not_provided_reference_pair`.
+- A curve preview validates the complete immutable Artifact before producing a same-index bounded
+  sample. Contract `1.0.0` distinguishes `declared`, reviewed `legacy_compatible`, and honest
+  `absent` metadata. Only an explicit lower/upper pair with one band group is rendered as a band;
+  method/version, pointwise or simultaneous coverage, confidence/quantile parameters and source
+  counts retain their recorded meanings. Unknown legacy formats remain readable as values without
+  inferred channels, units, deviation or Fit eligibility; known-but-corrupt formats fail closed.
+- Common-unit quantities use the exact #205 registry and Unit Profile trace. Existing canonical
+  quantities outside that closed registry, including `frequency.cyclic`/`Hz`, require their stored
+  explicit scale/offset and are neither rejected nor added to the registry by this contract.
 - A reference Validation Plan pins concrete Template, Material Model IR, Solver Card, and
   experimental Selection revisions; `reference_inline_mock` and `manual_attach` share one
   immutable Result Manifest shape. T-28 extracts a typed SI response only from bounded native

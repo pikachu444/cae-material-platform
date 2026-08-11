@@ -19,6 +19,12 @@ from typing import Any
 import seed_ogden_calibration_demo
 import seed_viscoelastic_master_demo
 from cmp.apps.demo_seed import DemoApi, DemoSeedError
+from cmp.modules.datasets.domain.reference_tensile import (
+    REFERENCE_TENSILE_PARQUET_SCHEMA,
+    REFERENCE_TENSILE_PARQUET_SCHEMA_V1,
+    REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA,
+    REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA_V1,
+)
 
 _DEMO_MATERIAL_FAMILY_VALUES = (
     "dual-phase steel",
@@ -63,6 +69,11 @@ _HARDENING_FAMILIES = ("voce", "swift", "hockett_sherby", "ghosh")
 _BATCH_PENDING_STATUSES = frozenset({"planned", "running"})
 _BATCH_POLL_ATTEMPTS = 30
 _BATCH_POLL_DELAY_SECONDS = 1.0
+_STATISTICS_ALIGNMENT_RECIPE_LABEL = "CMP demo DP780 statistics common grid"
+_STATISTICS_ALIGNED_SELECTION_LABEL = "CMP demo DP780 aligned tensile replicates"
+_STATISTICS_PLAN_LABEL = "CMP demo DP780 replicate curve statistics"
+_OBSERVED_CURVE_ATTRIBUTE_KEY = "observed_tensile_curve"
+_STATISTICS_CURVE_ATTRIBUTE_KEY = "replicate_statistics_curve"
 
 
 def _catalog_material_family_allowed_values() -> tuple[str, ...]:
@@ -158,6 +169,80 @@ def _revision_etag(value: Mapping[str, Any]) -> str:
     if not isinstance(revision_no, int):
         raise DemoSeedError("full demo response did not contain a revision number")
     return f'"revision:{revision_no}:sha256:{_revision_hash(value)}"'
+
+
+def _existing_demo_catalog_curve(
+    api: DemoApi, *, attribute_key: str
+) -> dict[str, str] | None:
+    """Return an already-pinned demo Curve without replaying its calculation."""
+
+    table = _find_by_content(
+        _items(api.get("/catalog/tables")), "key", "demo_material_records"
+    )
+    if table is None:
+        return None
+    table_id = _id(table, "table_id")
+    attribute = _find_by_content(
+        _items(api.get(f"/catalog/tables/{table_id}/attributes")),
+        "key",
+        attribute_key,
+    )
+    if attribute is None:
+        return None
+    record = next(
+        (
+            item
+            for item in _items(
+                api.post(
+                    "/catalog/records:search",
+                    {"table_id": table_id, "text": "CMP-DEMO-DP780", "limit": 20},
+                )
+            )
+            if _content(item).get("external_key") == "CMP-DEMO-DP780"
+        ),
+        None,
+    )
+    if record is None:
+        return None
+    attribute_id = _id(attribute, "attribute_definition_id")
+    curve_value = next(
+        (
+            item
+            for item in _content(record).get("values", ())
+            if isinstance(item, Mapping)
+            and item.get("data_type") == "curve"
+            and item.get("attribute_definition_id") == attribute_id
+        ),
+        None,
+    )
+    if not isinstance(curve_value, Mapping):
+        return None
+    artifact_id = curve_value.get("artifact_id")
+    artifact_sha256 = curve_value.get("artifact_sha256")
+    if not isinstance(artifact_id, str) or not isinstance(artifact_sha256, str):
+        raise DemoSeedError("existing demo Curve pointer is incomplete")
+    preview = api.get(
+        f"/catalog/records/{_id(record, 'record_id')}/revisions/{_revision_id(record)}/"
+        f"curve-values/{attribute_id}/preview?maximum_points=2"
+    )
+    metadata = preview.get("curve_metadata")
+    owner = metadata.get("owning_revision") if isinstance(metadata, Mapping) else None
+    owner_id = owner.get("entity_id") if isinstance(owner, Mapping) else None
+    owner_revision_id = owner.get("revision_id") if isinstance(owner, Mapping) else None
+    return {
+        "curve_artifact_id": artifact_id,
+        "curve_sha256": artifact_sha256,
+        **(
+            {"statistical_result_id": owner_id}
+            if isinstance(owner_id, str) and owner_id
+            else {}
+        ),
+        **(
+            {"statistical_result_revision_id": owner_revision_id}
+            if isinstance(owner_revision_id, str) and owner_revision_id
+            else {}
+        ),
+    }
 
 
 def _ensure_pending_model_review(
@@ -407,6 +492,8 @@ def _ensure_catalog_binding(
     api: DemoApi,
     *,
     material: Mapping[str, Any],
+    test_data: Mapping[str, str],
+    statistics: Mapping[str, str],
     workflow_nodes: Sequence[Mapping[str, str]],
 ) -> dict[str, str]:
     """Expose the domain Material through the configurable Catalog Explorer."""
@@ -572,6 +659,16 @@ def _ensure_catalog_binding(
             normalized_unit="Pa",
             minimum_number=0,
         ),
+        _OBSERVED_CURVE_ATTRIBUTE_KEY: ensure_attribute(
+            _OBSERVED_CURVE_ATTRIBUTE_KEY,
+            "Observed tensile curve",
+            "curve",
+        ),
+        _STATISTICS_CURVE_ATTRIBUTE_KEY: ensure_attribute(
+            _STATISTICS_CURVE_ATTRIBUTE_KEY,
+            "Replicate statistics curve",
+            "curve",
+        ),
     }
 
     layouts = _items(api.get(f"/catalog/tables/{table_id}/layouts"))
@@ -588,6 +685,8 @@ def _ensure_catalog_binding(
         "youngs_modulus": "Elastic properties",
         "poisson_ratio": "Elastic properties",
         "yield_stress": "Plasticity",
+        _OBSERVED_CURVE_ATTRIBUTE_KEY: "Curves",
+        _STATISTICS_CURVE_ATTRIBUTE_KEY: "Curves",
     }
     desired_layout_items = [
         {
@@ -672,6 +771,16 @@ def _ensure_catalog_binding(
             "quantity_semantics": content["quantity_semantics"],
         }
 
+    def curve_value(key: str, artifact_id: str, artifact_sha256: str) -> dict[str, Any]:
+        definition = attribute_by_key[key]
+        return {
+            "data_type": "curve",
+            "attribute_definition_id": _id(definition, "attribute_definition_id"),
+            "attribute_definition_revision_id": _revision_id(definition),
+            "artifact_id": artifact_id,
+            "artifact_sha256": artifact_sha256,
+        }
+
     material_content = _content(material)
     material_class = str(material_content.get("material_class") or "metal").lower()
     material_family = _preserve_material_family(
@@ -693,6 +802,16 @@ def _ensure_catalog_binding(
         number_value("youngs_modulus", "210000", "MPa", "210000000000"),
         number_value("poisson_ratio", "0.30", "1", "0.30"),
         number_value("yield_stress", "560", "MPa", "560000000"),
+        curve_value(
+            _OBSERVED_CURVE_ATTRIBUTE_KEY,
+            test_data["test_data_curve_artifact_id"],
+            test_data["test_data_curve_sha256"],
+        ),
+        curve_value(
+            _STATISTICS_CURVE_ATTRIBUTE_KEY,
+            statistics["curve_artifact_id"],
+            statistics["curve_sha256"],
+        ),
     ]
 
     folders = _items(api.get(f"/catalog/tables/{table_id}/folders"))
@@ -879,18 +998,32 @@ def _ensure_catalog_binding(
         )
     record_id = _id(record, "record_id")
     record_revision_id = _revision_id(record)
-    binding_path = f"/catalog/records/{record_id}/revisions/{record_revision_id}/domain-binding"
-    try:
-        binding = api.get(binding_path)
-    except DemoSeedError:
-        binding = api.post(
-            binding_path,
-            {
-                "kind": "material",
-                "object_id": _id(material, "material_id"),
-                "revision_id": _revision_id(material),
-            },
+    binding_root = f"/catalog/records/{record_id}/revisions/{record_revision_id}"
+    bindings = _items(api.get(f"{binding_root}/domain-bindings"))
+
+    def ensure_root_binding(kind: str, object_id: str, revision_id: str) -> dict[str, Any]:
+        existing = next(
+            (
+                item
+                for item in bindings
+                if item.get("kind") == kind
+                and item.get("object_id") == object_id
+                and item.get("revision_id") == revision_id
+            ),
+            None,
         )
+        if existing is not None:
+            return existing
+        created = api.post(
+            f"{binding_root}/domain-binding",
+            {"kind": kind, "object_id": object_id, "revision_id": revision_id},
+        )
+        bindings.append(created)
+        return created
+
+    binding = ensure_root_binding(
+        "material", _id(material, "material_id"), _revision_id(material)
+    )
     records_by_key: dict[str, dict[str, Any]] = {material_code: record}
     node_folders = {
         "material_state": dp780_folder,
@@ -1056,6 +1189,12 @@ def _ensure_catalog_binding(
         "catalog_record_id": record_id,
         "catalog_record_revision_id": record_revision_id,
         "catalog_binding_id": _id(binding, "binding_id"),
+        "catalog_observed_curve_attribute_id": _id(
+            attribute_by_key[_OBSERVED_CURVE_ATTRIBUTE_KEY], "attribute_definition_id"
+        ),
+        "catalog_statistics_curve_attribute_id": _id(
+            attribute_by_key[_STATISTICS_CURVE_ATTRIBUTE_KEY], "attribute_definition_id"
+        ),
         "catalog_workflow_node_count": str(1 + len(workflow_nodes)),
     }
 
@@ -1641,6 +1780,212 @@ def _ensure_test_json(
     return {
         "test_data_document_id": _id(primary, "test_data_document_id"),
         "test_data_document_revision_id": _revision_id(primary),
+        "test_data_curve_artifact_id": _id(primary, "normalized_artifact_id"),
+        "test_data_curve_sha256": _id(primary, "normalized_sha256"),
+    }
+
+
+def _ensure_replicate_statistics_curve(
+    api: DemoApi, *, material_state_id: str
+) -> dict[str, str]:
+    """Expose existing pointwise Statistics through one immutable demo Artifact.
+
+    The calculation, common-grid alignment, and provenance contracts already
+    belong to Processing and Statistics.  This fixture only invokes those
+    public APIs with synthetic inputs.  Once the exact Artifact is pinned by
+    Catalog, reseeding reads the pointer back instead of recalculating it.
+    """
+
+    pinned = _existing_demo_catalog_curve(
+        api, attribute_key=_STATISTICS_CURVE_ATTRIBUTE_KEY
+    )
+    if pinned is not None:
+        return pinned
+
+    selections = _items(
+        api.get(
+            "/dataset-selections/reference-tensile-replicates"
+            f"?material_state_id={material_state_id}"
+        )
+    )
+    source_selection = next(
+        (
+            item
+            for item in selections
+            if item.get("selection_label") == "CMP demo DP780 tensile replicates"
+        ),
+        None,
+    )
+    if source_selection is None:
+        raise DemoSeedError("clean demo has no normalized DP780 replicate Selection")
+
+    selection_members = _content(source_selection).get("members")
+    if not isinstance(selection_members, list) or len(selection_members) != 3:
+        raise DemoSeedError("clean demo replicate Selection has unexpected membership")
+    source_schema_refs: set[str] = set()
+    for member in selection_members:
+        if not isinstance(member, Mapping):
+            raise DemoSeedError("clean demo replicate Selection member is malformed")
+        preview = api.get(
+            f"/dataset-revisions/{_id(member, 'dataset_revision_id')}/curve?maximum_points=2"
+        )
+        metadata = preview.get("curve_metadata")
+        artifact = metadata.get("artifact") if isinstance(metadata, Mapping) else None
+        schema_ref = artifact.get("schema_ref") if isinstance(artifact, Mapping) else None
+        if not isinstance(schema_ref, str):
+            raise DemoSeedError("clean demo replicate curve has no exact Artifact schema")
+        source_schema_refs.add(schema_ref)
+    if source_schema_refs == {REFERENCE_TENSILE_PARQUET_SCHEMA_V1}:
+        recipe_input_schema = REFERENCE_TENSILE_PARQUET_SCHEMA_V1
+        recipe_output_schema = REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA_V1
+    elif source_schema_refs == {REFERENCE_TENSILE_PARQUET_SCHEMA}:
+        recipe_input_schema = REFERENCE_TENSILE_PARQUET_SCHEMA
+        recipe_output_schema = REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA
+    else:
+        raise DemoSeedError(
+            "clean demo replicate Selection mixes unsupported Artifact schema revisions"
+        )
+
+    aligned_selection = next(
+        (
+            item
+            for item in selections
+            if item.get("selection_label") == _STATISTICS_ALIGNED_SELECTION_LABEL
+        ),
+        None,
+    )
+    alignment_recipe: Mapping[str, Any] | None = None
+    if aligned_selection is None:
+        recipes = _items(api.get("/processing-recipes"))
+        alignment_recipe = next(
+            (
+                item
+                for item in recipes
+                if item.get("recipe_label") == _STATISTICS_ALIGNMENT_RECIPE_LABEL
+            ),
+            None,
+        )
+        desired_recipe_content = {
+            "grid_start_engineering_strain": 0.0,
+            "grid_end_engineering_strain": 0.03,
+            "grid_point_count": 31,
+            "domain_policy": "intersection",
+            "interpolation_policy": "piecewise_linear",
+            "extrapolation_policy": "reject",
+            "input_schema_ref": recipe_input_schema,
+            "output_schema_ref": recipe_output_schema,
+        }
+        if alignment_recipe is None:
+            alignment_recipe = api.post(
+                "/processing-recipes/reference-tensile-common-grid",
+                {
+                    "classification": "internal",
+                    "content": {
+                        "recipe_label": _STATISTICS_ALIGNMENT_RECIPE_LABEL,
+                        **desired_recipe_content,
+                    },
+                    "change_reason": (
+                        "Pin the existing common-grid method for the synthetic curve "
+                        "metadata demonstration."
+                    ),
+                },
+            )
+        else:
+            recipe_content = _content(alignment_recipe)
+            if any(
+                recipe_content.get(key) != value
+                for key, value in desired_recipe_content.items()
+            ):
+                raise DemoSeedError(
+                    "clean demo statistics alignment Recipe has unexpected semantics"
+                )
+        aligned = api.post(
+            "/processing-runs/reference-tensile-common-grid",
+            {
+                "selection_id": _id(source_selection, "selection_id"),
+                "selection_revision_id": _revision_id(source_selection),
+                "recipe_id": _id(alignment_recipe, "recipe_id"),
+                "recipe_revision_id": _revision_id(alignment_recipe),
+                "change_reason": (
+                    "Apply the existing explicit alignment contract to three synthetic "
+                    "replicates for Statistics evidence."
+                ),
+            },
+        )
+        runs = aligned.get("runs")
+        if not isinstance(runs, list) or len(runs) != 3:
+            raise DemoSeedError("clean demo statistics alignment did not return three runs")
+        output_revision_ids: list[str] = []
+        for run in runs:
+            if not isinstance(run, Mapping) or run.get("status") != "succeeded":
+                raise DemoSeedError("clean demo statistics alignment did not succeed")
+            output_revision_ids.append(_id(run, "output_dataset_revision_id"))
+        aligned_selection = api.post(
+            "/dataset-selections/reference-tensile-replicates",
+            {
+                "classification": "internal",
+                "selection_label": _STATISTICS_ALIGNED_SELECTION_LABEL,
+                "dataset_revision_ids": output_revision_ids,
+                "change_reason": (
+                    "Pin the three exact aligned Dataset revisions used by Statistics."
+                ),
+            },
+        )
+
+    selection_id = _id(aligned_selection, "selection_id")
+    selection_revision_id = _revision_id(aligned_selection)
+    plans = _items(
+        api.get(
+            "/replicate-statistical-plans"
+            f"?selection_revision_id={selection_revision_id}&limit=100"
+        )
+    )
+    plan = next(
+        (item for item in plans if item.get("plan_label") == _STATISTICS_PLAN_LABEL),
+        None,
+    )
+    if plan is None:
+        plan = api.post(
+            "/replicate-statistical-plans",
+            {
+                "classification": "internal",
+                "plan_label": _STATISTICS_PLAN_LABEL,
+                "selection_id": selection_id,
+                "selection_revision_id": selection_revision_id,
+                "sample_count": 3,
+                "change_reason": (
+                    "Pin the existing SD, quantile, and Student-t pointwise methods for "
+                    "the synthetic Materials curve."
+                ),
+            },
+        )
+    plan_content = _content(plan)
+    if (
+        plan_content.get("selection_id") != selection_id
+        or plan_content.get("selection_revision_id") != selection_revision_id
+        or plan_content.get("sample_count") != 3
+    ):
+        raise DemoSeedError("clean demo replicate Statistics Plan pins unexpected inputs")
+    run = api.post(
+        "/replicate-statistical-runs",
+        {
+            "plan_id": _id(plan, "statistical_plan_id"),
+            "plan_revision_id": _revision_id(plan),
+            "change_reason": (
+                "Calculate the already-defined pointwise Statistics for synthetic UI evidence."
+            ),
+        },
+    )
+    if run.get("status") != "succeeded":
+        raise DemoSeedError("clean demo replicate Statistics Run did not succeed")
+    return {
+        "statistical_plan_id": _id(plan, "statistical_plan_id"),
+        "statistical_plan_revision_id": _revision_id(plan),
+        "statistical_run_id": _id(run, "statistical_run_id"),
+        "statistical_result_id": _id(run, "result_id"),
+        "statistical_result_revision_id": _id(run, "result_revision_id"),
+        "curve_artifact_id": _id(run, "curve_artifact_id"),
+        "curve_sha256": _id(run, "curve_sha256"),
     }
 
 
@@ -3462,7 +3807,7 @@ def _ensure_metal_neutral_and_cards(
             raise DemoSeedError(
                 "clean demo existing Neutral does not expose its exact selected model"
             )
-        model = selected_model
+        model = dict(selected_model)
 
     neutral_id = _id(neutral, "neutral_material_id")
     neutral_revision_id = _id(neutral, "neutral_material_revision_id")
@@ -3715,6 +4060,9 @@ def seed_full_demo(base_url: str) -> dict[str, str]:
         test_runs=metal_runs,
     )
     test_data = _ensure_test_json(api, governed_sources=governed_sources)
+    statistics = _ensure_replicate_statistics_curve(
+        api, material_state_id=_id(metal_state, "material_state_id")
+    )
     processing = _ensure_processing_journey(api, test_data=test_data)
     neutral = _ensure_metal_neutral_and_cards(
         api,
@@ -3724,6 +4072,8 @@ def seed_full_demo(base_url: str) -> dict[str, str]:
     catalog = _ensure_catalog_binding(
         api,
         material=metal,
+        test_data=test_data,
+        statistics=statistics,
         workflow_nodes=(
             {
                 "kind": "material_state",
@@ -3815,6 +4165,7 @@ def seed_full_demo(base_url: str) -> dict[str, str]:
         **catalog,
         **catalog_non_metal,
         **test_data,
+        **statistics,
         **processing,
         **neutral,
         **bulk,

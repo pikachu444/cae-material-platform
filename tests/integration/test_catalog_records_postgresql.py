@@ -1,17 +1,25 @@
 from __future__ import annotations
 
+import asyncio
 import os
 from collections.abc import Iterator
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
+from typing import Any
 from uuid import NAMESPACE_URL, UUID, uuid4, uuid5
 
+import httpx
 import pytest
 import sqlalchemy as sa
 from alembic import command
 from alembic.config import Config
+from cmp.modules.artifacts.adapters.persistence.content import SqlAlchemyArtifactRepository
+from cmp.modules.artifacts.adapters.storage.filesystem import FilesystemMultipartObjectStore
+from cmp.modules.artifacts.application.content import ArtifactService, ArtifactTransferCodec
+from cmp.modules.catalog.adapters.api.configurable import install_configurable_catalog_api
+from cmp.modules.catalog.adapters.api.records import install_catalog_record_api
 from cmp.modules.catalog.adapters.persistence.configurable import (
     SqlAlchemyConfigurableCatalogRepository,
 )
@@ -62,6 +70,14 @@ from cmp.modules.catalog.domain.records import (
     DiscreteFilter,
     NumberRangeFilter,
 )
+from cmp.modules.datasets.domain.reference_tensile import (
+    REFERENCE_TENSILE_PARQUET_SCHEMA,
+    REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA_V1,
+    CurvePoint,
+    ReferenceTensileMapping,
+    normalized_parquet_bytes,
+    processed_parquet_bytes,
+)
 from cmp.modules.identity_access.adapters.persistence.rls import SqlAlchemyRlsContext
 from cmp.modules.identity_access.application.authorization import database_permissions_for
 from cmp.modules.identity_access.domain.authorization import (
@@ -71,6 +87,7 @@ from cmp.modules.identity_access.domain.authorization import (
     Role,
 )
 from cmp.modules.identity_access.domain.security import Principal, PrincipalType, SecurityContext
+from fastapi import FastAPI, Request
 from sqlalchemy.engine import URL, Engine, make_url
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -99,6 +116,7 @@ class Harness:
     records: CatalogRecordService
     links: CatalogLinkService
     catalog: CatalogService
+    artifacts: ArtifactService
 
 
 def _psycopg_url(value: str) -> URL:
@@ -120,7 +138,7 @@ def _alembic_config(database_url: URL) -> Config:
 
 
 @pytest.fixture(scope="module")
-def postgres() -> Iterator[Harness]:
+def postgres(tmp_path_factory: pytest.TempPathFactory) -> Iterator[Harness]:
     assert POSTGRES_DSN is not None
     admin_url = _psycopg_url(POSTGRES_DSN)
     database_name = f"cmp_t50_{uuid4().hex}"
@@ -147,8 +165,9 @@ def postgres() -> Iterator[Harness]:
                 {"id": ACTOR, "now": NOW},
             )
             connection.exec_driver_sql(
-                f'GRANT USAGE ON SCHEMA catalog, governance, access_control, revisioning, '
-                f'datasets, modeling, exporting, processing, testing TO "{app_role}"'
+                f'GRANT USAGE ON SCHEMA artifact, catalog, governance, access_control, '
+                f'revisioning, datasets, modeling, exporting, processing, statistics, '
+                f'testing TO "{app_role}"'
             )
             connection.exec_driver_sql(
                 "GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA catalog "
@@ -156,11 +175,15 @@ def postgres() -> Iterator[Harness]:
             )
             connection.exec_driver_sql(
                 "GRANT SELECT ON ALL TABLES IN SCHEMA governance, datasets, modeling, "
-                "exporting, processing, testing "
+                "exporting, processing, statistics, testing "
                 f'TO "{app_role}"'
             )
             connection.exec_driver_sql(
-                "GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA catalog, access_control, revisioning "
+                f'GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA artifact TO "{app_role}"'
+            )
+            connection.exec_driver_sql(
+                "GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA artifact, catalog, "
+                "access_control, revisioning "
                 f'TO "{app_role}"'
             )
         app_engine = sa.create_engine(
@@ -176,6 +199,20 @@ def postgres() -> Iterator[Harness]:
         record_repository = SqlAlchemyCatalogRecordRepository(
             session_factory=sessions, rls_context=rls
         )
+        artifacts = ArtifactService(
+            repository=SqlAlchemyArtifactRepository(
+                session_factory=sessions,
+                rls_context=rls,
+            ),
+            object_store=FilesystemMultipartObjectStore(
+                Path(tmp_path_factory.mktemp("t50-curve-artifacts"))
+            ),
+            transfers=ArtifactTransferCodec(
+                b"t50-curve-transfer-secret-32-bytes-minimum",
+                clock=lambda: NOW,
+            ),
+            clock=lambda: NOW,
+        )
         yield Harness(
             admin_engine=admin_engine,
             schemas=ConfigurableCatalogService(schema_repository),
@@ -188,6 +225,7 @@ def postgres() -> Iterator[Harness]:
             catalog=CatalogService(
                 repository=SqlAlchemyCatalogRepository(session_factory=sessions, rls_context=rls)
             ),
+            artifacts=artifacts,
         )
     finally:
         if app_engine is not None:
@@ -203,12 +241,16 @@ def postgres() -> Iterator[Harness]:
         cluster.dispose()
 
 
-def _context() -> SecurityContext:
+def _context(
+    *,
+    organization_id: UUID = ORG,
+    project_id: UUID = PROJECT,
+) -> SecurityContext:
     request_id = uuid4()
     return SecurityContext(
         principal=Principal(ACTOR, PrincipalType.USER, "Catalog User", True),
-        organization_id=ORG,
-        project_id=PROJECT,
+        organization_id=organization_id,
+        project_id=project_id,
         issuer="urn:cmp:test",
         subject=str(ACTOR),
         token_id=str(uuid4()),
@@ -220,20 +262,427 @@ def _context() -> SecurityContext:
     )
 
 
-def _decision(context: SecurityContext, permission: Permission) -> AuthorizationDecision:
+def _decision(
+    context: SecurityContext,
+    permission: Permission,
+    *,
+    max_classification: DataClassification = DataClassification.INTERNAL,
+) -> AuthorizationDecision:
     return AuthorizationDecision(
-        principal_id=ACTOR,
-        organization_id=ORG,
-        project_id=PROJECT,
+        principal_id=context.principal.id,
+        organization_id=context.organization_id,
+        project_id=context.project_id,
         permission=permission,
         roles=(Role.DATA_STEWARD,),
         database_permissions=database_permissions_for(permission),
-        max_classification=DataClassification.INTERNAL,
+        max_classification=max_classification,
         allow_export_controlled=False,
         request_id=context.request_id,
         trace_id=context.trace_id,
         decided_at=NOW,
     )
+
+
+def _curve_api(
+    postgres: Harness,
+    context: SecurityContext,
+    *,
+    max_classification: DataClassification = DataClassification.INTERNAL,
+) -> FastAPI:
+    application = FastAPI()
+
+    async def security(request: Request) -> SecurityContext:
+        request.state.security_context = context
+        return context
+
+    async def read(request: Request) -> AuthorizationDecision:
+        decision = _decision(
+            context,
+            Permission.CATALOG_READ,
+            max_classification=max_classification,
+        )
+        request.state.authorization_decision = decision
+        return decision
+
+    async def write(request: Request) -> AuthorizationDecision:
+        decision = _decision(
+            context,
+            Permission.CATALOG_WRITE,
+            max_classification=max_classification,
+        )
+        request.state.authorization_decision = decision
+        return decision
+
+    install_configurable_catalog_api(
+        application,
+        service=None,
+        security_dependency=security,
+        read_dependency=read,
+        write_dependency=write,
+    )
+    install_catalog_record_api(
+        application,
+        service=postgres.records,
+        artifact_service=postgres.artifacts,
+        security_dependency=security,
+        read_dependency=read,
+        write_dependency=write,
+    )
+    return application
+
+
+async def _api_request(
+    application: FastAPI,
+    method: str,
+    path: str,
+    **kwargs: Any,
+) -> httpx.Response:
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=application),
+        base_url="http://test",
+    ) as client:
+        return await client.request(method, path, **kwargs)
+
+
+def test_curve_artifact_revision_round_trip_legacy_compatibility_and_rls(
+    postgres: Harness,
+) -> None:
+    async def exercise() -> None:
+        context = _context()
+        artifact_write = _decision(
+            context,
+            Permission.ARTIFACT_WRITE,
+            max_classification=DataClassification.CONFIDENTIAL,
+        )
+        catalog_write = _decision(
+            context,
+            Permission.CATALOG_WRITE,
+            max_classification=DataClassification.CONFIDENTIAL,
+        )
+        points = (
+            CurvePoint(0.0, 0.0),
+            CurvePoint(0.01, 100_000_000.0),
+            CurvePoint(0.02, 125_000_000.0),
+        )
+        mapping = ReferenceTensileMapping("strain_pct", "stress_mpa", "%", "MPa")
+        legacy_bytes = processed_parquet_bytes(
+            points,
+            mapping,
+            schema_ref=REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA_V1,
+        )
+        declared_bytes = normalized_parquet_bytes(points, mapping)
+        legacy_artifact = await postgres.artifacts.finalize_derived_bytes(
+            context,
+            artifact_write,
+            classification=DataClassification.CONFIDENTIAL,
+            artifact_role="catalog.curve.synthetic-legacy",
+            schema_ref=REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA_V1,
+            media_type="application/vnd.apache.parquet",
+            value=legacy_bytes,
+            idempotency_key="issue206:postgres:legacy",
+        )
+        declared_artifact = await postgres.artifacts.finalize_derived_bytes(
+            context,
+            artifact_write,
+            classification=DataClassification.CONFIDENTIAL,
+            artifact_role="catalog.curve.synthetic-declared",
+            schema_ref=REFERENCE_TENSILE_PARQUET_SCHEMA,
+            media_type="application/vnd.apache.parquet",
+            value=declared_bytes,
+            idempotency_key="issue206:postgres:declared",
+        )
+        table = postgres.schemas.create_table(
+            context,
+            catalog_write,
+            CreateTable(
+                DataClassification.CONFIDENTIAL,
+                CatalogTableContent("issue206_curves", "Issue 206 synthetic curves"),
+                "create issue 206 curve table",
+            ),
+        )
+        curve_attribute = postgres.schemas.create_attribute(
+            context,
+            catalog_write,
+            CreateAttribute(
+                AttributeDefinitionContent(
+                    table.id,
+                    table.current.record.revision_id,
+                    "observed_curve",
+                    "Observed curve",
+                    AttributeDataType.CURVE,
+                    required=True,
+                ),
+                "add exact curve pointer",
+            ),
+        )
+        application = _curve_api(
+            postgres,
+            context,
+            max_classification=DataClassification.CONFIDENTIAL,
+        )
+
+        def body(artifact_id: UUID, sha256: str) -> dict[str, object]:
+            return {
+                "content": {
+                    "table_revision_id": str(table.current.record.revision_id),
+                    "name": "Synthetic legacy-to-declared curve",
+                    "external_key": "issue206-curve",
+                    "description": "Synthetic non-production PostgreSQL fixture",
+                    "values": [
+                        {
+                            "data_type": "curve",
+                            "attribute_definition_id": str(curve_attribute.id),
+                            "attribute_definition_revision_id": str(
+                                curve_attribute.current.record.revision_id
+                            ),
+                            "artifact_id": str(artifact_id),
+                            "artifact_sha256": sha256,
+                        }
+                    ],
+                },
+                "change_reason": "exercise exact immutable curve revision",
+            }
+
+        created_body = body(
+            legacy_artifact.artifact.id,
+            legacy_artifact.artifact.sha256,
+        )
+        created_body["classification"] = "confidential"
+        created = await _api_request(
+            application,
+            "POST",
+            f"/api/v1/catalog/tables/{table.id}/records",
+            json=created_body,
+        )
+        assert created.status_code == 201, created.text
+        record_id = UUID(created.json()["record_id"])
+        legacy_revision_id = UUID(created.json()["current_revision"]["id"])
+
+        revised = await _api_request(
+            application,
+            "POST",
+            f"/api/v1/catalog/records/{record_id}/revisions",
+            headers={"If-Match": created.headers["etag"]},
+            json=body(
+                declared_artifact.artifact.id,
+                declared_artifact.artifact.sha256,
+            ),
+        )
+        assert revised.status_code == 201, revised.text
+        declared_revision_id = UUID(revised.json()["current_revision"]["id"])
+        preview_path = (
+            f"/api/v1/catalog/records/{record_id}/revisions/"
+            f"{{revision_id}}/curve-values/{curve_attribute.id}/preview?maximum_points=2"
+        )
+
+        canonical_artifact = await postgres.artifacts.finalize_derived_bytes(
+            context,
+            artifact_write,
+            classification=DataClassification.CONFIDENTIAL,
+            artifact_role="test-data.canonical-json.synthetic",
+            schema_ref="urn:cmp:test-data:canonical-json:1.0.0",
+            media_type="application/json",
+            value=b'{"synthetic":true}',
+            idempotency_key="issue206:postgres:canonical-owner",
+        )
+        document_id = uuid4()
+        document_revision_id = uuid4()
+        with postgres.admin_engine.begin() as connection:
+            connection.execute(sa.text("SET CONSTRAINTS ALL DEFERRED"))
+            connection.execute(
+                sa.text(
+                    "INSERT INTO datasets.test_data_document "
+                    "(id, organization_id, project_id, classification, document_key, "
+                    "current_revision_id, created_at, created_by, updated_at) VALUES "
+                    "(:id, :organization_id, :project_id, 'confidential', :document_key, "
+                    ":revision_id, :now, :actor, :now)"
+                ),
+                {
+                    "id": document_id,
+                    "organization_id": ORG,
+                    "project_id": PROJECT,
+                    "document_key": f"issue206-{document_id}",
+                    "revision_id": document_revision_id,
+                    "now": NOW,
+                    "actor": ACTOR,
+                },
+            )
+            connection.execute(
+                sa.text(
+                    "INSERT INTO datasets.test_data_document_revision "
+                    "(id, aggregate_id, organization_id, project_id, classification, "
+                    "revision_no, based_on_revision_id, schema_id, schema_version, "
+                    "content_hash, created_at, created_by, change_reason, request_id, "
+                    "trace_id, document_key, maker, grade, lot_batch, test_date, "
+                    "operator_name, laboratory, test_method, equipment_maker, "
+                    "equipment_model, specimen_key, specimen_description, source_file_name, "
+                    "source_media_type, source_sha256, canonical_artifact_id, "
+                    "canonical_sha256, normalized_artifact_id, normalized_sha256, "
+                    "point_count, governed_source) VALUES "
+                    "(:revision_id, :id, :organization_id, :project_id, 'confidential', "
+                    "1, NULL, 'urn:cmp:test-data:document:1.0.0', '1.0.0', :content_hash, "
+                    ":now, :actor, 'Create synthetic exact owner', :request_id, :trace_id, "
+                    ":document_key, 'CMP Synthetic', 'Issue 206', NULL, '2026-07-18', "
+                    "'Test operator', 'Test laboratory', 'synthetic tension', NULL, NULL, "
+                    "'S-1', NULL, 'issue206.json', 'application/json', :source_sha256, "
+                    ":canonical_artifact_id, :canonical_sha256, :normalized_artifact_id, "
+                    ":normalized_sha256, 3, NULL)"
+                ),
+                {
+                    "revision_id": document_revision_id,
+                    "id": document_id,
+                    "organization_id": ORG,
+                    "project_id": PROJECT,
+                    "content_hash": "c" * 64,
+                    "now": NOW,
+                    "actor": ACTOR,
+                    "request_id": context.request_id,
+                    "trace_id": context.trace_id,
+                    "document_key": f"issue206-{document_id}",
+                    "source_sha256": "d" * 64,
+                    "canonical_artifact_id": canonical_artifact.artifact.id,
+                    "canonical_sha256": canonical_artifact.artifact.sha256,
+                    "normalized_artifact_id": declared_artifact.artifact.id,
+                    "normalized_sha256": declared_artifact.artifact.sha256,
+                },
+            )
+        source_record = postgres.records.create_record(
+            context,
+            catalog_write,
+            CreateRecord(
+                DataClassification.CONFIDENTIAL,
+                CatalogRecordContent(
+                    table.id,
+                    table.current.record.revision_id,
+                    "Exact Test Data source",
+                    external_key=f"issue206-source-{document_id}",
+                    values=(
+                        CatalogRecordValue(
+                            curve_attribute.id,
+                            curve_attribute.current.record.revision_id,
+                            AttributeDataType.CURVE,
+                            artifact_id=declared_artifact.artifact.id,
+                            artifact_sha256=declared_artifact.artifact.sha256,
+                        ),
+                    ),
+                ),
+                "Create a separate exact Test Data Catalog source",
+            ),
+        )
+        source_binding = postgres.links.bind_domain_revision(
+            context,
+            catalog_write,
+            source_record.id,
+            source_record.current.record.revision_id,
+            BindDomainRevision(
+                DomainBindingKind.TEST_DATA,
+                document_id,
+                document_revision_id,
+            ),
+        )
+
+        with postgres.admin_engine.connect() as connection:
+            before = connection.execute(
+                sa.text(
+                    "SELECT "
+                    "(SELECT count(*) FROM catalog.catalog_record_revision), "
+                    "(SELECT count(*) FROM artifact.artifact), "
+                    "(SELECT count(*) FROM provenance.entity), "
+                    "(SELECT count(*) FROM provenance.revision)"
+                )
+            ).one()
+
+        legacy_preview = await _api_request(
+            application,
+            "GET",
+            preview_path.format(revision_id=legacy_revision_id),
+        )
+        assert legacy_preview.status_code == 200, legacy_preview.text
+        legacy_payload = legacy_preview.json()
+        assert legacy_payload["curve_metadata"]["metadata_state"] == "legacy_compatible"
+        assert legacy_payload["curve_metadata"]["artifact"]["sha256"] == (
+            legacy_artifact.artifact.sha256
+        )
+        assert legacy_payload["curve_metadata"]["provenance"] == []
+        assert legacy_payload["modeling_use"] == "view_only"
+        assert legacy_payload["modeling_source"] is None
+        assert legacy_payload["curve_series"]["channels"][1]["values"] == [0.0, 125000000.0]
+
+        declared_preview = await _api_request(
+            application,
+            "GET",
+            preview_path.format(revision_id=declared_revision_id),
+        )
+        assert declared_preview.status_code == 200, declared_preview.text
+        declared_payload = declared_preview.json()
+        assert declared_payload["curve_metadata"]["metadata_state"] == "declared"
+        assert declared_payload["curve_metadata"]["artifact"]["sha256"] == (
+            declared_artifact.artifact.sha256
+        )
+        assert declared_payload["curve_metadata"]["owning_revision"] == {
+            "entity_type": "test_data_document",
+            "entity_id": str(document_id),
+            "revision_id": str(document_revision_id),
+        }
+        assert declared_payload["modeling_use"] == "fit_input"
+        assert declared_payload["modeling_source"] == {
+            "binding_id": str(source_binding.id),
+            "record_id": str(source_record.id),
+            "record_revision_id": str(source_record.current.record.revision_id),
+            "kind": "test_data",
+            "object_id": str(document_id),
+            "revision_id": str(document_revision_id),
+            "workbench_path": source_binding.workbench_path,
+        }
+        assert declared_payload["curve_metadata"]["definition"]["channels"][0][
+            "original_units"
+        ] == [{"unit": "%", "scale_to_normalized": "0.01", "offset_to_normalized": "0"}]
+
+        with postgres.admin_engine.connect() as connection:
+            after = connection.execute(
+                sa.text(
+                    "SELECT "
+                    "(SELECT count(*) FROM catalog.catalog_record_revision), "
+                    "(SELECT count(*) FROM artifact.artifact), "
+                    "(SELECT count(*) FROM provenance.entity), "
+                    "(SELECT count(*) FROM provenance.revision)"
+                )
+            ).one()
+            pinned = connection.execute(
+                sa.text(
+                    "SELECT artifact_id, artifact_sha256 FROM catalog.record_curve_value "
+                    "WHERE record_revision_id IN (:legacy_revision_id, :declared_revision_id) "
+                    "ORDER BY record_revision_id"
+                ),
+                {
+                    "legacy_revision_id": legacy_revision_id,
+                    "declared_revision_id": declared_revision_id,
+                },
+            ).all()
+        assert before == after
+        assert {row.artifact_id for row in pinned} == {
+            legacy_artifact.artifact.id,
+            declared_artifact.artifact.id,
+        }
+
+        denied_contexts = (
+            (_context(organization_id=uuid4()), DataClassification.CONFIDENTIAL),
+            (_context(project_id=uuid4()), DataClassification.CONFIDENTIAL),
+            (_context(), DataClassification.INTERNAL),
+        )
+        for denied_context, maximum in denied_contexts:
+            denied = await _api_request(
+                _curve_api(
+                    postgres,
+                    denied_context,
+                    max_classification=maximum,
+                ),
+                "GET",
+                preview_path.format(revision_id=declared_revision_id),
+            )
+            assert denied.status_code == 404, denied.text
+
+    asyncio.run(exercise())
 
 
 def test_record_round_trip_search_facet_compare_and_folder_cycle(postgres: Harness) -> None:
@@ -518,7 +967,7 @@ def test_record_round_trip_search_facet_compare_and_folder_cycle(postgres: Harne
 
     with postgres.admin_engine.connect() as connection:
         version = connection.scalar(sa.text("SELECT version_num FROM alembic_version"))
-        assert version == "20260926_095_issue205_units"
+        assert version == "20260927_096_issue206_curve"
         validator = connection.execute(
             sa.text(
                 "SELECT p.prosecdef, p.proconfig, "
@@ -1322,7 +1771,11 @@ def test_ten_thousand_record_search_is_counted_and_page_bounded(postgres: Harnes
                 "table": table.id,
                 "table_revision": table.current.record.revision_id,
                 "name": f"Synthetic Material {index:05d}",
-                "key": f"synthetic-{index:05d}",
+                # The search contract under test is cardinality, count, and bounded
+                # page materialization. Keep one code for the exact-row assertion;
+                # populating 10,000 unrelated codes exercises the separate
+                # duplicate-code trigger quadratically and obscures this query gate.
+                "key": f"synthetic-{index:05d}" if index == 9_999 else None,
             }
         )
     with postgres.admin_engine.begin() as connection:

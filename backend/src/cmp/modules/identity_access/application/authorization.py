@@ -366,17 +366,18 @@ _MODIFYING_OPERATIONS = frozenset(
 )
 _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = {
     Permission.UNITS_WRITE: frozenset({Permission.UNITS_READ}),
-    # Published Materials is one server-scoped projection.  Its currentness query
-    # re-checks exact heads for Test Data, Material Models, Neutral/Solver Cards,
-    # Processing Outputs, and Testing lineage in the same SQL statement.  Carry
-    # those read capabilities into the catalog transaction only; this does not
-    # authorize any of their HTTP APIs.
+    # Published Materials is one server-scoped projection. Its currentness query
+    # re-checks exact heads, while curve preview resolves verified Artifact bytes and
+    # already-recorded Dataset/Statistics ownership in the same RLS transaction.
+    # Carry these read capabilities internally; this does not authorize their APIs.
     Permission.CATALOG_READ: frozenset(
         {
+            Permission.ARTIFACT_READ,
             Permission.DATASET_READ,
             Permission.MODELING_READ,
             Permission.EXPORT_READ,
             Permission.PROCESSING_READ,
+            Permission.STATISTICS_READ,
             Permission.TESTING_READ,
             Permission.UNITS_READ,
         }

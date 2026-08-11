@@ -128,6 +128,20 @@ MATERIALS_WORKSPACE_OUTPUTS = (
     "materials-search-empty-1440x900.png",
     "materials-browse-1440x900.png",
 )
+MATERIAL_DETAIL_OUTPUTS = tuple(
+    f"material-detail-{width}x{height}.png"
+    for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)
+)
+MATERIAL_CURVE_OUTPUTS = tuple(
+    f"material-curves-{width}x{height}.png"
+    for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)
+)
+MATERIALS_OUTPUTS = (
+    *MATERIALS_WORKSPACE_OUTPUTS,
+    *MATERIAL_DETAIL_OUTPUTS,
+    *MATERIAL_CURVE_OUTPUTS,
+    "material-cae-cards-1440x900.png",
+)
 CURRENT_CAPTURE_OUTPUTS = (
     "materials-search-1366x768.png",
     "materials-search-1440x900.png",
@@ -146,6 +160,11 @@ CURRENT_CAPTURE_OUTPUTS = (
     "materials-search-3840x2160.png",
     "material-detail-2560x1440.png",
     "material-detail-3840x2160.png",
+    "material-curves-1366x768.png",
+    "material-curves-1440x900.png",
+    "material-curves-1920x1080.png",
+    "material-curves-2560x1440.png",
+    "material-curves-3840x2160.png",
     "solver-card-preview-1366x768.png",
     "solver-card-preview-1440x900.png",
     "solver-card-preview-1920x1080.png",
@@ -1275,6 +1294,24 @@ def _open_material_detail(page: Page, base_url: str) -> None:
             )
 
 
+def _open_material_curves(page: Page) -> None:
+    page.get_by_role("tab", name="Curves", exact=True).click()
+    browser = page.locator(".material-curve-browser")
+    browser.wait_for(timeout=30_000)
+    curve_buttons = browser.locator(".material-curve-list button")
+    if curve_buttons.count() < 2:
+        raise RuntimeError("Materials Curves must expose observed and statistical curves")
+    observed = curve_buttons.filter(has_text="Observed tensile curve").first
+    observed.click()
+    page.get_by_text("Exact Test Data · Fit input", exact=True).wait_for(timeout=30_000)
+    chart = page.locator(".contract-curve-svg")
+    chart.wait_for(timeout=30_000)
+    page.get_by_role("button", name="Open in Modeling", exact=True).wait_for(timeout=30_000)
+    page.get_by_text("No deviation recorded", exact=True).wait_for(timeout=30_000)
+    _wait_for_settled(page)
+    page.locator(".contract-curve-frame").scroll_into_view_if_needed()
+
+
 def _capture_materials_workspace(browser: Browser, base_url: str, output: Path) -> None:
     for width, height in VIEWPORTS:
         page = _new_page(browser, base_url, width, height)
@@ -1313,6 +1350,8 @@ def _capture_materials(browser: Browser, base_url: str, output: Path) -> None:
     _open_material_detail(page, base_url)
     _assert_response_points_table(page, width)
     _capture(page, output / "material-detail-1440x900.png", width, height)
+    _open_material_curves(page)
+    _capture(page, output / "material-curves-1440x900.png", width, height)
     page.get_by_role("tab", name="CAE Cards", exact=True).click()
     page.get_by_role("heading", name="CAE Cards", exact=True).wait_for(timeout=30_000)
     _wait_for_settled(page)
@@ -1332,6 +1371,8 @@ def _capture_materials(browser: Browser, base_url: str, output: Path) -> None:
         _open_material_detail(page, base_url)
         _assert_response_points_table(page, width)
         _capture(page, output / f"material-detail-{width}x{height}.png", width, height)
+        _open_material_curves(page)
+        _capture(page, output / f"material-curves-{width}x{height}.png", width, height)
         page.context.close()
 
     for width, height in WIDE_VIEWPORTS:
@@ -1339,6 +1380,8 @@ def _capture_materials(browser: Browser, base_url: str, output: Path) -> None:
         _open_material_detail(page, base_url)
         _assert_response_points_table(page, width)
         _capture(page, output / f"material-detail-{width}x{height}.png", width, height)
+        _open_material_curves(page)
+        _capture(page, output / f"material-curves-{width}x{height}.png", width, height)
         page.context.close()
 
 
@@ -8116,7 +8159,7 @@ def main() -> int:
     parser.add_argument(
         "--only-materials",
         action="store_true",
-        help="Capture and replace only the seventeen Materials workspace captures.",
+        help="Capture and replace only the twenty-two Materials workspace and curve captures.",
     )
     parser.add_argument(
         "--only-materials-workspace",
@@ -8290,7 +8333,7 @@ def main() -> int:
         or args.only_review_submission
     ):
         names = (
-            CURRENT_CAPTURE_OUTPUTS[:17]
+            MATERIALS_OUTPUTS
             if args.only_materials
             else MATERIALS_WORKSPACE_OUTPUTS
             if args.only_materials_workspace

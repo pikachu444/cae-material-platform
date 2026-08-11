@@ -38,7 +38,6 @@ from cmp.modules.processing.domain.reference_tensile_alignment import (
     common_intersection_domain,
 )
 from cmp.modules.processing.domain.reference_tensile_crop import (
-    REFERENCE_TENSILE_CROP_OUTPUT_SCHEMA,
     REFERENCE_TENSILE_CROP_RECIPE_KIND,
     REFERENCE_TENSILE_CROP_SCHEMA_VERSION,
     ProcessingConflict,
@@ -511,12 +510,16 @@ class ProcessingService:
             )
         if input_snapshot.revision.record.scope != recipe.record.scope:
             raise ProcessingConflict("Processing input Dataset is outside the Recipe tenant scope")
-        _, input_bytes = await self._artifacts.read_verified_bytes(
+        input_artifact, input_bytes = await self._artifacts.read_verified_bytes(
             context,
             decision,
             input_content.data_artifact_id,
             maximum_bytes=16 * 1024 * 1024,
         )
+        if input_artifact.artifact.schema_ref != recipe.content.input_schema_ref:
+            raise ProcessingConflict(
+                "input Dataset Artifact schema differs from the exact Recipe revision"
+            )
         try:
             input_points = normalized_points_from_parquet(input_bytes)
         except DatasetError as error:
@@ -560,9 +563,13 @@ class ProcessingService:
                 decision,
                 classification=created.classification,
                 artifact_role="dataset.processed_reference_tensile_curve",
-                schema_ref=REFERENCE_TENSILE_CROP_OUTPUT_SCHEMA,
+                schema_ref=recipe.content.output_schema_ref,
                 media_type="application/vnd.apache.parquet",
-                value=processed_parquet_bytes(outcome.points),
+                value=processed_parquet_bytes(
+                    outcome.points,
+                    input_content.mapping,
+                    schema_ref=recipe.content.output_schema_ref,
+                ),
                 idempotency_key=f"processing:{created.id}:reference-tensile-crop",
             )
             output = self._datasets.register_processed_reference_tensile_dataset(
@@ -655,12 +662,16 @@ class ProcessingService:
                 raise ProcessingConflict(
                     "reference alignment currently accepts normalized Dataset revisions only"
                 )
-            _, payload = await self._artifacts.read_verified_bytes(
+            input_artifact, payload = await self._artifacts.read_verified_bytes(
                 context,
                 decision,
                 content.data_artifact_id,
                 maximum_bytes=16 * 1024 * 1024,
             )
+            if input_artifact.artifact.schema_ref != recipe.content.input_schema_ref:
+                raise ProcessingConflict(
+                    "replicate Artifact schema differs from the exact alignment Recipe revision"
+                )
             try:
                 points = normalized_points_from_parquet(payload)
             except DatasetError as error:
@@ -721,9 +732,13 @@ class ProcessingService:
                     decision,
                     classification=created.classification,
                     artifact_role="dataset.processed_reference_tensile_curve",
-                    schema_ref=REFERENCE_TENSILE_CROP_OUTPUT_SCHEMA,
+                    schema_ref=recipe.content.output_schema_ref,
                     media_type="application/vnd.apache.parquet",
-                    value=processed_parquet_bytes(outcome.points),
+                    value=processed_parquet_bytes(
+                        outcome.points,
+                        input_snapshot.revision.content.mapping,
+                        schema_ref=recipe.content.output_schema_ref,
+                    ),
                     idempotency_key=(
                         f"processing:{created.id}:reference-tensile-common-grid"
                     ),

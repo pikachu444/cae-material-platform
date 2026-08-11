@@ -26,6 +26,10 @@ POSITIVE_EXAMPLES = {
     "schema-definition-bundle-one.json": "contracts/catalog/schema-definition-bundle.schema.json",
     "schema-definition-bundle-many.json": "contracts/catalog/schema-definition-bundle.schema.json",
     "unit-conversion.json": "contracts/units/unit-resources.schema.json",
+    "curve-channel-metadata.json": "contracts/datasets/curve-channel-metadata.schema.json",
+    "curve-channel-metadata-legacy-frequency.json": (
+        "contracts/datasets/curve-channel-metadata.schema.json"
+    ),
 }
 NEGATIVE_EXAMPLES = {
     "job-spec-latest.json": "contracts/jobs/job-spec.schema.json",
@@ -41,6 +45,9 @@ NEGATIVE_EXAMPLES = {
         "contracts/catalog/schema-definition-bundle.schema.json"
     ),
     "unit-conversion-unsupported.json": "contracts/units/unit-resources.schema.json",
+    "curve-channel-metadata-unpaired-band.json": (
+        "contracts/datasets/curve-channel-metadata.schema.json"
+    ),
 }
 
 

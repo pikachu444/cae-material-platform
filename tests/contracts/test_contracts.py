@@ -38,6 +38,26 @@ def test_all_contracts_and_examples_validate() -> None:
     assert validate_contracts(PROJECT_ROOT) == []
 
 
+def test_curve_metadata_positive_and_negative_fixtures() -> None:
+    schema = PROJECT_ROOT / "contracts/datasets/curve-channel-metadata.schema.json"
+    for name in (
+        "curve-channel-metadata.json",
+        "curve-channel-metadata-scalar-deviation.json",
+        "curve-channel-metadata-legacy-frequency.json",
+    ):
+        assert (
+            validate_example(schema, PROJECT_ROOT / "contracts/examples/positive" / name)
+            == []
+        )
+    for name in (
+        "curve-channel-metadata-unpaired-band.json",
+        "curve-channel-metadata-conflicting-source-count.json",
+    ):
+        assert validate_example(
+            schema, PROJECT_ROOT / "contracts/examples/negative" / name
+        )
+
+
 def test_latest_revision_reference_fixture_is_rejected() -> None:
     failures = validate_example(
         PROJECT_ROOT / "contracts/jobs/job-spec.schema.json",

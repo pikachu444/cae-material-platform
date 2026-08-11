@@ -143,7 +143,7 @@
       "additionalProperties": false,
       "required": [
         "dataset_id", "dataset_revision_id", "representation", "point_count", "returned_point_count",
-        "sampled", "strain_unit", "stress_unit", "points"
+        "sampled", "strain_unit", "stress_unit", "points", "curve_metadata", "curve_series"
       ],
       "properties": {
         "dataset_id": {"$ref": "#/$defs/Uuid"},
@@ -154,7 +154,9 @@
         "sampled": {"type": "boolean"},
         "strain_unit": {"enum": ["1", "%"]},
         "stress_unit": {"enum": ["Pa", "kPa", "MPa", "GPa"]},
-        "points": {"type": "array", "minItems": 2, "maxItems": 10000, "items": {"$ref": "#/$defs/CurvePoint"}}
+        "points": {"type": "array", "minItems": 2, "maxItems": 10000, "items": {"$ref": "#/$defs/CurvePoint"}},
+        "curve_metadata": {"$ref": "curve-channel-metadata.schema.json"},
+        "curve_series": {"$ref": "curve-channel-metadata.schema.json#/$defs/CurveSeriesPreview"}
       }
     },
     "DatasetProblem": {

@@ -19,7 +19,12 @@ from cmp.modules.artifacts.domain.content import (
     ArtifactNotFound,
     InvalidArtifact,
 )
-from cmp.modules.datasets.domain.reference_tensile import DatasetError, DatasetNotFound
+from cmp.modules.datasets.domain.reference_tensile import (
+    REFERENCE_TENSILE_PARQUET_SCHEMA,
+    REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA,
+    DatasetError,
+    DatasetNotFound,
+)
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
     DataClassification,
@@ -54,8 +59,6 @@ from cmp.modules.processing.domain.reference_tensile_alignment import (
 )
 from cmp.modules.processing.domain.reference_tensile_crop import (
     REFERENCE_TENSILE_CROP_DIAGNOSTICS_SCHEMA,
-    REFERENCE_TENSILE_CROP_INPUT_SCHEMA,
-    REFERENCE_TENSILE_CROP_OUTPUT_SCHEMA,
     REFERENCE_TENSILE_CROP_RECIPE_KIND,
     InvalidProcessingRequest,
     ProcessingConflict,
@@ -78,12 +81,16 @@ class ReferenceTensileCropRecipeInput(BaseModel):
     recipe_label: Annotated[str, StringConstraints(min_length=1, max_length=160)]
     minimum_engineering_strain: Annotated[float, Field(ge=0)]
     maximum_engineering_strain: float
+    input_schema_ref: str = REFERENCE_TENSILE_PARQUET_SCHEMA
+    output_schema_ref: str = REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA
 
     def to_domain(self) -> ReferenceTensileCropRecipeContent:
         return ReferenceTensileCropRecipeContent(
             recipe_label=self.recipe_label,
             minimum_engineering_strain=self.minimum_engineering_strain,
             maximum_engineering_strain=self.maximum_engineering_strain,
+            input_schema_ref=self.input_schema_ref,
+            output_schema_ref=self.output_schema_ref,
         )
 
 
@@ -102,6 +109,8 @@ class ReviseReferenceTensileCropRecipeRequest(BaseModel):
     recipe_label: Annotated[str, StringConstraints(min_length=1, max_length=160)]
     minimum_engineering_strain: Annotated[float, Field(ge=0)]
     maximum_engineering_strain: float
+    input_schema_ref: str | None = None
+    output_schema_ref: str | None = None
     change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
 
 
@@ -125,6 +134,8 @@ class ReferenceTensileAlignmentRecipeInput(BaseModel):
     domain_policy: AlignmentDomainPolicy
     interpolation_policy: AlignmentInterpolationPolicy
     extrapolation_policy: AlignmentExtrapolationPolicy
+    input_schema_ref: str = REFERENCE_TENSILE_PARQUET_SCHEMA
+    output_schema_ref: str = REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA
 
     def to_domain(self) -> ReferenceTensileAlignmentRecipeContent:
         return ReferenceTensileAlignmentRecipeContent(**self.model_dump())
@@ -183,8 +194,8 @@ class ReferenceTensileCropRecipeContentResponse(BaseModel):
             step_count=1,
             minimum_engineering_strain=value.minimum_engineering_strain,
             maximum_engineering_strain=value.maximum_engineering_strain,
-            input_schema_ref=REFERENCE_TENSILE_CROP_INPUT_SCHEMA,
-            output_schema_ref=REFERENCE_TENSILE_CROP_OUTPUT_SCHEMA,
+            input_schema_ref=value.input_schema_ref,
+            output_schema_ref=value.output_schema_ref,
             diagnostics_schema_ref=REFERENCE_TENSILE_CROP_DIAGNOSTICS_SCHEMA,
             boundary_policy="select_observed_points_inclusive_no_interpolation",
         )
@@ -218,8 +229,8 @@ class ReferenceTensileAlignmentRecipeContentResponse(BaseModel):
             domain_policy=value.domain_policy,
             interpolation_policy=value.interpolation_policy,
             extrapolation_policy=value.extrapolation_policy,
-            input_schema_ref=REFERENCE_TENSILE_CROP_INPUT_SCHEMA,
-            output_schema_ref=REFERENCE_TENSILE_CROP_OUTPUT_SCHEMA,
+            input_schema_ref=value.input_schema_ref,
+            output_schema_ref=value.output_schema_ref,
             diagnostics_schema_ref=REFERENCE_TENSILE_ALIGNMENT_DIAGNOSTICS_SCHEMA,
         )
 
@@ -704,6 +715,9 @@ def install_processing_api(
         if service is None:
             raise _unavailable(context)
         try:
+            current = service.get_recipe(context, decision, recipe_id)
+            if not isinstance(current.current.content, ReferenceTensileCropRecipeContent):
+                raise ProcessingConflict("crop revision endpoint requires a crop Recipe identity")
             result = service.revise_reference_tensile_crop_recipe(
                 context,
                 decision,
@@ -714,6 +728,12 @@ def install_processing_api(
                         recipe_label=body.recipe_label,
                         minimum_engineering_strain=body.minimum_engineering_strain,
                         maximum_engineering_strain=body.maximum_engineering_strain,
+                        input_schema_ref=(
+                            body.input_schema_ref or current.current.content.input_schema_ref
+                        ),
+                        output_schema_ref=(
+                            body.output_schema_ref or current.current.content.output_schema_ref
+                        ),
                     ),
                     change_reason=body.change_reason,
                 ),

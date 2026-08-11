@@ -68,6 +68,8 @@ class RecordDomainBinding:
     object_id: UUID
     revision_id: UUID
     workbench_path: str
+    record_id: UUID | None = None
+    record_revision_id: UUID | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -77,6 +79,34 @@ class RecordSnapshot:
     current: ConfigRevision[CatalogRecordContent]
     domain_binding: RecordDomainBinding | None = None
     domain_bindings: tuple[RecordDomainBinding, ...] = ()
+
+
+@dataclass(frozen=True, slots=True)
+class CurveOwnershipSource:
+    entity_type: str
+    entity_id: UUID
+    revision_id: UUID
+    artifact_id: UUID | None = None
+    artifact_sha256: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class CurveOwnershipPointer:
+    kind: str
+    entity_id: UUID
+    revision_id: UUID | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class CurveOwnership:
+    """Exact owner/provenance discovered from existing immutable revisions."""
+
+    entity_type: str
+    entity_id: UUID
+    revision_id: UUID
+    sources: tuple[CurveOwnershipSource, ...] = ()
+    provenance: tuple[CurveOwnershipPointer, ...] = ()
+    modeling_source: RecordDomainBinding | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -319,6 +349,17 @@ class CatalogRecordRepository(Protocol):
         record_id: UUID,
         revision_id: UUID,
     ) -> ConfigRevision[CatalogRecordContent]: ...
+
+    def resolve_curve_ownership(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        record_id: UUID,
+        record_revision_id: UUID,
+        artifact_id: UUID,
+        artifact_sha256: str,
+    ) -> CurveOwnership | None: ...
 
     def list_record_revisions(
         self,
@@ -603,10 +644,25 @@ class CatalogRecordService:
                     )
 
     @staticmethod
-    def _normalize_record_content(content: CatalogRecordContent) -> CatalogRecordContent:
+    def _normalize_record_content(
+        content: CatalogRecordContent,
+        *,
+        previous: CatalogRecordContent | None = None,
+    ) -> CatalogRecordContent:
+        previous_values = (
+            {}
+            if previous is None
+            else {item.attribute_definition_id: item for item in previous.values}
+        )
         values: list[CatalogRecordValue] = []
         for value in content.values:
             if value.data_type is not AttributeDataType.NUMBER:
+                values.append(value)
+                continue
+            if previous_values.get(value.attribute_definition_id) == value:
+                # Historical values outside the closed #205 registry remain byte-for-byte
+                # compatible when a revision changes only another Attribute. New or changed
+                # numbers still pass through the exact common unit contract below.
                 values.append(value)
                 continue
             assert value.original_value is not None
@@ -678,7 +734,9 @@ class CatalogRecordService:
         )
         if current.table_id != command.content.table_id:
             raise ConfigurableCatalogConflict("Record Table cannot change")
-        content = self._normalize_record_content(command.content)
+        content = self._normalize_record_content(
+            command.content, previous=current.current.content
+        )
         self._validate_record(context, decision, content)
         record = self._revision_service(
             RECORD_AGGREGATE_TYPE, self._repository.record_store(context, decision)
@@ -704,6 +762,40 @@ class CatalogRecordService:
     ) -> RecordSnapshot:
         _require(context, decision, Permission.CATALOG_READ)
         return self._repository.get_record(context=context, decision=decision, record_id=record_id)
+
+    def get_record_revision(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        record_id: UUID,
+        revision_id: UUID,
+    ) -> ConfigRevision[CatalogRecordContent]:
+        _require(context, decision, Permission.CATALOG_READ)
+        return self._repository.get_record_revision(
+            context=context,
+            decision=decision,
+            record_id=record_id,
+            revision_id=revision_id,
+        )
+
+    def resolve_curve_ownership(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        record_id: UUID,
+        record_revision_id: UUID,
+        artifact_id: UUID,
+        artifact_sha256: str,
+    ) -> CurveOwnership | None:
+        _require(context, decision, Permission.CATALOG_READ)
+        return self._repository.resolve_curve_ownership(
+            context=context,
+            decision=decision,
+            record_id=record_id,
+            record_revision_id=record_revision_id,
+            artifact_id=artifact_id,
+            artifact_sha256=artifact_sha256,
+        )
 
     def get_record_for_write(
         self, context: SecurityContext, decision: AuthorizationDecision, record_id: UUID

@@ -2686,6 +2686,228 @@
   display: block;
 }
 
+.curve-layout-projection {
+  min-width: 0;
+}
+
+.material-curve-browser {
+  display: grid;
+  grid-template-columns: minmax(210px, 26%) minmax(0, 1fr);
+  min-height: 520px;
+  border-block: 1px solid var(--ux-border);
+}
+
+.material-curve-list {
+  min-width: 0;
+  border-right: 1px solid var(--ux-border);
+}
+
+.material-curve-list > [role="listitem"] > button {
+  display: grid;
+  width: 100%;
+  min-height: 58px;
+  padding: var(--ux-space-3) var(--ux-space-4);
+  border: 0;
+  border-bottom: 1px solid var(--ux-border);
+  background: transparent;
+  color: var(--ux-text);
+  cursor: pointer;
+  gap: var(--ux-space-1);
+  text-align: left;
+}
+
+.material-curve-list > [role="listitem"] > button:hover,
+.material-curve-list > [role="listitem"] > button.active {
+  background: var(--ux-surface-subtle);
+}
+
+.material-curve-list > [role="listitem"] > button.active {
+  box-shadow: inset 3px 0 0 var(--ux-accent);
+}
+
+.material-curve-list > [role="listitem"] > button:focus-visible,
+.contract-curve-svg:focus-visible {
+  outline: 2px solid var(--ux-focus);
+  outline-offset: -2px;
+}
+
+.material-curve-list > [role="listitem"] > button span {
+  color: var(--ux-text-muted);
+  font-size: 12px;
+}
+
+.material-curve-main {
+  min-width: 0;
+  padding: var(--ux-space-4) var(--ux-pane-padding);
+}
+
+.contract-curve {
+  display: grid;
+  min-width: 0;
+  gap: var(--ux-space-3);
+}
+
+.contract-curve-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: var(--ux-space-4);
+}
+
+.contract-curve-heading h3,
+.contract-curve-heading p,
+.curve-band-meaning {
+  margin: 0;
+}
+
+.contract-curve-heading p,
+.contract-curve-heading > span,
+.curve-band-meaning,
+.contract-curve-actions > span {
+  color: var(--ux-text-muted);
+  font-size: 12px;
+}
+
+.curve-channel-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ux-space-1) var(--ux-space-4);
+  color: var(--ux-text-muted);
+  font-size: 12px;
+}
+
+.contract-curve-frame {
+  position: relative;
+  min-width: 0;
+  border-block: 1px solid var(--ux-border);
+  background: var(--ux-surface);
+}
+
+.contract-curve-svg {
+  display: block;
+  width: 100%;
+  height: clamp(300px, 40vh, 680px);
+  touch-action: none;
+}
+
+.contract-curve-line {
+  fill: none;
+  stroke: var(--ux-accent);
+  stroke-linejoin: round;
+  stroke-width: 2.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.contract-curve-active {
+  pointer-events: none;
+}
+
+.contract-curve-active line {
+  stroke: var(--ux-text-muted);
+  stroke-dasharray: 4 3;
+  stroke-width: 1;
+}
+
+.contract-curve-active circle {
+  fill: var(--ux-surface);
+  stroke: var(--ux-accent);
+  stroke-width: 3;
+}
+
+.contract-curve-tooltip {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  max-width: min(360px, 78%);
+  padding: var(--ux-space-2) var(--ux-space-3);
+  border: 1px solid var(--ux-border-strong);
+  background: var(--ux-surface);
+  box-shadow: var(--ux-shadow-overlay);
+  color: var(--ux-text);
+  font-size: 12px;
+  gap: 2px;
+  pointer-events: none;
+  transform: translate(12px, calc(-100% - 12px));
+}
+
+.contract-curve-tooltip span {
+  color: var(--ux-text-muted);
+}
+
+.engineering-plot-frame {
+  position: relative;
+}
+
+.processing-curve.interactive:focus-visible {
+  outline: 2px solid var(--ux-focus);
+  outline-offset: -2px;
+}
+
+.engineering-curve-tooltip {
+  position: absolute;
+  z-index: 3;
+  display: grid;
+  max-width: min(360px, 72%);
+  padding: var(--ux-space-2) var(--ux-space-3);
+  border: 1px solid var(--ux-border-strong);
+  background: var(--ux-surface);
+  box-shadow: var(--ux-shadow-overlay);
+  color: var(--ux-text);
+  font-size: 12px;
+  gap: 2px;
+  pointer-events: none;
+  transform: translate(12px, calc(-100% - 12px));
+}
+
+.engineering-curve-tooltip span {
+  color: var(--ux-text-muted);
+}
+
+.contract-curve .curve-legend {
+  margin: 0;
+}
+
+.curve-legend i.contract-line {
+  background: var(--ux-accent);
+}
+
+.contract-curve-actions {
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+  gap: var(--ux-space-3);
+}
+
+.curve-evidence dl {
+  display: grid;
+  grid-template-columns: minmax(120px, 180px) minmax(0, 1fr);
+  margin: var(--ux-space-3) 0 0;
+  gap: var(--ux-space-2) var(--ux-space-4);
+}
+
+.curve-evidence dt {
+  color: var(--ux-text-muted);
+}
+
+.curve-evidence dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 900px) {
+  .material-curve-browser {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .material-curve-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    border-right: 0;
+    border-bottom: 1px solid var(--ux-border);
+  }
+}
+
 .layout-projection-table td strong {
   font-weight: 500;
 }

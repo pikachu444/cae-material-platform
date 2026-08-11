@@ -49,11 +49,11 @@ from cmp.modules.statistics.domain.reference_tensile_outlier import (
 from cmp.modules.statistics.domain.reference_tensile_pair import (
     REFERENCE_TENSILE_PAIR_ASSUMPTION_PROFILE,
     REFERENCE_TENSILE_PAIR_CI_STATUS,
-    REFERENCE_TENSILE_PAIR_CURVE_SCHEMA,
     REFERENCE_TENSILE_PAIR_GRID_POLICY,
     REFERENCE_TENSILE_PAIR_PLAN_KIND,
     REFERENCE_TENSILE_PAIR_QUANTILE_METHOD,
     REFERENCE_TENSILE_PAIR_SCALAR_FEATURE,
+    REFERENCE_TENSILE_PAIR_SCHEMA_PAIRS,
     QcObservation,
     QcOutcome,
     ReferenceTensilePairPlanContent,
@@ -352,14 +352,16 @@ def _plan_content(row: Any) -> ReferenceTensilePairPlanContent:
     if (
         str(row["plan_kind"]) != REFERENCE_TENSILE_PAIR_PLAN_KIND
         or int(row["sample_count"]) != 2
-        or str(row["input_schema_ref"])
-        != "urn:cmp:datasets:reference-tensile-normalized-parquet:1.0.0"
+        or (
+            str(row["input_schema_ref"]),
+            str(row["curve_output_schema_ref"]),
+        )
+        not in REFERENCE_TENSILE_PAIR_SCHEMA_PAIRS
         or str(row["scalar_feature"]) != REFERENCE_TENSILE_PAIR_SCALAR_FEATURE
         or str(row["curve_grid_policy"]) != REFERENCE_TENSILE_PAIR_GRID_POLICY
         or str(row["assumption_profile"]) != REFERENCE_TENSILE_PAIR_ASSUMPTION_PROFILE
         or str(row["quantile_method"]) != REFERENCE_TENSILE_PAIR_QUANTILE_METHOD
         or str(row["confidence_interval_status"]) != REFERENCE_TENSILE_PAIR_CI_STATUS
-        or str(row["curve_output_schema_ref"]) != REFERENCE_TENSILE_PAIR_CURVE_SCHEMA
     ):
         raise StatisticsConflict("Statistical Plan revision violates the reference pair contract")
     return ReferenceTensilePairPlanContent(
@@ -368,6 +370,8 @@ def _plan_content(row: Any) -> ReferenceTensilePairPlanContent:
         first_selection_revision_id=cast(UUID, row["first_selection_revision_id"]),
         second_selection_id=cast(UUID, row["second_selection_id"]),
         second_selection_revision_id=cast(UUID, row["second_selection_revision_id"]),
+        input_schema_ref=str(row["input_schema_ref"]),
+        curve_output_schema_ref=str(row["curve_output_schema_ref"]),
     )
 
 
@@ -469,13 +473,13 @@ def _plan_values(value: ReferenceTensilePairPlanContent) -> dict[str, object]:
         "first_selection_revision_id": value.first_selection_revision_id,
         "second_selection_id": value.second_selection_id,
         "second_selection_revision_id": value.second_selection_revision_id,
-        "input_schema_ref": "urn:cmp:datasets:reference-tensile-normalized-parquet:1.0.0",
+        "input_schema_ref": value.input_schema_ref,
         "scalar_feature": REFERENCE_TENSILE_PAIR_SCALAR_FEATURE,
         "curve_grid_policy": REFERENCE_TENSILE_PAIR_GRID_POLICY,
         "assumption_profile": REFERENCE_TENSILE_PAIR_ASSUMPTION_PROFILE,
         "quantile_method": REFERENCE_TENSILE_PAIR_QUANTILE_METHOD,
         "confidence_interval_status": REFERENCE_TENSILE_PAIR_CI_STATUS,
-        "curve_output_schema_ref": REFERENCE_TENSILE_PAIR_CURVE_SCHEMA,
+        "curve_output_schema_ref": value.curve_output_schema_ref,
     }
 
 

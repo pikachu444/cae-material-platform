@@ -81,11 +81,17 @@ Material Detail command bar, 왼쪽 `← Results`, 브라우저 뒤로 가기는
 
 ### Layout, Related와 Evidence 확인
 
-- `Properties`와 `Curves`에서 현재 자료의 속성과 곡선을 확인합니다.
+- `Properties`와 `Curves`에서 현재 자료의 속성과 곡선을 확인합니다. 곡선을 선택하면 축·보조
+  채널의 의미, 원본/정규화·표시 단위, 기록된 band/deviation 의미와 exact revision을 같은 그래프에서
+  읽습니다. 키보드 focus 뒤 Arrow key로 point를 이동하고 `Escape`로 tooltip 탐색을 끝낼 수 있습니다.
 - Related records 목록에서 연결된 자료를 선택하면 중앙 datasheet에서 확인할 수 있습니다. 자료를
   읽지 못하면 최신 자료로 바꾸지 않고 오류와 `Retry`를 표시합니다.
 - `Download CSV`는 현재 화면의 표 값을 내려받습니다. `Curves` 탭에서는 연결된 curve preview를
   확인하고, `Related records`에서는 연결된 자료를 다시 엽니다.
+- Curve **Evidence**를 펼치면 Artifact digest와 source/calculation provenance를 확인합니다. 정확히
+  연결된 observed Test Data만 Modeling으로 열 수 있습니다. Statistical Result curve는 band를
+  보여도 view-only이며, metadata가 없는 legacy revision은 기존 값과 availability를 유지하면서
+  "채널/편차 metadata가 기록되지 않음"을 표시하고 band·Fit 입력을 추정하지 않습니다.
 
 ## 시험 데이터에서 card delivery 준비하기
 
@@ -139,6 +145,9 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
   같은 그래프에 겹쳐 보며, 포함 선택은 reload 뒤에도 유지됩니다.
 - 가운데 그래프가 주 작업면입니다. Process와 Fit을 전환해도 선택 curve와 server preview가
   유지되며 response, residual, tangent 또는 extrapolation 보기를 같은 그래프에서 바꿉니다.
+  Data/Process/Fit은 Materials와 같은 channel definition SHA와 표시 adapter를 사용하므로 축 label,
+  display unit과 deviation 설명이 화면별 문구로 달라지지 않습니다. Tooltip은 pointer와 keyboard에서
+  같은 point의 값, band kind/method/coverage와 pointwise source count를 표시합니다.
   현재 캡처 자동화는 렌더링된 가로축이 Modeling workspace 폭의 72% 미만이면 실패합니다.
 - 1366 px 이상에서는 current-step settings가 그래프 위의 104 px 이하 얕은 ribbon으로 열립니다.
   오른쪽 접기 버튼으로 필요할 때 숨길 수 있습니다. 이 ribbon은 세 번째
