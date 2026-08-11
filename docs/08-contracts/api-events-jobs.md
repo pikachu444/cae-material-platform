@@ -200,6 +200,8 @@ HTTP contract `0.34.0` references
 Conversion request는 `location`, `original_unit_string`, source/target의 dimension,
 quantity semantics와 stable unit ID를 모두 요구한다. `temperature.absolute`와
 `temperature.test`만 `Cel` offset을 적용하고 `temperature.difference`는 scale만 적용한다.
+`original_unit_string`은 닫힌 stable ID 또는 호환 alias여야 하며, alias를 정규화한 ID가
+선언된 source unit ID와 정확히 일치해야 한다. 응답은 입력 원문을 그대로 보존한다.
 
 Unit Profile 사용 API는 이름이나 `latest` 대신 다음 exact pin과 실제 application 목록을
 전달·반환한다.

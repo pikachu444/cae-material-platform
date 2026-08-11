@@ -272,6 +272,13 @@ def test_common_units_profiles_and_export_usage_match_runtime_contracts() -> Non
     )
 
     unit_schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    original_unit_text = unit_schema["$defs"]["OriginalUnitText"]["enum"]
+    assert runtime["components"]["schemas"]["OriginalUnitTextInput"]["enum"] == (
+        original_unit_text
+    )
+    assert unit_schema["$defs"]["UnitConversionRequest"]["properties"][
+        "original_unit_string"
+    ] == {"$ref": "#/$defs/OriginalUnitText"}
     assert unit_schema["$defs"]["CompatibilityUnitSystem"]["properties"][
         "production_default"
     ] == {"const": False}

@@ -30,7 +30,8 @@ scale/offset and values; they are not inferred or added to the common unit regis
 - The existing 13 registration conversions delegate to the common service while preserving their
   original evidence shape and original unit text.
 - `µm`/`μm`, `kg/m^3`, `g/cm^3`, `degC`/`°C` are bounded read/input aliases. Unit Profile revisions
-  store stable IDs only.
+  store stable IDs only. Public conversion validates that the exact original text resolves to the
+  declared source unit while preserving the accepted original spelling in evidence.
 - `kg_m_s` remains the only existing solver compatibility system and declares
   `production_default=false`. Profile-bearing export currently requires its solver-export choices;
   no production default profile was selected.
@@ -66,8 +67,8 @@ immutability/RLS and legacy zero-child-row/native-SHA checks.
 | PostgreSQL profile-bearing card/delivery, Fit, typed trace, provenance and legacy compatibility | PASS — 6 tests |
 | PostgreSQL #204 deterministic no-write planner | PASS — 1 test |
 | PostgreSQL Materials/registration read-back and Configurable Record guards | PASS — 4 tests |
-| Focused non-PostgreSQL domain/API/contract/regression suites | PASS — 473 tests |
-| Full non-PostgreSQL repository suite | PASS — 1,463 tests; 91 PostgreSQL tests and the 3 unchanged baseline checks described below deselected |
+| Focused non-PostgreSQL domain/API/contract/regression suites | PASS — 476 tests |
+| Full non-PostgreSQL repository suite | PASS — 1,466 tests; 91 PostgreSQL tests and the 3 unchanged baseline checks described below deselected |
 | Migration and architecture automation | PASS — 126 migration tests, 29 architecture tests and `cmp-check-architecture` |
 | Contract lint and compatibility | PASS — JSON Schema/OpenAPI lint and baseline compatibility |
 | Python quality | PASS — Ruff; mypy on all 67 changed/new Python files |

@@ -512,6 +512,19 @@ def convert_value(
         )
 
     source_unit = _validate_reference(source, location=f"{location}.source")
+    original_unit_id = canonical_unit_id(
+        original_unit_string,
+        location=f"{location}.original_unit_string",
+    )
+    if original_unit_id != source_unit.unit_id:
+        original_unit = unit_definition(original_unit_id)
+        raise UnitError(
+            code="CMP-UNIT-0005",
+            message="original_unit_string does not identify the declared source unit",
+            location=f"{location}.original_unit_string",
+            source_dimension=original_unit.dimension,
+            target_dimension=source_unit.dimension,
+        )
     target_unit = _validate_reference(target, location=f"{location}.target")
     parsed = parse_decimal(value, location=f"{location}.value")
     is_temperature_difference = (

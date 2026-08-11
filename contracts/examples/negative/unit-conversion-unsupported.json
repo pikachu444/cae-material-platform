@@ -5,7 +5,7 @@
   "source": {
     "dimension": "force_per_area",
     "quantity_semantics": "mechanics.stress.engineering",
-    "unit_id": "psi"
+    "unit_id": "Pa"
   },
   "target": {
     "dimension": "force_per_area",

@@ -5,6 +5,7 @@ from typing import Any, cast
 from uuid import UUID
 
 import pytest
+from cmp.modules.units.adapters.api.units import install_units_api
 from cmp.modules.units.domain.profiles import (
     UnitApplicationRole,
     UnitProfileContent,
@@ -21,6 +22,8 @@ from cmp.modules.units.domain.system import (
     convert_value,
     unit_system_contract,
 )
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
 
 
 def _semantics(dimension: DimensionId) -> str:
@@ -117,6 +120,109 @@ def test_density_composite_dimension_and_legacy_alias_are_explicit() -> None:
     assert canonical_unit_id("kg/m^3") == "kg/m3"
     assert canonical_unit_id("g/cm^3") == "g/cm3"
     assert converted.converted_value == Decimal("7850")
+
+
+def test_original_unit_alias_is_validated_and_preserved_verbatim() -> None:
+    converted = convert_value(
+        "12",
+        original_unit_string="µm",
+        source=QuantityReference(DimensionId.LENGTH, "length", "um"),
+        target=QuantityReference(DimensionId.LENGTH, "length", "m"),
+        location="geometry.gauge_length",
+    )
+
+    assert converted.original_unit_string == "µm"
+    assert converted.source.unit_id == "um"
+    assert converted.converted_value == Decimal("0.000012")
+
+
+def test_original_unit_must_be_bounded_and_identify_declared_source() -> None:
+    source = QuantityReference(DimensionId.LENGTH, "length", "m")
+    target = QuantityReference(DimensionId.LENGTH, "length", "cm")
+
+    with pytest.raises(UnitError) as unsupported:
+        convert_value(
+            "1",
+            original_unit_string="inch",
+            source=source,
+            target=target,
+            location="geometry.gauge_length",
+        )
+    assert unsupported.value.detail() == {
+        "code": "CMP-UNIT-0001",
+        "message": "unsupported unit identifier: inch",
+        "location": "geometry.gauge_length.original_unit_string",
+        "source_dimension": None,
+        "target_dimension": None,
+    }
+
+    with pytest.raises(UnitError) as mismatched:
+        convert_value(
+            "1",
+            original_unit_string="mm",
+            source=source,
+            target=target,
+            location="geometry.gauge_length",
+        )
+    assert mismatched.value.detail() == {
+        "code": "CMP-UNIT-0005",
+        "message": "original_unit_string does not identify the declared source unit",
+        "location": "geometry.gauge_length.original_unit_string",
+        "source_dimension": "length",
+        "target_dimension": "length",
+    }
+
+
+def test_conversion_api_rejects_unbounded_and_source_mismatched_original_unit() -> None:
+    test_app = FastAPI()
+    install_units_api(
+        test_app,
+        service=None,
+        security_dependency=lambda: None,
+        read_dependency=lambda: None,
+        write_dependency=lambda: None,
+    )
+    payload: dict[str, Any] = {
+        "location": "geometry.gauge_length",
+        "value": "1",
+        "original_unit_string": "inch",
+        "source": {
+            "dimension": "length",
+            "quantity_semantics": "length",
+            "unit_id": "m",
+        },
+        "target": {
+            "dimension": "length",
+            "quantity_semantics": "length",
+            "unit_id": "cm",
+        },
+    }
+
+    with TestClient(test_app) as client:
+        unsupported = client.post("/api/v1/unit-conversions", json=payload)
+        assert unsupported.status_code == 422
+
+        payload["original_unit_string"] = "mm"
+        mismatched = client.post("/api/v1/unit-conversions", json=payload)
+        assert mismatched.status_code == 422
+        assert mismatched.json() == {
+            "detail": {
+                "code": "CMP-UNIT-0005",
+                "message": (
+                    "original_unit_string does not identify the declared source unit"
+                ),
+                "location": "geometry.gauge_length.original_unit_string",
+                "source_dimension": "length",
+                "target_dimension": "length",
+            }
+        }
+
+        payload["original_unit_string"] = "μm"
+        payload["source"]["unit_id"] = "um"
+        payload["target"]["unit_id"] = "m"
+        valid_alias = client.post("/api/v1/unit-conversions", json=payload)
+        assert valid_alias.status_code == 200
+        assert valid_alias.json()["original_unit_string"] == "μm"
 
 
 def test_cross_dimension_failure_is_structured_and_location_aware() -> None:
