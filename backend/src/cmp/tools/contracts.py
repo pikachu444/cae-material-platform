@@ -23,6 +23,8 @@ POSITIVE_EXAMPLES = {
     "revision-metadata.json": "contracts/revisions/revision-metadata.schema.json",
     "artifact-available-event.json": "contracts/events/artifact-available.schema.json",
     "audit-export.json": "contracts/audit/audit-export.schema.json",
+    "schema-definition-bundle-one.json": "contracts/catalog/schema-definition-bundle.schema.json",
+    "schema-definition-bundle-many.json": "contracts/catalog/schema-definition-bundle.schema.json",
 }
 NEGATIVE_EXAMPLES = {
     "job-spec-latest.json": "contracts/jobs/job-spec.schema.json",
@@ -31,6 +33,9 @@ NEGATIVE_EXAMPLES = {
     "revision-metadata-latest.json": "contracts/revisions/revision-metadata.schema.json",
     "artifact-available-event-storage-key.json": "contracts/events/artifact-available.schema.json",
     "audit-export-raw-payload.json": "contracts/audit/audit-export.schema.json",
+    "schema-definition-bundle-unsupported-version.json": (
+        "contracts/catalog/schema-definition-bundle.schema.json"
+    ),
 }
 
 
@@ -213,4 +218,3 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

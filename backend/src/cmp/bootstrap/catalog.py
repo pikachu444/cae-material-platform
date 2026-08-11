@@ -5,6 +5,7 @@ from __future__ import annotations
 from sqlalchemy.orm import Session, sessionmaker
 
 from cmp.bootstrap.security import IdentityServices
+from cmp.modules.artifacts.application.content import ArtifactService
 from cmp.modules.audit.adapters.persistence.repository import SqlAlchemyRevisionAuditHook
 from cmp.modules.catalog.adapters.persistence.configurable import (
     SqlAlchemyConfigurableCatalogRepository,
@@ -12,9 +13,13 @@ from cmp.modules.catalog.adapters.persistence.configurable import (
 from cmp.modules.catalog.adapters.persistence.links import SqlAlchemyCatalogLinkRepository
 from cmp.modules.catalog.adapters.persistence.records import SqlAlchemyCatalogRecordRepository
 from cmp.modules.catalog.adapters.persistence.repository import SqlAlchemyCatalogRepository
+from cmp.modules.catalog.adapters.persistence.schema_bundles import (
+    SqlAlchemySchemaBundleSnapshotRepository,
+)
 from cmp.modules.catalog.application.configurable import ConfigurableCatalogService
 from cmp.modules.catalog.application.links import CatalogLinkService
 from cmp.modules.catalog.application.records import CatalogRecordService
+from cmp.modules.catalog.application.schema_bundles import SchemaBundlePlannerService
 from cmp.modules.catalog.application.service import CatalogService
 from cmp.modules.provenance.adapters.persistence.repository import SqlAlchemyRevisionProvenanceHook
 from cmp.modules.review_release.adapters.persistence.lifecycle import SqlInitialLifecycleHook
@@ -57,6 +62,24 @@ def build_configurable_catalog_service(
                 SqlAlchemyRevisionAuditHook(),
             ),
         )
+    )
+
+
+def build_schema_bundle_planner_service(
+    identity: IdentityServices,
+    artifacts: ArtifactService | None,
+) -> SchemaBundlePlannerService | None:
+    """Wire immutable Artifact reads to one coherent read-only Catalog snapshot."""
+
+    if identity.engine is None or identity.rls_context is None or artifacts is None:
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    return SchemaBundlePlannerService(
+        artifacts=artifacts,
+        snapshots=SqlAlchemySchemaBundleSnapshotRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+        ),
     )
 
 

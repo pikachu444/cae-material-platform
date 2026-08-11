@@ -1,0 +1,425 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/catalog/schema-definition-plan.schema.json",
+  "title": "Catalog Schema Definition Bundle dry-run plan v1",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "StableKey": {"type": "string", "minLength": 1, "maxLength": 255},
+    "BundleScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["organization_id", "project_id", "classification"],
+      "properties": {
+        "organization_id": {"$ref": "#/$defs/Uuid"},
+        "project_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {
+          "type": "string",
+          "enum": ["internal", "confidential", "restricted", "export_controlled"]
+        }
+      }
+    },
+    "PlanRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id", "artifact_sha256"],
+      "properties": {
+        "artifact_id": {"$ref": "#/$defs/Uuid"},
+        "artifact_sha256": {"$ref": "#/$defs/Sha256"}
+      }
+    },
+    "SourceArtifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id",
+        "organization_id",
+        "project_id",
+        "classification",
+        "media_type",
+        "size_bytes",
+        "sha256"
+      ],
+      "properties": {
+        "artifact_id": {"$ref": "#/$defs/Uuid"},
+        "organization_id": {"$ref": "#/$defs/Uuid"},
+        "project_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {
+          "type": "string",
+          "enum": ["internal", "confidential", "restricted", "export_controlled"]
+        },
+        "media_type": {"type": "string", "minLength": 1, "maxLength": 255},
+        "size_bytes": {"type": "integer", "minimum": 0, "maximum": 67108864},
+        "sha256": {"$ref": "#/$defs/Sha256"}
+      }
+    },
+    "BundleSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bundle_key",
+        "bundle_version",
+        "scope",
+        "database_key",
+        "profile_key",
+        "record_schema_count",
+        "dependency_order"
+      ],
+      "properties": {
+        "bundle_key": {"$ref": "#/$defs/StableKey"},
+        "bundle_version": {"type": "string", "minLength": 1, "maxLength": 64},
+        "scope": {"$ref": "#/$defs/BundleScope"},
+        "database_key": {"$ref": "#/$defs/StableKey"},
+        "profile_key": {"$ref": "#/$defs/StableKey"},
+        "record_schema_count": {"type": "integer", "minimum": 1},
+        "dependency_order": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/StableKey"},
+          "uniqueItems": true
+        }
+      }
+    },
+    "CurrentIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "revision_id", "content_hash", "published"],
+      "properties": {
+        "id": {"oneOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "revision_id": {"oneOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "content_hash": {"$ref": "#/$defs/Sha256"},
+        "published": {"type": "boolean"}
+      }
+    },
+    "DefinitionProjection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "name", "description"],
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]{0,62}[a-z0-9]$|^[a-z]$"
+        },
+        "name": {"type": "string", "minLength": 1, "maxLength": 200},
+        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 4000}
+      }
+    },
+    "ProfileProjection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["database_key", "key", "name", "description"],
+      "properties": {
+        "database_key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]{0,62}[a-z0-9]$|^[a-z]$"
+        },
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]{0,62}[a-z0-9]$|^[a-z]$"
+        },
+        "name": {"type": "string", "minLength": 1, "maxLength": 200},
+        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 4000}
+      }
+    },
+    "AdapterSemanticsProjection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["business_key", "nullable", "indexed", "searchable"],
+      "properties": {
+        "business_key": {"type": "boolean"},
+        "nullable": {"type": "boolean"},
+        "indexed": {"type": ["boolean", "null"]},
+        "searchable": {"type": ["boolean", "null"]}
+      }
+    },
+    "AttributeProjection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "name",
+        "data_type",
+        "required",
+        "quantity_semantics",
+        "normalized_unit",
+        "minimum_number",
+        "maximum_number",
+        "minimum_length",
+        "maximum_length",
+        "pattern",
+        "allowed_values",
+        "reference_table_key",
+        "help_text",
+        "source_pointer",
+        "adapter_semantics"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]{0,62}[a-z0-9]$|^[a-z]$"
+        },
+        "name": {"type": "string", "minLength": 1, "maxLength": 200},
+        "data_type": {
+          "type": "string",
+          "enum": [
+            "number",
+            "integer",
+            "text",
+            "boolean",
+            "date",
+            "discrete",
+            "curve",
+            "record_reference"
+          ]
+        },
+        "required": {"type": "boolean"},
+        "quantity_semantics": {"type": ["string", "null"], "minLength": 1, "maxLength": 255},
+        "normalized_unit": {"type": ["string", "null"], "minLength": 1, "maxLength": 64},
+        "minimum_number": {"type": ["number", "null"]},
+        "maximum_number": {"type": ["number", "null"]},
+        "minimum_length": {"type": ["integer", "null"], "minimum": 0},
+        "maximum_length": {"type": ["integer", "null"], "minimum": 1},
+        "pattern": {"type": ["string", "null"], "minLength": 1, "maxLength": 500},
+        "allowed_values": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1, "maxLength": 255},
+          "uniqueItems": true
+        },
+        "reference_table_key": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]{0,62}[a-z0-9]$|^[a-z]$"
+            },
+            {"type": "null"}
+          ]
+        },
+        "help_text": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000},
+        "source_pointer": {"type": "string", "pattern": "^(/(?:[^/~]|~[01])*)+$"},
+        "adapter_semantics": {"$ref": "#/$defs/AdapterSemanticsProjection"}
+      }
+    },
+    "LayoutItemProjection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attribute_key", "section", "ordinal"],
+      "properties": {
+        "attribute_key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]{0,62}[a-z0-9]$|^[a-z]$"
+        },
+        "section": {"type": "string", "minLength": 1, "maxLength": 100},
+        "ordinal": {"type": "integer", "minimum": 0}
+      }
+    },
+    "LayoutProjection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "description", "items"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1, "maxLength": 200},
+        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000},
+        "items": {"type": "array", "items": {"$ref": "#/$defs/LayoutItemProjection"}}
+      }
+    },
+    "PlacementProjection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profile_key", "table_key"],
+      "properties": {
+        "profile_key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]{0,62}[a-z0-9]$|^[a-z]$"
+        },
+        "table_key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]{0,62}[a-z0-9]$|^[a-z]$"
+        }
+      }
+    },
+    "LinkTypeProjection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "name",
+        "source_table_key",
+        "target_table_key",
+        "forward_label",
+        "reverse_label",
+        "source_cardinality",
+        "target_cardinality",
+        "description"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]{0,62}[a-z0-9]$|^[a-z]$"
+        },
+        "name": {"type": "string", "minLength": 1, "maxLength": 200},
+        "source_table_key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]{0,62}[a-z0-9]$|^[a-z]$"
+        },
+        "target_table_key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]{0,62}[a-z0-9]$|^[a-z]$"
+        },
+        "forward_label": {"type": "string", "minLength": 1, "maxLength": 200},
+        "reverse_label": {"type": "string", "minLength": 1, "maxLength": 200},
+        "source_cardinality": {"type": "string", "enum": ["one", "many"]},
+        "target_cardinality": {"type": "string", "enum": ["one", "many"]},
+        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "Action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sequence",
+        "disposition",
+        "target_type",
+        "external_key",
+        "parent_external_key",
+        "current",
+        "projected",
+        "reason_codes"
+      ],
+      "properties": {
+        "sequence": {"type": "integer", "minimum": 0},
+        "disposition": {
+          "type": "string",
+          "enum": ["create", "update", "no-op", "conflict", "error"]
+        },
+        "target_type": {
+          "type": "string",
+          "enum": [
+            "bundle",
+            "database",
+            "profile",
+            "table",
+            "attribute",
+            "layout",
+            "profile_table_placement",
+            "link_type"
+          ]
+        },
+        "external_key": {"$ref": "#/$defs/StableKey"},
+        "parent_external_key": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "current": {
+          "oneOf": [{"$ref": "#/$defs/CurrentIdentity"}, {"type": "null"}]
+        },
+        "projected": {
+          "oneOf": [
+            {"$ref": "#/$defs/DefinitionProjection"},
+            {"$ref": "#/$defs/ProfileProjection"},
+            {"$ref": "#/$defs/AttributeProjection"},
+            {"$ref": "#/$defs/LayoutProjection"},
+            {"$ref": "#/$defs/PlacementProjection"},
+            {"$ref": "#/$defs/LinkTypeProjection"},
+            {"type": "null"}
+          ]
+        },
+        "reason_codes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,127}$"},
+          "uniqueItems": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"target_type": {"const": "bundle"}}},
+          "then": {"properties": {"projected": {"type": "null"}}}
+        },
+        {
+          "if": {"properties": {"target_type": {"enum": ["database", "table"]}}},
+          "then": {"properties": {"projected": {"$ref": "#/$defs/DefinitionProjection"}}}
+        },
+        {
+          "if": {"properties": {"target_type": {"const": "profile"}}},
+          "then": {"properties": {"projected": {"$ref": "#/$defs/ProfileProjection"}}}
+        },
+        {
+          "if": {"properties": {"target_type": {"const": "attribute"}}},
+          "then": {"properties": {"projected": {"$ref": "#/$defs/AttributeProjection"}}}
+        },
+        {
+          "if": {"properties": {"target_type": {"const": "layout"}}},
+          "then": {"properties": {"projected": {"$ref": "#/$defs/LayoutProjection"}}}
+        },
+        {
+          "if": {"properties": {"target_type": {"const": "profile_table_placement"}}},
+          "then": {"properties": {"projected": {"$ref": "#/$defs/PlacementProjection"}}}
+        },
+        {
+          "if": {"properties": {"target_type": {"const": "link_type"}}},
+          "then": {"properties": {"projected": {"$ref": "#/$defs/LinkTypeProjection"}}}
+        }
+      ]
+    },
+    "Diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["severity", "code", "location", "message", "remediation"],
+      "properties": {
+        "severity": {"type": "string", "enum": ["warning", "error"]},
+        "code": {"type": "string", "pattern": "^CMP-SCHEMA-BUNDLE-[0-9]{4}$"},
+        "location": {"type": "string", "pattern": "^(/(?:[^/~]|~[01])*)*$"},
+        "message": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "remediation": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ActionCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["create", "update", "no-op", "conflict", "error"],
+      "properties": {
+        "create": {"type": "integer", "minimum": 0},
+        "update": {"type": "integer", "minimum": 0},
+        "no-op": {"type": "integer", "minimum": 0},
+        "conflict": {"type": "integer", "minimum": 0},
+        "error": {"type": "integer", "minimum": 0}
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "contract_version",
+    "source_artifact",
+    "bundle",
+    "catalog_snapshot_fingerprint",
+    "plan_fingerprint",
+    "valid",
+    "action_counts",
+    "actions",
+    "diagnostics",
+    "mutations_applied",
+    "delete_missing",
+    "write_set"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "https://cmp.example/contracts/catalog/schema-definition-plan.schema.json"
+    },
+    "contract_version": {"const": "1.0.0"},
+    "source_artifact": {"$ref": "#/$defs/SourceArtifact"},
+    "bundle": {
+      "oneOf": [{"$ref": "#/$defs/BundleSummary"}, {"type": "null"}]
+    },
+    "catalog_snapshot_fingerprint": {"$ref": "#/$defs/Sha256"},
+    "plan_fingerprint": {"$ref": "#/$defs/Sha256"},
+    "valid": {"type": "boolean"},
+    "action_counts": {"$ref": "#/$defs/ActionCounts"},
+    "actions": {"type": "array", "items": {"$ref": "#/$defs/Action"}},
+    "diagnostics": {"type": "array", "items": {"$ref": "#/$defs/Diagnostic"}},
+    "mutations_applied": {"const": false},
+    "delete_missing": {"const": false},
+    "write_set": {"type": "array", "maxItems": 0}
+  }
+}

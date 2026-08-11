@@ -141,6 +141,83 @@ def test_runtime_openapi_exposes_revision_etag_and_metadata_components() -> None
     assert "sha256" in etag["schema"]["pattern"]
 
 
+def test_schema_definition_bundle_contract_and_runtime_expose_no_write_planner() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    operations = {
+        "/api/v1/catalog/schema-definition-bundles:plan": (
+            "post",
+            "planCatalogSchemaDefinitionBundle",
+        ),
+        "/api/v1/catalog/databases": ("get", "listConfigurableCatalogDatabases"),
+        "/api/v1/catalog/profiles": ("get", "listConfigurableCatalogProfiles"),
+        "/api/v1/catalog/publication:validate": (
+            "post",
+            "validateConfigurableCatalogPublication",
+        ),
+    }
+    for path, (method, operation_id) in operations.items():
+        assert source["paths"][path][method]["operationId"] == operation_id
+        assert runtime["paths"][path][method]["operationId"] == operation_id
+        assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
+
+    bundle_schema = PROJECT_ROOT / "contracts/catalog/schema-definition-bundle.schema.json"
+    assert (
+        validate_example(
+            bundle_schema,
+            PROJECT_ROOT / "contracts/examples/positive/schema-definition-bundle-one.json",
+        )
+        == []
+    )
+    assert (
+        validate_example(
+            bundle_schema,
+            PROJECT_ROOT / "contracts/examples/positive/schema-definition-bundle-many.json",
+        )
+        == []
+    )
+    bundle_contract = json.loads(bundle_schema.read_text(encoding="utf-8"))
+    trailing_separator = json.loads(
+        (PROJECT_ROOT / "contracts/examples/positive/schema-definition-bundle-one.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    trailing_separator["catalog"]["database"]["key"] = "synthetic_database_"
+    assert list(
+        Draft202012Validator(bundle_contract, format_checker=FormatChecker()).iter_errors(
+            trailing_separator
+        )
+    )
+    assert validate_example(
+        bundle_schema,
+        PROJECT_ROOT
+        / "contracts/examples/negative/schema-definition-bundle-unsupported-version.json",
+    )
+
+    response = runtime["components"]["schemas"]["SchemaBundlePlanResponse"]
+    assert {
+        "source_artifact",
+        "catalog_snapshot_fingerprint",
+        "plan_fingerprint",
+        "action_counts",
+        "actions",
+        "diagnostics",
+        "mutations_applied",
+        "delete_missing",
+        "write_set",
+    }.issubset(response["required"])
+    projected = runtime["components"]["schemas"]["ProjectedCatalogResponse"]
+    projected_names = {item["$ref"].rsplit("/", maxsplit=1)[-1] for item in projected["anyOf"]}
+    assert projected_names == {
+        "ProjectedAttributeResponse",
+        "ProjectedDefinitionResponse",
+        "ProjectedLayoutResponse",
+        "ProjectedLinkTypeResponse",
+        "ProjectedPlacementResponse",
+        "ProjectedProfileResponse",
+    }
+
+
 def test_configurable_record_contract_carries_live_search_and_binding_projection_fields() -> None:
     schema = json.loads(
         (

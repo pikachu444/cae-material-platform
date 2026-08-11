@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CAE Material Platform API
   summary: Material data management, immutable traceability, and CAE workflow platform.
-  version: 0.32.0
+  version: 0.33.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -1566,6 +1566,232 @@ paths:
         "403": {description: Catalog write is not authorized.}
         "404": {description: Process Run is not visible.}
         "409": {description: Lot graph, scope or balance conflict.}
+        "412": {description: Current head differs from the supplied ETag.}
+  /api/v1/catalog/schema-definition-bundles:plan:
+    post:
+      operationId: planCatalogSchemaDefinitionBundle
+      tags: [catalog-schema]
+      summary: Validate and deterministically plan an immutable Schema Definition Bundle without writes.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/schema-definition-plan.schema.json#/$defs/PlanRequest"}
+      responses:
+        "200":
+          description: Deterministic create, update, no-op, conflict, or error plan; no mutations applied.
+          content:
+            application/json:
+              schema: {$ref: "../catalog/schema-definition-plan.schema.json"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog schema planning is not authorized.}
+        "404": {description: The exact immutable Artifact is absent or hidden by RLS.}
+        "409": {description: Artifact identity, digest, media, integrity, or snapshot conflict.}
+        "422": {description: Artifact UUID or lowercase SHA-256 request shape is invalid.}
+        "503": {description: Artifact or Catalog snapshot service unavailable.}
+  /api/v1/catalog/publication:validate:
+    post:
+      operationId: validateConfigurableCatalogPublication
+      tags: [catalog-schema]
+      summary: Validate one exact configurable Catalog revision before governed review.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/PublicationRequest"}
+      responses:
+        "200":
+          description: Publication readiness result; no publication marker is changed.
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/PublicationValidationResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "409": {description: Exact identity or revision conflict.}
+  /api/v1/catalog/publication:publish:
+    post:
+      operationId: publishConfigurableCatalogRevision
+      tags: [catalog-schema]
+      summary: Reject direct publication; exact revisions enter the governed review workflow instead.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/PublicationRequest"}
+      responses:
+        "409": {description: Direct publication is disabled; submit the exact revision for review.}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+  /api/v1/catalog/databases:
+    get:
+      operationId: listConfigurableCatalogDatabases
+      tags: [catalog-schema]
+      summary: List current configurable Catalog Database revisions.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Current Database heads visible to catalog.read.
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/DatabaseListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+        "503": {description: Configurable Catalog store unavailable.}
+    post:
+      operationId: createConfigurableCatalogDatabase
+      tags: [catalog-schema]
+      summary: Create a stable Catalog Database and immutable revision 1.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/DatabaseCreateRequest"}
+      responses:
+        "201":
+          description: Database identity and revision 1 created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/DatabaseResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "409": {description: Stable Database key conflicts with an existing identity.}
+        "422": {description: Typed Database definition is invalid.}
+  /api/v1/catalog/databases/{database_id}:
+    get:
+      operationId: getConfigurableCatalogDatabase
+      tags: [catalog-schema]
+      summary: Read one current configurable Database revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: database_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Current Database revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/DatabaseResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+        "404": {description: No visible Database matches the identifier.}
+  /api/v1/catalog/databases/{database_id}/revisions:
+    post:
+      operationId: reviseConfigurableCatalogDatabase
+      tags: [catalog-schema]
+      summary: Append a Database definition revision using the current ETag.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: database_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - $ref: "#/components/parameters/IfMatchRevision"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/DatabaseReviseRequest"}
+      responses:
+        "201":
+          description: Immutable Database revision appended.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/DatabaseResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "404": {description: No visible Database matches the identifier.}
+        "409": {description: Stable Database key or revision conflict.}
+        "412": {description: Current head differs from the supplied ETag.}
+  /api/v1/catalog/profiles:
+    get:
+      operationId: listConfigurableCatalogProfiles
+      tags: [catalog-schema]
+      summary: List current configurable Catalog Profile revisions.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: database_id, in: query, required: false, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Current Profile heads visible to catalog.read.
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/ProfileListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+        "503": {description: Configurable Catalog store unavailable.}
+    post:
+      operationId: createConfigurableCatalogProfile
+      tags: [catalog-schema]
+      summary: Create a stable Profile pinned to an exact Database revision.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/ProfileCreateRequest"}
+      responses:
+        "201":
+          description: Profile identity and revision 1 created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/ProfileResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "409": {description: Stable Profile key or Database revision conflict.}
+        "422": {description: Typed Profile definition is invalid.}
+  /api/v1/catalog/profiles/{profile_id}:
+    get:
+      operationId: getConfigurableCatalogProfile
+      tags: [catalog-schema]
+      summary: Read one current configurable Profile revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: profile_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Current Profile revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/ProfileResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+        "404": {description: No visible Profile matches the identifier.}
+  /api/v1/catalog/profiles/{profile_id}/revisions:
+    post:
+      operationId: reviseConfigurableCatalogProfile
+      tags: [catalog-schema]
+      summary: Append a Profile definition revision using the current ETag.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: profile_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - $ref: "#/components/parameters/IfMatchRevision"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/ProfileReviseRequest"}
+      responses:
+        "201":
+          description: Immutable Profile revision appended.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/ProfileResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "404": {description: No visible Profile matches the identifier.}
+        "409": {description: Stable Profile key or Database revision conflict.}
         "412": {description: Current head differs from the supplied ETag.}
   /api/v1/catalog/tables:
     get:

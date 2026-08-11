@@ -71,6 +71,66 @@
       "required": ["items"],
       "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/ProfileResponse"}}}
     },
+    "DatabaseCreateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content", "change_reason"],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification", "default": "internal"},
+        "content": {"$ref": "#/$defs/DatabaseContent"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "DatabaseReviseRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content", "change_reason"],
+      "properties": {
+        "content": {"$ref": "#/$defs/DatabaseContent"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ProfileCreateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content", "change_reason"],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification", "default": "internal"},
+        "content": {"$ref": "#/$defs/ProfileContent"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ProfileReviseRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content", "change_reason"],
+      "properties": {
+        "content": {"$ref": "#/$defs/ProfileContent"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "PublicationRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["aggregate_type", "aggregate_id", "revision_id"],
+      "properties": {
+        "aggregate_type": {"type": "string", "minLength": 1, "maxLength": 128},
+        "aggregate_id": {"$ref": "#/$defs/Uuid"},
+        "revision_id": {"$ref": "#/$defs/Uuid"}
+      }
+    },
+    "PublicationValidationResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["aggregate_type", "aggregate_id", "revision_id", "valid", "errors"],
+      "properties": {
+        "aggregate_type": {"type": "string", "minLength": 1, "maxLength": 128},
+        "aggregate_id": {"$ref": "#/$defs/Uuid"},
+        "revision_id": {"$ref": "#/$defs/Uuid"},
+        "valid": {"type": "boolean"},
+        "errors": {"type": "array", "items": {"type": "string"}}
+      }
+    },
     "AttributeDataType": {
       "type": "string",
       "enum": [
