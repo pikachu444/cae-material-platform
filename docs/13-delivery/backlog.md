@@ -41,14 +41,13 @@
   `ca7c97869522e3fe5d889fdc5f834bd963f85340`에서 완료했습니다. 순서 16 `#221`의
   [decision packet](../17-evidence/issue-221-high-dpi-decision.md)은 제품 소유자가 2026-08-10에
   P2/`Standard`를 #184의 구현용 잠정 정책으로 승인했고 [PR #228](https://github.com/pikachu444/cae-material-platform/pull/228)의
-  ready 전환과 squash merge를 승인했습니다. 병합 뒤 첫 미완료 단위는 순서 17 `#184`이며
-  `agent/issue-184-high-dpi-global-implementation`의 [PR #231](https://github.com/pikachu444/cae-material-platform/pull/231)에서
-  production 이식과 증거 검증을 진행했습니다.
-  [issue-owned evidence](../17-evidence/issue-184-high-dpi-global-implementation.md)의 독립 시각 검수가
-  fixture 의존 원본 30개 누락을 blocking finding으로 확인했습니다. 제품 소유자는 2026-08-11에
-  누락과 실제 Windows 4K 판정 유보를 보고받은 뒤 구현 PR merge를 지시했지만, 이를 누락 해소나
-  #184/#117 완료로 간주하지 않습니다. 첫 미완료 단위는 계속 #184이며 #204 이후 작업은 시작하지
-  않습니다.
+  ready 전환과 squash merge를 승인했습니다. 순서 17 `#184`의 production 이식은
+  [PR #231](https://github.com/pikachu444/cae-material-platform/pull/231), main
+  `ab27e3947817cefa997e49c5dc1d237ec5035adb`에서 완료했습니다.
+  [issue-owned evidence](../17-evidence/issue-184-high-dpi-global-implementation.md)의 독립 시각 감수는
+  fixture 의존 원본 30개 누락을 `CHANGES_REQUESTED`로 남겼습니다. 제품 소유자는 2026-08-11에
+  이 누락을 통과로 소급하지 않은 채 정확한 30개 원본·manifest·재감수를 #223으로 인계하고 #184를
+  완료하도록 결정했습니다. 따라서 첫 미완료 단위는 순서 18 `#204`이며 별도 세션에서 시작합니다.
 - 순서 14 `#160` Task 1은 [PR #220](https://github.com/pikachu444/cae-material-platform/pull/220),
   main `53e4a698235e4c7dad8c87e0156bc2627866989f`에서 병합했습니다. Task 2는
   [PR #224](https://github.com/pikachu444/cae-material-platform/pull/224)에서 병합해 `#160`을 [x]로
@@ -61,9 +60,10 @@
   #162 작업 1·2는 모든 기능과 고해상도 기준이 병합된 뒤 수행하는 최종 제품 흐름 검증이고,
   #223은 그 뒤 Activity를 포함한 제품 전체를 실제 장비에서 최종 검증합니다.
 - 현재 작업 환경에는 실제 3840×2160 디스플레이가 없습니다. #221은 다섯 CSS viewport에서 공통
-  layout·pane·density·table·plot의 구현용 잠정 정책을 결정하고, #184는 이를 전체 route와 고위험
-  상태에 적용해 자동 geometry Q-20을 완료합니다. 실제 Windows 4K 100%·150%·200% 물리 가독성만
-  #223으로 이관합니다. 알려진 잘림·겹침·overflow·상호작용 결함은 #223으로 미룰 수 없습니다.
+  layout·pane·density·table·plot의 구현용 잠정 정책을 결정했고, #184는 이를 전체 route와 고위험
+  상태에 적용했습니다. 실제 Windows 4K 100%·150%·200% 물리 가독성과 제품 소유자가 정확히 열거한
+  fixture 의존 원본 30개·manifest·독립 재감수만 #223으로 인계합니다. 30개는 여전히 미완료이며
+  알려진 잘림·겹침·overflow·상호작용 결함을 #223으로 미루는 일반 예외가 아닙니다.
 
 #167의 승인 target은 다시 만들거나 재승인하지 않습니다. 과거 packet, correction 이미지와 완료
 보고서는 working tree에 보관하지 않고 Git/PR 이력에서 조회합니다.
@@ -118,7 +118,7 @@ packet, 검증, 검토, 제품 소유자 확인과 PR/merge를 거칩니다. iss
 | 14 | [x] [#160 검토·승인·DB 공개·복구](https://github.com/pikachu444/cae-material-platform/issues/160) — Task 1 PR #220, Task 2 PR #224 | 요청을 검토·승인하고 승인 결과를 Materials DB에서 찾고 내려받으며 실패를 복구 | issue, Activity/Admin 승인 화면, Record/Test Data subject, review·release·publication·download·recovery·권한 계약 | Task 1은 PR #220, main `53e4a698235e4c7dad8c87e0156bc2627866989f`에서 병합. Task 2 구현·다섯 viewport 증거·회귀·문서·한정 화면 승인은 PR #224에서 완료. 실제 Windows 4K 100%·150%·200% 최종 물리 판정은 #223으로 이관. 다음 단위는 #161 |
 | 15 | [x] [#161 공통 화면·전역 레이아웃 기반](https://github.com/pikachu444/cae-material-platform/issues/161) — PR #226, 후속 PR #227 | 트리·표·그래프·상태·키보드와 글자·control·pane·plot token이 모든 현재 화면에서 일관됨 | issue, visual/frontend skill, 활성 화면·공통 구성요소·1920 cap 사용처·승인 화면 | PR #226과 #227이 main `ca7c97869522e3fe5d889fdc5f834bd963f85340`에서 완료. 다음 단위는 #221 |
 | 16 | [x] [#221 4K·고DPI 레이아웃·밀도 결정 게이트](https://github.com/pikachu444/cae-material-platform/issues/221) — [PR #228](https://github.com/pikachu444/cae-material-platform/pull/228), Product Owner approved | 다섯 viewport에서 대표 후보를 비교해 구현용 잠정 layout·pane·density·table·plot 정책을 승인 | issue, #161 결과, [고해상도 전략](../12-roadmap/high-dpi-display-strategy.md), [decision packet](../17-evidence/issue-221-high-dpi-decision.md)의 원본/crop과 review prompt | 2026-08-10에 P2/`Standard` 잠정 정책과 ready/squash merge를 승인. 실제 Windows 4K 물리 가독성은 #223으로 이관하고 다음 단위는 #184 |
-| 17 | [#184 4K·고DPI 전역 대응](https://github.com/pikachu444/cae-material-platform/issues/184) — [PR #231](https://github.com/pikachu444/cae-material-platform/pull/231), implementation merge authorized by Product Owner; acceptance incomplete | #221의 잠정 정책을 모든 핵심 화면과 고위험 상태에 적용하고 넓은 화면 geometry를 완성 | issue, #221 승인 packet, 공통 token, 전체 정상·예외 다섯 viewport, [issue-owned evidence](../17-evidence/issue-184-high-dpi-global-implementation.md) | Production 이식과 독립 감수는 수행. 감수자는 canonical fixture의 density별 10개 상태, 총 30개 원본 누락을 blocking finding으로 유지. 제품 소유자는 2026-08-11에 이 carryover를 알고 구현 merge를 지시했지만 #184/#117 완료와 #204 이후 시작은 승인하지 않음. 실제 장비 판정은 #223 |
+| 17 | [x] [#184 4K·고DPI 전역 대응](https://github.com/pikachu444/cae-material-platform/issues/184) — [PR #231](https://github.com/pikachu444/cae-material-platform/pull/231), main `ab27e3947817cefa997e49c5dc1d237ec5035adb` | #221의 잠정 정책을 모든 핵심 화면과 고위험 상태에 적용하고 넓은 화면 geometry를 완성 | issue, #221 승인 packet, 공통 token, 전체 정상·예외 다섯 viewport, [issue-owned evidence](../17-evidence/issue-184-high-dpi-global-implementation.md) | 2026-08-11 제품 소유자 결정으로 production 구현과 #184를 완료. 독립 감수의 `CHANGES_REQUESTED`를 PASS로 바꾸지 않고 fixture 의존 density별 10개 상태, 총 30개 원본·manifest·재감수를 #223으로 명시적으로 인계. 실제 장비 판정도 #223. 다음 단위는 #204 |
 | 18 | [#204 동적 JSON Schema 정의 bundle 계약·plan](https://github.com/pikachu444/cae-material-platform/issues/204) | 관리자가 임의 개수의 schema 정의를 적용 전에 검증하고 변경 계획을 확인 | issue, configurable Catalog/Artifact/Provenance, FR-CFG/LNK/JSON | versioned contract, deterministic no-write plan, arbitrary-cardinality fixture, merge |
 | 19 | [#205 공통 CAE unit과 Unit Profile](https://github.com/pikachu444/cae-material-platform/issues/205) | 등록부터 Export까지 같은 차원·단위와 profile을 사용 | issue, 기존 13개 registration mapping, canonical Test Data와 Export unit 계약 | 공통 service/profile, 기존 호환성, dimension·round-trip 검증, merge |
 | 20 | [#206 curve channel metadata와 deviation](https://github.com/pikachu444/cae-material-platform/issues/206) | Chart·Statistics·Fit가 곡선 채널·단위·편차를 같은 의미로 표시 | issue, #205, curve/Test Data/Artifact 계약 | additive metadata, 과거 adapter, contract·chart 회귀, merge |
@@ -134,7 +134,7 @@ packet, 검증, 검토, 제품 소유자 확인과 PR/merge를 거칩니다. iss
 | 30 | [#216 제품 command audit wiring](https://github.com/pikachu444/cae-material-platform/issues/216) | 주요 command의 성공·거절·복구를 기존 hash chain에서 누락 없이 추적 | issue, #160/#184, 필요 시 #213/#215, Audit 계약 | event matrix, atomicity, redaction, integrity·restore 검증, merge |
 | 31 | [#162 Ubuntu VM·문서 최종 검증](https://github.com/pikachu444/cae-material-platform/issues/162) | 지원 환경에서 전체 흐름과 역할별 복구가 재현되고 현재 문서와 화면이 일치 | issue, 병합된 기능·화면, 전체 문서 목록. 이 단계에서만 임시 문서 묶음을 읽음 | Hyper-V Ubuntu VM의 깨끗한 실행, 전체 흐름·역추적, 문서/화면 일치, 임시 자료 정리, merge |
 | 32 | [#162 공개 실측 데이터 최종 검증](https://github.com/pikachu444/cae-material-platform/issues/162) | 인터넷에서 확보한 실제 측정 샘플을 제품에 등록해 솔버 카드와 Materials 재조회까지 완료 | issue의 고정 NIST Numisheet 2020 파일·공식 해시·이용조건, 병합된 실제 제품 흐름 | 원본 바이트·출처 보존, 실제 등록·처리·여러 모델·선택·카드 생성·검토·승인·재조회·다운로드·원본 역추적 자동 확인, 최종 승인, merge |
-| 33 | [#223 제품 전체 실제 Windows 4K 최종 물리 가독성 검증](https://github.com/pikachu444/cae-material-platform/issues/223) | Materials·Modeling·Activity·Administration을 실제 Windows 4K 100%·150%·200%에서 읽고 조작할 수 있음을 최종 확인 | issue, #221 잠정 정책, #184 전역 적용, #160 Activity 증거, #162 작업 2 완료 상태 | 세 배율의 환경 메타데이터·대표 route/state 원본·1:1 crop, 물리 가독성·상호작용·복구·read-back 검증, 제품 소유자 최종 판정, 발견 결함 bounded bug와 재검증, merge |
+| 33 | [#223 제품 전체 실제 Windows 4K 최종 물리 가독성 검증](https://github.com/pikachu444/cae-material-platform/issues/223) | Materials·Modeling·Activity·Administration을 실제 Windows 4K 100%·150%·200%에서 읽고 조작할 수 있음을 최종 확인하고 #184의 fixture 증거 부채를 닫음 | issue, #221 잠정 정책, #184 전역 적용·handoff matrix·누락 30개 목록, #160 Activity 증거, #162 작업 2 완료 상태 | #184에서 인계한 정확한 30개 원본을 세 density로 재수집하고 structured manifest와 독립 원본 재감수를 완료. 이어 세 Windows 배율의 환경 메타데이터·대표 route/state 원본·1:1 crop, 물리 가독성·상호작용·복구·read-back 검증, 제품 소유자 최종 판정, 발견 결함 bounded bug와 재검증, merge |
 
 ## 새 Codex 작업 운영
 

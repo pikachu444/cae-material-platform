@@ -199,8 +199,9 @@ fixture의 `CMP-CATALOG-0015` 때문에 density별 10개 exact datasheet/card/de
 못했으므로 전체 90개×3 matrix는 `INCOMPLETE_BASELINE_FIXTURE_BLOCKER`다. verifier나 데이터를
 완화하지 않았다. 독립 읽기 전용 감수자는 사용 가능한 334개에서 새 visual defect를 찾지 않았지만
 이 30개 누락을 blocking finding으로 유지했다. 제품 소유자는 2026-08-11에 이 경계와 실제 Windows
-4K 판정 유보를 보고받은 뒤 구현 PR merge를 지시했지만, 누락을 해소 또는 PASS로 바꾸거나 #184/#117을
-완료하도록 승인하지 않았다.
+4K 판정 유보를 보고받은 뒤 PR #231/main `ab27e3947817cefa997e49c5dc1d237ec5035adb`의 production
+구현과 #184를 완료하도록 결정했다. 이 결정은 누락을 해소 또는 PASS로 바꾸지 않는다. 정확한 30개
+원본·structured manifest 완성·독립 원본 재감수는 #223의 명시적 선행 gate로 인계한다.
 
 ### 8.3 실제 Windows 표 — #223 최종 증거
 
@@ -226,8 +227,8 @@ scroll을 확인한다. 이 검사는 Windows 4K 100/150/200% 원본 검토를 �
 | --- | --- | --- |
 | #161 | 공통 token/shell/pane 기반, 오래된 값과 1920px cap 정리 | 잠정 density 후보와 실제 물리 가독성 승인 |
 | #221 | P1/P2/P3 비교, 대표 화면 prototype, 다섯 viewport 기반 구현용 잠정 공통 결정 | 모든 route 적용과 실제 Windows 물리 가독성 최종 승인 |
-| #184 | 잠정 결정을 전체 route/state에 적용하고 자동 geometry Q-20 완료 | 실제 Windows 물리 가독성 최종 승인이나 route별 scale 재결정 |
-| #223 | 전체 제품을 실제 Windows 4K 100%·150%·200%에서 검증하고 최종 판정 | route별 임시 보정이나 새 기능 설계 |
+| #184 | 잠정 결정을 전체 route/state에 적용하고 공통 production 계약 완료; 제품 소유자 결정으로 fixture 증거 부채는 별도 표시해 #223 인계 | 실제 Windows 물리 가독성 최종 승인, 누락 30개 PASS 또는 route별 scale 재결정 |
+| #223 | #184의 정확한 30개 fixture 원본·manifest·독립 재감수를 먼저 완료하고, 전체 제품을 실제 Windows 4K 100%·150%·200%에서 검증해 최종 판정 | route별 임시 보정이나 새 기능 설계 |
 
 실행 순서는 `#160 → #161 → #221 → #184 → #204~#216 → #162 → #223`이다.
 
@@ -250,7 +251,8 @@ scroll을 확인한다. 이 검사는 Windows 4K 100/150/200% 원본 검토를 �
 | 잠정 기본 tier와 사용자 변경/reset | `Standard` 기본, 세 tier만 사용자 변경, reset은 `Standard` |
 | pane/column preference 저장 범위 | 기존 경계와 같은 browser-local product-wide preference; active user/workspace 구분, route URL/backend/cross-device sync 제외 |
 | 기각 후보와 근거 | P3 기각: browser zoom 200%만으로 DPR 1→2, CSS viewport 1920→960이 되어 OS/device scale과 구분 불가 |
-| 전체 route 이식 목록 | [decision packet의 #184 목록](../17-evidence/issue-221-high-dpi-decision.md#184-transplant-list-after-owner-approval)을 production에 구현; 증거 누락·검수는 issue-owned evidence에서 추적 |
+| 전체 route 이식 목록 | [decision packet의 #184 목록](../17-evidence/issue-221-high-dpi-decision.md#184-transplant-list-after-owner-approval)을 PR #231/main `ab27e3947817cefa997e49c5dc1d237ec5035adb`에 구현; 정확한 누락 30개와 재감수는 #223에서 계속 추적 |
+| #184 완료 disposition | 2026-08-11 제품 소유자 승인; 독립 감수의 `CHANGES_REQUESTED`와 `INCOMPLETE_BASELINE_FIXTURE_BLOCKER`를 그대로 보존하고 exact 30개 증거 gate를 #223에 인계 |
 | 실제 Windows 4K 물리 판정 | `DEFERRED_TO_223` |
 
 #221 packet은 제품 소유자 승인과 직접 evidence 경로를 기록한다. 이 승인은 #184의 구현용 잠정
