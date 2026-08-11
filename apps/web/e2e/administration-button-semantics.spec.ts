@@ -51,7 +51,7 @@ async function buttonStyle(button: Locator) {
 
 async function expectSharedGeometry(button: Locator): Promise<void> {
   const style = await buttonStyle(button);
-  expect(style.height).toBe("36px");
+  expect(style.height).toBe("38px");
   expect(style.borderRadius).toBe("4px");
   expect(style.boxShadow).toBe("none");
 }

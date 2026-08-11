@@ -1,21 +1,22 @@
-version: 88
-verified_at: 2026-08-10
-scope: issue-161-administration-button-semantics-follow-up
-source_commit: 'c2283fb0912df93dc4201f216a68aaedea75460b + issue-161-administration-button-semantics-working-tree'
+version: 90
+verified_at: 2026-08-11
+scope: issue-184-high-dpi-global-implementation
+source_commit: PENDING_IMPLEMENTATION_COMMIT
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright python scripts/capture_current_product.py --base-url http://127.0.0.1:5173
 notes:
-  - "The earlier PR #226 shared-foundation packet recorded a canonical full-demo verifier pass. For this limited follow-up, the canonical cmp-local-demo services passed preflight and health checks, but scripts/verify_full_demo.py stopped on preserved prior state because the metal selected model did not have exactly one pending review request; no data reset, deletion, or verifier bypass was performed. Database design, Records & registration, and Users & access were then atomically recaptured. The current directory contains 87 deterministic synthetic non-production product-route captures at browser zoom 100%, device pixel ratio 1, and all five required CSS viewports."
-  - "The root opened all 14 approved-reference originals, 31 immutable pre-#161 originals, all 87 current originals, and the registered direct 1:1 crops at original resolution. The shared-foundation evidence remains in docs/17-evidence/images/issue-161-shared-ui-foundation/visual-evidence.yaml; this follow-up's exact paths, dimensions, SHA-256 values, crop rectangles, commands, and before/after pairs are in docs/17-evidence/images/issue-161-administration-button-semantics/visual-evidence.yaml."
-  - "The Administration follow-up moves primary, neutral, tertiary, disabled, loading, and danger actions to the shared semantic button primitive. It does not change the legacy global .button.primary rule, add Administration-only color overrides, alter backend contracts, or start issue #221."
-  - "Q-20 remains an inherited fail for the normal Database design and Records & registration routes at 2560x1440 and 3840x2160: the centered bounded workgroup leaves a large internal/trailing void in both before and after originals. This follow-up adds no route-specific workaround, zoom, scale, or filler. Independent review ended APPROVE after its evidence correction loop; Product Owner carryover disposition is still pending, so ready, merge, and #161/#117 completion remain blocked, and issue #221 is not started."
-  - "The #161 shared boundary keeps the application shell elastic while bounding navigators, context panes, forms, and prose. Materials results and datasheets, Modeling graphs, and the Export native preview use available width; Administration keeps a centered 1600px semantic workgroup with a readable form bound. No 2560/3840 route override, CSS zoom, blanket transform, fabricated filler, or display-profile decision was introduced."
+  - "Issue #184 implements the Product Owner-approved P2 policy from merged PR #228: Standard is the default, Compact | Standard | Large are explicit product-wide browser-local choices scoped by active user/workspace, and Reset display density restores Standard independently from pane resets. No route, viewport, DPR, resolution, backend account, or cross-device synchronization selects density."
+  - "The current directory registers 90 deterministic synthetic non-production product-route images. Eighty were recaptured from canonical Compose at Standard, browser zoom 100%, and DPR 1; ten exact Material-detail/card and delivered Export images remain the registered main baseline because the preserved append-only fixture cannot project the exact endpoint revision. They are not represented as current #184 recaptures."
+  - "The issue-owned visual packet is docs/17-evidence/images/issue-184-high-dpi-global-implementation/visual-evidence.json: 59 exact-main before originals, 240 after originals across three densities, 21 direct 100%-pixel crops, 14 browser-zoom-200 originals, SHA-256, original dimensions, viewport/DPR/zoom/density/state fingerprints, and the explicit ten-image fixture boundary."
+  - "The sole independent read-only visual auditor opened all 334 manifest-listed images at original resolution and matched every path, SHA-256 and PNG dimension. Available Q-01 through Q-20 states showed no new visual defect; the disposition remains CHANGES_REQUESTED solely because the ten exact datasheet/card/delivered states are absent at each of three densities (30 originals). Activity 3840 matches #221's approved centered comparison-table bound and is not a finding."
+  - "The clean isolated composition reproduced an independent baseline failure before capture: seed_full_demo.py stopped on CMP-CATALOG-0004 immutable catalog identity conflict and verify_full_demo.py reported the missing polymer Recipe-to-card Bulk ZIP. The preserved canonical composition separately blocks the ten exact-revision images with CMP-CATALOG-0015. No data was reset and no verifier or contract was weakened."
+  - "Q-20 geometry passes for every captured route/state: the shell spans all five CSS viewports; Materials/Data/Process/Fit/Export use elastic central work areas; Administration Database design and Records use the common semantic three-pane allocation; Activity retains a bounded readable history table; page horizontal overflow is zero in all 20 numeric Standard measurements. The ten unavailable fixture-dependent recaptures keep the overall evidence disposition incomplete rather than pass."
   - "Activity Recent outcomes uses 10 immutable server decisions, 20 browser-local solver-card activities, and 20 bounded browser-local successful recovery outcomes. The capture gate requires genuine local overflow at every registered history viewport, including 3840x2160."
-  - "The active Windows display used for host evidence is 2560x1440 at 96 DPI and 100% scale. Automated 3840x2160 CSS viewport evidence does not claim physical 4K readability; final Windows 4K 100%/150%/200% physical readability remains owned by issue #223. PR #226 is merged; Product Owner review of this limited follow-up remains pending, so its PR must stay draft."
-  - "UXC-04E directly ports the approved modeling.html/review.css Fit topology: white 48 px product header, compact title/stage rows, 184–208 px curve/process rail, exact 31 px heading plus 72 px six-group ribbon, graph-adjacent Candidate parameters disclosure, separate compact graph header, dominant plot, and compact decision-relevant legend. The retired command/status bars do not consume Modeling graph space."
+  - "The active Windows displays are 2560x1440@59Hz and 2560x1600@165Hz at 96 DPI and 100% scale. No actual 3840x2160 monitor was available. Automated 3840x2160 CSS viewport and browser-zoom-200 evidence do not claim physical 4K readability; that disposition is DEFERRED_TO_223. Product Owner review of the originals is pending, so #184 remains open and its PR stays draft."
+  - "UXC-04E preserves the approved flat Fit topology: compact title/stage rows, bounded curve/process navigator, six-group ribbon, graph-adjacent Candidate parameters disclosure, separate compact graph header, dominant plot, and decision-relevant legend. Issue #184 replaces historical fixed-size wording with the shared Compact/Standard/Large header, row, navigator, ribbon and graph tokens; the retired command/status bars do not consume Modeling graph space."
   - "Issue #160 Task 2 remains the source of Activity's shared compact semantic baseline and balanced 2656px comparison pane. The #161 recapture preserves that topology and adds a truthful 50-item long-history fixture so the local rail remains visible at 3840."
-  - "The Task 2 Activity comparison is recorded in docs/17-evidence/images/issue-160-activity-density/visual-evidence.yaml: latest-main Task 1 before originals, current 13-state originals, and matching 1920/2560/3840 shell/header, saved-view, grid, action and local-scrollbar 1:1 crops with exact rectangles, SHA-256 and dimensions. The immutable evidence copies are not additional current captures; the current capture count is 87."
-  - "Fit capture asserts the four-row grouped metal rail, one-line Step 4 Fit heading, a fixed 104 px six-group control ribbon, shared 28 px top actions, concise source/state header, Candidate parameters source evidence, explicit selection before save, and persistent graph identity."
+  - "The Task 2 Activity comparison remains recorded in docs/17-evidence/images/issue-160-activity-density/visual-evidence.yaml. Issue #184 revalidates request, long-history, decision/error and recovery states across P2 and removes the prior 4px Large/1366 local overflow through bounded identity/status/action columns and a flexible evidence column."
+  - "Fit capture asserts the grouped metal rail, one-line Step 4 Fit heading, density-token-sized six-group ribbon and actions, concise source/state header, Candidate parameters source evidence, explicit selection before save, persistent graph identity, and the allocation-triggered bounded evidence overlay with close/focus return."
   - "Recommendation, engineer selection, saved result, downstream model evidence, and export eligibility remain separate states; a recommendation never mutates selection."
   - "Polymer candidate evidence exposes the actual server-produced term identity and measured range only; missing result evidence is never replaced by a fallback."
   - "Modeling Export exercises selected-output save, exact IR promotion, Neutral creation, and a terminal related-data state; an explicit unprojected Catalog state is evidence, not a silent resolved-link fallback."
@@ -88,26 +89,31 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/modeling-process-2560x1440-graph-axis-100pct.png
       - docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/modeling-process-3840x2160-graph-axis-100pct.png
 visual_evidence:
-  sidecar: docs/17-evidence/images/issue-161-shared-ui-foundation/visual-evidence.yaml
-  routes: [/materials, '/materials/:materialId', /modeling, /activity, /administration/database, /administration/records]
-  states: [normal, long, empty, invalid, blocked, failed, restored, delivered, role-aware]
-  baseline_source: e095ef5d1f4d26af65ad38ebbbef922f129626cf
-  current_source: 'c2283fb0912df93dc4201f216a68aaedea75460b + issue-161-administration-button-semantics-working-tree'
+  sidecar: docs/17-evidence/images/issue-184-high-dpi-global-implementation/visual-evidence.json
+  geometry_measurements: docs/17-evidence/images/issue-184-high-dpi-global-implementation/geometry-measurements.json
+  routes: [/materials, '/materials/:materialId', /modeling, /activity, /administration/database, /administration/records, /administration/access]
+  states: [normal, long, empty, invalid, blocked, failed, restored, delivered, role-aware, popup, drawer, file-input, pane-overlay, resize, collapse, reset, reload]
+  baseline_source: 36e8312fa85253ad8fee88f63a3a4bf096d92a9c
+  current_source: PENDING_IMPLEMENTATION_COMMIT
   evidence_artifacts_are_not_current_captures: true
-  current_capture_count: 87
-  comparison_original_count: 31
-  direct_crop_count: 44
+  current_capture_count: 90
+  issue_184_recaptured_current_count: 80
+  preserved_registered_main_baseline_count: 10
+  before_original_count: 59
+  after_original_count: 240
+  direct_crop_count: 21
+  browser_zoom_200_original_count: 14
   crop_scale: '100 percent / direct 1:1 source pixels'
   root_original_and_crop_review: pass
-  follow_up_sidecar: docs/17-evidence/images/issue-161-administration-button-semantics/visual-evidence.yaml
-  follow_up_direct_crop_count: 18
-  independent_read_only_review: pending
+  physical_4k_readability: DEFERRED_TO_223
+  fixture_dependent_capture_status: incomplete
+  independent_read_only_review: changes_requested_fixture_coverage
   product_owner_review: pending
 capture_provenance:
-  - source_commit: 'c2283fb0912df93dc4201f216a68aaedea75460b + issue-161-administration-button-semantics-working-tree'
-    captured_at: '2026-08-10'
-    command: 'The 84-image set shipped by squash-merged PR #226 was retained, then `--only-administration-database`, `--only-administration-records`, and `--only-product-access` atomically recaptured the 15 Administration images from canonical Compose. The Product Access registry expanded from two to five required viewports, producing a complete 87-image current set. The root opened every changed original and all follow-up direct crops at original resolution.'
-    ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-search-2560, materials-search-3840, materials-scroll-long-1366, materials-scroll-long-1440, materials-scroll-long-1920, materials-scroll-short-1440, materials-scroll-empty-1440, materials-browse-1440, material-detail-1440, material-detail-1366, material-detail-1920, material-detail-2560, material-detail-3840, material-cae-cards-1440, solver-card-preview-1366, solver-card-preview-1440, solver-card-preview-1920, modeling-data-1366, modeling-session-1366, modeling-session-1440, modeling-session-1920, modeling-data-1440, modeling-data-1920, modeling-data-2560, modeling-data-3840, modeling-data-empty-1440, modeling-data-invalid-1440, MOD-PROCESS-CURRENT-1366, MOD-PROCESS-CURRENT-LINEAR-1366, MOD-PROCESS-CURRENT-1440, MOD-PROCESS-CURRENT-1920, MOD-PROCESS-CURRENT-2560, MOD-PROCESS-CURRENT-3840, MOD-PROCESS-CURRENT-BLOCKED-1440, MOD-PROCESS-CURRENT-EXACT-READ-FAILED-1440, MOD-PROCESS-CURRENT-SIBLINGS-1440, modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-fit-2560, modeling-fit-3840, modeling-fit-candidate-parameters-long-1440, modeling-fit-candidate-evidence-scrolled-1440, modeling-fit-calculation-failed-1920, modeling-fit-save-failed-1920, modeling-fit-exact-source-blocked-1920, modeling-fit-exact-read-failed-1920, modeling-fit-restored-1920, modeling-export-1366, modeling-export-1440, modeling-export-1920, modeling-export-2560, modeling-export-3840, modeling-export-source-blocked, modeling-export-approximation-blocked, modeling-export-delivered, activity-1366, activity-1440, activity-1920, activity-2560, activity-3840, activity-history-1440, activity-history-1920, activity-history-2560, activity-history-3840, activity-user-1440, activity-administrator-1440, activity-decision-error-1440, activity-recovery-1440, administration-database-1366, administration-database-1440, administration-database-1920, administration-database-2560, administration-database-3840, administration-records-1366, administration-records-1440, administration-records-1920, administration-records-2560, administration-records-3840, administration-access-1366, administration-access-1440, administration-access-1920, administration-access-2560, administration-access-3840]
+  - source_commit: PENDING_IMPLEMENTATION_COMMIT
+    captured_at: '2026-08-11'
+    command: 'Canonical Compose capture_current_product.py runs at Compact, Standard, and Large across five CSS viewports, issue-owned browser zoom 200 and direct 100%-pixel crop scripts, and root original-resolution inspection. Eighty Standard images replace the current guide; ten fixture-dependent baseline images are explicitly retained without being claimed as current recaptures.'
+    ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-search-2560, materials-search-3840, materials-scroll-long-1366, materials-scroll-long-1440, materials-scroll-long-1920, materials-scroll-short-1440, materials-scroll-empty-1440, materials-browse-1440, modeling-data-1366, modeling-session-1366, modeling-session-1440, modeling-session-1920, modeling-data-1440, modeling-data-1920, modeling-data-2560, modeling-data-3840, modeling-data-empty-1440, modeling-data-invalid-1440, modeling-data-invalid-scrolled-1440, MOD-PROCESS-CURRENT-1366, MOD-PROCESS-CURRENT-LINEAR-1366, MOD-PROCESS-CURRENT-MANUAL-1366, MOD-PROCESS-CURRENT-1440, MOD-PROCESS-CURRENT-1920, MOD-PROCESS-CURRENT-2560, MOD-PROCESS-CURRENT-3840, MOD-PROCESS-CURRENT-BLOCKED-1440, MOD-PROCESS-CURRENT-EXACT-READ-FAILED-1440, MOD-PROCESS-CURRENT-SIBLINGS-1440, modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-fit-2560, modeling-fit-3840, modeling-fit-candidate-parameters-long-1440, modeling-fit-candidate-evidence-scrolled-1440, modeling-fit-calculation-failed-1920, modeling-fit-save-failed-1920, modeling-fit-exact-source-blocked-1920, modeling-fit-exact-read-failed-1920, modeling-fit-restored-1920, modeling-export-1366, modeling-export-1440, modeling-export-1920, modeling-export-2560, modeling-export-3840, modeling-export-source-blocked, modeling-export-approximation-blocked, activity-1366, activity-1440, activity-1920, activity-2560, activity-3840, activity-history-1440, activity-history-1920, activity-history-2560, activity-history-3840, activity-user-1440, activity-administrator-1440, activity-decision-error-1440, activity-recovery-1440, administration-database-1366, administration-database-1440, administration-database-1920, administration-database-2560, administration-database-3840, administration-records-1366, administration-records-1440, administration-records-1920, administration-records-2560, administration-records-3840, administration-access-1366, administration-access-1440, administration-access-1920, administration-access-2560, administration-access-3840, administration-access-role-control-1366]
 previous_capture_provenance:
   - source_commit: 31f9a3f+task3b-worktree
     captured_at: 2026-08-06T10:35:08+09:00
@@ -378,6 +384,13 @@ captures:
     image: images/current/modeling-data-invalid-1440x900.png
     width: 1440
     height: 900
+  - id: modeling-data-invalid-scrolled-1440
+    route: /modeling?stage=data&family=metal
+    workflow: runtime-csv-invalid-channel-mapping-local-scroll-recovery
+    fixture: temporary runtime CSV with duplicate channel mapping; the local setup scrollport exposes validation, recovery controls and the preserved last-valid graph without page overflow
+    image: images/current/modeling-data-invalid-scrolled-1440x900.png
+    width: 1440
+    height: 900
   - id: MOD-PROCESS-CURRENT-1366
     route: /modeling?stage=process&family=metal
     workflow: UXC-04C shared rail/plot sizing; source-processed-preview-and-explicit-output-commit
@@ -390,6 +403,13 @@ captures:
     workflow: Process Evaluation method coverage; native Linear regression selection settles without option clipping and keeps the direct Result plus persistent graph visible
     fixture: synthetic DP780 exact Test Data/Profile preview with Linear regression selected through the normal Process control
     image: images/current/modeling-process-linear-regression-1366x768.png
+    width: 1366
+    height: 768
+  - id: MOD-PROCESS-CURRENT-MANUAL-1366
+    route: /modeling?stage=process&family=metal
+    workflow: manual-process-local-scroll-and-save-reachability
+    fixture: synthetic DP780 manual Process setup with a genuine local control scrollbar; saved-result action and graph remain directly reachable
+    image: images/current/modeling-process-manual-1366x768.png
     width: 1366
     height: 768
   - id: MOD-PROCESS-CURRENT-1440
@@ -696,14 +716,14 @@ captures:
   - id: administration-database-2560
     route: /administration/database
     workflow: three-pane-table-scoped-schema-property-editor
-    fixture: deterministic demo Administrator; full shell with a centered 1600px Database/Profile/Table semantic workgroup and readable property form
+    fixture: deterministic demo Administrator; full shell with an elastic Database/Profile/Table semantic three-pane workgroup and bounded readable property form
     image: images/current/administration-database-2560x1440.png
     width: 2560
     height: 1440
   - id: administration-database-3840
     route: /administration/database
     workflow: three-pane-table-scoped-schema-property-editor
-    fixture: deterministic demo Administrator; full shell with a centered 1600px Database/Profile/Table semantic workgroup and readable property form
+    fixture: deterministic demo Administrator; full shell with an elastic Database/Profile/Table semantic three-pane workgroup and bounded readable property form
     image: images/current/administration-database-3840x2160.png
     width: 3840
     height: 2160
@@ -731,14 +751,14 @@ captures:
   - id: administration-records-2560
     route: /administration/records
     workflow: select-table-layout-and-open-checked-multiple-row-registration
-    fixture: deterministic demo Administrator; full shell with a centered bounded registration/search workgroup at a wide viewport
+    fixture: deterministic demo Administrator; full shell with an elastic semantic three-pane registration/search workgroup and bounded property form
     image: images/current/administration-records-2560x1440.png
     width: 2560
     height: 1440
   - id: administration-records-3840
     route: /administration/records
     workflow: select-table-layout-and-open-checked-multiple-row-registration
-    fixture: deterministic demo Administrator; full shell with a centered bounded registration/search workgroup at a wide viewport
+    fixture: deterministic demo Administrator; full shell with an elastic semantic three-pane registration/search workgroup and bounded property form
     image: images/current/administration-records-3840x2160.png
     width: 3840
     height: 2160
@@ -747,6 +767,13 @@ captures:
     workflow: user-reviewer-administrator-task-preset-assignment
     fixture: deterministic demo Administrator viewing the Reviewer preset; technical feature checkbox editing is absent
     image: images/current/administration-access-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-access-role-control-1366
+    route: /administration/access
+    workflow: role-control-popup-keyboard-selection-and-focus
+    fixture: deterministic demo Administrator opens the role preset control and retains the current selection without clipping
+    image: images/current/administration-access-role-control-1366x768.png
     width: 1366
     height: 768
   - id: administration-access-1440

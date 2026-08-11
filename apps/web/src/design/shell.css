@@ -25,7 +25,8 @@
 .application-brand,
 .application-nav,
 .workspace-command,
-.application-user-menu button {
+.application-user-menu button,
+.application-user-menu input {
   border: 0;
   font: inherit;
 }
@@ -39,7 +40,7 @@
   padding: 0 6px 0 2px;
   background: transparent;
   color: inherit;
-  font-size: 12.5px;
+  font-size: var(--ux-metadata-font-size);
   font-weight: 500;
 }
 
@@ -65,7 +66,7 @@
 .application-brand-copy strong {
   display: block;
   overflow: hidden;
-  font-size: 12.5px;
+  font-size: var(--ux-metadata-font-size);
   font-weight: 500;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -74,12 +75,12 @@
 .application-brand-copy small { display: none; }
 
 .application-shell:has(.processing-workbench-page) {
-  grid-template-rows: 48px minmax(0, 1fr);
+  grid-template-rows: var(--ux-application-bar-height) minmax(0, 1fr);
 }
 
 .application-shell:has(.processing-workbench-page) .application-menu-bar {
   grid-template-columns: minmax(240px, 1fr) auto minmax(240px, 1fr);
-  height: 48px;
+  height: var(--ux-application-bar-height);
   padding: 0 20px;
   border-bottom-color: var(--ux-border);
   background: var(--ux-surface);
@@ -102,14 +103,14 @@
 
 .application-shell:has(.processing-workbench-page) .application-brand-copy strong {
   color: var(--ux-text);
-  font-size: 13px;
+  font-size: var(--ux-metadata-font-size);
   font-weight: 650;
 }
 
 .application-shell:has(.processing-workbench-page) .application-brand-copy small {
   display: block;
   color: var(--ux-text-muted);
-  font-size: 12px;
+  font-size: var(--ux-metadata-font-size);
 }
 
 .application-shell:has(.processing-workbench-page) .application-menu-bar > nav {
@@ -122,7 +123,7 @@
   padding: 0;
   border-bottom-width: 3px;
   color: var(--ux-text-muted);
-  font-size: 13px;
+  font-size: var(--ux-metadata-font-size);
   font-weight: 600;
 }
 
@@ -139,7 +140,7 @@
 
 .application-shell:has(.processing-workbench-page) .application-user-menu > summary {
   color: var(--ux-text-muted);
-  font-size: 12px;
+  font-size: var(--ux-metadata-font-size);
 }
 
 .application-shell:has(.processing-workbench-page) > :is(.workspace-command-bar, .application-status-bar) {
@@ -159,7 +160,7 @@
   border-bottom: 2px solid transparent;
   background: transparent;
   color: #c8d3dc;
-  font-size: 12.5px;
+  font-size: var(--ux-metadata-font-size);
   font-weight: 500;
 }
 
@@ -177,7 +178,7 @@
   gap: 10px;
   min-width: 0;
   color: #bdcbd6;
-  font-size: 11.5px;
+  font-size: var(--ux-metadata-font-size);
 }
 
 .application-user-menu {
@@ -191,7 +192,7 @@
   padding: 5px 7px;
   color: #eef4f8;
   cursor: pointer;
-  font-size: 11.5px;
+  font-size: var(--ux-metadata-font-size);
   list-style: none;
 }
 
@@ -226,7 +227,7 @@
   top: calc(100% + 4px);
   right: 0;
   display: grid;
-  width: 190px;
+  width: min(264px, calc(100vw - var(--ux-space-4) - var(--ux-space-4)));
   padding: 4px;
   border: 1px solid var(--ux-border-strong);
   border-radius: 3px;
@@ -235,16 +236,81 @@
 }
 
 .application-user-menu button {
-  min-height: 28px;
+  min-height: var(--ux-interactive-min-block-size);
   padding: 0 8px;
   background: transparent;
   color: var(--ux-text);
-  font-size: 12.5px;
+  font-size: var(--ux-metadata-font-size);
   text-align: left;
 }
 
 .application-user-menu button:hover {
   background: var(--ux-accent-soft);
+}
+
+.application-utility-menu {
+  max-height: min(560px, calc(100vh - var(--ux-application-bar-height) - var(--ux-space-4)));
+  overflow: auto;
+}
+
+.display-density-control {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--ux-space-1);
+  margin: var(--ux-space-1) 0 0;
+  padding: var(--ux-space-2) var(--ux-space-1) var(--ux-space-1);
+  border: 0;
+  border-top: 1px solid var(--ux-border);
+}
+
+.display-density-control legend {
+  grid-column: 1 / -1;
+  padding: var(--ux-space-1) var(--ux-space-1) 0;
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+  font-weight: 650;
+}
+
+.display-density-option {
+  display: grid;
+  min-width: 0;
+  min-height: var(--ux-control-min-block-size);
+  place-items: center;
+  padding: 0 var(--ux-space-1);
+  border: 1px solid var(--ux-border);
+  color: var(--ux-text);
+  cursor: pointer;
+  font-size: var(--ux-metadata-font-size);
+}
+
+.display-density-option:has(input:checked) {
+  border-color: var(--ux-accent);
+  background: var(--ux-accent-soft);
+  color: var(--ux-accent-strong);
+  box-shadow: inset 0 -2px 0 var(--ux-accent);
+}
+
+.display-density-option:hover {
+  border-color: var(--ux-accent);
+  background: var(--ux-accent-soft);
+}
+
+.display-density-option input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.display-density-option:has(input:focus-visible) {
+  outline: 3px solid color-mix(in srgb, var(--ux-focus) 35%, transparent);
+  outline-offset: 1px;
+}
+
+.application-user-menu .display-density-reset {
+  grid-column: 1 / -1;
+  color: var(--ux-accent);
+  text-align: center;
 }
 
 .workspace-command-bar {
@@ -264,7 +330,7 @@
   margin: 0 8px 0 2px;
   overflow: hidden;
   color: var(--ux-text);
-  font-size: 14px;
+  font-size: var(--ux-emphasis-font-size);
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -281,12 +347,12 @@
 .workspace-command {
   position: relative;
   flex: 0 0 auto;
-  min-height: 28px;
+  min-height: var(--ux-interactive-min-block-size);
   padding: 0 10px;
   border-right: 1px solid #e1e6ea;
   background: transparent;
   color: #273746;
-  font-size: 12.5px;
+  font-size: var(--ux-metadata-font-size);
   font-weight: 500;
 }
 
@@ -332,7 +398,7 @@
   border-top: 1px solid var(--ux-border-strong);
   background: #e7ebef;
   color: #334250;
-  font-size: 11.5px;
+  font-size: var(--ux-metadata-font-size);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }

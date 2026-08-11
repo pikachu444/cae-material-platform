@@ -23,16 +23,86 @@
   --ux-shadow-none: none;
   --ux-shadow-overlay: 0 12px 30px rgb(22 34 46 / 18%);
   --ux-shadow-float: var(--ux-shadow-overlay);
-  --ux-space-1: 4px;
-  --ux-space-2: 8px;
-  --ux-space-3: 12px;
-  --ux-space-4: 16px;
+  --ux-space-1: 5px;
+  --ux-space-2: 10px;
+  --ux-space-3: 14px;
+  --ux-space-4: 18px;
   --ux-space-5: 24px;
   --ux-space-6: 32px;
   --ux-space-7: 48px;
   --ux-space-8: 64px;
-  /* Shared compact desktop baseline. #221 may propose another shared tier;
-     active routes must not replace these values with private scale rules. */
+  /* #221-approved P2 Standard is the product-wide default. Compact and Large
+     override only these shared tokens; routes never own private density values. */
+  --ux-data-font-size: 14px;
+  --ux-emphasis-font-size: 15px;
+  --ux-metadata-font-size: 13px;
+  --ux-table-heading-font-size: 12px;
+  --ux-control-min-block-size: 38px;
+  --ux-interactive-min-block-size: 34px;
+  --ux-input-min-block-size: 40px;
+  --ux-work-row-min-block-size: 48px;
+  --ux-navigator-row-block-size: 30px;
+  --ux-pane-padding: 14px;
+  --ux-cell-padding-block: 9px;
+  --ux-cell-padding-inline: 8px;
+  --ux-table-cell-padding-block: 12px;
+  --ux-table-cell-padding-inline: 14px;
+
+  /* Semantic layout boundaries. Shells and primary data regions are elastic;
+     only navigation, forms, prose, and comparison tables keep useful bounds. */
+  --ux-shell-inline-gutter: 8px;
+  --ux-workspace-max-inline-size: none;
+  --ux-workspace-max-block-size: none;
+  --ux-comparison-table-max-inline-size: 166rem;
+  --ux-readable-form-max-inline-size: 800px;
+  --ux-bounded-workgroup-max-inline-size: calc(
+    var(--ux-navigator-max-inline-size) + var(--ux-context-max-inline-size) +
+      var(--ux-readable-form-max-inline-size)
+  );
+  --ux-navigator-min-inline-size: 216px;
+  --ux-navigator-max-inline-size: 384px;
+  --ux-navigator-default-inline-size: 288px;
+  --ux-context-min-inline-size: 280px;
+  --ux-context-max-inline-size: 512px;
+  --ux-context-default-inline-size: 304px;
+  --ux-splitter-inline-size: 6px;
+  --ux-workbench-splitter-size: 9px;
+  --ux-scrollbar-track-size: 14px;
+  --ux-scrollbar-thumb-min-size: 40px;
+  --ux-plot-min-block-size: 400px;
+  --ux-plot-allocated-min-block-size: min(var(--ux-plot-min-block-size), 42vh);
+  --ux-native-preview-min-block-size: 320px;
+  /* Engineering plots reserve one shared right-side legend band inside the
+     SVG frame. This derives from approved P2 tokens so Data, Process, and Fit
+     move together at every density. */
+  --ux-plot-legend-reserved-inline-size: calc(
+    var(--ux-navigator-min-inline-size) + var(--ux-pane-padding)
+  );
+  --ux-plot-legend-max-inline-size: calc(
+    var(--ux-plot-legend-reserved-inline-size) - var(--ux-space-4) - var(--ux-space-4) - var(--ux-space-2)
+  );
+  --ux-application-bar-height: 50px;
+  --ux-command-bar-height: 42px;
+  --ux-status-bar-height: 26px;
+  --ux-shell-top-height: calc(var(--ux-application-bar-height) + var(--ux-command-bar-height));
+  --ux-workbench-ribbon-header-block-size: var(--ux-interactive-min-block-size);
+  --ux-workbench-ribbon-band-block-size: calc(
+    var(--ux-input-min-block-size) + var(--ux-input-min-block-size) +
+      var(--ux-metadata-font-size) + var(--ux-pane-padding) + var(--ux-space-5) +
+      var(--ux-space-2) + var(--ux-space-1)
+  );
+  --ux-workbench-ribbon-block-size: calc(
+    var(--ux-workbench-ribbon-header-block-size) +
+      var(--ux-workbench-ribbon-band-block-size) + 1px
+  );
+  --ux-plot-label-font-size: var(--ux-metadata-font-size);
+}
+
+html[data-display-density="compact"] {
+  --ux-space-1: 4px;
+  --ux-space-2: 8px;
+  --ux-space-3: 12px;
+  --ux-space-4: 16px;
   --ux-data-font-size: 13px;
   --ux-emphasis-font-size: 14px;
   --ux-metadata-font-size: 12px;
@@ -47,18 +117,7 @@
   --ux-cell-padding-inline: 7px;
   --ux-table-cell-padding-block: 11px;
   --ux-table-cell-padding-inline: 12px;
-
-  /* Semantic layout boundaries. Shells and primary data regions are elastic;
-     only navigation, forms, prose, and comparison tables keep useful bounds. */
-  --ux-shell-inline-gutter: 8px;
-  --ux-workspace-max-inline-size: none;
-  --ux-workspace-max-block-size: none;
-  --ux-comparison-table-max-inline-size: 166rem;
   --ux-readable-form-max-inline-size: 760px;
-  --ux-bounded-workgroup-max-inline-size: calc(
-    var(--ux-navigator-max-inline-size) + var(--ux-context-max-inline-size) +
-      var(--ux-readable-form-max-inline-size)
-  );
   --ux-navigator-min-inline-size: 200px;
   --ux-navigator-max-inline-size: 360px;
   --ux-navigator-default-inline-size: 264px;
@@ -70,8 +129,45 @@
   --ux-scrollbar-track-size: 13px;
   --ux-scrollbar-thumb-min-size: 36px;
   --ux-plot-min-block-size: 360px;
+  --ux-native-preview-min-block-size: 240px;
   --ux-application-bar-height: 46px;
   --ux-command-bar-height: 38px;
   --ux-status-bar-height: 24px;
-  --ux-shell-top-height: calc(var(--ux-application-bar-height) + var(--ux-command-bar-height));
+}
+
+html[data-display-density="large"] {
+  --ux-space-1: 6px;
+  --ux-space-2: 12px;
+  --ux-space-3: 16px;
+  --ux-space-4: 20px;
+  --ux-data-font-size: 16px;
+  --ux-emphasis-font-size: 17px;
+  --ux-metadata-font-size: 14px;
+  --ux-table-heading-font-size: 13px;
+  --ux-control-min-block-size: 40px;
+  --ux-interactive-min-block-size: 38px;
+  --ux-input-min-block-size: 44px;
+  --ux-work-row-min-block-size: 52px;
+  --ux-navigator-row-block-size: 34px;
+  --ux-pane-padding: 16px;
+  --ux-cell-padding-block: 10px;
+  --ux-cell-padding-inline: 9px;
+  --ux-table-cell-padding-block: 14px;
+  --ux-table-cell-padding-inline: 16px;
+  --ux-readable-form-max-inline-size: 840px;
+  --ux-navigator-min-inline-size: 232px;
+  --ux-navigator-max-inline-size: 416px;
+  --ux-navigator-default-inline-size: 312px;
+  --ux-context-min-inline-size: 300px;
+  --ux-context-max-inline-size: 544px;
+  --ux-context-default-inline-size: 328px;
+  --ux-splitter-inline-size: 7px;
+  --ux-workbench-splitter-size: 10px;
+  --ux-scrollbar-track-size: 15px;
+  --ux-scrollbar-thumb-min-size: 44px;
+  --ux-plot-min-block-size: 440px;
+  --ux-native-preview-min-block-size: 360px;
+  --ux-application-bar-height: 54px;
+  --ux-command-bar-height: 46px;
+  --ux-status-bar-height: 28px;
 }

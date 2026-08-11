@@ -96,7 +96,7 @@
 
 .ux-field small {
   color: var(--ux-text-muted);
-  font-size: 12px;
+  font-size: var(--ux-metadata-font-size);
   font-weight: 400;
 }
 

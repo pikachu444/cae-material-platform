@@ -19,6 +19,8 @@ _CAPTURE_SOURCE = (_PROJECT_ROOT / "scripts/capture_current_product.py").read_te
 )
 _SCRIPT = runpy.run_path(str(_PROJECT_ROOT / "scripts/capture_current_product.py"))
 CURRENT_CAPTURE_OUTPUTS = cast(tuple[str, ...], _SCRIPT["CURRENT_CAPTURE_OUTPUTS"])
+DISPLAY_DENSITIES = cast(tuple[str, ...], _SCRIPT["DISPLAY_DENSITIES"])
+_display_density_scope = cast(Callable[[str], str], _SCRIPT["_display_density_scope"])
 PRODUCT_ACCESS_OUTPUTS = cast(tuple[str, ...], _SCRIPT["PRODUCT_ACCESS_OUTPUTS"])
 ACTIVITY_OUTPUTS = cast(tuple[str, ...], _SCRIPT["ACTIVITY_OUTPUTS"])
 MODELING_EXPORT_OUTPUTS = cast(tuple[str, ...], _SCRIPT["MODELING_EXPORT_OUTPUTS"])
@@ -434,13 +436,14 @@ def test_incomplete_capture_cannot_reuse_files_from_previous_output(
 
 
 def test_current_capture_contract_contains_product_routes_only() -> None:
-    assert len(CURRENT_CAPTURE_OUTPUTS) == 87
+    assert len(CURRENT_CAPTURE_OUTPUTS) == 90
     assert PRODUCT_ACCESS_OUTPUTS == (
         "administration-access-1366x768.png",
         "administration-access-1440x900.png",
         "administration-access-1920x1080.png",
         "administration-access-2560x1440.png",
         "administration-access-3840x2160.png",
+        "administration-access-role-control-1366x768.png",
     )
     assert all(name in CURRENT_CAPTURE_OUTPUTS for name in PRODUCT_ACCESS_OUTPUTS)
     assert all(name in CURRENT_CAPTURE_OUTPUTS for name in MODELING_DATA_SESSION_OUTPUTS)
@@ -450,9 +453,59 @@ def test_current_capture_contract_contains_product_routes_only() -> None:
         "modeling-data-3840x2160.png",
         "modeling-data-empty-1440x900.png",
         "modeling-data-invalid-1440x900.png",
+        "modeling-data-invalid-scrolled-1440x900.png",
         "modeling-process-exact-read-failed-1440x900.png",
     } <= set(CURRENT_CAPTURE_OUTPUTS)
     assert all(not name.startswith("storybook-") for name in CURRENT_CAPTURE_OUTPUTS)
+
+
+def test_current_capture_installs_the_scoped_density_preference_before_first_paint() -> None:
+    new_page = _CAPTURE_SOURCE.split("def _new_page", 1)[1].split(
+        "def _bounding_box_edges", 1
+    )[0]
+
+    assert DISPLAY_DENSITIES == ("compact", "standard", "large")
+    assert _display_density_scope("not-a-jwt") == (
+        "%2Fapi%2Fv1|local-organization|local-workspace|anonymous"
+    )
+    assert '"--density"' in _CAPTURE_SOURCE
+    assert "'cmp.material-platform.client-preferences.v1'" in new_page
+    assert '"displayDensityByScope"' in new_page
+    assert "CAPTURE_DISPLAY_DENSITY" in new_page
+    assert new_page.index("context.add_init_script") < new_page.index(
+        "page = context.new_page()"
+    )
+
+
+def test_modeling_data_ribbon_capture_uses_the_shared_density_formula() -> None:
+    helper = _CAPTURE_SOURCE.split("def _modeling_data_ribbon_height", 1)[1].split(
+        "def _assert_modeling_data_surface", 1
+    )[0]
+
+    for token in (
+        "--ux-navigator-row-block-size",
+        "--ux-interactive-min-block-size",
+        "--ux-pane-padding",
+        "--ux-splitter-inline-size",
+    ):
+        assert token in helper
+    assert "expected_height = _modeling_data_ribbon_height(page)" in helper
+    assert "arg=expected_height" in helper
+    assert "NORMAL_COMPACT_DATA_RIBBON_HEIGHT" not in _CAPTURE_SOURCE
+
+
+def test_invalid_mapping_plot_reset_uses_the_density_aware_initial_allocation() -> None:
+    helper = _CAPTURE_SOURCE.split("def _capture_modeling_data_exceptions", 1)[1].split(
+        "def _capture_administration_database", 1
+    )[0]
+
+    assert 'before_plot["height"] < 240' in helper
+    assert 'plot_geometry["svgHeight"] < 230' in helper
+    assert 'plot_geometry["plotHeight"] < 280' in helper
+    assert 'abs(reset_ribbon_panel["height"] - before_keyboard_ribbon["height"]) > 1' in helper
+    assert 'abs(reset_plot_panel["height"] - before_keyboard_plot["height"]) > 1' in helper
+    assert 'line["height"] > line["lineHeight"] * 2 + 1' in helper
+    assert ">=296px" not in helper
 
 
 def test_activity_capture_contract_is_role_correct_for_requesters_and_reviewers() -> None:
@@ -496,8 +549,10 @@ def test_activity_capture_contract_is_role_correct_for_requesters_and_reviewers(
     assert "cmp.activity.recovery.v1:" in _CAPTURE_SOURCE
     assert "Activity decision error did not retain the review reason" in _CAPTURE_SOURCE
     assert "_assert_activity_shared_density(page, width)" in _CAPTURE_SOURCE
-    assert '"data": "13px"' in _CAPTURE_SOURCE
-    assert '"metadata": "12px"' in _CAPTURE_SOURCE
+    assert "data: token('--ux-data-font-size')" in _CAPTURE_SOURCE
+    assert "metadata: token('--ux-metadata-font-size')" in _CAPTURE_SOURCE
+    assert '"data": measurements["tokens"]["data"]' in _CAPTURE_SOURCE
+    assert '"metadata": measurements["tokens"]["metadata"]' in _CAPTURE_SOURCE
     assert "if viewport_width == 3840:" in _CAPTURE_SOURCE
     assert 'name="Recovery needed"' in _CAPTURE_SOURCE
     assert 'expect_review_action=False' in _CAPTURE_SOURCE
@@ -533,12 +588,14 @@ def test_current_capture_rejects_fixed_width_islands_in_shared_workspaces() -> N
 
 def test_administration_capture_checks_bounded_balanced_workgroups() -> None:
     geometry_source = _CAPTURE_SOURCE.split(
-        "def _assert_bounded_workgroup_geometry", 1
+        "def _assert_semantic_three_pane_geometry", 1
     )[1].split("def _capture", 1)[0]
 
-    assert "--ux-navigator-max-inline-size" in geometry_source
-    assert "--ux-context-max-inline-size" in geometry_source
+    assert "--ux-navigator-default-inline-size" in geometry_source
     assert "--ux-readable-form-max-inline-size" in geometry_source
+    assert 'geometry["viewportWidth"] >= 2560 and group["width"] <= 1920' in geometry_source
+    assert 'group["width"] < container["width"] * 0.9' in geometry_source
+    assert 'geometry["navigator"]["width"] > geometry["navigatorDefault"] + 1' in geometry_source
     assert 'abs(left_margin - right_margin) > 2' in geometry_source
     assert 'form["width"] > geometry["readableFormMaximum"] + 1' in geometry_source
     assert 'group_selector=".schema-editor-grid"' in _CAPTURE_SOURCE
@@ -863,7 +920,7 @@ def test_capture_contract_rejects_positional_wait_for_function_arguments() -> No
 
 def test_modeling_fit_capture_saves_exact_process_source_and_scrolls_evidence_locally() -> None:
     assert "_save_process_output_for_fit(" in _CAPTURE_SOURCE
-    assert "_prepare_modeling_process(page, base_url)" in _CAPTURE_SOURCE
+    assert "_prepare_modeling_process(page, base_url, verify_data_reload=False)" in _CAPTURE_SOURCE
     assert "processingOutput" in _CAPTURE_SOURCE
     assert "metal-fit-runs" in _CAPTURE_SOURCE
     assert 'get_by_role("button", name="Candidate parameters", exact=True)' in _CAPTURE_SOURCE
@@ -981,8 +1038,11 @@ def test_modeling_fit_capture_enforces_elastic_shell_rows_scale_and_collision_ge
     assert "shade_geometry.get(\"top\")" in _CAPTURE_SOURCE
     assert "escaped the SVG/plot bounds" in _CAPTURE_SOURCE
     assert 're.fullmatch(r"Specimen \\d{2} · r[1-9]\\d*"' in _CAPTURE_SOURCE
-    assert 'not 184 <= measurement["railWidth"] <= 210' in _CAPTURE_SOURCE
-    assert 'abs(measurement["ribbonHeight"] - 104)' in _CAPTURE_SOURCE
+    assert 'minimum_rail_width = _css_token_px(page, "--ux-navigator-min-inline-size")' in _CAPTURE_SOURCE
+    assert 'default_rail_width = _css_token_px(page, "--ux-navigator-default-inline-size")' in _CAPTURE_SOURCE
+    assert 'minimum_rail_width - 1 <= measurement["railWidth"] <= default_rail_width + 1' in _CAPTURE_SOURCE
+    assert 'expected_ribbon_height = _css_token_px(page, "--ux-workbench-ribbon-block-size")' in _CAPTURE_SOURCE
+    assert 'abs(measurement["ribbonHeight"] - expected_ribbon_height) > 1' in _CAPTURE_SOURCE
     assert "segmentIntersectsRect" in _CAPTURE_SOURCE
     assert "legendCurveSegmentOverlap" in _CAPTURE_SOURCE
     assert "legendExtrapolationBoundaryOverlap" in _CAPTURE_SOURCE
@@ -1327,7 +1387,7 @@ def test_fit_viewport_capture_routes_all_states_for_targeted_and_default_produce
 
 
 def test_modeling_process_capture_contract_covers_wide_and_settled_states() -> None:
-    assert len(MODELING_PROCESS_OUTPUTS) == 9
+    assert len(MODELING_PROCESS_OUTPUTS) == 10
     assert MODELING_PROCESS_OUTPUTS == (
         "modeling-process-1366x768.png",
         "modeling-process-1440x900.png",
@@ -1335,6 +1395,7 @@ def test_modeling_process_capture_contract_covers_wide_and_settled_states() -> N
         "modeling-process-2560x1440.png",
         "modeling-process-3840x2160.png",
         "modeling-process-linear-regression-1366x768.png",
+        "modeling-process-manual-1366x768.png",
         "modeling-process-blocked-1440x900.png",
         "modeling-process-exact-read-failed-1440x900.png",
         "modeling-process-siblings-1440x900.png",
@@ -1364,10 +1425,24 @@ def test_process_geometry_contract_rejects_identity_clipping_chart_collisions_an
     assert 're.fullmatch(r"Specimen \\d{2} · r[1-9]\\d*"' in geometry
     assert 'if measurement.get("processRowClipped"):' in geometry
     assert "processRowClipped" in geometry
-    assert 'if measurement.get("legendTickOverlap") or measurement.get("legendAxisLabelOverlap") or measurement.get("legendAxisOverlap"):' in geometry
-    for overlap_key in ("legendTickOverlap", "legendAxisLabelOverlap", "legendAxisOverlap"):
+    for overlap_key in (
+        "legendTickOverlap",
+        "legendAxisLabelOverlap",
+        "legendAxisOverlap",
+        "legendCurveSegmentOverlap",
+        "legendExtrapolationBoundaryOverlap",
+        "legendExtrapolationLabelOverlap",
+        "legendStateOverlayOverlap",
+    ):
         assert overlap_key in geometry
-    assert 'if not isinstance(method_range_gap, (int, float)) or method_range_gap < 0 or method_range_gap > 20:' in geometry
+    assert 'min(_css_token_px(page, "--ux-plot-min-block-size"), height * 0.42)' in geometry
+    assert '_css_token_px(page, "--ux-interactive-min-block-size")' in geometry
+    assert 'shared_right_reservation = (' in geometry
+    assert '_css_token_px(page, "--ux-navigator-min-inline-size")' in geometry
+    assert 'expected_drawable_width = measurement["svgWidth"] - 80 - shared_right_reservation' in geometry
+    assert 'abs(_as_float(horizontal_axis.get("width")) - expected_drawable_width) > 2' in geometry
+    assert 'maximum_control_gap = _css_token_px(page, "--ux-space-4") + 2' in geometry
+    assert 'method_range_gap > maximum_control_gap' in geometry
     assert "methodRangeGap" in geometry
     for field in ("processControls", "topActions", "processRibbon", "processPanel", "saveBand"):
         assert field in geometry
@@ -1383,7 +1458,8 @@ def test_process_geometry_contract_rejects_identity_clipping_chart_collisions_an
         "Save processed curves",
     ):
         assert label in geometry
-    assert "abs(height_px - 28) > 1" in geometry
+    assert 'expected_input_height = _css_token_px(page, "--ux-input-min-block-size")' in geometry
+    assert "abs(height_px - expected_input_height) > 1" in geometry
     assert 'control.get("whiteSpace") != "nowrap"' in geometry
     assert "scrollHeight" in geometry
     assert "_aligned(normal_row)" in geometry
@@ -1409,7 +1485,7 @@ def test_process_capture_runs_manual_surface_after_initial_preview_before_1366_c
         "def _capture_modeling_process_only", 1
     )[1].split("def _capture_modeling_data_viewports", 1)[0]
     preview = process_only.index("_assert_modeling_process_preview(page)")
-    manual = process_only.index("_assert_modeling_process_manual_surface(page)")
+    manual = process_only.index("_assert_modeling_process_manual_surface(")
     capture = process_only.index("_capture(", manual)
 
     assert preview < manual < capture
@@ -1418,10 +1494,10 @@ def test_process_capture_runs_manual_surface_after_initial_preview_before_1366_c
 
 def test_process_preparation_selects_exact_data_identity_before_opening_process() -> None:
     process_flow = _CAPTURE_SOURCE.split(
-        "def _prepare_modeling_process(page: Page, base_url: str) -> None:", 1
+        "def _prepare_modeling_process(", 1
     )[1].split("def _list_processing_outputs", 1)[0]
 
-    data_stage = process_flow.index("_prepare_modeling(page, base_url)")
+    data_stage = process_flow.index("_prepare_modeling(page, base_url, verify_reload=verify_data_reload)")
     data_selector = process_flow.index(
         '".modeling-workspace-stage-data .modeling-data-curve-tree"'
     )
@@ -1489,7 +1565,8 @@ def test_process_manual_fit_override_preserves_normal_svg_threshold() -> None:
     measure_source = ast.get_source_segment(_CAPTURE_SOURCE, measure)
     assert measure_source is not None
     assert "minimum_svg_height: int | None = None" in measure_source
-    assert "default_minimum = 330 if height == 768 else 430" in measure_source
+    assert 'min(_css_token_px(page, "--ux-plot-min-block-size"), height * 0.42)' in measure_source
+    assert '- _css_token_px(page, "--ux-interactive-min-block-size")' in measure_source
     assert "minimum = minimum_svg_height if minimum_svg_height is not None else default_minimum" in measure_source
 
     measure_calls = [
@@ -1658,8 +1735,8 @@ def test_only_modeling_process_cli_help_and_output_contract_stay_at_nine() -> No
     parser_fragment = _CAPTURE_SOURCE.split(
         '        "--only-modeling-process",', 1
     )[1].split("    parser.add_argument(", 1)[0]
-    assert "nine Modeling Process viewports" in parser_fragment
-    assert len(MODELING_PROCESS_OUTPUTS) == 9
+    assert "ten Modeling Process viewports" in parser_fragment
+    assert len(MODELING_PROCESS_OUTPUTS) == 10
     main_source = _CAPTURE_SOURCE.split("def main()", 1)[1]
     assert "selected_output_names: Sequence[str] = CURRENT_CAPTURE_OUTPUTS" in main_source
     assert 'name.endswith(f"-{width}x{height}.png")' in _CAPTURE_SOURCE
@@ -1682,7 +1759,7 @@ def test_exact_document_success_wait_replaces_removed_notice_for_data_and_proces
         assert fragment in helper
 
     generic_flow = _CAPTURE_SOURCE.split(
-        "def _prepare_modeling(page: Page, base_url: str) -> None:", 1
+        "def _prepare_modeling(", 1
     )[1].split("def _prepare_modeling_process", 1)[0]
     assert "for index in range(3):" in generic_flow
     assert generic_flow.count("_wait_for_exact_document_load_settled(page)") == 1
@@ -1691,7 +1768,7 @@ def test_exact_document_success_wait_replaces_removed_notice_for_data_and_proces
     ) < generic_flow.index("_wait_for_data_session_counts")
 
     process_flow = _CAPTURE_SOURCE.split(
-        "def _prepare_modeling_process(page: Page, base_url: str) -> None:", 1
+        "def _prepare_modeling_process(", 1
     )[1].split("def _list_processing_outputs", 1)[0]
     assert process_flow.count("_wait_for_exact_document_load_settled(page)") == 1
     assert process_flow.index("exact_row.click()") < process_flow.index(
@@ -1898,8 +1975,8 @@ def test_saved_process_capture_rejects_graph_hit_test_occlusion() -> None:
 
     assert "elementFromPoint" in reachability_assertion
     assert "process-comparison-row" in reachability_assertion
-    assert 'check.get("actionLabel") != "Use settings"' in reachability_assertion
-    assert "actionTopmost" in reachability_assertion
+    assert 'actions.all_inner_texts() != ["Use settings"] * 3' in reachability_assertion
+    assert "document.activeElement === node" in reachability_assertion
     assert 'plotUseful' in reachability_assertion
     assert 'plotHeadingVisible' in reachability_assertion
     assert 'plotHeadingTopmost' in reachability_assertion
@@ -1927,15 +2004,16 @@ def test_saved_process_capture_rejects_graph_hit_test_occlusion() -> None:
     assert "_assert_modeling_process_table_geometry(page)" in _CAPTURE_SOURCE
 
 
-def test_saved_process_reachability_requires_three_rows_plus_layout_without_scroll() -> None:
+def test_saved_process_reachability_supports_bounded_local_vertical_scroll() -> None:
     reachability_assertion = _CAPTURE_SOURCE.split(
         "def _assert_modeling_process_saved_rows_reachable", 1
     )[1].split("\ndef _patch_capture_processing_output_pointer", 1)[0]
 
     assert "len(checks) != 4" in reachability_assertion
     assert 'layout.get("rowCount") != 3' in reachability_assertion
-    assert 'layout.get("rowsWithoutScroll")' in reachability_assertion
-    assert "twoRowsWithoutScroll" not in reachability_assertion
+    assert 'layout.get("localScrollReady")' in reachability_assertion
+    assert "scroll_into_view_if_needed" in reachability_assertion
+    assert "ribbon.clientWidth >= ribbon.scrollWidth - 1" in reachability_assertion
 
 
 def test_modeling_process_resume_flag_is_scoped_and_full_capture_reuses_exact_three() -> None:

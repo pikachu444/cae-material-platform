@@ -61,6 +61,8 @@ assignment form이 여러 열로 배치됩니다.
 
 ![1366px에서 Reviewer 역할의 포함 작업을 보여주는 Products Access 화면](images/current/administration-access-1366x768.png)
 
+![1366px role control의 키보드 선택과 현재 상태](images/current/administration-access-role-control-1366x768.png)
+
 ![1440px에서 기술 권한 체크박스 없이 Reviewer 역할을 선택하는 Products Access 화면](images/current/administration-access-1440x900.png)
 
 넓은 화면의 assignment 생성과 권한 회수 동작은

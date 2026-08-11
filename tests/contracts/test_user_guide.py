@@ -19,6 +19,46 @@ from cmp.tools.user_guide import (
 _PNG = b"\x89PNG\r\n\x1a\ncontract-test"
 
 
+def test_historical_evidence_to_current_duplicate_allowance_can_expire(
+    tmp_path: Path,
+) -> None:
+    evidence_relative = "docs/17-evidence/images/issue-old/screen.png"
+    current_relative = "docs/user-guide/images/current/screen.png"
+    evidence = tmp_path / evidence_relative
+    current = tmp_path / current_relative
+    evidence.parent.mkdir(parents=True)
+    current.parent.mkdir(parents=True)
+    evidence.write_bytes(_PNG + b"-old")
+    current.write_bytes(_PNG + b"-new")
+
+    report = _verify_image_inventory(
+        tmp_path,
+        {evidence_relative, current_relative},
+        {frozenset({evidence_relative, current_relative})},
+    )
+
+    assert report == (2, 0, 0)
+
+
+def test_stale_evidence_only_duplicate_allowance_remains_an_error(
+    tmp_path: Path,
+) -> None:
+    first_relative = "docs/17-evidence/images/issue-old/first.png"
+    second_relative = "docs/17-evidence/images/issue-old/second.png"
+    first = tmp_path / first_relative
+    second = tmp_path / second_relative
+    first.parent.mkdir(parents=True)
+    first.write_bytes(_PNG + b"-first")
+    second.write_bytes(_PNG + b"-second")
+
+    with pytest.raises(UserGuideContractError, match="no longer match"):
+        _verify_image_inventory(
+            tmp_path,
+            {first_relative, second_relative},
+            {frozenset({first_relative, second_relative})},
+        )
+
+
 def test_structured_image_references_must_be_exact_existing_repository_paths(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -98,14 +138,14 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     report = verify_user_guide(root)
 
     assert report.document_count >= 10
-    assert report.capture_count == 87
+    assert report.capture_count == 90
     assert report.navigation_count == 3
     assert report.classified_markdown_count >= 100
     assert report.current_document_count >= 40
     assert report.local_link_count >= 150
     assert report.image_count >= 120
     assert report.orphan_image_count == 0
-    assert report.duplicate_image_group_count == 183
+    assert report.duplicate_image_group_count == 264
 
 
 def test_incoming_integration_package_is_reference_not_authoritative() -> None:
@@ -172,24 +212,39 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "MOD-PROCESS-CURRENT-SIBLINGS-1440",
     }
 
-    current_source = (
-        "c2283fb0912df93dc4201f216a68aaedea75460b + "
-        "issue-161-administration-button-semantics-working-tree"
+    current_source = manifest["source_commit"]
+    assert manifest["scope"] == "issue-184-high-dpi-global-implementation"
+    assert current_source == "PENDING_IMPLEMENTATION_COMMIT" or re.fullmatch(
+        r"[0-9a-f]{40}", current_source
     )
-    assert manifest["scope"] == "issue-161-administration-button-semantics-follow-up"
     assert manifest["source_commit"] == current_source
     assert len(provenance_ids) == len(set(provenance_ids))
-    assert set(provenance_ids) == set(captures)
+    preserved_fixture_ids = {
+        "material-cae-cards-1440",
+        "material-detail-1366",
+        "material-detail-1440",
+        "material-detail-1920",
+        "material-detail-2560",
+        "material-detail-3840",
+        "modeling-export-delivered",
+        "solver-card-preview-1366",
+        "solver-card-preview-1440",
+        "solver-card-preview-1920",
+    }
+    assert set(captures) - set(provenance_ids) == preserved_fixture_ids
     assert {provenance["source_commit"] for provenance in manifest["capture_provenance"]} == {
         current_source
     }
     assert len(previous_provenance_ids) == len(set(previous_provenance_ids))
-    new_access_viewports = {
+    new_issue_184_captures = {
+        "MOD-PROCESS-CURRENT-MANUAL-1366",
+        "administration-access-role-control-1366",
+        "modeling-data-invalid-scrolled-1440",
         "administration-access-1920",
         "administration-access-2560",
         "administration-access-3840",
     }
-    assert set(previous_provenance_ids) == set(captures) - new_access_viewports
+    assert set(previous_provenance_ids) == set(captures) - new_issue_184_captures
     assert {
         prior_source,
         correction_source,
@@ -201,7 +256,10 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "working-tree-issue-160",
         "working-tree-issue-160-task-2",
     } == {provenance["source_commit"] for provenance in previous_provenance}
-    assert "complete 87-image current set" in manifest["capture_provenance"][0]["command"]
+    assert (
+        "Eighty Standard images replace the current guide"
+        in manifest["capture_provenance"][0]["command"]
+    )
     process_provenance = [
         provenance
         for provenance in previous_provenance
@@ -331,10 +389,10 @@ def test_current_images_are_product_routes_and_storybook_captures_are_untracked(
         (root / "docs/user-guide/screenshot-manifest.yaml").read_text(encoding="utf-8")
     )
     current_images = root / "docs/user-guide/images/current"
-    assert len(manifest["captures"]) == 87
+    assert len(manifest["captures"]) == 90
     assert all(not capture["route"].startswith("/iframe.html") for capture in manifest["captures"])
     assert not list(current_images.glob("storybook-*.png"))
-    assert len(list(current_images.glob("*.png"))) == 87
+    assert len(list(current_images.glob("*.png"))) == 90
     assert not list((root / "docs/17-evidence/images").glob("**/storybook-*.png"))
 
 

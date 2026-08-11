@@ -45,8 +45,8 @@ link는 보존하지만 일반 사용자의 전역 메뉴에는 나타나지 않
 ![1920px Activity 작업 큐](images/current/activity-1920x1080.png)
 
 2560×1440과 3840×2160에서도 queue와 Review action은 같은 exact revision 행 구조로 유지됩니다.
-Activity는 공통 desktop 기준을 사용합니다. task identity는 14px, tab·data·action은 13px,
-metadata는 12px이며 action 높이는 최소 36px입니다. 3840px에서는 2656px 비교 작업 영역 안에
+Activity는 공통 `Standard` 표시 밀도를 기본으로 사용합니다. task identity는 15px, data는 14px,
+metadata는 13px이며 action 높이는 최소 38px입니다. 3840px에서는 2656px 비교 작업 영역 안에
 2602px 다섯 열과 scrollbar를 나란히 두고 가운데 정렬해 상태와 행동 사이가 과도하게 벌어지지
 않습니다. 1920px 고정 작업 섬, 해상도별 CSS, CSS `zoom`, 일괄 확대, 채우기용 행은 사용하지
 않습니다.
@@ -56,14 +56,30 @@ Materials·Modeling·Administration의 app shell과 주 data/graph/native-previe
 넓은 화면에서 모든 열이나 문장을 억지로 늘리지 않습니다. tree/table의 긴 값은 해당 pane의 실제
 scroll region에서 확인하고 scrollbar가 데이터나 조작 손잡이를 덮지 않습니다.
 
-이 보정은 새 고해상도 표시 단계를 정한 것이 아닙니다. 공통 표시 단계는 #221에서 비교·결정하고,
-전체 화면 적용은 #184에서 검증합니다. Activity의 실제 Windows 4K 100%·150%·200% 물리적 판독성은
-전체 제품 흐름 검증 뒤 마지막 #223에서 최종 판정합니다. 현재 증거 장비는 2560×1440 100%이며,
-자동 3840×2160 캡처를 실제 4K 장비 판정으로 대신하지 않습니다.
+#221에서 승인한 P2 정책에 따라 같은 공통 표시 밀도가 모든 route에 적용됩니다. 자동 3840×2160
+캡처는 geometry 증거일 뿐 실제 4K 장비 판정이 아닙니다. Windows 4K 100%·150%·200% 물리적
+판독성은 #223에서 최종 판정합니다.
 
 ![2560px Activity 작업 큐](images/current/activity-2560x1440.png)
 
 ![3840px Activity 작업 큐](images/current/activity-3840x2160.png)
+
+## 표시 밀도 바꾸기
+
+우측 사용자 메뉴의 **Display density**에서 `Compact`, `Standard`, `Large` 중 하나를 선택합니다.
+선택은 이 브라우저의 현재 사용자·workspace 범위에 제품 전체 공통값으로 저장되어 Materials,
+Modeling, Activity와 Administration을 이동하거나 화면을 다시 열어도 유지됩니다. viewport 크기,
+해상도 또는 DPR에 따라 제품이 값을 자동으로 바꾸지 않으며 계정이나 다른 장비로 동기화하지 않습니다.
+
+**Reset display density**는 표시 밀도만 `Standard`로 되돌립니다. Navigator·Context pane 폭을
+되돌리는 reset과는 별개이므로 이미 조정한 pane 배치는 유지됩니다. 저장값이 오래됐거나 손상되면
+첫 shell paint 전에 `Standard`로 복구되어 작은 UI가 잠깐 나타났다 바뀌는 전환을 만들지 않습니다.
+메뉴는 키보드로 열고 radio 선택을 이동할 수 있으며 `Escape`로 닫으면 focus가 사용자 메뉴로
+돌아옵니다.
+
+`Large`는 모든 문장과 그래프를 비례 확대하는 기능이 아닙니다. 공통 글자·control·행·pane·splitter·
+scrollbar·plot token을 함께 바꾸고, table과 graph/native preview는 남는 작업 폭을 계속 사용합니다.
+Browser zoom 200% 접근성 검증과 실제 Windows 4K 물리 판독성 검증도 서로 다른 검사입니다.
 
 3840px의 긴 이력에서도 오른쪽 로컬 scrollbar가 실제 콘텐츠 길이에 맞춰 나타납니다.
 현재 긴 이력 캡처는 canonical demo의 immutable server 결정 10건과 브라우저 로컬 solver-card 활동

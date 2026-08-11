@@ -1,5 +1,6 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { startTransition, Suspense, useState } from "react";
 
 import {
   ModelingDataIntake,
@@ -186,6 +187,176 @@ describe("Modeling data intake", () => {
     expect(screen.queryByText(/Test Data records available/)).toBeNull();
     expect(library.querySelectorAll("[role='listitem']")).toHaveLength(4);
     expect(onLayoutModeChange).toHaveBeenCalledWith("compact");
+  });
+
+  it("keeps exact observed-curve hydration alive across semantically identical reload churn", async () => {
+    const document = {
+      test_data_document_id: "document-1",
+      current_revision: { ...revision, id: "revision-1", revision_no: 1 },
+      document_key: "DP780-TENSILE-1",
+      material_maker: "CMP Demo",
+      material_grade: "DP780",
+      lot_batch: null,
+      test_date: "2026-07-18",
+      operator: "Tester",
+      laboratory: "Lab",
+      method: "tensile",
+      specimen_id: "Specimen 01",
+      point_count: 3,
+      canonical_artifact_id: "canonical-1",
+      canonical_sha256: "a".repeat(64),
+      normalized_artifact_id: "normalized-1",
+      normalized_sha256: "b".repeat(64),
+      channels: [],
+    };
+    const exactRef = {
+      id: "document-1",
+      revisionId: "revision-1",
+      label: "DP780-TENSILE-1",
+      revisionNo: 1,
+    };
+    let resolveContent!: (response: Response) => void;
+    const contentPending = new Promise<Response>((resolve) => {
+      resolveContent = resolve;
+    });
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.includes("/test-data-documents/document-1/revisions/revision-1/content")) {
+        return contentPending;
+      }
+      if (url.endsWith("/processing:preview")) {
+        return jsonResponse({ stages: [], source: "exact-test" });
+      }
+      throw new Error(`unexpected request: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const onObservedCurves = vi.fn();
+    const renderIntake = () => (
+      <ModelingDataIntake
+        config={{ baseUrl: "/api/v1", accessToken: "token" }}
+        documents={[{ ...document }] as never}
+        selectedTestDataRefs={[{ ...exactRef }]}
+        selectedDocumentId="document-1"
+        visibleDocumentKeys={["document-1:revision-1"]}
+        processingMappingProfileText={JSON.stringify({ profile_key: "test" })}
+        onSelectDocument={() => undefined}
+        onPreviewDocument={() => undefined}
+        onImported={() => undefined}
+        onObservedCurves={onObservedCurves}
+      />
+    );
+
+    const { rerender } = render(renderIntake());
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    rerender(renderIntake());
+    resolveContent({
+      ok: true,
+      status: 200,
+      headers: new Headers(),
+      blob: async () => new Blob([JSON.stringify({ schema: "test" })]),
+    } as Response);
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    expect(fetchMock.mock.calls.filter(([input]) => String(input).includes("/content"))).toHaveLength(1);
+    await waitFor(() => expect(onObservedCurves).toHaveBeenLastCalledWith([
+      expect.objectContaining({ id: "document-1:revision-1" }),
+    ]));
+  });
+
+  it("does not let an interrupted concurrent render invalidate committed curve hydration", async () => {
+    const document = {
+      test_data_document_id: "document-1",
+      current_revision: { ...revision, id: "revision-1", revision_no: 1 },
+      document_key: "DP780-TENSILE-1",
+      material_maker: "CMP Demo",
+      material_grade: "DP780",
+      lot_batch: null,
+      test_date: "2026-07-18",
+      operator: "Tester",
+      laboratory: "Lab",
+      method: "tensile",
+      specimen_id: "Specimen 01",
+      point_count: 3,
+      canonical_artifact_id: "canonical-1",
+      canonical_sha256: "a".repeat(64),
+      normalized_artifact_id: "normalized-1",
+      normalized_sha256: "b".repeat(64),
+      channels: [],
+    };
+    const exactRef = {
+      id: "document-1",
+      revisionId: "revision-1",
+      label: "DP780-TENSILE-1",
+      revisionNo: 1,
+    };
+    let resolveContent!: (response: Response) => void;
+    const contentPending = new Promise<Response>((resolve) => {
+      resolveContent = resolve;
+    });
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.includes("/test-data-documents/document-1/revisions/revision-1/content")) {
+        return contentPending;
+      }
+      if (url.endsWith("/processing:preview")) {
+        return jsonResponse({ stages: [], source: "exact-test" });
+      }
+      throw new Error(`unexpected request: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const onObservedCurves = vi.fn();
+    const neverSettles = new Promise<never>(() => undefined);
+    let suspendAfterIntake = false;
+
+    function SuspendAfterIntake() {
+      if (suspendAfterIntake) throw neverSettles;
+      return null;
+    }
+
+    function Harness() {
+      const [visible, setVisible] = useState(true);
+      return <>
+        <button type="button" onClick={() => {
+          suspendAfterIntake = true;
+          startTransition(() => setVisible(false));
+        }}>Interrupt render</button>
+        <Suspense fallback={<span>Pending alternate render</span>}>
+          <ModelingDataIntake
+            config={{ baseUrl: "/api/v1", accessToken: "token" }}
+            documents={[{ ...document }] as never}
+            selectedTestDataRefs={[{ ...exactRef }]}
+            selectedDocumentId="document-1"
+            visibleDocumentKeys={visible ? ["document-1:revision-1"] : []}
+            processingMappingProfileText={JSON.stringify({ profile_key: "test" })}
+            onSelectDocument={() => undefined}
+            onPreviewDocument={() => undefined}
+            onImported={() => undefined}
+            onObservedCurves={onObservedCurves}
+          />
+          <SuspendAfterIntake />
+        </Suspense>
+      </>;
+    }
+
+    render(<Harness />);
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    fireEvent.click(screen.getByRole("button", { name: "Interrupt render" }));
+    expect(screen.queryByText("Pending alternate render")).toBeNull();
+
+    await act(async () => {
+      resolveContent({
+        ok: true,
+        status: 200,
+        headers: new Headers(),
+        blob: async () => new Blob([JSON.stringify({ schema: "test" })]),
+      } as Response);
+      await contentPending;
+    });
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(onObservedCurves).toHaveBeenLastCalledWith([
+      expect.objectContaining({ id: "document-1:revision-1" }),
+    ]));
   });
 
   it("renders unresolved mapping recovery as a direct full-width grid child", async () => {

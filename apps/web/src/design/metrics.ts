@@ -1,3 +1,5 @@
+import type { DisplayDensity } from "./display-density";
+
 export type DesktopViewportClass = "compact" | "standard" | "wide";
 
 export const DESKTOP_VIEWPORT_BREAKPOINTS = {
@@ -27,6 +29,57 @@ export const MATERIALS_PANE_METRICS = {
     defaults: { compact: 0, standard: 280, wide: 300 },
   },
 } as const;
+
+export const DISPLAY_DENSITY_PANE_METRICS: Record<DisplayDensity, {
+  navigator: { min: number; default: number; max: number };
+  context: { min: number; default: number; max: number };
+}> = {
+  compact: {
+    navigator: { min: 200, default: 264, max: 360 },
+    context: { min: 260, default: 280, max: 480 },
+  },
+  standard: {
+    navigator: { min: 216, default: 288, max: 384 },
+    context: { min: 280, default: 304, max: 512 },
+  },
+  large: {
+    navigator: { min: 232, default: 312, max: 416 },
+    context: { min: 300, default: 328, max: 544 },
+  },
+};
+
+export const DISPLAY_DENSITY_CONTROL_METRICS: Record<DisplayDensity, {
+  control: number;
+  interactive: number;
+  input: number;
+  navigatorRow: number;
+  pane: number;
+  splitter: number;
+}> = {
+  compact: { control: 36, interactive: 32, input: 38, navigatorRow: 26, pane: 12, splitter: 5 },
+  standard: { control: 38, interactive: 34, input: 40, navigatorRow: 30, pane: 14, splitter: 6 },
+  large: { control: 40, interactive: 38, input: 44, navigatorRow: 34, pane: 16, splitter: 7 },
+};
+
+export function materialsPaneDefaultsForDensity(
+  viewport: DesktopViewportClass,
+  density: DisplayDensity,
+): { navigator: number; main: number; context: number } {
+  const panes = DISPLAY_DENSITY_PANE_METRICS[density];
+  return {
+    navigator: panes.navigator.default,
+    main: MATERIALS_PANE_METRICS.main.defaults[viewport],
+    context: viewport === "compact" ? 0 : panes.context.default,
+  };
+}
+
+export function modelingPaneMetricsForDensity(density: DisplayDensity): {
+  min: number;
+  default: number;
+  max: number;
+} {
+  return DISPLAY_DENSITY_PANE_METRICS[density].navigator;
+}
 
 export const materialsPaneDefaults: Record<
   DesktopViewportClass,
@@ -73,6 +126,25 @@ export const ENGINEERING_PLOT_MARGIN = {
   top: 24,
   bottom: 52,
 } as const;
+
+/**
+ * Keep the lower-right legend in one density-derived plot reservation instead
+ * of route-specific CSS offsets.  The right margin deliberately combines the
+ * approved navigator minimum and pane padding tokens used by every P2 tier.
+ */
+export function engineeringPlotMarginsForDensity(density: DisplayDensity): {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+} {
+  return {
+    ...ENGINEERING_PLOT_MARGIN,
+    right:
+      DISPLAY_DENSITY_PANE_METRICS[density].navigator.min
+      + DISPLAY_DENSITY_CONTROL_METRICS[density].pane,
+  };
+}
 
 export const COLUMN_RESIZE_KEYBOARD_STEP = 8;
 

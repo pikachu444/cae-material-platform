@@ -1,10 +1,13 @@
-import { type ReactNode, useEffect, useMemo, useState } from "react";
+import { type ReactNode, type RefObject, useEffect, useMemo, useRef, useState } from "react";
 import { Group, Panel, Separator, useDefaultLayout, usePanelRef } from "react-resizable-panels";
 import { EngineeringIcon } from "./icon";
+import { useDisplayDensity } from "./display-density";
 import {
+  DISPLAY_DENSITY_PANE_METRICS,
   desktopViewportClass,
   MATERIALS_PANE_METRICS,
   materialsPaneDefaults,
+  materialsPaneDefaultsForDensity,
   type DesktopViewportClass,
 } from "./metrics";
 
@@ -20,6 +23,93 @@ interface ResizableSplitPaneProps {
   contextLabel?: string;
 }
 
+interface ContextPaneOverlayProps {
+  open: boolean;
+  label: string;
+  triggerRef: RefObject<HTMLButtonElement | null>;
+  onClose: () => void;
+  children: ReactNode;
+}
+
+export function shouldUseContextOverlay(
+  explicitlyExpanded: boolean,
+  allocationInPixels: number,
+): boolean {
+  return explicitlyExpanded && allocationInPixels < 1;
+}
+
+export function ContextPaneOverlay({
+  open,
+  label,
+  triggerRef,
+  onClose,
+  children,
+}: ContextPaneOverlayProps) {
+  const overlayRef = useRef<HTMLElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (open) closeRef.current?.focus();
+  }, [open]);
+
+  if (!open) return null;
+
+  function close(): void {
+    onClose();
+    window.requestAnimationFrame(() => triggerRef.current?.focus());
+  }
+
+  function keepFocusInside(event: React.KeyboardEvent<HTMLElement>): void {
+    if (event.key !== "Tab") return;
+    const focusable = [
+      ...(overlayRef.current?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      ) ?? []),
+    ];
+    if (!focusable.length) return;
+    const activeIndex = focusable.indexOf(document.activeElement as HTMLElement);
+    const targetIndex = event.shiftKey
+      ? activeIndex <= 0 ? focusable.length - 1 : activeIndex - 1
+      : activeIndex < 0 || activeIndex === focusable.length - 1 ? 0 : activeIndex + 1;
+    event.preventDefault();
+    focusable[targetIndex]?.focus();
+  }
+
+  return (
+    <section
+      ref={overlayRef}
+      className="materials-context-overlay context-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${label} pane`}
+      data-context-pane-mode="overlay"
+      onKeyDown={(event) => {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          event.stopPropagation();
+          close();
+          return;
+        }
+        keepFocusInside(event);
+      }}
+    >
+      <header>
+        <h2>{label}</h2>
+        <button
+          ref={closeRef}
+          className="ux-button tertiary"
+          type="button"
+          aria-label={`Close ${label} pane`}
+          onClick={close}
+        >
+          Close
+        </button>
+      </header>
+      <div className="materials-context-overlay-content">{children}</div>
+    </section>
+  );
+}
+
 export function ResizableSplitPane({
   id,
   navigator,
@@ -28,18 +118,26 @@ export function ResizableSplitPane({
   navigatorLabel = "navigator",
   contextLabel = "details",
 }: ResizableSplitPaneProps) {
+  const { density } = useDisplayDensity();
   const [viewport, setViewport] = useState<DesktopViewportClass>(() =>
     desktopViewportClass(typeof window === "undefined" ? 1440 : window.innerWidth),
   );
   const navigatorRef = usePanelRef();
   const contextRef = usePanelRef();
+  const previousNavigatorDefaultRef = useRef<number | null>(null);
+  const previousContextDefaultRef = useRef<number | null>(null);
+  const contextToggleRef = useRef<HTMLButtonElement>(null);
+  const explicitlyExpandedContextRef = useRef(false);
   const [navigatorOpen, setNavigatorOpen] = useState(true);
   const [contextOpen, setContextOpen] = useState(viewport !== "compact");
+  const [contextOverlayOpen, setContextOverlayOpen] = useState(false);
   const persistence = useDefaultLayout({
     id: `${id}-v5-${viewport}`,
     panelIds: ["navigator", "main", "context"],
     storage: typeof window === "undefined" ? undefined : window.localStorage,
   });
+  const paneMetrics = DISPLAY_DENSITY_PANE_METRICS[density];
+  const paneDefaults = materialsPaneDefaultsForDensity(viewport, density);
   const initialLayout = useMemo(() => persistence.defaultLayout, [persistence.defaultLayout]);
 
   useEffect(() => {
@@ -49,10 +147,32 @@ export function ResizableSplitPane({
   }, []);
 
   useEffect(() => {
+    const previous = previousNavigatorDefaultRef.current;
+    previousNavigatorDefaultRef.current = paneDefaults.navigator;
+    const panel = navigatorRef.current;
+    if (previous === null || !panel || panel.isCollapsed()) return;
+    if (Math.abs(panel.getSize().inPixels - previous) <= 1) {
+      panel.resize(paneDefaults.navigator);
+    }
+  }, [navigatorRef, paneDefaults.navigator]);
+
+  useEffect(() => {
+    const previous = previousContextDefaultRef.current;
+    previousContextDefaultRef.current = paneDefaults.context;
+    const panel = contextRef.current;
+    if (previous === null || !panel || panel.isCollapsed() || previous === 0) return;
+    if (Math.abs(panel.getSize().inPixels - previous) <= 1) {
+      panel.resize(paneDefaults.context);
+    }
+  }, [contextRef, paneDefaults.context]);
+
+  useEffect(() => {
     if (typeof ResizeObserver === "undefined") return;
     if (viewport === "compact" && contextRef.current && !contextRef.current.isCollapsed()) {
+      explicitlyExpandedContextRef.current = false;
       contextRef.current.collapse();
       setContextOpen(false);
+      setContextOverlayOpen(false);
     }
   }, [contextRef, viewport]);
 
@@ -71,30 +191,53 @@ export function ResizableSplitPane({
   function toggleContext(): void {
     const panel = contextRef.current;
     if (!panel) return;
+    if (contextOverlayOpen) {
+      closeContextOverlay();
+      return;
+    }
     if (panel.isCollapsed()) {
+      explicitlyExpandedContextRef.current = true;
       panel.expand();
-      setContextOpen(true);
+      window.requestAnimationFrame(() => {
+        const allocation = contextRef.current?.getSize().inPixels ?? 0;
+        const useOverlay = shouldUseContextOverlay(true, allocation);
+        setContextOverlayOpen(useOverlay);
+        setContextOpen(!useOverlay && allocation >= 1);
+      });
     } else {
+      explicitlyExpandedContextRef.current = false;
       panel.collapse();
       setContextOpen(false);
+      setContextOverlayOpen(false);
     }
   }
 
+  function closeContextOverlay(): void {
+    explicitlyExpandedContextRef.current = false;
+    setContextOverlayOpen(false);
+    setContextOpen(false);
+    contextRef.current?.collapse();
+  }
+
   function resetNavigator(): void {
-    navigatorRef.current?.resize(materialsPaneDefaults[viewport].navigator);
+    navigatorRef.current?.resize(paneDefaults.navigator);
     setNavigatorOpen(true);
   }
 
   function resetContext(): void {
     const panel = contextRef.current;
     if (!panel) return;
-    if (materialsPaneDefaults[viewport].context === 0) {
+    if (paneDefaults.context === 0) {
+      explicitlyExpandedContextRef.current = false;
       panel.collapse();
       setContextOpen(false);
+      setContextOverlayOpen(false);
       return;
     }
-    panel.resize(materialsPaneDefaults[viewport].context);
+    explicitlyExpandedContextRef.current = true;
+    panel.resize(paneDefaults.context);
     setContextOpen(true);
+    setContextOverlayOpen(false);
   }
 
   if (typeof ResizeObserver === "undefined") {
@@ -107,7 +250,7 @@ export function ResizableSplitPane({
           </div>
           <div className="materials-workspace-panel main-panel">{main}</div>
           <div className="materials-resize-handle" role="separator" aria-label={`Resize ${contextLabel}`} onDoubleClick={resetContext} title={`Double-click to reset ${contextLabel} width`}>
-            <button className="pane-divider-control" type="button" aria-label={`${contextOpen ? "Collapse" : "Expand"} ${contextLabel} pane`} aria-expanded={contextOpen} onClick={() => setContextOpen((current) => !current)}><EngineeringIcon name={contextOpen ? "chevron-right" : "chevron-left"}/></button>
+            <button ref={contextToggleRef} className="pane-divider-control" type="button" aria-label={`${contextOpen ? "Collapse" : "Expand"} ${contextLabel} pane`} aria-expanded={contextOpen} onClick={() => setContextOpen((current) => !current)}><EngineeringIcon name={contextOpen ? "chevron-right" : "chevron-left"}/></button>
           </div>
           {contextOpen ? <div className="materials-workspace-panel context-panel">{context}</div> : null}
         </div>
@@ -130,9 +273,9 @@ export function ResizableSplitPane({
           id="navigator"
           panelRef={navigatorRef}
           className="materials-workspace-panel navigator-panel"
-          defaultSize={materialsPaneDefaults[viewport].navigator}
-          minSize={MATERIALS_PANE_METRICS.navigator.min}
-          maxSize={MATERIALS_PANE_METRICS.navigator.max}
+          defaultSize={paneDefaults.navigator}
+          minSize={paneMetrics.navigator.min}
+          maxSize={paneMetrics.navigator.max}
           collapsedSize={0}
           collapsible
           groupResizeBehavior="preserve-pixel-size"
@@ -147,23 +290,36 @@ export function ResizableSplitPane({
           {main}
         </Panel>
         <Separator className="materials-resize-handle" aria-label={`Resize ${contextLabel}`} onDoubleClick={resetContext} title={`Double-click to reset ${contextLabel} width`}>
-          <button className="pane-divider-control" type="button" aria-label={`${contextOpen ? "Collapse" : "Expand"} ${contextLabel} pane`} aria-expanded={contextOpen} onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); toggleContext(); }}><EngineeringIcon name={contextOpen ? "chevron-right" : "chevron-left"}/></button>
+          <button ref={contextToggleRef} className="pane-divider-control" type="button" aria-label={`${contextOpen || contextOverlayOpen ? "Collapse" : "Expand"} ${contextLabel} pane`} aria-expanded={contextOpen || contextOverlayOpen} onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); toggleContext(); }}><EngineeringIcon name={contextOpen || contextOverlayOpen ? "chevron-right" : "chevron-left"}/></button>
         </Separator>
         <Panel
           id="context"
           panelRef={contextRef}
           className="materials-workspace-panel context-panel"
-          defaultSize={materialsPaneDefaults[viewport].context}
-          minSize={MATERIALS_PANE_METRICS.context.min}
-          maxSize={MATERIALS_PANE_METRICS.context.max}
+          defaultSize={paneDefaults.context}
+          minSize={paneMetrics.context.min}
+          maxSize={paneMetrics.context.max}
           collapsedSize={0}
           collapsible
           groupResizeBehavior="preserve-pixel-size"
-          onResize={({ inPixels }) => setContextOpen(inPixels > 1)}
+          onResize={({ inPixels }) => {
+            const allocated = inPixels >= 1;
+            setContextOpen(allocated);
+            if (allocated) setContextOverlayOpen(false);
+            else if (shouldUseContextOverlay(explicitlyExpandedContextRef.current, inPixels)) setContextOverlayOpen(true);
+          }}
         >
-          {context}
+          {contextOverlayOpen ? null : context}
         </Panel>
       </Group>
+      <ContextPaneOverlay
+        open={contextOverlayOpen}
+        label={contextLabel}
+        triggerRef={contextToggleRef}
+        onClose={closeContextOverlay}
+      >
+        {context}
+      </ContextPaneOverlay>
     </div>
   );
 }

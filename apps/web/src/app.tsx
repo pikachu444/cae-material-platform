@@ -27,6 +27,7 @@ import {
   ApplicationShell,
   publishWorkspaceStatus,
 } from "./design/application-shell";
+import { DisplayDensityProvider } from "./design/display-density";
 
 const ReferenceTensileWorkflow = lazy(() =>
   import("./reference-tensile-workflow").then((module) => ({
@@ -1260,10 +1261,12 @@ export function App() {
   }
 
   return (
-    <ApplicationShell path={path} navigate={navigate}>
-      <Suspense fallback={<p className="loading-state">Loading workspace…</p>}>
-        {page}
-      </Suspense>
-    </ApplicationShell>
+    <DisplayDensityProvider config={config}>
+      <ApplicationShell path={path} navigate={navigate}>
+        <Suspense fallback={<p className="loading-state">Loading workspace…</p>}>
+          {page}
+        </Suspense>
+      </ApplicationShell>
+    </DisplayDensityProvider>
   );
 }

@@ -1,0 +1,332 @@
+{
+  "schema_version": 1,
+  "capture": "issue-184-direct-100-percent-crops",
+  "resampling": "none",
+  "physical_4k_readability": "DEFERRED_TO_223",
+  "images": [
+    {
+      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/1920x1080/header.png",
+      "surface": "header",
+      "source": "live:/materials@1920x1080",
+      "original_pixels": "1920x50",
+      "source_viewport": "1920x1080",
+      "browser_zoom_percent": 100,
+      "dpr": 1,
+      "density": "standard",
+      "sha256": "09f8d27673cce3d9256452c4da96a5eac8a5b58d0cf75f6e7df597a7a9259211",
+      "interactions": [
+        "primary navigation visible"
+      ]
+    },
+    {
+      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/1920x1080/materials-navigator.png",
+      "surface": "materials-navigator",
+      "source": "live:/materials@1920x1080",
+      "original_pixels": "288x922",
+      "source_viewport": "1920x1080",
+      "browser_zoom_percent": 100,
+      "dpr": 1,
+      "density": "standard",
+      "sha256": "907b47244d7ca711cfe58d1872314ac85fcca32d7f72c19589027701f01cc7e6",
+      "interactions": [
+        "navigator expanded",
+        "exact tree visible"
+      ]
+    },
+    {
+      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/1920x1080/materials-table.png",
+      "surface": "materials-table",
+      "source": "live:/materials@1920x1080",
+      "original_pixels": "1297x864",
+      "source_viewport": "1920x1080",
+      "browser_zoom_percent": 100,
+      "dpr": 1,
+      "density": "standard",
+      "sha256": "4a438bb72f4b7e6f36e591e4276e96b8dade4dde25bad2d809c736114517667a",
+      "interactions": [
+        "result table visible",
+        "bounded identity columns"
+      ]
+    },
+    {
+      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/1920x1080/density-control.png",
+      "surface": "density-control",
+      "source": "live:/materials@1920x1080",
+      "original_pixels": "264x197",
+      "source_viewport": "1920x1080",
+      "browser_zoom_percent": 100,
+      "dpr": 1,
+      "density": "standard",
+      "sha256": "3b4464946c41dbefcb2facfe4e2b7ee7d461373e7a4a61f3d181c152465c33f2",
+      "interactions": [
+        "keyboard opened",
+        "Standard selected",
+        "reset visible"
+      ]
+    },
+    {
+      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/1920x1080/modeling-data-graph.png",
+      "surface": "modeling-data-graph",
+      "source": "live:/modeling?stage=data@1920x1080",
+      "original_pixels": "1610x685",
+      "source_viewport": "1920x1080",
+      "browser_zoom_percent": 100,
+      "dpr": 1,
+      "density": "standard",
+      "sha256": "69a0e364dd0d61047494e007f501795d99af50097f635f0f294385d2b81e524e",
+      "interactions": [
+        "SVG resized",
+        "axis/legend/labels visible",
+        "hit region retained"
+      ]
+    },
+    {
+      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/1920x1080/administration-form.png",
+      "surface": "administration-form",
+      "source": "live:/administration/database@1920x1080",
+      "original_pixels": "800x872",
+      "source_viewport": "1920x1080",
+      "browser_zoom_percent": 100,
+      "dpr": 1,
+      "density": "standard",
+      "sha256": "c8ad618216bfd91b6a6bb84e72bdcdfc6fad3f51cafa9894d191d64652f3ec64",
+      "interactions": [
+        "semantic third pane",
+        "readable form bound",
+        "actions visible"
+      ]
+    },
+    {
+      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/1920x1080/export-native-preview.png",
+      "surface": "export-native-preview",
+      "source": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/after/standard/modeling-export-1920x1080.png",
+      "original_pixels": "1305x894",
+      "source_viewport": "1920x1080",
+      "browser_zoom_percent": 100,
+      "dpr": 1,
+      "density": "standard",
+      "sha256": "fcce69b3fc4315454b4820ed9572e13b84bbf4882dd07e14a7624cf701f4213a",
+      "interactions": [
+        "1:1 pixel crop",
+        "shared preview minimum",
+        "native content visible"
+      ]
+    },
+    {
+      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/2560x1440/header.png",
+      "surface": "header",
+      "source": "live:/materials@2560x1440",
+      "original_pixels": "2560x50",
+      "source_viewport": "2560x1440",
+      "browser_zoom_percent": 100,
+      "dpr": 1,
+      "density": "standard",
+      "sha256": "afa2b266e5ee0772640c15cfe684b27aba06b41185501b20faee7e5e41b44df1",
+      "interactions": [
+        "primary navigation visible"
+      ]
+    },
+    {
+      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/2560x1440/materials-navigator.png",
+      "surface": "materials-navigator",
+      "source": "live:/materials@2560x1440",
+      "original_pixels": "288x1282",
+      "source_viewport": "2560x1440",
+      "browser_zoom_percent": 100,
+      "dpr": 1,
+      "density": "standard",
+      "sha256": "c09393d8822e632533c813133aee4ca49ffa8f10814a822bcd78b033b89e73be",
+      "interactions": [
+        "navigator expanded",
+        "exact tree visible"
+      ]
+    },
+    {
+      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/2560x1440/materials-table.png",
+      "surface": "materials-table",
+      "source": "live:/materials@2560x1440",
+      "original_pixels": "1938x1224",
+      "source_viewport": "2560x1440",
+      "browser_zoom_percent": 100,
+      "dpr": 1,
+      "density": "standard",
+      "sha256": "45ed3654cc884f78a183ab18c74ef80dc818e75e5c480ea68dcdecf8dc9bba8c",
+      "interactions": [
+        "result table visible",
+        "bounded identity columns"
+      ]
+    },
+    {
+      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/2560x1440/density-control.png",
+      "surface": "density-control",
+      "source": "live:/materials@2560x1440",
+      "original_pixels": "264x197",
+      "source_viewport": "2560x1440",
+      "browser_zoom_percent": 100,
+      "dpr": 1,
+      "density": "standard",
+      "sha256": "3b4464946c41dbefcb2facfe4e2b7ee7d461373e7a4a61f3d181c152465c33f2",
+      "interactions": [
+        "keyboard opened",
+        "Standard selected",
+        "reset visible"
+      ]
+    },
+    {
+      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/2560x1440/modeling-data-graph.png",
+      "surface": "modeling-data-graph",
+      "source": "live:/modeling?stage=data@2560x1440",
+      "original_pixels": "2250x1045",
+      "source_viewport": "2560x1440",
+      "browser_zoom_percent": 100,
+      "dpr": 1,
+      "density": "standard",
+      "sha256": "eeb9cf158a7e96418ea6f8ed75acf9f58d5c8292b9c4defc5862eb682aba2e67",
+      "interactions": [
+        "SVG resized",
+        "axis/legend/labels visible",
+        "hit region retained"
+      ]
+    },
+    {
+      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/2560x1440/administration-form.png",
+      "surface": "administration-form",
+      "source": "live:/administration/database@2560x1440",
+      "original_pixels": "800x1232",
+      "source_viewport": "2560x1440",
+      "browser_zoom_percent": 100,
+      "dpr": 1,
+      "density": "standard",
+      "sha256": "944a5ec5ee90430d7b9dc72ec24c37a9c8552d971566bb7e40c3f39bfb835975",
+      "interactions": [
+        "semantic third pane",
+        "readable form bound",
+        "actions visible"
+      ]
+    },
+    {
+      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/2560x1440/export-native-preview.png",
+      "surface": "export-native-preview",
+      "source": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/after/standard/modeling-export-2560x1440.png",
+      "original_pixels": "1945x1254",
+      "source_viewport": "2560x1440",
+      "browser_zoom_percent": 100,
+      "dpr": 1,
+      "density": "standard",
+      "sha256": "26d5d6b75d94c6fce94d2faaa272d9bea64f2c5d85a9e289b8656580e33f8a2a",
+      "interactions": [
+        "1:1 pixel crop",
+        "shared preview minimum",
+        "native content visible"
+      ]
+    },
+    {
+      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/3840x2160/header.png",
+      "surface": "header",
+      "source": "live:/materials@3840x2160",
+      "original_pixels": "3840x50",
+      "source_viewport": "3840x2160",
+      "browser_zoom_percent": 100,
+      "dpr": 1,
+      "density": "standard",
+      "sha256": "43438dac8ac4bffe85cd4d870b8f11db06df98a104244389f346aa2e2da9671f",
+      "interactions": [
+        "primary navigation visible"
+      ]
+    },
+    {
+      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/3840x2160/materials-navigator.png",
+      "surface": "materials-navigator",
+      "source": "live:/materials@3840x2160",
+      "original_pixels": "288x2002",
+      "source_viewport": "3840x2160",
+      "browser_zoom_percent": 100,
+      "dpr": 1,
+      "density": "standard",
+      "sha256": "c3b54cc5804460408cb679fc68999c854af0dc514a1ff49c561f5a4923afa071",
+      "interactions": [
+        "navigator expanded",
+        "exact tree visible"
+      ]
+    },
+    {
+      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/3840x2160/materials-table.png",
+      "surface": "materials-table",
+      "source": "live:/materials@3840x2160",
+      "original_pixels": "3217x1944",
+      "source_viewport": "3840x2160",
+      "browser_zoom_percent": 100,
+      "dpr": 1,
+      "density": "standard",
+      "sha256": "73e346e87df29d12ba11c70c558d08a38e9b4e92b493a1417a97c4d4471ec2e2",
+      "interactions": [
+        "result table visible",
+        "bounded identity columns"
+      ]
+    },
+    {
+      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/3840x2160/density-control.png",
+      "surface": "density-control",
+      "source": "live:/materials@3840x2160",
+      "original_pixels": "264x197",
+      "source_viewport": "3840x2160",
+      "browser_zoom_percent": 100,
+      "dpr": 1,
+      "density": "standard",
+      "sha256": "3b4464946c41dbefcb2facfe4e2b7ee7d461373e7a4a61f3d181c152465c33f2",
+      "interactions": [
+        "keyboard opened",
+        "Standard selected",
+        "reset visible"
+      ]
+    },
+    {
+      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/3840x2160/modeling-data-graph.png",
+      "surface": "modeling-data-graph",
+      "source": "live:/modeling?stage=data@3840x2160",
+      "original_pixels": "3531x1765",
+      "source_viewport": "3840x2160",
+      "browser_zoom_percent": 100,
+      "dpr": 1,
+      "density": "standard",
+      "sha256": "2588a23a8ffb978f08411d9cfef6439fc52f74e81dffea62845f23585d077ea7",
+      "interactions": [
+        "SVG resized",
+        "axis/legend/labels visible",
+        "hit region retained"
+      ]
+    },
+    {
+      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/3840x2160/administration-form.png",
+      "surface": "administration-form",
+      "source": "live:/administration/database@3840x2160",
+      "original_pixels": "800x1952",
+      "source_viewport": "3840x2160",
+      "browser_zoom_percent": 100,
+      "dpr": 1,
+      "density": "standard",
+      "sha256": "aea103d518d771e6dfd678e2d5247e0b5eaa967895856c4e8d03bc19f559698b",
+      "interactions": [
+        "semantic third pane",
+        "readable form bound",
+        "actions visible"
+      ]
+    },
+    {
+      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/3840x2160/export-native-preview.png",
+      "surface": "export-native-preview",
+      "source": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/after/standard/modeling-export-3840x2160.png",
+      "original_pixels": "3225x1974",
+      "source_viewport": "3840x2160",
+      "browser_zoom_percent": 100,
+      "dpr": 1,
+      "density": "standard",
+      "sha256": "a5b370008797dd86aa75c7f4cbbe9a7eb1bb11b4251fed368ec15f39f5b834f9",
+      "interactions": [
+        "1:1 pixel crop",
+        "shared preview minimum",
+        "native content visible"
+      ]
+    }
+  ]
+}
