@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CAE Material Platform API
   summary: Material data management, immutable traceability, and CAE workflow platform.
-  version: 0.34.0
+  version: 0.35.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -170,6 +170,26 @@ paths:
         "403": {description: Dataset read is not authorized.}
         "404": {description: The exact Test Data revision is not visible.}
         "409": {description: Stored artifact digest evidence is inconsistent.}
+  /api/v1/test-data-documents/{document_id}/revisions/{revision_id}/curve:
+    get:
+      operationId: previewExactCanonicalTestDataCurve
+      tags: [test-data-json]
+      summary: Preview one exact immutable Test Data curve with shared channel metadata.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: document_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: revision_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: maximum_points, in: query, required: false, schema: {type: integer, minimum: 2, maximum: 10000, default: 500}}
+      responses:
+        "200":
+          description: Fully validated same-index sample with exact revision and Artifact evidence.
+          content:
+            application/json:
+              schema: {$ref: "../datasets/canonical-test-data-resources.schema.json#/$defs/CurveResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset read is not authorized.}
+        "404": {description: The exact Test Data revision is not visible.}
+        "409": {description: Immutable Artifact or declared curve metadata is inconsistent.}
   /api/v1/test-data-documents/{document_id}/revisions:
     post:
       operationId: reviseCanonicalTestData
@@ -2247,6 +2267,28 @@ paths:
         "404": {description: No visible Record matches the identifier.}
         "409": {description: Attribute, unit, Folder, artifact or reference conflict.}
         "412": {description: Current head differs from the supplied ETag.}
+  /api/v1/catalog/records/{record_id}/revisions/{record_revision_id}/curve-values/{attribute_definition_id}/preview:
+    get:
+      operationId: previewExactCatalogCurveValue
+      tags: [catalog-records]
+      summary: Preview one curve pointer from an exact immutable Catalog Record revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: record_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: record_revision_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: attribute_definition_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: maximum_points, in: query, required: false, schema: {type: integer, minimum: 2, maximum: 10000, default: 1000}}
+      responses:
+        "200":
+          description: Exact Artifact preview, honest legacy state, and Modeling eligibility.
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-record-resources.schema.json#/$defs/CatalogCurvePreviewResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog or Artifact read is not authorized.}
+        "404": {description: The exact Record revision or curve Attribute is not visible.}
+        "409": {description: The immutable Artifact digest or metadata is inconsistent.}
+        "422": {description: The curve pointer violates the shared curve contract.}
   /api/v1/catalog/records/{record_id}/revisions:compare:
     get:
       operationId: compareCatalogRecordRevisions

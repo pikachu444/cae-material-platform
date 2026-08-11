@@ -102,6 +102,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260924_093_issue158_metal_fit.py",
         "20260925_094_issue160_review_publication.py",
         "20260926_095_issue205_common_units.py",
+        "20260927_096_issue206_curve_metadata.py",
     ]
 
 

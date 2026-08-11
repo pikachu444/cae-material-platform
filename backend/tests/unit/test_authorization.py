@@ -328,13 +328,15 @@ def test_each_role_action_also_grants_its_typed_database_dependencies() -> None:
                 # transaction. They intentionally are not public grants on the reviewer or
                 # CAE_ANALYST roles.
             typed_dependencies.difference_update(
-                {
-                    Permission.CATALOG_READ,
+                    {
+                        Permission.ARTIFACT_READ,
+                        Permission.CATALOG_READ,
                     Permission.CATALOG_WRITE,
                     Permission.DATASET_READ,
                     Permission.EXPORT_READ,
                     Permission.MODELING_READ,
-                    Permission.PROCESSING_READ,
+                        Permission.PROCESSING_READ,
+                        Permission.STATISTICS_READ,
                     Permission.TESTING_READ,
                 }
             )

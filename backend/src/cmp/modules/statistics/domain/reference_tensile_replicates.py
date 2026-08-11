@@ -11,6 +11,23 @@ from uuid import UUID
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from cmp.modules.datasets.domain.curve_metadata import (
+    CURVE_DEFINITION_PARQUET_KEY,
+    CURVE_DEFINITION_SHA256_PARQUET_KEY,
+    AxisRole,
+    BoundDirection,
+    Coverage,
+    CurveChannel,
+    CurveDefinition,
+    CurveDeviation,
+    CurveSeries,
+    DeviationKind,
+    DeviationScope,
+    OriginalUnit,
+    UnitContract,
+    ValueBasis,
+    curve_definition_json_bytes,
+)
 from cmp.modules.datasets.domain.reference_tensile import CurvePoint
 from cmp.modules.statistics.domain.reference_tensile_pair import (
     InvalidStatisticsRequest,
@@ -18,6 +35,7 @@ from cmp.modules.statistics.domain.reference_tensile_pair import (
     QcOutcome,
     StatisticsConflict,
 )
+from cmp.modules.units.domain.system import DimensionId
 
 REFERENCE_TENSILE_REPLICATE_PLAN_KIND = "reference_tensile_replicate_scalar_and_curve"
 REFERENCE_TENSILE_REPLICATE_PLAN_SCHEMA = (
@@ -26,8 +44,14 @@ REFERENCE_TENSILE_REPLICATE_PLAN_SCHEMA = (
 REFERENCE_TENSILE_REPLICATE_RESULT_SCHEMA = (
     "urn:cmp:statistics:reference-tensile-replicate-result:1.0.0"
 )
-REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMA = (
+REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMA_V1 = (
     "urn:cmp:statistics:reference-tensile-replicate-curve-parquet:1.0.0"
+)
+REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMA = (
+    "urn:cmp:statistics:reference-tensile-replicate-curve-parquet:1.1.0"
+)
+REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMAS = frozenset(
+    {REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMA_V1, REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMA}
 )
 REFERENCE_TENSILE_REPLICATE_SCHEMA_VERSION = "1.0.0"
 REFERENCE_TENSILE_REPLICATE_GRID_POLICY = "exact_processed_grid_match_no_alignment"
@@ -122,6 +146,7 @@ class ReferenceTensileReplicatePlanContent:
     selection_id: UUID
     selection_revision_id: UUID
     sample_count: int
+    curve_output_schema_ref: str = REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMA
 
     def __post_init__(self) -> None:
         if (
@@ -141,6 +166,8 @@ class ReferenceTensileReplicatePlanContent:
             <= MAX_REFERENCE_TENSILE_REPLICATES
         ):
             raise InvalidStatisticsRequest("sample_count must be between 2 and 50")
+        if self.curve_output_schema_ref not in REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMAS:
+            raise InvalidStatisticsRequest("replicate curve output schema is not supported")
 
 
 def reference_tensile_replicate_plan_canonical(
@@ -158,7 +185,7 @@ def reference_tensile_replicate_plan_canonical(
         "curve_grid_policy": REFERENCE_TENSILE_REPLICATE_GRID_POLICY,
         "quantile_method": REFERENCE_TENSILE_REPLICATE_QUANTILE_METHOD,
         "confidence_interval_method": REFERENCE_TENSILE_REPLICATE_CI_METHOD,
-        "curve_output_schema_ref": REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMA,
+        "curve_output_schema_ref": value.curve_output_schema_ref,
     }
 
 
@@ -381,13 +408,205 @@ _write_parquet_table = cast(Callable[..., None], pq.write_table)
 _read_parquet_table = cast(Callable[..., pa.Table], pq.read_table)
 
 
+def reference_tensile_replicate_curve_definition() -> CurveDefinition:
+    strain = CurveChannel(
+        key="engineering_strain",
+        label="Engineering strain",
+        quantity_semantics="mechanics.strain.engineering",
+        axis_role=AxisRole.INDEPENDENT,
+        unit_contract=UnitContract.COMMON,
+        dimension=DimensionId.STRAIN,
+        original_units=(OriginalUnit("1", "1"),),
+        normalized_unit="1",
+        display_unit="1",
+        display_scale="1",
+        display_offset="0",
+        value_basis=ValueBasis.DERIVED,
+    )
+    mean = CurveChannel(
+        key="mean_engineering_stress_pa",
+        label="Mean engineering stress",
+        quantity_semantics="mechanics.stress.engineering",
+        axis_role=AxisRole.DEPENDENT,
+        unit_contract=UnitContract.COMMON,
+        dimension=DimensionId.FORCE_PER_AREA,
+        original_units=(OriginalUnit("Pa", "1"),),
+        normalized_unit="Pa",
+        display_unit="MPa",
+        display_scale="0.000001",
+        display_offset="0",
+        value_basis=ValueBasis.DERIVED,
+    )
+    median = CurveChannel(
+        key="median_engineering_stress_pa",
+        label="Median engineering stress",
+        quantity_semantics="mechanics.stress.engineering",
+        axis_role=AxisRole.AUXILIARY,
+        unit_contract=UnitContract.COMMON,
+        dimension=DimensionId.FORCE_PER_AREA,
+        original_units=(OriginalUnit("Pa", "1"),),
+        normalized_unit="Pa",
+        display_unit="MPa",
+        display_scale="0.000001",
+        display_offset="0",
+        value_basis=ValueBasis.DERIVED,
+    )
+    def _deviation(
+        *,
+        key: str,
+        kind: DeviationKind,
+        method_id: str,
+        unit: str,
+        series_key: str,
+        bound_direction: BoundDirection = BoundDirection.NONE,
+        band_group: str | None = None,
+        confidence_level: float | None = None,
+        coverage: Coverage | None = None,
+        ddof: int | None = None,
+    ) -> CurveDeviation:
+        return CurveDeviation(
+            key=key,
+            target_channel_key="mean_engineering_stress_pa",
+            scope=DeviationScope.POINTWISE,
+            kind=kind,
+            method_id=method_id,
+            method_version="1.0.0",
+            unit=unit,
+            bound_direction=bound_direction,
+            band_group=band_group,
+            series_key=series_key,
+            source_count_series_key="sample_count",
+            confidence_level=confidence_level,
+            coverage=coverage,
+            ddof=ddof,
+        )
+    return CurveDefinition(
+        channels=(strain, mean, median),
+        deviations=(
+            _deviation(
+                key="sample_standard_deviation_engineering_stress",
+                kind=DeviationKind.STANDARD_DEVIATION,
+                method_id="sample.standard_deviation",
+                unit="Pa",
+                series_key="sample_standard_deviation_engineering_stress_pa",
+                ddof=1,
+            ),
+            _deviation(
+                key="median_absolute_deviation_engineering_stress",
+                kind=DeviationKind.MEDIAN_ABSOLUTE_DEVIATION,
+                method_id="median_absolute_deviation.unscaled",
+                unit="Pa",
+                series_key="median_absolute_deviation_engineering_stress_pa",
+            ),
+            _deviation(
+                key="interquartile_range_engineering_stress",
+                kind=DeviationKind.INTERQUARTILE_RANGE,
+                method_id="quantile.linear_inclusive.iqr",
+                unit="Pa",
+                series_key="interquartile_range_engineering_stress_pa",
+            ),
+            _deviation(
+                key="coefficient_of_variation",
+                kind=DeviationKind.COEFFICIENT_OF_VARIATION,
+                method_id="sample.standard_deviation_over_mean",
+                unit="1",
+                series_key="coefficient_of_variation",
+                ddof=1,
+            ),
+            _deviation(
+                key="minimum_engineering_stress",
+                kind=DeviationKind.RANGE_BOUND,
+                method_id="observed.minimum_maximum",
+                unit="Pa",
+                bound_direction=BoundDirection.LOWER,
+                band_group="observed_stress_range",
+                series_key="minimum_engineering_stress_pa",
+            ),
+            _deviation(
+                key="maximum_engineering_stress",
+                kind=DeviationKind.RANGE_BOUND,
+                method_id="observed.minimum_maximum",
+                unit="Pa",
+                bound_direction=BoundDirection.UPPER,
+                band_group="observed_stress_range",
+                series_key="maximum_engineering_stress_pa",
+            ),
+            _deviation(
+                key="mean_confidence_interval_lower_95",
+                kind=DeviationKind.CONFIDENCE_BOUND,
+                method_id="student_t.mean_two_sided",
+                unit="Pa",
+                bound_direction=BoundDirection.LOWER,
+                band_group="mean_confidence_interval_95",
+                series_key="mean_confidence_interval_lower_95_pa",
+                confidence_level=0.95,
+                coverage=Coverage.POINTWISE,
+                ddof=1,
+            ),
+            _deviation(
+                key="mean_confidence_interval_upper_95",
+                kind=DeviationKind.CONFIDENCE_BOUND,
+                method_id="student_t.mean_two_sided",
+                unit="Pa",
+                bound_direction=BoundDirection.UPPER,
+                band_group="mean_confidence_interval_95",
+                series_key="mean_confidence_interval_upper_95_pa",
+                confidence_level=0.95,
+                coverage=Coverage.POINTWISE,
+                ddof=1,
+            ),
+        ),
+    )
+
+
+def reference_tensile_replicate_curve_series(
+    values: tuple[ReplicateCurvePoint, ...],
+) -> CurveSeries:
+    return CurveSeries(
+        definition=reference_tensile_replicate_curve_definition(),
+        channels={
+            "engineering_strain": tuple(item.engineering_strain for item in values),
+            "mean_engineering_stress_pa": tuple(item.stress.mean for item in values),
+            "median_engineering_stress_pa": tuple(item.stress.median for item in values),
+        },
+        deviations={
+            "sample_standard_deviation_engineering_stress_pa": tuple(
+                item.stress.sample_standard_deviation for item in values
+            ),
+            "median_absolute_deviation_engineering_stress_pa": tuple(
+                item.stress.median_absolute_deviation for item in values
+            ),
+            "interquartile_range_engineering_stress_pa": tuple(
+                item.stress.interquartile_range for item in values
+            ),
+            "coefficient_of_variation": tuple(
+                item.stress.coefficient_of_variation for item in values
+            ),
+            "minimum_engineering_stress_pa": tuple(item.stress.minimum for item in values),
+            "maximum_engineering_stress_pa": tuple(item.stress.maximum for item in values),
+            "mean_confidence_interval_lower_95_pa": tuple(
+                item.stress.mean_confidence_interval_lower_95 for item in values
+            ),
+            "mean_confidence_interval_upper_95_pa": tuple(
+                item.stress.mean_confidence_interval_upper_95 for item in values
+            ),
+        },
+        source_counts={"sample_count": tuple(item.stress.sample_count for item in values)},
+    )
+
+
 def reference_tensile_replicate_curve_parquet_bytes(
     values: tuple[ReplicateCurvePoint, ...],
+    *,
+    schema_ref: str = REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMA,
 ) -> bytes:
     """Encode the complete pointwise statistics as a typed immutable Artifact."""
 
     if not 2 <= len(values) <= MAX_REFERENCE_TENSILE_REPLICATE_POINTS:
         raise InvalidStatisticsRequest("replicate curve statistics require 2..100000 points")
+    if schema_ref not in REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMAS:
+        raise InvalidStatisticsRequest("replicate curve output schema is not supported")
+    definition = reference_tensile_replicate_curve_definition()
     table = pa.table(
         {
             "engineering_strain": pa.array(
@@ -430,6 +649,14 @@ def reference_tensile_replicate_curve_parquet_bytes(
             ),
         }
     )
+    if schema_ref == REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMA:
+        table = table.replace_schema_metadata(
+            {
+                b"cmp.schema": schema_ref.encode("ascii"),
+                CURVE_DEFINITION_PARQUET_KEY: curve_definition_json_bytes(definition),
+                CURVE_DEFINITION_SHA256_PARQUET_KEY: definition.sha256.encode("ascii"),
+            }
+        )
     sink = pa.BufferOutputStream()
     _write_parquet_table(
         table,

@@ -85,6 +85,57 @@ const revision = {
   lifecycle_state: "draft",
 };
 
+const ensembleCurveDefinition = {
+  definition_version: "1.0.0",
+  channels: [{
+    key: "strain.engineering",
+    label: "Engineering strain",
+    quantity_semantics: "strain.engineering",
+    axis_role: "independent",
+    unit_contract: "common",
+    dimension: "strain",
+    original_units: [{ unit: "1", scale_to_normalized: "1", offset_to_normalized: "0" }],
+    normalized_unit: "1",
+    display_unit: "1",
+    display_scale: "1",
+    display_offset: "0",
+    value_basis: "normalized",
+  }, {
+    key: "stress.engineering",
+    label: "Engineering stress",
+    quantity_semantics: "stress.engineering",
+    axis_role: "dependent",
+    unit_contract: "common",
+    dimension: "force_per_area",
+    original_units: [{ unit: "MPa", scale_to_normalized: "1000000", offset_to_normalized: "0" }],
+    normalized_unit: "Pa",
+    display_unit: "MPa",
+    display_scale: "0.000001",
+    display_offset: "0",
+    value_basis: "normalized",
+  }],
+  deviations: (["lower", "upper"] as const).map((direction) => ({
+    key: `stress.engineering.mean_ci_95_${direction}`,
+    target_channel_key: "stress.engineering",
+    scope: "pointwise",
+    kind: "confidence_bound",
+    method_id: "normal_approximation.mean_two_sided",
+    method_version: "1.0.0",
+    unit: "Pa",
+    bound_direction: direction,
+    band_group: "stress.engineering.mean_ci_95",
+    scalar_value: null,
+    series_key: `stress.engineering.mean_ci_95_${direction}.values`,
+    source_count: 2,
+    source_count_series_key: null,
+    confidence_level: 0.95,
+    coverage: "pointwise",
+    ddof: 1,
+    quantile_probability: null,
+    quantile_method: null,
+  })),
+};
+
 describe("manual Young's modulus unit conversion", () => {
   it("stores GPa input in canonical Pa", () => {
     expect(manualModulusPascals(205, "GPa")).toBe(205_000_000_000);
@@ -1266,6 +1317,30 @@ describe("Common Processing Workbench", () => {
               q3: [0, 2.15e8, 3.15e8],
               confidence_95_lower: [0, 1.904e8, 2.904e8],
               confidence_95_upper: [0, 2.296e8, 3.296e8],
+              metadata_state: "declared",
+              curve_definition_sha256: "9".repeat(64),
+              curve_definition: ensembleCurveDefinition,
+              curve_series: {
+                point_count: 3,
+                returned_point_count: 3,
+                sampled: false,
+                indices: [0, 1, 2],
+                channels: [
+                  { key: "strain.engineering", values: [0, 0.001, 0.002] },
+                  { key: "stress.engineering", values: [0, 2.1e8, 3.1e8] },
+                ],
+                deviations: [
+                  {
+                    key: "stress.engineering.mean_ci_95_lower.values",
+                    values: [0, 1.904e8, 2.904e8],
+                  },
+                  {
+                    key: "stress.engineering.mean_ci_95_upper.values",
+                    values: [0, 2.296e8, 3.296e8],
+                  },
+                ],
+                source_counts: [],
+              },
             },
           ],
           diagnostics: ["2 member curves retained", "sample standard deviation uses n - 1"],
@@ -1752,7 +1827,11 @@ describe("Common Processing Workbench", () => {
     expect(Number(neckingSteps[4].options.manual_necking_index)).toBeGreaterThanOrEqual(1);
 
     fireEvent.click(screen.getByRole("button", { name: "Align and calculate" }));
-    expect(await screen.findByRole("img", { name: "Aligned replicate curves with pointwise mean and confidence interval" })).toBeTruthy();
+    expect(await screen.findByRole("img", { name: "Aligned replicate curves with declared pointwise statistics" })).toBeTruthy();
+    expect(document.querySelector("polygon.ensemble-confidence-band")).toBeTruthy();
+    expect(screen.getAllByText("95% · pointwise · confidence interval · normal_approximation.mean_two_sided v1.0.0 · ddof 1").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Engineering stress").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("MPa").length).toBeGreaterThan(0);
     expect(screen.getByText("Members (2)")).toBeTruthy();
     expect(screen.getByText("sample standard deviation uses n - 1")).toBeTruthy();
     const ensembleRequest = fetchMock.mock.calls.find(([input]) => String(input).endsWith("/processing:preview-ensemble"));
@@ -1772,7 +1851,7 @@ describe("Common Processing Workbench", () => {
     expect(screen.queryByText("Calculation notes")).toBeNull();
     expect(screen.queryByText("Exact Neutral and solver delivery fixture")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Back to Fit" }));
-    expect(screen.queryByRole("img", { name: "Aligned replicate curves with pointwise mean and confidence interval" })).toBeNull();
+    expect(screen.queryByRole("img", { name: "Aligned replicate curves with declared pointwise statistics" })).toBeNull();
     onSessionChange.mockClear();
     view.rerender(
       <CommonProcessingWorkbench

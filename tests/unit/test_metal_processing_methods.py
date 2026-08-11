@@ -23,6 +23,7 @@ from cmp.modules.datasets.domain.canonical_test_data import (
 from cmp.modules.datasets.domain.canonical_test_data import (
     TestSpecimenMetadata as SpecimenMetadata,
 )
+from cmp.modules.datasets.domain.curve_metadata import AxisRole
 from cmp.modules.processing.domain.common_pipeline import (
     COMMON_METHOD_VERSION,
     ChannelBinding,
@@ -30,7 +31,9 @@ from cmp.modules.processing.domain.common_pipeline import (
     MappingProfileContent,
     MissingDataPolicy,
     ProcessingStep,
+    curve_stage_series,
     preview_pipeline,
+    processing_preview_canonical,
 )
 from cmp.modules.processing.domain.metal_hardening import HARDENING_EQUATION_CONTRACT
 
@@ -306,7 +309,8 @@ def test_processed_true_plastic_curve_feeds_bounded_hardening_candidates() -> No
         },
     )
 
-    stage = preview_pipeline(_document(), _profile(), (conversion, hardening)).stages[-1]
+    preview = preview_pipeline(_document(), _profile(), (conversion, hardening))
+    stage = preview.stages[-1]
     series = {item.quantity: item.values for item in stage.series}
     assert stage.point_count == 101
     assert series["strain.true_plastic"][-1] == 0.5
@@ -321,3 +325,32 @@ def test_processed_true_plastic_curve_feeds_bounded_hardening_candidates() -> No
     )
     assert any(item.key == "voce.relative_rmse" for item in stage.scalar_results)
     assert any("extrapolated domain" in item for item in stage.diagnostics)
+    assert stage.independent_quantity == "strain.true_plastic"
+    definition = curve_stage_series(stage, preview.independent_quantity).definition
+    assert [
+        channel.key
+        for channel in definition.channels
+        if channel.axis_role is AxisRole.INDEPENDENT
+    ] == ["strain.true_plastic"]
+    assert {
+        channel.label
+        for channel in definition.channels
+        if channel.quantity_semantics.startswith("stress.hardening.")
+    } == {"Hardening stress"}
+    hardening_channels = [
+        channel
+        for channel in definition.channels
+        if channel.quantity_semantics.startswith("stress.hardening.")
+    ]
+    assert {channel.unit_contract.value for channel in hardening_channels} == {
+        "explicit_legacy"
+    }
+    assert {channel.normalized_unit for channel in hardening_channels} == {"Pa"}
+    assert {channel.display_unit for channel in hardening_channels} == {"MPa"}
+    assert {channel.display_scale for channel in hardening_channels} == {"0.000001"}
+    canonical = processing_preview_canonical(preview)
+    stages = canonical["stages"]
+    assert isinstance(stages, list)
+    final_stage = stages[-1]
+    assert isinstance(final_stage, dict)
+    assert final_stage["curve_definition_sha256"] == definition.sha256

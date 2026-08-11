@@ -21,6 +21,7 @@ ProcessingContractExecutionIdentity: Any = vars(_VERIFY_FULL_DEMO)[
 ]
 ProcessingLineageError = _VERIFY_FULL_DEMO.ProcessingLineageError
 resolve_processing_projection_lineage = _VERIFY_FULL_DEMO.resolve_processing_projection_lineage
+model_and_pending_review = _VERIFY_FULL_DEMO._model_and_pending_review
 
 RECIPE_SHA256 = "a" * 64
 OUTPUT_SHA256 = "b" * 64
@@ -125,7 +126,10 @@ def test_processing_lineage_resolves_fresh_current_execution() -> None:
         "output_sha256": OUTPUT_SHA256,
     }
     resolution = resolve_processing_projection_lineage(
-        projection, batches, outputs, ProcessingContractExecutionIdentity(
+        projection,
+        batches,
+        outputs,
+        ProcessingContractExecutionIdentity(
             recipe_id="recipe",
             recipe_revision_id="recipe-current-r1",
             recipe_sha256=RECIPE_SHA256,
@@ -136,7 +140,7 @@ def test_processing_lineage_resolves_fresh_current_execution() -> None:
             output_id="output-current",
             output_revision_id="output-current-r1",
             output_sha256=OUTPUT_SHA256,
-        )
+        ),
     )
     assert resolution.is_current_contract_execution
     assert not resolution.is_immutable_predecessor
@@ -188,3 +192,58 @@ def test_processing_lineage_rejects_false_predecessor_relabeling() -> None:
                 output_revision_id="output-current-r1",
             ),
         )
+
+
+def test_pending_review_selects_exact_model_from_immutable_history() -> None:
+    models = [
+        {
+            "material_model_id": "older-model",
+            "current_revision": {
+                "id": "older-r1",
+                "content_hash": "a" * 64,
+                "content": {"processing_projection": {"output_id": "old"}},
+            },
+        },
+        {
+            "material_model_id": "selected-model",
+            "current_revision": {
+                "id": "selected-r1",
+                "content_hash": "b" * 64,
+                "content": {"processing_projection": {"output_id": "selected"}},
+            },
+        },
+    ]
+    requests = [
+        {
+            "aggregate_type": "modeling.material_model",
+            "aggregate_id": "selected-model",
+            "revision_id": "selected-r1",
+            "manifest_sha256": "b" * 64,
+            "lifecycle_state": "review",
+            "decision": None,
+        }
+    ]
+
+    selected, review = model_and_pending_review(models, requests, label="metal selected model")
+
+    assert selected["material_model_id"] == "selected-model"
+    assert review["revision_id"] == "selected-r1"
+
+
+def test_pending_review_selection_rejects_missing_or_ambiguous_identity() -> None:
+    model = {
+        "material_model_id": "selected-model",
+        "current_revision": {"id": "selected-r1", "content_hash": "b" * 64},
+    }
+    request = {
+        "aggregate_type": "modeling.material_model",
+        "aggregate_id": "selected-model",
+        "revision_id": "selected-r1",
+        "manifest_sha256": "b" * 64,
+        "lifecycle_state": "review",
+        "decision": None,
+    }
+    with pytest.raises(RuntimeError, match="exactly one exact pending"):
+        model_and_pending_review([model], [], label="metal selected model")
+    with pytest.raises(RuntimeError, match="exactly one exact pending"):
+        model_and_pending_review([model], [request, request], label="metal selected model")

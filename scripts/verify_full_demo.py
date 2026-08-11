@@ -178,9 +178,7 @@ def _current_identity(
         recipe_revision_id=optional_text(
             ("recipe_revision_id", "processing_recipe_revision_id"), recipe
         ),
-        recipe_sha256=optional_digest(
-            ("recipe_sha256", "processing_recipe_sha256"), recipe
-        ),
+        recipe_sha256=optional_digest(("recipe_sha256", "processing_recipe_sha256"), recipe),
         batch_id=optional_text(("batch_id", "processing_batch_id"), batch),
         batch_member_id=optional_text(("batch_member_id", "processing_batch_member_id"), batch),
         batch_attempt_id=optional_text(
@@ -191,9 +189,7 @@ def _current_identity(
         output_revision_id=optional_text(
             ("output_revision_id", "processing_output_revision_id"), output
         ),
-        output_sha256=optional_digest(
-            ("output_sha256", "processing_output_sha256"), output
-        ),
+        output_sha256=optional_digest(("output_sha256", "processing_output_sha256"), output),
     )
 
 
@@ -225,9 +221,7 @@ def resolve_processing_projection_lineage(
     recipe_sha256 = _normalise_sha256(
         processing_recipe.get("sha256"), field="processing recipe sha256"
     )
-    batch_id = _required_text(
-        recipe_batch.get("processing_batch_id"), field="processing batch id"
-    )
+    batch_id = _required_text(recipe_batch.get("processing_batch_id"), field="processing batch id")
     batch_member_id = _required_text(
         recipe_batch.get("batch_member_id"), field="processing batch member id"
     )
@@ -417,35 +411,34 @@ def _content(value: Mapping[str, Any]) -> Mapping[str, Any]:
     return content if isinstance(content, Mapping) else {}
 
 
-def _pending_model_review(
-    client: httpx.Client, *, model: Mapping[str, Any], label: str
-) -> Mapping[str, Any]:
-    model_id = str(model["material_model_id"])
-    revision = model.get("current_revision")
-    if not isinstance(revision, Mapping):
-        raise RuntimeError(f"{label} has no exact current model revision")
-    revision_id = str(revision["id"])
-    requests = _items(
-        _json(
-            client.get(
-                "/review-requests?aggregate_type=modeling.material_model"
-                f"&aggregate_id={model_id}&revision_id={revision_id}"
-            )
-        )
-    )
-    if len(requests) != 1:
-        raise RuntimeError(f"{label} does not have exactly one pending review request")
-    request = requests[0]
-    if (
-        request.get("aggregate_type") != "modeling.material_model"
-        or request.get("aggregate_id") != model_id
-        or request.get("revision_id") != revision_id
-        or request.get("manifest_sha256") != revision.get("content_hash")
-        or request.get("lifecycle_state") != "review"
-        or request.get("decision") is not None
-    ):
-        raise RuntimeError(f"{label} review request is not pending for the exact model revision")
-    return request
+def _model_and_pending_review(
+    models: Sequence[Mapping[str, Any]],
+    requests: Sequence[Mapping[str, Any]],
+    *,
+    label: str,
+) -> tuple[Mapping[str, Any], Mapping[str, Any]]:
+    """Join one pending request to its exact immutable model revision and digest."""
+
+    matches: list[tuple[Mapping[str, Any], Mapping[str, Any]]] = []
+    for model in models:
+        model_id = str(model.get("material_model_id"))
+        revision = model.get("current_revision")
+        if not isinstance(revision, Mapping):
+            continue
+        revision_id = str(revision.get("id"))
+        for request in requests:
+            if (
+                request.get("aggregate_type") == "modeling.material_model"
+                and request.get("aggregate_id") == model_id
+                and request.get("revision_id") == revision_id
+                and request.get("manifest_sha256") == revision.get("content_hash")
+                and request.get("lifecycle_state") == "review"
+                and request.get("decision") is None
+            ):
+                matches.append((model, request))
+    if len(matches) != 1:
+        raise RuntimeError(f"{label} does not have exactly one exact pending review request")
+    return matches[0]
 
 
 def verify_full_demo(base_url: str) -> dict[str, object]:
@@ -477,8 +470,7 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             state_content = _content(states[0])
             route = state_content.get("manufacturing_route")
             if material_code == "CMP-DEMO-DP780" and (
-                route != EXPECTED_SYNTHETIC_STATE_ROUTE
-                or route == FORBIDDEN_SYNTHETIC_STATE_ROUTE
+                route != EXPECTED_SYNTHETIC_STATE_ROUTE or route == FORBIDDEN_SYNTHETIC_STATE_ROUTE
             ):
                 raise RuntimeError(
                     f"{material_code} has an invalid synthetic State preparation label"
@@ -1079,12 +1071,15 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
                 for value in _content(projected_record).get("values", [])
                 if isinstance(value, Mapping)
             }
-            if not {
-                "material_class",
-                "provider",
-                "evidence_source",
-                "condition_summary",
-            } <= value_keys:
+            if (
+                not {
+                    "material_class",
+                    "provider",
+                    "evidence_source",
+                    "condition_summary",
+                }
+                <= value_keys
+            ):
                 raise RuntimeError(f"clean demo {expected_code} projection lacks evidence fields")
         workflow = _json(
             client.get(
@@ -1100,12 +1095,15 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             for item in workflow_nodes
             if isinstance(item, Mapping)
         }
-        if not {
-            "test_data",
-            "processing_output",
-            "material_model",
-            "neutral_material",
-        } <= workflow_kinds:
+        if (
+            not {
+                "test_data",
+                "processing_output",
+                "material_model",
+                "neutral_material",
+            }
+            <= workflow_kinds
+        ):
             raise RuntimeError("clean demo Workflow Explorer omits linked curve/model evidence")
         neutral_record = next(
             (
@@ -1269,16 +1267,18 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
         metal_models = _items(
             _json(client.get(f"/material-states/{metal_state_id}/tabulated-plasticity-models"))
         )
-        metal_model = next(
-            item
-            for item in metal_models
-            if isinstance(_content(item).get("processing_projection"), Mapping)
+        metal_review_requests = _items(
+            _json(client.get("/review-requests?aggregate_type=modeling.material_model&limit=200"))
         )
+        metal_model, metal_review = _model_and_pending_review(
+            metal_models,
+            metal_review_requests,
+            label="metal selected model",
+        )
+        if not isinstance(_content(metal_model).get("processing_projection"), Mapping):
+            raise RuntimeError("metal selected model has no Processing projection")
         metal_projection = _content(metal_model)["processing_projection"]
         assert isinstance(metal_projection, Mapping)
-        metal_review = _pending_model_review(
-            client, model=metal_model, label="metal selected model"
-        )
         if not isinstance(metal_output_revision, Mapping):
             raise RuntimeError("clean demo canonical Processing Output has no current revision")
         metal_output_sha256 = metal_output.get("output_sha256")
@@ -1349,56 +1349,70 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
                 )
 
         candidates = _items(_json(client.get(f"/bulk-export-candidates?material_id={metal_id}")))
-        neutral_source = next(
-            candidate["source"]
-            for candidate in candidates
-            if candidate.get("source", {}).get("kind") == "neutral_material_json"
-        )
-        neutral_id = str(neutral_source["neutral_material_id"])
-        neutral = _json(client.get(f"/neutral-materials/{neutral_id}"))
-        if neutral["document"]["material_model_ir"]["model_family"] != (
-            "isotropic_tabulated_plasticity"
-        ):
-            raise RuntimeError("clean demo selected Neutral JSON is not the metal family")
-        neutral_recipe = neutral["document"]["sources"]["processing_recipe"]
-        neutral_selection = neutral["document"].get("candidate_selection")
-        neutral_output = (
-            neutral_selection.get("processing_output")
-            if isinstance(neutral_selection, Mapping)
-            else None
-        )
-        neutral_output_sha256 = (
-            neutral_selection.get("processing_output_sha256")
-            if isinstance(neutral_selection, Mapping)
-            else None
-        )
-        if (
-            not isinstance(neutral_recipe, Mapping)
-            or neutral_recipe.get("status") != "exact_revision"
-            or neutral_recipe.get("reference", {}).get("id") != metal_lineage.recipe_id
-            or neutral_recipe.get("reference", {}).get("revision_id")
-            != metal_lineage.recipe_revision_id
-            or not isinstance(neutral_output, Mapping)
-            or neutral_output.get("id") != metal_lineage.output_id
-            or neutral_output.get("revision_id") != metal_lineage.output_revision_id
-            or not isinstance(neutral_output_sha256, str)
-            or _normalise_sha256(
-                neutral_output_sha256, field="neutral processing output sha256"
+        metal_neutral: Mapping[str, Any] | None = None
+        metal_neutral_id: str | None = None
+        for candidate in candidates:
+            source = candidate.get("source")
+            if not isinstance(source, Mapping) or source.get("kind") != "neutral_material_json":
+                continue
+            candidate_id = source.get("neutral_material_id")
+            if not isinstance(candidate_id, str):
+                continue
+            candidate_neutral = _json(client.get(f"/neutral-materials/{candidate_id}"))
+            metal_document = candidate_neutral.get("document")
+            if not isinstance(metal_document, Mapping):
+                continue
+            material_model_ir = metal_document.get("material_model_ir")
+            sources = metal_document.get("sources")
+            neutral_recipe = (
+                sources.get("processing_recipe") if isinstance(sources, Mapping) else None
             )
-            != metal_lineage.output_sha256
-        ):
+            neutral_selection = metal_document.get("candidate_selection")
+            neutral_output = (
+                neutral_selection.get("processing_output")
+                if isinstance(neutral_selection, Mapping)
+                else None
+            )
+            neutral_output_sha256 = (
+                neutral_selection.get("processing_output_sha256")
+                if isinstance(neutral_selection, Mapping)
+                else None
+            )
+            if (
+                isinstance(material_model_ir, Mapping)
+                and material_model_ir.get("model_family") == "isotropic_tabulated_plasticity"
+                and isinstance(neutral_recipe, Mapping)
+                and neutral_recipe.get("status") == "exact_revision"
+                and neutral_recipe.get("reference", {}).get("id") == metal_lineage.recipe_id
+                and neutral_recipe.get("reference", {}).get("revision_id")
+                == metal_lineage.recipe_revision_id
+                and isinstance(neutral_output, Mapping)
+                and neutral_output.get("id") == metal_lineage.output_id
+                and neutral_output.get("revision_id") == metal_lineage.output_revision_id
+                and isinstance(neutral_output_sha256, str)
+                and _normalise_sha256(
+                    neutral_output_sha256, field="neutral processing output sha256"
+                )
+                == metal_lineage.output_sha256
+            ):
+                metal_neutral = candidate_neutral
+                metal_neutral_id = candidate_id
+                break
+        if metal_neutral is None or metal_neutral_id is None:
             raise RuntimeError(
                 "metal Neutral JSON does not pin the exact resolved Processing Recipe/Output"
             )
-        neutral_download = client.get(f"/neutral-materials/{neutral_id}/download")
+        neutral_download = client.get(f"/neutral-materials/{metal_neutral_id}/download")
         neutral_download.raise_for_status()
         if (
             hashlib.sha256(neutral_download.content).hexdigest()
-            != neutral["document_artifact"]["sha256"]
+            != metal_neutral["document_artifact"]["sha256"]
         ):
             raise RuntimeError("downloaded Neutral JSON digest does not match its Artifact")
 
-        neutral_cards = _items(_json(client.get(f"/neutral-materials/{neutral_id}/solver-cards")))
+        neutral_cards = _items(
+            _json(client.get(f"/neutral-materials/{metal_neutral_id}/solver-cards"))
+        )
         neutral_solvers = {
             str(card.get("target", {}).get("solver")): card for card in neutral_cards
         }
@@ -1476,7 +1490,7 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             "processing_batch_attempt_id": batch_attempt["attempt_id"],
             "metal_model_schema_version": _content(metal_model)["model_schema_version"],
             "review_request_id": metal_review["review_request_id"],
-            "neutral_material_id": neutral_id,
+            "neutral_material_id": metal_neutral_id,
             "neutral_solver_card_sha256": native_downloads,
             "bulk_bundle_id": bundle_id,
             "bulk_bundle_sha256": archive_digest,

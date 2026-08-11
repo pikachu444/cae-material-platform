@@ -17,11 +17,20 @@ from cmp.modules.datasets.application.service import (
 from cmp.modules.datasets.application.service import (
     RevisionSnapshot as DatasetRevisionSnapshot,
 )
+from cmp.modules.datasets.domain.curve_metadata import (
+    ArtifactPin,
+    CurveMetadata,
+    CurveSeries,
+    MetadataState,
+    RevisionPin,
+)
 from cmp.modules.datasets.domain.reference_tensile import (
+    REFERENCE_TENSILE_PARQUET_SCHEMA,
     CurvePoint,
     DatasetContent,
     DatasetRepresentation,
     ReferenceTensileMapping,
+    reference_tensile_curve_definition,
 )
 from cmp.modules.identity_access.application.authorization import database_permissions_for
 from cmp.modules.identity_access.domain.authorization import (
@@ -498,16 +507,42 @@ class _DatasetService:
         assert decision is DATASET_READ
         assert dataset_revision_id == DATASET_NORMALIZED_REVISION
         assert maximum_points == 2
+        definition = reference_tensile_curve_definition(
+            self.dataset.current.content.mapping
+        )
+        series_preview = CurveSeries(
+            definition=definition,
+            channels={
+                "engineering_strain": (0.0, 0.01, 0.02),
+                "engineering_stress": (0.0, 100_000_000.0, 125_000_000.0),
+            },
+            deviations={},
+            source_counts={},
+        ).preview(maximum_points)
         return CurvePreview(
-            DATASET,
-            DATASET_NORMALIZED_REVISION,
-            DatasetRepresentation.NORMALIZED,
-            3,
-            2,
-            True,
-            "1",
-            "Pa",
-            (CurvePoint(0.0, 0.0), CurvePoint(0.02, 125_000_000.0)),
+            dataset_id=DATASET,
+            dataset_revision_id=DATASET_NORMALIZED_REVISION,
+            representation=DatasetRepresentation.NORMALIZED,
+            point_count=3,
+            returned_point_count=2,
+            sampled=True,
+            strain_unit="1",
+            stress_unit="Pa",
+            points=(CurvePoint(0.0, 0.0), CurvePoint(0.02, 125_000_000.0)),
+            curve_metadata=CurveMetadata(
+                state=MetadataState.DECLARED,
+                owning_revision=RevisionPin(
+                    "dataset", DATASET, DATASET_NORMALIZED_REVISION
+                ),
+                artifact=ArtifactPin(
+                    NORMALIZED_ARTIFACT,
+                    "b" * 64,
+                    REFERENCE_TENSILE_PARQUET_SCHEMA,
+                    "application/vnd.apache.parquet",
+                ),
+                definition=definition,
+            ),
+            curve_series=series_preview,
         )
 
 

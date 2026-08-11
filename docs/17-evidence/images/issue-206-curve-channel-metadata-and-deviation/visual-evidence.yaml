@@ -1,0 +1,567 @@
+issue: 206
+captured_at: '2026-08-11T20:41:21.791684+00:00'
+source_commit: e9b523a7f7b613d8d6efc0396160f0ceb2aff2c4
+base_commit: 93ff2ba32a988a20cd910dbb3f2b29d728a20a40
+branch: agent/issue-206-curve-metadata-deviation
+base_url: http://127.0.0.1:5173
+synthetic_non_production_only: true
+current_capture_command: uv run --with playwright==1.62.0 python scripts/capture_current_product.py
+  --only-materials; --only-modeling-data-session; --only-modeling-process-fit-viewports
+issue_capture_command: uv run --with playwright==1.62.0 --with pillow python scripts/capture_issue206_visual_evidence.py
+viewports:
+- 1366x768
+- 1440x900
+- 1920x1080
+- 2560x1440
+- 3840x2160
+special_state_provenance:
+  browser: Chromium 151.0.7922.34
+  css_viewport: 1440x900
+  device_pixel_ratio: 1
+  browser_zoom: 100%
+  states:
+  - file: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/states/material-statistics-keyboard-tooltip-1440x900.png
+    route: http://127.0.0.1:5173/materials/20c1a71b-79e9-4fa3-9417-b2f09653dd4e/curves?record_id=3508c64c-e1fa-44ff-bdab-610bad02021f&record_revision_id=1df1273f-534f-4e62-a3f1-c0fabb787974&material_revision_id=748210e9-147e-4e6b-a750-a18c5ecb3541
+    fixture: live synthetic declared replicate Statistical Result
+    interaction: band toggle off/on; SVG focus; Home; Escape
+  - file: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/states/material-statistics-evidence-1440x900.png
+    route: http://127.0.0.1:5173/materials/20c1a71b-79e9-4fa3-9417-b2f09653dd4e/curves?record_id=3508c64c-e1fa-44ff-bdab-610bad02021f&record_revision_id=1df1273f-534f-4e62-a3f1-c0fabb787974&material_revision_id=748210e9-147e-4e6b-a750-a18c5ecb3541
+    fixture: live exact Artifact/revision/calculation provenance
+    interaction: Evidence summary click
+  - file: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/states/material-legacy-metadata-absent-1440x900.png
+    route: http://127.0.0.1:5173/materials/20c1a71b-79e9-4fa3-9417-b2f09653dd4e/curves?record_id=3508c64c-e1fa-44ff-bdab-610bad02021f&record_revision_id=1df1273f-534f-4e62-a3f1-c0fabb787974&material_revision_id=748210e9-147e-4e6b-a750-a18c5ecb3541
+    fixture: synthetic frontend response adapter over a live exact curve preview
+    interaction: metadata_state=absent; definition/series removed
+    note: Backend unknown-legacy behavior is separately verified against real Artifact
+      bytes; this route adapter isolates the visible recovery state.
+before:
+  source: accepted current-guide PNG blobs from exact origin/main base
+  materials_note: origin/main had no Materials curve-chart capture; its exact Material
+    detail originals are retained as the visible baseline and no missing chart is
+    fabricated
+allowed_duplicate_groups:
+- rationale: 'Issue #206 preserves this byte-identical accepted source/current image
+    as an explicit before or after original; the separate path records lifecycle and
+    capture provenance without altering pixels.'
+  images:
+  - docs/17-evidence/images/issue-184-high-dpi-global-implementation/after/standard/modeling-data-1920x1080.png
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/before/originals/modeling-data-1920x1080.png
+- rationale: 'Issue #206 preserves this byte-identical accepted source/current image
+    as an explicit before or after original; the separate path records lifecycle and
+    capture provenance without altering pixels.'
+  images:
+  - docs/17-evidence/images/issue-184-high-dpi-global-implementation/after/standard/modeling-data-2560x1440.png
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/before/originals/modeling-data-2560x1440.png
+- rationale: 'Issue #206 preserves this byte-identical accepted source/current image
+    as an explicit before or after original; the separate path records lifecycle and
+    capture provenance without altering pixels.'
+  images:
+  - docs/17-evidence/images/issue-184-high-dpi-global-implementation/after/standard/modeling-data-3840x2160.png
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/before/originals/modeling-data-3840x2160.png
+- rationale: 'Issue #206 preserves this byte-identical accepted source/current image
+    as an explicit before or after original; the separate path records lifecycle and
+    capture provenance without altering pixels.'
+  images:
+  - docs/17-evidence/images/issue-184-high-dpi-global-implementation/after/standard/modeling-fit-1366x768.png
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-fit-1366x768.png
+  - docs/user-guide/images/current/modeling-fit-1366x768.png
+- rationale: 'Issue #206 preserves this byte-identical accepted source/current image
+    as an explicit before or after original; the separate path records lifecycle and
+    capture provenance without altering pixels.'
+  images:
+  - docs/17-evidence/images/issue-184-high-dpi-global-implementation/after/standard/modeling-fit-1440x900.png
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-fit-1440x900.png
+  - docs/user-guide/images/current/modeling-fit-1440x900.png
+- rationale: 'Issue #206 preserves this byte-identical accepted source/current image
+    as an explicit before or after original; the separate path records lifecycle and
+    capture provenance without altering pixels.'
+  images:
+  - docs/17-evidence/images/issue-184-high-dpi-global-implementation/after/standard/modeling-fit-1920x1080.png
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-fit-1920x1080.png
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/before/originals/modeling-fit-1920x1080.png
+  - docs/user-guide/images/current/modeling-fit-1920x1080.png
+- rationale: 'Issue #206 preserves this byte-identical accepted source/current image
+    as an explicit before or after original; the separate path records lifecycle and
+    capture provenance without altering pixels.'
+  images:
+  - docs/17-evidence/images/issue-184-high-dpi-global-implementation/after/standard/modeling-fit-2560x1440.png
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/before/originals/modeling-fit-2560x1440.png
+- rationale: 'Issue #206 preserves this byte-identical accepted source/current image
+    as an explicit before or after original; the separate path records lifecycle and
+    capture provenance without altering pixels.'
+  images:
+  - docs/17-evidence/images/issue-184-high-dpi-global-implementation/after/standard/modeling-fit-3840x2160.png
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-fit-3840x2160.png
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/before/originals/modeling-fit-3840x2160.png
+  - docs/user-guide/images/current/modeling-fit-3840x2160.png
+- rationale: 'Issue #206 preserves this byte-identical accepted source/current image
+    as an explicit before or after original; the separate path records lifecycle and
+    capture provenance without altering pixels.'
+  images:
+  - docs/17-evidence/images/issue-184-high-dpi-global-implementation/after/standard/modeling-process-1920x1080.png
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/before/originals/modeling-process-1920x1080.png
+- rationale: 'Issue #206 preserves this byte-identical accepted source/current image
+    as an explicit before or after original; the separate path records lifecycle and
+    capture provenance without altering pixels.'
+  images:
+  - docs/17-evidence/images/issue-184-high-dpi-global-implementation/after/standard/modeling-process-2560x1440.png
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/before/originals/modeling-process-2560x1440.png
+- rationale: 'Issue #206 preserves this byte-identical accepted source/current image
+    as an explicit before or after original; the separate path records lifecycle and
+    capture provenance without altering pixels.'
+  images:
+  - docs/17-evidence/images/issue-184-high-dpi-global-implementation/after/standard/modeling-process-3840x2160.png
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/before/originals/modeling-process-3840x2160.png
+- rationale: 'Issue #206 preserves this byte-identical accepted source/current image
+    as an explicit before or after original; the separate path records lifecycle and
+    capture provenance without altering pixels.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/material-curves-1366x768.png
+  - docs/user-guide/images/current/material-curves-1366x768.png
+- rationale: 'Issue #206 preserves this byte-identical accepted source/current image
+    as an explicit before or after original; the separate path records lifecycle and
+    capture provenance without altering pixels.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/material-curves-1440x900.png
+  - docs/user-guide/images/current/material-curves-1440x900.png
+- rationale: 'Issue #206 preserves this byte-identical accepted source/current image
+    as an explicit before or after original; the separate path records lifecycle and
+    capture provenance without altering pixels.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/material-curves-1920x1080.png
+  - docs/user-guide/images/current/material-curves-1920x1080.png
+- rationale: 'Issue #206 preserves this byte-identical accepted source/current image
+    as an explicit before or after original; the separate path records lifecycle and
+    capture provenance without altering pixels.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/material-curves-2560x1440.png
+  - docs/user-guide/images/current/material-curves-2560x1440.png
+- rationale: 'Issue #206 preserves this byte-identical accepted source/current image
+    as an explicit before or after original; the separate path records lifecycle and
+    capture provenance without altering pixels.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/material-curves-3840x2160.png
+  - docs/user-guide/images/current/material-curves-3840x2160.png
+- rationale: 'Issue #206 preserves this byte-identical accepted source/current image
+    as an explicit before or after original; the separate path records lifecycle and
+    capture provenance without altering pixels.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-data-1366x768.png
+  - docs/user-guide/images/current/modeling-data-1366x768.png
+- rationale: 'Issue #206 preserves this byte-identical accepted source/current image
+    as an explicit before or after original; the separate path records lifecycle and
+    capture provenance without altering pixels.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-data-1440x900.png
+  - docs/user-guide/images/current/modeling-data-1440x900.png
+- rationale: 'Issue #206 preserves this byte-identical accepted source/current image
+    as an explicit before or after original; the separate path records lifecycle and
+    capture provenance without altering pixels.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-data-1920x1080.png
+  - docs/user-guide/images/current/modeling-data-1920x1080.png
+- rationale: 'Issue #206 preserves this byte-identical accepted source/current image
+    as an explicit before or after original; the separate path records lifecycle and
+    capture provenance without altering pixels.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-data-2560x1440.png
+  - docs/user-guide/images/current/modeling-data-2560x1440.png
+- rationale: 'Issue #206 preserves this byte-identical accepted source/current image
+    as an explicit before or after original; the separate path records lifecycle and
+    capture provenance without altering pixels.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-data-3840x2160.png
+  - docs/user-guide/images/current/modeling-data-3840x2160.png
+- rationale: 'Issue #206 preserves this byte-identical accepted source/current image
+    as an explicit before or after original; the separate path records lifecycle and
+    capture provenance without altering pixels.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-fit-2560x1440.png
+  - docs/user-guide/images/current/modeling-fit-2560x1440.png
+- rationale: 'Issue #206 preserves this byte-identical accepted source/current image
+    as an explicit before or after original; the separate path records lifecycle and
+    capture provenance without altering pixels.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-process-1366x768.png
+  - docs/user-guide/images/current/modeling-process-1366x768.png
+- rationale: 'Issue #206 preserves this byte-identical accepted source/current image
+    as an explicit before or after original; the separate path records lifecycle and
+    capture provenance without altering pixels.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-process-1440x900.png
+  - docs/user-guide/images/current/modeling-process-1440x900.png
+- rationale: 'Issue #206 preserves this byte-identical accepted source/current image
+    as an explicit before or after original; the separate path records lifecycle and
+    capture provenance without altering pixels.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-process-1920x1080.png
+  - docs/user-guide/images/current/modeling-process-1920x1080.png
+- rationale: 'Issue #206 preserves this byte-identical accepted source/current image
+    as an explicit before or after original; the separate path records lifecycle and
+    capture provenance without altering pixels.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-process-2560x1440.png
+  - docs/user-guide/images/current/modeling-process-2560x1440.png
+- rationale: 'Issue #206 preserves this byte-identical accepted source/current image
+    as an explicit before or after original; the separate path records lifecycle and
+    capture provenance without altering pixels.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-process-3840x2160.png
+  - docs/user-guide/images/current/modeling-process-3840x2160.png
+files:
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/material-curves-1920x1080-controls.png
+  sha256: 6d953489d93b426c69ef5755e6a2d5890af8714e4302f73e0e32a910d294381c
+  bytes: 32248
+  pixels: 1320x490
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/material-curves-1920x1080-graph.png
+  sha256: 34d10bf1f384ccacf0a3802953cd55c096f7980d58ca5af1bd41a94d897e8b46
+  bytes: 26502
+  pixels: 1010x702
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/material-curves-1920x1080-header.png
+  sha256: d30ffce7bc12b1e35e058d4d0eee67b13cbe98aed50f36f755d91e13793d465d
+  bytes: 27640
+  pixels: 1920x180
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/material-curves-1920x1080-navigator.png
+  sha256: fe905162dc71240efb05bf6ae880b306c4a4f5b9403992df8723b5fe92d6e8dd
+  bytes: 28648
+  pixels: 320x972
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/material-curves-2560x1440-controls.png
+  sha256: c953e2c60b39b93b8bbf057eef03ab5525d1eb9ad4c22bb50659056b609b9ea1
+  bytes: 33384
+  pixels: 1960x490
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/material-curves-2560x1440-graph.png
+  sha256: 612ca40b1152e5a76de256388f0009693cd2a85650b2fbc583d4e2cf3cf0cd73
+  bytes: 40738
+  pixels: 1650x1062
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/material-curves-2560x1440-header.png
+  sha256: 5ee535664e2848fed3ff08bd406130e8abdfad6b41d7e6a34922ef38f54f3d0f
+  bytes: 28468
+  pixels: 2560x180
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/material-curves-2560x1440-navigator.png
+  sha256: a4f880691418ca9e3a1216a7d8c6eb641d5bf5a362a159685602ba674f1d84d3
+  bytes: 30136
+  pixels: 320x1332
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/material-curves-3840x2160-controls.png
+  sha256: e7c8ae0f003ade1cd935e03bbfdaac904eb23ac030e3520dc1231a082384fa68
+  bytes: 36385
+  pixels: 3240x490
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/material-curves-3840x2160-graph.png
+  sha256: ccde02fe2ff5f401380149bfc2900500a91013794d422ef0144b6b5ccc75c557
+  bytes: 63301
+  pixels: 2930x1782
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/material-curves-3840x2160-header.png
+  sha256: 7eda161f24a91a14c85e55fcce45999d3dd94e39a2c4d02f089bcd0e1287334f
+  bytes: 30289
+  pixels: 3840x180
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/material-curves-3840x2160-navigator.png
+  sha256: c8b5a3a7e6cde36b2250503bfaa3f00ddd9b73fcaa0ab1be2e17dd611dbff694
+  bytes: 32896
+  pixels: 320x2052
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-data-1920x1080-controls.png
+  sha256: 0c0c6f9dac667d6ec2aba3967b2f1735b5ee2f2c640e9b91b537b3ecc4b762fa
+  bytes: 30746
+  pixels: 1620x260
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-data-1920x1080-graph.png
+  sha256: a65aafa5a7f84630067be31e37ef91823ede504a4979ab6a45672f4a6957fc40
+  bytes: 83753
+  pixels: 1620x722
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-data-1920x1080-header.png
+  sha256: 739a332fe2fac5e404a35bf922d5f2b933000706224a1b51086cb848077e4b2b
+  bytes: 16552
+  pixels: 1920x180
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-data-1920x1080-navigator.png
+  sha256: 0940ff03798924c00ec319c2b80ee7b2db1e77f551193b998c38e6f8e0af502f
+  bytes: 19789
+  pixels: 320x972
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-data-2560x1440-controls.png
+  sha256: be721c75c32d998e684df31e0c7ef2ccc82c9b79c2cbd385273da644e4c09d0f
+  bytes: 32178
+  pixels: 2260x260
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-data-2560x1440-graph.png
+  sha256: d2b4472a3c8210780cb07bc66a7cea520b030ea1e9c91a28ac70063a341a9001
+  bytes: 137531
+  pixels: 2260x1082
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-data-2560x1440-header.png
+  sha256: e620aac399a3aa57e7311799caf03f9e11435ff709ec07e5fa3e74f6141592b0
+  bytes: 17217
+  pixels: 2560x180
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-data-2560x1440-navigator.png
+  sha256: 376849d62941c622f6fb9bae39321bf5ca2d3821de56b55d810456743a520b54
+  bytes: 21740
+  pixels: 320x1332
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-data-3840x2160-controls.png
+  sha256: e40f34b18d175212f803cc08fb6791cc1f3485775bfdcde7495324a64a17ff99
+  bytes: 33836
+  pixels: 3540x260
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-data-3840x2160-graph.png
+  sha256: 6b05bc75a693da2c6c6f974653d60dd162212bf365ca9d72fd99aaf5d17ddeab
+  bytes: 275925
+  pixels: 3540x1802
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-data-3840x2160-header.png
+  sha256: 096bc81d1028da5cd18719a883f93d532b8487d62c0f984745b1a410d20dffbc
+  bytes: 18638
+  pixels: 3840x180
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-data-3840x2160-navigator.png
+  sha256: 5380f7eb7df9963f78b19475e2c9cdfb690011947a1979aa2b89ed0e2fa41eae
+  bytes: 25645
+  pixels: 320x2052
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-fit-1920x1080-controls.png
+  sha256: e952658ae73ff9dc84457f1fe53e3e1b93aa488e43eeb719b8ff8848f60bf62b
+  bytes: 34009
+  pixels: 1620x260
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-fit-1920x1080-graph.png
+  sha256: 45771c35839bf0065d9a68bf3df4f9028ad1a05a491e4f986239c36e08af274e
+  bytes: 104646
+  pixels: 1620x722
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-fit-1920x1080-header.png
+  sha256: e3e0875a6d3327e89258221d67eecbab52b0474a482372369c46199fdb91b4e3
+  bytes: 22085
+  pixels: 1920x180
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-fit-1920x1080-navigator.png
+  sha256: c0a1b0e9864a4d7f18aa630161634613c45e30350733874dd37af77785dbd831
+  bytes: 20385
+  pixels: 320x972
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-fit-2560x1440-controls.png
+  sha256: c5875e816309949ac0f60a7f1737fa349b1b6717bd94047e17b7c232dbe7984e
+  bytes: 35566
+  pixels: 2260x260
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-fit-2560x1440-graph.png
+  sha256: 38bc2b24153112a8756be0e5e4fd0d7f5042c01b0415bb68b9e37e96e0605e2d
+  bytes: 164845
+  pixels: 2260x1082
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-fit-2560x1440-header.png
+  sha256: 03db6a898a935ee04d1fbe8c6abe4dbd29b46d5974f52e66f91551229493a2bd
+  bytes: 22930
+  pixels: 2560x180
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-fit-2560x1440-navigator.png
+  sha256: 16898db949ae4c88f1f4a4c575aa085dcadeb954528cba67d7bc912c07e573f7
+  bytes: 22288
+  pixels: 320x1332
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-fit-3840x2160-controls.png
+  sha256: 787881ef6e37b859b55b31237013c5957ea27e78a156da50360d3e3004774b6b
+  bytes: 38063
+  pixels: 3540x260
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-fit-3840x2160-graph.png
+  sha256: 922c61f4bfd70a0773c9be88a8890b446c56cf0e21bf257c260a84bcdd28e7a7
+  bytes: 325260
+  pixels: 3540x1802
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-fit-3840x2160-header.png
+  sha256: fa1dc0d8d2d02ebe04f86bfa6e3678c4de03cc571a37663054624d1ce71ef879
+  bytes: 24823
+  pixels: 3840x180
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-fit-3840x2160-navigator.png
+  sha256: da9d89694aac17b38890964535f177d0bd2401497be27bcbf5d1abe4e6871d93
+  bytes: 26113
+  pixels: 320x2052
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-process-1920x1080-controls.png
+  sha256: 59e3e914244eb2501ac53b0340cd1697dfab5b8272715b7f900d36487188e387
+  bytes: 20737
+  pixels: 1620x260
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-process-1920x1080-graph.png
+  sha256: 1a92791697b363221c9f665c80155ba223767b0ece02f02fa9a8fd7b0057a4f1
+  bytes: 90479
+  pixels: 1620x722
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-process-1920x1080-header.png
+  sha256: e8b1d23ceefff44f2caec022bbb554da23358e1715b9b51a506f90261037c0ee
+  bytes: 20389
+  pixels: 1920x180
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-process-1920x1080-navigator.png
+  sha256: 1618d0668bced8b16140eb8d8932061f9632821f98e0e7165eadf320d6513b32
+  bytes: 22454
+  pixels: 320x972
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-process-2560x1440-controls.png
+  sha256: c0d1ca07e12112f549f1f862385210f873294885ddf787ec3aa465c944ff4a9d
+  bytes: 22074
+  pixels: 2260x260
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-process-2560x1440-graph.png
+  sha256: fbdd3bec73fa5a40d6ae8772bd88bfa163061100eabdfb5246805a2be02b4601
+  bytes: 144174
+  pixels: 2260x1082
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-process-2560x1440-header.png
+  sha256: c503366622ebcef1872bf4b33b3862681c802b33a0fda1bf96e67cf2bac7fe7e
+  bytes: 21075
+  pixels: 2560x180
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-process-2560x1440-navigator.png
+  sha256: 095914c6ae643f06354c99b0cf4cef0ef8c649355296298de9c6c763aee74a15
+  bytes: 24375
+  pixels: 320x1332
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-process-3840x2160-controls.png
+  sha256: d830e1cf14ac8090717919f1d33c7743e351ad7f72d5a24fe5318fe85ca4b301
+  bytes: 23433
+  pixels: 3540x260
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-process-3840x2160-graph.png
+  sha256: a9b942211d2d535c513535e6772c31c23c4e84531a69da0debb1ac95739b2f37
+  bytes: 285320
+  pixels: 3540x1802
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-process-3840x2160-header.png
+  sha256: fee13db897fc7cb71d0777b54cc27a9df87dfad56740e6aa469ed491469ed556
+  bytes: 23260
+  pixels: 3840x180
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-process-3840x2160-navigator.png
+  sha256: 773ee4bea99469b467264cf37e58f074f15892ed3bed73018095bdf0f3ccab15
+  bytes: 28121
+  pixels: 320x2052
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/material-curves-1366x768.png
+  sha256: 47cfa3293ab8e8a5cdedb200653d9efa7193fec0b9d080a06dc8624852b34e8d
+  bytes: 86967
+  pixels: 1366x768
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/material-curves-1440x900.png
+  sha256: 6b0fa752dc5811ac0ced975ca2900e5cc6875c73e013dee9abc54c6b9dbc10d3
+  bytes: 101135
+  pixels: 1440x900
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/material-curves-1920x1080.png
+  sha256: 889e79f66724f0f7111b1870574b31e5dc68b86eacce29aa8be7423e5184d2f6
+  bytes: 113936
+  pixels: 1920x1080
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/material-curves-2560x1440.png
+  sha256: ba86af2e6dcb1e049ad3f5db808ab90e4a2b134f4640ef1a1831998d00dd4bf5
+  bytes: 132031
+  pixels: 2560x1440
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/material-curves-3840x2160.png
+  sha256: d14bb703273992642fd9cda0e21d3c388e5eeea0bed3f4168335ae8198c17484
+  bytes: 167591
+  pixels: 3840x2160
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-data-1366x768.png
+  sha256: 63e69d1801309933c1eba99bb49d467f1eaae4fb2873ca8245539c2d502a7bcd
+  bytes: 92874
+  pixels: 1366x768
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-data-1440x900.png
+  sha256: 5a1dff28c0ba09839ea2653cca80e903724116d5df1ad8b5631a5be7af410637
+  bytes: 104251
+  pixels: 1440x900
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-data-1920x1080.png
+  sha256: f466aaeb7249c2b02a7c66a58489ecde960418bd8d42a2e7d27b18ca5c58bcc9
+  bytes: 129819
+  pixels: 1920x1080
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-data-2560x1440.png
+  sha256: 77535d5e566986e1777d87e064d9eadbe4ee0021205e2a6f4607cfc486a39788
+  bytes: 178845
+  pixels: 2560x1440
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-data-3840x2160.png
+  sha256: 28c1ec2df57d665b44fb0e47a251c9d2c7865ac0a703509e4129cc4ff4663b9b
+  bytes: 304715
+  pixels: 3840x2160
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-fit-1366x768.png
+  sha256: 1b254ae7125d5e3e32ccbb0bc95668067557faf9a078556438e8dcfc67e26665
+  bytes: 120436
+  pixels: 1366x768
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-fit-1440x900.png
+  sha256: 2656d9b0b7c22808ff40c2b2d56df61d84caf315421657ce555f1dda6d00dda8
+  bytes: 131935
+  pixels: 1440x900
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-fit-1920x1080.png
+  sha256: 18cef9dd5de10d5476cb023cdea82bed1de220518873fd54406a97b17d9e83f8
+  bytes: 162329
+  pixels: 1920x1080
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-fit-2560x1440.png
+  sha256: 03f5cacf82efac63163ff49f3eea294bc3f2e93cda98eb70a4aea21bb70f8bba
+  bytes: 218302
+  pixels: 2560x1440
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-fit-3840x2160.png
+  sha256: 03be9172072296c1019840f3f17d740f71a8921d4de8a9a57fb7047cb8ee402a
+  bytes: 363873
+  pixels: 3840x2160
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-process-1366x768.png
+  sha256: c47285917f817979c115991ffcfa6426096a8ba0715905d9f44d27f4947f5079
+  bytes: 100977
+  pixels: 1366x768
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-process-1440x900.png
+  sha256: e9cd3859660d7c8c4fa534fac059adf6b44490b876d43a3dc64a997f464b73fa
+  bytes: 113924
+  pixels: 1440x900
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-process-1920x1080.png
+  sha256: b25ed84acf0305661d0883520eb91227a966aa0ef5d9d39280bb5a9ddf10a5a7
+  bytes: 139878
+  pixels: 1920x1080
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-process-2560x1440.png
+  sha256: cc1fa38317ee5ac5cdd45398980df16cc58ba66e03d9bbc038e1c4de5fbbb528
+  bytes: 188981
+  pixels: 2560x1440
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-process-3840x2160.png
+  sha256: 4b54fd9b575f869272ea1ff394d5d137f0d760376e0c3e0358895c9f2003f5ad
+  bytes: 319090
+  pixels: 3840x2160
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/states/material-legacy-metadata-absent-1440x900.png
+  sha256: c766fb5c1c87d09a92a402e6812679a9232c955b92bd9b37b5b0d931bf02294c
+  bytes: 97643
+  pixels: 1440x900
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/states/material-legacy-metadata-absent-crop.png
+  sha256: d5279d8ee5dc3e28673b13f8f46e0654ab0748055d877fb33e41929c504f3dfd
+  bytes: 10044
+  pixels: 556x240
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/states/material-statistics-evidence-1440x900.png
+  sha256: 8a560bcea76e411f4fc497e02b669a076517595a55e70ce9a7f05bfb1fd173d5
+  bytes: 123494
+  pixels: 1440x900
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/states/material-statistics-evidence-crop.png
+  sha256: 7f5d79c323495011be834052be93789fefcde4a2e3e743e384516a1a31a0313f
+  bytes: 46993
+  pixels: 556x731
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/states/material-statistics-keyboard-tooltip-1440x900.png
+  sha256: 018b11bf5c582e823d19ef0c53c832401618b559678500a06b1ff57bf72fae1b
+  bytes: 114052
+  pixels: 1440x900
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/states/material-statistics-keyboard-tooltip-graph-crop.png
+  sha256: 30454bdcf77d40df74a7be10a234a21d4aa9679d2c0ccde9c257c07d76c5f4bc
+  bytes: 41830
+  pixels: 1135x565
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/before/diagnostic/material-curves-scrolled-1440x900.png
+  sha256: cfa5544bf51f2f6b84a1452dad36705c03e5a620c8b08dd99145188e4d36cfda
+  bytes: 101082
+  pixels: 1440x900
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/before/diagnostic/material-detail-current-1440x900.png
+  sha256: 2593ade536a89c24be892f2855dc8af5943ad909dd60bbd950f7584ecb666474
+  bytes: 24683
+  pixels: 1440x900
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/before/diagnostic/material-detail-failure-1440x900.png
+  sha256: 84e0246afff9c92849b284ddf4d1b71fc80690a12401983a8804ee18a7063456
+  bytes: 24821
+  pixels: 1440x900
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/before/originals/material-detail-1920x1080.png
+  sha256: 35b2c6e63bebbd953031884230d3aee18ef1794d256806a5c1414e9094db8b82
+  bytes: 163799
+  pixels: 1920x1080
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/before/originals/material-detail-2560x1440.png
+  sha256: 821d9571da37ba103862793bb67686bc513315914e5e47c93d7cc401bf482aaa
+  bytes: 182167
+  pixels: 2560x1440
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/before/originals/material-detail-3840x2160.png
+  sha256: 7a3e8dc50d01876d6ec4982fff7e205831b09f4e9d9f254265721ea5344881e5
+  bytes: 209919
+  pixels: 3840x2160
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/before/originals/modeling-data-1920x1080.png
+  sha256: e72a4c640ed17f1f7709affba50dabeb111e0f0f20813d302af8e16739259f84
+  bytes: 128868
+  pixels: 1920x1080
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/before/originals/modeling-data-2560x1440.png
+  sha256: 039852844777be4007aac35f1d843300e1c154ae403fab2f095f875a288f02ef
+  bytes: 177974
+  pixels: 2560x1440
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/before/originals/modeling-data-3840x2160.png
+  sha256: 33186900e82d3c7f86d75245faab44f28dd29cdb387f488d1c4aac4261e0cedb
+  bytes: 303379
+  pixels: 3840x2160
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/before/originals/modeling-fit-1920x1080.png
+  sha256: 18cef9dd5de10d5476cb023cdea82bed1de220518873fd54406a97b17d9e83f8
+  bytes: 162329
+  pixels: 1920x1080
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/before/originals/modeling-fit-2560x1440.png
+  sha256: 69850dff248ab26275d36a33bea365870e21091171c89d4c5fedbcb8349f4acd
+  bytes: 218306
+  pixels: 2560x1440
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/before/originals/modeling-fit-3840x2160.png
+  sha256: 03be9172072296c1019840f3f17d740f71a8921d4de8a9a57fb7047cb8ee402a
+  bytes: 363873
+  pixels: 3840x2160
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/before/originals/modeling-process-1920x1080.png
+  sha256: 8e19131576a5c0df029bd9741d8781e3073efeb61628e0d623384656901ea54a
+  bytes: 139103
+  pixels: 1920x1080
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/before/originals/modeling-process-2560x1440.png
+  sha256: ad105b630aff7b4fe9313d310575e84f68771856fcf6cf8c2cedf41b8590709d
+  bytes: 187933
+  pixels: 2560x1440
+- path: docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/before/originals/modeling-process-3840x2160.png
+  sha256: 710a8cc71ca479e8d6d08f96d830426b3942cd7e505f776ad42c1612363c516a
+  bytes: 317814
+  pixels: 3840x2160

@@ -41,7 +41,7 @@
     "PreviewResponse": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["status", "document_sha256", "canonical_size_bytes", "point_count", "condition_count", "material_maker", "material_grade", "test_date", "operator", "laboratory", "method", "specimen_id", "channels", "canonical_document"],
+      "required": ["status", "document_sha256", "canonical_size_bytes", "point_count", "condition_count", "material_maker", "material_grade", "test_date", "operator", "laboratory", "method", "specimen_id", "channels", "canonical_document", "curve_definition_sha256", "curve_definition", "curve_series"],
       "properties": {
         "status": {"const": "valid"},
         "document_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
@@ -56,7 +56,19 @@
         "method": {"type": "string"},
         "specimen_id": {"type": "string"},
         "channels": {"type": "array", "items": {"$ref": "#/$defs/ChannelPreview"}},
-        "canonical_document": {"$ref": "canonical-test-data.schema.json"}
+        "canonical_document": {"$ref": "canonical-test-data.schema.json"},
+        "curve_definition_sha256": {"$ref": "curve-channel-metadata.schema.json#/$defs/Sha256"},
+        "curve_definition": {"$ref": "curve-channel-metadata.schema.json#/$defs/CurveDefinition"},
+        "curve_series": {"$ref": "curve-channel-metadata.schema.json#/$defs/CurveSeriesPreview"}
+      }
+    },
+    "CurveResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["curve_metadata", "curve_series"],
+      "properties": {
+        "curve_metadata": {"$ref": "curve-channel-metadata.schema.json"},
+        "curve_series": {"$ref": "curve-channel-metadata.schema.json#/$defs/CurveSeriesPreview"}
       }
     },
     "ImportRequest": {

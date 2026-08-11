@@ -13,7 +13,9 @@ from cmp.modules.artifacts.application.content import ArtifactService
 from cmp.modules.datasets.application.service import DatasetService
 from cmp.modules.datasets.domain.reference_tensile import (
     REFERENCE_TENSILE_PARQUET_SCHEMA,
+    REFERENCE_TENSILE_PARQUET_SCHEMA_V1,
     REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA,
+    REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA_V1,
     DatasetRepresentation,
     normalized_points_from_parquet,
 )
@@ -274,14 +276,17 @@ class TabulatedPlasticityModelService:
             dataset_content.data_artifact_id,
             maximum_bytes=MAX_REFERENCE_TENSILE_ARTIFACT_BYTES,
         )
-        expected_schema = (
-            REFERENCE_TENSILE_PARQUET_SCHEMA
+        expected_schemas = (
+            {REFERENCE_TENSILE_PARQUET_SCHEMA, REFERENCE_TENSILE_PARQUET_SCHEMA_V1}
             if dataset_content.representation is DatasetRepresentation.NORMALIZED
-            else REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA
+            else {
+                REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA,
+                REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA_V1,
+            }
         )
         if (
             artifact.artifact.sha256 != dataset_content.data_sha256
-            or artifact.artifact.schema_ref != expected_schema
+            or artifact.artifact.schema_ref not in expected_schemas
             or artifact.artifact.media_type != "application/vnd.apache.parquet"
             or artifact.artifact.classification != properties.classification
         ):

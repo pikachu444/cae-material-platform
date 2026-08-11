@@ -12,6 +12,10 @@ from fastapi import Depends, FastAPI, Header, Query, Request, Response, status
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, StringConstraints
 from sqlalchemy.exc import IntegrityError
 
+from cmp.curve_artifact_registry import (
+    DECLARED_CURVE_SCHEMA_REFS,
+    known_legacy_parquet_adapter,
+)
 from cmp.modules.artifacts.application.content import ArtifactService
 from cmp.modules.artifacts.domain import ArtifactKind
 from cmp.modules.catalog.adapters.api.catalog import CatalogHttpError, _etag, _scope
@@ -42,6 +46,17 @@ from cmp.modules.catalog.domain.records import (
     CatalogRecordValue,
     DiscreteFilter,
     NumberRangeFilter,
+)
+from cmp.modules.datasets.contracts import CurveMetadataResponse, CurveSeriesPreviewResponse
+from cmp.modules.datasets.curve_artifacts import resolve_curve_artifact
+from cmp.modules.datasets.domain.curve_metadata import (
+    ArtifactPin,
+    CurveContractError,
+    CurveMetadata,
+    ProvenanceKind,
+    ProvenancePointer,
+    RevisionPin,
+    SourcePin,
 )
 from cmp.modules.datasets.domain.governed_tabular import (
     TabularFileFormat,
@@ -525,13 +540,17 @@ class DomainBindingProjectionResponse(BaseModel):
         cls,
         value: RecordDomainBinding,
         *,
-        record_id: UUID,
-        record_revision_id: UUID,
+        record_id: UUID | None = None,
+        record_revision_id: UUID | None = None,
     ) -> DomainBindingProjectionResponse:
+        resolved_record_id = record_id or value.record_id
+        resolved_record_revision_id = record_revision_id or value.record_revision_id
+        if resolved_record_id is None or resolved_record_revision_id is None:
+            raise ValueError("domain binding projection requires its exact Catalog revision")
         return cls(
             binding_id=value.binding_id,
-            record_id=record_id,
-            record_revision_id=record_revision_id,
+            record_id=resolved_record_id,
+            record_revision_id=resolved_record_revision_id,
             kind=value.kind,
             object_id=value.object_id,
             revision_id=value.revision_id,
@@ -576,6 +595,19 @@ class RecordResponse(BaseModel):
 class RecordListResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     items: tuple[RecordResponse, ...]
+
+
+class CatalogCurvePreviewResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    record_id: UUID
+    record_revision_id: UUID
+    attribute_definition_id: UUID
+    curve_available: Literal[True] = True
+    modeling_use: Literal["fit_input", "view_only", "unavailable"]
+    modeling_source: DomainBindingProjectionResponse | None
+    curve_metadata: CurveMetadataResponse
+    curve_series: CurveSeriesPreviewResponse | None
 
 
 class FacetBucketResponse(BaseModel):
@@ -717,6 +749,99 @@ def install_catalog_record_api(
                 code="CMP-CATALOG-0014",
             )
         return service
+
+    def curve_error(context: Any, error: CurveContractError) -> CatalogHttpError:
+        return CatalogHttpError(
+            context=context,
+            status_code=422,
+            title="Curve pointer contract rejected",
+            detail=f"{error.code} at {error.location}: {error.message}",
+            code="CMP-CATALOG-0020",
+        )
+
+    async def validate_changed_curve_values(
+        context: Any,
+        decision: Any,
+        content: CatalogRecordContent,
+        *,
+        previous: CatalogRecordContent | None,
+    ) -> None:
+        previous_values = (
+            {}
+            if previous is None
+            else {
+                item.attribute_definition_id: item
+                for item in previous.values
+                if item.data_type is AttributeDataType.CURVE
+            }
+        )
+        for value in content.values:
+            if value.data_type is not AttributeDataType.CURVE:
+                continue
+            prior = previous_values.get(value.attribute_definition_id)
+            if (
+                prior is not None
+                and prior.attribute_definition_revision_id
+                == value.attribute_definition_revision_id
+                and prior.artifact_id == value.artifact_id
+                and prior.artifact_sha256 == value.artifact_sha256
+            ):
+                continue
+            if artifact_service is None:
+                raise CatalogHttpError(
+                    context=context,
+                    status_code=503,
+                    title="Curve Artifact validation unavailable",
+                    detail="The immutable Artifact reader is not configured.",
+                    code="CMP-CATALOG-0014",
+                )
+            assert value.artifact_id is not None and value.artifact_sha256 is not None
+            artifact_record, raw = await artifact_service.read_verified_bytes(
+                context,
+                decision,
+                value.artifact_id,
+                maximum_bytes=64 * 1024 * 1024,
+            )
+            artifact = artifact_record.artifact
+            if (
+                artifact.artifact_kind is not ArtifactKind.DERIVED
+                or artifact.sha256 != value.artifact_sha256
+                or artifact.media_type != "application/vnd.apache.parquet"
+            ):
+                raise curve_error(
+                    context,
+                    CurveContractError(
+                        code="CMP-CURVE-0037",
+                        location="record.values.curve.artifact",
+                        message=(
+                            "curve pointer must match one verified derived Parquet Artifact"
+                        ),
+                    ),
+                )
+            try:
+                resolution = resolve_curve_artifact(
+                    raw,
+                    schema_ref=artifact.schema_ref,
+                    expected_sha256=artifact.sha256,
+                    legacy_adapter=known_legacy_parquet_adapter(
+                        artifact.schema_ref, raw
+                    ),
+                    declared_required=artifact.schema_ref in DECLARED_CURVE_SCHEMA_REFS,
+                )
+            except CurveContractError as error:
+                raise curve_error(context, error) from error
+            if resolution.series is None:
+                raise curve_error(
+                    context,
+                    CurveContractError(
+                        code="CMP-CURVE-0038",
+                        location="record.values.curve.artifact.schema_ref",
+                        message=(
+                            "new or changed curve pointers require declared metadata or a "
+                            "reviewed legacy adapter"
+                        ),
+                    ),
+                )
 
     @application.post(
         "/api/v1/catalog/record-registrations:preview",
@@ -961,17 +1086,21 @@ def install_catalog_record_api(
         dependencies=[Depends(security_dependency), Depends(write_dependency)],
         tags=["catalog-records"],
     )
-    def create_record(
+    async def create_record(
         request: Request, response: Response, table_id: UUID, body: RecordCreateRequest
     ) -> RecordResponse:
         context, decision = _scope(request)
         try:
+            content = body.content.to_domain(table_id)
+            await validate_changed_curve_values(
+                context, decision, content, previous=None
+            )
             value = required(context).create_record(
                 context,
                 decision,
                 CreateRecord(
                     body.classification,
-                    body.content.to_domain(table_id),
+                    content,
                     body.change_reason,
                 ),
             )
@@ -1000,6 +1129,165 @@ def install_catalog_record_api(
         except Exception as error:
             raise _error(context, error) from error
 
+    @application.get(
+        "/api/v1/catalog/records/{record_id}/revisions/{record_revision_id}/"
+        "curve-values/{attribute_definition_id}/preview",
+        response_model=CatalogCurvePreviewResponse,
+        operation_id="previewExactCatalogCurveValue",
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["catalog-records"],
+    )
+    async def preview_exact_curve_value(
+        request: Request,
+        record_id: UUID,
+        record_revision_id: UUID,
+        attribute_definition_id: UUID,
+        maximum_points: Annotated[int, Query(ge=2, le=10_000)] = 1_000,
+    ) -> CatalogCurvePreviewResponse:
+        context, decision = _scope(request)
+        if artifact_service is None:
+            raise CatalogHttpError(
+                context=context,
+                status_code=503,
+                title="Curve Artifact preview unavailable",
+                detail="The immutable Artifact reader is not configured.",
+                code="CMP-CATALOG-0014",
+            )
+        try:
+            revision = required(context).get_record_revision(
+                context,
+                decision,
+                record_id,
+                record_revision_id,
+            )
+            matches = tuple(
+                item
+                for item in revision.content.values
+                if item.attribute_definition_id == attribute_definition_id
+            )
+            if len(matches) != 1 or matches[0].data_type is not AttributeDataType.CURVE:
+                raise ConfigurableCatalogNotFound(
+                    "exact Record revision has no Curve value for this Attribute Definition"
+                )
+            curve_value = matches[0]
+            assert curve_value.artifact_id is not None
+            assert curve_value.artifact_sha256 is not None
+            artifact_record, raw = await artifact_service.read_verified_bytes(
+                context,
+                decision,
+                curve_value.artifact_id,
+                maximum_bytes=64 * 1024 * 1024,
+            )
+            artifact = artifact_record.artifact
+            if artifact.sha256 != curve_value.artifact_sha256:
+                raise CurveContractError(
+                    code="CMP-CURVE-0037",
+                    location="record.values.curve.artifact_sha256",
+                    message="curve pointer digest differs from the exact Artifact manifest",
+                )
+            resolution = resolve_curve_artifact(
+                raw,
+                schema_ref=artifact.schema_ref,
+                expected_sha256=artifact.sha256,
+                legacy_adapter=known_legacy_parquet_adapter(artifact.schema_ref, raw),
+                declared_required=artifact.schema_ref in DECLARED_CURVE_SCHEMA_REFS,
+            )
+            ownership = required(context).resolve_curve_ownership(
+                context,
+                decision,
+                record_id,
+                record_revision_id,
+                artifact.id,
+                artifact.sha256,
+            )
+            metadata = CurveMetadata(
+                state=resolution.state,
+                definition=(
+                    resolution.series.definition if resolution.series is not None else None
+                ),
+                owning_revision=RevisionPin(
+                    entity_type=(
+                        ownership.entity_type if ownership is not None else "catalog_record"
+                    ),
+                    entity_id=(ownership.entity_id if ownership is not None else record_id),
+                    revision_id=(
+                        ownership.revision_id
+                        if ownership is not None
+                        else record_revision_id
+                    ),
+                ),
+                artifact=ArtifactPin(
+                    artifact_id=artifact.id,
+                    sha256=artifact.sha256,
+                    schema_ref=artifact.schema_ref,
+                    media_type=artifact.media_type,
+                ),
+                sources=(
+                    tuple(
+                        SourcePin(
+                            entity_type=item.entity_type,
+                            entity_id=item.entity_id,
+                            revision_id=item.revision_id,
+                            artifact_id=item.artifact_id,
+                            artifact_sha256=item.artifact_sha256,
+                        )
+                        for item in ownership.sources
+                    )
+                    if ownership is not None
+                    else ()
+                ),
+                provenance=(
+                    tuple(
+                        ProvenancePointer(
+                            kind=ProvenanceKind(item.kind),
+                            entity_id=item.entity_id,
+                            revision_id=item.revision_id,
+                        )
+                        for item in ownership.provenance
+                    )
+                    if ownership is not None
+                    else ()
+                ),
+            )
+            series = (
+                resolution.series.preview(maximum_points)
+                if resolution.series is not None
+                else None
+            )
+            return CatalogCurvePreviewResponse(
+                record_id=record_id,
+                record_revision_id=record_revision_id,
+                attribute_definition_id=attribute_definition_id,
+                modeling_use=(
+                    "fit_input"
+                    if series is not None
+                    and ownership is not None
+                    and ownership.modeling_source is not None
+                    else "view_only"
+                    if series is not None
+                    else "unavailable"
+                ),
+                modeling_source=(
+                    DomainBindingProjectionResponse.from_domain(
+                        ownership.modeling_source,
+                    )
+                    if ownership is not None and ownership.modeling_source is not None
+                    else None
+                ),
+                curve_metadata=CurveMetadataResponse.from_domain(metadata),
+                curve_series=(
+                    CurveSeriesPreviewResponse.from_domain(series)
+                    if series is not None
+                    else None
+                ),
+            )
+        except CatalogHttpError:
+            raise
+        except CurveContractError as error:
+            raise curve_error(context, error) from error
+        except Exception as error:
+            raise _error(context, error) from error
+
     @application.post(
         "/api/v1/catalog/records/{record_id}/revisions",
         response_model=RecordResponse,
@@ -1008,7 +1296,7 @@ def install_catalog_record_api(
         dependencies=[Depends(security_dependency), Depends(write_dependency)],
         tags=["catalog-records"],
     )
-    def revise_record(
+    async def revise_record(
         request: Request,
         response: Response,
         record_id: UUID,
@@ -1019,13 +1307,20 @@ def install_catalog_record_api(
         try:
             current = required(context).get_record_for_write(context, decision, record_id)
             expected = require_matching_if_match(if_match, current.current.record.ref)
+            content = body.content.to_domain(current.table_id)
+            await validate_changed_curve_values(
+                context,
+                decision,
+                content,
+                previous=current.current.content,
+            )
             value = required(context).revise_record(
                 context,
                 decision,
                 record_id,
                 ReviseRecord(
                     expected,
-                    body.content.to_domain(current.table_id),
+                    content,
                     body.change_reason,
                 ),
             )

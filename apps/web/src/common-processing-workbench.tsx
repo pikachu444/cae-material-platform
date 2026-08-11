@@ -11,6 +11,12 @@ import {
 } from "./engineering-curve-plot";
 import { publishWorkspaceCommandState, publishWorkspaceStatus } from "./design/application-shell";
 import { ModelingWorkspaceLayout } from "./design/modeling-workspace-layout";
+import {
+  channelForQuantity,
+  displayCurveMagnitude,
+  displayCurveValue,
+  resolveDeviationBand,
+} from "./curve-contract";
 const HardeningFitOptions = lazy(() => import("./fit-hardening-options").then((module) => ({ default: module.HardeningFitOptions })));
 
 import {
@@ -694,31 +700,6 @@ function defaultOptions(methodId: string): Record<string, unknown> {
     },
   };
   return options[methodId] ?? {};
-}
-
-function xyPoints(
-  x: number[],
-  y: number[],
-  width: number,
-  height: number,
-  bounds: { xMin: number; xMax: number; yMin: number; yMax: number },
-  margins: { left: number; right: number; top: number; bottom: number } = {
-    left: 28,
-    right: 20,
-    top: 20,
-    bottom: 24,
-  },
-): string {
-  const { xMin, xMax, yMin, yMax } = bounds;
-  const xRange = xMax - xMin || 1;
-  const yRange = yMax - yMin || 1;
-  return x
-    .map((value, index) => {
-      const px = margins.left + ((value - xMin) / xRange) * (width - margins.left - margins.right);
-      const py = height - margins.bottom - ((y[index] - yMin) / yRange) * (height - margins.top - margins.bottom);
-      return `${px.toFixed(1)},${py.toFixed(1)}`;
-    })
-    .join(" ");
 }
 
 function documentMatchesTrack(
@@ -2768,21 +2749,30 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     });
   }, [ensembleDocumentIds, inspectorVisible, onSessionChange, plotView, selectedStage, selectedStepIndex, selectedTestDataRefs, visibleDocumentIds, workflowTask]);
   const ensembleStatistic = ensemblePreview?.statistics[0] ?? null;
-  const ensembleBounds = useMemo(() => {
-    if (!ensemblePreview || !ensembleStatistic) return null;
-    const values = [
-      ...ensemblePreview.members.flatMap((member) =>
-        member.stage.series.find((series) => series.quantity === ensembleStatistic.quantity)?.values ?? []),
-      ...ensembleStatistic.confidence_95_lower,
-      ...ensembleStatistic.confidence_95_upper,
-    ];
-    return {
-      xMin: Math.min(...ensemblePreview.grid),
-      xMax: Math.max(...ensemblePreview.grid),
-      yMin: Math.min(...values),
-      yMax: Math.max(...values),
-    };
-  }, [ensemblePreview, ensembleStatistic]);
+  const ensembleChannel = channelForQuantity(
+    ensembleStatistic?.curve_definition,
+    ensembleStatistic?.quantity ?? "",
+    "dependent",
+  );
+  const ensembleBand = ensembleStatistic?.curve_definition
+    && ensembleStatistic.curve_series
+    && ensembleChannel
+    ? resolveDeviationBand(
+      ensembleStatistic.curve_definition,
+      ensembleStatistic.curve_series,
+      ensembleChannel,
+    )
+    : null;
+  const ensembleDisplayUnit = ensembleChannel?.display_unit ?? ensembleStatistic?.unit ?? "";
+  const formatEnsembleValue = (value: number | undefined, magnitude = false): string => {
+    if (value === undefined) return "—";
+    const displayed = ensembleChannel
+      ? magnitude
+        ? displayCurveMagnitude(ensembleChannel, value)
+        : displayCurveValue(ensembleChannel, value)
+      : value;
+    return displayed === null ? "—" : displayed.toPrecision(6);
+  };
 
   function focusConfiguredStep(index: number): void {
     setSelectedStepIndex(index);
@@ -3104,16 +3094,16 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
                       <button type="button" className="curve-visibility-toggle" aria-pressed={visible} aria-label={`${visible ? "Hide" : "Show"} ${label} on plot`} title={`${visible ? "Hide" : "Show"} ${label} on plot`} onClick={() => setVisibleDocumentIds((current) => visible ? current.filter((candidate) => candidate !== key) : [...current, key])}><svg aria-hidden="true" viewBox="0 0 24 24" focusable="false"><path d="M2.5 12s3.5 6 9.5 6 9.5-6 9.5-6-3.5-6-9.5-6-9.5 6-9.5 6Z" /><circle cx="12" cy="12" r="2.75" />{!visible ? <path d="M3 3l18 18" /> : null}</svg></button>
                     </article>;
                   })}
-                  {isApprovedMetalFit && ensemblePreview ? <article><label className="curve-include-toggle"><input aria-label="Mean preview" type="checkbox" checked={meanPreviewVisible} onChange={toggleMeanPreview} /></label><span className="dataset-curve-swatch mean-confidence-swatch" /><span>Mean + confidence</span><button className="curve-visibility-toggle" aria-pressed={meanPreviewVisible} aria-label="Toggle mean preview" onClick={toggleMeanPreview}>◉</button></article> : null}
+                  {isApprovedMetalFit && ensemblePreview ? <article><label className="curve-include-toggle"><input aria-label="Mean preview" type="checkbox" checked={meanPreviewVisible} onChange={toggleMeanPreview} /></label><span className="dataset-curve-swatch mean-confidence-swatch" /><span>{ensembleBand ? `Mean + ${ensembleBand.label}` : "Mean · band metadata absent"}</span><button className="curve-visibility-toggle" aria-pressed={meanPreviewVisible} aria-label="Toggle mean preview" onClick={toggleMeanPreview}>◉</button></article> : null}
                 </details>
               </section>)}
               {!filteredTrackDocuments.length ? <p className="muted">No matching curves.</p> : null}
-              {isProcessTask && ensembleDocumentIds.length >= 2 ? <details className="rail-statistics-action"><summary>Replicate analysis</summary><label>Alignment points<input aria-label="Replicate alignment point count" type="number" min="5" max="1001" value={ensemblePointCount} disabled={processBlocked} onChange={(event) => { setEnsemblePointCount(Number(event.target.value)); setEnsemblePreview(null); }} /></label><button className="button secondary" type="button" disabled={busy || processBlocked} onClick={() => void runEnsemblePreview()}>{busy ? "Calculating…" : "Preview mean & band"}</button><small>Compatible observed-domain intersection only · no extrapolation</small></details> : null}
+              {isProcessTask && ensembleDocumentIds.length >= 2 ? <details className="rail-statistics-action"><summary>Replicate analysis</summary><label>Alignment points<input aria-label="Replicate alignment point count" type="number" min="5" max="1001" value={ensemblePointCount} disabled={processBlocked} onChange={(event) => { setEnsemblePointCount(Number(event.target.value)); setEnsemblePreview(null); }} /></label><button className="button secondary" type="button" disabled={busy || processBlocked} onClick={() => void runEnsemblePreview()}>{busy ? "Calculating…" : "Preview statistics"}</button><small>Compatible observed-domain intersection only · no extrapolation</small></details> : null}
             </div>
             {isProcessTask || workflowTask === "fit" ? <div className={`configured-step-list${isApprovedMetalFit ? " approved-fit-process-tree" : ""}`}><p className="rail-title">{isApprovedMetalFit ? "Process" : stageRail}{isApprovedMetalFit ? <span>4 steps</span> : null}</p>{displayedRailEntries.map(({ step, index, label, title, railIndex }) => { const groupedFitRail = workflowTask === "fit" && modelingTrack === "metal"; return <button type="button" title={title} disabled={processBlocked} className={selectedStepIndex === index ? "active" : ""} key={`${index}:${step.method_id}`} onClick={() => focusConfiguredStep(index)}><span>{groupedFitRail ? railIndex + 1 : index + 1}</span><span><strong>{label}</strong>{!groupedFitRail ? <small>{step.method_version}</small> : null}</span></button>; })}{isApprovedMetalFit ? <footer className="curve-tree-foot">Details in Evidence</footer> : null}</div> : null}
           </> : null}
           plot={<article className="persistent-modeling-plot" id="modeling-fit">
-             <div className="section-heading"><div>{workflowTask === "fit" ? <h2 className="fit-plot-heading">Hardening response</h2> : <><p className="workspace-caption">{workflowTask === "data" ? "Source preview" : isProcessTask ? "Curve response" : "Selected model response"}</p><h2>{activePlotView === "ensemble" ? "Replicate statistics" : activeStage ? methods.find((method) => method.method_id === activeStage.method_id)?.label ?? methodDisplayName(activeStage.method_id) : "Load data and preview"}</h2></>}</div>{workflowTask !== "fit" ? <div className="plot-view-switch" role="group" aria-label="Curve plot view"><button type="button" className={activePlotView === "pipeline" ? "active" : ""} disabled={!preview} onClick={() => setPlotView("pipeline")}>Response</button>{ensemblePreview ? <button type="button" className={activePlotView === "ensemble" ? "active" : ""} onClick={() => setPlotView("ensemble")}>Mean &amp; band</button> : null}{(preview || ensemblePreview) && !isProcessTask ? <span className="plot-preview-state">Preview — not saved</span> : null}</div> : null}</div>
+             <div className="section-heading"><div>{workflowTask === "fit" ? <h2 className="fit-plot-heading">Hardening response</h2> : <><p className="workspace-caption">{workflowTask === "data" ? "Source preview" : isProcessTask ? "Curve response" : "Selected model response"}</p><h2>{activePlotView === "ensemble" ? "Replicate statistics" : activeStage ? methods.find((method) => method.method_id === activeStage.method_id)?.label ?? methodDisplayName(activeStage.method_id) : "Load data and preview"}</h2></>}</div>{workflowTask !== "fit" ? <div className="plot-view-switch" role="group" aria-label="Curve plot view"><button type="button" className={activePlotView === "pipeline" ? "active" : ""} disabled={!preview} onClick={() => setPlotView("pipeline")}>Response</button>{ensemblePreview ? <button type="button" className={activePlotView === "ensemble" ? "active" : ""} onClick={() => setPlotView("ensemble")}>{ensembleBand ? "Mean & band" : "Mean"}</button> : null}{(preview || ensemblePreview) && !isProcessTask ? <span className="plot-preview-state">Preview — not saved</span> : null}</div> : null}</div>
              {workflowTask === "fit" && !fitSourceOutput ? <EngineeringCurvePlotEmpty width={chart.width} height={chart.height} blocked title="Fit is blocked" message="No saved Process Output is bound. Save Process before calculating Fit." blockedActionLabel="Back to Process" onBackToData={() => openWorkflowTask("process")} /> : graphPreview && activeStage && baseStage ? <EngineeringCurvePlot key={`${activeStage.method_id}:${activeStage.ordinal}:${workflowTask}`} preview={graphPreview} activeStage={activeStage} baseStage={baseStage} activeStep={activeConfiguredStep} fitSelection={fitSelection} width={chart.width} height={chart.height} observedCurves={workflowTask === "data" || isProcessTask ? observedCurves : undefined} processOverlay={isProcessTask} onApplySelection={activePlotView === "pipeline" ? applyGraphSelection : undefined} ensemblePreview={activePlotView === "ensemble" ? ensemblePreview : null} interactionCommand={workflowTask === "fit" ? fitPlotCommand : null} onInteractionStateChange={workflowTask === "fit" ? setFitPlotInteraction : undefined} /> : workflowTask === "data" ? <EngineeringCurvePlotEmpty width={chart.width} height={chart.height} onChooseLocal={() => window.dispatchEvent(new CustomEvent("cmp:modeling-data-source", { detail: { source: "local" } }))} /> : isProcessTask && !processSourceReady ? <EngineeringCurvePlotEmpty width={chart.width} height={chart.height} blocked message="Restore inputs." onBackToData={() => openWorkflowTask("data")} /> : <div className="modeling-plot-empty"><strong>{previewBusy ? "Updating the engineering preview…" : "The graph stays here while you prepare the curves."}</strong><p>{previewBusy ? "A newer processing change replaces the previous preview request." : isProcessTask ? matchingSavedOutputs.length > 0 ? "No Process preview is active. Choose Use settings for a saved result, then select Preview changes to preview the draft." : "No Process preview is active. Select Preview changes to preview the current Process settings." : "Choose a saved Test Data revision. The graph compares real curves without changing saved data."}</p></div>}
             {ensemblePreview && activePlotView === "ensemble" ? <div className="statistics-grid compact-statistics"><article><span>Included curves</span><strong>{ensemblePreview.members.length}</strong></article><article><span>Common points</span><strong>{ensemblePreview.grid.length}</strong></article><article><span>Domain policy</span><strong>Intersection</strong></article></div> : null}
           </article>}
@@ -3207,12 +3197,12 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         {outputs.length ? <div className="processing-output-list">{outputs.map((output) => <article key={output.processing_output_id}><div><strong>{output.label}</strong><small>r{output.current_revision.revision_no} · {output.final_point_count} points · {output.stage_count} stages</small><code>{output.output_sha256}</code></div><button className="button secondary" type="button" disabled={busy} onClick={() => void downloadOutput(output)}>Download JSON</button><DomainWorkflowLinks compact config={config} target={{ kind: "processing_output", objectId: output.processing_output_id, revisionId: output.current_revision.id, label: `${output.label} r${output.current_revision.revision_no}` }} /></article>)}</div> : <p className="muted">No committed common Processing Output is visible yet.</p>}
       </section></details>
 
-      {isProcessTask && ensembleDocumentIds.length >= 2 ? <details className="modeling-support-drawer"><summary><span><strong>Replicate analysis</strong><small>Alignment, mean, variation and confidence bands without deleting members</small></span><span>Analyze</span></summary><section className="workbench-card ensemble-card">
+      {isProcessTask && ensembleDocumentIds.length >= 2 ? <details className="modeling-support-drawer"><summary><span><strong>Replicate analysis</strong><small>Alignment, mean, variation and declared statistical bounds without deleting members</small></span><span>Analyze</span></summary><section className="workbench-card ensemble-card">
         <div className="section-heading"><div><p className="eyebrow">6 · replicate evidence</p><h2>Alignment and pointwise statistics</h2></div><span className="status-chip warning">Preview · members retained</span></div>
         <p className="mapping-note">Select multiple exact Test Data heads. Alignment uses only their observed domain intersection and rejects extrapolation; no raw curve or outlier is deleted.</p>
         <div className="ensemble-methods">{ensembleMethods.map((method) => <article key={method.method_id}><strong>{method.label}</strong><code>{method.method_id} · {method.version}</code><small>{method.description}</small></article>)}</div>
         <div className="ensemble-controls"><fieldset><legend>Exact Test Data members</legend>{trackDocuments.map((item) => <label key={item.test_data_document_id}><input type="checkbox" checked={ensembleDocumentIds.includes(item.test_data_document_id)} onChange={() => toggleEnsembleDocument(item.test_data_document_id)} />{item.document_key} · r{item.current_revision.revision_no}</label>)}</fieldset><label>Common grid points<input type="number" min="2" max="100000" value={ensemblePointCount} onChange={(event) => { setEnsemblePointCount(Number(event.target.value)); setEnsemblePreview(null); }} /></label><button className="button primary" type="button" disabled={busy || ensembleDocumentIds.length < 2} onClick={() => void runEnsemblePreview()}>Align and calculate</button></div>
-        {ensemblePreview && ensembleStatistic && ensembleBounds ? <div className="ensemble-results">{activePlotView !== "ensemble" ? <svg className="processing-curve ensemble-curve" role="img" aria-label="Aligned replicate curves with pointwise mean and confidence interval" viewBox={`0 0 ${chart.width} ${chart.height}`}><line x1="28" y1={chart.height - 24} x2={chart.width - 20} y2={chart.height - 24} className="chart-axis"/><line x1="28" y1="20" x2="28" y2={chart.height - 24} className="chart-axis"/>{ensemblePreview.members.map((member) => { const values = member.stage.series.find((series) => series.quantity === ensembleStatistic.quantity)?.values ?? []; return <polyline key={member.ordinal} points={xyPoints(ensemblePreview.grid, values, chart.width, chart.height, ensembleBounds)} className="curve-line ensemble-member"/>; })}<polyline points={xyPoints(ensemblePreview.grid, ensembleStatistic.confidence_95_lower, chart.width, chart.height, ensembleBounds)} className="curve-line confidence"/><polyline points={xyPoints(ensemblePreview.grid, ensembleStatistic.confidence_95_upper, chart.width, chart.height, ensembleBounds)} className="curve-line confidence"/><polyline points={xyPoints(ensemblePreview.grid, ensembleStatistic.mean, chart.width, chart.height, ensembleBounds)} className="curve-line ensemble-mean"/></svg> : null}<div className="curve-legend"><span><i className="ensemble-member"/>Members ({ensemblePreview.members.length})</span><span><i className="ensemble-mean"/>Mean</span><span><i className="confidence"/>95% mean CI</span></div><div className="statistics-grid"><article><span>Quantity</span><strong>{ensembleStatistic.quantity}</strong><small>{ensembleStatistic.unit}</small></article><article><span>Last mean</span><strong>{ensembleStatistic.mean.at(-1)?.toPrecision(6)}</strong></article><article><span>Sample SD</span><strong>{ensembleStatistic.standard_deviation.at(-1)?.toPrecision(6)}</strong></article><article><span>MAD</span><strong>{ensembleStatistic.mad.at(-1)?.toPrecision(6)}</strong></article><article><span>IQR</span><strong>{ensembleStatistic.q1.at(-1)?.toPrecision(4)} – {ensembleStatistic.q3.at(-1)?.toPrecision(4)}</strong></article></div>{activePlotView !== "ensemble" ? <div className="stage-diagnostics">{ensemblePreview.diagnostics.map((item) => <p key={item}>{item}</p>)}</div> : null}</div> : <p className="muted">At least two imported Test Data identities are required. Import each replicate separately so its exact revision remains addressable.</p>}
+        {ensemblePreview && ensembleStatistic ? <div className="ensemble-results"><div className="curve-legend"><span><i className="ensemble-member"/>Members ({ensemblePreview.members.length})</span><span><i className="ensemble-mean"/>Mean</span>{ensembleBand ? <span><i className="confidence"/>{ensembleBand.label}</span> : <span>Band metadata not recorded</span>}</div><div className="statistics-grid"><article><span>Quantity</span><strong>{ensembleChannel?.label ?? ensembleStatistic.quantity}</strong><small>{ensembleDisplayUnit}</small></article><article><span>Last mean</span><strong>{formatEnsembleValue(ensembleStatistic.mean.at(-1))}</strong><small>{ensembleDisplayUnit}</small></article><article><span>Sample SD</span><strong>{formatEnsembleValue(ensembleStatistic.standard_deviation.at(-1), true)}</strong><small>{ensembleDisplayUnit}</small></article><article><span>MAD</span><strong>{formatEnsembleValue(ensembleStatistic.mad.at(-1), true)}</strong><small>{ensembleDisplayUnit}</small></article><article><span>IQR</span><strong>{formatEnsembleValue(ensembleStatistic.q1.at(-1))} – {formatEnsembleValue(ensembleStatistic.q3.at(-1))}</strong><small>{ensembleDisplayUnit}</small></article></div>{activePlotView !== "ensemble" ? <div className="stage-diagnostics">{ensemblePreview.diagnostics.map((item) => <p key={item}>{item}</p>)}</div> : null}</div> : <p className="muted">At least two imported Test Data identities are required. Import each replicate separately so its exact revision remains addressable.</p>}
       </section></details> : null}
     </main>
   );

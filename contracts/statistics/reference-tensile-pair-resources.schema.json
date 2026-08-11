@@ -92,13 +92,13 @@
         "first_selection_revision_id": {"$ref": "#/$defs/Uuid"},
         "second_selection_id": {"$ref": "#/$defs/Uuid"},
         "second_selection_revision_id": {"$ref": "#/$defs/Uuid"},
-        "input_schema_ref": {"const": "urn:cmp:datasets:reference-tensile-normalized-parquet:1.0.0"},
+        "input_schema_ref": {"enum": ["urn:cmp:datasets:reference-tensile-normalized-parquet:1.0.0", "urn:cmp:datasets:reference-tensile-normalized-parquet:1.1.0"]},
         "scalar_feature": {"const": "peak_engineering_stress_pa"},
         "curve_grid_policy": {"const": "exact_observed_grid_match_no_alignment"},
         "assumption_profile": {"const": "identical_observed_engineering_strain_grid"},
         "quantile_method": {"const": "linear_inclusive"},
         "confidence_interval_status": {"const": "not_provided_reference_pair"},
-        "curve_output_schema_ref": {"const": "urn:cmp:statistics:reference-tensile-pair-curve-parquet:1.0.0"}
+        "curve_output_schema_ref": {"enum": ["urn:cmp:statistics:reference-tensile-pair-curve-parquet:1.0.0", "urn:cmp:statistics:reference-tensile-pair-curve-parquet:1.1.0"]}
       }
     },
     "StatisticalPlanRevision": {
@@ -293,7 +293,7 @@
       "additionalProperties": false,
       "required": [
         "statistical_result_id", "point_count", "returned_point_count", "sampled",
-        "strain_unit", "stress_unit", "points"
+        "strain_unit", "stress_unit", "points", "curve_metadata", "curve_series"
       ],
       "properties": {
         "statistical_result_id": {"$ref": "#/$defs/Uuid"},
@@ -302,7 +302,9 @@
         "sampled": {"type": "boolean"},
         "strain_unit": {"const": "1"},
         "stress_unit": {"const": "Pa"},
-        "points": {"type": "array", "items": {"$ref": "#/$defs/ReferenceTensilePairCurvePoint"}}
+        "points": {"type": "array", "items": {"$ref": "#/$defs/ReferenceTensilePairCurvePoint"}},
+        "curve_metadata": {"$ref": "../datasets/curve-channel-metadata.schema.json"},
+        "curve_series": {"$ref": "../datasets/curve-channel-metadata.schema.json#/$defs/CurveSeriesPreview"}
       }
     },
     "StatisticsProblem": {

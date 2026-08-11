@@ -9,6 +9,7 @@ from uuid import UUID
 from fastapi import Depends, FastAPI, Query, Request, Response, status
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
+from cmp.modules.datasets.contracts import CurveMetadataResponse, CurveSeriesPreviewResponse
 from cmp.modules.identity_access.domain.authorization import DataClassification
 from cmp.modules.statistics.adapters.api.statistics import (
     QcObservationResponse,
@@ -30,7 +31,6 @@ from cmp.modules.statistics.application.replicate_service import (
 from cmp.modules.statistics.domain.reference_tensile_pair import StatisticalRunStatus
 from cmp.modules.statistics.domain.reference_tensile_replicates import (
     REFERENCE_TENSILE_REPLICATE_CI_METHOD,
-    REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMA,
     REFERENCE_TENSILE_REPLICATE_GRID_POLICY,
     REFERENCE_TENSILE_REPLICATE_PLAN_KIND,
     REFERENCE_TENSILE_REPLICATE_QUANTILE_METHOD,
@@ -101,7 +101,7 @@ class ReplicatePlanContentResponse(BaseModel):
             curve_grid_policy=REFERENCE_TENSILE_REPLICATE_GRID_POLICY,
             quantile_method=REFERENCE_TENSILE_REPLICATE_QUANTILE_METHOD,
             confidence_interval_method=REFERENCE_TENSILE_REPLICATE_CI_METHOD,
-            curve_output_schema_ref=REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMA,
+            curve_output_schema_ref=value.curve_output_schema_ref,
         )
 
 
@@ -313,6 +313,8 @@ class ReplicateResultCurveResponse(BaseModel):
     result_id: UUID
     grid_policy: str
     points: tuple[ReplicateCurvePointResponse, ...]
+    curve_metadata: CurveMetadataResponse
+    curve_series: CurveSeriesPreviewResponse
 
 
 def install_replicate_statistics_api(
@@ -495,7 +497,7 @@ def install_replicate_statistics_api(
         if service is None:
             raise _unavailable(context)
         try:
-            points = await service.preview_result_curve(
+            preview = await service.preview_result_curve(
                 context, decision, result_id, maximum_points=maximum_points
             )
         except Exception as error:
@@ -503,5 +505,9 @@ def install_replicate_statistics_api(
         return ReplicateResultCurveResponse(
             result_id=result_id,
             grid_policy=REFERENCE_TENSILE_REPLICATE_GRID_POLICY,
-            points=tuple(ReplicateCurvePointResponse.from_domain(item) for item in points),
+            points=tuple(
+                ReplicateCurvePointResponse.from_domain(item) for item in preview.points
+            ),
+            curve_metadata=CurveMetadataResponse.from_domain(preview.metadata),
+            curve_series=CurveSeriesPreviewResponse.from_domain(preview.series),
         )

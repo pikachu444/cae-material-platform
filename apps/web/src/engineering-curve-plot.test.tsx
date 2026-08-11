@@ -4,6 +4,53 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { dataObservedPlotBounds, derivativeValues, EngineeringCurvePlot, EngineeringCurvePlotEmpty, isGhoshTailDisplayTrim, linearInterpolate, paddedPlotBounds, plotPoints, residualValues } from "./engineering-curve-plot";
 import type { CommonCurveStage, CommonEnsemblePreview, CommonProcessingPreview } from "./types";
 
+const tensileDefinition = {
+  definition_version: "1.0.0" as const,
+  channels: [{
+    key: "strain.engineering",
+    label: "Engineering strain",
+    quantity_semantics: "strain.engineering",
+    axis_role: "independent" as const,
+    unit_contract: "common" as const,
+    dimension: "strain",
+    original_units: [{ unit: "1", scale_to_normalized: "1", offset_to_normalized: "0" }],
+    normalized_unit: "1",
+    display_unit: "1",
+    display_scale: "1",
+    display_offset: "0",
+    value_basis: "normalized" as const,
+  }, {
+    key: "stress.engineering",
+    label: "Engineering stress",
+    quantity_semantics: "stress.engineering",
+    axis_role: "dependent" as const,
+    unit_contract: "common" as const,
+    dimension: "force_per_area",
+    original_units: [{ unit: "MPa", scale_to_normalized: "1000000", offset_to_normalized: "0" }],
+    normalized_unit: "Pa",
+    display_unit: "MPa",
+    display_scale: "0.000001",
+    display_offset: "0",
+    value_basis: "normalized" as const,
+  }],
+  deviations: [],
+};
+
+function tensileSeries(xValues: number[], yValues: number[]) {
+  return {
+    point_count: xValues.length,
+    returned_point_count: xValues.length,
+    sampled: false,
+    indices: xValues.map((_, index) => index),
+    channels: [
+      { key: "strain.engineering", values: xValues },
+      { key: "stress.engineering", values: yValues },
+    ],
+    deviations: [],
+    source_counts: [],
+  };
+}
+
 const baseStage: CommonCurveStage = {
   ordinal: 0,
   method_id: "mapping",
@@ -15,6 +62,10 @@ const baseStage: CommonCurveStage = {
   ],
   diagnostics: ["mapped source retained"],
   scalar_results: [],
+  metadata_state: "declared",
+  curve_definition_sha256: "f".repeat(64),
+  curve_definition: tensileDefinition,
+  curve_series: tensileSeries([0, 0.001, 0.002], [0, 2e8, 3e8]),
 };
 
 const activeStage: CommonCurveStage = {
@@ -28,6 +79,10 @@ const activeStage: CommonCurveStage = {
   ],
   diagnostics: ["processed result has its own sampling grid"],
   scalar_results: [],
+  metadata_state: "declared",
+  curve_definition_sha256: "e".repeat(64),
+  curve_definition: tensileDefinition,
+  curve_series: tensileSeries([0, 0.0007, 0.0014, 0.002], [0, 1.5e8, 2.5e8, 3e8]),
 };
 
 const preview: CommonProcessingPreview = {
@@ -259,6 +314,65 @@ describe("EngineeringCurvePlot", () => {
         q3: [0, 2.15e8, 3.15e8],
         confidence_95_lower: [0, 1.9e8, 2.9e8],
         confidence_95_upper: [0, 2.3e8, 3.3e8],
+        metadata_state: "declared",
+        curve_definition_sha256: "9".repeat(64),
+        curve_definition: {
+          ...tensileDefinition,
+          deviations: [{
+            key: "stress.engineering.mean_ci_95_lower",
+            target_channel_key: "stress.engineering",
+            scope: "pointwise",
+            kind: "confidence_bound",
+            method_id: "normal_approximation.mean_two_sided",
+            method_version: "1.0.0",
+            unit: "Pa",
+            bound_direction: "lower",
+            band_group: "stress.engineering.mean_ci_95",
+            scalar_value: null,
+            series_key: "stress.engineering.mean_ci_95_lower.values",
+            source_count: 2,
+            source_count_series_key: null,
+            confidence_level: 0.95,
+            coverage: "pointwise",
+            ddof: 1,
+            quantile_probability: null,
+            quantile_method: null,
+          }, {
+            key: "stress.engineering.mean_ci_95_upper",
+            target_channel_key: "stress.engineering",
+            scope: "pointwise",
+            kind: "confidence_bound",
+            method_id: "normal_approximation.mean_two_sided",
+            method_version: "1.0.0",
+            unit: "Pa",
+            bound_direction: "upper",
+            band_group: "stress.engineering.mean_ci_95",
+            scalar_value: null,
+            series_key: "stress.engineering.mean_ci_95_upper.values",
+            source_count: 2,
+            source_count_series_key: null,
+            confidence_level: 0.95,
+            coverage: "pointwise",
+            ddof: 1,
+            quantile_probability: null,
+            quantile_method: null,
+          }],
+        },
+        curve_series: {
+          point_count: 3,
+          returned_point_count: 3,
+          sampled: false,
+          indices: [0, 1, 2],
+          channels: [
+            { key: "strain.engineering", values: [0, 0.001, 0.002] },
+            { key: "stress.engineering", values: [0, 2.1e8, 3.1e8] },
+          ],
+          deviations: [
+            { key: "stress.engineering.mean_ci_95_lower.values", values: [0, 1.9e8, 2.9e8] },
+            { key: "stress.engineering.mean_ci_95_upper.values", values: [0, 2.3e8, 3.3e8] },
+          ],
+          source_counts: [],
+        },
       }],
       diagnostics: ["2 exact members retained"],
     };
@@ -266,11 +380,17 @@ describe("EngineeringCurvePlot", () => {
       <EngineeringCurvePlot preview={preview} activeStage={activeStage} baseStage={baseStage} width={760} height={420} ensemblePreview={ensemblePreview} />,
     );
 
-    expect(screen.getByRole("img", { name: "Aligned replicate curves with pointwise mean and confidence interval" })).toBeTruthy();
+    const plot = screen.getByRole("img", { name: "Aligned replicate curves with declared pointwise statistics" });
+    expect(plot).toBeTruthy();
     expect(container.querySelectorAll("polyline.curve-line")).toHaveLength(3);
     expect(container.querySelector("polygon.ensemble-confidence-band")).toBeTruthy();
     expect(screen.getByText("Pointwise mean")).toBeTruthy();
-    expect(screen.getByText("95% mean confidence interval")).toBeTruthy();
+    expect(screen.getByText("95% · pointwise · confidence interval · normal_approximation.mean_two_sided v1.0.0 · ddof 1")).toBeTruthy();
+    fireEvent.keyDown(plot, { key: "ArrowRight" });
+    expect(screen.getAllByText(/normal_approximation\.mean_two_sided/).length).toBeGreaterThan(1);
+    expect(screen.getByText(/n=2/)).toBeTruthy();
+    fireEvent.keyDown(plot, { key: "Escape" });
+    expect(screen.queryByText(/n=2/)).toBeNull();
   });
 
   it("renders the evaluated elastic line from server scalars and exact Recipe bounds", () => {
@@ -491,6 +611,40 @@ describe("EngineeringCurvePlot", () => {
   });
 
   it("trims every Ghosh epsilon_0 response/tangent tail independent of selection", () => {
+    const hardeningDefinition = {
+      definition_version: "1.0.0" as const,
+      channels: [
+        {
+          key: "strain.true_plastic",
+          label: "True plastic strain",
+          quantity_semantics: "strain.true_plastic",
+          axis_role: "independent" as const,
+          unit_contract: "common" as const,
+          dimension: "strain",
+          original_units: [{ unit: "1", scale_to_normalized: "1", offset_to_normalized: "0" }],
+          normalized_unit: "1",
+          display_unit: "1",
+          display_scale: "1",
+          display_offset: "0",
+          value_basis: "derived" as const,
+        },
+        ...["ghosh", "swift", "selected"].map((family) => ({
+          key: `stress.hardening.${family}`,
+          label: "Hardening stress",
+          quantity_semantics: `stress.hardening.${family}`,
+          axis_role: "dependent" as const,
+          unit_contract: "explicit_legacy" as const,
+          dimension: null,
+          original_units: [{ unit: "Pa", scale_to_normalized: "1", offset_to_normalized: "0" }],
+          normalized_unit: "Pa",
+          display_unit: "MPa",
+          display_scale: "0.000001",
+          display_offset: "0",
+          value_basis: "derived" as const,
+        })),
+      ],
+      deviations: [],
+    };
     const observed: CommonCurveStage = {
       ordinal: 1,
       method_id: "metal.engineering_to_true_plastic",
@@ -516,6 +670,9 @@ describe("EngineeringCurvePlot", () => {
       ],
       diagnostics: [],
       scalar_results: [],
+      metadata_state: "declared",
+      curve_definition_sha256: "d".repeat(64),
+      curve_definition: hardeningDefinition,
       fit_candidates: [{
         family: "ghosh",
         response: [3e8, 4e8, 5e8, 1e12],
@@ -663,10 +820,10 @@ describe("EngineeringCurvePlot", () => {
     expect(screen.getByText("Server result preview · Prony candidate")).toBeTruthy();
     expect(screen.queryByText(/Selected ·/)).toBeNull();
     expect(screen.getByText("time [s] · logarithmic")).toBeTruthy();
-    expect(screen.getByText("Shear relaxation modulus [GPa]")).toBeTruthy();
+    expect(screen.getByText("modulus shear relaxation [GPa]")).toBeTruthy();
     expect(container.querySelectorAll("polyline.curve-line")).toHaveLength(4);
     fireEvent.click(screen.getByRole("tab", { name: "Residual" }));
-    expect(screen.getByText("Predicted minus measured [MPa]")).toBeTruthy();
+    expect(screen.getByText("predicted - measured [MPa]")).toBeTruthy();
     expect(container.querySelectorAll("polyline.curve-line")).toHaveLength(3);
   });
 
@@ -778,7 +935,7 @@ describe("EngineeringCurvePlot", () => {
     expect(screen.getByText("frequency [Hz] · logarithmic")).toBeTruthy();
     expect(screen.getByLabelText("DMA storage and loss Prony candidate curves")).toBeTruthy();
     fireEvent.click(screen.getByRole("tab", { name: "Residual" }));
-    expect(screen.getByText("Predicted minus measured [MPa]")).toBeTruthy();
+    expect(screen.getByText("predicted - measured [MPa]")).toBeTruthy();
     expect(container.querySelectorAll("polyline.curve-line").length).toBeGreaterThanOrEqual(2);
   });
 });

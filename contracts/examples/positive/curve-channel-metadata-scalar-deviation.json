@@ -1,0 +1,73 @@
+{
+  "contract_version": "1.0.0",
+  "metadata_state": "legacy_compatible",
+  "definition_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "definition": {
+    "definition_version": "1.0.0",
+    "channels": [
+      {
+        "key": "engineering_strain",
+        "label": "Engineering strain",
+        "quantity_semantics": "mechanics.strain.engineering",
+        "axis_role": "independent",
+        "unit_contract": "common",
+        "dimension": "strain",
+        "original_units": [{"unit": "1", "scale_to_normalized": "1", "offset_to_normalized": "0"}],
+        "normalized_unit": "1",
+        "display_unit": "%",
+        "display_scale": "100",
+        "display_offset": "0",
+        "value_basis": "normalized"
+      },
+      {
+        "key": "engineering_stress",
+        "label": "Engineering stress",
+        "quantity_semantics": "mechanics.stress.engineering",
+        "axis_role": "dependent",
+        "unit_contract": "common",
+        "dimension": "force_per_area",
+        "original_units": [{"unit": "Pa", "scale_to_normalized": "1", "offset_to_normalized": "0"}],
+        "normalized_unit": "Pa",
+        "display_unit": "MPa",
+        "display_scale": "0.000001",
+        "display_offset": "0",
+        "value_basis": "normalized"
+      }
+    ],
+    "deviations": [
+      {
+        "key": "stress_standard_error",
+        "target_channel_key": "engineering_stress",
+        "scope": "channel_scalar",
+        "kind": "standard_error",
+        "method_id": "sample.standard_error",
+        "method_version": "1.0.0",
+        "unit": "Pa",
+        "bound_direction": "none",
+        "band_group": null,
+        "scalar_value": "125000",
+        "series_key": null,
+        "source_count": 4,
+        "source_count_series_key": null,
+        "confidence_level": null,
+        "coverage": null,
+        "ddof": null,
+        "quantile_probability": null,
+        "quantile_method": null
+      }
+    ]
+  },
+  "owning_revision": {
+    "entity_type": "dataset",
+    "entity_id": "00000000-0000-4000-8000-000000000031",
+    "revision_id": "00000000-0000-4000-8000-000000000032"
+  },
+  "artifact": {
+    "artifact_id": "00000000-0000-4000-8000-000000000033",
+    "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "schema_ref": "urn:cmp:datasets:legacy-curve:1.0.0",
+    "media_type": "application/vnd.apache.parquet"
+  },
+  "sources": [],
+  "provenance": []
+}

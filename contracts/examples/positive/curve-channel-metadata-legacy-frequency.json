@@ -1,0 +1,52 @@
+{
+  "contract_version": "1.0.0",
+  "metadata_state": "legacy_compatible",
+  "definition_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "definition": {
+    "definition_version": "1.0.0",
+    "channels": [
+      {
+        "key": "frequency",
+        "label": "Cyclic frequency",
+        "quantity_semantics": "frequency.cyclic",
+        "axis_role": "independent",
+        "unit_contract": "explicit_legacy",
+        "dimension": null,
+        "original_units": [{"unit": "Hz", "scale_to_normalized": "1", "offset_to_normalized": "0"}],
+        "normalized_unit": "Hz",
+        "display_unit": "Hz",
+        "display_scale": "1",
+        "display_offset": "0",
+        "value_basis": "original"
+      },
+      {
+        "key": "storage_modulus",
+        "label": "Storage modulus",
+        "quantity_semantics": "modulus.shear.storage",
+        "axis_role": "dependent",
+        "unit_contract": "common",
+        "dimension": "force_per_area",
+        "original_units": [{"unit": "Pa", "scale_to_normalized": "1", "offset_to_normalized": "0"}],
+        "normalized_unit": "Pa",
+        "display_unit": "Pa",
+        "display_scale": "1",
+        "display_offset": "0",
+        "value_basis": "normalized"
+      }
+    ],
+    "deviations": []
+  },
+  "owning_revision": {
+    "entity_type": "dataset",
+    "entity_id": "00000000-0000-4000-8000-000000000011",
+    "revision_id": "00000000-0000-4000-8000-000000000012"
+  },
+  "artifact": {
+    "artifact_id": "00000000-0000-4000-8000-000000000013",
+    "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "schema_ref": "urn:cmp:datasets:viscoelastic-master-curve-parquet:1.0.0",
+    "media_type": "application/vnd.apache.parquet"
+  },
+  "sources": [],
+  "provenance": []
+}

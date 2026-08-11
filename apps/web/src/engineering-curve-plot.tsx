@@ -4,6 +4,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
   type WheelEvent as ReactWheelEvent,
 } from "react";
@@ -13,8 +14,17 @@ import type {
   CommonEnsemblePreview,
   CommonProcessingPreview,
   CommonProcessingStep,
+  CurveChannelContract,
+  CurveDeviationContract,
   GraphSelectionCommand,
 } from "./types";
+import {
+  channelAxisLabel,
+  channelForQuantity,
+  deviationMeaning,
+  displayCurveValue,
+  resolveDeviationBand,
+} from "./curve-contract";
 import {
   fitDecisionIdentityLabel,
   type FitDecisionSelection,
@@ -54,6 +64,9 @@ interface PlotBand {
   xValues: number[];
   lowerValues: number[];
   upperValues: number[];
+  deviation?: CurveDeviationContract;
+  sourceCount?: number;
+  sourceCounts?: number[];
 }
 
 interface PlotModel {
@@ -61,6 +74,8 @@ interface PlotModel {
   xUnit: string;
   yQuantity: string;
   yUnit: string;
+  xChannel?: CurveChannelContract;
+  yChannel?: CurveChannelContract;
   series: PlotSeries[];
   band?: PlotBand;
   extrapolationStart?: number;
@@ -86,18 +101,6 @@ const PLOT_MARGIN = ENGINEERING_PLOT_MARGIN;
 // extrapolation domain can anchor the annotation back inside the plot gutter.
 const EXTRAPOLATION_LABEL_WIDTH = 250;
 const CANDIDATE_COLORS = ["#64748b", "#0f766e", "#d97706", "#7c3aed", "#dc2626"];
-const QUANTITY_LABELS: Record<string, string> = {
-  "strain.engineering": "Engineering strain",
-  "strain.true_plastic": "True plastic strain",
-  "stress.hardening": "Hardening stress",
-  "stress.true": "True stress",
-  "stress.engineering": "Engineering stress",
-  "modulus.shear.relaxation": "Shear relaxation modulus",
-  "modulus.shear.dynamic": "Dynamic shear modulus",
-  "predicted - measured": "Predicted minus measured",
-  response: "Response",
-};
-
 function modelLabel(value: string): string {
   return {
     voce: "Voce",
@@ -108,8 +111,18 @@ function modelLabel(value: string): string {
 }
 
 function quantityLabel(quantity: string): string {
-  return QUANTITY_LABELS[quantity]
-    ?? quantity.split(".").map((part) => part.replaceAll("_", " ")).join(" ");
+  return quantity.split(".").map((part) => part.replaceAll("_", " ")).join(" ");
+}
+
+function withCurveContract(
+  model: PlotModel,
+  definition: CommonCurveStage["curve_definition"],
+): PlotModel {
+  return {
+    ...model,
+    xChannel: model.xChannel ?? channelForQuantity(definition, model.xQuantity, "independent") ?? undefined,
+    yChannel: model.yChannel ?? channelForQuantity(definition, model.yQuantity, "dependent") ?? undefined,
+  };
 }
 
 export function linearInterpolate(
@@ -426,7 +439,10 @@ function seriesForStage(
     return {
       xQuantity,
       xUnit: activeX?.unit ?? "1",
-      yQuantity: "stress.hardening",
+      // Resolve the aggregate hardening view through an exact declared channel.
+      // Candidate identity remains in each series/legend entry while the shared
+      // contract supplies the physical axis label and display conversion.
+      yQuantity: decisionSeries?.quantity ?? candidates[0]?.quantity ?? "stress.hardening",
       yUnit: decisionSeries?.unit ?? candidates[0]?.unit ?? "Pa",
       series: [
         ...(observedX.length === observedY.length ? [{
@@ -647,11 +663,24 @@ function seriesForEnsemble(preview: CommonEnsemblePreview): PlotModel {
       className: "ensemble-member",
     };
   });
+  const definition = statistic.curve_definition;
+  const independentChannel = channelForQuantity(definition, preview.independent_quantity, "independent");
+  const dependentChannel = channelForQuantity(definition, statistic.quantity, "dependent");
+  const resolvedBand = definition && statistic.curve_series && dependentChannel
+    ? resolveDeviationBand(definition, statistic.curve_series, dependentChannel)
+    : null;
+  const completeBand = resolvedBand
+    && resolvedBand.lowerValues.every((value): value is number => value !== null)
+    && resolvedBand.upperValues.every((value): value is number => value !== null)
+    ? resolvedBand as typeof resolvedBand & { lowerValues: number[]; upperValues: number[] }
+    : null;
   return {
     xQuantity: preview.independent_quantity,
     xUnit: preview.grid_unit,
     yQuantity: statistic.quantity,
     yUnit: statistic.unit,
+    xChannel: independentChannel ?? undefined,
+    yChannel: dependentChannel ?? undefined,
     series: [
       ...memberSeries,
       {
@@ -663,13 +692,18 @@ function seriesForEnsemble(preview: CommonEnsemblePreview): PlotModel {
         className: "ensemble-mean",
       },
     ],
-    band: {
-      id: "confidence-95",
-      label: "95% mean confidence interval",
+    band: completeBand ? {
+      id: completeBand.group,
+      label: completeBand.label,
       xValues: preview.grid,
-      lowerValues: statistic.confidence_95_lower,
-      upperValues: statistic.confidence_95_upper,
-    },
+      lowerValues: completeBand.lowerValues,
+      upperValues: completeBand.upperValues,
+      deviation: completeBand.lower,
+      sourceCount: completeBand.lower.source_count ?? undefined,
+      sourceCounts: completeBand.lower.source_count_series_key
+        ? statistic.curve_series?.source_counts.find((item) => item.key === completeBand.lower.source_count_series_key)?.values
+        : undefined,
+    } : undefined,
   };
 }
 
@@ -836,6 +870,7 @@ export function EngineeringCurvePlot({
   const [hiddenSeries, setHiddenSeries] = useState<string[]>([]);
   const [viewBounds, setViewBounds] = useState<PlotBounds | null>(null);
   const [cursor, setCursor] = useState<{ x: number; y: number } | null>(null);
+  const [inspection, setInspection] = useState<{ seriesId: string; index: number; keyboard: boolean } | null>(null);
   const [drag, setDrag] = useState<{ clientX: number; clientY: number; bounds: PlotBounds } | null>(null);
   const [interactionMode, setInteractionMode] = useState<PlotInteractionMode>("pan");
   const [selectionStart, setSelectionStart] = useState<{ x: number; y: number } | null>(null);
@@ -844,6 +879,7 @@ export function EngineeringCurvePlot({
   const [pronyMode, setPronyMode] = useState<PronyPlotMode>("response");
   const [renderedSize, setRenderedSize] = useState<{ width: number; height: number } | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const inspectionLiveId = useId();
   const hardeningClipId = `hardening-series-clip-${useId().replace(/[^A-Za-z0-9_-]/g, "")}`;
   const isHardening = !ensemblePreview && activeStage.method_id === "metal.hardening_fit_extrapolate";
   const hideInteractionControls = isHardening;
@@ -851,9 +887,13 @@ export function EngineeringCurvePlot({
     || activeStage.method_id === "polymer.dma_prony_fit_compare");
   const isDmaProny = activeStage.method_id === "polymer.dma_prony_fit_compare";
   const model = useMemo(() => {
-    const baseModel = ensemblePreview
+    const rawModel = ensemblePreview
       ? seriesForEnsemble(ensemblePreview)
       : seriesForStage(preview, activeStage, baseStage, activeStep, hardeningMode, pronyMode, fitSelection);
+    const baseModel = withCurveContract(
+      rawModel,
+      ensemblePreview?.statistics[0]?.curve_definition ?? activeStage.curve_definition,
+    );
     if (ensemblePreview || selectedModelOnly) return baseModel;
     if (!observedCurves?.length) return baseModel;
     const observedSeries: PlotSeries[] = observedCurves.flatMap((curve, index) => {
@@ -903,6 +943,12 @@ export function EngineeringCurvePlot({
     (item) => item.xValues.length >= 2 && item.xValues.length === item.yValues.length
       && (model.xScale !== "log10" || item.xValues.every((value) => value > 0)),
   );
+  const inspectableSeries = validSeries.filter((item) => !hiddenSeries.includes(item.id));
+  const inspectedSeries = inspection
+    ? inspectableSeries.find((item) => item.id === inspection.seriesId) ?? null
+    : null;
+  const inspectedX = inspectedSeries && inspection ? inspectedSeries.xValues[inspection.index] : null;
+  const inspectedY = inspectedSeries && inspection ? inspectedSeries.yValues[inspection.index] : null;
   const toPlotX = (value: number) => model.xScale === "log10" ? Math.log10(value) : value;
   const fromPlotX = (value: number) => model.xScale === "log10" ? 10 ** value : value;
   const plottedSeries = validSeries.map((item) => ({
@@ -949,6 +995,29 @@ export function EngineeringCurvePlot({
   const width = effectiveWidth;
   const height = effectiveHeight;
   const yScale = displayScale(model.yUnit, displayBoundYValues);
+  const displayX = (value: number): number => model.xChannel
+    ? displayCurveValue(model.xChannel, value) ?? value
+    : value;
+  const displayY = (value: number): number => model.yChannel
+    ? displayCurveValue(model.yChannel, value) ?? value
+    : value / yScale.divisor;
+  const xDisplayUnit = model.xChannel?.display_unit ?? model.xUnit;
+  const yDisplayUnit = model.yChannel?.display_unit ?? yScale.label;
+  const xAxisLabel = model.xChannel
+    ? channelAxisLabel(model.xChannel)
+    : `${quantityLabel(model.xQuantity)} [${model.xUnit}]`;
+  const yAxisLabel = model.yChannel
+    ? channelAxisLabel(model.yChannel)
+    : `${quantityLabel(model.yQuantity)} [${yScale.label}]`;
+  const inspectedBandIndex = inspectedX !== null && model.band?.xValues.length
+    ? model.band.xValues.reduce((bestIndex, value, index, values) => (
+      Math.abs(value - inspectedX) < Math.abs(values[bestIndex] - inspectedX) ? index : bestIndex
+    ), 0)
+    : null;
+  const inspectedBandLower = inspectedBandIndex === null ? null : model.band?.lowerValues[inspectedBandIndex] ?? null;
+  const inspectedBandUpper = inspectedBandIndex === null ? null : model.band?.upperValues[inspectedBandIndex] ?? null;
+  const inspectedSourceCount = inspectedBandIndex === null ? null
+    : model.band?.sourceCounts?.[inspectedBandIndex] ?? model.band?.sourceCount ?? null;
   const xTicks = model.xScale === "log10"
     ? Array.from(
         { length: Math.max(0, Math.floor(bounds.xMax) - Math.ceil(bounds.xMin) + 1) },
@@ -991,6 +1060,7 @@ export function EngineeringCurvePlot({
     setHiddenSeries([]);
     setViewBounds(null);
     setCursor(null);
+    setInspection(null);
     setDrag(null);
     setSelectionStart(null);
     setSelection(null);
@@ -1064,9 +1134,38 @@ export function EngineeringCurvePlot({
     };
   }
 
+  function inspectNearest(rawX: number, keyboard: boolean): void {
+    const candidates = inspectableSeries.flatMap((series) => series.xValues.map((x, index) => ({
+      seriesId: series.id,
+      index,
+      distance: Math.abs(x - rawX),
+    })));
+    if (!candidates.length) return;
+    const nearest = candidates.reduce((best, item) => item.distance < best.distance ? item : best);
+    setInspection({ seriesId: nearest.seriesId, index: nearest.index, keyboard });
+  }
+
+  function onPlotKeyDown(event: ReactKeyboardEvent<SVGSVGElement>): void {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End", "Escape"].includes(event.key)) return;
+    event.preventDefault();
+    if (event.key === "Escape") {
+      setInspection(null);
+      return;
+    }
+    const series = inspectedSeries ?? inspectableSeries[0];
+    if (!series?.xValues.length) return;
+    const current = inspectedSeries === series && inspection ? inspection.index : 0;
+    const index = event.key === "Home" ? 0
+      : event.key === "End" ? series.xValues.length - 1
+        : event.key === "ArrowLeft" ? Math.max(0, current - 1)
+          : Math.min(series.xValues.length - 1, current + 1);
+    setInspection({ seriesId: series.id, index, keyboard: true });
+  }
+
   function onPointerMove(event: ReactPointerEvent<SVGSVGElement>): void {
     const coordinates = pointerCoordinates(event);
     setCursor(coordinates);
+    inspectNearest(fromPlotX(coordinates.x), false);
     if (interactionMode === "range" && selectionStart) {
       setSelection({
         kind: "range",
@@ -1109,6 +1208,15 @@ export function EngineeringCurvePlot({
   const plottedCurveLines = plottedSeries
     .filter((series) => hardeningResponseSeries.some((item) => item.id === series.id))
     .map((series) => hiddenSeries.includes(series.id) ? null : <polyline key={series.id} points={plotPoints(series.xValues, series.yValues, effectiveWidth, effectiveHeight, bounds, plotMargin)} className={`curve-line ${series.className}`} style={{ stroke: series.color }} />);
+  const inspectedPlotX = inspectedX === null ? null : toPlotX(inspectedX);
+  const inspectedPixel = inspectedPlotX === null || inspectedY === null ? null : {
+    x: plotMargin.left + ((inspectedPlotX - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right),
+    y: height - plotMargin.bottom - ((inspectedY - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - plotMargin.top - plotMargin.bottom),
+  };
+  const inspectedBandMeaning = model.band?.deviation ? deviationMeaning(model.band.deviation) : model.band?.label;
+  const inspectionLiveText = inspectedX !== null && inspectedY !== null
+    ? `${inspectedSeries?.label ?? "Curve"}; ${model.xChannel?.label ?? quantityLabel(model.xQuantity)} ${axisNumber(displayX(inspectedX))} ${xDisplayUnit}; ${model.yChannel?.label ?? quantityLabel(model.yQuantity)} ${axisNumber(displayY(inspectedY))} ${yDisplayUnit}${inspectedBandLower === null || inspectedBandUpper === null ? "" : `; ${inspectedBandMeaning}, lower ${axisNumber(displayY(inspectedBandLower))}, upper ${axisNumber(displayY(inspectedBandUpper))}${inspectedSourceCount === null ? "" : `, n ${inspectedSourceCount}`}`}.`
+    : "Use Left and Right Arrow keys to inspect exact curve points. Escape clears the tooltip.";
 
   return (
     <>
@@ -1125,7 +1233,7 @@ export function EngineeringCurvePlot({
           <button type="button" disabled={!selection || !onApplySelection} onClick={applySelection}>Apply selection</button>
           {selection ? <button type="button" onClick={() => setSelection(null)}>Clear</button> : null}
         </div> : null}
-        {!isHardening ? <span>{selection?.kind === "range" ? `Selected ${axisNumber(selection.minimum)} – ${axisNumber(selection.maximum)} ${selection.x_unit}` : selection?.kind === "point" ? `Selected ${axisNumber(selection.x)} ${selection.x_unit} · ${axisNumber(selection.y / yScale.divisor)} ${yScale.label}` : cursor ? `${axisNumber(fromPlotX(cursor.x))} ${model.xUnit} · ${axisNumber(cursor.y / yScale.divisor)} ${yScale.label}` : interactionMode === "pan" ? "Wheel to zoom · drag to pan" : interactionMode === "range" ? "Drag across the x-domain, then apply" : "Click one engineering point, then apply"}</span> : null}
+        {!isHardening ? <span>{selection?.kind === "range" ? `Selected ${axisNumber(displayX(selection.minimum))} – ${axisNumber(displayX(selection.maximum))} ${xDisplayUnit}` : selection?.kind === "point" ? `Selected ${axisNumber(displayX(selection.x))} ${xDisplayUnit} · ${axisNumber(displayY(selection.y))} ${yDisplayUnit}` : inspectedX !== null && inspectedY !== null ? `${inspectedSeries?.label ?? "Curve"} · ${axisNumber(displayX(inspectedX))} ${xDisplayUnit} · ${axisNumber(displayY(inspectedY))} ${yDisplayUnit}` : interactionMode === "pan" ? "Wheel to zoom · drag to pan" : interactionMode === "range" ? "Drag across the x-domain, then apply" : "Click one engineering point, then apply"}</span> : null}
       </div>
       {isHardening && !selectedModelOnly ? <div className="hardening-analysis-tabs" role="tablist" aria-label="Hardening comparison view">
         {(["response", "residual", "derivative"] as HardeningPlotMode[]).map((mode) => <button type="button" role="tab" aria-selected={hardeningMode === mode} className={hardeningMode === mode ? "active" : ""} key={mode} onClick={() => setHardeningMode(mode)}>{mode === "response" ? "Response" : mode === "residual" ? "Residual" : "Tangent modulus"}</button>)}
@@ -1140,8 +1248,12 @@ export function EngineeringCurvePlot({
         ref={svgRef}
         className={`processing-curve interactive interaction-${interactionMode} ${drag ? "is-panning" : ""}`}
         role="img"
-        aria-label={selectedModelOnly ? "Test data and selected model response" : ensemblePreview ? "Aligned replicate curves with pointwise mean and confidence interval" : activeStage.method_id === "metal.hardening_fit_extrapolate" ? "Hardening candidate and selected extrapolation curves" : activeStage.method_id === "polymer.dma_prony_fit_compare" ? "DMA storage and loss Prony candidate curves" : activeStage.method_id === "polymer.prony_fit_compare" ? "Prony candidate and selected relaxation curves" : "Mapped and selected processing stage curve overlay"}
+        aria-label={selectedModelOnly ? "Test data and selected model response" : ensemblePreview ? "Aligned replicate curves with declared pointwise statistics" : activeStage.method_id === "metal.hardening_fit_extrapolate" ? "Hardening candidate and selected extrapolation curves" : activeStage.method_id === "polymer.dma_prony_fit_compare" ? "DMA storage and loss Prony candidate curves" : activeStage.method_id === "polymer.prony_fit_compare" ? "Prony candidate and selected relaxation curves" : "Mapped and selected processing stage curve overlay"}
+        aria-describedby={inspectionLiveId}
+        tabIndex={0}
         viewBox={`0 0 ${effectiveWidth} ${effectiveHeight}`}
+        onKeyDown={onPlotKeyDown}
+        onBlur={() => setInspection(null)}
         onDoubleClick={() => setViewBounds(null)}
         onPointerDown={(event) => {
           if (event.button !== 0) return;
@@ -1157,7 +1269,10 @@ export function EngineeringCurvePlot({
           }
         }}
         onPointerMove={onPointerMove}
-        onPointerLeave={() => setCursor(null)}
+        onPointerLeave={() => {
+          setCursor(null);
+          setInspection((current) => current?.keyboard ? current : null);
+        }}
         onPointerUp={endPointer}
         onPointerCancel={endPointer}
         onWheel={onWheel}
@@ -1167,11 +1282,11 @@ export function EngineeringCurvePlot({
         </defs>
         {xTicks.map((tick) => {
           const px = plotMargin.left + ((tick - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (effectiveWidth - plotMargin.left - plotMargin.right);
-          return <g key={`x-${tick}`}><line x1={px} y1={plotMargin.top} x2={px} y2={effectiveHeight - plotMargin.bottom} className="chart-grid"/><text x={px} y={effectiveHeight - 32} textAnchor="middle" className="chart-tick">{axisNumber(fromPlotX(tick))}</text></g>;
+          return <g key={`x-${tick}`}><line x1={px} y1={plotMargin.top} x2={px} y2={effectiveHeight - plotMargin.bottom} className="chart-grid"/><text x={px} y={effectiveHeight - 32} textAnchor="middle" className="chart-tick">{axisNumber(displayX(fromPlotX(tick)))}</text></g>;
         })}
         {yTicks.map((tick) => {
           const py = effectiveHeight - plotMargin.bottom - ((tick - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (effectiveHeight - plotMargin.top - plotMargin.bottom);
-          return <g key={`y-${tick}`}><line x1={plotMargin.left} y1={py} x2={effectiveWidth - plotMargin.right} y2={py} className="chart-grid"/><text x={plotMargin.left - 8} y={py + 4} textAnchor="end" className="chart-tick">{axisNumber(tick / yScale.divisor)}</text></g>;
+          return <g key={`y-${tick}`}><line x1={plotMargin.left} y1={py} x2={effectiveWidth - plotMargin.right} y2={py} className="chart-grid"/><text x={plotMargin.left - 8} y={py + 4} textAnchor="end" className="chart-tick">{axisNumber(displayY(tick))}</text></g>;
         })}
         {extrapolationPlotStart !== undefined && extrapolationPlotStart < bounds.xMax ? <g className="extrapolation-region"><rect x={plotMargin.left + ((Math.max(extrapolationPlotStart, bounds.xMin) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * plotWidth} y={plotMargin.top} width={Math.max(0, ((bounds.xMax - Math.max(extrapolationPlotStart, bounds.xMin)) / (bounds.xMax - bounds.xMin || 1)) * plotWidth)} height={height - plotMargin.top - plotMargin.bottom}/><line x1={extrapolationStartX} y1={plotMargin.top} x2={extrapolationStartX} y2={height - plotMargin.bottom}/></g> : null}
         <line x1={plotMargin.left} y1={effectiveHeight - plotMargin.bottom} x2={effectiveWidth - plotMargin.right} y2={effectiveHeight - plotMargin.bottom} className="chart-axis" />
@@ -1182,10 +1297,12 @@ export function EngineeringCurvePlot({
         {marker ? <g className="engineering-result-marker"><line x1={plotMargin.left + ((toPlotX(marker.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right)} y1={plotMargin.top} x2={plotMargin.left + ((toPlotX(marker.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right)} y2={height - plotMargin.bottom}/><circle cx={plotMargin.left + ((toPlotX(marker.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right)} cy={height - plotMargin.bottom - ((marker.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - plotMargin.top - plotMargin.bottom)} r="5"/><text x={plotMargin.left + ((toPlotX(marker.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right) + 8} y={Math.max(plotMargin.top + 12, height - plotMargin.bottom - ((marker.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - plotMargin.top - plotMargin.bottom) - 8)}>{marker.label}</text></g> : null}
         {selection?.kind === "range" ? <rect className="graph-range-selection" x={plotMargin.left + ((toPlotX(selection.minimum) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right)} y={plotMargin.top} width={Math.max(1, ((toPlotX(selection.maximum) - toPlotX(selection.minimum)) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right))} height={height - plotMargin.top - plotMargin.bottom} /> : null}
         {selection?.kind === "point" ? <><line className="graph-point-selection" x1={plotMargin.left + ((toPlotX(selection.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right)} y1={plotMargin.top} x2={plotMargin.left + ((toPlotX(selection.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right)} y2={height - plotMargin.bottom} /><circle className="graph-point-marker" cx={plotMargin.left + ((toPlotX(selection.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right)} cy={height - plotMargin.bottom - ((selection.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - plotMargin.top - plotMargin.bottom)} r="5" /></> : null}
-        {cursor ? <><line x1={plotMargin.left + ((cursor.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right)} y1={plotMargin.top} x2={plotMargin.left + ((cursor.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right)} y2={height - plotMargin.bottom} className="chart-crosshair"/><line x1={plotMargin.left} y1={height - plotMargin.bottom - ((cursor.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - plotMargin.top - plotMargin.bottom)} x2={width - plotMargin.right} y2={height - plotMargin.bottom - ((cursor.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - plotMargin.top - plotMargin.bottom)} className="chart-crosshair"/></> : null}
-        <text x={(plotMargin.left + width - plotMargin.right) / 2} y={height - 8} textAnchor="middle" className="chart-axis-label">{quantityLabel(model.xQuantity)} [{model.xUnit}]{model.xScale === "log10" ? " · logarithmic" : ""}</text>
-        <text transform={`translate(15 ${(plotMargin.top + height - plotMargin.bottom) / 2}) rotate(-90)`} textAnchor="middle" className="chart-axis-label">{quantityLabel(model.yQuantity)} [{yScale.label}]</text>
+        {inspectedPixel ? <><line x1={inspectedPixel.x} y1={plotMargin.top} x2={inspectedPixel.x} y2={height - plotMargin.bottom} className="chart-crosshair"/><line x1={plotMargin.left} y1={inspectedPixel.y} x2={width - plotMargin.right} y2={inspectedPixel.y} className="chart-crosshair"/><circle className="graph-point-marker" cx={inspectedPixel.x} cy={inspectedPixel.y} r="4"/></> : null}
+        <text x={(plotMargin.left + width - plotMargin.right) / 2} y={height - 8} textAnchor="middle" className="chart-axis-label">{xAxisLabel}{model.xScale === "log10" ? " · logarithmic" : ""}</text>
+        <text transform={`translate(15 ${(plotMargin.top + height - plotMargin.bottom) / 2}) rotate(-90)`} textAnchor="middle" className="chart-axis-label">{yAxisLabel}</text>
       </svg>
+      {inspectedPixel && inspectedX !== null && inspectedY !== null ? <div className="engineering-curve-tooltip" role="status" style={{ left: `${Math.min(68, Math.max(4, (inspectedPixel.x / width) * 100))}%`, top: `${Math.max(22, (inspectedPixel.y / height) * 100)}%` }}><strong>{inspectedSeries?.label ?? "Curve"} · point {(inspection?.index ?? 0) + 1}</strong><span>{model.xChannel?.label ?? quantityLabel(model.xQuantity)}: {axisNumber(displayX(inspectedX))} {xDisplayUnit}</span><span>{model.yChannel?.label ?? quantityLabel(model.yQuantity)}: {axisNumber(displayY(inspectedY))} {yDisplayUnit}</span>{inspectedBandLower !== null && inspectedBandUpper !== null ? <span>{inspectedBandMeaning}<br/>lower {axisNumber(displayY(inspectedBandLower))} · upper {axisNumber(displayY(inspectedBandUpper))} {yDisplayUnit}{inspectedSourceCount === null ? "" : ` · n=${inspectedSourceCount}`}</span> : null}</div> : null}
+      <p id={inspectionLiveId} className="visually-hidden" aria-live="polite">{inspectionLiveText}</p>
       <div className="curve-legend interactive" aria-label="Curve visibility">
         {validSeries.filter((series, index, all) => hardeningResponseSeries.some((item) => item.id === series.id) && (!isHardening || !series.className.includes("extrapolated-domain")) && (!isHardening || index === all.findIndex((item) => item.id.split(".observed")[0] === series.id.split(".observed")[0]))).map((series) => <button type="button" className={hiddenSeries.includes(series.id) ? "hidden" : ""} key={series.id} onClick={() => setHiddenSeries((current) => current.includes(series.id) ? current.filter((item) => item !== series.id) : [...current, series.id])} aria-pressed={!hiddenSeries.includes(series.id)}><i style={{ background: series.color }} />{isHardening && series.className.includes("fitted-domain") ? series.label.replace(" · fit", "") : series.label}</button>)}
         {isHardening && hardeningMode === "response" ? <span className="curve-band-legend">Shaded: extrapolated/unobserved</span> : null}

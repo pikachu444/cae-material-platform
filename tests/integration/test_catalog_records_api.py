@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 from datetime import UTC, datetime
 from decimal import Decimal
 from types import SimpleNamespace
@@ -22,6 +23,13 @@ from cmp.modules.catalog.application.records import (
     RecordSnapshot,
     RecordValueDifference,
     RegistrationPreview,
+)
+from cmp.modules.catalog.domain.configurable import AttributeDataType
+from cmp.modules.catalog.domain.records import CatalogRecordContent, CatalogRecordValue
+from cmp.modules.datasets.domain.reference_tensile import (
+    REFERENCE_TENSILE_PARQUET_SCHEMA,
+    CurvePoint,
+    normalized_parquet_bytes,
 )
 from cmp.modules.identity_access.application.authorization import database_permissions_for
 from cmp.modules.identity_access.domain.authorization import (
@@ -49,6 +57,7 @@ RECORD_REV_1 = UUID("dc000000-0000-4000-8000-000000000011")
 RECORD_REV_2 = UUID("dc000000-0000-4000-8000-000000000012")
 RAW_ASSET = UUID("dc000000-0000-4000-8000-000000000013")
 RAW_ARTIFACT = UUID("dc000000-0000-4000-8000-000000000014")
+CURVE_ARTIFACT = UUID("dc000000-0000-4000-8000-000000000015")
 
 
 def _context() -> SecurityContext:
@@ -161,6 +170,21 @@ class _Service:
 
     def get_record_for_write(self, context: Any, decision: Any, record_id: UUID) -> RecordSnapshot:
         return self.get_record(context, decision, record_id)
+
+    def get_record_revision(
+        self,
+        context: Any,
+        decision: Any,
+        record_id: UUID,
+        revision_id: UUID,
+    ) -> ConfigRevision[Any]:
+        del context, decision
+        assert record_id == RECORD
+        return next(item for item in self.revisions if item.record.revision_id == revision_id)
+
+    def resolve_curve_ownership(self, *args: Any, **kwargs: Any) -> None:
+        del args, kwargs
+        return None
 
     def revise_record(
         self, context: Any, decision: Any, record_id: UUID, command: Any
@@ -291,6 +315,39 @@ class _Artifacts:
         )
 
 
+class _CurveArtifacts:
+    def __init__(self, value: bytes, *, schema_ref: str = REFERENCE_TENSILE_PARQUET_SCHEMA):
+        self.value = value
+        self.schema_ref = schema_ref
+        self.sha256 = hashlib.sha256(value).hexdigest()
+
+    async def read_verified_bytes(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        artifact_id: UUID,
+        *,
+        maximum_bytes: int,
+    ) -> tuple[Any, bytes]:
+        assert context == CONTEXT
+        assert decision.permission in {Permission.CATALOG_READ, Permission.CATALOG_WRITE}
+        assert Permission.ARTIFACT_READ in decision.database_permissions
+        assert artifact_id == CURVE_ARTIFACT
+        assert maximum_bytes == 64 * 1024 * 1024
+        return (
+            SimpleNamespace(
+                artifact=SimpleNamespace(
+                    id=CURVE_ARTIFACT,
+                    artifact_kind=ArtifactKind.DERIVED,
+                    sha256=self.sha256,
+                    media_type="application/vnd.apache.parquet",
+                    schema_ref=self.schema_ref,
+                )
+            ),
+            self.value,
+        )
+
+
 def _record_body(modulus: str) -> dict[str, Any]:
     return {
         "classification": "internal",
@@ -316,6 +373,20 @@ def _record_body(modulus: str) -> dict[str, Any]:
         },
         "change_reason": "API record fixture",
     }
+
+
+def _curve_record_body(sha256: str) -> dict[str, Any]:
+    body = _record_body("210000000000")
+    body["content"]["values"] = [
+        {
+            "data_type": "curve",
+            "attribute_definition_id": str(ATTRIBUTE),
+            "attribute_definition_revision_id": str(ATTRIBUTE_REV),
+            "artifact_id": str(CURVE_ARTIFACT),
+            "artifact_sha256": sha256,
+        }
+    ]
+    return body
 
 
 @pytest.mark.anyio
@@ -453,3 +524,107 @@ async def test_record_api_rejects_ambiguous_typed_value_payload() -> None:
         json=body,
     )
     assert response.status_code == 422
+
+
+@pytest.mark.anyio
+async def test_curve_pointer_requires_declared_metadata_and_previews_exact_revision() -> None:
+    parquet = normalized_parquet_bytes(
+        (
+            CurvePoint(0.0, 0.0),
+            CurvePoint(0.01, 200_000_000.0),
+            CurvePoint(0.02, 350_000_000.0),
+        )
+    )
+    artifacts = _CurveArtifacts(parquet)
+    service = _Service()
+    app = _app(service, artifacts)
+
+    created = await _request(
+        app,
+        "POST",
+        f"/api/v1/catalog/tables/{TABLE}/records",
+        json=_curve_record_body(artifacts.sha256),
+    )
+    assert created.status_code == 201
+
+    preview = await _request(
+        app,
+        "GET",
+        f"/api/v1/catalog/records/{RECORD}/revisions/{RECORD_REV_1}/"
+        f"curve-values/{ATTRIBUTE}/preview?maximum_points=2",
+    )
+    assert preview.status_code == 200, preview.text
+    payload = preview.json()
+    assert payload["curve_metadata"]["metadata_state"] == "declared"
+    assert payload["curve_metadata"]["artifact"]["sha256"] == artifacts.sha256
+    assert payload["curve_metadata"]["owning_revision"] == {
+        "entity_type": "catalog_record",
+        "entity_id": str(RECORD),
+        "revision_id": str(RECORD_REV_1),
+    }
+    assert [item["key"] for item in payload["curve_metadata"]["definition"]["channels"]] == [
+        "engineering_strain",
+        "engineering_stress",
+    ]
+    assert payload["curve_series"]["point_count"] == 3
+    assert payload["curve_series"]["indices"] == [0, 2]
+    returned_channels = {
+        item["key"]: item["values"] for item in payload["curve_series"]["channels"]
+    }
+    assert returned_channels["engineering_stress"] == [0.0, 350_000_000.0]
+
+    rejected = await _request(
+        app,
+        "POST",
+        f"/api/v1/catalog/tables/{TABLE}/records",
+        json=_curve_record_body("f" * 64),
+    )
+    assert rejected.status_code == 422
+    assert rejected.json()["code"] == "CMP-CATALOG-0020"
+
+
+@pytest.mark.anyio
+async def test_unchanged_historical_unknown_curve_pointer_remains_revisable_without_backfill(
+) -> None:
+    value = CatalogRecordValue(
+        ATTRIBUTE,
+        ATTRIBUTE_REV,
+        AttributeDataType.CURVE,
+        artifact_id=CURVE_ARTIFACT,
+        artifact_sha256="e" * 64,
+    )
+    content = CatalogRecordContent(
+        TABLE,
+        TABLE_REV,
+        "Historical curve",
+        "historical-curve",
+        "Predates curve channel metadata",
+        FOLDER,
+        FOLDER_REV,
+        (value,),
+    )
+    current = ConfigRevision(
+        _revision(RECORD_AGGREGATE_TYPE, RECORD, RECORD_REV_1, 1, None),
+        content,
+    )
+    service = _Service()
+    service.record = RecordSnapshot(RECORD, TABLE, current)
+    service.revisions = [current]
+    body = _curve_record_body("e" * 64)
+    body.pop("classification")
+    body["content"].update(
+        {
+            "name": "Historical curve",
+            "external_key": "historical-curve",
+            "description": "Predates curve channel metadata",
+        }
+    )
+
+    revised = await _request(
+        _app(service),
+        "POST",
+        f"/api/v1/catalog/records/{RECORD}/revisions",
+        headers={"If-Match": '"revision:1:sha256:' + "a" * 64 + '"'},
+        json=body,
+    )
+    assert revised.status_code == 201, revised.text

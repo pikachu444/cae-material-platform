@@ -1,0 +1,73 @@
+{
+  "contract_version": "1.0.0",
+  "metadata_state": "declared",
+  "definition_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "definition": {
+    "definition_version": "1.0.0",
+    "channels": [
+      {
+        "key": "x",
+        "label": "X",
+        "quantity_semantics": "mechanics.strain.engineering",
+        "axis_role": "independent",
+        "unit_contract": "common",
+        "dimension": "strain",
+        "original_units": [{"unit": "1", "scale_to_normalized": "1", "offset_to_normalized": "0"}],
+        "normalized_unit": "1",
+        "display_unit": "1",
+        "display_scale": "1",
+        "display_offset": "0",
+        "value_basis": "normalized"
+      },
+      {
+        "key": "y",
+        "label": "Y",
+        "quantity_semantics": "mechanics.stress.engineering",
+        "axis_role": "dependent",
+        "unit_contract": "common",
+        "dimension": "force_per_area",
+        "original_units": [{"unit": "Pa", "scale_to_normalized": "1", "offset_to_normalized": "0"}],
+        "normalized_unit": "Pa",
+        "display_unit": "Pa",
+        "display_scale": "1",
+        "display_offset": "0",
+        "value_basis": "normalized"
+      }
+    ],
+    "deviations": [
+      {
+        "key": "bad_sd",
+        "target_channel_key": "y",
+        "scope": "pointwise",
+        "kind": "standard_deviation",
+        "method_id": "sample.standard_deviation",
+        "method_version": "1.0.0",
+        "unit": "Pa",
+        "bound_direction": "none",
+        "band_group": null,
+        "scalar_value": null,
+        "series_key": "bad_sd_values",
+        "source_count": 3,
+        "source_count_series_key": "bad_counts",
+        "confidence_level": null,
+        "coverage": null,
+        "ddof": 1,
+        "quantile_probability": null,
+        "quantile_method": null
+      }
+    ]
+  },
+  "owning_revision": {
+    "entity_type": "dataset",
+    "entity_id": "00000000-0000-4000-8000-000000000041",
+    "revision_id": "00000000-0000-4000-8000-000000000042"
+  },
+  "artifact": {
+    "artifact_id": "00000000-0000-4000-8000-000000000043",
+    "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "schema_ref": "urn:cmp:datasets:curve:1.1.0",
+    "media_type": "application/vnd.apache.parquet"
+  },
+  "sources": [],
+  "provenance": []
+}

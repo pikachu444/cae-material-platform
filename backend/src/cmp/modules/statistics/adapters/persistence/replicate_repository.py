@@ -35,7 +35,7 @@ from cmp.modules.statistics.domain.reference_tensile_pair import (
 )
 from cmp.modules.statistics.domain.reference_tensile_replicates import (
     REFERENCE_TENSILE_REPLICATE_CI_METHOD,
-    REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMA,
+    REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMAS,
     REFERENCE_TENSILE_REPLICATE_GRID_POLICY,
     REFERENCE_TENSILE_REPLICATE_PLAN_KIND,
     REFERENCE_TENSILE_REPLICATE_QUANTILE_METHOD,
@@ -231,7 +231,7 @@ def _plan_values(value: ReferenceTensileReplicatePlanContent) -> dict[str, objec
         "curve_grid_policy": REFERENCE_TENSILE_REPLICATE_GRID_POLICY,
         "quantile_method": REFERENCE_TENSILE_REPLICATE_QUANTILE_METHOD,
         "confidence_interval_method": REFERENCE_TENSILE_REPLICATE_CI_METHOD,
-        "curve_output_schema_ref": REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMA,
+        "curve_output_schema_ref": value.curve_output_schema_ref,
     }
 
 
@@ -343,7 +343,8 @@ def _plan_content(row: Any) -> ReferenceTensileReplicatePlanContent:
         or str(row["curve_grid_policy"]) != REFERENCE_TENSILE_REPLICATE_GRID_POLICY
         or str(row["quantile_method"]) != REFERENCE_TENSILE_REPLICATE_QUANTILE_METHOD
         or str(row["confidence_interval_method"]) != REFERENCE_TENSILE_REPLICATE_CI_METHOD
-        or str(row["curve_output_schema_ref"]) != REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMA
+        or str(row["curve_output_schema_ref"])
+        not in REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMAS
     ):
         raise StatisticsConflict("replicate Statistical Plan violates its typed contract")
     return ReferenceTensileReplicatePlanContent(
@@ -351,6 +352,7 @@ def _plan_content(row: Any) -> ReferenceTensileReplicatePlanContent:
         selection_id=cast(UUID, row["selection_id"]),
         selection_revision_id=cast(UUID, row["selection_revision_id"]),
         sample_count=int(row["sample_count"]),
+        curve_output_schema_ref=str(row["curve_output_schema_ref"]),
     )
 
 

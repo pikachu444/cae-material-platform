@@ -1,0 +1,148 @@
+{
+  "contract_version": "1.0.0",
+  "metadata_state": "declared",
+  "definition_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "definition": {
+    "definition_version": "1.0.0",
+    "channels": [
+      {
+        "key": "engineering_strain",
+        "label": "Engineering strain",
+        "quantity_semantics": "mechanics.strain.engineering",
+        "axis_role": "independent",
+        "unit_contract": "common",
+        "dimension": "strain",
+        "original_units": [
+          {"unit": "%", "scale_to_normalized": "0.01", "offset_to_normalized": "0"},
+          {"unit": "1", "scale_to_normalized": "1", "offset_to_normalized": "0"}
+        ],
+        "normalized_unit": "1",
+        "display_unit": "%",
+        "display_scale": "100",
+        "display_offset": "0",
+        "value_basis": "normalized"
+      },
+      {
+        "key": "mean_stress",
+        "label": "Mean engineering stress",
+        "quantity_semantics": "mechanics.stress.engineering",
+        "axis_role": "dependent",
+        "unit_contract": "common",
+        "dimension": "force_per_area",
+        "original_units": [
+          {"unit": "MPa", "scale_to_normalized": "1000000", "offset_to_normalized": "0"}
+        ],
+        "normalized_unit": "Pa",
+        "display_unit": "MPa",
+        "display_scale": "0.000001",
+        "display_offset": "0",
+        "value_basis": "derived"
+      },
+      {
+        "key": "temperature",
+        "label": "Test temperature",
+        "quantity_semantics": "temperature.test",
+        "axis_role": "auxiliary",
+        "unit_contract": "common",
+        "dimension": "temperature",
+        "original_units": [
+          {"unit": "Cel", "scale_to_normalized": "1", "offset_to_normalized": "273.15"}
+        ],
+        "normalized_unit": "K",
+        "display_unit": "Cel",
+        "display_scale": "1",
+        "display_offset": "-273.15",
+        "value_basis": "normalized"
+      }
+    ],
+    "deviations": [
+      {
+        "key": "stress_sd",
+        "target_channel_key": "mean_stress",
+        "scope": "pointwise",
+        "kind": "standard_deviation",
+        "method_id": "sample.standard_deviation",
+        "method_version": "1.0.0",
+        "unit": "Pa",
+        "bound_direction": "none",
+        "band_group": null,
+        "scalar_value": null,
+        "series_key": "stress_sd_values",
+        "source_count": 3,
+        "source_count_series_key": null,
+        "confidence_level": null,
+        "coverage": null,
+        "ddof": 1,
+        "quantile_probability": null,
+        "quantile_method": null
+      },
+      {
+        "key": "mean_ci_lower",
+        "target_channel_key": "mean_stress",
+        "scope": "pointwise",
+        "kind": "confidence_bound",
+        "method_id": "student_t.two_sided",
+        "method_version": "1.0.0",
+        "unit": "Pa",
+        "bound_direction": "lower",
+        "band_group": "mean_ci_95",
+        "scalar_value": null,
+        "series_key": "mean_ci_lower_values",
+        "source_count": null,
+        "source_count_series_key": "pointwise_source_count",
+        "confidence_level": 0.95,
+        "coverage": "pointwise",
+        "ddof": 1,
+        "quantile_probability": null,
+        "quantile_method": null
+      },
+      {
+        "key": "mean_ci_upper",
+        "target_channel_key": "mean_stress",
+        "scope": "pointwise",
+        "kind": "confidence_bound",
+        "method_id": "student_t.two_sided",
+        "method_version": "1.0.0",
+        "unit": "Pa",
+        "bound_direction": "upper",
+        "band_group": "mean_ci_95",
+        "scalar_value": null,
+        "series_key": "mean_ci_upper_values",
+        "source_count": null,
+        "source_count_series_key": "pointwise_source_count",
+        "confidence_level": 0.95,
+        "coverage": "pointwise",
+        "ddof": 1,
+        "quantile_probability": null,
+        "quantile_method": null
+      }
+    ]
+  },
+  "owning_revision": {
+    "entity_type": "statistical_result",
+    "entity_id": "00000000-0000-4000-8000-000000000001",
+    "revision_id": "00000000-0000-4000-8000-000000000002"
+  },
+  "artifact": {
+    "artifact_id": "00000000-0000-4000-8000-000000000003",
+    "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "schema_ref": "urn:cmp:statistics:reference-tensile-replicates-curve-parquet:1.0.0",
+    "media_type": "application/vnd.apache.parquet"
+  },
+  "sources": [
+    {
+      "entity_type": "dataset",
+      "entity_id": "00000000-0000-4000-8000-000000000004",
+      "revision_id": "00000000-0000-4000-8000-000000000005",
+      "artifact_id": "00000000-0000-4000-8000-000000000006",
+      "artifact_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    }
+  ],
+  "provenance": [
+    {
+      "kind": "calculation_result",
+      "entity_id": "00000000-0000-4000-8000-000000000001",
+      "revision_id": "00000000-0000-4000-8000-000000000002"
+    }
+  ]
+}

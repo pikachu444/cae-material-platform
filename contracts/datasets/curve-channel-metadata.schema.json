@@ -1,0 +1,424 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:datasets:curve-channel-metadata:1.0.0",
+  "title": "CMP Curve Channel Metadata and Deviation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "metadata_state",
+    "definition_sha256",
+    "definition",
+    "owning_revision",
+    "artifact",
+    "sources",
+    "provenance"
+  ],
+  "properties": {
+    "contract_version": {"const": "1.0.0"},
+    "metadata_state": {"enum": ["declared", "legacy_compatible", "absent"]},
+    "definition_sha256": {
+      "oneOf": [
+        {"$ref": "#/$defs/Sha256"},
+        {"type": "null"}
+      ]
+    },
+    "definition": {
+      "oneOf": [
+        {"$ref": "#/$defs/CurveDefinition"},
+        {"type": "null"}
+      ]
+    },
+    "owning_revision": {"$ref": "#/$defs/RevisionPin"},
+    "artifact": {"$ref": "#/$defs/ArtifactPin"},
+    "sources": {
+      "type": "array",
+      "maxItems": 512,
+      "items": {"$ref": "#/$defs/SourcePin"}
+    },
+    "provenance": {
+      "type": "array",
+      "maxItems": 512,
+      "items": {"$ref": "#/$defs/ProvenancePointer"}
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"metadata_state": {"const": "absent"}}},
+      "then": {
+        "properties": {
+          "definition_sha256": {"type": "null"},
+          "definition": {"type": "null"}
+        }
+      },
+      "else": {
+        "properties": {
+          "definition_sha256": {"$ref": "#/$defs/Sha256"},
+          "definition": {"$ref": "#/$defs/CurveDefinition"}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "Key": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]{0,127}$"
+    },
+    "QuantitySemantics": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]{0,159}$"
+    },
+    "Decimal": {
+      "type": "string",
+      "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?$"
+    },
+    "Sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "Uuid": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "CurveDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["definition_version", "channels", "deviations"],
+      "properties": {
+        "definition_version": {"const": "1.0.0"},
+        "channels": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 512,
+          "items": {"$ref": "#/$defs/Channel"}
+        },
+        "deviations": {
+          "type": "array",
+          "maxItems": 512,
+          "items": {"$ref": "#/$defs/Deviation"}
+        }
+      }
+    },
+    "CurveFloatSeries": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "values"],
+      "properties": {
+        "key": {"$ref": "#/$defs/Key"},
+        "values": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 10000,
+          "items": {"type": ["number", "null"]}
+        }
+      }
+    },
+    "CurveCountSeries": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "values"],
+      "properties": {
+        "key": {"$ref": "#/$defs/Key"},
+        "values": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 10000,
+          "items": {"type": "integer", "minimum": 1}
+        }
+      }
+    },
+    "CurveSeriesPreview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "point_count",
+        "returned_point_count",
+        "sampled",
+        "indices",
+        "channels",
+        "deviations",
+        "source_counts"
+      ],
+      "properties": {
+        "point_count": {"type": "integer", "minimum": 2},
+        "returned_point_count": {
+          "type": "integer", "minimum": 2, "maximum": 10000
+        },
+        "sampled": {"type": "boolean"},
+        "indices": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 10000,
+          "items": {"type": "integer", "minimum": 0}
+        },
+        "channels": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 512,
+          "items": {"$ref": "#/$defs/CurveFloatSeries"}
+        },
+        "deviations": {
+          "type": "array",
+          "maxItems": 512,
+          "items": {"$ref": "#/$defs/CurveFloatSeries"}
+        },
+        "source_counts": {
+          "type": "array",
+          "maxItems": 512,
+          "items": {"$ref": "#/$defs/CurveCountSeries"}
+        }
+      }
+    },
+    "Channel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "label",
+        "quantity_semantics",
+        "axis_role",
+        "unit_contract",
+        "dimension",
+        "original_units",
+        "normalized_unit",
+        "display_unit",
+        "display_scale",
+        "display_offset",
+        "value_basis"
+      ],
+      "properties": {
+        "key": {"$ref": "#/$defs/Key"},
+        "label": {"type": "string", "minLength": 1, "maxLength": 200},
+        "quantity_semantics": {"$ref": "#/$defs/QuantitySemantics"},
+        "axis_role": {"enum": ["independent", "dependent", "auxiliary"]},
+        "unit_contract": {"enum": ["common", "explicit_legacy"]},
+        "dimension": {
+          "type": ["string", "null"],
+          "enum": [
+            "force_per_area",
+            "length",
+            "time",
+            "force",
+            "mass",
+            "mass_per_volume",
+            "temperature",
+            "strain",
+            null
+          ]
+        },
+        "original_units": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {"$ref": "#/$defs/OriginalUnit"}
+        },
+        "normalized_unit": {"type": "string", "minLength": 1, "maxLength": 80},
+        "display_unit": {"type": "string", "minLength": 1, "maxLength": 80},
+        "display_scale": {"$ref": "#/$defs/Decimal"},
+        "display_offset": {"$ref": "#/$defs/Decimal"},
+        "value_basis": {"enum": ["original", "normalized", "derived"]}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"unit_contract": {"const": "common"}}},
+          "then": {"properties": {"dimension": {"type": "string"}}},
+          "else": {"properties": {"dimension": {"type": "null"}}}
+        }
+      ]
+    },
+    "OriginalUnit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["unit", "scale_to_normalized", "offset_to_normalized"],
+      "properties": {
+        "unit": {"type": "string", "minLength": 1, "maxLength": 80},
+        "scale_to_normalized": {"$ref": "#/$defs/Decimal"},
+        "offset_to_normalized": {"$ref": "#/$defs/Decimal"}
+      }
+    },
+    "Deviation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "target_channel_key",
+        "scope",
+        "kind",
+        "method_id",
+        "method_version",
+        "unit",
+        "bound_direction",
+        "band_group",
+        "scalar_value",
+        "series_key",
+        "source_count",
+        "source_count_series_key",
+        "confidence_level",
+        "coverage",
+        "ddof",
+        "quantile_probability",
+        "quantile_method"
+      ],
+      "properties": {
+        "key": {"$ref": "#/$defs/Key"},
+        "target_channel_key": {"$ref": "#/$defs/Key"},
+        "scope": {"enum": ["channel_scalar", "pointwise"]},
+        "kind": {
+          "enum": [
+            "standard_deviation",
+            "standard_error",
+            "confidence_bound",
+            "prediction_bound",
+            "tolerance_bound",
+            "quantile",
+            "median_absolute_deviation",
+            "interquartile_range",
+            "range_bound",
+            "coefficient_of_variation"
+          ]
+        },
+        "method_id": {"$ref": "#/$defs/Key"},
+        "method_version": {"type": "string", "minLength": 1, "maxLength": 64},
+        "unit": {"type": "string", "minLength": 1, "maxLength": 80},
+        "bound_direction": {"enum": ["none", "lower", "upper"]},
+        "band_group": {"type": ["string", "null"], "minLength": 1, "maxLength": 128},
+        "scalar_value": {
+          "oneOf": [{"$ref": "#/$defs/Decimal"}, {"type": "null"}]
+        },
+        "series_key": {
+          "oneOf": [{"$ref": "#/$defs/Key"}, {"type": "null"}]
+        },
+        "source_count": {"type": ["integer", "null"], "minimum": 1},
+        "source_count_series_key": {
+          "oneOf": [{"$ref": "#/$defs/Key"}, {"type": "null"}]
+        },
+        "confidence_level": {
+          "type": ["number", "null"], "exclusiveMinimum": 0, "exclusiveMaximum": 1
+        },
+        "coverage": {"enum": ["pointwise", "simultaneous", null]},
+        "ddof": {"type": ["integer", "null"], "minimum": 0},
+        "quantile_probability": {
+          "type": ["number", "null"], "minimum": 0, "maximum": 1
+        },
+        "quantile_method": {"type": ["string", "null"], "minLength": 1, "maxLength": 100}
+      },
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "source_count": {"type": "integer", "minimum": 1},
+                "source_count_series_key": {"type": "null"}
+              }
+            },
+            {
+              "properties": {
+                "source_count": {"type": "null"},
+                "source_count_series_key": {"$ref": "#/$defs/Key"}
+              }
+            }
+          ]
+        },
+        {
+          "if": {"properties": {"scope": {"const": "channel_scalar"}}},
+          "then": {
+            "properties": {
+              "scalar_value": {"$ref": "#/$defs/Decimal"},
+              "series_key": {"type": "null"},
+              "source_count_series_key": {"type": "null"}
+            }
+          },
+          "else": {
+            "properties": {
+              "scalar_value": {"type": "null"},
+              "series_key": {"$ref": "#/$defs/Key"}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": ["confidence_bound", "prediction_bound", "tolerance_bound"]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "confidence_level": {"type": "number"},
+              "coverage": {"enum": ["pointwise", "simultaneous"]},
+              "bound_direction": {"enum": ["lower", "upper"]},
+              "band_group": {"type": "string"}
+            }
+          },
+          "else": {
+            "properties": {
+              "confidence_level": {"type": "null"},
+              "coverage": {"type": "null"}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"kind": {"const": "quantile"}}},
+          "then": {
+            "properties": {
+              "quantile_probability": {"type": "number"},
+              "quantile_method": {"type": "string"}
+            }
+          },
+          "else": {
+            "properties": {
+              "quantile_probability": {"type": "null"},
+              "quantile_method": {"type": "null"}
+            }
+          }
+        }
+      ]
+    },
+    "RevisionPin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "entity_id", "revision_id"],
+      "properties": {
+        "entity_type": {"$ref": "#/$defs/Key"},
+        "entity_id": {"$ref": "#/$defs/Uuid"},
+        "revision_id": {"$ref": "#/$defs/Uuid"}
+      }
+    },
+    "ArtifactPin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id", "sha256", "schema_ref", "media_type"],
+      "properties": {
+        "artifact_id": {"$ref": "#/$defs/Uuid"},
+        "sha256": {"$ref": "#/$defs/Sha256"},
+        "schema_ref": {"type": ["string", "null"], "minLength": 1, "maxLength": 300},
+        "media_type": {"type": "string", "minLength": 1, "maxLength": 200}
+      }
+    },
+    "SourcePin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "entity_id", "revision_id", "artifact_id", "artifact_sha256"],
+      "properties": {
+        "entity_type": {"$ref": "#/$defs/Key"},
+        "entity_id": {"$ref": "#/$defs/Uuid"},
+        "revision_id": {"$ref": "#/$defs/Uuid"},
+        "artifact_id": {"oneOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "artifact_sha256": {"oneOf": [{"$ref": "#/$defs/Sha256"}, {"type": "null"}]}
+      }
+    },
+    "ProvenancePointer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "entity_id", "revision_id"],
+      "properties": {
+        "kind": {
+          "enum": ["input_usage", "generation_activity", "calculation_plan", "calculation_run", "calculation_result"]
+        },
+        "entity_id": {"$ref": "#/$defs/Uuid"},
+        "revision_id": {"oneOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]}
+      }
+    }
+  }
+}

@@ -24,6 +24,11 @@ from cmp.modules.datasets.application.canonical_test_data import (
     GovernedTestDataSource,
 )
 from cmp.modules.datasets.domain.canonical_test_data import parse_canonical_test_data
+from cmp.modules.datasets.domain.curve_metadata import (
+    CurveContractError,
+    MetadataState,
+    curve_definition_from_mapping,
+)
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
     DataClassification,
@@ -38,8 +43,11 @@ from cmp.modules.processing.domain.common_pipeline import (
     ProcessingStep,
     QuantitySeries,
     ScalarResult,
+    curve_stage_series,
+    next_processing_stage_independent_quantity,
     preview_pipeline,
     processing_preview_canonical,
+    processing_stage_independent_quantity,
 )
 from cmp.modules.processing.domain.metal_hardening import (
     HARDENING_EQUATION_CONTRACT,
@@ -68,10 +76,12 @@ from cmp.shared.domain.revisions import (
 __all__ = ["CommonPipelineError"]
 
 PROCESSING_OUTPUT_AGGREGATE_TYPE = "processing.common_output"
-PROCESSING_OUTPUT_SCHEMA_ID = "urn:cmp:processing:common-output:1.3.0"
-PROCESSING_OUTPUT_SCHEMA_VERSION = "1.3.0"
-PROCESSING_OUTPUT_PROFILE_SCHEMA_ID = "urn:cmp:processing:common-output:1.4.0"
-PROCESSING_OUTPUT_PROFILE_SCHEMA_VERSION = "1.4.0"
+PROCESSING_OUTPUT_SCHEMA_ID_V1_3 = "urn:cmp:processing:common-output:1.3.0"
+PROCESSING_OUTPUT_PROFILE_SCHEMA_ID_V1_4 = "urn:cmp:processing:common-output:1.4.0"
+PROCESSING_OUTPUT_SCHEMA_ID = "urn:cmp:processing:common-output:1.5.0"
+PROCESSING_OUTPUT_SCHEMA_VERSION = "1.5.0"
+PROCESSING_OUTPUT_PROFILE_SCHEMA_ID = PROCESSING_OUTPUT_SCHEMA_ID
+PROCESSING_OUTPUT_PROFILE_SCHEMA_VERSION = PROCESSING_OUTPUT_SCHEMA_VERSION
 PROCESSING_OUTPUT_MEDIA_TYPE = "application/vnd.cmp.processing-output+json"
 
 
@@ -806,6 +816,57 @@ def _processing_unit_applications(
     return applications
 
 
+def _apply_curve_display_profile(
+    preview: ProcessingPreview,
+    profile: UnitProfileContent | None,
+) -> ProcessingPreview:
+    """Bind declared chart/Fit display units to the exact resolved Unit Profile."""
+
+    if profile is None:
+        return preview
+    display_units = {
+        selection.quantity_semantics: selection.display_unit_id
+        for selection in profile.selections
+    }
+    stages: list[CurveStage] = []
+    for stage in preview.stages:
+        if stage.curve_definition is None:
+            definition = curve_stage_series(
+                stage,
+                preview.independent_quantity,
+                display_units=display_units,
+            ).definition
+        else:
+            definition = stage.curve_definition
+            for channel in definition.channels:
+                expected = display_units.get(channel.quantity_semantics)
+                if expected is not None and channel.display_unit != expected:
+                    raise CommonPipelineError(
+                        "stored curve display unit differs from the exact Unit Profile revision"
+                    )
+        stages.append(
+            CurveStage(
+                ordinal=stage.ordinal,
+                method_id=stage.method_id,
+                method_version=stage.method_version,
+                point_count=stage.point_count,
+                series=stage.series,
+                diagnostics=stage.diagnostics,
+                scalar_results=stage.scalar_results,
+                fit_candidates=stage.fit_candidates,
+                curve_definition=definition,
+                metadata_state=MetadataState.DECLARED,
+                independent_quantity=stage.independent_quantity,
+            )
+        )
+    return ProcessingPreview(
+        source_document_sha256=preview.source_document_sha256,
+        mapping_profile_sha256=preview.mapping_profile_sha256,
+        independent_quantity=preview.independent_quantity,
+        stages=tuple(stages),
+    )
+
+
 def fit_decision_canonical(value: FitDecisionSnapshot | None) -> dict[str, object] | None:
     if value is None:
         return None
@@ -904,6 +965,8 @@ def _preview_from_exact_processing_output(
     if not required_document_keys <= document.keys():
         raise CommonPipelineError("exact Processing Output document metadata is incomplete")
     expected_version = getattr(source.current, "schema_version", PROCESSING_OUTPUT_SCHEMA_VERSION)
+    if expected_version not in {"1.3.0", "1.4.0", PROCESSING_OUTPUT_SCHEMA_VERSION}:
+        raise CommonPipelineError("exact Processing Output document version is unsupported")
     if document.get("document_type") != "cmp.processing-output":
         raise CommonPipelineError("exact Processing Output document identity is incompatible")
     if document.get("document_version") != expected_version:
@@ -1003,6 +1066,7 @@ def _preview_from_exact_processing_output(
     if source.content.stage_count != len(saved_steps) + 1:
         raise CommonPipelineError("exact Processing Output stored stage count is inconsistent")
     stages: list[CurveStage] = []
+    stage_independent = source.content.independent_quantity
     for ordinal, raw_stage in enumerate(raw_stages):
         if not isinstance(raw_stage, dict):
             raise CommonPipelineError("exact Processing Output stage is malformed")
@@ -1016,6 +1080,9 @@ def _preview_from_exact_processing_output(
             "scalar_results",
             "fit_candidates",
         }
+        declared_curve_metadata = expected_version == PROCESSING_OUTPUT_SCHEMA_VERSION
+        if declared_curve_metadata:
+            stage_keys.update({"curve_definition_sha256", "curve_definition"})
         if set(raw_stage) != stage_keys:
             raise CommonPipelineError("exact Processing Output stage metadata is incomplete")
         expected_method_id = "mapping" if ordinal == 0 else saved_steps[ordinal - 1].method_id
@@ -1064,6 +1131,12 @@ def _preview_from_exact_processing_output(
                 )
             quantities.add(quantity)
             series.append(QuantitySeries(quantity, unit, tuple(float(value) for value in values)))
+        if ordinal > 0:
+            stage_independent = next_processing_stage_independent_quantity(
+                stage_independent,
+                saved_steps[ordinal - 1],
+                quantities,
+            )
         diagnostics = raw_stage.get("diagnostics")
         if not isinstance(diagnostics, list) or any(
             not isinstance(item, str) for item in diagnostics
@@ -1105,17 +1178,41 @@ def _preview_from_exact_processing_output(
             raise CommonPipelineError(
                 "Process-only source contains unexpected fit candidate evidence"
             )
-        stages.append(
-            CurveStage(
-                ordinal,
-                expected_method_id,
-                expected_method_version,
-                point_count,
-                tuple(series),
-                tuple(diagnostics),
-                tuple(stage_scalar_results),
-            )
+        curve_definition = None
+        metadata_state = MetadataState.LEGACY_COMPATIBLE
+        if declared_curve_metadata:
+            try:
+                curve_definition = curve_definition_from_mapping(
+                    raw_stage.get("curve_definition")
+                )
+            except CurveContractError as error:
+                raise CommonPipelineError(
+                    f"exact Processing Output curve definition is invalid: {error.message}"
+                ) from error
+            if raw_stage.get("curve_definition_sha256") != curve_definition.sha256:
+                raise CommonPipelineError(
+                    "exact Processing Output curve definition digest drifted"
+                )
+            metadata_state = MetadataState.DECLARED
+        parsed_stage = CurveStage(
+            ordinal,
+            expected_method_id,
+            expected_method_version,
+            point_count,
+            tuple(series),
+            tuple(diagnostics),
+            tuple(stage_scalar_results),
+            curve_definition=curve_definition,
+            metadata_state=metadata_state,
+            independent_quantity=stage_independent,
         )
+        try:
+            curve_stage_series(parsed_stage, source.content.independent_quantity)
+        except (CurveContractError, CommonPipelineError) as error:
+            raise CommonPipelineError(
+                f"exact Processing Output curve arrays violate metadata: {error}"
+            ) from error
+        stages.append(parsed_stage)
     if not stages:
         raise CommonPipelineError("exact Processing Output has no persisted stages")
     final = stages[-1]
@@ -1123,10 +1220,9 @@ def _preview_from_exact_processing_output(
         raise CommonPipelineError(
             "exact Processing Output final point count does not match its revision"
         )
-    if source.content.independent_quantity not in {item.quantity for item in final.series}:
-        raise CommonPipelineError(
-            "exact Processing Output independent quantity is missing from final series"
-        )
+    final_independent = processing_stage_independent_quantity(
+        final, source.content.independent_quantity
+    )
     columns = {item.quantity: np.asarray(item.values, dtype=np.float64) for item in final.series}
     units = {item.quantity: item.unit for item in final.series}
     options = dict(fit_step.options)
@@ -1153,6 +1249,11 @@ def _preview_from_exact_processing_output(
             fitted.diagnostics,
             scalar_results,
             fitted.candidates,
+            independent_quantity=next_processing_stage_independent_quantity(
+                final_independent,
+                fit_step,
+                fitted.columns,
+            ),
         )
     )
     return ProcessingPreview(
@@ -1274,9 +1375,9 @@ class CommonProcessingOutputService:
         pin: UnitProfilePin | None,
         classification: str,
         preview: ProcessingPreview,
-    ) -> tuple[UnitApplication, ...]:
+    ) -> tuple[tuple[UnitApplication, ...], UnitProfileContent | None]:
         if pin is None:
-            return ()
+            return (), None
         if self._units is None:
             raise CommonPipelineError("Unit Profile service is unavailable")
         try:
@@ -1287,7 +1388,7 @@ class CommonProcessingOutputService:
             raise CommonPipelineError(
                 "Processing Output classification must match the exact Unit Profile revision"
             )
-        return _processing_unit_applications(preview, snapshot.content)
+        return _processing_unit_applications(preview, snapshot.content), snapshot.content
 
     async def preflight(
         self,
@@ -1342,13 +1443,14 @@ class CommonProcessingOutputService:
             )
             if validate_selection:
                 validate_fit_decision(command.steps, preview, command.fit_decision)
-            unit_applications = self._unit_usage(
+            unit_applications, unit_profile_content = self._unit_usage(
                 context,
                 decision,
                 pin=command.unit_profile,
                 classification=command.classification.value,
                 preview=preview,
             )
+            preview = _apply_curve_display_profile(preview, unit_profile_content)
             return ProcessingOutputPreflight(
                 source_document_sha256=source_output.content.source_document_sha256,
                 source_canonical_artifact_sha256=source_output.content.source_canonical_artifact_sha256,
@@ -1384,13 +1486,14 @@ class CommonProcessingOutputService:
             validate_fit_decision(command.steps, preview, command.fit_decision)
         if preview.mapping_profile_sha256 != profile_snapshot.content.digest:
             raise CommonPipelineError("Mapping Profile digest pin differs from executed profile")
-        unit_applications = self._unit_usage(
+        unit_applications, unit_profile_content = self._unit_usage(
             context,
             decision,
             pin=command.unit_profile,
             classification=command.classification.value,
             preview=preview,
         )
+        preview = _apply_curve_display_profile(preview, unit_profile_content)
         return ProcessingOutputPreflight(
             source_document_sha256=preview.source_document_sha256,
             source_canonical_artifact_sha256=source_snapshot.content.canonical_sha256,

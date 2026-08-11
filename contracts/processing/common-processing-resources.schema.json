@@ -195,7 +195,7 @@
     "CurveStage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["ordinal", "method_id", "method_version", "point_count", "series", "diagnostics", "scalar_results", "fit_candidates"],
+      "required": ["ordinal", "method_id", "method_version", "point_count", "series", "diagnostics", "scalar_results", "fit_candidates", "metadata_state", "curve_definition_sha256", "curve_definition", "curve_series"],
       "properties": {
         "ordinal": {"type": "integer", "minimum": 0},
         "method_id": {"type": "string"},
@@ -204,7 +204,11 @@
         "series": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/QuantitySeries"}},
         "diagnostics": {"type": "array", "items": {"type": "string"}},
         "scalar_results": {"type": "array", "items": {"$ref": "#/$defs/ScalarResult"}},
-        "fit_candidates": {"type": "array", "items": {"$ref": "#/$defs/HardeningCandidate"}}
+        "fit_candidates": {"type": "array", "items": {"$ref": "#/$defs/HardeningCandidate"}},
+        "metadata_state": {"enum": ["declared", "legacy_compatible"]},
+        "curve_definition_sha256": {"$ref": "../datasets/curve-channel-metadata.schema.json#/$defs/Sha256"},
+        "curve_definition": {"$ref": "../datasets/curve-channel-metadata.schema.json#/$defs/CurveDefinition"},
+        "curve_series": {"$ref": "../datasets/curve-channel-metadata.schema.json#/$defs/CurveSeriesPreview"}
       }
     },
     "PreviewResponse": {
@@ -260,7 +264,7 @@
     "PointwiseStatistics": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["quantity", "unit", "mean", "median", "standard_deviation", "mad", "q1", "q3", "confidence_95_lower", "confidence_95_upper"],
+      "required": ["quantity", "unit", "mean", "median", "standard_deviation", "mad", "q1", "q3", "confidence_95_lower", "confidence_95_upper", "metadata_state", "curve_definition_sha256", "curve_definition", "curve_series"],
       "properties": {
         "quantity": {"type": "string"},
         "unit": {"type": "string"},
@@ -271,7 +275,11 @@
         "q1": {"type": "array", "items": {"type": "number"}},
         "q3": {"type": "array", "items": {"type": "number"}},
         "confidence_95_lower": {"type": "array", "items": {"type": "number"}},
-        "confidence_95_upper": {"type": "array", "items": {"type": "number"}}
+        "confidence_95_upper": {"type": "array", "items": {"type": "number"}},
+        "metadata_state": {"const": "declared"},
+        "curve_definition_sha256": {"$ref": "../datasets/curve-channel-metadata.schema.json#/$defs/Sha256"},
+        "curve_definition": {"$ref": "../datasets/curve-channel-metadata.schema.json#/$defs/CurveDefinition"},
+        "curve_series": {"$ref": "../datasets/curve-channel-metadata.schema.json#/$defs/CurveSeriesPreview"}
       }
     },
     "EnsemblePreviewResponse": {

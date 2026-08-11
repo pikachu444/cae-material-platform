@@ -22,6 +22,7 @@ CURRENT_CAPTURE_OUTPUTS = cast(tuple[str, ...], _SCRIPT["CURRENT_CAPTURE_OUTPUTS
 DISPLAY_DENSITIES = cast(tuple[str, ...], _SCRIPT["DISPLAY_DENSITIES"])
 _display_density_scope = cast(Callable[[str], str], _SCRIPT["_display_density_scope"])
 PRODUCT_ACCESS_OUTPUTS = cast(tuple[str, ...], _SCRIPT["PRODUCT_ACCESS_OUTPUTS"])
+MATERIAL_CURVE_OUTPUTS = cast(tuple[str, ...], _SCRIPT["MATERIAL_CURVE_OUTPUTS"])
 ACTIVITY_OUTPUTS = cast(tuple[str, ...], _SCRIPT["ACTIVITY_OUTPUTS"])
 MODELING_EXPORT_OUTPUTS = cast(tuple[str, ...], _SCRIPT["MODELING_EXPORT_OUTPUTS"])
 MODELING_DATA_SESSION_OUTPUTS = cast(
@@ -436,7 +437,7 @@ def test_incomplete_capture_cannot_reuse_files_from_previous_output(
 
 
 def test_current_capture_contract_contains_product_routes_only() -> None:
-    assert len(CURRENT_CAPTURE_OUTPUTS) == 90
+    assert len(CURRENT_CAPTURE_OUTPUTS) == 95
     assert PRODUCT_ACCESS_OUTPUTS == (
         "administration-access-1366x768.png",
         "administration-access-1440x900.png",
@@ -446,6 +447,7 @@ def test_current_capture_contract_contains_product_routes_only() -> None:
         "administration-access-role-control-1366x768.png",
     )
     assert all(name in CURRENT_CAPTURE_OUTPUTS for name in PRODUCT_ACCESS_OUTPUTS)
+    assert all(name in CURRENT_CAPTURE_OUTPUTS for name in MATERIAL_CURVE_OUTPUTS)
     assert all(name in CURRENT_CAPTURE_OUTPUTS for name in MODELING_DATA_SESSION_OUTPUTS)
     assert all(name in CURRENT_CAPTURE_OUTPUTS for name in MODELING_PROCESS_OUTPUTS)
     assert {

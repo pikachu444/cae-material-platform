@@ -248,6 +248,42 @@
         "workbench_path": {"type": "string", "pattern": "^/"}
       }
     },
+    "CatalogCurvePreviewResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "record_id",
+        "record_revision_id",
+        "attribute_definition_id",
+        "curve_available",
+        "modeling_use",
+        "modeling_source",
+        "curve_metadata",
+        "curve_series"
+      ],
+      "properties": {
+        "record_id": {"$ref": "#/$defs/Uuid"},
+        "record_revision_id": {"$ref": "#/$defs/Uuid"},
+        "attribute_definition_id": {"$ref": "#/$defs/Uuid"},
+        "curve_available": {"const": true},
+        "modeling_use": {"enum": ["fit_input", "view_only", "unavailable"]},
+        "modeling_source": {
+          "oneOf": [
+            {"$ref": "#/$defs/DomainBindingProjection"},
+            {"type": "null"}
+          ]
+        },
+        "curve_metadata": {
+          "$ref": "../datasets/curve-channel-metadata.schema.json"
+        },
+        "curve_series": {
+          "oneOf": [
+            {"$ref": "../datasets/curve-channel-metadata.schema.json#/$defs/CurveSeriesPreview"},
+            {"type": "null"}
+          ]
+        }
+      }
+    },
     "DiscreteFilter": {
       "type": "object",
       "additionalProperties": false,

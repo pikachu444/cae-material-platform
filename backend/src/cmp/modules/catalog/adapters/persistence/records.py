@@ -22,6 +22,9 @@ from cmp.modules.catalog.application.records import (
     RECORD_AGGREGATE_TYPE,
     CatalogRecordRepository,
     CreateRecord,
+    CurveOwnership,
+    CurveOwnershipPointer,
+    CurveOwnershipSource,
     FolderSnapshot,
     RecordDomainBinding,
     RecordFacetBucket,
@@ -285,8 +288,70 @@ _test_data_document_revision = sa.Table(
     sa.Column("organization_id", _uuid, nullable=False),
     sa.Column("project_id", _uuid, nullable=False),
     sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("normalized_artifact_id", _uuid, nullable=False),
+    sa.Column("normalized_sha256", sa.CHAR(64), nullable=False),
     sa.Column("governed_source", sa.JSON(), nullable=True),
     schema="datasets",
+)
+_dataset_revision = sa.Table(
+    "dataset_revision",
+    metadata,
+    sa.Column("id", _uuid, nullable=False),
+    sa.Column("aggregate_id", _uuid, nullable=False),
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("data_artifact_id", _uuid, nullable=False),
+    sa.Column("data_sha256", sa.CHAR(64), nullable=False),
+    schema="datasets",
+)
+_pair_statistical_result_revision = sa.Table(
+    "statistical_result_revision",
+    metadata,
+    sa.Column("id", _uuid, nullable=False),
+    sa.Column("aggregate_id", _uuid, nullable=False),
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("statistical_run_id", _uuid, nullable=False),
+    sa.Column("plan_id", _uuid, nullable=False),
+    sa.Column("plan_revision_id", _uuid, nullable=False),
+    sa.Column("first_dataset_id", _uuid, nullable=False),
+    sa.Column("first_dataset_revision_id", _uuid, nullable=False),
+    sa.Column("second_dataset_id", _uuid, nullable=False),
+    sa.Column("second_dataset_revision_id", _uuid, nullable=False),
+    sa.Column("curve_artifact_id", _uuid, nullable=False),
+    sa.Column("curve_sha256", sa.CHAR(64), nullable=False),
+    schema="statistics",
+)
+_replicate_statistical_result_revision = sa.Table(
+    "replicate_statistical_result_revision",
+    metadata,
+    sa.Column("id", _uuid, nullable=False),
+    sa.Column("aggregate_id", _uuid, nullable=False),
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("statistical_run_id", _uuid, nullable=False),
+    sa.Column("plan_id", _uuid, nullable=False),
+    sa.Column("plan_revision_id", _uuid, nullable=False),
+    sa.Column("selection_id", _uuid, nullable=False),
+    sa.Column("selection_revision_id", _uuid, nullable=False),
+    sa.Column("curve_artifact_id", _uuid, nullable=False),
+    sa.Column("curve_sha256", sa.CHAR(64), nullable=False),
+    schema="statistics",
+)
+_replicate_statistical_run_member = sa.Table(
+    "replicate_statistical_run_member",
+    metadata,
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("statistical_run_id", _uuid, nullable=False),
+    sa.Column("ordinal", sa.SmallInteger(), nullable=False),
+    sa.Column("dataset_id", _uuid, nullable=False),
+    sa.Column("dataset_revision_id", _uuid, nullable=False),
+    schema="statistics",
 )
 _test_run = sa.Table(
     "test_run",
@@ -1319,6 +1384,8 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                     workbench_path=self._binding_path(
                         row["domain_kind"], row["domain_object_id"], row["domain_revision_id"]
                     ),
+                    record_id=row["record_id"],
+                    record_revision_id=row["record_revision_id"],
                 )
             )
         # A Record revision can pin several exact governed revisions (for
@@ -1446,6 +1513,275 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
             return ConfigRevision(
                 _record(row, RECORD_AGGREGATE_TYPE),
                 _record_content(row, values.get(revision_id, ())),
+            )
+
+    def resolve_curve_ownership(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        record_id: UUID,
+        record_revision_id: UUID,
+        artifact_id: UUID,
+        artifact_sha256: str,
+    ) -> CurveOwnership | None:
+        """Resolve only exact, RLS-visible owners already recorded by domain modules."""
+
+        with self._transaction(context, decision) as session:
+            canonical_rows = (
+                session.execute(
+                    sa.select(
+                        _test_data_document_revision.c.aggregate_id,
+                        _test_data_document_revision.c.id,
+                        _test_data_document_revision.c.governed_source,
+                        _test_data_document_revision.c.organization_id,
+                        _test_data_document_revision.c.project_id,
+                        _test_data_document_revision.c.classification,
+                    ).where(
+                        _test_data_document_revision.c.normalized_artifact_id == artifact_id,
+                        _test_data_document_revision.c.normalized_sha256 == artifact_sha256,
+                    )
+                )
+                .mappings()
+                .all()
+            )
+            if len(canonical_rows) == 1:
+                canonical = canonical_rows[0]
+                document_id = canonical["aggregate_id"]
+                document_revision_id = canonical["id"]
+                sources: tuple[CurveOwnershipSource, ...] = ()
+                provenance: tuple[CurveOwnershipPointer, ...] = ()
+                governed = canonical["governed_source"]
+                test_run = governed.get("test_run") if isinstance(governed, dict) else None
+                if isinstance(test_run, dict):
+                    try:
+                        test_run_id = UUID(str(test_run["aggregate_id"]))
+                        test_run_revision_id = UUID(str(test_run["revision_id"]))
+                    except (KeyError, TypeError, ValueError):
+                        pass
+                    else:
+                        sources = (
+                            CurveOwnershipSource(
+                                "test_run", test_run_id, test_run_revision_id
+                            ),
+                        )
+                        provenance = (
+                            CurveOwnershipPointer(
+                                "input_usage", test_run_id, test_run_revision_id
+                            ),
+                        )
+                binding_row = (
+                    session.execute(
+                        sa.select(domain_record_binding)
+                        .join(
+                            catalog_record,
+                            sa.and_(
+                                catalog_record.c.id == domain_record_binding.c.record_id,
+                                catalog_record.c.current_revision_id
+                                == domain_record_binding.c.record_revision_id,
+                                catalog_record.c.organization_id
+                                == domain_record_binding.c.organization_id,
+                                catalog_record.c.project_id
+                                == domain_record_binding.c.project_id,
+                                catalog_record.c.classification
+                                == domain_record_binding.c.classification,
+                            ),
+                        )
+                        .where(
+                            domain_record_binding.c.domain_kind == "test_data",
+                            domain_record_binding.c.domain_object_id == document_id,
+                            domain_record_binding.c.domain_revision_id
+                            == document_revision_id,
+                            domain_record_binding.c.organization_id
+                            == canonical["organization_id"],
+                            domain_record_binding.c.project_id
+                            == canonical["project_id"],
+                            domain_record_binding.c.classification
+                            == canonical["classification"],
+                        )
+                    )
+                    .mappings()
+                    .one_or_none()
+                )
+                binding = (
+                    RecordDomainBinding(
+                        binding_id=binding_row["id"],
+                        kind="test_data",
+                        object_id=document_id,
+                        revision_id=document_revision_id,
+                        workbench_path=self._binding_path(
+                            "test_data", document_id, document_revision_id
+                        ),
+                        record_id=binding_row["record_id"],
+                        record_revision_id=binding_row["record_revision_id"],
+                    )
+                    if binding_row is not None
+                    else None
+                )
+                return CurveOwnership(
+                    "test_data_document",
+                    document_id,
+                    document_revision_id,
+                    sources,
+                    provenance,
+                    binding,
+                )
+
+            pair_rows = (
+                session.execute(
+                    sa.select(_pair_statistical_result_revision).where(
+                        _pair_statistical_result_revision.c.curve_artifact_id
+                        == artifact_id,
+                        _pair_statistical_result_revision.c.curve_sha256
+                        == artifact_sha256,
+                    )
+                )
+                .mappings()
+                .all()
+            )
+            replicate_rows = (
+                session.execute(
+                    sa.select(_replicate_statistical_result_revision).where(
+                        _replicate_statistical_result_revision.c.curve_artifact_id
+                        == artifact_id,
+                        _replicate_statistical_result_revision.c.curve_sha256
+                        == artifact_sha256,
+                    )
+                )
+                .mappings()
+                .all()
+            )
+            if len(pair_rows) + len(replicate_rows) != 1:
+                return None
+            if pair_rows:
+                pair = pair_rows[0]
+                source_rows = (
+                    session.execute(
+                        sa.select(_dataset_revision).where(
+                            sa.tuple_(
+                                _dataset_revision.c.aggregate_id,
+                                _dataset_revision.c.id,
+                            ).in_(
+                                (
+                                    (
+                                        pair["first_dataset_id"],
+                                        pair["first_dataset_revision_id"],
+                                    ),
+                                    (
+                                        pair["second_dataset_id"],
+                                        pair["second_dataset_revision_id"],
+                                    ),
+                                )
+                            )
+                        )
+                    )
+                    .mappings()
+                    .all()
+                )
+                if len(source_rows) != 2:
+                    return None
+                source_by_revision = {row["id"]: row for row in source_rows}
+                ordered_sources = []
+                for dataset_id_key, revision_id_key in (
+                    ("first_dataset_id", "first_dataset_revision_id"),
+                    ("second_dataset_id", "second_dataset_revision_id"),
+                ):
+                    row = source_by_revision.get(pair[revision_id_key])
+                    if row is None or row["aggregate_id"] != pair[dataset_id_key]:
+                        return None
+                    ordered_sources.append(
+                        CurveOwnershipSource(
+                            "dataset",
+                            row["aggregate_id"],
+                            row["id"],
+                            row["data_artifact_id"],
+                            row["data_sha256"],
+                        )
+                    )
+                return CurveOwnership(
+                    "statistical_result",
+                    pair["aggregate_id"],
+                    pair["id"],
+                    tuple(ordered_sources),
+                    (
+                        CurveOwnershipPointer(
+                            "calculation_plan",
+                            pair["plan_id"],
+                            pair["plan_revision_id"],
+                        ),
+                        CurveOwnershipPointer(
+                            "calculation_run", pair["statistical_run_id"]
+                        ),
+                        CurveOwnershipPointer(
+                            "calculation_result",
+                            pair["aggregate_id"],
+                            pair["id"],
+                        ),
+                    ),
+                )
+
+            statistical = replicate_rows[0]
+            member_rows = (
+                session.execute(
+                    sa.select(
+                        _replicate_statistical_run_member.c.dataset_id,
+                        _replicate_statistical_run_member.c.dataset_revision_id,
+                        _dataset_revision.c.data_artifact_id,
+                        _dataset_revision.c.data_sha256,
+                    )
+                    .join(
+                        _dataset_revision,
+                        sa.and_(
+                            _dataset_revision.c.id
+                            == _replicate_statistical_run_member.c.dataset_revision_id,
+                            _dataset_revision.c.aggregate_id
+                            == _replicate_statistical_run_member.c.dataset_id,
+                            _dataset_revision.c.organization_id
+                            == _replicate_statistical_run_member.c.organization_id,
+                            _dataset_revision.c.project_id
+                            == _replicate_statistical_run_member.c.project_id,
+                            _dataset_revision.c.classification
+                            == _replicate_statistical_run_member.c.classification,
+                        ),
+                    )
+                    .where(
+                        _replicate_statistical_run_member.c.statistical_run_id
+                        == statistical["statistical_run_id"]
+                    )
+                    .order_by(_replicate_statistical_run_member.c.ordinal)
+                )
+                .mappings()
+                .all()
+            )
+            return CurveOwnership(
+                "replicate_statistical_result",
+                statistical["aggregate_id"],
+                statistical["id"],
+                tuple(
+                    CurveOwnershipSource(
+                        "dataset",
+                        row["dataset_id"],
+                        row["dataset_revision_id"],
+                        row["data_artifact_id"],
+                        row["data_sha256"],
+                    )
+                    for row in member_rows
+                ),
+                (
+                    CurveOwnershipPointer(
+                        "calculation_plan",
+                        statistical["plan_id"],
+                        statistical["plan_revision_id"],
+                    ),
+                    CurveOwnershipPointer(
+                        "calculation_run", statistical["statistical_run_id"]
+                    ),
+                    CurveOwnershipPointer(
+                        "calculation_result",
+                        statistical["aggregate_id"],
+                        statistical["id"],
+                    ),
+                ),
             )
 
     def list_record_revisions(

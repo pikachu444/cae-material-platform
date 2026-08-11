@@ -386,8 +386,40 @@ profile name or `latest`, and no default profile is selected at bootstrap.
 
 Schema Bundle planning only validates that `x-unit` is a stable ID in this closed registry. It
 retains Bundle/plan `1.0.0`, a read-only snapshot and an empty write set. Bundle apply/publication
-remain #207, curve channel/deviation metadata remain #206, and additional solver systems/Templates
-remain #213/#214.
+remain #207 and additional solver systems/Templates remain #213/#214.
+
+### 7.6 Shared curve channel and deviation boundary
+
+`datasets` owns the additive curve metadata contract `1.0.0` and the Artifact adapter registry.
+The canonical definition records stable channel keys and labels, quantity semantics, axis role,
+original/normalized/display units, exact scale/offset and value basis. Typed deviation definitions
+retain target channel, scalar or pointwise cardinality, kind, method/version, direction, band group,
+source count and applicable confidence, coverage, ddof or quantile parameters. A renderer may fill
+a band only for an explicit compatible lower/upper pair; the word "deviation" never replaces the
+recorded statistical meaning.
+
+Current curve writers place canonical definition JSON and its SHA-256 in immutable Parquet schema
+metadata. Full columns, deviation arrays and source-count arrays are validated before a bounded
+same-index preview is sampled. The existing Artifact bytes, digest and owning revision remain the
+authority; there is no row-per-point, EAV, opaque JSON authority, new table or backfill. Migration
+`20260927_096_issue206_curve` only widens existing typed Dataset/Processing/Statistics schema-ref
+checks and Artifact guards from the exact `1.0.0` ref to the reviewed `1.0.0 | 1.1.0` set; it adds
+no persistence lifecycle. A downgrade refuses rather than discard immutable `1.1.0` evidence. Current
+reference/canonical/statistics Parquet schemas use minor version `1.1.0`, and common Processing
+Output uses `1.5.0` when stage metadata is present.
+
+Schema-ref-specific adapters describe reviewed historical Test Data, tensile/shear, Processing,
+Statistics, viscoelastic/master and Modeling hardening artifacts without rewriting them. An unknown
+historical format returns `metadata_state=absent` and preserves its values/availability, while a
+known or declared format with a digest, column, unit, definition or provenance mismatch fails
+closed. #205 registry quantities reuse the common unit service and exact Unit Profile applications;
+outside-registry canonical quantities such as `frequency.cyclic`/`Hz` keep stored explicit
+scale/offset without inference.
+
+Materials and Modeling consume one validated response and one display adapter. Only an exact
+canonical Test Data source bound to the selected Record revision may become a Modeling/Fit source.
+A statistical envelope and an unknown legacy curve remain view-only. This boundary does not create
+new statistics, representative curves or approved Fit inputs; those remain #210/#211.
 
 ## 8. Plugin 및 solver 실행 plane
 

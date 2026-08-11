@@ -11,7 +11,7 @@ from decimal import Decimal
 from typing import Annotated, Any
 from uuid import UUID
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Request, Response, status
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, Response, status
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 from sqlalchemy.exc import IntegrityError
 from starlette.responses import StreamingResponse
@@ -23,6 +23,7 @@ from cmp.modules.datasets.application.canonical_tabular_adapter import (
     canonical_from_governed_tabular,
 )
 from cmp.modules.datasets.application.canonical_test_data import (
+    CanonicalTestDataCurvePreview,
     CanonicalTestDataService,
     ExactRevisionRef,
     ExactTestDataRevisionRef,
@@ -30,6 +31,13 @@ from cmp.modules.datasets.application.canonical_test_data import (
     ImportCanonicalTestData,
     ReviseCanonicalTestData,
     TestDataDocumentSnapshot,
+    canonical_test_data_curve_definition,
+    canonical_test_data_curve_series,
+)
+from cmp.modules.datasets.contracts import (
+    CurveDefinitionResponse,
+    CurveMetadataResponse,
+    CurveSeriesPreviewResponse,
 )
 from cmp.modules.datasets.domain.canonical_test_data import (
     MAX_CANONICAL_JSON_BYTES,
@@ -44,6 +52,7 @@ from cmp.modules.datasets.domain.canonical_test_data import (
     TestSpecimenMetadata,
     canonical_test_data,
 )
+from cmp.modules.datasets.domain.curve_metadata import CurveContractError
 from cmp.modules.datasets.domain.governed_tabular import (
     MAX_SOURCE_BYTES,
     GovernedImportConflict,
@@ -214,6 +223,9 @@ class CanonicalTestDataPreviewResponse(BaseModel):
     specimen_id: str
     channels: tuple[ChannelPreview, ...]
     canonical_document: dict[str, Any]
+    curve_definition_sha256: str
+    curve_definition: CurveDefinitionResponse
+    curve_series: CurveSeriesPreviewResponse
 
     @classmethod
     def from_domain(cls, document: CanonicalTestDataDocument) -> CanonicalTestDataPreviewResponse:
@@ -223,6 +235,7 @@ class CanonicalTestDataPreviewResponse(BaseModel):
         ).encode("utf-8")
         if len(encoded) > MAX_CANONICAL_JSON_BYTES:
             raise ValueError("canonical Test Data JSON exceeds the 25 MiB single-document limit")
+        definition = canonical_test_data_curve_definition(document.channels)
         return cls(
             status="valid",
             document_sha256=document.digest,
@@ -250,6 +263,27 @@ class CanonicalTestDataPreviewResponse(BaseModel):
                 for item in document.channels
             ),
             canonical_document=canonical,
+            curve_definition_sha256=definition.sha256,
+            curve_definition=CurveDefinitionResponse.from_domain(definition),
+            curve_series=CurveSeriesPreviewResponse.from_domain(
+                canonical_test_data_curve_series(document).preview(500)
+            ),
+        )
+
+
+class CanonicalTestDataCurveResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    curve_metadata: CurveMetadataResponse
+    curve_series: CurveSeriesPreviewResponse
+
+    @classmethod
+    def from_domain(
+        cls, value: CanonicalTestDataCurvePreview
+    ) -> CanonicalTestDataCurveResponse:
+        return cls(
+            curve_metadata=CurveMetadataResponse.from_domain(value.metadata),
+            curve_series=CurveSeriesPreviewResponse.from_domain(value.series),
         )
 
 
@@ -565,6 +599,38 @@ def install_canonical_test_data_api(
             raise HTTPException(status_code=422, detail=str(error)) from error
         _etag(response, snapshot.current)
         return CanonicalTestDataDocumentResponse.from_snapshot(snapshot)
+
+    @app.get(
+        "/api/v1/test-data-documents/{document_id}/revisions/{revision_id}/curve",
+        response_model=CanonicalTestDataCurveResponse,
+        operation_id="previewExactCanonicalTestDataCurve",
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["test-data-json"],
+    )
+    async def preview_test_data_curve(
+        document_id: UUID,
+        revision_id: UUID,
+        request: Request,
+        maximum_points: Annotated[int, Query(ge=2, le=10_000)] = 500,
+    ) -> CanonicalTestDataCurveResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise HTTPException(status_code=503, detail="canonical Test Data store unavailable")
+        try:
+            preview = await service.preview_curve(
+                context,
+                decision,
+                document_id,
+                revision_id,
+                maximum_points=maximum_points,
+            )
+        except GovernedImportNotFound as error:
+            raise HTTPException(status_code=404, detail=str(error)) from error
+        except CurveContractError as error:
+            raise HTTPException(status_code=409, detail=error.detail()) from error
+        except GovernedImportConflict as error:
+            raise HTTPException(status_code=409, detail=str(error)) from error
+        return CanonicalTestDataCurveResponse.from_domain(preview)
 
     @app.get(
         "/api/v1/test-data-documents/{document_id}/revisions/{revision_id}/content",

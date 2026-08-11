@@ -8,6 +8,7 @@ an ordered list of versioned methods is evaluated.  Every numerical policy is ex
 from __future__ import annotations
 
 import math
+from collections.abc import Collection, Mapping
 from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any
@@ -19,6 +20,17 @@ from scipy.optimize import least_squares  # type: ignore[import-untyped]
 from scipy.signal import savgol_filter  # type: ignore[import-untyped]
 
 from cmp.modules.datasets.domain.canonical_test_data import CanonicalTestDataDocument
+from cmp.modules.datasets.domain.curve_metadata import (
+    AxisRole,
+    CurveChannel,
+    CurveDefinition,
+    CurveSeries,
+    MetadataState,
+    OriginalUnit,
+    UnitContract,
+    ValueBasis,
+    curve_definition_canonical,
+)
 from cmp.modules.processing.domain.metal_hardening import (
     HARDENING_EQUATION_CONTRACT,
     HardeningCandidateEvidence,
@@ -30,6 +42,14 @@ from cmp.modules.processing.domain.polymer_viscoelastic import (
     fit_dma_prony_candidates,
     fit_prony_candidates,
     log_time_resample,
+)
+from cmp.modules.units.domain.system import (
+    QuantityReference,
+    UnitError,
+    convert_value,
+    decimal_text,
+    dimension_for_quantity_semantics,
+    unit_definition,
 )
 from cmp.shared.domain.revisions import content_sha256
 
@@ -154,6 +174,9 @@ class CurveStage:
     diagnostics: tuple[str, ...]
     scalar_results: tuple[ScalarResult, ...] = ()
     fit_candidates: tuple[HardeningCandidateEvidence, ...] = ()
+    curve_definition: CurveDefinition | None = None
+    metadata_state: MetadataState = MetadataState.DECLARED
+    independent_quantity: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -162,6 +185,199 @@ class ProcessingPreview:
     mapping_profile_sha256: str
     independent_quantity: str
     stages: tuple[CurveStage, ...]
+
+
+_QUANTITY_LABELS = {
+    "mechanics.strain.engineering": "Engineering strain",
+    "mechanics.stress.engineering": "Engineering stress",
+    "strain.engineering": "Engineering strain",
+    "stress.engineering": "Engineering stress",
+    "strain.true": "True strain",
+    "stress.true": "True stress",
+    "strain.true_plastic": "True plastic strain",
+    "frequency.cyclic": "Cyclic frequency",
+    "modulus.shear.storage": "Storage modulus",
+    "modulus.shear.loss": "Loss modulus",
+}
+
+
+def _quantity_label(quantity: str) -> str:
+    # Hardening candidates and the selected response are distinct channels, but
+    # they share one physical dependent-axis meaning.  Candidate identity stays
+    # in the stable channel key and plot legend; the contract label describes
+    # the engineering quantity shown on the axis.
+    if quantity.startswith("stress.hardening."):
+        return "Hardening stress"
+    return _QUANTITY_LABELS.get(quantity, quantity)
+
+
+def _explicit_legacy_display(
+    quantity: str, normalized_unit: str
+) -> tuple[str, str, str]:
+    """Preserve reviewed display semantics outside the closed #205 registry."""
+
+    if quantity.startswith("stress.hardening.") and normalized_unit == "Pa":
+        return ("MPa", "0.000001", "0")
+    return (normalized_unit, "1", "0")
+
+
+def curve_stage_series(
+    stage: CurveStage,
+    independent_quantity: str,
+    *,
+    display_units: Mapping[str, str] | None = None,
+) -> CurveSeries:
+    """Build one reusable curve definition from the stage's stored quantity authority."""
+
+    effective_independent = processing_stage_independent_quantity(
+        stage, independent_quantity
+    )
+    channels: list[CurveChannel] = []
+    channel_values: dict[str, tuple[float | None, ...]] = {}
+    for series in stage.series:
+        try:
+            dimension = dimension_for_quantity_semantics(
+                series.quantity,
+                location=f"processing.stage.{stage.ordinal}.{series.quantity}",
+            )
+        except UnitError:
+            dimension = None
+            unit_contract = UnitContract.EXPLICIT_LEGACY
+        else:
+            try:
+                unit = unit_definition(
+                    series.unit,
+                    location=f"processing.stage.{stage.ordinal}.{series.quantity}.unit",
+                )
+            except UnitError as error:
+                raise CommonPipelineError(error.contextual_message()) from error
+            if unit.dimension is not dimension:
+                raise CommonPipelineError(
+                    f"Processing quantity {series.quantity} has an incompatible unit"
+                )
+            unit_contract = UnitContract.COMMON
+        if unit_contract is UnitContract.EXPLICIT_LEGACY:
+            if display_units is not None and series.quantity in display_units:
+                raise CommonPipelineError(
+                    "a Unit Profile cannot convert a channel outside the common unit registry"
+                )
+            display_unit, display_scale, display_offset = _explicit_legacy_display(
+                series.quantity, series.unit
+            )
+        else:
+            display_unit = (
+                display_units.get(series.quantity, series.unit)
+                if display_units is not None
+                else series.unit
+            )
+            display_scale = "1"
+            display_offset = "0"
+        if unit_contract is UnitContract.COMMON and display_unit != series.unit:
+            assert dimension is not None
+            try:
+                display_conversion = convert_value(
+                    "0",
+                    original_unit_string=series.unit,
+                    source=QuantityReference(dimension, series.quantity, series.unit),
+                    target=QuantityReference(dimension, series.quantity, display_unit),
+                    location=(
+                        f"processing.stage.{stage.ordinal}.{series.quantity}.display"
+                    ),
+                )
+            except UnitError as error:
+                raise CommonPipelineError(error.contextual_message()) from error
+            display_scale = decimal_text(display_conversion.scale)
+            display_offset = decimal_text(display_conversion.offset)
+        channels.append(
+            CurveChannel(
+                key=series.quantity,
+                label=_quantity_label(series.quantity),
+                quantity_semantics=series.quantity,
+                axis_role=(
+                    AxisRole.INDEPENDENT
+                    if series.quantity == effective_independent
+                    else AxisRole.DEPENDENT
+                ),
+                unit_contract=unit_contract,
+                dimension=dimension,
+                original_units=(OriginalUnit(series.unit, "1", "0"),),
+                normalized_unit=series.unit,
+                display_unit=display_unit,
+                display_scale=display_scale,
+                display_offset=display_offset,
+                value_basis=ValueBasis.DERIVED,
+            )
+        )
+        channel_values[series.quantity] = tuple(series.values)
+    if stage.curve_definition is not None and display_units is not None:
+        raise CommonPipelineError(
+            "display units cannot override an already-declared curve definition"
+        )
+    definition = stage.curve_definition or CurveDefinition(channels=tuple(channels))
+    return CurveSeries(
+        definition=definition,
+        channels=channel_values,
+        deviations={},
+        source_counts={},
+    )
+
+
+def processing_stage_independent_quantity(
+    stage: CurveStage, fallback: str
+) -> str:
+    """Resolve the one exact independent channel for a Processing stage."""
+
+    declared_keys = (
+        tuple(
+            channel.key
+            for channel in stage.curve_definition.channels
+            if channel.axis_role is AxisRole.INDEPENDENT
+        )
+        if stage.curve_definition is not None
+        else ()
+    )
+    if len(declared_keys) > 1:
+        raise CommonPipelineError(
+            "a Processing curve stage must declare exactly one independent channel"
+        )
+    declared = declared_keys[0] if declared_keys else None
+    if (
+        stage.independent_quantity is not None
+        and declared is not None
+        and stage.independent_quantity != declared
+    ):
+        raise CommonPipelineError(
+            "Processing stage independent channel differs from its stored curve definition"
+        )
+    resolved = stage.independent_quantity or declared or fallback
+    if resolved not in {series.quantity for series in stage.series}:
+        raise CommonPipelineError(
+            f"Processing stage independent quantity {resolved} is unavailable"
+        )
+    return resolved
+
+
+def next_processing_stage_independent_quantity(
+    previous: str,
+    step: ProcessingStep,
+    available_quantities: Collection[str],
+) -> str:
+    """Apply only method-declared axis replacement; never infer one from values."""
+
+    resolved = previous
+    if step.method_id == "metal.hardening_fit_extrapolate":
+        candidate = step.options.get("plastic_strain_quantity")
+        if not isinstance(candidate, str) or not candidate:
+            raise CommonPipelineError(
+                "metal hardening must declare its independent plastic strain quantity"
+            )
+        resolved = candidate
+    if resolved not in available_quantities:
+        raise CommonPipelineError(
+            f"method {step.method_id} removed independent quantity {resolved} "
+            "without declaring a supported replacement"
+        )
+    return resolved
 
 
 def processing_preview_canonical(value: ProcessingPreview) -> dict[str, object]:
@@ -228,6 +444,12 @@ def processing_preview_canonical(value: ProcessingPreview) -> dict[str, object]:
                     }
                     for candidate in stage.fit_candidates
                 ],
+                "curve_definition_sha256": curve_stage_series(
+                    stage, value.independent_quantity
+                ).definition.sha256,
+                "curve_definition": curve_definition_canonical(
+                    curve_stage_series(stage, value.independent_quantity).definition
+                ),
             }
             for stage in value.stages
         ],
@@ -750,6 +972,7 @@ def _stage(
     diagnostics: tuple[str, ...],
     scalar_results: tuple[ScalarResult, ...] = (),
     fit_candidates: tuple[HardeningCandidateEvidence, ...] = (),
+    independent_quantity: str | None = None,
 ) -> CurveStage:
     return CurveStage(
         ordinal=ordinal,
@@ -763,6 +986,7 @@ def _stage(
         diagnostics=diagnostics,
         scalar_results=scalar_results,
         fit_candidates=fit_candidates,
+        independent_quantity=independent_quantity,
     )
 
 
@@ -1242,7 +1466,17 @@ def preview_pipeline(
         for binding in profile.bindings
         if binding.channel_key in channel_by_key
     }
-    stages = [_stage(0, "mapping", columns, units, ("canonical normalized values mapped",))]
+    stage_independent = profile.independent_quantity
+    stages = [
+        _stage(
+            0,
+            "mapping",
+            columns,
+            units,
+            ("canonical normalized values mapped",),
+            independent_quantity=stage_independent,
+        )
+    ]
     current = columns
     for ordinal, step in enumerate(steps, start=1):
         current, diagnostics, scalar_results, fit_candidates = _apply_step(
@@ -1250,6 +1484,9 @@ def preview_pipeline(
         )
         if any(not np.all(np.isfinite(values)) for values in current.values()):
             raise CommonPipelineError(f"method {step.method_id} produced non-finite output")
+        stage_independent = next_processing_stage_independent_quantity(
+            stage_independent, step, current
+        )
         stages.append(
             _stage(
                 ordinal,
@@ -1259,6 +1496,7 @@ def preview_pipeline(
                 diagnostics,
                 scalar_results,
                 fit_candidates,
+                stage_independent,
             )
         )
     return ProcessingPreview(

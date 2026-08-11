@@ -885,7 +885,7 @@ def _embedded_review_materials(
                 "diff",
                 "--no-ext-diff",
                 "--no-textconv",
-                "--unified=3",
+                "--unified=0",
                 f"{change.base_ref}...HEAD",
                 "--",
                 ".",
@@ -894,6 +894,11 @@ def _embedded_review_materials(
                 ":(exclude)**/*.jpg",
                 ":(exclude)**/*.jpeg",
                 ":(exclude)tests/**",
+                ":(exclude)backend/tests/**",
+                ":(exclude)contracts/examples/**",
+                ":(exclude)generated/**",
+                ":(exclude)scripts/capture*.py",
+                ":(exclude)scripts/seed_full_demo.py",
                 ":(exclude)**/*.test.ts",
                 ":(exclude)**/*.test.tsx",
                 ":(exclude)**/*.spec.ts",
@@ -903,16 +908,25 @@ def _embedded_review_materials(
         test_inventory: list[str] = []
         for relative in change.changed_files:
             path = PurePosixPath(relative)
-            is_test = (
+            is_verification_asset = (
                 relative.startswith("tests/")
+                or relative.startswith("backend/tests/")
+                or relative.startswith("contracts/examples/")
+                or relative.startswith("generated/")
+                or relative.startswith("scripts/capture")
+                or relative == "scripts/seed_full_demo.py"
                 or ".test." in path.name
                 or ".spec." in path.name
             )
             candidate = project / relative
-            if not is_test or not candidate.is_file():
+            if not is_verification_asset or not candidate.is_file():
                 continue
+            value = candidate.read_bytes()
+            test_inventory.append(
+                f"{relative}: bytes={len(value)} sha256={hashlib.sha256(value).hexdigest()}"
+            )
             for line_number, line in enumerate(
-                candidate.read_text(encoding="utf-8").splitlines(),
+                value.decode("utf-8", errors="replace").splitlines(),
                 start=1,
             ):
                 match = _TEST_DECLARATION.match(line)

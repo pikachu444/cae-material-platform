@@ -16,11 +16,13 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from cmp.modules.artifacts.application.content import ArtifactService
+from cmp.modules.datasets.curve_artifacts import LegacyParquetAdapter, resolve_curve_artifact
 from cmp.modules.datasets.domain.canonical_test_data import (
     MAX_CANONICAL_JSON_BYTES,
     TEST_DATA_SCHEMA_ID,
     TEST_DATA_SCHEMA_VERSION,
     CanonicalTestDataDocument,
+    ChannelAxisRole,
     TestCondition,
     TestDataChannel,
     TestDataSource,
@@ -29,6 +31,25 @@ from cmp.modules.datasets.domain.canonical_test_data import (
     TestSpecimenMetadata,
     canonical_test_data,
 )
+from cmp.modules.datasets.domain.curve_metadata import (
+    CURVE_DEFINITION_PARQUET_KEY,
+    CURVE_DEFINITION_SHA256_PARQUET_KEY,
+    ArtifactPin,
+    AxisRole,
+    CurveChannel,
+    CurveDefinition,
+    CurveMetadata,
+    CurveSeries,
+    CurveSeriesPreview,
+    OriginalUnit,
+    ProvenanceKind,
+    ProvenancePointer,
+    RevisionPin,
+    SourcePin,
+    UnitContract,
+    ValueBasis,
+    curve_definition_json_bytes,
+)
 from cmp.modules.datasets.domain.governed_tabular import GovernedImportConflict
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
@@ -36,6 +57,7 @@ from cmp.modules.identity_access.domain.authorization import (
     Permission,
 )
 from cmp.modules.identity_access.domain.security import SecurityContext
+from cmp.modules.units.domain.system import DimensionId, UnitError, dimension_for_quantity_semantics
 from cmp.shared.application.revisions import (
     CreateRevisionedAggregate,
     ReviseAggregate,
@@ -45,7 +67,8 @@ from cmp.shared.application.revisions import (
 from cmp.shared.domain.revisions import RevisionRecord, TenantScope
 
 TEST_DATA_DOCUMENT_AGGREGATE_TYPE = "datasets.test_data_document"
-NORMALIZED_PARQUET_SCHEMA = "urn:cmp:test-data:normalized-parquet:1.0.0"
+NORMALIZED_PARQUET_SCHEMA_V1 = "urn:cmp:test-data:normalized-parquet:1.0.0"
+NORMALIZED_PARQUET_SCHEMA = "urn:cmp:test-data:normalized-parquet:1.1.0"
 _write_parquet = cast(Callable[..., None], pq.write_table)
 
 
@@ -120,6 +143,12 @@ class TestDataDocumentSnapshot:
     id: UUID
     current: RevisionRecord
     content: TestDataDocumentContent
+
+
+@dataclass(frozen=True, slots=True)
+class CanonicalTestDataCurvePreview:
+    metadata: CurveMetadata
+    series: CurveSeriesPreview
 
 
 @dataclass(frozen=True, slots=True)
@@ -250,11 +279,78 @@ def canonical_json_bytes(document: CanonicalTestDataDocument) -> bytes:
     return value
 
 
+def canonical_test_data_curve_definition(
+    channels: tuple[TestDataChannel | TestDataChannelSummary, ...],
+    *,
+    value_basis: ValueBasis = ValueBasis.NORMALIZED,
+) -> CurveDefinition:
+    resolved: list[CurveChannel] = []
+    for channel in channels:
+        try:
+            dimension: DimensionId | None = dimension_for_quantity_semantics(
+                channel.quantity_semantics,
+                location=f"channels.{channel.key}.quantity_semantics",
+            )
+            unit_contract = UnitContract.COMMON
+        except UnitError:
+            dimension = None
+            unit_contract = UnitContract.EXPLICIT_LEGACY
+        axis_role = AxisRole(
+            channel.axis_role.value
+            if isinstance(channel.axis_role, ChannelAxisRole)
+            else channel.axis_role
+        )
+        resolved.append(
+            CurveChannel(
+                key=channel.key,
+                label=channel.name,
+                quantity_semantics=channel.quantity_semantics,
+                axis_role=axis_role,
+                unit_contract=unit_contract,
+                dimension=dimension,
+                original_units=(
+                    OriginalUnit(
+                        channel.original_unit_string,
+                        str(channel.normalization_scale),
+                        str(channel.normalization_offset),
+                    ),
+                ),
+                normalized_unit=channel.normalized_unit,
+                display_unit=channel.normalized_unit,
+                display_scale="1",
+                display_offset="0",
+                value_basis=value_basis,
+            )
+        )
+    return CurveDefinition(channels=tuple(resolved))
+
+
+def canonical_test_data_curve_series(
+    document: CanonicalTestDataDocument,
+) -> CurveSeries:
+    definition = canonical_test_data_curve_definition(document.channels)
+    return CurveSeries(
+        definition=definition,
+        channels={
+            channel.key: tuple(
+                float(value) if value is not None else None
+                for value in channel.normalized_values
+            )
+            for channel in document.channels
+        },
+        deviations={},
+        source_counts={},
+    )
+
+
 def normalized_parquet_bytes(document: CanonicalTestDataDocument) -> bytes:
+    definition = canonical_test_data_curve_definition(document.channels)
     fields: dict[str, pa.Array] = {}
     metadata: dict[bytes, bytes] = {
         b"cmp.schema": NORMALIZED_PARQUET_SCHEMA.encode(),
         b"cmp.document_sha256": document.digest.encode(),
+        CURVE_DEFINITION_PARQUET_KEY: curve_definition_json_bytes(definition),
+        CURVE_DEFINITION_SHA256_PARQUET_KEY: definition.sha256.encode("ascii"),
     }
     for channel in document.channels:
         fields[channel.key] = pa.array(
@@ -472,6 +568,97 @@ class CanonicalTestDataService:
         if artifact.artifact.sha256 != snapshot.content.canonical_sha256:
             raise GovernedImportConflict("canonical Test Data Artifact digest pin is inconsistent")
         return snapshot, value
+
+    async def preview_curve(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        document_id: UUID,
+        revision_id: UUID,
+        *,
+        maximum_points: int,
+    ) -> CanonicalTestDataCurvePreview:
+        _require(context, decision, Permission.DATASET_READ)
+        snapshot = self._repository.get_document_revision(
+            context=context,
+            decision=decision,
+            document_id=document_id,
+            revision_id=revision_id,
+        )
+        artifact_record, value = await self._artifacts.read_verified_bytes(
+            context,
+            decision,
+            snapshot.content.normalized_artifact_id,
+            maximum_bytes=64 * 1024 * 1024,
+        )
+        artifact = artifact_record.artifact
+        if artifact.sha256 != snapshot.content.normalized_sha256:
+            raise GovernedImportConflict(
+                "normalized Test Data Artifact digest pin is inconsistent"
+            )
+        if artifact.schema_ref not in {NORMALIZED_PARQUET_SCHEMA_V1, NORMALIZED_PARQUET_SCHEMA}:
+            raise GovernedImportConflict(
+                "normalized Test Data Artifact schema differs from its typed revision"
+            )
+        legacy_definition = canonical_test_data_curve_definition(snapshot.content.channels)
+        resolution = resolve_curve_artifact(
+            value,
+            schema_ref=artifact.schema_ref,
+            expected_sha256=artifact.sha256,
+            legacy_adapter=LegacyParquetAdapter(
+                definition=legacy_definition,
+                channel_columns={
+                    channel.key: channel.key for channel in legacy_definition.channels
+                },
+                deviation_columns={},
+                source_count_columns={},
+            ),
+            declared_required=artifact.schema_ref == NORMALIZED_PARQUET_SCHEMA,
+        )
+        assert resolution.series is not None
+        if resolution.series.point_count != snapshot.content.point_count:
+            raise GovernedImportConflict(
+                "normalized Test Data Artifact point count differs from its revision"
+            )
+        sources: tuple[SourcePin, ...] = ()
+        provenance: tuple[ProvenancePointer, ...] = ()
+        if snapshot.content.governed_source is not None:
+            source = snapshot.content.governed_source.test_run
+            sources = (
+                SourcePin(
+                    entity_type="test_run",
+                    entity_id=source.aggregate_id,
+                    revision_id=source.revision_id,
+                ),
+            )
+            provenance = (
+                ProvenancePointer(
+                    kind=ProvenanceKind.INPUT_USAGE,
+                    entity_id=source.aggregate_id,
+                    revision_id=source.revision_id,
+                ),
+            )
+        metadata = CurveMetadata(
+            state=resolution.state,
+            definition=resolution.series.definition,
+            owning_revision=RevisionPin(
+                entity_type="test_data_document",
+                entity_id=snapshot.id,
+                revision_id=snapshot.current.revision_id,
+            ),
+            artifact=ArtifactPin(
+                artifact_id=artifact.id,
+                sha256=artifact.sha256,
+                schema_ref=artifact.schema_ref,
+                media_type=artifact.media_type,
+            ),
+            sources=sources,
+            provenance=provenance,
+        )
+        return CanonicalTestDataCurvePreview(
+            metadata=metadata,
+            series=resolution.series.preview(maximum_points),
+        )
 
     def list_documents(
         self, context: SecurityContext, decision: AuthorizationDecision

@@ -43,7 +43,7 @@
         "curve_grid_policy": {"const": "exact_processed_grid_match_no_alignment"},
         "quantile_method": {"const": "linear_inclusive"},
         "confidence_interval_method": {"const": "student_t_95_two_sided"},
-        "curve_output_schema_ref": {"const": "urn:cmp:statistics:reference-tensile-replicate-curve-parquet:1.0.0"}
+        "curve_output_schema_ref": {"enum": ["urn:cmp:statistics:reference-tensile-replicate-curve-parquet:1.0.0", "urn:cmp:statistics:reference-tensile-replicate-curve-parquet:1.1.0"]}
       }
     },
     "ReplicatePlanRevision": {
@@ -225,7 +225,7 @@
     "ReplicateResultCurveResponse": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["result_id", "grid_policy", "points"],
+      "required": ["result_id", "grid_policy", "points", "curve_metadata", "curve_series"],
       "properties": {
         "result_id": {"$ref": "#/$defs/Uuid"},
         "grid_policy": {"const": "exact_processed_grid_match_no_alignment"},
@@ -234,7 +234,9 @@
           "minItems": 2,
           "maxItems": 10000,
           "items": {"$ref": "#/$defs/ReplicateCurvePoint"}
-        }
+        },
+        "curve_metadata": {"$ref": "../datasets/curve-channel-metadata.schema.json"},
+        "curve_series": {"$ref": "../datasets/curve-channel-metadata.schema.json#/$defs/CurveSeriesPreview"}
       }
     }
   }

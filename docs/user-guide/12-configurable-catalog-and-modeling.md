@@ -115,9 +115,11 @@ file/curve 값과 다른 레코드 연결의 상세 식별자는 **Evidence** �
 9. 상단 검색에서 Table과 검색어를 선택한다. 오른쪽에서 discrete facet 또는 normalized numeric
    range를 적용할 수 있다. 두 결과의 **Compare**를 체크한 뒤 **Compare 2**를 누르면 선택한 Layout
    순서로 exact current Record revision을 나란히 비교한다.
-10. **Curves**는 현재 Record revision의 curve Artifact provenance를 표시한다. 실제 raw/normalized/
-    processed curve overlay와 처리 option preview는 linked Test Data를 연 뒤 Material Modeling
-    workspace에서 수행한다.
+10. **Curves**에서 현재 Record revision의 곡선을 선택하면 같은 화면의 큰 그래프에서 채널 이름,
+    축 역할, 원본/정규화·표시 단위와 기록된 통계 band 의미를 확인할 수 있다. **Evidence**는 exact
+    Record/Artifact revision과 digest, source와 calculation chain을 펼쳐 보여 준다. 정확히 연결된
+    Test Data 곡선만 **Open in Modeling**으로 전달된다. 통계 envelope와 provenance가 없는 legacy
+    곡선은 view-only이며 Fit 입력으로 추정하지 않는다.
 
 
 
@@ -128,14 +130,16 @@ file/curve 값과 다른 레코드 연결의 상세 식별자는 **Evidence** �
 
 1. 전역 **Modeling**을 선택한다. 상단의 `Data | Process | Fit | Export`가 일반 작업 경로다.
 2. Data에서 Canonical JSON, CSV 또는 XLSX를 선택하고 **Test Data revision**과 channel/unit
-   Mapping Profile을 확인한다. 원시 JSON은 Advanced mapping definition에서만 연다.
+   Mapping Profile을 확인한다. Materials에서 연 exact Test Data도 같은 channel definition SHA와
+   표시 adapter를 사용한다. 원시 JSON은 Advanced mapping definition에서만 연다.
 3. Process에서 왼쪽 `Curves`의 실제 test method 그룹과 specimen/revision 행, `Process`의 일반 문자열
    행을 선택한다. 각 curve 행의 원형 색 키는 그래프 선을 구분할 뿐이며, inclusion checkbox와 눈 아이콘은
    각각 계산 포함 여부와 브라우저 로컬 plot visibility를 독립적으로 바꾼다. `Add method`로 ordered
    step을 추가하고 current-step settings ribbon에서 crop/smoothing/resample/statistics option을
    바꾼다. 1366 px에서는 `Show settings`로 ribbon을 연다.
 4. **Preview changes**를 누른다. 오른쪽에 별도 inspector 열을 만들지 않고, 같은 큰 graph가 실제
-   서버 계산 raw/mapped/processed stage를 유지한다.
+   서버 계산 raw/mapped/processed stage를 유지한다. 그래프 tooltip은 pointer와 Arrow key로 같은
+   point를 탐색하며 축 label/unit, 값, 기록된 band method·coverage와 pointwise `n`을 표시한다.
 5. Fit에서 candidate response, residual, tangent와 extrapolation을 비교한다. 현재 curve/step과
    settings는 같은 surface에 연결된다.
 6. Recipe와 Batch는 ribbon의 **Advanced · Recipe and Batch**, ordered JSON은 **Advanced Recipe

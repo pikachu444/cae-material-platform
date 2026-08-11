@@ -93,9 +93,7 @@ def test_structured_yaml_path_references_register_visual_evidence(
     )
     monkeypatch.setattr(user_guide, "_STRUCTURED_IMAGE_MANIFESTS", ())
     monkeypatch.setattr(user_guide, "_STRUCTURED_IMAGE_MANIFEST_GLOBS", ())
-    monkeypatch.setattr(
-        user_guide, "_STRUCTURED_IMAGE_YAML_MANIFESTS", (manifest_relative,)
-    )
+    monkeypatch.setattr(user_guide, "_STRUCTURED_IMAGE_YAML_MANIFESTS", (manifest_relative,))
     monkeypatch.setattr(user_guide, "_IMAGE_PATH_MANIFESTS", ())
 
     assert user_guide._structured_manifest_images(tmp_path) == {image_relative}
@@ -138,14 +136,14 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     report = verify_user_guide(root)
 
     assert report.document_count >= 10
-    assert report.capture_count == 90
+    assert report.capture_count == 95
     assert report.navigation_count == 3
     assert report.classified_markdown_count >= 100
     assert report.current_document_count >= 40
     assert report.local_link_count >= 150
     assert report.image_count >= 120
     assert report.orphan_image_count == 0
-    assert report.duplicate_image_group_count == 264
+    assert report.duplicate_image_group_count == 266
 
 
 def test_incoming_integration_package_is_reference_not_authoritative() -> None:
@@ -198,9 +196,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     ]
     previous_provenance = manifest["previous_capture_provenance"]
     previous_provenance_ids = [
-        capture_id
-        for provenance in previous_provenance
-        for capture_id in provenance["ids"]
+        capture_id for provenance in previous_provenance for capture_id in provenance["ids"]
     ]
 
     prior_source = "31f9a3f+task3b-worktree"
@@ -213,17 +209,11 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     }
 
     current_source = manifest["source_commit"]
-    assert manifest["scope"] == "issue-184-high-dpi-global-implementation"
+    assert manifest["scope"] == "issue-206-curve-channel-metadata-and-deviation"
     assert re.fullmatch(r"[0-9a-f]{40}", current_source)
     assert manifest["source_commit"] == current_source
     assert len(provenance_ids) == len(set(provenance_ids))
     preserved_fixture_ids = {
-        "material-cae-cards-1440",
-        "material-detail-1366",
-        "material-detail-1440",
-        "material-detail-1920",
-        "material-detail-2560",
-        "material-detail-3840",
         "modeling-export-delivered",
         "solver-card-preview-1366",
         "solver-card-preview-1440",
@@ -231,7 +221,8 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     }
     assert set(captures) - set(provenance_ids) == preserved_fixture_ids
     assert {provenance["source_commit"] for provenance in manifest["capture_provenance"]} == {
-        current_source
+        current_source,
+        "97f850acf454a8fb6d8caeb8cf5e9ccb5d413a16",
     }
     assert len(previous_provenance_ids) == len(set(previous_provenance_ids))
     new_issue_184_captures = {
@@ -242,7 +233,16 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "administration-access-2560",
         "administration-access-3840",
     }
-    assert set(previous_provenance_ids) == set(captures) - new_issue_184_captures
+    new_issue_206_captures = {
+        "material-curves-1366",
+        "material-curves-1440",
+        "material-curves-1920",
+        "material-curves-2560",
+        "material-curves-3840",
+    }
+    assert set(previous_provenance_ids) == (
+        set(captures) - new_issue_184_captures - new_issue_206_captures
+    )
     assert {
         prior_source,
         correction_source,
@@ -254,10 +254,13 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "working-tree-issue-160",
         "working-tree-issue-160-task-2",
     } == {provenance["source_commit"] for provenance in previous_provenance}
-    assert (
-        "Eighty Standard images replace the current guide"
-        in manifest["capture_provenance"][0]["command"]
+    issue_206_provenance = next(
+        provenance
+        for provenance in manifest["capture_provenance"]
+        if provenance["source_commit"] == current_source
     )
+    assert "--only-materials" in issue_206_provenance["command"]
+    assert new_issue_206_captures <= set(issue_206_provenance["ids"])
     process_provenance = [
         provenance
         for provenance in previous_provenance
@@ -275,8 +278,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         if provenance["source_commit"] == "55cfa62"
     ]
     assert any(
-        "targeted live Playwright Modeling Export capture" in command
-        for command in uxc04e_commands
+        "targeted live Playwright Modeling Export capture" in command for command in uxc04e_commands
     )
     data_provenance = [
         provenance
@@ -325,8 +327,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     activity = captures["activity-1440"]
     assert activity["workflow"] == "role-aware-review-queue-with-resume-and-outcomes"
     assert (
-        "pending exact-revision DP780 Selected model and Solver card reviews"
-        in activity["fixture"]
+        "pending exact-revision DP780 Selected model and Solver card reviews" in activity["fixture"]
     )
     for capture_id in ("administration-access-1366", "administration-access-1440"):
         capture = captures[capture_id]
@@ -338,10 +339,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "modeling-export-1920",
     ):
         capture = captures[capture_id]
-        assert (
-            capture["workflow"]
-            == "uxc-06c2-capability-backed-preview-and-atomic-delivery"
-        )
+        assert capture["workflow"] == "uxc-06c2-capability-backed-preview-and-atomic-delivery"
         assert "one immutable card/receipt" in capture["fixture"]
 
 
@@ -351,9 +349,7 @@ def test_mat_detail_captures_resolve_to_approved_references_and_comparison_evide
         (root / "docs/user-guide/screenshot-manifest.yaml").read_text(encoding="utf-8")
     )
     references_manifest = yaml.safe_load(
-        (root / "docs/01-product/service-reference-manifest.yaml").read_text(
-            encoding="utf-8"
-        )
+        (root / "docs/01-product/service-reference-manifest.yaml").read_text(encoding="utf-8")
     )
     references = references_manifest["references"]
     reference_ids = {entry["id"] for entry in references}
@@ -387,10 +383,10 @@ def test_current_images_are_product_routes_and_storybook_captures_are_untracked(
         (root / "docs/user-guide/screenshot-manifest.yaml").read_text(encoding="utf-8")
     )
     current_images = root / "docs/user-guide/images/current"
-    assert len(manifest["captures"]) == 90
+    assert len(manifest["captures"]) == 95
     assert all(not capture["route"].startswith("/iframe.html") for capture in manifest["captures"])
     assert not list(current_images.glob("storybook-*.png"))
-    assert len(list(current_images.glob("*.png"))) == 90
+    assert len(list(current_images.glob("*.png"))) == 95
     assert not list((root / "docs/17-evidence/images").glob("**/storybook-*.png"))
 
 
@@ -410,9 +406,7 @@ def test_orphan_detection_uses_resolved_paths_not_filenames_or_audit_text(
         encoding="utf-8",
     )
 
-    _, referenced, _ = _verify_document_links(
-        tmp_path, {"docs/audit.md": "reference"}
-    )
+    _, referenced, _ = _verify_document_links(tmp_path, {"docs/audit.md": "reference"})
 
     assert referenced == {"docs/user-guide/images/current/shared.png"}
     with pytest.raises(
@@ -506,11 +500,7 @@ def test_duplicate_group_with_two_current_images_is_rejected(
     ("entry", "message"),
     [
         (
-            {
-                "images": [
-                    "docs/17-evidence/images/issue-167-service-reference/first.png"
-                ]
-            },
+            {"images": ["docs/17-evidence/images/issue-167-service-reference/first.png"]},
             "rationale",
         ),
         (
@@ -581,9 +571,7 @@ def test_duplicate_allowance_rejects_repeated_or_unused_groups(tmp_path: Path) -
     entry = {"rationale": "same intentional approved reference", "images": list(relative_paths)}
 
     with pytest.raises(UserGuideContractError, match="repeated"):
-        _duplicate_allowances(
-            tmp_path, {"allowed_duplicate_groups": [entry, entry]}
-        )
+        _duplicate_allowances(tmp_path, {"allowed_duplicate_groups": [entry, entry]})
     with pytest.raises(UserGuideContractError, match="no longer match equal bytes"):
         _verify_image_inventory(
             tmp_path,

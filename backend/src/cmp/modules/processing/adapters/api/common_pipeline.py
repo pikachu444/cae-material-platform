@@ -11,10 +11,15 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Request, Response, 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 from sqlalchemy.exc import IntegrityError
 
+from cmp.modules.datasets.contracts import (
+    CurveDefinitionResponse,
+    CurveSeriesPreviewResponse,
+)
 from cmp.modules.datasets.domain.canonical_test_data import (
     CanonicalTestDataError,
     parse_canonical_test_data,
 )
+from cmp.modules.datasets.domain.curve_metadata import MetadataState
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
     DataClassification,
@@ -48,6 +53,8 @@ from cmp.modules.processing.domain.common_ensemble import (
     ENSEMBLE_METHOD_REGISTRY,
     EnsembleAlignmentOptions,
     EnsemblePreview,
+    PointwiseStatistics,
+    pointwise_statistics_curve,
     preview_ensemble,
 )
 from cmp.modules.processing.domain.common_pipeline import (
@@ -56,11 +63,13 @@ from cmp.modules.processing.domain.common_pipeline import (
     AttributeBinding,
     ChannelBinding,
     CommonPipelineError,
+    CurveStage,
     MappingProfileContent,
     MethodDefinition,
     MissingDataPolicy,
     ProcessingPreview,
     ProcessingStep,
+    curve_stage_series,
     preview_pipeline,
 )
 from cmp.modules.processing.domain.metal_hardening import HardeningCandidateEvidence
@@ -319,6 +328,48 @@ class CurveStageResponse(BaseModel):
     diagnostics: tuple[str, ...]
     scalar_results: tuple[ScalarResultResponse, ...]
     fit_candidates: tuple[HardeningCandidateResponse, ...] = ()
+    metadata_state: MetadataState
+    curve_definition_sha256: str
+    curve_definition: CurveDefinitionResponse
+    curve_series: CurveSeriesPreviewResponse
+
+    @classmethod
+    def from_domain(
+        cls, value: CurveStage, independent_quantity: str
+    ) -> CurveStageResponse:
+        curve = curve_stage_series(value, independent_quantity)
+        return cls(
+            ordinal=value.ordinal,
+            method_id=value.method_id,
+            method_version=value.method_version,
+            point_count=value.point_count,
+            series=tuple(
+                QuantitySeriesResponse(
+                    quantity=series.quantity,
+                    unit=series.unit,
+                    values=series.values,
+                )
+                for series in value.series
+            ),
+            diagnostics=value.diagnostics,
+            scalar_results=tuple(
+                ScalarResultResponse(
+                    key=item.key,
+                    quantity_semantics=item.quantity_semantics,
+                    value=item.value,
+                    unit=item.unit,
+                )
+                for item in value.scalar_results
+            ),
+            fit_candidates=tuple(
+                HardeningCandidateResponse.from_domain(item)
+                for item in value.fit_candidates
+            ),
+            metadata_state=value.metadata_state,
+            curve_definition_sha256=curve.definition.sha256,
+            curve_definition=CurveDefinitionResponse.from_domain(curve.definition),
+            curve_series=CurveSeriesPreviewResponse.from_domain(curve.preview(1000)),
+        )
 
 
 class ProcessingPreviewResponse(BaseModel):
@@ -339,34 +390,7 @@ class ProcessingPreviewResponse(BaseModel):
             mapping_profile_sha256=value.mapping_profile_sha256,
             independent_quantity=value.independent_quantity,
             stages=tuple(
-                CurveStageResponse(
-                    ordinal=stage.ordinal,
-                    method_id=stage.method_id,
-                    method_version=stage.method_version,
-                    point_count=stage.point_count,
-                    series=tuple(
-                        QuantitySeriesResponse(
-                            quantity=series.quantity,
-                            unit=series.unit,
-                            values=series.values,
-                        )
-                        for series in stage.series
-                    ),
-                    diagnostics=stage.diagnostics,
-                    scalar_results=tuple(
-                        ScalarResultResponse(
-                            key=item.key,
-                            quantity_semantics=item.quantity_semantics,
-                            value=item.value,
-                            unit=item.unit,
-                        )
-                        for item in stage.scalar_results
-                    ),
-                    fit_candidates=tuple(
-                        HardeningCandidateResponse.from_domain(item)
-                        for item in stage.fit_candidates
-                    ),
-                )
+                CurveStageResponse.from_domain(stage, value.independent_quantity)
                 for stage in value.stages
             ),
         )
@@ -803,6 +827,32 @@ class PointwiseStatisticsResponse(BaseModel):
     q3: tuple[float, ...]
     confidence_95_lower: tuple[float, ...]
     confidence_95_upper: tuple[float, ...]
+    metadata_state: MetadataState
+    curve_definition_sha256: str
+    curve_definition: CurveDefinitionResponse
+    curve_series: CurveSeriesPreviewResponse
+
+    @classmethod
+    def from_domain(
+        cls, preview: EnsemblePreview, value: PointwiseStatistics
+    ) -> PointwiseStatisticsResponse:
+        curve = pointwise_statistics_curve(preview, value)
+        return cls(
+            quantity=value.quantity,
+            unit=value.unit,
+            mean=value.mean,
+            median=value.median,
+            standard_deviation=value.standard_deviation,
+            mad=value.mad,
+            q1=value.q1,
+            q3=value.q3,
+            confidence_95_lower=value.confidence_95_lower,
+            confidence_95_upper=value.confidence_95_upper,
+            metadata_state=MetadataState.DECLARED,
+            curve_definition_sha256=curve.definition.sha256,
+            curve_definition=CurveDefinitionResponse.from_domain(curve.definition),
+            curve_series=CurveSeriesPreviewResponse.from_domain(curve.preview(1000)),
+        )
 
 
 class EnsemblePreviewResponse(BaseModel):
@@ -830,46 +880,14 @@ class EnsemblePreviewResponse(BaseModel):
                 EnsembleMemberResponse(
                     ordinal=member.ordinal,
                     source_document_sha256=member.source_document_sha256,
-                    stage=CurveStageResponse(
-                        ordinal=member.stage.ordinal,
-                        method_id=member.stage.method_id,
-                        method_version=member.stage.method_version,
-                        point_count=member.stage.point_count,
-                        series=tuple(
-                            QuantitySeriesResponse(
-                                quantity=series.quantity,
-                                unit=series.unit,
-                                values=series.values,
-                            )
-                            for series in member.stage.series
-                        ),
-                        diagnostics=member.stage.diagnostics,
-                        scalar_results=tuple(
-                            ScalarResultResponse(
-                                key=item.key,
-                                quantity_semantics=item.quantity_semantics,
-                                value=item.value,
-                                unit=item.unit,
-                            )
-                            for item in member.stage.scalar_results
-                        ),
+                    stage=CurveStageResponse.from_domain(
+                        member.stage, value.independent_quantity
                     ),
                 )
                 for member in value.members
             ),
             statistics=tuple(
-                PointwiseStatisticsResponse(
-                    quantity=item.quantity,
-                    unit=item.unit,
-                    mean=item.mean,
-                    median=item.median,
-                    standard_deviation=item.standard_deviation,
-                    mad=item.mad,
-                    q1=item.q1,
-                    q3=item.q3,
-                    confidence_95_lower=item.confidence_95_lower,
-                    confidence_95_upper=item.confidence_95_upper,
-                )
+                PointwiseStatisticsResponse.from_domain(value, item)
                 for item in value.statistics
             ),
             diagnostics=value.diagnostics,

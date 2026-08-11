@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 
 import {
   getConfigurableCatalogRecord,
@@ -6,6 +6,7 @@ import {
   listConfigurableCatalogAttributes,
   listConfigurableCatalogLayouts,
   listConfigurableCatalogRecordRevisions,
+  previewExactCatalogCurveValue,
   type ApiConfig,
 } from "./api";
 import type {
@@ -13,8 +14,16 @@ import type {
   ConfigurableCatalogRecordResponse,
   ConfigurableLayoutResponse,
   ConfigurableRecordValue,
+  CatalogCurvePreviewResponse,
+  DomainRevisionBinding,
 } from "./types";
 import { appendActivityFailure, appendActivityOutcome } from "./activity-recovery";
+import { modelingFamilyFromQuantities, saveModelingSession } from "./modeling-session-context";
+
+const CurveContractChart = lazy(async () => {
+  const module = await import("./curve-contract-chart");
+  return { default: module.CurveContractChart };
+});
 
 type ProjectionMode = "properties" | "curves" | "evidence";
 
@@ -24,6 +33,7 @@ interface Props {
   recordId: string;
   mode: ProjectionMode;
   revisionId?: string;
+  onNavigate?: (path: string) => void;
 }
 
 interface ProjectedValue {
@@ -154,12 +164,15 @@ async function downloadLayoutCsv(
   }
 }
 
-export function MaterialDatasheetProjection({ config, tableId, recordId, mode, revisionId }: Props) {
+export function MaterialDatasheetProjection({ config, tableId, recordId, mode, revisionId, onNavigate }: Props) {
   const [record, setRecord] = useState<ConfigurableCatalogRecordResponse | null>(null);
   const [attributes, setAttributes] = useState<ConfigurableAttributeResponse[]>([]);
   const [layouts, setLayouts] = useState<ConfigurableLayoutResponse[]>([]);
   const [layoutId, setLayoutId] = useState("");
   const [loading, setLoading] = useState(true);
+  const [curvePreviews, setCurvePreviews] = useState<Record<string, CatalogCurvePreviewResponse>>({});
+  const [curveErrors, setCurveErrors] = useState<Record<string, string>>({});
+  const [selectedCurveId, setSelectedCurveId] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -231,6 +244,77 @@ export function MaterialDatasheetProjection({ config, tableId, recordId, mode, r
     return mode === "curves" ? projected.filter((item) => item.value !== null) : projected;
   }, [layoutValues, mode]);
 
+  const curveValues = useMemo(() => values.filter((item): item is ProjectedValue & {
+    value: Extract<ConfigurableRecordValue, { data_type: "curve" }>;
+  } => item.value?.data_type === "curve"), [values]);
+
+  useEffect(() => {
+    let active = true;
+    if (mode !== "curves" || !record || !curveValues.length) {
+      setCurvePreviews({});
+      setCurveErrors({});
+      setSelectedCurveId("");
+      return () => { active = false; };
+    }
+    setCurvePreviews({});
+    setCurveErrors({});
+    setSelectedCurveId((current) => curveValues.some((item) => item.attribute.attribute_definition_id === current)
+      ? current
+      : curveValues[0].attribute.attribute_definition_id);
+    void Promise.all(curveValues.map(async (item) => {
+      const attributeId = item.attribute.attribute_definition_id;
+      try {
+        const result = await previewExactCatalogCurveValue(
+          config,
+          record.record_id,
+          record.current_revision.id,
+          attributeId,
+        );
+        if (active) setCurvePreviews((current) => ({ ...current, [attributeId]: result.data }));
+      } catch (cause) {
+        if (active) setCurveErrors((current) => ({
+          ...current,
+          [attributeId]: cause instanceof Error ? cause.message : "Curve preview failed.",
+        }));
+      }
+    }));
+    return () => { active = false; };
+  }, [config, curveValues, mode, record]);
+
+  const openInModeling = (
+    source: DomainRevisionBinding,
+    preview: CatalogCurvePreviewResponse,
+    label: string,
+  ): void => {
+    if (source.kind !== "test_data" || preview.modeling_use !== "fit_input") return;
+    const exactRef = {
+      id: source.object_id,
+      revisionId: source.revision_id,
+      label,
+      revisionNo: 0,
+    };
+    const family = modelingFamilyFromQuantities(
+      preview.curve_metadata.definition?.channels.map((channel) => channel.quantity_semantics) ?? [],
+    );
+    saveModelingSession({
+      materialFamily: family,
+      objective: `Fit the exact ${label} Test Data revision`,
+      contextSelectionRequired: false,
+      testData: exactRef,
+      workspace: {
+        activeStage: "data",
+        selectedDocumentIds: [source.object_id],
+        selectedTestDataRefs: [exactRef],
+        visibleTestDataKeys: [`${source.object_id}:${source.revision_id}`],
+        selectedStepIndex: 0,
+        selectedStageOrdinal: 0,
+        plotView: "pipeline",
+        settingsOpen: typeof window === "undefined" || window.innerWidth >= 1400,
+      },
+    });
+    onNavigate?.(`/modeling?stage=data&family=${family}&source_document_id=${encodeURIComponent(source.object_id)}&source_revision_id=${encodeURIComponent(source.revision_id)}`);
+  };
+
   if (loading) return <p className="ux-meta">Loading configured datasheet…</p>;
   if (!record) return <div className="ux-empty"><strong>Material data is unavailable.</strong><p>Return to the selected Record and try again.</p></div>;
   if (!selectedLayout) return <div className="ux-empty"><strong>No saved datasheet layout is available.</strong><p>Ask an administrator to configure the Material display.</p></div>;
@@ -246,6 +330,32 @@ export function MaterialDatasheetProjection({ config, tableId, recordId, mode, r
       : text.primary;
     return <tr key={item.attribute.attribute_definition_id}><td><strong>{definition.name}</strong>{mode === "evidence" && definition.help_text ? <small>{definition.help_text}</small> : null}</td><td><span>{primary}</span>{text.secondary ? <small title={text.secondary}>{text.secondary}</small> : null}</td><td>{item.value?.data_type === "number" ? item.value.original_unit_string : ""}</td></tr>;
   })}</tbody></table></section>)}</div>;
+
+  if (mode === "curves") {
+    const selected = curveValues.find((item) => item.attribute.attribute_definition_id === selectedCurveId) ?? curveValues[0];
+    const selectedId = selected?.attribute.attribute_definition_id ?? "";
+    const selectedPreview = curvePreviews[selectedId];
+    return <section className="layout-projection curve-layout-projection">
+      <div className="detail-section-heading"><div><p className="ux-kicker">Material data</p><h2>{selectedLayout.name}</h2><p>Each curve is read from this exact immutable Record revision.</p></div></div>
+      <div className="material-curve-browser">
+        <div className="material-curve-list" role="list" aria-label="Available curves">
+          {curveValues.map((item) => {
+            const id = item.attribute.attribute_definition_id;
+            const preview = curvePreviews[id];
+            return <div key={id} role="listitem"><button type="button" className={id === selectedId ? "active" : ""} aria-current={id === selectedId ? "true" : undefined} onClick={() => setSelectedCurveId(id)}>
+              <strong>{item.attribute.current_revision.content.name}</strong>
+              <span>{preview ? preview.curve_metadata.metadata_state === "absent" ? "Metadata not recorded" : preview.modeling_use === "fit_input" ? "Exact Test Data · Fit input" : "Statistical curve · View only" : curveErrors[id] ? "Preview unavailable" : "Loading metadata…"}</span>
+            </button></div>;
+          })}
+        </div>
+        <div className="material-curve-main">
+          {selectedPreview ? <Suspense fallback={<p className="loading-state" role="status">Loading curve chart…</p>}><CurveContractChart preview={selectedPreview} title={selected.attribute.current_revision.content.name} onOpenModeling={onNavigate ? (source) => openInModeling(source, selectedPreview, selected.attribute.current_revision.content.name) : undefined}/></Suspense>
+            : curveErrors[selectedId] ? <div className="ux-notice error" role="alert"><strong>Curve preview is unavailable.</strong><p>{curveErrors[selectedId]}</p></div>
+              : <p className="loading-state" role="status">Loading exact curve metadata…</p>}
+        </div>
+      </div>
+    </section>;
+  }
 
   if (mode !== "evidence") {
     return <section className="layout-projection"><div className="detail-section-heading"><div><p className="ux-kicker">Material data</p><h2>{selectedLayout?.name ?? "Properties"}</h2></div><button className="ux-button tertiary" type="button" onClick={() => record && void downloadLayoutCsv(config, record, selectedLayout, values)}>Download CSV</button></div>{content}</section>;

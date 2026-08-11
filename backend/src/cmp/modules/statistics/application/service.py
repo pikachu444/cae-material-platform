@@ -15,6 +15,16 @@ from cmp.modules.datasets.application.service import (
     DatasetSelectionRevisionSnapshot,
     DatasetService,
 )
+from cmp.modules.datasets.curve_artifacts import LegacyParquetAdapter, resolve_curve_artifact
+from cmp.modules.datasets.domain.curve_metadata import (
+    ArtifactPin,
+    CurveMetadata,
+    CurveSeriesPreview,
+    ProvenanceKind,
+    ProvenancePointer,
+    RevisionPin,
+    SourcePin,
+)
 from cmp.modules.datasets.domain.reference_tensile import (
     DatasetRepresentation,
     normalized_points_from_parquet,
@@ -34,6 +44,7 @@ from cmp.modules.statistics.domain.reference_tensile_outlier import (
 )
 from cmp.modules.statistics.domain.reference_tensile_pair import (
     REFERENCE_TENSILE_PAIR_CURVE_SCHEMA,
+    REFERENCE_TENSILE_PAIR_CURVE_SCHEMAS,
     REFERENCE_TENSILE_PAIR_PLAN_SCHEMA,
     REFERENCE_TENSILE_PAIR_RESULT_SCHEMA,
     REFERENCE_TENSILE_PAIR_SCHEMA_VERSION,
@@ -48,6 +59,7 @@ from cmp.modules.statistics.domain.reference_tensile_pair import (
     StatisticsConflict,
     calculate_reference_tensile_pair_statistics,
     observed_grid_qc,
+    reference_tensile_pair_curve_definition,
     reference_tensile_pair_curve_from_parquet,
     reference_tensile_pair_curve_parquet_bytes,
 )
@@ -81,6 +93,14 @@ class StatisticalPlanSnapshot:
 class StatisticalResultSnapshot:
     id: UUID
     current: RevisionSnapshot[ReferenceTensilePairResultContent]
+
+
+@dataclass(frozen=True, slots=True)
+class StatisticalCurvePreview:
+    result: StatisticalResultSnapshot
+    points: tuple[ReferenceTensilePairCurvePoint, ...]
+    metadata: CurveMetadata
+    series: CurveSeriesPreview
 
 
 @dataclass(frozen=True, slots=True)
@@ -644,18 +664,25 @@ class StatisticsService:
         )
         created = self._repository.create_run(context=context, decision=decision, run=run)
         try:
-            _, first_bytes = await self._artifacts.read_verified_bytes(
+            first_artifact, first_bytes = await self._artifacts.read_verified_bytes(
                 context,
                 decision,
                 first_dataset.revision.content.data_artifact_id,
                 maximum_bytes=16 * 1024 * 1024,
             )
-            _, second_bytes = await self._artifacts.read_verified_bytes(
+            second_artifact, second_bytes = await self._artifacts.read_verified_bytes(
                 context,
                 decision,
                 second_dataset.revision.content.data_artifact_id,
                 maximum_bytes=16 * 1024 * 1024,
             )
+            if (
+                first_artifact.artifact.schema_ref != plan.content.input_schema_ref
+                or second_artifact.artifact.schema_ref != plan.content.input_schema_ref
+            ):
+                raise StatisticsConflict(
+                    "input Artifact schema differs from the exact Statistical Plan revision"
+                )
             first_points = normalized_points_from_parquet(first_bytes)
             second_points = normalized_points_from_parquet(second_bytes)
         except Exception:
@@ -728,9 +755,12 @@ class StatisticsService:
                 decision,
                 classification=created.classification,
                 artifact_role="statistics.reference_tensile_pair_curve",
-                schema_ref=REFERENCE_TENSILE_PAIR_CURVE_SCHEMA,
+                schema_ref=plan.content.curve_output_schema_ref,
                 media_type="application/vnd.apache.parquet",
-                value=reference_tensile_pair_curve_parquet_bytes(statistics.curve),
+                value=reference_tensile_pair_curve_parquet_bytes(
+                    statistics.curve,
+                    schema_ref=plan.content.curve_output_schema_ref,
+                ),
                 idempotency_key=f"statistics:{created.id}:reference-tensile-pair",
             )
             content = ReferenceTensilePairResultContent(
@@ -1192,28 +1222,109 @@ class StatisticsService:
         result_id: UUID,
         *,
         maximum_points: int,
-    ) -> tuple[ReferenceTensilePairCurvePoint, ...]:
+    ) -> StatisticalCurvePreview:
         _require(context, decision, Permission.STATISTICS_READ)
         if not 2 <= maximum_points <= 10_000:
             raise InvalidStatisticsRequest("preview point limit must be between 2 and 10000")
         result = self._repository.get_result(
             context=context, decision=decision, result_id=result_id
         )
-        _, data = await self._artifacts.read_verified_bytes(
+        artifact_record, data = await self._artifacts.read_verified_bytes(
             context,
             decision,
             result.current.content.curve_artifact_id,
             maximum_bytes=32 * 1024 * 1024,
         )
+        artifact = artifact_record.artifact
+        if (
+            artifact.sha256 != result.current.content.curve_sha256
+            or artifact.schema_ref not in REFERENCE_TENSILE_PAIR_CURVE_SCHEMAS
+        ):
+            raise StatisticsConflict(
+                "result curve Artifact identity, digest, or schema differs from Result"
+            )
         curve = reference_tensile_pair_curve_from_parquet(data)
         if len(curve) != result.current.content.curve_point_count:
             raise StatisticsConflict(
                 "result curve Artifact point count differs from immutable Result"
             )
-        if len(curve) <= maximum_points:
-            return curve
-        last = len(curve) - 1
-        indexes = tuple(
-            round(index * last / (maximum_points - 1)) for index in range(maximum_points)
+        definition = reference_tensile_pair_curve_definition()
+        resolution = resolve_curve_artifact(
+            data,
+            schema_ref=artifact.schema_ref,
+            expected_sha256=artifact.sha256,
+            legacy_adapter=LegacyParquetAdapter(
+                definition=definition,
+                channel_columns={
+                    "engineering_strain": "engineering_strain",
+                    "mean_engineering_stress_pa": "mean_engineering_stress_pa",
+                    "median_engineering_stress_pa": "median_engineering_stress_pa",
+                },
+                deviation_columns={
+                    "sample_standard_deviation_engineering_stress_pa": (
+                        "sample_standard_deviation_engineering_stress_pa"
+                    ),
+                    "minimum_engineering_stress_pa": "minimum_engineering_stress_pa",
+                    "maximum_engineering_stress_pa": "maximum_engineering_stress_pa",
+                },
+                source_count_columns={},
+            ),
+            declared_required=artifact.schema_ref == REFERENCE_TENSILE_PAIR_CURVE_SCHEMA,
         )
-        return tuple(curve[index] for index in indexes)
+        assert resolution.series is not None
+        series_preview = resolution.series.preview(maximum_points)
+        points = tuple(curve[index] for index in series_preview.indices)
+        first = self._datasets.get_dataset_revision_for_statistics(
+            context, decision, result.current.content.first_dataset_revision_id
+        )
+        second = self._datasets.get_dataset_revision_for_statistics(
+            context, decision, result.current.content.second_dataset_revision_id
+        )
+        sources = tuple(
+            SourcePin(
+                entity_type="dataset",
+                entity_id=source.dataset_id,
+                revision_id=source.revision.record.revision_id,
+                artifact_id=source.revision.content.data_artifact_id,
+                artifact_sha256=source.revision.content.data_sha256,
+            )
+            for source in (first, second)
+        )
+        metadata = CurveMetadata(
+            state=resolution.state,
+            definition=resolution.series.definition,
+            owning_revision=RevisionPin(
+                entity_type="statistical_result",
+                entity_id=result.id,
+                revision_id=result.current.record.revision_id,
+            ),
+            artifact=ArtifactPin(
+                artifact_id=artifact.id,
+                sha256=artifact.sha256,
+                schema_ref=artifact.schema_ref,
+                media_type=artifact.media_type,
+            ),
+            sources=sources,
+            provenance=(
+                ProvenancePointer(
+                    kind=ProvenanceKind.CALCULATION_PLAN,
+                    entity_id=result.current.content.plan_id,
+                    revision_id=result.current.content.plan_revision_id,
+                ),
+                ProvenancePointer(
+                    kind=ProvenanceKind.CALCULATION_RUN,
+                    entity_id=result.current.content.statistical_run_id,
+                ),
+                ProvenancePointer(
+                    kind=ProvenanceKind.CALCULATION_RESULT,
+                    entity_id=result.id,
+                    revision_id=result.current.record.revision_id,
+                ),
+            ),
+        )
+        return StatisticalCurvePreview(
+            result=result,
+            points=points,
+            metadata=metadata,
+            series=series_preview,
+        )

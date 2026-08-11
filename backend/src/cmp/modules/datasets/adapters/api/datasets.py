@@ -32,6 +32,7 @@ from cmp.modules.datasets.application.service import (
     RevisionSnapshot,
     TensileReplicateSelectionSnapshot,
 )
+from cmp.modules.datasets.contracts import CurveMetadataResponse, CurveSeriesPreviewResponse
 from cmp.modules.datasets.domain.reference_tensile import (
     DatasetConflict,
     DatasetContent,
@@ -392,6 +393,8 @@ class CurvePreviewResponse(BaseModel):
     strain_unit: str
     stress_unit: str
     points: tuple[CurvePointResponse, ...]
+    curve_metadata: CurveMetadataResponse
+    curve_series: CurveSeriesPreviewResponse
 
     @classmethod
     def from_domain(cls, value: CurvePreview) -> CurvePreviewResponse:
@@ -411,6 +414,8 @@ class CurvePreviewResponse(BaseModel):
                 )
                 for point in value.points
             ),
+            curve_metadata=CurveMetadataResponse.from_domain(value.curve_metadata),
+            curve_series=CurveSeriesPreviewResponse.from_domain(value.curve_series),
         )
 
 

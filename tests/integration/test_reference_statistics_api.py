@@ -6,6 +6,12 @@ from typing import cast
 from uuid import UUID, uuid4
 
 import httpx
+from cmp.modules.datasets.domain.curve_metadata import (
+    ArtifactPin,
+    CurveMetadata,
+    MetadataState,
+    RevisionPin,
+)
 from cmp.modules.identity_access.application.authorization import database_permissions_for
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
@@ -25,12 +31,14 @@ from cmp.modules.statistics.application.service import (
     CreateReferenceTensilePairPlan,
     ExecuteReferenceTensilePairStatistics,
     RevisionSnapshot,
+    StatisticalCurvePreview,
     StatisticalPlanSnapshot,
     StatisticalResultSnapshot,
     StatisticalRun,
     StatisticsService,
 )
 from cmp.modules.statistics.domain.reference_tensile_pair import (
+    REFERENCE_TENSILE_PAIR_CURVE_SCHEMA_V1,
     QcObservation,
     QcOutcome,
     ReferenceTensilePairCurvePoint,
@@ -38,6 +46,7 @@ from cmp.modules.statistics.domain.reference_tensile_pair import (
     ReferenceTensilePairResultContent,
     ReferenceTensilePairScalarStatistics,
     StatisticalRunStatus,
+    reference_tensile_pair_curve_series,
 )
 from cmp.shared.domain.revisions import RevisionRecord, TenantScope
 from fastapi import FastAPI, Request
@@ -299,12 +308,12 @@ class _StatisticsApiService:
         result_id: UUID,
         *,
         maximum_points: int,
-    ) -> tuple[ReferenceTensilePairCurvePoint, ...]:
+    ) -> StatisticalCurvePreview:
         assert context is CONTEXT
         assert decision is READ
         assert result_id == RESULT
         assert maximum_points == 1000
-        return (
+        points = (
             ReferenceTensilePairCurvePoint(0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
             ReferenceTensilePairCurvePoint(
                 0.01, 105_000_000.0, 7_071_067.8119, 105_000_000.0, 100_000_000.0, 110_000_000.0
@@ -312,6 +321,26 @@ class _StatisticsApiService:
             ReferenceTensilePairCurvePoint(
                 0.02, 130_000_000.0, 14_142_135.6237, 130_000_000.0, 120_000_000.0, 140_000_000.0
             ),
+        )
+        result = _result()
+        series = reference_tensile_pair_curve_series(points)
+        return StatisticalCurvePreview(
+            result=result,
+            points=points,
+            metadata=CurveMetadata(
+                state=MetadataState.LEGACY_COMPATIBLE,
+                definition=series.definition,
+                owning_revision=RevisionPin(
+                    "statistical_result", RESULT, RESULT_REVISION
+                ),
+                artifact=ArtifactPin(
+                    CURVE_ARTIFACT,
+                    result.current.content.curve_sha256,
+                    REFERENCE_TENSILE_PAIR_CURVE_SCHEMA_V1,
+                    "application/vnd.apache.parquet",
+                ),
+            ),
+            series=series.preview(maximum_points),
         )
 
 

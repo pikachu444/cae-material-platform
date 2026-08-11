@@ -22,12 +22,13 @@ review/release는 Modeling의 normal stage가 아니라 Advanced와 Activity의 
 
 | 영역 | 구현 상태 |
 | --- | --- |
-| Materials | Browse 기본의 explorer/result/datasheet workspace, server-scoped Material class 검색·정렬·pagination, Browse Tree, 선택 문맥, detail 5개 영역, solver card preview/download |
-| Modeling | exact Material/State/Test Data session pin, Data/Process/Fit/Export, Process의 exact source/profile preview·last-valid blocked recovery·immutable saved-result comparison, processing·fitting, 선택 모델 저장, Material Model IR·Neutral·solver card 생성, upstream 변경에 따른 downstream clear/stale/regenerate |
+| Materials | Browse 기본의 explorer/result/datasheet workspace, server-scoped Material class 검색·정렬·pagination, Browse Tree, 선택 문맥, detail 5개 영역, exact-revision curve chart/channel·unit·deviation evidence, solver card preview/download |
+| Modeling | exact Material/State/Test Data session pin, Data/Process/Fit/Export, Materials와 공유하는 curve definition/display adapter, Process의 exact source/profile preview·last-valid blocked recovery·immutable saved-result comparison, processing·fitting, 선택 모델 저장, Material Model IR·Neutral·solver card 생성, upstream 변경에 따른 downstream clear/stale/regenerate |
 | Activity | role-aware review queue, exact Material/Solver Card request entry, Reviewer-only approval/change decisions, Processing Batch context/retry, browser recovery facts, and review-backed Record publication projection |
 | Administration | Database/Profile과 configurable Table/Attribute/Layout/Subset/Link Type의 revision 관리·발행, Folder/Record tree, typed search·compare, 단건·다건 등록, exact Record links와 접근 관리 |
 | Catalog schema planning | exact immutable Artifact의 임의 개수 JSON Schema draft 2020-12 정의를 bundle 내부에서만 resolve하고 기존 configurable Catalog 대비 결정론적 no-write plan 생성 |
 | Common units | contract `1.0.0`의 8개 bounded dimension과 explicit Decimal conversion, stable identity/immutable revision Unit Profile API, exact profile/application trace를 Processing·Fit·Export와 PostgreSQL provenance에 연결 |
+| Curve metadata | contract `1.0.0`의 channel role/quantity/original·normalized·display unit, typed scalar·pointwise deviation, exact Artifact/revision/source/calculation provenance; current Parquet metadata와 schema별 legacy adapter를 Dataset·Test Data·Processing·Statistics·Catalog·Materials·Modeling에 연결 |
 | Exchange | CSV/TSV/XLSX governed import, versioned Test Data JSON, Neutral Material JSON, deterministic package |
 | Governance | immutable review/release/artifact, exact revision, provenance/audit, organization/project 권한 |
 | Operations | Compose demo, worker/job, observability, recovery·performance·security 검증 도구. clean full-demo는 preview에서 선택한 fit evidence와 metal manual necking override를 exact revision으로 보존하고, DP780 selected model review request 하나와 Materials의 solver card preview·검토 후 다운로드를 검증 |
@@ -47,6 +48,10 @@ Production 표준, plugin, solver correlation과 validation threshold는 domain 
 - Unit Profile 관리용 frontend와 production solver 기본 profile은 없습니다. 기존 `kg_m_s`는
   `production_default=false`인 호환 계약이며 추가 solver unit system과 Template는 #213/#214가
   소유합니다. Profile-free 과거 revision과 solver-native bytes는 재작성하지 않습니다.
+- Curve metadata가 없는 알 수 없는 과거 Artifact는 기존 값과 availability를 보존하되 채널·단위·편차나
+  Fit eligibility를 추정하지 않습니다. 현재 구현은 기존 통계 evidence를 설명할 뿐 새 통계 계산,
+  smoothing/alignment/resampling, 대표곡선 또는 승인된 Fit 입력을 만들지 않습니다. scalar distribution
+  fitting과 representative/approved Fit input은 각각 #210과 #211 범위입니다.
 - #158 Data/Process/Fit/Export production UI는 PR #183~#202에서 현재 화면에 연결했습니다. 남은
   Administration 공개·복구 refinement는 #161이 소유하며, 새 기획의
   Administration/Template/OIDC 화면은 각각 #208, #214, #215에서 별도 검수합니다.

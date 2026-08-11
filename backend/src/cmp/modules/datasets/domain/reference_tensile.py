@@ -14,6 +14,17 @@ from uuid import UUID
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from cmp.modules.datasets.domain.curve_metadata import (
+    CURVE_DEFINITION_PARQUET_KEY,
+    CURVE_DEFINITION_SHA256_PARQUET_KEY,
+    AxisRole,
+    CurveChannel,
+    CurveDefinition,
+    OriginalUnit,
+    UnitContract,
+    ValueBasis,
+    curve_definition_json_bytes,
+)
 from cmp.modules.units.domain.system import (
     DimensionId,
     QuantityReference,
@@ -25,9 +36,26 @@ from cmp.shared.domain.revisions import content_sha256
 
 REFERENCE_TENSILE_IMPORTER_ID = "urn:cmp:datasets:reference-uniaxial-tensile-csv:1.0.0"
 REFERENCE_TENSILE_IMPORTER_VERSION = "1.0.0"
-REFERENCE_TENSILE_PARQUET_SCHEMA = "urn:cmp:datasets:reference-tensile-normalized-parquet:1.0.0"
-REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA = (
+REFERENCE_TENSILE_PARQUET_SCHEMA_V1 = (
+    "urn:cmp:datasets:reference-tensile-normalized-parquet:1.0.0"
+)
+REFERENCE_TENSILE_PARQUET_SCHEMA = (
+    "urn:cmp:datasets:reference-tensile-normalized-parquet:1.1.0"
+)
+REFERENCE_TENSILE_PARQUET_SCHEMAS = frozenset(
+    {REFERENCE_TENSILE_PARQUET_SCHEMA_V1, REFERENCE_TENSILE_PARQUET_SCHEMA}
+)
+REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA_V1 = (
     "urn:cmp:datasets:reference-tensile-processed-parquet:1.0.0"
+)
+REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA = (
+    "urn:cmp:datasets:reference-tensile-processed-parquet:1.1.0"
+)
+REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMAS = frozenset(
+    {
+        REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA_V1,
+        REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA,
+    }
 )
 REFERENCE_TENSILE_SCHEMA_VERSION = "1.0.0"
 MAX_REFERENCE_TENSILE_POINTS = 100_000
@@ -344,21 +372,100 @@ def parse_reference_tensile_csv(
     return ParsedReferenceTensile(tuple(raw), tuple(normalized))
 
 
-def normalized_parquet_bytes(points: tuple[CurvePoint, ...]) -> bytes:
+def reference_tensile_curve_definition(
+    mapping: ReferenceTensileMapping | None = None,
+    *,
+    value_basis: ValueBasis = ValueBasis.NORMALIZED,
+) -> CurveDefinition:
+    """Return the single channel authority used by Dataset, charts, and Fit previews."""
+
+    resolved = mapping or ReferenceTensileMapping(
+        strain_column="engineering_strain",
+        stress_column="engineering_stress",
+        strain_unit="1",
+        stress_unit="Pa",
+    )
+    strain_scale = _unit_scale(
+        resolved.strain_unit,
+        dimension=DimensionId.STRAIN,
+        semantics="mechanics.strain.engineering",
+        target_unit_id="1",
+    )
+    stress_scale = _unit_scale(
+        resolved.stress_unit,
+        dimension=DimensionId.FORCE_PER_AREA,
+        semantics="mechanics.stress.engineering",
+        target_unit_id="Pa",
+    )
+    return CurveDefinition(
+        channels=(
+            CurveChannel(
+                key="engineering_strain",
+                label="Engineering strain",
+                quantity_semantics="mechanics.strain.engineering",
+                axis_role=AxisRole.INDEPENDENT,
+                unit_contract=UnitContract.COMMON,
+                dimension=DimensionId.STRAIN,
+                original_units=(
+                    OriginalUnit(resolved.strain_unit, str(strain_scale), "0"),
+                ),
+                normalized_unit="1",
+                display_unit="1",
+                display_scale="1",
+                display_offset="0",
+                value_basis=value_basis,
+            ),
+            CurveChannel(
+                key="engineering_stress",
+                label="Engineering stress",
+                quantity_semantics="mechanics.stress.engineering",
+                axis_role=AxisRole.DEPENDENT,
+                unit_contract=UnitContract.COMMON,
+                dimension=DimensionId.FORCE_PER_AREA,
+                original_units=(
+                    OriginalUnit(resolved.stress_unit, str(stress_scale), "0"),
+                ),
+                normalized_unit="Pa",
+                display_unit="MPa",
+                display_scale="0.000001",
+                display_offset="0",
+                value_basis=value_basis,
+            ),
+        )
+    )
+
+
+def _parquet_bytes(
+    points: tuple[CurvePoint, ...],
+    *,
+    schema_ref: str,
+    definition: CurveDefinition | None,
+) -> bytes:
     """Encode normalized reference channels as a typed external Parquet Artifact."""
 
     if len(points) < 2:
         raise InvalidDatasetData("normalized reference Dataset requires at least two points")
+    stress_column = (
+        "engineering_stress"
+        if schema_ref
+        in {REFERENCE_TENSILE_PARQUET_SCHEMA, REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA}
+        else "engineering_stress_pa"
+    )
     table = pa.table(
         {
             "engineering_strain": pa.array(
                 [point.engineering_strain for point in points], type=pa.float64()
             ),
-            "engineering_stress_pa": pa.array(
+            stress_column: pa.array(
                 [point.engineering_stress for point in points], type=pa.float64()
             ),
         }
     )
+    metadata: dict[bytes, bytes] = {b"cmp.schema": schema_ref.encode("ascii")}
+    if definition is not None:
+        metadata[CURVE_DEFINITION_PARQUET_KEY] = curve_definition_json_bytes(definition)
+        metadata[CURVE_DEFINITION_SHA256_PARQUET_KEY] = definition.sha256.encode("ascii")
+    table = table.replace_schema_metadata(metadata)
     sink = pa.BufferOutputStream()
     _write_parquet_table(
         table,
@@ -372,7 +479,23 @@ def normalized_parquet_bytes(points: tuple[CurvePoint, ...]) -> bytes:
     return cast(bytes, sink.getvalue().to_pybytes())
 
 
-def processed_parquet_bytes(points: tuple[CurvePoint, ...]) -> bytes:
+def normalized_parquet_bytes(
+    points: tuple[CurvePoint, ...],
+    mapping: ReferenceTensileMapping | None = None,
+) -> bytes:
+    return _parquet_bytes(
+        points,
+        schema_ref=REFERENCE_TENSILE_PARQUET_SCHEMA,
+        definition=reference_tensile_curve_definition(mapping),
+    )
+
+
+def processed_parquet_bytes(
+    points: tuple[CurvePoint, ...],
+    mapping: ReferenceTensileMapping | None = None,
+    *,
+    schema_ref: str = REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA,
+) -> bytes:
     """Encode a processed reference curve without changing its typed channel semantics.
 
     The Artifact schema reference, Processing Recipe revision, and Processing Run carry the
@@ -380,24 +503,34 @@ def processed_parquet_bytes(points: tuple[CurvePoint, ...]) -> bytes:
     engineering channels so a downstream reader cannot silently mistake the output for raw data.
     """
 
-    return normalized_parquet_bytes(points)
+    return _parquet_bytes(
+        points,
+        schema_ref=schema_ref,
+        definition=(
+            reference_tensile_curve_definition(mapping, value_basis=ValueBasis.DERIVED)
+            if schema_ref == REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA
+            else None
+        ),
+    )
 
 
 def normalized_points_from_parquet(value: bytes) -> tuple[CurvePoint, ...]:
     """Read only the two declared channels and reject a malformed derived Artifact."""
 
     try:
-        table = _read_parquet_table(
-            pa.BufferReader(value), columns=["engineering_strain", "engineering_stress_pa"]
-        )
+        table = _read_parquet_table(pa.BufferReader(value))
     except Exception as error:
         raise InvalidDatasetData(
             "normalized Dataset Artifact is not the reference Parquet schema"
         ) from error
-    if tuple(table.column_names) != ("engineering_strain", "engineering_stress_pa"):
+    column_names = tuple(table.column_names)
+    if column_names not in {
+        ("engineering_strain", "engineering_stress_pa"),
+        ("engineering_strain", "engineering_stress"),
+    }:
         raise InvalidDatasetData("normalized Dataset Artifact channel names are invalid")
     strain = table.column("engineering_strain").to_pylist()
-    stress = table.column("engineering_stress_pa").to_pylist()
+    stress = table.column(column_names[1]).to_pylist()
     if len(strain) != len(stress) or len(strain) < 2:
         raise InvalidDatasetData("normalized Dataset Artifact point count is invalid")
     points = tuple(CurvePoint(float(x), float(y)) for x, y in zip(strain, stress, strict=True))

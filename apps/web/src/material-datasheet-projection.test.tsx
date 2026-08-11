@@ -161,7 +161,7 @@ const layout = {
   items: [{ attribute_definition_id: materialClassId, attribute_definition_revision_id: materialClassAttribute.current_revision.id, section: "Identity", ordinal: 1 }, { attribute_definition_id: densityId, attribute_definition_revision_id: densityAttribute.current_revision.id, section: "Physical", ordinal: 2 }, { attribute_definition_id: curveId, attribute_definition_revision_id: curveAttribute.current_revision.id, section: "Curves", ordinal: 3 }],
 };
 
-const mocks = vi.hoisted(() => ({ record: vi.fn(), attributes: vi.fn(), layouts: vi.fn() }));
+const mocks = vi.hoisted(() => ({ record: vi.fn(), attributes: vi.fn(), layouts: vi.fn(), previewCurve: vi.fn() }));
 
 vi.mock("./api", async (importOriginal) => {
   const original = await importOriginal<typeof import("./api")>();
@@ -170,6 +170,7 @@ vi.mock("./api", async (importOriginal) => {
     getConfigurableCatalogRecord: mocks.record,
     listConfigurableCatalogAttributes: mocks.attributes,
     listConfigurableCatalogLayouts: mocks.layouts,
+    previewExactCatalogCurveValue: mocks.previewCurve,
   };
 });
 
@@ -179,6 +180,28 @@ describe("MaterialDatasheetProjection", () => {
     mocks.record.mockResolvedValue({ data: record, etag: null });
     mocks.attributes.mockResolvedValue({ data: { items: [densityAttribute, materialClassAttribute, curveAttribute, technicalAttribute] }, etag: null });
     mocks.layouts.mockResolvedValue({ data: { items: [layout] }, etag: null });
+    mocks.previewCurve.mockResolvedValue({
+      data: {
+        record_id: recordId,
+        record_revision_id: record.current_revision.id,
+        attribute_definition_id: curveId,
+        curve_available: true,
+        modeling_use: "unavailable",
+        modeling_source: null,
+        curve_metadata: {
+          contract_version: "1.0.0",
+          metadata_state: "absent",
+          definition_sha256: null,
+          definition: null,
+          owning_revision: { entity_type: "catalog_record", entity_id: recordId, revision_id: record.current_revision.id },
+          artifact: { artifact_id: "91000000-0000-4000-8000-000000000007", sha256: "b".repeat(64), schema_ref: null, media_type: "application/vnd.apache.parquet" },
+          sources: [],
+          provenance: [],
+        },
+        curve_series: null,
+      },
+      etag: null,
+    });
   });
 
   it("projects the active Layout order with separate displayed values and units", async () => {
@@ -204,6 +227,21 @@ describe("MaterialDatasheetProjection", () => {
     expect(screen.getByText("Internal note")).toBeTruthy();
     expect(screen.getByText("Technical-only evidence")).toBeTruthy();
     expect(screen.queryByText(/SHA-256/)).toBeNull();
+  });
+
+  it("loads a curve only through its exact Record revision and reports absent legacy metadata honestly", async () => {
+    render(<MaterialDatasheetProjection config={{ baseUrl: "/api/v1", accessToken: "test" }} tableId={tableId} recordId={recordId} mode="curves"/>);
+
+    expect(await screen.findByText("This revision has no recorded channel or deviation metadata.")).toBeTruthy();
+    expect(mocks.previewCurve).toHaveBeenCalledWith(
+      expect.anything(),
+      recordId,
+      record.current_revision.id,
+      curveId,
+    );
+    expect(screen.getByText("Curve available")).toBeTruthy();
+    expect(screen.getByText("Metadata not recorded")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Open in Modeling" })).toBeNull();
   });
 
   it("downloads human-readable active Layout CSV without internal identifiers", async () => {
