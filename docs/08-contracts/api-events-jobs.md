@@ -71,6 +71,55 @@
 | `POST /test-campaigns` | campaign 생성 |
 | `POST /test-runs` | specimen test run 생성 |
 | `POST /test-runs/{id}/corrections` | 원본 event를 보존한 correction revision |
+| `POST /catalog/schema-definition-bundles:plan` | exact immutable Artifact의 bundle-local schema를 검증하고 현재 Catalog 대비 no-write plan 반환 |
+
+#### 3.1.1 Catalog Schema Definition Bundle v1
+
+요청은 `artifact_id`와 lowercase `artifact_sha256`을 함께 고정한다. 서버는 RLS 범위에서 그 exact
+Artifact를 읽고 원본 media type, byte count와 digest를 다시 검증한다. 허용 media type은
+`application/json`, `application/schema+json`,
+`application/vnd.cmp.catalog-schema-definition-bundle+json`이며 parameter를 제거해 판정하되 응답에는
+저장된 원문을 그대로 반환한다.
+응답의 `source_artifact`와 bundle summary는 organization/project/classification을 포함한다. Bundle
+scope가 immutable Artifact scope 또는 인증 문맥과 다르면 `CMP-SCHEMA-BUNDLE-0004`다.
+
+Bundle과 plan의 독립 계약 버전은 모두 `1.0.0`이다. Bundle은 하나 이상의 임의 개수
+`record_schemas`를 허용하고 각 record의 stable key, canonical schema SHA-256과 draft 2020-12 `$id`를
+고정한다. 지원 확장은 `x-business-key`, `x-reference`, `x-curve`, `x-unit`, `x-indexed`,
+`x-searchable`뿐이다. `$ref`는 같은 record의 fragment 또는 bundle에 선언된 exact record `$id`와
+fragment만 허용한다. Stable key는 기존 configurable Catalog runtime과 같은 1..64자
+lower_snake_case이며 `_`로 끝날 수 없다. leaf description은 Attribute help/Link Type의 기존
+2,000자 한도를 넘으면 손실 없는 projection 오류다. 외부 URL·파일·네트워크 resolver와 임의
+실행은 없다.
+
+성공한 transport는 semantic validation 오류도 HTTP 200으로 반환한다. `valid`, ordered
+`create | update | no-op | conflict | error` actions, 위치·조치가 있는 diagnostics, source Artifact
+identity, Catalog snapshot fingerprint와 plan fingerprint를 함께 제공한다. 같은 exact Artifact와 같은
+Catalog snapshot의 반복 응답은 byte/semantic-equivalent다. 입력에서 사라진 기존 객체는 action이나
+delete 대상이 아니며 `mutations_applied=false`, `delete_missing=false`, `write_set=[]`가 고정된다.
+내용이 같더라도 기존 Catalog 객체가 의존 객체의 현재 revision이 아닌 과거 revision을 pin하면
+`dependency_revision_changes` 사유의 `update`이며, append-only placement 이력은 논리
+Profile/Table key별 하나의 현재 상태로 비교한다.
+같은 stable key의 기존 identity가 다른 immutable classification을 가지면
+`classification_conflict`이며 자동 인수하지 않는다.
+요청 형식은 422, 인증/권한은 401/403, 숨겨진 Artifact는 404, exact digest·media·integrity·scope
+충돌은 409, 필수 backend 미구성은 503이다.
+
+| Diagnostic code | 의미 |
+| --- | --- |
+| `CMP-SCHEMA-BUNDLE-0001` | UTF-8 또는 strict JSON 오류 |
+| `CMP-SCHEMA-BUNDLE-0002` | v1 구조, stable key 또는 keyword 값 오류 |
+| `CMP-SCHEMA-BUNDLE-0003` | bundle contract 또는 JSON Schema draft version 미지원 |
+| `CMP-SCHEMA-BUNDLE-0004` | tenant/project/classification scope 불일치 |
+| `CMP-SCHEMA-BUNDLE-0005` | canonical record schema checksum 불일치 |
+| `CMP-SCHEMA-BUNDLE-0006` | JSON member, record key/ID, flattened key 또는 Link key 중복 |
+| `CMP-SCHEMA-BUNDLE-0007` | 외부 URL·파일·네트워크 `$ref` 차단 |
+| `CMP-SCHEMA-BUNDLE-0008` | bundle 내부 record `$id` 누락 |
+| `CMP-SCHEMA-BUNDLE-0009` | JSON Pointer가 schema object로 resolve되지 않음 |
+| `CMP-SCHEMA-BUNDLE-0010` | 지원하지 않는 JSON Schema/`x-*` keyword |
+| `CMP-SCHEMA-BUNDLE-0011` | record dependency 또는 재귀 reference cycle |
+| `CMP-SCHEMA-BUNDLE-0012` | 기존 typed Catalog로 손실 없이 projection 불가 |
+| `CMP-SCHEMA-BUNDLE-0013` | 기존 stable identity/immutable type/endpoint/소유권 충돌 |
 
 ### 3.2 Upload·artifact·dataset
 
