@@ -5,6 +5,7 @@
 - 상태: **`IMPLEMENTED; ACCEPTANCE_INCOMPLETE_BASELINE_FIXTURE_BLOCKER`**
 - 기준선: `main@36e8312fa85253ad8fee88f63a3a4bf096d92a9c`
 - 작업 branch: `agent/issue-184-high-dpi-global-implementation`
+- draft PR: [#231](https://github.com/pikachu444/cae-material-platform/pull/231)
 - capture commit: `97f850acf454a8fb6d8caeb8cf5e9ccb5d413a16`
 - 승인 정책: **P2**, 기본/reset `Standard`, 사용자 선택 `Compact | Standard | Large`
 - 제품 소유자 원본·geometry 승인: **대기**
