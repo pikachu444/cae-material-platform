@@ -65,17 +65,9 @@
         }
       ]
     },
-    "SchemaNode": {
+    "SchemaNodeKeywords": {
       "type": "object",
-      "additionalProperties": false,
       "properties": {
-        "$schema": {
-          "const": "https://json-schema.org/draft/2020-12/schema"
-        },
-        "$id": {
-          "type": "string",
-          "pattern": "^urn:cmp:catalog-schema:(?:[a-z][a-z0-9_]{0,62}[a-z0-9]|[a-z]):(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
-        },
         "$defs": {
           "type": "object",
           "additionalProperties": {"$ref": "#/$defs/SchemaNode"}
@@ -119,17 +111,30 @@
         "x-searchable": {"type": "boolean"}
       }
     },
+    "SchemaNode": {
+      "allOf": [{"$ref": "#/$defs/SchemaNodeKeywords"}],
+      "unevaluatedProperties": false
+    },
     "RecordSchema": {
       "allOf": [
-        {"$ref": "#/$defs/SchemaNode"},
+        {"$ref": "#/$defs/SchemaNodeKeywords"},
         {
+          "type": "object",
           "required": ["$schema", "$id", "type", "properties", "additionalProperties"],
           "properties": {
+            "$schema": {
+              "const": "https://json-schema.org/draft/2020-12/schema"
+            },
+            "$id": {
+              "type": "string",
+              "pattern": "^urn:cmp:catalog-schema:(?:[a-z][a-z0-9_]{0,62}[a-z0-9]|[a-z]):(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+            },
             "type": {"const": "object"},
             "additionalProperties": {"const": false}
           }
         }
-      ]
+      ],
+      "unevaluatedProperties": false
     },
     "RecordSchemaEntry": {
       "type": "object",

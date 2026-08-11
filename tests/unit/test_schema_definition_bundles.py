@@ -196,6 +196,16 @@ def test_negative_reference_key_pointer_cycle_version_and_extension_cases() -> N
     trailing_separator["catalog"]["database"]["key"] = "synthetic_database_"
     cases.append((trailing_separator, "CMP-SCHEMA-BUNDLE-0002"))
 
+    for keyword, value in (
+        ("$id", "urn:cmp:catalog-schema:nested:1.0.0"),
+        ("$schema", "https://json-schema.org/draft/2020-12/schema"),
+    ):
+        nested_scope = _fixture("one")
+        nested_entry = nested_scope["record_schemas"][0]
+        nested_entry["schema"]["properties"]["active"][keyword] = value
+        _rechecksum(nested_entry)
+        cases.append((nested_scope, "CMP-SCHEMA-BUNDLE-0010"))
+
     cycle = _fixture("many")
     materials = cycle["record_schemas"][1]
     materials["schema"]["properties"]["test_id"] = {
@@ -234,6 +244,24 @@ def test_duplicate_json_members_are_rejected_without_precedence() -> None:
 
     assert not result.valid
     assert result.diagnostics[0].code == "CMP-SCHEMA-BUNDLE-0006"
+
+
+def test_nested_id_negative_fixture_matches_runtime_scope_rejection() -> None:
+    document = cast(
+        dict[str, Any],
+        json.loads(
+            (
+                PROJECT_ROOT
+                / "contracts/examples/negative/schema-definition-bundle-nested-id.json"
+            ).read_text(encoding="utf-8")
+        ),
+    )
+
+    result = _plan(document)
+
+    assert not result.valid
+    assert {item.code for item in result.diagnostics} == {"CMP-SCHEMA-BUNDLE-0010"}
+    assert any(item.location.endswith("/active/$id") for item in result.diagnostics)
 
 
 def test_non_finite_json_number_is_a_repairable_validation_error() -> None:

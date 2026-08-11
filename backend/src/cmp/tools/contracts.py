@@ -36,6 +36,9 @@ NEGATIVE_EXAMPLES = {
     "schema-definition-bundle-unsupported-version.json": (
         "contracts/catalog/schema-definition-bundle.schema.json"
     ),
+    "schema-definition-bundle-nested-id.json": (
+        "contracts/catalog/schema-definition-bundle.schema.json"
+    ),
 }
 
 

@@ -177,21 +177,37 @@ def test_schema_definition_bundle_contract_and_runtime_expose_no_write_planner()
         == []
     )
     bundle_contract = json.loads(bundle_schema.read_text(encoding="utf-8"))
-    trailing_separator = json.loads(
+    positive_one = json.loads(
         (PROJECT_ROOT / "contracts/examples/positive/schema-definition-bundle-one.json").read_text(
             encoding="utf-8"
         )
     )
+    trailing_separator = deepcopy(positive_one)
     trailing_separator["catalog"]["database"]["key"] = "synthetic_database_"
     assert list(
         Draft202012Validator(bundle_contract, format_checker=FormatChecker()).iter_errors(
             trailing_separator
         )
     )
+    for keyword, value in (
+        ("$id", "urn:cmp:catalog-schema:nested:1.0.0"),
+        ("$schema", "https://json-schema.org/draft/2020-12/schema"),
+    ):
+        nested_scope = deepcopy(positive_one)
+        nested_scope["record_schemas"][0]["schema"]["properties"]["active"][keyword] = value
+        assert list(
+            Draft202012Validator(bundle_contract, format_checker=FormatChecker()).iter_errors(
+                nested_scope
+            )
+        )
     assert validate_example(
         bundle_schema,
         PROJECT_ROOT
         / "contracts/examples/negative/schema-definition-bundle-unsupported-version.json",
+    )
+    assert validate_example(
+        bundle_schema,
+        PROJECT_ROOT / "contracts/examples/negative/schema-definition-bundle-nested-id.json",
     )
 
     response = runtime["components"]["schemas"]["SchemaBundlePlanResponse"]

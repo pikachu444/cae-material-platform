@@ -2,7 +2,7 @@
 
 ## Disposition
 
-- 상태: **`MAIN_ACCEPTANCE_PASSED; INDEPENDENT_AUDIT_PENDING`**
+- 상태: **`INDEPENDENT_REAUDIT_PENDING`**
 - 시작 기준선: `main@a8189656a79058df000de1fb28c4dfda111e4bd9`
 - 작업 branch: `agent/issue-204-schema-bundle-dry-run`
 - managed worktree: `C:\SourceCodes\cae-material-platform-issue204`
@@ -58,9 +58,10 @@ apply side effect가 없으므로 실패한 dry-run을 rollback할 상태도 없
   fingerprints, ordered actions/diagnostics와 고정된 no-write fields.
 - positive fixture 두 개는 서로 다른 cardinality(1, 3)와 3-record dependency chain을 제공한다.
   domain 회귀는 같은 규칙으로 17-record bundle과 3-record의 모든 6개 입력 순열도 검증한다.
-- negative fixture는 unsupported bundle version을 public contract에서 거부한다. Domain/API 회귀는
-  checksum/key/duplicate member/duplicate projected key, URL·Windows/relative/file path, missing record,
-  bad pointer, cycle, unknown extension, unsafe type와 depth를 모두 synthetic 변형으로 검증한다.
+- negative fixture는 unsupported bundle version과 nested `$id` resolver scope를 public contract에서
+  거부한다. Domain/API 회귀는 checksum/key/duplicate member/duplicate projected key,
+  URL·Windows/relative/file path, nested `$id`/`$schema`, missing record, bad pointer, cycle, unknown
+  extension, unsafe type와 depth를 모두 synthetic 변형으로 검증한다.
 - fixture의 이름과 개수는 제품 계약이 아니며 모두 synthetic/non-production이다.
 
 ## PostgreSQL no-write evidence
@@ -82,12 +83,12 @@ revision을 append해 Profile의 pin만 과거 revision으로 만든 뒤, Databa
 | 관찰 | 결과 |
 | --- | --- |
 | 대상 | `artifact`, `audit`, `catalog`, `events`, `governance`, `provenance`의 base table 87개, baseline 91행 |
-| before digest | `ed9698225d38fa2c489891f1e02f0c6d18b04e53403eeb6be649dd76d2051203` |
-| first plan 뒤 digest | `ed9698225d38fa2c489891f1e02f0c6d18b04e53403eeb6be649dd76d2051203` |
-| second plan/RLS negative 뒤 digest | `ed9698225d38fa2c489891f1e02f0c6d18b04e53403eeb6be649dd76d2051203` |
+| before digest | `9532abdea53313867e589357d77a15fd6796c5d4ecb2635fbc0c4269352858e8` |
+| first plan 뒤 digest | `9532abdea53313867e589357d77a15fd6796c5d4ecb2635fbc0c4269352858e8` |
+| second plan/RLS negative 뒤 digest | `9532abdea53313867e589357d77a15fd6796c5d4ecb2635fbc0c4269352858e8` |
 | PostgreSQL access mode | 두 snapshot 모두 `transaction_read_only=on` |
 | source Artifact SHA-256 | `392491cfe718a0a672043f225b3f83348a265d5a088b22c7caebaaed44fbdf6f` |
-| repeated plan fingerprint | `9edb59c588a4a443b8d346c2993e2d811744ac7bb26985e288b866ada8a00bb7` |
+| repeated plan fingerprint | `1b6e3c06dd9d7880754f77a1ec7f51e4aa4542beaf0c83c707573b7a3b27a92c` |
 | 결과 | PASS — current pointer/publication/Artifact/provenance/audit/outbox 포함 전후 byte-equivalent state |
 
 Artifact UUID와 row UUID는 격리 실행마다 새로 생성되므로 위 run의 identity는 PR test log에 남기고,
@@ -97,17 +98,17 @@ acceptance는 전체 table content digest의 전/중간/후 동일성과 read-on
 
 | 검사 | 결과 |
 | --- | --- |
-| Bundle domain/parser/projection/determinism | PASS — 19 test functions |
-| Contract/API/configurable Catalog targeted regression | PASS — 91 tests |
+| Bundle domain/parser/projection/determinism | PASS — 20 test functions |
+| Contract/API/configurable Catalog targeted regression | PASS — 92 tests |
 | PostgreSQL configurable Catalog + exact Artifact/RLS/no-write | PASS — 2 tests, zero skip |
 | contract lint/OpenAPI compatibility/architecture | PASS |
 | changed-source Ruff/Mypy | PASS — Ruff, 5 core source files Mypy |
 | database migration | N/A — 필요성이 없고 추가하지 않음 |
 | frontend/browser/viewport | N/A — backend/contract/API 범위, UI 변경 없음 |
 | canonical Compose | PASS — managed worktree에서 `--profile test --build --force-recreate`; API container health `200`, version `0.33.0`, PostgreSQL test 재실행 PASS |
-| documentation impact/user-guide/diff | PASS — docs impact 30 changed files, visual source 없음; user-guide와 `git diff --check` PASS |
+| documentation impact/user-guide/diff | PASS — docs impact 31 changed files, visual source 없음; user-guide와 `git diff --check` PASS |
 | pre-publish | PASS — manual `58e2849a440d91ee7d17939456b0c4d8ce83c7aa8166e0f2566689cd36943406`; git pre-push `b7c98104b8f93509e1f72ab5aef268a258db66833b693b5dcc4014177d631214` |
-| independent Balanced audit | Main acceptance 뒤 exact PR head를 읽기 전용 감수 예정 |
+| independent Balanced audit | initial SHA `8ff133093fa343b1251f489a551b4637623067d1`: CHANGES_REQUESTED — nested `$id`/`$schema` machine contract/runtime parity major 1건. Root/nested contract 분리와 negative fixture·parity 회귀를 추가했고 같은 감수자의 final SHA 재감수 예정 |
 
 비범위 전체 `tests/contracts` 탐색 실행에서는 기준 `origin/main`과 동일한 3건(현재 8 KiB를 넘는
 root `AGENTS.md`, 과거 backlog 문구를 기대하는 cold-start test, 다른 worktree 절대경로를 가진

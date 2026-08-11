@@ -1,0 +1,63 @@
+{
+  "$schema": "https://cmp.example/contracts/catalog/schema-definition-bundle.schema.json",
+  "contract_version": "1.0.0",
+  "bundle_key": "synthetic_single_record",
+  "bundle_version": "1.0.0",
+  "scope": {
+    "organization_id": "20400000-0000-4000-8000-000000000001",
+    "project_id": "20400000-0000-4000-8000-000000000002",
+    "classification": "internal"
+  },
+  "catalog": {
+    "database": {
+      "key": "synthetic_engineering",
+      "name": "Synthetic engineering",
+      "description": "Non-production schema bundle fixture."
+    },
+    "profile": {
+      "key": "synthetic_materials",
+      "name": "Synthetic materials",
+      "description": "Non-production profile fixture."
+    }
+  },
+  "record_schemas": [
+    {
+      "key": "materials",
+      "name": "Synthetic materials",
+      "description": "Synthetic material records for contract verification.",
+      "schema_sha256": "a040333da3ab1a48300101afa0f77a2f3aa76405b11b3de03eae3e5329e1a321",
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:cmp:catalog-schema:materials:1.0.0",
+        "type": "object",
+        "title": "Synthetic material",
+        "properties": {
+          "record_id": {
+            "type": "string",
+            "title": "Record ID",
+            "maxLength": 64,
+            "x-business-key": true,
+            "x-indexed": true,
+            "x-searchable": true
+          },
+          "youngs_modulus": {
+            "type": ["number", "null"],
+            "title": "Young's modulus",
+            "description": "Synthetic non-production modulus.",
+            "minimum": 0,
+            "x-unit": "Pa",
+            "x-indexed": true,
+            "x-searchable": true
+          },
+          "active": {
+            "$id": "urn:cmp:catalog-schema:nested:1.0.0",
+            "type": "boolean",
+            "title": "Active"
+          }
+        },
+        "required": ["record_id"],
+        "additionalProperties": false
+      }
+    }
+  ]
+}
