@@ -2,11 +2,12 @@
 
 ## Disposition
 
-- 상태: **`IMPLEMENTATION_COMPLETE; PUBLICATION_GATES_PENDING`**
+- 상태: **`MAIN_ACCEPTANCE_PASSED; INDEPENDENT_AUDIT_PENDING`**
 - 시작 기준선: `main@a8189656a79058df000de1fb28c4dfda111e4bd9`
 - 작업 branch: `agent/issue-204-schema-bundle-dry-run`
 - managed worktree: `C:\SourceCodes\cae-material-platform-issue204`
-- PR/merge/independent review: publication 단계에서 이 문서와 PR에 최종 SHA로 동기화
+- PR: [#233](https://github.com/pikachu444/cae-material-platform/pull/233) (draft)
+- merge/independent review: final PR head 감수 뒤 동기화
 - 계약: Schema Definition Bundle `1.0.0`, dry-run plan `1.0.0`, HTTP `0.33.0`
 
 ## 시작 시 구현 분류
@@ -19,6 +20,11 @@
 
 Database migration, generic EAV/opaque JSON authority, apply/publish/rollback, Unit Profile,
 Administration UI, 재료 모델과 외부 resolver는 추가하지 않았다.
+
+기존 configurable machine contract의 key pattern은 `_` 종결도 구조상 허용하지만 runtime
+`CatalogDatabaseContent`, `CatalogProfileContent`, `CatalogTableContent`와 Attribute는 이를 거부한다.
+#204 Bundle은 적용 불가능한 plan을 만들지 않도록 실제 runtime 제약의 교집합(1..64자
+lower_snake_case, `_` 종결 불가)으로 fail closed하며 이 기존 계약 불일치를 확장하지 않는다.
 
 기존 `20260925_094_issue160` downgrade는 이전
 `ck_product_access_role`(`administrator | reviewer | user`)을 복원하지 않아 configurable Catalog의
@@ -99,8 +105,8 @@ acceptance는 전체 table content digest의 전/중간/후 동일성과 read-on
 | database migration | N/A — 필요성이 없고 추가하지 않음 |
 | frontend/browser/viewport | N/A — backend/contract/API 범위, UI 변경 없음 |
 | canonical Compose | PASS — managed worktree에서 `--profile test --build --force-recreate`; API container health `200`, version `0.33.0`, PostgreSQL test 재실행 PASS |
-| documentation impact/user-guide/diff | PASS — docs impact 29 changed files, visual source 없음; user-guide와 `git diff --check` PASS |
-| pre-publish | publication 전에 최종 결과 기록 |
+| documentation impact/user-guide/diff | PASS — docs impact 30 changed files, visual source 없음; user-guide와 `git diff --check` PASS |
+| pre-publish | PASS — manual `58e2849a440d91ee7d17939456b0c4d8ce83c7aa8166e0f2566689cd36943406`; git pre-push `b7c98104b8f93509e1f72ab5aef268a258db66833b693b5dcc4014177d631214` |
 | independent Balanced audit | Main acceptance 뒤 exact PR head를 읽기 전용 감수 예정 |
 
 비범위 전체 `tests/contracts` 탐색 실행에서는 기준 `origin/main`과 동일한 3건(현재 8 KiB를 넘는
