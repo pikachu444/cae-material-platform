@@ -348,7 +348,9 @@ def test_processed_true_plastic_curve_feeds_bounded_hardening_candidates() -> No
     assert {channel.normalized_unit for channel in hardening_channels} == {"Pa"}
     assert {channel.display_unit for channel in hardening_channels} == {"MPa"}
     assert {channel.display_scale for channel in hardening_channels} == {"0.000001"}
-    assert (
-        processing_preview_canonical(preview)["stages"][-1]["curve_definition_sha256"]
-        == definition.sha256
-    )
+    canonical = processing_preview_canonical(preview)
+    stages = canonical["stages"]
+    assert isinstance(stages, list)
+    final_stage = stages[-1]
+    assert isinstance(final_stage, dict)
+    assert final_stage["curve_definition_sha256"] == definition.sha256

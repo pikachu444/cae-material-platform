@@ -36,6 +36,7 @@ _STRUCTURED_IMAGE_MANIFESTS: tuple[str, ...] = (
 _STRUCTURED_IMAGE_MANIFEST_GLOBS: tuple[str, ...] = ()
 _STRUCTURED_IMAGE_YAML_MANIFESTS: tuple[str, ...] = (
     "docs/17-evidence/images/issue-161-shared-ui-foundation/visual-evidence.yaml",
+    "docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/visual-evidence.yaml",
 )
 _IMAGE_PATH_MANIFESTS: tuple[str, ...] = ()
 _STALE_CURRENT_PATTERNS = {
@@ -153,8 +154,7 @@ def _tracked_markdown(project: Path) -> list[str]:
     return sorted(
         path
         for line in result.stdout.splitlines()
-        if line
-        and (project / (path := line.strip().replace("\\", "/"))).is_file()
+        if line and (project / (path := line.strip().replace("\\", "/"))).is_file()
     )
 
 
@@ -179,8 +179,7 @@ def _documentation_classes(project: Path) -> dict[str, str]:
                 f"documentation rule {ordinal} exclude",
             )
             included = any(
-                _glob_matches(path, _text(pattern, "documentation include"))
-                for pattern in patterns
+                _glob_matches(path, _text(pattern, "documentation include")) for pattern in patterns
             )
             excluded = any(
                 _glob_matches(path, _text(pattern, "documentation exclude"))
@@ -335,9 +334,7 @@ def _verify_permanent_reference_catalog(project: Path) -> set[str]:
         _sequence(source.get("limitations"), f"reference source {source_id} limitations")
     if not _PERMANENT_REFERENCE_SOURCE_IDS <= source_ids:
         missing = sorted(_PERMANENT_REFERENCE_SOURCE_IDS - source_ids)
-        raise UserGuideContractError(
-            f"permanent reference source IDs drifted; missing={missing}"
-        )
+        raise UserGuideContractError(f"permanent reference source IDs drifted; missing={missing}")
     registered_images: set[str] = set()
     for relative_root, minimum_images in (
         ("docs/00-research/ux-reference-gallery/images", 5),
@@ -479,9 +476,7 @@ def _verify_service_reference_manifest(project: Path) -> set[str]:
             f"service reference {reference_id} owner approval",
         )
         if owner.get("status") != "approved":
-            raise UserGuideContractError(
-                f"service reference lacks owner approval: {reference_id}"
-            )
+            raise UserGuideContractError(f"service reference lacks owner approval: {reference_id}")
 
         sources = _mapping(reference.get("sources"), f"service reference {reference_id} sources")
         if not sources:
@@ -507,9 +502,7 @@ def _verify_service_reference_manifest(project: Path) -> set[str]:
         )
         if not image.is_file() or image.suffix.lower() != ".png":
             raise UserGuideContractError(f"service reference image is missing: {reference_id}")
-        viewport = _mapping(
-            reference.get("viewport"), f"service reference {reference_id} viewport"
-        )
+        viewport = _mapping(reference.get("viewport"), f"service reference {reference_id} viewport")
         if _image_dimensions(image) != (viewport.get("width"), viewport.get("height")):
             raise UserGuideContractError(f"service reference viewport drifted: {reference_id}")
         expected_hash = _text(
@@ -545,9 +538,7 @@ def _verify_service_reference_manifest(project: Path) -> set[str]:
     return images
 
 
-def _duplicate_allowances(
-    project: Path, manifest: dict[str, Any]
-) -> set[frozenset[str]]:
+def _duplicate_allowances(project: Path, manifest: dict[str, Any]) -> set[frozenset[str]]:
     entries = _sequence(manifest.get("allowed_duplicate_groups", []), "duplicate allowances")
     allowances: set[frozenset[str]] = set()
     for ordinal, raw_entry in enumerate(entries, start=1):
@@ -560,9 +551,7 @@ def _duplicate_allowances(
             )
         paths: list[str] = []
         for image_ordinal, raw_image in enumerate(image_refs, start=1):
-            image_ref = _text(
-                raw_image, f"duplicate allowance {ordinal} image {image_ordinal}"
-            )
+            image_ref = _text(raw_image, f"duplicate allowance {ordinal} image {image_ordinal}")
             if any(character.isspace() for character in image_ref) or any(
                 character in image_ref for character in "*?[]{}"
             ):
@@ -575,24 +564,17 @@ def _duplicate_allowances(
                 f"duplicate allowance {ordinal} image {image_ordinal}",
             )
             if not image.is_file() or image.suffix.lower() not in {".png", ".jpg", ".jpeg"}:
-                raise UserGuideContractError(
-                    f"duplicate allowance target is missing: {image_ref}"
-                )
+                raise UserGuideContractError(f"duplicate allowance target is missing: {image_ref}")
             paths.append(_relative(image, project))
         group = frozenset(paths)
         if len(group) != len(paths):
-            raise UserGuideContractError(
-                f"duplicate allowance {ordinal} repeats an image path"
-            )
+            raise UserGuideContractError(f"duplicate allowance {ordinal} repeats an image path")
         if group in allowances:
-            raise UserGuideContractError(
-                f"duplicate image allowance is repeated: {sorted(group)}"
-            )
+            raise UserGuideContractError(f"duplicate image allowance is repeated: {sorted(group)}")
         lifecycle_counts = Counter(_image_lifecycle(path) for path in paths)
         if not _allowed_duplicate_lifecycles(lifecycle_counts):
             raise UserGuideContractError(
-                "duplicate allowance has an unsupported lifecycle mix: "
-                f"{dict(lifecycle_counts)}"
+                f"duplicate allowance has an unsupported lifecycle mix: {dict(lifecycle_counts)}"
             )
         allowances.add(group)
     return allowances
@@ -642,8 +624,7 @@ def _verify_image_inventory(
     orphan_images = sorted(inventory_paths - referenced_images)
     if orphan_images:
         raise UserGuideContractError(
-            "unreferenced images require archive rationale or deletion: "
-            f"{orphan_images}"
+            f"unreferenced images require archive rationale or deletion: {orphan_images}"
         )
 
     hashes: dict[str, list[Path]] = {}
@@ -835,9 +816,13 @@ def verify_user_guide(root: Path) -> UserGuideReport:
             json.loads((project / relative).read_text(encoding="utf-8")),
             f"structured image manifest {relative}",
         )
-        allowed_duplicate_groups |= _duplicate_allowances(
-            project, structured_manifest
+        allowed_duplicate_groups |= _duplicate_allowances(project, structured_manifest)
+    for relative in _STRUCTURED_IMAGE_YAML_MANIFESTS:
+        structured_manifest = _mapping(
+            yaml.safe_load((project / relative).read_text(encoding="utf-8")),
+            f"structured image manifest {relative}",
         )
+        allowed_duplicate_groups |= _duplicate_allowances(project, structured_manifest)
     image_count, orphan_image_count, duplicate_image_group_count = _verify_image_inventory(
         project, referenced_images, allowed_duplicate_groups
     )

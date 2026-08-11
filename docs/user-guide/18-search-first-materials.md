@@ -240,6 +240,24 @@ Issue #161의 1920·2560·3840 전후 원본과 1:1 crop, 승인 레퍼런스 ha
 
 ![Materials at 1920](images/current/materials-search-1920x1080.png)
 
+### Materials 곡선 메타데이터 검수 화면
+
+아래 화면은 동일한 exact Record revision의 observed Test Data와 replicate Statistics 곡선을
+`Curves` 탭에서 확인한 상태입니다. 축·보조 채널 의미, 원본/정규화·표시 단위, 기록된 band와
+exact revision을 한 작업면에서 읽으며, 통계 곡선은 view-only이고 observed Test Data만
+`Open in Modeling`을 제공합니다. 캡처별 source commit, 100% 픽셀 crop, keyboard tooltip,
+Evidence와 metadata-absent 상태는 [#206 evidence](../17-evidence/issue-206-curve-channel-metadata-and-deviation.md)에
+기록합니다.
+
+| 1366×768 | 1440×900 | 1920×1080 |
+| --- | --- | --- |
+| ![Materials curves 1366](images/current/material-curves-1366x768.png) | ![Materials curves 1440](images/current/material-curves-1440x900.png) | ![Materials curves 1920](images/current/material-curves-1920x1080.png) |
+
+| Wide viewport | 화면 |
+| --- | --- |
+| 2560×1440 | ![Materials curves 2560](images/current/material-curves-2560x1440.png) |
+| 3840×2160 | ![Materials curves 3840](images/current/material-curves-3840x2160.png) |
+
 ### Modeling 단계·해상도 검수 화면
 
 아래 화면은 같은 exact DP780 입력을 선택한 브라우저 session에서 Data → Process → Fit → Export를

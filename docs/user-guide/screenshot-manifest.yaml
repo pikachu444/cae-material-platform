@@ -1,10 +1,14 @@
-version: 90
-verified_at: 2026-08-11
-scope: issue-184-high-dpi-global-implementation
-source_commit: 97f850acf454a8fb6d8caeb8cf5e9ccb5d413a16
+version: 95
+verified_at: 2026-08-12
+scope: issue-206-curve-channel-metadata-and-deviation
+source_commit: e9b523a7f7b613d8d6efc0396160f0ceb2aff2c4
 capture_script: ../../scripts/capture_current_product.py
-capture_command: uv run --with playwright python scripts/capture_current_product.py --base-url http://127.0.0.1:5173
+capture_command: uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --only-materials; --only-modeling-data-session; --only-modeling-process-fit-viewports
 notes:
+  - "Issue #206 adds five exact Material Curves captures and refreshes the affected Materials and Modeling Data/Process/Fit routes from canonical current-source Compose. The current directory contains 95 deterministic synthetic non-production images; 43 were captured from implementation commit e9b523a7, 48 retain the accepted #184 current-source pixels, and four fixture-dependent Solver Card/Export images retain their registered accepted baseline."
+  - "The issue-owned packet is docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/visual-evidence.yaml: 12 exact-origin/main before originals, 20 live after originals, 48 direct 100%-pixel crops, six keyboard/Evidence/metadata-absent state images, hashes, dimensions, routes, browser/DPR/zoom and exact source commit. Every original and crop was opened at original resolution."
+  - "Materials Curves exposes the exact observed Test Data curve and view-only replicate Statistics curve, shared channel/unit definitions, recorded pointwise Student-t confidence evidence, keyboard/pointer tooltip parity, band toggle, exact revision and Evidence disclosure. Unknown legacy metadata remains visibly available without inferred axes, units, deviation or Fit eligibility."
+  - "Automated 3840x2160 CSS geometry does not claim physical 4K readability; #223 remains unchanged. Product Owner review of the registered 1920/2560/3840 originals and crops is pending, so the #206 PR must remain draft."
   - "Issue #184 implements the Product Owner-approved P2 policy from merged PR #228: Standard is the default, Compact | Standard | Large are explicit product-wide browser-local choices scoped by active user/workspace, and Reset display density restores Standard independently from pane resets. No route, viewport, DPR, resolution, backend account, or cross-device synchronization selects density."
   - "The current directory registers 90 deterministic synthetic non-production product-route images. Eighty were recaptured from canonical Compose at Standard, browser zoom 100%, and DPR 1; ten exact Material-detail/card and delivered Export images remain the registered main baseline because the preserved append-only fixture cannot project the exact endpoint revision. They are not represented as current #184 recaptures."
   - "The issue-owned visual packet is docs/17-evidence/images/issue-184-high-dpi-global-implementation/visual-evidence.json: 59 exact-main before originals, 240 after originals across three densities, 21 direct 100%-pixel crops, 14 browser-zoom-200 originals, SHA-256, original dimensions, viewport/DPR/zoom/density/state fingerprints, and the explicit ten-image fixture boundary."
@@ -94,26 +98,31 @@ visual_evidence:
   routes: [/materials, '/materials/:materialId', /modeling, /activity, /administration/database, /administration/records, /administration/access]
   states: [normal, long, empty, invalid, blocked, failed, restored, delivered, role-aware, popup, drawer, file-input, pane-overlay, resize, collapse, reset, reload]
   baseline_source: 36e8312fa85253ad8fee88f63a3a4bf096d92a9c
-  current_source: 97f850acf454a8fb6d8caeb8cf5e9ccb5d413a16
+  current_source: e9b523a7f7b613d8d6efc0396160f0ceb2aff2c4
   evidence_artifacts_are_not_current_captures: true
-  current_capture_count: 90
-  issue_184_recaptured_current_count: 80
-  preserved_registered_main_baseline_count: 10
-  before_original_count: 59
-  after_original_count: 240
-  direct_crop_count: 21
-  browser_zoom_200_original_count: 14
+  current_capture_count: 95
+  issue_206_recaptured_current_count: 43
+  inherited_issue_184_current_count: 48
+  preserved_registered_baseline_count: 4
+  issue_206_before_original_count: 12
+  issue_206_after_original_count: 20
+  issue_206_direct_crop_count: 48
+  issue_206_state_image_count: 6
   crop_scale: '100 percent / direct 1:1 source pixels'
   root_original_and_crop_review: pass
   physical_4k_readability: DEFERRED_TO_223
-  fixture_dependent_capture_status: incomplete
-  independent_read_only_review: changes_requested_fixture_coverage
+  fixture_dependent_capture_status: complete_for_issue_206
+  independent_read_only_review: pending_exact_sha
   product_owner_review: pending
 capture_provenance:
+  - source_commit: e9b523a7f7b613d8d6efc0396160f0ceb2aff2c4
+    captured_at: '2026-08-12'
+    command: 'Canonical current-source Compose; capture_current_product.py --only-materials, --only-modeling-data-session and --only-modeling-process-fit-viewports at browser zoom 100% and DPR 1. The issue-owned script copied the 20 affected five-viewport originals, produced direct 100%-pixel crops, exercised keyboard/pointer tooltip and band-toggle parity, opened Evidence, and recorded the honest metadata-absent state.'
+    ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-search-2560, materials-search-3840, materials-scroll-long-1366, materials-scroll-long-1440, materials-scroll-long-1920, materials-scroll-short-1440, materials-scroll-empty-1440, materials-browse-1440, material-detail-1366, material-detail-1440, material-detail-1920, material-detail-2560, material-detail-3840, material-curves-1366, material-curves-1440, material-curves-1920, material-curves-2560, material-curves-3840, material-cae-cards-1440, modeling-data-1366, modeling-data-1440, modeling-data-1920, modeling-data-2560, modeling-data-3840, modeling-session-1366, modeling-session-1440, modeling-session-1920, modeling-data-empty-1440, modeling-data-invalid-1440, modeling-data-invalid-scrolled-1440, MOD-PROCESS-CURRENT-1366, MOD-PROCESS-CURRENT-1440, MOD-PROCESS-CURRENT-1920, MOD-PROCESS-CURRENT-2560, MOD-PROCESS-CURRENT-3840, modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-fit-2560, modeling-fit-3840]
   - source_commit: 97f850acf454a8fb6d8caeb8cf5e9ccb5d413a16
     captured_at: '2026-08-11'
-    command: 'Canonical Compose capture_current_product.py runs at Compact, Standard, and Large across five CSS viewports, issue-owned browser zoom 200 and direct 100%-pixel crop scripts, and root original-resolution inspection. Eighty Standard images replace the current guide; ten fixture-dependent baseline images are explicitly retained without being claimed as current recaptures.'
-    ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-search-2560, materials-search-3840, materials-scroll-long-1366, materials-scroll-long-1440, materials-scroll-long-1920, materials-scroll-short-1440, materials-scroll-empty-1440, materials-browse-1440, modeling-data-1366, modeling-session-1366, modeling-session-1440, modeling-session-1920, modeling-data-1440, modeling-data-1920, modeling-data-2560, modeling-data-3840, modeling-data-empty-1440, modeling-data-invalid-1440, modeling-data-invalid-scrolled-1440, MOD-PROCESS-CURRENT-1366, MOD-PROCESS-CURRENT-LINEAR-1366, MOD-PROCESS-CURRENT-MANUAL-1366, MOD-PROCESS-CURRENT-1440, MOD-PROCESS-CURRENT-1920, MOD-PROCESS-CURRENT-2560, MOD-PROCESS-CURRENT-3840, MOD-PROCESS-CURRENT-BLOCKED-1440, MOD-PROCESS-CURRENT-EXACT-READ-FAILED-1440, MOD-PROCESS-CURRENT-SIBLINGS-1440, modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-fit-2560, modeling-fit-3840, modeling-fit-candidate-parameters-long-1440, modeling-fit-candidate-evidence-scrolled-1440, modeling-fit-calculation-failed-1920, modeling-fit-save-failed-1920, modeling-fit-exact-source-blocked-1920, modeling-fit-exact-read-failed-1920, modeling-fit-restored-1920, modeling-export-1366, modeling-export-1440, modeling-export-1920, modeling-export-2560, modeling-export-3840, modeling-export-source-blocked, modeling-export-approximation-blocked, activity-1366, activity-1440, activity-1920, activity-2560, activity-3840, activity-history-1440, activity-history-1920, activity-history-2560, activity-history-3840, activity-user-1440, activity-administrator-1440, activity-decision-error-1440, activity-recovery-1440, administration-database-1366, administration-database-1440, administration-database-1920, administration-database-2560, administration-database-3840, administration-records-1366, administration-records-1440, administration-records-1920, administration-records-2560, administration-records-3840, administration-access-1366, administration-access-1440, administration-access-1920, administration-access-2560, administration-access-3840, administration-access-role-control-1366]
+    command: 'Accepted #184 canonical Compose capture at Standard, browser zoom 100%, and DPR 1. Forty-eight unchanged current product-route images remain attributed to this exact source; the routes recaptured for #206 were reassigned to the #206 source record.'
+    ids: [MOD-PROCESS-CURRENT-LINEAR-1366, MOD-PROCESS-CURRENT-MANUAL-1366, MOD-PROCESS-CURRENT-BLOCKED-1440, MOD-PROCESS-CURRENT-EXACT-READ-FAILED-1440, MOD-PROCESS-CURRENT-SIBLINGS-1440, modeling-fit-candidate-parameters-long-1440, modeling-fit-candidate-evidence-scrolled-1440, modeling-fit-calculation-failed-1920, modeling-fit-save-failed-1920, modeling-fit-exact-source-blocked-1920, modeling-fit-exact-read-failed-1920, modeling-fit-restored-1920, modeling-export-1366, modeling-export-1440, modeling-export-1920, modeling-export-2560, modeling-export-3840, modeling-export-source-blocked, modeling-export-approximation-blocked, activity-1366, activity-1440, activity-1920, activity-2560, activity-3840, activity-history-1440, activity-history-1920, activity-history-2560, activity-history-3840, activity-user-1440, activity-administrator-1440, activity-decision-error-1440, activity-recovery-1440, administration-database-1366, administration-database-1440, administration-database-1920, administration-database-2560, administration-database-3840, administration-records-1366, administration-records-1440, administration-records-1920, administration-records-2560, administration-records-3840, administration-access-1366, administration-access-1440, administration-access-1920, administration-access-2560, administration-access-3840, administration-access-role-control-1366]
 previous_capture_provenance:
   - source_commit: 31f9a3f+task3b-worktree
     captured_at: 2026-08-06T10:35:08+09:00
@@ -286,6 +295,51 @@ captures:
     height: 2160
     approved_reference_ids: [materials-datasheet-overview-normal-1920x1080]
     comparison_evidence: docs/17-evidence/issue-159-mat-detail-comparison.md
+  - id: material-curves-1366
+    route: /materials/:materialId/curves
+    workflow: inspect-exact-curve-channels-units-deviation-and-fit-eligibility
+    fixture: synthetic DP780 exact Record revision with canonical Test Data and replicate Statistics curves
+    image: images/current/material-curves-1366x768.png
+    width: 1366
+    height: 768
+    approved_reference_ids: [materials-datasheet-overview-normal-1366x768]
+    comparison_evidence: docs/17-evidence/issue-206-curve-channel-metadata-and-deviation.md
+  - id: material-curves-1440
+    route: /materials/:materialId/curves
+    workflow: inspect-exact-curve-channels-units-deviation-and-fit-eligibility
+    fixture: synthetic DP780 exact Record revision with canonical Test Data and replicate Statistics curves
+    image: images/current/material-curves-1440x900.png
+    width: 1440
+    height: 900
+    approved_reference_ids: [materials-datasheet-overview-normal-1440x900]
+    comparison_evidence: docs/17-evidence/issue-206-curve-channel-metadata-and-deviation.md
+  - id: material-curves-1920
+    route: /materials/:materialId/curves
+    workflow: inspect-exact-curve-channels-units-deviation-and-fit-eligibility
+    fixture: synthetic DP780 exact Record revision with canonical Test Data and replicate Statistics curves
+    image: images/current/material-curves-1920x1080.png
+    width: 1920
+    height: 1080
+    approved_reference_ids: [materials-datasheet-overview-normal-1920x1080]
+    comparison_evidence: docs/17-evidence/issue-206-curve-channel-metadata-and-deviation.md
+  - id: material-curves-2560
+    route: /materials/:materialId/curves
+    workflow: inspect-exact-curve-channels-units-deviation-and-fit-eligibility
+    fixture: synthetic DP780 exact Record revision with canonical Test Data and replicate Statistics curves
+    image: images/current/material-curves-2560x1440.png
+    width: 2560
+    height: 1440
+    approved_reference_ids: [materials-datasheet-overview-normal-1920x1080]
+    comparison_evidence: docs/17-evidence/issue-206-curve-channel-metadata-and-deviation.md
+  - id: material-curves-3840
+    route: /materials/:materialId/curves
+    workflow: inspect-exact-curve-channels-units-deviation-and-fit-eligibility
+    fixture: synthetic DP780 exact Record revision with canonical Test Data and replicate Statistics curves
+    image: images/current/material-curves-3840x2160.png
+    width: 3840
+    height: 2160
+    approved_reference_ids: [materials-datasheet-overview-normal-1920x1080]
+    comparison_evidence: docs/17-evidence/issue-206-curve-channel-metadata-and-deviation.md
   - id: material-cae-cards-1440
     route: /materials/:materialId/cards
     workflow: native-card-preview-and-download-actions
