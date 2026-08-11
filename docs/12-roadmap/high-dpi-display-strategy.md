@@ -198,8 +198,9 @@ Compact/Standard/Large의 240개 production 원본과 21개 direct 100% crop, br
 fixture의 `CMP-CATALOG-0015` 때문에 density별 10개 exact datasheet/card/delivered 상태를 다시 만들지
 못했으므로 전체 90개×3 matrix는 `INCOMPLETE_BASELINE_FIXTURE_BLOCKER`다. verifier나 데이터를
 완화하지 않았다. 독립 읽기 전용 감수자는 사용 가능한 334개에서 새 visual defect를 찾지 않았지만
-이 30개 누락을 blocking finding으로 유지했으며, 누락 해소와 제품 소유자 검토 전 #184를 통과로
-기록하지 않는다.
+이 30개 누락을 blocking finding으로 유지했다. 제품 소유자는 2026-08-11에 이 경계와 실제 Windows
+4K 판정 유보를 보고받은 뒤 구현 PR merge를 지시했지만, 누락을 해소 또는 PASS로 바꾸거나 #184/#117을
+완료하도록 승인하지 않았다.
 
 ### 8.3 실제 Windows 표 — #223 최종 증거
 
