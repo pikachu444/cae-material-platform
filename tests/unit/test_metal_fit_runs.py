@@ -40,6 +40,12 @@ from cmp.modules.processing.domain.common_pipeline import (
     ProcessingStep,
 )
 from cmp.modules.processing.domain.metal_hardening import HARDENING_FAMILIES
+from cmp.modules.units.domain.profiles import (
+    UnitApplication,
+    UnitApplicationRole,
+    UnitProfilePin,
+)
+from cmp.modules.units.domain.system import DimensionId
 
 NOW = datetime(2026, 8, 6, 12, 0, tzinfo=UTC)
 ORG = UUID("d1580000-0000-4000-8000-000000000001")
@@ -381,6 +387,49 @@ def test_success_merges_terminal_evidence_without_erasing_reproducibility_facts(
     assert evidence["candidates"] == list(HARDENING_FAMILIES)
     assert all(item.status is MetalFitAttemptStatus.SUCCEEDED for item in detail.attempts)
     assert repository.runs[detail.run.id].reproducibility_evidence == evidence
+
+
+def test_fit_run_inherits_exact_unit_profile_and_application_trace_from_process_output() -> None:
+    pin = UnitProfilePin(
+        UUID("d1580000-0000-4000-8000-000000000020"),
+        UUID("d1580000-0000-4000-8000-000000000021"),
+        "e" * 64,
+    )
+    applications = (
+        UnitApplication(
+            "processing.input.stress.true",
+            UnitApplicationRole.INPUT,
+            "stress.true",
+            DimensionId.FORCE_PER_AREA,
+            "Pa",
+        ),
+    )
+    service, repository, outputs = _service()
+    outputs.source.content.unit_profile = pin
+    outputs.source.content.unit_applications = applications
+    outputs.preview = replace(
+        outputs.preview,
+        unit_profile=pin,
+        unit_applications=applications,
+    )
+
+    detail = asyncio.run(service.execute(CONTEXT, DECISION, _command()))
+
+    assert detail.run.unit_profile == pin
+    assert detail.run.unit_applications == applications
+    assert detail.run.reproducibility_evidence["unit_profile"] == {
+        "profile_id": str(pin.profile_id),
+        "revision_id": str(pin.revision_id),
+        "content_sha256": pin.content_sha256,
+    }
+    assert detail.run.reproducibility_evidence["unit_applications"][0] == {
+        "location": applications[0].location,
+        "role": "input",
+        "quantity_semantics": "stress.true",
+        "dimension": "force_per_area",
+        "unit_id": "Pa",
+    }
+    assert repository.runs[detail.run.id].unit_profile == pin
 
 
 def test_prior_successful_attempt_is_not_overwritten_by_a_later_family_failure() -> None:

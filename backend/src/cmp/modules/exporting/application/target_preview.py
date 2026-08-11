@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from typing import Protocol
 from uuid import UUID
 
+from cmp.modules.exporting.application.unit_usage import neutral_solver_unit_applications
 from cmp.modules.exporting.domain.neutral_hyperelastic import (
     NeutralHyperelasticExportError,
     NeutralHyperelasticExportTarget,
@@ -26,6 +27,9 @@ from cmp.modules.exporting.domain.neutral_solver import (
 from cmp.modules.identity_access.domain.authorization import AuthorizationDecision, Permission
 from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.modeling.domain.neutral_material import NeutralMaterialDocument
+from cmp.modules.units.application.profiles import CommonUnitService
+from cmp.modules.units.domain.profiles import UnitApplication, UnitProfilePin
+from cmp.modules.units.domain.system import UnitError
 
 
 class TargetPreviewConflict(Exception):
@@ -52,6 +56,7 @@ class ExactPreviewSource:
     neutral_material_id: UUID
     neutral_material_revision_id: UUID
     neutral: NeutralMaterialDocument
+    unit_profile: UnitProfilePin | None = None
 
 
 class ExactPreviewSourceResolver(Protocol):
@@ -77,6 +82,7 @@ class CreateTargetPreview:
     solver_material_id: int
     material_name: str
     expected_mapping_report_sha256: str | None = None
+    unit_profile: UnitProfilePin | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -92,6 +98,8 @@ class TargetPreview:
     source: dict[str, str]
     target: dict[str, str]
     acknowledgement_identity: str | None
+    unit_profile: UnitProfilePin | None = None
+    unit_applications: tuple[UnitApplication, ...] = ()
     non_production: bool = True
     # C1 is an ephemeral, stateless preview.  Delivery is a separate C2
     # command; the preview itself is never a pending delivery artifact.
@@ -124,8 +132,43 @@ def _extension(target: NeutralHyperelasticExportTarget) -> str:
 
 
 class TargetPreviewService:
-    def __init__(self, *, resolver: ExactPreviewSourceResolver) -> None:
+    def __init__(
+        self,
+        *,
+        resolver: ExactPreviewSourceResolver,
+        units: CommonUnitService | None = None,
+    ) -> None:
         self._resolver = resolver
+        self._units = units
+
+    def _unit_usage(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        *,
+        source: ExactPreviewSource,
+        requested: UnitProfilePin | None,
+    ) -> tuple[UnitProfilePin | None, tuple[UnitApplication, ...]]:
+        if source.unit_profile is not None and requested not in {None, source.unit_profile}:
+            raise TargetPreviewConflict(
+                "target preview cannot replace its Processing Output Unit Profile revision"
+            )
+        pin = source.unit_profile or requested
+        if pin is None:
+            # Backward-compatible kg_m_s behavior; this is not a selected production default.
+            return None, ()
+        if self._units is None:
+            raise TargetPreviewConflict("Unit Profile service is unavailable")
+        try:
+            snapshot = self._units.resolve_pin(context, decision, pin)
+            if snapshot.current.scope.classification != source.neutral.classification:
+                raise TargetPreviewConflict(
+                    "target preview classification differs from its Unit Profile revision"
+                )
+            applications = neutral_solver_unit_applications(source.neutral, snapshot.content)
+        except UnitError as error:
+            raise TargetPreviewConflict(error.contextual_message()) from error
+        return pin, applications
 
     async def preview(
         self,
@@ -166,6 +209,12 @@ class TargetPreviewService:
             processing_output_revision_id=command.processing_output_revision_id,
             neutral_material_id=command.neutral_material_id,
             neutral_material_revision_id=command.neutral_material_revision_id,
+        )
+        unit_profile, unit_applications = self._unit_usage(
+            context,
+            decision,
+            source=source,
+            requested=command.unit_profile,
         )
         try:
             report = preflight_neutral_solver_export(
@@ -217,14 +266,29 @@ class TargetPreviewService:
             "neutral_material_id": str(source.neutral_material_id),
             "neutral_material_revision_id": str(source.neutral_material_revision_id),
         }
-        identity = _canonical_digest(
-            {
-                "source": source_identity,
-                "target": target,
-                "mapping_report_sha256": report.digest,
-                "native_sha256": native_sha256,
+        identity_input: dict[str, object] = {
+            "source": source_identity,
+            "target": target,
+            "mapping_report_sha256": report.digest,
+            "native_sha256": native_sha256,
+        }
+        if unit_profile is not None:
+            identity_input["unit_profile"] = {
+                "profile_id": str(unit_profile.profile_id),
+                "revision_id": str(unit_profile.revision_id),
+                "content_sha256": unit_profile.content_sha256,
             }
-        )
+            identity_input["unit_applications"] = [
+                {
+                    "location": item.location,
+                    "role": item.role.value,
+                    "quantity_semantics": item.quantity_semantics,
+                    "dimension": item.dimension.value,
+                    "unit_id": item.unit_id,
+                }
+                for item in unit_applications
+            ]
+        identity = _canonical_digest(identity_input)
         acknowledgement = identity if _warnings(report) else None
         return TargetPreview(
             preview_identity=identity,
@@ -239,4 +303,6 @@ class TargetPreviewService:
             source=source_identity,
             target=target,
             acknowledgement_identity=acknowledgement,
+            unit_profile=unit_profile,
+            unit_applications=unit_applications,
         )

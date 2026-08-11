@@ -434,6 +434,7 @@ def test_write_decision_expands_only_required_read_and_governance_permissions() 
         "provenance.read",
         "provenance.write",
         "testing.read",
+        "units.read",
     )
 
 

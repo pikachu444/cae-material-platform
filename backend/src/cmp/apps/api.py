@@ -77,6 +77,7 @@ from cmp.bootstrap.statistics import (
     build_statistics_service,
 )
 from cmp.bootstrap.testing import build_test_context_service, build_testing_service
+from cmp.bootstrap.units import build_common_unit_service
 from cmp.bootstrap.validation import build_reference_validation_service
 from cmp.bootstrap.voce_holdout import build_reference_voce_holdout_service
 from cmp.modules.artifacts.adapters.api.content import install_content_artifact_api
@@ -251,6 +252,8 @@ from cmp.modules.testing.adapters.api.test_context import install_test_context_a
 from cmp.modules.testing.adapters.api.testing import install_testing_api
 from cmp.modules.testing.application.service import TestingService
 from cmp.modules.testing.application.test_context import TestContextService
+from cmp.modules.units.adapters.api.units import install_units_api
+from cmp.modules.units.application.profiles import CommonUnitService
 from cmp.modules.validation.adapters.api.validation import install_validation_api
 from cmp.modules.validation.adapters.api.voce_holdout import install_voce_holdout_api
 from cmp.modules.validation.application.service import ReferenceValidationService
@@ -325,6 +328,7 @@ def create_app(
     review_service: ReviewService | None = None,
     release_service: ReleaseService | None = None,
     product_access_service: ProductAccessAdministrationService | None = None,
+    common_unit_service: CommonUnitService | None = None,
 ) -> FastAPI:
     """Create the API without importing any business or plugin implementation."""
 
@@ -454,6 +458,18 @@ def create_app(
         security_dependency=security_dependency,
         read_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.AUDIT_READ
+        ),
+    )
+    resolved_units = common_unit_service or build_common_unit_service(services)
+    install_units_api(
+        application,
+        service=resolved_units,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.UNITS_READ
+        ),
+        write_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.UNITS_WRITE
         ),
     )
     resolved_catalog = catalog_service or build_catalog_service(services)
@@ -634,6 +650,7 @@ def create_app(
         resolved_canonical_test_data,
         resolved_mapping_profiles,
         resolved_artifacts,
+        resolved_units,
     )
     resolved_metal_fit_runs = build_metal_fit_run_service(services, resolved_common_outputs)
     install_common_processing_api(
@@ -1091,7 +1108,9 @@ def create_app(
     )
     resolved_neutral_hyperelastic_solver_cards = (
         neutral_hyperelastic_solver_card_service
-        or build_neutral_hyperelastic_solver_card_service(services, resolved_neutral_material)
+        or build_neutral_hyperelastic_solver_card_service(
+            services, resolved_neutral_material, resolved_units
+        )
     )
     install_neutral_hyperelastic_solver_card_api(
         application,
@@ -1110,7 +1129,8 @@ def create_app(
                 outputs=resolved_common_outputs,
                 neutral_materials=resolved_neutral_material,
                 tabulated_models=resolved_tabulated_plasticity,
-            )
+            ),
+            units=resolved_units,
         )
         if resolved_common_outputs is not None and resolved_neutral_material is not None
         else None

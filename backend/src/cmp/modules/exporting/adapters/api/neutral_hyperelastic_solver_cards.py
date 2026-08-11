@@ -33,6 +33,8 @@ from cmp.modules.modeling.application.neutral_material import (
     NeutralMaterialConflict,
     NeutralMaterialNotFound,
 )
+from cmp.modules.units.contracts import UnitApplicationResponse, UnitProfilePinInput
+from cmp.modules.units.domain.profiles import UnitProfilePin
 from cmp.shared.contracts.revisions import RevisionETag, RevisionMetadataResponse
 
 type Dependency = Callable[..., object]
@@ -62,6 +64,7 @@ class CreateCardRequest(PreflightRequest):
     solver_material_id: Annotated[int, Field(ge=1, le=9_999_999_999)]
     material_name: Annotated[str, StringConstraints(pattern=r"^[A-Za-z][A-Za-z0-9_-]{0,79}$")]
     change_reason: Reason
+    unit_profile: UnitProfilePinInput | None = None
 
 
 class NeutralHyperelasticMappingReportResponse(BaseModel):
@@ -91,6 +94,8 @@ class CardResponse(BaseModel):
     neutral_material_id: UUID
     target: TargetRequest
     current_revision: CardRevisionResponse
+    unit_profile: UnitProfilePinInput | None
+    unit_applications: tuple[UnitApplicationResponse, ...]
     links: dict[str, str]
 
     @classmethod
@@ -112,6 +117,25 @@ class CardResponse(BaseModel):
             ),
             current_revision=CardRevisionResponse(
                 **metadata.model_dump(), content=value.current.content.canonical()
+            ),
+            unit_profile=(
+                None
+                if value.unit_profile is None
+                else UnitProfilePinInput(
+                    profile_id=value.unit_profile.profile_id,
+                    revision_id=value.unit_profile.revision_id,
+                    content_sha256=value.unit_profile.content_sha256,
+                )
+            ),
+            unit_applications=tuple(
+                UnitApplicationResponse(
+                    location=item.location,
+                    role=item.role.value,
+                    quantity_semantics=item.quantity_semantics,
+                    dimension=item.dimension,
+                    unit_id=item.unit_id,
+                )
+                for item in value.unit_applications
             ),
             links={
                 "self": f"{root}{revision_query}",
@@ -264,6 +288,15 @@ def install_neutral_hyperelastic_solver_card_api(
                     body.solver_material_id,
                     body.material_name,
                     body.change_reason,
+                    unit_profile=(
+                        None
+                        if body.unit_profile is None
+                        else UnitProfilePin(
+                            profile_id=body.unit_profile.profile_id,
+                            revision_id=body.unit_profile.revision_id,
+                            content_sha256=body.unit_profile.content_sha256,
+                        )
+                    ),
                 ),
             )
         except Exception as error:

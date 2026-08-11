@@ -25,6 +25,8 @@ from cmp.modules.identity_access.domain.authorization import (
 )
 from cmp.modules.identity_access.domain.security import Principal, PrincipalType, SecurityContext
 from cmp.modules.processing.application.common_outputs import (
+    PROCESSING_OUTPUT_PROFILE_SCHEMA_ID,
+    PROCESSING_OUTPUT_PROFILE_SCHEMA_VERSION,
     CommitProcessingOutput,
     CommonPipelineError,
     CommonProcessingOutputService,
@@ -50,6 +52,12 @@ from cmp.modules.processing.domain.common_pipeline import (
     ScalarResult,
     preview_pipeline,
 )
+from cmp.modules.units.domain.profiles import (
+    UnitProfileContent,
+    UnitProfilePin,
+    UnitProfileSelection,
+)
+from cmp.modules.units.domain.system import DimensionId
 from cmp.shared.domain.revisions import RevisionRecord, canonical_json_bytes
 
 _ORG = UUID("d5400000-0000-4000-8000-000000000101")
@@ -434,7 +442,14 @@ class _RecordingArtifacts:
         del args
         value = cast(bytes, kwargs["value"])
         artifact_id = next(self.artifact_ids)
-        self.calls.append({"id": artifact_id, "value": value, "role": kwargs["artifact_role"]})
+        self.calls.append(
+            {
+                "id": artifact_id,
+                "value": value,
+                "role": kwargs["artifact_role"],
+                "schema_ref": kwargs["schema_ref"],
+            }
+        )
         return SimpleNamespace(
             artifact=SimpleNamespace(
                 id=artifact_id,
@@ -539,6 +554,108 @@ def test_committed_output_document_contains_exact_pins_steps_and_every_stage() -
             "revision_id": str(_EXPORT_PROVENANCE.test_run.revision_id),
         },
     }
+
+
+def test_profile_bearing_processing_output_pins_exact_revision_and_application_locations() -> None:
+    source_payload = Path(
+        "contracts/examples/positive/canonical-test-data.json"
+    ).read_bytes()
+    mapping_profile = MappingProfileContent(
+        profile_key="tensile",
+        label="Tensile mapping",
+        independent_quantity="strain.engineering",
+        missing_data_policy=MissingDataPolicy.DROP_ANY,
+        bindings=(
+            ChannelBinding("engineering_strain", "strain.engineering", ("1",)),
+            ChannelBinding("engineering_stress", "stress.engineering", ("Pa",)),
+        ),
+    )
+    unit_content = UnitProfileContent(
+        profile_key="synthetic_tensile_input",
+        label="Synthetic tensile input",
+        description="Non-production Processing trace fixture.",
+        non_production=True,
+        selections=(
+            UnitProfileSelection(
+                "strain.engineering", DimensionId.STRAIN, "1", "%", "1"
+            ),
+            UnitProfileSelection(
+                "stress.engineering",
+                DimensionId.FORCE_PER_AREA,
+                "Pa",
+                "MPa",
+                "Pa",
+            ),
+        ),
+    )
+    pin = UnitProfilePin(
+        UUID("d5400000-0000-4000-8000-000000000151"),
+        UUID("d5400000-0000-4000-8000-000000000152"),
+        unit_content.digest,
+    )
+
+    class Units:
+        def resolve_pin(self, *_: object) -> object:
+            return SimpleNamespace(
+                current=SimpleNamespace(scope=SimpleNamespace(classification="internal")),
+                content=unit_content,
+            )
+
+    repository = _RecordingRevisionStore()
+    artifacts = _RecordingArtifacts(
+        (UUID("d5400000-0000-4000-8000-000000000153"),)
+    )
+    source = ExactRevisionPin(
+        UUID("d5400000-0000-4000-8000-000000000154"),
+        UUID("d5400000-0000-4000-8000-000000000155"),
+    )
+    mapping = ExactRevisionPin(
+        UUID("d5400000-0000-4000-8000-000000000156"),
+        UUID("d5400000-0000-4000-8000-000000000157"),
+    )
+    service = CommonProcessingOutputService(
+        repository=cast(Any, repository),
+        test_data=cast(Any, _CommitSource(source_payload, mapping_profile)),
+        profiles=cast(Any, _CommitProfile(mapping_profile)),
+        artifacts=cast(Any, artifacts),
+        units=cast(Any, Units()),
+        id_factory=lambda: UUID("d5400000-0000-4000-8000-000000000158"),
+    )
+
+    import asyncio
+
+    snapshot = asyncio.run(
+        service.commit(
+            _CONTEXT,
+            _DECISION,
+            CommitProcessingOutput(
+                classification=DataClassification.INTERNAL,
+                label="Profile-bearing Process result",
+                source_document=source,
+                mapping_profile=mapping,
+                steps=(
+                    ProcessingStep(
+                        "rows.sort_unique", "1.0.0", {"duplicate_policy": "reject"}
+                    ),
+                ),
+                change_reason="Verify exact Unit Profile trace.",
+                unit_profile=pin,
+            ),
+        )
+    )
+
+    assert snapshot.current.schema_id == PROCESSING_OUTPUT_PROFILE_SCHEMA_ID
+    assert snapshot.current.schema_version == PROCESSING_OUTPUT_PROFILE_SCHEMA_VERSION
+    assert snapshot.content.unit_profile == pin
+    assert [item.location for item in snapshot.content.unit_applications] == [
+        "processing.input.strain.engineering",
+        "processing.input.stress.engineering",
+    ]
+    assert [item.unit_id for item in snapshot.content.unit_applications] == ["1", "Pa"]
+    assert artifacts.calls[0]["schema_ref"] == PROCESSING_OUTPUT_PROFILE_SCHEMA_ID
+    document = json.loads(cast(bytes, artifacts.calls[0]["value"]))
+    assert document["unit_profile"]["revision_id"] == str(pin.revision_id)
+    assert document["unit_applications"][0]["role"] == "input"
 
 
 def test_process_commits_two_exact_sibling_outputs_with_fresh_artifacts_and_revisions() -> None:

@@ -315,13 +315,14 @@
         "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
         "workup_overrides": {"type": "array", "maxItems": 2, "items": {"$ref": "#/$defs/ProcessingWorkupOverride"}},
         "fit_decision": {"anyOf": [{"$ref": "#/$defs/FitDecision"}, {"type": "null"}]}
-        ,"source_processing_output": {"anyOf": [{"$ref": "#/$defs/ExactRevisionPin"}, {"type": "null"}]}
+        ,"source_processing_output": {"anyOf": [{"$ref": "#/$defs/ExactRevisionPin"}, {"type": "null"}]},
+        "unit_profile": {"anyOf": [{"$ref": "../units/unit-resources.schema.json#/$defs/UnitProfilePin"}, {"type": "null"}]}
       }
     },
     "ProcessingOutputResponse": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["processing_output_id", "current_revision", "label", "source_document", "source_document_sha256", "source_canonical_artifact_sha256", "mapping_profile", "mapping_profile_sha256", "steps", "independent_quantity", "stage_count", "final_point_count", "output_artifact_id", "output_sha256", "source_processing_output", "source_processing_output_sha256", "workup_overrides", "fit_decision", "export_provenance"],
+      "required": ["processing_output_id", "current_revision", "label", "source_document", "source_document_sha256", "source_canonical_artifact_sha256", "mapping_profile", "mapping_profile_sha256", "steps", "independent_quantity", "stage_count", "final_point_count", "output_artifact_id", "output_sha256", "source_processing_output", "source_processing_output_sha256", "workup_overrides", "fit_decision", "export_provenance", "unit_profile", "unit_applications"],
       "properties": {
         "processing_output_id": {"type": "string", "format": "uuid"},
         "current_revision": {"$ref": "../revisions/revision-metadata.schema.json"},
@@ -341,7 +342,9 @@
         "source_processing_output_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
         "workup_overrides": {"type": "array", "maxItems": 2, "items": {"$ref": "#/$defs/ProcessingWorkupOverride"}},
         "fit_decision": {"anyOf": [{"$ref": "#/$defs/FitDecision"}, {"type": "null"}]},
-        "export_provenance": {"anyOf": [{"$ref": "#/$defs/ExportProvenance"}, {"type": "null"}]}
+        "export_provenance": {"anyOf": [{"$ref": "#/$defs/ExportProvenance"}, {"type": "null"}]},
+        "unit_profile": {"anyOf": [{"$ref": "../units/unit-resources.schema.json#/$defs/UnitProfilePin"}, {"type": "null"}]},
+        "unit_applications": {"type": "array", "maxItems": 128, "items": {"$ref": "../units/unit-resources.schema.json#/$defs/UnitApplication"}}
       }
     },
     "ExportProvenance": {
@@ -423,7 +426,7 @@
     },
     "MetalFitRunResponse": {
       "type": "object", "additionalProperties": false,
-      "required": ["id", "classification", "source_processing_output", "source_processing_output_sha256", "source_document", "mapping_profile", "options", "reproducibility_evidence", "status", "failure_code", "failure_reason", "attempts", "preview", "created_by", "request_id", "trace_id", "started_at", "ended_at"],
+      "required": ["id", "classification", "source_processing_output", "source_processing_output_sha256", "source_document", "mapping_profile", "unit_profile", "unit_applications", "options", "reproducibility_evidence", "status", "failure_code", "failure_reason", "attempts", "preview", "created_by", "request_id", "trace_id", "started_at", "ended_at"],
       "properties": {
         "id": {"type": "string", "format": "uuid"},
         "classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
@@ -431,6 +434,8 @@
         "source_processing_output_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
         "source_document": {"$ref": "#/$defs/ExactRevisionPin"},
         "mapping_profile": {"$ref": "#/$defs/ExactRevisionPin"},
+        "unit_profile": {"anyOf": [{"$ref": "../units/unit-resources.schema.json#/$defs/UnitProfilePin"}, {"type": "null"}]},
+        "unit_applications": {"type": "array", "items": {"$ref": "../units/unit-resources.schema.json#/$defs/UnitApplication"}},
         "options": {"type": "object"}, "reproducibility_evidence": {"type": "object"},
         "status": {"type": "string"}, "failure_code": {"type": ["string", "null"]},
         "failure_reason": {"type": ["string", "null"]},

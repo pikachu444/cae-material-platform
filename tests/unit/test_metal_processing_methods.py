@@ -230,6 +230,10 @@ def test_metal_methods_reject_non_si_normalized_units() -> None:
     )
     document = _document()
     stress = document.channels[1]
+    mpa_values = tuple(
+        value / Decimal("1e6") if value is not None else None
+        for value in stress.original_values
+    )
     document = CanonicalTestDataDocument(
         document_id=document.document_id,
         material=document.material,
@@ -245,10 +249,10 @@ def test_metal_methods_reject_non_si_normalized_units() -> None:
                 stress.axis_role,
                 stress.original_unit_string,
                 "MPa",
-                stress.normalization_scale,
+                Decimal("1e-6"),
                 stress.normalization_offset,
                 stress.original_values,
-                stress.normalized_values,
+                mpa_values,
                 stress.missing_reasons,
             ),
         ),

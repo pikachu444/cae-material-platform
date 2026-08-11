@@ -45,6 +45,15 @@ from cmp.modules.processing.domain.metal_hardening import (
     HARDENING_EQUATION_CONTRACT,
     fit_hardening_candidates,
 )
+from cmp.modules.units.application.profiles import CommonUnitService
+from cmp.modules.units.domain.profiles import (
+    UnitApplication,
+    UnitApplicationRole,
+    UnitProfileContent,
+    UnitProfilePin,
+    applications_for_profile,
+)
+from cmp.modules.units.domain.system import UnitError, dimension_for_quantity_semantics
 from cmp.shared.application.revisions import (
     CreateRevisionedAggregate,
     RevisionService,
@@ -61,6 +70,8 @@ __all__ = ["CommonPipelineError"]
 PROCESSING_OUTPUT_AGGREGATE_TYPE = "processing.common_output"
 PROCESSING_OUTPUT_SCHEMA_ID = "urn:cmp:processing:common-output:1.3.0"
 PROCESSING_OUTPUT_SCHEMA_VERSION = "1.3.0"
+PROCESSING_OUTPUT_PROFILE_SCHEMA_ID = "urn:cmp:processing:common-output:1.4.0"
+PROCESSING_OUTPUT_PROFILE_SCHEMA_VERSION = "1.4.0"
 PROCESSING_OUTPUT_MEDIA_TYPE = "application/vnd.cmp.processing-output+json"
 
 
@@ -600,6 +611,8 @@ class ProcessingOutputContent:
     workup_overrides: tuple[ProcessingWorkupOverride, ...] = ()
     fit_decision: FitDecisionSnapshot | None = None
     export_provenance: GovernedTestDataSource | None = None
+    unit_profile: UnitProfilePin | None = None
+    unit_applications: tuple[UnitApplication, ...] = ()
 
     def __post_init__(self) -> None:
         if not self.label.strip() or len(self.label) > 200:
@@ -615,6 +628,10 @@ class ProcessingOutputContent:
         ):
             raise CommonPipelineError(
                 "source Processing Output pin and digest must be provided together"
+            )
+        if (self.unit_profile is None) != (not self.unit_applications):
+            raise CommonPipelineError(
+                "Unit Profile pin and non-empty application trace must be provided together"
             )
 
 
@@ -633,6 +650,8 @@ class ProcessingOutputPreflight:
     preview: ProcessingPreview
     export_provenance: GovernedTestDataSource | None = None
     source_processing_output_sha256: str | None = None
+    unit_profile: UnitProfilePin | None = None
+    unit_applications: tuple[UnitApplication, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -646,6 +665,7 @@ class CommitProcessingOutput:
     workup_overrides: tuple[ProcessingWorkupOverride, ...] = ()
     fit_decision: FitDecisionSnapshot | None = None
     source_processing_output: ExactRevisionPin | None = None
+    unit_profile: UnitProfilePin | None = None
 
 
 class ProcessingOutputRepository(Protocol):
@@ -680,7 +700,7 @@ class ProcessingOutputRepository(Protocol):
 
 
 def processing_output_content_canonical(value: ProcessingOutputContent) -> dict[str, object]:
-    return {
+    result: dict[str, object] = {
         "label": value.label,
         "source_document": {
             "aggregate_id": str(value.source_document.aggregate_id),
@@ -727,6 +747,63 @@ def processing_output_content_canonical(value: ProcessingOutputContent) -> dict[
         "fit_decision": fit_decision_canonical(value.fit_decision),
         "export_provenance": _export_provenance_canonical(value.export_provenance),
     }
+    if value.unit_profile is not None:
+        result["unit_profile"] = _unit_profile_pin_canonical(value.unit_profile)
+        result["unit_applications"] = [
+            _unit_application_canonical(item) for item in value.unit_applications
+        ]
+    return result
+
+
+def _unit_profile_pin_canonical(value: UnitProfilePin) -> dict[str, str]:
+    return {
+        "profile_id": str(value.profile_id),
+        "revision_id": str(value.revision_id),
+        "content_sha256": value.content_sha256,
+    }
+
+
+def _unit_application_canonical(value: UnitApplication) -> dict[str, str]:
+    return {
+        "location": value.location,
+        "role": value.role.value,
+        "quantity_semantics": value.quantity_semantics,
+        "dimension": value.dimension.value,
+        "unit_id": value.unit_id,
+    }
+
+
+def _processing_unit_applications(
+    preview: ProcessingPreview, profile: UnitProfileContent
+) -> tuple[UnitApplication, ...]:
+    uses = []
+    for series in preview.stages[0].series:
+        try:
+            dimension = dimension_for_quantity_semantics(
+                series.quantity,
+                location=f"processing.input.{series.quantity}",
+            )
+        except UnitError as error:
+            raise CommonPipelineError(error.contextual_message()) from error
+        uses.append(
+            (
+                f"processing.input.{series.quantity}",
+                UnitApplicationRole.INPUT,
+                series.quantity,
+                dimension,
+            )
+        )
+    try:
+        applications = applications_for_profile(profile, uses=tuple(uses))
+    except UnitError as error:
+        raise CommonPipelineError(error.contextual_message()) from error
+    actual_units = {series.quantity: series.unit for series in preview.stages[0].series}
+    for application in applications:
+        if actual_units[application.quantity_semantics] != application.unit_id:
+            raise CommonPipelineError(
+                "Unit Profile input selection differs from the executed Processing input unit"
+            )
+    return applications
 
 
 def fit_decision_canonical(value: FitDecisionSnapshot | None) -> dict[str, object] | None:
@@ -822,6 +899,8 @@ def _preview_from_exact_processing_output(
         "fit_decision",
         "export_provenance",
     }
+    if source.content.unit_profile is not None:
+        required_document_keys.update({"unit_profile", "unit_applications"})
     if not required_document_keys <= document.keys():
         raise CommonPipelineError("exact Processing Output document metadata is incomplete")
     expected_version = getattr(source.current, "schema_version", PROCESSING_OUTPUT_SCHEMA_VERSION)
@@ -859,6 +938,18 @@ def _preview_from_exact_processing_output(
         raise CommonPipelineError("exact Processing Output source artifact digest drifted")
     if document.get("mapping_profile") != _pin(source.content.mapping_profile):
         raise CommonPipelineError("exact Processing Output Mapping Profile pin drifted")
+    if source.content.unit_profile is None:
+        if "unit_profile" in document or "unit_applications" in document:
+            raise CommonPipelineError(
+                "profile-free Processing Output contains unexpected Unit Profile metadata"
+            )
+    else:
+        if document.get("unit_profile") != _unit_profile_pin_canonical(
+            source.content.unit_profile
+        ) or document.get("unit_applications") != [
+            _unit_application_canonical(item) for item in source.content.unit_applications
+        ]:
+            raise CommonPipelineError("exact Processing Output Unit Profile evidence drifted")
     expected_steps = [
         {
             "method_id": step.method_id,
@@ -1085,10 +1176,16 @@ def processing_output_document(
     export_provenance: GovernedTestDataSource | None = None,
     source_processing_output: ExactRevisionPin | None = None,
     source_processing_output_sha256: str | None = None,
+    unit_profile: UnitProfilePin | None = None,
+    unit_applications: tuple[UnitApplication, ...] = (),
 ) -> dict[str, object]:
-    return {
+    result: dict[str, object] = {
         "document_type": "cmp.processing-output",
-        "document_version": PROCESSING_OUTPUT_SCHEMA_VERSION,
+        "document_version": (
+            PROCESSING_OUTPUT_PROFILE_SCHEMA_VERSION
+            if unit_profile is not None
+            else PROCESSING_OUTPUT_SCHEMA_VERSION
+        ),
         "output_id": str(output_id),
         "source_processing_output": None
         if source_processing_output is None
@@ -1129,6 +1226,12 @@ def processing_output_document(
         "export_provenance": _export_provenance_canonical(export_provenance),
         "result": processing_preview_canonical(preview),
     }
+    if unit_profile is not None:
+        result["unit_profile"] = _unit_profile_pin_canonical(unit_profile)
+        result["unit_applications"] = [
+            _unit_application_canonical(item) for item in unit_applications
+        ]
+    return result
 
 
 def _require(
@@ -1153,13 +1256,38 @@ class CommonProcessingOutputService:
         test_data: CanonicalTestDataService,
         profiles: MappingProfileService,
         artifacts: ArtifactService,
+        units: CommonUnitService | None = None,
         id_factory: Callable[[], UUID] = uuid4,
     ) -> None:
         self._repository = repository
         self._test_data = test_data
         self._profiles = profiles
         self._artifacts = artifacts
+        self._units = units
         self._id = id_factory
+
+    def _unit_usage(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        *,
+        pin: UnitProfilePin | None,
+        classification: str,
+        preview: ProcessingPreview,
+    ) -> tuple[UnitApplication, ...]:
+        if pin is None:
+            return ()
+        if self._units is None:
+            raise CommonPipelineError("Unit Profile service is unavailable")
+        try:
+            snapshot = self._units.resolve_pin(context, decision, pin)
+        except UnitError as error:
+            raise CommonPipelineError(error.contextual_message()) from error
+        if snapshot.current.scope.classification != classification:
+            raise CommonPipelineError(
+                "Processing Output classification must match the exact Unit Profile revision"
+            )
+        return _processing_unit_applications(preview, snapshot.content)
 
     async def preflight(
         self,
@@ -1199,6 +1327,10 @@ class CommonProcessingOutputService:
                 raise CommonPipelineError(
                     "Fit source Mapping Profile pin differs from the exact Process Output source"
                 )
+            if command.unit_profile != source_output.content.unit_profile:
+                raise CommonPipelineError(
+                    "Fit must inherit the exact Unit Profile pin from its Process Output source"
+                )
             if tuple(command.steps[:-1]) != tuple(source_output.content.steps):
                 raise CommonPipelineError(
                     "Fit steps must include every stored Process step in exact order"
@@ -1210,6 +1342,13 @@ class CommonProcessingOutputService:
             )
             if validate_selection:
                 validate_fit_decision(command.steps, preview, command.fit_decision)
+            unit_applications = self._unit_usage(
+                context,
+                decision,
+                pin=command.unit_profile,
+                classification=command.classification.value,
+                preview=preview,
+            )
             return ProcessingOutputPreflight(
                 source_document_sha256=source_output.content.source_document_sha256,
                 source_canonical_artifact_sha256=source_output.content.source_canonical_artifact_sha256,
@@ -1217,6 +1356,8 @@ class CommonProcessingOutputService:
                 preview=preview,
                 export_provenance=source_output.content.export_provenance,
                 source_processing_output_sha256=source_output.content.output_sha256,
+                unit_profile=command.unit_profile,
+                unit_applications=unit_applications,
             )
         source_snapshot, source_bytes = await self._test_data.export_document(
             context,
@@ -1243,6 +1384,13 @@ class CommonProcessingOutputService:
             validate_fit_decision(command.steps, preview, command.fit_decision)
         if preview.mapping_profile_sha256 != profile_snapshot.content.digest:
             raise CommonPipelineError("Mapping Profile digest pin differs from executed profile")
+        unit_applications = self._unit_usage(
+            context,
+            decision,
+            pin=command.unit_profile,
+            classification=command.classification.value,
+            preview=preview,
+        )
         return ProcessingOutputPreflight(
             source_document_sha256=preview.source_document_sha256,
             source_canonical_artifact_sha256=source_snapshot.content.canonical_sha256,
@@ -1250,6 +1398,8 @@ class CommonProcessingOutputService:
             preview=preview,
             export_provenance=source_snapshot.content.governed_source,
             source_processing_output_sha256=None,
+            unit_profile=command.unit_profile,
+            unit_applications=unit_applications,
         )
 
     async def preview_from_exact_output(
@@ -1313,6 +1463,8 @@ class CommonProcessingOutputService:
                 export_provenance=resolved.export_provenance,
                 source_processing_output=command.source_processing_output,
                 source_processing_output_sha256=resolved.source_processing_output_sha256,
+                unit_profile=resolved.unit_profile,
+                unit_applications=resolved.unit_applications,
             )
         )
         def _content(artifact_record: ArtifactRecord) -> ProcessingOutputContent:
@@ -1334,6 +1486,8 @@ class CommonProcessingOutputService:
                 workup_overrides=command.workup_overrides,
                 fit_decision=command.fit_decision,
                 export_provenance=resolved.export_provenance,
+                unit_profile=resolved.unit_profile,
+                unit_applications=resolved.unit_applications,
             )
 
         atomic_writer = getattr(self._repository, "commit_in_artifact_session", None)
@@ -1361,7 +1515,11 @@ class CommonProcessingOutputService:
             decision,
             classification=command.classification,
             artifact_role="processing.common-output-json",
-            schema_ref=PROCESSING_OUTPUT_SCHEMA_ID,
+            schema_ref=(
+                PROCESSING_OUTPUT_PROFILE_SCHEMA_ID
+                if resolved.unit_profile is not None
+                else PROCESSING_OUTPUT_SCHEMA_ID
+            ),
             media_type=PROCESSING_OUTPUT_MEDIA_TYPE,
             value=output_bytes,
             idempotency_key=f"common-processing-output:{output_id}",
@@ -1381,8 +1539,16 @@ class CommonProcessingOutputService:
                     context.project_id,
                     command.classification.value,
                 ),
-                schema_id=PROCESSING_OUTPUT_SCHEMA_ID,
-                schema_version=PROCESSING_OUTPUT_SCHEMA_VERSION,
+                schema_id=(
+                    PROCESSING_OUTPUT_PROFILE_SCHEMA_ID
+                    if resolved.unit_profile is not None
+                    else PROCESSING_OUTPUT_SCHEMA_ID
+                ),
+                schema_version=(
+                    PROCESSING_OUTPUT_PROFILE_SCHEMA_VERSION
+                    if resolved.unit_profile is not None
+                    else PROCESSING_OUTPUT_SCHEMA_VERSION
+                ),
                 content=content,
                 created_by=context.principal.id,
                 change_reason=command.change_reason,

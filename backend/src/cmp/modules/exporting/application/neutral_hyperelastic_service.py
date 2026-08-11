@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Protocol
 from uuid import UUID, uuid4
 
 from cmp.modules.exporting.application.service import RevisionSnapshot
+from cmp.modules.exporting.application.unit_usage import neutral_solver_unit_applications
 from cmp.modules.exporting.domain.neutral_hyperelastic import (
     NeutralHyperelasticExportTarget,
     NeutralHyperelasticSolverCardConflict,
@@ -22,6 +23,9 @@ from cmp.modules.exporting.domain.neutral_solver import (
 from cmp.modules.identity_access.domain.authorization import AuthorizationDecision, Permission
 from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.modeling.application.neutral_material import NeutralMaterialService
+from cmp.modules.units.application.profiles import CommonUnitService
+from cmp.modules.units.domain.profiles import UnitApplication, UnitProfilePin
+from cmp.modules.units.domain.system import UnitError
 from cmp.shared.application.revisions import (
     CreateRevisionedAggregate,
     RevisionService,
@@ -32,8 +36,12 @@ from cmp.shared.domain.revisions import RevisionCreated, TenantScope
 NEUTRAL_SOLVER_CARD_AGGREGATE_TYPE = "exporting.neutral_solver_card"
 NEUTRAL_SOLVER_CARD_SCHEMA_ID = "urn:cmp:exporting:neutral-hyperelastic-card:1.0.0"
 NEUTRAL_SOLVER_CARD_SCHEMA_VERSION = "1.0.0"
+NEUTRAL_SOLVER_CARD_PROFILE_SCHEMA_ID = "urn:cmp:exporting:neutral-hyperelastic-card:1.1.0"
+NEUTRAL_SOLVER_CARD_PROFILE_SCHEMA_VERSION = "1.1.0"
 NEUTRAL_FAMILY_SOLVER_CARD_SCHEMA_ID = "urn:cmp:exporting:neutral-family-card:2.0.0"
 NEUTRAL_FAMILY_SOLVER_CARD_SCHEMA_VERSION = "2.0.0"
+NEUTRAL_FAMILY_SOLVER_CARD_PROFILE_SCHEMA_ID = "urn:cmp:exporting:neutral-family-card:2.1.0"
+NEUTRAL_FAMILY_SOLVER_CARD_PROFILE_SCHEMA_VERSION = "2.1.0"
 
 
 @dataclass(frozen=True, slots=True)
@@ -47,6 +55,7 @@ class CreateNeutralHyperelasticSolverCard:
     change_reason: str
     expected_card_sha256: str | None = None
     source_material_model_ir_revision_id: UUID | None = None
+    unit_profile: UnitProfilePin | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -57,6 +66,8 @@ class NeutralHyperelasticSolverCardSnapshot:
     solver_material_id: int
     material_name: str
     current: RevisionSnapshot[NeutralCardContent]
+    unit_profile: UnitProfilePin | None = None
+    unit_applications: tuple[UnitApplication, ...] = ()
 
 
 class NeutralHyperelasticExportingRepository(Protocol):
@@ -66,6 +77,8 @@ class NeutralHyperelasticExportingRepository(Protocol):
         context: SecurityContext,
         decision: AuthorizationDecision,
         additional_hooks: Sequence[Callable[[object, RevisionCreated], None]] = (),
+        unit_profile: UnitProfilePin | None = None,
+        unit_applications: tuple[UnitApplication, ...] = (),
     ) -> RevisionStore[NeutralCardContent]: ...
 
     def get_solver_card(
@@ -122,10 +135,12 @@ class NeutralHyperelasticSolverCardService:
         *,
         repository: NeutralHyperelasticExportingRepository,
         neutral_materials: NeutralMaterialService,
+        units: CommonUnitService | None = None,
         id_factory: Callable[[], UUID] = uuid4,
     ) -> None:
         self._repository = repository
         self._neutral_materials = neutral_materials
+        self._units = units
         self._id_factory = id_factory
 
     async def preflight(
@@ -170,6 +185,23 @@ class NeutralHyperelasticSolverCardService:
             if command.source_material_model_ir_revision_id is not None
             else source.document.material_model_ir.model.revision_id
         )
+        unit_applications: tuple[UnitApplication, ...] = ()
+        if command.unit_profile is not None:
+            if self._units is None:
+                raise NeutralHyperelasticSolverCardConflict(
+                    "Unit Profile service is unavailable"
+                )
+            try:
+                profile = self._units.resolve_pin(context, decision, command.unit_profile)
+                if profile.current.scope.classification != source.current.scope.classification:
+                    raise NeutralHyperelasticSolverCardConflict(
+                        "Solver Card classification differs from its Unit Profile revision"
+                    )
+                unit_applications = neutral_solver_unit_applications(
+                    source.document, profile.content
+                )
+            except UnitError as error:
+                raise NeutralHyperelasticSolverCardConflict(error.contextual_message()) from error
         report, content = build_neutral_solver_card(
             neutral_material_id=source.id,
             neutral_material_revision_id=source.current.revision_id,
@@ -180,6 +212,12 @@ class NeutralHyperelasticSolverCardService:
             material_name=command.material_name,
             source_material_model_ir_revision_id=source_material_model_ir_revision_id,
         )
+        if command.unit_profile is not None:
+            content = replace(
+                content,
+                unit_profile=command.unit_profile,
+                unit_applications=unit_applications,
+            )
         if (
             command.expected_card_sha256 is not None
             and content.card_sha256 != command.expected_card_sha256
@@ -193,7 +231,11 @@ class NeutralHyperelasticSolverCardService:
         record = RevisionService(
             aggregate_type=NEUTRAL_SOLVER_CARD_AGGREGATE_TYPE,
             store=self._repository.solver_card_store(
-                context=context, decision=decision, additional_hooks=additional_hooks
+                context=context,
+                decision=decision,
+                additional_hooks=additional_hooks,
+                unit_profile=command.unit_profile,
+                unit_applications=unit_applications,
             ),
         ).create(
             CreateRevisionedAggregate(
@@ -204,14 +246,30 @@ class NeutralHyperelasticSolverCardService:
                     source.current.scope.classification,
                 ),
                 schema_id=(
-                    NEUTRAL_SOLVER_CARD_SCHEMA_ID
+                    (
+                        NEUTRAL_SOLVER_CARD_SCHEMA_ID
+                        if command.unit_profile is None
+                        else NEUTRAL_SOLVER_CARD_PROFILE_SCHEMA_ID
+                    )
                     if isinstance(content, NeutralHyperelasticSolverCardContent)
-                    else NEUTRAL_FAMILY_SOLVER_CARD_SCHEMA_ID
+                    else (
+                        NEUTRAL_FAMILY_SOLVER_CARD_SCHEMA_ID
+                        if command.unit_profile is None
+                        else NEUTRAL_FAMILY_SOLVER_CARD_PROFILE_SCHEMA_ID
+                    )
                 ),
                 schema_version=(
-                    NEUTRAL_SOLVER_CARD_SCHEMA_VERSION
+                    (
+                        NEUTRAL_SOLVER_CARD_SCHEMA_VERSION
+                        if command.unit_profile is None
+                        else NEUTRAL_SOLVER_CARD_PROFILE_SCHEMA_VERSION
+                    )
                     if isinstance(content, NeutralHyperelasticSolverCardContent)
-                    else NEUTRAL_FAMILY_SOLVER_CARD_SCHEMA_VERSION
+                    else (
+                        NEUTRAL_FAMILY_SOLVER_CARD_SCHEMA_VERSION
+                        if command.unit_profile is None
+                        else NEUTRAL_FAMILY_SOLVER_CARD_PROFILE_SCHEMA_VERSION
+                    )
                 ),
                 content=content,
                 created_by=context.principal.id,
@@ -227,6 +285,8 @@ class NeutralHyperelasticSolverCardService:
             command.solver_material_id,
             command.material_name,
             RevisionSnapshot(record, content),
+            command.unit_profile,
+            unit_applications,
         )
         return snapshot, report
 

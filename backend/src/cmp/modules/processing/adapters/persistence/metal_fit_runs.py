@@ -29,6 +29,12 @@ from cmp.modules.processing.application.metal_fit_runs import (
     MetalFitRunStatus,
     MetalFitTerminalConflict,
 )
+from cmp.modules.units.domain.profiles import (
+    UnitApplication,
+    UnitApplicationRole,
+    UnitProfilePin,
+)
+from cmp.modules.units.domain.system import DimensionId
 
 
 class RlsContext(Protocol):
@@ -60,6 +66,9 @@ run_table = sa.Table(
     sa.Column("source_document_revision_id", sa.Uuid(), nullable=False),
     sa.Column("mapping_profile_id", sa.Uuid(), nullable=False),
     sa.Column("mapping_profile_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("unit_profile_id", sa.Uuid(), nullable=True),
+    sa.Column("unit_profile_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("unit_profile_sha256", sa.CHAR(64), nullable=True),
     sa.Column("options", sa.JSON(), nullable=False),
     sa.Column("reproducibility_evidence", sa.JSON(), nullable=False),
     sa.Column("status", sa.String(32), nullable=False),
@@ -71,6 +80,21 @@ run_table = sa.Table(
     sa.Column("created_by", sa.Uuid(), nullable=False),
     sa.Column("request_id", sa.Uuid(), nullable=False),
     sa.Column("trace_id", sa.String(255), nullable=False),
+    schema="processing",
+)
+unit_application_table = sa.Table(
+    "metal_fit_run_unit_application",
+    metadata,
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("run_id", sa.Uuid(), nullable=False),
+    sa.Column("ordinal", sa.Integer(), nullable=False),
+    sa.Column("location", sa.String(255), nullable=False),
+    sa.Column("application_role", sa.String(32), nullable=False),
+    sa.Column("quantity_semantics", sa.String(160), nullable=False),
+    sa.Column("dimension", sa.String(64), nullable=False),
+    sa.Column("unit_id", sa.String(64), nullable=False),
     schema="processing",
 )
 attempt_table = sa.Table(
@@ -96,7 +120,16 @@ attempt_table = sa.Table(
 )
 
 
-def _run(row: Any) -> MetalFitRun:
+def _run(row: Any, unit_applications: tuple[UnitApplication, ...] = ()) -> MetalFitRun:
+    unit_profile = (
+        None
+        if row["unit_profile_id"] is None
+        else UnitProfilePin(
+            profile_id=cast(UUID, row["unit_profile_id"]),
+            revision_id=cast(UUID, row["unit_profile_revision_id"]),
+            content_sha256=str(row["unit_profile_sha256"]),
+        )
+    )
     return MetalFitRun(
         id=cast(UUID, row["id"]),
         classification=DataClassification(str(row["classification"])),
@@ -122,6 +155,8 @@ def _run(row: Any) -> MetalFitRun:
         created_by=cast(UUID, row["created_by"]),
         request_id=cast(UUID, row["request_id"]),
         trace_id=str(row["trace_id"]),
+        unit_profile=unit_profile,
+        unit_applications=unit_applications,
     )
 
 
@@ -180,6 +215,15 @@ class SqlAlchemyMetalFitRunRepository(MetalFitRunRepository):
                     source_document_revision_id=run.source_document.revision_id,
                     mapping_profile_id=run.mapping_profile.aggregate_id,
                     mapping_profile_revision_id=run.mapping_profile.revision_id,
+                    unit_profile_id=(
+                        None if run.unit_profile is None else run.unit_profile.profile_id
+                    ),
+                    unit_profile_revision_id=(
+                        None if run.unit_profile is None else run.unit_profile.revision_id
+                    ),
+                    unit_profile_sha256=(
+                        None if run.unit_profile is None else run.unit_profile.content_sha256
+                    ),
                     options=run.options,
                     reproducibility_evidence=run.reproducibility_evidence,
                     status=run.status.value,
@@ -193,7 +237,50 @@ class SqlAlchemyMetalFitRunRepository(MetalFitRunRepository):
                     trace_id=run.trace_id,
                 )
             )
+            if run.unit_applications:
+                session.execute(
+                    sa.insert(unit_application_table),
+                    [
+                        {
+                            "organization_id": context.organization_id,
+                            "project_id": context.project_id,
+                            "classification": run.classification.value,
+                            "run_id": run.id,
+                            "ordinal": ordinal,
+                            "location": item.location,
+                            "application_role": item.role.value,
+                            "quantity_semantics": item.quantity_semantics,
+                            "dimension": item.dimension.value,
+                            "unit_id": item.unit_id,
+                        }
+                        for ordinal, item in enumerate(run.unit_applications)
+                    ],
+                )
         return run
+
+    @staticmethod
+    def _unit_applications(
+        session: Session, run_id: UUID
+    ) -> tuple[UnitApplication, ...]:
+        rows = (
+            session.execute(
+                sa.select(unit_application_table)
+                .where(unit_application_table.c.run_id == run_id)
+                .order_by(unit_application_table.c.ordinal)
+            )
+            .mappings()
+            .all()
+        )
+        return tuple(
+            UnitApplication(
+                location=str(row["location"]),
+                role=UnitApplicationRole(str(row["application_role"])),
+                quantity_semantics=str(row["quantity_semantics"]),
+                dimension=DimensionId(str(row["dimension"])),
+                unit_id=str(row["unit_id"]),
+            )
+            for row in rows
+        )
 
     def create_attempt(
         self,
@@ -340,7 +427,7 @@ class SqlAlchemyMetalFitRunRepository(MetalFitRunRepository):
                 raise MetalFitTerminalConflict(
                     "metal Fit run is immutable after its terminal transition"
                 )
-            return _run(row)
+            return _run(row, self._unit_applications(session, cast(UUID, row["id"])))
 
     def succeed_run(
         self,
@@ -393,7 +480,7 @@ class SqlAlchemyMetalFitRunRepository(MetalFitRunRepository):
             )
             if row is None:
                 raise ProcessingOutputNotFound("metal Fit run is not visible")
-            return _run(row)
+            return _run(row, self._unit_applications(session, cast(UUID, row["id"])))
 
     def list_runs(
         self, *, context: SecurityContext, decision: AuthorizationDecision
@@ -404,7 +491,10 @@ class SqlAlchemyMetalFitRunRepository(MetalFitRunRepository):
                 .mappings()
                 .all()
             )
-            return tuple(_run(row) for row in rows)
+            return tuple(
+                _run(row, self._unit_applications(session, cast(UUID, row["id"])))
+                for row in rows
+            )
 
     def list_attempts(
         self,

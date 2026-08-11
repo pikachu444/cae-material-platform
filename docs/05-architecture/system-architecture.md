@@ -358,7 +358,36 @@ fingerprint and always declares `mutations_applied=false`,
 `delete_missing=false` and an empty `write_set`. It does not change current pointers, publication,
 outbox, audit or provenance and does not claim objects absent from the bundle. Actual apply,
 publication, rollback, bundle ownership/provenance and export remain #207; common unit semantics
-remain #205 and Administration UI remains #208.
+use the #205 boundary below and Administration UI remains #208.
+
+### 7.5 Common unit and versioned Unit Profile boundary
+
+The `units` module owns a closed dimension/unit registry, explicit Decimal conversion and Unit
+Profile revision lifecycle. A conversion request carries dimension, quantity semantics, stable
+source/target unit IDs, the original display string and a field location. Unit spelling never
+infers dimension or semantics. Absolute/test temperature is affine; temperature difference and
+all other supported conversions are multiplicative. Strain remains a distinct quantity semantic
+even though its canonical unit is `1`.
+
+Unit Profile is not a Catalog Profile or Mapping Profile. `units.unit_profile` holds the stable
+identity and current pointer; immutable typed revision and selection rows hold input, display and
+optional solver-export choices. Consumers store an exact `(profile_id, revision_id, content_sha256)`
+pin plus ordered typed application rows. Processing Output accepts an optional explicit pin, metal
+Fit inherits the exact source pin, and target preview/direct card generation resolves the exact
+revision. Solver Card and delivery receipt persistence bind the same pin and application list to
+their immutable result and provenance; a requested replacement or trace mismatch fails closed.
+
+Profile-free Processing and solver-card canonical bytes remain on their legacy schema versions.
+Profile-bearing Processing Output uses `1.4.0`; profile-bearing hyperelastic/family Solver Cards use
+`1.1.0`/`2.1.0`. Existing native card bytes are unchanged because Unit Profile trace is bound to the
+semantic card revision, not injected into native text. `kg_m_s` remains the only currently supported
+solver compatibility system and explicitly is not a production default. No service resolves a
+profile name or `latest`, and no default profile is selected at bootstrap.
+
+Schema Bundle planning only validates that `x-unit` is a stable ID in this closed registry. It
+retains Bundle/plan `1.0.0`, a read-only snapshot and an empty write set. Bundle apply/publication
+remain #207, curve channel/deviation metadata remain #206, and additional solver systems/Templates
+remain #213/#214.
 
 ## 8. Plugin 및 solver 실행 plane
 

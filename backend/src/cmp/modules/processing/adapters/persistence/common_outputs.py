@@ -19,6 +19,8 @@ from cmp.modules.identity_access.domain.authorization import AuthorizationDecisi
 from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.processing.application.common_outputs import (
     PROCESSING_OUTPUT_AGGREGATE_TYPE,
+    PROCESSING_OUTPUT_PROFILE_SCHEMA_ID,
+    PROCESSING_OUTPUT_PROFILE_SCHEMA_VERSION,
     PROCESSING_OUTPUT_SCHEMA_ID,
     PROCESSING_OUTPUT_SCHEMA_VERSION,
     ExactRevisionPin,
@@ -33,6 +35,12 @@ from cmp.modules.processing.application.common_outputs import (
     processing_output_content_canonical,
 )
 from cmp.modules.processing.domain.common_pipeline import ProcessingStep
+from cmp.modules.units.domain.profiles import (
+    UnitApplication,
+    UnitApplicationRole,
+    UnitProfilePin,
+)
+from cmp.modules.units.domain.system import DimensionId
 from cmp.shared.adapters.persistence.revisions import (
     SqlAlchemyRevisionStore,
     SqlRevisionHook,
@@ -109,6 +117,9 @@ revision_table = sa.Table(
     sa.Column("fit_decision", sa.JSON(none_as_null=True), nullable=True),
     # Match migration 088: an absent proof is SQL NULL, not the JSON literal null.
     sa.Column("export_provenance", sa.JSON(none_as_null=True), nullable=True),
+    sa.Column("unit_profile_id", sa.Uuid(), nullable=True),
+    sa.Column("unit_profile_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("unit_profile_sha256", sa.CHAR(64), nullable=True),
     schema="processing",
 )
 step_table = sa.Table(
@@ -124,6 +135,22 @@ step_table = sa.Table(
     sa.Column("method_version", sa.String(64), nullable=False),
     sa.Column("options_sha256", sa.CHAR(64), nullable=False),
     sa.Column("options", sa.JSON(), nullable=False),
+    schema="processing",
+)
+unit_application_table = sa.Table(
+    "common_processing_output_unit_application",
+    metadata,
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("output_id", sa.Uuid(), nullable=False),
+    sa.Column("output_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("ordinal", sa.Integer(), nullable=False),
+    sa.Column("location", sa.String(255), nullable=False),
+    sa.Column("application_role", sa.String(32), nullable=False),
+    sa.Column("quantity_semantics", sa.String(160), nullable=False),
+    sa.Column("dimension", sa.String(64), nullable=False),
+    sa.Column("unit_id", sa.String(64), nullable=False),
     schema="processing",
 )
 
@@ -155,6 +182,15 @@ def _values(value: ProcessingOutputContent) -> dict[str, object]:
             else None
         ),
         "source_processing_output_sha256": value.source_processing_output_sha256,
+        "unit_profile_id": (
+            None if value.unit_profile is None else value.unit_profile.profile_id
+        ),
+        "unit_profile_revision_id": (
+            None if value.unit_profile is None else value.unit_profile.revision_id
+        ),
+        "unit_profile_sha256": (
+            None if value.unit_profile is None else value.unit_profile.content_sha256
+        ),
         "workup_overrides": [
             {
                 "kind": override.kind,
@@ -239,6 +275,26 @@ def _write_steps(session: Session, draft: RevisionDraft[ProcessingOutputContent]
             for ordinal, step in enumerate(draft.content.steps)
         ],
     )
+    if draft.content.unit_applications:
+        session.execute(
+            sa.insert(unit_application_table),
+            [
+                {
+                    "organization_id": draft.scope.organization_id,
+                    "project_id": draft.scope.project_id,
+                    "classification": draft.scope.classification,
+                    "output_id": draft.aggregate_id,
+                    "output_revision_id": draft.revision_id,
+                    "ordinal": ordinal,
+                    "location": item.location,
+                    "application_role": item.role.value,
+                    "quantity_semantics": item.quantity_semantics,
+                    "dimension": item.dimension.value,
+                    "unit_id": item.unit_id,
+                }
+                for ordinal, item in enumerate(draft.content.unit_applications)
+            ],
+        )
 
 
 _TABLES = TypedRevisionTables(
@@ -275,7 +331,9 @@ def _record(row: Any) -> RevisionRecord:
     )
 
 
-def _content(row: Any, steps: Sequence[Any]) -> ProcessingOutputContent:
+def _content(
+    row: Any, steps: Sequence[Any], unit_applications: Sequence[Any]
+) -> ProcessingOutputContent:
     provenance = row["export_provenance"]
     return ProcessingOutputContent(
         label=str(row["label"]),
@@ -346,6 +404,25 @@ def _content(row: Any, steps: Sequence[Any]) -> ProcessingOutputContent:
                 UUID(str(provenance["test_run"]["aggregate_id"])),
                 UUID(str(provenance["test_run"]["revision_id"])),
             ),
+        ),
+        unit_profile=(
+            None
+            if row["unit_profile_id"] is None
+            else UnitProfilePin(
+                cast(UUID, row["unit_profile_id"]),
+                cast(UUID, row["unit_profile_revision_id"]),
+                str(row["unit_profile_sha256"]),
+            )
+        ),
+        unit_applications=tuple(
+            UnitApplication(
+                location=str(item["location"]),
+                role=UnitApplicationRole(str(item["application_role"])),
+                quantity_semantics=str(item["quantity_semantics"]),
+                dimension=DimensionId(str(item["dimension"])),
+                unit_id=str(item["unit_id"]),
+            )
+            for item in unit_applications
         ),
     )
 
@@ -457,8 +534,16 @@ class SqlAlchemyCommonProcessingOutputRepository(ProcessingOutputRepository):
             aggregate_type=PROCESSING_OUTPUT_AGGREGATE_TYPE,
             aggregate_id=output_id,
             scope=scope,
-            schema_id=PROCESSING_OUTPUT_SCHEMA_ID,
-            schema_version=PROCESSING_OUTPUT_SCHEMA_VERSION,
+            schema_id=(
+                PROCESSING_OUTPUT_PROFILE_SCHEMA_ID
+                if content.unit_profile is not None
+                else PROCESSING_OUTPUT_SCHEMA_ID
+            ),
+            schema_version=(
+                PROCESSING_OUTPUT_PROFILE_SCHEMA_VERSION
+                if content.unit_profile is not None
+                else PROCESSING_OUTPUT_SCHEMA_VERSION
+            ),
             content=content,
             content_hash=content_sha256(processing_output_content_canonical(content)),
             created_at=artifact_created_at,
@@ -533,8 +618,21 @@ class SqlAlchemyCommonProcessingOutputRepository(ProcessingOutputRepository):
             .mappings()
             .all()
         )
+        unit_applications = (
+            session.execute(
+                sa.select(unit_application_table)
+                .where(unit_application_table.c.output_revision_id == row["id"])
+                .order_by(unit_application_table.c.ordinal)
+            )
+            .mappings()
+            .all()
+        )
         record = _record(row)
-        return ProcessingOutputSnapshot(record.aggregate_id, record, _content(row, steps))
+        return ProcessingOutputSnapshot(
+            record.aggregate_id,
+            record,
+            _content(row, steps, unit_applications),
+        )
 
     def get_output(
         self,

@@ -22,6 +22,13 @@ from xml.etree import ElementTree as ET
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from cmp.modules.units.domain.system import (
+    DimensionId,
+    QuantityReference,
+    UnitError,
+    convert_value,
+    unit_definition,
+)
 from cmp.shared.domain.revisions import content_sha256
 
 GOVERNED_IMPORT_PROFILE_SCHEMA_ID = "urn:cmp:datasets:governed-import-profile:1.0.0"
@@ -97,32 +104,6 @@ class ImportRunStatus(StrEnum):
     FAILED = "failed"
 
 
-_UNIT_FACTORS: dict[QuantityKind, dict[str, float]] = {
-    QuantityKind.ENGINEERING_STRAIN: {"1": 1.0, "%": 0.01},
-    QuantityKind.SHEAR_STRAIN: {"1": 1.0, "%": 0.01},
-    QuantityKind.ENGINEERING_STRESS: {
-        "Pa": 1.0,
-        "kPa": 1_000.0,
-        "MPa": 1_000_000.0,
-        "GPa": 1_000_000_000.0,
-    },
-    QuantityKind.SHEAR_STRESS: {
-        "Pa": 1.0,
-        "kPa": 1_000.0,
-        "MPa": 1_000_000.0,
-        "GPa": 1_000_000_000.0,
-    },
-    QuantityKind.SHEAR_MODULUS: {
-        "Pa": 1.0,
-        "kPa": 1_000.0,
-        "MPa": 1_000_000.0,
-        "GPa": 1_000_000_000.0,
-    },
-    QuantityKind.TIME: {"s": 1.0, "ms": 0.001, "min": 60.0, "h": 3600.0},
-    QuantityKind.DISPLACEMENT: {"m": 1.0, "mm": 0.001, "um": 0.000001},
-    QuantityKind.FORCE: {"N": 1.0, "kN": 1_000.0},
-}
-
 _NORMALIZED_UNITS: dict[QuantityKind, str] = {
     QuantityKind.ENGINEERING_STRAIN: "1",
     QuantityKind.SHEAR_STRAIN: "1",
@@ -133,6 +114,46 @@ _NORMALIZED_UNITS: dict[QuantityKind, str] = {
     QuantityKind.DISPLACEMENT: "m",
     QuantityKind.FORCE: "N",
 }
+
+_QUANTITY_CONTRACT: dict[QuantityKind, tuple[DimensionId, str]] = {
+    QuantityKind.ENGINEERING_STRAIN: (
+        DimensionId.STRAIN,
+        "mechanics.strain.engineering",
+    ),
+    QuantityKind.SHEAR_STRAIN: (DimensionId.STRAIN, "mechanics.strain.shear"),
+    QuantityKind.ENGINEERING_STRESS: (
+        DimensionId.FORCE_PER_AREA,
+        "mechanics.stress.engineering",
+    ),
+    QuantityKind.SHEAR_STRESS: (
+        DimensionId.FORCE_PER_AREA,
+        "mechanics.stress.shear",
+    ),
+    QuantityKind.SHEAR_MODULUS: (
+        DimensionId.FORCE_PER_AREA,
+        "mechanics.modulus.shear.relaxation",
+    ),
+    QuantityKind.TIME: (DimensionId.TIME, "time.elapsed"),
+    QuantityKind.DISPLACEMENT: (DimensionId.LENGTH, "displacement"),
+    QuantityKind.FORCE: (DimensionId.FORCE, "mechanics.force"),
+}
+
+
+def _conversion_scale(quantity: QuantityKind, original_unit: str) -> float:
+    dimension, semantics = _QUANTITY_CONTRACT[quantity]
+    try:
+        result = convert_value(
+            "1",
+            original_unit_string=original_unit,
+            source=QuantityReference(dimension, semantics, original_unit),
+            target=QuantityReference(dimension, semantics, _NORMALIZED_UNITS[quantity]),
+            location=f"governed_import.{quantity.value}",
+        )
+    except UnitError as error:
+        raise InvalidGovernedImport(error.message) from error
+    if result.offset != 0:
+        raise InvalidGovernedImport("governed curve channels require multiplicative units")
+    return float(result.scale)
 
 
 def _text(name: str, value: str, maximum: int) -> None:
@@ -165,7 +186,12 @@ class GovernedChannelMapping:
         if self.ordinal not in (0, 1):
             raise InvalidGovernedImport("channel ordinal must be 0 or 1")
         _text("source_column", self.source_column, 255)
-        if self.original_unit not in _UNIT_FACTORS[self.source_quantity]:
+        expected_dimension, _ = _QUANTITY_CONTRACT[self.source_quantity]
+        try:
+            actual_dimension = unit_definition(self.original_unit).dimension
+        except UnitError as error:
+            raise InvalidGovernedImport(error.message) from error
+        if actual_dimension is not expected_dimension:
             raise InvalidGovernedImport(
                 f"unit {self.original_unit!r} is not valid for {self.source_quantity.value}"
             )
@@ -783,7 +809,7 @@ def parse_governed_source_evidence(
     original: list[tuple[float, float]] = []
     normalized: list[tuple[float, float]] = []
     scales = [
-        _UNIT_FACTORS[channel.source_quantity][channel.original_unit]
+        _conversion_scale(channel.source_quantity, channel.original_unit)
         for channel in profile.channels
     ]
     if profile.channels[0].source_quantity is QuantityKind.DISPLACEMENT:

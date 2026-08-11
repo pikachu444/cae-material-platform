@@ -64,6 +64,7 @@ from cmp.modules.processing.domain.common_pipeline import (
     preview_pipeline,
 )
 from cmp.modules.processing.domain.metal_hardening import HardeningCandidateEvidence
+from cmp.modules.units.contracts import UnitApplicationResponse, UnitProfilePinInput
 from cmp.shared.contracts.revisions import (
     InvalidRevisionETag,
     RevisionETag,
@@ -479,6 +480,7 @@ class CommitProcessingOutputRequest(BaseModel):
     workup_overrides: Annotated[tuple[ProcessingWorkupOverrideInput, ...], Field(max_length=2)] = ()
     fit_decision: FitDecisionInput | None = None
     source_processing_output: ExactRevisionPinInput | None = None
+    unit_profile: UnitProfilePinInput | None = None
 
 
 class ExportProvenanceResponse(BaseModel):
@@ -511,6 +513,8 @@ class ProcessingOutputResponse(BaseModel):
     workup_overrides: tuple[ProcessingWorkupOverrideInput, ...]
     fit_decision: FitDecisionInput | None
     export_provenance: ExportProvenanceResponse | None
+    unit_profile: UnitProfilePinInput | None
+    unit_applications: tuple[UnitApplicationResponse, ...]
 
     @classmethod
     def from_snapshot(cls, value: ProcessingOutputSnapshot) -> ProcessingOutputResponse:
@@ -520,6 +524,8 @@ class ProcessingOutputResponse(BaseModel):
         source_processing_output_sha256 = getattr(
             content, "source_processing_output_sha256", None
         )
+        unit_profile = getattr(content, "unit_profile", None)
+        unit_applications = getattr(content, "unit_applications", ())
         return cls(
             processing_output_id=value.id,
             current_revision=RevisionMetadataResponse.from_record(value.current, "published"),
@@ -617,6 +623,25 @@ class ProcessingOutputResponse(BaseModel):
                     revision_id=content.export_provenance.test_run.revision_id,
                 ),
             ),
+            unit_profile=(
+                None
+                if unit_profile is None
+                else UnitProfilePinInput(
+                    profile_id=unit_profile.profile_id,
+                    revision_id=unit_profile.revision_id,
+                    content_sha256=unit_profile.content_sha256,
+                )
+            ),
+            unit_applications=tuple(
+                UnitApplicationResponse(
+                    location=item.location,
+                    role=item.role.value,
+                    quantity_semantics=item.quantity_semantics,
+                    dimension=item.dimension,
+                    unit_id=item.unit_id,
+                )
+                for item in unit_applications
+            ),
         )
 
 
@@ -654,6 +679,8 @@ class MetalFitRunResponse(BaseModel):
     source_processing_output_sha256: str
     source_document: ExactRevisionPinInput
     mapping_profile: ExactRevisionPinInput
+    unit_profile: UnitProfilePinInput | None
+    unit_applications: tuple[UnitApplicationResponse, ...]
     options: dict[str, Any]
     reproducibility_evidence: dict[str, Any]
     status: str
@@ -685,6 +712,25 @@ class MetalFitRunResponse(BaseModel):
             mapping_profile=ExactRevisionPinInput(
                 aggregate_id=run.mapping_profile.aggregate_id,
                 revision_id=run.mapping_profile.revision_id,
+            ),
+            unit_profile=(
+                None
+                if run.unit_profile is None
+                else UnitProfilePinInput(
+                    profile_id=run.unit_profile.profile_id,
+                    revision_id=run.unit_profile.revision_id,
+                    content_sha256=run.unit_profile.content_sha256,
+                )
+            ),
+            unit_applications=tuple(
+                UnitApplicationResponse(
+                    location=item.location,
+                    role=item.role.value,
+                    quantity_semantics=item.quantity_semantics,
+                    dimension=item.dimension,
+                    unit_id=item.unit_id,
+                )
+                for item in run.unit_applications
             ),
             options=run.options,
             reproducibility_evidence=run.reproducibility_evidence,
@@ -1076,6 +1122,11 @@ def install_common_processing_api(
                     source_processing_output=(
                         body.source_processing_output.to_domain()
                         if body.source_processing_output is not None
+                        else None
+                    ),
+                    unit_profile=(
+                        body.unit_profile.to_domain()
+                        if body.unit_profile is not None
                         else None
                     ),
                 ),

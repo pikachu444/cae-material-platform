@@ -66,6 +66,12 @@ from cmp.modules.modeling.domain.reference_linear_viscoelasticity import (
     ReferenceLinearViscoelasticContent,
     ReferencePronyProcessingEvidence,
 )
+from cmp.modules.units.domain.profiles import (
+    UnitApplication,
+    UnitProfilePin,
+    unit_application_canonical,
+    unit_profile_pin_canonical,
+)
 from cmp.shared.domain.revisions import content_sha256
 
 type NeutralMappingReport = NeutralHyperelasticMappingReport | NeutralFamilyMappingReport
@@ -742,6 +748,8 @@ class NeutralFamilySolverCardContent:
     exporter_id: str
     exporter_version: str
     exporter_digest: str
+    unit_profile: UnitProfilePin | None = None
+    unit_applications: tuple[UnitApplication, ...] = ()
 
     def canonical(self) -> dict[str, object]:
         constitutive: dict[str, object] = {"family": self.family}
@@ -777,7 +785,7 @@ class NeutralFamilySolverCardContent:
                 "maximum": self.applicable_time_max_s,
                 "unit": "s",
             }
-        return {
+        result: dict[str, object] = {
             "neutral_material_id": str(self.neutral_material_id),
             "neutral_material_revision_id": str(self.neutral_material_revision_id),
             "neutral_material_sha256": self.neutral_material_sha256,
@@ -804,6 +812,12 @@ class NeutralFamilySolverCardContent:
             },
             "non_production": True,
         }
+        if self.unit_profile is not None:
+            result["unit_profile"] = unit_profile_pin_canonical(self.unit_profile)
+            result["unit_applications"] = [
+                unit_application_canonical(item) for item in self.unit_applications
+            ]
+        return result
 
 
 def validate_neutral_elastoplastic_solver_card(
@@ -827,6 +841,7 @@ def validate_neutral_elastoplastic_solver_card(
     if not content.target.supported:
         raise InvalidNeutralHyperelasticExport("card target is not declared by the exporter")
 
+    required: tuple[str, ...]
     if content.target.is_abaqus:
         required = ("*MATERIAL", "*DENSITY", "*ELASTIC", "*PLASTIC")
     else:

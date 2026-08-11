@@ -213,7 +213,8 @@ def postgres() -> Iterator[PostgresHarness]:
             _seed(connection, app_role)
             connection.exec_driver_sql(
                 f"GRANT SELECT, INSERT, UPDATE ON processing.metal_fit_run, "
-                f"processing.metal_fit_attempt, processing.common_processing_output_revision "
+                f"processing.metal_fit_attempt, processing.common_processing_output_revision, "
+                f"processing.metal_fit_run_unit_application "
                 f'TO "{app_role}"'
             )
             connection.exec_driver_sql(

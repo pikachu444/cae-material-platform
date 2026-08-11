@@ -22,25 +22,21 @@
       }
     },
     "CreateRequest": {
-      "allOf": [
-        {"$ref": "#/$defs/PreflightRequest"},
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "neutral_material_revision_id", "target", "expected_mapping_report_sha256",
-            "solver_material_id", "material_name", "change_reason"
-          ],
-          "properties": {
-            "neutral_material_revision_id": {"type": "string", "format": "uuid"},
-            "target": {"$ref": "#/$defs/Target"},
-            "expected_mapping_report_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-            "solver_material_id": {"type": "integer", "minimum": 1, "maximum": 9999999999},
-            "material_name": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,79}$"},
-            "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
-          }
-        }
-      ]
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "neutral_material_revision_id", "target", "expected_mapping_report_sha256",
+        "solver_material_id", "material_name", "change_reason"
+      ],
+      "properties": {
+        "neutral_material_revision_id": {"type": "string", "format": "uuid"},
+        "target": {"$ref": "#/$defs/Target"},
+        "expected_mapping_report_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "solver_material_id": {"type": "integer", "minimum": 1, "maximum": 9999999999},
+        "material_name": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,79}$"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "unit_profile": {"$ref": "../units/unit-resources.schema.json#/$defs/UnitProfilePin"}
+      }
     },
     "MappingReportResponse": {
       "type": "object",
@@ -52,15 +48,102 @@
         "report": {"type": "object"}
       }
     },
+    "LegacyCardContent": {
+      "type": "object",
+      "not": {
+        "anyOf": [
+          {"required": ["unit_profile"]},
+          {"required": ["unit_applications"]}
+        ]
+      }
+    },
+    "ProfileCardContent": {
+      "type": "object",
+      "required": ["unit_profile", "unit_applications"],
+      "properties": {
+        "unit_profile": {"$ref": "../units/unit-resources.schema.json#/$defs/UnitProfilePin"},
+        "unit_applications": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 128,
+          "items": {"$ref": "../units/unit-resources.schema.json#/$defs/UnitApplication"}
+        }
+      }
+    },
+    "CardRevision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "aggregate_id", "revision_no", "based_on_revision_id", "schema_id",
+        "schema_version", "content_hash", "created_at", "created_by", "change_reason",
+        "organization_id", "project_id", "classification", "lifecycle_state", "content"
+      ],
+      "properties": {
+        "id": {"type": "string", "format": "uuid"},
+        "aggregate_id": {"type": "string", "format": "uuid"},
+        "revision_no": {"type": "integer", "minimum": 1},
+        "based_on_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "schema_id": {
+          "enum": [
+            "urn:cmp:exporting:neutral-hyperelastic-card:1.0.0",
+            "urn:cmp:exporting:neutral-hyperelastic-card:1.1.0",
+            "urn:cmp:exporting:neutral-family-card:2.0.0",
+            "urn:cmp:exporting:neutral-family-card:2.1.0"
+          ]
+        },
+        "schema_version": {"enum": ["1.0.0", "1.1.0", "2.0.0", "2.1.0"]},
+        "content_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"type": "string", "format": "uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "organization_id": {"type": "string", "format": "uuid"},
+        "project_id": {"type": "string", "format": "uuid"},
+        "classification": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,63}$"},
+        "lifecycle_state": {"const": "draft"},
+        "content": {"type": "object"}
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "schema_id": {"const": "urn:cmp:exporting:neutral-hyperelastic-card:1.0.0"},
+            "schema_version": {"const": "1.0.0"},
+            "content": {"$ref": "#/$defs/LegacyCardContent"}
+          }
+        },
+        {
+          "properties": {
+            "schema_id": {"const": "urn:cmp:exporting:neutral-hyperelastic-card:1.1.0"},
+            "schema_version": {"const": "1.1.0"},
+            "content": {"$ref": "#/$defs/ProfileCardContent"}
+          }
+        },
+        {
+          "properties": {
+            "schema_id": {"const": "urn:cmp:exporting:neutral-family-card:2.0.0"},
+            "schema_version": {"const": "2.0.0"},
+            "content": {"$ref": "#/$defs/LegacyCardContent"}
+          }
+        },
+        {
+          "properties": {
+            "schema_id": {"const": "urn:cmp:exporting:neutral-family-card:2.1.0"},
+            "schema_version": {"const": "2.1.0"},
+            "content": {"$ref": "#/$defs/ProfileCardContent"}
+          }
+        }
+      ]
+    },
     "CardResponse": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["solver_card_id", "neutral_material_id", "target", "current_revision", "links"],
+      "required": ["solver_card_id", "neutral_material_id", "target", "current_revision", "unit_profile", "unit_applications", "links"],
       "properties": {
         "solver_card_id": {"type": "string", "format": "uuid"},
         "neutral_material_id": {"type": "string", "format": "uuid"},
         "target": {"$ref": "#/$defs/Target"},
-        "current_revision": {"type": "object"},
+        "current_revision": {"$ref": "#/$defs/CardRevision"},
+        "unit_profile": {"anyOf": [{"$ref": "../units/unit-resources.schema.json#/$defs/UnitProfilePin"}, {"type": "null"}]},
+        "unit_applications": {"type": "array", "items": {"$ref": "../units/unit-resources.schema.json#/$defs/UnitApplication"}},
         "links": {"type": "object", "additionalProperties": {"type": "string"}}
       }
     },

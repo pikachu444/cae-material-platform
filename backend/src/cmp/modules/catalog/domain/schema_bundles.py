@@ -18,6 +18,7 @@ from jsonschema import Draft202012Validator
 from jsonschema.exceptions import SchemaError
 
 from cmp.modules.identity_access.domain.authorization import DataClassification
+from cmp.modules.units.domain.system import UnitError, canonical_unit_id
 from cmp.shared.domain.revisions import canonical_json_bytes, content_sha256
 
 BUNDLE_CONTRACT_ID = "https://cmp.example/contracts/catalog/schema-definition-bundle.schema.json"
@@ -840,17 +841,26 @@ def _validate_schema_node(
                 "Remove it or set it to true.",
             )
         )
-    if "x-unit" in node and (
-        not isinstance(node["x-unit"], str) or _UNIT.fullmatch(node["x-unit"]) is None
-    ):
-        diagnostics.append(
-            _error(
-                2,
-                f"{location}/x-unit",
-                "x-unit is invalid.",
-                "Use the original trimmed unit text supported by the current Catalog field.",
+    if "x-unit" in node:
+        supplied_unit = node["x-unit"]
+        stable_unit: str | None = None
+        if isinstance(supplied_unit, str) and _UNIT.fullmatch(supplied_unit) is not None:
+            try:
+                stable_unit = canonical_unit_id(
+                    supplied_unit, location=f"{location}/x-unit"
+                )
+            except UnitError:
+                stable_unit = None
+        if stable_unit != supplied_unit:
+            diagnostics.append(
+                _error(
+                    2,
+                    f"{location}/x-unit",
+                    "x-unit is not a stable canonical common-unit identifier.",
+                    "Use a canonical unit_id from the bounded common unit registry; "
+                    "do not use an alias.",
+                )
             )
-        )
     for key in ("x-indexed", "x-searchable"):
         if key in node and not isinstance(node[key], bool):
             diagnostics.append(

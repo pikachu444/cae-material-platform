@@ -61,7 +61,38 @@
 | `FR-ING-009` | importer 실패 시 원본 asset과 오류 report를 보존해야 한다. | partial normalized dataset을 성공으로 발행하지 않는다. |
 | `FR-ING-010` | 첫 governed tabular importer는 CSV, TSV, XLSX의 sheet/header/encoding/locale을 명시해야 한다. | detect/preview 이후 승인된 Mapping revision만 import하며 spreadsheet formula는 data로 실행하지 않는다. |
 
-### 2.2.1 JSON 교환과 계산 매핑
+### 2.2.1 공통 CAE 단위와 Unit Profile
+
+| ID | 요구사항 | 검수 기준 |
+| --- | --- | --- |
+| `FR-UNIT-001` | dimension, quantity semantics, stable unit identifier와 원본 표시 문자열을 서로 다른 값으로 보존해야 한다. | 같은 dimension의 다른 semantics를 바꾸거나 원본 unit text를 canonical ID로 덮어쓰지 않는다. |
+| `FR-UNIT-002` | 공통 변환은 source/target dimension과 quantity semantics를 명시해야 한다. | cross-dimension 또는 semantics 변경은 location과 source/target dimension을 포함한 오류로 실패한다. |
+| `FR-UNIT-003` | 절대온도·시험온도와 온도차를 구분해야 한다. | `Cel` 절대온도에는 offset을 적용하고 `temperature.difference`에는 offset을 적용하지 않는다. |
+| `FR-UNIT-004` | Unit Profile은 Catalog Profile·Mapping Profile과 별도의 stable identity와 immutable revision이어야 한다. | 입력·표시·solver export 선택을 exact profile ID/revision/content SHA-256으로 다시 읽는다. |
+| `FR-UNIT-005` | Processing, Fit와 Export의 profile 사용 결과는 실제 적용 위치를 함께 고정해야 한다. | 결과에서 location, role, quantity semantics, dimension과 unit ID를 exact profile pin과 함께 조회한다. |
+| `FR-UNIT-006` | 기존 13개 registration 변환과 `kg_m_s` solver-card 계약을 호환하되 production 기본 정책으로 승격하지 않아야 한다. | 과거 revision/native card는 재작성하지 않고 `kg_m_s.production_default=false`를 유지한다. |
+
+공통 계약 `1.0.0`의 닫힌 지원 집합과 canonical unit은 다음과 같다. 모든 dimension의
+relative round-trip tolerance는 `1e-12`이며 절대 tolerance는 아래 값이다. `µm`/`μm`,
+`kg/m^3`, `g/cm^3`, `degC`/`°C`만 기존 표시 문자열 alias로 입력할 수 있고 Unit Profile은
+stable ID만 저장한다.
+
+| dimension | canonical unit | 지원 unit ID | absolute tolerance |
+| --- | --- | --- | ---: |
+| `force_per_area` | `Pa` | `Pa`, `kPa`, `MPa`, `GPa` | `1e-6` |
+| `length` | `m` | `m`, `cm`, `mm`, `um` | `1e-12` |
+| `time` | `s` | `s`, `ms`, `min`, `h` | `1e-12` |
+| `force` | `N` | `N`, `kN` | `1e-9` |
+| `mass` | `kg` | `kg`, `g`, `mg` | `1e-12` |
+| `mass_per_volume` | `kg/m3` | `kg/m3`, `g/cm3` | `1e-9` |
+| `temperature` | `K` | `K`, `Cel` | `1e-12` |
+| `strain` | `1` | `1`, `%` | `1e-12` |
+
+Strain은 일반적인 무차원 값과 같은 semantics로 대체하지 않는다. 공통 계약 밖의 canonical
+Test Data channel은 기존처럼 사용자가 명시한 scale/offset과 원본·normalized 값의 일치만
+검증하며, 공통 단위 변환이나 차원 추론을 적용하지 않는다.
+
+### 2.2.2 JSON 교환과 계산 매핑
 
 | ID | 요구사항 | 검수 기준 |
 | --- | --- | --- |

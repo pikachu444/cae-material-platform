@@ -324,6 +324,22 @@ receipt를 반환합니다. 성공 영역에는 `Solver Card created`와 filenam
 Activity에 Delivered 상태나 링크를 만들지 않습니다. source/target 변경, 실패 또는 재시도는 기존 immutable delivery를
 수정하지 않고 current preview/delivery pointer만 지웁니다.
 
+### 보호된 API의 Unit Profile 사용
+
+현재 화면에는 Unit Profile 관리 기능이 없습니다. API 사용자는 `GET /api/v1/unit-system`에서
+지원하는 dimension과 stable unit identifier를 확인하고, `POST /api/v1/unit-conversions`로
+location·quantity semantics·원본 단위 문자열을 명시한 변환만 요청할 수 있습니다. 지원하지 않는
+단위, dimension 불일치, strain과 일반 무차원 수치의 혼용, 절대온도와 온도차의 혼용은 추론하거나
+대체하지 않고 location과 source/target dimension을 포함한 오류로 반환합니다.
+
+Unit Profile은 `POST /api/v1/unit-profiles`로 stable identity를 만들고
+`POST /api/v1/unit-profiles/{profile_id}/revisions`로 immutable revision을 추가합니다. 처리나 Export
+요청에는 `profile_id`, `revision_id`, `content_sha256` 세 값을 모두 고정하며, 이름이나 `latest`만
+전달하지 않습니다. Profile을 사용해 저장한 Processing Output, Fit, preview, Solver Card와 delivery
+receipt는 같은 exact pin과 각 적용 위치의 unit application을 read-back합니다. 기존 profile 없는
+결과와 13개 registration 변환은 그대로 읽히고, `kg_m_s`는 기존 solver-card 호환 tuple일 뿐 새
+production 기본 Profile이 아닙니다.
+
 
 
 

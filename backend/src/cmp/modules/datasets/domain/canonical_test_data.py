@@ -15,6 +15,12 @@ from decimal import Decimal
 from enum import StrEnum
 from typing import Any
 
+from cmp.modules.units.domain.system import (
+    QuantityReference,
+    UnitError,
+    convert_value,
+    dimension_for_quantity_semantics,
+)
 from cmp.shared.domain.revisions import content_sha256
 
 TEST_DATA_DOCUMENT_TYPE = "cmp.test-data"
@@ -51,6 +57,55 @@ def _text(name: str, value: str, maximum: int, *, optional: bool = False) -> Non
 def _finite_decimal(name: str, value: Decimal) -> None:
     if not value.is_finite():
         raise CanonicalTestDataError(f"{name} must be finite")
+
+
+def _common_conversion(
+    *,
+    location: str,
+    quantity_semantics: str,
+    original_value: Decimal,
+    original_unit_string: str,
+    normalized_unit: str,
+) -> tuple[Decimal, Decimal, Decimal, Decimal, Decimal] | None:
+    """Validate governed semantics; leave explicit legacy transforms outside #205 untouched."""
+
+    try:
+        dimension = dimension_for_quantity_semantics(
+            quantity_semantics, location=f"{location}.quantity_semantics"
+        )
+    except UnitError as error:
+        if error.code == "CMP-UNIT-0005":
+            # Canonical Test Data intentionally supports explicit, user-defined channel semantics.
+            # Their declared scale/offset and point values remain authoritative; no unit is inferred
+            # and no common-unit conversion is attempted for them.
+            return None
+        raise CanonicalTestDataError(
+            f"{location} violates the common unit contract: {error.message}"
+        ) from error
+
+    try:
+        result = convert_value(
+            original_value,
+            original_unit_string=original_unit_string,
+            source=QuantityReference(dimension, quantity_semantics, original_unit_string),
+            target=QuantityReference(dimension, quantity_semantics, normalized_unit),
+            location=location,
+        )
+    except UnitError as error:
+        raise CanonicalTestDataError(
+            f"{location} violates the common unit contract: {error.message}"
+        ) from error
+    if result.target.unit_id != normalized_unit:
+        raise CanonicalTestDataError(
+            f"{location}.normalized_unit must use a stable canonical unit identifier"
+        )
+    return (
+        result.converted_value,
+        result.scale,
+        result.offset,
+        result.absolute_tolerance,
+        result.relative_tolerance,
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -114,6 +169,20 @@ class TestCondition:
         _text("condition.normalized_unit", self.normalized_unit, 64)
         _finite_decimal("condition.original_value", self.original_value)
         _finite_decimal("condition.normalized_value", self.normalized_value)
+        conversion = _common_conversion(
+            location=f"conditions.{self.key}",
+            quantity_semantics=self.quantity_semantics,
+            original_value=self.original_value,
+            original_unit_string=self.original_unit_string,
+            normalized_unit=self.normalized_unit,
+        )
+        if conversion is not None:
+            converted, _, _, absolute_tolerance, relative_tolerance = conversion
+            tolerance = max(absolute_tolerance, abs(converted) * relative_tolerance)
+            if abs(self.normalized_value - converted) > tolerance:
+                raise CanonicalTestDataError(
+                    f"condition {self.key} does not match the common unit conversion"
+                )
 
 
 @dataclass(frozen=True, slots=True)
@@ -155,6 +224,21 @@ class TestDataChannel:
         _finite_decimal("channel.normalization_offset", self.normalization_offset)
         if self.normalization_scale == 0:
             raise CanonicalTestDataError("channel normalization scale cannot be zero")
+        conversion = _common_conversion(
+            location=f"channels.{self.key}",
+            quantity_semantics=self.quantity_semantics,
+            original_value=Decimal("0"),
+            original_unit_string=self.original_unit_string,
+            normalized_unit=self.normalized_unit,
+        )
+        absolute_tolerance = Decimal("1e-12")
+        relative_tolerance = Decimal("1e-12")
+        if conversion is not None:
+            _, scale, offset, absolute_tolerance, relative_tolerance = conversion
+            if self.normalization_scale != scale or self.normalization_offset != offset:
+                raise CanonicalTestDataError(
+                    f"channel {self.key} normalization differs from the common unit contract"
+                )
         count = len(self.original_values)
         if not 2 <= count <= MAX_POINTS:
             raise CanonicalTestDataError("channel requires 2..1000000 points")
@@ -187,7 +271,7 @@ class TestDataChannel:
             assert normalized is not None
             _finite_decimal(f"channel {self.key} normalized point {ordinal}", normalized)
             expected = original * self.normalization_scale + self.normalization_offset
-            tolerance = max(Decimal("1e-12"), abs(expected) * Decimal("1e-12"))
+            tolerance = max(absolute_tolerance, abs(expected) * relative_tolerance)
             if abs(normalized - expected) > tolerance:
                 raise CanonicalTestDataError(
                     f"channel {self.key} point {ordinal} does not match the explicit normalization"

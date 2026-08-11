@@ -1,0 +1,15 @@
+{
+  "location": "test_data.channels.engineering_stress.values[0]",
+  "value": "250.125",
+  "original_unit_string": "psi",
+  "source": {
+    "dimension": "force_per_area",
+    "quantity_semantics": "mechanics.stress.engineering",
+    "unit_id": "psi"
+  },
+  "target": {
+    "dimension": "force_per_area",
+    "quantity_semantics": "mechanics.stress.engineering",
+    "unit_id": "Pa"
+  }
+}

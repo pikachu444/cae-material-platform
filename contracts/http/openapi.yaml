@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CAE Material Platform API
   summary: Material data management, immutable traceability, and CAE workflow platform.
-  version: 0.33.0
+  version: 0.34.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -3960,6 +3960,172 @@ paths:
         "409": {description: Immutable Artifact integrity or Dataset state conflicts.}
         "422": {description: Preview point limit or Dataset data is invalid.}
         "503": {description: Dataset service unavailable.}
+  /api/v1/unit-system:
+    get:
+      operationId: getUnitSystem
+      tags: [units]
+      summary: Read the bounded common CAE dimensions, stable units, and numeric tolerances.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Versioned unit registry; kg_m_s is compatibility-only and not a default.
+          content:
+            application/json:
+              schema: {$ref: "../units/unit-resources.schema.json#/$defs/UnitSystemResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Unit read is not authorized.}
+  /api/v1/unit-conversions:
+    post:
+      operationId: convertUnitValue
+      tags: [units]
+      summary: Convert an explicitly dimensioned value without changing quantity semantics.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../units/unit-resources.schema.json#/$defs/UnitConversionRequest"}
+      responses:
+        "200":
+          description: Decimal conversion result with explicit rule and tolerance evidence.
+          content:
+            application/json:
+              schema: {$ref: "../units/unit-resources.schema.json#/$defs/UnitConversionResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Unit read is not authorized.}
+        "422":
+          description: Unsupported unit, semantic change, dimension mismatch, or numeric boundary.
+          content:
+            application/json:
+              schema: {$ref: "../units/unit-resources.schema.json#/$defs/UnitErrorResponse"}
+  /api/v1/unit-profiles:
+    post:
+      operationId: createUnitProfile
+      tags: [units]
+      summary: Create a stable Unit Profile identity and its first immutable typed revision.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../units/unit-resources.schema.json#/$defs/CreateUnitProfileRequest"}
+      responses:
+        "201":
+          description: Stable Unit Profile identity and exact immutable revision.
+          headers: {ETag: {$ref: "#/components/headers/RevisionETag"}}
+          content:
+            application/json:
+              schema: {$ref: "../units/unit-resources.schema.json#/$defs/UnitProfileResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Unit Profile administration is not authorized.}
+        "409": {description: Profile key or immutable scope conflicts.}
+        "422":
+          description: Typed dimension, unit, semantics, or content is invalid.
+          content:
+            application/json:
+              schema: {$ref: "../units/unit-resources.schema.json#/$defs/UnitErrorResponse"}
+        "503": {description: Unit Profile store unavailable.}
+    get:
+      operationId: listUnitProfiles
+      tags: [units]
+      summary: List Unit Profile stable identities with exact current revisions.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Tenant-visible Unit Profile heads.
+          content:
+            application/json:
+              schema: {$ref: "../units/unit-resources.schema.json#/$defs/UnitProfileListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Unit read is not authorized.}
+        "503": {description: Unit Profile store unavailable.}
+  /api/v1/unit-profiles/{profile_id}:
+    get:
+      operationId: getUnitProfile
+      tags: [units]
+      summary: Read one Unit Profile head without resolving a moving name downstream.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: profile_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Unit Profile head and exact current revision metadata.
+          headers: {ETag: {$ref: "#/components/headers/RevisionETag"}}
+          content:
+            application/json:
+              schema: {$ref: "../units/unit-resources.schema.json#/$defs/UnitProfileResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Unit read is not authorized.}
+        "404": {description: Unit Profile is not visible.}
+        "503": {description: Unit Profile store unavailable.}
+  /api/v1/unit-profiles/{profile_id}/revisions:
+    post:
+      operationId: reviseUnitProfile
+      tags: [units]
+      summary: Append a Unit Profile revision while preserving all prior selections and users.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: profile_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+        - name: If-Match
+          in: header
+          required: true
+          schema: {type: string}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../units/unit-resources.schema.json#/$defs/ReviseUnitProfileRequest"}
+      responses:
+        "201":
+          description: New immutable revision under the unchanged stable identity.
+          headers: {ETag: {$ref: "#/components/headers/RevisionETag"}}
+          content:
+            application/json:
+              schema: {$ref: "../units/unit-resources.schema.json#/$defs/UnitProfileResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Unit Profile administration is not authorized.}
+        "404": {description: Unit Profile is not visible.}
+        "409": {description: Revision or exact typed reference conflicts.}
+        "412": {description: If-Match does not match the current revision.}
+        "428": {description: Strong If-Match is required.}
+        "422":
+          description: Typed dimension, unit, semantics, or content is invalid.
+          content:
+            application/json:
+              schema: {$ref: "../units/unit-resources.schema.json#/$defs/UnitErrorResponse"}
+        "503": {description: Unit Profile store unavailable.}
+  /api/v1/unit-profiles/{profile_id}/revisions/{revision_id}:
+    get:
+      operationId: getUnitProfileRevision
+      tags: [units]
+      summary: Read one exact immutable Unit Profile revision for downstream traceability.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: profile_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+        - name: revision_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Exact historical Unit Profile revision, whether or not it is the head.
+          headers: {ETag: {$ref: "#/components/headers/RevisionETag"}}
+          content:
+            application/json:
+              schema: {$ref: "../units/unit-resources.schema.json#/$defs/UnitProfileResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Unit read is not authorized.}
+        "404": {description: Exact Unit Profile revision is not visible.}
+        "503": {description: Unit Profile store unavailable.}
   /api/v1/mapping-profiles:
     post:
       operationId: createMappingProfile

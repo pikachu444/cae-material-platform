@@ -54,6 +54,7 @@ from cmp.modules.modeling.application.tabulated_plasticity import (
 )
 from cmp.modules.provenance.adapters.persistence.repository import SqlAlchemyRevisionProvenanceHook
 from cmp.modules.review_release.adapters.persistence.lifecycle import SqlInitialLifecycleHook
+from cmp.modules.units.application.profiles import CommonUnitService
 
 
 def build_bulk_export_service(
@@ -186,6 +187,7 @@ def build_ogden_prony_solver_card_service(
 def build_neutral_hyperelastic_solver_card_service(
     identity: IdentityServices,
     neutral_materials: NeutralMaterialService | None,
+    units: CommonUnitService | None = None,
 ) -> NeutralHyperelasticSolverCardService | None:
     """Compose versioned Abaqus/OpenRadioss exporters over canonical Neutral JSON."""
 
@@ -203,6 +205,7 @@ def build_neutral_hyperelastic_solver_card_service(
             ),
         ),
         neutral_materials=neutral_materials,
+        units=units,
     )
 
 

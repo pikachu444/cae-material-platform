@@ -7,6 +7,13 @@ from decimal import Decimal
 from importlib.resources import files
 from typing import TypedDict
 
+from cmp.modules.units.domain.system import (
+    QuantityReference,
+    UnitError,
+    convert_value,
+    dimension_for_quantity_semantics,
+)
+
 
 class UnitMappingEvidence(TypedDict):
     library_version: str
@@ -53,13 +60,32 @@ def registration_unit_evidence(source_unit: str, target_unit: str) -> UnitMappin
 
 
 def normalize_registration_value(
-    value: Decimal, source_unit: str, target_unit: str
+    value: Decimal,
+    source_unit: str,
+    target_unit: str,
+    *,
+    quantity_semantics: str,
 ) -> tuple[Decimal, UnitMappingEvidence]:
     evidence = registration_unit_evidence(source_unit, target_unit)
     if evidence is None:
         raise ValueError("알 수 없는 단위입니다. 표준 단위를 선택하세요.")
-    normalized = value * Decimal(evidence["factor"]) + Decimal(evidence["offset"])
-    return normalized, evidence
+    try:
+        dimension = dimension_for_quantity_semantics(quantity_semantics)
+        result = convert_value(
+            value,
+            original_unit_string=source_unit,
+            source=QuantityReference(dimension, quantity_semantics, source_unit),
+            target=QuantityReference(dimension, quantity_semantics, target_unit),
+            location="catalog.record.number",
+        )
+    except UnitError as error:
+        raise ValueError("알 수 없는 단위입니다. 표준 단위를 선택하세요.") from error
+    if (
+        result.scale != Decimal(evidence["factor"])
+        or result.offset != Decimal(evidence["offset"])
+    ):
+        raise RuntimeError("registration mapping evidence differs from the common unit contract")
+    return result.converted_value, evidence
 
 
 __all__ = [
