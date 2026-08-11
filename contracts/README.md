@@ -3,7 +3,7 @@
 Status: foundation `T-02` through `T-18`, plus reference vertical subsets `T-07`, `T-08`,
 `T-11`, `T-12`, `T-19`, `T-20`, `T-21`, `T-22`, `T-25`, `T-26`, `T-27`, `T-28`, `T-29`,
 the `T-32` workbench, and product-depth slices `T-39` through `T-42`. HTTP contract version
-`0.33.0`.
+`0.34.0`.
 
 ## Files
 
@@ -26,6 +26,9 @@ the `T-32` workbench, and product-depth slices `T-39` through `T-42`. HTTP contr
   Bundle v1 with a closed draft 2020-12 keyword/extension subset and bundle-local references only
 - `catalog/schema-definition-plan.schema.json`: exact Artifact-bound deterministic
   `create/update/no-op/conflict/error` dry-run result with an explicit empty write set
+- `units/unit-resources.schema.json`: bounded common CAE dimension/unit registry, explicit
+  conversions, structured errors, and immutable Unit Profile resources; `kg_m_s` remains a
+  compatibility identifier rather than a production default
 - `ir/material-model-ir-envelope.schema.json`: common IR envelope baseline
 - `datasets/reference-tensile-resources.schema.json`: typed reference tensile Dataset, curve, and
   immutable one-member Selection resources

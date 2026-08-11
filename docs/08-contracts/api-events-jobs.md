@@ -181,6 +181,57 @@ commit 또는 Bundle revision을 덮어쓰지 않는다.
 | `POST /jobs/{id}:cancel` | cooperative cancel 요청 |
 | `POST /jobs/{id}:retry` | 새 attempt 생성; reason 필수 |
 
+### 3.5 Common unit and Unit Profile
+
+HTTP contract `0.34.0` references
+`contracts/units/unit-resources.schema.json` contract `1.0.0` directly.
+
+| Method/path | 목적 |
+| --- | --- |
+| `GET /unit-system` | 닫힌 dimension/unit registry, Decimal 경계, tolerance와 non-default `kg_m_s` 호환 계약 조회 |
+| `POST /unit-conversions` | 명시된 dimension·quantity semantics·source/target unit으로 한 값을 변환 |
+| `POST /unit-profiles` | stable Unit Profile identity와 첫 immutable revision 생성 |
+| `GET /unit-profiles` | 현재 권한 범위의 profile head 목록 조회 |
+| `GET /unit-profiles/{id}` | 현재 head와 strong ETag 조회 |
+| `GET /unit-profiles/{id}/revisions/{revision_id}` | exact immutable revision 조회 |
+| `POST /unit-profiles/{id}/revisions` | `If-Match`로 새 immutable revision 생성 |
+
+공개 Decimal은 최대 34 significant digits와 adjusted exponent `-308..308`의 문자열이다.
+Conversion request는 `location`, `original_unit_string`, source/target의 dimension,
+quantity semantics와 stable unit ID를 모두 요구한다. `temperature.absolute`와
+`temperature.test`만 `Cel` offset을 적용하고 `temperature.difference`는 scale만 적용한다.
+`original_unit_string`은 닫힌 stable ID 또는 호환 alias여야 하며, alias를 정규화한 ID가
+선언된 source unit ID와 정확히 일치해야 한다. 응답은 입력 원문을 그대로 보존한다.
+
+Unit Profile 사용 API는 이름이나 `latest` 대신 다음 exact pin과 실제 application 목록을
+전달·반환한다.
+
+```json
+{
+  "unit_profile": {
+    "profile_id": "uuid",
+    "revision_id": "uuid",
+    "content_sha256": "lowercase-sha256"
+  },
+  "unit_applications": [
+    {
+      "location": "solver_card.density",
+      "role": "solver_export",
+      "quantity_semantics": "mass.density",
+      "dimension": "mass_per_volume",
+      "unit_id": "kg/m3"
+    }
+  ]
+}
+```
+
+Processing Output와 metal Fit 응답, target preview/delivery, direct Neutral Solver Card 응답은
+profile-bearing 결과에서 이 trace를 보존한다. Profile-free legacy 요청은 `unit_profile=null`,
+빈 application 목록과 기존 schema/native bytes를 유지한다. `CMP-UNIT-0001..0009` 오류는
+`message`, `location`, `source_dimension`, `target_dimension`을 제공하며 unsupported unit,
+cross-dimension, semantics 변경, numeric 범위, 누락 selection, 보이지 않는 revision,
+authorization 불일치와 잘못된 exact hash를 silent fallback 없이 구분한다.
+
 ## 4. Revision create 예시
 
 ```http

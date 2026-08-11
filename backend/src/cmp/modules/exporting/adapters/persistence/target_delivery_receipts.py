@@ -26,6 +26,12 @@ from cmp.modules.identity_access.domain.authorization import (
 )
 from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.jobs.domain.events import CloudEventDraft, EventConflict
+from cmp.modules.units.domain.profiles import (
+    UnitApplication,
+    UnitApplicationRole,
+    UnitProfilePin,
+)
+from cmp.modules.units.domain.system import DimensionId
 from cmp.shared.domain.revisions import RevisionCreated
 
 metadata = sa.MetaData()
@@ -43,11 +49,29 @@ delivery_receipt_table = sa.Table(
     sa.Column("native_sha256", sa.CHAR(64), nullable=False),
     sa.Column("mapping_report_sha256", sa.CHAR(64), nullable=False),
     sa.Column("mapping_statuses", postgresql.JSONB(), nullable=False),
+    sa.Column("unit_profile_id", sa.Uuid(), nullable=True),
+    sa.Column("unit_profile_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("unit_profile_sha256", sa.CHAR(64), nullable=True),
     sa.Column("source", postgresql.JSONB(), nullable=False),
     sa.Column("target", postgresql.JSONB(), nullable=False),
     sa.Column("outbox_event_id", sa.Uuid(), nullable=False),
     sa.Column("occurred_at", sa.DateTime(timezone=True), nullable=False),
     sa.Column("recorded_by", sa.Uuid(), nullable=False),
+    schema="exporting",
+)
+delivery_unit_application_table = sa.Table(
+    "solver_card_delivery_unit_application",
+    metadata,
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("receipt_id", sa.Uuid(), nullable=False),
+    sa.Column("ordinal", sa.Integer(), nullable=False),
+    sa.Column("location", sa.String(255), nullable=False),
+    sa.Column("application_role", sa.String(32), nullable=False),
+    sa.Column("quantity_semantics", sa.String(160), nullable=False),
+    sa.Column("dimension", sa.String(64), nullable=False),
+    sa.Column("unit_id", sa.String(64), nullable=False),
     schema="exporting",
 )
 domain_record_identity_binding_table = sa.Table(
@@ -129,7 +153,18 @@ class OutboxWriter(Protocol):
     ) -> Any: ...
 
 
-def _receipt(row: Any) -> DeliveryReceipt:
+def _receipt(
+    row: Any, unit_applications: tuple[UnitApplication, ...] = ()
+) -> DeliveryReceipt:
+    unit_profile = (
+        None
+        if row["unit_profile_id"] is None
+        else UnitProfilePin(
+            profile_id=cast(UUID, row["unit_profile_id"]),
+            revision_id=cast(UUID, row["unit_profile_revision_id"]),
+            content_sha256=str(row["unit_profile_sha256"]),
+        )
+    )
     return DeliveryReceipt(
         receipt_id=cast(UUID, row["receipt_id"]),
         delivery_identity=str(row["delivery_identity"]),
@@ -143,6 +178,8 @@ def _receipt(row: Any) -> DeliveryReceipt:
         target={str(key): str(value) for key, value in row["target"].items()},
         occurred_at=row["occurred_at"].isoformat(),
         recorded_by=cast(UUID, row["recorded_by"]),
+        unit_profile=unit_profile,
+        unit_applications=unit_applications,
     )
 
 
@@ -200,7 +237,12 @@ class SqlTargetDeliveryReceiptRecorder(DeliveryReceiptRecorder):
                 .mappings()
                 .one_or_none()
             )
-        return None if row is None else _receipt(row)
+            unit_applications = (
+                ()
+                if row is None
+                else self._unit_applications(session, cast(UUID, row["receipt_id"]))
+            )
+        return None if row is None else _receipt(row, unit_applications)
 
     def get(
         self,
@@ -221,7 +263,36 @@ class SqlTargetDeliveryReceiptRecorder(DeliveryReceiptRecorder):
                 .mappings()
                 .one_or_none()
             )
-        return None if row is None else _receipt(row)
+            unit_applications = (
+                ()
+                if row is None
+                else self._unit_applications(session, cast(UUID, row["receipt_id"]))
+            )
+        return None if row is None else _receipt(row, unit_applications)
+
+    @staticmethod
+    def _unit_applications(
+        session: Session, receipt_id: UUID
+    ) -> tuple[UnitApplication, ...]:
+        rows = (
+            session.execute(
+                sa.select(delivery_unit_application_table)
+                .where(delivery_unit_application_table.c.receipt_id == receipt_id)
+                .order_by(delivery_unit_application_table.c.ordinal)
+            )
+            .mappings()
+            .all()
+        )
+        return tuple(
+            UnitApplication(
+                location=str(row["location"]),
+                role=UnitApplicationRole(str(row["application_role"])),
+                quantity_semantics=str(row["quantity_semantics"]),
+                dimension=DimensionId(str(row["dimension"])),
+                unit_id=str(row["unit_id"]),
+            )
+            for row in rows
+        )
 
     def hook_for(
         self, *, context: SecurityContext, preview: TargetPreview, receipt_id: UUID
@@ -371,6 +442,22 @@ class SqlTargetDeliveryReceiptRecorder(DeliveryReceiptRecorder):
                 "actor_id": str(context.principal.id),
                 "occurred_at": revision.created_at.isoformat(),
             }
+            if preview.unit_profile is not None:
+                data["unit_profile"] = {
+                    "profile_id": str(preview.unit_profile.profile_id),
+                    "revision_id": str(preview.unit_profile.revision_id),
+                    "content_sha256": preview.unit_profile.content_sha256,
+                }
+                data["unit_applications"] = [
+                    {
+                        "location": item.location,
+                        "role": item.role.value,
+                        "quantity_semantics": item.quantity_semantics,
+                        "dimension": item.dimension.value,
+                        "unit_id": item.unit_id,
+                    }
+                    for item in preview.unit_applications
+                ]
             try:
                 event = self._writer.append(
                     session,
@@ -406,6 +493,21 @@ class SqlTargetDeliveryReceiptRecorder(DeliveryReceiptRecorder):
                         native_sha256=preview.native_sha256,
                         mapping_report_sha256=preview.mapping_report_sha256,
                         mapping_statuses=data["mapping_statuses"],
+                        unit_profile_id=(
+                            None
+                            if preview.unit_profile is None
+                            else preview.unit_profile.profile_id
+                        ),
+                        unit_profile_revision_id=(
+                            None
+                            if preview.unit_profile is None
+                            else preview.unit_profile.revision_id
+                        ),
+                        unit_profile_sha256=(
+                            None
+                            if preview.unit_profile is None
+                            else preview.unit_profile.content_sha256
+                        ),
                         source=preview.source,
                         target=preview.target,
                         outbox_event_id=event.id,
@@ -413,6 +515,25 @@ class SqlTargetDeliveryReceiptRecorder(DeliveryReceiptRecorder):
                         recorded_by=context.principal.id,
                     )
                 )
+                if preview.unit_applications:
+                    session.execute(
+                        sa.insert(delivery_unit_application_table),
+                        [
+                            {
+                                "organization_id": context.organization_id,
+                                "project_id": context.project_id,
+                                "classification": revision.scope.classification,
+                                "receipt_id": receipt_id,
+                                "ordinal": ordinal,
+                                "location": item.location,
+                                "application_role": item.role.value,
+                                "quantity_semantics": item.quantity_semantics,
+                                "dimension": item.dimension.value,
+                                "unit_id": item.unit_id,
+                            }
+                            for ordinal, item in enumerate(preview.unit_applications)
+                        ],
+                    )
             except IntegrityError as error:
                 if _is_expected_delivery_duplicate(error):
                     raise TargetDeliveryDuplicate(

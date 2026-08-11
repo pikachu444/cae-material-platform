@@ -102,6 +102,7 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
     Role.TEST_ENGINEER: frozenset(
         {
             Permission.CATALOG_READ,
+            Permission.UNITS_READ,
             Permission.TESTING_READ,
             Permission.TESTING_WRITE,
             Permission.ARTIFACT_READ,
@@ -116,6 +117,8 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
         {
             Permission.CATALOG_READ,
             Permission.CATALOG_WRITE,
+            Permission.UNITS_READ,
+            Permission.UNITS_WRITE,
             Permission.TESTING_READ,
             Permission.ARTIFACT_READ,
             Permission.ARTIFACT_WRITE,
@@ -128,6 +131,7 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
     Role.STATISTICAL_ANALYST: frozenset(
         {
             Permission.CATALOG_READ,
+            Permission.UNITS_READ,
             Permission.TESTING_READ,
             Permission.ARTIFACT_READ,
             Permission.ARTIFACT_WRITE,
@@ -143,6 +147,7 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
         {
             Permission.CATALOG_READ,
             Permission.CATALOG_WRITE,
+            Permission.UNITS_READ,
             Permission.TESTING_READ,
             Permission.ARTIFACT_READ,
             Permission.ARTIFACT_WRITE,
@@ -166,6 +171,7 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
     Role.CAE_ANALYST: frozenset(
         {
             Permission.CATALOG_READ,
+            Permission.UNITS_READ,
             Permission.TESTING_READ,
             Permission.ARTIFACT_READ,
             # A reference validation run freezes a rendered deck and terminal
@@ -191,6 +197,7 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
     Role.DOMAIN_REVIEWER: frozenset(
         {
             Permission.CATALOG_READ,
+            Permission.UNITS_READ,
             Permission.REVIEW_READ,
             Permission.REVIEW_DECIDE,
             Permission.PROVENANCE_READ,
@@ -199,6 +206,7 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
     Role.RELEASE_APPROVER: frozenset(
         {
             Permission.CATALOG_READ,
+            Permission.UNITS_READ,
             Permission.ARTIFACT_READ,
             Permission.TESTING_READ,
             Permission.DATASET_READ,
@@ -212,7 +220,9 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
             Permission.PROVENANCE_READ,
         }
     ),
-    Role.CONSUMER: frozenset({Permission.CATALOG_READ, Permission.RELEASE_READ}),
+    Role.CONSUMER: frozenset(
+        {Permission.CATALOG_READ, Permission.RELEASE_READ, Permission.UNITS_READ}
+    ),
     Role.PLUGIN_MAINTAINER: frozenset({Permission.PLUGIN_READ, Permission.PLUGIN_SUBMIT}),
     # Operational role for service principals. T-18 adds only the package and scoped
     # artifact permissions required to resolve inputs and commit validated outputs.
@@ -233,6 +243,7 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
 _PRODUCT_BASE_PERMISSIONS = frozenset(
     {
         Permission.CATALOG_READ,
+        Permission.UNITS_READ,
         Permission.TESTING_READ,
         Permission.ARTIFACT_READ,
         Permission.DATASET_READ,
@@ -253,7 +264,12 @@ _PRODUCT_BASE_PERMISSIONS = frozenset(
 
 PRODUCT_FEATURE_PERMISSIONS: Mapping[FeatureGrant, frozenset[Permission]] = {
     FeatureGrant.SCHEMA_CONFIGURATION: frozenset(
-        {Permission.CATALOG_READ, Permission.CATALOG_WRITE}
+        {
+            Permission.CATALOG_READ,
+            Permission.CATALOG_WRITE,
+            Permission.UNITS_READ,
+            Permission.UNITS_WRITE,
+        }
     ),
     FeatureGrant.CATALOG_EDIT: frozenset(
         {
@@ -349,6 +365,7 @@ _MODIFYING_OPERATIONS = frozenset(
     }
 )
 _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = {
+    Permission.UNITS_WRITE: frozenset({Permission.UNITS_READ}),
     # Published Materials is one server-scoped projection.  Its currentness query
     # re-checks exact heads for Test Data, Material Models, Neutral/Solver Cards,
     # Processing Outputs, and Testing lineage in the same SQL statement.  Carry
@@ -361,6 +378,7 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
             Permission.EXPORT_READ,
             Permission.PROCESSING_READ,
             Permission.TESTING_READ,
+            Permission.UNITS_READ,
         }
     ),
     # Review evidence is resolved server-side from the immutable subject revision
@@ -378,7 +396,7 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
     # Catalog registration parses a verified immutable source Artifact before it creates
     # typed Record revisions. This is an internal command capability only; the public
     # Artifact endpoints continue to require artifact.read explicitly.
-    Permission.CATALOG_WRITE: frozenset({Permission.ARTIFACT_READ}),
+    Permission.CATALOG_WRITE: frozenset({Permission.ARTIFACT_READ, Permission.UNITS_READ}),
     # Reference import detection reads the verified immutable raw artifact before
     # it records a human-approved mapping revision.  This remains a transaction
     # capability only; the public Artifact endpoint still requires artifact.read.
@@ -387,20 +405,28 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
     # lineage is resolved through the pinned Test Run and Specimen. Reading a curve
     # therefore needs row-visible Artifact and Testing access. These remain
     # transaction capabilities; their public endpoints still authorize independently.
-    Permission.DATASET_READ: frozenset({Permission.ARTIFACT_READ, Permission.TESTING_READ}),
+    Permission.DATASET_READ: frozenset(
+        {Permission.ARTIFACT_READ, Permission.TESTING_READ, Permission.UNITS_READ}
+    ),
     Permission.DATASET_WRITE: frozenset(
         {
             Permission.ARTIFACT_READ,
             Permission.ARTIFACT_WRITE,
             Permission.CATALOG_READ,
             Permission.TESTING_READ,
+            Permission.UNITS_READ,
         }
     ),
     # Processing previews reconstruct their typed result from immutable output Artifacts and
     # pinned Dataset/Test evidence. These are transaction-local read capabilities only; they do
     # not authorize the public Dataset, Artifact, or Testing endpoints.
     Permission.PROCESSING_READ: frozenset(
-        {Permission.ARTIFACT_READ, Permission.DATASET_READ, Permission.TESTING_READ}
+        {
+            Permission.ARTIFACT_READ,
+            Permission.DATASET_READ,
+            Permission.TESTING_READ,
+            Permission.UNITS_READ,
+        }
     ),
     # A committed Processing Run reads a pinned Dataset Artifact, writes a new immutable derived
     # Artifact, and asks the Dataset owner to register the resulting processed Dataset revision.
@@ -414,6 +440,7 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
             Permission.DATASET_WRITE,
             Permission.PROCESSING_READ,
             Permission.TESTING_READ,
+            Permission.UNITS_READ,
         }
     ),
     # A Statistics-owned result preview reads its own typed immutable curve Artifact. This is an
@@ -444,6 +471,7 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
             # transaction-local capability closure and does not grant the processing HTTP API.
             Permission.PROCESSING_READ,
             Permission.TESTING_READ,
+            Permission.UNITS_READ,
         }
     ),
     Permission.CALIBRATION_EXECUTE: frozenset(
@@ -468,6 +496,7 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
             Permission.MODELING_READ,
             Permission.PROCESSING_READ,
             Permission.TESTING_READ,
+            Permission.UNITS_READ,
         }
     ),
     Permission.EXPORT_EXECUTE: frozenset(
@@ -484,6 +513,7 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
             Permission.MODELING_READ,
             Permission.PROCESSING_READ,
             Permission.TESTING_READ,
+            Permission.UNITS_READ,
         }
     ),
     # Validation result previews read only Validation-owned typed reports, but those reports
@@ -541,6 +571,7 @@ _PROVENANCE_WRITING_COMMANDS = frozenset(
     {
         Permission.TESTING_WRITE,
         Permission.CATALOG_WRITE,
+        Permission.UNITS_WRITE,
         Permission.ARTIFACT_WRITE,
         Permission.DATASET_WRITE,
         Permission.PROCESSING_EXECUTE,

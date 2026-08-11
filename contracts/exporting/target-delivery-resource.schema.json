@@ -36,7 +36,8 @@
         "material_name": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,79}$"},
         "preview_identity": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
         "expected_mapping_report_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-        "acknowledgement_identity": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"}
+        "acknowledgement_identity": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "unit_profile": {"$ref": "../units/unit-resources.schema.json#/$defs/UnitProfilePin"}
       }
     },
     "Response": {
@@ -56,6 +57,8 @@
         "target",
         "occurred_at",
         "recorded_by",
+        "unit_profile",
+        "unit_applications",
         "links"
       ],
       "properties": {
@@ -78,6 +81,8 @@
         "target": {"$ref": "target-preview-resource.schema.json#/$defs/ResolvedTarget"},
         "occurred_at": {"type": "string", "format": "date-time"},
         "recorded_by": {"type": "string", "format": "uuid"},
+        "unit_profile": {"anyOf": [{"$ref": "../units/unit-resources.schema.json#/$defs/UnitProfilePin"}, {"type": "null"}]},
+        "unit_applications": {"type": "array", "items": {"$ref": "../units/unit-resources.schema.json#/$defs/UnitApplication"}},
         "links": {
           "type": "object",
           "additionalProperties": false,

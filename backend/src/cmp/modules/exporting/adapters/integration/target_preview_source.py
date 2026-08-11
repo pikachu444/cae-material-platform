@@ -152,4 +152,5 @@ class TargetPreviewSourceAdapter:
             neutral_material_id=neutral.id,
             neutral_material_revision_id=neutral.current.revision_id,
             neutral=neutral.document,
+            unit_profile=getattr(output.content, "unit_profile", None),
         )

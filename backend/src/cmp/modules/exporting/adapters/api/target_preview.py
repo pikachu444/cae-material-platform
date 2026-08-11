@@ -19,6 +19,8 @@ from cmp.modules.exporting.application.target_preview import (
 from cmp.modules.exporting.domain.neutral_hyperelastic import NeutralHyperelasticExportTarget
 from cmp.modules.identity_access.domain.authorization import AuthorizationDecision
 from cmp.modules.identity_access.domain.security import SecurityContext
+from cmp.modules.units.contracts import UnitApplicationResponse, UnitProfilePinInput
+from cmp.modules.units.domain.profiles import UnitProfilePin
 
 type Dependency = Callable[..., object]
 type Sha256 = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
@@ -43,6 +45,7 @@ class TargetPreviewRequest(BaseModel):
     expected_mapping_report_sha256: Annotated[
         str | None, StringConstraints(pattern=r"^[0-9a-f]{64}$")
     ] = None
+    unit_profile: UnitProfilePinInput | None = None
 
 
 class TargetPreviewResponse(BaseModel):
@@ -56,6 +59,8 @@ class TargetPreviewResponse(BaseModel):
     source: TargetPreviewSourceResponse
     target: TargetPreviewTargetResponse
     acknowledgement_identity: Sha256 | None
+    unit_profile: UnitProfilePinInput | None
+    unit_applications: tuple[UnitApplicationResponse, ...]
     non_production: bool
     delivery_status: str
 
@@ -71,6 +76,25 @@ class TargetPreviewResponse(BaseModel):
             source=TargetPreviewSourceResponse.model_validate(preview.source),
             target=TargetPreviewTargetResponse.model_validate(preview.target),
             acknowledgement_identity=preview.acknowledgement_identity,
+            unit_profile=(
+                None
+                if preview.unit_profile is None
+                else UnitProfilePinInput(
+                    profile_id=preview.unit_profile.profile_id,
+                    revision_id=preview.unit_profile.revision_id,
+                    content_sha256=preview.unit_profile.content_sha256,
+                )
+            ),
+            unit_applications=tuple(
+                UnitApplicationResponse(
+                    location=item.location,
+                    role=item.role.value,
+                    quantity_semantics=item.quantity_semantics,
+                    dimension=item.dimension,
+                    unit_id=item.unit_id,
+                )
+                for item in preview.unit_applications
+            ),
             non_production=preview.non_production,
             delivery_status=preview.delivery_status,
         )
@@ -176,6 +200,15 @@ def install_target_preview_api(
                     solver_material_id=body.solver_material_id,
                     material_name=body.material_name,
                     expected_mapping_report_sha256=body.expected_mapping_report_sha256,
+                    unit_profile=(
+                        None
+                        if body.unit_profile is None
+                        else UnitProfilePin(
+                            profile_id=body.unit_profile.profile_id,
+                            revision_id=body.unit_profile.revision_id,
+                            content_sha256=body.unit_profile.content_sha256,
+                        )
+                    ),
                 ),
             )
         except TargetPreviewConflict as error:

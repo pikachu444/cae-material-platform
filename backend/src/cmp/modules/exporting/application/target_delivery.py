@@ -25,6 +25,7 @@ from cmp.modules.exporting.application.target_preview import (
 from cmp.modules.exporting.domain.neutral_hyperelastic import NeutralHyperelasticExportTarget
 from cmp.modules.identity_access.domain.authorization import AuthorizationDecision, Permission
 from cmp.modules.identity_access.domain.security import SecurityContext
+from cmp.modules.units.domain.profiles import UnitApplication, UnitProfilePin
 from cmp.shared.domain.revisions import RevisionCreated
 
 
@@ -48,6 +49,7 @@ class CreateTargetDelivery:
     preview_identity: str
     expected_mapping_report_sha256: str
     acknowledgement_identity: str | None
+    unit_profile: UnitProfilePin | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -64,6 +66,8 @@ class DeliveryReceipt:
     target: dict[str, str]
     occurred_at: str
     recorded_by: UUID
+    unit_profile: UnitProfilePin | None = None
+    unit_applications: tuple[UnitApplication, ...] = ()
 
 
 class DeliveryReceiptRecorder:
@@ -140,6 +144,7 @@ class TargetDeliveryService:
                 solver_material_id=command.solver_material_id,
                 material_name=command.material_name,
                 expected_mapping_report_sha256=command.expected_mapping_report_sha256,
+                unit_profile=command.unit_profile,
             ),
         )
         if preview.preview_identity != command.preview_identity:
@@ -188,6 +193,7 @@ class TargetDeliveryService:
                     ),
                     expected_card_sha256=preview.native_sha256,
                     source_material_model_ir_revision_id=source_material_model_ir_revision_id,
+                    unit_profile=preview.unit_profile,
                 ),
                 additional_hooks=(hook,),
             )
@@ -207,6 +213,16 @@ class TargetDeliveryService:
             raise TargetDeliveryConflict(
                 "persisted mapping differs from the current target preview"
             )
+        if (
+            getattr(card, "unit_profile", None) != preview.unit_profile
+            or tuple(getattr(card, "unit_applications", ())) != preview.unit_applications
+            or getattr(card.current.content, "unit_profile", None) != preview.unit_profile
+            or tuple(getattr(card.current.content, "unit_applications", ()))
+            != preview.unit_applications
+        ):
+            raise TargetDeliveryConflict(
+                "persisted Solver Card differs from the preview Unit Profile application trace"
+            )
         return preview, DeliveryReceipt(
             receipt_id=receipt_id,
             delivery_identity=preview.preview_identity,
@@ -223,6 +239,8 @@ class TargetDeliveryService:
             target=preview.target,
             occurred_at=card.current.record.created_at.isoformat(),
             recorded_by=context.principal.id,
+            unit_profile=preview.unit_profile,
+            unit_applications=preview.unit_applications,
         )
 
     @staticmethod
@@ -233,6 +251,8 @@ class TargetDeliveryService:
             or receipt.mapping_report_sha256 != preview.mapping_report_sha256
             or receipt.source != preview.source
             or receipt.target != preview.target
+            or receipt.unit_profile != preview.unit_profile
+            or receipt.unit_applications != preview.unit_applications
         ):
             raise TargetDeliveryConflict(
                 "stored delivery evidence differs from the current target preview"

@@ -234,6 +234,114 @@ def test_schema_definition_bundle_contract_and_runtime_expose_no_write_planner()
     }
 
 
+def test_common_units_profiles_and_export_usage_match_runtime_contracts() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    operations = {
+        "/api/v1/unit-system": {"get": "getUnitSystem"},
+        "/api/v1/unit-conversions": {"post": "convertUnitValue"},
+        "/api/v1/unit-profiles": {
+            "get": "listUnitProfiles",
+            "post": "createUnitProfile",
+        },
+        "/api/v1/unit-profiles/{profile_id}": {"get": "getUnitProfile"},
+        "/api/v1/unit-profiles/{profile_id}/revisions": {
+            "post": "reviseUnitProfile"
+        },
+        "/api/v1/unit-profiles/{profile_id}/revisions/{revision_id}": {
+            "get": "getUnitProfileRevision"
+        },
+    }
+    for path, methods in operations.items():
+        for method, operation_id in methods.items():
+            assert source["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
+
+    schema_path = PROJECT_ROOT / "contracts/units/unit-resources.schema.json"
+    assert (
+        validate_example(
+            schema_path,
+            PROJECT_ROOT / "contracts/examples/positive/unit-conversion.json",
+        )
+        == []
+    )
+    assert validate_example(
+        schema_path,
+        PROJECT_ROOT / "contracts/examples/negative/unit-conversion-unsupported.json",
+    )
+
+    unit_schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    runtime_components = runtime["components"]["schemas"]
+    original_unit_text = unit_schema["$defs"]["OriginalUnitText"]["enum"]
+    assert runtime["components"]["schemas"]["OriginalUnitTextInput"]["enum"] == (
+        original_unit_text
+    )
+    assert runtime_components["UnitConversionRequest"]["properties"][
+        "original_unit_string"
+    ] == {"$ref": "#/components/schemas/OriginalUnitTextRequest"}
+    assert runtime_components["OriginalUnitTextRequest"]["enum"] == original_unit_text
+    assert unit_schema["$defs"]["UnitConversionRequest"]["properties"][
+        "original_unit_string"
+    ] == {"$ref": "#/$defs/OriginalUnitText"}
+    assert unit_schema["$defs"]["CompatibilityUnitSystem"]["properties"][
+        "production_default"
+    ] == {"const": False}
+    assert set(unit_schema["$defs"]["DimensionId"]["enum"]) == {
+        "force_per_area",
+        "length",
+        "time",
+        "force",
+        "mass",
+        "mass_per_volume",
+        "temperature",
+        "strain",
+    }
+    assert {"profile_id", "revision_id", "content_sha256"} == set(
+        runtime_components["UnitProfilePinInput"]["required"]
+    )
+    assert {
+        "location",
+        "role",
+        "quantity_semantics",
+        "dimension",
+        "unit_id",
+    } == set(runtime_components["UnitApplicationResponse"]["required"])
+
+    for relative, definition in (
+        ("target-preview-resource.schema.json", "Response"),
+        ("target-delivery-resource.schema.json", "Response"),
+        ("neutral-hyperelastic-resources.schema.json", "CardResponse"),
+    ):
+        contract = json.loads(
+            (PROJECT_ROOT / "contracts/exporting" / relative).read_text(encoding="utf-8")
+        )
+        assert {"unit_profile", "unit_applications"}.issubset(
+            contract["$defs"][definition]["required"]
+        )
+
+    card_contract = json.loads(
+        (
+            PROJECT_ROOT
+            / "contracts/exporting/neutral-hyperelastic-resources.schema.json"
+        ).read_text(encoding="utf-8")
+    )
+    assert "allOf" not in card_contract["$defs"]["CreateRequest"]
+    assert "unit_profile" in card_contract["$defs"]["CreateRequest"]["properties"]
+    assert card_contract["$defs"]["CardResponse"]["properties"]["current_revision"] == {
+        "$ref": "#/$defs/CardRevision"
+    }
+    assert {"unit_profile", "unit_applications"} == set(
+        card_contract["$defs"]["ProfileCardContent"]["required"]
+    )
+    assert {
+        "urn:cmp:exporting:neutral-hyperelastic-card:1.0.0",
+        "urn:cmp:exporting:neutral-hyperelastic-card:1.1.0",
+        "urn:cmp:exporting:neutral-family-card:2.0.0",
+        "urn:cmp:exporting:neutral-family-card:2.1.0",
+    } == set(card_contract["$defs"]["CardRevision"]["properties"]["schema_id"]["enum"])
+
+
 def test_configurable_record_contract_carries_live_search_and_binding_projection_fields() -> None:
     schema = json.loads(
         (

@@ -16,6 +16,12 @@ from cmp.modules.modeling.domain.neutral_material import (
     NeutralHyperelasticParameters,
     NeutralMaterialDocument,
 )
+from cmp.modules.units.domain.profiles import (
+    UnitApplication,
+    UnitProfilePin,
+    unit_application_canonical,
+    unit_profile_pin_canonical,
+)
 from cmp.shared.domain.revisions import content_sha256
 
 ABAQUS_SOLVER = "abaqus"
@@ -534,9 +540,11 @@ class NeutralHyperelasticSolverCardContent:
     exporter_id: str
     exporter_version: str
     exporter_digest: str
+    unit_profile: UnitProfilePin | None = None
+    unit_applications: tuple[UnitApplication, ...] = ()
 
     def canonical(self) -> dict[str, object]:
-        return {
+        result: dict[str, object] = {
             "neutral_material_id": str(self.neutral_material_id),
             "neutral_material_revision_id": str(self.neutral_material_revision_id),
             "neutral_material_sha256": self.neutral_material_sha256,
@@ -568,6 +576,12 @@ class NeutralHyperelasticSolverCardContent:
             },
             "non_production": True,
         }
+        if self.unit_profile is not None:
+            result["unit_profile"] = unit_profile_pin_canonical(self.unit_profile)
+            result["unit_applications"] = [
+                unit_application_canonical(item) for item in self.unit_applications
+            ]
+        return result
 
 
 def build_neutral_hyperelastic_solver_card(

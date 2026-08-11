@@ -65,12 +65,12 @@ positive/negative fixture와 함께 확정한다.
 | --- | --- | --- | --- |
 | Configurable Catalog | Database/Profile/Table/Attribute/Layout/Subset/Link Type, Record, 발행과 immutable revision | 동적 JSON 정의 bundle의 계약·계획·일괄 적용·내보내기 없음 | versioned Import Adapter와 기존 객체 projection으로 추가 |
 | Artifact/Provenance | immutable bytes/digest, exact revision lineage | source schema bundle부터 생성된 Catalog revision까지의 공통 lineage 없음 | 원본 보존 후 모든 생성 revision에 source를 고정 |
-| Unit | 등록용 13개 변환과 일부 SI Export | density, temperature, force, mass, time 및 Unit Profile 없음 | 공통 dimension/unit service와 versioned profile |
+| Unit | #205에서 등록·Test Data·Processing·Fit·Export가 쓰는 닫힌 공통 dimension/unit service와 versioned Unit Profile 구현 | 추가 solver unit system과 Unit Profile 관리 UI 없음 | exact profile revision/application trace를 유지하고 #214 전 production 기본값을 정하지 않음 |
 | Curve | canonical Test Data channel과 Catalog curve Artifact pointer | Catalog/Statistics/Fit가 공유하는 channel/deviation 계약 없음 | additive metadata와 과거 revision adapter |
 | Import | CSV/TSV/XLSX governed import와 versioned Test Data JSON | DMA sweep·FLD profile과 품질 정책 없음 | 기존 Raw Asset/Dataset/Test Data 수명주기 재사용 |
 | Statistics | mean, SD, median, MAD, IQR, 일부 confidence interval | distribution fitting, p05/p95 representative envelope 없음 | 후보·선택·계산 결과를 immutable revision으로 분리 |
 | Process/Fit | explicit Process methods, exact Fit input/selection/reload | toe compensation과 승인된 representative input 없음 | 원본 불변, explicit option, stale propagation |
-| Export | Abaqus/OpenRadioss preview/delivery와 mapping status | governed text Template, LS-DYNA, 다중 Unit Profile 없음 | 기존 renderer를 compatibility baseline으로 유지 |
+| Export | Abaqus/OpenRadioss preview/delivery, mapping status와 exact Unit Profile trace; 기존 `kg_m_s` bytes 보존 | governed text Template, LS-DYNA와 추가 solver unit system 없음 | 기존 renderer를 compatibility baseline으로 유지 |
 | Review/Release | 일부 Material/Solver Card Review와 release kernel | Record/Test Data/계산/Template subject와 복구 흐름 미완 | #160에 공통 subject 경계만 합침 |
 | Identity | backend bearer/OIDC validation, permission과 RLS | SPA Code+PKCE login/callback/token lifecycle 없음 | 기존 User/Reviewer/Administrator preset 유지 |
 | Audit | append-only hash chain, query/export/integrity verifier | 제품 command wiring이 일부 validation/holdout에 한정 | 기반 재작성 없이 event coverage와 atomicity 보강 |

@@ -14,6 +14,13 @@ from uuid import UUID
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from cmp.modules.units.domain.system import (
+    DimensionId,
+    QuantityReference,
+    UnitError,
+    convert_value,
+    unit_definition,
+)
 from cmp.shared.domain.revisions import content_sha256
 
 REFERENCE_TENSILE_IMPORTER_ID = "urn:cmp:datasets:reference-uniaxial-tensile-csv:1.0.0"
@@ -30,10 +37,6 @@ MAX_REFERENCE_TENSILE_POINTS = 100_000
 # than allowing an untyped result to leak into the Dataset domain.
 _write_parquet_table = cast(Callable[..., None], pq.write_table)
 _read_parquet_table = cast(Callable[..., pa.Table], pq.read_table)
-
-_STRAIN_FACTORS = {"1": 1.0, "%": 0.01}
-_STRESS_FACTORS = {"Pa": 1.0, "kPa": 1_000.0, "MPa": 1_000_000.0, "GPa": 1_000_000_000.0}
-
 
 class DatasetError(Exception):
     """Base error for the typed Dataset slice."""
@@ -67,6 +70,32 @@ def _text(name: str, value: str, maximum: int) -> None:
         raise InvalidDatasetData(f"{name} must be trimmed and contain 1..{maximum} characters")
 
 
+def _unit_scale(
+    unit_id: str, *, dimension: DimensionId, semantics: str, target_unit_id: str
+) -> float:
+    try:
+        unit = unit_definition(unit_id)
+        if unit.dimension is not dimension:
+            raise UnitError(
+                code="CMP-UNIT-0002",
+                message="unit does not match the reference tensile quantity dimension",
+                location="reference_tensile.mapping",
+                source_dimension=unit.dimension,
+                target_dimension=dimension,
+            )
+        return float(
+            convert_value(
+                "1",
+                original_unit_string=unit_id,
+                source=QuantityReference(dimension, semantics, unit_id),
+                target=QuantityReference(dimension, semantics, target_unit_id),
+                location="reference_tensile.mapping",
+            ).scale
+        )
+    except UnitError as error:
+        raise InvalidDatasetData(error.message) from error
+
+
 @dataclass(frozen=True, slots=True)
 class ReferenceTensileMapping:
     """User-confirmed columns and original units; no implicit detection or unit guessing."""
@@ -81,10 +110,18 @@ class ReferenceTensileMapping:
         _text("stress_column", self.stress_column, 255)
         if self.strain_column == self.stress_column:
             raise InvalidDatasetData("strain and stress columns must be distinct")
-        if self.strain_unit not in _STRAIN_FACTORS:
-            raise InvalidDatasetData("strain unit must be one of 1 or %")
-        if self.stress_unit not in _STRESS_FACTORS:
-            raise InvalidDatasetData("stress unit must be Pa, kPa, MPa, or GPa")
+        _unit_scale(
+            self.strain_unit,
+            dimension=DimensionId.STRAIN,
+            semantics="mechanics.strain.engineering",
+            target_unit_id="1",
+        )
+        _unit_scale(
+            self.stress_unit,
+            dimension=DimensionId.FORCE_PER_AREA,
+            semantics="mechanics.stress.engineering",
+            target_unit_id="Pa",
+        )
 
     @property
     def digest(self) -> str:
@@ -272,6 +309,18 @@ def parse_reference_tensile_csv(
     headers = tuple(item.strip() for item in reader.fieldnames)
     if mapping.strain_column not in headers or mapping.stress_column not in headers:
         raise InvalidDatasetData("approved mapping columns are absent from the CSV header")
+    strain_scale = _unit_scale(
+        mapping.strain_unit,
+        dimension=DimensionId.STRAIN,
+        semantics="mechanics.strain.engineering",
+        target_unit_id="1",
+    )
+    stress_scale = _unit_scale(
+        mapping.stress_unit,
+        dimension=DimensionId.FORCE_PER_AREA,
+        semantics="mechanics.stress.engineering",
+        target_unit_id="Pa",
+    )
     raw: list[CurvePoint] = []
     normalized: list[CurvePoint] = []
     for row_number, row in enumerate(reader, start=2):
@@ -286,8 +335,8 @@ def parse_reference_tensile_csv(
         raw.append(CurvePoint(strain, stress))
         normalized.append(
             CurvePoint(
-                strain * _STRAIN_FACTORS[mapping.strain_unit],
-                stress * _STRESS_FACTORS[mapping.stress_unit],
+                strain * strain_scale,
+                stress * stress_scale,
             )
         )
         if len(raw) > MAX_REFERENCE_TENSILE_POINTS:

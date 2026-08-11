@@ -9,6 +9,12 @@ from enum import StrEnum
 from uuid import UUID
 
 from cmp.modules.catalog.domain.model import InvalidCatalogCommand
+from cmp.modules.units.domain.system import (
+    DimensionId,
+    QuantityReference,
+    UnitError,
+    convert_value,
+)
 
 
 class BalanceBasis(StrEnum):
@@ -19,9 +25,6 @@ class BalanceBasis(StrEnum):
 
 
 _UNIT_NORMALIZATION: dict[str, tuple[BalanceBasis, str, Decimal]] = {
-    "kg": (BalanceBasis.MASS, "kg", Decimal("1")),
-    "g": (BalanceBasis.MASS, "kg", Decimal("0.001")),
-    "mg": (BalanceBasis.MASS, "kg", Decimal("0.000001")),
     "m3": (BalanceBasis.VOLUME, "m3", Decimal("1")),
     "L": (BalanceBasis.VOLUME, "m3", Decimal("0.001")),
     "mL": (BalanceBasis.VOLUME, "m3", Decimal("0.000001")),
@@ -65,6 +68,27 @@ def _optional_text(name: str, value: str | None, maximum: int) -> None:
         _text(name, value, maximum)
 
 
+def _unit_normalization(original_unit: str) -> tuple[BalanceBasis, str, Decimal]:
+    if original_unit in {"kg", "g", "mg"}:
+        try:
+            result = convert_value(
+                "1",
+                original_unit_string=original_unit,
+                source=QuantityReference(DimensionId.MASS, "mass", original_unit),
+                target=QuantityReference(DimensionId.MASS, "mass", "kg"),
+                location="process_run.lot_flow.mass",
+            )
+        except UnitError as error:
+            raise InvalidCatalogCommand(error.message) from error
+        return BalanceBasis.MASS, "kg", result.scale
+    try:
+        return _UNIT_NORMALIZATION[original_unit]
+    except KeyError as error:
+        raise InvalidCatalogCommand(
+            "original_unit must be one of kg, g, mg, m3, L, mL, cm3, or 1"
+        ) from error
+
+
 @dataclass(frozen=True, slots=True)
 class LotFlow:
     """One exact Lot revision and an explicit original-to-SI quantity conversion."""
@@ -87,12 +111,7 @@ class LotFlow:
         original_quantity: Decimal,
         original_unit: str,
     ) -> LotFlow:
-        try:
-            basis, normalized_unit, factor = _UNIT_NORMALIZATION[original_unit]
-        except KeyError as error:
-            raise InvalidCatalogCommand(
-                "original_unit must be one of kg, g, mg, m3, L, mL, cm3, or 1"
-            ) from error
+        basis, normalized_unit, factor = _unit_normalization(original_unit)
         return cls(
             material_lot_id=material_lot_id,
             material_lot_revision_id=material_lot_revision_id,
@@ -116,8 +135,8 @@ class LotFlow:
             raise InvalidCatalogCommand("Lot flow quantities must be greater than zero")
         if self.normalization_factor <= 0:
             raise InvalidCatalogCommand("normalization_factor must be greater than zero")
-        expected = _UNIT_NORMALIZATION.get(self.original_unit)
-        if expected is None or expected != (
+        expected = _unit_normalization(self.original_unit)
+        if expected != (
             self.quantity_basis,
             self.normalized_unit,
             self.normalization_factor,

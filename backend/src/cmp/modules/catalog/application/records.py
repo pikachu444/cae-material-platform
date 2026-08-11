@@ -616,6 +616,7 @@ class CatalogRecordService:
                 value.original_value,
                 value.original_unit_string,
                 value.normalized_unit,
+                quantity_semantics=value.quantity_semantics or "",
             )
             values.append(
                 CatalogRecordValue(
@@ -952,7 +953,17 @@ class CatalogRecordService:
                         source_unit, attribute.current.content.normalized_unit
                     )
                     if evidence is not None:
-                        unit_mapping_evidence.append({"source_column": source_column, **evidence})
+                        unit_mapping_evidence.append(
+                            {
+                                "source_column": source_column,
+                                "library_version": evidence["library_version"],
+                                "source_unit": evidence["source_unit"],
+                                "target_unit": evidence["target_unit"],
+                                "factor": evidence["factor"],
+                                "offset": evidence["offset"],
+                                "rule": evidence["rule"],
+                            }
+                        )
                 resolved_mapping[source_column] = (attribute, source_unit)
         if (material_code_source is None) != (state_name_source is None):
             self._registration_error(
@@ -1256,7 +1267,10 @@ class CatalogRecordService:
                 original_text = original_text.replace(",", ".")
             original_decimal = Decimal(original_text)
             normalized_decimal, _ = normalize_registration_value(
-                original_decimal, unit, definition.normalized_unit
+                original_decimal,
+                unit,
+                definition.normalized_unit,
+                quantity_semantics=definition.quantity_semantics,
             )
             return CatalogRecordValue(
                 attribute_id,

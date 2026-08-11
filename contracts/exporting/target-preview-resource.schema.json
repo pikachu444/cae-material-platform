@@ -32,7 +32,8 @@
         "target": {"$ref": "#/$defs/Target"},
         "solver_material_id": {"type": "integer", "minimum": 1, "maximum": 9999999999},
         "material_name": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,79}$"},
-        "expected_mapping_report_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        "expected_mapping_report_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "unit_profile": {"$ref": "../units/unit-resources.schema.json#/$defs/UnitProfilePin"}
       }
     },
     "MappingItem": {
@@ -79,7 +80,7 @@
     "Response": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["preview_identity", "filename", "native_text", "native_sha256", "mapping_report_sha256", "mapping", "source", "target", "acknowledgement_identity", "non_production", "delivery_status"],
+      "required": ["preview_identity", "filename", "native_text", "native_sha256", "mapping_report_sha256", "mapping", "source", "target", "acknowledgement_identity", "unit_profile", "unit_applications", "non_production", "delivery_status"],
       "properties": {
         "preview_identity": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
         "filename": {"type": "string", "minLength": 1},
@@ -90,6 +91,8 @@
         "source": {"$ref": "#/$defs/Source"},
         "target": {"$ref": "#/$defs/ResolvedTarget"},
         "acknowledgement_identity": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "unit_profile": {"anyOf": [{"$ref": "../units/unit-resources.schema.json#/$defs/UnitProfilePin"}, {"type": "null"}]},
+        "unit_applications": {"type": "array", "items": {"$ref": "../units/unit-resources.schema.json#/$defs/UnitApplication"}},
         "non_production": {"type": "boolean", "const": true},
         "delivery_status": {"type": "string", "const": "preview_only"}
       }

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from collections.abc import Callable
 from datetime import UTC, datetime
 from types import SimpleNamespace
 from typing import cast
@@ -9,10 +10,13 @@ from uuid import NAMESPACE_URL, UUID, uuid5
 import pytest
 from cmp.modules.exporting.adapters.persistence import target_delivery_receipts
 from cmp.modules.exporting.adapters.persistence.target_delivery_receipts import (
+    OutboxWriter,
+    RlsContext,
     SqlTargetDeliveryReceiptRecorder,
 )
 from cmp.modules.exporting.application.neutral_hyperelastic_service import (
-    NeutralHyperelasticSolverCardConflict,
+    CreateNeutralHyperelasticSolverCard,
+    NeutralHyperelasticSolverCardService,
 )
 from cmp.modules.exporting.application.target_delivery import (
     CreateTargetDelivery,
@@ -22,8 +26,11 @@ from cmp.modules.exporting.application.target_delivery import (
     TargetDeliveryDuplicate,
     TargetDeliveryService,
 )
-from cmp.modules.exporting.application.target_preview import TargetPreview
-from cmp.modules.exporting.domain.neutral_hyperelastic import NeutralHyperelasticExportTarget
+from cmp.modules.exporting.application.target_preview import TargetPreview, TargetPreviewService
+from cmp.modules.exporting.domain.neutral_hyperelastic import (
+    NeutralHyperelasticExportTarget,
+    NeutralHyperelasticSolverCardConflict,
+)
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
     DataClassification,
@@ -32,7 +39,15 @@ from cmp.modules.identity_access.domain.authorization import (
 )
 from cmp.modules.identity_access.domain.security import Principal, PrincipalType, SecurityContext
 from cmp.modules.jobs.domain.events import EventConflict
+from cmp.modules.units.domain.profiles import (
+    UnitApplication,
+    UnitApplicationRole,
+    UnitProfilePin,
+)
+from cmp.modules.units.domain.system import DimensionId
+from cmp.shared.domain.revisions import RevisionCreated
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session, sessionmaker
 
 IDS = tuple(UUID(int=value) for value in range(1, 12))
 NOW = datetime(2026, 7, 26, tzinfo=UTC)
@@ -64,7 +79,12 @@ DECISION = AuthorizationDecision(
 )
 
 
-def preview(*, acknowledgement: str | None = "a" * 64) -> TargetPreview:
+def preview(
+    *,
+    acknowledgement: str | None = "a" * 64,
+    unit_profile: UnitProfilePin | None = None,
+    unit_applications: tuple[UnitApplication, ...] = (),
+) -> TargetPreview:
     return TargetPreview(
         preview_identity="a" * 64,
         filename="REFERENCE.inp",
@@ -92,6 +112,8 @@ def preview(*, acknowledgement: str | None = "a" * 64) -> TargetPreview:
             "material_name": "REFERENCE",
         },
         acknowledgement_identity=acknowledgement,
+        unit_profile=unit_profile,
+        unit_applications=unit_applications,
     )
 
 
@@ -104,24 +126,34 @@ class Previews:
 
 
 class Cards:
-    def __init__(self) -> None:
+    def __init__(self, unit_applications: tuple[UnitApplication, ...] = ()) -> None:
         self.hooks: tuple[object, ...] = ()
         self.error: Exception | None = None
         self.calls = 0
-        self.command: object | None = None
+        self.command: CreateNeutralHyperelasticSolverCard | None = None
+        self.unit_applications = unit_applications
 
-    async def create_card(self, *args: object, additional_hooks: tuple[object, ...]):
+    async def create_card(
+        self, *args: object, additional_hooks: tuple[object, ...]
+    ) -> tuple[SimpleNamespace, SimpleNamespace]:
         self.calls += 1
         if self.error is not None:
             raise self.error
         self.hooks = additional_hooks
-        self.command = args[2]
-        content = SimpleNamespace(card_sha256="b" * 64)
+        self.command = cast(CreateNeutralHyperelasticSolverCard, args[2])
+        unit_profile = getattr(self.command, "unit_profile", None)
+        content = SimpleNamespace(
+            card_sha256="b" * 64,
+            unit_profile=unit_profile,
+            unit_applications=self.unit_applications,
+        )
         card = SimpleNamespace(
             id=IDS[4],
             current=SimpleNamespace(
                 content=content, record=SimpleNamespace(revision_id=IDS[5], created_at=NOW)
             ),
+            unit_profile=unit_profile,
+            unit_applications=self.unit_applications,
         )
         return card, SimpleNamespace(digest="c" * 64)
 
@@ -131,8 +163,8 @@ class Receipts(DeliveryReceiptRecorder):
         self.created = 0
         self.existing: DeliveryReceipt | None = None
 
-    def hook_for(self, **_: object):
-        def hook(_: object, __: object) -> None:
+    def hook_for(self, **_: object) -> Callable[[object, RevisionCreated], None]:
+        def hook(_: object, __: RevisionCreated) -> None:
             self.created += 1
 
         return hook
@@ -182,7 +214,9 @@ def test_delivery_binds_current_preview_acknowledgement_and_card_hook() -> None:
     cards, receipts = Cards(), Receipts()
     result = asyncio.run(
         TargetDeliveryService(
-            previews=cast(object, Previews(preview())), cards=cast(object, cards), receipts=receipts
+            previews=cast(TargetPreviewService, Previews(preview())),
+            cards=cast(NeutralHyperelasticSolverCardService, cards),
+            receipts=receipts,
         ).deliver(CONTEXT, DECISION, command())
     )
     _, receipt = result
@@ -195,8 +229,8 @@ def test_delivery_passes_revalidated_upstream_ir_to_card_and_receipt() -> None:
     cards, receipts = Cards(), Receipts()
     delivered_preview, receipt = asyncio.run(
         TargetDeliveryService(
-            previews=cast(object, Previews(preview())),
-            cards=cast(object, cards),
+            previews=cast(TargetPreviewService, Previews(preview())),
+            cards=cast(NeutralHyperelasticSolverCardService, cards),
             receipts=receipts,
         ).deliver(CONTEXT, DECISION, command())
     )
@@ -209,6 +243,59 @@ def test_delivery_passes_revalidated_upstream_ir_to_card_and_receipt() -> None:
     assert receipt.native_sha256 == delivered_preview.native_sha256
 
 
+def test_delivery_preserves_exact_unit_profile_trace_in_card_command_and_receipt() -> None:
+    pin = UnitProfilePin(IDS[6], IDS[7], "e" * 64)
+    applications = (
+        UnitApplication(
+            "solver_card.density",
+            UnitApplicationRole.SOLVER_EXPORT,
+            "mass.density",
+            DimensionId.MASS_PER_VOLUME,
+            "kg/m3",
+        ),
+    )
+    cards, receipts = Cards(applications), Receipts()
+    profiled_preview = preview(unit_profile=pin, unit_applications=applications)
+
+    delivered_preview, receipt = asyncio.run(
+        TargetDeliveryService(
+            previews=cast(TargetPreviewService, Previews(profiled_preview)),
+            cards=cast(NeutralHyperelasticSolverCardService, cards),
+            receipts=receipts,
+        ).deliver(CONTEXT, DECISION, command(unit_profile=pin))
+    )
+
+    assert cards.command is not None
+    assert cards.command.unit_profile == pin
+    assert delivered_preview.unit_profile == pin
+    assert receipt.unit_profile == pin
+    assert receipt.unit_applications == applications
+
+
+def test_delivery_fails_closed_when_persisted_card_drops_unit_profile_trace() -> None:
+    pin = UnitProfilePin(IDS[6], IDS[7], "e" * 64)
+    applications = (
+        UnitApplication(
+            "solver_card.density",
+            UnitApplicationRole.SOLVER_EXPORT,
+            "mass.density",
+            DimensionId.MASS_PER_VOLUME,
+            "kg/m3",
+        ),
+    )
+    service = TargetDeliveryService(
+        previews=cast(
+            TargetPreviewService,
+            Previews(preview(unit_profile=pin, unit_applications=applications)),
+        ),
+        cards=cast(NeutralHyperelasticSolverCardService, Cards()),
+        receipts=Receipts(),
+    )
+
+    with pytest.raises(TargetDeliveryConflict, match="application trace"):
+        asyncio.run(service.deliver(CONTEXT, DECISION, command(unit_profile=pin)))
+
+
 @pytest.mark.parametrize(
     "values", [{"acknowledgement_identity": None}, {"preview_identity": "f" * 64}]
 )
@@ -216,7 +303,9 @@ def test_delivery_fails_closed_for_missing_acknowledgement_or_stale_preview(
     values: dict[str, object],
 ) -> None:
     service = TargetDeliveryService(
-        previews=cast(object, Previews(preview())), cards=cast(object, Cards()), receipts=Receipts()
+        previews=cast(TargetPreviewService, Previews(preview())),
+        cards=cast(NeutralHyperelasticSolverCardService, Cards()),
+        receipts=Receipts(),
     )
     with pytest.raises(TargetDeliveryConflict):
         asyncio.run(service.deliver(CONTEXT, DECISION, command(**values)))
@@ -227,8 +316,8 @@ def test_delivery_retry_returns_the_same_receipt_without_creating_another_card()
     receipts.existing = delivery_receipt()
     _, returned_receipt = asyncio.run(
         TargetDeliveryService(
-            previews=cast(object, Previews(preview())),
-            cards=cast(object, cards),
+            previews=cast(TargetPreviewService, Previews(preview())),
+            cards=cast(NeutralHyperelasticSolverCardService, cards),
             receipts=receipts,
         ).deliver(CONTEXT, DECISION, command())
     )
@@ -246,7 +335,9 @@ def test_concurrent_delivery_race_returns_the_committed_receipt_once() -> None:
             self.barrier = asyncio.Barrier(2)
             self.committed = asyncio.Event()
 
-        async def create_card(self, *_: object, additional_hooks: tuple[object, ...]):
+        async def create_card(
+            self, *_: object, additional_hooks: tuple[object, ...]
+        ) -> tuple[SimpleNamespace, SimpleNamespace]:
             self.arrived += 1
             arrival = self.arrived
             await self.barrier.wait()
@@ -260,7 +351,9 @@ def test_concurrent_delivery_race_returns_the_committed_receipt_once() -> None:
 
     cards = RacingCards()
     service = TargetDeliveryService(
-        previews=cast(object, Previews(preview())), cards=cast(object, cards), receipts=receipts
+        previews=cast(TargetPreviewService, Previews(preview())),
+        cards=cast(NeutralHyperelasticSolverCardService, cards),
+        receipts=receipts,
     )
 
     async def deliver_twice() -> tuple[
@@ -284,7 +377,9 @@ def test_delivery_race_fails_closed_when_the_rolled_back_receipt_is_not_visible(
     cards, receipts = Cards(), Receipts()
     cards.error = TargetDeliveryDuplicate("delivery transaction rolled back")
     service = TargetDeliveryService(
-        previews=cast(object, Previews(preview())), cards=cast(object, cards), receipts=receipts
+        previews=cast(TargetPreviewService, Previews(preview())),
+        cards=cast(NeutralHyperelasticSolverCardService, cards),
+        receipts=receipts,
     )
 
     with pytest.raises(TargetDeliveryConflict, match="no immutable receipt"):
@@ -299,7 +394,9 @@ def test_injected_malformed_native_card_fails_before_receipt_write() -> None:
         "generated card differs from the approved target preview"
     )
     service = TargetDeliveryService(
-        previews=cast(object, Previews(preview())), cards=cast(object, cards), receipts=receipts
+        previews=cast(TargetPreviewService, Previews(preview())),
+        cards=cast(NeutralHyperelasticSolverCardService, cards),
+        receipts=receipts,
     )
 
     with pytest.raises(NeutralHyperelasticSolverCardConflict, match="generated card differs"):
@@ -312,20 +409,20 @@ def test_injected_malformed_native_card_fails_before_receipt_write() -> None:
 def test_receipt_hook_translates_only_expected_delivery_identity_duplicate(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    class DuplicateOrig:
+    class DuplicateOrig(Exception):
         sqlstate = "23505"
         diag = SimpleNamespace(
             table_name="solver_card_delivery_receipt",
             constraint_name="solver_card_delivery_receipt_organization_id_project_id_delivery_identity_key",
         )
 
-    class OtherDuplicateOrig:
+    class OtherDuplicateOrig(Exception):
         sqlstate = "23505"
         diag = SimpleNamespace(
             table_name="solver_card_delivery_receipt", constraint_name="other_key"
         )
 
-    class OutboxDuplicateOrig:
+    class OutboxDuplicateOrig(Exception):
         sqlstate = "23505"
         diag = SimpleNamespace(
             table_name="outbox_event", constraint_name="uq_events_outbox_deduplication"
@@ -349,9 +446,9 @@ def test_receipt_hook_translates_only_expected_delivery_identity_duplicate(
 
     monkeypatch.setattr(target_delivery_receipts, "Session", FakeSession)
     recorder = SqlTargetDeliveryReceiptRecorder(
-        session_factory=cast(object, None),
-        rls_context=cast(object, None),
-        writer=cast(object, Writer()),
+        session_factory=cast(sessionmaker[Session], None),
+        rls_context=cast(RlsContext, None),
+        writer=cast(OutboxWriter, Writer()),
     )
     revision = SimpleNamespace(
         aggregate_id=IDS[4],
@@ -364,21 +461,21 @@ def test_receipt_hook_translates_only_expected_delivery_identity_duplicate(
     with pytest.raises(TargetDeliveryDuplicate):
         hook(
             FakeSession(IntegrityError("insert", {}, DuplicateOrig())),
-            SimpleNamespace(revision=revision),
+            cast(RevisionCreated, SimpleNamespace(revision=revision)),
         )
     with pytest.raises(IntegrityError):
         hook(
             FakeSession(IntegrityError("insert", {}, OtherDuplicateOrig())),
-            SimpleNamespace(revision=revision),
+            cast(RevisionCreated, SimpleNamespace(revision=revision)),
         )
 
     outbox_recorder = SqlTargetDeliveryReceiptRecorder(
-        session_factory=cast(object, None),
-        rls_context=cast(object, None),
-        writer=cast(object, OutboxDuplicateWriter()),
+        session_factory=cast(sessionmaker[Session], None),
+        rls_context=cast(RlsContext, None),
+        writer=cast(OutboxWriter, OutboxDuplicateWriter()),
     )
     with pytest.raises(TargetDeliveryDuplicate):
         outbox_recorder.hook_for(context=CONTEXT, preview=preview(), receipt_id=IDS[3])(
             FakeSession(IntegrityError("unused", {}, OtherDuplicateOrig())),
-            SimpleNamespace(revision=revision),
+            cast(RevisionCreated, SimpleNamespace(revision=revision)),
         )

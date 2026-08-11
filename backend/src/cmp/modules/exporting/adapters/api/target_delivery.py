@@ -20,6 +20,8 @@ from cmp.modules.exporting.application.target_delivery import (
 from cmp.modules.exporting.domain.neutral_hyperelastic import NeutralHyperelasticExportTarget
 from cmp.modules.identity_access.domain.authorization import AuthorizationDecision
 from cmp.modules.identity_access.domain.security import SecurityContext
+from cmp.modules.units.contracts import UnitApplicationResponse, UnitProfilePinInput
+from cmp.modules.units.domain.profiles import UnitProfilePin
 
 type Dependency = Callable[..., object]
 type Sha256 = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
@@ -44,6 +46,7 @@ class TargetDeliveryRequest(BaseModel):
     preview_identity: Sha256
     expected_mapping_report_sha256: Sha256
     acknowledgement_identity: Sha256 | None = None
+    unit_profile: UnitProfilePinInput | None = None
 
 
 class TargetDeliveryResponse(BaseModel):
@@ -61,6 +64,8 @@ class TargetDeliveryResponse(BaseModel):
     target: TargetPreviewTargetResponse
     occurred_at: str
     recorded_by: UUID
+    unit_profile: UnitProfilePinInput | None
+    unit_applications: tuple[UnitApplicationResponse, ...]
     links: dict[str, str]
 
 
@@ -130,6 +135,15 @@ def install_target_delivery_api(
                     preview_identity=body.preview_identity,
                     expected_mapping_report_sha256=body.expected_mapping_report_sha256,
                     acknowledgement_identity=body.acknowledgement_identity,
+                    unit_profile=(
+                        None
+                        if body.unit_profile is None
+                        else UnitProfilePin(
+                            profile_id=body.unit_profile.profile_id,
+                            revision_id=body.unit_profile.revision_id,
+                            content_sha256=body.unit_profile.content_sha256,
+                        )
+                    ),
                 ),
             )
         except TargetDeliveryConflict as error:
@@ -174,6 +188,25 @@ def _response(receipt: DeliveryReceipt) -> TargetDeliveryResponse:
         target=TargetPreviewTargetResponse.model_validate(receipt.target),
         occurred_at=receipt.occurred_at,
         recorded_by=receipt.recorded_by,
+        unit_profile=(
+            None
+            if receipt.unit_profile is None
+            else UnitProfilePinInput(
+                profile_id=receipt.unit_profile.profile_id,
+                revision_id=receipt.unit_profile.revision_id,
+                content_sha256=receipt.unit_profile.content_sha256,
+            )
+        ),
+        unit_applications=tuple(
+            UnitApplicationResponse(
+                location=item.location,
+                role=item.role.value,
+                quantity_semantics=item.quantity_semantics,
+                dimension=item.dimension,
+                unit_id=item.unit_id,
+            )
+            for item in receipt.unit_applications
+        ),
         links={
             "solver_card": root,
             "preview": f"{root}/preview",

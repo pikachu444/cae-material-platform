@@ -48,6 +48,7 @@ from cmp.modules.processing.application.viscoelastic_master_curve import (
 from cmp.modules.provenance.adapters.persistence.repository import SqlAlchemyRevisionProvenanceHook
 from cmp.modules.review_release.adapters.persistence.lifecycle import SqlInitialLifecycleHook
 from cmp.modules.testing.application.service import TestingService
+from cmp.modules.units.application.profiles import CommonUnitService
 
 
 def build_mapping_profile_service(identity: IdentityServices) -> MappingProfileService | None:
@@ -72,6 +73,7 @@ def build_common_processing_output_service(
     test_data: CanonicalTestDataService | None,
     profiles: MappingProfileService | None,
     artifacts: ArtifactService | None,
+    units: CommonUnitService | None,
 ) -> CommonProcessingOutputService | None:
     if (
         identity.engine is None
@@ -95,6 +97,7 @@ def build_common_processing_output_service(
         test_data=test_data,
         profiles=profiles,
         artifacts=artifacts,
+        units=units,
     )
 
 

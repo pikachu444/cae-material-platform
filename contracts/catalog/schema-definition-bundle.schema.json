@@ -102,10 +102,7 @@
         "x-reference": {"$ref": "#/$defs/ReferenceExtension"},
         "x-curve": {"const": true},
         "x-unit": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 64,
-          "pattern": "^[A-Za-z0-9%_.*/^()\\[\\]{}'+-]+$"
+          "enum": ["Pa", "kPa", "MPa", "GPa", "m", "cm", "mm", "um", "s", "ms", "min", "h", "N", "kN", "kg", "g", "mg", "kg/m3", "g/cm3", "K", "Cel", "1", "%"]
         },
         "x-indexed": {"type": "boolean"},
         "x-searchable": {"type": "boolean"}

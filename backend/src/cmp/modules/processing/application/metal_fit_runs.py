@@ -38,6 +38,7 @@ from cmp.modules.processing.domain.metal_hardening import (
     HARDENING_EQUATION_CONTRACT,
     HARDENING_FAMILIES,
 )
+from cmp.modules.units.domain.profiles import UnitApplication, UnitProfilePin
 
 _RUNTIME_ROOT_SEARCH_LIMIT = 12
 _RUNTIME_SOURCE_FILE_LIMIT = 5000
@@ -203,6 +204,14 @@ class MetalFitRun:
     created_by: UUID
     request_id: UUID
     trace_id: str
+    unit_profile: UnitProfilePin | None = None
+    unit_applications: tuple[UnitApplication, ...] = ()
+
+    def __post_init__(self) -> None:
+        if (self.unit_profile is None) != (not self.unit_applications):
+            raise CommonPipelineError(
+                "metal Fit Unit Profile pin and application trace must be stored together"
+            )
 
 
 @dataclass(frozen=True, slots=True)
@@ -336,6 +345,8 @@ class MetalFitRunService:
             command.source_processing_output.aggregate_id,
             command.source_processing_output.revision_id,
         )
+        unit_profile = getattr(source.content, "unit_profile", None)
+        unit_applications = tuple(getattr(source.content, "unit_applications", ()))
         families = command.fit_step.options.get("families")
         if (
             not isinstance(families, list)
@@ -348,7 +359,7 @@ class MetalFitRunService:
                 "3B metal Fit run requires exactly the four unique candidate families: "
                 + ", ".join(HARDENING_FAMILIES)
             )
-        base_reproducibility_evidence = {
+        base_reproducibility_evidence: dict[str, Any] = {
             "execution": "pending",
             "equation": HARDENING_EQUATION_CONTRACT,
             "equation_contract": HARDENING_EQUATION_CONTRACT,
@@ -387,6 +398,22 @@ class MetalFitRunService:
             "fixture_recovery_start": "synthetic_reference_only",
             "runtime": _runtime_evidence(),
         }
+        if unit_profile is not None:
+            base_reproducibility_evidence["unit_profile"] = {
+                "profile_id": str(unit_profile.profile_id),
+                "revision_id": str(unit_profile.revision_id),
+                "content_sha256": unit_profile.content_sha256,
+            }
+            base_reproducibility_evidence["unit_applications"] = [
+                {
+                    "location": item.location,
+                    "role": item.role.value,
+                    "quantity_semantics": item.quantity_semantics,
+                    "dimension": item.dimension.value,
+                    "unit_id": item.unit_id,
+                }
+                for item in unit_applications
+            ]
         now = self._clock()
         run = self._repository.create_run(
             context=context,
@@ -409,6 +436,8 @@ class MetalFitRunService:
                 created_by=context.principal.id,
                 request_id=context.request_id,
                 trace_id=context.trace_id,
+                unit_profile=unit_profile,
+                unit_applications=unit_applications,
             ),
         )
         attempts: list[MetalFitAttempt] = []
@@ -497,9 +526,17 @@ class MetalFitRunService:
                     steps=(*source.content.steps, command.fit_step),
                     change_reason=command.change_reason,
                     source_processing_output=command.source_processing_output,
+                    unit_profile=unit_profile,
                 ),
                 validate_selection=False,
             )
+            if (
+                preview.unit_profile != unit_profile
+                or preview.unit_applications != unit_applications
+            ):
+                raise CommonPipelineError(
+                    "metal Fit execution did not preserve the source Unit Profile application trace"
+                )
             stage = preview.preview.stages[-1]
             by_family = {candidate.family: candidate for candidate in stage.fit_candidates}
             failed_families: list[str] = []

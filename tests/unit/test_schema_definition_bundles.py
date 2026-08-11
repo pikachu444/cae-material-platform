@@ -125,6 +125,24 @@ def test_repeat_plan_is_byte_equivalent_and_has_the_same_fingerprint() -> None:
     assert canonical_json_bytes(first.canonical()) == canonical_json_bytes(second.canonical())
 
 
+@pytest.mark.parametrize("unit", ("degC", "kg/m^3", "psi", "dimensionless"))
+def test_x_unit_handoff_requires_a_stable_common_unit_identifier(unit: str) -> None:
+    document = _fixture("one")
+    entry = document["record_schemas"][0]
+    entry["schema"]["properties"]["youngs_modulus"]["x-unit"] = unit
+    _rechecksum(entry)
+
+    result = _plan(document)
+
+    assert not result.valid
+    diagnostic = next(
+        item for item in result.diagnostics if item.location.endswith("/x-unit")
+    )
+    assert diagnostic.code == "CMP-SCHEMA-BUNDLE-0002"
+    assert "stable canonical" in diagnostic.message
+    assert result.canonical()["write_set"] == []
+
+
 @pytest.mark.parametrize("order", tuple(permutations(range(3))))
 def test_record_entry_order_does_not_change_dependency_or_action_semantics(
     order: tuple[int, ...],

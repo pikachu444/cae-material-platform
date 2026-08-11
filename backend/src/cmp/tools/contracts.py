@@ -25,6 +25,7 @@ POSITIVE_EXAMPLES = {
     "audit-export.json": "contracts/audit/audit-export.schema.json",
     "schema-definition-bundle-one.json": "contracts/catalog/schema-definition-bundle.schema.json",
     "schema-definition-bundle-many.json": "contracts/catalog/schema-definition-bundle.schema.json",
+    "unit-conversion.json": "contracts/units/unit-resources.schema.json",
 }
 NEGATIVE_EXAMPLES = {
     "job-spec-latest.json": "contracts/jobs/job-spec.schema.json",
@@ -39,6 +40,7 @@ NEGATIVE_EXAMPLES = {
     "schema-definition-bundle-nested-id.json": (
         "contracts/catalog/schema-definition-bundle.schema.json"
     ),
+    "unit-conversion-unsupported.json": "contracts/units/unit-resources.schema.json",
 }
 
 

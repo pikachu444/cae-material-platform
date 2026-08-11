@@ -1,0 +1,327 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/units/unit-resources.schema.json",
+  "$ref": "#/$defs/UnitConversionRequest",
+  "$defs": {
+    "DimensionId": {
+      "enum": [
+        "force_per_area",
+        "length",
+        "time",
+        "force",
+        "mass",
+        "mass_per_volume",
+        "temperature",
+        "strain"
+      ]
+    },
+    "UnitId": {
+      "enum": [
+        "Pa", "kPa", "MPa", "GPa",
+        "m", "cm", "mm", "um",
+        "s", "ms", "min", "h",
+        "N", "kN",
+        "kg", "g", "mg",
+        "kg/m3", "g/cm3",
+        "K", "Cel",
+        "1", "%"
+      ]
+    },
+    "OriginalUnitText": {
+      "enum": [
+        "Pa", "kPa", "MPa", "GPa",
+        "m", "cm", "mm", "um", "µm", "μm",
+        "s", "ms", "min", "h",
+        "N", "kN",
+        "kg", "g", "mg",
+        "kg/m3", "kg/m^3", "g/cm3", "g/cm^3",
+        "K", "Cel", "degC", "°C",
+        "1", "%"
+      ]
+    },
+    "DecimalText": {
+      "type": "string",
+      "pattern": "^[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?$",
+      "maxLength": 128
+    },
+    "UnitDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unit_id", "symbol", "dimension", "conversion_kind",
+        "scale_to_canonical", "offset_to_canonical", "backward_compatible_aliases"
+      ],
+      "properties": {
+        "unit_id": {"$ref": "#/$defs/UnitId"},
+        "symbol": {"type": "string", "minLength": 1, "maxLength": 32},
+        "dimension": {"$ref": "#/$defs/DimensionId"},
+        "conversion_kind": {"enum": ["multiplicative", "affine_absolute"]},
+        "scale_to_canonical": {"$ref": "#/$defs/DecimalText"},
+        "offset_to_canonical": {"$ref": "#/$defs/DecimalText"},
+        "backward_compatible_aliases": {
+          "type": "array",
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1, "maxLength": 64}
+        }
+      }
+    },
+    "DimensionDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dimension", "canonical_unit_id", "absolute_tolerance",
+        "relative_tolerance", "units"
+      ],
+      "properties": {
+        "dimension": {"$ref": "#/$defs/DimensionId"},
+        "canonical_unit_id": {"$ref": "#/$defs/UnitId"},
+        "absolute_tolerance": {"$ref": "#/$defs/DecimalText"},
+        "relative_tolerance": {"$ref": "#/$defs/DecimalText"},
+        "units": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 8,
+          "items": {"$ref": "#/$defs/UnitDefinition"}
+        }
+      }
+    },
+    "NumericPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["significant_digits", "minimum_adjusted_exponent", "maximum_adjusted_exponent"],
+      "properties": {
+        "significant_digits": {"const": 34},
+        "minimum_adjusted_exponent": {"const": -308},
+        "maximum_adjusted_exponent": {"const": 308}
+      }
+    },
+    "CompatibilityUnitSystem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["unit_system_id", "production_default", "units"],
+      "properties": {
+        "unit_system_id": {"const": "kg_m_s"},
+        "production_default": {"const": false},
+        "units": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "force_per_area", "length", "time", "force", "mass",
+            "mass_per_volume", "temperature", "strain"
+          ],
+          "properties": {
+            "force_per_area": {"const": "Pa"},
+            "length": {"const": "m"},
+            "time": {"const": "s"},
+            "force": {"const": "N"},
+            "mass": {"const": "kg"},
+            "mass_per_volume": {"const": "kg/m3"},
+            "temperature": {"const": "K"},
+            "strain": {"const": "1"}
+          }
+        }
+      }
+    },
+    "UnitSystemResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contract_version", "numeric_policy", "dimensions", "compatibility_unit_systems"],
+      "properties": {
+        "contract_version": {"const": "1.0.0"},
+        "numeric_policy": {"$ref": "#/$defs/NumericPolicy"},
+        "dimensions": {
+          "type": "array",
+          "minItems": 8,
+          "maxItems": 8,
+          "items": {"$ref": "#/$defs/DimensionDefinition"}
+        },
+        "compatibility_unit_systems": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": {"$ref": "#/$defs/CompatibilityUnitSystem"}
+        }
+      }
+    },
+    "QuantityReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dimension", "quantity_semantics", "unit_id"],
+      "properties": {
+        "dimension": {"$ref": "#/$defs/DimensionId"},
+        "quantity_semantics": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_.-]{0,159}$"
+        },
+        "unit_id": {"$ref": "#/$defs/UnitId"}
+      }
+    },
+    "UnitConversionRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["location", "value", "original_unit_string", "source", "target"],
+      "properties": {
+        "location": {"type": "string", "minLength": 1, "maxLength": 255},
+        "value": {"$ref": "#/$defs/DecimalText"},
+        "original_unit_string": {"$ref": "#/$defs/OriginalUnitText"},
+        "source": {"$ref": "#/$defs/QuantityReference"},
+        "target": {"$ref": "#/$defs/QuantityReference"}
+      }
+    },
+    "UnitConversionResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "location", "original_value", "original_unit_string", "source", "target",
+        "converted_value", "conversion_kind", "scale", "offset",
+        "absolute_tolerance", "relative_tolerance"
+      ],
+      "properties": {
+        "location": {"type": "string", "minLength": 1, "maxLength": 255},
+        "original_value": {"$ref": "#/$defs/DecimalText"},
+        "original_unit_string": {"$ref": "#/$defs/OriginalUnitText"},
+        "source": {"$ref": "#/$defs/QuantityReference"},
+        "target": {"$ref": "#/$defs/QuantityReference"},
+        "converted_value": {"$ref": "#/$defs/DecimalText"},
+        "conversion_kind": {"enum": ["multiplicative", "affine_absolute"]},
+        "scale": {"$ref": "#/$defs/DecimalText"},
+        "offset": {"$ref": "#/$defs/DecimalText"},
+        "absolute_tolerance": {"$ref": "#/$defs/DecimalText"},
+        "relative_tolerance": {"$ref": "#/$defs/DecimalText"}
+      }
+    },
+    "UnitProfileSelection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "quantity_semantics", "dimension", "input_unit_id", "display_unit_id",
+        "solver_export_unit_id"
+      ],
+      "properties": {
+        "quantity_semantics": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_.-]{0,159}$"
+        },
+        "dimension": {"$ref": "#/$defs/DimensionId"},
+        "input_unit_id": {"$ref": "#/$defs/UnitId"},
+        "display_unit_id": {"$ref": "#/$defs/UnitId"},
+        "solver_export_unit_id": {
+          "oneOf": [{"$ref": "#/$defs/UnitId"}, {"type": "null"}]
+        }
+      }
+    },
+    "UnitProfileContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profile_key", "label", "description", "non_production", "selections"],
+      "properties": {
+        "profile_key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]{0,159}$"
+        },
+        "label": {"type": "string", "minLength": 1, "maxLength": 200},
+        "description": {
+          "oneOf": [
+            {"type": "string", "minLength": 1, "maxLength": 1000},
+            {"type": "null"}
+          ]
+        },
+        "non_production": {"type": "boolean"},
+        "selections": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 128,
+          "items": {"$ref": "#/$defs/UnitProfileSelection"}
+        }
+      }
+    },
+    "UnitProfilePin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profile_id", "revision_id", "content_sha256"],
+      "properties": {
+        "profile_id": {"type": "string", "format": "uuid"},
+        "revision_id": {"type": "string", "format": "uuid"},
+        "content_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "UnitApplication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["location", "role", "quantity_semantics", "dimension", "unit_id"],
+      "properties": {
+        "location": {"type": "string", "minLength": 1, "maxLength": 255},
+        "role": {"enum": ["input", "display", "solver_export"]},
+        "quantity_semantics": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_.-]{0,159}$"
+        },
+        "dimension": {"$ref": "#/$defs/DimensionId"},
+        "unit_id": {"$ref": "#/$defs/UnitId"}
+      }
+    },
+    "CreateUnitProfileRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "content", "change_reason"],
+      "properties": {
+        "classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
+        "content": {"$ref": "#/$defs/UnitProfileContent"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ReviseUnitProfileRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content", "change_reason"],
+      "properties": {
+        "content": {"$ref": "#/$defs/UnitProfileContent"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "UnitProfileResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["unit_profile_id", "current_revision", "content"],
+      "properties": {
+        "unit_profile_id": {"type": "string", "format": "uuid"},
+        "current_revision": {"$ref": "../revisions/revision-metadata.schema.json"},
+        "content": {"$ref": "#/$defs/UnitProfileContent"}
+      }
+    },
+    "UnitProfileListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/UnitProfileResponse"}
+        }
+      }
+    },
+    "UnitErrorDetail": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "message", "location", "source_dimension", "target_dimension"],
+      "properties": {
+        "code": {"type": "string", "pattern": "^CMP-UNIT-[0-9]{4}$"},
+        "message": {"type": "string", "minLength": 1, "maxLength": 1000},
+        "location": {"type": "string", "minLength": 1, "maxLength": 255},
+        "source_dimension": {
+          "oneOf": [{"$ref": "#/$defs/DimensionId"}, {"type": "null"}]
+        },
+        "target_dimension": {
+          "oneOf": [{"$ref": "#/$defs/DimensionId"}, {"type": "null"}]
+        }
+      }
+    },
+    "UnitErrorResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["detail"],
+      "properties": {"detail": {"$ref": "#/$defs/UnitErrorDetail"}}
+    }
+  }
+}

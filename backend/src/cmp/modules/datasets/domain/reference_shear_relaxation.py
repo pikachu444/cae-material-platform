@@ -12,6 +12,13 @@ from typing import cast
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from cmp.modules.units.domain.system import (
+    DimensionId,
+    QuantityReference,
+    UnitError,
+    convert_value,
+    unit_definition,
+)
 from cmp.shared.domain.revisions import content_sha256
 
 REFERENCE_SHEAR_RELAXATION_IMPORTER_ID = "urn:cmp:datasets:reference-shear-relaxation-csv:1.0.0"
@@ -21,8 +28,6 @@ REFERENCE_SHEAR_RELAXATION_PARQUET_SCHEMA = (
 )
 MAX_SHEAR_RELAXATION_POINTS = 100_000
 
-_TIME_FACTORS = {"s": 1.0, "ms": 0.001, "min": 60.0, "h": 3600.0}
-_MODULUS_FACTORS = {"Pa": 1.0, "kPa": 1_000.0, "MPa": 1_000_000.0, "GPa": 1_000_000_000.0}
 _write_parquet = cast(Callable[..., None], pq.write_table)
 _read_parquet = cast(Callable[..., pa.Table], pq.read_table)
 
@@ -48,6 +53,32 @@ def _text(name: str, value: str, maximum: int = 255) -> None:
         raise InvalidShearRelaxationData(f"{name} must contain 1..{maximum} trimmed characters")
 
 
+def _unit_scale(
+    unit_id: str, *, dimension: DimensionId, semantics: str, target_unit_id: str
+) -> float:
+    try:
+        unit = unit_definition(unit_id)
+        if unit.dimension is not dimension:
+            raise UnitError(
+                code="CMP-UNIT-0002",
+                message="unit does not match the shear-relaxation quantity dimension",
+                location="shear_relaxation.mapping",
+                source_dimension=unit.dimension,
+                target_dimension=dimension,
+            )
+        return float(
+            convert_value(
+                "1",
+                original_unit_string=unit_id,
+                source=QuantityReference(dimension, semantics, unit_id),
+                target=QuantityReference(dimension, semantics, target_unit_id),
+                location="shear_relaxation.mapping",
+            ).scale
+        )
+    except UnitError as error:
+        raise InvalidShearRelaxationData(error.message) from error
+
+
 @dataclass(frozen=True, slots=True)
 class ShearRelaxationMapping:
     time_column: str
@@ -60,10 +91,26 @@ class ShearRelaxationMapping:
         _text("shear_modulus_column", self.shear_modulus_column)
         if self.time_column == self.shear_modulus_column:
             raise InvalidShearRelaxationData("time and shear-modulus columns must be distinct")
-        if self.time_unit not in _TIME_FACTORS:
-            raise InvalidShearRelaxationData("time unit must be s, ms, min, or h")
-        if self.shear_modulus_unit not in _MODULUS_FACTORS:
-            raise InvalidShearRelaxationData("modulus unit must be Pa, kPa, MPa, or GPa")
+        try:
+            _unit_scale(
+                self.time_unit,
+                dimension=DimensionId.TIME,
+                semantics="time.elapsed",
+                target_unit_id="s",
+            )
+        except InvalidShearRelaxationData as error:
+            raise InvalidShearRelaxationData("time unit must be s, ms, min, or h") from error
+        try:
+            _unit_scale(
+                self.shear_modulus_unit,
+                dimension=DimensionId.FORCE_PER_AREA,
+                semantics="mechanics.modulus.shear.relaxation",
+                target_unit_id="Pa",
+            )
+        except InvalidShearRelaxationData as error:
+            raise InvalidShearRelaxationData(
+                "modulus unit must be Pa, kPa, MPa, or GPa"
+            ) from error
 
     @property
     def digest(self) -> str:
@@ -128,6 +175,18 @@ def parse_shear_relaxation_csv(
     headers = tuple(name.strip() for name in (reader.fieldnames or ()))
     if mapping.time_column not in headers or mapping.shear_modulus_column not in headers:
         raise InvalidShearRelaxationData("approved mapping columns are absent from the header")
+    time_scale = _unit_scale(
+        mapping.time_unit,
+        dimension=DimensionId.TIME,
+        semantics="time.elapsed",
+        target_unit_id="s",
+    )
+    modulus_scale = _unit_scale(
+        mapping.shear_modulus_unit,
+        dimension=DimensionId.FORCE_PER_AREA,
+        semantics="mechanics.modulus.shear.relaxation",
+        target_unit_id="Pa",
+    )
     raw: list[ShearRelaxationPoint] = []
     normalized: list[ShearRelaxationPoint] = []
     for row_number, row in enumerate(reader, 2):
@@ -138,10 +197,7 @@ def parse_shear_relaxation_csv(
             row_number, mapping.shear_modulus_column, row.get(mapping.shear_modulus_column)
         )
         raw_point = ShearRelaxationPoint(time, modulus)
-        point = ShearRelaxationPoint(
-            time * _TIME_FACTORS[mapping.time_unit],
-            modulus * _MODULUS_FACTORS[mapping.shear_modulus_unit],
-        )
+        point = ShearRelaxationPoint(time * time_scale, modulus * modulus_scale)
         if normalized and point.time_s <= normalized[-1].time_s:
             raise InvalidShearRelaxationData("normalized time values must be strictly increasing")
         if normalized and point.shear_modulus_pa > normalized[-1].shear_modulus_pa:

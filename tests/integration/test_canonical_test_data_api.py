@@ -302,6 +302,41 @@ async def test_test_data_json_preview_rejects_incorrect_explicit_normalization()
 
 
 @pytest.mark.anyio
+async def test_test_data_json_preview_preserves_explicit_frequency_transform_outside_common_scope(
+) -> None:
+    fixture = _fixture()
+    channel = fixture["channels"][0]
+    channel.update(
+        {
+            "key": "frequency_hz",
+            "name": "Cyclic frequency",
+            "quantity_semantics": "frequency.cyclic",
+            "original_unit_string": "Hz",
+            "normalized_unit": "Hz",
+            "normalization": {"scale": "1", "offset": "0"},
+            "normalized_values": list(channel["original_values"]),
+        }
+    )
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=_app()), base_url="http://test"
+    ) as client:
+        response = await client.post("/api/v1/test-data:validate", json=fixture)
+
+    assert response.status_code == 200
+    assert response.json()["channels"][0]["original_unit_string"] == "Hz"
+    assert response.json()["channels"][0]["normalized_unit"] == "Hz"
+
+    channel["normalization"] = {"scale": "2", "offset": "0"}
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=_app()), base_url="http://test"
+    ) as client:
+        rejected = await client.post("/api/v1/test-data:validate", json=fixture)
+
+    assert rejected.status_code == 422
+    assert "explicit normalization" in rejected.json()["detail"]
+
+
+@pytest.mark.anyio
 async def test_csv_adapter_and_direct_json_have_identical_canonical_result() -> None:
     source = b"strain,stress\n0,0\n0.001,205\n0.002,310\n"
     request = {

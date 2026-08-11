@@ -6,6 +6,21 @@ storage, T-13 typed provenance, T-14 lineage read models, and T-16 transactional
 numbers express delivery ownership, not migration chronology; every revision has one explicit
 predecessor.
 
+## Issue #205 common units ownership
+
+`20260926_095_issue205_common_units.py` creates the bounded `units` schema with separate stable
+`unit_profile` identity, immutable typed revision and ordered selection tables. Exact
+`(profile_id, revision_id, content_hash)` foreign keys and forced RLS prevent a consumer from
+resolving a profile by name or `latest`. Revision and selection rows reject update/delete; the
+identity permits only guarded current-head advancement.
+
+The same migration adds nullable exact Unit Profile pins and typed application rows to common
+Processing Output, metal Fit, Neutral Solver Card and delivery receipt persistence. Nullable
+headers preserve existing profile-free rows and no historical revision is rewritten. The downgrade
+refuses to discard non-empty Unit Profile history; after test-owned profile data is removed it drops
+only #205 tables/columns and returns exactly to `20260925_094_issue160`. No generic JSON authority,
+EAV table or production default Unit Profile is introduced.
+
 ## T-06 ownership
 
 The migration creates:

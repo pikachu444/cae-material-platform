@@ -50,6 +50,13 @@ from cmp.modules.processing.application.common_outputs import (
     CommonProcessingOutputService,
     ProcessingOutputNotFound,
 )
+from cmp.modules.units.application.profiles import CommonUnitService
+from cmp.modules.units.domain.profiles import (
+    UnitApplication,
+    UnitApplicationRole,
+    UnitProfilePin,
+)
+from cmp.modules.units.domain.system import DimensionId
 
 IDS = [UUID(int=value) for value in range(1, 13)]
 
@@ -205,9 +212,7 @@ def test_preview_is_deterministic_and_has_no_persistence_side_effect(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     resolver = Resolver()
-    monkeypatch.setattr(
-        target_preview, "preflight_neutral_solver_export", lambda **_: FakeReport()
-    )
+    monkeypatch.setattr(target_preview, "preflight_neutral_solver_export", lambda **_: FakeReport())
     monkeypatch.setattr(
         target_preview, "build_neutral_solver_card", lambda **_: (FakeReport(), FakeCard())
     )
@@ -237,6 +242,79 @@ def test_preview_is_deterministic_and_has_no_persistence_side_effect(
         resolver.receipt_writes,
         resolver.activity_writes,
     ) == (0, 0, 0, 0)
+
+
+def test_preview_inherits_exact_unit_profile_and_binds_trace_into_identity(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    pin = UnitProfilePin(IDS[9], IDS[10], "e" * 64)
+    applications = (
+        UnitApplication(
+            "solver_card.density",
+            UnitApplicationRole.SOLVER_EXPORT,
+            "mass.density",
+            DimensionId.MASS_PER_VOLUME,
+            "kg/m3",
+        ),
+    )
+
+    class ProfileResolver(Resolver):
+        async def resolve_for_target_preview(self, **values: object) -> ExactPreviewSource:
+            source = await super().resolve_for_target_preview(**values)
+            return replace(
+                source,
+                neutral=cast(
+                    NeutralMaterialDocument,
+                    SimpleNamespace(classification=DataClassification.INTERNAL.value),
+                ),
+                unit_profile=pin,
+            )
+
+    class Units:
+        def resolve_pin(self, *_: object) -> object:
+            return SimpleNamespace(
+                current=SimpleNamespace(
+                    scope=SimpleNamespace(classification=DataClassification.INTERNAL.value)
+                ),
+                content=SimpleNamespace(),
+            )
+
+    monkeypatch.setattr(target_preview, "preflight_neutral_solver_export", lambda **_: FakeReport())
+    monkeypatch.setattr(
+        target_preview, "build_neutral_solver_card", lambda **_: (FakeReport(), FakeCard())
+    )
+    monkeypatch.setattr(target_preview, "neutral_solver_unit_applications", lambda *_: applications)
+    command = CreateTargetPreview(
+        processing_output_id=IDS[0],
+        processing_output_revision_id=IDS[1],
+        neutral_material_id=IDS[7],
+        neutral_material_revision_id=IDS[8],
+        target=NeutralHyperelasticExportTarget("abaqus", "2025", "kg_m_s"),
+        solver_material_id=101,
+        material_name="ReferenceSteel",
+    )
+    context, decision = context_and_decision()
+    profiled = asyncio.run(
+        TargetPreviewService(
+            resolver=ProfileResolver(), units=cast(CommonUnitService, Units())
+        ).preview(context, decision, command)
+    )
+    legacy = asyncio.run(
+        TargetPreviewService(resolver=Resolver()).preview(context, decision, command)
+    )
+
+    assert profiled.unit_profile == pin
+    assert profiled.unit_applications == applications
+    assert profiled.native_sha256 == legacy.native_sha256
+    assert profiled.preview_identity != legacy.preview_identity
+
+    replacement = UnitProfilePin(IDS[9], IDS[11], "f" * 64)
+    with pytest.raises(TargetPreviewConflict, match="cannot replace"):
+        asyncio.run(
+            TargetPreviewService(
+                resolver=ProfileResolver(), units=cast(CommonUnitService, Units())
+            ).preview(context, decision, replace(command, unit_profile=replacement))
+        )
 
 
 def test_preview_rejects_execute_decision_instead_of_escalating_preview_to_delivery() -> None:
@@ -274,9 +352,7 @@ def test_preview_blocks_unsupported_target_and_stale_mapping_acknowledgement(
     with pytest.raises(TargetPreviewConflict, match="unsupported"):
         asyncio.run(service.preview(context, decision, command))
 
-    monkeypatch.setattr(
-        target_preview, "preflight_neutral_solver_export", lambda **_: FakeReport()
-    )
+    monkeypatch.setattr(target_preview, "preflight_neutral_solver_export", lambda **_: FakeReport())
     with pytest.raises(TargetPreviewConflict, match="acknowledgement is stale"):
         asyncio.run(
             service.preview(

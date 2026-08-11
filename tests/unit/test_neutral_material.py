@@ -6,6 +6,7 @@ from uuid import UUID
 
 import cmp.modules.exporting.domain.neutral_solver as neutral_solver
 import pytest
+from cmp.modules.exporting.application.unit_usage import neutral_solver_unit_applications
 from cmp.modules.exporting.domain.neutral_hyperelastic import (
     InvalidNeutralHyperelasticExport,
     NeutralHyperelasticExportTarget,
@@ -50,6 +51,13 @@ from cmp.modules.modeling.domain.neutral_material import (
 from cmp.modules.modeling.domain.reference_linear_viscoelasticity import (
     REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_DIGEST,
 )
+from cmp.modules.units.domain.profiles import (
+    UnitProfileContent,
+    UnitProfilePin,
+    UnitProfileSelection,
+)
+from cmp.modules.units.domain.system import DimensionId, UnitError
+from cmp.shared.domain.revisions import content_sha256
 from jsonschema import Draft202012Validator
 
 IDS = tuple(UUID(int=value) for value in range(1, 24))
@@ -146,6 +154,121 @@ def _document(
         applicable_strain_max=0.2,
         validation_status="reference_numerical_checks_passed",
     )
+
+
+def _solver_unit_profile() -> UnitProfileContent:
+    return UnitProfileContent(
+        profile_key="synthetic_solver_kg_m_s",
+        label="Synthetic solver kg-m-s",
+        description="Non-production exact Unit Profile export fixture.",
+        non_production=True,
+        selections=(
+            UnitProfileSelection(
+                "mass.density", DimensionId.MASS_PER_VOLUME, "g/cm3", "g/cm3", "kg/m3"
+            ),
+            UnitProfileSelection(
+                "hyperelastic.coefficient",
+                DimensionId.FORCE_PER_AREA,
+                "MPa",
+                "MPa",
+                "Pa",
+            ),
+            UnitProfileSelection(
+                "strain.engineering", DimensionId.STRAIN, "%", "%", "1"
+            ),
+            UnitProfileSelection(
+                "time.relaxation", DimensionId.TIME, "ms", "ms", "s"
+            ),
+            UnitProfileSelection(
+                "modulus.young", DimensionId.FORCE_PER_AREA, "GPa", "GPa", "Pa"
+            ),
+            UnitProfileSelection(
+                "stress.true", DimensionId.FORCE_PER_AREA, "MPa", "MPa", "Pa"
+            ),
+            UnitProfileSelection(
+                "strain.true_plastic", DimensionId.STRAIN, "%", "%", "1"
+            ),
+        ),
+    )
+
+
+def test_solver_unit_profile_trace_is_exact_and_hash_bound_without_rewriting_native_bytes() -> None:
+    source = _document()
+    profile = _solver_unit_profile()
+    pin = UnitProfilePin(IDS[0], IDS[1], profile.digest)
+    applications = neutral_solver_unit_applications(source, profile)
+    target = NeutralHyperelasticExportTarget("abaqus", "2025", "kg_m_s")
+    report = preflight_neutral_solver_export(
+        neutral_material_id=source.document_id,
+        neutral_material_revision_id=source.material_model_ir.model.revision_id,
+        source=source,
+        target=target,
+    )
+    _, legacy = build_neutral_solver_card(
+        neutral_material_id=source.document_id,
+        neutral_material_revision_id=source.material_model_ir.model.revision_id,
+        source_material_model_ir_revision_id=source.material_model_ir.model.revision_id,
+        source=source,
+        target=target,
+        expected_mapping_report_sha256=report.digest,
+        solver_material_id=901,
+        material_name="PROFILE_TRACE",
+    )
+    profiled = replace(legacy, unit_profile=pin, unit_applications=applications)
+
+    assert [item.quantity_semantics for item in applications] == [
+        "mass.density",
+        "hyperelastic.coefficient",
+        "strain.engineering",
+    ]
+    assert [item.unit_id for item in applications] == ["kg/m3", "Pa", "1"]
+    assert all(item.role.value == "solver_export" for item in applications)
+    assert "unit_profile" not in legacy.canonical()
+    assert "unit_applications" not in legacy.canonical()
+    assert profiled.canonical()["unit_profile"] == {
+        "profile_id": str(pin.profile_id),
+        "revision_id": str(pin.revision_id),
+        "content_sha256": pin.content_sha256,
+    }
+    assert profiled.card_text == legacy.card_text
+    assert profiled.card_sha256 == legacy.card_sha256
+    assert content_sha256(profiled.canonical()) != content_sha256(legacy.canonical())
+
+
+def test_solver_unit_profile_rejects_wrong_dimension_and_non_kg_m_s_export_unit() -> None:
+    source = _document()
+    profile = _solver_unit_profile()
+    wrong_dimension = replace(
+        profile,
+        selections=(
+            UnitProfileSelection("mass.density", DimensionId.LENGTH, "m", "m", "m"),
+            *profile.selections[1:],
+        ),
+    )
+    with pytest.raises(UnitError) as dimension_error:
+        neutral_solver_unit_applications(source, wrong_dimension)
+    assert dimension_error.value.detail() == {
+        "code": "CMP-UNIT-0002",
+        "message": "Unit Profile selection has the wrong dimension for the application",
+        "location": "solver_card.density",
+        "source_dimension": "length",
+        "target_dimension": "mass_per_volume",
+    }
+
+    non_compatible = replace(
+        profile,
+        selections=(
+            profile.selections[0],
+            replace(profile.selections[1], solver_export_unit_id="MPa"),
+            *profile.selections[2:],
+        ),
+    )
+    with pytest.raises(UnitError) as system_error:
+        neutral_solver_unit_applications(source, non_compatible)
+    assert system_error.value.code == "CMP-UNIT-0006"
+    assert system_error.value.location == "solver_card.constitutive_parameters"
+    assert system_error.value.source_dimension is DimensionId.FORCE_PER_AREA
+    assert system_error.value.target_dimension is DimensionId.FORCE_PER_AREA
 
 
 @pytest.mark.parametrize(

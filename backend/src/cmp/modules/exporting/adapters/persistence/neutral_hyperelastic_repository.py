@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
+from dataclasses import replace
 from typing import Any, Protocol, cast
 from uuid import UUID
 
@@ -20,6 +21,7 @@ from cmp.modules.exporting.application.service import RevisionSnapshot
 from cmp.modules.exporting.domain.neutral_hyperelastic import (
     MappingStatus,
     NeutralHyperelasticExportTarget,
+    NeutralHyperelasticSolverCardConflict,
     NeutralHyperelasticSolverCardContent,
     NeutralHyperelasticSolverCardNotFound,
 )
@@ -36,13 +38,19 @@ from cmp.modules.modeling.domain.neutral_material import (
     NeutralModelFamily,
     NeutralPronyTerm,
 )
+from cmp.modules.units.domain.profiles import (
+    UnitApplication,
+    UnitApplicationRole,
+    UnitProfilePin,
+)
+from cmp.modules.units.domain.system import DimensionId
 from cmp.shared.adapters.persistence.revisions import (
     SqlAlchemyRevisionStore,
     SqlRevisionHook,
     TypedRevisionTables,
 )
 from cmp.shared.application.revisions import RevisionStore
-from cmp.shared.domain.revisions import RevisionDraft, RevisionRecord, TenantScope
+from cmp.shared.domain.revisions import RevisionCreated, RevisionDraft, RevisionRecord, TenantScope
 
 metadata = sa.MetaData()
 
@@ -157,6 +165,85 @@ neutral_solver_card_prony_term_table = sa.Table(
     sa.Column("k_ratio", sa.Double(), nullable=False),
     sa.Column("relaxation_time_s", sa.Double(), nullable=False),
     schema="exporting",
+)
+neutral_solver_card_unit_profile_table = sa.Table(
+    "neutral_solver_card_unit_profile",
+    metadata,
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("solver_card_id", sa.Uuid(), nullable=False),
+    sa.Column("solver_card_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("unit_profile_id", sa.Uuid(), nullable=False),
+    sa.Column("unit_profile_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("unit_profile_sha256", sa.CHAR(64), nullable=False),
+    schema="exporting",
+)
+neutral_solver_card_unit_application_table = sa.Table(
+    "neutral_solver_card_unit_application",
+    metadata,
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("solver_card_id", sa.Uuid(), nullable=False),
+    sa.Column("solver_card_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("ordinal", sa.Integer(), nullable=False),
+    sa.Column("location", sa.String(255), nullable=False),
+    sa.Column("application_role", sa.String(32), nullable=False),
+    sa.Column("quantity_semantics", sa.String(160), nullable=False),
+    sa.Column("dimension", sa.String(64), nullable=False),
+    sa.Column("unit_id", sa.String(64), nullable=False),
+    schema="exporting",
+)
+provenance_entity_table = sa.Table(
+    "entity",
+    metadata,
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("reference_kind", sa.String(32), nullable=False),
+    sa.Column("reference_type", sa.String(100), nullable=False),
+    sa.Column("reference_id", sa.Uuid(), nullable=False),
+    schema="provenance",
+)
+provenance_generation_table = sa.Table(
+    "generation",
+    metadata,
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("entity_id", sa.Uuid(), nullable=False),
+    sa.Column("activity_id", sa.Uuid(), nullable=False),
+    schema="provenance",
+)
+provenance_usage_table = sa.Table(
+    "usage",
+    metadata,
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("activity_id", sa.Uuid(), nullable=False),
+    sa.Column("entity_id", sa.Uuid(), nullable=False),
+    sa.Column("role", sa.String(100), nullable=False),
+    sa.Column("ordinal", sa.Integer(), nullable=False),
+    sa.Column("recorded_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("recorded_by", sa.Uuid(), nullable=False),
+    schema="provenance",
+)
+provenance_derivation_table = sa.Table(
+    "derivation",
+    metadata,
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("generated_entity_id", sa.Uuid(), nullable=False),
+    sa.Column("used_entity_id", sa.Uuid(), nullable=False),
+    sa.Column("activity_id", sa.Uuid(), nullable=True),
+    sa.Column("derivation_kind", sa.String(100), nullable=False),
+    sa.Column("recorded_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("recorded_by", sa.Uuid(), nullable=False),
+    schema="provenance",
 )
 
 
@@ -339,6 +426,114 @@ _TABLES = TypedRevisionTables[NeutralCardContent](
 )
 
 
+class SqlNeutralSolverCardUnitProfileHook:
+    """Persist exact profile usage and link it into the card generation graph."""
+
+    def __init__(
+        self,
+        pin: UnitProfilePin,
+        applications: tuple[UnitApplication, ...],
+    ) -> None:
+        self._pin = pin
+        self._applications = applications
+
+    def __call__(self, session: Session, event: RevisionCreated) -> None:
+        revision = event.revision
+        scope = revision.scope
+        base = {
+            "organization_id": scope.organization_id,
+            "project_id": scope.project_id,
+            "classification": scope.classification,
+            "solver_card_id": revision.aggregate_id,
+            "solver_card_revision_id": revision.revision_id,
+        }
+        session.execute(
+            sa.insert(neutral_solver_card_unit_profile_table).values(
+                **base,
+                unit_profile_id=self._pin.profile_id,
+                unit_profile_revision_id=self._pin.revision_id,
+                unit_profile_sha256=self._pin.content_sha256,
+            )
+        )
+        session.execute(
+            sa.insert(neutral_solver_card_unit_application_table),
+            [
+                {
+                    **base,
+                    "ordinal": ordinal,
+                    "location": item.location,
+                    "application_role": item.role.value,
+                    "quantity_semantics": item.quantity_semantics,
+                    "dimension": item.dimension.value,
+                    "unit_id": item.unit_id,
+                }
+                for ordinal, item in enumerate(self._applications)
+            ],
+        )
+        profile_entity_id = session.scalar(
+            sa.select(provenance_entity_table.c.id).where(
+                provenance_entity_table.c.organization_id == scope.organization_id,
+                provenance_entity_table.c.project_id == scope.project_id,
+                provenance_entity_table.c.classification == scope.classification,
+                provenance_entity_table.c.reference_kind == "revision",
+                provenance_entity_table.c.reference_type == "units.unit_profile.revision",
+                provenance_entity_table.c.reference_id == self._pin.revision_id,
+            )
+        )
+        generated_entity_id = session.scalar(
+            sa.select(provenance_entity_table.c.id).where(
+                provenance_entity_table.c.organization_id == scope.organization_id,
+                provenance_entity_table.c.project_id == scope.project_id,
+                provenance_entity_table.c.classification == scope.classification,
+                provenance_entity_table.c.reference_kind == "revision",
+                provenance_entity_table.c.reference_type
+                == "exporting.neutral_solver_card.revision",
+                provenance_entity_table.c.reference_id == revision.revision_id,
+            )
+        )
+        if profile_entity_id is None or generated_entity_id is None:
+            raise NeutralHyperelasticSolverCardConflict(
+                "Unit Profile or Solver Card provenance Entity is missing"
+            )
+        activity_id = session.scalar(
+            sa.select(provenance_generation_table.c.activity_id).where(
+                provenance_generation_table.c.organization_id == scope.organization_id,
+                provenance_generation_table.c.project_id == scope.project_id,
+                provenance_generation_table.c.classification == scope.classification,
+                provenance_generation_table.c.entity_id == generated_entity_id,
+            )
+        )
+        if activity_id is None:
+            raise NeutralHyperelasticSolverCardConflict(
+                "Solver Card provenance Activity is missing"
+            )
+        relation = {
+            "organization_id": scope.organization_id,
+            "project_id": scope.project_id,
+            "classification": scope.classification,
+            "recorded_at": revision.created_at,
+            "recorded_by": revision.created_by,
+        }
+        session.execute(
+            sa.insert(provenance_usage_table).values(
+                **relation,
+                activity_id=activity_id,
+                entity_id=profile_entity_id,
+                role="unit_profile",
+                ordinal=1,
+            )
+        )
+        session.execute(
+            sa.insert(provenance_derivation_table).values(
+                **relation,
+                generated_entity_id=generated_entity_id,
+                used_entity_id=profile_entity_id,
+                activity_id=activity_id,
+                derivation_kind="unit_profile_application",
+            )
+        )
+
+
 class SqlAlchemyNeutralHyperelasticExportingRepository(NeutralHyperelasticExportingRepository):
     def __init__(
         self,
@@ -370,11 +565,22 @@ class SqlAlchemyNeutralHyperelasticExportingRepository(NeutralHyperelasticExport
         context: SecurityContext,
         decision: AuthorizationDecision,
         additional_hooks: Sequence[SqlRevisionHook] = (),
+        unit_profile: UnitProfilePin | None = None,
+        unit_applications: tuple[UnitApplication, ...] = (),
     ) -> RevisionStore[NeutralCardContent]:
+        if (unit_profile is None) != (not unit_applications):
+            raise NeutralHyperelasticSolverCardConflict(
+                "Solver Card Unit Profile pin and application trace must be stored together"
+            )
+        unit_hooks: tuple[SqlRevisionHook, ...] = (
+            ()
+            if unit_profile is None
+            else (SqlNeutralSolverCardUnitProfileHook(unit_profile, unit_applications),)
+        )
         return SqlAlchemyRevisionStore(
             session_factory=self._sessions,
             tables=_TABLES,
-            hooks=(*self._hooks, *additional_hooks),
+            hooks=(*self._hooks, *additional_hooks, *unit_hooks),
             session_binder=lambda session: self._bind(session, context, decision),
         )
 
@@ -573,6 +779,59 @@ class SqlAlchemyNeutralHyperelasticExportingRepository(NeutralHyperelasticExport
                 exporter_version=str(row["exporter_version"]),
                 exporter_digest=str(row["exporter_digest"]),
             )
+        profile_row = (
+            session.execute(
+                sa.select(neutral_solver_card_unit_profile_table).where(
+                    neutral_solver_card_unit_profile_table.c.organization_id
+                    == row["organization_id"],
+                    neutral_solver_card_unit_profile_table.c.project_id == row["project_id"],
+                    neutral_solver_card_unit_profile_table.c.solver_card_revision_id == row["id"],
+                )
+            )
+            .mappings()
+            .one_or_none()
+        )
+        unit_profile = (
+            None
+            if profile_row is None
+            else UnitProfilePin(
+                profile_id=cast(UUID, profile_row["unit_profile_id"]),
+                revision_id=cast(UUID, profile_row["unit_profile_revision_id"]),
+                content_sha256=str(profile_row["unit_profile_sha256"]),
+            )
+        )
+        application_rows = (
+            session.execute(
+                sa.select(neutral_solver_card_unit_application_table)
+                .where(
+                    neutral_solver_card_unit_application_table.c.organization_id
+                    == row["organization_id"],
+                    neutral_solver_card_unit_application_table.c.project_id
+                    == row["project_id"],
+                    neutral_solver_card_unit_application_table.c.solver_card_revision_id
+                    == row["id"],
+                )
+                .order_by(neutral_solver_card_unit_application_table.c.ordinal)
+            )
+            .mappings()
+            .all()
+        )
+        unit_applications = tuple(
+            UnitApplication(
+                location=str(item["location"]),
+                role=UnitApplicationRole(str(item["application_role"])),
+                quantity_semantics=str(item["quantity_semantics"]),
+                dimension=DimensionId(str(item["dimension"])),
+                unit_id=str(item["unit_id"]),
+            )
+            for item in application_rows
+        )
+        if unit_profile is not None:
+            content = replace(
+                content,
+                unit_profile=unit_profile,
+                unit_applications=unit_applications,
+            )
         return NeutralHyperelasticSolverCardSnapshot(
             cast(UUID, row["aggregate_id"]),
             content.neutral_material_id,
@@ -580,6 +839,8 @@ class SqlAlchemyNeutralHyperelasticExportingRepository(NeutralHyperelasticExport
             content.solver_material_id,
             content.material_name,
             RevisionSnapshot(_record(row), content),
+            unit_profile,
+            unit_applications,
         )
 
     def get_solver_card(

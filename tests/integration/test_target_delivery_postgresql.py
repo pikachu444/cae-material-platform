@@ -13,10 +13,11 @@ import asyncio
 import hashlib
 import os
 from collections.abc import Iterator
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
-from typing import cast
+from typing import Any, cast
 from uuid import UUID, uuid4
 
 import pytest
@@ -35,8 +36,11 @@ from cmp.modules.exporting.adapters.persistence.target_delivery_receipts import 
     delivery_receipt_table,
 )
 from cmp.modules.exporting.application.neutral_hyperelastic_service import (
+    NEUTRAL_SOLVER_CARD_PROFILE_SCHEMA_ID,
+    NEUTRAL_SOLVER_CARD_PROFILE_SCHEMA_VERSION,
     NEUTRAL_SOLVER_CARD_SCHEMA_ID,
     NEUTRAL_SOLVER_CARD_SCHEMA_VERSION,
+    CreateNeutralHyperelasticSolverCard,
     NeutralHyperelasticSolverCardSnapshot,
 )
 from cmp.modules.exporting.application.service import RevisionSnapshot
@@ -63,13 +67,26 @@ from cmp.modules.identity_access.domain.security import Principal, PrincipalType
 from cmp.modules.jobs.adapters.persistence.events import SqlAlchemyOutboxWriter
 from cmp.modules.modeling.domain.hyperelastic_families import HyperelasticFamily
 from cmp.modules.modeling.domain.neutral_material import NeutralHyperelasticParameters
+from cmp.modules.provenance.adapters.persistence.repository import (
+    SqlAlchemyRevisionProvenanceHook,
+)
 from cmp.modules.review_release.adapters.persistence.lifecycle import SqlInitialLifecycleHook
 from cmp.modules.review_release.adapters.persistence.publication import (
     review_publication_projection_table,
 )
+from cmp.modules.units.adapters.persistence.profiles import SqlAlchemyUnitProfileRepository
+from cmp.modules.units.application.profiles import CommonUnitService, CreateUnitProfile
+from cmp.modules.units.domain.profiles import (
+    UnitApplication,
+    UnitApplicationRole,
+    UnitProfileContent,
+    UnitProfilePin,
+    UnitProfileSelection,
+)
+from cmp.modules.units.domain.system import DimensionId
 from cmp.shared.application.revisions import CreateRevisionedAggregate, RevisionService
-from cmp.shared.domain.revisions import TenantScope
-from sqlalchemy.engine import URL, Engine, make_url
+from cmp.shared.domain.revisions import TenantScope, content_sha256
+from sqlalchemy.engine import URL, CursorResult, Engine, make_url
 from sqlalchemy.orm import Session, sessionmaker
 
 PROJECT_ROOT = Path(__file__).parents[2]
@@ -110,6 +127,9 @@ MODEL_IR_REVISION_ID = UUID("76000000-0000-4000-8000-000000000118")
 PROCESSING_OUTPUT_ID = UUID("76000000-0000-4000-8000-000000000119")
 PROCESSING_OUTPUT_REVISION_ID = UUID("76000000-0000-4000-8000-00000000011a")
 CARD_ID = UUID("76000000-0000-4000-8000-000000000120")
+PROFILE_CARD_ID = UUID("76000000-0000-4000-8000-000000000128")
+LEGACY_COMPAT_CARD_ID = UUID("76000000-0000-4000-8000-000000000129")
+UNIT_PROFILE_ID = UUID("76000000-0000-4000-8000-00000000012a")
 MODEL_ID = UUID("76000000-0000-4000-8000-000000000121")
 MODEL_REVISION_ID = UUID("76000000-0000-4000-8000-000000000122")
 REVIEW_CARD_REQUEST_ID = UUID("76000000-0000-4000-8000-000000000123")
@@ -874,16 +894,16 @@ def postgres() -> Iterator[tuple[Engine, Engine]]:
             )
             connection.exec_driver_sql(
                 "GRANT USAGE ON SCHEMA governance, revisioning, access_control, catalog, "
-                "identity, datasets, modeling, exporting, processing, testing, artifact, events "
-                "TO cmp_app"
+                "identity, datasets, modeling, exporting, processing, testing, artifact, events, "
+                "provenance, units, plugin TO cmp_app"
             )
             connection.exec_driver_sql(
                 "GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA governance, catalog, "
-                "exporting, events TO cmp_app"
+                "exporting, events, provenance, units TO cmp_app"
             )
             connection.exec_driver_sql(
                 "GRANT SELECT ON ALL TABLES IN SCHEMA identity, datasets, modeling, processing, "
-                "testing, artifact TO cmp_app"
+                "testing, artifact, plugin TO cmp_app"
             )
             connection.exec_driver_sql(
                 "GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA revisioning, access_control TO cmp_app"
@@ -949,11 +969,13 @@ class _Cards:
         neutral_id: UUID = NEUTRAL_ID,
         neutral_revision_id: UUID = NEUTRAL_REVISION_ID,
         card_id: UUID = CARD_ID,
+        unit_applications: tuple[UnitApplication, ...] = (),
     ) -> None:
         self.repository = repository
         self.neutral_id = neutral_id
         self.neutral_revision_id = neutral_revision_id
         self.card_id = card_id
+        self.unit_applications = unit_applications
         self.calls = 0
 
     async def create_card(
@@ -964,6 +986,7 @@ class _Cards:
         additional_hooks: tuple[object, ...] = (),
     ) -> tuple[NeutralHyperelasticSolverCardSnapshot, SimpleNamespace]:
         self.calls += 1
+        command_value = cast(CreateNeutralHyperelasticSolverCard, _command)
         content = NeutralHyperelasticSolverCardContent(
             neutral_material_id=self.neutral_id,
             neutral_material_revision_id=self.neutral_revision_id,
@@ -972,12 +995,12 @@ class _Cards:
             target=TARGET,
             solver_material_id=901,
             material_name="TARGET_CARD",
-            density_kg_per_m3=1100,
+            density_kg_per_m3=1100.0,
             parameters=NeutralHyperelasticParameters(
                 HyperelasticFamily.NEO_HOOKEAN,
-                c10_pa=1_000_000,
+                c10_pa=1_000_000.0,
             ),
-            applicable_strain_min=0,
+            applicable_strain_min=0.0,
             applicable_strain_max=0.2,
             mapping_statuses=(
                 ("density", "exact"),
@@ -993,6 +1016,8 @@ class _Cards:
             exporter_id=ABAQUS_EXPORTER_ID,
             exporter_version="1.0.0",
             exporter_digest=EXPORTER_SHA,
+            unit_profile=command_value.unit_profile,
+            unit_applications=self.unit_applications,
         )
         record = RevisionService(
             aggregate_type="exporting.neutral_solver_card",
@@ -1000,13 +1025,23 @@ class _Cards:
                 context=context,
                 decision=decision,
                 additional_hooks=additional_hooks,  # type: ignore[arg-type]
+                unit_profile=command_value.unit_profile,
+                unit_applications=self.unit_applications,
             ),
         ).create(
             CreateRevisionedAggregate(
                 aggregate_id=self.card_id,
                 scope=TenantScope(ORG, PROJECT, DataClassification.INTERNAL.value),
-                schema_id=NEUTRAL_SOLVER_CARD_SCHEMA_ID,
-                schema_version=NEUTRAL_SOLVER_CARD_SCHEMA_VERSION,
+                schema_id=(
+                    NEUTRAL_SOLVER_CARD_SCHEMA_ID
+                    if command_value.unit_profile is None
+                    else NEUTRAL_SOLVER_CARD_PROFILE_SCHEMA_ID
+                ),
+                schema_version=(
+                    NEUTRAL_SOLVER_CARD_SCHEMA_VERSION
+                    if command_value.unit_profile is None
+                    else NEUTRAL_SOLVER_CARD_PROFILE_SCHEMA_VERSION
+                ),
                 content=content,
                 created_by=ACTOR,
                 change_reason="Deliver exact target artifact",
@@ -1021,6 +1056,8 @@ class _Cards:
             content.solver_material_id,
             content.material_name,
             RevisionSnapshot(record, content),
+            command_value.unit_profile,
+            self.unit_applications,
         )
         return snapshot, SimpleNamespace(digest=REPORT_SHA)
 
@@ -1030,6 +1067,8 @@ def _preview(
     neutral_id: UUID = NEUTRAL_ID,
     neutral_revision_id: UUID = NEUTRAL_REVISION_ID,
     preview_identity: str = "1" * 64,
+    unit_profile: UnitProfilePin | None = None,
+    unit_applications: tuple[UnitApplication, ...] = (),
 ) -> TargetPreview:
     return TargetPreview(
         preview_identity=preview_identity,
@@ -1058,10 +1097,16 @@ def _preview(
             "material_name": "TARGET_CARD",
         },
         acknowledgement_identity=None,
+        unit_profile=unit_profile,
+        unit_applications=unit_applications,
     )
 
 
-def _command(*, preview_identity: str = "1" * 64) -> CreateTargetDelivery:
+def _command(
+    *,
+    preview_identity: str = "1" * 64,
+    unit_profile: UnitProfilePin | None = None,
+) -> CreateTargetDelivery:
     return CreateTargetDelivery(
         processing_output_id=PROCESSING_OUTPUT_ID,
         processing_output_revision_id=PROCESSING_OUTPUT_REVISION_ID,
@@ -1073,6 +1118,55 @@ def _command(*, preview_identity: str = "1" * 64) -> CreateTargetDelivery:
         preview_identity=preview_identity,
         expected_mapping_report_sha256=REPORT_SHA,
         acknowledgement_identity=None,
+        unit_profile=unit_profile,
+    )
+
+
+def _solver_unit_profile_content() -> UnitProfileContent:
+    return UnitProfileContent(
+        profile_key="target_delivery_pg_kg_m_s",
+        label="Target delivery PostgreSQL kg-m-s",
+        description="Non-production profile-bearing target delivery evidence.",
+        non_production=True,
+        selections=(
+            UnitProfileSelection(
+                "mass.density", DimensionId.MASS_PER_VOLUME, "g/cm3", "g/cm3", "kg/m3"
+            ),
+            UnitProfileSelection(
+                "hyperelastic.coefficient",
+                DimensionId.FORCE_PER_AREA,
+                "MPa",
+                "MPa",
+                "Pa",
+            ),
+            UnitProfileSelection("strain.engineering", DimensionId.STRAIN, "%", "%", "1"),
+        ),
+    )
+
+
+def _solver_unit_applications() -> tuple[UnitApplication, ...]:
+    return (
+        UnitApplication(
+            "solver_card.density",
+            UnitApplicationRole.SOLVER_EXPORT,
+            "mass.density",
+            DimensionId.MASS_PER_VOLUME,
+            "kg/m3",
+        ),
+        UnitApplication(
+            "solver_card.constitutive_parameters",
+            UnitApplicationRole.SOLVER_EXPORT,
+            "hyperelastic.coefficient",
+            DimensionId.FORCE_PER_AREA,
+            "Pa",
+        ),
+        UnitApplication(
+            "solver_card.applicability.engineering_strain",
+            UnitApplicationRole.SOLVER_EXPORT,
+            "strain.engineering",
+            DimensionId.STRAIN,
+            "1",
+        ),
     )
 
 
@@ -1084,19 +1178,21 @@ def _service(
     card_neutral_id: UUID = NEUTRAL_ID,
     card_neutral_revision_id: UUID = NEUTRAL_REVISION_ID,
     card_id: UUID = CARD_ID,
+    unit_applications: tuple[UnitApplication, ...] = (),
 ) -> tuple[TargetDeliveryService, _Cards, SecurityContext, AuthorizationDecision]:
     sessions = sessionmaker(app_engine, class_=Session)
     rls = SqlAlchemyRlsContext()
     repository = SqlAlchemyNeutralHyperelasticExportingRepository(
         session_factory=sessions,
         rls_context=rls,
-        revision_hooks=(SqlInitialLifecycleHook(),),
+        revision_hooks=(SqlInitialLifecycleHook(), SqlAlchemyRevisionProvenanceHook()),
     )
     card_service = cards or _Cards(
         repository=repository,
         neutral_id=card_neutral_id,
         neutral_revision_id=card_neutral_revision_id,
         card_id=card_id,
+        unit_applications=unit_applications,
     )
     recorder = SqlTargetDeliveryReceiptRecorder(
         session_factory=sessions,
@@ -1127,33 +1223,51 @@ def test_target_delivery_commits_card_lifecycle_binding_receipt_and_replay(
     assert cards.calls == 1
 
     with admin_engine.connect() as connection:
-        assert connection.execute(
-            sa.select(sa.func.count()).select_from(neutral_solver_card_table)
-        ).scalar_one() == 1
-        assert connection.execute(
-            sa.select(sa.func.count()).select_from(neutral_solver_card_revision_table)
-        ).scalar_one() == 1
-        assert connection.execute(
-            sa.text(
-                "SELECT count(*) FROM governance.lifecycle_projection "
-                "WHERE aggregate_type='exporting.neutral_solver_card'"
-            )
-        ).scalar_one() == 1
-        assert connection.execute(
-            sa.text(
-                "SELECT count(*) FROM catalog.domain_record_binding "
-                "WHERE domain_kind='neutral_solver_card'"
-            )
-        ).scalar_one() == 1
-        assert connection.execute(
-            sa.select(sa.func.count()).select_from(delivery_receipt_table)
-        ).scalar_one() == 1
-        assert connection.execute(
-            sa.text(
-                "SELECT count(*) FROM events.outbox_event "
-                "WHERE event_type='io.cmp.exporting.solver-card-delivered.v1'"
-            )
-        ).scalar_one() == 1
+        assert (
+            connection.execute(
+                sa.select(sa.func.count()).select_from(neutral_solver_card_table)
+            ).scalar_one()
+            == 1
+        )
+        assert (
+            connection.execute(
+                sa.select(sa.func.count()).select_from(neutral_solver_card_revision_table)
+            ).scalar_one()
+            == 1
+        )
+        assert (
+            connection.execute(
+                sa.text(
+                    "SELECT count(*) FROM governance.lifecycle_projection "
+                    "WHERE aggregate_type='exporting.neutral_solver_card'"
+                )
+            ).scalar_one()
+            == 1
+        )
+        assert (
+            connection.execute(
+                sa.text(
+                    "SELECT count(*) FROM catalog.domain_record_binding "
+                    "WHERE domain_kind='neutral_solver_card'"
+                )
+            ).scalar_one()
+            == 1
+        )
+        assert (
+            connection.execute(
+                sa.select(sa.func.count()).select_from(delivery_receipt_table)
+            ).scalar_one()
+            == 1
+        )
+        assert (
+            connection.execute(
+                sa.text(
+                    "SELECT count(*) FROM events.outbox_event "
+                    "WHERE event_type='io.cmp.exporting.solver-card-delivered.v1'"
+                )
+            ).scalar_one()
+            == 1
+        )
 
 
 def test_publication_neutral_binding_requires_exact_record_approval(
@@ -1311,9 +1425,7 @@ def test_target_delivery_missing_or_mismatched_neutral_binding_rolls_back(
         cards=None,
         card_neutral_id=(neutral_id if neutral_id == NO_BINDING_NEUTRAL_ID else NEUTRAL_ID),
         card_neutral_revision_id=(
-            neutral_revision_id
-            if neutral_id == NO_BINDING_NEUTRAL_ID
-            else NEUTRAL_REVISION_ID
+            neutral_revision_id if neutral_id == NO_BINDING_NEUTRAL_ID else NEUTRAL_REVISION_ID
         ),
         card_id=UUID(
             "76000000-0000-4000-8000-000000000121"
@@ -1326,24 +1438,328 @@ def test_target_delivery_missing_or_mismatched_neutral_binding_rolls_back(
     assert cards.calls == 1
 
     with admin_engine.connect() as connection:
-        assert connection.execute(
-            sa.select(sa.func.count()).select_from(neutral_solver_card_table)
-        ).scalar_one() == 1
-        assert connection.execute(
-            sa.select(sa.func.count()).select_from(neutral_solver_card_revision_table)
-        ).scalar_one() == 1
-        assert connection.execute(
-            sa.select(sa.func.count()).select_from(delivery_receipt_table)
-        ).scalar_one() == 1
+        assert (
+            connection.execute(
+                sa.select(sa.func.count()).select_from(neutral_solver_card_table)
+            ).scalar_one()
+            == 1
+        )
+        assert (
+            connection.execute(
+                sa.select(sa.func.count()).select_from(neutral_solver_card_revision_table)
+            ).scalar_one()
+            == 1
+        )
+        assert (
+            connection.execute(
+                sa.select(sa.func.count()).select_from(delivery_receipt_table)
+            ).scalar_one()
+            == 1
+        )
+        assert (
+            connection.execute(
+                sa.text(
+                    "SELECT count(*) FROM catalog.domain_record_binding "
+                    "WHERE domain_kind='neutral_solver_card'"
+                )
+            ).scalar_one()
+            == 1
+        )
+        assert (
+            connection.execute(
+                sa.text(
+                    "SELECT count(*) FROM events.outbox_event "
+                    "WHERE event_type='io.cmp.exporting.solver-card-delivered.v1'"
+                )
+            ).scalar_one()
+            == 1
+        )
+
+
+def test_profile_bearing_delivery_persists_exact_typed_trace_provenance_and_rls(
+    postgres: tuple[Engine, Engine],
+) -> None:
+    admin_engine, app_engine = postgres
+    context = _context()
+    unit_decision = AuthorizationDecision(
+        principal_id=ACTOR,
+        organization_id=ORG,
+        project_id=PROJECT,
+        permission=Permission.UNITS_WRITE,
+        roles=(Role.DATA_STEWARD,),
+        database_permissions=database_permissions_for(Permission.UNITS_WRITE),
+        max_classification=DataClassification.INTERNAL,
+        allow_export_controlled=False,
+        request_id=context.request_id,
+        trace_id=context.trace_id,
+        decided_at=NOW,
+    )
+    sessions = sessionmaker(app_engine, class_=Session, expire_on_commit=False)
+    unit_service = CommonUnitService(
+        repository=SqlAlchemyUnitProfileRepository(
+            session_factory=sessions,
+            rls_context=SqlAlchemyRlsContext(),
+            revision_hooks=(SqlAlchemyRevisionProvenanceHook(),),
+        ),
+        id_factory=lambda: UNIT_PROFILE_ID,
+    )
+    profile = unit_service.create_profile(
+        context,
+        unit_decision,
+        CreateUnitProfile(
+            classification=DataClassification.INTERNAL,
+            content=_solver_unit_profile_content(),
+            change_reason="Create exact profile-bearing target-delivery fixture.",
+        ),
+    )
+    pin = profile.pin
+    applications = _solver_unit_applications()
+    preview_identity = "9" * 64
+    profile_preview = _preview(
+        preview_identity=preview_identity,
+        unit_profile=pin,
+        unit_applications=applications,
+    )
+    service, cards, context, decision = _service(
+        app_engine,
+        profile_preview,
+        card_id=PROFILE_CARD_ID,
+        unit_applications=applications,
+    )
+
+    delivered, receipt = asyncio.run(
+        service.deliver(
+            context,
+            decision,
+            _command(preview_identity=preview_identity, unit_profile=pin),
+        )
+    )
+    readback = cards.repository.get_solver_card_revision(
+        context=context,
+        decision=decision,
+        solver_card_id=PROFILE_CARD_ID,
+        solver_card_revision_id=receipt.solver_card_revision_id,
+    )
+
+    assert delivered.unit_profile == pin
+    assert receipt.unit_profile == pin
+    assert receipt.unit_applications == applications
+    assert readback.unit_profile == pin
+    assert readback.unit_applications == applications
+    assert readback.current.content.unit_profile == pin
+    assert readback.current.content.unit_applications == applications
+    assert readback.current.record.schema_id == NEUTRAL_SOLVER_CARD_PROFILE_SCHEMA_ID
+    assert readback.current.record.schema_version == NEUTRAL_SOLVER_CARD_PROFILE_SCHEMA_VERSION
+    assert readback.current.record.content_hash == content_sha256(
+        readback.current.content.canonical()
+    )
+
+    legacy_identity = "8" * 64
+    legacy_service, _, legacy_context, legacy_decision = _service(
+        app_engine,
+        _preview(preview_identity=legacy_identity),
+        card_id=LEGACY_COMPAT_CARD_ID,
+    )
+    _, legacy_receipt = asyncio.run(
+        legacy_service.deliver(
+            legacy_context,
+            legacy_decision,
+            _command(preview_identity=legacy_identity),
+        )
+    )
+    assert legacy_receipt.unit_profile is None
+    assert legacy_receipt.unit_applications == ()
+    assert legacy_receipt.native_sha256 == receipt.native_sha256 == CARD_SHA
+
+    with admin_engine.connect() as connection:
+        card_profile = (
+            connection.execute(
+                sa.text(
+                    "SELECT unit_profile_id, unit_profile_revision_id, unit_profile_sha256 "
+                    "FROM exporting.neutral_solver_card_unit_profile "
+                    "WHERE solver_card_id=:card"
+                ),
+                {"card": PROFILE_CARD_ID},
+            )
+            .mappings()
+            .one()
+        )
+        assert card_profile == {
+            "unit_profile_id": pin.profile_id,
+            "unit_profile_revision_id": pin.revision_id,
+            "unit_profile_sha256": pin.content_sha256,
+        }
+        stored_card_applications = (
+            connection.execute(
+                sa.text(
+                    "SELECT location, application_role, quantity_semantics, dimension, unit_id "
+                    "FROM exporting.neutral_solver_card_unit_application "
+                    "WHERE solver_card_id=:card ORDER BY ordinal"
+                ),
+                {"card": PROFILE_CARD_ID},
+            )
+            .mappings()
+            .all()
+        )
+        assert [dict(row) for row in stored_card_applications] == [
+            {
+                "location": item.location,
+                "application_role": item.role.value,
+                "quantity_semantics": item.quantity_semantics,
+                "dimension": item.dimension.value,
+                "unit_id": item.unit_id,
+            }
+            for item in applications
+        ]
+        delivery_profile = (
+            connection.execute(
+                sa.text(
+                    "SELECT unit_profile_id, unit_profile_revision_id, unit_profile_sha256 "
+                    "FROM exporting.solver_card_delivery_receipt WHERE receipt_id=:receipt"
+                ),
+                {"receipt": receipt.receipt_id},
+            )
+            .mappings()
+            .one()
+        )
+        assert delivery_profile == card_profile
+        stored_delivery_applications = (
+            connection.execute(
+                sa.text(
+                    "SELECT location, application_role, quantity_semantics, dimension, unit_id "
+                    "FROM exporting.solver_card_delivery_unit_application "
+                    "WHERE receipt_id=:receipt ORDER BY ordinal"
+                ),
+                {"receipt": receipt.receipt_id},
+            )
+            .mappings()
+            .all()
+        )
+        assert [dict(row) for row in stored_delivery_applications] == [
+            {
+                "location": item.location,
+                "application_role": item.role.value,
+                "quantity_semantics": item.quantity_semantics,
+                "dimension": item.dimension.value,
+                "unit_id": item.unit_id,
+            }
+            for item in applications
+        ]
+        assert (
+            connection.execute(
+                sa.text(
+                    "SELECT count(*) FROM provenance.usage usage "
+                    "JOIN provenance.entity entity "
+                    "ON entity.organization_id=usage.organization_id "
+                    "AND entity.project_id=usage.project_id AND entity.id=usage.entity_id "
+                    "WHERE entity.reference_type='units.unit_profile.revision' "
+                    "AND entity.reference_id=:revision AND usage.role='unit_profile'"
+                ),
+                {"revision": pin.revision_id},
+            ).scalar_one()
+            == 1
+        )
+        assert (
+            connection.execute(
+                sa.text(
+                    "SELECT count(*) FROM provenance.derivation derivation "
+                    "JOIN provenance.entity used "
+                    "ON used.organization_id=derivation.organization_id "
+                    "AND used.project_id=derivation.project_id "
+                    "AND used.id=derivation.used_entity_id "
+                    "JOIN provenance.entity generated "
+                    "ON generated.organization_id=derivation.organization_id "
+                    "AND generated.project_id=derivation.project_id "
+                    "AND generated.id=derivation.generated_entity_id "
+                    "WHERE used.reference_type='units.unit_profile.revision' "
+                    "AND used.reference_id=:profile_revision "
+                    "AND generated.reference_type='exporting.neutral_solver_card.revision' "
+                    "AND generated.reference_id=:card_revision "
+                    "AND derivation.derivation_kind='unit_profile_application'"
+                ),
+                {
+                    "profile_revision": pin.revision_id,
+                    "card_revision": receipt.solver_card_revision_id,
+                },
+            ).scalar_one()
+            == 1
+        )
+        assert (
+            connection.execute(
+                sa.text(
+                    "SELECT count(*) FROM exporting.neutral_solver_card_unit_profile "
+                    "WHERE solver_card_id=:card"
+                ),
+                {"card": LEGACY_COMPAT_CARD_ID},
+            ).scalar_one()
+            == 0
+        )
+        assert (
+            connection.execute(
+                sa.text(
+                    "SELECT count(*) FROM exporting.neutral_solver_card_unit_application "
+                    "WHERE solver_card_id=:card"
+                ),
+                {"card": LEGACY_COMPAT_CARD_ID},
+            ).scalar_one()
+            == 0
+        )
         assert connection.execute(
             sa.text(
-                "SELECT count(*) FROM catalog.domain_record_binding "
-                "WHERE domain_kind='neutral_solver_card'"
-            )
-        ).scalar_one() == 1
-        assert connection.execute(
+                "SELECT unit_profile_id, unit_profile_revision_id, unit_profile_sha256 "
+                "FROM exporting.solver_card_delivery_receipt WHERE receipt_id=:receipt"
+            ),
+            {"receipt": legacy_receipt.receipt_id},
+        ).one() == (None, None, None)
+
+    rls = SqlAlchemyRlsContext()
+    with sessions() as session, session.begin():
+        rls.bind_authorization(session, context, decision)
+        result = session.execute(
             sa.text(
-                "SELECT count(*) FROM events.outbox_event "
-                "WHERE event_type='io.cmp.exporting.solver-card-delivered.v1'"
+                "UPDATE exporting.neutral_solver_card_unit_application "
+                "SET location='mutated' WHERE solver_card_id=:card"
+            ),
+            {"card": PROFILE_CARD_ID},
+        )
+        assert cast(CursorResult[Any], result).rowcount == 0
+    with pytest.raises(sa.exc.DBAPIError, match="immutable"):
+        with admin_engine.begin() as connection:
+            connection.execute(
+                sa.text(
+                    "UPDATE exporting.neutral_solver_card_unit_application "
+                    "SET location='mutated' WHERE solver_card_id=:card"
+                ),
+                {"card": PROFILE_CARD_ID},
             )
-        ).scalar_one() == 1
+
+    other_project = UUID("76000000-0000-4000-8000-0000000001ff")
+    other_context = replace(context, project_id=other_project)
+    other_decision = replace(
+        decision,
+        project_id=other_project,
+        permission=Permission.EXPORT_READ,
+        database_permissions=database_permissions_for(Permission.EXPORT_READ),
+    )
+    with sessions() as session, session.begin():
+        rls.bind_authorization(session, other_context, other_decision)
+        assert (
+            session.scalar(
+                sa.text(
+                    "SELECT count(*) FROM exporting.neutral_solver_card_unit_profile "
+                    "WHERE solver_card_id=:card"
+                ),
+                {"card": PROFILE_CARD_ID},
+            )
+            == 0
+        )
+        assert (
+            session.scalar(
+                sa.text(
+                    "SELECT count(*) FROM exporting.solver_card_delivery_unit_application "
+                    "WHERE receipt_id=:receipt"
+                ),
+                {"receipt": receipt.receipt_id},
+            )
+            == 0
+        )
