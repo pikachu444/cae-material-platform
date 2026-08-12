@@ -37,27 +37,36 @@ Initial implementation classification was:
 
 ## Verification record
 
-The browser implementation was frozen as source commit
-`83e545169df7b0fe254fdbe2164512945723b306`. It adds the lazy Administration route, typed client,
+The corrected browser and planner implementation was frozen as source commit
+`64b9be83a03e1760478165b87917e7107852d4f7`. It adds the lazy Administration route, typed client,
 shared-token three-pane surface, local/source validation, server-owned plan review, explicit confirmation,
 atomic Apply request, mandatory immutable read-back, safe refresh recovery and verified export. During
 self-review, the uncertain-completion boundary was tightened: if Apply returns an application but the
 mandatory GET fails, the screen withholds success and export and offers only **Read applied result**. It
 never replays Apply or re-plans an operation that may already have committed.
 
+The first independent Balanced audit found two material recovery gaps. The correction makes the
+read-only Catalog snapshot include current Record/value activity, emits deterministic
+`record_migration_required` error actions and diagnostics before confirmation, and preserves the
+apply-time migration conflict if Record state changes after planning. It also locks source replacement
+while an Artifact, plan, application or recovery coordinate is active, hides reset during an in-flight
+operation, and invalidates stale asynchronous results when **New bundle** explicitly clears the context.
+Focused server and browser regressions cover both findings.
+
 | Check | Result |
 | --- | --- |
-| Focused Vitest API/component suite | PASS — 24 tests, including full flow, role denial, stale plan, uncertain Apply/read-back recovery, refresh, invalid file classes and export mismatch |
-| Full web Vitest regression | PASS — 64 files, 345 tests |
-| Production web build and bundle budget | PASS — TypeScript/Vite build; new route is a 23.88 kB lazy chunk; existing Material Library warning remains below its hard ceiling |
+| Focused Vitest API/component suite | PASS — 26 tests, including full flow, role denial, migration-required confirmation block, source replacement lock/reset, stale plan, uncertain Apply/read-back recovery, refresh, invalid file classes and export mismatch |
+| Full web Vitest regression | PASS — 64 files, 347 tests |
+| Production web build and bundle budget | PASS — TypeScript/Vite build; corrected route is a 24.58 kB lazy chunk; existing Material Library warning remains below its hard ceiling |
 | Focused Python API integration | PASS — 7 tests, including User/Reviewer apply/read-back/export 403 with zero service calls |
+| Planner unit/contract/API regression | PASS — 86 tests, including table update, populated Attribute update and new required Attribute migration-required plans |
 | Playwright browser journey | PASS — 1 contract-backed journey, Administrator upload through verified export and refresh plus Reviewer denial |
 | Browser geometry | PASS — 1366×768, 1440×900, 1920×1080, 2560×1440 and 3840×2160 at CSS zoom 100%, DPR 1, zero page horizontal overflow |
 | Original-resolution qualitative review | PASS — five plan originals, twenty direct 100%-pixel crops, confirmation and applied/read-back/export images opened at original resolution |
-| Affected Python contracts/integration | PASS — 106 tests across guide inventory, capture tooling, documentation impact and bundle API integration |
-| User guide and documentation impact gates | PASS — 20 guide documents, 101 current captures, 570 local links, 1,745 registered images; 58 changed files and 3 visual sources accounted for |
+| Affected Python contracts/integration | PASS — 98 tests across guide inventory, capture tooling and bundle API integration |
+| User guide and documentation impact gates | PASS — 20 guide documents, 101 current captures, 570 local links, 1,745 registered images; 63 changed files and 3 visual sources accounted for |
 | Static and diff checks | PASS — Ruff lint on affected Python files, sidecar hashes/dimensions for 27 PNGs and five measurements, `git diff --check` |
-| Balanced independent audit | Pending against the exact final SHA |
+| Balanced independent audit | First exact-SHA review requested changes for migration-aware planning and source replacement isolation; both corrected, final same-reviewer audit pending |
 | Product Owner visual geometry approval | Pending before ready/merge |
 
 The exact files, dimensions, hashes, route, fixture and geometry boundaries are registered in
