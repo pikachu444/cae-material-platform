@@ -103,7 +103,7 @@ Concurrent same-key requests serialize at the project lock and converge on one a
 | Pre-publish | PASS — clean committed feature SHA, deterministic manual and pre-push gates |
 | Canonical Compose | BLOCKED AS CANONICAL EVIDENCE — `make` is unavailable and fallback preflight found running canonical containers owned by preserved #204/#206 worktrees. They were not stopped, recreated or deleted. An issue-owned standalone PostgreSQL 16 container is used only for DB integration. |
 | Browser/viewport/visual | N/A — no React/CSS, navigation or user-visible UI change; Administration UI is #208 |
-| Independent exact-SHA Balanced audit | PENDING until all modifications and automatic gates finish |
+| Independent exact-SHA Balanced audit | PASS — implementation-uninvolved auditor reviewed `3422eb80e580f86e44a2c4dbff852c6112fffb37`, reproduced the affected PostgreSQL/API/contract/architecture/auth/revision gates, and reported no blocking, major, material or minor finding |
 
 The issue-owned PostgreSQL container is `cmp-issue207-postgres`, using a dynamically published local
 port and disposable per-test databases/roles. It is not acceptance evidence for canonical Compose
@@ -112,8 +112,10 @@ transaction rollback without touching another worktree's volumes.
 
 ## Publication and handoff
 
-Feature work is published as draft [PR #237](https://github.com/pikachu444/cae-material-platform/pull/237).
-Exact audited SHA, CI result and squash merge SHA are recorded after final review/publication. Any
-post-audit source or documentation change requires the same independent auditor to review the new
-SHA. After the feature merge, the separately approved tracking-only PR records the actual merge SHA
-in backlog/issue/parent state. The next backlog task is #210; its implementation is not started here.
+The exact reviewed feature SHA was `3422eb80e580f86e44a2c4dbff852c6112fffb37` and did not change
+after independent review. [PR #237](https://github.com/pikachu444/cae-material-platform/pull/237)
+was moved from draft to ready and squash-merged as
+`382da2f6cc088c0ee3149ee44687a9a6df8686b9`; GitHub then closed #207. The repository has no GitHub
+Actions workflow and `main` is not protected, so the ready PR had no remote check rollup to await.
+The separately approved tracking-only PR records this actual merge SHA in backlog and delivery state.
+The next backlog task is #210; its implementation is not started here.
