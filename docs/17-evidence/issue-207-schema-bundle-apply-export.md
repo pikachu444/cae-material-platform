@@ -117,5 +117,6 @@ after independent review. [PR #237](https://github.com/pikachu444/cae-material-p
 was moved from draft to ready and squash-merged as
 `382da2f6cc088c0ee3149ee44687a9a6df8686b9`; GitHub then closed #207. The repository has no GitHub
 Actions workflow and `main` is not protected, so the ready PR had no remote check rollup to await.
-The separately approved tracking-only PR records this actual merge SHA in backlog and delivery state.
-The next backlog task is #210; its implementation is not started here.
+The separately approved tracking-only [PR #238](https://github.com/pikachu444/cae-material-platform/pull/238)
+records this actual merge SHA in backlog and delivery state. The next backlog task is #210; its
+implementation is not started here.
