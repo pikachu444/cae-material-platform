@@ -320,7 +320,7 @@ database transaction: failure commits neither card nor receipt/outbox row. It re
 Materials CAE Card API for delivered-card access. No canonical Activity receipt projection producer
 exists, so the UI returns `Not configured` rather than fabricating an Activity Delivered state.
 
-### 7.4 Schema Definition Bundle planning boundary
+### 7.4 Schema Definition Bundle planning and apply boundary
 
 The Catalog Schema Definition Bundle adapter consumes one exact, integrity-verified immutable
 Artifact. It preserves the Artifact ID, organization/project/classification, original media type,
@@ -338,6 +338,10 @@ flowchart LR
     P --> S[Repeatable-read Catalog snapshot]
     S --> D[Deterministic no-write plan]
     D --> C[Correct bundle and retry]
+    D --> A[Approve exact Artifact SHA and plan fingerprint]
+    A --> L[Lock and server re-plan current RLS snapshot]
+    L --> T[One transaction: revisions publication provenance audit outbox]
+    T --> E[Immutable application read-back and source export]
 ```
 
 Projection targets the existing Database, Profile, Table, Attribute, Layout, profile placement and
@@ -353,12 +357,29 @@ snapshot compares every persisted dependency revision pin with its current head;
 projected object whose Profile/Database, Attribute/Layout/Table, Layout item/Attribute, placement or
 Link Type/Table pin is stale is therefore an `update`, not a false `no-op`. Append-only placement
 history is folded by logical Profile/Table key without deleting or adopting any row. A stable key
-owned by another immutable classification is a conflict. The result carries the snapshot
+owned by another immutable classification is a conflict. The plan result carries the snapshot
 fingerprint and always declares `mutations_applied=false`,
 `delete_missing=false` and an empty `write_set`. It does not change current pointers, publication,
-outbox, audit or provenance and does not claim objects absent from the bundle. Actual apply,
-publication, rollback, bundle ownership/provenance and export remain #207; common unit semantics
-use the #205 boundary below and Administration UI remains #208.
+outbox, audit or provenance and does not claim objects absent from the bundle.
+
+Apply accepts the exact Artifact ID/SHA-256 and that existing `plan_fingerprint`; there is no second
+plan-token authority and no client action list. The adapter acquires a tenant/project advisory lock
+and conflicting Catalog/Record/Artifact table locks before it reads the current RLS snapshot again.
+It rejects a changed plan, invalid source, existing-Record migration conflict or reused idempotency
+key with different evidence. One caller-owned PostgreSQL transaction then appends only the required
+revisions in dependency order, publishes each exact projected revision, stores stable bundle/version
+and immutable application bindings, attaches Artifact-to-revision provenance, and appends audit and
+outbox rows. Existing per-object CRUD transactions are not composed by the bundle path. Any failure
+rolls the entire set back, including publication.
+
+A successful retry with the same tenant-scoped idempotency key returns the original application. A
+fresh plan of the same applied source is all `no-op` and creates no revisions. Export first verifies
+that every current head, digest and publication marker still equals the current application binding,
+then returns canonical JSON from the exact retained source Artifact. Missing members remain
+`delete_missing=false`; current Records block incompatible Table/Attribute changes with
+migration-required, and no migration code is executed. Bundle apply is an explicit Schema
+Administrator approval/publish boundary; direct single-revision publication remains disabled.
+Common unit semantics use the #205 boundary below and Administration UI remains #208.
 
 ### 7.5 Common unit and versioned Unit Profile boundary
 
@@ -384,9 +405,9 @@ semantic card revision, not injected into native text. `kg_m_s` remains the only
 solver compatibility system and explicitly is not a production default. No service resolves a
 profile name or `latest`, and no default profile is selected at bootstrap.
 
-Schema Bundle planning only validates that `x-unit` is a stable ID in this closed registry. It
-retains Bundle/plan `1.0.0`, a read-only snapshot and an empty write set. Bundle apply/publication
-remain #207 and additional solver systems/Templates remain #213/#214.
+Schema Bundle planning and apply validate that `x-unit` is a stable ID in this closed registry. They
+retain Bundle/plan/application `1.0.0`; no default Unit Profile or solver system is inferred.
+Additional solver systems/Templates remain #213/#214.
 
 ### 7.6 Shared curve channel and deviation boundary
 

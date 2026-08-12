@@ -160,11 +160,22 @@ def test_administrator_has_corrected_features_and_identity_management() -> None:
 
     summary = service.effective_product_access(_context())
     decision = service.authorize(_context(), Permission.IDENTITY_MANAGE)
+    schema_apply = service.authorize(_context(), Permission.CATALOG_SCHEMA_APPLY)
 
     assert summary.product_role is ProductRole.ADMINISTRATOR
     assert summary.feature_grants == product_role_preset(ProductRole.ADMINISTRATOR)
     assert not summary.legacy_compatible
     assert Role.ORG_ADMIN in decision.roles
+    assert Role.DATA_STEWARD in schema_apply.roles
+    assert {
+        Permission.ARTIFACT_READ.value,
+        Permission.CATALOG_READ.value,
+        Permission.CATALOG_WRITE.value,
+        Permission.CATALOG_SCHEMA_APPLY.value,
+        "provenance.write",
+        "audit.append",
+        "events.publish",
+    }.issubset(schema_apply.database_permissions)
     with pytest.raises(AuthorizationDenied, match="permission_denied"):
         service.authorize(_context(), Permission.REVIEW_DECIDE)
 
@@ -191,6 +202,8 @@ def test_reviewer_has_the_fixed_review_preset_without_access_administration() ->
         service.authorize(_context(), Permission.IDENTITY_MANAGE)
     with pytest.raises(AuthorizationDenied, match="permission_denied"):
         service.authorize(_context(), Permission.CATALOG_WRITE)
+    with pytest.raises(AuthorizationDenied, match="permission_denied"):
+        service.authorize(_context(), Permission.CATALOG_SCHEMA_APPLY)
 
 
 def test_effective_product_role_precedence_does_not_promote_legacy_features() -> None:
@@ -269,6 +282,7 @@ def test_legacy_role_bindings_project_to_the_simple_product_vocabulary() -> None
         (Role.ORG_ADMIN, Permission.IDENTITY_MANAGE),
         (Role.TEST_ENGINEER, Permission.TESTING_WRITE),
         (Role.DATA_STEWARD, Permission.DATASET_WRITE),
+        (Role.DATA_STEWARD, Permission.CATALOG_SCHEMA_APPLY),
         (Role.STATISTICAL_ANALYST, Permission.STATISTICS_EXECUTE),
         (Role.MATERIAL_MODELER, Permission.CALIBRATION_EXECUTE),
         (Role.CAE_ANALYST, Permission.VALIDATION_EXECUTE),

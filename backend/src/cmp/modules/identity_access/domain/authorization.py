@@ -66,6 +66,7 @@ class Permission(StrEnum):
     PROJECT_MANAGE = "project.manage"
     CATALOG_READ = "catalog.read"
     CATALOG_WRITE = "catalog.write"
+    CATALOG_SCHEMA_APPLY = "catalog.schema.apply"
     UNITS_READ = "units.read"
     UNITS_WRITE = "units.write"
     TESTING_READ = "testing.read"

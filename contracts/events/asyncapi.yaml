@@ -1,7 +1,7 @@
 asyncapi: 3.0.0
 info:
   title: CAE Material Platform Events
-  version: 0.2.0
+  version: 0.3.0
   description: >-
     Transport-neutral CloudEvents 1.0 contracts delivered at least once from the PostgreSQL
     transactional outbox. Consumers must use the tenant-scoped inbox event ID for deduplication.
@@ -12,6 +12,11 @@ channels:
     messages:
       artifactAvailable:
         $ref: '#/components/messages/ArtifactAvailable'
+  catalogSchemaDefinitionBundleApplied:
+    address: io.cmp.catalog.schema-definition-bundle.applied.v1
+    messages:
+      catalogSchemaDefinitionBundleApplied:
+        $ref: '#/components/messages/CatalogSchemaDefinitionBundleApplied'
 operations:
   publishArtifactAvailable:
     action: send
@@ -19,6 +24,13 @@ operations:
       $ref: '#/channels/artifactAvailable'
     messages:
       - $ref: '#/channels/artifactAvailable/messages/artifactAvailable'
+  publishCatalogSchemaDefinitionBundleApplied:
+    action: send
+    channel:
+      $ref: '#/channels/catalogSchemaDefinitionBundleApplied'
+    messages:
+      - $ref: >-
+          #/channels/catalogSchemaDefinitionBundleApplied/messages/catalogSchemaDefinitionBundleApplied
 components:
   messages:
     ArtifactAvailable:
@@ -27,5 +39,11 @@ components:
       contentType: application/json
       payload:
         $ref: './artifact-available.schema.json'
+    CatalogSchemaDefinitionBundleApplied:
+      name: CatalogSchemaDefinitionBundleApplied
+      title: Approved Schema Definition Bundle application committed
+      contentType: application/json
+      payload:
+        $ref: './catalog-schema-definition-bundle-applied.v1.schema.json'
   schemas: {}
 

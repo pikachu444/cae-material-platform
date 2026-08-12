@@ -339,6 +339,12 @@ class SqlAlchemyArtifactRepository:
             last_observation_id=cast(UUID, projection["last_observation_id"]),
         )
 
+    @classmethod
+    def record_in(cls, session: Session, artifact_id: UUID) -> ArtifactRecord:
+        """Read an Artifact manifest inside a caller-owned transaction."""
+
+        return cls._record(session, artifact_id)
+
     def prepare(
         self,
         *,

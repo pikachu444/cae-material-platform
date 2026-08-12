@@ -72,6 +72,9 @@
 | `POST /test-runs` | specimen test run 생성 |
 | `POST /test-runs/{id}/corrections` | 원본 event를 보존한 correction revision |
 | `POST /catalog/schema-definition-bundles:plan` | exact immutable Artifact의 bundle-local schema를 검증하고 현재 Catalog 대비 no-write plan 반환 |
+| `POST /catalog/schema-definition-bundles:apply` | exact Artifact·SHA-256·`plan_fingerprint`를 다시 검증하고 서버 재계획 결과를 원자 적용 |
+| `GET /catalog/schema-definition-bundle-applications/{id}` | immutable 적용 결과와 source/revision/publication binding 조회 |
+| `GET /catalog/schema-definition-bundles/{bundle_key}:export` | 현재 binding이 유지될 때 exact source Artifact의 canonical JSON 내보내기 |
 
 #### 3.1.1 Catalog Schema Definition Bundle v1
 
@@ -104,6 +107,27 @@ Profile/Table key별 하나의 현재 상태로 비교한다.
 `classification_conflict`이며 자동 인수하지 않는다.
 요청 형식은 422, 인증/권한은 401/403, 숨겨진 Artifact는 404, exact digest·media·integrity·scope
 충돌은 409, 필수 backend 미구성은 503이다.
+
+Apply request는 Artifact ID, lowercase SHA-256, plan 응답의 `plan_fingerprint`, 고정값
+`delete_missing=false`만 body에 보내고 visible-ASCII `Idempotency-Key`를 필수 header로 보낸다.
+Action이나 projected content는 request 계약에 없으며 서버는 이를 받지 않는다. Apply 전용
+`catalog.schema.apply`는 Schema configuration 권한이 있는 Administrator에게만 부여된다. 서버는
+현재 RLS Catalog를 lock 아래서 다시 계획해 fingerprint가 달라지면 `CMP-CATALOG-0207`, 같은
+idempotency key를 다른 증거에 쓰면 `0208`, 같은 bundle version을 다른 canonical JSON에 쓰면
+`0209`, current Record가 영향을 받으면 migration-required `0210`으로 409를 반환한다. Artifact
+identity/checksum/tenant/integrity 불일치도 fail-closed이며 부분 결과는 없다.
+
+201 응답과 read-back은 application 계약 `1.0.0`으로 source Artifact, before/after snapshot
+fingerprint, ordered exact revision/publication binding과 source schema ID/version/JSON Pointer를
+기록한다. 동일 요청 재전송은 200과 `Idempotent-Replay: true`로 같은 application을 돌려주며 새
+revision을 만들지 않는다. 적용 transaction은 bundle/version/application/binding, Catalog revision과
+current pointer, publication marker, provenance usage/derivation, audit, outbox를 함께 commit한다.
+일반 `publication:publish` endpoint의 direct publication 금지 규칙은 바뀌지 않는다.
+
+Export는 current application의 모든 binding이 current head/content hash/publication과 일치할 때만
+원본 Artifact를 다시 integrity-check하고 canonical JSON을 반환한다. ETag와 source Artifact
+ID/SHA-256 header가 함께 제공된다. drift는 `CMP-CATALOG-0211`이며, DB application/binding과 source
+Artifact bytes 중 하나라도 restore 또는 retention에서 빠지면 재현 가능한 export로 간주하지 않는다.
 
 | Diagnostic code | 의미 |
 | --- | --- |
@@ -403,6 +427,7 @@ CloudEvents 1.0 JSON 형식을 사용한다. CloudEvents는 transport가 아니�
 | `release.published.v1` | immutable release manifest commit |
 | `release.superseded.v1` | lifecycle transition commit |
 | `plugin.package.activated.v1` | activation policy commit |
+| `io.cmp.catalog.schema-definition-bundle.applied.v1` | bundle application, exact publication, provenance와 audit가 같은 transaction에 commit |
 
 `completed`는 성공만 뜻하지 않는다. payload에 terminal outcome을 넣거나 성공/실패 event를 분리하는 정책 중 하나를 event별 schema에서 고정한다. MVP 권고는 `job.completed`에는 outcome을 포함하고, domain artifact event는 성공 commit에만 발행하는 방식이다.
 
@@ -425,7 +450,7 @@ Repository 기준 파일:
 
 ```text
 contracts/events/asyncapi.yaml
-contracts/events/schemas/*.json
+contracts/events/*.schema.json
 contracts/http/openapi.yaml
 contracts/jobs/job-spec.schema.json
 contracts/jobs/result-manifest.schema.json

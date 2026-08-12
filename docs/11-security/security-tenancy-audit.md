@@ -244,6 +244,7 @@ Audit tamper evidence는 intrusion prevention을 대체하지 않는다.
 | 대상 | 기본 원칙 |
 | --- | --- |
 | Raw Asset | 원본 불변; organization retention에 따라 archive, 일반 사용자 hard delete 금지 |
+| Schema Definition Bundle | source Artifact와 immutable version/application/binding을 함께 보존; current export와 revision provenance가 참조하는 동안 개별 purge 금지 |
 | Derived Dataset | referenced/released이면 보존; 미참조 preview는 정책 후 purge 가능 |
 | Failed Run Log | 원인 분석 기간 보존; secret redaction |
 | Release Package | 장기 보존, supersede/withdraw 후에도 삭제 금지 |
@@ -251,6 +252,13 @@ Audit tamper evidence는 intrusion prevention을 대체하지 않는다.
 | Plugin Image | 과거 release 재현 window 동안 보존 |
 
 법적 삭제 요구와 engineering traceability가 충돌할 수 있으므로 실제 관할·계약 기준은 `OQ-SEC-004`로 남긴다.
+
+Schema Definition Bundle backup은 `catalog.schema_definition_bundle*` 네 테이블만으로 끝나지 않는다.
+source Artifact metadata·integrity projection과 exact object bytes, bound Catalog revision/publication,
+provenance, audit와 outbox를 같은 복구 지점에서 포함해야 한다. Restore drill은 current application의
+Artifact ID/SHA-256을 다시 읽고 export한 canonical digest를 확인하며, binding의 current
+revision/content hash/publication 불일치를 성공으로 처리하지 않는다. 운영 보존 기간 자체는 기존
+`OQ-SEC-004` authority가 결정하며 이 기능이 임의 기간을 선택하지 않는다.
 
 ## 12. Threat와 control
 

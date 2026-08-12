@@ -117,6 +117,7 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
         {
             Permission.CATALOG_READ,
             Permission.CATALOG_WRITE,
+            Permission.CATALOG_SCHEMA_APPLY,
             Permission.UNITS_READ,
             Permission.UNITS_WRITE,
             Permission.TESTING_READ,
@@ -267,6 +268,7 @@ PRODUCT_FEATURE_PERMISSIONS: Mapping[FeatureGrant, frozenset[Permission]] = {
         {
             Permission.CATALOG_READ,
             Permission.CATALOG_WRITE,
+            Permission.CATALOG_SCHEMA_APPLY,
             Permission.UNITS_READ,
             Permission.UNITS_WRITE,
         }
@@ -360,6 +362,7 @@ _MODIFYING_OPERATIONS = frozenset(
         "manage",
         "publish",
         "request",
+        "schema.apply",
         "submit",
         "write",
     }
@@ -398,6 +401,14 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
     # typed Record revisions. This is an internal command capability only; the public
     # Artifact endpoints continue to require artifact.read explicitly.
     Permission.CATALOG_WRITE: frozenset({Permission.ARTIFACT_READ, Permission.UNITS_READ}),
+    Permission.CATALOG_SCHEMA_APPLY: frozenset(
+        {
+            Permission.ARTIFACT_READ,
+            Permission.CATALOG_READ,
+            Permission.CATALOG_WRITE,
+            Permission.UNITS_READ,
+        }
+    ),
     # Reference import detection reads the verified immutable raw artifact before
     # it records a human-approved mapping revision.  This remains a transaction
     # capability only; the public Artifact endpoint still requires artifact.read.
@@ -572,6 +583,7 @@ _PROVENANCE_WRITING_COMMANDS = frozenset(
     {
         Permission.TESTING_WRITE,
         Permission.CATALOG_WRITE,
+        Permission.CATALOG_SCHEMA_APPLY,
         Permission.UNITS_WRITE,
         Permission.ARTIFACT_WRITE,
         Permission.DATASET_WRITE,
@@ -591,6 +603,7 @@ _PROVENANCE_WRITING_COMMANDS = frozenset(
 # inbox capabilities belong exclusively to the project-scoped operational Job Runner.
 _EVENT_PUBLISHING_COMMANDS = frozenset(
     {
+        Permission.CATALOG_SCHEMA_APPLY,
         Permission.ARTIFACT_WRITE,
         Permission.TESTING_WRITE,
         Permission.DATASET_WRITE,

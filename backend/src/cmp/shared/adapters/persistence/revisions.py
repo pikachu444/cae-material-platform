@@ -135,10 +135,15 @@ class SqlAlchemyRevisionStore[ContentT]:
         with self._session_factory() as session, session.begin():
             if self._session_binder is not None:
                 self._session_binder(session)
-            yield _SqlAlchemyRevisionTransaction(session, self._tables, self._hooks)
+            yield self.transaction_in(session)
+
+    def transaction_in(self, session: Session) -> SqlAlchemyRevisionTransaction[ContentT]:
+        """Join an already-bound caller transaction without committing it independently."""
+
+        return SqlAlchemyRevisionTransaction(session, self._tables, self._hooks)
 
 
-class _SqlAlchemyRevisionTransaction[ContentT]:
+class SqlAlchemyRevisionTransaction[ContentT]:
     def __init__(
         self,
         session: Session,

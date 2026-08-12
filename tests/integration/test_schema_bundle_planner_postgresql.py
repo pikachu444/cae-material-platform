@@ -6,10 +6,11 @@ import json
 import os
 import tempfile
 from collections.abc import Iterator
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 from uuid import UUID, uuid4
 
 import pytest
@@ -23,9 +24,16 @@ from cmp.modules.artifacts.application.content import (
     ArtifactTransferCodec,
 )
 from cmp.modules.artifacts.domain.content import ArtifactNotFound
-from cmp.modules.audit.adapters.persistence.repository import SqlAlchemyRevisionAuditHook
+from cmp.modules.audit.adapters.persistence.repository import (
+    SqlAlchemyAuditWriter,
+    SqlAlchemyRevisionAuditHook,
+)
 from cmp.modules.catalog.adapters.persistence.configurable import (
     SqlAlchemyConfigurableCatalogRepository,
+)
+from cmp.modules.catalog.adapters.persistence.records import SqlAlchemyCatalogRecordRepository
+from cmp.modules.catalog.adapters.persistence.schema_bundle_applications import (
+    SqlAlchemySchemaBundleApplicationRepository,
 )
 from cmp.modules.catalog.adapters.persistence.schema_bundles import (
     SqlAlchemySchemaBundleSnapshotRepository,
@@ -40,9 +48,14 @@ from cmp.modules.catalog.application.configurable import (
     PublishRevision,
     ReviseDatabase,
 )
+from cmp.modules.catalog.application.records import CatalogRecordService, CreateRecord
 from cmp.modules.catalog.application.schema_bundles import (
+    ApplySchemaDefinitionBundle,
     PlanSchemaDefinitionBundle,
+    SchemaBundleMigrationRequired,
     SchemaBundlePlannerService,
+    SchemaBundleSourceConflict,
+    SchemaBundleStalePlan,
 )
 from cmp.modules.catalog.domain.configurable import (
     AttributeDataType,
@@ -53,6 +66,7 @@ from cmp.modules.catalog.domain.configurable import (
     LayoutContent,
     LayoutItem,
 )
+from cmp.modules.catalog.domain.records import CatalogRecordContent, CatalogRecordValue
 from cmp.modules.catalog.domain.schema_bundles import PlanDisposition
 from cmp.modules.identity_access.adapters.persistence.rls import SqlAlchemyRlsContext
 from cmp.modules.identity_access.application.authorization import database_permissions_for
@@ -68,10 +82,14 @@ from cmp.modules.identity_access.domain.security import (
     SecurityContext,
 )
 from cmp.modules.jobs.adapters.persistence.artifact_events import SqlArtifactAvailableOutboxHook
+from cmp.modules.jobs.adapters.persistence.events import SqlAlchemyOutboxWriter
 from cmp.modules.provenance.adapters.persistence.repository import (
     SqlAlchemyRevisionProvenanceHook,
+    SqlAlchemySchemaBundleProvenanceWriter,
 )
 from cmp.modules.review_release.adapters.persistence.lifecycle import SqlInitialLifecycleHook
+from cmp.shared.domain.revisions import content_sha256
+from jsonschema import Draft202012Validator, FormatChecker
 from sqlalchemy.engine import URL, Engine, make_url
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -124,8 +142,10 @@ class ReadOnlyTransactionProbe:
 class Harness:
     admin_engine: Engine
     catalog: ConfigurableCatalogService
+    records: CatalogRecordService
     artifacts: ArtifactService
     planner: SchemaBundlePlannerService
+    applications: SqlAlchemySchemaBundleApplicationRepository
     read_only_probe: ReadOnlyTransactionProbe
 
 
@@ -147,7 +167,7 @@ def _alembic_config(database_url: URL) -> Config:
     return configuration
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def postgres() -> Iterator[Harness]:
     assert POSTGRES_DSN is not None
     admin_url = _psycopg_url(POSTGRES_DSN)
@@ -211,33 +231,61 @@ def postgres() -> Iterator[Harness]:
                 SqlAlchemyRevisionProvenanceHook(),
                 SqlAlchemyRevisionAuditHook(),
             )
-            catalog = ConfigurableCatalogService(
-                SqlAlchemyConfigurableCatalogRepository(
+            schema_repository = SqlAlchemyConfigurableCatalogRepository(
+                session_factory=sessions,
+                rls_context=rls,
+                revision_hooks=hooks,
+            )
+            catalog = ConfigurableCatalogService(schema_repository)
+            records = CatalogRecordService(
+                SqlAlchemyCatalogRecordRepository(
                     session_factory=sessions,
                     rls_context=rls,
                     revision_hooks=hooks,
-                )
+                ),
+                schema_repository,
             )
             store = FilesystemMultipartObjectStore(Path(temporary))
+            artifact_repository = SqlAlchemyArtifactRepository(
+                session_factory=sessions,
+                rls_context=rls,
+                available_hooks=(SqlArtifactAvailableOutboxHook(),),
+            )
             artifacts = ArtifactService(
-                repository=SqlAlchemyArtifactRepository(
-                    session_factory=sessions,
-                    rls_context=rls,
-                    available_hooks=(SqlArtifactAvailableOutboxHook(),),
-                ),
+                repository=artifact_repository,
                 object_store=store,
                 transfers=ArtifactTransferCodec(TRANSFER_SECRET, clock=lambda: NOW),
                 clock=lambda: NOW,
             )
             probe = ReadOnlyTransactionProbe(rls)
+            snapshots = SqlAlchemySchemaBundleSnapshotRepository(
+                session_factory=sessions,
+                rls_context=probe,
+            )
+            applications = SqlAlchemySchemaBundleApplicationRepository(
+                session_factory=sessions,
+                rls_context=rls,
+                snapshots=snapshots,
+                artifacts=artifact_repository,
+                provenance=SqlAlchemySchemaBundleProvenanceWriter(),
+                audit=SqlAlchemyAuditWriter(),
+                outbox=SqlAlchemyOutboxWriter(),
+                revision_hooks=hooks,
+            )
             planner = SchemaBundlePlannerService(
                 artifacts=artifacts,
-                snapshots=SqlAlchemySchemaBundleSnapshotRepository(
-                    session_factory=sessions,
-                    rls_context=probe,
-                ),
+                snapshots=snapshots,
+                applications=applications,
             )
-            yield Harness(admin_engine, catalog, artifacts, planner, probe)
+            yield Harness(
+                admin_engine,
+                catalog,
+                records,
+                artifacts,
+                planner,
+                applications,
+                probe,
+            )
         finally:
             if app_engine is not None:
                 app_engine.dispose()
@@ -448,6 +496,17 @@ def _seed_catalog(service: ConfigurableCatalogService, context: SecurityContext)
     )
 
 
+def _bump_bundle_version(raw_bytes: bytes, version: str) -> dict[str, Any]:
+    changed = cast(dict[str, Any], json.loads(raw_bytes))
+    changed["bundle_version"] = version
+    for changed_schema in changed["record_schemas"]:
+        changed_schema["schema"] = json.loads(
+            json.dumps(changed_schema["schema"]).replace(":1.0.0", f":{version}")
+        )
+        changed_schema["schema_sha256"] = content_sha256(changed_schema["schema"])
+    return changed
+
+
 def test_planner_is_repeatable_and_leaves_postgresql_state_byte_equivalent(
     postgres: Harness,
 ) -> None:
@@ -533,3 +592,547 @@ def test_planner_is_repeatable_and_leaves_postgresql_state_byte_equivalent(
             )
         )
     assert _database_state(postgres.admin_engine) == after
+
+
+def test_bundle_apply_is_atomic_idempotent_traceable_and_round_trips(
+    postgres: Harness,
+) -> None:
+    context = _context()
+    _seed_catalog(postgres.catalog, context)
+    raw_bytes = (
+        PROJECT_ROOT / "contracts" / "examples" / "positive" / "schema-definition-bundle-many.json"
+    ).read_bytes()
+    artifact = asyncio.run(
+        postgres.artifacts.finalize_derived_bytes(
+            context,
+            _decision(context, Permission.ARTIFACT_WRITE),
+            classification=DataClassification.INTERNAL,
+            artifact_role="catalog.schema-definition-bundle",
+            schema_ref="urn:cmp:catalog-schema-definition-bundle:1.0.0",
+            media_type=MEDIA_TYPE,
+            value=raw_bytes,
+            idempotency_key="issue-207-postgresql-apply-source",
+        )
+    ).artifact
+    plan = asyncio.run(
+        postgres.planner.plan(
+            context,
+            _decision(context, Permission.CATALOG_WRITE),
+            PlanSchemaDefinitionBundle(artifact.id, artifact.sha256),
+        )
+    )
+    assert plan.valid
+    command = ApplySchemaDefinitionBundle(
+        artifact.id,
+        artifact.sha256,
+        plan.plan_fingerprint,
+        "issue-207-first-apply",
+    )
+    first = asyncio.run(
+        postgres.planner.apply(
+            context,
+            _decision(context, Permission.CATALOG_SCHEMA_APPLY),
+            command,
+        )
+    )
+    assert first.mutations_applied
+    assert not first.replayed
+    assert first.before_snapshot_fingerprint == plan.catalog_snapshot_fingerprint
+    assert all(
+        result.published
+        for result in first.results
+        if result.target_type != "profile_table_placement"
+    )
+    assert not any(result.external_key == "legacy_records" for result in first.results)
+    database_result = next(result for result in first.results if result.target_type == "database")
+    material_link_result = next(
+        result
+        for result in first.results
+        if result.target_type == "link_type" and result.external_key == "tensile_test_material"
+    )
+    assert database_result.source_pointer == "/catalog/database"
+    assert database_result.source_schema_version == "1.0.0"
+    assert material_link_result.source_schema_id == "urn:cmp:catalog-schema:tensile_tests:1.0.0"
+    assert material_link_result.source_schema_version == "1.0.0"
+    assert material_link_result.source_pointer.endswith("/properties/material_id")
+
+    replay = asyncio.run(
+        postgres.planner.apply(
+            context,
+            _decision(context, Permission.CATALOG_SCHEMA_APPLY),
+            command,
+        )
+    )
+    assert replay.replayed
+    assert replay.application_id == first.application_id
+
+    fresh_plan = asyncio.run(
+        postgres.planner.plan(
+            context,
+            _decision(context, Permission.CATALOG_WRITE),
+            PlanSchemaDefinitionBundle(artifact.id, artifact.sha256),
+        )
+    )
+    assert fresh_plan.valid
+    assert {action.disposition for action in fresh_plan.actions} == {PlanDisposition.NO_OP}
+    with postgres.admin_engine.connect() as connection:
+        revision_count_before = int(
+            connection.scalar(
+                sa.text(
+                    "SELECT (SELECT count(*) FROM catalog.database_revision) + "
+                    "(SELECT count(*) FROM catalog.profile_revision) + "
+                    "(SELECT count(*) FROM catalog.schema_table_revision) + "
+                    "(SELECT count(*) FROM catalog.attribute_definition_revision) + "
+                    "(SELECT count(*) FROM catalog.layout_revision) + "
+                    "(SELECT count(*) FROM catalog.link_type_revision)"
+                )
+            )
+            or 0
+        )
+    second = asyncio.run(
+        postgres.planner.apply(
+            context,
+            _decision(context, Permission.CATALOG_SCHEMA_APPLY),
+            ApplySchemaDefinitionBundle(
+                artifact.id,
+                artifact.sha256,
+                fresh_plan.plan_fingerprint,
+                "issue-207-second-no-op-apply",
+            ),
+        )
+    )
+    assert not second.mutations_applied
+    with postgres.admin_engine.connect() as connection:
+        revision_count_after = int(
+            connection.scalar(
+                sa.text(
+                    "SELECT (SELECT count(*) FROM catalog.database_revision) + "
+                    "(SELECT count(*) FROM catalog.profile_revision) + "
+                    "(SELECT count(*) FROM catalog.schema_table_revision) + "
+                    "(SELECT count(*) FROM catalog.attribute_definition_revision) + "
+                    "(SELECT count(*) FROM catalog.layout_revision) + "
+                    "(SELECT count(*) FROM catalog.link_type_revision)"
+                )
+            )
+            or 0
+        )
+    assert revision_count_after == revision_count_before
+
+    exported = asyncio.run(
+        postgres.planner.export(
+            context,
+            _decision(context, Permission.CATALOG_SCHEMA_APPLY),
+            "synthetic_dependency_chain",
+        )
+    )
+    exported_artifact = asyncio.run(
+        postgres.artifacts.finalize_derived_bytes(
+            context,
+            _decision(context, Permission.ARTIFACT_WRITE),
+            classification=DataClassification.INTERNAL,
+            artifact_role="catalog.schema-definition-bundle",
+            schema_ref="urn:cmp:catalog-schema-definition-bundle:1.0.0",
+            media_type=MEDIA_TYPE,
+            value=exported.value,
+            idempotency_key="issue-207-round-trip-export",
+        )
+    ).artifact
+    round_trip = asyncio.run(
+        postgres.planner.plan(
+            context,
+            _decision(context, Permission.CATALOG_WRITE),
+            PlanSchemaDefinitionBundle(exported_artifact.id, exported_artifact.sha256),
+        )
+    )
+    assert round_trip.valid
+    assert {action.disposition for action in round_trip.actions} == {PlanDisposition.NO_OP}
+
+    with pytest.raises(SchemaBundleStalePlan):
+        asyncio.run(
+            postgres.planner.apply(
+                context,
+                _decision(context, Permission.CATALOG_SCHEMA_APPLY),
+                ApplySchemaDefinitionBundle(
+                    artifact.id,
+                    artifact.sha256,
+                    plan.plan_fingerprint,
+                    "issue-207-stale-plan",
+                ),
+            )
+        )
+    with pytest.raises(SchemaBundleSourceConflict):
+        asyncio.run(
+            postgres.planner.apply(
+                context,
+                _decision(context, Permission.CATALOG_SCHEMA_APPLY),
+                ApplySchemaDefinitionBundle(
+                    artifact.id,
+                    "0" * 64,
+                    fresh_plan.plan_fingerprint,
+                    "issue-207-checksum-mismatch",
+                ),
+            )
+        )
+    other_context = _context(OTHER_PROJECT)
+    with pytest.raises(ArtifactNotFound):
+        asyncio.run(
+            postgres.planner.apply(
+                other_context,
+                _decision(other_context, Permission.CATALOG_SCHEMA_APPLY),
+                ApplySchemaDefinitionBundle(
+                    artifact.id,
+                    artifact.sha256,
+                    fresh_plan.plan_fingerprint,
+                    "issue-207-tenant-mismatch",
+                ),
+            )
+        )
+
+    concurrent_plan = asyncio.run(
+        postgres.planner.plan(
+            context,
+            _decision(context, Permission.CATALOG_WRITE),
+            PlanSchemaDefinitionBundle(artifact.id, artifact.sha256),
+        )
+    )
+
+    def concurrent_apply() -> UUID:
+        worker_context = _context()
+        result = asyncio.run(
+            postgres.planner.apply(
+                worker_context,
+                _decision(worker_context, Permission.CATALOG_SCHEMA_APPLY),
+                ApplySchemaDefinitionBundle(
+                    artifact.id,
+                    artifact.sha256,
+                    concurrent_plan.plan_fingerprint,
+                    "issue-207-concurrent-apply",
+                ),
+            )
+        )
+        return result.application_id
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        concurrent_ids = tuple(executor.map(lambda _: concurrent_apply(), range(2)))
+    assert concurrent_ids[0] == concurrent_ids[1]
+
+    changed = _bump_bundle_version(raw_bytes, "1.0.1")
+    changed["catalog"]["database"]["description"] = "Rollback probe must never commit."
+    changed_bytes = json.dumps(changed, sort_keys=True, separators=(",", ":")).encode()
+    changed_artifact = asyncio.run(
+        postgres.artifacts.finalize_derived_bytes(
+            context,
+            _decision(context, Permission.ARTIFACT_WRITE),
+            classification=DataClassification.INTERNAL,
+            artifact_role="catalog.schema-definition-bundle",
+            schema_ref="urn:cmp:catalog-schema-definition-bundle:1.0.0",
+            media_type=MEDIA_TYPE,
+            value=changed_bytes,
+            idempotency_key="issue-207-rollback-source",
+        )
+    ).artifact
+    changed_plan = asyncio.run(
+        postgres.planner.plan(
+            context,
+            _decision(context, Permission.CATALOG_WRITE),
+            PlanSchemaDefinitionBundle(changed_artifact.id, changed_artifact.sha256),
+        )
+    )
+    assert changed_plan.valid, tuple(
+        diagnostic.canonical() for diagnostic in changed_plan.diagnostics
+    )
+    rollback_before = _database_state(postgres.admin_engine)
+
+    def fail_after_second_action(sequence: int) -> None:
+        if sequence == 1:
+            raise RuntimeError("forced issue-207 rollback probe")
+
+    postgres.applications._failure_injector = fail_after_second_action
+    try:
+        with pytest.raises(RuntimeError, match="forced issue-207 rollback probe"):
+            asyncio.run(
+                postgres.planner.apply(
+                    context,
+                    _decision(context, Permission.CATALOG_SCHEMA_APPLY),
+                    ApplySchemaDefinitionBundle(
+                        changed_artifact.id,
+                        changed_artifact.sha256,
+                        changed_plan.plan_fingerprint,
+                        "issue-207-forced-rollback",
+                    ),
+                )
+            )
+    finally:
+        postgres.applications._failure_injector = None
+    assert _database_state(postgres.admin_engine) == rollback_before
+
+    with postgres.admin_engine.connect() as connection:
+        revision_count_before_change = int(
+            connection.scalar(
+                sa.text(
+                    "SELECT (SELECT count(*) FROM catalog.database_revision) + "
+                    "(SELECT count(*) FROM catalog.profile_revision) + "
+                    "(SELECT count(*) FROM catalog.schema_table_revision) + "
+                    "(SELECT count(*) FROM catalog.attribute_definition_revision) + "
+                    "(SELECT count(*) FROM catalog.layout_revision) + "
+                    "(SELECT count(*) FROM catalog.link_type_revision)"
+                )
+            )
+            or 0
+        )
+    changed_application = asyncio.run(
+        postgres.planner.apply(
+            context,
+            _decision(context, Permission.CATALOG_SCHEMA_APPLY),
+            ApplySchemaDefinitionBundle(
+                changed_artifact.id,
+                changed_artifact.sha256,
+                changed_plan.plan_fingerprint,
+                "issue-207-changed-bundle-apply",
+            ),
+        )
+    )
+    changed_revisions = {
+        (result.target_type, result.external_key)
+        for result in changed_application.results
+        if result.disposition is PlanDisposition.UPDATE
+        and result.target_type != "profile_table_placement"
+    }
+    changed_placements = {
+        result.external_key
+        for result in changed_application.results
+        if result.disposition is PlanDisposition.UPDATE
+        and result.target_type == "profile_table_placement"
+    }
+    assert changed_placements == {
+        "synthetic_materials.curves",
+        "synthetic_materials.materials",
+        "synthetic_materials.tensile_tests",
+    }
+    assert changed_revisions == {
+        ("database", "synthetic_engineering"),
+        ("profile", "synthetic_materials"),
+    }
+    assert not any(
+        result.disposition is PlanDisposition.CREATE
+        for result in changed_application.results
+    )
+    with postgres.admin_engine.connect() as connection:
+        revision_count_after_change = int(
+            connection.scalar(
+                sa.text(
+                    "SELECT (SELECT count(*) FROM catalog.database_revision) + "
+                    "(SELECT count(*) FROM catalog.profile_revision) + "
+                    "(SELECT count(*) FROM catalog.schema_table_revision) + "
+                    "(SELECT count(*) FROM catalog.attribute_definition_revision) + "
+                    "(SELECT count(*) FROM catalog.layout_revision) + "
+                    "(SELECT count(*) FROM catalog.link_type_revision)"
+                )
+            )
+            or 0
+        )
+    assert revision_count_after_change == revision_count_before_change + 2
+
+    with postgres.admin_engine.connect() as connection:
+        lineage_count = int(
+            connection.scalar(
+                sa.text(
+                    "SELECT count(*) FROM provenance.derivation derivation "
+                    "JOIN provenance.entity source ON source.id = derivation.used_entity_id "
+                    "JOIN provenance.entity generated "
+                    "ON generated.id = derivation.generated_entity_id "
+                    "WHERE source.reference_kind = 'artifact' "
+                    "AND source.reference_id = :artifact_id "
+                    "AND source.content_sha256 = :sha256 "
+                    "AND generated.reference_kind = 'revision' "
+                    "AND derivation.derivation_kind = 'schema_definition_bundle_projection'"
+                ),
+                {"artifact_id": artifact.id, "sha256": artifact.sha256},
+            )
+            or 0
+        )
+        application_count = int(
+            connection.scalar(
+                sa.text(
+                    "SELECT count(*) FROM catalog.schema_definition_bundle_application "
+                    "WHERE idempotency_key = 'issue-207-concurrent-apply'"
+                )
+            )
+            or 0
+        )
+        outbox_count = int(
+            connection.scalar(
+                sa.text(
+                    "SELECT count(*) FROM events.outbox_event "
+                    "WHERE event_type = 'io.cmp.catalog.schema-definition-bundle.applied.v1'"
+                )
+            )
+            or 0
+        )
+        event_row = (
+            connection.execute(
+                sa.text(
+                    "SELECT id, organization_id, project_id, classification, sequence_no, "
+                    "source, event_type, subject, data_schema, data, occurred_at "
+                    "FROM events.outbox_event WHERE data ->> 'application_id' = :application_id"
+                ),
+                {"application_id": str(first.application_id)},
+            )
+            .mappings()
+            .one()
+        )
+    created_revision_count = sum(
+        result.disposition in {PlanDisposition.CREATE, PlanDisposition.UPDATE}
+        for result in first.results
+        if result.target_type != "profile_table_placement"
+    )
+    assert lineage_count == created_revision_count
+    assert application_count == 1
+    assert outbox_count == 4
+    event_envelope = {
+        "specversion": "1.0",
+        "id": str(event_row["id"]),
+        "source": event_row["source"],
+        "type": event_row["event_type"],
+        "subject": event_row["subject"],
+        "time": event_row["occurred_at"].isoformat().replace("+00:00", "Z"),
+        "datacontenttype": "application/json",
+        "dataschema": event_row["data_schema"],
+        "cmpsequence": event_row["sequence_no"],
+        "cmporganizationid": str(event_row["organization_id"]),
+        "cmpprojectid": str(event_row["project_id"]),
+        "cmpclassification": event_row["classification"],
+        "data": event_row["data"],
+    }
+    event_contract = json.loads(
+        (
+            PROJECT_ROOT
+            / "contracts/events/catalog-schema-definition-bundle-applied.v1.schema.json"
+        ).read_text(encoding="utf-8")
+    )
+    assert (
+        list(
+            Draft202012Validator(event_contract, format_checker=FormatChecker()).iter_errors(
+                event_envelope
+            )
+        )
+        == []
+    )
+
+
+def test_bundle_apply_blocks_table_revision_when_current_records_need_migration(
+    postgres: Harness,
+) -> None:
+    context = _context()
+    raw_bytes = (
+        PROJECT_ROOT / "contracts" / "examples" / "positive" / "schema-definition-bundle-many.json"
+    ).read_bytes()
+    artifact = asyncio.run(
+        postgres.artifacts.finalize_derived_bytes(
+            context,
+            _decision(context, Permission.ARTIFACT_WRITE),
+            classification=DataClassification.INTERNAL,
+            artifact_role="catalog.schema-definition-bundle",
+            schema_ref="urn:cmp:catalog-schema-definition-bundle:1.0.0",
+            media_type=MEDIA_TYPE,
+            value=raw_bytes,
+            idempotency_key="issue-207-record-conflict-source",
+        )
+    ).artifact
+    plan = asyncio.run(
+        postgres.planner.plan(
+            context,
+            _decision(context, Permission.CATALOG_WRITE),
+            PlanSchemaDefinitionBundle(artifact.id, artifact.sha256),
+        )
+    )
+    applied = asyncio.run(
+        postgres.planner.apply(
+            context,
+            _decision(context, Permission.CATALOG_SCHEMA_APPLY),
+            ApplySchemaDefinitionBundle(
+                artifact.id,
+                artifact.sha256,
+                plan.plan_fingerprint,
+                "issue-207-record-conflict-initial-apply",
+            ),
+        )
+    )
+    material_table = next(
+        result
+        for result in applied.results
+        if result.target_type == "table" and result.external_key == "materials"
+    )
+    record_id_attribute = next(
+        result
+        for result in applied.results
+        if result.target_type == "attribute"
+        and result.parent_external_key == "materials"
+        and result.external_key == "record_id"
+    )
+    assert material_table.aggregate_id is not None and material_table.revision_id is not None
+    assert (
+        record_id_attribute.aggregate_id is not None and record_id_attribute.revision_id is not None
+    )
+    postgres.records.create_record(
+        context,
+        _decision(context, Permission.CATALOG_WRITE),
+        CreateRecord(
+            DataClassification.INTERNAL,
+            CatalogRecordContent(
+                material_table.aggregate_id,
+                material_table.revision_id,
+                "Synthetic material that pins schema v1",
+                external_key="issue-207-record-conflict",
+                values=(
+                    CatalogRecordValue(
+                        record_id_attribute.aggregate_id,
+                        record_id_attribute.revision_id,
+                        AttributeDataType.TEXT,
+                        value="MAT-207",
+                    ),
+                ),
+            ),
+            "Create current Record migration-conflict evidence",
+        ),
+    )
+
+    changed = _bump_bundle_version(raw_bytes, "1.0.1")
+    materials = next(record for record in changed["record_schemas"] if record["key"] == "materials")
+    materials["name"] = "Synthetic materials revised"
+    changed_bytes = json.dumps(changed, sort_keys=True, separators=(",", ":")).encode()
+    changed_artifact = asyncio.run(
+        postgres.artifacts.finalize_derived_bytes(
+            context,
+            _decision(context, Permission.ARTIFACT_WRITE),
+            classification=DataClassification.INTERNAL,
+            artifact_role="catalog.schema-definition-bundle",
+            schema_ref="urn:cmp:catalog-schema-definition-bundle:1.0.0",
+            media_type=MEDIA_TYPE,
+            value=changed_bytes,
+            idempotency_key="issue-207-record-conflict-revision-source",
+        )
+    ).artifact
+    changed_plan = asyncio.run(
+        postgres.planner.plan(
+            context,
+            _decision(context, Permission.CATALOG_WRITE),
+            PlanSchemaDefinitionBundle(changed_artifact.id, changed_artifact.sha256),
+        )
+    )
+    assert changed_plan.valid
+    before = _database_state(postgres.admin_engine)
+    with pytest.raises(SchemaBundleMigrationRequired, match=r"materials.*current Records"):
+        asyncio.run(
+            postgres.planner.apply(
+                context,
+                _decision(context, Permission.CATALOG_SCHEMA_APPLY),
+                ApplySchemaDefinitionBundle(
+                    changed_artifact.id,
+                    changed_artifact.sha256,
+                    changed_plan.plan_fingerprint,
+                    "issue-207-record-conflict-apply",
+                ),
+            )
+        )
+    assert _database_state(postgres.admin_engine) == before

@@ -3,6 +3,11 @@
 from cmp.modules.provenance.adapters.persistence.repository import (
     SqlAlchemyProvenanceRepository,
     SqlAlchemyRevisionProvenanceHook,
+    SqlAlchemySchemaBundleProvenanceWriter,
 )
 
-__all__ = ["SqlAlchemyProvenanceRepository", "SqlAlchemyRevisionProvenanceHook"]
+__all__ = [
+    "SqlAlchemyProvenanceRepository",
+    "SqlAlchemyRevisionProvenanceHook",
+    "SqlAlchemySchemaBundleProvenanceWriter",
+]

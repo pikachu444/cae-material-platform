@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, cast
@@ -9,9 +10,16 @@ from uuid import UUID, uuid4
 
 import httpx
 from cmp.modules.catalog.adapters.api.schema_bundles import install_schema_bundle_planner_api
-from cmp.modules.catalog.application.schema_bundles import SchemaBundleSourceConflict
+from cmp.modules.catalog.application.schema_bundles import (
+    AppliedSchemaObject,
+    ExportedSchemaDefinitionBundle,
+    SchemaBundleApplication,
+    SchemaBundleSourceConflict,
+    SchemaBundleStalePlan,
+)
 from cmp.modules.catalog.domain.schema_bundles import (
     CatalogSnapshot,
+    PlanDisposition,
     SchemaBundlePlan,
     SourceArtifactIdentity,
     build_schema_bundle_plan,
@@ -54,14 +62,14 @@ def _context() -> SecurityContext:
 CONTEXT = _context()
 
 
-def _decision() -> AuthorizationDecision:
+def _decision(permission: Permission = Permission.CATALOG_WRITE) -> AuthorizationDecision:
     return AuthorizationDecision(
         principal_id=ACTOR,
         organization_id=ORG,
         project_id=PROJECT,
-        permission=Permission.CATALOG_WRITE,
+        permission=permission,
         roles=(Role.DATA_STEWARD,),
-        database_permissions=database_permissions_for(Permission.CATALOG_WRITE),
+        database_permissions=database_permissions_for(permission),
         max_classification=DataClassification.INTERNAL,
         allow_export_controlled=False,
         request_id=CONTEXT.request_id,
@@ -106,6 +114,106 @@ class _ConflictingPlanner:
         raise SchemaBundleSourceConflict("exact digest mismatch")
 
 
+class _ApplyExportService(_Planner):
+    def __init__(self, raw: bytes) -> None:
+        super().__init__(raw)
+        source = SourceArtifactIdentity(
+            ARTIFACT,
+            ORG,
+            PROJECT,
+            DataClassification.INTERNAL,
+            "application/vnd.cmp.catalog-schema-definition-bundle+json",
+            len(raw),
+            self.digest,
+        )
+        self.application = SchemaBundleApplication(
+            application_id=UUID("20700000-0000-4000-8000-000000000001"),
+            bundle_id=UUID("20700000-0000-4000-8000-000000000002"),
+            bundle_key="synthetic_dependency_chain",
+            bundle_version="1.0.0",
+            classification="internal",
+            source_artifact=source,
+            plan_fingerprint="b" * 64,
+            before_snapshot_fingerprint="c" * 64,
+            after_snapshot_fingerprint="d" * 64,
+            results=(
+                AppliedSchemaObject(
+                    sequence=1,
+                    disposition=PlanDisposition.CREATE,
+                    target_type="database",
+                    external_key="synthetic_engineering",
+                    parent_external_key=None,
+                    aggregate_id=UUID("20700000-0000-4000-8000-000000000003"),
+                    revision_id=UUID("20700000-0000-4000-8000-000000000004"),
+                    content_hash="e" * 64,
+                    published=True,
+                    source_schema_id="urn:cmp:catalog-schema-definition-bundle:1.0.0",
+                    source_schema_version="1.0.0",
+                    source_pointer="/catalog/database",
+                ),
+            ),
+            mutations_applied=True,
+            applied_at=NOW,
+            applied_by=ACTOR,
+            idempotency_key="issue-207-api-apply",
+        )
+        self.apply_calls = 0
+        self.get_calls = 0
+        self.export_calls = 0
+
+    async def apply(self, context: Any, decision: Any, command: Any) -> SchemaBundleApplication:
+        assert context == CONTEXT
+        assert decision.permission is Permission.CATALOG_SCHEMA_APPLY
+        assert command.artifact_id == ARTIFACT
+        assert command.expected_sha256 == self.digest
+        assert command.plan_fingerprint == "b" * 64
+        assert command.delete_missing is False
+        self.apply_calls += 1
+        replayed = command.idempotency_key == "issue-207-api-replay"
+        return replace(
+            self.application,
+            idempotency_key=command.idempotency_key,
+            replayed=replayed,
+        )
+
+    def get_application(
+        self, context: Any, decision: Any, application_id: UUID
+    ) -> SchemaBundleApplication:
+        assert context == CONTEXT
+        assert decision.permission is Permission.CATALOG_SCHEMA_APPLY
+        assert application_id == self.application.application_id
+        self.get_calls += 1
+        return self.application
+
+    async def export(
+        self, context: Any, decision: Any, bundle_key: str
+    ) -> ExportedSchemaDefinitionBundle:
+        assert context == CONTEXT
+        assert decision.permission is Permission.CATALOG_SCHEMA_APPLY
+        assert bundle_key == self.application.bundle_key
+        self.export_calls += 1
+        canonical = json.dumps(
+            json.loads(self.raw), ensure_ascii=False, sort_keys=True, separators=(",", ":")
+        ).encode()
+        return ExportedSchemaDefinitionBundle(
+            value=canonical,
+            sha256=hashlib.sha256(canonical).hexdigest(),
+            application_id=self.application.application_id,
+            bundle_key=self.application.bundle_key,
+            bundle_version=self.application.bundle_version,
+            source_artifact_id=ARTIFACT,
+            source_artifact_sha256=self.digest,
+        )
+
+
+class _StaleApplyService(_ApplyExportService):
+    async def apply(
+        self, context: Any, decision: Any, command: Any
+    ) -> SchemaBundleApplication:
+        del context, decision, command
+        raise SchemaBundleStalePlan("server re-plan differs")
+
+
 def _app(service: object) -> FastAPI:
     application = FastAPI()
 
@@ -115,11 +223,15 @@ def _app(service: object) -> FastAPI:
     def write(request: Request) -> None:
         request.state.authorization_decision = _decision()
 
+    def apply(request: Request) -> None:
+        request.state.authorization_decision = _decision(Permission.CATALOG_SCHEMA_APPLY)
+
     install_schema_bundle_planner_api(
         application,
         service=cast(Any, service),
         security_dependency=security,
         write_dependency=write,
+        apply_dependency=apply,
     )
     return application
 
@@ -134,6 +246,24 @@ def _request(application: FastAPI, **kwargs: Any) -> httpx.Response:
                 "/api/v1/catalog/schema-definition-bundles:plan",
                 **kwargs,
             )
+
+    import asyncio
+
+    return asyncio.run(run())
+
+
+def _http_request(
+    application: FastAPI,
+    method: str,
+    path: str,
+    **kwargs: Any,
+) -> httpx.Response:
+    async def run() -> httpx.Response:
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=application),
+            base_url="http://test",
+        ) as client:
+            return await client.request(method, path, **kwargs)
 
     import asyncio
 
@@ -243,6 +373,130 @@ def test_empty_verified_artifact_preserves_zero_byte_identity_in_repairable_plan
             encoding="utf-8"
         )
     )
-    assert list(
-        Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(plan)
-    ) == []
+    assert (
+        list(Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(plan)) == []
+    )
+
+
+def test_schema_bundle_apply_read_back_and_export_use_server_owned_evidence() -> None:
+    raw = (
+        PROJECT_ROOT / "contracts" / "examples" / "positive" / "schema-definition-bundle-many.json"
+    ).read_bytes()
+    service = _ApplyExportService(raw)
+    application = _app(service)
+    body = {
+        "artifact_id": str(ARTIFACT),
+        "artifact_sha256": service.digest,
+        "plan_fingerprint": "b" * 64,
+        "delete_missing": False,
+    }
+    applied = _http_request(
+        application,
+        "POST",
+        "/api/v1/catalog/schema-definition-bundles:apply",
+        json=body,
+        headers={"Idempotency-Key": "issue-207-api-apply"},
+    )
+
+    assert applied.status_code == 201
+    assert applied.headers["idempotent-replay"] == "false"
+    assert applied.headers["location"].endswith(str(service.application.application_id))
+    assert applied.json()["plan_fingerprint"] == "b" * 64
+    assert applied.json()["delete_missing"] is False
+    assert applied.json()["results"][0]["published"] is True
+    application_contract = json.loads(
+        (
+            PROJECT_ROOT
+            / "contracts"
+            / "catalog"
+            / "schema-definition-bundle-application.schema.json"
+        ).read_text(encoding="utf-8")
+    )
+    assert (
+        list(
+            Draft202012Validator(application_contract, format_checker=FormatChecker()).iter_errors(
+                applied.json()
+            )
+        )
+        == []
+    )
+
+    replay = _http_request(
+        application,
+        "POST",
+        "/api/v1/catalog/schema-definition-bundles:apply",
+        json=body,
+        headers={"Idempotency-Key": "issue-207-api-replay"},
+    )
+    assert replay.status_code == 200
+    assert replay.headers["idempotent-replay"] == "true"
+
+    read_back = _http_request(application, "GET", applied.headers["location"])
+    assert read_back.status_code == 200
+    assert read_back.json() == service.application.canonical()
+
+    exported = _http_request(
+        application,
+        "GET",
+        "/api/v1/catalog/schema-definition-bundles/synthetic_dependency_chain:export",
+    )
+    assert exported.status_code == 200
+    assert exported.headers["content-type"].startswith(
+        "application/vnd.cmp.catalog-schema-definition-bundle+json"
+    )
+    assert exported.headers["x-cmp-source-artifact-id"] == str(ARTIFACT)
+    assert exported.headers["x-cmp-source-artifact-sha256"] == service.digest
+    assert exported.headers["etag"] == f'"sha256:{hashlib.sha256(exported.content).hexdigest()}"'
+    assert json.loads(exported.content) == json.loads(raw)
+    assert service.apply_calls == 2
+    assert service.get_calls == 1
+    assert service.export_calls == 1
+
+
+def test_schema_bundle_apply_rejects_client_actions_and_maps_stale_fingerprint() -> None:
+    raw = (
+        PROJECT_ROOT / "contracts" / "examples" / "positive" / "schema-definition-bundle-many.json"
+    ).read_bytes()
+    application = _app(_StaleApplyService(raw))
+    body = {
+        "artifact_id": str(ARTIFACT),
+        "artifact_sha256": hashlib.sha256(raw).hexdigest(),
+        "plan_fingerprint": "b" * 64,
+        "delete_missing": False,
+    }
+    untrusted_action = _http_request(
+        application,
+        "POST",
+        "/api/v1/catalog/schema-definition-bundles:apply",
+        json={**body, "actions": [{"disposition": "create"}]},
+        headers={"Idempotency-Key": "issue-207-api-untrusted-action"},
+    )
+    stale = _http_request(
+        application,
+        "POST",
+        "/api/v1/catalog/schema-definition-bundles:apply",
+        json=body,
+        headers={"Idempotency-Key": "issue-207-api-stale"},
+    )
+
+    assert untrusted_action.status_code == 422
+    assert stale.status_code == 409
+    assert stale.headers["content-type"].startswith("application/problem+json")
+    assert stale.json()["code"] == "CMP-CATALOG-0207"
+    operations = application.openapi()["paths"]
+    assert (
+        operations["/api/v1/catalog/schema-definition-bundles:apply"]["post"]["operationId"]
+        == "applyCatalogSchemaDefinitionBundle"
+    )
+    assert (
+        operations["/api/v1/catalog/schema-definition-bundle-applications/{application_id}"]["get"][
+            "operationId"
+        ]
+        == "getCatalogSchemaDefinitionBundleApplication"
+    )
+    assert (
+        operations["/api/v1/catalog/schema-definition-bundles/{bundle_key}:export"]["get"][
+            "operationId"
+        ]
+        == "exportCatalogSchemaDefinitionBundle"
+    )

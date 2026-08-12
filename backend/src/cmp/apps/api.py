@@ -505,6 +505,9 @@ def create_app(
         write_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.CATALOG_WRITE
         ),
+        apply_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.CATALOG_SCHEMA_APPLY
+        ),
     )
     install_catalog_record_api(
         application,

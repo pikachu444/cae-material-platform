@@ -103,6 +103,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260925_094_issue160_review_publication.py",
         "20260926_095_issue205_common_units.py",
         "20260927_096_issue206_curve_metadata.py",
+        "20260928_097_issue207_schema_bundle_apply_export.py",
     ]
 
 

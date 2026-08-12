@@ -1,12 +1,13 @@
-"""Protected no-write API for Catalog Schema Definition Bundle planning."""
+"""Protected API for Catalog Schema Definition Bundle planning, apply, and export."""
 
 from __future__ import annotations
 
+import base64
 from collections.abc import Callable
 from typing import Annotated, Any, Literal
 from uuid import UUID
 
-from fastapi import Depends, FastAPI, Request
+from fastapi import Depends, FastAPI, Header, Request, Response
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
@@ -18,14 +19,25 @@ from cmp.modules.artifacts.domain.content import (
 )
 from cmp.modules.catalog.adapters.api.catalog import CatalogHttpError, _scope
 from cmp.modules.catalog.application.schema_bundles import (
+    ApplySchemaDefinitionBundle,
     PlanSchemaDefinitionBundle,
+    SchemaBundleApplicationNotFound,
+    SchemaBundleExportConflict,
+    SchemaBundleIdempotencyConflict,
+    SchemaBundleMigrationRequired,
     SchemaBundlePlannerService,
     SchemaBundleSourceConflict,
+    SchemaBundleStalePlan,
+    SchemaBundleVersionConflict,
 )
 
 type Dependency = Callable[..., object]
 type Sha256 = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
 type OptionalText2000 = Annotated[str, StringConstraints(min_length=1, max_length=2000)] | None
+type VisibleAscii255 = Annotated[str, StringConstraints(pattern=r"^[!-~]{1,255}$")]
+type BundleKey = Annotated[
+    str, StringConstraints(pattern=r"^[a-z][a-z0-9_]{0,62}[a-z0-9]$|^[a-z]$")
+]
 
 
 class SchemaBundlePlanRequest(BaseModel):
@@ -33,6 +45,15 @@ class SchemaBundlePlanRequest(BaseModel):
 
     artifact_id: UUID
     artifact_sha256: Sha256
+
+
+class SchemaBundleApplyRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_id: UUID
+    artifact_sha256: Sha256
+    plan_fingerprint: Sha256
+    delete_missing: Literal[False] = False
 
 
 class SourceArtifactResponse(BaseModel):
@@ -239,6 +260,53 @@ class SchemaBundlePlanResponse(BaseModel):
     write_set: Annotated[tuple[str, ...], Field(max_length=0)]
 
 
+class AppliedSchemaObjectResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    sequence: int
+    disposition: Literal["create", "update", "no-op"]
+    target_type: Literal[
+        "database",
+        "profile",
+        "table",
+        "attribute",
+        "layout",
+        "profile_table_placement",
+        "link_type",
+    ]
+    external_key: str
+    parent_external_key: str | None
+    aggregate_id: UUID | None
+    revision_id: UUID | None
+    content_hash: Sha256
+    published: bool
+    source_schema_id: str
+    source_schema_version: str
+    source_pointer: str
+
+
+class SchemaBundleApplicationResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    schema_id: str = Field(validation_alias="$schema", serialization_alias="$schema")
+    contract_version: Literal["1.0.0"]
+    application_id: UUID
+    bundle_id: UUID
+    bundle_key: str
+    bundle_version: str
+    classification: Literal["internal", "confidential", "restricted", "export_controlled"]
+    source_artifact: SourceArtifactResponse
+    plan_fingerprint: Sha256
+    before_snapshot_fingerprint: Sha256
+    after_snapshot_fingerprint: Sha256
+    results: tuple[AppliedSchemaObjectResponse, ...]
+    mutations_applied: bool
+    delete_missing: Literal[False]
+    applied_at: str
+    applied_by: UUID
+    idempotency_key: VisibleAscii255
+
+
 def _http_error(context: Any, error: Exception) -> CatalogHttpError:
     if isinstance(error, ArtifactNotFound):
         return CatalogHttpError(
@@ -255,6 +323,60 @@ def _http_error(context: Any, error: Exception) -> CatalogHttpError:
             title="Schema Definition Bundle access denied",
             detail="The Artifact classification or capability is not authorized.",
             code="CMP-CATALOG-0203",
+        )
+    if isinstance(error, SchemaBundleApplicationNotFound):
+        return CatalogHttpError(
+            context=context,
+            status_code=404,
+            title="Schema Definition Bundle application not found",
+            detail="No applied bundle state is visible for the selected tenant context.",
+            code="CMP-CATALOG-0206",
+        )
+    if isinstance(error, SchemaBundleStalePlan):
+        return CatalogHttpError(
+            context=context,
+            status_code=409,
+            title="Schema Definition Bundle plan is stale",
+            detail=(
+                "The server re-plan against the locked current Catalog does not match "
+                "the approved plan_fingerprint. Plan again before applying."
+            ),
+            code="CMP-CATALOG-0207",
+        )
+    if isinstance(error, SchemaBundleIdempotencyConflict):
+        return CatalogHttpError(
+            context=context,
+            status_code=409,
+            title="Schema Definition Bundle idempotency conflict",
+            detail="The Idempotency-Key already identifies different immutable apply evidence.",
+            code="CMP-CATALOG-0208",
+        )
+    if isinstance(error, SchemaBundleVersionConflict):
+        return CatalogHttpError(
+            context=context,
+            status_code=409,
+            title="Schema Definition Bundle version conflict",
+            detail="The stable bundle version is already bound to different canonical content.",
+            code="CMP-CATALOG-0209",
+        )
+    if isinstance(error, SchemaBundleMigrationRequired):
+        return CatalogHttpError(
+            context=context,
+            status_code=409,
+            title="Catalog Record migration required",
+            detail=(
+                "Current Records pin a schema revision affected by this bundle. "
+                "Apply is blocked; no user migration code is executed."
+            ),
+            code="CMP-CATALOG-0210",
+        )
+    if isinstance(error, SchemaBundleExportConflict):
+        return CatalogHttpError(
+            context=context,
+            status_code=409,
+            title="Schema Definition Bundle export drift",
+            detail="Current Catalog heads or publication markers differ from the applied bindings.",
+            code="CMP-CATALOG-0211",
         )
     if isinstance(
         error,
@@ -278,8 +400,8 @@ def _http_error(context: Any, error: Exception) -> CatalogHttpError:
     return CatalogHttpError(
         context=context,
         status_code=409,
-        title="Schema Definition Bundle planning failed",
-        detail="The Catalog snapshot could not be planned without mutation.",
+        title="Schema Definition Bundle operation failed",
+        detail="The Catalog Schema Definition Bundle operation could not be completed.",
         code="CMP-CATALOG-0204",
     )
 
@@ -290,6 +412,7 @@ def install_schema_bundle_planner_api(
     service: SchemaBundlePlannerService | None,
     security_dependency: Dependency,
     write_dependency: Dependency,
+    apply_dependency: Dependency,
 ) -> None:
     if CatalogHttpError not in application.exception_handlers:
 
@@ -345,6 +468,151 @@ def install_schema_bundle_planner_api(
                 PlanSchemaDefinitionBundle(body.artifact_id, body.artifact_sha256),
             )
             return SchemaBundlePlanResponse.model_validate(result.canonical())
+        except CatalogHttpError:
+            raise
+        except Exception as error:
+            raise _http_error(context, error) from error
+
+    @application.post(
+        "/api/v1/catalog/schema-definition-bundles:apply",
+        operation_id="applyCatalogSchemaDefinitionBundle",
+        response_model=SchemaBundleApplicationResponse,
+        status_code=201,
+        dependencies=[Depends(security_dependency), Depends(apply_dependency)],
+        tags=["catalog-schema"],
+        responses={
+            200: {
+                "description": "Exact idempotent replay.",
+                "headers": {
+                    "Location": {"schema": {"type": "string"}},
+                    "Idempotent-Replay": {
+                        "schema": {"type": "string", "enum": ["true"]}
+                    },
+                },
+            },
+            201: {
+                "description": "Exact server-owned plan committed atomically.",
+                "headers": {
+                    "Location": {"schema": {"type": "string"}},
+                    "Idempotent-Replay": {
+                        "schema": {"type": "string", "enum": ["false"]}
+                    },
+                },
+            },
+            401: {"description": "Authentication required."},
+            403: {"description": "Catalog schema apply approval is not authorized."},
+            404: {"description": "The exact Artifact is absent or hidden by RLS."},
+            409: {"description": "Stale plan, migration, version, or idempotency conflict."},
+            503: {"description": "Artifact or Catalog apply service unavailable."},
+        },
+    )
+    async def apply_schema_definition_bundle(
+        request: Request,
+        response: Response,
+        body: SchemaBundleApplyRequest,
+        idempotency_key: Annotated[VisibleAscii255, Header(alias="Idempotency-Key")],
+    ) -> SchemaBundleApplicationResponse:
+        context, decision = _scope(request)
+        try:
+            result = await required(context).apply(
+                context,
+                decision,
+                ApplySchemaDefinitionBundle(
+                    artifact_id=body.artifact_id,
+                    expected_sha256=body.artifact_sha256,
+                    plan_fingerprint=body.plan_fingerprint,
+                    idempotency_key=idempotency_key,
+                    delete_missing=body.delete_missing,
+                ),
+            )
+            response.status_code = 200 if result.replayed else 201
+            response.headers["Location"] = (
+                f"/api/v1/catalog/schema-definition-bundle-applications/{result.application_id}"
+            )
+            response.headers["Idempotent-Replay"] = str(result.replayed).lower()
+            response.headers["Cache-Control"] = "no-store"
+            return SchemaBundleApplicationResponse.model_validate(result.canonical())
+        except CatalogHttpError:
+            raise
+        except Exception as error:
+            raise _http_error(context, error) from error
+
+    @application.get(
+        "/api/v1/catalog/schema-definition-bundle-applications/{application_id}",
+        operation_id="getCatalogSchemaDefinitionBundleApplication",
+        response_model=SchemaBundleApplicationResponse,
+        dependencies=[Depends(security_dependency), Depends(apply_dependency)],
+        tags=["catalog-schema"],
+        responses={
+            401: {"description": "Authentication required."},
+            403: {"description": "Catalog schema application read-back is not authorized."},
+            404: {"description": "The application is absent or hidden by RLS."},
+        },
+    )
+    async def get_schema_definition_bundle_application(
+        request: Request,
+        application_id: UUID,
+    ) -> SchemaBundleApplicationResponse:
+        context, decision = _scope(request)
+        try:
+            result = required(context).get_application(context, decision, application_id)
+            return SchemaBundleApplicationResponse.model_validate(result.canonical())
+        except CatalogHttpError:
+            raise
+        except Exception as error:
+            raise _http_error(context, error) from error
+
+    @application.get(
+        "/api/v1/catalog/schema-definition-bundles/{bundle_key}:export",
+        operation_id="exportCatalogSchemaDefinitionBundle",
+        response_class=Response,
+        dependencies=[Depends(security_dependency), Depends(apply_dependency)],
+        tags=["catalog-schema"],
+        responses={
+            200: {
+                "description": "Canonical current applied Schema Definition Bundle JSON.",
+                "headers": {
+                    "ETag": {"schema": {"type": "string"}},
+                    "Digest": {"schema": {"type": "string"}},
+                    "X-CMP-Bundle-Application-ID": {
+                        "schema": {"type": "string", "format": "uuid"}
+                    },
+                    "X-CMP-Source-Artifact-ID": {
+                        "schema": {"type": "string", "format": "uuid"}
+                    },
+                    "X-CMP-Source-Artifact-SHA256": {
+                        "schema": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+                    },
+                },
+                "content": {"application/vnd.cmp.catalog-schema-definition-bundle+json": {}},
+            },
+            401: {"description": "Authentication required."},
+            403: {"description": "Catalog schema export is not authorized."},
+            404: {"description": "The applied bundle is absent or hidden by RLS."},
+            409: {"description": "Applied bindings or immutable source evidence drifted."},
+        },
+    )
+    async def export_schema_definition_bundle(
+        request: Request,
+        bundle_key: BundleKey,
+    ) -> Response:
+        context, decision = _scope(request)
+        try:
+            result = await required(context).export(context, decision, bundle_key)
+            return Response(
+                content=result.value,
+                media_type="application/vnd.cmp.catalog-schema-definition-bundle+json",
+                headers={
+                    "Cache-Control": "no-store",
+                    "ETag": f'"sha256:{result.sha256}"',
+                    "Digest": (
+                        "sha-256=" + base64.b64encode(bytes.fromhex(result.sha256)).decode("ascii")
+                    ),
+                    "X-CMP-Bundle-Application-ID": str(result.application_id),
+                    "X-CMP-Source-Artifact-ID": str(result.source_artifact_id),
+                    "X-CMP-Source-Artifact-SHA256": result.source_artifact_sha256,
+                },
+            )
         except CatalogHttpError:
             raise
         except Exception as error:

@@ -123,6 +123,16 @@ class RevisionService[ContentT]:
         )
 
     def create(self, command: CreateRevisionedAggregate[ContentT]) -> RevisionRecord:
+        with self._store.transaction() as transaction:
+            return self.create_in(transaction, command)
+
+    def create_in(
+        self,
+        transaction: RevisionTransaction[ContentT],
+        command: CreateRevisionedAggregate[ContentT],
+    ) -> RevisionRecord:
+        """Create and stage a revision in a caller-owned database transaction."""
+
         draft = self._draft(
             aggregate_id=command.aggregate_id,
             scope=command.scope,
@@ -134,12 +144,21 @@ class RevisionService[ContentT]:
             request_id=command.request_id,
             trace_id=command.trace_id,
         )
-        with self._store.transaction() as transaction:
-            record = transaction.create(draft)
-            transaction.stage(RevisionCreated(record, self._initial_lifecycle_state))
-            return record
+        record = transaction.create(draft)
+        transaction.stage(RevisionCreated(record, self._initial_lifecycle_state))
+        return record
 
     def revise(self, command: ReviseAggregate[ContentT]) -> RevisionRecord:
+        with self._store.transaction() as transaction:
+            return self.revise_in(transaction, command)
+
+    def revise_in(
+        self,
+        transaction: RevisionTransaction[ContentT],
+        command: ReviseAggregate[ContentT],
+    ) -> RevisionRecord:
+        """Append and stage a revision in a caller-owned database transaction."""
+
         if command.based_on_revision_id != command.expected_current_revision_id:
             raise InvalidRevisionCommand(
                 "based_on_revision_id must equal the expected current revision"
@@ -155,7 +174,6 @@ class RevisionService[ContentT]:
             request_id=command.request_id,
             trace_id=command.trace_id,
         )
-        with self._store.transaction() as transaction:
-            record = transaction.revise(draft, command.expected_current_revision_id)
-            transaction.stage(RevisionCreated(record, self._initial_lifecycle_state))
-            return record
+        record = transaction.revise(draft, command.expected_current_revision_id)
+        transaction.stage(RevisionCreated(record, self._initial_lifecycle_state))
+        return record
