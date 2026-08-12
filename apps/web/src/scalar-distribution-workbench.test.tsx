@@ -208,7 +208,16 @@ describe("Scalar distribution workbench", () => {
       sample_count: 8,
       minimum_sample_count: 8,
       small_sample_warning_below: 20,
-      observations: [],
+      observations: processedMembers.map((member, ordinal) => ({
+        ordinal,
+        dataset_id: member.dataset_id,
+        dataset_revision_id: member.dataset_revision_id,
+        test_run_id: member.test_run_id,
+        test_run_revision_id: member.test_run_revision_id,
+        value_pa: 585_000_000 + ordinal * 7_500_000,
+        quality: "observed" as const,
+        outlier_assessment: "not_assessed" as const,
+      })),
       candidates,
       recommended_families: ["normal", "lognormal"],
       recommendation_method: "aicc_delta_le_2_at_least_two_successful_candidates_v1",
@@ -294,27 +303,34 @@ describe("Scalar distribution workbench", () => {
     const first = render(<ScalarDistributionWorkbench {...props} />);
 
     await screen.findByRole("table");
-    expect(document.activeElement?.id).toBe("scalar-distribution-dock");
+    const probabilityPlot = screen.getByRole("img", {
+      name: /^Peak engineering stress empirical and fitted cumulative distributions/,
+    });
+    expect(probabilityPlot.querySelectorAll("path")).toHaveLength(4);
+    expect(probabilityPlot.innerHTML).not.toContain("NaN");
+    expect(document.activeElement?.id).toBe("scalar-distribution-analysis");
     expect(screen.getByRole("option", {
       name: /Eight processed replicates.*historical exact revisions/,
     })).toBeTruthy();
-    expect(screen.getByText(
-      "Historical exact processed revisions · saved Plan, Run, and Result remain readable",
-    )).toBeTruthy();
+    expect(screen.getByText("Historical processed revisions")).toBeTruthy();
     expect(screen.queryByRole("option", { name: /Normalized alignment source/ })).toBeNull();
-    expect(screen.getByText("Normal + Lognormal")).toBeTruthy();
+    expect(screen.getAllByText("Normal + Lognormal").length).toBeGreaterThan(0);
     expect(screen.getByRole("row", { name: /Weibull/ }).textContent).toContain("341.000");
-    fireEvent.change(screen.getByLabelText("Successful candidate"), { target: { value: "normal" } });
-    fireEvent.change(screen.getByLabelText("Selection reason"), {
+    const evidenceSummary = screen.getByText("Evidence / replay manifest");
+    evidenceSummary.focus();
+    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Tab" });
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Close" }));
+    fireEvent.click(screen.getByRole("button", { name: "Normal select" }));
+    fireEvent.change(screen.getByLabelText("Engineering rationale"), {
       target: { value: "Normal is retained for this bounded engineering review." },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Save selection" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save exact selection" }));
     await screen.findByText("Selected model and reason saved as an exact immutable revision.");
     expect(screen.getByText(
       "Normal is retained for this bounded engineering review.",
-      { selector: ".distribution-saved-decision span" },
+      { selector: ".distribution-decision-record p" },
     )).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Fit and save candidates" }));
+    fireEvent.click(screen.getByRole("button", { name: "Refit candidates" }));
     await screen.findByText("Comparison saved. All source observations and descriptive statistics remain unchanged.");
     expect(fetchMock.mock.calls.some(([input, init]) =>
       String(input).endsWith("/replicate-statistical-plans")
@@ -325,9 +341,9 @@ describe("Scalar distribution workbench", () => {
     render(<ScalarDistributionWorkbench {...props} />);
     await screen.findByText(
       "Normal is retained for this bounded engineering review.",
-      { selector: ".distribution-saved-decision span" },
+      { selector: ".distribution-decision-record p" },
     );
-    expect((screen.getByLabelText("Successful candidate") as HTMLSelectElement).value).toBe("normal");
+    expect(screen.getByRole("button", { name: "Normal edit selection" }).getAttribute("aria-pressed")).toBe("true");
     await waitFor(() => expect(fetchMock.mock.calls.some(([input]) =>
       String(input).endsWith(`/datasets/${processedMembers[0].dataset_id}/revisions`),
     )).toBe(true));

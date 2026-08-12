@@ -2589,71 +2589,75 @@ def _prepare_modeling_process(
 
 
 def _open_scalar_distribution_workbench(page: Page) -> Locator:
-    details = page.locator("details.rail-statistics-action")
-    details.wait_for(state="visible", timeout=30_000)
-    if details.get_attribute("open") is None:
-        details.locator("summary").click()
-    trigger = page.get_by_role("button", name="Distribution candidates", exact=True)
+    trigger = page.get_by_role("button", name="Distribution analysis", exact=True)
     trigger.wait_for(state="visible", timeout=30_000)
     if trigger.get_attribute("aria-expanded") != "true":
         trigger.click()
-    dock = page.locator("#scalar-distribution-dock")
-    dock.wait_for(state="visible", timeout=30_000)
-    if page.evaluate("innerHeight <= 800") and not page.locator(
-        ".modeling-task-ribbon"
-    ).is_hidden():
-        raise RuntimeError(
-            "distribution comparison did not yield the short-height graph allocation"
-        )
+    analysis = page.locator("#scalar-distribution-analysis")
+    analysis.wait_for(state="visible", timeout=30_000)
     page.wait_for_function(
         """() => {
-          const dock = document.querySelector('#scalar-distribution-dock');
-          const rows = dock?.querySelectorAll('.distribution-candidate-table tbody tr');
-          return Boolean(dock && rows?.length === 3 && dock.textContent?.includes('n = 8'));
+          const analysis = document.querySelector('#scalar-distribution-analysis');
+          const rows = analysis?.querySelectorAll('.distribution-candidate-table tbody tr');
+          return Boolean(analysis && rows?.length === 3 && analysis.textContent?.includes('n = 8'));
         }""",
         timeout=60_000,
     )
     _wait_for_settled(page)
 
-    selection = page.get_by_label("Saved processed replicate Selection")
+    selection = page.get_by_label("Saved replicate set")
     selection_text = selection.locator("option:checked").inner_text()
-    if "8 members" not in selection_text or "Normalized alignment source" in selection_text:
+    if "8 observations" not in selection_text or "Normalized alignment source" in selection_text:
         raise RuntimeError(
             "distribution capture did not retain the exact eight-member processed Selection: "
             f"{selection_text!r}"
         )
     if page.locator(".distribution-candidate-table tbody tr").count() != 3:
         raise RuntimeError("distribution capture must expose exactly three candidate rows")
-    if page.get_by_text("Normal + Lognormal + Weibull", exact=True).count() != 1:
+    if page.get_by_text("Normal + Lognormal + Weibull", exact=True).count() < 1:
         raise RuntimeError(
             "deterministic demo distribution recommendation no longer exposes all "
             "three co-recommended candidates"
         )
-    if page.get_by_text(
+    quality = page.get_by_text(
         "Observation quality: 8 observed · 0 missing · 0 non-finite · 0 censored.",
         exact=True,
-    ).count() != 1:
+    )
+    if quality.count() != 1:
         raise RuntimeError("distribution capture lost the exact observation-quality surface")
-    return dock
+    return analysis
 
 
 def _ensure_scalar_distribution_decision(page: Page) -> None:
-    family = page.get_by_label("Successful candidate")
-    reason = page.get_by_label("Selection reason")
     expected_reason = (
         "Normal selected explicitly for bounded comparison; recommendation remains separate."
     )
-    saved = page.locator(".distribution-saved-decision")
-    if family.input_value() == "normal" and reason.input_value() == expected_reason and saved.count():
+    saved = page.locator(".distribution-decision-record")
+    normal = page.get_by_role("button", name=re.compile(r"^Normal (select|edit selection)$"))
+    if (
+        saved.count()
+        and saved.locator("p").inner_text().strip() == expected_reason
+        and normal.get_attribute("aria-pressed") == "true"
+    ):
         return
-    family.select_option("normal")
+    normal.click()
+    reason = page.get_by_label("Engineering rationale")
+    reason.wait_for(state="visible", timeout=10_000)
     reason.fill(expected_reason)
-    button_name = "Save revised selection" if saved.count() else "Save selection"
+    button_name = "Save revised selection" if saved.count() else "Save exact selection"
     page.get_by_role("button", name=button_name, exact=True).click()
     page.get_by_text(
         "Selected model and reason saved as an exact immutable revision.", exact=True
     ).wait_for(timeout=30_000)
-    if family.input_value() != "normal" or reason.input_value() != expected_reason:
+    saved = page.locator(".distribution-decision-record")
+    saved.wait_for(state="visible", timeout=10_000)
+    if (
+        saved.locator("p").inner_text().strip() != expected_reason
+        or page.get_by_role("button", name="Normal edit selection", exact=True).get_attribute(
+            "aria-pressed"
+        )
+        != "true"
+    ):
         raise RuntimeError("distribution selection did not preserve the explicit model and reason")
 
 
@@ -2664,39 +2668,6 @@ def _capture_distribution_detail(
     *,
     region: str,
 ) -> None:
-    if region == "selection-form":
-        locator.evaluate(
-            """element => {
-              const scroller = element.closest('.scalar-distribution-workbench');
-              const header = scroller?.querySelector('.distribution-dock-heading');
-              const firstControl = element.querySelector(':scope > label');
-              if (!scroller || !header || !firstControl) return;
-              const scrollerBox = scroller.getBoundingClientRect();
-              const controlBox = firstControl.getBoundingClientRect();
-              const targetTop = controlBox.top + scroller.scrollTop - scrollerBox.top;
-              scroller.scrollTop = Math.max(0, targetTop - header.offsetHeight - 8);
-            }"""
-        )
-        page.wait_for_timeout(100)
-        clip = locator.evaluate(
-            """element => {
-              const nodes = [...element.querySelectorAll(
-                ':scope > label, :scope > button, :scope > .distribution-saved-decision'
-              )];
-              const boxes = nodes
-                .filter(node => node.getClientRects().length > 0)
-                .map(node => node.getBoundingClientRect());
-              const section = element.getBoundingClientRect();
-              if (!boxes.length) return null;
-              const top = Math.min(...boxes.map(box => box.top));
-              const bottom = Math.max(...boxes.map(box => box.bottom));
-              return { x: section.left, y: top, width: section.width, height: bottom - top };
-            }"""
-        )
-        if not isinstance(clip, dict) or clip["height"] < 120:
-            raise RuntimeError(f"distribution selection-form crop is unavailable: {clip}")
-        page.screenshot(path=str(path), clip=clip)
-        return
     locator.scroll_into_view_if_needed()
     page.wait_for_timeout(100)
     locator.screenshot(path=str(path))
@@ -2718,22 +2689,22 @@ def _capture_modeling_distribution(
                 base_url,
                 verify_data_reload=viewport_index == 0,
             )
-            dock = _open_scalar_distribution_workbench(page)
-            trigger = page.get_by_role("button", name="Distribution candidates", exact=True)
+            analysis = _open_scalar_distribution_workbench(page)
+            trigger = page.get_by_role("button", name="Distribution analysis", exact=True)
 
             if viewport_index == 0:
                 page.wait_for_function(
-                    "() => document.activeElement?.id === 'scalar-distribution-dock'",
+                    "() => document.activeElement?.id === 'scalar-distribution-analysis'",
                     timeout=10_000,
                 )
                 page.keyboard.press("Escape")
-                dock.wait_for(state="hidden", timeout=10_000)
+                analysis.wait_for(state="hidden", timeout=10_000)
                 page.wait_for_function(
-                    """() => document.activeElement?.classList.contains('distribution-evidence-trigger')""",
+                    """() => document.activeElement?.classList.contains('modeling-analysis-trigger')""",
                     timeout=10_000,
                 )
                 trigger.click()
-                dock = _open_scalar_distribution_workbench(page)
+                analysis = _open_scalar_distribution_workbench(page)
                 _ensure_scalar_distribution_decision(page)
 
                 page.reload()
@@ -2753,10 +2724,13 @@ def _capture_modeling_distribution(
                     arg=PROCESS_SOURCE_VISIBLE_IDENTITY,
                     timeout=30_000,
                 )
-                dock = _open_scalar_distribution_workbench(page)
+                analysis = _open_scalar_distribution_workbench(page)
                 if (
-                    page.get_by_label("Successful candidate").input_value() != "normal"
-                    or page.get_by_label("Selection reason").input_value()
+                    page.get_by_role(
+                        "button", name="Normal edit selection", exact=True
+                    ).get_attribute("aria-pressed")
+                    != "true"
+                    or page.locator(".distribution-decision-record p").inner_text().strip()
                     != "Normal selected explicitly for bounded comparison; recommendation remains separate."
                 ):
                     raise RuntimeError(
@@ -2765,38 +2739,57 @@ def _capture_modeling_distribution(
             else:
                 _ensure_scalar_distribution_decision(page)
 
-            dock.evaluate("element => { element.scrollTop = 0; element.scrollLeft = 0; }")
             path = output / f"modeling-distribution-{width}x{height}.png"
             _capture(page, path, width, height)
 
             geometry = page.evaluate(
                 """() => {
-                  const dock = document.querySelector('#scalar-distribution-dock');
+                  const analysis = document.querySelector('#scalar-distribution-analysis');
+                  const sheet = document.querySelector('.distribution-analysis-sheet');
+                  const workspace = document.querySelector('.modeling-workspace-shell');
+                  const background = workspace?.querySelector('.modeling-split-workspace');
                   const tableScroll = document.querySelector('.distribution-table-scroll');
-                  const main = document.querySelector('.modeling-main-surface');
+                  const lastCandidate = document.querySelector(
+                    '.distribution-candidate-table tbody tr:last-child'
+                  );
+                  const decisionSurface = document.querySelector(
+                    '.distribution-decision-record, .distribution-decision-note'
+                  );
                   const plot = document.querySelector('.persistent-modeling-plot');
-                  if (!dock || !tableScroll || !main || !plot) return null;
-                  const dockBox = dock.getBoundingClientRect();
-                  const mainBox = main.getBoundingClientRect();
+                  if (!analysis || !sheet || !workspace || !background || !tableScroll || !lastCandidate || !plot) return null;
+                  const analysisBox = analysis.getBoundingClientRect();
+                  const sheetBox = sheet.getBoundingClientRect();
+                  const workspaceBox = workspace.getBoundingClientRect();
                   const plotBox = plot.getBoundingClientRect();
+                  const lastCandidateBox = lastCandidate.getBoundingClientRect();
+                  const candidateViewportBottom = decisionSurface
+                    ? decisionSurface.getBoundingClientRect().top
+                    : analysisBox.bottom;
                   return {
                     cssViewport: `${innerWidth}x${innerHeight}`,
                     devicePixelRatio,
                     browserZoomPercent: Math.round((outerWidth / innerWidth) * 100),
                     screen: `${screen.width}x${screen.height}`,
-                    dock: {
-                      left: dockBox.left,
-                      right: dockBox.right,
-                      top: dockBox.top,
-                      bottom: dockBox.bottom,
-                      width: dockBox.width,
-                      height: dockBox.height,
+                    analysis: {
+                      left: analysisBox.left,
+                      right: analysisBox.right,
+                      top: analysisBox.top,
+                      bottom: analysisBox.bottom,
+                      width: analysisBox.width,
+                      height: analysisBox.height,
                     },
-                    mainWidth: mainBox.width,
-                    plot: {
-                      width: plotBox.width,
-                      height: plotBox.height,
+                    workspace: {
+                      width: workspaceBox.width,
+                      height: workspaceBox.height,
+                      sheetWidth: sheetBox.width,
+                      sheetHeight: sheetBox.height,
                     },
+                    backgroundInert:
+                      background.inert && background.getAttribute('aria-hidden') === 'true',
+                    preservedProcessPlot: { width: plotBox.width, height: plotBox.height },
+                    candidateRowsVisible:
+                      lastCandidateBox.top >= analysisBox.top
+                      && lastCandidateBox.bottom <= candidateViewportBottom + 1,
                     pageOverflow: document.documentElement.scrollWidth
                       - document.documentElement.clientWidth,
                     tableLocalOverflow: tableScroll.scrollWidth - tableScroll.clientWidth,
@@ -2805,15 +2798,27 @@ def _capture_modeling_distribution(
             )
             if not isinstance(geometry, dict):
                 raise RuntimeError(f"distribution geometry is unavailable for {path.name}")
-            dock_geometry = geometry["dock"]
+            analysis_geometry = geometry["analysis"]
             if (
                 geometry["pageOverflow"] != 0
-                or dock_geometry["left"] < 0
-                or dock_geometry["right"] > width + 1
-                or dock_geometry["top"] < 0
-                or dock_geometry["bottom"] > height + 1
-                or dock_geometry["height"] < 259
-                or geometry["plot"]["height"] < 150
+                or analysis_geometry["left"] < 0
+                or analysis_geometry["right"] > width + 1
+                or analysis_geometry["top"] < 0
+                or analysis_geometry["bottom"] > height + 1
+                or analysis_geometry["height"] < 360
+                or abs(
+                    geometry["workspace"]["sheetWidth"]
+                    - geometry["workspace"]["width"]
+                )
+                > 2
+                or abs(
+                    geometry["workspace"]["sheetHeight"]
+                    - geometry["workspace"]["height"]
+                )
+                > 2
+                or geometry["preservedProcessPlot"]["height"] < 280
+                or not geometry["candidateRowsVisible"]
+                or not geometry["backgroundInert"]
             ):
                 raise RuntimeError(
                     f"distribution workbench is clipped or overflowing for {path.name}: {geometry}"
@@ -2822,13 +2827,36 @@ def _capture_modeling_distribution(
 
             if include_detail_crops and (width, height) in (VIEWPORTS[2], *WIDE_VIEWPORTS):
                 detail_locators = {
-                    "header": page.locator(".application-menu-bar"),
-                    "navigator": page.locator(".modeling-workspace-rail"),
-                    "graph": page.locator(".persistent-modeling-plot"),
-                    "table": page.locator(".distribution-table-scroll"),
-                    "selection-form": page.locator(".distribution-decision"),
+                    "header": page.locator(".distribution-drawer-heading"),
+                    "table": page.locator(".distribution-candidate-table"),
                 }
                 for region, locator in detail_locators.items():
+                    _capture_distribution_detail(
+                        page,
+                        locator,
+                        output
+                        / f"modeling-distribution-{region}-from-{width}x{height}-crop.png",
+                        region=region,
+                    )
+                page.get_by_role("button", name="Normal edit selection", exact=True).click()
+                selection_editor = page.locator(".distribution-decision-editor")
+                selection_editor.wait_for(state="visible", timeout=10_000)
+                _capture_distribution_detail(
+                    page,
+                    selection_editor,
+                    output
+                    / f"modeling-distribution-selection-form-from-{width}x{height}-crop.png",
+                    region="selection-form",
+                )
+                page.get_by_role("button", name="Cancel", exact=True).click()
+                page.locator(".distribution-drawer-state").get_by_role(
+                    "button", name="Close", exact=True
+                ).click()
+                analysis.wait_for(state="hidden", timeout=10_000)
+                for region, locator in {
+                    "navigator": page.locator(".modeling-workspace-rail"),
+                    "graph": page.locator(".persistent-modeling-plot"),
+                }.items():
                     _capture_distribution_detail(
                         page,
                         locator,
