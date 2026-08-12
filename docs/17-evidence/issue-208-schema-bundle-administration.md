@@ -76,7 +76,7 @@ state images and the current-guide image were regenerated; product-owner re-revi
 | Affected Python contracts/integration | PASS — 98 tests across guide inventory, capture tooling and bundle API integration; 91 guide/capture contracts passed again after the visual correction |
 | User guide and documentation impact gates | PASS — 20 guide documents, 101 current captures, 570 local links, 1,745 registered images; 63 changed files and 3 visual sources accounted for |
 | Static and diff checks | PASS — Ruff lint on affected Python files, sidecar hashes/dimensions for 27 PNGs and five measurements, `git diff --check` |
-| Balanced independent audit | PASS — the same implementation-uninvolved reviewer audited visual-correction SHA `865a1187fa6506f297415dc8641b02f32dca43dd`, opened all five originals, twenty 1:1 crops and both state images, and reported blocker 0, major 0, material minor 0 and minor 0; it then passed the audit-record-only SHA `6cd378329a92244c88fc66f93bebebb1d6f3c98a` with the same zero-finding ledger. The approval-record-only final SHA remains subject to the required read-only publication recheck. |
+| Balanced independent audit | PASS — the same implementation-uninvolved reviewer audited the corrected originals and crops and approved exact final feature head `b74321af72e71a9fadb37767017c9e1a6f973939` for push, ready transition and squash merge with blocker 0, major 0, material minor 0 and minor 0. |
 | Product Owner visual geometry approval | PASS — on 2026-08-13 the Product Owner approved the corrected navigation hierarchy, white central plan surface, neutral target labels and registered five-viewport geometry. Physical Windows 4K readability remains #223. |
 
 The exact files, dimensions, hashes, route, fixture and geometry boundaries are registered in
@@ -91,6 +91,7 @@ the preserved `C:\SourceCodes\cae-material-platform-issue210` worktree rather th
 not stopped, recreated or treated as #208 evidence. The browser record therefore uses an isolated Vite
 server with contract-backed endpoint fixtures and makes no claim of canonical Compose persistence.
 
-Draft delivery is tracked in [PR #242](https://github.com/pikachu444/cae-material-platform/pull/242).
-The recorded product-owner visual approval passed on 2026-08-13; the PR may leave draft only after the
-approval-record-only exact SHA passes the final independent and publication checks.
+[PR #242](https://github.com/pikachu444/cae-material-platform/pull/242) was squash-merged as
+`9d8314d882fd395a509ede81291fab69cbf34c84` after the exact final audit and recorded Product Owner
+approval. Issue #208 is closed. The next unfinished backlog unit is #212; no #212 implementation was
+started in this delivery.
