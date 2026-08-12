@@ -105,9 +105,9 @@ new final SHA.
 | Web production build and bundle | PASS — scalar distribution lazy chunk is within budget; inherited Materials warning remains below the hard limit |
 | Canonical Compose | PASS — preflight/config, preserved-volume rebuild/recreate, migration/reference plugin/seed exit 0, healthy API/PostgreSQL and full demo verifier with three scalar candidates |
 | User guide, documentation impact and whitespace | PASS — 100 current captures, 1,717 referenced images, zero orphans; 97 changed files/5 visual sources; clean diff check |
-| Standard/Large five-viewport originals and thirty 1:1 crops | PASS Main review and deterministic geometry; Product Owner approval pending |
-| Independent exact-SHA Balanced audit | PENDING final commit |
-| Product Owner visual approval | PENDING; Draft PR must not become ready or merge |
+| Standard/Large five-viewport originals and thirty 1:1 crops | PASS — Main review, deterministic geometry and Product Owner approval |
+| Independent exact-SHA Balanced audit | PASS — `2057b203b87b689d9cda8b4f088b6d03120e8e4a`, no findings, `APPROVED_FOR_DRAFT` |
+| Product Owner visual approval | PASS — registered Standard/Large direction and geometry approved on 2026-08-12; physical 4K remains #223 |
 
 ## Visual and accessibility acceptance
 
@@ -130,15 +130,14 @@ transform scaling, fabricated filler or route-specific 4K override.
 
 The available Windows displays are 2560×1440 and 2560×1600; the Windows logical setting was 144 DPI
 (150%). No physical 3840×2160 display was available. The 3840 CSS capture does not claim actual
-physical 4K readability; that product-wide gate remains `DEFERRED_TO_223`. The Product Owner must
-review the registered 1920/2560/3840 originals and crops before the PR can leave Draft.
+physical 4K readability; that product-wide gate remains `DEFERRED_TO_223`. The Product Owner approved
+the registered 1920/2560/3840 Standard/Large originals and crops on 2026-08-12.
 
 ## Publication state
 
 Implementation pixels were recaptured from UI source commit
 `ff9ba293222ea5a9e17821e4dc8c4ef1b0bcb1a5`.
-The Draft PR read-back records the final documentation/evidence commit, pre-publish result and
-exact-SHA independent audit disposition without rewriting this pre-publication packet after its
-audit. Any post-audit code or evidence correction requires the same independent auditor to review
-the new exact SHA. Ready transition, squash merge, issue/backlog completion and routing to #212
-remain blocked on direct Product Owner visual approval.
+The independent auditor reviewed final branch head
+`2057b203b87b689d9cda8b4f088b6d03120e8e4a` with no findings. After direct Product Owner visual
+approval, PR #239 was squash-merged as `2fd68e569c790639c17c237e640465b65d811eae` and #210 closed.
+The next backlog unit is #212; no #212 implementation is included in this delivery.

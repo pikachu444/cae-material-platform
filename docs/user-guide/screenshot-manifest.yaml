@@ -1,4 +1,4 @@
-version: 97
+version: 98
 verified_at: 2026-08-12
 scope: issue-210-scalar-distribution-fitting
 source_commit: ff9ba293222ea5a9e17821e4dc8c4ef1b0bcb1a5
@@ -9,7 +9,7 @@ notes:
   - "The issue-owned packet is docs/17-evidence/images/issue-210-scalar-distribution-fitting/visual-evidence.yaml: five exact-origin/main before originals, ten live after originals across Standard and Large, thirty direct 100%-pixel crops, hashes, dimensions, route, browser/DPR/zoom/density and measured geometry. Main opened every original and crop at original resolution."
   - "The live browser journey opens the optional full-workspace Distribution analysis sheet, verifies the covered Process workspace is mounted but inert, cycles focus in the modal sheet, verifies Escape/focus return, selects Normal with an explicit reason, reloads, and reads back the exact immutable selection revision without changing the recommendation."
   - "At 1366x768 all three candidate rows and the saved decision remain visible in both Standard and Large. Page and table horizontal overflow are zero at all five viewports; the elastic empirical/fitted CDF graph uses the remaining analysis space and the candidate ledger stays aligned below it."
-  - "Automated 3840x2160 CSS geometry does not claim physical 4K readability. No 3840 physical display was available; #223 remains the product-wide physical-readability gate. Product Owner review of the registered 1920/2560/3840 originals and crops is pending, so the #210 PR must remain draft."
+  - "Automated 3840x2160 CSS geometry does not claim physical 4K readability. No 3840 physical display was available; #223 remains the product-wide physical-readability gate. The Product Owner approved the registered Standard/Large 1920/2560/3840 originals and crops on 2026-08-12, and PR #239 was squash-merged as 2fd68e569c790639c17c237e640465b65d811eae."
   - "Issue #206 adds five exact Material Curves captures and refreshes the affected Materials and Modeling Data/Process/Fit routes from canonical current-source Compose. The current directory contains 95 deterministic synthetic non-production images; 43 were captured from implementation commit e9b523a7, 48 retain the accepted #184 current-source pixels, and four fixture-dependent Solver Card/Export images retain their registered accepted baseline."
   - "The issue-owned packet is docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/visual-evidence.yaml: 12 exact-origin/main before originals, 20 live after originals, 48 direct 100%-pixel crops, six keyboard/Evidence/metadata-absent state images, hashes, dimensions, routes, browser/DPR/zoom and exact source commit. Every original and crop was opened at original resolution."
   - "Materials Curves exposes the exact observed Test Data curve and view-only replicate Statistics curve, shared channel/unit definitions, recorded pointwise Student-t confidence evidence, keyboard/pointer tooltip parity, band toggle, exact revision and Evidence disclosure. Unknown legacy metadata remains visibly available without inferred axes, units, deviation or Fit eligibility."
@@ -131,8 +131,8 @@ visual_evidence:
   root_original_and_crop_review: pass
   physical_4k_readability: DEFERRED_TO_223
   fixture_dependent_capture_status: complete_for_issue_210
-  independent_read_only_review: pending
-  product_owner_review: pending
+  independent_read_only_review: pass_2057b203b87b689d9cda8b4f088b6d03120e8e4a
+  product_owner_review: approved_2026-08-12
 capture_provenance:
   - source_commit: ff9ba293222ea5a9e17821e4dc8c4ef1b0bcb1a5
     captured_at: '2026-08-12T13:43:34Z'
