@@ -52,8 +52,8 @@
   순서 19 `#205`는 [PR #234](https://github.com/pikachu444/cae-material-platform/pull/234)에서
   구현·검증을 완료했습니다. 순서 20 `#206`은
   [PR #235](https://github.com/pikachu444/cae-material-platform/pull/235)에서 구현·검증과 제품 소유자
-  화면 승인을 완료하고 main `9535ee00adfd880990c31e6d623c5f9c39af99ea`에 병합했습니다. 다음 첫
-  미완료 단위는 순서 21 `#207`입니다.
+  화면 승인을 완료하고 main `9535ee00adfd880990c31e6d623c5f9c39af99ea`에 병합했습니다. 순서 21
+  `#207`과 순서 22 `#210`도 완료했으며 다음 첫 미완료 단위는 순서 23 `#212`입니다.
 - 순서 14 `#160` Task 1은 [PR #220](https://github.com/pikachu444/cae-material-platform/pull/220),
   main `53e4a698235e4c7dad8c87e0156bc2627866989f`에서 병합했습니다. Task 2는
   [PR #224](https://github.com/pikachu444/cae-material-platform/pull/224)에서 병합해 `#160`을 [x]로
