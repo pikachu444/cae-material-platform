@@ -260,13 +260,35 @@ export function SchemaDefinitionBundleAdmin({
     null,
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const operationGenerationRef = useRef(0);
 
+  function beginOperation(): number {
+    operationGenerationRef.current += 1;
+    return operationGenerationRef.current;
+  }
+
+  function operationIsCurrent(generation: number): boolean {
+    return operationGenerationRef.current === generation;
+  }
+
+  const planMigrationRequired = Boolean(
+    plan?.actions.some((action) => action.reason_codes.includes("record_migration_required")) ||
+      plan?.diagnostics.some((diagnostic) => diagnostic.code === "CMP-SCHEMA-BUNDLE-0014"),
+  );
   const planApplicable = Boolean(
     plan?.valid &&
       plan.bundle &&
       plan.action_counts.conflict === 0 &&
-      plan.action_counts.error === 0,
+      plan.action_counts.error === 0 &&
+      !planMigrationRequired,
   );
+  const busy =
+    exporting ||
+    phase === "uploading" ||
+    phase === "planning" ||
+    phase === "applying" ||
+    phase === "restoring";
+  const sourceLocked = Boolean(artifact || plan || application || applicationRecoveryId);
   const selectedPlanAction = application ? null : plan?.actions[selectedIndex] ?? null;
   const selectedResult = application?.results[selectedIndex] ?? null;
 
@@ -334,6 +356,11 @@ export function SchemaDefinitionBundleAdmin({
   }, [config]);
 
   async function chooseFile(event: ChangeEvent<HTMLInputElement>): Promise<void> {
+    if (sourceLocked || busy) {
+      event.target.value = "";
+      return;
+    }
+    const generation = beginOperation();
     const file = event.target.files?.[0];
     setFileSummary(null);
     setError(null);
@@ -341,9 +368,11 @@ export function SchemaDefinitionBundleAdmin({
     if (!file) return;
     try {
       const summary = await inspectSchemaDefinitionBundleFile(file);
+      if (!operationIsCurrent(generation)) return;
       setFileSummary(summary);
       setPhase("empty");
     } catch (caught) {
+      if (!operationIsCurrent(generation)) return;
       setError(operationError(caught, "The selected file could not be inspected."));
       event.target.value = "";
       window.setTimeout(() => fileInputRef.current?.focus(), 0);
@@ -352,6 +381,8 @@ export function SchemaDefinitionBundleAdmin({
 
   async function uploadAndPlan(): Promise<void> {
     if (!fileSummary) return;
+    const sourceSummary = fileSummary;
+    const generation = beginOperation();
     setError(null);
     setApplication(null);
     setApplicationRecoveryId(null);
@@ -360,9 +391,10 @@ export function SchemaDefinitionBundleAdmin({
     setPhase("uploading");
     try {
       const uploaded = await uploadSchemaDefinitionBundle(config, {
-        file: fileSummary.file,
-        classification: fileSummary.classification,
+        file: sourceSummary.file,
+        classification: sourceSummary.classification,
       });
+      if (!operationIsCurrent(generation)) return;
       const artifactId = uploaded.data.available_artifact_id;
       if (!artifactId) {
         throw new Error("The upload completed without an available Artifact.");
@@ -374,17 +406,19 @@ export function SchemaDefinitionBundleAdmin({
         artifact_id: nextArtifact.id,
         artifact_sha256: nextArtifact.sha256,
       });
+      if (!operationIsCurrent(generation)) return;
       setPlan(planned.data);
       setCorrelationId(planned.requestId ?? uploaded.requestId ?? null);
       setPhase("ready");
       writeRecovery({
         artifactId: nextArtifact.id,
         artifactSha256: nextArtifact.sha256,
-        bundleKey: planned.data.bundle?.bundle_key ?? fileSummary.bundleKey,
-        bundleVersion: planned.data.bundle?.bundle_version ?? fileSummary.bundleVersion,
+        bundleKey: planned.data.bundle?.bundle_key ?? sourceSummary.bundleKey,
+        bundleVersion: planned.data.bundle?.bundle_version ?? sourceSummary.bundleVersion,
         applicationId: null,
       });
     } catch (caught) {
+      if (!operationIsCurrent(generation)) return;
       setError(operationError(caught, "The bundle could not be uploaded and planned."));
       setPhase("failed");
     }
@@ -392,43 +426,50 @@ export function SchemaDefinitionBundleAdmin({
 
   async function planAgain(): Promise<void> {
     if (!artifact) return;
+    const targetArtifact = artifact;
+    const generation = beginOperation();
     setError(null);
     setConfirming(false);
     setConfirmed(false);
     setPhase("planning");
     try {
       const planned = await planSchemaDefinitionBundle(config, {
-        artifact_id: artifact.id,
-        artifact_sha256: artifact.sha256,
+        artifact_id: targetArtifact.id,
+        artifact_sha256: targetArtifact.sha256,
       });
+      if (!operationIsCurrent(generation)) return;
       setPlan(planned.data);
       setSelectedIndex(0);
       setCorrelationId(planned.requestId ?? null);
       setPhase("ready");
       writeRecovery({
-        artifactId: artifact.id,
-        artifactSha256: artifact.sha256,
+        artifactId: targetArtifact.id,
+        artifactSha256: targetArtifact.sha256,
         bundleKey: planned.data.bundle?.bundle_key ?? null,
         bundleVersion: planned.data.bundle?.bundle_version ?? null,
         applicationId: null,
       });
     } catch (caught) {
+      if (!operationIsCurrent(generation)) return;
       setError(operationError(caught, "The bundle could not be planned again."));
       setPhase("failed");
     }
   }
 
   async function restoreApplication(applicationId: string): Promise<void> {
+    const generation = beginOperation();
     setError(null);
     setPhase("restoring");
     try {
       const restored = await getSchemaDefinitionBundleApplication(config, applicationId);
+      if (!operationIsCurrent(generation)) return;
       setApplication(restored.data);
       setApplicationRecoveryId(applicationId);
       setCorrelationId(restored.requestId ?? null);
       setSelectedIndex(0);
       setPhase("applied");
     } catch (caught) {
+      if (!operationIsCurrent(generation)) return;
       setError(operationError(caught, "The applied result could not be read back."));
       setPhase("failed");
     }
@@ -436,22 +477,26 @@ export function SchemaDefinitionBundleAdmin({
 
   async function applyExactPlan(): Promise<void> {
     if (!artifact || !plan || !planApplicable || !confirmed) return;
+    const targetArtifact = artifact;
+    const targetPlan = plan;
+    const generation = beginOperation();
     setError(null);
     setApplicationRecoveryId(null);
     setPhase("applying");
     let appliedApplicationId: string | null = null;
     try {
       const applied = await applySchemaDefinitionBundle(config, {
-        artifact_id: artifact.id,
-        artifact_sha256: artifact.sha256,
-        plan_fingerprint: plan.plan_fingerprint,
+        artifact_id: targetArtifact.id,
+        artifact_sha256: targetArtifact.sha256,
+        plan_fingerprint: targetPlan.plan_fingerprint,
       });
+      if (!operationIsCurrent(generation)) return;
       appliedApplicationId = applied.data.application_id;
       setApplicationRecoveryId(appliedApplicationId);
       setConfirming(false);
       writeRecovery({
-        artifactId: artifact.id,
-        artifactSha256: artifact.sha256,
+        artifactId: targetArtifact.id,
+        artifactSha256: targetArtifact.sha256,
         bundleKey: applied.data.bundle_key,
         bundleVersion: applied.data.bundle_version,
         applicationId: applied.data.application_id,
@@ -460,11 +505,13 @@ export function SchemaDefinitionBundleAdmin({
         config,
         applied.data.application_id,
       );
+      if (!operationIsCurrent(generation)) return;
       setApplication(readBack.data);
       setCorrelationId(readBack.requestId ?? applied.requestId ?? null);
       setSelectedIndex(0);
       setPhase("applied");
     } catch (caught) {
+      if (!operationIsCurrent(generation)) return;
       if (appliedApplicationId) setApplicationRecoveryId(appliedApplicationId);
       const nextError = operationError(caught, "The bundle could not be applied.");
       setError(nextError);
@@ -476,18 +523,21 @@ export function SchemaDefinitionBundleAdmin({
 
   async function exportBundle(): Promise<void> {
     if (!application) return;
+    const targetApplication = application;
+    const generation = beginOperation();
     setError(null);
     setExporting(true);
     try {
       const exported = await downloadSchemaDefinitionBundle(
         config,
-        application.bundle_key,
-        application.bundle_version,
+        targetApplication.bundle_key,
+        targetApplication.bundle_version,
       );
+      if (!operationIsCurrent(generation)) return;
       if (
-        exported.application_id !== application.application_id ||
-        exported.source_artifact_id !== application.source_artifact.artifact_id ||
-        exported.source_artifact_sha256 !== application.source_artifact.sha256
+        exported.application_id !== targetApplication.application_id ||
+        exported.source_artifact_id !== targetApplication.source_artifact.artifact_id ||
+        exported.source_artifact_sha256 !== targetApplication.source_artifact.sha256
       ) {
         throw new Error("The exported bundle does not match the applied source evidence.");
       }
@@ -500,13 +550,15 @@ export function SchemaDefinitionBundleAdmin({
       setExportEvidence({ sha256: exported.sha256, filename: exported.filename });
       setCorrelationId(exported.request_id ?? correlationId);
     } catch (caught) {
+      if (!operationIsCurrent(generation)) return;
       setError(operationError(caught, "The applied bundle could not be exported."));
     } finally {
-      setExporting(false);
+      if (operationIsCurrent(generation)) setExporting(false);
     }
   }
 
   function startNewBundle(): void {
+    beginOperation();
     clearRecovery();
     setFileSummary(null);
     setArtifact(null);
@@ -600,7 +652,7 @@ export function SchemaDefinitionBundleAdmin({
           <p>Upload one immutable source, inspect the server plan, then approve that exact plan.</p>
         </div>
         <div className="schema-command-bar">
-          {(plan || application || artifact) && phase !== "applying" ? (
+          {(plan || application || artifact || applicationRecoveryId) && !busy ? (
             <button className="ux-button" type="button" onClick={startNewBundle}>
               New bundle
             </button>
@@ -638,7 +690,7 @@ export function SchemaDefinitionBundleAdmin({
               className="ux-input"
               type="file"
               accept=".json,application/json,application/schema+json,application/vnd.cmp.catalog-schema-definition-bundle+json"
-              disabled={phase === "uploading" || phase === "planning" || phase === "applying"}
+              disabled={busy || sourceLocked}
               onChange={(event) => void chooseFile(event)}
             />
           </label>
@@ -830,7 +882,11 @@ export function SchemaDefinitionBundleAdmin({
           {plan && !application && !confirming ? (
             <footer className="schema-bundle-actions">
               {!planApplicable ? (
-                <p role="status">Apply is blocked until the server returns a valid plan with no conflicts or errors.</p>
+                <p role="status">
+                  {planMigrationRequired
+                    ? "Apply is blocked because current Records require an approved migration before this schema change."
+                    : "Apply is blocked until the server returns a valid plan with no conflicts or errors."}
+                </p>
               ) : null}
               <button
                 className={planApplicable && !error ? "ux-button primary" : "ux-button"}

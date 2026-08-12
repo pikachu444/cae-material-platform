@@ -66,6 +66,8 @@ semantics를 함께 저장합니다.
 새로고침 시 원본 파일 내용이나 token은 브라우저에 저장되지 않습니다. 마지막 application 좌표가 있으면
 immutable application을 다시 읽고, 아직 적용 전이면 source Artifact 좌표로 plan을 다시 만듭니다. 적용
 직전 상태가 달라져 `stale plan`이 되면 **Plan again**만 사용하십시오. Apply를 그대로 재전송하지 않습니다.
+검증된 Artifact, plan 또는 적용 결과가 남아 있는 동안에는 파일 선택이 잠깁니다. 다른 파일로 시작하려면
+진행 중인 요청이 끝난 뒤 **New bundle**을 눌러 이전 source와 복구 좌표를 명시적으로 비우십시오.
 오류 화면의 **Support reference**는 요청 correlation ID이며 원본 데이터나 credential 없이 이 값만
 운영 담당자에게 전달할 수 있습니다. User와 Reviewer는 이 화면과 apply/read-back/export API를 사용할
 수 없습니다.

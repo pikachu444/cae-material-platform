@@ -1120,9 +1120,22 @@ def test_bundle_apply_blocks_table_revision_when_current_records_need_migration(
             PlanSchemaDefinitionBundle(changed_artifact.id, changed_artifact.sha256),
         )
     )
-    assert changed_plan.valid
+    assert not changed_plan.valid
+    migration_action = next(
+        action
+        for action in changed_plan.actions
+        if action.target_type == "table" and action.external_key == "materials"
+    )
+    assert migration_action.disposition is PlanDisposition.ERROR
+    assert migration_action.reason_codes == ("record_migration_required",)
+    assert any(
+        diagnostic.code == "CMP-SCHEMA-BUNDLE-0014"
+        and "materials" in diagnostic.message
+        and "current Records" in diagnostic.message
+        for diagnostic in changed_plan.diagnostics
+    )
     before = _database_state(postgres.admin_engine)
-    with pytest.raises(SchemaBundleMigrationRequired, match=r"materials.*current Records"):
+    with pytest.raises(SchemaBundleMigrationRequired, match="approved migration"):
         asyncio.run(
             postgres.planner.apply(
                 context,

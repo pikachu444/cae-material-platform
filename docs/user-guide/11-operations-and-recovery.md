@@ -12,6 +12,8 @@ Administrator가 **Administration → Definition bundles**에서 작업할 때�
    organization/project 식별자나 request body를 지원 채널에 복사하지 않습니다.
 2. 업로드 또는 plan 실패라면 선택한 파일과 진단 위치·remediation을 확인합니다. 원본 Artifact를
    수정하지 말고 고친 JSON을 새 source Artifact로 올려 새 plan을 만듭니다.
+   이전 요청이 끝나고 **New bundle**이 표시된 뒤에만 source를 교체합니다. 이 버튼은 이전 plan과
+   복구 좌표를 함께 비우며, 진행 중인 upload·plan·read-back 결과와 새 파일을 섞지 않습니다.
 3. `stale plan`이면 Apply를 재전송하지 않습니다. **Plan again**으로 현재 Catalog 기준의 fingerprint와
    action을 다시 받고, 변경 개수와 영향을 처음부터 검토합니다.
 4. Apply 응답 이후 연결이 끊겼다면 같은 내용을 다시 적용하려 하지 말고, 화면을 새로고침해 저장된

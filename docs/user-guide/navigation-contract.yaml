@@ -74,7 +74,7 @@ administration_workspace:
     apply_request: [artifact-id, artifact-sha256, plan-fingerprint, delete-missing-false, fresh-idempotency-key]
     client_actions_in_apply: forbidden
     completion: [immutable-application-read-back, exact-results, source-evidence, checksum-verified-export]
-    recovery: [local-preflight-focus, retain-source-context, stale-plan-plan-again, never-replay-apply, refresh-read-back, request-correlation]
+    recovery: [local-preflight-focus, retain-source-context, new-source-explicit-reset, stale-plan-plan-again, never-replay-apply, refresh-read-back, request-correlation]
   records:
     topology: [table-navigator, record-list-or-import-table, bounded-registration-form]
     modes: [single-entry, multiple-rows]

@@ -293,6 +293,96 @@ describe("SchemaDefinitionBundleAdmin", () => {
     expect(URL.createObjectURL).toHaveBeenCalledOnce();
   });
 
+  it("blocks confirmation when the server plan requires a current Record migration", async () => {
+    const user = userEvent.setup();
+    const migrationPlan: SchemaDefinitionBundlePlan = {
+      ...plan,
+      valid: false,
+      action_counts: { create: 0, update: 0, "no-op": 0, conflict: 0, error: 1 },
+      actions: [
+        {
+          ...plan.actions[0]!,
+          disposition: "error",
+          reason_codes: ["record_migration_required"],
+        },
+      ],
+      diagnostics: [
+        {
+          severity: "error",
+          code: "CMP-SCHEMA-BUNDLE-0014",
+          location: "/catalog/table/materials",
+          message: "Table 'materials' has current Records that pin its old revision.",
+          remediation:
+            "Migrate the affected current Records through an approved workflow, then request a fresh server plan.",
+        },
+      ],
+    };
+    mocks.plan.mockResolvedValue({
+      data: migrationPlan,
+      etag: null,
+      requestId: "migration-plan-request",
+    });
+    render(
+      <SchemaDefinitionBundleAdmin
+        config={{ baseUrl: "/api/v1", accessToken: "administrator-token" }}
+        onOpenConnection={() => undefined}
+      />,
+    );
+
+    await user.upload(await screen.findByLabelText("Definition bundle"), validFile());
+    await user.click(screen.getByRole("button", { name: "Upload and plan" }));
+
+    expect(await screen.findByText("CMP-SCHEMA-BUNDLE-0014")).toBeTruthy();
+    expect(
+      screen.getByText(
+        "Apply is blocked because current Records require an approved migration before this schema change.",
+      ),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Review exact plan" }),
+    ).toMatchObject({ disabled: true });
+    expect(screen.queryByText("Confirm the exact plan")).toBeNull();
+    expect(mocks.apply).not.toHaveBeenCalled();
+  });
+
+  it("locks source replacement during planning and requires an explicit reset afterward", async () => {
+    const user = userEvent.setup();
+    let resolvePlan: (value: {
+      data: SchemaDefinitionBundlePlan;
+      etag: null;
+      requestId: string;
+    }) => void = () => undefined;
+    mocks.plan.mockReturnValueOnce(
+      new Promise((resolve) => {
+        resolvePlan = resolve;
+      }),
+    );
+    render(
+      <SchemaDefinitionBundleAdmin
+        config={{ baseUrl: "/api/v1", accessToken: "administrator-token" }}
+        onOpenConnection={() => undefined}
+      />,
+    );
+
+    const input = (await screen.findByLabelText("Definition bundle")) as HTMLInputElement;
+    await user.upload(input, validFile());
+    await user.click(screen.getByRole("button", { name: "Upload and plan" }));
+    await waitFor(() => expect(mocks.plan).toHaveBeenCalledOnce());
+
+    expect(input.disabled).toBe(true);
+    expect(screen.queryByRole("button", { name: "New bundle" })).toBeNull();
+
+    resolvePlan({ data: plan, etag: null, requestId: "deferred-plan-request" });
+    expect(await screen.findByText("2 actions")).toBeTruthy();
+    expect(input.disabled).toBe(true);
+
+    await user.click(screen.getByRole("button", { name: "New bundle" }));
+    expect(input.disabled).toBe(false);
+    expect(screen.queryByText("2 actions")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Review exact plan" })).toBeNull();
+    expect(window.sessionStorage.getItem("cmp.schema-definition-bundle-administration.v1")).toBeNull();
+  });
+
   it("blocks User and Reviewer roles before any bundle operation is exposed", async () => {
     mocks.getAccess.mockResolvedValue({
       data: { product_role: "reviewer", feature_grants: [], legacy_compatible: false },
