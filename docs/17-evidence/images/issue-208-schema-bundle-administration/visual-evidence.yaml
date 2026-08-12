@@ -1,0 +1,68 @@
+schema_version: cmp.visual-evidence.v1
+issue: 208
+route: /administration/schema-bundles
+implementation_source: 63176ec5a07647d598753d437fce4339d4f05ebb
+baseline_source: 002449a40d45d4378f8d9bea55eb3f354522b30c
+captured_at: '2026-08-12T21:02:04Z'
+capture:
+  command: 'CMP_DEMO_WEB_URL=http://127.0.0.1:5188; CMP_SCHEMA_BUNDLE_EVIDENCE_DIR=C:\SourceCodes\cae-material-platform\docs\17-evidence\images\issue-208-schema-bundle-administration; npx playwright test e2e/schema-definition-bundle-administration.spec.ts'
+  browser: Playwright 1.61.1 bundled Chromium
+  environment: isolated Vite UI with contract-backed HTTP fixtures
+  fixture: bounded synthetic non-production schema-definition-bundle-many.json
+  browser_zoom_percent: 100
+  device_pixel_ratio: 1
+  density: standard
+  compose_boundary: canonical Compose rejected because the preserved cmp-local-demo project belongs to C:/SourceCodes/cae-material-platform-issue210; no container or data was changed
+  physical_4k_readability: DEFERRED_TO_223
+acceptance:
+  original_and_crop_review: pass
+  document_horizontal_overflow: zero_at_all_five_viewports
+  table_overflow: local_and_keyboard_reachable
+  arbitrary_action_count: 13_actions_without_schema_specific_controls
+  long_identity: reachable_by_keyboard_and_title
+  confirmation: exact_version_sha256_fingerprint_counts_and_unchecked_acknowledgement
+  applied_state: immutable_read_back_before_success_and_checksum_verified_export
+  denied_roles: User_and_Reviewer_have_no_upload_or_apply_controls
+  source_replacement: locked_until_explicit_new_bundle_reset
+  migration_required: server_plan_error_blocks_confirmation
+  product_owner_geometry_review: approved_2026-08-13
+  independent_balanced_audit: pass_at_865a1187fa6506f297415dc8641b02f32dca43dd_final_metadata_recheck_required
+viewports:
+  - viewport: 1366x768
+    original: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-1366x768.png, width: 1366, height: 768, sha256: 585006ce41b93c6d2c22a7b603ddcf5baf7318afc7b2c3b0efea44c1f55ff982}
+    header_crop: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-1366x768-header-crop.png, width: 1366, height: 50, sha256: 83683da5aab653622b5ed0fe48ece3e9ec916617d169f033d2c11d7a0c26b8d9}
+    navigator_crop: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-1366x768-navigator-crop.png, width: 216, height: 650, sha256: 4fc5b252ff51f1a0aa2f1c2064f8a24d25f61a544736e2f13abeaf69ff91b9cf}
+    table_crop: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-1366x768-table-crop.png, width: 421, height: 530, sha256: 1b95c39370a2e2c5fae5fe0dbcc5a5574fd663957b24761a86913ef9f4232185}
+    form_crop: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-1366x768-form-crop.png, width: 289, height: 530, sha256: 0c332eac00563f7dc6cf96d1eea054305f299a6c1599b42e071fef814680b4fb}
+    measurements: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-1366x768.measurements.json, sha256: ad853014c600ad522f896220a9e9d56ca817c763839108892590a63e095853b0}
+  - viewport: 1440x900
+    original: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-1440x900.png, width: 1440, height: 900, sha256: fdb0f36a7eda41f9e57cddcb506e4107ba8dc11e6c34bba62e0c74a4aa82374e}
+    header_crop: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-1440x900-header-crop.png, width: 1440, height: 50, sha256: d46d980673b6720d4ff5034dd2c270ed16e429d4cf3fc1dd0f064300cb1186fd}
+    navigator_crop: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-1440x900-navigator-crop.png, width: 216, height: 782, sha256: 6812b90f48db7a5705da1a3f9ebcf11b049363fce31fa09d072043230c8e6ebe}
+    table_crop: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-1440x900-table-crop.png, width: 421, height: 662, sha256: 1569fa994f10d8efd3f699cde7da36daeb13ddfd51968d4016166878aa3c5bde}
+    form_crop: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-1440x900-form-crop.png, width: 289, height: 662, sha256: 08d92c5ddf5d1c1b8f7fa94430ea930d9a6dc21fbefa8d67cceef9a608389f3e}
+    measurements: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-1440x900.measurements.json, sha256: 46e02aa2e977a3d589250e37356b4e79ac5dbd23392257b1671501925464d837}
+  - viewport: 1920x1080
+    original: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-1920x1080.png, width: 1920, height: 1080, sha256: b149fa1b5413e42ac95578403e37919ef6c3e59f4ff86c178dd0e5f6b82fca08}
+    header_crop: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-1920x1080-header-crop.png, width: 1920, height: 50, sha256: 86b8ed2d7a7576bc98da8d2097c8b61f575c477d7afb1ade31852ec08524a658}
+    navigator_crop: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-1920x1080-navigator-crop.png, width: 288, height: 962, sha256: 615e0192f007db67641151420fc4db13903c821454955bc237cb6dee4bd189d2}
+    table_crop: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-1920x1080-table-crop.png, width: 480, height: 842, sha256: 6b8ef66aa30dc9939d356b187cad614954553707a7f6407dfcf9a888209280a8}
+    form_crop: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-1920x1080-form-crop.png, width: 288, height: 842, sha256: ca84121eb55615938a8306d362585f7a26c37bad1b13827ee4dccf346625a277}
+    measurements: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-1920x1080.measurements.json, sha256: 8fbb4374abe0f8346e600a6295a747004418d8a3f241d2d27dc7328c7e98b0a5}
+  - viewport: 2560x1440
+    original: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-2560x1440.png, width: 2560, height: 1440, sha256: 4669511ce26bcae5db817cd5ac13cdb45f8b836622e78e695bf1c7e4038e1cc6}
+    header_crop: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-2560x1440-header-crop.png, width: 2560, height: 50, sha256: ae62f64696a795b68e7e1ae1d94061a5fe1bb9e4ebfc1cac04b06509c7a217eb}
+    navigator_crop: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-2560x1440-navigator-crop.png, width: 288, height: 1322, sha256: 20cce26b0097f0c1e5da0b8d2beaca4033aa241b722d49153c893e537e16dd6e}
+    table_crop: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-2560x1440-table-crop.png, width: 1120, height: 1202, sha256: 4e184a8239007b8d91a6c9702efb4635e9629c8894e347e48088c6619fb3abba}
+    form_crop: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-2560x1440-form-crop.png, width: 288, height: 1202, sha256: f78832f3b510b93ec6cd98b5f5a94432a34480817c7dabee1f6b22e2ddd8506d}
+    measurements: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-2560x1440.measurements.json, sha256: f833d56c1016e8d143fb7c768d442e0950088bf8c70873e9f23b02bc0c5f93af}
+  - viewport: 3840x2160
+    original: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-3840x2160.png, width: 3840, height: 2160, sha256: 8075c6e408ccda64bc1b53549ed8a80e8a21caa1edd555d82f1529d178c17d0b}
+    header_crop: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-3840x2160-header-crop.png, width: 3840, height: 50, sha256: f80b4eb93a6e743ed0c85b5737540656ecc7afe7b043abc4077cdd8c57253afd}
+    navigator_crop: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-3840x2160-navigator-crop.png, width: 288, height: 2042, sha256: 4685463de25fa08ff2fc2983c06353cf1d6b4eb9e027cd50a824b87696e1495d}
+    table_crop: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-3840x2160-table-crop.png, width: 2400, height: 1922, sha256: bbd326bc0fbbf2233de3532685e6e13004570acc6e37afe40fa2f02e64445915}
+    form_crop: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-3840x2160-form-crop.png, width: 288, height: 1922, sha256: dfff08e4bd60f225b465495582c98b97c7b5fdd17cd03843cb64004ce6e09e6a}
+    measurements: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-3840x2160.measurements.json, sha256: 6b5a7a33b8bcb60fa07aedacb7dfcfd8fa1aef062980215f2145a1765a115ccf}
+state_images:
+  - {state: explicit-confirmation, path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-confirmation-1440x900.png, width: 1440, height: 900, sha256: 34c648bfefd83254396a188b22bdc87df85962d5b509ec8ddb3ccff1c45de815}
+  - {state: applied-read-back-and-verified-export, path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-applied-1440x900.png, width: 1440, height: 900, sha256: d6b8410a0e24025c6f828ba0b76e58e4e6d26990681452d9fc30721deee99a54}

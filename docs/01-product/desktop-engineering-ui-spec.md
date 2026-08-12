@@ -521,6 +521,7 @@ receipt, and release projections remain separate work.
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Materials explorer/result/datasheet | find, compare and assess a material without leaving context | continuous Tree/filter → dominant results/datasheet → optional context | Materials | one scoped Material query plus selected record | permitted scope | query/selection changes replace only current view | loading, empty, selected, unavailable, error | retain query/selection; retry or broaden search |
 | Administration object tools | configure schema and preview its user effect | object tree → list/grid → property editor/live record preview | Administrator | revisioned catalog definitions | Administrator permission and valid draft | draft edits invalidate preview only | clean, dirty, validating, blocked, saved, error | keep draft; expose field error; reload or save new revision |
+| Definition Bundle plan/apply | inspect every server-proposed schema change before one atomic publication | bounded source → elastic locally scrolling plan table → bounded details/confirmation | Administrator | one immutable source Artifact plus server plan/application | valid bundle, exact source digest and explicit fingerprint confirmation | a successful apply advances only the affected current pointers and preserves every prior revision; plan never writes | local-invalid, uploading, planning, valid, blocked, confirming, applying, applied, stale, export-verified, denied, error | keep safe Artifact/application coordinates; focus local errors; re-plan stale input; read back uncertain completion; never replay Apply or accept an unverified export |
 | Activity action queue | resume work or decide one submitted review action without confusing it with release | compact `Needs attention | In progress | Recent outcomes` rows | User sees own pending review work in progress; Reviewer sees pending review rows in Needs attention; every role sees saved local session/card history | authenticated principal plus effective product access and immutable review-request response, including the requester display-name snapshot; browser-local session/card history | readable available context and an existing request manifest for a decision | returned immutable response replaces only that queue row; later source changes never erase history | loading, attention, in-progress, changes-requested, approved, empty, error | Refresh/Retry preserves the current rows; a decision failure keeps entered reason and request; exact identifiers remain Advanced while the normal row uses the supplied requester label |
 | Role-gated command | expose only the action a role may take | command bar, selected row, or governed action disclosure | role and object state permit action | service authorization plus database enforcement | User/Reviewer/Administrator grant and state prerequisites; only Reviewer may decide | action input changes mark downstream pointers stale | hidden, available, disabled-with-reason, running, denied | preserve context; explain prerequisite or request review/access |
 
@@ -585,6 +586,32 @@ Current visible-field contracts:
 | Property sheet | inspect a definition or provide values for one supported new definition | flexible right pane | selected object or Add command | immutable definition revision and local draft | Administrator and required fields | unsaved draft affects preview only; save creates a new definition | read-only, draft, saving, saved, blocked, error | preserve draft and field error; close or retry |
 | Record/Layout preview | verify that the saved Record uses the ordered exact Attribute Definition revisions selected by its Layout | one active `Record preview` or `Layout definition` view; compact widths use a reversible full-height auxiliary surface, 1920+ may use a bounded companion pane | a saved Record and Layout exist for the selected Table; linked graph only when a curve/table Artifact field exists | saved Record Revision, Layout Revision and exact Attribute Definition Revisions | selected Table and readable saved projection | local draft never mutates the saved preview; selection changes replace only the current projection | record, layout-definition, genuine-overflow, no-saved-record, linked-curve | keep editor context and return action; expose independent table scrolling; retry the read without discarding a draft |
 | Link Type direction | make a record relationship understandable before saving | Link Type property sheet | Link Type selected or being added | selected source/target Table revisions | both Tables and direction/cardinality values | saving creates a new Link Type; no existing relation changes | read-only, draft, saving, saved, error | keep entered labels and retry |
+
+### 7.4 Definition Bundle plan/apply contract
+
+```text
+Source bundle bounded | Change plan flexible and locally scrollable | Plan/result details bounded
+```
+
+The surface accepts one JSON file rather than one control per schema. Browser preflight covers the
+filename, allowed JSON media type, 1-byte–64-MiB size, parseability and required bundle shape; the
+server remains authoritative for tenant scope, exact Artifact digest, draft-2020-12 semantics,
+cross-schema references, current Catalog comparison, permission and the atomic write set. User and
+Reviewer see a denial surface without file or Apply controls.
+
+The plan table can render an arbitrary action count and keeps `Create | Update | No change | Conflict |
+Error`, object type and full target identity reachable by pointer and keyboard. Selecting a row exposes
+location, impact, next action and every diagnostic/remediation in the adjacent detail pane. A conflict,
+error or migration-required diagnosis blocks confirmation; the UI never edits a plan or sends its action
+array back to Apply.
+
+Confirmation repeats the exact bundle version, source SHA-256, server plan fingerprint and action counts
+beside an unchecked explicit acknowledgement. Apply sends only those exact source coordinates, the
+fingerprint, `delete_missing=false` and a fresh idempotency key. On completion the browser performs an
+immutable application GET before presenting success. Refresh stores only Artifact/application
+coordinates, never source bytes, access tokens or client-authored actions. A stale fingerprint offers
+**Plan again**, never an unchanged Apply replay. Export starts only after media type, ETag, Digest and
+immutable source-evidence headers match the downloaded bytes.
 
 ## 8. Activity workspace
 

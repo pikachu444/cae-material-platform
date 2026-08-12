@@ -3,6 +3,30 @@
 이 문서는 Docker demo의 관측성과 복구 기능을 확인하는 운영자용 절차입니다. 재료시험 원본이나
 발행 revision을 직접 수정하지 않으며, 복구 드릴은 실행 중인 `cmp` 데이터베이스를 교체하지 않습니다.
 
+## Schema Definition Bundle 적용 복구
+
+Administrator가 **Administration → Definition bundles**에서 작업할 때는 source Artifact와 서버가
+만든 plan이 복구 경계입니다. 화면에 실패가 표시되면 다음 순서로 처리합니다.
+
+1. **Support reference**를 기록합니다. 이 correlation ID만 로그 검색에 사용하고 JSON 원문, token,
+   organization/project 식별자나 request body를 지원 채널에 복사하지 않습니다.
+2. 업로드 또는 plan 실패라면 선택한 파일과 진단 위치·remediation을 확인합니다. 원본 Artifact를
+   수정하지 말고 고친 JSON을 새 source Artifact로 올려 새 plan을 만듭니다.
+   이전 요청이 끝나고 **New bundle**이 표시된 뒤에만 source를 교체합니다. 이 버튼은 이전 plan과
+   복구 좌표를 함께 비우며, 진행 중인 upload·plan·read-back 결과와 새 파일을 섞지 않습니다.
+3. `stale plan`이면 Apply를 재전송하지 않습니다. **Plan again**으로 현재 Catalog 기준의 fingerprint와
+   action을 다시 받고, 변경 개수와 영향을 처음부터 검토합니다.
+4. Apply 응답 이후 연결이 끊겼다면 같은 내용을 다시 적용하려 하지 말고, 화면을 새로고침해 저장된
+   application 좌표로 immutable read-back을 먼저 실행합니다. application 결과가 있으면 그것이 적용
+   여부의 권위 있는 증거입니다.
+5. Export checksum, ETag, Digest 또는 source evidence가 맞지 않으면 파일을 사용하거나 배포하지
+   않습니다. Support reference와 application ID로 서버 응답을 조사하고 새 export를 요청합니다.
+
+부분 성공을 가정하거나 Catalog current pointer를 직접 되돌리지 않습니다. Bundle에 없는 기존 정의와
+Record는 적용 대상이 아니며, migration-required 진단은 별도 승인된 migration 작업으로 해결합니다.
+User와 Reviewer가 apply/read-back/export에 접근했다면 403이어야 하며, 성공 응답은 권한 회귀로
+취급합니다.
+
 ## API와 worker 상태 확인
 
 1. 서비스를 실행하고 `http://127.0.0.1:5173`에서 local demo identity로 연결합니다.

@@ -110,8 +110,8 @@ module 경계로 분해했다.
 | 7 | [#206](https://github.com/pikachu444/cae-material-platform/issues/206) | curve channel metadata와 deviation | #205 |
 | 8 | [#207](https://github.com/pikachu444/cae-material-platform/issues/207) | bundle apply/export와 provenance | #204, #205 |
 | 9 | [#210](https://github.com/pikachu444/cae-material-platform/issues/210) | scalar distribution fitting | #205 |
-| 10 | [#212](https://github.com/pikachu444/cae-material-platform/issues/212) | explicit toe compensation | #184, method/tolerance 결정 gate |
-| 11 | [#208](https://github.com/pikachu444/cae-material-platform/issues/208) | bundle Administration plan/apply UI | #184, #204, #207 |
+| 10 | [#208](https://github.com/pikachu444/cae-material-platform/issues/208) | bundle Administration plan/apply UI | #184, #204, #207 |
+| 11 | [#212](https://github.com/pikachu444/cae-material-platform/issues/212) | explicit toe compensation | #184, method/tolerance 결정 gate |
 | 12 | [#209](https://github.com/pikachu444/cae-material-platform/issues/209) | DMA·FLD governed import | #160, #184, #205~#207 |
 | 13 | [#211](https://github.com/pikachu444/cae-material-platform/issues/211) | representative envelope와 approved Fit input | #160, #184, #206, #210 |
 | 14 | [#213](https://github.com/pikachu444/cae-material-platform/issues/213) | governed solver-card Template/renderer | #160, #184, #205, sandbox ADR |

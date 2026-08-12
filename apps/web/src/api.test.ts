@@ -17,6 +17,11 @@ import {
   listMaterials,
   searchMaterialCatalogRecords,
   previewCommonProcessingFromOutput,
+  applySchemaDefinitionBundle,
+  downloadSchemaDefinitionBundle,
+  getSchemaDefinitionBundleApplication,
+  planSchemaDefinitionBundle,
+  uploadSchemaDefinitionBundle,
 } from "./api";
 
 function jsonResponse(body: unknown, status = 200): Response {
@@ -477,5 +482,164 @@ describe("Catalog API client", () => {
     const [url, init] = fetchMock.mock.calls[0];
     expect(url).toBe("/api/v1/ogden-calibration-runs/00000000-0000-4000-8000-000000000060");
     expect(new Headers(init?.headers).get("authorization")).toBe("Bearer short-lived-token");
+  });
+
+  it("keeps bundle plan, exact apply, and immutable read-back as separate requests", async () => {
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce({
+        ...jsonResponse({ plan_fingerprint: "b".repeat(64) }),
+        headers: new Headers({
+          "content-type": "application/json",
+          "x-request-id": "plan-request",
+        }),
+      } as Response)
+      .mockResolvedValueOnce({
+        ...jsonResponse({ application_id: "application-id" }, 201),
+        headers: new Headers({
+          "content-type": "application/json",
+          "x-request-id": "apply-request",
+        }),
+      } as Response)
+      .mockResolvedValueOnce(jsonResponse({ application_id: "application-id" }));
+    vi.stubGlobal("fetch", fetchMock);
+    const config = { baseUrl: "/api/v1", accessToken: "administrator-token" };
+    const evidence = {
+      artifact_id: "20800000-0000-4000-8000-000000000001",
+      artifact_sha256: "a".repeat(64),
+    };
+
+    const planned = await planSchemaDefinitionBundle(config, evidence);
+    const applied = await applySchemaDefinitionBundle(config, {
+      ...evidence,
+      plan_fingerprint: "b".repeat(64),
+    });
+    await getSchemaDefinitionBundleApplication(config, "application-id");
+
+    expect(planned.requestId).toBe("plan-request");
+    expect(applied.requestId).toBe("apply-request");
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+      "/api/v1/catalog/schema-definition-bundles:plan",
+      "/api/v1/catalog/schema-definition-bundles:apply",
+      "/api/v1/catalog/schema-definition-bundle-applications/application-id",
+    ]);
+    const applyInit = fetchMock.mock.calls[1]?.[1];
+    expect(JSON.parse(String(applyInit?.body))).toEqual({
+      ...evidence,
+      plan_fingerprint: "b".repeat(64),
+      delete_missing: false,
+    });
+    expect(JSON.parse(String(applyInit?.body))).not.toHaveProperty("actions");
+    expect(new Headers(applyInit?.headers).get("idempotency-key")).toMatch(
+      /^schema-bundle-/,
+    );
+  });
+
+  it("uploads a JSON bundle with its exact digest and vendor media type", async () => {
+    const file = new File(["{}"], "bundle.json", { type: "application/json" });
+    const digestBuffer = await crypto.subtle.digest("SHA-256", await file.arrayBuffer());
+    const digest = Array.from(new Uint8Array(digestBuffer), (byte) =>
+      byte.toString(16).padStart(2, "0"),
+    ).join("");
+    const upload = {
+      upload_id: "20800000-0000-4000-8000-000000000011",
+      organization_id: "20800000-0000-4000-8000-000000000003",
+      project_id: "20800000-0000-4000-8000-000000000004",
+      classification: "internal",
+      state: "open",
+      original_filename: "bundle.json",
+      media_type: "application/vnd.cmp.catalog-schema-definition-bundle+json",
+      expected_size_bytes: file.size,
+      expected_sha256: digest,
+      part_size_bytes: file.size,
+      expected_part_count: 1,
+      test_run_revision_id: null,
+      raw_asset_id: null,
+    };
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(jsonResponse({ upload, upload_capability: "x".repeat(32) }, 201))
+      .mockResolvedValueOnce(jsonResponse({ ...upload, state: "open" }))
+      .mockResolvedValueOnce(
+        jsonResponse({
+          upload: { ...upload, state: "completed" },
+          raw_asset: {
+            raw_asset_id: "20800000-0000-4000-8000-000000000012",
+            organization_id: upload.organization_id,
+            project_id: upload.project_id,
+            classification: "internal",
+            sha256: digest,
+            size_bytes: file.size,
+            media_type: upload.media_type,
+            original_filename: file.name,
+            storage_state: "staged_verified",
+          },
+          available_artifact_id: "20800000-0000-4000-8000-000000000001",
+        }),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await uploadSchemaDefinitionBundle(
+      { baseUrl: "/api/v1", accessToken: "administrator-token" },
+      { file, classification: "internal" },
+    );
+
+    expect(result.data.available_artifact_id).toBe(
+      "20800000-0000-4000-8000-000000000001",
+    );
+    expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toMatchObject({
+      media_type: "application/vnd.cmp.catalog-schema-definition-bundle+json",
+      expected_sha256: digest,
+      expected_size_bytes: file.size,
+    });
+    expect(new Headers(fetchMock.mock.calls[1]?.[1]?.headers).get("content-type")).toBe(
+      "application/vnd.cmp.catalog-schema-definition-bundle+json",
+    );
+  });
+
+  it("downloads only when both export checksum headers and immutable source evidence match", async () => {
+    const blob = new Blob(["{}"], {
+      type: "application/vnd.cmp.catalog-schema-definition-bundle+json",
+    });
+    const digestBuffer = await crypto.subtle.digest("SHA-256", await blob.arrayBuffer());
+    const digestBytes = new Uint8Array(digestBuffer);
+    const digest = Array.from(digestBytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+    const digestBase64 = btoa(String.fromCharCode(...digestBytes));
+    const response = (etag: string) =>
+      ({
+        ok: true,
+        status: 200,
+        headers: new Headers({
+          "content-type": "application/vnd.cmp.catalog-schema-definition-bundle+json",
+          etag,
+          digest: `sha-256=${digestBase64}`,
+          "x-cmp-bundle-application-id": "20800000-0000-4000-8000-000000000002",
+          "x-cmp-source-artifact-id": "20800000-0000-4000-8000-000000000001",
+          "x-cmp-source-artifact-sha256": "a".repeat(64),
+          "x-request-id": "export-request",
+        }),
+        blob: async () => blob,
+      }) as Response;
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(response(`"sha256:${digest}"`))
+      .mockResolvedValueOnce(response(`"sha256:${"0".repeat(64)}"`));
+    vi.stubGlobal("fetch", fetchMock);
+    const config = { baseUrl: "/api/v1", accessToken: "administrator-token" };
+
+    const exported = await downloadSchemaDefinitionBundle(
+      config,
+      "synthetic_dependency_chain",
+      "1.0.0",
+    );
+    expect(exported).toMatchObject({
+      sha256: digest,
+      filename: "synthetic_dependency_chain-1.0.0.json",
+      application_id: "20800000-0000-4000-8000-000000000002",
+      request_id: "export-request",
+    });
+    await expect(
+      downloadSchemaDefinitionBundle(config, "synthetic_dependency_chain", "1.0.0"),
+    ).rejects.toThrow("checksum does not match");
   });
 });

@@ -11,7 +11,8 @@
 - Material Detail: `Overview | Properties | Curves | CAE Cards | Evidence`
 - Modeling: `Data | Process | Fit | Export`
 - Administration: 권한이 있는 사용자에게 Database/Profile과 Table/Attribute/Layout/Subset/Link Type의
-  초안·검증·발행, Folder/Record 단건·다건 등록과 접근 관리를 제공
+  초안·검증·발행, Schema Definition Bundle 계획·명시적 적용·read-back·검증 export, Folder/Record
+  단건·다건 등록과 접근 관리를 제공
 - legacy `/database`, `/catalog/*`, `/datasets/*`: deep-link 호환성 유지
 
 Search-first는 탐색 우선순위만 바꿉니다. Database/Profile/Table/Folder/Record Tree, typed
@@ -25,8 +26,8 @@ review/release는 Modeling의 normal stage가 아니라 Advanced와 Activity의 
 | Materials | Browse 기본의 explorer/result/datasheet workspace, server-scoped Material class 검색·정렬·pagination, Browse Tree, 선택 문맥, detail 5개 영역, exact-revision curve chart/channel·unit·deviation evidence, solver card preview/download |
 | Modeling | exact Material/State/Test Data session pin, Data/Process/Fit/Export, Materials와 공유하는 curve definition/display adapter, Process의 exact source/profile preview·last-valid blocked recovery·immutable saved-result comparison, processed replicate `peak_engineering_stress_pa`의 선택형 Distribution analysis sheet와 Normal/Lognormal/Weibull 후보 비교·explicit selected model revision, processing·fitting, 선택 모델 저장, Material Model IR·Neutral·solver card 생성, upstream 변경에 따른 downstream clear/stale/regenerate |
 | Activity | role-aware review queue, exact Material/Solver Card request entry, Reviewer-only approval/change decisions, Processing Batch context/retry, browser recovery facts, and review-backed Record publication projection |
-| Administration | Database/Profile과 configurable Table/Attribute/Layout/Subset/Link Type의 revision 관리·발행, Folder/Record tree, typed search·compare, 단건·다건 등록, exact Record links와 접근 관리 |
-| Catalog schema bundle | exact immutable Artifact의 임의 개수 JSON Schema draft 2020-12 정의를 bundle 내부에서만 resolve하고 결정론적 plan 생성; exact SHA-256/`plan_fingerprint` 서버 재검증, 원자 apply/publication, immutable application read-back, provenance와 current-state export |
+| Administration | Database/Profile과 configurable Table/Attribute/Layout/Subset/Link Type의 revision 관리·발행, Definition Bundle upload-plan-confirm-apply-read-back-export, Folder/Record tree, typed search·compare, 단건·다건 등록, exact Record links와 접근 관리 |
+| Catalog schema bundle | exact immutable Artifact의 임의 개수 JSON Schema draft 2020-12 정의를 bundle 내부에서만 resolve하고 결정론적 plan 생성; Administrator 전용 화면과 API에서 exact SHA-256/`plan_fingerprint` 재검증, 원자 apply/publication, immutable application read-back, provenance와 checksum-verified current-state export |
 | Common units | contract `1.0.0`의 8개 bounded dimension과 explicit Decimal conversion, stable identity/immutable revision Unit Profile API, exact profile/application trace를 Processing·Fit·Export와 PostgreSQL provenance에 연결 |
 | Curve metadata | contract `1.0.0`의 channel role/quantity/original·normalized·display unit, typed scalar·pointwise deviation, exact Artifact/revision/source/calculation provenance; current Parquet metadata와 schema별 legacy adapter를 Dataset·Test Data·Processing·Statistics·Catalog·Materials·Modeling에 연결 |
 | Exchange | CSV/TSV/XLSX governed import, versioned Test Data JSON, Neutral Material JSON, deterministic package |
@@ -39,15 +40,15 @@ Production 표준, plugin, solver correlation과 validation threshold는 domain 
 
 ## 알려진 공백
 
-- 관리자가 임의 개수의 JSON Schema 정의를 bundle로 검증하고 no-write plan을 만든 뒤 API에서
-  승인·적용·read-back·export하는 backend와 Bundle/plan/application `1.0.0`, 현재 HTTP `0.37.0` 계약을
-  구현했습니다. Apply는 current RLS snapshot을 lock 아래서 서버 재계획하고 exact Artifact
-  SHA-256/`plan_fingerprint`를 검증하며, 필요한 revision·publication·provenance·audit·outbox를 한
-  transaction으로 저장합니다. Current Record migration 충돌은 부분 변경 없이 차단합니다.
-  Administration upload/apply 화면은 #208 범위입니다. #205의 `x-unit` handoff는 stable common unit
-  ID만 검증하며 기본 Unit Profile을 선택하지 않습니다. 예시 schema 이름과 개수는 제품 고정 형식이
-  아닙니다. 상세 순서는 [#204~#216 통합 계획](docs/12-roadmap/schema-driven-material-integration-plan.md)과
-  backlog가 소유합니다.
+- 관리자는 임의 개수의 JSON Schema 정의를 bundle로 검증하고 no-write plan을 만든 뒤
+  **Administration → Definition bundles**에서 정확한 version, source SHA-256, plan fingerprint와
+  변경 개수를 확인해 적용할 수 있습니다. Apply는 current RLS snapshot을 lock 아래서 서버 재계획하고
+  필요한 revision·publication·provenance·audit·outbox를 한 transaction으로 저장합니다. 화면은
+  immutable application을 다시 읽고 checksum/source evidence가 일치하는 export만 제공합니다. Stale
+  plan은 재계획하며 User/Reviewer 접근, client-authored action, 부분 변경과 Current Record migration
+  충돌을 차단합니다. #205의 `x-unit` handoff는 stable common unit ID만 검증하며 기본 Unit Profile을
+  선택하지 않습니다. 예시 schema 이름과 개수는 제품 고정 형식이 아닙니다. 상세 순서는
+  [#204~#216 통합 계획](docs/12-roadmap/schema-driven-material-integration-plan.md)과 backlog가 소유합니다.
 - Unit Profile 관리용 frontend와 production solver 기본 profile은 없습니다. 기존 `kg_m_s`는
   `production_default=false`인 호환 계약이며 추가 solver unit system과 Template는 #213/#214가
   소유합니다. Profile-free 과거 revision과 solver-native bytes는 재작성하지 않습니다.
@@ -59,9 +60,9 @@ Production 표준, plugin, solver correlation과 validation threshold는 domain 
   constant, unsupported support/quality는
   명시적 not-eligible이며 n 8–19는 경고합니다. Censored, mixture, Bayesian/hierarchical fitting과 자동
   production default는 없고, representative envelope와 approved Fit input은 다음 #211 범위입니다.
-- #158 Data/Process/Fit/Export production UI는 PR #183~#202에서 현재 화면에 연결했습니다. 남은
-  Administration 공개·복구 refinement는 #161이 소유하며, 새 기획의
-  Administration/Template/OIDC 화면은 각각 #208, #214, #215에서 별도 검수합니다.
+- #158 Data/Process/Fit/Export production UI는 PR #183~#202에서 현재 화면에 연결했습니다.
+  Administration 공개·복구 refinement는 #161, Definition Bundle 화면은 #208에서 연결했습니다.
+  남은 Template/OIDC 화면은 각각 #214, #215에서 별도 검수합니다.
 - Materials의 provider/evidence source, condition-aware property, validation·solver readiness는
   실제 governed query projection이 없는 상태에서 추론하지 않습니다.
 - Activity의 실패 작업 복구와 review-backed Record publication은 #160 범위입니다. Authoritative

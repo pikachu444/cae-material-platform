@@ -530,6 +530,90 @@ def _state_from_action(action: Any, index: int) -> CatalogStateObject:
     )
 
 
+def test_current_record_activity_blocks_migration_required_plan_actions() -> None:
+    document = _fixture("one")
+    create_plan = _plan(document)
+    states = tuple(
+        _state_from_action(action, index + 1)
+        for index, action in enumerate(create_plan.actions)
+    )
+
+    changed_table = deepcopy(document)
+    changed_table["record_schemas"][0]["name"] = "Synthetic materials revised"
+    table_states = tuple(
+        replace(state, has_current_records=True)
+        if state.target_type == "table" and state.external_key == "materials"
+        else state
+        for state in states
+    )
+    assert CatalogSnapshot(ORG, PROJECT, states).fingerprint != CatalogSnapshot(
+        ORG, PROJECT, table_states
+    ).fingerprint
+    table_plan = _plan(changed_table, CatalogSnapshot(ORG, PROJECT, table_states))
+    table_action = next(
+        action
+        for action in table_plan.actions
+        if action.target_type == "table" and action.external_key == "materials"
+    )
+
+    assert table_action.disposition is PlanDisposition.ERROR
+    assert table_action.reason_codes == ("record_migration_required",)
+    assert not table_plan.valid
+    assert any(
+        diagnostic.code == "CMP-SCHEMA-BUNDLE-0014"
+        and "current Records" in diagnostic.message
+        for diagnostic in table_plan.diagnostics
+    )
+
+    changed_attribute = deepcopy(document)
+    attribute_schema = changed_attribute["record_schemas"][0]["schema"]
+    attribute_schema["properties"]["youngs_modulus"]["description"] = (
+        "Synthetic revised non-production modulus."
+    )
+    _rechecksum(changed_attribute["record_schemas"][0])
+    attribute_states = tuple(
+        replace(state, has_current_values=True)
+        if state.target_type == "attribute" and state.external_key == "youngs_modulus"
+        else state
+        for state in states
+    )
+    attribute_plan = _plan(
+        changed_attribute,
+        CatalogSnapshot(ORG, PROJECT, attribute_states),
+    )
+    attribute_action = next(
+        action
+        for action in attribute_plan.actions
+        if action.target_type == "attribute" and action.external_key == "youngs_modulus"
+    )
+
+    assert attribute_action.disposition is PlanDisposition.ERROR
+    assert attribute_action.reason_codes == ("record_migration_required",)
+    assert not attribute_plan.valid
+
+    added_required = deepcopy(document)
+    required_schema = added_required["record_schemas"][0]["schema"]
+    required_schema["properties"]["required_note"] = {
+        "type": "string",
+        "title": "Required note",
+    }
+    required_schema["required"].append("required_note")
+    _rechecksum(added_required["record_schemas"][0])
+    required_plan = _plan(
+        added_required,
+        CatalogSnapshot(ORG, PROJECT, table_states),
+    )
+    required_action = next(
+        action
+        for action in required_plan.actions
+        if action.target_type == "attribute" and action.external_key == "required_note"
+    )
+
+    assert required_action.disposition is PlanDisposition.ERROR
+    assert required_action.reason_codes == ("record_migration_required",)
+    assert not required_plan.valid
+
+
 def test_stale_exact_dependency_pin_plans_a_deterministic_update() -> None:
     document = _fixture("one")
     create_plan = _plan(document)

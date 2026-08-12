@@ -221,6 +221,8 @@ class CatalogStateObject:
     content: dict[str, Any]
     dependency_heads_match: bool = True
     classification: DataClassification | None = None
+    has_current_records: bool = False
+    has_current_values: bool = False
 
     def key(self) -> tuple[str, str | None, str]:
         return self.target_type, self.parent_external_key, self.external_key
@@ -239,6 +241,8 @@ class CatalogStateObject:
             "classification": self.classification.value
             if self.classification is not None
             else None,
+            "has_current_records": self.has_current_records,
+            "has_current_values": self.has_current_values,
         }
 
 
@@ -2469,6 +2473,45 @@ def build_schema_bundle_plan(
                         if changed_dependency and same_content
                         else "projected_content_changed",
                     )
+        migration_message: str | None = None
+        if disposition is PlanDisposition.UPDATE and current is not None:
+            if projected_item.target_type == "table" and current.has_current_records:
+                migration_message = (
+                    f"Table '{projected_item.external_key}' has current Records "
+                    "that pin its old revision."
+                )
+            elif projected_item.target_type == "attribute" and current.has_current_values:
+                migration_message = (
+                    f"Attribute '{projected_item.external_key}' has current values "
+                    "that pin its old revision."
+                )
+        elif (
+            disposition is PlanDisposition.CREATE
+            and projected_item.target_type == "attribute"
+            and projected_item.content.get("required") is True
+            and projected_item.parent_external_key is not None
+        ):
+            parent_tables = current_by_key.get(
+                ("table", None, projected_item.parent_external_key), ()
+            )
+            if len(parent_tables) == 1 and parent_tables[0].has_current_records:
+                migration_message = (
+                    f"Required Attribute '{projected_item.external_key}' is missing "
+                    "from current Records."
+                )
+        if migration_message is not None:
+            disposition = PlanDisposition.ERROR
+            reason_codes = ("record_migration_required",)
+            diagnostics.append(
+                _error(
+                    14,
+                    f"/catalog/{projected_item.target_type}/"
+                    f"{_escape_pointer(projected_item.external_key)}",
+                    migration_message,
+                    "Migrate the affected current Records through an approved workflow, "
+                    "then request a fresh server plan.",
+                )
+            )
         dispositions[projected_item.key()] = disposition
         actions.append(
             SchemaBundlePlanAction(

@@ -27,6 +27,19 @@ from cmp.modules.catalog.adapters.persistence.configurable import (
     table_profile_placement,
 )
 from cmp.modules.catalog.adapters.persistence.links import link_type, link_type_revision
+from cmp.modules.catalog.adapters.persistence.records import (
+    catalog_record,
+    catalog_record_revision,
+    record_boolean_value,
+    record_curve_value,
+    record_date_value,
+    record_discrete_value,
+    record_file_value,
+    record_integer_value,
+    record_number_value,
+    record_reference_value,
+    record_text_value,
+)
 from cmp.modules.catalog.application.configurable import (
     ATTRIBUTE_AGGREGATE_TYPE,
     DATABASE_AGGREGATE_TYPE,
@@ -42,6 +55,18 @@ from cmp.modules.identity_access.domain.authorization import (
 )
 from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.shared.domain.revisions import content_sha256
+
+_VALUE_TABLES = (
+    record_number_value,
+    record_integer_value,
+    record_text_value,
+    record_boolean_value,
+    record_date_value,
+    record_discrete_value,
+    record_file_value,
+    record_curve_value,
+    record_reference_value,
+)
 
 
 def _current_join(identity: sa.Table, revision: sa.Table) -> Any:
@@ -338,6 +363,50 @@ class SqlAlchemySchemaBundleSnapshotRepository:
                     raise RuntimeError("Placement snapshot contains an unresolved identity")
                 placements_by_identity.setdefault((profile_id, table_id), []).append(dict(row))
 
+            current_record_table_ids = frozenset(
+                cast(UUID, row["table_id"])
+                for row in session.execute(
+                    sa.select(catalog_record_revision.c.table_id)
+                    .select_from(
+                        catalog_record.join(
+                            catalog_record_revision,
+                            sa.and_(
+                                catalog_record_revision.c.id
+                                == catalog_record.c.current_revision_id,
+                                catalog_record_revision.c.aggregate_id == catalog_record.c.id,
+                                catalog_record_revision.c.organization_id
+                                == catalog_record.c.organization_id,
+                                catalog_record_revision.c.project_id
+                                == catalog_record.c.project_id,
+                            ),
+                        )
+                    )
+                    .group_by(catalog_record_revision.c.table_id)
+                ).mappings()
+            )
+            current_value_attribute_ids: set[UUID] = set()
+            for value_table in _VALUE_TABLES:
+                current_value_attribute_ids.update(
+                    cast(UUID, attribute_id)
+                    for attribute_id in session.execute(
+                        sa.select(value_table.c.attribute_definition_id)
+                        .select_from(
+                            value_table.join(
+                                catalog_record,
+                                sa.and_(
+                                    catalog_record.c.id == value_table.c.record_id,
+                                    catalog_record.c.organization_id
+                                    == value_table.c.organization_id,
+                                    catalog_record.c.project_id == value_table.c.project_id,
+                                    catalog_record.c.current_revision_id
+                                    == value_table.c.record_revision_id,
+                                ),
+                            )
+                        )
+                        .group_by(value_table.c.attribute_definition_id)
+                    ).scalars()
+                )
+
             objects: list[CatalogStateObject] = []
             for row in database_rows:
                 object_id = cast(UUID, row["id"])
@@ -405,6 +474,7 @@ class SqlAlchemySchemaBundleSnapshotRepository:
                             "description": row["description"],
                         },
                         classification=DataClassification(cast(str, row["classification"])),
+                        has_current_records=object_id in current_record_table_ids,
                     )
                 )
             for row in attribute_rows:
@@ -446,6 +516,7 @@ class SqlAlchemySchemaBundleSnapshotRepository:
                             cast(UUID, row["table_revision_id"]) == table_heads[table_id]
                         ),
                         classification=DataClassification(cast(str, row["classification"])),
+                        has_current_values=object_id in current_value_attribute_ids,
                     )
                 )
             for row in layout_rows:

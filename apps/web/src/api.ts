@@ -212,6 +212,9 @@ import type {
   AuthenticatedPrincipal,
   ProductAccessAssignment,
   ProductAccessSummary,
+  SchemaDefinitionBundleApplication,
+  SchemaDefinitionBundleExport,
+  SchemaDefinitionBundlePlan,
 } from "./types";
 
 export interface ApiConfig {
@@ -222,6 +225,7 @@ export interface ApiConfig {
 export interface ApiResult<T> {
   data: T;
   etag: string | null;
+  requestId?: string | null;
 }
 
 export function getEffectiveProductAccess(
@@ -1304,7 +1308,11 @@ async function request<T>(
     );
   }
 
-  return { data: body as T, etag: response.headers.get("etag") };
+  return {
+    data: body as T,
+    etag: response.headers.get("etag"),
+    requestId: response.headers.get("x-request-id"),
+  };
 }
 
 /**
@@ -4275,7 +4283,7 @@ function browserIdempotencyKey(): string {
   return `browser-upload-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-async function sha256Hex(file: File): Promise<string> {
+async function sha256Hex(file: Blob): Promise<string> {
   if (typeof crypto === "undefined" || !crypto.subtle) {
     throw new ApiError(503, "This browser cannot calculate the required SHA-256 upload digest.");
   }
@@ -4395,6 +4403,173 @@ export async function uploadGovernedTabularFile(
     `/uploads/${encodeURIComponent(upload.upload_id)}:complete`,
     { method: "POST", headers: { "Upload-Capability": capability } },
   );
+}
+
+const SCHEMA_DEFINITION_BUNDLE_MEDIA_TYPE =
+  "application/vnd.cmp.catalog-schema-definition-bundle+json";
+const SCHEMA_DEFINITION_BUNDLE_MAX_BYTES = 64 * 1024 * 1024;
+const SCHEMA_DEFINITION_BUNDLE_FILE_TYPES = new Set([
+  "",
+  "application/json",
+  "application/schema+json",
+  SCHEMA_DEFINITION_BUNDLE_MEDIA_TYPE,
+]);
+
+export async function uploadSchemaDefinitionBundle(
+  config: ApiConfig,
+  input: { file: File; classification: DataClassification },
+): Promise<ApiResult<CompletedUpload>> {
+  const filename = input.file.name.trim();
+  if (!filename || filename.includes("/") || filename.includes("\\")) {
+    throw new ApiError(422, "Choose a JSON bundle with a safe, non-empty filename.");
+  }
+  if (!filename.toLowerCase().endsWith(".json") || !SCHEMA_DEFINITION_BUNDLE_FILE_TYPES.has(input.file.type)) {
+    throw new ApiError(415, "Choose a JSON Schema Definition Bundle file (.json).");
+  }
+  if (input.file.size < 1 || input.file.size > SCHEMA_DEFINITION_BUNDLE_MAX_BYTES) {
+    throw new ApiError(413, "The definition bundle must be between 1 byte and 64 MiB.");
+  }
+
+  const digest = await sha256Hex(input.file);
+  const created = await request<{ upload: UploadSession; upload_capability: string }>(
+    config,
+    "/uploads",
+    {
+      method: "POST",
+      headers: { "Idempotency-Key": browserIdempotencyKey() },
+      body: JSON.stringify({
+        classification: input.classification,
+        original_filename: filename,
+        media_type: SCHEMA_DEFINITION_BUNDLE_MEDIA_TYPE,
+        expected_size_bytes: input.file.size,
+        expected_sha256: digest,
+      }),
+    },
+  );
+  const { upload, upload_capability: capability } = created.data;
+  for (let partNumber = 1; partNumber <= upload.expected_part_count; partNumber += 1) {
+    const start = (partNumber - 1) * upload.part_size_bytes;
+    const part = input.file.slice(
+      start,
+      Math.min(input.file.size, start + upload.part_size_bytes),
+      SCHEMA_DEFINITION_BUNDLE_MEDIA_TYPE,
+    );
+    await request<UploadSession>(
+      config,
+      `/uploads/${encodeURIComponent(upload.upload_id)}/parts/${partNumber}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": SCHEMA_DEFINITION_BUNDLE_MEDIA_TYPE,
+          "Upload-Capability": capability,
+        },
+        body: part,
+      },
+    );
+  }
+  const completed = await request<CompletedUpload>(
+    config,
+    `/uploads/${encodeURIComponent(upload.upload_id)}:complete`,
+    { method: "POST", headers: { "Upload-Capability": capability } },
+  );
+  if (!completed.data.available_artifact_id) {
+    throw new ApiError(
+      503,
+      "The verified upload is not yet available as an immutable Artifact. Retry when Artifact finalization is available.",
+    );
+  }
+  return completed;
+}
+
+export function planSchemaDefinitionBundle(
+  config: ApiConfig,
+  input: { artifact_id: string; artifact_sha256: string },
+): Promise<ApiResult<SchemaDefinitionBundlePlan>> {
+  return request(config, "/catalog/schema-definition-bundles:plan", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function applySchemaDefinitionBundle(
+  config: ApiConfig,
+  input: { artifact_id: string; artifact_sha256: string; plan_fingerprint: string },
+): Promise<ApiResult<SchemaDefinitionBundleApplication>> {
+  return request(config, "/catalog/schema-definition-bundles:apply", {
+    method: "POST",
+    headers: { "Idempotency-Key": `schema-bundle-${browserIdempotencyKey()}` },
+    body: JSON.stringify({ ...input, delete_missing: false }),
+  });
+}
+
+export function getSchemaDefinitionBundleApplication(
+  config: ApiConfig,
+  applicationId: string,
+): Promise<ApiResult<SchemaDefinitionBundleApplication>> {
+  return request(
+    config,
+    `/catalog/schema-definition-bundle-applications/${encodeURIComponent(applicationId)}`,
+  );
+}
+
+function digestBase64(hexDigest: string): string {
+  let binary = "";
+  for (let index = 0; index < hexDigest.length; index += 2) {
+    binary += String.fromCharCode(Number.parseInt(hexDigest.slice(index, index + 2), 16));
+  }
+  return btoa(binary);
+}
+
+export async function downloadSchemaDefinitionBundle(
+  config: ApiConfig,
+  bundleKey: string,
+  bundleVersion: string,
+): Promise<SchemaDefinitionBundleExport> {
+  const headers = authenticatedHeaders(
+    config,
+    {},
+    SCHEMA_DEFINITION_BUNDLE_MEDIA_TYPE,
+  );
+  const response = await fetch(
+    endpoint(
+      config,
+      `/catalog/schema-definition-bundles/${encodeURIComponent(bundleKey)}:export`,
+    ),
+    { headers },
+  );
+  if (!response.ok) {
+    return throwResponseError(response);
+  }
+
+  const mediaType = response.headers.get("content-type")?.split(";", 1)[0]?.trim() ?? "";
+  if (mediaType !== SCHEMA_DEFINITION_BUNDLE_MEDIA_TYPE) {
+    throw new ApiError(409, "The exported bundle has an unexpected media type.");
+  }
+  const blob = await response.blob();
+  const sha256 = await sha256Hex(blob);
+  const etag = response.headers.get("etag");
+  const digestHeader = response.headers.get("digest");
+  if (etag !== `\"sha256:${sha256}\"` || digestHeader !== `sha-256=${digestBase64(sha256)}`) {
+    throw new ApiError(409, "The exported bundle checksum does not match its response evidence.");
+  }
+
+  const applicationId = response.headers.get("x-cmp-bundle-application-id") ?? "";
+  const sourceArtifactId = response.headers.get("x-cmp-source-artifact-id") ?? "";
+  const sourceArtifactSha256 = response.headers.get("x-cmp-source-artifact-sha256") ?? "";
+  if (!applicationId || !sourceArtifactId || !/^[0-9a-f]{64}$/.test(sourceArtifactSha256)) {
+    throw new ApiError(409, "The exported bundle is missing immutable source evidence.");
+  }
+
+  return {
+    blob,
+    sha256,
+    filename: `${bundleKey}-${bundleVersion}.json`,
+    media_type: mediaType,
+    application_id: applicationId,
+    source_artifact_id: sourceArtifactId,
+    source_artifact_sha256: sourceArtifactSha256,
+    request_id: response.headers.get("x-request-id"),
+  };
 }
 
 export function previewGovernedTabularImport(

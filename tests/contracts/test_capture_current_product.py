@@ -446,7 +446,8 @@ def test_incomplete_capture_cannot_reuse_files_from_previous_output(
 
 
 def test_current_capture_contract_contains_product_routes_only() -> None:
-    assert len(CURRENT_CAPTURE_OUTPUTS) == 100
+    assert len(CURRENT_CAPTURE_OUTPUTS) == 101
+    assert "administration-schema-bundle-1440x900.png" in CURRENT_CAPTURE_OUTPUTS
     assert PRODUCT_ACCESS_OUTPUTS == (
         "administration-access-1366x768.png",
         "administration-access-1440x900.png",

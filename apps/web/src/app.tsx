@@ -109,6 +109,11 @@ const ConfigurableCatalogRecords = lazy(() =>
     default: module.ConfigurableCatalogRecords,
   })),
 );
+const SchemaDefinitionBundleAdmin = lazy(() =>
+  import("./schema-definition-bundle-admin").then((module) => ({
+    default: module.SchemaDefinitionBundleAdmin,
+  })),
+);
 const CatalogExplorer = lazy(() =>
   import("./catalog-explorer").then((module) => ({
     default: module.CatalogExplorer,
@@ -288,13 +293,17 @@ function AdministrationWorkspace({
   config: ApiConfig;
   navigate: Navigate;
   onOpenConnection: () => void;
-  section: "overview" | "database" | "records" | "access";
+  section: "overview" | "database" | "bundles" | "records" | "access";
 }) {
   useEffect(() => {
     if (section === "database") return;
     publishWorkspaceStatus({
       selection:
-        section === "access" ? "Users and access" : "Administration overview",
+        section === "access"
+          ? "Users and access"
+          : section === "bundles"
+            ? "Definition bundles"
+            : "Administration overview",
       revision: "Governed configuration",
       jobs: "No active job",
       warnings: "0 validation errors",
@@ -316,7 +325,7 @@ function AdministrationWorkspace({
             onClick={() => navigate("/administration")}
           >
             <span>01</span>
-            <strong>Overview</strong>
+            <span className="administration-navigation-label">Overview</span>
           </button>
           <button
             className={section === "database" ? "active" : ""}
@@ -324,23 +333,31 @@ function AdministrationWorkspace({
             onClick={() => navigate("/administration/database")}
           >
             <span>02</span>
-            <strong>Database design</strong>
+            <span className="administration-navigation-label">Database design</span>
+          </button>
+          <button
+            className={section === "bundles" ? "active" : ""}
+            type="button"
+            onClick={() => navigate("/administration/schema-bundles")}
+          >
+            <span>03</span>
+            <span className="administration-navigation-label">Definition bundles</span>
           </button>
           <button
             className={section === "records" ? "active" : ""}
             type="button"
             onClick={() => navigate("/administration/records")}
           >
-            <span>03</span>
-            <strong>Records &amp; registration</strong>
+            <span>04</span>
+            <span className="administration-navigation-label">Records &amp; registration</span>
           </button>
           <button
             className={section === "access" ? "active" : ""}
             type="button"
             onClick={() => navigate("/administration/access")}
           >
-            <span>04</span>
-            <strong>Users &amp; access</strong>
+            <span>05</span>
+            <span className="administration-navigation-label">Users &amp; access</span>
           </button>
         </nav>
         <button
@@ -375,6 +392,21 @@ function AdministrationWorkspace({
                   </p>
                 </span>
                 <em>Configure ›</em>
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/administration/schema-bundles")}
+              >
+                <span className="workspace-choice-icon">SB</span>
+                <span>
+                  <small>Governed workspace definitions</small>
+                  <strong>Plan a definition bundle</strong>
+                  <p>
+                    Upload one JSON bundle, review every proposed change, then
+                    explicitly apply and verify the exact source.
+                  </p>
+                </span>
+                <em>Plan ›</em>
               </button>
               <button
                 type="button"
@@ -433,6 +465,12 @@ function AdministrationWorkspace({
             onNavigate={navigate}
             onOpenConnection={onOpenConnection}
             productMode
+          />
+        ) : null}
+        {section === "bundles" ? (
+          <SchemaDefinitionBundleAdmin
+            config={config}
+            onOpenConnection={onOpenConnection}
           />
         ) : null}
         {section === "access" ? (
@@ -1228,6 +1266,15 @@ export function App() {
         navigate={navigate}
         onOpenConnection={retrySession}
         section="database"
+      />
+    );
+  } else if (path === "/administration/schema-bundles") {
+    page = (
+      <AdministrationWorkspace
+        config={config}
+        navigate={navigate}
+        onOpenConnection={retrySession}
+        section="bundles"
       />
     );
   } else if (path === "/administration/records") {

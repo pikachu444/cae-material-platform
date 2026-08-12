@@ -1111,6 +1111,13 @@ class SqlAlchemySchemaBundleApplicationRepository:
                     classification,
                 ),
             )
+            if any(
+                "record_migration_required" in action.reason_codes
+                for action in plan.actions
+            ):
+                raise SchemaBundleMigrationRequired(
+                    "current Records require an approved migration before this bundle can apply"
+                )
             if not plan.valid or plan.bundle is None:
                 raise SchemaBundleSourceConflict(
                     "server re-plan is invalid against the locked current Catalog snapshot"
