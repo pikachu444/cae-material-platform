@@ -1,4 +1,4 @@
-version: 22
+version: 23
 shell:
   product_header_px: {compact: 46, standard: 50, large: 54}
   generic_command_status_bands: absent
@@ -29,10 +29,11 @@ items:
     route: /activity
     guide: 10-navigation-and-troubleshooting.md
 administration_workspace:
-  task: Issue #159 task 2; Issue #161 semantic-button follow-up; Issue #184 semantic three-pane production transplant
+  task: Issue #159 task 2; Issue #161 semantic-button follow-up; Issue #184 semantic three-pane production transplant; Issue #208 Definition Bundle plan/apply
   routes:
     overview: /administration
     database_design: /administration/database
+    definition_bundles: /administration/schema-bundles
     records_and_registration: /administration/records
     users_and_access: /administration/access
     legacy_schema: /catalog/schema
@@ -53,6 +54,27 @@ administration_workspace:
     wide_allocation: flexible-object-list-with-bounded-readable-property-form
     objects: [Database, Profile, Table, Attribute, Layout, Subset, Link Type]
     lifecycle: [add, edit-as-new-revision, check, publish]
+  definition_bundles:
+    topology: [bounded-source-pane, elastic-locally-scrollable-plan-table, bounded-detail-and-confirmation-pane]
+    visible_when: Administrator
+    denied_roles: [User, Reviewer]
+    source:
+      file: one-json-file
+      size_bytes: [1, 67108864]
+      media_types: [application/json, application/schema+json, application/vnd.cmp.catalog-schema-definition-bundle+json]
+      persistence: immutable-artifact-coordinates-only
+      browser_storage_forbidden: [source-bytes, access-token, client-authored-actions]
+    plan:
+      server_authority: true
+      arbitrary_schema_count: true
+      dispositions: [create, update, no-change, conflict, error]
+      detail: [location, impact, next-action, diagnostics, remediation]
+      apply_blocked_by: [invalid-plan, conflict, error, migration-required]
+    confirmation: [bundle-version, source-sha256, plan-fingerprint, action-counts, explicit-checkbox]
+    apply_request: [artifact-id, artifact-sha256, plan-fingerprint, delete-missing-false, fresh-idempotency-key]
+    client_actions_in_apply: forbidden
+    completion: [immutable-application-read-back, exact-results, source-evidence, checksum-verified-export]
+    recovery: [local-preflight-focus, retain-source-context, stale-plan-plan-again, never-replay-apply, refresh-read-back, request-correlation]
   records:
     topology: [table-navigator, record-list-or-import-table, bounded-registration-form]
     modes: [single-entry, multiple-rows]

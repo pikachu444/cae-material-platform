@@ -10,8 +10,10 @@ Material State의 exact revision 문맥을 공유합니다.
 | **Activity** | 재개할 작업, 검토 요청, 최근 결과 |
 
 **Administration**은 우측 workspace menu의 role-gated 항목입니다. Table/Attribute/Layout/Subset/
-Link Type과 사용자 기능 권한을 관리합니다. `/database`, `/catalog/*`, `/datasets/*`의 기존 deep
-link는 보존하지만 일반 사용자의 전역 메뉴에는 나타나지 않습니다.
+Link Type, Schema Definition Bundle과 사용자 기능 권한을 관리합니다. Administrator는
+**Definition bundles**에서 JSON 파일을 upload-plan-confirm-apply 순서로 처리하고, User와 Reviewer는
+이 작업을 사용할 수 없습니다. `/database`, `/catalog/*`, `/datasets/*`의 기존 deep link는 보존하지만
+일반 사용자의 전역 메뉴에는 나타나지 않습니다.
 
 ## 권장 이동 순서
 

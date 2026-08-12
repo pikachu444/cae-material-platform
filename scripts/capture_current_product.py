@@ -240,6 +240,7 @@ CURRENT_CAPTURE_OUTPUTS = (
     "activity-administrator-1440x900.png",
     "activity-decision-error-1440x900.png",
     "activity-recovery-1440x900.png",
+    "administration-schema-bundle-1440x900.png",
     "administration-database-1366x768.png",
     "administration-database-1440x900.png",
     "administration-database-1920x1080.png",
@@ -8379,6 +8380,15 @@ def _capture_supporting_screens(browser: Browser, base_url: str, output: Path) -
     _capture_product_access(browser, base_url, output)
 
 
+def _preserve_schema_bundle_admin_capture(output: Path) -> None:
+    """Carry the issue-owned contract-backed capture into a full current-set recapture."""
+    name = "administration-schema-bundle-1440x900.png"
+    source = Path(__file__).resolve().parents[1] / "docs" / "user-guide" / "images" / "current" / name
+    if not source.is_file():
+        raise RuntimeError(f"registered Schema Definition Bundle capture is missing: {source}")
+    shutil.copy2(source, output / name)
+
+
 def _validate_capture_outputs(output: Path) -> int:
     actual_outputs = {
         path.relative_to(output).as_posix() for path in output.rglob("*") if path.is_file()
@@ -8636,6 +8646,7 @@ def main() -> int:
                 )
                 _capture_modeling_data_exceptions(browser, args.base_url, output)
                 _capture_supporting_screens(browser, args.base_url, output)
+                _preserve_schema_bundle_admin_capture(output)
             finally:
                 browser.close()
 

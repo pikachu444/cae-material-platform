@@ -1,8 +1,8 @@
 # CAE Material Platform 관리자 가이드
 
 이 문서는 개발 설정이 아니라 서비스 관리자가 Material Information System의 구조와 사용자
-권한을 구성하는 방법을 설명합니다. 관리자는 Database/Profile과 Table 항목을 추가하고,
-레코드 사이의 링크 규칙을 정하고, 사용자에게 필요한 제품 기능만 부여합니다.
+권한을 구성하는 방법을 설명합니다. 관리자는 Database/Profile과 Table 항목을 추가하거나 하나의
+Schema Definition Bundle로 계획·적용하고, 레코드 사이의 링크 규칙과 제품 접근 권한을 관리합니다.
 
 ## 1. 관리자 작업 영역
 
@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | Administration overview | `/administration` | 관리자 작업 선택과 제품 권한 원칙 |
 | Database design | `/administration/database` | Database, Profile, Table, Attribute, Layout, Subset, Link Type, Publish |
+| Definition bundles | `/administration/schema-bundles` | JSON bundle 업로드, 변경 계획 검토, 명시적 적용, read-back과 export |
 | Users & access | `/administration/access` | User/Reviewer/Administrator 업무 역할과 assignment 관리 |
 | Material Database | `/database` | Folder, Record, exact-revision link 탐색 |
 
@@ -39,33 +40,42 @@ divider 목록이고, Database design은 20 px 제목, 340 px Table 열과 나�
 revision으로 보존됩니다. 수치값은 원본 값·원본 단위 문자열·정규화 값·정규화 단위·quantity
 semantics를 함께 저장합니다.
 
-### 2.1 API로 Schema Definition Bundle 계획·적용·내보내기
+### 2.1 Schema Definition Bundle 계획·적용·내보내기
 
-여러 Table 정의를 JSON Schema로 준비한 관리자는 적용 전에 계획을 확인하고, 같은 API 흐름에서
-승인·적용한 뒤 결과를 다시 읽거나 내보낼 수 있습니다. 이 기능은 현재 API에서만 제공되며
-Administration 화면의 upload/apply 기능은 아직 없습니다.
+여러 JSON Schema 정의를 한꺼번에 준비한 관리자는 **Administration → Definition bundles**에서
+서버가 계산한 변경 계획을 먼저 검토한 뒤 정확히 그 계획만 적용할 수 있습니다.
 
-1. JSON Schema draft 2020-12 record 정의를 하나 이상의 임의 개수로 묶고, 각 schema의 canonical
-   SHA-256과 organization/project/classification을 기록합니다.
-2. JSON 원문을 기존 Artifact 절차로 저장합니다. 계획 요청에는 immutable Artifact ID와 저장된
-   lowercase SHA-256을 함께 보냅니다.
-3. 응답에서 `create`, `update`, `no-op`, `conflict`, `error`와 각 diagnostic의 위치·조치 방법을
-   확인합니다. `$ref`는 같은 bundle의 local pointer와 선언된 record `$id`만 허용됩니다.
-4. 오류가 있으면 기존 Artifact를 고치지 말고 수정한 JSON을 새 Artifact로 저장해 다시 요청합니다.
-5. 승인할 계획이면 `POST /api/v1/catalog/schema-definition-bundles:apply` body에 같은 Artifact ID,
-   SHA-256, 응답의 `plan_fingerprint`, `delete_missing=false`만 넣고 새로운 `Idempotency-Key` header를
-   보냅니다. Plan의 action이나 projected content를 되돌려 보내지 않습니다.
-6. 201 응답의 `Location`에서 적용 증거를 다시 읽습니다. 같은 요청을 같은 key로 재전송하면 200과
-   같은 application이 반환됩니다. 현재 상태가 그대로라면
-   `GET /api/v1/catalog/schema-definition-bundles/{bundle_key}:export`로 canonical JSON을 받습니다.
+1. 하나 이상의 JSON Schema draft 2020-12 record 정의를 bundle JSON 하나로 준비합니다. 파일은
+   `.json`, 1 byte 이상 64 MiB 이하이며 허용된 JSON media type이어야 합니다.
+2. **Choose File**에서 파일을 고르고 **Upload and plan**을 누릅니다. 브라우저가 MIME, 크기, JSON과
+   기본 bundle 구조를 먼저 확인한 뒤 원문을 immutable Artifact 하나로 올립니다.
+3. **Change plan**에서 `Create`, `Update`, `No change`, `Conflict`, `Error` 행을 확인합니다. 행을
+   선택하면 오른쪽에 위치, 영향, 다음 조치, diagnostic과 remediation이 표시됩니다. schema 수가
+   많아도 같은 표가 안쪽에서 스크롤되며 schema마다 별도 입력 상자를 만들지 않습니다.
+4. conflict, error 또는 migration-required 진단이 하나라도 있으면 Apply는 열리지 않습니다. 원본
+   Artifact를 고치지 말고 수정한 JSON을 새 파일로 준비해 다시 계획합니다.
+5. 유효한 계획이면 **Review exact plan**을 누릅니다. Bundle version, source SHA-256,
+   `plan_fingerprint`, create/update/no-change 개수를 대조하고 확인란을 선택한 뒤 **Apply exact plan**을
+   실행합니다. 서버는 적용 직전 현재 Catalog를 다시 비교하며 plan의 action을 브라우저에서 받지
+   않습니다.
+6. 성공 화면에서 적용 결과를 다시 읽었는지 확인하고 **Export verified source**를 사용합니다. 다운로드는
+   응답의 ETag, Digest, application과 source Artifact 증거가 모두 일치할 때만 시작됩니다.
 
-Plan 호출은 Catalog current pointer, publication, outbox, audit와 provenance를 바꾸지 않습니다.
-Apply는 서버가 lock 아래에서 현재 Catalog를 다시 계획한 뒤 필요한 revision과 exact publication,
-source Artifact provenance, audit/outbox를 한 transaction으로 저장합니다. Bundle에 없는 기존 객체나
-Record는 삭제하지 않습니다. Stale plan이면 새 plan부터 다시 확인하고, migration-required이면 기존
-Record에 미칠 영향을 별도 migration 작업으로 해결해야 합니다. 어느 경우에도 부분 적용이나 사용자
-migration code 실행은 없습니다. 일반 단일 revision의 direct publication은 계속 비활성화되어 있으며,
-bundle apply 자체가 Administrator의 exact plan 승인 경계입니다.
+![Definition Bundle 변경 계획](../user-guide/images/current/administration-schema-bundle-1440x900.png)
+
+새로고침 시 원본 파일 내용이나 token은 브라우저에 저장되지 않습니다. 마지막 application 좌표가 있으면
+immutable application을 다시 읽고, 아직 적용 전이면 source Artifact 좌표로 plan을 다시 만듭니다. 적용
+직전 상태가 달라져 `stale plan`이 되면 **Plan again**만 사용하십시오. Apply를 그대로 재전송하지 않습니다.
+오류 화면의 **Support reference**는 요청 correlation ID이며 원본 데이터나 credential 없이 이 값만
+운영 담당자에게 전달할 수 있습니다. User와 Reviewer는 이 화면과 apply/read-back/export API를 사용할
+수 없습니다.
+
+고급 API 자동화에서도 plan 요청에는 immutable Artifact ID와 lowercase SHA-256만 보내고, apply에는
+같은 값과 서버가 준 `plan_fingerprint`, `delete_missing=false`, 새 `Idempotency-Key`만 보냅니다.
+Plan은 Catalog current pointer, publication, outbox, audit와 provenance를 바꾸지 않습니다. Apply는
+필요한 revision과 exact publication, source provenance, audit/outbox를 한 transaction으로 기록합니다.
+Bundle에 없는 기존 객체나 Record는 삭제하지 않으며 부분 적용이나 사용자 migration code 실행은
+허용하지 않습니다.
 
 ## 3. Folder와 Record 운영
 

@@ -32,22 +32,25 @@ form으로 이루어진 작업 묶음은 가운데의 읽기 좋은 공통 범�
 Table/Attribute/Layout/Subset은 stable identity와 immutable revision으로 저장되며, 새 정의는 기존
 Record나 과거 revision을 바꾸지 않는다.
 
-### JSON Schema 정의를 계획하고 API로 적용하기
+### JSON Schema 정의 bundle을 계획하고 적용하기
 
-여러 record schema를 한 번에 준비하는 관리자는 현재 API에서 Schema Definition Bundle을 계획하고
-적용할 수 있다. JSON 원문을 immutable Artifact로 저장한 뒤 Artifact ID와 lowercase SHA-256을
-`POST /api/v1/catalog/schema-definition-bundles:plan`에 보낸다. 응답은 현재 Catalog와 비교한
-`create`, `update`, `no-op`, `conflict`, `error`와 수정 위치를 반환한다. 같은 bundle 안의 local
-JSON Pointer와 선언된 record `$id`만 참조할 수 있다.
+여러 record schema를 한 번에 준비하는 Administrator는 **Administration → Definition bundles**에서
+JSON 파일 하나를 선택한다. 화면은 MIME, 1 byte–64 MiB 크기, JSON과 기본 bundle 구조를 먼저 확인한
+뒤 원문을 immutable Artifact로 올리고, 서버가 현재 Catalog와 비교한 `Create`, `Update`,
+`No change`, `Conflict`, `Error` 계획을 보여 준다. 같은 bundle 안의 local JSON Pointer와 선언된
+record `$id`만 참조할 수 있다.
 
-오류가 있으면 기존 Artifact를 수정하지 않고 새 Artifact로 다시 요청한다. 계획을 승인한 관리자는
-같은 Artifact ID/SHA-256과 `plan_fingerprint`, `delete_missing=false`만 apply endpoint에 보내며 action
-목록을 실행 입력으로 보내지 않는다. 서버는 현재 상태를 다시 비교하고 전체 revision·publication과
-추적 증거를 한 번에 저장한다. Stale plan이나 기존 Record migration 충돌은 아무 변경 없이 거부된다.
-같은 idempotency key의 재시도는 같은 application을 반환하고, 현재 상태가 유지되는 동안 export한
-JSON을 다시 올려 plan하면 모두 `no-op`이다. Bundle에 없는 객체는 삭제하지 않는다.
-Administration의 upload/apply 화면은 아직 제공되지 않는다. API 요청과 복구 절차는
-[관리자 가이드](../admin-guide/index.md#21-api로-schema-definition-bundle-계획적용내보내기)를 참고한다.
+![Definition Bundle 변경 계획과 선택한 항목의 영향](images/current/administration-schema-bundle-1440x900.png)
+
+각 행에서 위치, 영향, 다음 조치와 진단을 확인한다. conflict, error 또는 기존 Record migration이
+필요한 계획은 적용할 수 없다. 유효한 계획은 bundle version, source SHA-256, plan fingerprint와
+변경 개수를 다시 대조하고 명시적으로 확인한 뒤에만 적용한다. 서버는 현재 상태를 다시 계획하여 전체
+revision·publication과 추적 증거를 한 번에 저장하고, bundle에 없는 객체는 삭제하지 않는다.
+
+성공 후 화면은 immutable application을 다시 읽고 checksum과 source 증거를 검증한 export만 내려받게
+한다. 새로고침은 source/application 좌표만 복구하며 파일 내용이나 token을 저장하지 않는다. Stale
+plan이면 기존 Apply를 반복하지 말고 **Plan again**으로 새 계획을 확인한다. API 경계와 운영 복구 절차는
+[관리자 가이드](../admin-guide/index.md#21-schema-definition-bundle-계획적용내보내기)를 참고한다.
 
 
 ## Catalog Record 등록·검색·비교
