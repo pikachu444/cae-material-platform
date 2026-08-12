@@ -23,7 +23,7 @@ review/release는 Modeling의 normal stage가 아니라 Advanced와 Activity의 
 | 영역 | 구현 상태 |
 | --- | --- |
 | Materials | Browse 기본의 explorer/result/datasheet workspace, server-scoped Material class 검색·정렬·pagination, Browse Tree, 선택 문맥, detail 5개 영역, exact-revision curve chart/channel·unit·deviation evidence, solver card preview/download |
-| Modeling | exact Material/State/Test Data session pin, Data/Process/Fit/Export, Materials와 공유하는 curve definition/display adapter, Process의 exact source/profile preview·last-valid blocked recovery·immutable saved-result comparison, processing·fitting, 선택 모델 저장, Material Model IR·Neutral·solver card 생성, upstream 변경에 따른 downstream clear/stale/regenerate |
+| Modeling | exact Material/State/Test Data session pin, Data/Process/Fit/Export, Materials와 공유하는 curve definition/display adapter, Process의 exact source/profile preview·last-valid blocked recovery·immutable saved-result comparison, processed replicate `peak_engineering_stress_pa`의 Normal/Lognormal/Weibull 후보 비교와 explicit selected model revision, processing·fitting, 선택 모델 저장, Material Model IR·Neutral·solver card 생성, upstream 변경에 따른 downstream clear/stale/regenerate |
 | Activity | role-aware review queue, exact Material/Solver Card request entry, Reviewer-only approval/change decisions, Processing Batch context/retry, browser recovery facts, and review-backed Record publication projection |
 | Administration | Database/Profile과 configurable Table/Attribute/Layout/Subset/Link Type의 revision 관리·발행, Folder/Record tree, typed search·compare, 단건·다건 등록, exact Record links와 접근 관리 |
 | Catalog schema bundle | exact immutable Artifact의 임의 개수 JSON Schema draft 2020-12 정의를 bundle 내부에서만 resolve하고 결정론적 plan 생성; exact SHA-256/`plan_fingerprint` 서버 재검증, 원자 apply/publication, immutable application read-back, provenance와 current-state export |
@@ -40,7 +40,7 @@ Production 표준, plugin, solver correlation과 validation threshold는 domain 
 ## 알려진 공백
 
 - 관리자가 임의 개수의 JSON Schema 정의를 bundle로 검증하고 no-write plan을 만든 뒤 API에서
-  승인·적용·read-back·export하는 backend와 Bundle/plan/application `1.0.0`, HTTP `0.36.0` 계약을
+  승인·적용·read-back·export하는 backend와 Bundle/plan/application `1.0.0`, 현재 HTTP `0.37.0` 계약을
   구현했습니다. Apply는 current RLS snapshot을 lock 아래서 서버 재계획하고 exact Artifact
   SHA-256/`plan_fingerprint`를 검증하며, 필요한 revision·publication·provenance·audit·outbox를 한
   transaction으로 저장합니다. Current Record migration 충돌은 부분 변경 없이 차단합니다.
@@ -52,9 +52,12 @@ Production 표준, plugin, solver correlation과 validation threshold는 domain 
   `production_default=false`인 호환 계약이며 추가 solver unit system과 Template는 #213/#214가
   소유합니다. Profile-free 과거 revision과 solver-native bytes는 재작성하지 않습니다.
 - Curve metadata가 없는 알 수 없는 과거 Artifact는 기존 값과 availability를 보존하되 채널·단위·편차나
-  Fit eligibility를 추정하지 않습니다. 현재 구현은 기존 통계 evidence를 설명할 뿐 새 통계 계산,
-  smoothing/alignment/resampling, 대표곡선 또는 승인된 Fit 입력을 만들지 않습니다. scalar distribution
-  fitting과 representative/approved Fit input은 각각 #210과 #211 범위입니다.
+  Fit eligibility를 추정하지 않습니다. Curve metadata adapter는 기존 통계 evidence를 설명할 뿐
+  smoothing/alignment/resampling, 대표곡선 또는 승인된 Fit 입력을 만들지 않습니다.
+- Scalar distribution은 exact processed replicate Selection의 `peak_engineering_stress_pa`에 승인된
+  2-parameter MLE 후보와 AICc/AD bootstrap 비교만 제공합니다. n<8, constant, unsupported support/quality는
+  명시적 not-eligible이며 n 8–19는 경고합니다. Censored, mixture, Bayesian/hierarchical fitting과 자동
+  production default는 없고, representative envelope와 approved Fit input은 다음 #211 범위입니다.
 - #158 Data/Process/Fit/Export production UI는 PR #183~#202에서 현재 화면에 연결했습니다. 남은
   Administration 공개·복구 refinement는 #161이 소유하며, 새 기획의
   Administration/Template/OIDC 화면은 각각 #208, #214, #215에서 별도 검수합니다.

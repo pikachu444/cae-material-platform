@@ -136,14 +136,14 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     report = verify_user_guide(root)
 
     assert report.document_count >= 10
-    assert report.capture_count == 95
+    assert report.capture_count == 100
     assert report.navigation_count == 3
     assert report.classified_markdown_count >= 100
     assert report.current_document_count >= 40
     assert report.local_link_count >= 150
     assert report.image_count >= 120
     assert report.orphan_image_count == 0
-    assert report.duplicate_image_group_count == 266
+    assert report.duplicate_image_group_count == 271
 
 
 def test_incoming_integration_package_is_reference_not_authoritative() -> None:
@@ -209,7 +209,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     }
 
     current_source = manifest["source_commit"]
-    assert manifest["scope"] == "issue-206-curve-channel-metadata-and-deviation"
+    assert manifest["scope"] == "issue-210-scalar-distribution-fitting"
     assert re.fullmatch(r"[0-9a-f]{40}", current_source)
     assert manifest["source_commit"] == current_source
     assert len(provenance_ids) == len(set(provenance_ids))
@@ -222,6 +222,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     assert set(captures) - set(provenance_ids) == preserved_fixture_ids
     assert {provenance["source_commit"] for provenance in manifest["capture_provenance"]} == {
         current_source,
+        "e9b523a7f7b613d8d6efc0396160f0ceb2aff2c4",
         "97f850acf454a8fb6d8caeb8cf5e9ccb5d413a16",
     }
     assert len(previous_provenance_ids) == len(set(previous_provenance_ids))
@@ -240,8 +241,14 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "material-curves-2560",
         "material-curves-3840",
     }
+    new_issue_210_captures = {
+        capture_id for capture_id in captures if capture_id.startswith("modeling-distribution-")
+    }
     assert set(previous_provenance_ids) == (
-        set(captures) - new_issue_184_captures - new_issue_206_captures
+        set(captures)
+        - new_issue_184_captures
+        - new_issue_206_captures
+        - new_issue_210_captures
     )
     assert {
         prior_source,
@@ -257,10 +264,17 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     issue_206_provenance = next(
         provenance
         for provenance in manifest["capture_provenance"]
-        if provenance["source_commit"] == current_source
+        if provenance["source_commit"] == "e9b523a7f7b613d8d6efc0396160f0ceb2aff2c4"
     )
     assert "--only-materials" in issue_206_provenance["command"]
     assert new_issue_206_captures <= set(issue_206_provenance["ids"])
+    issue_210_provenance = next(
+        provenance
+        for provenance in manifest["capture_provenance"]
+        if provenance["source_commit"] == current_source
+    )
+    assert "--only-modeling-distribution" in issue_210_provenance["command"]
+    assert new_issue_210_captures == set(issue_210_provenance["ids"])
     process_provenance = [
         provenance
         for provenance in previous_provenance
@@ -383,10 +397,10 @@ def test_current_images_are_product_routes_and_storybook_captures_are_untracked(
         (root / "docs/user-guide/screenshot-manifest.yaml").read_text(encoding="utf-8")
     )
     current_images = root / "docs/user-guide/images/current"
-    assert len(manifest["captures"]) == 95
+    assert len(manifest["captures"]) == 100
     assert all(not capture["route"].startswith("/iframe.html") for capture in manifest["captures"])
     assert not list(current_images.glob("storybook-*.png"))
-    assert len(list(current_images.glob("*.png"))) == 95
+    assert len(list(current_images.glob("*.png"))) == 100
     assert not list((root / "docs/17-evidence/images").glob("**/storybook-*.png"))
 
 

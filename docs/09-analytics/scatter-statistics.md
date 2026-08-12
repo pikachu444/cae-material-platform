@@ -103,6 +103,55 @@ Feature 이름만 같고 extraction method가 다르면 같은 값으로 합치�
 - 반올림 전 machine value와 표시 precision을 분리한다.
 - 단위 변환 후 statistics를 계산한 경우 normalized unit과 변환 provenance를 표시한다.
 
+### 6.3 Peak engineering stress 분포 후보
+
+현재 scalar distribution 계약은 processed replicate Selection에 저장된
+`peak_engineering_stress_pa`만 대상으로 한다. 각 관측은 Dataset revision과 Test Run revision을
+동시에 고정하고 계산은 Pa에서 수행한다. Unit Profile은 표시 단위 적용 근거일 뿐 estimator 입력을
+다시 해석하지 않는다. 기존 descriptive Statistical Result는 그대로 두고, 후보 비교 Result와
+Artifact를 별도의 immutable revision으로 저장한다.
+
+승인된 `scalar_distribution_fitting_v1` 방법은 다음과 같다.
+
+| 후보 | support | estimator와 parameter |
+| --- | --- | --- |
+| Normal | 모든 유한 실수 | 2-parameter MLE; `location = mean`, `scale = sqrt(sum((x-mean)^2)/n)` |
+| Lognormal | `x > 0` | `loc=0` 고정 2-parameter MLE; `shape = SD_MLE(log x)`, `scale = exp(mean(log x))` |
+| Weibull | `x > 0` | `loc=0` 고정 2-parameter MLE; shape score root와 그 shape에 대한 MLE scale |
+
+각 성공 후보는 log likelihood, AICc, BIC, Anderson–Darling statistic과 estimator-aware
+parametric bootstrap p-value를 함께 보존한다. Parameter 수는 모두 `k=2`이고
+`AICc = 2k - 2logL + 2k(k+1)/(n-k-1)`, `BIC = k log(n) - 2logL`이다. Bootstrap은 후보별로
+적합 분포에서 표본을 만들고 같은 estimator로 다시 적합한다. 정확히 999회, 요청에 저장한 seed와
+NumPy `PCG64`을 사용하며 가족별 고정 sub-seed를 분리한다. p-value는 성공한 refit 중 관측 AD 이상인
+횟수에 add-one 보정을 적용하고 성공/실패 refit 수를 모두 기록한다.
+
+추천은 둘 이상의 후보가 성공했을 때만 계산한다. 최소 AICc에 대한 `delta AICc <= 2`인 모든 후보를
+공동 추천하며, 동률도 같은 규칙으로 보존한다. 후보 표시 순서는 Normal, Lognormal, Weibull로
+결정론적이지만 순서가 우선순위나 선택을 뜻하지 않는다. 추천은 selected model을 만들거나 바꾸지
+않는다. selected model은 성공 후보의 exact candidate digest, Distribution Result revision과 선택
+이유를 별도 revision으로 명시 저장해야 한다.
+
+표본 수가 8 미만이면 모든 후보가 `not_eligible`이고, 8–19이면 결과에 small-sample warning을 남긴다.
+상수 표본도 `not_eligible`이다. 0/음수 값은 Normal 후보에는 허용하지만 Lognormal과 Weibull에는
+명시적 support failure가 된다. missing, non-finite 또는 censored 관측이 하나라도 있으면 complete-case
+삭제 없이 모든 후보를 `not_eligible`로 남긴다. Outlier assessment는 상태와 경고를 기록하되 flagged
+관측도 자동 삭제하지 않는다. Censored-data fitting, mixture, Bayesian/hierarchical fitting은 지원하지
+않는다.
+
+수치 재현 경계는 다음과 같다.
+
+- machine value는 반올림하지 않고 canonical JSON Artifact에 저장하며 UI precision은 표시 전용이다.
+- AD의 log 계산에서 CDF만 `[1e-15, 1-1e-15]`로 제한한다. source observation은 바꾸지 않는다.
+- Weibull shape root는 bracketed solve와 절대·상대 tolerance `1e-12`를 사용한다. overflow나 root/refit
+  실패는 후보별 `failed` reason과 bootstrap 실패 수로 남긴다.
+- 같은 exact input revisions, Plan options, seed, algorithm/schema version, source/lock/environment digest,
+  Python/NumPy/SciPy version에서 canonical Result Artifact bytes와 checksum이 같아야 한다. Library 또는
+  runtime manifest가 달라지면 byte-identical replay를 가정하지 않고 새 근거로 비교한다.
+- n=30 synthetic recovery fixture의 상대 tolerance는 Normal location/scale 3%/20%, Lognormal
+  shape/scale 25%/5%, Weibull shape/scale 35%/8%다. 이는 회귀시험 경계이며 production 적합성 기준이나
+  재료 승인 threshold가 아니다.
+
 ## 7. Curve ensemble statistics
 
 ### 7.1 전제 조건
@@ -300,6 +349,10 @@ MVP는 반복시험 descriptive scatter를 제공하되 이를 완전한 measure
 - point count 증가가 replicate n을 바꾸지 않는 test
 - alignment domain/mask/extrapolation negative test
 - bootstrap seed reproducibility
+- Normal/Lognormal/Weibull synthetic parameter recovery와 estimator별 tolerance
+- scalar candidate small-n/constant/0·음수 support/extreme range/missing·non-finite·censored 상태
+- 같은 exact Plan/input/runtime manifest의 candidate digest와 canonical Artifact checksum replay
+- 추천과 explicit selected distribution revision/reason의 분리 및 reload
 - outlier candidate 생성 후 input digest 불변 test
 - adjudication scope isolation
 - group leakage 및 Simpson's paradox 경고 fixture

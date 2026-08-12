@@ -219,21 +219,6 @@ CURRENT_CAPTURE_OUTPUTS = (
     "modeling-distribution-1920x1080.png",
     "modeling-distribution-2560x1440.png",
     "modeling-distribution-3840x2160.png",
-    "modeling-distribution-header-from-1920x1080-crop.png",
-    "modeling-distribution-navigator-from-1920x1080-crop.png",
-    "modeling-distribution-table-from-1920x1080-crop.png",
-    "modeling-distribution-selection-form-from-1920x1080-crop.png",
-    "modeling-distribution-graph-from-1920x1080-crop.png",
-    "modeling-distribution-header-from-2560x1440-crop.png",
-    "modeling-distribution-navigator-from-2560x1440-crop.png",
-    "modeling-distribution-table-from-2560x1440-crop.png",
-    "modeling-distribution-selection-form-from-2560x1440-crop.png",
-    "modeling-distribution-graph-from-2560x1440-crop.png",
-    "modeling-distribution-header-from-3840x2160-crop.png",
-    "modeling-distribution-navigator-from-3840x2160-crop.png",
-    "modeling-distribution-table-from-3840x2160-crop.png",
-    "modeling-distribution-selection-form-from-3840x2160-crop.png",
-    "modeling-distribution-graph-from-3840x2160-crop.png",
     "modeling-export-1366x768.png",
     "modeling-export-1440x900.png",
     "modeling-export-1920x1080.png",
@@ -2721,6 +2706,8 @@ def _capture_modeling_distribution(
     browser: Browser,
     base_url: str,
     output: Path,
+    *,
+    include_detail_crops: bool = False,
 ) -> list[dict[str, object]]:
     measurements: list[dict[str, object]] = []
     for viewport_index, (width, height) in enumerate((*VIEWPORTS, *WIDE_VIEWPORTS)):
@@ -2833,7 +2820,7 @@ def _capture_modeling_distribution(
                 )
             measurements.append(geometry)
 
-            if (width, height) in (VIEWPORTS[2], *WIDE_VIEWPORTS):
+            if include_detail_crops and (width, height) in (VIEWPORTS[2], *WIDE_VIEWPORTS):
                 detail_locators = {
                     "header": page.locator(".application-menu-bar"),
                     "navigator": page.locator(".modeling-workspace-rail"),
@@ -8554,8 +8541,13 @@ def main() -> int:
     parser.add_argument(
         "--only-modeling-distribution",
         action="store_true",
+        help="Capture the five scalar-distribution viewports.",
+    )
+    parser.add_argument(
+        "--include-distribution-detail-crops",
+        action="store_true",
         help=(
-            "Capture the five scalar-distribution viewports plus original-pixel "
+            "With --only-modeling-distribution, also capture original-pixel "
             "header, navigator, table, selection-form, and graph crops."
         ),
     )
@@ -8568,6 +8560,10 @@ def main() -> int:
     CAPTURE_DISPLAY_DENSITY = args.density
     if args.resume_modeling_process and not args.only_modeling_process:
         parser.error("--resume-modeling-process requires --only-modeling-process")
+    if args.include_distribution_detail_crops and not args.only_modeling_distribution:
+        parser.error(
+            "--include-distribution-detail-crops requires --only-modeling-distribution"
+        )
     if args.resume_modeling_process and any(
         (
             args.only_materials,
@@ -8658,7 +8654,11 @@ def main() -> int:
             if args.only_modeling_process
             else MODELING_PROCESS_MANUAL_OUTPUTS
             if args.only_modeling_process_manual
-            else MODELING_DISTRIBUTION_OUTPUTS
+            else (
+                MODELING_DISTRIBUTION_OUTPUTS
+                if args.include_distribution_detail_crops
+                else MODELING_DISTRIBUTION_VIEWPORT_OUTPUTS
+            )
             if args.only_modeling_distribution
             else MODELING_CONSISTENCY_OUTPUTS
             if args.only_modeling_consistency
@@ -8731,7 +8731,10 @@ def main() -> int:
                         )
                     elif args.only_modeling_distribution:
                         measurements = _capture_modeling_distribution(
-                            browser, args.base_url, staged
+                            browser,
+                            args.base_url,
+                            staged,
+                            include_detail_crops=args.include_distribution_detail_crops,
                         )
                     elif args.only_modeling_consistency:
                         measurements = _capture_modeling_consistency(
