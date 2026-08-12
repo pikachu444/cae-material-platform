@@ -45,8 +45,8 @@ review:
   after_standard_original_count: 5
   after_large_original_count: 5
   direct_100_percent_crop_count: 30
-  product_owner_geometry_and_visual_approval: pending
-  independent_exact_sha_review: pending
+  product_owner_geometry_and_visual_approval: approved_2026-08-12
+  independent_exact_sha_review: approved_2057b203b87b689d9cda8b4f088b6d03120e8e4a
 images:
   - {phase: before, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/before/originals/modeling-process-1366x768.png, width: 1366, height: 768, sha256: 2a0a388534eff56b90ddf0ffefb735ee7946ccfc085b71e602a1aa201dfe9b3e}
   - {phase: before, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/before/originals/modeling-process-1440x900.png, width: 1440, height: 900, sha256: a484d961e23b1b593671692078b144c663d7f3ff239233e781c167a7048a3ffa}
