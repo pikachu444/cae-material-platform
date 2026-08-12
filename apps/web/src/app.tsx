@@ -325,7 +325,7 @@ function AdministrationWorkspace({
             onClick={() => navigate("/administration")}
           >
             <span>01</span>
-            <strong>Overview</strong>
+            <span className="administration-navigation-label">Overview</span>
           </button>
           <button
             className={section === "database" ? "active" : ""}
@@ -333,7 +333,7 @@ function AdministrationWorkspace({
             onClick={() => navigate("/administration/database")}
           >
             <span>02</span>
-            <strong>Database design</strong>
+            <span className="administration-navigation-label">Database design</span>
           </button>
           <button
             className={section === "bundles" ? "active" : ""}
@@ -341,7 +341,7 @@ function AdministrationWorkspace({
             onClick={() => navigate("/administration/schema-bundles")}
           >
             <span>03</span>
-            <strong>Definition bundles</strong>
+            <span className="administration-navigation-label">Definition bundles</span>
           </button>
           <button
             className={section === "records" ? "active" : ""}
@@ -349,7 +349,7 @@ function AdministrationWorkspace({
             onClick={() => navigate("/administration/records")}
           >
             <span>04</span>
-            <strong>Records &amp; registration</strong>
+            <span className="administration-navigation-label">Records &amp; registration</span>
           </button>
           <button
             className={section === "access" ? "active" : ""}
@@ -357,7 +357,7 @@ function AdministrationWorkspace({
             onClick={() => navigate("/administration/access")}
           >
             <span>05</span>
-            <strong>Users &amp; access</strong>
+            <span className="administration-navigation-label">Users &amp; access</span>
           </button>
         </nav>
         <button

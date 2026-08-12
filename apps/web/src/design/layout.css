@@ -2991,28 +2991,50 @@
   gap: var(--ux-space-2);
   grid-template-columns: 22px minmax(0, 1fr);
   padding: 6px var(--ux-space-2);
+  border: 0;
   border-bottom: 1px solid var(--ux-border);
   border-radius: 0;
+  background: transparent;
   color: var(--ux-text-muted);
   font-size: 12.5px;
-  font-weight: 500;
+  font-weight: 400;
 }
 
-.administration-navigation nav button span {
+.administration-navigation nav button > span:first-child {
   color: var(--ux-text-subtle);
   font-size: 11px;
 }
 
+.administration-navigation nav .administration-navigation-label {
+  color: inherit;
+  font-size: inherit;
+  font-weight: 500;
+}
+
+.administration-navigation nav button:hover:not(:disabled) {
+  background: var(--ux-surface-subtle);
+  color: var(--ux-text);
+  box-shadow: none;
+}
+
 .administration-navigation nav button.active,
-.administration-navigation nav button:hover {
+.administration-navigation nav button.active:hover:not(:disabled) {
   background: var(--ux-selection);
   color: var(--ux-text);
-  box-shadow: inset 3px 0 0 var(--ux-accent);
+  box-shadow: inset 2px 0 0 var(--ux-accent);
+}
+
+.administration-navigation nav button.active .administration-navigation-label {
+  font-weight: 600;
 }
 
 .administration-navigation > .ux-button.tertiary {
   margin-top: auto;
+  justify-content: flex-start;
+  padding-inline: var(--ux-space-2);
+  color: var(--ux-text-muted);
   font-size: 12px;
+  font-weight: 500;
 }
 
 .administration-content {
@@ -3135,6 +3157,15 @@
   min-width: 0;
 }
 
+.schema-bundle-workbench .ux-button {
+  font-weight: 600;
+}
+
+.schema-bundle-workbench .ux-disclosure summary {
+  color: var(--ux-text-muted);
+  font-weight: 500;
+}
+
 .schema-bundle-workbench > .ux-notice {
   margin: 0 0 var(--ux-space-3);
   border-radius: 0;
@@ -3199,7 +3230,7 @@
   margin: 0;
   color: var(--ux-text);
   font-size: var(--ux-data-font-size);
-  font-weight: 650;
+  font-weight: 600;
 }
 
 .schema-bundle-source header span,
@@ -3215,7 +3246,7 @@
   margin-top: var(--ux-space-4);
   color: var(--ux-text-muted);
   font-size: var(--ux-metadata-font-size);
-  font-weight: 650;
+  font-weight: 500;
 }
 
 .schema-bundle-file-field input {
@@ -3280,7 +3311,7 @@
 .schema-bundle-detail-body dt,
 .schema-bundle-error dt {
   color: var(--ux-text-muted);
-  font-weight: 650;
+  font-weight: 500;
 }
 
 .schema-bundle-technical dd {
@@ -3291,6 +3322,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  background: var(--ux-surface);
 }
 
 .schema-bundle-plan > header > div:first-child {
@@ -3330,6 +3362,26 @@
   position: sticky;
   z-index: 1;
   top: 0;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.schema-bundle-table tbody td {
+  background: var(--ux-surface);
+}
+
+.schema-bundle-table tbody tr:hover > *,
+.schema-bundle-table tbody tr:focus-within > * {
+  background: color-mix(in srgb, var(--ux-surface-subtle) 55%, var(--ux-surface));
+}
+
+.schema-bundle-table tbody tr[aria-selected="true"] > * {
+  background: color-mix(in srgb, var(--ux-surface-subtle) 70%, var(--ux-surface));
+  box-shadow: none;
+}
+
+.schema-bundle-table tbody tr[aria-selected="true"] > :first-child {
+  box-shadow: inset 2px 0 0 var(--ux-accent);
 }
 
 .schema-bundle-table th:first-child,
@@ -3355,9 +3407,9 @@
   border-radius: 0;
   overflow: hidden;
   background: transparent;
-  color: var(--ux-accent);
+  color: var(--ux-text);
   font: inherit;
-  font-weight: 600;
+  font-weight: 500;
   text-align: left;
   text-overflow: ellipsis;
   white-space: nowrap;
