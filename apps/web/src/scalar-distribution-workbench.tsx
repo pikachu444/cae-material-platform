@@ -8,6 +8,7 @@ import {
   createScalarDistributionSelection,
   executeReferenceTensileReplicateStatistics,
   getScalarDistributionResult,
+  listDatasetRevisions,
   listDatasetsForMaterialState,
   listReferenceTensileReplicateSelections,
   listReferenceTensileReplicateStatisticalPlans,
@@ -86,16 +87,53 @@ function parameterSummary(
 
 function isProcessedSelection(
   selection: TensileReplicateSelectionResponse,
+  processedRevisionIds: Set<string>,
+): boolean {
+  return selection.current_revision.content.members.every((member) =>
+    processedRevisionIds.has(member.dataset_revision_id),
+  );
+}
+
+function selectionUsesCurrentProcessedHeads(
+  selection: TensileReplicateSelectionResponse,
   datasets: DatasetResponse[],
 ): boolean {
-  const processedRevisionIds = new Set(
+  const currentByDataset = new Map(datasets.map((item) => [item.dataset_id, item]));
+  return selection.current_revision.content.members.every((member) => {
+    const dataset = currentByDataset.get(member.dataset_id);
+    return dataset?.current_revision.id === member.dataset_revision_id
+      && dataset.current_revision.content.representation === "processed";
+  });
+}
+
+async function resolveProcessedRevisionIds(
+  config: ApiConfig,
+  datasets: DatasetResponse[],
+  selections: TensileReplicateSelectionResponse[],
+): Promise<Set<string>> {
+  const currentByDataset = new Map(datasets.map((item) => [item.dataset_id, item]));
+  const processed = new Set(
     datasets
       .filter((item) => item.current_revision.content.representation === "processed")
       .map((item) => item.current_revision.id),
   );
-  return selection.current_revision.content.members.every((member) =>
-    processedRevisionIds.has(member.dataset_revision_id),
+  const historicalDatasetIds = new Set<string>();
+  selections.forEach((selection) => {
+    selection.current_revision.content.members.forEach((member) => {
+      if (currentByDataset.get(member.dataset_id)?.current_revision.id !== member.dataset_revision_id) {
+        historicalDatasetIds.add(member.dataset_id);
+      }
+    });
+  });
+  const histories = await Promise.all(
+    [...historicalDatasetIds].map((datasetId) => listDatasetRevisions(config, datasetId)),
   );
+  histories.forEach((response) => {
+    response.data.revisions.forEach((revision) => {
+      if (revision.content.representation === "processed") processed.add(revision.id);
+    });
+  });
+  return processed;
 }
 
 function isSameUnitProfile(
@@ -117,6 +155,9 @@ export function ScalarDistributionWorkbench({
   const workbenchRef = useRef<HTMLDivElement | null>(null);
   const [datasets, setDatasets] = useState<DatasetResponse[]>([]);
   const [selections, setSelections] = useState<TensileReplicateSelectionResponse[]>([]);
+  const [processedRevisionIds, setProcessedRevisionIds] = useState<Set<string>>(
+    () => new Set(),
+  );
   const [selectedDatasetRevisions, setSelectedDatasetRevisions] = useState<string[]>([]);
   const [selectedSelectionId, setSelectedSelectionId] = useState("");
   const [plans, setPlans] = useState<ReplicateStatisticalPlanResponse[]>([]);
@@ -140,8 +181,8 @@ export function ScalarDistributionWorkbench({
     [datasets],
   );
   const processedSelections = useMemo(
-    () => selections.filter((item) => isProcessedSelection(item, datasets)),
-    [datasets, selections],
+    () => selections.filter((item) => isProcessedSelection(item, processedRevisionIds)),
+    [processedRevisionIds, selections],
   );
   const selection = selections.find((item) => item.selection_id === selectedSelectionId) ?? null;
   const plan = plans.find((item) => item.statistical_plan_id === selectedPlanId) ?? null;
@@ -223,6 +264,7 @@ export function ScalarDistributionWorkbench({
       setAction(null);
       setDatasets([]);
       setSelections([]);
+      setProcessedRevisionIds(new Set());
       return () => { active = false; };
     }
     setAction("load");
@@ -232,10 +274,17 @@ export function ScalarDistributionWorkbench({
       listReferenceTensileReplicateSelections(config, materialStateId),
     ]).then(async ([datasetResponse, selectionResponse]) => {
       if (!active) return;
+      const nextProcessedRevisionIds = await resolveProcessedRevisionIds(
+        config,
+        datasetResponse.data.items,
+        selectionResponse.data.items,
+      );
+      if (!active) return;
       setDatasets(datasetResponse.data.items);
       setSelections(selectionResponse.data.items);
+      setProcessedRevisionIds(nextProcessedRevisionIds);
       const first = selectionResponse.data.items
-        .filter((item) => isProcessedSelection(item, datasetResponse.data.items))
+        .filter((item) => isProcessedSelection(item, nextProcessedRevisionIds))
         .at(-1);
       setSelectedSelectionId(first?.selection_id ?? "");
       if (first) await loadPlans(first);
@@ -467,7 +516,7 @@ export function ScalarDistributionWorkbench({
               <option value="">Choose or create a Selection</option>
               {processedSelections.map((item) => (
                 <option key={item.selection_id} value={item.selection_id}>
-                  {item.selection_label} · r{item.current_revision.revision_no} · {item.current_revision.content.member_count} members
+                  {item.selection_label} · r{item.current_revision.revision_no} · {item.current_revision.content.member_count} members · {selectionUsesCurrentProcessedHeads(item, datasets) ? "current processed heads" : "historical exact revisions"}
                 </option>
               ))}
             </select>
@@ -507,7 +556,9 @@ export function ScalarDistributionWorkbench({
           {selection ? (
             <div className="distribution-input-summary">
               <strong>{selection.current_revision.content.member_count} observations retained</strong>
-              <span>Processed revisions only · no alignment, deletion, or complete-case filtering</span>
+              <span>{selectionUsesCurrentProcessedHeads(selection, datasets)
+                ? "Current processed heads · no alignment, deletion, or complete-case filtering"
+                : "Historical exact processed revisions · saved Plan, Run, and Result remain readable"}</span>
             </div>
           ) : null}
           <details className="advanced-workflow-settings distribution-advanced">

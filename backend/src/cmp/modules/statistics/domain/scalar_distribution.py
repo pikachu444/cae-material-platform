@@ -86,6 +86,7 @@ _FAMILY_SEED = {
     DistributionFamily.LOGNORMAL: 23,
     DistributionFamily.WEIBULL: 37,
 }
+_FLOAT64_LOG_MAX = math.log(np.finfo(np.float64).max)
 
 
 def _uuid(name: str, value: UUID) -> None:
@@ -141,6 +142,8 @@ def scalar_distribution_options_canonical(
         "small_sample_warning_below": SCALAR_DISTRIBUTION_SMALL_SAMPLE_WARNING_BELOW,
         "censoring": "unsupported",
         "missing_values": "not_complete_case",
+        "unsupported_quality_value": "canonical_null_with_quality_v1",
+        "extreme_range": "reject_unrepresentable_float64_magnitude_ratio_v1",
         "outliers": "retain_all_observations_and_report_assessment_state",
         "unit_profile": (
             unit_profile_pin_canonical(value.unit_profile)
@@ -187,7 +190,12 @@ def scalar_distribution_observation_canonical(
         "dataset_revision_id": str(value.dataset_revision_id),
         "test_run_id": str(value.test_run_id),
         "test_run_revision_id": str(value.test_run_revision_id),
-        "value_pa": value.value_pa,
+        # JSON cannot represent NaN or infinities. The quality field preserves
+        # why the source value is unavailable; unsupported values are always
+        # persisted as null without changing the source observation record.
+        "value_pa": (
+            value.value_pa if value.quality is ObservationQuality.OBSERVED else None
+        ),
         "quality": value.quality.value,
         "outlier_assessment": value.outlier_assessment.value,
     }
@@ -600,6 +608,18 @@ def _fit(family: DistributionFamily, values: np.ndarray) -> _Fit:
     return _weibull_fit(values)
 
 
+def _has_unrepresentable_float64_magnitude_ratio(values: np.ndarray) -> bool:
+    """Reject a magnitude ratio that cannot itself be represented by float64."""
+
+    magnitudes = np.abs(values[values != 0.0])
+    if magnitudes.size < 2:
+        return False
+    log_span = math.log(float(np.max(magnitudes))) - math.log(
+        float(np.min(magnitudes))
+    )
+    return log_span > _FLOAT64_LOG_MAX
+
+
 def _sample(
     family: DistributionFamily,
     fitted: _Fit,
@@ -701,8 +721,14 @@ def fit_scalar_distributions(
             "distribution observations must pin distinct sample identities"
         )
     active_manifest = manifest or runtime_manifest()
+    normalized_observations = tuple(
+        item
+        if item.quality is ObservationQuality.OBSERVED or item.value_pa is None
+        else replace(item, value_pa=None)
+        for item in observations
+    )
     observations_digest = content_sha256(
-        [scalar_distribution_observation_canonical(item) for item in observations]
+        [scalar_distribution_observation_canonical(item) for item in normalized_observations]
     )
     digest_context: dict[str, object] = {
         "schema_ref": SCALAR_DISTRIBUTION_RESULT_SCHEMA,
@@ -718,14 +744,20 @@ def fit_scalar_distributions(
     unsupported = next(
         (
             item.quality.value
-            for item in observations
+            for item in normalized_observations
             if item.quality is not ObservationQuality.OBSERVED
         ),
         None,
     )
     values = np.asarray(
-        [item.value_pa for item in observations if item.value_pa is not None], dtype=float
+        [
+            item.value_pa
+            for item in normalized_observations
+            if item.quality is ObservationQuality.OBSERVED and item.value_pa is not None
+        ],
+        dtype=float,
     )
+    extreme_range = _has_unrepresentable_float64_magnitude_ratio(values)
     candidates: list[ScalarDistributionCandidate] = []
     for family in SCALAR_DISTRIBUTION_FAMILY_ORDER:
         if unsupported is not None:
@@ -750,7 +782,7 @@ def fit_scalar_distributions(
                 )
             )
             continue
-        if float(np.ptp(values)) == 0.0:
+        if np.all(values == values[0]):
             candidates.append(
                 _unavailable_candidate(
                     family,
@@ -767,6 +799,17 @@ def fit_scalar_distributions(
                     family,
                     DistributionCandidateStatus.NOT_ELIGIBLE,
                     "support_requires_positive",
+                    tuple(warnings_),
+                    digest_context=digest_context,
+                )
+            )
+            continue
+        if extreme_range:
+            candidates.append(
+                _unavailable_candidate(
+                    family,
+                    DistributionCandidateStatus.NOT_ELIGIBLE,
+                    "extreme_dynamic_range_exceeds_float64_ratio",
                     tuple(warnings_),
                     digest_context=digest_context,
                 )
@@ -860,7 +903,7 @@ def fit_scalar_distributions(
         candidates = ranked
         recommended = tuple(item.family for item in candidates if item.recommended)
     return ScalarDistributionComputation(
-        observations=observations,
+        observations=normalized_observations,
         candidates=tuple(candidates),
         recommended_families=recommended,
         manifest=active_manifest,

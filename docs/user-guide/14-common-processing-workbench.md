@@ -440,8 +440,10 @@ State에 저장된 processed replicate Selection을 기준으로 Normal, Lognorm
 **Close** 또는 `Escape`로 닫으면 **Distribution candidates** 버튼으로 focus가 돌아옵니다.
 
 1. **Saved Selection**에서 exact processed Dataset revision 8개 이상을 가진 Selection을 고릅니다.
-   정렬 전 source Selection이나 current head가 아닌 revision은 목록에 섞이지 않습니다. 새 Selection이
-   필요하면 **Create from processed Dataset heads**에서 두 개 이상을 고정해 저장합니다.
+   정렬 전 normalized source Selection은 목록에 섞이지 않습니다. Dataset head가 전진해도 과거
+   processed revision을 고정한 Selection은 **historical exact revisions**로 남아 저장된 Plan/Run/Result를
+   다시 읽을 수 있습니다. 새 Selection이 필요하면 **Create from processed Dataset heads**에서 두 개
+   이상을 고정해 저장합니다.
 2. 필요할 때 Advanced에서 replay seed와 exact Unit Profile ID/revision/SHA-256을 함께 지정합니다.
    Profile은 세 필드를 모두 입력하거나 모두 비워야 하며 계산 자체는 Pa에서 수행됩니다.
 3. **Fit and save candidates**를 누르거나 이미 저장된 Plan/Run을 선택합니다. 같은 Selection revision,

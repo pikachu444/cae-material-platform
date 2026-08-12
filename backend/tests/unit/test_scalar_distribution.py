@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from uuid import UUID
 
 import numpy as np
@@ -145,6 +146,51 @@ def test_candidate_eligibility_is_explicit_for_small_constant_support_and_missin
     )
 
 
+@pytest.mark.parametrize("non_finite", (float("nan"), float("inf"), float("-inf")))
+def test_non_finite_observation_is_canonical_null_and_explicitly_not_eligible(
+    non_finite: float,
+) -> None:
+    observations = list(_observations(np.arange(1.0, 9.0)))
+    observations[3] = replace(
+        observations[3],
+        value_pa=non_finite,
+        quality=ObservationQuality.NON_FINITE,
+    )
+    options = ScalarDistributionAnalysisOptions(seed=19)
+
+    result = fit_scalar_distributions(
+        tuple(observations),
+        options,
+        manifest=_manifest(),
+    )
+
+    assert result.observations[3].value_pa is None
+    assert all(
+        item.status is DistributionCandidateStatus.NOT_ELIGIBLE
+        for item in result.candidates
+    )
+    assert all(
+        item.reason_codes == ("unsupported_observation_quality:non_finite",)
+        for item in result.candidates
+    )
+    artifact = scalar_distribution_artifact_bytes(
+        statistical_run_id=_id(10),
+        statistical_result_id=_id(11),
+        statistical_result_revision_id=_id(12),
+        plan_id=_id(13),
+        plan_revision_id=_id(14),
+        selection_id=_id(15),
+        selection_revision_id=_id(16),
+        options=options,
+        unit_applications=(),
+        computation=result,
+    )
+    assert b'"quality":"non_finite"' in artifact
+    assert b'"value_pa":null' in artifact
+    assert b'"unsupported_quality_value":"canonical_null_with_quality_v1"' in artifact
+    assert b"NaN" not in artifact and b"Infinity" not in artifact
+
+
 def test_extreme_values_and_outlier_assessment_never_silently_drop_a_candidate() -> None:
     values = np.geomspace(1e-240, 1e240, 20)
     result = fit_scalar_distributions(
@@ -159,12 +205,8 @@ def test_extreme_values_and_outlier_assessment_never_silently_drop_a_candidate()
         DistributionFamily.WEIBULL,
     )
     assert all(
-        item.status
-        in {
-            DistributionCandidateStatus.SUCCEEDED,
-            DistributionCandidateStatus.FAILED,
-            DistributionCandidateStatus.NOT_ELIGIBLE,
-        }
+        item.status is DistributionCandidateStatus.NOT_ELIGIBLE
+        and item.reason_codes == ("extreme_dynamic_range_exceeds_float64_ratio",)
         for item in result.candidates
     )
     assert all(
@@ -172,6 +214,7 @@ def test_extreme_values_and_outlier_assessment_never_silently_drop_a_candidate()
         for item in result.candidates
     )
     assert len(result.observations) == len(values)
+    assert result.recommended_families == ()
 
 
 def test_replay_preserves_candidate_values_digests_and_canonical_artifact_checksum() -> None:

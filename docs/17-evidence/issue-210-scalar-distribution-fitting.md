@@ -61,8 +61,9 @@ material-acceptance thresholds or production defaults.
 - The runtime manifest records algorithm/schema, Python, NumPy, SciPy, RNG, source/lock/environment
   digests, seed and options. Byte-identical replay is required only when those inputs match.
 - The mounted surface is a bounded two-pane dock inside the current
-  `MaterialModelingWorkspace`. It filters saved Selections to exact processed Dataset heads, reuses
-  an exactly matching immutable Plan, and exposes exact evidence under Advanced.
+  `MaterialModelingWorkspace`. It resolves pinned revisions through immutable Dataset history,
+  keeps historical processed Selections visible after a head advances, excludes normalized source
+  Selections, reuses an exactly matching immutable Plan, and exposes exact evidence under Advanced.
 
 Canonical Compose read-back recorded one n=8 Distribution Result revision with three candidates,
 recommendations `normal | lognormal | weibull`, seed 210, 999 refits and `numpy.random.PCG64`. Its

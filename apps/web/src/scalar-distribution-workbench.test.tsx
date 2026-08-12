@@ -31,6 +31,7 @@ const ids = {
   artifact: "21000000-0000-4000-8000-000000000011",
   decision: "21000000-0000-4000-8000-000000000012",
   decisionRevision: "21000000-0000-4000-8000-000000000013",
+  advancedDatasetRevision: "21000000-0000-4000-8000-000000000014",
 };
 
 function revision(id: string, aggregateId: string, revisionNo = 1) {
@@ -102,12 +103,12 @@ describe("Scalar distribution workbench", () => {
       test_run_id: `21000000-0000-4000-8000-${String(300 + ordinal).padStart(12, "0")}`,
       test_run_revision_id: `21000000-0000-4000-8000-${String(400 + ordinal).padStart(12, "0")}`,
     }));
-    const datasets = processedMembers.map((member) => ({
+    const datasets = processedMembers.map((member, ordinal) => ({
       dataset_id: member.dataset_id,
       test_run_id: member.test_run_id,
       current_revision: {
-        id: member.dataset_revision_id,
-        revision_no: 1,
+        id: ordinal === 0 ? ids.advancedDatasetRevision : member.dataset_revision_id,
+        revision_no: ordinal === 0 ? 2 : 1,
         content: { representation: "processed", point_count: 31 },
       },
     }));
@@ -236,6 +237,24 @@ describe("Scalar distribution workbench", () => {
       const method = init?.method ?? "GET";
       if (url.endsWith(`/material-states/${ids.state}/datasets`)) return Promise.resolve(jsonResponse({ items: datasets }));
       if (url.includes("/dataset-selections/reference-tensile-replicates?")) return Promise.resolve(jsonResponse({ items: [selection, normalizedSelection] }));
+      if (url.endsWith(`/datasets/${processedMembers[0].dataset_id}/revisions`)) {
+        return Promise.resolve(jsonResponse({
+          dataset_id: processedMembers[0].dataset_id,
+          revisions: [
+            {
+              id: processedMembers[0].dataset_revision_id,
+              revision_no: 1,
+              content: { representation: "processed", point_count: 31 },
+            },
+            {
+              id: normalizedSelection.current_revision.content.members[0].dataset_revision_id,
+              revision_no: 1,
+              content: { representation: "normalized", point_count: 31 },
+            },
+            datasets[0].current_revision,
+          ],
+        }));
+      }
       if (url.includes("/replicate-statistical-plans?")) return Promise.resolve(jsonResponse({ items: [plan] }));
       if (url.includes("/replicate-statistical-runs?")) return Promise.resolve(jsonResponse({ items: [run] }));
       if (url.endsWith("/replicate-statistical-runs") && method === "POST") {
@@ -276,6 +295,12 @@ describe("Scalar distribution workbench", () => {
 
     await screen.findByRole("table");
     expect(document.activeElement?.id).toBe("scalar-distribution-dock");
+    expect(screen.getByRole("option", {
+      name: /Eight processed replicates.*historical exact revisions/,
+    })).toBeTruthy();
+    expect(screen.getByText(
+      "Historical exact processed revisions · saved Plan, Run, and Result remain readable",
+    )).toBeTruthy();
     expect(screen.queryByRole("option", { name: /Normalized alignment source/ })).toBeNull();
     expect(screen.getByText("Normal + Lognormal")).toBeTruthy();
     expect(screen.getByRole("row", { name: /Weibull/ }).textContent).toContain("341.000");
@@ -303,6 +328,8 @@ describe("Scalar distribution workbench", () => {
       { selector: ".distribution-saved-decision span" },
     );
     expect((screen.getByLabelText("Successful candidate") as HTMLSelectElement).value).toBe("normal");
-    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    await waitFor(() => expect(fetchMock.mock.calls.some(([input]) =>
+      String(input).endsWith(`/datasets/${processedMembers[0].dataset_id}/revisions`),
+    )).toBe(true));
   });
 });

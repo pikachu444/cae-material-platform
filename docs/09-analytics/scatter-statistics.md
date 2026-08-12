@@ -135,14 +135,19 @@ NumPy `PCG64`을 사용하며 가족별 고정 sub-seed를 분리한다. p-value
 표본 수가 8 미만이면 모든 후보가 `not_eligible`이고, 8–19이면 결과에 small-sample warning을 남긴다.
 상수 표본도 `not_eligible`이다. 0/음수 값은 Normal 후보에는 허용하지만 Lognormal과 Weibull에는
 명시적 support failure가 된다. missing, non-finite 또는 censored 관측이 하나라도 있으면 complete-case
-삭제 없이 모든 후보를 `not_eligible`로 남긴다. Outlier assessment는 상태와 경고를 기록하되 flagged
-관측도 자동 삭제하지 않는다. Censored-data fitting, mixture, Bayesian/hierarchical fitting은 지원하지
-않는다.
+삭제 없이 모든 후보를 `not_eligible`로 남긴다. 이때 JSON에 표현할 수 없는 NaN/Infinity 값은 source
+quality를 `non_finite`로 보존하고 Distribution Result/Artifact의 `value_pa`에는 `null`을 기록한다.
+Outlier assessment는 상태와 경고를 기록하되 flagged 관측도 자동 삭제하지 않는다. Censored-data
+fitting, mixture, Bayesian/hierarchical fitting은 지원하지 않는다.
 
 수치 재현 경계는 다음과 같다.
 
 - machine value는 반올림하지 않고 canonical JSON Artifact에 저장하며 UI precision은 표시 전용이다.
 - AD의 log 계산에서 CDF만 `[1e-15, 1-1e-15]`로 제한한다. source observation은 바꾸지 않는다.
+- 0이 아닌 관측 magnitude의 `log(max) - log(min)`이 `log(float64 max)`보다 커서 그 비율 자체를
+  float64로 표현할 수 없으면 각 support-eligible 후보를
+  `extreme_dynamic_range_exceeds_float64_ratio`로 `not_eligible` 처리한다. Support failure가 있는 후보는
+  더 구체적인 support reason을 우선한다.
 - Weibull shape root는 bracketed solve와 절대·상대 tolerance `1e-12`를 사용한다. overflow나 root/refit
   실패는 후보별 `failed` reason과 bootstrap 실패 수로 남긴다.
 - 같은 exact input revisions, Plan options, seed, algorithm/schema version, source/lock/environment digest,
