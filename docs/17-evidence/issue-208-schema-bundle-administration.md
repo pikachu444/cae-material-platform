@@ -76,7 +76,7 @@ state images and the current-guide image were regenerated; product-owner re-revi
 | Affected Python contracts/integration | PASS — 98 tests across guide inventory, capture tooling and bundle API integration; 91 guide/capture contracts passed again after the visual correction |
 | User guide and documentation impact gates | PASS — 20 guide documents, 101 current captures, 570 local links, 1,745 registered images; 63 changed files and 3 visual sources accounted for |
 | Static and diff checks | PASS — Ruff lint on affected Python files, sidecar hashes/dimensions for 27 PNGs and five measurements, `git diff --check` |
-| Balanced independent audit | PENDING — the prior pass predates the product-owner visual correction; the same implementation-uninvolved reviewer must audit the corrected exact final SHA before publication. |
+| Balanced independent audit | PASS — the same implementation-uninvolved reviewer audited visual-correction SHA `865a1187fa6506f297415dc8641b02f32dca43dd`, opened all five originals, twenty 1:1 crops and both state images, and reported blocker 0, major 0, material minor 0 and minor 0. The reviewer will verify this audit-record-only commit as the final exact SHA. |
 | Product Owner visual geometry approval | Pending re-review of the corrected five-viewport evidence before ready/merge |
 
 The exact files, dimensions, hashes, route, fixture and geometry boundaries are registered in
