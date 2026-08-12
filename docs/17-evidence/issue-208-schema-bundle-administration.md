@@ -76,8 +76,8 @@ state images and the current-guide image were regenerated; product-owner re-revi
 | Affected Python contracts/integration | PASS — 98 tests across guide inventory, capture tooling and bundle API integration; 91 guide/capture contracts passed again after the visual correction |
 | User guide and documentation impact gates | PASS — 20 guide documents, 101 current captures, 570 local links, 1,745 registered images; 63 changed files and 3 visual sources accounted for |
 | Static and diff checks | PASS — Ruff lint on affected Python files, sidecar hashes/dimensions for 27 PNGs and five measurements, `git diff --check` |
-| Balanced independent audit | PASS — the same implementation-uninvolved reviewer audited visual-correction SHA `865a1187fa6506f297415dc8641b02f32dca43dd`, opened all five originals, twenty 1:1 crops and both state images, and reported blocker 0, major 0, material minor 0 and minor 0. The reviewer will verify this audit-record-only commit as the final exact SHA. |
-| Product Owner visual geometry approval | Pending re-review of the corrected five-viewport evidence before ready/merge |
+| Balanced independent audit | PASS — the same implementation-uninvolved reviewer audited visual-correction SHA `865a1187fa6506f297415dc8641b02f32dca43dd`, opened all five originals, twenty 1:1 crops and both state images, and reported blocker 0, major 0, material minor 0 and minor 0; it then passed the audit-record-only SHA `6cd378329a92244c88fc66f93bebebb1d6f3c98a` with the same zero-finding ledger. The approval-record-only final SHA remains subject to the required read-only publication recheck. |
+| Product Owner visual geometry approval | PASS — on 2026-08-13 the Product Owner approved the corrected navigation hierarchy, white central plan surface, neutral target labels and registered five-viewport geometry. Physical Windows 4K readability remains #223. |
 
 The exact files, dimensions, hashes, route, fixture and geometry boundaries are registered in
 [`visual-evidence.yaml`](images/issue-208-schema-bundle-administration/visual-evidence.yaml). The plan
@@ -92,4 +92,5 @@ not stopped, recreated or treated as #208 evidence. The browser record therefore
 server with contract-backed endpoint fixtures and makes no claim of canonical Compose persistence.
 
 Draft delivery is tracked in [PR #242](https://github.com/pikachu444/cae-material-platform/pull/242).
-It remains draft until the recorded product-owner visual approval passes.
+The recorded product-owner visual approval passed on 2026-08-13; the PR may leave draft only after the
+approval-record-only exact SHA passes the final independent and publication checks.

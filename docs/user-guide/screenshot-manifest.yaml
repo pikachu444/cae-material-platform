@@ -1,4 +1,4 @@
-version: 100
+version: 101
 verified_at: 2026-08-13
 scope: issue-208-schema-bundle-administration
 source_commit: 63176ec5a07647d598753d437fce4339d4f05ebb
@@ -9,7 +9,7 @@ notes:
   - "The issue-owned packet is docs/17-evidence/images/issue-208-schema-bundle-administration/visual-evidence.yaml: five plan originals, twenty direct 100%-pixel header/navigator/table/form crops, five numeric geometry records, and explicit confirmation and applied/read-back/export state originals. Main opened every original and crop at original resolution."
   - "The browser journey uses the contract-backed positive bundle fixture to verify upload-plan-confirm-apply-read-back-export, explicit source reset, arbitrary action count, keyboard row movement, long identity reachability, exact Apply body without client actions, refresh read-back and Reviewer denial. Unit/API tests separately cover invalid MIME/JSON/size/shape, migration-required confirmation blocking, source replacement isolation, stale re-plan, uncertain Apply read-back recovery, checksum mismatch and User/Reviewer API denial."
   - "Canonical Compose was rejected at preflight because the running cmp-local-demo project belongs to the preserved C:/SourceCodes/cae-material-platform-issue210 worktree. No container or data was changed, and the isolated Vite/contract-backed browser run is not represented as canonical Compose evidence."
-  - "At all five CSS viewports browser zoom is 100%, DPR is 1, page horizontal overflow is zero, the source/detail panes remain bounded, and the plan table grows into the central workspace while finite rows leave truthful unused space. The product-owner correction removes boxed navigation borders and awkward bold labels, restores the central plan pane to the white work surface, and uses neutral regular-weight target labels. Automated 3840×2160 geometry does not claim physical 4K readability; #223 remains the final physical gate. Product Owner re-review of the corrected 1920/2560/3840 originals and crops is pending, so the PR must remain draft."
+  - "At all five CSS viewports browser zoom is 100%, DPR is 1, page horizontal overflow is zero, the source/detail panes remain bounded, and the plan table grows into the central workspace while finite rows leave truthful unused space. The product-owner correction removes boxed navigation borders and awkward bold labels, restores the central plan pane to the white work surface, and uses neutral regular-weight target labels. The Product Owner approved the corrected 1920/2560/3840 originals, supporting five-viewport geometry and direct crops on 2026-08-13. Automated 3840×2160 geometry does not claim physical 4K readability; #223 remains the final physical gate."
   - "Issue #210 adds five current Modeling Process distribution-analysis originals from canonical current-source Compose. The current directory contains 100 deterministic synthetic non-production images; the five #210 current images were recaptured at Standard from UI source commit ff9ba293. Thirty Standard/Large direct 100%-pixel crops remain in the issue-owned evidence packet rather than the current product-guide set."
   - "The issue-owned packet is docs/17-evidence/images/issue-210-scalar-distribution-fitting/visual-evidence.yaml: five exact-origin/main before originals, ten live after originals across Standard and Large, thirty direct 100%-pixel crops, hashes, dimensions, route, browser/DPR/zoom/density and measured geometry. Main opened every original and crop at original resolution."
   - "The live browser journey opens the optional full-workspace Distribution analysis sheet, verifies the covered Process workspace is mounted but inert, cycles focus in the modal sheet, verifies Escape/focus return, selects Normal with an explicit reason, reloads, and reads back the exact immutable selection revision without changing the recommendation."
@@ -144,7 +144,7 @@ visual_evidence:
   physical_4k_readability: DEFERRED_TO_223
   fixture_dependent_capture_status: isolated_contract_backed_issue_208; canonical_compose_blocked_by_preserved_issue210_owner
   independent_read_only_review: pass_at_865a1187fa6506f297415dc8641b02f32dca43dd_final_metadata_recheck_required
-  product_owner_review: pending_after_visual_correction
+  product_owner_review: approved_2026-08-13
 capture_provenance:
   - source_commit: 63176ec5a07647d598753d437fce4339d4f05ebb
     captured_at: '2026-08-12T21:02:04Z'

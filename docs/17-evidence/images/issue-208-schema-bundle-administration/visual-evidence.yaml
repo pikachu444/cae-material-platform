@@ -25,7 +25,7 @@ acceptance:
   denied_roles: User_and_Reviewer_have_no_upload_or_apply_controls
   source_replacement: locked_until_explicit_new_bundle_reset
   migration_required: server_plan_error_blocks_confirmation
-  product_owner_geometry_review: pending
+  product_owner_geometry_review: approved_2026-08-13
   independent_balanced_audit: pass_at_865a1187fa6506f297415dc8641b02f32dca43dd_final_metadata_recheck_required
 viewports:
   - viewport: 1366x768
