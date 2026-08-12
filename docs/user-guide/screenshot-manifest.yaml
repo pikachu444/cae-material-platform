@@ -1,11 +1,11 @@
 version: 96
 verified_at: 2026-08-12
 scope: issue-210-scalar-distribution-fitting
-source_commit: bd8e76196c36eb10f9cdf5165e2f25f675053966
+source_commit: e460e8bddf9b8943e52ac9e99a41d88efac9fdb3
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --only-modeling-distribution
 notes:
-  - "Issue #210 adds five Modeling Process distribution-comparison originals from canonical current-source Compose. The current directory contains 100 deterministic synthetic non-production images; the five #210 current images were captured from implementation commit bd8e761d. Fifteen direct 100%-pixel crops remain in the issue-owned evidence packet rather than the current product-guide set."
+  - "Issue #210 adds five Modeling Process distribution-comparison originals from canonical current-source Compose. The current directory contains 100 deterministic synthetic non-production images; the five #210 current images were recaptured from audit-correction commit e460e8bd. Fifteen direct 100%-pixel crops remain in the issue-owned evidence packet rather than the current product-guide set."
   - "The issue-owned packet is docs/17-evidence/images/issue-210-scalar-distribution-fitting/visual-evidence.yaml: five exact-origin/main before originals, five live after originals, fifteen direct 100%-pixel crops, hashes, dimensions, route, browser/DPR/zoom and measured geometry. Main opened every original and crop at original resolution."
   - "The live browser journey opens the existing Modeling Process replicate analysis disclosure, focuses the lazy-loaded comparison dock, verifies Escape/focus return, selects Normal with an explicit reason, reloads, and reads back the exact immutable selection revision without changing the recommendation."
   - "At 1366x768 the open comparison disclosure temporarily yields only the Process settings ribbon so the persistent graph remains 372px high; closing the dock restores the ribbon without changing its persisted state. Page horizontal overflow is zero at all five viewports; the candidate table uses bounded local overflow only at 1366 and 1440."
@@ -113,7 +113,7 @@ visual_evidence:
   routes: [/materials, '/materials/:materialId', /modeling, /activity, /administration/database, /administration/records, /administration/access]
   states: [normal, long, empty, invalid, blocked, failed, restored, delivered, role-aware, popup, drawer, file-input, pane-overlay, resize, collapse, reset, reload]
   baseline_source: 36e8312fa85253ad8fee88f63a3a4bf096d92a9c
-  current_source: bd8e76196c36eb10f9cdf5165e2f25f675053966
+  current_source: e460e8bddf9b8943e52ac9e99a41d88efac9fdb3
   evidence_artifacts_are_not_current_captures: true
   current_capture_count: 100
   issue_210_current_count: 5
@@ -134,9 +134,9 @@ visual_evidence:
   independent_read_only_review: pending
   product_owner_review: pending
 capture_provenance:
-  - source_commit: bd8e76196c36eb10f9cdf5165e2f25f675053966
-    captured_at: '2026-08-12T09:56:22Z'
-    command: 'Canonical current-source Compose; capture_current_product.py --only-modeling-distribution at browser zoom 100% and DPR 1. The live flow verifies exact eight-member processed Selection, existing immutable Plan reuse, three candidates, explicit selection/reason, full reload read-back, dock focus/Escape return and five-viewport geometry before writing five current originals. The issue packet used the explicit --include-distribution-detail-crops option in temporary staging for fifteen direct crops.'
+  - source_commit: e460e8bddf9b8943e52ac9e99a41d88efac9fdb3
+    captured_at: '2026-08-12T10:39:19Z'
+    command: 'Canonical current-source Compose after the independent-audit correction; capture_current_product.py --only-modeling-distribution at browser zoom 100% and DPR 1. The live flow verifies exact eight-member processed Selection, existing immutable Plan reuse, three candidates, explicit selection/reason, full reload read-back, dock focus/Escape return and five-viewport geometry before writing five current originals. The issue packet used the explicit --include-distribution-detail-crops option in temporary staging for fifteen direct crops; a component regression separately advances one Dataset head and verifies historical exact-revision read-back.'
     ids: [modeling-distribution-1366, modeling-distribution-1440, modeling-distribution-1920, modeling-distribution-2560, modeling-distribution-3840]
   - source_commit: e9b523a7f7b613d8d6efc0396160f0ceb2aff2c4
     captured_at: '2026-08-12'

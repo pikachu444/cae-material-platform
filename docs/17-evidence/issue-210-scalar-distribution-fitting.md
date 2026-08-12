@@ -68,7 +68,19 @@ material-acceptance thresholds or production defaults.
 Canonical Compose read-back recorded one n=8 Distribution Result revision with three candidates,
 recommendations `normal | lognormal | weibull`, seed 210, 999 refits and `numpy.random.PCG64`. Its
 Artifact SHA-256 was `50a314e2bf37b315e8228ff428dba22efe98f05fa1f0f0bb6f7dfe15915f6abc`.
-The exact descriptive Result and Selection revisions remain separate pinned inputs.
+The exact descriptive Result and Selection revisions remain separate pinned inputs. This is the
+previously committed immutable demo Artifact; the audit correction did not rewrite it. Fresh Runs
+record the corrected source/runtime digest, canonical unsupported-quality policy and extreme-range
+policy in a new Artifact.
+
+The first independent audit of `893cbf80f4b467f7e73eddfbede475d5c67d76e2` found two major
+defects before publication: non-finite observations reached JSON canonicalization and the extreme
+fixture accepted success, while the UI hid exact saved analyses after a Dataset head advanced.
+Correction commit `e460e8bddf9b8943e52ac9e99a41d88efac9fdb3` canonicalizes unsupported
+values as `null + quality`, makes an unrepresentable float64 magnitude ratio explicitly
+`not_eligible`, resolves pinned processed revisions through Dataset history, labels historical
+Selections, and reloads their Plan/Run/Result/selected reason. The same auditor must review the
+new final SHA.
 
 ## Verification record
 
@@ -76,11 +88,11 @@ The exact descriptive Result and Selection revisions remain separate pinned inpu
 | --- | --- |
 | Synthetic parameter recovery and deterministic replay/checksum | PASS — Normal, Lognormal and Weibull recovery plus same-input/options/runtime replay |
 | Small sample, constant, invalid support, extreme range, missing/non-finite/censored and outlier states | PASS — candidate-specific `not_eligible`/`failed`, no observation deletion |
-| Service/Artifact/provenance and descriptive-result non-mutation | PASS — focused unit and provenance regression included in 775 tests |
+| Service/Artifact/provenance and descriptive-result non-mutation | PASS — focused unit and provenance regression included in 778 tests |
 | API candidate comparison, selected-model create/revise/list/get and reload contract | PASS — integration suite and live browser |
 | PostgreSQL migration up/down/up and immutable revision | PASS — PostgreSQL 16, 1 test, zero skips |
 | Migration/static guards | PASS — 131 tests |
-| Backend unit and architecture | PASS — 775 tests |
+| Backend unit and architecture | PASS — 778 tests |
 | Integration without PostgreSQL opt-in | PASS — 143 passed, 96 PostgreSQL tests skipped by declared DSN boundary |
 | Contract lint and generated Python client | PASS — no generated drift |
 | Full contract tests | BASELINE-ONLY FAILURES — 290 passed; three unchanged origin/main failures are root `AGENTS.md` byte budget, stale cold-start strings and #184 absolute worktree path |
@@ -120,7 +132,8 @@ review the registered 1920/2560/3840 originals and crops before the PR can leave
 
 ## Publication state
 
-Implementation pixels are from commit `bd8e76196c36eb10f9cdf5165e2f25f675053966`.
+Implementation pixels were recaptured from audit-correction commit
+`e460e8bddf9b8943e52ac9e99a41d88efac9fdb3`.
 The Draft PR read-back records the final documentation/evidence commit, pre-publish result and
 exact-SHA independent audit disposition without rewriting this pre-publication packet after its
 audit. Any post-audit code or evidence correction requires the same independent auditor to review

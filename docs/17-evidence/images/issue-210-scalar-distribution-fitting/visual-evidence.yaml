@@ -1,7 +1,7 @@
 issue: 210
-captured_at: '2026-08-12T09:56:22Z'
+captured_at: '2026-08-12T10:39:19Z'
 base_commit: 15df8a6e217359c7646e7cf6edb4d024e592abe7
-source_commit: bd8e76196c36eb10f9cdf5165e2f25f675053966
+source_commit: e460e8bddf9b8943e52ac9e99a41d88efac9fdb3
 branch: agent/issue-210-scalar-distribution-fitting
 route: /modeling?stage=process&family=metal
 base_url: http://127.0.0.1:5173
@@ -19,6 +19,7 @@ physical_display_observation:
   physical_4k_readability: DEFERRED_TO_223
 interaction_assertions:
   - exact eight-member processed Selection excludes the normalized alignment source
+  - component regression advances a Dataset head and retains the saved Selection as historical exact processed revisions with its Plan, Run, Result, selected family and reason
   - existing immutable Plan is reused; the UI does not post a duplicate Plan
   - Normal, Lognormal and Weibull rows settle with n=8 and complete metrics
   - lazy-loaded dock receives focus; Escape closes it and returns focus to its trigger
@@ -65,9 +66,9 @@ images:
   - {phase: before, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/before/originals/modeling-process-3840x2160.png, width: 3840, height: 2160, sha256: e553feb61a98f74608d05f04d969bd779ddc15c2b8b92f7d37b7e373a5657c06}
   - {phase: after, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/originals/modeling-distribution-1366x768.png, width: 1366, height: 768, sha256: 0b8684dc34f06c7ab867805f93cdb5f3add8cb7f9df53a91eb25c19cda303e01}
   - {phase: after, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/originals/modeling-distribution-1440x900.png, width: 1440, height: 900, sha256: 12c6c9ea12a62cad014eb560c21592080fabc3ab52b9ee221ef8717ffc2993b3}
-  - {phase: after, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/originals/modeling-distribution-1920x1080.png, width: 1920, height: 1080, sha256: 658d43793817cf9cef7fd16d4857b06a9033925d416c911a2093d42fb5f3bb2a}
-  - {phase: after, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/originals/modeling-distribution-2560x1440.png, width: 2560, height: 1440, sha256: 588d0b4224fe2a0fd3e85b4b20019c6c8daa9ec0042daef842146484677cc108}
-  - {phase: after, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/originals/modeling-distribution-3840x2160.png, width: 3840, height: 2160, sha256: 9a9109fb03ab4d0a7cffd1be7ee3664ccebf7fcd1b333d9f33c47a7de859ecc7}
+  - {phase: after, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/originals/modeling-distribution-1920x1080.png, width: 1920, height: 1080, sha256: 19482a3d8ea3dc6b940d9a9aa6f14bfdcddfbda6591fb77efe31d36b8c4b8a8c}
+  - {phase: after, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/originals/modeling-distribution-2560x1440.png, width: 2560, height: 1440, sha256: 9228bcafefe8f965605b82a95f000684d06930959e041b977b0b495c50d9303f}
+  - {phase: after, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/originals/modeling-distribution-3840x2160.png, width: 3840, height: 2160, sha256: 587b7b008d87bda295504285f991d3ac75c5e3c44c5a86247645905cef3cad75}
   - {phase: after, kind: crop, region: graph, source_viewport: 1920x1080, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-graph-from-1920x1080-crop.png, width: 1610, height: 236, sha256: 1f40c631faefe1123ef4bcc1b93cedcef8cee5c3ff6bef764e81560da5e2cce5}
   - {phase: after, kind: crop, region: graph, source_viewport: 2560x1440, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-graph-from-2560x1440-crop.png, width: 2250, height: 596, sha256: 1183b3ae1f5ea359b2a1aa8f5478127d5323d3ca5f53b811bbc80d721103361c}
   - {phase: after, kind: crop, region: graph, source_viewport: 3840x2160, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-graph-from-3840x2160-crop.png, width: 3531, height: 1316, sha256: 0cb197a7e4ca6c96e0cfedc71c14c401dc252314792a739a14607c3d2525b340}
