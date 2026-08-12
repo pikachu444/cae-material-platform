@@ -26,7 +26,7 @@ acceptance:
   source_replacement: locked_until_explicit_new_bundle_reset
   migration_required: server_plan_error_blocks_confirmation
   product_owner_geometry_review: pending
-  independent_balanced_audit: pending
+  independent_balanced_audit: pass_at_159e6d47bb7f0a0be278b7a845034a93ea02797a_final_metadata_recheck_required
 viewports:
   - viewport: 1366x768
     original: {path: docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-1366x768.png, width: 1366, height: 768, sha256: e33d95faac2e4438d30e695694e379bc103b3205e1c6a1bb57aacca17c29e56f}

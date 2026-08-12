@@ -66,7 +66,7 @@ Focused server and browser regressions cover both findings.
 | Affected Python contracts/integration | PASS — 98 tests across guide inventory, capture tooling and bundle API integration |
 | User guide and documentation impact gates | PASS — 20 guide documents, 101 current captures, 570 local links, 1,745 registered images; 63 changed files and 3 visual sources accounted for |
 | Static and diff checks | PASS — Ruff lint on affected Python files, sidecar hashes/dimensions for 27 PNGs and five measurements, `git diff --check` |
-| Balanced independent audit | First exact-SHA review requested changes for migration-aware planning and source replacement isolation; both corrected, final same-reviewer audit pending |
+| Balanced independent audit | PASS — the same implementation-uninvolved reviewer re-audited corrected implementation SHA `159e6d47bb7f0a0be278b7a845034a93ea02797a`; blocker 0, major 0, material minor 0 and minor 0. The reviewer will verify the metadata-only PR/evidence commit as the final exact SHA. |
 | Product Owner visual geometry approval | Pending before ready/merge |
 
 The exact files, dimensions, hashes, route, fixture and geometry boundaries are registered in
@@ -80,3 +80,6 @@ Canonical Compose was rejected at preflight because the running `cmp-local-demo-
 the preserved `C:\SourceCodes\cae-material-platform-issue210` worktree rather than this checkout. It was
 not stopped, recreated or treated as #208 evidence. The browser record therefore uses an isolated Vite
 server with contract-backed endpoint fixtures and makes no claim of canonical Compose persistence.
+
+Draft delivery is tracked in [PR #242](https://github.com/pikachu444/cae-material-platform/pull/242).
+It remains draft until the recorded product-owner visual approval passes.
