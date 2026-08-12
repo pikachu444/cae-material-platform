@@ -32,7 +32,7 @@ from cmp.modules.identity_access.domain.authorization import (
     Role,
 )
 from cmp.modules.identity_access.domain.security import Principal, PrincipalType, SecurityContext
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from jsonschema import Draft202012Validator, FormatChecker
 
 PROJECT_ROOT = Path(__file__).parents[2]
@@ -214,7 +214,7 @@ class _StaleApplyService(_ApplyExportService):
         raise SchemaBundleStalePlan("server re-plan differs")
 
 
-def _app(service: object) -> FastAPI:
+def _app(service: object, *, denied_product_role: str | None = None) -> FastAPI:
     application = FastAPI()
 
     def security(request: Request) -> None:
@@ -224,6 +224,11 @@ def _app(service: object) -> FastAPI:
         request.state.authorization_decision = _decision()
 
     def apply(request: Request) -> None:
+        if denied_product_role is not None:
+            raise HTTPException(
+                status_code=403,
+                detail=f"{denied_product_role} cannot apply Schema Definition Bundles",
+            )
         request.state.authorization_decision = _decision(Permission.CATALOG_SCHEMA_APPLY)
 
     install_schema_bundle_planner_api(
@@ -500,3 +505,44 @@ def test_schema_bundle_apply_rejects_client_actions_and_maps_stale_fingerprint()
         ]
         == "exportCatalogSchemaDefinitionBundle"
     )
+
+
+def test_user_and_reviewer_cannot_apply_read_back_or_export_schema_bundles() -> None:
+    raw = (
+        PROJECT_ROOT / "contracts" / "examples" / "positive" / "schema-definition-bundle-many.json"
+    ).read_bytes()
+    for product_role in ("user", "reviewer"):
+        service = _ApplyExportService(raw)
+        application = _app(service, denied_product_role=product_role)
+        body = {
+            "artifact_id": str(ARTIFACT),
+            "artifact_sha256": service.digest,
+            "plan_fingerprint": "b" * 64,
+            "delete_missing": False,
+        }
+
+        applied = _http_request(
+            application,
+            "POST",
+            "/api/v1/catalog/schema-definition-bundles:apply",
+            json=body,
+            headers={"Idempotency-Key": f"issue-208-{product_role}-denied"},
+        )
+        read_back = _http_request(
+            application,
+            "GET",
+            f"/api/v1/catalog/schema-definition-bundle-applications/{service.application.application_id}",
+        )
+        exported = _http_request(
+            application,
+            "GET",
+            "/api/v1/catalog/schema-definition-bundles/synthetic_dependency_chain:export",
+        )
+
+        assert applied.status_code == 403
+        assert read_back.status_code == 403
+        assert exported.status_code == 403
+        assert product_role in applied.json()["detail"]
+        assert service.apply_calls == 0
+        assert service.get_calls == 0
+        assert service.export_calls == 0
