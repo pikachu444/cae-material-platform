@@ -1,16 +1,16 @@
 issue: 210
-captured_at: '2026-08-12T10:39:19Z'
+captured_at: '2026-08-12T13:43:34Z'
 base_commit: 15df8a6e217359c7646e7cf6edb4d024e592abe7
-source_commit: e460e8bddf9b8943e52ac9e99a41d88efac9fdb3
+source_commit: ff9ba293222ea5a9e17821e4dc8c4ef1b0bcb1a5
 branch: agent/issue-210-scalar-distribution-fitting
 route: /modeling?stage=process&family=metal
 base_url: http://127.0.0.1:5173
 fixture: synthetic non-production DP780; exact eight-member processed replicate Selection; saved Plan r1; seed 210; 999 bootstrap refits
-capture_command: uv run --with playwright==1.62.0 python scripts/capture_current_product.py --only-modeling-distribution --include-distribution-detail-crops --output <temporary-staging-directory>
+capture_command: uv run --with playwright==1.62.0 python scripts/capture_current_product.py --only-modeling-distribution --include-distribution-detail-crops --density <standard|large> --output <temporary-staging-directory>
 browser: Chromium 151.0.7922.34
 browser_zoom: 100%
 device_pixel_ratio: 1
-display_density: standard
+display_densities: [standard, large]
 physical_display_observation:
   displays: [2560x1440@59Hz, 2560x1600@165Hz]
   windows_logical_dpi: 144
@@ -21,41 +21,30 @@ interaction_assertions:
   - exact eight-member processed Selection excludes the normalized alignment source
   - component regression advances a Dataset head and retains the saved Selection as historical exact processed revisions with its Plan, Run, Result, selected family and reason
   - existing immutable Plan is reused; the UI does not post a duplicate Plan
+  - empirical CDF and three fitted candidate paths contain finite coordinates
   - Normal, Lognormal and Weibull rows settle with n=8 and complete metrics
-  - lazy-loaded dock receives focus; Escape closes it and returns focus to its trigger
+  - all three candidate rows and the saved decision are visible at every Standard and Large viewport
+  - the covered Process workspace remains mounted, inert and aria-hidden while the modal analysis sheet is open
+  - focus cycles inside the modal sheet; Escape closes it and returns focus to its trigger
   - explicit Normal selection and reason survive a full-page reload as an immutable revision
   - recommendation remains Normal + Lognormal + Weibull and does not select a model
 geometry:
-  - viewport: 1366x768
-    dock: {left: 302, top: 508, width: 1056, height: 259}
-    plot: {width: 1056, height: 372}
-    page_horizontal_overflow: 0
-    table_local_overflow: 147
-    note: open comparison disclosure temporarily hides only the Process settings ribbon; close restores it without persisted-state mutation
-  - viewport: 1440x900
-    dock: {left: 302, top: 621, width: 1130, height: 278}
-    plot: {width: 1130, height: 207}
-    page_horizontal_overflow: 0
-    table_local_overflow: 73
-  - viewport: 1920x1080
-    dock: {left: 302, top: 650, width: 1610, height: 429}
-    plot: {width: 1610, height: 236}
-    page_horizontal_overflow: 0
-    table_local_overflow: 0
-  - viewport: 2560x1440
-    dock: {left: 302.015625, top: 1010, width: 2249.984375, height: 429}
-    plot: {width: 2249.984375, height: 596}
-    page_horizontal_overflow: 0
-    table_local_overflow: 0
-  - viewport: 3840x2160
-    dock: {left: 301.984375, top: 1730, width: 3530.015625, height: 429}
-    plot: {width: 3530.015625, height: 1316}
-    page_horizontal_overflow: 0
-    table_local_overflow: 0
+  - {density: standard, viewport: 1366x768, analysis_sheet: {left: 9, top: 135, width: 1348, height: 632}, preserved_process_plot: {width: 1056, height: 354}, background_inert: true, candidate_rows_visible: true, page_horizontal_overflow: 0, table_local_overflow: 0}
+  - {density: standard, viewport: 1440x900, analysis_sheet: {left: 9, top: 135, width: 1422, height: 764}, preserved_process_plot: {width: 1130, height: 486}, background_inert: true, candidate_rows_visible: true, page_horizontal_overflow: 0, table_local_overflow: 0}
+  - {density: standard, viewport: 1920x1080, analysis_sheet: {left: 9, top: 135, width: 1902, height: 944}, preserved_process_plot: {width: 1610, height: 666}, background_inert: true, candidate_rows_visible: true, page_horizontal_overflow: 0, table_local_overflow: 0}
+  - {density: standard, viewport: 2560x1440, analysis_sheet: {left: 9, top: 135, width: 2542, height: 1304}, preserved_process_plot: {width: 2249.984375, height: 1026}, background_inert: true, candidate_rows_visible: true, page_horizontal_overflow: 0, table_local_overflow: 0}
+  - {density: standard, viewport: 3840x2160, analysis_sheet: {left: 9, top: 135, width: 3822, height: 2024}, preserved_process_plot: {width: 3530.015625, height: 1746}, background_inert: true, candidate_rows_visible: true, page_horizontal_overflow: 0, table_local_overflow: 0}
+  - {density: large, viewport: 1366x768, analysis_sheet: {left: 9, top: 143, width: 1348, height: 624}, preserved_process_plot: {width: 1031, height: 322.5625}, background_inert: true, candidate_rows_visible: true, page_horizontal_overflow: 0, table_local_overflow: 0}
+  - {density: large, viewport: 1440x900, analysis_sheet: {left: 9, top: 143, width: 1422, height: 756}, preserved_process_plot: {width: 1105, height: 454}, background_inert: true, candidate_rows_visible: true, page_horizontal_overflow: 0, table_local_overflow: 0}
+  - {density: large, viewport: 1920x1080, analysis_sheet: {left: 9, top: 143, width: 1902, height: 936}, preserved_process_plot: {width: 1585, height: 634}, background_inert: true, candidate_rows_visible: true, page_horizontal_overflow: 0, table_local_overflow: 0}
+  - {density: large, viewport: 2560x1440, analysis_sheet: {left: 9, top: 143, width: 2542, height: 1296}, preserved_process_plot: {width: 2225, height: 994}, background_inert: true, candidate_rows_visible: true, page_horizontal_overflow: 0, table_local_overflow: 0}
+  - {density: large, viewport: 3840x2160, analysis_sheet: {left: 9, top: 143, width: 3822, height: 2016}, preserved_process_plot: {width: 3505, height: 1714}, background_inert: true, candidate_rows_visible: true, page_horizontal_overflow: 0, table_local_overflow: 0}
 review:
   main_original_resolution_review: pass
-  original_count: 10
-  direct_100_percent_crop_count: 15
+  before_original_count: 5
+  after_standard_original_count: 5
+  after_large_original_count: 5
+  direct_100_percent_crop_count: 30
   product_owner_geometry_and_visual_approval: pending
   independent_exact_sha_review: pending
 images:
@@ -64,23 +53,43 @@ images:
   - {phase: before, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/before/originals/modeling-process-1920x1080.png, width: 1920, height: 1080, sha256: f5e1487ebfae18a1e28be0ad66115d1db51551b928b4bf660ce70016fcd64834}
   - {phase: before, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/before/originals/modeling-process-2560x1440.png, width: 2560, height: 1440, sha256: 69fc86a20c9216a6f2b07aa21074ab013c501060bbea4f0401d5d64c9629478d}
   - {phase: before, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/before/originals/modeling-process-3840x2160.png, width: 3840, height: 2160, sha256: e553feb61a98f74608d05f04d969bd779ddc15c2b8b92f7d37b7e373a5657c06}
-  - {phase: after, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/originals/modeling-distribution-1366x768.png, width: 1366, height: 768, sha256: 0b8684dc34f06c7ab867805f93cdb5f3add8cb7f9df53a91eb25c19cda303e01}
-  - {phase: after, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/originals/modeling-distribution-1440x900.png, width: 1440, height: 900, sha256: 12c6c9ea12a62cad014eb560c21592080fabc3ab52b9ee221ef8717ffc2993b3}
-  - {phase: after, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/originals/modeling-distribution-1920x1080.png, width: 1920, height: 1080, sha256: 19482a3d8ea3dc6b940d9a9aa6f14bfdcddfbda6591fb77efe31d36b8c4b8a8c}
-  - {phase: after, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/originals/modeling-distribution-2560x1440.png, width: 2560, height: 1440, sha256: 9228bcafefe8f965605b82a95f000684d06930959e041b977b0b495c50d9303f}
-  - {phase: after, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/originals/modeling-distribution-3840x2160.png, width: 3840, height: 2160, sha256: 587b7b008d87bda295504285f991d3ac75c5e3c44c5a86247645905cef3cad75}
-  - {phase: after, kind: crop, region: graph, source_viewport: 1920x1080, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-graph-from-1920x1080-crop.png, width: 1610, height: 236, sha256: 1f40c631faefe1123ef4bcc1b93cedcef8cee5c3ff6bef764e81560da5e2cce5}
-  - {phase: after, kind: crop, region: graph, source_viewport: 2560x1440, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-graph-from-2560x1440-crop.png, width: 2250, height: 596, sha256: 1183b3ae1f5ea359b2a1aa8f5478127d5323d3ca5f53b811bbc80d721103361c}
-  - {phase: after, kind: crop, region: graph, source_viewport: 3840x2160, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-graph-from-3840x2160-crop.png, width: 3531, height: 1316, sha256: 0cb197a7e4ca6c96e0cfedc71c14c401dc252314792a739a14607c3d2525b340}
-  - {phase: after, kind: crop, region: header, source_viewport: 1920x1080, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-header-from-1920x1080-crop.png, width: 1920, height: 50, sha256: 53982ceec55fd9cb0a3867b1237c5115f7a4a66e20542d5b6b6db1b80b590d34}
-  - {phase: after, kind: crop, region: header, source_viewport: 2560x1440, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-header-from-2560x1440-crop.png, width: 2560, height: 50, sha256: 7b43341e067cc165c4d8b50186138b2979f400dc8776b041bb90c2c3a0291319}
-  - {phase: after, kind: crop, region: header, source_viewport: 3840x2160, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-header-from-3840x2160-crop.png, width: 3840, height: 50, sha256: c79041e1ac05d3b30dffd3512ee2908c9ab14c3436c8456efb6e4333b04af631}
-  - {phase: after, kind: crop, region: navigator, source_viewport: 1920x1080, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-navigator-from-1920x1080-crop.png, width: 288, height: 944, sha256: 4e90f81377e651e6184a5e4af5f51715c88a05aefd017a4142fbe430ad252ea2}
-  - {phase: after, kind: crop, region: navigator, source_viewport: 2560x1440, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-navigator-from-2560x1440-crop.png, width: 289, height: 1304, sha256: 1e4cfa579665cdbef0157df26c62443aadabd8585863c07aa37b8b07314cdc9e}
-  - {phase: after, kind: crop, region: navigator, source_viewport: 3840x2160, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-navigator-from-3840x2160-crop.png, width: 288, height: 2024, sha256: 341313fbf09e815e627f9eb0367526a36d865622b7d983478f0bb6df49e1ef84}
-  - {phase: after, kind: crop, region: selection, source_viewport: 1920x1080, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-selection-form-from-1920x1080-crop.png, width: 310, height: 318, sha256: 592f344706d43fcabc68306a3a179540fdc40837b4eb0eabbdb8870ae5013c4c}
-  - {phase: after, kind: crop, region: selection, source_viewport: 2560x1440, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-selection-form-from-2560x1440-crop.png, width: 310, height: 318, sha256: d264502d3668ca125c679f14aada014ff222082e73adfb839fb4a2f6813e2484}
-  - {phase: after, kind: crop, region: selection, source_viewport: 3840x2160, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-selection-form-from-3840x2160-crop.png, width: 310, height: 318, sha256: df7f5e40a7985156bae22f899eb4a8c39d8d27cbcc577f826f67fdd973d6f535}
-  - {phase: after, kind: crop, region: table, source_viewport: 1920x1080, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-table-from-1920x1080-crop.png, width: 1257, height: 165, sha256: e9d8aa3f395eddf74535989341ae4207f226cc786fc571734e44f6d40acc571a}
-  - {phase: after, kind: crop, region: table, source_viewport: 2560x1440, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-table-from-2560x1440-crop.png, width: 1897, height: 165, sha256: 58b1acc2f60d75b9d0026efc2e9039ccfad3b0fe5cbe6c96595a9ffa5cb464c6}
-  - {phase: after, kind: crop, region: table, source_viewport: 3840x2160, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-table-from-3840x2160-crop.png, width: 3178, height: 165, sha256: 83c6bc7c4dbfe850836545129548a4fc3df8838dd568b0a87b92daea52914497}
+  - {phase: after, density: standard, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/originals/modeling-distribution-1366x768.png, width: 1366, height: 768, sha256: e645d6f2e5945588fb0f12351a29e562590de4194d888803610e716fb50953a7}
+  - {phase: after, density: standard, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/originals/modeling-distribution-1440x900.png, width: 1440, height: 900, sha256: a106fe056f4fc709f0e52a3df85107abf3df73dbf5bd286b70bb6aeac790dc1e}
+  - {phase: after, density: standard, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/originals/modeling-distribution-1920x1080.png, width: 1920, height: 1080, sha256: e9a48f955bef1ff46b7b337f95558fe9a6a6698416048b66bed61f802f775993}
+  - {phase: after, density: standard, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/originals/modeling-distribution-2560x1440.png, width: 2560, height: 1440, sha256: 0ef3ec45dae7ae463f8302edc53d8c43facf6a1a9b9315a28d6afb57326749a0}
+  - {phase: after, density: standard, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/originals/modeling-distribution-3840x2160.png, width: 3840, height: 2160, sha256: 2281d7b1daaaebe9c86c12b2ec77fd7b851023482e482a9ffee37bb605d19c2d}
+  - {phase: after, density: standard, kind: crop, region: graph, source_viewport: 1920x1080, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-graph-from-1920x1080-crop.png, width: 1610, height: 666, sha256: 19e9a1dbe547688d3eeae9e8938d7dbb753336d44d09c5409a4fe275ad943233}
+  - {phase: after, density: standard, kind: crop, region: graph, source_viewport: 2560x1440, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-graph-from-2560x1440-crop.png, width: 2250, height: 1026, sha256: 997b8003715a97cde7c16de3bb93de8371186a03b39d5d3d5a1a796dcbe68202}
+  - {phase: after, density: standard, kind: crop, region: graph, source_viewport: 3840x2160, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-graph-from-3840x2160-crop.png, width: 3531, height: 1746, sha256: ece641eade66029e21da11039a4eba34d4570d5ac033bc1d4df6ffa880f9b62d}
+  - {phase: after, density: standard, kind: crop, region: header, source_viewport: 1920x1080, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-header-from-1920x1080-crop.png, width: 1902, height: 42, sha256: 96df752321c283fdfe39565f092456ad5d6430e72fdccb47b445fec82520b0f3}
+  - {phase: after, density: standard, kind: crop, region: header, source_viewport: 2560x1440, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-header-from-2560x1440-crop.png, width: 2542, height: 42, sha256: e6bf770f88b81e578339e1b1a5b1c8443e56ffa09af6e69d7cf8624ca1317313}
+  - {phase: after, density: standard, kind: crop, region: header, source_viewport: 3840x2160, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-header-from-3840x2160-crop.png, width: 3822, height: 42, sha256: 32a8478fcdcc37684c00d8cb080106662b78371650eeeb57eed1118d687d563b}
+  - {phase: after, density: standard, kind: crop, region: navigator, source_viewport: 1920x1080, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-navigator-from-1920x1080-crop.png, width: 288, height: 944, sha256: e204e285f8a1d4df8b7f0a3849f8cf4ce19a25c64913f7d3ebc24adde5387517}
+  - {phase: after, density: standard, kind: crop, region: navigator, source_viewport: 2560x1440, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-navigator-from-2560x1440-crop.png, width: 289, height: 1304, sha256: bfe79e2c82a7683a674a946f2c9af5db9ef7a99c53c5837f5560d6059af5fab9}
+  - {phase: after, density: standard, kind: crop, region: navigator, source_viewport: 3840x2160, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-navigator-from-3840x2160-crop.png, width: 288, height: 2024, sha256: be4f069b92679c9256a0713060a4490fb79a955268d24b21ff942a62bf5fd0c0}
+  - {phase: after, density: standard, kind: crop, region: selection, source_viewport: 1920x1080, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-selection-form-from-1920x1080-crop.png, width: 1872, height: 98, sha256: 9435ff3f594bbfcdaa3bf4ba5edf52a70f06017d4068399b50bd334f7b96606a}
+  - {phase: after, density: standard, kind: crop, region: selection, source_viewport: 2560x1440, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-selection-form-from-2560x1440-crop.png, width: 2512, height: 98, sha256: 1b0033dd27f153ae811d2cd7f2ff7d28c999f0576e49395f6e1a2b0ef3e1c3df}
+  - {phase: after, density: standard, kind: crop, region: selection, source_viewport: 3840x2160, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-selection-form-from-3840x2160-crop.png, width: 3792, height: 98, sha256: 50aac5c54caa06abf33b49fdb2d9ee6127c242bebe81d9dd7987a9234a5ad63e}
+  - {phase: after, density: standard, kind: crop, region: table, source_viewport: 1920x1080, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-table-from-1920x1080-crop.png, width: 1857, height: 200, sha256: 1bec39c6a9352b9c28f6f13ee7b27f4602dcad449baf23736ecb59ae67ab73b8}
+  - {phase: after, density: standard, kind: crop, region: table, source_viewport: 2560x1440, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-table-from-2560x1440-crop.png, width: 2497, height: 200, sha256: 672bb4fa6d65a7c87cca11a17fcbb1557a3b31c76dbdcc301f14eeb11103a297}
+  - {phase: after, density: standard, kind: crop, region: table, source_viewport: 3840x2160, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/crops/modeling-distribution-table-from-3840x2160-crop.png, width: 2657, height: 200, sha256: 29b3591494caf1f36535f8ed628207322a87712448dc2d78a08d1678dc3603df}
+  - {phase: after, density: large, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/large/originals/modeling-distribution-1366x768.png, width: 1366, height: 768, sha256: 7428f83ee91594a5783a8cba87d1d0a7e093e5cbd0da7a189b34ade379f6f239}
+  - {phase: after, density: large, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/large/originals/modeling-distribution-1440x900.png, width: 1440, height: 900, sha256: b4ac4635748cef6738de76259ad5250eab761fe60511225cf1e02403210f199a}
+  - {phase: after, density: large, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/large/originals/modeling-distribution-1920x1080.png, width: 1920, height: 1080, sha256: 0420c1b406c4a981669aa95b379f191d407d8448a68a113826efd913b8be0015}
+  - {phase: after, density: large, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/large/originals/modeling-distribution-2560x1440.png, width: 2560, height: 1440, sha256: bf1888e6184a8766bc9b34ec5ceeb602236ae3d9f0a7ce97507a2f79a0919dab}
+  - {phase: after, density: large, kind: original, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/large/originals/modeling-distribution-3840x2160.png, width: 3840, height: 2160, sha256: 926960485234150550a728a944d91b377705532c61fe2361d19290b312bd16ea}
+  - {phase: after, density: large, kind: crop, region: graph, source_viewport: 1920x1080, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/large/crops/modeling-distribution-graph-from-1920x1080-crop.png, width: 1585, height: 634, sha256: 773d38ad6f673a58291f8fcd37e224a18fad7e2374232ee0b7f6dee0bb7ed82d}
+  - {phase: after, density: large, kind: crop, region: graph, source_viewport: 2560x1440, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/large/crops/modeling-distribution-graph-from-2560x1440-crop.png, width: 2225, height: 994, sha256: 27969b7266ac2910632240c006b45bd182073d6f4b6c186cfa27a78024a84043}
+  - {phase: after, density: large, kind: crop, region: graph, source_viewport: 3840x2160, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/large/crops/modeling-distribution-graph-from-3840x2160-crop.png, width: 3505, height: 1714, sha256: 89ddf66927b240bf14d4c9a2b437585a70b3a1ff9ce210275fdb745e7fb5adc5}
+  - {phase: after, density: large, kind: crop, region: header, source_viewport: 1920x1080, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/large/crops/modeling-distribution-header-from-1920x1080-crop.png, width: 1902, height: 46, sha256: d77bb181b3dc47aa0cd70a6babd1989f22b7ab59478d9e9a06e6df7b6ea511ec}
+  - {phase: after, density: large, kind: crop, region: header, source_viewport: 2560x1440, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/large/crops/modeling-distribution-header-from-2560x1440-crop.png, width: 2542, height: 46, sha256: d6b5fe26ebe060613ce07264cee81d9a9f4eeb7c4c016da5b4fcef94c52dca45}
+  - {phase: after, density: large, kind: crop, region: header, source_viewport: 3840x2160, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/large/crops/modeling-distribution-header-from-3840x2160-crop.png, width: 3822, height: 46, sha256: ed6ad581a50205bfb6b6cf2b1aad649150030f11ed4173e0f573ba8513c3c22d}
+  - {phase: after, density: large, kind: crop, region: navigator, source_viewport: 1920x1080, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/large/crops/modeling-distribution-navigator-from-1920x1080-crop.png, width: 312, height: 936, sha256: 37eb08e1dc6c967278cb34d43270e367c76c1739779e772aeee04b572b93b71f}
+  - {phase: after, density: large, kind: crop, region: navigator, source_viewport: 2560x1440, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/large/crops/modeling-distribution-navigator-from-2560x1440-crop.png, width: 312, height: 1296, sha256: 1bdf808a6d646f8581c3d79e7a133d41e531300961c7304a282baa7155ffea62}
+  - {phase: after, density: large, kind: crop, region: navigator, source_viewport: 3840x2160, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/large/crops/modeling-distribution-navigator-from-3840x2160-crop.png, width: 312, height: 2016, sha256: 2759bb58204ec2264e144b61661cae0cab757a35c10e5851331970050799b3cc}
+  - {phase: after, density: large, kind: crop, region: selection, source_viewport: 1920x1080, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/large/crops/modeling-distribution-selection-form-from-1920x1080-crop.png, width: 1868, height: 108, sha256: 3dbb57db36faf578118c37c8e0daeeddd7ba9fcab3393697c0f7643fc8d633e3}
+  - {phase: after, density: large, kind: crop, region: selection, source_viewport: 2560x1440, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/large/crops/modeling-distribution-selection-form-from-2560x1440-crop.png, width: 2508, height: 108, sha256: b161723ffac44f2ffc5c6f0fd54f3cdcdace91fad4e6ed1c95a8e1f6c8b7bea3}
+  - {phase: after, density: large, kind: crop, region: selection, source_viewport: 3840x2160, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/large/crops/modeling-distribution-selection-form-from-3840x2160-crop.png, width: 3788, height: 108, sha256: e2dbe209d91ac429dfa97f875f0b8c49d108dce502af194da95babc8ccb769ff}
+  - {phase: after, density: large, kind: crop, region: table, source_viewport: 1920x1080, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/large/crops/modeling-distribution-table-from-1920x1080-crop.png, width: 1853, height: 218, sha256: ba1f95b3fde5feaca2e772484fd31fabd6861ce056a2ee57aa3f90cd6914686f}
+  - {phase: after, density: large, kind: crop, region: table, source_viewport: 2560x1440, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/large/crops/modeling-distribution-table-from-2560x1440-crop.png, width: 2493, height: 218, sha256: aa35f0ed8f749039dfc32c61924a71d180bea219b79fe655bd83619de773c3da}
+  - {phase: after, density: large, kind: crop, region: table, source_viewport: 3840x2160, path: docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/large/crops/modeling-distribution-table-from-3840x2160-crop.png, width: 2657, height: 218, sha256: da62e0fb60b53747a15972bdd3b25558faaff203873094185f4ff3c48f292d85}
