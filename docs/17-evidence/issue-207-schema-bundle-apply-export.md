@@ -100,7 +100,7 @@ Concurrent same-key requests serialize at the project lock and converge on one a
 | Ruff, architecture, user-guide, docs impact and diff | PASS — full Ruff; architecture; 20 guides/560 links; 0 visual sources; `git diff --check` |
 | Mypy | BASELINE-EQUIVALENT — feature and untouched starting main both report the same pre-existing 31 errors in 7 files; targeted #207 paths add no error |
 | Full pytest baseline boundary | PASS WITH EXACT DESELECT — 1,500 passed, 95 PostgreSQL skips, 3 deselected. Two AGENTS/backlog assertions fail unchanged on starting main; the #184 crop test embeds the original checkout absolute path and passes there but not in this managed worktree. None intersects #207 paths. |
-| Pre-publish | PENDING clean committed feature SHA |
+| Pre-publish | PASS — clean committed feature SHA, deterministic manual and pre-push gates |
 | Canonical Compose | BLOCKED AS CANONICAL EVIDENCE — `make` is unavailable and fallback preflight found running canonical containers owned by preserved #204/#206 worktrees. They were not stopped, recreated or deleted. An issue-owned standalone PostgreSQL 16 container is used only for DB integration. |
 | Browser/viewport/visual | N/A — no React/CSS, navigation or user-visible UI change; Administration UI is #208 |
 | Independent exact-SHA Balanced audit | PENDING until all modifications and automatic gates finish |
@@ -112,7 +112,8 @@ transaction rollback without touching another worktree's volumes.
 
 ## Publication and handoff
 
-Feature PR, exact audited SHA, CI result and squash merge SHA are recorded after publication. Any
+Feature work is published as draft [PR #237](https://github.com/pikachu444/cae-material-platform/pull/237).
+Exact audited SHA, CI result and squash merge SHA are recorded after final review/publication. Any
 post-audit source or documentation change requires the same independent auditor to review the new
 SHA. After the feature merge, the separately approved tracking-only PR records the actual merge SHA
 in backlog/issue/parent state. The next backlog task is #210; its implementation is not started here.
