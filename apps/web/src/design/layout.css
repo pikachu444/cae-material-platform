@@ -7605,3 +7605,339 @@
 .application-shell main.processing-workbench-page .fit-evidence-body {
   padding: var(--ux-pane-padding);
 }
+
+/* Issue #210 extends the existing Process evidence dock. It remains a bounded
+   two-pane workspace inside the persistent Modeling graph surface; no route or
+   third inspector column is introduced. */
+.application-shell main.processing-workbench-page .rail-statistics-action .distribution-evidence-trigger {
+  width: 100%;
+  margin-top: var(--ux-space-1);
+}
+
+.application-shell main.processing-workbench-page .modeling-main-surface.has-distribution-dock {
+  grid-template-rows: minmax(0, auto) minmax(104px, 1fr) clamp(300px, 40vh, 430px);
+}
+
+.application-shell main.processing-workbench-page .modeling-main-surface.has-distribution-dock > .persistent-modeling-plot {
+  min-height: 0;
+}
+
+.application-shell main.processing-workbench-page .modeling-main-surface.has-distribution-dock > .modeling-workspace-dock {
+  height: clamp(300px, 40vh, 430px);
+  max-height: clamp(300px, 40vh, 430px);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.application-shell main.processing-workbench-page .modeling-main-surface.has-distribution-dock.has-dock-overlay {
+  position: relative;
+  grid-template-rows: minmax(0, auto) minmax(0, 1fr);
+}
+
+.application-shell main.processing-workbench-page .modeling-main-surface.has-distribution-dock.has-dock-overlay > .modeling-workspace-dock {
+  position: absolute;
+  z-index: 6;
+  inset-inline: 0;
+  inset-block-end: 0;
+  height: min(56vh, 460px);
+  max-height: calc(100% - var(--ux-workbench-ribbon-header-block-size));
+  border-top: 1px solid var(--ux-border-strong);
+  box-shadow: var(--ux-shadow-overlay);
+}
+
+.scalar-distribution-workbench {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  color: var(--ux-text);
+  background: var(--ux-surface);
+  scrollbar-gutter: stable;
+}
+
+.distribution-dock-heading {
+  position: sticky;
+  z-index: 3;
+  top: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ux-space-3);
+  min-width: 0;
+  padding: var(--ux-space-2) var(--ux-pane-padding);
+  border-bottom: 1px solid var(--ux-border);
+  background: var(--ux-surface-subtle);
+}
+
+.distribution-dock-heading > div { min-width: 0; }
+.distribution-dock-heading :is(p, h3) { margin: 0; }
+.distribution-dock-heading h3 { font-size: var(--ux-emphasis-font-size); }
+.distribution-dock-heading > div > p:last-child {
+  margin-top: 2px;
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+.scalar-distribution-workbench > :is(.error-message, .notice-message) {
+  margin: 0;
+  padding: var(--ux-space-1) var(--ux-pane-padding);
+  border-bottom: 1px solid var(--ux-border);
+  font-size: var(--ux-data-font-size);
+}
+
+.distribution-workflow-grid {
+  display: grid;
+  grid-template-areas:
+    "inputs comparison"
+    "decision comparison";
+  grid-template-columns: minmax(250px, 310px) minmax(0, 1fr);
+  align-items: start;
+  min-width: 0;
+}
+
+.distribution-inputs,
+.distribution-comparison,
+.distribution-decision {
+  box-sizing: border-box;
+  min-width: 0;
+  padding: var(--ux-pane-padding);
+}
+
+.distribution-inputs { grid-area: inputs; border-inline-end: 1px solid var(--ux-border); }
+.distribution-comparison { grid-area: comparison; }
+.distribution-decision {
+  grid-area: decision;
+  border-block-start: 1px solid var(--ux-border);
+  border-inline-end: 1px solid var(--ux-border);
+}
+
+.distribution-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ux-space-2);
+  min-height: var(--ux-interactive-min-block-size);
+  margin-bottom: var(--ux-space-2);
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.distribution-section-heading > div {
+  display: flex;
+  align-items: center;
+  gap: var(--ux-space-2);
+}
+
+.distribution-section-heading > div > span {
+  color: var(--ux-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.distribution-section-heading small,
+.distribution-input-summary span,
+.distribution-history-controls label,
+.distribution-candidate-table small,
+.distribution-decision-note,
+.distribution-saved-decision small,
+.distribution-advanced p {
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+.distribution-inputs > label,
+.distribution-decision > label,
+.distribution-create-selection > label,
+.distribution-advanced > label,
+.distribution-history-controls > label {
+  display: grid;
+  gap: 3px;
+  margin-bottom: var(--ux-space-2);
+  font-size: var(--ux-metadata-font-size);
+  font-weight: 600;
+}
+
+.distribution-inputs :is(input, select, textarea),
+.distribution-decision :is(input, select, textarea),
+.distribution-history-controls select,
+.distribution-advanced input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--ux-interactive-min-block-size);
+}
+
+.distribution-decision textarea { min-height: 58px; resize: vertical; }
+.distribution-inputs > .button,
+.distribution-decision > .button { width: 100%; }
+
+.distribution-create-selection,
+.distribution-advanced,
+.distribution-provenance {
+  margin: var(--ux-space-2) 0;
+  border-block: 1px solid var(--ux-border);
+}
+
+.distribution-create-selection > summary,
+.distribution-advanced > summary,
+.distribution-provenance > summary {
+  padding-block: var(--ux-space-1);
+  cursor: pointer;
+  font-size: var(--ux-data-font-size);
+  font-weight: 600;
+}
+
+.distribution-create-selection fieldset {
+  max-height: 134px;
+  margin: var(--ux-space-1) 0 var(--ux-space-2);
+  padding: var(--ux-space-1) 0;
+  overflow: auto;
+  border: 0;
+  border-block: 1px solid var(--ux-border);
+}
+
+.distribution-create-selection fieldset > label {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: var(--ux-space-2);
+  align-items: start;
+  padding: 3px 1px;
+  font-size: var(--ux-data-font-size);
+}
+
+.distribution-create-selection fieldset > label small { display: block; color: var(--ux-text-muted); }
+.distribution-create-selection input[type="checkbox"] { margin-top: 2px; }
+
+.distribution-input-summary,
+.distribution-saved-decision,
+.distribution-recommendation {
+  display: grid;
+  gap: 2px;
+  margin: var(--ux-space-2) 0;
+  padding: var(--ux-space-2);
+  border-inline-start: 3px solid var(--ux-accent);
+  background: var(--ux-surface-subtle);
+}
+
+.distribution-history-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ux-space-2);
+}
+
+.distribution-recommendation { grid-template-columns: minmax(130px, max-content) minmax(0, 1fr); }
+.distribution-recommendation small { grid-column: 1 / -1; color: var(--ux-text-muted); }
+
+.distribution-table-scroll {
+  max-width: 100%;
+  overflow: auto;
+  border-block: 1px solid var(--ux-border-strong);
+}
+
+.distribution-candidate-table {
+  width: 100%;
+  min-width: 850px;
+  border-collapse: collapse;
+  font-size: var(--ux-data-font-size);
+  font-variant-numeric: tabular-nums;
+}
+
+.distribution-candidate-table th,
+.distribution-candidate-table td {
+  padding: var(--ux-space-1) var(--ux-space-2);
+  border-bottom: 1px solid var(--ux-border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.distribution-candidate-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  color: var(--ux-text-muted);
+  background: var(--ux-surface-subtle);
+  font-size: var(--ux-table-heading-font-size);
+  white-space: nowrap;
+}
+
+.distribution-candidate-table tbody th small,
+.distribution-candidate-table tbody td small { display: block; }
+.distribution-candidate-table tbody tr.recommended { background: var(--ux-accent-soft); }
+
+.distribution-status {
+  display: inline-block;
+  color: var(--ux-text-muted);
+  font-weight: 650;
+  text-transform: capitalize;
+}
+.distribution-status.succeeded { color: var(--ux-success, #176b55); }
+.distribution-status.failed,
+.distribution-status.not_eligible { color: var(--ux-warning); }
+
+.distribution-warnings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px var(--ux-space-3);
+  padding-top: var(--ux-space-2);
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+.distribution-warnings p { margin: 0; }
+
+.distribution-empty {
+  display: grid;
+  gap: var(--ux-space-1);
+  min-height: 72px;
+  place-content: center;
+  margin: 0;
+  padding: var(--ux-pane-padding);
+  color: var(--ux-text-muted);
+  text-align: center;
+}
+
+.distribution-provenance dl { margin: 0 0 var(--ux-space-2); }
+.distribution-provenance dl > div {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: var(--ux-space-2);
+  padding: 2px 0;
+  font-size: var(--ux-metadata-font-size);
+}
+.distribution-provenance :is(dt, dd) { min-width: 0; margin: 0; overflow-wrap: anywhere; }
+.distribution-provenance dt { color: var(--ux-text-muted); }
+.distribution-decision-note { margin: var(--ux-space-2) 0 0; }
+.field-error { display: block; color: var(--ux-warning); }
+
+@media (max-height: 900px) {
+  .application-shell main.processing-workbench-page .modeling-main-surface.has-distribution-dock {
+    grid-template-rows: minmax(0, auto) minmax(100px, 1fr) clamp(260px, 31vh, 280px);
+  }
+
+  .application-shell main.processing-workbench-page .modeling-main-surface.has-distribution-dock > .modeling-workspace-dock {
+    height: clamp(260px, 31vh, 280px);
+    max-height: clamp(260px, 31vh, 280px);
+  }
+}
+
+@media (max-height: 800px) {
+  /* A 768 px desktop cannot expose the full Process settings, persistent
+     graph, and comparison dock without clipping. While the explicit
+     comparison disclosure is open, yield only the settings ribbon; closing
+     the dock restores it without changing the user's persisted setting. */
+  .application-shell main.processing-workbench-page .modeling-main-surface.has-distribution-dock > .modeling-task-ribbon {
+    display: none;
+  }
+}
+
+@media (max-width: 1200px) {
+  .distribution-workflow-grid {
+    grid-template-areas: "inputs" "comparison" "decision";
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .distribution-inputs,
+  .distribution-decision { border-inline-end: 0; }
+  .distribution-comparison { border-block-start: 1px solid var(--ux-border); }
+}

@@ -104,6 +104,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260926_095_issue205_common_units.py",
         "20260927_096_issue206_curve_metadata.py",
         "20260928_097_issue207_schema_bundle_apply_export.py",
+        "20260929_098_issue210_scalar_distribution.py",
     ]
 
 

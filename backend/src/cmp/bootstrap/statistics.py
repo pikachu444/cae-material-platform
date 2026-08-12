@@ -44,6 +44,8 @@ from cmp.modules.statistics.adapters.persistence.replicate_outlier_repository im
 )
 from cmp.modules.statistics.adapters.persistence.replicate_repository import (
     SqlAlchemyReplicateStatisticsRepository,
+    distribution_result_revision_table,
+    distribution_selection_revision_table,
 )
 from cmp.modules.statistics.adapters.persistence.replicate_repository import (
     plan_revision_table as replicate_plan_revision_table,
@@ -65,6 +67,8 @@ from cmp.modules.statistics.application.replicate_outlier_service import (
 from cmp.modules.statistics.application.replicate_service import (
     REPLICATE_STATISTICAL_PLAN_AGGREGATE_TYPE,
     REPLICATE_STATISTICAL_RESULT_AGGREGATE_TYPE,
+    SCALAR_DISTRIBUTION_RESULT_AGGREGATE_TYPE,
+    SCALAR_DISTRIBUTION_SELECTION_AGGREGATE_TYPE,
     ReplicateStatisticsService,
 )
 from cmp.modules.statistics.application.service import (
@@ -74,6 +78,7 @@ from cmp.modules.statistics.application.service import (
     STATISTICAL_RESULT_AGGREGATE_TYPE,
     StatisticsService,
 )
+from cmp.modules.units.application.profiles import CommonUnitService
 from cmp.shared.domain.revisions import RevisionCreated, content_sha256
 
 
@@ -502,6 +507,262 @@ class SqlReplicateStatisticalResultProvenanceHook:
         )
 
 
+class SqlScalarDistributionResultProvenanceHook:
+    """Derive a distribution comparison from its exact descriptive Result and Plan."""
+
+    def __call__(self, session: Session, event: RevisionCreated) -> None:
+        revision = event.revision
+        if revision.aggregate_type != SCALAR_DISTRIBUTION_RESULT_AGGREGATE_TYPE:
+            return
+        row = (
+            session.execute(
+                sa.select(
+                    distribution_result_revision_table.c.statistical_run_id,
+                    distribution_result_revision_table.c.statistical_result_revision_id,
+                    distribution_result_revision_table.c.plan_revision_id,
+                    distribution_result_revision_table.c.selection_revision_id,
+                    distribution_result_revision_table.c.artifact_sha256,
+                ).where(
+                    distribution_result_revision_table.c.organization_id
+                    == revision.scope.organization_id,
+                    distribution_result_revision_table.c.project_id == revision.scope.project_id,
+                    distribution_result_revision_table.c.classification
+                    == revision.scope.classification,
+                    distribution_result_revision_table.c.aggregate_id == revision.aggregate_id,
+                    distribution_result_revision_table.c.id == revision.revision_id,
+                )
+            )
+            .mappings()
+            .one_or_none()
+        )
+        if row is None:
+            raise ProvenanceConflict(
+                "scalar-distribution Result revision is missing from its typed store"
+            )
+        generated_entity_id = _revision_entity_id(
+            session,
+            event,
+            aggregate_type=SCALAR_DISTRIBUTION_RESULT_AGGREGATE_TYPE,
+            revision_id=revision.revision_id,
+        )
+        source_entity_id = _revision_entity_id(
+            session,
+            event,
+            aggregate_type=REPLICATE_STATISTICAL_RESULT_AGGREGATE_TYPE,
+            revision_id=cast(UUID, row["statistical_result_revision_id"]),
+        )
+        plan_entity_id = _revision_entity_id(
+            session,
+            event,
+            aggregate_type=REPLICATE_STATISTICAL_PLAN_AGGREGATE_TYPE,
+            revision_id=cast(UUID, row["plan_revision_id"]),
+        )
+        selection_entity_id = _revision_entity_id(
+            session,
+            event,
+            aggregate_type=DATASET_SELECTION_AGGREGATE_TYPE,
+            revision_id=cast(UUID, row["selection_revision_id"]),
+        )
+        activity_id = _generated_activity_id(session, event, generated_entity_id)
+        session.execute(
+            sa.update(provenance_activity_table)
+            .where(
+                provenance_activity_table.c.organization_id == revision.scope.organization_id,
+                provenance_activity_table.c.project_id == revision.scope.project_id,
+                provenance_activity_table.c.classification == revision.scope.classification,
+                provenance_activity_table.c.id == activity_id,
+            )
+            .values(
+                activity_type="statistics.scalar_distribution_fitting",
+                domain_run_type="statistics.scalar_distribution_result",
+                domain_run_id=revision.aggregate_id,
+                input_required=True,
+                submission_digest=content_sha256(
+                    {
+                        "hook": "issue210.scalar_distribution_result",
+                        "result_revision_id": str(revision.revision_id),
+                        "source_result_revision_id": str(row["statistical_result_revision_id"]),
+                        "plan_revision_id": str(row["plan_revision_id"]),
+                        "selection_revision_id": str(row["selection_revision_id"]),
+                        "artifact_sha256": str(row["artifact_sha256"]),
+                    }
+                ),
+            )
+        )
+        values = _relation_values(event)
+        for ordinal, (role, entity_id) in enumerate(
+            (
+                ("descriptive_statistical_result", source_entity_id),
+                ("statistical_plan", plan_entity_id),
+                ("dataset_selection", selection_entity_id),
+            )
+        ):
+            session.execute(
+                sa.insert(provenance_usage_table).values(
+                    **values,
+                    activity_id=activity_id,
+                    entity_id=entity_id,
+                    role=role,
+                    ordinal=ordinal,
+                )
+            )
+            session.execute(
+                sa.insert(provenance_derivation_table).values(
+                    **values,
+                    generated_entity_id=generated_entity_id,
+                    used_entity_id=entity_id,
+                    activity_id=activity_id,
+                    derivation_kind="scalar_distribution_comparison",
+                )
+            )
+        session.execute(
+            sa.update(provenance_association_table)
+            .where(
+                provenance_association_table.c.organization_id == revision.scope.organization_id,
+                provenance_association_table.c.project_id == revision.scope.project_id,
+                provenance_association_table.c.classification == revision.scope.classification,
+                provenance_association_table.c.activity_id == activity_id,
+                provenance_association_table.c.role == "author",
+            )
+            .values(plan_entity_id=plan_entity_id)
+        )
+
+
+class SqlScalarDistributionSelectionProvenanceHook:
+    """Relate an explicit selected candidate to the exact immutable comparison revision."""
+
+    def __call__(self, session: Session, event: RevisionCreated) -> None:
+        revision = event.revision
+        if revision.aggregate_type != SCALAR_DISTRIBUTION_SELECTION_AGGREGATE_TYPE:
+            return
+        row = (
+            session.execute(
+                sa.select(
+                    distribution_selection_revision_table.c.distribution_result_revision_id,
+                    distribution_selection_revision_table.c.selected_family,
+                    distribution_selection_revision_table.c.candidate_sha256,
+                    distribution_result_revision_table.c.plan_revision_id,
+                    distribution_result_revision_table.c.statistical_run_id,
+                )
+                .select_from(
+                    distribution_selection_revision_table.join(
+                        distribution_result_revision_table,
+                        sa.and_(
+                            distribution_result_revision_table.c.organization_id
+                            == distribution_selection_revision_table.c.organization_id,
+                            distribution_result_revision_table.c.project_id
+                            == distribution_selection_revision_table.c.project_id,
+                            distribution_result_revision_table.c.classification
+                            == distribution_selection_revision_table.c.classification,
+                            distribution_result_revision_table.c.aggregate_id
+                            == distribution_selection_revision_table.c.distribution_result_id,
+                            distribution_result_revision_table.c.id
+                            == distribution_selection_revision_table.c[
+                                "distribution_result_revision_id"
+                            ],
+                        ),
+                    )
+                )
+                .where(
+                    distribution_selection_revision_table.c.organization_id
+                    == revision.scope.organization_id,
+                    distribution_selection_revision_table.c.project_id == revision.scope.project_id,
+                    distribution_selection_revision_table.c.classification
+                    == revision.scope.classification,
+                    distribution_selection_revision_table.c.aggregate_id == revision.aggregate_id,
+                    distribution_selection_revision_table.c.id == revision.revision_id,
+                )
+            )
+            .mappings()
+            .one_or_none()
+        )
+        if row is None:
+            raise ProvenanceConflict(
+                "scalar-distribution selection revision is missing from its typed store"
+            )
+        selection_entity_id = _revision_entity_id(
+            session,
+            event,
+            aggregate_type=SCALAR_DISTRIBUTION_SELECTION_AGGREGATE_TYPE,
+            revision_id=revision.revision_id,
+        )
+        result_entity_id = _revision_entity_id(
+            session,
+            event,
+            aggregate_type=SCALAR_DISTRIBUTION_RESULT_AGGREGATE_TYPE,
+            revision_id=cast(UUID, row["distribution_result_revision_id"]),
+        )
+        plan_entity_id = _revision_entity_id(
+            session,
+            event,
+            aggregate_type=REPLICATE_STATISTICAL_PLAN_AGGREGATE_TYPE,
+            revision_id=cast(UUID, row["plan_revision_id"]),
+        )
+        activity_id = _generated_activity_id(session, event, selection_entity_id)
+        session.execute(
+            sa.update(provenance_activity_table)
+            .where(
+                provenance_activity_table.c.organization_id == revision.scope.organization_id,
+                provenance_activity_table.c.project_id == revision.scope.project_id,
+                provenance_activity_table.c.classification == revision.scope.classification,
+                provenance_activity_table.c.id == activity_id,
+            )
+            .values(
+                activity_type="statistics.scalar_distribution_selection",
+                domain_run_type="statistics.scalar_distribution_selection",
+                domain_run_id=revision.revision_id,
+                input_required=True,
+                submission_digest=content_sha256(
+                    {
+                        "hook": "issue210.scalar_distribution_selection",
+                        "selection_revision_id": str(revision.revision_id),
+                        "distribution_result_revision_id": str(
+                            row["distribution_result_revision_id"]
+                        ),
+                        "selected_family": str(row["selected_family"]),
+                        "candidate_sha256": str(row["candidate_sha256"]),
+                    }
+                ),
+            )
+        )
+        values = _relation_values(event)
+        for ordinal, (role, entity_id) in enumerate(
+            (
+                ("scalar_distribution_result", result_entity_id),
+                ("statistical_plan", plan_entity_id),
+            )
+        ):
+            session.execute(
+                sa.insert(provenance_usage_table).values(
+                    **values,
+                    activity_id=activity_id,
+                    entity_id=entity_id,
+                    role=role,
+                    ordinal=ordinal,
+                )
+            )
+        session.execute(
+            sa.insert(provenance_derivation_table).values(
+                **values,
+                generated_entity_id=selection_entity_id,
+                used_entity_id=result_entity_id,
+                activity_id=activity_id,
+                derivation_kind="scalar_distribution_selection",
+            )
+        )
+        session.execute(
+            sa.update(provenance_association_table)
+            .where(
+                provenance_association_table.c.organization_id == revision.scope.organization_id,
+                provenance_association_table.c.project_id == revision.scope.project_id,
+                provenance_association_table.c.classification == revision.scope.classification,
+                provenance_association_table.c.activity_id == activity_id,
+                provenance_association_table.c.role == "author",
+            )
+            .values(plan_entity_id=plan_entity_id)
+        )
+
+
 class SqlReferenceOutlierDetectionPlanProvenanceHook:
     """Make a detector configuration explicitly use one immutable Statistical Result."""
 
@@ -748,6 +1009,7 @@ def build_replicate_statistics_service(
     identity: IdentityServices,
     datasets: DatasetService | None,
     artifacts: ArtifactService | None,
+    units: CommonUnitService | None = None,
 ) -> ReplicateStatisticsService | None:
     """Build the P0-2 multi-member Statistics slice on the same authoritative ports."""
 
@@ -768,11 +1030,14 @@ def build_replicate_statistics_service(
                 SqlAlchemyRevisionProvenanceHook(),
                 SqlReplicateStatisticalPlanProvenanceHook(),
                 SqlReplicateStatisticalResultProvenanceHook(),
+                SqlScalarDistributionResultProvenanceHook(),
+                SqlScalarDistributionSelectionProvenanceHook(),
                 SqlAlchemyRevisionAuditHook(),
             ),
         ),
         datasets=datasets,
         artifacts=artifacts,
+        units=units,
     )
 
 

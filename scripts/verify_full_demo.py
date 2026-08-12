@@ -25,6 +25,8 @@ CANONICAL_RECIPE_KEY = "cmp_demo_tensile_cleanup"
 CANONICAL_BATCH_LABEL = "CMP clean demo canonical JSON batch · 2025 hardening contract"
 HARDENING_EQUATION_CONTRACT = "altair-material-modeler-2025-v1"
 HARDENING_FAMILIES = ["voce", "swift", "hockett_sherby", "ghosh"]
+STATISTICS_ALIGNED_SELECTION_LABEL = "CMP demo DP780 aligned tensile replicates"
+STATISTICS_PLAN_LABEL = "CMP demo DP780 replicate curve statistics"
 
 
 class ProcessingLineageError(ValueError):
@@ -1264,6 +1266,107 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
         if not isinstance(metal_states, list) or not metal_states:
             raise RuntimeError("clean demo metal Material has no State for Recipe evidence")
         metal_state_id = str(metal_states[0]["material_state_id"])
+        replicate_selections = _items(
+            _json(
+                client.get(
+                    "/dataset-selections/reference-tensile-replicates"
+                    f"?material_state_id={metal_state_id}"
+                )
+            )
+        )
+        aligned_selection = next(
+            (
+                item
+                for item in replicate_selections
+                if item.get("selection_label") == STATISTICS_ALIGNED_SELECTION_LABEL
+            ),
+            None,
+        )
+        if aligned_selection is None:
+            raise RuntimeError("clean demo has no exact aligned replicate Selection")
+        aligned_revision = aligned_selection.get("current_revision")
+        aligned_content = _content(aligned_selection)
+        if (
+            not isinstance(aligned_revision, Mapping)
+            or not isinstance(aligned_revision.get("id"), str)
+            or aligned_content.get("member_count") != 8
+        ):
+            raise RuntimeError(
+                "clean demo aligned replicate Selection is not an exact n=8 revision"
+            )
+        statistics_plans = _items(
+            _json(
+                client.get(
+                    "/replicate-statistical-plans"
+                    f"?selection_revision_id={aligned_revision['id']}&limit=100"
+                )
+            )
+        )
+        distribution_plan = next(
+            (
+                item
+                for item in statistics_plans
+                if str(item.get("plan_label", "")).startswith(STATISTICS_PLAN_LABEL)
+                and isinstance(_content(item).get("scalar_distribution"), Mapping)
+            ),
+            None,
+        )
+        if distribution_plan is None:
+            raise RuntimeError("clean demo has no scalar-distribution Statistical Plan")
+        distribution_plan_revision = distribution_plan.get("current_revision")
+        distribution_options = _content(distribution_plan).get("scalar_distribution")
+        if (
+            not isinstance(distribution_plan_revision, Mapping)
+            or not isinstance(distribution_plan_revision.get("id"), str)
+            or not isinstance(distribution_options, Mapping)
+            or distribution_options.get("seed") != 210
+            or distribution_options.get("bootstrap_samples") != 999
+            or distribution_options.get("unit_profile") is not None
+        ):
+            raise RuntimeError("clean demo scalar-distribution Plan has unexpected replay options")
+        statistics_runs = _items(
+            _json(
+                client.get(
+                    "/replicate-statistical-runs"
+                    f"?plan_revision_id={distribution_plan_revision['id']}&limit=100"
+                )
+            )
+        )
+        distribution_run = next(
+            (
+                item
+                for item in statistics_runs
+                if item.get("status") == "succeeded"
+                and isinstance(item.get("scalar_distribution_result_id"), str)
+            ),
+            None,
+        )
+        if distribution_run is None:
+            raise RuntimeError("clean demo scalar-distribution Statistics Run did not succeed")
+        distribution_result = _json(
+            client.get(
+                f"/scalar-distribution-results/{distribution_run['scalar_distribution_result_id']}"
+            )
+        )
+        candidates = distribution_result.get("candidates")
+        if (
+            distribution_result.get("sample_count") != 8
+            or distribution_result.get("scalar_feature") != "peak_engineering_stress_pa"
+            or distribution_result.get("bootstrap_samples") != 999
+            or distribution_result.get("artifact_sha256")
+            != distribution_run.get("scalar_distribution_sha256")
+            or not isinstance(candidates, list)
+            or {item.get("family") for item in candidates if isinstance(item, Mapping)}
+            != {"normal", "lognormal", "weibull"}
+            or any(
+                not isinstance(item, Mapping)
+                or item.get("status") != "succeeded"
+                or not isinstance(item.get("candidate_sha256"), str)
+                for item in candidates
+            )
+        ):
+            raise RuntimeError("clean demo scalar-distribution Result is incomplete")
+        distribution_candidate_count = len(candidates)
         metal_models = _items(
             _json(client.get(f"/material-states/{metal_state_id}/tabulated-plasticity-models"))
         )
@@ -1484,6 +1587,8 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             "catalog_workflow_node_count": len(workflow_nodes) + 2,
             "test_data_document_id": document["test_data_document_id"],
             "metal_test_data_replicate_count": len(metal_replicates),
+            "scalar_distribution_result_id": distribution_result["scalar_distribution_result_id"],
+            "scalar_distribution_candidate_count": distribution_candidate_count,
             "mapping_profile_id": profile["mapping_profile_id"],
             "processing_recipe_id": recipe["processing_recipe_id"],
             "processing_batch_id": batch["batch_id"],

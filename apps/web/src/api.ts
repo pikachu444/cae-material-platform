@@ -82,6 +82,10 @@ import type {
   ReplicateStatisticalPlanResponse,
   ReplicateStatisticalResultResponse,
   ReplicateStatisticalRunResponse,
+  ScalarDistributionResultResponse,
+  ScalarDistributionSelectionResponse,
+  DistributionFamily,
+  ExactUnitProfilePin,
   ReplicateOutlierAssessmentResponse,
   ReplicateOutlierDecision,
   ReplicateOutlierPlanResponse,
@@ -3888,6 +3892,11 @@ export function createReferenceTensileReplicateStatisticalPlan(
     selection_id: string;
     selection_revision_id: string;
     sample_count: number;
+    scalar_distribution?: {
+      seed: number;
+      bootstrap_samples: 999;
+      unit_profile: ExactUnitProfilePin | null;
+    } | null;
     change_reason: string;
   },
 ): Promise<ApiResult<ReplicateStatisticalPlanResponse>> {
@@ -3907,6 +3916,14 @@ export function executeReferenceTensileReplicateStatistics(
   });
 }
 
+export function listReferenceTensileReplicateStatisticalRuns(
+  config: ApiConfig,
+  planRevisionId: string,
+): Promise<ApiResult<{ items: ReplicateStatisticalRunResponse[] }>> {
+  const query = new URLSearchParams({ plan_revision_id: planRevisionId, limit: "100" });
+  return request(config, `/replicate-statistical-runs?${query.toString()}`);
+}
+
 export function getReferenceTensileReplicateStatisticalResult(
   config: ApiConfig,
   resultId: string,
@@ -3923,6 +3940,60 @@ export function previewReferenceTensileReplicateStatisticalResultCurve(
   return request(
     config,
     `/replicate-statistical-results/${encodeURIComponent(resultId)}/curve?${query.toString()}`,
+  );
+}
+
+export function getScalarDistributionResult(
+  config: ApiConfig,
+  resultId: string,
+): Promise<ApiResult<ScalarDistributionResultResponse>> {
+  return request(config, `/scalar-distribution-results/${encodeURIComponent(resultId)}`);
+}
+
+export function listScalarDistributionSelections(
+  config: ApiConfig,
+  resultId: string,
+): Promise<ApiResult<{ items: ScalarDistributionSelectionResponse[] }>> {
+  return request(
+    config,
+    `/scalar-distribution-results/${encodeURIComponent(resultId)}/selections`,
+  );
+}
+
+export function createScalarDistributionSelection(
+  config: ApiConfig,
+  resultId: string,
+  input: {
+    classification: DataClassification;
+    distribution_result_revision_id: string;
+    selected_family: DistributionFamily;
+    candidate_sha256: string;
+    selection_reason: string;
+  },
+): Promise<ApiResult<ScalarDistributionSelectionResponse>> {
+  return request(
+    config,
+    `/scalar-distribution-results/${encodeURIComponent(resultId)}/selections`,
+    { method: "POST", body: JSON.stringify(input) },
+  );
+}
+
+export function reviseScalarDistributionSelection(
+  config: ApiConfig,
+  selectionId: string,
+  input: {
+    expected_current_revision_id: string;
+    distribution_result_id: string;
+    distribution_result_revision_id: string;
+    selected_family: DistributionFamily;
+    candidate_sha256: string;
+    selection_reason: string;
+  },
+): Promise<ApiResult<ScalarDistributionSelectionResponse>> {
+  return request(
+    config,
+    `/scalar-distribution-selections/${encodeURIComponent(selectionId)}`,
+    { method: "PUT", body: JSON.stringify(input) },
   );
 }
 

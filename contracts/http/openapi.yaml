@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CAE Material Platform API
   summary: Material data management, immutable traceability, and CAE workflow platform.
-  version: 0.36.0
+  version: 0.37.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -5159,6 +5159,29 @@ paths:
         "409": {description: Immutable input, Artifact, Result, or terminal-state conflict.}
         "422": {description: Typed execution request is invalid.}
         "503": {description: Statistics service unavailable.}
+    get:
+      operationId: listReferenceTensileReplicateStatisticalRuns
+      tags: [statistics]
+      summary: List committed Runs for one exact Statistical Plan revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: plan_revision_id
+          in: query
+          required: true
+          schema: {type: string, format: uuid}
+        - name: limit
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1, maximum: 200, default: 100}
+      responses:
+        "200":
+          description: Tenant-visible Runs and their exact immutable output pins.
+          content:
+            application/json:
+              schema: {$ref: "../statistics/reference-tensile-replicate-resources.schema.json#/$defs/ReplicateStatisticalRunListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Statistics read is not authorized.}
+        "503": {description: Statistics service unavailable.}
   /api/v1/replicate-statistical-runs/{run_id}:
     get:
       operationId: getReferenceTensileReplicateStatisticalRun
@@ -5229,6 +5252,132 @@ paths:
         "404": {description: No visible Result or curve Artifact matches the identifier.}
         "409": {description: Immutable Artifact integrity or Result state conflicts.}
         "422": {description: Preview limit or typed curve Artifact is invalid.}
+        "503": {description: Statistics service unavailable.}
+  /api/v1/scalar-distribution-results/{distribution_result_id}:
+    get:
+      operationId: getScalarDistributionResult
+      tags: [statistics]
+      summary: Read an immutable scalar-distribution comparison pinned to one replicate Result revision.
+      description: The comparison preserves every candidate outcome and never mutates source observations or descriptive statistics.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: distribution_result_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Exact observations, candidate parameters and diagnostics, recommendation, units, and replay manifest.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../statistics/reference-tensile-replicate-resources.schema.json#/$defs/ScalarDistributionResultResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Statistics read is not authorized.}
+        "404": {description: No visible scalar-distribution Result matches the identifier.}
+        "503": {description: Statistics service unavailable.}
+  /api/v1/scalar-distribution-results/{distribution_result_id}/selections:
+    post:
+      operationId: createScalarDistributionSelection
+      tags: [statistics]
+      summary: Select one successful candidate from an exact immutable scalar-distribution Result revision.
+      description: Selection is an explicit revisioned decision and does not alter the computed recommendation.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: distribution_result_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../statistics/reference-tensile-replicate-resources.schema.json#/$defs/CreateScalarDistributionSelectionRequest"}
+      responses:
+        "201":
+          description: Stable selection identity and first immutable decision revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../statistics/reference-tensile-replicate-resources.schema.json#/$defs/ScalarDistributionSelectionResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Statistics selection is not authorized.}
+        "404": {description: The exact Result revision or candidate is not visible.}
+        "409": {description: Result identity, revision, candidate digest, or tenant scope conflicts.}
+        "422": {description: Selection reason or candidate input is invalid.}
+        "503": {description: Statistics service unavailable.}
+    get:
+      operationId: listScalarDistributionSelections
+      tags: [statistics]
+      summary: List current selection heads for one scalar-distribution Result.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: distribution_result_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Tenant-visible current selection revisions.
+          content:
+            application/json:
+              schema: {$ref: "../statistics/reference-tensile-replicate-resources.schema.json#/$defs/ScalarDistributionSelectionListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Statistics read is not authorized.}
+        "503": {description: Statistics service unavailable.}
+  /api/v1/scalar-distribution-selections/{selection_id}:
+    get:
+      operationId: getScalarDistributionSelection
+      tags: [statistics]
+      summary: Read the current immutable revision of one scalar-distribution selection.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: selection_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Current selected candidate, exact Result revision, digest, and reason.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../statistics/reference-tensile-replicate-resources.schema.json#/$defs/ScalarDistributionSelectionResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Statistics read is not authorized.}
+        "404": {description: No visible selection matches the identifier.}
+        "503": {description: Statistics service unavailable.}
+    put:
+      operationId: reviseScalarDistributionSelection
+      tags: [statistics]
+      summary: Append an immutable revised candidate selection and reason.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: selection_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../statistics/reference-tensile-replicate-resources.schema.json#/$defs/ReviseScalarDistributionSelectionRequest"}
+      responses:
+        "200":
+          description: New immutable current selection revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../statistics/reference-tensile-replicate-resources.schema.json#/$defs/ScalarDistributionSelectionResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Statistics selection is not authorized.}
+        "404": {description: No visible selection, Result revision, or candidate matches the identifier.}
+        "409": {description: Expected head or exact Result/candidate pin conflicts.}
+        "422": {description: Selection reason or candidate input is invalid.}
         "503": {description: Statistics service unavailable.}
   /api/v1/replicate-outlier-detection-plans:
     post:

@@ -85,6 +85,19 @@ MODELING_DATA_SESSION_OUTPUTS = (
     "modeling-data-invalid-scrolled-1440x900.png",
 )
 MODELING_PROCESS_MANUAL_OUTPUTS = ("modeling-process-manual-1366x768.png",)
+MODELING_DISTRIBUTION_VIEWPORT_OUTPUTS = tuple(
+    f"modeling-distribution-{width}x{height}.png"
+    for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)
+)
+MODELING_DISTRIBUTION_DETAIL_OUTPUTS = tuple(
+    f"modeling-distribution-{region}-from-{width}x{height}-crop.png"
+    for width, height in (VIEWPORTS[2], *WIDE_VIEWPORTS)
+    for region in ("header", "navigator", "table", "selection-form", "graph")
+)
+MODELING_DISTRIBUTION_OUTPUTS = (
+    *MODELING_DISTRIBUTION_VIEWPORT_OUTPUTS,
+    *MODELING_DISTRIBUTION_DETAIL_OUTPUTS,
+)
 MODELING_DATA_EXCEPTION_OUTPUTS = (
     "modeling-data-empty-1440x900.png",
     "modeling-data-invalid-1440x900.png",
@@ -201,6 +214,26 @@ CURRENT_CAPTURE_OUTPUTS = (
     "modeling-fit-exact-source-blocked-1920x1080.png",
     "modeling-fit-exact-read-failed-1920x1080.png",
     "modeling-fit-restored-1920x1080.png",
+    "modeling-distribution-1366x768.png",
+    "modeling-distribution-1440x900.png",
+    "modeling-distribution-1920x1080.png",
+    "modeling-distribution-2560x1440.png",
+    "modeling-distribution-3840x2160.png",
+    "modeling-distribution-header-from-1920x1080-crop.png",
+    "modeling-distribution-navigator-from-1920x1080-crop.png",
+    "modeling-distribution-table-from-1920x1080-crop.png",
+    "modeling-distribution-selection-form-from-1920x1080-crop.png",
+    "modeling-distribution-graph-from-1920x1080-crop.png",
+    "modeling-distribution-header-from-2560x1440-crop.png",
+    "modeling-distribution-navigator-from-2560x1440-crop.png",
+    "modeling-distribution-table-from-2560x1440-crop.png",
+    "modeling-distribution-selection-form-from-2560x1440-crop.png",
+    "modeling-distribution-graph-from-2560x1440-crop.png",
+    "modeling-distribution-header-from-3840x2160-crop.png",
+    "modeling-distribution-navigator-from-3840x2160-crop.png",
+    "modeling-distribution-table-from-3840x2160-crop.png",
+    "modeling-distribution-selection-form-from-3840x2160-crop.png",
+    "modeling-distribution-graph-from-3840x2160-crop.png",
     "modeling-export-1366x768.png",
     "modeling-export-1440x900.png",
     "modeling-export-1920x1080.png",
@@ -2568,6 +2601,257 @@ def _prepare_modeling_process(
     preview.wait_for(state="visible", timeout=30_000)
     if preview.is_disabled():
         raise RuntimeError("Process capture settled with Preview changes disabled")
+
+
+def _open_scalar_distribution_workbench(page: Page) -> Locator:
+    details = page.locator("details.rail-statistics-action")
+    details.wait_for(state="visible", timeout=30_000)
+    if details.get_attribute("open") is None:
+        details.locator("summary").click()
+    trigger = page.get_by_role("button", name="Distribution candidates", exact=True)
+    trigger.wait_for(state="visible", timeout=30_000)
+    if trigger.get_attribute("aria-expanded") != "true":
+        trigger.click()
+    dock = page.locator("#scalar-distribution-dock")
+    dock.wait_for(state="visible", timeout=30_000)
+    if page.evaluate("innerHeight <= 800") and not page.locator(
+        ".modeling-task-ribbon"
+    ).is_hidden():
+        raise RuntimeError(
+            "distribution comparison did not yield the short-height graph allocation"
+        )
+    page.wait_for_function(
+        """() => {
+          const dock = document.querySelector('#scalar-distribution-dock');
+          const rows = dock?.querySelectorAll('.distribution-candidate-table tbody tr');
+          return Boolean(dock && rows?.length === 3 && dock.textContent?.includes('n = 8'));
+        }""",
+        timeout=60_000,
+    )
+    _wait_for_settled(page)
+
+    selection = page.get_by_label("Saved processed replicate Selection")
+    selection_text = selection.locator("option:checked").inner_text()
+    if "8 members" not in selection_text or "Normalized alignment source" in selection_text:
+        raise RuntimeError(
+            "distribution capture did not retain the exact eight-member processed Selection: "
+            f"{selection_text!r}"
+        )
+    if page.locator(".distribution-candidate-table tbody tr").count() != 3:
+        raise RuntimeError("distribution capture must expose exactly three candidate rows")
+    if page.get_by_text("Normal + Lognormal + Weibull", exact=True).count() != 1:
+        raise RuntimeError(
+            "deterministic demo distribution recommendation no longer exposes all "
+            "three co-recommended candidates"
+        )
+    if page.get_by_text(
+        "Observation quality: 8 observed · 0 missing · 0 non-finite · 0 censored.",
+        exact=True,
+    ).count() != 1:
+        raise RuntimeError("distribution capture lost the exact observation-quality surface")
+    return dock
+
+
+def _ensure_scalar_distribution_decision(page: Page) -> None:
+    family = page.get_by_label("Successful candidate")
+    reason = page.get_by_label("Selection reason")
+    expected_reason = (
+        "Normal selected explicitly for bounded comparison; recommendation remains separate."
+    )
+    saved = page.locator(".distribution-saved-decision")
+    if family.input_value() == "normal" and reason.input_value() == expected_reason and saved.count():
+        return
+    family.select_option("normal")
+    reason.fill(expected_reason)
+    button_name = "Save revised selection" if saved.count() else "Save selection"
+    page.get_by_role("button", name=button_name, exact=True).click()
+    page.get_by_text(
+        "Selected model and reason saved as an exact immutable revision.", exact=True
+    ).wait_for(timeout=30_000)
+    if family.input_value() != "normal" or reason.input_value() != expected_reason:
+        raise RuntimeError("distribution selection did not preserve the explicit model and reason")
+
+
+def _capture_distribution_detail(
+    page: Page,
+    locator: Locator,
+    path: Path,
+    *,
+    region: str,
+) -> None:
+    if region == "selection-form":
+        locator.evaluate(
+            """element => {
+              const scroller = element.closest('.scalar-distribution-workbench');
+              const header = scroller?.querySelector('.distribution-dock-heading');
+              const firstControl = element.querySelector(':scope > label');
+              if (!scroller || !header || !firstControl) return;
+              const scrollerBox = scroller.getBoundingClientRect();
+              const controlBox = firstControl.getBoundingClientRect();
+              const targetTop = controlBox.top + scroller.scrollTop - scrollerBox.top;
+              scroller.scrollTop = Math.max(0, targetTop - header.offsetHeight - 8);
+            }"""
+        )
+        page.wait_for_timeout(100)
+        clip = locator.evaluate(
+            """element => {
+              const nodes = [...element.querySelectorAll(
+                ':scope > label, :scope > button, :scope > .distribution-saved-decision'
+              )];
+              const boxes = nodes
+                .filter(node => node.getClientRects().length > 0)
+                .map(node => node.getBoundingClientRect());
+              const section = element.getBoundingClientRect();
+              if (!boxes.length) return null;
+              const top = Math.min(...boxes.map(box => box.top));
+              const bottom = Math.max(...boxes.map(box => box.bottom));
+              return { x: section.left, y: top, width: section.width, height: bottom - top };
+            }"""
+        )
+        if not isinstance(clip, dict) or clip["height"] < 120:
+            raise RuntimeError(f"distribution selection-form crop is unavailable: {clip}")
+        page.screenshot(path=str(path), clip=clip)
+        return
+    locator.scroll_into_view_if_needed()
+    page.wait_for_timeout(100)
+    locator.screenshot(path=str(path))
+
+
+def _capture_modeling_distribution(
+    browser: Browser,
+    base_url: str,
+    output: Path,
+) -> list[dict[str, object]]:
+    measurements: list[dict[str, object]] = []
+    for viewport_index, (width, height) in enumerate((*VIEWPORTS, *WIDE_VIEWPORTS)):
+        page = _new_page(browser, base_url, width, height)
+        try:
+            _prepare_modeling_process(
+                page,
+                base_url,
+                verify_data_reload=viewport_index == 0,
+            )
+            dock = _open_scalar_distribution_workbench(page)
+            trigger = page.get_by_role("button", name="Distribution candidates", exact=True)
+
+            if viewport_index == 0:
+                page.wait_for_function(
+                    "() => document.activeElement?.id === 'scalar-distribution-dock'",
+                    timeout=10_000,
+                )
+                page.keyboard.press("Escape")
+                dock.wait_for(state="hidden", timeout=10_000)
+                page.wait_for_function(
+                    """() => document.activeElement?.classList.contains('distribution-evidence-trigger')""",
+                    timeout=10_000,
+                )
+                trigger.click()
+                dock = _open_scalar_distribution_workbench(page)
+                _ensure_scalar_distribution_decision(page)
+
+                page.reload()
+                page.wait_for_url(re.compile(r"stage=process"), timeout=30_000)
+                page.locator(".modeling-work-title strong").get_by_text(
+                    STAGE_HEADINGS["process"], exact=True
+                ).wait_for(timeout=30_000)
+                _wait_modeling_process_panel(page)
+                page.wait_for_function(
+                    """expected => {
+                      const source = document.querySelector('.process-band-source');
+                      const rows = document.querySelectorAll(
+                        '.modeling-workspace-rail .curve-row-label'
+                      );
+                      return source?.textContent?.trim() === expected && rows.length === 3;
+                    }""",
+                    arg=PROCESS_SOURCE_VISIBLE_IDENTITY,
+                    timeout=30_000,
+                )
+                dock = _open_scalar_distribution_workbench(page)
+                if (
+                    page.get_by_label("Successful candidate").input_value() != "normal"
+                    or page.get_by_label("Selection reason").input_value()
+                    != "Normal selected explicitly for bounded comparison; recommendation remains separate."
+                ):
+                    raise RuntimeError(
+                        "distribution selection did not read back after a full page reload"
+                    )
+            else:
+                _ensure_scalar_distribution_decision(page)
+
+            dock.evaluate("element => { element.scrollTop = 0; element.scrollLeft = 0; }")
+            path = output / f"modeling-distribution-{width}x{height}.png"
+            _capture(page, path, width, height)
+
+            geometry = page.evaluate(
+                """() => {
+                  const dock = document.querySelector('#scalar-distribution-dock');
+                  const tableScroll = document.querySelector('.distribution-table-scroll');
+                  const main = document.querySelector('.modeling-main-surface');
+                  const plot = document.querySelector('.persistent-modeling-plot');
+                  if (!dock || !tableScroll || !main || !plot) return null;
+                  const dockBox = dock.getBoundingClientRect();
+                  const mainBox = main.getBoundingClientRect();
+                  const plotBox = plot.getBoundingClientRect();
+                  return {
+                    cssViewport: `${innerWidth}x${innerHeight}`,
+                    devicePixelRatio,
+                    browserZoomPercent: Math.round((outerWidth / innerWidth) * 100),
+                    screen: `${screen.width}x${screen.height}`,
+                    dock: {
+                      left: dockBox.left,
+                      right: dockBox.right,
+                      top: dockBox.top,
+                      bottom: dockBox.bottom,
+                      width: dockBox.width,
+                      height: dockBox.height,
+                    },
+                    mainWidth: mainBox.width,
+                    plot: {
+                      width: plotBox.width,
+                      height: plotBox.height,
+                    },
+                    pageOverflow: document.documentElement.scrollWidth
+                      - document.documentElement.clientWidth,
+                    tableLocalOverflow: tableScroll.scrollWidth - tableScroll.clientWidth,
+                  };
+                }"""
+            )
+            if not isinstance(geometry, dict):
+                raise RuntimeError(f"distribution geometry is unavailable for {path.name}")
+            dock_geometry = geometry["dock"]
+            if (
+                geometry["pageOverflow"] != 0
+                or dock_geometry["left"] < 0
+                or dock_geometry["right"] > width + 1
+                or dock_geometry["top"] < 0
+                or dock_geometry["bottom"] > height + 1
+                or dock_geometry["height"] < 259
+                or geometry["plot"]["height"] < 150
+            ):
+                raise RuntimeError(
+                    f"distribution workbench is clipped or overflowing for {path.name}: {geometry}"
+                )
+            measurements.append(geometry)
+
+            if (width, height) in (VIEWPORTS[2], *WIDE_VIEWPORTS):
+                detail_locators = {
+                    "header": page.locator(".application-menu-bar"),
+                    "navigator": page.locator(".modeling-workspace-rail"),
+                    "graph": page.locator(".persistent-modeling-plot"),
+                    "table": page.locator(".distribution-table-scroll"),
+                    "selection-form": page.locator(".distribution-decision"),
+                }
+                for region, locator in detail_locators.items():
+                    _capture_distribution_detail(
+                        page,
+                        locator,
+                        output
+                        / f"modeling-distribution-{region}-from-{width}x{height}-crop.png",
+                        region=region,
+                    )
+        finally:
+            page.context.close()
+    return measurements
 
 
 def _list_processing_outputs(page: Page, base_url: str) -> list[dict[str, object]]:
@@ -8094,13 +8378,23 @@ def _validate_capture_outputs(output: Path) -> int:
     for name in CURRENT_CAPTURE_OUTPUTS:
         image = output / name
         value = image.read_bytes()
-        if len(value) < 10_000 or value[:8] != PNG_SIGNATURE or value[12:16] != b"IHDR":
+        minimum_size = 1_000 if name in MODELING_DISTRIBUTION_DETAIL_OUTPUTS else 10_000
+        if (
+            len(value) < minimum_size
+            or value[:8] != PNG_SIGNATURE
+            or value[12:16] != b"IHDR"
+        ):
             raise RuntimeError(f"current capture is not a plausible PNG: {name}")
         width, height = struct.unpack(">II", value[16:24])
         expected = re.search(r"-(\d+)x(\d+)\.png$", name)
-        if expected is None or (width, height) != (
-            int(expected.group(1)),
-            int(expected.group(2)),
+        if name in MODELING_DISTRIBUTION_DETAIL_OUTPUTS:
+            if width < 100 or height < 40:
+                raise RuntimeError(
+                    f"current distribution detail crop is implausibly small for {name}: "
+                    f"{width}x{height}"
+                )
+        elif expected is None or (width, height) != (
+            int(expected.group(1)), int(expected.group(2))
         ):
             raise RuntimeError(f"current capture viewport drift for {name}: {width}x{height}")
     return len(actual_outputs)
@@ -8258,6 +8552,14 @@ def main() -> int:
         help="Capture only the 1366x768 manual Process local-scroll boundary.",
     )
     parser.add_argument(
+        "--only-modeling-distribution",
+        action="store_true",
+        help=(
+            "Capture the five scalar-distribution viewports plus original-pixel "
+            "header, navigator, table, selection-form, and graph crops."
+        ),
+    )
+    parser.add_argument(
         "--only-modeling-data-exceptions",
         action="store_true",
         help="Capture only the empty and invalid-mapping Modeling Data risk states.",
@@ -8277,6 +8579,7 @@ def main() -> int:
             args.only_modeling_export,
             args.only_modeling_process_fit,
             args.only_modeling_process_manual,
+            args.only_modeling_distribution,
             args.only_modeling_fit_states,
             args.only_modeling_fit_restored,
             args.only_modeling_consistency,
@@ -8302,6 +8605,7 @@ def main() -> int:
                 )
                 _capture_modeling_export_only(browser, args.base_url, output)
                 _capture_modeling_process_only(browser, args.base_url, output)
+                _capture_modeling_distribution(browser, args.base_url, output)
                 _capture_modeling_fit_states(browser, args.base_url, output)
                 _capture_modeling_data_viewports(
                     browser, args.base_url, output, WIDE_VIEWPORTS
@@ -8323,6 +8627,7 @@ def main() -> int:
         or args.only_modeling_fit_restored
         or args.only_modeling_process
         or args.only_modeling_process_manual
+        or args.only_modeling_distribution
         or args.only_modeling_consistency
         or args.only_modeling_data_session
         or args.only_modeling_data_exceptions
@@ -8353,6 +8658,8 @@ def main() -> int:
             if args.only_modeling_process
             else MODELING_PROCESS_MANUAL_OUTPUTS
             if args.only_modeling_process_manual
+            else MODELING_DISTRIBUTION_OUTPUTS
+            if args.only_modeling_distribution
             else MODELING_CONSISTENCY_OUTPUTS
             if args.only_modeling_consistency
             else MODELING_DATA_SESSION_OUTPUTS
@@ -8422,6 +8729,10 @@ def main() -> int:
                         _capture_modeling_process_manual_only(
                             browser, args.base_url, staged
                         )
+                    elif args.only_modeling_distribution:
+                        measurements = _capture_modeling_distribution(
+                            browser, args.base_url, staged
+                        )
                     elif args.only_modeling_consistency:
                         measurements = _capture_modeling_consistency(
                             browser, args.base_url, staged
@@ -8454,7 +8765,12 @@ def main() -> int:
             for name in names:
                 image = staged / name
                 value = image.read_bytes()
-                if len(value) < 10_000 or value[:8] != PNG_SIGNATURE:
+                minimum_size = 1_000 if name in MODELING_DISTRIBUTION_DETAIL_OUTPUTS else 10_000
+                if (
+                    len(value) < minimum_size
+                    or value[:8] != PNG_SIGNATURE
+                    or value[12:16] != b"IHDR"
+                ):
                     raise RuntimeError(f"targeted Modeling capture is not a plausible PNG: {name}")
             for name in names:
                 os.replace(staged / name, args.output / name)
@@ -8477,6 +8793,7 @@ def main() -> int:
     if (
         args.only_modeling_process_fit
         or args.only_modeling_process_fit_viewports
+        or args.only_modeling_distribution
         or args.only_modeling_consistency
         or args.only_modeling_data_session
     ):

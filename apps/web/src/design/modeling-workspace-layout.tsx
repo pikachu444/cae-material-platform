@@ -67,6 +67,7 @@ export function ModelingWorkspaceLayout({
   const dockOverlayLatchedRef = useRef(false);
   const [dockOverlay, setDockOverlay] = useState(false);
   const dockPresent = Boolean(dock);
+  const evidenceDock = dockLabel === "Candidate parameters" || dockLabel === "Distribution candidates";
 
   useEffect(() => {
     const update = () => setViewport(desktopViewportClass(window.innerWidth));
@@ -99,7 +100,7 @@ export function ModelingWorkspaceLayout({
   }, [dataLayoutMode, dataRibbonPanel, dataRibbonPreferredSize, density]);
 
   useEffect(() => {
-    if (!dockPresent || dockLabel !== "Candidate parameters") {
+    if (!dockPresent || !evidenceDock) {
       dockOverlayLatchedRef.current = false;
       setDockOverlay(false);
       return undefined;
@@ -119,7 +120,7 @@ export function ModelingWorkspaceLayout({
     if (frame) observer.observe(frame);
     update();
     return () => observer.disconnect();
-  }, [dockLabel, dockPresent]);
+  }, [dockPresent, evidenceDock]);
 
   function resetDataRibbon(): void {
     dataRibbonDesiredSizeRef.current = dataRibbonPreferredSize;
@@ -222,7 +223,7 @@ export function ModelingWorkspaceLayout({
   const main = (
     <section
       ref={mainSurfaceRef}
-      className={`modeling-main-surface${dock ? " has-dock" : ""}${dockLabel === "Candidate parameters" ? " has-fit-evidence-dock" : ""}${dockOverlay ? " has-dock-overlay" : ""}${dataLayoutMode ? " has-data-split" : ""}`}
+      className={`modeling-main-surface${dock ? " has-dock" : ""}${dockLabel === "Candidate parameters" ? " has-fit-evidence-dock" : ""}${dockLabel === "Distribution candidates" ? " has-distribution-dock" : ""}${dockOverlay ? " has-dock-overlay" : ""}${dataLayoutMode ? " has-data-split" : ""}`}
       data-dock-presentation={dockOverlay ? "overlay" : "allocated"}
       aria-label="Persistent Modeling graph and task controls"
     >

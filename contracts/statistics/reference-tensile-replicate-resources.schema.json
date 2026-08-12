@@ -8,6 +8,25 @@
       "type": "string",
       "enum": ["internal", "confidential", "restricted", "export_controlled"]
     },
+    "DistributionFamily": {
+      "type": "string",
+      "enum": ["normal", "lognormal", "weibull"]
+    },
+    "ScalarDistributionAnalysisOptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["seed", "bootstrap_samples", "unit_profile"],
+      "properties": {
+        "seed": {"type": "integer", "minimum": 0, "maximum": 4294967295},
+        "bootstrap_samples": {"const": 999},
+        "unit_profile": {
+          "anyOf": [
+            {"$ref": "../units/unit-resources.schema.json#/$defs/UnitProfilePin"},
+            {"type": "null"}
+          ]
+        }
+      }
+    },
     "Links": {"type": "object", "additionalProperties": {"type": "string"}},
     "CreateReplicateStatisticalPlanRequest": {
       "type": "object",
@@ -22,6 +41,7 @@
         "selection_id": {"$ref": "#/$defs/Uuid"},
         "selection_revision_id": {"$ref": "#/$defs/Uuid"},
         "sample_count": {"type": "integer", "minimum": 2, "maximum": 50},
+        "scalar_distribution": {"anyOf": [{"$ref": "#/$defs/ScalarDistributionAnalysisOptions"}, {"type": "null"}]},
         "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
       }
     },
@@ -31,7 +51,8 @@
       "required": [
         "plan_kind", "selection_id", "selection_revision_id", "sample_count",
         "required_input_representation", "scalar_feature", "curve_grid_policy",
-        "quantile_method", "confidence_interval_method", "curve_output_schema_ref"
+        "quantile_method", "confidence_interval_method", "curve_output_schema_ref",
+        "scalar_distribution"
       ],
       "properties": {
         "plan_kind": {"const": "reference_tensile_replicate_scalar_and_curve"},
@@ -43,7 +64,8 @@
         "curve_grid_policy": {"const": "exact_processed_grid_match_no_alignment"},
         "quantile_method": {"const": "linear_inclusive"},
         "confidence_interval_method": {"const": "student_t_95_two_sided"},
-        "curve_output_schema_ref": {"enum": ["urn:cmp:statistics:reference-tensile-replicate-curve-parquet:1.0.0", "urn:cmp:statistics:reference-tensile-replicate-curve-parquet:1.1.0"]}
+        "curve_output_schema_ref": {"enum": ["urn:cmp:statistics:reference-tensile-replicate-curve-parquet:1.0.0", "urn:cmp:statistics:reference-tensile-replicate-curve-parquet:1.1.0"]},
+        "scalar_distribution": {"anyOf": [{"$ref": "#/$defs/ScalarDistributionAnalysisOptions"}, {"type": "null"}]}
       }
     },
     "ReplicatePlanRevision": {
@@ -129,7 +151,9 @@
         "statistical_run_id", "classification", "execution_mode", "status", "plan_id",
         "plan_revision_id", "selection_id", "selection_revision_id", "sample_count", "members",
         "result_id", "result_revision_id", "curve_artifact_id", "curve_sha256",
-        "curve_point_count", "failure_code", "qc_observations", "change_reason",
+        "curve_point_count", "scalar_distribution_result_id",
+        "scalar_distribution_result_revision_id", "scalar_distribution_artifact_id",
+        "scalar_distribution_sha256", "failure_code", "qc_observations", "change_reason",
         "started_at", "ended_at", "links"
       ],
       "properties": {
@@ -148,6 +172,10 @@
         "curve_artifact_id": {"type": ["string", "null"], "format": "uuid"},
         "curve_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
         "curve_point_count": {"type": ["integer", "null"], "minimum": 2, "maximum": 100000},
+        "scalar_distribution_result_id": {"type": ["string", "null"], "format": "uuid"},
+        "scalar_distribution_result_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "scalar_distribution_artifact_id": {"type": ["string", "null"], "format": "uuid"},
+        "scalar_distribution_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
         "failure_code": {"type": ["string", "null"], "minLength": 1, "maxLength": 100},
         "qc_observations": {"type": "array", "items": {"$ref": "#/$defs/QcObservation"}},
         "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
@@ -211,6 +239,191 @@
         "peak_engineering_stress_pa": {"$ref": "#/$defs/ReplicateScalarStatistics"},
         "methods": {"$ref": "#/$defs/ReplicateMethods"},
         "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "ReplicateStatisticalRunListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {
+        "items": {"type": "array", "items": {"$ref": "#/$defs/ReplicateStatisticalRunResponse"}}
+      }
+    },
+    "ScalarDistributionObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ordinal", "dataset_id", "dataset_revision_id", "test_run_id",
+        "test_run_revision_id", "value_pa", "quality", "outlier_assessment"
+      ],
+      "properties": {
+        "ordinal": {"type": "integer", "minimum": 0, "maximum": 49},
+        "dataset_id": {"$ref": "#/$defs/Uuid"},
+        "dataset_revision_id": {"$ref": "#/$defs/Uuid"},
+        "test_run_id": {"$ref": "#/$defs/Uuid"},
+        "test_run_revision_id": {"$ref": "#/$defs/Uuid"},
+        "value_pa": {"type": ["number", "null"]},
+        "quality": {"enum": ["observed", "missing", "non_finite", "censored"]},
+        "outlier_assessment": {"enum": ["not_assessed", "flagged", "not_flagged"]}
+      }
+    },
+    "ScalarDistributionParameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "estimate", "unit_id"],
+      "properties": {
+        "name": {"enum": ["location", "scale", "shape"]},
+        "estimate": {"type": "number"},
+        "unit_id": {"type": ["string", "null"], "minLength": 1, "maxLength": 40}
+      }
+    },
+    "ScalarDistributionCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "family", "status", "support", "estimator", "parameter_count", "parameters",
+        "log_likelihood", "aicc", "bic", "anderson_darling", "bootstrap_p_value",
+        "bootstrap_success_count", "bootstrap_failure_count", "delta_aicc",
+        "recommended", "reason_codes", "warnings", "candidate_sha256"
+      ],
+      "properties": {
+        "family": {"$ref": "#/$defs/DistributionFamily"},
+        "status": {"enum": ["succeeded", "not_eligible", "failed"]},
+        "support": {"enum": ["real", "positive"]},
+        "estimator": {
+          "enum": [
+            "normal_two_parameter_mle_v1", "lognormal_two_parameter_loc_zero_mle_v1",
+            "weibull_two_parameter_loc_zero_mle_v1"
+          ]
+        },
+        "parameter_count": {"const": 2},
+        "parameters": {"type": "array", "maxItems": 2, "items": {"$ref": "#/$defs/ScalarDistributionParameter"}},
+        "log_likelihood": {"type": ["number", "null"]},
+        "aicc": {"type": ["number", "null"]},
+        "bic": {"type": ["number", "null"]},
+        "anderson_darling": {"type": ["number", "null"], "minimum": 0},
+        "bootstrap_p_value": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "bootstrap_success_count": {"type": "integer", "minimum": 0, "maximum": 999},
+        "bootstrap_failure_count": {"type": "integer", "minimum": 0, "maximum": 999},
+        "delta_aicc": {"type": ["number", "null"], "minimum": 0},
+        "recommended": {"type": "boolean"},
+        "reason_codes": {"type": "array", "items": {"type": "string", "minLength": 1, "maxLength": 100}},
+        "warnings": {"type": "array", "items": {"type": "string", "minLength": 1, "maxLength": 240}},
+        "candidate_sha256": {"$ref": "#/$defs/Sha256"}
+      }
+    },
+    "ScalarDistributionRuntimeManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm_version", "schema_ref", "python_version", "numpy_version",
+        "scipy_version", "rng", "source_sha256", "lock_sha256", "environment_sha256"
+      ],
+      "properties": {
+        "algorithm_version": {"const": "scalar_distribution_fitting_v1"},
+        "schema_ref": {"const": "urn:cmp:statistics:scalar-distribution-result:1.0.0"},
+        "python_version": {"type": "string", "minLength": 1, "maxLength": 80},
+        "numpy_version": {"type": "string", "minLength": 1, "maxLength": 80},
+        "scipy_version": {"type": "string", "minLength": 1, "maxLength": 80},
+        "rng": {"const": "numpy.random.PCG64"},
+        "source_sha256": {"$ref": "#/$defs/Sha256"},
+        "lock_sha256": {"$ref": "#/$defs/Sha256"},
+        "environment_sha256": {"$ref": "#/$defs/Sha256"}
+      }
+    },
+    "ScalarDistributionResultResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scalar_distribution_result_id", "current_revision", "statistical_run_id",
+        "statistical_result_id", "statistical_result_revision_id", "plan_id", "plan_revision_id",
+        "selection_id", "selection_revision_id", "scalar_feature", "sample_count",
+        "minimum_sample_count", "small_sample_warning_below", "observations", "candidates",
+        "recommended_families", "recommendation_method", "artifact_id", "artifact_sha256",
+        "seed", "bootstrap_samples", "unit_profile", "unit_applications", "runtime_manifest", "links"
+      ],
+      "properties": {
+        "scalar_distribution_result_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "../revisions/revision-metadata.schema.json"},
+        "statistical_run_id": {"$ref": "#/$defs/Uuid"},
+        "statistical_result_id": {"$ref": "#/$defs/Uuid"},
+        "statistical_result_revision_id": {"$ref": "#/$defs/Uuid"},
+        "plan_id": {"$ref": "#/$defs/Uuid"},
+        "plan_revision_id": {"$ref": "#/$defs/Uuid"},
+        "selection_id": {"$ref": "#/$defs/Uuid"},
+        "selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "scalar_feature": {"const": "peak_engineering_stress_pa"},
+        "sample_count": {"type": "integer", "minimum": 2, "maximum": 50},
+        "minimum_sample_count": {"const": 8},
+        "small_sample_warning_below": {"const": 20},
+        "observations": {"type": "array", "minItems": 2, "maxItems": 50, "items": {"$ref": "#/$defs/ScalarDistributionObservation"}},
+        "candidates": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"$ref": "#/$defs/ScalarDistributionCandidate"}},
+        "recommended_families": {"type": "array", "maxItems": 3, "items": {"$ref": "#/$defs/DistributionFamily"}},
+        "recommendation_method": {"const": "aicc_delta_le_2_at_least_two_successful_candidates_v1"},
+        "artifact_id": {"$ref": "#/$defs/Uuid"},
+        "artifact_sha256": {"$ref": "#/$defs/Sha256"},
+        "seed": {"type": "integer", "minimum": 0, "maximum": 4294967295},
+        "bootstrap_samples": {"const": 999},
+        "unit_profile": {"anyOf": [{"$ref": "../units/unit-resources.schema.json#/$defs/UnitProfilePin"}, {"type": "null"}]},
+        "unit_applications": {"type": "array", "maxItems": 1, "items": {"$ref": "../units/unit-resources.schema.json#/$defs/UnitApplication"}},
+        "runtime_manifest": {"$ref": "#/$defs/ScalarDistributionRuntimeManifest"},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "CreateScalarDistributionSelectionRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "distribution_result_revision_id", "selected_family", "candidate_sha256", "selection_reason"],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "distribution_result_revision_id": {"$ref": "#/$defs/Uuid"},
+        "selected_family": {"$ref": "#/$defs/DistributionFamily"},
+        "candidate_sha256": {"$ref": "#/$defs/Sha256"},
+        "selection_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ReviseScalarDistributionSelectionRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expected_current_revision_id", "distribution_result_id", "distribution_result_revision_id", "selected_family", "candidate_sha256", "selection_reason"],
+      "properties": {
+        "expected_current_revision_id": {"$ref": "#/$defs/Uuid"},
+        "distribution_result_id": {"$ref": "#/$defs/Uuid"},
+        "distribution_result_revision_id": {"$ref": "#/$defs/Uuid"},
+        "selected_family": {"$ref": "#/$defs/DistributionFamily"},
+        "candidate_sha256": {"$ref": "#/$defs/Sha256"},
+        "selection_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ScalarDistributionSelectionContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["distribution_result_id", "distribution_result_revision_id", "selected_family", "candidate_sha256", "selection_reason"],
+      "properties": {
+        "distribution_result_id": {"$ref": "#/$defs/Uuid"},
+        "distribution_result_revision_id": {"$ref": "#/$defs/Uuid"},
+        "selected_family": {"$ref": "#/$defs/DistributionFamily"},
+        "candidate_sha256": {"$ref": "#/$defs/Sha256"},
+        "selection_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ScalarDistributionSelectionResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["distribution_selection_id", "current_revision", "content", "links"],
+      "properties": {
+        "distribution_selection_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "../revisions/revision-metadata.schema.json"},
+        "content": {"$ref": "#/$defs/ScalarDistributionSelectionContent"},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "ScalarDistributionSelectionListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {
+        "items": {"type": "array", "items": {"$ref": "#/$defs/ScalarDistributionSelectionResponse"}}
       }
     },
     "ReplicateCurvePoint": {

@@ -29,6 +29,9 @@ MODELING_DATA_SESSION_OUTPUTS = cast(
     tuple[str, ...], _SCRIPT["MODELING_DATA_SESSION_OUTPUTS"]
 )
 MODELING_PROCESS_OUTPUTS = cast(tuple[str, ...], _SCRIPT["MODELING_PROCESS_OUTPUTS"])
+MODELING_DISTRIBUTION_OUTPUTS = cast(
+    tuple[str, ...], _SCRIPT["MODELING_DISTRIBUTION_OUTPUTS"]
+)
 MODELING_PROCESS_FIT_OUTPUTS = cast(
     tuple[str, ...], _SCRIPT["MODELING_PROCESS_FIT_OUTPUTS"]
 )
@@ -437,7 +440,7 @@ def test_incomplete_capture_cannot_reuse_files_from_previous_output(
 
 
 def test_current_capture_contract_contains_product_routes_only() -> None:
-    assert len(CURRENT_CAPTURE_OUTPUTS) == 95
+    assert len(CURRENT_CAPTURE_OUTPUTS) == 115
     assert PRODUCT_ACCESS_OUTPUTS == (
         "administration-access-1366x768.png",
         "administration-access-1440x900.png",
@@ -450,6 +453,7 @@ def test_current_capture_contract_contains_product_routes_only() -> None:
     assert all(name in CURRENT_CAPTURE_OUTPUTS for name in MATERIAL_CURVE_OUTPUTS)
     assert all(name in CURRENT_CAPTURE_OUTPUTS for name in MODELING_DATA_SESSION_OUTPUTS)
     assert all(name in CURRENT_CAPTURE_OUTPUTS for name in MODELING_PROCESS_OUTPUTS)
+    assert all(name in CURRENT_CAPTURE_OUTPUTS for name in MODELING_DISTRIBUTION_OUTPUTS)
     assert {
         "modeling-data-2560x1440.png",
         "modeling-data-3840x2160.png",

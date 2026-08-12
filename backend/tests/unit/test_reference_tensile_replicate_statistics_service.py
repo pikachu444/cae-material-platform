@@ -48,12 +48,14 @@ from cmp.modules.identity_access.domain.security import Principal, PrincipalType
 from cmp.modules.statistics.application.replicate_service import (
     REPLICATE_STATISTICAL_PLAN_AGGREGATE_TYPE,
     REPLICATE_STATISTICAL_RESULT_AGGREGATE_TYPE,
+    SCALAR_DISTRIBUTION_RESULT_AGGREGATE_TYPE,
     ExecuteReferenceTensileReplicateStatistics,
     ReplicateRevisionSnapshot,
     ReplicateStatisticalResultSnapshot,
     ReplicateStatisticalRun,
     ReplicateStatisticsRepository,
     ReplicateStatisticsService,
+    ScalarDistributionResultSnapshot,
 )
 from cmp.modules.statistics.domain.reference_tensile_pair import QcObservation, StatisticalRunStatus
 from cmp.modules.statistics.domain.reference_tensile_replicates import (
@@ -61,6 +63,12 @@ from cmp.modules.statistics.domain.reference_tensile_replicates import (
     ReferenceTensileReplicatePlanContent,
     ReferenceTensileReplicateResultContent,
     reference_tensile_replicate_curve_from_parquet,
+)
+from cmp.modules.statistics.domain.scalar_distribution import (
+    SCALAR_DISTRIBUTION_ARTIFACT_MEDIA_TYPE,
+    SCALAR_DISTRIBUTION_RESULT_SCHEMA,
+    ScalarDistributionAnalysisOptions,
+    ScalarDistributionResultContent,
 )
 from cmp.shared.domain.revisions import RevisionRecord, TenantScope
 from pytest import MonkeyPatch
@@ -77,6 +85,9 @@ RUN = UUID(int=14)
 RESULT = UUID(int=15)
 RESULT_REVISION = UUID(int=16)
 CURVE_ARTIFACT = UUID(int=17)
+DIST_RESULT = UUID(int=18)
+DIST_RESULT_REVISION = UUID(int=19)
+DIST_ARTIFACT = UUID(int=20)
 TRACE = "00-00000000000000000000000000000033-0000000000000033-01"
 MAPPING = ReferenceTensileMapping("strain", "stress", "1", "Pa")
 
@@ -166,6 +177,23 @@ CURVES = tuple(
         CurvePoint(0.02, peak),
     )
     for peak in (500_000_000.0, 520_000_000.0, 540_000_000.0)
+)
+DIST_CURVES = tuple(
+    (
+        CurvePoint(0.0, 0.0),
+        CurvePoint(0.01, peak - 20_000_000.0),
+        CurvePoint(0.02, peak),
+    )
+    for peak in (
+        496_000_000.0,
+        503_000_000.0,
+        511_000_000.0,
+        517_000_000.0,
+        524_000_000.0,
+        531_000_000.0,
+        539_000_000.0,
+        548_000_000.0,
+    )
 )
 
 
@@ -260,6 +288,7 @@ class _Artifacts:
             for snapshot, points in zip(datasets.values.values(), curves, strict=True)
         }
         self.curve_bytes: bytes | None = None
+        self.distribution_bytes: bytes | None = None
 
     async def read_verified_bytes(
         self,
@@ -286,18 +315,32 @@ class _Artifacts:
     ) -> ArtifactRecord:
         assert context is CONTEXT and decision is EXECUTE
         assert classification is DataClassification.INTERNAL
-        assert artifact_role == "statistics.reference_tensile_replicate_curve"
-        assert schema_ref == REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMA
-        assert media_type == "application/vnd.apache.parquet"
-        assert idempotency_key == f"statistics:{RUN}:reference-tensile-replicates"
-        self.curve_bytes = value
-        return _artifact(CURVE_ARTIFACT, value, schema_ref, artifact_role)
+        if artifact_role == "statistics.reference_tensile_replicate_curve":
+            assert schema_ref == REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMA
+            assert media_type == "application/vnd.apache.parquet"
+            assert idempotency_key == f"statistics:{RUN}:reference-tensile-replicates"
+            self.curve_bytes = value
+            return _artifact(CURVE_ARTIFACT, value, schema_ref, artifact_role)
+        assert artifact_role == "statistics.scalar_distribution_result"
+        assert schema_ref == SCALAR_DISTRIBUTION_RESULT_SCHEMA
+        assert media_type == SCALAR_DISTRIBUTION_ARTIFACT_MEDIA_TYPE
+        assert idempotency_key == f"statistics:{RUN}:scalar-distribution"
+        self.distribution_bytes = value
+        return _artifact(DIST_ARTIFACT, value, schema_ref, artifact_role)
 
 
 class _Repository:
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        sample_count: int,
+        distribution: ScalarDistributionAnalysisOptions | None,
+    ) -> None:
         content = ReferenceTensileReplicatePlanContent(
-            "DP780 replicate statistics", SELECTION, SELECTION_REVISION, 3
+            "DP780 replicate statistics",
+            SELECTION,
+            SELECTION_REVISION,
+            sample_count,
+            scalar_distribution=distribution,
         )
         self.plan = ReplicateRevisionSnapshot(
             _record(PLAN_REVISION, PLAN, REPLICATE_STATISTICAL_PLAN_AGGREGATE_TYPE),
@@ -305,6 +348,7 @@ class _Repository:
         )
         self.runs: dict[UUID, ReplicateStatisticalRun] = {}
         self.result: ReplicateStatisticalResultSnapshot | None = None
+        self.distribution_result: ScalarDistributionResultSnapshot | None = None
 
     def get_plan_revision(
         self,
@@ -346,6 +390,7 @@ class _Repository:
         decision: AuthorizationDecision,
         run_id: UUID,
         result: ReplicateStatisticalResultSnapshot,
+        distribution_result: ScalarDistributionResultSnapshot | None,
         qc_observations: tuple[QcObservation, ...],
     ) -> ReplicateStatisticalRun:
         assert context is CONTEXT and decision is EXECUTE
@@ -357,6 +402,24 @@ class _Repository:
             curve_artifact_id=result.current.content.curve_artifact_id,
             curve_sha256=result.current.content.curve_sha256,
             curve_point_count=result.current.content.curve_point_count,
+            scalar_distribution_result_id=(
+                distribution_result.id if distribution_result is not None else None
+            ),
+            scalar_distribution_result_revision_id=(
+                distribution_result.current.record.revision_id
+                if distribution_result is not None
+                else None
+            ),
+            scalar_distribution_artifact_id=(
+                distribution_result.current.content.artifact_id
+                if distribution_result is not None
+                else None
+            ),
+            scalar_distribution_sha256=(
+                distribution_result.current.content.artifact_sha256
+                if distribution_result is not None
+                else None
+            ),
             ended_at=NOW,
             qc_observations=qc_observations,
         )
@@ -386,10 +449,11 @@ class _Repository:
 
 def _service(
     curves: tuple[tuple[CurvePoint, ...], ...] = CURVES,
+    distribution: ScalarDistributionAnalysisOptions | None = None,
 ) -> tuple[ReplicateStatisticsService, _Repository, _Datasets, _Artifacts]:
     datasets = _Datasets(curves)
     artifacts = _Artifacts(datasets, curves)
-    repository = _Repository()
+    repository = _Repository(len(curves), distribution)
     service = ReplicateStatisticsService(
         repository=cast(ReplicateStatisticsRepository, repository),
         datasets=cast(DatasetService, datasets),
@@ -470,3 +534,86 @@ def test_replicate_statistics_service_records_failed_exact_grid_qc() -> None:
     assert repository.result is None
     assert artifacts.curve_bytes is None
     assert any(item.outcome.value == "failed" for item in outcome.qc_observations)
+
+
+def test_distribution_extends_the_same_plan_run_and_preserves_descriptive_result(
+    monkeypatch: MonkeyPatch,
+) -> None:
+    service, repository, datasets, artifacts = _service(
+        DIST_CURVES,
+        ScalarDistributionAnalysisOptions(seed=210),
+    )
+
+    def register_result(
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        content: ReferenceTensileReplicateResultContent,
+        reason: str,
+    ) -> ReplicateStatisticalResultSnapshot:
+        assert context is CONTEXT and decision is EXECUTE and reason
+        value = ReplicateStatisticalResultSnapshot(
+            RESULT,
+            ReplicateRevisionSnapshot(
+                _record(
+                    RESULT_REVISION,
+                    RESULT,
+                    REPLICATE_STATISTICAL_RESULT_AGGREGATE_TYPE,
+                ),
+                content,
+            ),
+        )
+        repository.result = value
+        return value
+
+    def register_distribution_result(
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        content: ScalarDistributionResultContent,
+        reason: str,
+    ) -> ScalarDistributionResultSnapshot:
+        assert context is CONTEXT and decision is EXECUTE and reason
+        value = ScalarDistributionResultSnapshot(
+            DIST_RESULT,
+            ReplicateRevisionSnapshot(
+                _record(
+                    DIST_RESULT_REVISION,
+                    DIST_RESULT,
+                    SCALAR_DISTRIBUTION_RESULT_AGGREGATE_TYPE,
+                ),
+                content,
+            ),
+        )
+        repository.distribution_result = value
+        return value
+
+    monkeypatch.setattr(service, "_register_result", register_result)
+    monkeypatch.setattr(
+        service,
+        "_register_distribution_result",
+        register_distribution_result,
+    )
+    outcome = asyncio.run(service.execute(CONTEXT, EXECUTE, _command()))
+
+    assert outcome.status is StatisticalRunStatus.SUCCEEDED
+    assert outcome.result_id == RESULT
+    assert outcome.scalar_distribution_result_id == DIST_RESULT
+    assert outcome.scalar_distribution_result_revision_id == DIST_RESULT_REVISION
+    assert repository.result is not None
+    assert repository.result.current.content.peak_engineering_stress_pa.sample_count == 8
+    assert repository.distribution_result is not None
+    distribution = repository.distribution_result.current.content
+    assert distribution.statistical_result_revision_id == RESULT_REVISION
+    assert [item.family.value for item in distribution.computation.candidates] == [
+        "normal",
+        "lognormal",
+        "weibull",
+    ]
+    assert all(item.status.value == "succeeded" for item in distribution.computation.candidates)
+    assert artifacts.distribution_bytes is not None
+    assert hashlib.sha256(artifacts.distribution_bytes).hexdigest() == (
+        distribution.artifact_sha256
+    )
+    assert all(
+        value.revision.content.representation is DatasetRepresentation.PROCESSED
+        for value in datasets.values.values()
+    )
