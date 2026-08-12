@@ -1,15 +1,15 @@
-version: 99
+version: 100
 verified_at: 2026-08-13
 scope: issue-208-schema-bundle-administration
-source_commit: 64b9be83a03e1760478165b87917e7107852d4f7
+source_commit: 63176ec5a07647d598753d437fce4339d4f05ebb
 capture_script: ../../scripts/capture_current_product.py
-capture_command: CMP_DEMO_WEB_URL=http://127.0.0.1:5178 CMP_SCHEMA_BUNDLE_EVIDENCE_DIR=docs/17-evidence/images/issue-208-schema-bundle-administration npx playwright test e2e/schema-definition-bundle-administration.spec.ts
+capture_command: CMP_DEMO_WEB_URL=http://127.0.0.1:5188 CMP_SCHEMA_BUNDLE_EVIDENCE_DIR=C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-208-schema-bundle-administration npx playwright test e2e/schema-definition-bundle-administration.spec.ts
 notes:
-  - "Issue #208 adds the current 1440×900 Administration Definition bundles plan image from corrected implementation commit 64b9be83a03e1760478165b87917e7107852d4f7. The current directory contains 101 deterministic synthetic non-production images."
+  - "Issue #208 adds the current 1440×900 Administration Definition bundles plan image from product-owner visual-correction commit 63176ec5a07647d598753d437fce4339d4f05ebb. The current directory contains 101 deterministic synthetic non-production images."
   - "The issue-owned packet is docs/17-evidence/images/issue-208-schema-bundle-administration/visual-evidence.yaml: five plan originals, twenty direct 100%-pixel header/navigator/table/form crops, five numeric geometry records, and explicit confirmation and applied/read-back/export state originals. Main opened every original and crop at original resolution."
   - "The browser journey uses the contract-backed positive bundle fixture to verify upload-plan-confirm-apply-read-back-export, explicit source reset, arbitrary action count, keyboard row movement, long identity reachability, exact Apply body without client actions, refresh read-back and Reviewer denial. Unit/API tests separately cover invalid MIME/JSON/size/shape, migration-required confirmation blocking, source replacement isolation, stale re-plan, uncertain Apply read-back recovery, checksum mismatch and User/Reviewer API denial."
   - "Canonical Compose was rejected at preflight because the running cmp-local-demo project belongs to the preserved C:/SourceCodes/cae-material-platform-issue210 worktree. No container or data was changed, and the isolated Vite/contract-backed browser run is not represented as canonical Compose evidence."
-  - "At all five CSS viewports browser zoom is 100%, DPR is 1, page horizontal overflow is zero, the source/detail panes remain bounded, and the plan table grows into the central workspace while finite rows leave truthful unused space. Automated 3840×2160 geometry does not claim physical 4K readability; #223 remains the final physical gate. Product Owner review of the 1920/2560/3840 originals and crops is pending, so the PR must remain draft."
+  - "At all five CSS viewports browser zoom is 100%, DPR is 1, page horizontal overflow is zero, the source/detail panes remain bounded, and the plan table grows into the central workspace while finite rows leave truthful unused space. The product-owner correction removes boxed navigation borders and awkward bold labels, restores the central plan pane to the white work surface, and uses neutral regular-weight target labels. Automated 3840×2160 geometry does not claim physical 4K readability; #223 remains the final physical gate. Product Owner re-review of the corrected 1920/2560/3840 originals and crops is pending, so the PR must remain draft."
   - "Issue #210 adds five current Modeling Process distribution-analysis originals from canonical current-source Compose. The current directory contains 100 deterministic synthetic non-production images; the five #210 current images were recaptured at Standard from UI source commit ff9ba293. Thirty Standard/Large direct 100%-pixel crops remain in the issue-owned evidence packet rather than the current product-guide set."
   - "The issue-owned packet is docs/17-evidence/images/issue-210-scalar-distribution-fitting/visual-evidence.yaml: five exact-origin/main before originals, ten live after originals across Standard and Large, thirty direct 100%-pixel crops, hashes, dimensions, route, browser/DPR/zoom/density and measured geometry. Main opened every original and crop at original resolution."
   - "The live browser journey opens the optional full-workspace Distribution analysis sheet, verifies the covered Process workspace is mounted but inert, cycles focus in the modal sheet, verifies Escape/focus return, selects Normal with an explicit reason, reloads, and reads back the exact immutable selection revision without changing the recommendation."
@@ -143,12 +143,12 @@ visual_evidence:
   root_original_and_crop_review: pass
   physical_4k_readability: DEFERRED_TO_223
   fixture_dependent_capture_status: isolated_contract_backed_issue_208; canonical_compose_blocked_by_preserved_issue210_owner
-  independent_read_only_review: pass_at_159e6d47bb7f0a0be278b7a845034a93ea02797a_final_metadata_recheck_required
-  product_owner_review: pending
+  independent_read_only_review: pending_corrected_exact_final_sha
+  product_owner_review: pending_after_visual_correction
 capture_provenance:
-  - source_commit: 64b9be83a03e1760478165b87917e7107852d4f7
-    captured_at: '2026-08-12T16:48:03Z'
-    command: 'Isolated Vite UI with contract-backed HTTP fixtures through apps/web/e2e/schema-definition-bundle-administration.spec.ts; Playwright 1.61.1 at browser zoom 100% and DPR 1. The flow verifies Administrator upload-plan-confirm-apply-read-back-export, arbitrary plan actions, keyboard End navigation, long identity reachability, exact Apply body without client actions, checksum/source-evidence verified download, refresh read-back and Reviewer denial. It writes five plan originals, twenty direct crops, five geometry records, confirmation/applied state images, and copies the accepted 1440 plan original into the current guide directory. The full current-set Python script preserves this registered issue-owned image instead of claiming a canonical Compose recapture.'
+  - source_commit: 63176ec5a07647d598753d437fce4339d4f05ebb
+    captured_at: '2026-08-12T21:02:04Z'
+    command: 'Isolated Vite UI with contract-backed HTTP fixtures through apps/web/e2e/schema-definition-bundle-administration.spec.ts on port 5188; Playwright 1.61.1 at browser zoom 100% and DPR 1. The flow verifies Administrator upload-plan-confirm-apply-read-back-export, arbitrary plan actions, keyboard End navigation, long identity reachability, exact Apply body without client actions, checksum/source-evidence verified download, refresh read-back and Reviewer denial. After the product-owner correction request, it rewrites five plan originals, twenty direct crops, five geometry records and confirmation/applied state images with flat navigation separators, restrained label weights, a white plan work surface and neutral target labels. The corrected 1440 plan original is copied byte-identically into the current guide directory. The full current-set Python script preserves this registered issue-owned image instead of claiming a canonical Compose recapture.'
     ids: [administration-schema-bundle-1440]
   - source_commit: ff9ba293222ea5a9e17821e4dc8c4ef1b0bcb1a5
     captured_at: '2026-08-12T13:43:34Z'
