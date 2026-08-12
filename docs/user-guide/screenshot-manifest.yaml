@@ -1,10 +1,15 @@
-version: 95
+version: 97
 verified_at: 2026-08-12
-scope: issue-206-curve-channel-metadata-and-deviation
-source_commit: e9b523a7f7b613d8d6efc0396160f0ceb2aff2c4
+scope: issue-210-scalar-distribution-fitting
+source_commit: ff9ba293222ea5a9e17821e4dc8c4ef1b0bcb1a5
 capture_script: ../../scripts/capture_current_product.py
-capture_command: uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --only-materials; --only-modeling-data-session; --only-modeling-process-fit-viewports
+capture_command: uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --only-modeling-distribution --include-distribution-detail-crops --density standard
 notes:
+  - "Issue #210 adds five current Modeling Process distribution-analysis originals from canonical current-source Compose. The current directory contains 100 deterministic synthetic non-production images; the five #210 current images were recaptured at Standard from UI source commit ff9ba293. Thirty Standard/Large direct 100%-pixel crops remain in the issue-owned evidence packet rather than the current product-guide set."
+  - "The issue-owned packet is docs/17-evidence/images/issue-210-scalar-distribution-fitting/visual-evidence.yaml: five exact-origin/main before originals, ten live after originals across Standard and Large, thirty direct 100%-pixel crops, hashes, dimensions, route, browser/DPR/zoom/density and measured geometry. Main opened every original and crop at original resolution."
+  - "The live browser journey opens the optional full-workspace Distribution analysis sheet, verifies the covered Process workspace is mounted but inert, cycles focus in the modal sheet, verifies Escape/focus return, selects Normal with an explicit reason, reloads, and reads back the exact immutable selection revision without changing the recommendation."
+  - "At 1366x768 all three candidate rows and the saved decision remain visible in both Standard and Large. Page and table horizontal overflow are zero at all five viewports; the elastic empirical/fitted CDF graph uses the remaining analysis space and the candidate ledger stays aligned below it."
+  - "Automated 3840x2160 CSS geometry does not claim physical 4K readability. No 3840 physical display was available; #223 remains the product-wide physical-readability gate. Product Owner review of the registered 1920/2560/3840 originals and crops is pending, so the #210 PR must remain draft."
   - "Issue #206 adds five exact Material Curves captures and refreshes the affected Materials and Modeling Data/Process/Fit routes from canonical current-source Compose. The current directory contains 95 deterministic synthetic non-production images; 43 were captured from implementation commit e9b523a7, 48 retain the accepted #184 current-source pixels, and four fixture-dependent Solver Card/Export images retain their registered accepted baseline."
   - "The issue-owned packet is docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/visual-evidence.yaml: 12 exact-origin/main before originals, 20 live after originals, 48 direct 100%-pixel crops, six keyboard/Evidence/metadata-absent state images, hashes, dimensions, routes, browser/DPR/zoom and exact source commit. Every original and crop was opened at original resolution."
   - "Materials Curves exposes the exact observed Test Data curve and view-only replicate Statistics curve, shared channel/unit definitions, recorded pointwise Student-t confidence evidence, keyboard/pointer tooltip parity, band toggle, exact revision and Evidence disclosure. Unknown legacy metadata remains visibly available without inferred axes, units, deviation or Fit eligibility."
@@ -48,6 +53,16 @@ notes:
   - "Issue #158 Task 3B Fit captures bind the Fit source to one saved Process Output id/revision/digest in Candidate parameters Evidence, show the server candidate response/residual/tangent and diagnostic evidence, preserve the last valid preview after an exact-source read or Fit failure, and show an explicit blocked recovery when the pinned Process Output is missing or stale; Fit save requests carry the exact source pin and never fall back to raw Test Data."
   - "Issue #158 Task 3B current Fit images are registered for route, content and completed qualitative visual acceptance evidence from main 7394070 plus the Fit UI correction worktree."
 allowed_duplicate_groups:
+  - rationale: "Issue #210 keeps the registered current original and its issue-owned after original byte-identical so product-guide and acceptance provenance remain independently addressable."
+    images: [docs/user-guide/images/current/modeling-distribution-1366x768.png, docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/originals/modeling-distribution-1366x768.png]
+  - rationale: "Issue #210 keeps the registered current original and its issue-owned after original byte-identical so product-guide and acceptance provenance remain independently addressable."
+    images: [docs/user-guide/images/current/modeling-distribution-1440x900.png, docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/originals/modeling-distribution-1440x900.png]
+  - rationale: "Issue #210 keeps the registered current original and its issue-owned after original byte-identical so product-guide and acceptance provenance remain independently addressable."
+    images: [docs/user-guide/images/current/modeling-distribution-1920x1080.png, docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/originals/modeling-distribution-1920x1080.png]
+  - rationale: "Issue #210 keeps the registered current original and its issue-owned after original byte-identical so product-guide and acceptance provenance remain independently addressable."
+    images: [docs/user-guide/images/current/modeling-distribution-2560x1440.png, docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/originals/modeling-distribution-2560x1440.png]
+  - rationale: "Issue #210 keeps the registered current original and its issue-owned after original byte-identical so product-guide and acceptance provenance remain independently addressable."
+    images: [docs/user-guide/images/current/modeling-distribution-3840x2160.png, docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/originals/modeling-distribution-3840x2160.png]
   - rationale: "The immutable 1440px Users & access baseline and current normal capture are pixel-identical because the changed Create assignment and Revoke controls are below the initial viewport; separate 1366/1920/2560/3840 and state evidence shows the semantic change."
     images:
       - docs/17-evidence/images/issue-161-administration-button-semantics/before/access/administration-access-1440x900.png
@@ -93,14 +108,18 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/modeling-process-2560x1440-graph-axis-100pct.png
       - docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/modeling-process-3840x2160-graph-axis-100pct.png
 visual_evidence:
-  sidecar: docs/17-evidence/images/issue-184-high-dpi-global-implementation/visual-evidence.json
-  geometry_measurements: docs/17-evidence/images/issue-184-high-dpi-global-implementation/geometry-measurements.json
+  sidecar: docs/17-evidence/images/issue-210-scalar-distribution-fitting/visual-evidence.yaml
+  geometry_measurements: docs/17-evidence/images/issue-210-scalar-distribution-fitting/visual-evidence.yaml
   routes: [/materials, '/materials/:materialId', /modeling, /activity, /administration/database, /administration/records, /administration/access]
   states: [normal, long, empty, invalid, blocked, failed, restored, delivered, role-aware, popup, drawer, file-input, pane-overlay, resize, collapse, reset, reload]
   baseline_source: 36e8312fa85253ad8fee88f63a3a4bf096d92a9c
-  current_source: e9b523a7f7b613d8d6efc0396160f0ceb2aff2c4
+  current_source: ff9ba293222ea5a9e17821e4dc8c4ef1b0bcb1a5
   evidence_artifacts_are_not_current_captures: true
-  current_capture_count: 95
+  current_capture_count: 100
+  issue_210_current_count: 5
+  issue_210_before_original_count: 5
+  issue_210_after_original_count: 10
+  issue_210_direct_crop_count: 30
   issue_206_recaptured_current_count: 43
   inherited_issue_184_current_count: 48
   preserved_registered_baseline_count: 4
@@ -111,10 +130,14 @@ visual_evidence:
   crop_scale: '100 percent / direct 1:1 source pixels'
   root_original_and_crop_review: pass
   physical_4k_readability: DEFERRED_TO_223
-  fixture_dependent_capture_status: complete_for_issue_206
-  independent_read_only_review: approve_for_draft_at_3493ed718f986893493f82b25a6a56aea765b941
+  fixture_dependent_capture_status: complete_for_issue_210
+  independent_read_only_review: pending
   product_owner_review: pending
 capture_provenance:
+  - source_commit: ff9ba293222ea5a9e17821e4dc8c4ef1b0bcb1a5
+    captured_at: '2026-08-12T13:43:34Z'
+    command: 'Canonical current-source Compose from the separated analysis-sheet UI source; capture_current_product.py --only-modeling-distribution --include-distribution-detail-crops at Standard and Large, browser zoom 100% and DPR 1. The live flow verifies the exact eight-member processed Selection, immutable Plan reuse, empirical/fitted CDF, three candidate rows, explicit selection/reason, full reload read-back, modal inert/focus/Escape behavior, last-row visibility and five-viewport geometry before writing five Standard current originals plus the issue-owned Standard/Large originals and thirty direct crops.'
+    ids: [modeling-distribution-1366, modeling-distribution-1440, modeling-distribution-1920, modeling-distribution-2560, modeling-distribution-3840]
   - source_commit: e9b523a7f7b613d8d6efc0396160f0ceb2aff2c4
     captured_at: '2026-08-12'
     command: 'Canonical current-source Compose; capture_current_product.py --only-materials, --only-modeling-data-session and --only-modeling-process-fit-viewports at browser zoom 100% and DPR 1. The issue-owned script copied the 20 affected five-viewport originals, produced direct 100%-pixel crops, exercised keyboard/pointer tooltip and band-toggle parity, opened Evidence, and recorded the honest metadata-absent state.'
@@ -856,5 +879,40 @@ captures:
     workflow: user-reviewer-administrator-task-preset-assignment
     fixture: deterministic demo Administrator viewing the Reviewer preset; shared blue primary assignment action and danger-colored Revoke controls
     image: images/current/administration-access-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: modeling-distribution-1366
+    route: /modeling?stage=process&family=metal
+    workflow: compare-scalar-distribution-candidates-and-read-saved-selection
+    fixture: synthetic DP780 exact eight-member processed replicate Selection; saved Plan r1; seed 210; 999 bootstrap refits
+    image: images/current/modeling-distribution-1366x768.png
+    width: 1366
+    height: 768
+  - id: modeling-distribution-1440
+    route: /modeling?stage=process&family=metal
+    workflow: compare-scalar-distribution-candidates-and-read-saved-selection
+    fixture: synthetic DP780 exact eight-member processed replicate Selection; saved Plan r1; seed 210; 999 bootstrap refits
+    image: images/current/modeling-distribution-1440x900.png
+    width: 1440
+    height: 900
+  - id: modeling-distribution-1920
+    route: /modeling?stage=process&family=metal
+    workflow: compare-scalar-distribution-candidates-and-read-saved-selection
+    fixture: synthetic DP780 exact eight-member processed replicate Selection; saved Plan r1; seed 210; 999 bootstrap refits
+    image: images/current/modeling-distribution-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: modeling-distribution-2560
+    route: /modeling?stage=process&family=metal
+    workflow: compare-scalar-distribution-candidates-and-read-saved-selection
+    fixture: synthetic DP780 exact eight-member processed replicate Selection; saved Plan r1; seed 210; 999 bootstrap refits
+    image: images/current/modeling-distribution-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: modeling-distribution-3840
+    route: /modeling?stage=process&family=metal
+    workflow: compare-scalar-distribution-candidates-and-read-saved-selection
+    fixture: synthetic DP780 exact eight-member processed replicate Selection; saved Plan r1; seed 210; 999 bootstrap refits
+    image: images/current/modeling-distribution-3840x2160.png
     width: 3840
     height: 2160

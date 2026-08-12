@@ -29,6 +29,15 @@ MODELING_DATA_SESSION_OUTPUTS = cast(
     tuple[str, ...], _SCRIPT["MODELING_DATA_SESSION_OUTPUTS"]
 )
 MODELING_PROCESS_OUTPUTS = cast(tuple[str, ...], _SCRIPT["MODELING_PROCESS_OUTPUTS"])
+MODELING_DISTRIBUTION_OUTPUTS = cast(
+    tuple[str, ...], _SCRIPT["MODELING_DISTRIBUTION_OUTPUTS"]
+)
+MODELING_DISTRIBUTION_VIEWPORT_OUTPUTS = cast(
+    tuple[str, ...], _SCRIPT["MODELING_DISTRIBUTION_VIEWPORT_OUTPUTS"]
+)
+MODELING_DISTRIBUTION_DETAIL_OUTPUTS = cast(
+    tuple[str, ...], _SCRIPT["MODELING_DISTRIBUTION_DETAIL_OUTPUTS"]
+)
 MODELING_PROCESS_FIT_OUTPUTS = cast(
     tuple[str, ...], _SCRIPT["MODELING_PROCESS_FIT_OUTPUTS"]
 )
@@ -437,7 +446,7 @@ def test_incomplete_capture_cannot_reuse_files_from_previous_output(
 
 
 def test_current_capture_contract_contains_product_routes_only() -> None:
-    assert len(CURRENT_CAPTURE_OUTPUTS) == 95
+    assert len(CURRENT_CAPTURE_OUTPUTS) == 100
     assert PRODUCT_ACCESS_OUTPUTS == (
         "administration-access-1366x768.png",
         "administration-access-1440x900.png",
@@ -450,6 +459,15 @@ def test_current_capture_contract_contains_product_routes_only() -> None:
     assert all(name in CURRENT_CAPTURE_OUTPUTS for name in MATERIAL_CURVE_OUTPUTS)
     assert all(name in CURRENT_CAPTURE_OUTPUTS for name in MODELING_DATA_SESSION_OUTPUTS)
     assert all(name in CURRENT_CAPTURE_OUTPUTS for name in MODELING_PROCESS_OUTPUTS)
+    assert all(
+        name in CURRENT_CAPTURE_OUTPUTS for name in MODELING_DISTRIBUTION_VIEWPORT_OUTPUTS
+    )
+    assert set(MODELING_DISTRIBUTION_DETAIL_OUTPUTS).isdisjoint(CURRENT_CAPTURE_OUTPUTS)
+    assert len(MODELING_DISTRIBUTION_OUTPUTS) == 20
+    assert set(MODELING_DISTRIBUTION_OUTPUTS) == {
+        *MODELING_DISTRIBUTION_VIEWPORT_OUTPUTS,
+        *MODELING_DISTRIBUTION_DETAIL_OUTPUTS,
+    }
     assert {
         "modeling-data-2560x1440.png",
         "modeling-data-3840x2160.png",
@@ -1742,6 +1760,16 @@ def test_only_modeling_process_cli_help_and_output_contract_stay_at_nine() -> No
     main_source = _CAPTURE_SOURCE.split("def main()", 1)[1]
     assert "selected_output_names: Sequence[str] = CURRENT_CAPTURE_OUTPUTS" in main_source
     assert 'name.endswith(f"-{width}x{height}.png")' in _CAPTURE_SOURCE
+
+
+def test_distribution_detail_crops_are_explicit_issue_evidence_only() -> None:
+    main_source = _CAPTURE_SOURCE.split("def main()", 1)[1]
+    assert "--include-distribution-detail-crops" in main_source
+    assert (
+        '"--include-distribution-detail-crops requires --only-modeling-distribution"'
+        in main_source
+    )
+    assert "include_detail_crops=args.include_distribution_detail_crops" in main_source
 
 
 def test_exact_document_success_wait_replaces_removed_notice_for_data_and_process() -> None:

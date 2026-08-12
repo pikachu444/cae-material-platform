@@ -216,6 +216,14 @@ function axisTicks(minimum: number, maximum: number, count = 5): number[] {
   return Array.from({ length: count + 1 }, (_, index) => minimum + interval * index);
 }
 
+export function responsiveYAxisTicks(
+  minimum: number,
+  maximum: number,
+  height: number,
+): number[] {
+  return axisTicks(minimum, maximum, height < 180 ? 2 : 5);
+}
+
 function displayScale(unit: string, values: number[]): { divisor: number; label: string } {
   if (unit !== "Pa") return { divisor: 1, label: unit };
   const maximum = Math.max(...values.map(Math.abs), 0);
@@ -1024,7 +1032,7 @@ export function EngineeringCurvePlot({
         (_, index) => Math.ceil(bounds.xMin) + index,
       ).filter((value) => value >= bounds.xMin && value <= bounds.xMax)
     : axisTicks(bounds.xMin, bounds.xMax);
-  const yTicks = axisTicks(bounds.yMin, bounds.yMax);
+  const yTicks = responsiveYAxisTicks(bounds.yMin, bounds.yMax, effectiveHeight);
   const extrapolationPlotStart = model.extrapolationStart === undefined
     ? undefined
     : toPlotX(model.extrapolationStart);

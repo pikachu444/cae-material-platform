@@ -17,6 +17,7 @@ interface ModelingWorkspaceLayoutProps {
   dock?: ReactNode;
   dockLabel?: string;
   dataLayoutMode?: "compact" | "content-fit";
+  inactive?: boolean;
   ribbonOpen: boolean;
   onRibbonOpenChange: (open: boolean) => void;
 }
@@ -42,6 +43,7 @@ export function ModelingWorkspaceLayout({
   dock,
   dockLabel = "Delivery",
   dataLayoutMode,
+  inactive = false,
   ribbonOpen,
   onRibbonOpenChange,
 }: ModelingWorkspaceLayoutProps) {
@@ -67,6 +69,7 @@ export function ModelingWorkspaceLayout({
   const dockOverlayLatchedRef = useRef(false);
   const [dockOverlay, setDockOverlay] = useState(false);
   const dockPresent = Boolean(dock);
+  const evidenceDock = dockLabel === "Candidate parameters";
 
   useEffect(() => {
     const update = () => setViewport(desktopViewportClass(window.innerWidth));
@@ -99,7 +102,7 @@ export function ModelingWorkspaceLayout({
   }, [dataLayoutMode, dataRibbonPanel, dataRibbonPreferredSize, density]);
 
   useEffect(() => {
-    if (!dockPresent || dockLabel !== "Candidate parameters") {
+    if (!dockPresent || !evidenceDock) {
       dockOverlayLatchedRef.current = false;
       setDockOverlay(false);
       return undefined;
@@ -119,7 +122,7 @@ export function ModelingWorkspaceLayout({
     if (frame) observer.observe(frame);
     update();
     return () => observer.disconnect();
-  }, [dockLabel, dockPresent]);
+  }, [dockPresent, evidenceDock]);
 
   function resetDataRibbon(): void {
     dataRibbonDesiredSizeRef.current = dataRibbonPreferredSize;
@@ -245,7 +248,7 @@ export function ModelingWorkspaceLayout({
   // panel and divider behind.
   if (!navigator) {
     return (
-      <div className={`modeling-split-workspace modeling-split-workspace-no-navigator viewport-${viewport}`} data-viewport-class={viewport}>
+      <div className={`modeling-split-workspace modeling-split-workspace-no-navigator viewport-${viewport}`} data-viewport-class={viewport} inert={inactive || undefined} aria-hidden={inactive || undefined}>
         {main}
       </div>
     );
@@ -253,7 +256,7 @@ export function ModelingWorkspaceLayout({
 
   if (typeof ResizeObserver === "undefined") {
     return (
-      <div className={`modeling-split-workspace viewport-${viewport}`} data-viewport-class={viewport}>
+      <div className={`modeling-split-workspace viewport-${viewport}`} data-viewport-class={viewport} inert={inactive || undefined} aria-hidden={inactive || undefined}>
         {navigatorOpen ? <aside className="modeling-workspace-rail">{navigator}</aside> : null}
         <div className="modeling-pane-divider" role="separator" aria-label="Resize curve and process navigator" onDoubleClick={resetNavigator} title="Double-click to reset curve and process navigator width">
           <button type="button" aria-label={`${navigatorOpen ? "Collapse" : "Expand"} curve and process navigator`} aria-expanded={navigatorOpen} onClick={() => setNavigatorOpen((current) => !current)}><span aria-hidden="true">{navigatorOpen ? "‹" : "›"}</span></button>
@@ -268,6 +271,8 @@ export function ModelingWorkspaceLayout({
       id={`modeling-workspace-v1-${viewport}`}
       className={`modeling-split-workspace viewport-${viewport}`}
       data-viewport-class={viewport}
+      inert={inactive || undefined}
+      aria-hidden={inactive || undefined}
       orientation="horizontal"
       defaultLayout={persistence.defaultLayout}
       onLayoutChanged={persistence.onLayoutChanged}

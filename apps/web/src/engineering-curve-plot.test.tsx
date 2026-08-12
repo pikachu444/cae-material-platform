@@ -1,7 +1,7 @@
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { dataObservedPlotBounds, derivativeValues, EngineeringCurvePlot, EngineeringCurvePlotEmpty, isGhoshTailDisplayTrim, linearInterpolate, paddedPlotBounds, plotPoints, residualValues } from "./engineering-curve-plot";
+import { dataObservedPlotBounds, derivativeValues, EngineeringCurvePlot, EngineeringCurvePlotEmpty, isGhoshTailDisplayTrim, linearInterpolate, paddedPlotBounds, plotPoints, residualValues, responsiveYAxisTicks } from "./engineering-curve-plot";
 import type { CommonCurveStage, CommonEnsemblePreview, CommonProcessingPreview } from "./types";
 
 const tensileDefinition = {
@@ -95,6 +95,11 @@ const preview: CommonProcessingPreview = {
 };
 
 describe("EngineeringCurvePlot", () => {
+  it("reduces y-axis tick density when a bounded dock leaves a short graph", () => {
+    expect(responsiveYAxisTicks(0, 10, 154)).toEqual([0, 5, 10]);
+    expect(responsiveYAxisTicks(0, 10, 207)).toHaveLength(6);
+  });
+
   afterEach(() => {
     cleanup();
     vi.unstubAllGlobals();

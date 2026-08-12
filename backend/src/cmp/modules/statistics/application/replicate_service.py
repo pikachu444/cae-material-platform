@@ -45,6 +45,7 @@ from cmp.modules.statistics.domain.reference_tensile_replicates import (
     REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMA,
     REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMAS,
     REFERENCE_TENSILE_REPLICATE_PLAN_SCHEMA,
+    REFERENCE_TENSILE_REPLICATE_PLAN_SCHEMA_VERSION,
     REFERENCE_TENSILE_REPLICATE_RESULT_SCHEMA,
     REFERENCE_TENSILE_REPLICATE_SCHEMA_VERSION,
     ReferenceTensileReplicatePlanContent,
@@ -56,6 +57,24 @@ from cmp.modules.statistics.domain.reference_tensile_replicates import (
     reference_tensile_replicate_curve_from_parquet,
     reference_tensile_replicate_curve_parquet_bytes,
 )
+from cmp.modules.statistics.domain.scalar_distribution import (
+    SCALAR_DISTRIBUTION_ARTIFACT_MEDIA_TYPE,
+    SCALAR_DISTRIBUTION_RESULT_SCHEMA,
+    SCALAR_DISTRIBUTION_SELECTION_SCHEMA,
+    DistributionCandidateStatus,
+    ScalarDistributionObservation,
+    ScalarDistributionResultContent,
+    ScalarDistributionSelectionContent,
+    fit_scalar_distributions,
+    scalar_distribution_artifact_bytes,
+)
+from cmp.modules.units.application.profiles import CommonUnitService
+from cmp.modules.units.domain.profiles import (
+    UnitApplication,
+    UnitApplicationRole,
+    applications_for_profile,
+)
+from cmp.modules.units.domain.system import DimensionId, UnitError
 from cmp.shared.application.revisions import (
     CreateRevisionedAggregate,
     ReviseAggregate,
@@ -66,6 +85,8 @@ from cmp.shared.domain.revisions import AggregateAlreadyExists, RevisionRecord, 
 
 REPLICATE_STATISTICAL_PLAN_AGGREGATE_TYPE = "statistics.replicate_statistical_plan"
 REPLICATE_STATISTICAL_RESULT_AGGREGATE_TYPE = "statistics.replicate_statistical_result"
+SCALAR_DISTRIBUTION_RESULT_AGGREGATE_TYPE = "statistics.scalar_distribution_result"
+SCALAR_DISTRIBUTION_SELECTION_AGGREGATE_TYPE = "statistics.scalar_distribution_selection"
 
 
 @dataclass(frozen=True, slots=True)
@@ -84,6 +105,18 @@ class ReplicateStatisticalPlanSnapshot:
 class ReplicateStatisticalResultSnapshot:
     id: UUID
     current: ReplicateRevisionSnapshot[ReferenceTensileReplicateResultContent]
+
+
+@dataclass(frozen=True, slots=True)
+class ScalarDistributionResultSnapshot:
+    id: UUID
+    current: ReplicateRevisionSnapshot[ScalarDistributionResultContent]
+
+
+@dataclass(frozen=True, slots=True)
+class ScalarDistributionSelectionSnapshot:
+    id: UUID
+    current: ReplicateRevisionSnapshot[ScalarDistributionSelectionContent]
 
 
 @dataclass(frozen=True, slots=True)
@@ -127,6 +160,10 @@ class ReplicateStatisticalRun:
     trace_id: str
     members: tuple[ReplicateStatisticalRunMember, ...]
     qc_observations: tuple[QcObservation, ...] = ()
+    scalar_distribution_result_id: UUID | None = None
+    scalar_distribution_result_revision_id: UUID | None = None
+    scalar_distribution_artifact_id: UUID | None = None
+    scalar_distribution_sha256: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -150,6 +187,18 @@ class ExecuteReferenceTensileReplicateStatistics:
     change_reason: str
 
 
+@dataclass(frozen=True, slots=True)
+class CreateScalarDistributionSelection:
+    classification: DataClassification
+    content: ScalarDistributionSelectionContent
+
+
+@dataclass(frozen=True, slots=True)
+class ReviseScalarDistributionSelection:
+    expected_current_revision_id: UUID
+    content: ScalarDistributionSelectionContent
+
+
 class ReplicateStatisticsRepository(Protocol):
     def plan_store(
         self, context: SecurityContext, decision: AuthorizationDecision
@@ -158,6 +207,14 @@ class ReplicateStatisticsRepository(Protocol):
     def result_store(
         self, context: SecurityContext, decision: AuthorizationDecision
     ) -> RevisionStore[ReferenceTensileReplicateResultContent]: ...
+
+    def distribution_result_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[ScalarDistributionResultContent]: ...
+
+    def distribution_selection_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[ScalarDistributionSelectionContent]: ...
 
     def get_plan(
         self,
@@ -193,6 +250,31 @@ class ReplicateStatisticsRepository(Protocol):
         result_id: UUID,
     ) -> ReplicateStatisticalResultSnapshot: ...
 
+    def get_distribution_result(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        result_id: UUID,
+        revision_id: UUID | None = None,
+    ) -> ScalarDistributionResultSnapshot: ...
+
+    def get_distribution_selection(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection_id: UUID,
+    ) -> ScalarDistributionSelectionSnapshot: ...
+
+    def list_distribution_selections(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        result_id: UUID,
+    ) -> tuple[ScalarDistributionSelectionSnapshot, ...]: ...
+
     def create_run(
         self,
         *,
@@ -208,6 +290,7 @@ class ReplicateStatisticsRepository(Protocol):
         decision: AuthorizationDecision,
         run_id: UUID,
         result: ReplicateStatisticalResultSnapshot,
+        distribution_result: ScalarDistributionResultSnapshot | None,
         qc_observations: tuple[QcObservation, ...],
     ) -> ReplicateStatisticalRun: ...
 
@@ -228,6 +311,15 @@ class ReplicateStatisticsRepository(Protocol):
         decision: AuthorizationDecision,
         run_id: UUID,
     ) -> ReplicateStatisticalRun: ...
+
+    def list_runs(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        plan_revision_id: UUID,
+        limit: int,
+    ) -> tuple[ReplicateStatisticalRun, ...]: ...
 
 
 def _reason(value: str) -> str:
@@ -261,11 +353,13 @@ class ReplicateStatisticsService:
         repository: ReplicateStatisticsRepository,
         datasets: DatasetService,
         artifacts: ArtifactService,
+        units: CommonUnitService | None = None,
         id_factory: Callable[[], UUID] = uuid4,
     ) -> None:
         self._repository = repository
         self._datasets = datasets
         self._artifacts = artifacts
+        self._units = units
         self._id_factory = id_factory
 
     def _id(self) -> UUID:
@@ -281,6 +375,47 @@ class ReplicateStatisticsService:
             "cmp:reference-tensile-replicate-statistical-result:"
             f"{context.organization_id}:{context.project_id}:{run_id}",
         )
+
+    @staticmethod
+    def _distribution_result_id(context: SecurityContext, run_id: UUID) -> UUID:
+        return uuid5(
+            NAMESPACE_URL,
+            "cmp:scalar-distribution-result:"
+            f"{context.organization_id}:{context.project_id}:{run_id}",
+        )
+
+    def _distribution_units(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        content: ReferenceTensileReplicatePlanContent,
+        *,
+        classification: str,
+    ) -> tuple[UnitApplication, ...]:
+        options = content.scalar_distribution
+        if options is None or options.unit_profile is None:
+            return ()
+        if self._units is None:
+            raise StatisticsConflict("Unit Profile service is unavailable")
+        try:
+            snapshot = self._units.resolve_pin(context, decision, options.unit_profile)
+            if snapshot.current.scope.classification != classification:
+                raise StatisticsConflict(
+                    "Statistical Plan classification must match the exact Unit Profile revision"
+                )
+            return applications_for_profile(
+                snapshot.content,
+                uses=(
+                    (
+                        "statistics.scalar_distribution.peak_engineering_stress",
+                        UnitApplicationRole.DISPLAY,
+                        "mechanics.stress.engineering",
+                        DimensionId.FORCE_PER_AREA,
+                    ),
+                ),
+            )
+        except UnitError as error:
+            raise StatisticsConflict(error.contextual_message()) from error
 
     def _selection(
         self,
@@ -343,6 +478,12 @@ class ReplicateStatisticsService:
         if command.content.sample_count != len(selection.revision.content.members):
             raise StatisticsConflict("Plan sample_count must match its pinned Selection")
         self._processed_inputs(context, decision, selection, scope)
+        self._distribution_units(
+            context,
+            decision,
+            command.content,
+            classification=scope.classification,
+        )
         plan_id = self._id()
         record = RevisionService(
             aggregate_type=REPLICATE_STATISTICAL_PLAN_AGGREGATE_TYPE,
@@ -352,7 +493,7 @@ class ReplicateStatisticsService:
                 aggregate_id=plan_id,
                 scope=scope,
                 schema_id=REFERENCE_TENSILE_REPLICATE_PLAN_SCHEMA,
-                schema_version=REFERENCE_TENSILE_REPLICATE_SCHEMA_VERSION,
+                schema_version=REFERENCE_TENSILE_REPLICATE_PLAN_SCHEMA_VERSION,
                 content=command.content,
                 created_by=context.principal.id,
                 change_reason=reason,
@@ -382,6 +523,12 @@ class ReplicateStatisticsService:
         if command.content.sample_count != len(selection.revision.content.members):
             raise StatisticsConflict("Plan sample_count must match its pinned Selection")
         self._processed_inputs(context, decision, selection, existing.current.record.scope)
+        self._distribution_units(
+            context,
+            decision,
+            command.content,
+            classification=existing.current.record.scope.classification,
+        )
         record = RevisionService(
             aggregate_type=REPLICATE_STATISTICAL_PLAN_AGGREGATE_TYPE,
             store=self._repository.plan_store(context, decision),
@@ -392,7 +539,7 @@ class ReplicateStatisticsService:
                 expected_current_revision_id=command.expected_current_revision_id,
                 based_on_revision_id=command.expected_current_revision_id,
                 schema_id=REFERENCE_TENSILE_REPLICATE_PLAN_SCHEMA,
-                schema_version=REFERENCE_TENSILE_REPLICATE_SCHEMA_VERSION,
+                schema_version=REFERENCE_TENSILE_REPLICATE_PLAN_SCHEMA_VERSION,
                 content=command.content,
                 created_by=context.principal.id,
                 change_reason=reason,
@@ -473,6 +620,10 @@ class ReplicateStatisticsService:
             curve_artifact_id=None,
             curve_sha256=None,
             curve_point_count=None,
+            scalar_distribution_result_id=None,
+            scalar_distribution_result_revision_id=None,
+            scalar_distribution_artifact_id=None,
+            scalar_distribution_sha256=None,
             failure_code=None,
             change_reason=reason,
             started_at=datetime.now(UTC),
@@ -565,11 +716,77 @@ class ReplicateStatisticsService:
             )
             result = self._register_result(context, decision, content, reason)
             result_committed = True
+            distribution_result: ScalarDistributionResultSnapshot | None = None
+            if plan.content.scalar_distribution is not None:
+                distribution_options = plan.content.scalar_distribution
+                unit_applications = self._distribution_units(
+                    context,
+                    decision,
+                    plan.content,
+                    classification=plan.record.scope.classification,
+                )
+                distribution_observations = tuple(
+                    ScalarDistributionObservation(
+                        ordinal=member.ordinal,
+                        dataset_id=member.dataset_id,
+                        dataset_revision_id=member.dataset_revision_id,
+                        test_run_id=member.test_run_id,
+                        test_run_revision_id=member.test_run_revision_id,
+                        value_pa=max(point.engineering_stress for point in member_curve),
+                    )
+                    for member, member_curve in zip(members, curves, strict=True)
+                )
+                computation = fit_scalar_distributions(
+                    distribution_observations,
+                    distribution_options,
+                )
+                distribution_artifact = await self._artifacts.finalize_derived_bytes(
+                    context,
+                    decision,
+                    classification=created.classification,
+                    artifact_role="statistics.scalar_distribution_result",
+                    schema_ref=SCALAR_DISTRIBUTION_RESULT_SCHEMA,
+                    media_type=SCALAR_DISTRIBUTION_ARTIFACT_MEDIA_TYPE,
+                    value=scalar_distribution_artifact_bytes(
+                        statistical_run_id=created.id,
+                        statistical_result_id=result.id,
+                        statistical_result_revision_id=result.current.record.revision_id,
+                        plan_id=created.plan_id,
+                        plan_revision_id=created.plan_revision_id,
+                        selection_id=created.selection_id,
+                        selection_revision_id=created.selection_revision_id,
+                        options=distribution_options,
+                        unit_applications=unit_applications,
+                        computation=computation,
+                    ),
+                    idempotency_key=f"statistics:{created.id}:scalar-distribution",
+                )
+                distribution_content = ScalarDistributionResultContent(
+                    statistical_run_id=created.id,
+                    statistical_result_id=result.id,
+                    statistical_result_revision_id=result.current.record.revision_id,
+                    plan_id=created.plan_id,
+                    plan_revision_id=created.plan_revision_id,
+                    selection_id=created.selection_id,
+                    selection_revision_id=created.selection_revision_id,
+                    artifact_id=distribution_artifact.artifact.id,
+                    artifact_sha256=distribution_artifact.artifact.sha256,
+                    options=distribution_options,
+                    unit_applications=unit_applications,
+                    computation=computation,
+                )
+                distribution_result = self._register_distribution_result(
+                    context,
+                    decision,
+                    distribution_content,
+                    reason,
+                )
             return self._repository.succeed_run(
                 context=context,
                 decision=decision,
                 run_id=created.id,
                 result=result,
+                distribution_result=distribution_result,
                 qc_observations=observations,
             )
         except Exception as error:
@@ -595,6 +812,24 @@ class ReplicateStatisticsService:
         _require(context, decision, Permission.STATISTICS_READ)
         return self._repository.get_run(context=context, decision=decision, run_id=run_id)
 
+    def list_runs(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        plan_revision_id: UUID,
+        *,
+        limit: int = 100,
+    ) -> tuple[ReplicateStatisticalRun, ...]:
+        _require(context, decision, Permission.STATISTICS_READ)
+        if not 1 <= limit <= 200:
+            raise ValueError("limit must be between 1 and 200")
+        return self._repository.list_runs(
+            context=context,
+            decision=decision,
+            plan_revision_id=plan_revision_id,
+            limit=limit,
+        )
+
     def get_result(
         self,
         context: SecurityContext,
@@ -603,6 +838,153 @@ class ReplicateStatisticsService:
     ) -> ReplicateStatisticalResultSnapshot:
         _require(context, decision, Permission.STATISTICS_READ)
         return self._repository.get_result(context=context, decision=decision, result_id=result_id)
+
+    def get_distribution_result(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        result_id: UUID,
+    ) -> ScalarDistributionResultSnapshot:
+        _require(context, decision, Permission.STATISTICS_READ)
+        return self._repository.get_distribution_result(
+            context=context,
+            decision=decision,
+            result_id=result_id,
+        )
+
+    def _validated_distribution_selection(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        content: ScalarDistributionSelectionContent,
+    ) -> ScalarDistributionResultSnapshot:
+        result = self._repository.get_distribution_result(
+            context=context,
+            decision=decision,
+            result_id=content.distribution_result_id,
+            revision_id=content.distribution_result_revision_id,
+        )
+        candidate = next(
+            (
+                item
+                for item in result.current.content.computation.candidates
+                if item.family is content.selected_family
+            ),
+            None,
+        )
+        if (
+            candidate is None
+            or candidate.status is not DistributionCandidateStatus.SUCCEEDED
+            or candidate.candidate_sha256 != content.candidate_sha256
+        ):
+            raise StatisticsConflict(
+                "selection must pin the exact digest of a successful distribution candidate"
+            )
+        return result
+
+    def create_distribution_selection(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: CreateScalarDistributionSelection,
+    ) -> ScalarDistributionSelectionSnapshot:
+        _require(context, decision, Permission.STATISTICS_EXECUTE)
+        result = self._validated_distribution_selection(context, decision, command.content)
+        if result.current.record.scope.classification != command.classification.value:
+            raise StatisticsConflict(
+                "distribution selection classification must match the exact Result revision"
+            )
+        selection_id = self._id()
+        record = RevisionService(
+            aggregate_type=SCALAR_DISTRIBUTION_SELECTION_AGGREGATE_TYPE,
+            store=self._repository.distribution_selection_store(context, decision),
+        ).create(
+            CreateRevisionedAggregate(
+                aggregate_id=selection_id,
+                scope=result.current.record.scope,
+                schema_id=SCALAR_DISTRIBUTION_SELECTION_SCHEMA,
+                schema_version="1.0.0",
+                content=command.content,
+                created_by=context.principal.id,
+                change_reason=command.content.selection_reason,
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return ScalarDistributionSelectionSnapshot(
+            selection_id,
+            ReplicateRevisionSnapshot(record, command.content),
+        )
+
+    def revise_distribution_selection(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection_id: UUID,
+        command: ReviseScalarDistributionSelection,
+    ) -> ScalarDistributionSelectionSnapshot:
+        _require(context, decision, Permission.STATISTICS_EXECUTE)
+        existing = self._repository.get_distribution_selection(
+            context=context,
+            decision=decision,
+            selection_id=selection_id,
+        )
+        if (
+            existing.current.content.distribution_result_id
+            != command.content.distribution_result_id
+        ):
+            raise StatisticsConflict("distribution selection Result identity cannot change")
+        result = self._validated_distribution_selection(context, decision, command.content)
+        if result.current.record.scope != existing.current.record.scope:
+            raise StatisticsConflict("distribution selection revision is outside tenant scope")
+        record = RevisionService(
+            aggregate_type=SCALAR_DISTRIBUTION_SELECTION_AGGREGATE_TYPE,
+            store=self._repository.distribution_selection_store(context, decision),
+        ).revise(
+            ReviseAggregate(
+                aggregate_id=selection_id,
+                scope=existing.current.record.scope,
+                expected_current_revision_id=command.expected_current_revision_id,
+                based_on_revision_id=command.expected_current_revision_id,
+                schema_id=SCALAR_DISTRIBUTION_SELECTION_SCHEMA,
+                schema_version="1.0.0",
+                content=command.content,
+                created_by=context.principal.id,
+                change_reason=command.content.selection_reason,
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return ScalarDistributionSelectionSnapshot(
+            selection_id,
+            ReplicateRevisionSnapshot(record, command.content),
+        )
+
+    def get_distribution_selection(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection_id: UUID,
+    ) -> ScalarDistributionSelectionSnapshot:
+        _require(context, decision, Permission.STATISTICS_READ)
+        return self._repository.get_distribution_selection(
+            context=context,
+            decision=decision,
+            selection_id=selection_id,
+        )
+
+    def list_distribution_selections(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        result_id: UUID,
+    ) -> tuple[ScalarDistributionSelectionSnapshot, ...]:
+        _require(context, decision, Permission.STATISTICS_READ)
+        return self._repository.list_distribution_selections(
+            context=context,
+            decision=decision,
+            result_id=result_id,
+        )
 
     async def preview_result_curve(
         self,
@@ -778,4 +1160,55 @@ class ReplicateStatisticsService:
             return existing
         return ReplicateStatisticalResultSnapshot(
             result_id, ReplicateRevisionSnapshot(record, content)
+        )
+
+    def _register_distribution_result(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        content: ScalarDistributionResultContent,
+        reason: str,
+    ) -> ScalarDistributionResultSnapshot:
+        result_id = self._distribution_result_id(context, content.statistical_run_id)
+        service = RevisionService(
+            aggregate_type=SCALAR_DISTRIBUTION_RESULT_AGGREGATE_TYPE,
+            store=self._repository.distribution_result_store(context, decision),
+        )
+        scope = TenantScope(
+            context.organization_id,
+            context.project_id,
+            self._repository.get_run(
+                context=context,
+                decision=decision,
+                run_id=content.statistical_run_id,
+            ).classification.value,
+        )
+        try:
+            record = service.create(
+                CreateRevisionedAggregate(
+                    aggregate_id=result_id,
+                    scope=scope,
+                    schema_id=SCALAR_DISTRIBUTION_RESULT_SCHEMA,
+                    schema_version="1.0.0",
+                    content=content,
+                    created_by=context.principal.id,
+                    change_reason=reason,
+                    request_id=context.request_id,
+                    trace_id=context.trace_id,
+                )
+            )
+        except AggregateAlreadyExists as error:
+            existing = self._repository.get_distribution_result(
+                context=context,
+                decision=decision,
+                result_id=result_id,
+            )
+            if existing.current.content != content:
+                raise StatisticsConflict(
+                    "distribution Result identity already names different immutable output"
+                ) from error
+            return existing
+        return ScalarDistributionResultSnapshot(
+            result_id,
+            ReplicateRevisionSnapshot(record, content),
         )

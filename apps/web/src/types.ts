@@ -2113,6 +2113,19 @@ export interface ReferenceTensileReplicatePlanContent {
   quantile_method: "linear_inclusive";
   confidence_interval_method: "student_t_95_two_sided";
   curve_output_schema_ref: string;
+  scalar_distribution: ScalarDistributionAnalysisOptions | null;
+}
+
+export interface ExactUnitProfilePin {
+  profile_id: string;
+  revision_id: string;
+  content_sha256: string;
+}
+
+export interface ScalarDistributionAnalysisOptions {
+  seed: number;
+  bootstrap_samples: 999;
+  unit_profile: ExactUnitProfilePin | null;
 }
 
 export interface ReplicateStatisticalPlanRevision extends RevisionMetadata {
@@ -2150,11 +2163,106 @@ export interface ReplicateStatisticalRunResponse {
   curve_artifact_id: string | null;
   curve_sha256: string | null;
   curve_point_count: number | null;
+  scalar_distribution_result_id: string | null;
+  scalar_distribution_result_revision_id: string | null;
+  scalar_distribution_artifact_id: string | null;
+  scalar_distribution_sha256: string | null;
   failure_code: string | null;
   qc_observations: QcObservation[];
   change_reason: string;
   started_at: string;
   ended_at: string | null;
+  links: Record<string, string>;
+}
+
+export type DistributionFamily = "normal" | "lognormal" | "weibull";
+
+export interface ScalarDistributionObservation {
+  ordinal: number;
+  dataset_id: string;
+  dataset_revision_id: string;
+  test_run_id: string;
+  test_run_revision_id: string;
+  value_pa: number | null;
+  quality: "observed" | "missing" | "non_finite" | "censored";
+  outlier_assessment: "not_assessed" | "flagged" | "not_flagged";
+}
+
+export interface ScalarDistributionCandidate {
+  family: DistributionFamily;
+  status: "succeeded" | "not_eligible" | "failed";
+  support: "real" | "positive";
+  estimator: string;
+  parameter_count: 2;
+  parameters: Array<{ name: "location" | "scale" | "shape"; estimate: number; unit_id: string | null }>;
+  log_likelihood: number | null;
+  aicc: number | null;
+  bic: number | null;
+  anderson_darling: number | null;
+  bootstrap_p_value: number | null;
+  bootstrap_success_count: number;
+  bootstrap_failure_count: number;
+  delta_aicc: number | null;
+  recommended: boolean;
+  reason_codes: string[];
+  warnings: string[];
+  candidate_sha256: string;
+}
+
+export interface ScalarDistributionResultResponse {
+  scalar_distribution_result_id: string;
+  current_revision: RevisionMetadata;
+  statistical_run_id: string;
+  statistical_result_id: string;
+  statistical_result_revision_id: string;
+  plan_id: string;
+  plan_revision_id: string;
+  selection_id: string;
+  selection_revision_id: string;
+  scalar_feature: "peak_engineering_stress_pa";
+  sample_count: number;
+  minimum_sample_count: 8;
+  small_sample_warning_below: 20;
+  observations: ScalarDistributionObservation[];
+  candidates: ScalarDistributionCandidate[];
+  recommended_families: DistributionFamily[];
+  recommendation_method: "aicc_delta_le_2_at_least_two_successful_candidates_v1";
+  artifact_id: string;
+  artifact_sha256: string;
+  seed: number;
+  bootstrap_samples: 999;
+  unit_profile: ExactUnitProfilePin | null;
+  unit_applications: Array<{
+    location: string;
+    role: "input" | "display" | "solver_export";
+    quantity_semantics: string;
+    dimension: string;
+    unit_id: string;
+  }>;
+  runtime_manifest: {
+    algorithm_version: "scalar_distribution_fitting_v1";
+    schema_ref: "urn:cmp:statistics:scalar-distribution-result:1.0.0";
+    python_version: string;
+    numpy_version: string;
+    scipy_version: string;
+    rng: "numpy.random.PCG64";
+    source_sha256: string;
+    lock_sha256: string;
+    environment_sha256: string;
+  };
+  links: Record<string, string>;
+}
+
+export interface ScalarDistributionSelectionResponse {
+  distribution_selection_id: string;
+  current_revision: RevisionMetadata;
+  content: {
+    distribution_result_id: string;
+    distribution_result_revision_id: string;
+    selected_family: DistributionFamily;
+    candidate_sha256: string;
+    selection_reason: string;
+  };
   links: Record<string, string>;
 }
 

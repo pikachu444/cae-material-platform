@@ -83,9 +83,7 @@ class _DemoApi:
                 {"method_code": "reference_uniaxial_tensile"},
             )
         if path == "/test-runs":
-            return _resource(
-                "test_run_id", "run-1", "run-r1", {"run_label": payload["run_label"]}
-            )
+            return _resource("test_run_id", "run-1", "run-r1", {"run_label": payload["run_label"]})
         if path == "/uploads":
             return {
                 "upload": {"upload_id": "upload-1", "expected_part_count": 1},
@@ -108,9 +106,7 @@ class _DemoApi:
             return _resource("solver_card_id", "plastic-card-1", "plastic-card-r1", {})
         raise AssertionError(f"unexpected POST {path}")
 
-    def put_bytes(
-        self, path: str, payload: bytes, *, headers: Mapping[str, str]
-    ) -> dict[str, Any]:
+    def put_bytes(self, path: str, payload: bytes, *, headers: Mapping[str, str]) -> dict[str, Any]:
         assert payload.startswith(b"engineering_strain")
         assert headers["Upload-Capability"] == "capability"
         self.calls.append(("put", path))
@@ -130,15 +126,16 @@ def test_seed_uses_the_protected_material_to_card_and_dataset_http_flow() -> Non
     assert ("post", "/uploads") in api.calls
     assert ("put", "/uploads/upload-1/parts/1") in api.calls
     assert ("post", "/datasets/reference-uniaxial-tensile:import") in api.calls
-    assert api.calls.count(("post", "/datasets/reference-uniaxial-tensile:import")) == 4
+    assert api.calls.count(("post", "/datasets/reference-uniaxial-tensile:import")) == 9
     assert ("post", "/dataset-selections/reference-tensile-replicates") in api.calls
     assert ("post", "/material-states/state-1/tabulated-plasticity-models") in api.calls
-    assert api.calls.count(
-        ("post", "/tabulated-plasticity-models/plastic-model-1/mapping-preflight")
-    ) == 2
-    assert api.calls.count(
-        ("post", "/tabulated-plasticity-models/plastic-model-1/solver-cards")
-    ) == 2
+    assert (
+        api.calls.count(("post", "/tabulated-plasticity-models/plastic-model-1/mapping-preflight"))
+        == 2
+    )
+    assert (
+        api.calls.count(("post", "/tabulated-plasticity-models/plastic-model-1/solver-cards")) == 2
+    )
 
 
 def test_demo_api_authenticates_as_administrator(monkeypatch: Any) -> None:

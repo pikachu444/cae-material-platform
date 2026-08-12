@@ -32,6 +32,11 @@ _TENSILE_REPLICATES = (
     ("CMP-DEMO-DP780-T-001", "CMP demo tensile replicate 1", 0, 1.00),
     ("CMP-DEMO-DP780-T-002", "CMP demo tensile replicate 2", 1, 0.97),
     ("CMP-DEMO-DP780-T-003", "CMP demo tensile replicate 3", 2, 1.04),
+    ("CMP-DEMO-DP780-T-005", "CMP demo tensile replicate 5", 4, 0.99),
+    ("CMP-DEMO-DP780-T-006", "CMP demo tensile replicate 6", 5, 1.015),
+    ("CMP-DEMO-DP780-T-007", "CMP demo tensile replicate 7", 6, 0.985),
+    ("CMP-DEMO-DP780-T-008", "CMP demo tensile replicate 8", 7, 1.03),
+    ("CMP-DEMO-DP780-T-009", "CMP demo tensile replicate 9", 8, 1.005),
 )
 _TENSILE_HOLDOUT = (
     "CMP-DEMO-DP780-T-004",
@@ -90,9 +95,7 @@ class DemoApi:
         raise DemoSeedError("API health endpoint did not report ready")
 
     def authenticate(self) -> None:
-        response = self._request(
-            "/demo-identity/token?persona=administrator", authenticated=False
-        )
+        response = self._request("/demo-identity/token?persona=administrator", authenticated=False)
         token = response.get("access_token")
         if not isinstance(token, str) or not token:
             raise DemoSeedError("explicit local demo identity did not return an access token")
@@ -170,9 +173,7 @@ def _revision_id(record: Mapping[str, Any]) -> str:
     return value
 
 
-def _find(
-    items: object, predicate: Callable[[dict[str, Any]], bool]
-) -> dict[str, Any] | None:
+def _find(items: object, predicate: Callable[[dict[str, Any]], bool]) -> dict[str, Any] | None:
     if not isinstance(items, list):
         return None
     for value in items:
@@ -185,8 +186,10 @@ def _ensure_material(api: DemoApi) -> dict[str, Any]:
     listed = api.get(f"/materials?q={_MATERIAL_CODE}&limit=20")
     found = _find(
         listed.get("items"),
-        lambda item: isinstance(item.get("current_revision"), dict)
-        and item["current_revision"].get("content", {}).get("material_code") == _MATERIAL_CODE,
+        lambda item: (
+            isinstance(item.get("current_revision"), dict)
+            and item["current_revision"].get("content", {}).get("material_code") == _MATERIAL_CODE
+        ),
     )
     if found is not None:
         detail = api.get(f"/materials/{_current_id(found, 'material_id')}")
@@ -241,8 +244,10 @@ def _ensure_state(api: DemoApi, detail: Mapping[str, Any]) -> tuple[dict[str, An
         raise DemoSeedError("Material detail did not contain the Material")
     existing = _find(
         detail.get("states"),
-        lambda item: isinstance(item.get("current_revision"), dict)
-        and item["current_revision"].get("content", {}).get("name") == _STATE_NAME,
+        lambda item: (
+            isinstance(item.get("current_revision"), dict)
+            and item["current_revision"].get("content", {}).get("name") == _STATE_NAME
+        ),
     )
     if existing is not None:
         current = existing.get("current_revision")
@@ -250,7 +255,7 @@ def _ensure_state(api: DemoApi, detail: Mapping[str, Any]) -> tuple[dict[str, An
         if (
             isinstance(current, dict)
             and isinstance(content, dict)
-                and (
+            and (
                 content.get("material_revision_id") != str(_revision_id(material))
                 or content.get("description") != _STATE_DESCRIPTION
                 or content.get("manufacturing_route") != _STATE_MANUFACTURING_ROUTE
@@ -419,8 +424,10 @@ def _ensure_tensile_dataset(
     specimens = api.get(f"/material-states/{state_id}/specimens")
     specimen = _find(
         specimens.get("items"),
-        lambda item: isinstance(item.get("current_revision"), dict)
-        and item["current_revision"].get("content", {}).get("specimen_code") == specimen_code,
+        lambda item: (
+            isinstance(item.get("current_revision"), dict)
+            and item["current_revision"].get("content", {}).get("specimen_code") == specimen_code
+        ),
     )
     if specimen is None:
         specimen = api.post(
@@ -436,9 +443,11 @@ def _ensure_tensile_dataset(
     methods = api.get("/test-methods")
     method = _find(
         methods.get("items"),
-        lambda item: isinstance(item.get("current_revision"), dict)
-        and item["current_revision"].get("content", {}).get("method_code")
-        == "reference_uniaxial_tensile",
+        lambda item: (
+            isinstance(item.get("current_revision"), dict)
+            and item["current_revision"].get("content", {}).get("method_code")
+            == "reference_uniaxial_tensile"
+        ),
     )
     if method is None:
         method = api.post(
@@ -451,8 +460,10 @@ def _ensure_tensile_dataset(
     runs = api.get(f"/material-states/{state_id}/test-runs")
     run = _find(
         runs.get("items"),
-        lambda item: isinstance(item.get("current_revision"), dict)
-        and item["current_revision"].get("content", {}).get("run_label") == run_label,
+        lambda item: (
+            isinstance(item.get("current_revision"), dict)
+            and item["current_revision"].get("content", {}).get("run_label") == run_label
+        ),
     )
     if run is None:
         run = api.post(
@@ -463,9 +474,7 @@ def _ensure_tensile_dataset(
                 "test_method_id": _current_id(method, "test_method_id"),
                 "test_method_revision_id": _revision_id(method),
                 "run_label": run_label,
-                "performed_at": datetime(
-                    2026, 1, 15 + day_offset, 10, 0, tzinfo=UTC
-                ).isoformat(),
+                "performed_at": datetime(2026, 1, 15 + day_offset, 10, 0, tzinfo=UTC).isoformat(),
                 "test_temperature_k": 293.15,
                 "crosshead_speed_mm_per_min": 5.0,
                 "change_reason": "Seed a reference tensile Test Run for the local demo.",
@@ -537,15 +546,49 @@ def _ensure_replicate_selection(
     selections = api.get(
         f"/dataset-selections/reference-tensile-replicates?material_state_id={state_id}"
     )
-    if _find(selections.get("items"), lambda _: True) is not None:
+    label = "CMP demo DP780 tensile replicates"
+    desired_revision_ids = [_revision_id(dataset) for dataset in datasets]
+    existing = _find(
+        selections.get("items"),
+        lambda item: item.get("selection_label") == label,
+    )
+    if existing is None:
+        api.post(
+            "/dataset-selections/reference-tensile-replicates",
+            {
+                "classification": "internal",
+                "selection_label": label,
+                "dataset_revision_ids": desired_revision_ids,
+                "change_reason": (
+                    "Pin eight independent synthetic tensile runs for distribution comparison."
+                ),
+            },
+        )
+        return
+    revision = existing.get("current_revision")
+    content = revision.get("content") if isinstance(revision, Mapping) else None
+    members = content.get("members") if isinstance(content, Mapping) else None
+    current_revision_ids = (
+        [
+            str(member.get("dataset_revision_id"))
+            for member in members
+            if isinstance(member, Mapping)
+        ]
+        if isinstance(members, list)
+        else []
+    )
+    if current_revision_ids == desired_revision_ids:
         return
     api.post(
-        "/dataset-selections/reference-tensile-replicates",
+        "/dataset-selections/reference-tensile-replicates/"
+        f"{_current_id(existing, 'selection_id')}/revisions",
         {
-            "classification": "internal",
-            "selection_label": "CMP demo DP780 tensile replicates",
-            "dataset_revision_ids": [_revision_id(dataset) for dataset in datasets],
-            "change_reason": "Pin three independent synthetic tensile runs for comparison.",
+            "expected_current_revision_id": _revision_id(existing),
+            "dataset_revision_ids": desired_revision_ids,
+            "change_reason": (
+                "Extend the synthetic replicate Selection to the approved eight-sample "
+                "distribution boundary without changing prior revisions."
+            ),
         },
     )
 
@@ -561,10 +604,12 @@ def _ensure_elastoplastic_models_and_cards(
     models = api.get(f"/material-states/{state_id}/tabulated-plasticity-models")
     model = _find(
         models.get("items"),
-        lambda item: isinstance(item.get("current_revision"), dict)
-        and item["current_revision"].get("content", {}).get("source_dataset_revision_id")
-        == dataset_revision_id
-        and item["current_revision"].get("content", {}).get("processing_projection") is None,
+        lambda item: (
+            isinstance(item.get("current_revision"), dict)
+            and item["current_revision"].get("content", {}).get("source_dataset_revision_id")
+            == dataset_revision_id
+            and item["current_revision"].get("content", {}).get("processing_projection") is None
+        ),
     )
     if model is None:
         model = api.post(
@@ -583,14 +628,18 @@ def _ensure_elastoplastic_models_and_cards(
     cards = api.get(f"/tabulated-plasticity-models/{model_id}/solver-cards")
     existing = cards.get("items")
     for solver, solver_material_id in (("openradioss", 781), ("abaqus", 782)):
+
         def matches_solver(item: dict[str, Any], expected_solver: str = solver) -> bool:
             target = item.get("target")
             return isinstance(target, dict) and target.get("solver") == expected_solver
 
-        if _find(
-            existing,
-            matches_solver,
-        ) is not None:
+        if (
+            _find(
+                existing,
+                matches_solver,
+            )
+            is not None
+        ):
             continue
         target = {"solver": solver, "version": "2025", "unit_system": "kg_m_s"}
         report = api.post(

@@ -37,6 +37,7 @@ _STRUCTURED_IMAGE_MANIFEST_GLOBS: tuple[str, ...] = ()
 _STRUCTURED_IMAGE_YAML_MANIFESTS: tuple[str, ...] = (
     "docs/17-evidence/images/issue-161-shared-ui-foundation/visual-evidence.yaml",
     "docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/visual-evidence.yaml",
+    "docs/17-evidence/images/issue-210-scalar-distribution-fitting/visual-evidence.yaml",
 )
 _IMAGE_PATH_MANIFESTS: tuple[str, ...] = ()
 _STALE_CURRENT_PATTERNS = {

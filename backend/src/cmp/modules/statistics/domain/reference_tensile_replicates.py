@@ -35,11 +35,15 @@ from cmp.modules.statistics.domain.reference_tensile_pair import (
     QcOutcome,
     StatisticsConflict,
 )
+from cmp.modules.statistics.domain.scalar_distribution import (
+    ScalarDistributionAnalysisOptions,
+    scalar_distribution_options_canonical,
+)
 from cmp.modules.units.domain.system import DimensionId
 
 REFERENCE_TENSILE_REPLICATE_PLAN_KIND = "reference_tensile_replicate_scalar_and_curve"
 REFERENCE_TENSILE_REPLICATE_PLAN_SCHEMA = (
-    "urn:cmp:statistics:reference-tensile-replicate-plan:1.0.0"
+    "urn:cmp:statistics:reference-tensile-replicate-plan:1.1.0"
 )
 REFERENCE_TENSILE_REPLICATE_RESULT_SCHEMA = (
     "urn:cmp:statistics:reference-tensile-replicate-result:1.0.0"
@@ -54,6 +58,7 @@ REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMAS = frozenset(
     {REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMA_V1, REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMA}
 )
 REFERENCE_TENSILE_REPLICATE_SCHEMA_VERSION = "1.0.0"
+REFERENCE_TENSILE_REPLICATE_PLAN_SCHEMA_VERSION = "1.1.0"
 REFERENCE_TENSILE_REPLICATE_GRID_POLICY = "exact_processed_grid_match_no_alignment"
 REFERENCE_TENSILE_REPLICATE_CI_METHOD = "student_t_95_two_sided"
 REFERENCE_TENSILE_REPLICATE_QUANTILE_METHOD = "linear_inclusive"
@@ -147,6 +152,7 @@ class ReferenceTensileReplicatePlanContent:
     selection_revision_id: UUID
     sample_count: int
     curve_output_schema_ref: str = REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMA
+    scalar_distribution: ScalarDistributionAnalysisOptions | None = None
 
     def __post_init__(self) -> None:
         if (
@@ -186,6 +192,11 @@ def reference_tensile_replicate_plan_canonical(
         "quantile_method": REFERENCE_TENSILE_REPLICATE_QUANTILE_METHOD,
         "confidence_interval_method": REFERENCE_TENSILE_REPLICATE_CI_METHOD,
         "curve_output_schema_ref": value.curve_output_schema_ref,
+        "scalar_distribution": (
+            scalar_distribution_options_canonical(value.scalar_distribution)
+            if value.scalar_distribution is not None
+            else None
+        ),
     }
 
 
@@ -451,6 +462,7 @@ def reference_tensile_replicate_curve_definition() -> CurveDefinition:
         display_offset="0",
         value_basis=ValueBasis.DERIVED,
     )
+
     def _deviation(
         *,
         key: str,
@@ -480,6 +492,7 @@ def reference_tensile_replicate_curve_definition() -> CurveDefinition:
             coverage=coverage,
             ddof=ddof,
         )
+
     return CurveDefinition(
         channels=(strain, mean, median),
         deviations=(

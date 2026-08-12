@@ -43,17 +43,11 @@ _DEMO_WORKFLOW_FAMILY_VALUES = (
 _NON_METAL_MATERIAL_DESCRIPTION = (
     "Public synthetic T-60 reference data; not validated for engineering use."
 )
-_NON_METAL_STATE_DESCRIPTION = (
-    "Synthetic T-60 reference state; not validated for engineering use."
-)
+_NON_METAL_STATE_DESCRIPTION = "Synthetic T-60 reference state; not validated for engineering use."
 _SYNTHETIC_STATE_ROUTE = "Synthetic reference preparation; not for engineering use"
 _NON_METAL_SOURCE_REFERENCE = "Public synthetic T-60 reference data"
-_SYNTHETIC_APPLICABILITY_NOTE = (
-    "Synthetic reference conditions; not validated for engineering use."
-)
-_METAL_CATALOG_DESCRIPTION = (
-    "Synthetic reference data; not validated for engineering use."
-)
+_SYNTHETIC_APPLICABILITY_NOTE = "Synthetic reference conditions; not validated for engineering use."
+_METAL_CATALOG_DESCRIPTION = "Synthetic reference data; not validated for engineering use."
 # The demo fixture stays in the supported SI unit so reseeding exercises the
 # typed Catalog contract without adding a production conversion rule.
 _DEMO_METAL_DENSITY_FIXTURE = ("7850", "kg/m^3", "7850")
@@ -130,9 +124,9 @@ def _catalog_record_content_matches(
         return False
     existing_value_mappings = [item for item in existing_values if isinstance(item, Mapping)]
     desired_value_mappings = [item for item in desired_values if isinstance(item, Mapping)]
-    if len(existing_value_mappings) != len(existing_values) or len(
-        desired_value_mappings
-    ) != len(desired_values):
+    if len(existing_value_mappings) != len(existing_values) or len(desired_value_mappings) != len(
+        desired_values
+    ):
         return False
     if not all(
         isinstance(item.get("attribute_definition_id"), str)
@@ -171,14 +165,10 @@ def _revision_etag(value: Mapping[str, Any]) -> str:
     return f'"revision:{revision_no}:sha256:{_revision_hash(value)}"'
 
 
-def _existing_demo_catalog_curve(
-    api: DemoApi, *, attribute_key: str
-) -> dict[str, str] | None:
+def _existing_demo_catalog_curve(api: DemoApi, *, attribute_key: str) -> dict[str, str] | None:
     """Return an already-pinned demo Curve without replaying its calculation."""
 
-    table = _find_by_content(
-        _items(api.get("/catalog/tables")), "key", "demo_material_records"
-    )
+    table = _find_by_content(_items(api.get("/catalog/tables")), "key", "demo_material_records")
     if table is None:
         return None
     table_id = _id(table, "table_id")
@@ -232,11 +222,7 @@ def _existing_demo_catalog_curve(
     return {
         "curve_artifact_id": artifact_id,
         "curve_sha256": artifact_sha256,
-        **(
-            {"statistical_result_id": owner_id}
-            if isinstance(owner_id, str) and owner_id
-            else {}
-        ),
+        **({"statistical_result_id": owner_id} if isinstance(owner_id, str) and owner_id else {}),
         **(
             {"statistical_result_revision_id": owner_revision_id}
             if isinstance(owner_revision_id, str) and owner_revision_id
@@ -555,9 +541,7 @@ def _ensure_catalog_binding(
                 if current_allowed_values != desired_allowed_values:
                     revision = existing.get("current_revision")
                     if not isinstance(revision, Mapping):
-                        raise DemoSeedError(
-                            f"Catalog Attribute {key} has no revision metadata"
-                        )
+                        raise DemoSeedError(f"Catalog Attribute {key} has no revision metadata")
                     revised = api.post(
                         f"/catalog/attributes/{_id(existing, 'attribute_definition_id')}/revisions",
                         {
@@ -714,11 +698,15 @@ def _ensure_catalog_binding(
         )
     else:
         current_items = overview_layout.get("items")
-        current_ids = {
-            item.get("attribute_definition_id")
-            for item in current_items
-            if isinstance(item, Mapping)
-        } if isinstance(current_items, list) else set()
+        current_ids = (
+            {
+                item.get("attribute_definition_id")
+                for item in current_items
+                if isinstance(item, Mapping)
+            }
+            if isinstance(current_items, list)
+            else set()
+        )
         if current_ids != {item["attribute_definition_id"] for item in desired_layout_items}:
             revision = overview_layout.get("revision")
             if not isinstance(revision, Mapping):
@@ -783,9 +771,7 @@ def _ensure_catalog_binding(
 
     material_content = _content(material)
     material_class = str(material_content.get("material_class") or "metal").lower()
-    material_family = _preserve_material_family(
-        material_content, _DEMO_MATERIAL_FAMILY_VALUES[0]
-    )
+    material_family = _preserve_material_family(material_content, _DEMO_MATERIAL_FAMILY_VALUES[0])
     material_values = [
         text_value(
             "material_code",
@@ -1021,9 +1007,7 @@ def _ensure_catalog_binding(
         bindings.append(created)
         return created
 
-    binding = ensure_root_binding(
-        "material", _id(material, "material_id"), _revision_id(material)
-    )
+    binding = ensure_root_binding("material", _id(material, "material_id"), _revision_id(material))
     records_by_key: dict[str, dict[str, Any]] = {material_code: record}
     node_folders = {
         "material_state": dp780_folder,
@@ -1218,9 +1202,7 @@ def _ensure_catalog_material_projections(
     table_revision_id = _revision_id(table)
     attributes = _items(api.get(f"/catalog/tables/{table_id}/attributes"))
     attribute_by_key = {
-        str(_content(item).get("key")): item
-        for item in attributes
-        if _content(item).get("key")
+        str(_content(item).get("key")): item for item in attributes if _content(item).get("key")
     }
     required_keys = (
         "material_code",
@@ -1238,8 +1220,7 @@ def _ensure_catalog_material_projections(
     missing = [key for key in required_keys if key not in attribute_by_key]
     if missing:
         raise DemoSeedError(
-            "Catalog Materials projection is missing Attributes: "
-            f"{', '.join(missing)}"
+            f"Catalog Materials projection is missing Attributes: {', '.join(missing)}"
         )
 
     def text_value(key: str, value: str) -> dict[str, Any]:
@@ -1520,9 +1501,7 @@ def _governed_sources_for_tensile_documents(
         specimen_id = run_content.get("specimen_id")
         specimen_revision_id = run_content.get("specimen_revision_id")
         if not isinstance(specimen_id, str) or not specimen_id:
-            raise DemoSeedError(
-                f"clean demo Test Run {run_label!r} has no exact Specimen ID"
-            )
+            raise DemoSeedError(f"clean demo Test Run {run_label!r} has no exact Specimen ID")
         if not isinstance(specimen_revision_id, str) or not specimen_revision_id:
             raise DemoSeedError(
                 f"clean demo Test Run {run_label!r} has no exact Specimen revision ID"
@@ -1530,8 +1509,7 @@ def _governed_sources_for_tensile_documents(
         specimen_matches = [
             item
             for item in specimens
-            if item.get("specimen_id") == specimen_id
-            and _revision_id(item) == specimen_revision_id
+            if item.get("specimen_id") == specimen_id and _revision_id(item) == specimen_revision_id
         ]
         if len(specimen_matches) != 1:
             raise DemoSeedError(
@@ -1785,9 +1763,7 @@ def _ensure_test_json(
     }
 
 
-def _ensure_replicate_statistics_curve(
-    api: DemoApi, *, material_state_id: str
-) -> dict[str, str]:
+def _ensure_replicate_statistics_curve(api: DemoApi, *, material_state_id: str) -> dict[str, str]:
     """Expose existing pointwise Statistics through one immutable demo Artifact.
 
     The calculation, common-grid alignment, and provenance contracts already
@@ -1796,11 +1772,7 @@ def _ensure_replicate_statistics_curve(
     Catalog, reseeding reads the pointer back instead of recalculating it.
     """
 
-    pinned = _existing_demo_catalog_curve(
-        api, attribute_key=_STATISTICS_CURVE_ATTRIBUTE_KEY
-    )
-    if pinned is not None:
-        return pinned
+    pinned = _existing_demo_catalog_curve(api, attribute_key=_STATISTICS_CURVE_ATTRIBUTE_KEY)
 
     selections = _items(
         api.get(
@@ -1820,9 +1792,10 @@ def _ensure_replicate_statistics_curve(
         raise DemoSeedError("clean demo has no normalized DP780 replicate Selection")
 
     selection_members = _content(source_selection).get("members")
-    if not isinstance(selection_members, list) or len(selection_members) != 3:
+    if not isinstance(selection_members, list) or len(selection_members) != 8:
         raise DemoSeedError("clean demo replicate Selection has unexpected membership")
-    source_schema_refs: set[str] = set()
+    sample_count = len(selection_members)
+    members_by_schema: dict[str, list[Mapping[str, Any]]] = {}
     for member in selection_members:
         if not isinstance(member, Mapping):
             raise DemoSeedError("clean demo replicate Selection member is malformed")
@@ -1834,17 +1807,13 @@ def _ensure_replicate_statistics_curve(
         schema_ref = artifact.get("schema_ref") if isinstance(artifact, Mapping) else None
         if not isinstance(schema_ref, str):
             raise DemoSeedError("clean demo replicate curve has no exact Artifact schema")
-        source_schema_refs.add(schema_ref)
-    if source_schema_refs == {REFERENCE_TENSILE_PARQUET_SCHEMA_V1}:
-        recipe_input_schema = REFERENCE_TENSILE_PARQUET_SCHEMA_V1
-        recipe_output_schema = REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA_V1
-    elif source_schema_refs == {REFERENCE_TENSILE_PARQUET_SCHEMA}:
-        recipe_input_schema = REFERENCE_TENSILE_PARQUET_SCHEMA
-        recipe_output_schema = REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA
-    else:
-        raise DemoSeedError(
-            "clean demo replicate Selection mixes unsupported Artifact schema revisions"
-        )
+        members_by_schema.setdefault(schema_ref, []).append(member)
+    supported_schema_pairs = {
+        REFERENCE_TENSILE_PARQUET_SCHEMA_V1: REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA_V1,
+        REFERENCE_TENSILE_PARQUET_SCHEMA: REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA,
+    }
+    if not set(members_by_schema) <= set(supported_schema_pairs):
+        raise DemoSeedError("clean demo replicate Selection has an unsupported Artifact schema")
 
     aligned_selection = next(
         (
@@ -1854,94 +1823,178 @@ def _ensure_replicate_statistics_curve(
         ),
         None,
     )
-    alignment_recipe: Mapping[str, Any] | None = None
-    if aligned_selection is None:
+    aligned_members = _content(aligned_selection).get("members") if aligned_selection else None
+    if not isinstance(aligned_members, list) or len(aligned_members) != sample_count:
         recipes = _items(api.get("/processing-recipes"))
-        alignment_recipe = next(
-            (
-                item
-                for item in recipes
-                if item.get("recipe_label") == _STATISTICS_ALIGNMENT_RECIPE_LABEL
-            ),
-            None,
-        )
-        desired_recipe_content = {
-            "grid_start_engineering_strain": 0.0,
-            "grid_end_engineering_strain": 0.03,
-            "grid_point_count": 31,
-            "domain_policy": "intersection",
-            "interpolation_policy": "piecewise_linear",
-            "extrapolation_policy": "reject",
-            "input_schema_ref": recipe_input_schema,
-            "output_schema_ref": recipe_output_schema,
-        }
-        if alignment_recipe is None:
-            alignment_recipe = api.post(
-                "/processing-recipes/reference-tensile-common-grid",
+        output_by_source_revision: dict[str, str] = {}
+        for input_schema_ref, schema_members in members_by_schema.items():
+            if len(schema_members) < 2:
+                raise DemoSeedError(
+                    "clean demo schema-specific alignment requires at least two replicates"
+                )
+            schema_version = input_schema_ref.rsplit(":", maxsplit=1)[-1]
+            source_group_label = f"CMP demo DP780 statistics alignment source · {schema_version}"
+            desired_source_revision_ids = [
+                _id(member, "dataset_revision_id") for member in schema_members
+            ]
+            source_group = next(
+                (item for item in selections if item.get("selection_label") == source_group_label),
+                None,
+            )
+            if source_group is None:
+                source_group = api.post(
+                    "/dataset-selections/reference-tensile-replicates",
+                    {
+                        "classification": "internal",
+                        "selection_label": source_group_label,
+                        "dataset_revision_ids": desired_source_revision_ids,
+                        "change_reason": (
+                            "Pin one exact input-schema group for explicit common-grid alignment."
+                        ),
+                    },
+                )
+                selections.append(source_group)
+            else:
+                current_source_members = _content(source_group).get("members")
+                current_source_revision_ids = (
+                    [
+                        _id(member, "dataset_revision_id")
+                        for member in current_source_members
+                        if isinstance(member, Mapping)
+                    ]
+                    if isinstance(current_source_members, list)
+                    else []
+                )
+                if current_source_revision_ids != desired_source_revision_ids:
+                    source_group = api.post(
+                        "/dataset-selections/reference-tensile-replicates/"
+                        f"{_id(source_group, 'selection_id')}/revisions",
+                        {
+                            "expected_current_revision_id": _revision_id(source_group),
+                            "dataset_revision_ids": desired_source_revision_ids,
+                            "change_reason": (
+                                "Pin the current exact members of this input-schema "
+                                "alignment group."
+                            ),
+                        },
+                    )
+            desired_recipe_content = {
+                "grid_start_engineering_strain": 0.0,
+                "grid_end_engineering_strain": 0.03,
+                "grid_point_count": 31,
+                "domain_policy": "intersection",
+                "interpolation_policy": "piecewise_linear",
+                "extrapolation_policy": "reject",
+                "input_schema_ref": input_schema_ref,
+                "output_schema_ref": supported_schema_pairs[input_schema_ref],
+            }
+            alignment_recipe: Mapping[str, Any] | None = next(
+                (
+                    item
+                    for item in recipes
+                    if all(
+                        _content(item).get(key) == value
+                        for key, value in desired_recipe_content.items()
+                    )
+                ),
+                None,
+            )
+            if alignment_recipe is None:
+                base_label_in_use = any(
+                    item.get("recipe_label") == _STATISTICS_ALIGNMENT_RECIPE_LABEL
+                    for item in recipes
+                )
+                recipe_label = (
+                    f"{_STATISTICS_ALIGNMENT_RECIPE_LABEL} · {schema_version}"
+                    if base_label_in_use
+                    else _STATISTICS_ALIGNMENT_RECIPE_LABEL
+                )
+                alignment_recipe = api.post(
+                    "/processing-recipes/reference-tensile-common-grid",
+                    {
+                        "classification": "internal",
+                        "content": {
+                            "recipe_label": recipe_label,
+                            **desired_recipe_content,
+                        },
+                        "change_reason": (
+                            "Pin the explicit common-grid method for this exact curve schema."
+                        ),
+                    },
+                )
+                recipes.append(alignment_recipe)
+            aligned = api.post(
+                "/processing-runs/reference-tensile-common-grid",
+                {
+                    "selection_id": _id(source_group, "selection_id"),
+                    "selection_revision_id": _revision_id(source_group),
+                    "recipe_id": _id(alignment_recipe, "recipe_id"),
+                    "recipe_revision_id": _revision_id(alignment_recipe),
+                    "change_reason": (
+                        "Apply the existing explicit alignment contract to one exact "
+                        "input-schema group for Statistics evidence."
+                    ),
+                },
+            )
+            runs = aligned.get("runs")
+            if not isinstance(runs, list) or len(runs) != len(schema_members):
+                raise DemoSeedError("clean demo schema-specific alignment returned unexpected runs")
+            for run in runs:
+                if not isinstance(run, Mapping) or run.get("status") != "succeeded":
+                    raise DemoSeedError("clean demo statistics alignment did not succeed")
+                output_by_source_revision[_id(run, "input_dataset_revision_id")] = _id(
+                    run, "output_dataset_revision_id"
+                )
+        output_revision_ids = [
+            output_by_source_revision[_id(member, "dataset_revision_id")]
+            for member in selection_members
+            if isinstance(member, Mapping)
+        ]
+        if len(output_revision_ids) != sample_count:
+            raise DemoSeedError("clean demo alignment did not preserve every exact input member")
+        if aligned_selection is None:
+            aligned_selection = api.post(
+                "/dataset-selections/reference-tensile-replicates",
                 {
                     "classification": "internal",
-                    "content": {
-                        "recipe_label": _STATISTICS_ALIGNMENT_RECIPE_LABEL,
-                        **desired_recipe_content,
-                    },
+                    "selection_label": _STATISTICS_ALIGNED_SELECTION_LABEL,
+                    "dataset_revision_ids": output_revision_ids,
                     "change_reason": (
-                        "Pin the existing common-grid method for the synthetic curve "
-                        "metadata demonstration."
+                        "Pin the eight exact aligned Dataset revisions used by Statistics."
                     ),
                 },
             )
         else:
-            recipe_content = _content(alignment_recipe)
-            if any(
-                recipe_content.get(key) != value
-                for key, value in desired_recipe_content.items()
-            ):
-                raise DemoSeedError(
-                    "clean demo statistics alignment Recipe has unexpected semantics"
-                )
-        aligned = api.post(
-            "/processing-runs/reference-tensile-common-grid",
-            {
-                "selection_id": _id(source_selection, "selection_id"),
-                "selection_revision_id": _revision_id(source_selection),
-                "recipe_id": _id(alignment_recipe, "recipe_id"),
-                "recipe_revision_id": _revision_id(alignment_recipe),
-                "change_reason": (
-                    "Apply the existing explicit alignment contract to three synthetic "
-                    "replicates for Statistics evidence."
-                ),
-            },
-        )
-        runs = aligned.get("runs")
-        if not isinstance(runs, list) or len(runs) != 3:
-            raise DemoSeedError("clean demo statistics alignment did not return three runs")
-        output_revision_ids: list[str] = []
-        for run in runs:
-            if not isinstance(run, Mapping) or run.get("status") != "succeeded":
-                raise DemoSeedError("clean demo statistics alignment did not succeed")
-            output_revision_ids.append(_id(run, "output_dataset_revision_id"))
-        aligned_selection = api.post(
-            "/dataset-selections/reference-tensile-replicates",
-            {
-                "classification": "internal",
-                "selection_label": _STATISTICS_ALIGNED_SELECTION_LABEL,
-                "dataset_revision_ids": output_revision_ids,
-                "change_reason": (
-                    "Pin the three exact aligned Dataset revisions used by Statistics."
-                ),
-            },
-        )
+            aligned_selection = api.post(
+                "/dataset-selections/reference-tensile-replicates/"
+                f"{_id(aligned_selection, 'selection_id')}/revisions",
+                {
+                    "expected_current_revision_id": _revision_id(aligned_selection),
+                    "dataset_revision_ids": output_revision_ids,
+                    "change_reason": (
+                        "Extend the aligned synthetic Selection to eight exact processed "
+                        "revisions without changing prior evidence."
+                    ),
+                },
+            )
 
+    if aligned_selection is None:
+        raise DemoSeedError("clean demo has no aligned replicate Selection")
     selection_id = _id(aligned_selection, "selection_id")
     selection_revision_id = _revision_id(aligned_selection)
+    distribution_plan_label = f"{_STATISTICS_PLAN_LABEL} · selection {selection_revision_id[:8]}"
     plans = _items(
         api.get(
-            "/replicate-statistical-plans"
-            f"?selection_revision_id={selection_revision_id}&limit=100"
+            f"/replicate-statistical-plans?selection_revision_id={selection_revision_id}&limit=100"
         )
     )
     plan = next(
-        (item for item in plans if item.get("plan_label") == _STATISTICS_PLAN_LABEL),
+        (
+            item
+            for item in plans
+            if item.get("plan_label") == distribution_plan_label
+            and isinstance(_content(item).get("scalar_distribution"), Mapping)
+        ),
         None,
     )
     if plan is None:
@@ -1949,13 +2002,18 @@ def _ensure_replicate_statistics_curve(
             "/replicate-statistical-plans",
             {
                 "classification": "internal",
-                "plan_label": _STATISTICS_PLAN_LABEL,
+                "plan_label": distribution_plan_label,
                 "selection_id": selection_id,
                 "selection_revision_id": selection_revision_id,
-                "sample_count": 3,
+                "sample_count": sample_count,
+                "scalar_distribution": {
+                    "seed": 210,
+                    "bootstrap_samples": 999,
+                    "unit_profile": None,
+                },
                 "change_reason": (
-                    "Pin the existing SD, quantile, and Student-t pointwise methods for "
-                    "the synthetic Materials curve."
+                    "Pin descriptive methods and the approved deterministic distribution "
+                    "comparison for the synthetic Materials curve."
                 ),
             },
         )
@@ -1963,24 +2021,44 @@ def _ensure_replicate_statistics_curve(
     if (
         plan_content.get("selection_id") != selection_id
         or plan_content.get("selection_revision_id") != selection_revision_id
-        or plan_content.get("sample_count") != 3
+        or plan_content.get("sample_count") != sample_count
+        or not isinstance(plan_content.get("scalar_distribution"), Mapping)
     ):
         raise DemoSeedError("clean demo replicate Statistics Plan pins unexpected inputs")
-    run = api.post(
-        "/replicate-statistical-runs",
-        {
-            "plan_id": _id(plan, "statistical_plan_id"),
-            "plan_revision_id": _revision_id(plan),
-            "change_reason": (
-                "Calculate the already-defined pointwise Statistics for synthetic UI evidence."
-            ),
-        },
+    plan_revision_id = _revision_id(plan)
+    prior_runs = _items(
+        api.get(f"/replicate-statistical-runs?plan_revision_id={plan_revision_id}&limit=100")
     )
+    run = next(
+        (
+            item
+            for item in prior_runs
+            if item.get("status") == "succeeded"
+            and isinstance(item.get("scalar_distribution_result_id"), str)
+        ),
+        None,
+    )
+    if run is None:
+        run = api.post(
+            "/replicate-statistical-runs",
+            {
+                "plan_id": _id(plan, "statistical_plan_id"),
+                "plan_revision_id": plan_revision_id,
+                "change_reason": (
+                    "Calculate descriptive Statistics and deterministic scalar-distribution "
+                    "candidates for synthetic UI evidence."
+                ),
+            },
+        )
     if run.get("status") != "succeeded":
         raise DemoSeedError("clean demo replicate Statistics Run did not succeed")
+    if not isinstance(run.get("scalar_distribution_result_id"), str):
+        raise DemoSeedError("clean demo Statistics Run has no scalar-distribution Result")
+    if pinned is not None:
+        return pinned
     return {
         "statistical_plan_id": _id(plan, "statistical_plan_id"),
-        "statistical_plan_revision_id": _revision_id(plan),
+        "statistical_plan_revision_id": plan_revision_id,
         "statistical_run_id": _id(run, "statistical_run_id"),
         "statistical_result_id": _id(run, "result_id"),
         "statistical_result_revision_id": _id(run, "result_revision_id"),
@@ -2401,7 +2479,7 @@ def _ensure_material(
                 },
                 "change_reason": f"Create the synthetic {material_class} demo Material.",
             },
-    )
+        )
     detail = api.get(f"/materials/{_id(material, 'material_id')}")
     current = detail.get("material")
     if not isinstance(current, Mapping):
@@ -2414,9 +2492,7 @@ def _ensure_material(
         return detail
     current_revision = current.get("current_revision")
     change_reason = (
-        current_revision.get("change_reason")
-        if isinstance(current_revision, Mapping)
-        else None
+        current_revision.get("change_reason") if isinstance(current_revision, Mapping) else None
     )
     revised = api.post(
         f"/materials/{_id(material, 'material_id')}/revisions",
@@ -2461,9 +2537,7 @@ def _ensure_state(
         ):
             return state
         change_reason = (
-            current_revision.get("change_reason")
-            if isinstance(current_revision, Mapping)
-            else None
+            current_revision.get("change_reason") if isinstance(current_revision, Mapping) else None
         )
         return api.post(
             f"/material-states/{_id(state, 'material_state_id')}/revisions",
@@ -2523,9 +2597,7 @@ def _ensure_properties(
         current_revision = existing.get("current_revision")
         source = {"kind": "manual", "reference": _NON_METAL_SOURCE_REFERENCE}
         applicability = current_content.get("applicability")
-        desired_applicability = (
-            dict(applicability) if isinstance(applicability, Mapping) else {}
-        )
+        desired_applicability = dict(applicability) if isinstance(applicability, Mapping) else {}
         desired_applicability["note"] = _SYNTHETIC_APPLICABILITY_NOTE
         desired_content = {
             "material_state_revision_id": _revision_id(state),
@@ -2544,9 +2616,7 @@ def _ensure_properties(
         if all(current_content.get(key) == value for key, value in desired_content.items()):
             return existing
         change_reason = (
-            current_revision.get("change_reason")
-            if isinstance(current_revision, Mapping)
-            else None
+            current_revision.get("change_reason") if isinstance(current_revision, Mapping) else None
         )
         return api.post(
             f"/property-sets/{_id(existing, 'property_set_id')}/revisions",

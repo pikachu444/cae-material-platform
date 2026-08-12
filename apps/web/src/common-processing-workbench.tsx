@@ -104,6 +104,11 @@ const ModelingTargetPreview = lazy(() =>
     default: module.ModelingTargetPreview,
   })),
 );
+const ScalarDistributionWorkbench = lazy(() =>
+  import("./scalar-distribution-workbench").then((module) => ({
+    default: module.ScalarDistributionWorkbench,
+  })),
+);
 
 interface Props {
   config: ApiConfig;
@@ -943,6 +948,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   // restored successfully (or saved in this mounted session).
   const [verifiedFitOutputKey, setVerifiedFitOutputKey] = useState<string | null>(null);
   const [fitEvidenceOpen, setFitEvidenceOpen] = useState(false);
+  const [distributionEvidenceOpen, setDistributionEvidenceOpen] = useState(false);
   const [fitPlotCommand, setFitPlotCommand] = useState<PlotInteractionCommand | null>(null);
   const [fitPlotInteraction, setFitPlotInteraction] = useState<PlotInteractionState>({ mode: "pan", hasSelection: false });
   const [selectedStage, setSelectedStage] = useState(initialSession?.workspace.selectedStageOrdinal ?? 0);
@@ -1002,6 +1008,12 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   const [fitRestoreError, setFitRestoreError] = useState<string | null>(null);
   const fitEvidenceTriggerRef = useRef<HTMLButtonElement | null>(null);
   const fitEvidenceBodyRef = useRef<HTMLDivElement | null>(null);
+  const distributionEvidenceTriggerRef = useRef<HTMLButtonElement | null>(null);
+
+  function closeDistributionEvidence(): void {
+    setDistributionEvidenceOpen(false);
+    queueMicrotask(() => distributionEvidenceTriggerRef.current?.focus());
+  }
 
   function closeFitEvidence(): void {
     setFitEvidenceOpen(false);
@@ -1028,8 +1040,30 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   }, [fitEvidenceOpen]);
 
   useEffect(() => {
+    if (!distributionEvidenceOpen) return;
+    const frame = window.requestAnimationFrame(() =>
+      window.document.getElementById("scalar-distribution-analysis")?.focus(),
+    );
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      event.stopPropagation();
+      closeDistributionEvidence();
+    };
+    window.addEventListener("keydown", onKeyDown, true);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("keydown", onKeyDown, true);
+    };
+  }, [distributionEvidenceOpen]);
+
+  useEffect(() => {
     if (workflowTask !== "fit" && fitEvidenceOpen) setFitEvidenceOpen(false);
   }, [fitEvidenceOpen, workflowTask]);
+
+  useEffect(() => {
+    if (workflowTask !== "process" && distributionEvidenceOpen) setDistributionEvidenceOpen(false);
+  }, [distributionEvidenceOpen, workflowTask]);
 
   function clearExactDocumentBinding(): void {
     exactDocumentGeneration.current += 1;
@@ -2991,6 +3025,16 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       </div>
     </div>
   ) : undefined;
+  const distributionAnalysisSheet = isProcessTask && distributionEvidenceOpen ? (
+    <Suspense fallback={<p className="loading-state">Loading distribution comparison…</p>}>
+      <ScalarDistributionWorkbench
+        config={config}
+        classification={classification}
+        state={materialState}
+        onClose={closeDistributionEvidence}
+      />
+    </Suspense>
+  ) : undefined;
 
   const activePlotView: PlotView = workflowTask === "export" ? "pipeline" : plotView;
   const meanPreviewVisible = activePlotView === "ensemble";
@@ -3002,6 +3046,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         <div className="modeling-work-title"><strong>{stageTitle}</strong>{workflowTask === "fit" ? <><span className="fit-context-source" title={fitSourceOutput ? `${fitSourceOutput.label} · r${fitSourceOutput.current_revision.revision_no}` : "No saved Process Output is bound"}>{fitSourceOutput ? `${fitSourceOutput.label} · r${fitSourceOutput.current_revision.revision_no}` : "No saved Process Output"}</span><span className={`fit-surface-state fit-surface-state-${fitState}`} role="status">{fitStateLabel}</span></> : <span>{[initialSession?.material?.label, selectedTrackDocument ? curveGroupLabel(selectedTrackDocument) : ""].filter(Boolean).join(" / ") || "Select test data"}</span>}</div>
         <div className="modeling-context-actions">
           <details className="modeling-advanced-menu"><summary className="button secondary">Advanced</summary><div role="tablist" aria-label="Material modeling family"><button type="button" role="tab" aria-selected={modelingTrack === "metal"} onClick={() => selectModelingTrack("metal")}>Metal · elastoplastic</button><button type="button" role="tab" aria-selected={modelingTrack === "polymer"} onClick={() => selectModelingTrack("polymer")}>Polymer · viscoelastic</button><button type="button" role="tab" aria-selected={modelingTrack === "elastomer"} onClick={() => selectModelingTrack("elastomer")}>Elastomer · hyper-viscoelastic</button><button type="button" onClick={() => openWorkflowTask("validate")}>Validation & review</button></div></details>
+          {isProcessTask ? <button ref={distributionEvidenceTriggerRef} className="button secondary modeling-analysis-trigger" type="button" aria-expanded={distributionEvidenceOpen} aria-controls="scalar-distribution-analysis" onClick={() => distributionEvidenceOpen ? closeDistributionEvidence() : setDistributionEvidenceOpen(true)}>Distribution analysis</button> : null}
           {isProcessTask || workflowTask === "fit" ? <button className="button secondary" type="button" disabled={busy || previewBusy || (isProcessTask && !processSourceReady)} onClick={() => void runPreview()}>{previewBusy ? "Updating…" : "Preview changes"}</button> : null}
           {workflowTask === "fit" ? <button className="button primary" type="button" disabled={busy || !fitDecisionReady || (!selectedProfileId && !fitSourceOutput)} onClick={() => void saveSelectedFitOutput()}>Save fit &amp; continue</button> : null}
         </div>
@@ -3070,7 +3115,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       /></Suspense> : null}
       {!elastomerWorkbenchTask && workflowTask !== "validate" && workflowTask !== "review" && workflowTask !== "export" ? <section className={`workbench-card method-builder-card stage-${workflowTask}`} id="modeling-process">
         <div className="section-heading"><div><p className="workspace-caption">{workflowTask}</p><h2>{stageTitle}</h2></div><div className="modeling-section-actions">{isProcessTask || workflowTask === "fit" ? <details className="method-library" open={processBlocked || undefined}><summary aria-disabled={processBlocked}>{workflowTask === "fit" ? "Add fit method" : "Add operation"} <span>{availableMethods.length}</span></summary><div className="method-registry-strip" aria-label={workflowTask === "fit" ? "Available fitting methods" : "Available processing operations"}>{availableMethods.map((method) => <button type="button" className="method-pill" key={method.method_id} disabled={processBlocked} onClick={() => addMethod(method)}><strong>+ {method.label}</strong><small>{method.version}</small></button>)}</div></details> : null}</div></div>
-        <div className={`modeling-workspace-shell${workflowTask === "data" ? " modeling-workspace-stage-data" : isProcessTask ? " modeling-workspace-stage-process" : workflowTask === "fit" ? " modeling-workspace-stage-fit" : ""}`}>
+        <div className={`modeling-workspace-shell${workflowTask === "data" ? " modeling-workspace-stage-data" : isProcessTask ? " modeling-workspace-stage-process" : workflowTask === "fit" ? " modeling-workspace-stage-fit" : ""}${distributionAnalysisSheet ? " has-distribution-analysis" : ""}`}>
         <ModelingWorkspaceLayout
           navigator={workflowTask === "data" || isProcessTask || workflowTask === "fit" ? <>
             <div className={`modeling-dataset-list${workflowTask === "data" ? " modeling-data-curve-tree" : ""}${isApprovedMetalFit ? " approved-fit-curve-tree" : ""}`}>
@@ -3098,7 +3143,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
                 </details>
               </section>)}
               {!filteredTrackDocuments.length ? <p className="muted">No matching curves.</p> : null}
-              {isProcessTask && ensembleDocumentIds.length >= 2 ? <details className="rail-statistics-action"><summary>Replicate analysis</summary><label>Alignment points<input aria-label="Replicate alignment point count" type="number" min="5" max="1001" value={ensemblePointCount} disabled={processBlocked} onChange={(event) => { setEnsemblePointCount(Number(event.target.value)); setEnsemblePreview(null); }} /></label><button className="button secondary" type="button" disabled={busy || processBlocked} onClick={() => void runEnsemblePreview()}>{busy ? "Calculating…" : "Preview statistics"}</button><small>Compatible observed-domain intersection only · no extrapolation</small></details> : null}
+              {isProcessTask ? <details className="rail-statistics-action"><summary>Replicate analysis</summary>{ensembleDocumentIds.length >= 2 ? <><label>Alignment points<input aria-label="Replicate alignment point count" type="number" min="5" max="1001" value={ensemblePointCount} disabled={processBlocked} onChange={(event) => { setEnsemblePointCount(Number(event.target.value)); setEnsemblePreview(null); }} /></label><button className="button secondary" type="button" disabled={busy || processBlocked} onClick={() => void runEnsemblePreview()}>{busy ? "Calculating…" : "Preview statistics"}</button><small>Compatible observed-domain intersection only · no extrapolation</small></> : <small>Select two Test Data curves to preview an aligned mean.</small>}</details> : null}
             </div>
             {isProcessTask || workflowTask === "fit" ? <div className={`configured-step-list${isApprovedMetalFit ? " approved-fit-process-tree" : ""}`}><p className="rail-title">{isApprovedMetalFit ? "Process" : stageRail}{isApprovedMetalFit ? <span>4 steps</span> : null}</p>{displayedRailEntries.map(({ step, index, label, title, railIndex }) => { const groupedFitRail = workflowTask === "fit" && modelingTrack === "metal"; return <button type="button" title={title} disabled={processBlocked} className={selectedStepIndex === index ? "active" : ""} key={`${index}:${step.method_id}`} onClick={() => focusConfiguredStep(index)}><span>{groupedFitRail ? railIndex + 1 : index + 1}</span><span><strong>{label}</strong>{!groupedFitRail ? <small>{step.method_version}</small> : null}</span></button>; })}{isApprovedMetalFit ? <footer className="curve-tree-foot">Details in Evidence</footer> : null}</div> : null}
           </> : null}
@@ -3183,9 +3228,11 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
           dock={fitEvidenceDock}
           dockLabel={fitEvidenceDock ? "Candidate parameters" : undefined}
           dataLayoutMode={workflowTask === "data" ? dataLayoutMode : undefined}
+          inactive={Boolean(distributionAnalysisSheet)}
           ribbonOpen={inspectorVisible}
           onRibbonOpenChange={setInspectorVisible}
         />
+        {distributionAnalysisSheet ? <aside className="distribution-analysis-sheet">{distributionAnalysisSheet}</aside> : null}
         </div>
         <details className="advanced-definition"><summary>Advanced Recipe JSON</summary><label>Ordered step JSON<textarea className="pipeline-editor" aria-label="Ordered processing steps" name="ordered-processing-steps" autoComplete="off" value={stepsText} onChange={(event) => applyDraftSteps(event.target.value)} spellCheck={false} /></label></details>
         <p className="mapping-note">Methods are deterministic. The common resampler declares <code>extrapolation: reject</code>; unsupported or hidden policies fail before calculation.</p>

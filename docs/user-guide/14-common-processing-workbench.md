@@ -432,6 +432,46 @@ quantile, normal-approximation pointwise 95% mean CI를 명시합니다. 화면�
 그대로 표시하며 새 통계를 계산하거나 모든 band를 95% CI로 추정하지 않습니다. 이 결과는 T-53 preview이며, T-54에서 exact Selection과 versioned
 Recipe/Batch 실행 결과로 저장됩니다.
 
+### Peak stress 분포 후보 비교와 선택
+
+분포 적합은 선택 기능입니다. 사용하지 않으면 Selection/Plan/Run/Distribution Result를 새로 만들지
+않으며 Process, Fit, Export 진행을 막지 않습니다. 필요할 때 `Modeling → Process` 상단의
+**Distribution analysis**를 누르면 현재 작업면을 덮는 분석 sheet가 열립니다. 기존 Process 설정과
+graph는 뒤에서 그대로 유지되고, **Close** 또는 `Escape`로 닫으면 버튼으로 focus가 돌아옵니다.
+
+1. **Replicate set**에서 exact processed Dataset revision 8개 이상을 가진 Selection을 고릅니다.
+   정렬 전 normalized source Selection은 목록에 섞이지 않습니다. Dataset head가 전진해도 과거
+   processed revision을 고정한 Selection은 **historical exact revisions**로 남아 저장된 Plan/Run/Result를
+   다시 읽을 수 있습니다. 새 Selection이 필요하면 **Replicate sets**에서 두 개 이상을 고정해
+   저장합니다.
+2. 필요할 때 **Replay**에서 seed와 exact Unit Profile ID/revision/SHA-256을 함께 지정합니다.
+   Profile은 세 필드를 모두 입력하거나 모두 비워야 하며 계산 자체는 Pa에서 수행됩니다.
+3. **Fit candidates** 또는 **Refit candidates**를 누르거나 **Plan / Run history**에서 저장 기록을
+   선택합니다. 같은 Selection revision,
+   seed, bootstrap 수와 Unit Profile pin은 기존 immutable Plan을 재사용하고 새 committed Run/Result를
+   만듭니다.
+4. **Probability comparison**에서 empirical CDF와 저장된 후보 curve를 비교하고, 아래 원장에서
+   candidate별 parameter, AICc, delta AICc, BIC, Anderson–Darling, 999회 bootstrap p-value와 성공
+   refit 수를 함께 봅니다. n 8–19 경고, support 또는 수치 실패,
+   missing/non-finite/censored, outlier assessment가 모두 보존됩니다. 관측을 숨기거나 자동 삭제하지
+   않습니다.
+5. **Recommendation · AICc Δ ≤ 2**는 비교 근거일 뿐 선택이 아닙니다. 성공한 candidate 행의
+   **Select**를 누르고 **Engineering rationale**을 작성한 뒤 **Save exact selection**을 눌러 exact
+   Result revision과 candidate digest에 고정합니다. 저장한 selected model과 이유는 전체 새로고침
+   뒤에도 복원됩니다.
+
+기존 mean, sample SD, median, MAD, IQR, min/max가 있는 descriptive Statistical Result는 후보 비교로
+덮어쓰지 않습니다. source observation, Selection, Plan, Run, Result와 Artifact의 전체 exact identity와
+library/RNG manifest는 **Evidence and replay manifest**에서 확인합니다.
+
+| Distribution evidence | 화면 |
+| --- | --- |
+| 1366×768 | ![Distribution analysis 1366](images/current/modeling-distribution-1366x768.png) |
+| 1440×900 | ![Distribution analysis 1440](images/current/modeling-distribution-1440x900.png) |
+| 1920×1080 | ![Distribution analysis 1920](images/current/modeling-distribution-1920x1080.png) |
+| Wide 2560×1440 | ![Distribution analysis 2560](images/current/modeling-distribution-2560x1440.png) |
+| Wide 3840×2160 | ![Distribution analysis 3840](images/current/modeling-distribution-3840x2160.png) |
+
 
 ## Processing Recipe 저장과 게시
 

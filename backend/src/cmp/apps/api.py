@@ -753,6 +753,7 @@ def create_app(
             services,
             resolved_datasets,
             resolved_artifacts,
+            resolved_units,
         )
     )
     install_replicate_statistics_api(
