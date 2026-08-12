@@ -245,6 +245,21 @@ def test_create_and_revise_keep_stable_identity_and_append_rows() -> None:
     assert [event.revision.revision_no for event in store.state.events] == [1, 2]
 
 
+def test_caller_owned_transaction_can_stage_multiple_revisions_without_early_commit() -> None:
+    store = _FakeStore()
+    service = _service(store)
+    candidate = deepcopy(store.state)
+    transaction = _FakeTransaction(candidate, fail_hook=False)
+
+    first = service.create_in(transaction, _create())
+    second = service.revise_in(transaction, _revise(first.revision_id))
+
+    assert store.state.records == {}
+    assert store.state.events == []
+    assert candidate.heads[(ORG, PROJECT, AGGREGATE)] == second.revision_id
+    assert [event.revision.revision_no for event in candidate.events] == [1, 2]
+
+
 def test_stale_head_is_rejected_without_creating_revision() -> None:
     store = _FakeStore()
     service = _service(store)

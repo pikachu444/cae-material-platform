@@ -46,7 +46,7 @@ from cmp.modules.provenance.domain.model import (
     ProvenanceRecord,
     ProvenanceScope,
 )
-from cmp.shared.domain.revisions import RevisionCreated, content_sha256
+from cmp.shared.domain.revisions import RevisionCreated, RevisionRecord, content_sha256
 
 metadata = sa.MetaData()
 uuid_type = postgresql.UUID(as_uuid=True)
@@ -951,6 +951,197 @@ class SqlAlchemyProvenanceRepository:
                         )
                     )
             return tuple(issues)
+
+
+class SqlAlchemySchemaBundleProvenanceWriter:
+    """Attach exact bundle Artifact lineage inside a caller-owned transaction."""
+
+    def __init__(self, *, id_factory: Callable[[], UUID] = uuid4) -> None:
+        self._id_factory = id_factory
+
+    @staticmethod
+    def _actor_type(session: Session) -> AgentType:
+        principal_type = session.scalar(
+            sa.text("SELECT current_setting('cmp.principal_type', true)")
+        )
+        if principal_type not in {"user", "service"}:
+            raise ProvenanceConflict("Schema Bundle apply actor type is unavailable")
+        return AgentType(str(principal_type))
+
+    def ensure_source(
+        self,
+        session: Session,
+        *,
+        context: SecurityContext,
+        classification: DataClassification,
+        artifact_id: UUID,
+        artifact_sha256: str,
+        artifact_created_at: datetime,
+        recorded_at: datetime,
+    ) -> UUID:
+        scope = ProvenanceScope(
+            context.organization_id,
+            context.project_id,
+            classification,
+        )
+        existing = session.scalar(
+            sa.select(entity_table.c.id).where(
+                entity_table.c.organization_id == context.organization_id,
+                entity_table.c.project_id == context.project_id,
+                entity_table.c.classification == classification.value,
+                entity_table.c.reference_kind == EntityReferenceKind.ARTIFACT.value,
+                entity_table.c.reference_type == "artifact.artifact",
+                entity_table.c.reference_id == artifact_id,
+                entity_table.c.content_sha256 == artifact_sha256,
+            )
+        )
+        if existing is not None:
+            return cast(UUID, existing)
+
+        agent = SqlAlchemyProvenanceRepository._ensure_agent(
+            session,
+            ProvenanceAgent(
+                id=self._id_factory(),
+                scope=scope,
+                reference=AgentReference(self._actor_type(session), context.principal.id),
+                recorded_at=recorded_at,
+                recorded_by=context.principal.id,
+            ),
+            request_id=context.request_id,
+            trace_id=context.trace_id,
+        )
+        entity = SqlAlchemyProvenanceRepository._ensure_entity(
+            session,
+            ProvenanceEntity(
+                id=self._id_factory(),
+                scope=scope,
+                entity_type="catalog.schema_definition_bundle_source",
+                reference=ImmutableEntityReference(
+                    EntityReferenceKind.ARTIFACT,
+                    "artifact.artifact",
+                    artifact_id,
+                    artifact_sha256,
+                ),
+                generation_requirement=GenerationRequirement.PRIMARY,
+                created_at=artifact_created_at,
+                recorded_at=recorded_at,
+                recorded_by=context.principal.id,
+            ),
+            request_id=context.request_id,
+            trace_id=context.trace_id,
+        )
+        activity_id = self._id_factory()
+        relation_values = _relation_values(
+            scope,
+            recorded_at=recorded_at,
+            recorded_by=context.principal.id,
+        )
+        session.execute(
+            sa.insert(activity_table).values(
+                **_scope_values(scope),
+                id=activity_id,
+                activity_type="catalog.schema_bundle_source_registration",
+                domain_run_type="catalog.schema_bundle_source_registration",
+                domain_run_id=artifact_id,
+                status=ActivityStatus.SUCCEEDED.value,
+                input_required=False,
+                output_required=True,
+                started_at=recorded_at,
+                ended_at=recorded_at,
+                submission_digest=content_sha256(
+                    {
+                        "artifact_id": str(artifact_id),
+                        "artifact_sha256": artifact_sha256,
+                    }
+                ),
+                recorded_at=recorded_at,
+                recorded_by=context.principal.id,
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        session.execute(
+            sa.insert(association_table).values(
+                **relation_values,
+                activity_id=activity_id,
+                agent_id=agent.id,
+                role="registrar",
+                plan_entity_id=None,
+            )
+        )
+        session.execute(
+            sa.insert(generation_table).values(
+                **relation_values,
+                entity_id=entity.id,
+                activity_id=activity_id,
+                role="primary",
+                generated_at=recorded_at,
+            )
+        )
+        session.execute(
+            sa.insert(attribution_table).values(
+                **relation_values,
+                entity_id=entity.id,
+                agent_id=agent.id,
+                role="registrar",
+            )
+        )
+        return entity.id
+
+    @staticmethod
+    def attach_source(
+        session: Session,
+        *,
+        source_entity_id: UUID,
+        revision: RevisionRecord,
+    ) -> None:
+        generated_entity_id = session.scalar(
+            sa.select(entity_table.c.id).where(
+                entity_table.c.organization_id == revision.scope.organization_id,
+                entity_table.c.project_id == revision.scope.project_id,
+                entity_table.c.classification == revision.scope.classification,
+                entity_table.c.reference_kind == EntityReferenceKind.REVISION.value,
+                entity_table.c.reference_type == f"{revision.aggregate_type}.revision",
+                entity_table.c.reference_id == revision.revision_id,
+            )
+        )
+        if generated_entity_id is None:
+            raise ProvenanceConflict("generated Catalog revision provenance Entity is missing")
+        activity_id = session.scalar(
+            sa.select(generation_table.c.activity_id).where(
+                generation_table.c.organization_id == revision.scope.organization_id,
+                generation_table.c.project_id == revision.scope.project_id,
+                generation_table.c.classification == revision.scope.classification,
+                generation_table.c.entity_id == generated_entity_id,
+            )
+        )
+        if activity_id is None:
+            raise ProvenanceConflict("generated Catalog revision provenance Activity is missing")
+        values = {
+            "organization_id": revision.scope.organization_id,
+            "project_id": revision.scope.project_id,
+            "classification": revision.scope.classification,
+            "recorded_at": revision.created_at,
+            "recorded_by": revision.created_by,
+        }
+        session.execute(
+            sa.insert(usage_table).values(
+                **values,
+                activity_id=activity_id,
+                entity_id=source_entity_id,
+                role="schema_definition_bundle",
+                ordinal=1 if revision.based_on_revision_id is not None else 0,
+            )
+        )
+        session.execute(
+            sa.insert(derivation_table).values(
+                **values,
+                generated_entity_id=generated_entity_id,
+                used_entity_id=source_entity_id,
+                activity_id=activity_id,
+                derivation_kind="schema_definition_bundle_projection",
+            )
+        )
 
 
 class SqlAlchemyRevisionProvenanceHook:

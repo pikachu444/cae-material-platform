@@ -39,11 +39,11 @@ divider 목록이고, Database design은 20 px 제목, 340 px Table 열과 나�
 revision으로 보존됩니다. 수치값은 원본 값·원본 단위 문자열·정규화 값·정규화 단위·quantity
 semantics를 함께 저장합니다.
 
-### 2.1 API로 Schema Definition Bundle 점검
+### 2.1 API로 Schema Definition Bundle 계획·적용·내보내기
 
-여러 Table 정의를 JSON Schema로 준비한 관리자는 적용 전에
-`POST /api/v1/catalog/schema-definition-bundles:plan`을 호출해 변경 계획을 확인할 수 있습니다.
-이 기능은 현재 API에서만 제공되며 Administration 화면의 upload/apply 기능은 아직 없습니다.
+여러 Table 정의를 JSON Schema로 준비한 관리자는 적용 전에 계획을 확인하고, 같은 API 흐름에서
+승인·적용한 뒤 결과를 다시 읽거나 내보낼 수 있습니다. 이 기능은 현재 API에서만 제공되며
+Administration 화면의 upload/apply 기능은 아직 없습니다.
 
 1. JSON Schema draft 2020-12 record 정의를 하나 이상의 임의 개수로 묶고, 각 schema의 canonical
    SHA-256과 organization/project/classification을 기록합니다.
@@ -52,11 +52,20 @@ semantics를 함께 저장합니다.
 3. 응답에서 `create`, `update`, `no-op`, `conflict`, `error`와 각 diagnostic의 위치·조치 방법을
    확인합니다. `$ref`는 같은 bundle의 local pointer와 선언된 record `$id`만 허용됩니다.
 4. 오류가 있으면 기존 Artifact를 고치지 말고 수정한 JSON을 새 Artifact로 저장해 다시 요청합니다.
+5. 승인할 계획이면 `POST /api/v1/catalog/schema-definition-bundles:apply` body에 같은 Artifact ID,
+   SHA-256, 응답의 `plan_fingerprint`, `delete_missing=false`만 넣고 새로운 `Idempotency-Key` header를
+   보냅니다. Plan의 action이나 projected content를 되돌려 보내지 않습니다.
+6. 201 응답의 `Location`에서 적용 증거를 다시 읽습니다. 같은 요청을 같은 key로 재전송하면 200과
+   같은 application이 반환됩니다. 현재 상태가 그대로라면
+   `GET /api/v1/catalog/schema-definition-bundles/{bundle_key}:export`로 canonical JSON을 받습니다.
 
-dry-run은 Catalog current pointer, publication, outbox, audit와 provenance를 바꾸지 않습니다. Bundle에
-없는 기존 객체도 삭제하거나 자동으로 소유하지 않습니다. 응답의 `mutations_applied=false`,
-`delete_missing=false`, 빈 `write_set`이 이 경계를 나타냅니다. 실제 적용·발행·rollback은 후속 기능
-범위이며 이 endpoint에서 실행되지 않습니다.
+Plan 호출은 Catalog current pointer, publication, outbox, audit와 provenance를 바꾸지 않습니다.
+Apply는 서버가 lock 아래에서 현재 Catalog를 다시 계획한 뒤 필요한 revision과 exact publication,
+source Artifact provenance, audit/outbox를 한 transaction으로 저장합니다. Bundle에 없는 기존 객체나
+Record는 삭제하지 않습니다. Stale plan이면 새 plan부터 다시 확인하고, migration-required이면 기존
+Record에 미칠 영향을 별도 migration 작업으로 해결해야 합니다. 어느 경우에도 부분 적용이나 사용자
+migration code 실행은 없습니다. 일반 단일 revision의 direct publication은 계속 비활성화되어 있으며,
+bundle apply 자체가 Administrator의 exact plan 승인 경계입니다.
 
 ## 3. Folder와 Record 운영
 

@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 from typing import Any, cast
 from uuid import UUID
 
@@ -86,9 +87,10 @@ class SqlAlchemySchemaBundleSnapshotRepository:
         *,
         context: SecurityContext,
         decision: AuthorizationDecision,
+        session: Session | None = None,
+        layout_external_keys: dict[UUID, str] | None = None,
     ) -> CatalogSnapshot:
-        with self._sessions() as session, session.begin():
-            session.execute(sa.text("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY"))
+        with self._snapshot_session(session) as session:
             self._rls.bind_authorization(session, context, decision)
             database_rows = list(
                 session.execute(
@@ -261,6 +263,26 @@ class SqlAlchemySchemaBundleSnapshotRepository:
                 )
                 for row in marker_rows
             )
+            bundle_layout_rows = session.execute(
+                sa.text(
+                    "SELECT aggregate_id, external_key FROM ("
+                    "SELECT binding.aggregate_id, binding.external_key, "
+                    "row_number() OVER (PARTITION BY binding.aggregate_id "
+                    "ORDER BY application.applied_at DESC, binding.sequence DESC) AS ordinal "
+                    "FROM catalog.schema_definition_bundle_binding AS binding "
+                    "JOIN catalog.schema_definition_bundle_application AS application "
+                    "ON application.id = binding.application_id "
+                    "AND application.organization_id = binding.organization_id "
+                    "AND application.project_id = binding.project_id "
+                    "WHERE binding.target_type = 'layout' AND binding.aggregate_id IS NOT NULL"
+                    ") AS ranked WHERE ordinal = 1"
+                )
+            ).mappings()
+            known_layout_keys = {
+                cast(UUID, row["aggregate_id"]): cast(str, row["external_key"])
+                for row in bundle_layout_rows
+            }
+            known_layout_keys.update(layout_external_keys or {})
 
             database_keys = {
                 cast(UUID, row["id"]): cast(str, row["database_key"]) for row in database_rows
@@ -435,7 +457,7 @@ class SqlAlchemySchemaBundleSnapshotRepository:
                 objects.append(
                     CatalogStateObject(
                         "layout",
-                        f"existing.{object_id}",
+                        known_layout_keys.get(object_id, f"existing.{object_id}"),
                         table_keys[table_id],
                         object_id,
                         revision_id,
@@ -530,3 +552,12 @@ class SqlAlchemySchemaBundleSnapshotRepository:
                 )
             )
             return CatalogSnapshot(context.organization_id, context.project_id, tuple(objects))
+
+    @contextmanager
+    def _snapshot_session(self, existing: Session | None) -> Iterator[Session]:
+        if existing is not None:
+            yield existing
+            return
+        with self._sessions() as session, session.begin():
+            session.execute(sa.text("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY"))
+            yield session

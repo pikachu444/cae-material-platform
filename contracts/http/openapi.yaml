@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CAE Material Platform API
   summary: Material data management, immutable traceability, and CAE workflow platform.
-  version: 0.35.0
+  version: 0.36.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -1610,6 +1610,97 @@ paths:
         "409": {description: Artifact identity, digest, media, integrity, or snapshot conflict.}
         "422": {description: Artifact UUID or lowercase SHA-256 request shape is invalid.}
         "503": {description: Artifact or Catalog snapshot service unavailable.}
+  /api/v1/catalog/schema-definition-bundles:apply:
+    post:
+      operationId: applyCatalogSchemaDefinitionBundle
+      tags: [catalog-schema]
+      summary: Re-plan and atomically apply the exact approved Schema Definition Bundle.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema: {type: string, pattern: "^[!-~]{1,255}$"}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/schema-definition-bundle-application.schema.json#/$defs/ApplyRequest"}
+      responses:
+        "201":
+          description: Exact server-owned plan committed and its revisions published atomically.
+          headers:
+            Location: {schema: {type: string}}
+            Idempotent-Replay: {schema: {type: string, enum: ["false"]}}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/schema-definition-bundle-application.schema.json"}
+        "200":
+          description: Exact idempotent replay of the previously committed application.
+          headers:
+            Location: {schema: {type: string}}
+            Idempotent-Replay: {schema: {type: string, enum: ["true"]}}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/schema-definition-bundle-application.schema.json"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog schema apply approval is not authorized.}
+        "404": {description: The exact immutable Artifact is absent or hidden by RLS.}
+        "409": {description: Stale plan, migration, version, source, or idempotency conflict.}
+        "422": {description: Apply request or Idempotency-Key shape is invalid.}
+        "503": {description: Artifact or Catalog apply service unavailable.}
+  /api/v1/catalog/schema-definition-bundle-applications/{application_id}:
+    get:
+      operationId: getCatalogSchemaDefinitionBundleApplication
+      tags: [catalog-schema]
+      summary: Read immutable application evidence for an applied Schema Definition Bundle.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: application_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Exact immutable application, source Artifact, revision, and publication evidence.
+          content:
+            application/json:
+              schema: {$ref: "../catalog/schema-definition-bundle-application.schema.json"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog schema application read-back is not authorized.}
+        "404": {description: The application is absent or hidden by RLS.}
+        "503": {description: Catalog apply service unavailable.}
+  /api/v1/catalog/schema-definition-bundles/{bundle_key}:export:
+    get:
+      operationId: exportCatalogSchemaDefinitionBundle
+      tags: [catalog-schema]
+      summary: Export canonical JSON from the exact current applied source Artifact.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: bundle_key
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[a-z][a-z0-9_]{0,62}[a-z0-9]$|^[a-z]$"
+      responses:
+        "200":
+          description: Canonical current applied Schema Definition Bundle JSON.
+          headers:
+            ETag: {schema: {type: string}}
+            Digest: {schema: {type: string}}
+            X-CMP-Bundle-Application-ID: {schema: {type: string, format: uuid}}
+            X-CMP-Source-Artifact-ID: {schema: {type: string, format: uuid}}
+            X-CMP-Source-Artifact-SHA256:
+              {schema: {type: string, pattern: "^[0-9a-f]{64}$"}}
+          content:
+            application/vnd.cmp.catalog-schema-definition-bundle+json:
+              schema: {$ref: "../catalog/schema-definition-bundle.schema.json"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog schema export is not authorized.}
+        "404": {description: The applied bundle is absent or hidden by RLS.}
+        "409": {description: Applied bindings or immutable source evidence drifted.}
+        "503": {description: Artifact or Catalog export service unavailable.}
   /api/v1/catalog/publication:validate:
     post:
       operationId: validateConfigurableCatalogPublication

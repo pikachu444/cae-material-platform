@@ -51,9 +51,9 @@ from cmp.modules.identity_access.domain.authorization import AuthorizationDecisi
 from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.shared.adapters.persistence.revisions import (
     SqlAlchemyRevisionStore,
+    SqlAlchemyRevisionTransaction,
     SqlRevisionHook,
     TypedRevisionTables,
-    _SqlAlchemyRevisionTransaction,
 )
 from cmp.shared.application.revisions import RevisionStore
 from cmp.shared.domain.revisions import (
@@ -1066,7 +1066,7 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                 if preview["expires_at"] <= datetime.now(UTC):
                     raise ConfigurableCatalogConflict("registration preview token has expired")
                 preview_id = preview["id"]
-            transaction = _SqlAlchemyRevisionTransaction(session, _RECORDS, self._hooks)
+            transaction = SqlAlchemyRevisionTransaction(session, _RECORDS, self._hooks)
             snapshots: list[RecordSnapshot] = []
             for record_id, command in records:
                 for kind, object_id, revision_id in command.domain_bindings:

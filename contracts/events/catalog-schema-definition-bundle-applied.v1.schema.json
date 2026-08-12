@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/events/catalog-schema-definition-bundle-applied.v1.schema.json",
+  "title": "Catalog Schema Definition Bundle Applied CloudEvent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "specversion",
+    "id",
+    "source",
+    "type",
+    "subject",
+    "time",
+    "datacontenttype",
+    "dataschema",
+    "cmpsequence",
+    "cmporganizationid",
+    "cmpprojectid",
+    "cmpclassification",
+    "data"
+  ],
+  "properties": {
+    "specversion": {"const": "1.0"},
+    "id": {"type": "string", "format": "uuid"},
+    "source": {"const": "https://cmp.example/catalog/schema-definition-bundles"},
+    "type": {"const": "io.cmp.catalog.schema-definition-bundle.applied.v1"},
+    "subject": {
+      "type": "string",
+      "pattern": "^schema-definition-bundle/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/applications/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "time": {"type": "string", "format": "date-time"},
+    "datacontenttype": {"const": "application/json"},
+    "dataschema": {
+      "const": "https://cmp.example/contracts/events/catalog-schema-definition-bundle-applied.v1.schema.json"
+    },
+    "cmpsequence": {"type": "integer", "minimum": 1},
+    "cmporganizationid": {"type": "string", "format": "uuid"},
+    "cmpprojectid": {"type": "string", "format": "uuid"},
+    "cmpclassification": {
+      "enum": ["internal", "confidential", "restricted", "export_controlled"]
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version",
+        "application_id",
+        "bundle_id",
+        "bundle_key",
+        "bundle_version",
+        "source_artifact_id",
+        "source_artifact_sha256",
+        "plan_fingerprint",
+        "before_snapshot_fingerprint",
+        "after_snapshot_fingerprint",
+        "mutations_applied",
+        "delete_missing"
+      ],
+      "properties": {
+        "contract_version": {"const": "1.0.0"},
+        "application_id": {"type": "string", "format": "uuid"},
+        "bundle_id": {"type": "string", "format": "uuid"},
+        "bundle_key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]{0,62}[a-z0-9]$|^[a-z]$"
+        },
+        "bundle_version": {"type": "string", "minLength": 1, "maxLength": 64},
+        "source_artifact_id": {"type": "string", "format": "uuid"},
+        "source_artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "plan_fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "before_snapshot_fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "after_snapshot_fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "mutations_applied": {"type": "boolean"},
+        "delete_missing": {"const": false}
+      }
+    }
+  }
+}

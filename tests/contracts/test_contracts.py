@@ -161,13 +161,25 @@ def test_runtime_openapi_exposes_revision_etag_and_metadata_components() -> None
     assert "sha256" in etag["schema"]["pattern"]
 
 
-def test_schema_definition_bundle_contract_and_runtime_expose_no_write_planner() -> None:
+def test_schema_definition_bundle_contract_and_runtime_expose_plan_apply_and_export() -> None:
     source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
     runtime = app.openapi()
     operations = {
         "/api/v1/catalog/schema-definition-bundles:plan": (
             "post",
             "planCatalogSchemaDefinitionBundle",
+        ),
+        "/api/v1/catalog/schema-definition-bundles:apply": (
+            "post",
+            "applyCatalogSchemaDefinitionBundle",
+        ),
+        "/api/v1/catalog/schema-definition-bundle-applications/{application_id}": (
+            "get",
+            "getCatalogSchemaDefinitionBundleApplication",
+        ),
+        "/api/v1/catalog/schema-definition-bundles/{bundle_key}:export": (
+            "get",
+            "exportCatalogSchemaDefinitionBundle",
         ),
         "/api/v1/catalog/databases": ("get", "listConfigurableCatalogDatabases"),
         "/api/v1/catalog/profiles": ("get", "listConfigurableCatalogProfiles"),
@@ -252,6 +264,35 @@ def test_schema_definition_bundle_contract_and_runtime_expose_no_write_planner()
         "ProjectedPlacementResponse",
         "ProjectedProfileResponse",
     }
+    apply_request = json.loads(
+        (
+            PROJECT_ROOT
+            / "contracts/catalog/schema-definition-bundle-application.schema.json"
+        ).read_text(encoding="utf-8")
+    )["$defs"]["ApplyRequest"]
+    assert set(apply_request["required"]) == {
+        "artifact_id",
+        "artifact_sha256",
+        "plan_fingerprint",
+    }
+    assert "actions" not in apply_request["properties"]
+    assert "projected" not in apply_request["properties"]
+    assert apply_request["properties"]["delete_missing"] == {
+        "const": False,
+        "default": False,
+    }
+    application_response = runtime["components"]["schemas"][
+        "SchemaBundleApplicationResponse"
+    ]
+    assert {
+        "source_artifact",
+        "plan_fingerprint",
+        "before_snapshot_fingerprint",
+        "after_snapshot_fingerprint",
+        "results",
+        "delete_missing",
+        "idempotency_key",
+    }.issubset(application_response["required"])
 
 
 def test_common_units_profiles_and_export_usage_match_runtime_contracts() -> None:
