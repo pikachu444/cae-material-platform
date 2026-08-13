@@ -59,5 +59,7 @@ canonical Test Data revision.
 
 The available Windows displays are 2560×1440 and 2560×1600 at 96 DPI and 100% scale. The automated
 3840×2160 CSS viewport establishes geometry only; physical 4K readability remains deferred to #223.
-The independent Balanced audit and Product Owner visual-geometry decision are recorded against the
-exact publication candidate and PR before merge.
+The independent Balanced audit passed against correction commit `7803eae6`. On 2026-08-13, the
+Product Owner reviewed the presented 1920×1080, 2560×1440, and 3840×2160 original comparisons and
+approved the Issue #209 visual geometry for PR #248. This approval covers the deterministic CSS
+geometry; physical Windows 4K readability remains deferred to #223.
