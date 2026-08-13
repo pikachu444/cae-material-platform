@@ -181,12 +181,46 @@ def _capture_states(browser: Browser, base_url: str, packet: Path) -> dict[str, 
     )
     current._open_modeling_stage(page, "fit")
     current._click_modeling_fit_preview_and_wait(page)
-    fit_geometry = current._measure_process_fit(page, "fit", 1440, 900)
     _, body, _ = current._open_fit_evidence(page)
     source = body.locator(".fit-source-evidence")
-    source.get_by_text(
+    method_label = source.get_by_text(
         "OLS zero intercept · v1.0.0 · exact saved Process step", exact=True
-    ).wait_for(state="visible", timeout=30_000)
+    )
+    method_label.wait_for(state="visible", timeout=30_000)
+    fit_geometry = method_label.evaluate(
+        """element => {
+          const rect = element.getBoundingClientRect();
+          return {
+            box: {
+              left: rect.left,
+              right: rect.right,
+              top: rect.top,
+              bottom: rect.bottom,
+              width: rect.width,
+              height: rect.height,
+            },
+            scrollWidth: element.scrollWidth,
+            clientWidth: element.clientWidth,
+            scrollHeight: element.scrollHeight,
+            clientHeight: element.clientHeight,
+          };
+        }"""
+    )
+    label_box = fit_geometry.get("box")
+    if (
+        not isinstance(label_box, dict)
+        or float(label_box.get("left", -1)) < 0
+        or float(label_box.get("right", 1441)) > 1440
+        or float(label_box.get("top", -1)) < 0
+        or float(label_box.get("bottom", 901)) > 900
+        or float(fit_geometry.get("scrollWidth", 1))
+        > float(fit_geometry.get("clientWidth", 0)) + 1
+        or float(fit_geometry.get("scrollHeight", 1))
+        > float(fit_geometry.get("clientHeight", 0)) + 1
+    ):
+        raise RuntimeError(
+            f"Fit exact toe source evidence is clipped at 1440x900: {fit_geometry}"
+        )
     page.screenshot(path=fit_file)
     source.screenshot(path=fit_crop)
     dpr = page.evaluate("window.devicePixelRatio")
@@ -203,7 +237,7 @@ def _capture_states(browser: Browser, base_url: str, packet: Path) -> dict[str, 
         "density": "standard",
         "exact_processing_output": pointer,
         "process_geometry_after_warning_recovery": process_geometry,
-        "fit_geometry_before_source_evidence_open": fit_geometry,
+        "fit_exact_source_evidence_geometry": fit_geometry,
         "states": [
             {
                 "file": _evidence_ref(warning_file, packet),
