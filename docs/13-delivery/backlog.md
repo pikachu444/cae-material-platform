@@ -56,7 +56,10 @@
   `#207`과 순서 22 `#210`도 완료했습니다. 순서 23 `#208`은
   [PR #242](https://github.com/pikachu444/cae-material-platform/pull/242)에서 구현·검증·독립 감수와
   제품 소유자 화면 승인을 완료하고 main `9d8314d882fd395a509ede81291fab69cbf34c84`에 병합했습니다.
-  다음 첫 미완료 단위는 순서 24 `#212`입니다.
+  순서 24 `#212`는 [PR #244](https://github.com/pikachu444/cae-material-platform/pull/244)에서
+  구현·검증·독립 Balanced 감수와 제품 소유자 화면 승인을 완료하고 main
+  `aa009e5898a6e46577a80a7382bda2b7b17fd002`에 병합했습니다. 다음 첫 미완료 단위는 순서 25
+  `#209`입니다.
 - 순서 14 `#160` Task 1은 [PR #220](https://github.com/pikachu444/cae-material-platform/pull/220),
   main `53e4a698235e4c7dad8c87e0156bc2627866989f`에서 병합했습니다. Task 2는
   [PR #224](https://github.com/pikachu444/cae-material-platform/pull/224)에서 병합해 `#160`을 [x]로
@@ -134,7 +137,7 @@ packet, 검증, 검토, 제품 소유자 확인과 PR/merge를 거칩니다. iss
 | 21 | [x] [#207 정의 bundle apply/export와 provenance](https://github.com/pikachu444/cae-material-platform/issues/207) — [PR #237](https://github.com/pikachu444/cae-material-platform/pull/237), main `382da2f6cc088c0ee3149ee44687a9a6df8686b9` | 승인한 plan을 원자적으로 적용하고 source JSON까지 역추적·재내보내기 | issue, #204~#205, Catalog publication/Revision/Artifact/Provenance | exact Artifact·`plan_fingerprint` 서버 재검증, 단일 transaction apply/publication/provenance/audit/outbox, 멱등·rollback·round-trip·Record migration block과 독립 감수를 완료. 다음 단위는 #210 |
 | 22 | [x] [#210 scalar distribution fitting](https://github.com/pikachu444/cae-material-platform/issues/210) — [PR #239](https://github.com/pikachu444/cae-material-platform/pull/239), main `2fd68e569c790639c17c237e640465b65d811eae` | 반복 scalar 값의 후보 분포와 적합 근거를 비교·선택·저장 | issue, #205, Statistics/Calibration 계약 | 승인된 2-parameter MLE·AICc/AD bootstrap 정책, immutable exact revision/provenance, 선택형 Modeling 분석 sheet, PostgreSQL·Compose·브라우저·Standard/Large 다섯 viewport·독립 감수·제품 소유자 승인을 완료. 실제 Windows 4K 물리 판정은 #223이며 다음 단위는 #208 |
 | 23 | [x] [#208 Definition Bundle Administration UI](https://github.com/pikachu444/cae-material-platform/issues/208) — [PR #242](https://github.com/pikachu444/cae-material-platform/pull/242), main `9d8314d882fd395a509ede81291fab69cbf34c84` | 관리자가 upload → plan → apply → read-back/export를 안전하게 수행 | issue, #184, #204/#207, Administration 승인 화면과 권한 | stale/conflict/recovery, 역할·browser·다섯 viewport·제품 소유자 피드백 반영본의 독립 Balanced 재감수와 2026-08-13 시각 승인을 완료. 다음 단위는 #212 |
-| 24 | [#212 explicit toe compensation](https://github.com/pikachu444/cae-material-platform/issues/212) | 원본을 보존하며 명시적으로 선택한 toe 보정 결과와 영향을 비교 | issue의 method/tolerance 결정 gate, #158 Process/Fit 계약 | 승인된 단일 방법, replay·failure·overlay·Fit input 검증, merge |
+| 24 | [x] [#212 explicit toe compensation](https://github.com/pikachu444/cae-material-platform/issues/212) — [PR #244](https://github.com/pikachu444/cae-material-platform/pull/244), main `aa009e5898a6e46577a80a7382bda2b7b17fd002` | 원본을 보존하며 명시적으로 선택한 toe 보정 결과와 영향을 비교 | issue의 method/tolerance 결정 gate, #158 Process/Fit 계약 | 승인된 `tensile.toe_zero_intercept@1.0.0`, deterministic replay·failure/recovery·source/corrected overlay·immutable exact Fit input, 다섯 viewport, 독립 Balanced 감수와 2026-08-13 제품 소유자 시각 승인을 완료. 실제 Windows 4K 물리 판정은 #223이며 다음 단위는 #209 |
 | 25 | [#209 DMA·FLD governed import](https://github.com/pikachu444/cae-material-platform/issues/209) | DMA/FLD 원본을 검증해 canonical Test Data로 등록·연결 | issue, #160/#184, #205~#207, governed import/Test Data | 두 독립 profile, 품질·unit·provenance·review/browser 검증, merge |
 | 26 | [#211 representative envelope와 approved Fit input](https://github.com/pikachu444/cae-material-platform/issues/211) | 반복 곡선의 mean/p05/p95를 검토하고 승인된 exact revision을 Fit에 사용 | issue, #160/#184, #206/#210, Statistics/Fit 계약 | alignment/quantile·lineage·review·Fit selection 검증, merge |
 | 27 | [#213 governed solver-card Template 기반](https://github.com/pikachu444/cae-material-platform/issues/213) | 기존 Export 결과를 보존하며 검토된 Template로 안전하게 render | issue의 sandbox ADR gate, #160/#184/#205, #158 Export | renderer 호환성, isolation, exact Template/Mapping provenance, merge |
