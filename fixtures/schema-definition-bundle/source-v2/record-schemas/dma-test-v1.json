@@ -1,0 +1,230 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:smx:schema:dma-test:1.0.0",
+  "title": "DMA Test Data",
+  "x-table-key": "dma_test",
+  "type": "object",
+  "properties": {
+    "dma-test": {
+      "type": "object",
+      "properties": {
+        "Data Information": {
+          "type": "object",
+          "properties": {
+            "DMA Data Record Name": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "x-key": "record_name"
+            },
+            "DMA Data ID": {
+              "type": "string",
+              "minLength": 1,
+              "x-key": "dma_data_id",
+              "x-business-key": true,
+              "x-indexed": true,
+              "x-searchable": true,
+              "x-id-rule": "DMA_{TestType}_{Family}_{Category}_{Grade}_{SpecThickness}_{Orientation}_{UniqueNumber}"
+            },
+            "Sample Type ID": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "x-key": "sample_type_id"
+            },
+            "Technical Data ID": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "x-key": "technical_data_ref",
+              "x-reference": {
+                "schema_key": "technical-data",
+                "pointer": "/technical-data/Data Information/Technical Data ID"
+              }
+            }
+          },
+          "required": [
+            "DMA Data ID"
+          ]
+        },
+        "Test Condition": {
+          "type": "object",
+          "properties": {
+            "Test Type": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "x-key": "test_type",
+              "x-discrete": [
+                "Strain Sweep",
+                "Frequency-Temperature Sweep"
+              ]
+            },
+            "Deformation Mode": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "x-key": "deformation_mode",
+              "x-discrete": [
+                "Tension",
+                "Shear",
+                "3-Point Bending",
+                "Compression"
+              ]
+            },
+            "Temperature Sweep From (degC)": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "x-key": "temp_from",
+              "x-unit": "degC"
+            },
+            "Temperature Sweep To (degC)": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "x-key": "temp_to",
+              "x-unit": "degC"
+            },
+            "Temperature Increment (degC)": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "x-key": "temp_increment",
+              "x-unit": "degC"
+            },
+            "Oscillation Frequency (Hz)": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "x-key": "oscillation_frequency",
+              "x-unit": "Hz"
+            },
+            "Preload (N)": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "x-key": "preload",
+              "x-unit": "N"
+            },
+            "Force Track (%)": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "x-key": "force_track",
+              "x-unit": "%"
+            },
+            "Instrument Name": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "x-key": "instrument_name"
+            },
+            "Run Date": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date",
+              "x-key": "run_date"
+            }
+          },
+          "additionalProperties": true
+        },
+        "Test Result": {
+          "type": "object",
+          "properties": {
+            "Storage Modulus": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "x-key": "storage_modulus_curve",
+              "x-curve": {
+                "x_pointer": "/Series 1/Temperature (degC)",
+                "x_unit": "degC",
+                "x_quantity": "physics.temperature",
+                "y_pointer": "/Series 1/Storage Modulus (MPa)",
+                "y_unit": "MPa",
+                "y_quantity": "mechanics.modulus.storage",
+                "series_pointer": "/Series 1/Frequency (Hz)",
+                "series_unit": "Hz"
+              }
+            },
+            "Loss Modulus": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "x-key": "loss_modulus_curve",
+              "x-curve": {
+                "x_pointer": "/Series 1/Temperature (degC)",
+                "x_unit": "degC",
+                "y_pointer": "/Series 1/Loss Modulus (MPa)",
+                "y_unit": "MPa",
+                "y_quantity": "mechanics.modulus.loss",
+                "series_pointer": "/Series 1/Frequency (Hz)",
+                "series_unit": "Hz"
+              }
+            },
+            "Tan Delta": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "x-key": "tan_delta_curve",
+              "x-curve": {
+                "x_pointer": "/Series 1/Temperature (degC)",
+                "x_unit": "degC",
+                "y_pointer": "/Series 1/Tan Delta (1)",
+                "y_unit": "1",
+                "y_quantity": "mechanics.loss_factor"
+              }
+            },
+            "Master Curve Data": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "x-key": "master_curve",
+              "x-curve": {
+                "x_pointer": "/Series 1/Reduced Frequency (Hz)",
+                "x_unit": "Hz",
+                "x_scale": "log10",
+                "y_pointer": "/Series 1/Storage Modulus (MPa)",
+                "y_unit": "MPa"
+              },
+              "description": "TTS 적용 주모선. Reference Temperature는 조건 필드에 기록."
+            },
+            "Reference Temperature (degC)": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "x-key": "reference_temperature",
+              "x-unit": "degC"
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "Data Information",
+        "Test Condition"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

@@ -10,6 +10,10 @@
   issue first. Use `rg` to locate only affected requirements, ADRs, contracts, tests, and product specs.
   `IMPLEMENTATION_STATUS.md`, live code, and user guides describe implemented behavior. Do not bulk-read
   archives or `docs/_incoming/`.
+- For schema-driven integration issues #204-#216 and #246, read the exact P/G rows in
+  [`docs/02-requirements/schema-driven-requirement-traceability.md`](docs/02-requirements/schema-driven-requirement-traceability.md)
+  and its linked source fixture before changing a contract or narrowing acceptance. Record and resolve a
+  source/Issue mismatch instead of silently dropping it.
 - Product language is **test data**, **selected model**, **review request**, and **solver card**. Keep
   UUIDs, hashes, Mapping Profile, Recipe/Batch, provenance, and checksums in Evidence, Advanced, or
   Administration.

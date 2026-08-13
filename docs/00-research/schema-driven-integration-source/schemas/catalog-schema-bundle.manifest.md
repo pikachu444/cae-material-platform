@@ -1,0 +1,198 @@
+# catalog-schema-bundle.manifest.json
+
+```json
+{
+  "document_type": "cmp.catalog-schema-bundle",
+  "schema_version": "1.0.0",
+  "bundle_id": "smx-material-db",
+  "bundle_version": "2026.08.0",
+  "description": "사내 물성 DB 구조 일괄 정의 번들. 이 파일 하나를 import하면 Database/Profile/Table/Attribute/LinkType이 생성·발행된다.",
+  "database": {
+    "key": "material_db",
+    "name": "Material Database"
+  },
+  "profile": {
+    "key": "default",
+    "name": "Default Profile"
+  },
+  "tables": [
+    {
+      "key": "technical_data",
+      "name": "Test Data: Technical Data",
+      "record_schema_ref": "record-schemas/technical-data-v2.json",
+      "folder_tree": [
+        "Family",
+        "Category",
+        "Grade"
+      ],
+      "description": "소재 메타정보(베이스 추상 소재 데이터). 모든 데이터의 중심 허브."
+    },
+    {
+      "key": "tensile_test",
+      "name": "Test Data: Tensile Test",
+      "record_schema_ref": "record-schemas/tensile-test-v2.json",
+      "folder_tree": [
+        "Family",
+        "Category",
+        "Grade"
+      ],
+      "description": "인장 시험 원천 데이터."
+    },
+    {
+      "key": "dma_test",
+      "name": "Test Data: DMA",
+      "record_schema_ref": "record-schemas/dma-test-v1.json",
+      "folder_tree": [
+        "Family",
+        "Category",
+        "Grade"
+      ],
+      "description": "DMA(점탄성) 시험 원천 데이터. Strain Sweep / Frequency-Temperature Sweep."
+    },
+    {
+      "key": "fld_test",
+      "name": "Test Data: FLD",
+      "record_schema_ref": "record-schemas/fld-test-v1.json",
+      "folder_tree": [
+        "Family",
+        "Category",
+        "Grade"
+      ],
+      "description": "성형한계도(FLD) 시험 데이터. 다른 시험과 필드가 거의 겹치지 않는 독립 데이터의 예."
+    },
+    {
+      "key": "elastoplasticity_data",
+      "name": "Simulation Data: Elastoplasticity",
+      "record_schema_ref": "record-schemas/elastoplasticity-v2.json",
+      "folder_tree": [
+        "Family",
+        "Category",
+        "Grade"
+      ],
+      "description": "인장(+DMA) 데이터에서 프로세싱된 탄소성 중립 데이터(시험별 중립 데이터의 예)."
+    },
+    {
+      "key": "statistics_data",
+      "name": "Statistics: Simulation Data",
+      "record_schema_ref": "record-schemas/statistics-v2.json",
+      "folder_tree": [
+        "Family",
+        "Category",
+        "Grade"
+      ],
+      "description": "다수 시편 통계 대표 데이터(평균/상·하위 5% envelope, 분포 피팅)."
+    }
+  ],
+  "link_types": [
+    {
+      "key": "technical_to_tensile",
+      "source_table": "technical_data",
+      "target_table": "tensile_test",
+      "forward_label": "Raw Tensile Test",
+      "reverse_label": "Technical Data",
+      "source_cardinality": "one",
+      "target_cardinality": "many",
+      "derived_from": {
+        "record_schema": "tensile-test-v2.json",
+        "x_reference_property": "Technical Data ID"
+      }
+    },
+    {
+      "key": "technical_to_dma",
+      "source_table": "technical_data",
+      "target_table": "dma_test",
+      "forward_label": "Raw DMA Test",
+      "reverse_label": "Technical Data",
+      "source_cardinality": "one",
+      "target_cardinality": "many",
+      "derived_from": {
+        "record_schema": "dma-test-v1.json",
+        "x_reference_property": "Technical Data ID"
+      }
+    },
+    {
+      "key": "technical_to_fld",
+      "source_table": "technical_data",
+      "target_table": "fld_test",
+      "forward_label": "FLD Data",
+      "reverse_label": "Technical Data",
+      "source_cardinality": "one",
+      "target_cardinality": "many",
+      "derived_from": {
+        "record_schema": "fld-test-v1.json",
+        "x_reference_property": "Technical Data ID"
+      }
+    },
+    {
+      "key": "tensile_to_elastoplasticity",
+      "source_table": "tensile_test",
+      "target_table": "elastoplasticity_data",
+      "forward_label": "DX-Simulation Data",
+      "reverse_label": "Raw Tensile Test",
+      "source_cardinality": "many",
+      "target_cardinality": "many",
+      "derived_from": {
+        "record_schema": "elastoplasticity-v2.json",
+        "x_reference_property": "Tensile Data ID"
+      }
+    },
+    {
+      "key": "dma_to_elastoplasticity",
+      "source_table": "dma_test",
+      "target_table": "elastoplasticity_data",
+      "forward_label": "DX-Simulation Data",
+      "reverse_label": "Raw DMA Test",
+      "source_cardinality": "many",
+      "target_cardinality": "many",
+      "derived_from": {
+        "record_schema": "elastoplasticity-v2.json",
+        "x_reference_property": "DMA Data ID"
+      }
+    },
+    {
+      "key": "tensile_to_statistics",
+      "source_table": "tensile_test",
+      "target_table": "statistics_data",
+      "forward_label": "Statistics Data",
+      "reverse_label": "Source Tensile Tests",
+      "source_cardinality": "many",
+      "target_cardinality": "many",
+      "derived_from": {
+        "record_schema": "statistics-v2.json",
+        "x_reference_property": "Source Tensile Data IDs"
+      }
+    }
+  ],
+  "unit_profiles": [
+    {
+      "key": "cae_mm_t_s",
+      "name": "mm-tonne-s (CAE 관행)",
+      "units": {
+        "length": "mm",
+        "mass": "tonne",
+        "time": "s",
+        "stress": "MPa",
+        "density": "tonne/mm3"
+      }
+    },
+    {
+      "key": "si_kg_m_s",
+      "name": "kg-m-s (SI)",
+      "units": {
+        "length": "m",
+        "mass": "kg",
+        "time": "s",
+        "stress": "Pa",
+        "density": "kg/m3"
+      }
+    }
+  ],
+  "import_policy": {
+    "conflict_strategy": "upsert_by_key",
+    "publish": "all_or_nothing",
+    "dry_run_default": true,
+    "on_schema_change": "new_revision",
+    "delete_missing": false
+  }
+}
+```

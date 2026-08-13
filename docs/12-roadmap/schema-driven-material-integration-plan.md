@@ -1,13 +1,18 @@
 # 스키마 기반 물성 DB 통합 계획
 
-상태: **승인된 기획 gate, 구현 전**
-기준선: `main@63a076c`
+상태: **승인된 기획 gate, 구현 진행 중**
+원기획 기준선: `main@63a076c`
+현재 대조 기준선: `main@6bff4c7`
 승인일: 2026-08-08
 상위 추적: [#117](https://github.com/pikachu444/cae-material-platform/issues/117)
 
 이 문서는 내부 전체 기획서, 다섯 개의 파생 Markdown 문서와 JSON Schema 참고 포맷을 현재
-구현에 대조한 공개용 계획이다. 내부 원문, 스캔 이미지, 기밀 데이터와 원본 JSON bytes는 이
-저장소에 포함하지 않는다. 실제 구현 범위와 완료 조건은 연결된 GitHub issue가 소유한다.
+구현에 대조한 공개용 계획이다. 실제 데이터가 아닌 원본 요구 문서와 샘플 포맷은
+[`원본 패키지`](../00-research/schema-driven-integration-source/README.md)와
+[`source-v2 JSON fixture`](../../fixtures/schema-definition-bundle/source-v2/README.md)로 공개한다.
+현재 구현 차이는 [`요구사항 추적표`](../02-requirements/schema-driven-requirement-traceability.md)가
+기록하고 [#246](https://github.com/pikachu444/cae-material-platform/issues/246)이 보완 작업을
+소유한다. 실제 시험 데이터, 스캔 이미지와 기밀 식별자는 포함하지 않는다.
 
 ## 1. JSON 참고 포맷의 해석
 
@@ -92,7 +97,7 @@ positive/negative fixture와 함께 확정한다.
 - schema bundle에 없다는 이유로 기존 객체나 Record 자동 삭제
 - Jinja2, Differential Evolution, production model·solver·threshold를 기획 문구만으로 확정
 - 조직 근거 없이 `data_manager` persistent role을 추가
-- 내부 원본·기밀 test data·scan PDF를 공개 저장소 fixture로 사용
+- 실제 사내·기밀 test data, 내부 식별자 또는 scan PDF를 공개 저장소 fixture로 사용
 
 ## 4. 개발 이슈와 의존성
 
@@ -113,11 +118,12 @@ module 경계로 분해했다.
 | 10 | [#208](https://github.com/pikachu444/cae-material-platform/issues/208) | bundle Administration plan/apply UI | #184, #204, #207 |
 | 11 | [#212](https://github.com/pikachu444/cae-material-platform/issues/212) | explicit toe compensation | #184, method/tolerance 결정 gate |
 | 12 | [#209](https://github.com/pikachu444/cae-material-platform/issues/209) | DMA·FLD governed import | #160, #184, #205~#207 |
-| 13 | [#211](https://github.com/pikachu444/cae-material-platform/issues/211) | representative envelope와 approved Fit input | #160, #184, #206, #210 |
-| 14 | [#213](https://github.com/pikachu444/cae-material-platform/issues/213) | governed solver-card Template/renderer | #160, #184, #205, sandbox ADR |
-| 15 | [#214](https://github.com/pikachu444/cae-material-platform/issues/214) | LS-DYNA MAT_024·다중 단위·Template UI | #160, #184, #205, #213 |
-| 16 | [#215](https://github.com/pikachu444/cae-material-platform/issues/215) | SPA OIDC Code+PKCE | #160, #184, role policy |
-| 17 | [#216](https://github.com/pikachu444/cae-material-platform/issues/216) | 제품 command audit wiring/coverage | #160, #184, 필요 시 #213/#215 |
+| 13 | [#246](https://github.com/pikachu444/cae-material-platform/issues/246) | source-v2 원본 정합과 누락 범위 폐쇄 | #209, 원본 패키지와 추적표 |
+| 14 | [#211](https://github.com/pikachu444/cae-material-platform/issues/211) | representative envelope와 approved Fit input | #160, #184, #206, #210, #246 Task 3 |
+| 15 | [#213](https://github.com/pikachu444/cae-material-platform/issues/213) | governed solver-card Template/renderer | #160, #184, #205, #246 Task 3, sandbox ADR |
+| 16 | [#214](https://github.com/pikachu444/cae-material-platform/issues/214) | LS-DYNA MAT_024·다중 단위·Template UI | #160, #184, #205, #213 |
+| 17 | [#215](https://github.com/pikachu444/cae-material-platform/issues/215) | SPA OIDC Code+PKCE | #160, #184, #246 Task 3 |
+| 18 | [#216](https://github.com/pikachu444/cae-material-platform/issues/216) | 제품 command audit wiring/coverage | #160, #184, #246 Task 3, 필요 시 #213/#215 |
 
 #195와 #196은 각각 polymer/elastomer Fit의 별도 deferred issue다. DMA import나 공통 Template 기반을
 이유로 자동 착수하지 않으며, family별 수치·입력·모델 상세 기획 승인이 필요하다.
@@ -125,12 +131,9 @@ module 경계로 분해했다.
 ## 5. 권장 실행과 제한된 병렬화
 
 저장소의 기본 규칙은 `docs/13-delivery/backlog.md`의 첫 미완료 단위 하나만 진행하는 것이다.
-순서상 선행 단위 #189는 PR #218에서 완료됐고, 현재 첫 미완료 단위는
-`#161 → #221 → #184`의 첫 단계인 #161이다. 위 확장 구현은 이 선행 작업을 건너뛰지 않는다.
-#161, #221과 #184는 원래 schema 기능 분해가 아니라, 이후 UI가 잘못된
-1920px 전역 cap과 고정 density를 반복하지 않도록 제품 소유자가 앞당긴 공통 기반이다.
-실제 Windows 4K 물리 가독성은 전체 기능·흐름 검증 뒤 #223에서 최종 판정하며, 이 이관은 #221의
-잠정 정책 결정이나 #184의 전체 route geometry 적용을 막지 않는다.
+현재 첫 미완료 단위는 진행 중인 #209다. 이 원본 패키지를 `main`에 병합하는 것은 #209 완료가
+아니며, #209 작업 브랜치가 최신 `main`을 반영해 기존 Issue 범위만 완료하기 위한 선행 자료
+제공이다. #209가 병합된 뒤 #246으로 원본 대비 남은 차이를 닫고, 그 다음 #211을 시작한다.
 
 제품 소유자가 별도 branch/worktree, 소유 파일과 shared contract 동결을 명시적으로 승인한 경우에만
 다음 병렬 묶음을 검토할 수 있다.
@@ -172,7 +175,12 @@ Data → Fit → Export → Publication처럼 downstream이 exact upstream revis
 
 ## 8. 공개 저장소 보관 정책
 
-저장소에는 이 계획과 구현 시 확정되는 public contract, synthetic fixture, test와 사용자/운영 문서만
-보관한다. 내부 다섯 문서, 전체 스캔 PDF, 참고 포맷 원본, confidential build/validation data와 내부
-식별자는 Library 또는 승인된 내부 보관소에 남긴다. 구현자가 issue 본문만 읽어도 범위·제외·검증을
-재현할 수 있어야 하며, 대화 기억이나 내부 원문 접근을 전제로 하지 않는다.
+저장소에는 이 계획, 실제 데이터가 없는 원본 요구 문서 5개, 샘플 스키마 형식, public contract,
+fixture, test와 사용자/운영 문서를 보관한다. 원본 문서와 설명용 샘플은
+[`docs/00-research/schema-driven-integration-source`](../00-research/schema-driven-integration-source/README.md),
+기계 판독 JSON은 [`fixtures/schema-definition-bundle/source-v2`](../../fixtures/schema-definition-bundle/source-v2/README.md),
+현재 구현과의 차이는
+[`docs/02-requirements/schema-driven-requirement-traceability.md`](../02-requirements/schema-driven-requirement-traceability.md)가
+소유한다. 전체 스캔 PDF, 실제 시험 데이터, confidential build/validation 결과와 내부 식별자는
+승인된 내부 보관소에 남긴다. 구현자는 대화 기억 없이 저장소 문서와 exact Issue만으로 범위·제외·검증을
+재현할 수 있어야 한다.
