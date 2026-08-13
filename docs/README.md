@@ -36,6 +36,8 @@ React/CSS 기준은 `55cfa62`(PR #156), 승인된 시각 target은 `7601ec8`(PR 
 - [Desktop engineering UI 도구·검수 절차](01-product/desktop-engineering-ui-tooling.md)
 - [현재 delivery backlog](13-delivery/backlog.md)
 - [요구사항](02-requirements/requirements.md)
+- [스키마 기반 통합 요구사항 추적표](02-requirements/schema-driven-requirement-traceability.md)
+- [스키마 기반 통합 원본 문서·샘플 포맷](00-research/schema-driven-integration-source/README.md)
 - [canonical domain model](03-domain/canonical-domain-model.md)
 - [revision과 provenance](04-provenance/revision-and-provenance.md)
 - [시스템 아키텍처](05-architecture/system-architecture.md)

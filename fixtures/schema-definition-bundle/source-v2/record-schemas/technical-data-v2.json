@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:smx:schema:technical-data:2.0.0",
+  "title": "Technical Data",
+  "x-table-key": "technical_data",
+  "type": "object",
+  "properties": {
+    "technical-data": {
+      "type": "object",
+      "properties": {
+        "Material Information": {
+          "type": "object",
+          "properties": {
+            "Family": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "x-key": "family",
+              "x-discrete": [
+                "Metal",
+                "Plastic",
+                "Composite",
+                "Optical",
+                "Rubber",
+                "Adhesive"
+              ],
+              "x-searchable": true
+            },
+            "Category": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "x-key": "category",
+              "x-searchable": true
+            },
+            "Grade": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "x-key": "grade",
+              "x-searchable": true
+            },
+            "Details": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "x-key": "details"
+            },
+            "Spec Thickness (mm)": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "x-key": "spec_thickness",
+              "x-unit": "mm",
+              "x-quantity": "geometry.thickness"
+            },
+            "Orientation": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "x-key": "orientation",
+              "x-discrete": [
+                "Isotropic",
+                "MD",
+                "TD",
+                "DD",
+                "Unknown"
+              ]
+            }
+          }
+        },
+        "Sample Information": {
+          "type": "object",
+          "properties": {
+            "Sample Type ID": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "x-key": "sample_type_id",
+              "x-indexed": true
+            },
+            "Density (tonne/mm3)": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "x-key": "density",
+              "x-unit": "tonne/mm3",
+              "x-quantity": "physics.density"
+            },
+            "Poisson Ratio": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "x-key": "poisson_ratio",
+              "x-quantity": "mechanics.poisson_ratio",
+              "minimum": -1,
+              "maximum": 0.5
+            },
+            "Sales Type": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "x-key": "sales_type",
+              "x-discrete": [
+                "Wholesale",
+                "Retail"
+              ]
+            },
+            "Manufacturer": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "x-key": "manufacturer",
+              "x-searchable": true
+            },
+            "Distributor": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "x-key": "distributor"
+            },
+            "Primary Vendor": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "x-key": "primary_vendor"
+            },
+            "Applied Product": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "x-key": "applied_product",
+              "x-searchable": true
+            },
+            "Applied Part": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "x-key": "applied_part",
+              "x-searchable": true
+            },
+            "Production Date": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date",
+              "x-key": "production_date"
+            }
+          }
+        },
+        "Data Information": {
+          "type": "object",
+          "properties": {
+            "Technical Data Record Name": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "x-key": "record_name"
+            },
+            "Technical Data ID": {
+              "type": "string",
+              "minLength": 1,
+              "x-key": "technical_data_id",
+              "x-business-key": true,
+              "x-indexed": true,
+              "x-searchable": true,
+              "x-id-rule": "TechnicalData_{Family}_{Category}_{Grade}_{Manufacturer}_{ProductionYearMonth}_{SpecThickness}_{Orientation}"
+            }
+          },
+          "required": [
+            "Technical Data ID"
+          ]
+        }
+      },
+      "required": [
+        "Material Information",
+        "Sample Information",
+        "Data Information"
+      ]
+    }
+  },
+  "additionalProperties": false
+}
