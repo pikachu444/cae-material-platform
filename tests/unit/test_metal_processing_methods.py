@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import json
 from datetime import date
 from decimal import Decimal
+from pathlib import Path
+from typing import Any, cast
 
 import pytest
 from cmp.modules.datasets.domain.canonical_test_data import (
     CanonicalTestDataDocument,
+    CanonicalTestDataError,
     ChannelAxisRole,
 )
 from cmp.modules.datasets.domain.canonical_test_data import (
@@ -26,6 +30,7 @@ from cmp.modules.datasets.domain.canonical_test_data import (
 from cmp.modules.datasets.domain.curve_metadata import AxisRole
 from cmp.modules.processing.domain.common_pipeline import (
     COMMON_METHOD_VERSION,
+    MAX_PREVIEW_POINTS,
     ChannelBinding,
     CommonPipelineError,
     MappingProfileContent,
@@ -34,6 +39,7 @@ from cmp.modules.processing.domain.common_pipeline import (
     curve_stage_series,
     preview_pipeline,
     processing_preview_canonical,
+    toe_warning_codes,
 )
 from cmp.modules.processing.domain.metal_hardening import HARDENING_EQUATION_CONTRACT
 
@@ -114,6 +120,98 @@ def _profile() -> MappingProfileContent:
     )
 
 
+def _toe_fixture() -> dict[str, Any]:
+    return cast(
+        dict[str, Any],
+        json.loads(
+            Path("fixtures/synthetic/tensile-toe-zero-intercept-v1.json").read_text(
+                encoding="utf-8"
+            )
+        ),
+    )
+
+
+def _toe_document(
+    strain_values: list[float],
+    stress_values: list[float],
+    *,
+    strain_unit: str = "1",
+    stress_unit: str = "Pa",
+) -> CanonicalTestDataDocument:
+    strain = _values(tuple(strain_values))
+    stress = _values(tuple(stress_values))
+    missing = (None,) * len(strain)
+    return CanonicalTestDataDocument(
+        document_id="synthetic-toe-fixture",
+        material=MaterialMetadata("CMP synthetic", "Toe reference"),
+        test=ExecutionMetadata(date(2026, 8, 13), "fixture", "fixture", "synthetic tensile"),
+        specimen=SpecimenMetadata("TOE-S-1"),
+        conditions=(),
+        channels=(
+            CanonicalChannel(
+                "engineering_strain",
+                "Engineering strain",
+                "strain.engineering",
+                ChannelAxisRole.INDEPENDENT,
+                strain_unit,
+                strain_unit,
+                Decimal("1"),
+                Decimal("0"),
+                strain,
+                strain,
+                missing,
+            ),
+            CanonicalChannel(
+                "engineering_stress",
+                "Engineering stress",
+                "stress.engineering",
+                ChannelAxisRole.DEPENDENT,
+                stress_unit,
+                stress_unit,
+                Decimal("1"),
+                Decimal("0"),
+                stress,
+                stress,
+                missing,
+            ),
+        ),
+        source=CanonicalSource("synthetic-toe.json", "application/json", "2" * 64),
+    )
+
+
+def _toe_profile(*, strain_unit: str = "1", stress_unit: str = "Pa") -> MappingProfileContent:
+    return MappingProfileContent(
+        profile_key="synthetic-toe",
+        label="Synthetic toe quantities",
+        independent_quantity="strain.engineering",
+        missing_data_policy=MissingDataPolicy.REJECT,
+        bindings=(
+            ChannelBinding("engineering_strain", "strain.engineering", (strain_unit,)),
+            ChannelBinding("engineering_stress", "stress.engineering", (stress_unit,)),
+        ),
+    )
+
+
+def _toe_step(
+    minimum: float,
+    maximum: float,
+    *,
+    warning_acknowledged: bool = False,
+) -> ProcessingStep:
+    return ProcessingStep(
+        "tensile.toe_zero_intercept",
+        COMMON_METHOD_VERSION,
+        {
+            "strain_quantity": "strain.engineering",
+            "stress_quantity": "stress.engineering",
+            "minimum_strain": minimum,
+            "maximum_strain": maximum,
+            "equipment_compliance": "not_provided",
+            "warning_acknowledged": warning_acknowledged,
+        },
+    )
+
+
 def _elastic(method: str, manual: float = 210e9) -> ProcessingStep:
     return ProcessingStep(
         "metal.elastic_modulus",
@@ -127,6 +225,146 @@ def _elastic(method: str, manual: float = 210e9) -> ProcessingStep:
             "manual_modulus_pa": manual,
         },
     )
+
+
+def test_toe_zero_intercept_recovers_synthetic_offsets_and_replays_deterministically() -> None:
+    fixture = _toe_fixture()
+    cases = fixture["cases"]
+    assert isinstance(cases, dict)
+
+    for name in ("noiseless_known_offset", "no_toe", "bounded_noise"):
+        case = cases[name]
+        assert isinstance(case, dict)
+        source_strain = [float(value) for value in case["source_strain"]]
+        source_stress = [float(value) for value in case["source_stress_pa"]]
+        step = _toe_step(float(case["minimum_strain"]), float(case["maximum_strain"]))
+        document = _toe_document(source_strain, source_stress)
+        first = preview_pipeline(document, _toe_profile(), (step,))
+        second = preview_pipeline(document, _toe_profile(), (step,))
+        assert processing_preview_canonical(first) == processing_preview_canonical(second)
+
+        stage = first.stages[-1]
+        scalars = {item.key: item.value for item in stage.scalar_results}
+        expected_offset = float(case["expected_offset"])
+        tolerance = 2e-5 if name == "bounded_noise" else 1e-12
+        assert abs(scalars["toe_strain_offset"] - expected_offset) <= tolerance
+        assert scalars["toe_estimated_slope"] == pytest.approx(
+            float(case["expected_slope_pa"]), rel=1e-12, abs=1e-15
+        )
+        corrected = next(
+            item.values for item in stage.series if item.quantity == "strain.engineering"
+        )
+        persisted_stress = next(
+            item.values for item in stage.series if item.quantity == "stress.engineering"
+        )
+        assert corrected == pytest.approx(
+            tuple(value - scalars["toe_strain_offset"] for value in source_strain),
+            rel=1e-12,
+            abs=1e-15,
+        )
+        assert persisted_stress == tuple(source_stress)
+        assert "equipment_compliance=not_provided" in stage.diagnostics[1]
+        if name == "no_toe":
+            assert corrected == pytest.approx(tuple(source_strain), abs=1e-15)
+
+
+def test_toe_zero_intercept_exposes_quality_warning_without_hiding_preview() -> None:
+    strain = [0.0002, 0.0006, 0.0010, 0.0014, 0.0018, 0.0022]
+    stress = [0.0, 30e6, 170e6, 115e6, 390e6, 300e6]
+    stage = preview_pipeline(
+        _toe_document(strain, stress),
+        _toe_profile(),
+        (_toe_step(0.0002, 0.0022),),
+    ).stages[-1]
+
+    warnings = toe_warning_codes(stage)
+    assert "toe.warning.low_linearity" in warnings
+    assert next(item.value for item in stage.scalar_results if item.key == "toe_r_squared") < 0.995
+    assert next(
+        item.values for item in stage.series if item.quantity == "stress.engineering"
+    ) == tuple(stress)
+
+    offset_warning_stage = preview_pipeline(
+        _toe_document(
+            [0.0, 0.0004, 0.0008, 0.0012, 0.0016, 0.0020],
+            [2.0e9, 2.08e9, 2.16e9, 2.24e9, 2.32e9, 2.4e9],
+        ),
+        _toe_profile(),
+        (_toe_step(0.0, 0.0020),),
+    ).stages[-1]
+    assert "toe.warning.offset_exceeds_domain" in toe_warning_codes(offset_warning_stage)
+
+
+@pytest.mark.parametrize(
+    ("strain", "stress", "minimum", "maximum", "message"),
+    [
+        ([0.0, 0.0005, 0.001, 0.0015], [0.0, 1.0, 2.0, 3.0], 0.0, 0.0015, "at least five"),
+        (
+            [0.0, 0.0005, 0.0005, 0.0015, 0.002],
+            [0.0, 1.0, 2.0, 3.0, 4.0],
+            0.0,
+            0.002,
+            "strictly increasing",
+        ),
+        (
+            [0.0, 0.001, 0.0005, 0.0015, 0.002],
+            [0.0, 1.0, 2.0, 3.0, 4.0],
+            0.0,
+            0.002,
+            "strictly increasing",
+        ),
+        (
+            [0.0, 0.0005, 0.001, 0.0015, 0.002],
+            [5.0, 4.0, 3.0, 2.0, 1.0],
+            0.0,
+            0.002,
+            "positive and numerically stable",
+        ),
+    ],
+)
+def test_toe_zero_intercept_rejects_ineligible_domains(
+    strain: list[float],
+    stress: list[float],
+    minimum: float,
+    maximum: float,
+    message: str,
+) -> None:
+    with pytest.raises(CommonPipelineError, match=message):
+        preview_pipeline(
+            _toe_document(strain, stress),
+            _toe_profile(),
+            (_toe_step(minimum, maximum),),
+        )
+
+
+def test_toe_zero_intercept_rejects_incompatible_normalized_units() -> None:
+    fixture = _toe_fixture()
+    case = fixture["cases"]["noiseless_known_offset"]
+    assert isinstance(case, dict)
+    with pytest.raises(CommonPipelineError, match="normalized strain unit 1 and stress unit Pa"):
+        preview_pipeline(
+            _toe_document(
+                [float(value) for value in case["source_strain"]],
+                [float(value) for value in case["source_stress_pa"]],
+                stress_unit="MPa",
+            ),
+            _toe_profile(stress_unit="MPa"),
+            (_toe_step(float(case["minimum_strain"]), float(case["maximum_strain"])),),
+        )
+
+
+def test_toe_zero_intercept_rejects_non_finite_source_values() -> None:
+    with pytest.raises(CanonicalTestDataError, match="original point 2 must be finite"):
+        _toe_document(
+            [0.0, 0.0005, 0.001, 0.0015, 0.002],
+            [0.0, 100e6, float("nan"), 300e6, 400e6],
+        )
+
+
+def test_toe_preview_retains_the_deterministic_interactive_point_bound() -> None:
+    oversized = cast(Any, type("OversizedDocument", (), {"point_count": MAX_PREVIEW_POINTS + 1})())
+    with pytest.raises(CommonPipelineError, match="at most 100000 points"):
+        preview_pipeline(oversized, _toe_profile(), (_toe_step(0.0, 0.002),))
 
 
 @pytest.mark.parametrize(

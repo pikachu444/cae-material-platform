@@ -90,6 +90,26 @@
         "items": {"type": "array", "items": {"$ref": "#/$defs/MappingProfileResponse"}}
       }
     },
+    "ToeZeroInterceptOptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "strain_quantity",
+        "stress_quantity",
+        "minimum_strain",
+        "maximum_strain",
+        "equipment_compliance",
+        "warning_acknowledged"
+      ],
+      "properties": {
+        "strain_quantity": {"type": "string", "minLength": 1, "maxLength": 160},
+        "stress_quantity": {"type": "string", "minLength": 1, "maxLength": 160},
+        "minimum_strain": {"type": "number"},
+        "maximum_strain": {"type": "number"},
+        "equipment_compliance": {"const": "not_provided"},
+        "warning_acknowledged": {"type": "boolean"}
+      }
+    },
     "ProcessingStep": {
       "type": "object",
       "additionalProperties": false,
@@ -98,7 +118,21 @@
         "method_id": {"type": "string", "minLength": 1, "maxLength": 160},
         "method_version": {"type": "string", "minLength": 1, "maxLength": 160},
         "options": {"type": "object"}
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"method_id": {"const": "tensile.toe_zero_intercept"}},
+            "required": ["method_id"]
+          },
+          "then": {
+            "properties": {
+              "method_version": {"const": "1.0.0"},
+              "options": {"$ref": "#/$defs/ToeZeroInterceptOptions"}
+            }
+          }
+        }
+      ]
     },
     "PreviewRequest": {
       "type": "object",

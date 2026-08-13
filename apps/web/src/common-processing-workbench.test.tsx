@@ -733,6 +733,190 @@ describe("Common Processing Workbench", () => {
     expect(onSessionChange.mock.calls.filter(([patch]) => (patch as Record<string, unknown>).processingOutput !== undefined)).toHaveLength(1);
   });
 
+  it("adds toe compensation explicitly, preserves last-valid evidence, and gates warning save", async () => {
+    const sourceRef = { id: documentResource.test_data_document_id, revisionId: revision.id, label: documentResource.document_key, revisionNo: 1 };
+    const session = {
+      version: 4,
+      updatedAt: "2026-08-13T00:00:00Z",
+      materialFamily: "metal",
+      objective: "Review explicit toe compensation",
+      material: { id: "material-a", revisionId: "material-a-r1", label: "DP600", revisionNo: 1 },
+      materialState: { id: "state-a", revisionId: "state-a-r1", label: "As received", revisionNo: 1 },
+      testData: sourceRef,
+      mappingProfile: { id: mappingProfileResource.mapping_profile_id, revisionId: mappingProfileResource.current_revision.id, label: mappingProfileResource.content.label, revisionNo: 1 },
+      workspace: {
+        activeStage: "process",
+        selectedDocumentIds: [sourceRef.id],
+        selectedTestDataRefs: [sourceRef],
+        visibleTestDataKeys: [`${sourceRef.id}:${sourceRef.revisionId}`],
+        selectedStepIndex: 1,
+        selectedStageOrdinal: 1,
+        plotView: "pipeline",
+        settingsOpen: true,
+      },
+    };
+    const material = { material_id: "material-a", current_revision: { id: "material-a-r1", revision_no: 1, content: { name: "DP600" } } };
+    const materialState = { material_state_id: "state-a", current_revision: { id: "state-a-r1", revision_no: 1, content: { name: "As received" } } };
+    let committedBody: Record<string, unknown> | null = null;
+    let committedOutput: Record<string, unknown> | null = null;
+    const previewBodies: Array<{ steps: Array<{ method_id: string; options: Record<string, unknown> }> }> = [];
+    const curveStage = (ordinal: number, method_id: string) => ({
+      ordinal,
+      method_id,
+      method_version: "1.0.0",
+      point_count: 6,
+      series: [
+        { quantity: "strain.engineering", unit: "1", values: [-0.0003, 0.0001, 0.0005, 0.0009, 0.0013, 0.0017] },
+        { quantity: "stress.engineering", unit: "Pa", values: [0, 30e6, 170e6, 115e6, 390e6, 300e6] },
+      ],
+      diagnostics: method_id === "tensile.toe_zero_intercept" ? [
+        "toe.method=tensile.toe_zero_intercept@1.0.0",
+        "toe.domain=[0.0002,0.0022];points=6;equipment_compliance=not_provided",
+        "toe.fit=slope_pa=180000000000;intercept_pa=-54000000;offset_strain=0.0003;r_squared=0.91",
+        "toe.warning.low_linearity:r_squared=0.91;threshold=0.995",
+      ] : [],
+      scalar_results: method_id === "tensile.toe_zero_intercept" ? [
+        { key: "toe_estimated_slope", quantity_semantics: "modulus.young", value: 180e9, unit: "Pa" },
+        { key: "toe_intercept", quantity_semantics: "stress.intercept", value: -54e6, unit: "Pa" },
+        { key: "toe_strain_offset", quantity_semantics: "strain.offset", value: 0.0003, unit: "1" },
+        { key: "toe_r_squared", quantity_semantics: "statistics.r_squared", value: 0.91, unit: "1" },
+        { key: "toe_estimation_point_count", quantity_semantics: "count.points", value: 6, unit: "1" },
+      ] : method_id === "metal.elastic_modulus" ? [
+        { key: "youngs_modulus", quantity_semantics: "modulus.young", value: 210e9, unit: "Pa" },
+      ] : [],
+    });
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+      const url = String(input);
+      if (url.endsWith("/test-data-documents")) return jsonResponse({ items: [documentResource] });
+      if (url.endsWith("/mapping-profiles")) return jsonResponse({ items: [mappingProfileResource] });
+      if (url.endsWith("/processing-methods")) return jsonResponse({ items: [
+        ...processMethodFixtures(),
+        { method_id: "tensile.toe_zero_intercept", version: "1.0.0", label: "Tensile toe compensation", description: "Explicit OLS zero intercept", option_schema: {}, deterministic: true, allows_extrapolation: false },
+      ] });
+      if (url.endsWith("/processing-outputs") && init?.method === "POST") {
+        committedBody = JSON.parse(String(init.body ?? "{}")) as Record<string, unknown>;
+        committedOutput = {
+          ...processOutputFixture("toe-output", "Toe-corrected Process"),
+          steps: committedBody.steps,
+        };
+        return jsonResponse(committedOutput, 201);
+      }
+      if (url.endsWith("/processing-outputs")) return jsonResponse({ items: committedOutput ? [committedOutput] : [] });
+      if (url.endsWith("/processing-ensemble-methods") || url.endsWith("/common-processing-recipes") || url.endsWith("/common-processing-batches")) return jsonResponse({ items: [] });
+      if (url.includes("/test-data-documents/") && url.endsWith("/content")) return {
+        ok: true,
+        status: 200,
+        headers: new Headers({ "content-type": "application/json" }),
+        blob: async () => new Blob([JSON.stringify(documentJson)], { type: "application/json" }),
+      } as Response;
+      if (url.endsWith("/processing:preview") && init?.method === "POST") {
+        const body = JSON.parse(String(init.body ?? "{}")) as { steps: Array<{ method_id: string; options: Record<string, unknown> }> };
+        previewBodies.push(body);
+        return jsonResponse({
+          execution_mode: "preview",
+          promotable: false,
+          source_document_sha256: "d".repeat(64),
+          mapping_profile_sha256: mappingProfileResource.current_revision.content_hash,
+          independent_quantity: "strain.engineering",
+          stages: [curveStage(0, "mapping"), ...body.steps.map((step, index) => curveStage(index + 1, step.method_id))],
+        });
+      }
+      throw new Error(`unexpected request: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    render(
+      <CommonProcessingWorkbench
+        config={{ baseUrl: "/api/v1", accessToken: "token" }}
+        initialSession={session as never}
+        material={material as never}
+        materialState={materialState as never}
+        locationSearch="?stage=process&family=metal"
+        onNavigate={() => undefined}
+        onOpenConnection={() => undefined}
+      />,
+    );
+
+    const toeButton = await screen.findByRole("button", { name: "Add tensile toe compensation" }, { timeout: 5_000 }) as HTMLButtonElement;
+    await waitFor(() => expect(toeButton.disabled).toBe(false));
+    expect((screen.getByLabelText("Ordered processing steps") as HTMLTextAreaElement).value).not.toContain("tensile.toe_zero_intercept");
+    fireEvent.click(toeButton);
+    await waitFor(() => expect((screen.getByLabelText("Ordered processing steps") as HTMLTextAreaElement).value).toContain("tensile.toe_zero_intercept"));
+    let steps = JSON.parse((screen.getByLabelText("Ordered processing steps") as HTMLTextAreaElement).value) as Array<{ method_id: string; options: Record<string, unknown> }>;
+    expect(steps.map((step) => step.method_id).slice(0, 3)).toEqual([
+      "rows.sort_unique",
+      "tensile.toe_zero_intercept",
+      "metal.elastic_modulus",
+    ]);
+    expect(steps[1].options).toMatchObject({ equipment_compliance: "not_provided", warning_acknowledged: false });
+
+    fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
+    await screen.findByText("OLS zero intercept · v1.0.0");
+    expect(screen.getByText("1 quality warning · acknowledgement required")).toBeTruthy();
+    expect(screen.getByText("Warning reviewed")).toBeTruthy();
+    expect(screen.getByText("180.00 GPa")).toBeTruthy();
+    expect(screen.getByText("0.910000")).toBeTruthy();
+    const save = screen.getByRole("button", { name: "Save processed curves" }) as HTMLButtonElement;
+    expect(save.disabled).toBe(true);
+    expect(screen.getByText(/Review and acknowledge the toe quality warning/)).toBeTruthy();
+    expect(screen.getByRole("img", { name: /mapped and selected processing stage curve overlay/i })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("checkbox", { name: "Acknowledge toe quality warning" }));
+    steps = JSON.parse((screen.getByLabelText("Ordered processing steps") as HTMLTextAreaElement).value) as Array<{ method_id: string; options: Record<string, unknown> }>;
+    expect(steps[1].options.warning_acknowledged).toBe(true);
+    expect(save.disabled).toBe(true);
+    expect(screen.getByText("Result retained; preview again to save changes.")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
+    await waitFor(() => expect(save.disabled).toBe(false));
+
+    fireEvent.change(screen.getByLabelText("Toe estimation range start"), { target: { value: "0.00025" } });
+    steps = JSON.parse((screen.getByLabelText("Ordered processing steps") as HTMLTextAreaElement).value) as Array<{ method_id: string; options: Record<string, unknown> }>;
+    expect(steps[1].options.warning_acknowledged).toBe(false);
+    expect(save.disabled).toBe(true);
+
+    fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:undo" } }));
+    steps = JSON.parse((screen.getByLabelText("Ordered processing steps") as HTMLTextAreaElement).value) as Array<{ method_id: string; options: Record<string, unknown> }>;
+    expect(steps[1].options.minimum_strain).toBe(0);
+    expect(steps[1].options.warning_acknowledged).toBe(false);
+    const previewCountBeforeUndoPreview = previewBodies.length;
+    fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
+    await waitFor(() => expect(previewBodies).toHaveLength(previewCountBeforeUndoPreview + 1));
+    expect(save.disabled).toBe(true);
+    fireEvent.click(screen.getByRole("checkbox", { name: "Acknowledge toe quality warning" }));
+    expect(save.disabled).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
+    await waitFor(() => expect(save.disabled).toBe(false));
+
+    steps = JSON.parse((screen.getByLabelText("Ordered processing steps") as HTMLTextAreaElement).value) as Array<{ method_id: string; options: Record<string, unknown> }>;
+    steps[1].options.minimum_strain = 0.0003;
+    steps[1].options.warning_acknowledged = true;
+    fireEvent.change(screen.getByLabelText("Ordered processing steps"), {
+      target: { value: JSON.stringify(steps, null, 2) },
+    });
+    steps = JSON.parse((screen.getByLabelText("Ordered processing steps") as HTMLTextAreaElement).value) as Array<{ method_id: string; options: Record<string, unknown> }>;
+    expect(steps[1].options.warning_acknowledged).toBe(false);
+    expect(save.disabled).toBe(true);
+    fireEvent.click(screen.getByRole("checkbox", { name: "Acknowledge toe quality warning" }));
+    expect(save.disabled).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
+    await waitFor(() => expect(save.disabled).toBe(false));
+    fireEvent.click(save);
+    await waitFor(() => expect(committedBody).not.toBeNull());
+    const committedSteps = (committedBody as unknown as Record<string, unknown>).steps as Array<{ method_id: string; options: Record<string, unknown> }>;
+    expect(committedSteps[1]).toMatchObject({
+      method_id: "tensile.toe_zero_intercept",
+      options: { minimum_strain: 0.0003, warning_acknowledged: true, equipment_compliance: "not_provided" },
+    });
+    expect(previewBodies.at(-1)?.steps[1].options.warning_acknowledged).toBe(true);
+
+    fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:fit" } }));
+    const fitEvidence = await screen.findByRole("button", { name: "Candidate parameters" });
+    fireEvent.click(fitEvidence);
+    expect(await screen.findByTitle("Toe-corrected Process · r1")).toBeTruthy();
+    expect(screen.getByText("OLS zero intercept · v1.0.0", { selector: ".fit-source-evidence strong" }).closest("dd")?.textContent).toBe(
+      "OLS zero intercept · v1.0.0 · exact saved Process step",
+    );
+  });
+
   it("restores history settings as a draft while preserving the saved Process current across rerender and reload", async () => {
     const sourceRef = { id: documentResource.test_data_document_id, revisionId: revision.id, label: documentResource.document_key, revisionNo: 1 };
     const initialSession = {

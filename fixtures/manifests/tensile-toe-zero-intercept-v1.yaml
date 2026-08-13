@@ -1,0 +1,21 @@
+version: 1
+fixture:
+  id: tensile-toe-zero-intercept-v1
+  path: fixtures/synthetic/tensile-toe-zero-intercept-v1.json
+  sha256: 5d29fdcf117753fffbccbf685652b96461370d92075e11d99c60372a6c09cdeb
+  classification: synthetic_non_confidential_non_production
+  owner: CAE Material Platform maintainers
+  license: CC0-1.0 synthetic data dedication
+  source: >-
+    Deterministic values generated directly from the approved
+    tensile.toe_zero_intercept@1.0.0 equation, with one bounded hand-authored
+    stress perturbation case. No measured, supplier, customer or confidential
+    material data is present.
+  purpose: >-
+    Verify known-offset recovery, no-toe behavior, bounded-noise recovery,
+    deterministic replay and immutable processing evidence for issue #212.
+  data_character: deterministic synthetic values; not measured material data
+  production_limit: >-
+    The fixture tolerances and warning thresholds are regression and review
+    policy only. They do not select a production tensile standard, material
+    family, constitutive model or validation threshold.

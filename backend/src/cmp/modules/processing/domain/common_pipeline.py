@@ -56,6 +56,10 @@ from cmp.shared.domain.revisions import content_sha256
 COMMON_METHOD_VERSION = "1.0.0"
 MAX_PREVIEW_POINTS = 100_000
 MAX_PIPELINE_STEPS = 32
+TOE_ZERO_INTERCEPT_METHOD_ID = "tensile.toe_zero_intercept"
+TOE_R_SQUARED_WARNING_THRESHOLD = 0.995
+TOE_MAXIMUM_OFFSET_DOMAIN_RATIO = 1.0
+TOE_WARNING_PREFIX = "toe.warning."
 
 
 class CommonPipelineError(ValueError):
@@ -613,6 +617,33 @@ METHOD_REGISTRY: tuple[MethodDefinition, ...] = (
         },
     ),
     MethodDefinition(
+        TOE_ZERO_INTERCEPT_METHOD_ID,
+        COMMON_METHOD_VERSION,
+        "Tensile toe compensation",
+        "Translates engineering strain by the zero-stress intercept from an explicit "
+        "OLS domain; stress and source Test Data remain unchanged.",
+        {
+            "type": "object",
+            "additionalProperties": False,
+            "properties": {
+                "strain_quantity": {"type": "string", "minLength": 1},
+                "stress_quantity": {"type": "string", "minLength": 1},
+                "minimum_strain": _number_schema(),
+                "maximum_strain": _number_schema(),
+                "equipment_compliance": {"const": "not_provided"},
+                "warning_acknowledged": {"type": "boolean"},
+            },
+            "required": [
+                "strain_quantity",
+                "stress_quantity",
+                "minimum_strain",
+                "maximum_strain",
+                "equipment_compliance",
+                "warning_acknowledged",
+            ],
+        },
+    ),
+    MethodDefinition(
         "metal.elastic_modulus",
         COMMON_METHOD_VERSION,
         "Metal elastic modulus",
@@ -1013,6 +1044,128 @@ def _require_metal_tensile_units(units: dict[str, str], strain_key: str, stress_
         )
 
 
+def _toe_zero_intercept(
+    columns: dict[str, np.ndarray], units: dict[str, str], options: dict[str, Any]
+) -> tuple[dict[str, np.ndarray], tuple[str, ...], tuple[ScalarResult, ...]]:
+    """Translate strain by an explicit-domain OLS zero-stress intercept.
+
+    The method is intentionally a strain-axis translation only.  It never
+    modifies stress, estimates equipment compliance, detects a domain, or
+    mutates the mapped source stage.
+    """
+
+    strain_key = _named_quantity(columns, options, "strain_quantity")
+    stress_key = _named_quantity(columns, options, "stress_quantity")
+    _require_metal_tensile_units(units, strain_key, stress_key)
+    minimum = _float_option(options, "minimum_strain")
+    maximum = _float_option(options, "maximum_strain")
+    if options.get("equipment_compliance") != "not_provided":
+        raise CommonPipelineError("toe compensation equipment_compliance must be not_provided")
+    acknowledged = options.get("warning_acknowledged")
+    if not isinstance(acknowledged, bool):
+        raise CommonPipelineError("toe compensation warning_acknowledged must be boolean")
+    if minimum >= maximum:
+        raise CommonPipelineError(
+            "toe compensation minimum_strain must be less than maximum_strain"
+        )
+
+    strain = columns[strain_key]
+    stress = columns[stress_key]
+    if not np.all(np.isfinite(strain)) or not np.all(np.isfinite(stress)):
+        raise CommonPipelineError("toe compensation requires finite strain and stress")
+    if np.any(np.diff(strain) <= 0):
+        raise CommonPipelineError("toe compensation requires strictly increasing strain")
+
+    mask = (strain >= minimum) & (strain <= maximum)
+    point_count = int(np.sum(mask))
+    if point_count < 5:
+        raise CommonPipelineError(
+            "toe compensation estimation domain must contain at least five points"
+        )
+    selected_strain = strain[mask]
+    selected_stress = stress[mask]
+    observed_domain_width = float(selected_strain[-1] - selected_strain[0])
+    selected_range_width = maximum - minimum
+    centered_strain = selected_strain - float(np.mean(selected_strain))
+    centered_stress = selected_stress - float(np.mean(selected_stress))
+    strain_square_sum = float(np.dot(centered_strain, centered_strain))
+    strain_scale = max(float(np.max(np.abs(selected_strain))), observed_domain_width)
+    numerical_floor = (
+        np.finfo(np.float64).eps
+        * point_count
+        * max(strain_scale * strain_scale, np.finfo(np.float64).tiny)
+    )
+    if observed_domain_width <= 0 or strain_square_sum <= numerical_floor:
+        raise CommonPipelineError("toe compensation estimation domain is numerically unstable")
+
+    covariance = float(np.dot(centered_strain, centered_stress))
+    slope = covariance / strain_square_sum
+    stress_scale = max(float(np.max(np.abs(selected_stress))), 1.0)
+    slope_floor = np.finfo(np.float64).eps * point_count * stress_scale / observed_domain_width
+    if not math.isfinite(slope) or slope <= slope_floor:
+        raise CommonPipelineError(
+            "toe compensation estimated slope must be positive and numerically stable"
+        )
+    intercept = float(np.mean(selected_stress)) - slope * float(np.mean(selected_strain))
+    offset = -intercept / slope
+    if not math.isfinite(intercept) or not math.isfinite(offset):
+        raise CommonPipelineError("toe compensation fit produced a non-finite intercept or offset")
+
+    predicted = slope * selected_strain + intercept
+    residual_sum = float(np.dot(selected_stress - predicted, selected_stress - predicted))
+    total_sum = float(np.dot(centered_stress, centered_stress))
+    if total_sum <= np.finfo(np.float64).eps * point_count * stress_scale * stress_scale:
+        raise CommonPipelineError("toe compensation estimated slope is numerically unstable")
+    r_squared = 1.0 - residual_sum / total_sum
+    if not math.isfinite(r_squared):
+        raise CommonPipelineError("toe compensation fit produced non-finite quality evidence")
+
+    warnings: list[str] = []
+    if r_squared < TOE_R_SQUARED_WARNING_THRESHOLD:
+        warnings.append(
+            "toe.warning.low_linearity:"
+            f"r_squared={r_squared:.17g};threshold={TOE_R_SQUARED_WARNING_THRESHOLD}"
+        )
+    if abs(offset) > selected_range_width * TOE_MAXIMUM_OFFSET_DOMAIN_RATIO:
+        warnings.append(
+            "toe.warning.offset_exceeds_domain:"
+            f"abs_offset={abs(offset):.17g};domain_width={selected_range_width:.17g}"
+        )
+
+    result = dict(columns)
+    result[strain_key] = strain - offset
+    diagnostics = (
+        f"toe.method={TOE_ZERO_INTERCEPT_METHOD_ID}@{COMMON_METHOD_VERSION}",
+        "toe.domain="
+        f"[{minimum:.17g},{maximum:.17g}];points={point_count};"
+        "equipment_compliance=not_provided",
+        "toe.fit="
+        f"slope_pa={slope:.17g};intercept_pa={intercept:.17g};"
+        f"offset_strain={offset:.17g};r_squared={r_squared:.17g}",
+        *warnings,
+    )
+    scalars = (
+        ScalarResult("toe_estimated_slope", "modulus.young", slope, "Pa"),
+        ScalarResult("toe_intercept", "stress.intercept", intercept, "Pa"),
+        ScalarResult("toe_strain_offset", "strain.offset", offset, "1"),
+        ScalarResult("toe_r_squared", "statistics.r_squared", r_squared, "1"),
+        ScalarResult("toe_estimation_point_count", "count.points", float(point_count), "1"),
+    )
+    return result, diagnostics, scalars
+
+
+def toe_warning_codes(stage: CurveStage) -> tuple[str, ...]:
+    """Return stable warning identities from a recomputed toe stage."""
+
+    if stage.method_id != TOE_ZERO_INTERCEPT_METHOD_ID:
+        return ()
+    return tuple(
+        diagnostic.split(":", 1)[0]
+        for diagnostic in stage.diagnostics
+        if diagnostic.startswith(TOE_WARNING_PREFIX)
+    )
+
+
 def _elastic_modulus(
     columns: dict[str, np.ndarray], units: dict[str, str], options: dict[str, Any]
 ) -> tuple[tuple[str, ...], tuple[ScalarResult, ...]]:
@@ -1364,6 +1517,8 @@ def _apply_step_core(
         result = dict(columns)
         result[quantity] = UnivariateSpline(x, columns[quantity], s=smoothing, k=3)(x)
         return result, (f"cubic smoothing spline factor={smoothing}",), ()
+    if step.method_id == TOE_ZERO_INTERCEPT_METHOD_ID:
+        return _toe_zero_intercept(columns, units, options)
     if step.method_id == "metal.elastic_modulus":
         diagnostics, scalars = _elastic_modulus(columns, units, options)
         return dict(columns), diagnostics, scalars

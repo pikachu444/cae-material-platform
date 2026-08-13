@@ -255,6 +255,7 @@ def test_registry_exposes_versioned_solver_neutral_methods() -> None:
         "curve.moving_average",
         "curve.savitzky_golay",
         "curve.smoothing_spline",
+        "tensile.toe_zero_intercept",
         "metal.elastic_modulus",
         "metal.proof_stress",
         "metal.necking_candidate",

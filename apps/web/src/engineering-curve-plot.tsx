@@ -590,6 +590,23 @@ function seriesForStage(
 
   const baseDependent = baseStage.series.find((item) => item.quantity !== xQuantity);
   const engineeringOverlays: PlotSeries[] = [];
+  if (activeStage.method_id === "tensile.toe_zero_intercept") {
+    const slope = activeStage.scalar_results.find((item) => item.key === "toe_estimated_slope")?.value;
+    const intercept = activeStage.scalar_results.find((item) => item.key === "toe_intercept")?.value;
+    const offset = activeStage.scalar_results.find((item) => item.key === "toe_strain_offset")?.value;
+    const minimum = Number(activeStep?.options.minimum_strain);
+    const maximum = Number(activeStep?.options.maximum_strain);
+    if ([slope, intercept, offset, minimum, maximum].every((value) => Number.isFinite(value))) {
+      engineeringOverlays.push({
+        id: "toe-estimation-line",
+        label: "Toe estimation fit",
+        xValues: [minimum - offset!, maximum - offset!],
+        yValues: [slope! * minimum + intercept!, slope! * maximum + intercept!],
+        color: "#2563eb",
+        className: "engineering-fit toe-estimation-fit",
+      });
+    }
+  }
   if (activeStage.method_id === "metal.elastic_modulus") {
     const modulus = activeStage.scalar_results.find((item) => item.key === "youngs_modulus")?.value;
     const intercept = activeStage.scalar_results.find((item) => item.key === "elastic_intercept")?.value;

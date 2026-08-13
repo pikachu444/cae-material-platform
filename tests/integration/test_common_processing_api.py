@@ -4,9 +4,11 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Any, cast
 from uuid import UUID
 
 import httpx
+import pytest
 from cmp.modules.datasets.application.canonical_test_data import (
     ExactRevisionRef,
     GovernedTestDataSource,
@@ -177,8 +179,15 @@ def test_method_registry_and_preview_share_the_versioned_contract() -> None:
 
     methods = asyncio.run(_request("GET", "/api/v1/processing-methods"))
     assert methods.status_code == 200
-    assert len(methods.json()["items"]) == 15
+    assert len(methods.json()["items"]) == 16
     assert methods.json()["items"][0]["method_id"] == "rows.sort_unique"
+    toe = next(
+        item
+        for item in methods.json()["items"]
+        if item["method_id"] == "tensile.toe_zero_intercept"
+    )
+    assert toe["version"] == "1.0.0"
+    assert toe["option_schema"]["properties"]["equipment_compliance"] == {"const": "not_provided"}
 
     preview = asyncio.run(
         _request(
@@ -234,6 +243,72 @@ def test_method_registry_and_preview_share_the_versioned_contract() -> None:
         "curve.resample_linear",
     ]
     assert body["stages"][-1]["point_count"] == 5
+
+
+def test_toe_preview_returns_corrected_curve_and_quality_evidence() -> None:
+    import asyncio
+
+    document = cast(dict[str, Any], _document())
+    source_strain = [0.0003, 0.0007, 0.0011, 0.0015, 0.0019, 0.0023]
+    source_stress = [0, 80e6, 160e6, 240e6, 320e6, 400e6]
+    document["channels"][0]["original_values"] = [str(value * 100) for value in source_strain]
+    document["channels"][0]["normalized_values"] = [str(value) for value in source_strain]
+    document["channels"][0]["missing_reasons"] = [None] * len(source_strain)
+    document["channels"][1]["original_values"] = [str(value / 1e6) for value in source_stress]
+    document["channels"][1]["normalized_values"] = [str(value) for value in source_stress]
+    document["channels"][1]["missing_reasons"] = [None] * len(source_stress)
+
+    response = asyncio.run(
+        _request(
+            "POST",
+            "/api/v1/processing:preview",
+            json_body={
+                "document": document,
+                "mapping_profile": {
+                    "profile_key": "tensile-toe",
+                    "label": "Tensile toe quantities",
+                    "independent_quantity": "strain.engineering",
+                    "missing_data_policy": "reject",
+                    "bindings": [
+                        {
+                            "channel_key": "engineering_strain",
+                            "target_quantity": "strain.engineering",
+                            "accepted_normalized_units": ["1"],
+                        },
+                        {
+                            "channel_key": "engineering_stress",
+                            "target_quantity": "stress.engineering",
+                            "accepted_normalized_units": ["Pa"],
+                        },
+                    ],
+                },
+                "steps": [
+                    {
+                        "method_id": "tensile.toe_zero_intercept",
+                        "method_version": "1.0.0",
+                        "options": {
+                            "strain_quantity": "strain.engineering",
+                            "stress_quantity": "stress.engineering",
+                            "minimum_strain": 0.0003,
+                            "maximum_strain": 0.0023,
+                            "equipment_compliance": "not_provided",
+                            "warning_acknowledged": False,
+                        },
+                    }
+                ],
+            },
+        )
+    )
+
+    assert response.status_code == 200, response.text
+    stage = response.json()["stages"][-1]
+    scalars = {item["key"]: item["value"] for item in stage["scalar_results"]}
+    series = {item["quantity"]: item["values"] for item in stage["series"]}
+    assert scalars["toe_strain_offset"] == pytest.approx(0.0003, abs=1e-12)
+    assert scalars["toe_r_squared"] == pytest.approx(1.0)
+    assert series["strain.engineering"][0] == pytest.approx(0.0, abs=1e-12)
+    assert series["stress.engineering"] == source_stress
+    assert stage["diagnostics"][0] == "toe.method=tensile.toe_zero_intercept@1.0.0"
 
 
 def test_preview_rejects_unknown_method_and_hidden_extrapolation() -> None:

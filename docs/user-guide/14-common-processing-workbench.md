@@ -32,6 +32,18 @@ container를 다시 측정해 frame, SVG viewBox, axis, legend, label과 pointer
 option 변경은 300 ms 동안 모아서 서버 preview를 다시 계산하며, 그 사이 더 최신 변경이 오면
 이전 계산 요청은 취소됩니다.
 
+인장 시험 초반의 toe 구간을 보정할 때는 Process Navigator의
+**Add tensile toe compensation**을 직접 누릅니다. 이 단계는 자동으로 켜지지 않습니다. 사용자가 고른
+Estimation start/end 구간에서 `σ = Eε + b`, `ε₀ = −b/E`를 계산하고 출력 strain만
+`ε − ε₀`로 옮깁니다. 원본 Test Data와 stress 값은 그대로 유지됩니다. Preview 뒤에는 offset,
+Slope E, R²와 사용한 point 수가 Result에 나타나고, graph에는 mapped input, 보정 결과와
+평가 직선이 함께 표시됩니다. R²가 0.995보다 작거나 offset 절댓값이 선택 구간 폭보다 크면 품질
+경고를 검토해 acknowledgement를 선택하고 다시 Preview해야 저장할 수 있습니다. 구간을 바꾸면
+acknowledgement가 해제되고 마지막 정상 graph는 남지만 저장은 새 Preview까지 차단됩니다. 저장한
+Processing Output은 exact revision으로 Fit에 전달되며 **Candidate parameters → Source evidence**에서
+`OLS zero intercept · v1.0.0 · exact saved Process step`을 확인할 수 있습니다. Equipment compliance는
+추정하지 않고 `Not provided`로 기록합니다.
+
 Material Database의 Material 상세에서 State 아래 **Open in Material Modeling**을 누르면 해당
 Material/State exact revision이 자동으로 선택됩니다. Test Data JSON 목록의 **Open in Material
 Modeling**은 해당 Test Data exact revision을 같은 방식으로 전달합니다. 화면을 다시 열어도 최근
@@ -153,6 +165,7 @@ review는 Activity에서 Reviewer가 별도로 승인하거나 변경을 요청�
 
 금속 단축 인장 데이터에는 다음 family method도 같은 ordered pipeline에서 사용할 수 있습니다.
 
+- 명시적 toe 보정: `tensile.toe_zero_intercept` — 선택 구간 OLS zero intercept와 strain-axis translation
 - 탄성계수: `metal.elastic_modulus` — `linear_regression`, `robust_huber`, `chord`, `secant`, `manual`
 - offset proof stress: `metal.proof_stress`
 - 자동 necking 후보: `metal.necking_candidate`
@@ -360,7 +373,9 @@ Calculation과 Result를 첫 줄에, Save result를 다음 전체 폭 줄에 둡
 control height를 사용합니다. Result에는 서버가 계산한 현재 step label과 modulus 값을 직접 표시합니다.
 서버 preview가 성공한 동안에는 mapped input, 선택한 processed stage, server modulus fit을 하나의
 engineering graph에 겹쳐 보여 주며, draft option을 바꾸거나 재계산에 실패해도 마지막 유효
-server preview를 화면에 남깁니다. 실패한 응답은 저장 입력으로 승격되지 않습니다. exact source나
+server preview를 화면에 남깁니다. Toe 보정 단계에서는 같은 graph에 평가 직선도 표시하고 Result의
+offset/slope/R²/point 수와 품질 경고를 함께 검토합니다. 경고가 있으면 acknowledgement를 포함한
+동일한 options로 다시 Preview하기 전까지 저장할 수 없습니다. 실패한 응답은 저장 입력으로 승격되지 않습니다. exact source나
 profile을 복구할 수 없으면 graph는 `blocked` 상태와 **Back to Data** recovery를 표시하며
 `latest` revision으로 조용히 대체하지 않습니다. 선택한 exact ref 자체가 없는 경우에는
 **No exact Test Data**와 **Back to Data**만 보입니다. exact ref는 있지만 content read가 실패한

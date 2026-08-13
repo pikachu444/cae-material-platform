@@ -1,0 +1,47 @@
+{
+  "fixture_id": "tensile-toe-zero-intercept-v1",
+  "fixture_version": "1.0.0",
+  "classification": "synthetic_non_confidential_non_production",
+  "method": {
+    "method_id": "tensile.toe_zero_intercept",
+    "method_version": "1.0.0",
+    "equation": "stress = slope * strain + intercept; toe_offset = -intercept / slope; corrected_strain = source_strain - toe_offset",
+    "equipment_compliance": "not_provided"
+  },
+  "regression_policy": {
+    "minimum_estimation_points": 5,
+    "r_squared_warning_below": 0.995,
+    "offset_warning_above_domain_width_ratio": 1.0,
+    "noiseless_offset_absolute_tolerance": 1e-12,
+    "bounded_noise_offset_absolute_tolerance": 2e-5,
+    "replay_relative_tolerance": 1e-12,
+    "replay_absolute_tolerance": 1e-15,
+    "scope": "Synthetic regression and review policy only; not a production material acceptance threshold."
+  },
+  "cases": {
+    "noiseless_known_offset": {
+      "source_strain": [0.0003, 0.0007, 0.0011, 0.0015, 0.0019, 0.0023, 0.0043],
+      "source_stress_pa": [0, 80000000, 160000000, 240000000, 320000000, 400000000, 800000000],
+      "minimum_strain": 0.0003,
+      "maximum_strain": 0.0023,
+      "expected_offset": 0.0003,
+      "expected_slope_pa": 200000000000
+    },
+    "no_toe": {
+      "source_strain": [0, 0.0004, 0.0008, 0.0012, 0.0016, 0.002, 0.004],
+      "source_stress_pa": [0, 80000000, 160000000, 240000000, 320000000, 400000000, 800000000],
+      "minimum_strain": 0,
+      "maximum_strain": 0.002,
+      "expected_offset": 0,
+      "expected_slope_pa": 200000000000
+    },
+    "bounded_noise": {
+      "source_strain": [0.00025, 0.00065, 0.00105, 0.00145, 0.00185, 0.00225, 0.00425],
+      "source_stress_pa": [2000000, 80500000, 165000000, 244000000, 329500000, 409000000, 820000000],
+      "minimum_strain": 0.00025,
+      "maximum_strain": 0.00225,
+      "expected_offset": 0.00025,
+      "expected_slope_pa": 204357142857.14285
+    }
+  }
+}

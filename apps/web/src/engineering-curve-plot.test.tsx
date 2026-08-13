@@ -426,6 +426,42 @@ describe("EngineeringCurvePlot", () => {
     expect(container.querySelector("polyline.engineering-fit")?.getAttribute("points")?.split(" ")).toHaveLength(2);
   });
 
+  it("overlays source, toe-corrected response, and the evaluated estimation line", () => {
+    const toeStage: CommonCurveStage = {
+      ...activeStage,
+      method_id: "tensile.toe_zero_intercept",
+      series: [
+        { quantity: "strain.engineering", unit: "1", values: [-0.0003, 0.0007, 0.0017, 0.0027] },
+        { quantity: "stress.engineering", unit: "Pa", values: [0, 2e8, 3e8, 4e8] },
+      ],
+      scalar_results: [
+        { key: "toe_estimated_slope", quantity_semantics: "modulus.young", value: 200e9, unit: "Pa" },
+        { key: "toe_intercept", quantity_semantics: "stress.intercept", value: -60e6, unit: "Pa" },
+        { key: "toe_strain_offset", quantity_semantics: "strain.offset", value: 0.0003, unit: "1" },
+      ],
+    };
+    const { container } = render(
+      <EngineeringCurvePlot
+        preview={{ ...preview, stages: [baseStage, toeStage] }}
+        activeStage={toeStage}
+        baseStage={baseStage}
+        activeStep={{
+          method_id: "tensile.toe_zero_intercept",
+          method_version: "1.0.0",
+          options: { minimum_strain: 0.0003, maximum_strain: 0.0023 },
+        }}
+        width={760}
+        height={420}
+      />,
+    );
+
+    expect(screen.getByText("Mapped input")).toBeTruthy();
+    expect(screen.getByText("Selected stage")).toBeTruthy();
+    expect(screen.getByText("Toe estimation fit")).toBeTruthy();
+    expect(container.querySelectorAll("polyline.curve-line")).toHaveLength(3);
+    expect(container.querySelector("polyline.toe-estimation-fit")?.getAttribute("points")?.split(" ")).toHaveLength(2);
+  });
+
   it("rejects mismatched arrays and pads constant ranges", () => {
     expect(plotPoints([0, 1], [2], 100, 100, { xMin: 0, xMax: 1, yMin: 0, yMax: 2 })).toBe("");
     const bounds = paddedPlotBounds([1, 1], [5, 5]);

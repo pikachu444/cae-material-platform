@@ -4102,7 +4102,7 @@
 
 .process-band-groups {
   display: grid;
-  grid-template-columns: minmax(0, 1.55fr) minmax(220px, .55fr);
+  grid-template-columns: minmax(0, 1.45fr) minmax(250px, .65fr);
   grid-template-areas:
     "calculation result"
     "save save";
@@ -4228,6 +4228,69 @@
   min-width: 0;
 }
 
+.process-band-controls > .guided-step-options.toe-compensation-options {
+  grid-template-columns: minmax(180px, .92fr) minmax(205px, 1.08fr) minmax(120px, .62fr) minmax(145px, .76fr);
+  align-items: end;
+  overflow: hidden;
+}
+
+.toe-method-contract,
+.toe-compliance-contract {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+.toe-method-contract strong,
+.toe-compliance-contract strong {
+  overflow: hidden;
+  color: var(--ux-text);
+  font-size: var(--ux-data-font-size);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toe-method-contract small,
+.toe-compliance-contract small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.process-band-controls .toe-estimation-range {
+  gap: var(--ux-space-1);
+}
+
+.toe-warning-acknowledgement {
+  display: flex !important;
+  align-items: center;
+  min-width: 0;
+  min-height: var(--ux-input-min-block-size);
+  gap: var(--ux-space-1);
+  overflow: hidden;
+  color: var(--ux-warning) !important;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.toe-warning-acknowledgement input[type="checkbox"] {
+  flex: 0 0 14px;
+  width: 14px;
+  min-width: 14px;
+  height: 14px !important;
+  min-height: 14px !important;
+  margin: 0;
+  padding: 0;
+}
+
+.toe-warning-acknowledgement span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .process-band-controls :is(input, select, button) {
   box-sizing: border-box;
   min-height: 28px;
@@ -4289,6 +4352,68 @@
   max-width: 34rem;
   line-height: 14px;
   overflow-wrap: anywhere;
+}
+
+.toe-result-evidence {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.toe-result-evidence dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2px 8px;
+  margin: 0;
+}
+
+.toe-result-evidence dl > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  min-width: 0;
+  gap: var(--ux-space-1);
+}
+
+.toe-result-evidence :is(dt, dd) {
+  overflow: hidden;
+  margin: 0;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toe-result-evidence dt {
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+.toe-result-evidence dd {
+  color: var(--ux-text);
+  font-size: var(--ux-data-font-size);
+  font-weight: 700;
+}
+
+.toe-result-warning,
+.process-save-blocked {
+  color: var(--ux-warning) !important;
+}
+
+.toe-result-warning,
+.toe-result-clear {
+  overflow: hidden;
+  line-height: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toe-result-clear {
+  color: var(--ux-success, #176b55) !important;
+}
+
+.process-save-blocked {
+  grid-column: 1 / -1;
+  line-height: 1.35;
 }
 
 .process-band-status {
@@ -5878,6 +6003,10 @@
 .configured-step-list > button:hover,
 .configured-step-list > button.active {
   background: var(--ux-accent-soft);
+}
+
+.configured-step-list > button.configured-step-add {
+  color: var(--ux-accent);
 }
 
 .curve-tree-group {
