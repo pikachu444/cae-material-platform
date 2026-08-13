@@ -62,5 +62,20 @@ review policy, not a production material-acceptance threshold or approved tensil
   deterministic 3840×2160 CSS viewport proves geometry only; final physical 4K readability remains
   deferred to #223 under the repository-wide policy.
 
-The Balanced independent audit and Product Owner visual geometry approval remain publication gates;
-their results and the PR/merge/read-back record are appended after those gates complete.
+### Independent audit and Product Owner approval
+
+- The first Balanced read-only audit found that Advanced Recipe JSON could retain a warning
+  acknowledgement after changing the toe context. Correction `89aae5d9b020c005df4ef48f964da36d17314a74`
+  centralized exact method/version/options context normalization. The same auditor then found that
+  Undo could restore the historical acknowledgement; correction
+  `4ee1ccfd36fea109ac449474f354d2d86df93a76` routed Apply, Undo and Redo through the same
+  normalizer and added both bypasses to the realistic regression journey.
+- The same implementation-uninvolved auditor reopened the final authority, diff, tests and visual
+  packet and approved exact implementation head
+  `4ee1ccfd36fea109ac449474f354d2d86df93a76`: blocker 0, major 0 and material-minor 0.
+- The Product Owner approved the presented 1920×1080, 2560×1440 and 3840×2160 Process/Fit
+  originals and their supporting five-viewport visibility, clipping and layout-bound evidence on
+  2026-08-13. This approval does not convert the automated 3840×2160 viewport into physical 4K
+  evidence; that product-wide readability gate remains assigned to #223.
+- Draft PR #244 targets `main`; the PR/merge SHA and next-unit read-back record are appended after
+  publication completes. The next unfinished #117 unit is #209.

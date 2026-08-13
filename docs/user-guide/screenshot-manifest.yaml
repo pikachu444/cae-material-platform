@@ -9,7 +9,7 @@ notes:
   - "The issue-owned packet is docs/17-evidence/images/issue-212-explicit-toe-compensation/visual-evidence.yaml: ten exact-origin/main before originals, ten live after originals, forty-eight direct 100%-pixel header/navigator/controls/graph crops, three warning/Fit-source state images, hashes, dimensions and measured geometry. Main opened all 71 unique PNGs at original resolution; sixty were byte-identical to the previously inspected packet and the eleven changed images were reopened after the warning-layout correction."
   - "The canonical browser journey explicitly adds tensile.toe_zero_intercept@1.0.0, selects the estimation domain, previews offset/slope/R²/point count, proves an unacknowledged warning blocks save, resets acknowledgement on changed input, recovers through a clean domain, saves an immutable Processing Output r1 and reads that exact toe-compensated source in Fit Evidence."
   - "All five CSS viewports pass at browser zoom 100% and DPR 1. The 1440 warning state records a 14×14 checkbox, acknowledgement right edge 1056.546875 before Result left edge 1066.546875, and equal scroll/client dimensions for both warning labels; the corrected control no longer overlaps Result."
-  - "The active Windows displays are 2560×1440 and 2560×1600 at 96 DPI and 100% scale. Automated 3840×2160 geometry does not claim physical 4K readability; #223 remains the final physical gate. Issue #212 Product Owner visual geometry approval and the Balanced independent audit are pending."
+  - "The active Windows displays are 2560×1440 and 2560×1600 at 96 DPI and 100% scale. Automated 3840×2160 geometry does not claim physical 4K readability; #223 remains the final physical gate. The Balanced independent auditor approved exact implementation head 4ee1ccfd36fea109ac449474f354d2d86df93a76 with blocker 0, major 0 and material-minor 0 after the Advanced Recipe JSON and Undo/Redo acknowledgement corrections. The Product Owner approved the presented 1920×1080, 2560×1440 and 3840×2160 Process/Fit originals and supporting five-viewport geometry on 2026-08-13."
   - "Issue #208 adds the current 1440×900 Administration Definition bundles plan image from product-owner visual-correction commit 63176ec5a07647d598753d437fce4339d4f05ebb. The current directory contains 101 deterministic synthetic non-production images."
   - "The issue-owned packet is docs/17-evidence/images/issue-208-schema-bundle-administration/visual-evidence.yaml: five plan originals, twenty direct 100%-pixel header/navigator/table/form crops, five numeric geometry records, and explicit confirmation and applied/read-back/export state originals. Main opened every original and crop at original resolution."
   - "The browser journey uses the contract-backed positive bundle fixture to verify upload-plan-confirm-apply-read-back-export, explicit source reset, arbitrary action count, keyboard row movement, long identity reachability, exact Apply body without client actions, refresh read-back and Reviewer denial. Unit/API tests separately cover invalid MIME/JSON/size/shape, migration-required confirmation blocking, source replacement isolation, stale re-plan, uncertain Apply read-back recovery, checksum mismatch and User/Reviewer API denial."
@@ -154,8 +154,9 @@ visual_evidence:
   root_original_and_crop_review: pass
   physical_4k_readability: DEFERRED_TO_223
   fixture_dependent_capture_status: canonical_compose_pass
-  independent_read_only_review: pending_balanced_audit
-  product_owner_review: pending_issue_212_visual_geometry
+  independent_read_only_review: approved_4ee1ccfd36fea109ac449474f354d2d86df93a76
+  independent_findings: {blocker: 0, major: 0, material_minor: 0}
+  product_owner_review: approved_2026-08-13
 capture_provenance:
   - source_commit: 36c898654e2176a06eef868ee7412de22bad1a9e
     captured_at: '2026-08-13T00:41:58.231594+00:00'
