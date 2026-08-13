@@ -16,6 +16,7 @@ import os
 import shutil
 import subprocess
 import tempfile
+from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -31,6 +32,7 @@ EVIDENCE = ROOT / "docs/17-evidence/images/issue-209-dma-fld-governed-import"
 BASE_SHA = "a512c76aa55b5423e06f6b09eb1015ddf28f3aca"
 VIEWPORTS = ((1366, 768), (1440, 900), (1920, 1080), (2560, 1440), (3840, 2160))
 WIDE_VIEWPORTS = ((1920, 1080), (2560, 1440), (3840, 2160))
+REJECTED_DMA_RETRY_KEY = "20920920-9209-4209-8209-209209209209"
 
 
 def _git(*args: str) -> str:
@@ -301,21 +303,20 @@ def _capture_state(
     *,
     state: str,
     decision_selector: str,
-) -> list[dict[str, Any]]:
+    width: int,
+    height: int,
+) -> dict[str, Any]:
     originals = packet / "after/originals"
     crops = packet / "after/crops"
     originals.mkdir(parents=True, exist_ok=True)
     crops.mkdir(parents=True, exist_ok=True)
-    measurements: list[dict[str, Any]] = []
-    for width, height in VIEWPORTS:
-        page.set_viewport_size({"width": width, "height": height})
-        decision = page.locator(decision_selector).first
-        decision.wait_for(state="visible", timeout=30_000)
-        decision.evaluate("element => element.scrollIntoView({block: 'center', inline: 'nearest'})")
-        page.wait_for_timeout(200)
-        current._wait_for_settled(page)
-        layout = page.evaluate(
-            """() => ({
+    decision = page.locator(decision_selector).first
+    decision.wait_for(state="visible", timeout=30_000)
+    decision.evaluate("element => element.scrollIntoView({block: 'center', inline: 'nearest'})")
+    page.wait_for_timeout(200)
+    current._wait_for_settled(page)
+    layout = page.evaluate(
+        """() => ({
               viewport: {width: innerWidth, height: innerHeight},
               dpr: devicePixelRatio,
               document: {scrollWidth: document.documentElement.scrollWidth,
@@ -325,56 +326,104 @@ def _capture_state(
               body: {scrollWidth: document.body.scrollWidth,
                      clientWidth: document.body.clientWidth},
             })"""
-        )
-        if layout["viewport"] != {"width": width, "height": height}:
-            raise RuntimeError(f"viewport did not settle for {state}: {layout}")
-        if layout["dpr"] != 1:
-            raise RuntimeError(f"capture requires DPR 1, got {layout['dpr']}")
-        if layout["document"]["scrollWidth"] > layout["document"]["clientWidth"] + 1:
-            raise RuntimeError(f"page horizontal overflow for {state} {width}x{height}: {layout}")
-        selectors = {
-            "header": ".application-menu-bar",
-            "navigator": ".modeling-workspace-rail",
-            "controls": ".modeling-data-ribbon-panel",
-            "decision": decision_selector,
-            "graph": ".modeling-data-plot-panel",
-        }
-        elements = {name: _element_record(page, selector) for name, selector in selectors.items()}
-        decision_metrics = elements["decision"]
-        if decision_metrics["scrollWidth"] > decision_metrics["clientWidth"] + 1:
-            # A local table scrollport is acceptable only when it remains reachable.
-            if decision.get_attribute("role") != "region" and state != "dma-rejected":
-                raise RuntimeError(
-                    "unreachable decision overflow for "
-                    f"{state} {width}x{height}: {decision_metrics}"
+    )
+    if layout["viewport"] != {"width": width, "height": height}:
+        raise RuntimeError(f"viewport did not settle for {state}: {layout}")
+    if layout["dpr"] != 1:
+        raise RuntimeError(f"capture requires DPR 1, got {layout['dpr']}")
+    if layout["document"]["scrollWidth"] > layout["document"]["clientWidth"] + 1:
+        raise RuntimeError(f"page horizontal overflow for {state} {width}x{height}: {layout}")
+    selectors = {
+        "header": ".application-menu-bar",
+        "navigator": ".modeling-workspace-rail",
+        "controls": ".modeling-data-ribbon-panel",
+        "decision": decision_selector,
+        "graph": ".modeling-data-plot-panel",
+    }
+    elements = {name: _element_record(page, selector) for name, selector in selectors.items()}
+    decision_metrics = elements["decision"]
+    if decision_metrics["scrollWidth"] > decision_metrics["clientWidth"] + 1:
+        # A local table scrollport is acceptable only when it remains reachable.
+        if decision.get_attribute("role") != "region" and state != "dma-rejected":
+            raise RuntimeError(
+                f"unreachable decision overflow for {state} {width}x{height}: {decision_metrics}"
+            )
+    output = originals / f"modeling-data-{state}-{width}x{height}.png"
+    page.screenshot(path=output)
+    with Image.open(output) as image:
+        if image.size != (width, height):
+            raise RuntimeError(f"captured viewport drifted: {output} {image.size}")
+        if (width, height) in WIDE_VIEWPORTS:
+            for name, record in elements.items():
+                box = record["box"]
+                bounded = _bounded_box(
+                    width,
+                    height,
+                    (box["left"], box["top"], box["right"], box["bottom"]),
                 )
-        output = originals / f"modeling-data-{state}-{width}x{height}.png"
-        page.screenshot(path=output)
-        with Image.open(output) as image:
-            if image.size != (width, height):
-                raise RuntimeError(f"captured viewport drifted: {output} {image.size}")
-            if (width, height) in WIDE_VIEWPORTS:
-                for name, record in elements.items():
-                    box = record["box"]
-                    bounded = _bounded_box(
-                        width,
-                        height,
-                        (box["left"], box["top"], box["right"], box["bottom"]),
-                    )
-                    image.crop(bounded).save(
-                        crops / f"modeling-data-{state}-{width}x{height}-{name}.png"
-                    )
+                image.crop(bounded).save(
+                    crops / f"modeling-data-{state}-{width}x{height}-{name}.png"
+                )
+    return {
+        "state": state,
+        "css_viewport": f"{width}x{height}",
+        "browser_zoom": "100%",
+        "device_pixel_ratio": layout["dpr"],
+        "layout": layout,
+        "elements": elements,
+    }
+
+
+def _new_modeling_page(
+    source_page: Page,
+    base_url: str,
+    width: int,
+    height: int,
+) -> tuple[Page, list[str]]:
+    page = source_page.context.new_page()
+    page.set_viewport_size({"width": width, "height": height})
+    failures = _console_guard(page)
+    page.goto(f"{base_url}/modeling?stage=data&family=metal")
+    current._wait_for_modeling_data_surface(page)
+    page.locator(".data-library-list .data-library-row").first.wait_for(
+        state="visible", timeout=30_000
+    )
+    current._wait_for_settled(page)
+    return page, failures
+
+
+def _capture_across_viewports(
+    primary_page: Page,
+    packet: Path,
+    *,
+    base_url: str,
+    state: str,
+    decision_selector: str,
+    prepare_secondary: Callable[[Page], None],
+) -> tuple[list[dict[str, Any]], list[str]]:
+    measurements: list[dict[str, Any]] = []
+    failures: list[str] = []
+    for width, height in VIEWPORTS:
+        page = primary_page
+        page_failures: list[str] = []
+        secondary = (width, height) != (1440, 900)
+        if secondary:
+            page, page_failures = _new_modeling_page(primary_page, base_url, width, height)
+            prepare_secondary(page)
         measurements.append(
-            {
-                "state": state,
-                "css_viewport": f"{width}x{height}",
-                "browser_zoom": "100%",
-                "device_pixel_ratio": layout["dpr"],
-                "layout": layout,
-                "elements": elements,
-            }
+            _capture_state(
+                page,
+                packet,
+                state=state,
+                decision_selector=decision_selector,
+                width=width,
+                height=height,
+            )
         )
-    return measurements
+        if secondary:
+            failures.extend(page_failures)
+            page.close()
+    return measurements, failures
 
 
 def _assert_float_values(actual: list[Any], expected: list[float], label: str) -> None:
@@ -488,7 +537,14 @@ def _save_document(page: Page, document_key: str) -> dict[str, Any]:
     return run
 
 
-def _record_rejection(page: Page) -> tuple[dict[str, Any], str]:
+def _record_rejection(page: Page, retry_key: str) -> tuple[dict[str, Any], str]:
+    page.evaluate(
+        """value => Object.defineProperty(Crypto.prototype, 'randomUUID', {
+          configurable: true,
+          value: () => value,
+        })""",
+        retry_key,
+    )
     response, first = _wait_for_import_response(
         page, lambda: page.get_by_role("button", name="Record rejected import").click()
     )
@@ -498,6 +554,8 @@ def _record_rejection(page: Page) -> tuple[dict[str, Any], str]:
         state="visible", timeout=30_000
     )
     first_key = response.request.headers.get("idempotency-key", "")
+    if first_key != retry_key:
+        raise RuntimeError(f"governed retry key override did not apply: {first_key!r}")
     response, second = _wait_for_import_response(
         page, lambda: page.get_by_role("button", name="Record rejected import").click()
     )
@@ -580,14 +638,34 @@ def _capture_journey(browser: Browser, base_url: str, packet: Path) -> dict[str,
             ),
         )
         _preview(page, expected_status=200)
-        measurements.extend(
-            _capture_state(
-                page,
-                packet,
-                state="dma",
-                decision_selector=".data-mapping-table",
-            )
+        dma_columns = (
+            "temperature_c",
+            "frequency_hz",
+            "storage_mpa",
+            "loss_mpa",
+            "tan_delta",
         )
+
+        def prepare_dma_secondary(candidate: Page) -> None:
+            _upload_source(candidate, sources["dma"], test_run_index=1)
+            _configure_dma(
+                candidate,
+                "ISSUE209-DMA-SWEEP",
+                columns=dma_columns,
+            )
+
+            _preview(candidate, expected_status=200)
+
+        captured, capture_failures = _capture_across_viewports(
+            page,
+            packet,
+            base_url=base_url,
+            state="dma",
+            decision_selector=".data-mapping-table",
+            prepare_secondary=prepare_dma_secondary,
+        )
+        measurements.extend(captured)
+        failures.extend(capture_failures)
         _save_document(page, "ISSUE209-DMA-SWEEP")
         dma_document, dma_content, dma_run = _read_back_document(
             page,
@@ -604,7 +682,7 @@ def _capture_journey(browser: Browser, base_url: str, packet: Path) -> dict[str,
             columns=("temperature_bad", "frequency_bad", "storage_bad", "loss_bad", None),
         )
         _preview(page, expected_status=422)
-        rejected_run, retry_key = _record_rejection(page)
+        rejected_run, retry_key = _record_rejection(page, REJECTED_DMA_RETRY_KEY)
         _assert_missing_document(page, "ISSUE209-DMA-REJECTED")
         diagnostic_codes = {item["error_code"] for item in rejected_run["diagnostics"]}
         if len(rejected_run["diagnostics"]) < 4 or not {
@@ -614,14 +692,39 @@ def _capture_journey(browser: Browser, base_url: str, packet: Path) -> dict[str,
             "negative_dma_response",
         }.issubset(diagnostic_codes):
             raise RuntimeError(f"full-file DMA diagnostics drifted: {rejected_run!r}")
-        measurements.extend(
-            _capture_state(
-                page,
-                packet,
-                state="dma-rejected",
-                decision_selector=".data-import-diagnostics",
-            )
+        rejected_columns = (
+            "temperature_bad",
+            "frequency_bad",
+            "storage_bad",
+            "loss_bad",
+            None,
         )
+
+        def prepare_rejected_secondary(candidate: Page) -> None:
+            _upload_source(candidate, sources["dma_invalid"], test_run_index=1)
+            _configure_dma(
+                candidate,
+                "ISSUE209-DMA-REJECTED",
+                columns=rejected_columns,
+            )
+
+            _preview(candidate, expected_status=422)
+            replay, replay_key = _record_rejection(candidate, REJECTED_DMA_RETRY_KEY)
+            if replay_key != retry_key or replay["import_run_id"] != rejected_run["import_run_id"]:
+                raise RuntimeError(
+                    "five-viewport rejected DMA replay created a different Import Run"
+                )
+
+        captured, capture_failures = _capture_across_viewports(
+            page,
+            packet,
+            base_url=base_url,
+            state="dma-rejected",
+            decision_selector=".data-import-diagnostics",
+            prepare_secondary=prepare_rejected_secondary,
+        )
+        measurements.extend(captured)
+        failures.extend(capture_failures)
 
         corrected_run_id = _upload_source(page, sources["dma_corrected"], test_run_index=1)
         _configure_dma(
@@ -649,14 +752,28 @@ def _capture_journey(browser: Browser, base_url: str, packet: Path) -> dict[str,
             columns=("minor_strain_pct", "major_strain_pct"),
         )
         _preview(page, expected_status=200)
-        measurements.extend(
-            _capture_state(
-                page,
-                packet,
-                state="fld",
-                decision_selector=".data-mapping-table",
+        fld_columns = ("minor_strain_pct", "major_strain_pct")
+
+        def prepare_fld_secondary(candidate: Page) -> None:
+            _upload_source(candidate, sources["fld"], test_run_index=2)
+            _configure_fld(
+                candidate,
+                "ISSUE209-FLD",
+                columns=fld_columns,
             )
+
+            _preview(candidate, expected_status=200)
+
+        captured, capture_failures = _capture_across_viewports(
+            page,
+            packet,
+            base_url=base_url,
+            state="fld",
+            decision_selector=".data-mapping-table",
+            prepare_secondary=prepare_fld_secondary,
         )
+        measurements.extend(captured)
+        failures.extend(capture_failures)
         _save_document(page, "ISSUE209-FLD")
         fld_document, fld_content, fld_run = _read_back_document(
             page,
