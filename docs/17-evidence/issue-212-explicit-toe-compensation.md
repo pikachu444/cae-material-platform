@@ -40,5 +40,27 @@ review policy, not a production material-acceptance threshold or approved tensil
 
 ## Verification record
 
-Implementation, independent audit, live evidence, Product Owner visual approval and publication
-records are appended here as their gates complete.
+### Main implementation and live acceptance
+
+- The issue-owned implementation is rooted at `fa54841`; the warning-layout correction is
+  `36c898654e2176a06eef868ee7412de22bad1a9e`, both based on exact `origin/main`
+  `c341679e0e17654c6e13f718cd37044b29423431`.
+- Focused backend/domain/API verification passed 51 tests. Capture contracts passed 67 tests,
+  the focused web workbench/plot verification passed 46 tests, the post-correction workbench run
+  passed 24 tests, affected Ruff and changed-scope mypy checks passed, and the production web build
+  stayed below its lazy-chunk error budget.
+- Compose preflight passed for `cmp-local-demo`. The canonical API and web images were rebuilt,
+  services became healthy, and the exact Process-to-Fit browser journey passed at 1366×768,
+  1440×900, 1920×1080, 2560×1440 and 3840×2160 with browser zoom 100% and DPR 1.
+- The final packet is
+  `docs/17-evidence/images/issue-212-explicit-toe-compensation/visual-evidence.yaml`. It contains
+  71 PNGs plus the manifest: ten exact-main before originals, ten live after originals, 48 direct
+  100%-pixel crops and three warning/exact-Fit-source states. Main inspected every unique PNG at
+  original resolution. The corrected warning state records a 14×14 checkbox, a 10 px separation
+  between acknowledgement and Result, and no warning-label clipping.
+- The available physical displays are 2560×1440 and 2560×1600 at 96 DPI and 100% scale. The
+  deterministic 3840×2160 CSS viewport proves geometry only; final physical 4K readability remains
+  deferred to #223 under the repository-wide policy.
+
+The Balanced independent audit and Product Owner visual geometry approval remain publication gates;
+their results and the PR/merge/read-back record are appended after those gates complete.

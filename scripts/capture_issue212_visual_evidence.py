@@ -317,7 +317,7 @@ def _write_manifest(
         "base_url": base_url,
         "synthetic_non_production_only": True,
         "current_capture_command": (
-            "uv run --with playwright==1.62.0 --with pillow python "
+            "uv run --with playwright==1.62.0 --with pillow --with pyyaml python "
             "scripts/capture_issue212_visual_evidence.py"
         ),
         "viewports": [f"{width}x{height}" for width, height in VIEWPORTS],

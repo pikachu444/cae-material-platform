@@ -1,10 +1,15 @@
-version: 102
+version: 103
 verified_at: 2026-08-13
-scope: issue-208-schema-bundle-administration
-source_commit: 63176ec5a07647d598753d437fce4339d4f05ebb
+scope: issue-212-explicit-toe-compensation
+source_commit: 36c898654e2176a06eef868ee7412de22bad1a9e
 capture_script: ../../scripts/capture_current_product.py
-capture_command: CMP_DEMO_WEB_URL=http://127.0.0.1:5188 CMP_SCHEMA_BUNDLE_EVIDENCE_DIR=C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-208-schema-bundle-administration npx playwright test e2e/schema-definition-bundle-administration.spec.ts
+capture_command: uv run --with playwright==1.62.0 --with pillow --with pyyaml python scripts/capture_issue212_visual_evidence.py --base-url http://127.0.0.1:5173
 notes:
+  - "Issue #212 refreshes the five current Modeling Process and five byte-identical Fit originals from canonical Compose source commit 36c898654e2176a06eef868ee7412de22bad1a9e. The current directory remains 101 deterministic synthetic non-production images."
+  - "The issue-owned packet is docs/17-evidence/images/issue-212-explicit-toe-compensation/visual-evidence.yaml: ten exact-origin/main before originals, ten live after originals, forty-eight direct 100%-pixel header/navigator/controls/graph crops, three warning/Fit-source state images, hashes, dimensions and measured geometry. Main opened all 71 unique PNGs at original resolution; sixty were byte-identical to the previously inspected packet and the eleven changed images were reopened after the warning-layout correction."
+  - "The canonical browser journey explicitly adds tensile.toe_zero_intercept@1.0.0, selects the estimation domain, previews offset/slope/R²/point count, proves an unacknowledged warning blocks save, resets acknowledgement on changed input, recovers through a clean domain, saves an immutable Processing Output r1 and reads that exact toe-compensated source in Fit Evidence."
+  - "All five CSS viewports pass at browser zoom 100% and DPR 1. The 1440 warning state records a 14×14 checkbox, acknowledgement right edge 1056.546875 before Result left edge 1066.546875, and equal scroll/client dimensions for both warning labels; the corrected control no longer overlaps Result."
+  - "The active Windows displays are 2560×1440 and 2560×1600 at 96 DPI and 100% scale. Automated 3840×2160 geometry does not claim physical 4K readability; #223 remains the final physical gate. Issue #212 Product Owner visual geometry approval and the Balanced independent audit are pending."
   - "Issue #208 adds the current 1440×900 Administration Definition bundles plan image from product-owner visual-correction commit 63176ec5a07647d598753d437fce4339d4f05ebb. The current directory contains 101 deterministic synthetic non-production images."
   - "The issue-owned packet is docs/17-evidence/images/issue-208-schema-bundle-administration/visual-evidence.yaml: five plan originals, twenty direct 100%-pixel header/navigator/table/form crops, five numeric geometry records, and explicit confirmation and applied/read-back/export state originals. Main opened every original and crop at original resolution."
   - "The browser journey uses the contract-backed positive bundle fixture to verify upload-plan-confirm-apply-read-back-export, explicit source reset, arbitrary action count, keyboard row movement, long identity reachability, exact Apply body without client actions, refresh read-back and Reviewer denial. Unit/API tests separately cover invalid MIME/JSON/size/shape, migration-required confirmation blocking, source replacement isolation, stale re-plan, uncertain Apply read-back recovery, checksum mismatch and User/Reviewer API denial."
@@ -115,14 +120,20 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/modeling-process-2560x1440-graph-axis-100pct.png
       - docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/modeling-process-3840x2160-graph-axis-100pct.png
 visual_evidence:
-  sidecar: docs/17-evidence/images/issue-208-schema-bundle-administration/visual-evidence.yaml
-  geometry_measurements: docs/17-evidence/images/issue-208-schema-bundle-administration/visual-evidence.yaml
+  sidecar: docs/17-evidence/images/issue-212-explicit-toe-compensation/visual-evidence.yaml
+  geometry_measurements: docs/17-evidence/images/issue-212-explicit-toe-compensation/visual-evidence.yaml
   routes: [/materials, '/materials/:materialId', /modeling, /activity, /administration/database, /administration/schema-bundles, /administration/records, /administration/access]
-  states: [normal, long, empty, invalid, blocked, failed, restored, delivered, role-aware, popup, drawer, file-input, pane-overlay, resize, collapse, reset, reload, planned, confirming, applied, stale-plan, source-reset-locked, read-back-recovery, checksum-verified]
-  baseline_source: 002449a40d45d4378f8d9bea55eb3f354522b30c
-  current_source: 64b9be83a03e1760478165b87917e7107852d4f7
+  states: [normal, long, empty, invalid, blocked, failed, restored, delivered, role-aware, popup, drawer, file-input, pane-overlay, resize, collapse, reset, reload, planned, confirming, applied, stale-plan, source-reset-locked, read-back-recovery, checksum-verified, toe-quality-warning, warning-acknowledgement, exact-toe-source-evidence]
+  baseline_source: c341679e0e17654c6e13f718cd37044b29423431
+  current_source: 36c898654e2176a06eef868ee7412de22bad1a9e
   evidence_artifacts_are_not_current_captures: true
   current_capture_count: 101
+  issue_212_current_count: 10
+  issue_212_before_original_count: 10
+  issue_212_after_original_count: 10
+  issue_212_direct_crop_count: 48
+  issue_212_state_image_count: 3
+  issue_212_geometry_measurement_count: 10
   issue_208_current_count: 1
   issue_208_before_original_count: 0
   issue_208_after_original_count: 7
@@ -142,10 +153,14 @@ visual_evidence:
   crop_scale: '100 percent / direct 1:1 source pixels'
   root_original_and_crop_review: pass
   physical_4k_readability: DEFERRED_TO_223
-  fixture_dependent_capture_status: isolated_contract_backed_issue_208; canonical_compose_blocked_by_preserved_issue210_owner
-  independent_read_only_review: approved_b74321af72e71a9fadb37767017c9e1a6f973939
-  product_owner_review: approved_2026-08-13
+  fixture_dependent_capture_status: canonical_compose_pass
+  independent_read_only_review: pending_balanced_audit
+  product_owner_review: pending_issue_212_visual_geometry
 capture_provenance:
+  - source_commit: 36c898654e2176a06eef868ee7412de22bad1a9e
+    captured_at: '2026-08-13T00:41:58.231594+00:00'
+    command: 'Canonical current-source Compose; uv run --with playwright==1.62.0 --with pillow --with pyyaml python scripts/capture_issue212_visual_evidence.py --base-url http://127.0.0.1:5173. The script recaptured five Process/Fit viewport pairs at Standard, browser zoom 100% and DPR 1, preserved exact origin/main baselines, created direct 100%-pixel crops, exercised the warning acknowledgement/save gate, saved one immutable Process Output and opened its exact toe-compensation evidence in Fit.'
+    ids: [MOD-PROCESS-CURRENT-1366, MOD-PROCESS-CURRENT-1440, MOD-PROCESS-CURRENT-1920, MOD-PROCESS-CURRENT-2560, MOD-PROCESS-CURRENT-3840, modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-fit-2560, modeling-fit-3840]
   - source_commit: 63176ec5a07647d598753d437fce4339d4f05ebb
     captured_at: '2026-08-12T21:02:04Z'
     command: 'Isolated Vite UI with contract-backed HTTP fixtures through apps/web/e2e/schema-definition-bundle-administration.spec.ts on port 5188; Playwright 1.61.1 at browser zoom 100% and DPR 1. The flow verifies Administrator upload-plan-confirm-apply-read-back-export, arbitrary plan actions, keyboard End navigation, long identity reachability, exact Apply body without client actions, checksum/source-evidence verified download, refresh read-back and Reviewer denial. After the product-owner correction request, it rewrites five plan originals, twenty direct crops, five geometry records and confirmation/applied state images with flat navigation separators, restrained label weights, a white plan work surface and neutral target labels. The corrected 1440 plan original is copied byte-identically into the current guide directory. The full current-set Python script preserves this registered issue-owned image instead of claiming a canonical Compose recapture.'
@@ -486,8 +501,8 @@ captures:
     height: 900
   - id: MOD-PROCESS-CURRENT-1366
     route: /modeling?stage=process&family=metal
-    workflow: UXC-04C shared rail/plot sizing; source-processed-preview-and-explicit-output-commit
-    fixture: synthetic DP780 preview with explicit immutable output command; DUI-05 live acceptance
+    workflow: explicit tensile toe compensation preview, quality evidence and immutable output commit
+    fixture: synthetic DP780 exact Test Data/Profile with user-selected 0..0.002 OLS zero-intercept v1.0.0; stress unchanged and exact Fit handoff
     image: images/current/modeling-process-1366x768.png
     width: 1366
     height: 768
@@ -507,29 +522,29 @@ captures:
     height: 768
   - id: MOD-PROCESS-CURRENT-1440
     route: /modeling?stage=process&family=metal
-    workflow: UXC-04C shared rail/plot sizing; source-processed-preview-and-explicit-output-commit
-    fixture: synthetic DP780 preview with explicit immutable output command; DUI-05 live acceptance
+    workflow: explicit tensile toe compensation preview, quality evidence and immutable output commit
+    fixture: synthetic DP780 exact Test Data/Profile with user-selected 0..0.002 OLS zero-intercept v1.0.0; stress unchanged and exact Fit handoff
     image: images/current/modeling-process-1440x900.png
     width: 1440
     height: 900
   - id: MOD-PROCESS-CURRENT-1920
     route: /modeling?stage=process&family=metal
-    workflow: UXC-04C shared rail/plot sizing; source-processed-preview-and-explicit-output-commit
-    fixture: synthetic DP780 preview with explicit immutable output command; DUI-05 live acceptance
+    workflow: explicit tensile toe compensation preview, quality evidence and immutable output commit
+    fixture: synthetic DP780 exact Test Data/Profile with user-selected 0..0.002 OLS zero-intercept v1.0.0; stress unchanged and exact Fit handoff
     image: images/current/modeling-process-1920x1080.png
     width: 1920
     height: 1080
   - id: MOD-PROCESS-CURRENT-2560
     route: /modeling?stage=process&family=metal
-    workflow: Process-only wide viewport; exact source/profile band and saved-result controls remain bounded while the persistent overlay graph uses available width
-    fixture: synthetic DP780 preview with explicit immutable output command; shared elastic-workspace qualitative acceptance
+    workflow: wide explicit tensile toe compensation; bounded method/domain/result controls and elastic persistent graph
+    fixture: synthetic DP780 exact Test Data/Profile with user-selected 0..0.002 OLS zero-intercept v1.0.0; stress unchanged and exact Fit handoff
     image: images/current/modeling-process-2560x1440.png
     width: 2560
     height: 1440
   - id: MOD-PROCESS-CURRENT-3840
     route: /modeling?stage=process&family=metal
-    workflow: Process-only wide viewport; exact source/profile band and saved-result controls remain bounded while the persistent overlay graph uses available width
-    fixture: synthetic DP780 preview with explicit immutable output command; shared elastic-workspace qualitative acceptance
+    workflow: wide explicit tensile toe compensation; bounded method/domain/result controls and elastic persistent graph
+    fixture: synthetic DP780 exact Test Data/Profile with user-selected 0..0.002 OLS zero-intercept v1.0.0; stress unchanged and exact Fit handoff
     image: images/current/modeling-process-3840x2160.png
     width: 3840
     height: 2160

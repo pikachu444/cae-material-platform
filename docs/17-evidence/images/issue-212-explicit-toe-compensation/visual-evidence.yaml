@@ -1,0 +1,4919 @@
+issue: 212
+captured_at: '2026-08-13T00:41:58.231594+00:00'
+source_commit: 36c898654e2176a06eef868ee7412de22bad1a9e
+base_commit: c341679e0e17654c6e13f718cd37044b29423431
+branch: agent/issue-212-toe-compensation
+base_url: http://127.0.0.1:5173
+synthetic_non_production_only: true
+current_capture_command: uv run --with playwright==1.62.0 --with pillow --with pyyaml python scripts/capture_issue212_visual_evidence.py
+viewports:
+- 1366x768
+- 1440x900
+- 1920x1080
+- 2560x1440
+- 3840x2160
+density: standard
+browser_zoom: 100%
+device_pixel_ratio: 1
+available_windows_displays:
+- 2560x1440@59Hz, 96 DPI, 100% scale
+- 2560x1600@165Hz, 96 DPI, 100% scale
+physical_4k_readability: deferred_to_issue_223
+before:
+  source: accepted current-guide PNG blobs from the exact origin/main base
+  note: No missing state or changed baseline pixel was fabricated.
+current_capture_report:
+  output: C:/SourceCodes/cae-material-platform/docs/user-guide/images/current
+  captures: 10
+  density: standard
+  viewports:
+  - 1366x768
+  - 1440x900
+  - 1920x1080
+  - 2560x1440
+  - 3840x2160
+  measurements:
+  - stage: process
+    viewport: 1366x768
+    svgHeight: 292
+    svgWidth: 1038
+    svgBottom: 759
+    svgBox:
+      left: 311
+      right: 1349
+      top: 467
+      bottom: 759
+      width: 1038
+      height: 292
+    legendBox:
+      left: 1147
+      right: 1331
+      top: 477
+      bottom: 730.0625
+      width: 184
+      height: 253.0625
+    horizontalAxisBox:
+      left: 391
+      right: 1119
+      top: 707
+      bottom: 707
+      width: 728
+      height: 0
+    drawableRatio: 0.6893939393939394
+    processClusterWidth: 1350
+    processClusterHeight: 634
+    processClusterLeft: 8
+    processClusterTop: 134
+    fitClusterWidth: 0
+    fitClusterHeight: 0
+    fitClusterLeft: 0
+    fitClusterTop: 0
+    workspaceLeft: 8
+    workspaceTop: 134
+    workspaceWidth: 1350
+    workspaceHeight: 634
+    railWidth: 288
+    ribbonHeight: 290
+    plotBottom: 767
+    xAxisLabelBottom: 754
+    plotFrameBox:
+      left: 311
+      right: 1349
+      top: 467
+      bottom: 759
+      width: 1038
+      height: 292
+    legendBottom: 730.0625
+    legendInPlot: true
+    legendOutsideSvg: false
+    legendAfterPlotAxis: true
+    legendTickOverlap: false
+    legendAxisLabelOverlap: false
+    legendAxisOverlap: false
+    legendCurveSegmentOverlap: false
+    legendExtrapolationBoundaryOverlap: false
+    legendExtrapolationLabelOverlap: false
+    legendStateOverlayOverlap: false
+    lastXTickWithinSvg: true
+    xTicksWithinSvg: true
+    xTickCount: 6
+    processRows:
+    - text: Specimen 03 · r1
+      clipped: false
+    - text: Specimen 02 · r1
+      clipped: false
+    - text: Specimen 01 · r1
+      clipped: false
+    processRowClipped: false
+    fitRows: []
+    fitRowsIncluded: ''
+    fitNoMatchingCurves: false
+    methodRangeGap: null
+    processControls:
+    - label: Toe estimation range start
+      box:
+        left: 514
+        right: 615.8125
+        top: 235
+        bottom: 275
+        width: 101.8125
+        height: 40
+      height: 40
+      whiteSpace: normal
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 100
+      clientWidth: 100
+    - label: Toe estimation range end
+      box:
+        left: 620.8125
+        right: 722.625
+        top: 235
+        bottom: 275
+        width: 101.8125
+        height: 40
+      height: 40
+      whiteSpace: normal
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 100
+      clientWidth: 100
+    - label: Processed curve label
+      box:
+        left: 327
+        right: 648.5
+        top: 331
+        bottom: 371
+        width: 321.5
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 320
+      clientWidth: 320
+    - label: Save reason
+      box:
+        left: 658.5
+        right: 1140.78125
+        top: 331
+        bottom: 371
+        width: 482.28125
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 480
+      clientWidth: 480
+    - label: Save processed curves
+      box:
+        left: 1150.78125
+        right: 1319
+        top: 331
+        bottom: 371
+        width: 168.21875
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 166
+      clientWidth: 166
+    topActions:
+    - label: Advanced
+      box:
+        left: 955.46875
+        right: 1040.765625
+        top: 54.5
+        bottom: 94.5
+        width: 85.296875
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 83
+      clientWidth: 83
+    - label: Distribution analysis
+      box:
+        left: 1050.765625
+        right: 1206.765625
+        top: 54.5
+        bottom: 94.5
+        width: 156
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 154
+      clientWidth: 154
+    - label: Preview changes
+      box:
+        left: 1216.765625
+        right: 1348
+        top: 54.5
+        bottom: 94.5
+        width: 131.234375
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 129
+      clientWidth: 129
+    fitTopActions:
+    - label: ''
+      box: null
+      height: 0
+      borderRadius: ''
+      fontSize: ''
+      fontWeight: ''
+      backgroundColor: ''
+      borderColor: ''
+      color: ''
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    - label: ''
+      box: null
+      height: 0
+      borderRadius: ''
+      fontSize: ''
+      fontWeight: ''
+      backgroundColor: ''
+      borderColor: ''
+      color: ''
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    - label: ''
+      box: null
+      height: 0
+      borderRadius: ''
+      fontSize: ''
+      fontWeight: ''
+      backgroundColor: ''
+      borderColor: ''
+      color: ''
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    fitTopActionsContainer: null
+    fitPlotHeading:
+      count: 0
+      text: ''
+      display: ''
+      box: null
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    fitRibbon: null
+    fitGroups: []
+    fitRemoveStep: null
+    fitEvidenceTrigger: null
+    fitHeaderSource: null
+    fitHeaderState: null
+    toeMode: true
+    processRibbon:
+      left: 302
+      right: 1358
+      top: 135
+      bottom: 425
+      width: 1056
+      height: 290
+    processPanel:
+      left: 302
+      right: 1343
+      top: 135
+      bottom: 424
+      width: 1041
+      height: 289
+    saveBand:
+      left: 327
+      right: 1319
+      top: 313
+      bottom: 371
+      width: 992
+      height: 58
+    viewportHeight: 768
+  - stage: fit
+    viewport: 1366x768
+    svgHeight: 352.25
+    svgWidth: 1038
+    svgBottom: 738.25
+    svgBox:
+      left: 311
+      right: 1349
+      top: 386
+      bottom: 738.25
+      width: 1038
+      height: 352.25
+    legendBox:
+      left: 1147
+      right: 1331
+      top: 396
+      bottom: 695.65625
+      width: 184
+      height: 299.65625
+    horizontalAxisBox:
+      left: 391
+      right: 1119
+      top: 686.25
+      bottom: 686.25
+      width: 728
+      height: 0
+    drawableRatio: 0.6893939393939394
+    processClusterWidth: 0
+    processClusterHeight: 0
+    processClusterLeft: 0
+    processClusterTop: 0
+    fitClusterWidth: 1350
+    fitClusterHeight: 606
+    fitClusterLeft: 8
+    fitClusterTop: 162
+    workspaceLeft: 8
+    workspaceTop: 162
+    workspaceWidth: 1350
+    workspaceHeight: 606
+    railWidth: 288
+    ribbonHeight: 181
+    plotBottom: 767
+    xAxisLabelBottom: 733.25
+    plotFrameBox:
+      left: 311
+      right: 1349
+      top: 386
+      bottom: 738.25
+      width: 1038
+      height: 352.25
+    legendBottom: 695.65625
+    legendInPlot: true
+    legendOutsideSvg: false
+    legendAfterPlotAxis: true
+    legendTickOverlap: false
+    legendAxisLabelOverlap: false
+    legendAxisOverlap: false
+    legendCurveSegmentOverlap: false
+    legendExtrapolationBoundaryOverlap: false
+    legendExtrapolationLabelOverlap: false
+    legendStateOverlayOverlap: false
+    lastXTickWithinSvg: true
+    xTicksWithinSvg: true
+    xTickCount: 6
+    processRows: []
+    processRowClipped: false
+    fitRows:
+    - text: Specimen 03 · r1
+      visible: true
+      clipped: false
+      box:
+        top: 266
+        bottom: 292
+    - text: Specimen 02 · r1
+      visible: true
+      clipped: false
+      box:
+        top: 296
+        bottom: 322
+    - text: Specimen 01 · r1
+      visible: true
+      clipped: false
+      box:
+        top: 326
+        bottom: 352
+    fitRowsIncluded: 2 included
+    fitNoMatchingCurves: false
+    methodRangeGap: null
+    processControls: []
+    topActions:
+    - label: ''
+      box: null
+      height: 0
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    - label: ''
+      box: null
+      height: 0
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    - label: ''
+      box: null
+      height: 0
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    fitTopActions:
+    - label: Advanced
+      box:
+        left: 971.578125
+        right: 1052.21875
+        top: 57.5
+        bottom: 91.5
+        width: 80.640625
+        height: 34
+      height: 34
+      borderRadius: 7px
+      fontSize: 13px
+      fontWeight: '700'
+      backgroundColor: rgb(249, 251, 251)
+      borderColor: rgb(168, 190, 194)
+      color: rgb(35, 72, 82)
+      whiteSpace: nowrap
+      scrollHeight: 32
+      clientHeight: 32
+      scrollWidth: 79
+      clientWidth: 79
+    - label: Preview changes
+      box:
+        left: 1074.21875
+        right: 1197.5
+        top: 57.5
+        bottom: 91.5
+        width: 123.28125
+        height: 34
+      height: 34
+      borderRadius: 7px
+      fontSize: 13px
+      fontWeight: '700'
+      backgroundColor: rgb(249, 251, 251)
+      borderColor: rgb(168, 190, 194)
+      color: rgb(35, 72, 82)
+      whiteSpace: nowrap
+      scrollHeight: 32
+      clientHeight: 32
+      scrollWidth: 121
+      clientWidth: 121
+    - label: Save fit & continue
+      box:
+        left: 1207.5
+        right: 1348
+        top: 57.5
+        bottom: 91.5
+        width: 140.5
+        height: 34
+      height: 34
+      borderRadius: 7px
+      fontSize: 13px
+      fontWeight: '700'
+      backgroundColor: rgb(36, 94, 168)
+      borderColor: rgb(36, 94, 168)
+      color: rgb(255, 255, 255)
+      whiteSpace: nowrap
+      scrollHeight: 32
+      clientHeight: 32
+      scrollWidth: 139
+      clientWidth: 139
+    fitTopActionsContainer:
+      left: 971.578125
+      right: 1348
+      top: 57.5
+      bottom: 91.5
+      width: 376.421875
+      height: 34
+    fitPlotHeading:
+      count: 1
+      text: Hardening response
+      display: block
+      box:
+        left: 311
+        right: 449.796875
+        top: 355.625
+        bottom: 374.375
+        width: 138.796875
+        height: 18.75
+      scrollHeight: 19
+      clientHeight: 19
+      scrollWidth: 139
+      clientWidth: 139
+    fitRibbon:
+      left: 302
+      right: 1358
+      top: 163
+      bottom: 344
+      width: 1056
+      height: 181
+    fitGroups:
+    - label: Candidate equations
+      box:
+        left: 302
+        right: 544.484375
+        top: 197
+        bottom: 343
+        width: 242.484375
+        height: 146
+      gridTemplateColumns: repeat(2, minmax(0px, 1fr))
+      paired: null
+      controls:
+      - left: 312
+        right: 325
+        top: 223.640625
+        bottom: 236.640625
+        width: 13
+        height: 13
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 13px
+        minWidth: 0px
+        maxWidth: none
+      - left: 426.734375
+        right: 439.734375
+        top: 223.640625
+        bottom: 236.640625
+        width: 13
+        height: 13
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 13px
+        minWidth: 0px
+        maxWidth: none
+      - left: 312
+        right: 325
+        top: 250.09375
+        bottom: 263.09375
+        width: 13
+        height: 13
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 13px
+        minWidth: 0px
+        maxWidth: none
+      - left: 426.734375
+        right: 439.734375
+        top: 250.09375
+        bottom: 263.09375
+        width: 13
+        height: 13
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 13px
+        minWidth: 0px
+        maxWidth: none
+    - label: Fit domain
+      box:
+        left: 544.484375
+        right: 693.109375
+        top: 197
+        bottom: 343
+        width: 148.625
+        height: 146
+      gridTemplateColumns: none
+      paired: null
+      controls:
+      - left: 554.484375
+        right: 616.296875
+        top: 242
+        bottom: 282
+        width: 61.8125
+        height: 40
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 61.8125px
+        minWidth: 0px
+        maxWidth: 100%
+      - left: 620.296875
+        right: 682.109375
+        top: 242
+        bottom: 282
+        width: 61.8125
+        height: 40
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 61.8125px
+        minWidth: 0px
+        maxWidth: 100%
+    - label: Selected blend
+      box:
+        left: 693.109375
+        right: 849.546875
+        top: 197
+        bottom: 343
+        width: 156.4375
+        height: 146
+      gridTemplateColumns: 1fr 1fr
+      paired:
+        box:
+          left: 703.109375
+          right: 838.546875
+          top: 223
+          bottom: 285.109375
+          width: 135.4375
+          height: 62.109375
+        display: flex
+        widthStyle: 135.438px
+        minWidth: 0px
+        maxWidth: 100%
+        overflow: hidden
+        labels:
+        - box:
+            left: 703.109375
+            right: 768.328125
+            top: 223
+            bottom: 285.109375
+            width: 65.21875
+            height: 62.109375
+          flex: 1 1 0px
+          widthStyle: 65.2188px
+          minWidth: 0px
+          maxWidth: none
+          overflow: hidden
+          contain: none
+        - box:
+            left: 773.328125
+            right: 838.546875
+            top: 223
+            bottom: 285.109375
+            width: 65.21875
+            height: 62.109375
+          flex: 1 1 0px
+          widthStyle: 65.2188px
+          minWidth: 0px
+          maxWidth: none
+          overflow: hidden
+          contain: none
+      controls:
+      - left: 703.109375
+        right: 768.328125
+        top: 245.109375
+        bottom: 285.109375
+        width: 65.21875
+        height: 40
+        tagName: select
+        boxSizing: border-box
+        widthStyle: 65.2188px
+        minWidth: 0px
+        maxWidth: 100%
+      - left: 773.328125
+        right: 838.546875
+        top: 245.109375
+        bottom: 285.109375
+        width: 65.21875
+        height: 40
+        tagName: select
+        boxSizing: border-box
+        widthStyle: 65.2188px
+        minWidth: 0px
+        maxWidth: 100%
+    - label: Primary contribution
+      box:
+        left: 849.546875
+        right: 1013.8125
+        top: 197
+        bottom: 343
+        width: 164.265625
+        height: 146
+      gridTemplateColumns: none
+      paired: null
+      controls:
+      - left: 859.546875
+        right: 971.34375
+        top: 225
+        bottom: 262.1875
+        width: 111.796875
+        height: 37.1875
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 111.797px
+        minWidth: 0px
+        maxWidth: none
+      - left: 859.546875
+        right: 1002.8125
+        top: 291.296875
+        bottom: 331.296875
+        width: 143.265625
+        height: 40
+        tagName: select
+        boxSizing: border-box
+        widthStyle: 143.266px
+        minWidth: 0px
+        maxWidth: 100%
+    - label: Extrapolation
+      box:
+        left: 1013.8125
+        right: 1178.078125
+        top: 197
+        bottom: 343
+        width: 164.265625
+        height: 146
+      gridTemplateColumns: 1fr 1fr
+      paired:
+        box:
+          left: 1023.8125
+          right: 1167.078125
+          top: 223
+          bottom: 302.109375
+          width: 143.265625
+          height: 79.109375
+        display: flex
+        widthStyle: 143.266px
+        minWidth: 0px
+        maxWidth: 100%
+        overflow: hidden
+        labels:
+        - box:
+            left: 1023.8125
+            right: 1092.9375
+            top: 223
+            bottom: 302.109375
+            width: 69.125
+            height: 79.109375
+          flex: 1 1 0px
+          widthStyle: 69.125px
+          minWidth: 0px
+          maxWidth: none
+          overflow: hidden
+          contain: none
+        - box:
+            left: 1097.9375
+            right: 1167.078125
+            top: 223
+            bottom: 302.109375
+            width: 69.140625
+            height: 79.109375
+          flex: 1 1 0px
+          widthStyle: 69.1406px
+          minWidth: 0px
+          maxWidth: none
+          overflow: hidden
+          contain: none
+      controls:
+      - left: 1023.8125
+        right: 1092.9375
+        top: 262.109375
+        bottom: 302.109375
+        width: 69.125
+        height: 40
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 69.125px
+        minWidth: 0px
+        maxWidth: 100%
+      - left: 1097.9375
+        right: 1167.078125
+        top: 262.109375
+        bottom: 302.109375
+        width: 69.140625
+        height: 40
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 69.1406px
+        minWidth: 0px
+        maxWidth: 100%
+    - label: Graph interaction
+      box:
+        left: 1178.078125
+        right: 1357.984375
+        top: 197
+        bottom: 343
+        width: 179.90625
+        height: 146
+      gridTemplateColumns: none
+      paired: null
+      controls:
+      - left: 1188.078125
+        right: 1266.03125
+        top: 223
+        bottom: 253
+        width: 77.953125
+        height: 30
+        tagName: button
+        boxSizing: border-box
+        widthStyle: 77.9531px
+        minWidth: 0px
+        maxWidth: none
+      - left: 1270.03125
+        right: 1347.984375
+        top: 223
+        bottom: 253
+        width: 77.953125
+        height: 30
+        tagName: button
+        boxSizing: border-box
+        widthStyle: 77.9531px
+        minWidth: 0px
+        maxWidth: none
+    fitRemoveStep:
+      left: 1261.859375
+      right: 1348
+      top: 169.5
+      bottom: 189.5
+      width: 86.140625
+      height: 20
+    fitEvidenceTrigger:
+      left: 1236.140625
+      right: 1350
+      top: 325
+      bottom: 342
+      width: 113.859375
+      height: 17
+    fitHeaderSource:
+      left: 176.578125
+      right: 427.140625
+      top: 66.5
+      bottom: 83.5
+      width: 250.5625
+      height: 17
+    fitHeaderState:
+      left: 435.140625
+      right: 548.65625
+      top: 66.5
+      bottom: 83.5
+      width: 113.515625
+      height: 17
+    toeMode: false
+    processRibbon: null
+    processPanel: null
+    saveBand: null
+    viewportHeight: 768
+  - stage: process
+    viewport: 1440x900
+    svgHeight: 424
+    svgWidth: 1112
+    svgBottom: 891
+    svgBox:
+      left: 311
+      right: 1423
+      top: 467
+      bottom: 891
+      width: 1112
+      height: 424
+    legendBox:
+      left: 1221
+      right: 1405
+      top: 477
+      bottom: 730.0625
+      width: 184
+      height: 253.0625
+    horizontalAxisBox:
+      left: 391
+      right: 1193
+      top: 839
+      bottom: 839
+      width: 802
+      height: 0
+    drawableRatio: 0.7097345132743362
+    processClusterWidth: 1424
+    processClusterHeight: 766
+    processClusterLeft: 8
+    processClusterTop: 134
+    fitClusterWidth: 0
+    fitClusterHeight: 0
+    fitClusterLeft: 0
+    fitClusterTop: 0
+    workspaceLeft: 8
+    workspaceTop: 134
+    workspaceWidth: 1424
+    workspaceHeight: 766
+    railWidth: 288
+    ribbonHeight: 290
+    plotBottom: 899
+    xAxisLabelBottom: 886
+    plotFrameBox:
+      left: 311
+      right: 1423
+      top: 467
+      bottom: 891
+      width: 1112
+      height: 424
+    legendBottom: 730.0625
+    legendInPlot: true
+    legendOutsideSvg: false
+    legendAfterPlotAxis: true
+    legendTickOverlap: false
+    legendAxisLabelOverlap: false
+    legendAxisOverlap: false
+    legendCurveSegmentOverlap: false
+    legendExtrapolationBoundaryOverlap: false
+    legendExtrapolationLabelOverlap: false
+    legendStateOverlayOverlap: false
+    lastXTickWithinSvg: true
+    xTicksWithinSvg: true
+    xTickCount: 6
+    processRows:
+    - text: Specimen 03 · r1
+      clipped: false
+    - text: Specimen 02 · r1
+      clipped: false
+    - text: Specimen 01 · r1
+      clipped: false
+    processRowClipped: false
+    fitRows: []
+    fitRowsIncluded: ''
+    fitNoMatchingCurves: false
+    methodRangeGap: null
+    processControls:
+    - label: Toe estimation range start
+      box:
+        left: 526.3125
+        right: 636.6875
+        top: 235
+        bottom: 275
+        width: 110.375
+        height: 40
+      height: 40
+      whiteSpace: normal
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 108
+      clientWidth: 108
+    - label: Toe estimation range end
+      box:
+        left: 641.6875
+        right: 752.0625
+        top: 235
+        bottom: 275
+        width: 110.375
+        height: 40
+      height: 40
+      whiteSpace: normal
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 108
+      clientWidth: 108
+    - label: Processed curve label
+      box:
+        left: 327
+        right: 678.109375
+        top: 331
+        bottom: 371
+        width: 351.109375
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 349
+      clientWidth: 349
+    - label: Save reason
+      box:
+        left: 688.109375
+        right: 1214.78125
+        top: 331
+        bottom: 371
+        width: 526.671875
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 525
+      clientWidth: 525
+    - label: Save processed curves
+      box:
+        left: 1224.78125
+        right: 1393
+        top: 331
+        bottom: 371
+        width: 168.21875
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 166
+      clientWidth: 166
+    topActions:
+    - label: Advanced
+      box:
+        left: 1029.46875
+        right: 1114.765625
+        top: 54.5
+        bottom: 94.5
+        width: 85.296875
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 83
+      clientWidth: 83
+    - label: Distribution analysis
+      box:
+        left: 1124.765625
+        right: 1280.765625
+        top: 54.5
+        bottom: 94.5
+        width: 156
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 154
+      clientWidth: 154
+    - label: Preview changes
+      box:
+        left: 1290.765625
+        right: 1422
+        top: 54.5
+        bottom: 94.5
+        width: 131.234375
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 129
+      clientWidth: 129
+    fitTopActions:
+    - label: ''
+      box: null
+      height: 0
+      borderRadius: ''
+      fontSize: ''
+      fontWeight: ''
+      backgroundColor: ''
+      borderColor: ''
+      color: ''
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    - label: ''
+      box: null
+      height: 0
+      borderRadius: ''
+      fontSize: ''
+      fontWeight: ''
+      backgroundColor: ''
+      borderColor: ''
+      color: ''
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    - label: ''
+      box: null
+      height: 0
+      borderRadius: ''
+      fontSize: ''
+      fontWeight: ''
+      backgroundColor: ''
+      borderColor: ''
+      color: ''
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    fitTopActionsContainer: null
+    fitPlotHeading:
+      count: 0
+      text: ''
+      display: ''
+      box: null
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    fitRibbon: null
+    fitGroups: []
+    fitRemoveStep: null
+    fitEvidenceTrigger: null
+    fitHeaderSource: null
+    fitHeaderState: null
+    toeMode: true
+    processRibbon:
+      left: 302
+      right: 1432
+      top: 135
+      bottom: 425
+      width: 1130
+      height: 290
+    processPanel:
+      left: 302
+      right: 1417
+      top: 135
+      bottom: 424
+      width: 1115
+      height: 289
+    saveBand:
+      left: 327
+      right: 1393
+      top: 313
+      bottom: 371
+      width: 1066
+      height: 58
+    viewportHeight: 900
+  - stage: fit
+    viewport: 1440x900
+    svgHeight: 484.25
+    svgWidth: 1112
+    svgBottom: 870.25
+    svgBox:
+      left: 311
+      right: 1423
+      top: 386
+      bottom: 870.25
+      width: 1112
+      height: 484.25
+    legendBox:
+      left: 1221
+      right: 1405
+      top: 396
+      bottom: 695.65625
+      width: 184
+      height: 299.65625
+    horizontalAxisBox:
+      left: 391
+      right: 1193
+      top: 818.25
+      bottom: 818.25
+      width: 802
+      height: 0
+    drawableRatio: 0.7097345132743362
+    processClusterWidth: 0
+    processClusterHeight: 0
+    processClusterLeft: 0
+    processClusterTop: 0
+    fitClusterWidth: 1424
+    fitClusterHeight: 738
+    fitClusterLeft: 8
+    fitClusterTop: 162
+    workspaceLeft: 8
+    workspaceTop: 162
+    workspaceWidth: 1424
+    workspaceHeight: 738
+    railWidth: 288
+    ribbonHeight: 181
+    plotBottom: 899
+    xAxisLabelBottom: 865.25
+    plotFrameBox:
+      left: 311
+      right: 1423
+      top: 386
+      bottom: 870.25
+      width: 1112
+      height: 484.25
+    legendBottom: 695.65625
+    legendInPlot: true
+    legendOutsideSvg: false
+    legendAfterPlotAxis: true
+    legendTickOverlap: false
+    legendAxisLabelOverlap: false
+    legendAxisOverlap: false
+    legendCurveSegmentOverlap: false
+    legendExtrapolationBoundaryOverlap: false
+    legendExtrapolationLabelOverlap: false
+    legendStateOverlayOverlap: false
+    lastXTickWithinSvg: true
+    xTicksWithinSvg: true
+    xTickCount: 6
+    processRows: []
+    processRowClipped: false
+    fitRows:
+    - text: Specimen 03 · r1
+      visible: true
+      clipped: false
+      box:
+        top: 266
+        bottom: 292
+    - text: Specimen 02 · r1
+      visible: true
+      clipped: false
+      box:
+        top: 296
+        bottom: 322
+    - text: Specimen 01 · r1
+      visible: true
+      clipped: false
+      box:
+        top: 326
+        bottom: 352
+    fitRowsIncluded: 2 included
+    fitNoMatchingCurves: false
+    methodRangeGap: null
+    processControls: []
+    topActions:
+    - label: ''
+      box: null
+      height: 0
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    - label: ''
+      box: null
+      height: 0
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    - label: ''
+      box: null
+      height: 0
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    fitTopActions:
+    - label: Advanced
+      box:
+        left: 1045.578125
+        right: 1126.21875
+        top: 57.5
+        bottom: 91.5
+        width: 80.640625
+        height: 34
+      height: 34
+      borderRadius: 7px
+      fontSize: 13px
+      fontWeight: '700'
+      backgroundColor: rgb(249, 251, 251)
+      borderColor: rgb(168, 190, 194)
+      color: rgb(35, 72, 82)
+      whiteSpace: nowrap
+      scrollHeight: 32
+      clientHeight: 32
+      scrollWidth: 79
+      clientWidth: 79
+    - label: Preview changes
+      box:
+        left: 1148.21875
+        right: 1271.5
+        top: 57.5
+        bottom: 91.5
+        width: 123.28125
+        height: 34
+      height: 34
+      borderRadius: 7px
+      fontSize: 13px
+      fontWeight: '700'
+      backgroundColor: rgb(249, 251, 251)
+      borderColor: rgb(168, 190, 194)
+      color: rgb(35, 72, 82)
+      whiteSpace: nowrap
+      scrollHeight: 32
+      clientHeight: 32
+      scrollWidth: 121
+      clientWidth: 121
+    - label: Save fit & continue
+      box:
+        left: 1281.5
+        right: 1422
+        top: 57.5
+        bottom: 91.5
+        width: 140.5
+        height: 34
+      height: 34
+      borderRadius: 7px
+      fontSize: 13px
+      fontWeight: '700'
+      backgroundColor: rgb(36, 94, 168)
+      borderColor: rgb(36, 94, 168)
+      color: rgb(255, 255, 255)
+      whiteSpace: nowrap
+      scrollHeight: 32
+      clientHeight: 32
+      scrollWidth: 139
+      clientWidth: 139
+    fitTopActionsContainer:
+      left: 1045.578125
+      right: 1422
+      top: 57.5
+      bottom: 91.5
+      width: 376.421875
+      height: 34
+    fitPlotHeading:
+      count: 1
+      text: Hardening response
+      display: block
+      box:
+        left: 311
+        right: 449.796875
+        top: 355.625
+        bottom: 374.375
+        width: 138.796875
+        height: 18.75
+      scrollHeight: 19
+      clientHeight: 19
+      scrollWidth: 139
+      clientWidth: 139
+    fitRibbon:
+      left: 302
+      right: 1432
+      top: 163
+      bottom: 344
+      width: 1130
+      height: 181
+    fitGroups:
+    - label: Candidate equations
+      box:
+        left: 302
+        right: 561.46875
+        top: 197
+        bottom: 343
+        width: 259.46875
+        height: 146
+      gridTemplateColumns: repeat(2, minmax(0px, 1fr))
+      paired: null
+      controls:
+      - left: 312
+        right: 325
+        top: 223.640625
+        bottom: 236.640625
+        width: 13
+        height: 13
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 13px
+        minWidth: 0px
+        maxWidth: none
+      - left: 435.234375
+        right: 448.234375
+        top: 223.640625
+        bottom: 236.640625
+        width: 13
+        height: 13
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 13px
+        minWidth: 0px
+        maxWidth: none
+      - left: 312
+        right: 325
+        top: 242.9375
+        bottom: 255.9375
+        width: 13
+        height: 13
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 13px
+        minWidth: 0px
+        maxWidth: none
+      - left: 435.234375
+        right: 448.234375
+        top: 242.9375
+        bottom: 255.9375
+        width: 13
+        height: 13
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 13px
+        minWidth: 0px
+        maxWidth: none
+    - label: Fit domain
+      box:
+        left: 561.46875
+        right: 720.515625
+        top: 197
+        bottom: 343
+        width: 159.046875
+        height: 146
+      gridTemplateColumns: none
+      paired: null
+      controls:
+      - left: 571.46875
+        right: 638.484375
+        top: 242
+        bottom: 282
+        width: 67.015625
+        height: 40
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 67.0156px
+        minWidth: 0px
+        maxWidth: 100%
+      - left: 642.484375
+        right: 709.515625
+        top: 242
+        bottom: 282
+        width: 67.03125
+        height: 40
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 67.0312px
+        minWidth: 0px
+        maxWidth: 100%
+    - label: Selected blend
+      box:
+        left: 720.515625
+        right: 887.921875
+        top: 197
+        bottom: 343
+        width: 167.40625
+        height: 146
+      gridTemplateColumns: 1fr 1fr
+      paired:
+        box:
+          left: 730.515625
+          right: 876.921875
+          top: 223
+          bottom: 285.109375
+          width: 146.40625
+          height: 62.109375
+        display: flex
+        widthStyle: 146.406px
+        minWidth: 0px
+        maxWidth: 100%
+        overflow: hidden
+        labels:
+        - box:
+            left: 730.515625
+            right: 801.21875
+            top: 223
+            bottom: 285.109375
+            width: 70.703125
+            height: 62.109375
+          flex: 1 1 0px
+          widthStyle: 70.7031px
+          minWidth: 0px
+          maxWidth: none
+          overflow: hidden
+          contain: none
+        - box:
+            left: 806.21875
+            right: 876.921875
+            top: 223
+            bottom: 285.109375
+            width: 70.703125
+            height: 62.109375
+          flex: 1 1 0px
+          widthStyle: 70.7031px
+          minWidth: 0px
+          maxWidth: none
+          overflow: hidden
+          contain: none
+      controls:
+      - left: 730.515625
+        right: 801.21875
+        top: 245.109375
+        bottom: 285.109375
+        width: 70.703125
+        height: 40
+        tagName: select
+        boxSizing: border-box
+        widthStyle: 70.7031px
+        minWidth: 0px
+        maxWidth: 100%
+      - left: 806.21875
+        right: 876.921875
+        top: 245.109375
+        bottom: 285.109375
+        width: 70.703125
+        height: 40
+        tagName: select
+        boxSizing: border-box
+        widthStyle: 70.7031px
+        minWidth: 0px
+        maxWidth: 100%
+    - label: Primary contribution
+      box:
+        left: 887.921875
+        right: 1063.703125
+        top: 197
+        bottom: 343
+        width: 175.78125
+        height: 146
+      gridTemplateColumns: none
+      paired: null
+      controls:
+      - left: 897.921875
+        right: 1021.234375
+        top: 225
+        bottom: 262.1875
+        width: 123.3125
+        height: 37.1875
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 123.312px
+        minWidth: 0px
+        maxWidth: none
+      - left: 897.921875
+        right: 1052.703125
+        top: 291.296875
+        bottom: 331.296875
+        width: 154.78125
+        height: 40
+        tagName: select
+        boxSizing: border-box
+        widthStyle: 154.781px
+        minWidth: 0px
+        maxWidth: 100%
+    - label: Extrapolation
+      box:
+        left: 1063.703125
+        right: 1239.46875
+        top: 197
+        bottom: 343
+        width: 175.765625
+        height: 146
+      gridTemplateColumns: 1fr 1fr
+      paired:
+        box:
+          left: 1073.703125
+          right: 1228.46875
+          top: 223
+          bottom: 302.109375
+          width: 154.765625
+          height: 79.109375
+        display: flex
+        widthStyle: 154.766px
+        minWidth: 0px
+        maxWidth: 100%
+        overflow: hidden
+        labels:
+        - box:
+            left: 1073.703125
+            right: 1148.578125
+            top: 223
+            bottom: 302.109375
+            width: 74.875
+            height: 79.109375
+          flex: 1 1 0px
+          widthStyle: 74.875px
+          minWidth: 0px
+          maxWidth: none
+          overflow: hidden
+          contain: none
+        - box:
+            left: 1153.578125
+            right: 1228.46875
+            top: 223
+            bottom: 302.109375
+            width: 74.890625
+            height: 79.109375
+          flex: 1 1 0px
+          widthStyle: 74.8906px
+          minWidth: 0px
+          maxWidth: none
+          overflow: hidden
+          contain: none
+      controls:
+      - left: 1073.703125
+        right: 1148.578125
+        top: 262.109375
+        bottom: 302.109375
+        width: 74.875
+        height: 40
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 74.875px
+        minWidth: 0px
+        maxWidth: 100%
+      - left: 1153.578125
+        right: 1228.46875
+        top: 262.109375
+        bottom: 302.109375
+        width: 74.890625
+        height: 40
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 74.8906px
+        minWidth: 0px
+        maxWidth: 100%
+    - label: Graph interaction
+      box:
+        left: 1239.46875
+        right: 1431.984375
+        top: 197
+        bottom: 343
+        width: 192.515625
+        height: 146
+      gridTemplateColumns: none
+      paired: null
+      controls:
+      - left: 1249.46875
+        right: 1333.71875
+        top: 223
+        bottom: 253
+        width: 84.25
+        height: 30
+        tagName: button
+        boxSizing: border-box
+        widthStyle: 84.25px
+        minWidth: 0px
+        maxWidth: none
+      - left: 1337.71875
+        right: 1421.984375
+        top: 223
+        bottom: 253
+        width: 84.265625
+        height: 30
+        tagName: button
+        boxSizing: border-box
+        widthStyle: 84.2656px
+        minWidth: 0px
+        maxWidth: none
+    fitRemoveStep:
+      left: 1335.859375
+      right: 1422
+      top: 169.5
+      bottom: 189.5
+      width: 86.140625
+      height: 20
+    fitEvidenceTrigger:
+      left: 1310.140625
+      right: 1424
+      top: 325
+      bottom: 342
+      width: 113.859375
+      height: 17
+    fitHeaderSource:
+      left: 176.578125
+      right: 427.140625
+      top: 66.5
+      bottom: 83.5
+      width: 250.5625
+      height: 17
+    fitHeaderState:
+      left: 435.140625
+      right: 548.65625
+      top: 66.5
+      bottom: 83.5
+      width: 113.515625
+      height: 17
+    toeMode: false
+    processRibbon: null
+    processPanel: null
+    saveBand: null
+    viewportHeight: 900
+  - stage: process
+    viewport: 1920x1080
+    svgHeight: 604
+    svgWidth: 1592
+    svgBottom: 1071
+    svgBox:
+      left: 311
+      right: 1903
+      top: 467
+      bottom: 1071
+      width: 1592
+      height: 604
+    legendBox:
+      left: 1701
+      right: 1885
+      top: 477
+      bottom: 730.0625
+      width: 184
+      height: 253.0625
+    horizontalAxisBox:
+      left: 391
+      right: 1673
+      top: 1019
+      bottom: 1019
+      width: 1282
+      height: 0
+    drawableRatio: 0.7962732919254658
+    processClusterWidth: 1904
+    processClusterHeight: 946
+    processClusterLeft: 8
+    processClusterTop: 134
+    fitClusterWidth: 0
+    fitClusterHeight: 0
+    fitClusterLeft: 0
+    fitClusterTop: 0
+    workspaceLeft: 8
+    workspaceTop: 134
+    workspaceWidth: 1904
+    workspaceHeight: 946
+    railWidth: 288
+    ribbonHeight: 290
+    plotBottom: 1079
+    xAxisLabelBottom: 1066
+    plotFrameBox:
+      left: 311
+      right: 1903
+      top: 467
+      bottom: 1071
+      width: 1592
+      height: 604
+    legendBottom: 730.0625
+    legendInPlot: true
+    legendOutsideSvg: false
+    legendAfterPlotAxis: true
+    legendTickOverlap: false
+    legendAxisLabelOverlap: false
+    legendAxisOverlap: false
+    legendCurveSegmentOverlap: false
+    legendExtrapolationBoundaryOverlap: false
+    legendExtrapolationLabelOverlap: false
+    legendStateOverlayOverlap: false
+    lastXTickWithinSvg: true
+    xTicksWithinSvg: true
+    xTickCount: 6
+    processRows:
+    - text: Specimen 03 · r1
+      clipped: false
+    - text: Specimen 02 · r1
+      clipped: false
+    - text: Specimen 01 · r1
+      clipped: false
+    processRowClipped: false
+    fitRows: []
+    fitRowsIncluded: ''
+    fitNoMatchingCurves: false
+    methodRangeGap: null
+    processControls:
+    - label: Toe estimation range start
+      box:
+        left: 616.515625
+        right: 779.84375
+        top: 224.109375
+        bottom: 264.109375
+        width: 163.328125
+        height: 40
+      height: 40
+      whiteSpace: normal
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 161
+      clientWidth: 161
+    - label: Toe estimation range end
+      box:
+        left: 784.84375
+        right: 948.171875
+        top: 224.109375
+        bottom: 264.109375
+        width: 163.328125
+        height: 40
+      height: 40
+      whiteSpace: normal
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 161
+      clientWidth: 161
+    - label: Processed curve label
+      box:
+        left: 327
+        right: 870.109375
+        top: 331
+        bottom: 371
+        width: 543.109375
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 541
+      clientWidth: 541
+    - label: Save reason
+      box:
+        left: 880.109375
+        right: 1694.78125
+        top: 331
+        bottom: 371
+        width: 814.671875
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 813
+      clientWidth: 813
+    - label: Save processed curves
+      box:
+        left: 1704.78125
+        right: 1873
+        top: 331
+        bottom: 371
+        width: 168.21875
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 166
+      clientWidth: 166
+    topActions:
+    - label: Advanced
+      box:
+        left: 1509.46875
+        right: 1594.765625
+        top: 54.5
+        bottom: 94.5
+        width: 85.296875
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 83
+      clientWidth: 83
+    - label: Distribution analysis
+      box:
+        left: 1604.765625
+        right: 1760.765625
+        top: 54.5
+        bottom: 94.5
+        width: 156
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 154
+      clientWidth: 154
+    - label: Preview changes
+      box:
+        left: 1770.765625
+        right: 1902
+        top: 54.5
+        bottom: 94.5
+        width: 131.234375
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 129
+      clientWidth: 129
+    fitTopActions:
+    - label: ''
+      box: null
+      height: 0
+      borderRadius: ''
+      fontSize: ''
+      fontWeight: ''
+      backgroundColor: ''
+      borderColor: ''
+      color: ''
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    - label: ''
+      box: null
+      height: 0
+      borderRadius: ''
+      fontSize: ''
+      fontWeight: ''
+      backgroundColor: ''
+      borderColor: ''
+      color: ''
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    - label: ''
+      box: null
+      height: 0
+      borderRadius: ''
+      fontSize: ''
+      fontWeight: ''
+      backgroundColor: ''
+      borderColor: ''
+      color: ''
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    fitTopActionsContainer: null
+    fitPlotHeading:
+      count: 0
+      text: ''
+      display: ''
+      box: null
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    fitRibbon: null
+    fitGroups: []
+    fitRemoveStep: null
+    fitEvidenceTrigger: null
+    fitHeaderSource: null
+    fitHeaderState: null
+    toeMode: true
+    processRibbon:
+      left: 302
+      right: 1912
+      top: 135
+      bottom: 425
+      width: 1610
+      height: 290
+    processPanel:
+      left: 302
+      right: 1897
+      top: 135
+      bottom: 424
+      width: 1595
+      height: 289
+    saveBand:
+      left: 327
+      right: 1873
+      top: 313
+      bottom: 371
+      width: 1546
+      height: 58
+    viewportHeight: 1080
+  - stage: fit
+    viewport: 1920x1080
+    svgHeight: 664.25
+    svgWidth: 1592
+    svgBottom: 1050.25
+    svgBox:
+      left: 311
+      right: 1903
+      top: 386
+      bottom: 1050.25
+      width: 1592
+      height: 664.25
+    legendBox:
+      left: 1701
+      right: 1885
+      top: 396
+      bottom: 695.65625
+      width: 184
+      height: 299.65625
+    horizontalAxisBox:
+      left: 391
+      right: 1673
+      top: 998.25
+      bottom: 998.25
+      width: 1282
+      height: 0
+    drawableRatio: 0.7962732919254658
+    processClusterWidth: 0
+    processClusterHeight: 0
+    processClusterLeft: 0
+    processClusterTop: 0
+    fitClusterWidth: 1904
+    fitClusterHeight: 918
+    fitClusterLeft: 8
+    fitClusterTop: 162
+    workspaceLeft: 8
+    workspaceTop: 162
+    workspaceWidth: 1904
+    workspaceHeight: 918
+    railWidth: 288
+    ribbonHeight: 181
+    plotBottom: 1079
+    xAxisLabelBottom: 1045.25
+    plotFrameBox:
+      left: 311
+      right: 1903
+      top: 386
+      bottom: 1050.25
+      width: 1592
+      height: 664.25
+    legendBottom: 695.65625
+    legendInPlot: true
+    legendOutsideSvg: false
+    legendAfterPlotAxis: true
+    legendTickOverlap: false
+    legendAxisLabelOverlap: false
+    legendAxisOverlap: false
+    legendCurveSegmentOverlap: false
+    legendExtrapolationBoundaryOverlap: false
+    legendExtrapolationLabelOverlap: false
+    legendStateOverlayOverlap: false
+    lastXTickWithinSvg: true
+    xTicksWithinSvg: true
+    xTickCount: 6
+    processRows: []
+    processRowClipped: false
+    fitRows:
+    - text: Specimen 03 · r1
+      visible: true
+      clipped: false
+      box:
+        top: 266
+        bottom: 292
+    - text: Specimen 02 · r1
+      visible: true
+      clipped: false
+      box:
+        top: 296
+        bottom: 322
+    - text: Specimen 01 · r1
+      visible: true
+      clipped: false
+      box:
+        top: 326
+        bottom: 352
+    fitRowsIncluded: 2 included
+    fitNoMatchingCurves: false
+    methodRangeGap: null
+    processControls: []
+    topActions:
+    - label: ''
+      box: null
+      height: 0
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    - label: ''
+      box: null
+      height: 0
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    - label: ''
+      box: null
+      height: 0
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    fitTopActions:
+    - label: Advanced
+      box:
+        left: 1525.578125
+        right: 1606.21875
+        top: 57.5
+        bottom: 91.5
+        width: 80.640625
+        height: 34
+      height: 34
+      borderRadius: 7px
+      fontSize: 13px
+      fontWeight: '700'
+      backgroundColor: rgb(249, 251, 251)
+      borderColor: rgb(168, 190, 194)
+      color: rgb(35, 72, 82)
+      whiteSpace: nowrap
+      scrollHeight: 32
+      clientHeight: 32
+      scrollWidth: 79
+      clientWidth: 79
+    - label: Preview changes
+      box:
+        left: 1628.21875
+        right: 1751.5
+        top: 57.5
+        bottom: 91.5
+        width: 123.28125
+        height: 34
+      height: 34
+      borderRadius: 7px
+      fontSize: 13px
+      fontWeight: '700'
+      backgroundColor: rgb(249, 251, 251)
+      borderColor: rgb(168, 190, 194)
+      color: rgb(35, 72, 82)
+      whiteSpace: nowrap
+      scrollHeight: 32
+      clientHeight: 32
+      scrollWidth: 121
+      clientWidth: 121
+    - label: Save fit & continue
+      box:
+        left: 1761.5
+        right: 1902
+        top: 57.5
+        bottom: 91.5
+        width: 140.5
+        height: 34
+      height: 34
+      borderRadius: 7px
+      fontSize: 13px
+      fontWeight: '700'
+      backgroundColor: rgb(36, 94, 168)
+      borderColor: rgb(36, 94, 168)
+      color: rgb(255, 255, 255)
+      whiteSpace: nowrap
+      scrollHeight: 32
+      clientHeight: 32
+      scrollWidth: 139
+      clientWidth: 139
+    fitTopActionsContainer:
+      left: 1525.578125
+      right: 1902
+      top: 57.5
+      bottom: 91.5
+      width: 376.421875
+      height: 34
+    fitPlotHeading:
+      count: 1
+      text: Hardening response
+      display: block
+      box:
+        left: 311
+        right: 449.796875
+        top: 355.625
+        bottom: 374.375
+        width: 138.796875
+        height: 18.75
+      scrollHeight: 19
+      clientHeight: 19
+      scrollWidth: 139
+      clientWidth: 139
+    fitRibbon:
+      left: 302
+      right: 1912
+      top: 163
+      bottom: 344
+      width: 1610
+      height: 181
+    fitGroups:
+    - label: Candidate equations
+      box:
+        left: 302
+        right: 734.203125
+        top: 197
+        bottom: 343
+        width: 432.203125
+        height: 146
+      gridTemplateColumns: repeat(2, minmax(0px, 1fr))
+      paired: null
+      controls:
+      - left: 312
+        right: 325
+        top: 225.640625
+        bottom: 238.640625
+        width: 13
+        height: 13
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 13px
+        minWidth: 0px
+        maxWidth: none
+      - left: 521.59375
+        right: 534.59375
+        top: 225.640625
+        bottom: 238.640625
+        width: 13
+        height: 13
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 13px
+        minWidth: 0px
+        maxWidth: none
+      - left: 312
+        right: 325
+        top: 244.9375
+        bottom: 257.9375
+        width: 13
+        height: 13
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 13px
+        minWidth: 0px
+        maxWidth: none
+      - left: 521.59375
+        right: 534.59375
+        top: 244.9375
+        bottom: 257.9375
+        width: 13
+        height: 13
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 13px
+        minWidth: 0px
+        maxWidth: none
+    - label: Fit domain
+      box:
+        left: 734.203125
+        right: 950.3125
+        top: 197
+        bottom: 343
+        width: 216.109375
+        height: 146
+      gridTemplateColumns: none
+      paired: null
+      controls:
+      - left: 744.203125
+        right: 839.75
+        top: 244
+        bottom: 284
+        width: 95.546875
+        height: 40
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 95.5469px
+        minWidth: 0px
+        maxWidth: 100%
+      - left: 843.75
+        right: 939.3125
+        top: 244
+        bottom: 284
+        width: 95.5625
+        height: 40
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 95.5625px
+        minWidth: 0px
+        maxWidth: 100%
+    - label: Selected blend
+      box:
+        left: 950.3125
+        right: 1166.421875
+        top: 197
+        bottom: 343
+        width: 216.109375
+        height: 146
+      gridTemplateColumns: 1fr 1fr
+      paired:
+        box:
+          left: 960.3125
+          right: 1155.421875
+          top: 225
+          bottom: 287.109375
+          width: 195.109375
+          height: 62.109375
+        display: flex
+        widthStyle: 195.109px
+        minWidth: 0px
+        maxWidth: 100%
+        overflow: hidden
+        labels:
+        - box:
+            left: 960.3125
+            right: 1055.359375
+            top: 225
+            bottom: 287.109375
+            width: 95.046875
+            height: 62.109375
+          flex: 1 1 0px
+          widthStyle: 95.0469px
+          minWidth: 0px
+          maxWidth: none
+          overflow: hidden
+          contain: none
+        - box:
+            left: 1060.359375
+            right: 1155.421875
+            top: 225
+            bottom: 287.109375
+            width: 95.0625
+            height: 62.109375
+          flex: 1 1 0px
+          widthStyle: 95.0625px
+          minWidth: 0px
+          maxWidth: none
+          overflow: hidden
+          contain: none
+      controls:
+      - left: 960.3125
+        right: 1055.359375
+        top: 247.109375
+        bottom: 287.109375
+        width: 95.046875
+        height: 40
+        tagName: select
+        boxSizing: border-box
+        widthStyle: 95.0469px
+        minWidth: 0px
+        maxWidth: 100%
+      - left: 1060.359375
+        right: 1155.421875
+        top: 247.109375
+        bottom: 287.109375
+        width: 95.0625
+        height: 40
+        tagName: select
+        boxSizing: border-box
+        widthStyle: 95.0625px
+        minWidth: 0px
+        maxWidth: 100%
+    - label: Primary contribution
+      box:
+        left: 1166.421875
+        right: 1404.140625
+        top: 197
+        bottom: 343
+        width: 237.71875
+        height: 146
+      gridTemplateColumns: none
+      paired: null
+      controls:
+      - left: 1176.421875
+        right: 1361.671875
+        top: 227
+        bottom: 264.1875
+        width: 185.25
+        height: 37.1875
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 185.25px
+        minWidth: 0px
+        maxWidth: none
+      - left: 1176.421875
+        right: 1393.140625
+        top: 293.296875
+        bottom: 333.296875
+        width: 216.71875
+        height: 40
+        tagName: select
+        boxSizing: border-box
+        widthStyle: 216.719px
+        minWidth: 0px
+        maxWidth: 100%
+    - label: Extrapolation
+      box:
+        left: 1404.140625
+        right: 1641.859375
+        top: 197
+        bottom: 343
+        width: 237.71875
+        height: 146
+      gridTemplateColumns: 1fr 1fr
+      paired:
+        box:
+          left: 1414.140625
+          right: 1630.859375
+          top: 225
+          bottom: 287.109375
+          width: 216.71875
+          height: 62.109375
+        display: flex
+        widthStyle: 216.719px
+        minWidth: 0px
+        maxWidth: 100%
+        overflow: hidden
+        labels:
+        - box:
+            left: 1414.140625
+            right: 1520
+            top: 225
+            bottom: 287.109375
+            width: 105.859375
+            height: 62.109375
+          flex: 1 1 0px
+          widthStyle: 105.859px
+          minWidth: 0px
+          maxWidth: none
+          overflow: hidden
+          contain: none
+        - box:
+            left: 1525
+            right: 1630.859375
+            top: 225
+            bottom: 287.109375
+            width: 105.859375
+            height: 62.109375
+          flex: 1 1 0px
+          widthStyle: 105.859px
+          minWidth: 0px
+          maxWidth: none
+          overflow: hidden
+          contain: none
+      controls:
+      - left: 1414.140625
+        right: 1520
+        top: 247.109375
+        bottom: 287.109375
+        width: 105.859375
+        height: 40
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 105.859px
+        minWidth: 0px
+        maxWidth: 100%
+      - left: 1525
+        right: 1630.859375
+        top: 247.109375
+        bottom: 287.109375
+        width: 105.859375
+        height: 40
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 105.859px
+        minWidth: 0px
+        maxWidth: 100%
+    - label: Graph interaction
+      box:
+        left: 1641.859375
+        right: 1912
+        top: 197
+        bottom: 343
+        width: 270.140625
+        height: 146
+      gridTemplateColumns: none
+      paired: null
+      controls:
+      - left: 1651.859375
+        right: 1774.921875
+        top: 225
+        bottom: 255
+        width: 123.0625
+        height: 30
+        tagName: button
+        boxSizing: border-box
+        widthStyle: 123.062px
+        minWidth: 0px
+        maxWidth: none
+      - left: 1778.921875
+        right: 1902
+        top: 225
+        bottom: 255
+        width: 123.078125
+        height: 30
+        tagName: button
+        boxSizing: border-box
+        widthStyle: 123.078px
+        minWidth: 0px
+        maxWidth: none
+    fitRemoveStep:
+      left: 1815.859375
+      right: 1902
+      top: 169.5
+      bottom: 189.5
+      width: 86.140625
+      height: 20
+    fitEvidenceTrigger:
+      left: 1790.140625
+      right: 1904
+      top: 325
+      bottom: 342
+      width: 113.859375
+      height: 17
+    fitHeaderSource:
+      left: 176.578125
+      right: 434.3125
+      top: 66.5
+      bottom: 83.5
+      width: 257.734375
+      height: 17
+    fitHeaderState:
+      left: 442.3125
+      right: 555.828125
+      top: 66.5
+      bottom: 83.5
+      width: 113.515625
+      height: 17
+    toeMode: false
+    processRibbon: null
+    processPanel: null
+    saveBand: null
+    viewportHeight: 1080
+  - stage: process
+    viewport: 2560x1440
+    svgHeight: 964
+    svgWidth: 2231.984375
+    svgBottom: 1431
+    svgBox:
+      left: 311.015625
+      right: 2543
+      top: 467
+      bottom: 1431
+      width: 2231.984375
+      height: 964
+    legendBox:
+      left: 2341
+      right: 2525
+      top: 477
+      bottom: 730.0625
+      width: 184
+      height: 253.0625
+    horizontalAxisBox:
+      left: 391.015625
+      right: 2313
+      top: 1379
+      bottom: 1379
+      width: 1921.984375
+      height: 0
+    drawableRatio: 0.854221209869513
+    processClusterWidth: 2544
+    processClusterHeight: 1306
+    processClusterLeft: 8
+    processClusterTop: 134
+    fitClusterWidth: 0
+    fitClusterHeight: 0
+    fitClusterLeft: 0
+    fitClusterTop: 0
+    workspaceLeft: 8
+    workspaceTop: 134
+    workspaceWidth: 2544
+    workspaceHeight: 1306
+    railWidth: 288.015625
+    ribbonHeight: 290
+    plotBottom: 1439
+    xAxisLabelBottom: 1426
+    plotFrameBox:
+      left: 311.015625
+      right: 2543
+      top: 467
+      bottom: 1431
+      width: 2231.984375
+      height: 964
+    legendBottom: 730.0625
+    legendInPlot: true
+    legendOutsideSvg: false
+    legendAfterPlotAxis: true
+    legendTickOverlap: false
+    legendAxisLabelOverlap: false
+    legendAxisOverlap: false
+    legendCurveSegmentOverlap: false
+    legendExtrapolationBoundaryOverlap: false
+    legendExtrapolationLabelOverlap: false
+    legendStateOverlayOverlap: false
+    lastXTickWithinSvg: true
+    xTicksWithinSvg: true
+    xTickCount: 6
+    processRows:
+    - text: Specimen 03 · r1
+      clipped: false
+    - text: Specimen 02 · r1
+      clipped: false
+    - text: Specimen 01 · r1
+      clipped: false
+    processRowClipped: false
+    fitRows: []
+    fitRowsIncluded: ''
+    fitNoMatchingCurves: false
+    methodRangeGap: null
+    processControls:
+    - label: Toe estimation range start
+      box:
+        left: 736.8125
+        right: 970.734375
+        top: 224.109375
+        bottom: 264.109375
+        width: 233.921875
+        height: 40
+      height: 40
+      whiteSpace: normal
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 232
+      clientWidth: 232
+    - label: Toe estimation range end
+      box:
+        left: 975.734375
+        right: 1209.671875
+        top: 224.109375
+        bottom: 264.109375
+        width: 233.9375
+        height: 40
+      height: 40
+      whiteSpace: normal
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 232
+      clientWidth: 232
+    - label: Processed curve label
+      box:
+        left: 327.015625
+        right: 1126.109375
+        top: 331
+        bottom: 371
+        width: 799.09375
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 797
+      clientWidth: 797
+    - label: Save reason
+      box:
+        left: 1136.109375
+        right: 2334.78125
+        top: 331
+        bottom: 371
+        width: 1198.671875
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 1197
+      clientWidth: 1197
+    - label: Save processed curves
+      box:
+        left: 2344.78125
+        right: 2513
+        top: 331
+        bottom: 371
+        width: 168.21875
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 166
+      clientWidth: 166
+    topActions:
+    - label: Advanced
+      box:
+        left: 2149.46875
+        right: 2234.765625
+        top: 54.5
+        bottom: 94.5
+        width: 85.296875
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 83
+      clientWidth: 83
+    - label: Distribution analysis
+      box:
+        left: 2244.765625
+        right: 2400.765625
+        top: 54.5
+        bottom: 94.5
+        width: 156
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 154
+      clientWidth: 154
+    - label: Preview changes
+      box:
+        left: 2410.765625
+        right: 2542
+        top: 54.5
+        bottom: 94.5
+        width: 131.234375
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 129
+      clientWidth: 129
+    fitTopActions:
+    - label: ''
+      box: null
+      height: 0
+      borderRadius: ''
+      fontSize: ''
+      fontWeight: ''
+      backgroundColor: ''
+      borderColor: ''
+      color: ''
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    - label: ''
+      box: null
+      height: 0
+      borderRadius: ''
+      fontSize: ''
+      fontWeight: ''
+      backgroundColor: ''
+      borderColor: ''
+      color: ''
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    - label: ''
+      box: null
+      height: 0
+      borderRadius: ''
+      fontSize: ''
+      fontWeight: ''
+      backgroundColor: ''
+      borderColor: ''
+      color: ''
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    fitTopActionsContainer: null
+    fitPlotHeading:
+      count: 0
+      text: ''
+      display: ''
+      box: null
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    fitRibbon: null
+    fitGroups: []
+    fitRemoveStep: null
+    fitEvidenceTrigger: null
+    fitHeaderSource: null
+    fitHeaderState: null
+    toeMode: true
+    processRibbon:
+      left: 302.015625
+      right: 2552
+      top: 135
+      bottom: 425
+      width: 2249.984375
+      height: 290
+    processPanel:
+      left: 302.015625
+      right: 2537
+      top: 135
+      bottom: 424
+      width: 2234.984375
+      height: 289
+    saveBand:
+      left: 327.015625
+      right: 2513
+      top: 313
+      bottom: 371
+      width: 2185.984375
+      height: 58
+    viewportHeight: 1440
+  - stage: fit
+    viewport: 2560x1440
+    svgHeight: 1024.25
+    svgWidth: 2231.984375
+    svgBottom: 1410.25
+    svgBox:
+      left: 311.015625
+      right: 2543
+      top: 386
+      bottom: 1410.25
+      width: 2231.984375
+      height: 1024.25
+    legendBox:
+      left: 2341
+      right: 2525
+      top: 396
+      bottom: 695.65625
+      width: 184
+      height: 299.65625
+    horizontalAxisBox:
+      left: 391.015625
+      right: 2313
+      top: 1358.25
+      bottom: 1358.25
+      width: 1921.984375
+      height: 0
+    drawableRatio: 0.854221209869513
+    processClusterWidth: 0
+    processClusterHeight: 0
+    processClusterLeft: 0
+    processClusterTop: 0
+    fitClusterWidth: 2544
+    fitClusterHeight: 1278
+    fitClusterLeft: 8
+    fitClusterTop: 162
+    workspaceLeft: 8
+    workspaceTop: 162
+    workspaceWidth: 2544
+    workspaceHeight: 1278
+    railWidth: 288.015625
+    ribbonHeight: 181
+    plotBottom: 1439
+    xAxisLabelBottom: 1405.25
+    plotFrameBox:
+      left: 311.015625
+      right: 2543
+      top: 386
+      bottom: 1410.25
+      width: 2231.984375
+      height: 1024.25
+    legendBottom: 695.65625
+    legendInPlot: true
+    legendOutsideSvg: false
+    legendAfterPlotAxis: true
+    legendTickOverlap: false
+    legendAxisLabelOverlap: false
+    legendAxisOverlap: false
+    legendCurveSegmentOverlap: false
+    legendExtrapolationBoundaryOverlap: false
+    legendExtrapolationLabelOverlap: false
+    legendStateOverlayOverlap: false
+    lastXTickWithinSvg: true
+    xTicksWithinSvg: true
+    xTickCount: 6
+    processRows: []
+    processRowClipped: false
+    fitRows:
+    - text: Specimen 03 · r1
+      visible: true
+      clipped: false
+      box:
+        top: 266
+        bottom: 292
+    - text: Specimen 02 · r1
+      visible: true
+      clipped: false
+      box:
+        top: 296
+        bottom: 322
+    - text: Specimen 01 · r1
+      visible: true
+      clipped: false
+      box:
+        top: 326
+        bottom: 352
+    fitRowsIncluded: 2 included
+    fitNoMatchingCurves: false
+    methodRangeGap: null
+    processControls: []
+    topActions:
+    - label: ''
+      box: null
+      height: 0
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    - label: ''
+      box: null
+      height: 0
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    - label: ''
+      box: null
+      height: 0
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    fitTopActions:
+    - label: Advanced
+      box:
+        left: 2165.578125
+        right: 2246.21875
+        top: 57.5
+        bottom: 91.5
+        width: 80.640625
+        height: 34
+      height: 34
+      borderRadius: 7px
+      fontSize: 13px
+      fontWeight: '700'
+      backgroundColor: rgb(249, 251, 251)
+      borderColor: rgb(168, 190, 194)
+      color: rgb(35, 72, 82)
+      whiteSpace: nowrap
+      scrollHeight: 32
+      clientHeight: 32
+      scrollWidth: 79
+      clientWidth: 79
+    - label: Preview changes
+      box:
+        left: 2268.21875
+        right: 2391.5
+        top: 57.5
+        bottom: 91.5
+        width: 123.28125
+        height: 34
+      height: 34
+      borderRadius: 7px
+      fontSize: 13px
+      fontWeight: '700'
+      backgroundColor: rgb(249, 251, 251)
+      borderColor: rgb(168, 190, 194)
+      color: rgb(35, 72, 82)
+      whiteSpace: nowrap
+      scrollHeight: 32
+      clientHeight: 32
+      scrollWidth: 121
+      clientWidth: 121
+    - label: Save fit & continue
+      box:
+        left: 2401.5
+        right: 2542
+        top: 57.5
+        bottom: 91.5
+        width: 140.5
+        height: 34
+      height: 34
+      borderRadius: 7px
+      fontSize: 13px
+      fontWeight: '700'
+      backgroundColor: rgb(36, 94, 168)
+      borderColor: rgb(36, 94, 168)
+      color: rgb(255, 255, 255)
+      whiteSpace: nowrap
+      scrollHeight: 32
+      clientHeight: 32
+      scrollWidth: 139
+      clientWidth: 139
+    fitTopActionsContainer:
+      left: 2165.578125
+      right: 2542
+      top: 57.5
+      bottom: 91.5
+      width: 376.421875
+      height: 34
+    fitPlotHeading:
+      count: 1
+      text: Hardening response
+      display: block
+      box:
+        left: 311.015625
+        right: 449.8125
+        top: 355.625
+        bottom: 374.375
+        width: 138.796875
+        height: 18.75
+      scrollHeight: 19
+      clientHeight: 19
+      scrollWidth: 139
+      clientWidth: 139
+    fitRibbon:
+      left: 302.015625
+      right: 2552
+      top: 163
+      bottom: 344
+      width: 2249.984375
+      height: 181
+    fitGroups:
+    - label: Candidate equations
+      box:
+        left: 302.015625
+        right: 906.03125
+        top: 197
+        bottom: 343
+        width: 604.015625
+        height: 146
+      gridTemplateColumns: repeat(2, minmax(0px, 1fr))
+      paired: null
+      controls:
+      - left: 312.015625
+        right: 325.015625
+        top: 225.640625
+        bottom: 238.640625
+        width: 13
+        height: 13
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 13px
+        minWidth: 0px
+        maxWidth: none
+      - left: 607.515625
+        right: 620.515625
+        top: 225.640625
+        bottom: 238.640625
+        width: 13
+        height: 13
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 13px
+        minWidth: 0px
+        maxWidth: none
+      - left: 312.015625
+        right: 325.015625
+        top: 244.9375
+        bottom: 257.9375
+        width: 13
+        height: 13
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 13px
+        minWidth: 0px
+        maxWidth: none
+      - left: 607.515625
+        right: 620.515625
+        top: 244.9375
+        bottom: 257.9375
+        width: 13
+        height: 13
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 13px
+        minWidth: 0px
+        maxWidth: none
+    - label: Fit domain
+      box:
+        left: 906.03125
+        right: 1208.046875
+        top: 197
+        bottom: 343
+        width: 302.015625
+        height: 146
+      gridTemplateColumns: none
+      paired: null
+      controls:
+      - left: 916.03125
+        right: 1054.53125
+        top: 244
+        bottom: 284
+        width: 138.5
+        height: 40
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 138.5px
+        minWidth: 0px
+        maxWidth: 100%
+      - left: 1058.53125
+        right: 1197.046875
+        top: 244
+        bottom: 284
+        width: 138.515625
+        height: 40
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 138.516px
+        minWidth: 0px
+        maxWidth: 100%
+    - label: Selected blend
+      box:
+        left: 1208.046875
+        right: 1510.046875
+        top: 197
+        bottom: 343
+        width: 302
+        height: 146
+      gridTemplateColumns: 1fr 1fr
+      paired:
+        box:
+          left: 1218.046875
+          right: 1499.046875
+          top: 225
+          bottom: 287.109375
+          width: 281
+          height: 62.109375
+        display: flex
+        widthStyle: 281px
+        minWidth: 0px
+        maxWidth: 100%
+        overflow: hidden
+        labels:
+        - box:
+            left: 1218.046875
+            right: 1356.046875
+            top: 225
+            bottom: 287.109375
+            width: 138
+            height: 62.109375
+          flex: 1 1 0px
+          widthStyle: 138px
+          minWidth: 0px
+          maxWidth: none
+          overflow: hidden
+          contain: none
+        - box:
+            left: 1361.046875
+            right: 1499.046875
+            top: 225
+            bottom: 287.109375
+            width: 138
+            height: 62.109375
+          flex: 1 1 0px
+          widthStyle: 138px
+          minWidth: 0px
+          maxWidth: none
+          overflow: hidden
+          contain: none
+      controls:
+      - left: 1218.046875
+        right: 1356.046875
+        top: 247.109375
+        bottom: 287.109375
+        width: 138
+        height: 40
+        tagName: select
+        boxSizing: border-box
+        widthStyle: 138px
+        minWidth: 0px
+        maxWidth: 100%
+      - left: 1361.046875
+        right: 1499.046875
+        top: 247.109375
+        bottom: 287.109375
+        width: 138
+        height: 40
+        tagName: select
+        boxSizing: border-box
+        widthStyle: 138px
+        minWidth: 0px
+        maxWidth: 100%
+    - label: Primary contribution
+      box:
+        left: 1510.046875
+        right: 1842.265625
+        top: 197
+        bottom: 343
+        width: 332.21875
+        height: 146
+      gridTemplateColumns: none
+      paired: null
+      controls:
+      - left: 1520.046875
+        right: 1799.796875
+        top: 227
+        bottom: 264.1875
+        width: 279.75
+        height: 37.1875
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 279.75px
+        minWidth: 0px
+        maxWidth: none
+      - left: 1520.046875
+        right: 1831.265625
+        top: 293.296875
+        bottom: 333.296875
+        width: 311.21875
+        height: 40
+        tagName: select
+        boxSizing: border-box
+        widthStyle: 311.219px
+        minWidth: 0px
+        maxWidth: 100%
+    - label: Extrapolation
+      box:
+        left: 1842.265625
+        right: 2174.484375
+        top: 197
+        bottom: 343
+        width: 332.21875
+        height: 146
+      gridTemplateColumns: 1fr 1fr
+      paired:
+        box:
+          left: 1852.265625
+          right: 2163.484375
+          top: 225
+          bottom: 287.109375
+          width: 311.21875
+          height: 62.109375
+        display: flex
+        widthStyle: 311.219px
+        minWidth: 0px
+        maxWidth: 100%
+        overflow: hidden
+        labels:
+        - box:
+            left: 1852.265625
+            right: 2005.375
+            top: 225
+            bottom: 287.109375
+            width: 153.109375
+            height: 62.109375
+          flex: 1 1 0px
+          widthStyle: 153.109px
+          minWidth: 0px
+          maxWidth: none
+          overflow: hidden
+          contain: none
+        - box:
+            left: 2010.375
+            right: 2163.484375
+            top: 225
+            bottom: 287.109375
+            width: 153.109375
+            height: 62.109375
+          flex: 1 1 0px
+          widthStyle: 153.109px
+          minWidth: 0px
+          maxWidth: none
+          overflow: hidden
+          contain: none
+      controls:
+      - left: 1852.265625
+        right: 2005.375
+        top: 247.109375
+        bottom: 287.109375
+        width: 153.109375
+        height: 40
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 153.109px
+        minWidth: 0px
+        maxWidth: 100%
+      - left: 2010.375
+        right: 2163.484375
+        top: 247.109375
+        bottom: 287.109375
+        width: 153.109375
+        height: 40
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 153.109px
+        minWidth: 0px
+        maxWidth: 100%
+    - label: Graph interaction
+      box:
+        left: 2174.484375
+        right: 2552
+        top: 197
+        bottom: 343
+        width: 377.515625
+        height: 146
+      gridTemplateColumns: none
+      paired: null
+      controls:
+      - left: 2184.484375
+        right: 2361.234375
+        top: 225
+        bottom: 255
+        width: 176.75
+        height: 30
+        tagName: button
+        boxSizing: border-box
+        widthStyle: 176.75px
+        minWidth: 0px
+        maxWidth: none
+      - left: 2365.234375
+        right: 2542
+        top: 225
+        bottom: 255
+        width: 176.765625
+        height: 30
+        tagName: button
+        boxSizing: border-box
+        widthStyle: 176.766px
+        minWidth: 0px
+        maxWidth: none
+    fitRemoveStep:
+      left: 2455.859375
+      right: 2542
+      top: 169.5
+      bottom: 189.5
+      width: 86.140625
+      height: 20
+    fitEvidenceTrigger:
+      left: 2430.140625
+      right: 2544
+      top: 325
+      bottom: 342
+      width: 113.859375
+      height: 17
+    fitHeaderSource:
+      left: 176.578125
+      right: 434.3125
+      top: 66.5
+      bottom: 83.5
+      width: 257.734375
+      height: 17
+    fitHeaderState:
+      left: 442.3125
+      right: 555.828125
+      top: 66.5
+      bottom: 83.5
+      width: 113.515625
+      height: 17
+    toeMode: false
+    processRibbon: null
+    processPanel: null
+    saveBand: null
+    viewportHeight: 1440
+  - stage: process
+    viewport: 3840x2160
+    svgHeight: 1684
+    svgWidth: 3512.015625
+    svgBottom: 2151
+    svgBox:
+      left: 310.984375
+      right: 3823
+      top: 467
+      bottom: 2151
+      width: 3512.015625
+      height: 1684
+    legendBox:
+      left: 3621
+      right: 3805
+      top: 477
+      bottom: 730.0625
+      width: 184
+      height: 253.0625
+    horizontalAxisBox:
+      left: 390.984375
+      right: 3593
+      top: 2099
+      bottom: 2099
+      width: 3202.015625
+      height: 0
+    drawableRatio: 0.907082564259188
+    processClusterWidth: 3824
+    processClusterHeight: 2026
+    processClusterLeft: 8
+    processClusterTop: 134
+    fitClusterWidth: 0
+    fitClusterHeight: 0
+    fitClusterLeft: 0
+    fitClusterTop: 0
+    workspaceLeft: 8
+    workspaceTop: 134
+    workspaceWidth: 3824
+    workspaceHeight: 2026
+    railWidth: 287.984375
+    ribbonHeight: 290
+    plotBottom: 2159
+    xAxisLabelBottom: 2146
+    plotFrameBox:
+      left: 310.984375
+      right: 3823
+      top: 467
+      bottom: 2151
+      width: 3512.015625
+      height: 1684
+    legendBottom: 730.0625
+    legendInPlot: true
+    legendOutsideSvg: false
+    legendAfterPlotAxis: true
+    legendTickOverlap: false
+    legendAxisLabelOverlap: false
+    legendAxisOverlap: false
+    legendCurveSegmentOverlap: false
+    legendExtrapolationBoundaryOverlap: false
+    legendExtrapolationLabelOverlap: false
+    legendStateOverlayOverlap: false
+    lastXTickWithinSvg: true
+    xTicksWithinSvg: true
+    xTickCount: 6
+    processRows:
+    - text: Specimen 03 · r1
+      clipped: false
+    - text: Specimen 02 · r1
+      clipped: false
+    - text: Specimen 01 · r1
+      clipped: false
+    processRowClipped: false
+    fitRows: []
+    fitRowsIncluded: ''
+    fitNoMatchingCurves: false
+    methodRangeGap: null
+    processControls:
+    - label: Toe estimation range start
+      box:
+        left: 977.34375
+        right: 1352.46875
+        top: 224.109375
+        bottom: 264.109375
+        width: 375.125
+        height: 40
+      height: 40
+      whiteSpace: normal
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 373
+      clientWidth: 373
+    - label: Toe estimation range end
+      box:
+        left: 1357.46875
+        right: 1732.609375
+        top: 224.109375
+        bottom: 264.109375
+        width: 375.140625
+        height: 40
+      height: 40
+      whiteSpace: normal
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 373
+      clientWidth: 373
+    - label: Processed curve label
+      box:
+        left: 326.984375
+        right: 1638.09375
+        top: 331
+        bottom: 371
+        width: 1311.109375
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 1309
+      clientWidth: 1309
+    - label: Save reason
+      box:
+        left: 1648.09375
+        right: 3614.78125
+        top: 331
+        bottom: 371
+        width: 1966.6875
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 1965
+      clientWidth: 1965
+    - label: Save processed curves
+      box:
+        left: 3624.78125
+        right: 3793
+        top: 331
+        bottom: 371
+        width: 168.21875
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 166
+      clientWidth: 166
+    topActions:
+    - label: Advanced
+      box:
+        left: 3429.46875
+        right: 3514.765625
+        top: 54.5
+        bottom: 94.5
+        width: 85.296875
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 83
+      clientWidth: 83
+    - label: Distribution analysis
+      box:
+        left: 3524.765625
+        right: 3680.765625
+        top: 54.5
+        bottom: 94.5
+        width: 156
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 154
+      clientWidth: 154
+    - label: Preview changes
+      box:
+        left: 3690.765625
+        right: 3822
+        top: 54.5
+        bottom: 94.5
+        width: 131.234375
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 129
+      clientWidth: 129
+    fitTopActions:
+    - label: ''
+      box: null
+      height: 0
+      borderRadius: ''
+      fontSize: ''
+      fontWeight: ''
+      backgroundColor: ''
+      borderColor: ''
+      color: ''
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    - label: ''
+      box: null
+      height: 0
+      borderRadius: ''
+      fontSize: ''
+      fontWeight: ''
+      backgroundColor: ''
+      borderColor: ''
+      color: ''
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    - label: ''
+      box: null
+      height: 0
+      borderRadius: ''
+      fontSize: ''
+      fontWeight: ''
+      backgroundColor: ''
+      borderColor: ''
+      color: ''
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    fitTopActionsContainer: null
+    fitPlotHeading:
+      count: 0
+      text: ''
+      display: ''
+      box: null
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    fitRibbon: null
+    fitGroups: []
+    fitRemoveStep: null
+    fitEvidenceTrigger: null
+    fitHeaderSource: null
+    fitHeaderState: null
+    toeMode: true
+    processRibbon:
+      left: 301.984375
+      right: 3832
+      top: 135
+      bottom: 425
+      width: 3530.015625
+      height: 290
+    processPanel:
+      left: 301.984375
+      right: 3817
+      top: 135
+      bottom: 424
+      width: 3515.015625
+      height: 289
+    saveBand:
+      left: 326.984375
+      right: 3793
+      top: 313
+      bottom: 371
+      width: 3466.015625
+      height: 58
+    viewportHeight: 2160
+  - stage: fit
+    viewport: 3840x2160
+    svgHeight: 1744.25
+    svgWidth: 3512.015625
+    svgBottom: 2130.25
+    svgBox:
+      left: 310.984375
+      right: 3823
+      top: 386
+      bottom: 2130.25
+      width: 3512.015625
+      height: 1744.25
+    legendBox:
+      left: 3621
+      right: 3805
+      top: 396
+      bottom: 695.65625
+      width: 184
+      height: 299.65625
+    horizontalAxisBox:
+      left: 390.984375
+      right: 3593
+      top: 2078.25
+      bottom: 2078.25
+      width: 3202.015625
+      height: 0
+    drawableRatio: 0.907082564259188
+    processClusterWidth: 0
+    processClusterHeight: 0
+    processClusterLeft: 0
+    processClusterTop: 0
+    fitClusterWidth: 3824
+    fitClusterHeight: 1998
+    fitClusterLeft: 8
+    fitClusterTop: 162
+    workspaceLeft: 8
+    workspaceTop: 162
+    workspaceWidth: 3824
+    workspaceHeight: 1998
+    railWidth: 287.984375
+    ribbonHeight: 181
+    plotBottom: 2159
+    xAxisLabelBottom: 2125.25
+    plotFrameBox:
+      left: 310.984375
+      right: 3823
+      top: 386
+      bottom: 2130.25
+      width: 3512.015625
+      height: 1744.25
+    legendBottom: 695.65625
+    legendInPlot: true
+    legendOutsideSvg: false
+    legendAfterPlotAxis: true
+    legendTickOverlap: false
+    legendAxisLabelOverlap: false
+    legendAxisOverlap: false
+    legendCurveSegmentOverlap: false
+    legendExtrapolationBoundaryOverlap: false
+    legendExtrapolationLabelOverlap: false
+    legendStateOverlayOverlap: false
+    lastXTickWithinSvg: true
+    xTicksWithinSvg: true
+    xTickCount: 6
+    processRows: []
+    processRowClipped: false
+    fitRows:
+    - text: Specimen 03 · r1
+      visible: true
+      clipped: false
+      box:
+        top: 266
+        bottom: 292
+    - text: Specimen 02 · r1
+      visible: true
+      clipped: false
+      box:
+        top: 296
+        bottom: 322
+    - text: Specimen 01 · r1
+      visible: true
+      clipped: false
+      box:
+        top: 326
+        bottom: 352
+    fitRowsIncluded: 2 included
+    fitNoMatchingCurves: false
+    methodRangeGap: null
+    processControls: []
+    topActions:
+    - label: ''
+      box: null
+      height: 0
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    - label: ''
+      box: null
+      height: 0
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    - label: ''
+      box: null
+      height: 0
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    fitTopActions:
+    - label: Advanced
+      box:
+        left: 3445.578125
+        right: 3526.21875
+        top: 57.5
+        bottom: 91.5
+        width: 80.640625
+        height: 34
+      height: 34
+      borderRadius: 7px
+      fontSize: 13px
+      fontWeight: '700'
+      backgroundColor: rgb(249, 251, 251)
+      borderColor: rgb(168, 190, 194)
+      color: rgb(35, 72, 82)
+      whiteSpace: nowrap
+      scrollHeight: 32
+      clientHeight: 32
+      scrollWidth: 79
+      clientWidth: 79
+    - label: Preview changes
+      box:
+        left: 3548.21875
+        right: 3671.5
+        top: 57.5
+        bottom: 91.5
+        width: 123.28125
+        height: 34
+      height: 34
+      borderRadius: 7px
+      fontSize: 13px
+      fontWeight: '700'
+      backgroundColor: rgb(249, 251, 251)
+      borderColor: rgb(168, 190, 194)
+      color: rgb(35, 72, 82)
+      whiteSpace: nowrap
+      scrollHeight: 32
+      clientHeight: 32
+      scrollWidth: 121
+      clientWidth: 121
+    - label: Save fit & continue
+      box:
+        left: 3681.5
+        right: 3822
+        top: 57.5
+        bottom: 91.5
+        width: 140.5
+        height: 34
+      height: 34
+      borderRadius: 7px
+      fontSize: 13px
+      fontWeight: '700'
+      backgroundColor: rgb(36, 94, 168)
+      borderColor: rgb(36, 94, 168)
+      color: rgb(255, 255, 255)
+      whiteSpace: nowrap
+      scrollHeight: 32
+      clientHeight: 32
+      scrollWidth: 139
+      clientWidth: 139
+    fitTopActionsContainer:
+      left: 3445.578125
+      right: 3822
+      top: 57.5
+      bottom: 91.5
+      width: 376.421875
+      height: 34
+    fitPlotHeading:
+      count: 1
+      text: Hardening response
+      display: block
+      box:
+        left: 310.984375
+        right: 449.78125
+        top: 355.625
+        bottom: 374.375
+        width: 138.796875
+        height: 18.75
+      scrollHeight: 19
+      clientHeight: 19
+      scrollWidth: 139
+      clientWidth: 139
+    fitRibbon:
+      left: 301.984375
+      right: 3832
+      top: 163
+      bottom: 344
+      width: 3530.015625
+      height: 181
+    fitGroups:
+    - label: Candidate equations
+      box:
+        left: 301.984375
+        right: 1249.625
+        top: 197
+        bottom: 343
+        width: 947.640625
+        height: 146
+      gridTemplateColumns: repeat(2, minmax(0px, 1fr))
+      paired: null
+      controls:
+      - left: 311.984375
+        right: 324.984375
+        top: 225.640625
+        bottom: 238.640625
+        width: 13
+        height: 13
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 13px
+        minWidth: 0px
+        maxWidth: none
+      - left: 779.296875
+        right: 792.296875
+        top: 225.640625
+        bottom: 238.640625
+        width: 13
+        height: 13
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 13px
+        minWidth: 0px
+        maxWidth: none
+      - left: 311.984375
+        right: 324.984375
+        top: 244.9375
+        bottom: 257.9375
+        width: 13
+        height: 13
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 13px
+        minWidth: 0px
+        maxWidth: none
+      - left: 779.296875
+        right: 792.296875
+        top: 244.9375
+        bottom: 257.9375
+        width: 13
+        height: 13
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 13px
+        minWidth: 0px
+        maxWidth: none
+    - label: Fit domain
+      box:
+        left: 1249.625
+        right: 1723.453125
+        top: 197
+        bottom: 343
+        width: 473.828125
+        height: 146
+      gridTemplateColumns: none
+      paired: null
+      controls:
+      - left: 1259.625
+        right: 1484.03125
+        top: 244
+        bottom: 284
+        width: 224.40625
+        height: 40
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 224.406px
+        minWidth: 0px
+        maxWidth: 100%
+      - left: 1488.03125
+        right: 1712.453125
+        top: 244
+        bottom: 284
+        width: 224.421875
+        height: 40
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 224.422px
+        minWidth: 0px
+        maxWidth: 100%
+    - label: Selected blend
+      box:
+        left: 1723.453125
+        right: 2197.28125
+        top: 197
+        bottom: 343
+        width: 473.828125
+        height: 146
+      gridTemplateColumns: 1fr 1fr
+      paired:
+        box:
+          left: 1733.453125
+          right: 2186.28125
+          top: 225
+          bottom: 287.109375
+          width: 452.828125
+          height: 62.109375
+        display: flex
+        widthStyle: 452.828px
+        minWidth: 0px
+        maxWidth: 100%
+        overflow: hidden
+        labels:
+        - box:
+            left: 1733.453125
+            right: 1957.359375
+            top: 225
+            bottom: 287.109375
+            width: 223.90625
+            height: 62.109375
+          flex: 1 1 0px
+          widthStyle: 223.906px
+          minWidth: 0px
+          maxWidth: none
+          overflow: hidden
+          contain: none
+        - box:
+            left: 1962.359375
+            right: 2186.28125
+            top: 225
+            bottom: 287.109375
+            width: 223.921875
+            height: 62.109375
+          flex: 1 1 0px
+          widthStyle: 223.922px
+          minWidth: 0px
+          maxWidth: none
+          overflow: hidden
+          contain: none
+      controls:
+      - left: 1733.453125
+        right: 1957.359375
+        top: 247.109375
+        bottom: 287.109375
+        width: 223.90625
+        height: 40
+        tagName: select
+        boxSizing: border-box
+        widthStyle: 223.906px
+        minWidth: 0px
+        maxWidth: 100%
+      - left: 1962.359375
+        right: 2186.28125
+        top: 247.109375
+        bottom: 287.109375
+        width: 223.921875
+        height: 40
+        tagName: select
+        boxSizing: border-box
+        widthStyle: 223.922px
+        minWidth: 0px
+        maxWidth: 100%
+    - label: Primary contribution
+      box:
+        left: 2197.28125
+        right: 2718.5
+        top: 197
+        bottom: 343
+        width: 521.21875
+        height: 146
+      gridTemplateColumns: none
+      paired: null
+      controls:
+      - left: 2207.28125
+        right: 2676.03125
+        top: 227
+        bottom: 264.1875
+        width: 468.75
+        height: 37.1875
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 468.75px
+        minWidth: 0px
+        maxWidth: none
+      - left: 2207.28125
+        right: 2707.5
+        top: 293.296875
+        bottom: 333.296875
+        width: 500.21875
+        height: 40
+        tagName: select
+        boxSizing: border-box
+        widthStyle: 500.219px
+        minWidth: 0px
+        maxWidth: 100%
+    - label: Extrapolation
+      box:
+        left: 2718.5
+        right: 3239.703125
+        top: 197
+        bottom: 343
+        width: 521.203125
+        height: 146
+      gridTemplateColumns: 1fr 1fr
+      paired:
+        box:
+          left: 2728.5
+          right: 3228.703125
+          top: 225
+          bottom: 287.109375
+          width: 500.203125
+          height: 62.109375
+        display: flex
+        widthStyle: 500.203px
+        minWidth: 0px
+        maxWidth: 100%
+        overflow: hidden
+        labels:
+        - box:
+            left: 2728.5
+            right: 2976.09375
+            top: 225
+            bottom: 287.109375
+            width: 247.59375
+            height: 62.109375
+          flex: 1 1 0px
+          widthStyle: 247.594px
+          minWidth: 0px
+          maxWidth: none
+          overflow: hidden
+          contain: none
+        - box:
+            left: 2981.09375
+            right: 3228.703125
+            top: 225
+            bottom: 287.109375
+            width: 247.609375
+            height: 62.109375
+          flex: 1 1 0px
+          widthStyle: 247.609px
+          minWidth: 0px
+          maxWidth: none
+          overflow: hidden
+          contain: none
+      controls:
+      - left: 2728.5
+        right: 2976.09375
+        top: 247.109375
+        bottom: 287.109375
+        width: 247.59375
+        height: 40
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 247.594px
+        minWidth: 0px
+        maxWidth: 100%
+      - left: 2981.09375
+        right: 3228.703125
+        top: 247.109375
+        bottom: 287.109375
+        width: 247.609375
+        height: 40
+        tagName: input
+        boxSizing: border-box
+        widthStyle: 247.609px
+        minWidth: 0px
+        maxWidth: 100%
+    - label: Graph interaction
+      box:
+        left: 3239.703125
+        right: 3832
+        top: 197
+        bottom: 343
+        width: 592.296875
+        height: 146
+      gridTemplateColumns: none
+      paired: null
+      controls:
+      - left: 3249.703125
+        right: 3533.84375
+        top: 225
+        bottom: 255
+        width: 284.140625
+        height: 30
+        tagName: button
+        boxSizing: border-box
+        widthStyle: 284.141px
+        minWidth: 0px
+        maxWidth: none
+      - left: 3537.84375
+        right: 3822
+        top: 225
+        bottom: 255
+        width: 284.15625
+        height: 30
+        tagName: button
+        boxSizing: border-box
+        widthStyle: 284.156px
+        minWidth: 0px
+        maxWidth: none
+    fitRemoveStep:
+      left: 3735.859375
+      right: 3822
+      top: 169.5
+      bottom: 189.5
+      width: 86.140625
+      height: 20
+    fitEvidenceTrigger:
+      left: 3710.140625
+      right: 3824
+      top: 325
+      bottom: 342
+      width: 113.859375
+      height: 17
+    fitHeaderSource:
+      left: 176.578125
+      right: 434.3125
+      top: 66.5
+      bottom: 83.5
+      width: 257.734375
+      height: 17
+    fitHeaderState:
+      left: 442.3125
+      right: 555.828125
+      top: 66.5
+      bottom: 83.5
+      width: 113.515625
+      height: 17
+    toeMode: false
+    processRibbon: null
+    processPanel: null
+    saveBand: null
+    viewportHeight: 2160
+special_state_provenance:
+  browser: Chromium 151.0.7922.34
+  css_viewport: 1440x900
+  device_pixel_ratio: 1
+  browser_zoom: 100%
+  density: standard
+  exact_processing_output:
+    id: 0d01bac9-ce51-44a4-ad33-bee533655e41
+    revisionId: 648b4520-302e-441c-bc5c-4a113c990cf9
+    label: Toe-corrected Process result visual evidence
+    revisionNo: 1
+  process_geometry_after_warning_recovery:
+    svgHeight: 424
+    svgWidth: 1112
+    svgBottom: 891
+    svgBox:
+      left: 311
+      right: 1423
+      top: 467
+      bottom: 891
+      width: 1112
+      height: 424
+    legendBox:
+      left: 1221
+      right: 1405
+      top: 477
+      bottom: 730.0625
+      width: 184
+      height: 253.0625
+    horizontalAxisBox:
+      left: 391
+      right: 1193
+      top: 839
+      bottom: 839
+      width: 802
+      height: 0
+    drawableRatio: 0.7097345132743362
+    processClusterWidth: 1424
+    processClusterHeight: 766
+    processClusterLeft: 8
+    processClusterTop: 134
+    fitClusterWidth: 0
+    fitClusterHeight: 0
+    fitClusterLeft: 0
+    fitClusterTop: 0
+    workspaceLeft: 8
+    workspaceTop: 134
+    workspaceWidth: 1424
+    workspaceHeight: 766
+    railWidth: 288
+    ribbonHeight: 290
+    plotBottom: 899
+    xAxisLabelBottom: 886
+    plotFrameBox:
+      left: 311
+      right: 1423
+      top: 467
+      bottom: 891
+      width: 1112
+      height: 424
+    legendBottom: 730.0625
+    legendInPlot: true
+    legendOutsideSvg: false
+    legendAfterPlotAxis: true
+    legendTickOverlap: false
+    legendAxisLabelOverlap: false
+    legendAxisOverlap: false
+    legendCurveSegmentOverlap: false
+    legendExtrapolationBoundaryOverlap: false
+    legendExtrapolationLabelOverlap: false
+    legendStateOverlayOverlap: false
+    lastXTickWithinSvg: true
+    xTicksWithinSvg: true
+    xTickCount: 6
+    processRows:
+    - text: Specimen 03 · r1
+      clipped: false
+    - text: Specimen 02 · r1
+      clipped: false
+    - text: Specimen 01 · r1
+      clipped: false
+    processRowClipped: false
+    fitRows: []
+    fitRowsIncluded: ''
+    fitNoMatchingCurves: false
+    methodRangeGap: null
+    processControls:
+    - label: Toe estimation range start
+      box:
+        left: 526.3125
+        right: 636.6875
+        top: 235
+        bottom: 275
+        width: 110.375
+        height: 40
+      height: 40
+      whiteSpace: normal
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 108
+      clientWidth: 108
+    - label: Toe estimation range end
+      box:
+        left: 641.6875
+        right: 752.0625
+        top: 235
+        bottom: 275
+        width: 110.375
+        height: 40
+      height: 40
+      whiteSpace: normal
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 108
+      clientWidth: 108
+    - label: Processed curve label
+      box:
+        left: 327
+        right: 678.109375
+        top: 331
+        bottom: 371
+        width: 351.109375
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 349
+      clientWidth: 349
+    - label: Save reason
+      box:
+        left: 688.109375
+        right: 1214.78125
+        top: 331
+        bottom: 371
+        width: 526.671875
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 525
+      clientWidth: 525
+    - label: Save processed curves
+      box:
+        left: 1224.78125
+        right: 1393
+        top: 331
+        bottom: 371
+        width: 168.21875
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 166
+      clientWidth: 166
+    topActions:
+    - label: Advanced
+      box:
+        left: 1029.46875
+        right: 1114.765625
+        top: 54.5
+        bottom: 94.5
+        width: 85.296875
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 83
+      clientWidth: 83
+    - label: Distribution analysis
+      box:
+        left: 1124.765625
+        right: 1280.765625
+        top: 54.5
+        bottom: 94.5
+        width: 156
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 154
+      clientWidth: 154
+    - label: Preview changes
+      box:
+        left: 1290.765625
+        right: 1422
+        top: 54.5
+        bottom: 94.5
+        width: 131.234375
+        height: 40
+      height: 40
+      whiteSpace: nowrap
+      scrollHeight: 38
+      clientHeight: 38
+      scrollWidth: 129
+      clientWidth: 129
+    fitTopActions:
+    - label: ''
+      box: null
+      height: 0
+      borderRadius: ''
+      fontSize: ''
+      fontWeight: ''
+      backgroundColor: ''
+      borderColor: ''
+      color: ''
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    - label: ''
+      box: null
+      height: 0
+      borderRadius: ''
+      fontSize: ''
+      fontWeight: ''
+      backgroundColor: ''
+      borderColor: ''
+      color: ''
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    - label: ''
+      box: null
+      height: 0
+      borderRadius: ''
+      fontSize: ''
+      fontWeight: ''
+      backgroundColor: ''
+      borderColor: ''
+      color: ''
+      whiteSpace: ''
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    fitTopActionsContainer: null
+    fitPlotHeading:
+      count: 0
+      text: ''
+      display: ''
+      box: null
+      scrollHeight: 0
+      clientHeight: 0
+      scrollWidth: 0
+      clientWidth: 0
+    fitRibbon: null
+    fitGroups: []
+    fitRemoveStep: null
+    fitEvidenceTrigger: null
+    fitHeaderSource: null
+    fitHeaderState: null
+    toeMode: true
+    processRibbon:
+      left: 302
+      right: 1432
+      top: 135
+      bottom: 425
+      width: 1130
+      height: 290
+    processPanel:
+      left: 302
+      right: 1417
+      top: 135
+      bottom: 424
+      width: 1115
+      height: 289
+    saveBand:
+      left: 327
+      right: 1393
+      top: 313
+      bottom: 371
+      width: 1066
+      height: 58
+    viewportHeight: 900
+  toe_warning_geometry:
+    controls:
+      box:
+        left: 326
+        right: 1056.546875
+        top: 203
+        bottom: 275
+        width: 730.546875
+        height: 72
+      scrollWidth: 731
+      clientWidth: 731
+      scrollHeight: 72
+      clientHeight: 72
+    acknowledgement:
+      box:
+        left: 897.671875
+        right: 1056.546875
+        top: 235
+        bottom: 275
+        width: 158.875
+        height: 40
+      scrollWidth: 159
+      clientWidth: 159
+      scrollHeight: 40
+      clientHeight: 40
+    checkbox:
+      box:
+        left: 897.671875
+        right: 911.671875
+        top: 248
+        bottom: 262
+        width: 14
+        height: 14
+      scrollWidth: 14
+      clientWidth: 14
+      scrollHeight: 14
+      clientHeight: 14
+    acknowledgementText:
+      box:
+        left: 916.78125
+        right: 1020.46875
+        top: 247.5
+        bottom: 262.5
+        width: 103.6875
+        height: 15
+      scrollWidth: 104
+      clientWidth: 104
+      scrollHeight: 15
+      clientHeight: 15
+    result:
+      box:
+        left: 1066.546875
+        right: 1403
+        top: 179
+        bottom: 288
+        width: 336.453125
+        height: 109
+      scrollWidth: 335
+      clientWidth: 335
+      scrollHeight: 109
+      clientHeight: 109
+    resultWarning:
+      box:
+        left: 1077.546875
+        right: 1393
+        top: 264
+        bottom: 278
+        width: 315.453125
+        height: 14
+      scrollWidth: 315
+      clientWidth: 315
+      scrollHeight: 15
+      clientHeight: 14
+  fit_exact_source_evidence_geometry:
+    box:
+      left: 316
+      right: 853.5
+      top: 805
+      bottom: 823
+      width: 537.5
+      height: 18
+    scrollWidth: 538
+    clientWidth: 538
+    scrollHeight: 18
+    clientHeight: 18
+  states:
+  - file: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/states/modeling-process-toe-warning-1440x900.png
+    route: http://127.0.0.1:5173/modeling?stage=process&family=metal
+    interaction: explicit add; select 0.0005..0.003; preview; warning visible; acknowledgement
+      clear; save disabled
+  - file: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/states/modeling-fit-toe-source-evidence-1440x900.png
+    crop: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/states/modeling-fit-toe-source-evidence-crop.png
+    route: http://127.0.0.1:5173/modeling?stage=fit&family=metal
+    interaction: recover 0..0.002; preview; save immutable Process output; open Fit;
+      preview; open Candidate parameters source evidence
+allowed_duplicate_groups:
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-fit-1920x1080-controls.png
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-fit-1920x1080-controls.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-fit-1920x1080-graph.png
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-fit-1920x1080-graph.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-fit-1920x1080-navigator.png
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-fit-1920x1080-navigator.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-fit-2560x1440-controls.png
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-fit-2560x1440-controls.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-fit-2560x1440-graph.png
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-fit-2560x1440-graph.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-fit-2560x1440-navigator.png
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-fit-2560x1440-navigator.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-fit-3840x2160-controls.png
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-fit-3840x2160-controls.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-fit-3840x2160-graph.png
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-fit-3840x2160-graph.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-fit-3840x2160-navigator.png
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-fit-3840x2160-navigator.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/after/originals/modeling-fit-1366x768.png
+  - docs/user-guide/images/current/modeling-fit-1366x768.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/after/originals/modeling-fit-1440x900.png
+  - docs/user-guide/images/current/modeling-fit-1440x900.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/after/originals/modeling-fit-1920x1080.png
+  - docs/user-guide/images/current/modeling-fit-1920x1080.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/after/originals/modeling-fit-2560x1440.png
+  - docs/user-guide/images/current/modeling-fit-2560x1440.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/after/originals/modeling-fit-3840x2160.png
+  - docs/user-guide/images/current/modeling-fit-3840x2160.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/after/originals/modeling-process-1366x768.png
+  - docs/user-guide/images/current/modeling-process-1366x768.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/after/originals/modeling-process-1440x900.png
+  - docs/user-guide/images/current/modeling-process-1440x900.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/after/originals/modeling-process-1920x1080.png
+  - docs/user-guide/images/current/modeling-process-1920x1080.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/after/originals/modeling-process-2560x1440.png
+  - docs/user-guide/images/current/modeling-process-2560x1440.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/after/originals/modeling-process-3840x2160.png
+  - docs/user-guide/images/current/modeling-process-3840x2160.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-fit-1920x1080-header.png
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-fit-1920x1080-header.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-fit-2560x1440-header.png
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-fit-2560x1440-header.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-fit-3840x2160-header.png
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-fit-3840x2160-header.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-process-1920x1080-header.png
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-process-1920x1080-header.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-process-2560x1440-header.png
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-process-2560x1440-header.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-process-3840x2160-header.png
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-process-3840x2160-header.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-184-high-dpi-global-implementation/after/standard/modeling-fit-1366x768.png
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-fit-1366x768.png
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/before/originals/modeling-fit-1366x768.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-184-high-dpi-global-implementation/after/standard/modeling-fit-1440x900.png
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-fit-1440x900.png
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/before/originals/modeling-fit-1440x900.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-184-high-dpi-global-implementation/after/standard/modeling-fit-1920x1080.png
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-fit-1920x1080.png
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/before/originals/modeling-fit-1920x1080.png
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/before/originals/modeling-fit-1920x1080.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-fit-2560x1440.png
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/before/originals/modeling-fit-2560x1440.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-184-high-dpi-global-implementation/after/standard/modeling-fit-3840x2160.png
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-fit-3840x2160.png
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/before/originals/modeling-fit-3840x2160.png
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/before/originals/modeling-fit-3840x2160.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-process-1366x768.png
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/before/originals/modeling-process-1366x768.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-process-1440x900.png
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/before/originals/modeling-process-1440x900.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-process-1920x1080.png
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/before/originals/modeling-process-1920x1080.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-process-2560x1440.png
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/before/originals/modeling-process-2560x1440.png
+- rationale: 'Issue #212 preserves this byte-identical exact-main/current image under
+    an issue-owned lifecycle path so visual provenance remains independently auditable.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-process-3840x2160.png
+  - docs/17-evidence/images/issue-212-explicit-toe-compensation/before/originals/modeling-process-3840x2160.png
+files:
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-fit-1920x1080-controls.png
+  sha256: f659fb7e824027acaa226d790bd119d7bbe12ace9f2852ca6b6fb0fe1b072158
+  bytes: 23712
+  pixels: 1618x185
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-fit-1920x1080-graph.png
+  sha256: be9f6d55989c32f3857ae5dd0d6ed45854db1c160bba1dcc914a64eb1d636a67
+  bytes: 105748
+  pixels: 1618x735
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-fit-1920x1080-header.png
+  sha256: 629ed4b229b330706a72b6915dadbe9d343784c0f6f455161feff17ea17fb2c5
+  bytes: 22204
+  pixels: 1920x180
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-fit-1920x1080-navigator.png
+  sha256: cdd423473aa0ce924cc0b14089c1376e0039c3b68e42032229c1b1929fc73d0c
+  bytes: 16389
+  pixels: 302x980
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-fit-2560x1440-controls.png
+  sha256: 4b59385b2fb4624e90b8219f12c3b9322e92144a48cc2787d8a73e4302fdc433
+  bytes: 24897
+  pixels: 2258x185
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-fit-2560x1440-graph.png
+  sha256: 76d0816e5341b33a21ed77be080c9c845b4c37e75220449ab2978cf9e54799d5
+  bytes: 165903
+  pixels: 2258x1095
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-fit-2560x1440-header.png
+  sha256: 9ffd91cc61da2f48babf8bce5b4300da38fb7e8281928ae7e4173c00443b4a82
+  bytes: 23062
+  pixels: 2560x180
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-fit-2560x1440-navigator.png
+  sha256: f4030a6eb81d1ab3e45f4d3e5735ffd7afd89b8d8f9bd225aebd340c9a6e5daa
+  bytes: 17425
+  pixels: 302x1340
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-fit-3840x2160-controls.png
+  sha256: 9d4cb49e08c47f758c3d201b3f5307280867e1efc4e71c06ce0634a4274757c3
+  bytes: 26756
+  pixels: 3538x185
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-fit-3840x2160-graph.png
+  sha256: c2c90f1906ccb20578b1bd73fdca4061fb64df9cb0e1367c2844e5dcf4760d15
+  bytes: 326184
+  pixels: 3538x1815
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-fit-3840x2160-header.png
+  sha256: d5880908453695bb1955deb9e2cbfe7981e20c36471eff87982bbe16502c6d10
+  bytes: 24921
+  pixels: 3840x180
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-fit-3840x2160-navigator.png
+  sha256: 97c4d27eadd9b1557a823c01cedc168b7ad762709f790314a8b9481dc1fd1644
+  bytes: 19856
+  pixels: 302x2060
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-process-1920x1080-controls.png
+  sha256: fd8795485dbdf4d44d286c8e5b4712e6b930531046770377bfa719631e92170a
+  bytes: 31239
+  pixels: 1618x290
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-process-1920x1080-graph.png
+  sha256: 83ac02bf0e7d4e6bcc0c4670e96926e5b98760ea2307d5e7735288169e7497cd
+  bytes: 85370
+  pixels: 1618x655
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-process-1920x1080-header.png
+  sha256: 456443ac2bdc89815a5456a9df74dbc9fbbf310f38e932af829737bd85accca0
+  bytes: 21119
+  pixels: 1920x180
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-process-1920x1080-navigator.png
+  sha256: ab208348bd3a09722497dddbde7f9fa2898c0a65991ac07b11431ccb5a1ed711
+  bytes: 19887
+  pixels: 302x980
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-process-2560x1440-controls.png
+  sha256: 4b267b48fe51528fa6baafcfbe097cd43553e890657a878d56583e0a91653e20
+  bytes: 31966
+  pixels: 2258x290
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-process-2560x1440-graph.png
+  sha256: 5897b88633bd5964fd066176fc817a2fbf973bbaa4f3206157c162e0e40917d9
+  bytes: 139368
+  pixels: 2258x1015
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-process-2560x1440-header.png
+  sha256: 34cbd02db375590568e8ea7e02439632df72e59ea24b05107a69e104b30f4dd5
+  bytes: 21937
+  pixels: 2560x180
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-process-2560x1440-navigator.png
+  sha256: 3cef93a8ec56a19a02e967be269c2ecd79787ed00f9c04b99f2944e746352546
+  bytes: 20919
+  pixels: 302x1340
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-process-3840x2160-controls.png
+  sha256: a14bef7311a45e50a328957f10d5f6d637090c046eba7789bf72a763ed63d293
+  bytes: 34975
+  pixels: 3538x290
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-process-3840x2160-graph.png
+  sha256: 22ebc62ac31964421084f856a724ae1853bc62474b3ee1f1e4c135f882ea9e27
+  bytes: 279561
+  pixels: 3538x1735
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-process-3840x2160-header.png
+  sha256: fe2355af9b1087009751858c415b1ce4557f452f3d0e1c9f506d6709cdab7bf1
+  bytes: 23931
+  pixels: 3840x180
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/crops/modeling-process-3840x2160-navigator.png
+  sha256: 5db7abbfa89dbf53336e4f14ae35dc45a85a06a117bf9bf76dcd7b4ea5540db8
+  bytes: 23412
+  pixels: 302x2060
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/originals/modeling-fit-1366x768.png
+  sha256: 15f63c25c6bd420042f49ffb57cb85aed0ef0d442e5a21a9271cd6b76c06ef96
+  bytes: 120514
+  pixels: 1366x768
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/originals/modeling-fit-1440x900.png
+  sha256: dc56b87f5dc0efd77347d5a5b8cb09c1b606a967c1bb4efe321b0bff3a7e2132
+  bytes: 131898
+  pixels: 1440x900
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/originals/modeling-fit-1920x1080.png
+  sha256: 7fc4c2fa7741c7a8756694590e4e5531f4797990c00b0f070c3c3d3f55820fdc
+  bytes: 162450
+  pixels: 1920x1080
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/originals/modeling-fit-2560x1440.png
+  sha256: 0d61aef6816db0a662b4c4d7eb5779db6866ab4199c79f9ae09360d87d47cddb
+  bytes: 218451
+  pixels: 2560x1440
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/originals/modeling-fit-3840x2160.png
+  sha256: 169bd2a1c3100cf8c97d5ecaaa8df0afbdcd9d64f2215b3dc1a37a3b9a450f05
+  bytes: 363996
+  pixels: 3840x2160
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/originals/modeling-process-1366x768.png
+  sha256: 3c47635e4e32ecb28a22912036699f54a1e4b1f199ac159360de91920e524076
+  bytes: 113753
+  pixels: 1366x768
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/originals/modeling-process-1440x900.png
+  sha256: c9d0fbe5574d3cb51e31ee603cc227314ede0e12cdf5220d1bf81c554edd2ea7
+  bytes: 126193
+  pixels: 1440x900
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/originals/modeling-process-1920x1080.png
+  sha256: d81628c6dfa20145def2721b03a0ae679682d2b6f1ad534209295fc9cae1deef
+  bytes: 152357
+  pixels: 1920x1080
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/originals/modeling-process-2560x1440.png
+  sha256: f1e79ea89c973c82a73ce5be33ffa23382dc3c363ab4ba3dc2fb18f53c14b7bf
+  bytes: 201550
+  pixels: 2560x1440
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/originals/modeling-process-3840x2160.png
+  sha256: f494215111075109f43ecfe02b30a4d69f4bce6c07f4f170bcd86f403da2fb23
+  bytes: 330762
+  pixels: 3840x2160
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/states/modeling-fit-toe-source-evidence-1440x900.png
+  sha256: a2b072fcabbc4c7188372e2f2212af8ee2d3702157dbdbb90bab590d8545209c
+  bytes: 135170
+  pixels: 1440x900
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/states/modeling-fit-toe-source-evidence-crop.png
+  sha256: ea4e6718bb3079f7e0dfd3894ffa2c73c5db879b9ff11e216aa6c321d54ecf21
+  bytes: 15764
+  pixels: 1087x141
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/after/states/modeling-process-toe-warning-1440x900.png
+  sha256: 9e8414f1971dbc1676be33f11422d105a8d9a1a39b6067488e709593bea63478
+  bytes: 129470
+  pixels: 1440x900
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-fit-1920x1080-controls.png
+  sha256: f659fb7e824027acaa226d790bd119d7bbe12ace9f2852ca6b6fb0fe1b072158
+  bytes: 23712
+  pixels: 1618x185
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-fit-1920x1080-graph.png
+  sha256: be9f6d55989c32f3857ae5dd0d6ed45854db1c160bba1dcc914a64eb1d636a67
+  bytes: 105748
+  pixels: 1618x735
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-fit-1920x1080-header.png
+  sha256: e3e0875a6d3327e89258221d67eecbab52b0474a482372369c46199fdb91b4e3
+  bytes: 22085
+  pixels: 1920x180
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-fit-1920x1080-navigator.png
+  sha256: cdd423473aa0ce924cc0b14089c1376e0039c3b68e42032229c1b1929fc73d0c
+  bytes: 16389
+  pixels: 302x980
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-fit-2560x1440-controls.png
+  sha256: 4b59385b2fb4624e90b8219f12c3b9322e92144a48cc2787d8a73e4302fdc433
+  bytes: 24897
+  pixels: 2258x185
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-fit-2560x1440-graph.png
+  sha256: 76d0816e5341b33a21ed77be080c9c845b4c37e75220449ab2978cf9e54799d5
+  bytes: 165903
+  pixels: 2258x1095
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-fit-2560x1440-header.png
+  sha256: 03db6a898a935ee04d1fbe8c6abe4dbd29b46d5974f52e66f91551229493a2bd
+  bytes: 22930
+  pixels: 2560x180
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-fit-2560x1440-navigator.png
+  sha256: f4030a6eb81d1ab3e45f4d3e5735ffd7afd89b8d8f9bd225aebd340c9a6e5daa
+  bytes: 17425
+  pixels: 302x1340
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-fit-3840x2160-controls.png
+  sha256: 9d4cb49e08c47f758c3d201b3f5307280867e1efc4e71c06ce0634a4274757c3
+  bytes: 26756
+  pixels: 3538x185
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-fit-3840x2160-graph.png
+  sha256: c2c90f1906ccb20578b1bd73fdca4061fb64df9cb0e1367c2844e5dcf4760d15
+  bytes: 326184
+  pixels: 3538x1815
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-fit-3840x2160-header.png
+  sha256: fa1dc0d8d2d02ebe04f86bfa6e3678c4de03cc571a37663054624d1ce71ef879
+  bytes: 24823
+  pixels: 3840x180
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-fit-3840x2160-navigator.png
+  sha256: 97c4d27eadd9b1557a823c01cedc168b7ad762709f790314a8b9481dc1fd1644
+  bytes: 19856
+  pixels: 302x2060
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-process-1920x1080-controls.png
+  sha256: 47376999d85b4bd87bd49df0e33057fcb8e7c91253dad359e0e7a68f4fa5cbcc
+  bytes: 23192
+  pixels: 1618x290
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-process-1920x1080-graph.png
+  sha256: 227c33149d6bb58e4797a0bd14127b4c9e76c3b17817ca97727d8dd37e756726
+  bytes: 84593
+  pixels: 1618x655
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-process-1920x1080-header.png
+  sha256: e8b1d23ceefff44f2caec022bbb554da23358e1715b9b51a506f90261037c0ee
+  bytes: 20389
+  pixels: 1920x180
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-process-1920x1080-navigator.png
+  sha256: ff17e71b780dd0500656f30111f6562aaf457d9134240253822b57acca1b0f5d
+  bytes: 19049
+  pixels: 302x980
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-process-2560x1440-controls.png
+  sha256: 96ac2bc6ba01d692699ae95a8c30cc643d2feaccf113e34293322e24f6d3444f
+  bytes: 24636
+  pixels: 2258x290
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-process-2560x1440-graph.png
+  sha256: 74a4710998ecf985db6f12596b89c5b022b200e9c1b9a77e9d7b409637f488d2
+  bytes: 137075
+  pixels: 2258x1015
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-process-2560x1440-header.png
+  sha256: c503366622ebcef1872bf4b33b3862681c802b33a0fda1bf96e67cf2bac7fe7e
+  bytes: 21075
+  pixels: 2560x180
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-process-2560x1440-navigator.png
+  sha256: 3d1398a136b492f3a6db945eb07f8074d4632911f7299db859bec570d6fac272
+  bytes: 20053
+  pixels: 302x1340
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-process-3840x2160-controls.png
+  sha256: 276db5dad2d92f4659cdbc50df4b7c07e5a06c39181e657da8e384fcc9eefda1
+  bytes: 26167
+  pixels: 3538x290
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-process-3840x2160-graph.png
+  sha256: d676075039e75108f6850c4207f47ebbdab6c6dd25c373e3c65e0be6005b347f
+  bytes: 278782
+  pixels: 3538x1735
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-process-3840x2160-header.png
+  sha256: fee13db897fc7cb71d0777b54cc27a9df87dfad56740e6aa469ed491469ed556
+  bytes: 23260
+  pixels: 3840x180
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/crops/modeling-process-3840x2160-navigator.png
+  sha256: 4f86b953eb733852f760363384a4242fcbdcd23d470e551835e4d0026c57c5f0
+  bytes: 22525
+  pixels: 302x2060
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/originals/modeling-fit-1366x768.png
+  sha256: 1b254ae7125d5e3e32ccbb0bc95668067557faf9a078556438e8dcfc67e26665
+  bytes: 120436
+  pixels: 1366x768
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/originals/modeling-fit-1440x900.png
+  sha256: 2656d9b0b7c22808ff40c2b2d56df61d84caf315421657ce555f1dda6d00dda8
+  bytes: 131935
+  pixels: 1440x900
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/originals/modeling-fit-1920x1080.png
+  sha256: 18cef9dd5de10d5476cb023cdea82bed1de220518873fd54406a97b17d9e83f8
+  bytes: 162329
+  pixels: 1920x1080
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/originals/modeling-fit-2560x1440.png
+  sha256: 03f5cacf82efac63163ff49f3eea294bc3f2e93cda98eb70a4aea21bb70f8bba
+  bytes: 218302
+  pixels: 2560x1440
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/originals/modeling-fit-3840x2160.png
+  sha256: 03be9172072296c1019840f3f17d740f71a8921d4de8a9a57fb7047cb8ee402a
+  bytes: 363873
+  pixels: 3840x2160
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/originals/modeling-process-1366x768.png
+  sha256: c47285917f817979c115991ffcfa6426096a8ba0715905d9f44d27f4947f5079
+  bytes: 100977
+  pixels: 1366x768
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/originals/modeling-process-1440x900.png
+  sha256: e9cd3859660d7c8c4fa534fac059adf6b44490b876d43a3dc64a997f464b73fa
+  bytes: 113924
+  pixels: 1440x900
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/originals/modeling-process-1920x1080.png
+  sha256: b25ed84acf0305661d0883520eb91227a966aa0ef5d9d39280bb5a9ddf10a5a7
+  bytes: 139878
+  pixels: 1920x1080
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/originals/modeling-process-2560x1440.png
+  sha256: cc1fa38317ee5ac5cdd45398980df16cc58ba66e03d9bbc038e1c4de5fbbb528
+  bytes: 188981
+  pixels: 2560x1440
+- path: docs/17-evidence/images/issue-212-explicit-toe-compensation/before/originals/modeling-process-3840x2160.png
+  sha256: 4b54fd9b575f869272ea1ff394d5d137f0d760376e0c3e0358895c9f2003f5ad
+  bytes: 319090
+  pixels: 3840x2160
