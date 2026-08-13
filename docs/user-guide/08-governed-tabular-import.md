@@ -147,6 +147,24 @@ source의 exact Material revision을 서버가 검증해 projection에 고정합
 master curve, Material Model IR 또는 Fit 입력으로 자동 연결하지 않습니다. FLD도 canonical Test Data로
 보존되지만 model fitting이나 forming simulation을 시작하지 않습니다.
 
+## 5. 화면 검수 기록
+
+아래 화면은 Standard 밀도, 브라우저 확대 100%, DPR 1에서 캡처한 현재 제품 상태입니다. DMA 정상
+등록, whole-file rejection, FLD 정상 등록을 각각 확인하며, rejected 1440 화면은 마지막으로 성공한
+DMA 그래프를 보존한 채 새 원본의 진단을 표시합니다.
+
+| 상태 | 1366×768 | 1440×900 | 1920×1080 |
+| --- | --- | --- | --- |
+| DMA 저장·read-back | ![DMA 1366](images/current/modeling-data-dma-1366x768.png) | ![DMA 1440](images/current/modeling-data-dma-1440x900.png) | ![DMA 1920](images/current/modeling-data-dma-1920x1080.png) |
+| DMA whole-file rejection | ![DMA rejected 1366](images/current/modeling-data-dma-rejected-1366x768.png) | ![DMA rejected 1440](images/current/modeling-data-dma-rejected-1440x900.png) | ![DMA rejected 1920](images/current/modeling-data-dma-rejected-1920x1080.png) |
+| FLD 저장·read-back | ![FLD 1366](images/current/modeling-data-fld-1366x768.png) | ![FLD 1440](images/current/modeling-data-fld-1440x900.png) | ![FLD 1920](images/current/modeling-data-fld-1920x1080.png) |
+
+| 상태 | 2560×1440 | 3840×2160 |
+| --- | --- | --- |
+| DMA 저장·read-back | ![DMA 2560](images/current/modeling-data-dma-2560x1440.png) | ![DMA 3840](images/current/modeling-data-dma-3840x2160.png) |
+| DMA whole-file rejection | ![DMA rejected 2560](images/current/modeling-data-dma-rejected-2560x1440.png) | ![DMA rejected 3840](images/current/modeling-data-dma-rejected-3840x2160.png) |
+| FLD 저장·read-back | ![FLD 2560](images/current/modeling-data-fld-2560x1440.png) | ![FLD 3840](images/current/modeling-data-fld-3840x2160.png) |
+
 ## 안전 제한
 
 - XLSX formula, macro, external link는 실행하지 않고 거부합니다.

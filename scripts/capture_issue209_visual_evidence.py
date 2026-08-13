@@ -33,6 +33,23 @@ EVIDENCE = ROOT / "docs/17-evidence/images/issue-209-dma-fld-governed-import"
 BASE_SHA = "a512c76aa55b5423e06f6b09eb1015ddf28f3aca"
 VIEWPORTS = ((1366, 768), (1440, 900), (1920, 1080), (2560, 1440), (3840, 2160))
 WIDE_VIEWPORTS = ((1920, 1080), (2560, 1440), (3840, 2160))
+CURRENT_CAPTURE_OUTPUTS = (
+    "modeling-data-dma-1366x768.png",
+    "modeling-data-dma-1440x900.png",
+    "modeling-data-dma-1920x1080.png",
+    "modeling-data-dma-2560x1440.png",
+    "modeling-data-dma-3840x2160.png",
+    "modeling-data-dma-rejected-1366x768.png",
+    "modeling-data-dma-rejected-1440x900.png",
+    "modeling-data-dma-rejected-1920x1080.png",
+    "modeling-data-dma-rejected-2560x1440.png",
+    "modeling-data-dma-rejected-3840x2160.png",
+    "modeling-data-fld-1366x768.png",
+    "modeling-data-fld-1440x900.png",
+    "modeling-data-fld-1920x1080.png",
+    "modeling-data-fld-2560x1440.png",
+    "modeling-data-fld-3840x2160.png",
+)
 DMA_DOCUMENT_KEY = "ISSUE209-DMA-FREQUENCY-TEMPERATURE"
 DMA_REJECTED_DOCUMENT_KEY = "ISSUE209-DMA-REJECTED"
 DMA_RECOVERED_DOCUMENT_KEY = "ISSUE209-DMA-RECOVERED"
@@ -1113,7 +1130,15 @@ def _capture_journey(browser: Browser, base_url: str, packet: Path) -> dict[str,
 
 def _copy_current_originals(packet: Path) -> None:
     CURRENT.mkdir(parents=True, exist_ok=True)
-    for source in sorted((packet / "after/originals").glob("*.png")):
+    sources = {source.name: source for source in (packet / "after/originals").glob("*.png")}
+    if set(sources) != set(CURRENT_CAPTURE_OUTPUTS):
+        raise RuntimeError(
+            "Issue #209 current capture output drift: "
+            f"missing={sorted(set(CURRENT_CAPTURE_OUTPUTS) - set(sources))}, "
+            f"unexpected={sorted(set(sources) - set(CURRENT_CAPTURE_OUTPUTS))}"
+        )
+    for name in CURRENT_CAPTURE_OUTPUTS:
+        source = sources[name]
         temporary = CURRENT / f".{source.name}.issue209.tmp"
         shutil.copyfile(source, temporary)
         os.replace(temporary, CURRENT / source.name)

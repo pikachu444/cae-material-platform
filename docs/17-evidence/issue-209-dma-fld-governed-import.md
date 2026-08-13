@@ -33,5 +33,29 @@ and DMA-to-master-curve/Prony/IR wiring belong to #246 and are forbidden in this
 
 ## Verification record
 
-Pending implementation, deterministic gates, independent Balanced audit, product-owner visual
-approval, PR publication, and merge read-back.
+| Gate | Result |
+| --- | --- |
+| Focused domain/API/migration tests | `71 passed` for governed tabular rules, canonical adapter/API, review evidence, source integration, demo hydration, and migration behavior. |
+| Modeling Data React tests | `40 passed` for the workbench and intake journeys. |
+| PostgreSQL acceptance | The Issue #209 persistence/idempotency/diagnostic test, governed Test Data review test, migration upgrade/downgrade/re-upgrade test, and touched Ogden governed-import regression each passed in an isolated database. |
+| User-guide contracts | `32 passed` for user-guide and documentation-impact contract tests; `cmp-check-user-guide` reports 116 registered current captures with no orphan image. |
+| Build and style | The production web build, affected Ruff checks, `cmp-check-doc-impact`, and `git diff --check` pass. The web bundle remains under its hard budget; the existing `common-processing-workbench` and `material-library` warning thresholds are reported but do not exceed the enforced limit. |
+| Compose and browser | Canonical Compose preflight, migration, demo seed, live save/reload, deterministic failure, corrected retry, exact review reachability, and the five-viewport capture complete successfully. |
+| Visual evidence integrity | [`visual-evidence.yaml`](images/issue-209-dma-fld-governed-import/visual-evidence.yaml) lists 77 PNGs. Every file matches its SHA-256, byte count, and pixel dimensions; all originals and direct 100%-pixel crops were opened at original resolution. |
+
+One intentionally over-broad PostgreSQL selection combined unrelated catalog tests in a shared
+session and exposed two existing order-dependent fixture assumptions: a fixed lifecycle count and a
+fixed reference method code. No product code or fixture was weakened. The four changed or directly
+touched PostgreSQL cases were rerun independently and passed, which is the applicable #209 boundary.
+
+At 1366×768, 1440×900, 1920×1080, 2560×1440, and 3840×2160, browser zoom is 100%, DPR is 1, and
+document/body horizontal overflow is zero. Header, navigator, mapping controls, decision/diagnostic
+surface, and graph remain visible and bounded. The 1440 rejected-DMA primary journey intentionally
+preserves the last accepted graph while showing the failed draft; clean secondary viewport sessions
+show no session Test Data. Both paths prove that the rejected Import Run creates no Dataset or
+canonical Test Data revision.
+
+The available Windows displays are 2560×1440 and 2560×1600 at 96 DPI and 100% scale. The automated
+3840×2160 CSS viewport establishes geometry only; physical 4K readability remains deferred to #223.
+The independent Balanced audit and Product Owner visual-geometry decision are recorded against the
+exact publication candidate and PR before merge.
