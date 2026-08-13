@@ -27,6 +27,7 @@ from cmp.modules.datasets.application.canonical_test_data import (
     CanonicalTestDataService,
     ExactRevisionRef,
     ExactTestDataRevisionRef,
+    GovernedTabularTestDataSource,
     GovernedTestDataSource,
     ImportCanonicalTestData,
     ReviseCanonicalTestData,
@@ -296,17 +297,39 @@ class ExactRevisionInput(BaseModel):
         return ExactRevisionRef(self.aggregate_id, self.revision_id)
 
 
+class GovernedTabularSourceInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    raw_asset_id: UUID
+    raw_artifact_id: UUID
+    import_run_id: UUID
+    import_profile: ExactRevisionInput
+    normalized_dataset: ExactRevisionInput
+
+    def to_domain(self) -> GovernedTabularTestDataSource:
+        return GovernedTabularTestDataSource(
+            raw_asset_id=self.raw_asset_id,
+            raw_artifact_id=self.raw_artifact_id,
+            import_run_id=self.import_run_id,
+            import_profile=self.import_profile.to_domain(),
+            normalized_dataset=self.normalized_dataset.to_domain(),
+        )
+
+
 class GovernedSourceInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
     material: ExactRevisionInput
     material_state: ExactRevisionInput
     test_run: ExactRevisionInput
+    tabular_import: GovernedTabularSourceInput | None = None
 
     def to_domain(self) -> GovernedTestDataSource:
         return GovernedTestDataSource(
             material=self.material.to_domain(),
             material_state=self.material_state.to_domain(),
             test_run=self.test_run.to_domain(),
+            tabular_import=(
+                None if self.tabular_import is None else self.tabular_import.to_domain()
+            ),
         )
 
 
@@ -416,6 +439,31 @@ class CanonicalTestDataDocumentResponse(BaseModel):
                 test_run=ExactRevisionInput(
                     aggregate_id=content.governed_source.test_run.aggregate_id,
                     revision_id=content.governed_source.test_run.revision_id,
+                ),
+                tabular_import=(
+                    None
+                    if content.governed_source.tabular_import is None
+                    else GovernedTabularSourceInput(
+                        raw_asset_id=content.governed_source.tabular_import.raw_asset_id,
+                        raw_artifact_id=content.governed_source.tabular_import.raw_artifact_id,
+                        import_run_id=content.governed_source.tabular_import.import_run_id,
+                        import_profile=ExactRevisionInput(
+                            aggregate_id=(
+                                content.governed_source.tabular_import.import_profile.aggregate_id
+                            ),
+                            revision_id=(
+                                content.governed_source.tabular_import.import_profile.revision_id
+                            ),
+                        ),
+                        normalized_dataset=ExactRevisionInput(
+                            aggregate_id=(
+                                content.governed_source.tabular_import.normalized_dataset.aggregate_id
+                            ),
+                            revision_id=(
+                                content.governed_source.tabular_import.normalized_dataset.revision_id
+                            ),
+                        ),
+                    )
                 ),
             ),
         )

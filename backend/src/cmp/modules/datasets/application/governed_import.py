@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import re
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -20,6 +19,7 @@ from cmp.modules.datasets.domain.governed_tabular import (
     GovernedImportConflict,
     GovernedImportError,
     GovernedImportProfileContent,
+    ImportDiagnostic,
     ImportRunStatus,
     InvalidGovernedImport,
     TabularFileFormat,
@@ -41,11 +41,11 @@ from cmp.shared.application.revisions import (
     RevisionService,
     RevisionStore,
 )
-from cmp.shared.domain.revisions import RevisionRecord, TenantScope
+from cmp.shared.domain.revisions import RevisionRecord, TenantScope, content_sha256
 
 IMPORT_PROFILE_AGGREGATE_TYPE = "datasets.import_profile"
 GOVERNED_DATASET_AGGREGATE_TYPE = "datasets.governed_tabular_dataset"
-SCHEMA_VERSION = "1.0.0"
+SCHEMA_VERSION = "1.1.0"
 
 
 @dataclass(frozen=True, slots=True)
@@ -83,6 +83,8 @@ class ImportRun:
     import_profile_id: UUID
     import_profile_revision_id: UUID
     profile_sha256: str
+    idempotency_key: str
+    request_sha256: str
     status: ImportRunStatus
     started_at: datetime
     finished_at: datetime | None
@@ -96,6 +98,7 @@ class ImportRun:
     row_count: int | None = None
     failure_code: str | None = None
     failure_detail: str | None = None
+    diagnostics: tuple[ImportDiagnostic, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -133,6 +136,7 @@ class ExecuteGovernedImport:
     import_profile_id: UUID
     import_profile_revision_id: UUID
     change_reason: str
+    idempotency_key: str
 
 
 class GovernedImportRepository(Protocol):
@@ -205,7 +209,7 @@ class GovernedImportRepository(Protocol):
         finished_at: datetime,
         failure_code: str,
         failure_detail: str,
-        row_number: int | None,
+        diagnostics: tuple[ImportDiagnostic, ...],
     ) -> ImportRun: ...
 
     def get_run(
@@ -441,6 +445,12 @@ class GovernedImportService:
     ) -> ImportRun:
         _require(context, decision, Permission.DATASET_WRITE)
         _reason(command.change_reason)
+        if not 1 <= len(command.idempotency_key) <= 255 or any(
+            ord(character) < 0x21 or ord(character) > 0x7E for character in command.idempotency_key
+        ):
+            raise InvalidGovernedImport(
+                "idempotency_key must contain 1..255 visible ASCII characters"
+            )
         profile = self._repository.get_profile_revision(
             context=context,
             decision=decision,
@@ -456,6 +466,17 @@ class GovernedImportService:
         if profile.revision.record.scope != test_run.record.scope:
             raise GovernedImportConflict("Import Profile and Test Run must share an exact scope")
         now = self._clock()
+        request_sha256 = content_sha256(
+            {
+                "test_run_id": str(command.test_run_id),
+                "test_run_revision_id": str(command.test_run_revision_id),
+                "raw_asset_id": str(command.raw_asset_id),
+                "raw_artifact_id": str(command.raw_artifact_id),
+                "import_profile_id": str(command.import_profile_id),
+                "import_profile_revision_id": str(command.import_profile_revision_id),
+                "change_reason": command.change_reason,
+            }
+        )
         run = ImportRun(
             id=self._id(),
             scope=profile.revision.record.scope,
@@ -466,6 +487,8 @@ class GovernedImportService:
             import_profile_id=command.import_profile_id,
             import_profile_revision_id=command.import_profile_revision_id,
             profile_sha256=profile.revision.record.content_hash,
+            idempotency_key=command.idempotency_key,
+            request_sha256=request_sha256,
             status=ImportRunStatus.EXECUTING,
             started_at=now,
             finished_at=None,
@@ -473,7 +496,9 @@ class GovernedImportService:
             request_id=context.request_id,
             trace_id=context.trace_id,
         )
-        self._repository.create_run(context=context, decision=decision, run=run)
+        stored_run = self._repository.create_run(context=context, decision=decision, run=run)
+        if stored_run.id != run.id:
+            return stored_run
         try:
             artifact_record, raw = await self._artifacts.read_verified_bytes(
                 context, decision, command.raw_artifact_id, maximum_bytes=16 * 1024 * 1024
@@ -555,7 +580,28 @@ class GovernedImportService:
             )
         except Exception as error:
             detail = str(error)[:1000] or error.__class__.__name__
-            row_match = re.search(r"\brow (\d+):", detail)
+            diagnostics = (
+                error.diagnostics
+                if isinstance(error, InvalidGovernedImport) and error.diagnostics
+                else (
+                    ImportDiagnostic(
+                        ordinal=0,
+                        row_number=None,
+                        column_name=None,
+                        channel_key=None,
+                        error_code=(
+                            "invalid_tabular_data"
+                            if isinstance(error, (InvalidGovernedImport, GovernedImportError))
+                            else "import_execution_failed"
+                        ),
+                        error_detail=detail,
+                        recovery_hint=(
+                            "Correct the governed source or pinned evidence, then retry "
+                            "with a new key."
+                        ),
+                    ),
+                )
+            )
             failed = self._repository.fail_run(
                 context=context,
                 decision=decision,
@@ -567,7 +613,7 @@ class GovernedImportService:
                     else "import_execution_failed"
                 ),
                 failure_detail=detail,
-                row_number=int(row_match.group(1)) if row_match else None,
+                diagnostics=diagnostics,
             )
             return failed
 
@@ -604,6 +650,31 @@ class GovernedImportService:
     ) -> ImportRun:
         _require(context, decision, Permission.DATASET_READ)
         return self._repository.get_run(context=context, decision=decision, run_id=run_id)
+
+    def get_run_for_test_data_source(
+        self, context: SecurityContext, decision: AuthorizationDecision, run_id: UUID
+    ) -> ImportRun:
+        """Read one exact run while a Dataset-write decision links canonical Test Data."""
+
+        _require_capability(context, decision, Permission.DATASET_READ)
+        return self._repository.get_run(context=context, decision=decision, run_id=run_id)
+
+    def get_dataset_revision_for_test_data_source(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        dataset_id: UUID,
+        dataset_revision_id: UUID,
+    ) -> RevisionSnapshot[GovernedDatasetContent]:
+        """Read a pinned governed Dataset revision for canonical source verification."""
+
+        _require_capability(context, decision, Permission.DATASET_READ)
+        return self._repository.get_dataset_revision(
+            context=context,
+            decision=decision,
+            dataset_id=dataset_id,
+            dataset_revision_id=dataset_revision_id,
+        )
 
     def get_dataset(
         self, context: SecurityContext, decision: AuthorizationDecision, dataset_id: UUID

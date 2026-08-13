@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import io
 import zipfile
+from dataclasses import replace
 from uuid import UUID
 
 import pytest
@@ -16,6 +17,7 @@ from cmp.modules.datasets.domain.governed_tabular import (
     inspect_tabular_source,
     normalized_parquet_bytes,
     parse_governed_source,
+    parse_governed_source_evidence,
     read_tabular_source_rows,
 )
 
@@ -56,6 +58,105 @@ def _axial_profile(
             ),
         ),
     )
+
+
+def _dma_profile(
+    *,
+    file_format: TabularFileFormat = TabularFileFormat.CSV,
+    sheet_name: str | None = None,
+    include_tan_delta: bool = False,
+) -> GovernedImportProfileContent:
+    channels = (
+        GovernedChannelMapping(
+            0, "temperature", QuantityKind.TEMPERATURE, "degC", AxisRole.INDEPENDENT
+        ),
+        GovernedChannelMapping(1, "frequency", QuantityKind.FREQUENCY, "Hz", AxisRole.INDEPENDENT),
+        GovernedChannelMapping(
+            2, "storage", QuantityKind.STORAGE_MODULUS, "MPa", AxisRole.DEPENDENT
+        ),
+        GovernedChannelMapping(3, "loss", QuantityKind.LOSS_MODULUS, "MPa", AxisRole.DEPENDENT),
+    )
+    if include_tan_delta:
+        channels = (
+            *channels,
+            GovernedChannelMapping(4, "tan_delta", QuantityKind.TAN_DELTA, "1", AxisRole.DEPENDENT),
+        )
+    return GovernedImportProfileContent(
+        profile_label="DMA frequency-temperature sweep",
+        data_schema=TabularDataSchema.DMA_FREQUENCY_TEMPERATURE_SWEEP,
+        file_format=file_format,
+        sheet_name=sheet_name,
+        header_row=1,
+        encoding="binary" if file_format is TabularFileFormat.XLSX else "utf-8",
+        delimiter=(
+            None
+            if file_format is TabularFileFormat.XLSX
+            else "\t"
+            if file_format is TabularFileFormat.TSV
+            else ","
+        ),
+        decimal_separator=".",
+        channels=channels,
+    )
+
+
+def _fld_profile(
+    *, file_format: TabularFileFormat = TabularFileFormat.TSV
+) -> GovernedImportProfileContent:
+    return GovernedImportProfileContent(
+        profile_label="Forming limit",
+        data_schema=TabularDataSchema.FORMING_LIMIT,
+        file_format=file_format,
+        sheet_name=None,
+        header_row=1,
+        encoding="utf-8",
+        delimiter="\t" if file_format is TabularFileFormat.TSV else ",",
+        decimal_separator=".",
+        channels=(
+            GovernedChannelMapping(
+                0, "minor", QuantityKind.MINOR_STRAIN, "1", AxisRole.INDEPENDENT
+            ),
+            GovernedChannelMapping(1, "major", QuantityKind.MAJOR_STRAIN, "1", AxisRole.DEPENDENT),
+        ),
+    )
+
+
+def _xlsx_table(headers: tuple[str, ...], rows: tuple[tuple[float, ...], ...]) -> bytes:
+    def reference(index: int, row: int) -> str:
+        return f"{chr(ord('A') + index)}{row}"
+
+    header_cells = "".join(
+        f'<c r="{reference(index, 1)}" t="inlineStr"><is><t>{header}</t></is></c>'
+        for index, header in enumerate(headers)
+    )
+    data_rows = "".join(
+        f'<row r="{row_index}">'
+        + "".join(
+            f'<c r="{reference(column_index, row_index)}"><v>{value}</v></c>'
+            for column_index, value in enumerate(row)
+        )
+        + "</row>"
+        for row_index, row in enumerate(rows, start=2)
+    )
+    workbook = """<?xml version="1.0" encoding="UTF-8"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+ xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+ <sheets><sheet name="Data" sheetId="1" r:id="rId1"/></sheets></workbook>"""
+    relationships = """<?xml version="1.0" encoding="UTF-8"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+ <Relationship Id="rId1" Target="worksheets/sheet1.xml"
+  Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"/>
+</Relationships>"""
+    sheet = f"""<?xml version="1.0" encoding="UTF-8"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>
+ <row r="1">{header_cells}</row>{data_rows}
+</sheetData></worksheet>"""
+    output = io.BytesIO()
+    with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr("xl/workbook.xml", workbook)
+        archive.writestr("xl/_rels/workbook.xml.rels", relationships)
+        archive.writestr("xl/worksheets/sheet1.xml", sheet)
+    return output.getvalue()
 
 
 def _xlsx(
@@ -295,3 +396,116 @@ def test_catalog_registration_parser_returns_every_named_row() -> None:
         {"Material": "Steel A", "Code": "A", "E": "210,5"},
         {"Material": "Steel B", "Code": "B", "E": "205,0"},
     )
+
+
+def test_dma_frequency_temperature_sweep_normalizes_four_required_channels() -> None:
+    evidence = parse_governed_source_evidence(
+        b"temperature,frequency,storage,loss\n-40,1,1200,120\n20,1,900,90\n-20,10,1000,100\n",
+        _dma_profile(),
+    )
+
+    assert evidence.normalized.columns == (
+        QuantityKind.TEMPERATURE,
+        QuantityKind.FREQUENCY,
+        QuantityKind.STORAGE_MODULUS,
+        QuantityKind.LOSS_MODULUS,
+    )
+    assert evidence.normalized.rows[0] == pytest.approx(
+        (233.15, 1.0, 1_200_000_000.0, 120_000_000.0)
+    )
+    assert evidence.normalized.rows[-1] == pytest.approx(
+        (253.15, 10.0, 1_000_000_000.0, 100_000_000.0)
+    )
+    assert evidence.normalization_offsets == (273.15, 0.0, 0.0, 0.0)
+
+
+def test_dma_optional_tan_delta_and_xlsx_use_the_same_profile_rules() -> None:
+    source = _xlsx_table(
+        ("temperature", "frequency", "storage", "loss", "tan_delta"),
+        ((-30, 1, 1100, 110, 0.1), (30, 1, 800, 80, 0.1)),
+    )
+    parsed = parse_governed_source(
+        source,
+        _dma_profile(
+            file_format=TabularFileFormat.XLSX,
+            sheet_name="Data",
+            include_tan_delta=True,
+        ),
+    )
+
+    assert parsed.columns[-1] is QuantityKind.TAN_DELTA
+    assert parsed.rows[1] == pytest.approx((303.15, 1.0, 800_000_000.0, 80_000_000.0, 0.1))
+    assert normalized_parquet_bytes(parsed).startswith(b"PAR1")
+
+
+def test_forming_limit_accepts_signed_non_monotonic_strain_without_sorting() -> None:
+    parsed = parse_governed_source(
+        b"minor\tmajor\n-0.20\t0.32\n0.10\t0.28\n-0.05\t0.30\n",
+        _fld_profile(),
+    )
+
+    assert parsed.columns == (QuantityKind.MINOR_STRAIN, QuantityKind.MAJOR_STRAIN)
+    assert parsed.rows == ((-0.2, 0.32), (0.1, 0.28), (-0.05, 0.3))
+
+
+@pytest.mark.parametrize(
+    ("source", "profile", "codes"),
+    (
+        (
+            b"temperature,frequency,loss\n0,1,10\n20,1,8\n",
+            _dma_profile(),
+            {"missing_required_column"},
+        ),
+        (
+            b"temperature,frequency,storage,loss\n0,1,NaN,\n20,1,Inf,5\n",
+            _dma_profile(),
+            {"non_finite_value", "missing_value"},
+        ),
+        (
+            b"temperature,frequency,storage,loss\n0,1,10,5\n0,1,9,4\n",
+            _dma_profile(),
+            {"duplicate_coordinate"},
+        ),
+        (
+            b"temperature,frequency,storage,loss\n-274,1,10,5\n0,1,9,4\n",
+            _dma_profile(),
+            {"temperature_below_absolute_zero"},
+        ),
+        (
+            b"temperature,frequency,storage,loss\n0,0,10,5\n20,1,9,4\n",
+            _dma_profile(),
+            {"frequency_not_positive"},
+        ),
+        (
+            b"temperature,frequency,storage,loss\n0,1,-10,5\n20,1,9,4\n",
+            _dma_profile(),
+            {"negative_dma_response"},
+        ),
+        (
+            b"minor\tmajor\n-0.2\t0.3\n-0.2\t0.4\n",
+            _fld_profile(),
+            {"duplicate_coordinate"},
+        ),
+    ),
+)
+def test_dma_fld_fail_closed_with_structured_diagnostics(
+    source: bytes,
+    profile: GovernedImportProfileContent,
+    codes: set[str],
+) -> None:
+    with pytest.raises(InvalidGovernedImport) as caught:
+        parse_governed_source(source, profile)
+
+    assert codes <= {item.error_code for item in caught.value.diagnostics}
+    assert [item.ordinal for item in caught.value.diagnostics] == list(
+        range(len(caught.value.diagnostics))
+    )
+    assert all(item.recovery_hint for item in caught.value.diagnostics)
+
+
+def test_dma_and_fld_profiles_reject_wrong_channel_contracts() -> None:
+    with pytest.raises(InvalidGovernedImport, match="optional tan_delta"):
+        replace(_dma_profile(), channels=_dma_profile().channels[:3])
+
+    with pytest.raises(InvalidGovernedImport, match="minor_strain/major_strain"):
+        replace(_fld_profile(), channels=_axial_profile().channels)

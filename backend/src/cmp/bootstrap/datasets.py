@@ -960,6 +960,7 @@ def build_canonical_test_data_service(
     artifacts: ArtifactService | None,
     catalog: CatalogService | None = None,
     testing: TestingService | None = None,
+    governed_import: GovernedImportService | None = None,
 ) -> CanonicalTestDataService | None:
     """Compose canonical JSON import/export with immutable Artifacts and revision hooks."""
 
@@ -980,7 +981,11 @@ def build_canonical_test_data_service(
         governed_source_verifier=(
             None
             if catalog is None or testing is None
-            else CatalogTestingGovernedTestDataSourceVerifier(catalog=catalog, testing=testing)
+            else CatalogTestingGovernedTestDataSourceVerifier(
+                catalog=catalog,
+                testing=testing,
+                governed_import=governed_import,
+            )
         ),
     )
 

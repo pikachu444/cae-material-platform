@@ -103,8 +103,10 @@ from cmp.modules.datasets.domain.governed_tabular import (
     GOVERNED_IMPORT_PROFILE_SCHEMA_ID,
     AxisRole,
     GovernedChannelMapping,
+    GovernedImportConflict,
     GovernedImportNotFound,
     GovernedImportProfileContent,
+    ImportRunStatus,
     QuantityKind,
     TabularDataSchema,
     TabularFileFormat,
@@ -764,6 +766,286 @@ def test_governed_import_profile_is_typed_immutable_and_project_isolated(
                     "id": record.revision_id,
                 },
             )
+
+
+def test_issue209_dma_fld_imports_persist_retry_and_diagnostics_in_postgresql(
+    postgres: PostgresHarness,
+) -> None:
+    context = _context()
+    catalog_write = _decision(context, Permission.CATALOG_WRITE)
+    testing_write = _decision(context, Permission.TESTING_WRITE)
+    testing_read = _decision(context, Permission.TESTING_READ)
+    dataset_write = _decision(context, Permission.DATASET_WRITE)
+    dataset_read = _decision(context, Permission.DATASET_READ)
+    artifact_write = _decision(context, Permission.ARTIFACT_WRITE)
+    material = postgres.service.create_material(
+        context,
+        catalog_write,
+        CreateMaterial(
+            DataClassification.INTERNAL,
+            MaterialContent(
+                f"Issue 209 synthetic material {uuid4().hex[:8]}",
+                f"ISSUE-209-{uuid4().hex[:8]}",
+                "synthetic non-production",
+                material_class=MaterialClass.OTHER,
+            ),
+            "create bounded Issue 209 provenance fixture",
+        ),
+    )
+    state = postgres.service.create_material_state(
+        context,
+        catalog_write,
+        CreateMaterialState(
+            MaterialStateContent(
+                material.id,
+                material.current.record.revision_id,
+                "Issue 209 governed import state",
+            ),
+            "pin exact Issue 209 Material revision",
+        ),
+    )
+    specimen = postgres.testing.create_specimen(
+        context,
+        testing_write,
+        CreateSpecimen(
+            state.id,
+            state.current.record.revision_id,
+            f"ISSUE-209-{uuid4().hex[:8]}",
+            None,
+            "synthetic non-production DMA and FLD persistence fixture",
+            "create exact Issue 209 specimen",
+        ),
+    )
+    method = next(
+        (
+            item
+            for item in postgres.testing.list_test_methods(context, testing_read)
+            if item.current.content.method_code == "reference_uniaxial_tensile"
+        ),
+        None,
+    )
+    if method is None:
+        method = postgres.testing.create_reference_tensile_method(
+            context,
+            testing_write,
+            CreateReferenceTensileMethod(
+                DataClassification.INTERNAL,
+                "create a bounded synthetic Test Run method for Issue 209 persistence",
+            ),
+        )
+    test_run = postgres.testing.create_reference_tensile_run(
+        context,
+        testing_write,
+        CreateReferenceTensileRun(
+            specimen.id,
+            specimen.current.record.revision_id,
+            method.id,
+            method.current.record.revision_id,
+            f"Issue 209 governed source {uuid4().hex[:8]}",
+            NOW,
+            296.15,
+            1.0,
+            "create exact synthetic provenance context without selecting a production standard",
+        ),
+    )
+
+    dma_content = GovernedImportProfileContent(
+        profile_label=f"Issue 209 DMA {uuid4().hex[:8]}",
+        data_schema=TabularDataSchema.DMA_FREQUENCY_TEMPERATURE_SWEEP,
+        file_format=TabularFileFormat.CSV,
+        sheet_name=None,
+        header_row=1,
+        encoding="utf-8",
+        delimiter=",",
+        decimal_separator=".",
+        channels=(
+            GovernedChannelMapping(
+                0, "temperature_degC", QuantityKind.TEMPERATURE, "degC", AxisRole.INDEPENDENT
+            ),
+            GovernedChannelMapping(
+                1, "frequency_Hz", QuantityKind.FREQUENCY, "Hz", AxisRole.INDEPENDENT
+            ),
+            GovernedChannelMapping(
+                2, "storage_MPa", QuantityKind.STORAGE_MODULUS, "MPa", AxisRole.DEPENDENT
+            ),
+            GovernedChannelMapping(
+                3, "loss_MPa", QuantityKind.LOSS_MODULUS, "MPa", AxisRole.DEPENDENT
+            ),
+        ),
+    )
+    fld_content = GovernedImportProfileContent(
+        profile_label=f"Issue 209 FLD {uuid4().hex[:8]}",
+        data_schema=TabularDataSchema.FORMING_LIMIT,
+        file_format=TabularFileFormat.TSV,
+        sheet_name=None,
+        header_row=1,
+        encoding="utf-8",
+        delimiter="\t",
+        decimal_separator=".",
+        channels=(
+            GovernedChannelMapping(
+                0, "minor_strain", QuantityKind.MINOR_STRAIN, "1", AxisRole.INDEPENDENT
+            ),
+            GovernedChannelMapping(
+                1, "major_strain", QuantityKind.MAJOR_STRAIN, "1", AxisRole.DEPENDENT
+            ),
+        ),
+    )
+    profiles = {
+        content.data_schema: postgres.governed_imports.create_profile(
+            context,
+            dataset_write,
+            CreateImportProfile(
+                DataClassification.INTERNAL,
+                content,
+                f"approve exact synthetic {content.data_schema.value} mapping",
+            ),
+        )
+        for content in (dma_content, fld_content)
+    }
+
+    async def upload(payload: bytes, *, filename: str) -> tuple[UUID, UUID]:
+        created = await postgres.uploads.create(
+            context,
+            artifact_write,
+            CreateUpload(
+                classification=DataClassification.INTERNAL,
+                original_filename=filename,
+                media_type="text/tab-separated-values" if filename.endswith(".tsv") else "text/csv",
+                expected_size_bytes=len(payload),
+                expected_sha256=hashlib.sha256(payload).hexdigest(),
+                idempotency_key=f"issue209-upload-{uuid4()}",
+                part_size_bytes=64 * 1024,
+                test_run_revision_id=test_run.current.record.revision_id,
+            ),
+        )
+        await postgres.uploads.record_part(
+            context,
+            artifact_write,
+            RecordUploadPart(created.session.id, 1, created.capability),
+            _single_chunk(payload),
+        )
+        completed = await postgres.uploads.complete(
+            context,
+            artifact_write,
+            CompleteUpload(created.session.id, created.capability),
+        )
+        assert completed.available_artifact_id is not None
+        return completed.raw_asset.id, completed.available_artifact_id
+
+    async def exercise() -> None:
+        cases = (
+            (
+                TabularDataSchema.DMA_FREQUENCY_TEMPERATURE_SWEEP,
+                b"temperature_degC,frequency_Hz,storage_MPa,loss_MPa\n"
+                b"-40,1,1200,120\n-40,10,1100,115\n20,1,900,90\n",
+                "issue209-dma.csv",
+                4,
+            ),
+            (
+                TabularDataSchema.FORMING_LIMIT,
+                b"minor_strain\tmajor_strain\n-0.20\t0.32\n0.10\t0.28\n-0.05\t0.30\n",
+                "issue209-fld.tsv",
+                2,
+            ),
+        )
+        successful_run_id: UUID | None = None
+        for schema, payload, filename, channel_count in cases:
+            raw_asset_id, raw_artifact_id = await upload(payload, filename=filename)
+            profile = profiles[schema]
+            command_value = ExecuteGovernedImport(
+                test_run.id,
+                test_run.current.record.revision_id,
+                raw_asset_id,
+                raw_artifact_id,
+                profile.id,
+                profile.current.record.revision_id,
+                f"persist exact synthetic {schema.value} source",
+                f"issue209-import-{schema.value}-{uuid4()}",
+            )
+            imported = await postgres.governed_imports.execute(
+                context, dataset_write, command_value
+            )
+            replayed = await postgres.governed_imports.execute(
+                context, dataset_write, command_value
+            )
+            assert replayed == imported
+            assert imported.status is ImportRunStatus.SUCCEEDED
+            assert imported.profile_sha256 == profile.current.record.content_hash
+            assert imported.row_count == 3
+            assert imported.raw_dataset_id is not None
+            assert imported.raw_dataset_revision_id is not None
+            assert imported.normalized_dataset_id is not None
+            assert imported.normalized_dataset_revision_id is not None
+            raw = postgres.governed_import_repository.get_dataset_revision(
+                context=context,
+                decision=dataset_read,
+                dataset_id=imported.raw_dataset_id,
+                dataset_revision_id=imported.raw_dataset_revision_id,
+            )
+            normalized = postgres.governed_import_repository.get_dataset_revision(
+                context=context,
+                decision=dataset_read,
+                dataset_id=imported.normalized_dataset_id,
+                dataset_revision_id=imported.normalized_dataset_revision_id,
+            )
+            assert raw.content.data_sha256 == hashlib.sha256(payload).hexdigest()
+            assert raw.content.raw_artifact_id == raw_artifact_id
+            assert normalized.content.source_dataset_revision_id == raw.record.revision_id
+            assert normalized.content.data_schema is schema
+            assert len(normalized.content.channels) == channel_count
+            assert normalized.content.test_run_revision_id == test_run.current.record.revision_id
+            with pytest.raises(GovernedImportConflict, match="different immutable inputs"):
+                await postgres.governed_imports.execute(
+                    context,
+                    dataset_write,
+                    replace(command_value, change_reason="changed immutable request"),
+                )
+            successful_run_id = imported.id
+
+        invalid_payload = (
+            b"temperature_degC,frequency_Hz,storage_MPa,loss_MPa\n0,0,10,5\n20,1,NaN,5\n30,1,9,\n"
+        )
+        raw_asset_id, raw_artifact_id = await upload(
+            invalid_payload, filename="issue209-dma-invalid.csv"
+        )
+        dma_profile = profiles[TabularDataSchema.DMA_FREQUENCY_TEMPERATURE_SWEEP]
+        invalid_command = ExecuteGovernedImport(
+            test_run.id,
+            test_run.current.record.revision_id,
+            raw_asset_id,
+            raw_artifact_id,
+            dma_profile.id,
+            dma_profile.current.record.revision_id,
+            "persist deterministic Issue 209 rejection evidence",
+            f"issue209-import-invalid-{uuid4()}",
+        )
+        failed = await postgres.governed_imports.execute(context, dataset_write, invalid_command)
+        assert failed.status is ImportRunStatus.FAILED
+        assert failed.raw_dataset_id is None and failed.normalized_dataset_id is None
+        assert {item.error_code for item in failed.diagnostics} >= {
+            "frequency_not_positive",
+            "non_finite_value",
+            "missing_value",
+        }
+        assert (
+            postgres.governed_imports.get_run(context, dataset_read, failed.id).diagnostics
+            == failed.diagnostics
+        )
+        assert (
+            await postgres.governed_imports.execute(context, dataset_write, invalid_command)
+        ) == failed
+
+        assert successful_run_id is not None
+        other_context = _context(PROJECT_B)
+        with pytest.raises(GovernedImportNotFound, match="not visible"):
+            postgres.governed_imports.get_run(
+                other_context,
+                _decision(other_context, Permission.DATASET_READ),
+                successful_run_id,
+            )
+
+    asyncio.run(exercise())
 
 
 def test_material_state_property_revisions_are_immutable_tenant_scoped_and_provenanced(
@@ -1730,12 +2012,15 @@ def test_solver_card_is_source_pinned_immutable_provenanced_and_tenant_scoped(
     assert card.current.content.mapping_report_sha256 == report.digest
     assert "/MAT/ELAST/17/1" in card.current.content.card_text
     assert postgres.exporting.get_solver_card(context, export_read, card.id) == card
-    assert postgres.exporting.get_solver_card_revision(
-        context,
-        export_read,
-        card.id,
-        card.current.record.revision_id,
-    ) == card
+    assert (
+        postgres.exporting.get_solver_card_revision(
+            context,
+            export_read,
+            card.id,
+            card.current.record.revision_id,
+        )
+        == card
+    )
     assert postgres.exporting.list_solver_cards_for_model(context, export_read, model.id) == (card,)
     assert postgres.exporting.list_solver_card_revisions(context, export_read, card.id) == (
         card.current,
@@ -2223,6 +2508,7 @@ def test_multi_test_ogden_calibration_persists_exact_evidence_in_postgresql(
                 import_profile.id,
                 import_profile.current.record.revision_id,
                 "normalize exact T43 public synthetic curve",
+                f"t43-governed-import-{uuid4()}",
             ),
         )
         assert imported.normalized_dataset_id is not None

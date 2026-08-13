@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 from collections.abc import Iterator
 from datetime import UTC, datetime
@@ -107,6 +108,11 @@ TEST_DECISION = UUID("76000000-0000-4000-8000-00000000002d")
 TEST_REQUEST_AUTH = UUID("76000000-0000-4000-8000-00000000002e")
 TEST_EVENT = UUID("76000000-0000-4000-8000-00000000002f")
 TEST_REQUEST = UUID("76000000-0000-4000-8000-000000000030")
+TEST_GOVERNED_DOCUMENT = UUID("76000000-0000-4000-8000-000000000031")
+TEST_GOVERNED_REVISION = UUID("76000000-0000-4000-8000-000000000032")
+TEST_GOVERNED_EVENT = UUID("76000000-0000-4000-8000-000000000033")
+TEST_GOVERNED_REQUEST = UUID("76000000-0000-4000-8000-000000000034")
+TEST_GOVERNED_DECISION = UUID("76000000-0000-4000-8000-000000000035")
 DIGEST = "e" * 64
 RECORD_DIGEST = "b" * 64
 
@@ -590,23 +596,35 @@ def test_cmp_app_cross_principal_review_history_and_sod(postgres: tuple[Engine, 
     assert approved.decision.decided_by == REVIEWER
     with sessions() as session, session.begin():
         rls_context.bind_authorization(session, reviewer, reviewer_decide)
-        publication = session.execute(
-            sa.select(review_publication_projection_table).where(
-                review_publication_projection_table.c.review_request_id == REQUEST
+        publication = (
+            session.execute(
+                sa.select(review_publication_projection_table).where(
+                    review_publication_projection_table.c.review_request_id == REQUEST
+                )
             )
-        ).mappings().one()
-        marker = session.execute(
-            sa.select(catalog_publication_marker_table).where(
-                catalog_publication_marker_table.c.aggregate_id == RECORD,
-                catalog_publication_marker_table.c.revision_id == RECORD_REVISION,
+            .mappings()
+            .one()
+        )
+        marker = (
+            session.execute(
+                sa.select(catalog_publication_marker_table).where(
+                    catalog_publication_marker_table.c.aggregate_id == RECORD,
+                    catalog_publication_marker_table.c.revision_id == RECORD_REVISION,
+                )
             )
-        ).mappings().one()
-        binding = session.execute(
-            sa.select(domain_record_binding_table).where(
-                domain_record_binding_table.c.domain_object_id == AGGREGATE,
-                domain_record_binding_table.c.domain_revision_id == REVISION,
+            .mappings()
+            .one()
+        )
+        binding = (
+            session.execute(
+                sa.select(domain_record_binding_table).where(
+                    domain_record_binding_table.c.domain_object_id == AGGREGATE,
+                    domain_record_binding_table.c.domain_revision_id == REVISION,
+                )
             )
-        ).mappings().one()
+            .mappings()
+            .one()
+        )
     assert publication["subject_type"] == "catalog.material"
     assert publication["subject_id"] == AGGREGATE
     assert publication["subject_revision_id"] == REVISION
@@ -1372,6 +1390,128 @@ def test_cmp_app_test_data_document_review_requires_binding_digest_and_authoriza
                 "normalized_digest": "2" * 64,
             },
         )
+        connection.execute(
+            sa.text(
+                """
+                INSERT INTO datasets.test_data_document (
+                  id, organization_id, project_id, classification, document_key,
+                  current_revision_id, created_at, created_by, updated_at
+                ) VALUES (:id, :org, :project, :classification, 'REVIEW-DMA-209',
+                          :revision, :now, :author, :now)
+                """
+            ),
+            {
+                "id": TEST_GOVERNED_DOCUMENT,
+                "org": ORG,
+                "project": PROJECT,
+                "classification": DataClassification.INTERNAL.value,
+                "revision": TEST_GOVERNED_REVISION,
+                "now": NOW,
+                "author": AUTHOR,
+            },
+        )
+        connection.execute(
+            sa.text(
+                """
+                INSERT INTO datasets.test_data_document_revision (
+                  id, aggregate_id, organization_id, project_id, classification, revision_no,
+                  based_on_revision_id, schema_id, schema_version, content_hash, created_at,
+                  created_by, change_reason, request_id, trace_id, document_key, maker, grade,
+                  test_date, operator_name, laboratory, test_method, specimen_key,
+                  source_file_name, source_media_type, source_sha256, canonical_artifact_id,
+                  canonical_sha256, normalized_artifact_id, normalized_sha256, point_count,
+                  governed_source
+                ) VALUES (
+                  :revision, :id, :org, :project, :classification, 1, NULL,
+                  'urn:cmp:datasets:test-data-document', '1.0.0', :digest, :now, :author,
+                  'governed DMA review fixture', :request_id, 'fixture-trace', 'REVIEW-DMA-209',
+                  'CMP fixture lab', 'Synthetic DMA', '2026-08-13', 'Fixture operator',
+                  'CMP Lab', 'CMP-DMA-SYNTHETIC', 'SPEC-DMA-209', 'review-dma-209.csv',
+                  'text/csv', :source_digest, :canonical_artifact, :canonical_digest,
+                  :normalized_artifact, :normalized_digest, 2,
+                  CAST(:governed_source AS jsonb)
+                )
+                """
+            ),
+            {
+                "revision": TEST_GOVERNED_REVISION,
+                "id": TEST_GOVERNED_DOCUMENT,
+                "org": ORG,
+                "project": PROJECT,
+                "classification": DataClassification.INTERNAL.value,
+                "digest": "7" * 64,
+                "now": NOW,
+                "author": AUTHOR,
+                "request_id": TEST_GOVERNED_REVISION,
+                "source_digest": "8" * 64,
+                "canonical_artifact": TEST_CANONICAL_ARTIFACT,
+                "canonical_digest": "1" * 64,
+                "normalized_artifact": TEST_NORMALIZED_ARTIFACT,
+                "normalized_digest": "2" * 64,
+                "governed_source": json.dumps(
+                    {
+                        "material": {
+                            "aggregate_id": str(AGGREGATE),
+                            "revision_id": str(REVISION),
+                        },
+                        "material_state": {
+                            "aggregate_id": "76000000-0000-4000-8000-000000000036",
+                            "revision_id": "76000000-0000-4000-8000-000000000037",
+                        },
+                        "test_run": {
+                            "aggregate_id": "76000000-0000-4000-8000-000000000038",
+                            "revision_id": "76000000-0000-4000-8000-000000000039",
+                        },
+                        "tabular_import": {
+                            "raw_asset_id": "76000000-0000-4000-8000-00000000003a",
+                            "raw_artifact_id": "76000000-0000-4000-8000-00000000003b",
+                            "import_run_id": "76000000-0000-4000-8000-00000000003c",
+                            "import_profile": {
+                                "aggregate_id": "76000000-0000-4000-8000-00000000003d",
+                                "revision_id": "76000000-0000-4000-8000-00000000003e",
+                            },
+                            "normalized_dataset": {
+                                "aggregate_id": "76000000-0000-4000-8000-00000000003f",
+                                "revision_id": "76000000-0000-4000-8000-000000000040",
+                            },
+                        },
+                    }
+                ),
+            },
+        )
+        connection.execute(
+            sa.insert(lifecycle_event_table).values(
+                id=TEST_GOVERNED_EVENT,
+                organization_id=ORG,
+                project_id=PROJECT,
+                classification=DataClassification.INTERNAL.value,
+                aggregate_type="datasets.test_data_document",
+                aggregate_id=TEST_GOVERNED_DOCUMENT,
+                revision_id=TEST_GOVERNED_REVISION,
+                sequence_no=1,
+                from_state=None,
+                to_state=LifecycleState.DRAFT.value,
+                occurred_at=NOW,
+                actor_id=AUTHOR,
+                reason="governed DMA review fixture",
+                request_id=TEST_GOVERNED_REQUEST,
+                trace_id="fixture-trace",
+            )
+        )
+        connection.execute(
+            sa.insert(lifecycle_projection_table).values(
+                organization_id=ORG,
+                project_id=PROJECT,
+                classification=DataClassification.INTERNAL.value,
+                aggregate_type="datasets.test_data_document",
+                aggregate_id=TEST_GOVERNED_DOCUMENT,
+                revision_id=TEST_GOVERNED_REVISION,
+                lifecycle_state=LifecycleState.DRAFT.value,
+                sequence_no=1,
+                last_event_id=TEST_GOVERNED_EVENT,
+                updated_at=NOW,
+            )
+        )
 
     sessions = sessionmaker(app_engine)
     rls_context = SqlAlchemyRlsContext()
@@ -1393,10 +1533,18 @@ def test_cmp_app_test_data_document_review_requires_binding_digest_and_authoriza
     reviewer = _context(REVIEWER, UUID("76000000-0000-4000-8000-000000000030"))
     author_request = _decision(author, Permission.REVIEW_REQUEST, Role.MATERIAL_MODELER)
     reviewer_catalog_read = _decision(reviewer, Permission.CATALOG_READ, Role.DOMAIN_REVIEWER)
+    reviewer_review_read = _decision(reviewer, Permission.REVIEW_READ, Role.DOMAIN_REVIEWER)
     reviewer_decide = _decision(reviewer, Permission.REVIEW_DECIDE, Role.DOMAIN_REVIEWER)
     service = ReviewService(
         repository=repository,
-        id_factory=iter((TEST_REQUEST, TEST_DECISION)).__next__,
+        id_factory=iter(
+            (
+                TEST_REQUEST,
+                TEST_DECISION,
+                TEST_GOVERNED_REQUEST,
+                TEST_GOVERNED_DECISION,
+            )
+        ).__next__,
         clock=lambda: NOW,
         evidence_registry=evidence_registry,
     )
@@ -1445,6 +1593,61 @@ def test_cmp_app_test_data_document_review_requires_binding_digest_and_authoriza
         ),
     )
     assert published.total_count == 1
+    governed_request = service.create_request(
+        author,
+        author_request,
+        SubmitReviewRequest(
+            classification=DataClassification.INTERNAL,
+            aggregate_type="datasets.test_data_document",
+            aggregate_id=TEST_GOVERNED_DOCUMENT,
+            revision_id=TEST_GOVERNED_REVISION,
+            manifest_sha256="7" * 64,
+            reason="review exact governed DMA Test Data without a Record adapter",
+        ),
+    )
+    assert governed_request.evidence is not None
+    assert governed_request.evidence.affected_record_id is None
+    assert governed_request.evidence.affected_material_id == AGGREGATE
+    assert governed_request.evidence.affected_material_revision_id == REVISION
+    assert governed_request.evidence.affected_path == (
+        f"/materials/{AGGREGATE}?material_revision_id={REVISION}"
+    )
+    assert f"material:{AGGREGATE}:{REVISION}" in governed_request.evidence.exact_input_use
+    governed_approved = service.decide(
+        reviewer,
+        reviewer_decide,
+        TEST_GOVERNED_REQUEST,
+        DecideReviewRequest(
+            expected_manifest_sha256="7" * 64,
+            decision=ReviewDecisionKind.APPROVED,
+            reason="approve the exact governed DMA source and Material pin",
+        ),
+    )
+    assert governed_approved.lifecycle_state is LifecycleState.APPROVED
+    activity = service.list_requests(
+        reviewer,
+        reviewer_review_read,
+        limit=10,
+        aggregate_type="datasets.test_data_document",
+        aggregate_id=TEST_GOVERNED_DOCUMENT,
+        revision_id=TEST_GOVERNED_REVISION,
+    )
+    assert [item.id for item in activity] == [TEST_GOVERNED_REQUEST]
+    with sessions() as session, session.begin():
+        rls_context.bind_authorization(session, reviewer, reviewer_decide)
+        governed_projection = (
+            session.execute(
+                sa.select(review_publication_projection_table).where(
+                    review_publication_projection_table.c.review_request_id == TEST_GOVERNED_REQUEST
+                )
+            )
+            .mappings()
+            .one()
+        )
+    assert governed_projection["material_id"] == AGGREGATE
+    assert governed_projection["material_revision_id"] == REVISION
+    assert governed_projection["record_id"] is None
+    assert governed_projection["record_revision_id"] is None
     with pytest.raises(ReviewEvidenceError, match="manifest hint"):
         service.create_request(
             author,

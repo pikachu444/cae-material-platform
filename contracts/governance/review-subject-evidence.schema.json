@@ -18,7 +18,7 @@
     "created": {"type": "object", "additionalProperties": false, "required": ["by", "at"], "properties": {"by": {"type": "string", "format": "uuid"}, "at": {"type": "string", "format": "date-time"}}},
     "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
     "exact_input_use": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1, "maxLength": 500}},
-    "affected_materials": {"type": "object", "additionalProperties": false, "required": ["record_id", "record_revision_id", "path"], "properties": {"record_id": {"type": ["string", "null"], "format": "uuid"}, "record_revision_id": {"type": ["string", "null"], "format": "uuid"}, "path": {"type": ["string", "null"], "maxLength": 500}}},
+    "affected_materials": {"type": "object", "additionalProperties": false, "required": ["record_id", "record_revision_id", "path"], "properties": {"material_id": {"type": ["string", "null"], "format": "uuid"}, "material_revision_id": {"type": ["string", "null"], "format": "uuid"}, "record_id": {"type": ["string", "null"], "format": "uuid"}, "record_revision_id": {"type": ["string", "null"], "format": "uuid"}, "path": {"type": ["string", "null"], "maxLength": 500}}},
     "affected_table_id": {"type": ["string", "null"], "format": "uuid"},
     "affected_table_revision_id": {"type": ["string", "null"], "format": "uuid"},
     "output_artifact_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},

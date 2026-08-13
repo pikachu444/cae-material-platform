@@ -1,9 +1,10 @@
 # CSV/TSV/XLSX 시험 데이터 승인과 Dataset 생성
 
-이 절차는 T-41 governed importer를 사용해 공개 tabular 시험 파일의 원본을 변경 불가능한
-Raw Asset으로 보존하고, 사람이 channel과 unit 의미를 승인한 뒤 raw Dataset과 normalized SI
-Dataset을 별도로 만드는 방법을 설명합니다. 특정 시험기 vendor format을 자동 해석하거나
-제조사별 숨은 기본값을 적용하지 않습니다.
+이 절차는 governed importer를 사용해 공개 tabular 시험 파일의 원본을 변경 불가능한 Raw
+Asset으로 보존하고, 사람이 channel과 unit 의미를 승인한 뒤 raw Dataset과 normalized SI
+Dataset을 별도로 만드는 방법을 설명합니다. 단축 시험과 shear relaxation 외에 DMA
+frequency-temperature sweep와 forming limit diagram(FLD)을 같은 수명주기로 등록할 수 있습니다.
+특정 시험기 vendor format을 자동 해석하거나 제조사별 숨은 기본값을 적용하지 않습니다.
 
 ## 준비
 
@@ -11,6 +12,23 @@ Dataset을 별도로 만드는 방법을 설명합니다. 특정 시험기 vendo
 - Material 상세에서 Material State, Specimen, Test Method와 Test Run을 먼저 만듭니다.
 - 예제는 [`reference-tensile.csv`](../../examples/data/reference-tensile.csv)를 사용합니다.
   값은 공개 시연용 synthetic data이며 설계나 재료 승인에 사용할 수 없습니다.
+
+DMA와 FLD 원본도 기밀 식별자가 없는 synthetic non-production 값만 사용합니다. 다음 모양은
+column 예시일 뿐 시험 표준이나 승인 기준을 선택하지 않습니다.
+
+```csv
+temperature_c,frequency_hz,storage_mpa,loss_mpa,tan_delta
+-40,1,1480,118,0.0797
+-40,10,1540,126,0.0818
+20,1,920,164,0.1783
+```
+
+```text
+minor_strain_pct\tmajor_strain_pct
+-12\t28
+-4\t22
+6\t25
+```
 
 ## Modeling Data에서 시작
 
@@ -54,8 +72,11 @@ Profile이 없거나 둘 이상이면 주의 표시가 난 항목만 확인합�
    - monotonic tension/compression
    - planar tension, biaxial tension, simple shear
    - shear relaxation
-2. 작은 select에서 Independent/Dependent 축의 source column을 preview header에서 선택합니다.
-3. 각 축의 source unit을 선택합니다. 예제 파일은 strain `%`, stress `MPa`입니다. normalized
+   - DMA frequency-temperature sweep
+   - forming limit diagram (FLD)
+2. decision table에서 각 channel의 source column을 preview header에서 선택합니다. 같은 source
+   column을 두 의미에 함께 지정할 수 없습니다.
+3. 각 channel의 source unit을 선택합니다. 인장 예제는 strain `%`, stress `MPa`입니다. normalized
    unit은 변환 결과로 표시되며 원래 unit을 덮어쓰지 않습니다.
 4. **Update preview**를 실행해 등록 전 curve와 original/normalized unit을 확인합니다.
 5. 그래프가 의도한 시험을 나타낼 때 **Save Test Data**를 실행합니다.
@@ -63,6 +84,17 @@ Profile이 없거나 둘 이상이면 주의 표시가 난 항목만 확인합�
 Profile은 file format, sheet/header/locale, column, quantity, original unit과 normalized unit을
 고정한 revision입니다. 설정을 고칠 때 기존 Profile revision을 덮어쓰지 않고 새 revision을
 만듭니다.
+
+DMA와 FLD Profile은 다음 의미를 각각 독립적으로 고정합니다.
+
+| Profile | 필수 channel | 선택 channel | 허용 원본 unit → normalized unit |
+| --- | --- | --- | --- |
+| DMA frequency-temperature sweep | Temperature·Frequency는 Independent, Storage modulus·Loss modulus는 Dependent | Tan delta(Dependent) | `degC`/`K` → `K`, `Hz` → `Hz`, `Pa`/`kPa`/`MPa`/`GPa` → `Pa`, tan delta `1` → `1` |
+| Forming limit diagram | Minor strain은 Independent, Major strain은 Dependent | 없음 | 각 strain `1`/`%` → `1` |
+
+DMA의 `Hz`는 기존 explicit-legacy channel 계약만 재사용합니다. 이 절차가 공통 단위 registry나
+추가 bundle adapter를 만드는 것은 아닙니다. FLD의 signed strain과 입력 순서는 그대로 허용하며,
+DMA와 FLD 어느 쪽도 row를 자동 정렬하거나 monotonic curve로 바꾸지 않습니다.
 
 Force/displacement 원본을 사용할 때는 **Source is displacement / force**를 선택하고 양수인
 initial gauge length와 cross-section area를 SI 단위로 입력해야 합니다. 이 geometry가 없으면
@@ -81,12 +113,39 @@ stress/strain 파생을 실행하지 않습니다. 이 경로는 monotonic tensi
 - raw Dataset revision: 원래 channel 이름, quantity와 unit 의미
 - normalized Dataset revision: SI로 변환된 별도 Parquet Artifact
 - Import Run: exact Test Run, Raw Asset/Artifact와 Profile revision pin
+- canonical Test Data revision: normalized channel 값과 exact Material, Material State, Test Run,
+  Import Run, Profile, normalized Dataset pin
 
 형식, 숫자, 단위 또는 schema 검증이 실패하면 원본이나 성공 결과를 일부 수정하지 않습니다.
 mapping이 잘못된 동안에는 마지막 정상 graph를 그대로 두고 **Update preview**와 **Save Test Data**를
 비활성화합니다. mapping을 고친 뒤에만 다시 preview하고 저장할 수 있습니다. Import Run은 `failed`
-terminal evidence로 남고 failure code/detail과 발견한 row 번호를 표시합니다. 설정을 수정한 새
-Profile revision으로 다시 실행하십시오.
+terminal evidence로 남고 각 오류의 row, column, channel 원인과 가능한 조치를 표시합니다. 누락된
+column/cell, 숫자가 아닌 값, NaN/Inf를 한 파일에서 함께 찾아도 성공 row만 저장하지 않고 파일
+전체를 거부합니다. DMA에서는 0 K 미만, 0 Hz 이하, 음수 storage/loss/tan delta와 중복
+temperature-frequency 좌표를 거부합니다. FLD에서는 중복 minor strain 좌표만 거부하며 signed 값과
+비단조 순서는 오류가 아닙니다.
+
+mapping은 완성됐지만 파일 값 검증에서 preview가 거부되면 **Record rejected import**를 누릅니다.
+이 동작은 같은 원본과 Profile로 실패 Import Run을 기록해 row/cell 진단을 보여 주며 Test Data는
+만들지 않습니다. 버튼을 다시 눌러도 같은 retry identity와 Run 결과를 읽습니다. **Update preview**는
+검증을 다시 시도할 때 사용하고, 값을 수정할 때는 기존 원본을 덮어쓰지 말고 새 파일을 선택합니다.
+
+원본·Profile·Test Run·문서 키가 같은 상태에서 저장을 다시 누르면 같은 idempotency key의 동일한
+Import Run 결과를 읽습니다. 중복 Dataset이나 Test Data revision을 만들지 않습니다. 값을 고치려면
+새 파일을 선택하십시오. 새 Raw Asset/Artifact와 새 요청으로 검증하되 실패 evidence와 이전 원본은
+그대로 남습니다.
+
+## 4. exact revision 검토와 후속 경계
+
+저장된 Test Data의 Review Request는 exact Test Data revision과 source Artifact digest를 사용합니다.
+현재 exact configurable Record 연결이 있으면 그 Record revision을, 연결이 없으면 저장된 governed
+source의 exact Material revision을 서버가 검증해 projection에 고정합니다. 일반 Test Data가 아무
+연결도 없이 제출되는 경로는 계속 거부됩니다. 제출, 변경 요청, 승인은 Activity에서 별도 상태로
+보이며 import 성공을 자동 승인으로 표시하지 않습니다.
+
+이번 DMA Profile은 Data에서 등록·조회·검토하는 frequency-temperature source입니다. DMA→Prony,
+master curve, Material Model IR 또는 Fit 입력으로 자동 연결하지 않습니다. FLD도 canonical Test Data로
+보존되지만 model fitting이나 forming simulation을 시작하지 않습니다.
 
 ## 안전 제한
 
@@ -98,8 +157,8 @@ Profile revision으로 다시 실행하십시오.
 - 다른 organization/project의 Profile, Run, Dataset은 PostgreSQL RLS로 보이지 않습니다.
 - 현재 지원 목록 밖의 proprietary laboratory format은 별도 승인된 importer가 필요합니다.
 
-다음 단계는 normalized Dataset을 Processing/Statistics 또는 Material Model calibration의 exact
-Selection으로 고정하는 것입니다. **Process**에서는 원본과 선택한 처리 단계를 같은 그래프에서
+처리 adapter가 이미 승인된 기존 schema의 다음 단계는 normalized Dataset을 Processing/Statistics
+또는 Material Model calibration의 exact Selection으로 고정하는 것입니다. **Process**에서는 원본과 선택한 처리 단계를 같은 그래프에서
 구분해 보고 **Preview processing**으로 먼저 계산합니다. 검토가 끝난 경우에만 상단의
 **Commit reviewed output**으로 immutable Processing Output을 만듭니다. 원본 Dataset에서 outlier
 row를 삭제하거나 평균 curve로 대체하지 마십시오.

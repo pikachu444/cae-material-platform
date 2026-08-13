@@ -16,6 +16,7 @@ from cmp.modules.datasets.application.canonical_test_data import (
     TEST_DATA_DOCUMENT_AGGREGATE_TYPE,
     CanonicalTestDataRepository,
     ExactRevisionRef,
+    GovernedTabularTestDataSource,
     GovernedTestDataSource,
     TestDataChannelSummary,
     TestDataDocumentContent,
@@ -186,6 +187,33 @@ def _content_values(value: TestDataDocumentContent) -> dict[str, object]:
                     "aggregate_id": str(value.governed_source.test_run.aggregate_id),
                     "revision_id": str(value.governed_source.test_run.revision_id),
                 },
+                "tabular_import": (
+                    None
+                    if value.governed_source.tabular_import is None
+                    else {
+                        "raw_asset_id": str(value.governed_source.tabular_import.raw_asset_id),
+                        "raw_artifact_id": str(
+                            value.governed_source.tabular_import.raw_artifact_id
+                        ),
+                        "import_run_id": str(value.governed_source.tabular_import.import_run_id),
+                        "import_profile": {
+                            "aggregate_id": str(
+                                value.governed_source.tabular_import.import_profile.aggregate_id
+                            ),
+                            "revision_id": str(
+                                value.governed_source.tabular_import.import_profile.revision_id
+                            ),
+                        },
+                        "normalized_dataset": {
+                            "aggregate_id": str(
+                                value.governed_source.tabular_import.normalized_dataset.aggregate_id
+                            ),
+                            "revision_id": str(
+                                value.governed_source.tabular_import.normalized_dataset.revision_id
+                            ),
+                        },
+                    }
+                ),
             }
         ),
     }
@@ -345,6 +373,29 @@ def _content(
                 test_run=ExactRevisionRef(
                     UUID(str(governed["test_run"]["aggregate_id"])),
                     UUID(str(governed["test_run"]["revision_id"])),
+                ),
+                tabular_import=(
+                    None
+                    if governed.get("tabular_import") is None
+                    else GovernedTabularTestDataSource(
+                        raw_asset_id=UUID(str(governed["tabular_import"]["raw_asset_id"])),
+                        raw_artifact_id=UUID(str(governed["tabular_import"]["raw_artifact_id"])),
+                        import_run_id=UUID(str(governed["tabular_import"]["import_run_id"])),
+                        import_profile=ExactRevisionRef(
+                            UUID(str(governed["tabular_import"]["import_profile"]["aggregate_id"])),
+                            UUID(str(governed["tabular_import"]["import_profile"]["revision_id"])),
+                        ),
+                        normalized_dataset=ExactRevisionRef(
+                            UUID(
+                                str(
+                                    governed["tabular_import"]["normalized_dataset"]["aggregate_id"]
+                                )
+                            ),
+                            UUID(
+                                str(governed["tabular_import"]["normalized_dataset"]["revision_id"])
+                            ),
+                        ),
+                    )
                 ),
             )
         ),

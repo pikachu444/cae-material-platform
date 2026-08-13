@@ -69,6 +69,8 @@ class ReviewSubjectEvidence:
     affected_record_id: UUID | None
     affected_record_revision_id: UUID | None
     affected_path: str | None = None
+    affected_material_id: UUID | None = None
+    affected_material_revision_id: UUID | None = None
     affected_table_id: UUID | None = None
     affected_table_revision_id: UUID | None = None
     output_artifact_sha256: str | None = None
@@ -85,6 +87,8 @@ class ReviewSubjectEvidence:
             ("created_by", self.created_by),
             ("neutral_material_id", self.neutral_material_id),
             ("neutral_material_revision_id", self.neutral_material_revision_id),
+            ("affected_material_id", self.affected_material_id),
+            ("affected_material_revision_id", self.affected_material_revision_id),
             ("affected_table_id", self.affected_table_id),
             ("affected_table_revision_id", self.affected_table_revision_id),
         ):
@@ -142,6 +146,8 @@ class ReviewSubjectEvidence:
             raise ReviewEvidenceError("exact_input_use must contain at least one trimmed path")
         if (self.affected_record_id is None) != (self.affected_record_revision_id is None):
             raise ReviewEvidenceError("affected Record identity and revision must be paired")
+        if (self.affected_material_id is None) != (self.affected_material_revision_id is None):
+            raise ReviewEvidenceError("affected Material identity and revision must be paired")
         if (self.affected_table_id is None) != (self.affected_table_revision_id is None):
             raise ReviewEvidenceError("affected Record table identity and revision must be paired")
         if self.affected_record_id is not None and self.affected_table_id is None:
@@ -169,6 +175,14 @@ class ReviewSubjectEvidence:
             "change_reason": self.change_reason,
             "exact_input_use": list(self.exact_input_use),
             "affected_materials": {
+                "material_id": (
+                    str(self.affected_material_id) if self.affected_material_id else None
+                ),
+                "material_revision_id": (
+                    str(self.affected_material_revision_id)
+                    if self.affected_material_revision_id
+                    else None
+                ),
                 "record_id": str(self.affected_record_id) if self.affected_record_id else None,
                 "record_revision_id": str(self.affected_record_revision_id)
                 if self.affected_record_revision_id
@@ -243,6 +257,8 @@ class ReviewSubjectEvidence:
             affected_record_id=_uuid_or_none(affected.get("record_id")),
             affected_record_revision_id=_uuid_or_none(affected.get("record_revision_id")),
             affected_path=(str(affected["path"]) if affected.get("path") is not None else None),
+            affected_material_id=_uuid_or_none(affected.get("material_id")),
+            affected_material_revision_id=_uuid_or_none(affected.get("material_revision_id")),
             affected_table_id=_uuid_or_none(snapshot.get("affected_table_id")),
             affected_table_revision_id=_uuid_or_none(snapshot.get("affected_table_revision_id")),
             output_artifact_sha256=(
@@ -321,9 +337,9 @@ class ReviewSubjectEvidenceRegistry:
             return cast(
                 ReviewSubjectEvidence | None,
                 scoped_resolve(
-                context=context,
-                authorization_decision=authorization_decision,
-                **kwargs,
+                    context=context,
+                    authorization_decision=authorization_decision,
+                    **kwargs,
                 ),
             )
         legacy_resolve = getattr(resolver, "resolve", None)

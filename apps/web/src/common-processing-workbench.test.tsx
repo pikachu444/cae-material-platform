@@ -4,11 +4,37 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   CommonProcessingWorkbench,
+  documentIsPolymerDma,
+  documentMatchesDataTrack,
   fitSurfaceState,
   fitRailIdentity,
   manualModulusDisplayValue,
   manualModulusPascals,
 } from "./common-processing-workbench";
+
+describe("Governed DMA/FLD Data boundaries", () => {
+  const document = (semantics: string[]) => ({
+    channels: semantics.map((quantity_semantics) => ({ quantity_semantics })),
+    method: "bounded governed import",
+  }) as never;
+
+  it("shows source-v2 DMA semantics in Data without enabling the Prony Fit adapter", () => {
+    const dma = document([
+      "physics.temperature",
+      "frequency.cyclic",
+      "mechanics.modulus.storage",
+      "mechanics.modulus.loss",
+    ]);
+    expect(documentMatchesDataTrack(dma, "polymer")).toBe(true);
+    expect(documentIsPolymerDma(dma)).toBe(false);
+  });
+
+  it("keeps governed FLD as first-class Metal Data without treating it as tensile Fit input", () => {
+    const fld = document(["mechanics.strain.minor", "mechanics.strain.major"]);
+    expect(documentMatchesDataTrack(fld, "metal")).toBe(true);
+    expect(documentMatchesDataTrack(fld, "polymer")).toBe(false);
+  });
+});
 
 describe("Fit surface state mapping", () => {
   const base = {

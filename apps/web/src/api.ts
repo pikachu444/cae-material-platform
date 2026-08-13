@@ -4641,9 +4641,11 @@ export function executeGovernedTabularImport(
     import_profile_revision_id: string;
     change_reason: string;
   },
+  idempotencyKey: string = crypto.randomUUID(),
 ): Promise<ApiResult<GovernedImportRunResponse>> {
   return request(config, "/tabular-import-runs", {
     method: "POST",
+    headers: { "Idempotency-Key": idempotencyKey },
     body: JSON.stringify(input),
   });
 }

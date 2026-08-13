@@ -4,6 +4,7 @@ import { startTransition, Suspense, useState } from "react";
 
 import {
   ModelingDataIntake,
+  channelMappingBlockers,
   governedSourceFor,
   mappingBlockers,
   mappingUnitConsequence,
@@ -120,6 +121,21 @@ describe("Modeling data intake", () => {
       dependentUnit: "%",
       quantities,
     })).toContain("Engineering stress cannot use “%”. Choose Pa, kPa, MPa, or GPa.");
+  });
+
+  it("requires every bounded DMA channel without adding source-v2 adapters", () => {
+    const quantities = ["temperature", "frequency", "storage_modulus", "loss_modulus"] as const;
+
+    expect(channelMappingBlockers({
+      columns: ["temperature", "frequency", "storage", "loss"],
+      units: ["degC", "Hz", "MPa", "MPa"],
+      quantities,
+    })).toEqual([]);
+    expect(channelMappingBlockers({
+      columns: ["temperature", "frequency", "storage", "storage"],
+      units: ["degC", "Hz", "MPa", "MPa"],
+      quantities,
+    })).toContain("Use a different source column for each required channel.");
   });
 
   it("explains original and normalized units in the mapping recovery decision", () => {
@@ -454,6 +470,200 @@ describe("Modeling data intake", () => {
     expect(recovery?.closest(".data-mapping-decision")).toBeNull();
     expect(grid?.firstElementChild?.classList.contains("data-source-evidence")).toBe(true);
     expect(grid?.children[1]).toBe(mapping);
+
+    fireEvent.change(screen.getByRole("combobox", { name: "Local data schema" }), {
+      target: { value: "dma_frequency_temperature_sweep" },
+    });
+    expect(screen.getByRole("combobox", { name: "Temperature source column" })).toBeTruthy();
+    expect(screen.getByRole("combobox", { name: "Frequency source column" })).toBeTruthy();
+    expect(screen.getByRole("combobox", { name: "Storage modulus source column" })).toBeTruthy();
+    expect(screen.getByRole("combobox", { name: "Loss modulus source column" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("checkbox", { name: "Include optional tan delta channel" }));
+    expect(screen.getByRole("combobox", { name: "Tan delta source column" })).toBeTruthy();
+
+    fireEvent.change(screen.getByRole("combobox", { name: "Local data schema" }), {
+      target: { value: "forming_limit_diagram" },
+    });
+    expect(screen.getByRole("combobox", { name: "Minor strain source column" })).toBeTruthy();
+    expect(screen.getByRole("combobox", { name: "Major strain source column" })).toBeTruthy();
+    expect(screen.queryByRole("combobox", { name: "Temperature source column" })).toBeNull();
+  });
+
+  it("records structured governed diagnostics after a rejected DMA preview and reuses the retry identity", async () => {
+    const material = {
+      material_id: "material-1",
+      current_revision: {
+        ...revision,
+        id: "material-revision-1",
+        content: { material_code: "DP600", name: "DP600" },
+      },
+    };
+    const state = {
+      material_state_id: "state-1",
+      current_revision: {
+        ...revision,
+        id: "state-revision-1",
+        content: { lot_or_batch: "LOT-1" },
+      },
+    };
+    const testRun = {
+      test_run_id: "test-run-1",
+      specimen_id: "S-1",
+      test_method_id: "method-1",
+      current_revision: {
+        ...revision,
+        id: "test-run-revision-1",
+        content: {
+          run_label: "DMA frequency-temperature sweep",
+          performed_at: "2026-08-13T00:00:00Z",
+          specimen_id: "S-1",
+        },
+      },
+      links: {},
+    };
+    const upload = { upload_id: "upload-1", expected_part_count: 1, part_size_bytes: 1024 };
+    const rawAsset = {
+      raw_asset_id: "raw-1",
+      organization_id: "org-1",
+      project_id: "project-1",
+      classification: "internal",
+      sha256: "a".repeat(64),
+      size_bytes: 95,
+      media_type: "text/csv",
+      original_filename: "dma-invalid.csv",
+      storage_state: "staged_verified",
+    };
+    const preview: GovernedImportPreview = {
+      preview_report_id: "preview-1",
+      classification: "internal",
+      raw_asset_id: "raw-1",
+      raw_artifact_id: "artifact-1",
+      raw_sha256: "b".repeat(64),
+      file_format: "csv",
+      sheet_names: [],
+      selected_sheet_name: null,
+      header_row: 1,
+      encoding: "utf-8",
+      delimiter: ",",
+      decimal_separator: ".",
+      header_columns: ["temperature", "frequency", "storage", "loss"],
+      sample_rows: [["23", "0", "1200", "80"]],
+      status: "needs_input",
+      report_sha256: "c".repeat(64),
+    };
+    const retryKeys: string[] = [];
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+      const url = String(input);
+      if (url.endsWith("/material-states/state-1/test-runs")) return jsonResponse({ items: [testRun] });
+      if (url.endsWith("/import-profiles") && (!init?.method || init.method === "GET")) return jsonResponse({ items: [] });
+      if (url.endsWith("/uploads") && init?.method === "POST") {
+        return jsonResponse({ upload, upload_capability: "capability-1" });
+      }
+      if (url.endsWith("/uploads/upload-1/parts/1") && init?.method === "PUT") return jsonResponse(upload);
+      if (url.endsWith("/uploads/upload-1:complete") && init?.method === "POST") {
+        return jsonResponse({ upload, raw_asset: rawAsset, available_artifact_id: "artifact-1" });
+      }
+      if (url.endsWith("/tabular-import-previews") && init?.method === "POST") return jsonResponse(preview);
+      if (url.endsWith("/test-data:convert-tabular") && init?.method === "POST") {
+        return jsonResponse({ detail: "Frequency must be greater than zero at row 2." }, 422);
+      }
+      if (url.endsWith("/import-profiles") && init?.method === "POST") {
+        const body = JSON.parse(String(init.body)) as { content: Record<string, unknown> };
+        return jsonResponse({
+          import_profile_id: "profile-1",
+          current_revision: { ...revision, id: "profile-revision-1" },
+          content: { ...body.content, profile_sha256: "d".repeat(64) },
+        });
+      }
+      if (url.endsWith("/tabular-import-runs") && init?.method === "POST") {
+        retryKeys.push(new Headers(init.headers).get("Idempotency-Key") ?? "");
+        return jsonResponse({
+          import_run_id: "import-run-1",
+          classification: "internal",
+          test_run_id: "test-run-1",
+          test_run_revision_id: "test-run-revision-1",
+          raw_asset_id: "raw-1",
+          raw_artifact_id: "artifact-1",
+          import_profile_id: "profile-1",
+          import_profile_revision_id: "profile-revision-1",
+          profile_sha256: "d".repeat(64),
+          idempotency_key: retryKeys.at(-1),
+          request_sha256: "e".repeat(64),
+          status: "failed",
+          started_at: "2026-08-13T00:00:00Z",
+          finished_at: "2026-08-13T00:00:01Z",
+          raw_dataset_id: null,
+          raw_dataset_revision_id: null,
+          normalized_dataset_id: null,
+          normalized_dataset_revision_id: null,
+          row_count: null,
+          failure_code: "non_positive_frequency",
+          failure_detail: "The governed import rejected the whole file.",
+          diagnostics: [{
+            ordinal: 0,
+            row_number: 2,
+            column_name: "frequency",
+            channel_key: "frequency",
+            error_code: "non_positive_frequency",
+            error_detail: "Frequency must be greater than zero.",
+            recovery_hint: "Choose a corrected file with positive frequency values.",
+          }],
+        });
+      }
+      throw new Error(`unexpected request: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const onImported = vi.fn();
+
+    render(
+      <ModelingDataIntake
+        config={{ baseUrl: "/api/v1", accessToken: "token" }}
+        material={material as never}
+        state={state as never}
+        documents={[]}
+        selectedDocumentId=""
+        processingMappingProfileText="{}"
+        onSelectDocument={() => undefined}
+        onPreviewDocument={() => undefined}
+        onImported={onImported}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("tab", { name: "Local file" }));
+    fireEvent.change(await screen.findByRole("combobox", { name: "Local file Test Run" }), {
+      target: { value: "test-run-1" },
+    });
+    fireEvent.change(screen.getByLabelText("Local test data file"), {
+      target: { files: [new File([
+        "temperature,frequency,storage,loss\n23,0,1200,80\n",
+      ], "dma-invalid.csv", { type: "text/csv" })] },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Inspect source" }));
+    await screen.findByRole("region", { name: "Raw source table preview" });
+    fireEvent.change(screen.getByRole("combobox", { name: "Local data schema" }), {
+      target: { value: "dma_frequency_temperature_sweep" },
+    });
+    fireEvent.change(screen.getByLabelText("Mapping change reason"), {
+      target: { value: "The source columns are the recorded DMA channels." },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: "Operator" }), { target: { value: "Analyst" } });
+    fireEvent.change(screen.getByRole("textbox", { name: "Laboratory" }), { target: { value: "Lab A" } });
+    fireEvent.click(screen.getByRole("button", { name: "Update preview" }));
+
+    const recordButton = await screen.findByRole("button", { name: "Record rejected import" });
+    expect(screen.getByText(/Frequency must be greater than zero at row 2/)).toBeTruthy();
+    fireEvent.click(recordButton);
+    expect(await screen.findByText("Frequency must be greater than zero.")).toBeTruthy();
+    expect(screen.getByText("Choose a corrected file with positive frequency values.")).toBeTruthy();
+    expect(onImported).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Record rejected import" }));
+    await waitFor(() => expect(retryKeys).toHaveLength(2));
+    expect(retryKeys[0]).not.toBe("");
+    expect(retryKeys[1]).toBe(retryKeys[0]);
+    expect(fetchMock.mock.calls.filter(([input, init]) =>
+      String(input).endsWith("/import-profiles") && init?.method === "POST")).toHaveLength(1);
+    expect(fetchMock.mock.calls.some(([input]) => String(input).endsWith("/test-data-documents"))).toBe(false);
   });
 
   it("builds governed local-file proof from exact Material, State, and Test Run revisions", () => {
@@ -493,6 +703,46 @@ describe("Modeling data intake", () => {
       test_run: {
         aggregate_id: "53000000-0000-4000-8000-000000000044",
         revision_id: "53000000-0000-4000-8000-000000000045",
+      },
+    });
+  });
+
+  it("adds the successful exact import and normalized Dataset pins to Test Data proof", () => {
+    const proof = governedSourceFor(
+      {
+        material_id: "53000000-0000-4000-8000-000000000040",
+        current_revision: { ...revision, id: "53000000-0000-4000-8000-000000000041" },
+      } as never,
+      {
+        material_state_id: "53000000-0000-4000-8000-000000000042",
+        current_revision: { ...revision, id: "53000000-0000-4000-8000-000000000043" },
+      } as never,
+      {
+        test_run_id: "53000000-0000-4000-8000-000000000044",
+        current_revision: { ...revision, id: "53000000-0000-4000-8000-000000000045" },
+      } as never,
+      {
+        import_run_id: "53000000-0000-4000-8000-000000000050",
+        raw_asset_id: "53000000-0000-4000-8000-000000000051",
+        raw_artifact_id: "53000000-0000-4000-8000-000000000052",
+        import_profile_id: "53000000-0000-4000-8000-000000000053",
+        import_profile_revision_id: "53000000-0000-4000-8000-000000000054",
+        normalized_dataset_id: "53000000-0000-4000-8000-000000000055",
+        normalized_dataset_revision_id: "53000000-0000-4000-8000-000000000056",
+      } as never,
+    );
+
+    expect(proof.tabular_import).toEqual({
+      raw_asset_id: "53000000-0000-4000-8000-000000000051",
+      raw_artifact_id: "53000000-0000-4000-8000-000000000052",
+      import_run_id: "53000000-0000-4000-8000-000000000050",
+      import_profile: {
+        aggregate_id: "53000000-0000-4000-8000-000000000053",
+        revision_id: "53000000-0000-4000-8000-000000000054",
+      },
+      normalized_dataset: {
+        aggregate_id: "53000000-0000-4000-8000-000000000055",
+        revision_id: "53000000-0000-4000-8000-000000000056",
       },
     });
   });

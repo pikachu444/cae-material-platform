@@ -16,9 +16,7 @@ assert _SPEC is not None and _SPEC.loader is not None
 _SEED_FULL_DEMO = module_from_spec(_SPEC)
 _SPEC.loader.exec_module(_SEED_FULL_DEMO)
 _ensure_governed_test_data_revision = _SEED_FULL_DEMO._ensure_governed_test_data_revision
-_governed_sources_for_tensile_documents = (
-    _SEED_FULL_DEMO._governed_sources_for_tensile_documents
-)
+_governed_sources_for_tensile_documents = _SEED_FULL_DEMO._governed_sources_for_tensile_documents
 _canonical_recipe_content = _SEED_FULL_DEMO._canonical_recipe_content
 _ensure_canonical_recipe = _SEED_FULL_DEMO._ensure_canonical_recipe
 _ensure_canonical_batch = _SEED_FULL_DEMO._ensure_canonical_batch
@@ -66,8 +64,9 @@ class _LegacyDemoApi:
         }
 
 
-def test_legacy_demo_test_data_advances_to_proof_bearing_revision_without_mutating_history(
-) -> None:
+def test_legacy_demo_test_data_advances_to_proof_bearing_revision_without_mutating_history() -> (
+    None
+):
     api = _LegacyDemoApi()
     governed_source = {
         "material": {"aggregate_id": "material-1", "revision_id": "material-r1"},
@@ -82,6 +81,19 @@ def test_legacy_demo_test_data_advances_to_proof_bearing_revision_without_mutati
     assert current["current_revision"]["id"] == "revision-2"
     assert current["governed_source"] == governed_source
     assert _ensure_governed_test_data_revision(api, current, governed_source) == current
+    response_with_optional_null = deepcopy(current)
+    response_with_optional_null["governed_source"] = {
+        **governed_source,
+        "tabular_import": None,
+    }
+    assert (
+        _ensure_governed_test_data_revision(
+            api,
+            response_with_optional_null,
+            governed_source,
+        )
+        == response_with_optional_null
+    )
     assert len(api.writes) == 1
 
 
@@ -166,9 +178,7 @@ def test_tensile_demo_documents_pin_their_matching_distinct_test_runs() -> None:
         {"aggregate_id": "run-3", "revision_id": "run-r3"},
     ]
     assert {source["material"]["revision_id"] for source in sources.values()} == {"material-r1"}
-    assert {source["material_state"]["revision_id"] for source in sources.values()} == {
-        "state-r1"
-    }
+    assert {source["material_state"]["revision_id"] for source in sources.values()} == {"state-r1"}
 
 
 def test_tensile_demo_governed_source_fails_closed_for_ambiguous_run_label() -> None:
@@ -315,9 +325,7 @@ class _RecipeApi:
         *,
         headers: Mapping[str, str] | None = None,
     ) -> dict[str, Any]:
-        self.writes.append(
-            {"path": path, "payload": deepcopy(dict(payload)), "headers": headers}
-        )
+        self.writes.append({"path": path, "payload": deepcopy(dict(payload)), "headers": headers})
         if path == "/common-processing-recipes":
             self.recipe = _recipe(payload["content"])
             return deepcopy(self.recipe)
@@ -454,9 +462,7 @@ class _BatchApi:
         *,
         headers: Mapping[str, str] | None = None,
     ) -> dict[str, Any]:
-        self.writes.append(
-            {"path": path, "payload": deepcopy(dict(payload)), "headers": headers}
-        )
+        self.writes.append({"path": path, "payload": deepcopy(dict(payload)), "headers": headers})
         if path == "/common-processing-batches:preflight":
             return {"compatible": True}
         if path == "/common-processing-batches":

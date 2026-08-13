@@ -7,8 +7,8 @@ from datetime import datetime
 from typing import Annotated, Any
 from uuid import UUID
 
-from fastapi import Depends, FastAPI, Request, Response, status
-from pydantic import BaseModel, ConfigDict, StringConstraints
+from fastapi import Depends, FastAPI, Header, Request, Response, status
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
 from cmp.modules.datasets.adapters.api.datasets import (
     DatasetHttpError,
@@ -34,6 +34,7 @@ from cmp.modules.datasets.domain.governed_tabular import (
     GovernedImportConflict,
     GovernedImportNotFound,
     GovernedImportProfileContent,
+    ImportDiagnostic,
     ImportRunStatus,
     InvalidGovernedImport,
     QuantityKind,
@@ -47,6 +48,10 @@ from cmp.shared.contracts.revisions import RevisionMetadataResponse
 
 type Dependency = Callable[..., object]
 type Reason = Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+type IdempotencyKey = Annotated[
+    str,
+    StringConstraints(min_length=1, max_length=255, pattern=r"^[!-~]+$"),
+]
 
 
 def _translate_governed(context: SecurityContext, error: Exception) -> DatasetHttpError:
@@ -125,7 +130,7 @@ class ImportProfileContentInput(BaseModel):
     encoding: str
     delimiter: str | None
     decimal_separator: str
-    channels: tuple[ChannelMappingInput, ChannelMappingInput]
+    channels: Annotated[tuple[ChannelMappingInput, ...], Field(min_length=2, max_length=5)]
     initial_gauge_length_m: float | None = None
     initial_cross_section_area_m2: float | None = None
     approval_kind: str = "human_confirmed"
@@ -154,7 +159,12 @@ class ImportProfileContentResponse(BaseModel):
     profile_sha256: str
 
     @classmethod
-    def from_domain(cls, value: GovernedImportProfileContent) -> ImportProfileContentResponse:
+    def from_domain(
+        cls,
+        value: GovernedImportProfileContent,
+        *,
+        profile_sha256: str | None = None,
+    ) -> ImportProfileContentResponse:
         return cls(
             **{
                 key: getattr(value, key)
@@ -173,7 +183,7 @@ class ImportProfileContentResponse(BaseModel):
                 )
             },
             channels=tuple(ChannelMappingResponse.from_domain(item) for item in value.channels),
-            profile_sha256=value.digest,
+            profile_sha256=profile_sha256 or value.digest,
         )
 
 
@@ -202,7 +212,10 @@ class ImportProfileResponse(BaseModel):
         return cls(
             import_profile_id=value.id,
             current_revision=RevisionMetadataResponse.from_record(value.current.record, "draft"),
-            content=ImportProfileContentResponse.from_domain(value.current.content),
+            content=ImportProfileContentResponse.from_domain(
+                value.current.content,
+                profile_sha256=value.current.record.content_hash,
+            ),
         )
 
 
@@ -282,6 +295,34 @@ class ImportRunRequest(BaseModel):
     change_reason: Reason
 
 
+class ImportDiagnosticResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    ordinal: int
+    row_number: int | None
+    column_name: str | None
+    channel_key: str | None
+    error_code: str
+    error_detail: str
+    recovery_hint: str
+
+    @classmethod
+    def from_domain(cls, value: ImportDiagnostic) -> ImportDiagnosticResponse:
+        return cls(
+            **{
+                key: getattr(value, key)
+                for key in (
+                    "ordinal",
+                    "row_number",
+                    "column_name",
+                    "channel_key",
+                    "error_code",
+                    "error_detail",
+                    "recovery_hint",
+                )
+            }
+        )
+
+
 class GovernedImportRunResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     import_run_id: UUID
@@ -293,6 +334,8 @@ class GovernedImportRunResponse(BaseModel):
     import_profile_id: UUID
     import_profile_revision_id: UUID
     profile_sha256: str
+    idempotency_key: str
+    request_sha256: str
     status: ImportRunStatus
     started_at: datetime
     finished_at: datetime | None
@@ -303,6 +346,7 @@ class GovernedImportRunResponse(BaseModel):
     row_count: int | None
     failure_code: str | None
     failure_detail: str | None
+    diagnostics: tuple[ImportDiagnosticResponse, ...]
 
     @classmethod
     def from_domain(cls, value: ImportRun) -> GovernedImportRunResponse:
@@ -319,6 +363,8 @@ class GovernedImportRunResponse(BaseModel):
                     "import_profile_id",
                     "import_profile_revision_id",
                     "profile_sha256",
+                    "idempotency_key",
+                    "request_sha256",
                     "status",
                     "started_at",
                     "finished_at",
@@ -331,6 +377,9 @@ class GovernedImportRunResponse(BaseModel):
                     "failure_detail",
                 )
             },
+            diagnostics=tuple(
+                ImportDiagnosticResponse.from_domain(item) for item in value.diagnostics
+            ),
         )
 
 
@@ -536,13 +585,19 @@ def install_governed_import_api(
         responses=errors,
         tags=["datasets"],
     )
-    async def execute(request: Request, body: ImportRunRequest) -> GovernedImportRunResponse:
+    async def execute(
+        request: Request,
+        body: ImportRunRequest,
+        idempotency_key: Annotated[IdempotencyKey, Header(alias="Idempotency-Key")],
+    ) -> GovernedImportRunResponse:
         context, decision = _scope(request)
         if service is None:
             raise _unavailable(context)
         try:
             result = await service.execute(
-                context, decision, ExecuteGovernedImport(**body.model_dump())
+                context,
+                decision,
+                ExecuteGovernedImport(**body.model_dump(), idempotency_key=idempotency_key),
             )
         except Exception as error:
             raise _translate_governed(context, error) from error
