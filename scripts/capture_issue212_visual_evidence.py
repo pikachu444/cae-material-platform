@@ -168,7 +168,7 @@ def _capture_states(browser: Browser, base_url: str, packet: Path) -> dict[str, 
     page = current._new_page(browser, base_url, 1440, 900)
     failures = _console_guard(page)
     current._prepare_modeling_process(page, base_url, verify_data_reload=True)
-    current._prepare_toe_compensation_preview(
+    toe_warning_geometry = current._prepare_toe_compensation_preview(
         page,
         warning_capture_path=warning_file,
     )
@@ -237,6 +237,7 @@ def _capture_states(browser: Browser, base_url: str, packet: Path) -> dict[str, 
         "density": "standard",
         "exact_processing_output": pointer,
         "process_geometry_after_warning_recovery": process_geometry,
+        "toe_warning_geometry": toe_warning_geometry,
         "fit_exact_source_evidence_geometry": fit_geometry,
         "states": [
             {

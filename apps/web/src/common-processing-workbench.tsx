@@ -567,7 +567,7 @@ function GuidedStepOptions({
       <div className="toe-method-contract"><span>Method</span><strong>OLS zero intercept · v1.0.0</strong><small>σ = Eε + b · ε₀ = −b/E</small></div>
       <div className="guided-range-row toe-estimation-range"><label>Estimation start<input aria-label="Toe estimation range start" type="number" step="any" value={numberOption(step, "minimum_strain")} onChange={(event) => onChange("minimum_strain", Number(event.target.value))}/></label><label>Estimation end<input aria-label="Toe estimation range end" type="number" step="any" value={numberOption(step, "maximum_strain")} onChange={(event) => onChange("maximum_strain", Number(event.target.value))}/></label></div>
       <div className="toe-compliance-contract"><span>Equipment compliance</span><strong>Not provided</strong><small>Strain-axis shift only</small></div>
-      {warnings.length ? <label className="toe-warning-acknowledgement"><input aria-label="Acknowledge toe quality warning" type="checkbox" checked={step.options.warning_acknowledged === true} onChange={(event) => onChange("warning_acknowledged", event.target.checked)} /><span>Warning reviewed for save.</span></label> : null}
+      {warnings.length ? <label className="toe-warning-acknowledgement"><input aria-label="Acknowledge toe quality warning" type="checkbox" checked={step.options.warning_acknowledged === true} onChange={(event) => onChange("warning_acknowledged", event.target.checked)} /><span>Warning reviewed</span></label> : null}
       <p className="option-hint">Choose the linear estimation domain explicitly or use <strong>Select range</strong>. Source Test Data and stress remain unchanged.</p>
     </div>;
   }

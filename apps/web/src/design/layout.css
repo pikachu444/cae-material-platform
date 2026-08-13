@@ -4231,7 +4231,7 @@
 .process-band-controls > .guided-step-options.toe-compensation-options {
   grid-template-columns: minmax(180px, .92fr) minmax(205px, 1.08fr) minmax(120px, .62fr) minmax(145px, .76fr);
   align-items: end;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .toe-method-contract,
@@ -4266,14 +4266,29 @@
 .toe-warning-acknowledgement {
   display: flex !important;
   align-items: center;
+  min-width: 0;
   min-height: var(--ux-input-min-block-size);
   gap: var(--ux-space-1);
+  overflow: hidden;
   color: var(--ux-warning) !important;
   line-height: 1.25;
+  white-space: nowrap;
 }
 
-.toe-warning-acknowledgement input {
-  flex: 0 0 auto;
+.toe-warning-acknowledgement input[type="checkbox"] {
+  flex: 0 0 14px;
+  width: 14px;
+  min-width: 14px;
+  height: 14px !important;
+  min-height: 14px !important;
+  margin: 0;
+  padding: 0;
+}
+
+.toe-warning-acknowledgement span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .process-band-controls :is(input, select, button) {

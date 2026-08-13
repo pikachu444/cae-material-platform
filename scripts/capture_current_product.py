@@ -5326,11 +5326,97 @@ def _save_process_output_for_fit(
 
 
 
+def _assert_toe_warning_layout(panel: Locator) -> dict[str, object]:
+    geometry = cast(
+        dict[str, object],
+        panel.evaluate(
+            """panel => {
+              const rect = element => {
+                const box = element?.getBoundingClientRect();
+                return box ? {
+                  left: box.left,
+                  right: box.right,
+                  top: box.top,
+                  bottom: box.bottom,
+                  width: box.width,
+                  height: box.height,
+                } : null;
+              };
+              const measure = element => ({
+                box: rect(element),
+                scrollWidth: element?.scrollWidth ?? 0,
+                clientWidth: element?.clientWidth ?? 0,
+                scrollHeight: element?.scrollHeight ?? 0,
+                clientHeight: element?.clientHeight ?? 0,
+              });
+              return {
+                controls: measure(panel.querySelector('.process-band-controls')),
+                acknowledgement: measure(panel.querySelector('.toe-warning-acknowledgement')),
+                checkbox: measure(panel.querySelector('[aria-label="Acknowledge toe quality warning"]')),
+                acknowledgementText: measure(panel.querySelector('.toe-warning-acknowledgement span')),
+                result: measure(panel.querySelector('.process-band-preview')),
+                resultWarning: measure(panel.querySelector('.toe-result-warning')),
+              };
+            }"""
+        ),
+    )
+
+    def measurement(name: str) -> dict[str, object]:
+        value = geometry.get(name)
+        if not isinstance(value, dict) or not isinstance(value.get("box"), dict):
+            raise RuntimeError(f"Toe warning layout lost {name}: {geometry!r}")
+        return cast(dict[str, object], value)
+
+    def box(name: str) -> dict[str, float]:
+        return cast(dict[str, float], measurement(name)["box"])
+
+    controls = box("controls")
+    acknowledgement = box("acknowledgement")
+    checkbox = box("checkbox")
+    result = box("result")
+
+    def clipped(name: str) -> bool:
+        value = measurement(name)
+        return (
+            float(value["scrollWidth"]) > float(value["clientWidth"]) + 1
+            or float(value["scrollHeight"]) > float(value["clientHeight"]) + 1
+        )
+
+    overlaps_result = not (
+        acknowledgement["right"] <= result["left"] + 1
+        or acknowledgement["left"] >= result["right"] - 1
+        or acknowledgement["bottom"] <= result["top"] + 1
+        or acknowledgement["top"] >= result["bottom"] - 1
+    )
+    acknowledgement_inside_controls = (
+        acknowledgement["left"] >= controls["left"] - 1
+        and acknowledgement["right"] <= controls["right"] + 1
+        and acknowledgement["top"] >= controls["top"] - 1
+        and acknowledgement["bottom"] <= controls["bottom"] + 1
+    )
+    checkbox_is_compact = (
+        12 <= checkbox["width"] <= 20
+        and 12 <= checkbox["height"] <= 20
+        and abs(checkbox["width"] - checkbox["height"]) <= 1
+    )
+    if (
+        overlaps_result
+        or not acknowledgement_inside_controls
+        or not checkbox_is_compact
+        or clipped("acknowledgementText")
+        or clipped("resultWarning")
+    ):
+        raise RuntimeError(
+            f"Toe warning controls overlap or clip at the live viewport: {geometry!r}"
+        )
+    return geometry
+
+
 def _prepare_toe_compensation_preview(
     page: Page,
     *,
     warning_capture_path: Path | None = None,
-) -> None:
+) -> dict[str, object]:
     """Exercise the explicit warning/review path and settle a saveable toe preview."""
 
     toe = page.get_by_role("button", name="Add tensile toe compensation", exact=True)
@@ -5366,6 +5452,7 @@ def _prepare_toe_compensation_preview(
         raise RuntimeError("Toe warning was acknowledged before the explicit browser action")
     if not panel.get_by_role("button", name="Save processed curves", exact=True).is_disabled():
         raise RuntimeError("Toe warning did not block Process save")
+    warning_geometry = _assert_toe_warning_layout(panel)
     if warning_capture_path is not None:
         panel.get_by_text(
             "Review and acknowledge the toe quality warning, then preview again before saving.",
@@ -5410,6 +5497,7 @@ def _prepare_toe_compensation_preview(
             "Toe Process result lost offset, slope, R-squared, or point-count evidence"
         )
     _wait_for_modeling_process_plot_size(page)
+    return warning_geometry
 
 
 def _prepare_fit_from_saved_process(

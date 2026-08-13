@@ -852,6 +852,7 @@ describe("Common Processing Workbench", () => {
     fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
     await screen.findByText("OLS zero intercept · v1.0.0");
     expect(screen.getByText("1 quality warning · acknowledgement required")).toBeTruthy();
+    expect(screen.getByText("Warning reviewed")).toBeTruthy();
     expect(screen.getByText("180.00 GPa")).toBeTruthy();
     expect(screen.getByText("0.910000")).toBeTruthy();
     const save = screen.getByRole("button", { name: "Save processed curves" }) as HTMLButtonElement;
