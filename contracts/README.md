@@ -3,7 +3,7 @@
 Status: foundation `T-02` through `T-18`, plus reference vertical subsets `T-07`, `T-08`,
 `T-11`, `T-12`, `T-19`, `T-20`, `T-21`, `T-22`, `T-25`, `T-26`, `T-27`, `T-28`, `T-29`,
 the `T-32` workbench, and product-depth slices `T-39` through `T-42`. HTTP contract version
-`0.37.0`.
+`0.38.0`.
 
 ## Files
 

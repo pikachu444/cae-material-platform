@@ -93,6 +93,8 @@ export interface ModelingProcessPanelProps {
   sourceIdentity: string;
   stepControls: ReactNode;
   scalarPa?: number;
+  resultContent?: ReactNode;
+  saveBlockedReason?: string;
   processReady: boolean;
   hasPreview: boolean;
   hasLastValidPreview: boolean;
@@ -140,6 +142,8 @@ export default function ModelingProcessPanel({
   sourceIdentity,
   stepControls,
   scalarPa,
+  resultContent,
+  saveBlockedReason,
   processReady,
   hasPreview,
   hasLastValidPreview,
@@ -210,7 +214,7 @@ export default function ModelingProcessPanel({
       : processReady
         ? "Run Preview changes to calculate this result."
         : "Restore an exact source in Data before calculating this result.";
-  const saveDisabled = busy || !hasPreview || !processReady || !outputLabel.trim() || !outputReason.trim();
+  const saveDisabled = busy || !hasPreview || !processReady || Boolean(saveBlockedReason) || !outputLabel.trim() || !outputReason.trim();
   const stepTitle = `Step ${stepNumber ?? "—"} · Process · ${stepLabel}`;
   return (
     <aside className="process-stage-options" aria-label="Process settings" data-modeling-process-panel="ready">
@@ -229,7 +233,7 @@ export default function ModelingProcessPanel({
         </section>
         <section className="process-band-group process-band-preview" aria-labelledby="process-result-title">
           <h3 id="process-result-title">Result</h3>
-          <div className="process-band-result"><span>{stepLabel}</span><strong>{formatModulus(visibleScalarPa)}</strong>{resultNote ? <small>{resultNote}</small> : null}</div>
+          <div className="process-band-result"><span>{stepLabel}</span>{resultContent ?? <strong>{formatModulus(visibleScalarPa)}</strong>}{resultNote ? <small>{resultNote}</small> : null}</div>
         </section>
         <section className="process-band-group process-band-save-result" aria-labelledby="process-save-result-title">
           <h3 id="process-save-result-title">Save result</h3>
@@ -237,6 +241,7 @@ export default function ModelingProcessPanel({
             <label>Processed curve label<input aria-label="Processed curve label" value={outputLabel} onChange={(event) => onOutputLabelChange(event.target.value)} /></label>
             <label>Save reason<input aria-label="Save reason" value={outputReason} onChange={(event) => onOutputReasonChange(event.target.value)} /></label>
             <button className="button primary" type="button" disabled={saveDisabled} onClick={onSave}>Save processed curves</button>
+            {saveBlockedReason ? <small className="process-save-blocked" role="status">{saveBlockedReason}</small> : null}
           </div>
         </section>
       </div>

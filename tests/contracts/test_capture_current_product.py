@@ -1494,7 +1494,7 @@ def test_process_geometry_contract_rejects_identity_clipping_chart_collisions_an
     assert '.modeling-context-actions > .modeling-advanced-menu > summary' in geometry
     assert '.modeling-context-actions > button.button.secondary' in geometry
     assert '.modeling-context-actions button[aria-label="Preview changes"], .modeling-context-actions button' not in geometry
-    assert 'expected_top_action_labels = ["Advanced", "Preview changes"]' in geometry
+    assert 'expected_top_action_labels = ["Advanced", "Distribution analysis", "Preview changes"]' in geometry
     assert "actual_top_action_labels" in geometry
     assert "if not _aligned(top_actions):" in geometry
     assert "Process top action baselines drifted" in geometry

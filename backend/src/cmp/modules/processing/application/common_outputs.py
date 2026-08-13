@@ -37,6 +37,7 @@ from cmp.modules.identity_access.domain.authorization import (
 from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.processing.application.mapping_profiles import MappingProfileService
 from cmp.modules.processing.domain.common_pipeline import (
+    TOE_ZERO_INTERCEPT_METHOD_ID,
     CommonPipelineError,
     CurveStage,
     ProcessingPreview,
@@ -48,6 +49,7 @@ from cmp.modules.processing.domain.common_pipeline import (
     preview_pipeline,
     processing_preview_canonical,
     processing_stage_independent_quantity,
+    toe_warning_codes,
 )
 from cmp.modules.processing.domain.metal_hardening import (
     HARDENING_EQUATION_CONTRACT,
@@ -305,6 +307,26 @@ _FIT_METHODS = {
     "polymer.prony_fit_compare",
     "polymer.dma_prony_fit_compare",
 }
+
+
+def validate_toe_warning_acknowledgement(
+    steps: tuple[ProcessingStep, ...], preview: ProcessingPreview
+) -> None:
+    """Require an explicit acknowledgement for recomputed toe quality warnings."""
+
+    if len(preview.stages) != len(steps) + 1:
+        raise CommonPipelineError(
+            "toe warning validation requires every recomputed processing stage"
+        )
+    for ordinal, step in enumerate(steps, start=1):
+        if step.method_id != TOE_ZERO_INTERCEPT_METHOD_ID:
+            continue
+        warnings = toe_warning_codes(preview.stages[ordinal])
+        if warnings and step.options.get("warning_acknowledged") is not True:
+            raise CommonPipelineError(
+                "toe compensation warning acknowledgement is required before save: "
+                + ", ".join(warnings)
+            )
 
 
 def validate_fit_decision(
@@ -1441,6 +1463,7 @@ class CommonProcessingOutputService:
                 source_bytes=source_bytes,
                 fit_step=command.steps[-1],
             )
+            validate_toe_warning_acknowledgement(command.steps, preview)
             if validate_selection:
                 validate_fit_decision(command.steps, preview, command.fit_decision)
             unit_applications, unit_profile_content = self._unit_usage(
@@ -1482,6 +1505,7 @@ class CommonProcessingOutputService:
             )
         document = parse_canonical_test_data(json.loads(source_bytes))
         preview = preview_pipeline(document, profile_snapshot.content, command.steps)
+        validate_toe_warning_acknowledgement(command.steps, preview)
         if validate_selection:
             validate_fit_decision(command.steps, preview, command.fit_decision)
         if preview.mapping_profile_sha256 != profile_snapshot.content.digest:
@@ -1570,6 +1594,7 @@ class CommonProcessingOutputService:
                 unit_applications=resolved.unit_applications,
             )
         )
+
         def _content(artifact_record: ArtifactRecord) -> ProcessingOutputContent:
             return ProcessingOutputContent(
                 label=command.label,

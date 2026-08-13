@@ -784,6 +784,98 @@ def test_process_commits_two_exact_sibling_outputs_with_fresh_artifacts_and_revi
     assert chord.content.output_artifact_id == artifacts.calls[1]["id"]
 
 
+def test_toe_warning_requires_acknowledgement_before_immutable_output_commit() -> None:
+    import asyncio
+
+    fixture = json.loads(
+        Path("fixtures/synthetic/tensile-toe-zero-intercept-v1.json").read_text(encoding="utf-8")
+    )
+    source_payload = json.loads(
+        Path("contracts/examples/positive/canonical-test-data.json").read_text(encoding="utf-8")
+    )
+    source_strain = [0.0002, 0.0006, 0.0010, 0.0014, 0.0018, 0.0022]
+    source_stress = [0.0, 30e6, 170e6, 115e6, 390e6, 300e6]
+    source_payload["channels"][0]["original_values"] = [str(value * 100) for value in source_strain]
+    source_payload["channels"][0]["normalized_values"] = [str(value) for value in source_strain]
+    source_payload["channels"][0]["missing_reasons"] = [None] * len(source_strain)
+    source_payload["channels"][1]["original_values"] = [str(value / 1e6) for value in source_stress]
+    source_payload["channels"][1]["normalized_values"] = [str(value) for value in source_stress]
+    source_payload["channels"][1]["missing_reasons"] = [None] * len(source_stress)
+    source_bytes = json.dumps(source_payload).encode("utf-8")
+    profile = MappingProfileContent(
+        profile_key="tensile-toe-warning",
+        label="Tensile toe warning mapping",
+        independent_quantity="strain.engineering",
+        missing_data_policy=MissingDataPolicy.REJECT,
+        bindings=(
+            ChannelBinding("engineering_strain", "strain.engineering", ("1",)),
+            ChannelBinding("engineering_stress", "stress.engineering", ("Pa",)),
+        ),
+    )
+    source = ExactRevisionPin(
+        UUID("d5400000-0000-4000-8000-000000000161"),
+        UUID("d5400000-0000-4000-8000-000000000162"),
+    )
+    mapping = ExactRevisionPin(
+        UUID("d5400000-0000-4000-8000-000000000163"),
+        UUID("d5400000-0000-4000-8000-000000000164"),
+    )
+
+    def command(acknowledged: bool) -> CommitProcessingOutput:
+        return CommitProcessingOutput(
+            classification=DataClassification.INTERNAL,
+            label="Toe-corrected Process result",
+            source_document=source,
+            mapping_profile=mapping,
+            steps=(
+                ProcessingStep(
+                    "tensile.toe_zero_intercept",
+                    "1.0.0",
+                    {
+                        "strain_quantity": "strain.engineering",
+                        "stress_quantity": "stress.engineering",
+                        "minimum_strain": 0.0002,
+                        "maximum_strain": 0.0022,
+                        "equipment_compliance": "not_provided",
+                        "warning_acknowledged": acknowledged,
+                    },
+                ),
+            ),
+            change_reason="Save reviewed toe compensation evidence.",
+        )
+
+    rejected_service = CommonProcessingOutputService(
+        repository=cast(Any, _NoCallPort()),
+        test_data=cast(Any, _CommitSource(source_bytes, profile)),
+        profiles=cast(Any, _CommitProfile(profile)),
+        artifacts=cast(Any, _NoCallPort()),
+    )
+    with pytest.raises(CommonPipelineError, match="warning acknowledgement is required"):
+        asyncio.run(rejected_service.commit(_CONTEXT, _DECISION, command(False)))
+
+    repository = _RecordingRevisionStore()
+    artifacts = _RecordingArtifacts((UUID("d5400000-0000-4000-8000-000000000165"),))
+    accepted_service = CommonProcessingOutputService(
+        repository=cast(Any, repository),
+        test_data=cast(Any, _CommitSource(source_bytes, profile)),
+        profiles=cast(Any, _CommitProfile(profile)),
+        artifacts=cast(Any, artifacts),
+        id_factory=lambda: UUID("d5400000-0000-4000-8000-000000000166"),
+    )
+    saved = asyncio.run(accepted_service.commit(_CONTEXT, _DECISION, command(True)))
+
+    assert saved.content.steps[0].options["warning_acknowledged"] is True
+    document = json.loads(cast(bytes, artifacts.calls[0]["value"]))
+    assert document["source_document"]["revision_id"] == str(source.revision_id)
+    assert document["mapping_profile"]["revision_id"] == str(mapping.revision_id)
+    assert document["steps"][0]["method_id"] == "tensile.toe_zero_intercept"
+    toe_stage = document["result"]["stages"][-1]
+    assert toe_stage["method_id"] == "tensile.toe_zero_intercept"
+    assert any(item.startswith("toe.warning.low_linearity") for item in toe_stage["diagnostics"])
+    assert fixture["method"]["equipment_compliance"] == "not_provided"
+    assert len(repository.records) == 1
+
+
 def test_preflight_projects_proof_only_from_the_exact_test_data_revision() -> None:
     import asyncio
 

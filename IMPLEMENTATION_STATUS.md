@@ -24,7 +24,7 @@ review/release는 Modeling의 normal stage가 아니라 Advanced와 Activity의 
 | 영역 | 구현 상태 |
 | --- | --- |
 | Materials | Browse 기본의 explorer/result/datasheet workspace, server-scoped Material class 검색·정렬·pagination, Browse Tree, 선택 문맥, detail 5개 영역, exact-revision curve chart/channel·unit·deviation evidence, solver card preview/download |
-| Modeling | exact Material/State/Test Data session pin, Data/Process/Fit/Export, Materials와 공유하는 curve definition/display adapter, Process의 exact source/profile preview·last-valid blocked recovery·immutable saved-result comparison, processed replicate `peak_engineering_stress_pa`의 선택형 Distribution analysis sheet와 Normal/Lognormal/Weibull 후보 비교·explicit selected model revision, processing·fitting, 선택 모델 저장, Material Model IR·Neutral·solver card 생성, upstream 변경에 따른 downstream clear/stale/regenerate |
+| Modeling | exact Material/State/Test Data session pin, Data/Process/Fit/Export, Materials와 공유하는 curve definition/display adapter, Process의 exact source/profile preview·last-valid blocked recovery·immutable saved-result comparison, 사용자가 고른 구간의 명시적 tensile toe OLS 보정·품질 경고 승인·exact Fit 입력, processed replicate `peak_engineering_stress_pa`의 선택형 Distribution analysis sheet와 Normal/Lognormal/Weibull 후보 비교·explicit selected model revision, processing·fitting, 선택 모델 저장, Material Model IR·Neutral·solver card 생성, upstream 변경에 따른 downstream clear/stale/regenerate |
 | Activity | role-aware review queue, exact Material/Solver Card request entry, Reviewer-only approval/change decisions, Processing Batch context/retry, browser recovery facts, and review-backed Record publication projection |
 | Administration | Database/Profile과 configurable Table/Attribute/Layout/Subset/Link Type의 revision 관리·발행, Definition Bundle upload-plan-confirm-apply-read-back-export, Folder/Record tree, typed search·compare, 단건·다건 등록, exact Record links와 접근 관리 |
 | Catalog schema bundle | exact immutable Artifact의 임의 개수 JSON Schema draft 2020-12 정의를 bundle 내부에서만 resolve하고 결정론적 plan 생성; Administrator 전용 화면과 API에서 exact SHA-256/`plan_fingerprint` 재검증, 원자 apply/publication, immutable application read-back, provenance와 checksum-verified current-state export |
@@ -60,6 +60,11 @@ Production 표준, plugin, solver correlation과 validation threshold는 domain 
   constant, unsupported support/quality는
   명시적 not-eligible이며 n 8–19는 경고합니다. Censored, mixture, Bayesian/hierarchical fitting과 자동
   production default는 없고, representative envelope와 approved Fit input은 다음 #211 범위입니다.
+- Tensile toe compensation은 사용자가 지정한 linear estimation domain에
+  `tensile.toe_zero_intercept@1.0.0` OLS를 적용해 strain 축만 평행 이동합니다. 원본 Test Data와 stress는
+  바꾸지 않으며 R²·offset 경고를 승인해야 새 immutable Processing Output으로 저장할 수 있습니다.
+  자동 toe 탐지, 장비 compliance 추정, production tensile standard나 acceptance threshold 선택은
+  제공하지 않습니다.
 - #158 Data/Process/Fit/Export production UI는 PR #183~#202에서 현재 화면에 연결했습니다.
   Administration 공개·복구 refinement는 #161, Definition Bundle 화면은 #208에서 연결했습니다.
   남은 Template/OIDC 화면은 각각 #214, #215에서 별도 검수합니다.

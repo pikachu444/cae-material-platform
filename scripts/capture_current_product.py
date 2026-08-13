@@ -4517,6 +4517,7 @@ def _measure_process_fit(
             return { text, clipped };
           });
           const processRoot = document.querySelector('.processing-workbench-page.stage-process');
+          const toeMode = Boolean(processRoot?.querySelector('.toe-compensation-options'));
           const processRibbon = rect(processRoot?.querySelector('.modeling-task-ribbon'));
           const processPanel = rect(processRoot?.querySelector('[data-modeling-process-panel="ready"]'));
           const saveBand = rect(processRoot?.querySelector('.process-band-save'));
@@ -4527,6 +4528,9 @@ def _measure_process_fit(
             processRoot?.querySelector(`[aria-label="Manual Young's modulus"]`),
             processRoot?.querySelector(`[aria-label="Manual Young's modulus unit"]`),
             processRoot?.querySelector(`[aria-label="Manual Young's modulus reason"]`),
+            processRoot?.querySelector('[aria-label="Toe estimation range start"]'),
+            processRoot?.querySelector('[aria-label="Toe estimation range end"]'),
+            processRoot?.querySelector('[aria-label="Acknowledge toe quality warning"]'),
             processRoot?.querySelector('[aria-label="Processed curve label"]'),
             processRoot?.querySelector('[aria-label="Save reason"]'),
             processRoot?.querySelector('.process-band-save > .button'),
@@ -4548,7 +4552,9 @@ def _measure_process_fit(
           });
           const topActionNodes = [
             processRoot?.querySelector('.modeling-context-actions > .modeling-advanced-menu > summary'),
-            processRoot?.querySelector('.modeling-context-actions > button.button.secondary'),
+            processRoot?.querySelector('.modeling-context-actions > button.modeling-analysis-trigger'),
+            [...(processRoot?.querySelectorAll('.modeling-context-actions > button.button.secondary') ?? [])]
+              .find(node => node.textContent?.trim() === 'Preview changes'),
           ];
           const topActions = topActionNodes.map(node => {
             const box = rect(node);
@@ -4721,6 +4727,7 @@ def _measure_process_fit(
             fitEvidenceTrigger,
             fitHeaderSource,
             fitHeaderState,
+            toeMode,
             processRibbon,
             processPanel,
             saveBand,
@@ -4784,21 +4791,33 @@ def _measure_process_fit(
                 raise RuntimeError(f"Process rail identity drifted at {width}x{height}: {measurement}")
         if measurement.get("processRowClipped"):
             raise RuntimeError(f"Process rail identity is clipped at {width}x{height}: {measurement}")
-        method_range_gap = measurement.get("methodRangeGap")
-        maximum_control_gap = _css_token_px(page, "--ux-space-4") + 2
-        if not isinstance(method_range_gap, (int, float)) or method_range_gap < 0 or method_range_gap > maximum_control_gap:
-            raise RuntimeError(f"Process elastic method/range gap exceeds the shared spacing token at {width}x{height}: {measurement}")
+        toe_mode = measurement.get("toeMode") is True
+        if not toe_mode:
+            method_range_gap = measurement.get("methodRangeGap")
+            maximum_control_gap = _css_token_px(page, "--ux-space-4") + 2
+            if not isinstance(method_range_gap, (int, float)) or method_range_gap < 0 or method_range_gap > maximum_control_gap:
+                raise RuntimeError(f"Process elastic method/range gap exceeds the shared spacing token at {width}x{height}: {measurement}")
         controls = measurement.get("processControls")
         if not isinstance(controls, list):
             raise RuntimeError(f"Process control geometry is missing at {width}x{height}: {measurement}")
-        required_controls = {
-            "Evaluation method",
-            "Elastic range start",
-            "Elastic range end",
-            "Processed curve label",
-            "Save reason",
-            "Save processed curves",
-        }
+        required_controls = (
+            {
+                "Toe estimation range start",
+                "Toe estimation range end",
+                "Processed curve label",
+                "Save reason",
+                "Save processed curves",
+            }
+            if toe_mode
+            else {
+                "Evaluation method",
+                "Elastic range start",
+                "Elastic range end",
+                "Processed curve label",
+                "Save reason",
+                "Save processed curves",
+            }
+        )
         visible_controls = {
             str(control.get("label"))
             for control in controls
@@ -4828,7 +4847,11 @@ def _measure_process_fit(
             raise RuntimeError(f"Process controls escaped their panel at {width}x{height}: {measurement}")
         normal_row = [
             control for control in controls
-            if isinstance(control, dict) and control.get("label") in {"Evaluation method", "Elastic range start", "Elastic range end"}
+            if isinstance(control, dict) and control.get("label") in (
+                {"Toe estimation range start", "Toe estimation range end"}
+                if toe_mode
+                else {"Evaluation method", "Elastic range start", "Elastic range end"}
+            )
         ]
         save_row = [
             control for control in controls
@@ -4891,9 +4914,9 @@ def _measure_process_fit(
                 if control.get("whiteSpace") != "nowrap":
                     raise RuntimeError(f"Process save label wraps at {width}x{height}: {control}")
         top_actions = measurement.get("topActions")
-        if not isinstance(top_actions, list) or len(top_actions) != 2:
+        if not isinstance(top_actions, list) or len(top_actions) != 3:
             raise RuntimeError(f"Process top actions are missing at {width}x{height}: {measurement}")
-        expected_top_action_labels = ["Advanced", "Preview changes"]
+        expected_top_action_labels = ["Advanced", "Distribution analysis", "Preview changes"]
         actual_top_action_labels = [
             str(action.get("label", "")).strip()
             for action in top_actions
@@ -5211,14 +5234,16 @@ def _click_modeling_fit_preview_and_wait(page: Page) -> None:
     """Wait for the one persisted exact-source Fit run and its settled result."""
     preview = page.get_by_role("button", name="Preview changes", exact=True)
     with page.expect_response(
-        lambda response: response.request.method == "POST"
-        and urlsplit(response.url).path.endswith("/metal-fit-runs"),
+        lambda response: (
+            response.request.method == "POST"
+            and urlsplit(response.url).path.endswith("/metal-fit-runs")
+        ),
         timeout=30_000,
     ) as response_info:
         preview.click()
     response = response_info.value
     if not response.ok:
-        raise RuntimeError(f"Fit calculation request failed: {response.status}")
+        raise RuntimeError(f"Fit calculation request failed: {response.status} {response.text()}")
     page.wait_for_function(
         """() => {
           const preview = [...document.querySelectorAll('button')]
@@ -5237,9 +5262,11 @@ def _save_process_output_for_fit(
     *,
     label: str,
     reason: str,
+    verify_default_preview: bool = True,
 ) -> dict[str, object]:
     """Persist one Process-only result before any Fit preview is requested."""
-    _assert_modeling_process_preview(page)
+    if verify_default_preview:
+        _assert_modeling_process_preview(page)
     panel = page.locator('[data-modeling-process-panel="ready"]')
     output_label = panel.get_by_role("textbox", name="Processed curve label", exact=True)
     output_reason = panel.get_by_role("textbox", name="Save reason", exact=True)
@@ -5247,14 +5274,42 @@ def _save_process_output_for_fit(
     output_label.fill(label)
     output_reason.fill(reason)
     with page.expect_response(
-        lambda response: response.request.method == "POST"
-        and urlsplit(response.url).path.endswith("/processing-outputs"),
+        lambda response: (
+            response.request.method == "POST"
+            and urlsplit(response.url).path.endswith("/processing-outputs")
+        ),
         timeout=30_000,
     ) as response_info:
         save.click()
     response = response_info.value
     if not response.ok:
         raise RuntimeError(f"Process source save failed before Fit: {response.status}")
+    saved = response.json()
+    if not isinstance(saved, dict):
+        raise RuntimeError("Process source save returned a malformed response")
+    if not verify_default_preview:
+        saved_steps = saved.get("steps")
+        toe_steps = (
+            [
+                step
+                for step in saved_steps
+                if isinstance(step, dict) and step.get("method_id") == "tensile.toe_zero_intercept"
+            ]
+            if isinstance(saved_steps, list)
+            else []
+        )
+        if (
+            len(toe_steps) != 1
+            or toe_steps[0].get("method_version") != "1.0.0"
+            or not isinstance(toe_steps[0].get("options"), dict)
+            or toe_steps[0]["options"].get("minimum_strain") != 0
+            or toe_steps[0]["options"].get("maximum_strain") != 0.002
+            or toe_steps[0]["options"].get("equipment_compliance") != "not_provided"
+            or toe_steps[0]["options"].get("warning_acknowledged") is not False
+        ):
+            raise RuntimeError(
+                f"Saved Process source lost exact toe compensation evidence: {saved_steps!r}"
+            )
     page.get_by_text("Processed result saved and current", exact=False).wait_for(timeout=30_000)
     session = _modeling_session(page)
     pointer = session.get("processingOutput")
@@ -5268,6 +5323,93 @@ def _save_process_output_for_fit(
     if pointer.get("revisionNo") != 1:
         raise RuntimeError(f"Process save did not pin Processing Output revision r1: {pointer!r}")
     return pointer
+
+
+
+def _prepare_toe_compensation_preview(
+    page: Page,
+    *,
+    warning_capture_path: Path | None = None,
+) -> None:
+    """Exercise the explicit warning/review path and settle a saveable toe preview."""
+
+    toe = page.get_by_role("button", name="Add tensile toe compensation", exact=True)
+    toe.wait_for(state="visible", timeout=30_000)
+    if toe.is_disabled():
+        raise RuntimeError("Tensile toe compensation is unavailable for the Metal Process track")
+    toe.click()
+
+    panel = page.locator('[data-modeling-process-panel="ready"]')
+    start = panel.get_by_role("spinbutton", name="Toe estimation range start", exact=True)
+    end = panel.get_by_role("spinbutton", name="Toe estimation range end", exact=True)
+    start.wait_for(state="visible", timeout=30_000)
+    end.wait_for(state="visible", timeout=30_000)
+    start.fill("0.0005")
+    end.fill("0.003")
+    ordered = json.loads(page.get_by_label("Ordered processing steps").input_value())
+    method_ids = [step.get("method_id") for step in ordered if isinstance(step, dict)]
+    if "tensile.toe_zero_intercept" not in method_ids or method_ids.index(
+        "tensile.toe_zero_intercept"
+    ) >= method_ids.index("metal.elastic_modulus"):
+        raise RuntimeError(f"Toe compensation did not precede elastic evaluation: {method_ids!r}")
+
+    _click_modeling_process_preview_and_wait(page)
+    panel.get_by_text("OLS zero intercept · v1.0.0", exact=True).wait_for(timeout=30_000)
+    panel.get_by_text("1 quality warning · acknowledgement required", exact=True).wait_for(
+        timeout=30_000
+    )
+    acknowledgement = panel.get_by_role(
+        "checkbox", name="Acknowledge toe quality warning", exact=True
+    )
+    acknowledgement.wait_for(state="visible", timeout=30_000)
+    if acknowledgement.is_checked():
+        raise RuntimeError("Toe warning was acknowledged before the explicit browser action")
+    if not panel.get_by_role("button", name="Save processed curves", exact=True).is_disabled():
+        raise RuntimeError("Toe warning did not block Process save")
+    if warning_capture_path is not None:
+        panel.get_by_text(
+            "Review and acknowledge the toe quality warning, then preview again before saving.",
+            exact=True,
+        ).wait_for(state="visible", timeout=30_000)
+        _capture(
+            page,
+            warning_capture_path,
+            1440,
+            900,
+            before_screenshot=_process_plot_capture_callback(page),
+        )
+    acknowledgement.check()
+    panel.get_by_text("Result retained; preview again to save changes.", exact=True).wait_for(
+        timeout=30_000
+    )
+    _click_modeling_process_preview_and_wait(page)
+    if not acknowledgement.is_checked():
+        raise RuntimeError("Toe warning acknowledgement did not survive exact preview replay")
+
+    # The warning case is deliberately unsuitable as hardening input: its
+    # acknowledged negative offset leaves the zero-stress point at positive
+    # plastic strain. Recover through the normal controls and prove the exact
+    # Fit hand-off from a clean early-linear domain instead of weakening Fit.
+    start.fill("0")
+    end.fill("0.002")
+    if acknowledgement.is_checked():
+        raise RuntimeError("Changing the toe domain did not reset acknowledgement")
+    panel.get_by_text("Result retained; preview again to save changes.", exact=True).wait_for(
+        timeout=30_000
+    )
+    _click_modeling_process_preview_and_wait(page)
+    panel.get_by_text("Quality checks passed · stress unchanged", exact=True).wait_for(
+        timeout=30_000
+    )
+    if panel.get_by_role("checkbox", name="Acknowledge toe quality warning", exact=True).count():
+        raise RuntimeError("Recovered toe preview retained a stale warning acknowledgement")
+    for label in ("Focused mapped input", "Selected stage", "Toe estimation fit"):
+        page.get_by_text(label, exact=True).wait_for(state="visible", timeout=30_000)
+    if page.locator(".toe-result-evidence dd").count() != 4:
+        raise RuntimeError(
+            "Toe Process result lost offset, slope, R-squared, or point-count evidence"
+        )
+    _wait_for_modeling_process_plot_size(page)
 
 
 def _prepare_fit_from_saved_process(
@@ -6858,10 +7000,12 @@ def _capture_modeling_process_fit(
         page.locator(".modeling-workspace-rail .rail-heading").get_by_text(
             "Curves", exact=True
         ).wait_for(timeout=30_000)
+        _prepare_toe_compensation_preview(page)
         _save_process_output_for_fit(
             page,
-            label=f"Fit source Process result {width}x{height}",
-            reason="Bind one immutable Process result as the exact Fit source.",
+            label=f"Toe-corrected Process result {width}x{height}",
+            reason="Bind reviewed toe compensation as the exact Fit source.",
+            verify_default_preview=False,
         )
         _capture(
             page,
@@ -6883,7 +7027,10 @@ def _capture_modeling_process_fit(
             STAGE_HEADINGS["fit"], exact=True
         ).wait_for(timeout=30_000)
         _click_modeling_fit_preview_and_wait(page)
-        trigger, _body, table = _open_fit_evidence(page)
+        trigger, body, table = _open_fit_evidence(page)
+        body.get_by_text(
+            "OLS zero intercept · v1.0.0 · exact saved Process step", exact=True
+        ).wait_for(state="visible", timeout=30_000)
         _assert_fit_candidate_surface(page, table)
         if page.get_by_role("button", name="Save fit & continue", exact=True).count() != 1:
             raise RuntimeError("Fit must expose one top-row Save fit & continue action")

@@ -51,6 +51,7 @@ import type {
   CommonProcessingMethod,
   CommonProcessingBatchPreflight,
   CommonProcessingBatchResponse,
+  CommonCurveStage,
   CommonProcessingOutputResponse,
   CommonProcessingRecipeContent,
   CommonProcessingRecipeResponse,
@@ -491,12 +492,14 @@ function workupOverridesFromSteps(steps: CommonProcessingStep[]): CommonProcessi
 
 function GuidedStepOptions({
   step,
+  stage,
   onChange,
   graphInteraction,
   onGraphModeChange,
   onApplyGraphSelection,
 }: {
   step: CommonProcessingStep;
+  stage?: CommonCurveStage;
   onChange: (option: string, value: unknown) => void;
   graphInteraction?: { mode: PlotInteractionMode; canApply: boolean; available: boolean };
   onGraphModeChange?: (mode: PlotInteractionMode) => void;
@@ -554,6 +557,18 @@ function GuidedStepOptions({
       <label>Response quantity<input value={String(step.options.quantity)} onChange={(event) => onChange("quantity", event.target.value)}/></label>
       <label>Smoothing factor<input aria-label="Spline smoothing factor" type="number" min="0" step="any" value={numberOption(step, "smoothing_factor")} onChange={(event) => onChange("smoothing_factor", Number(event.target.value))}/></label>
       <p className="option-hint">Zero interpolates the observations. Increase the non-negative factor only after comparing the residual shape.</p>
+    </div>;
+  }
+  if (step.method_id === "tensile.toe_zero_intercept") {
+    const warnings = stage?.method_id === step.method_id
+      ? stage.diagnostics.filter((item) => item.startsWith("toe.warning."))
+      : [];
+    return <div className="guided-step-options toe-compensation-options">
+      <div className="toe-method-contract"><span>Method</span><strong>OLS zero intercept · v1.0.0</strong><small>σ = Eε + b · ε₀ = −b/E</small></div>
+      <div className="guided-range-row toe-estimation-range"><label>Estimation start<input aria-label="Toe estimation range start" type="number" step="any" value={numberOption(step, "minimum_strain")} onChange={(event) => onChange("minimum_strain", Number(event.target.value))}/></label><label>Estimation end<input aria-label="Toe estimation range end" type="number" step="any" value={numberOption(step, "maximum_strain")} onChange={(event) => onChange("maximum_strain", Number(event.target.value))}/></label></div>
+      <div className="toe-compliance-contract"><span>Equipment compliance</span><strong>Not provided</strong><small>Strain-axis shift only</small></div>
+      {warnings.length ? <label className="toe-warning-acknowledgement"><input aria-label="Acknowledge toe quality warning" type="checkbox" checked={step.options.warning_acknowledged === true} onChange={(event) => onChange("warning_acknowledged", event.target.checked)} /><span>Warning reviewed for save.</span></label> : null}
+      <p className="option-hint">Choose the linear estimation domain explicitly or use <strong>Select range</strong>. Source Test Data and stress remain unchanged.</p>
     </div>;
   }
   if (step.method_id === "metal.elastic_modulus") {
@@ -630,6 +645,14 @@ function defaultOptions(methodId: string): Record<string, unknown> {
     "curve.moving_average": { quantity: "stress.engineering", window: 3 },
     "curve.savitzky_golay": { quantity: "stress.engineering", window: 5, polynomial_order: 2 },
     "curve.smoothing_spline": { quantity: "stress.engineering", smoothing_factor: 0 },
+    "tensile.toe_zero_intercept": {
+      strain_quantity: "strain.engineering",
+      stress_quantity: "stress.engineering",
+      minimum_strain: 0,
+      maximum_strain: 0.002,
+      equipment_compliance: "not_provided",
+      warning_acknowledged: false,
+    },
     "metal.elastic_modulus": {
       strain_quantity: "strain.engineering",
       stress_quantity: "stress.engineering",
@@ -760,6 +783,7 @@ function isFitMethod(methodId: string): boolean {
 function methodDisplayName(methodId: string | undefined): string {
   if (!methodId || methodId === "mapping") return "Mapped source";
   const explicit: Record<string, string> = {
+    "tensile.toe_zero_intercept": "Tensile toe compensation",
     "metal.elastic_modulus": "Young's modulus",
     "metal.proof_stress": "Proof stress",
     "metal.necking_candidate": "Necking candidate",
@@ -775,6 +799,29 @@ function methodDisplayName(methodId: string | undefined): string {
     .at(-1)!
     .replaceAll("_", " ")
     .replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
+function toeScalar(stage: CommonCurveStage | undefined, key: string): number | undefined {
+  const value = stage?.scalar_results.find((item) => item.key === key)?.value;
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function ToeCompensationResult({ stage }: { stage: CommonCurveStage | undefined }) {
+  if (!stage) return <strong>—</strong>;
+  const offset = toeScalar(stage, "toe_strain_offset");
+  const slope = toeScalar(stage, "toe_estimated_slope");
+  const rSquared = toeScalar(stage, "toe_r_squared");
+  const pointCount = toeScalar(stage, "toe_estimation_point_count");
+  const warnings = stage.diagnostics.filter((item) => item.startsWith("toe.warning."));
+  return <div className="toe-result-evidence">
+    <dl>
+      <div><dt>Offset ε₀</dt><dd>{offset === undefined ? "—" : offset.toExponential(4)}</dd></div>
+      <div><dt>Slope E</dt><dd>{slope === undefined ? "—" : `${(slope / 1e9).toFixed(2)} GPa`}</dd></div>
+      <div><dt>R²</dt><dd>{rSquared === undefined ? "—" : rSquared.toFixed(6)}</dd></div>
+      <div><dt>Domain points</dt><dd>{pointCount === undefined ? "—" : pointCount.toFixed(0)}</dd></div>
+    </dl>
+    <small className={warnings.length ? "toe-result-warning" : "toe-result-clear"}>{warnings.length ? `${warnings.length} quality warning${warnings.length === 1 ? "" : "s"} · acknowledgement required` : "Quality checks passed · stress unchanged"}</small>
+  </div>;
 }
 
 interface PlotBounds {
@@ -1797,9 +1844,20 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   function addMethod(method: CommonProcessingMethod): void {
     try {
       const steps = JSON.parse(stepsText) as CommonProcessingStep[];
-      steps.push({ method_id: method.method_id, method_version: method.version, options: defaultOptions(method.method_id) });
+      const existingIndex = steps.findIndex((step) => step.method_id === method.method_id);
+      if (method.method_id === "tensile.toe_zero_intercept" && existingIndex >= 0) {
+        setSelectedStepIndex(existingIndex);
+        setNotice("Tensile toe compensation is already present in this Recipe draft.");
+        return;
+      }
+      const newStep = { method_id: method.method_id, method_version: method.version, options: defaultOptions(method.method_id) };
+      const insertionIndex = method.method_id === "tensile.toe_zero_intercept"
+        ? steps.findIndex((step) => step.method_id === "metal.elastic_modulus")
+        : -1;
+      if (insertionIndex >= 0) steps.splice(insertionIndex, 0, newStep);
+      else steps.push(newStep);
       applyDraftSteps(JSON.stringify(steps, null, 2));
-      setSelectedStepIndex(steps.length - 1);
+      setSelectedStepIndex(insertionIndex >= 0 ? insertionIndex : steps.length - 1);
       setPreview(null);
       setError(null);
     } catch (caught) {
@@ -1808,7 +1866,14 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   }
 
   function updateStepOption(option: string, value: unknown): void {
-    updateStepOptions({ [option]: value });
+    const step = configuredSteps[selectedStepIndex];
+    updateStepOptions({
+      [option]: value,
+      ...(step?.method_id === "tensile.toe_zero_intercept"
+        && option !== "warning_acknowledged"
+        ? { warning_acknowledged: false }
+        : {}),
+    });
   }
 
   function updateStepOptions(options: Record<string, unknown>): void {
@@ -1997,7 +2062,9 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       setLastValidPreview(result.data);
       if (isProcessTask) {
         pendingExplicitProcessPreview.current = null;
-        preferredStepContext.current = "";
+        if (draftSteps[selectedStepIndex]?.method_id !== "tensile.toe_zero_intercept") {
+          preferredStepContext.current = "";
+        }
       }
       if (shouldSelectLastPreviewStage) {
         setSelectedStage(result.data.stages.length - 1);
@@ -2624,6 +2691,16 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   }, [modelingTrack, selectedDocumentId, stageDocuments, workflowTask]);
 
   const selectedConfiguredStep = configuredSteps[selectedStepIndex] ?? null;
+  const selectedConfiguredStage = graphPreview?.stages.find(
+    (stage) => stage.ordinal === selectedStepIndex + 1
+      && stage.method_id === selectedConfiguredStep?.method_id,
+  );
+  const toeWarningSaveBlocked = Boolean(preview && configuredSteps.some((step, index) => (
+    step.method_id === "tensile.toe_zero_intercept"
+      && step.options.warning_acknowledged !== true
+      && preview.stages[index + 1]?.method_id === step.method_id
+      && preview.stages[index + 1].diagnostics.some((item) => item.startsWith("toe.warning."))
+  )));
   const stepEntries = configuredSteps.map((step, index) => ({ step, index }));
   const fitStepEntry = stepEntries.find(({ step }) => isFitMethod(step.method_id));
   const fitDecisionReady = Boolean(
@@ -2708,11 +2785,17 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   }, [initialSession, selectedRecipeId, trackRecipes]);
   const trackMethods = useMemo(() => methods.filter((method) => {
     const family = method.method_id.split(".")[0];
+    if (family === "tensile") return modelingTrack === "metal";
     if (family === "metal") return modelingTrack === "metal";
     if (family === "polymer") return modelingTrack === "polymer";
     return true;
   }), [methods, modelingTrack]);
   const availableMethods = trackMethods.filter((method) => workflowTask === "fit" ? isFitMethod(method.method_id) : !isFitMethod(method.method_id));
+  const availableToeMethod = isProcessTask
+    && modelingTrack === "metal"
+    && !configuredSteps.some((step) => step.method_id === "tensile.toe_zero_intercept")
+    ? availableMethods.find((method) => method.method_id === "tensile.toe_zero_intercept")
+    : undefined;
   const chart = useMemo(() => ({ width: 1750, height: 420 }), []);
   const sessionContextMatchesLive = Boolean(
     material
@@ -2851,6 +2934,13 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         } else if (step.method_id === "polymer.log_time_resample") {
           options.start_time_s = selection.minimum;
           options.end_time_s = selection.maximum;
+        } else if (step.method_id === "tensile.toe_zero_intercept") {
+          const offset = activeStage.scalar_results.find(
+            (item) => item.key === "toe_strain_offset",
+          )?.value ?? 0;
+          options.minimum_strain = selection.minimum + offset;
+          options.maximum_strain = selection.maximum + offset;
+          options.warning_acknowledged = false;
         } else if (step.method_id === "metal.elastic_modulus") {
           options.minimum_strain = selection.minimum;
           options.maximum_strain = selection.maximum;
@@ -2935,6 +3025,13 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     const preferredContext = `${workflowTask}:${graphPreview?.source_document_sha256 ?? ""}`;
     if (preferredStepContext.current === preferredContext) return;
     preferredStepContext.current = preferredContext;
+    const currentStep = configuredSteps[selectedStepIndex];
+    if ((isProcessTask && currentStep?.method_id === "tensile.toe_zero_intercept")
+      || (workflowTask === "fit" && currentStep && isFitMethod(currentStep.method_id))) {
+      const stage = graphPreview?.stages.find((item) => item.ordinal === selectedStepIndex + 1);
+      if (stage) setSelectedStage(stage.ordinal);
+      return;
+    }
     if (preferredMethod) {
       let index = configuredSteps.findIndex((step) => step.method_id === preferredMethod);
       if (index < 0) {
@@ -2948,7 +3045,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         if (stage) setSelectedStage(stage.ordinal);
       }
     }
-  }, [configuredSteps, graphPreview, modelingTrack, selectedTrackDocument, workflowTask]);
+  }, [configuredSteps, graphPreview, modelingTrack, selectedStepIndex, selectedTrackDocument, workflowTask]);
 
   useEffect(() => {
     const params = new URLSearchParams(locationSearch);
@@ -3001,6 +3098,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     {fitSourceOutput ? <dl>
       <div><dt>Process source</dt><dd>{fitSourceOutput.label} · r{fitSourceOutput.current_revision.revision_no}</dd></div>
       <div><dt>Source digest</dt><dd><code>{fitSourceOutput.output_sha256}</code></dd></div>
+      {fitSourceOutput.steps.find((step) => step.method_id === "tensile.toe_zero_intercept") ? <div><dt>Toe compensation</dt><dd><strong>OLS zero intercept · v1.0.0</strong> · exact saved Process step</dd></div> : null}
       <div><dt>Fit method</dt><dd>{selectedConfiguredStep ? <><strong>{selectedConfiguredStep.method_id}</strong>{methods.find((method) => method.method_id === selectedConfiguredStep.method_id) ? ` · ${methods.find((method) => method.method_id === selectedConfiguredStep.method_id)?.version}` : ""}</> : "Not selected"}</dd></div>
       {metalFitRunId ? <div><dt>Fit run</dt><dd><code>{metalFitRunId}</code></dd></div> : null}
       {currentFitOutput ? <div><dt>Saved Fit Output</dt><dd>{currentFitOutput.label} · r{currentFitOutput.current_revision.revision_no}</dd></div> : null}
@@ -3145,7 +3243,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
               {!filteredTrackDocuments.length ? <p className="muted">No matching curves.</p> : null}
               {isProcessTask ? <details className="rail-statistics-action"><summary>Replicate analysis</summary>{ensembleDocumentIds.length >= 2 ? <><label>Alignment points<input aria-label="Replicate alignment point count" type="number" min="5" max="1001" value={ensemblePointCount} disabled={processBlocked} onChange={(event) => { setEnsemblePointCount(Number(event.target.value)); setEnsemblePreview(null); }} /></label><button className="button secondary" type="button" disabled={busy || processBlocked} onClick={() => void runEnsemblePreview()}>{busy ? "Calculating…" : "Preview statistics"}</button><small>Compatible observed-domain intersection only · no extrapolation</small></> : <small>Select two Test Data curves to preview an aligned mean.</small>}</details> : null}
             </div>
-            {isProcessTask || workflowTask === "fit" ? <div className={`configured-step-list${isApprovedMetalFit ? " approved-fit-process-tree" : ""}`}><p className="rail-title">{isApprovedMetalFit ? "Process" : stageRail}{isApprovedMetalFit ? <span>4 steps</span> : null}</p>{displayedRailEntries.map(({ step, index, label, title, railIndex }) => { const groupedFitRail = workflowTask === "fit" && modelingTrack === "metal"; return <button type="button" title={title} disabled={processBlocked} className={selectedStepIndex === index ? "active" : ""} key={`${index}:${step.method_id}`} onClick={() => focusConfiguredStep(index)}><span>{groupedFitRail ? railIndex + 1 : index + 1}</span><span><strong>{label}</strong>{!groupedFitRail ? <small>{step.method_version}</small> : null}</span></button>; })}{isApprovedMetalFit ? <footer className="curve-tree-foot">Details in Evidence</footer> : null}</div> : null}
+            {isProcessTask || workflowTask === "fit" ? <div className={`configured-step-list${isApprovedMetalFit ? " approved-fit-process-tree" : ""}`}><p className="rail-title">{isApprovedMetalFit ? "Process" : stageRail}{isApprovedMetalFit ? <span>4 steps</span> : null}</p>{displayedRailEntries.map(({ step, index, label, title, railIndex }) => { const groupedFitRail = workflowTask === "fit" && modelingTrack === "metal"; return <button type="button" title={title} disabled={processBlocked} className={selectedStepIndex === index ? "active" : ""} key={`${index}:${step.method_id}`} onClick={() => focusConfiguredStep(index)}><span>{groupedFitRail ? railIndex + 1 : index + 1}</span><span><strong>{label}</strong>{!groupedFitRail ? <small>{step.method_version}</small> : null}</span></button>; })}{availableToeMethod ? <button type="button" className="configured-step-add" aria-label="Add tensile toe compensation" disabled={processBlocked} onClick={() => addMethod(availableToeMethod)} title="Add an explicit OLS zero-intercept strain correction"><span aria-hidden="true">+</span><span><strong>Add tensile toe compensation</strong><small>Optional · explicit</small></span></button> : null}{isApprovedMetalFit ? <footer className="curve-tree-foot">Details in Evidence</footer> : null}</div> : null}
           </> : null}
           plot={<article className="persistent-modeling-plot" id="modeling-fit">
              <div className="section-heading"><div>{workflowTask === "fit" ? <h2 className="fit-plot-heading">Hardening response</h2> : <><p className="workspace-caption">{workflowTask === "data" ? "Source preview" : isProcessTask ? "Curve response" : "Selected model response"}</p><h2>{activePlotView === "ensemble" ? "Replicate statistics" : activeStage ? methods.find((method) => method.method_id === activeStage.method_id)?.label ?? methodDisplayName(activeStage.method_id) : "Load data and preview"}</h2></>}</div>{workflowTask !== "fit" ? <div className="plot-view-switch" role="group" aria-label="Curve plot view"><button type="button" className={activePlotView === "pipeline" ? "active" : ""} disabled={!preview} onClick={() => setPlotView("pipeline")}>Response</button>{ensemblePreview ? <button type="button" className={activePlotView === "ensemble" ? "active" : ""} onClick={() => setPlotView("ensemble")}>{ensembleBand ? "Mean & band" : "Mean"}</button> : null}{(preview || ensemblePreview) && !isProcessTask ? <span className="plot-preview-state">Preview — not saved</span> : null}</div> : null}</div>
@@ -3171,8 +3269,10 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
             stepNumber={selectedConfiguredStep ? selectedStepIndex + 1 : undefined}
             stepLabel={selectedConfiguredStep ? methods.find((method) => method.method_id === selectedConfiguredStep.method_id)?.label ?? methodDisplayName(selectedConfiguredStep.method_id) : "Select an operation"}
             sourceIdentity={processSourceIdentity}
-            stepControls={selectedConfiguredStep ? <GuidedStepOptions step={selectedConfiguredStep} onChange={updateStepOption} graphInteraction={{ mode: fitPlotInteraction.mode, canApply: fitPlotInteraction.hasSelection, available: Boolean(preview && activeStage && activeStage.method_id === selectedConfiguredStep.method_id) }} onGraphModeChange={requestFitPlotMode} onApplyGraphSelection={applyFitPlotSelection} /> : <p className="muted">Add or select an operation from the Process rail.</p>}
+            stepControls={selectedConfiguredStep ? <GuidedStepOptions step={selectedConfiguredStep} stage={selectedConfiguredStage} onChange={updateStepOption} graphInteraction={{ mode: fitPlotInteraction.mode, canApply: fitPlotInteraction.hasSelection, available: Boolean(preview && activeStage && activeStage.method_id === selectedConfiguredStep.method_id) }} onGraphModeChange={requestFitPlotMode} onApplyGraphSelection={applyFitPlotSelection} /> : <p className="muted">Add or select an operation from the Process rail.</p>}
             scalarPa={graphPreview?.stages.flatMap((stage) => stage.scalar_results ?? []).find((item) => item.key === "youngs_modulus")?.value}
+            resultContent={selectedConfiguredStep?.method_id === "tensile.toe_zero_intercept" ? <ToeCompensationResult stage={selectedConfiguredStage} /> : undefined}
+            saveBlockedReason={toeWarningSaveBlocked ? "Review and acknowledge the toe quality warning, then preview again before saving." : undefined}
             processReady={processSourceReady}
             hasPreview={Boolean(preview)}
             hasLastValidPreview={Boolean(lastValidPreview)}
@@ -3194,7 +3294,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
             <div className="workspace-inspector-heading"><p><strong>Current-step settings</strong><span> · fit and extrapolation</span></p><div className="modeling-ribbon-actions"><button className="text-button" type="button" onClick={() => setInspectorVisible(false)}>Close</button></div></div>
             {selectedConfiguredStep ? <>
               <div className="section-heading"><h3>Step {workflowTask === "fit" && modelingTrack === "metal" ? Math.max(1, fitRailEntries.findIndex((entry) => entry.index === selectedStepIndex) + 1) : selectedStepIndex + 1} · {selectedConfiguredStep.method_id === "metal.hardening_fit_extrapolate" ? "Hardening fit and extrapolation" : methods.find((method) => method.method_id === selectedConfiguredStep.method_id)?.label ?? methodDisplayName(selectedConfiguredStep.method_id)}</h3><div className="fit-heading-actions"><p className="fit-step-impact">All controls affect the persistent preview below</p><span aria-hidden="true">·</span><button className="text-button" type="button" onClick={removeSelectedStep}>Remove step</button></div></div>
-              <GuidedStepOptions step={selectedConfiguredStep} onChange={updateStepOption} graphInteraction={{ mode: fitPlotInteraction.mode, canApply: fitPlotInteraction.hasSelection, available: workflowTask === "fit" && activePlotView === "pipeline" && Boolean(preview && activeStage && activeStage.method_id === selectedConfiguredStep.method_id) }} onGraphModeChange={requestFitPlotMode} onApplyGraphSelection={applyFitPlotSelection} />
+              <GuidedStepOptions step={selectedConfiguredStep} stage={selectedConfiguredStage} onChange={updateStepOption} graphInteraction={{ mode: fitPlotInteraction.mode, canApply: fitPlotInteraction.hasSelection, available: workflowTask === "fit" && activePlotView === "pipeline" && Boolean(preview && activeStage && activeStage.method_id === selectedConfiguredStep.method_id) }} onGraphModeChange={requestFitPlotMode} onApplyGraphSelection={applyFitPlotSelection} />
               {workflowTask === "fit" ? <button ref={fitEvidenceTriggerRef} className="fit-evidence-trigger" type="button" aria-expanded={fitEvidenceOpen} aria-controls="fit-evidence-dock" onClick={() => fitEvidenceOpen ? closeFitEvidence() : setFitEvidenceOpen(true)}>Candidate parameters</button> : null}
               {modelingTrack === "polymer" && selectedConfiguredStep.method_id === "polymer.prony_fit_compare" ? familyInspector : null}
             </> : <p className="muted">Add or select a processing step.</p>}
