@@ -341,37 +341,37 @@ def _setup_dma_context(page: Page) -> tuple[dict[str, Any], str]:
 
 
 def _metal_context(page: Page) -> tuple[dict[str, Any], str]:
-    raw_session = page.evaluate(
-        "() => window.sessionStorage.getItem('cmp.modeling.recent-session.v4')"
-    )
-    if not raw_session:
-        raise RuntimeError("normal Modeling Data session was not persisted")
-    session = json.loads(raw_session)
-    material_id = session.get("material", {}).get("id")
-    state_id = session.get("materialState", {}).get("id")
-    if not material_id or not state_id:
-        raise RuntimeError(f"normal Modeling Data context is incomplete: {session!r}")
-    detail = _api_json(page, f"/api/v1/materials/{material_id}")
-    states = [item for item in detail["states"] if item["material_state_id"] == state_id]
-    if len(states) != 1:
-        raise RuntimeError(f"normal metal Material State drifted: {state_id!r}")
-    state = states[0]
-    runs = _api_json(page, f"/api/v1/material-states/{state_id}/test-runs")["items"]
-    fld_runs = [
+    listing = _api_json(page, "/api/v1/materials?limit=100")
+    materials = [
         item
-        for item in runs
-        if item["current_revision"]["content"]["run_label"]
-        == "CMP demo tensile replicate 2"
+        for item in listing["items"]
+        if item["current_revision"]["content"].get("material_code") == "CMP-DEMO-DP780"
     ]
-    if len(fld_runs) != 1:
-        raise RuntimeError(f"expected exact synthetic FLD Test Run container, got {fld_runs!r}")
+    if len(materials) != 1:
+        raise RuntimeError(f"expected one synthetic DP780 Material, got {len(materials)}")
+    material = materials[0]
+    detail = _api_json(page, f"/api/v1/materials/{material['material_id']}")
+    matches: list[tuple[dict[str, Any], dict[str, Any]]] = []
+    for state in detail["states"]:
+        runs = _api_json(
+            page, f"/api/v1/material-states/{state['material_state_id']}/test-runs"
+        )["items"]
+        matches.extend(
+            (state, item)
+            for item in runs
+            if item["current_revision"]["content"]["run_label"]
+            == "CMP demo tensile replicate 2"
+        )
+    if len(matches) != 1:
+        raise RuntimeError(f"expected exact synthetic FLD Test Run container, got {matches!r}")
+    state, run = matches[0]
     return (
         _modeling_context(
             family="metal",
-            material=detail["material"],
+            material=material,
             material_state=state,
         ),
-        fld_runs[0]["test_run_id"],
+        run["test_run_id"],
     )
 
 
@@ -882,7 +882,6 @@ def _write_sources(directory: Path) -> dict[str, Path]:
 def _capture_journey(browser: Browser, base_url: str, packet: Path) -> dict[str, Any]:
     page = current._new_page(browser, base_url, 1440, 900)
     failures = _console_guard(page)
-    current._prepare_modeling(page, base_url, verify_reload=False)
     metal_context, fld_test_run_id = _metal_context(page)
     polymer_context, dma_test_run_id = _setup_dma_context(page)
     _activate_context(page, base_url, polymer_context)
