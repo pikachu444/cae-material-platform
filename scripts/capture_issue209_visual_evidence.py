@@ -107,13 +107,28 @@ def _crop_base_originals(packet: Path) -> None:
 
 def _console_guard(page: Page) -> list[str]:
     failures: list[str] = []
+
+    def record_console_error(message: Any) -> None:
+        if message.type != "error":
+            return
+        location = message.location
+        expected_rejection = (
+            "Failed to load resource: the server responded with a status of 422 "
+            "(Unprocessable Entity)"
+        )
+        if (
+            message.text == expected_rejection
+            and location.get("url", "").endswith("/api/v1/test-data:convert-tabular")
+        ):
+            # The negative journey requires this exact conversion rejection.
+            # `_preview(..., expected_status=422)` validates the response body;
+            # every other console error remains merge-blocking.
+            return
+        failures.append(f"console.{message.type}: {message.text}")
+
     page.on(
         "console",
-        lambda message: (
-            failures.append(f"console.{message.type}: {message.text}")
-            if message.type == "error"
-            else None
-        ),
+        record_console_error,
     )
     page.on("pageerror", lambda error: failures.append(f"pageerror: {error}"))
     return failures
