@@ -5084,7 +5084,9 @@
 }
 
 .data-mapping-decision .mapping-context-row {
-  display: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+  align-items: end;
 }
 
 .data-mapping-decision .data-intake-attention {
