@@ -872,7 +872,17 @@ describe("Common Processing Workbench", () => {
     steps = JSON.parse((screen.getByLabelText("Ordered processing steps") as HTMLTextAreaElement).value) as Array<{ method_id: string; options: Record<string, unknown> }>;
     expect(steps[1].options.warning_acknowledged).toBe(false);
     expect(save.disabled).toBe(true);
+
+    fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:undo" } }));
+    steps = JSON.parse((screen.getByLabelText("Ordered processing steps") as HTMLTextAreaElement).value) as Array<{ method_id: string; options: Record<string, unknown> }>;
+    expect(steps[1].options.minimum_strain).toBe(0);
+    expect(steps[1].options.warning_acknowledged).toBe(false);
+    const previewCountBeforeUndoPreview = previewBodies.length;
+    fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
+    await waitFor(() => expect(previewBodies).toHaveLength(previewCountBeforeUndoPreview + 1));
+    expect(save.disabled).toBe(true);
     fireEvent.click(screen.getByRole("checkbox", { name: "Acknowledge toe quality warning" }));
+    expect(save.disabled).toBe(true);
     fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
     await waitFor(() => expect(save.disabled).toBe(false));
 

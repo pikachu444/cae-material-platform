@@ -1181,14 +1181,19 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
 
   const draftDirty = stepsText !== savedSteps.current;
 
+  function normalizeEditedDraftSteps(next: string): string {
+    const normalized = normalizeToeWarningAcknowledgement(lastValidSteps.current, next);
+    if (parsedStepArray(normalized)) lastValidSteps.current = normalized;
+    return normalized;
+  }
+
   function applyDraftSteps(next: string, force = false, preserveCurrentOutput = false): void {
-    const normalizedNext = normalizeToeWarningAcknowledgement(lastValidSteps.current, next);
+    const normalizedNext = normalizeEditedDraftSteps(next);
     if (normalizedNext === stepsText && !force) return;
     undoSteps.current.push(stepsText);
     if (undoSteps.current.length > 50) undoSteps.current.shift();
     redoSteps.current = [];
     setStepsText(normalizedNext);
-    if (parsedStepArray(normalizedNext)) lastValidSteps.current = normalizedNext;
     setFitSelection(null);
     setPreview(null);
     setVerifiedFitOutputKey(null);
@@ -1232,8 +1237,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     const previous = undoSteps.current.pop();
     if (previous === undefined) return;
     redoSteps.current.push(stepsText);
-    setStepsText(previous);
-    if (parsedStepArray(previous)) lastValidSteps.current = previous;
+    setStepsText(normalizeEditedDraftSteps(previous));
     setPreview(null);
     updateLocalCurrentOutput(null);
     setFitSelection(null);
@@ -1250,8 +1254,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     const next = redoSteps.current.pop();
     if (next === undefined) return;
     undoSteps.current.push(stepsText);
-    setStepsText(next);
-    if (parsedStepArray(next)) lastValidSteps.current = next;
+    setStepsText(normalizeEditedDraftSteps(next));
     setPreview(null);
     updateLocalCurrentOutput(null);
     setVerifiedFitOutputKey(null);
