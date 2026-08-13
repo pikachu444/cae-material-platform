@@ -1452,8 +1452,18 @@ def _ensure_governed_test_data_revision(
     ungoverned revision available for historical reconstruction.
     """
 
-    if test_data.get("governed_source") == governed_source:
-        return dict(test_data)
+    current_source = test_data.get("governed_source")
+    if isinstance(current_source, Mapping):
+        normalized_current = dict(current_source)
+        normalized_expected = dict(governed_source)
+        # ``tabular_import`` was added as an optional governed-source extension in
+        # #209.  FastAPI serializes an absent legacy value as JSON null, while the
+        # older demo fixture omits the key.  Both mean the same non-tabular source;
+        # a populated exact tabular pin still compares strictly.
+        normalized_current.setdefault("tabular_import", None)
+        normalized_expected.setdefault("tabular_import", None)
+        if normalized_current == normalized_expected:
+            return dict(test_data)
     document_id = _id(test_data, "test_data_document_id")
     revision_id = _revision_id(test_data)
     document = api.get(f"/test-data-documents/{document_id}/revisions/{revision_id}/content")

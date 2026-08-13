@@ -25,12 +25,12 @@ review/release는 Modeling의 normal stage가 아니라 Advanced와 Activity의 
 | --- | --- |
 | Materials | Browse 기본의 explorer/result/datasheet workspace, server-scoped Material class 검색·정렬·pagination, Browse Tree, 선택 문맥, detail 5개 영역, exact-revision curve chart/channel·unit·deviation evidence, solver card preview/download |
 | Modeling | exact Material/State/Test Data session pin, Data/Process/Fit/Export, Materials와 공유하는 curve definition/display adapter, Process의 exact source/profile preview·last-valid blocked recovery·immutable saved-result comparison, 사용자가 고른 구간의 명시적 tensile toe OLS 보정·품질 경고 승인·exact Fit 입력, processed replicate `peak_engineering_stress_pa`의 선택형 Distribution analysis sheet와 Normal/Lognormal/Weibull 후보 비교·explicit selected model revision, processing·fitting, 선택 모델 저장, Material Model IR·Neutral·solver card 생성, upstream 변경에 따른 downstream clear/stale/regenerate |
-| Activity | role-aware review queue, exact Material/Solver Card request entry, Reviewer-only approval/change decisions, Processing Batch context/retry, browser recovery facts, and review-backed Record publication projection |
+| Activity | role-aware review queue, exact Material/Test Data/Solver Card request entry, Reviewer-only approval/change decisions, exact governed Material 또는 current Record 기반 Test Data projection, Processing Batch context/retry, browser recovery facts, and review-backed Record publication projection |
 | Administration | Database/Profile과 configurable Table/Attribute/Layout/Subset/Link Type의 revision 관리·발행, Definition Bundle upload-plan-confirm-apply-read-back-export, Folder/Record tree, typed search·compare, 단건·다건 등록, exact Record links와 접근 관리 |
 | Catalog schema bundle | exact immutable Artifact의 임의 개수 JSON Schema draft 2020-12 정의를 bundle 내부에서만 resolve하고 결정론적 plan 생성; Administrator 전용 화면과 API에서 exact SHA-256/`plan_fingerprint` 재검증, 원자 apply/publication, immutable application read-back, provenance와 checksum-verified current-state export |
 | Common units | contract `1.0.0`의 8개 bounded dimension과 explicit Decimal conversion, stable identity/immutable revision Unit Profile API, exact profile/application trace를 Processing·Fit·Export와 PostgreSQL provenance에 연결 |
 | Curve metadata | contract `1.0.0`의 channel role/quantity/original·normalized·display unit, typed scalar·pointwise deviation, exact Artifact/revision/source/calculation provenance; current Parquet metadata와 schema별 legacy adapter를 Dataset·Test Data·Processing·Statistics·Catalog·Materials·Modeling에 연결 |
-| Exchange | CSV/TSV/XLSX governed import, versioned Test Data JSON, Neutral Material JSON, deterministic package |
+| Exchange | CSV/TSV/XLSX governed import와 versioned Test Data JSON; DMA frequency-temperature sweep(temperature/frequency/storage/loss, optional tan delta)와 FLD(minor/major strain)의 atomic whole-file validation, actionable row/cell diagnostics, idempotent retry, exact Raw/Profile/Run/Dataset/Material provenance; Neutral Material JSON, deterministic package |
 | Governance | immutable review/release/artifact, exact revision, provenance/audit, organization/project 권한 |
 | Operations | Compose demo, worker/job, observability, recovery·performance·security 검증 도구. clean full-demo는 preview에서 선택한 fit evidence와 metal manual necking override를 exact revision으로 보존하고, DP780 selected model review request 하나와 Materials의 solver card preview·검토 후 다운로드를 검증 |
 
@@ -68,6 +68,9 @@ Production 표준, plugin, solver correlation과 validation threshold는 domain 
 - #158 Data/Process/Fit/Export production UI는 PR #183~#202에서 현재 화면에 연결했습니다.
   Administration 공개·복구 refinement는 #161, Definition Bundle 화면은 #208에서 연결했습니다.
   남은 Template/OIDC 화면은 각각 #214, #215에서 별도 검수합니다.
+- #209의 DMA frequency-temperature sweep와 FLD는 governed Data 등록·canonical read-back·review
+  projection까지만 연결합니다. `dma_strain_sweep`, source-v2 전체 adapter, 추가 unit/bundle adapter와
+  DMA→Prony/master curve/Material Model IR 연결은 #246 범위입니다.
 - Materials의 provider/evidence source, condition-aware property, validation·solver readiness는
   실제 governed query projection이 없는 상태에서 추론하지 않습니다.
 - Activity의 실패 작업 복구와 review-backed Record publication은 #160 범위입니다. Authoritative

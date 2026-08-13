@@ -34,6 +34,8 @@ class RlsContext(Protocol):
 
 
 _metadata = sa.MetaData()
+
+
 def _base_revision_columns() -> tuple[sa.Column[Any], ...]:
     return (
         sa.Column("id", sa.Uuid(), nullable=False),
@@ -100,6 +102,7 @@ _SUBJECTS: dict[str, tuple[sa.Table, sa.Table, tuple[str, ...]]] = {
             sa.Column("source_file_name", sa.String(255)),
             sa.Column("canonical_artifact_id", sa.Uuid()),
             sa.Column("canonical_sha256", sa.CHAR(64)),
+            sa.Column("governed_source", sa.JSON()),
         ),
         ("document_key", "source_file_name"),
     ),
@@ -158,6 +161,7 @@ _binding = sa.Table(
 
 _record = _SUBJECTS["catalog.configurable_record"][0]
 _record_revision = _SUBJECTS["catalog.configurable_record"][1]
+_material_revision = _SUBJECTS["catalog.material"][1]
 
 _neutral_identity = _identity("modeling", "neutral_material")
 _neutral_revision = _revision(
@@ -179,6 +183,23 @@ def _label(row: Any, columns: tuple[str, ...], subject_id: UUID) -> str:
         if isinstance(value, str) and value.strip():
             return value.strip()
     return f"{subject_id} exact revision"
+
+
+def _governed_tabular_material_pin(row: Any) -> tuple[UUID, UUID] | None:
+    governed_source = row.get("governed_source")
+    if governed_source is None:
+        return None
+    if not isinstance(governed_source, dict):
+        raise ReviewEvidenceError("governed Test Data source evidence is invalid")
+    if not isinstance(governed_source.get("tabular_import"), dict):
+        return None
+    material = governed_source.get("material")
+    if not isinstance(material, dict):
+        raise ReviewEvidenceError("governed Test Data Material pin is invalid")
+    try:
+        return UUID(str(material["aggregate_id"])), UUID(str(material["revision_id"]))
+    except (KeyError, TypeError, ValueError) as error:
+        raise ReviewEvidenceError("governed Test Data Material pin is invalid") from error
 
 
 class SqlAlchemyReviewSubjectResolver:
@@ -219,25 +240,33 @@ class SqlAlchemyReviewSubjectResolver:
         identity, revision, label_columns = _SUBJECTS[self.subject_type]
         with self._sessions() as session, session.begin():
             self._rls.bind_authorization(session, context, authorization_decision)
-            identity_row = session.execute(
-                sa.select(identity).where(
-                    identity.c.organization_id == organization_id,
-                    identity.c.project_id == project_id,
-                    identity.c.id == subject_id,
+            identity_row = (
+                session.execute(
+                    sa.select(identity).where(
+                        identity.c.organization_id == organization_id,
+                        identity.c.project_id == project_id,
+                        identity.c.id == subject_id,
+                    )
                 )
-            ).mappings().one_or_none()
+                .mappings()
+                .one_or_none()
+            )
             if identity_row is None:
                 raise ReviewEvidenceError("review subject is not visible in this tenant")
             if identity_row["current_revision_id"] != subject_revision_id:
                 raise ReviewEvidenceError("review subject revision is not current")
-            row = session.execute(
-                sa.select(revision).where(
-                    revision.c.organization_id == organization_id,
-                    revision.c.project_id == project_id,
-                    revision.c.aggregate_id == subject_id,
-                    revision.c.id == subject_revision_id,
+            row = (
+                session.execute(
+                    sa.select(revision).where(
+                        revision.c.organization_id == organization_id,
+                        revision.c.project_id == project_id,
+                        revision.c.aggregate_id == subject_id,
+                        revision.c.id == subject_revision_id,
+                    )
                 )
-            ).mappings().one_or_none()
+                .mappings()
+                .one_or_none()
+            )
             if row is None:
                 raise ReviewEvidenceError("review subject revision is not visible")
             classification = DataClassification(str(row["classification"]))
@@ -273,8 +302,7 @@ class SqlAlchemyReviewSubjectResolver:
                 neutral_matches: list[sa.ColumnElement[bool]] = [
                     sa.and_(
                         _neutral_revision.c.prony_overlay_model_id == subject_id,
-                        _neutral_revision.c.prony_overlay_model_revision_id
-                        == subject_revision_id,
+                        _neutral_revision.c.prony_overlay_model_revision_id == subject_revision_id,
                     )
                 ]
                 if processing_id is not None and processing_revision_id is not None:
@@ -285,25 +313,29 @@ class SqlAlchemyReviewSubjectResolver:
                             == processing_revision_id,
                         )
                     )
-                neutral_row = session.execute(
-                    sa.select(_neutral_revision)
-                    .join(
-                        _neutral_identity,
-                        sa.and_(
-                            _neutral_identity.c.organization_id
-                            == _neutral_revision.c.organization_id,
-                            _neutral_identity.c.project_id == _neutral_revision.c.project_id,
-                            _neutral_identity.c.id == _neutral_revision.c.aggregate_id,
-                            _neutral_identity.c.current_revision_id == _neutral_revision.c.id,
-                        ),
+                neutral_row = (
+                    session.execute(
+                        sa.select(_neutral_revision)
+                        .join(
+                            _neutral_identity,
+                            sa.and_(
+                                _neutral_identity.c.organization_id
+                                == _neutral_revision.c.organization_id,
+                                _neutral_identity.c.project_id == _neutral_revision.c.project_id,
+                                _neutral_identity.c.id == _neutral_revision.c.aggregate_id,
+                                _neutral_identity.c.current_revision_id == _neutral_revision.c.id,
+                            ),
+                        )
+                        .where(
+                            _neutral_revision.c.organization_id == organization_id,
+                            _neutral_revision.c.project_id == project_id,
+                            _neutral_revision.c.classification == classification.value,
+                            sa.or_(*neutral_matches),
+                        )
                     )
-                    .where(
-                        _neutral_revision.c.organization_id == organization_id,
-                        _neutral_revision.c.project_id == project_id,
-                        _neutral_revision.c.classification == classification.value,
-                        sa.or_(*neutral_matches),
-                    )
-                ).mappings().first()
+                    .mappings()
+                    .first()
+                )
                 if neutral_row is None:
                     raise ReviewEvidenceError(
                         "material model review requires an exact current Neutral revision pin"
@@ -318,35 +350,41 @@ class SqlAlchemyReviewSubjectResolver:
                     raise ReviewEvidenceError(
                         "Neutral Solver Card review requires an exact Neutral revision pin"
                     )
-                neutral_row = session.execute(
-                    sa.select(
-                        _neutral_revision.c.id,
-                        _neutral_revision.c.aggregate_id,
-                        _neutral_revision.c.document_artifact_sha256,
+                neutral_row = (
+                    session.execute(
+                        sa.select(
+                            _neutral_revision.c.id,
+                            _neutral_revision.c.aggregate_id,
+                            _neutral_revision.c.document_artifact_sha256,
+                        )
+                        .join(
+                            _neutral_identity,
+                            sa.and_(
+                                _neutral_identity.c.organization_id
+                                == _neutral_revision.c.organization_id,
+                                _neutral_identity.c.project_id == _neutral_revision.c.project_id,
+                                _neutral_identity.c.id == _neutral_revision.c.aggregate_id,
+                                _neutral_identity.c.current_revision_id == _neutral_revision.c.id,
+                            ),
+                        )
+                        .where(
+                            _neutral_revision.c.organization_id == organization_id,
+                            _neutral_revision.c.project_id == project_id,
+                            _neutral_revision.c.aggregate_id == neutral_material_id,
+                            _neutral_revision.c.id == neutral_material_revision_id,
+                        )
                     )
-                    .join(
-                        _neutral_identity,
-                        sa.and_(
-                            _neutral_identity.c.organization_id
-                            == _neutral_revision.c.organization_id,
-                            _neutral_identity.c.project_id == _neutral_revision.c.project_id,
-                            _neutral_identity.c.id == _neutral_revision.c.aggregate_id,
-                            _neutral_identity.c.current_revision_id == _neutral_revision.c.id,
-                        ),
-                    )
-                    .where(
-                        _neutral_revision.c.organization_id == organization_id,
-                        _neutral_revision.c.project_id == project_id,
-                        _neutral_revision.c.aggregate_id == neutral_material_id,
-                        _neutral_revision.c.id == neutral_material_revision_id,
-                    )
-                ).mappings().first()
+                    .mappings()
+                    .first()
+                )
                 if neutral_row is None:
                     raise ReviewEvidenceError(
                         "Neutral Solver Card review requires a current exact Neutral revision"
                     )
                 neutral_artifact_sha256 = str(neutral_row["document_artifact_sha256"])
 
+            affected_material_id: UUID | None = None
+            affected_material_revision_id: UUID | None = None
             affected_record_id: UUID | None = None
             affected_record_revision_id: UUID | None = None
             if self.subject_type == "catalog.configurable_record":
@@ -360,16 +398,20 @@ class SqlAlchemyReviewSubjectResolver:
                     "solver_card": "solver_card",
                     "neutral_solver_card": "neutral_solver_card",
                 }.get(domain_kind, domain_kind)
-                binding_row = session.execute(
-                    sa.select(_binding.c.record_id, _binding.c.record_revision_id).where(
-                        _binding.c.organization_id == organization_id,
-                        _binding.c.project_id == project_id,
-                        _binding.c.classification == classification.value,
-                        _binding.c.domain_kind == domain_kind,
-                        _binding.c.domain_object_id == subject_id,
-                        _binding.c.domain_revision_id == subject_revision_id,
+                binding_row = (
+                    session.execute(
+                        sa.select(_binding.c.record_id, _binding.c.record_revision_id).where(
+                            _binding.c.organization_id == organization_id,
+                            _binding.c.project_id == project_id,
+                            _binding.c.classification == classification.value,
+                            _binding.c.domain_kind == domain_kind,
+                            _binding.c.domain_object_id == subject_id,
+                            _binding.c.domain_revision_id == subject_revision_id,
+                        )
                     )
-                ).mappings().first()
+                    .mappings()
+                    .first()
+                )
                 if binding_row is not None:
                     record_row = session.execute(
                         sa.select(_record.c.current_revision_id).where(
@@ -385,24 +427,48 @@ class SqlAlchemyReviewSubjectResolver:
                         affected_record_id = binding_row["record_id"]
                         affected_record_revision_id = binding_row["record_revision_id"]
                 if affected_record_id is None or affected_record_revision_id is None:
-                    raise ReviewEvidenceError(
-                        "review subject must have a current exact Materials Record binding"
+                    material_pin = (
+                        _governed_tabular_material_pin(row)
+                        if self.subject_type == "datasets.test_data_document"
+                        else None
                     )
+                    if material_pin is None:
+                        raise ReviewEvidenceError(
+                            "review subject must have a current exact Materials Record binding"
+                        )
+                    affected_material_id, affected_material_revision_id = material_pin
+                    material_revision_row = session.execute(
+                        sa.select(_material_revision.c.id).where(
+                            _material_revision.c.organization_id == organization_id,
+                            _material_revision.c.project_id == project_id,
+                            _material_revision.c.classification == classification.value,
+                            _material_revision.c.aggregate_id == affected_material_id,
+                            _material_revision.c.id == affected_material_revision_id,
+                        )
+                    ).scalar_one_or_none()
+                    if material_revision_row is None:
+                        raise ReviewEvidenceError(
+                            "governed Test Data Material revision is not visible"
+                        )
 
             affected_table_id: UUID | None = None
             affected_table_revision_id: UUID | None = None
             if affected_record_id is not None and affected_record_revision_id is not None:
-                record_revision_row = session.execute(
-                    sa.select(
-                        _record_revision.c.table_id,
-                        _record_revision.c.table_revision_id,
-                    ).where(
-                        _record_revision.c.organization_id == organization_id,
-                        _record_revision.c.project_id == project_id,
-                        _record_revision.c.aggregate_id == affected_record_id,
-                        _record_revision.c.id == affected_record_revision_id,
+                record_revision_row = (
+                    session.execute(
+                        sa.select(
+                            _record_revision.c.table_id,
+                            _record_revision.c.table_revision_id,
+                        ).where(
+                            _record_revision.c.organization_id == organization_id,
+                            _record_revision.c.project_id == project_id,
+                            _record_revision.c.aggregate_id == affected_record_id,
+                            _record_revision.c.id == affected_record_revision_id,
+                        )
                     )
-                ).mappings().one_or_none()
+                    .mappings()
+                    .one_or_none()
+                )
                 if record_revision_row is None:
                     raise ReviewEvidenceError(
                         "review subject must have an exact Materials Record table pin"
@@ -410,22 +476,45 @@ class SqlAlchemyReviewSubjectResolver:
                 affected_table_id = record_revision_row["table_id"]
                 affected_table_revision_id = record_revision_row["table_revision_id"]
 
-            affected_material_id: UUID | None = None
-            affected_material_revision_id: UUID | None = None
             if affected_record_id is not None and affected_record_revision_id is not None:
-                material_binding = session.execute(
-                    sa.select(_binding.c.domain_object_id, _binding.c.domain_revision_id).where(
-                        _binding.c.organization_id == organization_id,
-                        _binding.c.project_id == project_id,
-                        _binding.c.classification == classification.value,
-                        _binding.c.record_id == affected_record_id,
-                        _binding.c.record_revision_id == affected_record_revision_id,
-                        _binding.c.domain_kind == "material",
+                material_binding = (
+                    session.execute(
+                        sa.select(_binding.c.domain_object_id, _binding.c.domain_revision_id).where(
+                            _binding.c.organization_id == organization_id,
+                            _binding.c.project_id == project_id,
+                            _binding.c.classification == classification.value,
+                            _binding.c.record_id == affected_record_id,
+                            _binding.c.record_revision_id == affected_record_revision_id,
+                            _binding.c.domain_kind == "material",
+                        )
                     )
-                ).mappings().first()
+                    .mappings()
+                    .first()
+                )
                 if material_binding is not None:
                     affected_material_id = material_binding["domain_object_id"]
                     affected_material_revision_id = material_binding["domain_revision_id"]
+
+            affected_path = (
+                f"/materials/{affected_material_id}?record_id={affected_record_id}"
+                f"&record_revision_id={affected_record_revision_id}"
+                f"&material_revision_id={affected_material_revision_id}"
+                if (
+                    affected_record_id is not None
+                    and affected_record_revision_id is not None
+                    and affected_material_id is not None
+                    and affected_material_revision_id is not None
+                )
+                else (
+                    f"/materials/{affected_material_id}"
+                    f"?material_revision_id={affected_material_revision_id}"
+                    if (
+                        affected_material_id is not None
+                        and affected_material_revision_id is not None
+                    )
+                    else None
+                )
+            )
 
         raw_validation_status = row.get("validation_status")
         validation_status = {
@@ -463,7 +552,9 @@ class SqlAlchemyReviewSubjectResolver:
                 [f"{self.subject_type}:{subject_id}:{subject_revision_id}"]
                 + ([f"artifact:{source_id}:{source_sha}"] if source_id and source_sha else [])
                 + (
-                    [f"output-artifact:{self.subject_type}:{subject_id}:{subject_revision_id}:{card_sha}"]
+                    [
+                        f"output-artifact:{self.subject_type}:{subject_id}:{subject_revision_id}:{card_sha}"
+                    ]
                     if card_sha
                     else []
                 )
@@ -478,26 +569,23 @@ class SqlAlchemyReviewSubjectResolver:
                     )
                     else []
                 )
+                + (
+                    [f"material:{affected_material_id}:{affected_material_revision_id}"]
+                    if (
+                        affected_material_id is not None
+                        and affected_material_revision_id is not None
+                    )
+                    else []
+                )
             ),
             affected_record_id=affected_record_id,
             affected_record_revision_id=affected_record_revision_id,
-            affected_path=(
-                f"/materials/{affected_material_id}?record_id={affected_record_id}"
-                f"&record_revision_id={affected_record_revision_id}"
-                f"&material_revision_id={affected_material_revision_id}"
-                if (
-                    affected_record_id is not None
-                    and affected_record_revision_id is not None
-                    and affected_material_id is not None
-                    and affected_material_revision_id is not None
-                )
-                else None
-            ),
+            affected_path=affected_path,
+            affected_material_id=affected_material_id,
+            affected_material_revision_id=affected_material_revision_id,
             affected_table_id=affected_table_id,
             affected_table_revision_id=affected_table_revision_id,
-            output_artifact_sha256=(
-                str(card_sha) if card_sha is not None else None
-            ),
+            output_artifact_sha256=(str(card_sha) if card_sha is not None else None),
             neutral_material_id=neutral_material_id,
             neutral_material_revision_id=neutral_material_revision_id,
             neutral_artifact_sha256=neutral_artifact_sha256,

@@ -2668,7 +2668,9 @@ export type GovernedTabularDataSchema =
   | "planar_tension"
   | "biaxial_tension"
   | "simple_shear"
-  | "shear_relaxation";
+  | "shear_relaxation"
+  | "dma_frequency_temperature_sweep"
+  | "forming_limit_diagram";
 export type GovernedQuantityKind =
   | "engineering_strain"
   | "engineering_stress"
@@ -2677,7 +2679,14 @@ export type GovernedQuantityKind =
   | "time"
   | "shear_modulus"
   | "displacement"
-  | "force";
+  | "force"
+  | "temperature"
+  | "frequency"
+  | "storage_modulus"
+  | "loss_modulus"
+  | "tan_delta"
+  | "minor_strain"
+  | "major_strain";
 
 export interface GovernedChannelMapping {
   ordinal: number;
@@ -2740,6 +2749,8 @@ export interface GovernedImportRunResponse {
   import_profile_id: string;
   import_profile_revision_id: string;
   profile_sha256: string;
+  idempotency_key: string;
+  request_sha256: string;
   status: "executing" | "succeeded" | "failed";
   started_at: string;
   finished_at: string | null;
@@ -2750,6 +2761,15 @@ export interface GovernedImportRunResponse {
   row_count: number | null;
   failure_code: string | null;
   failure_detail: string | null;
+  diagnostics: Array<{
+    ordinal: number;
+    row_number: number | null;
+    column_name: string | null;
+    channel_key: string | null;
+    error_code: string;
+    error_detail: string;
+    recovery_hint: string;
+  }>;
 }
 
 export interface GovernedDatasetResponse {
@@ -4446,6 +4466,13 @@ export interface CommonExportProvenance {
   material: CommonExactRevisionPin;
   material_state: CommonExactRevisionPin;
   test_run: CommonExactRevisionPin;
+  tabular_import?: {
+    raw_asset_id: string;
+    raw_artifact_id: string;
+    import_run_id: string;
+    import_profile: CommonExactRevisionPin;
+    normalized_dataset: CommonExactRevisionPin;
+  } | null;
 }
 
 export interface CommonProcessingFitDecisionParameter {

@@ -30,6 +30,13 @@ _SEMANTICS: dict[QuantityKind, str] = {
     QuantityKind.SHEAR_STRESS: "mechanics.stress.shear",
     QuantityKind.TIME: "time.elapsed",
     QuantityKind.SHEAR_MODULUS: "mechanics.modulus.shear.relaxation",
+    QuantityKind.TEMPERATURE: "physics.temperature",
+    QuantityKind.FREQUENCY: "frequency.cyclic",
+    QuantityKind.STORAGE_MODULUS: "mechanics.modulus.storage",
+    QuantityKind.LOSS_MODULUS: "mechanics.modulus.loss",
+    QuantityKind.TAN_DELTA: "mechanics.loss_factor",
+    QuantityKind.MINOR_STRAIN: "mechanics.strain.minor",
+    QuantityKind.MAJOR_STRAIN: "mechanics.strain.major",
 }
 
 _MEDIA_TYPES = {
@@ -58,12 +65,8 @@ def canonical_from_governed_tabular(
     channels: list[TestDataChannel] = []
     for ordinal, mapping in enumerate(command.profile.channels):
         quantity = mapping.normalized_quantity
-        original_values = tuple(
-            Decimal(str(row[ordinal])) for row in evidence.original_rows
-        )
-        normalized_values = tuple(
-            Decimal(str(row[ordinal])) for row in evidence.normalized.rows
-        )
+        original_values = tuple(Decimal(str(row[ordinal])) for row in evidence.original_rows)
+        normalized_values = tuple(Decimal(str(row[ordinal])) for row in evidence.normalized.rows)
         channels.append(
             TestDataChannel(
                 key=quantity.value,
@@ -73,7 +76,7 @@ def canonical_from_governed_tabular(
                 original_unit_string=mapping.original_unit,
                 normalized_unit=mapping.normalized_unit,
                 normalization_scale=Decimal(str(evidence.normalization_scales[ordinal])),
-                normalization_offset=Decimal("0"),
+                normalization_offset=Decimal(str(evidence.normalization_offsets[ordinal])),
                 original_values=original_values,
                 normalized_values=normalized_values,
                 missing_reasons=tuple(None for _ in original_values),

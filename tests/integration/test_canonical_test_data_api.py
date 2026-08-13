@@ -21,6 +21,7 @@ from cmp.modules.datasets.application.canonical_test_data import (
     CanonicalTestDataService,
     ExactRevisionRef,
     ExactTestDataRevisionRef,
+    GovernedTabularTestDataSource,
     GovernedTestDataSource,
     ImportCanonicalTestData,
     ReviseCanonicalTestData,
@@ -64,6 +65,13 @@ STATE = UUID("de000000-0000-4000-8000-000000000011")
 STATE_REVISION = UUID("de000000-0000-4000-8000-000000000012")
 TEST_RUN = UUID("de000000-0000-4000-8000-000000000013")
 TEST_RUN_REVISION = UUID("de000000-0000-4000-8000-000000000014")
+IMPORT_RUN = UUID("de000000-0000-4000-8000-000000000015")
+IMPORT_PROFILE = UUID("de000000-0000-4000-8000-000000000016")
+IMPORT_PROFILE_REVISION = UUID("de000000-0000-4000-8000-000000000017")
+RAW_ASSET = UUID("de000000-0000-4000-8000-000000000018")
+RAW_ARTIFACT = UUID("de000000-0000-4000-8000-000000000019")
+NORMALIZED_DATASET = UUID("de000000-0000-4000-8000-000000000020")
+NORMALIZED_DATASET_REVISION = UUID("de000000-0000-4000-8000-000000000021")
 
 
 def _context() -> SecurityContext:
@@ -448,6 +456,19 @@ async def test_import_returns_exact_server_governed_source_without_changing_arti
             "aggregate_id": str(TEST_RUN),
             "revision_id": str(TEST_RUN_REVISION),
         },
+        "tabular_import": {
+            "raw_asset_id": str(RAW_ASSET),
+            "raw_artifact_id": str(RAW_ARTIFACT),
+            "import_run_id": str(IMPORT_RUN),
+            "import_profile": {
+                "aggregate_id": str(IMPORT_PROFILE),
+                "revision_id": str(IMPORT_PROFILE_REVISION),
+            },
+            "normalized_dataset": {
+                "aggregate_id": str(NORMALIZED_DATASET),
+                "revision_id": str(NORMALIZED_DATASET_REVISION),
+            },
+        },
     }
     async with httpx.AsyncClient(
         transport=httpx.ASGITransport(app=_app(service)), base_url="http://test"
@@ -475,6 +496,13 @@ async def test_import_returns_exact_server_governed_source_without_changing_arti
         material=ExactRevisionRef(MATERIAL, MATERIAL_REVISION),
         material_state=ExactRevisionRef(STATE, STATE_REVISION),
         test_run=ExactRevisionRef(TEST_RUN, TEST_RUN_REVISION),
+        tabular_import=GovernedTabularTestDataSource(
+            RAW_ASSET,
+            RAW_ARTIFACT,
+            IMPORT_RUN,
+            ExactRevisionRef(IMPORT_PROFILE, IMPORT_PROFILE_REVISION),
+            ExactRevisionRef(NORMALIZED_DATASET, NORMALIZED_DATASET_REVISION),
+        ),
     )
     qualified = canonical_test_data_content(
         replace(service.snapshot.content, governed_source=governed)

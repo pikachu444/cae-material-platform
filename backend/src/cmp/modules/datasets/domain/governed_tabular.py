@@ -31,11 +31,11 @@ from cmp.modules.units.domain.system import (
 )
 from cmp.shared.domain.revisions import content_sha256
 
-GOVERNED_IMPORT_PROFILE_SCHEMA_ID = "urn:cmp:datasets:governed-import-profile:1.0.0"
-GOVERNED_DATASET_SCHEMA_ID = "urn:cmp:datasets:governed-tabular-dataset:1.0.0"
-GOVERNED_IMPORTER_ID = "urn:cmp:datasets:governed-tabular-importer:1.0.0"
-GOVERNED_IMPORTER_VERSION = "1.0.0"
-GOVERNED_PARQUET_SCHEMA = "urn:cmp:datasets:governed-tabular-normalized-parquet:1.0.0"
+GOVERNED_IMPORT_PROFILE_SCHEMA_ID = "urn:cmp:datasets:governed-import-profile:1.1.0"
+GOVERNED_DATASET_SCHEMA_ID = "urn:cmp:datasets:governed-tabular-dataset:1.1.0"
+GOVERNED_IMPORTER_ID = "urn:cmp:datasets:governed-tabular-importer:1.1.0"
+GOVERNED_IMPORTER_VERSION = "1.1.0"
+GOVERNED_PARQUET_SCHEMA = "urn:cmp:datasets:governed-tabular-normalized-parquet:1.1.0"
 MAX_SOURCE_BYTES = 16 * 1024 * 1024
 MAX_ROWS = 100_000
 MAX_COLUMNS = 512
@@ -52,6 +52,14 @@ class GovernedImportError(Exception):
 
 class InvalidGovernedImport(GovernedImportError, ValueError):
     """A parser setting, profile, row, or schema is invalid."""
+
+    def __init__(
+        self,
+        message: str,
+        diagnostics: tuple[ImportDiagnostic, ...] = (),
+    ) -> None:
+        super().__init__(message)
+        self.diagnostics = diagnostics
 
 
 class GovernedImportNotFound(GovernedImportError):
@@ -75,6 +83,8 @@ class TabularDataSchema(StrEnum):
     BIAXIAL_TENSION = "biaxial_tension"
     SIMPLE_SHEAR = "simple_shear"
     SHEAR_RELAXATION = "shear_relaxation"
+    DMA_FREQUENCY_TEMPERATURE_SWEEP = "dma_frequency_temperature_sweep"
+    FORMING_LIMIT = "forming_limit_diagram"
 
 
 class QuantityKind(StrEnum):
@@ -86,6 +96,13 @@ class QuantityKind(StrEnum):
     SHEAR_MODULUS = "shear_modulus"
     DISPLACEMENT = "displacement"
     FORCE = "force"
+    TEMPERATURE = "temperature"
+    FREQUENCY = "frequency"
+    STORAGE_MODULUS = "storage_modulus"
+    LOSS_MODULUS = "loss_modulus"
+    TAN_DELTA = "tan_delta"
+    MINOR_STRAIN = "minor_strain"
+    MAJOR_STRAIN = "major_strain"
 
 
 class AxisRole(StrEnum):
@@ -104,6 +121,30 @@ class ImportRunStatus(StrEnum):
     FAILED = "failed"
 
 
+@dataclass(frozen=True, slots=True)
+class ImportDiagnostic:
+    ordinal: int
+    row_number: int | None
+    column_name: str | None
+    channel_key: str | None
+    error_code: str
+    error_detail: str
+    recovery_hint: str
+
+    def __post_init__(self) -> None:
+        if not 0 <= self.ordinal <= 99:
+            raise ValueError("diagnostic ordinal must be within 0..99")
+        if self.row_number is not None and self.row_number < 1:
+            raise ValueError("diagnostic row_number must be positive")
+        if self.column_name is not None:
+            _text("diagnostic column_name", self.column_name, 255)
+        if self.channel_key is not None:
+            _text("diagnostic channel_key", self.channel_key, 64)
+        _text("diagnostic error_code", self.error_code, 100)
+        _text("diagnostic error_detail", self.error_detail, 1000)
+        _text("diagnostic recovery_hint", self.recovery_hint, 500)
+
+
 _NORMALIZED_UNITS: dict[QuantityKind, str] = {
     QuantityKind.ENGINEERING_STRAIN: "1",
     QuantityKind.SHEAR_STRAIN: "1",
@@ -113,6 +154,13 @@ _NORMALIZED_UNITS: dict[QuantityKind, str] = {
     QuantityKind.TIME: "s",
     QuantityKind.DISPLACEMENT: "m",
     QuantityKind.FORCE: "N",
+    QuantityKind.TEMPERATURE: "K",
+    QuantityKind.FREQUENCY: "Hz",
+    QuantityKind.STORAGE_MODULUS: "Pa",
+    QuantityKind.LOSS_MODULUS: "Pa",
+    QuantityKind.TAN_DELTA: "1",
+    QuantityKind.MINOR_STRAIN: "1",
+    QuantityKind.MAJOR_STRAIN: "1",
 }
 
 _QUANTITY_CONTRACT: dict[QuantityKind, tuple[DimensionId, str]] = {
@@ -136,10 +184,26 @@ _QUANTITY_CONTRACT: dict[QuantityKind, tuple[DimensionId, str]] = {
     QuantityKind.TIME: (DimensionId.TIME, "time.elapsed"),
     QuantityKind.DISPLACEMENT: (DimensionId.LENGTH, "displacement"),
     QuantityKind.FORCE: (DimensionId.FORCE, "mechanics.force"),
+    QuantityKind.TEMPERATURE: (DimensionId.TEMPERATURE, "temperature.test"),
+    QuantityKind.STORAGE_MODULUS: (
+        DimensionId.FORCE_PER_AREA,
+        "mechanics.modulus.storage",
+    ),
+    QuantityKind.LOSS_MODULUS: (
+        DimensionId.FORCE_PER_AREA,
+        "mechanics.modulus.loss",
+    ),
+    QuantityKind.TAN_DELTA: (DimensionId.STRAIN, "mechanics.loss_factor"),
+    QuantityKind.MINOR_STRAIN: (DimensionId.STRAIN, "mechanics.strain.minor"),
+    QuantityKind.MAJOR_STRAIN: (DimensionId.STRAIN, "mechanics.strain.major"),
 }
 
 
-def _conversion_scale(quantity: QuantityKind, original_unit: str) -> float:
+def _conversion_parameters(quantity: QuantityKind, original_unit: str) -> tuple[float, float]:
+    if quantity is QuantityKind.FREQUENCY:
+        if original_unit != "Hz":
+            raise InvalidGovernedImport("frequency requires the bounded explicit-legacy Hz unit")
+        return 1.0, 0.0
     dimension, semantics = _QUANTITY_CONTRACT[quantity]
     try:
         result = convert_value(
@@ -151,9 +215,7 @@ def _conversion_scale(quantity: QuantityKind, original_unit: str) -> float:
         )
     except UnitError as error:
         raise InvalidGovernedImport(error.message) from error
-    if result.offset != 0:
-        raise InvalidGovernedImport("governed curve channels require multiplicative units")
-    return float(result.scale)
+    return float(result.scale), float(result.offset)
 
 
 def _text(name: str, value: str, maximum: int) -> None:
@@ -183,9 +245,12 @@ class GovernedChannelMapping:
     axis_role: AxisRole
 
     def __post_init__(self) -> None:
-        if self.ordinal not in (0, 1):
-            raise InvalidGovernedImport("channel ordinal must be 0 or 1")
+        if not 0 <= self.ordinal <= 4:
+            raise InvalidGovernedImport("channel ordinal must be within 0..4")
         _text("source_column", self.source_column, 255)
+        if self.source_quantity is QuantityKind.FREQUENCY:
+            _conversion_parameters(self.source_quantity, self.original_unit)
+            return
         expected_dimension, _ = _QUANTITY_CONTRACT[self.source_quantity]
         try:
             actual_dimension = unit_definition(self.original_unit).dimension
@@ -246,18 +311,13 @@ class GovernedImportProfileContent:
                 raise InvalidGovernedImport("CSV delimiter must be comma or semicolon")
             if self.delimiter == self.decimal_separator:
                 raise InvalidGovernedImport("delimiter and decimal_separator must differ")
-        if len(self.channels) != 2:
-            raise InvalidGovernedImport("a governed curve profile requires exactly two channels")
+        if not 2 <= len(self.channels) <= 5:
+            raise InvalidGovernedImport("a governed curve profile requires two to five channels")
         channels = tuple(sorted(self.channels, key=lambda item: item.ordinal))
-        if tuple(channel.ordinal for channel in channels) != (0, 1):
+        if tuple(channel.ordinal for channel in channels) != tuple(range(len(channels))):
             raise InvalidGovernedImport("channel ordinals must be contiguous")
-        if len({channel.source_column for channel in channels}) != 2:
+        if len({channel.source_column for channel in channels}) != len(channels):
             raise InvalidGovernedImport("source columns must be distinct")
-        if (
-            channels[0].axis_role is not AxisRole.INDEPENDENT
-            or channels[1].axis_role is not AxisRole.DEPENDENT
-        ):
-            raise InvalidGovernedImport("channel 0/1 must be independent/dependent")
         self._validate_schema(channels)
         object.__setattr__(self, "channels", channels)
         if self.approval_kind != "human_confirmed":
@@ -265,6 +325,7 @@ class GovernedImportProfileContent:
 
     def _validate_schema(self, channels: tuple[GovernedChannelMapping, ...]) -> None:
         kinds = tuple(channel.source_quantity for channel in channels)
+        roles = tuple(channel.axis_role for channel in channels)
         direct_axial = (QuantityKind.ENGINEERING_STRAIN, QuantityKind.ENGINEERING_STRESS)
         geometry_axial = (QuantityKind.DISPLACEMENT, QuantityKind.FORCE)
         if self.data_schema in (
@@ -287,10 +348,40 @@ class GovernedImportProfileContent:
             if kinds != (QuantityKind.SHEAR_STRAIN, QuantityKind.SHEAR_STRESS):
                 raise InvalidGovernedImport("simple shear requires shear_strain/shear_stress")
             geometry_required = False
-        else:
+        elif self.data_schema is TabularDataSchema.SHEAR_RELAXATION:
             if kinds != (QuantityKind.TIME, QuantityKind.SHEAR_MODULUS):
                 raise InvalidGovernedImport("shear relaxation requires time/shear_modulus")
             geometry_required = False
+        elif self.data_schema is TabularDataSchema.DMA_FREQUENCY_TEMPERATURE_SWEEP:
+            required = (
+                QuantityKind.TEMPERATURE,
+                QuantityKind.FREQUENCY,
+                QuantityKind.STORAGE_MODULUS,
+                QuantityKind.LOSS_MODULUS,
+            )
+            if kinds not in (required, (*required, QuantityKind.TAN_DELTA)):
+                raise InvalidGovernedImport(
+                    "DMA frequency-temperature sweep requires temperature/frequency/"
+                    "storage_modulus/loss_modulus and optional tan_delta"
+                )
+            expected_roles = (
+                AxisRole.INDEPENDENT,
+                AxisRole.INDEPENDENT,
+                *(AxisRole.DEPENDENT for _ in kinds[2:]),
+            )
+            if roles != expected_roles:
+                raise InvalidGovernedImport(
+                    "DMA temperature/frequency must be independent and response channels dependent"
+                )
+            geometry_required = False
+        else:
+            if kinds != (QuantityKind.MINOR_STRAIN, QuantityKind.MAJOR_STRAIN):
+                raise InvalidGovernedImport("forming limit requires minor_strain/major_strain")
+            geometry_required = False
+        if self.data_schema not in (
+            TabularDataSchema.DMA_FREQUENCY_TEMPERATURE_SWEEP,
+        ) and roles != (AxisRole.INDEPENDENT, AxisRole.DEPENDENT):
+            raise InvalidGovernedImport("channel 0/1 must be independent/dependent")
         geometry = (self.initial_gauge_length_m, self.initial_cross_section_area_m2)
         if geometry_required:
             if any(value is None or not math.isfinite(value) or value <= 0 for value in geometry):
@@ -362,27 +453,38 @@ class TabularPreview:
 
 @dataclass(frozen=True, slots=True)
 class NormalizedTabularData:
-    columns: tuple[QuantityKind, QuantityKind]
-    rows: tuple[tuple[float, float], ...]
+    columns: tuple[QuantityKind, ...]
+    rows: tuple[tuple[float, ...], ...]
 
     def __post_init__(self) -> None:
         if not 2 <= len(self.rows) <= MAX_ROWS:
             raise InvalidGovernedImport("normalized curve requires 2..100000 rows")
+        if not 2 <= len(self.columns) <= 5:
+            raise InvalidGovernedImport("normalized curve requires two to five columns")
+        if any(len(row) != len(self.columns) for row in self.rows):
+            raise InvalidGovernedImport("normalized rows must match the declared columns")
 
 
 @dataclass(frozen=True, slots=True)
 class GovernedTabularEvidence:
     """Original mapped values plus their explicit normalized calculation values."""
 
-    original_rows: tuple[tuple[float, float], ...]
+    original_rows: tuple[tuple[float, ...], ...]
     normalized: NormalizedTabularData
-    normalization_scales: tuple[float, float]
+    normalization_scales: tuple[float, ...]
+    normalization_offsets: tuple[float, ...]
 
     def __post_init__(self) -> None:
         if len(self.original_rows) != len(self.normalized.rows):
             raise InvalidGovernedImport("original and normalized row counts must match")
+        if len(self.normalization_scales) != len(self.normalized.columns):
+            raise InvalidGovernedImport("normalization scales must match normalized columns")
+        if len(self.normalization_offsets) != len(self.normalized.columns):
+            raise InvalidGovernedImport("normalization offsets must match normalized columns")
         if any(not math.isfinite(value) or value <= 0 for value in self.normalization_scales):
             raise InvalidGovernedImport("normalization scales must be finite and positive")
+        if any(not math.isfinite(value) for value in self.normalization_offsets):
+            raise InvalidGovernedImport("normalization offsets must be finite")
 
 
 @dataclass(frozen=True, slots=True)
@@ -798,65 +900,252 @@ def parse_governed_source_evidence(
     if len(rows) < profile.header_row:
         raise InvalidGovernedImport("source does not contain the approved header row")
     headers = tuple(item.strip() for item in rows[profile.header_row - 1])
+    diagnostics: list[ImportDiagnostic] = []
+    diagnostic_total = 0
+
+    def add_diagnostic(
+        *,
+        row_number: int | None,
+        column_name: str | None,
+        channel_key: str | None,
+        error_code: str,
+        error_detail: str,
+        recovery_hint: str,
+    ) -> None:
+        nonlocal diagnostic_total
+        diagnostic_total += 1
+        if len(diagnostics) >= 100:
+            return
+        diagnostics.append(
+            ImportDiagnostic(
+                ordinal=len(diagnostics),
+                row_number=row_number,
+                column_name=column_name,
+                channel_key=channel_key,
+                error_code=error_code,
+                error_detail=error_detail,
+                recovery_hint=recovery_hint,
+            )
+        )
+
     indexes: list[int] = []
     for channel in profile.channels:
         try:
             indexes.append(headers.index(channel.source_column))
-        except ValueError as error:
-            raise InvalidGovernedImport(
-                f"approved column {channel.source_column!r} is absent"
-            ) from error
-    original: list[tuple[float, float]] = []
-    normalized: list[tuple[float, float]] = []
-    scales = [
-        _conversion_scale(channel.source_quantity, channel.original_unit)
+        except ValueError:
+            add_diagnostic(
+                row_number=profile.header_row,
+                column_name=channel.source_column,
+                channel_key=channel.source_quantity.value,
+                error_code="missing_required_column",
+                error_detail=f"approved column {channel.source_column!r} is absent",
+                recovery_hint="Choose the source column required by this approved profile.",
+            )
+    if diagnostics:
+        raise InvalidGovernedImport(
+            f"{diagnostic_total} governed import validation error(s); "
+            f"first: {diagnostics[0].error_detail}",
+            tuple(diagnostics),
+        )
+    original: list[tuple[float, ...]] = []
+    normalized: list[tuple[float, ...]] = []
+    parameters = [
+        _conversion_parameters(channel.source_quantity, channel.original_unit)
         for channel in profile.channels
     ]
+    scales = [item[0] for item in parameters]
+    offsets = [item[1] for item in parameters]
     if profile.channels[0].source_quantity is QuantityKind.DISPLACEMENT:
         scales[0] /= profile.initial_gauge_length_m or 0.0
         scales[1] /= profile.initial_cross_section_area_m2 or 0.0
+    seen_coordinates: set[tuple[float, ...]] = set()
     for row_number, row in enumerate(rows[profile.header_row :], start=profile.header_row + 1):
         if not any(item.strip() for item in row):
             continue
-        raw_values = tuple(
-            _number(
-                row[index] if index < len(row) else "",
-                row=row_number,
-                column=channel.source_column,
-                decimal_separator=profile.decimal_separator,
-            )
-            for index, channel in zip(indexes, profile.channels, strict=True)
+        raw_row: list[float] = []
+        row_invalid = False
+        for index, channel in zip(indexes, profile.channels, strict=True):
+            try:
+                raw_row.append(
+                    _number(
+                        row[index] if index < len(row) else "",
+                        row=row_number,
+                        column=channel.source_column,
+                        decimal_separator=profile.decimal_separator,
+                    )
+                )
+            except InvalidGovernedImport as error:
+                detail = str(error)
+                code = (
+                    "missing_value"
+                    if detail.endswith(" is missing")
+                    else "invalid_decimal_separator"
+                    if "unexpected decimal" in detail
+                    else "non_finite_value"
+                    if detail.endswith(" must be finite")
+                    else "non_numeric_value"
+                )
+                add_diagnostic(
+                    row_number=row_number,
+                    column_name=channel.source_column,
+                    channel_key=channel.source_quantity.value,
+                    error_code=code,
+                    error_detail=detail,
+                    recovery_hint=(
+                        "Provide one finite numeric value using the approved decimal separator."
+                    ),
+                )
+                row_invalid = True
+        if row_invalid:
+            continue
+        raw_values = tuple(raw_row)
+        point = tuple(
+            raw * scale + offset
+            for raw, scale, offset in zip(raw_values, scales, offsets, strict=True)
         )
-        values = [raw * scale for raw, scale in zip(raw_values, scales, strict=True)]
-        point = (values[0], values[1])
-        if profile.data_schema is not TabularDataSchema.SIMPLE_SHEAR and (
-            point[0] < 0 or point[1] < 0
-        ):
-            raise InvalidGovernedImport(f"row {row_number}: schema requires non-negative values")
-        if normalized and point[0] <= normalized[-1][0]:
-            raise InvalidGovernedImport(
-                f"row {row_number}: independent values must be strictly increasing"
+        if profile.data_schema in (
+            TabularDataSchema.MONOTONIC_TENSION,
+            TabularDataSchema.MONOTONIC_COMPRESSION,
+            TabularDataSchema.PLANAR_TENSION,
+            TabularDataSchema.BIAXIAL_TENSION,
+            TabularDataSchema.SHEAR_RELAXATION,
+        ) and (point[0] < 0 or point[1] < 0):
+            add_diagnostic(
+                row_number=row_number,
+                column_name=None,
+                channel_key=None,
+                error_code="negative_value",
+                error_detail=f"row {row_number}: schema requires non-negative values",
+                recovery_hint="Correct the signed source value or choose the matching test schema.",
             )
+            continue
+        if (
+            profile.data_schema
+            in (
+                TabularDataSchema.MONOTONIC_TENSION,
+                TabularDataSchema.MONOTONIC_COMPRESSION,
+                TabularDataSchema.PLANAR_TENSION,
+                TabularDataSchema.BIAXIAL_TENSION,
+                TabularDataSchema.SIMPLE_SHEAR,
+                TabularDataSchema.SHEAR_RELAXATION,
+            )
+            and normalized
+            and point[0] <= normalized[-1][0]
+        ):
+            add_diagnostic(
+                row_number=row_number,
+                column_name=profile.channels[0].source_column,
+                channel_key=profile.channels[0].source_quantity.value,
+                error_code="non_increasing_independent",
+                error_detail=f"row {row_number}: independent values must be strictly increasing",
+                recovery_hint="Order unique independent values without modifying the raw evidence.",
+            )
+            continue
         if (
             profile.data_schema is TabularDataSchema.SHEAR_RELAXATION
             and normalized
             and point[1] > normalized[-1][1]
         ):
-            raise InvalidGovernedImport(f"row {row_number}: shear modulus must be non-increasing")
-        original.append((raw_values[0], raw_values[1]))
+            add_diagnostic(
+                row_number=row_number,
+                column_name=profile.channels[1].source_column,
+                channel_key=profile.channels[1].source_quantity.value,
+                error_code="increasing_relaxation_modulus",
+                error_detail=f"row {row_number}: shear modulus must be non-increasing",
+                recovery_hint="Correct the relaxation response or choose the matching test schema.",
+            )
+            continue
+        if profile.data_schema is TabularDataSchema.DMA_FREQUENCY_TEMPERATURE_SWEEP:
+            if point[0] < 0:
+                add_diagnostic(
+                    row_number=row_number,
+                    column_name=profile.channels[0].source_column,
+                    channel_key=QuantityKind.TEMPERATURE.value,
+                    error_code="temperature_below_absolute_zero",
+                    error_detail=f"row {row_number}: normalized temperature must be at least 0 K",
+                    recovery_hint="Correct the temperature value or its declared degC/K unit.",
+                )
+                continue
+            if point[1] <= 0:
+                add_diagnostic(
+                    row_number=row_number,
+                    column_name=profile.channels[1].source_column,
+                    channel_key=QuantityKind.FREQUENCY.value,
+                    error_code="frequency_not_positive",
+                    error_detail=f"row {row_number}: frequency must be greater than 0 Hz",
+                    recovery_hint=(
+                        "Provide the positive oscillation frequency recorded by the test."
+                    ),
+                )
+                continue
+            negative_response = next(
+                (index for index, response in enumerate(point[2:], start=2) if response < 0),
+                None,
+            )
+            if negative_response is not None:
+                channel = profile.channels[negative_response]
+                add_diagnostic(
+                    row_number=row_number,
+                    column_name=channel.source_column,
+                    channel_key=channel.source_quantity.value,
+                    error_code="negative_dma_response",
+                    error_detail=(
+                        f"row {row_number}: {channel.source_quantity.value} "
+                        "must be non-negative"
+                    ),
+                    recovery_hint="Correct the DMA response value or its declared unit.",
+                )
+                continue
+            coordinate = (point[0], point[1])
+        elif profile.data_schema is TabularDataSchema.FORMING_LIMIT:
+            coordinate = (point[0],)
+        else:
+            coordinate = ()
+        if coordinate:
+            if coordinate in seen_coordinates:
+                add_diagnostic(
+                    row_number=row_number,
+                    column_name=None,
+                    channel_key=(
+                        "temperature_frequency"
+                        if len(coordinate) == 2
+                        else QuantityKind.MINOR_STRAIN.value
+                    ),
+                    error_code="duplicate_coordinate",
+                    error_detail=f"row {row_number}: governed coordinate is duplicated",
+                    recovery_hint=(
+                        "Remove the duplicate measurement or record a distinct coordinate."
+                    ),
+                )
+                continue
+            seen_coordinates.add(coordinate)
+        original.append(raw_values)
         normalized.append(point)
         if len(normalized) > MAX_ROWS:
             raise InvalidGovernedImport("source exceeds the 100000-row limit")
+    if len(normalized) < 2:
+        add_diagnostic(
+            row_number=None,
+            column_name=None,
+            channel_key=None,
+            error_code="insufficient_valid_rows",
+            error_detail="governed source requires at least two valid data rows",
+            recovery_hint="Provide at least two complete, distinct measurements.",
+        )
+    if diagnostics:
+        raise InvalidGovernedImport(
+            f"{diagnostic_total} governed import validation error(s); "
+            f"first: {diagnostics[0].error_detail}",
+            tuple(diagnostics),
+        )
     return GovernedTabularEvidence(
         original_rows=tuple(original),
         normalized=NormalizedTabularData(
-            columns=(
-                profile.channels[0].normalized_quantity,
-                profile.channels[1].normalized_quantity,
-            ),
+            columns=tuple(channel.normalized_quantity for channel in profile.channels),
             rows=tuple(normalized),
         ),
-        normalization_scales=(scales[0], scales[1]),
+        normalization_scales=tuple(scales),
+        normalization_offsets=tuple(offsets),
     )
 
 
@@ -867,8 +1156,8 @@ def normalized_parquet_bytes(value: NormalizedTabularData) -> bytes:
     )
     table = pa.table(
         {
-            names[0]: pa.array((row[0] for row in value.rows), type=pa.float64()),
-            names[1]: pa.array((row[1] for row in value.rows), type=pa.float64()),
+            name: pa.array((row[index] for row in value.rows), type=pa.float64())
+            for index, name in enumerate(names)
         }
     )
     sink = pa.BufferOutputStream()
@@ -904,20 +1193,19 @@ def normalized_rows_from_parquet(
     if (
         tuple(table.column_names) != expected_names
         or table.num_rows != content.row_count
-        or table.num_columns != 2
+        or table.num_columns != len(expected_names)
     ):
         raise InvalidGovernedImport(
             "normalized Dataset Artifact does not match its immutable schema and row count"
         )
     try:
-        first = table.column(expected_names[0]).to_pylist()
-        second = table.column(expected_names[1]).to_pylist()
-        rows = tuple((float(left), float(right)) for left, right in zip(first, second, strict=True))
+        columns = tuple(table.column(name).to_pylist() for name in expected_names)
+        rows = tuple(tuple(float(item) for item in row) for row in zip(*columns, strict=True))
     except (TypeError, ValueError) as error:
         raise InvalidGovernedImport(
             "normalized Dataset Artifact contains invalid values"
         ) from error
     return NormalizedTabularData(
-        columns=(expected_quantities[0], expected_quantities[1]),
+        columns=expected_quantities,
         rows=rows,
     )

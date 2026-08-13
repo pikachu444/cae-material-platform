@@ -127,6 +127,23 @@ class GovernedTestDataSource:
     material: ExactRevisionRef
     material_state: ExactRevisionRef
     test_run: ExactRevisionRef
+    tabular_import: GovernedTabularTestDataSource | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class GovernedTabularTestDataSource:
+    raw_asset_id: UUID
+    raw_artifact_id: UUID
+    import_run_id: UUID
+    import_profile: ExactRevisionRef
+    normalized_dataset: ExactRevisionRef
+
+    def __post_init__(self) -> None:
+        if any(
+            value.int == 0
+            for value in (self.raw_asset_id, self.raw_artifact_id, self.import_run_id)
+        ):
+            raise GovernedImportConflict("governed tabular source pins must be non-zero")
 
 
 class GovernedTestDataSourceVerifier(Protocol):
@@ -135,6 +152,7 @@ class GovernedTestDataSourceVerifier(Protocol):
         context: SecurityContext,
         decision: AuthorizationDecision,
         source: GovernedTestDataSource,
+        document: CanonicalTestDataDocument | None = None,
     ) -> None: ...
 
 
@@ -259,6 +277,29 @@ def test_data_content_canonical(value: TestDataDocumentContent) -> dict[str, obj
             "test_run": {
                 "aggregate_id": str(value.governed_source.test_run.aggregate_id),
                 "revision_id": str(value.governed_source.test_run.revision_id),
+            },
+            "tabular_import": None
+            if value.governed_source.tabular_import is None
+            else {
+                "raw_asset_id": str(value.governed_source.tabular_import.raw_asset_id),
+                "raw_artifact_id": str(value.governed_source.tabular_import.raw_artifact_id),
+                "import_run_id": str(value.governed_source.tabular_import.import_run_id),
+                "import_profile": {
+                    "aggregate_id": str(
+                        value.governed_source.tabular_import.import_profile.aggregate_id
+                    ),
+                    "revision_id": str(
+                        value.governed_source.tabular_import.import_profile.revision_id
+                    ),
+                },
+                "normalized_dataset": {
+                    "aggregate_id": str(
+                        value.governed_source.tabular_import.normalized_dataset.aggregate_id
+                    ),
+                    "revision_id": str(
+                        value.governed_source.tabular_import.normalized_dataset.revision_id
+                    ),
+                },
             },
         },
     }
@@ -491,7 +532,7 @@ class CanonicalTestDataService:
                 raise GovernedImportConflict(
                     "governed Test Data source verification is unavailable"
                 )
-            self._governed_source_verifier.verify(context, decision, governed_source)
+            self._governed_source_verifier.verify(context, decision, governed_source, document)
         canonical_bytes = canonical_json_bytes(document)
         canonical_artifact = await self._artifacts.finalize_derived_bytes(
             context,

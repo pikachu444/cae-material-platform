@@ -583,7 +583,11 @@ def create_app(
         ),
     )
     resolved_canonical_test_data = build_canonical_test_data_service(
-        services, resolved_artifacts, resolved_catalog, resolved_testing
+        services,
+        resolved_artifacts,
+        resolved_catalog,
+        resolved_testing,
+        resolved_governed_import,
     )
     install_canonical_test_data_api(
         application,

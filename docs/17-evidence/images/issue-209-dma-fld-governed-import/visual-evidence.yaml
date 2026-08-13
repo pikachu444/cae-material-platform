@@ -1,0 +1,1964 @@
+issue: 209
+captured_at: '2026-08-13T07:28:59.684318+00:00'
+source_commit: f8fe6ef85d345837a6252b6ba8b3b706ccbe009f
+base_commit: a512c76aa55b5423e06f6b09eb1015ddf28f3aca
+branch: codex/issue-209
+base_url: http://127.0.0.1:5173
+synthetic_non_production_only: true
+capture_command: uv run --with playwright==1.62.0 --with pillow --with pyyaml python
+  scripts/capture_issue209_visual_evidence.py --base-url http://127.0.0.1:5173
+viewports:
+- 1366x768
+- 1440x900
+- 1920x1080
+- 2560x1440
+- 3840x2160
+density: standard
+browser_zoom: 100%
+device_pixel_ratio: 1
+available_windows_displays:
+- 2560x1440@59Hz, 96 DPI, 100% scale
+- 2560x1600@165Hz, 96 DPI, 100% scale
+physical_4k_readability: deferred_to_issue_223
+before:
+  source: accepted Modeling Data current-guide PNG blobs from exact origin/main base
+  note: No missing state or changed baseline pixel was fabricated.
+journey:
+  browser: Chromium 151.0.7922.34
+  browser_zoom: 100%
+  device_pixel_ratio: 1
+  density: standard
+  measurements:
+  - state: dma
+    css_viewport: 1366x768
+    browser_zoom: 100%
+    device_pixel_ratio: 1
+    layout:
+      viewport:
+        width: 1366
+        height: 768
+      dpr: 1
+      document:
+        scrollWidth: 1366
+        clientWidth: 1366
+        scrollHeight: 768
+        clientHeight: 768
+      body:
+        scrollWidth: 1366
+        clientWidth: 1366
+    elements:
+      header:
+        box:
+          left: 0
+          right: 1366
+          top: 0
+          bottom: 50
+          width: 1366
+          height: 50
+        scrollWidth: 1366
+        clientWidth: 1366
+        scrollHeight: 49
+        clientHeight: 49
+      navigator:
+        box:
+          left: 8
+          right: 296
+          top: 163
+          bottom: 723
+          width: 288
+          height: 560
+        scrollWidth: 277
+        clientWidth: 273
+        scrollHeight: 560
+        clientHeight: 560
+      controls:
+        box:
+          left: 302
+          right: 1358
+          top: 163
+          bottom: 474
+          width: 1056
+          height: 311
+        scrollWidth: 1056
+        clientWidth: 1056
+        scrollHeight: 311
+        clientHeight: 311
+      decision:
+        box:
+          left: 735
+          right: 1329
+          top: 126
+          bottom: 510.1875
+          width: 594
+          height: 384.1875
+        scrollWidth: 594
+        clientWidth: 594
+        scrollHeight: 383
+        clientHeight: 383
+      graph:
+        box:
+          left: 302
+          right: 1358
+          top: 483
+          bottom: 723
+          width: 1056
+          height: 240
+        scrollWidth: 1056
+        clientWidth: 1056
+        scrollHeight: 240
+        clientHeight: 240
+  - state: dma
+    css_viewport: 1440x900
+    browser_zoom: 100%
+    device_pixel_ratio: 1
+    layout:
+      viewport:
+        width: 1440
+        height: 900
+      dpr: 1
+      document:
+        scrollWidth: 1440
+        clientWidth: 1440
+        scrollHeight: 900
+        clientHeight: 900
+      body:
+        scrollWidth: 1440
+        clientWidth: 1440
+    elements:
+      header:
+        box:
+          left: 0
+          right: 1440
+          top: 0
+          bottom: 50
+          width: 1440
+          height: 50
+        scrollWidth: 1440
+        clientWidth: 1440
+        scrollHeight: 49
+        clientHeight: 49
+      navigator:
+        box:
+          left: 8
+          right: 296
+          top: 163
+          bottom: 855
+          width: 288
+          height: 692
+        scrollWidth: 277
+        clientWidth: 273
+        scrollHeight: 692
+        clientHeight: 692
+      controls:
+        box:
+          left: 302
+          right: 1432
+          top: 163
+          bottom: 547
+          width: 1130
+          height: 384
+        scrollWidth: 1130
+        clientWidth: 1130
+        scrollHeight: 384
+        clientHeight: 384
+      decision:
+        box:
+          left: 735
+          right: 1403
+          top: 162
+          bottom: 546.1875
+          width: 668
+          height: 384.1875
+        scrollWidth: 668
+        clientWidth: 668
+        scrollHeight: 383
+        clientHeight: 383
+      graph:
+        box:
+          left: 302
+          right: 1432
+          top: 556
+          bottom: 855
+          width: 1130
+          height: 299
+        scrollWidth: 1130
+        clientWidth: 1130
+        scrollHeight: 299
+        clientHeight: 299
+  - state: dma
+    css_viewport: 1920x1080
+    browser_zoom: 100%
+    device_pixel_ratio: 1
+    layout:
+      viewport:
+        width: 1920
+        height: 1080
+      dpr: 1
+      document:
+        scrollWidth: 1920
+        clientWidth: 1920
+        scrollHeight: 1080
+        clientHeight: 1080
+      body:
+        scrollWidth: 1920
+        clientWidth: 1920
+    elements:
+      header:
+        box:
+          left: 0
+          right: 1920
+          top: 0
+          bottom: 50
+          width: 1920
+          height: 50
+        scrollWidth: 1920
+        clientWidth: 1920
+        scrollHeight: 49
+        clientHeight: 49
+      navigator:
+        box:
+          left: 8
+          right: 296
+          top: 163
+          bottom: 1035
+          width: 288
+          height: 872
+        scrollWidth: 277
+        clientWidth: 273
+        scrollHeight: 872
+        clientHeight: 872
+      controls:
+        box:
+          left: 302
+          right: 1912
+          top: 163
+          bottom: 547
+          width: 1610
+          height: 384
+        scrollWidth: 1610
+        clientWidth: 1610
+        scrollHeight: 384
+        clientHeight: 384
+      decision:
+        box:
+          left: 735
+          right: 1883
+          top: 170
+          bottom: 538.59375
+          width: 1148
+          height: 368.59375
+        scrollWidth: 1148
+        clientWidth: 1148
+        scrollHeight: 368
+        clientHeight: 368
+      graph:
+        box:
+          left: 302
+          right: 1912
+          top: 556
+          bottom: 1035
+          width: 1610
+          height: 479
+        scrollWidth: 1610
+        clientWidth: 1610
+        scrollHeight: 479
+        clientHeight: 479
+  - state: dma
+    css_viewport: 2560x1440
+    browser_zoom: 100%
+    device_pixel_ratio: 1
+    layout:
+      viewport:
+        width: 2560
+        height: 1440
+      dpr: 1
+      document:
+        scrollWidth: 2560
+        clientWidth: 2560
+        scrollHeight: 1440
+        clientHeight: 1440
+      body:
+        scrollWidth: 2560
+        clientWidth: 2560
+    elements:
+      header:
+        box:
+          left: 0
+          right: 2560
+          top: 0
+          bottom: 50
+          width: 2560
+          height: 50
+        scrollWidth: 2560
+        clientWidth: 2560
+        scrollHeight: 49
+        clientHeight: 49
+      navigator:
+        box:
+          left: 8
+          right: 392
+          top: 163
+          bottom: 1395
+          width: 384
+          height: 1232
+        scrollWidth: 373
+        clientWidth: 369
+        scrollHeight: 1232
+        clientHeight: 1232
+      controls:
+        box:
+          left: 398
+          right: 2552
+          top: 163
+          bottom: 547
+          width: 2154
+          height: 384
+        scrollWidth: 2154
+        clientWidth: 2154
+        scrollHeight: 384
+        clientHeight: 384
+      decision:
+        box:
+          left: 831
+          right: 2523
+          top: 170
+          bottom: 538.59375
+          width: 1692
+          height: 368.59375
+        scrollWidth: 1692
+        clientWidth: 1692
+        scrollHeight: 368
+        clientHeight: 368
+      graph:
+        box:
+          left: 398
+          right: 2552
+          top: 556
+          bottom: 1395
+          width: 2154
+          height: 839
+        scrollWidth: 2154
+        clientWidth: 2154
+        scrollHeight: 839
+        clientHeight: 839
+  - state: dma
+    css_viewport: 3840x2160
+    browser_zoom: 100%
+    device_pixel_ratio: 1
+    layout:
+      viewport:
+        width: 3840
+        height: 2160
+      dpr: 1
+      document:
+        scrollWidth: 3840
+        clientWidth: 3840
+        scrollHeight: 2160
+        clientHeight: 2160
+      body:
+        scrollWidth: 3840
+        clientWidth: 3840
+    elements:
+      header:
+        box:
+          left: 0
+          right: 3840
+          top: 0
+          bottom: 50
+          width: 3840
+          height: 50
+        scrollWidth: 3840
+        clientWidth: 3840
+        scrollHeight: 49
+        clientHeight: 49
+      navigator:
+        box:
+          left: 8
+          right: 392.015625
+          top: 163
+          bottom: 2115
+          width: 384.015625
+          height: 1952
+        scrollWidth: 373
+        clientWidth: 369
+        scrollHeight: 1952
+        clientHeight: 1952
+      controls:
+        box:
+          left: 398.015625
+          right: 3832
+          top: 163
+          bottom: 547
+          width: 3433.984375
+          height: 384
+        scrollWidth: 3434
+        clientWidth: 3434
+        scrollHeight: 384
+        clientHeight: 384
+      decision:
+        box:
+          left: 831.015625
+          right: 3803
+          top: 170
+          bottom: 538.59375
+          width: 2971.984375
+          height: 368.59375
+        scrollWidth: 2972
+        clientWidth: 2972
+        scrollHeight: 368
+        clientHeight: 368
+      graph:
+        box:
+          left: 398.015625
+          right: 3832
+          top: 556
+          bottom: 2115
+          width: 3433.984375
+          height: 1559
+        scrollWidth: 3434
+        clientWidth: 3434
+        scrollHeight: 1559
+        clientHeight: 1559
+  - state: dma-rejected
+    css_viewport: 1366x768
+    browser_zoom: 100%
+    device_pixel_ratio: 1
+    layout:
+      viewport:
+        width: 1366
+        height: 768
+      dpr: 1
+      document:
+        scrollWidth: 1366
+        clientWidth: 1366
+        scrollHeight: 768
+        clientHeight: 768
+      body:
+        scrollWidth: 1366
+        clientWidth: 1366
+    elements:
+      header:
+        box:
+          left: 0
+          right: 1366
+          top: 0
+          bottom: 50
+          width: 1366
+          height: 50
+        scrollWidth: 1366
+        clientWidth: 1366
+        scrollHeight: 49
+        clientHeight: 49
+      navigator:
+        box:
+          left: 8
+          right: 296
+          top: 135
+          bottom: 723
+          width: 288
+          height: 588
+        scrollWidth: 277
+        clientWidth: 273
+        scrollHeight: 588
+        clientHeight: 588
+      controls:
+        box:
+          left: 302
+          right: 1358
+          top: 135
+          bottom: 474
+          width: 1056
+          height: 339
+        scrollWidth: 1056
+        clientWidth: 1056
+        scrollHeight: 339
+        clientHeight: 339
+      decision:
+        box:
+          left: 316
+          right: 1329
+          top: 202.1875
+          bottom: 406.1875
+          width: 1013
+          height: 204
+        scrollWidth: 1010
+        clientWidth: 1010
+        scrollHeight: 204
+        clientHeight: 204
+      graph:
+        box:
+          left: 302
+          right: 1358
+          top: 483
+          bottom: 723
+          width: 1056
+          height: 240
+        scrollWidth: 1056
+        clientWidth: 1056
+        scrollHeight: 240
+        clientHeight: 240
+  - state: dma-rejected
+    css_viewport: 1440x900
+    browser_zoom: 100%
+    device_pixel_ratio: 1
+    layout:
+      viewport:
+        width: 1440
+        height: 900
+      dpr: 1
+      document:
+        scrollWidth: 1440
+        clientWidth: 1440
+        scrollHeight: 900
+        clientHeight: 900
+      body:
+        scrollWidth: 1440
+        clientWidth: 1440
+    elements:
+      header:
+        box:
+          left: 0
+          right: 1440
+          top: 0
+          bottom: 50
+          width: 1440
+          height: 50
+        scrollWidth: 1440
+        clientWidth: 1440
+        scrollHeight: 49
+        clientHeight: 49
+      navigator:
+        box:
+          left: 8
+          right: 296
+          top: 163
+          bottom: 855
+          width: 288
+          height: 692
+        scrollWidth: 277
+        clientWidth: 273
+        scrollHeight: 692
+        clientHeight: 692
+      controls:
+        box:
+          left: 302
+          right: 1432
+          top: 163
+          bottom: 547
+          width: 1130
+          height: 384
+        scrollWidth: 1130
+        clientWidth: 1130
+        scrollHeight: 384
+        clientHeight: 384
+      decision:
+        box:
+          left: 316
+          right: 1403
+          top: 252.1875
+          bottom: 456.1875
+          width: 1087
+          height: 204
+        scrollWidth: 1084
+        clientWidth: 1084
+        scrollHeight: 204
+        clientHeight: 204
+      graph:
+        box:
+          left: 302
+          right: 1432
+          top: 556
+          bottom: 855
+          width: 1130
+          height: 299
+        scrollWidth: 1130
+        clientWidth: 1130
+        scrollHeight: 299
+        clientHeight: 299
+  - state: dma-rejected
+    css_viewport: 1920x1080
+    browser_zoom: 100%
+    device_pixel_ratio: 1
+    layout:
+      viewport:
+        width: 1920
+        height: 1080
+      dpr: 1
+      document:
+        scrollWidth: 1920
+        clientWidth: 1920
+        scrollHeight: 1080
+        clientHeight: 1080
+      body:
+        scrollWidth: 1920
+        clientWidth: 1920
+    elements:
+      header:
+        box:
+          left: 0
+          right: 1920
+          top: 0
+          bottom: 50
+          width: 1920
+          height: 50
+        scrollWidth: 1920
+        clientWidth: 1920
+        scrollHeight: 49
+        clientHeight: 49
+      navigator:
+        box:
+          left: 8
+          right: 224
+          top: 135
+          bottom: 1035
+          width: 216
+          height: 900
+        scrollWidth: 205
+        clientWidth: 201
+        scrollHeight: 900
+        clientHeight: 900
+      controls:
+        box:
+          left: 230
+          right: 1912
+          top: 135
+          bottom: 519
+          width: 1682
+          height: 384
+        scrollWidth: 1682
+        clientWidth: 1682
+        scrollHeight: 384
+        clientHeight: 384
+      decision:
+        box:
+          left: 244
+          right: 1883
+          top: 224.59375
+          bottom: 428.59375
+          width: 1639
+          height: 204
+        scrollWidth: 1636
+        clientWidth: 1636
+        scrollHeight: 204
+        clientHeight: 204
+      graph:
+        box:
+          left: 230
+          right: 1912
+          top: 528
+          bottom: 1035
+          width: 1682
+          height: 507
+        scrollWidth: 1682
+        clientWidth: 1682
+        scrollHeight: 507
+        clientHeight: 507
+  - state: dma-rejected
+    css_viewport: 2560x1440
+    browser_zoom: 100%
+    device_pixel_ratio: 1
+    layout:
+      viewport:
+        width: 2560
+        height: 1440
+      dpr: 1
+      document:
+        scrollWidth: 2560
+        clientWidth: 2560
+        scrollHeight: 1440
+        clientHeight: 1440
+      body:
+        scrollWidth: 2560
+        clientWidth: 2560
+    elements:
+      header:
+        box:
+          left: 0
+          right: 2560
+          top: 0
+          bottom: 50
+          width: 2560
+          height: 50
+        scrollWidth: 2560
+        clientWidth: 2560
+        scrollHeight: 49
+        clientHeight: 49
+      navigator:
+        box:
+          left: 8
+          right: 296.015625
+          top: 135
+          bottom: 1395
+          width: 288.015625
+          height: 1260
+        scrollWidth: 277
+        clientWidth: 273
+        scrollHeight: 1260
+        clientHeight: 1260
+      controls:
+        box:
+          left: 302.015625
+          right: 2552
+          top: 135
+          bottom: 519
+          width: 2249.984375
+          height: 384
+        scrollWidth: 2250
+        clientWidth: 2250
+        scrollHeight: 384
+        clientHeight: 384
+      decision:
+        box:
+          left: 316.015625
+          right: 2523
+          top: 224.59375
+          bottom: 428.59375
+          width: 2206.984375
+          height: 204
+        scrollWidth: 2204
+        clientWidth: 2204
+        scrollHeight: 204
+        clientHeight: 204
+      graph:
+        box:
+          left: 302.015625
+          right: 2552
+          top: 528
+          bottom: 1395
+          width: 2249.984375
+          height: 867
+        scrollWidth: 2250
+        clientWidth: 2250
+        scrollHeight: 867
+        clientHeight: 867
+  - state: dma-rejected
+    css_viewport: 3840x2160
+    browser_zoom: 100%
+    device_pixel_ratio: 1
+    layout:
+      viewport:
+        width: 3840
+        height: 2160
+      dpr: 1
+      document:
+        scrollWidth: 3840
+        clientWidth: 3840
+        scrollHeight: 2160
+        clientHeight: 2160
+      body:
+        scrollWidth: 3840
+        clientWidth: 3840
+    elements:
+      header:
+        box:
+          left: 0
+          right: 3840
+          top: 0
+          bottom: 50
+          width: 3840
+          height: 50
+        scrollWidth: 3840
+        clientWidth: 3840
+        scrollHeight: 49
+        clientHeight: 49
+      navigator:
+        box:
+          left: 8
+          right: 392.015625
+          top: 135
+          bottom: 2115
+          width: 384.015625
+          height: 1980
+        scrollWidth: 373
+        clientWidth: 369
+        scrollHeight: 1980
+        clientHeight: 1980
+      controls:
+        box:
+          left: 398.015625
+          right: 3832
+          top: 135
+          bottom: 518.984375
+          width: 3433.984375
+          height: 383.984375
+        scrollWidth: 3434
+        clientWidth: 3434
+        scrollHeight: 384
+        clientHeight: 384
+      decision:
+        box:
+          left: 412.015625
+          right: 3803
+          top: 224.59375
+          bottom: 428.59375
+          width: 3390.984375
+          height: 204
+        scrollWidth: 3388
+        clientWidth: 3388
+        scrollHeight: 204
+        clientHeight: 204
+      graph:
+        box:
+          left: 398.015625
+          right: 3832
+          top: 527.984375
+          bottom: 2115
+          width: 3433.984375
+          height: 1587.015625
+        scrollWidth: 3434
+        clientWidth: 3434
+        scrollHeight: 1587
+        clientHeight: 1587
+  - state: fld
+    css_viewport: 1366x768
+    browser_zoom: 100%
+    device_pixel_ratio: 1
+    layout:
+      viewport:
+        width: 1366
+        height: 768
+      dpr: 1
+      document:
+        scrollWidth: 1366
+        clientWidth: 1366
+        scrollHeight: 768
+        clientHeight: 768
+      body:
+        scrollWidth: 1366
+        clientWidth: 1366
+    elements:
+      header:
+        box:
+          left: 0
+          right: 1366
+          top: 0
+          bottom: 50
+          width: 1366
+          height: 50
+        scrollWidth: 1366
+        clientWidth: 1366
+        scrollHeight: 49
+        clientHeight: 49
+      navigator:
+        box:
+          left: 8
+          right: 296
+          top: 163
+          bottom: 723
+          width: 288
+          height: 560
+        scrollWidth: 277
+        clientWidth: 273
+        scrollHeight: 560
+        clientHeight: 560
+      controls:
+        box:
+          left: 302
+          right: 1358
+          top: 163
+          bottom: 474
+          width: 1056
+          height: 311
+        scrollWidth: 1056
+        clientWidth: 1056
+        scrollHeight: 311
+        clientHeight: 311
+      decision:
+        box:
+          left: 735
+          right: 1329
+          top: 223
+          bottom: 412.1875
+          width: 594
+          height: 189.1875
+        scrollWidth: 594
+        clientWidth: 594
+        scrollHeight: 188
+        clientHeight: 188
+      graph:
+        box:
+          left: 302
+          right: 1358
+          top: 483
+          bottom: 723
+          width: 1056
+          height: 240
+        scrollWidth: 1056
+        clientWidth: 1056
+        scrollHeight: 240
+        clientHeight: 240
+  - state: fld
+    css_viewport: 1440x900
+    browser_zoom: 100%
+    device_pixel_ratio: 1
+    layout:
+      viewport:
+        width: 1440
+        height: 900
+      dpr: 1
+      document:
+        scrollWidth: 1440
+        clientWidth: 1440
+        scrollHeight: 900
+        clientHeight: 900
+      body:
+        scrollWidth: 1440
+        clientWidth: 1440
+    elements:
+      header:
+        box:
+          left: 0
+          right: 1440
+          top: 0
+          bottom: 50
+          width: 1440
+          height: 50
+        scrollWidth: 1440
+        clientWidth: 1440
+        scrollHeight: 49
+        clientHeight: 49
+      navigator:
+        box:
+          left: 8
+          right: 296
+          top: 163
+          bottom: 855
+          width: 288
+          height: 692
+        scrollWidth: 277
+        clientWidth: 273
+        scrollHeight: 692
+        clientHeight: 692
+      controls:
+        box:
+          left: 302
+          right: 1432
+          top: 163
+          bottom: 547
+          width: 1130
+          height: 384
+        scrollWidth: 1130
+        clientWidth: 1130
+        scrollHeight: 384
+        clientHeight: 384
+      decision:
+        box:
+          left: 735
+          right: 1403
+          top: 260
+          bottom: 449.1875
+          width: 668
+          height: 189.1875
+        scrollWidth: 668
+        clientWidth: 668
+        scrollHeight: 188
+        clientHeight: 188
+      graph:
+        box:
+          left: 302
+          right: 1432
+          top: 556
+          bottom: 855
+          width: 1130
+          height: 299
+        scrollWidth: 1130
+        clientWidth: 1130
+        scrollHeight: 299
+        clientHeight: 299
+  - state: fld
+    css_viewport: 1920x1080
+    browser_zoom: 100%
+    device_pixel_ratio: 1
+    layout:
+      viewport:
+        width: 1920
+        height: 1080
+      dpr: 1
+      document:
+        scrollWidth: 1920
+        clientWidth: 1920
+        scrollHeight: 1080
+        clientHeight: 1080
+      body:
+        scrollWidth: 1920
+        clientWidth: 1920
+    elements:
+      header:
+        box:
+          left: 0
+          right: 1920
+          top: 0
+          bottom: 50
+          width: 1920
+          height: 50
+        scrollWidth: 1920
+        clientWidth: 1920
+        scrollHeight: 49
+        clientHeight: 49
+      navigator:
+        box:
+          left: 8
+          right: 224
+          top: 163
+          bottom: 1035
+          width: 216
+          height: 872
+        scrollWidth: 205
+        clientWidth: 201
+        scrollHeight: 872
+        clientHeight: 872
+      controls:
+        box:
+          left: 230
+          right: 1912
+          top: 163
+          bottom: 547
+          width: 1682
+          height: 384
+        scrollWidth: 1682
+        clientWidth: 1682
+        scrollHeight: 384
+        clientHeight: 384
+      decision:
+        box:
+          left: 663
+          right: 1883
+          top: 268
+          bottom: 441.59375
+          width: 1220
+          height: 173.59375
+        scrollWidth: 1220
+        clientWidth: 1220
+        scrollHeight: 173
+        clientHeight: 173
+      graph:
+        box:
+          left: 230
+          right: 1912
+          top: 556
+          bottom: 1035
+          width: 1682
+          height: 479
+        scrollWidth: 1682
+        clientWidth: 1682
+        scrollHeight: 479
+        clientHeight: 479
+  - state: fld
+    css_viewport: 2560x1440
+    browser_zoom: 100%
+    device_pixel_ratio: 1
+    layout:
+      viewport:
+        width: 2560
+        height: 1440
+      dpr: 1
+      document:
+        scrollWidth: 2560
+        clientWidth: 2560
+        scrollHeight: 1440
+        clientHeight: 1440
+      body:
+        scrollWidth: 2560
+        clientWidth: 2560
+    elements:
+      header:
+        box:
+          left: 0
+          right: 2560
+          top: 0
+          bottom: 50
+          width: 2560
+          height: 50
+        scrollWidth: 2560
+        clientWidth: 2560
+        scrollHeight: 49
+        clientHeight: 49
+      navigator:
+        box:
+          left: 8
+          right: 296.015625
+          top: 163
+          bottom: 1395
+          width: 288.015625
+          height: 1232
+        scrollWidth: 277
+        clientWidth: 273
+        scrollHeight: 1232
+        clientHeight: 1232
+      controls:
+        box:
+          left: 302.015625
+          right: 2552
+          top: 163
+          bottom: 547
+          width: 2249.984375
+          height: 384
+        scrollWidth: 2250
+        clientWidth: 2250
+        scrollHeight: 384
+        clientHeight: 384
+      decision:
+        box:
+          left: 735.015625
+          right: 2523
+          top: 268
+          bottom: 441.59375
+          width: 1787.984375
+          height: 173.59375
+        scrollWidth: 1788
+        clientWidth: 1788
+        scrollHeight: 173
+        clientHeight: 173
+      graph:
+        box:
+          left: 302.015625
+          right: 2552
+          top: 556
+          bottom: 1395
+          width: 2249.984375
+          height: 839
+        scrollWidth: 2250
+        clientWidth: 2250
+        scrollHeight: 839
+        clientHeight: 839
+  - state: fld
+    css_viewport: 3840x2160
+    browser_zoom: 100%
+    device_pixel_ratio: 1
+    layout:
+      viewport:
+        width: 3840
+        height: 2160
+      dpr: 1
+      document:
+        scrollWidth: 3840
+        clientWidth: 3840
+        scrollHeight: 2160
+        clientHeight: 2160
+      body:
+        scrollWidth: 3840
+        clientWidth: 3840
+    elements:
+      header:
+        box:
+          left: 0
+          right: 3840
+          top: 0
+          bottom: 50
+          width: 3840
+          height: 50
+        scrollWidth: 3840
+        clientWidth: 3840
+        scrollHeight: 49
+        clientHeight: 49
+      navigator:
+        box:
+          left: 8
+          right: 392.015625
+          top: 163
+          bottom: 2115
+          width: 384.015625
+          height: 1952
+        scrollWidth: 373
+        clientWidth: 369
+        scrollHeight: 1952
+        clientHeight: 1952
+      controls:
+        box:
+          left: 398.015625
+          right: 3832
+          top: 163
+          bottom: 547
+          width: 3433.984375
+          height: 384
+        scrollWidth: 3434
+        clientWidth: 3434
+        scrollHeight: 384
+        clientHeight: 384
+      decision:
+        box:
+          left: 831.015625
+          right: 3803
+          top: 268
+          bottom: 441.59375
+          width: 2971.984375
+          height: 173.59375
+        scrollWidth: 2972
+        clientWidth: 2972
+        scrollHeight: 173
+        clientHeight: 173
+      graph:
+        box:
+          left: 398.015625
+          right: 3832
+          top: 556
+          bottom: 2115
+          width: 3433.984375
+          height: 1559
+        scrollWidth: 3434
+        clientWidth: 3434
+        scrollHeight: 1559
+        clientHeight: 1559
+  dma:
+    document:
+      test_data_document_id: d30a6047-9609-4ed9-8a14-a148e052547f
+      current_revision:
+        id: c336ea9d-7367-4cf9-a821-08ebec50245b
+        aggregate_id: d30a6047-9609-4ed9-8a14-a148e052547f
+        revision_no: 1
+        based_on_revision_id: null
+        schema_id: urn:cmp:test-data:1.0.0
+        schema_version: 1.0.0
+        content_hash: dd12f0b0fbaabb8d9db25e9c01d88a6531a8c2ad5b52835dbdf68e5b58e1a3e3
+        created_at: '2026-08-13T07:15:21.475090Z'
+        created_by: f7a2b4f6-b69e-4c41-a696-3c6a6a9e63de
+        change_reason: Save local Test Data source
+        organization_id: d0000000-0000-4000-8000-000000000001
+        project_id: d0000000-0000-4000-8000-000000000002
+        classification: internal
+        lifecycle_state: draft
+      document_key: ISSUE209-DMA-FREQUENCY-TEMPERATURE
+      material_maker: CMP synthetic reference
+      material_grade: Synthetic Polymer Prony
+      lot_batch: CMP-DEMO-POLYMER-001
+      test_date: '2026-08-13'
+      operator: Issue 209 analyst
+      laboratory: Synthetic validation lab
+      method: Issue 209 synthetic DMA frequency-temperature sweep
+      specimen_id: 87fba087-6d16-40dd-93b5-7c6c00ee2ca5
+      point_count: 4
+      canonical_artifact_id: 00f1ffbb-973b-4c84-b820-010980779c7a
+      canonical_sha256: 404ebda951efda144cfd79117c7b587e473732f765971c9ae55400c9c3f32545
+      normalized_artifact_id: 716317ec-23ee-4c2c-8b16-9a6f29696d85
+      normalized_sha256: 31b675c18886c20cc21b3d7b887432b8528b7f449cb2ee6425bf4122cb13d74d
+      channels:
+      - key: temperature
+        name: Temperature
+        quantity_semantics: physics.temperature
+        axis_role: independent
+        original_unit_string: degC
+        normalized_unit: K
+        point_count: 4
+        missing_count: 0
+      - key: frequency
+        name: Frequency
+        quantity_semantics: frequency.cyclic
+        axis_role: independent
+        original_unit_string: Hz
+        normalized_unit: Hz
+        point_count: 4
+        missing_count: 0
+      - key: storage_modulus
+        name: Storage Modulus
+        quantity_semantics: mechanics.modulus.storage
+        axis_role: dependent
+        original_unit_string: MPa
+        normalized_unit: Pa
+        point_count: 4
+        missing_count: 0
+      - key: loss_modulus
+        name: Loss Modulus
+        quantity_semantics: mechanics.modulus.loss
+        axis_role: dependent
+        original_unit_string: MPa
+        normalized_unit: Pa
+        point_count: 4
+        missing_count: 0
+      - key: tan_delta
+        name: Tan Delta
+        quantity_semantics: mechanics.loss_factor
+        axis_role: dependent
+        original_unit_string: '1'
+        normalized_unit: '1'
+        point_count: 4
+        missing_count: 0
+      governed_source:
+        material:
+          aggregate_id: f9c82c98-a668-44d5-ad68-db25b0b899f3
+          revision_id: 5afd4865-1dda-4cdc-bce6-4f45912c7b0f
+        material_state:
+          aggregate_id: 01961593-9e7a-4ff2-a014-3863f79761d2
+          revision_id: ae6be4da-0e9c-4e6e-ae2b-b4a00f29cd33
+        test_run:
+          aggregate_id: e66ded4d-24bb-4779-aab8-9ed21dc2a2db
+          revision_id: 17c267a8-a172-488c-a42c-3778aca2b5ba
+        tabular_import:
+          raw_asset_id: d9c7b9bd-99f1-42ac-a807-fd402c33e39f
+          raw_artifact_id: 735ca6db-b161-478c-83cd-04ea6ea45a2c
+          import_run_id: 3c586ad2-24c2-4e57-9130-ebd781b552d7
+          import_profile:
+            aggregate_id: f0367fbc-7e03-44db-9ea5-c96823679ed8
+            revision_id: e78eaf6f-09a2-40b4-ac0e-b5c4f33f4adc
+          normalized_dataset:
+            aggregate_id: f8b49196-20e1-413e-a79c-057c04ef4d6d
+            revision_id: c5e11af4-f1b2-418d-a389-b9eb9e02bf16
+    import_run:
+      import_run_id: 3c586ad2-24c2-4e57-9130-ebd781b552d7
+      classification: internal
+      test_run_id: e66ded4d-24bb-4779-aab8-9ed21dc2a2db
+      test_run_revision_id: 17c267a8-a172-488c-a42c-3778aca2b5ba
+      raw_asset_id: d9c7b9bd-99f1-42ac-a807-fd402c33e39f
+      raw_artifact_id: 735ca6db-b161-478c-83cd-04ea6ea45a2c
+      import_profile_id: f0367fbc-7e03-44db-9ea5-c96823679ed8
+      import_profile_revision_id: e78eaf6f-09a2-40b4-ac0e-b5c4f33f4adc
+      profile_sha256: 8aa58623bc26306bf1e104a2627b66c43d0953b4b2114edf1d6f8ad6574a42ca
+      idempotency_key: 4f09f027-cdf7-4ae5-848d-740ea36fdc08
+      request_sha256: 57e20393cafef5c817be9efafa8d631a58a5cc7456ab261ebc35cf4ce66933c5
+      status: succeeded
+      started_at: '2026-08-13T07:15:21.074937Z'
+      finished_at: '2026-08-13T07:15:21.247467Z'
+      raw_dataset_id: ab249c41-b32d-46c2-ab16-6b1d86ffe46f
+      raw_dataset_revision_id: c9a4fbea-f71f-4133-920b-f44a49a5e2cb
+      normalized_dataset_id: f8b49196-20e1-413e-a79c-057c04ef4d6d
+      normalized_dataset_revision_id: c5e11af4-f1b2-418d-a389-b9eb9e02bf16
+      row_count: 4
+      failure_code: null
+      failure_detail: null
+      diagnostics: []
+    assertion: two independent axes, four dependent/optional channels, affine temperature
+      and modulus normalization, unsorted source order preserved
+  rejected_dma:
+    import_run:
+      import_run_id: 41440ad3-3320-4f59-ad26-df97e046775f
+      classification: internal
+      test_run_id: e66ded4d-24bb-4779-aab8-9ed21dc2a2db
+      test_run_revision_id: 17c267a8-a172-488c-a42c-3778aca2b5ba
+      raw_asset_id: 627faee5-770a-414c-bf03-6eace9261dca
+      raw_artifact_id: 290498a5-be18-48bb-bac0-bf200c5ff3b9
+      import_profile_id: 94012bc3-ff81-4c4c-8c68-4fc5c50aafed
+      import_profile_revision_id: 163244dc-856f-4f1c-bc0e-480afffef4b4
+      profile_sha256: e712d2fc935d4a05315676ff1c46c6d6fd1da2cc87f678c51a4082821a04f6af
+      idempotency_key: 20920920-9209-4209-9209-209209209209
+      request_sha256: a117f36e6af74a1c566c8e7ebfcbc85ec8d297129c834a7f93bc620b1e3a93ca
+      status: failed
+      started_at: '2026-08-13T07:15:25.641053Z'
+      finished_at: '2026-08-13T07:15:25.657327Z'
+      raw_dataset_id: null
+      raw_dataset_revision_id: null
+      normalized_dataset_id: null
+      normalized_dataset_revision_id: null
+      row_count: null
+      failure_code: invalid_tabular_data
+      failure_detail: '5 governed import validation error(s); first: row 2: frequency
+        must be greater than 0 Hz'
+      diagnostics:
+      - ordinal: 0
+        row_number: 2
+        column_name: frequency_bad
+        channel_key: frequency
+        error_code: frequency_not_positive
+        error_detail: 'row 2: frequency must be greater than 0 Hz'
+        recovery_hint: Provide the positive oscillation frequency recorded by the
+          test.
+      - ordinal: 1
+        row_number: 3
+        column_name: temperature_bad
+        channel_key: temperature
+        error_code: temperature_below_absolute_zero
+        error_detail: 'row 3: normalized temperature must be at least 0 K'
+        recovery_hint: Correct the temperature value or its declared degC/K unit.
+      - ordinal: 2
+        row_number: 4
+        column_name: storage_bad
+        channel_key: storage_modulus
+        error_code: missing_value
+        error_detail: 'row 4: storage_bad is missing'
+        recovery_hint: Provide one finite numeric value using the approved decimal
+          separator.
+      - ordinal: 3
+        row_number: 5
+        column_name: loss_bad
+        channel_key: loss_modulus
+        error_code: negative_dma_response
+        error_detail: 'row 5: loss_modulus must be non-negative'
+        recovery_hint: Correct the DMA response value or its declared unit.
+      - ordinal: 4
+        row_number: null
+        column_name: null
+        channel_key: null
+        error_code: insufficient_valid_rows
+        error_detail: governed source requires at least two valid data rows
+        recovery_hint: Provide at least two complete, distinct measurements.
+    idempotency_key: 20920920-9209-4209-9209-209209209209
+    assertion: whole file rejected with row/cell/channel recovery diagnostics and
+      no Test Data revision
+  corrected_dma:
+    document:
+      test_data_document_id: 2b167722-c422-4908-930a-d5851d0a695f
+      current_revision:
+        id: 4bb1b208-cfcf-4582-98ec-fdb0d12e20b4
+        aggregate_id: 2b167722-c422-4908-930a-d5851d0a695f
+        revision_no: 1
+        based_on_revision_id: null
+        schema_id: urn:cmp:test-data:1.0.0
+        schema_version: 1.0.0
+        content_hash: 403e27c3fb8304b9a0f93cb102da0b915b8dbdeb557365501622983fe2c01429
+        created_at: '2026-08-13T07:17:20.452828Z'
+        created_by: f7a2b4f6-b69e-4c41-a696-3c6a6a9e63de
+        change_reason: Save local Test Data source
+        organization_id: d0000000-0000-4000-8000-000000000001
+        project_id: d0000000-0000-4000-8000-000000000002
+        classification: internal
+        lifecycle_state: draft
+      document_key: ISSUE209-DMA-RECOVERED
+      material_maker: CMP synthetic reference
+      material_grade: Synthetic Polymer Prony
+      lot_batch: CMP-DEMO-POLYMER-001
+      test_date: '2026-08-13'
+      operator: Issue 209 analyst
+      laboratory: Synthetic validation lab
+      method: Issue 209 synthetic DMA frequency-temperature sweep
+      specimen_id: 87fba087-6d16-40dd-93b5-7c6c00ee2ca5
+      point_count: 4
+      canonical_artifact_id: 190cbbaa-21af-4464-9821-dd450705dd95
+      canonical_sha256: 09e5bc0e97e478ff184eaf8c1ec879824feff48130696109e3e6c9ed25652926
+      normalized_artifact_id: 8e9dff2a-c3c1-4feb-bd88-94c93e4d2932
+      normalized_sha256: 0bb0496810b49af6fb1a646c2fea84225f5c59143dfdf426ae750cd924908aca
+      channels:
+      - key: temperature
+        name: Temperature
+        quantity_semantics: physics.temperature
+        axis_role: independent
+        original_unit_string: degC
+        normalized_unit: K
+        point_count: 4
+        missing_count: 0
+      - key: frequency
+        name: Frequency
+        quantity_semantics: frequency.cyclic
+        axis_role: independent
+        original_unit_string: Hz
+        normalized_unit: Hz
+        point_count: 4
+        missing_count: 0
+      - key: storage_modulus
+        name: Storage Modulus
+        quantity_semantics: mechanics.modulus.storage
+        axis_role: dependent
+        original_unit_string: MPa
+        normalized_unit: Pa
+        point_count: 4
+        missing_count: 0
+      - key: loss_modulus
+        name: Loss Modulus
+        quantity_semantics: mechanics.modulus.loss
+        axis_role: dependent
+        original_unit_string: MPa
+        normalized_unit: Pa
+        point_count: 4
+        missing_count: 0
+      governed_source:
+        material:
+          aggregate_id: f9c82c98-a668-44d5-ad68-db25b0b899f3
+          revision_id: 5afd4865-1dda-4cdc-bce6-4f45912c7b0f
+        material_state:
+          aggregate_id: 01961593-9e7a-4ff2-a014-3863f79761d2
+          revision_id: ae6be4da-0e9c-4e6e-ae2b-b4a00f29cd33
+        test_run:
+          aggregate_id: e66ded4d-24bb-4779-aab8-9ed21dc2a2db
+          revision_id: 17c267a8-a172-488c-a42c-3778aca2b5ba
+        tabular_import:
+          raw_asset_id: 9227dea9-0fdd-41e6-b28b-50b0f30e30e8
+          raw_artifact_id: 6eb05738-9812-496f-9ecd-0d6cf543d2ac
+          import_run_id: 3e7886bc-6870-46b8-9015-57e19ac56ad4
+          import_profile:
+            aggregate_id: 94012bc3-ff81-4c4c-8c68-4fc5c50aafed
+            revision_id: 163244dc-856f-4f1c-bc0e-480afffef4b4
+          normalized_dataset:
+            aggregate_id: 9ab74cb3-d5b7-464c-9605-020e76bd9a61
+            revision_id: ba7bc035-1343-45c2-9389-6009ed950e65
+    import_run:
+      import_run_id: 3e7886bc-6870-46b8-9015-57e19ac56ad4
+      classification: internal
+      test_run_id: e66ded4d-24bb-4779-aab8-9ed21dc2a2db
+      test_run_revision_id: 17c267a8-a172-488c-a42c-3778aca2b5ba
+      raw_asset_id: 9227dea9-0fdd-41e6-b28b-50b0f30e30e8
+      raw_artifact_id: 6eb05738-9812-496f-9ecd-0d6cf543d2ac
+      import_profile_id: 94012bc3-ff81-4c4c-8c68-4fc5c50aafed
+      import_profile_revision_id: 163244dc-856f-4f1c-bc0e-480afffef4b4
+      profile_sha256: e712d2fc935d4a05315676ff1c46c6d6fd1da2cc87f678c51a4082821a04f6af
+      idempotency_key: 34d1660d-c638-4824-be8c-a9b26517fb4e
+      request_sha256: 56e6a3711664650b2bd9cdcca9a1bc3e75329df4670b28a382d6d9d506b1bed0
+      status: succeeded
+      started_at: '2026-08-13T07:17:19.975585Z'
+      finished_at: '2026-08-13T07:17:20.176038Z'
+      raw_dataset_id: 2ef7ef4a-dc73-451f-ac8f-74c3afa4f1e9
+      raw_dataset_revision_id: b57756f0-5e94-4795-b9cf-164e413f0768
+      normalized_dataset_id: 9ab74cb3-d5b7-464c-9605-020e76bd9a61
+      normalized_dataset_revision_id: ba7bc035-1343-45c2-9389-6009ed950e65
+      row_count: 4
+      failure_code: null
+      failure_detail: null
+      diagnostics: []
+    assertion: new immutable source succeeds while rejected evidence remains unchanged
+  fld:
+    document:
+      test_data_document_id: cff6c4bb-20d7-4173-9f29-6ac8aef37079
+      current_revision:
+        id: da7ab6e7-e5b2-43bf-8d2c-1ec8e23c3ab7
+        aggregate_id: cff6c4bb-20d7-4173-9f29-6ac8aef37079
+        revision_no: 1
+        based_on_revision_id: null
+        schema_id: urn:cmp:test-data:1.0.0
+        schema_version: 1.0.0
+        content_hash: 595c252a457b52f3a3a679cabc99744c3fdb3e9921594a8589a8de618da784f0
+        created_at: '2026-08-13T07:19:12.269813Z'
+        created_by: f7a2b4f6-b69e-4c41-a696-3c6a6a9e63de
+        change_reason: Save local Test Data source
+        organization_id: d0000000-0000-4000-8000-000000000001
+        project_id: d0000000-0000-4000-8000-000000000002
+        classification: internal
+        lifecycle_state: draft
+      document_key: ISSUE209-FLD
+      material_maker: CMP synthetic reference
+      material_grade: DP780 synthetic reference steel
+      lot_batch: CMP-DEMO-LOT-001
+      test_date: '2026-01-16'
+      operator: Issue 209 analyst
+      laboratory: Synthetic validation lab
+      method: CMP demo tensile replicate 2
+      specimen_id: 9e1a5fa3-64fc-490f-8a0e-ac5543656328
+      point_count: 4
+      canonical_artifact_id: 368f0c82-fcfd-4ce3-9103-33d6e1cc3769
+      canonical_sha256: 1bfa8a16fe46b1df7e683851ed1db255464b4cd050a2c0c6ef83ad0641ab04dc
+      normalized_artifact_id: 2da5fd06-ee40-41fc-85ee-b5caf123115f
+      normalized_sha256: 780b30c4c68fdc37947768308f111f5b3d1cbc716d4d7fe83808fc77582f36cf
+      channels:
+      - key: minor_strain
+        name: Minor Strain
+        quantity_semantics: mechanics.strain.minor
+        axis_role: independent
+        original_unit_string: '%'
+        normalized_unit: '1'
+        point_count: 4
+        missing_count: 0
+      - key: major_strain
+        name: Major Strain
+        quantity_semantics: mechanics.strain.major
+        axis_role: dependent
+        original_unit_string: '%'
+        normalized_unit: '1'
+        point_count: 4
+        missing_count: 0
+      governed_source:
+        material:
+          aggregate_id: 20c1a71b-79e9-4fa3-9417-b2f09653dd4e
+          revision_id: 748210e9-147e-4e6b-a750-a18c5ecb3541
+        material_state:
+          aggregate_id: 5027256f-b90e-4dee-91a9-7ac3f5506d65
+          revision_id: 3238b55e-a8db-4fc7-bda3-72b2f048ae3b
+        test_run:
+          aggregate_id: df1b1472-1742-4392-b74b-15a9413206d7
+          revision_id: 386396be-0b1f-4e01-95ac-e1eebc120dba
+        tabular_import:
+          raw_asset_id: d5f57793-db64-47b7-bf44-dd6793cc0e09
+          raw_artifact_id: 6b5aabbd-a455-4db7-9857-1ac51ff769fe
+          import_run_id: 7c35d102-87b7-427b-86c2-9450ff77cb3a
+          import_profile:
+            aggregate_id: c207b91f-acda-4acc-84c1-e5026ec83fd1
+            revision_id: 6c166e05-0e6f-4c6f-af66-1c392241e08d
+          normalized_dataset:
+            aggregate_id: c6c36ecf-6a5b-4501-92d8-32a9a1e7a092
+            revision_id: a896d474-4b5e-4ce1-8b33-61ac4fa90ff5
+    import_run:
+      import_run_id: 7c35d102-87b7-427b-86c2-9450ff77cb3a
+      classification: internal
+      test_run_id: df1b1472-1742-4392-b74b-15a9413206d7
+      test_run_revision_id: 386396be-0b1f-4e01-95ac-e1eebc120dba
+      raw_asset_id: d5f57793-db64-47b7-bf44-dd6793cc0e09
+      raw_artifact_id: 6b5aabbd-a455-4db7-9857-1ac51ff769fe
+      import_profile_id: c207b91f-acda-4acc-84c1-e5026ec83fd1
+      import_profile_revision_id: 6c166e05-0e6f-4c6f-af66-1c392241e08d
+      profile_sha256: dbe9f97cb21f7fa3cb651f3aa24e1f7d1e5b45baeb7a9e315eeda6208c3d8fbc
+      idempotency_key: 7f118bc5-6b3c-4d9e-9653-7158723522c3
+      request_sha256: 6dcf1903ead255e359360b5a3334abf1ac4b4a0c267cdda26170574693ea6156
+      status: succeeded
+      started_at: '2026-08-13T07:19:11.830517Z'
+      finished_at: '2026-08-13T07:19:12.023975Z'
+      raw_dataset_id: 88735964-2371-4597-85f0-9649f795875e
+      raw_dataset_revision_id: 3e8a30ff-97a9-4e63-ad1e-679b94ec83ad
+      normalized_dataset_id: c6c36ecf-6a5b-4501-92d8-32a9a1e7a092
+      normalized_dataset_revision_id: a896d474-4b5e-4ce1-8b33-61ac4fa90ff5
+      row_count: 4
+      failure_code: null
+      failure_detail: null
+      diagnostics: []
+    assertion: signed, non-monotonic FLD coordinates and source order preserved
+  reload: both DMA identities are visible in the exact polymer context and FLD is
+    visible in the exact metal context after full route reload
+scope_boundary: DMA frequency-temperature sweep and FLD governed import only; no dma_strain_sweep,
+  source-v2 bundle adapter, extra unit adapter, DMA-to-Prony, or Material Model IR
+  link.
+allowed_duplicate_groups:
+- rationale: 'Issue #209 keeps the exact current-guide and issue-owned original byte-identical
+    so product-guide and acceptance provenance remain independently addressable.'
+  images:
+  - docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-1920x1080-header.png
+  - docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-rejected-1920x1080-header.png
+  - docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-fld-1920x1080-header.png
+- rationale: 'Issue #209 keeps the exact current-guide and issue-owned original byte-identical
+    so product-guide and acceptance provenance remain independently addressable.'
+  images:
+  - docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-2560x1440-header.png
+  - docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-rejected-2560x1440-header.png
+  - docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-fld-2560x1440-header.png
+- rationale: 'Issue #209 keeps the exact current-guide and issue-owned original byte-identical
+    so product-guide and acceptance provenance remain independently addressable.'
+  images:
+  - docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-3840x2160-header.png
+  - docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-rejected-3840x2160-header.png
+  - docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-fld-3840x2160-header.png
+- rationale: 'Issue #209 keeps the exact current-guide and issue-owned original byte-identical
+    so product-guide and acceptance provenance remain independently addressable.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-data-1920x1080-header.png
+  - docs/17-evidence/images/issue-209-dma-fld-governed-import/before/crops/modeling-data-1920x1080-header.png
+- rationale: 'Issue #209 keeps the exact current-guide and issue-owned original byte-identical
+    so product-guide and acceptance provenance remain independently addressable.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-data-2560x1440-header.png
+  - docs/17-evidence/images/issue-209-dma-fld-governed-import/before/crops/modeling-data-2560x1440-header.png
+- rationale: 'Issue #209 keeps the exact current-guide and issue-owned original byte-identical
+    so product-guide and acceptance provenance remain independently addressable.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/crops/modeling-data-3840x2160-header.png
+  - docs/17-evidence/images/issue-209-dma-fld-governed-import/before/crops/modeling-data-3840x2160-header.png
+- rationale: 'Issue #209 keeps the exact current-guide and issue-owned original byte-identical
+    so product-guide and acceptance provenance remain independently addressable.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-data-1366x768.png
+  - docs/17-evidence/images/issue-209-dma-fld-governed-import/before/originals/modeling-data-1366x768.png
+  - docs/user-guide/images/current/modeling-data-1366x768.png
+- rationale: 'Issue #209 keeps the exact current-guide and issue-owned original byte-identical
+    so product-guide and acceptance provenance remain independently addressable.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-data-1440x900.png
+  - docs/17-evidence/images/issue-209-dma-fld-governed-import/before/originals/modeling-data-1440x900.png
+  - docs/user-guide/images/current/modeling-data-1440x900.png
+- rationale: 'Issue #209 keeps the exact current-guide and issue-owned original byte-identical
+    so product-guide and acceptance provenance remain independently addressable.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-data-1920x1080.png
+  - docs/17-evidence/images/issue-209-dma-fld-governed-import/before/originals/modeling-data-1920x1080.png
+  - docs/user-guide/images/current/modeling-data-1920x1080.png
+- rationale: 'Issue #209 keeps the exact current-guide and issue-owned original byte-identical
+    so product-guide and acceptance provenance remain independently addressable.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-data-2560x1440.png
+  - docs/17-evidence/images/issue-209-dma-fld-governed-import/before/originals/modeling-data-2560x1440.png
+  - docs/user-guide/images/current/modeling-data-2560x1440.png
+- rationale: 'Issue #209 keeps the exact current-guide and issue-owned original byte-identical
+    so product-guide and acceptance provenance remain independently addressable.'
+  images:
+  - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-data-3840x2160.png
+  - docs/17-evidence/images/issue-209-dma-fld-governed-import/before/originals/modeling-data-3840x2160.png
+  - docs/user-guide/images/current/modeling-data-3840x2160.png
+files:
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-1920x1080-controls.png
+  sha256: 7bcb9614fa11fc7abcfaa624d8f47edba9bcaea70c666131eebe68a4713cacc5
+  bytes: 24975
+  pixels: 1610x384
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-1920x1080-decision.png
+  sha256: d84f75982be106c3b0c083a28c41db94ac35e2bdc7634b44e1ed2d1d1b79e439
+  bytes: 20659
+  pixels: 1148x369
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-1920x1080-graph.png
+  sha256: 252e75c60051f216b1e833b33541f91da3c7df5fb39c028f6040fedc1a010351
+  bytes: 72358
+  pixels: 1610x479
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-1920x1080-header.png
+  sha256: bcae5b5a0e1039d3c8b53aa8571875ecf6498dfd6581a34c6fbfcff651374021
+  bytes: 6973
+  pixels: 1920x50
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-1920x1080-navigator.png
+  sha256: 033a290afd1304b42057ecb45af578fe73ea11179bec37becc40f28fd80a419a
+  bytes: 11065
+  pixels: 288x872
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-2560x1440-controls.png
+  sha256: 5fda467c50a0d9916eb25b402f7e1000ef82c60063fc083cb660aaa8617d9627
+  bytes: 25715
+  pixels: 2154x384
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-2560x1440-decision.png
+  sha256: 2bb579844212e7babc59867df900ad7f6ead8b3a2f852b41fefdcf401c517e07
+  bytes: 21581
+  pixels: 1692x369
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-2560x1440-graph.png
+  sha256: 6266ea0b75564c19b7c50d5fd8c95ecf97914d4fbfd87e26a5b5a3fd7b97ab05
+  bytes: 124087
+  pixels: 2154x839
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-2560x1440-header.png
+  sha256: 24d3d72a1926f112fbde2d446ef35eae77f27e20fc5a3bb41e73095c7d59866b
+  bytes: 7241
+  pixels: 2560x50
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-2560x1440-navigator.png
+  sha256: 274ecdb9c102cf767ec5b91a55a4113f680675167454e239c47447df2147c9af
+  bytes: 12787
+  pixels: 384x1232
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-3840x2160-controls.png
+  sha256: 29ebb21d716fbee4ae43610eff5dda5e946ee07ddab799b37174b2489223244d
+  bytes: 28849
+  pixels: 3434x384
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-3840x2160-decision.png
+  sha256: 7c36c1834987746d871697794ebf8e9df5822bf31941395d12ae79a3d0fac833
+  bytes: 24565
+  pixels: 2972x369
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-3840x2160-graph.png
+  sha256: 5db829bacf5bfedb361e0878b48d2d6f059de247a910b6b85a879a8b78140cfa
+  bytes: 269370
+  pixels: 3434x1559
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-3840x2160-header.png
+  sha256: 1d106d2507062fea66d2f26a69c86debb22ad3f465bf472fc62d8b0726b8cfe6
+  bytes: 7768
+  pixels: 3840x50
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-3840x2160-navigator.png
+  sha256: 6d08d707d72766bc4a463429740af38227c116ec5b9cde42912c63ea5bce1c83
+  bytes: 15201
+  pixels: 385x1952
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-rejected-1920x1080-controls.png
+  sha256: 94db87ea7f41dfaba178bffcbf3f0f86c2e0652c68288a51706aa39a27a03c4e
+  bytes: 45240
+  pixels: 1682x384
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-rejected-1920x1080-decision.png
+  sha256: 53f6984e814b7f6c3705eb60f6c3d5465a7126b6be85291ae08f0f60f7571893
+  bytes: 25334
+  pixels: 1639x205
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-rejected-1920x1080-graph.png
+  sha256: a0f6881da42c930ab26658e592331f5321e23649c1f248519695886259554d7a
+  bytes: 18107
+  pixels: 1682x507
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-rejected-1920x1080-header.png
+  sha256: bcae5b5a0e1039d3c8b53aa8571875ecf6498dfd6581a34c6fbfcff651374021
+  bytes: 6973
+  pixels: 1920x50
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-rejected-1920x1080-navigator.png
+  sha256: 02cbc9558e37038811ebe9b5971b41880e41d604aae034601890c05cbbb3db9b
+  bytes: 9188
+  pixels: 216x900
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-rejected-2560x1440-controls.png
+  sha256: 5c6092f28537d22b6586bc5a11b8f684392ce7b3dc478b4c2ba82955be5060f7
+  bytes: 47135
+  pixels: 2250x384
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-rejected-2560x1440-decision.png
+  sha256: 5d7d22222d8440c57ad873b97fa528d6f676ff244dae2630bf05a8880b1e3c19
+  bytes: 26771
+  pixels: 2207x205
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-rejected-2560x1440-graph.png
+  sha256: 669dc96be04e93871a7236a182571041a8b5fd848fd786818270d13b54496cdd
+  bytes: 22915
+  pixels: 2250x867
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-rejected-2560x1440-header.png
+  sha256: 24d3d72a1926f112fbde2d446ef35eae77f27e20fc5a3bb41e73095c7d59866b
+  bytes: 7241
+  pixels: 2560x50
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-rejected-2560x1440-navigator.png
+  sha256: d0153502309e7ecb4a6c29fc0b4713d458046f23f0301a5777645e49061b2205
+  bytes: 12339
+  pixels: 289x1260
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-rejected-3840x2160-controls.png
+  sha256: 18280ecc385106ca6edc16dad22cf7bf7a39680d575778a143921c0cd48a7bad
+  bytes: 48673
+  pixels: 3434x384
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-rejected-3840x2160-decision.png
+  sha256: f37c429b1ac4cc12ce050aed187dabed22266d32d8c5c991500a5c97f3b7e2ff
+  bytes: 27274
+  pixels: 3391x205
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-rejected-3840x2160-graph.png
+  sha256: 869e0ef884661ba95e45be5f32b382717cdddd115db00bdad9673eb2b78f1348
+  bytes: 35724
+  pixels: 3434x1588
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-rejected-3840x2160-header.png
+  sha256: 1d106d2507062fea66d2f26a69c86debb22ad3f465bf472fc62d8b0726b8cfe6
+  bytes: 7768
+  pixels: 3840x50
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-dma-rejected-3840x2160-navigator.png
+  sha256: dbd46d823c19897c4d5b99958803c71ee43210be1a47b942e6013c3679a81a0d
+  bytes: 15292
+  pixels: 385x1980
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-fld-1920x1080-controls.png
+  sha256: 5ba273494b61970e5a946b5ee155e724ff8159a840790540c0c78b83fbec39fd
+  bytes: 37147
+  pixels: 1682x384
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-fld-1920x1080-decision.png
+  sha256: 7d33816893058e8547149e3cd4aa8705798630573c9cda2b72c89246895d990e
+  bytes: 10658
+  pixels: 1220x174
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-fld-1920x1080-graph.png
+  sha256: e6a39f695e9fe952624f60150519a59fff5bfe7a263522063b7959690ecddca4
+  bytes: 68921
+  pixels: 1682x479
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-fld-1920x1080-header.png
+  sha256: bcae5b5a0e1039d3c8b53aa8571875ecf6498dfd6581a34c6fbfcff651374021
+  bytes: 6973
+  pixels: 1920x50
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-fld-1920x1080-navigator.png
+  sha256: fdce0d80887d74279c89756524f640391afc543c06952c5c031bbed0b11d3db3
+  bytes: 12284
+  pixels: 216x872
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-fld-2560x1440-controls.png
+  sha256: 06b0d033ea333ef87b32c6a17199730a60820eebba919346c9b79cc0ebb8ad21
+  bytes: 38612
+  pixels: 2250x384
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-fld-2560x1440-decision.png
+  sha256: 1da435ad826aaeb7c2e483f41aaa700c26bda8220d922fb1a9bfa8be38a2e3ab
+  bytes: 11090
+  pixels: 1788x174
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-fld-2560x1440-graph.png
+  sha256: ab0deef9694136e4321af3c2deed21e9574c55af157c26a352a1c8665adb66b2
+  bytes: 114643
+  pixels: 2250x839
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-fld-2560x1440-header.png
+  sha256: 24d3d72a1926f112fbde2d446ef35eae77f27e20fc5a3bb41e73095c7d59866b
+  bytes: 7241
+  pixels: 2560x50
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-fld-2560x1440-navigator.png
+  sha256: 6b7f51dbf6163e54fe14ac22d2493511d9c8155eed0b0e25b9f0fb64761c2e8c
+  bytes: 18028
+  pixels: 289x1232
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-fld-3840x2160-controls.png
+  sha256: f7c564a7f3d7aa8111dd4525e0459efe097cdf9592c21ac107d54961a02c042f
+  bytes: 41177
+  pixels: 3434x384
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-fld-3840x2160-decision.png
+  sha256: cc8b55a277e30bc57f6bfd6612cff7424aa83934d16bc539e50b62fd5246d2d3
+  bytes: 12182
+  pixels: 2972x174
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-fld-3840x2160-graph.png
+  sha256: 0ad46f991250dc00fe63975c25b39aef65ec053ec315a889a517dbc4bf0b68bf
+  bytes: 247757
+  pixels: 3434x1559
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-fld-3840x2160-header.png
+  sha256: 1d106d2507062fea66d2f26a69c86debb22ad3f465bf472fc62d8b0726b8cfe6
+  bytes: 7768
+  pixels: 3840x50
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/crops/modeling-data-fld-3840x2160-navigator.png
+  sha256: eec49508653c5326620b2aac07f10ec3610d1a85a5469887d3a4c9bc61904ddd
+  bytes: 21449
+  pixels: 385x1952
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-dma-1366x768.png
+  sha256: 0b2315049017263c33649c570fea3c8e3fcf03ee103f3ba7b7b6705240f08956
+  bytes: 83979
+  pixels: 1366x768
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-dma-1440x900.png
+  sha256: 3175a1f6df57081f5f0251fd5981dfe4d2338a072384ac563a424f1fddb08e58
+  bytes: 99660
+  pixels: 1440x900
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-dma-1920x1080.png
+  sha256: 74b4d6a70751c52d1fa61678e2667db590dc083c3c0014c9d27dcb6b0945d0b4
+  bytes: 129588
+  pixels: 1920x1080
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-dma-2560x1440.png
+  sha256: c9b7230a55eb594f73843bdd3353f8cbe0a4dba7eff15b6f48ddc300c6eec27f
+  bytes: 180091
+  pixels: 2560x1440
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-dma-3840x2160.png
+  sha256: fce6715345532284b7a723e930901eaaa99be1444b2e3746f0c5a6d1e7d5fa09
+  bytes: 320847
+  pixels: 3840x2160
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-dma-rejected-1366x768.png
+  sha256: 5944ec44acfe6a1a54c3b839d90c8c5b60df1936454d3714a7f2c9bb7a4d92d7
+  bytes: 78607
+  pixels: 1366x768
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-dma-rejected-1440x900.png
+  sha256: 4808f1078bbd8901f2f3f23e694d04e7df9a5d0dfb7e32421735c79380431f1d
+  bytes: 120802
+  pixels: 1440x900
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-dma-rejected-1920x1080.png
+  sha256: 9e04eb7f9792ac943e90f9717144bb98a3d8ba0f2e4604e3ebedca524a9cb9f6
+  bytes: 90392
+  pixels: 1920x1080
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-dma-rejected-2560x1440.png
+  sha256: 3c213f99edbe1a2ae56e9bdc9d5c4e6fa4302de215544e1f5fc35edc597e3b3f
+  bytes: 97548
+  pixels: 2560x1440
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-dma-rejected-3840x2160.png
+  sha256: 482350eab5ddc2bc7470cdd2f2415073633c28a7a58156aa4cf06b46fbb43898
+  bytes: 115528
+  pixels: 3840x2160
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-fld-1366x768.png
+  sha256: c6b98ff850d73edbeff5c12ce1bf4fb76fb91e58fa99372299a805eed73db20e
+  bytes: 93008
+  pixels: 1366x768
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-fld-1440x900.png
+  sha256: b42f589b6674d8a81c37b148d4e65c885cd140e1d0f61dc05efe122a7ec36b40
+  bytes: 111361
+  pixels: 1440x900
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-fld-1920x1080.png
+  sha256: 61ac1b8f346dbfa0938564f08d87f0d6077ce80a0b4dbcba39ea01488bc82814
+  bytes: 139022
+  pixels: 1920x1080
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-fld-2560x1440.png
+  sha256: b7c3fa0f7b1a98b1cc65db81ee077c3c91b6d61527a1fe3c96f2d69762120ba7
+  bytes: 183979
+  pixels: 2560x1440
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-fld-3840x2160.png
+  sha256: df0ecb80756647101f8afabda9e45ea361fca68b84accdea8b1e6d42a9f31ae3
+  bytes: 309938
+  pixels: 3840x2160
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/before/crops/modeling-data-1920x1080-controls.png
+  sha256: 982b3186642ddded24f9dd1192ccd8a42c0f8c1de4a2dbd2f6e35d4c66bfe0bd
+  bytes: 31446
+  pixels: 1618x290
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/before/crops/modeling-data-1920x1080-graph.png
+  sha256: d1daa073872457dc7baab68cefc2776db229c0211e297756409c78d3f9db0422
+  bytes: 73434
+  pixels: 1618x655
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/before/crops/modeling-data-1920x1080-header.png
+  sha256: 739a332fe2fac5e404a35bf922d5f2b933000706224a1b51086cb848077e4b2b
+  bytes: 16552
+  pixels: 1920x180
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/before/crops/modeling-data-1920x1080-navigator.png
+  sha256: 37927eed86afe48387366e668c679243c8e691b6e1cfe416d4eeda159d401d78
+  bytes: 16515
+  pixels: 302x980
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/before/crops/modeling-data-2560x1440-controls.png
+  sha256: db778b58255dca6557a94b1af1942c8265172545bf34636a05aa2bae81b62d71
+  bytes: 32790
+  pixels: 2258x290
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/before/crops/modeling-data-2560x1440-graph.png
+  sha256: f8df1670be4f2cef9c481ced04f621a2209491582e27310ef89f8baf72e7b1e1
+  bytes: 125904
+  pixels: 2258x1015
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/before/crops/modeling-data-2560x1440-header.png
+  sha256: e620aac399a3aa57e7311799caf03f9e11435ff709ec07e5fa3e74f6141592b0
+  bytes: 17217
+  pixels: 2560x180
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/before/crops/modeling-data-2560x1440-navigator.png
+  sha256: 8ef2ec990520c15b476d1339f80083883f22dc24485af75b8dba739d996803d7
+  bytes: 17491
+  pixels: 302x1340
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/before/crops/modeling-data-3840x2160-controls.png
+  sha256: d85e0eabc5778ef56feea4280f857827aeb3a93b04574229399a3eb39444eade
+  bytes: 34705
+  pixels: 3538x290
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/before/crops/modeling-data-3840x2160-graph.png
+  sha256: 785b56297ef651c954b2823fe16d667407291149707e7b19c2656ca53f7c0e54
+  bytes: 262410
+  pixels: 3538x1735
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/before/crops/modeling-data-3840x2160-header.png
+  sha256: 096bc81d1028da5cd18719a883f93d532b8487d62c0f984745b1a410d20dffbc
+  bytes: 18638
+  pixels: 3840x180
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/before/crops/modeling-data-3840x2160-navigator.png
+  sha256: 356e3754499703eb5c4dc0e3e57ffa84a0d8ff5f7192a1c76c01c39a24e9579e
+  bytes: 19910
+  pixels: 302x2060
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/before/originals/modeling-data-1366x768.png
+  sha256: 63e69d1801309933c1eba99bb49d467f1eaae4fb2873ca8245539c2d502a7bcd
+  bytes: 92874
+  pixels: 1366x768
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/before/originals/modeling-data-1440x900.png
+  sha256: 5a1dff28c0ba09839ea2653cca80e903724116d5df1ad8b5631a5be7af410637
+  bytes: 104251
+  pixels: 1440x900
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/before/originals/modeling-data-1920x1080.png
+  sha256: f466aaeb7249c2b02a7c66a58489ecde960418bd8d42a2e7d27b18ca5c58bcc9
+  bytes: 129819
+  pixels: 1920x1080
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/before/originals/modeling-data-2560x1440.png
+  sha256: 77535d5e566986e1777d87e064d9eadbe4ee0021205e2a6f4607cfc486a39788
+  bytes: 178845
+  pixels: 2560x1440
+- path: docs/17-evidence/images/issue-209-dma-fld-governed-import/before/originals/modeling-data-3840x2160.png
+  sha256: 28c1ec2df57d665b44fb0e47a251c9d2c7865ac0a703509e4129cc4ff4663b9b
+  bytes: 304715
+  pixels: 3840x2160

@@ -29,13 +29,25 @@
         "revision_id": {"type": "string", "format": "uuid"}
       }
     },
+    "GovernedTabularSource": {
+      "type": "object", "additionalProperties": false,
+      "required": ["raw_asset_id", "raw_artifact_id", "import_run_id", "import_profile", "normalized_dataset"],
+      "properties": {
+        "raw_asset_id": {"type": "string", "format": "uuid"},
+        "raw_artifact_id": {"type": "string", "format": "uuid"},
+        "import_run_id": {"type": "string", "format": "uuid"},
+        "import_profile": {"$ref": "#/$defs/ExactRevision"},
+        "normalized_dataset": {"$ref": "#/$defs/ExactRevision"}
+      }
+    },
     "GovernedSource": {
       "type": "object", "additionalProperties": false,
       "required": ["material", "material_state", "test_run"],
       "properties": {
         "material": {"$ref": "#/$defs/ExactRevision"},
         "material_state": {"$ref": "#/$defs/ExactRevision"},
-        "test_run": {"$ref": "#/$defs/ExactRevision"}
+        "test_run": {"$ref": "#/$defs/ExactRevision"},
+        "tabular_import": {"anyOf": [{"$ref": "#/$defs/GovernedTabularSource"}, {"type": "null"}]}
       }
     },
     "PreviewResponse": {

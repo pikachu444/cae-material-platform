@@ -1,10 +1,15 @@
-version: 103
+version: 104
 verified_at: 2026-08-13
-scope: issue-212-explicit-toe-compensation
-source_commit: 36c898654e2176a06eef868ee7412de22bad1a9e
+scope: issue-209-dma-fld-governed-import
+source_commit: f8fe6ef85d345837a6252b6ba8b3b706ccbe009f
 capture_script: ../../scripts/capture_current_product.py
-capture_command: uv run --with playwright==1.62.0 --with pillow --with pyyaml python scripts/capture_issue212_visual_evidence.py --base-url http://127.0.0.1:5173
+capture_command: uv run --with playwright==1.62.0 --with pillow --with pyyaml python scripts/capture_issue209_visual_evidence.py --base-url http://127.0.0.1:5173
 notes:
+  - "Issue #209 adds fifteen current Modeling Data originals for a governed DMA frequency-temperature sweep, deterministic whole-file rejection, and governed FLD import from canonical Compose source commit f8fe6ef85d345837a6252b6ba8b3b706ccbe009f. The current directory now contains 116 deterministic synthetic non-production images."
+  - "The issue-owned packet is docs/17-evidence/images/issue-209-dma-fld-governed-import/visual-evidence.yaml: five exact-origin/main before originals, fifteen live after originals, fifty-seven direct 100%-pixel header/navigator/controls/decision/graph crops, hashes, dimensions and fifteen measured geometry records. Main opened every one of the 77 PNGs at original resolution and verified the manifest hashes, byte counts and dimensions."
+  - "The canonical browser journey saves and reloads an exact DMA frequency-temperature Test Data revision with Raw Asset/Artifact, Import Run/Profile and normalized Dataset pins; records a rejected DMA run without creating Test Data; retries corrected immutable inputs; saves and reloads an exact FLD revision; and keeps both schemas outside Fit/Prony/IR."
+  - "All five CSS viewports pass at browser zoom 100% and DPR 1 with no page horizontal overflow. The rejected 1440 primary journey intentionally retains the last accepted DMA graph while showing the failed draft diagnostics; clean secondary viewport sessions truthfully show no session Test Data, and every rejected run proves no canonical Test Data was created."
+  - "The active Windows displays are 2560×1440 and 2560×1600 at 96 DPI and 100% scale. Automated 3840×2160 geometry does not claim physical 4K readability; #223 remains the final physical gate. The Issue #209 Balanced independent audit and Product Owner visual-geometry decision are publication gates recorded against the exact candidate and PR."
   - "Issue #212 refreshes the five current Modeling Process and five byte-identical Fit originals from canonical Compose source commit 36c898654e2176a06eef868ee7412de22bad1a9e. The current directory remains 101 deterministic synthetic non-production images."
   - "The issue-owned packet is docs/17-evidence/images/issue-212-explicit-toe-compensation/visual-evidence.yaml: ten exact-origin/main before originals, ten live after originals, forty-eight direct 100%-pixel header/navigator/controls/graph crops, three warning/Fit-source state images, hashes, dimensions and measured geometry. Main opened all 71 unique PNGs at original resolution; sixty were byte-identical to the previously inspected packet and the eleven changed images were reopened after the warning-layout correction."
   - "The canonical browser journey explicitly adds tensile.toe_zero_intercept@1.0.0, selects the estimation domain, previews offset/slope/R²/point count, proves an unacknowledged warning blocks save, resets acknowledgement on changed input, recovers through a clean domain, saves an immutable Processing Output r1 and reads that exact toe-compensated source in Fit Evidence."
@@ -63,6 +68,36 @@ notes:
   - "Issue #158 Task 3B Fit captures bind the Fit source to one saved Process Output id/revision/digest in Candidate parameters Evidence, show the server candidate response/residual/tangent and diagnostic evidence, preserve the last valid preview after an exact-source read or Fit failure, and show an explicit blocked recovery when the pinned Process Output is missing or stale; Fit save requests carry the exact source pin and never fall back to raw Test Data."
   - "Issue #158 Task 3B current Fit images are registered for route, content and completed qualitative visual acceptance evidence from main 7394070 plus the Fit UI correction worktree."
 allowed_duplicate_groups:
+  - rationale: "Issue #209 keeps the registered current DMA original and its issue-owned after original byte-identical so product-guide and acceptance provenance remain independently addressable."
+    images: [docs/user-guide/images/current/modeling-data-dma-1366x768.png, docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-dma-1366x768.png]
+  - rationale: "Issue #209 keeps the registered current DMA original and its issue-owned after original byte-identical so product-guide and acceptance provenance remain independently addressable."
+    images: [docs/user-guide/images/current/modeling-data-dma-1440x900.png, docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-dma-1440x900.png]
+  - rationale: "Issue #209 keeps the registered current DMA original and its issue-owned after original byte-identical so product-guide and acceptance provenance remain independently addressable."
+    images: [docs/user-guide/images/current/modeling-data-dma-1920x1080.png, docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-dma-1920x1080.png]
+  - rationale: "Issue #209 keeps the registered current DMA original and its issue-owned after original byte-identical so product-guide and acceptance provenance remain independently addressable."
+    images: [docs/user-guide/images/current/modeling-data-dma-2560x1440.png, docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-dma-2560x1440.png]
+  - rationale: "Issue #209 keeps the registered current DMA original and its issue-owned after original byte-identical so product-guide and acceptance provenance remain independently addressable."
+    images: [docs/user-guide/images/current/modeling-data-dma-3840x2160.png, docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-dma-3840x2160.png]
+  - rationale: "Issue #209 keeps the registered current rejected-DMA original and its issue-owned after original byte-identical so product-guide and acceptance provenance remain independently addressable."
+    images: [docs/user-guide/images/current/modeling-data-dma-rejected-1366x768.png, docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-dma-rejected-1366x768.png]
+  - rationale: "Issue #209 keeps the registered current rejected-DMA original and its issue-owned after original byte-identical so product-guide and acceptance provenance remain independently addressable."
+    images: [docs/user-guide/images/current/modeling-data-dma-rejected-1440x900.png, docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-dma-rejected-1440x900.png]
+  - rationale: "Issue #209 keeps the registered current rejected-DMA original and its issue-owned after original byte-identical so product-guide and acceptance provenance remain independently addressable."
+    images: [docs/user-guide/images/current/modeling-data-dma-rejected-1920x1080.png, docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-dma-rejected-1920x1080.png]
+  - rationale: "Issue #209 keeps the registered current rejected-DMA original and its issue-owned after original byte-identical so product-guide and acceptance provenance remain independently addressable."
+    images: [docs/user-guide/images/current/modeling-data-dma-rejected-2560x1440.png, docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-dma-rejected-2560x1440.png]
+  - rationale: "Issue #209 keeps the registered current rejected-DMA original and its issue-owned after original byte-identical so product-guide and acceptance provenance remain independently addressable."
+    images: [docs/user-guide/images/current/modeling-data-dma-rejected-3840x2160.png, docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-dma-rejected-3840x2160.png]
+  - rationale: "Issue #209 keeps the registered current FLD original and its issue-owned after original byte-identical so product-guide and acceptance provenance remain independently addressable."
+    images: [docs/user-guide/images/current/modeling-data-fld-1366x768.png, docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-fld-1366x768.png]
+  - rationale: "Issue #209 keeps the registered current FLD original and its issue-owned after original byte-identical so product-guide and acceptance provenance remain independently addressable."
+    images: [docs/user-guide/images/current/modeling-data-fld-1440x900.png, docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-fld-1440x900.png]
+  - rationale: "Issue #209 keeps the registered current FLD original and its issue-owned after original byte-identical so product-guide and acceptance provenance remain independently addressable."
+    images: [docs/user-guide/images/current/modeling-data-fld-1920x1080.png, docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-fld-1920x1080.png]
+  - rationale: "Issue #209 keeps the registered current FLD original and its issue-owned after original byte-identical so product-guide and acceptance provenance remain independently addressable."
+    images: [docs/user-guide/images/current/modeling-data-fld-2560x1440.png, docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-fld-2560x1440.png]
+  - rationale: "Issue #209 keeps the registered current FLD original and its issue-owned after original byte-identical so product-guide and acceptance provenance remain independently addressable."
+    images: [docs/user-guide/images/current/modeling-data-fld-3840x2160.png, docs/17-evidence/images/issue-209-dma-fld-governed-import/after/originals/modeling-data-fld-3840x2160.png]
   - rationale: "Issue #208 keeps the registered 1440 current guide image and its issue-owned plan original byte-identical so guide and acceptance provenance remain independently addressable."
     images: [docs/user-guide/images/current/administration-schema-bundle-1440x900.png, docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-1440x900.png]
   - rationale: "Issue #210 keeps the registered current original and its issue-owned after original byte-identical so product-guide and acceptance provenance remain independently addressable."
@@ -120,14 +155,19 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/modeling-process-2560x1440-graph-axis-100pct.png
       - docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/modeling-process-3840x2160-graph-axis-100pct.png
 visual_evidence:
-  sidecar: docs/17-evidence/images/issue-212-explicit-toe-compensation/visual-evidence.yaml
-  geometry_measurements: docs/17-evidence/images/issue-212-explicit-toe-compensation/visual-evidence.yaml
+  sidecar: docs/17-evidence/images/issue-209-dma-fld-governed-import/visual-evidence.yaml
+  geometry_measurements: docs/17-evidence/images/issue-209-dma-fld-governed-import/visual-evidence.yaml
   routes: [/materials, '/materials/:materialId', /modeling, /activity, /administration/database, /administration/schema-bundles, /administration/records, /administration/access]
-  states: [normal, long, empty, invalid, blocked, failed, restored, delivered, role-aware, popup, drawer, file-input, pane-overlay, resize, collapse, reset, reload, planned, confirming, applied, stale-plan, source-reset-locked, read-back-recovery, checksum-verified, toe-quality-warning, warning-acknowledgement, exact-toe-source-evidence]
-  baseline_source: c341679e0e17654c6e13f718cd37044b29423431
-  current_source: 36c898654e2176a06eef868ee7412de22bad1a9e
+  states: [normal, long, empty, invalid, blocked, failed, restored, delivered, role-aware, popup, drawer, file-input, pane-overlay, resize, collapse, reset, reload, planned, confirming, applied, stale-plan, source-reset-locked, read-back-recovery, checksum-verified, toe-quality-warning, warning-acknowledgement, exact-toe-source-evidence, dma-frequency-temperature, whole-file-rejection, corrected-retry, forming-limit-diagram, exact-governed-read-back]
+  baseline_source: a512c76aa55b5423e06f6b09eb1015ddf28f3aca
+  current_source: f8fe6ef85d345837a6252b6ba8b3b706ccbe009f
   evidence_artifacts_are_not_current_captures: true
-  current_capture_count: 101
+  current_capture_count: 116
+  issue_209_current_count: 15
+  issue_209_before_original_count: 5
+  issue_209_after_original_count: 15
+  issue_209_direct_crop_count: 57
+  issue_209_geometry_measurement_count: 15
   issue_212_current_count: 10
   issue_212_before_original_count: 10
   issue_212_after_original_count: 10
@@ -154,10 +194,13 @@ visual_evidence:
   root_original_and_crop_review: pass
   physical_4k_readability: DEFERRED_TO_223
   fixture_dependent_capture_status: canonical_compose_pass
-  independent_read_only_review: approved_4ee1ccfd36fea109ac449474f354d2d86df93a76
-  independent_findings: {blocker: 0, major: 0, material_minor: 0}
-  product_owner_review: approved_2026-08-13
+  independent_read_only_review: pass_issue_209_7803eae6_blocker_0_major_0_material_minor_0
+  product_owner_review: approved_issue_209_pr_248_2026_08_13_visual_geometry
 capture_provenance:
+  - source_commit: f8fe6ef85d345837a6252b6ba8b3b706ccbe009f
+    captured_at: '2026-08-13T07:28:59.684318+00:00'
+    command: 'Canonical current-source Compose; uv run --with playwright==1.62.0 --with pillow --with pyyaml python scripts/capture_issue209_visual_evidence.py --base-url http://127.0.0.1:5173. The flow saves and reloads exact DMA and FLD Test Data with governed import pins, records deterministic whole-file rejection without a Test Data revision, retries corrected immutable inputs, proves review reachability, excludes Fit/Prony/IR handoff, and captures five 100%-zoom DPR-1 CSS viewports plus direct 100%-pixel crops.'
+    ids: [modeling-data-dma-1366, modeling-data-dma-1440, modeling-data-dma-1920, modeling-data-dma-2560, modeling-data-dma-3840, modeling-data-dma-rejected-1366, modeling-data-dma-rejected-1440, modeling-data-dma-rejected-1920, modeling-data-dma-rejected-2560, modeling-data-dma-rejected-3840, modeling-data-fld-1366, modeling-data-fld-1440, modeling-data-fld-1920, modeling-data-fld-2560, modeling-data-fld-3840]
   - source_commit: 36c898654e2176a06eef868ee7412de22bad1a9e
     captured_at: '2026-08-13T00:41:58.231594+00:00'
     command: 'Canonical current-source Compose; uv run --with playwright==1.62.0 --with pillow --with pyyaml python scripts/capture_issue212_visual_evidence.py --base-url http://127.0.0.1:5173. The script recaptured five Process/Fit viewport pairs at Standard, browser zoom 100% and DPR 1, preserved exact origin/main baselines, created direct 100%-pixel crops, exercised the warning acknowledgement/save gate, saved one immutable Process Output and opened its exact toe-compensation evidence in Fit.'
@@ -172,8 +215,8 @@ capture_provenance:
     ids: [modeling-distribution-1366, modeling-distribution-1440, modeling-distribution-1920, modeling-distribution-2560, modeling-distribution-3840]
   - source_commit: e9b523a7f7b613d8d6efc0396160f0ceb2aff2c4
     captured_at: '2026-08-12'
-    command: 'Canonical current-source Compose; capture_current_product.py --only-materials, --only-modeling-data-session and --only-modeling-process-fit-viewports at browser zoom 100% and DPR 1. The issue-owned script copied the 20 affected five-viewport originals, produced direct 100%-pixel crops, exercised keyboard/pointer tooltip and band-toggle parity, opened Evidence, and recorded the honest metadata-absent state.'
-    ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-search-2560, materials-search-3840, materials-scroll-long-1366, materials-scroll-long-1440, materials-scroll-long-1920, materials-scroll-short-1440, materials-scroll-empty-1440, materials-browse-1440, material-detail-1366, material-detail-1440, material-detail-1920, material-detail-2560, material-detail-3840, material-curves-1366, material-curves-1440, material-curves-1920, material-curves-2560, material-curves-3840, material-cae-cards-1440, modeling-data-1366, modeling-data-1440, modeling-data-1920, modeling-data-2560, modeling-data-3840, modeling-session-1366, modeling-session-1440, modeling-session-1920, modeling-data-empty-1440, modeling-data-invalid-1440, modeling-data-invalid-scrolled-1440, MOD-PROCESS-CURRENT-1366, MOD-PROCESS-CURRENT-1440, MOD-PROCESS-CURRENT-1920, MOD-PROCESS-CURRENT-2560, MOD-PROCESS-CURRENT-3840, modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-fit-2560, modeling-fit-3840]
+    command: 'Canonical current-source Compose; capture_current_product.py --only-materials and --only-modeling-data-session at browser zoom 100% and DPR 1. The issue-owned script copied the affected five-viewport originals, produced direct 100%-pixel crops, exercised keyboard/pointer tooltip and band-toggle parity, opened Evidence, and recorded the honest metadata-absent state. The Process/Fit images from this run were later refreshed and reassigned to Issue #212 provenance.'
+    ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-search-2560, materials-search-3840, materials-scroll-long-1366, materials-scroll-long-1440, materials-scroll-long-1920, materials-scroll-short-1440, materials-scroll-empty-1440, materials-browse-1440, material-detail-1366, material-detail-1440, material-detail-1920, material-detail-2560, material-detail-3840, material-curves-1366, material-curves-1440, material-curves-1920, material-curves-2560, material-curves-3840, material-cae-cards-1440, modeling-data-1366, modeling-data-1440, modeling-data-1920, modeling-data-2560, modeling-data-3840, modeling-session-1366, modeling-session-1440, modeling-session-1920, modeling-data-empty-1440, modeling-data-invalid-1440, modeling-data-invalid-scrolled-1440]
   - source_commit: 97f850acf454a8fb6d8caeb8cf5e9ccb5d413a16
     captured_at: '2026-08-11'
     command: 'Accepted #184 canonical Compose capture at Standard, browser zoom 100%, and DPR 1. Forty-eight unchanged current product-route images remain attributed to this exact source; the routes recaptured for #206 were reassigned to the #206 source record.'
@@ -477,6 +520,111 @@ captures:
     workflow: exact-library-multi-curve-selection-show-toggle-and-reload-persistence
     fixture: synthetic DP780 material/state with three exact governed Test Data revisions; 3 exact refs, 2 included and 3 visible persist after route reload; bounded curve rail and elastic graph workspace
     image: images/current/modeling-data-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: modeling-data-dma-1366
+    route: /modeling?stage=data&family=polymer
+    workflow: governed DMA frequency-temperature mapping, preview, exact save and reload
+    fixture: bounded synthetic non-production polymer DMA sweep with Temperature/Frequency independent channels, Storage/Loss dependent channels, optional Tan delta and exact Raw/Profile/Run/Dataset pins
+    image: images/current/modeling-data-dma-1366x768.png
+    width: 1366
+    height: 768
+  - id: modeling-data-dma-1440
+    route: /modeling?stage=data&family=polymer
+    workflow: governed DMA frequency-temperature mapping, preview, exact save and reload
+    fixture: bounded synthetic non-production polymer DMA sweep with Temperature/Frequency independent channels, Storage/Loss dependent channels, optional Tan delta and exact Raw/Profile/Run/Dataset pins
+    image: images/current/modeling-data-dma-1440x900.png
+    width: 1440
+    height: 900
+  - id: modeling-data-dma-1920
+    route: /modeling?stage=data&family=polymer
+    workflow: governed DMA frequency-temperature mapping, preview, exact save and reload
+    fixture: bounded synthetic non-production polymer DMA sweep with Temperature/Frequency independent channels, Storage/Loss dependent channels, optional Tan delta and exact Raw/Profile/Run/Dataset pins
+    image: images/current/modeling-data-dma-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: modeling-data-dma-2560
+    route: /modeling?stage=data&family=polymer
+    workflow: wide governed DMA setup with bounded decisions and an elastic persistent response graph
+    fixture: bounded synthetic non-production polymer DMA sweep with Temperature/Frequency independent channels, Storage/Loss dependent channels, optional Tan delta and exact Raw/Profile/Run/Dataset pins
+    image: images/current/modeling-data-dma-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: modeling-data-dma-3840
+    route: /modeling?stage=data&family=polymer
+    workflow: wide governed DMA setup with bounded decisions and an elastic persistent response graph
+    fixture: bounded synthetic non-production polymer DMA sweep with Temperature/Frequency independent channels, Storage/Loss dependent channels, optional Tan delta and exact Raw/Profile/Run/Dataset pins
+    image: images/current/modeling-data-dma-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: modeling-data-dma-rejected-1366
+    route: /modeling?stage=data&family=polymer
+    workflow: deterministic governed DMA whole-file rejection and corrected-input recovery
+    fixture: synthetic DMA source with non-positive frequency, non-finite value and missing cell; failed Import Run retained while Dataset and Test Data revisions remain absent
+    image: images/current/modeling-data-dma-rejected-1366x768.png
+    width: 1366
+    height: 768
+  - id: modeling-data-dma-rejected-1440
+    route: /modeling?stage=data&family=polymer
+    workflow: deterministic governed DMA whole-file rejection while preserving the last accepted graph
+    fixture: synthetic DMA source with non-positive frequency, non-finite value and missing cell; failed Import Run retained, no Test Data created, and the last accepted preview remains visible
+    image: images/current/modeling-data-dma-rejected-1440x900.png
+    width: 1440
+    height: 900
+  - id: modeling-data-dma-rejected-1920
+    route: /modeling?stage=data&family=polymer
+    workflow: deterministic governed DMA whole-file rejection and corrected-input recovery
+    fixture: synthetic DMA source with non-positive frequency, non-finite value and missing cell; failed Import Run retained while Dataset and Test Data revisions remain absent
+    image: images/current/modeling-data-dma-rejected-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: modeling-data-dma-rejected-2560
+    route: /modeling?stage=data&family=polymer
+    workflow: wide deterministic governed DMA whole-file rejection with bounded actionable diagnostics
+    fixture: synthetic DMA source with non-positive frequency, non-finite value and missing cell; failed Import Run retained while Dataset and Test Data revisions remain absent
+    image: images/current/modeling-data-dma-rejected-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: modeling-data-dma-rejected-3840
+    route: /modeling?stage=data&family=polymer
+    workflow: wide deterministic governed DMA whole-file rejection with bounded actionable diagnostics
+    fixture: synthetic DMA source with non-positive frequency, non-finite value and missing cell; failed Import Run retained while Dataset and Test Data revisions remain absent
+    image: images/current/modeling-data-dma-rejected-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: modeling-data-fld-1366
+    route: /modeling?stage=data&family=metal
+    workflow: governed FLD mapping, signed-input preview, exact save and reload
+    fixture: bounded synthetic non-production forming-limit source with Minor strain independent and Major strain dependent; signed non-monotonic order preserved with exact Raw/Profile/Run/Dataset pins
+    image: images/current/modeling-data-fld-1366x768.png
+    width: 1366
+    height: 768
+  - id: modeling-data-fld-1440
+    route: /modeling?stage=data&family=metal
+    workflow: governed FLD mapping, signed-input preview, exact save and reload
+    fixture: bounded synthetic non-production forming-limit source with Minor strain independent and Major strain dependent; signed non-monotonic order preserved with exact Raw/Profile/Run/Dataset pins
+    image: images/current/modeling-data-fld-1440x900.png
+    width: 1440
+    height: 900
+  - id: modeling-data-fld-1920
+    route: /modeling?stage=data&family=metal
+    workflow: governed FLD mapping, signed-input preview, exact save and reload
+    fixture: bounded synthetic non-production forming-limit source with Minor strain independent and Major strain dependent; signed non-monotonic order preserved with exact Raw/Profile/Run/Dataset pins
+    image: images/current/modeling-data-fld-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: modeling-data-fld-2560
+    route: /modeling?stage=data&family=metal
+    workflow: wide governed FLD setup with bounded decisions and an elastic persistent graph
+    fixture: bounded synthetic non-production forming-limit source with Minor strain independent and Major strain dependent; signed non-monotonic order preserved with exact Raw/Profile/Run/Dataset pins
+    image: images/current/modeling-data-fld-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: modeling-data-fld-3840
+    route: /modeling?stage=data&family=metal
+    workflow: wide governed FLD setup with bounded decisions and an elastic persistent graph
+    fixture: bounded synthetic non-production forming-limit source with Minor strain independent and Major strain dependent; signed non-monotonic order preserved with exact Raw/Profile/Run/Dataset pins
+    image: images/current/modeling-data-fld-3840x2160.png
     width: 3840
     height: 2160
   - id: modeling-data-empty-1440

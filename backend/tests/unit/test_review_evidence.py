@@ -84,6 +84,8 @@ def test_current_subject_registry_is_closed_and_evidence_round_trips() -> None:
         created_at=NOW,
         change_reason="Review the exact imported document",
         exact_input_use=(f"datasets.test_data_document:{SUBJECT}:{REVISION}",),
+        affected_material_id=uuid4(),
+        affected_material_revision_id=uuid4(),
         affected_record_id=uuid4(),
         affected_record_revision_id=uuid4(),
         affected_table_id=uuid4(),
@@ -94,6 +96,9 @@ def test_current_subject_registry_is_closed_and_evidence_round_trips() -> None:
     restored = ReviewSubjectEvidence.from_document(evidence.to_document())
 
     assert restored == evidence
+    assert (
+        restored.to_document()["affected_materials"] == evidence.to_document()["affected_materials"]
+    )
     with pytest.raises(ReviewEvidenceError, match="not registered"):
         replace(evidence, subject_type="validation.result")
 
@@ -136,6 +141,39 @@ def test_record_table_pins_must_be_paired(field: str) -> None:
     )
     values[field] = None
     with pytest.raises(ReviewEvidenceError, match="table identity and revision"):
+        ReviewSubjectEvidence(**values)
+
+
+@pytest.mark.parametrize(
+    "field",
+    ["affected_material_id", "affected_material_revision_id"],
+)
+def test_affected_material_pins_must_be_paired(field: str) -> None:
+    values: dict[str, Any] = dict(
+        subject_type="datasets.test_data_document",
+        subject_id=SUBJECT,
+        subject_revision_id=REVISION,
+        label="DMA Test Data",
+        classification=DataClassification.INTERNAL,
+        schema_ref="cmp.test-data",
+        schema_version="1.0.0",
+        server_manifest_sha256="b" * 64,
+        source_artifact_state=SourceArtifactState.UNATTACHED,
+        source_artifact_id=None,
+        source_artifact_sha256=None,
+        validation_status=EvidenceValidationStatus.VALID,
+        validation_summary="Current identity and digest verified.",
+        created_by=PRINCIPAL,
+        created_at=NOW,
+        change_reason="Review exact governed DMA Test Data",
+        exact_input_use=(f"datasets.test_data_document:{SUBJECT}:{REVISION}",),
+        affected_record_id=None,
+        affected_record_revision_id=None,
+        affected_material_id=uuid4(),
+        affected_material_revision_id=uuid4(),
+    )
+    values[field] = None
+    with pytest.raises(ReviewEvidenceError, match="Material identity and revision"):
         ReviewSubjectEvidence(**values)
 
 

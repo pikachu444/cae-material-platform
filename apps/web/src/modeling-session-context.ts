@@ -604,7 +604,11 @@ function isWorkspaceState(value: unknown): value is ModelingWorkspaceState {
 }
 
 export function modelingFamilyFromQuantities(quantities: string[]): ModelingMaterialFamily {
-  if (quantities.some((quantity) => quantity.includes("relaxation") || quantity.includes("storage_modulus") || quantity === "time")) return "polymer";
+  if (quantities.some((quantity) => quantity.includes("relaxation")
+    || quantity.includes("storage_modulus")
+    || quantity.includes("modulus.storage")
+    || quantity.includes("frequency.cyclic")
+    || quantity === "time")) return "polymer";
   if (quantities.some((quantity) => quantity.includes("planar") || quantity.includes("biaxial") || quantity.includes("shear"))) return "elastomer";
   return "metal";
 }

@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CAE Material Platform API
   summary: Material data management, immutable traceability, and CAE workflow platform.
-  version: 0.38.0
+  version: 0.39.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -3671,6 +3671,11 @@ paths:
       tags: [datasets]
       summary: Execute an exact Profile revision and preserve success or failure evidence.
       security: [{BearerAuth: []}]
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema: {type: string, pattern: '^[!-~]{1,255}$'}
       requestBody:
         required: true
         content:

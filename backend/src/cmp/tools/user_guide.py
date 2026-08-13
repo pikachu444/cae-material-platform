@@ -38,6 +38,7 @@ _STRUCTURED_IMAGE_YAML_MANIFESTS: tuple[str, ...] = (
     "docs/17-evidence/images/issue-161-shared-ui-foundation/visual-evidence.yaml",
     "docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/visual-evidence.yaml",
     "docs/17-evidence/images/issue-208-schema-bundle-administration/visual-evidence.yaml",
+    "docs/17-evidence/images/issue-209-dma-fld-governed-import/visual-evidence.yaml",
     "docs/17-evidence/images/issue-210-scalar-distribution-fitting/visual-evidence.yaml",
     "docs/17-evidence/images/issue-212-explicit-toe-compensation/visual-evidence.yaml",
 )

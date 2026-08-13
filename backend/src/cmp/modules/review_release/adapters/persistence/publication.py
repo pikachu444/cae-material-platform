@@ -29,10 +29,12 @@ review_publication_projection_table = sa.Table(
     sa.Column("neutral_material_id", sa.Uuid(), nullable=True),
     sa.Column("neutral_material_revision_id", sa.Uuid(), nullable=True),
     sa.Column("neutral_artifact_sha256", sa.CHAR(64), nullable=True),
-    sa.Column("record_id", sa.Uuid(), nullable=False),
-    sa.Column("record_revision_id", sa.Uuid(), nullable=False),
-    sa.Column("record_table_id", sa.Uuid(), nullable=False),
-    sa.Column("record_table_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("material_id", sa.Uuid(), nullable=True),
+    sa.Column("material_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("record_id", sa.Uuid(), nullable=True),
+    sa.Column("record_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("record_table_id", sa.Uuid(), nullable=True),
+    sa.Column("record_table_revision_id", sa.Uuid(), nullable=True),
     sa.Column("published_at", sa.DateTime(timezone=True), nullable=False),
     sa.Column("published_by", sa.Uuid(), nullable=False),
     schema="governance",
@@ -60,6 +62,17 @@ catalog_record_table = sa.Table(
     sa.Column("classification", sa.String(64), nullable=False),
     sa.Column("id", sa.Uuid(), nullable=False),
     sa.Column("current_revision_id", sa.Uuid(), nullable=False),
+    schema="catalog",
+)
+
+catalog_material_revision_table = sa.Table(
+    "material_revision",
+    metadata,
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("aggregate_id", sa.Uuid(), nullable=False),
+    sa.Column("id", sa.Uuid(), nullable=False),
     schema="catalog",
 )
 
@@ -158,16 +171,6 @@ class SqlAlchemyReviewApprovalProjector:
         published_by: UUID,
         occurred_at: datetime,
     ) -> None:
-        if evidence.affected_record_id is None or evidence.affected_record_revision_id is None:
-            raise ReviewConflict(
-                "approved review evidence must identify an affected Materials Record"
-            )
-        if evidence.affected_table_id is None or evidence.affected_table_revision_id is None:
-            raise ReviewConflict(
-                "approved review evidence must identify the exact Record table revision"
-            )
-        record_id = evidence.affected_record_id
-        record_revision_id = evidence.affected_record_revision_id
         subject_identity = _subject_identity_tables.get(evidence.subject_type)
         if subject_identity is None:
             raise ReviewConflict("review subject identity is not registered")
@@ -181,47 +184,81 @@ class SqlAlchemyReviewApprovalProjector:
         ).scalar_one_or_none()
         if current_subject_revision != evidence.subject_revision_id:
             raise ReviewConflict("review subject revision is not current")
-        current_record_revision = session.execute(
-            sa.select(catalog_record_table.c.current_revision_id).where(
-                catalog_record_table.c.organization_id == context.organization_id,
-                catalog_record_table.c.project_id == context.project_id,
-                catalog_record_table.c.id == record_id,
-            )
-        ).scalar_one_or_none()
-        if current_record_revision != record_revision_id:
-            raise ReviewConflict("affected Materials Record revision is not current")
-        if evidence.subject_type == "catalog.configurable_record":
-            if (
-                evidence.subject_id != record_id
-                or evidence.subject_revision_id != record_revision_id
-            ):
-                raise ReviewConflict("Record review must publish its exact reviewed revision")
-        else:
-            kind = evidence.subject_type.rsplit(".", 1)[-1]
-            # The catalog binding uses the stable domain_kind vocabulary.  Neutral/model
-            # subjects are normalized to their registered source kind here.
-            kind = {
-                "test_data_document": "test_data",
-                "material_model": "material_model",
-                "solver_card": "solver_card",
-                "neutral_solver_card": "neutral_solver_card",
-            }.get(kind, kind)
-            binding = session.execute(
-                sa.select(domain_record_binding_table.c.record_id).where(
-                    domain_record_binding_table.c.organization_id == context.organization_id,
-                    domain_record_binding_table.c.project_id == context.project_id,
-                    domain_record_binding_table.c.domain_kind == kind,
-                    domain_record_binding_table.c.domain_object_id == evidence.subject_id,
-                    domain_record_binding_table.c.domain_revision_id
-                    == evidence.subject_revision_id,
-                    domain_record_binding_table.c.record_id == record_id,
-                    domain_record_binding_table.c.record_revision_id == record_revision_id,
+        record_id = evidence.affected_record_id
+        record_revision_id = evidence.affected_record_revision_id
+        record_table_id = evidence.affected_table_id
+        record_table_revision_id = evidence.affected_table_revision_id
+        material_id = evidence.affected_material_id
+        material_revision_id = evidence.affected_material_revision_id
+        if record_id is not None and record_revision_id is not None:
+            if record_table_id is None or record_table_revision_id is None:
+                raise ReviewConflict(
+                    "approved review evidence must identify the exact Record table revision"
+                )
+            current_record_revision = session.execute(
+                sa.select(catalog_record_table.c.current_revision_id).where(
+                    catalog_record_table.c.organization_id == context.organization_id,
+                    catalog_record_table.c.project_id == context.project_id,
+                    catalog_record_table.c.id == record_id,
                 )
             ).scalar_one_or_none()
-            if binding != record_id:
-                raise ReviewConflict(
-                    "review subject does not have the current exact Record binding"
+            if current_record_revision != record_revision_id:
+                raise ReviewConflict("affected Materials Record revision is not current")
+            if evidence.subject_type == "catalog.configurable_record":
+                if (
+                    evidence.subject_id != record_id
+                    or evidence.subject_revision_id != record_revision_id
+                ):
+                    raise ReviewConflict("Record review must publish its exact reviewed revision")
+            else:
+                kind = evidence.subject_type.rsplit(".", 1)[-1]
+                # The catalog binding uses the stable domain_kind vocabulary.  Neutral/model
+                # subjects are normalized to their registered source kind here.
+                kind = {
+                    "test_data_document": "test_data",
+                    "material_model": "material_model",
+                    "solver_card": "solver_card",
+                    "neutral_solver_card": "neutral_solver_card",
+                }.get(kind, kind)
+                binding = session.execute(
+                    sa.select(domain_record_binding_table.c.record_id).where(
+                        domain_record_binding_table.c.organization_id == context.organization_id,
+                        domain_record_binding_table.c.project_id == context.project_id,
+                        domain_record_binding_table.c.domain_kind == kind,
+                        domain_record_binding_table.c.domain_object_id == evidence.subject_id,
+                        domain_record_binding_table.c.domain_revision_id
+                        == evidence.subject_revision_id,
+                        domain_record_binding_table.c.record_id == record_id,
+                        domain_record_binding_table.c.record_revision_id == record_revision_id,
+                    )
+                ).scalar_one_or_none()
+                if binding != record_id:
+                    raise ReviewConflict(
+                        "review subject does not have the current exact Record binding"
+                    )
+        elif (
+            evidence.subject_type == "datasets.test_data_document"
+            and material_id is not None
+            and material_revision_id is not None
+            and record_table_id is None
+            and record_table_revision_id is None
+        ):
+            exact_material_revision = session.execute(
+                sa.select(catalog_material_revision_table.c.id).where(
+                    catalog_material_revision_table.c.organization_id == context.organization_id,
+                    catalog_material_revision_table.c.project_id == context.project_id,
+                    catalog_material_revision_table.c.classification
+                    == evidence.classification.value,
+                    catalog_material_revision_table.c.aggregate_id == material_id,
+                    catalog_material_revision_table.c.id == material_revision_id,
                 )
+            ).scalar_one_or_none()
+            if exact_material_revision is None:
+                raise ReviewConflict("affected governed Material revision is not visible")
+        else:
+            raise ReviewConflict(
+                "approved review evidence must identify an exact Material or Materials Record"
+            )
         values: dict[str, Any] = {
             "organization_id": context.organization_id,
             "project_id": context.project_id,
@@ -233,10 +270,12 @@ class SqlAlchemyReviewApprovalProjector:
             "neutral_material_id": evidence.neutral_material_id,
             "neutral_material_revision_id": evidence.neutral_material_revision_id,
             "neutral_artifact_sha256": evidence.neutral_artifact_sha256,
+            "material_id": material_id,
+            "material_revision_id": material_revision_id,
             "record_id": record_id,
             "record_revision_id": record_revision_id,
-            "record_table_id": evidence.affected_table_id,
-            "record_table_revision_id": evidence.affected_table_revision_id,
+            "record_table_id": record_table_id,
+            "record_table_revision_id": record_table_revision_id,
             "published_at": occurred_at,
             "published_by": published_by,
         }
@@ -244,17 +283,18 @@ class SqlAlchemyReviewApprovalProjector:
         # Catalog publication_marker is a Record-facing contract.  The immutable
         # review_publication_projection carries the governed subject identity; Materials
         # re-evaluates that subject and its exact binding at query time.
-        session.execute(
-            pg_insert(catalog_publication_marker_table)
-            .values(
-                organization_id=context.organization_id,
-                project_id=context.project_id,
-                classification=evidence.classification.value,
-                aggregate_type="catalog.configurable_record",
-                aggregate_id=record_id,
-                revision_id=record_revision_id,
-                published_at=occurred_at,
-                published_by=published_by,
+        if record_id is not None and record_revision_id is not None:
+            session.execute(
+                pg_insert(catalog_publication_marker_table)
+                .values(
+                    organization_id=context.organization_id,
+                    project_id=context.project_id,
+                    classification=evidence.classification.value,
+                    aggregate_type="catalog.configurable_record",
+                    aggregate_id=record_id,
+                    revision_id=record_revision_id,
+                    published_at=occurred_at,
+                    published_by=published_by,
+                )
+                .on_conflict_do_nothing()
             )
-            .on_conflict_do_nothing()
-        )

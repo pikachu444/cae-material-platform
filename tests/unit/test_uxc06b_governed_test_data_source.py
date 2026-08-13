@@ -1,3 +1,5 @@
+import hashlib
+from decimal import Decimal
 from types import SimpleNamespace
 from uuid import UUID
 
@@ -8,9 +10,21 @@ from cmp.modules.datasets.adapters.integration.governed_test_data_source import 
 )
 from cmp.modules.datasets.application.canonical_test_data import (
     ExactRevisionRef,
+    GovernedTabularTestDataSource,
     GovernedTestDataSource,
 )
-from cmp.modules.datasets.domain.governed_tabular import GovernedImportConflict
+from cmp.modules.datasets.domain.canonical_test_data import ChannelAxisRole
+from cmp.modules.datasets.domain.governed_tabular import (
+    AxisRole,
+    GovernedChannelMapping,
+    GovernedDatasetRepresentation,
+    GovernedImportConflict,
+    ImportRunStatus,
+    NormalizedTabularData,
+    QuantityKind,
+    TabularDataSchema,
+    normalized_parquet_bytes,
+)
 from cmp.modules.identity_access.domain.authorization import DataClassification
 
 MATERIAL = UUID("8b000000-0000-4000-8000-000000000001")
@@ -21,16 +35,138 @@ RUN = UUID("8b000000-0000-4000-8000-000000000005")
 RUN_REVISION = UUID("8b000000-0000-4000-8000-000000000006")
 SPECIMEN = UUID("8b000000-0000-4000-8000-000000000007")
 SPECIMEN_REVISION = UUID("8b000000-0000-4000-8000-000000000008")
+RAW_ASSET = UUID("8b000000-0000-4000-8000-000000000011")
+RAW_ARTIFACT = UUID("8b000000-0000-4000-8000-000000000012")
+IMPORT_RUN = UUID("8b000000-0000-4000-8000-000000000013")
+PROFILE = UUID("8b000000-0000-4000-8000-000000000014")
+PROFILE_REVISION = UUID("8b000000-0000-4000-8000-000000000015")
+RAW_DATASET = UUID("8b000000-0000-4000-8000-000000000016")
+RAW_DATASET_REVISION = UUID("8b000000-0000-4000-8000-000000000017")
+NORMALIZED_DATASET = UUID("8b000000-0000-4000-8000-000000000018")
+NORMALIZED_DATASET_REVISION = UUID("8b000000-0000-4000-8000-000000000019")
 
 
 def _source(**overrides: ExactRevisionRef) -> GovernedTestDataSource:
     return GovernedTestDataSource(
         material=overrides.get("material", ExactRevisionRef(MATERIAL, MATERIAL_REVISION)),
-        material_state=overrides.get(
-            "material_state", ExactRevisionRef(STATE, STATE_REVISION)
-        ),
+        material_state=overrides.get("material_state", ExactRevisionRef(STATE, STATE_REVISION)),
         test_run=overrides.get("test_run", ExactRevisionRef(RUN, RUN_REVISION)),
     )
+
+
+_FLD_CHANNELS = (
+    GovernedChannelMapping(0, "minor", QuantityKind.MINOR_STRAIN, "1", AxisRole.INDEPENDENT),
+    GovernedChannelMapping(1, "major", QuantityKind.MAJOR_STRAIN, "1", AxisRole.DEPENDENT),
+)
+_FLD_ROWS = ((-0.1, 0.3), (0.1, 0.4))
+_RAW_SHA256 = hashlib.sha256(b"minor,major\n-0.1,0.3\n0.1,0.4\n").hexdigest()
+_NORMALIZED_SHA256 = hashlib.sha256(
+    normalized_parquet_bytes(
+        NormalizedTabularData(
+            columns=(QuantityKind.MINOR_STRAIN, QuantityKind.MAJOR_STRAIN),
+            rows=_FLD_ROWS,
+        )
+    )
+).hexdigest()
+
+
+def _tabular_source() -> GovernedTestDataSource:
+    return GovernedTestDataSource(
+        material=ExactRevisionRef(MATERIAL, MATERIAL_REVISION),
+        material_state=ExactRevisionRef(STATE, STATE_REVISION),
+        test_run=ExactRevisionRef(RUN, RUN_REVISION),
+        tabular_import=GovernedTabularTestDataSource(
+            RAW_ASSET,
+            RAW_ARTIFACT,
+            IMPORT_RUN,
+            ExactRevisionRef(PROFILE, PROFILE_REVISION),
+            ExactRevisionRef(NORMALIZED_DATASET, NORMALIZED_DATASET_REVISION),
+        ),
+    )
+
+
+def _document(*, tampered: bool = False) -> object:
+    return SimpleNamespace(
+        channels=(
+            SimpleNamespace(
+                key="minor_strain",
+                normalized_unit="1",
+                axis_role=ChannelAxisRole.INDEPENDENT,
+                normalized_values=(Decimal("-0.1"), Decimal("0.1")),
+            ),
+            SimpleNamespace(
+                key="major_strain",
+                normalized_unit="1",
+                axis_role=ChannelAxisRole.DEPENDENT,
+                normalized_values=(
+                    Decimal("0.3"),
+                    Decimal("0.41") if tampered else Decimal("0.4"),
+                ),
+            ),
+        ),
+        source=SimpleNamespace(sha256=_RAW_SHA256),
+        point_count=2,
+    )
+
+
+class _GovernedImports:
+    def get_run_for_test_data_source(self, *args: object) -> object:
+        del args
+        return SimpleNamespace(
+            status=ImportRunStatus.SUCCEEDED,
+            scope=SimpleNamespace(classification="internal"),
+            test_run_id=RUN,
+            test_run_revision_id=RUN_REVISION,
+            raw_asset_id=RAW_ASSET,
+            raw_artifact_id=RAW_ARTIFACT,
+            import_profile_id=PROFILE,
+            import_profile_revision_id=PROFILE_REVISION,
+            raw_dataset_id=RAW_DATASET,
+            raw_dataset_revision_id=RAW_DATASET_REVISION,
+            normalized_dataset_id=NORMALIZED_DATASET,
+            normalized_dataset_revision_id=NORMALIZED_DATASET_REVISION,
+        )
+
+    def get_dataset_revision_for_test_data_source(
+        self,
+        _context: object,
+        _decision: object,
+        dataset_id: UUID,
+        revision_id: UUID,
+    ) -> object:
+        common = {
+            "test_run_id": RUN,
+            "test_run_revision_id": RUN_REVISION,
+            "raw_asset_id": RAW_ASSET,
+            "raw_artifact_id": RAW_ARTIFACT,
+            "import_profile_id": PROFILE,
+            "import_profile_revision_id": PROFILE_REVISION,
+            "row_count": 2,
+            "channels": _FLD_CHANNELS,
+            "data_schema": TabularDataSchema.FORMING_LIMIT,
+        }
+        if (dataset_id, revision_id) == (RAW_DATASET, RAW_DATASET_REVISION):
+            return SimpleNamespace(
+                record=SimpleNamespace(revision_id=RAW_DATASET_REVISION),
+                content=SimpleNamespace(
+                    **common,
+                    representation=GovernedDatasetRepresentation.RAW,
+                    data_sha256=_RAW_SHA256,
+                ),
+            )
+        assert (dataset_id, revision_id) == (
+            NORMALIZED_DATASET,
+            NORMALIZED_DATASET_REVISION,
+        )
+        return SimpleNamespace(
+            record=SimpleNamespace(revision_id=NORMALIZED_DATASET_REVISION),
+            content=SimpleNamespace(
+                **common,
+                representation=GovernedDatasetRepresentation.NORMALIZED,
+                source_dataset_revision_id=RAW_DATASET_REVISION,
+                data_sha256=_NORMALIZED_SHA256,
+            ),
+        )
 
 
 class _Testing:
@@ -118,6 +254,22 @@ def test_exact_test_run_specimen_state_material_chain_is_accepted() -> None:
     _verifier().verify(object(), object(), _source())  # type: ignore[arg-type]
 
 
+def test_exact_governed_tabular_run_datasets_and_canonical_values_are_verified() -> None:
+    verifier = CatalogTestingGovernedTestDataSourceVerifier(
+        catalog=_Catalog(),  # type: ignore[arg-type]
+        testing=_Testing(),  # type: ignore[arg-type]
+        governed_import=_GovernedImports(),  # type: ignore[arg-type]
+    )
+
+    verifier.verify(  # type: ignore[arg-type]
+        object(), object(), _tabular_source(), _document()
+    )
+    with pytest.raises(GovernedImportConflict, match="differs from the pinned"):
+        verifier.verify(  # type: ignore[arg-type]
+            object(), object(), _tabular_source(), _document(tampered=True)
+        )
+
+
 @pytest.mark.parametrize(
     "source",
     [
@@ -127,15 +279,9 @@ def test_exact_test_run_specimen_state_material_chain_is_accepted() -> None:
             )
         ),
         _source(
-            material_state=ExactRevisionRef(
-                STATE, UUID("8b000000-0000-4000-8000-000000000009")
-            )
+            material_state=ExactRevisionRef(STATE, UUID("8b000000-0000-4000-8000-000000000009"))
         ),
-        _source(
-            test_run=ExactRevisionRef(
-                RUN, UUID("8b000000-0000-4000-8000-000000000009")
-            )
-        ),
+        _source(test_run=ExactRevisionRef(RUN, UUID("8b000000-0000-4000-8000-000000000009"))),
     ],
 )
 def test_any_declared_exact_source_mismatch_is_rejected(
@@ -160,7 +306,9 @@ def test_zero_revision_pins_are_rejected_before_cross_module_reads() -> None:
 def test_missing_or_restricted_exact_material_fails_closed(failure: Exception) -> None:
     with pytest.raises(GovernedImportConflict, match="could not be verified"):
         _verifier(_Catalog(material_failure=failure)).verify(
-            object(), object(), _source()  # type: ignore[arg-type]
+            object(),
+            object(),
+            _source(),  # type: ignore[arg-type]
         )
 
 
@@ -186,5 +334,7 @@ def test_material_and_state_cross_classification_is_rejected() -> None:
 
     with pytest.raises(GovernedImportConflict, match="scope differs"):
         _verifier(CrossClassificationCatalog()).verify(
-            object(), object(), _source()  # type: ignore[arg-type]
+            object(),
+            object(),
+            _source(),  # type: ignore[arg-type]
         )

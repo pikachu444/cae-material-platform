@@ -111,6 +111,13 @@ Overlay는 닫기 버튼과 `Escape`를 지원하고 닫은 뒤 원래 control�
 4. Test Run, specimen, 수행 시각과 편집 provenance를 확인하고 필요하면 secondary preview를 갱신합니다.
 5. **Save dataset**으로 raw source와 mapping을 참조하는 새 Test Data revision을 만듭니다. 이는 review가 아닙니다.
 
+DMA frequency-temperature sweep를 고르면 decision table이 Temperature·Frequency Independent와
+Storage modulus·Loss modulus Dependent 행을 표시하고, 필요할 때만 **Include optional tan delta
+channel**을 켭니다. FLD는 Minor strain Independent와 Major strain Dependent를 별도 schema 의미로
+표시합니다. DMA graph는 response 비교를 위해 frequency를 series 축으로 다루지만, 저장된 canonical
+Test Data에는 frequency channel과 모든 exact source pin이 그대로 남습니다. FLD의 signed strain과
+비단조 입력은 유지됩니다.
+
 저장 실패 시 file, sheet/header, mapping, provenance와 graph preview를 유지하므로 원인을 고치고
 같은 입력으로 다시 시도할 수 있습니다. mapping 변경은 Process부터 Export까지의 current pointer를
 stale/clear하며 이전 immutable revision은 history에 남습니다.
@@ -149,8 +156,10 @@ holdout-independence, verdict가 나타납니다. plan만 있으면 `Not run`이
 
 **Review**는 제출, 수정 요청, 승인 상태를 Fit 결과와 구분합니다. Validate와 Review는 일반
 `Data | Process | Fit | Export` 단계가 아니라 Advanced의 governed contract입니다. Fit 또는
-Validate 완료를 승인으로 표시하지 않습니다. Material과 Solver Card의 exact revision에서 요청한
-review는 Activity에서 Reviewer가 별도로 승인하거나 변경을 요청합니다. failed job
+Validate 완료를 승인으로 표시하지 않습니다. Material, Test Data, Solver Card의 exact revision에서
+요청한 review는 Activity에서 Reviewer가 별도로 승인하거나 변경을 요청합니다. governed tabular
+Test Data는 current exact Record binding이 있으면 그 Record를 사용하고, 없으면 revision에 기록된
+exact governed Material pin을 사용합니다. 둘 다 없는 Test Data는 제출할 수 없습니다. failed job
 복구와 server receipt projection은 아직 Activity에 연결되지 않았습니다.
 
 현재 등록된 공통 method는 다음과 같습니다.
@@ -282,6 +291,12 @@ Modeling의 **Local file** 경로에서 exact Test Run을 선택하고 저장한
 저장한 Processing Output은 `export_provenance`에 같은 Material/State/Test Run pin을 보존합니다. Export
 체크리스트는 이 서버 proof와 현재 session의 exact Material/State/Test Data를 비교해 `current` 또는 `stale`을
 표시합니다.
+
+DMA/FLD governed import는 이 proof에 Raw Asset/Artifact, Import Run, Import Profile과 normalized
+Dataset exact revision까지 추가합니다. canonical row 값을 다시 직렬화한 normalized Parquet digest도
+저장된 Dataset digest와 일치해야 하므로, Test Data 값이나 source pin 하나가 달라지면 read-back
+검증이 실패합니다. DMA frequency-temperature와 FLD는 Data/Review 전용이며, 현재 Fit이나
+DMA→Prony/IR 후보로 자동 노출되지 않습니다.
 
 직접 등록한 Test Data JSON과 과거 revision은 이 proof가 없으므로 `Server provenance proof · missing`입니다.
 현재 session의 이름이나 ID가 우연히 같아도 추론하거나 backfill하지 않습니다. Canonical Test Data JSON

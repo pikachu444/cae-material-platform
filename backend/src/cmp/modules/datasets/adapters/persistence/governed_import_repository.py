@@ -4,15 +4,19 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from contextlib import contextmanager
+from dataclasses import replace
 from typing import Any, Protocol, cast
 from uuid import UUID
 
 import sqlalchemy as sa
+from sqlalchemy.dialects.postgresql import insert as postgresql_insert
 from sqlalchemy.orm import Session, sessionmaker
 
 from cmp.modules.datasets.application.governed_import import (
     GOVERNED_DATASET_AGGREGATE_TYPE,
     IMPORT_PROFILE_AGGREGATE_TYPE,
+    SCHEMA_VERSION,
+    CommitGovernedImportSuccess,
     GovernedDatasetSnapshot,
     GovernedImportRepository,
     ImportProfileRevisionSnapshot,
@@ -21,12 +25,17 @@ from cmp.modules.datasets.application.governed_import import (
     RevisionSnapshot,
 )
 from cmp.modules.datasets.domain.governed_tabular import (
+    GOVERNED_DATASET_SCHEMA_ID,
+    GOVERNED_IMPORTER_ID,
+    GOVERNED_IMPORTER_VERSION,
     AxisRole,
     GovernedChannelMapping,
     GovernedDatasetContent,
     GovernedDatasetRepresentation,
+    GovernedImportConflict,
     GovernedImportNotFound,
     GovernedImportProfileContent,
+    ImportDiagnostic,
     ImportRunStatus,
     QuantityKind,
     TabularDataSchema,
@@ -45,7 +54,11 @@ from cmp.shared.adapters.persistence.revisions import (
     SqlRevisionHook,
     TypedRevisionTables,
 )
-from cmp.shared.application.revisions import RevisionStore
+from cmp.shared.application.revisions import (
+    CreateRevisionedAggregate,
+    RevisionService,
+    RevisionStore,
+)
 from cmp.shared.domain.revisions import RevisionDraft, RevisionRecord, TenantScope
 
 
@@ -223,6 +236,8 @@ import_run_table = sa.Table(
     sa.Column("import_profile_id", sa.Uuid(), nullable=False),
     sa.Column("import_profile_revision_id", sa.Uuid(), nullable=False),
     sa.Column("profile_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("idempotency_key", sa.String(255), nullable=False),
+    sa.Column("request_sha256", sa.CHAR(64), nullable=False),
     sa.Column("importer_id", sa.String(255), nullable=False),
     sa.Column("importer_version", sa.String(64), nullable=False),
     sa.Column("status", sa.String(32), nullable=False),
@@ -249,8 +264,11 @@ import_row_error_table = sa.Table(
     sa.Column("import_run_id", sa.Uuid(), nullable=False),
     sa.Column("ordinal", sa.Integer(), nullable=False),
     sa.Column("row_number", sa.Integer(), nullable=True),
+    sa.Column("column_name", sa.String(255), nullable=True),
+    sa.Column("channel_key", sa.String(64), nullable=True),
     sa.Column("error_code", sa.String(100), nullable=False),
     sa.Column("error_detail", sa.Text(), nullable=False),
+    sa.Column("recovery_hint", sa.String(500), nullable=False),
     schema="datasets",
 )
 
@@ -429,7 +447,7 @@ def _dataset(row: Any, channels: tuple[GovernedChannelMapping, ...]) -> Governed
     )
 
 
-def _run(row: Any) -> ImportRun:
+def _run(row: Any, diagnostics: tuple[ImportDiagnostic, ...] = ()) -> ImportRun:
     return ImportRun(
         id=cast(UUID, row["id"]),
         scope=TenantScope(
@@ -444,6 +462,8 @@ def _run(row: Any) -> ImportRun:
         import_profile_id=cast(UUID, row["import_profile_id"]),
         import_profile_revision_id=cast(UUID, row["import_profile_revision_id"]),
         profile_sha256=str(row["profile_sha256"]),
+        idempotency_key=str(row["idempotency_key"]),
+        request_sha256=str(row["request_sha256"]),
         status=ImportRunStatus(str(row["status"])),
         started_at=row["started_at"],
         finished_at=row["finished_at"],
@@ -457,6 +477,22 @@ def _run(row: Any) -> ImportRun:
         row_count=cast(int | None, row["row_count"]),
         failure_code=cast(str | None, row["failure_code"]),
         failure_detail=cast(str | None, row["failure_detail"]),
+        diagnostics=diagnostics,
+    )
+
+
+def _diagnostics(rows: Sequence[Any]) -> tuple[ImportDiagnostic, ...]:
+    return tuple(
+        ImportDiagnostic(
+            ordinal=int(row["ordinal"]),
+            row_number=cast(int | None, row["row_number"]),
+            column_name=cast(str | None, row["column_name"]),
+            channel_key=cast(str | None, row["channel_key"]),
+            error_code=str(row["error_code"]),
+            error_detail=str(row["error_detail"]),
+            recovery_hint=str(row["recovery_hint"]),
+        )
+        for row in rows
     )
 
 
@@ -650,48 +686,171 @@ class SqlAlchemyGovernedImportRepository(GovernedImportRepository):
         self, *, context: SecurityContext, decision: AuthorizationDecision, run: ImportRun
     ) -> ImportRun:
         with self._session(context, decision) as session:
-            session.execute(
-                sa.insert(import_run_table).values(
-                    id=run.id,
-                    organization_id=run.scope.organization_id,
-                    project_id=run.scope.project_id,
-                    classification=run.scope.classification,
-                    test_run_id=run.test_run_id,
-                    test_run_revision_id=run.test_run_revision_id,
-                    raw_asset_id=run.raw_asset_id,
-                    raw_artifact_id=run.raw_artifact_id,
-                    import_profile_id=run.import_profile_id,
-                    import_profile_revision_id=run.import_profile_revision_id,
-                    profile_sha256=run.profile_sha256,
-                    importer_id="urn:cmp:datasets:governed-tabular-importer:1.0.0",
-                    importer_version="1.0.0",
-                    status=run.status.value,
-                    started_at=run.started_at,
-                    finished_at=None,
-                    started_by=run.started_by,
-                    request_id=run.request_id,
-                    trace_id=run.trace_id,
+            row = (
+                session.execute(
+                    postgresql_insert(import_run_table)
+                    .values(
+                        id=run.id,
+                        organization_id=run.scope.organization_id,
+                        project_id=run.scope.project_id,
+                        classification=run.scope.classification,
+                        test_run_id=run.test_run_id,
+                        test_run_revision_id=run.test_run_revision_id,
+                        raw_asset_id=run.raw_asset_id,
+                        raw_artifact_id=run.raw_artifact_id,
+                        import_profile_id=run.import_profile_id,
+                        import_profile_revision_id=run.import_profile_revision_id,
+                        profile_sha256=run.profile_sha256,
+                        idempotency_key=run.idempotency_key,
+                        request_sha256=run.request_sha256,
+                        importer_id=GOVERNED_IMPORTER_ID,
+                        importer_version=GOVERNED_IMPORTER_VERSION,
+                        status=run.status.value,
+                        started_at=run.started_at,
+                        finished_at=None,
+                        started_by=run.started_by,
+                        request_id=run.request_id,
+                        trace_id=run.trace_id,
+                    )
+                    .on_conflict_do_nothing()
+                    .returning(import_run_table)
                 )
+                .mappings()
+                .one_or_none()
             )
-        return run
+            if row is not None:
+                return _run(row)
+            existing = (
+                session.execute(
+                    sa.select(import_run_table).where(
+                        import_run_table.c.organization_id == context.organization_id,
+                        import_run_table.c.project_id == context.project_id,
+                        import_run_table.c.idempotency_key == run.idempotency_key,
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if existing is None:
+                raise GovernedImportConflict("Import Run identity is already in use")
+            if str(existing["request_sha256"]) != run.request_sha256:
+                raise GovernedImportConflict(
+                    "Import Run idempotency key was reused with different immutable inputs"
+                )
+            diagnostics = (
+                session.execute(
+                    sa.select(import_row_error_table)
+                    .where(import_row_error_table.c.import_run_id == existing["id"])
+                    .order_by(import_row_error_table.c.ordinal)
+                )
+                .mappings()
+                .all()
+            )
+            return _run(existing, _diagnostics(diagnostics))
 
-    def _terminal(
+    def commit_success(
         self,
         *,
         context: SecurityContext,
         decision: AuthorizationDecision,
-        run_id: UUID,
-        values: dict[str, object],
+        command: CommitGovernedImportSuccess,
     ) -> ImportRun:
+        normalized_content: GovernedDatasetContent
         with self._session(context, decision) as session:
+            run_row = (
+                session.execute(
+                    sa.select(import_run_table)
+                    .where(
+                        import_run_table.c.id == command.run_id,
+                        import_run_table.c.status == ImportRunStatus.EXECUTING.value,
+                    )
+                    .with_for_update()
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if run_row is None:
+                raise GovernedImportNotFound("executing Import Run is not visible")
+            executing_run = _run(run_row)
+            if executing_run.scope != command.scope or (
+                command.raw_content.test_run_id,
+                command.raw_content.test_run_revision_id,
+                command.raw_content.raw_asset_id,
+                command.raw_content.raw_artifact_id,
+                command.raw_content.import_profile_id,
+                command.raw_content.import_profile_revision_id,
+            ) != (
+                executing_run.test_run_id,
+                executing_run.test_run_revision_id,
+                executing_run.raw_asset_id,
+                executing_run.raw_artifact_id,
+                executing_run.import_profile_id,
+                executing_run.import_profile_revision_id,
+            ):
+                raise GovernedImportConflict(
+                    "governed Dataset commit does not match the executing Import Run"
+                )
+            store = SqlAlchemyRevisionStore(
+                session_factory=self._sessions,
+                tables=_DATASET_TABLES,
+                hooks=self._hooks,
+            )
+            revision_service = RevisionService(
+                aggregate_type=GOVERNED_DATASET_AGGREGATE_TYPE,
+                store=store,
+            )
+            transaction = store.transaction_in(session)
+            raw_record = revision_service.create_in(
+                transaction,
+                CreateRevisionedAggregate(
+                    aggregate_id=command.raw_dataset_id,
+                    scope=command.scope,
+                    schema_id=GOVERNED_DATASET_SCHEMA_ID,
+                    schema_version=SCHEMA_VERSION,
+                    content=command.raw_content,
+                    created_by=context.principal.id,
+                    change_reason=command.raw_change_reason,
+                    request_id=context.request_id,
+                    trace_id=context.trace_id,
+                ),
+            )
+            normalized_content = replace(
+                command.raw_content,
+                representation=GovernedDatasetRepresentation.NORMALIZED,
+                data_artifact_id=command.normalized_artifact_id,
+                data_sha256=command.normalized_artifact_sha256,
+                source_dataset_revision_id=raw_record.revision_id,
+            )
+            normalized_record = revision_service.create_in(
+                transaction,
+                CreateRevisionedAggregate(
+                    aggregate_id=command.normalized_dataset_id,
+                    scope=command.scope,
+                    schema_id=GOVERNED_DATASET_SCHEMA_ID,
+                    schema_version=SCHEMA_VERSION,
+                    content=normalized_content,
+                    created_by=context.principal.id,
+                    change_reason=command.normalized_change_reason,
+                    request_id=context.request_id,
+                    trace_id=context.trace_id,
+                ),
+            )
             result = (
                 session.execute(
                     sa.update(import_run_table)
                     .where(
-                        import_run_table.c.id == run_id,
+                        import_run_table.c.id == command.run_id,
                         import_run_table.c.status == ImportRunStatus.EXECUTING.value,
                     )
-                    .values(**values)
+                    .values(
+                        status=ImportRunStatus.SUCCEEDED.value,
+                        finished_at=command.finished_at,
+                        raw_dataset_id=command.raw_dataset_id,
+                        raw_dataset_revision_id=raw_record.revision_id,
+                        normalized_dataset_id=command.normalized_dataset_id,
+                        normalized_dataset_revision_id=normalized_record.revision_id,
+                        row_count=command.raw_content.row_count,
+                    )
                     .returning(import_run_table)
                 )
                 .mappings()
@@ -700,32 +859,6 @@ class SqlAlchemyGovernedImportRepository(GovernedImportRepository):
             if result is None:
                 raise GovernedImportNotFound("executing Import Run is not visible")
             return _run(result)
-
-    def succeed_run(
-        self,
-        *,
-        context: SecurityContext,
-        decision: AuthorizationDecision,
-        run_id: UUID,
-        finished_at: Any,
-        raw_dataset: GovernedDatasetSnapshot,
-        normalized_dataset: GovernedDatasetSnapshot,
-        row_count: int,
-    ) -> ImportRun:
-        return self._terminal(
-            context=context,
-            decision=decision,
-            run_id=run_id,
-            values={
-                "status": ImportRunStatus.SUCCEEDED.value,
-                "finished_at": finished_at,
-                "raw_dataset_id": raw_dataset.id,
-                "raw_dataset_revision_id": raw_dataset.current.record.revision_id,
-                "normalized_dataset_id": normalized_dataset.id,
-                "normalized_dataset_revision_id": normalized_dataset.current.record.revision_id,
-                "row_count": row_count,
-            },
-        )
 
     def fail_run(
         self,
@@ -736,33 +869,50 @@ class SqlAlchemyGovernedImportRepository(GovernedImportRepository):
         finished_at: Any,
         failure_code: str,
         failure_detail: str,
-        row_number: int | None,
+        diagnostics: tuple[ImportDiagnostic, ...],
     ) -> ImportRun:
-        result = self._terminal(
-            context=context,
-            decision=decision,
-            run_id=run_id,
-            values={
-                "status": ImportRunStatus.FAILED.value,
-                "finished_at": finished_at,
-                "failure_code": failure_code,
-                "failure_detail": failure_detail,
-            },
-        )
         with self._session(context, decision) as session:
-            session.execute(
-                sa.insert(import_row_error_table).values(
-                    organization_id=result.scope.organization_id,
-                    project_id=result.scope.project_id,
-                    classification=result.scope.classification,
-                    import_run_id=result.id,
-                    ordinal=0,
-                    row_number=row_number,
-                    error_code=failure_code,
-                    error_detail=failure_detail,
+            row = (
+                session.execute(
+                    sa.update(import_run_table)
+                    .where(
+                        import_run_table.c.id == run_id,
+                        import_run_table.c.status == ImportRunStatus.EXECUTING.value,
+                    )
+                    .values(
+                        status=ImportRunStatus.FAILED.value,
+                        finished_at=finished_at,
+                        failure_code=failure_code,
+                        failure_detail=failure_detail,
+                    )
+                    .returning(import_run_table)
                 )
+                .mappings()
+                .one_or_none()
             )
-        return result
+            if row is None:
+                raise GovernedImportNotFound("executing Import Run is not visible")
+            result = _run(row)
+            session.execute(
+                sa.insert(import_row_error_table),
+                [
+                    {
+                        "organization_id": result.scope.organization_id,
+                        "project_id": result.scope.project_id,
+                        "classification": result.scope.classification,
+                        "import_run_id": result.id,
+                        "ordinal": diagnostic.ordinal,
+                        "row_number": diagnostic.row_number,
+                        "column_name": diagnostic.column_name,
+                        "channel_key": diagnostic.channel_key,
+                        "error_code": diagnostic.error_code,
+                        "error_detail": diagnostic.error_detail,
+                        "recovery_hint": diagnostic.recovery_hint,
+                    }
+                    for diagnostic in diagnostics
+                ],
+            )
+        return replace(result, diagnostics=diagnostics)
 
     def get_run(
         self, *, context: SecurityContext, decision: AuthorizationDecision, run_id: UUID
@@ -775,7 +925,16 @@ class SqlAlchemyGovernedImportRepository(GovernedImportRepository):
             )
             if row is None:
                 raise GovernedImportNotFound("Import Run is not visible")
-            return _run(row)
+            diagnostic_rows = (
+                session.execute(
+                    sa.select(import_row_error_table)
+                    .where(import_row_error_table.c.import_run_id == run_id)
+                    .order_by(import_row_error_table.c.ordinal)
+                )
+                .mappings()
+                .all()
+            )
+            return _run(row, _diagnostics(diagnostic_rows))
 
     def get_dataset(
         self, *, context: SecurityContext, decision: AuthorizationDecision, dataset_id: UUID

@@ -795,6 +795,25 @@ function documentMatchesTrack(
   return ["uniaxial", "planar", "biaxial"].some((mode) => method === mode || method === `${mode} tension`);
 }
 
+export function documentMatchesDataTrack(
+  item: CanonicalTestDataDocumentResponse,
+  track: ModelingTrack,
+): boolean {
+  if (documentMatchesTrack(item, track)) return true;
+  const quantities = new Set(item.channels.map((channel) => channel.quantity_semantics.toLowerCase()));
+  if (track === "polymer") {
+    return quantities.has("physics.temperature")
+      && quantities.has("frequency.cyclic")
+      && quantities.has("mechanics.modulus.storage")
+      && quantities.has("mechanics.modulus.loss");
+  }
+  if (track === "metal") {
+    return quantities.has("mechanics.strain.minor")
+      && quantities.has("mechanics.strain.major");
+  }
+  return false;
+}
+
 function profileMatchesTrack(
   item: CommonMappingProfileResponse,
   track: ModelingTrack,
@@ -811,7 +830,7 @@ function profileMatchesTrack(
   return content.profile_key.includes("elastomer");
 }
 
-function documentIsPolymerDma(item: CanonicalTestDataDocumentResponse | undefined): boolean {
+export function documentIsPolymerDma(item: CanonicalTestDataDocumentResponse | undefined): boolean {
   if (!item) return false;
   const quantities = new Set(item.channels.map((channel) => channel.quantity_semantics.toLowerCase()));
   return quantities.has("frequency.cyclic")
@@ -1458,7 +1477,9 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       : undefined;
     const restoredRef = focusedRef ?? initialTestDataRefs[0];
     const restored = documents.find((item) => item.test_data_document_id === restoredRef?.id
-      && documentMatchesTrack(item, modelingTrack)
+      && (workflowTask === "data"
+        ? documentMatchesDataTrack(item, modelingTrack)
+        : documentMatchesTrack(item, modelingTrack))
       && (workflowTask === "data" || isProcessTask
         ? modelingDataDocumentMatchesMaterialContext(item, material, materialState)
         : modelingDocumentMatchesMaterialContext(item, material, materialState, documents.some((candidate) => Boolean(candidate.governed_source)))));
@@ -2476,7 +2497,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     [documents],
   );
   const dataTrackDocuments = useMemo(
-    () => documents.filter((item) => documentMatchesTrack(item, modelingTrack)
+    () => documents.filter((item) => documentMatchesDataTrack(item, modelingTrack)
       && modelingDataDocumentMatchesMaterialContext(item, material, materialState)),
     [documents, material, materialState, modelingTrack],
   );

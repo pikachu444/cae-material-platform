@@ -46,6 +46,13 @@ const UNIT_OPTIONS: Record<GovernedQuantityKind, string[]> = {
   shear_modulus: ["Pa", "kPa", "MPa", "GPa"],
   displacement: ["m", "mm", "um"],
   force: ["N", "kN"],
+  temperature: ["degC", "K"],
+  frequency: ["Hz"],
+  storage_modulus: ["Pa", "kPa", "MPa", "GPa"],
+  loss_modulus: ["Pa", "kPa", "MPa", "GPa"],
+  tan_delta: ["1"],
+  minor_strain: ["1", "%"],
+  major_strain: ["1", "%"],
 };
 
 function quantities(
