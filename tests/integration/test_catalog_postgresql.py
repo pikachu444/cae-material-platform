@@ -8,6 +8,7 @@ from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
+from unittest.mock import Mock
 from uuid import NAMESPACE_URL, UUID, uuid4, uuid5
 
 import pytest
@@ -270,7 +271,7 @@ from cmp.modules.testing.domain.test_context import (
     TestRunContextContent as _TestRunContextContent,
 )
 from cmp.shared.application.revisions import CreateRevisionedAggregate, RevisionService
-from cmp.shared.domain.revisions import RevisionConflict, TenantScope
+from cmp.shared.domain.revisions import RevisionConflict, RevisionCreated, TenantScope
 from sqlalchemy.engine import URL, Engine, make_url
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import Session, sessionmaker
@@ -292,6 +293,17 @@ PROJECT_A = UUID("c9000000-0000-4000-8000-000000000002")
 PROJECT_B = UUID("c9000000-0000-4000-8000-000000000003")
 ACTOR = UUID("c9000000-0000-4000-8000-000000000004")
 TRACE = "00-000000000000000000000000000000c9-00000000000000c9-01"
+
+
+@dataclass(slots=True)
+class _FailOnGovernedDatasetRevision:
+    fail_on_ordinal: int
+    observed: int = 0
+
+    def __call__(self, _session: Session, _event: RevisionCreated) -> None:
+        self.observed += 1
+        if self.observed == self.fail_on_ordinal:
+            raise RuntimeError(f"injected governed Dataset revision failure {self.fail_on_ordinal}")
 
 
 @dataclass(frozen=True, slots=True)
@@ -778,6 +790,24 @@ def test_issue209_dma_fld_imports_persist_retry_and_diagnostics_in_postgresql(
     dataset_write = _decision(context, Permission.DATASET_WRITE)
     dataset_read = _decision(context, Permission.DATASET_READ)
     artifact_write = _decision(context, Permission.ARTIFACT_WRITE)
+
+    def persistence_counts() -> tuple[int, int, int]:
+        with postgres.admin_engine.connect() as connection:
+            row = connection.execute(
+                sa.text(
+                    "SELECT "
+                    "(SELECT count(*) FROM datasets.governed_dataset "
+                    " WHERE organization_id=:organization_id AND project_id=:project_id), "
+                    "(SELECT count(*) FROM datasets.test_data_document "
+                    " WHERE organization_id=:organization_id AND project_id=:project_id), "
+                    "(SELECT count(*) FROM artifact.artifact "
+                    " WHERE organization_id=:organization_id AND project_id=:project_id "
+                    " AND artifact_role='dataset.normalized.tabular')"
+                ),
+                {"organization_id": ORG, "project_id": PROJECT_A},
+            ).one()
+        return int(row[0]), int(row[1]), int(row[2])
+
     material = postgres.service.create_material(
         context,
         catalog_write,
@@ -1035,6 +1065,113 @@ def test_issue209_dma_fld_imports_persist_retry_and_diagnostics_in_postgresql(
         assert (
             await postgres.governed_imports.execute(context, dataset_write, invalid_command)
         ) == failed
+
+        fault_payload = (
+            b"temperature_degC,frequency_Hz,storage_MPa,loss_MPa\n"
+            b"-20,1,1150,105\n-20,10,1060,98\n20,1,910,82\n"
+        )
+
+        async def prove_atomic_failure(
+            failing_service: GovernedImportService,
+            fault_command: ExecuteGovernedImport,
+            before_failure: tuple[int, int, int],
+        ) -> None:
+            atomic_failure = await failing_service.execute(context, dataset_write, fault_command)
+            after_failure = persistence_counts()
+            assert atomic_failure.status is ImportRunStatus.FAILED
+            assert atomic_failure.failure_code == "import_execution_failed"
+            assert atomic_failure.failure_detail is not None
+            assert "injected governed" in atomic_failure.failure_detail
+            assert atomic_failure.raw_dataset_id is None
+            assert atomic_failure.normalized_dataset_id is None
+            assert after_failure == (
+                before_failure[0],
+                before_failure[1],
+                before_failure[2] + 1,
+            )
+
+            replayed_failure = await failing_service.execute(context, dataset_write, fault_command)
+            assert replayed_failure == atomic_failure
+            assert persistence_counts() == after_failure
+
+            recovered = await postgres.governed_imports.execute(
+                context,
+                dataset_write,
+                replace(
+                    fault_command,
+                    idempotency_key=f"issue209-import-atomic-retry-{uuid4()}",
+                ),
+            )
+            assert recovered.status is ImportRunStatus.SUCCEEDED
+            after_recovery = persistence_counts()
+            assert after_recovery[0] == after_failure[0] + 2
+            assert after_recovery[1] == after_failure[1]
+
+        raw_asset_id, raw_artifact_id = await upload(
+            fault_payload,
+            filename="issue209-dma-atomic-after-artifact.csv",
+        )
+        before_failure = persistence_counts()
+        artifact_failure_repository = Mock(wraps=postgres.governed_import_repository)
+        artifact_failure_repository.commit_success.side_effect = RuntimeError(
+            "injected governed failure after derived Artifact finalization"
+        )
+        artifact_failure_service = GovernedImportService(
+            repository=artifact_failure_repository,
+            testing=postgres.testing,
+            artifacts=postgres.artifacts,
+            clock=lambda: NOW,
+        )
+        artifact_failure_command = ExecuteGovernedImport(
+            test_run.id,
+            test_run.current.record.revision_id,
+            raw_asset_id,
+            raw_artifact_id,
+            dma_profile.id,
+            dma_profile.current.record.revision_id,
+            "prove atomic persistence after derived Artifact finalization",
+            f"issue209-import-atomic-artifact-{uuid4()}",
+        )
+        await prove_atomic_failure(
+            artifact_failure_service,
+            artifact_failure_command,
+            before_failure,
+        )
+
+        raw_asset_id, raw_artifact_id = await upload(
+            fault_payload,
+            filename="issue209-dma-atomic-after-raw.csv",
+        )
+        before_failure = persistence_counts()
+        failure_hook = _FailOnGovernedDatasetRevision(1)
+        failing_repository = SqlAlchemyGovernedImportRepository(
+            session_factory=postgres.sessions,
+            rls_context=postgres.rls,
+            revision_hooks=(
+                SqlInitialLifecycleHook(),
+                SqlAlchemyRevisionProvenanceHook(),
+                SqlAlchemyRevisionAuditHook(),
+                failure_hook,
+            ),
+        )
+        failing_service = GovernedImportService(
+            repository=failing_repository,
+            testing=postgres.testing,
+            artifacts=postgres.artifacts,
+            clock=lambda: NOW,
+        )
+        fault_command = ExecuteGovernedImport(
+            test_run.id,
+            test_run.current.record.revision_id,
+            raw_asset_id,
+            raw_artifact_id,
+            dma_profile.id,
+            dma_profile.current.record.revision_id,
+            "prove atomic Dataset persistence after raw revision staging",
+            f"issue209-import-atomic-raw-{uuid4()}",
+        )
+        await prove_atomic_failure(failing_service, fault_command, before_failure)
+        assert failure_hook.observed == 1
 
         assert successful_run_id is not None
         other_context = _context(PROJECT_B)

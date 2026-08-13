@@ -11,7 +11,6 @@ from uuid import UUID, uuid4
 from cmp.modules.artifacts.application.content import ArtifactService
 from cmp.modules.artifacts.domain.content import ArtifactKind
 from cmp.modules.datasets.domain.governed_tabular import (
-    GOVERNED_DATASET_SCHEMA_ID,
     GOVERNED_IMPORT_PROFILE_SCHEMA_ID,
     GOVERNED_PARQUET_SCHEMA,
     GovernedDatasetContent,
@@ -139,14 +138,26 @@ class ExecuteGovernedImport:
     idempotency_key: str
 
 
+@dataclass(frozen=True, slots=True)
+class CommitGovernedImportSuccess:
+    """Persist both governed Dataset revisions and the successful Run atomically."""
+
+    run_id: UUID
+    finished_at: datetime
+    scope: TenantScope
+    raw_dataset_id: UUID
+    raw_content: GovernedDatasetContent
+    raw_change_reason: str
+    normalized_dataset_id: UUID
+    normalized_artifact_id: UUID
+    normalized_artifact_sha256: str
+    normalized_change_reason: str
+
+
 class GovernedImportRepository(Protocol):
     def profile_store(
         self, context: SecurityContext, decision: AuthorizationDecision
     ) -> RevisionStore[GovernedImportProfileContent]: ...
-
-    def dataset_store(
-        self, context: SecurityContext, decision: AuthorizationDecision
-    ) -> RevisionStore[GovernedDatasetContent]: ...
 
     def get_profile(
         self,
@@ -188,16 +199,12 @@ class GovernedImportRepository(Protocol):
         run: ImportRun,
     ) -> ImportRun: ...
 
-    def succeed_run(
+    def commit_success(
         self,
         *,
         context: SecurityContext,
         decision: AuthorizationDecision,
-        run_id: UUID,
-        finished_at: datetime,
-        raw_dataset: GovernedDatasetSnapshot,
-        normalized_dataset: GovernedDatasetSnapshot,
-        row_count: int,
+        command: CommitGovernedImportSuccess,
     ) -> ImportRun: ...
 
     def fail_run(
@@ -514,28 +521,6 @@ class GovernedImportService:
                 raise GovernedImportConflict("Raw Asset does not match the pinned Import Run scope")
             self._validate_media_type(profile.revision.content.file_format, artifact.media_type)
             parsed = parse_governed_source(raw, profile.revision.content)
-            raw_dataset = self._create_dataset(
-                context,
-                decision,
-                dataset_id=self._id(),
-                scope=run.scope,
-                content=GovernedDatasetContent(
-                    test_run_id=run.test_run_id,
-                    test_run_revision_id=run.test_run_revision_id,
-                    raw_asset_id=run.raw_asset_id,
-                    raw_artifact_id=run.raw_artifact_id,
-                    import_profile_id=run.import_profile_id,
-                    import_profile_revision_id=run.import_profile_revision_id,
-                    representation=GovernedDatasetRepresentation.RAW,
-                    data_schema=profile.revision.content.data_schema,
-                    data_artifact_id=run.raw_artifact_id,
-                    data_sha256=artifact.sha256,
-                    source_dataset_revision_id=None,
-                    row_count=len(parsed.rows),
-                    channels=profile.revision.content.channels,
-                ),
-                change_reason=f"{command.change_reason} (raw source)",
-            )
             parquet = normalized_parquet_bytes(parsed)
             normalized_artifact = await self._artifacts.finalize_derived_bytes(
                 context,
@@ -547,36 +532,36 @@ class GovernedImportService:
                 value=parquet,
                 idempotency_key=f"governed-import:{run.id}:normalized",
             )
-            normalized_dataset = self._create_dataset(
-                context,
-                decision,
-                dataset_id=self._id(),
-                scope=run.scope,
-                content=GovernedDatasetContent(
-                    test_run_id=run.test_run_id,
-                    test_run_revision_id=run.test_run_revision_id,
-                    raw_asset_id=run.raw_asset_id,
-                    raw_artifact_id=run.raw_artifact_id,
-                    import_profile_id=run.import_profile_id,
-                    import_profile_revision_id=run.import_profile_revision_id,
-                    representation=GovernedDatasetRepresentation.NORMALIZED,
-                    data_schema=profile.revision.content.data_schema,
-                    data_artifact_id=normalized_artifact.artifact.id,
-                    data_sha256=normalized_artifact.artifact.sha256,
-                    source_dataset_revision_id=raw_dataset.current.record.revision_id,
-                    row_count=len(parsed.rows),
-                    channels=profile.revision.content.channels,
-                ),
-                change_reason=f"{command.change_reason} (normalized SI)",
+            raw_content = GovernedDatasetContent(
+                test_run_id=run.test_run_id,
+                test_run_revision_id=run.test_run_revision_id,
+                raw_asset_id=run.raw_asset_id,
+                raw_artifact_id=run.raw_artifact_id,
+                import_profile_id=run.import_profile_id,
+                import_profile_revision_id=run.import_profile_revision_id,
+                representation=GovernedDatasetRepresentation.RAW,
+                data_schema=profile.revision.content.data_schema,
+                data_artifact_id=run.raw_artifact_id,
+                data_sha256=artifact.sha256,
+                source_dataset_revision_id=None,
+                row_count=len(parsed.rows),
+                channels=profile.revision.content.channels,
             )
-            return self._repository.succeed_run(
+            return self._repository.commit_success(
                 context=context,
                 decision=decision,
-                run_id=run.id,
-                finished_at=self._clock(),
-                raw_dataset=raw_dataset,
-                normalized_dataset=normalized_dataset,
-                row_count=len(parsed.rows),
+                command=CommitGovernedImportSuccess(
+                    run_id=run.id,
+                    finished_at=self._clock(),
+                    scope=run.scope,
+                    raw_dataset_id=self._id(),
+                    raw_content=raw_content,
+                    raw_change_reason=f"{command.change_reason} (raw source)",
+                    normalized_dataset_id=self._id(),
+                    normalized_artifact_id=normalized_artifact.artifact.id,
+                    normalized_artifact_sha256=normalized_artifact.artifact.sha256,
+                    normalized_change_reason=f"{command.change_reason} (normalized SI)",
+                ),
             )
         except Exception as error:
             detail = str(error)[:1000] or error.__class__.__name__
@@ -616,34 +601,6 @@ class GovernedImportService:
                 diagnostics=diagnostics,
             )
             return failed
-
-    def _create_dataset(
-        self,
-        context: SecurityContext,
-        decision: AuthorizationDecision,
-        *,
-        dataset_id: UUID,
-        scope: TenantScope,
-        content: GovernedDatasetContent,
-        change_reason: str,
-    ) -> GovernedDatasetSnapshot:
-        record = RevisionService(
-            aggregate_type=GOVERNED_DATASET_AGGREGATE_TYPE,
-            store=self._repository.dataset_store(context, decision),
-        ).create(
-            CreateRevisionedAggregate(
-                aggregate_id=dataset_id,
-                scope=scope,
-                schema_id=GOVERNED_DATASET_SCHEMA_ID,
-                schema_version=SCHEMA_VERSION,
-                content=content,
-                created_by=context.principal.id,
-                change_reason=change_reason,
-                request_id=context.request_id,
-                trace_id=context.trace_id,
-            )
-        )
-        return GovernedDatasetSnapshot(dataset_id, RevisionSnapshot(record, content))
 
     def get_run(
         self, context: SecurityContext, decision: AuthorizationDecision, run_id: UUID
