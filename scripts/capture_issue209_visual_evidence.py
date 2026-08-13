@@ -185,10 +185,17 @@ def _expose_mapping(page: Page) -> None:
 
 
 def _fill_metadata(page: Page, document_key: str) -> None:
-    page.locator('input[name="test-data-name"]').fill(document_key)
-    page.locator('input[name="test-data-maker"]').fill("CMP synthetic reference")
-    page.locator('input[name="test-data-operator"]').fill("Issue 209 analyst")
-    page.locator('input[name="test-data-laboratory"]').fill("Synthetic validation lab")
+    row = page.locator(".mapping-context-row")
+    row.evaluate("element => element.scrollIntoView({block: 'center', inline: 'nearest'})")
+    for name, value in (
+        ("test-data-name", document_key),
+        ("test-data-maker", "CMP synthetic reference"),
+        ("test-data-operator", "Issue 209 analyst"),
+        ("test-data-laboratory", "Synthetic validation lab"),
+    ):
+        control = page.locator(f'input[name="{name}"]')
+        control.wait_for(state="visible", timeout=30_000)
+        control.fill(value)
 
 
 def _configure_dma(
