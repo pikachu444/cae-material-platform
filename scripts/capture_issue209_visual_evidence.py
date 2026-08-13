@@ -20,6 +20,7 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlencode
 
 import capture_current_product as current
 import yaml
@@ -32,7 +33,13 @@ EVIDENCE = ROOT / "docs/17-evidence/images/issue-209-dma-fld-governed-import"
 BASE_SHA = "a512c76aa55b5423e06f6b09eb1015ddf28f3aca"
 VIEWPORTS = ((1366, 768), (1440, 900), (1920, 1080), (2560, 1440), (3840, 2160))
 WIDE_VIEWPORTS = ((1920, 1080), (2560, 1440), (3840, 2160))
-REJECTED_DMA_RETRY_KEY = "20920920-9209-4209-8209-209209209209"
+DMA_DOCUMENT_KEY = "ISSUE209-DMA-FREQUENCY-TEMPERATURE"
+DMA_REJECTED_DOCUMENT_KEY = "ISSUE209-DMA-REJECTED"
+DMA_RECOVERED_DOCUMENT_KEY = "ISSUE209-DMA-RECOVERED"
+FLD_DOCUMENT_KEY = "ISSUE209-FLD"
+DMA_SPECIMEN_CODE = "ISSUE209-DMA-SYNTHETIC-01"
+DMA_RUN_LABEL = "Issue 209 synthetic DMA frequency-temperature sweep"
+REJECTED_DMA_RETRY_KEY = "20920920-9209-4209-9209-209209209209"
 
 
 def _git(*args: str) -> str:
@@ -133,6 +140,226 @@ def _api_json(page: Page, path: str, accept: str = "application/json") -> Any:
     return result["body"]
 
 
+def _api_post(page: Page, path: str, body: dict[str, Any]) -> dict[str, Any]:
+    result = page.evaluate(
+        """async ({path, body}) => {
+          const raw = window.localStorage.getItem('cmp.material-platform.api-config');
+          if (!raw) throw new Error('missing API config');
+          const config = JSON.parse(raw);
+          const response = await fetch(path, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${config.accessToken}`,
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(body),
+          });
+          const text = await response.text();
+          let responseBody;
+          try { responseBody = JSON.parse(text); } catch { responseBody = text; }
+          return {ok: response.ok, status: response.status, body: responseBody};
+        }""",
+        {"path": path, "body": body},
+    )
+    if not result["ok"] or not isinstance(result["body"], dict):
+        raise RuntimeError(f"API setup failed for {path}: {result}")
+    return result["body"]
+
+
+def _record_ref(value: dict[str, Any], *, id_key: str, label: str) -> dict[str, Any]:
+    revision = value["current_revision"]
+    return {
+        "id": value[id_key],
+        "revisionId": revision["id"],
+        "revisionNo": revision["revision_no"],
+        "label": label,
+    }
+
+
+def _modeling_context(
+    *,
+    family: str,
+    material: dict[str, Any],
+    material_state: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "family": family,
+        "material": _record_ref(
+            material,
+            id_key="material_id",
+            label=material["current_revision"]["content"]["name"],
+        ),
+        "material_state": _record_ref(
+            material_state,
+            id_key="material_state_id",
+            label=material_state["current_revision"]["content"]["name"],
+        ),
+    }
+
+
+def _context_url(base_url: str, context: dict[str, Any]) -> str:
+    material = context["material"]
+    state = context["material_state"]
+    query = urlencode(
+        {
+            "stage": "data",
+            "family": context["family"],
+            "material_id": material["id"],
+            "material_revision_id": material["revisionId"],
+            "material_state_id": state["id"],
+            "material_state_revision_id": state["revisionId"],
+        }
+    )
+    return f"{base_url}/modeling?{query}"
+
+
+def _activate_context(page: Page, base_url: str, context: dict[str, Any]) -> None:
+    page.goto(_context_url(base_url, context))
+    current._wait_for_modeling_data_surface(page)
+    page.get_by_role("tab", name="Local file").wait_for(state="visible", timeout=30_000)
+    current._wait_for_settled(page)
+
+
+def _setup_dma_context(page: Page) -> tuple[dict[str, Any], str]:
+    listing = _api_json(page, "/api/v1/materials?limit=100")
+    materials = [
+        item
+        for item in listing["items"]
+        if item["current_revision"]["content"].get("material_code")
+        == "CMP-DEMO-POLYMER-PRONY"
+    ]
+    if len(materials) != 1:
+        raise RuntimeError(f"expected one synthetic polymer Material, got {len(materials)}")
+    material = materials[0]
+    detail = _api_json(page, f"/api/v1/materials/{material['material_id']}")
+    states = [
+        item
+        for item in detail["states"]
+        if item["current_revision"]["content"]["name"] == "Reference conditioned"
+    ]
+    if len(states) != 1:
+        raise RuntimeError(f"expected one synthetic polymer State, got {len(states)}")
+    state = states[0]
+
+    specimen_listing = _api_json(
+        page, f"/api/v1/material-states/{state['material_state_id']}/specimens"
+    )
+    specimens = [
+        item
+        for item in specimen_listing["items"]
+        if item["current_revision"]["content"]["specimen_code"] == DMA_SPECIMEN_CODE
+    ]
+    if len(specimens) > 1:
+        raise RuntimeError(f"duplicate issue #209 synthetic DMA Specimens: {specimens!r}")
+    specimen = (
+        specimens[0]
+        if specimens
+        else _api_post(
+            page,
+            f"/api/v1/material-states/{state['material_state_id']}/specimens",
+            {
+                "material_state_revision_id": state["current_revision"]["id"],
+                "specimen_code": DMA_SPECIMEN_CODE,
+                "orientation": None,
+                "preparation_note": (
+                    "Synthetic non-production specimen for issue #209 governed-import evidence."
+                ),
+                "change_reason": "Create bounded synthetic issue #209 DMA evidence context.",
+            },
+        )
+    )
+
+    method_listing = _api_json(page, "/api/v1/test-methods")
+    methods = [
+        item
+        for item in method_listing["items"]
+        if item["current_revision"]["content"]["method_code"]
+        == "reference_shear_relaxation"
+    ]
+    if len(methods) != 1:
+        raise RuntimeError(f"expected one reference shear-relaxation method, got {len(methods)}")
+    method = methods[0]
+
+    run_listing = _api_json(
+        page, f"/api/v1/material-states/{state['material_state_id']}/test-runs"
+    )
+    runs = [
+        item
+        for item in run_listing["items"]
+        if item["current_revision"]["content"]["run_label"] == DMA_RUN_LABEL
+    ]
+    if len(runs) > 1:
+        raise RuntimeError(f"duplicate issue #209 synthetic DMA Test Runs: {runs!r}")
+    run = (
+        runs[0]
+        if runs
+        else _api_post(
+            page,
+            "/api/v1/test-runs/reference-shear-relaxation",
+            {
+                "specimen_id": specimen["specimen_id"],
+                "specimen_revision_id": specimen["current_revision"]["id"],
+                "test_method_id": method["test_method_id"],
+                "test_method_revision_id": method["current_revision"]["id"],
+                "run_label": DMA_RUN_LABEL,
+                "performed_at": "2026-08-13T09:00:00Z",
+                "test_temperature_k": 296.15,
+                "change_reason": (
+                    "Register bounded synthetic DMA frequency-temperature import evidence."
+                ),
+            },
+        )
+    )
+    content = run["current_revision"]["content"]
+    if (
+        content["specimen_id"] != specimen["specimen_id"]
+        or content["specimen_revision_id"] != specimen["current_revision"]["id"]
+        or content["test_method_id"] != method["test_method_id"]
+        or content["test_method_revision_id"] != method["current_revision"]["id"]
+    ):
+        raise RuntimeError(f"issue #209 DMA Test Run exact pins drifted: {run!r}")
+    return (
+        _modeling_context(family="polymer", material=material, material_state=state),
+        run["test_run_id"],
+    )
+
+
+def _metal_context(page: Page) -> tuple[dict[str, Any], str]:
+    raw_session = page.evaluate(
+        "() => window.sessionStorage.getItem('cmp.modeling.recent-session.v4')"
+    )
+    if not raw_session:
+        raise RuntimeError("normal Modeling Data session was not persisted")
+    session = json.loads(raw_session)
+    material_id = session.get("material", {}).get("id")
+    state_id = session.get("materialState", {}).get("id")
+    if not material_id or not state_id:
+        raise RuntimeError(f"normal Modeling Data context is incomplete: {session!r}")
+    detail = _api_json(page, f"/api/v1/materials/{material_id}")
+    states = [item for item in detail["states"] if item["material_state_id"] == state_id]
+    if len(states) != 1:
+        raise RuntimeError(f"normal metal Material State drifted: {state_id!r}")
+    state = states[0]
+    runs = _api_json(page, f"/api/v1/material-states/{state_id}/test-runs")["items"]
+    fld_runs = [
+        item
+        for item in runs
+        if item["current_revision"]["content"]["run_label"]
+        == "CMP demo tensile replicate 2"
+    ]
+    if len(fld_runs) != 1:
+        raise RuntimeError(f"expected exact synthetic FLD Test Run container, got {fld_runs!r}")
+    return (
+        _modeling_context(
+            family="metal",
+            material=detail["material"],
+            material_state=state,
+        ),
+        fld_runs[0]["test_run_id"],
+    )
+
+
 def _wait_for_import_response(page: Page, action: Any) -> tuple[Response, dict[str, Any]]:
     with page.expect_response(
         lambda response: (
@@ -149,25 +376,26 @@ def _wait_for_import_response(page: Page, action: Any) -> tuple[Response, dict[s
     return response, body
 
 
-def _select_test_run(page: Page, index: int) -> str:
+def _select_test_run(page: Page, test_run_id: str) -> str:
     control = page.get_by_role("combobox", name="Local file Test Run")
     control.wait_for(state="visible", timeout=30_000)
     page.wait_for_function(
-        """() => (
-          document.querySelector('select[aria-label="Local file Test Run"]')?.options.length ?? 0
-        ) > 2""",
+        """value => [...(
+          document.querySelector('select[aria-label="Local file Test Run"]')?.options ?? []
+        )].some(option => option.value === value)""",
+        arg=test_run_id,
         timeout=30_000,
     )
-    control.select_option(index=index)
+    control.select_option(test_run_id)
     value = control.input_value()
-    if not value:
+    if value != test_run_id:
         raise RuntimeError("exact Test Run selection did not settle")
     return value
 
 
-def _upload_source(page: Page, source: Path, *, test_run_index: int) -> str:
+def _upload_source(page: Page, source: Path, *, test_run_id: str) -> str:
     page.get_by_role("tab", name="Local file").click()
-    run_id = _select_test_run(page, test_run_index)
+    run_id = _select_test_run(page, test_run_id)
     page.get_by_label("Local test data file").set_input_files(source)
     inspect = page.get_by_role("button", name="Inspect source")
     inspect.wait_for(state="visible", timeout=30_000)
@@ -379,18 +607,14 @@ def _capture_state(
 def _new_modeling_page(
     source_page: Page,
     base_url: str,
+    context: dict[str, Any],
     width: int,
     height: int,
 ) -> tuple[Page, list[str]]:
     page = source_page.context.new_page()
     page.set_viewport_size({"width": width, "height": height})
     failures = _console_guard(page)
-    page.goto(f"{base_url}/modeling?stage=data&family=metal")
-    current._wait_for_modeling_data_surface(page)
-    page.locator(".data-library-list .data-library-row").first.wait_for(
-        state="visible", timeout=30_000
-    )
-    current._wait_for_settled(page)
+    _activate_context(page, base_url, context)
     return page, failures
 
 
@@ -399,6 +623,7 @@ def _capture_across_viewports(
     packet: Path,
     *,
     base_url: str,
+    context: dict[str, Any],
     state: str,
     decision_selector: str,
     prepare_secondary: Callable[[Page], None],
@@ -410,7 +635,9 @@ def _capture_across_viewports(
         page_failures: list[str] = []
         secondary = (width, height) != (1440, 900)
         if secondary:
-            page, page_failures = _new_modeling_page(primary_page, base_url, width, height)
+            page, page_failures = _new_modeling_page(
+                primary_page, base_url, context, width, height
+            )
             prepare_secondary(page)
         measurements.append(
             _capture_state(
@@ -541,27 +768,41 @@ def _save_document(page: Page, document_key: str) -> dict[str, Any]:
 
 def _record_rejection(page: Page, retry_key: str) -> tuple[dict[str, Any], str]:
     page.evaluate(
-        """value => Object.defineProperty(Crypto.prototype, 'randomUUID', {
-          configurable: true,
-          value: () => value,
-        })""",
+        """value => {
+          window.__cmpIssue209OriginalRandomUUID = Crypto.prototype.randomUUID;
+          Object.defineProperty(Crypto.prototype, 'randomUUID', {
+            configurable: true,
+            value: () => value,
+          });
+        }""",
         retry_key,
     )
-    response, first = _wait_for_import_response(
-        page, lambda: page.get_by_role("button", name="Record rejected import").click()
-    )
-    if first["status"] != "failed" or not first["diagnostics"]:
-        raise RuntimeError(f"invalid source did not retain failed diagnostics: {first!r}")
-    page.get_by_role("region", name="Rejected source cells").wait_for(
-        state="visible", timeout=30_000
-    )
-    first_key = response.request.headers.get("idempotency-key", "")
-    if first_key != retry_key:
-        raise RuntimeError(f"governed retry key override did not apply: {first_key!r}")
-    response, second = _wait_for_import_response(
-        page, lambda: page.get_by_role("button", name="Record rejected import").click()
-    )
-    second_key = response.request.headers.get("idempotency-key", "")
+    try:
+        response, first = _wait_for_import_response(
+            page, lambda: page.get_by_role("button", name="Record rejected import").click()
+        )
+        if first["status"] != "failed" or not first["diagnostics"]:
+            raise RuntimeError(f"invalid source did not retain failed diagnostics: {first!r}")
+        page.get_by_role("region", name="Rejected source cells").wait_for(
+            state="visible", timeout=30_000
+        )
+        first_key = response.request.headers.get("idempotency-key", "")
+        if first_key != retry_key:
+            raise RuntimeError(f"governed retry key override did not apply: {first_key!r}")
+        response, second = _wait_for_import_response(
+            page, lambda: page.get_by_role("button", name="Record rejected import").click()
+        )
+        second_key = response.request.headers.get("idempotency-key", "")
+    finally:
+        page.evaluate(
+            """() => {
+              Object.defineProperty(Crypto.prototype, 'randomUUID', {
+                configurable: true,
+                value: window.__cmpIssue209OriginalRandomUUID,
+              });
+              delete window.__cmpIssue209OriginalRandomUUID;
+            }"""
+        )
     if (
         not first_key
         or second_key != first_key
@@ -578,6 +819,11 @@ def _assert_missing_document(page: Page, document_key: str) -> None:
     listing = _api_json(page, "/api/v1/test-data-documents")
     if any(item["document_key"] == document_key for item in listing["items"]):
         raise RuntimeError(f"rejected source created forbidden Test Data {document_key}")
+
+
+def _document_exists(page: Page, document_key: str) -> bool:
+    listing = _api_json(page, "/api/v1/test-data-documents")
+    return any(item["document_key"] == document_key for item in listing["items"])
 
 
 def _write_sources(directory: Path) -> dict[str, Path]:
@@ -622,15 +868,18 @@ def _capture_journey(browser: Browser, base_url: str, packet: Path) -> dict[str,
     page = current._new_page(browser, base_url, 1440, 900)
     failures = _console_guard(page)
     current._prepare_modeling(page, base_url, verify_reload=False)
+    metal_context, fld_test_run_id = _metal_context(page)
+    polymer_context, dma_test_run_id = _setup_dma_context(page)
+    _activate_context(page, base_url, polymer_context)
     measurements: list[dict[str, Any]] = []
 
     with tempfile.TemporaryDirectory(prefix="cmp-issue209-") as temporary:
         sources = _write_sources(Path(temporary))
 
-        dma_run_id = _upload_source(page, sources["dma"], test_run_index=1)
+        dma_run_id = _upload_source(page, sources["dma"], test_run_id=dma_test_run_id)
         _configure_dma(
             page,
-            "ISSUE209-DMA-SWEEP",
+            DMA_DOCUMENT_KEY,
             columns=(
                 "temperature_c",
                 "frequency_hz",
@@ -649,10 +898,10 @@ def _capture_journey(browser: Browser, base_url: str, packet: Path) -> dict[str,
         )
 
         def prepare_dma_secondary(candidate: Page) -> None:
-            _upload_source(candidate, sources["dma"], test_run_index=1)
+            _upload_source(candidate, sources["dma"], test_run_id=dma_test_run_id)
             _configure_dma(
                 candidate,
-                "ISSUE209-DMA-SWEEP",
+                DMA_DOCUMENT_KEY,
                 columns=dma_columns,
             )
 
@@ -662,30 +911,32 @@ def _capture_journey(browser: Browser, base_url: str, packet: Path) -> dict[str,
             page,
             packet,
             base_url=base_url,
+            context=polymer_context,
             state="dma",
             decision_selector=".data-mapping-table",
             prepare_secondary=prepare_dma_secondary,
         )
         measurements.extend(captured)
         failures.extend(capture_failures)
-        _save_document(page, "ISSUE209-DMA-SWEEP")
+        if not _document_exists(page, DMA_DOCUMENT_KEY):
+            _save_document(page, DMA_DOCUMENT_KEY)
         dma_document, dma_content, dma_run = _read_back_document(
             page,
-            "ISSUE209-DMA-SWEEP",
+            DMA_DOCUMENT_KEY,
             expected_schema="dma_frequency_temperature_sweep",
             expected_run_id=dma_run_id,
         )
         _assert_dma_content(dma_content, include_tan=True)
 
-        _upload_source(page, sources["dma_invalid"], test_run_index=1)
+        _upload_source(page, sources["dma_invalid"], test_run_id=dma_test_run_id)
         _configure_dma(
             page,
-            "ISSUE209-DMA-REJECTED",
+            DMA_REJECTED_DOCUMENT_KEY,
             columns=("temperature_bad", "frequency_bad", "storage_bad", "loss_bad", None),
         )
         _preview(page, expected_status=422)
         rejected_run, retry_key = _record_rejection(page, REJECTED_DMA_RETRY_KEY)
-        _assert_missing_document(page, "ISSUE209-DMA-REJECTED")
+        _assert_missing_document(page, DMA_REJECTED_DOCUMENT_KEY)
         diagnostic_codes = {item["error_code"] for item in rejected_run["diagnostics"]}
         if len(rejected_run["diagnostics"]) < 4 or not {
             "frequency_not_positive",
@@ -703,10 +954,10 @@ def _capture_journey(browser: Browser, base_url: str, packet: Path) -> dict[str,
         )
 
         def prepare_rejected_secondary(candidate: Page) -> None:
-            _upload_source(candidate, sources["dma_invalid"], test_run_index=1)
+            _upload_source(candidate, sources["dma_invalid"], test_run_id=dma_test_run_id)
             _configure_dma(
                 candidate,
-                "ISSUE209-DMA-REJECTED",
+                DMA_REJECTED_DOCUMENT_KEY,
                 columns=rejected_columns,
             )
 
@@ -721,6 +972,7 @@ def _capture_journey(browser: Browser, base_url: str, packet: Path) -> dict[str,
             page,
             packet,
             base_url=base_url,
+            context=polymer_context,
             state="dma-rejected",
             decision_selector=".data-import-diagnostics",
             prepare_secondary=prepare_rejected_secondary,
@@ -728,18 +980,21 @@ def _capture_journey(browser: Browser, base_url: str, packet: Path) -> dict[str,
         measurements.extend(captured)
         failures.extend(capture_failures)
 
-        corrected_run_id = _upload_source(page, sources["dma_corrected"], test_run_index=1)
+        corrected_run_id = _upload_source(
+            page, sources["dma_corrected"], test_run_id=dma_test_run_id
+        )
         _configure_dma(
             page,
-            "ISSUE209-DMA-RECOVERED",
+            DMA_RECOVERED_DOCUMENT_KEY,
             columns=("temperature_bad", "frequency_bad", "storage_bad", "loss_bad", None),
             expose_mapping=False,
         )
         _preview(page, expected_status=200)
-        _save_document(page, "ISSUE209-DMA-RECOVERED")
+        if not _document_exists(page, DMA_RECOVERED_DOCUMENT_KEY):
+            _save_document(page, DMA_RECOVERED_DOCUMENT_KEY)
         corrected_document, corrected_content, corrected_run = _read_back_document(
             page,
-            "ISSUE209-DMA-RECOVERED",
+            DMA_RECOVERED_DOCUMENT_KEY,
             expected_schema="dma_frequency_temperature_sweep",
             expected_run_id=corrected_run_id,
         )
@@ -747,20 +1002,21 @@ def _capture_journey(browser: Browser, base_url: str, packet: Path) -> dict[str,
         if corrected_run["raw_asset_id"] == rejected_run["raw_asset_id"]:
             raise RuntimeError("corrected source reused the rejected immutable Raw Asset")
 
-        fld_run_id = _upload_source(page, sources["fld"], test_run_index=2)
+        _activate_context(page, base_url, metal_context)
+        fld_run_id = _upload_source(page, sources["fld"], test_run_id=fld_test_run_id)
         _configure_fld(
             page,
-            "ISSUE209-FLD",
+            FLD_DOCUMENT_KEY,
             columns=("minor_strain_pct", "major_strain_pct"),
         )
         _preview(page, expected_status=200)
         fld_columns = ("minor_strain_pct", "major_strain_pct")
 
         def prepare_fld_secondary(candidate: Page) -> None:
-            _upload_source(candidate, sources["fld"], test_run_index=2)
+            _upload_source(candidate, sources["fld"], test_run_id=fld_test_run_id)
             _configure_fld(
                 candidate,
-                "ISSUE209-FLD",
+                FLD_DOCUMENT_KEY,
                 columns=fld_columns,
             )
 
@@ -770,26 +1026,30 @@ def _capture_journey(browser: Browser, base_url: str, packet: Path) -> dict[str,
             page,
             packet,
             base_url=base_url,
+            context=metal_context,
             state="fld",
             decision_selector=".data-mapping-table",
             prepare_secondary=prepare_fld_secondary,
         )
         measurements.extend(captured)
         failures.extend(capture_failures)
-        _save_document(page, "ISSUE209-FLD")
+        if not _document_exists(page, FLD_DOCUMENT_KEY):
+            _save_document(page, FLD_DOCUMENT_KEY)
         fld_document, fld_content, fld_run = _read_back_document(
             page,
-            "ISSUE209-FLD",
+            FLD_DOCUMENT_KEY,
             expected_schema="forming_limit_diagram",
             expected_run_id=fld_run_id,
         )
         _assert_fld_content(fld_content)
 
-    page.reload()
-    current._wait_for_modeling_data_surface(page)
+    _activate_context(page, base_url, polymer_context)
     page.get_by_role("tab", name="Library").click()
-    for label in ("ISSUE209-DMA-SWEEP", "ISSUE209-DMA-RECOVERED", "ISSUE209-FLD"):
+    for label in (DMA_DOCUMENT_KEY, DMA_RECOVERED_DOCUMENT_KEY):
         page.get_by_text(label, exact=True).wait_for(state="visible", timeout=30_000)
+    _activate_context(page, base_url, metal_context)
+    page.get_by_role("tab", name="Library").click()
+    page.get_by_text(FLD_DOCUMENT_KEY, exact=True).wait_for(state="visible", timeout=30_000)
     current._wait_for_settled(page)
     runtime_errors = page.evaluate("() => window.__cmpCaptureRuntimeErrors ?? []")
     if failures or runtime_errors:
@@ -831,7 +1091,8 @@ def _capture_journey(browser: Browser, base_url: str, packet: Path) -> dict[str,
             "assertion": "signed, non-monotonic FLD coordinates and source order preserved",
         },
         "reload": (
-            "all three successful exact Test Data identities are visible after full route reload"
+            "both DMA identities are visible in the exact polymer context and FLD is visible in "
+            "the exact metal context after full route reload"
         ),
     }
 
