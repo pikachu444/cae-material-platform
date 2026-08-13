@@ -194,7 +194,7 @@ visual_evidence:
   root_original_and_crop_review: pass
   physical_4k_readability: DEFERRED_TO_223
   fixture_dependent_capture_status: canonical_compose_pass
-  independent_read_only_review: pending_issue_209_candidate
+  independent_read_only_review: pass_issue_209_7803eae6_blocker_0_major_0_material_minor_0
   product_owner_review: pending_issue_209_visual_geometry
 capture_provenance:
   - source_commit: f8fe6ef85d345837a6252b6ba8b3b706ccbe009f
