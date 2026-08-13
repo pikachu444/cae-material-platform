@@ -36,6 +36,11 @@ product_owner_visual_geometry_review:
   - modeling-process-3840x2160.png
   - modeling-fit-3840x2160.png
   scope: presented originals and supporting five-viewport geometry; physical 4K readability remains deferred to issue 223
+publication:
+  feature_pr: 244
+  feature_merge_commit: aa009e5898a6e46577a80a7382bda2b7b17fd002
+  issue_status: closed
+  next_backlog_unit: 209
 before:
   source: accepted current-guide PNG blobs from the exact origin/main base
   note: No missing state or changed baseline pixel was fabricated.

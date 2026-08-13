@@ -77,5 +77,7 @@ review policy, not a production material-acceptance threshold or approved tensil
   originals and their supporting five-viewport visibility, clipping and layout-bound evidence on
   2026-08-13. This approval does not convert the automated 3840×2160 viewport into physical 4K
   evidence; that product-wide readability gate remains assigned to #223.
-- Draft PR #244 targets `main`; the PR/merge SHA and next-unit read-back record are appended after
-  publication completes. The next unfinished #117 unit is #209.
+- Feature PR #244 was squash-merged to `main` as
+  `aa009e5898a6e46577a80a7382bda2b7b17fd002`; GitHub closed #212 through the PR. Remote
+  read-back confirmed that merge SHA as `origin/main`. The next unfinished #117 unit is #209; no
+  #209 implementation is included in this delivery.
