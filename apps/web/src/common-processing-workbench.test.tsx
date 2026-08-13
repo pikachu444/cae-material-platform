@@ -875,12 +875,26 @@ describe("Common Processing Workbench", () => {
     fireEvent.click(screen.getByRole("checkbox", { name: "Acknowledge toe quality warning" }));
     fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
     await waitFor(() => expect(save.disabled).toBe(false));
+
+    steps = JSON.parse((screen.getByLabelText("Ordered processing steps") as HTMLTextAreaElement).value) as Array<{ method_id: string; options: Record<string, unknown> }>;
+    steps[1].options.minimum_strain = 0.0003;
+    steps[1].options.warning_acknowledged = true;
+    fireEvent.change(screen.getByLabelText("Ordered processing steps"), {
+      target: { value: JSON.stringify(steps, null, 2) },
+    });
+    steps = JSON.parse((screen.getByLabelText("Ordered processing steps") as HTMLTextAreaElement).value) as Array<{ method_id: string; options: Record<string, unknown> }>;
+    expect(steps[1].options.warning_acknowledged).toBe(false);
+    expect(save.disabled).toBe(true);
+    fireEvent.click(screen.getByRole("checkbox", { name: "Acknowledge toe quality warning" }));
+    expect(save.disabled).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
+    await waitFor(() => expect(save.disabled).toBe(false));
     fireEvent.click(save);
     await waitFor(() => expect(committedBody).not.toBeNull());
     const committedSteps = (committedBody as unknown as Record<string, unknown>).steps as Array<{ method_id: string; options: Record<string, unknown> }>;
     expect(committedSteps[1]).toMatchObject({
       method_id: "tensile.toe_zero_intercept",
-      options: { minimum_strain: 0.00025, warning_acknowledged: true, equipment_compliance: "not_provided" },
+      options: { minimum_strain: 0.0003, warning_acknowledged: true, equipment_compliance: "not_provided" },
     });
     expect(previewBodies.at(-1)?.steps[1].options.warning_acknowledged).toBe(true);
 

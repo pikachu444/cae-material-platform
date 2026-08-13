@@ -460,6 +460,51 @@ function serverProcessingSteps(steps: CommonProcessingStep[]): CommonProcessingS
   }));
 }
 
+function toeAcknowledgementContext(step: unknown): string | null {
+  if (!step || typeof step !== "object") return null;
+  const candidate = step as Partial<CommonProcessingStep>;
+  if (candidate.method_id !== "tensile.toe_zero_intercept" || !candidate.options || typeof candidate.options !== "object") return null;
+  return JSON.stringify([
+    candidate.method_version,
+    candidate.options.strain_quantity,
+    candidate.options.stress_quantity,
+    candidate.options.minimum_strain,
+    candidate.options.maximum_strain,
+    candidate.options.equipment_compliance,
+  ]);
+}
+
+function parsedStepArray(value: string): unknown[] | null {
+  try {
+    const parsed: unknown = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function normalizeToeWarningAcknowledgement(previous: string, next: string): string {
+  const previousSteps = parsedStepArray(previous);
+  const nextSteps = parsedStepArray(next);
+  if (!nextSteps) return next;
+  const previousToeContexts = (previousSteps ?? [])
+    .map(toeAcknowledgementContext)
+    .filter((context): context is string => context !== null);
+  let toeIndex = 0;
+  let changed = false;
+  const normalized = nextSteps.map((step) => {
+    const context = toeAcknowledgementContext(step);
+    if (context === null) return step;
+    const previousContext = previousToeContexts[toeIndex];
+    toeIndex += 1;
+    const candidate = step as CommonProcessingStep;
+    if (candidate.options.warning_acknowledged !== true || previousContext === context) return step;
+    changed = true;
+    return { ...candidate, options: { ...candidate.options, warning_acknowledged: false } };
+  });
+  return changed ? JSON.stringify(normalized, null, 2) : next;
+}
+
 function workupOverridesFromSteps(steps: CommonProcessingStep[]): CommonProcessingWorkupOverride[] {
   const overrides: CommonProcessingWorkupOverride[] = [];
   const modulus = steps.find((step) => step.method_id === "metal.elastic_modulus");
@@ -1042,6 +1087,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   const undoSteps = useRef<string[]>([]);
   const redoSteps = useRef<string[]>([]);
   const savedSteps = useRef(stepsText);
+  const lastValidSteps = useRef(stepsText);
   const preferredStepContext = useRef("");
   // A restore attempt is settled only after the exact content request has
   // succeeded or failed.  React effect cleanup (for example, StrictMode's
@@ -1136,11 +1182,13 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   const draftDirty = stepsText !== savedSteps.current;
 
   function applyDraftSteps(next: string, force = false, preserveCurrentOutput = false): void {
-    if (next === stepsText && !force) return;
+    const normalizedNext = normalizeToeWarningAcknowledgement(lastValidSteps.current, next);
+    if (normalizedNext === stepsText && !force) return;
     undoSteps.current.push(stepsText);
     if (undoSteps.current.length > 50) undoSteps.current.shift();
     redoSteps.current = [];
-    setStepsText(next);
+    setStepsText(normalizedNext);
+    if (parsedStepArray(normalizedNext)) lastValidSteps.current = normalizedNext;
     setFitSelection(null);
     setPreview(null);
     setVerifiedFitOutputKey(null);
@@ -1163,6 +1211,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
 
   function replaceSavedSteps(next: string): void {
     setStepsText(next);
+    if (parsedStepArray(next)) lastValidSteps.current = next;
     savedSteps.current = next;
     undoSteps.current = [];
     redoSteps.current = [];
@@ -1184,6 +1233,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     if (previous === undefined) return;
     redoSteps.current.push(stepsText);
     setStepsText(previous);
+    if (parsedStepArray(previous)) lastValidSteps.current = previous;
     setPreview(null);
     updateLocalCurrentOutput(null);
     setFitSelection(null);
@@ -1201,6 +1251,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     if (next === undefined) return;
     undoSteps.current.push(stepsText);
     setStepsText(next);
+    if (parsedStepArray(next)) lastValidSteps.current = next;
     setPreview(null);
     updateLocalCurrentOutput(null);
     setVerifiedFitOutputKey(null);
@@ -1219,6 +1270,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     const defaults = modelingTrack === "metal" ? METAL_TENSILE_STEPS : modelingTrack === "polymer" ? POLYMER_RELAXATION_STEPS : ELASTOMER_PREPARATION_STEPS;
     const next = JSON.stringify(defaults, null, 2);
     setStepsText(next);
+    lastValidSteps.current = next;
     savedSteps.current = next;
     undoSteps.current = [];
     redoSteps.current = [];
