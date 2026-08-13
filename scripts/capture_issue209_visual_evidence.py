@@ -269,7 +269,9 @@ def _preview(page: Page, *, expected_status: int) -> Response:
             f"{response.text()}"
         )
     if expected_status == 200:
-        page.get_by_role("button", name="Save Test Data").wait_for(state="visible", timeout=30_000)
+        page.get_by_role("button", name="Save Test Data", exact=True).wait_for(
+            state="visible", timeout=30_000
+        )
         page.locator(".persistent-modeling-plot svg").first.wait_for(
             state="visible", timeout=30_000
         )
@@ -526,7 +528,7 @@ def _assert_fld_content(content: dict[str, Any]) -> None:
 
 def _save_document(page: Page, document_key: str) -> dict[str, Any]:
     _, run = _wait_for_import_response(
-        page, lambda: page.get_by_role("button", name="Save Test Data").click()
+        page, lambda: page.get_by_role("button", name="Save Test Data", exact=True).click()
     )
     if run["status"] != "succeeded":
         raise RuntimeError(f"successful save produced failed Import Run: {run!r}")
