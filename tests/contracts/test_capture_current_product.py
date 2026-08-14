@@ -446,8 +446,10 @@ def test_incomplete_capture_cannot_reuse_files_from_previous_output(
 
 
 def test_current_capture_contract_contains_product_routes_only() -> None:
-    assert len(CURRENT_CAPTURE_OUTPUTS) == 101
+    assert len(CURRENT_CAPTURE_OUTPUTS) == 118
     assert "administration-schema-bundle-1440x900.png" in CURRENT_CAPTURE_OUTPUTS
+    assert "material-database-categories-1440x900.png" in CURRENT_CAPTURE_OUTPUTS
+    assert "material-database-linked-test-1440x900.png" in CURRENT_CAPTURE_OUTPUTS
     assert PRODUCT_ACCESS_OUTPUTS == (
         "administration-access-1366x768.png",
         "administration-access-1440x900.png",
@@ -600,7 +602,7 @@ def test_current_capture_rejects_fixed_width_islands_in_shared_workspaces() -> N
     assert '".activity-shell"' in capture_source
     assert '".administration-workspace"' in capture_source
     assert '".administration-record-workbench"' in capture_source
-    assert '".material-database-page"' in capture_source
+    assert '".material-database-page"' not in capture_source
     assert '".governed-import-route"' in capture_source
     assert "_assert_shared_workspace_geometry(page, width, path.name)" in capture_source
     assert "_assert_wide_material_cluster" not in _CAPTURE_SOURCE

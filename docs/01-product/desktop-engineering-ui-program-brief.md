@@ -111,8 +111,8 @@ mixed into one visual list.
 
 - A selection set is persistent across coordinated views. Selecting records in a grid and switching
   to Curve or Compare retains selection and filters.
-- Materials single-click updates context in place; Enter/double-click opens the datasheet in the
-  center region while the navigator remains available. Back/forward restores the prior context.
+- Materials category selection updates the center list; a result-row single click or Enter opens the
+  datasheet in the center while the navigator remains available. Back/forward restores the prior list.
 - Modeling keeps one plot mounted throughout Data, Process, Fit and Export. Stage changes alter
   commands, overlays and a shallow graph-adjacent control band; they must not discard the selected curves or
   graph state.

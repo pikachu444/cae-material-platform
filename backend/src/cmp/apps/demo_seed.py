@@ -94,8 +94,10 @@ class DemoApi:
             time.sleep(1)
         raise DemoSeedError("API health endpoint did not report ready")
 
-    def authenticate(self) -> None:
-        response = self._request("/demo-identity/token?persona=administrator", authenticated=False)
+    def authenticate(self, persona: str = "administrator") -> None:
+        response = self._request(
+            f"/demo-identity/token?persona={persona}", authenticated=False
+        )
         token = response.get("access_token")
         if not isinstance(token, str) or not token:
             raise DemoSeedError("explicit local demo identity did not return an access token")

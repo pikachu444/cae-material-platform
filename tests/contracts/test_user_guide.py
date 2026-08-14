@@ -136,14 +136,14 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     report = verify_user_guide(root)
 
     assert report.document_count >= 10
-    assert report.capture_count == 116
+    assert report.capture_count == 118
     assert report.navigation_count == 3
     assert report.classified_markdown_count >= 100
     assert report.current_document_count >= 40
     assert report.local_link_count >= 150
     assert report.image_count >= 120
     assert report.orphan_image_count == 0
-    assert report.duplicate_image_group_count == 318
+    assert report.duplicate_image_group_count == 335
 
 
 def test_incoming_integration_package_is_reference_not_authoritative() -> None:
@@ -209,8 +209,8 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     }
 
     current_source = manifest["source_commit"]
-    assert manifest["scope"] == "issue-209-dma-fld-governed-import"
-    assert re.fullmatch(r"[0-9a-f]{40}", current_source)
+    assert manifest["scope"] == "issue-246-task1-source-v2-and-browser-categories"
+    assert re.fullmatch(r"[0-9a-f]{40}\+issue246-live-data-correction-v4", current_source)
     assert manifest["source_commit"] == current_source
     assert len(provenance_ids) == len(set(provenance_ids))
     preserved_fixture_ids = {
@@ -223,7 +223,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     assert {provenance["source_commit"] for provenance in manifest["capture_provenance"]} == {
         current_source,
         "36c898654e2176a06eef868ee7412de22bad1a9e",
-        "63176ec5a07647d598753d437fce4339d4f05ebb",
+        "f8fe6ef85d345837a6252b6ba8b3b706ccbe009f",
         "ff9ba293222ea5a9e17821e4dc8c4ef1b0bcb1a5",
         "e9b523a7f7b613d8d6efc0396160f0ceb2aff2c4",
         "97f850acf454a8fb6d8caeb8cf5e9ccb5d413a16",
@@ -247,7 +247,11 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     new_issue_210_captures = {
         capture_id for capture_id in captures if capture_id.startswith("modeling-distribution-")
     }
-    new_issue_208_captures = {"administration-schema-bundle-1440"}
+    new_issue_246_captures = {
+        "material-database-categories-1440",
+        "material-database-linked-test-1440",
+        "administration-schema-bundle-1440",
+    }
     new_issue_212_captures = {
         "MOD-PROCESS-CURRENT-1366",
         "MOD-PROCESS-CURRENT-1440",
@@ -270,7 +274,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         - new_issue_184_captures
         - new_issue_206_captures
         - new_issue_210_captures
-        - new_issue_208_captures
+        - new_issue_246_captures
         - new_issue_209_captures
     )
     assert {
@@ -298,13 +302,13 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     )
     assert "--only-modeling-distribution" in issue_210_provenance["command"]
     assert new_issue_210_captures == set(issue_210_provenance["ids"])
-    issue_208_provenance = next(
+    issue_246_provenance = next(
         provenance
         for provenance in manifest["capture_provenance"]
-        if provenance["source_commit"] == "63176ec5a07647d598753d437fce4339d4f05ebb"
+        if provenance["source_commit"].endswith("+issue246-live-data-correction-v4")
     )
-    assert "schema-definition-bundle-administration.spec.ts" in issue_208_provenance["command"]
-    assert new_issue_208_captures == set(issue_208_provenance["ids"])
+    assert "capture_issue246_live_evidence.mjs" in issue_246_provenance["command"]
+    assert new_issue_246_captures == set(issue_246_provenance["ids"])
     issue_212_provenance = next(
         provenance
         for provenance in manifest["capture_provenance"]
@@ -315,7 +319,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     issue_209_provenance = next(
         provenance
         for provenance in manifest["capture_provenance"]
-        if provenance["source_commit"] == current_source
+        if provenance["source_commit"] == "f8fe6ef85d345837a6252b6ba8b3b706ccbe009f"
     )
     assert "capture_issue209_visual_evidence.py" in issue_209_provenance["command"]
     assert new_issue_209_captures == set(issue_209_provenance["ids"])
@@ -441,10 +445,10 @@ def test_current_images_are_product_routes_and_storybook_captures_are_untracked(
         (root / "docs/user-guide/screenshot-manifest.yaml").read_text(encoding="utf-8")
     )
     current_images = root / "docs/user-guide/images/current"
-    assert len(manifest["captures"]) == 116
+    assert len(manifest["captures"]) == 118
     assert all(not capture["route"].startswith("/iframe.html") for capture in manifest["captures"])
     assert not list(current_images.glob("storybook-*.png"))
-    assert len(list(current_images.glob("*.png"))) == 116
+    assert len(list(current_images.glob("*.png"))) == 118
     assert not list((root / "docs/17-evidence/images").glob("**/storybook-*.png"))
 
 

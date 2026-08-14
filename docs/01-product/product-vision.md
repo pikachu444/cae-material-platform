@@ -61,8 +61,10 @@ ADR-0030 및 [제품 capability map](../00-research/product-capability-map.md)�
 ### 2.1 제품 경험 기준
 
 내부 API와 DB contract가 존재한다는 사실은 제품 완료가 아니다. Material Database는
-검색을 기본 진입으로 하고 Database/Profile → Table → nested Folder → Record Contents Tree와
-Layout Datasheet, 검색·필터·비교·링크를 한 연속형 workspace에서 제공해야 한다. Material
+검색을 기본 진입으로 하고 기존 Database/Profile Browse Tree 안의 네 peer 데이터 범주 → Record,
+Administration의 Database/Profile/Table/Folder/Record 설정과 Materials의 Layout Datasheet,
+검색·필터·비교·링크를 한 연속형
+workspace에서 제공해야 한다. Material
 Modeling은 compact curve/process explorer와 dominant plot을 유지한 상태에서 Data → Process →
 Fit → Export를 하나의 workbench에서 완료해야 한다.
 

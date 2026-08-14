@@ -24,7 +24,10 @@ the `T-32` workbench, and product-depth slices `T-39` through `T-42`. HTTP contr
 - `plugins/plugin-package-resource.schema.json`: immutable package and state-history resource
 - `plugins/plugin-problem.schema.json`: sanitized registry problem response
 - `catalog/schema-definition-bundle.schema.json`: arbitrary-cardinality Catalog Schema Definition
-  Bundle v1 with a closed draft 2020-12 keyword/extension subset and bundle-local references only
+  Bundle v1 with a closed draft 2020-12 keyword/extension subset, data categories, business keys,
+  quantity/discrete hints and bundle-local references only
+- `catalog/schema-definition-source-set.schema.json`: exact path-sorted, per-content checksummed
+  multi-file source envelope consumed by the source adapter before canonical bundle planning
 - `catalog/schema-definition-plan.schema.json`: exact Artifact-bound deterministic
   `create/update/no-op/conflict/error` dry-run result with an explicit empty write set
 - `catalog/schema-definition-bundle-application.schema.json`: immutable apply/read-back evidence and

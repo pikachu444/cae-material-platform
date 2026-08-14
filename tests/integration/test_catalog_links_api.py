@@ -22,7 +22,7 @@ from cmp.modules.catalog.application.links import (
     WorkflowGraph,
 )
 from cmp.modules.catalog.application.records import RECORD_AGGREGATE_TYPE, RecordSnapshot
-from cmp.modules.catalog.domain.configurable import CatalogTableContent
+from cmp.modules.catalog.domain.configurable import CatalogDataCategory, CatalogTableContent
 from cmp.modules.catalog.domain.records import CatalogRecordContent
 from cmp.modules.identity_access.application.authorization import database_permissions_for
 from cmp.modules.identity_access.domain.authorization import (
@@ -123,9 +123,23 @@ class _Service:
         self.link: RecordLinkSnapshot | None = None
         self.binding: DomainRevisionBinding | None = None
         self.material_endpoint = LinkEndpoint(
-            MATERIAL, MATERIAL_REV, 1, MATERIAL_TABLE, "DP780", "dp780"
+            MATERIAL,
+            MATERIAL_REV,
+            1,
+            MATERIAL_TABLE,
+            "DP780",
+            "dp780",
+            data_category=CatalogDataCategory.TECHNICAL_DATA,
         )
-        self.test_endpoint = LinkEndpoint(TEST, TEST_REV, 1, TEST_TABLE, "Tensile run 1", "t-1")
+        self.test_endpoint = LinkEndpoint(
+            TEST,
+            TEST_REV,
+            1,
+            TEST_TABLE,
+            "Tensile run 1",
+            "t-1",
+            data_category=CatalogDataCategory.TEST_DATA,
+        )
         self.tables = (
             TableSnapshot(
                 MATERIAL_TABLE,
@@ -235,14 +249,15 @@ class _Service:
     def workflow_graph(self, *args: Any, **kwargs: Any) -> WorkflowGraph:
         del args, kwargs
         material = LinkEndpoint(
-            MATERIAL,
-            MATERIAL_REV,
-            1,
-            MATERIAL_TABLE,
-            "DP780",
-            "dp780",
-            self.binding,
-            () if self.binding is None else (self.binding,),
+            record_id=MATERIAL,
+            record_revision_id=MATERIAL_REV,
+            revision_no=1,
+            table_id=MATERIAL_TABLE,
+            name="DP780",
+            external_key="dp780",
+            domain_binding=self.binding,
+            domain_bindings=() if self.binding is None else (self.binding,),
+            data_category=CatalogDataCategory.TECHNICAL_DATA,
         )
         return WorkflowGraph(
             material,
@@ -422,6 +437,10 @@ async def test_explorer_link_create_reverse_graph_and_deactivation_contract() ->
     )
     assert graph.status_code == 200
     assert {node["name"] for node in graph.json()["nodes"]} == {"DP780", "Tensile run 1"}
+    assert graph.json()["root"]["data_category"] == "technical_data"
+    assert next(
+        node for node in graph.json()["nodes"] if node["record_id"] == str(TEST)
+    )["data_category"] == "test_data"
     assert graph.json()["root"]["domain_bindings"] == []
 
     revised_body = _link_body(active=False)

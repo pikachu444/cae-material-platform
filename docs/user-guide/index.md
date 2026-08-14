@@ -49,7 +49,7 @@ Modeling Data(JSON/CSV/XLSX) → Process → Fit → Export → Material Library
 ## 화면의 정보 배치
 
 - 일반 사용자 메뉴는 `Materials | Modeling | Activity`입니다.
-- Materials의 Browse Tree는 Database/Profile/Table/Folder/Record 계층과 검색을 유지합니다.
+- Materials의 Browse Tree는 Technical Data, Test Data, Simulation Data, Solver Cards와 데이터 검색을 제공합니다. 내부 데이터 형식과 저장 구조는 Administration에서 관리합니다.
 - Material Detail은 `Overview | Properties | Curves | CAE Cards | Evidence`로 투영합니다.
 - Modeling은 compact curve/process explorer와 넓은 graph를 유지하고 설정은 ribbon/drawer로 엽니다.
 - 우측 사용자 메뉴의 Display density는 Compact/Standard/Large를 제품 전체에 적용하며 Standard로

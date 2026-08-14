@@ -10,6 +10,7 @@ const metalFolderId = "81000000-0000-4000-8000-000000000020";
 const steelFolderId = "81000000-0000-4000-8000-000000000021";
 const recordId = "81000000-0000-4000-8000-000000000030";
 const recordRevisionId = "81000000-0000-4000-8000-000000000031";
+const testTableId = "81000000-0000-4000-8000-000000000060";
 
 function metadata(id: string, aggregateId: string) {
   return {
@@ -34,7 +35,15 @@ const table = {
   table_id: tableId,
   current_revision: {
     ...metadata(tableRevisionId, tableId),
-    content: { key: "demo_material_records", name: "Material Records", description: null },
+    content: { key: "demo_material_records", name: "Material Records", description: null, data_category: "technical_data" as const },
+  },
+};
+
+const testTable = {
+  table_id: testTableId,
+  current_revision: {
+    ...metadata("81000000-0000-4000-8000-000000000061", testTableId),
+    content: { key: "test_data", name: "Test Data Records", description: null, data_category: "test_data" as const },
   },
 };
 
@@ -75,6 +84,10 @@ function record(id: string, name: string, folderId: string | null) {
 const metalFolder = folder(metalFolderId, "Metal", null);
 const steelFolder = folder(steelFolderId, "Steel", metalFolderId);
 const dp780Record = record(recordId, "DP780 Sheet", steelFolderId);
+const tensileRecord = {
+  ...record("81000000-0000-4000-8000-000000000070", "Room-temperature tensile test", null),
+  table_id: testTableId,
+};
 const graph = {
   root: {
     record_id: recordId,
@@ -83,6 +96,7 @@ const graph = {
     table_id: tableId,
     name: "DP780 Sheet",
     external_key: "DP780",
+    data_category: "technical_data" as const,
     domain_binding: {
       binding_id: "81000000-0000-4000-8000-000000000040",
       record_id: recordId,
@@ -124,7 +138,7 @@ vi.mock("./api", async (importOriginal) => {
 describe("MaterialsBrowseTree", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.tables.mockResolvedValue({ data: { items: [table] }, etag: null });
+    mocks.tables.mockResolvedValue({ data: { items: [table, testTable] }, etag: null });
     mocks.children.mockImplementation((_config, _tableId: string, parentFolderId: string | null) => Promise.resolve({
       data: parentFolderId === null
         ? { table, folders: [metalFolder], records: [] }
@@ -135,42 +149,68 @@ describe("MaterialsBrowseTree", () => {
     }));
     mocks.folders.mockResolvedValue({ data: { items: [metalFolder, steelFolder] }, etag: null });
     mocks.subsets.mockResolvedValue({ data: { items: [] }, etag: null });
-    mocks.search.mockResolvedValue({ data: { items: [dp780Record], total_count: 1, offset: 0, limit: 100, facets: [] }, etag: null });
+    mocks.search.mockImplementation((_config, input: { data_category?: string | null }) => Promise.resolve({
+      data: {
+        items: input.data_category === "technical_data"
+          ? [dp780Record]
+          : input.data_category === "test_data"
+            ? [tensileRecord]
+            : input.data_category
+              ? []
+              : [dp780Record],
+        total_count: input.data_category === "technical_data" || input.data_category === "test_data" || !input.data_category ? 1 : 0,
+        offset: 0,
+        limit: 100,
+        facets: [],
+      },
+      etag: null,
+    }));
     mocks.graph.mockResolvedValue({ data: graph, etag: null });
     mocks.record.mockResolvedValue({ data: dp780Record, etag: null });
   });
 
-  it("uses the governed hierarchy, server-backed find, and exact Record selection", async () => {
+  it("uses the four user-facing categories, server-backed find, and exact data selection", async () => {
     const user = userEvent.setup();
     const selectRecord = vi.fn();
     const openRecord = vi.fn();
     render(<MaterialsBrowseTree config={{ baseUrl: "/api/v1", accessToken: "test" }} onSelectRecord={selectRecord} onOpenRecord={openRecord}/>);
 
     const tree = await screen.findByRole("tree", { name: "Database contents" });
-    expect(within(tree).getByRole("treeitem", { name: /Materials Database/ })).toBeTruthy();
-    expect(within(tree).getByRole("treeitem", { name: /Engineering Materials/ })).toBeTruthy();
-    expect(within(tree).getByRole("treeitem", { name: /Material Records/ })).toBeTruthy();
-    expect(within(tree).getByRole("treeitem", { name: /Metal/ })).toBeTruthy();
+    expect(within(tree).queryByRole("treeitem", { name: /Materials Database/ })).toBeNull();
+    expect(within(tree).queryByRole("treeitem", { name: /Engineering Materials/ })).toBeNull();
+    expect(within(tree).getByRole("treeitem", { name: /Technical Data/ })).toBeTruthy();
+    expect(within(tree).getByRole("treeitem", { name: /Test Data/ })).toBeTruthy();
+    expect(within(tree).getByRole("treeitem", { name: /Simulation Data/ })).toBeTruthy();
+    expect(within(tree).getByRole("treeitem", { name: /Solver Cards/ })).toBeTruthy();
+    expect(within(tree).getByRole("treeitem", { name: /DP780 Sheet/ })).toBeTruthy();
+    expect(within(tree).queryByRole("treeitem", { name: /Material Records/ })).toBeNull();
 
-    await user.click(screen.getByRole("treeitem", { name: /Metal/ }));
-    await user.click(await screen.findByRole("treeitem", { name: /Steel/ }));
-    const recordRow = await screen.findByRole("treeitem", { name: /DP780 Sheet/ });
+    await user.click(within(tree).getByRole("treeitem", { name: /Test Data/ }));
+    expect(await within(tree).findByRole("treeitem", { name: /Room-temperature tensile test/ })).toBeTruthy();
+    expect(within(tree).getByRole("treeitem", { name: /DP780 Sheet/ })).toBeTruthy();
+    expect(selectRecord).not.toHaveBeenCalled();
+
+    expect(within(tree).queryByRole("treeitem", { name: /Catalog placement/ })).toBeNull();
+    expect(within(tree).queryByRole("treeitem", { name: /Material Records/ })).toBeNull();
+    expect(screen.queryByRole("combobox", { name: "Database" })).toBeNull();
+    expect(screen.queryByRole("combobox", { name: "Profile" })).toBeNull();
+    expect(screen.queryByRole("combobox", { name: "Browse table" })).toBeNull();
+
+    const recordRow = within(tree).getByRole("treeitem", { name: /DP780 Sheet/ });
     await user.click(recordRow);
     await waitFor(() => expect(selectRecord).toHaveBeenCalledWith(dp780Record, graph));
 
     recordRow.focus();
     await user.keyboard("{ArrowUp}");
-    await waitFor(() => expect(document.activeElement?.getAttribute("title")).toBe("Steel"));
-    await user.dblClick(screen.getByRole("treeitem", { name: /DP780 Sheet/ }));
+    await waitFor(() => expect(document.activeElement?.getAttribute("title")).toBe("Technical Data"));
+    await user.dblClick(recordRow);
     expect(openRecord).toHaveBeenCalledWith(dp780Record);
 
     await user.clear(screen.getByRole("textbox", { name: "Find in tree" }));
     await user.type(screen.getByRole("textbox", { name: "Find in tree" }), "DP780");
     await user.click(screen.getByRole("button", { name: "Find" }));
-    await waitFor(() => expect(mocks.search).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ table_id: tableId, text: "DP780", limit: 100 })));
-    expect(await screen.findByText("1 record matches")).toBeTruthy();
-    expect(screen.getByRole("treeitem", { name: /Metal/ })).toBeTruthy();
-    expect(screen.getByRole("treeitem", { name: /Steel/ })).toBeTruthy();
+    await waitFor(() => expect(mocks.search).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ table_id: null, text: "DP780", limit: 100 })));
+    expect(await screen.findByText("1 data matches")).toBeTruthy();
     expect(screen.getByRole("treeitem", { name: /DP780 Sheet/ })).toBeTruthy();
   });
 
@@ -180,7 +220,12 @@ describe("MaterialsBrowseTree", () => {
       `Material ${String(index).padStart(5, "0")}`,
       null,
     ));
-    mocks.children.mockResolvedValue({ data: { table, folders: [], records: manyRecords }, etag: null });
+    mocks.search.mockImplementation((_config, input: { data_category?: string | null }) => Promise.resolve({
+      data: input.data_category === "technical_data"
+        ? { items: manyRecords, total_count: manyRecords.length, offset: 0, limit: 100, facets: [] }
+        : { items: [], total_count: 0, offset: 0, limit: 100, facets: [] },
+      etag: null,
+    }));
 
     render(<MaterialsBrowseTree config={{ baseUrl: "/api/v1", accessToken: "test" }} onSelectRecord={() => undefined} onOpenRecord={() => undefined}/>);
 
@@ -190,7 +235,7 @@ describe("MaterialsBrowseTree", () => {
     expect(screen.queryByRole("treeitem", { name: /Material 09999/ })).toBe(null);
   });
 
-  it("reports folder matches separately from record matches", async () => {
+  it("searches data without exposing the internal folder structure", async () => {
     mocks.folders.mockResolvedValue({ data: { items: [folder("81000000-0000-4000-8000-000000000022", "Material Library", null)] }, etag: null });
     mocks.search.mockResolvedValue({ data: { items: [], total_count: 0, offset: 0, limit: 100, facets: [] }, etag: null });
     const user = userEvent.setup();
@@ -199,7 +244,8 @@ describe("MaterialsBrowseTree", () => {
     const find = await screen.findByRole("textbox", { name: "Find in tree" });
     await user.type(find, "Material Library");
     await user.click(screen.getByRole("button", { name: "Find" }));
-    expect(await screen.findByText("1 folder match · 0 record matches")).toBeTruthy();
+    expect(await screen.findByText("0 data matches")).toBeTruthy();
+    expect(mocks.folders).not.toHaveBeenCalled();
   });
 
   it("uses user-facing copy for an empty saved subset description", async () => {
@@ -233,7 +279,7 @@ describe("MaterialsBrowseTree", () => {
     render(<MaterialsBrowseTree config={{ baseUrl: "/api/v1", accessToken: "test" }} onScopeAvailabilityChange={availability} onSelectRecord={() => undefined} onOpenRecord={() => undefined}/>);
 
     await waitFor(() => expect(mocks.children).toHaveBeenCalledWith(expect.anything(), tableId, null));
-    expect((screen.getByRole("combobox", { name: "Browse table" }) as HTMLSelectElement).value).toBe(tableId);
+    expect(screen.queryByRole("combobox", { name: "Browse table" })).toBeNull();
     expect(mocks.children).not.toHaveBeenCalledWith(expect.anything(), workflowTable.table_id, null);
     expect(availability).toHaveBeenLastCalledWith("ready");
   });
@@ -254,15 +300,18 @@ describe("MaterialsBrowseTree", () => {
     expect(await screen.findByText("Materials are not available in this workspace.")).toBeTruthy();
     expect(availability).toHaveBeenLastCalledWith("unavailable");
     expect(mocks.children).not.toHaveBeenCalled();
-    expect(mocks.search).not.toHaveBeenCalled();
+    expect(mocks.search).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
+      table_id: null,
+      data_category: "technical_data",
+    }));
   });
 
   it("restores an exact Record by expanding its governed ancestor path", async () => {
     const startedAt = performance.now();
     render(<MaterialsBrowseTree config={{ baseUrl: "/api/v1", accessToken: "test" }} requestedRecord={graph.root} onSelectRecord={() => undefined} onOpenRecord={() => undefined}/>);
 
-    const restored = await screen.findByRole("treeitem", { name: /DP780 Sheet/ });
-    expect(restored.getAttribute("aria-selected")).toBe("true");
+    const restored = await screen.findAllByRole("treeitem", { name: /DP780 Sheet/ });
+    expect(restored.some((row) => row.getAttribute("aria-selected") === "true")).toBe(true);
     expect(performance.now() - startedAt).toBeLessThan(1_000);
     expect(mocks.record).toHaveBeenCalledWith(expect.anything(), recordId);
     expect(mocks.folders).toHaveBeenCalledWith(expect.anything(), tableId);

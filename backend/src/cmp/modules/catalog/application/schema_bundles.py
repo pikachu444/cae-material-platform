@@ -12,12 +12,17 @@ from uuid import UUID
 from cmp.modules.artifacts.domain.content import ArtifactRecord
 from cmp.modules.catalog.domain.schema_bundles import (
     BUNDLE_CONTRACT_ID,
+    BundleDiagnostic,
     CatalogSnapshot,
     PlanDisposition,
     SchemaBundlePlan,
     SourceArtifactIdentity,
     build_schema_bundle_plan,
-    media_type_supported,
+)
+from cmp.modules.catalog.domain.schema_sources import (
+    NormalizedSchemaDefinitionSource,
+    normalize_schema_definition_source,
+    source_media_type_supported,
 )
 from cmp.modules.identity_access.domain.authorization import AuthorizationDecision, Permission
 from cmp.modules.identity_access.domain.security import SecurityContext
@@ -115,6 +120,8 @@ class AppliedSchemaObject:
     published: bool
     source_schema_id: str
     source_schema_version: str
+    source_file: str | None
+    source_file_sha256: str | None
     source_pointer: str
 
     def canonical(self) -> dict[str, object]:
@@ -130,6 +137,8 @@ class AppliedSchemaObject:
             "published": self.published,
             "source_schema_id": self.source_schema_id,
             "source_schema_version": self.source_schema_version,
+            "source_file": self.source_file,
+            "source_file_sha256": self.source_file_sha256,
             "source_pointer": self.source_pointer,
         }
 
@@ -184,6 +193,7 @@ class SchemaBundleExportDescriptor:
 class ExportedSchemaDefinitionBundle:
     value: bytes
     sha256: str
+    media_type: str
     application_id: UUID
     bundle_key: str
     bundle_version: str
@@ -219,7 +229,8 @@ class SchemaBundleApplicationRepository(Protocol):
         decision: AuthorizationDecision,
         command: ApplySchemaDefinitionBundle,
         source: SourceArtifactIdentity,
-        raw_bytes: bytes,
+        raw_bytes: bytes | None,
+        source_diagnostics: tuple[BundleDiagnostic, ...] = (),
     ) -> SchemaBundleApplication: ...
 
     def get_application(
@@ -277,7 +288,7 @@ class SchemaBundlePlannerService:
         decision: AuthorizationDecision,
         artifact_id: UUID,
         expected_sha256: str,
-    ) -> tuple[SourceArtifactIdentity, bytes]:
+    ) -> tuple[SourceArtifactIdentity, NormalizedSchemaDefinitionSource, bytes]:
         record, raw_bytes = await self._artifacts.read_verified_bytes(
             context,
             decision,
@@ -298,19 +309,27 @@ class SchemaBundlePlannerService:
             raise SchemaBundleSourceConflict(
                 "Artifact byte count differs from its immutable manifest"
             )
-        if not media_type_supported(artifact.media_type):
+        if not source_media_type_supported(artifact.media_type):
             raise SchemaBundleSourceConflict(
                 "Artifact media type is not a supported JSON Schema Definition Bundle type"
             )
+        source = SourceArtifactIdentity(
+            artifact.id,
+            artifact.organization_id,
+            artifact.project_id,
+            artifact.classification,
+            artifact.media_type,
+            artifact.size_bytes,
+            artifact.sha256,
+        )
         return (
-            SourceArtifactIdentity(
-                artifact.id,
-                artifact.organization_id,
-                artifact.project_id,
-                artifact.classification,
-                artifact.media_type,
-                artifact.size_bytes,
-                artifact.sha256,
+            source,
+            normalize_schema_definition_source(
+                raw_bytes,
+                media_type=artifact.media_type,
+                organization_id=context.organization_id,
+                project_id=context.project_id,
+                source_classification=artifact.classification,
             ),
             raw_bytes,
         )
@@ -322,7 +341,7 @@ class SchemaBundlePlannerService:
         command: PlanSchemaDefinitionBundle,
     ) -> SchemaBundlePlan:
         _require(context, decision, Permission.CATALOG_WRITE)
-        source, raw_bytes = await self._source(
+        source, normalized, _ = await self._source(
             context, decision, command.artifact_id, command.expected_sha256
         )
         snapshot = self._snapshots.read_snapshot(context=context, decision=decision)
@@ -333,7 +352,7 @@ class SchemaBundlePlannerService:
             raise SchemaBundleSourceConflict("Catalog snapshot tenant scope is inconsistent")
         return build_schema_bundle_plan(
             source=source,
-            raw_bytes=raw_bytes,
+            raw_bytes=normalized.canonical_bytes,
             snapshot=snapshot,
             organization_id=context.organization_id,
             project_id=context.project_id,
@@ -342,6 +361,7 @@ class SchemaBundlePlannerService:
                 context.project_id,
                 classification,
             ),
+            source_diagnostics=normalized.diagnostics,
         )
 
     def _required_applications(self) -> SchemaBundleApplicationRepository:
@@ -356,7 +376,7 @@ class SchemaBundlePlannerService:
         command: ApplySchemaDefinitionBundle,
     ) -> SchemaBundleApplication:
         _require(context, decision, Permission.CATALOG_SCHEMA_APPLY)
-        source, raw_bytes = await self._source(
+        source, normalized, _ = await self._source(
             context, decision, command.artifact_id, command.expected_sha256
         )
         return self._required_applications().apply(
@@ -364,7 +384,8 @@ class SchemaBundlePlannerService:
             decision=decision,
             command=command,
             source=source,
-            raw_bytes=raw_bytes,
+            raw_bytes=normalized.canonical_bytes,
+            source_diagnostics=normalized.diagnostics,
         )
 
     def get_application(
@@ -393,16 +414,17 @@ class SchemaBundlePlannerService:
             bundle_key=bundle_key,
         )
         source = descriptor.application.source_artifact
-        verified, raw_bytes = await self._source(
+        verified, normalized, original_bytes = await self._source(
             context, decision, source.artifact_id, source.sha256
         )
         try:
-            document = json.loads(raw_bytes)
-        except (UnicodeError, json.JSONDecodeError) as error:  # pragma: no cover - verified apply
+            if normalized.canonical_bytes is None:
+                raise ValueError("source adapter rejected the stored Artifact")
+            document = json.loads(normalized.canonical_bytes)
+        except (UnicodeError, json.JSONDecodeError, ValueError) as error:  # pragma: no cover
             raise SchemaBundleExportConflict("Stored source bundle is no longer JSON") from error
-        from cmp.shared.domain.revisions import canonical_json_bytes, content_sha256
+        from cmp.shared.domain.revisions import content_sha256
 
-        value = canonical_json_bytes(document)
         digest = content_sha256(document)
         if digest != descriptor.canonical_bundle_sha256:
             raise SchemaBundleExportConflict(
@@ -411,8 +433,9 @@ class SchemaBundlePlannerService:
         if not isinstance(document, dict) or document.get("$schema") != BUNDLE_CONTRACT_ID:
             raise SchemaBundleExportConflict("Stored source is not a Bundle v1 document")
         return ExportedSchemaDefinitionBundle(
-            value=value,
-            sha256=digest,
+            value=original_bytes,
+            sha256=verified.sha256,
+            media_type=verified.media_type,
             application_id=descriptor.application.application_id,
             bundle_key=descriptor.application.bundle_key,
             bundle_version=descriptor.application.bundle_version,

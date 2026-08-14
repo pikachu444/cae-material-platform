@@ -6,6 +6,7 @@ import { ApiError } from "./api";
 import {
   SchemaDefinitionBundleAdmin,
   inspectSchemaDefinitionBundleFile,
+  inspectSchemaDefinitionBundleFiles,
 } from "./schema-definition-bundle-admin";
 import type {
   SchemaDefinitionBundleApplication,
@@ -41,6 +42,7 @@ const plan: SchemaDefinitionBundlePlan = {
     database_key: "synthetic_engineering",
     profile_key: "synthetic_materials",
     record_schema_count: 2,
+    unit_profile_count: 0,
     dependency_order: ["materials", longKey],
   },
   catalog_snapshot_fingerprint: "c".repeat(64),
@@ -514,6 +516,15 @@ describe("inspectSchemaDefinitionBundleFile", () => {
         new File(["{"], "bundle.json", { type: "application/json" }),
       ),
     ).rejects.toThrow("not valid JSON");
+    await expect(
+      inspectSchemaDefinitionBundleFile(
+        new File(
+          [new Uint8Array([0x7b, 0x22, 0x61, 0x22, 0x3a, 0xff, 0x7d])],
+          "bundle.json",
+          { type: "application/json" },
+        ),
+      ),
+    ).rejects.toThrow("not valid UTF-8 JSON");
     const oversized = new File(["{}"], "bundle.json", { type: "application/json" });
     Object.defineProperty(oversized, "size", { value: 64 * 1024 * 1024 + 1 });
     await expect(inspectSchemaDefinitionBundleFile(oversized)).rejects.toThrow("larger than 64 MiB");
@@ -522,5 +533,39 @@ describe("inspectSchemaDefinitionBundleFile", () => {
         new File(["{}"], "bundle.json", { type: "application/json" }),
       ),
     ).rejects.toThrow("not a version 1.0.0");
+  });
+
+  it("builds one deterministic source-set Artifact from a manifest and referenced files", async () => {
+    const manifest = new File([JSON.stringify({
+      document_type: "cmp.catalog-schema-bundle",
+      bundle_id: "source-demo",
+      bundle_version: "2026.08.0",
+      unit_profiles: [
+        { key: "source_si", name: "Source SI", units: { stress: "MPa" } },
+        { key: "source_mm", name: "Source mm", units: { length: "mm" } },
+      ],
+      tables: [
+        { key: "technical-data", record_schema_ref: "record-schemas/technical.json" },
+        { key: "tensile-test", record_schema_ref: "record-schemas/tensile.json" },
+      ],
+    })], "catalog-schema-bundle.manifest.json", { type: "application/json" });
+    const technical = new File(["{}"], "technical.json", { type: "application/json" });
+    const tensile = new File(["{}"], "tensile.json", { type: "application/json" });
+
+    const first = await inspectSchemaDefinitionBundleFiles([tensile, manifest, technical]);
+    const second = await inspectSchemaDefinitionBundleFiles([technical, tensile, manifest]);
+
+    expect(first.sourceFormat).toBe("source file set");
+    expect(first.fileCount).toBe(3);
+    expect(first.schemaCount).toBe(2);
+    expect(first.unitProfileCount).toBe(2);
+    expect(first.file.type).toBe("application/vnd.cmp.catalog-schema-source-set+json");
+    expect(await first.file.text()).toBe(await second.file.text());
+
+    const reopened = await inspectSchemaDefinitionBundleFiles([first.file]);
+    expect(reopened.bundleKey).toBe("source-demo");
+    expect(reopened.fileCount).toBe(3);
+    expect(reopened.unitProfileCount).toBe(2);
+    expect(await reopened.file.text()).toBe(await first.file.text());
   });
 });

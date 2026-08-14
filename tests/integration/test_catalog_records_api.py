@@ -209,7 +209,11 @@ class _Service:
     def search_records(self, context: Any, decision: Any, query: Any) -> RecordSearchResult:
         del context, decision
         self.last_query = query
-        assert query.table_id == TABLE and self.record is not None
+        if query.data_category is None:
+            assert query.table_id == TABLE
+        else:
+            assert query.table_id is None
+        assert self.record is not None
         return RecordSearchResult((self.record,), 1, (RecordFacetBucket(ATTRIBUTE, "Steel", 1),))
 
     def compare_record_revisions(
@@ -492,6 +496,36 @@ async def test_record_api_preserves_units_searches_and_compares() -> None:
         "value": "Steel",
         "count": 1,
     }
+
+    category_search = await _request(
+        app,
+        "POST",
+        "/api/v1/catalog/records:search",
+        json={"data_category": "technical_data", "text": "DP600"},
+    )
+    assert category_search.status_code == 200
+    assert service.last_query is not None
+    assert service.last_query.table_id is None
+    assert service.last_query.data_category == "technical_data"
+
+    missing_scope = await _request(
+        app,
+        "POST",
+        "/api/v1/catalog/records:search",
+        json={"text": "DP600"},
+    )
+    assert missing_scope.status_code == 422
+    conflicting_scope = await _request(
+        app,
+        "POST",
+        "/api/v1/catalog/records:search",
+        json={
+            "table_id": str(TABLE),
+            "data_category": "technical_data",
+            "text": "DP600",
+        },
+    )
+    assert conflicting_scope.status_code == 422
 
     revised_body = _record_body("205000000000")
     revised_body.pop("classification")

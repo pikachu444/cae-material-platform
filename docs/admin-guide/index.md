@@ -10,9 +10,9 @@ Schema Definition Bundle로 계획·적용하고, 레코드 사이의 링크 규
 | --- | --- | --- |
 | Administration overview | `/administration` | 관리자 작업 선택과 제품 권한 원칙 |
 | Database design | `/administration/database` | Database, Profile, Table, Attribute, Layout, Subset, Link Type, Publish |
-| Definition bundles | `/administration/schema-bundles` | JSON bundle 업로드, 변경 계획 검토, 명시적 적용, read-back과 export |
+| Definition bundles | `/administration/schema-bundles` | canonical JSON 또는 source-set/ZIP 업로드, 변경 계획 검토, 명시적 적용, read-back과 export |
 | Users & access | `/administration/access` | User/Reviewer/Administrator 업무 역할과 assignment 관리 |
-| Material Database | `/database` | Folder, Record, exact-revision link 탐색 |
+| Materials browse alias | `/database` | 기존 Materials Browse Tree와 exact-revision link 탐색(별도 관리 화면 아님) |
 
 Docker demo는 **Demo user** Administrator session을 자동으로 준비합니다. 사용자는 API 주소나
 token을 입력하지 않습니다. 운영 환경의 회사 identity directory 연결은 배포 설정이며 일반
@@ -45,10 +45,12 @@ semantics를 함께 저장합니다.
 여러 JSON Schema 정의를 한꺼번에 준비한 관리자는 **Administration → Definition bundles**에서
 서버가 계산한 변경 계획을 먼저 검토한 뒤 정확히 그 계획만 적용할 수 있습니다.
 
-1. 하나 이상의 JSON Schema draft 2020-12 record 정의를 bundle JSON 하나로 준비합니다. 파일은
-   `.json`, 1 byte 이상 64 MiB 이하이며 허용된 JSON media type이어야 합니다.
-2. **Choose File**에서 파일을 고르고 **Upload and plan**을 누릅니다. 브라우저가 MIME, 크기, JSON과
-   기본 bundle 구조를 먼저 확인한 뒤 원문을 immutable Artifact 하나로 올립니다.
+1. canonical bundle JSON 한 개, source-v2 manifest와 그 manifest가 참조하는 JSON 파일들,
+   checksummed source-set envelope JSON 한 개 또는 같은 구성을 담은 ZIP 한 개를 준비합니다. 전체
+   입력은 1 byte 이상 64 MiB 이하이며 허용된 JSON/ZIP media type과 안전한 상대 경로를 사용해야 합니다.
+2. **Choose Files**에서 파일을 고르고 화면의 파일 수, source 종류, bundle/version, record schema 수와
+   unit profile 수를 확인한 뒤 **Upload and plan**을 누릅니다. 여러 파일은 경로순으로 정렬되고 각
+   content SHA-256을 포함한 source-set envelope 하나가 되어 exact immutable Artifact로 올라갑니다.
 3. **Change plan**에서 `Create`, `Update`, `No change`, `Conflict`, `Error` 행을 확인합니다. 행을
    선택하면 오른쪽에 위치, 영향, 다음 조치, diagnostic과 remediation이 표시됩니다. schema 수가
    많아도 같은 표가 안쪽에서 스크롤되며 schema마다 별도 입력 상자를 만들지 않습니다.
@@ -105,8 +107,8 @@ Layout은 입력 순서만 정의하며 값을 복제하지 않습니다. Subset
 
 Record link의 양 끝은 항상 exact Record revision입니다. `latest` 별칭, 다른 scope의 endpoint,
 허용하지 않은 Table 조합과 cardinality 위반은 거부됩니다. 링크를 종료할 때는 삭제하지 않고
-Deactivate를 사용합니다. 사용자는 Related records 패널과 Workflow Explorer에서 링크를 따라
-시험, Dataset, Processing Run, Neutral IR, Solver Card로 이동할 수 있습니다.
+Deactivate를 사용합니다. 사용자는 Materials의 Related exact records와 Evidence의 Workflow에서
+링크를 따라 시험, Dataset, Processing Run, Neutral IR, Solver Card로 이동할 수 있습니다.
 
 ## 5. 제품 역할과 업무 preset
 

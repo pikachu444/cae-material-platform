@@ -31,6 +31,7 @@ from cmp.modules.catalog.application.links import (
     WorkflowGraph,
 )
 from cmp.modules.catalog.domain.configurable import (
+    CatalogDataCategory,
     ConfigurableCatalogConflict,
     ConfigurableCatalogNotFound,
 )
@@ -245,6 +246,7 @@ class LinkEndpointResponse(BaseModel):
     table_id: UUID
     name: str
     external_key: str | None
+    data_category: CatalogDataCategory | None
     domain_binding: DomainRevisionBindingResponse | None = None
     domain_bindings: tuple[DomainRevisionBindingResponse, ...] = ()
 
@@ -257,6 +259,7 @@ class LinkEndpointResponse(BaseModel):
             table_id=value.table_id,
             name=value.name,
             external_key=value.external_key,
+            data_category=value.data_category,
             domain_binding=(
                 None
                 if value.domain_binding is None

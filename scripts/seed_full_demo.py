@@ -9,6 +9,8 @@ database access and must never be used for production or confidential data.
 from __future__ import annotations
 
 import argparse
+import hashlib
+import json
 import math
 import os
 import time
@@ -79,6 +81,35 @@ def _preserve_material_family(content: Mapping[str, Any], fallback: str) -> str:
     return str(value if value is not None else fallback).strip()
 
 
+def _catalog_attribute_updates(
+    *,
+    table_revision_id: str,
+    name: str,
+    data_type: str,
+    quantity_semantics: str | None,
+    normalized_unit: str | None,
+    allowed_values: Sequence[str],
+    minimum_number: float | None,
+    maximum_number: float | None,
+) -> dict[str, Any]:
+    updates: dict[str, Any] = {
+        "table_revision_id": table_revision_id,
+        "name": name,
+        "data_type": data_type,
+    }
+    if quantity_semantics is not None:
+        updates["quantity_semantics"] = quantity_semantics
+    if normalized_unit is not None:
+        updates["normalized_unit"] = normalized_unit
+    if allowed_values:
+        updates["allowed_values"] = list(dict.fromkeys(allowed_values))
+    if minimum_number is not None:
+        updates["minimum_number"] = minimum_number
+    if maximum_number is not None:
+        updates["maximum_number"] = maximum_number
+    return updates
+
+
 def _items(response: Mapping[str, Any]) -> list[dict[str, Any]]:
     value = response.get("items")
     if not isinstance(value, list):
@@ -146,6 +177,36 @@ def _find_by_content(
     values: Sequence[Mapping[str, Any]], key: str, expected: object
 ) -> dict[str, Any] | None:
     return next((dict(value) for value in values if _content(value).get(key) == expected), None)
+
+
+def _create_or_recover_catalog_table(
+    api: DemoApi,
+    *,
+    content: Mapping[str, Any],
+    change_reason: str,
+) -> dict[str, Any]:
+    """Recover only when the exact Table was committed before a conflict response."""
+
+    try:
+        return api.post(
+            "/catalog/tables",
+            {
+                "classification": "internal",
+                "content": dict(content),
+                "change_reason": change_reason,
+            },
+        )
+    except DemoSeedError as error:
+        if "returned 409" not in str(error) or "CMP-CATALOG-0004" not in str(error):
+            raise
+        matches = [
+            item
+            for item in _items(api.get("/catalog/tables"))
+            if all(_content(item).get(key) == value for key, value in content.items())
+        ]
+        if len(matches) != 1:
+            raise
+        return matches[0]
 
 
 def _revision_hash(value: Mapping[str, Any]) -> str:
@@ -270,6 +331,331 @@ def _ensure_pending_model_review(
         },
     )
     return _id(request, "review_request_id")
+
+
+def _ensure_catalog_record_publication(
+    api: DemoApi,
+    reviewer_api: DemoApi,
+    record: Mapping[str, Any],
+) -> None:
+    """Approve the exact demo Record revision through the normal review API."""
+
+    record_id = _id(record, "record_id")
+    revision_id = _revision_id(record)
+    manifest_sha256 = _revision_hash(record)
+    aggregate_type = "catalog.configurable_record"
+    requests = _items(
+        api.get(
+            "/review-requests?aggregate_type="
+            f"{aggregate_type}&aggregate_id={record_id}&revision_id={revision_id}&limit=20"
+        )
+    )
+    if len(requests) > 1:
+        raise DemoSeedError("demo Catalog Record has duplicate exact-revision reviews")
+    if requests:
+        request = requests[0]
+        if request.get("manifest_sha256") != manifest_sha256:
+            raise DemoSeedError("demo Catalog Record review pins a stale manifest")
+    else:
+        request = api.post(
+            "/review-requests",
+            {
+                "classification": "internal",
+                "aggregate_type": aggregate_type,
+                "aggregate_id": record_id,
+                "revision_id": revision_id,
+                "manifest_sha256": manifest_sha256,
+                "reason": "Publish the reviewed synthetic demo data for Materials browsing.",
+            },
+        )
+    if request.get("decision") is None:
+        reviewer_api.post(
+            f"/review-requests/{_id(request, 'review_request_id')}/decisions",
+            {
+                "expected_manifest_sha256": manifest_sha256,
+                "decision": "approved",
+                "reason": "Approve the complete synthetic demo revision for product verification.",
+            },
+        )
+
+
+def _ensure_issue246_test_documents(api: DemoApi) -> list[dict[str, str]]:
+    """Create the reusable, populated Test Data examples used by #246 acceptance."""
+
+    existing = {
+        str(item.get("document_key")): item
+        for item in _items(api.get("/test-data-documents?limit=100"))
+        if item.get("document_key")
+    }
+
+    def channel(
+        key: str,
+        name: str,
+        semantics: str,
+        role: str,
+        unit: str,
+        values: Sequence[float],
+    ) -> dict[str, Any]:
+        texts = [f"{value:.12g}" for value in values]
+        return {
+            "key": key,
+            "name": name,
+            "quantity_semantics": semantics,
+            "axis_role": role,
+            "original_unit_string": unit,
+            "normalized_unit": unit,
+            "normalization": {"scale": "1", "offset": "0"},
+            "original_values": texts,
+            "normalized_values": texts,
+            "missing_reasons": [None] * len(texts),
+        }
+
+    def ensure(
+        *,
+        key: str,
+        name: str,
+        method: str,
+        specimen: str,
+        condition: str,
+        result_summary: str,
+        channels: Sequence[Mapping[str, Any]],
+    ) -> dict[str, str]:
+        document = existing.get(key)
+        material = {
+            "maker": "CMP Synthetic Materials",
+            "grade": (
+                "DP780" if key.startswith(("CMP-246-TENSILE", "CMP-246-FLD")) else "PA66-GF30"
+            ),
+            "lot_batch": "CMP-246-REFERENCE-LOT",
+        }
+        test = {
+            "date": "2026-08-14",
+            "operator": "Demo materials engineer",
+            "laboratory": "CMP synthetic validation laboratory",
+            "method": method,
+            "equipment_maker": "CMP Reference Instruments",
+            "equipment_model": "Universal Test System",
+        }
+        specimen_content = {"specimen_id": specimen, "description": condition}
+        source_content = {
+            "document_id": key,
+            "material": material,
+            "test": test,
+            "specimen": specimen_content,
+            "conditions": [],
+            "channels": list(channels),
+        }
+        desired_document = {
+            "document_type": "cmp.test-data",
+            "schema_version": "1.0.0",
+            **source_content,
+            "source": {
+                "file_name": f"{key.lower()}.json",
+                "media_type": "application/json",
+                "sha256": hashlib.sha256(
+                    json.dumps(source_content, sort_keys=True, separators=(",", ":")).encode(
+                        "utf-8"
+                    )
+                ).hexdigest(),
+            },
+        }
+        if document is None:
+            document = api.post(
+                "/test-data-documents",
+                {
+                    "classification": "internal",
+                    "document": desired_document,
+                    "change_reason": "Register a populated reusable #246 synthetic example.",
+                },
+            )
+            existing[key] = document
+        else:
+            current_document = api.get(
+                f"/test-data-documents/{_id(document, 'test_data_document_id')}"
+                f"/revisions/{_revision_id(document)}/content"
+            )
+            if current_document != desired_document:
+                document = api.post(
+                    f"/test-data-documents/{_id(document, 'test_data_document_id')}/revisions",
+                    {
+                        "document": desired_document,
+                        "change_reason": ("Refresh the populated reusable #246 synthetic example."),
+                    },
+                    headers={"If-Match": _revision_etag(document)},
+                )
+                existing[key] = document
+        return {
+            "key": key,
+            "name": name,
+            "material": (
+                "DP780 synthetic reference sheet, 1.2 mm"
+                if key.startswith(("CMP-246-TENSILE", "CMP-246-FLD"))
+                else "PA66-GF30 synthetic conditioned specimen"
+            ),
+            "test_method": method,
+            "specimen": specimen,
+            "condition": condition,
+            "result_summary": result_summary,
+            "curve_coverage": "; ".join(
+                f"{channel['name']}: {channel['original_values'][0]} to "
+                f"{channel['original_values'][-1]} {channel['original_unit_string']}"
+                for channel in channels
+            ),
+            "object_id": _id(document, "test_data_document_id"),
+            "revision_id": _revision_id(document),
+        }
+
+    examples: list[dict[str, str]] = []
+    strain = (0.0, 0.001, 0.002, 0.01, 0.03, 0.06, 0.1, 0.14)
+    tensile_specs = (
+        ("ROOM", "DP780 tensile · 23 °C · 0.0067 s⁻¹", "23 °C; 0.0067 s⁻¹", 1.0),
+        ("HOT", "DP780 tensile · 80 °C · 0.0067 s⁻¹", "80 °C; 0.0067 s⁻¹", 0.91),
+        ("SLOW", "DP780 tensile · 23 °C · 0.0007 s⁻¹", "23 °C; 0.0007 s⁻¹", 0.97),
+        ("FAST", "DP780 tensile · 23 °C · 0.067 s⁻¹", "23 °C; 0.067 s⁻¹", 1.04),
+    )
+    stress = (0.0, 210e6, 410e6, 575e6, 650e6, 710e6, 755e6, 775e6)
+    for ordinal, (suffix, name, condition, scale) in enumerate(tensile_specs, 1):
+        examples.append(
+            {
+                **ensure(
+                    key=f"CMP-246-TENSILE-{suffix}",
+                    name=name,
+                    method="Synthetic uniaxial tensile characterization",
+                    specimen=f"DP780-T-{ordinal:02d}",
+                    condition=condition,
+                    result_summary=(
+                        f"E {210 * scale:.0f} GPa; 0.2% proof stress {410 * scale:.0f} MPa; "
+                        f"maximum measured stress {775 * scale:.0f} MPa; "
+                        "maximum measured strain 14.0%."
+                    ),
+                    channels=(
+                        channel(
+                            "engineering_strain",
+                            "Engineering strain",
+                            "mechanics.strain.engineering",
+                            "independent",
+                            "1",
+                            strain,
+                        ),
+                        channel(
+                            "engineering_stress",
+                            "Engineering stress",
+                            "mechanics.stress.engineering",
+                            "dependent",
+                            "Pa",
+                            [value * scale for value in stress],
+                        ),
+                    ),
+                ),
+                "test_type": "Tensile",
+            }
+        )
+    frequencies = (0.1, 0.3, 1.0, 3.0, 10.0, 30.0, 100.0)
+    for ordinal, (temperature, temperature_factor) in enumerate(
+        ((0, 1.08), (23, 1.0), (60, 0.70)), 1
+    ):
+        storage = [
+            temperature_factor * (7.2e9 + 3.5e8 * math.log10(value + 1.0)) for value in frequencies
+        ]
+        loss = [
+            temperature_factor * (2.5e8 + 2.5e8 * math.exp(-((math.log10(value) - 0.5) ** 2)))
+            for value in frequencies
+        ]
+        examples.append(
+            {
+                **ensure(
+                    key=f"CMP-246-DMA-{temperature:+03d}C",
+                    name=f"PA66-GF30 DMA · {temperature} °C frequency sweep",
+                    method="Synthetic DMA frequency sweep in tension",
+                    specimen=f"PA66-DMA-{ordinal:02d}",
+                    condition=f"{temperature} °C; 0.1-100 Hz; 0.1% strain",
+                    result_summary=(
+                        f"At 1 Hz: storage modulus {storage[2] / 1e9:.2f} GPa; "
+                        f"loss modulus {loss[2] / 1e6:.0f} MPa; "
+                        f"loss factor {loss[2] / storage[2]:.3f}."
+                    ),
+                    channels=(
+                        channel(
+                            "frequency",
+                            "Frequency",
+                            "frequency.cyclic",
+                            "independent",
+                            "Hz",
+                            frequencies,
+                        ),
+                        channel(
+                            "storage_modulus",
+                            "Storage modulus",
+                            "modulus.shear.storage",
+                            "dependent",
+                            "Pa",
+                            storage,
+                        ),
+                        channel(
+                            "loss_modulus",
+                            "Loss modulus",
+                            "modulus.shear.loss",
+                            "dependent",
+                            "Pa",
+                            loss,
+                        ),
+                    ),
+                ),
+                "test_type": "DMA",
+            }
+        )
+    fld_specs = (
+        (
+            "NAKAJIMA",
+            "DP780 FLD · Nakajima",
+            "Nakajima; 100 mm punch; PTFE lubrication",
+            (-0.22, -0.12, 0.0, 0.08, 0.16),
+            (0.42, 0.36, 0.31, 0.29, 0.27),
+        ),
+        (
+            "MARCINIAK",
+            "DP780 FLD · Marciniak",
+            "Marciniak; 120 mm blank; polymer film",
+            (-0.2, -0.1, 0.0, 0.1, 0.18),
+            (0.4, 0.35, 0.3, 0.28, 0.26),
+        ),
+    )
+    for ordinal, (suffix, name, condition, minor, major) in enumerate(fld_specs, 1):
+        examples.append(
+            {
+                **ensure(
+                    key=f"CMP-246-FLD-{suffix}",
+                    name=name,
+                    method="Synthetic ISO 12004-2 forming-limit characterization",
+                    specimen=f"DP780-FLD-{ordinal:02d}",
+                    condition=condition,
+                    result_summary=(
+                        f"Plane-strain limit ε1={major[2]:.2f} at ε2={minor[2]:.2f}; "
+                        f"measured ε1 range {min(major):.2f} to {max(major):.2f}."
+                    ),
+                    channels=(
+                        channel(
+                            "minor_strain",
+                            "Minor strain",
+                            "mechanics.strain.minor",
+                            "independent",
+                            "1",
+                            minor,
+                        ),
+                        channel(
+                            "major_strain",
+                            "Major strain",
+                            "mechanics.strain.major",
+                            "dependent",
+                            "1",
+                            major,
+                        ),
+                    ),
+                ),
+                "test_type": "FLD",
+            }
+        )
+    return examples
 
 
 def _processing_preview(
@@ -476,6 +862,7 @@ def _metal_fit_decision(
 
 def _ensure_catalog_binding(
     api: DemoApi,
+    reviewer_api: DemoApi,
     *,
     material: Mapping[str, Any],
     test_data: Mapping[str, str],
@@ -487,19 +874,14 @@ def _ensure_catalog_binding(
     tables = _items(api.get("/catalog/tables"))
     table = _find_by_content(tables, "key", "demo_material_records")
     if table is None:
-        table = api.post(
-            "/catalog/tables",
-            {
-                "classification": "internal",
-                "content": {
-                    "key": "demo_material_records",
-                    "name": "Demo Material Records",
-                    "description": (
-                        "Configurable Catalog projection of the synthetic demo Materials."
-                    ),
-                },
-                "change_reason": "Create the configurable Catalog table used by the clean demo.",
+        table = _create_or_recover_catalog_table(
+            api,
+            content={
+                "key": "demo_material_records",
+                "name": "Demo Material Records",
+                "description": "Configurable Catalog projection of the synthetic demo Materials.",
             },
+            change_reason="Create the configurable Catalog table used by the clean demo.",
         )
     table_id = _id(table, "table_id")
     table_revision_id = _revision_id(table)
@@ -535,33 +917,36 @@ def _ensure_catalog_binding(
     ) -> dict[str, Any]:
         existing = _find_by_content(attributes, "key", key)
         if existing is not None:
-            if data_type == "discrete" and allowed_values:
-                desired_allowed_values = list(dict.fromkeys(allowed_values))
-                current_allowed_values = _content(existing).get("allowed_values")
-                if current_allowed_values != desired_allowed_values:
-                    revision = existing.get("current_revision")
-                    if not isinstance(revision, Mapping):
-                        raise DemoSeedError(f"Catalog Attribute {key} has no revision metadata")
-                    revised = api.post(
-                        f"/catalog/attributes/{_id(existing, 'attribute_definition_id')}/revisions",
-                        {
-                            "content": {
-                                **_content(existing),
-                                "table_revision_id": table_revision_id,
-                                "allowed_values": desired_allowed_values,
-                            },
-                            "change_reason": (
-                                f"Align the demo {name} Attribute with its bounded "
-                                "synthetic values."
-                            ),
-                        },
-                        headers={"If-Match": _revision_etag(existing)},
-                    )
-                    for index, item in enumerate(attributes):
-                        if _content(item).get("key") == key:
-                            attributes[index] = revised
-                            break
-                    return revised
+            desired_updates = _catalog_attribute_updates(
+                table_revision_id=table_revision_id,
+                name=name,
+                data_type=data_type,
+                quantity_semantics=quantity_semantics,
+                normalized_unit=normalized_unit,
+                allowed_values=allowed_values,
+                minimum_number=minimum_number,
+                maximum_number=maximum_number,
+            )
+            existing_content = _content(existing)
+            needs_revision = any(
+                existing_content.get(field) != value for field, value in desired_updates.items()
+            )
+            if needs_revision:
+                revised = api.post(
+                    f"/catalog/attributes/{_id(existing, 'attribute_definition_id')}/revisions",
+                    {
+                        "content": {**existing_content, **desired_updates},
+                        "change_reason": (
+                            f"Align the demo {name} Attribute with the current synthetic contract."
+                        ),
+                    },
+                    headers={"If-Match": _revision_etag(existing)},
+                )
+                for index, item in enumerate(attributes):
+                    if _content(item).get("key") == key:
+                        attributes[index] = revised
+                        break
+                return revised
             return existing
         content: dict[str, Any] = {
             "table_revision_id": table_revision_id,
@@ -630,7 +1015,7 @@ def _ensure_catalog_binding(
             "poisson_ratio",
             "Poisson's ratio",
             "number",
-            quantity_semantics="ratio.poisson",
+            quantity_semantics="strain",
             normalized_unit="1",
             minimum_number=0,
             maximum_number=0.5,
@@ -639,7 +1024,7 @@ def _ensure_catalog_binding(
             "yield_stress",
             "Yield stress",
             "number",
-            quantity_semantics="stress.yield",
+            quantity_semantics="stress.proof",
             normalized_unit="Pa",
             minimum_number=0,
         ),
@@ -1167,6 +1552,8 @@ def _ensure_catalog_binding(
                 },
                 headers={"If-Match": _revision_etag(existing_link)},
             )
+    for current_record in records_by_key.values():
+        _ensure_catalog_record_publication(api, reviewer_api, current_record)
     return {
         "catalog_table_id": table_id,
         "catalog_subset_id": _id(workflow_subset, "subset_id"),
@@ -1185,6 +1572,7 @@ def _ensure_catalog_binding(
 
 def _ensure_catalog_material_projections(
     api: DemoApi,
+    reviewer_api: DemoApi,
     *,
     catalog: Mapping[str, str],
     material_ids: Mapping[str, str],
@@ -1361,9 +1749,7 @@ def _ensure_catalog_material_projections(
             )
         if property_content.get("poisson_ratio") is not None:
             values.append(
-                number_value(
-                    "poisson_ratio", property_content["poisson_ratio"], "1", "ratio.poisson"
-                )
+                number_value("poisson_ratio", property_content["poisson_ratio"], "1", "strain")
             )
         folder = family_folders[material_class]
         searched = api.post(
@@ -1434,10 +1820,514 @@ def _ensure_catalog_material_projections(
                     "revision_id": _revision_id(material),
                 },
             )
+        _ensure_catalog_record_publication(api, reviewer_api, record)
         projected[f"catalog_{label}_record_id"] = record_id
         projected[f"catalog_{label}_record_revision_id"] = record_revision_id
         projected[f"catalog_{label}_binding_id"] = _id(binding, "binding_id")
     return projected
+
+
+def _ensure_issue246_catalog_examples(
+    api: DemoApi,
+    reviewer_api: DemoApi,
+    *,
+    technical_table_id: str,
+    technical_record_ids: Mapping[str, str],
+    test_documents: Sequence[Mapping[str, str]],
+    processing: Mapping[str, str],
+    neutral: Mapping[str, str],
+    statistics: Mapping[str, str],
+) -> dict[str, str]:
+    """Project the populated #246 examples into the four user-facing categories."""
+
+    tables = _items(api.get("/catalog/tables"))
+
+    def ensure_table(key: str, name: str, category: str) -> dict[str, Any]:
+        found = _find_by_content(tables, "key", key)
+        if found is not None:
+            return found
+        created = _create_or_recover_catalog_table(
+            api,
+            content={
+                "key": key,
+                "name": name,
+                "description": "Reusable populated examples for Materials product verification.",
+                "data_category": category,
+            },
+            change_reason=f"Create the reusable {name} example table.",
+        )
+        tables.append(created)
+        return created
+
+    test_table = ensure_table("issue246_test_examples", "Test Data", "test_data")
+    simulation_table = ensure_table(
+        "issue246_simulation_examples", "Simulation Data", "simulation_data"
+    )
+
+    def ensure_text_attributes(table: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
+        table_id = _id(table, "table_id")
+        table_revision_id = _revision_id(table)
+        attributes = _items(api.get(f"/catalog/tables/{table_id}/attributes"))
+        result: dict[str, dict[str, Any]] = {}
+        for key, name in (
+            ("data_type", "Data type"),
+            ("material", "Material and specimen form"),
+            ("test_method", "Test method"),
+            ("specimen", "Specimen"),
+            ("condition", "Test conditions"),
+            ("result_summary", "Result summary"),
+            ("curve_coverage", "Measured curve coverage"),
+            ("source_record", "Source data"),
+        ):
+            attribute = _find_by_content(attributes, "key", key)
+            if attribute is None:
+                attribute = api.post(
+                    f"/catalog/tables/{table_id}/attributes",
+                    {
+                        "content": {
+                            "table_revision_id": table_revision_id,
+                            "key": key,
+                            "name": name,
+                            "data_type": "text",
+                            "required": key in {"data_type", "result_summary"},
+                            "help_text": f"User-facing {name.lower()} for the populated example.",
+                        },
+                        "change_reason": f"Add {name} to the populated example datasheet.",
+                    },
+                )
+                attributes.append(attribute)
+            result[key] = attribute
+
+        desired_items = [
+            {
+                "attribute_definition_id": _id(result[key], "attribute_definition_id"),
+                "attribute_definition_revision_id": _revision_id(result[key]),
+                "section": section,
+                "ordinal": ordinal,
+            }
+            for ordinal, (key, section) in enumerate(
+                (
+                    ("data_type", "Overview"),
+                    ("material", "Overview"),
+                    ("test_method", "Test setup"),
+                    ("specimen", "Test setup"),
+                    ("condition", "Test conditions"),
+                    ("result_summary", "Results"),
+                    ("curve_coverage", "Results"),
+                    ("source_record", "Source data"),
+                )
+            )
+        ]
+        layout_name = f"{_content(table).get('name', 'Data')} overview"
+        layouts = _items(api.get(f"/catalog/tables/{table_id}/layouts"))
+        layout = next((item for item in layouts if item.get("name") == layout_name), None)
+        if layout is None:
+            api.post(
+                f"/catalog/tables/{table_id}/layouts",
+                {
+                    "table_revision_id": table_revision_id,
+                    "name": layout_name,
+                    "description": "Conditions, results, and source data shown to Materials users.",
+                    "items": desired_items,
+                    "change_reason": f"Create the {layout_name} datasheet layout.",
+                },
+            )
+        else:
+            current_items = layout.get("items")
+            current_projection = (
+                [
+                    (
+                        item.get("attribute_definition_id"),
+                        item.get("attribute_definition_revision_id"),
+                        item.get("section"),
+                        item.get("ordinal"),
+                    )
+                    for item in current_items
+                    if isinstance(item, Mapping)
+                ]
+                if isinstance(current_items, list)
+                else []
+            )
+            desired_projection = [
+                (
+                    item["attribute_definition_id"],
+                    item["attribute_definition_revision_id"],
+                    item["section"],
+                    item["ordinal"],
+                )
+                for item in desired_items
+            ]
+            if current_projection != desired_projection:
+                revision = layout.get("revision")
+                if not isinstance(revision, Mapping):
+                    raise DemoSeedError(f"{layout_name} Layout has no revision metadata")
+                api.post(
+                    f"/catalog/layouts/{_id(layout, 'layout_id')}/revisions",
+                    {
+                        "table_revision_id": table_revision_id,
+                        "name": layout_name,
+                        "description": (
+                            "Conditions, results, and source data shown to Materials users."
+                        ),
+                        "items": desired_items,
+                        "change_reason": f"Refresh the {layout_name} datasheet layout.",
+                    },
+                    headers={
+                        "If-Match": (
+                            f'"revision:{revision["revision_no"]}:sha256:'
+                            f'{revision["content_hash"]}"'
+                        )
+                    },
+                )
+        return result
+
+    attributes_by_table = {
+        _id(test_table, "table_id"): ensure_text_attributes(test_table),
+        _id(simulation_table, "table_id"): ensure_text_attributes(simulation_table),
+    }
+
+    def values(table: Mapping[str, Any], content: Mapping[str, str]) -> list[dict[str, Any]]:
+        attributes = attributes_by_table[_id(table, "table_id")]
+        return [
+            {
+                "data_type": "text",
+                "attribute_definition_id": _id(attributes[key], "attribute_definition_id"),
+                "attribute_definition_revision_id": _revision_id(attributes[key]),
+                "value": value,
+            }
+            for key, value in content.items()
+            if value
+        ]
+
+    records: dict[str, dict[str, Any]] = {}
+
+    def ensure_record(
+        table: Mapping[str, Any],
+        *,
+        key: str,
+        name: str,
+        description: str,
+        fields: Mapping[str, str],
+        binding: tuple[str, str, str] | None,
+    ) -> dict[str, Any]:
+        table_id = _id(table, "table_id")
+        searched = api.post(
+            "/catalog/records:search",
+            {"table_id": table_id, "text": key, "limit": 20},
+        )
+        record = next(
+            (item for item in _items(searched) if _content(item).get("external_key") == key),
+            None,
+        )
+        desired = {
+            "table_revision_id": _revision_id(table),
+            "name": name,
+            "external_key": key,
+            "description": description,
+            "folder_id": None,
+            "folder_revision_id": None,
+            "values": values(table, fields),
+        }
+        binding_mismatch = False
+        if record is not None and binding is not None:
+            expected_kind, expected_object_id, expected_revision_id = binding
+            current_binding_path = (
+                f"/catalog/records/{_id(record, 'record_id')}/revisions/"
+                f"{_revision_id(record)}/domain-binding"
+            )
+            try:
+                pinned = api.get(current_binding_path)
+            except DemoSeedError:
+                pinned = None
+            binding_mismatch = pinned is not None and (
+                pinned.get("kind") != expected_kind
+                or pinned.get("object_id") != expected_object_id
+                or pinned.get("revision_id") != expected_revision_id
+            )
+        if record is None:
+            record = api.post(
+                f"/catalog/tables/{table_id}/records",
+                {
+                    "classification": "internal",
+                    "content": desired,
+                    "change_reason": "Create a populated reusable #246 Materials example.",
+                },
+            )
+        elif not _catalog_record_content_matches(_content(record), desired) or binding_mismatch:
+            record = api.post(
+                f"/catalog/records/{_id(record, 'record_id')}/revisions",
+                {
+                    "content": desired,
+                    "change_reason": "Refresh the populated #246 Materials example.",
+                },
+                headers={"If-Match": _revision_etag(record)},
+            )
+        if binding is not None:
+            kind, object_id, revision_id = binding
+            binding_path = (
+                f"/catalog/records/{_id(record, 'record_id')}/revisions/"
+                f"{_revision_id(record)}/domain-binding"
+            )
+            try:
+                current_binding = api.get(binding_path)
+            except DemoSeedError:
+                current_binding = api.post(
+                    binding_path,
+                    {"kind": kind, "object_id": object_id, "revision_id": revision_id},
+                )
+            if (
+                current_binding.get("kind") != kind
+                or current_binding.get("object_id") != object_id
+                or current_binding.get("revision_id") != revision_id
+            ):
+                raise DemoSeedError(f"{key} domain binding does not pin the expected revision")
+        _ensure_catalog_record_publication(api, reviewer_api, record)
+        records[key] = record
+        return record
+
+    for item in test_documents:
+        ensure_record(
+            test_table,
+            key=item["key"],
+            name=item["name"],
+            description="Complete synthetic non-production test record with reusable curve data.",
+            fields={
+                "data_type": item["test_type"],
+                "material": item["material"],
+                "test_method": item["test_method"],
+                "specimen": item["specimen"],
+                "condition": item["condition"],
+                "result_summary": item["result_summary"],
+                "curve_coverage": item["curve_coverage"],
+                "source_record": "Technical Data selected by the materials engineer",
+            },
+            binding=("test_data", item["object_id"], item["revision_id"]),
+        )
+
+    ensure_record(
+        simulation_table,
+        key="CMP-246-EP-VOCE",
+        name="DP780 elastoplasticity · selected Voce result",
+        description=(
+            "Processed tensile result kept separate from the selected model and solver card."
+        ),
+        fields={
+            "data_type": "Elastoplasticity",
+            "condition": "23 °C room-temperature tensile input",
+            "result_summary": (
+                "Monotonic true-plastic strain/stress response; 210 GPa elastic modulus."
+            ),
+            "source_record": "CMP-246-TENSILE-ROOM",
+        },
+        binding=(
+            "processing_output",
+            processing["processing_output_id"],
+            processing["processing_output_revision_id"],
+        ),
+    )
+    ensure_record(
+        simulation_table,
+        key="CMP-246-EP-TABULATED",
+        name="DP780 elastoplasticity · selected tabulated model",
+        description="Selected model revision based only on the exact tensile input shown below.",
+        fields={
+            "data_type": "Elastoplasticity",
+            "condition": "23 °C high-rate tensile input",
+            "result_summary": (
+                "Tabulated plasticity with bounded extrapolation and reviewed fit evidence."
+            ),
+            "source_record": "CMP-246-TENSILE-FAST",
+        },
+        binding=(
+            "material_model",
+            neutral["selected_material_model_id"],
+            neutral["selected_material_model_revision_id"],
+        ),
+    )
+    ensure_record(
+        simulation_table,
+        key="CMP-246-STAT-TENSILE",
+        name="DP780 tensile statistics · mean and 5% envelope",
+        description="Statistical result remains distinct from the selected elastoplastic model.",
+        fields={
+            "data_type": "Statistics",
+            "condition": "Four tensile examples; one bounded synthetic reference set",
+            "result_summary": "Mean, standard deviation, lower 5% and upper 5% response envelopes.",
+            "source_record": "CMP-246-TENSILE-ROOM, HOT, SLOW, FAST",
+        },
+        binding=None,
+    )
+    ensure_record(
+        simulation_table,
+        key="CMP-246-SOLVER-ABAQUS",
+        name="DP780 Abaqus native material card",
+        description="Generated through the existing Neutral Material solver-card flow.",
+        fields={
+            "data_type": "Solver card",
+            "condition": "Abaqus 2025; kg-m-s",
+            "result_summary": (
+                "Native material definition available for exact-revision preview and download."
+            ),
+            "source_record": "CMP-246-EP-TABULATED",
+        },
+        binding=(
+            "neutral_solver_card",
+            neutral["abaqus_neutral_solver_card_id"],
+            neutral["abaqus_neutral_solver_card_revision_id"],
+        ),
+    )
+
+    technical_records = {
+        key: api.get(f"/catalog/records/{record_id}")
+        for key, record_id in technical_record_ids.items()
+    }
+
+    def ensure_link_type(
+        key: str,
+        name: str,
+        source_table_id: str,
+        target_table_id: str,
+        forward_label: str,
+        reverse_label: str,
+    ) -> dict[str, Any]:
+        current = _find_by_content(_items(api.get("/catalog/link-types")), "key", key)
+        if current is not None:
+            return current
+        source_table = api.get(f"/catalog/tables/{source_table_id}")
+        target_table = api.get(f"/catalog/tables/{target_table_id}")
+        return api.post(
+            "/catalog/link-types",
+            {
+                "classification": "internal",
+                "content": {
+                    "key": key,
+                    "name": name,
+                    "source_table_id": source_table_id,
+                    "source_table_revision_id": _revision_id(source_table),
+                    "target_table_id": target_table_id,
+                    "target_table_revision_id": _revision_id(target_table),
+                    "forward_label": forward_label,
+                    "reverse_label": reverse_label,
+                    "source_cardinality": "many",
+                    "target_cardinality": "many",
+                    "description": "Approved direct relationship for populated #246 examples.",
+                },
+                "change_reason": f"Create the approved {name} direct relationship.",
+            },
+        )
+
+    test_table_id = _id(test_table, "table_id")
+    simulation_table_id = _id(simulation_table, "table_id")
+    link_types = {
+        "technical_to_tensile": ensure_link_type(
+            "technical_to_tensile",
+            "Technical to Tensile",
+            technical_table_id,
+            test_table_id,
+            "has tensile test",
+            "uses Technical Data",
+        ),
+        "technical_to_dma": ensure_link_type(
+            "technical_to_dma",
+            "Technical to DMA",
+            technical_table_id,
+            test_table_id,
+            "has DMA test",
+            "uses Technical Data",
+        ),
+        "technical_to_fld": ensure_link_type(
+            "technical_to_fld",
+            "Technical to FLD",
+            technical_table_id,
+            test_table_id,
+            "has FLD test",
+            "uses Technical Data",
+        ),
+        "tensile_to_elastoplasticity": ensure_link_type(
+            "tensile_to_elastoplasticity",
+            "Tensile to Elastoplasticity",
+            test_table_id,
+            simulation_table_id,
+            "produces elastoplasticity result",
+            "uses tensile test",
+        ),
+        "tensile_to_statistics": ensure_link_type(
+            "tensile_to_statistics",
+            "Tensile to Statistics",
+            test_table_id,
+            simulation_table_id,
+            "produces statistics",
+            "uses tensile test",
+        ),
+    }
+
+    def ensure_link(link_key: str, source: Mapping[str, Any], target: Mapping[str, Any]) -> None:
+        source_id = _id(source, "record_id")
+        target_id = _id(target, "record_id")
+        desired_content = {
+            "link_type_id": _id(link_types[link_key], "link_type_id"),
+            "link_type_revision_id": _revision_id(link_types[link_key]),
+            "source_record_id": source_id,
+            "source_record_revision_id": _revision_id(source),
+            "target_record_id": target_id,
+            "target_record_revision_id": _revision_id(target),
+            "active": True,
+            "note": "Approved direct #246 example relationship.",
+        }
+        existing = next(
+            (
+                item
+                for item in _items(
+                    api.get(f"/catalog/records/{source_id}/links?include_inactive=true")
+                )
+                if _content(item).get("link_type_id") == _id(link_types[link_key], "link_type_id")
+                and _content(item).get("target_record_id") == target_id
+            ),
+            None,
+        )
+        if existing is None:
+            api.post(
+                "/catalog/record-links",
+                {
+                    "classification": "internal",
+                    "content": desired_content,
+                    "change_reason": "Connect the exact populated #246 example revisions.",
+                },
+            )
+        elif dict(_content(existing)) != desired_content:
+            api.post(
+                f"/catalog/record-links/{_id(existing, 'record_link_id')}/revisions",
+                {
+                    "content": desired_content,
+                    "change_reason": "Advance the direct link to the current exact revisions.",
+                },
+                headers={"If-Match": _revision_etag(existing)},
+            )
+
+    metal = technical_records["metal"]
+    polymer = technical_records["polymer"]
+    for item in test_documents:
+        target = records[item["key"]]
+        if item["test_type"] == "Tensile":
+            ensure_link("technical_to_tensile", metal, target)
+        elif item["test_type"] == "DMA":
+            ensure_link("technical_to_dma", polymer, target)
+        else:
+            ensure_link("technical_to_fld", metal, target)
+    ensure_link(
+        "tensile_to_elastoplasticity", records["CMP-246-TENSILE-ROOM"], records["CMP-246-EP-VOCE"]
+    )
+    ensure_link(
+        "tensile_to_elastoplasticity",
+        records["CMP-246-TENSILE-FAST"],
+        records["CMP-246-EP-TABULATED"],
+    )
+    for item in test_documents:
+        if item["test_type"] == "Tensile":
+            ensure_link(
+                "tensile_to_statistics", records[item["key"]], records["CMP-246-STAT-TENSILE"]
+            )
+    return {"issue246_example_record_count": str(len(records))}
 
 
 def _ensure_governed_test_data_revision(
@@ -4086,6 +4976,8 @@ def seed_full_demo(base_url: str) -> dict[str, str]:
     api = DemoApi(base_url)
     api.wait_until_healthy()
     api.authenticate()
+    reviewer_api = DemoApi(base_url)
+    reviewer_api.authenticate("reviewer")
     metal = _find_by_content(
         _items(api.get("/materials?q=CMP-DEMO-DP780&limit=20")),
         "material_code",
@@ -4149,74 +5041,34 @@ def seed_full_demo(base_url: str) -> dict[str, str]:
         material_id=metal_id,
         processing_batch_id=processing["processing_batch_id"],
     )
+    issue246_test_documents = _ensure_issue246_test_documents(api)
     catalog = _ensure_catalog_binding(
         api,
+        reviewer_api,
         material=metal,
         test_data=test_data,
         statistics=statistics,
-        workflow_nodes=(
-            {
-                "kind": "material_state",
-                "object_id": _id(metal_state, "material_state_id"),
-                "revision_id": _revision_id(metal_state),
-                "name": "DP780 reference Material State",
-                "external_key": "CMP-DEMO-DP780-STATE",
-                "parent_external_key": "CMP-DEMO-DP780",
-            },
-            {
-                "kind": "test_data",
-                "object_id": test_data["test_data_document_id"],
-                "revision_id": test_data["test_data_document_revision_id"],
-                "name": "DP780 canonical tensile Test JSON",
-                "external_key": "CMP-DEMO-DP780-TEST-JSON-NODE",
-                "parent_external_key": "CMP-DEMO-DP780-STATE",
-            },
-            {
-                "kind": "processing_output",
-                "object_id": processing["processing_output_id"],
-                "revision_id": processing["processing_output_revision_id"],
-                "name": "DP780 fitted hardening Processing Output",
-                "external_key": "CMP-DEMO-DP780-PROCESSING",
-                "parent_external_key": "CMP-DEMO-DP780-TEST-JSON-NODE",
-            },
-            {
-                "kind": "material_model",
-                "object_id": neutral["selected_material_model_id"],
-                "revision_id": neutral["selected_material_model_revision_id"],
-                "name": "DP780 tabulated-plasticity Material Model IR",
-                "external_key": "CMP-DEMO-DP780-IR",
-                "parent_external_key": "CMP-DEMO-DP780-PROCESSING",
-            },
-            {
-                "kind": "neutral_material",
-                "object_id": neutral["neutral_material_id"],
-                "revision_id": neutral["neutral_material_revision_id"],
-                "name": "DP780 canonical Neutral Material JSON",
-                "external_key": "CMP-DEMO-DP780-NEUTRAL",
-                "parent_external_key": "CMP-DEMO-DP780-IR",
-            },
-            {
-                "kind": "neutral_solver_card",
-                "object_id": neutral["abaqus_neutral_solver_card_id"],
-                "revision_id": neutral["abaqus_neutral_solver_card_revision_id"],
-                "name": "DP780 Abaqus native material card",
-                "external_key": "CMP-DEMO-DP780-ABAQUS-CARD",
-                "parent_external_key": "CMP-DEMO-DP780-NEUTRAL",
-            },
-            {
-                "kind": "neutral_solver_card",
-                "object_id": neutral["openradioss_neutral_solver_card_id"],
-                "revision_id": neutral["openradioss_neutral_solver_card_revision_id"],
-                "name": "DP780 OpenRadioss native material card",
-                "external_key": "CMP-DEMO-DP780-OPENRADIOSS-CARD",
-                "parent_external_key": "CMP-DEMO-DP780-NEUTRAL",
-            },
-        ),
+        workflow_nodes=(),
     )
     catalog_non_metal = _ensure_catalog_material_projections(
         api,
+        reviewer_api,
         catalog=catalog,
         material_ids={"polymer": polymer_id, "elastomer": elastomer_id},
+    )
+    issue246_examples = _ensure_issue246_catalog_examples(
+        api,
+        reviewer_api,
+        technical_table_id=catalog["catalog_table_id"],
+        technical_record_ids={
+            "metal": catalog["catalog_record_id"],
+            "polymer": catalog_non_metal["catalog_polymer_record_id"],
+            "elastomer": catalog_non_metal["catalog_elastomer_record_id"],
+        },
+        test_documents=issue246_test_documents,
+        processing=processing,
+        neutral=neutral,
+        statistics=statistics,
     )
     bulk = _ensure_bulk_bundle(api, material_id=metal_id)
     polymer_bulk_source = _ensure_bulk_bundle(
@@ -4244,6 +5096,7 @@ def seed_full_demo(base_url: str) -> dict[str, str]:
         "elastomer_material_id": elastomer_id,
         **catalog,
         **catalog_non_metal,
+        **issue246_examples,
         **test_data,
         **statistics,
         **processing,

@@ -1,4 +1,4 @@
-import { Fragment, type FormEvent, type KeyboardEvent as ReactKeyboardEvent, type ReactNode, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { Fragment, lazy, Suspense, type FormEvent, type KeyboardEvent as ReactKeyboardEvent, type ReactNode, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 
 import {
   ApiError,
@@ -22,6 +22,7 @@ import {
   type MaterialSearchRow,
 } from "./api";
 import type {
+  CatalogDataCategory,
   CatalogWorkflowGraphResponse,
   CanonicalTestDataDocumentResponse,
   ConfigurableCatalogRecordResponse,
@@ -36,7 +37,11 @@ import type {
   ReviewRequestResponse,
   CommonProcessingBatchResponse,
 } from "./types";
-import { MaterialsBrowseTree, type MaterialsBrowseScope } from "./materials-browse-tree";
+import {
+  CATALOG_DATA_CATEGORIES,
+  dataCategoryForEndpoint,
+} from "./catalog-data-categories";
+import type { MaterialsBrowseResults, MaterialsBrowseScope } from "./materials-browse-tree";
 import { MaterialDatasheetProjection } from "./material-datasheet-projection";
 import { MaterialsScrollRegion } from "./materials-scroll-rail";
 import { publishWorkspaceCommandState, publishWorkspaceStatus } from "./design/application-shell";
@@ -68,6 +73,11 @@ import {
   type ActivityRecoveryFact,
 } from "./activity-recovery";
 
+const materialsBrowseTreeModule = import("./materials-browse-tree");
+const MaterialsBrowseTree = lazy(() => materialsBrowseTreeModule.then((module) => ({
+  default: module.MaterialsBrowseTree,
+})));
+
 export type MaterialTab = "overview" | "properties" | "curves" | "cards" | "evidence";
 
 interface Props {
@@ -93,6 +103,32 @@ export interface MaterialRevisionPin {
 interface BrowseSelection {
   record: ConfigurableCatalogRecordResponse;
   graph: CatalogWorkflowGraphResponse;
+}
+
+interface RelatedExactRecord {
+  id: string;
+  label: string;
+  endpoint: ConfigurableLinkEndpoint;
+}
+
+function directRelatedRecords(
+  graph: CatalogWorkflowGraphResponse | null,
+  recordId?: string,
+  revisionId?: string,
+): RelatedExactRecord[] {
+  if (!graph || !recordId || !revisionId) return [];
+  return graph.links.filter((link) => (
+    (link.source.record_id === recordId && link.source.record_revision_id === revisionId)
+    || (link.target.record_id === recordId && link.target.record_revision_id === revisionId)
+  )).map((link) => {
+    const fromRoot = link.source.record_id === recordId
+      && link.source.record_revision_id === revisionId;
+    return {
+      id: link.record_link_id,
+      label: fromRoot ? link.link_type_revision.content.forward_label : link.link_type_revision.content.reverse_label,
+      endpoint: fromRoot ? link.target : link.source,
+    };
+  });
 }
 
 const MATERIALS_RETURN_KEY = "cmp.materials.return-path";
@@ -131,6 +167,10 @@ function materialsPath(state: MaterialsLocationState): string {
   if (state.offset) params.set("offset", String(state.offset));
   const search = params.toString();
   return search ? `/materials?${search}` : "/materials";
+}
+
+function exactRecordPath(recordId: string, revisionId: string): string {
+  return `/materials/records/${recordId}/revisions/${revisionId}`;
 }
 
 function initialNavigatorMode(): "filters" | "browse" | "subsets" {
@@ -194,6 +234,28 @@ function nodeBindings(node: CatalogWorkflowGraphResponse["nodes"][number]): Doma
     seen.add(key);
     return true;
   });
+}
+
+function relatedRecordGroups(items: RelatedExactRecord[]): Array<{
+  label: string;
+  items: RelatedExactRecord[];
+}> {
+  return [...CATALOG_DATA_CATEGORIES, { key: null, label: "Other related records" }].map((category) => ({
+    label: category.label,
+    items: items.filter(
+      (item) => dataCategoryForEndpoint(item.endpoint) === category.key,
+    ),
+  })).filter((group) => group.items.length > 0);
+}
+
+function RelatedExactRecordList({ items, onNavigate }: {
+  items: RelatedExactRecord[];
+  onNavigate: (path: string) => void;
+}) {
+  return relatedRecordGroups(items).map((group) => <Fragment key={group.label}>
+    <p className="ux-kicker">{group.label}</p>
+    <ul className="related-record-list">{group.items.slice(0, 12).map((item) => <li key={item.id}><button type="button" onClick={() => onNavigate(exactRecordPath(item.endpoint.record_id, item.endpoint.record_revision_id))}><span>{item.endpoint.name}</span><small>{item.label} · r{item.endpoint.revision_no}</small></button></li>)}</ul>
+  </Fragment>);
 }
 
 function cardsFromGraph(graph: CatalogWorkflowGraphResponse | null): SolverCardSummary[] {
@@ -398,7 +460,7 @@ function sourceLabel(experience: MaterialExperience | undefined): string {
 
 function browsePath(experience: MaterialExperience | undefined): string {
   const root = experience?.graph?.root;
-  return root ? `/database/records/${root.record_id}/revisions/${root.record_revision_id}` : "/database";
+  return root ? exactRecordPath(root.record_id, root.record_revision_id) : "/materials";
 }
 
 function neutralMaterialBinding(experience: MaterialExperience | null | undefined): DomainRevisionBinding | null {
@@ -718,6 +780,7 @@ export function MaterialSearchPage({ config, onNavigate, locationSearch }: Props
   const [leftMode, setLeftMode] = useState<"filters" | "browse" | "subsets">(initialNavigatorMode);
   const [requestedRecord, setRequestedRecord] = useState<ConfigurableLinkEndpoint | null>(storedBrowseRecord);
   const [browseSelection, setBrowseSelection] = useState<BrowseSelection | null>(null);
+  const [browseResults, setBrowseResults] = useState<MaterialsBrowseResults | null>(null);
   const [materials, setMaterials] = useState<MaterialSearchRow[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [familyFacets, setFamilyFacets] = useState<Array<{ material_class: string; count: number }>>([]);
@@ -860,7 +923,11 @@ export function MaterialSearchPage({ config, onNavigate, locationSearch }: Props
 
   function openExactRecord(record: ConfigurableCatalogRecordResponse): void {
     window.sessionStorage.setItem(MATERIALS_RETURN_KEY, materialsPath({ query, materialClass, provider, evidenceSource, scope, sortKey, sortDirection, offset, leftMode, selectedId }));
-    onNavigate(`/materials/records/${record.record_id}/revisions/${record.current_revision.id}`);
+    onNavigate(exactRecordPath(record.record_id, record.current_revision.id));
+  }
+
+  function selectBrowseResult(record: ConfigurableCatalogRecordResponse): void {
+    openExactRecord(record);
   }
 
   function changeSort(next: "name" | "material_class"): void {
@@ -907,41 +974,38 @@ export function MaterialSearchPage({ config, onNavigate, locationSearch }: Props
       <label className="ux-field">Provider<select className="ux-select" name="provider" value={provider} onChange={(event) => { setProvider(event.target.value); setOffset(0); }}><option value="">All providers</option>{providerFacets.map((facet) => <option key={facet.provider} value={facet.provider}>{`${facet.provider} (${facet.count.toLocaleString()})`}</option>)}</select></label>
       <label className="ux-field">Evidence source<select className="ux-select" name="evidence-source" value={evidenceSource} onChange={(event) => { setEvidenceSource(event.target.value); setOffset(0); }}><option value="">All sources</option>{evidenceSourceFacets.map((facet) => <option key={facet.evidence_source} value={facet.evidence_source}>{`${facet.evidence_source} (${facet.count.toLocaleString()})`}</option>)}</select></label>
       <button className="ux-button tertiary" type="button" onClick={() => { setMaterialClass(""); setProvider(""); setEvidenceSource(""); setOffset(0); }}>Clear filters</button>
-    </div> : <MaterialsBrowseTree config={config} subsetMode={leftMode === "subsets"} publishedOnly requestedRecord={requestedRecord} onSelectRecord={selectBrowseRecord} onOpenRecord={openExactRecord} onScopeChange={changeScope} onScopeAvailabilityChange={changeScopeAvailability}/>}
+    </div> : <Suspense fallback={<p className="loading-state">Loading Browse tree…</p>}><MaterialsBrowseTree config={config} subsetMode={leftMode === "subsets"} publishedOnly requestedRecord={requestedRecord} onSelectRecord={selectBrowseRecord} onOpenRecord={openExactRecord} onScopeChange={changeScope} onScopeAvailabilityChange={changeScopeAvailability} onResultsChange={leftMode === "browse" ? setBrowseResults : undefined}/></Suspense>}
   </aside>;
 
   const results = <section className="materials-results" aria-labelledby="material-results-title" aria-busy={loading}>
-    <div className="materials-results-header"><div><h2 id="material-results-title">Materials</h2><p className="ux-meta">{loading ? "Loading…" : `${totalCount ? `${offset + 1}–${Math.min(offset + materials.length, totalCount)} of ` : ""}${new Intl.NumberFormat().format(totalCount)} matches`}</p></div><span className="ux-meta">Enter opens · select up to 3 to compare</span></div>
+    <div className="materials-results-header"><div><h2 id="material-results-title">Materials</h2><p className="ux-meta">{loading ? "Loading…" : `${totalCount ? `${offset + 1}–${Math.min(offset + materials.length, totalCount)} of ` : ""}${new Intl.NumberFormat().format(totalCount)} matches`}</p></div><span className="ux-meta">Click opens details · select up to 3 to compare</span></div>
     {error ? <div className="ux-notice error" role="alert">{error}<button className="ux-button tertiary" type="button" onClick={() => setLoadAttempt((current) => current + 1)}>Retry</button></div> : null}
     {!loading && !error && !materials.length ? <div className="ux-empty"><strong>No materials match this search.</strong><p>Clear the search to return to the available Materials.</p><button className="ux-button tertiary" type="button" onClick={() => { setDraftQuery(""); setQuery(""); setMaterialClass(""); setProvider(""); setEvidenceSource(""); setOffset(0); }}>Clear search</button></div> : null}
     {comparedMaterials.length > 1 ? <div className="material-compare-strip"><div><strong>Comparing {comparedMaterials.length} materials</strong><span className="ux-meta">Selected materials remain available while you inspect results.</span></div>{comparedMaterials.map((material) => <dl key={material.material_id}><dt>{material.name}</dt><dd>{material.material_family ?? material.material_class}</dd><dd>r{material.record_revision_no}</dd></dl>)}<button className="ux-button tertiary" type="button" onClick={() => setCompareIds(new Set())}>Clear comparison</button></div> : null}
     {browseSelection ? <div className="browse-selection-bar"><span><strong>{browseSelection.record.current_revision.content.name}</strong><small>{domainKindLabel(browseSelection.graph.root.domain_binding?.kind)} · exact revision {browseSelection.record.current_revision.revision_no}</small></span><button className="ux-button tertiary" type="button" onClick={() => openExactRecord(browseSelection.record)}>Open datasheet</button></div> : null}
     <MaterialsScrollRegion id="materials-result-scroll" className="materials-result-table-wrap" shellClassName="materials-result-scroll-shell" aria-label="Scrollable material results">{materials.length ? <table className="materials-result-table" aria-label="Material results"><colgroup>{Object.entries(columnWidths).map(([key, width]) => <col key={key} style={{ width }} />)}</colgroup><thead><tr><th>Compare<EngineeringColumnResizeHandle label="Compare" width={columnWidths.compare} min={60} max={100} onChange={(width) => setColumnWidths((current) => ({ ...current, compare: width }))}/></th><th aria-sort={sortKey === "name" ? sortDirection : undefined}><button type="button" onClick={() => changeSort("name")}>Material / grade {sortIndicator("name")}</button><EngineeringColumnResizeHandle label="Material or grade" width={columnWidths.material} min={180} max={420} onChange={(width) => setColumnWidths((current) => ({ ...current, material: width }))}/></th><th aria-sort={sortKey === "material_class" ? sortDirection : undefined}><button type="button" onClick={() => changeSort("material_class")}>Family {sortIndicator("material_class")}</button><EngineeringColumnResizeHandle label="Family" width={columnWidths.materialClass} min={120} max={280} onChange={(width) => setColumnWidths((current) => ({ ...current, materialClass: width }))}/></th><th>Description<EngineeringColumnResizeHandle label="Description" width={columnWidths.summary} min={160} max={420} onChange={(width) => setColumnWidths((current) => ({ ...current, summary: width }))}/></th></tr></thead><tbody>
-      {materials.map((material) => { const materialIdentity = `${material.name} · ${material.material_code ?? "No grade code"}`; return <tr key={material.material_id} className={selectedId === material.material_id ? "selected" : ""} tabIndex={0} aria-selected={selectedId === material.material_id} onClick={() => setSelectedId(material.material_id)} onDoubleClick={() => openMaterial(material)} onKeyDown={(event) => { if (event.key === "Enter") openMaterial(material); }}><td><input type="checkbox" aria-label={`Compare ${material.name}`} checked={compareIds.has(material.material_id)} disabled={!compareIds.has(material.material_id) && compareIds.size >= 3} onClick={(event) => event.stopPropagation()} onChange={() => toggleCompare(material.material_id)}/></td><td><button className="material-result-name" type="button" aria-current={selectedId === material.material_id ? "true" : undefined} title={materialIdentity} onClick={() => setSelectedId(material.material_id)}><span>{material.name}</span><small>{material.material_code ?? "No grade code"}</small></button></td><td title={material.material_class}>{familyLabel(material.material_class)}</td><td>{material.description ?? "—"}</td></tr>; })}
+      {materials.map((material) => { const materialIdentity = `${material.name} · ${material.material_code ?? "No grade code"}`; return <tr key={material.material_id} className={selectedId === material.material_id ? "selected" : ""} tabIndex={0} aria-selected={selectedId === material.material_id} onClick={() => openMaterial(material)} onKeyDown={(event) => { if (event.key === "Enter") openMaterial(material); }}><td><input type="checkbox" aria-label={`Compare ${material.name}`} checked={compareIds.has(material.material_id)} disabled={!compareIds.has(material.material_id) && compareIds.size >= 3} onClick={(event) => event.stopPropagation()} onChange={() => toggleCompare(material.material_id)}/></td><td><button className="material-result-name" type="button" aria-current={selectedId === material.material_id ? "true" : undefined} title={materialIdentity} onClick={(event) => { event.stopPropagation(); openMaterial(material); }}><span>{material.name}</span><small>{material.material_code ?? "No grade code"}</small></button></td><td title={material.material_class}>{familyLabel(material.material_class)}</td><td>{material.description ?? "—"}</td></tr>; })}
     </tbody></table> : null}</MaterialsScrollRegion>
     {!loading && totalCount > materials.length ? <nav className="materials-pagination" aria-label="Material result pages"><button className="ux-button tertiary" type="button" disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - 50))}>Previous</button><span className="ux-meta">Rows {totalCount ? offset + 1 : 0}–{Math.min(offset + materials.length, totalCount)}</span><button className="ux-button tertiary" type="button" disabled={offset + materials.length >= totalCount} onClick={() => setOffset(offset + 50)}>Next</button></nav> : null}
   </section>;
 
-  const context = <aside className="materials-selection" aria-live="polite">
-    {selected ? <>
-      <div className="selection-heading"><div><p className="ux-kicker">Selected material</p><h2 title={selected.name}>{selected.name}</h2></div><span className="ux-meta">{selected.material_code ?? "No material code"}</span></div>
-      <p>{selected.description ?? "No summary is available."}</p>
-      <dl className="selection-context"><dt>Family</dt><dd>{familyLabel(selected.material_class)}</dd></dl>
-      <div className="selection-delivery-command">
-        <button className="ux-button primary" type="button" onClick={() => openMaterial(selected)}>Open datasheet</button>
-      </div>
-    </> : <div className="ux-empty"><strong>Select a material</strong><p>Choose a row to open its material record.</p></div>}
-  </aside>;
+  const browseCategoryLabel = (category: CatalogDataCategory): string => (
+    CATALOG_DATA_CATEGORIES.find((item) => item.key === category)?.label ?? "Data"
+  );
+  const browseResultList = <section className="materials-results" aria-labelledby="browse-results-title">
+    <div className="materials-results-header"><div><h2 id="browse-results-title">{browseResults?.category ? browseCategoryLabel(browseResults.category) : browseResults?.query ? `Results for “${browseResults.query}”` : "Browse results"}</h2><p className="ux-meta">{new Intl.NumberFormat().format(browseResults?.totalCount ?? 0)} data items</p></div><span className="ux-meta">Click an item to open its details</span></div>
+    {browseResults?.items.length ? <MaterialsScrollRegion id="materials-browse-result-scroll" className="materials-result-table-wrap" shellClassName="materials-result-scroll-shell" aria-label="Browse results"><table className="materials-result-table" aria-label="Data results"><thead><tr><th>Name</th><th>Category</th><th>Description</th><th>Revision</th></tr></thead><tbody>{browseResults.items.map(({ record, category }) => <tr key={record.record_id} tabIndex={0} onClick={() => void selectBrowseResult(record)} onKeyDown={(event) => { if (event.key === "Enter") void selectBrowseResult(record); }}><td><button className="material-result-name" type="button" onClick={() => void selectBrowseResult(record)}><span>{record.current_revision.content.name}</span><small>{record.current_revision.content.external_key ?? "No external code"}</small></button></td><td>{browseCategoryLabel(category)}</td><td>{record.current_revision.content.description ?? "—"}</td><td>r{record.current_revision.revision_no}</td></tr>)}</tbody></table></MaterialsScrollRegion> : <div className="ux-empty"><strong>No data is available here.</strong><p>Choose another category or change the tree search.</p></div>}
+  </section>;
 
   return (
     <div className="ux-page materials-page">
-      <header className="materials-page-header" aria-label="Material query">
+      {leftMode !== "browse" ? <header className="materials-page-header" aria-label="Material query">
         <form className="materials-search-form" role="search" onSubmit={submit}>
           <label className="ux-field" style={{ flex: 1 }}><span className="sr-only">Material name, grade, code, or family</span><input className="ux-input" aria-label="Search materials" name="materials-query" autoComplete="off" value={draftQuery} onChange={(event) => setDraftQuery(event.target.value)} placeholder="Search material name, grade, code, or family…" /></label>
           <button className="ux-button primary" type="submit">Find</button>
         </form>
-      </header>
-      <ResizableSplitPane id="cmp-materials-results" navigator={navigator} main={results} context={context} navigatorLabel={leftMode === "filters" ? "filters" : "navigator"} contextLabel="details" />
+      </header> : null}
+      <ResizableSplitPane id="cmp-materials-results" navigator={navigator} main={leftMode === "browse" && browseResults ? browseResultList : results} navigatorLabel={leftMode === "filters" ? "filters" : "navigator"} />
     </div>
   );
 }
@@ -980,7 +1044,6 @@ export function MaterialDetailPage({ config, materialId, activeTab, onNavigate, 
   const [experience, setExperience] = useState<MaterialExperience | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [browseSelection, setBrowseSelection] = useState<BrowseSelection | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -1032,16 +1095,11 @@ export function MaterialDetailPage({ config, materialId, activeTab, onNavigate, 
   const catalogRoot = experience.graph?.root ?? null;
   const preferredCard = experience.cards.find((card) => card.solver === "OpenRadioss") ?? experience.cards[0] ?? null;
   const neutralMaterial = neutralMaterialBinding(experience);
-  const relatedLinks = (experience.graph?.links ?? []).filter((link) =>
-    link.source.record_id === catalogRoot?.record_id || link.target.record_id === catalogRoot?.record_id,
-  ).map((link) => {
-    const fromRoot = link.source.record_id === catalogRoot?.record_id;
-    return {
-      id: link.record_link_id,
-      label: fromRoot ? link.link_type_revision.content.forward_label : link.link_type_revision.content.reverse_label,
-      endpoint: fromRoot ? link.target : link.source,
-    };
-  });
+  const relatedLinks = directRelatedRecords(
+    experience.graph,
+    catalogRoot?.record_id,
+    catalogRoot?.record_revision_id,
+  );
   const activePath = materialDetailPath(materialId, activeTab, exactPin);
   const navigateDetail = (path: string): void => {
     if (!exactPin || !path.startsWith(`/materials/${materialId}`)) {
@@ -1051,8 +1109,7 @@ export function MaterialDetailPage({ config, materialId, activeTab, onNavigate, 
     const query = materialPinQuery(exactPin);
     onNavigate(`${path}${path.includes("?") ? "&" : "?"}${query}`);
   };
-  const navigator = <aside className="materials-left-pane" aria-label="Materials Browse Tree"><div className="workspace-back-row"><button className="ux-button tertiary" type="button" onClick={() => onNavigate(materialsReturnPath())}><EngineeringIcon name="back"/> <span>Results</span></button><strong>Browse</strong></div><MaterialsBrowseTree config={config} publishedOnly requestedRecord={catalogRoot} onSelectRecord={(record, graph) => setBrowseSelection({ record, graph })} onOpenRecord={(record) => onNavigate(`/materials/records/${record.record_id}/revisions/${record.current_revision.id}`)}/></aside>;
-  const context = <aside className="materials-selection material-related-context" aria-label="Related exact records"><p className="ux-kicker">{exactPin ? "Selected revision" : "Current revision"}</p><div className="context-record-title">{displayName}</div><p className="ux-meta">{displayDescription ?? "No summary is available."}</p><dl className="selection-context"><dt>Revision</dt><dd>r{selectedRevision.revision_no}</dd><dt>Related</dt><dd>{relatedLinks.length} {relatedLinks.length === 1 ? "record" : "records"}</dd></dl>{browseSelection ? <button className="ux-button primary" type="button" onClick={() => onNavigate(`/materials/records/${browseSelection.record.record_id}/revisions/${browseSelection.record.current_revision.id}`)}>Open {browseSelection.record.current_revision.content.name}</button> : null}<h3>Related records</h3><ul className="related-record-list">{relatedLinks.slice(0, 12).map((related) => <li key={related.id}><button type="button" onClick={() => onNavigate(`/materials/records/${related.endpoint.record_id}/revisions/${related.endpoint.record_revision_id}`)}><span>{related.endpoint.name}</span><small>{related.label} · r{related.endpoint.revision_no}</small></button></li>)}</ul></aside>;
+  const navigator = <aside className="materials-left-pane" aria-label="Materials Browse Tree"><div className="workspace-back-row"><button className="ux-button tertiary" type="button" onClick={() => onNavigate(materialsReturnPath())}><EngineeringIcon name="back"/> <span>Results</span></button><strong>Browse</strong></div><Suspense fallback={<p className="loading-state">Loading Browse tree…</p>}><MaterialsBrowseTree config={config} publishedOnly requestedRecord={catalogRoot} onSelectRecord={(_record, _graph) => undefined} onOpenRecord={(record) => onNavigate(exactRecordPath(record.record_id, record.current_revision.id))}/></Suspense></aside>;
 
   function acceptCreatedCard(card: SolverCardSummary): void {
     setExperience((current) => current ? { ...current, cards: [...current.cards, card] } : current);
@@ -1069,15 +1126,15 @@ export function MaterialDetailPage({ config, materialId, activeTab, onNavigate, 
       {activeTab === "cards" ? <><div className="detail-section-heading"><div><p className="ux-kicker">Solver delivery</p><h2>CAE Cards</h2><p>Cards with unchanged values can download directly. Cards with delivery notes open a review before download; values the solver cannot represent remain unavailable.</p></div></div><CardTable config={config} material={material} cards={experience.cards} onNavigate={navigateDetail}/>{neutralMaterial ? <NeutralCardCreationPanel config={config} neutralMaterialId={neutralMaterial.object_id} neutralMaterialRevisionId={neutralMaterial.revision_id} materialName={content.name} materialCode={content.material_code} existingCards={experience.cards} onCreated={acceptCreatedCard}/> : !experience.cards.length && modelingFamily(material) ? <button className="ux-button primary" type="button" onClick={() => startModeling(material, onNavigate)}>Start Modeling</button> : null}</> : null}
       {activeTab === "evidence" ? <><div className="detail-section-heading"><div><p className="ux-kicker">Related · Workflow · Evidence</p><h2>Connected material record</h2><p>Follow related records and the material workflow; open technical identifiers only when needed.</p></div><button className="ux-button" type="button" onClick={() => onNavigate(browsePath(experience))}>Open exact datasheet</button></div><div className="evidence-overview"><section><h3>Related Records</h3>{relatedLinks.length ? <table className="ux-table"><thead><tr><th>Relationship</th><th>Record</th><th>Type</th><th>Revision</th></tr></thead><tbody>{relatedLinks.map((related) => <tr key={related.id}><td>{related.label}</td><td title={related.endpoint.name}>{related.endpoint.domain_binding?.workbench_path ? <a href={related.endpoint.domain_binding.workbench_path}>{related.endpoint.name}</a> : related.endpoint.name}</td><td>{domainKindLabel(related.endpoint.domain_binding?.kind)}</td><td>r{related.endpoint.revision_no}</td></tr>)}</tbody></table> : <p className="ux-meta">No related records are visible in the current view.</p>}</section><section><h3>Workflow</h3><table className="ux-table"><thead><tr><th>Record</th><th>Role</th><th>Revision</th></tr></thead><tbody>{(experience.graph?.nodes ?? []).flatMap((node) => nodeBindings(node).map((binding) => ({ node, binding }))).map(({ node, binding }) => <tr key={`${node.record_id}:${node.record_revision_id}:${binding.kind}:${binding.object_id}:${binding.revision_id}`}><td title={node.name}>{binding.workbench_path ? <a href={binding.workbench_path}>{node.name}</a> : node.name}</td><td>{domainKindLabel(binding.kind)}</td><td>r{node.revision_no}</td></tr>)}</tbody></table></section></div>{catalogRoot ? <MaterialDatasheetProjection config={config} tableId={catalogRoot.table_id} recordId={catalogRoot.record_id} revisionId={exactPin?.recordRevisionId} mode="evidence"/> : null}<details className="ux-disclosure"><summary>Technical revision and provenance identifiers</summary><dl className="evidence-grid"><dt>Material ID</dt><dd>{material.material_id}</dd><dt>Aggregate ID</dt><dd>{material.current_revision.aggregate_id}</dd><dt>Full revision ID</dt><dd>{material.current_revision.id}</dd><dt>Content hash</dt><dd>{material.current_revision.content_hash}</dd><dt>Classification</dt><dd>{material.current_revision.classification}</dd><dt>Change reason</dt><dd>{material.current_revision.change_reason}</dd><dt>Recorded by</dt><dd>{material.current_revision.provenance.recorded_by}</dd></dl></details></> : null}
     </section>
+    <section className="exact-record-related" aria-label="Related exact records"><div className="detail-section-heading"><div><p className="ux-kicker">Direct links</p><h2>Related data</h2><p>Only records directly linked to this exact revision are shown.</p></div><span className="ux-meta">Revision r{selectedRevision.revision_no}</span></div>{relatedLinks.length ? <RelatedExactRecordList items={relatedLinks} onNavigate={onNavigate}/> : <p className="ux-meta">No directly linked data.</p>}</section>
   </div>;
-  return <div className="ux-page materials-page materials-datasheet-page"><ResizableSplitPane id="cmp-materials-datasheet" navigator={navigator} main={datasheet} context={context} navigatorLabel="navigator" contextLabel="related records" /></div>;
+  return <div className="ux-page materials-page materials-datasheet-page"><ResizableSplitPane id="cmp-materials-datasheet" navigator={navigator} main={datasheet} navigatorLabel="navigator" /></div>;
 }
 
 export function ExactRecordDatasheetPage({ config, recordId, revisionId, onNavigate }: Props & { recordId: string; revisionId: string }) {
   const [record, setRecord] = useState<ConfigurableCatalogRecordResponse | null>(null);
   const [revisions, setRevisions] = useState<ConfigurableCatalogRecordResponse["current_revision"][]>([]);
   const [graph, setGraph] = useState<CatalogWorkflowGraphResponse | null>(null);
-  const [browseSelection, setBrowseSelection] = useState<BrowseSelection | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -1119,24 +1176,15 @@ export function ExactRecordDatasheetPage({ config, recordId, revisionId, onNavig
     });
   }, [error, record]);
 
-  const related = graph ? graph.links.map((link) => {
-    const fromRoot = link.source.record_id === recordId;
-    return {
-      id: link.record_link_id,
-      label: fromRoot ? link.link_type_revision.content.forward_label : link.link_type_revision.content.reverse_label,
-      endpoint: fromRoot ? link.target : link.source,
-    };
-  }) : [];
-  const navigator = <aside className="materials-left-pane" aria-label="Materials Browse Tree"><div className="workspace-back-row"><button className="ux-button tertiary" type="button" onClick={() => onNavigate(materialsReturnPath())}><EngineeringIcon name="back"/> <span>Results</span></button><strong>Browse</strong></div><MaterialsBrowseTree config={config} publishedOnly requestedRecord={graph?.root ?? null} onSelectRecord={(nextRecord, nextGraph) => setBrowseSelection({ record: nextRecord, graph: nextGraph })} onOpenRecord={(nextRecord) => onNavigate(`/materials/records/${nextRecord.record_id}/revisions/${nextRecord.current_revision.id}`)}/></aside>;
+  const related = directRelatedRecords(graph, recordId, revisionId);
+  const navigator = <aside className="materials-left-pane" aria-label="Materials Browse Tree"><div className="workspace-back-row"><button className="ux-button tertiary" type="button" onClick={() => onNavigate(materialsReturnPath())}><EngineeringIcon name="back"/> <span>Results</span></button><strong>Browse</strong></div><Suspense fallback={<p className="loading-state">Loading Browse tree…</p>}><MaterialsBrowseTree config={config} publishedOnly requestedRecord={graph?.root ?? null} onSelectRecord={(_nextRecord, _nextGraph) => undefined} onOpenRecord={(nextRecord) => onNavigate(exactRecordPath(nextRecord.record_id, nextRecord.current_revision.id))}/></Suspense></aside>;
   const main = <section className="exact-record-datasheet material-tab-panel" aria-labelledby="exact-record-title">
     {loading && record ? <div className="datasheet-loading-line">Loading exact revision…</div> : null}
     {loading && !record ? <p className="loading-state">Loading exact record revision…</p> : null}
     {error ? <div className="ux-notice error" role="alert">{error}<button className="ux-button tertiary" type="button" onClick={() => setAttempt((current) => current + 1)}>Retry</button></div> : null}
-    {record ? <><header className="exact-record-header"><div><p className="ux-kicker">Exact record revision</p><h1 id="exact-record-title">{record.current_revision.content.name}</h1><p>{record.current_revision.content.description ?? "No record description is available."}</p></div><div className="exact-revision-mark"><strong>r{record.current_revision.revision_no}</strong><span>Immutable</span></div></header>{!record.current_revision.content.values.length ? <div className="ux-empty"><strong>No values in this revision.</strong><p>Revision details remain available in Evidence.</p></div> : null}<MaterialDatasheetProjection config={config} tableId={record.table_id} recordId={record.record_id} revisionId={revisionId} mode="properties"/><details className="ux-disclosure"><summary>Evidence and immutable identifiers</summary><dl className="evidence-grid"><dt>Record ID</dt><dd>{record.record_id}</dd><dt>Revision ID</dt><dd>{record.current_revision.id}</dd><dt>Content hash</dt><dd>{record.current_revision.content_hash}</dd><dt>Classification</dt><dd>{record.current_revision.classification}</dd><dt>Change reason</dt><dd>{record.current_revision.change_reason}</dd></dl></details></> : null}
+    {record ? <><header className="exact-record-header"><div><p className="ux-kicker">Exact record revision</p><h1 id="exact-record-title">{record.current_revision.content.name}</h1><p>{record.current_revision.content.description ?? "No record description is available."}</p></div><div className="exact-revision-mark"><strong>r{record.current_revision.revision_no}</strong><span>Immutable</span></div></header>{!record.current_revision.content.values.length ? <div className="ux-empty"><strong>No values in this revision.</strong><p>Revision details remain available in Evidence.</p></div> : null}<MaterialDatasheetProjection config={config} tableId={record.table_id} recordId={record.record_id} revisionId={revisionId} mode="properties"/><section className="exact-record-related" aria-labelledby="exact-record-related-title"><div className="detail-section-heading"><div><p className="ux-kicker">Direct links</p><h2 id="exact-record-related-title">Related data</h2></div></div>{related.length ? <RelatedExactRecordList items={related} onNavigate={onNavigate}/> : <p className="ux-meta">No directly linked data.</p>}</section><details className="ux-disclosure"><summary>Revision history and evidence</summary><h3>Revisions</h3><ul className="related-record-list">{revisions.map((revision) => <li key={revision.id}><button type="button" aria-current={revision.id === revisionId ? "page" : undefined} onClick={() => onNavigate(exactRecordPath(recordId, revision.id))}><span>Revision {revision.revision_no}</span><small>{revision.change_reason}</small></button></li>)}</ul><dl className="evidence-grid"><dt>Record ID</dt><dd>{record.record_id}</dd><dt>Revision ID</dt><dd>{record.current_revision.id}</dd><dt>Content hash</dt><dd>{record.current_revision.content_hash}</dd><dt>Classification</dt><dd>{record.current_revision.classification}</dd><dt>Change reason</dt><dd>{record.current_revision.change_reason}</dd></dl></details></> : null}
   </section>;
-  const context = <aside className="materials-selection material-related-context" aria-label="Revision and related record context"><p className="ux-kicker">Record context</p><h2>{record?.current_revision.content.name ?? "Catalog record"}</h2>{browseSelection ? <button className="ux-button primary" type="button" onClick={() => onNavigate(`/materials/records/${browseSelection.record.record_id}/revisions/${browseSelection.record.current_revision.id}`)}>Open selected record</button> : null}<h3>Revisions</h3><ul className="related-record-list">{revisions.map((revision) => <li key={revision.id}><button type="button" aria-current={revision.id === revisionId ? "page" : undefined} onClick={() => onNavigate(`/materials/records/${recordId}/revisions/${revision.id}`)}><span>Revision {revision.revision_no}</span><small>{revision.change_reason}</small></button></li>)}</ul><h3>Related exact records</h3><ul className="related-record-list">{related.slice(0, 12).map((item) => <li key={item.id}><button type="button" onClick={() => onNavigate(`/materials/records/${item.endpoint.record_id}/revisions/${item.endpoint.record_revision_id}`)}><span>{item.endpoint.name}</span><small>{item.label} · r{item.endpoint.revision_no}</small></button></li>)}</ul></aside>;
-
-  return <div className="ux-page materials-page materials-datasheet-page"><ResizableSplitPane id="cmp-materials-exact-record" navigator={navigator} main={main} context={context} navigatorLabel="navigator" contextLabel="record context" /></div>;
+  return <div className="ux-page materials-page materials-datasheet-page"><ResizableSplitPane id="cmp-materials-exact-record" navigator={navigator} main={main} navigatorLabel="navigator" /></div>;
 }
 
 export function SolverCardPreviewPage({ config, materialId, cardId, exactPin, onNavigate }: Props & { materialId: string; cardId: string; exactPin?: MaterialRevisionPin }) {

@@ -1,0 +1,45 @@
+{
+  "state": "categories",
+  "viewport": {
+    "width": 3840,
+    "height": 2160
+  },
+  "devicePixelRatio": 1,
+  "visualViewportScale": 1,
+  "document": {
+    "clientWidth": 3840,
+    "scrollWidth": 3840,
+    "clientHeight": 2160,
+    "scrollHeight": 2160
+  },
+  "shell": {
+    "x": 0,
+    "y": 0,
+    "width": 3840,
+    "height": 2160
+  },
+  "workspace": {
+    "x": 8,
+    "y": 178.796875,
+    "width": 3824,
+    "height": 1955
+  },
+  "navigator": {
+    "x": 9,
+    "y": 179.796875,
+    "width": 868.625,
+    "height": 1953
+  },
+  "central": {
+    "x": 877.625,
+    "y": 179.796875,
+    "width": 2026.828125,
+    "height": 1953
+  },
+  "context": {
+    "x": 2904.453125,
+    "y": 179.796875,
+    "width": 926.546875,
+    "height": 1953
+  }
+}

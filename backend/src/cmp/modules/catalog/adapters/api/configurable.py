@@ -44,6 +44,7 @@ from cmp.modules.catalog.domain.configurable import (
     AttributeDataType,
     AttributeDefinitionContent,
     CatalogDatabaseContent,
+    CatalogDataCategory,
     CatalogProfileContent,
     CatalogTableContent,
     ConfigurableCatalogConflict,
@@ -125,9 +126,10 @@ class TableContentInput(BaseModel):
     key: Annotated[str, StringConstraints(pattern=r"^[a-z][a-z0-9_]{0,63}$")]
     name: Annotated[str, StringConstraints(min_length=1, max_length=200)]
     description: Annotated[str | None, StringConstraints(min_length=1, max_length=4000)] = None
+    data_category: CatalogDataCategory | None = None
 
     def to_domain(self) -> CatalogTableContent:
-        return CatalogTableContent(self.key, self.name, self.description)
+        return CatalogTableContent(self.key, self.name, self.description, self.data_category)
 
 
 class TableCreateRequest(BaseModel):
@@ -164,6 +166,7 @@ class AttributeContentInput(BaseModel):
     allowed_values: tuple[Annotated[str, StringConstraints(min_length=1, max_length=255)], ...] = ()
     reference_table_id: UUID | None = None
     help_text: Annotated[str | None, StringConstraints(min_length=1, max_length=2000)] = None
+    business_key: bool = False
 
     def to_domain(self, table_id: UUID) -> AttributeDefinitionContent:
         return AttributeDefinitionContent(
@@ -183,6 +186,7 @@ class AttributeContentInput(BaseModel):
             allowed_values=self.allowed_values,
             reference_table_id=self.reference_table_id,
             help_text=self.help_text,
+            business_key=self.business_key,
         )
 
 
@@ -347,6 +351,7 @@ class TableRevisionResponse(RevisionMetadataResponse):
                 key=revision.content.key,
                 name=revision.content.name,
                 description=revision.content.description,
+                data_category=revision.content.data_category,
             ),
         )
 
@@ -396,6 +401,7 @@ class AttributeRevisionResponse(RevisionMetadataResponse):
                 allowed_values=content.allowed_values,
                 reference_table_id=content.reference_table_id,
                 help_text=content.help_text,
+                business_key=content.business_key,
             ),
         )
 

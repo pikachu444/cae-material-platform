@@ -127,7 +127,7 @@ Commands that do not apply remain hidden or disabled with a concise reason. The 
 The following state is restorable from URL and session state:
 
 - Materials query, filters, sort and selected result;
-- Browse Tree mode, expanded ancestors, selected Record and Subset;
+- Browse category and Catalog-placement expansion, selected Record and Subset;
 - Material Detail tab and selected solver card;
 - Modeling Material/State, active stage, selected curve/candidate and panel widths;
 - Administration Table, selected Attribute and active editor.
@@ -145,14 +145,14 @@ A user who knows the material name, grade or code can inspect applicability and 
 - Route: `/materials`
 - Search command has keyboard focus when no prior context exists.
 - Recent query and selection are restored when returning from Material Detail.
-- Results area remains visible while filters or context panes open and close.
+- Results area remains visible while filters open and close.
 
 ### Main path
 
 1. User enters material name, grade or code.
 2. Results update and show material name, family, source, relevant property, condition summary and solver-card availability.
-3. User selects a result. Selection updates the context pane without a full page transition.
-4. Context pane shows key properties, applicability, validation/release state and available solver cards.
+3. User selects a result. The center workspace replaces the list with its detail view without adding a right-side inspector.
+4. The detail view shows key properties, applicability, validation/release state and available solver cards.
 5. User either:
    - downloads an exact supported native card directly; or
    - opens Material Detail for curves, evidence or multiple card choices.
@@ -179,42 +179,45 @@ A user who knows the material name, grade or code can inspect applicability and 
 
 ### Goal
 
-A user who does not know the exact material name can navigate the governed database hierarchy and compare candidates without losing context.
+A user who does not know the exact item name can browse the four product data categories or switch to
+the governed Catalog hierarchy and compare candidates without losing context.
 
 ### Workspace topology
 
 ```text
-Navigator Tree | Record/Material grid | Selected datasheet or context
+Navigator Tree | Record/Material grid or selected datasheet
 ```
 
-- Pane widths are resizable and stored per user.
-- At 1366 px the optional context pane may collapse, but Tree and grid remain usable.
+- Navigator width is resizable and stored per user.
 - Tree, result grid and datasheet are not separate dashboard pages.
 
 ### Main path
 
-1. User switches the left navigator from Filters to Browse.
-2. Tree opens at restored Database/Profile/Table/Folder position.
-3. User expands nodes or uses Tree-local search.
-4. Selecting a Record updates the center result/grid selection and right datasheet context.
-5. Related Records and Workflow links are available in the selected context without replacing the Tree.
+1. The established Materials navigator opens in Browse with the four peer data categories.
+2. User selects a category and the center shows its current data items.
+3. When internal format or storage placement is needed, an authorized user opens Administration
+   and resumes the restored Table/Folder position or uses Tree-local search.
+4. Clicking a result row opens its datasheet in the center while the Tree remains visible.
+5. Direct related data is available inside the datasheet; multi-hop Workflow remains in Evidence.
 6. User selects up to three Materials or Records for comparison.
 7. Comparison opens as a grid with aligned Attributes, units, missing values, conditions and card availability.
 8. Closing comparison returns to the same Tree and selection.
 
 ### Tree rules
 
-- Database, Profile, Table, Folder, Record and Subset remain visually distinct but compact.
-- Search keeps matching Records and required ancestors visible.
+- Category and data-item rows remain visually
+  distinct but compact in one tree.
+- Tree-local Find keeps matching Records and required Catalog-placement ancestors visible.
 - `ArrowLeft/Right`, `ArrowUp/Down`, `Home`, `End` and type-ahead navigation work.
-- Double click or Enter opens the full datasheet; single click only selects.
-- Tree search is scoped and does not replace global Material search.
+- Single click or Enter opens the full datasheet from the center result list.
+- Tree search is scoped and updates the center result list.
 
 ### Related/link rules
 
 - Links use administrator-defined forward and reverse names.
 - Record links show relationship, target Record, type and revision.
-- Workflow view shows Material → State → Test Data → Dataset → Processing Output → IR → Neutral → Card.
+- Workflow shows only configured exact-revision links and may branch. It does not infer a universal
+  Material/Test Data/model/IR/Card chain or connect unrelated constitutive families or FLD data.
 - The user can follow a link and navigate back without losing the previous selected Record and expanded ancestors.
 
 ## 7. Flow C — create a missing solver card from an existing model

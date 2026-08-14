@@ -59,6 +59,8 @@
         "published",
         "source_schema_id",
         "source_schema_version",
+        "source_file",
+        "source_file_sha256",
         "source_pointer"
       ],
       "properties": {
@@ -91,6 +93,10 @@
         "published": {"type": "boolean"},
         "source_schema_id": {"type": "string", "minLength": 1, "maxLength": 500},
         "source_schema_version": {"type": "string", "minLength": 1, "maxLength": 64},
+        "source_file": {"type": ["string", "null"], "minLength": 1, "maxLength": 1000},
+        "source_file_sha256": {
+          "oneOf": [{"$ref": "#/$defs/Sha256"}, {"type": "null"}]
+        },
         "source_pointer": {"type": "string", "pattern": "^(/(?:[^/~]|~[01])*)+$"}
       },
       "allOf": [

@@ -1,0 +1,71 @@
+{
+  "state": "detail",
+  "viewport": {
+    "width": 2560,
+    "height": 1440,
+    "devicePixelRatio": 1
+  },
+  "zoom": 1,
+  "body": {
+    "scrollWidth": 2560,
+    "clientWidth": 2560
+  },
+  "shell": {
+    "x": 0,
+    "y": 0,
+    "width": 2560,
+    "height": 1440
+  },
+  "header": {
+    "x": 0,
+    "y": 0,
+    "width": 2560,
+    "height": 50
+  },
+  "navigator": {
+    "x": 9,
+    "y": 92,
+    "width": 287.984375,
+    "height": 1322
+  },
+  "main": {
+    "x": 302.984375,
+    "y": 92,
+    "width": 2248.015625,
+    "height": 1322
+  },
+  "navigatorScroll": {
+    "clientHeight": 1115,
+    "scrollHeight": 1115,
+    "clientWidth": 287,
+    "scrollWidth": 291,
+    "overflowX": "auto",
+    "overflowY": "auto"
+  },
+  "resultsScroll": null,
+  "treeRowHeight": 30,
+  "bodyFontSize": "16px",
+  "dataFontSize": null,
+  "activeDisplayTier": "standard",
+  "primaryCommandCount": 0,
+  "nestedPersistentCardCount": 0,
+  "visibleCategories": [
+    "Technical Data",
+    "DP780 synthetic reference steel",
+    "Synthetic Elastomer Ogden-Prony",
+    "Synthetic Polymer Prony",
+    "Test Data",
+    "DP780 FLD · Marciniak",
+    "DP780 FLD · Nakajima",
+    "DP780 tensile · 23 °C · 0.0007 s⁻¹",
+    "DP780 tensile · 23 °C · 0.0067 s⁻¹",
+    "DP780 tensile · 23 °C · 0.067 s⁻¹",
+    "DP780 tensile · 80 °C · 0.0067 s⁻¹",
+    "PA66-GF30 DMA · 0 °C frequency sweep",
+    "PA66-GF30 DMA · 23 °C frequency sweep",
+    "PA66-GF30 DMA · 60 °C frequency sweep",
+    "Simulation Data",
+    "Solver Cards"
+  ],
+  "capturedFromLiveApi": true
+}

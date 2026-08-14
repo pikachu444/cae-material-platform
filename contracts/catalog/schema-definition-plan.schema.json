@@ -63,6 +63,7 @@
         "database_key",
         "profile_key",
         "record_schema_count",
+        "unit_profile_count",
         "dependency_order"
       ],
       "properties": {
@@ -72,6 +73,7 @@
         "database_key": {"$ref": "#/$defs/StableKey"},
         "profile_key": {"$ref": "#/$defs/StableKey"},
         "record_schema_count": {"type": "integer", "minimum": 1},
+        "unit_profile_count": {"type": "integer", "minimum": 0},
         "dependency_order": {
           "type": "array",
           "items": {"$ref": "#/$defs/StableKey"},
@@ -100,7 +102,11 @@
           "pattern": "^[a-z][a-z0-9_]{0,62}[a-z0-9]$|^[a-z]$"
         },
         "name": {"type": "string", "minLength": 1, "maxLength": 200},
-        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 4000}
+        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 4000},
+        "data_category": {
+          "type": ["string", "null"],
+          "enum": ["technical_data", "test_data", "simulation_data", null]
+        }
       }
     },
     "ProfileProjection": {
@@ -123,10 +129,25 @@
     "AdapterSemanticsProjection": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["business_key", "nullable", "indexed", "searchable"],
+      "required": [
+        "business_key", "identity_rule", "nullable", "suggested_values", "curve",
+        "indexed", "searchable"
+      ],
       "properties": {
         "business_key": {"type": "boolean"},
+        "identity_rule": {"type": ["string", "null"], "minLength": 1, "maxLength": 1000},
         "nullable": {"type": "boolean"},
+        "suggested_values": {
+          "oneOf": [
+            {
+              "type": "array",
+              "items": {"type": "string", "minLength": 1, "maxLength": 255},
+              "uniqueItems": true
+            },
+            {"type": "null"}
+          ]
+        },
+        "curve": {"type": ["object", "null"]},
         "indexed": {"type": ["boolean", "null"]},
         "searchable": {"type": ["boolean", "null"]}
       }
@@ -194,8 +215,13 @@
           ]
         },
         "help_text": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000},
+        "source_schema_id": {"type": "string", "minLength": 1, "maxLength": 500},
+        "source_schema_version": {"type": "string", "minLength": 1, "maxLength": 64},
+        "source_file": {"type": "string", "minLength": 1, "maxLength": 1000},
+        "source_file_sha256": {"$ref": "#/$defs/Sha256"},
         "source_pointer": {"type": "string", "pattern": "^(/(?:[^/~]|~[01])*)+$"},
-        "adapter_semantics": {"$ref": "#/$defs/AdapterSemanticsProjection"}
+        "adapter_semantics": {"$ref": "#/$defs/AdapterSemanticsProjection"},
+        "business_key": {"type": "boolean"}
       }
     },
     "LayoutItemProjection": {

@@ -279,6 +279,7 @@ def _import_curve(
     imported = _json(
         client.post(
             "/tabular-import-runs",
+            headers={"Idempotency-Key": f"ogden-demo-import-{uuid4()}"},
             json={
                 "test_run_id": test_run["test_run_id"],
                 "test_run_revision_id": test_run["current_revision"]["id"],

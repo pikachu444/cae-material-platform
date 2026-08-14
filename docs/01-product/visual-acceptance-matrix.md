@@ -159,7 +159,10 @@ Additional checks:
 
 - compact-tier 24–26 px rows; approved high-DPI tiers use the shared row token;
 - local search fixed above tree;
-- Database/Profile/Table/Folder/Record depth is visible;
+- default Browse keeps the established Database/Profile ancestors, shows the four peer data
+  categories with their data-item children, while Administration retains Table/Folder/Record;
+- expanding categories preserves the selected exact data revision and other expanded
+  category branches;
 - tree scroll is independent;
 - overflowing tree/result panes show a distinct reserved track and proportional thumb in the
   captured pixels; DOM overflow or an auto-hidden native scrollbar alone does not pass;

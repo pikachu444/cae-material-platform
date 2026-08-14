@@ -143,6 +143,33 @@ def test_x_unit_handoff_requires_a_stable_common_unit_identifier(unit: str) -> N
     assert result.canonical()["write_set"] == []
 
 
+def test_unit_profile_values_require_stable_common_unit_identifiers() -> None:
+    document = _fixture("one")
+    document["unit_profiles"] = [
+        {
+            "key": "cae_mm_t_s",
+            "name": "mm-tonne-s",
+            "units": {"length": "mm", "mass": "tonne", "density": "tonne/mm3"},
+        }
+    ]
+
+    result = _plan(document)
+
+    assert not result.valid
+    diagnostics = {
+        item.location: item
+        for item in result.diagnostics
+        if item.location.startswith("/unit_profiles/0/units/")
+    }
+    assert set(diagnostics) == {
+        "/unit_profiles/0/units/density",
+        "/unit_profiles/0/units/mass",
+    }
+    assert all(item.code == "CMP-SCHEMA-BUNDLE-0002" for item in diagnostics.values())
+    assert all("stable common unit" in item.message for item in diagnostics.values())
+    assert result.canonical()["write_set"] == []
+
+
 @pytest.mark.parametrize("order", tuple(permutations(range(3))))
 def test_record_entry_order_does_not_change_dependency_or_action_semantics(
     order: tuple[int, ...],
@@ -322,6 +349,8 @@ def test_local_defs_refs_project_and_filesystem_refs_remain_forbidden() -> None:
     assert record_id.projected is not None
     assert record_id.projected["data_type"] == "text"
     assert record_id.projected["maximum_length"] == 64
+    assert record_id.projected["business_key"] is True
+    assert record_id.projected["adapter_semantics"]["business_key"] is True
 
     for reference in (
         "../material.schema.json#/properties/record_id",
@@ -366,6 +395,35 @@ def test_local_defs_refs_project_and_filesystem_refs_remain_forbidden() -> None:
     assert "CMP-SCHEMA-BUNDLE-0011" in {
         diagnostic.code for diagnostic in recursive_plan.diagnostics
     }
+
+
+def test_bundle_does_not_silently_replace_an_unowned_business_key() -> None:
+    snapshot = CatalogSnapshot(
+        ORG,
+        PROJECT,
+        (
+            CatalogStateObject(
+                "attribute",
+                "legacy_business_key",
+                "materials",
+                UUID("20400000-0000-4000-8000-000000000071"),
+                UUID("20400000-0000-4000-8000-000000000072"),
+                "7" * 64,
+                True,
+                {"business_key": True},
+                classification=DataClassification.INTERNAL,
+            ),
+        ),
+    )
+
+    result = _plan(_fixture("one"), snapshot)
+
+    assert not result.valid
+    diagnostic = next(
+        item for item in result.diagnostics if item.code == "CMP-SCHEMA-BUNDLE-0015"
+    )
+    assert diagnostic.location == "/catalog/table/materials/business_key"
+    assert "delete_missing=false" in diagnostic.remediation
 
 
 def test_unsafe_shape_and_flattened_key_collision_fail_closed() -> None:

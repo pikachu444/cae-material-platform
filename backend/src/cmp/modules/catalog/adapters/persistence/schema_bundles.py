@@ -159,6 +159,7 @@ class SqlAlchemySchemaBundleSnapshotRepository:
                         schema_table_revision.c.table_key,
                         schema_table_revision.c.name,
                         schema_table_revision.c.description,
+                        schema_table_revision.c.data_category,
                     )
                     .select_from(_current_join(schema_table, schema_table_revision))
                     .order_by(schema_table_revision.c.table_key, schema_table.c.id)
@@ -187,6 +188,7 @@ class SqlAlchemySchemaBundleSnapshotRepository:
                         attribute_definition_revision.c.allowed_values,
                         attribute_definition_revision.c.reference_table_id,
                         attribute_definition_revision.c.help_text,
+                        attribute_definition_revision.c.business_key,
                     )
                     .select_from(_current_join(attribute_definition, attribute_definition_revision))
                     .order_by(
@@ -376,8 +378,7 @@ class SqlAlchemySchemaBundleSnapshotRepository:
                                 catalog_record_revision.c.aggregate_id == catalog_record.c.id,
                                 catalog_record_revision.c.organization_id
                                 == catalog_record.c.organization_id,
-                                catalog_record_revision.c.project_id
-                                == catalog_record.c.project_id,
+                                catalog_record_revision.c.project_id == catalog_record.c.project_id,
                             ),
                         )
                     )
@@ -459,6 +460,13 @@ class SqlAlchemySchemaBundleSnapshotRepository:
             for row in table_rows:
                 object_id = cast(UUID, row["id"])
                 revision_id = cast(UUID, row["current_revision_id"])
+                table_content = {
+                    "key": row["table_key"],
+                    "name": row["name"],
+                    "description": row["description"],
+                }
+                if row["data_category"] is not None:
+                    table_content["data_category"] = row["data_category"]
                 objects.append(
                     CatalogStateObject(
                         "table",
@@ -468,11 +476,7 @@ class SqlAlchemySchemaBundleSnapshotRepository:
                         revision_id,
                         cast(str, row["content_hash"]),
                         _published(markers, TABLE_AGGREGATE_TYPE, object_id, revision_id),
-                        {
-                            "key": row["table_key"],
-                            "name": row["name"],
-                            "description": row["description"],
-                        },
+                        table_content,
                         classification=DataClassification(cast(str, row["classification"])),
                         has_current_records=object_id in current_record_table_ids,
                     )
@@ -487,6 +491,24 @@ class SqlAlchemySchemaBundleSnapshotRepository:
                 reference_key = table_keys.get(reference_id) if reference_id is not None else None
                 if reference_id is not None and reference_key is None:
                     raise RuntimeError("Attribute snapshot contains an unresolved reference Table")
+                attribute_content = {
+                    "key": row["attribute_key"],
+                    "name": row["name"],
+                    "data_type": row["data_type"],
+                    "required": bool(row["required"]),
+                    "quantity_semantics": row["quantity_semantics"],
+                    "normalized_unit": row["normalized_unit"],
+                    "minimum_number": _number(row["minimum_number"]),
+                    "maximum_number": _number(row["maximum_number"]),
+                    "minimum_length": row["minimum_length"],
+                    "maximum_length": row["maximum_length"],
+                    "pattern": row["pattern"],
+                    "allowed_values": list(row["allowed_values"] or ()),
+                    "reference_table_key": reference_key,
+                    "help_text": row["help_text"],
+                }
+                if row["business_key"]:
+                    attribute_content["business_key"] = True
                 objects.append(
                     CatalogStateObject(
                         "attribute",
@@ -496,22 +518,7 @@ class SqlAlchemySchemaBundleSnapshotRepository:
                         revision_id,
                         cast(str, row["content_hash"]),
                         _published(markers, ATTRIBUTE_AGGREGATE_TYPE, object_id, revision_id),
-                        {
-                            "key": row["attribute_key"],
-                            "name": row["name"],
-                            "data_type": row["data_type"],
-                            "required": bool(row["required"]),
-                            "quantity_semantics": row["quantity_semantics"],
-                            "normalized_unit": row["normalized_unit"],
-                            "minimum_number": _number(row["minimum_number"]),
-                            "maximum_number": _number(row["maximum_number"]),
-                            "minimum_length": row["minimum_length"],
-                            "maximum_length": row["maximum_length"],
-                            "pattern": row["pattern"],
-                            "allowed_values": list(row["allowed_values"] or ()),
-                            "reference_table_key": reference_key,
-                            "help_text": row["help_text"],
-                        },
+                        attribute_content,
                         dependency_heads_match=(
                             cast(UUID, row["table_revision_id"]) == table_heads[table_id]
                         ),

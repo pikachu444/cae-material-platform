@@ -159,6 +159,7 @@ import type {
   BulkExportCandidate,
   BulkExportJobResponse,
   BulkExportSourceRef,
+  CatalogDataCategory,
   ExportSelectionResponse,
   OperationalSnapshotResponse,
   ConfigurableAttributeContent,
@@ -1018,7 +1019,8 @@ export function createConfigurableCatalogFolder(
 export function searchConfigurableCatalogRecords(
   config: ApiConfig,
   input: {
-    table_id: string;
+    table_id?: string | null;
+    data_category?: CatalogDataCategory | null;
     text: string | null;
     folder_id: string | null;
     record_id?: string | null;
@@ -4407,12 +4409,19 @@ export async function uploadGovernedTabularFile(
 
 const SCHEMA_DEFINITION_BUNDLE_MEDIA_TYPE =
   "application/vnd.cmp.catalog-schema-definition-bundle+json";
+const SCHEMA_DEFINITION_SOURCE_SET_MEDIA_TYPE =
+  "application/vnd.cmp.catalog-schema-source-set+json";
+const SCHEMA_DEFINITION_SOURCE_ZIP_MEDIA_TYPE =
+  "application/vnd.cmp.catalog-schema-source-set+zip";
 const SCHEMA_DEFINITION_BUNDLE_MAX_BYTES = 64 * 1024 * 1024;
 const SCHEMA_DEFINITION_BUNDLE_FILE_TYPES = new Set([
   "",
   "application/json",
   "application/schema+json",
   SCHEMA_DEFINITION_BUNDLE_MEDIA_TYPE,
+  SCHEMA_DEFINITION_SOURCE_SET_MEDIA_TYPE,
+  "application/zip",
+  SCHEMA_DEFINITION_SOURCE_ZIP_MEDIA_TYPE,
 ]);
 
 export async function uploadSchemaDefinitionBundle(
@@ -4423,14 +4432,24 @@ export async function uploadSchemaDefinitionBundle(
   if (!filename || filename.includes("/") || filename.includes("\\")) {
     throw new ApiError(422, "Choose a JSON bundle with a safe, non-empty filename.");
   }
-  if (!filename.toLowerCase().endsWith(".json") || !SCHEMA_DEFINITION_BUNDLE_FILE_TYPES.has(input.file.type)) {
-    throw new ApiError(415, "Choose a JSON Schema Definition Bundle file (.json).");
+  const lowerFilename = filename.toLowerCase();
+  const isZip = lowerFilename.endsWith(".zip");
+  if (
+    (!lowerFilename.endsWith(".json") && !isZip)
+    || !SCHEMA_DEFINITION_BUNDLE_FILE_TYPES.has(input.file.type)
+  ) {
+    throw new ApiError(415, "Choose a JSON source set or ZIP Schema Definition source.");
   }
   if (input.file.size < 1 || input.file.size > SCHEMA_DEFINITION_BUNDLE_MAX_BYTES) {
     throw new ApiError(413, "The definition bundle must be between 1 byte and 64 MiB.");
   }
 
   const digest = await sha256Hex(input.file);
+  const mediaType = isZip
+    ? SCHEMA_DEFINITION_SOURCE_ZIP_MEDIA_TYPE
+    : input.file.type === SCHEMA_DEFINITION_SOURCE_SET_MEDIA_TYPE
+      ? SCHEMA_DEFINITION_SOURCE_SET_MEDIA_TYPE
+      : SCHEMA_DEFINITION_BUNDLE_MEDIA_TYPE;
   const created = await request<{ upload: UploadSession; upload_capability: string }>(
     config,
     "/uploads",
@@ -4440,7 +4459,7 @@ export async function uploadSchemaDefinitionBundle(
       body: JSON.stringify({
         classification: input.classification,
         original_filename: filename,
-        media_type: SCHEMA_DEFINITION_BUNDLE_MEDIA_TYPE,
+        media_type: mediaType,
         expected_size_bytes: input.file.size,
         expected_sha256: digest,
       }),
@@ -4452,7 +4471,7 @@ export async function uploadSchemaDefinitionBundle(
     const part = input.file.slice(
       start,
       Math.min(input.file.size, start + upload.part_size_bytes),
-      SCHEMA_DEFINITION_BUNDLE_MEDIA_TYPE,
+      mediaType,
     );
     await request<UploadSession>(
       config,
@@ -4460,7 +4479,7 @@ export async function uploadSchemaDefinitionBundle(
       {
         method: "PUT",
         headers: {
-          "Content-Type": SCHEMA_DEFINITION_BUNDLE_MEDIA_TYPE,
+          "Content-Type": mediaType,
           "Upload-Capability": capability,
         },
         body: part,

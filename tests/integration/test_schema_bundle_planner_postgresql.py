@@ -48,7 +48,11 @@ from cmp.modules.catalog.application.configurable import (
     PublishRevision,
     ReviseDatabase,
 )
-from cmp.modules.catalog.application.records import CatalogRecordService, CreateRecord
+from cmp.modules.catalog.application.records import (
+    CatalogRecordService,
+    CreateRecord,
+    ReviseRecord,
+)
 from cmp.modules.catalog.application.schema_bundles import (
     ApplySchemaDefinitionBundle,
     PlanSchemaDefinitionBundle,
@@ -61,13 +65,22 @@ from cmp.modules.catalog.domain.configurable import (
     AttributeDataType,
     AttributeDefinitionContent,
     CatalogDatabaseContent,
+    CatalogDataCategory,
     CatalogProfileContent,
     CatalogTableContent,
     LayoutContent,
     LayoutItem,
 )
-from cmp.modules.catalog.domain.records import CatalogRecordContent, CatalogRecordValue
+from cmp.modules.catalog.domain.records import (
+    CatalogRecordContent,
+    CatalogRecordQuery,
+    CatalogRecordValue,
+)
 from cmp.modules.catalog.domain.schema_bundles import PlanDisposition
+from cmp.modules.catalog.domain.schema_sources import (
+    SOURCE_SET_CONTRACT_ID,
+    SOURCE_SET_MEDIA_TYPE,
+)
 from cmp.modules.identity_access.adapters.persistence.rls import SqlAlchemyRlsContext
 from cmp.modules.identity_access.application.authorization import database_permissions_for
 from cmp.modules.identity_access.domain.authorization import (
@@ -505,6 +518,322 @@ def _bump_bundle_version(raw_bytes: bytes, version: str) -> dict[str, Any]:
         )
         changed_schema["schema_sha256"] = content_sha256(changed_schema["schema"])
     return changed
+
+
+def _task1_structural_source_set() -> bytes:
+    """Build a source-v2 package without taking ownership of Task 2 units.
+
+    Task 1 proves the package/envelope/schema/link boundary. The approved source
+    fixture is covered separately and must continue to report the exact closed-unit
+    errors until Task 2 expands the production registry.
+    """
+
+    source_root = PROJECT_ROOT / "fixtures" / "schema-definition-bundle" / "source-v2"
+    replacements = {
+        "Hz": "s",
+        "mm/min": "mm",
+        "tonne": "kg",
+        "tonne/mm3": "kg/m3",
+    }
+
+    def replace_units(value: Any) -> Any:
+        if isinstance(value, str):
+            return replacements.get(value, value)
+        if isinstance(value, list):
+            return [replace_units(item) for item in value]
+        if isinstance(value, dict):
+            return {key: replace_units(item) for key, item in value.items()}
+        return value
+
+    files: list[dict[str, str]] = []
+    for path in sorted(item for item in source_root.rglob("*") if item.is_file()):
+        relative = path.relative_to(source_root).as_posix()
+        source_content = path.read_text(encoding="utf-8")
+        content = (
+            json.dumps(
+                replace_units(json.loads(source_content)),
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            )
+            if path.suffix == ".json"
+            else source_content
+        )
+        files.append(
+            {
+                "path": relative,
+                "sha256": hashlib.sha256(content.encode()).hexdigest(),
+                "content": content,
+            }
+        )
+    return json.dumps(
+        {
+            "$schema": SOURCE_SET_CONTRACT_ID,
+            "contract_version": "1.0.0",
+            "files": files,
+        },
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode()
+
+
+def test_source_v2_structural_bundle_applies_round_trips_and_pins_business_references(
+    postgres: Harness,
+) -> None:
+    context = _context()
+    write = _decision(context, Permission.CATALOG_WRITE)
+    apply = _decision(context, Permission.CATALOG_SCHEMA_APPLY)
+    read = _decision(context, Permission.CATALOG_READ)
+    raw_bytes = _task1_structural_source_set()
+    artifact = asyncio.run(
+        postgres.artifacts.finalize_derived_bytes(
+            context,
+            _decision(context, Permission.ARTIFACT_WRITE),
+            classification=DataClassification.INTERNAL,
+            artifact_role="catalog.schema-definition-bundle",
+            schema_ref=SOURCE_SET_CONTRACT_ID,
+            media_type=SOURCE_SET_MEDIA_TYPE,
+            value=raw_bytes,
+            idempotency_key="issue-246-task1-source-v2-structural-source",
+        )
+    ).artifact
+
+    plan = asyncio.run(
+        postgres.planner.plan(
+            context,
+            write,
+            PlanSchemaDefinitionBundle(artifact.id, artifact.sha256),
+        )
+    )
+    assert plan.valid
+    assert len([item for item in plan.actions if item.target_type == "table"]) == 6
+    assert len([item for item in plan.actions if item.target_type == "link_type"]) == 5
+    assert plan.bundle is not None
+    assert plan.bundle.summary()["unit_profile_count"] == 2
+
+    first = asyncio.run(
+        postgres.planner.apply(
+            context,
+            apply,
+            ApplySchemaDefinitionBundle(
+                artifact.id,
+                artifact.sha256,
+                plan.plan_fingerprint,
+                "issue-246-task1-source-v2-structural-apply",
+            ),
+        )
+    )
+    assert first.mutations_applied
+    assert len([item for item in first.results if item.target_type == "table"]) == 6
+    assert len([item for item in first.results if item.target_type == "link_type"]) == 5
+    technical_binding = next(
+        item
+        for item in first.results
+        if item.target_type == "attribute"
+        and item.external_key == "data_information__technical_data_id"
+    )
+    assert technical_binding.source_schema_id == "urn:smx:schema:technical-data:2.0.0"
+    assert technical_binding.source_schema_version == "2.0.0"
+    assert technical_binding.source_file == "record-schemas/technical-data-v2.json"
+    source_document = json.loads(raw_bytes)
+    technical_source = next(
+        item["content"]
+        for item in source_document["files"]
+        if item["path"] == "record-schemas/technical-data-v2.json"
+    ).encode()
+    assert technical_binding.source_file_sha256 == hashlib.sha256(technical_source).hexdigest()
+    assert technical_binding.source_pointer.endswith(
+        "/properties/Data Information/properties/Technical Data ID"
+    )
+
+    tables = {
+        item.current.content.key: item
+        for item in postgres.catalog.list_tables(context, read)
+    }
+    technical_table = tables["technical_data"]
+    tensile_table = tables["tensile_test"]
+    assert technical_table.current.content.data_category is CatalogDataCategory.TECHNICAL_DATA
+    assert tensile_table.current.content.data_category is CatalogDataCategory.TEST_DATA
+    technical_attributes = postgres.catalog.list_attributes(
+        context, read, technical_table.id
+    )
+    tensile_attributes = postgres.catalog.list_attributes(context, read, tensile_table.id)
+    technical_business = next(
+        item for item in technical_attributes if item.current.content.business_key
+    )
+    tensile_business = next(
+        item for item in tensile_attributes if item.current.content.business_key
+    )
+    tensile_reference = next(
+        item
+        for item in tensile_attributes
+        if item.current.content.data_type is AttributeDataType.RECORD_REFERENCE
+    )
+
+    technical = postgres.records.create_record(
+        context,
+        write,
+        CreateRecord(
+            DataClassification.INTERNAL,
+            CatalogRecordContent(
+                technical_table.id,
+                technical_table.current.record.revision_id,
+                "Synthetic technical source",
+                values=(
+                    CatalogRecordValue(
+                        technical_business.id,
+                        technical_business.current.record.revision_id,
+                        technical_business.current.content.data_type,
+                        value="TECH-246-001",
+                    ),
+                ),
+            ),
+            "prove source-v2 business-key promotion",
+        ),
+    )
+    assert technical.current.content.external_key == "TECH-246-001"
+
+    missing_technical = postgres.records.preview_registration(
+        context,
+        write,
+        table_id=tensile_table.id,
+        table_revision_id=tensile_table.current.record.revision_id,
+        rows=(
+            {
+                "Name": "Unlinked tensile source",
+                "Tensile ID": "TEN-246-MISSING",
+            },
+        ),
+        mapping={
+            "Name": "name",
+            "Tensile ID": str(tensile_business.id),
+        },
+    )
+    assert not missing_technical.valid
+    assert [(error.row, error.column) for error in missing_technical.errors] == [
+        (1, "data_information__technical_data_ref")
+    ]
+
+    preview = postgres.records.preview_registration(
+        context,
+        write,
+        table_id=tensile_table.id,
+        table_revision_id=tensile_table.current.record.revision_id,
+        rows=(
+            {
+                "Name": "Synthetic tensile source",
+                "Tensile ID": "TEN-246-001",
+                "Technical ID": "TECH-246-001",
+            },
+        ),
+        mapping={
+            "Name": "name",
+            "Tensile ID": str(tensile_business.id),
+            "Technical ID": str(tensile_reference.id),
+        },
+    )
+    assert preview.valid, preview.errors
+    published = postgres.records.publish_registration(
+        context,
+        write,
+        token=preview.token,
+        table_id=tensile_table.id,
+        table_revision_id=tensile_table.current.record.revision_id,
+        change_reason="prove source-v2 human-key reference resolution",
+    )
+    tensile = published.records[0]
+    reference_value = next(
+        item
+        for item in tensile.current.content.values
+        if item.attribute_definition_id == tensile_reference.id
+    )
+    assert tensile.current.content.external_key == "TEN-246-001"
+    assert reference_value.target_record_id == technical.id
+    assert reference_value.target_record_revision_id == technical.current.record.revision_id
+
+    revised_technical = postgres.records.revise_record(
+        context,
+        write,
+        technical.id,
+        ReviseRecord(
+            technical.current.record.revision_id,
+            CatalogRecordContent(
+                technical.current.content.table_id,
+                technical.current.content.table_revision_id,
+                technical.current.content.name,
+                technical.current.content.external_key,
+                "Later upstream revision",
+                values=technical.current.content.values,
+            ),
+            "prove existing references stay pinned",
+        ),
+    )
+    assert revised_technical.current.record.revision_id != (
+        reference_value.target_record_revision_id
+    )
+
+    technical_results = postgres.records.search_records(
+        context,
+        read,
+        CatalogRecordQuery(None, data_category="technical_data"),
+    )
+    test_results = postgres.records.search_records(
+        context,
+        read,
+        CatalogRecordQuery(None, data_category="test_data"),
+    )
+    assert [item.id for item in technical_results.items] == [technical.id]
+    assert [item.id for item in test_results.items] == [tensile.id]
+
+    fresh_plan = asyncio.run(
+        postgres.planner.plan(
+            context,
+            write,
+            PlanSchemaDefinitionBundle(artifact.id, artifact.sha256),
+        )
+    )
+    assert fresh_plan.valid
+    assert {item.disposition for item in fresh_plan.actions} == {PlanDisposition.NO_OP}
+    second = asyncio.run(
+        postgres.planner.apply(
+            context,
+            apply,
+            ApplySchemaDefinitionBundle(
+                artifact.id,
+                artifact.sha256,
+                fresh_plan.plan_fingerprint,
+                "issue-246-task1-source-v2-structural-no-op",
+            ),
+        )
+    )
+    assert not second.mutations_applied
+
+    exported = asyncio.run(postgres.planner.export(context, apply, "smx_material_db"))
+    assert exported.value == raw_bytes
+    assert exported.sha256 == artifact.sha256
+    assert exported.media_type == SOURCE_SET_MEDIA_TYPE
+    exported_artifact = asyncio.run(
+        postgres.artifacts.finalize_derived_bytes(
+            context,
+            _decision(context, Permission.ARTIFACT_WRITE),
+            classification=DataClassification.INTERNAL,
+            artifact_role="catalog.schema-definition-bundle",
+            schema_ref=SOURCE_SET_CONTRACT_ID,
+            media_type=exported.media_type,
+            value=exported.value,
+            idempotency_key="issue-246-task1-source-v2-structural-export",
+        )
+    ).artifact
+    round_trip = asyncio.run(
+        postgres.planner.plan(
+            context,
+            write,
+            PlanSchemaDefinitionBundle(exported_artifact.id, exported_artifact.sha256),
+        )
+    )
+    assert round_trip.valid
+    assert {item.disposition for item in round_trip.actions} == {PlanDisposition.NO_OP}
 
 
 def test_planner_is_repeatable_and_leaves_postgresql_state_byte_equivalent(
@@ -1080,10 +1409,10 @@ def test_bundle_apply_blocks_table_revision_when_current_records_need_migration(
         CreateRecord(
             DataClassification.INTERNAL,
             CatalogRecordContent(
-                material_table.aggregate_id,
-                material_table.revision_id,
-                "Synthetic material that pins schema v1",
-                external_key="issue-207-record-conflict",
+                    material_table.aggregate_id,
+                    material_table.revision_id,
+                    "Synthetic material that pins schema v1",
+                    external_key="MAT-207",
                 values=(
                     CatalogRecordValue(
                         record_id_attribute.aggregate_id,

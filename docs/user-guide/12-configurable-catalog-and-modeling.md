@@ -35,10 +35,23 @@ Record나 과거 revision을 바꾸지 않는다.
 ### JSON Schema 정의 bundle을 계획하고 적용하기
 
 여러 record schema를 한 번에 준비하는 Administrator는 **Administration → Definition bundles**에서
-JSON 파일 하나를 선택한다. 화면은 MIME, 1 byte–64 MiB 크기, JSON과 기본 bundle 구조를 먼저 확인한
-뒤 원문을 immutable Artifact로 올리고, 서버가 현재 Catalog와 비교한 `Create`, `Update`,
-`No change`, `Conflict`, `Error` 계획을 보여 준다. 같은 bundle 안의 local JSON Pointer와 선언된
-record `$id`만 참조할 수 있다.
+다음 입력 중 하나를 선택한다.
+
+- canonical bundle JSON 한 개
+- source-v2 manifest와 이 manifest가 가리키는 JSON 파일들
+- 이미 만든 source-set envelope JSON
+- 같은 파일 구성을 담은 ZIP 한 개
+
+여러 파일을 고르면 화면이 경로를 정렬하고 각 파일의 SHA-256을 포함한 하나의 결정론적 source-set
+envelope를 만든다. 화면은 MIME, 1 byte–64 MiB 크기, 안전한 상대 경로와 JSON 구조를 먼저 확인한 뒤
+그 exact bytes를 immutable Artifact로 올린다. 선택 영역에는 파일 수, source 종류, bundle/version,
+record schema 수와 unit profile 수가 보인다. 내부 Artifact ID와 checksum은 **Source evidence**에서만
+확인한다. 이 source adapter는 입력 형식을 canonical Catalog 계약으로 바꾸는 경계이며 Material Model
+IR이나 selected model을 만들지 않는다.
+
+서버는 현재 Catalog와 비교한 `Create`, `Update`, `No change`, `Conflict`, `Error` 계획을 보여 준다.
+같은 source set 안에서 선언하고 checksum을 검증한 파일과 record `$id`만 참조할 수 있다. 지원하지
+않는 schema 표현이나 단위는 진단으로 남고, 임의 필드나 단위로 바뀌지 않는다.
 
 ![Definition Bundle 변경 계획과 선택한 항목의 영향](images/current/administration-schema-bundle-1440x900.png)
 
@@ -97,31 +110,42 @@ file/curve 값과 다른 레코드 연결의 상세 식별자는 **Evidence** �
 
 ## Material Database와 exact Record Link 사용
 
-1. 전역 **Materials → Browse Tree**를 연다. `/database`와 `/catalog/explorer`는 전체
-   datasheet/link 관리를 위한 호환·고급 화면으로 남아 있지만 일반 탐색의 시작점이 아니다.
-2. 왼쪽 **Contents Tree**에서 CAE Material Database → Engineering Materials Profile → Table →
-   Folder → Record를 펼친다. Folder 하위 노드는 펼칠 때 실제 PostgreSQL에서 지연 로딩된다.
-3. 이름·external key·설명·text Attribute로 검색하거나 **Saved Subsets**의 revisioned 검색 조건을
-   적용한다. 검색 결과는 exact current Record revision이며 선택하면 같은 가운데 workspace가 열린다.
-4. Record를 선택하면 가운데 **Workflow Tree**가 Material → State → Test Data → Processing →
-   Material Model IR → Neutral Material → Solver Card 경로를 계층으로 표시한다. 주소에는
-   `/database/records/{record_id}/revisions/{revision_id}`가 남는다.
-5. Workflow 노드를 누르면 대상 exact governed revision의 workbench로 이동한다. 브라우저에서
-   돌아오면 기존 Contents Tree 문맥을 이어 탐색할 수 있다. 오른쪽 **Related Data**는 현재 선택한
-   exact revision에 직접 연결된 관계만 표시한다.
-6. 새 링크는 오른쪽에서 Link Type과 대상 Record의 현재 exact revision을 확인한 후 만든다.
+1. 일반 사용자의 시작점은 `/materials`다. 동일한 Materials
+   workspace의 **Browse**로 들어오는 호환 주소다. 기존 `Materials Database → Engineering Materials`
+   Tree 아래에서 `Technical Data`, `Test Data`, `Simulation Data`, `Solver Cards`를 서로 같은 수준의
+   네 범주로 보여 준다. 이 범주는 저장 위치나 처리 순서를 강제하는 계층이 아니다.
+2. 범주를 펼치면 그 아래에 개별 항목이 나타난다. `Technical Data`는 규격과 재료 사실,
+   `Test Data`는 실험과 측정 곡선, `Simulation Data`는 선택한 모델과 유도 결과, `Solver Cards`는
+   release된 solver-ready artifact를 뜻한다. 범주를 누르면 가운데에 목록이 나오고, 목록의 항목을
+   한 번 누르면 같은 가운데 영역에서 exact revision datasheet를 연다.
+3. 상세 화면의 **Related data**는 현재 exact revision에 직접 연결된 항목만 네 범주별로
+   묶어 보여 준다. Test Data에는 Technical Data 연결이 필요하다. 반면 Simulation Data나 Solver Card는
+   실제 reviewed exact link가 있을 때만 보이며, elastoplasticity와 viscoelasticity를 서로 잇거나 FLD를
+   downstream 항목에 자동 연결하지 않는다.
+4. `Technical Data → tensile Test Data → selected elastoplastic model → Solver Card`와
+   `Technical Data → DMA Test Data → selected linear viscoelastic model → Solver Card`는 서로 독립적인
+   링크 흐름으로 탐색할 수 있다. Fit run/candidate는 Modeling 또는 Activity, selected model은
+   Simulation Data, Material Model IR은 Advanced/Evidence, 생성된 카드는 Solver Cards에서 확인한다.
+5. Table → Folder → Record 저장 위치나 데이터 형식을 관리해야 하면 **Administration**을 연다. Folder
+   하위 노드는 펼칠 때 실제 PostgreSQL에서 지연 로딩된다. 여러 hop의 provenance는 별도 Navigator가
+   아니라 **Evidence**의 Workflow에서 확인한다.
+6. 이름·external key·설명·text Attribute로 검색하거나 **Saved Subsets**의 revisioned 검색 조건을
+   적용한다. 검색 결과와 직접 링크는 exact Record revision을 열며 주소에는
+   `/materials/records/{record_id}/revisions/{revision_id}`로 열린다. 기존
+   `/materials/records/{record_id}/revisions/{revision_id}` deep link도 같은 datasheet로 연결된다.
+7. 새 링크는 Administration에서 Link Type과 대상 Record의 현재 exact revision을 확인한 후 만든다.
    endpoint를 전진시키려면 기존 링크를 덮어쓰지 않고 같은 stable Link의 새 revision을 만든다.
-7. **Deactivate**는 링크를 삭제하거나 덮어쓰지 않고 `active=false`인 새 Record Link revision을
+8. **Deactivate**는 링크를 삭제하거나 덮어쓰지 않고 `active=false`인 새 Record Link revision을
    추가한다.
 
 
-8. **Datasheet** 탭을 열면 관리자가 정의한 Layout section과 순서로 typed Attribute가 표시된다.
+9. **Datasheet** 탭을 열면 관리자가 정의한 Layout section과 순서로 typed Attribute가 표시된다.
    number 값은 원본 값/단위와 normalized 값/단위, quantity semantics를 함께 표시한다. 여러 Layout이
    있으면 우측 Layout 선택기로 datasheet 구성을 바꾼다.
-9. 상단 검색에서 Table과 검색어를 선택한다. 오른쪽에서 discrete facet 또는 normalized numeric
+10. 상단 검색에서 Table과 검색어를 선택한다. 오른쪽에서 discrete facet 또는 normalized numeric
    range를 적용할 수 있다. 두 결과의 **Compare**를 체크한 뒤 **Compare 2**를 누르면 선택한 Layout
    순서로 exact current Record revision을 나란히 비교한다.
-10. **Curves**에서 현재 Record revision의 곡선을 선택하면 같은 화면의 큰 그래프에서 채널 이름,
+11. **Curves**에서 현재 Record revision의 곡선을 선택하면 같은 화면의 큰 그래프에서 채널 이름,
     축 역할, 원본/정규화·표시 단위와 기록된 통계 band 의미를 확인할 수 있다. **Evidence**는 exact
     Record/Artifact revision과 digest, source와 calculation chain을 펼쳐 보여 준다. 정확히 연결된
     Test Data 곡선만 **Open in Modeling**으로 전달된다. 통계 envelope와 provenance가 없는 legacy

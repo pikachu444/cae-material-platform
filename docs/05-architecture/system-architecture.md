@@ -46,7 +46,7 @@ Material Modeling
 
 Product read models compose existing module-owned facts without becoming a new source of truth:
 
-- `ContentsTree`: Database/Profile/Table/Folder/Record hierarchy, Subset visibility and current
+- `ContentsTree`: four user-facing data categories and their current items; Administration retains Database/Profile/Table/Folder/Record hierarchy, Subset visibility and current
   display revision;
 - `RecordWorkspace`: Layout datasheet, curves, exact related records and revision context;
 - `ModelingSession`: selected test inputs, Mapping Profile, preview/committed pipeline, candidates,

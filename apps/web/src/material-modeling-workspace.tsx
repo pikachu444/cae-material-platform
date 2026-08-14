@@ -164,7 +164,7 @@ function FamilyModelingPanel({
         <div className="empty-tab-state">
           <strong>No {track} Material is available</strong>
           <p>Create a classified Material, State and typed property set in the Material Database first.</p>
-          <button className="button primary" type="button" onClick={() => onNavigate("/database")}>Open Material Database</button>
+          <button className="button primary" type="button" onClick={() => onNavigate("/materials")}>Open Materials</button>
         </div>
       ) : null}
       {!loading && detail && (!state || !propertySet) ? (

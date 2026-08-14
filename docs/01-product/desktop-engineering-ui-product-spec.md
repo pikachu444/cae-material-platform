@@ -30,7 +30,7 @@ enforced even when its controls are intentionally unobtrusive.
 ## 2. Confirmed product facts
 
 - The platform already supports Material, Material State, typed properties, configurable Table/Attribute/Layout/Subset/Link Type, exact Record links, Test Data, processing, fitting, Material Model IR, Neutral Material and native solver cards.
-- Database/Profile/Table/Folder/Record hierarchy, revision/provenance, original and normalized units and explicit solver mapping states must be preserved.
+- Database/Profile/Table/Folder/Record hierarchy remains in Administration. Materials preserves exact revision/provenance, original and normalized units, and explicit solver mapping states without exposing the internal storage hierarchy.
 - Materials is the default entry point.
 - Modeling uses Data, Process, Fit and Export as the user-facing stages.
 - Advanced technical objects remain available, but are not the primary navigation model.
@@ -137,19 +137,18 @@ A large bordered button is not the default representation for every action.
 
 ```text
 ┌ Search / Browse / Subsets | query | filter chips | Compare | Download ┐
-├ Navigator  ⇆  Result or Datasheet  ⇆  Context                         ┤
-│ 240–320       remaining width          280–420 optional                │
-│ Filter/Tree   table / datasheet         properties/cards/related       │
+├ Navigator  ⇆  Result or Datasheet                                      ┤
+│ 240–320       remaining width                                           │
+│ Filter/Tree   table / datasheet with direct related data                │
 ├ selected count · result count · exact/latest context · job status ─────┤
 ```
 
-- Navigator and Context panes are resizable and independently scrollable.
+- The Navigator is resizable and scrolls independently from the result or datasheet.
 - An overflowing tree or result region has a reserved, visibly distinguishable scroll rail and
   thumb in the required reference captures. Computed overflow or an operating-system scrollbar that
   disappears in the captured pixels is not sufficient visual evidence. The rail must not cover row
   text, and it must operate by pointer, wheel and keyboard.
 - Splitter positions persist per user and viewport class.
-- At 1366 px, Context defaults closed before the result region is compressed.
 - Main result/datasheet region must remain at least 720 px when possible.
 
 ### 5.2 Search interaction
@@ -157,21 +156,27 @@ A large bordered button is not the default representation for every action.
 1. Focus starts in the search field.
 2. Enter applies the query; filters update the URL state.
 3. Result rows appear in a dense sortable grid.
-4. Single-click selects a row and updates Context without full navigation.
-5. Enter or double-click opens the selected Material datasheet in the main region.
-6. Escape returns from datasheet to the previous result state.
-7. Back/forward restores query, filters, sort, selected row, pane widths and scroll position.
+4. Single-click or Enter opens the selected Material datasheet in the main region.
+5. `Results`, Escape or browser Back returns to the previous result state.
+6. Back/forward restores query, filters, sort, Navigator width and scroll position.
 
 ### 5.3 Browse Tree interaction
 
-- Search, Browse and Subsets are modes of the same Navigator pane.
-- Browse displays Database → Profile → Table → Folder → Record.
-- Tree search retains ancestors and highlights matching Records.
-- Selecting a Record updates the main datasheet region in place.
+- The established `/materials` navigator modes remain Browse, Filters and Subsets. It is the
+  alias of this same Materials workspace, not a separate visual product surface.
+- Browse exposes Technical Data, Test Data, Simulation Data and Solver Cards as peer roots with their
+  data items. Multiple roots may remain expanded.
+- Selecting a category shows that category's items in the center result list. Selecting a result row
+  opens its exact datasheet in the same center region.
+- Administration retains Table → Folder → Record navigation and
+  saved Subsets. There is no separate Catalog or Workflow navigator mode.
+- Tree-local Find retains required Catalog-placement ancestors and highlights matching Records.
+- Selecting a result row updates the main datasheet region in place.
 - Related links open the linked Record while maintaining an in-workspace back stack.
 - Breadcrumbs show hierarchy but do not replace the Tree.
 - Record selection must preserve exact revision context when opened from Evidence or a governed link.
-- A tree row shows the concise stored object identity. Database/Profile/Table/Folder/Record type is
+- A tree row shows the concise stored object identity. Category/Record and
+  Technical Data/Test Data/Simulation Data/Solver Cards and data-item rows are
   conveyed by one aligned disclosure/glyph grammar. Disclosure, type glyph and identity occupy the
   same grid row and share one vertical center; implicit grid auto-placement must never put the glyph
   on a second line. Explanatory or qualification prose belongs in adjacent context or a tooltip, not
@@ -199,18 +204,13 @@ Column behavior:
 - headers are sticky;
 - optional columns are configurable, but P0 does not require a general grid designer;
 - truncation must expose the full value through title/tooltip and never hide the row identity;
-- horizontal scroll is allowed only when required columns cannot fit after optional Context is closed.
+- horizontal scroll is allowed only when required columns cannot fit the main result region.
 
-### 5.5 Selected Material context
+### 5.5 Selected Material detail
 
-The Context pane shows, in this order:
-
-1. identity: name, grade, family;
-2. applicability summary;
-3. four key properties;
-4. native solver-card availability;
-5. primary task command;
-6. related/evidence disclosure.
+The center datasheet shows identity, applicable properties, native solver-card availability, the
+primary task command and direct related data. Revision history and technical evidence remain in a
+disclosure on the same datasheet.
 
 The primary command is contextual:
 
@@ -681,7 +681,8 @@ Context menus are optional accelerators; every command must also have a keyboard
 
 The following must survive route transitions and browser back/forward:
 
-- Materials query, filters, sort, mode, selected Material, selected Record and result scroll;
+- Materials query, filters, sort, mode, category/Catalog-placement expansion, selected Material, selected Record
+  and result scroll;
 - pane sizes and collapsed state by viewport class;
 - active datasheet tab;
 - Modeling session, active stage, selected curves/candidate and graph view;

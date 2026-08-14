@@ -44,7 +44,7 @@ function workspaceFor(path: string): "materials" | "modeling" | "activity" | "ad
   if (path.startsWith("/modeling") || path.startsWith("/datasets") || path.startsWith("/models")) return "modeling";
   if (path.startsWith("/activity") || path.startsWith("/jobs-reviews") || path.startsWith("/governance") || path.startsWith("/exports")) return "activity";
   if (path.startsWith("/administration") || path.startsWith("/access")) return "administration";
-  if (path.startsWith("/materials") || path.startsWith("/database") || path.startsWith("/catalog")) return "materials";
+  if (path.startsWith("/materials") || path.startsWith("/catalog")) return "materials";
   return "other";
 }
 
@@ -243,7 +243,6 @@ export function ApplicationShell({ path, navigate, children }: ApplicationShellP
             <summary><span>{workspace === "modeling" ? "Demo workspace" : "Demo user"}</span><EngineeringIcon name="chevron-down"/></summary>
             <div className="application-utility-menu">
               <button type="button" onClick={() => navigate("/administration")}>Administration</button>
-              <button type="button" onClick={() => navigate("/database")}>Browse database</button>
               <fieldset className="display-density-control" aria-label="Display density">
                 <legend>Display density</legend>
                 {DISPLAY_DENSITY_CHOICES.map((choice) => (
