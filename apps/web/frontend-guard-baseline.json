@@ -1,0 +1,123 @@
+{
+  "schemaVersion": "cmp.frontend-guard-baseline.v1",
+  "sourceSha": "6bf380e201e7d29cd484a061748568fb41238c1a",
+  "ownerIssue": "#256",
+  "hotspots": [
+    {
+      "path": "apps/web/src/common-processing-workbench.tsx",
+      "baselineLines": 3432,
+      "responsibilities": ["Modeling state and transitions", "async stage workflows", "persistence", "rendering"],
+      "followUpIssue": "#259",
+      "removalCondition": "FE-04 leaves this file composition-oriented and the registered hotspot can be retired."
+    },
+    {
+      "path": "apps/web/src/material-library.tsx",
+      "baselineLines": 1855,
+      "responsibilities": ["Materials search and browse", "datasheet composition", "Activity composition"],
+      "followUpIssue": "#262",
+      "removalCondition": "FE-07 moves Materials and Activity responsibilities to owned feature boundaries."
+    },
+    {
+      "path": "apps/web/src/app.tsx",
+      "baselineLines": 1312,
+      "responsibilities": ["route selection", "permissions", "application-shell composition"],
+      "followUpIssue": "#263",
+      "removalCondition": "FE-08 extracts the route registry and leaves app composition-only."
+    },
+    {
+      "path": "apps/web/src/api.ts",
+      "baselineLines": 4770,
+      "responsibilities": ["cross-feature HTTP calls", "request and response mapping"],
+      "followUpIssue": "#263",
+      "removalCondition": "FE-08 moves resource calls to feature-owned API modules with bounded compatibility exports."
+    },
+    {
+      "path": "apps/web/src/types.ts",
+      "baselineLines": 4695,
+      "responsibilities": ["cross-feature API DTOs", "domain-facing frontend types"],
+      "followUpIssue": "#263",
+      "removalCondition": "FE-08 moves types to feature-owned model modules with bounded compatibility exports."
+    },
+    {
+      "path": "apps/web/src/styles.css",
+      "baselineLines": 8140,
+      "responsibilities": ["legacy cross-feature selectors", "legacy responsive composition"],
+      "followUpIssue": "#261",
+      "removalCondition": "FE-06 moves feature selectors to owned styles and proves zero consumers."
+    },
+    {
+      "path": "apps/web/src/design/layout.css",
+      "baselineLines": 9021,
+      "responsibilities": ["shared layout", "legacy route-specific layout selectors"],
+      "followUpIssue": "#261",
+      "removalCondition": "FE-06 separates shared layout primitives from feature-owned responsive composition."
+    }
+  ],
+  "debt": [
+    {
+      "ruleId": "CMP-FE-IMPORT-DIRECTION",
+      "scope": "apps/web/src/design",
+      "count": 1,
+      "reason": "The legacy display-density adapter still imports the root API compatibility module.",
+      "followUpIssue": "#263",
+      "removalCondition": "FE-08 provides the owned API boundary and design no longer imports a legacy feature module."
+    },
+    {
+      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
+      "scope": "apps/web/src",
+      "count": 2834,
+      "reason": "Existing feature and responsive selectors remain in the two registered legacy global stylesheets.",
+      "followUpIssue": "#261",
+      "removalCondition": "FE-06 moves feature selectors to owned styles and proves zero legacy consumers."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "scope": "apps/web/src",
+      "count": 954,
+      "reason": "Legacy styles predate complete semantic color-token ownership.",
+      "followUpIssue": "#261",
+      "removalCondition": "FE-06 completes owned style migration and all non-token styles consume semantic color tokens."
+    },
+    {
+      "ruleId": "CMP-FE-FONT-WEIGHT",
+      "scope": "apps/web/src",
+      "count": 222,
+      "reason": "Legacy styles contain literal weights before shared typography roles are fully adopted.",
+      "followUpIssue": "#257",
+      "removalCondition": "FE-02 defines the required roles and later route units replace the remaining literal weights."
+    },
+    {
+      "ruleId": "CMP-FE-WORKBENCH-CARD",
+      "scope": "apps/web/src",
+      "count": 9,
+      "reason": "Existing Modeling and Test Data surfaces still use the generic card grammar.",
+      "followUpIssue": "#264",
+      "removalCondition": "The route normalization units remove or explicitly justify every generic card use before FE-09 closes."
+    },
+    {
+      "ruleId": "CMP-FE-EYEBROW",
+      "scope": "apps/web/src",
+      "count": 114,
+      "reason": "Existing routes use eyebrow labels with inconsistent semantic roles.",
+      "followUpIssue": "#264",
+      "removalCondition": "The route normalization units remove or replace the remaining eyebrow labels before FE-09 closes."
+    },
+    {
+      "ruleId": "CMP-FE-STATUS-CHIP",
+      "scope": "apps/web/src",
+      "count": 14,
+      "reason": "Existing chips require route-by-route proof that they represent actual status.",
+      "followUpIssue": "#264",
+      "removalCondition": "The route normalization units retain only actual status roles before FE-09 closes."
+    },
+    {
+      "ruleId": "CMP-FE-WIDE-MEDIA",
+      "scope": "apps/web/src",
+      "count": 2,
+      "reason": "Two approved shared-layout wide breakpoints predate this guard and remain visible for migration review.",
+      "followUpIssue": "#261",
+      "removalCondition": "FE-06 proves the breakpoints are shared policy or replaces them with shared layout tokens."
+    }
+  ],
+  "exceptions": []
+}

@@ -110,6 +110,23 @@ Owner decisions required:
 
 ## 7. Evidence
 
+### 자동 악화 방지 guard
+
+frontend source를 변경하면 다음 명령을 실행한다.
+
+```bash
+npm run check:frontend-guard --workspace @cmp/web
+npm run test:frontend-guard --workspace @cmp/web
+```
+
+`apps/web/frontend-guard-baseline.json`은 기존 debt를 신규 위반과 구분하기 위한 warning 기준선이다.
+기존 수치를 신규 위반의 여유분으로 사용하지 않는다. debt가 줄면 수치를 낮출 수 있지만, 수치를
+늘리거나 예외를 추가하려면 정확한 rule·path·fingerprint, 사유, 소유 issue와 제거 조건을 함께
+기록한다. 검사 오류에는 위반 책임과 복구 방법이 포함되며, 오류를 warning으로 낮추거나 포괄적인
+path 예외를 추가해 통과시키지 않는다.
+
+### 증거 범위
+
 ### 구조만 변경하는 경우
 
 - affected unit/component test

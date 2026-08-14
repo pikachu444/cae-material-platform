@@ -10,8 +10,10 @@
     "storybook": "storybook dev --port 6006 --no-open",
     "build-storybook": "storybook build --output-dir storybook-static",
     "check:storybook": "npm run build-storybook",
-    "test": "vitest run",
+    "test": "vitest run && npm run test:frontend-guard",
     "test:e2e": "playwright test",
+    "check:frontend-guard": "node ../../scripts/check_frontend_guard.mjs",
+    "test:frontend-guard": "node --test ../../scripts/check_frontend_guard.test.mjs",
     "test:bundle-budget": "node --test ../../scripts/check_web_bundle.test.mjs ../../scripts/measure_modeling_route.test.mjs",
     "measure:modeling-route": "node ../../scripts/measure_modeling_route.mjs"
   },

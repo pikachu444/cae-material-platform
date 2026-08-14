@@ -9,7 +9,7 @@
   "scripts": {
     "build": "npm run build --workspace @cmp/web",
     "test:web": "npm run test --workspace @cmp/web",
-    "check": "npm run build && npm run test:web"
+    "check": "npm run check:frontend-guard --workspace @cmp/web && npm run build && npm run test:web"
   }
 }
 
