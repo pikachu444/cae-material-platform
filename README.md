@@ -104,6 +104,39 @@ docker compose -f deploy/compose/docker-compose.demo.yml down
 
 Windows/WSL 설치와 문제 해결은 [Compose 실행 가이드](deploy/compose/README.md)를 참고하십시오.
 
+### 외부에서 로컬 데모 접속
+
+Cloudflare Quick Tunnel을 사용하면 공유기 포트 포워딩 없이 현재 PC의 로컬 데모를 잠시 외부에
+공개할 수 있습니다. 먼저 위의 Compose를 실행해 <http://127.0.0.1:5173>이 열리는지 확인한 뒤,
+최초 한 번 다음 컨테이너를 만듭니다.
+
+```powershell
+docker run -d --name cmp-cloudflared --restart unless-stopped `
+  cloudflare/cloudflared:latest tunnel --no-autoupdate `
+  --http-host-header localhost:5173 `
+  --url http://host.docker.internal:5173
+```
+
+이미 컨테이너가 있으면 `docker start cmp-cloudflared`만 실행합니다. 현재 할당된 외부 주소는 다음
+명령의 마지막 결과에서 확인합니다.
+
+```powershell
+docker logs cmp-cloudflared 2>&1 |
+  Select-String -AllMatches 'https://[a-z0-9-]+\.trycloudflare\.com' |
+  ForEach-Object { $_.Matches.Value } |
+  Select-Object -Last 1
+```
+
+2026-08-14 현재 확인한 주소는
+<https://tomato-empire-coleman-pricing.trycloudflare.com>입니다. Quick Tunnel 주소는 컨테이너를
+다시 만들거나 재시작하면 바뀔 수 있으므로, 접속되지 않으면 위 명령으로 현재 주소를 다시 확인합니다.
+PC, Docker Desktop, `cmp-local-demo-web`, `cmp-cloudflared`가 모두 실행 중이어야 외부에서 접속할 수
+있습니다.
+
+Quick Tunnel에는 별도의 Cloudflare 접근 제한을 설정하지 않았으므로 주소를 아는 누구나 데모 화면에
+접근할 수 있습니다. 합성 데모 데이터에만 사용하고 기밀 시험 데이터나 production credential은
+입력하지 마십시오. 외부 공개를 끝낼 때는 `docker stop cmp-cloudflared`를 실행합니다.
+
 ## 개발과 검증
 
 Python 3.12, `uv`, Node.js/npm을 사용합니다.
