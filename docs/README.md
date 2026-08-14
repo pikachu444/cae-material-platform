@@ -20,9 +20,10 @@
 - 사용자 가이드: [사용자 가이드](user-guide/index.md)
 - 관리자 가이드: [관리자 가이드](admin-guide/index.md)
 
-새 작업은 [AGENTS.md](../AGENTS.md)와 정확한 GitHub issue에서 시작합니다. 현재 production
-React/CSS 기준은 `55cfa62`(PR #156), 승인된 시각 target은 `7601ec8`(PR #170)입니다. #167의
-72개 target은 [inventory](01-product/service-reference-inventory.yaml)와
+새 작업은 [AGENTS.md](../AGENTS.md)와 정확한 GitHub issue에서 시작합니다. `apps/web` 작업은
+추가로 [`apps/web/AGENTS.md`](../apps/web/AGENTS.md)를 따릅니다. 현재 production React/CSS 기준은
+`55cfa62`(PR #156), 승인된 시각 target은 `7601ec8`(PR #170)입니다. #167의 72개 target은
+[inventory](01-product/service-reference-inventory.yaml)와
 [manifest](01-product/service-reference-manifest.yaml)에서 확인합니다.
 
 ## 제품과 설계
@@ -31,6 +32,10 @@ React/CSS 기준은 `55cfa62`(PR #156), 승인된 시각 target은 `7601ec8`(PR 
 - [Desktop engineering 사용자 흐름](01-product/desktop-engineering-user-flows.md)
 - [UI 제품·상호작용 명세](01-product/desktop-engineering-ui-product-spec.md)
 - [UI 컴포넌트 명세](01-product/desktop-engineering-ui-spec.md)
+- [프론트엔드 UI 원칙](01-product/frontend-ui-principles.md)
+- [프론트엔드 아키텍처](05-architecture/frontend-architecture.md)
+- [프론트엔드 아키텍처·UI 재정비 로드맵](12-roadmap/frontend-refactoring-roadmap.md)
+- [프론트엔드 변경 검토 절차](16-repository/frontend-change-review-playbook.md)
 - [시각 수용 매트릭스](01-product/visual-acceptance-matrix.md)
 - [4K·고DPI 화면 대응 전략과 결정 기록](12-roadmap/high-dpi-display-strategy.md)
 - [Desktop engineering UI 도구·검수 절차](01-product/desktop-engineering-ui-tooling.md)
@@ -48,6 +53,8 @@ React/CSS 기준은 `55cfa62`(PR #156), 승인된 시각 target은 `7601ec8`(PR 
 ## 전달과 검증
 
 - [현재 전달 backlog](13-delivery/backlog.md)
+- [프론트엔드 아키텍처·UI 재정비 로드맵](12-roadmap/frontend-refactoring-roadmap.md)
+- [프론트엔드 변경 검토 절차](16-repository/frontend-change-review-playbook.md)
 - [테스트 전략](14-testing/test-strategy.md)
 - [제품 작업 합격 조건과 증거](14-testing/product-work-acceptance.md)
 - [현재 screenshot manifest](user-guide/screenshot-manifest.yaml)

@@ -10,6 +10,14 @@ dashboard. Agent selection, correction limits, publication, and current-worktree
 external to this visual skill. The main orchestrator fixes writer scope and escalation before applying
 the skill; correction and publication boundaries remain external.
 
+## Architecture and semantic preflight
+
+Before this visual skill is used for work under `apps/web`, read `apps/web/AGENTS.md` and run the
+project-local `material-platform-frontend-architecture` skill whenever the change touches feature
+ownership, a registered hotspot, Materials-to-Modeling continuity, state/API/type/CSS structure, helper
+copy, semantic emphasis, or wide-screen composition. This visual skill does not authorize a route-topology
+redesign, a new frontend dependency, or mixing broad structural and visual changes in one PR.
+
 ## Route only the needed context
 
 1. Read the exact GitHub issue.

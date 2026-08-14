@@ -103,6 +103,24 @@
   are not universal facets. Approved static HTML/CSS and registered images are authority for their exact
   target.
 
+## Frontend architecture routing
+
+- Any nontrivial change under `apps/web` also reads [`apps/web/AGENTS.md`](apps/web/AGENTS.md),
+  [`docs/01-product/frontend-ui-principles.md`](docs/01-product/frontend-ui-principles.md), and
+  [`docs/05-architecture/frontend-architecture.md`](docs/05-architecture/frontend-architecture.md), then
+  runs `.agents/skills/material-platform-frontend-architecture` before implementation.
+- Preserve two primary frontend journeys: Materials search/browse to exact card download or Start
+  Modeling, and exact Material/State/Test Data through Data, Process, Fit, explicit saved model, Export,
+  solver-card creation, and Materials read-back. Do not replace missing context with `latest`, first-item,
+  global-output, or another-session fallback.
+- Issue #249 is an owner-approved cross-cutting program governed by
+  [`docs/12-roadmap/frontend-refactoring-roadmap.md`](docs/12-roadmap/frontend-refactoring-roadmap.md).
+  Its documentation unit does not authorize production React/CSS changes. Later units require a bounded
+  issue and explicit owner priority and do not silently reorder unrelated domain backlog work.
+- Do not add a new feature responsibility to the registered frontend hotspots without an issue-owned
+  extraction plan or approved exception. Separate behavior-preserving structural movement from broad
+  semantic visual normalization.
+
 ## Delivery and publication
 
 - Implement one issue or clearly bounded subset and add the specified unit, integration, regression,
