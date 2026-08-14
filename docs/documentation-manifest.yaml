@@ -28,6 +28,7 @@ rules:
   - status: authoritative
     include:
       - "AGENTS.md"
+      - "apps/**/AGENTS.md"
       - ".agents/skills/**/*.md"
       - ".codex/skills/**/*.md"
       - "adr/**/*.md"
