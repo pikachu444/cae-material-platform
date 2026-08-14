@@ -9,7 +9,7 @@ notes:
   - "The issue-owned packet is docs/17-evidence/images/issue-246-source-v2-categories/visual-evidence.yaml. It retains both Product Owner-rejected interpretations as twenty before originals, forty before crops and ten before measurements, then records the final Materials-integrated candidate at five viewports with direct 100%-pixel crops, geometry, hashes and immutable references."
   - "The live browser journey proves `/materials` keeps the established explorer/result/datasheet design, shows 3 Technical Data, 9 Test Data, 3 Simulation Data and 1 Solver Card records, exposes readable engineering values and only exact direct links, excludes internal storage controls and forbidden DMA-to-elastoplasticity inference, and preserves the selected detail across reload."
   - "All five CSS viewports pass at browser zoom 100% and DPR 1 with zero page horizontal overflow. The current Materials capture used a dedicated PostgreSQL database with the real API, worker and Vite frontend; no Materials HTTP route was mocked. Automated 3840×2160 geometry does not claim physical 4K readability; #223 remains the final physical gate."
-  - "The Issue #246 Task 1A independent Balanced re-audit found no remaining issues after checking the byte-identical source fixture, exact runtime provenance, all registered evidence hashes, the focused regression and the visual checklist. Product Owner visual-geometry approval remains required before publication."
+  - "The Issue #246 Task 1A independent Balanced re-audit found no remaining issues after checking the byte-identical source fixture, exact runtime provenance, all registered evidence hashes, the focused regression and the visual checklist. The Product Owner approved the presented 1920×1080, 2560×1440 and 3840×2160 category/detail originals and instructed that PR #250 be merged on 2026-08-14."
   - "Issue #209 adds fifteen current Modeling Data originals for a governed DMA frequency-temperature sweep, deterministic whole-file rejection, and governed FLD import from canonical Compose source commit f8fe6ef85d345837a6252b6ba8b3b706ccbe009f. The current directory now contains 116 deterministic synthetic non-production images."
   - "The issue-owned packet is docs/17-evidence/images/issue-209-dma-fld-governed-import/visual-evidence.yaml: five exact-origin/main before originals, fifteen live after originals, fifty-seven direct 100%-pixel header/navigator/controls/decision/graph crops, hashes, dimensions and fifteen measured geometry records. Main opened every one of the 77 PNGs at original resolution and verified the manifest hashes, byte counts and dimensions."
   - "The canonical browser journey saves and reloads an exact DMA frequency-temperature Test Data revision with Raw Asset/Artifact, Import Run/Profile and normalized Dataset pins; records a rejected DMA run without creating Test Data; retries corrected immutable inputs; saves and reloads an exact FLD revision; and keeps both schemas outside Fit/Prony/IR."
@@ -274,7 +274,7 @@ visual_evidence:
   physical_4k_readability: DEFERRED_TO_223
   fixture_dependent_capture_status: canonical_compose_pass
   independent_read_only_review: pass_issue_246_task1_same_auditor_blocker_0_major_0_material_minor_0
-  product_owner_review: pending_issue_246_task1_visual_geometry
+  product_owner_review: pass_issue_246_task1_presented_originals_2026_08_14
 capture_provenance:
   - source_commit: 971ea100b6d7032eb1308b01b455c95cb9773408+issue246-live-data-correction-v4
     captured_at: '2026-08-14T06:15:30Z'

@@ -42,7 +42,7 @@ acceptance:
   document_horizontal_overflow: zero_at_all_five_viewports
   materials_stylesheet_delta_from_main: none
   exact_identity_visibility: normal_surface_uses_human_keys_and_revision_numbers_only
-  product_owner_geometry_review: pending
+  product_owner_geometry_review: pass_presented_1920_2560_3840_originals_approved_for_merge_2026_08_14
   independent_balanced_audit: pass_same_auditor_no_findings_after_source_fixture_and_provenance_correction
 counts:
   after_originals: 15

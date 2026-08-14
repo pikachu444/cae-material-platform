@@ -86,7 +86,7 @@ per-field source coordinates and exact-source export is corrected in the current
 | Canonical Compose | PASS — a dedicated PostgreSQL composition plus the real API, worker and Vite frontend persisted the full demo seed; a second identical seed kept the visible 3/9/3/1 result |
 | Physical 4K readability | DEFERRED TO #223 — 3840×2160 automation proves CSS geometry only |
 | Balanced independent audit | PASS — the same canonical auditor found no remaining issues after verifying the byte-identical source fixture, exact live runtime provenance, all registered asset hashes, the focused 34-test regression, Q-01–Q-20 dispositions and the preserved Task 2 boundary |
-| Product Owner geometry approval | Pending before merge |
+| Product Owner geometry approval | PASS — after reviewing the presented 1920×1080, 2560×1440 and 3840×2160 category/detail originals, the Product Owner instructed that PR #250 be merged on 2026-08-14 |
 
 ## Q-01–Q-20 main-orchestrator visual disposition
 
