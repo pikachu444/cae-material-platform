@@ -35,6 +35,11 @@ docker compose -f deploy/compose/docker-compose.demo.yml up --build
 
 Demo session은 `demo` mode에서만 자동으로 준비됩니다. production에서는 같은 자리에 일반
 로그인 화면이 표시되며 사용자는 내부 연결 정보나 인증 문자열을 다루지 않습니다.
+Demo access token은 짧게 유지되지만 브라우저가 만료 전에 같은 Demo user 역할로 자동 갱신하므로,
+장시간 작업 중 token을 복사하거나 site data를 지울 필요가 없습니다. 갱신 요청이 실패하면
+**Sign in to continue**에서 **Try again**을 눌러 현재 demo session을 다시 준비합니다.
+
+![Demo session 갱신 실패 후 다시 시도 화면](images/current/demo-session-recovery-1440x900.png)
 
 ![Search-first Materials 기본 화면](images/current/materials-search-1440x900.png)
 

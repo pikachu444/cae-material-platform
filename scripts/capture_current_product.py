@@ -180,6 +180,7 @@ CURRENT_CAPTURE_OUTPUTS = (
     "material-curves-1920x1080.png",
     "material-curves-2560x1440.png",
     "material-curves-3840x2160.png",
+    "demo-session-recovery-1440x900.png",
     "solver-card-preview-1366x768.png",
     "solver-card-preview-1440x900.png",
     "solver-card-preview-1920x1080.png",
@@ -8638,6 +8639,7 @@ def _preserve_issue_owned_contract_captures(output: Path) -> None:
         "material-database-categories-1440x900.png",
         "material-database-linked-test-1440x900.png",
         "administration-schema-bundle-1440x900.png",
+        "demo-session-recovery-1440x900.png",
     ):
         source = current / name
         if not source.is_file():

@@ -13,6 +13,7 @@ import {
   previewSolverCard,
   getSolverCard,
   getNeutralSolverMappingReport,
+  inspectLocalDemoAccessToken,
   requestLocalDemoAccessToken,
   listMaterials,
   searchMaterialCatalogRecords,
@@ -276,6 +277,39 @@ describe("Catalog API client", () => {
     const [url, init] = fetchMock.mock.calls[0];
     expect(url).toBe("/api/v1/demo-identity/token");
     expect(new Headers(init?.headers).get("authorization")).toBeNull();
+  });
+
+  it("requests the same local demo persona when renewing a role-specific session", async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({
+      access_token: "local-demo-reviewer-token",
+      token_type: "Bearer",
+      expires_in_seconds: 900,
+      organization_id: "d0000000-0000-4000-8000-000000000001",
+      project_id: "d0000000-0000-4000-8000-000000000002",
+      group: "cmp-demo-reviewer-team",
+      persona: "reviewer",
+    }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await requestLocalDemoAccessToken({ baseUrl: "/api/v1" }, "reviewer");
+
+    expect(fetchMock.mock.calls[0][0]).toBe("/api/v1/demo-identity/token?persona=reviewer");
+  });
+
+  it("recognizes only the fixed local demo subjects when reading refresh metadata", () => {
+    const encode = (value: object) => window.btoa(JSON.stringify(value))
+      .replace(/=/g, "")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_");
+    const token = `${encode({ alg: "none" })}.${encode({ sub: "cmp-demo-user", exp: 1_800_000_000 })}.fixture`;
+    const otherToken = `${encode({ alg: "none" })}.${encode({ sub: "production-user", exp: 1_800_000_000 })}.fixture`;
+
+    expect(inspectLocalDemoAccessToken(token)).toEqual({
+      persona: "user",
+      expiresAt: 1_800_000_000_000,
+    });
+    expect(inspectLocalDemoAccessToken(otherToken)).toBeNull();
+    expect(inspectLocalDemoAccessToken("opaque-token")).toBeNull();
   });
 
   it("acknowledges an explicit solver target before any Solver Card is created", async () => {
