@@ -125,6 +125,15 @@ npm run test:frontend-guard --workspace @cmp/web
 기록한다. 검사 오류에는 위반 책임과 복구 방법이 포함되며, 오류를 warning으로 낮추거나 포괄적인
 path 예외를 추가해 통과시키지 않는다.
 
+Storybook-only story/fixture/CSS는 current 제품 screenshot이 아니다. 아직 제품 route가 소비하지 않는
+shared design foundation이면서 기존 computed appearance가 그대로인 경우, 제품 소유자가 승인한
+정확한 issue-owned documentation-impact 확인서로만 user-guide 영향 N/A를 기록한다. 확인서는
+`docs/14-testing/documentation-impact-exceptions/`에 두며 wildcard, route/feature source, 실제 product
+consumer와 appearance 변경을 허용하지 않는다. 검사기는 확인서의 boolean 자기신고를 받지 않고
+base/current CSS 계산값을 비교하며 새 selector를 자동 도출해 모든 제품 CSS/TS/TSX에서 소비 여부를
+검사한다. foundation을 제품 route에서 처음 사용하거나 이미 사용 중인 foundation을 시각적으로
+바꾸는 PR은 일반 current guide·PNG·manifest gate를 수행한다.
+
 ### 증거 범위
 
 ### 구조만 변경하는 경우

@@ -56,3 +56,93 @@
   padding: 12px;
   background: var(--panel-background, #fff);
 }
+
+#storybook-root .story-semantic-foundation {
+  box-sizing: border-box;
+  min-height: 100vh;
+  padding: var(--ux-space-5);
+  background: var(--ux-canvas);
+}
+
+#storybook-root .story-semantic-foundation > .ux-engineering-pane {
+  max-inline-size: 1600px;
+  margin-inline: auto;
+}
+
+#storybook-root .story-semantic-header,
+#storybook-root .story-semantic-role-grid,
+#storybook-root .story-semantic-values {
+  display: grid;
+  gap: var(--ux-space-2);
+}
+
+#storybook-root .story-semantic-role-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  align-items: baseline;
+}
+
+#storybook-root .story-semantic-statuses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ux-space-3);
+}
+
+#storybook-root .story-semantic-message-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: var(--ux-space-3);
+}
+
+#storybook-root .story-semantic-plot-sample {
+  min-height: 240px;
+  color: var(--ux-text-muted);
+  background: var(--ux-surface-subtle);
+}
+
+#storybook-root .story-semantic-plot-sample svg {
+  display: block;
+  width: 100%;
+  min-height: 240px;
+}
+
+#storybook-root .story-semantic-axis,
+#storybook-root .story-semantic-curve {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+#storybook-root .story-semantic-axis {
+  stroke: var(--ux-border-strong);
+}
+
+#storybook-root .story-semantic-curve {
+  stroke: var(--ux-accent);
+  stroke-width: 3;
+}
+
+#storybook-root .story-semantic-plot-sample text {
+  fill: currentcolor;
+  font-size: var(--ux-metadata-font-size);
+}
+
+#storybook-root .story-semantic-values {
+  margin: 0;
+}
+
+#storybook-root .story-semantic-values > div {
+  display: grid;
+  grid-template-columns: minmax(96px, 1fr) minmax(0, 1fr);
+  gap: var(--ux-space-2);
+  padding-block: var(--ux-space-2);
+  border-block-end: 1px solid var(--ux-border);
+}
+
+#storybook-root .story-semantic-values dt,
+#storybook-root .story-semantic-values dd {
+  margin: 0;
+}
+
+#storybook-root .story-semantic-values dt {
+  font-weight: var(--ux-font-weight-label);
+}

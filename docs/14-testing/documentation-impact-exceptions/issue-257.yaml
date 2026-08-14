@@ -1,0 +1,19 @@
+schemaVersion: cmp.documentation-impact-exception.v1
+issue: "#257"
+sourceSha: 993949f9f5eb97d0fa87b8088fdefb5f8682e737
+classification: non-user-visible-foundation
+reason: >-
+  FE-02 adds an unconsumed shared semantic UI foundation and Storybook-only
+  developer evidence without changing a product route or existing computed appearance.
+visualFiles:
+  - apps/web/src/design/primitives.css
+  - apps/web/src/design/semantic-ui.tsx
+  - apps/web/src/design/tokens.css
+  - apps/web/src/design/typography.css
+verification:
+  unconsumedModules:
+    - apps/web/src/design/semantic-ui.tsx
+  preservedComputedValueFiles:
+    - apps/web/src/design/primitives.css
+    - apps/web/src/design/tokens.css
+    - apps/web/src/design/typography.css
