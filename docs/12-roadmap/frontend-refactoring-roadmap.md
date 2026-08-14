@@ -103,6 +103,26 @@ Material/Test Data 선택
 
 route를 다시 디자인하지 않는다.
 
+구현 계약:
+
+- shared owner는 `apps/web/src/design`이며 의존 방향은 `app -> features -> shared`를 유지한다.
+- `SemanticText`는 `workspaceTitle | sectionHeading | label | value | metadata | importantResult`를
+  제공한다.
+- `SemanticStatus`는 실제 `success | warning | danger`만 허용하며 보이는 label을 요구한다.
+- `WorkbenchMessage`는 `loading | empty | blocked | error | recovery | engineeringCondition`을 제공하고,
+  recovery에는 keyboard로 도달 가능한 action을 요구한다.
+- `EngineeringPane`과 `EngineeringSection`은 접근 가능한 flat grouping을 제공한다.
+- `EngineeringPlotRegion`은 필수 plot과 실제 데이터·label이 함께 있는 선택적 companion만 렌더링한다.
+- plot useful bound는 공통 픽셀 상한이 아니라 각 plot family의 승인된 feature-owned CSS/token이
+  소유한다.
+- `Foundation/SemanticUI` Storybook 예제는 synthetic non-production 데이터만 사용하며 제품 route에
+  연결하지 않는다.
+
+FE-02는 기존 `ux-meta`, `ux-kicker`, `ux-notice`, `eyebrow`, `status-chip`, `workbench-card` 소비자를
+일괄 migration하지 않는다. 남은 Modeling route migration은 #260, Materials·Administration은 #262,
+제품 전체 잔여 검증은 #264가 소유한다. 다음 독립 프로그램 단위는 #258이며 FE-02에서 시작하지
+않는다.
+
 ### FE-03 — Modeling 동작 특성화
 
 - `Data | Process | Fit | Export` primary journey

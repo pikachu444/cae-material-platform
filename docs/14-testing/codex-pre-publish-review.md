@@ -15,6 +15,16 @@ Status: automatic model review disabled; GitHub issue #119 reopened for redesign
 시작하지 않습니다. `.githooks/pre-push`와 `.codex/hooks/pre_publish_gate.py` 모두
 `independent_reviews=False`인 기본 모드를 사용합니다.
 
+Storybook story, fixture와 `.storybook/` 전용 CSS는 제품 화면 source로 분류하지 않는다. 제품
+route가 아직 소비하지 않는 shared design foundation은 제품 소유자가 범위를 명시적으로 승인한
+경우에만 [documentation-impact 예외 폴더](documentation-impact-exceptions/)의 issue-number YAML로
+current user-guide 영향 N/A를 기록할 수 있다. 확인서는 정확한 issue, `origin/main` merge-base, visual
+file, unconsumed module과 보존 검증 대상 CSS만 선언한다. 검사기가 base/current CSS를 비교해 기존
+declaration의 계산값 보존을 증명하고 새 selector를 직접 도출한 뒤 모든 제품 CSS/TS/TSX 소비자를
+검색한다. wildcard, route/feature source, 실제 제품 consumer 또는 증명되지 않은 기존 화면 변화는
+허용하지 않는다. 다음 route가 foundation을 소비하는 변경부터 일반 user-guide·current
+PNG·screenshot manifest gate를 다시 적용한다.
+
 `git commit`은 staged documentation-impact만 검사합니다. commit과 publish를 한 shell 명령으로
 묶으면 미래 commit을 검사할 수 없으므로 fail-closed 처리합니다. 일반 Bash 명령은 게이트 대상이
 아닙니다.
@@ -115,5 +125,8 @@ Codex에서는 `.codex/hooks.json` 변경 후 `/hooks`에서 정확한 command�
 1. documentation 또는 deterministic 오류를 먼저 수정합니다.
 2. branch, remote main과 PR head/base가 바뀌었으면 fetch 후 다시 실행합니다.
 3. current screenshot, Markdown link와 manifest 불일치를 수정합니다.
-4. opt-in reviewer를 실행했다면 `.cache/codex-review/<fingerprint>/`의 result/log에서
+4. non-user-visible foundation이라면 issue-owned 확인서의 base SHA와 정확한 path를 확인합니다.
+   product consumer와 computed appearance 보존은 확인서의 자기신고가 아니라 검사기의 base/current
+   CSS 비교와 전체 CSS/TS/TSX 검색으로 증명되어야 합니다.
+5. opt-in reviewer를 실행했다면 `.cache/codex-review/<fingerprint>/`의 result/log에서
    path/line/evidence를 확인합니다.

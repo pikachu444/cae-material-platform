@@ -31,6 +31,16 @@
   --ux-space-6: 32px;
   --ux-space-7: 48px;
   --ux-space-8: 64px;
+  /* Semantic weight roles keep emphasis intentional. Existing controls retain
+     their approved computed weight while new UI selects a named role. */
+  --ux-font-weight-body: 400;
+  --ux-font-weight-metadata: 400;
+  --ux-font-weight-label: 500;
+  --ux-font-weight-legacy-kicker: 600;
+  --ux-font-weight-heading: 650;
+  --ux-font-weight-control: 650;
+  --ux-font-weight-important: 700;
+  --ux-font-weight-table-heading: 700;
   /* #221-approved P2 Standard is the product-wide default. Compact and Large
      override only these shared tokens; routes never own private density values. */
   --ux-data-font-size: 14px;

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "cmp.frontend-guard-baseline.v1",
-  "sourceSha": "6bf380e201e7d29cd484a061748568fb41238c1a",
+  "sourceSha": "993949f9f5eb97d0fa87b8088fdefb5f8682e737",
   "ownerIssue": "#256",
   "hotspots": [
     {
@@ -81,7 +81,7 @@
     {
       "ruleId": "CMP-FE-FONT-WEIGHT",
       "scope": "apps/web/src",
-      "count": 222,
+      "count": 215,
       "reason": "Legacy styles contain literal weights before shared typography roles are fully adopted.",
       "followUpIssue": "#257",
       "removalCondition": "FE-02 defines the required roles and later route units replace the remaining literal weights."

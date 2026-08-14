@@ -138,6 +138,30 @@ saved model, validation, review, release와 delivered artifact는 서로 다른 
 `eyebrow`, `workbench-card`, non-status `status-chip`, 장식용 badge는 공통 문법으로 사용하지 않는다.
 필요하면 해당 요소가 어떤 사용자 판단을 돕는지 이슈와 PR에 기록한다.
 
+### 7.1 공통 semantic UI API
+
+신규 UI는 `apps/web/src/design/semantic-ui.tsx`의 다음 역할을 우선 사용한다. 역할은 보이는 모양이
+아니라 사용자에게 전달할 의미로 선택한다.
+
+| API | 허용 역할 | 선택 기준 |
+| --- | --- | --- |
+| `SemanticText` | `workspaceTitle`, `sectionHeading` | 작업공간과 section의 실제 계층 제목 |
+| `SemanticText` | `label`, `value` | 필드·결과의 중립적인 이름과 값 |
+| `SemanticText` | `metadata` | revision, unit, method version, count, family와 같은 보조 식별 정보 |
+| `SemanticText` | `importantResult` | 사용자가 명시적으로 선택했거나 현재 판단에 중요한 결과 |
+| `SemanticStatus` | `success`, `warning`, `danger` | 실제 완료·개입 필요·실패 상태. 보이는 `label`이 반드시 있어야 함 |
+| `WorkbenchMessage` | `loading`, `empty`, `blocked`, `error`, `recovery`, `engineeringCondition` | 현재 작업 상태, 차단·복구 또는 공학적 해석 조건 |
+| `EngineeringPane`, `EngineeringSection` | 접근 가능한 `label` | 정렬·여백·divider를 우선하는 flat grouping |
+| `EngineeringPlotRegion` | 필수 plot, 선택적 companion | plot과 계약에 존재하는 실제 비교·evidence를 함께 배치할 때 |
+
+`WorkbenchMessage`의 `recovery`에는 한 개의 명시적 action이 필요하다. primitive가 native button과
+종류별 ARIA live semantics를 제공하므로 route가 임의의 alert/focus 문법을 다시 만들지 않는다.
+`engineeringCondition`은 상태 색을 쓰지 않고 해석 조건을 전달한다.
+
+`SemanticStatus`에 `neutral`을 추가하거나 metadata를 status로 감싸지 않는다. label 없는 status,
+action 없는 recovery, label 없는 plot companion은 허용되지 않는다. ordinary heading을 accent로
+표현하거나 `importantResult`를 단순 bold 용도로 선택하는 것도 금지한다.
+
 ## 8. 표면과 그룹화
 
 그룹화는 다음 순서로 해결한다.
@@ -168,6 +192,18 @@ Materials는 explorer/result/datasheet, Modeling은 compact rail과 dominant gra
 제공한다. 2560×1440과 3840×2160에서는 실제 비교·열·evidence 용량을 늘리되, 글·form·plot을
 무조건 비례 확대하지 않는다. CSS `zoom`, blanket scale transform, route 전용 4K patch와 fabricated
 filler는 금지한다.
+
+`EngineeringPlotRegion`은 plot과 선택적 companion의 접근 가능한 구조만 제공한다. 공통 primitive는
+전 제품에 적용되는 픽셀 상한을 정하지 않는다. 각 plot family가 승인된 feature-owned CSS 또는
+token으로 실제 축 판독·비교 작업을 측정해 useful bound를 소유한다. companion은 label과 실제
+데이터가 함께 있을 때만 렌더링하며, 빈 region이나 placeholder를 공간 채우기용으로 만들지 않는다.
+
+### 9.1 기존 화면 migration 경계
+
+FE-02는 공통 문법과 개발자 예제를 제공하지만 기존 route의 `ux-meta`, `ux-kicker`, `ux-notice`,
+`eyebrow`, `status-chip`, `workbench-card` 소비자를 일괄 변경하지 않는다. Modeling 정규화는 #260,
+Materials·Administration 정비는 #262, 제품 전체 잔여 검증은 #264가 각각 실제 route와 다섯 viewport
+근거를 가지고 수행한다. 구조·동작 특성화 단계에서 이 migration을 앞당기지 않는다.
 
 ## 10. 예외
 
