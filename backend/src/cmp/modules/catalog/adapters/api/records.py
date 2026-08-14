@@ -416,7 +416,10 @@ class NumberRangeFilterInput(BaseModel):
 
 class RecordSearchRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    table_id: UUID
+    table_id: UUID | None = None
+    data_category: (
+        Literal["technical_data", "test_data", "simulation_data", "solver_cards"] | None
+    ) = None
     text: Annotated[str | None, StringConstraints(min_length=1, max_length=200)] = None
     folder_id: UUID | None = None
     record_id: UUID | None = None
@@ -473,6 +476,7 @@ class RecordSearchRequest(BaseModel):
             sort_direction=self.sort_direction,
             record_id=self.record_id,
             published_only=self.published_only,
+            data_category=self.data_category,
         )
 
 
@@ -781,8 +785,7 @@ def install_catalog_record_api(
             prior = previous_values.get(value.attribute_definition_id)
             if (
                 prior is not None
-                and prior.attribute_definition_revision_id
-                == value.attribute_definition_revision_id
+                and prior.attribute_definition_revision_id == value.attribute_definition_revision_id
                 and prior.artifact_id == value.artifact_id
                 and prior.artifact_sha256 == value.artifact_sha256
             ):
@@ -813,9 +816,7 @@ def install_catalog_record_api(
                     CurveContractError(
                         code="CMP-CURVE-0037",
                         location="record.values.curve.artifact",
-                        message=(
-                            "curve pointer must match one verified derived Parquet Artifact"
-                        ),
+                        message=("curve pointer must match one verified derived Parquet Artifact"),
                     ),
                 )
             try:
@@ -823,9 +824,7 @@ def install_catalog_record_api(
                     raw,
                     schema_ref=artifact.schema_ref,
                     expected_sha256=artifact.sha256,
-                    legacy_adapter=known_legacy_parquet_adapter(
-                        artifact.schema_ref, raw
-                    ),
+                    legacy_adapter=known_legacy_parquet_adapter(artifact.schema_ref, raw),
                     declared_required=artifact.schema_ref in DECLARED_CURVE_SCHEMA_REFS,
                 )
             except CurveContractError as error:
@@ -1092,9 +1091,7 @@ def install_catalog_record_api(
         context, decision = _scope(request)
         try:
             content = body.content.to_domain(table_id)
-            await validate_changed_curve_values(
-                context, decision, content, previous=None
-            )
+            await validate_changed_curve_values(context, decision, content, previous=None)
             value = required(context).create_record(
                 context,
                 decision,
@@ -1211,9 +1208,7 @@ def install_catalog_record_api(
                     ),
                     entity_id=(ownership.entity_id if ownership is not None else record_id),
                     revision_id=(
-                        ownership.revision_id
-                        if ownership is not None
-                        else record_revision_id
+                        ownership.revision_id if ownership is not None else record_revision_id
                     ),
                 ),
                 artifact=ArtifactPin(
@@ -1250,9 +1245,7 @@ def install_catalog_record_api(
                 ),
             )
             series = (
-                resolution.series.preview(maximum_points)
-                if resolution.series is not None
-                else None
+                resolution.series.preview(maximum_points) if resolution.series is not None else None
             )
             return CatalogCurvePreviewResponse(
                 record_id=record_id,
@@ -1276,9 +1269,7 @@ def install_catalog_record_api(
                 ),
                 curve_metadata=CurveMetadataResponse.from_domain(metadata),
                 curve_series=(
-                    CurveSeriesPreviewResponse.from_domain(series)
-                    if series is not None
-                    else None
+                    CurveSeriesPreviewResponse.from_domain(series) if series is not None else None
                 ),
             )
         except CatalogHttpError:

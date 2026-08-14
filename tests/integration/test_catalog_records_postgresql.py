@@ -57,6 +57,7 @@ from cmp.modules.catalog.application.service import (
 from cmp.modules.catalog.domain.configurable import (
     AttributeDataType,
     AttributeDefinitionContent,
+    CatalogDataCategory,
     CatalogTableContent,
     ConfigurableCatalogConflict,
 )
@@ -967,7 +968,7 @@ def test_record_round_trip_search_facet_compare_and_folder_cycle(postgres: Harne
 
     with postgres.admin_engine.connect() as connection:
         version = connection.scalar(sa.text("SELECT version_num FROM alembic_version"))
-        assert version == "20260927_096_issue206_curve"
+        assert version == "20261001_100_issue246_source_v2"
         validator = connection.execute(
             sa.text(
                 "SELECT p.prosecdef, p.proconfig, "
@@ -992,7 +993,11 @@ def test_dual_explorer_exact_links_reverse_query_cardinality_and_deactivation(
         write,
         CreateTable(
             DataClassification.INTERNAL,
-            CatalogTableContent("workflow_materials", "Workflow Materials"),
+            CatalogTableContent(
+                "workflow_materials",
+                "Workflow Materials",
+                data_category=CatalogDataCategory.TECHNICAL_DATA,
+            ),
             "create workflow material table",
         ),
     )
@@ -1001,7 +1006,11 @@ def test_dual_explorer_exact_links_reverse_query_cardinality_and_deactivation(
         write,
         CreateTable(
             DataClassification.INTERNAL,
-            CatalogTableContent("workflow_tests", "Workflow Tests"),
+            CatalogTableContent(
+                "workflow_tests",
+                "Workflow Tests",
+                data_category=CatalogDataCategory.TEST_DATA,
+            ),
             "create workflow test table",
         ),
     )
@@ -1180,6 +1189,10 @@ def test_dual_explorer_exact_links_reverse_query_cardinality_and_deactivation(
         depth=8,
     )
     assert {node.name for node in graph.nodes} == {"DP780", "DP780 tensile run 1"}
+    assert graph.root.data_category is CatalogDataCategory.TECHNICAL_DATA
+    assert next(node for node in graph.nodes if node.record_id == tensile.id).data_category is (
+        CatalogDataCategory.TEST_DATA
+    )
     assert graph.root.domain_binding == binding
     assert graph.root.domain_bindings == tuple(
         sorted((binding, state_binding), key=lambda item: (item.kind.value, str(item.id)))

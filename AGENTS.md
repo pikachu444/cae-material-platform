@@ -88,9 +88,10 @@
 
 ## Product and UX invariants
 
-- Normal navigation is `Materials | Modeling | Activity`; `/materials` is home. Search-first does not
-  remove Database/Profile/Table/Folder/Record navigation, Administration schema objects, exact-revision
-  links, or keyboard browsing.
+- Normal navigation is `Materials | Modeling | Activity`; `/materials` is home. The Materials Browse
+  tree exposes Technical Data, Test Data, Simulation Data, and Solver Cards with their data items.
+  Database/Profile/Table/Folder/Record and format definitions remain available in Administration;
+  exact-revision links and keyboard browsing remain available in Materials.
 - Materials is one explorer/result/datasheet workspace with results dominant. Modeling keeps a compact
   curve/process explorer and dominant persistent graph; use a shallow ribbon or disclosure, never a
   third inspector column.

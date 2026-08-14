@@ -134,6 +134,10 @@
       "type": "string",
       "enum": ["material", "material_state", "specimen", "test_run", "test_data", "processing_output", "material_model", "neutral_material", "solver_card", "neutral_solver_card", "release"]
     },
+    "CatalogDataCategory": {
+      "type": "string",
+      "enum": ["technical_data", "test_data", "simulation_data", "solver_cards"]
+    },
     "DomainRevisionBindingRequest": {
       "type": "object",
       "required": ["kind", "object_id", "revision_id"],
@@ -160,7 +164,7 @@
     },
     "LinkEndpoint": {
       "type": "object",
-      "required": ["record_id", "record_revision_id", "revision_no", "table_id", "name", "external_key", "domain_binding", "domain_bindings"],
+      "required": ["record_id", "record_revision_id", "revision_no", "table_id", "name", "external_key", "data_category", "domain_binding", "domain_bindings"],
       "properties": {
         "record_id": {"$ref": "#/$defs/Uuid"},
         "record_revision_id": {"$ref": "#/$defs/Uuid"},
@@ -168,6 +172,7 @@
         "table_id": {"$ref": "#/$defs/Uuid"},
         "name": {"type": "string", "minLength": 1, "maxLength": 200},
         "external_key": {"type": ["string", "null"], "minLength": 1, "maxLength": 255},
+        "data_category": {"oneOf": [{"$ref": "#/$defs/CatalogDataCategory"}, {"type": "null"}]},
         "domain_binding": {"oneOf": [{"$ref": "#/$defs/DomainRevisionBindingResponse"}, {"type": "null"}]},
         "domain_bindings": {"type": "array", "items": {"$ref": "#/$defs/DomainRevisionBindingResponse"}}
       },

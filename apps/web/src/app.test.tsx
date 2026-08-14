@@ -255,10 +255,11 @@ describe("Material Catalog workbench", () => {
     expect(screen.getAllByText("DP780").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/10,000 matches/)).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Materials", level: 1 })).toBeTruthy();
-    expect(screen.getAllByRole("search")).toHaveLength(2);
+    expect(screen.getAllByRole("search")).toHaveLength(1);
+    expect(screen.queryByRole("textbox", { name: "Search materials" })).toBeNull();
     expect(screen.getByRole("complementary", { name: "Materials navigator" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Browse" }).getAttribute("aria-current")).toBe("page");
-    expect(screen.getByRole("textbox", { name: "Search materials" })).toBeTruthy();
+    expect(screen.queryByRole("textbox", { name: "Search materials" })).toBeNull();
     expect(screen.getByRole("textbox", { name: "Find in tree" })).toBeTruthy();
     expect(screen.getByRole("table", { name: "Material results" })).toBeTruthy();
     expect(screen.queryByRole("combobox", { name: "Material class" })).toBeNull();
@@ -281,16 +282,15 @@ describe("Material Catalog workbench", () => {
     expect(screen.queryByRole("complementary", { name: "Materials navigator" })).toBe(null);
     expect(screen.getByRole("button", { name: "Expand navigator pane" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Expand navigator pane" }));
-    fireEvent.click(screen.getByRole("button", { name: "Expand details pane" }));
-    expect(screen.getByRole("button", { name: "Open datasheet" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /details pane/i })).toBeNull();
     expect(screen.getByRole("region", { name: "Materials" }).getAttribute("aria-busy")).toBe("false");
+    fireEvent.click(screen.getByRole("button", { name: "Filters" }));
     fireEvent.change(screen.getByRole("textbox", { name: "Search materials" }), { target: { value: "DP780" } });
     fireEvent.submit(screen.getByRole("textbox", { name: "Search materials" }).closest("form")!);
-    fireEvent.click(screen.getByRole("button", { name: "Filters" }));
     fireEvent.change(screen.getByRole("combobox", { name: "Material class" }), { target: { value: "metal" } });
     await waitFor(() => expect(window.location.search).toContain("q=DP780"));
     expect(window.location.search).toContain("family=metal");
-    fireEvent.click(screen.getByRole("button", { name: "Open datasheet" }));
+    fireEvent.click(screen.getByRole("button", { name: /Demo DP780 SteelDP780/ }));
     await waitFor(() => expect(window.location.pathname).toBe(`/materials/${visibleMaterial.material_id}`));
     expect(window.sessionStorage.getItem("cmp.materials.return-path")).toContain(`selected=${visibleMaterial.material_id}`);
     fireEvent.click(await screen.findByRole("button", { name: "Back to results" }));
@@ -366,10 +366,11 @@ describe("Material Catalog workbench", () => {
     render(<App />);
 
     expect(await screen.findByText("Synthetic composite")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Expand details pane" }));
+    expect(screen.queryByRole("button", { name: /details pane/i })).toBeNull();
     expect(screen.queryByRole("button", { name: "Start Modeling" })).toBeNull();
     expect(screen.queryByText("Modeling is not supported for this family.")).toBeNull();
-    expect(screen.getByRole("button", { name: "Open datasheet" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /Synthetic composite/ }));
+    await waitFor(() => expect(window.location.pathname).toContain("/materials/"));
   });
 
   it("shows an actionable problem code and trace ID without exposing the bearer token", async () => {

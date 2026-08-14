@@ -165,6 +165,8 @@ CURRENT_CAPTURE_OUTPUTS = (
     "materials-search-short-1440x900.png",
     "materials-search-empty-1440x900.png",
     "materials-browse-1440x900.png",
+    "material-database-categories-1440x900.png",
+    "material-database-linked-test-1440x900.png",
     "material-detail-1366x768.png",
     "material-detail-1440x900.png",
     "material-detail-1920x1080.png",
@@ -454,7 +456,6 @@ def _assert_shared_workspace_geometry(page: Page, width: int, path_name: str) ->
             ".activity-shell",
             ".administration-workspace",
             ".administration-record-workbench",
-            ".material-database-page",
             ".governed-import-route",
         ],
     )
@@ -8630,13 +8631,18 @@ def _capture_supporting_screens(browser: Browser, base_url: str, output: Path) -
     _capture_product_access(browser, base_url, output)
 
 
-def _preserve_schema_bundle_admin_capture(output: Path) -> None:
-    """Carry the issue-owned contract-backed capture into a full current-set recapture."""
-    name = "administration-schema-bundle-1440x900.png"
-    source = Path(__file__).resolve().parents[1] / "docs" / "user-guide" / "images" / "current" / name
-    if not source.is_file():
-        raise RuntimeError(f"registered Schema Definition Bundle capture is missing: {source}")
-    shutil.copy2(source, output / name)
+def _preserve_issue_owned_contract_captures(output: Path) -> None:
+    """Carry contract-backed browser captures into a full current-set recapture."""
+    current = Path(__file__).resolve().parents[1] / "docs" / "user-guide" / "images" / "current"
+    for name in (
+        "material-database-categories-1440x900.png",
+        "material-database-linked-test-1440x900.png",
+        "administration-schema-bundle-1440x900.png",
+    ):
+        source = current / name
+        if not source.is_file():
+            raise RuntimeError(f"registered contract-backed capture is missing: {source}")
+        shutil.copy2(source, output / name)
 
 
 def _validate_capture_outputs(output: Path) -> int:
@@ -8896,7 +8902,7 @@ def main() -> int:
                 )
                 _capture_modeling_data_exceptions(browser, args.base_url, output)
                 _capture_supporting_screens(browser, args.base_url, output)
-                _preserve_schema_bundle_admin_capture(output)
+                _preserve_issue_owned_contract_captures(output)
             finally:
                 browser.close()
 

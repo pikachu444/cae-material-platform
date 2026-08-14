@@ -91,6 +91,7 @@ from cmp.modules.catalog.domain.configurable import (
     AttributeDataType,
     AttributeDefinitionContent,
     CatalogDatabaseContent,
+    CatalogDataCategory,
     CatalogProfileContent,
     CatalogTableContent,
     LayoutContent,
@@ -99,6 +100,7 @@ from cmp.modules.catalog.domain.configurable import (
 from cmp.modules.catalog.domain.links import LinkCardinality, LinkTypeContent
 from cmp.modules.catalog.domain.schema_bundles import (
     BUNDLE_CONTRACT_ID,
+    BundleDiagnostic,
     PlanDisposition,
     SchemaBundlePlan,
     SchemaBundlePlanAction,
@@ -203,6 +205,8 @@ schema_definition_bundle_binding = sa.Table(
     sa.Column("published", sa.Boolean(), nullable=False),
     sa.Column("source_schema_id", sa.String(500), nullable=False),
     sa.Column("source_schema_version", sa.String(64), nullable=False),
+    sa.Column("source_file", sa.String(1000), nullable=True),
+    sa.Column("source_file_sha256", sa.CHAR(64), nullable=True),
     sa.Column("source_pointer", sa.String(2000), nullable=False),
     schema="catalog",
 )
@@ -249,7 +253,7 @@ def _schema_version(schema_id: str) -> str:
 
 def _source_coordinates(
     plan: SchemaBundlePlan, action: SchemaBundlePlanAction
-) -> tuple[str, str, str]:
+) -> tuple[str, str, str | None, str | None, str]:
     bundle = plan.bundle
     if bundle is None:  # pragma: no cover - a valid plan always has a parsed bundle
         raise SchemaBundleSourceConflict("valid apply plan is missing its parsed bundle")
@@ -264,9 +268,29 @@ def _source_coordinates(
     if record_key is not None and record_key in by_key:
         index, record = by_key[record_key]
         pointer = f"/record_schemas/{index}"
+        origin = record.schema.get("x-source-origin")
         if action.target_type == "attribute" and action.projected is not None:
-            pointer = cast(str, action.projected.get("source_pointer") or pointer)
-        return record.schema_id, _schema_version(record.schema_id), pointer
+            projected = action.projected
+            return (
+                cast(str, projected.get("source_schema_id") or record.schema_id),
+                cast(
+                    str,
+                    projected.get("source_schema_version")
+                    or _schema_version(record.schema_id),
+                ),
+                cast(str | None, projected.get("source_file")),
+                cast(str | None, projected.get("source_file_sha256")),
+                cast(str, projected.get("source_pointer") or pointer),
+            )
+        if isinstance(origin, dict):
+            return (
+                cast(str, origin["schema_id"]),
+                cast(str, origin["schema_version"]),
+                cast(str, origin["file"]),
+                cast(str, origin["file_sha256"]),
+                cast(str, origin["pointer"]),
+            )
+        return record.schema_id, _schema_version(record.schema_id), None, None, pointer
     if action.target_type == "link_type":
         for index, record in enumerate(bundle.record_schemas):
             pending: list[tuple[str, object]] = [(f"/record_schemas/{index}/schema", record.schema)]
@@ -278,7 +302,22 @@ def _source_coordinates(
                         isinstance(reference, dict)
                         and reference.get("link_key") == action.external_key
                     ):
-                        return record.schema_id, _schema_version(record.schema_id), pointer
+                        origin = value.get("x-source-origin")
+                        if isinstance(origin, dict):
+                            return (
+                                cast(str, origin["schema_id"]),
+                                cast(str, origin["schema_version"]),
+                                cast(str, origin["file"]),
+                                cast(str, origin["file_sha256"]),
+                                cast(str, origin["pointer"]),
+                            )
+                        return (
+                            record.schema_id,
+                            _schema_version(record.schema_id),
+                            None,
+                            None,
+                            pointer,
+                        )
                     pending.extend(
                         (f"{pointer}/{_escape_pointer(str(key))}", child)
                         for key, child in value.items()
@@ -291,7 +330,7 @@ def _source_coordinates(
         "database": "/catalog/database",
         "profile": "/catalog/profile",
     }.get(action.target_type, "/")
-    return BUNDLE_CONTRACT_ID, bundle.bundle_version, pointer
+    return BUNDLE_CONTRACT_ID, bundle.bundle_version, None, None, pointer
 
 
 def _require_actor_type(session: Session) -> AuditActorType:
@@ -547,10 +586,12 @@ class SqlAlchemySchemaBundleApplicationRepository:
                 cast(str | None, projected["description"]),
             )
         if action.target_type == "table":
+            category = cast(str | None, projected.get("data_category"))
             return CatalogTableContent(
                 cast(str, projected["key"]),
                 cast(str, projected["name"]),
                 cast(str | None, projected["description"]),
+                CatalogDataCategory(category) if category is not None else None,
             )
         if action.target_type == "attribute":
             assert action.parent_external_key is not None
@@ -580,6 +621,7 @@ class SqlAlchemySchemaBundleApplicationRepository:
                 allowed_values=tuple(cast(list[str], projected["allowed_values"])),
                 reference_table_id=reference_id,
                 help_text=cast(str | None, projected["help_text"]),
+                business_key=projected.get("business_key") is True,
             )
         if action.target_type == "layout":
             assert action.parent_external_key is not None
@@ -771,6 +813,8 @@ class SqlAlchemySchemaBundleApplicationRepository:
                 published=cast(bool, binding["published"]),
                 source_schema_id=cast(str, binding["source_schema_id"]),
                 source_schema_version=cast(str, binding["source_schema_version"]),
+                source_file=cast(str | None, binding["source_file"]),
+                source_file_sha256=cast(str | None, binding["source_file_sha256"]),
                 source_pointer=cast(str, binding["source_pointer"]),
             )
             for binding in bindings
@@ -822,9 +866,7 @@ class SqlAlchemySchemaBundleApplicationRepository:
                 session, cast(UUID, row["source_artifact_id"])
             )
         except ArtifactNotFound as error:
-            raise SchemaBundleSourceConflict(
-                "applied source Artifact is unavailable"
-            ) from error
+            raise SchemaBundleSourceConflict("applied source Artifact is unavailable") from error
         artifact = artifact_record.artifact
         expected_source = (
             cast(UUID, row["source_artifact_id"]),
@@ -909,7 +951,9 @@ class SqlAlchemySchemaBundleApplicationRepository:
     ) -> tuple[AppliedSchemaObject, bool]:
         bundle = plan.bundle
         assert bundle is not None
-        source_schema_id, source_version, source_pointer = _source_coordinates(plan, action)
+        source_schema_id, source_version, source_file, source_file_sha256, source_pointer = (
+            _source_coordinates(plan, action)
+        )
         key = (action.target_type, action.parent_external_key, action.external_key)
         if action.disposition is PlanDisposition.NO_OP:
             if action.current is None:
@@ -950,6 +994,8 @@ class SqlAlchemySchemaBundleApplicationRepository:
                     published,
                     source_schema_id,
                     source_version,
+                    source_file,
+                    source_file_sha256,
                     source_pointer,
                 ),
                 publication_added,
@@ -996,6 +1042,8 @@ class SqlAlchemySchemaBundleApplicationRepository:
                     False,
                     source_schema_id,
                     source_version,
+                    source_file,
+                    source_file_sha256,
                     source_pointer,
                 ),
                 getattr(inserted, "rowcount", 0) == 1,
@@ -1052,6 +1100,8 @@ class SqlAlchemySchemaBundleApplicationRepository:
                 True,
                 source_schema_id,
                 source_version,
+                source_file,
+                source_file_sha256,
                 source_pointer,
             ),
             True,
@@ -1064,7 +1114,8 @@ class SqlAlchemySchemaBundleApplicationRepository:
         decision: AuthorizationDecision,
         command: ApplySchemaDefinitionBundle,
         source: SourceArtifactIdentity,
-        raw_bytes: bytes,
+        raw_bytes: bytes | None,
+        source_diagnostics: tuple[BundleDiagnostic, ...] = (),
     ) -> SchemaBundleApplication:
         request_digest = _request_digest(command)
         with self._sessions() as session, session.begin():
@@ -1110,11 +1161,9 @@ class SqlAlchemySchemaBundleApplicationRepository:
                     context.project_id,
                     classification,
                 ),
+                source_diagnostics=source_diagnostics,
             )
-            if any(
-                "record_migration_required" in action.reason_codes
-                for action in plan.actions
-            ):
+            if any("record_migration_required" in action.reason_codes for action in plan.actions):
                 raise SchemaBundleMigrationRequired(
                     "current Records require an approved migration before this bundle can apply"
                 )
@@ -1128,6 +1177,7 @@ class SqlAlchemySchemaBundleApplicationRepository:
                 )
             self._require_record_compatibility(session, plan)
             bundle = plan.bundle
+            assert raw_bytes is not None
             canonical_document = json.loads(raw_bytes)
             canonical_bundle_sha256 = content_sha256(canonical_document)
             now = self._clock()

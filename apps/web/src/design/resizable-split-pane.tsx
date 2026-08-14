@@ -18,7 +18,7 @@ interface ResizableSplitPaneProps {
   id: string;
   navigator: ReactNode;
   main: ReactNode;
-  context: ReactNode;
+  context?: ReactNode;
   navigatorLabel?: string;
   contextLabel?: string;
 }
@@ -238,6 +238,54 @@ export function ResizableSplitPane({
     panel.resize(paneDefaults.context);
     setContextOpen(true);
     setContextOverlayOpen(false);
+  }
+
+  if (context === undefined) {
+    if (typeof ResizeObserver === "undefined") {
+      return (
+        <div className={`resizable-workspace viewport-${viewport}`} data-viewport-class={viewport}>
+          <div className="materials-workspace materials-workspace-two-pane resizable-workspace-fallback">
+            {navigatorOpen ? <div className="materials-workspace-panel navigator-panel">{navigator}</div> : null}
+            <div className="materials-resize-handle" role="separator" aria-label={`Resize ${navigatorLabel}`} onDoubleClick={resetNavigator} title={`Double-click to reset ${navigatorLabel} width`}>
+              <button className="pane-divider-control" type="button" aria-label={`${navigatorOpen ? "Collapse" : "Expand"} ${navigatorLabel} pane`} aria-expanded={navigatorOpen} onClick={() => setNavigatorOpen((current) => !current)}><EngineeringIcon name={navigatorOpen ? "chevron-left" : "chevron-right"}/></button>
+            </div>
+            <div className="materials-workspace-panel main-panel">{main}</div>
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div className={`resizable-workspace viewport-${viewport}`} data-viewport-class={viewport}>
+        <Group
+          key={`${id}-v1-${viewport}`}
+          id={`${id}-v1-${viewport}`}
+          className="materials-workspace materials-workspace-two-pane"
+          style={{ height: "100%" }}
+          orientation="horizontal"
+        >
+          <Panel
+            id="navigator"
+            panelRef={navigatorRef}
+            className="materials-workspace-panel navigator-panel"
+            defaultSize={paneDefaults.navigator}
+            minSize={paneMetrics.navigator.min}
+            maxSize={paneMetrics.navigator.max}
+            collapsedSize={0}
+            collapsible
+            groupResizeBehavior="preserve-pixel-size"
+            onResize={({ inPixels }) => setNavigatorOpen(inPixels > 1)}
+          >
+            {navigator}
+          </Panel>
+          <Separator className="materials-resize-handle" aria-label={`Resize ${navigatorLabel}`} onDoubleClick={resetNavigator} title={`Double-click to reset ${navigatorLabel} width`}>
+            <button className="pane-divider-control" type="button" aria-label={`${navigatorOpen ? "Collapse" : "Expand"} ${navigatorLabel} pane`} aria-expanded={navigatorOpen} onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); toggleNavigator(); }}><EngineeringIcon name={navigatorOpen ? "chevron-left" : "chevron-right"}/></button>
+          </Separator>
+          <Panel id="main" className="materials-workspace-panel main-panel" minSize={MATERIALS_PANE_METRICS.main.min}>
+            {main}
+          </Panel>
+        </Group>
+      </div>
+    );
   }
 
   if (typeof ResizeObserver === "undefined") {

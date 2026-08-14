@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/catalog/schema-definition-source-set.schema.json",
+  "title": "Catalog Schema Definition Source Set v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "contract_version", "files"],
+  "properties": {
+    "$schema": {
+      "const": "https://cmp.example/contracts/catalog/schema-definition-source-set.schema.json"
+    },
+    "contract_version": {"const": "1.0.0"},
+    "files": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 128,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256", "content"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\)[^\\u0000]+$"
+          },
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "content": {"type": "string"}
+        }
+      }
+    }
+  }
+}

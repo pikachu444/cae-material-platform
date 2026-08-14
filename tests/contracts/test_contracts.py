@@ -424,7 +424,30 @@ def test_configurable_record_contract_carries_live_search_and_binding_projection
         "sort_direction",
     }
     assert live_request_fields.issubset(request["properties"])
-    assert request["required"] == ["table_id"]
+    assert request["oneOf"] == [
+        {
+            "required": ["table_id"],
+            "properties": {
+                "table_id": {"$ref": "#/$defs/Uuid"},
+                "data_category": {"type": "null"},
+            },
+        },
+        {
+            "required": ["data_category"],
+            "properties": {
+                "table_id": {"type": "null"},
+                "data_category": {
+                    "type": "string",
+                    "enum": [
+                        "technical_data",
+                        "test_data",
+                        "simulation_data",
+                        "solver_cards",
+                    ],
+                },
+            },
+        },
+    ]
     assert request["properties"]["sort_by"] == {
         "type": "string",
         "enum": ["name", "external_key", "attribute"],
@@ -449,11 +472,33 @@ def test_configurable_record_contract_carries_live_search_and_binding_projection
         "revision_id",
         "workbench_path",
     }
-
     runtime = app.openapi()["components"]["schemas"]
     assert live_request_fields.issubset(runtime["RecordSearchRequest"]["properties"])
     assert "domain_binding" in runtime["RecordResponse"]["properties"]
 
+
+def test_configurable_link_endpoint_carries_exact_table_category_projection() -> None:
+    schema = json.loads(
+        (
+            PROJECT_ROOT
+            / "contracts/catalog/configurable-catalog-link-resources.schema.json"
+        ).read_text(encoding="utf-8")
+    )
+    endpoint = schema["$defs"]["LinkEndpoint"]
+
+    assert "data_category" in endpoint["required"]
+    assert endpoint["properties"]["data_category"] == {
+        "oneOf": [
+            {"$ref": "#/$defs/CatalogDataCategory"},
+            {"type": "null"},
+        ]
+    }
+    assert schema["$defs"]["CatalogDataCategory"]["enum"] == [
+        "technical_data",
+        "test_data",
+        "simulation_data",
+        "solver_cards",
+    ]
 
 def test_shear_relaxation_vertical_contract_matches_runtime_operations() -> None:
     source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")

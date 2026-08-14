@@ -1674,7 +1674,7 @@ paths:
     get:
       operationId: exportCatalogSchemaDefinitionBundle
       tags: [catalog-schema]
-      summary: Export canonical JSON from the exact current applied source Artifact.
+      summary: Export the exact original bytes of the current applied source Artifact.
       security: [{BearerAuth: []}]
       parameters:
         - name: bundle_key
@@ -1685,7 +1685,7 @@ paths:
             pattern: "^[a-z][a-z0-9_]{0,62}[a-z0-9]$|^[a-z]$"
       responses:
         "200":
-          description: Canonical current applied Schema Definition Bundle JSON.
+          description: Exact original canonical JSON, source-set JSON, or ZIP bytes that produced the current application.
           headers:
             ETag: {schema: {type: string}}
             Digest: {schema: {type: string}}
@@ -1696,6 +1696,12 @@ paths:
           content:
             application/vnd.cmp.catalog-schema-definition-bundle+json:
               schema: {$ref: "../catalog/schema-definition-bundle.schema.json"}
+            application/vnd.cmp.catalog-schema-source-set+json:
+              schema: {$ref: "../catalog/schema-definition-source-set.schema.json"}
+            application/vnd.cmp.catalog-schema-source-set+zip:
+              schema: {type: string, format: binary}
+            application/zip:
+              schema: {type: string, format: binary}
         "401": {description: Authentication required.}
         "403": {description: Catalog schema export is not authorized.}
         "404": {description: The applied bundle is absent or hidden by RLS.}

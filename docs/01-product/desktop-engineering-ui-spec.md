@@ -28,7 +28,7 @@ This authoritative annex retains the component-specific contract. Each compact r
 | --- | --- | --- |
 | G-01 navigation; G-02 identity header | Move among Materials/Modeling/Activity in the shell; show human Material/session name, form/condition, version and state from exact context. | Internal module hub, UUID/hash as title, duplicated headings; current. |
 | G-03 primary action; G-04 Evidence | One next task action in header/footer with prerequisite and calculating/blocked/error state; disclose IDs, JSON and checksums only on demand. | Multiple equal primaries, silent disabled action, technical default fields; current. |
-| M-01 scope; M-02 search; M-03 tree | Establish governed scope, find known material, or browse Database→Profile→Table→Folder→Record; exact selection updates workspace. | Fake sole-scope selector, client subset presented as complete, tree as form; search correction is UXC-01 target. |
+| M-01 scope; M-02 search; M-03 tree | Find a known item and browse Technical Data, Test Data, Simulation Data, and Solver Cards with their data items inside the existing Browse tree; exact selection updates the same workspace. Internal format and storage structure remains in Administration. | Separate database product UI, fake workflow hierarchy, forced cross-category link, internal Database/Profile/Table/Folder/Record controls in the normal Materials tree, client subset presented as complete, tree as form; search correction is UXC-01 target. |
 | M-04–07 facets/filter/header | Refine the same server query; show condition/unit/source, active restrictions, total/sort/page and loading/empty/error state. | Facet counts/rows/totals from different sources; UXC-01 target. |
 | M-05 Yield | Show only for compatible metal property definition with condition/unit/source. | Yield filter/column for polymer or elastomer; UXC-01 target. |
 | M-08–12 grid/layout/compare/inspector/start | Compare/select/open dense rows; select allowed Layout; pin Material/Test Data into Modeling; preserve selection and result context. | Truncated identity, auto-compare, unpinned latest start, blanking main pane; current. |
@@ -284,20 +284,23 @@ Navigator and inspector are resizable. Minimum and maximum widths:
 
 ### 4.2 Navigator
 
-Tabbed modes:
+Navigator modes remain:
 
 ```text
 Browse | Filters | Subsets
 ```
 
-The navigator owns the mode control. Plain `/materials` opens Browse; a Find preserves the current
-mode. Filters contains only facets present in the same server query, without availability
-explanations for unavailable projections.
+`/materials` opens the Materials Browse workspace. No separate database route owns another component,
+layout or visual mode. Search and exact Record navigation preserve the current Materials context;
+multi-hop Workflow stays in Evidence rather than becoming a competing navigator.
 
 Browse mode contains:
 
-- Database/Profile/Table selectors;
-- local tree search;
+- Materials Database → Engineering Materials, then Technical Data, Test Data, Simulation Data and
+  Solver Cards as peer expandable roots;
+- exact Record children loaded per expanded category, with multiple roots allowed to remain open;
+- no Database/Profile/Table/Folder/Record or data-format controls on the normal Materials surface;
+- the existing tree-local Find and saved Subset controls;
 - compact 24–26 px rows;
 - node glyph, disclosure and label on one grid row with a shared vertical center;
 - full keyboard navigation;
@@ -307,7 +310,8 @@ Browse mode contains:
   a genuine stored identity overflows. Pointer, wheel and keyboard interaction must operate the
   local pane, and neither rail may cover text.
 
-Subsets mode displays saved subsets as compact rows, not cards.
+The category branches are compact tree rows, not cards. Opening a branch
+does not clear another expanded category or the exact selected Record.
 
 ### 4.3 Result grid
 

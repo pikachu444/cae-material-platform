@@ -821,6 +821,17 @@ class ConfigurableCatalogService:
             is not None
         ):
             raise ConfigurableCatalogConflict("Attribute key already exists in this Table")
+        if command.content.business_key and any(
+            item.current.content.business_key
+            for item in self._repository.list_attributes(
+                context=context,
+                decision=decision,
+                table_id=command.content.table_id,
+            )
+        ):
+            raise ConfigurableCatalogConflict(
+                "A Table can have at most one governed business-key Attribute"
+            )
         if command.content.reference_table_id is not None:
             self._repository.get_table(
                 context=context,
@@ -872,6 +883,17 @@ class ConfigurableCatalogService:
         ):
             raise ConfigurableCatalogConflict(
                 "Attribute Table, stable key and data type cannot change"
+            )
+        if command.content.business_key and any(
+            item.id != attribute_id and item.current.content.business_key
+            for item in self._repository.list_attributes(
+                context=context,
+                decision=decision,
+                table_id=command.content.table_id,
+            )
+        ):
+            raise ConfigurableCatalogConflict(
+                "A Table can have at most one governed business-key Attribute"
             )
         record = self._revision_service(
             ATTRIBUTE_AGGREGATE_TYPE, self._repository.attribute_store(context, decision)

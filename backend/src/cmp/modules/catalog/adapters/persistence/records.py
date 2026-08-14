@@ -140,6 +140,17 @@ schema_table = sa.Table(
     sa.Column("current_revision_id", _uuid, nullable=False),
     schema="catalog",
 )
+schema_table_revision = sa.Table(
+    "schema_table_revision",
+    metadata,
+    sa.Column("id", _uuid, nullable=False),
+    sa.Column("aggregate_id", _uuid, nullable=False),
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("data_category", sa.String(32), nullable=True),
+    schema="catalog",
+)
 # The binding tables are owned by the Catalog links adapter.  A read-only
 # declaration here lets the single server query constrain current Record
 # revisions without importing a domain/plugin implementation or issuing an
@@ -1313,6 +1324,35 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
             )
             return session.execute(statement.limit(1)).first() is not None
 
+    def resolve_current_record_by_external_key(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        table_id: UUID,
+        external_key: str,
+    ) -> RecordSnapshot | None:
+        with self._transaction(context, decision) as session:
+            rows = (
+                session.execute(
+                    self._record_statement(current=True).where(
+                        catalog_record_revision.c.table_id == table_id,
+                        sa.func.lower(sa.func.btrim(catalog_record_revision.c.external_key))
+                        == external_key.strip().casefold(),
+                    )
+                )
+                .mappings()
+                .all()
+            )
+            if not rows:
+                return None
+            if len(rows) != 1:
+                raise ConfigurableCatalogConflict(
+                    "Record external key resolves to more than one current item"
+                )
+            values = self._values_by_revision(session, (rows[0]["id"],))
+            return self._record_snapshot(rows[0], values)
+
     @staticmethod
     def _folder_snapshot(row: Any) -> FolderSnapshot:
         return FolderSnapshot(
@@ -1561,14 +1601,10 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                         pass
                     else:
                         sources = (
-                            CurveOwnershipSource(
-                                "test_run", test_run_id, test_run_revision_id
-                            ),
+                            CurveOwnershipSource("test_run", test_run_id, test_run_revision_id),
                         )
                         provenance = (
-                            CurveOwnershipPointer(
-                                "input_usage", test_run_id, test_run_revision_id
-                            ),
+                            CurveOwnershipPointer("input_usage", test_run_id, test_run_revision_id),
                         )
                 binding_row = (
                     session.execute(
@@ -1581,8 +1617,7 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                                 == domain_record_binding.c.record_revision_id,
                                 catalog_record.c.organization_id
                                 == domain_record_binding.c.organization_id,
-                                catalog_record.c.project_id
-                                == domain_record_binding.c.project_id,
+                                catalog_record.c.project_id == domain_record_binding.c.project_id,
                                 catalog_record.c.classification
                                 == domain_record_binding.c.classification,
                             ),
@@ -1590,14 +1625,10 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                         .where(
                             domain_record_binding.c.domain_kind == "test_data",
                             domain_record_binding.c.domain_object_id == document_id,
-                            domain_record_binding.c.domain_revision_id
-                            == document_revision_id,
-                            domain_record_binding.c.organization_id
-                            == canonical["organization_id"],
-                            domain_record_binding.c.project_id
-                            == canonical["project_id"],
-                            domain_record_binding.c.classification
-                            == canonical["classification"],
+                            domain_record_binding.c.domain_revision_id == document_revision_id,
+                            domain_record_binding.c.organization_id == canonical["organization_id"],
+                            domain_record_binding.c.project_id == canonical["project_id"],
+                            domain_record_binding.c.classification == canonical["classification"],
                         )
                     )
                     .mappings()
@@ -1630,10 +1661,8 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
             pair_rows = (
                 session.execute(
                     sa.select(_pair_statistical_result_revision).where(
-                        _pair_statistical_result_revision.c.curve_artifact_id
-                        == artifact_id,
-                        _pair_statistical_result_revision.c.curve_sha256
-                        == artifact_sha256,
+                        _pair_statistical_result_revision.c.curve_artifact_id == artifact_id,
+                        _pair_statistical_result_revision.c.curve_sha256 == artifact_sha256,
                     )
                 )
                 .mappings()
@@ -1642,10 +1671,8 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
             replicate_rows = (
                 session.execute(
                     sa.select(_replicate_statistical_result_revision).where(
-                        _replicate_statistical_result_revision.c.curve_artifact_id
-                        == artifact_id,
-                        _replicate_statistical_result_revision.c.curve_sha256
-                        == artifact_sha256,
+                        _replicate_statistical_result_revision.c.curve_artifact_id == artifact_id,
+                        _replicate_statistical_result_revision.c.curve_sha256 == artifact_sha256,
                     )
                 )
                 .mappings()
@@ -1709,9 +1736,7 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                             pair["plan_id"],
                             pair["plan_revision_id"],
                         ),
-                        CurveOwnershipPointer(
-                            "calculation_run", pair["statistical_run_id"]
-                        ),
+                        CurveOwnershipPointer("calculation_run", pair["statistical_run_id"]),
                         CurveOwnershipPointer(
                             "calculation_result",
                             pair["aggregate_id"],
@@ -1773,9 +1798,7 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                         statistical["plan_id"],
                         statistical["plan_revision_id"],
                     ),
-                    CurveOwnershipPointer(
-                        "calculation_run", statistical["statistical_run_id"]
-                    ),
+                    CurveOwnershipPointer("calculation_run", statistical["statistical_run_id"]),
                     CurveOwnershipPointer(
                         "calculation_result",
                         statistical["aggregate_id"],
@@ -1899,8 +1922,7 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                     subject_binding_match = sa.false()
                 else:
                     subject_binding_match = sa.and_(
-                        review_publication_projection.c.subject_type
-                        == subject_type_for_binding,
+                        review_publication_projection.c.subject_type == subject_type_for_binding,
                         review_publication_projection.c.subject_id
                         == query.domain_binding_object_id,
                         review_publication_projection.c.subject_revision_id
@@ -1924,8 +1946,7 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                         domain_record_binding.c.record_revision_id
                         == review_publication_projection.c.record_revision_id,
                         domain_record_binding.c.domain_kind == query.domain_binding_kind,
-                        domain_record_binding.c.domain_object_id
-                        == query.domain_binding_object_id,
+                        domain_record_binding.c.domain_object_id == query.domain_binding_object_id,
                         domain_record_binding.c.domain_revision_id
                         == query.domain_binding_revision_id,
                     )
@@ -1949,14 +1970,12 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
             # unrelated unapproved siblings.
             if query.domain_binding_kind == "material":
                 material_context = [
-                    domain_record_binding.c.organization_id
-                    == catalog_record.c.organization_id,
+                    domain_record_binding.c.organization_id == catalog_record.c.organization_id,
                     domain_record_binding.c.project_id == catalog_record.c.project_id,
                     domain_record_binding.c.classification
                     == catalog_record_revision.c.classification,
                     domain_record_binding.c.record_id == catalog_record.c.id,
-                    domain_record_binding.c.record_revision_id
-                    == catalog_record_revision.c.id,
+                    domain_record_binding.c.record_revision_id == catalog_record_revision.c.id,
                     domain_record_binding.c.domain_kind == "material",
                 ]
                 if query.domain_binding_object_id is not None:
@@ -2150,7 +2169,9 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                                     (
                                         review_publication_projection.c.subject_type
                                         == "exporting.solver_card",
-                                        sa.select(_solver_card_revision.c.material_model_revision_id)
+                                        sa.select(
+                                            _solver_card_revision.c.material_model_revision_id
+                                        )
                                         .where(
                                             _solver_card_revision.c.organization_id
                                             == review_publication_projection.c.organization_id,
@@ -2362,8 +2383,7 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                     # not expose the Record if that Neutral revision no longer
                     # carries either exact lineage pin.
                     sa.or_(
-                        review_publication_projection.c.subject_type
-                        != "modeling.material_model",
+                        review_publication_projection.c.subject_type != "modeling.material_model",
                         sa.exists(
                             sa.select(1).where(
                                 _neutral_material_revision.c.organization_id
@@ -2414,7 +2434,70 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
             )
         else:
             statement = SqlAlchemyCatalogRecordRepository._record_statement(current=True)
-        statement = statement.where(catalog_record.c.table_id == query.table_id)
+        if query.table_id is not None:
+            statement = statement.where(catalog_record.c.table_id == query.table_id)
+        else:
+            assert query.data_category is not None
+            category_kinds = {
+                "technical_data": ("material", "material_state"),
+                "test_data": ("specimen", "test_run", "test_data"),
+                "simulation_data": (
+                    "processing_output",
+                    "material_model",
+                    "neutral_material",
+                ),
+                "solver_cards": ("solver_card", "neutral_solver_card"),
+            }
+            all_category_kinds = tuple(
+                kind for values in category_kinds.values() for kind in values
+            )
+            binding_scope = (
+                domain_record_binding.c.organization_id
+                == catalog_record_revision.c.organization_id,
+                domain_record_binding.c.project_id == catalog_record_revision.c.project_id,
+                domain_record_binding.c.classification == catalog_record_revision.c.classification,
+                domain_record_binding.c.record_id == catalog_record.c.id,
+                domain_record_binding.c.record_revision_id == catalog_record_revision.c.id,
+            )
+            categorized_binding = sa.exists(
+                sa.select(1).where(
+                    *binding_scope,
+                    domain_record_binding.c.domain_kind.in_(all_category_kinds),
+                )
+            )
+            requested_binding = sa.exists(
+                sa.select(1).where(
+                    *binding_scope,
+                    domain_record_binding.c.domain_kind.in_(category_kinds[query.data_category]),
+                )
+            )
+            configured_table_category = sa.exists(
+                sa.select(1)
+                .select_from(
+                    schema_table.join(
+                        schema_table_revision,
+                        sa.and_(
+                            schema_table_revision.c.id == schema_table.c.current_revision_id,
+                            schema_table_revision.c.aggregate_id == schema_table.c.id,
+                            schema_table_revision.c.organization_id
+                            == schema_table.c.organization_id,
+                            schema_table_revision.c.project_id == schema_table.c.project_id,
+                            schema_table_revision.c.classification == schema_table.c.classification,
+                        ),
+                    )
+                )
+                .where(
+                    schema_table.c.id == catalog_record.c.table_id,
+                    schema_table_revision.c.id == catalog_record_revision.c.table_revision_id,
+                    schema_table_revision.c.data_category == query.data_category,
+                )
+            )
+            statement = statement.where(
+                sa.or_(
+                    requested_binding,
+                    sa.and_(sa.not_(categorized_binding), configured_table_category),
+                )
+            )
         if query.text is not None:
             pattern = f"%{query.text.lower()}%"
             statement = statement.where(

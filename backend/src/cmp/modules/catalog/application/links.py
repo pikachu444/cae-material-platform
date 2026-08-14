@@ -20,6 +20,7 @@ from cmp.modules.catalog.application.records import (
     RecordSnapshot,
 )
 from cmp.modules.catalog.domain.configurable import (
+    CatalogDataCategory,
     ConfigurableCatalogConflict,
     ConfigurableCatalogNotFound,
 )
@@ -106,6 +107,10 @@ class LinkEndpoint:
     # singular field remains as a deterministic compatibility projection of
     # the first item in this ordered collection.
     domain_bindings: tuple[DomainRevisionBinding, ...] = ()
+    # Immutable projection from the exact Table revision pinned by this Record
+    # revision. Domain bindings may refine the user-facing category, but are
+    # optional for source-defined Catalog Records.
+    data_category: CatalogDataCategory | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -405,6 +410,12 @@ class CatalogLinkService:
             record_id=record_id,
             revision_id=revision_id,
         )
+        table_revision = self._schemas.get_table_revision(
+            context=context,
+            decision=decision,
+            table_id=revision.content.table_id,
+            revision_id=revision.content.table_revision_id,
+        )
         domain_bindings = self._repository.list_domain_bindings(
             context=context,
             decision=decision,
@@ -451,14 +462,15 @@ class CatalogLinkService:
                     filtered_bindings.append(binding)
             domain_bindings = tuple(filtered_bindings)
         return LinkEndpoint(
-            record_id,
-            revision_id,
-            revision.record.revision_no,
-            revision.content.table_id,
-            revision.content.name,
-            revision.content.external_key,
-            domain_bindings[0] if domain_bindings else None,
-            domain_bindings,
+            record_id=record_id,
+            record_revision_id=revision_id,
+            revision_no=revision.record.revision_no,
+            table_id=revision.content.table_id,
+            name=revision.content.name,
+            external_key=revision.content.external_key,
+            domain_binding=domain_bindings[0] if domain_bindings else None,
+            domain_bindings=domain_bindings,
+            data_category=table_revision.content.data_category,
         )
 
     def bind_domain_revision(

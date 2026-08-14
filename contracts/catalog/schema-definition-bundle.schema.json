@@ -18,6 +18,10 @@
       "type": "string",
       "enum": ["internal", "confidential", "restricted", "export_controlled"]
     },
+    "CommonUnitId": {
+      "type": "string",
+      "enum": ["Pa", "kPa", "MPa", "GPa", "m", "cm", "mm", "um", "s", "ms", "min", "h", "N", "kN", "kg", "g", "mg", "kg/m3", "g/cm3", "K", "Cel", "1", "%"]
+    },
     "Definition": {
       "type": "object",
       "additionalProperties": false,
@@ -43,8 +47,34 @@
         "forward_label": {"type": "string", "minLength": 1, "maxLength": 200},
         "reverse_label": {"type": "string", "minLength": 1, "maxLength": 200},
         "source_cardinality": {"type": "string", "enum": ["one", "many"]},
-        "target_cardinality": {"type": "string", "enum": ["one", "many"]}
+        "target_cardinality": {"type": "string", "enum": ["one", "many"]},
+        "source_table_key": {"$ref": "#/$defs/StableKey"},
+        "target_table_key": {"$ref": "#/$defs/StableKey"},
+        "reference_only": {"type": "boolean"}
       }
+    },
+    "CurveExtension": {
+      "oneOf": [
+        {"const": true},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["x_pointer", "y_pointer"],
+          "properties": {
+            "x_pointer": {"type": "string", "minLength": 1, "maxLength": 1000},
+            "x_unit": {"$ref": "#/$defs/CommonUnitId"},
+            "x_quantity": {"type": "string", "minLength": 1, "maxLength": 255},
+            "x_scale": {"type": "string", "enum": ["linear", "log10"]},
+            "y_pointer": {"type": "string", "minLength": 1, "maxLength": 1000},
+            "y_unit": {"$ref": "#/$defs/CommonUnitId"},
+            "y_quantity": {"type": "string", "minLength": 1, "maxLength": 255},
+            "series_pointer": {"type": "string", "minLength": 1, "maxLength": 1000},
+            "series_unit": {"$ref": "#/$defs/CommonUnitId"},
+            "deviation_pointer": {"type": "string", "minLength": 1, "maxLength": 1000},
+            "deviation_unit": {"$ref": "#/$defs/CommonUnitId"}
+          }
+        }
+      ]
     },
     "SchemaType": {
       "oneOf": [
@@ -99,13 +129,32 @@
         "pattern": {"type": "string", "minLength": 1, "maxLength": 500},
         "format": {"type": "string", "enum": ["date", "uuid"]},
         "x-business-key": {"const": true},
+        "x-id-rule": {"type": "string", "minLength": 1, "maxLength": 1000},
         "x-reference": {"$ref": "#/$defs/ReferenceExtension"},
-        "x-curve": {"const": true},
-        "x-unit": {
-          "enum": ["Pa", "kPa", "MPa", "GPa", "m", "cm", "mm", "um", "s", "ms", "min", "h", "N", "kN", "kg", "g", "mg", "kg/m3", "g/cm3", "K", "Cel", "1", "%"]
+        "x-curve": {"$ref": "#/$defs/CurveExtension"},
+        "x-unit": {"$ref": "#/$defs/CommonUnitId"},
+        "x-quantity": {"type": "string", "minLength": 1, "maxLength": 255},
+        "x-suggested-values": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1, "maxLength": 255},
+          "uniqueItems": true
         },
         "x-indexed": {"type": "boolean"},
-        "x-searchable": {"type": "boolean"}
+        "x-searchable": {"type": "boolean"},
+        "x-source-origin": {"$ref": "#/$defs/SourceOrigin"}
+      }
+    },
+    "SourceOrigin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_id", "schema_version", "file", "file_sha256", "pointer"],
+      "properties": {
+        "schema_id": {"type": "string", "minLength": 1, "maxLength": 500},
+        "schema_version": {"type": "string", "minLength": 1, "maxLength": 64},
+        "file": {"type": "string", "minLength": 1, "maxLength": 1000},
+        "file_sha256": {"$ref": "#/$defs/Sha256"},
+        "pointer": {"type": "string", "pattern": "^(/(?:[^/~]|~[01])*)+$"}
       }
     },
     "SchemaNode": {
@@ -141,6 +190,11 @@
         "key": {"$ref": "#/$defs/StableKey"},
         "name": {"type": "string", "minLength": 1, "maxLength": 200},
         "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 4000},
+        "schema_version": {"$ref": "#/$defs/SemVer"},
+        "data_category": {
+          "type": ["string", "null"],
+          "enum": ["technical_data", "test_data", "simulation_data", null]
+        },
         "schema_sha256": {"$ref": "#/$defs/Sha256"},
         "schema": {"$ref": "#/$defs/RecordSchema"}
       }
@@ -187,6 +241,24 @@
       "type": "array",
       "minItems": 1,
       "items": {"$ref": "#/$defs/RecordSchemaEntry"}
+    },
+    "unit_profiles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["key", "name", "units"],
+        "properties": {
+          "key": {"$ref": "#/$defs/StableKey"},
+          "name": {"type": "string", "minLength": 1, "maxLength": 200},
+          "units": {
+            "type": "object",
+            "minProperties": 1,
+            "propertyNames": {"$ref": "#/$defs/StableKey"},
+            "additionalProperties": {"$ref": "#/$defs/CommonUnitId"}
+          }
+        }
+      }
     }
   }
 }

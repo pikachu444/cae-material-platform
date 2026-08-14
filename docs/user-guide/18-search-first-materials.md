@@ -1,7 +1,7 @@
 # Search-first Materials와 Modeling
 
 일반 사용자의 전역 메뉴는 `Materials | Modeling | Activity`입니다. Administration은 권한이
-있는 사용자의 메뉴에서 열며, `/database`와 기존 deep link는 호환 경로로 유지됩니다.
+있는 사용자의 메뉴에서 열며, 일반 사용자 화면은 `/materials`에서 시작합니다.
 
 현재 제품 shell은 공통 44–48 px header와 workspace별 제어 영역으로 구성됩니다. Materials의
 Browse/Filters/Subsets 전환은 왼쪽 Navigator에서 수행합니다. Modeling은 compact context/stage와
@@ -34,12 +34,28 @@ Browse Tree에서도 저장된 자료를 찾을 수 있습니다.
 긴 목록은 손잡이, 마우스 휠 또는 키보드로 이동합니다. 결과가 짧거나 비어 있으면 불필요한
 스크롤 막대가 나타나지 않습니다.
 
-Navigator와 선택 Context의 divider를 끌어 폭을 조절하고 각 pane을 접거나 reset할 수 있습니다.
-배치는 같은 브라우저에서 reload해도 유지되며 **Reset display density**로는 바뀌지 않습니다.
-사용자가 Context를 펼쳤지만 공통 pane 최소폭 때문에 중앙 결과에 실제로 배정할 폭이 1px 미만이면
-Context가 bounded overlay로 열립니다. 이때 **Open datasheet**를 바로 실행하거나 닫은 뒤 원래
-Context control로 돌아갈 수 있습니다. 이 전환은 route, viewport 또는 DPR이 아니라 실제 pane
-allocation만 사용합니다.
+### 네 데이터 범주에서 exact linked item 찾기
+
+`/materials`의 기존 **Browse** 트리는 `Materials Database → Engineering Materials` 아래에
+`Technical Data | Test Data | Simulation Data | Solver Cards`를 서로 같은 수준의 branch로 표시하고
+그 아래에 개별 항목을 둡니다. 범주를 선택하면 가운데 목록이 바뀌고, 목록의 항목을 한 번 누르면
+같은 가운데 영역에서 상세 정보를 엽니다. 상세의 **Related data**에는 현재 exact revision의 직접
+링크만 범주별로 나타납니다.
+Table/Folder/Record 저장 위치와 데이터 형식은 **Administration**, 여러 단계의 실제 추적은
+**Evidence**의 Workflow에서 확인합니다.
+
+Test Data는 Technical Data를 upstream으로 가리켜야 합니다. selected model과 Solver Card는 실제
+reviewed link가 있을 때만 표시되며, 서로 다른 constitutive family나 FLD 관계를 자동으로 이어 붙이지
+않습니다. Fit 결과 후보와 실행은 Modeling/Activity, 내부 Material Model IR은 Advanced/Evidence에
+남습니다.
+
+| 화면 | 현재 캡처 |
+| --- | --- |
+| 기존 Materials 안의 네 대분류와 개별 항목 트리 | [범주별 Browse 트리](images/current/material-database-categories-1440x900.png) |
+| Test Data의 직접 Technical/Simulation 링크 | [직접 링크 상세](images/current/material-database-linked-test-1440x900.png) |
+
+Navigator divider를 끌어 폭을 조절하거나 접을 수 있습니다. 배치는 같은 브라우저에서 reload해도
+유지되며 **Reset display density**로는 바뀌지 않습니다.
 
 | 상태 | 캡처 |
 | --- | --- |

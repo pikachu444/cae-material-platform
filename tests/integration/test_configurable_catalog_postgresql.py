@@ -31,6 +31,7 @@ from cmp.modules.catalog.domain.configurable import (
     CatalogDatabaseContent,
     CatalogProfileContent,
     CatalogTableContent,
+    ConfigurableCatalogConflict,
     LayoutContent,
     LayoutItem,
     SubsetContent,
@@ -298,6 +299,37 @@ def test_configurable_schema_round_trip_revision_and_typed_guards(
             "add governed modulus attribute",
         ),
     )
+    business_key = postgres.service.create_attribute(
+        context,
+        write,
+        CreateAttribute(
+            AttributeDefinitionContent(
+                table.id,
+                table.current.record.revision_id,
+                "material_code",
+                "Material code",
+                AttributeDataType.TEXT,
+                business_key=True,
+            ),
+            "add governed business key",
+        ),
+    )
+    with pytest.raises(ConfigurableCatalogConflict, match="at most one"):
+        postgres.service.create_attribute(
+            context,
+            write,
+            CreateAttribute(
+                AttributeDefinitionContent(
+                    table.id,
+                    table.current.record.revision_id,
+                    "legacy_code",
+                    "Legacy code",
+                    AttributeDataType.TEXT,
+                    business_key=True,
+                ),
+                "reject a second business key",
+            ),
+        )
     layout = postgres.service.create_layout(
         context,
         write,
@@ -349,7 +381,11 @@ def test_configurable_schema_round_trip_revision_and_typed_guards(
     )
 
     assert revised.current.record.revision_no == 2
-    assert len(postgres.service.list_attributes(context, read, table.id)) == 1
+    attributes = postgres.service.list_attributes(context, read, table.id)
+    assert len(attributes) == 2
+    assert next(
+        item for item in attributes if item.id == business_key.id
+    ).current.content.business_key
     assert postgres.service.list_layouts(context, read, table.id)[0].current.content.items == (
         layout.current.content.items[0],
     )

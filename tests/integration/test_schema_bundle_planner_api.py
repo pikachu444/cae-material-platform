@@ -149,6 +149,8 @@ class _ApplyExportService(_Planner):
                     published=True,
                     source_schema_id="urn:cmp:catalog-schema-definition-bundle:1.0.0",
                     source_schema_version="1.0.0",
+                    source_file=None,
+                    source_file_sha256=None,
                     source_pointer="/catalog/database",
                 ),
             ),
@@ -198,6 +200,7 @@ class _ApplyExportService(_Planner):
         return ExportedSchemaDefinitionBundle(
             value=canonical,
             sha256=hashlib.sha256(canonical).hexdigest(),
+            media_type="application/vnd.cmp.catalog-schema-definition-bundle+json",
             application_id=self.application.application_id,
             bundle_key=self.application.bundle_key,
             bundle_version=self.application.bundle_version,

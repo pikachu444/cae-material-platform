@@ -71,25 +71,30 @@
 | `POST /test-campaigns` | campaign 생성 |
 | `POST /test-runs` | specimen test run 생성 |
 | `POST /test-runs/{id}/corrections` | 원본 event를 보존한 correction revision |
-| `POST /catalog/schema-definition-bundles:plan` | exact immutable Artifact의 bundle-local schema를 검증하고 현재 Catalog 대비 no-write plan 반환 |
+| `POST /catalog/schema-definition-bundles:plan` | exact immutable Artifact의 canonical bundle 또는 checksummed source-set/ZIP을 adapter 경계에서 검증하고 현재 Catalog 대비 no-write plan 반환 |
 | `POST /catalog/schema-definition-bundles:apply` | exact Artifact·SHA-256·`plan_fingerprint`를 다시 검증하고 서버 재계획 결과를 원자 적용 |
 | `GET /catalog/schema-definition-bundle-applications/{id}` | immutable 적용 결과와 source/revision/publication binding 조회 |
-| `GET /catalog/schema-definition-bundles/{bundle_key}:export` | 현재 binding이 유지될 때 exact source Artifact의 canonical JSON 내보내기 |
+| `GET /catalog/schema-definition-bundles/{bundle_key}:export` | 현재 binding이 유지될 때 exact source Artifact의 원본 media type과 bytes 내보내기 |
 
 #### 3.1.1 Catalog Schema Definition Bundle v1
 
 요청은 `artifact_id`와 lowercase `artifact_sha256`을 함께 고정한다. 서버는 RLS 범위에서 그 exact
 Artifact를 읽고 원본 media type, byte count와 digest를 다시 검증한다. 허용 media type은
 `application/json`, `application/schema+json`,
-`application/vnd.cmp.catalog-schema-definition-bundle+json`이며 parameter를 제거해 판정하되 응답에는
-저장된 원문을 그대로 반환한다.
+`application/vnd.cmp.catalog-schema-definition-bundle+json`,
+`application/vnd.cmp.catalog-schema-source-set+json`, `application/zip`,
+`application/vnd.cmp.catalog-schema-source-set+zip`이다. parameter를 제거해 판정하며 exact source
+bytes는 immutable Artifact로 보존한다. source-set과 ZIP은 안전한 상대 경로와 각 content SHA-256을
+검증한 뒤 결정론적 canonical bundle bytes로 변환된다. export는 적용된 canonical checksum을 다시
+확인한 뒤 source-set JSON이나 ZIP을 canonical JSON으로 바꾸지 않고 exact 원본 bytes와 media type,
+Artifact SHA-256을 반환한다.
 응답의 `source_artifact`와 bundle summary는 organization/project/classification을 포함한다. Bundle
 scope가 immutable Artifact scope 또는 인증 문맥과 다르면 `CMP-SCHEMA-BUNDLE-0004`다.
 
 Bundle과 plan의 독립 계약 버전은 모두 `1.0.0`이다. Bundle은 하나 이상의 임의 개수
 `record_schemas`를 허용하고 각 record의 stable key, canonical schema SHA-256과 draft 2020-12 `$id`를
-고정한다. 지원 확장은 `x-business-key`, `x-reference`, `x-curve`, `x-unit`, `x-indexed`,
-`x-searchable`뿐이다. `$ref`는 같은 record의 fragment 또는 bundle에 선언된 exact record `$id`와
+고정한다. 지원 확장은 `x-business-key`, `x-id-rule`, `x-reference`, `x-curve`, `x-unit`,
+`x-quantity`, `x-suggested-values`, `x-indexed`, `x-searchable`이다. `$ref`는 같은 record의 fragment 또는 bundle에 선언된 exact record `$id`와
 fragment만 허용한다. Stable key는 기존 configurable Catalog runtime과 같은 1..64자
 lower_snake_case이며 `_`로 끝날 수 없다. leaf description은 Attribute help/Link Type의 기존
 2,000자 한도를 넘으면 손실 없는 projection 오류다. 외부 URL·파일·네트워크 resolver와 임의

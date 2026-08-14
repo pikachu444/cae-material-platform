@@ -85,6 +85,7 @@ class BundleSummaryResponse(BaseModel):
     database_key: str
     profile_key: str
     record_schema_count: int
+    unit_profile_count: int
     dependency_order: tuple[str, ...]
 
 
@@ -103,6 +104,7 @@ class ProjectedDefinitionResponse(BaseModel):
     key: str
     name: str
     description: str | None
+    data_category: Literal["technical_data", "test_data", "simulation_data"] | None = None
 
 
 class ProjectedProfileResponse(BaseModel):
@@ -118,7 +120,10 @@ class ProjectedAdapterSemanticsResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     business_key: bool
+    identity_rule: str | None
     nullable: bool
+    suggested_values: tuple[str, ...] | None
+    curve: dict[str, str] | None
     indexed: bool | None
     searchable: bool | None
 
@@ -151,6 +156,7 @@ class ProjectedAttributeResponse(BaseModel):
     help_text: OptionalText2000
     source_pointer: str
     adapter_semantics: ProjectedAdapterSemanticsResponse
+    business_key: bool = False
 
 
 class ProjectedLayoutItemResponse(BaseModel):
@@ -226,7 +232,10 @@ class SchemaBundleDiagnosticResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     severity: Literal["warning", "error"]
-    code: Annotated[str, StringConstraints(pattern=r"^CMP-SCHEMA-BUNDLE-[0-9]{4}$")]
+    code: Annotated[
+        str,
+        StringConstraints(pattern=r"^CMP-SCHEMA-(?:BUNDLE|SOURCE)-[0-9]{4}$"),
+    ]
     location: str
     message: str
     remediation: str
@@ -282,6 +291,8 @@ class AppliedSchemaObjectResponse(BaseModel):
     published: bool
     source_schema_id: str
     source_schema_version: str
+    source_file: str | None
+    source_file_sha256: Sha256 | None
     source_pointer: str
 
 
@@ -570,7 +581,7 @@ def install_schema_bundle_planner_api(
         tags=["catalog-schema"],
         responses={
             200: {
-                "description": "Canonical current applied Schema Definition Bundle JSON.",
+                "description": "Exact original bytes of the current applied source Artifact.",
                 "headers": {
                     "ETag": {"schema": {"type": "string"}},
                     "Digest": {"schema": {"type": "string"}},
@@ -584,7 +595,12 @@ def install_schema_bundle_planner_api(
                         "schema": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
                     },
                 },
-                "content": {"application/vnd.cmp.catalog-schema-definition-bundle+json": {}},
+                "content": {
+                    "application/vnd.cmp.catalog-schema-definition-bundle+json": {},
+                    "application/vnd.cmp.catalog-schema-source-set+json": {},
+                    "application/vnd.cmp.catalog-schema-source-set+zip": {},
+                    "application/zip": {},
+                },
             },
             401: {"description": "Authentication required."},
             403: {"description": "Catalog schema export is not authorized."},
@@ -601,7 +617,7 @@ def install_schema_bundle_planner_api(
             result = await required(context).export(context, decision, bundle_key)
             return Response(
                 content=result.value,
-                media_type="application/vnd.cmp.catalog-schema-definition-bundle+json",
+                media_type=result.media_type,
                 headers={
                     "Cache-Control": "no-store",
                     "ETag": f'"sha256:{result.sha256}"',

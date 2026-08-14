@@ -61,11 +61,15 @@ _SCHEMA_KEYS = frozenset(
         "pattern",
         "format",
         "x-business-key",
+        "x-id-rule",
         "x-reference",
         "x-curve",
         "x-unit",
+        "x-quantity",
+        "x-suggested-values",
         "x-indexed",
         "x-searchable",
+        "x-source-origin",
     }
 )
 _REFERENCE_KEYS = frozenset(
@@ -84,12 +88,19 @@ _REF_SIBLING_KEYS = frozenset(
         "title",
         "description",
         "x-business-key",
+        "x-id-rule",
         "x-reference",
         "x-curve",
         "x-unit",
+        "x-quantity",
+        "x-suggested-values",
         "x-indexed",
         "x-searchable",
+        "x-source-origin",
     }
+)
+_REFERENCE_OPTIONAL_KEYS = frozenset(
+    {"source_table_key", "target_table_key", "reference_only"}
 )
 _ACTION_ORDER = {
     "database": 0,
@@ -155,6 +166,8 @@ class RecordSchemaDefinition:
     description: str | None
     schema_sha256: str
     schema: dict[str, Any]
+    schema_version: str | None = None
+    data_category: str | None = None
 
     @property
     def schema_id(self) -> str:
@@ -170,6 +183,7 @@ class SchemaDefinitionBundle:
     profile: CatalogDefinition
     record_schemas: tuple[RecordSchemaDefinition, ...]
     dependency_order: tuple[str, ...]
+    unit_profiles: tuple[dict[str, Any], ...] = ()
 
     def summary(self) -> dict[str, Any]:
         return {
@@ -183,6 +197,7 @@ class SchemaDefinitionBundle:
             "database_key": self.database.key,
             "profile_key": self.profile.key,
             "record_schema_count": len(self.record_schemas),
+            "unit_profile_count": len(self.unit_profiles),
             "dependency_order": list(self.dependency_order),
         }
 
@@ -495,7 +510,7 @@ def _validate_reference_extension(
     if not _exact_keys(
         value,
         required=required,
-        allowed=required,
+        allowed=required | _REFERENCE_OPTIONAL_KEYS,
         location=location,
         diagnostics=diagnostics,
     ):
@@ -516,6 +531,38 @@ def _validate_reference_extension(
             diagnostics.append(
                 _error(2, f"{location}/{key}", f"{key} is invalid.", "Use 'one' or 'many'.")
             )
+    endpoint_keys = ("source_table_key", "target_table_key")
+    if any(key in value for key in endpoint_keys):
+        if not all(key in value for key in endpoint_keys):
+            diagnostics.append(
+                _error(
+                    2,
+                    location,
+                    "Explicit reference endpoints must be supplied together.",
+                    "Supply both source_table_key and target_table_key.",
+                )
+            )
+        for key in endpoint_keys:
+            if key in value and (
+                not isinstance(value[key], str) or _KEY.fullmatch(value[key]) is None
+            ):
+                diagnostics.append(
+                    _error(
+                        2,
+                        f"{location}/{key}",
+                        f"{key} is invalid.",
+                        "Use lower_snake_case.",
+                    )
+                )
+    if "reference_only" in value and not isinstance(value["reference_only"], bool):
+        diagnostics.append(
+            _error(
+                2,
+                f"{location}/reference_only",
+                "reference_only must be boolean.",
+                "Use true or false.",
+            )
+        )
 
 
 def _validate_schema_node(
@@ -621,9 +668,12 @@ def _validate_schema_node(
             "pattern",
             "format",
             "x-business-key",
+            "x-id-rule",
             "x-reference",
             "x-curve",
             "x-unit",
+            "x-quantity",
+            "x-suggested-values",
             "x-indexed",
             "x-searchable",
         }
@@ -836,15 +886,58 @@ def _validate_schema_node(
                     "Add a $ref to a declared record schema business-key property.",
                 )
             )
-    if "x-curve" in node and node["x-curve"] is not True:
-        diagnostics.append(
-            _error(
-                2,
-                f"{location}/x-curve",
-                "x-curve must be true when present.",
-                "Remove it or set it to true.",
+    if "x-curve" in node:
+        curve = node["x-curve"]
+        curve_keys = {
+            "x_pointer",
+            "x_unit",
+            "x_quantity",
+            "x_scale",
+            "y_pointer",
+            "y_unit",
+            "y_quantity",
+            "series_pointer",
+            "series_unit",
+            "deviation_pointer",
+            "deviation_unit",
+        }
+        if curve is not True and (
+            not isinstance(curve, dict)
+            or not {"x_pointer", "y_pointer"}.issubset(curve)
+            or not set(curve).issubset(curve_keys)
+            or not all(isinstance(item, str) and item for item in curve.values())
+            or curve.get("x_scale", "linear") not in {"linear", "log10"}
+        ):
+            diagnostics.append(
+                _error(
+                    2,
+                    f"{location}/x-curve",
+                    "x-curve must be true or reviewed channel-pointer metadata.",
+                    "Use x/y pointers and optional unit, quantity, series, "
+                    "deviation, and scale members.",
+                )
             )
-        )
+        if isinstance(curve, dict):
+            for key, supplied_unit in curve.items():
+                if not key.endswith("_unit"):
+                    continue
+                curve_stable_unit: str | None = None
+                if isinstance(supplied_unit, str) and _UNIT.fullmatch(supplied_unit):
+                    try:
+                        curve_stable_unit = canonical_unit_id(
+                            supplied_unit, location=f"{location}/x-curve/{key}"
+                        )
+                    except UnitError:
+                        curve_stable_unit = None
+                if curve_stable_unit != supplied_unit:
+                    diagnostics.append(
+                        _error(
+                            2,
+                            f"{location}/x-curve/{key}",
+                            f"Curve channel unit '{supplied_unit}' is not a stable common unit.",
+                            "Use a canonical unit_id from the bounded common unit registry.",
+                        )
+                    )
     if "x-unit" in node:
         supplied_unit = node["x-unit"]
         stable_unit: str | None = None
@@ -869,6 +962,32 @@ def _validate_schema_node(
         if key in node and not isinstance(node[key], bool):
             diagnostics.append(
                 _error(2, f"{location}/{key}", f"{key} must be boolean.", "Use true or false.")
+            )
+    for key, maximum in (("x-quantity", 255), ("x-id-rule", 1000)):
+        if key in node and not _is_text(node[key], maximum=maximum):
+            diagnostics.append(
+                _error(
+                    2,
+                    f"{location}/{key}",
+                    f"{key} is invalid.",
+                    f"Use 1..{maximum} trimmed characters.",
+                )
+            )
+    if "x-suggested-values" in node:
+        suggestions = node["x-suggested-values"]
+        if (
+            not isinstance(suggestions, list)
+            or not suggestions
+            or not all(_is_text(item, maximum=255) for item in suggestions)
+            or len(set(cast(list[str], suggestions))) != len(suggestions)
+        ):
+            diagnostics.append(
+                _error(
+                    2,
+                    f"{location}/x-suggested-values",
+                    "x-suggested-values must contain unique non-empty strings.",
+                    "Provide a unique suggestion list.",
+                )
             )
 
 
@@ -949,7 +1068,7 @@ def _parse_record_schema(
     if not _exact_keys(
         value,
         required=required,
-        allowed=required,
+        allowed=required | {"schema_version", "data_category"},
         location=location,
         diagnostics=diagnostics,
     ):
@@ -959,6 +1078,8 @@ def _parse_record_schema(
     description = value.get("description")
     schema_sha256 = value.get("schema_sha256")
     schema = value.get("schema")
+    schema_version = value.get("schema_version")
+    data_category = value.get("data_category")
     valid = True
     if not isinstance(key, str) or _KEY.fullmatch(key) is None:
         diagnostics.append(
@@ -984,6 +1105,28 @@ def _parse_record_schema(
                 f"{location}/description",
                 "Record description is invalid.",
                 "Use null or 1..4000 trimmed characters.",
+            )
+        )
+        valid = False
+    if data_category not in {None, "technical_data", "test_data", "simulation_data"}:
+        diagnostics.append(
+            _error(
+                2,
+                f"{location}/data_category",
+                "Record data_category is invalid.",
+                "Use technical_data, test_data, simulation_data, or null.",
+            )
+        )
+        valid = False
+    if schema_version is not None and (
+        not isinstance(schema_version, str) or _SEMVER.fullmatch(schema_version) is None
+    ):
+        diagnostics.append(
+            _error(
+                2,
+                f"{location}/schema_version",
+                "Record schema_version is invalid.",
+                "Use a three-part semantic version.",
             )
         )
         valid = False
@@ -1039,7 +1182,8 @@ def _parse_record_schema(
                 f"Use '{JSON_SCHEMA_2020_12}'.",
             )
         )
-    expected_id = f"urn:cmp:catalog-schema:{key}:{bundle_version}"
+    effective_schema_version = cast(str, schema_version or bundle_version)
+    expected_id = f"urn:cmp:catalog-schema:{key}:{effective_schema_version}"
     if schema.get("$id") != expected_id:
         diagnostics.append(
             _error(
@@ -1117,6 +1261,8 @@ def _parse_record_schema(
         cast(str | None, description),
         schema_sha256,
         cast(dict[str, Any], schema),
+        cast(str | None, schema_version),
+        cast(str | None, data_category),
     )
 
 
@@ -1336,7 +1482,7 @@ def parse_schema_definition_bundle(
     _exact_keys(
         document,
         required=root_required,
-        allowed=root_required,
+        allowed=root_required | {"unit_profiles"},
         location="",
         diagnostics=diagnostics,
     )
@@ -1516,6 +1662,98 @@ def parse_schema_definition_bundle(
                     f"Keep exactly one entry for each {label}.",
                 )
             )
+    unit_profiles_value = document.get("unit_profiles", [])
+    unit_profiles: list[dict[str, Any]] = []
+    if not isinstance(unit_profiles_value, list):
+        diagnostics.append(
+            _error(
+                2,
+                "/unit_profiles",
+                "unit_profiles must be an array.",
+                "Supply zero or more key/name/units definitions.",
+            )
+        )
+    else:
+        seen_profile_keys: set[str] = set()
+        for index, value in enumerate(unit_profiles_value):
+            location = f"/unit_profiles/{index}"
+            if not isinstance(value, dict) or set(value) != {"key", "name", "units"}:
+                diagnostics.append(
+                    _error(
+                        2,
+                        location,
+                        "Unit Profile requires only key, name, and units.",
+                        "Correct the exact profile definition.",
+                    )
+                )
+                continue
+            profile_key = value.get("key")
+            profile_name = value.get("name")
+            units = value.get("units")
+            if (
+                not isinstance(profile_key, str)
+                or _KEY.fullmatch(profile_key) is None
+                or profile_key in seen_profile_keys
+            ):
+                diagnostics.append(
+                    _error(
+                        2,
+                        f"{location}/key",
+                        "Unit Profile key is invalid or duplicated.",
+                        "Use a unique lower_snake_case key.",
+                    )
+                )
+                continue
+            if not _is_text(profile_name, maximum=200):
+                diagnostics.append(
+                    _error(
+                        2,
+                        f"{location}/name",
+                        "Unit Profile name is invalid.",
+                        "Use 1..200 trimmed characters.",
+                    )
+                )
+                continue
+            if (
+                not isinstance(units, dict)
+                or not units
+                or not all(
+                    isinstance(key, str)
+                    and _KEY.fullmatch(key) is not None
+                    and isinstance(unit, str)
+                    and _UNIT.fullmatch(unit) is not None
+                    for key, unit in units.items()
+                )
+            ):
+                diagnostics.append(
+                    _error(
+                        2,
+                        f"{location}/units",
+                        "Unit Profile units must map stable quantity keys to unit strings.",
+                        "Correct the bounded unit map.",
+                    )
+                )
+                continue
+            for quantity_key, supplied_unit in sorted(units.items()):
+                stable_unit: str | None = None
+                try:
+                    stable_unit = canonical_unit_id(
+                        cast(str, supplied_unit),
+                        location=f"{location}/units/{_escape_pointer(cast(str, quantity_key))}",
+                    )
+                except UnitError:
+                    stable_unit = None
+                if stable_unit != supplied_unit:
+                    diagnostics.append(
+                        _error(
+                            2,
+                            f"{location}/units/{_escape_pointer(cast(str, quantity_key))}",
+                            f"Unit Profile unit '{supplied_unit}' is not a stable common unit.",
+                            "Use a canonical unit_id from the bounded common unit registry.",
+                        )
+                    )
+            seen_profile_keys.add(profile_key)
+            unit_profiles.append(_canonical_mapping(value))
     dependency_order = (
         _resolve_dependencies(tuple(records), diagnostics)
         if records and not any(item.severity is DiagnosticSeverity.ERROR for item in diagnostics)
@@ -1544,6 +1782,7 @@ def parse_schema_definition_bundle(
             profile,
             tuple(records),
             dependency_order,
+            tuple(unit_profiles),
         ),
         tuple(diagnostics),
     )
@@ -1617,22 +1856,30 @@ def _effective_node(
     merged = dict(effective)
     for key in (
         "x-business-key",
+        "x-id-rule",
         "x-reference",
         "x-curve",
         "x-unit",
+        "x-quantity",
+        "x-suggested-values",
         "x-indexed",
         "x-searchable",
+        "x-source-origin",
     ):
         merged.pop(key, None)
     for key in (
         "title",
         "description",
         "x-business-key",
+        "x-id-rule",
         "x-reference",
         "x-curve",
         "x-unit",
+        "x-quantity",
+        "x-suggested-values",
         "x-indexed",
         "x-searchable",
+        "x-source-origin",
     ):
         if key in node:
             merged[key] = node[key]
@@ -1811,6 +2058,9 @@ def _attribute_content(
     diagnostics: list[BundleDiagnostic],
 ) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
     node = leaf.node
+    source_origin = node.get("x-source-origin")
+    if not isinstance(source_origin, dict):
+        source_origin = {}
     location = leaf.source_pointer
     parsed_type = (
         _validate_schema_type(node.get("type"), f"{location}/type", diagnostics)
@@ -1872,15 +2122,15 @@ def _attribute_content(
         link = {
             "key": reference["link_key"],
             "name": node.get("title") or _human_name(cast(str, reference["link_key"])),
-            "source_table_key": leaf.record_key,
-            "target_table_key": target.record_key,
+            "source_table_key": reference.get("source_table_key", leaf.record_key),
+            "target_table_key": reference.get("target_table_key", target.record_key),
             "forward_label": reference["forward_label"],
             "reverse_label": reference["reverse_label"],
             "source_cardinality": reference["source_cardinality"],
             "target_cardinality": reference["target_cardinality"],
             "description": node.get("description"),
         }
-    elif node.get("x-curve") is True:
+    elif node.get("x-curve") is not None:
         if source_type != "string" or node.get("format") != "uuid":
             diagnostics.append(
                 _error(
@@ -2073,7 +2323,7 @@ def _attribute_content(
         "name": node.get("title") or _human_name(leaf.attribute_key),
         "data_type": base_type,
         "required": leaf.required,
-        "quantity_semantics": None,
+        "quantity_semantics": node.get("x-quantity"),
         "normalized_unit": node.get("x-unit"),
         "minimum_number": node.get("minimum") if base_type == "number" else None,
         "maximum_number": node.get("maximum") if base_type == "number" else None,
@@ -2089,15 +2339,31 @@ def _attribute_content(
         "allowed_values": node.get("enum", []) if base_type == "discrete" else [],
         "reference_table_key": reference_table_key,
         "help_text": node.get("description"),
-        "source_pointer": leaf.source_pointer,
+        "source_pointer": source_origin.get("pointer") or leaf.source_pointer,
         "adapter_semantics": {
             "business_key": node.get("x-business-key") is True,
+            "identity_rule": node.get("x-id-rule"),
             "nullable": nullable,
+            "suggested_values": node.get("x-suggested-values"),
+            "curve": node.get("x-curve") if isinstance(node.get("x-curve"), dict) else None,
             "indexed": node.get("x-indexed"),
             "searchable": node.get("x-searchable"),
         },
     }
+    if source_origin:
+        content.update(
+            {
+                "source_schema_id": source_origin.get("schema_id"),
+                "source_schema_version": source_origin.get("schema_version"),
+                "source_file": source_origin.get("file"),
+                "source_file_sha256": source_origin.get("file_sha256"),
+            }
+        )
+    if node.get("x-business-key") is True:
+        content["business_key"] = True
     del by_key  # reserved for future versioned quantity/reference policies
+    if isinstance(reference, dict) and reference.get("reference_only") is True:
+        return None, _canonical_mapping(link) if link is not None else None
     return _canonical_mapping(content), _canonical_mapping(link) if link is not None else None
 
 
@@ -2172,7 +2438,16 @@ def project_schema_definition_bundle(
                 record.key,
                 None,
                 _canonical_mapping(
-                    {"key": record.key, "name": record.name, "description": record.description}
+                    {
+                        "key": record.key,
+                        "name": record.name,
+                        "description": record.description,
+                        **(
+                            {"data_category": record.data_category}
+                            if record.data_category is not None
+                            else {}
+                        ),
+                    }
                 ),
             )
         )
@@ -2181,8 +2456,11 @@ def project_schema_definition_bundle(
     for key in bundle.dependency_order:
         record = by_key[key]
         attribute_dependencies: list[tuple[str, str | None, str]] = []
+        projected_attribute_leaves: list[_LeafProjection] = []
         for leaf in leaves[key]:
             content, link = _attribute_content(leaf, by_key=by_key, diagnostics=diagnostics)
+            if link is not None:
+                link_contents.append(link)
             if content is None:
                 continue
             dependencies: list[tuple[str, str | None, str]] = [("table", None, key)]
@@ -2199,8 +2477,7 @@ def project_schema_definition_bundle(
                 )
             )
             attribute_dependencies.append(("attribute", key, leaf.attribute_key))
-            if link is not None:
-                link_contents.append(link)
+            projected_attribute_leaves.append(leaf)
         layout_key = f"{bundle.bundle_key}.{record.key}.default"
         layout_name = f"{record.name} default layout"
         if len(layout_name) > 200:
@@ -2218,7 +2495,7 @@ def project_schema_definition_bundle(
                 "section": leaf.section,
                 "ordinal": ordinal,
             }
-            for ordinal, leaf in enumerate(leaves[key])
+            for ordinal, leaf in enumerate(projected_attribute_leaves)
         ]
         projected.append(
             ProjectedCatalogObject(
@@ -2282,6 +2559,10 @@ def _comparable_content(target_type: str, value: Mapping[str, Any]) -> dict[str,
     content = dict(value)
     if target_type == "attribute":
         content.pop("source_pointer", None)
+        content.pop("source_schema_id", None)
+        content.pop("source_schema_version", None)
+        content.pop("source_file", None)
+        content.pop("source_file_sha256", None)
         content.pop("adapter_semantics", None)
     return _canonical_mapping(content)
 
@@ -2341,12 +2622,15 @@ def _invalid_plan(
 def build_schema_bundle_plan(
     *,
     source: SourceArtifactIdentity,
-    raw_bytes: bytes,
+    raw_bytes: bytes | None,
     snapshot: CatalogSnapshot,
     organization_id: UUID,
     project_id: UUID,
     classification_allowed: Callable[[DataClassification], bool],
+    source_diagnostics: Sequence[BundleDiagnostic] = (),
 ) -> SchemaBundlePlan:
+    if raw_bytes is None:
+        return _invalid_plan(source, snapshot, source_diagnostics)
     bundle, parse_diagnostics = parse_schema_definition_bundle(
         raw_bytes,
         organization_id=organization_id,
@@ -2354,10 +2638,45 @@ def build_schema_bundle_plan(
         source_classification=source.classification,
         classification_allowed=classification_allowed,
     )
+    diagnostics = [*source_diagnostics, *parse_diagnostics]
     if bundle is None:
-        return _invalid_plan(source, snapshot, parse_diagnostics)
+        return _invalid_plan(source, snapshot, diagnostics)
     projected, projection_diagnostics = project_schema_definition_bundle(bundle)
-    diagnostics = [*parse_diagnostics, *projection_diagnostics]
+    diagnostics.extend(projection_diagnostics)
+    if any(item.severity is DiagnosticSeverity.ERROR for item in diagnostics):
+        return _invalid_plan(source, snapshot, diagnostics, bundle=bundle)
+
+    resulting_business_keys: dict[str, set[str]] = defaultdict(set)
+    for state_item in snapshot.objects:
+        if (
+            state_item.target_type == "attribute"
+            and state_item.parent_external_key is not None
+            and state_item.content.get("business_key") is True
+        ):
+            resulting_business_keys[state_item.parent_external_key].add(
+                state_item.external_key
+            )
+    for projected_item in projected:
+        if (
+            projected_item.target_type != "attribute"
+            or projected_item.parent_external_key is None
+        ):
+            continue
+        keys = resulting_business_keys[projected_item.parent_external_key]
+        keys.discard(projected_item.external_key)
+        if projected_item.content.get("business_key") is True:
+            keys.add(projected_item.external_key)
+    for table_key, keys in sorted(resulting_business_keys.items()):
+        if len(keys) > 1:
+            diagnostics.append(
+                _error(
+                    15,
+                    f"/catalog/table/{_escape_pointer(table_key)}/business_key",
+                    "Bundle apply would leave more than one governed business-key Attribute.",
+                    "Explicitly retire the existing business-key designation before applying "
+                    "a different key; delete_missing=false never demotes it silently.",
+                )
+            )
     if any(item.severity is DiagnosticSeverity.ERROR for item in diagnostics):
         return _invalid_plan(source, snapshot, diagnostics, bundle=bundle)
 

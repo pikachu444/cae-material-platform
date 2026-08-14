@@ -385,9 +385,31 @@
     "RecordSearchRequest": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["table_id"],
+      "oneOf": [
+        {
+          "required": ["table_id"],
+          "properties": {
+            "table_id": {"$ref": "#/$defs/Uuid"},
+            "data_category": {"type": "null"}
+          }
+        },
+        {
+          "required": ["data_category"],
+          "properties": {
+            "table_id": {"type": "null"},
+            "data_category": {
+              "type": "string",
+              "enum": ["technical_data", "test_data", "simulation_data", "solver_cards"]
+            }
+          }
+        }
+      ],
       "properties": {
-        "table_id": {"$ref": "#/$defs/Uuid"},
+        "table_id": {"oneOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "data_category": {
+          "type": ["string", "null"],
+          "enum": ["technical_data", "test_data", "simulation_data", "solver_cards", null]
+        },
         "text": {"type": ["string", "null"], "minLength": 1, "maxLength": 200},
         "folder_id": {"type": ["string", "null"], "format": "uuid"},
         "record_id": {"type": ["string", "null"], "format": "uuid"},

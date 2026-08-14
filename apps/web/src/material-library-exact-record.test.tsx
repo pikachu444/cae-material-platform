@@ -98,6 +98,7 @@ describe("ExactRecordDatasheetPage", () => {
           table_id: "table-1",
           name: "Requested exact revision",
           external_key: null,
+          data_category: "technical_data",
           domain_binding: {
             binding_id: "binding-1",
             record_id: "record-1",
@@ -108,7 +109,62 @@ describe("ExactRecordDatasheetPage", () => {
             workbench_path: "/materials/material-1",
           },
         };
-        return response({ root, nodes: [root], links: [] });
+        const endpoint = (recordId: string, revisionId: string, name: string, kind: "test_run" | "material_model" | "neutral_solver_card") => ({
+          record_id: recordId,
+          record_revision_id: revisionId,
+          revision_no: 1,
+          table_id: `table-${kind}`,
+          name,
+          external_key: null,
+          data_category: kind === "test_run" ? "test_data" : kind === "material_model" ? "simulation_data" : null,
+          domain_binding: {
+            binding_id: `binding-${recordId}`,
+            record_id: recordId,
+            record_revision_id: revisionId,
+            kind,
+            object_id: `object-${recordId}`,
+            revision_id: `object-revision-${recordId}`,
+            workbench_path: "/modeling",
+          },
+        });
+        const tensile = {
+          ...endpoint("record-test", "revision-test", "Room tensile test", "test_run"),
+          domain_binding: null,
+          domain_bindings: [],
+        };
+        const model = endpoint("record-model", "revision-model", "Transitive viscoelastic model", "material_model");
+        const card = endpoint("record-card", "revision-card", "OpenRadioss material card", "neutral_solver_card");
+        const link = (id: string, source: typeof root | typeof tensile, target: typeof tensile | typeof model | typeof card) => ({
+          record_link_id: id,
+          current_revision: { ...metadata(`revision-${id}`, 1), content: {} },
+          link_type_revision: {
+            ...metadata(`link-type-${id}`, 1),
+            content: {
+              key: id,
+              name: id,
+              source_table_id: source.table_id,
+              source_table_revision_id: "source-table-revision",
+              target_table_id: target.table_id,
+              target_table_revision_id: "target-table-revision",
+              forward_label: "uses",
+              reverse_label: "used by",
+              source_cardinality: "many",
+              target_cardinality: "many",
+              description: null,
+            },
+          },
+          source,
+          target,
+        });
+        return response({
+          root,
+          nodes: [root, tensile, model, card],
+          links: [
+            link("root-test", root, tensile),
+            link("test-model", tensile, model),
+            link("root-card", root, card),
+          ],
+        });
       }
       throw new Error(`Unexpected request: ${url}`);
     }));
@@ -120,8 +176,15 @@ describe("ExactRecordDatasheetPage", () => {
     expect(screen.getByText("MPa")).toBeTruthy();
     expect(screen.queryByText(/450000000 Pa/)).toBeNull();
     expect(screen.queryByText("Current head must not render")).toBe(null);
-    const recordContextText = screen.getByLabelText("Revision and related record context").textContent ?? "";
-    expect(recordContextText).not.toMatch(/\bdraft\b/i);
-    expect(recordContextText).toContain("revision 1");
+    const datasheetText = document.querySelector(".exact-record-datasheet")?.textContent ?? "";
+    expect(datasheetText).not.toMatch(/\bdraft\b/i);
+    expect(datasheetText).toContain("revision 1");
+    expect(datasheetText).toContain("Related data");
+    expect(datasheetText).toContain("Test Data");
+    expect(datasheetText).toContain("Room tensile test");
+    expect(datasheetText).toContain("Solver Cards");
+    expect(datasheetText).toContain("OpenRadioss material card");
+    expect(datasheetText).not.toContain("Transitive viscoelastic model");
+    expect(screen.queryByRole("button", { name: /record context pane/i })).toBeNull();
   });
 });

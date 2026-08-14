@@ -254,7 +254,7 @@ Test Data channel은 기존처럼 사용자가 명시한 scale/offset과 원본�
 | `FR-UX-002` | Dashboard에서 Catalog 탐색, 시험 처리와 card 생성 시작점을 제공해야 한다. | E2E가 각 시작점에서 실제 workbench까지 이동한다. |
 | `FR-UX-003` | API error를 domain action과 해결 방법으로 표시해야 한다. | 사용자가 trace ID와 수정 가능한 입력을 확인한다. |
 | `FR-UX-004` | 일반 사용자 화면은 API URL, bearer token, tenant/RLS와 object-store 정보를 노출하지 않아야 한다. | clean demo는 자동 session으로 열리고 운영 모드는 일반 로그인만 표시한다. |
-| `FR-UX-005` | Material Database는 Database/Profile → Table → nested Folder → Record Contents Tree를 workbench 전환 중에도 유지해야 한다. | tree selection, expansion, Subset, breadcrumb와 deep link가 datasheet/link 이동 후에도 유지된다. |
+| `FR-UX-005` | `/materials`의 기존 Browse Tree는 Technical Data, Test Data, Simulation Data, Solver Cards를 바로 보이는 대분류로 제공하고 각 분류 아래 공개된 데이터 항목을 표시해야 한다. Database/Profile/Table/Folder/Record와 형식 설정은 Administration에서만 제공한다. | 여러 분류를 동시에 펼쳐도 exact selection과 deep link가 같은 explorer/result/datasheet layout에서 유지되고, 일반 화면에 관리용 저장 구조나 별도 database 화면이 생기지 않는다. |
 | `FR-UX-006` | Record는 Layout 기반 Datasheet를 중심으로 Properties, Curves, Test Data, Models, CAE Cards와 Links를 한 문맥에서 제공해야 한다. | 검색과 tree에서 연 record가 동일 datasheet를 사용하고 exact revision은 보조 정보로 표시된다. |
 | `FR-UX-007` | Material Modeling은 plot을 유지한 채 Import → Map → Prepare → Fit → Extrapolate → Card 단계를 한 workbench에서 완료해야 한다. | 사용자가 module route와 UUID를 복사하지 않고 raw/processed/fitted/extrapolated overlay와 option panel을 조작한다. |
 | `FR-UX-008` | Dashboard는 global material search, browse-by-family, recent/favorite records, modeling sessions, jobs/reviews와 create/import action을 제공해야 한다. | module inventory, connection setup 또는 infrastructure status가 primary content에 나타나지 않는다. |

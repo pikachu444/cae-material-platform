@@ -11,11 +11,11 @@
 - Material Detail: `Overview | Properties | Curves | CAE Cards | Evidence`
 - Modeling: `Data | Process | Fit | Export`
 - Administration: 권한이 있는 사용자에게 Database/Profile과 Table/Attribute/Layout/Subset/Link Type의
-  초안·검증·발행, Schema Definition Bundle 계획·명시적 적용·read-back·검증 export, Folder/Record
-  단건·다건 등록과 접근 관리를 제공
-- legacy `/database`, `/catalog/*`, `/datasets/*`: deep-link 호환성 유지
+  초안·검증·발행, canonical JSON 또는 checksummed source-set/ZIP Schema Definition Bundle의
+  계획·명시적 적용·read-back·검증 export, Folder/Record 단건·다건 등록과 접근 관리를 제공
+- legacy `/catalog/*`, `/datasets/*`: deep-link 호환성 유지; 일반 사용자 시작점은 `/materials`
 
-Search-first는 탐색 우선순위만 바꿉니다. Database/Profile/Table/Folder/Record Tree, typed
+Search-first는 탐색 우선순위만 바꿉니다. 관리자는 Administration에서 Database/Profile/Table/Folder/Record와 typed
 Attribute, Layout, Subset, exact-revision Link Type과 workflow projection은 유지됩니다. Validation과
 review/release는 Modeling의 normal stage가 아니라 Advanced와 Activity의 별도 governed action입니다.
 
@@ -23,11 +23,11 @@ review/release는 Modeling의 normal stage가 아니라 Advanced와 Activity의 
 
 | 영역 | 구현 상태 |
 | --- | --- |
-| Materials | Browse 기본의 explorer/result/datasheet workspace, server-scoped Material class 검색·정렬·pagination, Browse Tree, 선택 문맥, detail 5개 영역, exact-revision curve chart/channel·unit·deviation evidence, solver card preview/download |
+| Materials | `/materials`의 Browse 기본 explorer/result/datasheet workspace, server-scoped 검색·정렬·pagination, 기존 Browse Tree 안의 Technical Data/Test Data/Simulation Data/Solver Cards와 각 데이터 항목, 선택 문맥, detail 5개 영역, 직접 연결의 category별 표시, exact-revision curve chart/channel·unit·deviation evidence, solver card preview/download; 내부 저장 구조는 Administration에서만 제공 |
 | Modeling | exact Material/State/Test Data session pin, Data/Process/Fit/Export, Materials와 공유하는 curve definition/display adapter, Process의 exact source/profile preview·last-valid blocked recovery·immutable saved-result comparison, 사용자가 고른 구간의 명시적 tensile toe OLS 보정·품질 경고 승인·exact Fit 입력, processed replicate `peak_engineering_stress_pa`의 선택형 Distribution analysis sheet와 Normal/Lognormal/Weibull 후보 비교·explicit selected model revision, processing·fitting, 선택 모델 저장, Material Model IR·Neutral·solver card 생성, upstream 변경에 따른 downstream clear/stale/regenerate |
 | Activity | role-aware review queue, exact Material/Test Data/Solver Card request entry, Reviewer-only approval/change decisions, exact governed Material 또는 current Record 기반 Test Data projection, Processing Batch context/retry, browser recovery facts, and review-backed Record publication projection |
 | Administration | Database/Profile과 configurable Table/Attribute/Layout/Subset/Link Type의 revision 관리·발행, Definition Bundle upload-plan-confirm-apply-read-back-export, Folder/Record tree, typed search·compare, 단건·다건 등록, exact Record links와 접근 관리 |
-| Catalog schema bundle | exact immutable Artifact의 임의 개수 JSON Schema draft 2020-12 정의를 bundle 내부에서만 resolve하고 결정론적 plan 생성; Administrator 전용 화면과 API에서 exact SHA-256/`plan_fingerprint` 재검증, 원자 apply/publication, immutable application read-back, provenance와 checksum-verified current-state export |
+| Catalog schema bundle | canonical bundle JSON, manifest+참조 JSON, checksummed source-set envelope 또는 ZIP의 exact immutable Artifact를 adapter 경계에서 검증하고 임의 개수 JSON Schema draft 2020-12 정의를 source set 내부에서만 resolve해 결정론적 plan 생성; Administrator 전용 화면과 API에서 exact SHA-256/`plan_fingerprint` 재검증, 원자 apply/publication, immutable application read-back, provenance와 checksum-verified current-state export |
 | Common units | contract `1.0.0`의 8개 bounded dimension과 explicit Decimal conversion, stable identity/immutable revision Unit Profile API, exact profile/application trace를 Processing·Fit·Export와 PostgreSQL provenance에 연결 |
 | Curve metadata | contract `1.0.0`의 channel role/quantity/original·normalized·display unit, typed scalar·pointwise deviation, exact Artifact/revision/source/calculation provenance; current Parquet metadata와 schema별 legacy adapter를 Dataset·Test Data·Processing·Statistics·Catalog·Materials·Modeling에 연결 |
 | Exchange | CSV/TSV/XLSX governed import와 versioned Test Data JSON; DMA frequency-temperature sweep(temperature/frequency/storage/loss, optional tan delta)와 FLD(minor/major strain)의 atomic whole-file validation, actionable row/cell diagnostics, idempotent retry, exact Raw/Profile/Run/Dataset/Material provenance; Neutral Material JSON, deterministic package |

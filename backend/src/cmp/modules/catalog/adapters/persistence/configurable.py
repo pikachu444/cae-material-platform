@@ -33,6 +33,7 @@ from cmp.modules.catalog.domain.configurable import (
     AttributeDataType,
     AttributeDefinitionContent,
     CatalogDatabaseContent,
+    CatalogDataCategory,
     CatalogProfileContent,
     CatalogTableContent,
     ConfigurableCatalogNotFound,
@@ -119,6 +120,7 @@ schema_table_revision = _revision_table(
     sa.Column("table_key", sa.String(64), nullable=False),
     sa.Column("name", sa.String(200), nullable=False),
     sa.Column("description", sa.Text(), nullable=True),
+    sa.Column("data_category", sa.String(32), nullable=True),
 )
 database = _identity_table("database", sa.Column("database_key", sa.String(64), nullable=False))
 database_revision = _revision_table(
@@ -159,6 +161,7 @@ attribute_definition_revision = _revision_table(
     sa.Column("allowed_values", postgresql.ARRAY(sa.String(255)), nullable=False),
     sa.Column("reference_table_id", _uuid, nullable=True),
     sa.Column("help_text", sa.Text(), nullable=True),
+    sa.Column("business_key", sa.Boolean(), nullable=False, server_default=sa.false()),
 )
 layout = _identity_table("layout", sa.Column("table_id", _uuid, nullable=False))
 layout_revision = _revision_table(
@@ -228,7 +231,13 @@ def _record(row: Any, aggregate_type: str) -> RevisionRecord:
 
 
 def _table_content(row: Any) -> CatalogTableContent:
-    return CatalogTableContent(row["table_key"], row["name"], row["description"])
+    category = row["data_category"]
+    return CatalogTableContent(
+        row["table_key"],
+        row["name"],
+        row["description"],
+        CatalogDataCategory(category) if category is not None else None,
+    )
 
 
 def _database_content(row: Any) -> CatalogDatabaseContent:
@@ -267,6 +276,7 @@ def _attribute_content(row: Any) -> AttributeDefinitionContent:
         allowed_values=tuple(row["allowed_values"]),
         reference_table_id=row["reference_table_id"],
         help_text=row["help_text"],
+        business_key=bool(row["business_key"]),
     )
 
 
@@ -294,7 +304,14 @@ def _subset_content(row: Any) -> SubsetContent:
 
 
 def _table_values(content: CatalogTableContent) -> dict[str, Any]:
-    return {"table_key": content.key, "name": content.name, "description": content.description}
+    return {
+        "table_key": content.key,
+        "name": content.name,
+        "description": content.description,
+        "data_category": (
+            content.data_category.value if content.data_category is not None else None
+        ),
+    }
 
 
 def _database_values(content: CatalogDatabaseContent) -> dict[str, Any]:
@@ -329,6 +346,7 @@ def _attribute_values(content: AttributeDefinitionContent) -> dict[str, Any]:
         "allowed_values": list(content.allowed_values),
         "reference_table_id": content.reference_table_id,
         "help_text": content.help_text,
+        "business_key": content.business_key,
     }
 
 
@@ -564,6 +582,7 @@ class SqlAlchemyConfigurableCatalogRepository(ConfigurableCatalogRepository):
             schema_table_revision.c.table_key,
             schema_table_revision.c.name,
             schema_table_revision.c.description,
+            schema_table_revision.c.data_category,
         ).select_from(
             SqlAlchemyConfigurableCatalogRepository._current_join(
                 schema_table, schema_table_revision
@@ -774,6 +793,7 @@ class SqlAlchemyConfigurableCatalogRepository(ConfigurableCatalogRepository):
                         schema_table_revision.c.table_key,
                         schema_table_revision.c.name,
                         schema_table_revision.c.description,
+                        schema_table_revision.c.data_category,
                     ).where(
                         schema_table_revision.c.aggregate_id == table_id,
                         schema_table_revision.c.id == revision_id,

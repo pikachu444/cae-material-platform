@@ -225,6 +225,15 @@ class CatalogRecordRepository(Protocol):
         table_id: UUID,
         external_key: str,
     ) -> bool: ...
+
+    def resolve_current_record_by_external_key(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        table_id: UUID,
+        external_key: str,
+    ) -> RecordSnapshot | None: ...
     def folder_store(
         self, context: SecurityContext, decision: AuthorizationDecision
     ) -> RevisionStore[CatalogFolderContent]: ...
@@ -643,6 +652,53 @@ class CatalogRecordService:
                         "Record-reference target does not match Attribute target Table"
                     )
 
+    def _promote_business_key(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        content: CatalogRecordContent,
+    ) -> CatalogRecordContent:
+        attributes = self._schemas.list_attributes(
+            context=context,
+            decision=decision,
+            table_id=content.table_id,
+        )
+        business_attributes = [item for item in attributes if item.current.content.business_key]
+        if not business_attributes:
+            return content
+        if len(business_attributes) != 1:
+            raise ConfigurableCatalogConflict(
+                "A Table must have exactly one governed business-key Attribute"
+            )
+        business_attribute = business_attributes[0]
+        value = next(
+            (
+                item.value
+                for item in content.values
+                if item.attribute_definition_id == business_attribute.id
+            ),
+            None,
+        )
+        if not isinstance(value, str) or not value.strip():
+            raise ConfigurableCatalogConflict(
+                "Record business-key Attribute requires a non-empty value"
+            )
+        promoted = value.strip()
+        if content.external_key is not None and content.external_key != promoted:
+            raise ConfigurableCatalogConflict(
+                "Record external key must match its governed business-key Attribute"
+            )
+        return CatalogRecordContent(
+            table_id=content.table_id,
+            table_revision_id=content.table_revision_id,
+            name=content.name,
+            external_key=promoted,
+            description=content.description,
+            folder_id=content.folder_id,
+            folder_revision_id=content.folder_revision_id,
+            values=content.values,
+        )
+
     @staticmethod
     def _normalize_record_content(
         content: CatalogRecordContent,
@@ -701,7 +757,18 @@ class CatalogRecordService:
         self, context: SecurityContext, decision: AuthorizationDecision, command: CreateRecord
     ) -> RecordSnapshot:
         _require(context, decision, Permission.CATALOG_WRITE)
-        content = self._normalize_record_content(command.content)
+        content = self._promote_business_key(
+            context,
+            decision,
+            self._normalize_record_content(command.content),
+        )
+        if content.external_key is not None and self._repository.external_key_exists(
+            context=context,
+            decision=decision,
+            table_id=content.table_id,
+            external_key=content.external_key,
+        ):
+            raise ConfigurableCatalogConflict("Record external key is already in use")
         self._validate_record(context, decision, content)
         record_id = self._id()
         record = self._revision_service(
@@ -734,9 +801,23 @@ class CatalogRecordService:
         )
         if current.table_id != command.content.table_id:
             raise ConfigurableCatalogConflict("Record Table cannot change")
-        content = self._normalize_record_content(
-            command.content, previous=current.current.content
+        content = self._promote_business_key(
+            context,
+            decision,
+            self._normalize_record_content(command.content, previous=current.current.content),
         )
+        if (
+            content.external_key is not None
+            and content.external_key.casefold()
+            != (current.current.content.external_key or "").casefold()
+            and self._repository.external_key_exists(
+                context=context,
+                decision=decision,
+                table_id=content.table_id,
+                external_key=content.external_key,
+            )
+        ):
+            raise ConfigurableCatalogConflict("Record external key is already in use")
         self._validate_record(context, decision, content)
         record = self._revision_service(
             RECORD_AGGREGATE_TYPE, self._repository.record_store(context, decision)
@@ -815,7 +896,12 @@ class CatalogRecordService:
         self, context: SecurityContext, decision: AuthorizationDecision, query: CatalogRecordQuery
     ) -> RecordSearchResult:
         _require(context, decision, Permission.CATALOG_READ)
-        self._schemas.get_table(context=context, decision=decision, table_id=query.table_id)
+        if query.table_id is not None:
+            self._schemas.get_table(
+                context=context,
+                decision=decision,
+                table_id=query.table_id,
+            )
         return self._repository.search_records(context=context, decision=decision, query=query)
 
     def compare_record_revisions(
@@ -1216,6 +1302,8 @@ class CatalogRecordService:
                     continue
                 try:
                     value = self._registration_value(
+                        context,
+                        decision,
                         attribute.id,
                         definition,
                         attribute.current.record.revision_id,
@@ -1257,6 +1345,34 @@ class CatalogRecordService:
                 None,
                 tuple(values),
             )
+            try:
+                content = self._promote_business_key(context, decision, content)
+            except ConfigurableCatalogConflict as error:
+                self._registration_error(
+                    errors,
+                    row_number,
+                    code_source or "business key",
+                    str(error),
+                    "비즈니스 키 열과 코드 값을 일치시키세요.",
+                )
+            promoted_key = content.external_key
+            if external_key is None and promoted_key is not None:
+                normalized_code = promoted_key.casefold()
+                if normalized_code in seen_codes or self._repository.external_key_exists(
+                    context=context,
+                    decision=decision,
+                    table_id=table_id,
+                    external_key=promoted_key,
+                ):
+                    self._registration_error(
+                        errors,
+                        row_number,
+                        "business key",
+                        "비즈니스 키가 이미 사용 중입니다.",
+                        "각 행에 다른 비즈니스 키를 입력하세요.",
+                    )
+                seen_codes.add(normalized_code)
+            external_key = promoted_key
             if len(errors) == row_errors_before:
                 try:
                     self._validate_record(context, decision, content)
@@ -1331,8 +1447,10 @@ class CatalogRecordService:
             )
         return result
 
-    @staticmethod
     def _registration_value(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
         attribute_id: UUID,
         definition: Any,
         revision_id: UUID,
@@ -1388,6 +1506,25 @@ class CatalogRecordService:
         if data_type is AttributeDataType.DATE:
             return CatalogRecordValue(
                 attribute_id, revision_id, data_type, value=date.fromisoformat(str(raw).strip())
+            )
+        if data_type is AttributeDataType.RECORD_REFERENCE:
+            external_key = str(raw).strip()
+            if not external_key or definition.reference_table_id is None:
+                raise ValueError("참조할 항목의 정확한 키를 입력하세요.")
+            target = self._repository.resolve_current_record_by_external_key(
+                context=context,
+                decision=decision,
+                table_id=definition.reference_table_id,
+                external_key=external_key,
+            )
+            if target is None:
+                raise ValueError("참조할 현재 항목을 찾을 수 없습니다.")
+            return CatalogRecordValue(
+                attribute_id,
+                revision_id,
+                data_type,
+                target_record_id=target.id,
+                target_record_revision_id=target.current.record.revision_id,
             )
         return CatalogRecordValue(attribute_id, revision_id, data_type, value=str(raw).strip())
 
@@ -1521,6 +1658,8 @@ class CatalogRecordService:
                     continue
                 values.append(
                     self._registration_value(
+                        context,
+                        decision,
                         attribute.id,
                         attribute.current.content,
                         attribute.current.record.revision_id,
@@ -1533,8 +1672,12 @@ class CatalogRecordService:
                     )
                 )
             contents.append(
-                CatalogRecordContent(
-                    table_id, table_revision_id, name, code, None, None, None, tuple(values)
+                self._promote_business_key(
+                    context,
+                    decision,
+                    CatalogRecordContent(
+                        table_id, table_revision_id, name, code, None, None, None, tuple(values)
+                    ),
                 )
             )
             if material_code_source is not None and state_name_source is not None:

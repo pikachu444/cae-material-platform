@@ -1,4 +1,4 @@
-version: 23
+version: 24
 shell:
   product_header_px: {compact: 46, standard: 50, large: 54}
   generic_command_status_bands: absent
@@ -59,9 +59,9 @@ administration_workspace:
     visible_when: Administrator
     denied_roles: [User, Reviewer]
     source:
-      file: one-json-file
+      file: one-canonical-json-or-manifest-plus-referenced-json-files-or-source-set-envelope-or-zip
       size_bytes: [1, 67108864]
-      media_types: [application/json, application/schema+json, application/vnd.cmp.catalog-schema-definition-bundle+json]
+      media_types: [application/json, application/schema+json, application/zip, application/vnd.cmp.catalog-schema-definition-bundle+json, application/vnd.cmp.catalog-schema-source-set+json]
       persistence: immutable-artifact-coordinates-only
       browser_storage_forbidden: [source-bytes, access-token, client-authored-actions]
     plan:
@@ -83,7 +83,7 @@ administration_workspace:
     validation: [required-value, value-type, unit, duplicate-code, per-row-correction]
     publication: published-revisions-only-in-material-database-search
 materials_workspace:
-  task: UXC-01 (server-scoped Find correction on DUI-02 workspace)
+  task: UXC-01 server-scoped Find correction on DUI-02 workspace; Issue #246 Task 1 category integration
   routes:
     results: /materials
     material_datasheet: /materials/:materialId/:tab?
@@ -110,10 +110,18 @@ materials_workspace:
   interaction:
     navigator_mode_control: local-navigator
     navigator_default: browse
+    navigator_modes: [browse, filters, subsets]
+    browse_tree: [Technical Data, Test Data, Simulation Data, Solver Cards]
+    peer_data_categories: [Technical Data, Test Data, Simulation Data, Solver Cards]
+    administration_storage_structure: [Database, Profile, Table, Folder, Record]
+    separate_database_component: forbidden
+    separate_catalog_or_workflow_navigator_mode: forbidden
+    exact_record_detail: center-datasheet-with-direct-revision-pinned-links-grouped-by-data-category
+    multi_hop_workflow: Evidence
     search_preserves_navigator_mode: true
-    pane_visibility_control: divider-button-and-double-click-reset
-    select: single-click
-    open: [Enter, double-click]
+    pane_visibility_control: navigator-divider-button-and-double-click-reset
+    select_category: center-result-list
+    open: [single-click, Enter]
     exact_revision_fallback: forbidden
     back_restores: [query, filters, sort, navigator_mode, selection, pane_layout]
     capture_ready: [aria-busy-false, server-scoped-total-page-and-material-class-facet, no-row-enrichment-requests]

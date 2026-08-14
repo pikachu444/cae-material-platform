@@ -652,7 +652,7 @@ export function ConfigurableCatalogAdmin({
           <div><h2>Database design</h2><p>Choose an object, then review its definition or add a new revisioned definition.</p></div>
           <div className="schema-command-bar" aria-label="Database design commands">
             <button className="ux-button" type="button" onClick={() => void loadTables()}>Refresh</button>
-            <button className="ux-button" type="button" onClick={() => onNavigate?.("/database")}>Preview datasheet</button>
+            <button className="ux-button" type="button" onClick={() => onNavigate?.("/materials")}>Preview datasheet</button>
             {objectKind === "layouts" ? <button className="ux-button primary" type="button" disabled={saving || !attributes.length} onClick={() => void createDefaultLayout()}>Add layout</button> : null}
             {objectKind === "subsets" ? <button className="ux-button primary" type="button" disabled={saving || !selectedTable} onClick={() => void createAllRecordsSubset()}>Add subset</button> : null}
             {objectKind !== "layouts" && objectKind !== "subsets" ? <button className="ux-button primary" type="button" disabled={saving || (objectKind === "attributes" && !selectedTable) || (objectKind === "profiles" && !databases.length)} onClick={openCreate}>Add {objectKind === "links" ? "Link Type" : objectKind === "tables" ? "Table" : objectKind === "attributes" ? "Attribute" : objectKind === "databases" ? "Database" : "Profile"}</button> : null}
@@ -735,7 +735,7 @@ export function ConfigurableCatalogAdmin({
             </button>
           </div>
         ) : null}
-      </section> : <header className="workspace-section-heading"><h2>Tables, Attributes and relationships</h2>{onNavigate ? <button className="ux-button" type="button" onClick={() => onNavigate("/database")}>Preview database</button> : null}</header>}
+      </section> : <header className="workspace-section-heading"><h2>Tables, Attributes and relationships</h2>{onNavigate ? <button className="ux-button" type="button" onClick={() => onNavigate("/materials")}>Preview Materials</button> : null}</header>}
 
       {error ? <div className="error-banner">{error}</div> : null}
       {notice ? <div className="success-banner">{notice}</div> : null}

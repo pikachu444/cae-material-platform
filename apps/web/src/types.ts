@@ -3762,10 +3762,17 @@ export type ConfigurableAttributeDataType =
   | "curve"
   | "record_reference";
 
+export type CatalogDataCategory =
+  | "technical_data"
+  | "test_data"
+  | "simulation_data"
+  | "solver_cards";
+
 export interface ConfigurableTableContent {
   key: string;
   name: string;
   description: string | null;
+  data_category?: Exclude<CatalogDataCategory, "solver_cards"> | null;
 }
 
 export interface ConfigurableDatabaseContent {
@@ -3813,6 +3820,7 @@ export interface ConfigurableAttributeContent {
   allowed_values: string[];
   reference_table_id: string | null;
   help_text: string | null;
+  business_key?: boolean;
 }
 
 export interface ConfigurableAttributeResponse {
@@ -4001,6 +4009,8 @@ export interface ConfigurableLinkEndpoint {
   table_id: string;
   name: string;
   external_key: string | null;
+  /** Category from the immutable Table revision pinned by this Record. */
+  data_category: CatalogDataCategory | null;
   domain_binding: DomainRevisionBinding | null;
   /** All approved bindings on this exact record revision.  `domain_binding`
    * remains the backwards-compatible primary summary. */
@@ -4571,6 +4581,7 @@ export interface SchemaDefinitionBundleSummary {
   database_key: string;
   profile_key: string;
   record_schema_count: number;
+  unit_profile_count: number;
   dependency_order: string[];
 }
 

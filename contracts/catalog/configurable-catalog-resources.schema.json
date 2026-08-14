@@ -138,6 +138,10 @@
         "record_reference"
       ]
     },
+    "CatalogDataCategory": {
+      "type": ["string", "null"],
+      "enum": ["technical_data", "test_data", "simulation_data", null]
+    },
     "RevisionMetadata": {
       "type": "object",
       "required": [
@@ -165,11 +169,12 @@
     "TableContent": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["key", "name", "description"],
+      "required": ["key", "name", "description", "data_category"],
       "properties": {
         "key": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
         "name": {"type": "string", "minLength": 1, "maxLength": 200},
-        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 4000}
+        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 4000},
+        "data_category": {"$ref": "#/$defs/CatalogDataCategory"}
       }
     },
     "TableRevision": {
@@ -229,7 +234,7 @@
         "table_id", "table_revision_id", "key", "name", "data_type", "required",
         "quantity_semantics", "normalized_unit", "minimum_number", "maximum_number",
         "minimum_length", "maximum_length", "pattern", "allowed_values",
-        "reference_table_id", "help_text"
+        "reference_table_id", "help_text", "business_key"
       ],
       "properties": {
         "table_id": {"$ref": "#/$defs/Uuid"},
@@ -251,7 +256,8 @@
           "uniqueItems": true
         },
         "reference_table_id": {"anyOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
-        "help_text": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000}
+        "help_text": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000},
+        "business_key": {"type": "boolean"}
       }
     },
     "AttributeContentInput": {
@@ -278,7 +284,8 @@
           "default": []
         },
         "reference_table_id": {"anyOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
-        "help_text": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000}
+        "help_text": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000},
+        "business_key": {"type": "boolean", "default": false}
       }
     },
     "AttributeRequest": {

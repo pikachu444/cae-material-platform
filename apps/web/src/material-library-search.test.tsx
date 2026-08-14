@@ -109,22 +109,21 @@ describe("MaterialSearchPage navigator and results", () => {
     expect(selectedStatus?.revision).not.toMatch(/\bdraft\b/i);
     expect(screen.queryByRole("columnheader", { name: "Status" })).toBeNull();
     expect(screen.getByRole("table", { name: "Material results" }).textContent).not.toMatch(/\bdraft\b/i);
-    const selectionText = document.querySelector(".materials-selection")?.textContent ?? "";
-    expect(selectionText).not.toMatch(/\bdraft\b/i);
-    expect(selectionText).toContain("Family");
-    expect(selectionText).toContain("Open datasheet");
+    expect(document.querySelector(".materials-selection")).toBeNull();
+    expect(screen.queryByRole("button", { name: /details pane/i })).toBeNull();
     window.removeEventListener("cmp:workspace-status", observeWorkspaceStatus);
     expect(screen.getAllByText("Metal").length).toBeGreaterThan(0);
     expect(screen.queryByText("metal")).toBeNull();
     expect(screen.getByRole("button", { name: "Browse" }).getAttribute("aria-current")).toBe("page");
+    fireEvent.click(screen.getByRole("button", { name: "Filters" }));
     fireEvent.change(screen.getByRole("textbox", { name: "Search materials" }), { target: { value: "DP780" } });
     fireEvent.click(screen.getByRole("button", { name: "Find" }));
-    expect(screen.getByRole("button", { name: "Browse" }).getAttribute("aria-current")).toBe("page");
+    expect(screen.getByRole("button", { name: "Filters" }).getAttribute("aria-current")).toBe("page");
 
     fireEvent.click(screen.getByRole("checkbox", { name: "Compare DP780" }));
     fireEvent.click(screen.getByRole("checkbox", { name: "Compare DP980" }));
     expect(await screen.findByText("Comparing 2 materials")).toBeTruthy();
-    expect(screen.queryByText("Provider")).toBeNull();
+    expect(screen.getByText("Provider")).toBeTruthy();
     expect(screen.queryByText("Validation availability")).toBeNull();
     expect(screen.queryByText("Yield")).toBeNull();
 
@@ -188,10 +187,8 @@ describe("MaterialSearchPage navigator and results", () => {
     expect(enterUrl.searchParams.get("record_revision_id")).toBe("record-material-1-revision");
     expect(enterUrl.searchParams.get("material_revision_id")).toBe("material-1-revision");
 
-    fireEvent.doubleClick(row);
+    fireEvent.click(row);
     expect(onNavigate).toHaveBeenLastCalledWith(expect.stringContaining("record_revision_id=record-material-1-revision"));
-    fireEvent.click(screen.getByRole("button", { name: "Expand details pane" }));
-    fireEvent.click(screen.getByRole("button", { name: "Open datasheet" }));
     expect(onNavigate).toHaveBeenLastCalledWith(expect.stringContaining("material_revision_id=material-1-revision"));
   });
 });

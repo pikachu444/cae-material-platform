@@ -119,11 +119,6 @@ const CatalogExplorer = lazy(() =>
     default: module.CatalogExplorer,
   })),
 );
-const MaterialDatabaseExplorer = lazy(() =>
-  import("./material-database-explorer").then((module) => ({
-    default: module.MaterialDatabaseExplorer,
-  })),
-);
 const CanonicalTestDataWorkbench = lazy(() =>
   import("./canonical-test-data-workbench").then((module) => ({
     default: module.CanonicalTestDataWorkbench,
@@ -363,9 +358,9 @@ function AdministrationWorkspace({
         <button
           className="ux-button tertiary"
           type="button"
-          onClick={() => navigate("/database")}
+          onClick={() => navigate("/materials")}
         >
-          Open Material Database
+          Open Materials
         </button>
       </aside>
       <section className="administration-content">
@@ -985,17 +980,6 @@ export function App() {
         }
       : null;
   }, [path]);
-  const materialDatabaseRoute = useMemo(() => {
-    const match = path.match(
-      /^\/database(?:\/records\/([^/]+)\/revisions\/([^/]+))?$/,
-    );
-    return match
-      ? {
-          recordId: match[1] as string | undefined,
-          revisionId: match[2] as string | undefined,
-        }
-      : null;
-  }, [path]);
   const exactModelRoute = useMemo(() => {
     const match = path.match(/^\/models\/material-models\/([^/]+)\/revisions\/([^/]+)$/);
     return match ? { materialModelId: match[1], revisionId: match[2] } : null;
@@ -1073,16 +1057,6 @@ export function App() {
         recordId={exactMaterialRecordRoute.recordId}
         revisionId={exactMaterialRecordRoute.revisionId}
         onNavigate={navigate}
-      />
-    );
-  } else if (materialDatabaseRoute) {
-    page = (
-      <MaterialDatabaseExplorer
-        config={config}
-        initialRecordId={materialDatabaseRoute.recordId}
-        initialRevisionId={materialDatabaseRoute.revisionId}
-        onNavigate={navigate}
-        onRetry={retrySession}
       />
     );
   } else if (catalogExplorerRoute) {

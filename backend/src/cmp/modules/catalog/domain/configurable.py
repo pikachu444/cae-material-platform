@@ -40,6 +40,15 @@ class AttributeDataType(StrEnum):
     RECORD_REFERENCE = "record_reference"
 
 
+class CatalogDataCategory(StrEnum):
+    """User-facing peer category for a configurable Catalog Table."""
+
+    TECHNICAL_DATA = "technical_data"
+    TEST_DATA = "test_data"
+    SIMULATION_DATA = "simulation_data"
+    SOLVER_CARDS = "solver_cards"
+
+
 @dataclass(frozen=True, slots=True)
 class CatalogDatabaseContent:
     """Stable, human-facing database definition."""
@@ -89,12 +98,17 @@ class CatalogTableContent:
     key: str
     name: str
     description: str | None = None
+    data_category: CatalogDataCategory | None = None
 
     def __post_init__(self) -> None:
         _key("table key", self.key)
         _trimmed("table name", self.name, 200)
         if self.description is not None:
             _trimmed("table description", self.description, 4000)
+        if self.data_category is CatalogDataCategory.SOLVER_CARDS:
+            raise ValueError(
+                "solver_cards are governed solver artifacts, not configurable Catalog Tables"
+            )
 
 
 @dataclass(frozen=True, slots=True)
@@ -115,6 +129,7 @@ class AttributeDefinitionContent:
     allowed_values: tuple[str, ...] = ()
     reference_table_id: UUID | None = None
     help_text: str | None = None
+    business_key: bool = False
 
     def __post_init__(self) -> None:
         if self.table_id.int == 0 or self.table_revision_id.int == 0:
@@ -168,6 +183,11 @@ class AttributeDefinitionContent:
             raise ValueError("reference_table_id is valid only for record_reference attributes")
         if self.help_text is not None:
             _trimmed("help_text", self.help_text, 2000)
+        if self.business_key and self.data_type not in {
+            AttributeDataType.TEXT,
+            AttributeDataType.DISCRETE,
+        }:
+            raise ValueError("business_key is valid only for text/discrete attributes")
 
 
 @dataclass(frozen=True, slots=True)
@@ -226,7 +246,14 @@ class SubsetContent:
 
 
 def table_canonical(content: CatalogTableContent) -> dict[str, Any]:
-    return {"key": content.key, "name": content.name, "description": content.description}
+    value: dict[str, Any] = {
+        "key": content.key,
+        "name": content.name,
+        "description": content.description,
+    }
+    if content.data_category is not None:
+        value["data_category"] = content.data_category.value
+    return value
 
 
 def database_canonical(content: CatalogDatabaseContent) -> dict[str, Any]:
@@ -244,7 +271,7 @@ def profile_canonical(content: CatalogProfileContent) -> dict[str, Any]:
 
 
 def attribute_canonical(content: AttributeDefinitionContent) -> dict[str, Any]:
-    return {
+    value: dict[str, Any] = {
         "table_id": str(content.table_id),
         "table_revision_id": str(content.table_revision_id),
         "key": content.key,
@@ -264,6 +291,9 @@ def attribute_canonical(content: AttributeDefinitionContent) -> dict[str, Any]:
         ),
         "help_text": content.help_text,
     }
+    if content.business_key:
+        value["business_key"] = True
+    return value
 
 
 def layout_canonical(content: LayoutContent) -> dict[str, Any]:

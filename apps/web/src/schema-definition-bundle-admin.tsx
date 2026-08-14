@@ -28,6 +28,10 @@ import type {
 
 const BUNDLE_SCHEMA =
   "https://cmp.example/contracts/catalog/schema-definition-bundle.schema.json";
+const SOURCE_SET_SCHEMA =
+  "https://cmp.example/contracts/catalog/schema-definition-source-set.schema.json";
+const SOURCE_SET_MEDIA_TYPE = "application/vnd.cmp.catalog-schema-source-set+json";
+const SOURCE_ZIP_MEDIA_TYPE = "application/vnd.cmp.catalog-schema-source-set+zip";
 const MAX_BUNDLE_BYTES = 64 * 1024 * 1024;
 const RECOVERY_KEY = "cmp.schema-definition-bundle-administration.v1";
 const ACCEPTED_MEDIA_TYPES = new Set([
@@ -35,6 +39,9 @@ const ACCEPTED_MEDIA_TYPES = new Set([
   "application/json",
   "application/schema+json",
   "application/vnd.cmp.catalog-schema-definition-bundle+json",
+  SOURCE_SET_MEDIA_TYPE,
+  "application/zip",
+  SOURCE_ZIP_MEDIA_TYPE,
 ]);
 const CLASSIFICATIONS = new Set<DataClassification>([
   "internal",
@@ -49,6 +56,9 @@ interface BundleFileSummary {
   bundleVersion: string;
   classification: DataClassification;
   schemaCount: number;
+  unitProfileCount: number | null;
+  fileCount: number;
+  sourceFormat: "canonical JSON" | "source file set" | "ZIP source set";
 }
 
 interface RecoveryState {
@@ -74,6 +84,180 @@ function objectValue(value: unknown): Record<string, unknown> | null {
 export async function inspectSchemaDefinitionBundleFile(
   file: File,
 ): Promise<BundleFileSummary> {
+  return inspectSchemaDefinitionBundleFiles([file]);
+}
+
+async function sha256(value: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  return [...new Uint8Array(digest)]
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function strictUtf8Text(file: File): Promise<string> {
+  try {
+    return new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(
+      await file.arrayBuffer(),
+    );
+  } catch {
+    throw new Error(`${file.name} is not valid UTF-8 JSON.`);
+  }
+}
+
+function sourcePath(file: File): string {
+  const relative = (file as File & { webkitRelativePath?: string }).webkitRelativePath;
+  return relative?.replaceAll("\\", "/") || file.name;
+}
+
+export async function inspectSchemaDefinitionBundleFiles(
+  files: File[],
+): Promise<BundleFileSummary> {
+  if (files.length < 1 || files.length > 128) {
+    throw new Error("Choose 1 to 128 JSON source files, or one ZIP source set.");
+  }
+  if (files.length === 1 && files[0]!.name.toLowerCase().endsWith(".zip")) {
+    const file = files[0]!;
+    if (file.size < 1 || file.size > MAX_BUNDLE_BYTES) {
+      throw new Error("The ZIP source set must be between 1 byte and 64 MiB.");
+    }
+    const prepared = new File([file], file.name, { type: SOURCE_ZIP_MEDIA_TYPE });
+    return {
+      file: prepared,
+      bundleKey: file.name.replace(/\.zip$/i, ""),
+      bundleVersion: "Server-verified",
+      classification: "internal",
+      schemaCount: 0,
+      unitProfileCount: null,
+      fileCount: 1,
+      sourceFormat: "ZIP source set",
+    };
+  }
+  if (files.some((file) => !file.name.toLowerCase().endsWith(".json"))) {
+    throw new Error("A source file set may contain JSON files only.");
+  }
+  if (files.reduce((total, file) => total + file.size, 0) > MAX_BUNDLE_BYTES) {
+    throw new Error("The selected source files are larger than 64 MiB in total.");
+  }
+  const parsed = await Promise.all(files.map(async (file) => {
+    const text = await strictUtf8Text(file);
+    try {
+      return { file, text, document: JSON.parse(text) as unknown };
+    } catch {
+      throw new Error(`${file.name} is not valid JSON.`);
+    }
+  }));
+  const envelope = files.length === 1 ? objectValue(parsed[0]!.document) : null;
+  if (envelope?.$schema === SOURCE_SET_SCHEMA) {
+    const entries = Array.isArray(envelope.files) ? envelope.files : [];
+    if (envelope.contract_version !== "1.0.0" || entries.length < 2 || entries.length > 128) {
+      throw new Error("The source-set envelope is not a bounded version 1.0.0 source set.");
+    }
+    const checked = await Promise.all(entries.map(async (entry) => {
+      const value = objectValue(entry);
+      if (
+        typeof value?.path !== "string"
+        || typeof value.content !== "string"
+        || typeof value.sha256 !== "string"
+        || await sha256(value.content) !== value.sha256
+      ) {
+        throw new Error("The source-set envelope contains an invalid file or checksum.");
+      }
+      return { path: value.path, content: value.content };
+    }));
+    const manifests = checked.filter(({ path }) => (
+      path.endsWith("catalog-schema-bundle.manifest.json")
+    ));
+    if (manifests.length !== 1) {
+      throw new Error("The source-set envelope requires one source-v2 manifest.");
+    }
+    const manifest = objectValue(JSON.parse(manifests[0]!.content));
+    const tables = Array.isArray(manifest?.tables) ? manifest.tables : [];
+    const unitProfiles = Array.isArray(manifest?.unit_profiles) ? manifest.unit_profiles : [];
+    if (!manifest || manifest.document_type !== "cmp.catalog-schema-bundle" || !tables.length) {
+      throw new Error("The source-set envelope manifest is not a source-v2 bundle.");
+    }
+    return {
+      file: new File([files[0]!], files[0]!.name, { type: SOURCE_SET_MEDIA_TYPE }),
+      bundleKey: typeof manifest.bundle_id === "string" ? manifest.bundle_id : "source-v2",
+      bundleVersion: typeof manifest.bundle_version === "string"
+        ? manifest.bundle_version
+        : "Server-verified",
+      classification: "internal",
+      schemaCount: tables.length,
+      unitProfileCount: unitProfiles.length,
+      fileCount: entries.length,
+      sourceFormat: "source file set",
+    };
+  }
+  const sourceManifest = parsed.filter(({ document }) => (
+    objectValue(document)?.document_type === "cmp.catalog-schema-bundle"
+  ));
+  if (sourceManifest.length > 0) {
+    if (sourceManifest.length !== 1) {
+      throw new Error("Choose exactly one source-v2 manifest.");
+    }
+    const manifest = objectValue(sourceManifest[0]!.document)!;
+    const tables = Array.isArray(manifest.tables) ? manifest.tables : [];
+    const unitProfiles = Array.isArray(manifest.unit_profiles) ? manifest.unit_profiles : [];
+    if (tables.length < 1) {
+      throw new Error("The source-v2 manifest has no Tables.");
+    }
+    const requiredPaths = tables.map((value) => {
+      const reference = objectValue(value)?.record_schema_ref;
+      if (typeof reference !== "string" || !reference.trim()) {
+        throw new Error("Every source-v2 Table must name a record_schema_ref.");
+      }
+      return reference.replace(/^\.\//, "");
+    });
+    const resolved = new Map<string, File>();
+    for (const requiredPath of requiredPaths) {
+      const matches = files.filter((file) => (
+        sourcePath(file).endsWith(requiredPath)
+        || file.name === requiredPath.split("/").at(-1)
+      ));
+      if (matches.length !== 1) {
+        throw new Error(`Choose exactly one source file for ${requiredPath}.`);
+      }
+      resolved.set(requiredPath, matches[0]!);
+    }
+    if (files.length !== requiredPaths.length + 1) {
+      throw new Error("Choose the manifest and each referenced record schema once.");
+    }
+    const manifestFile = sourceManifest[0]!.file;
+    const entries = [
+      { path: "catalog-schema-bundle.manifest.json", file: manifestFile },
+      ...requiredPaths.map((path) => ({ path, file: resolved.get(path)! })),
+    ].sort((left, right) => left.path.localeCompare(right.path));
+    const envelopeFiles = await Promise.all(entries.map(async ({ path, file }) => {
+      const content = parsed.find((item) => item.file === file)!.text;
+      return { path, sha256: await sha256(content), content };
+    }));
+    const envelope = JSON.stringify({
+      $schema: SOURCE_SET_SCHEMA,
+      contract_version: "1.0.0",
+      files: envelopeFiles,
+    });
+    const bundleKey = typeof manifest.bundle_id === "string" ? manifest.bundle_id : "source-v2";
+    const bundleVersion = typeof manifest.bundle_version === "string"
+      ? manifest.bundle_version
+      : "Server-verified";
+    return {
+      file: new File([envelope], `${bundleKey}-source-set.json`, {
+        type: SOURCE_SET_MEDIA_TYPE,
+      }),
+      bundleKey,
+      bundleVersion,
+      classification: "internal",
+      schemaCount: tables.length,
+      unitProfileCount: unitProfiles.length,
+      fileCount: envelopeFiles.length,
+      sourceFormat: "source file set",
+    };
+  }
+  if (files.length !== 1) {
+    throw new Error("Multiple JSON files require one source-v2 manifest.");
+  }
+  const file = files[0]!;
   const filename = file.name.trim();
   if (!filename || filename.includes("/") || filename.includes("\\")) {
     throw new Error("Choose a JSON bundle with a safe, non-empty filename.");
@@ -90,7 +274,7 @@ export async function inspectSchemaDefinitionBundleFile(
 
   let document: unknown;
   try {
-    document = JSON.parse(await file.text()) as unknown;
+    document = JSON.parse(parsed[0]!.text) as unknown;
   } catch {
     throw new Error("The selected file is not valid JSON.");
   }
@@ -123,6 +307,9 @@ export async function inspectSchemaDefinitionBundleFile(
     bundleVersion: root.bundle_version,
     classification: scope.classification as DataClassification,
     schemaCount: recordSchemas.length,
+    unitProfileCount: Array.isArray(root.unit_profiles) ? root.unit_profiles.length : 0,
+    fileCount: 1,
+    sourceFormat: "canonical JSON",
   };
 }
 
@@ -361,13 +548,13 @@ export function SchemaDefinitionBundleAdmin({
       return;
     }
     const generation = beginOperation();
-    const file = event.target.files?.[0];
+    const files = [...(event.target.files ?? [])];
     setFileSummary(null);
     setError(null);
     setExportEvidence(null);
-    if (!file) return;
+    if (!files.length) return;
     try {
-      const summary = await inspectSchemaDefinitionBundleFile(file);
+      const summary = await inspectSchemaDefinitionBundleFiles(files);
       if (!operationIsCurrent(generation)) return;
       setFileSummary(summary);
       setPhase("empty");
@@ -649,7 +836,7 @@ export function SchemaDefinitionBundleAdmin({
       <header className="schema-editor-header">
         <div>
           <h2>Definition bundles</h2>
-          <p>Upload one immutable source, inspect the server plan, then approve that exact plan.</p>
+          <p>Choose one bundle, its JSON source files, or a ZIP; inspect the server plan, then approve that exact source.</p>
         </div>
         <div className="schema-command-bar">
           {(plan || application || artifact || applicationRecoveryId) && !busy ? (
@@ -681,7 +868,7 @@ export function SchemaDefinitionBundleAdmin({
         <section className="schema-bundle-source" aria-labelledby="bundle-source-heading">
           <header>
             <h3 id="bundle-source-heading">Source bundle</h3>
-            <span>{artifact ? "Verified Artifact" : "JSON file"}</span>
+            <span>{artifact ? "Verified Artifact" : fileSummary?.sourceFormat ?? "JSON files or ZIP"}</span>
           </header>
           <label className="schema-bundle-file-field">
             Definition bundle
@@ -689,25 +876,29 @@ export function SchemaDefinitionBundleAdmin({
               ref={fileInputRef}
               className="ux-input"
               type="file"
-              accept=".json,application/json,application/schema+json,application/vnd.cmp.catalog-schema-definition-bundle+json"
+              accept=".json,.zip,application/json,application/schema+json,application/zip,application/vnd.cmp.catalog-schema-definition-bundle+json,application/vnd.cmp.catalog-schema-source-set+json,application/vnd.cmp.catalog-schema-source-set+zip"
+              multiple
               disabled={busy || sourceLocked}
               onChange={(event) => void chooseFile(event)}
             />
           </label>
-          <p className="schema-bundle-help">JSON only · 1 byte to 64 MiB · one source Artifact</p>
+          <p className="schema-bundle-help">One canonical JSON, manifest + referenced JSON files, or one ZIP · 64 MiB maximum · one immutable Artifact</p>
           {fileSummary ? (
             <dl className="schema-bundle-summary">
               <div><dt>File</dt><dd>{fileSummary.file.name}</dd></div>
+              <div><dt>Source</dt><dd>{fileSummary.sourceFormat} · {fileSummary.fileCount} file{fileSummary.fileCount === 1 ? "" : "s"}</dd></div>
               <div><dt>Bundle</dt><dd>{fileSummary.bundleKey}</dd></div>
               <div><dt>Version</dt><dd>{fileSummary.bundleVersion}</dd></div>
               <div><dt>Record schemas</dt><dd>{fileSummary.schemaCount}</dd></div>
-              <div><dt>Classification</dt><dd>{fileSummary.classification.replace("_", " ")}</dd></div>
+              <div><dt>Unit profiles</dt><dd>{fileSummary.unitProfileCount ?? "Server-verified"}</dd></div>
+              <div><dt>Classification</dt><dd><select aria-label="Source classification" value={fileSummary.classification} disabled={sourceLocked || busy} onChange={(event) => setFileSummary((current) => current ? { ...current, classification: event.target.value as DataClassification } : current)}>{[...CLASSIFICATIONS].map((value) => <option value={value} key={value}>{value.replace("_", " ")}</option>)}</select></dd></div>
             </dl>
           ) : plan?.bundle ? (
             <dl className="schema-bundle-summary">
               <div><dt>Bundle</dt><dd>{plan.bundle.bundle_key}</dd></div>
               <div><dt>Version</dt><dd>{plan.bundle.bundle_version}</dd></div>
               <div><dt>Record schemas</dt><dd>{plan.bundle.record_schema_count}</dd></div>
+              <div><dt>Unit profiles</dt><dd>{plan.bundle.unit_profile_count}</dd></div>
               <div><dt>Classification</dt><dd>{plan.bundle.scope.classification.replace("_", " ")}</dd></div>
             </dl>
           ) : application ? (

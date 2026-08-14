@@ -187,7 +187,7 @@ class NumberRangeFilter:
 
 @dataclass(frozen=True, slots=True)
 class CatalogRecordQuery:
-    table_id: UUID
+    table_id: UUID | None
     text: str | None = None
     folder_id: UUID | None = None
     discrete_filters: tuple[DiscreteFilter, ...] = ()
@@ -210,10 +210,23 @@ class CatalogRecordQuery:
     # binding kind leave these pins unset.
     domain_binding_object_id: UUID | None = None
     domain_binding_revision_id: UUID | None = None
+    data_category: (
+        Literal["technical_data", "test_data", "simulation_data", "solver_cards"] | None
+    ) = None
 
     def __post_init__(self) -> None:
-        if self.table_id.int == 0:
+        if self.table_id is not None and self.table_id.int == 0:
             raise ValueError("record query Table must be non-zero")
+        if (self.table_id is None) == (self.data_category is None):
+            raise ValueError("record query requires exactly one Table or data category")
+        if self.data_category is not None and (
+            self.folder_id is not None
+            or self.discrete_filters
+            or self.number_filters
+            or self.facet_attribute_ids
+            or self.sort_by == "attribute"
+        ):
+            raise ValueError("data-category browse does not accept Table-specific controls")
         if self.text is not None:
             _text("record query text", self.text, 200)
         if self.offset < 0 or not 1 <= self.limit <= 100:
@@ -238,9 +251,7 @@ class CatalogRecordQuery:
             }
             if self.domain_binding_kind not in allowed_bindings:
                 raise ValueError("record query domain_binding_kind is not supported")
-        if (self.domain_binding_object_id is None) != (
-            self.domain_binding_revision_id is None
-        ):
+        if (self.domain_binding_object_id is None) != (self.domain_binding_revision_id is None):
             raise ValueError("domain binding object and revision pins must be paired")
         if self.domain_binding_object_id is not None:
             if self.domain_binding_kind is None:

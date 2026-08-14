@@ -19,7 +19,7 @@
 
 | 패킷 | 현재 연결 | 판정 | 원본 대비 남은 차이 |
 | --- | --- | --- | --- |
-| P1 Catalog Schema Bundle | #204, #207, #208 완료; #246 Task 1 | 부분 | 현재 bundle envelope와 허용 `x-*`가 source-v2와 다르다. source-format adapter, 객체형 `x-curve`, business-key 승격·참조 해석과 source-v2 왕복 검증이 없다. |
+| P1 Catalog Schema Bundle | #204, #207, #208 완료; #246 Task 1 | 부분 | #246 Task 1 후보가 source-v2 어댑터, 객체형 `x-curve`, business-key 승격·참조 해석과 원본 왕복을 구현했다. 원본은 연결 6개를 선언하지만 승인 범위는 직접 연결 5개다. 원본 `dma_to_elastoplasticity`는 변경하지 않고 증거로 보존하며 `CMP-SCHEMA-SOURCE-0029`로 제외한다. 병합 및 Task 2 단위 지원 전에는 부분 상태를 유지한다. |
 | P2 Curve 채널·편차 | #206 완료; #246 Task 1 | 부분 | 공통 채널·편차 계약은 구현됐으나 source-v2의 객체형 `x-curve`를 bundle import가 해석하지 못한다. |
 | P3 단위·Unit Profile | #205 완료; #246 Task 2, #214 | 부분 | 공통 8개 dimension과 revision trace는 구현됐다. source-v2에 필요한 `Hz`, `mm/min`, `tonne/mm3`와 추가 solver profile은 없다. |
 | P4 DMA·FLD | #209; #246 | 미구현 | 진행 중인 #209는 기존 수락 범위인 `dma_frequency_temperature_sweep`와 `forming_limit` governed import를 소유한다. `dma_strain_sweep`, source-v2 전체 호환성과 DMA→master curve/Prony→IR 연결의 추가 범위는 #209에 끼워 넣지 않고 #246에서 닫는다. |
@@ -34,11 +34,11 @@
 
 | 갭 | 판정 | 현재 처리 또는 남은 결정 |
 | --- | --- | --- |
-| G1 bundle import/export | 부분 | 새 canonical bundle은 구현됐으나 source-v2 호환성은 #246 Task 1에 남는다. |
-| G2 `x-*` 해석 | 부분 | 현재 허용 집합보다 source-v2 확장 집합이 넓다. #246 Task 1. |
+| G1 bundle import/export | 부분 | #246 Task 1 후보가 source-v2 다중 파일/ZIP 입력과 원본 바이트 export를 구현했다. 원본 연결 6개 중 승인된 5개만 제품 Link로 투영하며, 변경하지 않은 원본 적용은 Task 2의 단위 오류 10건이 해소될 때까지 차단된다. |
+| G2 `x-*` 해석 | 부분 | #246 Task 1 후보가 현재 source-v2 확장을 결정적으로 해석하고 원본 위치·파일 해시를 보존한다. `dma_to_elastoplasticity`는 승인되지 않은 원본 의미이므로 `CMP-SCHEMA-SOURCE-0029` 증거 경고로 남기고 제품 관계로 만들지 않는다. 병합 전까지 부분 상태다. |
 | G3 curve metadata | 구현 | #206 공통 계약 구현. source bundle 연결은 #246 Task 1. |
-| G4 business key/pointer | 부분 | Record 승격과 reference resolution의 source-v2 E2E가 없다. #246 Task 1. |
-| G5 단위 | 부분 | 공통 기반은 구현됐으나 source-v2 필수 단위가 빠졌다. #246 Task 2. |
+| G4 business key/pointer | 부분 | #246 Task 1 후보가 source-v2 business key 승격, 정확한 개정 고정, 원본 JSON pointer·파일 해시 왕복을 검증했다. 원본 DMA 참조는 증거 필드로 보존하되 금지된 제품 관계로 승격하지 않는다. 병합 전까지 부분 상태다. |
+| G5 단위 | 부분 | 공통 기반은 구현됐으나 변경하지 않은 source-v2는 필수 단위 10곳에서 정확히 차단된다. `Hz`, `mm/min`, `tonne/mm3`와 추가 solver profile은 #246 Task 2가 소유한다. |
 | G6 DMA/FLD | 미구현/분리 | #209는 기존 frequency-temperature DMA와 FLD import 범위를 처리한다. 그 밖의 원본 P4 차이는 #246이 소유한다. |
 | G7 publication validation | 구현 방식 변경 | #207이 원본의 부분 성공보다 강한 atomic apply/read-back을 구현했다. |
 | G8 `non_production` | 보류 | production 근거 전까지 유지한다. |
