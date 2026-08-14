@@ -254,7 +254,8 @@ describe("ModelingTargetPreview", () => {
     vi.mocked(deliverExactTargetPreview).mockResolvedValue({
       data: { delivery_status: "delivered", receipt_id: "receipt", delivery_identity: preview.preview_identity, solver_card_id: "card", solver_card_revision_id: "card-r1", filename: preview.filename, native_sha256: preview.native_sha256, mapping_report_sha256: preview.mapping_report_sha256, mapping_statuses: ["approximated"], source: preview.source, target: preview.target, occurred_at: "2026-07-26T00:00:00Z", recorded_by: "actor", links: { solver_card: "/api/v1/neutral-solver-cards/card", preview: "/api/v1/neutral-solver-cards/card/preview", download: "/api/v1/neutral-solver-cards/card/download", receipt: "/api/v1/exporting/target-deliveries/receipt" } }, etag: null,
     });
-    render(<ModelingTargetPreview config={{ baseUrl: "http://test", accessToken: "test" }} session={session} output={output as never} prerequisites={prerequisites} capabilityManifest={capabilities} />);
+    const event = vi.fn();
+    render(<ModelingTargetPreview config={{ baseUrl: "http://test", accessToken: "test" }} session={session} output={output as never} prerequisites={prerequisites} capabilityManifest={capabilities} onSessionEvent={event} />);
     fireEvent.change(screen.getByLabelText("Solver target"), { target: { value: "abaqus/2025/kg_m_s" } });
     fireEvent.change(screen.getByLabelText("Native material name"), { target: { value: "REFERENCE" } });
     fireEvent.click(screen.getByRole("button", { name: "Run Export check" }));
@@ -268,6 +269,11 @@ describe("ModelingTargetPreview", () => {
       target: { solver: "abaqus", version: "2025", unit_system: "kg_m_s" },
     })));
     expect(await screen.findByText(/Solver card created/)).toBeTruthy();
+    expect(event).toHaveBeenCalledWith({
+      type: "SET_CURRENT",
+      key: "exportArtifact",
+      value: { id: "card", revisionId: "card-r1", label: preview.filename, revisionNo: 1 },
+    });
     expect(screen.queryByRole("link", { name: "Receipt" })).toBeNull();
     fireEvent.click(screen.getByText("Delivery details", { exact: true }));
     expect(screen.getByRole("link", { name: "receipt" })).toBeTruthy();

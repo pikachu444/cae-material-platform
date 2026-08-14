@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { MaterialDetailPage, SolverCardPreviewPage, type MaterialRevisionPin } from "./material-library";
+import { clearModelingSession, loadModelingSession } from "./modeling-session-context";
 
 const materialId = "material-1";
 const materialRevision1 = "material-revision-1";
@@ -270,6 +271,7 @@ const pin: MaterialRevisionPin = { recordId, recordRevisionId: recordRevision1, 
 describe("pinned Material detail", () => {
   afterEach(() => {
     cleanup();
+    clearModelingSession();
     vi.restoreAllMocks();
   });
 
@@ -315,6 +317,29 @@ describe("pinned Material detail", () => {
     expect(csv).toContain("r1-layout-value");
     expect(csv).not.toContain("r2-layout-value");
     window.removeEventListener("cmp:workspace-status", observeWorkspaceStatus);
+  });
+
+  it("starts Modeling with the exact pinned Material revision in the browser session", async () => {
+    installFetch();
+    const onNavigate = vi.fn();
+    render(<MaterialDetailPage config={{ baseUrl: "/api/v1", accessToken: "test-token" }} materialId={materialId} activeTab="overview" exactPin={pin} onNavigate={onNavigate} />);
+
+    expect(await screen.findByRole("heading", { name: "Pinned Catalog r1", level: 1 })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Start Modeling" }));
+
+    expect(onNavigate).toHaveBeenCalledWith("/modeling?stage=data&family=metal");
+    expect(loadModelingSession()).toMatchObject({
+      version: 4,
+      materialFamily: "metal",
+      material: {
+        id: materialId,
+        revisionId: materialRevision1,
+        revisionNo: 1,
+        label: "Pinned Material r1",
+      },
+      workspace: { activeStage: "data" },
+    });
+    expect(loadModelingSession()?.material?.revisionId).not.toBe(materialRevision2);
   });
 
   it("fails closed when the exact workflow binding does not match the pin", async () => {

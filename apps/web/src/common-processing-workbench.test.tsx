@@ -1149,7 +1149,7 @@ describe("Common Processing Workbench", () => {
     expect(outputPosts).toBe(1);
   });
 
-  it("loads exact Test Data and renders server stage overlays", async () => {
+  it("characterizes exact Data, Process, Fit, and Export continuity with explicit recovery", async () => {
     const committedOutputs: Array<Record<string, unknown>> = [];
     const seededFitOutput: Record<string, unknown> = {
       processing_output_id: "53000000-0000-4000-8000-000000000029",
@@ -2049,6 +2049,9 @@ describe("Common Processing Workbench", () => {
     expect(ensembleBody.preprocessing_steps.map((step) => step.method_id)).toEqual(["rows.sort_unique", "rows.sort_unique"]);
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:export" } }));
     expect(await screen.findByRole("heading", { name: "Review & deliver solver card" })).toBeTruthy();
+    await waitFor(() => expect(onSessionChange).toHaveBeenCalledWith({
+      workspace: expect.objectContaining({ activeStage: "export" }),
+    }));
     expect(screen.getByRole("heading", { name: "Exact target preview is gated" })).toBeTruthy();
     expect(screen.queryByText("Test data")).toBeNull();
     expect(screen.queryByLabelText("Resize curve and process navigator")).toBeNull();

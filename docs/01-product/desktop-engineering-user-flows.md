@@ -16,9 +16,9 @@ unit/condition, curve inclusion, plot view, candidate and unsaved draft. Say wha
 work was preserved, and provide one safe recovery command: retry, revise input, choose a supported
 target, reload current, keep draft as a new revision, or cancel. Upstream Material/Test Data/mapping/
 processing/fit changes invalidate downstream current pointers in order; they never rewrite immutable
-outputs. The browser session aggregate is v3: its reducer distinguishes an explicit current-pointer
-clear from an omitted field, and a v2 session is migrated safely before resume. New sessions begin
-at Data, never Fit.
+outputs. The browser session aggregate is persisted as v4: its reducer distinguishes an explicit
+current-pointer clear from an omitted field, and older v1–v3 sessions are migrated safely before
+resume. New sessions begin at Data, never Fit.
 
 The decision-to-delivery flow is: confirm exact data and mapping; preview then commit processing;
 run and compare candidates; explicitly select a law or blend and record the reason; save it; run
