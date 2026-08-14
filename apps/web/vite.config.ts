@@ -4,7 +4,15 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig(({ mode }) => {
   const environment = loadEnv(mode, ".", "");
-  const apiTarget = environment.VITE_CMP_API_TARGET ?? "http://127.0.0.1:8000";
+  const runtimeEnvironment = (
+    globalThis as typeof globalThis & {
+      process?: { env?: Record<string, string | undefined> };
+    }
+  ).process?.env;
+  const apiTarget =
+    runtimeEnvironment?.VITE_CMP_API_TARGET ??
+    environment.VITE_CMP_API_TARGET ??
+    "http://127.0.0.1:8000";
   return {
     plugins: [react()],
     build: {

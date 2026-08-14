@@ -2,15 +2,13 @@
   "state": "detail",
   "viewport": {
     "width": 1440,
-    "height": 900
+    "height": 900,
+    "devicePixelRatio": 1
   },
-  "devicePixelRatio": 1,
-  "visualViewportScale": 1,
-  "document": {
-    "clientWidth": 1440,
+  "zoom": 1,
+  "body": {
     "scrollWidth": 1440,
-    "clientHeight": 900,
-    "scrollHeight": 900
+    "clientWidth": 1440
   },
   "shell": {
     "x": 0,
@@ -18,11 +16,11 @@
     "width": 1440,
     "height": 900
   },
-  "workspace": {
-    "x": 8,
-    "y": 92,
-    "width": 1424,
-    "height": 782
+  "header": {
+    "x": 0,
+    "y": 0,
+    "width": 1440,
+    "height": 50
   },
   "navigator": {
     "x": 9,
@@ -30,16 +28,44 @@
     "width": 288,
     "height": 782
   },
-  "central": {
+  "main": {
     "x": 303,
     "y": 92,
     "width": 1128,
     "height": 782
   },
-  "detail": {
-    "x": 315,
-    "y": 576.046875,
-    "width": 1104,
-    "height": 237.359375
-  }
+  "navigatorScroll": {
+    "clientHeight": 575,
+    "scrollHeight": 575,
+    "clientWidth": 287,
+    "scrollWidth": 291,
+    "overflowX": "auto",
+    "overflowY": "auto"
+  },
+  "resultsScroll": null,
+  "treeRowHeight": 30,
+  "bodyFontSize": "16px",
+  "dataFontSize": null,
+  "activeDisplayTier": "standard",
+  "primaryCommandCount": 0,
+  "nestedPersistentCardCount": 0,
+  "visibleCategories": [
+    "Technical Data",
+    "DP780 synthetic reference steel",
+    "Synthetic Elastomer Ogden-Prony",
+    "Synthetic Polymer Prony",
+    "Test Data",
+    "DP780 FLD · Marciniak",
+    "DP780 FLD · Nakajima",
+    "DP780 tensile · 23 °C · 0.0007 s⁻¹",
+    "DP780 tensile · 23 °C · 0.0067 s⁻¹",
+    "DP780 tensile · 23 °C · 0.067 s⁻¹",
+    "DP780 tensile · 80 °C · 0.0067 s⁻¹",
+    "PA66-GF30 DMA · 0 °C frequency sweep",
+    "PA66-GF30 DMA · 23 °C frequency sweep",
+    "PA66-GF30 DMA · 60 °C frequency sweep",
+    "Simulation Data",
+    "Solver Cards"
+  ],
+  "capturedFromLiveApi": true
 }

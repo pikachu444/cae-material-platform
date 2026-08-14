@@ -2,15 +2,13 @@
   "state": "categories",
   "viewport": {
     "width": 1920,
-    "height": 1080
+    "height": 1080,
+    "devicePixelRatio": 1
   },
-  "devicePixelRatio": 1,
-  "visualViewportScale": 1,
-  "document": {
-    "clientWidth": 1920,
+  "zoom": 1,
+  "body": {
     "scrollWidth": 1920,
-    "clientHeight": 1080,
-    "scrollHeight": 1080
+    "clientWidth": 1920
   },
   "shell": {
     "x": 0,
@@ -18,11 +16,11 @@
     "width": 1920,
     "height": 1080
   },
-  "workspace": {
-    "x": 8,
-    "y": 92,
-    "width": 1904,
-    "height": 922
+  "header": {
+    "x": 0,
+    "y": 0,
+    "width": 1920,
+    "height": 50
   },
   "navigator": {
     "x": 9,
@@ -30,16 +28,55 @@
     "width": 288,
     "height": 922
   },
-  "central": {
+  "main": {
     "x": 303,
     "y": 92,
     "width": 1608,
     "height": 922
   },
-  "detail": {
-    "x": 311,
-    "y": 100,
-    "width": 1591,
-    "height": 37.09375
-  }
+  "navigatorScroll": {
+    "clientHeight": 727,
+    "scrollHeight": 727,
+    "clientWidth": 287,
+    "scrollWidth": 333,
+    "overflowX": "auto",
+    "overflowY": "auto"
+  },
+  "resultsScroll": {
+    "clientHeight": 864,
+    "scrollHeight": 864,
+    "clientWidth": 1607,
+    "scrollWidth": 1607,
+    "overflowX": "auto",
+    "overflowY": "auto"
+  },
+  "treeRowHeight": 30,
+  "bodyFontSize": "16px",
+  "dataFontSize": "14px",
+  "activeDisplayTier": "standard",
+  "primaryCommandCount": 0,
+  "nestedPersistentCardCount": 0,
+  "visibleCategories": [
+    "Technical Data",
+    "DP780 synthetic reference steel",
+    "Synthetic Elastomer Ogden-Prony",
+    "Synthetic Polymer Prony",
+    "Test Data",
+    "DP780 FLD · Marciniak",
+    "DP780 FLD · Nakajima",
+    "DP780 tensile · 23 °C · 0.0007 s⁻¹",
+    "DP780 tensile · 23 °C · 0.0067 s⁻¹",
+    "DP780 tensile · 23 °C · 0.067 s⁻¹",
+    "DP780 tensile · 80 °C · 0.0067 s⁻¹",
+    "PA66-GF30 DMA · 0 °C frequency sweep",
+    "PA66-GF30 DMA · 23 °C frequency sweep",
+    "PA66-GF30 DMA · 60 °C frequency sweep",
+    "Simulation Data",
+    "DP780 elastoplasticity · selected Voce result",
+    "DP780 elastoplasticity · selected tabulated model",
+    "DP780 tensile statistics · mean and 5% envelope",
+    "Solver Cards",
+    "DP780 Abaqus native material card"
+  ],
+  "capturedFromLiveApi": true
 }

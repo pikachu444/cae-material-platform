@@ -22,7 +22,7 @@ authorization, Administration storage controls and Workflow evidence behavior re
 | Setup | An Administrator selects the seven approved bounded source-v2 files. A user opens the established `/materials` workspace. |
 | Actions | The browser builds one path-sorted envelope with a SHA-256 for every file, uploads and plans it. In the existing Browse tree, the user expands one or more of four peer category roots without replacing the current datasheet, opens an item and follows a direct exact link. |
 | Visible outcome | The source summary shows 7 files, 6 data formats and 2 unit profiles; the unchanged source is blocked with the exact 10 Task 2 unit diagnostics and no actions. Browse shows `Technical Data`, `Test Data`, `Simulation Data` and `Solver Cards` as visible tree roots above their individual items. Item context groups only stored direct links by those categories. |
-| Persistence/read-back | The Task 1 structural round trip projects 6 Tables and 5 direct Link Types and proves deterministic apply, exact-source export and no-op re-plan; unchanged-fixture application remains Task 2-owned. The browser restores category, query, exact data revision and local scroll state. Human business-key references resolve to a pinned target revision that does not move when the target gets a newer revision. |
+| Persistence/read-back | The Task 1 structural, supported-unit round trip projects 6 Tables and 5 direct Link Types and proves deterministic apply, source-Artifact export and no-op re-plan; unchanged-fixture application/export remains Task 2-owned. The browser restores category, query, exact data revision and local scroll state. Human business-key references resolve to a pinned target revision that does not move when the target gets a newer revision. |
 | Preserved contract/state | Exact source bytes and unsupported source expressions stay in immutable evidence; raw/released revisions are not mutated. Technical Data is required for Test Data. No relation is fabricated between constitutive families or from FLD to a downstream object. Fit execution, selected model, internal IR and Solver Card remain distinct states. |
 | Recovery | Unsafe ZIP paths, duplicate paths, digest mismatch, missing source files, ambiguous business keys, missing Technical Data reference and unsupported schema/unit expressions fail with stable diagnostics. No generic EAV or silent unit/default conversion is introduced. |
 | Owned scope | Source-set/definition contracts, source adapter, configurable category/business-key contract and migration, exact reference resolution, data-category query, focused Administration UI, category integration into `/materials`, regression/browser tests, guide and evidence. |
@@ -55,13 +55,13 @@ authorization, Administration storage controls and Workflow evidence behavior re
   direct exact links grouped by category; multi-hop provenance remains in Evidence and internal
   revision UUIDs are absent.
 
-Task 2 owns the additional common units. The approved source files already normalize to deterministic
+Task 2 owns the additional common units. The approved source files normalize to deterministic
 canonical bytes and report the still-unsupported units precisely. The Task 1 PostgreSQL structural
-round trip substitutes only those unit tokens in the test helper; it does not alter the source fixture
-or weaken validation. Full unchanged-fixture apply is therefore intentionally left for the next issue
-work unit. The structural round trip now preserves every applied field's original schema ID,
-version, source file, file SHA-256 and JSON location, and exports the exact source-set bytes and
-media type rather than replacing them with the canonical adapter output.
+round trip substitutes only those unit tokens in the test helper; it does not alter the checked-in
+source fixture or weaken validation. Full unchanged-fixture apply and export are therefore intentionally
+left for the next issue work unit. For the applied structural package, the round trip preserves each
+field's source schema ID, version, file, file SHA-256 and JSON location, and exports that package's
+exact source-set bytes and media type rather than replacing them with the canonical adapter output.
 
 The Product Owner rejected both a central category landing and a later separate database category
 tree because they replaced the established Materials design. The final correction removes that
@@ -75,18 +75,74 @@ per-field source coordinates and exact-source export is corrected in the current
 | Check | Result |
 | --- | --- |
 | Source adapter and bundle unit tests | PASS — 32 tests |
-| Focused Python aggregate | PASS — 195 tests across source adapter, bundle, contract, migration, API and user-guide coverage, including the exact original-source export and unbound exact-link category regressions |
+| Focused Python aggregate | PASS — 195 tests across source adapter, bundle, contract, migration, API and user-guide coverage, including structural source-Artifact export and unbound exact-link category regressions |
 | Full frontend regression | PASS — 63 files, 351 tests |
-| PostgreSQL bundle/configurable data integration | PASS — 10 tests, including 6 Tables, 5 direct Links, per-field original coordinates/hash, exact human-reference pin, category search, no-op apply and byte-identical source-set export/re-plan |
+| PostgreSQL bundle/configurable data integration | PASS — 10 tests, including 6 Tables, 5 direct Links, applied-field source coordinates/hash, exact human-reference pin, category search, no-op apply and byte-identical structural source-set export/re-plan; unchanged-fixture apply/export remains Task 2-owned |
 | Frontend component tests and TypeScript | PASS — 31 focused tests across routing alias, category tree, exact direct links and pinned detail; typecheck passes |
-| Production web build | PASS — the existing Browse tree is preload-started as a 17,304-byte lazy chunk without a visual redesign; `material-library` is 114,036 bytes with 16,964 bytes of hard-limit headroom. The unrelated existing `common-processing-workbench` soft warning remains. |
-| Browser journey | PASS — 2 Playwright flows render the established Materials workspace with four visible category roots, populated center detail and no normal-surface storage controls |
-| Browser geometry | PASS — five required viewports, DPR 1 and 100% zoom; zero measured document overflow |
-| Original-resolution review | PASS — 15 originals and 60 direct crops opened at original resolution |
-| Canonical Compose | N/A — preflight rejected the running project because it belongs to another preserved worktree; no container or data was changed, and isolated browser fixtures are not represented as Compose persistence |
+| Production web build | PASS — the existing Browse tree is a 19,131-byte lazy chunk without a visual redesign; `material-library` is 116,355 bytes with 14,645 bytes of hard-limit headroom. The unrelated existing `common-processing-workbench` soft warning remains and there are no budget violations. |
+| Browser journey | PASS — the live PostgreSQL/API/worker/frontend journey renders the established Materials workspace with 3 Technical, 9 Test, 3 Simulation and 1 Solver Card records; the selected tensile detail shows its material, setup, conditions, measured results, curve coverage and exact direct links after reload, DMA and FLD show credible engineering values, and DMA has no elastoplasticity relation; no HTTP route is mocked |
+| Browser geometry | PASS — the live journey passes five required viewports, DPR 1 and 100% zoom with zero measured document overflow |
+| Original-resolution review | PASS — Main opened all 15 final originals and all 60 direct 100%-pixel crops at original resolution after the last data correction |
+| Canonical Compose | PASS — a dedicated PostgreSQL composition plus the real API, worker and Vite frontend persisted the full demo seed; a second identical seed kept the visible 3/9/3/1 result |
 | Physical 4K readability | DEFERRED TO #223 — 3840×2160 automation proves CSS geometry only |
-| Balanced independent audit | PASS — correction re-audit approved exact source preservation, six-source/five-product disposition, per-field origin, exact-source export and Task 2 unit boundary |
+| Balanced independent audit | PASS — the same canonical auditor found no remaining issues after verifying the byte-identical source fixture, exact live runtime provenance, all registered asset hashes, the focused 34-test regression, Q-01–Q-20 dispositions and the preserved Task 2 boundary |
 | Product Owner geometry approval | Pending before merge |
+
+## Q-01–Q-20 main-orchestrator visual disposition
+
+The checklist applies once to the complete Task 1A visual packet. `N/A` rows name the missing screen
+topology; they do not silently waive an applicable Materials or Administration requirement.
+
+| ID | Result | Evidence or topology reason |
+| --- | --- | --- |
+| Q-01 | PASS | The fully expanded populated category tree overflows locally at 1366×768 and exposes its independent reserved rail: [`navigator crop`](images/issue-246-source-v2-categories/after/crops/issue246-categories-1366x768-navigator-crop.png), [`measurement`](images/issue-246-source-v2-categories/after/measurements/issue246-categories-1366x768.json). |
+| Q-02 | N/A | The accepted category fixture has at most nine result rows and this packet does not target a long or empty result-list state; the shared result-scroll component is unchanged. |
+| Q-03 | PASS | The approved shared Standard tier produces 30 px tree rows; disclosure, type glyph and complete stored identity stay on one aligned row without rail collision: [`navigator crop`](images/issue-246-source-v2-categories/after/crops/issue246-categories-1366x768-navigator-crop.png), [`measurement`](images/issue-246-source-v2-categories/after/measurements/issue246-categories-1366x768.json). |
+| Q-04 | N/A | No Fit ribbon or graph is present on the Task 1A Materials/Administration states. |
+| Q-05 | N/A | No engineering plot axes are present on the target states. |
+| Q-06 | N/A | No curve legend is present on the target states. |
+| Q-07 | N/A | No responsive SVG plot is present on the target states. |
+| Q-08 | N/A | No hardening-response plot is present on the target states. |
+| Q-09 | PASS | The long tree uses a distinct reserved track and proportional thumb; its concise identities remain readable in the captured pixels: [`1366 crop`](images/issue-246-source-v2-categories/after/crops/issue246-categories-1366x768-navigator-crop.png). |
+| Q-10 | N/A | No Fit legend or collision region is present on the target states. |
+| Q-11 | N/A | No Modeling Fit rail is present on the target states. |
+| Q-12 | N/A | No Modeling Export setup is present on the target states. |
+| Q-13 | N/A | No Modeling Export setup/result columns are present on the target states. |
+| Q-14 | N/A | No solver-card creation readiness state is present on the target states. |
+| Q-15 | N/A | No engineering plot is present on the target states. |
+| Q-16 | N/A | No Modeling Export preview or mapping column is present on the target states. |
+| Q-17 | PASS | The retained Administration source-plan state keeps the existing identity-first object list and governed task language: [`1920 original`](images/issue-246-source-v2-categories/after/originals/issue246-source-plan-1920x1080.png). |
+| Q-18 | N/A | Task 1A does not change Add Table/Add Attribute draft flows; the target Administration state is source-bundle validation, not definition creation. |
+| Q-19 | PASS | Related data shows only the stored Technical and Simulation direct links with exact `r1` pins; the live DMA detail is also asserted to contain no elastoplasticity relation: [`detail crop`](images/issue-246-source-v2-categories/after/crops/issue246-detail-1920x1080-detail-crop.png). |
+| Q-20 | PASS | The shell spans 1920/2560/3840 and keeps the tree adjacent to the expanding result/datasheet region without page overflow or a route-specific scale workaround: [`1920`](images/issue-246-source-v2-categories/after/originals/issue246-categories-1920x1080.png), [`2560`](images/issue-246-source-v2-categories/after/originals/issue246-categories-2560x1440.png), [`3840`](images/issue-246-source-v2-categories/after/originals/issue246-categories-3840x2160.png). Automated 4K geometry does not claim physical readability, which remains `DEFERRED_TO_223`. |
+
+## Final live Materials measurement report
+
+All values come from the accepted category state at browser zoom 100%, DPR 1 and the shared Standard
+display tier. The 8 px pane padding and 32 px result row are the shared component values; all other
+values are recorded in the linked measurement JSON files.
+
+| Metric | 1366×768 | 1440×900 | 1920×1080 | 2560×1440 | 3840×2160 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Menu height | 50 | 50 | 50 | 50 | 50 |
+| Shell used width | 1366 | 1440 | 1920 | 2560 | 3840 |
+| Left / right outer gutter | 9 / 9 | 9 / 9 | 9 / 9 | 9 / 9 | 9 / 9 |
+| Navigator width | 288 | 288 | 288 | 288 | 288 |
+| Main result width | 1054 | 1128 | 1608 | 2248 | 3528 |
+| Inspector width | 0 | 0 | 0 | 0 | 0 |
+| Normal pane padding | 8 | 8 | 8 | 8 | 8 |
+| Result / tree row height | 32 / 30 | 32 / 30 | 32 / 30 | 32 / 30 | 32 / 30 |
+| Data font size | 14 | 14 | 14 | 14 | 14 |
+| Active display tier | Standard | Standard | Standard | Standard | Standard |
+| Filled primary commands | 0 | 0 | 0 | 0 | 0 |
+| Nested persistent cards | 0 | 0 | 0 | 0 | 0 |
+| Page horizontal overflow | 0 | 0 | 0 | 0 | 0 |
+
+Measurements: [`1366`](images/issue-246-source-v2-categories/after/measurements/issue246-categories-1366x768.json),
+[`1440`](images/issue-246-source-v2-categories/after/measurements/issue246-categories-1440x900.json),
+[`1920`](images/issue-246-source-v2-categories/after/measurements/issue246-categories-1920x1080.json),
+[`2560`](images/issue-246-source-v2-categories/after/measurements/issue246-categories-2560x1440.json), and
+[`3840`](images/issue-246-source-v2-categories/after/measurements/issue246-categories-3840x2160.json).
 
 The exact paths, dimensions, hashes, measurements and immutable visual references are registered in
 [`visual-evidence.yaml`](images/issue-246-source-v2-categories/visual-evidence.yaml).

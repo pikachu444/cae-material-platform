@@ -210,7 +210,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
 
     current_source = manifest["source_commit"]
     assert manifest["scope"] == "issue-246-task1-source-v2-and-browser-categories"
-    assert re.fullmatch(r"[0-9a-f]{40}\+issue246-task1-worktree", current_source)
+    assert re.fullmatch(r"[0-9a-f]{40}\+issue246-live-data-correction-v4", current_source)
     assert manifest["source_commit"] == current_source
     assert len(provenance_ids) == len(set(provenance_ids))
     preserved_fixture_ids = {
@@ -305,9 +305,9 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     issue_246_provenance = next(
         provenance
         for provenance in manifest["capture_provenance"]
-        if provenance["source_commit"].endswith("+issue246-task1-worktree")
+        if provenance["source_commit"].endswith("+issue246-live-data-correction-v4")
     )
-    assert "issue246-source-v2-categories.spec.ts" in issue_246_provenance["command"]
+    assert "capture_issue246_live_evidence.mjs" in issue_246_provenance["command"]
     assert new_issue_246_captures == set(issue_246_provenance["ids"])
     issue_212_provenance = next(
         provenance

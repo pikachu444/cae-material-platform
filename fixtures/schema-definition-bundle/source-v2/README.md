@@ -1,14 +1,11 @@
-# Source data format bundle v2 reference
+# Source schema bundle v2 reference fixture
 
-이 디렉터리는 물성 데이터 형식을 운영 환경에 설정하기 위한 공개 예시다. 실제 데이터는
-포함하지 않는다. 이 파일들은 자주 올리는 데이터가 아니라, 운영을 시작하거나 승인된 형식이
-추가될 때 적용하는 설정이다.
+이 디렉터리는 스키마 기반 물성 DB 통합 원본 패키지에서 추출한 공개 형식 fixture다. 실제
+Record나 시험 데이터는 포함하지 않는다.
 
 ## 구성
 
-- `catalog-schema-bundle.manifest.json`: 데이터 형식 6개, 원본 연결 6개, 단위 설정 2개를 선언한다.
-  #246 제품 결정에 따라 어댑터는 `dma_to_elastoplasticity`를 원본 증거로만 보존하고,
-  실제 제품 설정에는 승인된 직접 연결 5개만 만든다.
+- `catalog-schema-bundle.manifest.json`: 6개 Table, 6개 Link Type, 2개 Unit Profile을 선언한다.
 - `record-schemas/*.json`: JSON Schema draft 2020-12 record schema 6개다.
 
 모든 JSON은 파싱 가능하며 manifest의 `record_schema_ref`는 이 디렉터리에서 해석된다.
@@ -26,7 +23,7 @@ adapter 또는 명시적으로 승인된 contract evolution으로 받아들인 �
 정규화해야 한다. 호환성 작업의 최소 회귀 기준은 다음과 같다.
 
 1. manifest와 모든 `record_schema_ref`를 해석한다.
-2. 원본 연결 6개를 보존하고, 데이터 형식 6개와 승인된 직접 연결 5개를 계획한다.
+2. 6개 Table과 6개 Link Type을 계획한다.
 3. 같은 입력의 재계획·재적용은 변경 0건이다.
 4. business key와 reference pointer를 안정 identity/exact revision으로 해석한다.
 5. 지원하지 않는 확장이나 단위를 항목별 오류로 보고하며 조용히 버리지 않는다.

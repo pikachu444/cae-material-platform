@@ -1,15 +1,15 @@
 version: 107
 verified_at: 2026-08-14
 scope: issue-246-task1-source-v2-and-browser-categories
-source_commit: 3e642e8c3e96e95dd7d10b19d87e18af53db9e7c+issue246-task1-worktree
+source_commit: 971ea100b6d7032eb1308b01b455c95cb9773408+issue246-live-data-correction-v4
 capture_script: ../../scripts/capture_current_product.py
-capture_command: CMP_DEMO_WEB_URL=http://127.0.0.1:5176 CMP_ISSUE246_EVIDENCE_DIR=docs/17-evidence/images/issue-246-source-v2-categories npm --prefix apps/web run test:e2e -- issue246-source-v2-categories.spec.ts
+capture_command: CMP_DEMO_WEB_URL=http://127.0.0.1:5176 node scripts/capture_issue246_live_evidence.mjs
 notes:
   - "Issue #246 Task 1 replaces the current Definition bundles image and adds two current Materials images captured from `/materials`. The current directory contains 118 bounded public example images."
   - "The issue-owned packet is docs/17-evidence/images/issue-246-source-v2-categories/visual-evidence.yaml. It retains both Product Owner-rejected interpretations as twenty before originals, forty before crops and ten before measurements, then records the final Materials-integrated candidate at five viewports with direct 100%-pixel crops, geometry, hashes and immutable references."
-  - "The browser journey proves `/materials` keeps the established explorer/result/datasheet design, the four data categories are visible roots in its existing Browse tree, internal storage controls stay out of the normal Materials surface, exact item context excludes transitive links, DMA is not forced into elastoplasticity, and the seven-file source-v2 envelope resolves six record definitions and five allowed direct-link definitions while application remains blocked by the Task 2 common-unit boundary."
-  - "All five CSS viewports pass at browser zoom 100% and DPR 1 with zero page horizontal overflow. The isolated Vite/contract-backed run is not represented as canonical Compose persistence; the preserved running Compose project belongs to another worktree. Automated 3840×2160 geometry does not claim physical 4K readability; #223 remains the final physical gate."
-  - "Issue #246 Task 1 correction candidate passed its independent Balanced re-audit after exact-source preservation and traceability corrections; Product Owner visual-geometry approval remains required before publication."
+  - "The live browser journey proves `/materials` keeps the established explorer/result/datasheet design, shows 3 Technical Data, 9 Test Data, 3 Simulation Data and 1 Solver Card records, exposes readable engineering values and only exact direct links, excludes internal storage controls and forbidden DMA-to-elastoplasticity inference, and preserves the selected detail across reload."
+  - "All five CSS viewports pass at browser zoom 100% and DPR 1 with zero page horizontal overflow. The current Materials capture used a dedicated PostgreSQL database with the real API, worker and Vite frontend; no Materials HTTP route was mocked. Automated 3840×2160 geometry does not claim physical 4K readability; #223 remains the final physical gate."
+  - "The Issue #246 Task 1A independent Balanced re-audit found no remaining issues after checking the byte-identical source fixture, exact runtime provenance, all registered evidence hashes, the focused regression and the visual checklist. Product Owner visual-geometry approval remains required before publication."
   - "Issue #209 adds fifteen current Modeling Data originals for a governed DMA frequency-temperature sweep, deterministic whole-file rejection, and governed FLD import from canonical Compose source commit f8fe6ef85d345837a6252b6ba8b3b706ccbe009f. The current directory now contains 116 deterministic synthetic non-production images."
   - "The issue-owned packet is docs/17-evidence/images/issue-209-dma-fld-governed-import/visual-evidence.yaml: five exact-origin/main before originals, fifteen live after originals, fifty-seven direct 100%-pixel header/navigator/controls/decision/graph crops, hashes, dimensions and fifteen measured geometry records. Main opened every one of the 77 PNGs at original resolution and verified the manifest hashes, byte counts and dimensions."
   - "The canonical browser journey saves and reloads an exact DMA frequency-temperature Test Data revision with Raw Asset/Artifact, Import Run/Profile and normalized Dataset pins; records a rejected DMA run without creating Test Data; retries corrected immutable inputs; saves and reloads an exact FLD revision; and keeps both schemas outside Fit/Prony/IR."
@@ -232,7 +232,7 @@ visual_evidence:
   routes: [/materials, '/materials/:materialId', '/materials/records/:recordId/revisions/:revisionId', /modeling, /activity, /administration/database, /administration/schema-bundles, /administration/records, /administration/access]
   states: [normal, long, empty, invalid, blocked, failed, restored, delivered, role-aware, popup, drawer, file-input, pane-overlay, resize, collapse, reset, reload, planned, confirming, applied, stale-plan, source-reset-locked, read-back-recovery, checksum-verified, toe-quality-warning, warning-acknowledgement, exact-toe-source-evidence, dma-frequency-temperature, whole-file-rejection, corrected-retry, forming-limit-diagram, exact-governed-read-back, peer-categories, direct-category-links, source-v2-set-plan]
   baseline_source: 3e642e8c3e96e95dd7d10b19d87e18af53db9e7c
-  current_source: 3e642e8c3e96e95dd7d10b19d87e18af53db9e7c+issue246-task1-worktree
+  current_source: 971ea100b6d7032eb1308b01b455c95cb9773408+issue246-live-data-correction-v4
   evidence_artifacts_are_not_current_captures: true
   current_capture_count: 118
   issue_246_current_count: 3
@@ -276,9 +276,9 @@ visual_evidence:
   independent_read_only_review: pass_issue_246_task1_same_auditor_blocker_0_major_0_material_minor_0
   product_owner_review: pending_issue_246_task1_visual_geometry
 capture_provenance:
-  - source_commit: 3e642e8c3e96e95dd7d10b19d87e18af53db9e7c+issue246-task1-worktree
-    captured_at: '2026-08-13T23:08:01Z'
-    command: 'Isolated Vite UI with contract-backed HTTP fixtures; npm --prefix apps/web run test:e2e -- issue246-source-v2-categories.spec.ts with Playwright at browser zoom 100% and DPR 1. The corrected flow proves four visible roots inside the existing Browse tree, persistent multiple expansion, selected-datasheet continuity, direct exact links, and absence of normal-surface storage controls. It then assembles the seven approved source-v2 files into one sorted checksummed envelope and displays the exact ten-error Task 2 unit boundary without applying it. Current evidence is regenerated after the approved correction.'
+  - source_commit: 971ea100b6d7032eb1308b01b455c95cb9773408+issue246-live-data-correction-v4
+    captured_at: '2026-08-14T06:15:30Z'
+    command: 'Dedicated PostgreSQL database with the real API, worker and Vite frontend; CMP_DEMO_WEB_URL=http://127.0.0.1:5176 node scripts/capture_issue246_live_evidence.mjs at browser zoom 100% and DPR 1. The flow verifies 3/9/3/1 published category counts, populated tensile/DMA/FLD engineering values, exact direct links, reload persistence, absence of a DMA-to-elastoplasticity relation and absence of normal-surface storage controls without mocked HTTP routes.'
     ids: [material-database-categories-1440, material-database-linked-test-1440, administration-schema-bundle-1440]
   - source_commit: f8fe6ef85d345837a6252b6ba8b3b706ccbe009f
     captured_at: '2026-08-13T07:28:59.684318+00:00'
@@ -430,14 +430,14 @@ captures:
   - id: material-database-categories-1440
     route: /materials
     workflow: browse-four-peer-data-categories-and-open-an-individual-item
-    fixture: bounded synthetic PA66-GF30 Technical Data with separate tensile/elastoplastic and DMA/viscoelastic exact-link branches
+    fixture: reusable published synthetic Materials set with 3 Technical, 9 Test, 3 Simulation and 1 Solver Card records
     image: images/current/material-database-categories-1440x900.png
     width: 1440
     height: 900
   - id: material-database-linked-test-1440
     route: /materials/records/:recordId/revisions/:revisionId
     workflow: inspect-direct-exact-links-grouped-by-peer-category
-    fixture: bounded synthetic tensile Test Data linked directly to Technical Data and one selected elastoplastic model, with no viscoelastic cross-link
+    fixture: published synthetic DP780 tensile Test Data with populated conditions/results, direct Technical and Simulation links, and no inferred constitutive-family cross-link
     image: images/current/material-database-linked-test-1440x900.png
     width: 1440
     height: 900

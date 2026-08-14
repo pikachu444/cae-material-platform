@@ -35,9 +35,7 @@ def test_catalog_record_content_comparison_uses_attribute_ids_for_value_order() 
         "values": list(reversed(desired_content["values"])),
     }
 
-    assert _SEED_FULL_DEMO._catalog_record_content_matches(
-        reordered_content, desired_content
-    )
+    assert _SEED_FULL_DEMO._catalog_record_content_matches(reordered_content, desired_content)
 
 
 def test_catalog_record_content_comparison_keeps_value_and_content_differences() -> None:
@@ -113,14 +111,34 @@ def test_catalog_material_families_remain_fixture_text_and_allowed_values() -> N
         *workflow_families,
     )
     for family in fixture_families:
-        assert _SEED_FULL_DEMO._preserve_material_family(
-            {"material_family": family}, fixture_families[0]
-        ) == family
+        assert (
+            _SEED_FULL_DEMO._preserve_material_family(
+                {"material_family": family}, fixture_families[0]
+            )
+            == family
+        )
 
 
 def test_demo_density_fixture_is_supported_si_and_non_production() -> None:
     assert _SEED_FULL_DEMO._DEMO_METAL_DENSITY_FIXTURE == ("7850", "kg/m^3", "7850")
     assert "not validated for engineering use" in _SEED_FULL_DEMO._METAL_CATALOG_DESCRIPTION
+
+
+def test_catalog_attribute_contract_repairs_units_and_semantics_idempotently() -> None:
+    desired = _SEED_FULL_DEMO._catalog_attribute_updates(
+        table_revision_id="table-r1",
+        name="Poisson's ratio",
+        data_type="number",
+        quantity_semantics="strain",
+        normalized_unit="1",
+        allowed_values=(),
+        minimum_number=0,
+        maximum_number=0.5,
+    )
+    stale = {**desired, "quantity_semantics": "ratio.poisson"}
+
+    assert any(stale.get(field) != value for field, value in desired.items())
+    assert not any(desired.get(field) != value for field, value in desired.items())
 
 
 def test_existing_neutral_selects_its_exact_processing_model() -> None:
@@ -164,6 +182,116 @@ def test_existing_neutral_selects_its_exact_processing_model() -> None:
     assert selected is models[1]
 
 
+class _TestDocumentCaptureApi:
+    def __init__(self) -> None:
+        self.documents: list[dict[str, Any]] = []
+        self.snapshots: list[dict[str, Any]] = []
+        self.revisions: list[str] = []
+
+    def get(self, path: str) -> dict[str, Any]:
+        if path == "/test-data-documents?limit=100":
+            return {"items": deepcopy(self.snapshots)}
+        if path.endswith("/content"):
+            document_id = path.split("/")[2]
+            ordinal = int(document_id.rsplit("-", 1)[1])
+            return deepcopy(self.documents[ordinal - 1])
+        raise AssertionError(f"unexpected GET {path}")
+
+    def post(
+        self,
+        path: str,
+        payload: dict[str, Any],
+        *,
+        headers: dict[str, str] | None = None,
+    ) -> dict[str, Any]:
+        if path == "/test-data-documents":
+            assert headers is None
+            self.documents.append(deepcopy(payload["document"]))
+            ordinal = len(self.documents)
+            snapshot = {
+                "test_data_document_id": f"document-{ordinal}",
+                "document_key": payload["document"]["document_id"],
+                "current_revision": {
+                    "id": f"document-{ordinal}-r1",
+                    "revision_no": 1,
+                    "content_hash": f"{ordinal:064x}",
+                },
+            }
+            self.snapshots.append(snapshot)
+            return deepcopy(snapshot)
+        if path.startswith("/test-data-documents/") and path.endswith("/revisions"):
+            document_id = path.split("/")[2]
+            ordinal = int(document_id.rsplit("-", 1)[1])
+            snapshot = self.snapshots[ordinal - 1]
+            current = snapshot["current_revision"]
+            assert headers == {
+                "If-Match": (
+                    f'"revision:{current["revision_no"]}:sha256:{current["content_hash"]}"'
+                )
+            }
+            self.documents[ordinal - 1] = deepcopy(payload["document"])
+            revision_no = current["revision_no"] + 1
+            snapshot["current_revision"] = {
+                "id": f"{document_id}-r{revision_no}",
+                "revision_no": revision_no,
+                "content_hash": f"{ordinal + revision_no:064x}",
+            }
+            self.revisions.append(payload["document"]["document_id"])
+            return deepcopy(snapshot)
+        raise AssertionError(f"unexpected POST {path}")
+
+
+def test_issue246_test_examples_are_complete_reusable_engineering_records() -> None:
+    api = _TestDocumentCaptureApi()
+
+    examples = _SEED_FULL_DEMO._ensure_issue246_test_documents(api)
+
+    assert [item["test_type"] for item in examples].count("Tensile") == 4
+    assert [item["test_type"] for item in examples].count("DMA") == 3
+    assert [item["test_type"] for item in examples].count("FLD") == 2
+    room = next(item for item in examples if item["key"] == "CMP-246-TENSILE-ROOM")
+    assert room["condition"] == "23 °C; 0.0067 s⁻¹"
+    assert room["result_summary"] == (
+        "E 210 GPa; 0.2% proof stress 410 MPa; maximum measured stress 775 MPa; "
+        "maximum measured strain 14.0%."
+    )
+    assert room["curve_coverage"] == (
+        "Engineering strain: 0 to 0.14 1; Engineering stress: 0 to 775000000 Pa"
+    )
+    room_document = next(
+        item for item in api.documents if item["document_id"] == "CMP-246-TENSILE-ROOM"
+    )
+    assert len(room_document["channels"][0]["normalized_values"]) == 8
+    assert len(room_document["channels"][1]["normalized_values"]) == 8
+    dma = next(item for item in examples if item["key"] == "CMP-246-DMA-+23C")
+    assert dma["result_summary"] == (
+        "At 1 Hz: storage modulus 7.31 GPa; loss modulus 445 MPa; loss factor 0.061."
+    )
+    fld = next(item for item in examples if item["key"] == "CMP-246-FLD-NAKAJIMA")
+    assert "Plane-strain limit ε1=0.31 at ε2=0.00" in fld["result_summary"]
+
+
+def test_issue246_test_example_refreshes_drift_and_then_is_idempotent() -> None:
+    api = _TestDocumentCaptureApi()
+    _SEED_FULL_DEMO._ensure_issue246_test_documents(api)
+    dma_ordinal = next(
+        index
+        for index, document in enumerate(api.documents)
+        if document["document_id"] == "CMP-246-DMA-+23C"
+    )
+    api.documents[dma_ordinal]["channels"][1]["original_values"] = ["1", "2"]
+    api.documents[dma_ordinal]["channels"][1]["normalized_values"] = ["1", "2"]
+
+    refreshed = _SEED_FULL_DEMO._ensure_issue246_test_documents(api)
+    stable = _SEED_FULL_DEMO._ensure_issue246_test_documents(api)
+
+    assert api.revisions == ["CMP-246-DMA-+23C"]
+    refreshed_dma = next(item for item in refreshed if item["key"] == "CMP-246-DMA-+23C")
+    stable_dma = next(item for item in stable if item["key"] == "CMP-246-DMA-+23C")
+    assert refreshed_dma["revision_id"] == stable_dma["revision_id"]
+    assert refreshed_dma["revision_id"].endswith("-r2")
+
+
 class _LegacyMaterialApi:
     def __init__(self) -> None:
         self.material: dict[str, Any] = {
@@ -179,8 +307,7 @@ class _LegacyMaterialApi:
                     "material_family": "linear viscoelastic polymer",
                     "material_class": "polymer",
                     "description": (
-                        "Public synthetic T-60 reference fixture; "
-                        "not validated engineering data."
+                        "Public synthetic T-60 reference fixture; not validated engineering data."
                     ),
                 },
             },
