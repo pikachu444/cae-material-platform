@@ -11,6 +11,7 @@ import {
   type ApiConfig,
   createMaterial,
   getMaterialDetail,
+  inspectLocalDemoAccessToken,
   listMaterials,
   defaultApiConfig,
   loadApiConfig,
@@ -882,7 +883,7 @@ export function App() {
   const [config, setConfig] = useState<ApiConfig>(() => loadApiConfig());
   const [sessionStatus, setSessionStatus] = useState<
     "loading" | "ready" | "signed_out"
-  >(() => config.accessToken.trim() ? "ready" : "loading");
+  >(() => config.accessToken.trim() && !inspectLocalDemoAccessToken(config.accessToken) ? "ready" : "loading");
   const [sessionAttempt, setSessionAttempt] = useState(0);
 
   useEffect(() => {
@@ -895,40 +896,58 @@ export function App() {
     let current = true;
     let refreshTimer: number | undefined;
 
-    async function establishSession(): Promise<void> {
-      if (config.accessToken.trim()) return;
-      setSessionStatus("loading");
+    function scheduleRefresh(persona: "administrator" | "user" | "reviewer", delay: number): void {
+      refreshTimer = window.setTimeout(
+        () => void refreshDemoSession(persona),
+        delay,
+      );
+    }
+
+    async function refreshDemoSession(
+      persona: "administrator" | "user" | "reviewer",
+    ): Promise<void> {
       try {
         const result = await requestLocalDemoAccessToken({
-          baseUrl: defaultApiConfig.baseUrl,
-        });
+          baseUrl: config.baseUrl || defaultApiConfig.baseUrl,
+        }, persona);
         if (!current) return;
-        setConfig({
-          ...defaultApiConfig,
+        const nextConfig = {
+          ...config,
           accessToken: result.data.access_token,
-        });
-        saveApiConfig({
-          ...defaultApiConfig,
-          accessToken: result.data.access_token,
-        });
+        };
+        setConfig(nextConfig);
+        saveApiConfig(nextConfig);
         setSessionStatus("ready");
         const refreshAfter =
           Math.max(60, result.data.expires_in_seconds - 120) * 1000;
-        refreshTimer = window.setTimeout(
-          () => void establishSession(),
-          refreshAfter,
-        );
+        scheduleRefresh(result.data.persona ?? persona, refreshAfter);
       } catch {
         if (current) setSessionStatus("signed_out");
       }
     }
 
-    void establishSession();
+    const storedDemoSession = inspectLocalDemoAccessToken(config.accessToken);
+    if (config.accessToken.trim() && !storedDemoSession) {
+      setSessionStatus("ready");
+    } else if (storedDemoSession && sessionAttempt === 0) {
+      const refreshAfter = storedDemoSession.expiresAt - Date.now() - 120_000;
+      if (refreshAfter > 0) {
+        setSessionStatus("ready");
+        scheduleRefresh(storedDemoSession.persona, refreshAfter);
+      } else {
+        setSessionStatus("loading");
+        void refreshDemoSession(storedDemoSession.persona);
+      }
+    } else {
+      setSessionStatus("loading");
+      void refreshDemoSession(storedDemoSession?.persona ?? "administrator");
+    }
+
     return () => {
       current = false;
       if (refreshTimer !== undefined) window.clearTimeout(refreshTimer);
     };
-  }, [config.accessToken, sessionAttempt]);
+  }, [sessionAttempt]);
 
   const retrySession = () => setSessionAttempt((attempt) => attempt + 1);
   const legacyMaterialRoute = useMemo(() => {

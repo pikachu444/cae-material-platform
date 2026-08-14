@@ -1,10 +1,11 @@
-version: 107
+version: 108
 verified_at: 2026-08-14
-scope: issue-246-task1-source-v2-and-browser-categories
-source_commit: 971ea100b6d7032eb1308b01b455c95cb9773408+issue246-live-data-correction-v4
+scope: issue-253-local-demo-token-refresh
+source_commit: ef364087147e51e22cc02534645ba23b628c23d7+issue253-demo-token-refresh-worktree
 capture_script: ../../scripts/capture_current_product.py
-capture_command: CMP_DEMO_WEB_URL=http://127.0.0.1:5176 node scripts/capture_issue246_live_evidence.mjs
+capture_command: uv run --with playwright==1.62.0 python <inline issue-253 recovery capture> against http://127.0.0.1:15173
 notes:
+  - "Issue #253 adds one current 1440x900 demo-session recovery image. Five live CSS viewports at browser zoom 100% and DPR 1 verified the unchanged recovery surface, no page overflow, and a successful Try again transition that replaced the failed session with a newly issued local-demo token. Timer, expired-token reload, persona preservation and demo-disabled boundaries are covered by deterministic frontend tests."
   - "Issue #246 Task 1 replaces the current Definition bundles image and adds two current Materials images captured from `/materials`. The current directory contains 118 bounded public example images."
   - "The issue-owned packet is docs/17-evidence/images/issue-246-source-v2-categories/visual-evidence.yaml. It retains both Product Owner-rejected interpretations as twenty before originals, forty before crops and ten before measurements, then records the final Materials-integrated candidate at five viewports with direct 100%-pixel crops, geometry, hashes and immutable references."
   - "The live browser journey proves `/materials` keeps the established explorer/result/datasheet design, shows 3 Technical Data, 9 Test Data, 3 Simulation Data and 1 Solver Card records, exposes readable engineering values and only exact direct links, excludes internal storage controls and forbidden DMA-to-elastoplasticity inference, and preserves the selected detail across reload."
@@ -234,7 +235,8 @@ visual_evidence:
   baseline_source: 3e642e8c3e96e95dd7d10b19d87e18af53db9e7c
   current_source: 971ea100b6d7032eb1308b01b455c95cb9773408+issue246-live-data-correction-v4
   evidence_artifacts_are_not_current_captures: true
-  current_capture_count: 118
+  current_capture_count: 119
+  issue_253_current_count: 1
   issue_246_current_count: 3
   issue_246_rejected_before_original_count: 20
   issue_246_rejected_before_direct_crop_count: 40
@@ -276,6 +278,10 @@ visual_evidence:
   independent_read_only_review: pass_issue_246_task1_same_auditor_blocker_0_major_0_material_minor_0
   product_owner_review: pass_issue_246_task1_presented_originals_2026_08_14
 capture_provenance:
+  - source_commit: ef364087147e51e22cc02534645ba23b628c23d7+issue253-demo-token-refresh-worktree
+    captured_at: '2026-08-14T16:04:00+09:00'
+    command: 'Isolated current-worktree Vite on 127.0.0.1:15173 with the existing local demo API proxy; native Python Playwright 1.62 captured the recovery boundary at 1366x768, 1440x900, 1920x1080, 2560x1440 and 3840x2160 at zoom 100% and DPR 1, then exercised Try again and verified a newly stored demo token. The unchanged Materials data surface was not claimed as issue-owned visual evidence.'
+    ids: [demo-session-recovery-1440]
   - source_commit: 971ea100b6d7032eb1308b01b455c95cb9773408+issue246-live-data-correction-v4
     captured_at: '2026-08-14T06:15:30Z'
     command: 'Dedicated PostgreSQL database with the real API, worker and Vite frontend; CMP_DEMO_WEB_URL=http://127.0.0.1:5176 node scripts/capture_issue246_live_evidence.mjs at browser zoom 100% and DPR 1. The flow verifies 3/9/3/1 published category counts, populated tensile/DMA/FLD engineering values, exact direct links, reload persistence, absence of a DMA-to-elastoplasticity relation and absence of normal-surface storage controls without mocked HTTP routes.'
@@ -425,6 +431,13 @@ captures:
     workflow: searchable-database-profile-table-folder-record-tree
     fixture: synthetic DP780 workflow Records
     image: images/current/materials-browse-1440x900.png
+    width: 1440
+    height: 900
+  - id: demo-session-recovery-1440
+    route: /materials
+    workflow: local-demo-token-refresh-failure-and-manual-retry
+    fixture: explicit local demo identity with one bounded token-issuance outage followed by successful retry
+    image: images/current/demo-session-recovery-1440x900.png
     width: 1440
     height: 900
   - id: material-database-categories-1440

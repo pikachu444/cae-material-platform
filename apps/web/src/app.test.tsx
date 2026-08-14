@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "./app";
 import { MaterialDetailPage } from "./material-library";
@@ -140,7 +140,24 @@ const demoSession = {
   organization_id: "d0000000-0000-4000-8000-000000000001",
   project_id: "d0000000-0000-4000-8000-000000000002",
   group: "cmp-demo-material-team",
+  persona: "administrator",
 };
+
+function localDemoAccessToken(
+  persona: "administrator" | "user" | "reviewer",
+  expiresAt: number,
+): string {
+  const subject = {
+    administrator: "cmp-demo-administrator",
+    user: "cmp-demo-user",
+    reviewer: "cmp-demo-reviewer",
+  }[persona];
+  const encode = (value: object) => window.btoa(JSON.stringify(value))
+    .replace(/=/g, "")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_");
+  return `${encode({ alg: "none", typ: "JWT" })}.${encode({ exp: expiresAt, sub: subject })}.fixture`;
+}
 
 const generatedCardCandidate = {
   source: {
@@ -224,6 +241,7 @@ describe("Material Catalog workbench", () => {
 
   afterEach(() => {
     cleanup();
+    vi.useRealTimers();
     vi.unstubAllGlobals();
   });
 
@@ -415,6 +433,112 @@ describe("Material Catalog workbench", () => {
     expect(screen.getByRole("button", { name: "Browse" }).getAttribute("aria-current")).toBe("page");
     expect(screen.getByRole("textbox", { name: "Find in tree" })).toBeTruthy();
     expect(document.body.textContent).not.toMatch(/bearer|API base|tenant|RLS/i);
+  });
+
+  it("refreshes a local demo token before it expires without replacing the workspace", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-08-14T00:00:00Z"));
+    const currentToken = localDemoAccessToken("administrator", Math.floor(Date.now() / 1000) + 900);
+    const refreshedToken = localDemoAccessToken("administrator", Math.floor(Date.now() / 1000) + 1_680);
+    window.localStorage.setItem("cmp.material-platform.api-config", JSON.stringify({
+      baseUrl: "/api/v1",
+      accessToken: currentToken,
+    }));
+    const fetchMock = mockProductFetch(() => jsonResponse({ items: [], total_count: 0 }));
+    fetchMock.mockImplementation(async (input, init) => {
+      if (String(input).endsWith("/demo-identity/token")) {
+        return jsonResponse({ ...demoSession, access_token: refreshedToken });
+      }
+      const catalog = materialCatalogFetch(input, init, []);
+      return catalog ?? jsonResponse({ items: [], total_count: 0 });
+    });
+
+    render(<App />);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(780_000);
+    });
+
+    const tokenRequests = fetchMock.mock.calls.filter(([input]) =>
+      String(input).endsWith("/demo-identity/token"));
+    expect(tokenRequests).toHaveLength(1);
+    expect(window.localStorage.getItem("cmp.material-platform.api-config")).toContain(refreshedToken);
+    expect(screen.getByRole("heading", { name: "Materials", level: 1 })).toBeTruthy();
+  });
+
+  it("replaces an expired stored demo token on reload and preserves its persona", async () => {
+    const expiredToken = localDemoAccessToken("user", Math.floor(Date.now() / 1000) - 1);
+    const refreshedToken = localDemoAccessToken("user", Math.floor(Date.now() / 1000) + 900);
+    window.localStorage.setItem("cmp.material-platform.api-config", JSON.stringify({
+      baseUrl: "/api/v1",
+      accessToken: expiredToken,
+    }));
+    const fetchMock = vi.fn<typeof fetch>(async (input, init) => {
+      if (String(input).endsWith("/demo-identity/token?persona=user")) {
+        return jsonResponse({
+          ...demoSession,
+          access_token: refreshedToken,
+          group: "cmp-demo-user-team",
+          persona: "user",
+        });
+      }
+      const catalog = materialCatalogFetch(input, init, []);
+      return catalog ?? jsonResponse({ items: [], total_count: 0 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<App />);
+
+    expect(await screen.findByRole("heading", { name: "Materials", level: 1 })).toBeTruthy();
+    expect(fetchMock.mock.calls.some(([input]) =>
+      String(input).endsWith("/demo-identity/token?persona=user"))).toBe(true);
+    await waitFor(() => expect(fetchMock.mock.calls.some(([, init]) =>
+      new Headers(init?.headers).get("authorization") === `Bearer ${refreshedToken}`)).toBe(true));
+  });
+
+  it("offers one manual recovery path when demo token refresh fails", async () => {
+    const expiredToken = localDemoAccessToken("administrator", Math.floor(Date.now() / 1000) - 1);
+    const refreshedToken = localDemoAccessToken("administrator", Math.floor(Date.now() / 1000) + 900);
+    window.localStorage.setItem("cmp.material-platform.api-config", JSON.stringify({
+      baseUrl: "/api/v1",
+      accessToken: expiredToken,
+    }));
+    let tokenAttempts = 0;
+    const fetchMock = vi.fn<typeof fetch>(async (input, init) => {
+      if (String(input).endsWith("/demo-identity/token")) {
+        tokenAttempts += 1;
+        return tokenAttempts === 1
+          ? jsonResponse({ detail: "Demo identity temporarily unavailable" }, 503)
+          : jsonResponse({ ...demoSession, access_token: refreshedToken });
+      }
+      const catalog = materialCatalogFetch(input, init, []);
+      return catalog ?? jsonResponse({ items: [], total_count: 0 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<App />);
+
+    expect(await screen.findByRole("heading", { name: "Sign in to continue" })).toBeTruthy();
+    expect(tokenAttempts).toBe(1);
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    expect(await screen.findByRole("heading", { name: "Materials", level: 1 })).toBeTruthy();
+    expect(tokenAttempts).toBe(2);
+  });
+
+  it("does not probe the demo token endpoint for a non-demo bearer token", async () => {
+    window.localStorage.setItem("cmp.material-platform.api-config", JSON.stringify({
+      baseUrl: "/api/v1",
+      accessToken: "production-access-token",
+    }));
+    const fetchMock = mockProductFetch((input, init) => {
+      const catalog = materialCatalogFetch(input, init, []);
+      return catalog ?? jsonResponse({ items: [], total_count: 0 });
+    });
+
+    render(<App />);
+
+    expect(await screen.findByRole("heading", { name: "Materials", level: 1 })).toBeTruthy();
+    expect(fetchMock.mock.calls.some(([input]) =>
+      String(input).includes("/demo-identity/token"))).toBe(false);
   });
 
   it("routes the legacy review deep link to the compact Activity queue without raw review inputs", async () => {

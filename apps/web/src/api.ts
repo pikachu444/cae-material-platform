@@ -1176,6 +1176,8 @@ export function compareConfigurableCatalogRecordRevisions(
   );
 }
 
+export type LocalDemoPersona = "administrator" | "user" | "reviewer";
+
 export interface LocalDemoAccessToken {
   access_token: string;
   token_type: "Bearer";
@@ -1183,7 +1185,38 @@ export interface LocalDemoAccessToken {
   organization_id: string;
   project_id: string;
   group: string;
-  persona?: "user" | "reviewer";
+  persona: LocalDemoPersona;
+}
+
+export interface LocalDemoTokenSession {
+  persona: LocalDemoPersona;
+  expiresAt: number;
+}
+
+/**
+ * Read only the local-demo fixture identity and expiry needed to renew its
+ * browser session. These unverified claims never grant access; the API still
+ * validates the signed bearer token for every protected request.
+ */
+export function inspectLocalDemoAccessToken(token: string): LocalDemoTokenSession | null {
+  const payloadSegment = token.trim().split(".")[1];
+  if (!payloadSegment) return null;
+
+  try {
+    const normalized = payloadSegment.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
+    const payload = JSON.parse(window.atob(padded)) as { exp?: unknown; sub?: unknown };
+    const personaBySubject: Record<string, LocalDemoPersona> = {
+      "cmp-demo-administrator": "administrator",
+      "cmp-demo-user": "user",
+      "cmp-demo-reviewer": "reviewer",
+    };
+    const persona = typeof payload.sub === "string" ? personaBySubject[payload.sub] : undefined;
+    if (!persona || typeof payload.exp !== "number" || !Number.isFinite(payload.exp)) return null;
+    return { persona, expiresAt: payload.exp * 1000 };
+  } catch {
+    return null;
+  }
 }
 
 interface ProblemDocument {
@@ -1324,9 +1357,11 @@ async function request<T>(
  */
 export async function requestLocalDemoAccessToken(
   config: Pick<ApiConfig, "baseUrl">,
+  persona: LocalDemoPersona = "administrator",
 ): Promise<ApiResult<LocalDemoAccessToken>> {
   const baseUrl = config.baseUrl.trim().replace(/\/$/, "") || "/api/v1";
-  const response = await fetch(`${baseUrl}/demo-identity/token`, {
+  const personaQuery = persona === "administrator" ? "" : `?persona=${persona}`;
+  const response = await fetch(`${baseUrl}/demo-identity/token${personaQuery}`, {
     headers: { Accept: "application/json" },
   });
   if (!response.ok) {

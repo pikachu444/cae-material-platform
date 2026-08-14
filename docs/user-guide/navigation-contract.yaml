@@ -1,4 +1,4 @@
-version: 24
+version: 25
 shell:
   product_header_px: {compact: 46, standard: 50, large: 54}
   generic_command_status_bands: absent
@@ -18,6 +18,13 @@ shell:
     backend_account_cross_device_sync: forbidden
     automatic_viewport_dpr_resolution_selection: forbidden
     keyboard: [native-radio-selection, escape-close, focus-return-to-user-menu]
+  local_demo_session:
+    availability: explicit-demo-mode-only
+    server_access_token_ttl: 15-minutes
+    renewal: same-persona-two-minutes-before-expiry
+    expired_reload: renew-without-site-data-deletion
+    failure_recovery: sign-in-boundary-with-try-again
+    navigation_effect: none
 items:
   - label: Materials
     route: /materials
