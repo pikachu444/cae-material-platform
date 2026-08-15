@@ -1,0 +1,47 @@
+schemaVersion: cmp.documentation-impact-exception.v1
+issue: "#259"
+sourceSha: ee763bf4f91c9f86e92b8226b9d37f56e19b6e36
+classification: non-user-visible-structural-extraction
+reason: >-
+  FE-04A moves exact Processing defaults, matching rules, and request transforms
+  from the Modeling workbench into a pure TypeScript registry without changing
+  JSX, product behavior, API contracts, or the current user-visible workflow.
+visualFiles:
+  - apps/web/src/common-processing-workbench.tsx
+  - apps/web/src/material-modeling-workspace.tsx
+verification:
+  importOnlyFiles:
+    - apps/web/src/material-modeling-workspace.tsx
+  relocations:
+    - source: apps/web/src/common-processing-workbench.tsx
+      target: apps/web/src/features/modeling/model/processing-registry.ts
+      declarations:
+        - ModelingTrack
+        - DEFAULT_PROFILE
+        - POLYMER_RELAXATION_PROFILE
+        - POLYMER_DMA_PROFILE
+        - ELASTOMER_CURVE_PROFILE
+        - ELASTOMER_PREPARATION_STEPS
+        - POLYMER_RELAXATION_STEPS
+        - POLYMER_DMA_STEPS
+        - METAL_TENSILE_STEPS
+        - PRONY_TERM_COUNTS
+        - numberOption
+        - ModulusDisplayUnit
+        - modulusPaScale
+        - modulusDisplayUnit
+        - manualModulusPascals
+        - manualModulusDisplayValue
+        - UI_ONLY_PROCESS_OPTION_KEYS
+        - serverProcessingSteps
+        - toeAcknowledgementContext
+        - parsedStepArray
+        - normalizeToeWarningAcknowledgement
+        - workupOverridesFromSteps
+        - defaultOptions
+        - documentMatchesTrack
+        - documentMatchesDataTrack
+        - profileMatchesTrack
+        - documentIsPolymerDma
+        - isFitMethod
+        - methodDisplayName

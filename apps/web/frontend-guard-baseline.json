@@ -1,11 +1,11 @@
 {
   "schemaVersion": "cmp.frontend-guard-baseline.v1",
-  "sourceSha": "8fad879dfc183237815d76f3837feb813bc0aaeb",
+  "sourceSha": "ee763bf4f91c9f86e92b8226b9d37f56e19b6e36",
   "ownerIssue": "#256",
   "hotspots": [
     {
       "path": "apps/web/src/common-processing-workbench.tsx",
-      "baselineLines": 3432,
+      "baselineLines": 2937,
       "responsibilities": ["Modeling state and transitions", "async stage workflows", "persistence", "rendering"],
       "followUpIssue": "#259",
       "removalCondition": "FE-04 leaves this file composition-oriented and the registered hotspot can be retired."
@@ -119,5 +119,15 @@
       "removalCondition": "FE-06 proves the breakpoints are shared policy or replaces them with shared layout tokens."
     }
   ],
-  "exceptions": []
+  "exceptions": [
+    {
+      "ruleId": "CMP-FE-HOTSPOT-RESPONSIBILITY",
+      "path": "apps/web/src/common-processing-workbench.tsx",
+      "fingerprint": "8794432bd67f1c07b6ad74027ff6b9a3c7cf61f413dbc5f340406973f9f00192",
+      "maxOccurrences": 1,
+      "reason": "Issue #259 FE-04A removes the pure Processing registry responsibility; the legacy composition entry imports the new Modeling-owned module.",
+      "ownerIssue": "#259",
+      "removalCondition": "Remove this exception when CommonProcessingWorkbench moves behind the Modeling feature boundary or the import no longer exists and the hotspot is retired."
+    }
+  ]
 }
