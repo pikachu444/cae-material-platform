@@ -4,13 +4,15 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   CommonProcessingWorkbench,
-  documentIsPolymerDma,
-  documentMatchesDataTrack,
   fitSurfaceState,
   fitRailIdentity,
+} from "./common-processing-workbench";
+import {
+  documentIsPolymerDma,
+  documentMatchesDataTrack,
   manualModulusDisplayValue,
   manualModulusPascals,
-} from "./common-processing-workbench";
+} from "./features/modeling/model/processing-registry";
 
 describe("Governed DMA/FLD Data boundaries", () => {
   const document = (semantics: string[]) => ({

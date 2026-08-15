@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { ApiError, getMaterialDetail, listMaterials, type ApiConfig } from "./api";
-import type { ModelingTrack } from "./common-processing-workbench";
+import type { ModelingTrack } from "./features/modeling/model/processing-registry";
 import { dispatchModelingSession, loadModelingSession, saveModelingSession, type ModelingMaterialFamily, type ModelingSessionSummary } from "./modeling-session-context";
 import { PolymerTemperatureShiftInspector } from "./polymer-temperature-shift-inspector";
 import type {
