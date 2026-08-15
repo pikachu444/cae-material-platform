@@ -17,33 +17,6 @@ import {
   displayCurveValue,
   resolveDeviationBand,
 } from "./curve-contract";
-import {
-  DEFAULT_PROFILE,
-  ELASTOMER_CURVE_PROFILE,
-  ELASTOMER_PREPARATION_STEPS,
-  METAL_TENSILE_STEPS,
-  POLYMER_DMA_PROFILE,
-  POLYMER_DMA_STEPS,
-  POLYMER_RELAXATION_PROFILE,
-  POLYMER_RELAXATION_STEPS,
-  PRONY_TERM_COUNTS,
-  defaultOptions,
-  documentIsPolymerDma,
-  documentMatchesDataTrack,
-  documentMatchesTrack,
-  isFitMethod,
-  manualModulusDisplayValue,
-  manualModulusPascals,
-  methodDisplayName,
-  modulusDisplayUnit,
-  normalizeToeWarningAcknowledgement,
-  numberOption,
-  parsedStepArray,
-  profileMatchesTrack,
-  serverProcessingSteps,
-  workupOverridesFromSteps,
-  type ModelingTrack,
-} from "./features/modeling/model/processing-registry";
 const HardeningFitOptions = lazy(() => import("./fit-hardening-options").then((module) => ({ default: module.HardeningFitOptions })));
 
 import {
@@ -89,8 +62,7 @@ import type {
   GraphSelectionCommand,
   MaterialResponse,
   MaterialStateResponse,
-  PropertySetResponse,
-} from "./types";
+  PropertySetResponse} from "./types";
 import { DomainWorkflowLinks } from "./domain-workflow-links";
 import { dispatchModelingSession, modelingDataDocumentMatchesMaterialContext, modelingDocumentMatchesMaterialContext, modelingSessionRecordKey, modelingSessionRefFromRecord, type ModelingMaterialFamily, type ModelingPlotView, type ModelingSessionEvent, type ModelingSessionRecordRef, type ModelingSessionSummary, type ModelingStage } from "./modeling-session-context";
 import { ModelingStageShell } from "./modeling-stage-shell";
@@ -98,8 +70,34 @@ import { exportPrerequisites } from "./modeling-export-eligibility";
 import {
   buildFitDecisionSnapshot,
   fitDecisionIdentityLabel,
-  type FitDecisionSelection,
-} from "./modeling-fit-decision-contract";
+  type FitDecisionSelection} from "./modeling-fit-decision-contract";
+import {
+  DEFAULT_PROFILE,
+  ELASTOMER_CURVE_PROFILE,
+  ELASTOMER_PREPARATION_STEPS,
+  METAL_TENSILE_STEPS,
+  POLYMER_DMA_PROFILE,
+  POLYMER_DMA_STEPS,
+  POLYMER_RELAXATION_PROFILE,
+  POLYMER_RELAXATION_STEPS,
+  PRONY_TERM_COUNTS,
+  defaultOptions,
+  documentIsPolymerDma,
+  documentMatchesDataTrack,
+  documentMatchesTrack,
+  isFitMethod,
+  manualModulusDisplayValue,
+  manualModulusPascals,
+  methodDisplayName,
+  modulusDisplayUnit,
+  normalizeToeWarningAcknowledgement,
+  numberOption,
+  parsedStepArray,
+  profileMatchesTrack,
+  serverProcessingSteps,
+  workupOverridesFromSteps,
+  type ModelingTrack,
+} from "./features/modeling/model/processing-registry";
 
 const ModelingDataIntake = lazy(() =>
   import("./modeling-data-intake").then((module) => ({ default: module.ModelingDataIntake })),

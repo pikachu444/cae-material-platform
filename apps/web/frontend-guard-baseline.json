@@ -1,6 +1,6 @@
 {
   "schemaVersion": "cmp.frontend-guard-baseline.v1",
-  "sourceSha": "03987d89a618d41f4048600f11bd42ea723cd455",
+  "sourceSha": "ee763bf4f91c9f86e92b8226b9d37f56e19b6e36",
   "ownerIssue": "#256",
   "hotspots": [
     {
@@ -123,7 +123,7 @@
     {
       "ruleId": "CMP-FE-HOTSPOT-RESPONSIBILITY",
       "path": "apps/web/src/common-processing-workbench.tsx",
-      "fingerprint": "c0f486f10d7d6e34eba18def2da43b5e6fc10cf90a246493b78c6e8ebc749f57",
+      "fingerprint": "8794432bd67f1c07b6ad74027ff6b9a3c7cf61f413dbc5f340406973f9f00192",
       "maxOccurrences": 1,
       "reason": "Issue #259 FE-04A removes the pure Processing registry responsibility; the legacy composition entry imports the new Modeling-owned module.",
       "ownerIssue": "#259",
