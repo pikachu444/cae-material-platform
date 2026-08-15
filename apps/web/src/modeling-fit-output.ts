@@ -124,6 +124,97 @@ function stableJson(value: unknown): string {
   });
 }
 
+const SUPPORTED_SAVED_FIT_DOCUMENT_VERSIONS = new Set(["1.3.0", "1.4.0", "1.5.0"]);
+const CURRENT_SAVED_FIT_DOCUMENT_VERSION = "1.5.0";
+const SHA256 = /^[0-9a-f]{64}$/;
+const CURVE_KEY = /^[a-z][a-z0-9_.-]{0,127}$/;
+const QUANTITY_SEMANTICS = /^[a-z][a-z0-9_.-]{0,159}$/;
+const DECIMAL_TEXT = /^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?$/;
+
+function record(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+/**
+ * Require the declared curve metadata added by processing-output v1.5 to
+ * describe the exact persisted series.  The immutable outer document digest
+ * is verified before this parser runs; these checks additionally prevent a
+ * current document from being treated as a legacy series-only result.
+ */
+function currentCurveMetadataMatchesSeries(stage: CommonCurveStage): boolean {
+  const definition = stage.curve_definition as unknown;
+  if (
+    typeof stage.curve_definition_sha256 !== "string"
+    || !SHA256.test(stage.curve_definition_sha256)
+    || !record(definition)
+    || definition.definition_version !== "1.0.0"
+    || !Array.isArray(definition.channels)
+    || definition.channels.length < 2
+    || definition.channels.length !== stage.series.length
+    || !Array.isArray(definition.deviations)
+  ) return false;
+
+  const seriesByQuantity = new Map(stage.series.map((series) => [series.quantity, series]));
+  if (seriesByQuantity.size !== stage.series.length) return false;
+  const channelKeys = new Set<string>();
+  let independentCount = 0;
+  let dependentCount = 0;
+  for (const value of definition.channels) {
+    if (!record(value)) return false;
+    const {
+      key,
+      label,
+      quantity_semantics: quantity,
+      axis_role: axisRole,
+      unit_contract: unitContract,
+      dimension,
+      original_units: originalUnits,
+      normalized_unit: normalizedUnit,
+      display_unit: displayUnit,
+      display_scale: displayScale,
+      display_offset: displayOffset,
+      value_basis: valueBasis,
+    } = value;
+    if (
+      typeof key !== "string"
+      || !CURVE_KEY.test(key)
+      || channelKeys.has(key)
+      || typeof label !== "string"
+      || !label
+      || typeof quantity !== "string"
+      || !QUANTITY_SEMANTICS.test(quantity)
+      || !["independent", "dependent", "auxiliary"].includes(String(axisRole))
+      || !["common", "explicit_legacy"].includes(String(unitContract))
+      || (unitContract === "common" ? typeof dimension !== "string" || !dimension : dimension !== null)
+      || !Array.isArray(originalUnits)
+      || originalUnits.length < 1
+      || typeof normalizedUnit !== "string"
+      || !normalizedUnit
+      || typeof displayUnit !== "string"
+      || !displayUnit
+      || typeof displayScale !== "string"
+      || !DECIMAL_TEXT.test(displayScale)
+      || Number(displayScale) === 0
+      || typeof displayOffset !== "string"
+      || !DECIMAL_TEXT.test(displayOffset)
+      || !["original", "normalized", "derived"].includes(String(valueBasis))
+      || !originalUnits.every((unit) => record(unit)
+        && typeof unit.unit === "string"
+        && Boolean(unit.unit)
+        && typeof unit.scale_to_normalized === "string"
+        && DECIMAL_TEXT.test(unit.scale_to_normalized)
+        && typeof unit.offset_to_normalized === "string"
+        && DECIMAL_TEXT.test(unit.offset_to_normalized))
+    ) return false;
+    const series = seriesByQuantity.get(quantity);
+    if (!series || series.unit !== normalizedUnit) return false;
+    channelKeys.add(key);
+    if (axisRole === "independent") independentCount += 1;
+    if (axisRole === "dependent") dependentCount += 1;
+  }
+  return independentCount >= 1 && dependentCount >= 1;
+}
+
 export async function readVerifiedExactOutput(
   result: { data: { blob: Blob } },
   expectedSha256: string,
@@ -139,7 +230,34 @@ export async function readVerifiedExactOutput(
   if (actual !== expectedSha256) {
     throw new Error("Exact saved Fit content digest does not match its pinned revision");
   }
-  return new TextDecoder().decode(bytes);
+  const text = new TextDecoder().decode(bytes);
+  const parsed = JSON.parse(text) as SavedFitDocument;
+  if (parsed.document_version === CURRENT_SAVED_FIT_DOCUMENT_VERSION) {
+    const stages = parsed.result?.stages;
+    if (!Array.isArray(stages)) {
+      throw new Error("Saved Fit result has invalid current curve metadata");
+    }
+    for (const stage of stages) {
+      if (
+        typeof stage.curve_definition_sha256 !== "string"
+        || !SHA256.test(stage.curve_definition_sha256)
+        || !record(stage.curve_definition)
+      ) {
+        throw new Error("Saved Fit result has invalid current curve metadata");
+      }
+      const definitionDigest = await globalThis.crypto.subtle.digest(
+        "SHA-256",
+        new TextEncoder().encode(stableJson(stage.curve_definition)),
+      );
+      const definitionSha256 = Array.from(new Uint8Array(definitionDigest), (value) =>
+        value.toString(16).padStart(2, "0"),
+      ).join("");
+      if (definitionSha256 !== stage.curve_definition_sha256) {
+        throw new Error("Saved Fit result curve definition digest does not match its metadata");
+      }
+    }
+  }
+  return text;
 }
 
 export function parseExactSavedFitOutput(
@@ -159,7 +277,8 @@ export function parseExactSavedFitOutput(
   );
   if (
     parsed.document_type !== "cmp.processing-output"
-    || parsed.document_version !== "1.3.0"
+    || typeof parsed.document_version !== "string"
+    || !SUPPORTED_SAVED_FIT_DOCUMENT_VERSIONS.has(parsed.document_version)
     || parsed.output_id !== output.processing_output_id
     || !exactPin(parsed.source_document, output.source_document)
     || !exactPin(parsed.mapping_profile, output.mapping_profile)
@@ -190,6 +309,12 @@ export function parseExactSavedFitOutput(
   const stages = parsed.result?.stages;
   if (!Array.isArray(stages) || stages.length !== output.stage_count) {
     throw new Error("Saved Fit result has an invalid stage count");
+  }
+  if (
+    parsed.document_version === CURRENT_SAVED_FIT_DOCUMENT_VERSION
+    && stages.some((stage) => !currentCurveMetadataMatchesSeries(stage))
+  ) {
+    throw new Error("Saved Fit result has invalid current curve metadata");
   }
   const expectedMethods = [
     { method_id: "mapping", method_version: "1.0.0" },

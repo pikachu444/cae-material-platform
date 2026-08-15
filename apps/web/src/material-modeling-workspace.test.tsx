@@ -20,16 +20,23 @@ vi.mock("./common-processing-workbench", () => ({
     onModelingTrackChange,
     onNewSession,
     familyWorkbench,
+    initialSession,
   }: {
     onModelingTrackChange: (track: MaterialClass) => void;
     onNewSession: (track: MaterialClass) => void;
     familyWorkbench: React.ReactNode;
+    initialSession?: {
+      material?: { revisionId: string };
+      materialState?: { revisionId: string };
+    } | null;
   }) => (
     <main>
       <button type="button" onClick={() => onNewSession("elastomer")}>New session</button>
       <button type="button" onClick={() => onModelingTrackChange("metal")}>Metal track</button>
       <button type="button" onClick={() => onModelingTrackChange("polymer")}>Polymer track</button>
       <button type="button" onClick={() => onModelingTrackChange("elastomer")}>Elastomer track</button>
+      <output data-testid="modeling-session-material">{initialSession?.material?.revisionId ?? "none"}</output>
+      <output data-testid="modeling-session-state">{initialSession?.materialState?.revisionId ?? "none"}</output>
       {familyWorkbench}
     </main>
   ),
@@ -142,6 +149,39 @@ function detailFor(item: MaterialResponse): MaterialDetail {
   };
 }
 
+function materialIdentity(item: MaterialResponse, materialId: string, revisionId: string, name: string): MaterialResponse {
+  return {
+    ...item,
+    material_id: materialId,
+    current_revision: {
+      ...item.current_revision,
+      id: revisionId,
+      aggregate_id: materialId,
+      content: { ...item.current_revision.content, name },
+      provenance: { ...item.current_revision.provenance, revision_id: revisionId },
+    },
+  };
+}
+
+function stateIdentity(
+  detail: MaterialDetail,
+  stateId: string,
+  revisionId: string,
+  name: string,
+): MaterialDetail["states"][number] {
+  const state = detail.states[0];
+  return {
+    ...state,
+    material_state_id: stateId,
+    current_revision: {
+      ...state.current_revision,
+      id: revisionId,
+      aggregate_id: stateId,
+      content: { ...state.current_revision.content, name },
+    },
+  };
+}
+
 describe("Material Modeling Workspace", () => {
   afterEach(() => {
     cleanup();
@@ -208,5 +248,82 @@ describe("Material Modeling Workspace", () => {
       expect((screen.getByLabelText("Modeling material") as HTMLSelectElement).value).toBe("");
       expect((screen.getByLabelText("Modeling material state") as HTMLSelectElement).value).toBe("");
     });
+  });
+
+  it("prefers exact URL Material and State revisions over the first selectable heads", async () => {
+    const base = material("metal");
+    const first = materialIdentity(base, "material-first", "material-first-r2", "First current Material");
+    const exact = materialIdentity(base, "material-exact", "material-exact-r7", "Exact URL Material");
+    const exactDetail = detailFor(exact);
+    exactDetail.states = [
+      stateIdentity(exactDetail, "state-first", "state-first-r3", "First current State"),
+      stateIdentity(exactDetail, "state-exact", "state-exact-r9", "Exact URL State"),
+    ];
+    mocks.listMaterials.mockResolvedValue({ data: { items: [first, exact], total_count: 2 }, etag: null });
+    mocks.getMaterialDetail.mockResolvedValue({ data: exactDetail, etag: null });
+
+    render(
+      <MaterialModelingWorkspace
+        config={{ baseUrl: "/api/v1", accessToken: "demo" }}
+        locationSearch="?family=metal&material_id=material-exact&material_revision_id=material-exact-r7&material_state_id=state-exact&material_state_revision_id=state-exact-r9"
+        onNavigate={() => undefined}
+        onOpenConnection={() => undefined}
+      />,
+    );
+
+    await waitFor(() => {
+      expect((screen.getByLabelText("Modeling material") as HTMLSelectElement).value).toBe("material-exact");
+      expect((screen.getByLabelText("Modeling material state") as HTMLSelectElement).value).toBe("state-exact");
+      expect(screen.getByTestId("modeling-session-material").textContent).toBe("material-exact-r7");
+      expect(screen.getByTestId("modeling-session-state").textContent).toBe("state-exact-r9");
+    });
+    expect(loadModelingSession()).toMatchObject({
+      material: { id: "material-exact", revisionId: "material-exact-r7" },
+      materialState: { id: "state-exact", revisionId: "state-exact-r9" },
+    });
+  });
+
+  it("blocks a stale URL Material revision instead of substituting its current head", async () => {
+    const current = materialIdentity(material("metal"), "material-exact", "material-current-r8", "Current Material head");
+    mocks.listMaterials.mockResolvedValue({ data: { items: [current], total_count: 1 }, etag: null });
+
+    render(
+      <MaterialModelingWorkspace
+        config={{ baseUrl: "/api/v1", accessToken: "demo" }}
+        locationSearch="?family=metal&material_id=material-exact&material_revision_id=material-stale-r7"
+        onNavigate={() => undefined}
+        onOpenConnection={() => undefined}
+      />,
+    );
+
+    expect(await screen.findByText(/Material revision is no longer the current selectable head/)).toBeTruthy();
+    expect((screen.getByLabelText("Modeling material") as HTMLSelectElement).value).toBe("");
+    expect(screen.queryByRole("heading", { name: "Metal engine loaded" })).toBeNull();
+    expect(mocks.getMaterialDetail).not.toHaveBeenCalled();
+    expect(loadModelingSession()?.material).toBeUndefined();
+  });
+
+  it("blocks a stale URL State revision instead of substituting its current head", async () => {
+    const exact = materialIdentity(material("metal"), "material-exact", "material-exact-r7", "Exact URL Material");
+    const exactDetail = detailFor(exact);
+    exactDetail.states = [stateIdentity(exactDetail, "state-exact", "state-current-r10", "Current State head")];
+    mocks.listMaterials.mockResolvedValue({ data: { items: [exact], total_count: 1 }, etag: null });
+    mocks.getMaterialDetail.mockResolvedValue({ data: exactDetail, etag: null });
+
+    render(
+      <MaterialModelingWorkspace
+        config={{ baseUrl: "/api/v1", accessToken: "demo" }}
+        locationSearch="?family=metal&material_id=material-exact&material_revision_id=material-exact-r7&material_state_id=state-exact&material_state_revision_id=state-stale-r9"
+        onNavigate={() => undefined}
+        onOpenConnection={() => undefined}
+      />,
+    );
+
+    expect(await screen.findByText(/Material State revision is no longer the current selectable head/)).toBeTruthy();
+    expect((screen.getByLabelText("Modeling material") as HTMLSelectElement).value).toBe("material-exact");
+    expect((screen.getByLabelText("Modeling material state") as HTMLSelectElement).value).toBe("");
+    expect(screen.queryByRole("heading", { name: "Metal engine loaded" })).toBeNull();
+    await waitFor(() => expect(screen.getByTestId("modeling-session-material").textContent).toBe("material-exact-r7"));
+    expect(loadModelingSession()?.materialState).toBeUndefined();
   });
 });

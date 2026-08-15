@@ -4434,6 +4434,19 @@ def _measure_process_fit(
     *,
     minimum_svg_height: int | None = None,
 ) -> dict[str, float]:
+    blocked_plot = page.locator(
+        '.persistent-modeling-plot .engineering-curve-plot-empty-frame[data-plot-state="blocked"]'
+    )
+    if blocked_plot.count():
+        raise RuntimeError(
+            f"{stage} full-plot geometry received a blocked plot; "
+            "use the dedicated blocked-state assertion instead"
+        )
+    # Computed-style checks below compare the resting action hierarchy. Move
+    # away from the action row so the click that settled a preview cannot leave
+    # one secondary action in :hover while its peer remains at rest.
+    page.mouse.move(width // 2, max(1, height - 2))
+    page.wait_for_timeout(50)
     measurement = cast(dict[str, float], page.evaluate(
         """() => {
           const box = selector => document.querySelector(selector)?.getBoundingClientRect();
@@ -7799,13 +7812,40 @@ def _capture_modeling_consistency(
                     )
             elif page.locator(".modeling-workspace-rail").count():
                 raise RuntimeError("Export must remain graph-only without a curve rail")
+            if stage == "process":
+                _save_process_output_for_fit(
+                    page,
+                    label=f"Consistency Fit source {width}x{height}",
+                    reason="Bind the exact Process result for the Modeling consistency journey.",
+                )
             if stage == "fit":
-                page.get_by_role("button", name="Preview changes", exact=True).click()
+                _click_modeling_fit_preview_and_wait(page)
             if stage == "export":
                 _save_exact_fit_selection(page)
                 _open_modeling_stage(page, "export")
                 page.wait_for_url(re.compile(r"stage=export"), timeout=30_000)
+                _prepare_exact_metal_source_if_needed(page)
                 _prepare_exact_target_preview(page)
+                _assert_export_exact_source_surface(page)
+                _capture(
+                    page,
+                    output / f"modeling-{stage}-{width}x{height}.png",
+                    width,
+                    height,
+                    focus_selector=".modeling-target-preview .export-native-preview-shell",
+                    before_screenshot=lambda page=page: _assert_export_action_visible(
+                        page, "Create solver card"
+                    ),
+                    after_animation=lambda page=page: _assert_export_capture_shell(page),
+                )
+                measurements.append(
+                    {
+                        "stage": stage,
+                        "viewport": f"{width}x{height}",
+                        "surface": "exact-target-preview",
+                    }
+                )
+                continue
             _capture(page, output / f"modeling-{stage}-{width}x{height}.png", width, height)
             measurements.append(
                 {
@@ -8104,13 +8144,15 @@ def _capture_modeling_data_exceptions(browser: Browser, base_url: str, output: P
             raise RuntimeError("Inspect source is disabled after selecting a Test Run and CSV")
         inspect.click()
         page.locator(".data-raw-table").wait_for(state="visible", timeout=30_000)
-        independent = page.get_by_role("combobox", name="Independent source column", exact=True)
-        dependent = page.get_by_role("combobox", name="Dependent source column", exact=True)
+        independent = page.get_by_role("combobox", name="Engineering strain source column", exact=True)
+        dependent = page.get_by_role("combobox", name="Engineering stress source column", exact=True)
         independent.wait_for(state="visible", timeout=30_000)
         dependent.wait_for(state="visible", timeout=30_000)
         independent.select_option(label=long_strain)
         dependent.select_option(label=long_strain)
-        dependent_unit = page.get_by_role("combobox", name="Dependent original unit", exact=True)
+        dependent_unit = page.get_by_role(
+            "combobox", name="Engineering stress original unit", exact=True
+        )
         dependent_unit.select_option(label="%")
         reason = page.get_by_role("textbox", name="Mapping change reason", exact=True)
         reason.fill("Review the measured source columns before saving this Test Data mapping.")
@@ -8119,7 +8161,7 @@ def _capture_modeling_data_exceptions(browser: Browser, base_url: str, output: P
         if not blockers.get_by_text("Fix the test data mapping.", exact=True).count():
             raise RuntimeError("invalid mapping capture did not expose the exact blocker heading")
         if not blockers.get_by_text(
-            "Use different source columns for Independent and Dependent.", exact=True
+            "Use a different source column for each required channel.", exact=True
         ).count():
             raise RuntimeError("invalid mapping capture did not expose duplicate-source blocker")
         if not blockers.get_by_text(
