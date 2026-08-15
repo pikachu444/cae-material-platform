@@ -446,7 +446,7 @@ def test_incomplete_capture_cannot_reuse_files_from_previous_output(
 
 
 def test_current_capture_contract_contains_product_routes_only() -> None:
-    assert len(CURRENT_CAPTURE_OUTPUTS) == 118
+    assert len(CURRENT_CAPTURE_OUTPUTS) == 119
     assert "administration-schema-bundle-1440x900.png" in CURRENT_CAPTURE_OUTPUTS
     assert "material-database-categories-1440x900.png" in CURRENT_CAPTURE_OUTPUTS
     assert "material-database-linked-test-1440x900.png" in CURRENT_CAPTURE_OUTPUTS
@@ -1217,9 +1217,21 @@ def test_fit_save_stays_on_fit_and_explicitly_navigates_export_only_at_callers()
     consistency = _CAPTURE_SOURCE.split(
         "def _capture_modeling_consistency", 1
     )[1].split("def _capture_modeling_data_viewports", 1)[0]
-    assert consistency.index("_save_exact_fit_selection(page)") < consistency.index(
-        '_open_modeling_stage(page, "export")'
-    ) < consistency.index("_prepare_exact_target_preview(page)")
+    process_source = consistency.index("_save_process_output_for_fit(")
+    fit_preview = consistency.index("_click_modeling_fit_preview_and_wait(page)")
+    fit_save = consistency.index("_save_exact_fit_selection(page)")
+    assert process_source < fit_preview < fit_save
+    open_export = consistency.index('_open_modeling_stage(page, "export")')
+    recover_source = consistency.index("_prepare_exact_metal_source_if_needed(page)")
+    prepare_target = consistency.index("_prepare_exact_target_preview(page)")
+    assert fit_save < open_export < recover_source < prepare_target
+    export_assertion = consistency.index("_assert_export_exact_source_surface(page)")
+    export_capture = consistency.index('"surface": "exact-target-preview"')
+    export_continue = consistency.index("                continue", export_capture)
+    plot_geometry = consistency.index("_measure_process_fit(page, stage, width, height)")
+    assert prepare_target < export_assertion < export_capture < export_continue < plot_geometry
+    assert '_assert_export_action_visible(\n                        page, "Create solver card"' in consistency
+    assert "after_animation=lambda page=page: _assert_export_capture_shell(page)" in consistency
 
 
 def test_fit_save_allows_only_the_expected_exact_restore_error_after_commit_proof() -> None:
@@ -1445,6 +1457,11 @@ def test_process_geometry_contract_rejects_identity_clipping_chart_collisions_an
         "def _wait_modeling_process_panel", 1
     )[0]
 
+    assert "full-plot geometry received a blocked plot" in geometry
+    assert "use the dedicated blocked-state assertion instead" in geometry
+    assert geometry.index("blocked_plot.count()") < geometry.index("measurement = cast(")
+    assert "page.mouse.move(width // 2, max(1, height - 2))" in geometry
+    assert geometry.index("page.mouse.move(") < geometry.index("measurement = cast(")
     assert 're.fullmatch(r"Specimen \\d{2} · r[1-9]\\d*"' in geometry
     assert 'if measurement.get("processRowClipped"):' in geometry
     assert "processRowClipped" in geometry
@@ -1501,6 +1518,21 @@ def test_process_geometry_contract_rejects_identity_clipping_chart_collisions_an
     assert "if not _aligned(top_actions):" in geometry
     assert "Process top action baselines drifted" in geometry
     assert 'float(box.get("width", 0)) <= 0' in geometry
+
+
+def test_modeling_data_exception_uses_current_quantity_specific_mapping_names() -> None:
+    exception_flow = _CAPTURE_SOURCE.split(
+        "def _capture_modeling_data_exceptions", 1
+    )[1].split("def _capture_modeling_session_shell", 1)[0]
+
+    assert 'name="Engineering strain source column"' in exception_flow
+    assert 'name="Engineering stress source column"' in exception_flow
+    assert 'name="Engineering stress original unit"' in exception_flow
+    assert "Use a different source column for each required channel." in exception_flow
+    assert 'name="Independent source column"' not in exception_flow
+    assert 'name="Dependent source column"' not in exception_flow
+    assert 'name="Dependent original unit"' not in exception_flow
+    assert "Use different source columns for Independent and Dependent." not in exception_flow
 
 
 def test_process_capture_runs_manual_surface_after_initial_preview_before_1366_capture() -> None:

@@ -8,6 +8,7 @@ import {
 import type { CommonProcessingOutputResponse } from "./types";
 
 type FitFixtureOptions = {
+  documentVersion?: "1.3.0" | "1.4.0" | "1.5.0";
   families?: string[];
   responseLength?: number;
   tangentLength?: number;
@@ -105,16 +106,45 @@ function fitFixture(options: FitFixtureOptions = {}) {
       })),
       { quantity: "stress.hardening.selected", unit: "Pa", values: selectedStress },
     ] },
-  ].map((stage, ordinal) => ({
-    ordinal,
-    method_id: stage.method_id,
-    method_version: "1.0.0",
-    point_count: stage.point_count,
-    series: stage.series,
-    diagnostics: [],
-    scalar_results: [],
-    fit_candidates: ordinal === 6 ? candidates : [],
-  }));
+  ].map((stage, ordinal) => {
+    const stored = {
+      ordinal,
+      method_id: stage.method_id,
+      method_version: "1.0.0",
+      point_count: stage.point_count,
+      series: stage.series,
+      diagnostics: [],
+      scalar_results: [],
+      fit_candidates: ordinal === 6 ? candidates : [],
+    };
+    if (options.documentVersion !== "1.5.0") return stored;
+    return {
+      ...stored,
+      curve_definition_sha256: "",
+      curve_definition: {
+        definition_version: "1.0.0",
+        channels: stage.series.map((series, index) => ({
+          key: series.quantity,
+          label: series.quantity,
+          quantity_semantics: series.quantity,
+          axis_role: index === 0 ? "independent" : "dependent",
+          unit_contract: "common",
+          dimension: series.unit === "Pa" ? "force_per_area" : "strain",
+          original_units: [{
+            unit: series.unit,
+            scale_to_normalized: "1",
+            offset_to_normalized: "0",
+          }],
+          normalized_unit: series.unit,
+          display_unit: series.unit,
+          display_scale: "1",
+          display_offset: "0",
+          value_basis: "derived",
+        })),
+        deviations: [],
+      },
+    };
+  });
   const processSource = {
     processing_output_id: "process-output",
     current_revision: { id: "process-revision" },
@@ -178,7 +208,7 @@ function fitFixture(options: FitFixtureOptions = {}) {
   };
   const document = {
     document_type: "cmp.processing-output",
-    document_version: "1.3.0",
+    document_version: options.documentVersion ?? "1.3.0",
     output_id: output.processing_output_id,
     source_processing_output: output.source_processing_output,
     source_processing_output_sha256: output.source_processing_output_sha256,
@@ -199,6 +229,30 @@ function fitFixture(options: FitFixtureOptions = {}) {
     output: output as unknown as CommonProcessingOutputResponse,
     processSource: processSource as unknown as CommonProcessingOutputResponse,
   };
+}
+
+function canonicalJson(value: unknown): string {
+  return JSON.stringify(value, (_key, nested) => {
+    if (!nested || typeof nested !== "object" || Array.isArray(nested)) return nested;
+    return Object.fromEntries(Object.entries(nested as Record<string, unknown>).sort());
+  });
+}
+
+async function sha256Text(value: string): Promise<string> {
+  const digest = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+async function currentFitFixture(options: Omit<FitFixtureOptions, "documentVersion"> = {}) {
+  const fixture = fitFixture({ ...options, documentVersion: "1.5.0" });
+  const stages = fixture.document.result.stages as Array<{
+    curve_definition_sha256: string;
+    curve_definition: unknown;
+  }>;
+  for (const stage of stages) {
+    stage.curve_definition_sha256 = await sha256Text(canonicalJson(stage.curve_definition));
+  }
+  return fixture;
 }
 
 describe("exact saved Fit output verification", () => {
@@ -347,6 +401,71 @@ describe("exact saved Fit output verification", () => {
       activeBound.output,
       activeBound.processSource,
     )).toThrow("Saved Fit decision warning must be acknowledged");
+  });
+
+  it("restores exact historical and cryptographically verified current Fit versions", async () => {
+    for (const documentVersion of ["1.3.0", "1.4.0"] as const) {
+      const fixture = fitFixture({ documentVersion });
+      expect(() => parseExactSavedFitOutput(
+        JSON.stringify(fixture.document),
+        fixture.output,
+        fixture.processSource,
+      )).not.toThrow();
+    }
+
+    const current = await currentFitFixture();
+    const text = JSON.stringify(current.document);
+    const verified = await readVerifiedExactOutput(
+      { data: { blob: new Blob([text], { type: "application/json" }) } },
+      await sha256Text(text),
+    );
+    expect(() => parseExactSavedFitOutput(
+      verified,
+      current.output,
+      current.processSource,
+    )).not.toThrow();
+  });
+
+  it("rejects unknown versions and incomplete v1.5 curve metadata", async () => {
+    const unknown = fitFixture();
+    (unknown.document as { document_version: string }).document_version = "1.6.0";
+    expect(() => parseExactSavedFitOutput(
+      JSON.stringify(unknown.document),
+      unknown.output,
+      unknown.processSource,
+    )).toThrow("Saved Fit result failed exact source or step validation");
+
+    const incomplete = await currentFitFixture();
+    delete (incomplete.document.result.stages[0] as unknown as Record<string, unknown>)
+      .curve_definition_sha256;
+    expect(() => parseExactSavedFitOutput(
+      JSON.stringify(incomplete.document),
+      incomplete.output,
+      incomplete.processSource,
+    )).toThrow("Saved Fit result has invalid current curve metadata");
+
+    const mismatched = await currentFitFixture();
+    const channel = (mismatched.document.result.stages[0] as unknown as {
+      curve_definition: { channels: Array<{ normalized_unit: string }> };
+    }).curve_definition.channels[0];
+    channel.normalized_unit = "Pa";
+    expect(() => parseExactSavedFitOutput(
+      JSON.stringify(mismatched.document),
+      mismatched.output,
+      mismatched.processSource,
+    )).toThrow("Saved Fit result has invalid current curve metadata");
+  });
+
+  it("rejects v1.5 curve metadata whose declared digest does not match the definition", async () => {
+    const fixture = await currentFitFixture();
+    (fixture.document.result.stages[0] as unknown as { curve_definition_sha256: string })
+      .curve_definition_sha256 = "a".repeat(64);
+    const text = JSON.stringify(fixture.document);
+
+    await expect(readVerifiedExactOutput(
+      { data: { blob: new Blob([text], { type: "application/json" }) } },
+      await sha256Text(text),
+    )).rejects.toThrow("Saved Fit result curve definition digest does not match its metadata");
   });
 
   it("rejects a Fit without persisted true stress/strain and selected hardening series", () => {

@@ -3,8 +3,12 @@
 This record characterizes the current Modeling workflow for FE-03 under parent issue #249. The
 issue body and the owner-approved frontend refactoring roadmap remain authoritative. Work started
 from fetched `origin/main` `8fad879dfc183237815d76f3837feb813bc0aaeb`. This unit adds regression
-contracts and a responsibility map; it does not change production React, CSS, API calls, DTOs,
-routes, or persisted session shapes.
+contracts and a responsibility map. Clean-browser validation also exposed that the server now saves
+Fit documents as `1.5.0` while the exact-read parser accepted only `1.3.0`; the owner approved a
+bounded compatibility correction that accepts explicit versions through `1.5.0` and validates the
+current curve metadata against the persisted series, including the declared canonical definition
+SHA-256. It does not change production React, CSS, API calls, DTOs, routes, or persisted session
+shapes.
 
 ## Starting-state classification
 
@@ -17,7 +21,7 @@ The labels below describe production behavior on the starting SHA. Characterizat
 | Exact URL context | Complete for supplied current refs | When Material and State IDs plus revisions are present, they win over the first list entries and are persisted. A mismatched Material or State revision is blocked and is not replaced by that aggregate's current head. |
 | Context-free entry | Partial | Without a matching query or restorable session, Modeling selects the first Material and first State returned by the current-head endpoints. That behavior is recorded as risk, not as an accepted exact-context contract. |
 | Modeling session | Partial | The browser-local v4 aggregate preserves exact refs, active stage, graph selection, reload state, invalidation evidence, and recovery. v1–v3 records migrate to v4. There is no durable server session identity or cross-browser read-back. |
-| Data → Process → Fit → Export continuity | Complete for the characterized local journey | Existing integration coverage exercises exact Test Data selection, previews, immutable Process/Fit output saves, explicit fit choice and reason, stage navigation, retry, repin protection, and Export gating. |
+| Data → Process → Fit → Export continuity | Partial on the starting SHA; complete for the characterized journey after the bounded correction | Existing integration coverage exercises exact Test Data selection, previews, immutable Process/Fit output saves, explicit fit choice and reason, stage navigation, retry, repin protection, and Export gating. The clean seed produced exact saved Fit documents at `1.5.0`, which the starting parser rejected. The correction supports only the known `1.3.0`–`1.5.0` versions and retains whole-document SHA, source identity/revision/SHA, stage, method, candidate, and current curve-metadata validation. Each declared `curve_definition_sha256` must also equal the SHA-256 of its canonical definition. |
 | Candidate, selection, and saved-result distinctions | Partial | The reducer distinguishes `fitCandidate`, `selection`, and `processingOutput`, and invalidates downstream pointers in order. Production Fit does not currently set `fitCandidate`, and the selected and saved fit may use the same Processing Output identity. |
 | Export delivery pin | Complete | Successful delivery validates the exact source/target response and writes the returned Solver Card ID and exact revision to the session `exportArtifact` pointer. |
 | Materials read-back | Partial | The delivery receipt and session pointer retain the exact Solver Card revision, but the visible `Open solver card` route contains the card ID without a revision query. |
@@ -34,9 +38,9 @@ The labels below describe production behavior on the starting SHA. Characterizat
 | Persistence/read-back | Browser session v4 retains exact record refs, stage and graph selection across reload. Process/Fit outputs and delivery receipts are server resources. A successful delivery pins the exact Solver Card revision in `exportArtifact`; the subsequent Materials URL itself remains unpinned and is therefore partial. |
 | Preserved contract/state | IDs and revision IDs travel together. Preview is not saved output; candidate choice, saved Fit output, Export preview, delivery receipt, and Solver Card remain distinct concepts. Upstream changes clear, stale, or mark downstream pointers for regeneration without rewriting immutable outputs. |
 | Recovery | A stale query revision fails closed. Preview and delivery failures keep the last valid exact inputs and expose retry. A changed source, candidate, target, or Material context invalidates the relevant downstream current pointers. Reload restores exact refs only when the current response still contains the same ID and revision. |
-| Owned scope | Four characterization test files, this evidence record, the v4 user-flow correction, the FE-03 roadmap link, and the guard baseline provenance SHA. |
-| Forbidden shortcuts | No `latest`, first-item, current-head, global-output, or another-session fallback is asserted as the normal exact journey. No runtime refactor, layout normalization, new API/DTO, durable-session design, Activity feature, or FE-04 extraction is included. |
-| Exact acceptance | Focused and full frontend regression, guard, build, canonical Compose preflight/recreate/health, existing Modeling browser consistency flow, documentation gates, clean diff, and one Balanced independent audit. |
+| Owned scope | Four characterization test files, capture-script contracts and corrections, this evidence record, the v4 user-flow correction, the FE-03 roadmap link, the guard baseline provenance SHA, and the owner-approved exact saved-Fit `1.5.0` compatibility boundary. |
+| Forbidden shortcuts | No `latest`, first-item, current-head, global-output, or another-session fallback is asserted as the normal exact journey. No broad runtime refactor, layout normalization, new API/DTO, durable-session design, Activity feature, or FE-04 extraction is included. Unknown saved-Fit versions and malformed `1.5.0` curve metadata remain blocked. |
+| Exact acceptance | Focused and full frontend regression, guard, build, clean isolated Compose seed/health, both Modeling browser flows, documentation gates, clean diff, and one Balanced independent audit. |
 
 ## Characterization anchors
 
@@ -76,7 +80,7 @@ normal exact-context behavior by #258.
 | `common-processing-workbench.tsx` | Owns method registries/defaults, source resolution, Data/Process/Fit orchestration, async previews/saves, workspace persistence, graph/rail composition, and Export stage composition. | API/types, session callbacks, stage components, family workbenches, plot, and Export boundary. | This is the registered hotspot for #259. Extract one responsibility at a time under characterization tests. |
 | `modeling-stage-shell.tsx` and `design/modeling-workspace-layout.tsx` | Present stage navigation and shared workspace regions. | Workflow task + session state → user commands/layout. | Preserve DOM/interaction contracts during structural movement; visual normalization belongs to FE-05/#260. |
 | `modeling-data-intake.tsx` and `modeling-process-panel.tsx` | Present Data intake and Process controls while Common Workbench owns most orchestration state. | Exact sources/methods/preview callbacks from Common Workbench. | Move orchestration only after pure registry and controller boundaries are established. |
-| `modeling-fit-decision*.ts(x)` and `modeling-fit-output.ts` | Validate candidate decision input and construct/validate saved Fit output contracts. | Fit preview/candidate + user reason → immutable output/selection refs. | Preserve the currently observed candidate/selection coupling until a separately authorized semantic change. |
+| `modeling-fit-decision*.ts(x)` and `modeling-fit-output.ts` | Validate candidate decision input and construct/validate saved Fit output contracts, including explicit known document-version compatibility and exact current curve metadata. | Fit preview/candidate + user reason → immutable output/selection refs. | Preserve the currently observed candidate/selection coupling until a separately authorized semantic change; do not weaken source, SHA, stage, method, candidate, or curve-metadata checks. |
 | `modeling-target-preview.tsx`, `modeling-target-delivery.tsx`, `modeling-target-preview-result.tsx` | Validate exact Export prerequisites, create preview/delivery, present results, and pin `exportArtifact`. | Exact selected output/IR/Neutral refs + target → delivery receipt/card revision. | Candidate Export boundary; preserve request/response identity checks and retry behavior. |
 | `api.ts` and `types.ts` | Shared HTTP compatibility surface and cross-feature DTO definitions. | Every stage and feature boundary. | FE-03 makes no API/type changes; feature ownership migration is FE-08/#263. |
 | `styles.css` and `design/layout.css` | Legacy global feature selectors and shared/route layout policy. | All visible Modeling regions. | No #258 edits. CSS ownership is FE-06/#261 and Modeling visual normalization is FE-05/#260. |
@@ -107,7 +111,8 @@ inputs for #259, not work authorized by #258.
   screenshot manifests, new five-viewport before/after images, and visual owner approval are not #258
   acceptance artifacts.
 - Public API, DTO, route, persisted session shape, backend, database, schema, and migration changed:
-  **N/A**. Their implementation and integration suites are outside this characterization-only delta.
+  **N/A**. The only production behavior correction is the internal exact saved-Fit parser's explicit
+  `1.5.0` compatibility and validation; no public contract shape changes.
 - Live browser consistency: **applicable** through the repository's existing canonical Modeling
   consistency capture, used to check stage/reload/recovery, console errors, and overflow without
   treating unchanged pixels as a visual redesign.
@@ -119,14 +124,15 @@ inputs for #259, not work authorized by #258.
 | Gate | Result |
 | --- | --- |
 | Focused characterization regression | PASS — 4 files, 56 tests (`material-library-pinned`, `material-modeling-workspace`, `common-processing-workbench`, and `modeling-target-preview`). |
-| Full web regression | PASS — 64 files, 376 tests. The frontend guard's own 17 tests also pass. |
+| Capture-script contract regression | PASS — 68 tests, including Process-save ordering, blocked-surface routing, current mapping selectors, neutral hover state, and the exact Export capture boundary. |
+| Full web regression | PASS — 64 files, 379 tests. The frontend guard's own 17 tests also pass. |
 | Frontend guard | PASS — 0 violations and the same 15 registered baseline warnings. The only baseline edit is `sourceSha` set to the branch merge-base `8fad879dfc183237815d76f3837feb813bc0aaeb`; counts, exceptions, owners, and follow-ups are unchanged. |
-| Production web build | PASS — TypeScript and Vite build pass. The existing `common-processing-workbench` lazy chunk is 128,270 raw bytes, a warning with 2,730 bytes of hard-limit headroom. No production source changed. |
-| Canonical Compose preflight and health | PASS/PARTIAL — read-only preflight passed before and after recreate; canonical postgres and API are healthy and web is running. Recreate preserved volumes as required. The canonical seed exited 1 because the preserved #246 Catalog record already had an exact binding and the idempotent seed POST returned `CMP-CATALOG-0018`; no data was deleted and the unchanged seed was not replayed. |
+| Production web build | PASS — TypeScript and Vite build pass. The existing `common-processing-workbench` lazy chunk is 128,270 raw bytes, a warning with 2,730 bytes of hard-limit headroom. No React/CSS or visible production surface changed. |
+| Canonical Compose preflight | N/A for the correction replay — the Windows fallback preflight rejected the intentionally stopped canonical composition because it published no ports. The canonical project and its preserved data were not started, recreated, or modified; the required clean evidence came from the isolated project below. |
 | Isolated clean Compose seed | PASS — the same base composition with only an isolated project/volumes and non-conflicting host ports completed migrate, full demo seed, API health, and web health. The temporary project and its two temporary volumes were removed after the browser checks; canonical data was untouched. |
-| Modeling browser consistency | PARTIAL — on the clean isolated seed, `--only-modeling-consistency` reached 1366×768 Fit, then the existing geometry assertion failed: expected drawable width 728, observed 1,038. A narrower `--only-modeling-data-session` run completed the pin-free session shell plus Data/reload checks at all five required and two wide viewports, then failed in the final invalid-mapping fixture because `Independent source column` was absent. Both failures occur on unchanged production DOM/CSS; no failed staged screenshots were published or registered, and #258 did not expand into FE-05 visual work. |
-| User guide and documentation impact | PASS — 20 guide documents, 119 current captures, 161 classified Markdown files, 665 local links, and 2,046 images; documentation impact reports 8 changed files and 0 visual sources. |
+| Modeling browser consistency | PASS — on a clean isolated full seed, `--only-modeling-consistency` completed 15 Data/Process/Fit/Export captures at 1366×768, 1440×900, and 1920×1080. Process was saved before Fit; the exact `1.5.0` Fit result was restored with whole-document, source, canonical curve-definition digest, and series-metadata validation; Export used its dedicated exact-source/target-preview assertion instead of plot geometry. `--only-modeling-data-session` completed 11 captures at all five required viewports, including reload/recovery and the quantity-specific invalid-mapping blocker. Both commands passed console and overflow gates. |
+| User guide and documentation impact | PASS — 20 guide documents, 119 current captures, 161 classified Markdown files, 665 local links, and 2,046 images; documentation impact reports 12 changed files and 0 visual sources. |
 | Diff hygiene | PASS — `git diff --check`. |
 | Backend/DB/schema/migration regression | N/A — no backend, schema, migration, contract, API, or DTO implementation changed. Compose was used only for the applicable live frontend characterization. |
 | Tracked screenshots/manifest and five-viewport before/after | N/A — no production React/CSS/DOM/layout change. The browser runs above are runtime consistency checks, not new visual approval evidence. |
-| Balanced independent audit | PASS — `independent_auditor_terra_high` returned `approve` after checking scope, exact-context tests, fallback classifications, v4 migration wording, guard provenance, validation evidence, and the explicitly partial browser result. |
+| Balanced independent audit | PASS — after one requested correction, `independent_auditor_terra_high` returned `approve`. The re-audit confirmed outer document SHA verification, canonical v1.5 curve-definition digest binding, parser-level structural/series checks, explicit version allowlisting, fail-closed malformed handling, corrected browser evidence, and the bounded non-visual scope. |
