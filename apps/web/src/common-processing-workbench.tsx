@@ -103,12 +103,12 @@ const ModelingDataIntake = lazy(() =>
   import("./features/modeling/ui/stages/data/modeling-data-intake").then((module) => ({ default: module.ModelingDataIntake })),
 );
 const HardeningCandidateEvidence = lazy(() =>
-  import("./modeling-fit-decision").then((module) => ({
+  import("./features/modeling/ui/stages/fit/modeling-fit-decision").then((module) => ({
     default: module.HardeningCandidateEvidence,
   })),
 );
 const PronyCandidateEvidence = lazy(() =>
-  import("./modeling-fit-decision").then((module) => ({
+  import("./features/modeling/ui/stages/fit/modeling-fit-decision").then((module) => ({
     default: module.PronyCandidateEvidence,
   })),
 );

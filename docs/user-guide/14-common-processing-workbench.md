@@ -241,9 +241,11 @@ Output을 fallback으로 사용하지 않습니다. 저장 후에도 현재 task
 recovery/state입니다. `parameters-long`은 Candidate
 parameters disclosure를, `evidence-scrolled`는 keyboard/PageDown·wheel·native scrollbar와
 collapsed text selection을, `calculation-failed`/`save-failed`/`exact-source-blocked`/
-`exact-read-failed`/`restored`는 각각 실패·차단·정확한 복구를 기록합니다. 2026-08-06 root
-live capture와 qualitative visual acceptance가 완료되었고, 17개 Process/Fit 캡처를 모두
-필수 viewport 원본 해상도로 열어 확인했습니다.
+`exact-read-failed`/`restored`는 각각 실패·차단·정확한 복구를 기록합니다. 2026-08-16
+FE-04E current-source capture는 임시 디렉터리에서 17개 Process/Fit 상태를 검증한 뒤 Fit
+12개만 현재 가이드에 반영했습니다. 다섯 viewport와 상태 원본을 모두 원본 해상도로 열고,
+1920/2560/3840의 header·navigator·controls·graph 1:1 crop을 전후 비교해 UI가 그대로임을
+확인했습니다.
 
 | Fit evidence | 화면 |
 | --- | --- |
