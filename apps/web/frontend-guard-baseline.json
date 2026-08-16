@@ -1,6 +1,6 @@
 {
   "schemaVersion": "cmp.frontend-guard-baseline.v1",
-  "sourceSha": "c1e64be9c05c5a2039ae99aa5867a5f8b11f6621",
+  "sourceSha": "9c5cbfdc50222197c60b1812027fd28b426457f2",
   "ownerIssue": "#256",
   "hotspots": [
     {
@@ -121,13 +121,31 @@
   ],
   "exceptions": [
     {
-      "ruleId": "CMP-FE-HOTSPOT-RESPONSIBILITY",
-      "path": "apps/web/src/common-processing-workbench.tsx",
-      "fingerprint": "c7de22b17874b890075337cc8fb64b782167e3d70af46ed830a04de2190fc6a7",
+      "ruleId": "CMP-FE-EYEBROW",
+      "path": "apps/web/src/features/modeling/ui/stages/fit/modeling-fit-decision.tsx",
+      "fingerprint": "ba3a40349947a6150ce44ad2ed093caed6a2994eb7d40577a6d70aa3b8fd044f",
       "maxOccurrences": 1,
-      "reason": "FE-04D changes only the existing Process panel lazy import to its owned feature path; it adds no Workbench responsibility.",
+      "reason": "FE-04E moves the unchanged Engineer decision eyebrow into the owned Fit UI path; semantic normalization remains in FE-05.",
       "ownerIssue": "#259",
-      "removalCondition": "Remove when Process stage composition leaves common-processing-workbench.tsx and this lazy declaration disappears."
+      "removalCondition": "Remove when #260 replaces the legacy Engineer decision eyebrow with the approved semantic role."
+    },
+    {
+      "ruleId": "CMP-FE-EYEBROW",
+      "path": "apps/web/src/features/modeling/ui/stages/fit/modeling-fit-decision.tsx",
+      "fingerprint": "63969e6ad9fa8daefe6526cf3147c71b0dd3bfd26902f6cdc9a0ace6b0b15bf7",
+      "maxOccurrences": 1,
+      "reason": "FE-04E moves the unchanged Metal calculated-candidates eyebrow into the owned Fit UI path; semantic normalization remains in FE-05.",
+      "ownerIssue": "#259",
+      "removalCondition": "Remove when #260 replaces the legacy Metal candidate eyebrow with the approved semantic role."
+    },
+    {
+      "ruleId": "CMP-FE-EYEBROW",
+      "path": "apps/web/src/features/modeling/ui/stages/fit/modeling-fit-decision.tsx",
+      "fingerprint": "a86aab0696ef30bac141b6feda38af23ef8f4a5c47abe0ede419154494e438a6",
+      "maxOccurrences": 1,
+      "reason": "FE-04E moves the unchanged Polymer calculated-candidates eyebrow into the owned Fit UI path; semantic normalization remains in FE-05.",
+      "ownerIssue": "#259",
+      "removalCondition": "Remove when #260 replaces the legacy Polymer candidate eyebrow with the approved semantic role."
     }
   ]
 }

@@ -1,9 +1,9 @@
-import type { CommonCurveStage, CommonProcessingStep } from "./types";
+import type { CommonCurveStage, CommonProcessingStep } from "../../../../../types";
 import {
   fitDecisionIdentityLabel,
   hardeningCandidateWarning,
   type FitDecisionSelection,
-} from "./modeling-fit-decision-contract";
+} from "../../../../../modeling-fit-decision-contract";
 
 function displayEngineeringValue(value: number, unit: string): string {
   if (unit === "Pa") return `${(value / 1e6).toPrecision(5)} MPa`;
