@@ -285,6 +285,11 @@ STAGE_HEADINGS = {
 EXPECTED_EXACT_FIT_RESTORE_ERROR = "Saved Fit result unavailable · Retry exact saved result."
 EXPORT_RECOVERY_REASON = "Prepare the exact selected output for synthetic non-production target preview."
 PROCESS_SOURCE_DOCUMENT_KEY = "CMP-DEMO-DP780-TEST-JSON"
+MODELING_DATA_DOCUMENT_KEYS = (
+    PROCESS_SOURCE_DOCUMENT_KEY,
+    "CMP-DEMO-DP780-TEST-JSON-02",
+    "CMP-DEMO-DP780-TEST-JSON-03",
+)
 PROCESS_SOURCE_TITLE = f"{PROCESS_SOURCE_DOCUMENT_KEY} · Specimen 01 · revision r1"
 PROCESS_SOURCE_VISIBLE_IDENTITY = "Specimen 01 · r1"
 PROCESS_NO_PREVIEW_SAVED_INSTRUCTION = (
@@ -2152,11 +2157,19 @@ def _assert_modeling_data_surface(page: Page, width: int, height: int) -> None:
     ):
         raise RuntimeError(f"Modeling Data has page horizontal overflow at {width}x{height}")
     rail = page.locator(".modeling-workspace-rail")
-    curve_rows = rail.locator(".curve-row-label")
-    if curve_rows.count() != 3:
-        raise RuntimeError(f"expected three visible curve rows at {width}x{height}")
-    identity_metrics = curve_rows.evaluate_all(
-        """elements => elements.map(element => {
+    identity_metrics = []
+    for document_key in MODELING_DATA_DOCUMENT_KEYS:
+        curve_row = rail.locator(
+            f'.curve-row-label[title^="{document_key} ·"]'
+        )
+        if curve_row.count() != 1:
+            raise RuntimeError(
+                f"expected one visible curve row for {document_key!r} at "
+                f"{width}x{height}, got {curve_row.count()}"
+            )
+        curve_row.wait_for(state="visible", timeout=30_000)
+        metrics = curve_row.evaluate(
+            """element => {
           const lineMetrics = node => {
             if (!node) return null;
             const box = node.getBoundingClientRect();
@@ -2177,10 +2190,10 @@ def _assert_modeling_data_surface(page: Page, width: int, height: int) -> None:
             secondary: secondaryLines.map(lineMetrics),
             row: { top: rowBox.top, bottom: rowBox.bottom },
           };
-        })"""
-    )
-    if len(identity_metrics) != 3:
-        raise RuntimeError(f"curve rail identity lines are missing at {width}x{height}: {identity_metrics}")
+        }"""
+        )
+        metrics["documentKey"] = document_key
+        identity_metrics.append(metrics)
     for identity in identity_metrics:
         primary = identity["primary"]
         secondary = identity["secondary"]
@@ -2202,18 +2215,22 @@ def _assert_modeling_data_surface(page: Page, width: int, height: int) -> None:
     library_header = page.locator(".data-library-heading")
     if library_header.count() != 1 or "Saved Test Data" not in library_header.inner_text():
         raise RuntimeError("Modeling Data Library is missing its Saved Test Data header")
-    if not re.fullmatch(r"3 exact revisions?", library_header.locator("span").inner_text().strip()):
-        raise RuntimeError("Modeling Data Library count is not an exact-revision count")
+    library_rows = library.locator(".data-library-row")
+    library_count_text = library_header.locator("span").inner_text().strip()
+    library_count_match = re.fullmatch(r"([1-9]\d*) exact revisions?", library_count_text)
+    if (
+        library_count_match is None
+        or int(library_count_match.group(1)) != library_rows.count()
+    ):
+        raise RuntimeError(
+            "Modeling Data Library header does not match its server-scoped exact revisions: "
+            f"header={library_count_text!r}, rows={library_rows.count()}"
+        )
     if page.get_by_text(re.compile(r"Test Data records available", re.IGNORECASE)).count():
         raise RuntimeError("retired Test Data records-available paragraph is still visible")
     library_box = _bounding_box_edges(library.bounding_box())
     if library_box is None or library.get_attribute("tabindex") != "0":
         raise RuntimeError("Modeling Data Library is not a local keyboard-focusable region")
-    library_metrics = library.evaluate(
-        "element => ({clientHeight: element.clientHeight, scrollHeight: element.scrollHeight})"
-    )
-    if library_metrics["scrollHeight"] > library_metrics["clientHeight"] + 1:
-        raise RuntimeError(f"three-row Modeling Data Library must fit its local list: {library_metrics}")
     ribbon_box = _bounding_box_edges(page.locator(".modeling-data-ribbon-panel").bounding_box())
     divider_box = _bounding_box_edges(page.locator("#modeling-data-ribbon-plot-divider").bounding_box())
     if ribbon_box is None or divider_box is None:
@@ -2225,11 +2242,12 @@ def _assert_modeling_data_surface(page: Page, width: int, height: int) -> None:
             f"contract ({expected_ribbon_height}px) at {width}x{height}: "
             f"{ribbon_box['height']}px"
         )
-    for index in range(library.locator(".data-library-row").count()):
-        row = library.locator(".data-library-row").nth(index)
+    for document_key in MODELING_DATA_DOCUMENT_KEYS:
+        row = _modeling_data_library_row(page, document_key)
+        row.scroll_into_view_if_needed()
         row_box = _bounding_box_edges(row.bounding_box())
         if row_box is None or row_box["top"] < library_box["top"] - 1 or row_box["bottom"] > library_box["bottom"] + 1 or row_box["top"] < ribbon_box["top"] - 1 or row_box["bottom"] > divider_box["top"] + 1:
-            raise RuntimeError(f"Modeling Data Library row crosses its pane/divider at {width}x{height}: row={row_box}, list={library_box}, ribbon={ribbon_box}, divider={divider_box}")
+            raise RuntimeError(f"Modeling Data Library row {document_key!r} crosses its pane/divider at {width}x{height}: row={row_box}, list={library_box}, ribbon={ribbon_box}, divider={divider_box}")
     if library.evaluate("element => element.scrollWidth > element.clientWidth + 1"):
         raise RuntimeError("Modeling Data Library exposes page-horizontal overflow")
 
@@ -2288,6 +2306,30 @@ def _assert_local_initial_controls(page: Page) -> None:
         )
 
 
+def _modeling_data_library_row(page: Page, document_key: str) -> Locator:
+    row = page.locator(".data-library-list .data-library-row").filter(
+        has=page.get_by_text(document_key, exact=True)
+    )
+    row.wait_for(state="visible", timeout=30_000)
+    if row.count() != 1:
+        raise RuntimeError(
+            f"expected one governed Test Data Library row for {document_key!r}, got {row.count()}"
+        )
+    return row
+
+
+def _modeling_data_rail_entry(page: Page, document_key: str) -> Locator:
+    label = page.locator(
+        f'.modeling-workspace-rail .curve-row-label[title^="{document_key} ·"]'
+    )
+    label.wait_for(state="visible", timeout=30_000)
+    if label.count() != 1:
+        raise RuntimeError(
+            f"expected one Modeling Data rail entry for {document_key!r}, got {label.count()}"
+        )
+    return label.locator("..")
+
+
 def _prepare_modeling(
     page: Page,
     base_url: str,
@@ -2340,25 +2382,26 @@ def _prepare_modeling(
     _wait_for_modeling_data_surface(page)
     library_rows = page.locator(".data-library-list .data-library-row")
     library_rows.first.wait_for(timeout=30_000)
-    if library_rows.count() != 3:
-        raise RuntimeError(f"expected exactly 3 governed Test Data Library rows, got {library_rows.count()}")
     library_box = _bounding_box_edges(page.locator(".data-library-list").bounding_box())
     if library_box is None or page.locator(".data-library-list").get_attribute("tabindex") != "0":
         raise RuntimeError("Test Data Library must expose a keyboard-focusable local scroll region")
-    for index in range(library_rows.count()):
-        row = library_rows.nth(index)
+    # Resolve the three exact synthetic tensile sources by identity. The demo
+    # Library can contain unrelated rows, and neither their count nor order is
+    # part of this Modeling session contract.
+    for index, document_key in enumerate(MODELING_DATA_DOCUMENT_KEYS, start=1):
+        row = _modeling_data_library_row(page, document_key)
+        row.scroll_into_view_if_needed()
         row_box = _bounding_box_edges(row.bounding_box())
         if row_box is None or row_box["top"] < library_box["top"] - 1 or row_box["bottom"] > library_box["bottom"] + 1:
             raise RuntimeError(
-                f"Test Data Library row {index + 1} is clipped in the normal state: "
+                f"Test Data Library row {document_key!r} is clipped after identity lookup: "
                 f"row={row_box}, list={library_box}"
             )
-    # Use the real Library rows so every selected curve has an exact server
-    # revision, rather than manufacturing a capture-only document identity.
-    for index in range(3):
-        library_rows.nth(index).click()
+        # Use real Library rows so every selected curve has an exact server
+        # revision, rather than manufacturing a capture-only identity.
+        row.click()
         _wait_for_exact_document_load_settled(page)
-        _wait_for_data_session_counts(page, refs=index + 1, included=index + 1, visible=index + 1)
+        _wait_for_data_session_counts(page, refs=index, included=index, visible=index)
     advanced_contract = page.locator("details.modeling-data-advanced")
     if not advanced_contract.get_attribute("open"):
         advanced_contract.locator(":scope > summary").click()
@@ -2376,46 +2419,45 @@ def _prepare_modeling(
         timeout=30_000,
     )
     advanced_contract.locator(":scope > summary").click()
-    rail = page.locator(".modeling-workspace-rail")
-    checkboxes = rail.locator(".curve-include-toggle input")
-    checkboxes.first.wait_for(timeout=30_000)
-    if checkboxes.count() != 3:
-        raise RuntimeError(f"expected exactly 3 Include controls, got {checkboxes.count()}")
-    for index in range(3):
-        checkbox = checkboxes.nth(index)
+    rail_entries = {
+        document_key: _modeling_data_rail_entry(page, document_key)
+        for document_key in MODELING_DATA_DOCUMENT_KEYS
+    }
+    for entry in rail_entries.values():
+        checkbox = entry.locator(".curve-include-toggle input")
         if not checkbox.is_checked():
             checkbox.check()
+        entry.locator(".curve-include-toggle input:checked").wait_for(timeout=30_000)
     page.wait_for_function(
         "() => document.querySelectorAll('.modeling-workspace-rail .curve-include-toggle input:checked').length === 3",
         timeout=30_000,
     )
-    checkboxes.nth(0).uncheck()
+    excluded_entry = rail_entries[MODELING_DATA_DOCUMENT_KEYS[-1]]
+    excluded_entry.locator(".curve-include-toggle input").uncheck()
+    excluded_entry.locator(".curve-include-toggle input:not(:checked)").wait_for(timeout=30_000)
     page.wait_for_function(
         "() => document.querySelectorAll('.modeling-workspace-rail .curve-include-toggle input:checked').length === 2",
         timeout=30_000,
     )
-    visibility = rail.locator(".curve-visibility-toggle")
-    if visibility.count() != 3:
-        raise RuntimeError(f"expected exactly 3 Show controls, got {visibility.count()}")
-    for index in range(3):
-        button = visibility.nth(index)
+    for entry in rail_entries.values():
+        button = entry.locator(".curve-visibility-toggle")
         if button.get_attribute("aria-pressed") != "true":
             button.click()
-    page.wait_for_function(
-        "() => [...document.querySelectorAll('.modeling-workspace-rail .curve-visibility-toggle')].every(button => button.getAttribute('aria-pressed') === 'true')",
-        timeout=60_000,
+        entry.locator('.curve-visibility-toggle[aria-pressed="true"]').wait_for(timeout=60_000)
+    source_visibility = rail_entries[PROCESS_SOURCE_DOCUMENT_KEY].locator(
+        ".curve-visibility-toggle"
     )
     if verify_reload:
         # Exercise the real visibility contract in the reload-owning viewport.
         # This forces one stable 2-series request followed by the required
         # 3-series graph and catches frame/SVG/legend recalculation regressions.
-        visibility.nth(2).click()
+        source_visibility.click()
         page.wait_for_function(
             "() => document.querySelectorAll('.modeling-workspace-rail .curve-visibility-toggle[aria-pressed=\"true\"]').length === 2",
             timeout=30_000,
         )
         _wait_for_data_plot(page, lines=2, legends=2)
-        visibility.nth(2).click()
+        source_visibility.click()
         page.wait_for_function(
             "() => document.querySelectorAll('.modeling-workspace-rail .curve-visibility-toggle[aria-pressed=\"true\"]').length === 3",
             timeout=30_000,
@@ -2455,14 +2497,16 @@ def _prepare_modeling(
         """() => document.querySelectorAll('.modeling-workspace-rail .curve-visibility-toggle[aria-pressed=\"true\"]').length === 3""",
         timeout=60_000,
     )
-    reloaded_visibility = page.locator(".modeling-workspace-rail .curve-visibility-toggle")
-    reloaded_visibility.nth(2).click()
+    reloaded_visibility = _modeling_data_rail_entry(
+        page, PROCESS_SOURCE_DOCUMENT_KEY
+    ).locator(".curve-visibility-toggle")
+    reloaded_visibility.click()
     page.wait_for_function(
         "() => document.querySelectorAll('.modeling-workspace-rail .curve-visibility-toggle[aria-pressed=\"true\"]').length === 2",
         timeout=30_000,
     )
     _wait_for_data_plot(page, lines=2, legends=2)
-    reloaded_visibility.nth(2).click()
+    reloaded_visibility.click()
     page.wait_for_function(
         "() => document.querySelectorAll('.modeling-workspace-rail .curve-visibility-toggle[aria-pressed=\"true\"]').length === 3",
         timeout=30_000,

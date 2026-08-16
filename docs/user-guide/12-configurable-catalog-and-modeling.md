@@ -161,7 +161,8 @@ file/curve 값과 다른 레코드 연결의 상세 식별자는 **Evidence** �
 1. 전역 **Modeling**을 선택한다. 상단의 `Data | Process | Fit | Export`가 일반 작업 경로다.
 2. Data에서 Canonical JSON, CSV 또는 XLSX를 선택하고 **Test Data revision**과 channel/unit
    Mapping Profile을 확인한다. Materials에서 연 exact Test Data도 같은 channel definition SHA와
-   표시 adapter를 사용한다. 원시 JSON은 Advanced mapping definition에서만 연다.
+   표시 adapter를 사용한다. Library에서는 행 위치나 전체 개수 대신 화면에 표시된 정확한 Test Data
+   이름과 revision을 확인해 선택한다. 원시 JSON은 Advanced mapping definition에서만 연다.
 3. Process에서 왼쪽 `Curves`의 실제 test method 그룹과 specimen/revision 행, `Process`의 일반 문자열
    행을 선택한다. 각 curve 행의 원형 색 키는 그래프 선을 구분할 뿐이며, inclusion checkbox와 눈 아이콘은
    각각 계산 포함 여부와 브라우저 로컬 plot visibility를 독립적으로 바꾼다. `Add method`로 ordered
