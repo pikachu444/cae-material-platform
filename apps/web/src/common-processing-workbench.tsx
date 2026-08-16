@@ -117,7 +117,7 @@ const ModelingValidationStage = lazy(() =>
     default: module.ModelingValidationStage,
   })),
 );
-const ModelingProcessPanel = lazy(() => import("./modeling-process-panel"));
+const ModelingProcessPanel = lazy(() => import("./features/modeling/ui/stages/process/modeling-process-panel"));
 const ModelingExportPrerequisites = lazy(() =>
   import("./modeling-export-prerequisites").then((module) => ({
     default: module.ModelingExportPrerequisites,
@@ -1842,7 +1842,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     setSavedResultStates((current) => ({ ...current, [output.processing_output_id]: { status: "loading" } }));
     try {
       const result = await downloadCommonProcessingOutput(config, output.processing_output_id);
-      const { parseSavedProcessingOutput } = await import("./modeling-process-panel");
+      const { parseSavedProcessingOutput } = await import("./features/modeling/ui/stages/process/modeling-process-panel");
       const scalarPa = parseSavedProcessingOutput(await result.data.blob.text(), output, [
         output.source_document.aggregate_id,
         output.source_document.revision_id,

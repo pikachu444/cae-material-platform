@@ -143,7 +143,7 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     assert report.local_link_count >= 150
     assert report.image_count >= 120
     assert report.orphan_image_count == 0
-    assert report.duplicate_image_group_count == 335
+    assert report.duplicate_image_group_count == 325
 
 
 def test_incoming_integration_package_is_reference_not_authoritative() -> None:
@@ -209,9 +209,12 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     }
 
     current_source = manifest["source_commit"]
-    assert manifest["scope"] == "issue-259-fe04c-modeling-data-ui-extraction"
-    assert re.fullmatch(r"[0-9a-f]{40}\+issue259-fe04c-worktree", current_source)
+    fe04c_source = "87ddfa2b2459acd3c1727b40df1893e36670aa06+issue259-fe04c-worktree"
+    assert manifest["version"] == 110
+    assert manifest["scope"] == "issue-259-fe04d-modeling-process-ui-extraction"
+    assert re.fullmatch(r"[0-9a-f]{40}\+issue259-fe04d-worktree", current_source)
     assert manifest["source_commit"] == current_source
+    assert "--only-modeling-process" in manifest["capture_command"]
     assert len(provenance_ids) == len(set(provenance_ids))
     preserved_fixture_ids = {
         "modeling-export-delivered",
@@ -222,6 +225,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     assert set(captures) - set(provenance_ids) == preserved_fixture_ids
     assert {provenance["source_commit"] for provenance in manifest["capture_provenance"]} == {
         current_source,
+        fe04c_source,
         "ef364087147e51e22cc02534645ba23b628c23d7+issue253-demo-token-refresh-worktree",
         "971ea100b6d7032eb1308b01b455c95cb9773408+issue246-live-data-correction-v4",
         "36c898654e2176a06eef868ee7412de22bad1a9e",
@@ -255,7 +259,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "administration-schema-bundle-1440",
     }
     new_issue_253_captures = {"demo-session-recovery-1440"}
-    new_issue_259_captures = {
+    new_issue_259_fe04c_captures = {
         "modeling-data-1366",
         "modeling-data-1440",
         "modeling-data-1920",
@@ -268,12 +272,19 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "modeling-data-invalid-1440",
         "modeling-data-invalid-scrolled-1440",
     }
-    new_issue_212_captures = {
+    new_issue_259_fe04d_captures = {
         "MOD-PROCESS-CURRENT-1366",
         "MOD-PROCESS-CURRENT-1440",
         "MOD-PROCESS-CURRENT-1920",
         "MOD-PROCESS-CURRENT-2560",
         "MOD-PROCESS-CURRENT-3840",
+        "MOD-PROCESS-CURRENT-LINEAR-1366",
+        "MOD-PROCESS-CURRENT-MANUAL-1366",
+        "MOD-PROCESS-CURRENT-BLOCKED-1440",
+        "MOD-PROCESS-CURRENT-EXACT-READ-FAILED-1440",
+        "MOD-PROCESS-CURRENT-SIBLINGS-1440",
+    }
+    new_issue_212_captures = {
         "modeling-fit-1366",
         "modeling-fit-1440",
         "modeling-fit-1920",
@@ -333,13 +344,20 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     )
     assert "native Python Playwright 1.62" in issue_253_provenance["command"]
     assert new_issue_253_captures == set(issue_253_provenance["ids"])
-    issue_259_provenance = next(
+    issue_259_fe04d_provenance = next(
         provenance
         for provenance in manifest["capture_provenance"]
         if provenance["source_commit"] == current_source
     )
-    assert "--only-modeling-data-session" in issue_259_provenance["command"]
-    assert new_issue_259_captures == set(issue_259_provenance["ids"])
+    assert "--only-modeling-process" in issue_259_fe04d_provenance["command"]
+    assert new_issue_259_fe04d_captures == set(issue_259_fe04d_provenance["ids"])
+    issue_259_fe04c_provenance = next(
+        provenance
+        for provenance in manifest["capture_provenance"]
+        if provenance["source_commit"] == fe04c_source
+    )
+    assert "--only-modeling-data-session" in issue_259_fe04c_provenance["command"]
+    assert new_issue_259_fe04c_captures == set(issue_259_fe04c_provenance["ids"])
     issue_212_provenance = next(
         provenance
         for provenance in manifest["capture_provenance"]

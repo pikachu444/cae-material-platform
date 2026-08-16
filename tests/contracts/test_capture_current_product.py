@@ -2231,8 +2231,14 @@ def test_blocked_process_waits_for_hidden_registry_attachment_and_visible_rail()
 
     assert 'method_buttons.first.wait_for(state="attached", timeout=30_000)' in blocked_assertion
     assert 'method_buttons.first.wait_for(timeout=30_000)' not in blocked_assertion
-    assert 'rail_buttons = page.locator(".configured-step-list button:visible")' in blocked_assertion
-    assert 'rail_buttons.first.wait_for(timeout=30_000)' in blocked_assertion
+    assert '".configured-step-list > button:not(.configured-step-add):visible"' in blocked_assertion
+    assert '".configured-step-list > button.configured-step-add:visible"' in blocked_assertion
+    assert 'configured_step_buttons.first.wait_for(timeout=30_000)' in blocked_assertion
+    assert 'toe_add_button.wait_for(timeout=30_000)' in blocked_assertion
+    assert "configured_step_buttons.count() != 5" in blocked_assertion
+    assert "any(not button.is_disabled() for button in configured_step_buttons.all())" in blocked_assertion
+    assert "toe_add_button.count() != 1" in blocked_assertion
+    assert "not toe_add_button.is_disabled()" in blocked_assertion
 
 
 def test_exact_read_failure_capture_asserts_settled_retry_and_no_fallback() -> None:

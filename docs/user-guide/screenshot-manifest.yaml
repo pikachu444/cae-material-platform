@@ -1,10 +1,14 @@
-version: 109
+version: 110
 verified_at: 2026-08-16
-scope: issue-259-fe04c-modeling-data-ui-extraction
-source_commit: 87ddfa2b2459acd3c1727b40df1893e36670aa06+issue259-fe04c-worktree
+scope: issue-259-fe04d-modeling-process-ui-extraction
+source_commit: c1e64be9c05c5a2039ae99aa5867a5f8b11f6621+issue259-fe04d-worktree
 capture_script: ../../scripts/capture_current_product.py
-capture_command: uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --output docs/user-guide/images/current --only-modeling-data-session
+capture_command: uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --output docs/user-guide/images/current --density standard --only-modeling-process
 notes:
+  - "Issue #259 FE-04D refreshes ten current Modeling Process images after moving the unchanged Process panel and its tests into the Modeling/Process feature boundary. No DOM, CSS, product copy, API, public type, session or saved Processing Output contract changed."
+  - "The blocked-state capture gate distinguishes the five configured Process steps from the optional Add tensile toe compensation action introduced by Issue #212 and requires all six controls to be disabled when exact Test Data is absent. This corrects only the stale capture assertion; the user-facing controls and capture guidance are unchanged."
+  - "All five CSS viewports pass at browser zoom 100% and DPR 1 with zero page horizontal overflow. Main opened all ten originals and twelve direct 100%-pixel header/navigator/controls/graph crops at original resolution; the bounded rail and controls remain readable while the graph uses the available workspace. Automated 3840x2160 geometry does not claim physical 4K readability; #223 remains the final physical gate."
+  - "Canonical current-source Compose was recreated without deleting the preserved volumes. Migrate, API, web and browser checks passed; the seed container completed its base demo seed before the existing Issue #246 domain-binding POST met an idempotency conflict. The unchanged seed command was not replayed, no data was reset, and Process preview, exact saved-output/current-pointer reload/read-back and exact-source recovery checks passed against the preserved state; the capture reused the three matching immutable outputs without a duplicate save POST."
   - "Issue #259 FE-04C refreshes eleven current Modeling Data/session images after moving the unchanged Data intake UI and its tests into the Modeling/Data feature boundary. No DOM, CSS, product copy, API, public type or saved Modeling session contract changed."
   - "The preserved demo Library contains the unrelated ISSUE209-FLD revision in addition to the three DP780 tensile revisions. Capture finds CMP-DEMO-DP780-TEST-JSON, CMP-DEMO-DP780-TEST-JSON-02 and CMP-DEMO-DP780-TEST-JSON-03 by exact displayed key, independent of Library count or order, then proves three exact refs, two included and three visible across route reload."
   - "All five CSS viewports pass at browser zoom 100% and DPR 1 with zero page horizontal overflow. Main opened all eleven originals and twelve direct 100%-pixel header/navigator/Data-controls/graph crops at original resolution; the bounded rail and ribbon remain readable while the graph uses the available workspace. Automated 3840x2160 geometry does not claim physical 4K readability; #223 remains the final physical gate."
@@ -20,7 +24,7 @@ notes:
   - "The canonical browser journey saves and reloads an exact DMA frequency-temperature Test Data revision with Raw Asset/Artifact, Import Run/Profile and normalized Dataset pins; records a rejected DMA run without creating Test Data; retries corrected immutable inputs; saves and reloads an exact FLD revision; and keeps both schemas outside Fit/Prony/IR."
   - "All five CSS viewports pass at browser zoom 100% and DPR 1 with no page horizontal overflow. The rejected 1440 primary journey intentionally retains the last accepted DMA graph while showing the failed draft diagnostics; clean secondary viewport sessions truthfully show no session Test Data, and every rejected run proves no canonical Test Data was created."
   - "The active Windows displays are 2560×1440 and 2560×1600 at 96 DPI and 100% scale. Automated 3840×2160 geometry does not claim physical 4K readability; #223 remains the final physical gate. The Issue #209 Balanced independent audit and Product Owner visual-geometry decision are publication gates recorded against the exact candidate and PR."
-  - "Issue #212 refreshes the five current Modeling Process and five byte-identical Fit originals from canonical Compose source commit 36c898654e2176a06eef868ee7412de22bad1a9e. The current directory remains 101 deterministic synthetic non-production images."
+  - "Issue #212 originally refreshed five Modeling Process and five byte-identical Fit originals from canonical Compose source commit 36c898654e2176a06eef868ee7412de22bad1a9e. Issue #259 FE-04D later refreshes and reassigns the current Process originals; the five current Fit originals retain Issue #212 provenance."
   - "The issue-owned packet is docs/17-evidence/images/issue-212-explicit-toe-compensation/visual-evidence.yaml: ten exact-origin/main before originals, ten live after originals, forty-eight direct 100%-pixel header/navigator/controls/graph crops, three warning/Fit-source state images, hashes, dimensions and measured geometry. Main opened all 71 unique PNGs at original resolution; sixty were byte-identical to the previously inspected packet and the eleven changed images were reopened after the warning-layout correction."
   - "The canonical browser journey explicitly adds tensile.toe_zero_intercept@1.0.0, selects the estimation domain, previews offset/slope/R²/point count, proves an unacknowledged warning blocks save, resets acknowledgement on changed input, recovers through a clean domain, saves an immutable Processing Output r1 and reads that exact toe-compensated source in Fit Evidence."
   - "All five CSS viewports pass at browser zoom 100% and DPR 1. The 1440 warning state records a 14×14 checkbox, acknowledgement right edge 1056.546875 before Result left edge 1066.546875, and equal scroll/client dimensions for both warning labels; the corrected control no longer overlaps Result."
@@ -302,6 +306,10 @@ visual_evidence:
   independent_read_only_review: pass_issue_246_task1_same_auditor_blocker_0_major_0_material_minor_0
   product_owner_review: pass_issue_246_task1_presented_originals_2026_08_14
 capture_provenance:
+  - source_commit: c1e64be9c05c5a2039ae99aa5867a5f8b11f6621+issue259-fe04d-worktree
+    captured_at: '2026-08-16T13:48:42+09:00 through 2026-08-16T13:53:29+09:00'
+    command: 'Canonical current-source Compose with preserved volumes; uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --output docs/user-guide/images/current --density standard --only-modeling-process at browser zoom 100% and DPR 1. The flow verifies the three exact DP780 refs with two included, previews the selected Process steps, reuses and reads back three matching immutable outputs without a duplicate save POST, preserves the exact current pointer through stage round-trip, exercises Linear regression, Manual slope, missing-source and exact-read-failure states, and captures five normal viewports plus five bounded state images.'
+    ids: [MOD-PROCESS-CURRENT-1366, MOD-PROCESS-CURRENT-1440, MOD-PROCESS-CURRENT-1920, MOD-PROCESS-CURRENT-2560, MOD-PROCESS-CURRENT-3840, MOD-PROCESS-CURRENT-LINEAR-1366, MOD-PROCESS-CURRENT-MANUAL-1366, MOD-PROCESS-CURRENT-BLOCKED-1440, MOD-PROCESS-CURRENT-EXACT-READ-FAILED-1440, MOD-PROCESS-CURRENT-SIBLINGS-1440]
   - source_commit: 87ddfa2b2459acd3c1727b40df1893e36670aa06+issue259-fe04c-worktree
     captured_at: '2026-08-16T08:11:57+09:00'
     command: 'Canonical current-source Compose with preserved volumes; uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --output docs/user-guide/images/current --only-modeling-data-session at Standard density, browser zoom 100% and DPR 1. The flow locates the three approved DP780 document keys directly despite an additional Library row, verifies 3 exact refs, 2 included and 3 visible across reload, and captures five normal viewports plus the pin-free, invalid-mapping and local-scroll states.'
@@ -320,8 +328,8 @@ capture_provenance:
     ids: [modeling-data-dma-1366, modeling-data-dma-1440, modeling-data-dma-1920, modeling-data-dma-2560, modeling-data-dma-3840, modeling-data-dma-rejected-1366, modeling-data-dma-rejected-1440, modeling-data-dma-rejected-1920, modeling-data-dma-rejected-2560, modeling-data-dma-rejected-3840, modeling-data-fld-1366, modeling-data-fld-1440, modeling-data-fld-1920, modeling-data-fld-2560, modeling-data-fld-3840]
   - source_commit: 36c898654e2176a06eef868ee7412de22bad1a9e
     captured_at: '2026-08-13T00:41:58.231594+00:00'
-    command: 'Canonical current-source Compose; uv run --with playwright==1.62.0 --with pillow --with pyyaml python scripts/capture_issue212_visual_evidence.py --base-url http://127.0.0.1:5173. The script recaptured five Process/Fit viewport pairs at Standard, browser zoom 100% and DPR 1, preserved exact origin/main baselines, created direct 100%-pixel crops, exercised the warning acknowledgement/save gate, saved one immutable Process Output and opened its exact toe-compensation evidence in Fit.'
-    ids: [MOD-PROCESS-CURRENT-1366, MOD-PROCESS-CURRENT-1440, MOD-PROCESS-CURRENT-1920, MOD-PROCESS-CURRENT-2560, MOD-PROCESS-CURRENT-3840, modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-fit-2560, modeling-fit-3840]
+    command: 'Canonical current-source Compose; uv run --with playwright==1.62.0 --with pillow --with pyyaml python scripts/capture_issue212_visual_evidence.py --base-url http://127.0.0.1:5173. The script recaptured five Process/Fit viewport pairs at Standard, browser zoom 100% and DPR 1, preserved exact origin/main baselines, created direct 100%-pixel crops, exercised the warning acknowledgement/save gate, saved one immutable Process Output and opened its exact toe-compensation evidence in Fit. The five current Process originals were later refreshed and reassigned to Issue #259 FE-04D provenance.'
+    ids: [modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-fit-2560, modeling-fit-3840]
   - source_commit: ff9ba293222ea5a9e17821e4dc8c4ef1b0bcb1a5
     captured_at: '2026-08-12T13:43:34Z'
     command: 'Canonical current-source Compose from the separated analysis-sheet UI source; capture_current_product.py --only-modeling-distribution --include-distribution-detail-crops at Standard and Large, browser zoom 100% and DPR 1. The live flow verifies the exact eight-member processed Selection, immutable Plan reuse, empirical/fitted CDF, three candidate rows, explicit selection/reason, full reload read-back, modal inert/focus/Escape behavior, last-row visibility and five-viewport geometry before writing five Standard current originals plus the issue-owned Standard/Large originals and thirty direct crops.'
@@ -332,8 +340,8 @@ capture_provenance:
     ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-search-2560, materials-search-3840, materials-scroll-long-1366, materials-scroll-long-1440, materials-scroll-long-1920, materials-scroll-short-1440, materials-scroll-empty-1440, materials-browse-1440, material-detail-1366, material-detail-1440, material-detail-1920, material-detail-2560, material-detail-3840, material-curves-1366, material-curves-1440, material-curves-1920, material-curves-2560, material-curves-3840, material-cae-cards-1440]
   - source_commit: 97f850acf454a8fb6d8caeb8cf5e9ccb5d413a16
     captured_at: '2026-08-11'
-    command: 'Accepted #184 canonical Compose capture at Standard, browser zoom 100%, and DPR 1. Forty-eight unchanged current product-route images remain attributed to this exact source; the routes recaptured for #206 were reassigned to the #206 source record.'
-    ids: [MOD-PROCESS-CURRENT-LINEAR-1366, MOD-PROCESS-CURRENT-MANUAL-1366, MOD-PROCESS-CURRENT-BLOCKED-1440, MOD-PROCESS-CURRENT-EXACT-READ-FAILED-1440, MOD-PROCESS-CURRENT-SIBLINGS-1440, modeling-fit-candidate-parameters-long-1440, modeling-fit-candidate-evidence-scrolled-1440, modeling-fit-calculation-failed-1920, modeling-fit-save-failed-1920, modeling-fit-exact-source-blocked-1920, modeling-fit-exact-read-failed-1920, modeling-fit-restored-1920, modeling-export-1366, modeling-export-1440, modeling-export-1920, modeling-export-2560, modeling-export-3840, modeling-export-source-blocked, modeling-export-approximation-blocked, activity-1366, activity-1440, activity-1920, activity-2560, activity-3840, activity-history-1440, activity-history-1920, activity-history-2560, activity-history-3840, activity-user-1440, activity-administrator-1440, activity-decision-error-1440, activity-recovery-1440, administration-database-1366, administration-database-1440, administration-database-1920, administration-database-2560, administration-database-3840, administration-records-1366, administration-records-1440, administration-records-1920, administration-records-2560, administration-records-3840, administration-access-1366, administration-access-1440, administration-access-1920, administration-access-2560, administration-access-3840, administration-access-role-control-1366]
+    command: 'Accepted #184 canonical Compose capture at Standard, browser zoom 100%, and DPR 1. The routes recaptured for #206 were reassigned to the #206 source record, and the five current Process method/recovery images were later refreshed and reassigned to Issue #259 FE-04D provenance.'
+    ids: [modeling-fit-candidate-parameters-long-1440, modeling-fit-candidate-evidence-scrolled-1440, modeling-fit-calculation-failed-1920, modeling-fit-save-failed-1920, modeling-fit-exact-source-blocked-1920, modeling-fit-exact-read-failed-1920, modeling-fit-restored-1920, modeling-export-1366, modeling-export-1440, modeling-export-1920, modeling-export-2560, modeling-export-3840, modeling-export-source-blocked, modeling-export-approximation-blocked, activity-1366, activity-1440, activity-1920, activity-2560, activity-3840, activity-history-1440, activity-history-1920, activity-history-2560, activity-history-3840, activity-user-1440, activity-administrator-1440, activity-decision-error-1440, activity-recovery-1440, administration-database-1366, administration-database-1440, administration-database-1920, administration-database-2560, administration-database-3840, administration-records-1366, administration-records-1440, administration-records-1920, administration-records-2560, administration-records-3840, administration-access-1366, administration-access-1440, administration-access-1920, administration-access-2560, administration-access-3840, administration-access-role-control-1366]
 previous_capture_provenance:
   - source_commit: 31f9a3f+task3b-worktree
     captured_at: 2026-08-06T10:35:08+09:00
@@ -784,8 +792,8 @@ captures:
     height: 900
   - id: MOD-PROCESS-CURRENT-1366
     route: /modeling?stage=process&family=metal
-    workflow: explicit tensile toe compensation preview, quality evidence and immutable output commit
-    fixture: synthetic DP780 exact Test Data/Profile with user-selected 0..0.002 OLS zero-intercept v1.0.0; stress unchanged and exact Fit handoff
+    workflow: exact-source elastic-modulus preview with persisted output availability and reload/read-back
+    fixture: three synthetic DP780 exact Test Data revisions with two included; Auto robust 0.0002..0.002 preview produces 210.0 GPa and preserves the exact source/profile binding
     image: images/current/modeling-process-1366x768.png
     width: 1366
     height: 768
@@ -805,29 +813,29 @@ captures:
     height: 768
   - id: MOD-PROCESS-CURRENT-1440
     route: /modeling?stage=process&family=metal
-    workflow: explicit tensile toe compensation preview, quality evidence and immutable output commit
-    fixture: synthetic DP780 exact Test Data/Profile with user-selected 0..0.002 OLS zero-intercept v1.0.0; stress unchanged and exact Fit handoff
+    workflow: exact-source elastic-modulus preview with persisted output availability and reload/read-back
+    fixture: three synthetic DP780 exact Test Data revisions with two included; Auto robust 0.0002..0.002 preview produces 210.0 GPa and preserves the exact source/profile binding
     image: images/current/modeling-process-1440x900.png
     width: 1440
     height: 900
   - id: MOD-PROCESS-CURRENT-1920
     route: /modeling?stage=process&family=metal
-    workflow: explicit tensile toe compensation preview, quality evidence and immutable output commit
-    fixture: synthetic DP780 exact Test Data/Profile with user-selected 0..0.002 OLS zero-intercept v1.0.0; stress unchanged and exact Fit handoff
+    workflow: exact-source elastic-modulus preview with persisted output availability and reload/read-back
+    fixture: three synthetic DP780 exact Test Data revisions with two included; Auto robust 0.0002..0.002 preview produces 210.0 GPa and preserves the exact source/profile binding
     image: images/current/modeling-process-1920x1080.png
     width: 1920
     height: 1080
   - id: MOD-PROCESS-CURRENT-2560
     route: /modeling?stage=process&family=metal
-    workflow: wide explicit tensile toe compensation; bounded method/domain/result controls and elastic persistent graph
-    fixture: synthetic DP780 exact Test Data/Profile with user-selected 0..0.002 OLS zero-intercept v1.0.0; stress unchanged and exact Fit handoff
+    workflow: wide exact-source elastic-modulus preview with bounded method/result controls and an elastic persistent graph
+    fixture: three synthetic DP780 exact Test Data revisions with two included; Auto robust 0.0002..0.002 preview produces 210.0 GPa and preserves the exact source/profile binding
     image: images/current/modeling-process-2560x1440.png
     width: 2560
     height: 1440
   - id: MOD-PROCESS-CURRENT-3840
     route: /modeling?stage=process&family=metal
-    workflow: wide explicit tensile toe compensation; bounded method/domain/result controls and elastic persistent graph
-    fixture: synthetic DP780 exact Test Data/Profile with user-selected 0..0.002 OLS zero-intercept v1.0.0; stress unchanged and exact Fit handoff
+    workflow: wide exact-source elastic-modulus preview with bounded method/result controls and an elastic persistent graph
+    fixture: three synthetic DP780 exact Test Data revisions with two included; Auto robust 0.0002..0.002 preview produces 210.0 GPa and preserves the exact source/profile binding
     image: images/current/modeling-process-3840x2160.png
     width: 3840
     height: 2160
