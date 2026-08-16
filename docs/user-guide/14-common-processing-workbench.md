@@ -416,10 +416,10 @@ Data selection 같은 일반 upstream draft 변경은 기존 invalidation 규칙
 
 정상 화면에는 `Preview — not saved` 같은 반복 상태 문구를 두지 않습니다. 설정을 바꿔 재계산이
 필요하거나 차단·실패한 경우에만 Result 옆의 한 줄 recovery 안내와 접근 가능한 live status를
-보여 줍니다. Process의 live evidence는 linear-regression을 별도 settled method로 포함한 9개
+보여 줍니다. Process의 live evidence는 linear-regression과 manual local-scroll을 별도 settled state로 포함한 10개
 출력(`modeling-process-linear-regression-1366x768.png` 포함)으로, 일반 viewport
 (1366×768, 1440×900, 1920×1080)와 wide viewport
-(2560×1440, 3840×2160), exact prerequisite blocked(1440×900), exact-read failed(1440×900), saved-result siblings(1440×900)
+(2560×1440, 3840×2160), manual local-scroll(1366×768), exact prerequisite blocked(1440×900), exact-read failed(1440×900), saved-result siblings(1440×900)
 상태를 각각 확인합니다. 캡처가 `Loading Process controls…` fallback에서 settled panel로 전환되지
 않았거나 graph/axis가 잘리면 기존 capture directory를 교체하지 않습니다.
 

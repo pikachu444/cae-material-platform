@@ -6539,13 +6539,25 @@ def _assert_modeling_process_blocked(page: Page) -> None:
     if not preview.is_disabled() or not save.is_disabled():
         raise RuntimeError("Process blocked capture left Preview or Save enabled")
     method_buttons = page.locator(".method-library .method-pill")
-    rail_buttons = page.locator(".configured-step-list button:visible")
+    configured_step_buttons = page.locator(
+        ".configured-step-list > button:not(.configured-step-add):visible"
+    )
+    toe_add_button = page.locator(
+        ".configured-step-list > button.configured-step-add:visible"
+    )
     method_buttons.first.wait_for(state="attached", timeout=30_000)
-    rail_buttons.first.wait_for(timeout=30_000)
+    configured_step_buttons.first.wait_for(timeout=30_000)
+    toe_add_button.wait_for(timeout=30_000)
     if method_buttons.count() == 0 or any(not button.is_disabled() for button in method_buttons.all()):
         raise RuntimeError("Process blocked capture left an Add operation registry method enabled")
-    if rail_buttons.count() != 5 or any(not button.is_disabled() for button in rail_buttons.all()):
+    if configured_step_buttons.count() != 5:
+        raise RuntimeError("Process blocked capture did not retain five configured Process steps")
+    if any(not button.is_disabled() for button in configured_step_buttons.all()):
         raise RuntimeError("Process blocked capture left a configured Process rail button enabled")
+    if toe_add_button.count() != 1:
+        raise RuntimeError("Process blocked capture is missing the optional toe compensation action")
+    if not toe_add_button.is_disabled():
+        raise RuntimeError("Process blocked capture left the optional toe compensation action enabled")
     if page.locator('.method-library > summary[aria-disabled="true"]').count() != 1:
         raise RuntimeError("Process blocked capture is missing the disabled Add operation summary")
     process_inputs = page.locator(".process-band-controls input, .rail-statistics-action input")
