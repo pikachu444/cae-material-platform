@@ -209,8 +209,8 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     }
 
     current_source = manifest["source_commit"]
-    assert manifest["scope"] == "issue-253-local-demo-token-refresh"
-    assert re.fullmatch(r"[0-9a-f]{40}\+issue253-demo-token-refresh-worktree", current_source)
+    assert manifest["scope"] == "issue-259-fe04c-modeling-data-ui-extraction"
+    assert re.fullmatch(r"[0-9a-f]{40}\+issue259-fe04c-worktree", current_source)
     assert manifest["source_commit"] == current_source
     assert len(provenance_ids) == len(set(provenance_ids))
     preserved_fixture_ids = {
@@ -222,6 +222,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     assert set(captures) - set(provenance_ids) == preserved_fixture_ids
     assert {provenance["source_commit"] for provenance in manifest["capture_provenance"]} == {
         current_source,
+        "ef364087147e51e22cc02534645ba23b628c23d7+issue253-demo-token-refresh-worktree",
         "971ea100b6d7032eb1308b01b455c95cb9773408+issue246-live-data-correction-v4",
         "36c898654e2176a06eef868ee7412de22bad1a9e",
         "f8fe6ef85d345837a6252b6ba8b3b706ccbe009f",
@@ -254,6 +255,19 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "administration-schema-bundle-1440",
     }
     new_issue_253_captures = {"demo-session-recovery-1440"}
+    new_issue_259_captures = {
+        "modeling-data-1366",
+        "modeling-data-1440",
+        "modeling-data-1920",
+        "modeling-data-2560",
+        "modeling-data-3840",
+        "modeling-session-1366",
+        "modeling-session-1440",
+        "modeling-session-1920",
+        "modeling-data-empty-1440",
+        "modeling-data-invalid-1440",
+        "modeling-data-invalid-scrolled-1440",
+    }
     new_issue_212_captures = {
         "MOD-PROCESS-CURRENT-1366",
         "MOD-PROCESS-CURRENT-1440",
@@ -315,10 +329,17 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     issue_253_provenance = next(
         provenance
         for provenance in manifest["capture_provenance"]
-        if provenance["source_commit"] == current_source
+        if provenance["source_commit"].endswith("+issue253-demo-token-refresh-worktree")
     )
     assert "native Python Playwright 1.62" in issue_253_provenance["command"]
     assert new_issue_253_captures == set(issue_253_provenance["ids"])
+    issue_259_provenance = next(
+        provenance
+        for provenance in manifest["capture_provenance"]
+        if provenance["source_commit"] == current_source
+    )
+    assert "--only-modeling-data-session" in issue_259_provenance["command"]
+    assert new_issue_259_captures == set(issue_259_provenance["ids"])
     issue_212_provenance = next(
         provenance
         for provenance in manifest["capture_provenance"]

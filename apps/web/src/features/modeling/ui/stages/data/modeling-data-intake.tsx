@@ -16,8 +16,8 @@ import {
   uploadGovernedTabularFile,
   validateCanonicalTestData,
   type ApiConfig,
-} from "./api";
-import type { ObservedCurveInput } from "./engineering-curve-plot";
+} from "../../../../../api";
+import type { ObservedCurveInput } from "../../../../../engineering-curve-plot";
 import type {
   CanonicalTestDataChannelPreview,
   CanonicalTestDataDocumentResponse,
@@ -37,9 +37,9 @@ import type {
   MaterialResponse,
   MaterialStateResponse,
   TestRunResponse,
-} from "./types";
-import type { ModelingSessionRecordRef } from "./modeling-session-context";
-import { MaterialsScrollRegion } from "./materials-scroll-rail";
+} from "../../../../../types";
+import type { ModelingSessionRecordRef } from "../../../../../modeling-session-context";
+import { MaterialsScrollRegion } from "../../../../../materials-scroll-rail";
 
 type IntakeSource = "library" | "local" | "json";
 export type ModelingDataLayoutMode = "compact" | "content-fit";

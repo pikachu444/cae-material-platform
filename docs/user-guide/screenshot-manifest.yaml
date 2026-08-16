@@ -1,10 +1,14 @@
-version: 108
-verified_at: 2026-08-14
-scope: issue-253-local-demo-token-refresh
-source_commit: ef364087147e51e22cc02534645ba23b628c23d7+issue253-demo-token-refresh-worktree
+version: 109
+verified_at: 2026-08-16
+scope: issue-259-fe04c-modeling-data-ui-extraction
+source_commit: 87ddfa2b2459acd3c1727b40df1893e36670aa06+issue259-fe04c-worktree
 capture_script: ../../scripts/capture_current_product.py
-capture_command: uv run --with playwright==1.62.0 python <inline issue-253 recovery capture> against http://127.0.0.1:15173
+capture_command: uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --output docs/user-guide/images/current --only-modeling-data-session
 notes:
+  - "Issue #259 FE-04C refreshes eleven current Modeling Data/session images after moving the unchanged Data intake UI and its tests into the Modeling/Data feature boundary. No DOM, CSS, product copy, API, public type or saved Modeling session contract changed."
+  - "The preserved demo Library contains the unrelated ISSUE209-FLD revision in addition to the three DP780 tensile revisions. Capture finds CMP-DEMO-DP780-TEST-JSON, CMP-DEMO-DP780-TEST-JSON-02 and CMP-DEMO-DP780-TEST-JSON-03 by exact displayed key, independent of Library count or order, then proves three exact refs, two included and three visible across route reload."
+  - "All five CSS viewports pass at browser zoom 100% and DPR 1 with zero page horizontal overflow. Main opened all eleven originals and twelve direct 100%-pixel header/navigator/Data-controls/graph crops at original resolution; the bounded rail and ribbon remain readable while the graph uses the available workspace. Automated 3840x2160 geometry does not claim physical 4K readability; #223 remains the final physical gate."
+  - "Canonical current-source Compose was recreated without deleting the preserved volumes. Migrate, API, web and browser checks passed; the seed container completed its base demo seed before the follow-on existing Issue #246 domain-binding POST met an idempotency conflict. The unchanged seed command was not replayed, no data was reset, and the exact Data selection/read-back assertions passed against the preserved state."
   - "Issue #253 adds one current 1440x900 demo-session recovery image. Five live CSS viewports at browser zoom 100% and DPR 1 verified the unchanged recovery surface, no page overflow, and a successful Try again transition that replaced the failed session with a newly issued local-demo token. Timer, expired-token reload, persona preservation and demo-disabled boundaries are covered by deterministic frontend tests."
   - "Issue #246 Task 1 replaces the current Definition bundles image and adds two current Materials images captured from `/materials`. The current directory contains 118 bounded public example images."
   - "The issue-owned packet is docs/17-evidence/images/issue-246-source-v2-categories/visual-evidence.yaml. It retains both Product Owner-rejected interpretations as twenty before originals, forty before crops and ten before measurements, then records the final Materials-integrated candidate at five viewports with direct 100%-pixel crops, geometry, hashes and immutable references."
@@ -70,10 +74,30 @@ notes:
   - "Issue #159 MAT-DETAIL captures map each current viewport to its approved MAT-DETAIL reference and bounded side-by-side comparison evidence; Response points reuse the shared MaterialsScrollRegion with genuine local overflow only."
   - "Issue #159 task 2 keeps Database/Profile, Table, Attribute, Layout, Subset and Link Type lifecycle controls in Administration, and gives Record registration a single/multiple-row workflow with immutable CSV/TSV/XLSX source evidence, field/unit/material-state mapping and correction before atomic registration."
   - "Normal Administration labels use user-facing names and value types. Internal identifiers, digests and exact source evidence remain outside the ordinary property editor."
-  - "Issue #158 Task 1 Data captures verify three exact refs, two included and three visible after route reload, a 178 px adjustable ribbon, pin-free empty-state Local file recovery, a collapsed optional navigator that reclaims graph space, and invalid mapping that keeps the last valid graph and blocks Update preview/Save Test Data. Issue #161 replaces the former 1920×878 outer working cap with the shared elastic workspace."
+  - "Issue #158 Task 1 Data captures verify three exact refs, two included and three visible after route reload, a 178 px adjustable ribbon, pin-free empty-state Local file recovery, a collapsed optional navigator that reclaims graph space, and invalid mapping that keeps the last valid graph and blocks Update preview/Save Test Data. The Issue #259 FE-04C refresh selects the three exact DP780 document keys without assuming the server-scoped Library count or order. Issue #161 replaces the former 1920×878 outer working cap with the shared elastic workspace."
   - "Issue #158 Task 3B Fit captures bind the Fit source to one saved Process Output id/revision/digest in Candidate parameters Evidence, show the server candidate response/residual/tangent and diagnostic evidence, preserve the last valid preview after an exact-source read or Fit failure, and show an explicit blocked recovery when the pinned Process Output is missing or stale; Fit save requests carry the exact source pin and never fall back to raw Test Data."
   - "Issue #158 Task 3B current Fit images are registered for route, content and completed qualitative visual acceptance evidence from main 7394070 plus the Fit UI correction worktree."
 allowed_duplicate_groups:
+  - rationale: "Issue #209 preserves the accepted Issue #206 Modeling Data 1366x768 original as its exact before baseline."
+    images:
+      - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-data-1366x768.png
+      - docs/17-evidence/images/issue-209-dma-fld-governed-import/before/originals/modeling-data-1366x768.png
+  - rationale: "Issue #209 preserves the accepted Issue #206 Modeling Data 1440x900 original as its exact before baseline."
+    images:
+      - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-data-1440x900.png
+      - docs/17-evidence/images/issue-209-dma-fld-governed-import/before/originals/modeling-data-1440x900.png
+  - rationale: "Issue #209 preserves the accepted Issue #206 Modeling Data 1920x1080 original as its exact before baseline."
+    images:
+      - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-data-1920x1080.png
+      - docs/17-evidence/images/issue-209-dma-fld-governed-import/before/originals/modeling-data-1920x1080.png
+  - rationale: "Issue #209 preserves the accepted Issue #206 Modeling Data 2560x1440 original as its exact before baseline."
+    images:
+      - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-data-2560x1440.png
+      - docs/17-evidence/images/issue-209-dma-fld-governed-import/before/originals/modeling-data-2560x1440.png
+  - rationale: "Issue #209 preserves the accepted Issue #206 Modeling Data 3840x2160 original as its exact before baseline."
+    images:
+      - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-data-3840x2160.png
+      - docs/17-evidence/images/issue-209-dma-fld-governed-import/before/originals/modeling-data-3840x2160.png
   - rationale: "Issue #246 preserves the accepted Administration header pixels while changing only the source-set summary and plan content at 1366x768."
     images:
       - docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-1366x768-header-crop.png
@@ -278,6 +302,10 @@ visual_evidence:
   independent_read_only_review: pass_issue_246_task1_same_auditor_blocker_0_major_0_material_minor_0
   product_owner_review: pass_issue_246_task1_presented_originals_2026_08_14
 capture_provenance:
+  - source_commit: 87ddfa2b2459acd3c1727b40df1893e36670aa06+issue259-fe04c-worktree
+    captured_at: '2026-08-16T08:11:57+09:00'
+    command: 'Canonical current-source Compose with preserved volumes; uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --output docs/user-guide/images/current --only-modeling-data-session at Standard density, browser zoom 100% and DPR 1. The flow locates the three approved DP780 document keys directly despite an additional Library row, verifies 3 exact refs, 2 included and 3 visible across reload, and captures five normal viewports plus the pin-free, invalid-mapping and local-scroll states.'
+    ids: [modeling-data-1366, modeling-data-1440, modeling-data-1920, modeling-data-2560, modeling-data-3840, modeling-session-1366, modeling-session-1440, modeling-session-1920, modeling-data-empty-1440, modeling-data-invalid-1440, modeling-data-invalid-scrolled-1440]
   - source_commit: ef364087147e51e22cc02534645ba23b628c23d7+issue253-demo-token-refresh-worktree
     captured_at: '2026-08-14T16:04:00+09:00'
     command: 'Isolated current-worktree Vite on 127.0.0.1:15173 with the existing local demo API proxy; native Python Playwright 1.62 captured the recovery boundary at 1366x768, 1440x900, 1920x1080, 2560x1440 and 3840x2160 at zoom 100% and DPR 1, then exercised Try again and verified a newly stored demo token. The unchanged Materials data surface was not claimed as issue-owned visual evidence.'
@@ -300,8 +328,8 @@ capture_provenance:
     ids: [modeling-distribution-1366, modeling-distribution-1440, modeling-distribution-1920, modeling-distribution-2560, modeling-distribution-3840]
   - source_commit: e9b523a7f7b613d8d6efc0396160f0ceb2aff2c4
     captured_at: '2026-08-12'
-    command: 'Canonical current-source Compose; capture_current_product.py --only-materials and --only-modeling-data-session at browser zoom 100% and DPR 1. The issue-owned script copied the affected five-viewport originals, produced direct 100%-pixel crops, exercised keyboard/pointer tooltip and band-toggle parity, opened Evidence, and recorded the honest metadata-absent state. The Process/Fit images from this run were later refreshed and reassigned to Issue #212 provenance.'
-    ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-search-2560, materials-search-3840, materials-scroll-long-1366, materials-scroll-long-1440, materials-scroll-long-1920, materials-scroll-short-1440, materials-scroll-empty-1440, materials-browse-1440, material-detail-1366, material-detail-1440, material-detail-1920, material-detail-2560, material-detail-3840, material-curves-1366, material-curves-1440, material-curves-1920, material-curves-2560, material-curves-3840, material-cae-cards-1440, modeling-data-1366, modeling-data-1440, modeling-data-1920, modeling-data-2560, modeling-data-3840, modeling-session-1366, modeling-session-1440, modeling-session-1920, modeling-data-empty-1440, modeling-data-invalid-1440, modeling-data-invalid-scrolled-1440]
+    command: 'Canonical current-source Compose; capture_current_product.py --only-materials and --only-modeling-data-session at browser zoom 100% and DPR 1. The issue-owned script copied the affected five-viewport originals, produced direct 100%-pixel crops, exercised keyboard/pointer tooltip and band-toggle parity, opened Evidence, and recorded the honest metadata-absent state. The Process/Fit images from this run were later refreshed and reassigned to Issue #212 provenance; the Data/session images were later refreshed and reassigned to Issue #259 FE-04C provenance.'
+    ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-search-2560, materials-search-3840, materials-scroll-long-1366, materials-scroll-long-1440, materials-scroll-long-1920, materials-scroll-short-1440, materials-scroll-empty-1440, materials-browse-1440, material-detail-1366, material-detail-1440, material-detail-1920, material-detail-2560, material-detail-3840, material-curves-1366, material-curves-1440, material-curves-1920, material-curves-2560, material-curves-3840, material-cae-cards-1440]
   - source_commit: 97f850acf454a8fb6d8caeb8cf5e9ccb5d413a16
     captured_at: '2026-08-11'
     command: 'Accepted #184 canonical Compose capture at Standard, browser zoom 100%, and DPR 1. Forty-eight unchanged current product-route images remain attributed to this exact source; the routes recaptured for #206 were reassigned to the #206 source record.'
@@ -575,7 +603,7 @@ captures:
   - id: modeling-data-1366
     route: /modeling?stage=data&family=metal
     workflow: integrated-library-local-json-and-graph-preview-with-exact-multi-curve-selection
-    fixture: synthetic DP780 material/state with three exact governed Test Data revisions; 3 exact refs, 2 included and 3 visible persist after route reload
+    fixture: server-scoped Library with an additional governed revision; only CMP-DEMO-DP780-TEST-JSON, CMP-DEMO-DP780-TEST-JSON-02 and CMP-DEMO-DP780-TEST-JSON-03 are selected by exact displayed key; 3 exact refs, 2 included and 3 visible persist after route reload
     image: images/current/modeling-data-1366x768.png
     width: 1366
     height: 768
@@ -603,28 +631,28 @@ captures:
   - id: modeling-data-1440
     route: /modeling?stage=data&family=metal
     workflow: integrated-library-local-json-and-graph-preview-with-exact-multi-curve-selection
-    fixture: synthetic DP780 material/state with three exact governed Test Data revisions; 3 exact refs, 2 included and 3 visible persist after route reload
+    fixture: server-scoped Library with an additional governed revision; only CMP-DEMO-DP780-TEST-JSON, CMP-DEMO-DP780-TEST-JSON-02 and CMP-DEMO-DP780-TEST-JSON-03 are selected by exact displayed key; 3 exact refs, 2 included and 3 visible persist after route reload
     image: images/current/modeling-data-1440x900.png
     width: 1440
     height: 900
   - id: modeling-data-1920
     route: /modeling?stage=data&family=metal
     workflow: integrated-library-local-json-and-graph-preview-with-exact-multi-curve-selection
-    fixture: synthetic DP780 material/state with three exact governed Test Data revisions; 3 exact refs, 2 included and 3 visible persist after route reload
+    fixture: server-scoped Library with an additional governed revision; only CMP-DEMO-DP780-TEST-JSON, CMP-DEMO-DP780-TEST-JSON-02 and CMP-DEMO-DP780-TEST-JSON-03 are selected by exact displayed key; 3 exact refs, 2 included and 3 visible persist after route reload
     image: images/current/modeling-data-1920x1080.png
     width: 1920
     height: 1080
   - id: modeling-data-2560
     route: /modeling?stage=data&family=metal
     workflow: exact-library-multi-curve-selection-show-toggle-and-reload-persistence
-    fixture: synthetic DP780 material/state with three exact governed Test Data revisions; 3 exact refs, 2 included and 3 visible persist after route reload; bounded curve rail and elastic graph workspace
+    fixture: server-scoped Library with an additional governed revision; only CMP-DEMO-DP780-TEST-JSON, CMP-DEMO-DP780-TEST-JSON-02 and CMP-DEMO-DP780-TEST-JSON-03 are selected by exact displayed key; 3 exact refs, 2 included and 3 visible persist after route reload; bounded curve rail and elastic graph workspace
     image: images/current/modeling-data-2560x1440.png
     width: 2560
     height: 1440
   - id: modeling-data-3840
     route: /modeling?stage=data&family=metal
     workflow: exact-library-multi-curve-selection-show-toggle-and-reload-persistence
-    fixture: synthetic DP780 material/state with three exact governed Test Data revisions; 3 exact refs, 2 included and 3 visible persist after route reload; bounded curve rail and elastic graph workspace
+    fixture: server-scoped Library with an additional governed revision; only CMP-DEMO-DP780-TEST-JSON, CMP-DEMO-DP780-TEST-JSON-02 and CMP-DEMO-DP780-TEST-JSON-03 are selected by exact displayed key; 3 exact refs, 2 included and 3 visible persist after route reload; bounded curve rail and elastic graph workspace
     image: images/current/modeling-data-3840x2160.png
     width: 3840
     height: 2160

@@ -28,6 +28,9 @@ MODELING_EXPORT_OUTPUTS = cast(tuple[str, ...], _SCRIPT["MODELING_EXPORT_OUTPUTS
 MODELING_DATA_SESSION_OUTPUTS = cast(
     tuple[str, ...], _SCRIPT["MODELING_DATA_SESSION_OUTPUTS"]
 )
+MODELING_DATA_DOCUMENT_KEYS = cast(
+    tuple[str, ...], _SCRIPT["MODELING_DATA_DOCUMENT_KEYS"]
+)
 MODELING_PROCESS_OUTPUTS = cast(tuple[str, ...], _SCRIPT["MODELING_PROCESS_OUTPUTS"])
 MODELING_DISTRIBUTION_OUTPUTS = cast(
     tuple[str, ...], _SCRIPT["MODELING_DISTRIBUTION_OUTPUTS"]
@@ -1826,11 +1829,32 @@ def test_exact_document_success_wait_replaces_removed_notice_for_data_and_proces
     generic_flow = _CAPTURE_SOURCE.split(
         "def _prepare_modeling(", 1
     )[1].split("def _prepare_modeling_process", 1)[0]
-    assert "for index in range(3):" in generic_flow
+    assert MODELING_DATA_DOCUMENT_KEYS == (
+        "CMP-DEMO-DP780-TEST-JSON",
+        "CMP-DEMO-DP780-TEST-JSON-02",
+        "CMP-DEMO-DP780-TEST-JSON-03",
+    )
+    assert "for index, document_key in enumerate(MODELING_DATA_DOCUMENT_KEYS, start=1):" in generic_flow
+    assert "_modeling_data_library_row(page, document_key)" in generic_flow
+    assert "library_rows.count() != 3" not in generic_flow
+    assert "library_rows.nth" not in generic_flow
+    assert "checkboxes.nth" not in generic_flow
+    assert "visibility.nth" not in generic_flow
     assert generic_flow.count("_wait_for_exact_document_load_settled(page)") == 1
-    assert generic_flow.index("library_rows.nth(index).click()") < generic_flow.index(
+    assert generic_flow.index("row.click()") < generic_flow.index(
         "_wait_for_exact_document_load_settled(page)"
     ) < generic_flow.index("_wait_for_data_session_counts")
+
+    surface_flow = _CAPTURE_SOURCE.split(
+        "def _assert_modeling_data_surface(", 1
+    )[1].split("def _modeling_data_ribbon_height", 1)[0]
+    assert "for document_key in MODELING_DATA_DOCUMENT_KEYS:" in surface_flow
+    assert "curve_rows.count() != 3" not in surface_flow
+    assert ".curve-row-label[title^=" in surface_flow
+    assert 're.fullmatch(r"3 exact revisions?' not in surface_flow
+    assert "int(library_count_match.group(1)) != library_rows.count()" in surface_flow
+    assert "row = _modeling_data_library_row(page, document_key)" in surface_flow
+    assert 'library.locator(".data-library-row").nth' not in surface_flow
 
     process_flow = _CAPTURE_SOURCE.split(
         "def _prepare_modeling_process(", 1

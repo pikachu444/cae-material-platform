@@ -11,8 +11,8 @@ import {
   profileMatchesPreview,
   unmatchedMappingNotice,
 } from "./modeling-data-intake";
-import { curveRailIdentity } from "./common-processing-workbench";
-import type { GovernedImportPreview, GovernedImportProfileResponse } from "./types";
+import { curveRailIdentity } from "../../../../../common-processing-workbench";
+import type { GovernedImportPreview, GovernedImportProfileResponse } from "../../../../../types";
 
 function jsonResponse(body: unknown, status = 200): Response {
   return {

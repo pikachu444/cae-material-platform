@@ -100,7 +100,7 @@ import {
 } from "./features/modeling/model/processing-registry";
 
 const ModelingDataIntake = lazy(() =>
-  import("./modeling-data-intake").then((module) => ({ default: module.ModelingDataIntake })),
+  import("./features/modeling/ui/stages/data/modeling-data-intake").then((module) => ({ default: module.ModelingDataIntake })),
 );
 const HardeningCandidateEvidence = lazy(() =>
   import("./modeling-fit-decision").then((module) => ({
