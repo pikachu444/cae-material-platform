@@ -1,4 +1,4 @@
-import type { ModelingSessionSummary, ModelingStage } from "./modeling-session-context";
+import type { ModelingSessionSummary, ModelingStage } from "./features/modeling";
 
 const stages: Array<{ id: ModelingStage; label: string }> = [
   { id: "data", label: "Data" },

@@ -10,14 +10,16 @@ import {
 } from "react";
 
 import type {
+  CurveChannelContract,
+  CurveDeviationContract,
+} from "./types";
+import type {
   CommonCurveStage,
   CommonEnsemblePreview,
   CommonProcessingPreview,
   CommonProcessingStep,
-  CurveChannelContract,
-  CurveDeviationContract,
   GraphSelectionCommand,
-} from "./types";
+} from "./features/modeling";
 import {
   channelAxisLabel,
   channelForQuantity,
@@ -28,7 +30,7 @@ import {
 import {
   fitDecisionIdentityLabel,
   type FitDecisionSelection,
-} from "./modeling-fit-decision-contract";
+} from "./features/modeling/plot-contract";
 import { useDisplayDensity } from "./design/display-density";
 import {
   ENGINEERING_PLOT_MARGIN,

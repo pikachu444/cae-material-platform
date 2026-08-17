@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 
 import {
-  downloadSelectedModelNeutralMaterial,
   getCatalogWorkflowGraph,
   getMaterialModel,
   getNeutralMaterial,
@@ -10,6 +9,7 @@ import {
   resolveCatalogDomainRevision,
   type ApiConfig,
 } from "./api";
+import { downloadSelectedModelNeutralMaterial } from "./features/modeling";
 import type { CatalogWorkflowGraphResponse, DomainBindingKind, DomainRevisionBinding } from "./types";
 import {
   downloadSolverCardArtifact,

@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { MaterialDetailPage, SolverCardPreviewPage, type MaterialRevisionPin } from "./material-library";
-import { clearModelingSession, loadModelingSession } from "./modeling-session-context";
+import { clearModelingSession, loadModelingSession } from "./features/modeling";
 
 const materialId = "material-1";
 const materialRevision1 = "material-revision-1";

@@ -1,9 +1,9 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { METAL_HARDENING_EQUATION_CONTRACT } from "../../../../../modeling-fit-decision-contract";
+import { METAL_HARDENING_EQUATION_CONTRACT } from "../../../model/fit-decision-contract";
 import { HardeningCandidateEvidence } from "./modeling-fit-decision";
-import type { CommonCurveStage, CommonProcessingStep } from "../../../../../types";
+import type { CommonCurveStage, CommonProcessingStep } from "../../../model/common-processing-contracts";
 
 const step: CommonProcessingStep = {
   method_id: "metal.hardening_fit_extrapolate",

@@ -21,56 +21,39 @@ const HardeningFitOptions = lazy(() => import("./fit-hardening-options").then((m
 
 import {
   ApiError,
-  commitCommonProcessingOutput,
-  createCommonMappingProfile,
-  createCommonProcessingRecipe,
   downloadCanonicalTestDataDocument,
-  downloadCommonProcessingOutput,
   listCanonicalTestDataDocuments,
-  listCommonMappingProfiles,
-  listCommonProcessingOutputs,
-  listCommonProcessingRecipes,
-  listCommonProcessingBatches,
-  listCommonProcessingMethods,
-  listCommonProcessingEnsembleMethods,
-  previewCommonProcessing,
-  executeMetalFitRun,
-  previewCommonProcessingEnsemble,
-  preflightCommonProcessingBatch,
-  executeCommonProcessingBatch,
-  retryFailedCommonProcessingBatch,
-  reviseCommonMappingProfile,
-  reviseCommonProcessingRecipe,
   type ApiConfig,
 } from "./api";
 import type {
   CanonicalTestDataDocumentResponse,
-  CommonEnsemblePreview,
-  CommonMappingProfileContent,
-  CommonMappingProfileResponse,
-  CommonProcessingMethod,
-  CommonProcessingBatchPreflight,
-  CommonProcessingBatchResponse,
-  CommonCurveStage,
-  CommonProcessingOutputResponse,
-  CommonProcessingRecipeContent,
-  CommonProcessingRecipeResponse,
-  CommonProcessingPreview,
-  CommonProcessingStep,
-  CommonExactRevisionPin,
   DataClassification,
-  GraphSelectionCommand,
   MaterialResponse,
   MaterialStateResponse,
   PropertySetResponse} from "./types";
 import { DomainWorkflowLinks } from "./domain-workflow-links";
-import { dispatchModelingSession, modelingDataDocumentMatchesMaterialContext, modelingDocumentMatchesMaterialContext, modelingSessionRecordKey, modelingSessionRefFromRecord, type ModelingMaterialFamily, type ModelingPlotView, type ModelingSessionEvent, type ModelingSessionRecordRef, type ModelingSessionSummary, type ModelingStage } from "./modeling-session-context";
 import { ModelingStageShell } from "./modeling-stage-shell";
-import { exportPrerequisites } from "./modeling-export-eligibility";
 import {
   buildFitDecisionSnapshot,
+  commitCommonProcessingOutput, createCommonMappingProfile, createCommonProcessingRecipe,
+  dispatchModelingSession, downloadCommonProcessingOutput, executeCommonProcessingBatch,
+  executeMetalFitRun, exportPrerequisites,
   fitDecisionIdentityLabel,
-  type FitDecisionSelection} from "./modeling-fit-decision-contract";
+  listCommonMappingProfiles, listCommonProcessingBatches, listCommonProcessingEnsembleMethods,
+  listCommonProcessingMethods, listCommonProcessingOutputs, listCommonProcessingRecipes,
+  modelingDataDocumentMatchesMaterialContext, modelingDocumentMatchesMaterialContext,
+  modelingSessionRecordKey, modelingSessionRefFromRecord,
+  preflightCommonProcessingBatch, previewCommonProcessing, previewCommonProcessingEnsemble,
+  retryFailedCommonProcessingBatch, reviseCommonMappingProfile, reviseCommonProcessingRecipe,
+  type CommonCurveStage, type CommonEnsemblePreview, type CommonExactRevisionPin,
+  type CommonMappingProfileContent, type CommonMappingProfileResponse,
+  type CommonProcessingBatchPreflight, type CommonProcessingBatchResponse,
+  type CommonProcessingMethod, type CommonProcessingOutputResponse, type CommonProcessingPreview,
+  type CommonProcessingRecipeContent, type CommonProcessingRecipeResponse, type CommonProcessingStep,
+  type FitDecisionSelection, type GraphSelectionCommand, type ModelingMaterialFamily,
+  type ModelingPlotView, type ModelingSessionEvent, type ModelingSessionRecordRef,
+  type ModelingSessionSummary, type ModelingStage,
+} from "./features/modeling";
 import {
   DEFAULT_PROFILE,
   ELASTOMER_CURVE_PROFILE,
@@ -97,7 +80,7 @@ import {
   serverProcessingSteps,
   workupOverridesFromSteps,
   type ModelingTrack,
-} from "./features/modeling/model/processing-registry";
+} from "./features/modeling";
 
 const ModelingDataIntake = lazy(() =>
   import("./features/modeling/ui/stages/data/modeling-data-intake").then((module) => ({ default: module.ModelingDataIntake })),

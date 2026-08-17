@@ -7,7 +7,7 @@ import {
   listMaterials,
 } from "./api";
 import { GovernedImportWorkbench } from "./governed-import-workbench";
-import { loadModelingSession } from "./modeling-session-context";
+import { loadModelingSession } from "./features/modeling";
 import type { MaterialDetail, MaterialStateResponse } from "./types";
 
 interface ImportContext {

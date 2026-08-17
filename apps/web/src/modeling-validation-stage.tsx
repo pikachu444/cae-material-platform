@@ -25,7 +25,7 @@ import type {
   ValidationRunResponse,
   ValidationTemplateResponse,
 } from "./types";
-import type { ModelingMaterialFamily, ModelingSessionEvent, ModelingSessionSummary } from "./modeling-session-context";
+import type { ModelingMaterialFamily, ModelingSessionEvent, ModelingSessionSummary } from "./features/modeling";
 
 type Props = {
   config: ApiConfig;

@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import type {
   CommonProcessingOutputResponse,
   CommonProcessingStep,
-} from "../../../../../types";
+} from "../../../model/common-processing-contracts";
 
 export type ProcessSavedResultState = {
   status: "loading" | "ready" | "error";

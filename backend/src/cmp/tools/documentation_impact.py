@@ -772,6 +772,8 @@ def _scan_ts(text: str, *, include_template_expressions: bool = False) -> tuple[
     def regex_allowed() -> bool:
         if previous is None:
             return True
+        if previous.kind in {"literal", "template", "regex"}:
+            return False
         if previous.kind == "identifier" and previous.text not in {
             "return",
             "throw",
@@ -1499,6 +1501,1113 @@ def _binding_tuple(import_item: _StaticImport) -> tuple[tuple[str, str, str], ..
     )
 
 
+_EXPORT_STAR_PATTERN = re.compile(
+    r"^[ \t]*export[ \t]+\*[ \t]+from[ \t]+(?P<quote>['\"])"
+    r"(?P<module>[^'\"\r\n]+)(?P=quote)[ \t]*;[ \t]*$",
+    re.MULTILINE,
+)
+_EXPORT_NAMED_PATTERN = re.compile(
+    r"^[ \t]*export[ \t]*\{(?P<body>.*?)\}[ \t]*from[ \t]+(?P<quote>['\"])"
+    r"(?P<module>[^'\"\r\n]+)(?P=quote)[ \t]*;[ \t]*$",
+    re.MULTILINE | re.DOTALL,
+)
+_EXPORT_LOCAL_NAMED_PATTERN = re.compile(
+    r"^[ \t]*export[ \t]*\{(?P<body>.*?)\}[ \t]*;[ \t]*$",
+    re.MULTILINE | re.DOTALL,
+)
+
+
+@dataclass(frozen=True, slots=True)
+class _RuntimeDeclarationFingerprint:
+    exported: bool
+    declaration_kind: Literal["class", "const", "function"]
+    tokens: tuple[tuple[str, str], ...]
+    identifiers: tuple[str, ...]
+
+
+def _export_star_modules(text: str) -> tuple[str, ...]:
+    return tuple(match.group("module") for match in _EXPORT_STAR_PATTERN.finditer(text))
+
+
+def _named_runtime_reexports(text: str) -> tuple[tuple[str, str, str], ...]:
+    result: list[tuple[str, str, str]] = []
+    for match in _EXPORT_NAMED_PATTERN.finditer(text):
+        module = match.group("module")
+        for raw_binding in match.group("body").split(","):
+            binding = raw_binding.strip()
+            if not binding or binding.startswith("type "):
+                continue
+            names = re.split(r"\s+as\s+", binding)
+            if len(names) == 1:
+                imported = exported = names[0]
+            elif len(names) == 2:
+                imported, exported = names
+            else:
+                return ()
+            if not all(re.fullmatch(r"[A-Za-z_$][\w$]*", name) for name in names):
+                return ()
+            result.append((imported, exported, module))
+    return tuple(result)
+
+
+def _named_local_runtime_exports(text: str) -> tuple[tuple[str, str], ...]:
+    result: list[tuple[str, str]] = []
+    for match in _EXPORT_LOCAL_NAMED_PATTERN.finditer(text):
+        for raw_binding in match.group("body").split(","):
+            binding = raw_binding.strip()
+            if not binding or binding.startswith("type "):
+                continue
+            names = re.split(r"\s+as\s+", binding)
+            if len(names) == 1:
+                local = exported = names[0]
+            elif len(names) == 2:
+                local, exported = names
+            else:
+                return ()
+            if not all(re.fullmatch(r"[A-Za-z_$][\w$]*", name) for name in names):
+                return ()
+            result.append((local, exported))
+    return tuple(result)
+
+
+def _runtime_parameter_fingerprint(
+    tokens: tuple[_TsToken, ...], start: int, end: int
+) -> tuple[tuple[str, str], ...]:
+    result: list[_TsToken] = []
+    brace = paren = square = angle = 0
+    skipping_type = False
+    in_default = False
+    for token in tokens[start:end]:
+        value = token.text
+        at_top = not (brace or paren or square or angle)
+        if skipping_type:
+            if at_top and value in {",", "="}:
+                skipping_type = False
+                if value == "=":
+                    in_default = True
+                    result.append(token)
+                else:
+                    in_default = False
+                    result.append(token)
+                continue
+        elif at_top and not in_default and value == ":":
+            skipping_type = True
+            continue
+        elif at_top and not in_default and value == "?":
+            continue
+        elif at_top and value == ",":
+            in_default = False
+            result.append(token)
+            continue
+
+        if not skipping_type:
+            result.append(token)
+        if value == "{":
+            brace += 1
+        elif value == "}":
+            brace -= 1
+        elif value == "(":
+            paren += 1
+        elif value == ")":
+            paren -= 1
+        elif value == "[":
+            square += 1
+        elif value == "]":
+            square -= 1
+        elif value == "<":
+            angle += 1
+        elif value == ">" and angle:
+            angle -= 1
+    return tuple((token.kind, token.text) for token in result)
+
+
+def _class_instance_runtime_tokens(
+    tokens: tuple[_TsToken, ...], keyword_index: int, body_index: int, end_index: int
+) -> tuple[_TsToken, ...] | None:
+    """Return class tokens without static members resolved through explicit property access."""
+    result = list(tokens[keyword_index : body_index + 1])
+    cursor = body_index + 1
+    brace = paren = square = 0
+    while cursor < end_index:
+        token = tokens[cursor]
+        if not (brace or paren or square) and token.text == "static":
+            static_brace = static_paren = static_square = 0
+            cursor += 1
+            while cursor < end_index:
+                value = tokens[cursor].text
+                if value == "{":
+                    static_brace += 1
+                elif value == "}":
+                    static_brace -= 1
+                elif value == "(":
+                    static_paren += 1
+                elif value == ")":
+                    static_paren -= 1
+                elif value == "[":
+                    static_square += 1
+                elif value == "]":
+                    static_square -= 1
+                elif value == ";" and not (static_brace or static_paren or static_square):
+                    cursor += 1
+                    break
+                if min(static_brace, static_paren, static_square) < 0:
+                    return None
+                cursor += 1
+            else:
+                return None
+            continue
+        result.append(token)
+        if token.text == "{":
+            brace += 1
+        elif token.text == "}":
+            brace -= 1
+        elif token.text == "(":
+            paren += 1
+        elif token.text == ")":
+            paren -= 1
+        elif token.text == "[":
+            square += 1
+        elif token.text == "]":
+            square -= 1
+        if min(brace, paren, square) < 0:
+            return None
+        cursor += 1
+    if brace or paren or square:
+        return None
+    result.append(tokens[end_index])
+    return tuple(result)
+
+
+def _direct_runtime_declarations(
+    text: str,
+) -> dict[str, _RuntimeDeclarationFingerprint] | None:
+    """Return conservative fingerprints for top-level runtime declarations."""
+    tokens = _scan_ts(text, include_template_expressions=True)
+    matches: dict[str, _RuntimeDeclarationFingerprint] = {}
+    brace = paren = square = 0
+    cursor = 0
+    while cursor < len(tokens):
+        token = tokens[cursor]
+        if token.text == "{":
+            brace += 1
+            cursor += 1
+            continue
+        if token.text == "}":
+            brace -= 1
+            if brace < 0:
+                return None
+            cursor += 1
+            continue
+        if token.text == "(":
+            paren += 1
+            cursor += 1
+            continue
+        if token.text == ")":
+            paren -= 1
+            if paren < 0:
+                return None
+            cursor += 1
+            continue
+        if token.text == "[":
+            square += 1
+            cursor += 1
+            continue
+        if token.text == "]":
+            square -= 1
+            if square < 0:
+                return None
+            cursor += 1
+            continue
+        if brace or paren or square or text[_line_start(text, token.start) : token.start].strip():
+            cursor += 1
+            continue
+
+        declaration_start = cursor
+        exported = token.text == "export"
+        keyword_index = cursor + 1 if exported else cursor
+        if keyword_index < len(tokens) and tokens[keyword_index].text == "async":
+            keyword_index += 1
+        if (
+            keyword_index >= len(tokens)
+            or tokens[keyword_index].text not in {"class", "const", "function"}
+            or keyword_index + 1 >= len(tokens)
+            or tokens[keyword_index + 1].kind != "identifier"
+        ):
+            cursor += 1
+            continue
+        declaration_kind = tokens[keyword_index].text
+        name = tokens[keyword_index + 1].text
+        runtime_tokens: tuple[_TsToken, ...]
+        end_index: int | None = None
+
+        body_index: int | None = None
+        if declaration_kind == "const":
+            nested_brace = nested_paren = nested_square = angle = 0
+            equal_index: int | None = None
+            for probe in range(keyword_index + 2, len(tokens)):
+                value = tokens[probe].text
+                if value == "=" and not (nested_brace or nested_paren or nested_square or angle):
+                    equal_index = probe
+                    break
+                if value == "{":
+                    nested_brace += 1
+                elif value == "}":
+                    nested_brace -= 1
+                elif value == "(":
+                    nested_paren += 1
+                elif value == ")":
+                    nested_paren -= 1
+                elif value == "[":
+                    nested_square += 1
+                elif value == "]":
+                    nested_square -= 1
+                elif value == "<":
+                    angle += 1
+                elif value == ">" and angle:
+                    angle -= 1
+                if min(nested_brace, nested_paren, nested_square, angle) < 0:
+                    return None
+            if equal_index is None:
+                return None
+            nested_brace = nested_paren = nested_square = angle = 0
+            for probe in range(equal_index + 1, len(tokens)):
+                value = tokens[probe].text
+                if value == "{":
+                    nested_brace += 1
+                elif value == "}":
+                    nested_brace -= 1
+                elif value == "(":
+                    nested_paren += 1
+                elif value == ")":
+                    nested_paren -= 1
+                elif value == "[":
+                    nested_square += 1
+                elif value == "]":
+                    nested_square -= 1
+                elif value == "<":
+                    angle += 1
+                elif value == ">" and angle:
+                    angle -= 1
+                elif value == ";" and not (nested_brace or nested_paren or nested_square or angle):
+                    end_index = probe
+                    break
+                if min(nested_brace, nested_paren, nested_square, angle) < 0:
+                    return None
+            if end_index is None:
+                return None
+            runtime_tokens = (
+                tokens[keyword_index : keyword_index + 2] + tokens[equal_index : end_index + 1]
+            )
+        elif declaration_kind == "class":
+            body_index = next(
+                (
+                    probe
+                    for probe in range(keyword_index + 2, len(tokens))
+                    if tokens[probe].text == "{"
+                ),
+                None,
+            )
+            if body_index is None:
+                return None
+            try:
+                end_index = _matching_token(tokens, body_index, "{", "}")
+            except DocumentationImpactError:
+                return None
+            class_tokens = _class_instance_runtime_tokens(
+                tokens, keyword_index, body_index, end_index
+            )
+            if class_tokens is None:
+                return None
+            runtime_tokens = class_tokens
+        else:
+            angle = 0
+            parameter_open: int | None = None
+            for probe in range(keyword_index + 2, len(tokens)):
+                value = tokens[probe].text
+                if value == "<":
+                    angle += 1
+                elif value == ">" and angle:
+                    angle -= 1
+                elif value == "(" and not angle:
+                    parameter_open = probe
+                    break
+            if parameter_open is None:
+                return None
+            try:
+                parameter_close = _matching_token(tokens, parameter_open, "(", ")")
+            except DocumentationImpactError:
+                return None
+            return_angle = return_paren = return_square = 0
+            for probe in range(parameter_close + 1, len(tokens)):
+                value = tokens[probe].text
+                if value == "<":
+                    return_angle += 1
+                elif value == ">" and return_angle:
+                    return_angle -= 1
+                elif value == "(":
+                    return_paren += 1
+                elif value == ")" and return_paren:
+                    return_paren -= 1
+                elif value == "[":
+                    return_square += 1
+                elif value == "]" and return_square:
+                    return_square -= 1
+                elif value == "{" and not (return_angle or return_paren or return_square):
+                    body_index = probe
+                    break
+                elif value == ";" and not (return_angle or return_paren or return_square):
+                    return None
+            if body_index is None:
+                return None
+            try:
+                end_index = _matching_token(tokens, body_index, "{", "}")
+            except DocumentationImpactError:
+                return None
+            prefix_start = (
+                keyword_index - 1
+                if keyword_index > declaration_start and tokens[keyword_index - 1].text == "async"
+                else keyword_index
+            )
+            fingerprint = tuple(
+                (item.kind, item.text) for item in tokens[prefix_start : keyword_index + 2]
+            )
+            fingerprint += (("punctuation", "("),)
+            fingerprint += _runtime_parameter_fingerprint(
+                tokens, parameter_open + 1, parameter_close
+            )
+            fingerprint += (("punctuation", ")"),)
+            fingerprint += tuple(
+                (item.kind, item.text) for item in tokens[body_index : end_index + 1]
+            )
+            runtime_tokens = ()
+
+        if declaration_kind != "function":
+            fingerprint = tuple((item.kind, item.text) for item in runtime_tokens)
+        if name in matches:
+            return None
+        matches[name] = _RuntimeDeclarationFingerprint(
+            exported=exported,
+            declaration_kind=declaration_kind,
+            tokens=fingerprint,
+            identifiers=tuple(value for kind, value in fingerprint if kind == "identifier"),
+        )
+        cursor = (end_index or declaration_start) + 1
+    if brace or paren or square:
+        return None
+    return matches
+
+
+def _runtime_import_map(
+    text: str,
+) -> dict[str, tuple[str, str]] | None:
+    result: dict[str, tuple[str, str]] = {}
+    try:
+        imports = _static_imports(text)
+    except DocumentationImpactError:
+        return None
+    for import_item in imports:
+        if import_item.side_effect:
+            return None
+        for binding in import_item.bindings:
+            if binding.kind != "value":
+                continue
+            if binding.local in result:
+                return None
+            result[binding.local] = (import_item.module, binding.imported)
+    return result
+
+
+def _simple_object_bindings(
+    tokens: tuple[_TsToken, ...], start: int, end: int
+) -> dict[str, str] | None:
+    result: dict[str, str] = {}
+    segment_start = start
+    brace = paren = square = 0
+    segments: list[tuple[_TsToken, ...]] = []
+    for cursor in range(start, end + 1):
+        at_end = cursor == end
+        token = tokens[cursor] if not at_end else None
+        if token is not None and token.text == "{":
+            brace += 1
+        elif token is not None and token.text == "}":
+            brace -= 1
+        elif token is not None and token.text == "(":
+            paren += 1
+        elif token is not None and token.text == ")":
+            paren -= 1
+        elif token is not None and token.text == "[":
+            square += 1
+        elif token is not None and token.text == "]":
+            square -= 1
+        if min(brace, paren, square) < 0:
+            return None
+        if at_end or (token is not None and token.text == "," and not (brace or paren or square)):
+            segment = tokens[segment_start:cursor]
+            if segment:
+                segments.append(segment)
+            segment_start = cursor + 1
+    if brace or paren or square:
+        return None
+    for segment in segments:
+        if len(segment) == 1 and segment[0].kind == "identifier":
+            source = local = segment[0].text
+        elif (
+            len(segment) == 3
+            and segment[0].kind == "identifier"
+            and segment[1].text == ":"
+            and segment[2].kind == "identifier"
+        ):
+            source = segment[0].text
+            local = segment[2].text
+        else:
+            return None
+        if local in result:
+            return None
+        result[local] = source
+    return result
+
+
+def _runtime_destructured_aliases(
+    text: str,
+) -> dict[str, tuple[str, tuple[str, ...]]] | None:
+    tokens = _scan_ts(text, include_template_expressions=True)
+    result: dict[str, tuple[str, tuple[str, ...]]] = {}
+    brace = paren = square = 0
+    cursor = 0
+    while cursor < len(tokens):
+        token = tokens[cursor]
+        if (
+            not (brace or paren or square)
+            and token.text == "const"
+            and text[_line_start(text, token.start) : token.start].strip() == ""
+            and cursor + 1 < len(tokens)
+            and tokens[cursor + 1].text == "{"
+        ):
+            try:
+                binding_end = _matching_token(tokens, cursor + 1, "{", "}")
+            except DocumentationImpactError:
+                return None
+            bindings = _simple_object_bindings(tokens, cursor + 2, binding_end)
+            if bindings is None or binding_end + 2 >= len(tokens):
+                return None
+            if tokens[binding_end + 1].text != "=" or tokens[binding_end + 2].kind != "identifier":
+                return None
+            base = tokens[binding_end + 2].text
+            path: list[str] = []
+            probe = binding_end + 3
+            while (
+                probe + 1 < len(tokens)
+                and tokens[probe].text == "."
+                and tokens[probe + 1].kind == "identifier"
+            ):
+                path.append(tokens[probe + 1].text)
+                probe += 2
+            if not path or probe >= len(tokens) or tokens[probe].text != ";":
+                return None
+            for local, source in bindings.items():
+                if local in result:
+                    return None
+                result[local] = (base, (*path, source))
+            cursor = probe + 1
+            continue
+        if token.text == "{":
+            brace += 1
+        elif token.text == "}":
+            brace -= 1
+        elif token.text == "(":
+            paren += 1
+        elif token.text == ")":
+            paren -= 1
+        elif token.text == "[":
+            square += 1
+        elif token.text == "]":
+            square -= 1
+        if min(brace, paren, square) < 0:
+            return None
+        cursor += 1
+    if brace or paren or square:
+        return None
+    return result
+
+
+def _class_static_object_member(
+    text: str, class_name: str, container_name: str, member_name: str
+) -> str | None:
+    tokens = _scan_ts(text, include_template_expressions=True)
+    brace = paren = square = 0
+    cursor = 0
+    while cursor < len(tokens):
+        token = tokens[cursor]
+        if (
+            not (brace or paren or square)
+            and text[_line_start(text, token.start) : token.start].strip() == ""
+        ):
+            keyword_index = cursor + 1 if token.text == "export" else cursor
+            if (
+                keyword_index + 1 < len(tokens)
+                and tokens[keyword_index].text == "class"
+                and tokens[keyword_index + 1].text == class_name
+            ):
+                body_index = next(
+                    (
+                        probe
+                        for probe in range(keyword_index + 2, len(tokens))
+                        if tokens[probe].text == "{"
+                    ),
+                    None,
+                )
+                if body_index is None:
+                    return None
+                try:
+                    body_end = _matching_token(tokens, body_index, "{", "}")
+                except DocumentationImpactError:
+                    return None
+                member_cursor = body_index + 1
+                member_brace = member_paren = member_square = 0
+                while member_cursor < body_end:
+                    member_token = tokens[member_cursor]
+                    if (
+                        not (member_brace or member_paren or member_square)
+                        and member_token.text == "static"
+                    ):
+                        probe = member_cursor + 1
+                        if probe < body_end and tokens[probe].text == "readonly":
+                            probe += 1
+                        if probe < body_end and tokens[probe].text == container_name:
+                            if (
+                                probe + 2 >= body_end
+                                or tokens[probe + 1].text != "="
+                                or tokens[probe + 2].text != "{"
+                            ):
+                                return None
+                            try:
+                                object_end = _matching_token(tokens, probe + 2, "{", "}")
+                            except DocumentationImpactError:
+                                return None
+                            bindings = _simple_object_bindings(tokens, probe + 3, object_end)
+                            if bindings is None:
+                                return None
+                            return next(
+                                (
+                                    local
+                                    for local, source in bindings.items()
+                                    if source == member_name
+                                ),
+                                None,
+                            )
+                    if member_token.text == "{":
+                        member_brace += 1
+                    elif member_token.text == "}":
+                        member_brace -= 1
+                    elif member_token.text == "(":
+                        member_paren += 1
+                    elif member_token.text == ")":
+                        member_paren -= 1
+                    elif member_token.text == "[":
+                        member_square += 1
+                    elif member_token.text == "]":
+                        member_square -= 1
+                    if min(member_brace, member_paren, member_square) < 0:
+                        return None
+                    member_cursor += 1
+                return None
+        if token.text == "{":
+            brace += 1
+        elif token.text == "}":
+            brace -= 1
+        elif token.text == "(":
+            paren += 1
+        elif token.text == ")":
+            paren -= 1
+        elif token.text == "[":
+            square += 1
+        elif token.text == "]":
+            square -= 1
+        if min(brace, paren, square) < 0:
+            return None
+        cursor += 1
+    return None
+
+
+def _dependency_fingerprint(
+    name: str, fingerprint: tuple[tuple[str, str], ...]
+) -> tuple[tuple[str, str], ...]:
+    return (
+        ("dependency", name),
+        ("dependency", "{"),
+        *fingerprint,
+        ("dependency", "}"),
+    )
+
+
+def _runtime_export_property_fingerprint(
+    project: Path,
+    source_sha: str,
+    module_path: str,
+    export_name: str,
+    property_path: tuple[str, ...],
+    universe: set[str],
+    *,
+    current: bool,
+    visited: frozenset[tuple[str, str]],
+) -> tuple[tuple[str, str], ...] | None:
+    property_key = f"{export_name}.{'.'.join(property_path)}"
+    key = (module_path, property_key)
+    if key in visited:
+        return (("cycle", property_key),)
+    if len(property_path) != 2:
+        return None
+    try:
+        text = (
+            _read_current(project, module_path)
+            if current
+            else _read_base(project, source_sha, module_path, None)
+        )
+    except DocumentationImpactError:
+        return None
+    declarations = _direct_runtime_declarations(text)
+    if declarations is None:
+        return None
+    declaration = declarations.get(export_name)
+    if declaration is None or not declaration.exported or declaration.declaration_kind != "class":
+        return None
+    local = _class_static_object_member(text, export_name, property_path[0], property_path[1])
+    if local is None:
+        return None
+    return _runtime_local_symbol_fingerprint(
+        project,
+        source_sha,
+        module_path,
+        local,
+        universe,
+        current=current,
+        visited=visited | {key},
+    )
+
+
+def _runtime_alias_fingerprint(
+    project: Path,
+    source_sha: str,
+    module_path: str,
+    alias: tuple[str, tuple[str, ...]],
+    imports: Mapping[str, tuple[str, str]],
+    universe: set[str],
+    *,
+    current: bool,
+    visited: frozenset[tuple[str, str]],
+) -> tuple[tuple[str, str], ...] | None:
+    base, property_path = alias
+    binding = imports.get(base)
+    if binding is None:
+        return None
+    specifier, imported = binding
+    if not specifier.startswith(("./", "../")) or imported in {"default", "*"}:
+        return None
+    try:
+        target = _resolve_relative_module(
+            module_path,
+            specifier,
+            universe,
+            project=project if current else None,
+        )
+    except DocumentationImpactError:
+        return None
+    return _runtime_export_property_fingerprint(
+        project,
+        source_sha,
+        target,
+        imported,
+        property_path,
+        universe,
+        current=current,
+        visited=visited,
+    )
+
+
+def _runtime_export_fingerprint(
+    project: Path,
+    source_sha: str,
+    module_path: str,
+    export_name: str,
+    universe: set[str],
+    *,
+    current: bool,
+    visited: frozenset[tuple[str, str]] = frozenset(),
+) -> tuple[tuple[str, str], ...] | None:
+    key = (module_path, export_name)
+    if key in visited:
+        return (("cycle", export_name),)
+    try:
+        text = (
+            _read_current(project, module_path)
+            if current
+            else _read_base(project, source_sha, module_path, None)
+        )
+    except DocumentationImpactError:
+        return None
+    next_visited = visited | {key}
+    declarations = _direct_runtime_declarations(text)
+    imports = _runtime_import_map(text)
+    aliases = _runtime_destructured_aliases(text)
+    if declarations is None or imports is None or aliases is None:
+        return None
+    direct = declarations.get(export_name)
+    if direct is not None and direct.exported:
+        result = direct.tokens
+        for dependency_name in sorted(set(direct.identifiers)):
+            if dependency_name == export_name:
+                continue
+            dependency: tuple[tuple[str, str], ...] | None = None
+            if dependency_name in declarations:
+                dependency = _runtime_local_symbol_fingerprint(
+                    project,
+                    source_sha,
+                    module_path,
+                    dependency_name,
+                    universe,
+                    current=current,
+                    visited=next_visited,
+                )
+            elif dependency_name in imports:
+                dependency = _runtime_import_fingerprint(
+                    project,
+                    source_sha,
+                    module_path,
+                    imports[dependency_name],
+                    universe,
+                    current=current,
+                    visited=next_visited,
+                )
+            elif dependency_name in aliases:
+                dependency = _runtime_alias_fingerprint(
+                    project,
+                    source_sha,
+                    module_path,
+                    aliases[dependency_name],
+                    imports,
+                    universe,
+                    current=current,
+                    visited=next_visited,
+                )
+            if dependency is not None:
+                result += _dependency_fingerprint(dependency_name, dependency)
+            elif (
+                dependency_name in declarations
+                or dependency_name in imports
+                or dependency_name in aliases
+            ):
+                return None
+        return result
+
+    local_candidates: list[tuple[tuple[str, str], ...]] = []
+    for local, exported in _named_local_runtime_exports(text):
+        if exported != export_name:
+            continue
+        candidate = _runtime_local_symbol_fingerprint(
+            project,
+            source_sha,
+            module_path,
+            local,
+            universe,
+            current=current,
+            visited=next_visited,
+        )
+        if candidate is not None:
+            local_candidates.append(candidate)
+    if local_candidates:
+        return local_candidates[0] if len(local_candidates) == 1 else None
+
+    named_candidates: list[tuple[tuple[str, str], ...]] = []
+    for imported, exported, specifier in _named_runtime_reexports(text):
+        if exported != export_name:
+            continue
+        try:
+            target = _resolve_relative_module(
+                module_path,
+                specifier,
+                universe,
+                project=project if current else None,
+            )
+        except DocumentationImpactError:
+            return None
+        candidate = _runtime_export_fingerprint(
+            project,
+            source_sha,
+            target,
+            imported,
+            universe,
+            current=current,
+            visited=next_visited,
+        )
+        if candidate is not None:
+            named_candidates.append(candidate)
+    if named_candidates:
+        return named_candidates[0] if len(named_candidates) == 1 else None
+
+    candidates: list[tuple[tuple[str, str], ...]] = []
+    for specifier in _export_star_modules(text):
+        try:
+            target = _resolve_relative_module(
+                module_path,
+                specifier,
+                universe,
+                project=project if current else None,
+            )
+        except DocumentationImpactError:
+            return None
+        candidate = _runtime_export_fingerprint(
+            project,
+            source_sha,
+            target,
+            export_name,
+            universe,
+            current=current,
+            visited=next_visited,
+        )
+        if candidate is not None:
+            candidates.append(candidate)
+    return candidates[0] if len(candidates) == 1 else None
+
+
+def _runtime_import_fingerprint(
+    project: Path,
+    source_sha: str,
+    importer: str,
+    binding: tuple[str, str],
+    universe: set[str],
+    *,
+    current: bool,
+    visited: frozenset[tuple[str, str]],
+) -> tuple[tuple[str, str], ...] | None:
+    specifier, imported = binding
+    if not specifier.startswith(("./", "../")):
+        return (("package", specifier), ("package-export", imported))
+    if imported in {"default", "*"}:
+        return None
+    try:
+        target = _resolve_relative_module(
+            importer,
+            specifier,
+            universe,
+            project=project if current else None,
+        )
+    except DocumentationImpactError:
+        return None
+    return _runtime_export_fingerprint(
+        project,
+        source_sha,
+        target,
+        imported,
+        universe,
+        current=current,
+        visited=visited,
+    )
+
+
+def _runtime_local_symbol_fingerprint(
+    project: Path,
+    source_sha: str,
+    module_path: str,
+    symbol_name: str,
+    universe: set[str],
+    *,
+    current: bool,
+    visited: frozenset[tuple[str, str]],
+) -> tuple[tuple[str, str], ...] | None:
+    key = (module_path, symbol_name)
+    if key in visited:
+        return (("cycle", symbol_name),)
+    try:
+        text = (
+            _read_current(project, module_path)
+            if current
+            else _read_base(project, source_sha, module_path, None)
+        )
+    except DocumentationImpactError:
+        return None
+    declarations = _direct_runtime_declarations(text)
+    imports = _runtime_import_map(text)
+    aliases = _runtime_destructured_aliases(text)
+    if declarations is None or imports is None or aliases is None:
+        return None
+    direct = declarations.get(symbol_name)
+    if direct is None:
+        binding = imports.get(symbol_name)
+        if binding is not None:
+            return _runtime_import_fingerprint(
+                project,
+                source_sha,
+                module_path,
+                binding,
+                universe,
+                current=current,
+                visited=visited | {key},
+            )
+        alias = aliases.get(symbol_name)
+        if alias is None:
+            return None
+        return _runtime_alias_fingerprint(
+            project,
+            source_sha,
+            module_path,
+            alias,
+            imports,
+            universe,
+            current=current,
+            visited=visited | {key},
+        )
+
+    result = direct.tokens
+    next_visited = visited | {key}
+    for dependency_name in sorted(set(direct.identifiers)):
+        if dependency_name == symbol_name:
+            continue
+        dependency: tuple[tuple[str, str], ...] | None = None
+        if dependency_name in declarations:
+            dependency = _runtime_local_symbol_fingerprint(
+                project,
+                source_sha,
+                module_path,
+                dependency_name,
+                universe,
+                current=current,
+                visited=next_visited,
+            )
+        elif dependency_name in imports:
+            dependency = _runtime_import_fingerprint(
+                project,
+                source_sha,
+                module_path,
+                imports[dependency_name],
+                universe,
+                current=current,
+                visited=next_visited,
+            )
+        elif dependency_name in aliases:
+            dependency = _runtime_alias_fingerprint(
+                project,
+                source_sha,
+                module_path,
+                aliases[dependency_name],
+                imports,
+                universe,
+                current=current,
+                visited=next_visited,
+            )
+        if dependency is not None:
+            result += _dependency_fingerprint(dependency_name, dependency)
+        elif (
+            dependency_name in declarations
+            or dependency_name in imports
+            or dependency_name in aliases
+        ):
+            return None
+    return result
+
+
+def _is_import_only_visual_change(
+    project: Path,
+    source_sha: str,
+    path: str,
+    *,
+    base_universe: set[str] | None = None,
+    current_universe: set[str] | None = None,
+) -> bool:
+    """Return true only when a TSX change rewires static named imports.
+
+    Relative named imports may be regrouped across local ownership modules, but
+    their imported/local/type bindings must remain identical. A runtime binding
+    may change modules only when its exported declaration has the same token
+    fingerprint (including through a local export-star barrel). Package imports,
+    default or namespace imports, and side-effect imports stay byte-identical.
+    All non-import source bytes stay identical apart from blank extraction gaps.
+    """
+    if PurePosixPath(path).suffix.lower() != ".tsx":
+        return False
+    try:
+        base_text = _read_base(project, source_sha, path, None)
+        current_text = _read_current(project, path)
+        base_imports = _static_imports(base_text)
+        current_imports = _static_imports(current_text)
+    except DocumentationImpactError:
+        return False
+
+    base_remaining = _remove_spans(
+        base_text, ((item.start, item.end) for item in base_imports)
+    ).replace("\r\n", "\n")
+    current_remaining = _remove_spans(
+        current_text, ((item.start, item.end) for item in current_imports)
+    ).replace("\r\n", "\n")
+    if _nonblank_lines(base_remaining) != _nonblank_lines(current_remaining):
+        return False
+
+    def import_shape(
+        imports: Iterable[_StaticImport],
+    ) -> tuple[dict[tuple[str, str, str], str], tuple[str, ...]] | None:
+        local_named: dict[tuple[str, str, str], str] = {}
+        protected: list[str] = []
+        for import_item in imports:
+            if (
+                import_item.module.startswith(("./", "../"))
+                and not import_item.side_effect
+                and not import_item.has_default_or_namespace
+                and import_item.bindings
+            ):
+                for binding in _binding_tuple(import_item):
+                    if binding in local_named:
+                        return None
+                    local_named[binding] = import_item.module
+            else:
+                protected.append(import_item.text)
+        return local_named, tuple(sorted(protected))
+
+    base_shape = import_shape(base_imports)
+    current_shape = import_shape(current_imports)
+    if base_shape is None or current_shape is None:
+        return False
+    base_named, base_protected = base_shape
+    current_named, current_protected = current_shape
+    if set(base_named) != set(current_named) or base_protected != current_protected:
+        return False
+
+    base_paths = base_universe or _git_blob_paths(project, source_sha)
+    current_paths = current_universe or _current_source_paths(
+        project, changed_entries(project, "worktree")
+    )
+    for binding, base_module in base_named.items():
+        current_module = current_named[binding]
+        if base_module == current_module:
+            continue
+        try:
+            base_target = _resolve_relative_module(path, base_module, base_paths)
+            current_target = _resolve_relative_module(
+                path, current_module, current_paths, project=project
+            )
+        except DocumentationImpactError:
+            return False
+        if binding[2] == "type" or base_target == current_target:
+            continue
+        base_fingerprint = _runtime_export_fingerprint(
+            project,
+            source_sha,
+            base_target,
+            binding[0],
+            base_paths,
+            current=False,
+        )
+        current_fingerprint = _runtime_export_fingerprint(
+            project,
+            source_sha,
+            current_target,
+            binding[0],
+            current_paths,
+            current=True,
+        )
+        if base_fingerprint is None or base_fingerprint != current_fingerprint:
+            return False
+    return True
+
+
 def _remove_named_bindings(statement: _StaticImport, removed: set[str]) -> str:
     if not removed:
         return statement.text
@@ -1679,16 +2788,10 @@ def _validate_structural_exception(
         raise DocumentationImpactError(
             f"{exception.path} targets must be production non-test .ts files"
         )
-    changed_production = {
-        path
-        for path in changed_paths
-        if path.startswith("apps/web/src/")
-        and not _is_test_path(path)
-        and PurePosixPath(path).suffix.lower() in {".ts", ".tsx"}
-    }
-    if changed_production != declared_visual | targets:
+    changed_visual = {path for path in changed_paths if _is_visual_source(path)}
+    if changed_visual != declared_visual:
         raise DocumentationImpactError(
-            f"{exception.path} changed production sources and targets must be declared exactly"
+            f"{exception.path} changed visual sources must be declared exactly"
         )
 
     base_universe = (
@@ -2142,6 +3245,7 @@ def evaluate_documentation_impact(
     paths: Iterable[str] | Mapping[str, bool],
     *,
     exception: _ValidatedDocumentationImpactException | None = None,
+    ignored_visual_files: Iterable[str] = (),
 ) -> DocumentationImpactReport:
     if exception is not None and not isinstance(exception, _ValidatedDocumentationImpactException):
         raise DocumentationImpactError(
@@ -2158,7 +3262,14 @@ def evaluate_documentation_impact(
     else:
         changed = _normalize(paths)
         evidence = changed
-    visual = sorted(path for path in changed if _is_visual_source(path))
+    ignored_visual = _normalize(ignored_visual_files)
+    if ignored_visual - changed or any(not _is_visual_source(path) for path in ignored_visual):
+        raise DocumentationImpactError(
+            "ignored documentation-impact paths must be changed visual sources"
+        )
+    visual = sorted(
+        path for path in changed if _is_visual_source(path) and path not in ignored_visual
+    )
     exempted_visual = set(exception.exception.visual_files) if exception else set()
     if exempted_visual - set(visual):
         raise DocumentationImpactError(
@@ -2209,16 +3320,41 @@ def verify_documentation_impact(root: Path, mode: ImpactMode) -> DocumentationIm
     entries = changed_entries(project, mode)
     evidence = {path for path, can_supply_evidence in entries.items() if can_supply_evidence}
     exception = _load_changed_exception(project, evidence)
+    merge_base = _merge_base(project)
+    base_source_paths = _git_blob_paths(project, merge_base)
+    current_source_paths = _current_source_paths(project, entries)
+    declared_exception_visual = set(exception.visual_files) if exception is not None else set()
+    import_only_visual = {
+        path
+        for path, current in entries.items()
+        if current
+        and path not in declared_exception_visual
+        and _is_visual_source(path)
+        and _is_import_only_visual_change(
+            project,
+            merge_base,
+            path,
+            base_universe=base_source_paths,
+            current_universe=current_source_paths,
+        )
+    }
+    validation_entries = {
+        path: current for path, current in entries.items() if path not in import_only_visual
+    }
     validated_exception = None
     if exception is not None:
         validated_exception = _validate_exception(
             project,
             exception,
-            entries,
-            _merge_base(project),
-            changed=entries,
+            validation_entries,
+            merge_base,
+            changed=validation_entries,
         )
-    return evaluate_documentation_impact(entries, exception=validated_exception)
+    return evaluate_documentation_impact(
+        entries,
+        exception=validated_exception,
+        ignored_visual_files=import_only_visual,
+    )
 
 
 def main() -> int:

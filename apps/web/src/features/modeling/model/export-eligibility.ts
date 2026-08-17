@@ -1,10 +1,10 @@
 import type {
   CanonicalTestDataDocumentResponse,
-  CommonProcessingOutputResponse,
   MaterialResponse,
   MaterialStateResponse,
-} from "./types";
-import type { ModelingSessionSummary } from "./modeling-session-context";
+} from "../../../types";
+import type { CommonProcessingOutputResponse } from "./common-processing-contracts";
+import type { ModelingSessionSummary } from "./session-controller";
 
 export interface ExportPrerequisite {
   label: string;

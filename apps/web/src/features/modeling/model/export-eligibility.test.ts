@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { exportPrerequisites } from "./modeling-export-eligibility";
-import type { ModelingSessionSummary } from "./modeling-session-context";
+import { exportPrerequisites } from "./export-eligibility";
+import type { ModelingSessionSummary } from "./session-controller";
 
 const session: ModelingSessionSummary = {
   version: 3, updatedAt: "2026-07-24T00:00:00Z", materialFamily: "metal", objective: "Card",

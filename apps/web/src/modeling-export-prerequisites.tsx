@@ -7,9 +7,13 @@ import {
   type ApiConfig,
 } from "./api";
 import { ReviewRequestAction } from "./review-request-action";
-import type { ExportPrerequisite } from "./modeling-export-eligibility";
-import type { ModelingSessionEvent, ModelingSessionSummary } from "./modeling-session-context";
-import type { CommonProcessingOutputResponse, PropertySetResponse } from "./types";
+import type {
+  CommonProcessingOutputResponse,
+  ExportPrerequisite,
+  ModelingSessionEvent,
+  ModelingSessionSummary,
+} from "./features/modeling";
+import type { PropertySetResponse } from "./types";
 
 interface UpstreamModelRef {
   id: string;

@@ -5,7 +5,6 @@ import {
   createLinearViscoelasticModel,
   getNeutralMaterial,
   listBulkExportCandidates,
-  listCommonProcessingOutputs,
   listLinearViscoelasticModels,
   previewLinearViscoelasticResponse,
   promoteModelToNeutralMaterial,
@@ -15,13 +14,13 @@ import { NeutralSolverExport } from "./neutral-hyperelastic-export";
 import { ReferenceLinearViscoelasticExport } from "./reference-linear-viscoelastic-export";
 import type {
   BulkRelaxationStatus,
-  CommonProcessingOutputResponse,
   LinearViscoelasticModelResponse,
   LinearViscoelasticResponse,
   MaterialStateResponse,
   NeutralMaterialResponse,
   PropertySetResponse,
 } from "./types";
+import { listCommonProcessingOutputs, type CommonProcessingOutputResponse } from "./features/modeling";
 
 interface EditableTerm {
   gRatio: string;

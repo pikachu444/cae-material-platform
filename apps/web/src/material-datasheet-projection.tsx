@@ -18,7 +18,7 @@ import type {
   DomainRevisionBinding,
 } from "./types";
 import { appendActivityFailure, appendActivityOutcome } from "./activity-recovery";
-import { modelingFamilyFromQuantities, saveModelingSession } from "./modeling-session-context";
+import { modelingFamilyFromQuantities, saveModelingSession } from "./features/modeling";
 
 const CurveContractChart = lazy(async () => {
   const module = await import("./curve-contract-chart");

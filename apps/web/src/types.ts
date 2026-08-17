@@ -623,110 +623,91 @@ export interface ReferenceModelCreateInput {
   change_reason: string;
 }
 
+/**
+ * FE-04G compatibility projections for root DTOs and the Solver Card
+ * consumers that still import this module. Modeling owns the source shapes;
+ * remove these projections in #263 with the remaining root DTO split.
+ */
 export interface ExportTarget {
-  solver: string;
-  version: string;
-  unit_system: string;
+  solver: import("./features/modeling/contracts").ExportTarget["solver"];
+  version: import("./features/modeling/contracts").ExportTarget["version"];
+  unit_system: import("./features/modeling/contracts").ExportTarget["unit_system"];
 }
 
 /** Bounded metal elastoplastic capability declaration used to populate Export controls. */
 export interface ElastoplasticExportCapabilities {
-  model_family_id: string;
-  model_schema_version: string;
-  model_schema_digest: string;
-  exporters: Array<{
-    exporter_id: string;
-    exporter_version: string;
-    exporter_digest: string;
-    solver: string;
-    version: string;
-    unit_system: string;
-    keywords: string[];
-  }>;
-  mapping_statuses: readonly MappingStatus[];
-  non_production: true;
+  model_family_id: import("./features/modeling/contracts").ElastoplasticExportCapabilities["model_family_id"];
+  model_schema_version: import("./features/modeling/contracts").ElastoplasticExportCapabilities["model_schema_version"];
+  model_schema_digest: import("./features/modeling/contracts").ElastoplasticExportCapabilities["model_schema_digest"];
+  exporters: import("./features/modeling/contracts").ElastoplasticExportCapabilities["exporters"];
+  mapping_statuses: import("./features/modeling/contracts").ElastoplasticExportCapabilities["mapping_statuses"];
+  non_production: import("./features/modeling/contracts").ElastoplasticExportCapabilities["non_production"];
 }
 
 /** UXC-06C1 ephemeral output; it is never an immutable Solver Card. */
 export interface TargetPreviewResponse {
-  preview_identity: string;
-  filename: string;
-  native_text: string;
-  native_sha256: string;
-  mapping_report_sha256: string;
-  mapping: { items: MappingItem[]; [key: string]: unknown };
-  source: {
-    processing_output_id: string;
-    processing_output_revision_id: string;
-    processing_output_sha256: string;
-    material_id: string;
-    material_revision_id: string;
-    material_state_id: string;
-    material_state_revision_id: string;
-    material_model_ir_revision_id: string;
-    neutral_material_id: string;
-    neutral_material_revision_id: string;
-  };
-  target: ExportTarget & { solver_material_id: number; material_name: string };
-  acknowledgement_identity: string | null;
-  non_production: true;
-  delivery_status: "preview_only";
+  preview_identity: import("./features/modeling/contracts").TargetPreviewResponse["preview_identity"];
+  filename: import("./features/modeling/contracts").TargetPreviewResponse["filename"];
+  native_text: import("./features/modeling/contracts").TargetPreviewResponse["native_text"];
+  native_sha256: import("./features/modeling/contracts").TargetPreviewResponse["native_sha256"];
+  mapping_report_sha256: import("./features/modeling/contracts").TargetPreviewResponse["mapping_report_sha256"];
+  mapping: import("./features/modeling/contracts").TargetPreviewResponse["mapping"];
+  source: import("./features/modeling/contracts").TargetPreviewResponse["source"];
+  target: import("./features/modeling/contracts").TargetPreviewResponse["target"];
+  acknowledgement_identity: import("./features/modeling/contracts").TargetPreviewResponse["acknowledgement_identity"];
+  non_production: import("./features/modeling/contracts").TargetPreviewResponse["non_production"];
+  delivery_status: import("./features/modeling/contracts").TargetPreviewResponse["delivery_status"];
 }
 
 /** UXC-06C2 immutable card plus transactional outbox receipt. */
 export interface TargetDeliveryResponse {
-  delivery_status: "delivered";
-  receipt_id: string;
-  delivery_identity: string;
-  solver_card_id: string;
-  solver_card_revision_id: string;
-  filename: string;
-  native_sha256: string;
-  mapping_report_sha256: string;
-  mapping_statuses: string[];
-  source: TargetPreviewResponse["source"];
-  target: TargetPreviewResponse["target"];
-  occurred_at: string;
-  recorded_by: string;
+  delivery_status: import("./features/modeling/contracts").TargetDeliveryResponse["delivery_status"];
+  receipt_id: import("./features/modeling/contracts").TargetDeliveryResponse["receipt_id"];
+  delivery_identity: import("./features/modeling/contracts").TargetDeliveryResponse["delivery_identity"];
+  solver_card_id: import("./features/modeling/contracts").TargetDeliveryResponse["solver_card_id"];
+  solver_card_revision_id: import("./features/modeling/contracts").TargetDeliveryResponse["solver_card_revision_id"];
+  filename: import("./features/modeling/contracts").TargetDeliveryResponse["filename"];
+  native_sha256: import("./features/modeling/contracts").TargetDeliveryResponse["native_sha256"];
+  mapping_report_sha256: import("./features/modeling/contracts").TargetDeliveryResponse["mapping_report_sha256"];
+  mapping_statuses: import("./features/modeling/contracts").TargetDeliveryResponse["mapping_statuses"];
+  source: import("./features/modeling/contracts").TargetDeliveryResponse["source"];
+  target: import("./features/modeling/contracts").TargetDeliveryResponse["target"];
+  occurred_at: import("./features/modeling/contracts").TargetDeliveryResponse["occurred_at"];
+  recorded_by: import("./features/modeling/contracts").TargetDeliveryResponse["recorded_by"];
   /** The API contract is a closed, typed resource-link set. */
-  links: TargetDeliveryLinks;
+  links: import("./features/modeling/contracts").TargetDeliveryResponse["links"];
 }
 
 export interface TargetDeliveryLinks {
-  solver_card: string;
-  preview: string;
-  download: string;
-  receipt: string;
+  solver_card: import("./features/modeling/contracts").TargetDeliveryLinks["solver_card"];
+  preview: import("./features/modeling/contracts").TargetDeliveryLinks["preview"];
+  download: import("./features/modeling/contracts").TargetDeliveryLinks["download"];
+  receipt: import("./features/modeling/contracts").TargetDeliveryLinks["receipt"];
 }
 
 export type MappingStatus =
-  | "exact"
-  | "transformed"
-  | "approximated"
-  | "ignored"
-  | "unsupported"
-  | "not_applicable";
+  import("./features/modeling/contracts").MappingStatus;
 
 export interface MappingItem {
-  name: string;
-  ir_path: string;
-  target_representation: string | null;
-  status: MappingStatus;
-  detail: string;
+  name: import("./features/modeling/contracts").MappingItem["name"];
+  ir_path: import("./features/modeling/contracts").MappingItem["ir_path"];
+  target_representation: import("./features/modeling/contracts").MappingItem["target_representation"];
+  status: import("./features/modeling/contracts").MappingItem["status"];
+  detail: import("./features/modeling/contracts").MappingItem["detail"];
 }
 
 export interface MappingReport {
-  material_model_id: string;
-  material_model_revision_id: string;
-  model_schema_digest: string;
-  target: ExportTarget;
-  items: MappingItem[];
-  exporter_id: string;
-  exporter_version: string;
-  exporter_digest: string;
-  mapping_report_sha256: string;
-  exportable: boolean;
-  non_production: true;
+  material_model_id: import("./features/modeling/contracts").MappingReport["material_model_id"];
+  material_model_revision_id: import("./features/modeling/contracts").MappingReport["material_model_revision_id"];
+  model_schema_digest: import("./features/modeling/contracts").MappingReport["model_schema_digest"];
+  target: import("./features/modeling/contracts").MappingReport["target"];
+  items: import("./features/modeling/contracts").MappingReport["items"];
+  exporter_id: import("./features/modeling/contracts").MappingReport["exporter_id"];
+  exporter_version: import("./features/modeling/contracts").MappingReport["exporter_version"];
+  exporter_digest: import("./features/modeling/contracts").MappingReport["exporter_digest"];
+  mapping_report_sha256: import("./features/modeling/contracts").MappingReport["mapping_report_sha256"];
+  exportable: import("./features/modeling/contracts").MappingReport["exportable"];
+  non_production: import("./features/modeling/contracts").MappingReport["non_production"];
 }
 
 export interface SolverCardContent {
@@ -4217,91 +4198,14 @@ export interface CanonicalTestDataDocumentResponse {
   governed_source: CommonExportProvenance | null;
 }
 
-export interface CommonChannelBinding {
-  channel_key: string;
-  target_quantity: string;
-  accepted_normalized_units: string[];
-  required: boolean;
-  scale: number;
-  offset: number;
-}
-
-export interface CommonAttributeBinding {
-  attribute_definition_id: string;
-  attribute_definition_revision_id: string;
-  target_quantity: string;
-  accepted_normalized_units: string[];
-  required: boolean;
-}
-
-export interface CommonMappingProfileContent {
-  profile_key: string;
-  label: string;
-  independent_quantity: string;
-  missing_data_policy: "reject" | "drop_any";
-  bindings: CommonChannelBinding[];
-  attribute_bindings: CommonAttributeBinding[];
-}
-
-export interface CommonMappingProfileResponse {
-  mapping_profile_id: string;
-  current_revision: RevisionMetadata;
-  content: CommonMappingProfileContent;
-}
-
-export interface CommonProcessingMethod {
-  method_id: string;
-  version: string;
-  label: string;
-  description: string;
-  option_schema: Record<string, unknown>;
-  deterministic: boolean;
-  allows_extrapolation: boolean;
-}
-
-export interface CommonProcessingStep {
-  method_id: string;
-  method_version: string;
-  options: Record<string, unknown>;
-}
-
-export interface CommonProcessingRecipeContent {
-  recipe_key: string;
-  label: string;
-  description: string | null;
-  mapping_profile_id: string;
-  mapping_profile_revision_id: string;
-  mapping_profile_sha256: string;
-  steps: CommonProcessingStep[];
-  lifecycle_state: "draft" | "published";
-}
-
-export interface CommonProcessingRecipeResponse {
-  processing_recipe_id: string;
-  current_revision: RevisionMetadata;
-  content: CommonProcessingRecipeContent;
-}
-
+/**
+ * Activity compatibility for the consumer still composed in
+ * material-library.tsx. Modeling owns the matching batch contract; remove
+ * these root shapes with the #262 Activity extraction and #263 DTO split.
+ */
 export interface CommonProcessingBatchSource {
   document_id: string;
   revision_id: string;
-}
-
-export interface CommonProcessingBatchPreflightMember {
-  ordinal: number;
-  source: CommonProcessingBatchSource;
-  compatible: boolean;
-  source_document_sha256: string | null;
-  final_point_count: number | null;
-  diagnostic: string | null;
-}
-
-export interface CommonProcessingBatchPreflight {
-  recipe_id: string;
-  recipe_revision_id: string;
-  recipe_sha256: string;
-  compatible: boolean;
-  members: CommonProcessingBatchPreflightMember[];
 }
 
 export interface CommonProcessingBatchAttempt {
@@ -4336,228 +4240,16 @@ export interface CommonProcessingBatchResponse {
   created_by: string;
 }
 
-export interface CommonCurveStage {
-  ordinal: number;
-  method_id: string;
-  method_version: string;
-  point_count: number;
-  series: Array<{ quantity: string; unit: string; values: number[] }>;
-  diagnostics: string[];
-  scalar_results: Array<{
-    key: string;
-    quantity_semantics: string;
-    value: number;
-    unit: string;
-  }>;
-  fit_candidates?: CommonHardeningCandidate[];
-  /** Present on API 0.35.0 responses; optional here for cached 0.34 fixtures. */
-  metadata_state?: CurveMetadataState;
-  curve_definition_sha256?: string;
-  curve_definition?: CurveDefinitionContract;
-  curve_series?: CurveSeriesPreviewContract;
-}
-
-export interface CommonHardeningCandidate {
-  family: string;
-  response: number[];
-  residual: number[];
-  tangent: Array<number | null>;
-  parameter_names: string[];
-  parameter_units: string[];
-  lower: number[];
-  initial: number[];
-  fitted: number[];
-  upper: number[];
-  rmse_pa: number;
-  relative_rmse: number;
-  objective: number;
-  scipy_cost: number;
-  convergence: boolean;
-  nfev: number;
-  active_bound: string[];
-  jacobian_rank: number;
-  jacobian_tolerance: number;
-  jacobian_condition: number | null;
-  identifiability: string;
-  uncertainty: string;
-  objective_history: number[];
-  optimizer_status?: number;
-  optimizer_message?: string;
-}
-
-export type GraphSelectionCommand =
-  | {
-      kind: "range";
-      x_quantity: string;
-      x_unit: string;
-      minimum: number;
-      maximum: number;
-    }
-  | {
-      kind: "point";
-      x_quantity: string;
-      x_unit: string;
-      x: number;
-      y_quantity: string;
-      y_unit: string;
-      y: number;
-    };
-
-export interface CommonProcessingPreview {
-  execution_mode: "preview";
-  promotable: false;
-  source_document_sha256: string;
-  mapping_profile_sha256: string;
-  independent_quantity: string;
-  stages: CommonCurveStage[];
-}
-
-export interface MetalFitRunAttemptResponse {
-  id: string;
-  run_id: string;
-  ordinal: number;
-  family: string;
-  status: "executing" | "succeeded" | "failed" | "cancelled" | string;
-  result: Record<string, unknown> | null;
-  objective_history: number[];
-  failure_code: string | null;
-  failure_reason: string | null;
-}
-
-export interface MetalFitRunResponse {
-  id: string;
-  classification: DataClassification;
-  source_processing_output: CommonExactRevisionPin;
-  source_processing_output_sha256: string;
-  source_document: CommonExactRevisionPin;
-  mapping_profile: CommonExactRevisionPin;
-  options: Record<string, unknown>;
-  reproducibility_evidence: Record<string, unknown>;
-  status: string;
-  failure_code: string | null;
-  failure_reason: string | null;
-  attempts: MetalFitRunAttemptResponse[];
-  preview: CommonProcessingPreview | null;
-  created_by?: string | null;
-  request_id?: string | null;
-  trace_id?: string | null;
-  started_at?: string | null;
-  ended_at?: string | null;
-}
-
 export interface CommonExactRevisionPin {
-  aggregate_id: string;
-  revision_id: string;
-}
-
-export interface CommonProcessingOutputResponse {
-  processing_output_id: string;
-  current_revision: RevisionMetadata;
-  label: string;
-  source_document: CommonExactRevisionPin;
-  source_document_sha256: string;
-  source_canonical_artifact_sha256: string;
-  mapping_profile: CommonExactRevisionPin;
-  mapping_profile_sha256: string;
-  steps: CommonProcessingStep[];
-  independent_quantity: string;
-  stage_count: number;
-  final_point_count: number;
-  output_artifact_id: string;
-  output_sha256: string;
-  source_processing_output?: CommonExactRevisionPin | null;
-  source_processing_output_sha256?: string | null;
-  workup_overrides: CommonProcessingWorkupOverride[];
-  fit_decision: CommonProcessingFitDecision | null;
-  export_provenance: CommonExportProvenance | null;
+  aggregate_id: import("./features/modeling/contracts").CommonExactRevisionPin["aggregate_id"];
+  revision_id: import("./features/modeling/contracts").CommonExactRevisionPin["revision_id"];
 }
 
 export interface CommonExportProvenance {
-  material: CommonExactRevisionPin;
-  material_state: CommonExactRevisionPin;
-  test_run: CommonExactRevisionPin;
-  tabular_import?: {
-    raw_asset_id: string;
-    raw_artifact_id: string;
-    import_run_id: string;
-    import_profile: CommonExactRevisionPin;
-    normalized_dataset: CommonExactRevisionPin;
-  } | null;
-}
-
-export interface CommonProcessingFitDecisionParameter {
-  name: string;
-  value: number;
-  unit: string;
-  lower: number | null;
-  upper: number | null;
-}
-
-export interface CommonProcessingFitDecisionParameterSet {
-  law: string;
-  parameters: CommonProcessingFitDecisionParameter[];
-}
-
-export interface CommonProcessingFitDecision {
-  candidate_key: string;
-  mode: "single" | "blend";
-  primary_law: string;
-  secondary_law: string | null;
-  primary_weight: number | null;
-  parameter_sets: CommonProcessingFitDecisionParameterSet[];
-  fit_minimum: number;
-  fit_maximum: number;
-  extrapolation_maximum: number | null;
-  extrapolation_policy: string;
-  metric_definition: string;
-  metric_value: number;
-  requested_term_policy: string | null;
-  actual_term_count: number | null;
-  selection_reason: string;
-  warning_acknowledged: boolean;
-}
-
-export interface CommonProcessingWorkupOverride {
-  kind: "youngs_modulus" | "necking_boundary";
-  original_value: number;
-  original_unit: string;
-  canonical_value: number;
-  canonical_unit: string;
-  reason: string;
-}
-
-export interface CommonPointwiseStatistics {
-  quantity: string;
-  unit: string;
-  mean: number[];
-  median: number[];
-  standard_deviation: number[];
-  mad: number[];
-  q1: number[];
-  q3: number[];
-  confidence_95_lower: number[];
-  confidence_95_upper: number[];
-  /** Present on API 0.35.0 responses; optional here for cached 0.34 fixtures. */
-  metadata_state?: CurveMetadataState;
-  curve_definition_sha256?: string;
-  curve_definition?: CurveDefinitionContract;
-  curve_series?: CurveSeriesPreviewContract;
-}
-
-export interface CommonEnsemblePreview {
-  execution_mode: "preview";
-  promotable: false;
-  mapping_profile_sha256: string;
-  independent_quantity: string;
-  grid_unit: string;
-  grid: number[];
-  members: Array<{
-    ordinal: number;
-    source_document_sha256: string;
-    stage: CommonCurveStage;
-  }>;
-  statistics: CommonPointwiseStatistics[];
-  diagnostics: string[];
+  material: import("./features/modeling/contracts").CommonExportProvenance["material"];
+  material_state: import("./features/modeling/contracts").CommonExportProvenance["material_state"];
+  test_run: import("./features/modeling/contracts").CommonExportProvenance["test_run"];
+  tabular_import?: import("./features/modeling/contracts").CommonExportProvenance["tabular_import"];
 }
 
 export interface SchemaDefinitionBundleSourceArtifact {

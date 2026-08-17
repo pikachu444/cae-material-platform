@@ -2,7 +2,7 @@ import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { dataObservedPlotBounds, derivativeValues, EngineeringCurvePlot, EngineeringCurvePlotEmpty, isGhoshTailDisplayTrim, linearInterpolate, paddedPlotBounds, plotPoints, residualValues, responsiveYAxisTicks } from "./engineering-curve-plot";
-import type { CommonCurveStage, CommonEnsemblePreview, CommonProcessingPreview } from "./types";
+import type { CommonCurveStage, CommonEnsemblePreview, CommonProcessingPreview } from "./features/modeling";
 
 const tensileDefinition = {
   definition_version: "1.0.0" as const,

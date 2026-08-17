@@ -217,6 +217,58 @@ verification:
     }
 
 
+def _import_only_fixture(tmp_path: Path) -> Path:
+    source_root = tmp_path / "apps/web/src"
+    source_root.mkdir(parents=True)
+    sources = {
+        "apps/web/src/legacy.ts": (
+            'import { transform } from "./transform-a";\n'
+            "export type Shape = { label: string };\n"
+            "export const helper = (value: Shape) => transform(value.label);\n"
+        ),
+        "apps/web/src/feature.ts": (
+            'import { transform } from "./transform-a";\n'
+            "export type Shape = { label: string };\n"
+            "export const helper = (value: Shape) => transform(value.label);\n"
+        ),
+        "apps/web/src/transform-a.ts": "export const transform = (value: string) => value;\n",
+        "apps/web/src/transform-b.ts": (
+            "export const transform = (value: string) => value.toUpperCase();\n"
+        ),
+        "apps/web/src/setup.ts": "export {};\n",
+        "apps/web/src/other-setup.ts": "export {};\n",
+        "apps/web/src/view.tsx": """\
+import React from "react";
+import "./setup";
+import { helper, type Shape } from "./legacy";
+
+export function View({ value }: { value: Shape }) {
+  return <div>{helper(value)}</div>;
+}
+""",
+    }
+    for path, source in sources.items():
+        file = tmp_path / Path(*path.split("/"))
+        file.parent.mkdir(parents=True, exist_ok=True)
+        file.write_text(source, encoding="utf-8")
+
+    _git(tmp_path, "init", "-b", "main")
+    _git(tmp_path, "config", "user.email", "test@example.com")
+    _git(tmp_path, "config", "user.name", "Documentation Impact Tests")
+    _git(tmp_path, "add", ".")
+    _git(tmp_path, "commit", "-m", "base")
+    base_sha = _git(tmp_path, "rev-parse", "HEAD")
+    _git(tmp_path, "branch", "-M", "feature")
+    _git(tmp_path, "update-ref", "refs/remotes/origin/main", base_sha)
+
+    view = tmp_path / "apps/web/src/view.tsx"
+    view.write_text(
+        view.read_text(encoding="utf-8").replace('from "./legacy";', 'from "./feature";'),
+        encoding="utf-8",
+    )
+    return view
+
+
 def _mutate_structural_fixture(fixture: dict[str, Path | str], case: str) -> None:
     project = Path(fixture["project"])
     exception = Path(fixture["exception"])
@@ -449,6 +501,19 @@ def test_structural_extraction_fe04a_worktree_and_staged_round_trip(
     Path(fixture["target"]).unlink()
     with pytest.raises(DocumentationImpactError, match="absent in current worktree"):
         verify_documentation_impact(tmp_path, "worktree")
+
+
+def test_structural_extraction_allows_unrelated_nonvisual_typescript_change(
+    tmp_path: Path,
+) -> None:
+    _structural_fixture(tmp_path)
+    (tmp_path / "apps/web/src/unrelated.ts").write_text(
+        "export const unrelated = true;\n", encoding="utf-8"
+    )
+
+    report = verify_documentation_impact(tmp_path, "worktree")
+
+    assert "apps/web/src/unrelated.ts" in report.changed_files
 
 
 def test_structural_residual_ignores_blank_gaps_but_rejects_nonblank_changes(
@@ -744,6 +809,106 @@ def test_visual_source_with_guide_manifest_and_png_is_accepted() -> None:
         }
     )
     assert report.visual_files == ("apps/web/src/material-library.tsx",)
+
+
+def test_import_only_relative_named_rewire_does_not_require_visual_evidence(
+    tmp_path: Path,
+) -> None:
+    _import_only_fixture(tmp_path)
+
+    report = verify_documentation_impact(tmp_path, "worktree")
+
+    assert report.visual_files == ()
+    assert report.exempted_visual_files == ()
+
+
+def test_import_only_rewire_rejects_non_import_source_change(tmp_path: Path) -> None:
+    view = _import_only_fixture(tmp_path)
+    view.write_text(
+        view.read_text(encoding="utf-8")
+        .replace("<div>", "<section>")
+        .replace("</div>", "</section>"),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(DocumentationImpactError, match="current docs/user-guide"):
+        verify_documentation_impact(tmp_path, "worktree")
+
+
+def test_import_only_rewire_rejects_binding_change(tmp_path: Path) -> None:
+    view = _import_only_fixture(tmp_path)
+    view.write_text(
+        view.read_text(encoding="utf-8").replace(
+            "{ helper, type Shape }", "{ helper as changedHelper, type Shape }"
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(DocumentationImpactError, match="current docs/user-guide"):
+        verify_documentation_impact(tmp_path, "worktree")
+
+
+def test_import_only_rewire_rejects_same_named_runtime_export_with_changed_behavior(
+    tmp_path: Path,
+) -> None:
+    _import_only_fixture(tmp_path)
+    feature = tmp_path / "apps/web/src/feature.ts"
+    feature.write_text(
+        feature.read_text(encoding="utf-8").replace(
+            "transform(value.label);", "transform(value.label).toUpperCase();"
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(DocumentationImpactError, match="current docs/user-guide"):
+        verify_documentation_impact(tmp_path, "worktree")
+
+
+def test_import_only_rewire_rejects_unchanged_export_with_changed_runtime_dependency(
+    tmp_path: Path,
+) -> None:
+    _import_only_fixture(tmp_path)
+    feature = tmp_path / "apps/web/src/feature.ts"
+    feature.write_text(
+        feature.read_text(encoding="utf-8").replace(
+            'from "./transform-a";', 'from "./transform-b";'
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(DocumentationImpactError, match="current docs/user-guide"):
+        verify_documentation_impact(tmp_path, "worktree")
+
+
+def test_static_import_parser_accepts_self_closing_jsx_after_literal_attribute() -> None:
+    imports = _static_imports(
+        'import { helper } from "./helper";\nexport const View = () => <line className="grid" />;\n'
+    )
+
+    assert len(imports) == 1
+    assert imports[0].module == "./helper"
+
+
+@pytest.mark.parametrize(
+    ("original", "replacement"),
+    (
+        ('from "react";', 'from "preact";'),
+        ('import "./setup";', 'import "./other-setup";'),
+    ),
+)
+def test_import_only_rewire_rejects_protected_import_change(
+    tmp_path: Path,
+    original: str,
+    replacement: str,
+) -> None:
+    view = _import_only_fixture(tmp_path)
+    view.write_text(
+        view.read_text(encoding="utf-8").replace(original, replacement),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(DocumentationImpactError, match="current docs/user-guide"):
+        verify_documentation_impact(tmp_path, "worktree")
 
 
 def test_app_route_change_without_navigation_contract_is_rejected() -> None:

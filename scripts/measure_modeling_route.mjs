@@ -23,6 +23,20 @@ const fixturePath = resolve(repository, "scripts", "fixtures", "modeling_route_f
 const baselineSchemaVersion = "cmp.web-modeling-route-baseline.v1";
 const baselineCompareCommand = "npm run measure:modeling-route --workspace @cmp/web -- --compare docs/14-testing/baselines/modeling-web-route.json";
 const REGRESSION_METRICS = ["requiredChunks", "transferBytes", "transferSpanMs", "parseMs", "executeMs"];
+const NON_SEMANTIC_READINESS_SELECTOR_ALIASES = [
+  [".modeling-workspace-stage-process", ".modeling-process-workspace-bounded"],
+  [".modeling-workspace-stage-fit", ".modeling-fit-workspace-bounded"],
+];
+const FIXTURE_READINESS_SELECTOR_ALIASES = [
+  [
+    'readinessSelectors: [".processing-workbench-page.stage-process .modeling-workspace-stage-process"',
+    'readinessSelectors: [".processing-workbench-page.stage-process .modeling-process-workspace-bounded"',
+  ],
+  [
+    'readinessSelectors: [".processing-workbench-page.stage-fit .modeling-workspace-stage-fit"',
+    'readinessSelectors: [".processing-workbench-page.stage-fit .modeling-fit-workspace-bounded"',
+  ],
+];
 
 export const MEASUREMENT_PROFILE = {
   version: "cmp.web-modeling-route-profile.v1",
@@ -97,6 +111,40 @@ export function sha256(value) {
   return createHash("sha256").update(value).digest("hex");
 }
 
+function normalizeReadinessSelectorAliases(value) {
+  if (typeof value !== "string") return value;
+  return NON_SEMANTIC_READINESS_SELECTOR_ALIASES.reduce(
+    (normalized, [alias, canonical]) => normalized.replaceAll(alias, canonical),
+    value,
+  );
+}
+
+function canonicalSourceBytes(value) {
+  return Buffer.from(Buffer.from(value).toString("utf8").replace(/\r\n/g, "\n"), "utf8");
+}
+
+function canonicalFixtureSourceBytes(value) {
+  const source = canonicalSourceBytes(value).toString("utf8");
+  const normalized = FIXTURE_READINESS_SELECTOR_ALIASES.reduce(
+    (current, [alias, canonical]) => current.replace(alias, canonical),
+    source,
+  );
+  return Buffer.from(normalized, "utf8");
+}
+
+function measurementProfileIdentity(profile) {
+  if (!profile || typeof profile !== "object" || !Array.isArray(profile.routes)) return profile;
+  return {
+    ...profile,
+    routes: profile.routes.map((route) => ({
+      ...route,
+      readinessSelectors: Array.isArray(route?.readinessSelectors)
+        ? route.readinessSelectors.map(normalizeReadinessSelectorAliases)
+        : route?.readinessSelectors,
+    })),
+  };
+}
+
 export function median(values) {
   if (!Array.isArray(values) || values.length === 0 || values.length % 2 === 0 || values.some((value) => typeof value !== "number" || !Number.isFinite(value))) {
     throw new ModelingRouteMeasurementError("TRACE", "median requires a non-empty odd finite sample set");
@@ -132,14 +180,16 @@ export async function fingerprintBuild(assetsDir = DEFAULT_ASSETS_DIR) {
 
 export async function integrityHashes({ script = scriptPath, fixture = fixturePath } = {}) {
   const [scriptBytes, fixtureBytes] = await Promise.all([readFile(script), readFile(fixture)]);
+  const canonicalScriptBytes = canonicalSourceBytes(scriptBytes);
+  const canonicalFixtureBytes = canonicalFixtureSourceBytes(fixtureBytes);
   return {
-    fixtureSha256: sha256(fixtureBytes),
-    harnessSha256: sha256(Buffer.concat([scriptBytes, Buffer.from([0]), fixtureBytes, Buffer.from([0])])),
+    fixtureSha256: sha256(canonicalFixtureBytes),
+    harnessSha256: sha256(Buffer.concat([canonicalScriptBytes, Buffer.from([0]), canonicalFixtureBytes, Buffer.from([0])])),
   };
 }
 
 export function measurementProfileSha256(profile = MEASUREMENT_PROFILE) {
-  return sha256(Buffer.from(canonicalJson(profile), "utf8"));
+  return sha256(Buffer.from(canonicalJson(measurementProfileIdentity(profile)), "utf8"));
 }
 
 export function environmentSnapshot(chromiumVersion = "unknown") {

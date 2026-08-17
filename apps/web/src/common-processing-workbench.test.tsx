@@ -12,7 +12,7 @@ import {
   documentMatchesDataTrack,
   manualModulusDisplayValue,
   manualModulusPascals,
-} from "./features/modeling/model/processing-registry";
+} from "./features/modeling";
 
 describe("Governed DMA/FLD Data boundaries", () => {
   const document = (semantics: string[]) => ({

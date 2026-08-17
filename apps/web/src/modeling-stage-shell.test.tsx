@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { ModelingStageShell } from "./modeling-stage-shell";
-import type { ModelingSessionSummary } from "./modeling-session-context";
+import type { ModelingSessionSummary } from "./features/modeling";
 
 const session: ModelingSessionSummary = {
   version: 3,

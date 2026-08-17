@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { test } from "node:test";
@@ -70,20 +70,34 @@ test("fingerprint is filename-sorted and content-sensitive", async () => {
   assert.notEqual(one.sha256, (await fingerprintBuild(second)).sha256);
 });
 
-test("integrity hashes are byte-sensitive and profile hashing is canonical", async () => {
+test("integrity hashes ignore checkout line endings and locator-only renames", async () => {
   const root = await mkdtemp(join(tmpdir(), "cmp-integrity-"));
   const script = join(root, "harness.mjs");
   const fixture = join(root, "fixture.mjs");
-  await writeFile(script, "script-a"); await writeFile(fixture, "fixture-a");
+  await writeFile(script, "script-a\nnext\n");
+  await writeFile(fixture, 'export const ROUTES = [\n  { id: "process", readinessSelectors: [".processing-workbench-page.stage-process .modeling-process-workspace-bounded"] },\n  { id: "fit", readinessSelectors: [".processing-workbench-page.stage-fit .modeling-fit-workspace-bounded"] },\n];\n');
   const first = await integrityHashes({ script, fixture });
-  await writeFile(script, "script-b");
+  await writeFile(script, "script-a\r\nnext\r\n");
+  await writeFile(fixture, 'export const ROUTES = [\r\n  { id: "process", readinessSelectors: [".processing-workbench-page.stage-process .modeling-workspace-stage-process"] },\r\n  { id: "fit", readinessSelectors: [".processing-workbench-page.stage-fit .modeling-workspace-stage-fit"] },\r\n];\r\n');
   const second = await integrityHashes({ script, fixture });
-  assert.notEqual(first.harnessSha256, second.harnessSha256);
-  await writeFile(fixture, "fixture-b");
+  assert.deepEqual(first, second);
+  await writeFile(fixture, 'export const ROUTES = [\r\n  { id: "process", readinessSelectors: [".processing-workbench-page.stage-process .modeling-workspace-stage-process"] },\r\n  { id: "fit", readinessSelectors: [".processing-workbench-page.stage-fit .modeling-workspace-stage-fit"] },\r\n];\r\nexport const semanticClassName = ".modeling-workspace-stage-process";\r\n');
   const third = await integrityHashes({ script, fixture });
   assert.notEqual(second.harnessSha256, third.harnessSha256);
   assert.notEqual(first.fixtureSha256, third.fixtureSha256);
-  assert.equal(measurementProfileSha256(), sha256(Buffer.from(canonicalJson(MEASUREMENT_PROFILE))));
+  const legacyProfile = structuredClone(MEASUREMENT_PROFILE);
+  legacyProfile.routes[0].readinessSelectors[0] = ".processing-workbench-page.stage-process .modeling-process-workspace-bounded";
+  legacyProfile.routes[1].readinessSelectors[0] = ".processing-workbench-page.stage-fit .modeling-fit-workspace-bounded";
+  assert.equal(measurementProfileSha256(), measurementProfileSha256(legacyProfile));
+  const changedProfile = structuredClone(MEASUREMENT_PROFILE);
+  changedProfile.routes[0].actions = ["changed measurement action"];
+  assert.notEqual(measurementProfileSha256(), measurementProfileSha256(changedProfile));
+  assert.equal(measurementProfileSha256(), "922356fac68915de59757c30c9a2b230fa1b5164d7db1eada33f071931dce1f4");
+});
+
+test("checked-in Modeling route baseline remains valid after locator-only rename", async () => {
+  const baseline = JSON.parse(await readFile(new URL("../docs/14-testing/baselines/modeling-web-route.json", import.meta.url), "utf8"));
+  assert.deepEqual(validateBaseline(baseline), []);
 });
 
 test("joining rejects an asset absent from the bundle and aggregation rejects changed chunk sets", async () => {

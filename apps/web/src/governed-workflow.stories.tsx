@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { ModelingStageShell } from "./modeling-stage-shell";
-import type { ModelingSessionSummary } from "./modeling-session-context";
+import type { ModelingSessionSummary } from "./features/modeling";
 import { TargetPreviewResult } from "./modeling-target-preview-result";
 import { MappingStatusList } from "./solver-card-delivery-ui";
 import type { SolverCardEvidence } from "./solver-card-delivery";

@@ -554,3 +554,6 @@ Recipe는 Mapping Profile의 stable identity뿐 아니라 exact revision UUID와
 화면의 Card task에서 IR/Neutral Material JSON으로 승격할 수 있습니다. 폴리머와 엘라스토머의
 Polymer relaxation/DMA와 Elastomer multi-mode/holdout graph/task 흐름도 T-89/T-90에서
 검증되었습니다. 전체 clean 제품 journey는 T-93에서 최종 승인합니다.
+
+내부 API와 자료형의 소유 위치는 Modeling 기능 아래로 정리됐습니다. 화면, 버튼 순서, HTTP 요청,
+exact revision 연결, 새로고침 복원, 저장 결과와 Solver Card 형식은 기존과 같습니다.
