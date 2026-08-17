@@ -4,7 +4,6 @@ import {
   createReferenceImportMapping,
   detectReferenceImport,
   downloadNeutralHyperelasticMappingReport,
-  downloadSelectedModelNeutralMaterial,
   executeReferenceImport,
   getReferenceOgdenCalibrationRun,
   importReferenceTensileDataset,
@@ -17,13 +16,16 @@ import {
   requestLocalDemoAccessToken,
   listMaterials,
   searchMaterialCatalogRecords,
-  previewCommonProcessingFromOutput,
   applySchemaDefinitionBundle,
   downloadSchemaDefinitionBundle,
   getSchemaDefinitionBundleApplication,
   planSchemaDefinitionBundle,
   uploadSchemaDefinitionBundle,
 } from "./api";
+import {
+  downloadSelectedModelNeutralMaterial,
+  previewCommonProcessingFromOutput,
+} from "./features/modeling";
 
 function jsonResponse(body: unknown, status = 200): Response {
   return {

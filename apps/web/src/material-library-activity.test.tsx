@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ActivityPage } from "./material-library";
-import { clearModelingSession, saveModelingSession } from "./modeling-session-context";
+import { clearModelingSession, saveModelingSession } from "./features/modeling";
 import { recordDeliveryActivity } from "./solver-card-delivery";
 
 const mocks = vi.hoisted(() => ({

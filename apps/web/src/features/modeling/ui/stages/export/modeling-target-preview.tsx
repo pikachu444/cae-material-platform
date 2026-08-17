@@ -2,17 +2,19 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   ApiError,
+  getAuthenticatedPrincipal,
+  type ApiConfig,
+} from "../../../../../api";
+import {
   createExactTargetPreview,
   deliverExactTargetPreview,
   downloadSelectedModelNeutralMaterial,
-  getAuthenticatedPrincipal,
   getReferenceElastoplasticExportCapabilities,
-  type ApiConfig,
-} from "../../../../../api";
-import type { ExportPrerequisite } from "../../../../../modeling-export-eligibility";
-import type { ModelingSessionEvent, ModelingSessionSummary } from "../../../../../modeling-session-context";
-import { exactFitPlotData, type ExactFitPlotData } from "../../../../../modeling-fit-output";
-import type { FitDecisionSelection } from "../../../../../modeling-fit-decision-contract";
+} from "../../../api/modeling-api";
+import type { ExportPrerequisite } from "../../../model/export-eligibility";
+import type { ModelingSessionEvent, ModelingSessionSummary } from "../../../model/session-controller";
+import { exactFitPlotData, type ExactFitPlotData } from "../../../model/fit-output";
+import type { FitDecisionSelection } from "../../../model/fit-decision-contract";
 import {
   mappingDisposition,
   projectMappingRows,
@@ -23,13 +25,15 @@ import { MaterialsScrollRegion } from "../../../../../materials-scroll-rail";
 import type {
   CommonProcessingOutputResponse,
   CommonProcessingPreview,
+} from "../../../model/common-processing-contracts";
+import type {
   ElastoplasticExportCapabilities,
   ExportTarget,
   MappingItem,
   TargetDeliveryResponse,
   TargetDeliveryLinks,
   TargetPreviewResponse,
-} from "../../../../../types";
+} from "../../../model/export-contracts";
 
 type CapabilityTarget = ExportTarget & { label?: string };
 

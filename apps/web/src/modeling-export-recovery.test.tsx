@@ -3,19 +3,21 @@ import { useState } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
-  createExactTargetPreview,
   promoteModelToNeutralMaterial,
   promoteProcessingOutputToTabulatedPlasticity,
 } from "./api";
+import { createExactTargetPreview, reduceModelingSession, type ModelingSessionSummary } from "./features/modeling";
 import { ModelingExportPrerequisites } from "./modeling-export-prerequisites";
 import { ModelingTargetPreview } from "./features/modeling/ui/stages/export/modeling-target-preview";
-import { reduceModelingSession, type ModelingSessionSummary } from "./modeling-session-context";
 
 vi.mock("./api", async (importOriginal) => ({
   ...(await importOriginal<typeof import("./api")>()),
-  createExactTargetPreview: vi.fn(),
   promoteModelToNeutralMaterial: vi.fn(),
   promoteProcessingOutputToTabulatedPlasticity: vi.fn(),
+}));
+vi.mock("./features/modeling/api/modeling-api", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("./features/modeling/api/modeling-api")>()),
+  createExactTargetPreview: vi.fn(),
 }));
 
 const session: ModelingSessionSummary = {

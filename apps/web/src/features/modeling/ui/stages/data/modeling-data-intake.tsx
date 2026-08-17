@@ -10,7 +10,6 @@ import {
   listGovernedImportProfiles,
   listTestRunsForMaterialState,
   previewGovernedTabularImport,
-  previewCommonProcessing,
   reviseCanonicalTestData,
   reviseGovernedImportProfile,
   uploadGovernedTabularFile,
@@ -22,9 +21,6 @@ import type {
   CanonicalTestDataChannelPreview,
   CanonicalTestDataDocumentResponse,
   CanonicalTestDataPreviewResponse,
-  CommonExportProvenance,
-  CommonMappingProfileContent,
-  CommonProcessingPreview,
   DataClassification,
   GovernedChannelMapping,
   GovernedImportPreview,
@@ -38,7 +34,13 @@ import type {
   MaterialStateResponse,
   TestRunResponse,
 } from "../../../../../types";
-import type { ModelingSessionRecordRef } from "../../../../../modeling-session-context";
+import { previewCommonProcessing } from "../../../api/modeling-api";
+import type {
+  CommonMappingProfileContent,
+  CommonProcessingPreview,
+} from "../../../model/common-processing-contracts";
+import type { CommonExportProvenance } from "../../../model/exact-revision-contracts";
+import type { ModelingSessionRecordRef } from "../../../model/session-controller";
 import { MaterialsScrollRegion } from "../../../../../materials-scroll-rail";
 
 type IntakeSource = "library" | "local" | "json";

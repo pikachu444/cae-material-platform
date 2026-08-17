@@ -853,8 +853,12 @@ mode exists. A reviewed accepted-main observation stores the complete profile, h
 policy, bundle, fixture and route/chunk rows with sequence 1, then strictly increasing sequences;
 active overrides are rejected. Profile, fixture, action or metric semantic changes require a profile
 version bump and a new owner baseline. Measurement-profile, harness, fixture or policy mismatches are
-`not_comparable`; build fingerprints may differ between observations. Numeric candidates require both
-strict thresholds: transfer bytes >5% and >4096 B, transfer span >10% and >20 ms, parse >10% and >2
+`not_comparable`; build fingerprints may differ between observations. Checkout line endings and only
+the #226 Process/Fit entries inside the fixture's `readinessSelectors` arrays are canonicalized because
+they do not change the measured action, timing window, or application code. The same selector text in
+any other fixture or harness code changes the hash; all other harness, fixture, profile, action, and
+metric changes remain distinct. Numeric candidates require both strict thresholds: transfer bytes >5% and
+>4096 B, transfer span >10% and >20 ms, parse >10% and >2
 ms, execute >10% and >10 ms. Required/loaded logical-chunk changes are candidates. Equality is not a
 candidate. A candidate is advisory and does not fail the command; malformed baselines fail with the
 contracted `BASELINE_*` diagnostics.

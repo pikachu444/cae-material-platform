@@ -3,11 +3,9 @@ import { describe, expect, it } from "vitest";
 import {
   modelingDataDocumentMatchesMaterialContext,
   modelingFamilyFromQuantities,
-  reduceModelingSession,
-} from "./modeling-session-context";
-import { reduceModelingSession as reduceOwnedModelingSession } from "./features/modeling/model/session-controller";
+} from "./exact-context";
 
-describe("Modeling session context compatibility", () => {
+describe("Modeling exact context", () => {
   it("accepts earlier Material and State revisions only when their aggregate identities match", () => {
     const material = { material_id: "material", current_revision: { id: "material-r2" } };
     const state = { material_state_id: "state", current_revision: { id: "state-r2" } };
@@ -26,9 +24,5 @@ describe("Modeling session context compatibility", () => {
     expect(modelingFamilyFromQuantities(["mechanics.strain.engineering", "mechanics.stress.engineering"])).toBe("metal");
     expect(modelingFamilyFromQuantities(["time", "modulus.relaxation"])).toBe("polymer");
     expect(modelingFamilyFromQuantities(["mechanics.stress.planar"])).toBe("elastomer");
-  });
-
-  it("re-exports the Modeling-owned session controller during consumer migration", () => {
-    expect(reduceModelingSession).toBe(reduceOwnedModelingSession);
   });
 });

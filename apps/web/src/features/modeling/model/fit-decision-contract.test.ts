@@ -6,8 +6,8 @@ import {
   hardeningCandidateWarning,
   METAL_HARDENING_EQUATION_CONTRACT,
   type FitDecisionSelection,
-} from "./modeling-fit-decision-contract";
-import type { CommonCurveStage, CommonProcessingStep } from "./types";
+} from "./fit-decision-contract";
+import type { CommonCurveStage, CommonProcessingStep } from "./common-processing-contracts";
 
 const polymerStep: CommonProcessingStep = {
   method_id: "polymer.prony_fit_compare",

@@ -1,4 +1,4 @@
-import type { CommonCurveStage, CommonProcessingStep } from "./types";
+import type { CommonCurveStage, CommonProcessingStep } from "./common-processing-contracts";
 
 export type FitDecisionMode = "single" | "blend";
 export const METAL_HARDENING_EQUATION_CONTRACT = "altair-material-modeler-2025-v1";

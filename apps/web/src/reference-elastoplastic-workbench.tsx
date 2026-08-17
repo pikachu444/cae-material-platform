@@ -10,7 +10,6 @@ import {
   getNeutralMaterial,
   getTabulatedPlasticityHardeningCurve,
   listBulkExportCandidates,
-  listCommonProcessingOutputs,
   listDatasetsForMaterialState,
   listElastoplasticSolverCards,
   listTabulatedPlasticityModels,
@@ -21,7 +20,6 @@ import {
 } from "./api";
 import type {
   DatasetResponse,
-  CommonProcessingOutputResponse,
   ElastoplasticCardResponse,
   ExportTarget,
   HardeningCurveResponse,
@@ -31,8 +29,12 @@ import type {
   PropertySetResponse,
   TabulatedPlasticityModelResponse,
 } from "./types";
+import {
+  listCommonProcessingOutputs,
+  METAL_HARDENING_EQUATION_CONTRACT,
+  type CommonProcessingOutputResponse,
+} from "./features/modeling";
 import { NeutralSolverExport } from "./neutral-hyperelastic-export";
-import { METAL_HARDENING_EQUATION_CONTRACT } from "./modeling-fit-decision-contract";
 
 function messageFor(error: unknown): string {
   if (error instanceof ApiError) {

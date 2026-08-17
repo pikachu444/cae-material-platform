@@ -1,11 +1,13 @@
 import type {
   CanonicalTestDataDocumentResponse,
+} from "../../../types";
+import type {
   CommonMappingProfileContent,
   CommonMappingProfileResponse,
   CommonProcessingStep,
   CommonProcessingWorkupOverride,
-} from "../../../types";
-import { METAL_HARDENING_EQUATION_CONTRACT } from "../../../modeling-fit-decision-contract";
+} from "./common-processing-contracts";
+import { METAL_HARDENING_EQUATION_CONTRACT } from "./fit-decision-contract";
 
 export type ModelingTrack = "metal" | "polymer" | "elastomer";
 

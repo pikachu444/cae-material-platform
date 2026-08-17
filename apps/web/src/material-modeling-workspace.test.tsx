@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { MaterialClass, MaterialDetail, MaterialResponse } from "./types";
-import { clearModelingSession, loadModelingSession } from "./modeling-session-context";
+import { clearModelingSession, loadModelingSession } from "./features/modeling";
 
 const mocks = vi.hoisted(() => ({
   getMaterialDetail: vi.fn(),

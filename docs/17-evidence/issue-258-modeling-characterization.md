@@ -50,7 +50,7 @@ The labels below describe production behavior on the starting SHA. Characterizat
 | Exact URL Material/State beats list order; stale revisions fail closed | `apps/web/src/material-modeling-workspace.tsx` | `material-modeling-workspace.test.tsx` — exact URL, stale Material, and stale State cases |
 | Exact Data/Process/Fit/Export continuity and stage persistence | `apps/web/src/common-processing-workbench.tsx` | `common-processing-workbench.test.tsx` — `characterizes exact Data, Process, Fit, and Export continuity with explicit recovery` |
 | Successful delivery pins the exact card revision in the session | `apps/web/src/features/modeling/ui/stages/export/modeling-target-preview.tsx` | colocated `modeling-target-preview.test.tsx` — `delivers only the current preview and binds the required acknowledgement identity` |
-| Ordered invalidation, reload, migration, and explicit pointer clearing | `apps/web/src/modeling-session-context.ts` | `modeling-session-context.test.ts` |
+| Ordered invalidation, reload, migration, and explicit pointer clearing | `apps/web/src/features/modeling/model/session-controller.ts` and `exact-context.ts` | colocated `session-controller.test.ts` and `exact-context.test.ts` |
 
 ## Fallback and coupling inventory
 
@@ -76,18 +76,37 @@ normal exact-context behavior by #258.
 | `app.tsx` | Parses application routes, lazy-loads Modeling/Test Data/Materials pages, and supplies navigation and connection callbacks. | Route string → workspace component; shell/permissions surround the feature. | Keep route registration/composition here; do not move Modeling orchestration into the application shell. |
 | `material-library.tsx` and `canonical-test-data-workbench.tsx` | Own Materials and Test Data user actions that seed the browser Modeling session and navigate to `/modeling`. | Exact source resource → session adapter → app navigation. | Handoff creation must become an explicit exact-source contract before removing compatibility calls. |
 | `material-modeling-workspace.tsx` | Resolves family, Material, State, query refs and restored refs; blocks stale query revisions; connects the family engine and Common Workbench. | Materials API + session reducer → exact live context → Common Workbench. | Candidate exact-source/session controller boundary; preserve fail-closed query behavior and document current-head fallbacks separately. |
-| `modeling-session-context.ts` | Defines browser-local v4 state, v1–v3 migration, exact record refs, reducer events, invalidation, stale evidence, and persistence. | All Modeling producers/consumers; session storage. | Keep reducer and migration pure/testable. Do not add server identity or change the public shape in FE-03. |
+| `features/modeling/model/session-controller.ts` and `exact-context.ts` | Define browser-local v4 state, v1–v3 migration, exact record refs, reducer events, invalidation, stale evidence, persistence, and exact handoff helpers. | All Modeling producers/consumers; session storage. | Keep reducer and migration pure/testable. Do not add server identity or change the public shape. |
 | `common-processing-workbench.tsx` | Owns method registries/defaults, source resolution, Data/Process/Fit orchestration, async previews/saves, workspace persistence, graph/rail composition, and Export stage composition. | API/types, session callbacks, stage components, family workbenches, plot, and Export boundary. | This is the registered hotspot for #259. Extract one responsibility at a time under characterization tests. |
 | `modeling-stage-shell.tsx` and `design/modeling-workspace-layout.tsx` | Present stage navigation and shared workspace regions. | Workflow task + session state → user commands/layout. | Preserve DOM/interaction contracts during structural movement; visual normalization belongs to FE-05/#260. |
 | `modeling-data-intake.tsx` and `modeling-process-panel.tsx` | Present Data intake and Process controls while Common Workbench owns most orchestration state. | Exact sources/methods/preview callbacks from Common Workbench. | Move orchestration only after pure registry and controller boundaries are established. |
-| `modeling-fit-decision*.ts(x)` and `modeling-fit-output.ts` | Validate candidate decision input and construct/validate saved Fit output contracts, including explicit known document-version compatibility and exact current curve metadata. | Fit preview/candidate + user reason → immutable output/selection refs. | Preserve the currently observed candidate/selection coupling until a separately authorized semantic change; do not weaken source, SHA, stage, method, candidate, or curve-metadata checks. |
+| `features/modeling/model/fit-decision-contract.ts` and `fit-output.ts` | Validate candidate decision input and construct/validate saved Fit output contracts, including explicit known document-version compatibility and exact current curve metadata. | Fit preview/candidate + user reason → immutable output/selection refs. | Preserve the currently observed candidate/selection coupling until a separately authorized semantic change; do not weaken source, SHA, stage, method, candidate, or curve-metadata checks. |
 | `features/modeling/ui/stages/export/modeling-target-preview.tsx` | Validate the current exact Export source and target, create preview/delivery, present results, and pin `exportArtifact`. | Exact selected output/IR/Neutral refs + target → delivery receipt/card revision. | FE-04F-owned target preflight/delivery UI; request/response identity checks, acknowledgement, retry, and read-back behavior remain unchanged. Root prerequisite/recovery, shared API/model/type, and standalone result helpers remain outside this bounded move. |
-| `api.ts` and `types.ts` | Shared HTTP compatibility surface and cross-feature DTO definitions. | Every stage and feature boundary. | FE-03 makes no API/type changes; feature ownership migration is FE-08/#263. |
+| `features/modeling/api/modeling-api.ts` and `features/modeling/model/*-contracts.ts` | Own Modeling Processing/Fit/Export calls and their feature contracts while using the shared root transport. | Data → Process → Fit → Export and exact Solver Card delivery. | Root compatibility remains only for named non-Modeling consumers and is removed with #262/#263; the app-wide split remains #263. |
 | `styles.css` and `design/layout.css` | Legacy global feature selectors and shared/route layout policy. | All visible Modeling regions. | No #258 edits. CSS ownership is FE-06/#261 and Modeling visual normalization is FE-05/#260. |
 
 Dependency direction targeted by later structural work is
 `app route → Modeling feature controller → stage/domain boundaries → shared design primitives`.
 The current map documents deviations without implementing that movement in this issue.
+
+## FE-04G ownership update
+
+FE-04G moves the 23 Modeling Processing/Fit/Export calls, their Processing and Export contracts,
+session controller, Fit decision/output, and Export eligibility under `features/modeling`. HTTP paths,
+payloads, errors, exact revision pins, browser session v4, saved Fit documents, and Solver Card
+delivery/read-back remain unchanged. Root compatibility is limited to the Materials Activity batch
+calls, the existing lazy Fit restore entry, the Materials session entry, and type projections used by
+non-Modeling Test Data/Solver Card consumers; their removal is assigned to #262/#263.
+The public `contracts.ts` and `plot-contract.ts` entries keep those type-only and shared-plot consumers
+out of Modeling internals without pulling the full feature into an existing lazy chunk.
+
+The documentation-impact checker now verifies import-only TSX rewiring from Git source: all
+non-import bytes and imported/local/type bindings must match. A moved runtime binding must also resolve
+to the same exported declaration tokens and recursively resolved runtime dependencies, including
+through an explicit public re-export. A same-named declaration with either a changed body or a changed
+runtime dependency is rejected. Package, default, namespace, and side-effect imports remain
+byte-identical. JSX, text, logic, CSS, or binding changes still require the normal visual documentation
+evidence.
 
 ## Bounded FE-04 candidates
 

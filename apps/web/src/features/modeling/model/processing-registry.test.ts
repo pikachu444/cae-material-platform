@@ -2,9 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import type {
   CanonicalTestDataDocumentResponse,
-  CommonMappingProfileResponse,
-  CommonProcessingStep,
 } from "../../../types";
+import type { CommonMappingProfileResponse, CommonProcessingStep } from "./common-processing-contracts";
 import {
   DEFAULT_PROFILE,
   ELASTOMER_CURVE_PROFILE,

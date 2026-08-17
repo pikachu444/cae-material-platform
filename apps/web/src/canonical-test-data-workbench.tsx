@@ -18,7 +18,7 @@ import type {
   DataClassification,
 } from "./types";
 import { DomainWorkflowLinks } from "./domain-workflow-links";
-import { modelingFamilyFromQuantities, saveModelingSession } from "./modeling-session-context";
+import { modelingFamilyFromQuantities, saveModelingSession } from "./features/modeling";
 import { ReviewRequestAction } from "./review-request-action";
 import { appendActivityFailure, appendActivityOutcome } from "./activity-recovery";
 

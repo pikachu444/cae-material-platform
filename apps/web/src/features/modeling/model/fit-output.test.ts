@@ -4,8 +4,8 @@ import {
   exactFitPlotData,
   parseExactSavedFitOutput,
   readVerifiedExactOutput,
-} from "./modeling-fit-output";
-import type { CommonProcessingOutputResponse } from "./types";
+} from "./fit-output";
+import type { CommonProcessingOutputResponse } from "./common-processing-contracts";
 
 type FitFixtureOptions = {
   documentVersion?: "1.3.0" | "1.4.0" | "1.5.0";

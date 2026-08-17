@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import ModelingProcessPanel, { parseSavedProcessingOutput } from "./modeling-process-panel";
-import type { CommonProcessingOutputResponse } from "../../../../../types";
+import type { CommonProcessingOutputResponse } from "../../../model/common-processing-contracts";
 
 function output(id: string): CommonProcessingOutputResponse {
   return {

@@ -1,4 +1,4 @@
-import type { CommonProcessingStep } from "./types";
+import type { CommonProcessingStep } from "./features/modeling";
 
 const FAMILIES = [
   { value: "voce", label: "Voce" },

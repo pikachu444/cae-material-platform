@@ -1,14 +1,15 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createExactTargetPreview, deliverExactTargetPreview, getReferenceElastoplasticExportCapabilities } from "../../../../../api";
+import { createExactTargetPreview, deliverExactTargetPreview, getReferenceElastoplasticExportCapabilities } from "../../../api/modeling-api";
 import { ModelingTargetPreview } from "./modeling-target-preview";
-import type { ExportPrerequisite } from "../../../../../modeling-export-eligibility";
-import type { ModelingSessionSummary } from "../../../../../modeling-session-context";
-import type { CommonProcessingPreview, ElastoplasticExportCapabilities, TargetDeliveryResponse, TargetPreviewResponse } from "../../../../../types";
+import type { ExportPrerequisite } from "../../../model/export-eligibility";
+import type { ModelingSessionSummary } from "../../../model/session-controller";
+import type { CommonProcessingPreview } from "../../../model/common-processing-contracts";
+import type { ElastoplasticExportCapabilities, TargetDeliveryResponse, TargetPreviewResponse } from "../../../model/export-contracts";
 
-vi.mock("../../../../../api", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("../../../../../api")>()),
+vi.mock("../../../api/modeling-api", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../../api/modeling-api")>()),
   createExactTargetPreview: vi.fn(),
   deliverExactTargetPreview: vi.fn(),
   getReferenceElastoplasticExportCapabilities: vi.fn(),

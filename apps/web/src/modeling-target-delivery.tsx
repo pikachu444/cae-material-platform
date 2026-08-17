@@ -1,7 +1,11 @@
 import { useState } from "react";
 
-import { ApiError, deliverExactTargetPreview, type ApiConfig } from "./api";
-import type { TargetDeliveryResponse, TargetPreviewResponse } from "./types";
+import { ApiError, type ApiConfig } from "./api";
+import {
+  deliverExactTargetPreview,
+  type TargetDeliveryResponse,
+  type TargetPreviewResponse,
+} from "./features/modeling";
 
 function message(error: unknown): string {
   return error instanceof ApiError ? error.message : error instanceof Error ? error.message : "Delivery failed.";
