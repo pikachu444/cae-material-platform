@@ -280,6 +280,17 @@ Mapping/Fit context 326–360 px)을 유지합니다. 1366×768, 1440×900, 1920
 approximation-blocked, delivered 상태를 캡처 계약으로 관리합니다. Wide 화면에서는 Export shell과
 native preview가 남는 폭을 사용하고 Setup·Mapping/Fit context만 읽기 좋은 pane 범위를 유지합니다.
 
+2026-08-17 FE-04F current-source capture는 기존 데이터와 볼륨을 보존하고 web만 다시 빌드한 뒤,
+8개 Export 상태마다 새 synthetic Processing/Fit 결과를 만들었습니다. source-blocked를 제외한 7개
+상태에서는 새 selected model과 Neutral revision도 만들었고, 최종 전달 상태에서만 그 Neutral을 current
+Material의 exact Materials record에 연결한 뒤 새 solver card와 receipt/link를 읽어 Materials에서 다시
+열었습니다. Preview-only 상태는 Materials 연결을 만들지 않으며, 어떤 상태도 과거 Output·Neutral·solver
+card를 대신 사용하지 않습니다. 다섯 viewport와 세 상태 원본을 모두 원본 해상도로 열고,
+1920/2560/3840의 header·destination controls·native preview·Mapping/Fit result 1:1 crop을 전후
+비교했습니다. header·controls·result는 픽셀까지 같고, native preview는 실행마다 생기는 model revision과
+mapping digest 두 줄만 달랐습니다. 전달 완료 화면도 현재 세 칸 구조, 문구, action과 exact receipt/link
+read-back을 유지합니다.
+
 | Export evidence | Capture |
 | --- | --- |
 | Wide 2560×1440 | [modeling-export-2560x1440.png](images/current/modeling-export-2560x1440.png) |

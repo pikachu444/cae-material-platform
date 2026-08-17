@@ -124,7 +124,7 @@ const ModelingExportPrerequisites = lazy(() =>
   })),
 );
 const ModelingTargetPreview = lazy(() =>
-  import("./modeling-target-preview").then((module) => ({
+  import("./features/modeling/ui/stages/export/modeling-target-preview").then((module) => ({
     default: module.ModelingTargetPreview,
   })),
 );

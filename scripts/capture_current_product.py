@@ -3947,8 +3947,8 @@ def _prepare_exact_metal_source_if_needed(page: Page) -> None:
     target.wait_for(state="visible", timeout=30_000)
 
 
-def _ensure_neutral_material_record_binding(page: Page, base_url: str) -> None:
-    """Bind the promoted exact Neutral revision through the governed Catalog API."""
+def _resolve_exact_material_record(page: Page, base_url: str) -> dict[str, str]:
+    """Resolve the exact session Material to its current Materials Record."""
 
     outcome = page.evaluate(
         """async ({ baseUrl }) => {
@@ -3959,10 +3959,66 @@ def _ensure_neutral_material_record_binding(page: Page, base_url: str) -> None:
             sessionStorage.getItem("cmp.modeling.recent-session.v4") || "{}"
           );
           const material = session.material;
+          if (!config.accessToken || !material?.id || !material?.revisionId) {
+            throw new Error("exact Material session pointer is required");
+          }
+          const headers = {
+            "Accept": "application/json",
+            "Authorization": `Bearer ${config.accessToken}`,
+          };
+          const params = new URLSearchParams({
+            kind: "material",
+            object_id: material.id,
+            revision_id: material.revisionId,
+          });
+          const response = await fetch(
+            `${baseUrl}/api/v1/catalog/domain-bindings:resolve?${params}`,
+            { headers },
+          );
+          const text = await response.text();
+          if (!response.ok) {
+            throw new Error(
+              `resolve exact Material Record: ${response.status} ${text.slice(0, 500)}`
+            );
+          }
+          const record = text ? JSON.parse(text) : null;
+          if (!record?.record_id || !record?.record_revision_id) {
+            throw new Error("exact Material revision has no current Materials Record binding");
+          }
+          return {
+            record_id: record.record_id,
+            record_revision_id: record.record_revision_id,
+          };
+        }""",
+        {"baseUrl": base_url},
+    )
+    if (
+        not isinstance(outcome, dict)
+        or not isinstance(outcome.get("record_id"), str)
+        or not isinstance(outcome.get("record_revision_id"), str)
+    ):
+        raise RuntimeError(f"unexpected exact Material Record resolution: {outcome!r}")
+    return {
+        "record_id": outcome["record_id"],
+        "record_revision_id": outcome["record_revision_id"],
+    }
+
+
+def _ensure_neutral_material_record_binding(page: Page, base_url: str) -> None:
+    """Bind the fresh exact Neutral revision to its exact Material's current Record."""
+
+    material_record = _resolve_exact_material_record(page, base_url)
+    outcome = page.evaluate(
+        """async ({ baseUrl, materialRecord }) => {
+          const config = JSON.parse(
+            localStorage.getItem("cmp.material-platform.api-config") || "{}"
+          );
+          const session = JSON.parse(
+            sessionStorage.getItem("cmp.modeling.recent-session.v4") || "{}"
+          );
           const neutral = session.neutralModel;
-          if (!config.accessToken || !material?.id || !material?.revisionId
-              || !neutral?.id || !neutral?.revisionId) {
-            throw new Error("exact Material and Neutral session pointers are required");
+          if (!config.accessToken || !neutral?.id || !neutral?.revisionId) {
+            throw new Error("exact Neutral session pointer is required");
           }
           const headers = {
             "Accept": "application/json",
@@ -3976,52 +4032,25 @@ def _ensure_neutral_material_record_binding(page: Page, base_url: str) -> None:
             }
             return text ? JSON.parse(text) : null;
           };
-          const params = value => new URLSearchParams({
-            kind: value.kind,
-            object_id: value.id,
-            revision_id: value.revisionId,
-          });
-          const root = await read(await fetch(
-            `${baseUrl}/api/v1/catalog/domain-bindings:resolve?${params({
-              kind: "material", id: material.id, revisionId: material.revisionId,
-            })}`,
-            { headers },
-          ), "resolve exact Material Record");
-          if (!root?.record_id || !root?.record_revision_id) {
-            throw new Error("exact Material revision has no current Materials Record binding");
-          }
-          const graph = await read(await fetch(
-            `${baseUrl}/api/v1/catalog/workflow-explorer/${root.record_id}`
-              + `/revisions/${root.record_revision_id}?depth=6&published_only=true`,
-            { headers },
-          ), "read published Material workflow");
-          const endpoints = [graph.root, ...(graph.nodes || [])].filter(Boolean);
-          const neutralRecord = endpoints.find(endpoint => {
-            const bindings = endpoint.domain_bindings?.length
-              ? endpoint.domain_bindings
-              : endpoint.domain_binding ? [endpoint.domain_binding] : [];
-            return bindings.some(binding => binding.kind === "neutral_material");
-          });
-          if (!neutralRecord?.record_id || !neutralRecord?.record_revision_id) {
-            throw new Error("published Material workflow has no Neutral Material Record");
-          }
-          const exactParams = params({
-            kind: "neutral_material", id: neutral.id, revisionId: neutral.revisionId,
+          const exactParams = new URLSearchParams({
+            kind: "neutral_material",
+            object_id: neutral.id,
+            revision_id: neutral.revisionId,
           });
           const existing = await read(await fetch(
             `${baseUrl}/api/v1/catalog/domain-bindings:resolve?${exactParams}`,
             { headers },
           ), "resolve promoted Neutral binding");
           if (existing) {
-            if (existing.record_id !== neutralRecord.record_id
-                || existing.record_revision_id !== neutralRecord.record_revision_id) {
+            if (existing.record_id !== materialRecord.record_id
+                || existing.record_revision_id !== materialRecord.record_revision_id) {
               throw new Error("promoted Neutral revision is bound to an unexpected Record");
             }
             return { status: "reused", binding: existing };
           }
           const created = await read(await fetch(
-            `${baseUrl}/api/v1/catalog/records/${neutralRecord.record_id}`
-              + `/revisions/${neutralRecord.record_revision_id}/domain-binding`,
+            `${baseUrl}/api/v1/catalog/records/${materialRecord.record_id}`
+              + `/revisions/${materialRecord.record_revision_id}/domain-binding`,
             {
               method: "POST",
               headers,
@@ -4038,13 +4067,13 @@ def _ensure_neutral_material_record_binding(page: Page, base_url: str) -> None:
           ), "read back promoted Neutral binding");
           if (!verified
               || verified.binding_id !== created.binding_id
-              || verified.record_id !== neutralRecord.record_id
-              || verified.record_revision_id !== neutralRecord.record_revision_id) {
+              || verified.record_id !== materialRecord.record_id
+              || verified.record_revision_id !== materialRecord.record_revision_id) {
             throw new Error("promoted Neutral binding did not read back exactly");
           }
           return { status: "created", binding: verified };
         }""",
-        {"baseUrl": base_url},
+        {"baseUrl": base_url, "materialRecord": material_record},
     )
     if not isinstance(outcome, dict) or outcome.get("status") not in {"created", "reused"}:
         raise RuntimeError(f"unexpected promoted Neutral binding outcome: {outcome!r}")
@@ -5579,9 +5608,12 @@ def _prepare_fit_from_saved_process(
     base_url: str,
     *,
     label: str = "Fit source Process result",
+    require_material_record: bool = False,
 ) -> dict[str, object]:
     """Prepare Fit from a real exact Process Output rather than a raw Test Data preview."""
     _prepare_modeling_process(page, base_url, verify_data_reload=False)
+    if require_material_record:
+        _resolve_exact_material_record(page, base_url)
     pointer = _save_process_output_for_fit(
         page,
         label=label,
@@ -5610,7 +5642,12 @@ def _prepare_fit_for_export(
     label: str,
 ) -> None:
     """Calculate the exact Fit candidates before selecting one for Export."""
-    _prepare_fit_from_saved_process(page, base_url, label=label)
+    _prepare_fit_from_saved_process(
+        page,
+        base_url,
+        label=label,
+        require_material_record=True,
+    )
     _click_modeling_fit_preview_and_wait(page)
 
 

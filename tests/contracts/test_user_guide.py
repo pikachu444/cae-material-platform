@@ -143,7 +143,7 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     assert report.local_link_count >= 150
     assert report.image_count >= 120
     assert report.orphan_image_count == 0
-    assert report.duplicate_image_group_count == 323
+    assert report.duplicate_image_group_count == 316
 
 
 def test_incoming_integration_package_is_reference_not_authoritative() -> None:
@@ -211,14 +211,14 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     current_source = manifest["source_commit"]
     fe04c_source = "87ddfa2b2459acd3c1727b40df1893e36670aa06+issue259-fe04c-worktree"
     fe04d_source = "c1e64be9c05c5a2039ae99aa5867a5f8b11f6621+issue259-fe04d-worktree"
-    assert manifest["version"] == 111
-    assert manifest["scope"] == "issue-259-fe04e-modeling-fit-candidate-ui-extraction"
-    assert re.fullmatch(r"[0-9a-f]{40}\+issue259-fe04e-worktree", current_source)
+    fe04e_source = "9c5cbfdc50222197c60b1812027fd28b426457f2+issue259-fe04e-worktree"
+    assert manifest["version"] == 112
+    assert manifest["scope"] == "issue-259-fe04f-modeling-export-target-ui-extraction"
+    assert re.fullmatch(r"[0-9a-f]{40}\+issue259-fe04f-worktree", current_source)
     assert manifest["source_commit"] == current_source
-    assert "--only-modeling-process-fit" in manifest["capture_command"]
+    assert "--only-modeling-export" in manifest["capture_command"]
     assert len(provenance_ids) == len(set(provenance_ids))
     preserved_fixture_ids = {
-        "modeling-export-delivered",
         "solver-card-preview-1366",
         "solver-card-preview-1440",
         "solver-card-preview-1920",
@@ -228,6 +228,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         current_source,
         fe04c_source,
         fe04d_source,
+        fe04e_source,
         "ef364087147e51e22cc02534645ba23b628c23d7+issue253-demo-token-refresh-worktree",
         "971ea100b6d7032eb1308b01b455c95cb9773408+issue246-live-data-correction-v4",
         "f8fe6ef85d345837a6252b6ba8b3b706ccbe009f",
@@ -299,6 +300,16 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "modeling-fit-exact-read-failed-1920",
         "modeling-fit-restored-1920",
     }
+    new_issue_259_fe04f_captures = {
+        "modeling-export-1366",
+        "modeling-export-1440",
+        "modeling-export-1920",
+        "modeling-export-2560",
+        "modeling-export-3840",
+        "modeling-export-source-blocked",
+        "modeling-export-approximation-blocked",
+        "modeling-export-delivered",
+    }
     new_issue_209_captures = {
         capture_id
         for capture_id in captures
@@ -352,10 +363,17 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     )
     assert "native Python Playwright 1.62" in issue_253_provenance["command"]
     assert new_issue_253_captures == set(issue_253_provenance["ids"])
-    issue_259_fe04e_provenance = next(
+    issue_259_fe04f_provenance = next(
         provenance
         for provenance in manifest["capture_provenance"]
         if provenance["source_commit"] == current_source
+    )
+    assert "--only-modeling-export" in issue_259_fe04f_provenance["command"]
+    assert new_issue_259_fe04f_captures == set(issue_259_fe04f_provenance["ids"])
+    issue_259_fe04e_provenance = next(
+        provenance
+        for provenance in manifest["capture_provenance"]
+        if provenance["source_commit"] == fe04e_source
     )
     assert "--only-modeling-process-fit" in issue_259_fe04e_provenance["command"]
     assert new_issue_259_fe04e_captures == set(issue_259_fe04e_provenance["ids"])

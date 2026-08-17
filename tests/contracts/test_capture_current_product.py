@@ -731,11 +731,25 @@ def test_modeling_export_capture_contract_uses_declared_preview_and_atomic_creat
     )
     fit_export_helper_source = ast.get_source_segment(_CAPTURE_SOURCE, fit_export_helper)
     assert fit_export_helper_source is not None
-    assert "_prepare_fit_from_saved_process(page, base_url, label=label)" in fit_export_helper_source
+    assert "_prepare_fit_from_saved_process(" in fit_export_helper_source
+    assert "require_material_record=True" in fit_export_helper_source
     assert "_click_modeling_fit_preview_and_wait(page)" in fit_export_helper_source
     assert fit_export_helper_source.index(
-        "_prepare_fit_from_saved_process(page, base_url, label=label)"
+        "_prepare_fit_from_saved_process("
     ) < fit_export_helper_source.index("_click_modeling_fit_preview_and_wait(page)")
+
+    fit_source_helper = next(
+        node
+        for node in ast.walk(module)
+        if isinstance(node, ast.FunctionDef)
+        and node.name == "_prepare_fit_from_saved_process"
+    )
+    fit_source_helper_source = ast.get_source_segment(_CAPTURE_SOURCE, fit_source_helper)
+    assert fit_source_helper_source is not None
+    assert "if require_material_record:" in fit_source_helper_source
+    assert fit_source_helper_source.index(
+        "_resolve_exact_material_record(page, base_url)"
+    ) < fit_source_helper_source.index("_save_process_output_for_fit(")
 
     export_capture = _CAPTURE_SOURCE.split(
         "def _capture_modeling_export_only", 1
@@ -760,6 +774,7 @@ def test_modeling_export_capture_contract_uses_declared_preview_and_atomic_creat
     normal_recovery = normal_flow.index("_prepare_exact_metal_source_if_needed(page)")
     normal_preview = normal_flow.index("_prepare_exact_target_preview(page)")
     assert normal_fit_prepare < normal_fit_save < normal_open < normal_recovery < normal_preview
+    assert "_ensure_neutral_material_record_binding(" not in normal_flow
     assert 'if page.get_by_role("button", name="Create solver card", exact=True).count()' not in normal_flow
     source_fit_prepare = source_blocked_flow.index("_prepare_fit_for_export(")
     source_fit_save = source_blocked_flow.index(
@@ -779,6 +794,7 @@ def test_modeling_export_capture_contract_uses_declared_preview_and_atomic_creat
     assert approximation_flow.index("_prepare_fit_for_export(") < approximation_flow.index(
         '_save_exact_fit_selection(approximation, candidate_key="swift+voce", require_warning=False)'
     ) < approximation_open < approximation_recovery < approximation_preview
+    assert "_ensure_neutral_material_record_binding(" not in approximation_flow
     delivered_open = delivered_flow.index('_open_modeling_stage(delivered, "export")')
     delivered_recovery = delivered_flow.index("_prepare_exact_metal_source_if_needed(delivered)")
     delivered_binding = delivered_flow.index(
@@ -788,13 +804,16 @@ def test_modeling_export_capture_contract_uses_declared_preview_and_atomic_creat
     assert delivered_flow.index("_prepare_fit_for_export(") < delivered_flow.index(
         '_save_exact_fit_selection(delivered, candidate_key="swift+voce", require_warning=False)'
     ) < delivered_open < delivered_recovery < delivered_binding < delivered_preview
+    assert export_capture.count("_ensure_neutral_material_record_binding(") == 1
     assert "_prepare_exact_metal_source_if_needed" not in source_blocked_flow
 
     binding_helper = _CAPTURE_SOURCE.split(
         "def _ensure_neutral_material_record_binding", 1
     )[1].split("def _prepare_exact_target_preview", 1)[0]
     assert "/api/v1/catalog/domain-bindings:resolve" in binding_helper
-    assert "published_only=true" in binding_helper
+    assert "material_record = _resolve_exact_material_record(page, base_url)" in binding_helper
+    assert "published_only=true" not in binding_helper
+    assert "published Material workflow has no Neutral Material Record" not in binding_helper
     assert "/domain-binding`" in binding_helper
     assert 'kind: "neutral_material"' in binding_helper
     assert 'status: "created"' in binding_helper

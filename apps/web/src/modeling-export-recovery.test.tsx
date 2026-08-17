@@ -8,7 +8,7 @@ import {
   promoteProcessingOutputToTabulatedPlasticity,
 } from "./api";
 import { ModelingExportPrerequisites } from "./modeling-export-prerequisites";
-import { ModelingTargetPreview } from "./modeling-target-preview";
+import { ModelingTargetPreview } from "./features/modeling/ui/stages/export/modeling-target-preview";
 import { reduceModelingSession, type ModelingSessionSummary } from "./modeling-session-context";
 
 vi.mock("./api", async (importOriginal) => ({

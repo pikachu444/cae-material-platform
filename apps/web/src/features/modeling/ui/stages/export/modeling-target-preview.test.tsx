@@ -1,14 +1,14 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createExactTargetPreview, deliverExactTargetPreview, getReferenceElastoplasticExportCapabilities } from "./api";
+import { createExactTargetPreview, deliverExactTargetPreview, getReferenceElastoplasticExportCapabilities } from "../../../../../api";
 import { ModelingTargetPreview } from "./modeling-target-preview";
-import type { ExportPrerequisite } from "./modeling-export-eligibility";
-import type { ModelingSessionSummary } from "./modeling-session-context";
-import type { CommonProcessingPreview, ElastoplasticExportCapabilities, TargetDeliveryResponse, TargetPreviewResponse } from "./types";
+import type { ExportPrerequisite } from "../../../../../modeling-export-eligibility";
+import type { ModelingSessionSummary } from "../../../../../modeling-session-context";
+import type { CommonProcessingPreview, ElastoplasticExportCapabilities, TargetDeliveryResponse, TargetPreviewResponse } from "../../../../../types";
 
-vi.mock("./api", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("./api")>()),
+vi.mock("../../../../../api", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../../../../api")>()),
   createExactTargetPreview: vi.fn(),
   deliverExactTargetPreview: vi.fn(),
   getReferenceElastoplasticExportCapabilities: vi.fn(),

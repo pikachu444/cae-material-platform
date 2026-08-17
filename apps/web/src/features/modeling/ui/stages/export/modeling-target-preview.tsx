@@ -8,18 +8,18 @@ import {
   getAuthenticatedPrincipal,
   getReferenceElastoplasticExportCapabilities,
   type ApiConfig,
-} from "./api";
-import type { ExportPrerequisite } from "./modeling-export-eligibility";
-import type { ModelingSessionEvent, ModelingSessionSummary } from "./modeling-session-context";
-import { exactFitPlotData, type ExactFitPlotData } from "./modeling-fit-output";
-import type { FitDecisionSelection } from "./modeling-fit-decision-contract";
+} from "../../../../../api";
+import type { ExportPrerequisite } from "../../../../../modeling-export-eligibility";
+import type { ModelingSessionEvent, ModelingSessionSummary } from "../../../../../modeling-session-context";
+import { exactFitPlotData, type ExactFitPlotData } from "../../../../../modeling-fit-output";
+import type { FitDecisionSelection } from "../../../../../modeling-fit-decision-contract";
 import {
   mappingDisposition,
   projectMappingRows,
-} from "./solver-card-delivery";
-import { ReviewRequestAction } from "./review-request-action";
-import { appendActivityFailure, appendActivityOutcome, type ActivityRecoveryContext } from "./activity-recovery";
-import { MaterialsScrollRegion } from "./materials-scroll-rail";
+} from "../../../../../solver-card-delivery";
+import { ReviewRequestAction } from "../../../../../review-request-action";
+import { appendActivityFailure, appendActivityOutcome, type ActivityRecoveryContext } from "../../../../../activity-recovery";
+import { MaterialsScrollRegion } from "../../../../../materials-scroll-rail";
 import type {
   CommonProcessingOutputResponse,
   CommonProcessingPreview,
@@ -29,7 +29,7 @@ import type {
   TargetDeliveryResponse,
   TargetDeliveryLinks,
   TargetPreviewResponse,
-} from "./types";
+} from "../../../../../types";
 
 type CapabilityTarget = ExportTarget & { label?: string };
 
