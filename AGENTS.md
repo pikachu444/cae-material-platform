@@ -43,8 +43,18 @@
 
 ## Visual work
 
+- Every user-visible React/CSS change, including a small copy, control, or layout edit, must apply the
+  **mandatory #249 design synthesis**: Carbon-level hierarchy, COMSOL-style engineering task flow, and
+  SAP-style responsive logic. Read its canonical interpretation in
+  [`docs/01-product/frontend-ui-principles.md`](docs/01-product/frontend-ui-principles.md). Review and
+  evidence must explicitly pass its three axes: information hierarchy, engineering task flow, and
+  responsive/wide-screen composition. A passing test suite or close screenshot match does not replace
+  this judgment.
 - Production UI uses `.agents/skills/desktop-engineering-ui`, its selected inventory/manifest entry,
   original assets, affected contracts, and `docs/01-product/visual-acceptance-matrix.md`.
+- When explicit current product-owner feedback conflicts with a registered visual reference, the owner
+  feedback controls. Record the conflict and update the affected reference and manifest in the same
+  bounded visual unit instead of reproducing a stale defect.
 - Use `frontend-ui-engineering` for React/CSS, `web-design-guidelines` for explicit UI audits, and
   `webapp-testing` for browser evidence.
 - For every user-visible React/CSS change, capture the live before/after state at 1366×768,
@@ -110,6 +120,11 @@
   [`docs/01-product/frontend-ui-principles.md`](docs/01-product/frontend-ui-principles.md), and
   [`docs/05-architecture/frontend-architecture.md`](docs/05-architecture/frontend-architecture.md), then
   runs `.agents/skills/material-platform-frontend-architecture` before implementation.
+- Every child unit of issue #249 must read the parent issue and
+  [`docs/12-roadmap/frontend-refactoring-roadmap.md`](docs/12-roadmap/frontend-refactoring-roadmap.md)
+  from FE-00 through the active FE unit before changing code. Its review records pass/fail for the
+  inherited contracts and runs the applicable earlier-unit guards; a child issue is never reviewed in
+  isolation from #249.
 - Preserve two primary frontend journeys: Materials search/browse to exact card download or Start
   Modeling, and exact Material/State/Test Data through Data, Process, Fit, explicit saved model, Export,
   solver-card creation, and Materials read-back. Do not replace missing context with `latest`, first-item,

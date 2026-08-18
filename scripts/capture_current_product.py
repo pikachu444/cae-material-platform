@@ -278,20 +278,20 @@ CURRENT_CAPTURE_OUTPUTS = (
 )
 STAGE_HEADINGS = {
     "data": "Select Test Data",
-    "process": "Prepare observed curves",
-    "fit": "Fit material response",
-    "export": "Review & deliver solver card",
+    "process": "Process Test Data",
+    "fit": "Fit Material Model",
+    "export": "Create Solver Card",
 }
 EXPECTED_EXACT_FIT_RESTORE_ERROR = "Saved Fit result unavailable · Retry exact saved result."
-EXPORT_RECOVERY_REASON = "Prepare the exact selected output for synthetic non-production target preview."
+EXPORT_RECOVERY_REASON = "Create a solver card from this model."
 PROCESS_SOURCE_DOCUMENT_KEY = "CMP-DEMO-DP780-TEST-JSON"
 MODELING_DATA_DOCUMENT_KEYS = (
     PROCESS_SOURCE_DOCUMENT_KEY,
     "CMP-DEMO-DP780-TEST-JSON-02",
     "CMP-DEMO-DP780-TEST-JSON-03",
 )
-PROCESS_SOURCE_TITLE = f"{PROCESS_SOURCE_DOCUMENT_KEY} · Specimen 01 · revision r1"
-PROCESS_SOURCE_VISIBLE_IDENTITY = "Specimen 01 · r1"
+PROCESS_SOURCE_TITLE = "Tensile test 0001"
+PROCESS_SOURCE_VISIBLE_IDENTITY = "Tensile test 0001"
 PROCESS_NO_PREVIEW_SAVED_INSTRUCTION = (
     "No Process preview is active. Choose Use settings for a saved result, then select "
     "Preview changes to preview the draft."
@@ -622,6 +622,7 @@ def _capture(
     if after_animation is not None:
         after_animation()
     _assert_shared_workspace_geometry(page, width, path.name)
+    page.mouse.move(1, 1)
     page.screenshot(path=str(path), full_page=False)
     viewport = page.viewport_size
     if viewport != {"width": width, "height": height}:
@@ -661,13 +662,13 @@ def _assert_export_exact_source_surface(
     if model_value.inner_text().strip().endswith("Exact Fit selection unavailable"):
         raise RuntimeError("Export must retain the exact saved Fit model selection")
     neutral_download = page.get_by_role(
-        "button", name="Download exact selected Neutral", exact=True
+        "button", name="Download selected model", exact=True
     )
     neutral_download.wait_for(state="visible", timeout=30_000)
     if neutral_download.count() != 1:
         raise RuntimeError("Export must expose one exact selected Neutral download action")
     exact_source = page.locator("details.export-advanced").filter(
-        has_text="Advanced · exact source"
+        has_text="Technical details"
     )
     exact_source.wait_for(state="visible", timeout=30_000)
     summary = exact_source.locator(":scope > summary")
@@ -836,7 +837,7 @@ def _assert_export_recovery_capture(page: Page) -> None:
             recovery,
             recovery.querySelector('h3'),
             recovery.querySelector('label:first-of-type'),
-            recovery.querySelector('input[aria-label="Metal promotion reason"]'),
+            recovery.querySelector('input[aria-label="Reason for preparing model"]'),
             recovery.querySelector('button.primary'),
           ];
           const visibleRecoveryClipped = visibleRecoveryNodes.some(node => {
@@ -854,7 +855,7 @@ def _assert_export_recovery_capture(page: Page) -> None:
             recovery: within(recovery),
             recoveryHeading: within(recovery.querySelector('h3')),
             acknowledgement: within(recovery.querySelector('label:first-of-type')),
-            reason: within(recovery.querySelector('input[aria-label="Metal promotion reason"]')),
+            reason: within(recovery.querySelector('input[aria-label="Reason for preparing model"]')),
             prepare: within(recovery.querySelector('button.primary')),
             visibleRecoveryClipped,
           };
@@ -1988,7 +1989,7 @@ def _open_modeling_stage(page: Page, stage: str) -> None:
 def _wait_for_modeling_data_surface(page: Page) -> None:
     """Wait for the visible Data workspace, not an off-screen heading."""
     page.locator(".data-source-tabs").wait_for(state="visible", timeout=30_000)
-    page.locator(".modeling-workspace-rail").wait_for(state="visible", timeout=30_000)
+    page.locator(".modeling-data-workspace").wait_for(state="visible", timeout=30_000)
     page.locator(".persistent-modeling-plot").wait_for(state="visible", timeout=30_000)
 
 
@@ -2053,17 +2054,12 @@ def _wait_for_exact_document_load_settled(page: Page) -> None:
     """Wait for the selected exact Test Data read to finish successfully."""
     page.wait_for_function(
         """() => {
-          const selection = document.querySelector('select[aria-label="Test Data revision"]');
-          const selected = selection?.selectedOptions?.[0];
-          const load = [...document.querySelectorAll('.processing-input-card button')]
-            .find(button => button.textContent?.trim() === 'Load exact JSON');
+          const selected = document.querySelector(
+            '.modeling-data-record-button[aria-current="true"]'
+          );
           return Boolean(
-            selection
-              && selection.value
-              && selected
-              && selected.value === selection.value
-              && load
-              && !load.disabled
+            selected
+              && document.querySelectorAll('.curve-line.data-observed').length >= 1
               && !document.querySelector('.error-banner')
           );
         }""",
@@ -2084,8 +2080,7 @@ def _wait_for_data_plot(page: Page, *, lines: int = 3, legends: int = 3) -> None
             """() => ({
               lines: document.querySelectorAll('.curve-line.data-observed').length,
               legends: document.querySelectorAll('.persistent-modeling-plot .curve-legend.interactive button').length,
-              included: document.querySelectorAll('.modeling-workspace-rail .curve-include-toggle input:checked').length,
-              visible: document.querySelectorAll('.modeling-workspace-rail .curve-visibility-toggle[aria-pressed="true"]').length,
+              comparisons: document.querySelectorAll('.modeling-data-results input[type="checkbox"]:checked').length,
               selectedRefs: (() => {
                 try {
                   return JSON.parse(sessionStorage.getItem('cmp.modeling.recent-session.v4') || '{}')
@@ -2123,192 +2118,410 @@ def _wait_for_data_plot(page: Page, *, lines: int = 3, legends: int = 3) -> None
             })"""
         )
         raise RuntimeError(
-            "Modeling Data plot did not reach its exact 3-line/3-legend contract: "
+            f"Modeling Data plot did not reach its exact {lines}-line/{legends}-legend contract: "
             f"{diagnostics}"
         ) from error
 
 
 def _modeling_data_ribbon_height(page: Page) -> float:
     return (
-        _css_token_px(page, "--ux-navigator-row-block-size") * 3
-        + _css_token_px(page, "--ux-interactive-min-block-size") * 2
-        + _css_token_px(page, "--ux-pane-padding")
+        _css_token_px(page, "--ux-navigator-row-block-size") * 7
         + _css_token_px(page, "--ux-splitter-inline-size")
+        + _css_token_px(page, "--ux-pane-padding")
     )
 
 
 def _wait_for_modeling_data_ribbon(page: Page) -> None:
     expected_height = _modeling_data_ribbon_height(page)
-    page.wait_for_function(
-        """expected => {
-          const panel = document.querySelector('.modeling-data-ribbon-panel');
-          if (!panel) return false;
-          return Math.abs(panel.getBoundingClientRect().height - expected) <= 1;
-        }""",
-        arg=expected_height,
-        timeout=30_000,
-    )
+    try:
+        page.wait_for_function(
+            """expected => {
+              const panel = document.querySelector('#modeling-data-ribbon[data-panel]');
+              if (!panel) return false;
+              return Math.abs(panel.getBoundingClientRect().height - expected) <= 1;
+            }""",
+            arg=expected_height,
+            timeout=30_000,
+        )
+    except Exception as error:
+        layout = page.evaluate(
+            """() => Object.fromEntries([
+              ['ribbon', document.querySelector('#modeling-data-ribbon[data-panel]')],
+              ['ribbonContent', document.querySelector('.modeling-data-ribbon-panel')],
+              ['plot', document.querySelector('.modeling-data-plot-panel')],
+              ['split', document.querySelector('.modeling-data-split')],
+              ['main', document.querySelector('.modeling-main-surface')],
+            ].map(([name, element]) => [name, element ? {
+              top: element.getBoundingClientRect().top,
+              height: element.getBoundingClientRect().height,
+              minHeight: getComputedStyle(element).minHeight,
+              style: element.getAttribute('style'),
+              attributes: Object.fromEntries([...element.attributes].map(attribute => [attribute.name, attribute.value])),
+            } : null]))"""
+        )
+        raise RuntimeError(
+            "Modeling Data result/graph split did not reach its density-derived "
+            f"height: expected={expected_height}, layout={layout}"
+        ) from error
 
 
-def _assert_modeling_data_surface(page: Page, width: int, height: int) -> None:
-    """Assert the normal Data topology and readable identity at one viewport."""
+def _assert_modeling_data_surface(
+    page: Page,
+    width: int,
+    height: int,
+    *,
+    comparison_open: bool,
+) -> None:
+    """Assert the owner-approved normal or deliberately opened comparison state."""
     if page.evaluate(
         "document.documentElement.scrollWidth > document.documentElement.clientWidth"
     ):
         raise RuntimeError(f"Modeling Data has page horizontal overflow at {width}x{height}")
-    rail = page.locator(".modeling-workspace-rail")
-    identity_metrics = []
-    for document_key in MODELING_DATA_DOCUMENT_KEYS:
-        curve_row = rail.locator(
-            f'.curve-row-label[title^="{document_key} ·"]'
-        )
-        if curve_row.count() != 1:
-            raise RuntimeError(
-                f"expected one visible curve row for {document_key!r} at "
-                f"{width}x{height}, got {curve_row.count()}"
-            )
-        curve_row.wait_for(state="visible", timeout=30_000)
-        metrics = curve_row.evaluate(
-            """element => {
-          const lineMetrics = node => {
-            if (!node) return null;
-            const box = node.getBoundingClientRect();
-            return {
-              text: node.textContent?.trim() ?? '',
-              visible: node.getClientRects().length > 0,
-              fits: node.scrollWidth <= node.clientWidth + 1,
-              top: box.top,
-              bottom: box.bottom,
-            };
-          };
-          const rowBox = element.getBoundingClientRect();
-          const primary = element.querySelector(':scope > span > strong');
-          const secondary = element.querySelector(':scope > span > .curve-secondary-identity');
-          const secondaryLines = secondary ? [...secondary.querySelectorAll(':scope > span')] : [];
-          return {
-            primary: lineMetrics(primary),
-            secondary: secondaryLines.map(lineMetrics),
-            row: { top: rowBox.top, bottom: rowBox.bottom },
-          };
-        }"""
-        )
-        metrics["documentKey"] = document_key
-        identity_metrics.append(metrics)
-    for identity in identity_metrics:
-        primary = identity["primary"]
-        secondary = identity["secondary"]
-        if primary is None or len(secondary) != 1 or not primary["visible"] or not primary["fits"] or not secondary[0]["visible"] or not secondary[0]["fits"]:
-            raise RuntimeError(f"curve rail identity line is clipped at {width}x{height}: {identity}")
-        if not primary["text"].lower().startswith(("specimen", "sample")):
-            raise RuntimeError(f"curve rail specimen identity is not explicit: {identity}")
-        if not re.fullmatch(r"(?:Session revision|Revision) r[1-9]\d*", secondary[0]["text"]):
-            raise RuntimeError(f"curve rail exact revision identity drifted: {identity}")
-        if primary["text"].casefold() == secondary[0]["text"].casefold():
-            raise RuntimeError(f"curve rail identity lines duplicate at {width}x{height}: {identity}")
-        if any(
-            line["top"] < identity["row"]["top"] - 1 or line["bottom"] > identity["row"]["bottom"] + 1
-            for line in (primary, secondary[0])
-        ):
-            raise RuntimeError(f"curve rail identity line escaped its row: {identity}")
 
-    library = page.locator(".data-library-list")
-    library_header = page.locator(".data-library-heading")
-    if library_header.count() != 1 or "Saved Test Data" not in library_header.inner_text():
-        raise RuntimeError("Modeling Data Library is missing its Saved Test Data header")
-    library_rows = library.locator(".data-library-row")
-    library_count_text = library_header.locator("span").inner_text().strip()
-    library_count_match = re.fullmatch(r"([1-9]\d*) exact revisions?", library_count_text)
-    if (
-        library_count_match is None
-        or int(library_count_match.group(1)) != library_rows.count()
+    workspace = page.locator(".modeling-workspace-stage-data")
+    browser = page.locator(".modeling-data-browser")
+    results = page.locator(".modeling-data-results")
+    result_region = page.get_by_role("region", name="Test Data results")
+    plot_panel = page.locator(".modeling-data-plot-panel")
+    plot = page.locator(".modeling-data-plot")
+    for locator, label in (
+        (workspace, "workspace"),
+        (browser, "search and browser rail"),
+        (results, "Test Data results"),
+        (plot, "persistent graph"),
     ):
-        raise RuntimeError(
-            "Modeling Data Library header does not match its server-scoped exact revisions: "
-            f"header={library_count_text!r}, rows={library_rows.count()}"
-        )
-    if page.get_by_text(re.compile(r"Test Data records available", re.IGNORECASE)).count():
-        raise RuntimeError("retired Test Data records-available paragraph is still visible")
-    library_box = _bounding_box_edges(library.bounding_box())
-    if library_box is None or library.get_attribute("tabindex") != "0":
-        raise RuntimeError("Modeling Data Library is not a local keyboard-focusable region")
-    ribbon_box = _bounding_box_edges(page.locator(".modeling-data-ribbon-panel").bounding_box())
-    divider_box = _bounding_box_edges(page.locator("#modeling-data-ribbon-plot-divider").bounding_box())
-    if ribbon_box is None or divider_box is None:
-        raise RuntimeError("Modeling Data ribbon/divider geometry is unavailable")
-    expected_ribbon_height = _modeling_data_ribbon_height(page)
-    if abs(ribbon_box["height"] - expected_ribbon_height) > 1:
-        raise RuntimeError(
-            "normal Modeling Data ribbon height drifted from the shared density "
-            f"contract ({expected_ribbon_height}px) at {width}x{height}: "
-            f"{ribbon_box['height']}px"
-        )
+        if locator.count() != 1 or not locator.is_visible():
+            raise RuntimeError(
+                f"Modeling Data {label} is not uniquely visible at {width}x{height}"
+            )
+
+    source_tabs = page.get_by_role("tablist", name="Test data source")
+    if source_tabs.get_by_role("tab").all_inner_texts() != ["Library", "Local file"]:
+        raise RuntimeError("Modeling Data must expose only Library and Local file sources")
+    if source_tabs.get_by_role("tab", name="Library").get_attribute("aria-selected") != "true":
+        raise RuntimeError("normal Modeling Data capture is not on the Library source")
+
+    search = browser.get_by_role("search")
+    if (
+        search.get_by_role("searchbox", name="Find Test Data").count() != 1
+        or search.get_by_role("button", name="Find", exact=True).count() != 1
+        or browser.get_by_label("Test type", exact=True).count() != 1
+        or browser.get_by_label("Condition", exact=True).count() != 1
+    ):
+        raise RuntimeError("Modeling Data search and filter controls are incomplete")
+
+    headings = results.locator("thead th").all_inner_texts()
+    expected_headings = [
+        *(["Graph"] if comparison_open else []),
+        "Test record",
+        "Material",
+        "Condition",
+        "Test date",
+        "Data points",
+    ]
+    if headings != expected_headings:
+        raise RuntimeError(f"Modeling Data result columns drifted: {headings}")
+    if result_region.get_attribute("tabindex") != "0":
+        raise RuntimeError("Test Data results are not a keyboard-focusable local scroll region")
+    if result_region.evaluate("element => element.scrollWidth > element.clientWidth + 1"):
+        raise RuntimeError("Test Data results expose horizontal overflow")
+
+    selected_rows = []
     for document_key in MODELING_DATA_DOCUMENT_KEYS:
         row = _modeling_data_library_row(page, document_key)
         row.scroll_into_view_if_needed()
         row_box = _bounding_box_edges(row.bounding_box())
-        if row_box is None or row_box["top"] < library_box["top"] - 1 or row_box["bottom"] > library_box["bottom"] + 1 or row_box["top"] < ribbon_box["top"] - 1 or row_box["bottom"] > divider_box["top"] + 1:
-            raise RuntimeError(f"Modeling Data Library row {document_key!r} crosses its pane/divider at {width}x{height}: row={row_box}, list={library_box}, ribbon={ribbon_box}, divider={divider_box}")
-    if library.evaluate("element => element.scrollWidth > element.clientWidth + 1"):
-        raise RuntimeError("Modeling Data Library exposes page-horizontal overflow")
-
-    axis_labels = [(text or "").strip() for text in page.locator(".persistent-modeling-plot .chart-axis-label").all_text_contents()]
-    if not any(label.startswith("Engineering strain") for label in axis_labels):
-        raise RuntimeError(f"engineering strain axis title is missing at {width}x{height}: {axis_labels}")
-    if not any(label.startswith("Engineering stress") for label in axis_labels):
-        raise RuntimeError(f"engineering stress axis title is missing at {width}x{height}: {axis_labels}")
-    negative_ticks = [(text or "").strip() for text in page.locator(".persistent-modeling-plot .chart-tick").all_text_contents() if (text or "").strip().startswith("-")]
-    if negative_ticks:
-        raise RuntimeError(f"non-negative tensile Data plot exposed negative ticks at {width}x{height}: {negative_ticks}")
-
-    workspace = page.locator(".modeling-workspace-stage-data")
-    workspace_box = _bounding_box_edges(workspace.bounding_box())
-    plot_box = _bounding_box_edges(page.locator(".persistent-modeling-plot").bounding_box())
-    if workspace_box is None or plot_box is None:
-        raise RuntimeError("elastic Modeling Data workspace geometry is unavailable")
-    if plot_box["height"] < 280:
-        raise RuntimeError(f"Modeling Data graph is too short to preserve axes and legend: {plot_box}")
-    if plot_box["bottom"] > workspace_box["bottom"] + 1:
-        raise RuntimeError(f"Modeling Data graph escapes its workspace: workspace={workspace_box}, plot={plot_box}")
-
-
-def _assert_local_initial_controls(page: Page) -> None:
-    expected_input_height = _css_token_px(page, "--ux-input-min-block-size")
-    expected_control_height = _css_token_px(page, "--ux-control-min-block-size")
-    expected_font_size = _css_token_px(page, "--ux-data-font-size")
-    controls = [
-        (page.locator('select[name="local-test-run"]'), expected_input_height),
-        (page.locator('input[name="local-test-data-file"]'), expected_input_height),
-        (page.get_by_role("button", name="Inspect source", exact=True), expected_control_height),
-    ]
-    boxes = []
-    for control, expected_height in controls:
-        control.wait_for(state="visible", timeout=30_000)
-        box = _bounding_box_edges(control.bounding_box())
-        if box is None:
-            raise RuntimeError("Local file initial control has no measurable box")
-        metrics = control.evaluate(
-            """element => { const style = getComputedStyle(element); const box = element.getBoundingClientRect();
-              return { height: box.height, fontSize: parseFloat(style.fontSize), boxSizing: style.boxSizing,
-                top: box.top, bottom: box.bottom, cursor: style.cursor }; }"""
-        )
-        if abs(metrics["height"] - expected_height) > 1 or abs(metrics["fontSize"] - expected_font_size) > 0.1 or metrics["boxSizing"] != "border-box":
-            raise RuntimeError(f"Local initial control geometry drifted: {metrics}")
-        boxes.append(box)
-    if max(box["bottom"] for box in boxes) - min(box["bottom"] for box in boxes) > 1:
-        raise RuntimeError(f"Local initial controls are not bottom-aligned: {boxes}")
-    file_button = controls[1][0].evaluate(
-        """element => { const style = getComputedStyle(element, '::file-selector-button');
-          return { height: parseFloat(style.height), marginTop: parseFloat(style.marginTop), marginBottom: parseFloat(style.marginBottom) }; }"""
+        if row_box is None:
+            raise RuntimeError(f"Test Data result row {document_key!r} has no geometry")
+        selected_rows.append(row)
+    if not any(
+        row.locator(".modeling-data-record-button").get_attribute("aria-current") == "true"
+        for row in selected_rows
+    ):
+        raise RuntimeError("Modeling Data has no primary Test Data row")
+    checked_comparisons = results.locator('input[type="checkbox"]:checked').count()
+    if comparison_open and checked_comparisons != 2:
+        raise RuntimeError("Modeling Data comparison mode did not retain two optional comparisons")
+    if not comparison_open and results.locator('input[type="checkbox"]').count():
+        raise RuntimeError("normal Modeling Data surface exposes bulk comparison checkboxes")
+    row_alignment = results.locator("tbody tr").evaluate_all(
+        """rows => rows.map(row => {
+          const box = row.getBoundingClientRect();
+          const center = (box.top + box.bottom) / 2;
+          return Math.max(...[...row.children].map(cell => {
+            const cellBox = cell.getBoundingClientRect();
+            return Math.abs((cellBox.top + cellBox.bottom) / 2 - center);
+          }));
+        })"""
     )
-    if abs(file_button["height"] - (expected_input_height - 2)) > 1 or file_button["marginTop"] != 0 or file_button["marginBottom"] != 0:
+    if any(delta > 1.5 for delta in row_alignment):
+        raise RuntimeError(f"Modeling Data table cells are not vertically aligned: {row_alignment}")
+
+    normal_text = "\n".join(
+        line.strip()
+        for line in workspace.inner_text().splitlines()
+        if line.strip()
+    )
+    for retired in (
+        "Select specimen",
+        "Observed ·",
+        "Evidence available",
+        "Specimen identifier from test record",
+        "CSV · header row",
+    ):
+        if retired in normal_text:
+            raise RuntimeError(f"retired helper or technical copy is still visible: {retired!r}")
+    if re.search(r"\bRevision r\d+\b", normal_text):
+        raise RuntimeError("technical Test Data revision leaked onto the normal surface")
+
+    continue_action = plot.locator(".modeling-data-plot-actions").get_by_role(
+        "button", name="Continue to Process", exact=True
+    )
+    if continue_action.count() != 1 or not continue_action.is_enabled():
+        raise RuntimeError("Modeling Data graph is missing its enabled Continue to Process action")
+    comparison_action = plot.locator(":scope > .section-heading").get_by_role(
+        "button",
+        name="Close comparison" if comparison_open else "Add comparison",
+        exact=True,
+    )
+    if comparison_action.count() != 1:
+        raise RuntimeError("optional comparison control is not graph-owned")
+    comparison_colors = comparison_action.evaluate(
+        """element => {
+          const root = getComputedStyle(document.documentElement);
+          const probe = document.createElement('span');
+          document.body.appendChild(probe);
+          const resolve = value => {
+            probe.style.color = value;
+            return getComputedStyle(probe).color;
+          };
+          const expected = [
+            resolve(root.getPropertyValue('--ux-accent')),
+            resolve(root.getPropertyValue('--ux-accent-hover')),
+          ];
+          probe.remove();
+          return { actual: getComputedStyle(element).color, expected };
+        }"""
+    )
+    if comparison_colors["actual"] not in comparison_colors["expected"]:
         raise RuntimeError(
-            f"native file selector button is outside its shared density control: {file_button}"
+            "optional comparison action drifted from the Modeling action color: "
+            f"{comparison_colors}"
         )
+    expected_curves = 3 if comparison_open else 1
+    if plot.locator(".curve-line.data-observed").count() != expected_curves:
+        raise RuntimeError(
+            f"Modeling Data graph does not show its expected {expected_curves} exact curve(s)"
+        )
+    if plot.locator(".curve-legend.interactive button").count() != expected_curves:
+        raise RuntimeError("Modeling Data graph legend does not match its exact selected curves")
+
+    axis_labels = [
+        (text or "").strip()
+        for text in plot.locator(".chart-axis-label").all_text_contents()
+    ]
+    if not any(label.startswith("Engineering strain") for label in axis_labels):
+        raise RuntimeError(
+            f"engineering strain axis title is missing at {width}x{height}: {axis_labels}"
+        )
+    if not any(
+        label.startswith("Engineering stress") and label.endswith("[MPa]")
+        for label in axis_labels
+    ):
+        raise RuntimeError(
+            f"engineering stress MPa axis title is missing at {width}x{height}: {axis_labels}"
+        )
+
+    ribbon_box = _bounding_box_edges(
+        page.locator("#modeling-data-ribbon[data-panel]").bounding_box()
+    )
+    divider_box = _bounding_box_edges(
+        page.locator("#modeling-data-ribbon-plot-divider").bounding_box()
+    )
+    workspace_box = _bounding_box_edges(workspace.bounding_box())
+    plot_panel_box = _bounding_box_edges(plot_panel.bounding_box())
+    plot_box = _bounding_box_edges(plot.bounding_box())
+    svg_box = _bounding_box_edges(plot.locator("svg").bounding_box())
+    browser_box = _bounding_box_edges(browser.bounding_box())
+    related_box = _bounding_box_edges(
+        browser.locator(".modeling-data-related-slot").bounding_box()
+    )
+    browser_heading_box = _bounding_box_edges(
+        browser.locator(".modeling-data-tree > .modeling-data-rail-heading").bounding_box()
+    )
+    related_heading_box = _bounding_box_edges(
+        browser.locator(".modeling-data-related .modeling-data-rail-heading").bounding_box()
+    )
+    if None in (
+        ribbon_box,
+        divider_box,
+        workspace_box,
+        plot_panel_box,
+        plot_box,
+        svg_box,
+        browser_box,
+        related_box,
+        browser_heading_box,
+        related_heading_box,
+    ):
+        raise RuntimeError("Modeling Data geometry is incomplete")
+    assert ribbon_box is not None
+    assert divider_box is not None
+    assert workspace_box is not None
+    assert plot_panel_box is not None
+    assert plot_box is not None
+    assert svg_box is not None
+    assert browser_box is not None
+    assert related_box is not None
+    assert browser_heading_box is not None
+    assert related_heading_box is not None
+
+    if (
+        abs(browser_heading_box["left"] - related_heading_box["left"]) > 1
+        or abs(browser_heading_box["right"] - related_heading_box["right"]) > 1
+    ):
+        raise RuntimeError(
+            "Modeling Data Browser and Related data headings are not aligned: "
+            f"browser={browser_heading_box}, related={related_heading_box}"
+        )
+
+    if abs(related_box["bottom"] - browser_box["bottom"]) > 1:
+        raise RuntimeError(
+            "Modeling Data Related data is not anchored below the scalable Browser: "
+            f"browser={browser_box}, related={related_box}"
+        )
+
+    expected_ribbon_height = _modeling_data_ribbon_height(page)
+    if abs(ribbon_box["height"] - expected_ribbon_height) > 1:
+        raise RuntimeError(
+            "Modeling Data result ribbon drifted from the shared density formula: "
+            f"expected={expected_ribbon_height}, actual={ribbon_box['height']}"
+        )
+    if workspace_box["width"] < width * 0.8:
+        raise RuntimeError(
+            f"wide Modeling Data workspace collapsed into a fixed island: {workspace_box}"
+        )
+    panel_style = plot_panel.evaluate(
+        """element => {
+          const style = getComputedStyle(element);
+          return {
+            left: Number.parseFloat(style.paddingLeft),
+            right: Number.parseFloat(style.paddingRight),
+            top: Number.parseFloat(style.paddingTop),
+            bottom: Number.parseFloat(style.paddingBottom),
+          };
+        }"""
+    )
+    available_width = (
+        plot_panel_box["width"] - panel_style["left"] - panel_style["right"]
+    )
+    available_height = (
+        plot_panel_box["height"] - panel_style["top"] - panel_style["bottom"]
+    )
+    expected_plot_width = min(available_width, 2800)
+    expected_plot_height = min(available_height, 1200)
+    if (
+        abs(plot_box["width"] - expected_plot_width) > 1
+        or abs(plot_box["height"] - expected_plot_height) > 1
+    ):
+        raise RuntimeError(
+            f"Modeling Data useful graph bound drifted at {width}x{height}: "
+            f"panel={plot_panel_box}, plot={plot_box}"
+        )
+    horizontal_gutter_delta = abs(
+        (plot_box["left"] - plot_panel_box["left"])
+        - (plot_panel_box["right"] - plot_box["right"])
+    )
+    vertical_gutter_delta = abs(
+        (plot_box["top"] - plot_panel_box["top"] - panel_style["top"])
+        - (plot_panel_box["bottom"] - panel_style["bottom"] - plot_box["bottom"])
+    )
+    if horizontal_gutter_delta > 1 or vertical_gutter_delta > 1:
+        raise RuntimeError(
+            f"Modeling Data graph is not balanced inside its available work surface: "
+            f"horizontal={horizontal_gutter_delta}, vertical={vertical_gutter_delta}"
+        )
+    if plot_box["height"] < 280 or svg_box["height"] < 180:
+        raise RuntimeError(
+            f"Modeling Data graph is too short for axes and comparison: "
+            f"plot={plot_box}, svg={svg_box}"
+        )
+    if plot_box["bottom"] > workspace_box["bottom"] + 1:
+        raise RuntimeError(
+            f"Modeling Data graph escapes its workspace: workspace={workspace_box}, plot={plot_box}"
+        )
+
+
+
+def _assert_import_file_control(page: Page) -> None:
+    expected_input_height = _css_token_px(page, "--ux-engineering-control-block-size")
+    expected_font_size = _css_token_px(page, "--ux-engineering-control-font-size")
+    input_control = page.locator('input[name="import-test-data-file"]')
+    input_control.wait_for(state="attached", timeout=30_000)
+    visual_control = page.locator(".data-import-file-control")
+    visual_control.wait_for(state="visible", timeout=30_000)
+    if visual_control.locator(".data-import-file-button").inner_text().strip() != "Choose data file":
+        raise RuntimeError("Import file control does not expose one clear choose-file action")
+    if page.locator(".data-import-formats").count() or page.get_by_text(
+        "CSV · TSV · XLSX · JSON", exact=True
+    ).count():
+        raise RuntimeError("Import file control still repeats accepted formats on the normal surface")
+    metrics = visual_control.evaluate(
+        """element => {
+          const style = getComputedStyle(element);
+          const box = element.getBoundingClientRect();
+          const input = element.querySelector('input[type=file]');
+          const inputStyle = input ? getComputedStyle(input) : null;
+          const inputBox = input?.getBoundingClientRect();
+          const button = element.querySelector('.data-import-file-button')?.getBoundingClientRect();
+          const name = element.querySelector('.data-import-file-name')?.getBoundingClientRect();
+          return {
+            height: box.height,
+            boxSizing: style.boxSizing,
+            display: style.display,
+            inputOpacity: inputStyle?.opacity,
+            inputPosition: inputStyle?.position,
+            inputCursor: inputStyle?.cursor,
+            inputBox: inputBox ? { left: inputBox.left, right: inputBox.right, top: inputBox.top, bottom: inputBox.bottom } : null,
+            controlBox: { left: box.left, right: box.right, top: box.top, bottom: box.bottom },
+            button: button ? { top: button.top, bottom: button.bottom, height: button.height } : null,
+            name: name ? { top: name.top, bottom: name.bottom, height: name.height } : null,
+            buttonFontSize: parseFloat(getComputedStyle(element.querySelector('.data-import-file-button')).fontSize),
+            nameFontSize: parseFloat(getComputedStyle(element.querySelector('.data-import-file-name')).fontSize),
+          };
+        }"""
+    )
+    if (
+        abs(metrics["height"] - expected_input_height) > 1
+        or metrics["boxSizing"] != "border-box"
+        or metrics["display"] != "grid"
+        or metrics["inputOpacity"] != "0"
+        or metrics["inputPosition"] != "absolute"
+        or metrics["inputCursor"] != "pointer"
+        or metrics["inputBox"] is None
+        or abs(metrics["inputBox"]["left"] - metrics["controlBox"]["left"]) > 1
+        or abs(metrics["inputBox"]["right"] - metrics["controlBox"]["right"]) > 1
+        or abs(metrics["inputBox"]["top"] - metrics["controlBox"]["top"]) > 1
+        or abs(metrics["inputBox"]["bottom"] - metrics["controlBox"]["bottom"]) > 1
+    ):
+        raise RuntimeError(f"Import file control geometry drifted: {metrics}")
+    if (
+        metrics["button"] is None
+        or metrics["name"] is None
+        or abs(metrics["button"]["height"] - (expected_input_height - 2)) > 1
+        or abs(metrics["buttonFontSize"] - expected_font_size) > 0.1
+        or abs(metrics["nameFontSize"] - expected_font_size) > 0.1
+        or metrics["button"]["top"] < metrics["controlBox"]["top"] - 1
+        or metrics["button"]["bottom"] > metrics["controlBox"]["bottom"] + 1
+        or metrics["name"]["top"] < metrics["controlBox"]["top"] - 1
+        or metrics["name"]["bottom"] > metrics["controlBox"]["bottom"] + 1
+    ):
+        raise RuntimeError(f"Import file button and filename are not aligned: {metrics}")
 
 
 def _modeling_data_library_row(page: Page, document_key: str) -> Locator:
-    row = page.locator(".data-library-list .data-library-row").filter(
-        has=page.get_by_text(document_key, exact=True)
+    row = page.locator(
+        f'.modeling-data-results tbody tr[data-document-key={json.dumps(document_key)}]'
     )
     row.wait_for(state="visible", timeout=30_000)
     if row.count() != 1:
@@ -2318,24 +2531,15 @@ def _modeling_data_library_row(page: Page, document_key: str) -> Locator:
     return row
 
 
-def _modeling_data_rail_entry(page: Page, document_key: str) -> Locator:
-    label = page.locator(
-        f'.modeling-workspace-rail .curve-row-label[title^="{document_key} ·"]'
-    )
-    label.wait_for(state="visible", timeout=30_000)
-    if label.count() != 1:
-        raise RuntimeError(
-            f"expected one Modeling Data rail entry for {document_key!r}, got {label.count()}"
-        )
-    return label.locator("..")
-
 
 def _prepare_modeling(
     page: Page,
     base_url: str,
     *,
     verify_reload: bool = True,
+    retain_comparisons: bool = False,
 ) -> None:
+    """Prepare Data through the real primary-plus-optional-comparison workflow."""
     page.add_init_script(
         """() => {
           if (window.__cmpCaptureFetchDiagnosticsInstalled) return;
@@ -2380,146 +2584,150 @@ def _prepare_modeling(
     )
     page.goto(f"{base_url}/modeling?stage=data&family=metal")
     _wait_for_modeling_data_surface(page)
-    library_rows = page.locator(".data-library-list .data-library-row")
-    library_rows.first.wait_for(timeout=30_000)
-    library_box = _bounding_box_edges(page.locator(".data-library-list").bounding_box())
-    if library_box is None or page.locator(".data-library-list").get_attribute("tabindex") != "0":
-        raise RuntimeError("Test Data Library must expose a keyboard-focusable local scroll region")
-    # Resolve the three exact synthetic tensile sources by identity. The demo
-    # Library can contain unrelated rows, and neither their count nor order is
-    # part of this Modeling session contract.
-    for index, document_key in enumerate(MODELING_DATA_DOCUMENT_KEYS, start=1):
+    result_region = page.get_by_role("region", name="Test Data results")
+    if result_region.get_attribute("tabindex") != "0":
+        raise RuntimeError("Test Data results must expose local keyboard scrolling")
+
+    primary_row = _modeling_data_library_row(page, PROCESS_SOURCE_DOCUMENT_KEY)
+    primary_button = primary_row.locator(".modeling-data-record-button")
+    primary_button.click()
+    _wait_for_exact_document_load_settled(page)
+    _wait_for_data_session_counts(page, refs=1, included=1, visible=1)
+    _wait_for_data_plot(page, lines=1, legends=1)
+
+    # Inspecting another row replaces the single Process input. It must not
+    # turn the previous input into an undeclared comparison curve.
+    alternate_row = _modeling_data_library_row(page, MODELING_DATA_DOCUMENT_KEYS[1])
+    alternate_row.locator(".modeling-data-record-button").click()
+    _wait_for_exact_document_load_settled(page)
+    _wait_for_data_session_counts(page, refs=1, included=1, visible=1)
+    _wait_for_data_plot(page, lines=1, legends=1)
+    primary_button.click()
+    _wait_for_exact_document_load_settled(page)
+    _wait_for_data_session_counts(page, refs=1, included=1, visible=1)
+    _wait_for_data_plot(page, lines=1, legends=1)
+
+    page.get_by_role("button", name="Add comparison", exact=True).click()
+    page.get_by_role("button", name="Close comparison", exact=True).wait_for(timeout=30_000)
+    for count, document_key in enumerate(MODELING_DATA_DOCUMENT_KEYS[1:], start=2):
         row = _modeling_data_library_row(page, document_key)
         row.scroll_into_view_if_needed()
-        row_box = _bounding_box_edges(row.bounding_box())
-        if row_box is None or row_box["top"] < library_box["top"] - 1 or row_box["bottom"] > library_box["bottom"] + 1:
+        checkbox = row.locator('input[type="checkbox"]')
+        if checkbox.count() != 1:
             raise RuntimeError(
-                f"Test Data Library row {document_key!r} is clipped after identity lookup: "
-                f"row={row_box}, list={library_box}"
+                f"optional comparison row {document_key!r} has no unique checkbox"
             )
-        # Use real Library rows so every selected curve has an exact server
-        # revision, rather than manufacturing a capture-only identity.
-        row.click()
-        _wait_for_exact_document_load_settled(page)
-        _wait_for_data_session_counts(page, refs=index, included=index, visible=index)
-    advanced_contract = page.locator("details.modeling-data-advanced")
-    if not advanced_contract.get_attribute("open"):
-        advanced_contract.locator(":scope > summary").click()
-    profile = page.get_by_role("combobox", name="Saved Mapping Profile")
+        checkbox.check()
+        _wait_for_data_session_counts(
+            page,
+            refs=count,
+            included=1,
+            visible=count,
+        )
+        _wait_for_data_plot(page, lines=count, legends=count)
+
+    # Removing and restoring one optional comparison changes only graph
+    # visibility while retaining the one focused Process input and exact links.
+    recovery_row = _modeling_data_library_row(page, MODELING_DATA_DOCUMENT_KEYS[-1])
+    recovery_checkbox = recovery_row.locator('input[type="checkbox"]')
+    recovery_checkbox.uncheck()
+    _wait_for_data_session_counts(page, refs=3, included=1, visible=2)
+    _wait_for_data_plot(page, lines=2, legends=2)
+    recovery_checkbox.check()
+    _wait_for_data_session_counts(page, refs=3, included=1, visible=3)
+    _wait_for_data_plot(page, lines=3, legends=3)
+
+    technical = page.locator("details.modeling-data-technical-details")
+    if not technical.get_attribute("open"):
+        technical.locator(":scope > summary").click()
+    profile = technical.get_by_role("combobox", name="Saved Mapping Profile")
     profile.wait_for(timeout=30_000)
     page.wait_for_function(
-        """() => (document.querySelector('select[aria-label=\"Saved Mapping Profile\"]')?.options.length ?? 0) >= 2""",
+        """() => (document.querySelector(
+          'details.modeling-data-technical-details select[aria-label="Saved Mapping Profile"]'
+        )?.options.length ?? 0) >= 2""",
         timeout=30_000,
     )
-    if profile.locator("option").count() < 2:
-        raise RuntimeError("no saved Mapping Profile is available for Modeling Data capture")
     profile.select_option(index=1)
     page.wait_for_function(
-        """() => Boolean(document.querySelector('select[aria-label="Saved Mapping Profile"]')?.value)""",
+        """() => Boolean(document.querySelector(
+          'details.modeling-data-technical-details select[aria-label="Saved Mapping Profile"]'
+        )?.value)""",
         timeout=30_000,
     )
-    advanced_contract.locator(":scope > summary").click()
-    rail_entries = {
-        document_key: _modeling_data_rail_entry(page, document_key)
-        for document_key in MODELING_DATA_DOCUMENT_KEYS
-    }
-    for entry in rail_entries.values():
-        checkbox = entry.locator(".curve-include-toggle input")
-        if not checkbox.is_checked():
-            checkbox.check()
-        entry.locator(".curve-include-toggle input:checked").wait_for(timeout=30_000)
-    page.wait_for_function(
-        "() => document.querySelectorAll('.modeling-workspace-rail .curve-include-toggle input:checked').length === 3",
-        timeout=30_000,
-    )
-    excluded_entry = rail_entries[MODELING_DATA_DOCUMENT_KEYS[-1]]
-    excluded_entry.locator(".curve-include-toggle input").uncheck()
-    excluded_entry.locator(".curve-include-toggle input:not(:checked)").wait_for(timeout=30_000)
-    page.wait_for_function(
-        "() => document.querySelectorAll('.modeling-workspace-rail .curve-include-toggle input:checked').length === 2",
-        timeout=30_000,
-    )
-    for entry in rail_entries.values():
-        button = entry.locator(".curve-visibility-toggle")
-        if button.get_attribute("aria-pressed") != "true":
-            button.click()
-        entry.locator('.curve-visibility-toggle[aria-pressed="true"]').wait_for(timeout=60_000)
-    source_visibility = rail_entries[PROCESS_SOURCE_DOCUMENT_KEY].locator(
-        ".curve-visibility-toggle"
-    )
-    if verify_reload:
-        # Exercise the real visibility contract in the reload-owning viewport.
-        # This forces one stable 2-series request followed by the required
-        # 3-series graph and catches frame/SVG/legend recalculation regressions.
-        source_visibility.click()
-        page.wait_for_function(
-            "() => document.querySelectorAll('.modeling-workspace-rail .curve-visibility-toggle[aria-pressed=\"true\"]').length === 2",
-            timeout=30_000,
-        )
-        _wait_for_data_plot(page, lines=2, legends=2)
-        source_visibility.click()
-        page.wait_for_function(
-            "() => document.querySelectorAll('.modeling-workspace-rail .curve-visibility-toggle[aria-pressed=\"true\"]').length === 3",
-            timeout=30_000,
-        )
-    _wait_for_data_plot(page)
-    _wait_for_settled(page)
+    technical.locator(":scope > summary").click()
 
+    _wait_for_settled(page)
     _wait_for_modeling_data_ribbon(page)
     viewport_size = page.viewport_size
     if viewport_size is None:
         raise RuntimeError("Modeling Data capture lost its viewport size")
-    _assert_modeling_data_surface(page, viewport_size["width"], viewport_size["height"])
-    # Fit/Export fixture preparation consumes this exact, already-loaded Data
-    # source but does not own the Data-stage reload contract. The dedicated
-    # Data/session capture and pane-persistence E2E keep that assertion. Avoid
-    # replaying a costly append-only catalog hydration for every downstream
-    # risk-state fixture.
+    _assert_modeling_data_surface(
+        page,
+        viewport_size["width"],
+        viewport_size["height"],
+        comparison_open=True,
+    )
+    if retain_comparisons:
+        page.get_by_role("button", name="Close comparison", exact=True).click()
+        _wait_for_data_plot(page, lines=1, legends=1)
+        _assert_modeling_data_surface(
+            page,
+            viewport_size["width"],
+            viewport_size["height"],
+            comparison_open=False,
+        )
+    else:
+        for document_key in MODELING_DATA_DOCUMENT_KEYS[1:]:
+            row = _modeling_data_library_row(page, document_key)
+            row.locator('input[type="checkbox"]').uncheck()
+        _wait_for_data_session_counts(page, refs=3, included=1, visible=1)
+        _wait_for_data_plot(page, lines=1, legends=1)
+        page.get_by_role("button", name="Close comparison", exact=True).click()
+        _assert_modeling_data_surface(
+            page,
+            viewport_size["width"],
+            viewport_size["height"],
+            comparison_open=False,
+        )
     if not verify_reload:
         return
+
     before_reload = _data_session_snapshot(page)
-    if len(_session_list(before_reload, "selectedTestDataRefs")) != 3:
-        raise RuntimeError(f"expected 3 selected exact refs before reload, got {before_reload}")
-    if len(_session_list(before_reload, "selectedDocumentIds")) != 2:
-        raise RuntimeError(f"expected exactly 2 included Test Data ids before reload, got {before_reload}")
-    if len(_session_list(before_reload, "visibleTestDataKeys")) != 3:
-        raise RuntimeError(f"expected 3 visible exact refs before reload, got {before_reload}")
-    # Reload through the actual route and require the selected exact rows to
-    # remain included. This catches the old id-only/current-head regression.
+    if (
+        len(_session_list(before_reload, "selectedTestDataRefs")) != 3
+        or len(_session_list(before_reload, "selectedDocumentIds")) != 1
+        or len(_session_list(before_reload, "visibleTestDataKeys")) != (3 if retain_comparisons else 1)
+    ):
+        raise RuntimeError(
+            f"expected three exact Data selections before reload: {before_reload}"
+        )
+
     page.reload()
     _wait_for_modeling_data_surface(page)
-    page.locator(".data-library-list .data-library-row").first.wait_for(timeout=30_000)
-    page.wait_for_function(
-        "() => document.querySelectorAll('.modeling-workspace-rail .curve-include-toggle input:checked').length === 2",
-        timeout=30_000,
-    )
-    page.wait_for_function(
-        """() => document.querySelectorAll('.modeling-workspace-rail .curve-visibility-toggle[aria-pressed=\"true\"]').length === 3""",
-        timeout=60_000,
-    )
-    reloaded_visibility = _modeling_data_rail_entry(
-        page, PROCESS_SOURCE_DOCUMENT_KEY
-    ).locator(".curve-visibility-toggle")
-    reloaded_visibility.click()
-    page.wait_for_function(
-        "() => document.querySelectorAll('.modeling-workspace-rail .curve-visibility-toggle[aria-pressed=\"true\"]').length === 2",
-        timeout=30_000,
-    )
-    _wait_for_data_plot(page, lines=2, legends=2)
-    reloaded_visibility.click()
-    page.wait_for_function(
-        "() => document.querySelectorAll('.modeling-workspace-rail .curve-visibility-toggle[aria-pressed=\"true\"]').length === 3",
-        timeout=30_000,
-    )
-    _wait_for_data_plot(page)
+    _modeling_data_library_row(page, PROCESS_SOURCE_DOCUMENT_KEY).locator(
+        '.modeling-data-record-button[aria-current="true"]'
+    ).wait_for(timeout=30_000)
+    _wait_for_data_plot(page, lines=1, legends=1)
+    if retain_comparisons:
+        page.get_by_role("button", name="Add comparison", exact=True).click()
+        page.get_by_role("button", name="Close comparison", exact=True).wait_for(timeout=30_000)
+        _wait_for_data_plot(page, lines=3, legends=3)
     after_reload = _data_session_snapshot(page)
     if after_reload != before_reload:
-        raise RuntimeError(f"exact Modeling Data selection changed across reload: before={before_reload}, after={after_reload}")
-    if page.locator(".modeling-workspace-rail .curve-include-toggle input:checked").count() != 2:
-        raise RuntimeError("reload did not preserve exactly 2 included Test Data records")
-    if page.locator('.modeling-workspace-rail .curve-visibility-toggle[aria-pressed="true"]').count() != 3:
-        raise RuntimeError("reload did not preserve all 3 visible Test Data records")
+        raise RuntimeError(
+            "exact Modeling Data selection changed across reload: "
+            f"before={before_reload}, after={after_reload}"
+        )
+    if retain_comparisons:
+        if page.locator(".modeling-data-results input[type='checkbox']:checked").count() != 2:
+            raise RuntimeError("reload did not restore both optional comparisons")
+        page.get_by_role("button", name="Close comparison", exact=True).click()
+        _wait_for_data_plot(page, lines=1, legends=1)
+    elif page.locator(".modeling-data-results input[type='checkbox']").count():
+        raise RuntimeError("reload exposed comparison checkboxes in the normal Data state")
     _wait_for_settled(page)
+
 
 
 def _prepare_modeling_process(
@@ -2528,89 +2736,41 @@ def _prepare_modeling_process(
     *,
     verify_data_reload: bool = True,
 ) -> None:
-    """Prepare Process on the exact Specimen 01 source and session pins."""
-    _prepare_modeling(page, base_url, verify_reload=verify_data_reload)
-    # _prepare_modeling intentionally leaves the page on the Data stage. Pick
-    # the exact source there before navigating to Process; a Process-scoped
-    # locator would not exist yet and could silently select an unrelated row.
-    data_rail = page.locator(
-        ".modeling-workspace-stage-data .modeling-data-curve-tree"
+    """Prepare Process on the exact primary Test Data and retained comparisons."""
+    _prepare_modeling(
+        page,
+        base_url,
+        verify_reload=verify_data_reload,
+        retain_comparisons=True,
     )
-    data_rail.wait_for(state="visible", timeout=30_000)
-    data_rows = data_rail.locator(".curve-row-label")
-    exact_rows = (
-        data_rows
-        .filter(has=page.locator("strong").filter(has_text="Specimen 01"))
-        .filter(
-            has=page.locator(".curve-secondary-identity").filter(
-                has_text="Session revision r1"
-            )
-        )
+    primary_row = _modeling_data_library_row(page, PROCESS_SOURCE_DOCUMENT_KEY)
+    primary_button = primary_row.locator(
+        '.modeling-data-record-button[aria-current="true"]'
     )
-    if exact_rows.count() != 1:
+    if primary_button.count() != 1:
         raise RuntimeError(
-            "Data capture must expose exactly one visible Specimen 01 / "
-            f"Session revision r1 row, got {exact_rows.count()}"
+            "Data capture did not retain the exact primary Test Data row"
         )
-    exact_row = exact_rows.first
-    exact_row.wait_for(state="visible", timeout=30_000)
-    data_identity = exact_row.evaluate(
-        """element => {
-          const primary = element.querySelector(':scope > span > strong');
-          const secondary = element.querySelector(
-            ':scope > span > .curve-secondary-identity'
-          );
-          return {
-            primary: primary?.textContent?.trim() ?? '',
-            secondary: secondary?.textContent?.trim() ?? '',
-            primaryVisible: Boolean(primary && primary.getClientRects().length),
-            secondaryVisible: Boolean(secondary && secondary.getClientRects().length),
-          };
-        }"""
-    )
-    if (
-        not isinstance(data_identity, dict)
-        or data_identity.get("primary") != "Specimen 01"
-        or data_identity.get("secondary") != "Session revision r1"
-        or data_identity.get("primaryVisible") is not True
-        or data_identity.get("secondaryVisible") is not True
-    ):
-        raise RuntimeError(
-            "Data capture selected a row without the exact visible Specimen 01 / "
-            f"Session revision r1 identity: {data_identity}"
-        )
-    exact_row.click()
-    _wait_for_exact_document_load_settled(page)
-    page.wait_for_function(
-        """expected => {
-          const raw = window.sessionStorage.getItem('cmp.modeling.recent-session.v4');
-          if (!raw) return false;
-          const session = JSON.parse(raw);
-          const focused = session.testData || {};
-          const workspace = session.workspace || {};
-          return focused.label === expected.label
-            && focused.revisionNo === 1
-            && Array.isArray(workspace.selectedTestDataRefs)
-            && workspace.selectedTestDataRefs.length === 3
-            && Array.isArray(workspace.selectedDocumentIds)
-            && workspace.selectedDocumentIds.length === 2
-            && Array.isArray(workspace.visibleTestDataKeys)
-            && workspace.visibleTestDataKeys.length === 3;
-        }""",
-        arg={"label": PROCESS_SOURCE_DOCUMENT_KEY},
-        timeout=30_000,
-    )
+
     session = _modeling_session(page)
     focused = session.get("testData")
     workspace = session.get("workspace")
     mapping = session.get("mappingProfile")
-    if not isinstance(focused, dict) or focused.get("label") != PROCESS_SOURCE_DOCUMENT_KEY or focused.get("revisionNo") != 1:
-        raise RuntimeError(f"Process capture did not focus exact Specimen 01 r1: {focused}")
+    if (
+        not isinstance(focused, dict)
+        or focused.get("label") != PROCESS_SOURCE_DOCUMENT_KEY
+        or focused.get("revisionNo") != 1
+    ):
+        raise RuntimeError(
+            f"Process capture did not focus the exact primary Test Data r1: {focused}"
+        )
     if not isinstance(workspace, dict):
         raise RuntimeError("Process capture session has no workspace state")
     refs = workspace.get("selectedTestDataRefs")
     if not isinstance(refs, list) or len(refs) != 3:
-        raise RuntimeError(f"Process capture must retain three exact Test Data refs: {workspace}")
+        raise RuntimeError(
+            f"Process capture must retain three exact Test Data refs: {workspace}"
+        )
     focused_ref = next(
         (
             ref for ref in refs
@@ -2623,9 +2783,16 @@ def _prepare_modeling_process(
         None,
     )
     if focused_ref is None:
-        raise RuntimeError(f"Process capture focused ref is not the exact Specimen 01 r1 pin: {refs}")
-    if len(workspace.get("selectedDocumentIds", [])) != 2 or len(workspace.get("visibleTestDataKeys", [])) != 3:
-        raise RuntimeError(f"Process capture must retain Include 2 and Show 3: {workspace}")
+        raise RuntimeError(
+            f"Process capture primary ref is not the exact r1 pin: {refs}"
+        )
+    if (
+        len(workspace.get("selectedDocumentIds", [])) != 1
+        or len(workspace.get("visibleTestDataKeys", [])) != 3
+    ):
+        raise RuntimeError(
+            f"Process capture must retain one primary input and two visible comparisons: {workspace}"
+        )
     if (
         not isinstance(mapping, dict)
         or mapping.get("label") != "CMP demo tensile JSON mapping"
@@ -2633,17 +2800,19 @@ def _prepare_modeling_process(
         or not str(mapping.get("revisionId") or "").strip()
         or mapping.get("revisionNo") != 1
     ):
-        raise RuntimeError(f"Process capture did not retain the exact Mapping Profile r1 session ref: {mapping}")
+        raise RuntimeError(
+            f"Process capture did not retain the exact Mapping Profile r1: {mapping}"
+        )
     _open_modeling_stage(page, "process")
     page.wait_for_url(re.compile(r"stage=process"), timeout=30_000)
-    page.locator(".modeling-work-title strong").get_by_text(
+    page.locator(".modeling-work-title h1").get_by_text(
         STAGE_HEADINGS["process"], exact=True
     ).wait_for(timeout=30_000)
     _wait_modeling_process_panel(page)
     source = page.locator(".process-band-source")
     source.wait_for(state="visible", timeout=30_000)
     if source.inner_text().strip() != PROCESS_SOURCE_VISIBLE_IDENTITY:
-        raise RuntimeError(f"Process panel source drifted from exact Specimen 01 r1: {source.inner_text()!r}")
+        raise RuntimeError(f"Process panel source drifted from the selected Test Data: {source.inner_text()!r}")
     preview = page.get_by_role("button", name="Preview changes", exact=True)
     preview.wait_for(state="visible", timeout=30_000)
     if preview.is_disabled():
@@ -2771,7 +2940,7 @@ def _capture_modeling_distribution(
 
                 page.reload()
                 page.wait_for_url(re.compile(r"stage=process"), timeout=30_000)
-                page.locator(".modeling-work-title strong").get_by_text(
+                page.locator(".modeling-work-title h1").get_by_text(
                     STAGE_HEADINGS["process"], exact=True
                 ).wait_for(timeout=30_000)
                 _wait_modeling_process_panel(page)
@@ -3786,7 +3955,7 @@ def _save_exact_fit_selection(
     """Save the selected Fit output and leave the workflow on the Fit stage."""
     _open_modeling_stage(page, "fit")
     page.wait_for_url(re.compile(r"stage=fit"), timeout=30_000)
-    page.locator(".modeling-work-title strong").get_by_text(
+    page.locator(".modeling-work-title h1").get_by_text(
         STAGE_HEADINGS["fit"], exact=True
     ).wait_for(timeout=30_000)
     if parse_qs(urlsplit(page.url).query).get("stage") != ["fit"]:
@@ -3822,9 +3991,8 @@ def _save_exact_fit_selection(
     )
     _close_fit_evidence(page, trigger)
     save_candidate.click()
-    page.get_by_text(
-        "New immutable Fit Output saved and current",
-        exact=False,
+    page.locator(".fit-surface-state").get_by_text(
+        "Saved current", exact=True
     ).wait_for(timeout=30_000)
     if parse_qs(urlsplit(page.url).query).get("stage") != ["fit"]:
         raise RuntimeError(f"Fit save unexpectedly navigated away from Fit: {page.url}")
@@ -3875,13 +4043,13 @@ def _prepare_exact_metal_source_if_needed(page: Page) -> None:
     are dismissed and reported instead of being allowed to block the capture.
     """
     recovery_heading = page.get_by_role(
-        "heading", name="Prepare exact metal source", exact=True
+        "heading", name="Prepare selected model", exact=True
     )
     target = page.get_by_role("combobox", name="Solver target", exact=True)
     page.wait_for_function(
         """() => Boolean(
           [...document.querySelectorAll('h1, h2, h3')]
-            .some(heading => heading.textContent?.trim() === 'Prepare exact metal source')
+            .some(heading => heading.textContent?.trim() === 'Prepare selected model')
           || document.querySelector('[aria-label="Solver target"]')
         )""",
         timeout=30_000,
@@ -3892,7 +4060,7 @@ def _prepare_exact_metal_source_if_needed(page: Page) -> None:
 
     acknowledgement = page.get_by_role(
         "checkbox",
-        name="I acknowledge the selected bounded extrapolation for this reference model.",
+        name="I reviewed the extrapolated range used by this model.",
         exact=True,
     )
     acknowledgement.wait_for(state="visible", timeout=30_000)
@@ -3900,17 +4068,17 @@ def _prepare_exact_metal_source_if_needed(page: Page) -> None:
         raise RuntimeError("Exact metal recovery must expose one bounded-extrapolation acknowledgement")
     if not acknowledgement.is_checked():
         acknowledgement.check()
-    reason = page.get_by_role("textbox", name="Metal promotion reason", exact=True)
+    reason = page.get_by_role("textbox", name="Reason for preparing model", exact=True)
     reason.wait_for(state="visible", timeout=30_000)
     reason.fill(EXPORT_RECOVERY_REASON)
     prepare = page.get_by_role(
-        "button", name="Prepare exact model and Neutral", exact=True
+        "button", name="Prepare selected model", exact=True
     )
     if not prepare.count():
         # A pinned model can leave the recovery surface visible while only the
         # Neutral promotion needs retrying.  Reuse that immutable model rather
         # than creating another one.
-        prepare = page.get_by_role("button", name="Retry Neutral promotion", exact=True)
+        prepare = page.get_by_role("button", name="Retry preparation", exact=True)
     prepare.wait_for(state="visible", timeout=30_000)
     if prepare.is_disabled():
         raise RuntimeError("Exact metal recovery action stayed disabled after acknowledgement and reason")
@@ -4103,7 +4271,7 @@ def _prepare_exact_target_preview(
     if summary.count() != 1:
         raise RuntimeError("Native card options disclosure must expose exactly one summary")
     summary.wait_for(state="visible", timeout=30_000)
-    if summary.inner_text().strip() != "Advanced · native card options":
+    if summary.inner_text().strip() != "Native card options":
         raise RuntimeError("Native card options disclosure label drifted")
     if advanced.get_attribute("open") is None:
         summary.click()
@@ -4134,7 +4302,7 @@ def _prepare_exact_target_preview(
             '.export-main .export-preview-state'
           )]
             .some(heading => visible(heading)
-              && heading.textContent?.trim() === "Current preview · not created");
+              && heading.textContent?.trim() === "Not created");
           const visibleAlert = [...document.querySelectorAll('[role="alert"]')]
             .some(alert => visible(alert));
           return terminalHeading || visibleAlert;
@@ -4149,8 +4317,8 @@ def _prepare_exact_target_preview(
     page.get_by_label("Native preview", exact=True).locator("pre").wait_for(
         timeout=30_000
     )
-    if terminal_state.count() != 1 or terminal_state.inner_text().strip() != "Current preview · not created":
-        raise RuntimeError("C1 must expose the exact Current preview · not created state")
+    if terminal_state.count() != 1 or terminal_state.inner_text().strip() != "Not created":
+        raise RuntimeError("Export check must expose the current not-created preview state")
     primary = page.locator(".export-check .ux-button.primary:visible")
     if primary.count() != 1:
         raise RuntimeError("Current Export task must expose exactly one visible primary action")
@@ -4271,7 +4439,7 @@ def _capture_modeling_export_only(
         page.wait_for_url(re.compile(r"stage=export"), timeout=30_000)
         _prepare_exact_metal_source_if_needed(page)
         _prepare_exact_target_preview(page)
-        if page.get_by_role("heading", name="Prepare exact metal source", exact=True).count():
+        if page.get_by_role("heading", name="Prepare selected model", exact=True).count():
             raise RuntimeError("normal Export capture did not expose a current exact model source")
         _assert_export_exact_source_surface(
             page,
@@ -4296,7 +4464,7 @@ def _capture_modeling_export_only(
     )
     _save_exact_fit_selection(source_blocked_page, candidate_key="swift+voce", require_warning=False)
     _open_modeling_stage(source_blocked_page, "export")
-    source_blocked_page.get_by_role("heading", name="Prepare exact metal source", exact=True).wait_for(timeout=30_000)
+    source_blocked_page.get_by_role("heading", name="Prepare selected model", exact=True).wait_for(timeout=30_000)
     if source_blocked_page.get_by_role("button", name=re.compile(r"^(Run|Retry) Export check$"), exact=True).count():
         raise RuntimeError("source-blocked Export must not expose a preview action")
     _capture(
@@ -4383,7 +4551,12 @@ def _capture_modeling(
 ) -> None:
     for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS):
         page = _new_page(browser, base_url, width, height)
-        _prepare_modeling(page, base_url, verify_reload=False)
+        _prepare_modeling(
+            page,
+            base_url,
+            verify_reload=False,
+            retain_comparisons=True,
+        )
         plot = page.locator(".persistent-modeling-plot svg[role=img]")
         for stage, heading in STAGE_HEADINGS.items():
             if stage == "export" and (width, height) not in VIEWPORTS:
@@ -4395,7 +4568,7 @@ def _capture_modeling(
                 continue
             _open_modeling_stage(page, stage)
             page.wait_for_url(re.compile(rf"stage={stage}"), timeout=30_000)
-            page.locator(".modeling-work-title strong").get_by_text(heading, exact=True).wait_for(
+            page.locator(".modeling-work-title h1").get_by_text(heading, exact=True).wait_for(
                 timeout=30_000
             )
             if stage == "process":
@@ -4506,6 +4679,7 @@ def _measure_process_fit(
     height: int,
     *,
     minimum_svg_height: int | None = None,
+    expected_fit_included: int = 2,
 ) -> dict[str, float]:
     blocked_plot = page.locator(
         '.persistent-modeling-plot .engineering-curve-plot-empty-frame[data-plot-state="blocked"]'
@@ -4634,8 +4808,8 @@ def _measure_process_fit(
             processRoot?.querySelector('[aria-label="Toe estimation range start"]'),
             processRoot?.querySelector('[aria-label="Toe estimation range end"]'),
             processRoot?.querySelector('[aria-label="Acknowledge toe quality warning"]'),
-            processRoot?.querySelector('[aria-label="Processed curve label"]'),
-            processRoot?.querySelector('[aria-label="Save reason"]'),
+            processRoot?.querySelector('[aria-label="Process result name"]'),
+            processRoot?.querySelector('[aria-label="Reason for saving Process result"]'),
             processRoot?.querySelector('.process-band-save > .button'),
           ].filter(Boolean);
           const processControls = controlNodes.map(node => {
@@ -4809,15 +4983,19 @@ def _measure_process_fit(
             xTickCount: xTickLabels.length,
             processRows,
             processRowClipped: processRows.some(row => row.clipped),
-            fitRows: [...document.querySelectorAll('.modeling-workspace-stage-fit .modeling-dataset-list .curve-row-label')].map(row => {
-              const rowBox = row.getBoundingClientRect();
-              const descendants = [row, ...row.querySelectorAll('strong, small')];
-              const clipped = descendants.some(node => node.scrollWidth > node.clientWidth + 1 || node.scrollHeight > node.clientHeight + 1);
-              return { text: (row.textContent ?? '').replace(/\\s+/g, ' ').trim(), visible: row.getClientRects().length > 0, clipped, box: { top: rowBox.top, bottom: rowBox.bottom } };
-            }),
-            fitRowsIncluded: document.querySelector('.modeling-workspace-stage-fit .modeling-dataset-list .rail-heading > span')?.textContent?.trim() ?? '',
-            fitNoMatchingCurves: [...document.querySelectorAll('.modeling-workspace-stage-fit .modeling-dataset-list .muted')]
-              .some(node => node.getClientRects().length && (node.textContent ?? '').trim() === 'No matching curves.'),
+            fitInput: (() => {
+              const row = document.querySelector('.modeling-workspace-stage-fit .fit-input-row');
+              const rowBox = row?.getBoundingClientRect();
+              const clipped = row ? [row, ...row.querySelectorAll('strong, span')]
+                .some(node => node.scrollWidth > node.clientWidth + 1 || node.scrollHeight > node.clientHeight + 1) : true;
+              return row && rowBox ? {
+                text: (row.textContent ?? '').replace(/\\s+/g, ' ').trim(),
+                visible: row.getClientRects().length > 0,
+                clipped,
+                box: { top: rowBox.top, bottom: rowBox.bottom },
+              } : null;
+            })(),
+            fitStepCount: document.querySelectorAll('.modeling-workspace-stage-fit .configured-step-list > button').length,
             methodRangeGap: method && range ? range.left - method.right : null,
             processControls,
             topActions,
@@ -4849,14 +5027,20 @@ def _measure_process_fit(
         - _css_token_px(page, "--ux-space-2")
         - 1,
     )
-    minimum = minimum_svg_height if minimum_svg_height is not None else default_minimum
+    minimum = (
+        minimum_svg_height
+        if minimum_svg_height is not None
+        else 180 if stage == "data" else default_minimum
+    )
     if measurement["svgHeight"] + 1 < minimum:
         raise RuntimeError(f"{stage} geometry gate failed at {width}x{height}: {measurement}")
     shared_right_reservation = (
         _css_token_px(page, "--ux-navigator-min-inline-size")
         + _css_token_px(page, "--ux-pane-padding")
     )
-    expected_drawable_width = measurement["svgWidth"] - 80 - shared_right_reservation
+    expected_drawable_width = measurement["svgWidth"] - 80 - (
+        24 if stage == "data" else shared_right_reservation
+    )
     horizontal_axis = measurement.get("horizontalAxisBox")
     if (
         not isinstance(horizontal_axis, dict)
@@ -4868,10 +5052,24 @@ def _measure_process_fit(
         )
     if width == 1440 and measurement["svgWidth"] < 1050:
         raise RuntimeError(f"{stage} 1440 graph-width gate failed: {measurement}")
+    legend_box = measurement.get("legendBox")
+    svg_box = measurement.get("svgBox")
+    if stage == "data":
+        data_legend_invalid = (
+            not measurement.get("legendInPlot")
+            or not measurement.get("legendOutsideSvg")
+            or not isinstance(legend_box, dict)
+            or not isinstance(svg_box, dict)
+            or _as_float(legend_box.get("top")) < _as_float(svg_box.get("bottom")) - 1
+        )
+    else:
+        data_legend_invalid = (
+            not measurement.get("legendInPlot")
+            or measurement.get("legendOutsideSvg")
+            or not measurement.get("legendAfterPlotAxis")
+        )
     if (
-        not measurement.get("legendInPlot")
-        or measurement.get("legendOutsideSvg")
-        or not measurement.get("legendAfterPlotAxis")
+        data_legend_invalid
         or measurement.get("legendTickOverlap")
         or measurement.get("legendAxisLabelOverlap")
         or measurement.get("legendAxisOverlap")
@@ -4880,7 +5078,10 @@ def _measure_process_fit(
         or measurement.get("legendExtrapolationLabelOverlap")
         or measurement.get("legendStateOverlayOverlap")
     ):
-        raise RuntimeError(f"{stage} legend escapes its shared plot reservation at {width}x{height}: {measurement}")
+        raise RuntimeError(
+            f"{stage} legend escapes its stage-owned plot reservation at "
+            f"{width}x{height}: {measurement}"
+        )
     if not measurement.get("lastXTickWithinSvg") or not measurement.get("xTicksWithinSvg"):
         raise RuntimeError(f"{stage} final x tick is clipped at {width}x{height}: {measurement}")
     expected_input_height = _css_token_px(page, "--ux-input-min-block-size")
@@ -4890,7 +5091,7 @@ def _measure_process_fit(
         if not isinstance(rows, list) or not rows:
             raise RuntimeError(f"Process rail rows are missing at {width}x{height}: {measurement}")
         for row in rows:
-            if not isinstance(row, dict) or not re.fullmatch(r"Specimen \d{2} · r[1-9]\d*", str(row.get("text", ""))):
+            if not isinstance(row, dict) or not re.fullmatch(r"Tensile test \d{4}", str(row.get("text", ""))):
                 raise RuntimeError(f"Process rail identity drifted at {width}x{height}: {measurement}")
         if measurement.get("processRowClipped"):
             raise RuntimeError(f"Process rail identity is clipped at {width}x{height}: {measurement}")
@@ -4907,18 +5108,18 @@ def _measure_process_fit(
             {
                 "Toe estimation range start",
                 "Toe estimation range end",
-                "Processed curve label",
-                "Save reason",
-                "Save processed curves",
+                "Process result name",
+                "Reason for saving Process result",
+                "Save Process result",
             }
             if toe_mode
             else {
                 "Evaluation method",
                 "Elastic range start",
                 "Elastic range end",
-                "Processed curve label",
-                "Save reason",
-                "Save processed curves",
+                "Process result name",
+                "Reason for saving Process result",
+                "Save Process result",
             }
         )
         visible_controls = {
@@ -4958,7 +5159,7 @@ def _measure_process_fit(
         ]
         save_row = [
             control for control in controls
-            if isinstance(control, dict) and control.get("label") in {"Processed curve label", "Save reason", "Save processed curves"}
+            if isinstance(control, dict) and control.get("label") in {"Process result name", "Reason for saving Process result", "Save Process result"}
         ]
         manual_row = [
             control for control in controls
@@ -4977,11 +5178,11 @@ def _measure_process_fit(
             return max(tops) - min(tops) <= tolerance and max(bottoms) - min(bottoms) <= tolerance
         save_fields = [
             control for control in save_row
-            if isinstance(control, dict) and control.get("label") in {"Processed curve label", "Save reason"}
+            if isinstance(control, dict) and control.get("label") in {"Process result name", "Reason for saving Process result"}
         ]
         save_actions = [
             control for control in save_row
-            if isinstance(control, dict) and control.get("label") == "Save processed curves"
+            if isinstance(control, dict) and control.get("label") == "Save Process result"
         ]
         save_band = measurement.get("saveBand")
         stacked_save_action = False
@@ -5010,10 +5211,10 @@ def _measure_process_fit(
             height_px = float(control.get("height", 0))
             if abs(height_px - expected_input_height) > 1:
                 raise RuntimeError(f"Process control height drifted at {width}x{height}: {control}")
-            if str(control.get("label")) == "Save processed curves":
+            if str(control.get("label")) == "Save Process result":
                 if control.get("whiteSpace") != "nowrap" or float(control.get("scrollHeight", 0)) > float(control.get("clientHeight", 0)) + 1:
                     raise RuntimeError(f"Process Save button wraps at {width}x{height}: {control}")
-            if str(control.get("label")) in {"Processed curve label", "Save reason"}:
+            if str(control.get("label")) in {"Process result name", "Reason for saving Process result"}:
                 if control.get("whiteSpace") != "nowrap":
                     raise RuntimeError(f"Process save label wraps at {width}x{height}: {control}")
         top_actions = measurement.get("topActions")
@@ -5065,21 +5266,17 @@ def _measure_process_fit(
     if stage == "process" and width >= 1920:
         _assert_elastic_stage_workspace("process", "Process")
     if stage == "fit":
-        rows = measurement.get("fitRows")
-        if not isinstance(rows, list) or len(rows) != 3:
-            raise RuntimeError(f"Fit rail must expose exactly three exact rows at {width}x{height}: {measurement}")
-        for row in rows:
-            if (
-                not isinstance(row, dict)
-                or row.get("visible") is not True
-                or row.get("clipped") is True
-                or not re.fullmatch(r"Specimen \d{2} · r[1-9]\d*", str(row.get("text", "")))
-            ):
-                raise RuntimeError(f"Fit rail identity is missing or clipped at {width}x{height}: {measurement}")
-        if measurement.get("fitRowsIncluded") != "2 included":
-            raise RuntimeError(f"Fit rail selected included count drifted at {width}x{height}: {measurement}")
-        if measurement.get("fitNoMatchingCurves"):
-            raise RuntimeError(f"Fit rail exposed No matching curves at {width}x{height}: {measurement}")
+        fit_input = measurement.get("fitInput")
+        if (
+            not isinstance(fit_input, dict)
+            or fit_input.get("visible") is not True
+            or fit_input.get("clipped") is True
+            or "Saved Process result" not in str(fit_input.get("text", ""))
+            or "Tensile test" not in str(fit_input.get("text", ""))
+        ):
+            raise RuntimeError(f"Fit input summary is missing or clipped at {width}x{height}: {measurement}")
+        if measurement.get("fitStepCount") != 4:
+            raise RuntimeError(f"Fit rail must expose the four engineering steps at {width}x{height}: {measurement}")
         if measurement["fitClusterWidth"] <= 0:
             raise RuntimeError(f"Fit workspace is unavailable at {width}x{height}: {measurement}")
         if width >= 1920:
@@ -5166,12 +5363,12 @@ def _measure_process_fit(
         fit_ribbon = measurement.get("fitRibbon")
         fit_groups = measurement.get("fitGroups")
         required_fit_groups = (
-            "Candidate equations",
-            "Fit domain",
-            "Selected blend",
-            "Primary contribution",
-            "Extrapolation",
-            "Graph interaction",
+            "Candidate models",
+            "Fit range",
+            "Preview blend",
+            "Blend ratio",
+            "Output range",
+            "Graph selection",
         )
         if not isinstance(fit_ribbon, dict) or not isinstance(fit_groups, list):
             raise RuntimeError(f"Fit ribbon group geometry is missing at {width}x{height}: {measurement}")
@@ -5226,11 +5423,17 @@ def _measure_process_fit(
                 raise RuntimeError(f"Fit header {key} is not visible at {width}x{height}: {box!r}")
     plot_frame = measurement.get("plotFrameBox")
     svg_box = measurement.get("svgBox")
+    legend_box = measurement.get("legendBox")
+    expected_frame_height = (
+        _as_float(svg_box.get("height")) if isinstance(svg_box, dict) else 0
+    )
+    if stage == "data" and isinstance(legend_box, dict):
+        expected_frame_height += _as_float(legend_box.get("height"))
     if (
         not isinstance(plot_frame, dict)
         or not isinstance(svg_box, dict)
         or abs(_as_float(svg_box.get("width")) - _as_float(plot_frame.get("width"))) > 2
-        or abs(_as_float(svg_box.get("height")) - _as_float(plot_frame.get("height"))) > 2
+        or abs(expected_frame_height - _as_float(plot_frame.get("height"))) > 2
     ):
         raise RuntimeError(f"{stage} SVG does not follow its semantic plot frame at {width}x{height}: {measurement}")
     if (
@@ -5357,7 +5560,12 @@ def _click_modeling_fit_preview_and_wait(page: Page) -> None:
         }""",
         timeout=30_000,
     )
-    page.get_by_text("Preview ready", exact=False).wait_for(timeout=30_000)
+    page.locator(".fit-surface-state").get_by_text(
+        "Preview not saved", exact=True
+    ).wait_for(timeout=30_000)
+    page.get_by_role("button", name="Candidate parameters", exact=True).wait_for(
+        state="visible", timeout=30_000
+    )
 
 
 def _save_process_output_for_fit(
@@ -5371,9 +5579,9 @@ def _save_process_output_for_fit(
     if verify_default_preview:
         _assert_modeling_process_preview(page)
     panel = page.locator('[data-modeling-process-panel="ready"]')
-    output_label = panel.get_by_role("textbox", name="Processed curve label", exact=True)
-    output_reason = panel.get_by_role("textbox", name="Save reason", exact=True)
-    save = panel.get_by_role("button", name="Save processed curves", exact=True)
+    output_label = panel.get_by_role("textbox", name="Process result name", exact=True)
+    output_reason = panel.get_by_role("textbox", name="Reason for saving Process result", exact=True)
+    save = panel.get_by_role("button", name="Save Process result", exact=True)
     output_label.fill(label)
     output_reason.fill(reason)
     with page.expect_response(
@@ -5543,7 +5751,7 @@ def _prepare_toe_compensation_preview(
         raise RuntimeError(f"Toe compensation did not precede elastic evaluation: {method_ids!r}")
 
     _click_modeling_process_preview_and_wait(page)
-    panel.get_by_text("OLS zero intercept · v1.0.0", exact=True).wait_for(timeout=30_000)
+    panel.get_by_text("OLS zero intercept", exact=True).wait_for(timeout=30_000)
     panel.get_by_text("1 quality warning · acknowledgement required", exact=True).wait_for(
         timeout=30_000
     )
@@ -5553,7 +5761,7 @@ def _prepare_toe_compensation_preview(
     acknowledgement.wait_for(state="visible", timeout=30_000)
     if acknowledgement.is_checked():
         raise RuntimeError("Toe warning was acknowledged before the explicit browser action")
-    if not panel.get_by_role("button", name="Save processed curves", exact=True).is_disabled():
+    if not panel.get_by_role("button", name="Save Process result", exact=True).is_disabled():
         raise RuntimeError("Toe warning did not block Process save")
     warning_geometry = _assert_toe_warning_layout(panel)
     if warning_capture_path is not None:
@@ -5621,7 +5829,7 @@ def _prepare_fit_from_saved_process(
     )
     _open_modeling_stage(page, "fit")
     page.wait_for_url(re.compile(r"stage=fit"), timeout=30_000)
-    page.locator(".modeling-work-title strong").get_by_text(
+    page.locator(".modeling-work-title h1").get_by_text(
         STAGE_HEADINGS["fit"], exact=True
     ).wait_for(timeout=30_000)
     page.wait_for_function(
@@ -6190,9 +6398,9 @@ def _assert_modeling_process_preview(
     source = panel.locator(".process-band-source")
     source.wait_for(state="visible", timeout=30_000)
     if source.inner_text().strip() != PROCESS_SOURCE_VISIBLE_IDENTITY:
-        raise RuntimeError(f"Process preview source is not exact Specimen 01 r1: {source.inner_text()!r}")
+        raise RuntimeError(f"Process preview source is not the selected Test Data: {source.inner_text()!r}")
     heading = page.locator(".persistent-modeling-plot > .section-heading")
-    heading.get_by_text("Curve response", exact=True).wait_for(state="visible", timeout=30_000)
+    heading.locator("h2").wait_for(state="visible", timeout=30_000)
     toolbar = page.locator(".persistent-modeling-plot > .modeling-plot-toolbar")
     toolbar.wait_for(state="visible", timeout=30_000)
     for control in ("Reset view", "Pan", "Select range"):
@@ -6202,7 +6410,7 @@ def _assert_modeling_process_preview(
             raise RuntimeError(f"Process plot control is unexpectedly disabled: {control}")
     result = panel.locator(".process-band-result")
     result.get_by_text(expected_modulus, exact=True).wait_for(timeout=30_000)
-    save = panel.get_by_role("button", name="Save processed curves", exact=True)
+    save = panel.get_by_role("button", name="Save Process result", exact=True)
     save.wait_for(state="visible", timeout=30_000)
     controls = panel.locator(".process-band-controls")
     method = controls.get_by_role("combobox", name="Evaluation method", exact=True)
@@ -6304,7 +6512,7 @@ def _assert_modeling_process_manual_surface(
         int(viewport["height"]),
         minimum_svg_height=230,
     )
-    save = panel.get_by_role("button", name="Save processed curves", exact=True)
+    save = panel.get_by_role("button", name="Save Process result", exact=True)
     panel.locator(".process-band-save").scroll_into_view_if_needed()
     page.wait_for_timeout(100)
     save_hit = save.evaluate(
@@ -6345,7 +6553,7 @@ def _assert_modeling_process_geometry(page: Page) -> None:
     plot = _bounding_box_edges(page.locator(".persistent-modeling-plot").bounding_box())
     svg = _bounding_box_edges(page.locator(".persistent-modeling-plot svg[role='img']").bounding_box())
     save_band = _bounding_box_edges(page.locator(".process-band-save").bounding_box())
-    save = page.get_by_role("button", name="Save processed curves", exact=True)
+    save = page.get_by_role("button", name="Save Process result", exact=True)
     save_box = _bounding_box_edges(save.bounding_box())
     if ribbon is None or panel is None or plot is None or svg is None or save_band is None or save_box is None:
         raise RuntimeError("Process preview geometry is unavailable")
@@ -6409,8 +6617,8 @@ def _assert_modeling_process_stage_round_trip(
     source = panel.locator(".process-band-source")
     if source.inner_text().strip() != PROCESS_SOURCE_VISIBLE_IDENTITY:
         raise RuntimeError(f"Process round-trip source drifted: {source.inner_text()!r}")
-    label = panel.get_by_role("textbox", name="Processed curve label", exact=True)
-    reason = panel.get_by_role("textbox", name="Save reason", exact=True)
+    label = panel.get_by_role("textbox", name="Process result name", exact=True)
+    reason = panel.get_by_role("textbox", name="Reason for saving Process result", exact=True)
     draft_label = label.input_value()
     draft_reason = reason.input_value()
     method = panel.get_by_role("combobox", name="Evaluation method", exact=True)
@@ -6500,7 +6708,7 @@ def _assert_modeling_process_stage_round_trip(
         active_stage = stage
         _open_modeling_stage(page, stage)
         page.wait_for_url(re.compile(rf"stage={stage}"), timeout=30_000)
-        page.locator(".modeling-work-title strong").get_by_text(
+        page.locator(".modeling-work-title h1").get_by_text(
             STAGE_HEADINGS[stage], exact=True
         ).wait_for(timeout=30_000)
         _wait_for_settled(page)
@@ -6510,9 +6718,9 @@ def _assert_modeling_process_stage_round_trip(
     returned_panel.locator(".process-band-source").get_by_text(
         PROCESS_SOURCE_VISIBLE_IDENTITY, exact=True
     ).wait_for(timeout=30_000)
-    if returned_panel.get_by_role("textbox", name="Processed curve label", exact=True).input_value() != draft_label:
+    if returned_panel.get_by_role("textbox", name="Process result name", exact=True).input_value() != draft_label:
         raise RuntimeError("Process round-trip lost the draft output label")
-    if returned_panel.get_by_role("textbox", name="Save reason", exact=True).input_value() != draft_reason:
+    if returned_panel.get_by_role("textbox", name="Reason for saving Process result", exact=True).input_value() != draft_reason:
         raise RuntimeError("Process round-trip lost the draft save reason")
     returned_method = returned_panel.get_by_role("combobox", name="Evaluation method", exact=True)
     if returned_method.input_value() != draft_method:
@@ -6521,7 +6729,7 @@ def _assert_modeling_process_stage_round_trip(
         raise RuntimeError("Process round-trip lost the copied elastic range start")
     if returned_panel.get_by_role("spinbutton", name="Elastic range end", exact=True).input_value() != draft_range_end:
         raise RuntimeError("Process round-trip lost the copied elastic range end")
-    if not returned_panel.get_by_role("button", name="Save processed curves", exact=True).is_disabled():
+    if not returned_panel.get_by_role("button", name="Save Process result", exact=True).is_disabled():
         raise RuntimeError("Copied Process settings unexpectedly became saveable without a new preview")
     returned_panel.locator(".process-band-result").get_by_text("210.0 GPa", exact=True).wait_for(timeout=30_000)
     returned_graph = page.locator(".persistent-modeling-plot svg[role='img']")
@@ -6572,7 +6780,7 @@ def _assert_modeling_process_blocked(page: Page) -> None:
     if page.get_by_role("status", name="Loading Process controls").count():
         raise RuntimeError("Process blocked capture retained the lazy loading fallback")
     preview = page.get_by_role("button", name="Preview changes", exact=True)
-    save = page.get_by_role("button", name="Save processed curves", exact=True)
+    save = page.get_by_role("button", name="Save Process result", exact=True)
     if not preview.is_disabled() or not save.is_disabled():
         raise RuntimeError("Process blocked capture left Preview or Save enabled")
     method_buttons = page.locator(".method-library .method-pill")
@@ -6615,7 +6823,7 @@ def _assert_modeling_process_exact_read_failed(page: Page, content_gets: int | N
     if not page.get_by_role("button", name="Back to Data", exact=True).is_visible():
         raise RuntimeError("Exact-read failure is missing the Back to Data recovery")
     preview = page.get_by_role("button", name="Preview changes", exact=True)
-    save = page.get_by_role("button", name="Save processed curves", exact=True)
+    save = page.get_by_role("button", name="Save Process result", exact=True)
     if not preview.is_disabled() or not save.is_disabled():
         raise RuntimeError("Exact-read failure left Preview or Save enabled")
     if page.get_by_text(re.compile(r"\b(?:210\.0|120\.0) GPa\b"), exact=False).count():
@@ -7209,7 +7417,7 @@ def _capture_modeling_process_fit(
         if page.locator(".stage-process > .section-heading:visible").count():
             raise RuntimeError("Process capture received the retired duplicate workspace heading")
         page.locator(".modeling-workspace-rail .rail-heading").get_by_text(
-            "Curves", exact=True
+            "Test Data", exact=True
         ).wait_for(timeout=30_000)
         _prepare_toe_compensation_preview(page)
         _save_process_output_for_fit(
@@ -7234,7 +7442,7 @@ def _capture_modeling_process_fit(
         )
 
         _open_modeling_stage(page, "fit")
-        page.locator(".modeling-work-title strong").get_by_text(
+        page.locator(".modeling-work-title h1").get_by_text(
             STAGE_HEADINGS["fit"], exact=True
         ).wait_for(timeout=30_000)
         _click_modeling_fit_preview_and_wait(page)
@@ -7288,11 +7496,11 @@ def _capture_modeling_process_only(
         page = _new_page(browser, base_url, width, height)
         _prepare_modeling_process(page, base_url, verify_data_reload=False)
         page.wait_for_url(re.compile(r"stage=process"), timeout=30_000)
-        page.locator(".modeling-work-title strong").get_by_text(
+        page.locator(".modeling-work-title h1").get_by_text(
             STAGE_HEADINGS["process"], exact=True
         ).wait_for(timeout=30_000)
         page.locator(".modeling-workspace-rail .rail-heading").get_by_text(
-            "Curves", exact=True
+            "Test Data", exact=True
         ).wait_for(timeout=30_000)
         _wait_modeling_process_panel(page)
         _assert_modeling_process_preview(page)
@@ -7378,7 +7586,7 @@ def _capture_modeling_process_only(
     failed.route("**/api/v1/test-data-documents/**/content", fail_exact_source)
     failed.reload()
     failed.wait_for_url(re.compile(r"stage=process"), timeout=30_000)
-    failed.locator(".modeling-work-title strong").get_by_text(
+    failed.locator(".modeling-work-title h1").get_by_text(
         STAGE_HEADINGS["process"], exact=True
     ).wait_for(timeout=30_000)
     failed.get_by_role("button", name="Retry exact source", exact=True).wait_for(timeout=30_000)
@@ -7403,7 +7611,7 @@ def _capture_modeling_process_only(
     _filter_capture_process_output_list(siblings, source_pin, profile_pin)
     siblings.reload()
     siblings.wait_for_url(re.compile(r"stage=process"), timeout=30_000)
-    siblings.locator(".modeling-work-title strong").get_by_text(
+    siblings.locator(".modeling-work-title h1").get_by_text(
         STAGE_HEADINGS["process"], exact=True
     ).wait_for(timeout=30_000)
     _wait_modeling_process_panel(siblings)
@@ -7431,7 +7639,7 @@ def _capture_modeling_process_only(
         _assert_capture_processing_output_pointer(siblings, elastic_output)
         siblings.reload()
         siblings.wait_for_url(re.compile(r"stage=process"), timeout=30_000)
-        siblings.locator(".modeling-work-title strong").get_by_text(
+        siblings.locator(".modeling-work-title h1").get_by_text(
             STAGE_HEADINGS["process"], exact=True
         ).wait_for(timeout=30_000)
         _wait_modeling_process_panel(siblings)
@@ -7545,16 +7753,16 @@ def _capture_modeling_process_only(
         _patch_capture_processing_output_pointer(siblings, chord_output)
         siblings.reload()
         siblings.wait_for_url(re.compile(r"stage=process"), timeout=30_000)
-        siblings.locator(".modeling-work-title strong").get_by_text(
+        siblings.locator(".modeling-work-title h1").get_by_text(
             STAGE_HEADINGS["process"], exact=True
         ).wait_for(timeout=30_000)
         _wait_modeling_process_panel(siblings)
         _assert_modeling_process_saved_rows(siblings, require_current_and_history=True)
     else:
         _assert_modeling_process_preview(siblings)
-        label = siblings.get_by_role("textbox", name="Processed curve label")
-        reason = siblings.get_by_role("textbox", name="Save reason")
-        save = siblings.get_by_role("button", name="Save processed curves", exact=True)
+        label = siblings.get_by_role("textbox", name="Process result name")
+        reason = siblings.get_by_role("textbox", name="Reason for saving Process result")
+        save = siblings.get_by_role("button", name="Save Process result", exact=True)
         label.fill("Robust elastic")
         reason.fill("Capture deterministic saved-result sibling one")
         save.click()
@@ -7659,7 +7867,7 @@ def _capture_modeling_process_only(
                 "Current Elastic Use settings did not copy robust_huber 0.0005–0.0025"
             )
         if not resume_panel.get_by_role(
-            "button", name="Save processed curves", exact=True
+            "button", name="Save Process result", exact=True
         ).is_disabled():
             raise RuntimeError(
                 "Current Elastic Use settings enabled Save before a new preview"
@@ -7721,9 +7929,9 @@ def _capture_modeling_process_only(
         if primary_start.input_value() != "0.0005" or primary_end.input_value() != "0.0025":
             raise RuntimeError("Primary Process preview elastic range drifted from 0.0005–0.0025")
         primary_panel.locator(".process-band-result").get_by_text("210.0 GPa", exact=True).wait_for(timeout=30_000)
-        primary_label = siblings.get_by_role("textbox", name="Processed curve label", exact=True)
-        primary_reason = siblings.get_by_role("textbox", name="Save reason", exact=True)
-        primary_save = siblings.get_by_role("button", name="Save processed curves", exact=True)
+        primary_label = siblings.get_by_role("textbox", name="Process result name", exact=True)
+        primary_reason = siblings.get_by_role("textbox", name="Reason for saving Process result", exact=True)
+        primary_save = siblings.get_by_role("button", name="Save Process result", exact=True)
         primary_label.fill("Elastic window 0.0005-0.0025")
         primary_reason.fill("Baseline elastic evaluation for DP780 review")
         primary_save.click()
@@ -7797,7 +8005,7 @@ def _capture_modeling_process_only(
         or history_panel.get_by_role("spinbutton", name="Elastic range end", exact=True).input_value() != "0.003"
     ):
         raise RuntimeError("Chord Use settings did not copy the 0.001–0.003 elastic range")
-    if not history_panel.get_by_role("button", name="Save processed curves", exact=True).is_disabled():
+    if not history_panel.get_by_role("button", name="Save Process result", exact=True).is_disabled():
         raise RuntimeError("Chord Use settings enabled Save before a new preview")
     history_panel.locator(".process-band-result").get_by_text("210.0 GPa", exact=True).wait_for(timeout=30_000)
     history_rows = _assert_modeling_process_saved_rows_three(
@@ -7852,27 +8060,30 @@ def _capture_modeling_consistency(
     _capture_modeling_session_shell(browser, base_url, output)
     for width, height in VIEWPORTS:
         page = _new_page(browser, base_url, width, height)
-        _prepare_modeling(page, base_url)
+        # Data now preserves the user's exact focused revision across stage
+        # changes. Select the Process source explicitly instead of relying on
+        # the retired first-included-row fallback, then return for the Data
+        # geometry capture before continuing the four-stage journey.
+        _prepare_modeling_process(page, base_url)
+        _open_modeling_stage(page, "data")
+        _wait_for_modeling_data_surface(page)
         _assert_modeling_normal_shell(page)
         rail = page.locator(".modeling-workspace-rail")
-        rail.get_by_text("Curves", exact=True).wait_for(timeout=30_000)
-        if (
-            page.get_by_text("Hide", exact=True).count()
-            or page.get_by_role("button", name="Mean & band", exact=True).count()
-        ):
-            raise RuntimeError(
-                "Data must use icon-only visibility and omit Mean & band before an ensemble preview"
-            )
-        if (
-            rail.get_by_role("checkbox").count() < 1
-            or rail.locator(".curve-visibility-toggle").count() < 1
-        ):
-            raise RuntimeError("Data must retain compact curve inclusion and visibility controls")
-        if (
-            rail.locator(".curve-tree-group").count() < 1
-            or rail.locator(".curve-group-row").count() < 1
-        ):
-            raise RuntimeError("Data must group specimen rows under a real test-method tree parent")
+        rail.get_by_role("search").wait_for(timeout=30_000)
+        page.get_by_role("button", name="Add comparison", exact=True).click()
+        _assert_modeling_data_surface(
+            page,
+            width,
+            height,
+            comparison_open=True,
+        )
+        page.get_by_role("button", name="Close comparison", exact=True).click()
+        _assert_modeling_data_surface(
+            page,
+            width,
+            height,
+            comparison_open=False,
+        )
         rail_box = rail.bounding_box()
         expected_rail_width = _css_token_px(page, "--ux-navigator-default-inline-size")
         if rail_box is None or abs(rail_box["width"] - expected_rail_width) > 1:
@@ -7887,17 +8098,26 @@ def _capture_modeling_consistency(
         )
         for stage in ("process", "fit", "export"):
             _open_modeling_stage(page, stage)
-            page.locator(".modeling-work-title strong").get_by_text(
+            page.locator(".modeling-work-title h1").get_by_text(
                 STAGE_HEADINGS[stage], exact=True
             ).wait_for(timeout=30_000)
             _assert_modeling_normal_shell(page)
             if stage in ("process", "fit"):
                 stage_rail = page.locator(".modeling-workspace-rail")
                 stage_rail_box = stage_rail.bounding_box()
-                expected_rail_width = _css_token_px(page, "--ux-navigator-default-inline-size")
-                if stage_rail_box is None or abs(stage_rail_box["width"] - expected_rail_width) > 1:
+                minimum_rail_width = _css_token_px(
+                    page, "--ux-navigator-min-inline-size"
+                )
+                default_rail_width = _css_token_px(
+                    page, "--ux-navigator-default-inline-size"
+                )
+                if (
+                    stage_rail_box is None
+                    or stage_rail_box["width"] < minimum_rail_width - 1
+                    or stage_rail_box["width"] > default_rail_width + 1
+                ):
                     raise RuntimeError(
-                        f"{stage} curve rail drifted from the shared density token: {stage_rail_box}"
+                        f"{stage} curve rail escaped the shared readable range: {stage_rail_box}"
                     )
                 if page.get_by_role("button", name="Mean & band", exact=True).count():
                     raise RuntimeError(
@@ -7944,7 +8164,13 @@ def _capture_modeling_consistency(
                 {
                     "stage": stage,
                     "viewport": f"{width}x{height}",
-                    **_measure_process_fit(page, stage, width, height),
+                    **_measure_process_fit(
+                        page,
+                        stage,
+                        width,
+                        height,
+                        expected_fit_included=1,
+                    ),
                 }
             )
         page.context.close()
@@ -7964,23 +8190,11 @@ def _capture_modeling_data_viewports(
             _prepare_modeling(page, base_url, verify_reload=index == 0)
             _assert_modeling_normal_shell(page)
             rail = page.locator(".modeling-workspace-rail")
-            rail.get_by_text("Curves", exact=True).wait_for(timeout=30_000)
+            rail.get_by_role("search").wait_for(timeout=30_000)
             rail_box = rail.bounding_box()
             expected_rail_width = _css_token_px(page, "--ux-navigator-default-inline-size")
             if rail_box is None or abs(rail_box["width"] - expected_rail_width) > 1:
-                raise RuntimeError(f"Data compact curve rail width drifted: {rail_box}")
-            if (
-                page.get_by_text("Hide", exact=True).count()
-                or page.get_by_role("button", name="Mean & band", exact=True).count()
-            ):
-                raise RuntimeError(
-                    "Data must use icon-only visibility and omit Mean & band before an ensemble preview"
-                )
-            if (
-                rail.locator(".curve-tree-group").count() < 1
-                or rail.locator(".curve-group-row").count() < 1
-            ):
-                raise RuntimeError("Data must group specimen rows under a real test-method tree parent")
+                raise RuntimeError(f"Data search/browser rail width drifted: {rail_box}")
             _capture(page, output / f"modeling-data-{width}x{height}.png", width, height)
             data_measurement = _measure_process_fit(page, "data", width, height)
             if width > 1920:
@@ -8081,60 +8295,19 @@ def _capture_modeling_session_shell(browser: Browser, base_url: str, output: Pat
             if any(retired_terms.nth(index).is_visible() for index in range(retired_terms.count())):
                 raise RuntimeError("new-session shell exposed retired implementation terminology")
 
-            collapse_control = page.get_by_role(
-                "button", name="Collapse curve and process navigator", exact=True
-            )
+            local_tab = page.get_by_role("tab", name="Local file", exact=True)
             if (
-                collapse_control.count() != 1
-                or not collapse_control.is_visible()
-                or not collapse_control.is_enabled()
+                local_tab.get_attribute("aria-selected") != "true"
+                or page.locator(".modeling-workspace-rail").count()
             ):
                 raise RuntimeError(
-                    "new-session shell must expose one visible, enabled navigator collapse control"
+                    "new-session Data must start with Local file and no empty browser rail"
                 )
-            collapse_control.click()
-            page.wait_for_function(
-                """() => {
-                  const control = document.querySelector(
-                    'button[aria-label="Expand curve and process navigator"]'
-                  );
-                  return control?.getAttribute("aria-expanded") === "false";
-                }""",
-                timeout=30_000,
-            )
-            expand_control = page.get_by_role(
-                "button", name="Expand curve and process navigator", exact=True
-            )
-            if (
-                expand_control.count() != 1
-                or not expand_control.is_visible()
-                or not expand_control.is_enabled()
-                or expand_control.get_attribute("aria-expanded") != "false"
-            ):
+            file_control = page.get_by_label("Import Test Data file")
+            if file_control.count() != 1 or not file_control.is_visible():
                 raise RuntimeError(
-                    "collapsed navigator must expose one visible, enabled expand control"
+                    "new-session Data must expose the local Test Data file control"
                 )
-            page.wait_for_function(
-                """() => {
-                  const rail = document.querySelector(".modeling-workspace-rail");
-                  if (!rail) return true;
-                  const box = rail.getBoundingClientRect();
-                  const style = window.getComputedStyle(rail);
-                  return box.width <= 1
-                    || style.display === "none"
-                    || style.visibility === "hidden";
-                }""",
-                timeout=30_000,
-            )
-            navigator_rail = page.locator(".modeling-workspace-rail")
-            if navigator_rail.count():
-                rail_box = navigator_rail.bounding_box()
-                if navigator_rail.is_visible() and (
-                    rail_box is None or rail_box["width"] > 1
-                ):
-                    raise RuntimeError(
-                        f"collapsed navigator rail did not reclaim its width: {rail_box}"
-                    )
             empty_plot = page.locator(".engineering-curve-plot-empty-frame")
             empty_plot.wait_for(state="visible", timeout=30_000)
             empty_svg = empty_plot.locator(
@@ -8142,15 +8315,19 @@ def _capture_modeling_session_shell(browser: Browser, base_url: str, output: Pat
             )
             if empty_svg.count() != 1 or not empty_svg.is_visible():
                 raise RuntimeError(
-                    "collapsed new-session shell must retain one visible empty engineering plot"
+                    "new-session Data must retain one visible empty engineering plot"
                 )
             _capture(page, output / f"modeling-session-{width}x{height}.png", width, height)
         finally:
             page.context.close()
 
 
-def _capture_modeling_data_exceptions(browser: Browser, base_url: str, output: Path) -> None:
-    """Capture an empty new session and an invalid runtime CSV mapping state."""
+def _capture_modeling_data_exceptions(
+    browser: Browser,
+    base_url: str,
+    output: Path,
+) -> None:
+    """Capture the empty state and a recoverable local-file mapping blocker."""
     page = _new_page(browser, base_url, 1440, 900)
     try:
         page.goto(f"{base_url}/modeling?stage=data&family=metal")
@@ -8181,22 +8358,55 @@ def _capture_modeling_data_exceptions(browser: Browser, base_url: str, output: P
             }""",
             timeout=30_000,
         )
-        empty_session = _modeling_session(page)
-        if empty_session.get("material") or empty_session.get("materialState") or empty_session.get("testData"):
-            raise RuntimeError(f"new Modeling Data session retained a pin: {empty_session}")
+        local_tab = page.get_by_role("tab", name="Local file", exact=True)
+        if (
+            local_tab.get_attribute("aria-selected") != "true"
+            or page.locator(".modeling-workspace-rail").count()
+        ):
+            raise RuntimeError(
+                "empty Data must start at Local file without an unused browser rail"
+            )
+        if page.locator(".modeling-notice-line").count():
+            raise RuntimeError(
+                "empty Data exposes a redundant session-status sentence"
+            )
+        _assert_import_file_control(page)
         empty_plot = page.locator(".engineering-curve-plot-empty-frame")
-        empty_plot.wait_for(state="visible", timeout=30_000)
-        empty_svg = empty_plot.locator("svg[role=img]")
-        if empty_svg.count() != 1 or empty_svg.get_attribute("aria-label") != "Empty engineering curve plot":
-            raise RuntimeError("empty Modeling Data state must retain one real engineering plot SVG")
-        if empty_svg.locator(".chart-grid").count() < 2 or empty_svg.locator(".chart-axis").count() != 2:
-            raise RuntimeError("empty Modeling Data plot is missing visible axes/grid")
-        if not empty_svg.get_by_text("Engineering strain [1]").count() or not empty_svg.get_by_text("Engineering stress [MPa]").count():
-            raise RuntimeError("empty Modeling Data plot is missing engineering axis labels")
-        local_action = empty_plot.get_by_role("button", name="Local file", exact=True)
-        if local_action.count() != 1 or not local_action.is_visible() or not local_action.is_enabled():
-            raise RuntimeError("empty Modeling Data state must expose an operable Local file action")
-        _assert_local_initial_controls(page)
+        empty_svg = empty_plot.locator(
+            'svg[role="img"][aria-label="Empty engineering curve plot"]'
+        )
+        empty_svg.wait_for(state="visible", timeout=30_000)
+        if (
+            empty_svg.locator(".chart-grid").count() < 2
+            or empty_svg.locator(".chart-axis").count() != 2
+            or not empty_svg.get_by_text("Engineering strain [1]").count()
+            or not empty_svg.get_by_text("Engineering stress [MPa]").count()
+        ):
+            raise RuntimeError("empty Data graph is missing its engineering axes")
+        if empty_plot.get_by_role("button", name="Import file", exact=True).count():
+            raise RuntimeError(
+                "empty Data duplicates the already visible local-file action inside the graph"
+            )
+        # Keep the pin-free session evidence on the default Local file task,
+        # then record the separate empty-Library decision state. This proves
+        # both entry paths without registering two byte-identical current
+        # screenshots or changing the production default.
+        library_tab = page.get_by_role("tab", name="Library", exact=True)
+        library_tab.click()
+        page.wait_for_function(
+            """() => document.querySelector(
+              '[role="tablist"][aria-label="Test data source"] [role="tab"][aria-selected="true"]'
+            )
+              ?.textContent?.trim() === 'Library'""",
+            timeout=30_000,
+        )
+        page.get_by_role("region", name="Test Data results").wait_for(
+            state="visible", timeout=30_000
+        )
+        if page.locator('.modeling-data-record-button[aria-current="true"]').count():
+            raise RuntimeError("empty Library state selected a Test Data row implicitly")
+        if page.get_by_role("button", name="Continue to Process", exact=True).count():
+            raise RuntimeError("empty Library state exposes a premature Process action")
         _capture(page, output / "modeling-data-empty-1440x900.png", 1440, 900)
     finally:
         page.context.close()
@@ -8204,436 +8414,260 @@ def _capture_modeling_data_exceptions(browser: Browser, base_url: str, output: P
     page = _new_page(browser, base_url, 1440, 900)
     temporary_directory: tempfile.TemporaryDirectory[str] | None = None
     try:
-        # Start from the valid three-curve state so the blocked Local mapping
-        # capture proves that the last usable graph remains on screen.
-        _prepare_modeling(page, base_url, verify_reload=False)
-        _wait_for_data_plot(page)
+        _prepare_modeling(
+            page,
+            base_url,
+            verify_reload=False,
+            retain_comparisons=False,
+        )
+        before_session = _data_session_snapshot(page)
+        _wait_for_data_plot(page, lines=1, legends=1)
         page.get_by_role("tab", name="Local file", exact=True).click()
-        test_run = page.get_by_role("combobox", name="Local file Test Run", exact=True)
-        test_run.wait_for(timeout=30_000)
-        if test_run.locator("option").count() <= 1:
-            raise RuntimeError("no governed Test Run is available for invalid mapping capture")
-        test_run.select_option(index=1)
-        selected_run = test_run.input_value()
-        if not selected_run:
-            raise RuntimeError("invalid mapping capture did not select a Test Run")
-        long_strain = "Engineering strain measurement channel from extensometer (longitudinal)"
+
+        long_strain = (
+            "Engineering strain measurement channel from extensometer "
+            "(longitudinal)"
+        )
         long_stress = "True stress observed channel [MPa]"
-        specimen_column = "Specimen identifier"
         temporary_directory = tempfile.TemporaryDirectory(prefix="cmp-invalid-")
         temporary_csv = Path(temporary_directory.name) / "modeling-data-invalid.csv"
         temporary_csv.write_text(
-            f"{long_strain},{long_stress},{specimen_column}\n"
+            f"{long_strain},{long_stress},Specimen identifier\n"
             "0.0000,0.0,Specimen 03\n"
             "0.0100,410.0,Specimen 03\n"
             "0.0200,520.0,Specimen 03\n"
             "0.0300,610.0,Specimen 03\n",
             encoding="utf-8",
         )
-        page.get_by_label("Local test data file", exact=True).set_input_files(str(temporary_csv))
-        inspect = page.get_by_role("button", name="Inspect source", exact=True)
-        inspect.wait_for(state="visible", timeout=30_000)
-        if not inspect.is_enabled():
-            raise RuntimeError("Inspect source is disabled after selecting a Test Run and CSV")
-        inspect.click()
-        page.locator(".data-raw-table").wait_for(state="visible", timeout=30_000)
-        independent = page.get_by_role("combobox", name="Engineering strain source column", exact=True)
-        dependent = page.get_by_role("combobox", name="Engineering stress source column", exact=True)
-        independent.wait_for(state="visible", timeout=30_000)
-        dependent.wait_for(state="visible", timeout=30_000)
-        independent.select_option(label=long_strain)
-        dependent.select_option(label=long_strain)
-        dependent_unit = page.get_by_role(
-            "combobox", name="Engineering stress original unit", exact=True
+        page.get_by_label("Import Test Data file", exact=True).set_input_files(
+            str(temporary_csv)
         )
-        dependent_unit.select_option(label="%")
-        reason = page.get_by_role("textbox", name="Mapping change reason", exact=True)
-        reason.fill("Review the measured source columns before saving this Test Data mapping.")
+        test_record = page.get_by_role(
+            "combobox", name="Imported file Test record", exact=True
+        )
+        test_record.wait_for(timeout=30_000)
+        if test_record.locator("option").count() <= 1:
+            raise RuntimeError(
+                "no governed Test record is available for local-file recovery"
+            )
+        test_record.select_option(index=1)
+        inspect = page.get_by_role("button", name="Inspect file", exact=True)
+        if not inspect.is_enabled():
+            raise RuntimeError(
+                "Inspect file is disabled after choosing a Test record and CSV"
+            )
+        inspect.click()
+
+        mapping_table = page.get_by_role(
+            "region",
+            name="Axis and unit mapping decision table",
+            exact=True,
+        )
+        mapping_table.wait_for(state="visible", timeout=30_000)
+        if mapping_table.locator("thead th").all_inner_texts() != [
+            "Modeling data",
+            "Column in file",
+            "File unit",
+            "Modeling unit",
+        ]:
+            raise RuntimeError("local-file mapping columns are not concise and aligned")
+        if mapping_table.evaluate(
+            "element => element.scrollWidth > element.clientWidth + 1"
+        ):
+            raise RuntimeError("local-file mapping table exposes horizontal clipping")
+
+        file_details = page.locator("details.data-source-advanced")
+        if (
+            file_details.count() != 1
+            or file_details.get_attribute("open") is not None
+            or page.locator(".data-raw-table").is_visible()
+        ):
+            raise RuntimeError(
+                "raw file evidence must remain collapsed under File details"
+            )
+
+        strain_column = page.get_by_role(
+            "combobox",
+            name="Engineering strain source column",
+            exact=True,
+        )
+        stress_column = page.get_by_role(
+            "combobox",
+            name="Engineering stress source column",
+            exact=True,
+        )
+        strain_column.select_option(value=long_strain)
+        stress_column.select_option(value=long_strain)
+        page.get_by_role(
+            "combobox",
+            name="Engineering stress original unit",
+            exact=True,
+        ).select_option(label="%")
+
         blockers = page.locator(".data-mapping-blockers[role=alert]")
         blockers.wait_for(state="visible", timeout=30_000)
-        if not blockers.get_by_text("Fix the test data mapping.", exact=True).count():
-            raise RuntimeError("invalid mapping capture did not expose the exact blocker heading")
-        if not blockers.get_by_text(
-            "Use a different source column for each required channel.", exact=True
-        ).count():
-            raise RuntimeError("invalid mapping capture did not expose duplicate-source blocker")
-        if not blockers.get_by_text(
-            "Engineering stress cannot use “%”. Choose Pa, kPa, MPa, or GPa.", exact=True
-        ).count():
-            raise RuntimeError("invalid mapping capture did not expose unsupported-unit blocker")
-        divider = page.locator("#modeling-data-ribbon-plot-divider")
-        if divider.count() != 1 or not divider.is_visible() or divider.get_attribute("role") != "separator":
-            raise RuntimeError("invalid mapping must expose one visible Data ribbon/plot separator")
-        if divider.get_attribute("aria-orientation") != "horizontal":
-            raise RuntimeError("Data ribbon/plot separator must expose horizontal orientation")
-        ribbon_locator = page.locator(".modeling-task-ribbon")
-        ribbon_locator.evaluate("element => { element.scrollTop = 0; element.scrollLeft = 0; }")
-        page.wait_for_function(
-            "() => document.querySelector('.modeling-task-ribbon')?.scrollTop === 0",
-            timeout=30_000,
-        )
-        action_locators: list[tuple[str, Locator]] = []
+        for message in (
+            "Fix the test data mapping.",
+            "Use a different source column for each required channel.",
+            "Engineering stress cannot use “%”. Choose Pa, kPa, MPa, or GPa.",
+        ):
+            if not blockers.get_by_text(message, exact=True).count():
+                raise RuntimeError(
+                    f"local-file recovery is missing blocker {message!r}"
+                )
+        blocker_box = blockers.bounding_box()
+        local_box = page.get_by_role(
+            "region", name="Local Test Data import", exact=True
+        ).bounding_box()
+        if (
+            blocker_box is None
+            or local_box is None
+            or blocker_box["y"] < local_box["y"] - 1
+            or blocker_box["y"] + blocker_box["height"]
+              > local_box["y"] + local_box["height"] + 1
+        ):
+            raise RuntimeError(
+                "invalid mapping cause is not visible beside the mapping controls"
+            )
         for action in ("Update preview", "Save Test Data"):
             button = page.get_by_role("button", name=action, exact=True)
-            visible_candidates: list[Locator] = []
-            for index in range(button.count()):
-                candidate = button.nth(index)
-                if not candidate.is_visible():
-                    continue
-                if not candidate.is_disabled():
-                    raise RuntimeError(f"invalid mapping left {action} enabled")
-                if action == "Save Test Data":
-                    class_tokens = (candidate.get_attribute("class") or "").split()
-                    if "is-prerequisite-blocked" not in class_tokens:
-                        raise RuntimeError("invalid mapping Save Test Data is missing is-prerequisite-blocked")
-                    if "primary" in class_tokens:
-                        raise RuntimeError("invalid mapping Save Test Data must not carry primary while prerequisites are unresolved")
-                    style = candidate.evaluate(
-                        """element => {
-                          const computed = getComputedStyle(element);
-                          return {
-                            cursor: computed.cursor,
-                            opacity: computed.opacity,
-                            boxShadow: computed.boxShadow,
-                            borderRadius: computed.borderRadius,
-                          };
-                        }"""
-                    )
-                    if style["cursor"] != "not-allowed" or style["opacity"] != "1" or style["boxShadow"] != "none" or style["borderRadius"] != "0px":
-                        raise RuntimeError(f"invalid mapping Save Test Data blocked styling drifted: {style}")
-                visible_candidates.append(candidate)
-            if len(visible_candidates) != 1:
-                raise RuntimeError(f"invalid mapping must expose one visible {action} action: {visible_candidates}")
-            action_locators.append((action, visible_candidates[0]))
-        ribbon_box = _bounding_box_edges(page.locator(".modeling-task-ribbon").bounding_box())
-        workspace_box = _bounding_box_edges(page.locator(".modeling-main-surface").bounding_box())
-        mapping_grid_box = _bounding_box_edges(page.locator(".data-source-decision-grid").bounding_box())
-        mapping_table_box = _bounding_box_edges(
-            page.get_by_role("region", name="Axis and unit mapping decision table", exact=True).bounding_box()
-        )
-        blockers_box = _bounding_box_edges(blockers.bounding_box())
-        recovery_detail_box = _bounding_box_edges(page.locator(".data-mapping-recovery-detail").bounding_box())
-        reason_box = _bounding_box_edges(reason.bounding_box())
-        advanced_source = page.locator("details.data-source-advanced")
-        advanced_source_box = _bounding_box_edges(advanced_source.bounding_box())
-        advanced_summary = advanced_source.locator(":scope > summary")
-        advanced_summary_box = _bounding_box_edges(advanced_summary.bounding_box())
-        divider_box = _bounding_box_edges(divider.bounding_box())
-        if advanced_source.count() != 1 or advanced_source.get_attribute("open") is not None:
-            raise RuntimeError("invalid mapping technical source evidence must remain collapsed under Advanced")
-        if any(item is None for item in (ribbon_box, workspace_box, mapping_grid_box, mapping_table_box, blockers_box, recovery_detail_box, reason_box, advanced_source_box, advanced_summary_box, divider_box)):
-            raise RuntimeError("invalid mapping recovery controls are not visible in the Data workspace")
-        assert ribbon_box is not None and workspace_box is not None and mapping_grid_box is not None
-        assert mapping_table_box is not None and blockers_box is not None and recovery_detail_box is not None
-        assert reason_box is not None and advanced_source_box is not None and advanced_summary_box is not None and divider_box is not None
-        expected_interactive_height = _css_token_px(page, "--ux-interactive-min-block-size")
-        expected_input_height = _css_token_px(page, "--ux-input-min-block-size")
-        expected_control_height = _css_token_px(page, "--ux-control-min-block-size")
-        expected_data_font = _css_token_px(page, "--ux-data-font-size")
-        expected_metadata_font = _css_token_px(page, "--ux-metadata-font-size")
-        expected_space_2 = _css_token_px(page, "--ux-space-2")
-        if abs(advanced_source_box["height"] - expected_interactive_height) > 1:
+            if button.count():
+                raise RuntimeError(
+                    f"invalid mapping exposes premature {action} action"
+                )
+
+        _wait_for_data_plot(page, lines=1, legends=1)
+        if _data_session_snapshot(page) != before_session:
             raise RuntimeError(
-                "invalid mapping collapsed Advanced source evidence drifted from the shared interactive token: "
-                f"box={advanced_source_box}, token={expected_interactive_height}"
+                "inspecting an invalid local mapping changed the exact session"
             )
-        intake_locator = ribbon_locator.locator(":scope > .modeling-data-intake")
-        ribbon_metrics = ribbon_locator.evaluate(
-            """element => {
-              const style = getComputedStyle(element);
-              const intake = element.querySelector(':scope > .modeling-data-intake');
-              return {
-                clientHeight: element.clientHeight,
-                scrollHeight: element.scrollHeight,
-                overflowX: style.overflowX,
-                overflowY: style.overflowY,
-                tabIndex: element.tabIndex,
-                intakeBottom: intake ? intake.offsetTop + intake.offsetHeight : 0,
-              };
-            }"""
+        local_region = page.get_by_role(
+            "region", name="Local Test Data import", exact=True
         )
-        if ribbon_metrics["overflowY"] not in ("auto", "scroll") or ribbon_metrics["tabIndex"] != 0:
-            raise RuntimeError(f"invalid mapping Data ribbon is not a keyboard-focusable local scroll region: {ribbon_metrics}")
-        if ribbon_metrics["scrollHeight"] <= ribbon_metrics["clientHeight"] + 1:
-            raise RuntimeError(f"invalid mapping fixture no longer exercises real local ribbon scroll: {ribbon_metrics}")
-        intake_box = _bounding_box_edges(intake_locator.bounding_box())
-        if intake_box is None:
-            raise RuntimeError("invalid mapping Data intake is not a direct child with measurable bounds")
-        if ribbon_metrics["scrollHeight"] - ribbon_metrics["intakeBottom"] < 8:
-            raise RuntimeError(
-                "invalid mapping Data ribbon lacks 8px scroll headroom below intake: "
-                f"metrics={ribbon_metrics}, intake={intake_box}"
-            )
+        scroll_metrics = local_region.evaluate(
+            """element => ({
+              clientHeight: element.clientHeight,
+              scrollHeight: element.scrollHeight,
+              overflowY: getComputedStyle(element).overflowY,
+              tabIndex: element.tabIndex,
+            })"""
+        )
         if (
-            intake_box["left"] < ribbon_box["left"] - 1
-            or intake_box["right"] > ribbon_box["right"] + 1
-            or intake_box["top"] < ribbon_box["top"] - 1
-        ):
-            raise RuntimeError(f"invalid mapping Data intake escaped the ribbon inline/start bounds: ribbon={ribbon_box}, intake={intake_box}")
-        if divider_box["height"] < 8:
-            raise RuntimeError(f"invalid mapping Data ribbon/plot separator is below 8px: {divider_box}")
-        if before_plot := _bounding_box_edges(page.locator(".modeling-data-plot-panel").bounding_box()):
-            if before_plot["height"] < 240:
-                raise RuntimeError(f"invalid mapping default plot panel is below its shared 240px minimum: {before_plot}")
-        if blockers_box["width"] < 480 or recovery_detail_box["width"] < 360 or blockers_box["height"] > expected_interactive_height * 2 + 1:
-            raise RuntimeError(
-                "invalid mapping recovery row does not preserve the bounded blocker/detail grammar: "
-                f"blockers={blockers_box}, detail={recovery_detail_box}"
-            )
-        q20_sizes = page.locator(
-            ".data-mapping-table td, .data-mapping-table select, "
-            ".data-mapping-recovery-detail input, .data-mapping-actions button, "
-            ".data-mapping-blockers"
-        ).evaluate_all(
-            "elements => elements.filter(element => element.getClientRects().length > 0).map(element => ({"
-            "selector: element.tagName.toLowerCase(), fontSize: parseFloat(getComputedStyle(element).fontSize)"
-            "}))"
-        )
-        if any(item["fontSize"] < expected_data_font for item in q20_sizes):
-            raise RuntimeError(f"invalid mapping data/control typography is below the shared data token: {q20_sizes}")
-        control_metrics = page.locator(
-            ".data-mapping-table select, "
-            "select[name='local-test-run'], select[name='local-data-schema'], "
-            ".data-mapping-recovery-detail input, .data-mapping-actions button"
-        ).evaluate_all(
-            "elements => elements.filter(element => element.getClientRects().length > 0).map(element => {"
-            "const style = getComputedStyle(element);"
-            "const box = element.getBoundingClientRect();"
-            "return {tag: element.tagName.toLowerCase(), name: element.getAttribute('name'), "
-            "height: box.height, minHeight: parseFloat(style.minHeight), "
-            "paddingBlockStart: parseFloat(style.paddingBlockStart), paddingBlockEnd: parseFloat(style.paddingBlockEnd), "
-            "paddingInlineStart: parseFloat(style.paddingInlineStart), paddingInlineEnd: parseFloat(style.paddingInlineEnd), "
-            "fontSize: parseFloat(style.fontSize), lineHeight: style.lineHeight, boxSizing: style.boxSizing, appearance: style.appearance};"
-            "})"
-        )
-        mapping_select_names = {
-            "independent-source-column", "dependent-source-column",
-            "independent-original-unit", "dependent-original-unit",
-        }
-        for item in control_metrics:
-            is_action_button = item["tag"] == "button" and item["name"] is None
-            is_mapping_select = item["tag"] == "select" and item["name"] in mapping_select_names
-            expected_height = expected_control_height if is_action_button else expected_input_height
-            expected_inline = expected_space_2
-            if abs(item["height"] - expected_height) > 0.75 or item["minHeight"] < expected_height - 0.75:
-                raise RuntimeError(f"invalid mapping control height drifted: {item}")
-            if item["paddingBlockStart"] != 0 or item["paddingBlockEnd"] != 0:
-                raise RuntimeError(f"invalid mapping control vertical padding drifted: {item}")
-            if item["paddingInlineStart"] != expected_inline or item["paddingInlineEnd"] != expected_inline:
-                raise RuntimeError(f"invalid mapping control horizontal padding drifted: {item}")
-            if abs(item["fontSize"] - expected_data_font) > 0.1 or item["lineHeight"] != "normal" or item["boxSizing"] != "border-box":
-                raise RuntimeError(f"invalid mapping control typography/box sizing drifted: {item}")
-            if is_mapping_select and item["appearance"] != "auto":
-                raise RuntimeError(f"invalid mapping native select appearance drifted: {item}")
-        blocker_lines = blockers.locator(":scope > span").evaluate_all(
-            "elements => elements.map(element => {const style = getComputedStyle(element); return "
-            "{height: element.getBoundingClientRect().height, lineHeight: parseFloat(style.lineHeight), whiteSpace: style.whiteSpace};})"
-        )
-        if any(
-            line["whiteSpace"] == "nowrap"
-            or line["height"] > line["lineHeight"] * 2 + 1
-            for line in blocker_lines
+            scroll_metrics["overflowY"] not in ("auto", "scroll")
+            or scroll_metrics["tabIndex"] != 0
+            or scroll_metrics["scrollHeight"] <= scroll_metrics["clientHeight"] + 1
         ):
             raise RuntimeError(
-                f"invalid mapping blocker issue is clipped, non-wrapping, or exceeds two lines: {blocker_lines}"
+                f"local-file recovery is not keyboard-scrollable: {scroll_metrics}"
             )
-        metadata_sizes = page.locator(
-            ".data-source-evidence header, .data-source-evidence p, "
-            ".data-mapping-heading span, .data-mapping-consequence, "
-            ".data-source-advanced > summary"
-        ).evaluate_all(
-            "elements => elements.filter(element => element.getClientRects().length > 0).map(element => ({"
-            "selector: element.tagName.toLowerCase(), fontSize: parseFloat(getComputedStyle(element).fontSize)"
-            "}))"
+
+        divider = page.locator("#modeling-data-ribbon-plot-divider")
+        if (
+            divider.count() != 1
+            or divider.get_attribute("role") != "separator"
+            or divider.get_attribute("aria-orientation") != "horizontal"
+        ):
+            raise RuntimeError("Data source/graph splitter semantics drifted")
+        before_ribbon = _bounding_box_edges(
+            page.locator("#modeling-data-ribbon[data-panel]").bounding_box()
         )
-        if any(item["fontSize"] < expected_metadata_font for item in metadata_sizes):
-            raise RuntimeError(f"invalid mapping metadata typography is below the shared metadata token: {metadata_sizes}")
-        before_keyboard_ribbon = _bounding_box_edges(page.locator(".modeling-data-ribbon-panel").bounding_box())
-        before_keyboard_plot = _bounding_box_edges(page.locator(".modeling-data-plot-panel").bounding_box())
-        if before_keyboard_ribbon is None or before_keyboard_plot is None:
-            raise RuntimeError("invalid mapping Data split panels are not measurable")
+        before_plot = _bounding_box_edges(
+            page.locator(".modeling-data-plot-panel").bounding_box()
+        )
+        if before_ribbon is None or before_plot is None:
+            raise RuntimeError("Data split panels are not measurable")
         divider.focus()
         divider.press("ArrowDown")
-        page.wait_for_timeout(80)
-        after_keyboard_ribbon = _bounding_box_edges(page.locator(".modeling-data-ribbon-panel").bounding_box())
-        after_keyboard_plot = _bounding_box_edges(page.locator(".modeling-data-plot-panel").bounding_box())
-        if after_keyboard_ribbon is None or after_keyboard_plot is None:
-            raise RuntimeError("invalid mapping Data split panels disappeared after keyboard resize")
-        ribbon_delta = after_keyboard_ribbon["height"] - before_keyboard_ribbon["height"]
-        plot_delta = after_keyboard_plot["height"] - before_keyboard_plot["height"]
-        if ribbon_delta <= 0 or plot_delta >= 0 or after_keyboard_plot["height"] < 240:
-            raise RuntimeError(
-                "invalid mapping keyboard resize must grow the ribbon, shrink the plot, "
-                f"and keep the plot container >=240px: before=({before_keyboard_ribbon}, {before_keyboard_plot}) "
-                f"after=({after_keyboard_ribbon}, {after_keyboard_plot})"
-            )
-        divider.dblclick()
-        page.wait_for_timeout(80)
-        reset_ribbon_panel = _bounding_box_edges(page.locator(".modeling-data-ribbon-panel").bounding_box())
-        reset_plot_panel = _bounding_box_edges(page.locator(".modeling-data-plot-panel").bounding_box())
+        page.wait_for_timeout(100)
+        after_ribbon = _bounding_box_edges(
+            page.locator("#modeling-data-ribbon[data-panel]").bounding_box()
+        )
+        after_plot = _bounding_box_edges(
+            page.locator(".modeling-data-plot-panel").bounding_box()
+        )
         if (
-            reset_ribbon_panel is None
-            or reset_plot_panel is None
-            or abs(reset_ribbon_panel["height"] - before_keyboard_ribbon["height"]) > 1
-            or abs(reset_plot_panel["height"] - before_keyboard_plot["height"]) > 1
+            after_ribbon is None
+            or after_plot is None
+            or after_ribbon["height"] <= before_ribbon["height"]
+            or after_plot["height"] >= before_plot["height"]
+            or after_plot["height"] < 240
         ):
             raise RuntimeError(
-                "invalid mapping separator reset did not restore the density-aware initial allocation: "
-                f"before=({before_keyboard_ribbon}, {before_keyboard_plot}), "
-                f"reset=({reset_ribbon_panel}, {reset_plot_panel})"
+                "keyboard splitter resize did not preserve a usable graph"
             )
-        required_targets: list[tuple[str, Locator]] = [
-            ("mapping table", page.get_by_role("region", name="Axis and unit mapping decision table", exact=True)),
-            ("mapping blockers", blockers),
-            ("mapping reason", reason),
-            ("Advanced source evidence summary", advanced_summary),
-            *action_locators,
-        ]
-        for name, target in required_targets:
-            target.evaluate("element => element.scrollIntoView({block: 'nearest', inline: 'nearest'})")
-            page.wait_for_timeout(40)
-            target_box = _bounding_box_edges(target.bounding_box())
-            current_ribbon_box = _bounding_box_edges(ribbon_locator.bounding_box())
-            if target_box is None or current_ribbon_box is None:
-                raise RuntimeError(f"invalid mapping {name} lost measurable scroll geometry")
-            if (
-                target_box["left"] < current_ribbon_box["left"] - 1
-                or target_box["right"] > current_ribbon_box["right"] + 1
-                or target_box["top"] < current_ribbon_box["top"] - 1
-                or target_box["bottom"] > current_ribbon_box["bottom"] + 1
-            ):
-                raise RuntimeError(
-                    f"invalid mapping {name} is unreachable after local scroll: "
-                    f"target={target_box}, ribbon={current_ribbon_box}"
-                )
-            hit_target = target.evaluate(
-                """element => {
-                  const box = element.getBoundingClientRect();
-                  const hit = document.elementFromPoint(
-                    Math.min(window.innerWidth - 1, Math.max(0, box.left + box.width / 2)),
-                    Math.min(window.innerHeight - 1, Math.max(0, box.top + box.height / 2)),
-                  );
-                  return Boolean(hit && (hit === element || element.contains(hit)));
-                }"""
-            )
-            if not hit_target:
-                raise RuntimeError(f"invalid mapping {name} is not pointer-reachable after local scroll")
+        divider.dblclick()
+        page.wait_for_timeout(100)
+        reset_ribbon = _bounding_box_edges(
+            page.locator("#modeling-data-ribbon[data-panel]").bounding_box()
+        )
+        reset_plot = _bounding_box_edges(
+            page.locator(".modeling-data-plot-panel").bounding_box()
+        )
+        if (
+            reset_ribbon is None
+            or reset_plot is None
+            or abs(reset_ribbon["height"] - before_ribbon["height"]) > 1
+            or abs(reset_plot["height"] - before_plot["height"]) > 1
+        ):
+            raise RuntimeError("double-click did not reset the Data splitter")
+
+        local_region.evaluate(
+            "element => { element.scrollTop = 0; element.focus(); }"
+        )
+        _capture(
+            page,
+            output / "modeling-data-invalid-1440x900.png",
+            1440,
+            900,
+        )
+        local_region.press("PageDown")
+        page.wait_for_timeout(100)
+        if local_region.evaluate("element => element.scrollTop") < 1:
+            raise RuntimeError("local-file recovery does not respond to PageDown")
         _capture(
             page,
             output / "modeling-data-invalid-scrolled-1440x900.png",
             1440,
             900,
-            before_screenshot=lambda: ribbon_locator.evaluate(
-                "element => { element.scrollTop = element.scrollHeight; element.scrollLeft = 0; }"
-            ),
-            after_animation=lambda: ribbon_locator.evaluate(
-                "element => { if (element.scrollTop < 1) throw new Error('Data ribbon did not enter its local scrolled state'); }"
-            ),
         )
-        ribbon_locator.evaluate("element => { element.scrollTop = 0; element.scrollLeft = 0; }")
+
+        stress_column.select_option(value=long_stress)
+        page.get_by_role(
+            "combobox",
+            name="Engineering stress original unit",
+            exact=True,
+        ).select_option(label="MPa")
         page.wait_for_function(
-            "() => document.querySelector('.modeling-task-ribbon')?.scrollTop === 0",
+            """() => !document.querySelector(
+                '.data-mapping-blockers[role="alert"]'
+            )""",
             timeout=30_000,
         )
-        if page.locator(".data-intake-local").evaluate("element => ['auto', 'scroll'].includes(getComputedStyle(element).overflowY)"):
-            raise RuntimeError("invalid mapping must not add a nested scroll container inside the Data ribbon")
-        provenance = page.locator("[aria-label='Test identity and provenance']")
-        if provenance.count() and re.search(r"\bSpecimen\b|\bRaw (?:asset|artifact)\b|SHA-?256", provenance.inner_text(), re.IGNORECASE):
-            raise RuntimeError("invalid mapping normal provenance surface exposes a technical source identifier")
-        _wait_for_data_plot(page)
-        if page.locator(".curve-line.data-observed").count() != 3:
-            raise RuntimeError("invalid mapping capture lost the last valid three-curve graph")
-        plot_geometry = page.locator(".persistent-modeling-plot").evaluate(
-            """plot => {
-                const rect = element => {
-                    if (!element) return null;
-                    const box = element.getBoundingClientRect();
-                    return {
-                        left: box.left,
-                        right: box.right,
-                        top: box.top,
-                        bottom: box.bottom,
-                        width: box.width,
-                        height: box.height,
-                    };
-                };
-                const overlaps = (first, second, tolerance = 1) => Boolean(
-                    first && second
-                    && first.left < second.right - tolerance
-                    && first.right > second.left + tolerance
-                    && first.top < second.bottom - tolerance
-                    && first.bottom > second.top + tolerance
-                );
-                const plotBox = rect(plot);
-                const svg = plot.querySelector('svg[role="img"]');
-                const svgBox = rect(svg);
-                const toolbarBox = rect(plot.querySelector('.modeling-plot-toolbar'));
-                const legendBox = rect(plot.querySelector('.curve-legend'));
-                const axisLabels = [...(svg?.querySelectorAll('.chart-axis-label') ?? [])]
-                    .map(rect)
-                    .filter(Boolean);
-                const axes = [...(svg?.querySelectorAll('.chart-axis') ?? [])]
-                    .map(rect)
-                    .filter(Boolean);
-                const inside = (child, parent, tolerance = 1) => Boolean(
-                    child && parent
-                    && child.left >= parent.left - tolerance
-                    && child.right <= parent.right + tolerance
-                    && child.top >= parent.top - tolerance
-                    && child.bottom <= parent.bottom + tolerance
-                );
-                const viewport = {
-                    left: 0,
-                    right: window.innerWidth,
-                    top: 0,
-                    bottom: window.innerHeight,
-                };
-                return {
-                    plot: plotBox,
-                    svg: svgBox,
-                    toolbar: toolbarBox,
-                    legend: legendBox,
-                    svgHeight: svgBox?.height ?? 0,
-                    plotHeight: plotBox?.height ?? 0,
-                    svgInsidePlot: inside(svgBox, plotBox),
-                    plotInsideViewport: inside(plotBox, viewport),
-                    svgInsideViewport: inside(svgBox, viewport),
-                    labelsInsideSvg: axisLabels.every(label => inside(label, svgBox, 2)),
-                    toolbarLegendOverlap: overlaps(toolbarBox, legendBox),
-                    toolbarAxisOverlap: axes.some(axis => overlaps(toolbarBox, axis)),
-                    toolbarAxisLabelOverlap: axisLabels.some(label => overlaps(toolbarBox, label)),
-                    legendAxisOverlap: axes.some(axis => overlaps(legendBox, axis)),
-                    legendAxisLabelOverlap: axisLabels.some(label => overlaps(legendBox, label)),
-                };
-            }"""
+        reason = page.get_by_role(
+            "textbox", name="Mapping change reason", exact=True
         )
-        if plot_geometry["svgHeight"] < 230 or plot_geometry["plotHeight"] < 280:
-            raise RuntimeError(f"invalid mapping plot must retain a usable >=280px frame and >=230px SVG: {plot_geometry}")
-        if (
-            not plot_geometry["svgInsidePlot"]
-            or not plot_geometry["plotInsideViewport"]
-            or not plot_geometry["svgInsideViewport"]
-            or not plot_geometry["labelsInsideSvg"]
-        ):
-            raise RuntimeError(f"invalid mapping plot SVG or axis labels escaped the plot frame: {plot_geometry}")
-        if any(
-            plot_geometry[key]
-            for key in (
-                "toolbarLegendOverlap",
-                "toolbarAxisOverlap",
-                "toolbarAxisLabelOverlap",
-                "legendAxisOverlap",
-                "legendAxisLabelOverlap",
+        reason.fill("Correct the stress column and recorded file unit.")
+        if page.get_by_role(
+            "button", name="Update preview", exact=True
+        ).is_disabled():
+            raise RuntimeError(
+                "corrected local mapping did not expose its preview recovery action"
             )
-        ):
-            raise RuntimeError(f"invalid mapping plot controls, legend, and axes overlap: {plot_geometry}")
-        _capture(page, output / "modeling-data-invalid-1440x900.png", 1440, 900)
+        if not page.get_by_role(
+            "button", name="Save Test Data", exact=True
+        ).is_disabled():
+            raise RuntimeError(
+                "local Test Data must remain unsaved until the corrected preview succeeds"
+            )
+        if _data_session_snapshot(page) != before_session:
+            raise RuntimeError(
+                "correcting an unsaved local mapping changed the exact session"
+            )
     finally:
-        try:
-            if temporary_directory is not None:
-                temporary_directory.cleanup()
-        finally:
-            page.context.close()
+        page.context.close()
+        if temporary_directory is not None:
+            temporary_directory.cleanup()
+
 
 
 def _capture_administration_database(browser: Browser, base_url: str, output: Path) -> None:

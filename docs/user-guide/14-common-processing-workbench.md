@@ -24,6 +24,15 @@ Metal/Polymer/Elastomer track을 제공합니다. `/datasets/processing`은 같�
 Data/Process/Fit graph는 Navigator, ribbon, candidate evidence pane 또는 표시 밀도가 바뀔 때 실제
 container를 다시 측정해 frame, SVG viewBox, axis, legend, label과 pointer hit region을 함께 갱신합니다.
 
+Data의 **Library**에서는 검색과 시험 종류·조건으로 목록을 좁히고, 표에서 현재 입력 하나를
+고른 뒤 그래프를 확인하고 **Continue to Process**로 이동합니다. 다른 곡선은 **Add comparison**을
+연 경우에만 그래프에 더할 수 있으며 현재 Process 입력은 바뀌지 않습니다. **Local file**은 별도
+입력 경로이고, 잘못된 열 연결은 원인과 고칠 항목을 해당 위치에 표시하면서 마지막 유효 그래프를
+유지합니다. 선택한 시험과 실제로 연결된 소재 자료, 다른 시험, 해석·모델 결과와 솔버 카드는 왼쪽
+**Related data**에 종류별로 나타납니다. 정확한 revision과 내부 식별 정보는 화면에 반복하지 않고
+접힌 **Technical details**에 둡니다. 넓은 화면에서는 목록과 작업 흐름의 가독성을 유지하면서
+그래프만 비교에 유용한 범위까지 커집니다.
+
 그래프에서 처리 범위를 지정하려면 Recipe 단계(예: **Metal elastic modulus**)를 먼저 고르고
 **Select range**를 누른 뒤 x-domain을 드래그합니다. necking처럼 한 점을 고르는 단계는
 **Pick point**를 사용합니다. 선택 영역과 marker는 임시 상태이며 **Apply selection**을 눌러야
@@ -329,11 +338,11 @@ stale 또는 실패한 C1이면 **Retry Export check**, current C1이면 **Creat
 바꾸면 preview와 delivery pointer는 사라지지만 exact upstream 입력은 재시도를 위해 남습니다.
 
 금속에서 source proof는 current인데 Model IR/Neutral pin만 없으면 같은 Export checklist 아래의
-**Prepare exact metal source**를 사용합니다. 이 action은 선택된 Processing Output revision, current
-Material/State revision과 current Property Set revision만 서버로 보내며, bounded extrapolation acknowledgement와
-promotion reason을 요구합니다. 서버가 반환한 upstream tabulated-plasticity model은 먼저 session에 pin되고,
-이어 Neutral document를 생성합니다. Neutral 생성이 실패해도 model pin과 입력을 유지하므로 **Retry Neutral
-promotion**은 model을 다시 만들지 않습니다. upstream model revision은 Validation에 쓰이는 session pointer이고,
+**Prepare selected model**을 사용합니다. 일반 화면에서는 사용자가 검토할 extrapolated range와 준비 사유만
+묻고, 선택된 Processing Output revision, current Material/State revision, current Property Set revision은
+**Advanced · prerequisite evidence**에 둡니다. 서버가 반환한 upstream tabulated-plasticity model은 먼저
+session에 pin되고, 이어 Neutral document를 생성합니다. Neutral 생성이 실패해도 model pin과 입력을
+유지하므로 **Retry preparation**은 model을 다시 만들지 않습니다. upstream model revision은 Validation에 쓰이는 session pointer이고,
 Neutral document 안의 canonical IR revision과 같은 값으로 바꾸지 않습니다. target preview는 caller가 IR
 revision을 추측해 보내지 않고 exact Neutral revision을 보내며 server가 embedded IR relation을 검증합니다.
 Polymer와 Elastomer에는 이 recovery path가 아직 **Not configured**이며 다른 material family의 model을 대신

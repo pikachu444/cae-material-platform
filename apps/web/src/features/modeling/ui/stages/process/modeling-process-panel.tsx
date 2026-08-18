@@ -194,12 +194,12 @@ export default function ModelingProcessPanel({
   const statusClass = processReady ? "status-current" : "status-blocked";
   const visibleScalarPa = processReady ? scalarPa : undefined;
   const visibleSourceIdentity = onRetryExactSource && sourceIdentity
-    ? `Exact source unavailable · ${sourceIdentity.split(" · ").at(-1)}`
-    : sourceIdentity || "No exact Test Data";
+    ? `Selected Test Data unavailable · ${sourceIdentity}`
+    : sourceIdentity || "No Test Data selected";
   const statusText = [
     processReady
       ? currentOutputId ? "Current Process result" : "Process draft ready"
-      : "Blocked · choose exact source in Data",
+      : "Blocked · choose Test Data in Data",
     notice,
   ].filter(Boolean).join(" · ");
   // Normal and draft surfaces use the Result note as their single visible
@@ -213,9 +213,9 @@ export default function ModelingProcessPanel({
       ? "Result retained; preview again to save changes."
       : processReady
         ? "Run Preview changes to calculate this result."
-        : "Restore an exact source in Data before calculating this result.";
+        : "Choose Test Data in Data before calculating this result.";
   const saveDisabled = busy || !hasPreview || !processReady || Boolean(saveBlockedReason) || !outputLabel.trim() || !outputReason.trim();
-  const stepTitle = `Step ${stepNumber ?? "—"} · Process · ${stepLabel}`;
+  const stepTitle = `Step ${stepNumber ?? "—"} · ${stepLabel}`;
   return (
     <aside className="process-stage-options" aria-label="Process settings" data-modeling-process-panel="ready">
       <div className="process-band-heading">
@@ -225,29 +225,29 @@ export default function ModelingProcessPanel({
       </div>
       <div className="process-band-groups">
         <section className="process-band-group process-band-calculation" aria-labelledby="process-calculation-title">
-          <h3 id="process-calculation-title">Calculation</h3>
+          <h3 id="process-calculation-title">Settings</h3>
           <fieldset className="process-band-controls" disabled={!processReady}>
             <legend className="visually-hidden">Current Process settings</legend>
             {stepControls}
           </fieldset>
         </section>
         <section className="process-band-group process-band-preview" aria-labelledby="process-result-title">
-          <h3 id="process-result-title">Result</h3>
+          <h3 id="process-result-title">Preview</h3>
           <div className="process-band-result"><span>{stepLabel}</span>{resultContent ?? <strong>{formatModulus(visibleScalarPa)}</strong>}{resultNote ? <small>{resultNote}</small> : null}</div>
         </section>
         <section className="process-band-group process-band-save-result" aria-labelledby="process-save-result-title">
-          <h3 id="process-save-result-title">Save result</h3>
+          <h3 id="process-save-result-title">Save Process result</h3>
           <div className="process-band-save">
-            <label>Processed curve label<input aria-label="Processed curve label" value={outputLabel} onChange={(event) => onOutputLabelChange(event.target.value)} /></label>
-            <label>Save reason<input aria-label="Save reason" value={outputReason} onChange={(event) => onOutputReasonChange(event.target.value)} /></label>
-            <button className="button primary" type="button" disabled={saveDisabled} onClick={onSave}>Save processed curves</button>
+            <label>Result name<input aria-label="Process result name" value={outputLabel} onChange={(event) => onOutputLabelChange(event.target.value)} /></label>
+            <label>Reason for saving<input aria-label="Reason for saving Process result" value={outputReason} onChange={(event) => onOutputReasonChange(event.target.value)} /></label>
+            <button className="button primary" type="button" disabled={saveDisabled} onClick={onSave}>Save Process result</button>
             {saveBlockedReason ? <small className="process-save-blocked" role="status">{saveBlockedReason}</small> : null}
           </div>
         </section>
       </div>
       <div className={`process-band-status ${statusClass}${statusNeedsAttention ? "" : " visually-hidden"}`} role="status" aria-live="polite">
         <span>{statusText}</span>
-        {onRetryExactSource ? <button className="text-button" type="button" disabled={busy} onClick={onRetryExactSource}>Retry exact source</button> : null}
+        {onRetryExactSource ? <button className="text-button" type="button" disabled={busy} onClick={onRetryExactSource}>Retry selected Test Data</button> : null}
       </div>
       <details className="process-saved-results" onToggle={(event) => {
         const open = event.currentTarget.open;
@@ -258,7 +258,7 @@ export default function ModelingProcessPanel({
         requestedSavedOutputIds.current.clear();
         if (open) savedOutputs.forEach(requestSavedResult);
       }}>
-        <summary>Saved results ({savedOutputs.length})</summary>
+        <summary>Saved Process results</summary>
         <div className="process-comparison-region">
           {savedOutputs.length ? <table className="process-comparison-table" aria-label="Saved processing results">
             <thead><tr><th scope="col">Label</th><th scope="col">Method</th><th scope="col">Range</th><th scope="col">Result</th><th scope="col">Revision</th><th scope="col">State</th><th scope="col">Action</th></tr></thead>
@@ -277,7 +277,7 @@ export default function ModelingProcessPanel({
                 </td>
               </tr>;
             })}</tbody>
-          </table> : <p className="muted">No saved results for this exact source.</p>}
+          </table> : <p className="muted">No saved results for this Test Data.</p>}
         </div>
       </details>
     </aside>

@@ -218,6 +218,36 @@ function axisTicks(minimum: number, maximum: number, count = 5): number[] {
   return Array.from({ length: count + 1 }, (_, index) => minimum + interval * index);
 }
 
+export function readableAxisTicks(
+  minimum: number,
+  maximum: number,
+  targetIntervals = 5,
+): number[] {
+  const span = maximum - minimum;
+  if (!Number.isFinite(span) || span <= 0) return axisTicks(minimum, maximum, targetIntervals);
+  const roughStep = span / Math.max(2, Math.round(targetIntervals));
+  const magnitude = 10 ** Math.floor(Math.log10(roughStep));
+  const normalized = roughStep / magnitude;
+  const stepFamily = [1, 2, 2.5, 5, 10];
+  const factor = stepFamily.reduce((closest, candidate) => (
+    Math.abs(candidate - normalized) < Math.abs(closest - normalized) ? candidate : closest
+  ));
+  const step = factor * magnitude;
+  const epsilon = step * 1e-9;
+  const first = Math.ceil((minimum - epsilon) / step) * step;
+  const last = Math.floor((maximum + epsilon) / step) * step;
+  const ticks: number[] = [];
+  for (let value = first; value <= last + epsilon && ticks.length < 40; value += step) {
+    const normalizedValue = Number(value.toPrecision(12));
+    ticks.push(Object.is(normalizedValue, -0) ? 0 : normalizedValue);
+  }
+  return ticks.length >= 2 ? ticks : axisTicks(minimum, maximum, targetIntervals);
+}
+
+function reviewTickIntervals(size: number, targetSpacing: number): number {
+  return Math.min(8, Math.max(5, Math.round(size / targetSpacing)));
+}
+
 export function responsiveYAxisTicks(
   minimum: number,
   maximum: number,
@@ -762,10 +792,26 @@ export function dataObservedPlotBounds(
   if (xQuantity !== "strain.engineering" || yQuantity !== "stress.engineering") return bounds;
   const finiteX = x.filter(Number.isFinite);
   const finiteY = y.filter(Number.isFinite);
+  const maximumY = finiteY.length ? Math.max(...finiteY) : 0;
+  const roughStep = maximumY > 0 ? maximumY / 5 : 0;
+  const magnitude = roughStep > 0 ? 10 ** Math.floor(Math.log10(roughStep)) : 1;
+  const normalizedStep = roughStep / magnitude;
+  const stepFamily = [1, 2, 2.5, 5, 10];
+  const stepFactor = stepFamily.reduce((closest, candidate) => (
+    Math.abs(candidate - normalizedStep) < Math.abs(closest - normalizedStep)
+      ? candidate
+      : closest
+  ));
+  const readableUpper = maximumY > 0
+    ? Math.ceil((maximumY * 1.12) / (stepFactor * magnitude)) * stepFactor * magnitude
+    : bounds.yMax;
   return {
     ...bounds,
     xMin: finiteX.length && finiteX.every((value) => value >= 0) ? 0 : bounds.xMin,
     yMin: finiteY.length && finiteY.every((value) => value >= 0) ? 0 : bounds.yMin,
+    yMax: finiteY.length && finiteY.every((value) => value >= 0)
+      ? Math.max(bounds.yMax, readableUpper)
+      : bounds.yMax,
   };
 }
 
@@ -777,7 +823,6 @@ export function dataObservedPlotBounds(
 export function EngineeringCurvePlotEmpty({
   width,
   height,
-  onChooseLocal,
   blocked = false,
   onBackToData,
   blockedActionLabel,
@@ -786,7 +831,6 @@ export function EngineeringCurvePlotEmpty({
 }: {
   width: number;
   height: number;
-  onChooseLocal?: () => void;
   /** Process keeps the same SVG frame while an exact source/profile is unavailable. */
   blocked?: boolean;
   onBackToData?: () => void;
@@ -852,8 +896,8 @@ export function EngineeringCurvePlotEmpty({
       </svg>
       <div className="engineering-curve-plot-empty-overlay" role="status">
         <strong>{title ?? (blocked ? "Processing is blocked" : "No Test Data in this session")}</strong>
-        <p>{message ?? (blocked ? "Choose the exact Test Data revision and Mapping Profile in Data before previewing." : "Choose an exact saved revision or inspect a Local file to prepare the first preview.")}</p>
-        {blocked ? <button type="button" className="button primary" onClick={onBackToData}>{blockedActionLabel ?? "Back to Data"}</button> : <button type="button" className="button primary" onClick={onChooseLocal}>Local file</button>}
+        <p>{message ?? (blocked ? "Choose the exact Test Data revision and Mapping Profile in Data before previewing." : "Choose existing Test Data or import a file to prepare the first graph.")}</p>
+        {blocked ? <button type="button" className="button primary" onClick={onBackToData}>{blockedActionLabel ?? "Back to Data"}</button> : null}
       </div>
     </div>
   );
@@ -874,6 +918,7 @@ export function EngineeringCurvePlot({
   onInteractionStateChange,
   observedCurves,
   processOverlay = false,
+  reviewOnly = false,
 }: {
   preview: CommonProcessingPreview;
   activeStage: CommonCurveStage;
@@ -891,9 +936,13 @@ export function EngineeringCurvePlot({
   observedCurves?: ObservedCurveInput[];
   /** Process-stage overlay: observed members + the focused processed stage and server fit. */
   processOverlay?: boolean;
+  /** Data-stage review keeps navigation controls without Process-only selection actions. */
+  reviewOnly?: boolean;
 }) {
   const { density } = useDisplayDensity();
-  const plotMargin = engineeringPlotMarginsForDensity(density);
+  // Data is a source-review graph with a compact legend below the plot. It
+  // does not need the Process/Fit overlay-legend reservation on the right.
+  const plotMargin = reviewOnly ? PLOT_MARGIN : engineeringPlotMarginsForDensity(density);
   const [hiddenSeries, setHiddenSeries] = useState<string[]>([]);
   const [viewBounds, setViewBounds] = useState<PlotBounds | null>(null);
   const [cursor, setCursor] = useState<{ x: number; y: number } | null>(null);
@@ -909,7 +958,7 @@ export function EngineeringCurvePlot({
   const inspectionLiveId = useId();
   const hardeningClipId = `hardening-series-clip-${useId().replace(/[^A-Za-z0-9_-]/g, "")}`;
   const isHardening = !ensemblePreview && activeStage.method_id === "metal.hardening_fit_extrapolate";
-  const hideInteractionControls = isHardening;
+  const hideInteractionControls = isHardening || reviewOnly;
   const isProny = !ensemblePreview && (activeStage.method_id === "polymer.prony_fit_compare"
     || activeStage.method_id === "polymer.dma_prony_fit_compare");
   const isDmaProny = activeStage.method_id === "polymer.dma_prony_fit_compare";
@@ -1012,7 +1061,7 @@ export function EngineeringCurvePlot({
     && model.yQuantity === "stress.engineering";
   const dataBounds = isDmaProny && pronyMode === "response"
     ? { ...paddedDataBounds, yMin: Math.max(0, paddedDataBounds.yMin) }
-    : isDataObservedEngineering
+    : reviewOnly && isDataObservedEngineering
       ? dataObservedPlotBounds(observedEngineeringX, observedEngineeringY, model.xQuantity, model.yQuantity)
       : paddedDataBounds;
   const bounds = viewBounds ?? dataBounds;
@@ -1025,17 +1074,22 @@ export function EngineeringCurvePlot({
   const displayX = (value: number): number => model.xChannel
     ? displayCurveValue(model.xChannel, value) ?? value
     : value;
-  const displayY = (value: number): number => model.yChannel
-    ? displayCurveValue(model.yChannel, value) ?? value
-    : value / yScale.divisor;
+  const dataReviewEngineering = reviewOnly && isDataObservedEngineering;
+  const displayY = (value: number): number => dataReviewEngineering
+    ? value / yScale.divisor
+    : model.yChannel
+      ? displayCurveValue(model.yChannel, value) ?? value
+      : value / yScale.divisor;
   const xDisplayUnit = model.xChannel?.display_unit ?? model.xUnit;
-  const yDisplayUnit = model.yChannel?.display_unit ?? yScale.label;
+  const yDisplayUnit = dataReviewEngineering ? yScale.label : model.yChannel?.display_unit ?? yScale.label;
   const xAxisLabel = model.xChannel
     ? channelAxisLabel(model.xChannel)
     : `${quantityLabel(model.xQuantity)} [${model.xUnit}]`;
-  const yAxisLabel = model.yChannel
-    ? channelAxisLabel(model.yChannel)
-    : `${quantityLabel(model.yQuantity)} [${yScale.label}]`;
+  const yAxisLabel = dataReviewEngineering
+    ? `${model.yChannel?.label ?? quantityLabel(model.yQuantity)} [${yScale.label}]`
+    : model.yChannel
+      ? channelAxisLabel(model.yChannel)
+      : `${quantityLabel(model.yQuantity)} [${yScale.label}]`;
   const inspectedBandIndex = inspectedX !== null && model.band?.xValues.length
     ? model.band.xValues.reduce((bestIndex, value, index, values) => (
       Math.abs(value - inspectedX) < Math.abs(values[bestIndex] - inspectedX) ? index : bestIndex
@@ -1050,8 +1104,12 @@ export function EngineeringCurvePlot({
         { length: Math.max(0, Math.floor(bounds.xMax) - Math.ceil(bounds.xMin) + 1) },
         (_, index) => Math.ceil(bounds.xMin) + index,
       ).filter((value) => value >= bounds.xMin && value <= bounds.xMax)
-    : axisTicks(bounds.xMin, bounds.xMax);
-  const yTicks = responsiveYAxisTicks(bounds.yMin, bounds.yMax, effectiveHeight);
+    : reviewOnly
+      ? readableAxisTicks(bounds.xMin, bounds.xMax, reviewTickIntervals(effectiveWidth, 400))
+      : axisTicks(bounds.xMin, bounds.xMax, 5);
+  const yTicks = reviewOnly
+    ? readableAxisTicks(bounds.yMin, bounds.yMax, reviewTickIntervals(effectiveHeight, 220))
+    : responsiveYAxisTicks(bounds.yMin, bounds.yMax, effectiveHeight);
   const extrapolationPlotStart = model.extrapolationStart === undefined
     ? undefined
     : toPlotX(model.extrapolationStart);
@@ -1251,7 +1309,7 @@ export function EngineeringCurvePlot({
         <div>
           <button type="button" aria-label="Zoom out" onClick={() => zoom(1.25)}>−</button>
           <button type="button" aria-label="Zoom in" onClick={() => zoom(0.8)}>+</button>
-          <button type="button" onClick={() => setViewBounds(null)}>Reset view</button>
+          {!reviewOnly || viewBounds ? <button type="button" onClick={() => setViewBounds(null)}>Reset view</button> : null}
         </div>
         {!hideInteractionControls ? <div className="plot-interaction-modes" role="group" aria-label="Graph selection mode">
           <button type="button" className={interactionMode === "pan" ? "active" : ""} aria-pressed={interactionMode === "pan"} onClick={() => setInteractionMode("pan")}>Pan</button>
@@ -1260,7 +1318,7 @@ export function EngineeringCurvePlot({
           <button type="button" disabled={!selection || !onApplySelection} onClick={applySelection}>Apply selection</button>
           {selection ? <button type="button" onClick={() => setSelection(null)}>Clear</button> : null}
         </div> : null}
-        {!isHardening ? <span>{selection?.kind === "range" ? `Selected ${axisNumber(displayX(selection.minimum))} – ${axisNumber(displayX(selection.maximum))} ${xDisplayUnit}` : selection?.kind === "point" ? `Selected ${axisNumber(displayX(selection.x))} ${xDisplayUnit} · ${axisNumber(displayY(selection.y))} ${yDisplayUnit}` : inspectedX !== null && inspectedY !== null ? `${inspectedSeries?.label ?? "Curve"} · ${axisNumber(displayX(inspectedX))} ${xDisplayUnit} · ${axisNumber(displayY(inspectedY))} ${yDisplayUnit}` : interactionMode === "pan" ? "Wheel to zoom · drag to pan" : interactionMode === "range" ? "Drag across the x-domain, then apply" : "Click one engineering point, then apply"}</span> : null}
+        {!isHardening && !reviewOnly && (selection || (inspectedX !== null && inspectedY !== null)) ? <span>{selection?.kind === "range" ? `Selected ${axisNumber(displayX(selection.minimum))} – ${axisNumber(displayX(selection.maximum))} ${xDisplayUnit}` : selection?.kind === "point" ? `Selected ${axisNumber(displayX(selection.x))} ${xDisplayUnit} · ${axisNumber(displayY(selection.y))} ${yDisplayUnit}` : `${inspectedSeries?.label ?? "Curve"} · ${axisNumber(displayX(inspectedX ?? 0))} ${xDisplayUnit} · ${axisNumber(displayY(inspectedY ?? 0))} ${yDisplayUnit}`}</span> : null}
       </div>
       {isHardening && !selectedModelOnly ? <div className="hardening-analysis-tabs" role="tablist" aria-label="Hardening comparison view">
         {(["response", "residual", "derivative"] as HardeningPlotMode[]).map((mode) => <button type="button" role="tab" aria-selected={hardeningMode === mode} className={hardeningMode === mode ? "active" : ""} key={mode} onClick={() => setHardeningMode(mode)}>{mode === "response" ? "Response" : mode === "residual" ? "Residual" : "Tangent modulus"}</button>)}
@@ -1275,7 +1333,7 @@ export function EngineeringCurvePlot({
         ref={svgRef}
         className={`processing-curve interactive interaction-${interactionMode} ${drag ? "is-panning" : ""}`}
         role="img"
-        aria-label={selectedModelOnly ? "Test data and selected model response" : ensemblePreview ? "Aligned replicate curves with declared pointwise statistics" : activeStage.method_id === "metal.hardening_fit_extrapolate" ? "Hardening candidate and selected extrapolation curves" : activeStage.method_id === "polymer.dma_prony_fit_compare" ? "DMA storage and loss Prony candidate curves" : activeStage.method_id === "polymer.prony_fit_compare" ? "Prony candidate and selected relaxation curves" : "Mapped and selected processing stage curve overlay"}
+        aria-label={reviewOnly ? "Selected Test Data curves" : selectedModelOnly ? "Test data and selected model response" : ensemblePreview ? "Aligned replicate curves with declared pointwise statistics" : activeStage.method_id === "metal.hardening_fit_extrapolate" ? "Hardening candidate and selected extrapolation curves" : activeStage.method_id === "polymer.dma_prony_fit_compare" ? "DMA storage and loss Prony candidate curves" : activeStage.method_id === "polymer.prony_fit_compare" ? "Prony candidate and selected relaxation curves" : "Mapped and selected processing stage curve overlay"}
         aria-describedby={inspectionLiveId}
         tabIndex={0}
         viewBox={`0 0 ${effectiveWidth} ${effectiveHeight}`}

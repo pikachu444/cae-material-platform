@@ -122,12 +122,12 @@ afterEach(() => {
 describe("ModelingWorkspaceLayout", () => {
   it("derives the adjustable Data ribbon preferred and reset sizes from shared density tokens", () => {
     expect(modelingDataRibbonPreferredSize("content-fit", "compact")).toBe(384);
-    expect(modelingDataRibbonPreferredSize("compact", "compact")).toBe(159);
+    expect(modelingDataRibbonPreferredSize("compact", "compact")).toBe(199);
     expect(modelingDataRibbonPreferredSize("content-fit", "standard")).toBe(384);
-    expect(modelingDataRibbonPreferredSize("compact", "standard")).toBe(178);
-    expect(modelingDataRibbonPreferredSize(undefined, "standard")).toBe(178);
+    expect(modelingDataRibbonPreferredSize("compact", "standard")).toBe(230);
+    expect(modelingDataRibbonPreferredSize(undefined, "standard")).toBe(230);
     expect(modelingDataRibbonPreferredSize("content-fit", "large")).toBe(384);
-    expect(modelingDataRibbonPreferredSize("compact", "large")).toBe(201);
+    expect(modelingDataRibbonPreferredSize("compact", "large")).toBe(261);
     expect(MODELING_DATA_DEFAULT_PLOT_SIZE).toBeGreaterThanOrEqual(296);
     expect(MODELING_DATA_PLOT_MIN_SIZE).toBe(240);
     expect(MODELING_DATA_SPLIT_SEPARATOR_SIZE).toBe(8);
@@ -365,7 +365,7 @@ describe("ModelingWorkspaceLayout", () => {
     expect(resize).toHaveBeenNthCalledWith(2, 384);
 
     rerender(renderLayout("compact"));
-    expect(resize).toHaveBeenNthCalledWith(3, 178);
+    expect(resize).toHaveBeenNthCalledWith(3, 230);
   });
 
   it("restores the desired ribbon size after a non-user constraint clamp", () => {
@@ -404,9 +404,9 @@ describe("ModelingWorkspaceLayout", () => {
 
     act(() => latestDataLayoutCallback()({}, { isUserInteraction: false }));
     expect(resize).toHaveBeenCalledTimes(1);
-    expect(resize).toHaveBeenCalledWith(178);
+    expect(resize).toHaveBeenCalledWith(230);
 
-    panelPixels = 178;
+    panelPixels = 230;
     act(() => latestDataLayoutCallback()({}, { isUserInteraction: false }));
     expect(resize).toHaveBeenCalledTimes(1);
   });
@@ -480,6 +480,6 @@ describe("ModelingWorkspaceLayout", () => {
       value: resize,
     });
     fireEvent.doubleClick(screen.getByRole("separator", { name: "Resize Test Data controls and curve plot" }));
-    expect(resize).toHaveBeenNthCalledWith(1, 178);
+    expect(resize).toHaveBeenNthCalledWith(1, 230);
   });
 });

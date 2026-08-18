@@ -103,9 +103,8 @@ function DecisionEditor({
   const next = (patch: Partial<FitDecisionSelection>) => onChange({ ...selection, ...patch });
   const label = fitDecisionIdentityLabel(selection);
   return <section className="selected-candidate-parameters" aria-label="Selected candidate decision">
-    <div className="candidate-evidence-heading"><div><p className="eyebrow">Engineer decision</p><h4>Selected · {label}</h4></div><span>Not saved</span></div>
-    <p className="option-hint">Model identity is fixed by the calculated row you selected. Change the preview laws or ratio and update candidates before selecting a different blend.</p>
-    <p className="option-hint">Fit range: {selection.fitRange}. {selection.actualTermCount !== undefined ? `Recommended result uses ${selection.actualTermCount} term${selection.actualTermCount === 1 ? "" : "s"}; requested policy is ${selection.requestedTermPolicy ?? "not recorded"}.` : "Parameters and bounds remain in the contextual fit inspector."}</p>
+    <div className="candidate-evidence-heading"><div><h4>Selected model · {label}</h4></div><span>Not saved</span></div>
+    <dl className="fit-selection-summary"><div><dt>Fit range</dt><dd>{selection.fitRange}</dd></div>{selection.actualTermCount !== undefined ? <div><dt>Terms</dt><dd>{selection.actualTermCount} · {selection.requestedTermPolicy ?? "policy not recorded"}</dd></div> : null}</dl>
     <SelectedParameterInspector selection={selection} stage={stage} />
     <label>Selection reason<textarea aria-label="Candidate selection reason" rows={3} value={selection.reason} onChange={(event) => next({ reason: event.target.value })} /></label>
     {selection.warning ? <label className="warning-acknowledgement"><input aria-label="Acknowledge selected candidate warning" type="checkbox" checked={selection.warningAcknowledged} onChange={(event) => next({ warningAcknowledged: event.target.checked })} />I acknowledge: {selection.warning}</label> : null}

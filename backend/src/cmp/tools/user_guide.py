@@ -32,6 +32,7 @@ _REPOSITORY_LITERAL = re.compile(
 _STRUCTURED_IMAGE_MANIFESTS: tuple[str, ...] = (
     "docs/17-evidence/images/issue-221-high-dpi-decision/measurements.json",
     "docs/17-evidence/images/issue-184-high-dpi-global-implementation/visual-evidence.json",
+    "docs/17-evidence/images/issue-260-fe05-modeling-data/manifest.json",
 )
 _STRUCTURED_IMAGE_MANIFEST_GLOBS: tuple[str, ...] = ()
 _STRUCTURED_IMAGE_YAML_MANIFESTS: tuple[str, ...] = (

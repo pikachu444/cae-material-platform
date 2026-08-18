@@ -1,7 +1,7 @@
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { dataObservedPlotBounds, derivativeValues, EngineeringCurvePlot, EngineeringCurvePlotEmpty, isGhoshTailDisplayTrim, linearInterpolate, paddedPlotBounds, plotPoints, residualValues, responsiveYAxisTicks } from "./engineering-curve-plot";
+import { dataObservedPlotBounds, derivativeValues, EngineeringCurvePlot, EngineeringCurvePlotEmpty, isGhoshTailDisplayTrim, linearInterpolate, paddedPlotBounds, plotPoints, readableAxisTicks, residualValues, responsiveYAxisTicks } from "./engineering-curve-plot";
 import type { CommonCurveStage, CommonEnsemblePreview, CommonProcessingPreview } from "./features/modeling";
 
 const tensileDefinition = {
@@ -105,9 +105,8 @@ describe("EngineeringCurvePlot", () => {
     vi.unstubAllGlobals();
   });
 
-  it("keeps an actionable engineering SVG frame for an empty Data session", () => {
-    const onChooseLocal = vi.fn();
-    const { container } = render(<EngineeringCurvePlotEmpty width={760} height={420} onChooseLocal={onChooseLocal} />);
+  it("keeps an engineering SVG frame without duplicating the Data source action", () => {
+    const { container } = render(<EngineeringCurvePlotEmpty width={760} height={420} />);
 
     const plot = screen.getByRole("img", { name: "Empty engineering curve plot" });
     expect(plot.getAttribute("viewBox")).toBe("0 0 760 420");
@@ -116,8 +115,7 @@ describe("EngineeringCurvePlot", () => {
     expect(container.querySelectorAll(".curve-line, polyline, path")).toHaveLength(0);
     expect(screen.getByText("Engineering strain [1]")).toBeTruthy();
     expect(screen.getByText("Engineering stress [MPa]")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Local file" }));
-    expect(onChooseLocal).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("button", { name: "Import file" })).toBeNull();
   });
 
   it("lets an empty or blocked graph follow a constrained semantic frame", () => {
@@ -227,12 +225,13 @@ describe("EngineeringCurvePlot", () => {
       <EngineeringCurvePlot preview={preview} activeStage={activeStage} baseStage={baseStage} width={760} height={420} />,
     );
 
+    expect(screen.getByRole("button", { name: "Reset view" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Mapped input" }));
     expect(screen.getByRole("button", { name: "Mapped input" }).getAttribute("aria-pressed")).toBe("false");
     expect(container.querySelectorAll("polyline.curve-line")).toHaveLength(1);
     fireEvent.click(screen.getByRole("button", { name: "Zoom in" }));
     fireEvent.click(screen.getByRole("button", { name: "Reset view" }));
-    expect(screen.getByText("Wheel to zoom · drag to pan")).toBeTruthy();
+    expect(screen.queryByText("Wheel to zoom · drag to pan")).toBeNull();
   });
 
   it("recalculates the Data, Process, and Fit frame, axes, labels, legend, and hit region after pane resize", () => {
@@ -481,7 +480,7 @@ describe("EngineeringCurvePlot", () => {
     expect(bounds.xMin).toBe(0);
     expect(bounds.yMin).toBe(0);
     expect(bounds.xMax).toBeGreaterThan(0.002);
-    expect(bounds.yMax).toBeGreaterThan(3e8);
+    expect(bounds.yMax).toBe(3.5e8);
 
     const negative = dataObservedPlotBounds(
       [-0.001, 0, 0.002],
@@ -493,6 +492,19 @@ describe("EngineeringCurvePlot", () => {
     expect(negative).toEqual(generic);
     expect(dataObservedPlotBounds([0, 1], [0, 1], "strain.true_plastic", "stress.engineering")).toEqual(paddedPlotBounds([0, 1], [0, 1]));
     expect(dataObservedPlotBounds([0, 1], [-1, 1], "strain.engineering", "predicted - measured")).toEqual(paddedPlotBounds([0, 1], [-1, 1]));
+  });
+
+  it("uses readable review ticks without changing the underlying data bounds", () => {
+    expect(readableAxisTicks(0, 0.1537, 5)).toEqual([0, 0.025, 0.05, 0.075, 0.1, 0.125, 0.15]);
+    expect(readableAxisTicks(0, 669_000_000, 5)).toEqual([
+      0,
+      100_000_000,
+      200_000_000,
+      300_000_000,
+      400_000_000,
+      500_000_000,
+      600_000_000,
+    ]);
   });
 
   it("derives residual and tangent evidence from server-evaluated candidate curves", () => {

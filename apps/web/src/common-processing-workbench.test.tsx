@@ -84,6 +84,13 @@ function processRailButton(identity: string): HTMLElement {
   return row;
 }
 
+async function chooseTestDataInData(identity: string): Promise<void> {
+  fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:data" } }));
+  fireEvent.click(await screen.findByRole("button", { name: identity }));
+  fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:process" } }));
+  await screen.findByRole("heading", { name: "Process Test Data" });
+}
+
 function reverseJsonObjectKeys(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(reverseJsonObjectKeys);
   if (value && typeof value === "object") {
@@ -624,6 +631,7 @@ describe("Common Processing Workbench", () => {
       if (url.endsWith("/processing-ensemble-methods") || url.endsWith("/common-processing-recipes") || url.endsWith("/common-processing-batches")) return jsonResponse({ items: [] });
       if (url.includes("/material-states/") && url.endsWith("/test-runs")) return jsonResponse({ items: [] });
       if (url.endsWith("/import-profiles")) return jsonResponse({ items: [] });
+      if (url.includes("/catalog/domain-bindings:resolve?")) return jsonResponse(null);
       throw new Error(`unexpected request: ${url}`);
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -642,7 +650,13 @@ describe("Common Processing Workbench", () => {
     try {
       const savedProfile = await screen.findByLabelText("Saved Mapping Profile");
       await waitFor(() => expect((savedProfile as HTMLSelectElement).value).toBe(mappingProfileResource.mapping_profile_id));
-      fireEvent.click(screen.getByText("Advanced source settings"));
+      fireEvent.click(screen.getByText("Technical details"));
+      const technicalDetails = document.querySelector("details.modeling-data-technical-details");
+      expect(technicalDetails?.querySelector(".ux-engineering-pane")).toBeTruthy();
+      expect(technicalDetails?.querySelectorAll(".ux-engineering-section")).toHaveLength(2);
+      expect(technicalDetails?.querySelector(".workbench-card")).toBeNull();
+      expect(technicalDetails?.querySelector(".eyebrow")).toBeNull();
+      expect(technicalDetails?.querySelector(".status-chip")).toBeNull();
       const profileJson = screen.getByLabelText("Mapping Profile JSON") as HTMLTextAreaElement;
       expect(JSON.parse(profileJson.value)).toMatchObject({ profile_key: mappingProfileResource.content.profile_key });
       fireEvent.change(savedProfile, { target: { value: "" } });
@@ -658,8 +672,7 @@ describe("Common Processing Workbench", () => {
           revisionNo: 1,
         },
       });
-      await screen.findByLabelText("Test Data revision");
-      await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(9));
+      await screen.findByRole("button", { name: "Tensile test 0001" });
     } finally {
       view.unmount();
       await new Promise((resolve) => setTimeout(resolve, 500));
@@ -736,15 +749,15 @@ describe("Common Processing Workbench", () => {
     // panel and mocked requests are correct.
     await screen.findByRole(
       "button",
-      { name: "Save processed curves" },
+      { name: "Save Process result" },
       { timeout: 5_000 },
     );
     await waitFor(() => expect(screen.getByText("Preview ready.", { exact: false })).toBeTruthy());
-    const label = screen.getByRole("textbox", { name: "Processed curve label" }) as HTMLInputElement;
-    const reason = screen.getByRole("textbox", { name: "Save reason" }) as HTMLInputElement;
+    const label = screen.getByRole("textbox", { name: "Process result name" }) as HTMLInputElement;
+    const reason = screen.getByRole("textbox", { name: "Reason for saving Process result" }) as HTMLInputElement;
     fireEvent.change(label, { target: { value: "Retry-preserved label" } });
     fireEvent.change(reason, { target: { value: "Retry-preserved reason" } });
-    const save = screen.getByRole("button", { name: "Save processed curves" }) as HTMLButtonElement;
+    const save = screen.getByRole("button", { name: "Save Process result" }) as HTMLButtonElement;
     fireEvent.click(save);
     await screen.findByText("forced Process output failure");
     expect(label.value).toBe("Retry-preserved label");
@@ -878,12 +891,12 @@ describe("Common Processing Workbench", () => {
     expect(steps[1].options).toMatchObject({ equipment_compliance: "not_provided", warning_acknowledged: false });
 
     fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
-    await screen.findByText("OLS zero intercept · v1.0.0");
+    await screen.findByText("OLS zero intercept");
     expect(screen.getByText("1 quality warning · acknowledgement required")).toBeTruthy();
     expect(screen.getByText("Warning reviewed")).toBeTruthy();
     expect(screen.getByText("180.00 GPa")).toBeTruthy();
     expect(screen.getByText("0.910000")).toBeTruthy();
-    const save = screen.getByRole("button", { name: "Save processed curves" }) as HTMLButtonElement;
+    const save = screen.getByRole("button", { name: "Save Process result" }) as HTMLButtonElement;
     expect(save.disabled).toBe(true);
     expect(screen.getByText(/Review and acknowledge the toe quality warning/)).toBeTruthy();
     expect(screen.getByRole("img", { name: /mapped and selected processing stage curve overlay/i })).toBeTruthy();
@@ -939,7 +952,8 @@ describe("Common Processing Workbench", () => {
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:fit" } }));
     const fitEvidence = await screen.findByRole("button", { name: "Candidate parameters" });
     fireEvent.click(fitEvidence);
-    expect(await screen.findByTitle("Toe-corrected Process · r1")).toBeTruthy();
+    expect(screen.getAllByText("DP600 / Tensile test 0001", { exact: true }).length).toBeGreaterThan(0);
+    expect(screen.queryByTitle(/Toe-corrected Process/)).toBeNull();
     expect(screen.getByText("OLS zero intercept · v1.0.0", { selector: ".fit-source-evidence strong" }).closest("dd")?.textContent).toBe(
       "OLS zero intercept · v1.0.0 · exact saved Process step",
     );
@@ -1043,11 +1057,11 @@ describe("Common Processing Workbench", () => {
     );
 
     let view = renderWorkbench(restoredSession);
-    await screen.findByRole("button", { name: "Save processed curves" });
+    await screen.findByRole("button", { name: "Save Process result" });
     await waitFor(() => expect(screen.getByText("Preview ready.", { exact: false })).toBeTruthy());
-    fireEvent.change(screen.getByRole("textbox", { name: "Processed curve label" }), { target: { value: "New Process" } });
-    fireEvent.change(screen.getByRole("textbox", { name: "Save reason" }), { target: { value: "Persist a current Process result" } });
-    fireEvent.click(screen.getByRole("button", { name: "Save processed curves" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Process result name" }), { target: { value: "New Process" } });
+    fireEvent.change(screen.getByRole("textbox", { name: "Reason for saving Process result" }), { target: { value: "Persist a current Process result" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save Process result" }));
     await waitFor(() => expect(serverOutputs).toHaveLength(3));
     const saved = serverOutputs[2] as Record<string, unknown>;
     const savedRevision = saved.current_revision as Record<string, unknown>;
@@ -1057,7 +1071,7 @@ describe("Common Processing Workbench", () => {
     view.unmount();
     restoredSession = { ...initialSession, processingOutput: savedRef };
     view = renderWorkbench(restoredSession);
-    await screen.findByRole("button", { name: "Save processed curves" });
+    await screen.findByRole("button", { name: "Save Process result" });
     await waitFor(() => expect(screen.getByText("Preview ready.", { exact: false })).toBeTruthy());
     const details = document.querySelector("details.process-saved-results") as HTMLDetailsElement;
     fireEvent.click(details.querySelector(":scope > summary")!);
@@ -1089,7 +1103,7 @@ describe("Common Processing Workbench", () => {
     expect((screen.getByRole("combobox", { name: "Evaluation method" }) as HTMLSelectElement).value).toBe("chord");
     expect((screen.getByRole("spinbutton", { name: "Elastic range start" }) as HTMLInputElement).value).toBe("0.001");
     expect((screen.getByRole("spinbutton", { name: "Elastic range end" }) as HTMLInputElement).value).toBe("0.003");
-    expect((screen.getByRole("button", { name: "Save processed curves" }) as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole("button", { name: "Save Process result" }) as HTMLButtonElement).disabled).toBe(true);
     rows = Array.from(details.querySelectorAll(".process-comparison-row"), (row) => row.textContent ?? "");
     expect(rows.filter((text) => text.includes("current"))).toHaveLength(1);
     expect(rows.find((text) => text.includes("New Process"))).toContain("current");
@@ -1099,10 +1113,10 @@ describe("Common Processing Workbench", () => {
       const heading = stage === "data"
         ? "Select Test Data"
         : stage === "fit"
-          ? "Fit material response"
+          ? "Fit Material Model"
           : stage === "export"
-            ? "Review & deliver solver card"
-            : "Prepare observed curves";
+            ? "Create Solver Card"
+            : "Process Test Data";
       await screen.findByRole("heading", { name: heading });
     }
     await new Promise((resolve) => window.setTimeout(resolve, 350));
@@ -1111,7 +1125,7 @@ describe("Common Processing Workbench", () => {
     expect((screen.getByRole("combobox", { name: "Evaluation method" }) as HTMLSelectElement).value).toBe("chord");
     expect((screen.getByRole("spinbutton", { name: "Elastic range start" }) as HTMLInputElement).value).toBe("0.001");
     expect((screen.getByRole("spinbutton", { name: "Elastic range end" }) as HTMLInputElement).value).toBe("0.003");
-    expect((screen.getByRole("button", { name: "Save processed curves" }) as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole("button", { name: "Save Process result" }) as HTMLButtonElement).disabled).toBe(true);
     expect(document.querySelector('[data-modeling-process-panel="ready"] .process-band-result')?.textContent).toContain("210.0 GPa");
     const roundTripDetails = document.querySelector("details.process-saved-results") as HTMLDetailsElement;
     rows = Array.from(roundTripDetails.querySelectorAll(".process-comparison-row"), (row) => row.textContent ?? "");
@@ -1138,7 +1152,7 @@ describe("Common Processing Workbench", () => {
     });
     view.unmount();
     view = renderWorkbench(restoredSession);
-    await screen.findByRole("button", { name: "Save processed curves" });
+    await screen.findByRole("button", { name: "Save Process result" });
     await waitFor(() => expect(screen.getByText("Preview ready.", { exact: false })).toBeTruthy());
     const reloadedDetails = document.querySelector("details.process-saved-results") as HTMLDetailsElement;
     fireEvent.click(reloadedDetails.querySelector(":scope > summary")!);
@@ -1231,6 +1245,9 @@ describe("Common Processing Workbench", () => {
     const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
       const url = String(input);
       if (url.endsWith("/test-data-documents")) return jsonResponse({ items: [documentResource, replicateResource] });
+      if (url.includes("/material-states/") && url.endsWith("/test-runs")) return jsonResponse({ items: [] });
+      if (url.endsWith("/import-profiles")) return jsonResponse({ items: [] });
+      if (url.includes("/catalog/domain-bindings:resolve?")) return jsonResponse(null);
       if (url.endsWith("/mapping-profiles")) return jsonResponse({ items: [mappingProfileResource] });
       if (url.endsWith("/processing-outputs") && init?.method === "POST") {
         const body = JSON.parse(String(init.body ?? "{}")) as {
@@ -1612,7 +1629,7 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByRole("tablist", { name: "Material modeling family" })).toBeTruthy();
     expect(await screen.findByRole(
       "img",
-      { name: "Hardening candidate and selected extrapolation curves" },
+      { name: "Selected Test Data curves" },
       { timeout: 5000 },
     )).toBeTruthy();
     expect(screen.queryByText("Test data")).toBeNull();
@@ -1620,21 +1637,24 @@ describe("Common Processing Workbench", () => {
     expect(settingsControl).toBeTruthy();
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:data" } }));
     expect(await screen.findByRole("tablist", { name: "Test data source" })).toBeTruthy();
+    await waitFor(() => expect(screen.queryByText("Preview ready.", { exact: true })).toBeNull());
     expect(screen.getByRole("tab", { name: "Library" })).toBeTruthy();
     expect(screen.getByRole("tab", { name: "Local file" })).toBeTruthy();
-    expect(screen.getByRole("tab", { name: "Test Data JSON" })).toBeTruthy();
+    expect(screen.getAllByRole("tab", { name: /Library|Local file/ })).toHaveLength(2);
+    const continueToProcess = screen.getByRole("button", { name: "Continue to Process" });
+    expect(continueToProcess.closest(".modeling-data-plot-actions")).toBeTruthy();
+    expect(continueToProcess.closest(".persistent-modeling-plot")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Stress–strain curves" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Select Test Data" })).toBeTruthy();
+    expect(screen.queryByText("Material: DP600", { exact: true })).toBeNull();
+    expect(screen.getAllByText("DP600", { exact: true }).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/Process \d+ · Plot \d+/)).toBeNull();
+    expect(Array.from(document.querySelectorAll(".modeling-data-results th")).map((item) => item.textContent))
+      .toEqual(["Test record", "Material", "Condition", "Test date", "Data points"]);
     expect(screen.queryByText("Metal hardening candidates")).toBeNull();
-    let dataIdentityRow: HTMLElement | undefined;
-    await waitFor(() => {
-      dataIdentityRow = Array.from(document.querySelectorAll<HTMLElement>(".modeling-data-curve-tree .curve-row-label"))
-        .find((row) => row.querySelector("strong")?.textContent === "Specimen 01");
-      expect(dataIdentityRow).toBeTruthy();
-    });
-    if (!dataIdentityRow) throw new Error("Data identity row is missing");
-    expect(dataIdentityRow.querySelector("strong")?.textContent).toBe("Specimen 01");
-    expect(dataIdentityRow.querySelector("small.curve-secondary-identity")?.textContent).toBe("Session revision r1");
-    expect(dataIdentityRow.querySelectorAll("small")).toHaveLength(1);
+    const dataResults = screen.getByRole("region", { name: "Test Data results" });
+    expect(await within(dataResults).findByRole("button", { name: "Tensile test 0001" })).toBeTruthy();
+    expect(screen.queryByText(/Revision r\d+/)).toBeNull();
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:validate" } }));
     expect(await screen.findByRole("heading", { name: "Validation, review and release" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Submit · Not configured" }).hasAttribute("disabled")).toBe(true);
@@ -1650,11 +1670,8 @@ describe("Common Processing Workbench", () => {
     );
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:data" } }));
     fireEvent.click(screen.getByRole("tab", { name: /Metal/ }));
-    fireEvent.change(screen.getByLabelText("Test Data revision"), {
-      target: { value: documentResource.test_data_document_id },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Load exact JSON" }));
-    await waitFor(() => expect((screen.getByLabelText("Test Data revision") as HTMLSelectElement).value).toBe(documentResource.test_data_document_id));
+    fireEvent.click(await within(dataResults).findByRole("button", { name: "Tensile test 0001" }));
+    await waitFor(() => expect(within(dataResults).getByRole("button", { name: "Tensile test 0001" }).getAttribute("aria-current")).toBe("true"));
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:fit" } }));
     expect(await screen.findByRole(
       "img",
@@ -1681,19 +1698,19 @@ describe("Common Processing Workbench", () => {
     )).toBeTruthy();
     expect(await screen.findByText("Preview Swift/Voce blend")).toBeTruthy();
     const fitRail = document.querySelector(".configured-step-list");
-    expect(fitRail?.querySelector(".rail-title")?.textContent).toContain("Process");
+    expect(fitRail?.querySelector(".rail-title")?.textContent).toBe("Fit steps");
     expect(fitRail?.querySelectorAll("button")).toHaveLength(4);
     expect(screen.getByRole("button", { name: /Sort duplicate x/ })).toBeTruthy();
     expect(screen.getByRole("button", { name: /True\/plastic conversion/ })).toBeTruthy();
     expect(screen.getByRole("button", { name: /Necking boundary/ })).toBeTruthy();
     expect(screen.getByRole("button", { name: /Hardening fit/ })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: /Step 4 · Hardening fit and extrapolation/ })).toBeTruthy();
-    expect(screen.getByText("Candidate equations")).toBeTruthy();
-    expect(screen.getByText("Fit domain")).toBeTruthy();
-    expect(screen.getByText("Selected blend")).toBeTruthy();
-    expect(screen.getByText("Primary contribution")).toBeTruthy();
-    expect(screen.getByText("Extrapolation")).toBeTruthy();
-    expect(screen.getByText("Graph interaction")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /Step 4 · Hardening fit/ })).toBeTruthy();
+    expect(screen.getByText("Candidate models")).toBeTruthy();
+    expect(screen.getByText("Fit range")).toBeTruthy();
+    expect(screen.getByText("Preview blend")).toBeTruthy();
+    expect(screen.getByText("Blend ratio")).toBeTruthy();
+    expect(screen.getByText("Output range")).toBeTruthy();
+    expect(screen.getByText("Graph selection")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Apply" })).toBeNull();
     expect(screen.getByLabelText("Output points").closest("fieldset")).toBeTruthy();
     expect(screen.getByLabelText("Secondary hardening law").closest("fieldset")?.className).toContain("selected-blend-group");
@@ -1701,9 +1718,9 @@ describe("Common Processing Workbench", () => {
     expect(fitPlotHeading).toBeTruthy();
     expect(screen.queryAllByText("Hardening response", { exact: true })
       .filter((node) => node.tagName.toLowerCase() !== "h2")).toHaveLength(0);
-    expect(screen.queryByRole("button", { name: "Select range" })).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Select fit range" }));
-    expect(screen.getByRole("button", { name: "Select fit range" }).getAttribute("aria-pressed")).toBe("true");
+    expect(screen.queryByRole("button", { name: "Select fit range" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Select range" }));
+    expect(screen.getByRole("button", { name: "Select range" }).getAttribute("aria-pressed")).toBe("true");
     expect(screen.getByText("Candidate parameters")).toBeTruthy();
     fireEvent.click(screen.getByText("Candidate parameters"));
     const sourceEvidence = screen.getByLabelText("Source evidence");
@@ -1720,28 +1737,24 @@ describe("Common Processing Workbench", () => {
       target: { value: "Select Swift after comparing response, residual and tangent stability." },
     });
     expect((screen.getByRole("button", { name: "Save fit & continue" }) as HTMLButtonElement).disabled).toBe(false);
-    fireEvent.click(screen.getByRole("checkbox", { name: "Include Specimen 01 in processing and fit" }));
-    expect((screen.getByRole("button", { name: "Save fit & continue" }) as HTMLButtonElement).disabled).toBe(true);
-    expect(screen.queryByLabelText("Candidate selection reason")).toBeNull();
-    fireEvent.click(screen.getByRole("checkbox", { name: "Include Specimen 01 in processing and fit" }));
-    fireEvent.click(screen.getByRole("button", { name: /Select swift candidate/i }));
-    fireEvent.change(screen.getByLabelText("Candidate selection reason"), {
-      target: { value: "Re-select Swift after changing input scope." },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
-    await waitFor(() => {
-      expect((screen.getByRole("button", { name: "Save fit & continue" }) as HTMLButtonElement).disabled).toBe(true);
-      expect(screen.queryByLabelText("Candidate selection reason")).toBeNull();
-    });
-    fireEvent.click(screen.getByRole("button", { name: /Select swift candidate/i }));
-    fireEvent.change(screen.getByLabelText("Candidate selection reason"), {
-      target: { value: "Re-select Swift after the successful candidate recomputation." },
-    });
+    fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:data" } }));
+    await waitFor(() => expect(document.querySelectorAll(".modeling-workspace-stage-data polyline.data-observed")).toHaveLength(1));
+    fireEvent.click(await screen.findByRole("button", { name: "Add comparison" }));
+    const comparison = await screen.findByRole("checkbox", { name: /(?:Add|Remove) Tensile test 0002 (?:to|from) comparison/ });
+    fireEvent.click(comparison);
+    await waitFor(() => expect(document.querySelectorAll(".modeling-workspace-stage-data polyline.data-observed").length).toBeGreaterThan(1));
+    fireEvent.click(screen.getByRole("button", { name: "Close comparison" }));
+    await waitFor(() => expect(document.querySelectorAll(".modeling-workspace-stage-data polyline.data-observed")).toHaveLength(1));
+    fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:fit" } }));
+    await screen.findByRole("heading", { name: "Fit Material Model" });
+    expect((screen.getByRole("button", { name: "Save fit & continue" }) as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(screen.getByText("Candidate parameters"));
+    expect((screen.getByLabelText("Candidate selection reason") as HTMLInputElement).value).toContain("Select Swift");
     fireEvent.click(screen.getByRole("button", { name: "Save fit & continue" }));
-    expect(await screen.findByRole("heading", { name: "Fit material response" })).toBeTruthy();
-    expect(screen.getByText(/New immutable Fit Output saved and current/i)).toBeTruthy();
-    expect(screen.getByText(/Modeling Export is separate and has not started/i)).toBeTruthy();
-    expect(screen.queryByRole("heading", { name: "Review & deliver solver card" })).toBeNull();
+    expect(await screen.findByRole("heading", { name: "Fit Material Model" })).toBeTruthy();
+    expect(document.querySelector(".fit-surface-state")?.textContent).toBe("Saved current");
+    expect(screen.queryByText(/New immutable Fit Output saved and current/i)).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Create solver card" })).toBeNull();
     expect(onNavigate.mock.calls.some(([path]) => String(path).includes("export"))).toBe(false);
     expect(onSessionChange).toHaveBeenCalledWith({
       processingOutput: {
@@ -1755,15 +1768,14 @@ describe("Common Processing Workbench", () => {
     // Process is lazy-loaded; when this test runs after another Process test the
     // module may already be warm, so the loading fallback is intentionally
     // optional while the panel remains the same contract.
-    expect(await screen.findByRole("heading", { name: "Prepare observed curves" })).toBeTruthy();
-    expect(await screen.findByRole("button", { name: "Save processed curves" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "Process Test Data" })).toBeTruthy();
+    expect(await screen.findByRole("button", { name: "Save Process result" })).toBeTruthy();
     expect(screen.queryByRole("status", { name: "Loading Process controls" })).toBeNull();
-    fireEvent.click(processRailButton("Specimen 01 · r1"));
-    await waitFor(() => expect(document.querySelector(".persistent-modeling-plot > .modeling-plot-empty")).toBeTruthy());
+    expect(processRailIdentities()).toContain("Tensile test 0001");
     expect(screen.queryByText("Choose a saved Test Data revision. The graph compares real curves without changing saved data.")).toBeNull();
     expect(document.querySelector('[data-modeling-process-panel="ready"]')).toBeTruthy();
-    const processSave = screen.getByRole("button", { name: "Save processed curves" }) as HTMLButtonElement;
-    fireEvent.click(processRailButton("Specimen 02 · r1"));
+    onSessionEvent.mockClear();
+    await chooseTestDataInData("Tensile test 0002");
     expect(onSessionEvent).toHaveBeenCalledWith({
       type: "PIN_TEST_DATA",
       testData: {
@@ -1775,51 +1787,25 @@ describe("Common Processing Workbench", () => {
     });
     await waitFor(() => expect(onSessionEvent).toHaveBeenLastCalledWith({ type: "CHANGE_SELECTION" }));
     onSessionEvent.mockClear();
-    fireEvent.click(screen.getByRole("checkbox", { name: "Include Specimen 02 in processing and fit" }));
-    expect(onSessionEvent).toHaveBeenNthCalledWith(1, {
-      type: "PIN_TEST_DATA",
-      testData: {
-        id: documentResource.test_data_document_id,
-        revisionId: documentResource.current_revision.id,
-        label: documentResource.document_key,
-        revisionNo: documentResource.current_revision.revision_no,
-      },
-    });
-    expect(onSessionEvent).toHaveBeenNthCalledWith(2, {
-      type: "SET_TEST_DATA_SELECTION",
-      selectedTestDataRefs: [{
-        id: documentResource.test_data_document_id,
-        revisionId: documentResource.current_revision.id,
-        label: documentResource.document_key,
-        revisionNo: documentResource.current_revision.revision_no,
-      }],
-    });
-    onSessionEvent.mockClear();
-    fireEvent.click(screen.getByRole("checkbox", { name: "Include Specimen 01 in processing and fit" }));
-    expect(onSessionEvent).toHaveBeenNthCalledWith(1, { type: "PIN_TEST_DATA" });
-    expect(onSessionEvent).toHaveBeenNthCalledWith(2, { type: "SET_TEST_DATA_SELECTION", selectedTestDataRefs: [] });
-    expect(screen.getByRole("img", { name: "Blocked engineering curve plot" })).toBeTruthy();
-    const blockedPlot = document.querySelector('.engineering-curve-plot-empty-frame[data-plot-state="blocked"]');
-    expect(blockedPlot?.querySelectorAll(".chart-axis").length).toBeGreaterThanOrEqual(2);
-    expect(blockedPlot?.querySelectorAll(".chart-grid").length).toBeGreaterThanOrEqual(2);
-    expect(screen.getByRole("button", { name: "Back to Data" })).toBeTruthy();
-    expect((screen.getByRole("button", { name: "Preview changes" }) as HTMLButtonElement).disabled).toBe(true);
-    expect(processSave.disabled).toBe(true);
-    expect(document.querySelector('.method-library > summary[aria-disabled="true"]')).toBeTruthy();
-    const blockedMethodButtons = Array.from(document.querySelectorAll<HTMLButtonElement>(".method-library .method-pill"));
-    const blockedRailButtons = Array.from(document.querySelectorAll<HTMLButtonElement>(".configured-step-list button"));
-    const blockedRangeInputs = Array.from(document.querySelectorAll<HTMLInputElement>(".process-band-controls input"));
-    expect(blockedMethodButtons.length).toBeGreaterThan(0);
-    expect(blockedRailButtons.length).toBeGreaterThan(0);
-    expect(blockedRangeInputs.length).toBeGreaterThan(0);
-    expect(blockedMethodButtons.every((button) => button.disabled)).toBe(true);
-    expect(blockedRailButtons.every((button) => button.disabled)).toBe(true);
-    expect(blockedRangeInputs.every((input) => input.matches(":disabled"))).toBe(true);
-    fireEvent.click(screen.getByRole("checkbox", { name: "Include Specimen 01 in processing and fit" }));
-    fireEvent.click(processRailButton("Specimen 01 · r1"));
-    fireEvent.click(screen.getByRole("checkbox", { name: "Include Specimen 02 in processing and fit" }));
-    fireEvent.click(processRailButton("Specimen 02 · r1"));
-    await waitFor(() => expect((screen.getByRole("button", { name: "Preview changes" }) as HTMLButtonElement).disabled).toBe(false));
+    expect(screen.getByText("Current Process input")).toBeTruthy();
+    expect(processRailIdentities()).toContain("Tensile test 0002");
+    expect(screen.queryByText("Comparison on graph")).toBeNull();
+    // Changing the one Process input does not silently turn the previous input
+    // into a comparison. Add it explicitly in Data, then verify it remains a
+    // graph-only overlay in Process.
+    fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:data" } }));
+    fireEvent.click(await screen.findByRole("button", { name: "Add comparison" }));
+    fireEvent.click(await screen.findByRole("checkbox", { name: /Add Tensile test 0001 to comparison/ }));
+    fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:process" } }));
+    await screen.findByRole("heading", { name: "Process Test Data" });
+    expect(screen.getByText("Comparison on graph")).toBeTruthy();
+    expect(screen.queryByRole("checkbox", { name: /Include .* in processing and fit/ })).toBeNull();
+    const comparisonVisibility = screen.getByRole("button", { name: /(?:Show|Hide) Tensile test 0001 on graph/ });
+    fireEvent.click(comparisonVisibility);
+    expect(onSessionEvent).not.toHaveBeenCalled();
+    expect(document.querySelector(".process-band-source")?.textContent).toBe("Tensile test 0002");
+    const processSave = screen.getByRole("button", { name: "Save Process result" }) as HTMLButtonElement;
+    expect((screen.getByRole("button", { name: "Preview changes" }) as HTMLButtonElement).disabled).toBe(false);
     fireEvent.click(screen.getByRole("button", { name: /\+ Sort and resolve duplicate/ }));
     expect(processSave.disabled).toBe(true);
     fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
@@ -1841,7 +1827,7 @@ describe("Common Processing Workbench", () => {
     expect(processPreviewBody.steps?.some((step) => isFitMethodInRequest(step.method_id))).toBe(false);
     expect(screen.getByRole("img", { name: /(?:mapped and selected processing stage curve overlay|candidate and selected .*curves)/i })).toBeTruthy();
     const processPanel = () => document.querySelector('[data-modeling-process-panel="ready"]') as HTMLElement;
-    await waitFor(() => expect(screen.getByText("Step 2 · Process · Young's modulus", { exact: true })).toBeTruthy());
+    await waitFor(() => expect(screen.getByText("Step 2 · Young's modulus", { exact: true })).toBeTruthy());
     expect(screen.getByRole("combobox", { name: "Evaluation method" })).toBeTruthy();
     expect((screen.getByRole("combobox", { name: "Evaluation method" }) as HTMLSelectElement).value).toBe("robust_huber");
     expect(screen.getByLabelText("Elastic range start")).toBeTruthy();
@@ -1851,9 +1837,9 @@ describe("Common Processing Workbench", () => {
     expect(screen.queryByText("Selected blend")).toBeNull();
     const robustResult = processPanel().querySelector(".process-band-result");
     expect(robustResult?.textContent ?? "").toMatch(/210\.0 GPa/);
-    expect(screen.getByText("Curve response", { exact: true })).toBeTruthy();
+    expect(document.querySelector(".persistent-modeling-plot h2")?.textContent).toBe("Young's modulus");
     expect(screen.queryByText("Preview — not saved", { exact: true })).toBeNull();
-    expect(screen.getByRole("heading", { name: "Result" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Preview" })).toBeTruthy();
     const processMethodOptions = screen.getByRole("combobox", { name: "Evaluation method" }) as HTMLSelectElement;
     expect(Array.from(processMethodOptions.options, (option) => option.text)).toEqual([
       "Auto robust",
@@ -1870,13 +1856,13 @@ describe("Common Processing Workbench", () => {
     fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
     await waitFor(() => expect(screen.getByText("Preview ready.", { exact: false })).toBeTruthy());
     expect(processPanel().querySelector(".guided-step-options")?.textContent ?? "").not.toMatch(/Auto\/calculated value preview/);
-    expect((screen.getByRole("button", { name: "Save processed curves" }) as HTMLButtonElement).disabled).toBe(false);
+    expect((screen.getByRole("button", { name: "Save Process result" }) as HTMLButtonElement).disabled).toBe(false);
     failNextPreview = true;
     fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
     await waitFor(() => expect(screen.getByText("The Processing Workbench operation failed.")).toBeTruthy());
     expect(screen.getByRole("img", { name: /(?:mapped and selected processing stage curve overlay|candidate and selected .*curves)/i })).toBeTruthy();
-    const processLabel = screen.getByRole("textbox", { name: "Processed curve label" });
-    const processReason = screen.getByRole("textbox", { name: "Save reason" });
+    const processLabel = screen.getByRole("textbox", { name: "Process result name" });
+    const processReason = screen.getByRole("textbox", { name: "Reason for saving Process result" });
     fireEvent.change(processLabel, { target: { value: "Robust elastic" } });
     fireEvent.change(processReason, { target: { value: "Capture deterministic saved-result sibling one" } });
     fireEvent.click(processSave);
@@ -1914,8 +1900,8 @@ describe("Common Processing Workbench", () => {
     const secondProcessOutput = String(committedOutputs[2].processing_output_id);
     expect(firstProcessOutput).not.toBe(secondProcessOutput);
     const savedDetails = document.querySelector("details.process-saved-results") as HTMLDetailsElement;
-    expect(screen.getAllByText("DP600-TENSILE-02 · r1").length).toBeGreaterThan(0);
-    await waitFor(() => expect(savedDetails.querySelector("summary")?.textContent).toContain("Saved results (2)"));
+    expect(screen.getAllByText("DP600 / Tensile test 0002").length).toBeGreaterThan(0);
+    await waitFor(() => expect(savedDetails.querySelector("summary")?.textContent).toBe("Saved Process results"));
     fireEvent.click(savedDetails.querySelector(":scope > summary")!);
     await waitFor(() => expect(savedDetails.querySelectorAll(".process-comparison-row")).toHaveLength(2));
     await waitFor(() => expect(Array.from(savedDetails.querySelectorAll(".process-comparison-row"), (row) => row.textContent ?? "").join(" ")).toContain("210.0 GPa"));
@@ -1925,7 +1911,7 @@ describe("Common Processing Workbench", () => {
       expect.stringContaining("Robust elastic"),
       expect.stringContaining("Chord elastic"),
     ]));
-    expect(savedRowText.every((text) => !text.includes("Specimen 02 · r1"))).toBe(true);
+    expect(savedRowText.every((text) => !text.includes("Tensile test 0002"))).toBe(true);
     expect(savedRowText.every((text) => text.includes("r1"))).toBe(true);
     expect(savedRowText.find((text) => text.includes("Robust elastic"))).toContain("210.0 GPa");
     expect(savedRowText.find((text) => text.includes("Robust elastic"))).toContain("history");
@@ -1945,55 +1931,42 @@ describe("Common Processing Workbench", () => {
     await waitFor(() => expect(invalidRow.textContent).toContain("210.0 GPa"));
     fireEvent.click(within(invalidRow).getByRole("button", { name: "Use settings" }));
     expect(await screen.findByText(/Saved Process settings restored as a new draft/)).toBeTruthy();
-    expect((screen.getByRole("button", { name: "Save processed curves" }) as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole("button", { name: "Save Process result" }) as HTMLButtonElement).disabled).toBe(true);
     fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
     await waitFor(() => expect(screen.getByText(/Preview ready/)).toBeTruthy());
-    expect(screen.getByText("Curves")).toBeTruthy();
-    expect(screen.getByText("2 curves · 2 included")).toBeTruthy();
-    expect(screen.getByRole("region", { name: "Tensile tests" })).toBeTruthy();
-    const curveGroup = document.querySelector(".curve-tree-group > details");
-    expect(curveGroup?.hasAttribute("open")).toBe(true);
-    const groupSummary = curveGroup?.querySelector("summary");
-    expect(groupSummary?.textContent).toContain("Tensile tests");
-    fireEvent.click(groupSummary!);
-    expect(curveGroup?.hasAttribute("open")).toBe(false);
-    fireEvent.click(groupSummary!);
-    expect(curveGroup?.hasAttribute("open")).toBe(true);
-    expect(document.querySelector(".curve-group-row > span")).toBeNull();
+    expect(screen.getByText("Test Data")).toBeTruthy();
+    expect(screen.getByText("Current Process input")).toBeTruthy();
+    expect(screen.getByText("Comparison on graph")).toBeTruthy();
+    expect(screen.queryByText(/curves · .* included/)).toBeNull();
     const curveKey = document.querySelector(".dataset-curve-swatch");
     expect(curveKey).toBeTruthy();
     expect(curveKey?.className).toBe("dataset-curve-swatch");
     expect(curveKey?.getAttribute("role")).toBe("img");
-    expect(curveKey?.getAttribute("aria-label")).toBe("Plot color for Specimen 01");
-    expect(curveKey?.previousElementSibling?.className).toBe("curve-include-toggle");
+    expect(curveKey?.getAttribute("aria-label")).toBe("Plot color for Tensile test 0002");
+    expect(curveKey?.previousElementSibling).toBeNull();
     expect(curveKey?.nextElementSibling?.className).toBe("curve-row-label");
     expect(Array.from(curveKey?.parentElement?.children ?? []).map((child) => child.className)).toEqual([
-      "curve-include-toggle",
       "dataset-curve-swatch",
       "curve-row-label",
-      "curve-visibility-toggle",
+      "process-input-role",
     ]);
-    const curveRow = processRailButton("Specimen 01 · r1");
-    expect(curveRow.textContent).toBe("Specimen 01 · r1");
-    const includeSpecimen = screen.getByRole("checkbox", { name: "Include Specimen 01 in processing and fit" });
-    const plotVisibility = screen.getByRole("button", { name: "Hide Specimen 01 on plot" });
-    expect(plotVisibility.getAttribute("aria-pressed")).toBe("true");
+    const curveRow = processRailButton("Tensile test 0002");
+    expect(curveRow.textContent).toBe("Tensile test 0002");
+    expect(curveRow.parentElement?.className).toContain("current-process-input");
+    const plotVisibility = screen.getByRole("button", { name: /(?:Show|Hide) Tensile test 0001 on graph/ });
+    const initialVisibility = plotVisibility.getAttribute("aria-pressed");
     expect(screen.queryByText(/^Hide$/)).toBeNull();
     fireEvent.click(plotVisibility);
-    expect(screen.getByRole("button", { name: "Show Specimen 01 on plot" }).getAttribute("aria-pressed")).toBe("false");
-    fireEvent.click(includeSpecimen);
-    expect((includeSpecimen as HTMLInputElement).checked).toBe(false);
-    expect(onSessionEvent).toHaveBeenCalledWith({ type: "CHANGE_SELECTION" });
-    fireEvent.click(includeSpecimen);
-    expect((includeSpecimen as HTMLInputElement).checked).toBe(true);
+    expect(screen.getByRole("button", { name: /(?:Show|Hide) Tensile test 0001 on graph/ }).getAttribute("aria-pressed")).not.toBe(initialVisibility);
+    expect(screen.queryByRole("checkbox", { name: /Include .* in processing and fit/ })).toBeNull();
     expect(screen.queryByText("Fit evidence")).toBeNull();
     fireEvent.click(screen.getByRole("button", {
-      name: /1Sort and resolve duplicate x values1\.0\.0/,
+      name: /1Sort and resolve duplicate x values/,
     }));
     expect(screen.getByRole("img", { name: /(?:mapped and selected processing stage curve overlay|candidate and selected .*curves)/i })).toBeTruthy();
     expect(screen.getByText("input rows sorted by independent quantity")).toBeTruthy();
 
-    fireEvent.click(screen.getByRole("button", { name: /2Young's modulus1\.0\.0/ }));
+    fireEvent.click(screen.getByRole("button", { name: /2Young's modulus/ }));
     const evaluationMethod = screen.getByRole("combobox", { name: "Evaluation method" }) as HTMLSelectElement;
     expect(evaluationMethod.value).toBe("robust_huber");
     fireEvent.change(evaluationMethod, { target: { value: "manual" } });
@@ -2005,7 +1978,7 @@ describe("Common Processing Workbench", () => {
     expect(guidedSteps[1].options.method).toBe("manual");
     expect(guidedSteps[1].options.manual_modulus_pa).toBe(205_000_000_000);
     await screen.findByRole("img", { name: /(?:mapped and selected processing stage curve overlay|candidate and selected .*curves)/i });
-    fireEvent.click(screen.getByRole("button", { name: /2Young's modulus1\.0\.0/ }));
+    fireEvent.click(screen.getByRole("button", { name: /2Young's modulus/ }));
     const elasticPlot = screen.getByRole("img", { name: /(?:mapped and selected processing stage curve overlay|candidate and selected .*curves)/i });
     Object.defineProperty(elasticPlot, "getBoundingClientRect", {
       value: () => ({ left: 0, top: 0, right: 760, bottom: 420, width: 760, height: 420, x: 0, y: 0, toJSON: () => ({}) }),
@@ -2022,8 +1995,8 @@ describe("Common Processing Workbench", () => {
     fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
     await screen.findByText(/Preview ready/);
     await screen.findByRole("img", { name: /(?:mapped and selected processing stage curve overlay|candidate and selected .*curves)/i });
-    fireEvent.click(screen.getByRole("button", { name: /4Necking candidate1\.0\.0/ }));
-    await waitFor(() => expect(screen.getByText("Step 4 · Process · Necking candidate", { exact: true })).toBeTruthy());
+    fireEvent.click(screen.getByRole("button", { name: /4Necking candidate/ }));
+    await waitFor(() => expect(screen.getByText("Step 4 · Necking candidate", { exact: true })).toBeTruthy());
     const neckingPlot = screen.getByRole("img", { name: /(?:mapped and selected processing stage curve overlay|candidate and selected .*curves)/i });
     Object.defineProperty(neckingPlot, "getBoundingClientRect", {
       value: () => ({ left: 0, top: 0, right: 760, bottom: 420, width: 760, height: 420, x: 0, y: 0, toJSON: () => ({}) }),
@@ -2038,19 +2011,21 @@ describe("Common Processing Workbench", () => {
     expect(neckingSteps[4].options.necking_policy).toBe("manual_index");
     expect(Number(neckingSteps[4].options.manual_necking_index)).toBeGreaterThanOrEqual(1);
 
-    fireEvent.click(screen.getByRole("button", { name: "Align and calculate" }));
+    fireEvent.click(screen.getAllByText("Replicate analysis")[0]);
+    fireEvent.click(screen.getByRole("button", { name: "Preview statistics" }));
     expect(await screen.findByRole("img", { name: "Aligned replicate curves with declared pointwise statistics" })).toBeTruthy();
     expect(document.querySelector("polygon.ensemble-confidence-band")).toBeTruthy();
     expect(screen.getAllByText("95% · pointwise · confidence interval · normal_approximation.mean_two_sided v1.0.0 · ddof 1").length).toBeGreaterThan(0);
+    expect(screen.getByText("Included curves").parentElement?.textContent).toContain("2");
+    fireEvent.click(screen.getByText("Statistics details"));
     expect(screen.getAllByText("Engineering stress").length).toBeGreaterThan(0);
     expect(screen.getAllByText("MPa").length).toBeGreaterThan(0);
-    expect(screen.getByText("Members (2)")).toBeTruthy();
     expect(screen.getByText("sample standard deviation uses n - 1")).toBeTruthy();
     const ensembleRequest = fetchMock.mock.calls.find(([input]) => String(input).endsWith("/processing:preview-ensemble"));
     const ensembleBody = JSON.parse(String(ensembleRequest?.[1]?.body)) as { preprocessing_steps: Array<{ method_id: string }> };
     expect(ensembleBody.preprocessing_steps.map((step) => step.method_id)).toEqual(["rows.sort_unique", "rows.sort_unique"]);
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:export" } }));
-    expect(await screen.findByRole("heading", { name: "Review & deliver solver card" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "Create solver card" })).toBeTruthy();
     await waitFor(() => expect(onSessionChange).toHaveBeenCalledWith({
       workspace: expect.objectContaining({ activeStage: "export" }),
     }));
@@ -2196,14 +2171,14 @@ describe("Common Processing Workbench", () => {
         onSessionChange={onSessionChange}
       />,
     );
-    await waitFor(() => expect(document.querySelectorAll(".data-library-row")).toHaveLength(3));
+    await waitFor(() => expect(document.querySelectorAll(".modeling-data-record-button")).toHaveLength(3));
     await waitFor(() => {
       const workspacePatches = onSessionChange.mock.calls
         .map(([patch]) => (patch as Record<string, unknown>).workspace)
         .filter((workspace): workspace is Record<string, unknown> => Boolean(workspace));
       const latest = workspacePatches.at(-1);
       expect(latest?.selectedTestDataRefs).toHaveLength(3);
-      expect(latest?.selectedDocumentIds).toHaveLength(3);
+      expect(latest?.selectedDocumentIds).toEqual([refs[0].id]);
       expect(latest?.visibleTestDataKeys).toHaveLength(3);
     });
   });
@@ -2346,7 +2321,8 @@ describe("Common Processing Workbench", () => {
     );
     await waitFor(() => expect(fetchMock.mock.calls.some(([input]) => String(input).endsWith("/test-data-documents"))).toBe(true));
     resolveDocuments?.(jsonResponse({ items: documents }));
-    await waitFor(() => expect(document.querySelector(".method-library summary")?.textContent).toContain("5"));
+    await waitFor(() => expect(document.querySelector(".method-library summary")?.textContent).toBe("Add operation"));
+    expect(document.querySelectorAll(".method-registry-strip .method-pill")).toHaveLength(5);
     expect(workspacePatches(onSessionChange).length).toBeGreaterThan(0);
     const expectedRefKeys = refs.map((ref) => `${ref.id}:${ref.revisionId}`).join("|");
     const expectedIncludedIds = [baseRef.id, replicateRef.id].join("|");
@@ -2374,7 +2350,7 @@ describe("Common Processing Workbench", () => {
       />,
     );
     await waitFor(() => expect(document.querySelectorAll(".curve-row-label")).toHaveLength(3));
-    await screen.findByRole("button", { name: "Save processed curves" });
+    await screen.findByRole("button", { name: "Save Process result" });
     assertRestoredWorkspace();
     expect(onSessionChange.mock.calls.map(([patch]) => (patch as Record<string, unknown>).testData).filter(Boolean)).toEqual([]);
     expect(await screen.findByText("No Process preview is active. Choose Use settings for a saved result, then select Preview changes to preview the draft.")).toBeTruthy();
@@ -2382,20 +2358,20 @@ describe("Common Processing Workbench", () => {
     expect(document.querySelector(".persistent-modeling-plot > .modeling-plot-toolbar")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
     await waitFor(() => expect(screen.getByText(/Preview ready\./)).toBeTruthy(), { timeout: 5000 });
-    expect(processRailIdentities()).toEqual(expect.arrayContaining(["Specimen 01 · r1", "Specimen 02 · r1", "Specimen 03 · r1"]));
-    expect(processRailIdentities().every((text) => /^Specimen \d{2} · r[1-9]\d*$/.test(text))).toBe(true);
+    expect(processRailIdentities()).toEqual(expect.arrayContaining(["Tensile test 0001", "Tensile test 0002", "Tensile test 0003"]));
+    expect(processRailIdentities().every((text) => /^Tensile test \d{4}$/.test(text))).toBe(true);
     expect(Array.from(document.querySelectorAll(".modeling-workspace-stage-process .curve-row-label small"))).toHaveLength(0);
-    expect(document.querySelector(".process-band-source")?.textContent).toBe("Specimen 01 · r1");
+    expect(document.querySelector(".process-band-source")?.textContent).toBe("Tensile test 0001");
     expect(document.querySelector(".process-band-result")?.textContent).toContain("210.0 GPa");
     const savedDetails = document.querySelector("details.process-saved-results") as HTMLDetailsElement;
-    expect(savedDetails.querySelector("summary")?.textContent).toContain("Saved results (2)");
+    expect(savedDetails.querySelector("summary")?.textContent).toBe("Saved Process results");
     fireEvent.click(savedDetails.querySelector(":scope > summary")!);
     await waitFor(() => expect(savedDetails.querySelectorAll(".process-comparison-row")).toHaveLength(2));
     await waitFor(() => {
       const rows = Array.from(savedDetails.querySelectorAll(".process-comparison-row"), (row) => row.textContent ?? "");
       expect(rows.find((text) => text.includes("Robust 210"))).toContain("210.0 GPa");
       expect(rows.find((text) => text.includes("Chord 120"))).toContain("120.0 GPa");
-      expect(rows.every((text) => !text.includes("Specimen 01 · r1"))).toBe(true);
+      expect(rows.every((text) => !text.includes("Tensile test 0001"))).toBe(true);
       expect(rows.every((text) => text.includes("r1"))).toBe(true);
     });
     expect(Array.from(savedDetails.querySelectorAll(".process-comparison-row"), (row) => row.textContent ?? "").find((text) => text.includes("Chord 120"))).toContain("current");
@@ -2403,7 +2379,7 @@ describe("Common Processing Workbench", () => {
     expect(screen.queryByText(/ERR_INSUFFICIENT_RESOURCES|Maximum update depth exceeded/)).toBeNull();
   });
 
-  it("preserves older exact refs, membership, visibility and focus when Data enters Process", async () => {
+  it("preserves older exact refs and graph visibility while sending only the focused input to Process", async () => {
     const currentRevision = {
       ...revision,
       id: "53000000-0000-4000-8000-000000000101",
@@ -2517,14 +2493,17 @@ describe("Common Processing Workbench", () => {
         onOpenConnection={() => undefined}
       />,
     );
-    await waitFor(() => expect(document.querySelectorAll(".curve-row-label")).toHaveLength(3));
+    await waitFor(() => expect(document.querySelectorAll(".modeling-data-record-button")).toHaveLength(6));
+    expect(screen.getAllByText("Earlier saved version", { exact: true })).toHaveLength(3);
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:process" } }));
-    await screen.findByRole("button", { name: "Save processed curves" });
+    await screen.findByRole("button", { name: "Save Process result" });
     await waitFor(() => expect(document.querySelectorAll(".curve-row-label")).toHaveLength(3));
-    expect(document.querySelector(".process-band-source")?.textContent).toContain("r1");
-    expect(screen.getByText("3 curves · 2 included")).toBeTruthy();
-    expect(screen.getAllByRole("checkbox", { name: /Include .* in processing and fit/ }).filter((input) => (input as HTMLInputElement).checked)).toHaveLength(2);
-    expect(screen.getAllByRole("button", { name: /Show .* on plot|Hide .* on plot/ }).filter((button) => button.getAttribute("aria-pressed") === "true")).toHaveLength(3);
+    expect(document.querySelector(".process-band-source")?.textContent).toBe("Tensile test 0001");
+    expect(screen.getByText("Current Process input")).toBeTruthy();
+    expect(screen.getByText("Comparison on graph")).toBeTruthy();
+    expect(screen.queryByText(/curves · .* included/)).toBeNull();
+    expect(screen.queryByRole("checkbox", { name: /Include .* in processing and fit/ })).toBeNull();
+    expect(screen.getAllByRole("button", { name: /Show .* on graph|Hide .* on graph/ }).filter((button) => button.getAttribute("aria-pressed") === "true")).toHaveLength(2);
     expect(document.querySelectorAll(".modeling-dataset-list article.active")).toHaveLength(1);
     expect((screen.getByRole("button", { name: "Preview changes" }) as HTMLButtonElement).disabled).toBe(false);
   });
@@ -2608,26 +2587,32 @@ describe("Common Processing Workbench", () => {
     const material = { material_id: "material-a", current_revision: { id: "material-a-r1", revision_no: 1, content: { name: "DP600" } } };
     const materialState = { material_state_id: "state-a", current_revision: { id: "state-a-r1", revision_no: 1, content: { name: "As received" } } };
     const view = render(<CommonProcessingWorkbench config={{ baseUrl: "/api/v1", accessToken: "token" }} initialSession={session as never} material={material as never} materialState={materialState as never} locationSearch="?stage=process&family=metal" onNavigate={() => undefined} onOpenConnection={() => undefined} />);
-    await screen.findByRole("button", { name: "Save processed curves" });
+    await screen.findByRole("button", { name: "Save Process result" });
     await waitFor(() => expect(contentGets).toBe(1));
-    await waitFor(() => expect(processRailIdentities()).toContain("Specimen 02 · r1"));
-    const previewPostsBeforeFailure = previewPosts;
-    fireEvent.click(processRailButton("Specimen 02 · r1"));
-    await waitFor(() => expect(screen.getByRole("button", { name: "Retry exact source" })).toBeTruthy());
-    expect(contentGets).toBe(2);
-    expect(screen.getByText("Exact source unavailable · r1")).toBeTruthy();
+    await waitFor(() => expect(processRailIdentities()).toContain("Tensile test 0002"));
+    // Let the valid restored source finish its normal initial preview before
+    // measuring the failed replacement. A late valid response is generation-
+    // guarded and cannot become the missing source's preview.
+    await waitFor(() => expect(previewPosts).toBe(1));
+    await chooseTestDataInData("Tensile test 0002");
+    await waitFor(() => expect(screen.getByRole("button", { name: "Retry selected Test Data" })).toBeTruthy());
+    const settledContentGets = contentGets;
+    const settledPreviewPosts = previewPosts;
+    expect(settledContentGets).toBeGreaterThanOrEqual(2);
+    expect(screen.getByText("Selected Test Data unavailable · Tensile test 0002")).toBeTruthy();
     expect((screen.getByRole("button", { name: "Preview changes" }) as HTMLButtonElement).disabled).toBe(true);
-    expect((screen.getByRole("button", { name: "Save processed curves" }) as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole("button", { name: "Save Process result" }) as HTMLButtonElement).disabled).toBe(true);
     const blockedProcessPanel = document.querySelector('[data-modeling-process-panel="ready"]');
     expect(blockedProcessPanel?.textContent ?? "").not.toMatch(/(?:210|120)\.0 GPa/);
     expect(screen.getByRole("img", { name: "Blocked engineering curve plot" })).toBeTruthy();
-    expect(previewPosts).toBe(previewPostsBeforeFailure);
     view.rerender(<CommonProcessingWorkbench config={{ baseUrl: "/api/v1", accessToken: "token" }} initialSession={session as never} material={material as never} materialState={materialState as never} locationSearch="?stage=process&family=metal" onNavigate={() => undefined} onOpenConnection={() => undefined} />);
     await new Promise((resolve) => setTimeout(resolve, 350));
-    expect(contentGets).toBe(2);
+    expect(contentGets).toBe(settledContentGets);
+    expect(previewPosts).toBe(settledPreviewPosts);
     failedRead = false;
-    fireEvent.click(screen.getByRole("button", { name: "Retry exact source" }));
-    await waitFor(() => expect(processRailIdentities()).toContain("Specimen 02 · r1"));
+    fireEvent.click(screen.getByRole("button", { name: "Retry selected Test Data" }));
+    await waitFor(() => expect(processRailIdentities()).toContain("Tensile test 0002"));
+    expect(contentGets).toBe(settledContentGets + 1);
     expect((screen.getByRole("button", { name: "Preview changes" }) as HTMLButtonElement).disabled).toBe(false);
     expect(outputPosts).toBe(0);
   });
@@ -2682,15 +2667,18 @@ describe("Common Processing Workbench", () => {
     const materialState = { material_state_id: "state-a", current_revision: { id: "state-a-r1", revision_no: 1, content: { name: "As received" } } };
     render(<CommonProcessingWorkbench config={{ baseUrl: "/api/v1", accessToken: "token" }} initialSession={session as never} material={material as never} materialState={materialState as never} locationSearch="?stage=process&family=metal" onNavigate={() => undefined} onOpenConnection={() => undefined} />);
     await waitFor(() => expect(contentRequests).toEqual([sourceId]));
-    await waitFor(() => expect(processRailIdentities()).toContain("Specimen 01 · r1"));
-    fireEvent.click(processRailButton("Specimen 02 · r1"));
-    await waitFor(() => expect(contentRequests).toEqual([sourceId, nextId]));
-    if (outcome === "success") await waitFor(() => expect(processRailIdentities()).toContain("Specimen 02 · r1"));
-    else await screen.findByRole("button", { name: "Retry exact source" });
-    fireEvent.click(processRailButton("Specimen 01 · r1"));
-    await waitFor(() => expect(contentRequests).toEqual([sourceId, nextId, sourceId]));
-    await waitFor(() => expect(processRailIdentities()).toContain("Specimen 01 · r1"));
-    expect(screen.queryByText("Exact source unavailable · r1")).toBeNull();
+    await waitFor(() => expect(processRailIdentities()).toContain("Tensile test 0001"));
+    const sourceRequestsBeforeSelection = contentRequests.filter((id) => id === sourceId).length;
+    await chooseTestDataInData("Tensile test 0002");
+    await waitFor(() => expect(contentRequests.at(-1)).toBe(nextId));
+    expect(contentRequests.filter((id) => id === nextId).length).toBeGreaterThanOrEqual(1);
+    if (outcome === "success") await waitFor(() => expect(processRailIdentities()).toContain("Tensile test 0002"));
+    else await screen.findByRole("button", { name: "Retry selected Test Data" });
+    await chooseTestDataInData("Tensile test 0001");
+    await waitFor(() => expect(contentRequests.at(-1)).toBe(sourceId));
+    expect(contentRequests.filter((id) => id === sourceId).length).toBeGreaterThan(sourceRequestsBeforeSelection);
+    await waitFor(() => expect(processRailIdentities()).toContain("Tensile test 0001"));
+    expect(screen.queryByText(/Selected Test Data unavailable/)).toBeNull();
   });
 
   it.each(["success", "failure"] as const)("keeps the newest exact request authoritative when A is pending and B %s", async (outcome) => {
@@ -2699,8 +2687,7 @@ describe("Common Processing Workbench", () => {
     const sourceRef = { id: sourceId, revisionId: revision.id, label: documentResource.document_key, revisionNo: 1 };
     const nextRef = { id: nextId, revisionId: replicateResource.current_revision.id, label: replicateResource.document_key, revisionNo: 1 };
     let contentGets = 0;
-    let resolveA: ((response: Response) => void) | undefined;
-    let rejectA: ((reason?: unknown) => void) | undefined;
+    const pendingA: Array<{ resolve: (response: Response) => void; reject: (reason?: unknown) => void }> = [];
     const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
       const url = String(input);
       if (url.endsWith("/test-data-documents")) return jsonResponse({ items: [documentResource, replicateResource] });
@@ -2712,7 +2699,7 @@ describe("Common Processing Workbench", () => {
         contentGets += 1;
         const requestedId = decodeURIComponent(url.split("/test-data-documents/")[1].split("/")[0]);
         if (requestedId === sourceId) {
-          return new Promise<Response>((resolve, reject) => { resolveA = resolve; rejectA = reject; });
+          return new Promise<Response>((resolve, reject) => { pendingA.push({ resolve, reject }); });
         }
         if (outcome === "failure") return jsonResponse({ detail: "B unavailable" }, 404);
         return {
@@ -2748,26 +2735,27 @@ describe("Common Processing Workbench", () => {
     const materialState = { material_state_id: "state-a", current_revision: { id: "state-a-r1", revision_no: 1, content: { name: "As received" } } };
     render(<CommonProcessingWorkbench config={{ baseUrl: "/api/v1", accessToken: "token" }} initialSession={session as never} material={material as never} materialState={materialState as never} locationSearch="?stage=process&family=metal" onNavigate={() => undefined} onOpenConnection={() => undefined} />);
     await waitFor(() => expect(contentGets).toBe(1));
-    fireEvent.click(processRailButton("Specimen 02 · r1"));
-    await waitFor(() => expect(contentGets).toBe(2));
-    if (outcome === "success") await waitFor(() => expect(processRailIdentities()).toContain("Specimen 02 · r1"));
-    else await waitFor(() => expect(screen.getByRole("button", { name: "Retry exact source" })).toBeTruthy());
-    resolveA?.({
-      ok: true,
-      status: 200,
-      headers: new Headers({ "content-type": "application/json" }),
-      blob: async () => new Blob([JSON.stringify(documentJson)], { type: "application/json" }),
-    } as Response);
+    await chooseTestDataInData("Tensile test 0002");
+    await waitFor(() => expect(contentGets).toBeGreaterThanOrEqual(2));
+    if (outcome === "success") await waitFor(() => expect(processRailIdentities()).toContain("Tensile test 0002"));
+    else await waitFor(() => expect(screen.getByRole("button", { name: "Retry selected Test Data" })).toBeTruthy());
+    const settledContentGets = contentGets;
+    for (const pending of pendingA) pending.resolve({
+        ok: true,
+        status: 200,
+        headers: new Headers({ "content-type": "application/json" }),
+        blob: async () => new Blob([JSON.stringify(documentJson)], { type: "application/json" }),
+      } as Response);
     await new Promise((resolve) => setTimeout(resolve, 250));
-    expect(contentGets).toBe(2);
+    expect(contentGets).toBe(settledContentGets);
     if (outcome === "success") {
-      expect(processRailIdentities()).toContain("Specimen 02 · r1");
-      expect(document.querySelector(".process-band-source")?.textContent).toBe("Specimen 02 · r1");
+      expect(processRailIdentities()).toContain("Tensile test 0002");
+      expect(document.querySelector(".process-band-source")?.textContent).toBe("Tensile test 0002");
     } else {
-      expect(screen.getByText("Exact source unavailable · r1")).toBeTruthy();
-      expect(screen.getByRole("button", { name: "Retry exact source" })).toBeTruthy();
+      expect(screen.getByText("Selected Test Data unavailable · Tensile test 0002")).toBeTruthy();
+      expect(screen.getByRole("button", { name: "Retry selected Test Data" })).toBeTruthy();
     }
-    rejectA?.(new Error("late A failure"));
+    expect(pendingA.length).toBeGreaterThanOrEqual(1);
   });
 
   it("coalesces StrictMode exact Fit restore, applies once, and settles the identity", async () => {
@@ -2792,9 +2780,8 @@ describe("Common Processing Workbench", () => {
       await waitFor(() => expect(fetchState.contentGets()).toBe(1));
       expect(fetchState.pendingContent).toHaveLength(1);
       fetchState.pendingContent[0].resolve(fitRestoreContentResponse("B"));
-      await screen.findByText("Saved immutable Fit Output restored with its exact Process source and decision.");
-      expect(screen.getAllByText("Saved immutable Fit Output restored with its exact Process source and decision.")).toHaveLength(1);
-      await screen.findByText("Saved current", { exact: true });
+      await waitFor(() => expect(document.querySelector(".fit-surface-state")?.textContent).toBe("Saved current"));
+      expect(screen.queryByText("Saved immutable Fit Output restored with its exact Process source and decision.")).toBeNull();
       await new Promise((resolve) => setTimeout(resolve, 400));
       expect(fetchState.contentGets()).toBe(1);
       expect(fetchState.fitRunPosts()).toBe(0);
@@ -2805,7 +2792,7 @@ describe("Common Processing Workbench", () => {
     }
   });
 
-  it("keeps a mounted Fit save notice through exact restore and restores the notice after remount", async () => {
+  it("keeps a mounted Fit saved state through restore and restores that state after remount", async () => {
     installFitRestoreParserMock();
     const fixtures = fitRestoreFixtures();
     const processRevision = fixtures.process.current_revision as Record<string, unknown>;
@@ -2882,17 +2869,16 @@ describe("Common Processing Workbench", () => {
       />
     );
     let view: ReturnType<typeof render> | undefined;
-    const restoredNotice = "Saved immutable Fit Output restored with its exact Process source and decision.";
     try {
       view = render(renderWorkbench(initialSession));
-      await waitFor(() => expect(screen.getByText("Preview ready.", { exact: false })).toBeTruthy(), { timeout: 5000 });
+      await waitFor(() => expect(document.querySelector(".fit-surface-state")?.textContent).toBe("Preview not saved"), { timeout: 5000 });
       expect(document.querySelector(".modeling-workspace-stage-fit")).toBeTruthy();
       fireEvent.click(screen.getByText("Candidate parameters"));
       await screen.findByText("Fit evidence");
       fireEvent.click(await screen.findByRole("button", { name: /Select swift candidate/i }));
       fireEvent.change(screen.getByLabelText("Candidate selection reason"), { target: { value: "Select Swift for the deterministic save/restore regression." } });
       fireEvent.click(screen.getByRole("button", { name: "Save fit & continue" }));
-      await screen.findByText(/New immutable Fit Output saved and current/i);
+      await waitFor(() => expect(document.querySelector(".fit-surface-state")?.textContent).toBe("Saved current"));
       expect(committed).toHaveLength(1);
 
       const saved = committed[0];
@@ -2909,13 +2895,13 @@ describe("Common Processing Workbench", () => {
       };
       view.rerender(renderWorkbench(savedSession));
       await waitFor(() => expect(contentGets).toBe(1));
-      await waitFor(() => expect(screen.getByText(/New immutable Fit Output saved and current/i)).toBeTruthy());
-      expect(screen.queryByText(restoredNotice)).toBeNull();
+      await waitFor(() => expect(document.querySelector(".fit-surface-state")?.textContent).toBe("Saved current"));
+      expect(screen.queryByText(/Saved immutable Fit Output restored/)).toBeNull();
       expect(document.querySelector(".persistent-modeling-plot h2")?.textContent ?? "").toContain("Hardening response");
 
       view.unmount();
       view = render(renderWorkbench(savedSession));
-      await screen.findByText(restoredNotice);
+      await waitFor(() => expect(document.querySelector(".fit-surface-state")?.textContent).toBe("Saved current"));
       expect(contentGets).toBe(2);
       expect(document.querySelector(".persistent-modeling-plot h2")?.textContent ?? "").toContain("Hardening response");
     } finally {
@@ -2979,14 +2965,14 @@ describe("Common Processing Workbench", () => {
       );
       await waitFor(() => expect(fetchState.contentGets()).toBe(1));
       fetchState.pendingContent[0].resolve(fitRestoreContentResponse("forced restore failure", 503));
-      const retry = await screen.findByRole("button", { name: "Retry exact saved Fit" });
+      const retry = await screen.findByRole("button", { name: "Retry saved Fit" });
       await new Promise((resolve) => setTimeout(resolve, 50));
       expect(fetchState.contentGets()).toBe(1);
       fireEvent.click(retry);
       await waitFor(() => expect(fetchState.contentGets()).toBe(2));
       expect(fetchState.pendingContent).toHaveLength(2);
       fetchState.pendingContent[1].resolve(fitRestoreContentResponse("B"));
-      await screen.findByText("Saved immutable Fit Output restored with its exact Process source and decision.");
+      await waitFor(() => expect(document.querySelector(".fit-surface-state")?.textContent).toBe("Saved current"));
       expect(fetchState.contentGets()).toBe(2);
     } finally {
       view?.unmount();
@@ -3017,7 +3003,7 @@ describe("Common Processing Workbench", () => {
       view.unmount();
       fetchState.pendingContent[0].resolve(fitRestoreContentResponse("B"));
       await new Promise((resolve) => setTimeout(resolve, 50));
-      expect(screen.queryByText("Saved immutable Fit Output restored with its exact Process source and decision.")).toBeNull();
+      expect(document.querySelector(".fit-surface-state")).toBeNull();
     } finally {
       view?.unmount();
       vi.doUnmock("./modeling-fit-output");
@@ -3191,7 +3177,7 @@ describe("Common Processing Workbench", () => {
       view = render(renderRestore(first.session, "/api/v1"));
       await waitFor(() => expect(fetchState.contentGets()).toBe(1));
       fetchState.pendingContent[0].resolve(fitRestoreContentResponse("B"));
-      await screen.findByText("Saved immutable Fit Output restored with its exact Process source and decision.");
+      await waitFor(() => expect(document.querySelector(".fit-surface-state")?.textContent).toBe("Saved current"));
       for (const [index, mutation] of mutations.entries()) {
         const next = fitRestoreFixtures();
         const nextBaseUrl = mutation.apply(next.fit, next.process, next.session);
