@@ -96,11 +96,12 @@ describe("metal Export recovery", () => {
     const evidence = container.querySelector<HTMLDetailsElement>("details.export-prerequisite-evidence");
     expect(evidence).toBeTruthy();
     expect(evidence?.open).toBe(false);
-    expect(screen.getByRole("heading", { name: "Prepare exact metal source" })).toBeTruthy();
-    expect(screen.getByRole("checkbox", { name: /acknowledge the selected bounded extrapolation/i })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Prepare exact model and Neutral" })).toBeTruthy();
-    fireEvent.click(screen.getByLabelText(/acknowledge the selected bounded extrapolation/i));
-    fireEvent.click(screen.getByRole("button", { name: "Prepare exact model and Neutral" }));
+    expect(screen.getByRole("heading", { name: "Prepare selected model" })).toBeTruthy();
+    expect(screen.getByRole("checkbox", { name: /reviewed the extrapolated range/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Prepare selected model" })).toBeTruthy();
+    fireEvent.click(screen.getByLabelText(/reviewed the extrapolated range/i));
+    fireEvent.change(screen.getByLabelText("Reason for preparing model"), { target: { value: "Create a solver card from this model." } });
+    fireEvent.click(screen.getByRole("button", { name: "Prepare selected model" }));
 
     await waitFor(() => expect(screen.getByLabelText("Current session pins").textContent).toBe("upstream-model-r1/neutral-r1"));
     expect(promoteProcessingOutputToTabulatedPlasticity).toHaveBeenCalledWith(expect.anything(), "output", expect.objectContaining({
@@ -134,11 +135,12 @@ describe("metal Export recovery", () => {
       } as never, etag: null });
 
     render(<RecoveryFlow />);
-    fireEvent.click(screen.getByLabelText(/acknowledge the selected bounded extrapolation/i));
-    fireEvent.click(screen.getByRole("button", { name: "Prepare exact model and Neutral" }));
+    fireEvent.click(screen.getByLabelText(/reviewed the extrapolated range/i));
+    fireEvent.change(screen.getByLabelText("Reason for preparing model"), { target: { value: "Create a solver card from this model." } });
+    fireEvent.click(screen.getByRole("button", { name: "Prepare selected model" }));
     await waitFor(() => expect(screen.getByRole("alert").textContent).toContain("Neutral unavailable"));
     expect(screen.getByLabelText("Current session pins").textContent).toBe("upstream-model-r1/none");
-    fireEvent.click(screen.getByRole("button", { name: "Retry Neutral promotion" }));
+    fireEvent.click(screen.getByRole("button", { name: "Retry preparation" }));
     await waitFor(() => expect(screen.getByLabelText("Current session pins").textContent).toBe("upstream-model-r1/neutral-r1"));
     expect(promoteProcessingOutputToTabulatedPlasticity).toHaveBeenCalledTimes(1);
     expect(promoteModelToNeutralMaterial).toHaveBeenCalledTimes(2);

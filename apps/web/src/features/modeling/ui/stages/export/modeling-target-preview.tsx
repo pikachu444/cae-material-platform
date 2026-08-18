@@ -243,15 +243,15 @@ function sourceStatus(
       && session.materialModelIr
       && session.neutralModel,
   );
-  if (!current || !refs) return "Select a model in Fit and save the exact Process Output before exporting.";
-  if (!fitSourceReady) return `Exact Fit evidence unavailable${fitRestoreError ? ` · ${fitRestoreError}` : " · Retry exact Fit source"}.`;
+  if (!current || !refs) return "Select a model in Fit and save the Process result before exporting.";
+  if (!fitSourceReady) return `Fit result unavailable${fitRestoreError ? ` · ${fitRestoreError}` : " · Return to Fit and retry"}.`;
   return null;
 }
 
 function MappingDetails({ items }: { items: MappingItem[] }) {
   const rows = projectMappingRows(items);
   return <section className="export-mapping mapping-sheet" aria-label="Mapping details">
-    <div className="export-context-heading"><h3>Mapping details</h3><span>{rows.length} quantities</span></div>
+    <div className="export-context-heading"><h3>Mapping details</h3></div>
     {rows.length ? <MaterialsScrollRegion
       id="modeling-export-mapping-viewport"
       className="mapping-scroll export-mapping-viewport"
@@ -385,12 +385,12 @@ function FitSource({
   const selectedPoints = coordinates?.selected ?? "";
   const sourceUnavailable = !fitSourceReady || !plot;
   return <section className="export-fit-source" aria-label="Fit source">
-    <div className="export-context-heading"><h3>Fit source</h3><span>Read-only</span></div>
-    {sourceUnavailable ? <div className="export-fit-source-blocked" role="status"><strong>Exact Fit evidence unavailable</strong><span>{fitRestoreError ?? "Retry exact Fit source before Export."}</span></div> : <>
+    <div className="export-context-heading"><h3>Fit curve</h3></div>
+    {sourceUnavailable ? <div className="export-fit-source-blocked" role="status"><strong>Fit result unavailable</strong><span>{fitRestoreError ?? "Return to Fit and retry before creating a solver card."}</span></div> : <>
       <div className="fit-source-plot" aria-label="True plastic strain and true stress response">
         <svg className="fit-source-graph" role="img" aria-label="True plastic strain and true stress response" viewBox="0 0 320 210" preserveAspectRatio="xMidYMid meet">
           <title>True stress versus true plastic strain</title>
-          <desc>Observed and selected persisted Fit samples; stress displayed in MPa.</desc>
+          <desc>Test Data and selected model curves; stress displayed in MPa.</desc>
           <rect className="fit-source-frame" x="40" y="20" width="272" height="154" />
           <g className="fit-source-grid" aria-hidden="true">
             {coordinates?.yTicks.map((tick) => <line key={`y-grid-${tick.value}`} x1="40" x2="312" y1={174 - ((tick.value - (coordinates.yTicks[0]?.value ?? 0)) / Math.max((coordinates.yTicks.at(-1)?.value ?? 1) - (coordinates.yTicks[0]?.value ?? 0), Number.EPSILON)) * 154} y2={174 - ((tick.value - (coordinates.yTicks[0]?.value ?? 0)) / Math.max((coordinates.yTicks.at(-1)?.value ?? 1) - (coordinates.yTicks[0]?.value ?? 0), Number.EPSILON)) * 154} />)}
@@ -412,7 +412,7 @@ function FitSource({
           {selectedPoints ? <polyline className="fit-source-selected" points={selectedPoints} /> : null}
           <g className="fit-source-svg-legend fit-source-legend" aria-label="Curve legend">
             <line className="fit-source-legend-line fit-source-legend-observed" x1="214" x2="230" y1="136" y2="136" />
-            <text x="234" y="139">Observed</text>
+            <text x="234" y="139">Test Data</text>
             <line className="fit-source-legend-line fit-source-legend-selected" x1="214" x2="230" y1="150" y2="150" />
             <text x="234" y="153">Selected hardening</text>
           </g>
@@ -443,7 +443,7 @@ function ExactEvidence({
   });
   const fitDecision = output?.fit_decision;
   const mappingProfile = output?.mapping_profile;
-  return <details className="export-advanced"><summary>Advanced · exact source</summary><dl>
+  return <details className="export-advanced"><summary>Technical details</summary><dl>
     {output ? <>
       <dt>Processing Output</dt><dd><code>{output.processing_output_id} · {output.current_revision.id}</code></dd>
       <dt>Output SHA-256</dt><dd><code>{output.output_sha256}</code></dd>
@@ -785,13 +785,13 @@ export function ModelingTargetPreview({
     : capabilityLoading
       ? "Loading declared exporter capabilities…"
       : !targets.length
-        ? "Other unit systems — unavailable (not declared by this exporter capability)."
+        ? "No other unit systems available."
         : sourceBlocked
           ? sourceBlocked
           : !selectedTarget
             ? "Select a destination declared by the exporter capability."
             : currentPreview && previewStale
-              ? "Preview is stale after the last request failed. Retry the same exact source or change the destination."
+              ? "The preview is out of date. Retry Export check or change the destination."
               : null;
 
   return <section className="modeling-target-preview export-workspace" aria-label="Modeling Export workspace">
@@ -799,29 +799,29 @@ export function ModelingTargetPreview({
       <aside className="export-properties" aria-label="Export setup">
         <div className="export-pane-heading"><h3>Export setup</h3></div>
         <div className="export-subsection-heading">Selected model</div>
-        <div className="export-property-row"><span>Model</span><strong>{fitSelection?.displayLabel ?? "Exact Fit selection unavailable"}</strong></div>
+        <div className="export-property-row"><span>Model</span><strong>{fitSelection?.displayLabel ?? "No model selected"}</strong></div>
         <button type="button" className="text-button" onClick={() => onNavigate?.("/modeling?stage=fit")}>Open in Fit</button>
         {session?.materialModelIr && session.neutralModel ? <button
           type="button"
           className="text-button"
           disabled={neutralDownloadBusy}
           onClick={() => void downloadSelectedNeutral()}
-        >{neutralDownloadBusy ? "Preparing selected Neutral…" : "Download exact selected Neutral"}</button> : null}
+        >{neutralDownloadBusy ? "Preparing selected model…" : "Download selected model"}</button> : null}
         <div className="export-subsection-heading">Destination</div>
         <label className="export-field"><span>Solver / format</span><select aria-label="Solver target" value={targetKeyValue} disabled={capabilityLoading || Boolean(capabilityError) || !targets.length} onChange={(event) => changeTarget(event.target.value)}><option value="">Select a destination</option>{targets.map((target) => <option key={targetKey(target)} value={targetKey(target)}>{formatTarget(target)}</option>)}</select></label>
-        <label className="export-field"><span>Output unit system</span><select aria-label="Output unit system" value={selectedTarget?.unit_system ?? ""} disabled={!selectedTarget}>{selectedTarget ? <option value={selectedTarget.unit_system}>{selectedTarget.unit_system.replaceAll("_", " · ")}</option> : <option value="">Select a solver first</option>}<option disabled value="__other_units_unavailable">Other unit systems — unavailable (not declared by this exporter capability).</option></select></label>
-        <div className="export-check" aria-label="Export check"><div className="export-pane-heading"><p className="workspace-caption">Export check</p><h3 className="visually-hidden">Exact target preview is gated</h3><strong className={`export-status export-status-${currentStatus.toLowerCase().replaceAll(" ", "-")}`}>{currentStatus}</strong></div>{statusMessage ? <p className="ux-notice" role="status">{statusMessage}</p> : null}{deliveryError ? <p className="ux-notice error" role="alert">Create failed. The current preview and exact input remain available.</p> : null}{requiresAcknowledgement && currentPreview && !delivery ? <p className="ux-notice" role="status">Acknowledgement required before delivery. Review the mapped approximation before creating a solver card.</p> : null}{!fitSourceReady ? <><button type="button" className="text-button" onClick={() => onNavigate?.("/modeling?stage=fit")}>Open in Fit</button>{onRetryFitSource ? <button type="button" className="text-button" onClick={onRetryFitSource}>Retry exact Fit source</button> : null}</> : null}{capabilityError ? <button type="button" className="text-button" onClick={() => { setCapability(null); setCapabilityError(null); setCapabilityReload((value) => value + 1); }}>Retry capability lookup</button> : null}{requiresAcknowledgement && currentPreview && !delivery ? <label className="delivery-acknowledgement"><input aria-label="Acknowledge mapped approximations" type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} />I reviewed the mapping notes before creating this card.</label> : null}<div className="export-action-row">{primaryAction ? <button className="ux-button primary" type="button" disabled={primaryActionDisabled || busy !== null} onClick={() => { if (primaryAction === "Open solver card") onNavigate?.(`/materials/${delivery?.source.material_id}/cards/${delivery?.solver_card_id}`); else if (primaryAction === "Create solver card" || primaryAction === "Retry create") void deliver(); else void generate(); }}>{busy === "preview" ? (primaryAction === "Retry Export check" ? "Retry Export check" : "Run Export check") : busy === "delivery" ? (primaryAction === "Retry create" ? "Retry create" : "Create solver card") : primaryAction}</button> : null}</div></div>
-        <details className="export-advanced export-advanced-input"><summary>Advanced · native card options</summary><label className="export-field"><span>Solver material ID</span><input aria-label="Solver material ID" value={solverMaterialId} inputMode="numeric" onChange={(event) => { setSolverMaterialId(event.target.value); invalidateDownstream(); }} /></label><label className="export-field"><span>Material name</span><input aria-label="Native material name" value={materialName} onChange={(event) => { setMaterialName(event.target.value); invalidateDownstream(); }} /></label></details>
+        <label className="export-field"><span>Output unit system</span><select aria-label="Output unit system" value={selectedTarget?.unit_system ?? ""} disabled={!selectedTarget}>{selectedTarget ? <option value={selectedTarget.unit_system}>{selectedTarget.unit_system.replaceAll("_", " · ")}</option> : <option value="">Select a solver first</option>}<option disabled value="__other_units_unavailable">No other unit systems available</option></select></label>
+        <div className="export-check" aria-label="Export check"><div className="export-pane-heading"><p className="workspace-caption">Export check</p><h3 className="visually-hidden">Solver card creation status</h3><strong className={`export-status export-status-${currentStatus.toLowerCase().replaceAll(" ", "-")}`}>{currentStatus}</strong></div>{statusMessage ? <p className="ux-notice" role="status">{statusMessage}</p> : null}{deliveryError ? <p className="ux-notice error" role="alert">Create failed. The current preview and selected model remain available.</p> : null}{requiresAcknowledgement && currentPreview && !delivery ? <p className="ux-notice" role="status">Review the mapped approximations before creating the solver card.</p> : null}{!fitSourceReady ? <><button type="button" className="text-button" onClick={() => onNavigate?.("/modeling?stage=fit")}>Open in Fit</button>{onRetryFitSource ? <button type="button" className="text-button" onClick={onRetryFitSource}>Retry Fit result</button> : null}</> : null}{capabilityError ? <button type="button" className="text-button" onClick={() => { setCapability(null); setCapabilityError(null); setCapabilityReload((value) => value + 1); }}>Retry destination lookup</button> : null}{requiresAcknowledgement && currentPreview && !delivery ? <label className="delivery-acknowledgement"><input aria-label="Acknowledge mapped approximations" type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} />I reviewed the approximations.</label> : null}<div className="export-action-row">{primaryAction ? <button className="ux-button primary" type="button" disabled={primaryActionDisabled || busy !== null} onClick={() => { if (primaryAction === "Open solver card") onNavigate?.(`/materials/${delivery?.source.material_id}/cards/${delivery?.solver_card_id}`); else if (primaryAction === "Create solver card" || primaryAction === "Retry create") void deliver(); else void generate(); }}>{busy === "preview" ? (primaryAction === "Retry Export check" ? "Retry Export check" : "Run Export check") : busy === "delivery" ? (primaryAction === "Retry create" ? "Retry create" : "Create solver card") : primaryAction}</button> : null}</div></div>
+        <details className="export-advanced export-advanced-input"><summary>Native card options</summary><label className="export-field"><span>Solver material ID</span><input aria-label="Solver material ID" value={solverMaterialId} inputMode="numeric" onChange={(event) => { setSolverMaterialId(event.target.value); invalidateDownstream(); }} /></label><label className="export-field"><span>Material name</span><input aria-label="Native material name" value={materialName} onChange={(event) => { setMaterialName(event.target.value); invalidateDownstream(); }} /></label></details>
         <ExactEvidence session={session} output={output} fitPreview={fitPreview} selection={fitSelection} preview={currentPreview} />
       </aside>
       <div className="export-divider" aria-hidden="true" />
       <main className="export-main" aria-label="Native preview workspace">
         <div className="export-pane-heading export-preview-heading">
           <div className="export-heading-copy">
-            <h3>Solver Card preview</h3>
-            <span>{selectedTarget ? `${selectedTarget.solver} ${selectedTarget.version} · ${selectedTarget.unit_system.replaceAll("_", " · ")} · synthetic reference` : "Reference target · synthetic reference"}</span>
+            <h3>Solver card preview</h3>
+            {selectedTarget ? <span>{selectedTarget.solver} {selectedTarget.version} · {selectedTarget.unit_system.replaceAll("_", " · ")}</span> : null}
           </div>
-          <span className="export-preview-state">{delivery ? "Delivered · solver card created" : currentPreview ? "Current preview · not created" : "Preview appears after Export check"}</span>
+          <span className="export-preview-state">{delivery ? "Solver card created" : currentPreview ? "Not created" : "Run Export check to preview"}</span>
         </div>
         <div id="modeling-process" className="export-native-preview-shell"><MaterialsScrollRegion
           id="modeling-export-native-preview-viewport"
@@ -830,7 +830,7 @@ export function ModelingTargetPreview({
           tabIndex={0}
           aria-label="Native preview"
         >
-          <pre>{currentPreview?.native_text ?? "Select a supported destination and run the Export check."}</pre>
+          <pre>{currentPreview?.native_text ?? "Select a destination and run Export check."}</pre>
         </MaterialsScrollRegion></div>
         {error ? <p className="ux-notice error" role="alert">{error}</p> : null}
         {delivery ? <p className="ux-notice success" role="status"><strong>Solver card created</strong> · {delivery.filename}</p> : null}

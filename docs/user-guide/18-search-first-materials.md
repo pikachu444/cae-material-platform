@@ -313,6 +313,14 @@ Task 1 Data의 targeted capture는 실제 Library에서 고른 exact revision을
 정상 흐름으로 확인하며, 1440×900에서는 새 session의 빈 Data와 실행 중 생성한 잘못된 CSV mapping
 상태를 별도 예외 화면으로 기록합니다. CSV는 저장소에 fixture로 남기지 않습니다.
 
+Issue #260의 첫 단위는 Data 화면의 판단 순서를 정리합니다. **Library**에서 검색과 시험 종류·조건으로
+대량의 Test Data를 좁히고, 한 행을 현재 입력으로 골라 그래프를 확인한 뒤 Process로 이동합니다.
+곡선 비교는 필요할 때만 열며 현재 입력과 분리됩니다. **Local file**과 잘못된 열 연결 복구도 같은
+화면에서 유지됩니다. 현재 시험에 실제로 연결된 Technical Data, Test Data, Simulation Data와 Solver
+Cards는 왼쪽 **Related data**에서 종류별로 확인합니다. revision, 내부 식별자와 원본 근거는 접힌
+**Technical details**에서 확인합니다. 선택, exact revision, 저장, reload와 이후 단계의 데이터 계약은
+바뀌지 않습니다.
+
 | Data evidence | 화면 |
 | --- | --- |
 | Wide 2560×1440 | ![Data 2560](images/current/modeling-data-2560x1440.png) |

@@ -73,7 +73,7 @@ function ModelingMetalExportRecovery({
   onSessionEvent?: (event: ModelingSessionEvent) => void;
 }) {
   const [acknowledged, setAcknowledged] = useState(false);
-  const [reason, setReason] = useState("Promote the selected exact fitted metal Processing Output for reference target preview");
+  const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [promotedModel, setPromotedModel] = useState<UpstreamModelRef | null>(null);
@@ -183,13 +183,12 @@ function ModelingMetalExportRecovery({
     }
   }
 
-  return <section className="modeling-export-recovery" aria-label="Prepare exact metal export source">
-    <h3>Prepare exact metal source</h3>
-    <p>Promote only the selected Processing Output and its current Material, State, and Property Set revisions. This retains the bounded-extrapolation acknowledgement as immutable model evidence.</p>
-    <label><input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} /> I acknowledge the selected bounded extrapolation for this reference model.</label>
-    <label>Promotion reason<input aria-label="Metal promotion reason" value={reason} onChange={(event) => setReason(event.target.value)} /></label>
-    {modelForNeutral ? <p className="ux-notice" role="status">Exact model revision is pinned. Retry Neutral promotion without creating another model.</p> : null}
-    <button className="button primary" type="button" disabled={!canPrepare} onClick={() => void prepare()}>{busy ? "Preparing exact source…" : modelForNeutral ? "Retry Neutral promotion" : "Prepare exact model and Neutral"}</button>
+  return <section className="modeling-export-recovery" aria-label="Prepare selected model for Export">
+    <h3>Prepare selected model</h3>
+    <label><input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} /> I reviewed the extrapolated range used by this model.</label>
+    <label>Reason for preparing model<input aria-label="Reason for preparing model" value={reason} onChange={(event) => setReason(event.target.value)} /></label>
+    {modelForNeutral ? <p className="ux-notice" role="status">The model is ready. Retry Export preparation.</p> : null}
+    <button className="ux-button primary" type="button" disabled={!canPrepare} onClick={() => void prepare()}>{busy ? "Preparing model…" : modelForNeutral ? "Retry preparation" : "Prepare selected model"}</button>
     {error ? <p className="ux-notice error" role="alert">{error}</p> : null}
   </section>;
 }
@@ -221,18 +220,14 @@ export function ModelingExportPrerequisites({
   return (
     <section className="modeling-export-blocked export-workspace" aria-label="Export prerequisites">
       <header className="export-workspace-header">
-        <div>
-          <p className="workspace-caption">Export</p>
-          <h2>Review &amp; deliver solver card</h2>
-          <span className="export-header-subtitle">Prepare the exact source before choosing a declared solver destination.</span>
-        </div>
+        <div><h2>Create solver card</h2></div>
         <span className="status-chip warning">Cannot create</span>
       </header>
       <div className="export-workspace-grid">
         <aside className="export-properties" aria-label="Export setup">
           <div className="export-pane-heading"><h3>Export setup</h3></div>
           <div className="export-subsection-heading">Selected model</div>
-          <div className="export-property-row"><span>Model</span><strong>{session?.materialModelIr?.label ?? "Not selected"}</strong>{session?.materialModelIr ? <small>Exact revision {session.materialModelIr.revisionNo}</small> : null}</div>
+          <div className="export-property-row"><span>Model</span><strong>{session?.materialModelIr?.label ?? "Not selected"}</strong></div>
           {config
             && session?.materialModelIr?.manifestSha256
             && session.materialModelIr.classification
@@ -254,12 +249,12 @@ export function ModelingExportPrerequisites({
           {onNavigate ? <button type="button" className="text-button" onClick={() => onNavigate("/modeling?stage=fit")}>Back to Fit</button> : null}
           <div className="export-check" aria-label="Export check">
             <div className="export-pane-heading"><p className="workspace-caption">Export check</p><h3 className="visually-hidden">Exact target preview is gated</h3><strong className="export-status export-status-cannot-create">Cannot create</strong></div>
-            <p className="ux-notice" role="status">{sourceReady ? "Prepare the exact metal source, then retry Neutral promotion." : "Resolve the listed source prerequisite before preparing the model."}</p>
+            <p className="ux-notice" role="status">{sourceReady ? "Review the extrapolated range and prepare the selected model." : "Return to Fit and save a model before Export."}</p>
           </div>
           {canPrepareMetal && config && session && output && propertySet
             ? <ModelingMetalExportRecovery config={config} session={session} output={output} propertySet={propertySet} onSessionEvent={onSessionEvent} />
             : session?.materialFamily !== "metal"
-              ? <p className="ux-notice" role="status">Exact model promotion is unavailable for this material family. No substitute model or Neutral revision is selected.</p>
+              ? <p className="ux-notice" role="status">This model type cannot be prepared for Export.</p>
               : null}
           <details className="export-advanced export-prerequisite-evidence">
             <summary>Advanced · prerequisite evidence</summary>
@@ -285,12 +280,12 @@ export function ModelingExportPrerequisites({
           </details>
         </aside>
         <main className="export-main" aria-label="Native preview workspace">
-          <div className="export-pane-heading"><p className="workspace-caption">Native preview</p><h3>Solver Card preview</h3><span>Unavailable · model required</span></div>
-          <div className="export-native-preview-shell"><div className="native-preview export-preview-blocked" tabIndex={0} aria-label="Native preview unavailable"><span>No preview</span><small>Prepare the exact source to generate a preview_only result.</small></div></div>
+          <div className="export-pane-heading"><h3>Solver card preview</h3><span>Model required</span></div>
+          <div className="export-native-preview-shell"><div className="native-preview export-preview-blocked" tabIndex={0} aria-label="Native preview unavailable"><span>No preview</span><small>Prepare a selected model first.</small></div></div>
         </main>
         <aside className="export-result" aria-label="Export result context">
-          <section className="mapping-sheet" aria-label="Mapping details"><div className="export-context-heading"><h3>Mapping details</h3><span>Unavailable</span></div><div className="mapping-scroll export-mapping-placeholder"><p><strong>No mapping available</strong><span>Selected model required</span></p><span className="mapping-status blocked">Blocked</span></div></section>
-          <section className="export-fit-source" aria-label="Fit source"><div className="export-context-heading"><h3>Fit source</h3><span>Read-only</span></div><p className="muted">{session?.materialModelIr?.label ?? "No selected model"}</p><div className="fit-source-plot export-fit-source-blocked" role="img" aria-label="Fit source unavailable"><span>Unavailable</span></div></section>
+          <section className="mapping-sheet" aria-label="Mapping details"><div className="export-context-heading"><h3>Mapping details</h3></div><div className="mapping-scroll export-mapping-placeholder"><p><strong>No mapping available</strong><span>Model required</span></p><span className="mapping-status blocked">Blocked</span></div></section>
+          <section className="export-fit-source" aria-label="Fit source"><div className="export-context-heading"><h3>Fit curve</h3></div><p className="muted">{session?.materialModelIr?.label ?? "No selected model"}</p><div className="fit-source-plot export-fit-source-blocked" role="img" aria-label="Fit source unavailable"><span>Unavailable</span></div></section>
         </aside>
       </div>
     </section>

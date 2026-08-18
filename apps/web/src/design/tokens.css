@@ -50,6 +50,8 @@
   --ux-control-min-block-size: 38px;
   --ux-interactive-min-block-size: 34px;
   --ux-input-min-block-size: 40px;
+  --ux-engineering-control-block-size: 32px;
+  --ux-engineering-control-font-size: 13px;
   --ux-work-row-min-block-size: 48px;
   --ux-navigator-row-block-size: 30px;
   --ux-pane-padding: 14px;
@@ -78,6 +80,7 @@
   --ux-splitter-inline-size: 6px;
   --ux-workbench-splitter-size: 9px;
   --ux-scrollbar-track-size: 14px;
+  --ux-engineering-scrollbar-track-size: 10px;
   --ux-scrollbar-thumb-min-size: 40px;
   --ux-plot-min-block-size: 400px;
   --ux-plot-allocated-min-block-size: min(var(--ux-plot-min-block-size), 42vh);
@@ -120,6 +123,8 @@ html[data-display-density="compact"] {
   --ux-control-min-block-size: 36px;
   --ux-interactive-min-block-size: 32px;
   --ux-input-min-block-size: 38px;
+  --ux-engineering-control-block-size: 30px;
+  --ux-engineering-control-font-size: 12px;
   --ux-work-row-min-block-size: 46px;
   --ux-navigator-row-block-size: 26px;
   --ux-pane-padding: 12px;
@@ -137,6 +142,7 @@ html[data-display-density="compact"] {
   --ux-splitter-inline-size: 5px;
   --ux-workbench-splitter-size: 8px;
   --ux-scrollbar-track-size: 13px;
+  --ux-engineering-scrollbar-track-size: 9px;
   --ux-scrollbar-thumb-min-size: 36px;
   --ux-plot-min-block-size: 360px;
   --ux-native-preview-min-block-size: 240px;
@@ -157,6 +163,8 @@ html[data-display-density="large"] {
   --ux-control-min-block-size: 40px;
   --ux-interactive-min-block-size: 38px;
   --ux-input-min-block-size: 44px;
+  --ux-engineering-control-block-size: 36px;
+  --ux-engineering-control-font-size: 14px;
   --ux-work-row-min-block-size: 52px;
   --ux-navigator-row-block-size: 34px;
   --ux-pane-padding: 16px;
@@ -174,6 +182,7 @@ html[data-display-density="large"] {
   --ux-splitter-inline-size: 7px;
   --ux-workbench-splitter-size: 10px;
   --ux-scrollbar-track-size: 15px;
+  --ux-engineering-scrollbar-track-size: 11px;
   --ux-scrollbar-thumb-min-size: 44px;
   --ux-plot-min-block-size: 440px;
   --ux-native-preview-min-block-size: 360px;

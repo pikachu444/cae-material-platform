@@ -1,0 +1,436 @@
+/* Issue #260 owns this bounded Modeling grammar. Existing shared shell and
+   density rules remain in the design layer; these selectors only normalize
+   Process, Fit and Export around their real engineering tasks. */
+
+/* The shared application workspace has no stage hook. :has() removes only its
+   legacy outer gutter while one of these full-viewport Modeling stages owns it. */
+.application-workspace:has(.processing-workbench-page.stage-process),
+.application-workspace:has(.processing-workbench-page.stage-fit),
+.application-workspace:has(.processing-workbench-page.stage-export) {
+  padding-inline: 0;
+}
+
+.processing-workbench-page:is(.stage-process, .stage-fit, .stage-export) :is(
+  .button,
+  .ux-button,
+  .modeling-advanced-menu > summary,
+  .modeling-ribbon-control,
+  .modeling-pane-divider > button,
+  .plot-view-switch > button,
+  .hardening-analysis-tabs button,
+  .modeling-plot-toolbar button,
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea
+) {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.processing-workbench-page:is(.stage-process, .stage-fit, .stage-export)
+  .modeling-advanced-menu > div {
+  border-radius: 0;
+}
+
+.processing-workbench-page:is(.stage-process, .stage-fit)
+  :is(.plot-view-switch, .hardening-analysis-tabs) {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.modeling-workspace-stage-process .modeling-workspace-rail,
+.modeling-workspace-stage-fit .modeling-workspace-rail {
+  box-sizing: border-box;
+  height: 100%;
+  max-height: none;
+  align-content: start;
+}
+
+.modeling-workspace-stage-process .modeling-pane-divider,
+.modeling-workspace-stage-fit .modeling-pane-divider {
+  flex-basis: 5px;
+  width: 5px;
+  border-left: 1px solid var(--ux-border-strong);
+  background: transparent;
+}
+
+.modeling-workspace-stage-process .modeling-pane-divider:hover,
+.modeling-workspace-stage-process .modeling-pane-divider:focus-visible,
+.modeling-workspace-stage-fit .modeling-pane-divider:hover,
+.modeling-workspace-stage-fit .modeling-pane-divider:focus-visible {
+  border-left-color: var(--ux-accent);
+  background: transparent;
+}
+
+.modeling-workspace-stage-process .modeling-pane-divider > button,
+.modeling-workspace-stage-fit .modeling-pane-divider > button {
+  left: -4px;
+  width: 13px;
+  border: 0;
+  background: transparent;
+}
+
+.processing-workbench-page:is(.stage-process, .stage-fit)
+  .modeling-workspace-toolbar {
+  min-height: var(--ux-navigator-row-block-size);
+  justify-content: flex-end;
+  padding: 0 var(--ux-pane-padding);
+  border-bottom: 1px solid var(--ux-border);
+  background: var(--ux-surface);
+}
+
+.processing-workbench-page:is(.stage-process, .stage-fit)
+  .modeling-workspace-toolbar .modeling-section-actions {
+  margin-left: auto;
+}
+
+/* Process keeps one current input. Optional curves are graph comparisons,
+   never additional Process inputs. */
+.process-input-browser {
+  display: grid;
+  align-content: start;
+  min-width: 0;
+}
+
+.process-rail-section-title {
+  min-height: var(--ux-navigator-row-block-size);
+  margin: 0;
+  padding: var(--ux-space-1) var(--ux-space-2) 0;
+  border-bottom: 1px solid var(--ux-border);
+  background: var(--ux-surface-subtle);
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+  font-weight: var(--ux-font-weight-label);
+}
+
+.process-input-browser > article {
+  display: grid;
+  grid-template-columns: 4px minmax(0, 1fr) max-content;
+  align-items: center;
+  min-width: 0;
+  min-height: var(--ux-navigator-row-block-size);
+  gap: var(--ux-space-1);
+  padding-left: var(--ux-space-2);
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.process-input-browser > article.active {
+  background: var(--ux-accent-soft);
+  box-shadow: inset 3px 0 0 var(--ux-accent);
+}
+
+.process-input-browser .curve-row-label {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 0;
+}
+
+.process-input-browser .curve-row-label strong {
+  overflow: hidden;
+  font-size: var(--ux-data-font-size);
+  font-weight: var(--ux-font-weight-label);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.process-input-role {
+  padding-right: var(--ux-space-2);
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+.process-rail-empty {
+  margin: 0;
+  padding: var(--ux-space-2);
+  border-bottom: 1px solid var(--ux-border);
+  color: var(--ux-danger);
+  font-size: var(--ux-metadata-font-size);
+}
+
+.modeling-workspace-stage-process .rail-statistics-action {
+  border-radius: 0;
+}
+
+.modeling-workspace-stage-process .rail-statistics-action > summary {
+  color: var(--ux-text);
+  font-weight: var(--ux-font-weight-label);
+}
+
+.processing-workbench-page.stage-process
+  .modeling-task-ribbon:has(.process-stage-options) {
+  display: flex;
+  justify-content: center;
+  background: var(--ux-surface);
+}
+
+.processing-workbench-page.stage-process .process-stage-options {
+  box-sizing: border-box;
+  width: min(100%, 1900px);
+  max-width: 1900px;
+  padding-inline: var(--ux-pane-padding);
+}
+
+.processing-workbench-page.stage-process .process-band-heading {
+  gap: var(--ux-space-3);
+}
+
+.processing-workbench-page.stage-process .process-band-source {
+  overflow: hidden;
+  color: var(--ux-text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.processing-workbench-page.stage-process .process-band-group > h3 {
+  color: var(--ux-text-muted);
+  font-weight: var(--ux-font-weight-heading);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.processing-workbench-page.stage-process .process-band-result strong,
+.processing-workbench-page.stage-process .process-comparison-table td:nth-child(4) {
+  color: var(--ux-text);
+}
+
+.processing-workbench-page.stage-process .process-saved-results > summary {
+  min-height: var(--ux-navigator-row-block-size);
+  color: var(--ux-text-muted);
+  font-weight: var(--ux-font-weight-label);
+}
+
+.processing-workbench-page.stage-process .process-comparison-region {
+  max-height: min(240px, 32vh);
+}
+
+/* The graph grows while comparison remains useful, then stops before axes and
+   curves become an ultra-wide strip. Extra room stays balanced around it. */
+.modeling-workspace-stage-process .modeling-main-surface > .persistent-modeling-plot,
+.modeling-workspace-stage-fit .modeling-main-surface > .persistent-modeling-plot {
+  box-sizing: border-box;
+  width: min(100%, 2400px);
+  max-width: 2400px;
+  height: min(100%, 1280px);
+  max-height: 1280px;
+  justify-self: center;
+  align-self: center;
+  border: 0;
+  background: var(--ux-surface);
+}
+
+.modeling-workspace-stage-process .persistent-modeling-plot .processing-curve,
+.modeling-workspace-stage-fit .persistent-modeling-plot .processing-curve {
+  border-radius: 0;
+  background: var(--ux-surface);
+}
+
+.modeling-workspace-stage-process .persistent-modeling-plot .curve-legend,
+.modeling-workspace-stage-fit .persistent-modeling-plot .curve-legend {
+  border: 0;
+  border-left: 1px solid var(--ux-border);
+  border-radius: 0;
+  background: var(--ux-surface);
+  box-shadow: none;
+}
+
+.modeling-workspace-stage-process .persistent-modeling-plot .curve-legend button,
+.modeling-workspace-stage-fit .persistent-modeling-plot .curve-legend button {
+  border-radius: 0;
+}
+
+/* Fit starts from one saved Process result. The rail names that source once
+   and then presents the ordered fit steps. */
+.fit-input-summary {
+  display: grid;
+  align-content: start;
+}
+
+.fit-input-row {
+  display: grid;
+  gap: var(--ux-space-1);
+  min-width: 0;
+  padding: var(--ux-space-2);
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.fit-input-row strong,
+.fit-input-row span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fit-input-row strong {
+  color: var(--ux-text);
+  font-size: var(--ux-data-font-size);
+  font-weight: var(--ux-font-weight-heading);
+}
+
+.fit-input-row span {
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+.fit-input-row.blocked span {
+  color: var(--ux-danger);
+}
+
+.processing-workbench-page.stage-fit
+  .modeling-task-ribbon:has(.fit-stage-options) {
+  display: flex;
+  justify-content: center;
+  background: var(--ux-surface-subtle);
+}
+
+.processing-workbench-page.stage-fit
+  .modeling-task-ribbon > .step-option-panel.fit-stage-options {
+  box-sizing: border-box;
+  width: min(100%, 2100px);
+  max-width: 2100px;
+}
+
+.processing-workbench-page.stage-fit .fit-stage-options > .section-heading {
+  background: var(--ux-surface);
+}
+
+.processing-workbench-page.stage-fit .fit-stage-options .fit-control-group {
+  background: var(--ux-surface-subtle);
+}
+
+.processing-workbench-page.stage-fit .fit-heading-actions {
+  margin-left: auto;
+}
+
+.processing-workbench-page.stage-fit .fit-evidence-trigger {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.processing-workbench-page.stage-fit .extrapolation-region rect {
+  fill: color-mix(in srgb, var(--ux-warning) 3%, transparent);
+}
+
+.processing-workbench-page.stage-fit .fit-selection-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+  border-top: 1px solid var(--ux-border);
+}
+
+.processing-workbench-page.stage-fit .fit-selection-summary > div {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: var(--ux-space-2);
+  padding: var(--ux-space-1) var(--ux-space-2);
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.processing-workbench-page.stage-fit .fit-selection-summary :is(dt, dd) {
+  margin: 0;
+  font-size: var(--ux-metadata-font-size);
+}
+
+.processing-workbench-page.stage-fit .fit-selection-summary dt {
+  color: var(--ux-text-muted);
+}
+
+.processing-workbench-page.stage-fit .fit-selection-summary dd {
+  color: var(--ux-text);
+}
+
+.processing-workbench-page .persistent-modeling-plot > .section-heading h2 {
+  display: block;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Export keeps setup and mapping readable while the native artifact remains
+   the dominant region. The native text surface is centered once extra width
+   stops improving code review. */
+.processing-workbench-page.stage-export > .modeling-target-preview {
+  background: var(--ux-surface);
+}
+
+.modeling-target-preview .export-divider {
+  width: 1px;
+  min-width: 1px;
+  background: var(--ux-border-strong);
+}
+
+.modeling-target-preview :is(.export-properties, .export-main, .export-result) {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.modeling-target-preview .export-properties {
+  background: var(--ux-surface);
+}
+
+.modeling-target-preview .export-main > .export-preview-heading {
+  box-sizing: border-box;
+  width: min(calc(100% - var(--ux-space-5)), 2000px);
+  margin-inline: auto;
+  padding-inline: 0;
+}
+
+.modeling-target-preview .export-native-preview-shell {
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+  margin-inline: var(--ux-space-3);
+}
+
+.modeling-target-preview .export-native-preview-shell
+  > .modeling-target-preview-native-scroll-shell {
+  width: min(100%, 2000px);
+  max-width: 2000px;
+}
+
+.modeling-target-preview .export-native-preview-shell
+  > .modeling-target-preview-native-scroll-shell
+  > .native-preview:not(.export-preview-blocked) {
+  border-radius: 0;
+  background: var(--ux-surface-subtle);
+  box-shadow: none;
+}
+
+.modeling-target-preview :is(.export-field input, .export-field select) {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.modeling-target-preview :is(.export-advanced, .export-advanced summary) {
+  border-radius: 0;
+}
+
+.modeling-target-preview .export-context-heading {
+  justify-content: flex-start;
+}
+
+.modeling-target-preview .export-check .ux-notice {
+  background: var(--ux-surface-subtle);
+}
+
+.modeling-target-preview .export-mapping-row {
+  background: var(--ux-surface);
+}
+
+@media (min-width: 1101px) {
+  .modeling-target-preview .export-workspace-grid {
+    grid-template-columns:
+      minmax(280px, var(--ux-navigator-default-inline-size))
+      1px
+      minmax(0, 1fr)
+      minmax(300px, 360px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .processing-workbench-page:is(.stage-process, .stage-fit, .stage-export) * {
+    scroll-behavior: auto;
+  }
+}

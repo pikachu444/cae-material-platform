@@ -1,4 +1,5 @@
 import type { ModelingSessionSummary, ModelingStage } from "./features/modeling";
+import "./features/modeling/ui/modeling-stage-normalization.css";
 
 const stages: Array<{ id: ModelingStage; label: string }> = [
   { id: "data", label: "Data" },
@@ -26,20 +27,20 @@ function stageStatus(session: ModelingSessionSummary | null, stage: ModelingStag
     && session?.stalePointers?.[key as keyof typeof session.stalePointers]
   ));
   if (stage === "data") return session?.testData
-    ? { status: "Complete", reason: `Exact Test Data r${session.testData.revisionNo} pinned` }
-    : { status: "Blocked", reason: "Choose and save an exact Test Data revision" };
+    ? { status: "Complete", reason: "Test Data selected" }
+    : { status: "Blocked", reason: "Choose Test Data" };
   if (stage === "process") return hasStale(["processingOutput"])
     ? { status: "Stale", reason: "Upstream context changed; recompute Process" }
     : session?.processingOutput
-      ? { status: "Complete", reason: `Current output r${session.processingOutput.revisionNo}` }
-      : { status: "Blocked", reason: "Save Test Data before processing" };
+      ? { status: "Complete", reason: "Process result saved" }
+      : { status: "Blocked", reason: "Select Test Data before processing" };
   if (stage === "fit") return hasStale(["fitCandidate", "selection"])
     ? { status: "Stale", reason: "Fit evidence is no longer current" }
     : !session?.processingOutput
       ? { status: "Blocked", reason: "Save current processed curves before fitting" }
     : session?.selection
-      ? { status: "Complete", reason: "Explicit candidate selection pinned" }
-      : { status: "Warning", reason: "Candidate decision is not yet pinned" };
+      ? { status: "Complete", reason: "Model selected" }
+      : { status: "Warning", reason: "Select a model" };
   if (stage === "validate") return hasStale(["validation"])
     ? { status: "Stale", reason: "Validation must be run again" }
     : session?.validation
@@ -49,12 +50,12 @@ function stageStatus(session: ModelingSessionSummary | null, stage: ModelingStag
     ? { status: "Stale", reason: "Source changed; a new review is required" }
     : { status: "Blocked", reason: "Review package and release policy are not configured for this session" };
   return session?.exportArtifact
-    ? { status: "Complete", reason: `Delivered artifact r${session.exportArtifact.revisionNo} pinned` }
+    ? { status: "Complete", reason: "Solver card created" }
     : hasStale(["exportArtifact"]) || invalidation?.dispositions.exportArtifact === "regenerate"
     ? { status: "Stale", reason: "Target representation must be regenerated" }
     : session?.processingOutput && session.material && session.materialState && session.testData && session.mappingProfile
-      ? { status: "Warning", reason: "Exact session source pinned; verify delivery lineage and target" }
-      : { status: "Blocked", reason: "Pin current Material, State, Test Data, Mapping Profile, and output; previous output is never reused" };
+      ? { status: "Warning", reason: "Choose a destination and review the solver card" }
+      : { status: "Blocked", reason: "Complete Data, Process, and Fit first" };
 }
 
 export function ModelingStageShell({

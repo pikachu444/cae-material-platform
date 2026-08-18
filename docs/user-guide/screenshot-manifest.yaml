@@ -1,10 +1,18 @@
-version: 112
-verified_at: 2026-08-17
-scope: issue-259-fe04f-modeling-export-target-ui-extraction
-source_commit: 61d9a0a7b1b429b463b4655db2d99c8750ff20bb+issue259-fe04f-worktree
+version: 114
+verified_at: 2026-08-19
+scope: issue-260-fe05-modeling-workflow-visual-normalization
+source_commit: 4f753deaeb4dae9dc48ea2c63fd313c6fe5e7b01+issue260-fe05-worktree
 capture_script: ../../scripts/capture_current_product.py
-capture_command: uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --output docs/user-guide/images/current --density standard --only-modeling-export
+capture_command: uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --output docs/user-guide/images/current --density standard with --only-modeling-data-session, --only-modeling-process-fit-viewports, --only-modeling-export, and --only-modeling-consistency
 notes:
+  - "Issue #260 FE-05 follows the product-owner-approved Data direction and carries the same restrained hierarchy, plain language, flat engineering grammar and wide-screen logic through Process, Fit and Export. Data follows search/filter/browser → one current input → graph → Continue to Process; Process and Fit each expose one exact calculation input; Export exposes one selected model and one clear create action. API, saved data, session v4, Data→Process→Fit→Export and Materials read-back contracts are unchanged."
+  - "Current product-owner feedback and the two owner-approved Data direction images control over conflicting stale reference pixels. The issue packet records five-view before/after originals and direct header, navigator, control, graph or native-preview crops for all four stages; final product-owner review of the production originals remains pending."
+  - "Related data is derived only from the selected Test Data workflow graph and groups available Technical Data, Test Data, Simulation Data and Solver Cards. CMP/demo source prefixes and empty invented categories remain off the normal surface."
+  - "The current capture contains twenty-nine issue-owned Modeling images at browser zoom 100% and DPR 1: eleven Data/session images, five Process viewports, five Fit viewports, five Export viewports and three Export supporting states. The issue packet contains forty before/after originals, 160 direct unscaled header, navigator, control, graph/native-preview crops, six supporting states and two owner-direction images. Automated 3840×2160 geometry does not claim physical 4K readability; #223 remains the final physical gate."
+  - "The wide-screen correction removes the internal void while keeping the graph at a useful comparison bound, the explorer and controls readable, and Technical details directly after the graph. Browser scope uses neutral emphasis; the current input remains the selected table row and is repeated in the graph heading."
+  - "Invalid local mapping shows the cause and required repair before the mapping controls, hides premature update/save actions, retains a local scroll boundary, and preserves the last valid graph. Empty Data exposes neither comparison nor a Process action."
+  - "The closed Saved outputs drawer no longer mounts every historical output or starts exact-link requests. Its body mounts only when opened on Export, preserving the existing append-only list and API meaning."
+  - "Canonical Compose preflight passed and only the web container was rebuilt/recreated. Existing PostgreSQL, object data and named volumes were preserved; no reset or reseed was performed."
   - "Issue #259 FE-04F refreshes and reassigns eight current Modeling Export images after moving the unchanged target preflight, native preview, acknowledgement and delivery UI with its tests into the Modeling/Export feature boundary. No DOM, CSS, product copy, API, public type, session, controller or saved-data contract changed."
   - "The official Export flow created fresh exact synthetic Processing/Fit records for all eight scenarios and fresh selected-model/Neutral revisions for the seven recovery-complete scenarios; source-blocked intentionally stopped before model/Neutral promotion. It exercised capability-backed Abaqus/OpenRadioss previews, source and acknowledgement blocking, then bound only the delivered scenario's fresh Neutral to the current exact Material record, delivered one new immutable solver card, read back its exact receipt and typed links, and opened the card in Materials. Preview-only scenarios do not create Catalog bindings, and no scenario reuses an old Output, Neutral or solver card."
   - "All five CSS viewports pass at browser zoom 100% and DPR 1 with zero page horizontal overflow. Main opened all eight originals and twelve direct 100%-pixel header/destination-controls/native-preview/mapping-result crops at original resolution. At 1920/2560/3840 the header, controls and Mapping/Fit result crops are byte-identical to the prior images; native-preview differences are confined to the generated model revision and mapping digest lines. The refreshed delivered image replaces its older 94387e4 baseline and matches the current three-pane Export geometry and unchanged delivery structure. Automated 3840x2160 geometry does not claim physical 4K readability; #223 remains the final physical gate."
@@ -18,7 +26,7 @@ notes:
   - "All five CSS viewports pass at browser zoom 100% and DPR 1 with zero page horizontal overflow. Main opened all ten originals and twelve direct 100%-pixel header/navigator/controls/graph crops at original resolution; the bounded rail and controls remain readable while the graph uses the available workspace. Automated 3840x2160 geometry does not claim physical 4K readability; #223 remains the final physical gate."
   - "Canonical current-source Compose was recreated without deleting the preserved volumes. Migrate, API, web and browser checks passed; the seed container completed its base demo seed before the existing Issue #246 domain-binding POST met an idempotency conflict. The unchanged seed command was not replayed, no data was reset, and Process preview, exact saved-output/current-pointer reload/read-back and exact-source recovery checks passed against the preserved state; the capture reused the three matching immutable outputs without a duplicate save POST."
   - "Issue #259 FE-04C refreshes eleven current Modeling Data/session images after moving the unchanged Data intake UI and its tests into the Modeling/Data feature boundary. No DOM, CSS, product copy, API, public type or saved Modeling session contract changed."
-  - "The preserved demo Library contains the unrelated ISSUE209-FLD revision in addition to the three DP780 tensile revisions. Capture finds CMP-DEMO-DP780-TEST-JSON, CMP-DEMO-DP780-TEST-JSON-02 and CMP-DEMO-DP780-TEST-JSON-03 by exact displayed key, independent of Library count or order, then proves three exact refs, two included and three visible across route reload."
+  - "The preserved demo Library contains the unrelated ISSUE209-FLD revision in addition to the three DP780 tensile revisions. Capture finds CMP-DEMO-DP780-TEST-JSON, CMP-DEMO-DP780-TEST-JSON-02 and CMP-DEMO-DP780-TEST-JSON-03 by exact displayed key, independent of Library count or order, then proves three exact linked refs, one focused Process input and three visible graph curves across route reload."
   - "All five CSS viewports pass at browser zoom 100% and DPR 1 with zero page horizontal overflow. Main opened all eleven originals and twelve direct 100%-pixel header/navigator/Data-controls/graph crops at original resolution; the bounded rail and ribbon remain readable while the graph uses the available workspace. Automated 3840x2160 geometry does not claim physical 4K readability; #223 remains the final physical gate."
   - "Canonical current-source Compose was recreated without deleting the preserved volumes. Migrate, API, web and browser checks passed; the seed container completed its base demo seed before the follow-on existing Issue #246 domain-binding POST met an idempotency conflict. The unchanged seed command was not replayed, no data was reset, and the exact Data selection/read-back assertions passed against the preserved state."
   - "Issue #253 adds one current 1440x900 demo-session recovery image. Five live CSS viewports at browser zoom 100% and DPR 1 verified the unchanged recovery surface, no page overflow, and a successful Try again transition that replaced the failed session with a newly issued local-demo token. Timer, expired-token reload, persona preservation and demo-disabled boundaries are covered by deterministic frontend tests."
@@ -90,6 +98,74 @@ notes:
   - "Issue #158 Task 3B Fit captures bind the Fit source to one saved Process Output id/revision/digest in Candidate parameters Evidence, show the server candidate response/residual/tangent and diagnostic evidence, preserve the last valid preview after an exact-source read or Fit failure, and show an explicit blocked recovery when the pinned Process Output is missing or stale; Fit save requests carry the exact source pin and never fall back to raw Test Data."
   - "Issue #158 Task 3B current Fit images are registered for route, content and completed qualitative visual acceptance evidence from main 7394070 plus the Fit UI correction worktree."
 allowed_duplicate_groups:
+  - rationale: "Issue #260 keeps the registered current Data 1366x768 original and its issue-owned candidate original byte-identical so product-guide and acceptance provenance remain independently addressable."
+    images: [docs/user-guide/images/current/modeling-data-1366x768.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-data-1366x768.png]
+  - rationale: "Issue #260 keeps the registered current Data 1440x900 original and its issue-owned candidate original byte-identical so product-guide and acceptance provenance remain independently addressable."
+    images: [docs/user-guide/images/current/modeling-data-1440x900.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-data-1440x900.png]
+  - rationale: "Issue #260 keeps the registered current Data 1920x1080 original and its issue-owned candidate original byte-identical so product-guide and acceptance provenance remain independently addressable."
+    images: [docs/user-guide/images/current/modeling-data-1920x1080.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-data-1920x1080.png]
+  - rationale: "Issue #260 keeps the registered current Data 2560x1440 original and its issue-owned candidate original byte-identical so product-guide and acceptance provenance remain independently addressable."
+    images: [docs/user-guide/images/current/modeling-data-2560x1440.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-data-2560x1440.png]
+  - rationale: "Issue #260 keeps the registered current Data 3840x2160 original and its issue-owned candidate original byte-identical so product-guide and acceptance provenance remain independently addressable."
+    images: [docs/user-guide/images/current/modeling-data-3840x2160.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-data-3840x2160.png]
+  - rationale: "Issue #260 keeps the registered current Process 1366x768 original and its issue-owned candidate original byte-identical."
+    images: [docs/user-guide/images/current/modeling-process-1366x768.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-process-1366x768.png]
+  - rationale: "Issue #260 keeps the registered current Process 1440x900 original and its issue-owned candidate original byte-identical."
+    images: [docs/user-guide/images/current/modeling-process-1440x900.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-process-1440x900.png]
+  - rationale: "Issue #260 keeps the registered current Process 1920x1080 original and its issue-owned candidate original byte-identical."
+    images: [docs/user-guide/images/current/modeling-process-1920x1080.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-process-1920x1080.png]
+  - rationale: "Issue #260 keeps the registered current Process 2560x1440 original and its issue-owned candidate original byte-identical."
+    images: [docs/user-guide/images/current/modeling-process-2560x1440.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-process-2560x1440.png]
+  - rationale: "Issue #260 keeps the registered current Process 3840x2160 original and its issue-owned candidate original byte-identical."
+    images: [docs/user-guide/images/current/modeling-process-3840x2160.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-process-3840x2160.png]
+  - rationale: "Issue #260 keeps the registered current Fit 1366x768 original and its issue-owned candidate original byte-identical."
+    images: [docs/user-guide/images/current/modeling-fit-1366x768.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-fit-1366x768.png]
+  - rationale: "Issue #260 keeps the registered current Fit 1440x900 original and its issue-owned candidate original byte-identical."
+    images: [docs/user-guide/images/current/modeling-fit-1440x900.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-fit-1440x900.png]
+  - rationale: "Issue #260 keeps the registered current Fit 1920x1080 original and its issue-owned candidate original byte-identical."
+    images: [docs/user-guide/images/current/modeling-fit-1920x1080.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-fit-1920x1080.png]
+  - rationale: "Issue #260 keeps the registered current Fit 2560x1440 original and its issue-owned candidate original byte-identical."
+    images: [docs/user-guide/images/current/modeling-fit-2560x1440.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-fit-2560x1440.png]
+  - rationale: "Issue #260 keeps the registered current Fit 3840x2160 original and its issue-owned candidate original byte-identical."
+    images: [docs/user-guide/images/current/modeling-fit-3840x2160.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-fit-3840x2160.png]
+  - rationale: "Issue #260 keeps the registered current Export 1366x768 original and its issue-owned candidate original byte-identical."
+    images: [docs/user-guide/images/current/modeling-export-1366x768.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-export-1366x768.png]
+  - rationale: "Issue #260 keeps the registered current Export 1440x900 original and its issue-owned candidate original byte-identical."
+    images: [docs/user-guide/images/current/modeling-export-1440x900.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-export-1440x900.png]
+  - rationale: "Issue #260 keeps the registered current Export 1920x1080 original and its issue-owned candidate original byte-identical."
+    images: [docs/user-guide/images/current/modeling-export-1920x1080.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-export-1920x1080.png]
+  - rationale: "Issue #260 keeps the registered current Export 2560x1440 original and its issue-owned candidate original byte-identical."
+    images: [docs/user-guide/images/current/modeling-export-2560x1440.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-export-2560x1440.png]
+  - rationale: "Issue #260 keeps the registered current Export 3840x2160 original and its issue-owned candidate original byte-identical."
+    images: [docs/user-guide/images/current/modeling-export-3840x2160.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-export-3840x2160.png]
+  - rationale: "Issue #260 keeps the current empty Library decision state and its issue-owned candidate original byte-identical so product-guide and acceptance provenance remain independently addressable."
+    images: [docs/17-evidence/images/issue-260-fe05-modeling-data/after/states/modeling-data-empty-1440x900.png, docs/user-guide/images/current/modeling-data-empty-1440x900.png]
+  - rationale: "Issue #260 keeps the registered current invalid-mapping state and its issue-owned candidate original byte-identical so product-guide and acceptance provenance remain independently addressable."
+    images: [docs/user-guide/images/current/modeling-data-invalid-1440x900.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/states/modeling-data-invalid-1440x900.png]
+  - rationale: "Issue #260 keeps the registered current locally scrolled recovery state and its issue-owned candidate original byte-identical so product-guide and acceptance provenance remain independently addressable."
+    images: [docs/user-guide/images/current/modeling-data-invalid-scrolled-1440x900.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/states/modeling-data-invalid-scrolled-1440x900.png]
+  - rationale: "Issue #260 keeps the registered current Export source-blocked state and its issue-owned supporting state byte-identical."
+    images: [docs/user-guide/images/current/modeling-export-source-blocked-1440x900.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/states/modeling-export-source-blocked-1440x900.png]
+  - rationale: "Issue #260 keeps the registered current Export approximation-blocked state and its issue-owned supporting state byte-identical."
+    images: [docs/user-guide/images/current/modeling-export-approximation-blocked-1440x900.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/states/modeling-export-approximation-blocked-1440x900.png]
+  - rationale: "Issue #260 keeps the registered current Export delivered state and its issue-owned supporting state byte-identical."
+    images: [docs/user-guide/images/current/modeling-export-delivered-1440x900.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/states/modeling-export-delivered-1440x900.png]
+  - rationale: "The issue #260 Fit baseline is the unchanged origin/main image already preserved as the issue #212 delivered Fit image."
+    images: [docs/17-evidence/images/issue-212-explicit-toe-compensation/after/originals/modeling-fit-1366x768.png, docs/17-evidence/images/issue-260-fe05-modeling-data/before/originals/modeling-fit-1366x768.png]
+  - rationale: "The issue #260 Fit baseline is the unchanged origin/main image already preserved as the issue #212 delivered Fit image."
+    images: [docs/17-evidence/images/issue-212-explicit-toe-compensation/after/originals/modeling-fit-1440x900.png, docs/17-evidence/images/issue-260-fe05-modeling-data/before/originals/modeling-fit-1440x900.png]
+  - rationale: "The issue #260 Fit baseline is the unchanged origin/main image already preserved as the issue #212 delivered Fit image."
+    images: [docs/17-evidence/images/issue-212-explicit-toe-compensation/after/originals/modeling-fit-1920x1080.png, docs/17-evidence/images/issue-260-fe05-modeling-data/before/originals/modeling-fit-1920x1080.png]
+  - rationale: "The issue #260 Fit baseline is the unchanged origin/main image already preserved as the issue #212 delivered Fit image."
+    images: [docs/17-evidence/images/issue-212-explicit-toe-compensation/after/originals/modeling-fit-2560x1440.png, docs/17-evidence/images/issue-260-fe05-modeling-data/before/originals/modeling-fit-2560x1440.png]
+  - rationale: "The issue #260 Fit baseline is the unchanged origin/main image already preserved as the issue #212 delivered Fit image."
+    images: [docs/17-evidence/images/issue-212-explicit-toe-compensation/after/originals/modeling-fit-3840x2160.png, docs/17-evidence/images/issue-260-fe05-modeling-data/before/originals/modeling-fit-3840x2160.png]
+  - rationale: "The issue #260 Export control pane intentionally retains its readable bound at the 1440 and 1920 after viewports."
+    images: [docs/17-evidence/images/issue-260-fe05-modeling-data/after/crops/modeling-export-1440x900-controls-100pct.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/crops/modeling-export-1920x1080-controls-100pct.png]
+  - rationale: "The issue #260 Export control pane intentionally retains its readable bound at the 2560 and 3840 after viewports."
+    images: [docs/17-evidence/images/issue-260-fe05-modeling-data/after/crops/modeling-export-2560x1440-controls-100pct.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/crops/modeling-export-3840x2160-controls-100pct.png]
+  - rationale: "The origin/main Export control pane used the same fixed-width content at its wider baseline viewports."
+    images: [docs/17-evidence/images/issue-260-fe05-modeling-data/before/crops/modeling-export-1920x1080-controls-100pct.png, docs/17-evidence/images/issue-260-fe05-modeling-data/before/crops/modeling-export-2560x1440-controls-100pct.png, docs/17-evidence/images/issue-260-fe05-modeling-data/before/crops/modeling-export-3840x2160-controls-100pct.png]
   - rationale: "Issue #209 preserves the accepted Issue #206 Modeling Data 1366x768 original as its exact before baseline."
     images:
       - docs/17-evidence/images/issue-206-curve-channel-metadata-and-deviation/after/originals/modeling-data-1366x768.png
@@ -272,6 +348,12 @@ visual_evidence:
   current_source: 971ea100b6d7032eb1308b01b455c95cb9773408+issue246-live-data-correction-v4
   evidence_artifacts_are_not_current_captures: true
   current_capture_count: 119
+  issue_260_current_count: 29
+  issue_260_before_original_count: 20
+  issue_260_after_original_count: 20
+  issue_260_direct_crop_count: 160
+  issue_260_state_image_count: 6
+  issue_260_owner_reference_count: 2
   issue_253_current_count: 1
   issue_246_current_count: 3
   issue_246_rejected_before_original_count: 20
@@ -311,25 +393,21 @@ visual_evidence:
   root_original_and_crop_review: pass
   physical_4k_readability: DEFERRED_TO_223
   fixture_dependent_capture_status: canonical_compose_pass
-  independent_read_only_review: pass_issue_246_task1_same_auditor_blocker_0_major_0_material_minor_0
-  product_owner_review: pass_issue_246_task1_presented_originals_2026_08_14
+  independent_read_only_review: pass_issue260_exact_candidate_blocker0_major0_material_minor0_after_late_visual_correction
+  product_owner_review: pending_issue_260_fe05_original_geometry
 capture_provenance:
-  - source_commit: 61d9a0a7b1b429b463b4655db2d99c8750ff20bb+issue259-fe04f-worktree
-    captured_at: '2026-08-17T00:58:13+09:00 through 2026-08-17T01:04:38+09:00'
-    command: 'Canonical current-source Compose with preserved database, object data and volumes and only web rebuilt/recreated; uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --output docs/user-guide/images/current --density standard --only-modeling-export at browser zoom 100% and DPR 1. The flow created fresh exact synthetic Process/Fit records for all eight scenarios and fresh model/Neutral records for the seven recovery-complete scenarios, captured five normal viewports plus source-blocked and acknowledgement-blocked states, then resolved the exact Material record before binding the delivered scenario''s fresh Neutral, delivered one new solver card, read back its exact receipt/resources and opened that card in Materials.'
-    ids: [modeling-export-1366, modeling-export-1440, modeling-export-1920, modeling-export-2560, modeling-export-3840, modeling-export-source-blocked, modeling-export-approximation-blocked, modeling-export-delivered]
+  - source_commit: 4f753deaeb4dae9dc48ea2c63fd313c6fe5e7b01+issue260-fe05-worktree
+    captured_at: '2026-08-19T02:50:30+09:00 through 2026-08-19T07:00:20+09:00'
+    command: 'Canonical current-source Compose with the existing database, object data and named volumes preserved and only web rebuilt/recreated; uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --output docs/user-guide/images/current --density standard with --only-modeling-data-session, --only-modeling-process-fit-viewports, --only-modeling-export and --only-modeling-consistency at browser zoom 100% and DPR 1. The final Data/session rerun additionally proves the optional comparison action uses the Modeling action color and Browser/Related data peer headers align while each list retains local scrolling. The exact consistency evidence proves one focused Data curve in the normal state, deliberate optional graph comparison that returns to one curve when closed, one saved Process input to Fit, exact Fit-to-Export preparation, stage round trips and no first-item/latest fallback.'
+    ids: [modeling-data-1366, modeling-data-1440, modeling-data-1920, modeling-data-2560, modeling-data-3840, modeling-session-1366, modeling-session-1440, modeling-session-1920, modeling-data-empty-1440, modeling-data-invalid-1440, modeling-data-invalid-scrolled-1440, MOD-PROCESS-CURRENT-1366, MOD-PROCESS-CURRENT-1440, MOD-PROCESS-CURRENT-1920, MOD-PROCESS-CURRENT-2560, MOD-PROCESS-CURRENT-3840, modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-fit-2560, modeling-fit-3840, modeling-export-1366, modeling-export-1440, modeling-export-1920, modeling-export-2560, modeling-export-3840, modeling-export-source-blocked, modeling-export-approximation-blocked, modeling-export-delivered]
   - source_commit: 9c5cbfdc50222197c60b1812027fd28b426457f2+issue259-fe04e-worktree
     captured_at: '2026-08-16T18:31:43+09:00 through 2026-08-16T18:42:10+09:00'
     command: 'Canonical current-source Compose with preserved database and volumes and only web rebuilt/recreated; uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --output <temporary staging directory> --density standard --only-modeling-process-fit at browser zoom 100% and DPR 1. The flow completed seventeen Process/Fit captures, exercised normal selection/save/reload exact read-back plus candidate details, calculation failure, save failure, exact-source blocking, exact-read retry and restored state, and promoted only the twelve Fit originals after original-resolution and direct 100%-pixel crop review.'
-    ids: [modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-fit-2560, modeling-fit-3840, modeling-fit-candidate-parameters-long-1440, modeling-fit-candidate-evidence-scrolled-1440, modeling-fit-calculation-failed-1920, modeling-fit-save-failed-1920, modeling-fit-exact-source-blocked-1920, modeling-fit-exact-read-failed-1920, modeling-fit-restored-1920]
+    ids: [modeling-fit-candidate-parameters-long-1440, modeling-fit-candidate-evidence-scrolled-1440, modeling-fit-calculation-failed-1920, modeling-fit-save-failed-1920, modeling-fit-exact-source-blocked-1920, modeling-fit-exact-read-failed-1920, modeling-fit-restored-1920]
   - source_commit: c1e64be9c05c5a2039ae99aa5867a5f8b11f6621+issue259-fe04d-worktree
     captured_at: '2026-08-16T13:48:42+09:00 through 2026-08-16T13:53:29+09:00'
     command: 'Canonical current-source Compose with preserved volumes; uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --output docs/user-guide/images/current --density standard --only-modeling-process at browser zoom 100% and DPR 1. The flow verifies the three exact DP780 refs with two included, previews the selected Process steps, reuses and reads back three matching immutable outputs without a duplicate save POST, preserves the exact current pointer through stage round-trip, exercises Linear regression, Manual slope, missing-source and exact-read-failure states, and captures five normal viewports plus five bounded state images.'
-    ids: [MOD-PROCESS-CURRENT-1366, MOD-PROCESS-CURRENT-1440, MOD-PROCESS-CURRENT-1920, MOD-PROCESS-CURRENT-2560, MOD-PROCESS-CURRENT-3840, MOD-PROCESS-CURRENT-LINEAR-1366, MOD-PROCESS-CURRENT-MANUAL-1366, MOD-PROCESS-CURRENT-BLOCKED-1440, MOD-PROCESS-CURRENT-EXACT-READ-FAILED-1440, MOD-PROCESS-CURRENT-SIBLINGS-1440]
-  - source_commit: 87ddfa2b2459acd3c1727b40df1893e36670aa06+issue259-fe04c-worktree
-    captured_at: '2026-08-16T08:11:57+09:00'
-    command: 'Canonical current-source Compose with preserved volumes; uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --output docs/user-guide/images/current --only-modeling-data-session at Standard density, browser zoom 100% and DPR 1. The flow locates the three approved DP780 document keys directly despite an additional Library row, verifies 3 exact refs, 2 included and 3 visible across reload, and captures five normal viewports plus the pin-free, invalid-mapping and local-scroll states.'
-    ids: [modeling-data-1366, modeling-data-1440, modeling-data-1920, modeling-data-2560, modeling-data-3840, modeling-session-1366, modeling-session-1440, modeling-session-1920, modeling-data-empty-1440, modeling-data-invalid-1440, modeling-data-invalid-scrolled-1440]
+    ids: [MOD-PROCESS-CURRENT-LINEAR-1366, MOD-PROCESS-CURRENT-MANUAL-1366, MOD-PROCESS-CURRENT-BLOCKED-1440, MOD-PROCESS-CURRENT-EXACT-READ-FAILED-1440, MOD-PROCESS-CURRENT-SIBLINGS-1440]
   - source_commit: ef364087147e51e22cc02534645ba23b628c23d7+issue253-demo-token-refresh-worktree
     captured_at: '2026-08-14T16:04:00+09:00'
     command: 'Isolated current-worktree Vite on 127.0.0.1:15173 with the existing local demo API proxy; native Python Playwright 1.62 captured the recovery boundary at 1366x768, 1440x900, 1920x1080, 2560x1440 and 3840x2160 at zoom 100% and DPR 1, then exercised Try again and verified a newly stored demo token. The unchanged Materials data surface was not claimed as issue-owned visual evidence.'
@@ -622,11 +700,13 @@ captures:
     height: 1080
   - id: modeling-data-1366
     route: /modeling?stage=data&family=metal
-    workflow: integrated-library-local-json-and-graph-preview-with-exact-multi-curve-selection
-    fixture: server-scoped Library with an additional governed revision; only CMP-DEMO-DP780-TEST-JSON, CMP-DEMO-DP780-TEST-JSON-02 and CMP-DEMO-DP780-TEST-JSON-03 are selected by exact displayed key; 3 exact refs, 2 included and 3 visible persist after route reload
+    workflow: library-search-filter-current-input-optional-comparison-and-local-file
+    fixture: canonical DP780 Library with four compatible rows; the exact recorded selection is restored without exposing source-system keys or revision suffixes, and comparison remains closed by default
     image: images/current/modeling-data-1366x768.png
     width: 1366
     height: 768
+    owner_direction_images: [docs/17-evidence/images/issue-260-fe05-modeling-data/owner-reference/modeling-data-approved-direction-1440x900.png, docs/17-evidence/images/issue-260-fe05-modeling-data/owner-reference/modeling-data-approved-direction-1920x1080.png]
+    comparison_evidence: docs/17-evidence/issue-260-modeling-data-visual-normalization.md
   - id: modeling-session-1366
     route: /modeling?stage=data&family=metal
     workflow: UXC-04C Data-first session shell with compact four-stage normal work path and collapsed optional navigator
@@ -650,32 +730,40 @@ captures:
     height: 1080
   - id: modeling-data-1440
     route: /modeling?stage=data&family=metal
-    workflow: integrated-library-local-json-and-graph-preview-with-exact-multi-curve-selection
-    fixture: server-scoped Library with an additional governed revision; only CMP-DEMO-DP780-TEST-JSON, CMP-DEMO-DP780-TEST-JSON-02 and CMP-DEMO-DP780-TEST-JSON-03 are selected by exact displayed key; 3 exact refs, 2 included and 3 visible persist after route reload
+    workflow: library-search-filter-current-input-optional-comparison-and-local-file
+    fixture: canonical DP780 Library with four compatible rows; the exact recorded selection is restored without exposing source-system keys or revision suffixes, and comparison remains closed by default
     image: images/current/modeling-data-1440x900.png
     width: 1440
     height: 900
+    owner_direction_images: [docs/17-evidence/images/issue-260-fe05-modeling-data/owner-reference/modeling-data-approved-direction-1440x900.png, docs/17-evidence/images/issue-260-fe05-modeling-data/owner-reference/modeling-data-approved-direction-1920x1080.png]
+    comparison_evidence: docs/17-evidence/issue-260-modeling-data-visual-normalization.md
   - id: modeling-data-1920
     route: /modeling?stage=data&family=metal
-    workflow: integrated-library-local-json-and-graph-preview-with-exact-multi-curve-selection
-    fixture: server-scoped Library with an additional governed revision; only CMP-DEMO-DP780-TEST-JSON, CMP-DEMO-DP780-TEST-JSON-02 and CMP-DEMO-DP780-TEST-JSON-03 are selected by exact displayed key; 3 exact refs, 2 included and 3 visible persist after route reload
+    workflow: library-search-filter-current-input-optional-comparison-and-local-file
+    fixture: canonical DP780 Library with four compatible rows; the exact recorded selection is restored without exposing source-system keys or revision suffixes, and comparison remains closed by default
     image: images/current/modeling-data-1920x1080.png
     width: 1920
     height: 1080
+    owner_direction_images: [docs/17-evidence/images/issue-260-fe05-modeling-data/owner-reference/modeling-data-approved-direction-1440x900.png, docs/17-evidence/images/issue-260-fe05-modeling-data/owner-reference/modeling-data-approved-direction-1920x1080.png]
+    comparison_evidence: docs/17-evidence/issue-260-modeling-data-visual-normalization.md
   - id: modeling-data-2560
     route: /modeling?stage=data&family=metal
-    workflow: exact-library-multi-curve-selection-show-toggle-and-reload-persistence
-    fixture: server-scoped Library with an additional governed revision; only CMP-DEMO-DP780-TEST-JSON, CMP-DEMO-DP780-TEST-JSON-02 and CMP-DEMO-DP780-TEST-JSON-03 are selected by exact displayed key; 3 exact refs, 2 included and 3 visible persist after route reload; bounded curve rail and elastic graph workspace
+    workflow: wide-library-search-filter-current-input-and-bounded-graph
+    fixture: canonical DP780 Library with four compatible rows; readable explorer and controls remain full-shell while only the graph receives the useful wide comparison allocation
     image: images/current/modeling-data-2560x1440.png
     width: 2560
     height: 1440
+    owner_direction_images: [docs/17-evidence/images/issue-260-fe05-modeling-data/owner-reference/modeling-data-approved-direction-1440x900.png, docs/17-evidence/images/issue-260-fe05-modeling-data/owner-reference/modeling-data-approved-direction-1920x1080.png]
+    comparison_evidence: docs/17-evidence/issue-260-modeling-data-visual-normalization.md
   - id: modeling-data-3840
     route: /modeling?stage=data&family=metal
-    workflow: exact-library-multi-curve-selection-show-toggle-and-reload-persistence
-    fixture: server-scoped Library with an additional governed revision; only CMP-DEMO-DP780-TEST-JSON, CMP-DEMO-DP780-TEST-JSON-02 and CMP-DEMO-DP780-TEST-JSON-03 are selected by exact displayed key; 3 exact refs, 2 included and 3 visible persist after route reload; bounded curve rail and elastic graph workspace
+    workflow: wide-library-search-filter-current-input-and-bounded-graph
+    fixture: canonical DP780 Library with four compatible rows; readable explorer and controls remain full-shell while only the graph receives the useful wide comparison allocation
     image: images/current/modeling-data-3840x2160.png
     width: 3840
     height: 2160
+    owner_direction_images: [docs/17-evidence/images/issue-260-fe05-modeling-data/owner-reference/modeling-data-approved-direction-1440x900.png, docs/17-evidence/images/issue-260-fe05-modeling-data/owner-reference/modeling-data-approved-direction-1920x1080.png]
+    comparison_evidence: docs/17-evidence/issue-260-modeling-data-visual-normalization.md
   - id: modeling-data-dma-1366
     route: /modeling?stage=data&family=polymer
     workflow: governed DMA frequency-temperature mapping, preview, exact save and reload
@@ -783,11 +871,13 @@ captures:
     height: 2160
   - id: modeling-data-empty-1440
     route: /modeling?stage=data&family=metal
-    workflow: new-session-empty-data-state
-    fixture: new Modeling session with no Material, State, or Test Data pin; real axes/grid remain and Local file recovery is operable
+    workflow: pin-free empty Library decision state
+    fixture: new Modeling session with no Material, State, or Test Data pin; Library search is available without implicit selection, real axes/grid remain, and Local file stays reachable as the separate source tab
     image: images/current/modeling-data-empty-1440x900.png
     width: 1440
     height: 900
+    approved_reference_ids: [modeling-data-empty-new-session-1440x900]
+    comparison_evidence: docs/17-evidence/issue-260-modeling-data-visual-normalization.md
   - id: modeling-data-invalid-1440
     route: /modeling?stage=data&family=metal
     workflow: runtime-csv-invalid-channel-mapping
@@ -795,6 +885,8 @@ captures:
     image: images/current/modeling-data-invalid-1440x900.png
     width: 1440
     height: 900
+    approved_reference_ids: [modeling-data-long-invalid-mapping-blocked-1440x900]
+    comparison_evidence: docs/17-evidence/issue-260-modeling-data-visual-normalization.md
   - id: modeling-data-invalid-scrolled-1440
     route: /modeling?stage=data&family=metal
     workflow: runtime-csv-invalid-channel-mapping-local-scroll-recovery
@@ -802,13 +894,16 @@ captures:
     image: images/current/modeling-data-invalid-scrolled-1440x900.png
     width: 1440
     height: 900
+    approved_reference_ids: [modeling-data-long-invalid-mapping-blocked-1440x900]
+    comparison_evidence: docs/17-evidence/issue-260-modeling-data-visual-normalization.md
   - id: MOD-PROCESS-CURRENT-1366
     route: /modeling?stage=process&family=metal
-    workflow: exact-source elastic-modulus preview with persisted output availability and reload/read-back
-    fixture: three synthetic DP780 exact Test Data revisions with two included; Auto robust 0.0002..0.002 preview produces 210.0 GPa and preserves the exact source/profile binding
+    workflow: one-current-input Process flow with optional graph comparison, ordered steps, exact preview and save
+    fixture: one exact DP780 Test Data current input plus two optional comparison curves; toe preview and exact saved Process result preserve the source/profile binding
     image: images/current/modeling-process-1366x768.png
     width: 1366
     height: 768
+    comparison_evidence: docs/17-evidence/issue-260-modeling-data-visual-normalization.md
   - id: MOD-PROCESS-CURRENT-LINEAR-1366
     route: /modeling?stage=process&family=metal
     workflow: Process Evaluation method coverage; native Linear regression selection settles without option clipping and keeps the direct Result plus persistent graph visible
@@ -825,32 +920,36 @@ captures:
     height: 768
   - id: MOD-PROCESS-CURRENT-1440
     route: /modeling?stage=process&family=metal
-    workflow: exact-source elastic-modulus preview with persisted output availability and reload/read-back
-    fixture: three synthetic DP780 exact Test Data revisions with two included; Auto robust 0.0002..0.002 preview produces 210.0 GPa and preserves the exact source/profile binding
+    workflow: one-current-input Process flow with optional graph comparison, ordered steps, exact preview and save
+    fixture: one exact DP780 Test Data current input plus two optional comparison curves; toe preview and exact saved Process result preserve the source/profile binding
     image: images/current/modeling-process-1440x900.png
     width: 1440
     height: 900
+    comparison_evidence: docs/17-evidence/issue-260-modeling-data-visual-normalization.md
   - id: MOD-PROCESS-CURRENT-1920
     route: /modeling?stage=process&family=metal
-    workflow: exact-source elastic-modulus preview with persisted output availability and reload/read-back
-    fixture: three synthetic DP780 exact Test Data revisions with two included; Auto robust 0.0002..0.002 preview produces 210.0 GPa and preserves the exact source/profile binding
+    workflow: one-current-input Process flow with optional graph comparison, ordered steps, exact preview and save
+    fixture: one exact DP780 Test Data current input plus two optional comparison curves; toe preview and exact saved Process result preserve the source/profile binding
     image: images/current/modeling-process-1920x1080.png
     width: 1920
     height: 1080
+    comparison_evidence: docs/17-evidence/issue-260-modeling-data-visual-normalization.md
   - id: MOD-PROCESS-CURRENT-2560
     route: /modeling?stage=process&family=metal
-    workflow: wide exact-source elastic-modulus preview with bounded method/result controls and an elastic persistent graph
-    fixture: three synthetic DP780 exact Test Data revisions with two included; Auto robust 0.0002..0.002 preview produces 210.0 GPa and preserves the exact source/profile binding
+    workflow: wide one-current-input Process flow with bounded controls and an elastic persistent graph
+    fixture: one exact DP780 Test Data current input plus two optional comparison curves; compact toe preview and save controls remain readable while the graph uses useful space
     image: images/current/modeling-process-2560x1440.png
     width: 2560
     height: 1440
+    comparison_evidence: docs/17-evidence/issue-260-modeling-data-visual-normalization.md
   - id: MOD-PROCESS-CURRENT-3840
     route: /modeling?stage=process&family=metal
-    workflow: wide exact-source elastic-modulus preview with bounded method/result controls and an elastic persistent graph
-    fixture: three synthetic DP780 exact Test Data revisions with two included; Auto robust 0.0002..0.002 preview produces 210.0 GPa and preserves the exact source/profile binding
+    workflow: wide one-current-input Process flow with bounded controls and an elastic persistent graph
+    fixture: one exact DP780 Test Data current input plus two optional comparison curves; compact toe preview and save controls remain readable while the graph uses useful space
     image: images/current/modeling-process-3840x2160.png
     width: 3840
     height: 2160
+    comparison_evidence: docs/17-evidence/issue-260-modeling-data-visual-normalization.md
   - id: MOD-PROCESS-CURRENT-BLOCKED-1440
     route: /modeling?stage=process&family=metal
     workflow: Process prerequisite recovery; missing exact Test Data is visibly blocked and the user is directed back to Data without a latest fallback
@@ -874,39 +973,44 @@ captures:
     height: 900
   - id: modeling-fit-1366
     route: /modeling?stage=fit&family=metal
-    workflow: UXC-04E approved prototype topology, compact fit controls, graph response and explicit decision save
-    fixture: synthetic four single-law candidates plus exact calculated blend; UXC-04E live acceptance
+    workflow: one exact saved Process input, four ordered Fit steps, compact candidate controls, graph response and explicit decision save
+    fixture: one saved DP780 Process result with four candidate laws and an exact calculated blend; alternatives remain distinct from input data
     image: images/current/modeling-fit-1366x768.png
     width: 1366
     height: 768
+    comparison_evidence: docs/17-evidence/issue-260-modeling-data-visual-normalization.md
   - id: modeling-fit-1440
     route: /modeling?stage=fit&family=metal
-    workflow: UXC-04E approved prototype topology, compact fit controls, graph response and explicit decision save
-    fixture: synthetic four single-law candidates plus exact calculated blend; UXC-04E live acceptance
+    workflow: one exact saved Process input, four ordered Fit steps, compact candidate controls, graph response and explicit decision save
+    fixture: one saved DP780 Process result with four candidate laws and an exact calculated blend; alternatives remain distinct from input data
     image: images/current/modeling-fit-1440x900.png
     width: 1440
     height: 900
+    comparison_evidence: docs/17-evidence/issue-260-modeling-data-visual-normalization.md
   - id: modeling-fit-1920
     route: /modeling?stage=fit&family=metal
-    workflow: UXC-04E approved prototype topology, compact fit controls, graph response and explicit decision save
-    fixture: synthetic four single-law candidates plus exact calculated blend; UXC-04E live acceptance
+    workflow: one exact saved Process input, four ordered Fit steps, compact candidate controls, graph response and explicit decision save
+    fixture: one saved DP780 Process result with four candidate laws and an exact calculated blend; alternatives remain distinct from input data
     image: images/current/modeling-fit-1920x1080.png
     width: 1920
     height: 1080
+    comparison_evidence: docs/17-evidence/issue-260-modeling-data-visual-normalization.md
   - id: modeling-fit-2560
     route: /modeling?stage=fit&family=metal
-    workflow: Fit-only wide viewport; exact Process source binding and decision controls remain bounded while the candidate graph uses available width
-    fixture: synthetic four single-law candidates plus exact calculated blend; root live visual acceptance complete
+    workflow: wide one-input Fit flow; exact Process source binding and decision controls remain bounded while the candidate graph uses useful space
+    fixture: one saved DP780 Process result with four candidate laws and an exact calculated blend; square compact controls preserve the engineering order
     image: images/current/modeling-fit-2560x1440.png
     width: 2560
     height: 1440
+    comparison_evidence: docs/17-evidence/issue-260-modeling-data-visual-normalization.md
   - id: modeling-fit-3840
     route: /modeling?stage=fit&family=metal
-    workflow: Fit-only wide viewport; exact Process source binding and decision controls remain bounded while the candidate graph uses available width
-    fixture: synthetic four single-law candidates plus exact calculated blend; root live visual acceptance complete
+    workflow: wide one-input Fit flow; exact Process source binding and decision controls remain bounded while the candidate graph uses useful space
+    fixture: one saved DP780 Process result with four candidate laws and an exact calculated blend; square compact controls preserve the engineering order
     image: images/current/modeling-fit-3840x2160.png
     width: 3840
     height: 2160
+    comparison_evidence: docs/17-evidence/issue-260-modeling-data-visual-normalization.md
   - id: modeling-fit-candidate-parameters-long-1440
     route: /modeling?stage=fit&family=metal
     workflow: Fit candidate parameters evidence drawer with full calculated columns
@@ -958,46 +1062,52 @@ captures:
     height: 1080
   - id: modeling-export-1366
     route: /modeling?stage=export&family=metal
-    workflow: uxc-06c2-capability-backed-preview-and-atomic-delivery
-    fixture: synthetic DP780 session with exact governed Output, model and Neutral revisions; dedicated Setup/native-preview/Mapping-Fit context workspace, capability-declared Abaqus 2025 kg-m-s tuple, preview_only state, required acknowledgement and one immutable card/receipt
+    workflow: one-selected-model solver-card setup, native preview, mapping review and atomic delivery
+    fixture: exact DP780 saved model with a flat setup/native-preview/mapping workspace, required approximation acknowledgement and one immutable card/receipt
     image: images/current/modeling-export-1366x768.png
     width: 1366
     height: 768
+    comparison_evidence: docs/17-evidence/issue-260-modeling-data-visual-normalization.md
   - id: modeling-export-1440
     route: /modeling?stage=export&family=metal
-    workflow: uxc-06c2-capability-backed-preview-and-atomic-delivery
-    fixture: synthetic DP780 session with exact governed Output, model and Neutral revisions; dedicated Setup/native-preview/Mapping-Fit context workspace, capability-declared Abaqus 2025 kg-m-s tuple, preview_only state, required acknowledgement and one immutable card/receipt
+    workflow: one-selected-model solver-card setup, native preview, mapping review and atomic delivery
+    fixture: exact DP780 saved model with a flat setup/native-preview/mapping workspace, required approximation acknowledgement and one immutable card/receipt
     image: images/current/modeling-export-1440x900.png
     width: 1440
     height: 900
+    comparison_evidence: docs/17-evidence/issue-260-modeling-data-visual-normalization.md
   - id: modeling-export-1920
     route: /modeling?stage=export&family=metal
-    workflow: uxc-06c2-capability-backed-preview-and-atomic-delivery
-    fixture: synthetic DP780 session with exact governed Output, model and Neutral revisions; dedicated Setup/native-preview/Mapping-Fit context workspace, capability-declared Abaqus 2025 kg-m-s tuple, preview_only state, required acknowledgement and one immutable card/receipt
+    workflow: one-selected-model solver-card setup, native preview, mapping review and atomic delivery
+    fixture: exact DP780 saved model with a flat setup/native-preview/mapping workspace, required approximation acknowledgement and one immutable card/receipt
     image: images/current/modeling-export-1920x1080.png
     width: 1920
     height: 1080
+    comparison_evidence: docs/17-evidence/issue-260-modeling-data-visual-normalization.md
   - id: modeling-export-2560
     route: /modeling?stage=export&family=metal
-    workflow: uxc-06c2-capability-backed-preview-and-atomic-delivery
-    fixture: synthetic DP780 session with exact governed Output, model and Neutral revisions; bounded Setup/context panes and an elastic native-preview pane
+    workflow: wide one-selected-model solver-card setup with bounded forms and an elastic native preview
+    fixture: exact DP780 saved model; readable setup and mapping panes remain bounded while native solver text uses the additional width
     image: images/current/modeling-export-2560x1440.png
     width: 2560
     height: 1440
+    comparison_evidence: docs/17-evidence/issue-260-modeling-data-visual-normalization.md
   - id: modeling-export-3840
     route: /modeling?stage=export&family=metal
-    workflow: uxc-06c2-capability-backed-preview-and-atomic-delivery
-    fixture: synthetic DP780 session with exact governed Output, model and Neutral revisions; bounded Setup/context panes and an elastic native-preview pane
+    workflow: wide one-selected-model solver-card setup with bounded forms and an elastic native preview
+    fixture: exact DP780 saved model; readable setup and mapping panes remain bounded while native solver text uses the additional width
     image: images/current/modeling-export-3840x2160.png
     width: 3840
     height: 2160
+    comparison_evidence: docs/17-evidence/issue-260-modeling-data-visual-normalization.md
   - id: modeling-export-source-blocked
     route: /modeling?stage=export&family=metal
     workflow: exact-source-recovery-before-preview
-    fixture: synthetic DP780 session after exact Fit save with Material Model IR and Neutral pins absent; source refs and recovery inputs preserved
+    fixture: exact DP780 Fit result with no selected model; one plain preparation cause, acknowledgement, explicit reason and action are shown while technical pins remain collapsed
     image: images/current/modeling-export-source-blocked-1440x900.png
     width: 1440
     height: 900
+    comparison_evidence: docs/17-evidence/issue-260-modeling-data-visual-normalization.md
   - id: modeling-export-approximation-blocked
     route: /modeling?stage=export&family=metal
     workflow: capability-backed-approximation-acknowledgement
@@ -1005,6 +1115,7 @@ captures:
     image: images/current/modeling-export-approximation-blocked-1440x900.png
     width: 1440
     height: 900
+    comparison_evidence: docs/17-evidence/issue-260-modeling-data-visual-normalization.md
   - id: modeling-export-delivered
     route: /modeling?stage=export&family=metal
     workflow: atomic-solver-card-delivery-and-open
@@ -1012,6 +1123,7 @@ captures:
     image: images/current/modeling-export-delivered-1440x900.png
     width: 1440
     height: 900
+    comparison_evidence: docs/17-evidence/issue-260-modeling-data-visual-normalization.md
   - id: activity-1366
     route: /activity
     workflow: role-aware-review-queue-with-resume-and-outcomes

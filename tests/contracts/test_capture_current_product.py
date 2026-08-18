@@ -510,11 +510,12 @@ def test_modeling_data_ribbon_capture_uses_the_shared_density_formula() -> None:
 
     for token in (
         "--ux-navigator-row-block-size",
-        "--ux-interactive-min-block-size",
-        "--ux-pane-padding",
         "--ux-splitter-inline-size",
+        "--ux-pane-padding",
     ):
         assert token in helper
+    assert "--ux-interactive-min-block-size" not in helper
+    assert "--ux-control-min-block-size" not in helper
     assert "expected_height = _modeling_data_ribbon_height(page)" in helper
     assert "arg=expected_height" in helper
     assert "NORMAL_COMPACT_DATA_RIBBON_HEIGHT" not in _CAPTURE_SOURCE
@@ -525,12 +526,13 @@ def test_invalid_mapping_plot_reset_uses_the_density_aware_initial_allocation() 
         "def _capture_administration_database", 1
     )[0]
 
-    assert 'before_plot["height"] < 240' in helper
-    assert 'plot_geometry["svgHeight"] < 230' in helper
-    assert 'plot_geometry["plotHeight"] < 280' in helper
-    assert 'abs(reset_ribbon_panel["height"] - before_keyboard_ribbon["height"]) > 1' in helper
-    assert 'abs(reset_plot_panel["height"] - before_keyboard_plot["height"]) > 1' in helper
-    assert 'line["height"] > line["lineHeight"] * 2 + 1' in helper
+    assert 'after_plot["height"] < 240' in helper
+    assert 'after_ribbon["height"] <= before_ribbon["height"]' in helper
+    assert 'after_plot["height"] >= before_plot["height"]' in helper
+    assert 'abs(reset_ribbon["height"] - before_ribbon["height"]) > 1' in helper
+    assert 'abs(reset_plot["height"] - before_plot["height"]) > 1' in helper
+    assert 'scroll_metrics["scrollHeight"] <= scroll_metrics["clientHeight"] + 1' in helper
+    assert 'local_region.press("PageDown")' in helper
     assert ">=296px" not in helper
 
 
@@ -703,12 +705,12 @@ def test_modeling_export_capture_contract_uses_declared_preview_and_atomic_creat
     recovery_helper = _CAPTURE_SOURCE.split(
         "def _prepare_exact_metal_source_if_needed", 1
     )[1].split("def _prepare_exact_target_preview", 1)[0]
-    assert 'get_by_role(\n        "heading", name="Prepare exact metal source", exact=True' in recovery_helper
-    assert 'get_by_role(\n        "checkbox",\n        name="I acknowledge the selected bounded extrapolation for this reference model.",' in recovery_helper
-    assert 'get_by_role("textbox", name="Metal promotion reason", exact=True)' in recovery_helper
-    assert 'get_by_role(\n        "button", name="Prepare exact model and Neutral", exact=True' in recovery_helper
+    assert 'get_by_role(\n        "heading", name="Prepare selected model", exact=True' in recovery_helper
+    assert 'get_by_role(\n        "checkbox",\n        name="I reviewed the extrapolated range used by this model.",' in recovery_helper
+    assert 'get_by_role("textbox", name="Reason for preparing model", exact=True)' in recovery_helper
+    assert 'get_by_role(\n        "button", name="Prepare selected model", exact=True' in recovery_helper
     assert "EXPORT_RECOVERY_REASON" in recovery_helper
-    assert "Retry Neutral promotion" in recovery_helper
+    assert "Retry preparation" in recovery_helper
     assert 'page.on("dialog", reject_dialog)' in recovery_helper
     assert "dialog.dismiss()" in recovery_helper
     assert "page.remove_listener(\"dialog\", reject_dialog)" in recovery_helper
@@ -782,7 +784,7 @@ def test_modeling_export_capture_contract_uses_declared_preview_and_atomic_creat
     )
     source_open = source_blocked_flow.index('_open_modeling_stage(source_blocked_page, "export")')
     source_heading = source_blocked_flow.index(
-        'source_blocked_page.get_by_role("heading", name="Prepare exact metal source", exact=True)'
+        'source_blocked_page.get_by_role("heading", name="Prepare selected model", exact=True)'
     )
     source_capture = source_blocked_flow.index("_capture(source_blocked_page")
     assert source_fit_prepare < source_fit_save < source_open < source_heading < source_capture
@@ -837,7 +839,7 @@ def test_modeling_export_capture_contract_uses_declared_preview_and_atomic_creat
     assert 'select_option("abaqus/2025/kg_m_s")' in export_flow
     assert 'page.locator("details.export-advanced-input")' in export_flow
     assert 'advanced.locator(":scope > summary")' in export_flow
-    assert 'summary.inner_text().strip() != "Advanced · native card options"' in export_flow
+    assert 'summary.inner_text().strip() != "Native card options"' in export_flow
     assert 'advanced.get_attribute("open") is None' in export_flow
     assert 'summary.click()' in export_flow
     assert 'native_name.wait_for(state="visible", timeout=30_000)' in export_flow
@@ -852,7 +854,7 @@ def test_modeling_export_capture_contract_uses_declared_preview_and_atomic_creat
     assert 'document.querySelector(\'[aria-label="Native preview"] pre\')\n          ||' not in export_flow
     assert 'document.querySelectorAll(\n            \'.export-main .export-preview-state\'\n          )' in export_flow
     assert 'document.querySelectorAll(\'[role="heading"]\')' not in export_flow
-    assert 'heading.textContent?.trim() === "Current preview · not created"' in export_flow
+    assert 'heading.textContent?.trim() === "Not created"' in export_flow
     assert 'document.querySelector(\'[role="alert"]\')' in export_flow
     assert 'get_by_role("button", name="Run Export check", exact=True)' in export_flow
     assert 'create_button.count() != 1' in export_flow
@@ -923,7 +925,7 @@ def test_modeling_export_capture_contract_uses_declared_preview_and_atomic_creat
     assert "after_animation=lambda: _assert_export_capture_shell(approximation)" in _CAPTURE_SOURCE
     assert "before_screenshot=lambda: _assert_export_action_visible(delivered, \"Open solver card\")" in _CAPTURE_SOURCE
     assert "after_animation=lambda: _assert_export_capture_shell(delivered)" in _CAPTURE_SOURCE
-    assert 'get_by_role("heading", name="Prepare exact metal source", exact=True)' in _CAPTURE_SOURCE
+    assert 'get_by_role("heading", name="Prepare selected model", exact=True)' in _CAPTURE_SOURCE
     assert 'target_value="openradioss/2025/kg_m_s"' in _CAPTURE_SOURCE
     assert 'modeling-export-source-blocked-1440x900.png' in _CAPTURE_SOURCE
     assert 'modeling-export-approximation-blocked-1440x900.png' in _CAPTURE_SOURCE
@@ -1057,8 +1059,8 @@ def test_modeling_fit_scrolled_capture_positions_the_local_decision_surface() ->
 def test_modeling_fit_capture_enforces_elastic_shell_rows_scale_and_collision_geometry() -> None:
     assert "_assert_fit_display_scale" in _CAPTURE_SOURCE
     assert ".modeling-workspace-stage-fit" in _CAPTURE_SOURCE
-    assert "fitRowsIncluded" in _CAPTURE_SOURCE
-    assert "fitNoMatchingCurves" in _CAPTURE_SOURCE
+    assert "fitInput" in _CAPTURE_SOURCE
+    assert "fitStepCount" in _CAPTURE_SOURCE
     assert "fitGroups" in _CAPTURE_SOURCE
     assert "fitRemoveStep" in _CAPTURE_SOURCE
     assert "fitEvidenceTrigger" in _CAPTURE_SOURCE
@@ -1082,7 +1084,7 @@ def test_modeling_fit_capture_enforces_elastic_shell_rows_scale_and_collision_ge
     assert "label_geometry.get(\"bottom\")" in _CAPTURE_SOURCE
     assert "shade_geometry.get(\"top\")" in _CAPTURE_SOURCE
     assert "escaped the SVG/plot bounds" in _CAPTURE_SOURCE
-    assert 're.fullmatch(r"Specimen \\d{2} · r[1-9]\\d*"' in _CAPTURE_SOURCE
+    assert 're.fullmatch(r"Tensile test \\d{4}"' in _CAPTURE_SOURCE
     assert 'minimum_rail_width = _css_token_px(page, "--ux-navigator-min-inline-size")' in _CAPTURE_SOURCE
     assert 'default_rail_width = _css_token_px(page, "--ux-navigator-default-inline-size")' in _CAPTURE_SOURCE
     assert 'minimum_rail_width - 1 <= measurement["railWidth"] <= default_rail_width + 1' in _CAPTURE_SOURCE
@@ -1209,7 +1211,7 @@ def test_fit_save_stays_on_fit_and_explicitly_navigates_export_only_at_callers()
     )
     save_source = ast.get_source_segment(_CAPTURE_SOURCE, save_node)
     assert save_source is not None
-    assert "New immutable Fit Output saved and current" in save_source
+    assert 'get_by_text(\n        "Saved current", exact=True' in save_source
     assert 'parse_qs(urlsplit(page.url).query).get("stage") != ["fit"]' in save_source
     assert "processingOutput" in save_source
     assert 'pointer.get(key)' in save_source
@@ -1239,6 +1241,20 @@ def test_fit_save_stays_on_fit_and_explicitly_navigates_export_only_at_callers()
     consistency = _CAPTURE_SOURCE.split(
         "def _capture_modeling_consistency", 1
     )[1].split("def _capture_modeling_data_viewports", 1)[0]
+    assert "comparison_open=True" in consistency
+    comparison_open = consistency.index("comparison_open=True")
+    comparison_close = consistency.index(
+        'page.get_by_role("button", name="Close comparison", exact=True).click()'
+    )
+    normal_capture = consistency.index(
+        '_capture(page, output / f"modeling-data-{width}x{height}.png"'
+    )
+    assert comparison_open < comparison_close < normal_capture
+    assert "comparison_open=False" in consistency[comparison_close:normal_capture]
+    assert 'minimum_rail_width = _css_token_px(' in consistency
+    assert '"--ux-navigator-min-inline-size"' in consistency
+    assert '"--ux-navigator-default-inline-size"' in consistency
+    assert 'curve rail escaped the shared readable range' in consistency
     process_source = consistency.index("_save_process_output_for_fit(")
     fit_preview = consistency.index("_click_modeling_fit_preview_and_wait(page)")
     fit_save = consistency.index("_save_exact_fit_selection(page)")
@@ -1250,7 +1266,7 @@ def test_fit_save_stays_on_fit_and_explicitly_navigates_export_only_at_callers()
     export_assertion = consistency.index("_assert_export_exact_source_surface(page)")
     export_capture = consistency.index('"surface": "exact-target-preview"')
     export_continue = consistency.index("                continue", export_capture)
-    plot_geometry = consistency.index("_measure_process_fit(page, stage, width, height)")
+    plot_geometry = consistency.index("_measure_process_fit(", export_continue)
     assert prepare_target < export_assertion < export_capture < export_continue < plot_geometry
     assert '_assert_export_action_visible(\n                        page, "Create solver card"' in consistency
     assert "after_animation=lambda page=page: _assert_export_capture_shell(page)" in consistency
@@ -1269,8 +1285,8 @@ def test_fit_save_allows_only_the_expected_exact_restore_error_after_commit_proo
     assert "allow_expected_exact_restore_failure: bool = False" in save_source
     assert "EXPECTED_EXACT_FIT_RESTORE_ERROR" in save_source
     assert "not allow_expected_exact_restore_failure or not error_text.startswith(" in save_source
-    assert "New immutable Fit Output saved and current" in save_source
-    assert save_source.index("New immutable Fit Output saved and current") < save_source.rindex(
+    assert 'get_by_text(\n        "Saved current", exact=True' in save_source
+    assert save_source.index('get_by_text(\n        "Saved current", exact=True') < save_source.rindex(
         'parse_qs(urlsplit(page.url).query).get("stage") != ["fit"]'
     )
     assert save_source.index('pointer.get(key)') < save_source.index('error_banner = page.locator(".error-banner")')
@@ -1484,7 +1500,7 @@ def test_process_geometry_contract_rejects_identity_clipping_chart_collisions_an
     assert geometry.index("blocked_plot.count()") < geometry.index("measurement = cast(")
     assert "page.mouse.move(width // 2, max(1, height - 2))" in geometry
     assert geometry.index("page.mouse.move(") < geometry.index("measurement = cast(")
-    assert 're.fullmatch(r"Specimen \\d{2} · r[1-9]\\d*"' in geometry
+    assert 're.fullmatch(r"Tensile test \\d{4}"' in geometry
     assert 'if measurement.get("processRowClipped"):' in geometry
     assert "processRowClipped" in geometry
     for overlap_key in (
@@ -1501,7 +1517,8 @@ def test_process_geometry_contract_rejects_identity_clipping_chart_collisions_an
     assert '_css_token_px(page, "--ux-interactive-min-block-size")' in geometry
     assert 'shared_right_reservation = (' in geometry
     assert '_css_token_px(page, "--ux-navigator-min-inline-size")' in geometry
-    assert 'expected_drawable_width = measurement["svgWidth"] - 80 - shared_right_reservation' in geometry
+    assert '24 if stage == "data" else shared_right_reservation' in geometry
+    assert 'else 180 if stage == "data" else default_minimum' in geometry
     assert 'abs(_as_float(horizontal_axis.get("width")) - expected_drawable_width) > 2' in geometry
     assert 'maximum_control_gap = _css_token_px(page, "--ux-space-4") + 2' in geometry
     assert 'method_range_gap > maximum_control_gap' in geometry
@@ -1515,9 +1532,9 @@ def test_process_geometry_contract_rejects_identity_clipping_chart_collisions_an
         "Manual Young's modulus",
         "Manual Young's modulus unit",
         "Manual Young's modulus reason",
-        "Processed curve label",
-        "Save reason",
-        "Save processed curves",
+        "Process result name",
+        "Reason for saving Process result",
+        "Save Process result",
     ):
         assert label in geometry
     assert 'expected_input_height = _css_token_px(page, "--ux-input-min-block-size")' in geometry
@@ -1574,23 +1591,30 @@ def test_process_preparation_selects_exact_data_identity_before_opening_process(
         "def _prepare_modeling_process(", 1
     )[1].split("def _list_processing_outputs", 1)[0]
 
-    data_stage = process_flow.index("_prepare_modeling(page, base_url, verify_reload=verify_data_reload)")
+    data_stage = process_flow.index("_prepare_modeling(")
     data_selector = process_flow.index(
-        '".modeling-workspace-stage-data .modeling-data-curve-tree"'
+        "_modeling_data_library_row(page, PROCESS_SOURCE_DOCUMENT_KEY)"
     )
-    identity_filters = process_flow.index('has_text="Specimen 01"')
-    revision_filter = process_flow.index('has_text="Session revision r1"')
-    identity_assertion = process_flow.index("data_identity = exact_row.evaluate")
-    click = process_flow.index("exact_row.click()")
+    primary_assertion = process_flow.index("if primary_button.count() != 1")
+    session_assertion = process_flow.index("session = _modeling_session(page)")
+    exact_ref_assertion = process_flow.index("if focused_ref is None")
     open_process = process_flow.index('_open_modeling_stage(page, "process")')
 
-    assert data_stage < data_selector < identity_filters < revision_filter < identity_assertion < click < open_process
-    assert 'data_rows = data_rail.locator(".curve-row-label")' in process_flow
-    assert ".curve-secondary-identity" in process_flow
-    assert 'data_identity.get("primary") != "Specimen 01"' in process_flow
-    assert 'data_identity.get("secondary") != "Session revision r1"' in process_flow
-    assert 'data_identity.get("primaryVisible") is not True' in process_flow
-    assert 'data_identity.get("secondaryVisible") is not True' in process_flow
+    assert (
+        data_stage
+        < data_selector
+        < primary_assertion
+        < session_assertion
+        < exact_ref_assertion
+        < open_process
+    )
+    assert '.modeling-data-record-button[aria-current="true"]' in process_flow
+    assert 'focused.get("label") != PROCESS_SOURCE_DOCUMENT_KEY' in process_flow
+    assert 'focused.get("revisionNo") != 1' in process_flow
+    assert 'len(refs) != 3' in process_flow
+    assert 'len(workspace.get("selectedDocumentIds", [])) != 1' in process_flow
+    assert 'len(workspace.get("visibleTestDataKeys", [])) != 3' in process_flow
+    assert "retain_comparisons=True" in process_flow
 
 
 def test_process_manual_surface_contract_uses_real_pointer_and_restores_server_result() -> None:
@@ -1644,7 +1668,7 @@ def test_process_manual_fit_override_preserves_normal_svg_threshold() -> None:
     assert "minimum_svg_height: int | None = None" in measure_source
     assert 'min(_css_token_px(page, "--ux-plot-min-block-size"), height * 0.42)' in measure_source
     assert '- _css_token_px(page, "--ux-interactive-min-block-size")' in measure_source
-    assert "minimum = minimum_svg_height if minimum_svg_height is not None else default_minimum" in measure_source
+    assert 'else 180 if stage == "data" else default_minimum' in measure_source
 
     measure_calls = [
         node
@@ -1686,7 +1710,7 @@ def test_process_preview_capture_covers_every_native_method_option_and_direct_re
     assert 'method.select_option(value)' in preview
     assert 'method.press("Home")' in preview
     assert 'method.press("ArrowDown")' in preview
-    assert 'heading.get_by_text("Curve response", exact=True)' in preview
+    assert 'heading.locator("h2")' in preview
     assert 'method.select_option(method_by_label[method_label])' in preview
     assert '_click_modeling_process_preview_and_wait(page)' in preview
 
@@ -1788,7 +1812,7 @@ def test_resume_pointer_and_preview_contract_has_no_direct_control_mutations() -
     assert 'resume_method.input_value() != "robust_huber"' in resume_branch
     assert 'resume_start.input_value() != "0.0005"' in resume_branch
     assert 'resume_end.input_value() != "0.0025"' in resume_branch
-    assert 'name="Save processed curves", exact=True' in resume_branch
+    assert 'name="Save Process result", exact=True' in resume_branch
 
 
 def test_roundtrip_preview_monitor_allows_only_data_empty_steps_and_no_persistent_mutations() -> None:
@@ -1836,14 +1860,13 @@ def test_exact_document_success_wait_replaces_removed_notice_for_data_and_proces
         "def _wait_for_exact_document_load_settled", 1
     )[1].split("def _wait_for_data_plot", 1)[0]
     for fragment in (
-        'select[aria-label="Test Data revision"]',
-        "selection.value",
-        "selected.value === selection.value",
-        "Load exact JSON",
-        "!load.disabled",
+        '.modeling-data-record-button[aria-current="true"]',
+        ".curve-line.data-observed",
         "!document.querySelector('.error-banner')",
     ):
         assert fragment in helper
+    assert 'select[aria-label="Test Data revision"]' not in helper
+    assert "Load exact JSON" not in helper
 
     generic_flow = _CAPTURE_SOURCE.split(
         "def _prepare_modeling(", 1
@@ -1853,35 +1876,39 @@ def test_exact_document_success_wait_replaces_removed_notice_for_data_and_proces
         "CMP-DEMO-DP780-TEST-JSON-02",
         "CMP-DEMO-DP780-TEST-JSON-03",
     )
-    assert "for index, document_key in enumerate(MODELING_DATA_DOCUMENT_KEYS, start=1):" in generic_flow
+    assert "primary_row = _modeling_data_library_row(page, PROCESS_SOURCE_DOCUMENT_KEY)" in generic_flow
+    assert "for count, document_key in enumerate(MODELING_DATA_DOCUMENT_KEYS[1:], start=2):" in generic_flow
     assert "_modeling_data_library_row(page, document_key)" in generic_flow
     assert "library_rows.count() != 3" not in generic_flow
     assert "library_rows.nth" not in generic_flow
     assert "checkboxes.nth" not in generic_flow
     assert "visibility.nth" not in generic_flow
-    assert generic_flow.count("_wait_for_exact_document_load_settled(page)") == 1
-    assert generic_flow.index("row.click()") < generic_flow.index(
+    assert generic_flow.count("_wait_for_exact_document_load_settled(page)") == 3
+    assert generic_flow.index("primary_button.click()") < generic_flow.index(
         "_wait_for_exact_document_load_settled(page)"
     ) < generic_flow.index("_wait_for_data_session_counts")
 
     surface_flow = _CAPTURE_SOURCE.split(
         "def _assert_modeling_data_surface(", 1
-    )[1].split("def _modeling_data_ribbon_height", 1)[0]
+    )[1].split("def _assert_import_file_control", 1)[0]
     assert "for document_key in MODELING_DATA_DOCUMENT_KEYS:" in surface_flow
     assert "curve_rows.count() != 3" not in surface_flow
-    assert ".curve-row-label[title^=" in surface_flow
+    assert ".modeling-data-record-button" in surface_flow
     assert 're.fullmatch(r"3 exact revisions?' not in surface_flow
-    assert "int(library_count_match.group(1)) != library_rows.count()" in surface_flow
+    assert "Modeling Data result columns drifted" in surface_flow
+    assert "two optional comparisons" in surface_flow
+    assert "optional comparison action drifted from the Modeling action color" in surface_flow
+    assert "Modeling Data Browser and Related data headings are not aligned" in surface_flow
     assert "row = _modeling_data_library_row(page, document_key)" in surface_flow
     assert 'library.locator(".data-library-row").nth' not in surface_flow
 
     process_flow = _CAPTURE_SOURCE.split(
         "def _prepare_modeling_process(", 1
     )[1].split("def _list_processing_outputs", 1)[0]
-    assert process_flow.count("_wait_for_exact_document_load_settled(page)") == 1
-    assert process_flow.index("exact_row.click()") < process_flow.index(
-        "_wait_for_exact_document_load_settled(page)"
-    ) < process_flow.index("page.wait_for_function")
+    assert process_flow.count("_wait_for_exact_document_load_settled(page)") == 0
+    assert "_prepare_modeling(" in process_flow
+    assert "verify_reload=verify_data_reload" in process_flow
+    assert "retain_comparisons=True" in process_flow
     for fragment in (
         "selectedTestDataRefs",
         "selectedDocumentIds",
@@ -2268,7 +2295,7 @@ def test_exact_read_failure_capture_asserts_settled_retry_and_no_fallback() -> N
         "Retry exact source",
         "Back to Data",
         "Preview changes",
-        "Save processed curves",
+        "Save Process result",
         "210\\.0",
         "120\\.0",
         "content_gets != 1",

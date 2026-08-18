@@ -148,8 +148,8 @@ describe("ModelingTargetPreview", () => {
     expect(container.querySelector(".fit-source-tick")).toBeTruthy();
     expect(container.querySelector(".fit-source-axis-title")).toBeTruthy();
     expect(container.querySelector(".fit-source-svg-legend")).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Solver Card preview" })).toBeTruthy();
-    expect(screen.getByText("Reference target · synthetic reference", { exact: true })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Solver card preview" })).toBeTruthy();
+    expect(screen.queryByText(/synthetic reference/i)).toBeNull();
     expect(screen.getAllByText("Voce").length).toBeGreaterThanOrEqual(1);
   });
 
@@ -178,10 +178,10 @@ describe("ModelingTargetPreview", () => {
     expect(nativePreview.parentElement?.className).toContain("modeling-target-preview-native-scroll-shell");
     expect(nativePreview.parentElement?.className).toContain("materials-scroll-shell");
     expect(nativePreview.parentElement?.querySelector(".materials-scroll-rail-y")).toBeNull();
-    expect(screen.getByRole("heading", { name: "Solver Card preview" })).toBeTruthy();
-    expect(screen.getByText(/synthetic reference$/, { exact: false })).toBeTruthy();
-    expect(container.querySelector(".export-preview-state")?.textContent).toBe("Current preview · not created");
-    expect(screen.queryByRole("heading", { name: "Current preview · not created" })).toBeNull();
+    expect(screen.getByRole("heading", { name: "Solver card preview" })).toBeTruthy();
+    expect(screen.queryByText(/synthetic reference/i)).toBeNull();
+    expect(container.querySelector(".export-preview-state")?.textContent).toBe("Not created");
+    expect(screen.queryByRole("heading", { name: "Not created" })).toBeNull();
     expect(container.querySelector(".export-divider")).toBeTruthy();
     expect(container.querySelector(".export-mapping-list")).toBeTruthy();
     const mappingViewport = container.querySelector<HTMLElement>(".export-mapping-viewport");
@@ -197,7 +197,7 @@ describe("ModelingTargetPreview", () => {
     expect(screen.getByText("Selected model", { exact: true })).toBeTruthy();
     expect(screen.getByText("Model", { exact: true })).toBeTruthy();
     expect(screen.queryByText("Reference / non-production", { exact: true })).toBeNull();
-    expect(await screen.findByText(/Acknowledgement required before delivery/)).toBeTruthy();
+    expect(await screen.findByText("Review the mapped approximations before creating the solver card.")).toBeTruthy();
     expect(screen.getAllByText("Review required", { exact: true })).toHaveLength(1);
     expect(screen.getAllByText("Reviewed", { exact: true })).toHaveLength(1);
     const acknowledgement = screen.getByLabelText("Acknowledge mapped approximations");
@@ -269,7 +269,7 @@ describe("ModelingTargetPreview", () => {
       acknowledgement_identity: preview.acknowledgement_identity,
       target: { solver: "abaqus", version: "2025", unit_system: "kg_m_s" },
     })));
-    expect(await screen.findByText(/Solver card created/)).toBeTruthy();
+    expect(await screen.findAllByText(/Solver card created/)).toHaveLength(2);
     expect(event).toHaveBeenCalledWith({
       type: "SET_CURRENT",
       key: "exportArtifact",
@@ -337,7 +337,7 @@ describe("ModelingTargetPreview", () => {
     render(<ModelingTargetPreview config={{ baseUrl: "http://test", accessToken: "test" }} session={session} output={output as never} prerequisites={prerequisites} capabilityManifest={abaqusOnly} />);
     expect(screen.getByRole("option", { name: "abaqus 2025 · kg-m-s" })).toBeTruthy();
     expect(screen.queryByRole("option", { name: "openradioss 2025 · kg-m-s" })).toBeNull();
-    expect(screen.getByRole("option", { name: "Other unit systems — unavailable (not declared by this exporter capability)." })).toHaveProperty("disabled", true);
+    expect(screen.getByRole("option", { name: "No other unit systems available" })).toHaveProperty("disabled", true);
   });
 
   it("offers Retry Export check after a failed C1 request", async () => {
@@ -381,7 +381,7 @@ describe("ModelingTargetPreview", () => {
     expect(vi.mocked(deliverExactTargetPreview).mock.calls[0][1]).toEqual(
       vi.mocked(deliverExactTargetPreview).mock.calls[1][1],
     );
-    expect(await screen.findByText(/Solver card created/)).toBeTruthy();
+    expect(await screen.findAllByText(/Solver card created/)).toHaveLength(2);
   });
 
   it.each([

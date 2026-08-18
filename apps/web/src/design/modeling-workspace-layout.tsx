@@ -33,7 +33,12 @@ export function modelingDataRibbonPreferredSize(
   const metrics = DISPLAY_DENSITY_CONTROL_METRICS[density];
   return dataLayoutMode === "content-fit"
     ? MODELING_PANE_METRICS.dataRibbon.contentFit
-    : metrics.navigatorRow * 3 + metrics.interactive * 2 + metrics.pane + metrics.splitter;
+    // Library review needs a useful result window before local scrolling:
+    // result heading/pager + table heading + four data rows. Source tabs sit
+    // above the navigator/main split so both source choices own the workspace.
+    // Derive it from shared density tokens so compact and large modes retain
+    // the same information hierarchy without a viewport-specific override.
+    : metrics.navigatorRow * 7 + metrics.splitter + metrics.pane;
 }
 
 export function ModelingWorkspaceLayout({
@@ -100,6 +105,24 @@ export function ModelingWorkspaceLayout({
     if (!dataLayoutMode || !dataRibbonPanel) return;
     dataRibbonPanel.resize(dataRibbonDesiredSizeRef.current);
   }, [dataLayoutMode, dataRibbonPanel, dataRibbonPreferredSize, density]);
+
+  useEffect(() => {
+    if (!dataLayoutMode || !dataRibbonPanel || typeof ResizeObserver === "undefined") return undefined;
+    const split = mainSurfaceRef.current?.querySelector<HTMLElement>(".modeling-data-split");
+    if (!split) return undefined;
+    const restoreAfterConstraint = () => {
+      const desired = dataRibbonDesiredSizeRef.current;
+      const current = dataRibbonPanel.getSize().inPixels;
+      const available = split.getBoundingClientRect().height
+        - MODELING_DATA_SPLIT_SEPARATOR_SIZE
+        - MODELING_DATA_PLOT_MIN_SIZE;
+      if (available + 1 >= desired && current + 1 < desired) dataRibbonPanel.resize(desired);
+    };
+    const observer = new ResizeObserver(restoreAfterConstraint);
+    observer.observe(split);
+    restoreAfterConstraint();
+    return () => observer.disconnect();
+  }, [dataLayoutMode, dataRibbonPanel]);
 
   useEffect(() => {
     if (!dockPresent || !evidenceDock) {

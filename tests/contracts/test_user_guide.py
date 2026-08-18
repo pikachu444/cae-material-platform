@@ -143,7 +143,7 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     assert report.local_link_count >= 150
     assert report.image_count >= 120
     assert report.orphan_image_count == 0
-    assert report.duplicate_image_group_count == 316
+    assert report.duplicate_image_group_count == 341
 
 
 def test_incoming_integration_package_is_reference_not_authoritative() -> None:
@@ -209,14 +209,16 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     }
 
     current_source = manifest["source_commit"]
-    fe04c_source = "87ddfa2b2459acd3c1727b40df1893e36670aa06+issue259-fe04c-worktree"
     fe04d_source = "c1e64be9c05c5a2039ae99aa5867a5f8b11f6621+issue259-fe04d-worktree"
     fe04e_source = "9c5cbfdc50222197c60b1812027fd28b426457f2+issue259-fe04e-worktree"
-    assert manifest["version"] == 112
-    assert manifest["scope"] == "issue-259-fe04f-modeling-export-target-ui-extraction"
-    assert re.fullmatch(r"[0-9a-f]{40}\+issue259-fe04f-worktree", current_source)
+    assert manifest["version"] == 114
+    assert manifest["scope"] == "issue-260-fe05-modeling-workflow-visual-normalization"
+    assert re.fullmatch(r"[0-9a-f]{40}\+issue260-fe05-worktree", current_source)
     assert manifest["source_commit"] == current_source
+    assert "--only-modeling-data-session" in manifest["capture_command"]
+    assert "--only-modeling-process-fit-viewports" in manifest["capture_command"]
     assert "--only-modeling-export" in manifest["capture_command"]
+    assert "--only-modeling-consistency" in manifest["capture_command"]
     assert len(provenance_ids) == len(set(provenance_ids))
     preserved_fixture_ids = {
         "solver-card-preview-1366",
@@ -226,7 +228,6 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     assert set(captures) - set(provenance_ids) == preserved_fixture_ids
     assert {provenance["source_commit"] for provenance in manifest["capture_provenance"]} == {
         current_source,
-        fe04c_source,
         fe04d_source,
         fe04e_source,
         "ef364087147e51e22cc02534645ba23b628c23d7+issue253-demo-token-refresh-worktree",
@@ -261,7 +262,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "administration-schema-bundle-1440",
     }
     new_issue_253_captures = {"demo-session-recovery-1440"}
-    new_issue_259_fe04c_captures = {
+    new_issue_260_captures = {
         "modeling-data-1366",
         "modeling-data-1440",
         "modeling-data-1920",
@@ -273,34 +274,16 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "modeling-data-empty-1440",
         "modeling-data-invalid-1440",
         "modeling-data-invalid-scrolled-1440",
-    }
-    new_issue_259_fe04d_captures = {
         "MOD-PROCESS-CURRENT-1366",
         "MOD-PROCESS-CURRENT-1440",
         "MOD-PROCESS-CURRENT-1920",
         "MOD-PROCESS-CURRENT-2560",
         "MOD-PROCESS-CURRENT-3840",
-        "MOD-PROCESS-CURRENT-LINEAR-1366",
-        "MOD-PROCESS-CURRENT-MANUAL-1366",
-        "MOD-PROCESS-CURRENT-BLOCKED-1440",
-        "MOD-PROCESS-CURRENT-EXACT-READ-FAILED-1440",
-        "MOD-PROCESS-CURRENT-SIBLINGS-1440",
-    }
-    new_issue_259_fe04e_captures = {
         "modeling-fit-1366",
         "modeling-fit-1440",
         "modeling-fit-1920",
         "modeling-fit-2560",
         "modeling-fit-3840",
-        "modeling-fit-candidate-parameters-long-1440",
-        "modeling-fit-candidate-evidence-scrolled-1440",
-        "modeling-fit-calculation-failed-1920",
-        "modeling-fit-save-failed-1920",
-        "modeling-fit-exact-source-blocked-1920",
-        "modeling-fit-exact-read-failed-1920",
-        "modeling-fit-restored-1920",
-    }
-    new_issue_259_fe04f_captures = {
         "modeling-export-1366",
         "modeling-export-1440",
         "modeling-export-1920",
@@ -309,6 +292,22 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "modeling-export-source-blocked",
         "modeling-export-approximation-blocked",
         "modeling-export-delivered",
+    }
+    new_issue_259_fe04d_captures = {
+        "MOD-PROCESS-CURRENT-LINEAR-1366",
+        "MOD-PROCESS-CURRENT-MANUAL-1366",
+        "MOD-PROCESS-CURRENT-BLOCKED-1440",
+        "MOD-PROCESS-CURRENT-EXACT-READ-FAILED-1440",
+        "MOD-PROCESS-CURRENT-SIBLINGS-1440",
+    }
+    new_issue_259_fe04e_captures = {
+        "modeling-fit-candidate-parameters-long-1440",
+        "modeling-fit-candidate-evidence-scrolled-1440",
+        "modeling-fit-calculation-failed-1920",
+        "modeling-fit-save-failed-1920",
+        "modeling-fit-exact-source-blocked-1920",
+        "modeling-fit-exact-read-failed-1920",
+        "modeling-fit-restored-1920",
     }
     new_issue_209_captures = {
         capture_id
@@ -363,13 +362,16 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     )
     assert "native Python Playwright 1.62" in issue_253_provenance["command"]
     assert new_issue_253_captures == set(issue_253_provenance["ids"])
-    issue_259_fe04f_provenance = next(
+    issue_260_provenance = next(
         provenance
         for provenance in manifest["capture_provenance"]
         if provenance["source_commit"] == current_source
     )
-    assert "--only-modeling-export" in issue_259_fe04f_provenance["command"]
-    assert new_issue_259_fe04f_captures == set(issue_259_fe04f_provenance["ids"])
+    assert "--only-modeling-data-session" in issue_260_provenance["command"]
+    assert "--only-modeling-process-fit-viewports" in issue_260_provenance["command"]
+    assert "--only-modeling-export" in issue_260_provenance["command"]
+    assert "--only-modeling-consistency" in issue_260_provenance["command"]
+    assert new_issue_260_captures == set(issue_260_provenance["ids"])
     issue_259_fe04e_provenance = next(
         provenance
         for provenance in manifest["capture_provenance"]
@@ -384,13 +386,6 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     )
     assert "--only-modeling-process" in issue_259_fe04d_provenance["command"]
     assert new_issue_259_fe04d_captures == set(issue_259_fe04d_provenance["ids"])
-    issue_259_fe04c_provenance = next(
-        provenance
-        for provenance in manifest["capture_provenance"]
-        if provenance["source_commit"] == fe04c_source
-    )
-    assert "--only-modeling-data-session" in issue_259_fe04c_provenance["command"]
-    assert new_issue_259_fe04c_captures == set(issue_259_fe04c_provenance["ids"])
     issue_209_provenance = next(
         provenance
         for provenance in manifest["capture_provenance"]
@@ -476,7 +471,9 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "modeling-export-1920",
     ):
         capture = captures[capture_id]
-        assert capture["workflow"] == "uxc-06c2-capability-backed-preview-and-atomic-delivery"
+        assert capture["workflow"] == (
+            "one-selected-model solver-card setup, native preview, mapping review and atomic delivery"
+        )
         assert "one immutable card/receipt" in capture["fixture"]
 
 

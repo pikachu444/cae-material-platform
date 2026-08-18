@@ -1,0 +1,1057 @@
+/* Issue #260 owns every selector in this file. Shared shell, density and
+   primitive rules remain in the design layer. */
+
+.modeling-data-workspace {
+  --modeling-data-useful-ribbon-block-size:
+    calc(var(--ux-navigator-row-block-size) * 7 + var(--ux-workbench-splitter-size) + var(--ux-pane-padding));
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.modeling-data-workspace.layout-content-fit {
+  --modeling-data-useful-ribbon-block-size: 384px;
+}
+
+.modeling-data-workspace.source-import.layout-compact {
+  --modeling-data-useful-ribbon-block-size:
+    calc(var(--ux-engineering-control-block-size) + var(--ux-space-4));
+}
+
+.modeling-data-workspace.source-import.layout-compact #modeling-data-ribbon[data-panel] {
+  /* The shared splitter writes flex sizes for resizable ribbons. Data's compact
+     file chooser must remain one control row until that shared layout exposes
+     a stage-owned compact-size input; remove these overrides at that boundary. */
+  flex: 0 0 var(--modeling-data-useful-ribbon-block-size) !important;
+  height: var(--modeling-data-useful-ribbon-block-size) !important;
+  max-height: var(--modeling-data-useful-ribbon-block-size) !important;
+}
+
+.modeling-data-workspace > .modeling-split-workspace {
+  flex: 1 1 auto !important;
+  height: 100% !important;
+  max-height: none !important;
+}
+
+.modeling-data-browser {
+  display: grid;
+  align-content: start;
+  grid-template-rows:
+    auto
+    auto
+    auto
+    minmax(0, calc(var(--ux-navigator-row-block-size) * 13));
+  width: 100%;
+  min-width: 0;
+  height: auto;
+  max-height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--ux-surface);
+}
+
+.modeling-data-browser.has-related {
+  grid-template-rows:
+    auto
+    auto
+    auto
+    minmax(0, calc(var(--ux-navigator-row-block-size) * 13))
+    calc(var(--ux-navigator-row-block-size) * 6);
+}
+
+.modeling-data-search,
+.modeling-data-filters {
+  padding: var(--ux-space-1) var(--ux-space-2);
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.modeling-data-search { grid-row: 1; }
+.modeling-data-filters { grid-row: 2; }
+.modeling-data-filter-error { grid-row: 3; }
+
+.modeling-data-search > label,
+.modeling-data-filters > label {
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+  font-weight: var(--ux-font-weight-label);
+}
+
+.modeling-data-search > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  align-items: center;
+  gap: var(--ux-space-1);
+  margin-top: var(--ux-space-1);
+}
+
+.modeling-data-search input,
+.modeling-data-filters select {
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--ux-navigator-row-block-size);
+  min-height: var(--ux-navigator-row-block-size);
+  padding: 0 var(--ux-space-2);
+  border: 1px solid var(--ux-border-strong);
+  border-radius: 0;
+  background: var(--ux-surface);
+  color: var(--ux-text);
+  font-size: var(--ux-engineering-control-font-size);
+}
+
+.modeling-data-search .text-button {
+  min-height: var(--ux-navigator-row-block-size);
+  padding-inline: var(--ux-space-1);
+}
+
+.modeling-data-filters {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--ux-space-1) var(--ux-space-2);
+}
+
+.modeling-data-filter-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ux-space-1);
+  padding: var(--ux-space-1) var(--ux-space-2);
+  border-bottom: 1px solid var(--ux-border);
+  color: var(--ux-danger);
+  font-size: var(--ux-metadata-font-size);
+}
+
+.modeling-data-tree,
+.modeling-data-related {
+  min-width: 0;
+  min-height: 0;
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.modeling-data-tree {
+  grid-row: 4;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.modeling-data-rail-heading {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--ux-navigator-row-block-size);
+  padding: 0 var(--ux-space-2);
+  border-bottom: 1px solid var(--ux-border);
+  background: var(--ux-surface-subtle);
+}
+
+.modeling-data-rail-heading h3,
+.modeling-data-rail-heading span {
+  margin: 0;
+  color: var(--ux-text);
+  font-size: var(--ux-metadata-font-size);
+  font-weight: var(--ux-font-weight-heading);
+}
+
+.modeling-data-rail-heading span {
+  color: var(--ux-text-muted);
+  font-weight: var(--ux-font-weight-metadata);
+  font-variant-numeric: tabular-nums;
+}
+
+.modeling-data-tree [role="tree"] {
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  padding-block: var(--ux-space-1);
+}
+
+.modeling-data-tree [role="treeitem"] {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  align-items: center;
+  width: 100%;
+  min-height: var(--ux-navigator-row-block-size);
+  padding: 0 var(--ux-space-2);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--ux-text);
+  font-size: var(--ux-data-font-size);
+  text-align: left;
+}
+
+.modeling-data-tree [role="treeitem"]:hover {
+  background: var(--ux-surface-subtle);
+}
+
+.modeling-data-tree [role="treeitem"]:focus-visible {
+  outline: 2px solid var(--ux-focus);
+  outline-offset: -2px;
+}
+
+.modeling-data-tree [role="treeitem"].active {
+  box-shadow: none;
+  background: var(--ux-surface-subtle);
+  font-weight: var(--ux-font-weight-heading);
+}
+
+.modeling-data-tree [role="treeitem"].root span:first-child {
+  overflow: hidden;
+  font-weight: var(--ux-font-weight-heading);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modeling-data-tree [role="treeitem"].child {
+  padding-left: calc(var(--ux-space-2) + var(--ux-space-4));
+}
+
+.modeling-data-tree [role="treeitem"] span:last-child {
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+  font-variant-numeric: tabular-nums;
+}
+
+.modeling-data-related-slot {
+  grid-row: 5;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.modeling-data-related {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 100%;
+  border-bottom: 0;
+}
+
+.modeling-data-related.is-error {
+  display: block;
+  padding-bottom: var(--ux-space-2);
+}
+
+.modeling-data-related.is-error p,
+.modeling-data-related.is-error > button {
+  margin: var(--ux-space-2);
+}
+
+.modeling-data-related-scroll {
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.modeling-data-related details {
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.modeling-data-related summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  align-items: center;
+  min-height: var(--ux-navigator-row-block-size);
+  padding: 0 var(--ux-space-2);
+  color: var(--ux-text);
+  font-size: var(--ux-metadata-font-size);
+  font-weight: var(--ux-font-weight-label);
+  cursor: pointer;
+}
+
+.modeling-data-related summary span:last-child {
+  color: var(--ux-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.modeling-data-related ul {
+  margin: 0;
+  padding: 0 0 var(--ux-space-1);
+  list-style: none;
+}
+
+.modeling-data-related li a {
+  display: block;
+  min-height: var(--ux-navigator-row-block-size);
+  padding: var(--ux-space-1) var(--ux-space-2) var(--ux-space-1) calc(var(--ux-space-2) + var(--ux-space-4));
+  overflow: hidden;
+  color: var(--ux-text);
+  font-size: var(--ux-metadata-font-size);
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modeling-data-related li a:hover {
+  background: var(--ux-surface-subtle);
+  color: var(--ux-accent);
+}
+
+.modeling-data-related li a:focus-visible {
+  outline: 2px solid var(--ux-focus);
+  outline-offset: -2px;
+}
+
+.modeling-data-workspace .modeling-data-intake {
+  display: grid;
+  grid-template-rows: var(--ux-engineering-control-block-size) minmax(0, 1fr);
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.modeling-data-workspace .modeling-data-intake.source-tabs-external {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.modeling-data-workspace .data-source-tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  min-height: var(--ux-engineering-control-block-size);
+  padding: 0 var(--ux-space-2);
+  border-bottom: 1px solid var(--ux-border-strong);
+}
+
+.modeling-data-workspace > .modeling-data-workspace-tabs {
+  flex: 0 0 var(--ux-engineering-control-block-size);
+  box-sizing: border-box;
+  width: 100%;
+  background: var(--ux-surface);
+}
+
+.modeling-data-workspace .data-source-tabs button {
+  min-width: 72px;
+  min-height: var(--ux-engineering-control-block-size);
+  padding: 0 var(--ux-space-2);
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--ux-text-muted);
+  font-size: var(--ux-engineering-control-font-size);
+  font-weight: var(--ux-font-weight-label);
+}
+
+.modeling-data-workspace .data-source-tabs button[aria-selected="true"] {
+  border-bottom-color: var(--ux-accent);
+  color: var(--ux-text);
+}
+
+.modeling-data-results {
+  display: grid;
+  grid-template-rows: var(--ux-navigator-row-block-size) minmax(0, 1fr) var(--ux-navigator-row-block-size);
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.modeling-data-results-heading,
+.modeling-data-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ux-space-2);
+  min-height: var(--ux-navigator-row-block-size);
+  padding: 0 var(--ux-space-2);
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.modeling-data-results-heading h3,
+.modeling-data-results-heading span,
+.modeling-data-pagination span {
+  margin: 0;
+  font-size: var(--ux-metadata-font-size);
+}
+
+.modeling-data-results-heading h3 {
+  color: var(--ux-text);
+  font-weight: var(--ux-font-weight-heading);
+}
+
+.modeling-data-results-heading span,
+.modeling-data-pagination span {
+  color: var(--ux-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.modeling-data-results-scroll {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.modeling-data-results-scroll:focus-visible {
+  outline: 2px solid var(--ux-focus);
+  outline-offset: -2px;
+}
+
+.modeling-data-results table {
+  width: 100%;
+  min-width: 880px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.modeling-data-results th,
+.modeling-data-results td {
+  box-sizing: border-box;
+  height: var(--ux-engineering-control-block-size);
+  padding: 0 var(--ux-space-2);
+  border-bottom: 1px solid var(--ux-border);
+  overflow: hidden;
+  color: var(--ux-text);
+  font-size: var(--ux-data-font-size);
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modeling-data-results th {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  background: var(--ux-surface-subtle);
+  color: var(--ux-text-muted);
+  font-size: var(--ux-table-heading-font-size);
+  font-weight: var(--ux-font-weight-table-heading);
+}
+
+.modeling-data-record-column { width: 31%; }
+.modeling-data-material-column { width: 24%; }
+.modeling-data-condition-column { width: 16%; }
+.modeling-data-date-column { width: 17%; }
+.modeling-data-points-column { width: 12%; }
+
+.modeling-data-results tr.active td {
+  background: var(--ux-accent-soft);
+}
+
+.modeling-data-results tr.active td:first-child {
+  box-shadow: inset 3px 0 0 var(--ux-accent);
+}
+
+.modeling-data-results .numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.modeling-data-record-button {
+  display: grid;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  min-height: calc(var(--ux-navigator-row-block-size) - 1px);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+.modeling-data-record-button span,
+.modeling-data-record-button small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modeling-data-record-button small {
+  color: var(--ux-warning);
+  font-size: var(--ux-metadata-font-size);
+}
+
+.modeling-data-compare-column {
+  width: 72px;
+  text-align: center !important;
+}
+
+.modeling-data-compare-column label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: var(--ux-navigator-row-block-size);
+}
+
+.modeling-data-primary-label {
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+.modeling-data-empty-result {
+  color: var(--ux-text-muted) !important;
+  text-align: center !important;
+}
+
+.modeling-data-pagination {
+  border-top: 1px solid var(--ux-border);
+  border-bottom: 0;
+}
+
+.modeling-data-pagination > div {
+  display: flex;
+  align-items: center;
+  gap: var(--ux-space-1);
+}
+
+.modeling-data-pagination button {
+  width: var(--ux-navigator-row-block-size);
+  height: var(--ux-navigator-row-block-size);
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--ux-accent);
+}
+
+.modeling-data-pagination button:hover:not(:disabled) {
+  border-color: var(--ux-border);
+  background: var(--ux-surface-subtle);
+}
+
+.modeling-data-plot-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 0;
+  background: var(--ux-surface);
+}
+
+.modeling-data-plot-panel > .modeling-data-plot {
+  flex: 0 1 2800px;
+  width: min(100%, 2800px);
+  max-width: 2800px;
+  height: 100%;
+  max-height: 1200px;
+  border: 0;
+  background: var(--ux-surface);
+}
+
+.modeling-data-plot {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: 31px minmax(0, 1fr) var(--ux-control-min-block-size);
+  gap: 0 var(--ux-space-2);
+  padding: 0 var(--ux-space-2) var(--ux-space-2);
+}
+
+.application-shell main.processing-workbench-page .modeling-data-plot > .section-heading {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+  min-height: 31px;
+  margin: 0;
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.application-shell main.processing-workbench-page .modeling-data-plot > .section-heading h2 {
+  display: block;
+  margin: 0;
+  color: var(--ux-text);
+  font-size: var(--ux-data-font-size);
+  font-weight: var(--ux-font-weight-heading);
+}
+
+.application-shell main.processing-workbench-page
+  .modeling-data-plot
+  > .section-heading
+  > .modeling-data-plot-heading {
+  display: flex;
+  align-items: baseline;
+  min-width: 0;
+  gap: var(--ux-space-2);
+}
+
+.modeling-data-plot-heading > span {
+  overflow: hidden;
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+  font-weight: var(--ux-font-weight-metadata);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modeling-data-comparison-action {
+  min-height: 28px;
+  padding-inline: var(--ux-space-2);
+  background: var(--ux-surface);
+  color: var(--ux-accent);
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.modeling-data-comparison-action:hover {
+  color: var(--ux-accent-hover);
+  text-decoration: none;
+}
+
+.modeling-data-comparison-limit {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  align-self: center;
+  justify-self: center;
+  margin: 0;
+  color: var(--ux-warning);
+  font-size: var(--ux-metadata-font-size);
+}
+
+.modeling-data-plot > .modeling-plot-toolbar {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.modeling-data-plot > .engineering-plot-frame {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.modeling-data-plot .engineering-plot-frame > .processing-curve {
+  grid-row: 1;
+  min-height: 0;
+}
+
+.modeling-data-plot .engineering-plot-frame > .curve-legend.interactive {
+  position: static;
+  display: flex;
+  grid-row: 2;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: none;
+  max-height: calc(var(--ux-engineering-control-block-size) * 2);
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  background: transparent;
+}
+
+.modeling-data-plot .engineering-plot-frame > .curve-legend.interactive button {
+  min-height: 24px;
+  padding: 0 var(--ux-space-1);
+  font-size: var(--ux-metadata-font-size);
+}
+
+.modeling-data-plot .processing-curve,
+.modeling-data-plot .engineering-curve-plot-empty-svg {
+  border-color: var(--ux-border);
+  background: var(--ux-surface);
+}
+
+.modeling-data-plot-actions {
+  display: flex;
+  grid-column: 1 / -1;
+  grid-row: 3;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: var(--ux-control-min-block-size);
+  padding-top: var(--ux-space-1);
+  border-top: 1px solid var(--ux-border);
+}
+
+.modeling-data-technical-details {
+  flex: 0 0 auto;
+  width: 100%;
+  border-top: 1px solid var(--ux-border-strong);
+  background: var(--ux-surface);
+}
+
+.modeling-data-technical-details > summary {
+  display: flex;
+  align-items: center;
+  min-height: var(--ux-engineering-control-block-size);
+  padding: 0 var(--ux-space-2);
+  color: var(--ux-text);
+  font-size: var(--ux-metadata-font-size);
+  font-weight: var(--ux-font-weight-heading);
+  cursor: pointer;
+  list-style: none;
+}
+
+.modeling-data-technical-details > summary::before {
+  width: 1em;
+  margin-right: var(--ux-space-1);
+  color: var(--ux-text-muted);
+  content: "›";
+  font-size: var(--ux-data-font-size);
+  transform: rotate(0deg);
+  transform-origin: center;
+}
+
+.modeling-data-technical-details[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.modeling-data-technical-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.modeling-data-technical-details > div {
+  max-height: min(360px, 46vh);
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.modeling-data-technical-details :is(.engineering-pane, .engineering-section) {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.modeling-data-evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 var(--ux-space-4);
+  margin: 0;
+}
+
+.modeling-data-evidence-grid > div {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: var(--ux-space-2);
+  padding: var(--ux-space-1) 0;
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.modeling-data-evidence-grid dt {
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+.modeling-data-evidence-grid dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--ux-text);
+  font-size: var(--ux-data-font-size);
+}
+
+/* Local file uses one compact, locally scrolling decision surface. */
+.modeling-workspace-stage-data .modeling-data-workspace .modeling-data-intake > .data-intake-local {
+  display: grid;
+  align-content: start;
+  min-width: 0;
+  min-height: 0;
+  padding: var(--ux-space-2);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+/* Scope the inherited two-column import grid only when the Data mapping surface
+   is present. Remove this relational override when #261 moves the remaining
+   legacy import-grid ownership into the Data feature. */
+.modeling-workspace-stage-data .modeling-main-surface:has(.data-source-decision-grid) .data-source-decision-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.data-import-file-row {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.data-import-file-control {
+  position: relative;
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: center;
+  box-sizing: border-box;
+  width: min(100%, 520px);
+  min-width: 0;
+  height: var(--ux-engineering-control-block-size);
+  border: 1px solid var(--ux-border-strong);
+  border-radius: 0;
+  background: var(--ux-surface);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.modeling-workspace-stage-data .modeling-data-workspace
+  .data-intake-local .data-intake-row
+  .data-import-file-control > input[type="file"] {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.data-import-file-control:focus-within {
+  outline: 2px solid var(--ux-focus);
+  outline-offset: -2px;
+}
+
+.data-import-file-button {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: calc(var(--ux-engineering-control-block-size) - 2px);
+  padding-inline: var(--ux-space-2);
+  border-right: 1px solid var(--ux-border-strong);
+  background: var(--ux-surface-subtle);
+  color: var(--ux-text);
+  font-size: var(--ux-engineering-control-font-size);
+  font-weight: var(--ux-font-weight-control);
+}
+
+.data-import-file-name {
+  min-width: 0;
+  padding-inline: var(--ux-space-2);
+  overflow: hidden;
+  color: var(--ux-text-muted);
+  font-size: var(--ux-engineering-control-font-size);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modeling-data-workspace .modeling-data-intake :is(
+  .data-intake-row label,
+  .data-intake-attention label,
+  .data-mapping-recovery-detail > label
+) {
+  font-size: var(--ux-engineering-control-font-size);
+  font-weight: var(--ux-font-weight-label);
+}
+
+.modeling-data-workspace .modeling-data-intake :is(
+  select,
+  input:not([type="checkbox"]):not([type="file"]),
+  .data-intake-row > button,
+  .data-mapping-actions .button
+) {
+  box-sizing: border-box;
+  height: var(--ux-engineering-control-block-size);
+  min-height: var(--ux-engineering-control-block-size);
+  padding-block: 0;
+  font-size: var(--ux-engineering-control-font-size);
+  line-height: normal;
+}
+
+.data-source-decision-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.data-mapping-resolved {
+  align-items: center;
+  padding-left: 0;
+  border-left: 0;
+}
+
+.data-mapping-decision .data-mapping-table,
+.data-source-advanced .data-source-advanced-table {
+  max-width: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.data-mapping-decision .data-mapping-table table {
+  min-width: 800px;
+}
+
+.data-mapping-decision .data-mapping-table th,
+.data-mapping-decision .data-mapping-table td {
+  padding-block: var(--ux-space-1);
+  overflow-wrap: normal;
+  white-space: nowrap;
+}
+
+.data-mapping-decision .data-mapping-table th:nth-child(1) { width: 190px; }
+.data-mapping-decision .data-mapping-table th:nth-child(2) { width: 52%; }
+.data-mapping-decision .data-mapping-table th:nth-child(3) { width: 150px; }
+.data-mapping-decision .data-mapping-table th:nth-child(4) { width: 150px; }
+
+.modeling-data-workspace .data-mapping-recovery-row.is-ready {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.modeling-data-workspace .data-mapping-recovery-row.is-ready .data-mapping-recovery-detail {
+  grid-column: 1;
+}
+
+.data-source-advanced-table table {
+  width: max-content;
+  min-width: 100%;
+  table-layout: auto;
+}
+
+.data-source-advanced-table th,
+.data-source-advanced-table td {
+  min-width: 180px;
+  overflow-wrap: normal;
+  white-space: nowrap;
+}
+
+.data-mapping-blockers .ux-workbench-message-body > span {
+  display: block;
+}
+
+.data-mapping-blockers .ux-workbench-message-body > span + span {
+  margin-top: var(--ux-space-1);
+}
+
+.data-import-record-details {
+  border-top: 1px solid var(--ux-border);
+}
+
+.data-import-record-details > summary {
+  display: flex;
+  align-items: center;
+  min-height: var(--ux-interactive-min-block-size);
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+  cursor: pointer;
+}
+
+.data-import-record-details .mapping-context-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(150px, 1fr));
+  gap: var(--ux-space-2);
+  padding-block: var(--ux-space-2);
+  border-top: 0;
+}
+
+.data-source-advanced > summary {
+  min-height: var(--ux-interactive-min-block-size);
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+.data-json-import-result > strong {
+  align-self: center;
+  min-width: 180px;
+  font-size: var(--ux-data-font-size);
+}
+
+.modeling-data-workspace :is(input, select, button, summary, a):focus-visible {
+  outline: 2px solid var(--ux-focus);
+  outline-offset: 2px;
+}
+
+/* Data keeps one restrained, square engineering grammar. The shared controls
+   remain untouched on Process, Fit and Export. */
+.processing-workbench-page.stage-data :is(
+  .button,
+  .modeling-advanced-menu > summary,
+  .modeling-ribbon-control,
+  .modeling-pane-divider > button,
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea
+) {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.application-workspace:has(.processing-workbench-page.stage-data) {
+  /* #260 owner-approved full-viewport Data shell. Remove when every Modeling
+     stage consumes the same shell decision in its own bounded FE-05 unit. */
+  padding-inline: 0;
+}
+
+.application-shell main.processing-workbench-page.stage-data .modeling-context-strip {
+  min-height: var(--ux-control-min-block-size);
+  flex-basis: var(--ux-control-min-block-size);
+}
+
+.application-shell main.processing-workbench-page.stage-data
+  .modeling-context-actions :is(.modeling-advanced-menu, .modeling-advanced-menu > summary) {
+  height: var(--ux-navigator-row-block-size);
+  min-height: var(--ux-navigator-row-block-size);
+}
+
+.processing-workbench-page.stage-data .modeling-data-workspace :is(
+  .modeling-data-search input,
+  .modeling-data-filters select
+) {
+  height: var(--ux-navigator-row-block-size);
+  min-height: var(--ux-navigator-row-block-size);
+}
+
+.modeling-workspace-stage-data .modeling-workspace-rail {
+  box-sizing: border-box;
+  height: 100%;
+  max-height: none;
+  align-content: start;
+  overflow: hidden;
+}
+
+#modeling-navigator[data-panel] {
+  position: relative;
+}
+
+#modeling-navigator[data-panel] > .modeling-workspace-rail {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+}
+
+.modeling-workspace-stage-data .modeling-pane-divider {
+  flex-basis: 5px;
+  width: 5px;
+  border-left: 1px solid var(--ux-border-strong);
+  background: transparent;
+}
+
+.modeling-workspace-stage-data .modeling-pane-divider:hover,
+.modeling-workspace-stage-data .modeling-pane-divider:focus-visible {
+  border-left-color: var(--ux-accent);
+  background: transparent;
+}
+
+.modeling-workspace-stage-data .modeling-pane-divider > button {
+  left: -4px;
+  width: 13px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.modeling-workspace-stage-data .modeling-data-divider {
+  min-height: 5px;
+  border: 0;
+  border-top: 1px solid var(--ux-border-strong);
+  background: transparent;
+}
+
+.modeling-workspace-stage-data .modeling-data-divider:hover,
+.modeling-workspace-stage-data .modeling-data-divider:focus-visible,
+.modeling-workspace-stage-data .modeling-data-divider:active {
+  border-top-color: var(--ux-accent);
+  background: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modeling-data-workspace * {
+    scroll-behavior: auto;
+  }
+}

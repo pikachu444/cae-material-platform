@@ -160,7 +160,7 @@ describe("Modeling data intake", () => {
     });
   });
 
-  it("keeps the Test Data Library in a keyboard-focusable local scroll region", () => {
+  it("keeps existing Test Data human-readable in a keyboard-focusable local scroll region", () => {
     const onLayoutModeChange = vi.fn();
     const documents = Array.from({ length: 4 }, (_, index) => ({
       test_data_document_id: `document-${index + 1}`,
@@ -195,12 +195,19 @@ describe("Modeling data intake", () => {
       />,
     );
 
-    const library = screen.getByRole("list", { name: "Saved Test Data revisions" });
+    const library = screen.getByRole("list", { name: "Test Data from Materials" });
     expect(library.getAttribute("tabindex")).toBe("0");
     expect(container.querySelector(".data-library-scroll-shell")).toBeTruthy();
-    expect(screen.getByText("Saved Test Data", { exact: true })).toBeTruthy();
-    expect(screen.getByText("4 exact revisions", { exact: true })).toBeTruthy();
+    expect(screen.queryByText("Test Data linked to this material", { exact: true })).toBeNull();
+    expect(screen.queryByText("4 records", { exact: true })).toBeNull();
+    expect(Array.from(container.querySelectorAll(".data-library-columns span")).map((item) => item.textContent))
+      .toEqual(["Select specimen", "Test", "Date", "Data points"]);
+    expect(screen.getByText("Specimen 01", { exact: true })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Specimen 01, Tensile test, tested 2026-07-18, 3 data points" })).toBeTruthy();
+    expect(screen.queryByText("DP780-TENSILE-1", { exact: true })).toBeNull();
+    expect(screen.queryByText("Revision r1", { exact: true })).toBeNull();
     expect(screen.queryByText(/Test Data records available/)).toBeNull();
+    expect(screen.queryByText("Technical details", { exact: true })).toBeNull();
     expect(library.querySelectorAll("[role='listitem']")).toHaveLength(4);
     expect(onLayoutModeChange).toHaveBeenCalledWith("compact");
   });
@@ -454,11 +461,13 @@ describe("Modeling data intake", () => {
     );
 
     fireEvent.click(screen.getByRole("tab", { name: "Local file" }));
-    const testRunSelect = await screen.findByRole("combobox", { name: "Local file Test Run" });
-    fireEvent.change(testRunSelect, { target: { value: "test-run-1" } });
+    expect(screen.getByText("Choose data file", { exact: true })).toBeTruthy();
+    expect(screen.queryByText("CSV · TSV · XLSX · JSON", { exact: true })).toBeNull();
     const file = new File(["strain,stress\n0,0\n"], "source.csv", { type: "text/csv" });
-    fireEvent.change(screen.getByLabelText("Local test data file"), { target: { files: [file] } });
-    fireEvent.click(await screen.findByRole("button", { name: "Inspect source" }));
+    fireEvent.change(screen.getByLabelText("Import Test Data file"), { target: { files: [file] } });
+    const testRunSelect = await screen.findByRole("combobox", { name: "Imported file Test record" });
+    fireEvent.change(testRunSelect, { target: { value: "test-run-1" } });
+    fireEvent.click(await screen.findByRole("button", { name: "Inspect file" }));
 
     await waitFor(() => expect(container.querySelector(".data-source-decision-grid")).toBeTruthy());
     const grid = container.querySelector(".data-source-decision-grid");
@@ -468,12 +477,23 @@ describe("Modeling data intake", () => {
     expect(mapping).toBeTruthy();
     expect(recovery?.parentElement).toBe(grid);
     expect(recovery?.closest(".data-mapping-decision")).toBeNull();
-    expect(grid?.firstElementChild?.classList.contains("data-source-evidence")).toBe(true);
-    expect(grid?.children[1]).toBe(mapping);
+    expect(grid?.firstElementChild).toBe(mapping);
+    expect(grid?.children[1]).toBe(recovery);
+    expect(screen.getByText("Match file columns", { exact: true })).toBeTruthy();
+    expect(screen.queryByText("Review required", { exact: true })).toBeNull();
+    expect(Array.from(container.querySelectorAll(".data-mapping-table th")).map((item) => item.textContent))
+      .toEqual(["Modeling data", "Column in file", "File unit", "Modeling unit"]);
+    expect(container.querySelector('.data-mapping-blockers[data-status="success"]')).toBeNull();
+    expect(container.querySelector(".data-source-evidence")).toBeNull();
+    const technicalDetails = screen.getByText(/Raw bytes, source units/).closest("details.data-source-advanced");
+    expect(technicalDetails).toBeTruthy();
+    expect(technicalDetails?.querySelector(".data-raw-table")).toBeTruthy();
 
     fireEvent.change(screen.getByRole("combobox", { name: "Local data schema" }), {
       target: { value: "dma_frequency_temperature_sweep" },
     });
+    expect(container.querySelector('.data-mapping-blockers[data-message-kind="blocked"]')?.textContent)
+      .toContain("Fix the test data mapping.");
     expect(screen.getByRole("combobox", { name: "Temperature source column" })).toBeTruthy();
     expect(screen.getByRole("combobox", { name: "Frequency source column" })).toBeTruthy();
     expect(screen.getByRole("combobox", { name: "Storage modulus source column" })).toBeTruthy();
@@ -630,15 +650,15 @@ describe("Modeling data intake", () => {
     );
 
     fireEvent.click(screen.getByRole("tab", { name: "Local file" }));
-    fireEvent.change(await screen.findByRole("combobox", { name: "Local file Test Run" }), {
-      target: { value: "test-run-1" },
-    });
-    fireEvent.change(screen.getByLabelText("Local test data file"), {
+    fireEvent.change(screen.getByLabelText("Import Test Data file"), {
       target: { files: [new File([
         "temperature,frequency,storage,loss\n23,0,1200,80\n",
       ], "dma-invalid.csv", { type: "text/csv" })] },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Inspect source" }));
+    fireEvent.change(await screen.findByRole("combobox", { name: "Imported file Test record" }), {
+      target: { value: "test-run-1" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Inspect file" }));
     await screen.findByRole("region", { name: "Raw source table preview" });
     fireEvent.change(screen.getByRole("combobox", { name: "Local data schema" }), {
       target: { value: "dma_frequency_temperature_sweep" },
@@ -655,6 +675,8 @@ describe("Modeling data intake", () => {
     fireEvent.click(recordButton);
     expect(await screen.findByText("Frequency must be greater than zero.")).toBeTruthy();
     expect(screen.getByText("Choose a corrected file with positive frequency values.")).toBeTruthy();
+    expect(screen.getByLabelText("Governed import diagnostics").getAttribute("data-message-kind"))
+      .toBe("error");
     expect(onImported).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole("button", { name: "Record rejected import" }));
@@ -839,23 +861,23 @@ describe("Modeling data intake", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("tab", { name: "Test Data JSON" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Local file" }));
     const file = new File([JSON.stringify(canonicalDocument)], "test-data.json", {
       type: "application/json",
     });
     Object.defineProperty(file, "text", {
       value: async () => JSON.stringify(canonicalDocument),
     });
-    fireEvent.change(screen.getByLabelText("Test Data JSON file"), {
+    fireEvent.change(screen.getByLabelText("Import Test Data file"), {
       target: { files: [file] },
     });
 
-    expect(await screen.findByText(/3 points · 0 channels · valid/)).toBeTruthy();
+    expect(await screen.findByText(/3 points · 0 channels/)).toBeTruthy();
     expect(onPreviewDocument).toHaveBeenCalledWith(
       canonicalDocument,
       expect.objectContaining({ execution_mode: "preview" }),
     );
-    fireEvent.click(screen.getByRole("button", { name: "Save dataset" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save Test Data" }));
     await waitFor(() => expect(onImported).toHaveBeenCalledWith(imported));
     const registration = fetchMock.mock.calls.find(([input, init]) =>
       String(input).endsWith("/test-data-documents") && init?.method === "POST");
