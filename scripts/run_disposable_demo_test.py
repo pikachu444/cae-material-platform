@@ -607,6 +607,7 @@ def _run_verification(
     *,
     e2e: bool,
     e2e_specs: Sequence[str] = (),
+    scale_fixture: bool = False,
 ) -> None:
     build_services = ["migrate", "api", "worker", "reference-plugins", "seed"]
     if e2e:
@@ -625,6 +626,29 @@ def _run_verification(
         cwd=root,
     )
     _run_seed_twice_and_assert_stable(root, project)
+    if scale_fixture:
+        _run_stage(
+            "disposable 1,000-record scale fixture",
+            lambda: _run_command(
+                compose_command(
+                    root,
+                    project,
+                    "run",
+                    "--rm",
+                    "--no-deps",
+                    "--env",
+                    f"CMP_DISPOSABLE_PROJECT_NAME={project}",
+                    "seed",
+                    "python",
+                    "scripts/seed_disposable_scale_fixture.py",
+                    "--api-base-url",
+                    "http://api:8000/api/v1",
+                    "--project-name",
+                    project,
+                ),
+                cwd=root,
+            ),
+        )
     if not e2e:
         _run_stage(
             "full demo API verification",
@@ -694,6 +718,7 @@ def run_disposable_demo_test(
     project: str,
     e2e: bool = False,
     e2e_specs: Sequence[str] = (),
+    scale_fixture: bool = False,
 ) -> None:
     project = validate_project_name(project)
     if e2e_specs and not e2e:
@@ -706,12 +731,18 @@ def run_disposable_demo_test(
     expected_volumes = [f"{project}_{key}" for key in PROJECT_VOLUME_KEYS]
     print(
         f"Disposable demo test: project={project}, volumes={expected_volumes}, "
-        f"e2e={str(e2e).lower()}"
+        f"e2e={str(e2e).lower()}, scale_fixture={str(scale_fixture).lower()}"
     )
 
     failure: BaseException | None = None
     try:
-        _run_verification(root, project, e2e=e2e, e2e_specs=e2e_specs)
+        _run_verification(
+            root,
+            project,
+            e2e=e2e,
+            e2e_specs=e2e_specs,
+            scale_fixture=scale_fixture,
+        )
     except BaseException as exc:
         failure = exc
     try:
@@ -743,6 +774,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--project-name", default=None)
     parser.add_argument("--e2e", action="store_true")
     parser.add_argument("--e2e-spec", action="append", default=[])
+    parser.add_argument("--scale-fixture", action="store_true")
     return parser
 
 
@@ -755,6 +787,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             project=project,
             e2e=args.e2e,
             e2e_specs=args.e2e_spec,
+            scale_fixture=args.scale_fixture,
         )
     except (DisposableDemoError, subprocess.CalledProcessError, ValueError) as exc:
         print(f"Disposable demo test failed: {exc}", file=sys.stderr)

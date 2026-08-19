@@ -3,7 +3,7 @@ export UV_CACHE_DIR ?= /tmp/cmp-uv-cache
 export UV_PROJECT_ENVIRONMENT ?= /tmp/cmp-cae-material-platform-venv
 export UV_LINK_MODE ?= copy
 
-.PHONY: bootstrap demo demo-verify demo-e2e demo-down development-environment-preflight compose-preflight lint typecheck check-architecture check-contracts docs-capture docs-screenshots docs-impact install-hooks verify-hooks pre-publish pre-publish-review generate-client release-quality performance-acceptance performance-fixture performance-production-scale soak-fault-acceptance governed-storage-acceptance product-pilot-acceptance \
+.PHONY: bootstrap demo demo-verify demo-e2e demo-scale-e2e demo-down development-environment-preflight compose-preflight lint typecheck check-architecture check-contracts docs-capture docs-screenshots docs-impact install-hooks verify-hooks pre-publish pre-publish-review generate-client release-quality performance-acceptance performance-fixture performance-production-scale soak-fault-acceptance governed-storage-acceptance product-pilot-acceptance \
 	migrate test-unit test-contract test-migration test-integration test-postgresql test \
 	web-build web-test run-api run-worker run-worker-once ci
 
@@ -22,6 +22,10 @@ demo-verify:
 demo-e2e:
 	npx --no-install playwright install chromium
 	$(UV) run python scripts/run_disposable_demo_test.py --e2e
+
+demo-scale-e2e:
+	npx --no-install playwright install chromium
+	$(UV) run python scripts/run_disposable_demo_test.py --e2e --scale-fixture --e2e-spec e2e/disposable-scale-fixture.spec.ts
 
 demo-down:
 	docker compose -f deploy/compose/docker-compose.demo.yml down
