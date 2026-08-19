@@ -1,0 +1,714 @@
+{
+  "schemaVersion": "cmp.issue-261.m1a4-css-visual-equivalence.v1",
+  "imagePairs": [
+    {
+      "relativePath": "crops/modeling-data-raw-source-preview-1366x768-controls-100pct.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1366x768-controls-100pct.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1366x768-controls-100pct.png",
+      "width": 1288,
+      "height": 78,
+      "beforeSha256": "443ff67f22bd7b56667903e74f3287c1017b6ebedcc547bc7d36679062bcaf26",
+      "afterSha256": "443ff67f22bd7b56667903e74f3287c1017b6ebedcc547bc7d36679062bcaf26",
+      "byteIdentical": true,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "crops/modeling-data-raw-source-preview-1366x768-graph-100pct.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1366x768-graph-100pct.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1366x768-graph-100pct.png",
+      "width": 1366,
+      "height": 240,
+      "beforeSha256": "7bb104f1982274518bbe92b8d60e8fea430296c0c6183d6b51f2599399f87228",
+      "afterSha256": "7bb104f1982274518bbe92b8d60e8fea430296c0c6183d6b51f2599399f87228",
+      "byteIdentical": true,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "crops/modeling-data-raw-source-preview-1366x768-header-100pct.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1366x768-header-100pct.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1366x768-header-100pct.png",
+      "width": 1366,
+      "height": 50,
+      "beforeSha256": "2e471a99d568bf718b9dc411e2e9c68a1b2ab1a9c67c45b85a990c8960ce5ed6",
+      "afterSha256": "2e471a99d568bf718b9dc411e2e9c68a1b2ab1a9c67c45b85a990c8960ce5ed6",
+      "byteIdentical": true,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "crops/modeling-data-raw-source-preview-1366x768-raw-table-100pct.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1366x768-raw-table-100pct.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1366x768-raw-table-100pct.png",
+      "width": 712,
+      "height": 143,
+      "beforeSha256": "374e759f3bc246a0fb5ffc00c0958d736a877991d94824e9eaf8b3824c34ce79",
+      "afterSha256": "374e759f3bc246a0fb5ffc00c0958d736a877991d94824e9eaf8b3824c34ce79",
+      "byteIdentical": true,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "crops/modeling-data-raw-source-preview-1440x900-controls-100pct.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1440x900-controls-100pct.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1440x900-controls-100pct.png",
+      "width": 1362,
+      "height": 78,
+      "beforeSha256": "2643e644e0d369fd519ebf03640ffbd7098a117ae9c89f3f0ce99c98449ae858",
+      "afterSha256": "2643e644e0d369fd519ebf03640ffbd7098a117ae9c89f3f0ce99c98449ae858",
+      "byteIdentical": true,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "crops/modeling-data-raw-source-preview-1440x900-graph-100pct.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1440x900-graph-100pct.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1440x900-graph-100pct.png",
+      "width": 1440,
+      "height": 310,
+      "beforeSha256": "cf3cca941c1ce86d9157b19292b2393fd3560269559888f47932b934dc13e95b",
+      "afterSha256": "cf3cca941c1ce86d9157b19292b2393fd3560269559888f47932b934dc13e95b",
+      "byteIdentical": true,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "crops/modeling-data-raw-source-preview-1440x900-header-100pct.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1440x900-header-100pct.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1440x900-header-100pct.png",
+      "width": 1440,
+      "height": 50,
+      "beforeSha256": "948140dcc5a01c9264efad835c7ba1f56c1fd381c4e5ad003d45e01d6b8ffe56",
+      "afterSha256": "948140dcc5a01c9264efad835c7ba1f56c1fd381c4e5ad003d45e01d6b8ffe56",
+      "byteIdentical": true,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "crops/modeling-data-raw-source-preview-1440x900-raw-table-100pct.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1440x900-raw-table-100pct.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1440x900-raw-table-100pct.png",
+      "width": 712,
+      "height": 143,
+      "beforeSha256": "374e759f3bc246a0fb5ffc00c0958d736a877991d94824e9eaf8b3824c34ce79",
+      "afterSha256": "374e759f3bc246a0fb5ffc00c0958d736a877991d94824e9eaf8b3824c34ce79",
+      "byteIdentical": true,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "crops/modeling-data-raw-source-preview-1920x1080-controls-100pct.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1920x1080-controls-100pct.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1920x1080-controls-100pct.png",
+      "width": 1842,
+      "height": 78,
+      "beforeSha256": "123da659d7631e1534a3f16c0d9783249562aa594ad96594db8dcbac1b929c1d",
+      "afterSha256": "123da659d7631e1534a3f16c0d9783249562aa594ad96594db8dcbac1b929c1d",
+      "byteIdentical": true,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "crops/modeling-data-raw-source-preview-1920x1080-graph-100pct.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1920x1080-graph-100pct.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1920x1080-graph-100pct.png",
+      "width": 1920,
+      "height": 490,
+      "beforeSha256": "9b473f0f63e10e3aea23a89ed3ff281826d6483654de96794e3c5e5ca17d687f",
+      "afterSha256": "d0b186b12ba729c700f380502cea90889bae9fdd9ba7b0861e5129b096e2f49b",
+      "byteIdentical": false,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "crops/modeling-data-raw-source-preview-1920x1080-header-100pct.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1920x1080-header-100pct.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1920x1080-header-100pct.png",
+      "width": 1920,
+      "height": 50,
+      "beforeSha256": "53982ceec55fd9cb0a3867b1237c5115f7a4a66e20542d5b6b6db1b80b590d34",
+      "afterSha256": "53982ceec55fd9cb0a3867b1237c5115f7a4a66e20542d5b6b6db1b80b590d34",
+      "byteIdentical": true,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "crops/modeling-data-raw-source-preview-1920x1080-raw-table-100pct.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1920x1080-raw-table-100pct.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1920x1080-raw-table-100pct.png",
+      "width": 712,
+      "height": 143,
+      "beforeSha256": "374e759f3bc246a0fb5ffc00c0958d736a877991d94824e9eaf8b3824c34ce79",
+      "afterSha256": "374e759f3bc246a0fb5ffc00c0958d736a877991d94824e9eaf8b3824c34ce79",
+      "byteIdentical": true,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "crops/modeling-data-raw-source-preview-2560x1440-controls-100pct.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-2560x1440-controls-100pct.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-2560x1440-controls-100pct.png",
+      "width": 2482,
+      "height": 78,
+      "beforeSha256": "8267ded2a4be1ab6ffb870aa2c9efabb5a04373a7d83e806ecd2251f3d804f6d",
+      "afterSha256": "8267ded2a4be1ab6ffb870aa2c9efabb5a04373a7d83e806ecd2251f3d804f6d",
+      "byteIdentical": true,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "crops/modeling-data-raw-source-preview-2560x1440-graph-100pct.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-2560x1440-graph-100pct.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-2560x1440-graph-100pct.png",
+      "width": 2560,
+      "height": 850,
+      "beforeSha256": "bf8c7a0d154d1b2cf66d003665449d9827b4b5ea2b83d049b51deab6dbf7650c",
+      "afterSha256": "bf8c7a0d154d1b2cf66d003665449d9827b4b5ea2b83d049b51deab6dbf7650c",
+      "byteIdentical": true,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "crops/modeling-data-raw-source-preview-2560x1440-header-100pct.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-2560x1440-header-100pct.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-2560x1440-header-100pct.png",
+      "width": 2560,
+      "height": 50,
+      "beforeSha256": "7b43341e067cc165c4d8b50186138b2979f400dc8776b041bb90c2c3a0291319",
+      "afterSha256": "7b43341e067cc165c4d8b50186138b2979f400dc8776b041bb90c2c3a0291319",
+      "byteIdentical": true,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "crops/modeling-data-raw-source-preview-2560x1440-raw-table-100pct.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-2560x1440-raw-table-100pct.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-2560x1440-raw-table-100pct.png",
+      "width": 712,
+      "height": 143,
+      "beforeSha256": "374e759f3bc246a0fb5ffc00c0958d736a877991d94824e9eaf8b3824c34ce79",
+      "afterSha256": "374e759f3bc246a0fb5ffc00c0958d736a877991d94824e9eaf8b3824c34ce79",
+      "byteIdentical": true,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "crops/modeling-data-raw-source-preview-3840x2160-controls-100pct.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-3840x2160-controls-100pct.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-3840x2160-controls-100pct.png",
+      "width": 3762,
+      "height": 78,
+      "beforeSha256": "4b50c6fb7718f7519a1dd17fa5e43c263586edef8994b06f3171daffd73e18d4",
+      "afterSha256": "4b50c6fb7718f7519a1dd17fa5e43c263586edef8994b06f3171daffd73e18d4",
+      "byteIdentical": true,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "crops/modeling-data-raw-source-preview-3840x2160-graph-100pct.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-3840x2160-graph-100pct.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-3840x2160-graph-100pct.png",
+      "width": 3840,
+      "height": 1570,
+      "beforeSha256": "143dbc5ca8900ef17e5548db44ae9934708183046e5763baf9dc2f1eec202329",
+      "afterSha256": "6aa198c4349dc9a143da4df826cddc116099ddf8013dbf3f116f4faf270f3ba6",
+      "byteIdentical": false,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "crops/modeling-data-raw-source-preview-3840x2160-header-100pct.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-3840x2160-header-100pct.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-3840x2160-header-100pct.png",
+      "width": 3840,
+      "height": 50,
+      "beforeSha256": "c79041e1ac05d3b30dffd3512ee2908c9ab14c3436c8456efb6e4333b04af631",
+      "afterSha256": "c79041e1ac05d3b30dffd3512ee2908c9ab14c3436c8456efb6e4333b04af631",
+      "byteIdentical": true,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "crops/modeling-data-raw-source-preview-3840x2160-raw-table-100pct.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-3840x2160-raw-table-100pct.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-3840x2160-raw-table-100pct.png",
+      "width": 712,
+      "height": 143,
+      "beforeSha256": "374e759f3bc246a0fb5ffc00c0958d736a877991d94824e9eaf8b3824c34ce79",
+      "afterSha256": "374e759f3bc246a0fb5ffc00c0958d736a877991d94824e9eaf8b3824c34ce79",
+      "byteIdentical": true,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "originals/modeling-data-raw-source-preview-1366x768.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/originals/modeling-data-raw-source-preview-1366x768.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-raw-source-preview-1366x768.png",
+      "width": 1366,
+      "height": 768,
+      "beforeSha256": "bb0a9db273256138e136c822fe56ad28c12d4a252e38a008a4b86333ca1595ab",
+      "afterSha256": "bb0a9db273256138e136c822fe56ad28c12d4a252e38a008a4b86333ca1595ab",
+      "byteIdentical": true,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "originals/modeling-data-raw-source-preview-1440x900.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/originals/modeling-data-raw-source-preview-1440x900.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-raw-source-preview-1440x900.png",
+      "width": 1440,
+      "height": 900,
+      "beforeSha256": "a1e8fa1c94132a5c544c760f1e73edbc9daa714511a42a393a3ca6983a20694f",
+      "afterSha256": "a1e8fa1c94132a5c544c760f1e73edbc9daa714511a42a393a3ca6983a20694f",
+      "byteIdentical": true,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "originals/modeling-data-raw-source-preview-1920x1080.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/originals/modeling-data-raw-source-preview-1920x1080.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-raw-source-preview-1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "beforeSha256": "1684c5081cb0c670231ecbf2d55695e3bbefdc49a48c67ee8c98e89a7e5f9edf",
+      "afterSha256": "7687c1fcc90b7ddbc26d391c06e6ec8aeb298c1dd84ae296b627cc72b1810179",
+      "byteIdentical": false,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "originals/modeling-data-raw-source-preview-2560x1440.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/originals/modeling-data-raw-source-preview-2560x1440.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-raw-source-preview-2560x1440.png",
+      "width": 2560,
+      "height": 1440,
+      "beforeSha256": "5e7d89fd91532d08101aa35bf6ddcdd127e0020e7d4dc8ca90ace2c120d8a62b",
+      "afterSha256": "5e7d89fd91532d08101aa35bf6ddcdd127e0020e7d4dc8ca90ace2c120d8a62b",
+      "byteIdentical": true,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "originals/modeling-data-raw-source-preview-3840x2160.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/originals/modeling-data-raw-source-preview-3840x2160.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-raw-source-preview-3840x2160.png",
+      "width": 3840,
+      "height": 2160,
+      "beforeSha256": "a00ac32fa6d06f2f74beea9a8cbd3bed33b7d00d19359d6f4a8c1fd649b8c3ad",
+      "afterSha256": "ca878b49aa9fb6695c215ed66cae2e2e07baa245a31ff10c2e7784d03e3d298a",
+      "byteIdentical": false,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "routes/datasets-processing/modeling-data-raw-source-preview-1366x768.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/routes/datasets-processing/modeling-data-raw-source-preview-1366x768.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/routes/datasets-processing/modeling-data-raw-source-preview-1366x768.png",
+      "width": 1366,
+      "height": 768,
+      "beforeSha256": "79691191b82d8422cd92ab89092beff2473ce8bbdfed2f859fd772cfb8eb383d",
+      "afterSha256": "d276218775ff18e4f762f574f4fba1db353e7e96efd53554384a32ff08c8735b",
+      "byteIdentical": false,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "routes/datasets-processing/modeling-data-raw-source-preview-1440x900.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/routes/datasets-processing/modeling-data-raw-source-preview-1440x900.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/routes/datasets-processing/modeling-data-raw-source-preview-1440x900.png",
+      "width": 1440,
+      "height": 900,
+      "beforeSha256": "6f9828a5d26d3b1d1e1a140297db70ad47eb7aa91d93ab701046b850994eafa8",
+      "afterSha256": "6f9828a5d26d3b1d1e1a140297db70ad47eb7aa91d93ab701046b850994eafa8",
+      "byteIdentical": true,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "routes/datasets-processing/modeling-data-raw-source-preview-1920x1080.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/routes/datasets-processing/modeling-data-raw-source-preview-1920x1080.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/routes/datasets-processing/modeling-data-raw-source-preview-1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "beforeSha256": "c826b785b23042b2f9a421433aeafded03ac4e17b95853fcb31f9861f070e301",
+      "afterSha256": "54e87a985afc3797147e43b8cf656ade84ef0088531f5253c4a745d9b75b1b65",
+      "byteIdentical": false,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "routes/datasets-processing/modeling-data-raw-source-preview-2560x1440.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/routes/datasets-processing/modeling-data-raw-source-preview-2560x1440.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/routes/datasets-processing/modeling-data-raw-source-preview-2560x1440.png",
+      "width": 2560,
+      "height": 1440,
+      "beforeSha256": "9b3dcd41cc7153abab1691a6148dff4034f3a003a6429b4b41194327f98a8bea",
+      "afterSha256": "9b3dcd41cc7153abab1691a6148dff4034f3a003a6429b4b41194327f98a8bea",
+      "byteIdentical": true,
+      "pixelIdentical": true
+    },
+    {
+      "relativePath": "routes/datasets-processing/modeling-data-raw-source-preview-3840x2160.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/routes/datasets-processing/modeling-data-raw-source-preview-3840x2160.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/routes/datasets-processing/modeling-data-raw-source-preview-3840x2160.png",
+      "width": 3840,
+      "height": 2160,
+      "beforeSha256": "09eab47b0bed5f1f31e21e574544f7c5d26811ebd94bf722688d7eec76325fd9",
+      "afterSha256": "f01a9f375f9f0fa914f809f64292b48cea5f4c7802bc9d2894a480a9f5a2a73f",
+      "byteIdentical": false,
+      "pixelIdentical": true
+    }
+  ],
+  "contextPairs": [
+    {
+      "route": "/modeling",
+      "viewport": "1366x768",
+      "runtimeIdentical": true,
+      "sessionIdentical": true,
+      "graphIdentical": true,
+      "measurementsIdentical": true,
+      "zeroConsoleOrPageErrors": true,
+      "beforeInteraction": {
+        "pointerWheelScrollLeft": 188,
+        "shiftWheelScrollLeft": 188,
+        "keyboardScrollLeft": 34,
+        "keyboardTabSteps": 1,
+        "farRight": {
+          "text": "engineering_stress_pa",
+          "left": 556,
+          "right": 736,
+          "portLeft": 24,
+          "portRight": 736,
+          "reachable": true
+        }
+      },
+      "afterInteraction": {
+        "pointerWheelScrollLeft": 188,
+        "shiftWheelScrollLeft": 188,
+        "keyboardScrollLeft": 29,
+        "keyboardTabSteps": 1,
+        "farRight": {
+          "text": "engineering_stress_pa",
+          "left": 556,
+          "right": 736,
+          "portLeft": 24,
+          "portRight": 736,
+          "reachable": true
+        }
+      }
+    },
+    {
+      "route": "/modeling",
+      "viewport": "1440x900",
+      "runtimeIdentical": true,
+      "sessionIdentical": true,
+      "graphIdentical": true,
+      "measurementsIdentical": true,
+      "zeroConsoleOrPageErrors": true,
+      "beforeInteraction": {
+        "pointerWheelScrollLeft": 188,
+        "shiftWheelScrollLeft": 188,
+        "keyboardScrollLeft": 31,
+        "keyboardTabSteps": 1,
+        "farRight": {
+          "text": "engineering_stress_pa",
+          "left": 556,
+          "right": 736,
+          "portLeft": 24,
+          "portRight": 736,
+          "reachable": true
+        }
+      },
+      "afterInteraction": {
+        "pointerWheelScrollLeft": 188,
+        "shiftWheelScrollLeft": 188,
+        "keyboardScrollLeft": 29,
+        "keyboardTabSteps": 1,
+        "farRight": {
+          "text": "engineering_stress_pa",
+          "left": 556,
+          "right": 736,
+          "portLeft": 24,
+          "portRight": 736,
+          "reachable": true
+        }
+      }
+    },
+    {
+      "route": "/modeling",
+      "viewport": "1920x1080",
+      "runtimeIdentical": true,
+      "sessionIdentical": true,
+      "graphIdentical": true,
+      "measurementsIdentical": true,
+      "zeroConsoleOrPageErrors": true,
+      "beforeInteraction": {
+        "pointerWheelScrollLeft": 188,
+        "shiftWheelScrollLeft": 188,
+        "keyboardScrollLeft": 27,
+        "keyboardTabSteps": 1,
+        "farRight": {
+          "text": "engineering_stress_pa",
+          "left": 556,
+          "right": 736,
+          "portLeft": 24,
+          "portRight": 736,
+          "reachable": true
+        }
+      },
+      "afterInteraction": {
+        "pointerWheelScrollLeft": 188,
+        "shiftWheelScrollLeft": 188,
+        "keyboardScrollLeft": 31,
+        "keyboardTabSteps": 1,
+        "farRight": {
+          "text": "engineering_stress_pa",
+          "left": 556,
+          "right": 736,
+          "portLeft": 24,
+          "portRight": 736,
+          "reachable": true
+        }
+      }
+    },
+    {
+      "route": "/modeling",
+      "viewport": "2560x1440",
+      "runtimeIdentical": true,
+      "sessionIdentical": true,
+      "graphIdentical": true,
+      "measurementsIdentical": true,
+      "zeroConsoleOrPageErrors": true,
+      "beforeInteraction": {
+        "pointerWheelScrollLeft": 188,
+        "shiftWheelScrollLeft": 188,
+        "keyboardScrollLeft": 36,
+        "keyboardTabSteps": 1,
+        "farRight": {
+          "text": "engineering_stress_pa",
+          "left": 556,
+          "right": 736,
+          "portLeft": 24,
+          "portRight": 736,
+          "reachable": true
+        }
+      },
+      "afterInteraction": {
+        "pointerWheelScrollLeft": 188,
+        "shiftWheelScrollLeft": 188,
+        "keyboardScrollLeft": 33,
+        "keyboardTabSteps": 1,
+        "farRight": {
+          "text": "engineering_stress_pa",
+          "left": 556,
+          "right": 736,
+          "portLeft": 24,
+          "portRight": 736,
+          "reachable": true
+        }
+      }
+    },
+    {
+      "route": "/modeling",
+      "viewport": "3840x2160",
+      "runtimeIdentical": true,
+      "sessionIdentical": true,
+      "graphIdentical": true,
+      "measurementsIdentical": true,
+      "zeroConsoleOrPageErrors": true,
+      "beforeInteraction": {
+        "pointerWheelScrollLeft": 188,
+        "shiftWheelScrollLeft": 188,
+        "keyboardScrollLeft": 33,
+        "keyboardTabSteps": 1,
+        "farRight": {
+          "text": "engineering_stress_pa",
+          "left": 556,
+          "right": 736,
+          "portLeft": 24,
+          "portRight": 736,
+          "reachable": true
+        }
+      },
+      "afterInteraction": {
+        "pointerWheelScrollLeft": 188,
+        "shiftWheelScrollLeft": 188,
+        "keyboardScrollLeft": 32,
+        "keyboardTabSteps": 1,
+        "farRight": {
+          "text": "engineering_stress_pa",
+          "left": 556,
+          "right": 736,
+          "portLeft": 24,
+          "portRight": 736,
+          "reachable": true
+        }
+      }
+    },
+    {
+      "route": "/datasets/processing",
+      "viewport": "1366x768",
+      "runtimeIdentical": true,
+      "sessionIdentical": true,
+      "graphIdentical": true,
+      "measurementsIdentical": true,
+      "zeroConsoleOrPageErrors": true,
+      "beforeInteraction": {
+        "pointerWheelScrollLeft": 188,
+        "shiftWheelScrollLeft": 188,
+        "keyboardScrollLeft": 35,
+        "keyboardTabSteps": 1,
+        "farRight": {
+          "text": "engineering_stress_pa",
+          "left": 556,
+          "right": 736,
+          "portLeft": 24,
+          "portRight": 736,
+          "reachable": true
+        }
+      },
+      "afterInteraction": {
+        "pointerWheelScrollLeft": 188,
+        "shiftWheelScrollLeft": 188,
+        "keyboardScrollLeft": 31,
+        "keyboardTabSteps": 1,
+        "farRight": {
+          "text": "engineering_stress_pa",
+          "left": 556,
+          "right": 736,
+          "portLeft": 24,
+          "portRight": 736,
+          "reachable": true
+        }
+      }
+    },
+    {
+      "route": "/datasets/processing",
+      "viewport": "1440x900",
+      "runtimeIdentical": true,
+      "sessionIdentical": true,
+      "graphIdentical": true,
+      "measurementsIdentical": true,
+      "zeroConsoleOrPageErrors": true,
+      "beforeInteraction": {
+        "pointerWheelScrollLeft": 188,
+        "shiftWheelScrollLeft": 188,
+        "keyboardScrollLeft": 34,
+        "keyboardTabSteps": 1,
+        "farRight": {
+          "text": "engineering_stress_pa",
+          "left": 556,
+          "right": 736,
+          "portLeft": 24,
+          "portRight": 736,
+          "reachable": true
+        }
+      },
+      "afterInteraction": {
+        "pointerWheelScrollLeft": 188,
+        "shiftWheelScrollLeft": 188,
+        "keyboardScrollLeft": 31,
+        "keyboardTabSteps": 1,
+        "farRight": {
+          "text": "engineering_stress_pa",
+          "left": 556,
+          "right": 736,
+          "portLeft": 24,
+          "portRight": 736,
+          "reachable": true
+        }
+      }
+    },
+    {
+      "route": "/datasets/processing",
+      "viewport": "1920x1080",
+      "runtimeIdentical": true,
+      "sessionIdentical": true,
+      "graphIdentical": true,
+      "measurementsIdentical": true,
+      "zeroConsoleOrPageErrors": true,
+      "beforeInteraction": {
+        "pointerWheelScrollLeft": 188,
+        "shiftWheelScrollLeft": 188,
+        "keyboardScrollLeft": 35,
+        "keyboardTabSteps": 1,
+        "farRight": {
+          "text": "engineering_stress_pa",
+          "left": 556,
+          "right": 736,
+          "portLeft": 24,
+          "portRight": 736,
+          "reachable": true
+        }
+      },
+      "afterInteraction": {
+        "pointerWheelScrollLeft": 188,
+        "shiftWheelScrollLeft": 188,
+        "keyboardScrollLeft": 35,
+        "keyboardTabSteps": 1,
+        "farRight": {
+          "text": "engineering_stress_pa",
+          "left": 556,
+          "right": 736,
+          "portLeft": 24,
+          "portRight": 736,
+          "reachable": true
+        }
+      }
+    },
+    {
+      "route": "/datasets/processing",
+      "viewport": "2560x1440",
+      "runtimeIdentical": true,
+      "sessionIdentical": true,
+      "graphIdentical": true,
+      "measurementsIdentical": true,
+      "zeroConsoleOrPageErrors": true,
+      "beforeInteraction": {
+        "pointerWheelScrollLeft": 188,
+        "shiftWheelScrollLeft": 188,
+        "keyboardScrollLeft": 35,
+        "keyboardTabSteps": 1,
+        "farRight": {
+          "text": "engineering_stress_pa",
+          "left": 556,
+          "right": 736,
+          "portLeft": 24,
+          "portRight": 736,
+          "reachable": true
+        }
+      },
+      "afterInteraction": {
+        "pointerWheelScrollLeft": 188,
+        "shiftWheelScrollLeft": 188,
+        "keyboardScrollLeft": 35,
+        "keyboardTabSteps": 1,
+        "farRight": {
+          "text": "engineering_stress_pa",
+          "left": 556,
+          "right": 736,
+          "portLeft": 24,
+          "portRight": 736,
+          "reachable": true
+        }
+      }
+    },
+    {
+      "route": "/datasets/processing",
+      "viewport": "3840x2160",
+      "runtimeIdentical": true,
+      "sessionIdentical": true,
+      "graphIdentical": true,
+      "measurementsIdentical": true,
+      "zeroConsoleOrPageErrors": true,
+      "beforeInteraction": {
+        "pointerWheelScrollLeft": 188,
+        "shiftWheelScrollLeft": 188,
+        "keyboardScrollLeft": 36,
+        "keyboardTabSteps": 1,
+        "farRight": {
+          "text": "engineering_stress_pa",
+          "left": 556,
+          "right": 736,
+          "portLeft": 24,
+          "portRight": 736,
+          "reachable": true
+        }
+      },
+      "afterInteraction": {
+        "pointerWheelScrollLeft": 188,
+        "shiftWheelScrollLeft": 188,
+        "keyboardScrollLeft": 34,
+        "keyboardTabSteps": 1,
+        "farRight": {
+          "text": "engineering_stress_pa",
+          "left": 556,
+          "right": 736,
+          "portLeft": 24,
+          "portRight": 736,
+          "reachable": true
+        }
+      }
+    }
+  ],
+  "summary": {
+    "imagePairs": 30,
+    "byteIdenticalPairs": 23,
+    "pixelIdenticalPairs": 30,
+    "contextPairs": 10,
+    "fullyEquivalentContexts": 10
+  }
+}
