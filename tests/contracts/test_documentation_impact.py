@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import subprocess
 from pathlib import Path
+from typing import TypedDict
 
 import pytest
 from cmp.tools.documentation_impact import (
@@ -26,6 +27,15 @@ CURRENT_PRIMITIVES = """\
 .ux-button { font-weight: 650; }
 .ux-semantic-text { color: var(--ux-text); }
 """
+
+
+class _StructuralFixture(TypedDict):
+    project: Path
+    base_sha: str
+    exception: Path
+    source: Path
+    secondary: Path
+    target: Path
 
 
 def _git(project: Path, *arguments: str) -> str:
@@ -77,7 +87,7 @@ def _structural_fixture(
     *,
     package_moved: bool = False,
     base_secondary_import: str = "./source",
-) -> dict[str, Path | str]:
+) -> _StructuralFixture:
     source_root = tmp_path / "apps/web/src"
     source_root.mkdir(parents=True)
     secondary_source = """\
@@ -269,7 +279,7 @@ export function View({ value }: { value: Shape }) {
     return view
 
 
-def _mutate_structural_fixture(fixture: dict[str, Path | str], case: str) -> None:
+def _mutate_structural_fixture(fixture: _StructuralFixture, case: str) -> None:
     project = Path(fixture["project"])
     exception = Path(fixture["exception"])
     source = Path(fixture["source"])
@@ -971,9 +981,10 @@ def test_foundation_exception_cannot_bypass_repository_validation() -> None:
     exception = foundation_exception()
 
     with pytest.raises(DocumentationImpactError, match="must pass repository validation"):
-        evaluate_documentation_impact(  # type: ignore[arg-type]
+        # Deliberately violate the static API to exercise its runtime validation.
+        evaluate_documentation_impact(
             set(exception.visual_files),
-            exception=exception,
+            exception=exception,  # type: ignore[arg-type]
         )
 
 
