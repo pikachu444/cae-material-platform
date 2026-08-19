@@ -4,6 +4,7 @@ import hashlib
 import json
 import struct
 from pathlib import Path
+from typing import cast
 
 ROOT = Path(__file__).resolve().parents[2]
 EVIDENCE_ROOT = (
@@ -15,8 +16,14 @@ EVIDENCE_ROOT = (
 )
 
 
+def _object_mapping(value: object) -> dict[str, object]:
+    assert isinstance(value, dict)
+    assert all(isinstance(key, str) for key in value)
+    return cast(dict[str, object], value)
+
+
 def _load(path: Path) -> dict[str, object]:
-    return json.loads(path.read_text(encoding="utf-8"))
+    return _object_mapping(json.loads(path.read_text(encoding="utf-8")))
 
 
 def _png_size(path: Path) -> tuple[int, int]:
@@ -49,7 +56,7 @@ def test_issue_184_visual_evidence_paths_hashes_and_dimensions_are_exact() -> No
 
 def test_issue_184_density_matrix_records_the_exact_fixture_boundary() -> None:
     manifest = _load(EVIDENCE_ROOT / "visual-evidence.json")
-    completeness = manifest["full_screen_density_completeness"]
+    completeness = _object_mapping(manifest["full_screen_density_completeness"])
     expected_missing = [
         "material-cae-cards-1440x900.png",
         "material-detail-1366x768.png",
@@ -71,16 +78,21 @@ def test_issue_184_density_matrix_records_the_exact_fixture_boundary() -> None:
             "geometry_result": "INCOMPLETE_BASELINE_FIXTURE_BLOCKER",
         }
 
-    blocker = manifest["known_fixture_blocker"]
+    blocker = _object_mapping(manifest["known_fixture_blocker"])
     assert blocker["verifier_or_data_relaxed"] is False
-    assert blocker["clean_composition_seed_result"].startswith("FAIL_")
-    assert blocker["clean_composition_full_demo_result"].startswith("FAIL_")
+    seed_result = blocker["clean_composition_seed_result"]
+    full_demo_result = blocker["clean_composition_full_demo_result"]
+    assert isinstance(seed_result, str)
+    assert isinstance(full_demo_result, str)
+    assert seed_result.startswith("FAIL_")
+    assert full_demo_result.startswith("FAIL_")
 
 
 def test_issue_184_crop_manifest_points_to_final_unscaled_files() -> None:
     manifest = _load(EVIDENCE_ROOT / "crops" / "manifest.json")
     assert manifest["resampling"] == "none"
     images = manifest["images"]
+    assert isinstance(images, list)
     assert len(images) == 21
     for item in images:
         relative = Path(str(item["path"]))
