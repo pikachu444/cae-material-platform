@@ -5200,11 +5200,6 @@
   min-width: 0;
 }
 
-.data-source-advanced {
-  border-top: 1px solid var(--ux-border);
-  padding-top: 4px;
-}
-
 .data-import-diagnostics {
   display: grid;
   grid-column: 1 / -1;
@@ -5243,21 +5238,6 @@
   border-top: 1px solid var(--ux-border);
   text-align: left;
   vertical-align: top;
-}
-
-.data-source-advanced > div {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 3px 8px;
-  max-width: 720px;
-  padding: 5px 0;
-  color: var(--ux-text-muted);
-  font-size: 11.5px;
-}
-
-.data-source-advanced code {
-  overflow-wrap: anywhere;
-  color: var(--ux-text);
 }
 
 .data-mapping-blockers {

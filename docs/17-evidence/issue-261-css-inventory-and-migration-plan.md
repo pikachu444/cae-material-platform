@@ -699,18 +699,117 @@ production build, user-guide 20 documents/119 current/937 links/2,446 images를 
 selector 범위를 유지한다고 확인해 material finding 없이 `APPROVE`했다. correction을 먼저 별도
 커밋하고 M1A1 exact candidate를 다음 커밋으로 둘 수 있다는 최종 disposition이다.
 
+## M1A2 실행 결과 — Data source-advanced component ownership
+
+M1A2는 committed M1A1 `789ebfc65205b63628635c71e660b0f835a43421`을 implementation base로
+사용한다. React, DOM, route, API, session, copy, token 또는 breakpoint를 바꾸지 않고 Local file의
+`File details` 컴포넌트가 사용하는 세 legacy selector만 기존 Data stage stylesheet로 이동했다.
+
+### 파일 소유권과 금지 확장
+
+| Path | M1A2 ownership |
+| --- | --- |
+| `apps/web/src/design/layout.css` | 아래 세 exact selector의 legacy rule-group만 제거한다. 다른 Data, shared 또는 HOLD selector는 건드리지 않는다. |
+| `apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css` | 같은 effective declaration을 existing lazy Data owner에 둔다. 뒤쪽 shared metadata token의 현재 cascade를 보존한다. |
+| `apps/web/frontend-guard-baseline.json` | 실제 global rule-group과 `layout.css` line 감소만 잠근다. allowance를 늘리지 않는다. |
+| `scripts/check_issue_261_css_inventory.mjs`, `scripts/check_issue_261_css_inventory.test.mjs`, `docs/17-evidence/issue-261-css-selector-inventory.json` | M1A2 3/3/3/0 packet, zero residual과 다음 M1A3 경계를 고정한다. |
+| `docs/user-guide/screenshot-manifest.yaml`, 이 evidence 문서, `docs/17-evidence/images/issue-261-fe06-m1a2-data-source-advanced/**` | current image를 바꾸지 않고 fresh before/after, alias와 direct crops의 exact provenance만 등록한다. |
+
+`modeling-data-intake.tsx`와 그 DOM, 다른 stage CSS, shared primitives/tokens, user-guide current PNG는 변경하지
+않는다. Data 213개 잔여행, diagnostics, Library, mapping, responsive rule, M1B 이후 batch, dead/HOLD 후보를
+이 단위로 끌어오지 않는다.
+
+### Selector, consumer와 cascade
+
+| Historical row | Selector | Specificity | owner/consumer와 cascade disposition |
+| --- | --- | --- | --- |
+| `CSS-1060` | `.data-source-advanced` | `0-1-0` | `modeling-data-intake.tsx`가 `/modeling?stage=data`와 `/datasets/processing?stage=data`의 inspected Local file state에서 유일하게 만든다. collapsed state의 `0-4-0` rule이 `padding`을 이기는 현재 관계를 보존한다. |
+| `CSS-1068` | `.data-source-advanced > div` | `0-1-1` | open File details의 evidence grid다. 기존 뒤쪽 `.data-source-advanced > :is(summary, div)`가 같은 specificity/source order로 `font-size: var(--ux-metadata-font-size)`를 이겼으므로, 이동 시 obsolete `11.5px` member는 복제하지 않고 그 token rule을 계속 effective owner로 둔다. closed state의 `0-4-1` `display:none`도 그대로 우선한다. |
+| `CSS-1069` | `.data-source-advanced code` | `0-1-1` | exact raw-evidence code wrapping/color만 Data owner로 이동한다. exact-selector peer, duplicate-owned peer 또는 later conflicting property가 없다. |
+
+세 행 모두 production subject producer와 focused component test reference가 있고, dead, cross-CSS duplicate,
+route-shell coupling, route-specific wide workaround 후보가 아니다. 이동 후 exact legacy residual은 0이다.
+
+| Metric | M1A1 | M1A2 | Delta |
+| --- | ---: | ---: | ---: |
+| global rule-groups / guard debt | 2,821 | 2,818 | -3 |
+| expanded global selector rows | 3,568 | 3,565 | -3 |
+| M1A Data rows | 216 | 213 | -3 |
+| cross-CSS duplicate rows | 13 | 13 | 0 |
+
+### Live visual evidence
+
+[M1A2 manifest](images/issue-261-fe06-m1a2-data-source-advanced/manifest.json)은 browser zoom 100%, DPR 1,
+Standard density에서 primary `/modeling?stage=data&family=metal`과 alias
+`/datasets/processing?stage=data&family=metal`을 각각 clean M1A1 before/current M1A2 after로 실행한다.
+다섯 normal viewport와 empty, invalid mapping, locally-scrolled recovery의 primary 8쌍, alias 8쌍 및
+primary↔alias가 모두 byte-for-byte 동일하다. current guide의 같은 8개 Data image도 before/after와 동일해
+새 PNG를 current라고 가장하지 않는다. crop은 아래 original의 exact source pixels를 resize/resampling 없이
+header, navigator, table/form controls와 graph 영역으로 잘랐다.
+
+<details>
+
+<summary>M1A2 exact originals and direct 100%-pixel crops</summary>
+
+- 1366x768 normal: [before original](images/issue-261-fe06-m1a2-data-source-advanced/before/originals/modeling-data-1366x768.png), [after original](images/issue-261-fe06-m1a2-data-source-advanced/after/originals/modeling-data-1366x768.png), [alias before](images/issue-261-fe06-m1a2-data-source-advanced/before/routes/datasets-processing/modeling-data-1366x768.png), [alias after](images/issue-261-fe06-m1a2-data-source-advanced/after/routes/datasets-processing/modeling-data-1366x768.png), [before header](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-1366x768-header-100pct.png), [before navigator](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-1366x768-navigator-100pct.png), [before controls](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-1366x768-controls-100pct.png), [before graph](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-1366x768-graph-100pct.png), [after header](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-1366x768-header-100pct.png), [after navigator](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-1366x768-navigator-100pct.png), [after controls](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-1366x768-controls-100pct.png), [after graph](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-1366x768-graph-100pct.png)
+- 1440x900 normal: [before original](images/issue-261-fe06-m1a2-data-source-advanced/before/originals/modeling-data-1440x900.png), [after original](images/issue-261-fe06-m1a2-data-source-advanced/after/originals/modeling-data-1440x900.png), [alias before](images/issue-261-fe06-m1a2-data-source-advanced/before/routes/datasets-processing/modeling-data-1440x900.png), [alias after](images/issue-261-fe06-m1a2-data-source-advanced/after/routes/datasets-processing/modeling-data-1440x900.png), [before header](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-1440x900-header-100pct.png), [before navigator](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-1440x900-navigator-100pct.png), [before controls](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-1440x900-controls-100pct.png), [before graph](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-1440x900-graph-100pct.png), [after header](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-1440x900-header-100pct.png), [after navigator](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-1440x900-navigator-100pct.png), [after controls](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-1440x900-controls-100pct.png), [after graph](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-1440x900-graph-100pct.png)
+- 1920x1080 normal: [before original](images/issue-261-fe06-m1a2-data-source-advanced/before/originals/modeling-data-1920x1080.png), [after original](images/issue-261-fe06-m1a2-data-source-advanced/after/originals/modeling-data-1920x1080.png), [alias before](images/issue-261-fe06-m1a2-data-source-advanced/before/routes/datasets-processing/modeling-data-1920x1080.png), [alias after](images/issue-261-fe06-m1a2-data-source-advanced/after/routes/datasets-processing/modeling-data-1920x1080.png), [before header](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-1920x1080-header-100pct.png), [before navigator](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-1920x1080-navigator-100pct.png), [before controls](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-1920x1080-controls-100pct.png), [before graph](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-1920x1080-graph-100pct.png), [after header](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-1920x1080-header-100pct.png), [after navigator](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-1920x1080-navigator-100pct.png), [after controls](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-1920x1080-controls-100pct.png), [after graph](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-1920x1080-graph-100pct.png)
+- 2560x1440 normal: [before original](images/issue-261-fe06-m1a2-data-source-advanced/before/originals/modeling-data-2560x1440.png), [after original](images/issue-261-fe06-m1a2-data-source-advanced/after/originals/modeling-data-2560x1440.png), [alias before](images/issue-261-fe06-m1a2-data-source-advanced/before/routes/datasets-processing/modeling-data-2560x1440.png), [alias after](images/issue-261-fe06-m1a2-data-source-advanced/after/routes/datasets-processing/modeling-data-2560x1440.png), [before header](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-2560x1440-header-100pct.png), [before navigator](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-2560x1440-navigator-100pct.png), [before controls](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-2560x1440-controls-100pct.png), [before graph](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-2560x1440-graph-100pct.png), [after header](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-2560x1440-header-100pct.png), [after navigator](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-2560x1440-navigator-100pct.png), [after controls](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-2560x1440-controls-100pct.png), [after graph](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-2560x1440-graph-100pct.png)
+- 3840x2160 normal: [before original](images/issue-261-fe06-m1a2-data-source-advanced/before/originals/modeling-data-3840x2160.png), [after original](images/issue-261-fe06-m1a2-data-source-advanced/after/originals/modeling-data-3840x2160.png), [alias before](images/issue-261-fe06-m1a2-data-source-advanced/before/routes/datasets-processing/modeling-data-3840x2160.png), [alias after](images/issue-261-fe06-m1a2-data-source-advanced/after/routes/datasets-processing/modeling-data-3840x2160.png), [before header](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-3840x2160-header-100pct.png), [before navigator](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-3840x2160-navigator-100pct.png), [before controls](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-3840x2160-controls-100pct.png), [before graph](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-3840x2160-graph-100pct.png), [after header](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-3840x2160-header-100pct.png), [after navigator](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-3840x2160-navigator-100pct.png), [after controls](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-3840x2160-controls-100pct.png), [after graph](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-3840x2160-graph-100pct.png)
+- 1440x900 empty: [before original](images/issue-261-fe06-m1a2-data-source-advanced/before/originals/modeling-data-empty-1440x900.png), [after original](images/issue-261-fe06-m1a2-data-source-advanced/after/originals/modeling-data-empty-1440x900.png), [alias before](images/issue-261-fe06-m1a2-data-source-advanced/before/routes/datasets-processing/modeling-data-empty-1440x900.png), [alias after](images/issue-261-fe06-m1a2-data-source-advanced/after/routes/datasets-processing/modeling-data-empty-1440x900.png), [before header](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-empty-1440x900-header-100pct.png), [before navigator](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-empty-1440x900-navigator-100pct.png), [before controls](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-empty-1440x900-controls-100pct.png), [before graph](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-empty-1440x900-graph-100pct.png), [after header](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-empty-1440x900-header-100pct.png), [after navigator](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-empty-1440x900-navigator-100pct.png), [after controls](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-empty-1440x900-controls-100pct.png), [after graph](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-empty-1440x900-graph-100pct.png)
+- 1440x900 invalid mapping: [before original](images/issue-261-fe06-m1a2-data-source-advanced/before/originals/modeling-data-invalid-1440x900.png), [after original](images/issue-261-fe06-m1a2-data-source-advanced/after/originals/modeling-data-invalid-1440x900.png), [alias before](images/issue-261-fe06-m1a2-data-source-advanced/before/routes/datasets-processing/modeling-data-invalid-1440x900.png), [alias after](images/issue-261-fe06-m1a2-data-source-advanced/after/routes/datasets-processing/modeling-data-invalid-1440x900.png), [before header](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-invalid-1440x900-header-100pct.png), [before navigator](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-invalid-1440x900-navigator-100pct.png), [before controls](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-invalid-1440x900-controls-100pct.png), [before graph](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-invalid-1440x900-graph-100pct.png), [after header](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-invalid-1440x900-header-100pct.png), [after navigator](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-invalid-1440x900-navigator-100pct.png), [after controls](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-invalid-1440x900-controls-100pct.png), [after graph](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-invalid-1440x900-graph-100pct.png)
+- 1440x900 invalid mapping scrolled: [before original](images/issue-261-fe06-m1a2-data-source-advanced/before/originals/modeling-data-invalid-scrolled-1440x900.png), [after original](images/issue-261-fe06-m1a2-data-source-advanced/after/originals/modeling-data-invalid-scrolled-1440x900.png), [alias before](images/issue-261-fe06-m1a2-data-source-advanced/before/routes/datasets-processing/modeling-data-invalid-scrolled-1440x900.png), [alias after](images/issue-261-fe06-m1a2-data-source-advanced/after/routes/datasets-processing/modeling-data-invalid-scrolled-1440x900.png), [before header](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-invalid-scrolled-1440x900-header-100pct.png), [before navigator](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-invalid-scrolled-1440x900-navigator-100pct.png), [before controls](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-invalid-scrolled-1440x900-controls-100pct.png), [before graph](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-invalid-scrolled-1440x900-graph-100pct.png), [after header](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-invalid-scrolled-1440x900-header-100pct.png), [after navigator](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-invalid-scrolled-1440x900-navigator-100pct.png), [after controls](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-invalid-scrolled-1440x900-controls-100pct.png), [after graph](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-invalid-scrolled-1440x900-graph-100pct.png)
+
+</details>
+
+original-resolution inspection은 아래 acceptance에서 별도 기록한다. automated 3840x2160 geometry는 실제
+Windows 4K 물리 가독성이라고 주장하지 않으며 그 최종 판정은 `DEFERRED_TO_223`이다.
+
+### M1A2 Main acceptance
+
+- Inventory contract 4/4와 checker가 PASS했다. 결과는 2,818 global rule-group, 3,565 expanded selector,
+  M1A 213행, M1A2 touched/fully removed/partially shrunk `3/3/0`, exact legacy residual 0이다.
+- Data intake/workspace, Modeling layout, common workbench focused Vitest는 4 files/56 tests PASS다. 첫
+  `npm --prefix ... exec` 호출은 repository root에서 `apps/web` jsdom 설정을 읽지 못해
+  `document is not defined`로 끝난 잘못된 runner invocation이었고, 같은 네 파일을 canonical
+  `apps/web` cwd에서 실행한 결과가 위 56/56이다.
+- Frontend guard contract 17/17, actual guard 0 violation/기존 warning 15가 PASS했다. 세 rule 제거로
+  `layout.css`가 8,922줄, global debt가 2,818로 감소했고, M1A2 위쪽 삭제로 줄만 이동한 기존
+  `.modeling-data-ribbon-panel` exception fingerprint를 같은 finding에 맞췄다. allowance나 count는
+  늘리지 않았다.
+- TypeScript/Vite production build와 bundle budget가 PASS했다. emitted base CSS는 343.24 kB,
+  Data lazy CSS는 22.97 kB, common workbench CSS는 9.72 kB로 feature lazy boundary를 유지한다.
+- Documentation-impact worktree gate는 301 changed files, 2 visual sources,
+  `2 byte-identical CSS visual sources by #261`로 PASS했다. user-guide gate도 20문서, 119 current
+  captures, 1,034 local links, 2,542 images를 PASS했다. current PNG는 바꾸지 않았으며 crop duplicate
+  provenance는 실제 SHA-256별 complete exact-path group으로 등록했다.
+- Manifest 재계산은 96 PNG 전부가 manifest에 닫혀 있고, primary original/crop 80개, primary 8쌍,
+  alias 8쌍, current-guide triple 8개, direct pixel-exact crop 64개와 current CSS hash 2개가 모두
+  일치함을 확인했다. `git diff --check`도 PASS다.
+- Main은 after의 normal 다섯 viewport, empty/invalid/invalid-scrolled 세 상태와 header/navigator/
+  controls/graph crop 32개를 original resolution으로 열었다. before는 모든 대응 pair가 byte-identical이다.
+  #249 정보 계층, engineering task flow, responsive/wide-screen composition은 모두 PASS다. shell,
+  selected stage, Local file recovery, mapping blocker, last-valid graph, collapsed File details와 action
+  reachability에 clipping/wrapping/overflow/geometry 변화가 없다. 실제 Windows 4K 물리 가독성만 #223에
+  남는다.
+- 같은 `independent_auditor_terra_high`가 exact 세 selector 이동과 cascade, sole current-hash proof,
+  historical manifest 조건, 96 PNG closure를 읽기 전용으로 재검사하고, after original 8개와 direct crop
+  32개를 original resolution으로 열었다. #249 세 축과 모든 gate를 재확인한 결과 material finding 없이
+  `APPROVE`했다.
+
 ## 이후 migration 순서
 
 1. M1A0 Data same-selector 12행은 commit `5148f6f...`에서 이동·검증되었다.
-2. M1A1 Data source-tabs 5행은 위 candidate에서 이동·검증되었다.
-3. 다음 단위 `M1A2-modeling-data-component-region`은 재생성 inventory의 남은 M1A 216행에서 한 component
-   region만 새 owner packet으로 선택한다. owner 승인을 받기 전에는 전체 216행을 함께 이동하지 않는다.
-4. M1B Process, M1C Fit, M1D Export, M1E Modeling shell/family를 각각 분리한다.
-5. M2 Materials를 search/tree/detail/card state와 함께 옮긴다.
-6. M3A Administration과 M3B Activity를 서로 다른 owner file로 옮긴다.
-7. feature가 빠진 뒤 M4 shared shell/token/primitive/layout을 정리한다.
-8. 마지막 M6에서만 live zero-consumer를 증명한 dead selector를 제거한다.
-9. HOLD 447행은 consumer가 둘 이상이거나 owner가 불명확하므로 owner split 전에는 이동하거나
+2. M1A1 Data source-tabs 5행은 commit `789ebfc...`에서 이동·검증되었다.
+3. M1A2 Data source-advanced 3행은 위 candidate에서 이동·검증되었다.
+4. 다음 단위 `M1A3-modeling-data-component-region`은 재생성 inventory의 남은 M1A 213행에서 한 component
+   region만 새 owner packet으로 선택한다. owner 승인을 받기 전에는 전체 213행을 함께 이동하지 않는다.
+5. M1B Process, M1C Fit, M1D Export, M1E Modeling shell/family를 각각 분리한다.
+6. M2 Materials를 search/tree/detail/card state와 함께 옮긴다.
+7. M3A Administration과 M3B Activity를 서로 다른 owner file로 옮긴다.
+8. feature가 빠진 뒤 M4 shared shell/token/primitive/layout을 정리한다.
+9. 마지막 M6에서만 live zero-consumer를 증명한 dead selector를 제거한다.
+10. HOLD 447행은 consumer가 둘 이상이거나 owner가 불명확하므로 owner split 전에는 이동하거나
    복제하지 않는다.
 
 각 unit은 전 unit의 inventory JSON을 새 source에서 재생성하고 감소한 guard baseline을 다시 올리지

@@ -47,7 +47,7 @@
     },
     {
       "path": "apps/web/src/design/layout.css",
-      "baselineLines": 8942,
+      "baselineLines": 8922,
       "responsibilities": ["shared layout", "legacy route-specific layout selectors"],
       "followUpIssue": "#261",
       "removalCondition": "FE-06 separates shared layout primitives from feature-owned responsive composition."
@@ -65,7 +65,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "scope": "apps/web/src",
-      "count": 2821,
+      "count": 2818,
       "reason": "Existing feature and responsive selectors remain in the two registered legacy global stylesheets.",
       "followUpIssue": "#261",
       "removalCondition": "FE-06 moves feature selectors to owned styles and proves zero legacy consumers."
@@ -150,7 +150,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/design/layout.css",
-      "fingerprint": "e84421ac1794a6adcb2bc7f8e0e666a900ce21b6fb0b2c461677c65a325f0646",
+      "fingerprint": "55ad182c87cbc987d141ecd3a742e57efef480bf67fbaaa0870dd8a3e8e3887c",
       "maxOccurrences": 1,
       "reason": "FE-06 M1A0 removes the Data plot member from this legacy comma group while preserving the ribbon selector unchanged.",
       "ownerIssue": "#261",

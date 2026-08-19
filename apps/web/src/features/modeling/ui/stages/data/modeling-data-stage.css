@@ -918,6 +918,25 @@
   scrollbar-gutter: stable;
 }
 
+.data-source-advanced {
+  border-top: 1px solid var(--ux-border);
+  padding-top: 4px;
+}
+
+.data-source-advanced > div {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 3px 8px;
+  max-width: 720px;
+  padding: 5px 0;
+  color: var(--ux-text-muted);
+}
+
+.data-source-advanced code {
+  overflow-wrap: anywhere;
+  color: var(--ux-text);
+}
+
 .data-source-advanced .data-source-advanced-table {
   max-width: 100%;
   overflow: auto;
