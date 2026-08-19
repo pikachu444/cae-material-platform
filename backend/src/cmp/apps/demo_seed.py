@@ -381,7 +381,14 @@ def _ensure_model_and_card(
 ) -> None:
     state_id = _current_id(state, "material_state_id")
     models = api.get(f"/material-states/{state_id}/material-models")
-    model = _find(models.get("items"), lambda _: True)
+    model = _find(
+        models.get("items"),
+        lambda item: (
+            isinstance(item.get("current_revision"), Mapping)
+            and isinstance(item["current_revision"].get("content"), Mapping)
+            and item["current_revision"]["content"].get("calibration_evidence") is None
+        ),
+    )
     if model is None:
         model = api.post(
             f"/material-states/{state_id}/material-models",
@@ -608,9 +615,8 @@ def _ensure_elastoplastic_models_and_cards(
         models.get("items"),
         lambda item: (
             isinstance(item.get("current_revision"), dict)
-            and item["current_revision"].get("content", {}).get("source_dataset_revision_id")
-            == dataset_revision_id
             and item["current_revision"].get("content", {}).get("processing_projection") is None
+            and item["current_revision"].get("content", {}).get("calibration_projection") is None
         ),
     )
     if model is None:

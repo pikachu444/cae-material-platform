@@ -860,6 +860,74 @@ def _metal_fit_decision(
     }
 
 
+def _catalog_domain_bindings(
+    api: DemoApi, *, record_id: str, record_revision_id: str
+) -> list[dict[str, Any]]:
+    return _items(
+        api.get(
+            f"/catalog/records/{record_id}/revisions/{record_revision_id}/domain-bindings"
+        )
+    )
+
+
+def _catalog_binding_matches(
+    binding: Mapping[str, Any], *, kind: str, object_id: str, revision_id: str
+) -> bool:
+    return (
+        binding.get("kind") == kind
+        and binding.get("object_id") == object_id
+        and binding.get("revision_id") == revision_id
+    )
+
+
+def _ensure_catalog_domain_binding(
+    api: DemoApi,
+    *,
+    record_id: str,
+    record_revision_id: str,
+    kind: str,
+    object_id: str,
+    revision_id: str,
+    stage: str,
+) -> dict[str, Any]:
+    bindings = _catalog_domain_bindings(
+        api, record_id=record_id, record_revision_id=record_revision_id
+    )
+    exact = next(
+        (
+            item
+            for item in bindings
+            if _catalog_binding_matches(
+                item, kind=kind, object_id=object_id, revision_id=revision_id
+            )
+        ),
+        None,
+    )
+    if exact is not None:
+        return exact
+    if bindings:
+        actual = [
+            {
+                "kind": item.get("kind"),
+                "object_id": item.get("object_id"),
+                "revision_id": item.get("revision_id"),
+            }
+            for item in bindings
+        ]
+        raise DemoSeedError(
+            f"{stage}: catalog domain binding conflicts with the expected exact target "
+            f"(expected={kind}/{object_id}/{revision_id}, actual={actual})"
+        )
+    path = f"/catalog/records/{record_id}/revisions/{record_revision_id}/domain-binding"
+    try:
+        return api.post(
+            path,
+            {"kind": kind, "object_id": object_id, "revision_id": revision_id},
+        )
+    except DemoSeedError as exc:
+        raise DemoSeedError(f"{stage}: catalog domain binding create failed: {exc}") from exc
+
+
 def _ensure_catalog_binding(
     api: DemoApi,
     reviewer_api: DemoApi,
@@ -1369,30 +1437,15 @@ def _ensure_catalog_binding(
         )
     record_id = _id(record, "record_id")
     record_revision_id = _revision_id(record)
-    binding_root = f"/catalog/records/{record_id}/revisions/{record_revision_id}"
-    bindings = _items(api.get(f"{binding_root}/domain-bindings"))
-
-    def ensure_root_binding(kind: str, object_id: str, revision_id: str) -> dict[str, Any]:
-        existing = next(
-            (
-                item
-                for item in bindings
-                if item.get("kind") == kind
-                and item.get("object_id") == object_id
-                and item.get("revision_id") == revision_id
-            ),
-            None,
-        )
-        if existing is not None:
-            return existing
-        created = api.post(
-            f"{binding_root}/domain-binding",
-            {"kind": kind, "object_id": object_id, "revision_id": revision_id},
-        )
-        bindings.append(created)
-        return created
-
-    binding = ensure_root_binding("material", _id(material, "material_id"), _revision_id(material))
+    binding = _ensure_catalog_domain_binding(
+        api,
+        record_id=record_id,
+        record_revision_id=record_revision_id,
+        kind="material",
+        object_id=_id(material, "material_id"),
+        revision_id=_revision_id(material),
+        stage="DP780 Material Catalog projection",
+    )
     records_by_key: dict[str, dict[str, Any]] = {material_code: record}
     node_folders = {
         "material_state": dp780_folder,
@@ -1458,20 +1511,15 @@ def _ensure_catalog_binding(
             )
         node_record_id = _id(node_record, "record_id")
         node_record_revision_id = _revision_id(node_record)
-        node_binding_path = (
-            f"/catalog/records/{node_record_id}/revisions/{node_record_revision_id}/domain-binding"
+        _ensure_catalog_domain_binding(
+            api,
+            record_id=node_record_id,
+            record_revision_id=node_record_revision_id,
+            kind=node["kind"],
+            object_id=node["object_id"],
+            revision_id=node["revision_id"],
+            stage=f"{external_key} workflow Catalog projection",
         )
-        try:
-            api.get(node_binding_path)
-        except DemoSeedError:
-            api.post(
-                node_binding_path,
-                {
-                    "kind": node["kind"],
-                    "object_id": node["object_id"],
-                    "revision_id": node["revision_id"],
-                },
-            )
         records_by_key[external_key] = node_record
 
     link_type = next(
@@ -1808,18 +1856,15 @@ def _ensure_catalog_material_projections(
                 )
         record_id = _id(record, "record_id")
         record_revision_id = _revision_id(record)
-        binding_path = f"/catalog/records/{record_id}/revisions/{record_revision_id}/domain-binding"
-        try:
-            binding = api.get(binding_path)
-        except DemoSeedError:
-            binding = api.post(
-                binding_path,
-                {
-                    "kind": "material",
-                    "object_id": material_id,
-                    "revision_id": _revision_id(material),
-                },
-            )
+        binding = _ensure_catalog_domain_binding(
+            api,
+            record_id=record_id,
+            record_revision_id=record_revision_id,
+            kind="material",
+            object_id=material_id,
+            revision_id=_revision_id(material),
+            stage=f"{label} Material Catalog projection",
+        )
         _ensure_catalog_record_publication(api, reviewer_api, record)
         projected[f"catalog_{label}_record_id"] = record_id
         projected[f"catalog_{label}_record_revision_id"] = record_revision_id
@@ -2031,18 +2076,19 @@ def _ensure_issue246_catalog_examples(
         binding_mismatch = False
         if record is not None and binding is not None:
             expected_kind, expected_object_id, expected_revision_id = binding
-            current_binding_path = (
-                f"/catalog/records/{_id(record, 'record_id')}/revisions/"
-                f"{_revision_id(record)}/domain-binding"
+            current_bindings = _catalog_domain_bindings(
+                api,
+                record_id=_id(record, "record_id"),
+                record_revision_id=_revision_id(record),
             )
-            try:
-                pinned = api.get(current_binding_path)
-            except DemoSeedError:
-                pinned = None
-            binding_mismatch = pinned is not None and (
-                pinned.get("kind") != expected_kind
-                or pinned.get("object_id") != expected_object_id
-                or pinned.get("revision_id") != expected_revision_id
+            binding_mismatch = bool(current_bindings) and not any(
+                _catalog_binding_matches(
+                    pinned,
+                    kind=expected_kind,
+                    object_id=expected_object_id,
+                    revision_id=expected_revision_id,
+                )
+                for pinned in current_bindings
             )
         if record is None:
             record = api.post(
@@ -2064,23 +2110,15 @@ def _ensure_issue246_catalog_examples(
             )
         if binding is not None:
             kind, object_id, revision_id = binding
-            binding_path = (
-                f"/catalog/records/{_id(record, 'record_id')}/revisions/"
-                f"{_revision_id(record)}/domain-binding"
+            _ensure_catalog_domain_binding(
+                api,
+                record_id=_id(record, "record_id"),
+                record_revision_id=_revision_id(record),
+                kind=kind,
+                object_id=object_id,
+                revision_id=revision_id,
+                stage=f"{key} #246 Catalog projection",
             )
-            try:
-                current_binding = api.get(binding_path)
-            except DemoSeedError:
-                current_binding = api.post(
-                    binding_path,
-                    {"kind": kind, "object_id": object_id, "revision_id": revision_id},
-                )
-            if (
-                current_binding.get("kind") != kind
-                or current_binding.get("object_id") != object_id
-                or current_binding.get("revision_id") != revision_id
-            ):
-                raise DemoSeedError(f"{key} domain binding does not pin the expected revision")
         _ensure_catalog_record_publication(api, reviewer_api, record)
         records[key] = record
         return record
@@ -2176,7 +2214,6 @@ def _ensure_issue246_catalog_examples(
             neutral["abaqus_neutral_solver_card_revision_id"],
         ),
     )
-
     technical_records = {
         key: api.get(f"/catalog/records/{record_id}")
         for key, record_id in technical_record_ids.items()
@@ -3597,6 +3634,21 @@ def _fixture_complete(
     return True
 
 
+def _unpromoted_model(
+    models: Sequence[Mapping[str, Any]],
+    *,
+    promotion_fields: Sequence[str],
+) -> Mapping[str, Any] | None:
+    return next(
+        (
+            model
+            for model in models
+            if all(_content(model).get(field) is None for field in promotion_fields)
+        ),
+        None,
+    )
+
+
 def _ensure_polymer_baseline(api: DemoApi) -> str:
     detail = _ensure_material(
         api,
@@ -3618,9 +3670,13 @@ def _ensure_polymer_baseline(api: DemoApi) -> str:
     )
     state_id = _id(state, "material_state_id")
     models = _items(api.get(f"/material-states/{state_id}/linear-viscoelastic-models"))
+    baseline_model = _unpromoted_model(
+        models,
+        promotion_fields=("prony_promotion_evidence", "processing_promotion_evidence"),
+    )
     model = (
-        models[0]
-        if models
+        baseline_model
+        if baseline_model is not None
         else api.post(
             f"/material-states/{state_id}/linear-viscoelastic-models",
             {
@@ -4509,9 +4565,20 @@ def _ensure_elastomer_baseline(api: DemoApi) -> str:
     )
     state_id = _id(state, "material_state_id")
     models = _items(api.get(f"/material-states/{state_id}/ogden-prony-models"))
+    promoted_model = next(
+        (
+            model
+            for model in models
+            if isinstance(_content(model).get("promotion_evidence"), Mapping)
+        ),
+        None,
+    )
+    baseline_model = promoted_model or _unpromoted_model(
+        models, promotion_fields=("promotion_evidence",)
+    )
     model = (
-        models[0]
-        if models
+        baseline_model
+        if baseline_model is not None
         else api.post(
             f"/material-states/{state_id}/ogden-prony-models",
             {

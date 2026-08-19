@@ -123,6 +123,9 @@ def test_verification_starts_worker_for_queued_jobs(monkeypatch: MonkeyPatch) ->
         return subprocess.CompletedProcess(args, 0, "", "")
 
     monkeypatch.setattr(demo_test, "_run_command", run_command)
+    monkeypatch.setattr(
+        demo_test, "_run_seed_twice_and_assert_stable", lambda *args, **kwargs: None
+    )
 
     demo_test._run_verification(ROOT, project, e2e=False)
 
@@ -144,6 +147,9 @@ def test_browser_verification_uses_disposable_web_url_without_full_api_verifier(
         return subprocess.CompletedProcess(args, 0, output, "")
 
     monkeypatch.setattr(demo_test, "_run_command", run_command)
+    monkeypatch.setattr(
+        demo_test, "_run_seed_twice_and_assert_stable", lambda *args, **kwargs: None
+    )
     monkeypatch.setattr(demo_test, "_wait_for_url", lambda *args, **kwargs: None)
     monkeypatch.setattr(demo_test, "_npm_executable", lambda: "npm")
 
@@ -152,6 +158,192 @@ def test_browser_verification_uses_disposable_web_url_without_full_api_verifier(
     npm = next(command for command in commands if command[0] == "npm")
     assert npm == ["npm", "run", "test:e2e", "--workspace", "@cmp/web"]
     assert not any("scripts/verify_full_demo.py" in command for command in commands)
+
+
+def test_browser_verification_can_select_the_owned_specs_without_changing_the_default(
+    monkeypatch: MonkeyPatch,
+) -> None:
+    project = "cmp-demo-test-proof123"
+    commands: list[list[str]] = []
+
+    def run_command(args: list[str], **_kwargs: Any) -> subprocess.CompletedProcess[str]:
+        commands.append(list(args))
+        output = "127.0.0.1:49152\n" if "port" in args else ""
+        return subprocess.CompletedProcess(args, 0, output, "")
+
+    monkeypatch.setattr(demo_test, "_run_command", run_command)
+    monkeypatch.setattr(
+        demo_test, "_run_seed_twice_and_assert_stable", lambda *args, **kwargs: None
+    )
+    monkeypatch.setattr(demo_test, "_wait_for_url", lambda *args, **kwargs: None)
+    monkeypatch.setattr(demo_test, "_npm_executable", lambda: "npm")
+
+    demo_test._run_verification(
+        ROOT,
+        project,
+        e2e=True,
+        e2e_specs=("e2e/guided-demo.spec.ts", "e2e/display-density.spec.ts"),
+    )
+
+    npm = next(command for command in commands if command[0] == "npm")
+    assert npm == [
+        "npm",
+        "run",
+        "test:e2e",
+        "--workspace",
+        "@cmp/web",
+        "--",
+        "e2e/guided-demo.spec.ts",
+        "e2e/display-density.spec.ts",
+    ]
+
+
+def test_repeat_seed_runs_twice_and_requires_an_exact_protected_table_snapshot(
+    monkeypatch: MonkeyPatch,
+) -> None:
+    project = "cmp-demo-test-proof123"
+    commands: list[list[str]] = []
+    snapshot = demo_test.RepeatSeedSnapshot(
+        tables=(("catalog.catalog_record", 3, "a" * 32),)
+    )
+
+    def run_command(args: list[str], **_kwargs: Any) -> subprocess.CompletedProcess[str]:
+        commands.append(list(args))
+        return subprocess.CompletedProcess(args, 0, "", "")
+
+    monkeypatch.setattr(demo_test, "_run_command", run_command)
+    monkeypatch.setattr(demo_test, "_repeat_seed_snapshot", lambda *args: snapshot)
+
+    demo_test._run_seed_twice_and_assert_stable(ROOT, project)
+
+    seed_commands = [command for command in commands if command[-1] == "seed"]
+    assert len(seed_commands) == 2
+
+
+def test_repeat_seed_table_discovery_covers_every_seeded_domain_table(
+    monkeypatch: MonkeyPatch,
+) -> None:
+    discovered = (
+        *demo_test.REPEAT_SEED_REQUIRED_TABLES,
+        "access_control.seeded_state",
+        "artifact.seeded_state",
+        "audit.seeded_state",
+        "events.seeded_state",
+        "jobs.seeded_state",
+        "plugin.seeded_state",
+        "revisioning.seeded_state",
+    )
+    commands: list[tuple[str, ...]] = []
+
+    def capture(args: tuple[str, ...], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        commands.append(args)
+        return subprocess.CompletedProcess(args, 0, "\n".join(discovered), "")
+
+    monkeypatch.setattr(
+        demo_test,
+        "_run_command",
+        capture,
+    )
+
+    assert demo_test._repeat_seed_tables(ROOT, "postgres-1") == discovered
+    query = commands[0][-1]
+    assert "schemaname NOT IN ('information_schema', 'pg_catalog', 'public')" in query
+    assert "schemaname !~ '^pg_(temp|toast)'" in query
+    assert "schemaname IN" not in query
+
+
+def test_repeat_seed_snapshot_ignores_only_operational_authentication_last_seen() -> None:
+    assert demo_test.REPEAT_SEED_IGNORED_FIELDS == {
+        "identity.external_identity": ("last_seen_at",)
+    }
+    assert demo_test._repeat_seed_row_json("identity.external_identity") == (
+        "(to_jsonb(seed_row) - ARRAY['last_seen_at']::text[])"
+    )
+    assert demo_test._repeat_seed_row_json("catalog.material_state_revision") == (
+        "to_jsonb(seed_row)"
+    )
+
+
+def test_repeat_seed_table_discovery_fails_when_state_neutral_or_review_is_uncovered(
+    monkeypatch: MonkeyPatch,
+) -> None:
+    discovered = tuple(
+        table
+        for table in demo_test.REPEAT_SEED_REQUIRED_TABLES
+        if table
+        not in {
+            "catalog.material_state_revision",
+            "modeling.neutral_material_revision",
+            "governance.review_request",
+        }
+    )
+    monkeypatch.setattr(
+        demo_test,
+        "_run_command",
+        lambda args, **kwargs: subprocess.CompletedProcess(
+            args, 0, "\n".join(discovered), ""
+        ),
+    )
+
+    with pytest.raises(
+        demo_test.DisposableDemoError,
+        match=r"material_state_revision.*review_request.*neutral_material_revision",
+    ):
+        demo_test._repeat_seed_tables(ROOT, "postgres-1")
+
+
+def test_repeat_seed_reports_the_conflicting_stage_and_table_delta(
+    monkeypatch: MonkeyPatch,
+) -> None:
+    project = "cmp-demo-test-proof123"
+    snapshots = iter(
+        (
+            demo_test.RepeatSeedSnapshot(
+                tables=(("catalog.domain_record_binding", 8, "a" * 32),)
+            ),
+            demo_test.RepeatSeedSnapshot(
+                tables=(("catalog.domain_record_binding", 9, "b" * 32),)
+            ),
+        )
+    )
+    monkeypatch.setattr(
+        demo_test,
+        "_run_command",
+        lambda args, **kwargs: subprocess.CompletedProcess(args, 0, "", ""),
+    )
+    monkeypatch.setattr(demo_test, "_repeat_seed_snapshot", lambda *args: next(snapshots))
+
+    with pytest.raises(
+        demo_test.DisposableDemoError,
+        match=r"repeat demo seed comparison failed.*catalog.domain_record_binding",
+    ):
+        demo_test._run_seed_twice_and_assert_stable(ROOT, project)
+
+
+def test_repeat_seed_409_is_labeled_as_the_repeat_seed_stage(
+    monkeypatch: MonkeyPatch,
+) -> None:
+    project = "cmp-demo-test-proof123"
+    snapshot = demo_test.RepeatSeedSnapshot(
+        tables=(("catalog.catalog_record", 3, "a" * 32),)
+    )
+    seed_run = 0
+
+    def run_command(args: list[str], **_kwargs: Any) -> subprocess.CompletedProcess[str]:
+        nonlocal seed_run
+        seed_run += 1
+        if seed_run == 2:
+            raise demo_test.DisposableDemoError("domain binding returned 409")
+        return subprocess.CompletedProcess(args, 0, "", "")
+
+    monkeypatch.setattr(demo_test, "_run_command", run_command)
+    monkeypatch.setattr(demo_test, "_repeat_seed_snapshot", lambda *args: snapshot)
+
+    with pytest.raises(
+        demo_test.DisposableDemoError,
+        match=r"repeat demo seed failed.*domain binding returned 409",
+    ):
+        demo_test._run_seed_twice_and_assert_stable(ROOT, project)
 
 
 def test_cleanup_removes_only_validated_project_resources_and_local_images(

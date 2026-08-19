@@ -30,8 +30,12 @@ make demo-verify
 make demo-e2e
 ```
 
-각 명령은 고유 `cmp-demo-test-*` project와 전용 DB/object-store volume에서 깨끗하게 시작하고,
-검증 후 해당 test volume만 제거합니다. `make demo-e2e`는 실제 브라우저에서 Materials 검색,
+각 명령은 고유 `cmp-demo-test-*` project와 전용 DB/object-store volume에서 깨끗하게 시작합니다.
+같은 DB에서 seed를 두 번 실행해 Catalog State와 direct link, Processing, Neutral revision, solver
+card, review request를 포함해 실제 발견한 모든 non-system product/domain table이 두 번째 실행에서
+늘거나 달라지지 않는지 확인한 뒤 해당 test volume만 제거합니다. 토큰 발급이 갱신하는 외부 인증
+identity의 최근 확인 시각만 정규화하며 identity와 나머지 값은 그대로 비교합니다. `make demo-e2e`는
+실제 브라우저에서 Materials 검색,
 solver card preview·전달 확인·다운로드, Activity의 review request를 확인하며 첫 실행에는 Chromium
 설치가 포함될 수 있습니다.
 
@@ -134,6 +138,8 @@ ZIP 안의 solver card는 JSON 문자열이 아니라 solver-native ASCII 파일
 - Material이 3개보다 적으면 `docker compose ... logs seed`에서 첫 실패를 확인합니다.
 - 로그인 화면이 계속되면 Docker 서비스 상태를 확인한 뒤 **Try again**을 누릅니다.
 - `make demo-verify`가 card 누락을 보고하면 mapping report와 Material Model revision을 확인합니다.
+- 반복 seed 또는 domain binding이 실패하면 출력된 `repeat demo seed`와 Catalog projection 단계부터
+  확인합니다. 이 검사는 영구 Demo DB를 수정하지 않습니다.
 - 포트 충돌, migration 또는 worker 문제는 [탐색·문제 해결 가이드](10-navigation-and-troubleshooting.md)를
   참고합니다.
 

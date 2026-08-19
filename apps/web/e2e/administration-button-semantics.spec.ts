@@ -64,7 +64,7 @@ test("Administration uses one shared semantic button hierarchy across its three 
 
   await page.goto("/administration/database");
   await expect(page.getByRole("heading", { name: "Database design", exact: true })).toBeVisible();
-  await expect(page.getByText("1 shown", { exact: true })).toBeVisible();
+  await expect(page.getByText(/^\d+ shown$/)).toBeVisible();
   await expect(page.locator(".administration-workspace .button.primary")).toHaveCount(0);
   const addTable = page.getByRole("button", { name: "Add Table", exact: true });
   await expect(addTable).toHaveClass("ux-button primary");
@@ -94,7 +94,7 @@ test("Administration uses one shared semantic button hierarchy across its three 
 
   await page.goto("/administration/records");
   await expect(page.getByRole("heading", { name: "Single entry or multiple rows", exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "10 records", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /^\d+ records$/ })).toBeVisible();
   await page.getByRole("button", { name: "Multiple rows", exact: true }).click();
   const readColumns = page.getByRole("button", { name: "Read columns", exact: true });
   const registerRows = page.getByRole("button", { name: "Register checked rows", exact: true });

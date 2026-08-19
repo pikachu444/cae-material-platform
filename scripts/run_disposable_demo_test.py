@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import json
 import os
 import re
@@ -34,6 +35,48 @@ PERMANENT_COUNT_TABLES = (
     "modeling.material_model_revision",
     "exporting.solver_card_revision",
 )
+REPEAT_SEED_EXCLUDED_SCHEMAS = (
+    "information_schema",
+    "pg_catalog",
+    "public",
+)
+REPEAT_SEED_IGNORED_FIELDS = {
+    "identity.external_identity": ("last_seen_at",),
+}
+REPEAT_SEED_REQUIRED_TABLES = (
+    "catalog.catalog_record",
+    "catalog.catalog_record_revision",
+    "catalog.domain_record_identity_binding",
+    "catalog.domain_record_binding",
+    "catalog.record_link",
+    "catalog.record_link_revision",
+    "catalog.material",
+    "catalog.material_revision",
+    "catalog.material_state",
+    "catalog.material_state_revision",
+    "datasets.test_data_document",
+    "datasets.test_data_document_revision",
+    "datasets.dataset",
+    "datasets.dataset_revision",
+    "modeling.material_model",
+    "modeling.material_model_revision",
+    "modeling.neutral_material",
+    "modeling.neutral_material_revision",
+    "exporting.solver_card",
+    "exporting.solver_card_revision",
+    "exporting.neutral_solver_card",
+    "exporting.neutral_solver_card_revision",
+    "processing.processing_recipe",
+    "processing.processing_recipe_revision",
+    "processing.processing_run",
+    "processing.common_processing_recipe",
+    "processing.common_processing_recipe_revision",
+    "processing.common_processing_batch",
+    "processing.common_processing_batch_attempt",
+    "processing.common_processing_output",
+    "processing.common_processing_output_revision",
+    "governance.review_request",
+)
 
 
 class DisposableDemoError(RuntimeError):
@@ -44,6 +87,12 @@ class DisposableDemoError(RuntimeError):
 class PermanentDemoSnapshot:
     volumes: tuple[tuple[str, str, str], ...]
     counts: tuple[tuple[str, int], ...] | None
+
+
+@dataclass(frozen=True)
+class RepeatSeedSnapshot:
+    tables: tuple[tuple[str, int, str], ...]
+    rows: tuple[tuple[str, tuple[str, ...]], ...] = ()
 
 
 def new_project_name() -> str:
@@ -247,6 +296,222 @@ def _permanent_postgres_container(root: Path) -> str | None:
     return containers[0] if containers else None
 
 
+def _disposable_postgres_container(root: Path, project: str) -> str:
+    result = _run_command(
+        (
+            "docker",
+            "container",
+            "ls",
+            "--filter",
+            f"label=com.docker.compose.project={project}",
+            "--filter",
+            "label=com.docker.compose.service=postgres",
+            "--format",
+            "{{.ID}}",
+        ),
+        cwd=root,
+        capture_output=True,
+    )
+    containers = tuple(filter(None, result.stdout.splitlines()))
+    if len(containers) != 1:
+        raise DisposableDemoError(
+            "repeat-seed snapshot requires exactly one disposable postgres container "
+            f"for project={project}; found={len(containers)}"
+        )
+    return containers[0]
+
+
+def _repeat_seed_tables(root: Path, container: str) -> tuple[str, ...]:
+    excluded_schemas = ", ".join(
+        f"'{schema}'" for schema in REPEAT_SEED_EXCLUDED_SCHEMAS
+    )
+    result = _run_command(
+        (
+            "docker",
+            "exec",
+            container,
+            "psql",
+            "-U",
+            "cmp_owner",
+            "-d",
+            "cmp",
+            "--no-align",
+            "--tuples-only",
+            "--set=ON_ERROR_STOP=1",
+            "--command",
+            (
+                "SELECT format('%I.%I', schemaname, tablename) "
+                "FROM pg_catalog.pg_tables "
+                f"WHERE schemaname NOT IN ({excluded_schemas}) "
+                "AND schemaname !~ '^pg_(temp|toast)' "
+                "ORDER BY schemaname, tablename"
+            ),
+        ),
+        cwd=root,
+        capture_output=True,
+    )
+    tables = tuple(line.strip() for line in result.stdout.splitlines() if line.strip())
+    missing = sorted(set(REPEAT_SEED_REQUIRED_TABLES) - set(tables))
+    if missing:
+        raise DisposableDemoError(
+            f"repeat-seed snapshot is missing required domain tables: {missing}"
+        )
+    return tables
+
+
+def _repeat_seed_row_json(table: str) -> str:
+    row_json = "to_jsonb(seed_row)"
+    ignored_fields = REPEAT_SEED_IGNORED_FIELDS.get(table, ())
+    if ignored_fields:
+        fields = ", ".join(f"'{field}'" for field in ignored_fields)
+        row_json = f"({row_json} - ARRAY[{fields}]::text[])"
+    return row_json
+
+
+def _repeat_seed_snapshot(root: Path, project: str) -> RepeatSeedSnapshot:
+    container = _disposable_postgres_container(root, project)
+    protected_tables = _repeat_seed_tables(root, container)
+    tables: list[tuple[str, int, str]] = []
+    rows: list[tuple[str, tuple[str, ...]]] = []
+    for table in protected_tables:
+        row_json = _repeat_seed_row_json(table)
+        query = (
+            f"SELECT '{table}', count(*)::bigint, "
+            f"coalesce(md5(string_agg({row_json}::text, E'\\n' "
+            f"ORDER BY {row_json}::text)), md5('')), "
+            f"replace(encode(convert_to(coalesce(jsonb_agg({row_json} "
+            f"ORDER BY {row_json}::text)::text, '[]'), 'UTF8'), 'base64'), "
+            "E'\\n', '') "
+            f"FROM {table} AS seed_row"
+        )
+        result = _run_command(
+            (
+                "docker",
+                "exec",
+                container,
+                "psql",
+                "-U",
+                "cmp_owner",
+                "-d",
+                "cmp",
+                "--no-align",
+                "--tuples-only",
+                "--set=ON_ERROR_STOP=1",
+                "--field-separator=|",
+                "--command",
+                query,
+            ),
+            cwd=root,
+            capture_output=True,
+        )
+        line = result.stdout.strip()
+        parts = line.split("|", 3)
+        if len(parts) != 4:
+            raise DisposableDemoError(f"cannot parse repeat-seed snapshot row: {line!r}")
+        table, count, fingerprint, encoded_rows = parts
+        if len(fingerprint) != 32:
+            raise DisposableDemoError(
+                f"repeat-seed snapshot returned an invalid fingerprint for {table}"
+            )
+        tables.append((table, int(count), fingerprint))
+        try:
+            decoded_rows = json.loads(base64.b64decode(encoded_rows).decode("utf-8"))
+        except (ValueError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise DisposableDemoError(
+                f"repeat-seed snapshot returned invalid row evidence for {table}"
+            ) from exc
+        if not isinstance(decoded_rows, list):
+            raise DisposableDemoError(
+                f"repeat-seed snapshot row evidence is not a list for {table}"
+            )
+        canonical_rows = tuple(
+            sorted(json.dumps(row, sort_keys=True, separators=(",", ":")) for row in decoded_rows)
+        )
+        rows.append((table, canonical_rows))
+    if len(tables) != len(protected_tables):
+        raise DisposableDemoError(
+            "repeat-seed snapshot did not cover every required table: "
+            f"expected={len(protected_tables)}, actual={len(tables)}"
+        )
+    return RepeatSeedSnapshot(tables=tuple(tables), rows=tuple(rows))
+
+
+def _row_identity(row_json: str) -> dict[str, Any]:
+    value = json.loads(row_json)
+    if not isinstance(value, Mapping):
+        return {"row": value}
+    identity_fields = (
+        "id",
+        "aggregate_id",
+        "record_id",
+        "record_revision_id",
+        "current_revision_id",
+        "material_model_id",
+        "material_model_revision_id",
+        "material_state_id",
+        "source_dataset_id",
+        "source_dataset_revision_id",
+        "domain_kind",
+        "domain_object_id",
+        "domain_revision_id",
+        "model_family_id",
+        "revision_no",
+    )
+    return {field: value[field] for field in identity_fields if field in value}
+
+
+def _row_delta(
+    first: RepeatSeedSnapshot, second: RepeatSeedSnapshot, table: str
+) -> dict[str, list[dict[str, Any]]]:
+    first_rows = dict(first.rows).get(table, ())
+    second_rows = dict(second.rows).get(table, ())
+    return {
+        "added": [_row_identity(row) for row in sorted(set(second_rows) - set(first_rows))[:5]],
+        "removed": [_row_identity(row) for row in sorted(set(first_rows) - set(second_rows))[:5]],
+    }
+
+
+def _assert_repeat_seed_stable(
+    first: RepeatSeedSnapshot, second: RepeatSeedSnapshot
+) -> None:
+    if first == second:
+        return
+    first_by_table = {table: (count, fingerprint) for table, count, fingerprint in first.tables}
+    second_by_table = {table: (count, fingerprint) for table, count, fingerprint in second.tables}
+    changes = [
+        f"{table}: first={first_by_table.get(table)}, second={second_by_table.get(table)}, "
+        f"rows={_row_delta(first, second, table)}"
+        for table in sorted(first_by_table.keys() | second_by_table.keys())
+        if first_by_table.get(table) != second_by_table.get(table)
+    ]
+    raise DisposableDemoError(
+        "repeat demo seed changed protected identity/revision/record/binding/link tables: "
+        + "; ".join(changes)
+    )
+
+
+def _run_stage(label: str, action: Any) -> Any:
+    print(f"Disposable demo stage: {label}")
+    try:
+        return action()
+    except BaseException as exc:
+        raise DisposableDemoError(f"{label} failed: {exc}") from exc
+
+
+def _run_seed_twice_and_assert_stable(root: Path, project: str) -> None:
+    seed_command = compose_command(root, project, "run", "--rm", "--no-deps", "seed")
+    _run_stage("initial demo seed", lambda: _run_command(seed_command, cwd=root))
+    first = _run_stage(
+        "initial demo seed snapshot", lambda: _repeat_seed_snapshot(root, project)
+    )
+    print(f"Disposable repeat-seed coverage: tables={len(first.tables)}")
+    _run_stage("repeat demo seed", lambda: _run_command(seed_command, cwd=root))
+    second = _run_stage(
+        "repeat demo seed snapshot", lambda: _repeat_seed_snapshot(root, project)
+    )
+    _run_stage("repeat demo seed comparison", lambda: _assert_repeat_seed_stable(first, second))
+
+
 def _permanent_counts(root: Path) -> tuple[tuple[str, int], ...] | None:
     container = _permanent_postgres_container(root)
     if container is None:
@@ -336,7 +601,13 @@ def _npm_executable() -> str:
     return shutil.which("npm") or "npm"
 
 
-def _run_verification(root: Path, project: str, *, e2e: bool) -> None:
+def _run_verification(
+    root: Path,
+    project: str,
+    *,
+    e2e: bool,
+    e2e_specs: Sequence[str] = (),
+) -> None:
     build_services = ["migrate", "api", "worker", "reference-plugins", "seed"]
     if e2e:
         build_services.append("web")
@@ -353,22 +624,25 @@ def _run_verification(root: Path, project: str, *, e2e: bool) -> None:
         ),
         cwd=root,
     )
-    _run_command(compose_command(root, project, "run", "--rm", "--no-deps", "seed"), cwd=root)
+    _run_seed_twice_and_assert_stable(root, project)
     if not e2e:
-        _run_command(
-            compose_command(
-                root,
-                project,
-                "run",
-                "--rm",
-                "--no-deps",
-                "seed",
-                "python",
-                "scripts/verify_full_demo.py",
-                "--api-base-url",
-                "http://api:8000/api/v1",
+        _run_stage(
+            "full demo API verification",
+            lambda: _run_command(
+                compose_command(
+                    root,
+                    project,
+                    "run",
+                    "--rm",
+                    "--no-deps",
+                    "seed",
+                    "python",
+                    "scripts/verify_full_demo.py",
+                    "--api-base-url",
+                    "http://api:8000/api/v1",
+                ),
+                cwd=root,
             ),
-            cwd=root,
         )
         return
 
@@ -378,10 +652,16 @@ def _run_verification(root: Path, project: str, *, e2e: bool) -> None:
     environment = os.environ.copy()
     environment["CMP_DEMO_WEB_URL"] = web_url
     print(f"Disposable browser endpoint: {web_url}")
-    _run_command(
-        (_npm_executable(), "run", "test:e2e", "--workspace", "@cmp/web"),
-        cwd=root,
-        env=environment,
+    e2e_command = [_npm_executable(), "run", "test:e2e", "--workspace", "@cmp/web"]
+    if e2e_specs:
+        e2e_command.extend(("--", *e2e_specs))
+    _run_stage(
+        "browser verification",
+        lambda: _run_command(
+            e2e_command,
+            cwd=root,
+            env=environment,
+        ),
     )
 
 
@@ -408,8 +688,16 @@ def _cleanup(root: Path, project: str) -> None:
     _assert_project_absent(root, project, phase="after cleanup")
 
 
-def run_disposable_demo_test(root: Path, *, project: str, e2e: bool = False) -> None:
+def run_disposable_demo_test(
+    root: Path,
+    *,
+    project: str,
+    e2e: bool = False,
+    e2e_specs: Sequence[str] = (),
+) -> None:
     project = validate_project_name(project)
+    if e2e_specs and not e2e:
+        raise ValueError("--e2e-spec requires --e2e")
     root = root.resolve()
     _load_isolated_config(root, project)
     _assert_project_absent(root, project, phase="before creation")
@@ -423,7 +711,7 @@ def run_disposable_demo_test(root: Path, *, project: str, e2e: bool = False) -> 
 
     failure: BaseException | None = None
     try:
-        _run_verification(root, project, e2e=e2e)
+        _run_verification(root, project, e2e=e2e, e2e_specs=e2e_specs)
     except BaseException as exc:
         failure = exc
     try:
@@ -454,6 +742,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument("--project-name", default=None)
     parser.add_argument("--e2e", action="store_true")
+    parser.add_argument("--e2e-spec", action="append", default=[])
     return parser
 
 
@@ -461,7 +750,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     project = args.project_name or new_project_name()
     try:
-        run_disposable_demo_test(args.root, project=project, e2e=args.e2e)
+        run_disposable_demo_test(
+            args.root,
+            project=project,
+            e2e=args.e2e,
+            e2e_specs=args.e2e_spec,
+        )
     except (DisposableDemoError, subprocess.CalledProcessError, ValueError) as exc:
         print(f"Disposable demo test failed: {exc}", file=sys.stderr)
         return 2

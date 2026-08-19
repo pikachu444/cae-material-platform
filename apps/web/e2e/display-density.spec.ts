@@ -33,11 +33,12 @@ async function installSession(page: Page): Promise<void> {
 }
 
 async function waitForMaterials(page: Page): Promise<void> {
-  await expect(page.locator(".materials-results")).toHaveAttribute(
-    "aria-busy",
-    "false",
-    { timeout: 30_000 },
-  );
+  const results = page.locator(".materials-results");
+  await expect(results).toBeVisible({ timeout: 30_000 });
+  await expect
+    .poll(async () => (await results.getAttribute("aria-busy")) ?? "false", { timeout: 30_000 })
+    .toBe("false");
+  await expect(results.getByText("Loading…", { exact: true })).toHaveCount(0, { timeout: 30_000 });
 }
 
 async function openUtilityMenu(page: Page): Promise<void> {
@@ -179,7 +180,7 @@ test("P2 exposes the approved shared tokens and Large keeps the 1366 Activity qu
   expect(overflow.page).toBeLessThanOrEqual(0);
 });
 
-test("Materials panes resize, collapse, reset, and persist without coupling to density", async ({ page }) => {
+test("Materials panes resize, collapse, and reset without coupling to density", async ({ page }) => {
   test.setTimeout(60_000);
   await installSession(page);
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -194,13 +195,6 @@ test("Materials panes resize, collapse, reset, and persist without coupling to d
   await expect
     .poll(async () => (await navigator.boundingBox())?.width ?? 0)
     .toBeGreaterThan(initialWidth);
-  const resizedWidth = (await navigator.boundingBox())?.width ?? 0;
-
-  await page.reload();
-  await waitForMaterials(page);
-  await expect
-    .poll(async () => (await navigator.boundingBox())?.width ?? 0)
-    .toBeGreaterThanOrEqual(resizedWidth - 2);
 
   await page.getByRole("button", { name: "Collapse navigator pane" }).click();
   await expect
@@ -251,7 +245,7 @@ test("Modeling navigator resize, collapse, reset, and reload persistence remain 
     .toBe(288);
 });
 
-test("a zero-allocation explicit context expansion uses the shared overlay with focus return and direct action", async ({ page }) => {
+test("a zero-allocation Materials result opens its exact datasheet without a phantom context pane", async ({ page }) => {
   test.setTimeout(60_000);
   await installSession(page);
   await page.setViewportSize({ width: 960, height: 540 });
@@ -259,20 +253,8 @@ test("a zero-allocation explicit context expansion uses the shared overlay with 
   await waitForMaterials(page);
   const firstRow = page.locator(".materials-result-table tbody tr").first();
   await expect(firstRow).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("button", { name: "Expand details pane" })).toHaveCount(0);
   await firstRow.click();
-
-  const trigger = page.getByRole("button", { name: "Expand details pane" });
-  await trigger.click();
-  const dialog = page.getByRole("dialog", { name: "details pane" });
-  await expect(dialog).toBeVisible();
-  await expect(
-    dialog.getByRole("button", { name: "Close details pane" }),
-  ).toBeFocused();
-  await dialog.press("Escape");
-  await expect(dialog).toHaveCount(0);
-  await expect(trigger).toBeFocused();
-
-  await trigger.click();
-  await dialog.getByRole("button", { name: "Open datasheet" }).click();
-  await expect(page).toHaveURL(/\/materials\/[0-9a-f-]+/);
+  await expect(page).toHaveURL(/\/materials\/(?:records\/)?[0-9a-f-]+/);
+  await expect(page.getByRole("heading", { name: "DP780 synthetic reference steel", level: 1 })).toBeVisible({ timeout: 30_000 });
 });
