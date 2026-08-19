@@ -257,6 +257,10 @@ def test_whitespace_failure_is_fail_fast_and_has_no_later_activity(tmp_path: Pat
         events.append("whitespace")
         raise PrePublishError("whitespace gate failed")
 
+    def revalidate(_project: Path) -> ChangeSet:
+        events.append("revalidate")
+        return change
+
     with pytest.raises(PrePublishError, match="whitespace gate failed"):
         run_pre_publish_pipeline(
             _ROOT,
@@ -268,7 +272,7 @@ def test_whitespace_failure_is_fail_fast_and_has_no_later_activity(tmp_path: Pat
             whitespace_check=whitespace,
             deterministic_check=lambda _project, _change: events.append("deterministic"),
             change_collector=collect,
-            change_revalidator=lambda _project: (events.append("revalidate") or change),
+            change_revalidator=revalidate,
             emit=emitted.append,
         )
 
@@ -291,6 +295,14 @@ def test_publication_target_validation_precedes_whitespace_gate(tmp_path: Path) 
         base_ref="main",
     )
 
+    def collect(_project: Path) -> ChangeSet:
+        activity.append("collect")
+        return change
+
+    def revalidate(_project: Path) -> ChangeSet:
+        activity.append("revalidate")
+        return change
+
     with pytest.raises(PrePublishError, match="target PR head/base"):
         run_pre_publish_pipeline(
             _ROOT,
@@ -298,8 +310,8 @@ def test_publication_target_validation_precedes_whitespace_gate(tmp_path: Path) 
             documentation_check=lambda _project: activity.append("documentation"),
             whitespace_check=lambda _project, _change: activity.append("whitespace"),
             deterministic_check=lambda _project, _change: activity.append("deterministic"),
-            change_collector=lambda _project: (activity.append("collect") or change),
-            change_revalidator=lambda _project: (activity.append("revalidate") or change),
+            change_collector=collect,
+            change_revalidator=revalidate,
             emit=lambda _message: None,
             publication_target=target,
         )
@@ -323,13 +335,17 @@ def test_clean_deterministic_pipeline_preserves_fingerprint_and_order(tmp_path: 
         events.append("collect")
         return change
 
+    def revalidate(_project: Path) -> ChangeSet:
+        events.append("revalidate")
+        return change
+
     fingerprint = run_pre_publish_pipeline(
         _ROOT,
         documentation_check=lambda _project: events.append("documentation"),
         whitespace_check=lambda _project, _change: events.append("whitespace"),
         deterministic_check=lambda _project, _change: events.append("deterministic"),
         change_collector=collect,
-        change_revalidator=lambda _project: (events.append("revalidate") or change),
+        change_revalidator=revalidate,
         emit=lambda _message: None,
     )
 
