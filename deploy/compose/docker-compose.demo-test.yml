@@ -1,0 +1,19 @@
+services:
+  otel-collector:
+    ports: !reset []
+
+  postgres-test:
+    ports: !reset []
+
+  postgres:
+    ports: !reset []
+
+  api:
+    ports: !reset []
+
+  web:
+    ports: !override
+      - target: 5173
+        published: "0"
+        protocol: tcp
+        host_ip: 127.0.0.1

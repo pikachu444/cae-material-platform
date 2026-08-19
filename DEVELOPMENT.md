@@ -80,12 +80,19 @@ Web은 <http://127.0.0.1:5173>, API는 <http://127.0.0.1:8000/api/v1>입니다. 
 브라우저가 제한된 local session을 자동으로 준비합니다. 사용자가 API 주소, Bearer token 또는 내부
 identity 식별자를 입력하는 화면은 현재 제품 계약이 아닙니다.
 
-전체 synthetic 흐름을 API에서 다시 확인합니다.
+`cmp-local-demo`는 사람이 이어서 살펴보는 영구 Demo project입니다. 반복 자동 검증은 이 project의
+API나 volume을 사용하지 않습니다. 다음 명령은 매번 고유한 `cmp-demo-test-*` project와 전용 DB 및
+object-store volume을 만들고, migrate, seed 1회와 전체 확인을 실행한 뒤 성공·실패 모두 해당 test
+project만 `down -v`로 제거합니다.
 
 ```powershell
-docker compose -f deploy/compose/docker-compose.demo.yml run --rm --no-deps seed `
-  python scripts/verify_full_demo.py --api-base-url http://api:8000/api/v1
+uv run python scripts/run_disposable_demo_test.py
+# 또는 Make가 있는 환경: make demo-verify
 ```
+
+브라우저 검증도 영구 Demo에 연결하지 않습니다. `make demo-e2e`는 같은 격리 runner에 `--e2e`를
+전달하고 Web만 임의 localhost port로 노출합니다. 예제 seed를 같은 환경에서 두 번 실행하는 검사는
+아직 이 명령의 범위가 아닙니다.
 
 종료:
 
@@ -93,8 +100,9 @@ docker compose -f deploy/compose/docker-compose.demo.yml run --rm --no-deps seed
 docker compose -f deploy/compose/docker-compose.demo.yml down
 ```
 
-`down -v`는 이 Compose project의 demo DB와 object-store volume을 삭제합니다. 필요한 evidence와
-로그를 먼저 저장하고 synthetic local demo임을 확인한 경우에만 실행하십시오.
+`make demo-down`과 위 `down` 명령은 컨테이너만 내리고 `cmp-local-demo` DB와 object-store volume을
+보존합니다. 영구 Demo에는 반복 검증 정리용 `down -v`를 사용하지 마십시오. 격리 runner만 자신이
+생성한 `cmp-demo-test-*` project에 `down -v`를 실행합니다.
 
 설치·port·migration·복구 문제는 [Compose 실행 가이드](deploy/compose/README.md)를 따릅니다.
 
