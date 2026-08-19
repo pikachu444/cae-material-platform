@@ -508,10 +508,30 @@ def _ensure_issue246_test_documents(api: DemoApi) -> list[dict[str, str]]:
     examples: list[dict[str, str]] = []
     strain = (0.0, 0.001, 0.002, 0.01, 0.03, 0.06, 0.1, 0.14)
     tensile_specs = (
-        ("ROOM", "DP780 tensile · 23 °C · 0.0067 s⁻¹", "23 °C; 0.0067 s⁻¹", 1.0),
-        ("HOT", "DP780 tensile · 80 °C · 0.0067 s⁻¹", "80 °C; 0.0067 s⁻¹", 0.91),
-        ("SLOW", "DP780 tensile · 23 °C · 0.0007 s⁻¹", "23 °C; 0.0007 s⁻¹", 0.97),
-        ("FAST", "DP780 tensile · 23 °C · 0.067 s⁻¹", "23 °C; 0.067 s⁻¹", 1.04),
+        (
+            "ROOM",
+            "DP780 tensile · 23 °C · 0.0067 s⁻¹ · synthetic reference",
+            "23 °C; 0.0067 s⁻¹",
+            1.0,
+        ),
+        (
+            "HOT",
+            "DP780 tensile · 80 °C · 0.0067 s⁻¹ · synthetic reference",
+            "80 °C; 0.0067 s⁻¹",
+            0.91,
+        ),
+        (
+            "SLOW",
+            "DP780 tensile · 23 °C · 0.0007 s⁻¹ · synthetic reference",
+            "23 °C; 0.0007 s⁻¹",
+            0.97,
+        ),
+        (
+            "FAST",
+            "DP780 tensile · 23 °C · 0.067 s⁻¹ · synthetic reference",
+            "23 °C; 0.067 s⁻¹",
+            1.04,
+        ),
     )
     stress = (0.0, 210e6, 410e6, 575e6, 650e6, 710e6, 755e6, 775e6)
     for ordinal, (suffix, name, condition, scale) in enumerate(tensile_specs, 1):
@@ -565,7 +585,9 @@ def _ensure_issue246_test_documents(api: DemoApi) -> list[dict[str, str]]:
             {
                 **ensure(
                     key=f"CMP-246-DMA-{temperature:+03d}C",
-                    name=f"PA66-GF30 DMA · {temperature} °C frequency sweep",
+                    name=(
+                        f"PA66-GF30 DMA · {temperature} °C frequency sweep · synthetic reference"
+                    ),
                     method="Synthetic DMA frequency sweep in tension",
                     specimen=f"PA66-DMA-{ordinal:02d}",
                     condition=f"{temperature} °C; 0.1-100 Hz; 0.1% strain",
@@ -607,14 +629,14 @@ def _ensure_issue246_test_documents(api: DemoApi) -> list[dict[str, str]]:
     fld_specs = (
         (
             "NAKAJIMA",
-            "DP780 FLD · Nakajima",
+            "DP780 FLD · Nakajima · synthetic reference",
             "Nakajima; 100 mm punch; PTFE lubrication",
             (-0.22, -0.12, 0.0, 0.08, 0.16),
             (0.42, 0.36, 0.31, 0.29, 0.27),
         ),
         (
             "MARCINIAK",
-            "DP780 FLD · Marciniak",
+            "DP780 FLD · Marciniak · synthetic reference",
             "Marciniak; 120 mm blank; polymer film",
             (-0.2, -0.1, 0.0, 0.1, 0.18),
             (0.4, 0.35, 0.3, 0.28, 0.26),
@@ -626,7 +648,7 @@ def _ensure_issue246_test_documents(api: DemoApi) -> list[dict[str, str]]:
                 **ensure(
                     key=f"CMP-246-FLD-{suffix}",
                     name=name,
-                    method="Synthetic ISO 12004-2 forming-limit characterization",
+                    method="Synthetic non-production forming-limit characterization",
                     specimen=f"DP780-FLD-{ordinal:02d}",
                     condition=condition,
                     result_summary=(
@@ -2145,9 +2167,10 @@ def _ensure_issue246_catalog_examples(
     ensure_record(
         simulation_table,
         key="CMP-246-EP-VOCE",
-        name="DP780 elastoplasticity · selected Voce result",
+        name="DP780 elastoplasticity · selected Voce result · synthetic reference",
         description=(
-            "Processed tensile result kept separate from the selected model and solver card."
+            "Synthetic non-production processed tensile result kept separate from the selected "
+            "model and solver card."
         ),
         fields={
             "data_type": "Elastoplasticity",
@@ -2166,8 +2189,11 @@ def _ensure_issue246_catalog_examples(
     ensure_record(
         simulation_table,
         key="CMP-246-EP-TABULATED",
-        name="DP780 elastoplasticity · selected tabulated model",
-        description="Selected model revision based only on the exact tensile input shown below.",
+        name="DP780 elastoplasticity · selected tabulated model · synthetic reference",
+        description=(
+            "Synthetic non-production selected model revision based only on the exact tensile "
+            "input shown below; it is not a production model choice."
+        ),
         fields={
             "data_type": "Elastoplasticity",
             "condition": "23 °C high-rate tensile input",
@@ -2185,8 +2211,11 @@ def _ensure_issue246_catalog_examples(
     ensure_record(
         simulation_table,
         key="CMP-246-STAT-TENSILE",
-        name="DP780 tensile statistics · mean and 5% envelope",
-        description="Statistical result remains distinct from the selected elastoplastic model.",
+        name="DP780 tensile statistics · mean and 5% envelope · synthetic reference",
+        description=(
+            "Synthetic non-production statistical result kept distinct from the selected "
+            "elastoplastic model."
+        ),
         fields={
             "data_type": "Statistics",
             "condition": "Four tensile examples; one bounded synthetic reference set",
@@ -2198,8 +2227,11 @@ def _ensure_issue246_catalog_examples(
     ensure_record(
         simulation_table,
         key="CMP-246-SOLVER-ABAQUS",
-        name="DP780 Abaqus native material card",
-        description="Generated through the existing Neutral Material solver-card flow.",
+        name="DP780 Abaqus native material card · synthetic reference",
+        description=(
+            "Synthetic non-production card generated through the existing Neutral Material "
+            "solver-card flow; it does not define solver policy."
+        ),
         fields={
             "data_type": "Solver card",
             "condition": "Abaqus 2025; kg-m-s",

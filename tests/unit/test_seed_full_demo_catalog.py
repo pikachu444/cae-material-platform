@@ -252,6 +252,9 @@ def test_issue246_test_examples_are_complete_reusable_engineering_records() -> N
     assert [item["test_type"] for item in examples].count("Tensile") == 4
     assert [item["test_type"] for item in examples].count("DMA") == 3
     assert [item["test_type"] for item in examples].count("FLD") == 2
+    assert len({item["key"] for item in examples}) == 9
+    assert len({item["name"] for item in examples}) == 9
+    assert all(item["name"].endswith(" · synthetic reference") for item in examples)
     room = next(item for item in examples if item["key"] == "CMP-246-TENSILE-ROOM")
     assert room["condition"] == "23 °C; 0.0067 s⁻¹"
     assert room["result_summary"] == (
@@ -272,6 +275,17 @@ def test_issue246_test_examples_are_complete_reusable_engineering_records() -> N
     )
     fld = next(item for item in examples if item["key"] == "CMP-246-FLD-NAKAJIMA")
     assert "Plane-strain limit ε1=0.31 at ε2=0.00" in fld["result_summary"]
+    fld_document = next(
+        item for item in api.documents if item["document_id"] == "CMP-246-FLD-NAKAJIMA"
+    )
+    assert fld_document["test"]["method"] == (
+        "Synthetic non-production forming-limit characterization"
+    )
+    assert "ISO" not in fld_document["test"]["method"]
+    assert all(
+        document["test"]["laboratory"] == "CMP synthetic validation laboratory"
+        for document in api.documents
+    )
 
 
 def test_issue246_test_example_refreshes_drift_and_then_is_idempotent() -> None:

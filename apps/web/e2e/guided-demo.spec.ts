@@ -4,6 +4,15 @@ import { readFile } from "node:fs/promises";
 
 const webUrl = process.env.CMP_DEMO_WEB_URL ?? "http://127.0.0.1:5173";
 const forbiddenNormalTechnicalLabels = /\b(?:draft|fixture|uuid|sha(?:256)?|hash|lifecycle[_\s-]?state)\b|\bissue\s*#\s*\d+\b|\bimplementation state\b/i;
+const representativeDp780Tests = [
+  "DP780 tensile · 23 °C · 0.0067 s⁻¹ · synthetic reference",
+  "DP780 tensile · 80 °C · 0.0067 s⁻¹ · synthetic reference",
+  "DP780 tensile · 23 °C · 0.0007 s⁻¹ · synthetic reference",
+  "DP780 tensile · 23 °C · 0.067 s⁻¹ · synthetic reference",
+  "DP780 FLD · Nakajima · synthetic reference",
+  "DP780 FLD · Marciniak · synthetic reference",
+] as const;
+const dp780SolverCardRecord = "DP780 Abaqus native material card · synthetic reference";
 
 async function expectMaterialsReady(page: Page): Promise<void> {
   const results = page.locator(".materials-results");
@@ -96,6 +105,11 @@ test("clean demo exposes Search-first material-family journeys and progressive b
     expect(normalDetailHeaderText).toMatch(/Request review|Waiting for review|Approved|Changes requested/);
     expect(relatedContextText).toContain("Revision");
     expect(relatedContextText).toContain("Related");
+    if (materialCode === "CMP-DEMO-DP780") {
+      for (const representativeTest of representativeDp780Tests) {
+        expect(relatedContextText).toContain(representativeTest);
+      }
+    }
     const treeFind = page.getByRole("textbox", { name: "Find in tree" });
     await treeFind.fill(expectedName);
     await treeFind.press("Enter");
@@ -104,11 +118,23 @@ test("clean demo exposes Search-first material-family journeys and progressive b
     expect(normalTreeText).not.toMatch(staleHumanNames);
     expect(normalTreeText).toContain(expectedName);
     if (materialCode === "CMP-DEMO-DP780") {
+      await page.getByRole("treeitem", { name: /Solver Cards/ }).click();
+      await expect(page.locator(".materials-left-pane")).toContainText(dp780SolverCardRecord, {
+        timeout: 15_000,
+      });
       await page.getByRole("tab", { name: "CAE Cards" }).click();
       await expect(page.getByText("No native card is available.", { exact: true })).toBeVisible();
+      const startModeling = page
+        .getByRole("tabpanel")
+        .getByRole("button", { name: "Start Modeling", exact: true });
+      await expect(startModeling).toBeVisible();
+      await startModeling.click();
+      await expect(page).toHaveURL(/\/modeling\?stage=data&family=metal$/);
+      const modelingResults = page.getByRole("region", { name: "Test Data results" });
+      await expect(modelingResults).toBeVisible({ timeout: 30_000 });
       await expect(
-        page.getByRole("tabpanel").getByRole("button", { name: "Start Modeling", exact: true }),
-      ).toBeVisible();
+        modelingResults.locator('[data-document-key^="CMP-DEMO-DP780-TEST-JSON"]'),
+      ).toHaveCount(3);
     }
     await page.goto("/materials");
     await openMaterialFilters(page);
@@ -123,13 +149,13 @@ test("clean demo exposes Search-first material-family journeys and progressive b
   await expect(dp780Row).toHaveCount(1);
   await dp780Row.press("Enter");
   await expect(page).toHaveURL(/\/materials\/[0-9a-f-]+\?record_id=[0-9a-f-]+&record_revision_id=[0-9a-f-]+&material_revision_id=[0-9a-f-]+$/);
-  const relatedRecord = page.getByRole("region", { name: "Related exact records" }).getByRole("button").filter({ hasText: "DP780 tensile · 23 °C · 0.0067 s⁻¹" });
+  const relatedRecord = page.getByRole("region", { name: "Related exact records" }).getByRole("button").filter({ hasText: representativeDp780Tests[0] });
   await expect(relatedRecord).toBeVisible({ timeout: 15_000 });
   await expect(relatedRecord).toHaveCount(1);
   await expect(relatedRecord).toContainText("r1");
   await relatedRecord.click();
   await expect(page).toHaveURL(/\/materials\/records\/[0-9a-f-]+\/revisions\/[0-9a-f-]+$/);
-  await expect(page.getByRole("heading", { name: "DP780 tensile · 23 °C · 0.0067 s⁻¹", level: 1 })).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole("heading", { name: representativeDp780Tests[0], level: 1 })).toBeVisible({ timeout: 15_000 });
   await page.goBack();
   await expect(page).toHaveURL(/\/materials\/[0-9a-f-]+\?record_id=[0-9a-f-]+&record_revision_id=[0-9a-f-]+&material_revision_id=[0-9a-f-]+$/);
   await page.goBack();
@@ -375,17 +401,18 @@ test("an exact approved Tensile revision opens its directly linked selected mode
   await expect(page.getByRole("heading", { name: "DP780 synthetic reference steel", level: 1 })).toBeVisible({ timeout: 30_000 });
 
   const related = page.getByRole("region", { name: "Related exact records" });
-  const fastTensile = related.getByRole("button").filter({ hasText: "DP780 tensile · 23 °C · 0.067 s⁻¹" });
+  const fastTensile = related.getByRole("button").filter({ hasText: representativeDp780Tests[3] });
   await expect(fastTensile).toHaveCount(1);
   await expect(fastTensile).toContainText("r1");
   await fastTensile.click();
   await expect(page).toHaveURL(/\/materials\/records\/[0-9a-f-]+\/revisions\/[0-9a-f-]+$/);
-  await expect(page.getByRole("heading", { name: "DP780 tensile · 23 °C · 0.067 s⁻¹", level: 1 })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("heading", { name: representativeDp780Tests[3], level: 1 })).toBeVisible({ timeout: 30_000 });
 
-  const selectedModel = page.getByRole("region", { name: "Related data" }).getByRole("button").filter({ hasText: "DP780 elastoplasticity · selected tabulated model" });
+  const selectedModelName = "DP780 elastoplasticity · selected tabulated model · synthetic reference";
+  const selectedModel = page.getByRole("region", { name: "Related data" }).getByRole("button").filter({ hasText: selectedModelName });
   await expect(selectedModel).toBeVisible({ timeout: 30_000 });
   await expect(selectedModel).toHaveCount(1);
   await expect(selectedModel).toContainText("r1");
   await selectedModel.click();
-  await expect(page.getByRole("heading", { name: "DP780 elastoplasticity · selected tabulated model", level: 1 })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("heading", { name: selectedModelName, level: 1 })).toBeVisible({ timeout: 30_000 });
 });

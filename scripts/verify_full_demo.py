@@ -27,6 +27,39 @@ HARDENING_EQUATION_CONTRACT = "altair-material-modeler-2025-v1"
 HARDENING_FAMILIES = ["voce", "swift", "hockett_sherby", "ghosh"]
 STATISTICS_ALIGNED_SELECTION_LABEL = "CMP demo DP780 aligned tensile replicates"
 STATISTICS_PLAN_LABEL = "CMP demo DP780 replicate curve statistics"
+MEANINGFUL_DEMO_TEST_RECORDS = {
+    "CMP-246-TENSILE-ROOM": "DP780 tensile · 23 °C · 0.0067 s⁻¹ · synthetic reference",
+    "CMP-246-TENSILE-HOT": "DP780 tensile · 80 °C · 0.0067 s⁻¹ · synthetic reference",
+    "CMP-246-TENSILE-SLOW": "DP780 tensile · 23 °C · 0.0007 s⁻¹ · synthetic reference",
+    "CMP-246-TENSILE-FAST": "DP780 tensile · 23 °C · 0.067 s⁻¹ · synthetic reference",
+    "CMP-246-DMA-+00C": "PA66-GF30 DMA · 0 °C frequency sweep · synthetic reference",
+    "CMP-246-DMA-+23C": "PA66-GF30 DMA · 23 °C frequency sweep · synthetic reference",
+    "CMP-246-DMA-+60C": "PA66-GF30 DMA · 60 °C frequency sweep · synthetic reference",
+    "CMP-246-FLD-NAKAJIMA": "DP780 FLD · Nakajima · synthetic reference",
+    "CMP-246-FLD-MARCINIAK": "DP780 FLD · Marciniak · synthetic reference",
+}
+MEANINGFUL_DEMO_SIMULATION_RECORDS = {
+    "CMP-246-EP-VOCE": "DP780 elastoplasticity · selected Voce result · synthetic reference",
+    "CMP-246-EP-TABULATED": (
+        "DP780 elastoplasticity · selected tabulated model · synthetic reference"
+    ),
+    "CMP-246-STAT-TENSILE": (
+        "DP780 tensile statistics · mean and 5% envelope · synthetic reference"
+    ),
+    "CMP-246-SOLVER-ABAQUS": "DP780 Abaqus native material card · synthetic reference",
+}
+MEANINGFUL_DEMO_BINDING_KINDS = {
+    **{key: "test_data" for key in MEANINGFUL_DEMO_TEST_RECORDS},
+    "CMP-246-EP-VOCE": "processing_output",
+    "CMP-246-EP-TABULATED": "material_model",
+    "CMP-246-STAT-TENSILE": None,
+    "CMP-246-SOLVER-ABAQUS": "neutral_solver_card",
+}
+MEANINGFUL_DEMO_REPLICATE_KEYS = {
+    "CMP-DEMO-DP780-TEST-JSON",
+    "CMP-DEMO-DP780-TEST-JSON-02",
+    "CMP-DEMO-DP780-TEST-JSON-03",
+}
 
 
 class ProcessingLineageError(ValueError):
@@ -469,6 +502,61 @@ def _content(value: Mapping[str, Any]) -> Mapping[str, Any]:
     revision = value.get("current_revision")
     content = revision.get("content") if isinstance(revision, Mapping) else None
     return content if isinstance(content, Mapping) else {}
+
+
+def _meaningful_demo_records(
+    records: Sequence[Mapping[str, Any]],
+    *,
+    expected_names: Mapping[str, str],
+    stage: str,
+) -> dict[str, Mapping[str, Any]]:
+    """Fail closed when the small synthetic catalog story drifts or becomes ambiguous."""
+
+    by_key: dict[str, list[Mapping[str, Any]]] = {}
+    for record in records:
+        key = _content(record).get("external_key")
+        if isinstance(key, str):
+            by_key.setdefault(key, []).append(record)
+    duplicates = sorted(key for key, matches in by_key.items() if len(matches) != 1)
+    if duplicates:
+        raise RuntimeError(f"{stage} has duplicate external keys: {', '.join(duplicates)}")
+    missing = sorted(set(expected_names) - set(by_key))
+    unexpected = sorted(set(by_key) - set(expected_names))
+    if missing or unexpected:
+        raise RuntimeError(
+            f"{stage} record set differs; missing={missing}; unexpected={unexpected}"
+        )
+
+    result = {key: matches[0] for key, matches in by_key.items()}
+    for key, expected_name in expected_names.items():
+        record = result[key]
+        revision = record.get("current_revision")
+        content = _content(record)
+        if not isinstance(revision, Mapping) or revision.get("revision_no") != 1:
+            raise RuntimeError(f"{stage} {key} is not the clean exact r1 revision")
+        if content.get("name") != expected_name:
+            raise RuntimeError(
+                f"{stage} {key} name differs; expected={expected_name!r}; "
+                f"actual={content.get('name')!r}"
+            )
+        description = content.get("description")
+        if not isinstance(description, str) or not {
+            "synthetic",
+            "non-production",
+        } <= set(description.lower().split()):
+            raise RuntimeError(
+                f"{stage} {key} does not clearly identify synthetic non-production data"
+            )
+        expected_kind = MEANINGFUL_DEMO_BINDING_KINDS[key]
+        kinds = _domain_binding_kinds(record)
+        if expected_kind is None:
+            if kinds:
+                raise RuntimeError(f"{stage} {key} must remain distinct from domain bindings")
+        elif expected_kind not in kinds:
+            raise RuntimeError(
+                f"{stage} {key} does not pin its expected {expected_kind} domain object"
+            )
+    return result
 
 
 def _model_and_pending_review(
@@ -1046,6 +1134,38 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
         )
         metal_id = str(metal["material_id"])
         tables = _items(_json(client.get("/catalog/tables")))
+        test_table = next(
+            item for item in tables if _content(item).get("key") == "issue246_test_examples"
+        )
+        simulation_table = next(
+            item
+            for item in tables
+            if _content(item).get("key") == "issue246_simulation_examples"
+        )
+        meaningful_test_records = _meaningful_demo_records(
+            _items(
+                _json(
+                    client.post(
+                        "/catalog/records:search",
+                        json={"table_id": test_table["table_id"], "limit": 100},
+                    )
+                )
+            ),
+            expected_names=MEANINGFUL_DEMO_TEST_RECORDS,
+            stage="meaningful Demo Test Data",
+        )
+        meaningful_simulation_records = _meaningful_demo_records(
+            _items(
+                _json(
+                    client.post(
+                        "/catalog/records:search",
+                        json={"table_id": simulation_table["table_id"], "limit": 100},
+                    )
+                )
+            ),
+            expected_names=MEANINGFUL_DEMO_SIMULATION_RECORDS,
+            stage="meaningful Demo Simulation Data",
+        )
         table = next(
             item for item in tables if _content(item).get("key") == "demo_material_records"
         )
@@ -1149,18 +1269,39 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
                 )
             )
         )
-        fast_tensile = _exact_forward_link_target(
-            material_links,
-            source_record_id=str(catalog_record["record_id"]),
-            source_record_revision_id=str(catalog_revision["id"]),
-            link_type_key="technical_to_tensile",
-            target_external_key="CMP-246-TENSILE-FAST",
-            stage="DP780 Technical Data direct link",
-        )
-        if "test_data" not in _domain_binding_kinds(fast_tensile):
-            raise RuntimeError("DP780 fast Tensile link does not pin exact Test Data")
-        if fast_tensile.get("revision_no") != 1:
-            raise RuntimeError("DP780 fast Tensile example is not the clean r1 revision")
+        dp780_direct_test_links = {
+            "CMP-246-TENSILE-ROOM": "technical_to_tensile",
+            "CMP-246-TENSILE-HOT": "technical_to_tensile",
+            "CMP-246-TENSILE-SLOW": "technical_to_tensile",
+            "CMP-246-TENSILE-FAST": "technical_to_tensile",
+            "CMP-246-FLD-NAKAJIMA": "technical_to_fld",
+            "CMP-246-FLD-MARCINIAK": "technical_to_fld",
+        }
+        dp780_test_targets: dict[str, Mapping[str, Any]] = {}
+        for target_key, link_type_key in dp780_direct_test_links.items():
+            target = _exact_forward_link_target(
+                material_links,
+                source_record_id=str(catalog_record["record_id"]),
+                source_record_revision_id=str(catalog_revision["id"]),
+                link_type_key=link_type_key,
+                target_external_key=target_key,
+                stage=f"DP780 Technical Data to {target_key}",
+            )
+            expected_record = meaningful_test_records[target_key]
+            expected_revision = expected_record.get("current_revision")
+            if (
+                not isinstance(expected_revision, Mapping)
+                or target.get("record_id") != expected_record.get("record_id")
+                or target.get("record_revision_id") != expected_revision.get("id")
+                or target.get("revision_no") != 1
+                or "test_data" not in _domain_binding_kinds(target)
+            ):
+                raise RuntimeError(
+                    f"DP780 Technical Data to {target_key} does not pin its clean exact "
+                    "Test Data r1"
+                )
+            dp780_test_targets[target_key] = target
+        fast_tensile = dp780_test_targets["CMP-246-TENSILE-FAST"]
         tensile_links = _items(
             _json(
                 client.get(
@@ -1181,6 +1322,17 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             raise RuntimeError("DP780 selected model link does not pin exact Material Model")
         if selected_model_record.get("revision_no") != 1:
             raise RuntimeError("DP780 selected model example is not the clean r1 revision")
+        expected_selected_model = meaningful_simulation_records["CMP-246-EP-TABULATED"]
+        expected_selected_revision = expected_selected_model.get("current_revision")
+        if (
+            not isinstance(expected_selected_revision, Mapping)
+            or selected_model_record.get("record_id") != expected_selected_model.get("record_id")
+            or selected_model_record.get("record_revision_id")
+            != expected_selected_revision.get("id")
+        ):
+            raise RuntimeError(
+                "DP780 fast Tensile direct link does not pin the discoverable selected-model record"
+            )
 
         documents = _items(_json(client.get("/test-data-documents")))
         metal_replicates = [
@@ -1188,8 +1340,13 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             for item in documents
             if str(item.get("document_key", "")).startswith("CMP-DEMO-DP780-TEST-JSON")
         ]
-        if len(metal_replicates) < 3:
-            raise RuntimeError("clean demo must expose three distinct DP780 Test JSON replicates")
+        metal_replicate_keys = {str(item.get("document_key")) for item in metal_replicates}
+        if metal_replicate_keys != MEANINGFUL_DEMO_REPLICATE_KEYS:
+            raise RuntimeError(
+                "meaningful Demo Modeling repeats differ; "
+                f"missing={sorted(MEANINGFUL_DEMO_REPLICATE_KEYS - metal_replicate_keys)}; "
+                f"unexpected={sorted(metal_replicate_keys - MEANINGFUL_DEMO_REPLICATE_KEYS)}"
+            )
         document = next(
             item for item in documents if item.get("document_key") == "CMP-DEMO-DP780-TEST-JSON"
         )
@@ -1639,6 +1796,14 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             ],
             "test_data_document_id": document["test_data_document_id"],
             "metal_test_data_replicate_count": len(metal_replicates),
+            "representative_tensile_records": sorted(
+                key for key in meaningful_test_records if key.startswith("CMP-246-TENSILE-")
+            ),
+            "representative_fld_records": sorted(
+                key for key in meaningful_test_records if key.startswith("CMP-246-FLD-")
+            ),
+            "selected_model_record_key": "CMP-246-EP-TABULATED",
+            "solver_card_record_key": "CMP-246-SOLVER-ABAQUS",
             "scalar_distribution_result_id": distribution_result["scalar_distribution_result_id"],
             "scalar_distribution_candidate_count": distribution_candidate_count,
             "mapping_profile_id": profile["mapping_profile_id"],
