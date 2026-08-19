@@ -1,6 +1,6 @@
 {
   "schemaVersion": "cmp.frontend-guard-baseline.v1",
-  "sourceSha": "22bc9d81b3d9e0facf3ebd436b8a486c5bcbe070",
+  "sourceSha": "b2feb08eb40def0f8a627c34656daa393432695c",
   "ownerIssue": "#256",
   "hotspots": [
     {
@@ -47,7 +47,7 @@
     },
     {
       "path": "apps/web/src/design/layout.css",
-      "baselineLines": 8922,
+      "baselineLines": 8882,
       "responsibilities": ["shared layout", "legacy route-specific layout selectors"],
       "followUpIssue": "#261",
       "removalCondition": "FE-06 separates shared layout primitives from feature-owned responsive composition."
@@ -65,7 +65,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "scope": "apps/web/src",
-      "count": 2818,
+      "count": 2812,
       "reason": "Existing feature and responsive selectors remain in the two registered legacy global stylesheets.",
       "followUpIssue": "#261",
       "removalCondition": "FE-06 moves feature selectors to owned styles and proves zero legacy consumers."
@@ -150,7 +150,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/design/layout.css",
-      "fingerprint": "55ad182c87cbc987d141ecd3a742e57efef480bf67fbaaa0870dd8a3e8e3887c",
+      "fingerprint": "36a95c1c0f84a5f19115855151a257ab176ce0b8cd5805256a946cfe4c8ca02d",
       "maxOccurrences": 1,
       "reason": "FE-06 M1A0 removes the Data plot member from this legacy comma group while preserving the ribbon selector unchanged.",
       "ownerIssue": "#261",
@@ -164,6 +164,15 @@
       "reason": "FE-06 M1A1 moves the exact Data source-tab declaration into its owner CSS without combining migration with semantic typography normalization.",
       "ownerIssue": "#261",
       "removalCondition": "Remove when the approved typography-role unit replaces this preserved literal without changing the Data tab hierarchy."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+      "fingerprint": "6b2d919aeb719492e377eea5f2d62eed262cf6b741c75ee6814ff8d26cba47ca",
+      "maxOccurrences": 1,
+      "reason": "FE-06 M1A3 moves the exact Data import-diagnostics declaration into its owner CSS without combining migration with semantic color-token normalization.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove when the approved semantic-color unit removes the preserved fallback without changing rejected-import diagnostics."
     }
   ]
 }

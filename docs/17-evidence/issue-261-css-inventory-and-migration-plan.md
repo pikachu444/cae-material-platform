@@ -797,19 +797,119 @@ Windows 4K 물리 가독성이라고 주장하지 않으며 그 최종 판정은
   32개를 original resolution으로 열었다. #249 세 축과 모든 gate를 재확인한 결과 material finding 없이
   `APPROVE`했다.
 
+## M1A3 실행 결과 — Data import diagnostics ownership
+
+M1A3는 published M1A2가 포함된 `b2feb08eb40def0f8a627c34656daa393432695c`을 implementation base로
+사용한다. React, DOM, copy, API, import state, route, token 또는 breakpoint를 바꾸지 않고 실제 rejected DMA
+import에서 보이는 `.data-import-diagnostics` region의 재생성 inventory `CSS-1060`부터 `CSS-1066`까지만
+기존 Data stage stylesheet로 이동했다.
+
+### 파일 소유권과 금지 확장
+
+| Path | M1A3 ownership |
+| --- | --- |
+| `apps/web/src/design/layout.css` | 아래 7개 exact selector를 구성하는 6개 legacy rule-group만 제거한다. 다른 Data, shared 또는 HOLD selector는 건드리지 않는다. |
+| `apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css` | 같은 declaration block을 existing lazy Data owner에 선언 순서 그대로 둔다. |
+| `apps/web/frontend-guard-baseline.json` | 실제 global rule-group과 `layout.css` line 감소만 잠근다. allowance나 warning budget은 늘리지 않는다. |
+| `scripts/check_issue_261_css_inventory.mjs`, `scripts/check_issue_261_css_inventory.test.mjs`, `docs/17-evidence/issue-261-css-selector-inventory.json` | M1A3 `7/6/6/0`, zero residual과 다음 M1A4 owner-packet 경계를 고정한다. |
+| `docs/user-guide/screenshot-manifest.yaml`, 이 evidence 문서, `docs/17-evidence/images/issue-261-fe06-m1a3-data-import-diagnostics/**` | current image를 바꾸지 않고 fresh before/after, alias, direct crop, computed-style provenance만 등록한다. |
+
+`modeling-data-intake.tsx`와 그 DOM, 다른 stage CSS, shared primitives/tokens, user-guide current PNG는 변경하지
+않는다. `.data-mapping-blockers`와 나머지 M1A 206행, Library/mapping/responsive rule, M1B 이후 batch,
+dead/HOLD 후보도 이 단위에 포함하지 않는다.
+
+### Selector, consumer와 cascade
+
+| Historical row | Selector | Specificity | owner/consumer와 cascade disposition |
+| --- | --- | --- | --- |
+| `CSS-1060` | `.data-import-diagnostics` | `0-1-0` | `modeling-data-intake.tsx`의 rejected import `WorkbenchMessage`가 두 route alias에서 유일하게 만든다. grid, full-column span, spacing, danger rail과 background를 그대로 이동한다. |
+| `CSS-1061` | `.data-import-diagnostics header` | `0-1-1` | historical region member다. 현재 `WorkbenchMessage` DOM에는 matching `header`가 없으므로 effective declaration은 없지만, 승인 packet의 exact member로 보존 이동한다. |
+| `CSS-1062` | `.data-import-diagnostics header strong` | `0-1-2` | 위 historical header child와 같은 보존 이동이다. 현재 live DOM에는 match가 없으며 이 unit에서 dead 판정을 내리거나 삭제하지 않는다. |
+| `CSS-1063` | `.data-import-diagnostics > div` | `0-1-1` | diagnostics table viewport의 horizontal overflow recovery를 보존한다. |
+| `CSS-1064` | `.data-import-diagnostics table` | `0-1-1` | five-column rejected-row table의 width, collapse와 compact typography를 보존한다. |
+| `CSS-1065` | `.data-import-diagnostics th` | `0-1-1` | header-cell alignment, weight, border와 padding을 다음 comma member와 같은 rule-group에서 보존한다. |
+| `CSS-1066` | `.data-import-diagnostics td` | `0-1-1` | rejected row의 wrapping, vertical alignment, border와 padding을 보존한다. |
+
+일곱 행에는 cross-CSS exact duplicate나 route-specific wide-screen workaround가 없다. import order상 owner가
+global layout보다 늦게 로드되지만 competing exact selector/property가 없고, 두 alias와 다섯 viewport의
+computed values와 geometry가 before/after에서 모두 동일하다. 현재 unmatched인 두 header member는 M6의
+live zero-consumer 판정 전까지 dead로 간주하지 않는다. 이동 후 exact legacy residual은 0이다.
+
+| Metric | M1A2 | M1A3 | Delta |
+| --- | ---: | ---: | ---: |
+| global rule-groups / guard debt | 2,818 | 2,812 | -6 |
+| expanded global selector rows | 3,565 | 3,558 | -7 |
+| M1A Data rows | 213 | 206 | -7 |
+| cross-CSS duplicate rows | 13 | 13 | 0 |
+
+### Live visual evidence
+
+[M1A3 manifest](images/issue-261-fe06-m1a3-data-import-diagnostics/manifest.json)은 browser zoom 100%, DPR 1,
+Standard density에서 primary `/modeling?stage=data`와 alias `/datasets/processing?stage=data`를 각각 다섯
+final-size fresh browser context로 시작했다. 각 context는 고유한 natural idempotency key로 실제 DMA import를
+한 번 거절시키고, 동일한 five-row diagnostics와 recovery를 캡처했다. before 10개와 after 10개의 key는 모두
+서로 다르다. established page를 resize하거나 rejected key를 재사용하지 않았다.
+
+두 route의 target original 10쌍, primary의 header/controls/diagnostics/graph direct crop 20쌍이 모두
+byte-for-byte 동일하다. diagnostics의 computed color, border, layout, overflow, table/cell values와 geometry
+10쌍도 동일하고 stylesheet source만 `modeling-data-stage.css`로 바뀌었다. unsaved rejected state에는
+navigator rail이 DOM에 없으므로 navigator crop은 `N/A`; 대신 실제 target인 diagnostics를 direct 100%-pixel
+crop으로 등록했다. documentation-impact용 normal current match는 기존 current guide image의 exact bytes를
+before/after에 보존하며 current PNG 자체는 변경하지 않는다.
+
+<details>
+
+<summary>M1A3 exact originals and direct 100%-pixel crops</summary>
+
+- 1366x768: [normal before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/originals/modeling-data-1366x768.png), [normal after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/originals/modeling-data-1366x768.png), [rejected before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/originals/modeling-data-import-rejected-1366x768.png), [rejected after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/originals/modeling-data-import-rejected-1366x768.png), [alias before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/routes/datasets-processing/modeling-data-import-rejected-1366x768.png), [alias after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/routes/datasets-processing/modeling-data-import-rejected-1366x768.png), [header before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-1366x768-header-100pct.png), [header after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-1366x768-header-100pct.png), [controls before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-1366x768-controls-100pct.png), [controls after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-1366x768-controls-100pct.png), [diagnostics before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-1366x768-diagnostics-100pct.png), [diagnostics after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-1366x768-diagnostics-100pct.png), [graph before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-1366x768-graph-100pct.png), [graph after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-1366x768-graph-100pct.png)
+- 1440x900: [normal before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/originals/modeling-data-1440x900.png), [normal after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/originals/modeling-data-1440x900.png), [rejected before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/originals/modeling-data-import-rejected-1440x900.png), [rejected after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/originals/modeling-data-import-rejected-1440x900.png), [alias before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/routes/datasets-processing/modeling-data-import-rejected-1440x900.png), [alias after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/routes/datasets-processing/modeling-data-import-rejected-1440x900.png), [header before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-1440x900-header-100pct.png), [header after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-1440x900-header-100pct.png), [controls before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-1440x900-controls-100pct.png), [controls after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-1440x900-controls-100pct.png), [diagnostics before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-1440x900-diagnostics-100pct.png), [diagnostics after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-1440x900-diagnostics-100pct.png), [graph before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-1440x900-graph-100pct.png), [graph after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-1440x900-graph-100pct.png)
+- 1920x1080: [normal before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/originals/modeling-data-1920x1080.png), [normal after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/originals/modeling-data-1920x1080.png), [rejected before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/originals/modeling-data-import-rejected-1920x1080.png), [rejected after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/originals/modeling-data-import-rejected-1920x1080.png), [alias before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/routes/datasets-processing/modeling-data-import-rejected-1920x1080.png), [alias after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/routes/datasets-processing/modeling-data-import-rejected-1920x1080.png), [header before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-1920x1080-header-100pct.png), [header after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-1920x1080-header-100pct.png), [controls before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-1920x1080-controls-100pct.png), [controls after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-1920x1080-controls-100pct.png), [diagnostics before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-1920x1080-diagnostics-100pct.png), [diagnostics after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-1920x1080-diagnostics-100pct.png), [graph before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-1920x1080-graph-100pct.png), [graph after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-1920x1080-graph-100pct.png)
+- 2560x1440: [normal before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/originals/modeling-data-2560x1440.png), [normal after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/originals/modeling-data-2560x1440.png), [rejected before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/originals/modeling-data-import-rejected-2560x1440.png), [rejected after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/originals/modeling-data-import-rejected-2560x1440.png), [alias before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/routes/datasets-processing/modeling-data-import-rejected-2560x1440.png), [alias after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/routes/datasets-processing/modeling-data-import-rejected-2560x1440.png), [header before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-2560x1440-header-100pct.png), [header after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-2560x1440-header-100pct.png), [controls before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-2560x1440-controls-100pct.png), [controls after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-2560x1440-controls-100pct.png), [diagnostics before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-2560x1440-diagnostics-100pct.png), [diagnostics after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-2560x1440-diagnostics-100pct.png), [graph before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-2560x1440-graph-100pct.png), [graph after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-2560x1440-graph-100pct.png)
+- 3840x2160: [normal before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/originals/modeling-data-3840x2160.png), [normal after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/originals/modeling-data-3840x2160.png), [rejected before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/originals/modeling-data-import-rejected-3840x2160.png), [rejected after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/originals/modeling-data-import-rejected-3840x2160.png), [alias before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/routes/datasets-processing/modeling-data-import-rejected-3840x2160.png), [alias after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/routes/datasets-processing/modeling-data-import-rejected-3840x2160.png), [header before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-3840x2160-header-100pct.png), [header after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-3840x2160-header-100pct.png), [controls before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-3840x2160-controls-100pct.png), [controls after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-3840x2160-controls-100pct.png), [diagnostics before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-3840x2160-diagnostics-100pct.png), [diagnostics after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-3840x2160-diagnostics-100pct.png), [graph before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-3840x2160-graph-100pct.png), [graph after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-3840x2160-graph-100pct.png)
+
+</details>
+
+original-resolution inspection은 아래 Main acceptance에서 별도 기록한다. automated 3840x2160 geometry는 실제
+Windows 4K 물리 가독성이라고 주장하지 않으며 그 최종 판정은 `DEFERRED_TO_223`이다.
+
+### M1A3 Main acceptance
+
+- Inventory contract 7/7와 checker가 PASS했다. 결과는 2,812 global rule-group, 3,558 expanded selector,
+  M1A 206행, M1A3 touched/fully removed/partially shrunk `6/6/0`, exact legacy residual 0이다.
+- Data intake/workspace, Modeling workspace layout, common workbench focused Vitest는 4 files/56 tests PASS다.
+  Node `24.19.0`, npm `11.17.0` pinned runtime에서 실행했다.
+- Frontend guard contract 17/17, actual guard 0 violation/기존 warning 15가 PASS했다. 6개 rule 제거로
+  `layout.css`가 8,882줄, global debt가 2,812로 감소했다. 삭제 아래쪽의 기존 ribbon exception은 같은
+  selector의 이동된 line fingerprint에 맞췄고, preserved `#fce8e8` fallback은 Data owner의 exact one-occurrence
+  exception으로 옮겼다. raw-color count는 기존 954를 넘지 않는다.
+- TypeScript/Vite production build와 bundle budget가 PASS했다. emitted base CSS는 342.59 kB,
+  Data lazy CSS는 23.62 kB, common workbench CSS는 9.72 kB로 feature lazy boundary를 유지한다.
+- Documentation-impact worktree gate는 82 changed files, 2 visual sources,
+  `2 byte-identical CSS visual sources by #261`로 PASS했다. user-guide gate도 20문서, 119 current captures,
+  1,105 local links, 2,612 images를 PASS했다. current PNG는 바꾸지 않았다.
+- Manifest 재계산은 70 PNG 전부가 manifest와 guide inventory에 닫혀 있고, supporting current pair 5개,
+  target original pair 10개, direct crop pair 20개, computed-style/geometry pair 10개와 current CSS hash 2개가
+  모두 일치함을 확인했다. before/after 20개 rejected-import idempotency key도 모두 고유하다.
+  `git diff --check`도 PASS다.
+- Main은 두 alias의 after original 10개와 primary header/controls/diagnostics/graph crop 20개를 original
+  resolution으로 열었다. before는 모든 대응 pair가 byte-identical이다. #249 정보 계층, engineering task
+  flow, responsive/wide-screen composition은 모두 PASS다. diagnostics five-row recovery, import action과 graph
+  reachability에 clipping/wrapping/overflow/geometry 변화가 없다. 실제 Windows 4K 물리 가독성만 #223에 남는다.
+
 ## 이후 migration 순서
 
 1. M1A0 Data same-selector 12행은 commit `e9cad946...`에서 이동·검증되었다.
 2. M1A1 Data source-tabs 5행은 commit `8361e85d...`에서 이동·검증되었다.
-3. M1A2 Data source-advanced 3행은 위 candidate에서 이동·검증되었다.
-4. 다음 단위 `M1A3-modeling-data-component-region`은 재생성 inventory의 남은 M1A 213행에서 한 component
-   region만 새 owner packet으로 선택한다. owner 승인을 받기 전에는 전체 213행을 함께 이동하지 않는다.
-5. M1B Process, M1C Fit, M1D Export, M1E Modeling shell/family를 각각 분리한다.
-6. M2 Materials를 search/tree/detail/card state와 함께 옮긴다.
-7. M3A Administration과 M3B Activity를 서로 다른 owner file로 옮긴다.
-8. feature가 빠진 뒤 M4 shared shell/token/primitive/layout을 정리한다.
-9. 마지막 M6에서만 live zero-consumer를 증명한 dead selector를 제거한다.
-10. HOLD 447행은 consumer가 둘 이상이거나 owner가 불명확하므로 owner split 전에는 이동하거나
+3. M1A2 Data source-advanced 3행은 published M1A2에서 이동·검증되었다.
+4. M1A3 Data import diagnostics 7행은 위 candidate에서 이동·검증되었다.
+5. 다음 단위 `M1A4-modeling-data-component-region`은 재생성 inventory의 남은 M1A 206행에서 한 component
+   region만 새 owner packet으로 선택한다. owner 승인을 받기 전에는 전체 206행을 함께 이동하지 않는다.
+6. M1B Process, M1C Fit, M1D Export, M1E Modeling shell/family를 각각 분리한다.
+7. M2 Materials를 search/tree/detail/card state와 함께 옮긴다.
+8. M3A Administration과 M3B Activity를 서로 다른 owner file로 옮긴다.
+9. feature가 빠진 뒤 M4 shared shell/token/primitive/layout을 정리한다.
+10. 마지막 M6에서만 live zero-consumer를 증명한 dead selector를 제거한다.
+11. HOLD 447행은 consumer가 둘 이상이거나 owner가 불명확하므로 owner split 전에는 이동하거나
    복제하지 않는다.
 
 각 unit은 전 unit의 inventory JSON을 새 source에서 재생성하고 감소한 guard baseline을 다시 올리지
