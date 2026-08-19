@@ -6,6 +6,7 @@ import time
 from pathlib import Path
 from urllib.error import URLError
 
+from cmp import __version__
 from cmp_api_client import Client
 
 PROJECT_ROOT = Path(__file__).parents[2]
@@ -65,7 +66,7 @@ def test_generated_client_calls_live_health_endpoint() -> None:
 
         assert result.status == "ok"
         assert result.service == "cmp-api"
-        assert result.version == "0.37.0"
+        assert result.version == __version__
     finally:
         process.terminate()
         try:

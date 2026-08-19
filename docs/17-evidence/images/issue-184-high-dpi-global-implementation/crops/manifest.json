@@ -5,7 +5,7 @@
   "physical_4k_readability": "DEFERRED_TO_223",
   "images": [
     {
-      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/1920x1080/header.png",
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/1920x1080/header.png",
       "surface": "header",
       "source": "live:/materials@1920x1080",
       "original_pixels": "1920x50",
@@ -19,7 +19,7 @@
       ]
     },
     {
-      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/1920x1080/materials-navigator.png",
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/1920x1080/materials-navigator.png",
       "surface": "materials-navigator",
       "source": "live:/materials@1920x1080",
       "original_pixels": "288x922",
@@ -34,7 +34,7 @@
       ]
     },
     {
-      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/1920x1080/materials-table.png",
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/1920x1080/materials-table.png",
       "surface": "materials-table",
       "source": "live:/materials@1920x1080",
       "original_pixels": "1297x864",
@@ -49,7 +49,7 @@
       ]
     },
     {
-      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/1920x1080/density-control.png",
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/1920x1080/density-control.png",
       "surface": "density-control",
       "source": "live:/materials@1920x1080",
       "original_pixels": "264x197",
@@ -65,7 +65,7 @@
       ]
     },
     {
-      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/1920x1080/modeling-data-graph.png",
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/1920x1080/modeling-data-graph.png",
       "surface": "modeling-data-graph",
       "source": "live:/modeling?stage=data@1920x1080",
       "original_pixels": "1610x685",
@@ -81,7 +81,7 @@
       ]
     },
     {
-      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/1920x1080/administration-form.png",
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/1920x1080/administration-form.png",
       "surface": "administration-form",
       "source": "live:/administration/database@1920x1080",
       "original_pixels": "800x872",
@@ -97,7 +97,7 @@
       ]
     },
     {
-      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/1920x1080/export-native-preview.png",
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/1920x1080/export-native-preview.png",
       "surface": "export-native-preview",
       "source": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/after/standard/modeling-export-1920x1080.png",
       "original_pixels": "1305x894",
@@ -113,7 +113,7 @@
       ]
     },
     {
-      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/2560x1440/header.png",
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/2560x1440/header.png",
       "surface": "header",
       "source": "live:/materials@2560x1440",
       "original_pixels": "2560x50",
@@ -127,7 +127,7 @@
       ]
     },
     {
-      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/2560x1440/materials-navigator.png",
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/2560x1440/materials-navigator.png",
       "surface": "materials-navigator",
       "source": "live:/materials@2560x1440",
       "original_pixels": "288x1282",
@@ -142,7 +142,7 @@
       ]
     },
     {
-      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/2560x1440/materials-table.png",
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/2560x1440/materials-table.png",
       "surface": "materials-table",
       "source": "live:/materials@2560x1440",
       "original_pixels": "1938x1224",
@@ -157,7 +157,7 @@
       ]
     },
     {
-      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/2560x1440/density-control.png",
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/2560x1440/density-control.png",
       "surface": "density-control",
       "source": "live:/materials@2560x1440",
       "original_pixels": "264x197",
@@ -173,7 +173,7 @@
       ]
     },
     {
-      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/2560x1440/modeling-data-graph.png",
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/2560x1440/modeling-data-graph.png",
       "surface": "modeling-data-graph",
       "source": "live:/modeling?stage=data@2560x1440",
       "original_pixels": "2250x1045",
@@ -189,7 +189,7 @@
       ]
     },
     {
-      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/2560x1440/administration-form.png",
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/2560x1440/administration-form.png",
       "surface": "administration-form",
       "source": "live:/administration/database@2560x1440",
       "original_pixels": "800x1232",
@@ -205,7 +205,7 @@
       ]
     },
     {
-      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/2560x1440/export-native-preview.png",
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/2560x1440/export-native-preview.png",
       "surface": "export-native-preview",
       "source": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/after/standard/modeling-export-2560x1440.png",
       "original_pixels": "1945x1254",
@@ -221,7 +221,7 @@
       ]
     },
     {
-      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/3840x2160/header.png",
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/3840x2160/header.png",
       "surface": "header",
       "source": "live:/materials@3840x2160",
       "original_pixels": "3840x50",
@@ -235,7 +235,7 @@
       ]
     },
     {
-      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/3840x2160/materials-navigator.png",
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/3840x2160/materials-navigator.png",
       "surface": "materials-navigator",
       "source": "live:/materials@3840x2160",
       "original_pixels": "288x2002",
@@ -250,7 +250,7 @@
       ]
     },
     {
-      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/3840x2160/materials-table.png",
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/3840x2160/materials-table.png",
       "surface": "materials-table",
       "source": "live:/materials@3840x2160",
       "original_pixels": "3217x1944",
@@ -265,7 +265,7 @@
       ]
     },
     {
-      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/3840x2160/density-control.png",
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/3840x2160/density-control.png",
       "surface": "density-control",
       "source": "live:/materials@3840x2160",
       "original_pixels": "264x197",
@@ -281,7 +281,7 @@
       ]
     },
     {
-      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/3840x2160/modeling-data-graph.png",
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/3840x2160/modeling-data-graph.png",
       "surface": "modeling-data-graph",
       "source": "live:/modeling?stage=data@3840x2160",
       "original_pixels": "3531x1765",
@@ -297,7 +297,7 @@
       ]
     },
     {
-      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/3840x2160/administration-form.png",
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/3840x2160/administration-form.png",
       "surface": "administration-form",
       "source": "live:/administration/database@3840x2160",
       "original_pixels": "800x1952",
@@ -313,7 +313,7 @@
       ]
     },
     {
-      "path": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/3840x2160/export-native-preview.png",
+      "path": "docs/17-evidence/images/issue-184-high-dpi-global-implementation/crops/3840x2160/export-native-preview.png",
       "surface": "export-native-preview",
       "source": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/issue-184-high-dpi-global-implementation/after/standard/modeling-export-3840x2160.png",
       "original_pixels": "3225x1974",

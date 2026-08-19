@@ -4,6 +4,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from cmp import __version__
+
 PROJECT_ROOT = Path(__file__).parents[2]
 
 
@@ -30,5 +32,5 @@ def test_worker_starts_one_empty_cycle_and_exits() -> None:
         "handlers_registered": 0,
         "service": "cmp-worker",
         "status": "idle",
-        "version": "0.37.0",
+        "version": __version__,
     }

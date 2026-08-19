@@ -83,7 +83,8 @@ def test_issue_184_crop_manifest_points_to_final_unscaled_files() -> None:
     images = manifest["images"]
     assert len(images) == 21
     for item in images:
-        relative = Path(str(item["path"])).resolve().relative_to(ROOT)
+        relative = Path(str(item["path"]))
+        assert not relative.is_absolute()
         assert relative.parts[:5] == (
             "docs",
             "17-evidence",
