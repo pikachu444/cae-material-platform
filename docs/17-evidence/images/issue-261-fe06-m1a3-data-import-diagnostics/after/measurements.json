@@ -1,0 +1,3032 @@
+[
+  {
+    "phase": "after",
+    "route": "/modeling",
+    "route_name": "modeling",
+    "state": "import-rejection-diagnostics",
+    "viewport": "1366x768",
+    "browser_zoom_percent": 100,
+    "device_pixel_ratio": 1,
+    "path": "docs/17-evidence/images/issue-261-fe06-m1a3-data-import-diagnostics/after/originals/modeling-data-import-rejected-1366x768.png",
+    "sha256": "dc1e77a014a7e2ec4e9e55c9ecaed8996240fb454a2b8ab6021fdc589a45ad95",
+    "layout": {
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "dpr": 1,
+      "visualScale": 1,
+      "document": {
+        "scrollWidth": 1366,
+        "clientWidth": 1366
+      }
+    },
+    "elements": {
+      "header": {
+        "box": {
+          "left": 0,
+          "right": 1366,
+          "top": 0,
+          "bottom": 50,
+          "width": 1366,
+          "height": 50
+        },
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "scrollHeight": 49,
+        "clientHeight": 49
+      },
+      "controls": {
+        "box": {
+          "left": 0,
+          "right": 1366,
+          "top": 155,
+          "bottom": 477,
+          "width": 1366,
+          "height": 322
+        },
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "scrollHeight": 322,
+        "clientHeight": 322
+      },
+      "diagnostics": {
+        "box": {
+          "left": 24,
+          "right": 1312,
+          "top": 213.78125,
+          "bottom": 418.78125,
+          "width": 1288,
+          "height": 205
+        },
+        "scrollWidth": 1285,
+        "clientWidth": 1285,
+        "scrollHeight": 205,
+        "clientHeight": 205
+      },
+      "graph": {
+        "box": {
+          "left": 0,
+          "right": 1366,
+          "top": 482,
+          "bottom": 722,
+          "width": 1366,
+          "height": 240
+        },
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "scrollHeight": 240,
+        "clientHeight": 240
+      }
+    },
+    "navigator": {
+      "applicable": false,
+      "reason": "Unsaved rejected-import state renders no Test Data navigator or divider."
+    },
+    "computed": {
+      "values": {
+        "root": {
+          "selector": ".data-import-diagnostics",
+          "matched": true,
+          "tag": "div",
+          "className": "ux-workbench-message data-import-diagnostics",
+          "properties": {
+            "display": "grid",
+            "grid-column": "1 / -1",
+            "gap": "5px",
+            "min-width": "0px",
+            "padding": "7px 8px",
+            "border-left-width": "3px",
+            "border-left-style": "solid",
+            "border-left-color": "rgb(166, 41, 41)",
+            "background-color": "color(srgb 0.988235 0.909804 0.909804 / 0.58)"
+          },
+          "box": {
+            "left": 24,
+            "top": 213.78125,
+            "right": 1312,
+            "bottom": 418.78125,
+            "width": 1288,
+            "height": 205
+          },
+          "scrollWidth": 1285,
+          "clientWidth": 1285,
+          "scrollHeight": 205,
+          "clientHeight": 205
+        },
+        "header": {
+          "selector": ".data-import-diagnostics header",
+          "matched": false
+        },
+        "strong": {
+          "selector": ".data-import-diagnostics header strong",
+          "matched": false
+        },
+        "scrollport": {
+          "selector": ".data-import-diagnostics > div",
+          "matched": true,
+          "tag": "div",
+          "className": "ux-workbench-message-body",
+          "properties": {
+            "overflow-x": "auto",
+            "overflow-y": "auto"
+          },
+          "box": {
+            "left": 35,
+            "top": 243.78125,
+            "right": 1304,
+            "bottom": 411.78125,
+            "width": 1269,
+            "height": 168
+          },
+          "scrollWidth": 1269,
+          "clientWidth": 1269,
+          "scrollHeight": 168,
+          "clientHeight": 168
+        },
+        "table": {
+          "selector": ".data-import-diagnostics table",
+          "matched": true,
+          "tag": "table",
+          "className": "",
+          "properties": {
+            "width": "1269px",
+            "border-collapse": "collapse",
+            "font-size": "12px"
+          },
+          "box": {
+            "left": 35,
+            "top": 261.78125,
+            "right": 1304,
+            "bottom": 411.78125,
+            "width": 1269,
+            "height": 150
+          },
+          "scrollWidth": 1269,
+          "clientWidth": 1269,
+          "scrollHeight": 150,
+          "clientHeight": 150
+        },
+        "th": {
+          "selector": ".data-import-diagnostics th",
+          "matched": true,
+          "tag": "th",
+          "className": "",
+          "properties": {
+            "padding-top": "4px",
+            "padding-right": "6px",
+            "padding-bottom": "4px",
+            "padding-left": "6px",
+            "border-top-width": "1px",
+            "border-top-style": "solid",
+            "border-top-color": "rgb(203, 211, 218)",
+            "text-align": "left",
+            "vertical-align": "top"
+          },
+          "box": {
+            "left": 35,
+            "top": 262.28125,
+            "right": 87.65625,
+            "bottom": 287.28125,
+            "width": 52.65625,
+            "height": 25
+          },
+          "scrollWidth": 53,
+          "clientWidth": 53,
+          "scrollHeight": 24,
+          "clientHeight": 24
+        },
+        "td": {
+          "selector": ".data-import-diagnostics td",
+          "matched": true,
+          "tag": "td",
+          "className": "",
+          "properties": {
+            "padding-top": "4px",
+            "padding-right": "6px",
+            "padding-bottom": "4px",
+            "padding-left": "6px",
+            "border-top-width": "1px",
+            "border-top-style": "solid",
+            "border-top-color": "rgb(203, 211, 218)",
+            "text-align": "left",
+            "vertical-align": "top"
+          },
+          "box": {
+            "left": 35,
+            "top": 287.28125,
+            "right": 87.65625,
+            "bottom": 312.28125,
+            "width": 52.65625,
+            "height": 25
+          },
+          "scrollWidth": 53,
+          "clientWidth": 53,
+          "scrollHeight": 24,
+          "clientHeight": 24
+        }
+      },
+      "rules": [
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            137
+          ],
+          "selectorText": ".data-import-diagnostics",
+          "cssText": ".data-import-diagnostics { display: grid; grid-column: 1 / -1; gap: 5px; min-width: 0px; padding: 7px 8px; border-left: 3px solid var(--ux-danger); background: color-mix(in srgb, var(--ux-danger-soft, #fce8e8) 58%, transparent); }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            138
+          ],
+          "selectorText": ".data-import-diagnostics header",
+          "cssText": ".data-import-diagnostics header { display: grid; gap: 2px; color: var(--ux-text-muted); font-size: 11.5px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            139
+          ],
+          "selectorText": ".data-import-diagnostics header strong",
+          "cssText": ".data-import-diagnostics header strong { color: var(--ux-danger); font-size: 13px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            140
+          ],
+          "selectorText": ".data-import-diagnostics > div",
+          "cssText": ".data-import-diagnostics > div { overflow: auto; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            141
+          ],
+          "selectorText": ".data-import-diagnostics table",
+          "cssText": ".data-import-diagnostics table { width: 100%; border-collapse: collapse; font-size: 12px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            142
+          ],
+          "selectorText": ".data-import-diagnostics th, .data-import-diagnostics td",
+          "cssText": ".data-import-diagnostics th, .data-import-diagnostics td { padding: 4px 6px; border-top: 1px solid var(--ux-border); text-align: left; vertical-align: top; }"
+        }
+      ]
+    },
+    "diagnostic_codes": [
+      "frequency_not_positive",
+      "insufficient_valid_rows",
+      "missing_value",
+      "negative_dma_response",
+      "temperature_below_absolute_zero"
+    ],
+    "import_run_id": "a3727404-b640-40c7-a820-d1aab8468b95",
+    "idempotency_key": "bde1a61c-50b7-4dae-a8ec-0e519c7de1ca",
+    "document_key": "ISSUE261-M1A3-M-1366X768-7A88B3",
+    "source_file": "m1a3-m-1366x768-7a88b3.csv",
+    "source_columns": [
+      "t_m_1366x768_7a88b3",
+      "f_m_1366x768_7a88b3",
+      "s_m_1366x768_7a88b3",
+      "l_m_1366x768_7a88b3"
+    ],
+    "mapping_notice": "File columns matched."
+  },
+  {
+    "phase": "after",
+    "route": "/modeling",
+    "route_name": "modeling",
+    "state": "import-rejection-diagnostics",
+    "viewport": "1440x900",
+    "browser_zoom_percent": 100,
+    "device_pixel_ratio": 1,
+    "path": "docs/17-evidence/images/issue-261-fe06-m1a3-data-import-diagnostics/after/originals/modeling-data-import-rejected-1440x900.png",
+    "sha256": "93dfb1be119ec25dbb9f51aceae6fa296b72ecb0b879ab48b5b5e13bc74d023a",
+    "layout": {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "dpr": 1,
+      "visualScale": 1,
+      "document": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    "elements": {
+      "header": {
+        "box": {
+          "left": 0,
+          "right": 1440,
+          "top": 0,
+          "bottom": 50,
+          "width": 1440,
+          "height": 50
+        },
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 49,
+        "clientHeight": 49
+      },
+      "controls": {
+        "box": {
+          "left": 0,
+          "right": 1440,
+          "top": 155,
+          "bottom": 539,
+          "width": 1440,
+          "height": 384
+        },
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 384,
+        "clientHeight": 384
+      },
+      "diagnostics": {
+        "box": {
+          "left": 24,
+          "right": 1386,
+          "top": 275.78125,
+          "bottom": 480.78125,
+          "width": 1362,
+          "height": 205
+        },
+        "scrollWidth": 1359,
+        "clientWidth": 1359,
+        "scrollHeight": 205,
+        "clientHeight": 205
+      },
+      "graph": {
+        "box": {
+          "left": 0,
+          "right": 1440,
+          "top": 544,
+          "bottom": 854,
+          "width": 1440,
+          "height": 310
+        },
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 310,
+        "clientHeight": 310
+      }
+    },
+    "navigator": {
+      "applicable": false,
+      "reason": "Unsaved rejected-import state renders no Test Data navigator or divider."
+    },
+    "computed": {
+      "values": {
+        "root": {
+          "selector": ".data-import-diagnostics",
+          "matched": true,
+          "tag": "div",
+          "className": "ux-workbench-message data-import-diagnostics",
+          "properties": {
+            "display": "grid",
+            "grid-column": "1 / -1",
+            "gap": "5px",
+            "min-width": "0px",
+            "padding": "7px 8px",
+            "border-left-width": "3px",
+            "border-left-style": "solid",
+            "border-left-color": "rgb(166, 41, 41)",
+            "background-color": "color(srgb 0.988235 0.909804 0.909804 / 0.58)"
+          },
+          "box": {
+            "left": 24,
+            "top": 275.78125,
+            "right": 1386,
+            "bottom": 480.78125,
+            "width": 1362,
+            "height": 205
+          },
+          "scrollWidth": 1359,
+          "clientWidth": 1359,
+          "scrollHeight": 205,
+          "clientHeight": 205
+        },
+        "header": {
+          "selector": ".data-import-diagnostics header",
+          "matched": false
+        },
+        "strong": {
+          "selector": ".data-import-diagnostics header strong",
+          "matched": false
+        },
+        "scrollport": {
+          "selector": ".data-import-diagnostics > div",
+          "matched": true,
+          "tag": "div",
+          "className": "ux-workbench-message-body",
+          "properties": {
+            "overflow-x": "auto",
+            "overflow-y": "auto"
+          },
+          "box": {
+            "left": 35,
+            "top": 305.78125,
+            "right": 1378,
+            "bottom": 473.78125,
+            "width": 1343,
+            "height": 168
+          },
+          "scrollWidth": 1343,
+          "clientWidth": 1343,
+          "scrollHeight": 168,
+          "clientHeight": 168
+        },
+        "table": {
+          "selector": ".data-import-diagnostics table",
+          "matched": true,
+          "tag": "table",
+          "className": "",
+          "properties": {
+            "width": "1343px",
+            "border-collapse": "collapse",
+            "font-size": "12px"
+          },
+          "box": {
+            "left": 35,
+            "top": 323.78125,
+            "right": 1378,
+            "bottom": 473.78125,
+            "width": 1343,
+            "height": 150
+          },
+          "scrollWidth": 1343,
+          "clientWidth": 1343,
+          "scrollHeight": 150,
+          "clientHeight": 150
+        },
+        "th": {
+          "selector": ".data-import-diagnostics th",
+          "matched": true,
+          "tag": "th",
+          "className": "",
+          "properties": {
+            "padding-top": "4px",
+            "padding-right": "6px",
+            "padding-bottom": "4px",
+            "padding-left": "6px",
+            "border-top-width": "1px",
+            "border-top-style": "solid",
+            "border-top-color": "rgb(203, 211, 218)",
+            "text-align": "left",
+            "vertical-align": "top"
+          },
+          "box": {
+            "left": 35,
+            "top": 324.28125,
+            "right": 90.734375,
+            "bottom": 349.28125,
+            "width": 55.734375,
+            "height": 25
+          },
+          "scrollWidth": 56,
+          "clientWidth": 56,
+          "scrollHeight": 24,
+          "clientHeight": 24
+        },
+        "td": {
+          "selector": ".data-import-diagnostics td",
+          "matched": true,
+          "tag": "td",
+          "className": "",
+          "properties": {
+            "padding-top": "4px",
+            "padding-right": "6px",
+            "padding-bottom": "4px",
+            "padding-left": "6px",
+            "border-top-width": "1px",
+            "border-top-style": "solid",
+            "border-top-color": "rgb(203, 211, 218)",
+            "text-align": "left",
+            "vertical-align": "top"
+          },
+          "box": {
+            "left": 35,
+            "top": 349.28125,
+            "right": 90.734375,
+            "bottom": 374.28125,
+            "width": 55.734375,
+            "height": 25
+          },
+          "scrollWidth": 56,
+          "clientWidth": 56,
+          "scrollHeight": 24,
+          "clientHeight": 24
+        }
+      },
+      "rules": [
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            137
+          ],
+          "selectorText": ".data-import-diagnostics",
+          "cssText": ".data-import-diagnostics { display: grid; grid-column: 1 / -1; gap: 5px; min-width: 0px; padding: 7px 8px; border-left: 3px solid var(--ux-danger); background: color-mix(in srgb, var(--ux-danger-soft, #fce8e8) 58%, transparent); }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            138
+          ],
+          "selectorText": ".data-import-diagnostics header",
+          "cssText": ".data-import-diagnostics header { display: grid; gap: 2px; color: var(--ux-text-muted); font-size: 11.5px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            139
+          ],
+          "selectorText": ".data-import-diagnostics header strong",
+          "cssText": ".data-import-diagnostics header strong { color: var(--ux-danger); font-size: 13px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            140
+          ],
+          "selectorText": ".data-import-diagnostics > div",
+          "cssText": ".data-import-diagnostics > div { overflow: auto; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            141
+          ],
+          "selectorText": ".data-import-diagnostics table",
+          "cssText": ".data-import-diagnostics table { width: 100%; border-collapse: collapse; font-size: 12px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            142
+          ],
+          "selectorText": ".data-import-diagnostics th, .data-import-diagnostics td",
+          "cssText": ".data-import-diagnostics th, .data-import-diagnostics td { padding: 4px 6px; border-top: 1px solid var(--ux-border); text-align: left; vertical-align: top; }"
+        }
+      ]
+    },
+    "diagnostic_codes": [
+      "frequency_not_positive",
+      "insufficient_valid_rows",
+      "missing_value",
+      "negative_dma_response",
+      "temperature_below_absolute_zero"
+    ],
+    "import_run_id": "5b48608a-0238-41d7-917e-5987bd3e3f52",
+    "idempotency_key": "12543fe7-6e55-4093-8479-b567765727b9",
+    "document_key": "ISSUE261-M1A3-M-1440X900-7A88B3",
+    "source_file": "m1a3-m-1440x900-7a88b3.csv",
+    "source_columns": [
+      "t_m_1440x900_7a88b3",
+      "f_m_1440x900_7a88b3",
+      "s_m_1440x900_7a88b3",
+      "l_m_1440x900_7a88b3"
+    ],
+    "mapping_notice": "File columns matched."
+  },
+  {
+    "phase": "after",
+    "route": "/modeling",
+    "route_name": "modeling",
+    "state": "import-rejection-diagnostics",
+    "viewport": "1920x1080",
+    "browser_zoom_percent": 100,
+    "device_pixel_ratio": 1,
+    "path": "docs/17-evidence/images/issue-261-fe06-m1a3-data-import-diagnostics/after/originals/modeling-data-import-rejected-1920x1080.png",
+    "sha256": "1e9313ff495a55e7df2989096a692984e797ee4369a6205c29e6f177fc0ee592",
+    "layout": {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dpr": 1,
+      "visualScale": 1,
+      "document": {
+        "scrollWidth": 1920,
+        "clientWidth": 1920
+      }
+    },
+    "elements": {
+      "header": {
+        "box": {
+          "left": 0,
+          "right": 1920,
+          "top": 0,
+          "bottom": 50,
+          "width": 1920,
+          "height": 50
+        },
+        "scrollWidth": 1920,
+        "clientWidth": 1920,
+        "scrollHeight": 49,
+        "clientHeight": 49
+      },
+      "controls": {
+        "box": {
+          "left": 0,
+          "right": 1920,
+          "top": 155,
+          "bottom": 539,
+          "width": 1920,
+          "height": 384
+        },
+        "scrollWidth": 1920,
+        "clientWidth": 1920,
+        "scrollHeight": 384,
+        "clientHeight": 384
+      },
+      "diagnostics": {
+        "box": {
+          "left": 24,
+          "right": 1866,
+          "top": 275.78125,
+          "bottom": 480.78125,
+          "width": 1842,
+          "height": 205
+        },
+        "scrollWidth": 1839,
+        "clientWidth": 1839,
+        "scrollHeight": 205,
+        "clientHeight": 205
+      },
+      "graph": {
+        "box": {
+          "left": 0,
+          "right": 1920,
+          "top": 544,
+          "bottom": 1034,
+          "width": 1920,
+          "height": 490
+        },
+        "scrollWidth": 1920,
+        "clientWidth": 1920,
+        "scrollHeight": 490,
+        "clientHeight": 490
+      }
+    },
+    "navigator": {
+      "applicable": false,
+      "reason": "Unsaved rejected-import state renders no Test Data navigator or divider."
+    },
+    "computed": {
+      "values": {
+        "root": {
+          "selector": ".data-import-diagnostics",
+          "matched": true,
+          "tag": "div",
+          "className": "ux-workbench-message data-import-diagnostics",
+          "properties": {
+            "display": "grid",
+            "grid-column": "1 / -1",
+            "gap": "5px",
+            "min-width": "0px",
+            "padding": "7px 8px",
+            "border-left-width": "3px",
+            "border-left-style": "solid",
+            "border-left-color": "rgb(166, 41, 41)",
+            "background-color": "color(srgb 0.988235 0.909804 0.909804 / 0.58)"
+          },
+          "box": {
+            "left": 24,
+            "top": 275.78125,
+            "right": 1866,
+            "bottom": 480.78125,
+            "width": 1842,
+            "height": 205
+          },
+          "scrollWidth": 1839,
+          "clientWidth": 1839,
+          "scrollHeight": 205,
+          "clientHeight": 205
+        },
+        "header": {
+          "selector": ".data-import-diagnostics header",
+          "matched": false
+        },
+        "strong": {
+          "selector": ".data-import-diagnostics header strong",
+          "matched": false
+        },
+        "scrollport": {
+          "selector": ".data-import-diagnostics > div",
+          "matched": true,
+          "tag": "div",
+          "className": "ux-workbench-message-body",
+          "properties": {
+            "overflow-x": "auto",
+            "overflow-y": "auto"
+          },
+          "box": {
+            "left": 35,
+            "top": 305.78125,
+            "right": 1858,
+            "bottom": 473.78125,
+            "width": 1823,
+            "height": 168
+          },
+          "scrollWidth": 1823,
+          "clientWidth": 1823,
+          "scrollHeight": 168,
+          "clientHeight": 168
+        },
+        "table": {
+          "selector": ".data-import-diagnostics table",
+          "matched": true,
+          "tag": "table",
+          "className": "",
+          "properties": {
+            "width": "1823px",
+            "border-collapse": "collapse",
+            "font-size": "12px"
+          },
+          "box": {
+            "left": 35,
+            "top": 323.78125,
+            "right": 1858,
+            "bottom": 473.78125,
+            "width": 1823,
+            "height": 150
+          },
+          "scrollWidth": 1823,
+          "clientWidth": 1823,
+          "scrollHeight": 150,
+          "clientHeight": 150
+        },
+        "th": {
+          "selector": ".data-import-diagnostics th",
+          "matched": true,
+          "tag": "th",
+          "className": "",
+          "properties": {
+            "padding-top": "4px",
+            "padding-right": "6px",
+            "padding-bottom": "4px",
+            "padding-left": "6px",
+            "border-top-width": "1px",
+            "border-top-style": "solid",
+            "border-top-color": "rgb(203, 211, 218)",
+            "text-align": "left",
+            "vertical-align": "top"
+          },
+          "box": {
+            "left": 35,
+            "top": 324.28125,
+            "right": 110.09375,
+            "bottom": 349.28125,
+            "width": 75.09375,
+            "height": 25
+          },
+          "scrollWidth": 75,
+          "clientWidth": 75,
+          "scrollHeight": 24,
+          "clientHeight": 24
+        },
+        "td": {
+          "selector": ".data-import-diagnostics td",
+          "matched": true,
+          "tag": "td",
+          "className": "",
+          "properties": {
+            "padding-top": "4px",
+            "padding-right": "6px",
+            "padding-bottom": "4px",
+            "padding-left": "6px",
+            "border-top-width": "1px",
+            "border-top-style": "solid",
+            "border-top-color": "rgb(203, 211, 218)",
+            "text-align": "left",
+            "vertical-align": "top"
+          },
+          "box": {
+            "left": 35,
+            "top": 349.28125,
+            "right": 110.09375,
+            "bottom": 374.28125,
+            "width": 75.09375,
+            "height": 25
+          },
+          "scrollWidth": 75,
+          "clientWidth": 75,
+          "scrollHeight": 24,
+          "clientHeight": 24
+        }
+      },
+      "rules": [
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            137
+          ],
+          "selectorText": ".data-import-diagnostics",
+          "cssText": ".data-import-diagnostics { display: grid; grid-column: 1 / -1; gap: 5px; min-width: 0px; padding: 7px 8px; border-left: 3px solid var(--ux-danger); background: color-mix(in srgb, var(--ux-danger-soft, #fce8e8) 58%, transparent); }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            138
+          ],
+          "selectorText": ".data-import-diagnostics header",
+          "cssText": ".data-import-diagnostics header { display: grid; gap: 2px; color: var(--ux-text-muted); font-size: 11.5px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            139
+          ],
+          "selectorText": ".data-import-diagnostics header strong",
+          "cssText": ".data-import-diagnostics header strong { color: var(--ux-danger); font-size: 13px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            140
+          ],
+          "selectorText": ".data-import-diagnostics > div",
+          "cssText": ".data-import-diagnostics > div { overflow: auto; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            141
+          ],
+          "selectorText": ".data-import-diagnostics table",
+          "cssText": ".data-import-diagnostics table { width: 100%; border-collapse: collapse; font-size: 12px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            142
+          ],
+          "selectorText": ".data-import-diagnostics th, .data-import-diagnostics td",
+          "cssText": ".data-import-diagnostics th, .data-import-diagnostics td { padding: 4px 6px; border-top: 1px solid var(--ux-border); text-align: left; vertical-align: top; }"
+        }
+      ]
+    },
+    "diagnostic_codes": [
+      "frequency_not_positive",
+      "insufficient_valid_rows",
+      "missing_value",
+      "negative_dma_response",
+      "temperature_below_absolute_zero"
+    ],
+    "import_run_id": "75cad6c1-398e-4917-b8f1-f5ec5a2f5f2b",
+    "idempotency_key": "af1e554a-939d-4d76-952e-3851bf4595d0",
+    "document_key": "ISSUE261-M1A3-M-1920X1080-7A88B3",
+    "source_file": "m1a3-m-1920x1080-7a88b3.csv",
+    "source_columns": [
+      "t_m_1920x1080_7a88b3",
+      "f_m_1920x1080_7a88b3",
+      "s_m_1920x1080_7a88b3",
+      "l_m_1920x1080_7a88b3"
+    ],
+    "mapping_notice": "File columns matched."
+  },
+  {
+    "phase": "after",
+    "route": "/modeling",
+    "route_name": "modeling",
+    "state": "import-rejection-diagnostics",
+    "viewport": "2560x1440",
+    "browser_zoom_percent": 100,
+    "device_pixel_ratio": 1,
+    "path": "docs/17-evidence/images/issue-261-fe06-m1a3-data-import-diagnostics/after/originals/modeling-data-import-rejected-2560x1440.png",
+    "sha256": "20827fce68471318776243db7ed2096d27b2f3cfaa103aa6a6e2ab74e9cf595a",
+    "layout": {
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "dpr": 1,
+      "visualScale": 1,
+      "document": {
+        "scrollWidth": 2560,
+        "clientWidth": 2560
+      }
+    },
+    "elements": {
+      "header": {
+        "box": {
+          "left": 0,
+          "right": 2560,
+          "top": 0,
+          "bottom": 50,
+          "width": 2560,
+          "height": 50
+        },
+        "scrollWidth": 2560,
+        "clientWidth": 2560,
+        "scrollHeight": 49,
+        "clientHeight": 49
+      },
+      "controls": {
+        "box": {
+          "left": 0,
+          "right": 2560,
+          "top": 155,
+          "bottom": 539,
+          "width": 2560,
+          "height": 384
+        },
+        "scrollWidth": 2560,
+        "clientWidth": 2560,
+        "scrollHeight": 384,
+        "clientHeight": 384
+      },
+      "diagnostics": {
+        "box": {
+          "left": 24,
+          "right": 2506,
+          "top": 275.78125,
+          "bottom": 480.78125,
+          "width": 2482,
+          "height": 205
+        },
+        "scrollWidth": 2479,
+        "clientWidth": 2479,
+        "scrollHeight": 205,
+        "clientHeight": 205
+      },
+      "graph": {
+        "box": {
+          "left": 0,
+          "right": 2560,
+          "top": 544,
+          "bottom": 1394,
+          "width": 2560,
+          "height": 850
+        },
+        "scrollWidth": 2560,
+        "clientWidth": 2560,
+        "scrollHeight": 850,
+        "clientHeight": 850
+      }
+    },
+    "navigator": {
+      "applicable": false,
+      "reason": "Unsaved rejected-import state renders no Test Data navigator or divider."
+    },
+    "computed": {
+      "values": {
+        "root": {
+          "selector": ".data-import-diagnostics",
+          "matched": true,
+          "tag": "div",
+          "className": "ux-workbench-message data-import-diagnostics",
+          "properties": {
+            "display": "grid",
+            "grid-column": "1 / -1",
+            "gap": "5px",
+            "min-width": "0px",
+            "padding": "7px 8px",
+            "border-left-width": "3px",
+            "border-left-style": "solid",
+            "border-left-color": "rgb(166, 41, 41)",
+            "background-color": "color(srgb 0.988235 0.909804 0.909804 / 0.58)"
+          },
+          "box": {
+            "left": 24,
+            "top": 275.78125,
+            "right": 2506,
+            "bottom": 480.78125,
+            "width": 2482,
+            "height": 205
+          },
+          "scrollWidth": 2479,
+          "clientWidth": 2479,
+          "scrollHeight": 205,
+          "clientHeight": 205
+        },
+        "header": {
+          "selector": ".data-import-diagnostics header",
+          "matched": false
+        },
+        "strong": {
+          "selector": ".data-import-diagnostics header strong",
+          "matched": false
+        },
+        "scrollport": {
+          "selector": ".data-import-diagnostics > div",
+          "matched": true,
+          "tag": "div",
+          "className": "ux-workbench-message-body",
+          "properties": {
+            "overflow-x": "auto",
+            "overflow-y": "auto"
+          },
+          "box": {
+            "left": 35,
+            "top": 305.78125,
+            "right": 2498,
+            "bottom": 473.78125,
+            "width": 2463,
+            "height": 168
+          },
+          "scrollWidth": 2463,
+          "clientWidth": 2463,
+          "scrollHeight": 168,
+          "clientHeight": 168
+        },
+        "table": {
+          "selector": ".data-import-diagnostics table",
+          "matched": true,
+          "tag": "table",
+          "className": "",
+          "properties": {
+            "width": "2463px",
+            "border-collapse": "collapse",
+            "font-size": "12px"
+          },
+          "box": {
+            "left": 35,
+            "top": 323.78125,
+            "right": 2498,
+            "bottom": 473.78125,
+            "width": 2463,
+            "height": 150
+          },
+          "scrollWidth": 2463,
+          "clientWidth": 2463,
+          "scrollHeight": 150,
+          "clientHeight": 150
+        },
+        "th": {
+          "selector": ".data-import-diagnostics th",
+          "matched": true,
+          "tag": "th",
+          "className": "",
+          "properties": {
+            "padding-top": "4px",
+            "padding-right": "6px",
+            "padding-bottom": "4px",
+            "padding-left": "6px",
+            "border-top-width": "1px",
+            "border-top-style": "solid",
+            "border-top-color": "rgb(203, 211, 218)",
+            "text-align": "left",
+            "vertical-align": "top"
+          },
+          "box": {
+            "left": 35,
+            "top": 324.28125,
+            "right": 136.453125,
+            "bottom": 349.28125,
+            "width": 101.453125,
+            "height": 25
+          },
+          "scrollWidth": 101,
+          "clientWidth": 101,
+          "scrollHeight": 24,
+          "clientHeight": 24
+        },
+        "td": {
+          "selector": ".data-import-diagnostics td",
+          "matched": true,
+          "tag": "td",
+          "className": "",
+          "properties": {
+            "padding-top": "4px",
+            "padding-right": "6px",
+            "padding-bottom": "4px",
+            "padding-left": "6px",
+            "border-top-width": "1px",
+            "border-top-style": "solid",
+            "border-top-color": "rgb(203, 211, 218)",
+            "text-align": "left",
+            "vertical-align": "top"
+          },
+          "box": {
+            "left": 35,
+            "top": 349.28125,
+            "right": 136.453125,
+            "bottom": 374.28125,
+            "width": 101.453125,
+            "height": 25
+          },
+          "scrollWidth": 101,
+          "clientWidth": 101,
+          "scrollHeight": 24,
+          "clientHeight": 24
+        }
+      },
+      "rules": [
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            137
+          ],
+          "selectorText": ".data-import-diagnostics",
+          "cssText": ".data-import-diagnostics { display: grid; grid-column: 1 / -1; gap: 5px; min-width: 0px; padding: 7px 8px; border-left: 3px solid var(--ux-danger); background: color-mix(in srgb, var(--ux-danger-soft, #fce8e8) 58%, transparent); }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            138
+          ],
+          "selectorText": ".data-import-diagnostics header",
+          "cssText": ".data-import-diagnostics header { display: grid; gap: 2px; color: var(--ux-text-muted); font-size: 11.5px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            139
+          ],
+          "selectorText": ".data-import-diagnostics header strong",
+          "cssText": ".data-import-diagnostics header strong { color: var(--ux-danger); font-size: 13px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            140
+          ],
+          "selectorText": ".data-import-diagnostics > div",
+          "cssText": ".data-import-diagnostics > div { overflow: auto; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            141
+          ],
+          "selectorText": ".data-import-diagnostics table",
+          "cssText": ".data-import-diagnostics table { width: 100%; border-collapse: collapse; font-size: 12px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            142
+          ],
+          "selectorText": ".data-import-diagnostics th, .data-import-diagnostics td",
+          "cssText": ".data-import-diagnostics th, .data-import-diagnostics td { padding: 4px 6px; border-top: 1px solid var(--ux-border); text-align: left; vertical-align: top; }"
+        }
+      ]
+    },
+    "diagnostic_codes": [
+      "frequency_not_positive",
+      "insufficient_valid_rows",
+      "missing_value",
+      "negative_dma_response",
+      "temperature_below_absolute_zero"
+    ],
+    "import_run_id": "7e68ef8e-e574-4cd3-869b-4555d23c67f5",
+    "idempotency_key": "bc9de00e-528f-4ce0-ad0b-1274474f0e5f",
+    "document_key": "ISSUE261-M1A3-M-2560X1440-7A88B3",
+    "source_file": "m1a3-m-2560x1440-7a88b3.csv",
+    "source_columns": [
+      "t_m_2560x1440_7a88b3",
+      "f_m_2560x1440_7a88b3",
+      "s_m_2560x1440_7a88b3",
+      "l_m_2560x1440_7a88b3"
+    ],
+    "mapping_notice": "File columns matched."
+  },
+  {
+    "phase": "after",
+    "route": "/modeling",
+    "route_name": "modeling",
+    "state": "import-rejection-diagnostics",
+    "viewport": "3840x2160",
+    "browser_zoom_percent": 100,
+    "device_pixel_ratio": 1,
+    "path": "docs/17-evidence/images/issue-261-fe06-m1a3-data-import-diagnostics/after/originals/modeling-data-import-rejected-3840x2160.png",
+    "sha256": "e47c7017ac5abb9260d4bad5bed594d909982fb72b9cfac646b28c580b6e92f2",
+    "layout": {
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "dpr": 1,
+      "visualScale": 1,
+      "document": {
+        "scrollWidth": 3840,
+        "clientWidth": 3840
+      }
+    },
+    "elements": {
+      "header": {
+        "box": {
+          "left": 0,
+          "right": 3840,
+          "top": 0,
+          "bottom": 50,
+          "width": 3840,
+          "height": 50
+        },
+        "scrollWidth": 3840,
+        "clientWidth": 3840,
+        "scrollHeight": 49,
+        "clientHeight": 49
+      },
+      "controls": {
+        "box": {
+          "left": 0,
+          "right": 3840,
+          "top": 155,
+          "bottom": 539,
+          "width": 3840,
+          "height": 384
+        },
+        "scrollWidth": 3840,
+        "clientWidth": 3840,
+        "scrollHeight": 384,
+        "clientHeight": 384
+      },
+      "diagnostics": {
+        "box": {
+          "left": 24,
+          "right": 3786,
+          "top": 275.78125,
+          "bottom": 480.78125,
+          "width": 3762,
+          "height": 205
+        },
+        "scrollWidth": 3759,
+        "clientWidth": 3759,
+        "scrollHeight": 205,
+        "clientHeight": 205
+      },
+      "graph": {
+        "box": {
+          "left": 0,
+          "right": 3840,
+          "top": 544,
+          "bottom": 2114,
+          "width": 3840,
+          "height": 1570
+        },
+        "scrollWidth": 3840,
+        "clientWidth": 3840,
+        "scrollHeight": 1570,
+        "clientHeight": 1570
+      }
+    },
+    "navigator": {
+      "applicable": false,
+      "reason": "Unsaved rejected-import state renders no Test Data navigator or divider."
+    },
+    "computed": {
+      "values": {
+        "root": {
+          "selector": ".data-import-diagnostics",
+          "matched": true,
+          "tag": "div",
+          "className": "ux-workbench-message data-import-diagnostics",
+          "properties": {
+            "display": "grid",
+            "grid-column": "1 / -1",
+            "gap": "5px",
+            "min-width": "0px",
+            "padding": "7px 8px",
+            "border-left-width": "3px",
+            "border-left-style": "solid",
+            "border-left-color": "rgb(166, 41, 41)",
+            "background-color": "color(srgb 0.988235 0.909804 0.909804 / 0.58)"
+          },
+          "box": {
+            "left": 24,
+            "top": 275.78125,
+            "right": 3786,
+            "bottom": 480.78125,
+            "width": 3762,
+            "height": 205
+          },
+          "scrollWidth": 3759,
+          "clientWidth": 3759,
+          "scrollHeight": 205,
+          "clientHeight": 205
+        },
+        "header": {
+          "selector": ".data-import-diagnostics header",
+          "matched": false
+        },
+        "strong": {
+          "selector": ".data-import-diagnostics header strong",
+          "matched": false
+        },
+        "scrollport": {
+          "selector": ".data-import-diagnostics > div",
+          "matched": true,
+          "tag": "div",
+          "className": "ux-workbench-message-body",
+          "properties": {
+            "overflow-x": "auto",
+            "overflow-y": "auto"
+          },
+          "box": {
+            "left": 35,
+            "top": 305.78125,
+            "right": 3778,
+            "bottom": 473.78125,
+            "width": 3743,
+            "height": 168
+          },
+          "scrollWidth": 3743,
+          "clientWidth": 3743,
+          "scrollHeight": 168,
+          "clientHeight": 168
+        },
+        "table": {
+          "selector": ".data-import-diagnostics table",
+          "matched": true,
+          "tag": "table",
+          "className": "",
+          "properties": {
+            "width": "3743px",
+            "border-collapse": "collapse",
+            "font-size": "12px"
+          },
+          "box": {
+            "left": 35,
+            "top": 323.78125,
+            "right": 3778,
+            "bottom": 473.78125,
+            "width": 3743,
+            "height": 150
+          },
+          "scrollWidth": 3743,
+          "clientWidth": 3743,
+          "scrollHeight": 150,
+          "clientHeight": 150
+        },
+        "th": {
+          "selector": ".data-import-diagnostics th",
+          "matched": true,
+          "tag": "th",
+          "className": "",
+          "properties": {
+            "padding-top": "4px",
+            "padding-right": "6px",
+            "padding-bottom": "4px",
+            "padding-left": "6px",
+            "border-top-width": "1px",
+            "border-top-style": "solid",
+            "border-top-color": "rgb(203, 211, 218)",
+            "text-align": "left",
+            "vertical-align": "top"
+          },
+          "box": {
+            "left": 35,
+            "top": 324.28125,
+            "right": 189.1875,
+            "bottom": 349.28125,
+            "width": 154.1875,
+            "height": 25
+          },
+          "scrollWidth": 154,
+          "clientWidth": 154,
+          "scrollHeight": 24,
+          "clientHeight": 24
+        },
+        "td": {
+          "selector": ".data-import-diagnostics td",
+          "matched": true,
+          "tag": "td",
+          "className": "",
+          "properties": {
+            "padding-top": "4px",
+            "padding-right": "6px",
+            "padding-bottom": "4px",
+            "padding-left": "6px",
+            "border-top-width": "1px",
+            "border-top-style": "solid",
+            "border-top-color": "rgb(203, 211, 218)",
+            "text-align": "left",
+            "vertical-align": "top"
+          },
+          "box": {
+            "left": 35,
+            "top": 349.28125,
+            "right": 189.1875,
+            "bottom": 374.28125,
+            "width": 154.1875,
+            "height": 25
+          },
+          "scrollWidth": 154,
+          "clientWidth": 154,
+          "scrollHeight": 24,
+          "clientHeight": 24
+        }
+      },
+      "rules": [
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            137
+          ],
+          "selectorText": ".data-import-diagnostics",
+          "cssText": ".data-import-diagnostics { display: grid; grid-column: 1 / -1; gap: 5px; min-width: 0px; padding: 7px 8px; border-left: 3px solid var(--ux-danger); background: color-mix(in srgb, var(--ux-danger-soft, #fce8e8) 58%, transparent); }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            138
+          ],
+          "selectorText": ".data-import-diagnostics header",
+          "cssText": ".data-import-diagnostics header { display: grid; gap: 2px; color: var(--ux-text-muted); font-size: 11.5px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            139
+          ],
+          "selectorText": ".data-import-diagnostics header strong",
+          "cssText": ".data-import-diagnostics header strong { color: var(--ux-danger); font-size: 13px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            140
+          ],
+          "selectorText": ".data-import-diagnostics > div",
+          "cssText": ".data-import-diagnostics > div { overflow: auto; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            141
+          ],
+          "selectorText": ".data-import-diagnostics table",
+          "cssText": ".data-import-diagnostics table { width: 100%; border-collapse: collapse; font-size: 12px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            142
+          ],
+          "selectorText": ".data-import-diagnostics th, .data-import-diagnostics td",
+          "cssText": ".data-import-diagnostics th, .data-import-diagnostics td { padding: 4px 6px; border-top: 1px solid var(--ux-border); text-align: left; vertical-align: top; }"
+        }
+      ]
+    },
+    "diagnostic_codes": [
+      "frequency_not_positive",
+      "insufficient_valid_rows",
+      "missing_value",
+      "negative_dma_response",
+      "temperature_below_absolute_zero"
+    ],
+    "import_run_id": "93448f92-1681-498d-bb1d-167f804e8295",
+    "idempotency_key": "b7896671-baee-471b-ad9c-d3fa17c5f497",
+    "document_key": "ISSUE261-M1A3-M-3840X2160-7A88B3",
+    "source_file": "m1a3-m-3840x2160-7a88b3.csv",
+    "source_columns": [
+      "t_m_3840x2160_7a88b3",
+      "f_m_3840x2160_7a88b3",
+      "s_m_3840x2160_7a88b3",
+      "l_m_3840x2160_7a88b3"
+    ],
+    "mapping_notice": "File columns matched."
+  },
+  {
+    "phase": "after",
+    "route": "/datasets/processing",
+    "route_name": "datasets-processing",
+    "state": "import-rejection-diagnostics",
+    "viewport": "1366x768",
+    "browser_zoom_percent": 100,
+    "device_pixel_ratio": 1,
+    "path": "docs/17-evidence/images/issue-261-fe06-m1a3-data-import-diagnostics/after/routes/datasets-processing/modeling-data-import-rejected-1366x768.png",
+    "sha256": "5a96e910bd66a03e2e47e8e62bfa071ee1576f52ebebc88ab4519581570671b0",
+    "layout": {
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "dpr": 1,
+      "visualScale": 1,
+      "document": {
+        "scrollWidth": 1366,
+        "clientWidth": 1366
+      }
+    },
+    "elements": {
+      "header": {
+        "box": {
+          "left": 0,
+          "right": 1366,
+          "top": 0,
+          "bottom": 50,
+          "width": 1366,
+          "height": 50
+        },
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "scrollHeight": 49,
+        "clientHeight": 49
+      },
+      "controls": {
+        "box": {
+          "left": 0,
+          "right": 1366,
+          "top": 155,
+          "bottom": 477,
+          "width": 1366,
+          "height": 322
+        },
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "scrollHeight": 322,
+        "clientHeight": 322
+      },
+      "diagnostics": {
+        "box": {
+          "left": 24,
+          "right": 1312,
+          "top": 213.78125,
+          "bottom": 418.78125,
+          "width": 1288,
+          "height": 205
+        },
+        "scrollWidth": 1285,
+        "clientWidth": 1285,
+        "scrollHeight": 205,
+        "clientHeight": 205
+      },
+      "graph": {
+        "box": {
+          "left": 0,
+          "right": 1366,
+          "top": 482,
+          "bottom": 722,
+          "width": 1366,
+          "height": 240
+        },
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "scrollHeight": 240,
+        "clientHeight": 240
+      }
+    },
+    "navigator": {
+      "applicable": false,
+      "reason": "Unsaved rejected-import state renders no Test Data navigator or divider."
+    },
+    "computed": {
+      "values": {
+        "root": {
+          "selector": ".data-import-diagnostics",
+          "matched": true,
+          "tag": "div",
+          "className": "ux-workbench-message data-import-diagnostics",
+          "properties": {
+            "display": "grid",
+            "grid-column": "1 / -1",
+            "gap": "5px",
+            "min-width": "0px",
+            "padding": "7px 8px",
+            "border-left-width": "3px",
+            "border-left-style": "solid",
+            "border-left-color": "rgb(166, 41, 41)",
+            "background-color": "color(srgb 0.988235 0.909804 0.909804 / 0.58)"
+          },
+          "box": {
+            "left": 24,
+            "top": 213.78125,
+            "right": 1312,
+            "bottom": 418.78125,
+            "width": 1288,
+            "height": 205
+          },
+          "scrollWidth": 1285,
+          "clientWidth": 1285,
+          "scrollHeight": 205,
+          "clientHeight": 205
+        },
+        "header": {
+          "selector": ".data-import-diagnostics header",
+          "matched": false
+        },
+        "strong": {
+          "selector": ".data-import-diagnostics header strong",
+          "matched": false
+        },
+        "scrollport": {
+          "selector": ".data-import-diagnostics > div",
+          "matched": true,
+          "tag": "div",
+          "className": "ux-workbench-message-body",
+          "properties": {
+            "overflow-x": "auto",
+            "overflow-y": "auto"
+          },
+          "box": {
+            "left": 35,
+            "top": 243.78125,
+            "right": 1304,
+            "bottom": 411.78125,
+            "width": 1269,
+            "height": 168
+          },
+          "scrollWidth": 1269,
+          "clientWidth": 1269,
+          "scrollHeight": 168,
+          "clientHeight": 168
+        },
+        "table": {
+          "selector": ".data-import-diagnostics table",
+          "matched": true,
+          "tag": "table",
+          "className": "",
+          "properties": {
+            "width": "1269px",
+            "border-collapse": "collapse",
+            "font-size": "12px"
+          },
+          "box": {
+            "left": 35,
+            "top": 261.78125,
+            "right": 1304,
+            "bottom": 411.78125,
+            "width": 1269,
+            "height": 150
+          },
+          "scrollWidth": 1269,
+          "clientWidth": 1269,
+          "scrollHeight": 150,
+          "clientHeight": 150
+        },
+        "th": {
+          "selector": ".data-import-diagnostics th",
+          "matched": true,
+          "tag": "th",
+          "className": "",
+          "properties": {
+            "padding-top": "4px",
+            "padding-right": "6px",
+            "padding-bottom": "4px",
+            "padding-left": "6px",
+            "border-top-width": "1px",
+            "border-top-style": "solid",
+            "border-top-color": "rgb(203, 211, 218)",
+            "text-align": "left",
+            "vertical-align": "top"
+          },
+          "box": {
+            "left": 35,
+            "top": 262.28125,
+            "right": 87.859375,
+            "bottom": 287.28125,
+            "width": 52.859375,
+            "height": 25
+          },
+          "scrollWidth": 53,
+          "clientWidth": 53,
+          "scrollHeight": 24,
+          "clientHeight": 24
+        },
+        "td": {
+          "selector": ".data-import-diagnostics td",
+          "matched": true,
+          "tag": "td",
+          "className": "",
+          "properties": {
+            "padding-top": "4px",
+            "padding-right": "6px",
+            "padding-bottom": "4px",
+            "padding-left": "6px",
+            "border-top-width": "1px",
+            "border-top-style": "solid",
+            "border-top-color": "rgb(203, 211, 218)",
+            "text-align": "left",
+            "vertical-align": "top"
+          },
+          "box": {
+            "left": 35,
+            "top": 287.28125,
+            "right": 87.859375,
+            "bottom": 312.28125,
+            "width": 52.859375,
+            "height": 25
+          },
+          "scrollWidth": 53,
+          "clientWidth": 53,
+          "scrollHeight": 24,
+          "clientHeight": 24
+        }
+      },
+      "rules": [
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            137
+          ],
+          "selectorText": ".data-import-diagnostics",
+          "cssText": ".data-import-diagnostics { display: grid; grid-column: 1 / -1; gap: 5px; min-width: 0px; padding: 7px 8px; border-left: 3px solid var(--ux-danger); background: color-mix(in srgb, var(--ux-danger-soft, #fce8e8) 58%, transparent); }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            138
+          ],
+          "selectorText": ".data-import-diagnostics header",
+          "cssText": ".data-import-diagnostics header { display: grid; gap: 2px; color: var(--ux-text-muted); font-size: 11.5px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            139
+          ],
+          "selectorText": ".data-import-diagnostics header strong",
+          "cssText": ".data-import-diagnostics header strong { color: var(--ux-danger); font-size: 13px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            140
+          ],
+          "selectorText": ".data-import-diagnostics > div",
+          "cssText": ".data-import-diagnostics > div { overflow: auto; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            141
+          ],
+          "selectorText": ".data-import-diagnostics table",
+          "cssText": ".data-import-diagnostics table { width: 100%; border-collapse: collapse; font-size: 12px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            142
+          ],
+          "selectorText": ".data-import-diagnostics th, .data-import-diagnostics td",
+          "cssText": ".data-import-diagnostics th, .data-import-diagnostics td { padding: 4px 6px; border-top: 1px solid var(--ux-border); text-align: left; vertical-align: top; }"
+        }
+      ]
+    },
+    "diagnostic_codes": [
+      "frequency_not_positive",
+      "insufficient_valid_rows",
+      "missing_value",
+      "negative_dma_response",
+      "temperature_below_absolute_zero"
+    ],
+    "import_run_id": "ee5c2284-8079-4d70-93c7-c1d934480f22",
+    "idempotency_key": "88081fda-4d8e-43e2-8006-18c2c82acc6c",
+    "document_key": "ISSUE261-M1A3-D-1366X768-7A88B3",
+    "source_file": "m1a3-d-1366x768-7a88b3.csv",
+    "source_columns": [
+      "t_d_1366x768_7a88b3",
+      "f_d_1366x768_7a88b3",
+      "s_d_1366x768_7a88b3",
+      "l_d_1366x768_7a88b3"
+    ],
+    "mapping_notice": "File columns matched."
+  },
+  {
+    "phase": "after",
+    "route": "/datasets/processing",
+    "route_name": "datasets-processing",
+    "state": "import-rejection-diagnostics",
+    "viewport": "1440x900",
+    "browser_zoom_percent": 100,
+    "device_pixel_ratio": 1,
+    "path": "docs/17-evidence/images/issue-261-fe06-m1a3-data-import-diagnostics/after/routes/datasets-processing/modeling-data-import-rejected-1440x900.png",
+    "sha256": "3a2ddabe510fb2f18518d8583a114f1b9084a9de5a36ce2ca9155d8c956cc869",
+    "layout": {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "dpr": 1,
+      "visualScale": 1,
+      "document": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    "elements": {
+      "header": {
+        "box": {
+          "left": 0,
+          "right": 1440,
+          "top": 0,
+          "bottom": 50,
+          "width": 1440,
+          "height": 50
+        },
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 49,
+        "clientHeight": 49
+      },
+      "controls": {
+        "box": {
+          "left": 0,
+          "right": 1440,
+          "top": 155,
+          "bottom": 539,
+          "width": 1440,
+          "height": 384
+        },
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 384,
+        "clientHeight": 384
+      },
+      "diagnostics": {
+        "box": {
+          "left": 24,
+          "right": 1386,
+          "top": 275.78125,
+          "bottom": 480.78125,
+          "width": 1362,
+          "height": 205
+        },
+        "scrollWidth": 1359,
+        "clientWidth": 1359,
+        "scrollHeight": 205,
+        "clientHeight": 205
+      },
+      "graph": {
+        "box": {
+          "left": 0,
+          "right": 1440,
+          "top": 544,
+          "bottom": 854,
+          "width": 1440,
+          "height": 310
+        },
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 310,
+        "clientHeight": 310
+      }
+    },
+    "navigator": {
+      "applicable": false,
+      "reason": "Unsaved rejected-import state renders no Test Data navigator or divider."
+    },
+    "computed": {
+      "values": {
+        "root": {
+          "selector": ".data-import-diagnostics",
+          "matched": true,
+          "tag": "div",
+          "className": "ux-workbench-message data-import-diagnostics",
+          "properties": {
+            "display": "grid",
+            "grid-column": "1 / -1",
+            "gap": "5px",
+            "min-width": "0px",
+            "padding": "7px 8px",
+            "border-left-width": "3px",
+            "border-left-style": "solid",
+            "border-left-color": "rgb(166, 41, 41)",
+            "background-color": "color(srgb 0.988235 0.909804 0.909804 / 0.58)"
+          },
+          "box": {
+            "left": 24,
+            "top": 275.78125,
+            "right": 1386,
+            "bottom": 480.78125,
+            "width": 1362,
+            "height": 205
+          },
+          "scrollWidth": 1359,
+          "clientWidth": 1359,
+          "scrollHeight": 205,
+          "clientHeight": 205
+        },
+        "header": {
+          "selector": ".data-import-diagnostics header",
+          "matched": false
+        },
+        "strong": {
+          "selector": ".data-import-diagnostics header strong",
+          "matched": false
+        },
+        "scrollport": {
+          "selector": ".data-import-diagnostics > div",
+          "matched": true,
+          "tag": "div",
+          "className": "ux-workbench-message-body",
+          "properties": {
+            "overflow-x": "auto",
+            "overflow-y": "auto"
+          },
+          "box": {
+            "left": 35,
+            "top": 305.78125,
+            "right": 1378,
+            "bottom": 473.78125,
+            "width": 1343,
+            "height": 168
+          },
+          "scrollWidth": 1343,
+          "clientWidth": 1343,
+          "scrollHeight": 168,
+          "clientHeight": 168
+        },
+        "table": {
+          "selector": ".data-import-diagnostics table",
+          "matched": true,
+          "tag": "table",
+          "className": "",
+          "properties": {
+            "width": "1343px",
+            "border-collapse": "collapse",
+            "font-size": "12px"
+          },
+          "box": {
+            "left": 35,
+            "top": 323.78125,
+            "right": 1378,
+            "bottom": 473.78125,
+            "width": 1343,
+            "height": 150
+          },
+          "scrollWidth": 1343,
+          "clientWidth": 1343,
+          "scrollHeight": 150,
+          "clientHeight": 150
+        },
+        "th": {
+          "selector": ".data-import-diagnostics th",
+          "matched": true,
+          "tag": "th",
+          "className": "",
+          "properties": {
+            "padding-top": "4px",
+            "padding-right": "6px",
+            "padding-bottom": "4px",
+            "padding-left": "6px",
+            "border-top-width": "1px",
+            "border-top-style": "solid",
+            "border-top-color": "rgb(203, 211, 218)",
+            "text-align": "left",
+            "vertical-align": "top"
+          },
+          "box": {
+            "left": 35,
+            "top": 324.28125,
+            "right": 90.9375,
+            "bottom": 349.28125,
+            "width": 55.9375,
+            "height": 25
+          },
+          "scrollWidth": 56,
+          "clientWidth": 56,
+          "scrollHeight": 24,
+          "clientHeight": 24
+        },
+        "td": {
+          "selector": ".data-import-diagnostics td",
+          "matched": true,
+          "tag": "td",
+          "className": "",
+          "properties": {
+            "padding-top": "4px",
+            "padding-right": "6px",
+            "padding-bottom": "4px",
+            "padding-left": "6px",
+            "border-top-width": "1px",
+            "border-top-style": "solid",
+            "border-top-color": "rgb(203, 211, 218)",
+            "text-align": "left",
+            "vertical-align": "top"
+          },
+          "box": {
+            "left": 35,
+            "top": 349.28125,
+            "right": 90.9375,
+            "bottom": 374.28125,
+            "width": 55.9375,
+            "height": 25
+          },
+          "scrollWidth": 56,
+          "clientWidth": 56,
+          "scrollHeight": 24,
+          "clientHeight": 24
+        }
+      },
+      "rules": [
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            137
+          ],
+          "selectorText": ".data-import-diagnostics",
+          "cssText": ".data-import-diagnostics { display: grid; grid-column: 1 / -1; gap: 5px; min-width: 0px; padding: 7px 8px; border-left: 3px solid var(--ux-danger); background: color-mix(in srgb, var(--ux-danger-soft, #fce8e8) 58%, transparent); }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            138
+          ],
+          "selectorText": ".data-import-diagnostics header",
+          "cssText": ".data-import-diagnostics header { display: grid; gap: 2px; color: var(--ux-text-muted); font-size: 11.5px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            139
+          ],
+          "selectorText": ".data-import-diagnostics header strong",
+          "cssText": ".data-import-diagnostics header strong { color: var(--ux-danger); font-size: 13px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            140
+          ],
+          "selectorText": ".data-import-diagnostics > div",
+          "cssText": ".data-import-diagnostics > div { overflow: auto; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            141
+          ],
+          "selectorText": ".data-import-diagnostics table",
+          "cssText": ".data-import-diagnostics table { width: 100%; border-collapse: collapse; font-size: 12px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            142
+          ],
+          "selectorText": ".data-import-diagnostics th, .data-import-diagnostics td",
+          "cssText": ".data-import-diagnostics th, .data-import-diagnostics td { padding: 4px 6px; border-top: 1px solid var(--ux-border); text-align: left; vertical-align: top; }"
+        }
+      ]
+    },
+    "diagnostic_codes": [
+      "frequency_not_positive",
+      "insufficient_valid_rows",
+      "missing_value",
+      "negative_dma_response",
+      "temperature_below_absolute_zero"
+    ],
+    "import_run_id": "d8ae67c8-cc50-4a57-abfc-d6d552f27525",
+    "idempotency_key": "5d8a5f95-d7b0-4f30-ab63-33ee426c410a",
+    "document_key": "ISSUE261-M1A3-D-1440X900-7A88B3",
+    "source_file": "m1a3-d-1440x900-7a88b3.csv",
+    "source_columns": [
+      "t_d_1440x900_7a88b3",
+      "f_d_1440x900_7a88b3",
+      "s_d_1440x900_7a88b3",
+      "l_d_1440x900_7a88b3"
+    ],
+    "mapping_notice": "File columns matched."
+  },
+  {
+    "phase": "after",
+    "route": "/datasets/processing",
+    "route_name": "datasets-processing",
+    "state": "import-rejection-diagnostics",
+    "viewport": "1920x1080",
+    "browser_zoom_percent": 100,
+    "device_pixel_ratio": 1,
+    "path": "docs/17-evidence/images/issue-261-fe06-m1a3-data-import-diagnostics/after/routes/datasets-processing/modeling-data-import-rejected-1920x1080.png",
+    "sha256": "3b2c8fdabfa7fe7bed2f7f15916300c7470ef12f9d726b582941b5f7edf3fbd7",
+    "layout": {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dpr": 1,
+      "visualScale": 1,
+      "document": {
+        "scrollWidth": 1920,
+        "clientWidth": 1920
+      }
+    },
+    "elements": {
+      "header": {
+        "box": {
+          "left": 0,
+          "right": 1920,
+          "top": 0,
+          "bottom": 50,
+          "width": 1920,
+          "height": 50
+        },
+        "scrollWidth": 1920,
+        "clientWidth": 1920,
+        "scrollHeight": 49,
+        "clientHeight": 49
+      },
+      "controls": {
+        "box": {
+          "left": 0,
+          "right": 1920,
+          "top": 155,
+          "bottom": 539,
+          "width": 1920,
+          "height": 384
+        },
+        "scrollWidth": 1920,
+        "clientWidth": 1920,
+        "scrollHeight": 384,
+        "clientHeight": 384
+      },
+      "diagnostics": {
+        "box": {
+          "left": 24,
+          "right": 1866,
+          "top": 275.78125,
+          "bottom": 480.78125,
+          "width": 1842,
+          "height": 205
+        },
+        "scrollWidth": 1839,
+        "clientWidth": 1839,
+        "scrollHeight": 205,
+        "clientHeight": 205
+      },
+      "graph": {
+        "box": {
+          "left": 0,
+          "right": 1920,
+          "top": 544,
+          "bottom": 1034,
+          "width": 1920,
+          "height": 490
+        },
+        "scrollWidth": 1920,
+        "clientWidth": 1920,
+        "scrollHeight": 490,
+        "clientHeight": 490
+      }
+    },
+    "navigator": {
+      "applicable": false,
+      "reason": "Unsaved rejected-import state renders no Test Data navigator or divider."
+    },
+    "computed": {
+      "values": {
+        "root": {
+          "selector": ".data-import-diagnostics",
+          "matched": true,
+          "tag": "div",
+          "className": "ux-workbench-message data-import-diagnostics",
+          "properties": {
+            "display": "grid",
+            "grid-column": "1 / -1",
+            "gap": "5px",
+            "min-width": "0px",
+            "padding": "7px 8px",
+            "border-left-width": "3px",
+            "border-left-style": "solid",
+            "border-left-color": "rgb(166, 41, 41)",
+            "background-color": "color(srgb 0.988235 0.909804 0.909804 / 0.58)"
+          },
+          "box": {
+            "left": 24,
+            "top": 275.78125,
+            "right": 1866,
+            "bottom": 480.78125,
+            "width": 1842,
+            "height": 205
+          },
+          "scrollWidth": 1839,
+          "clientWidth": 1839,
+          "scrollHeight": 205,
+          "clientHeight": 205
+        },
+        "header": {
+          "selector": ".data-import-diagnostics header",
+          "matched": false
+        },
+        "strong": {
+          "selector": ".data-import-diagnostics header strong",
+          "matched": false
+        },
+        "scrollport": {
+          "selector": ".data-import-diagnostics > div",
+          "matched": true,
+          "tag": "div",
+          "className": "ux-workbench-message-body",
+          "properties": {
+            "overflow-x": "auto",
+            "overflow-y": "auto"
+          },
+          "box": {
+            "left": 35,
+            "top": 305.78125,
+            "right": 1858,
+            "bottom": 473.78125,
+            "width": 1823,
+            "height": 168
+          },
+          "scrollWidth": 1823,
+          "clientWidth": 1823,
+          "scrollHeight": 168,
+          "clientHeight": 168
+        },
+        "table": {
+          "selector": ".data-import-diagnostics table",
+          "matched": true,
+          "tag": "table",
+          "className": "",
+          "properties": {
+            "width": "1823px",
+            "border-collapse": "collapse",
+            "font-size": "12px"
+          },
+          "box": {
+            "left": 35,
+            "top": 323.78125,
+            "right": 1858,
+            "bottom": 473.78125,
+            "width": 1823,
+            "height": 150
+          },
+          "scrollWidth": 1823,
+          "clientWidth": 1823,
+          "scrollHeight": 150,
+          "clientHeight": 150
+        },
+        "th": {
+          "selector": ".data-import-diagnostics th",
+          "matched": true,
+          "tag": "th",
+          "className": "",
+          "properties": {
+            "padding-top": "4px",
+            "padding-right": "6px",
+            "padding-bottom": "4px",
+            "padding-left": "6px",
+            "border-top-width": "1px",
+            "border-top-style": "solid",
+            "border-top-color": "rgb(203, 211, 218)",
+            "text-align": "left",
+            "vertical-align": "top"
+          },
+          "box": {
+            "left": 35,
+            "top": 324.28125,
+            "right": 110.375,
+            "bottom": 349.28125,
+            "width": 75.375,
+            "height": 25
+          },
+          "scrollWidth": 75,
+          "clientWidth": 75,
+          "scrollHeight": 24,
+          "clientHeight": 24
+        },
+        "td": {
+          "selector": ".data-import-diagnostics td",
+          "matched": true,
+          "tag": "td",
+          "className": "",
+          "properties": {
+            "padding-top": "4px",
+            "padding-right": "6px",
+            "padding-bottom": "4px",
+            "padding-left": "6px",
+            "border-top-width": "1px",
+            "border-top-style": "solid",
+            "border-top-color": "rgb(203, 211, 218)",
+            "text-align": "left",
+            "vertical-align": "top"
+          },
+          "box": {
+            "left": 35,
+            "top": 349.28125,
+            "right": 110.375,
+            "bottom": 374.28125,
+            "width": 75.375,
+            "height": 25
+          },
+          "scrollWidth": 75,
+          "clientWidth": 75,
+          "scrollHeight": 24,
+          "clientHeight": 24
+        }
+      },
+      "rules": [
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            137
+          ],
+          "selectorText": ".data-import-diagnostics",
+          "cssText": ".data-import-diagnostics { display: grid; grid-column: 1 / -1; gap: 5px; min-width: 0px; padding: 7px 8px; border-left: 3px solid var(--ux-danger); background: color-mix(in srgb, var(--ux-danger-soft, #fce8e8) 58%, transparent); }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            138
+          ],
+          "selectorText": ".data-import-diagnostics header",
+          "cssText": ".data-import-diagnostics header { display: grid; gap: 2px; color: var(--ux-text-muted); font-size: 11.5px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            139
+          ],
+          "selectorText": ".data-import-diagnostics header strong",
+          "cssText": ".data-import-diagnostics header strong { color: var(--ux-danger); font-size: 13px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            140
+          ],
+          "selectorText": ".data-import-diagnostics > div",
+          "cssText": ".data-import-diagnostics > div { overflow: auto; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            141
+          ],
+          "selectorText": ".data-import-diagnostics table",
+          "cssText": ".data-import-diagnostics table { width: 100%; border-collapse: collapse; font-size: 12px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            142
+          ],
+          "selectorText": ".data-import-diagnostics th, .data-import-diagnostics td",
+          "cssText": ".data-import-diagnostics th, .data-import-diagnostics td { padding: 4px 6px; border-top: 1px solid var(--ux-border); text-align: left; vertical-align: top; }"
+        }
+      ]
+    },
+    "diagnostic_codes": [
+      "frequency_not_positive",
+      "insufficient_valid_rows",
+      "missing_value",
+      "negative_dma_response",
+      "temperature_below_absolute_zero"
+    ],
+    "import_run_id": "ef252a5f-a6db-4542-b2e1-69d773c41250",
+    "idempotency_key": "5d19a809-e197-45b3-8f63-b261c0dca75b",
+    "document_key": "ISSUE261-M1A3-D-1920X1080-7A88B3",
+    "source_file": "m1a3-d-1920x1080-7a88b3.csv",
+    "source_columns": [
+      "t_d_1920x1080_7a88b3",
+      "f_d_1920x1080_7a88b3",
+      "s_d_1920x1080_7a88b3",
+      "l_d_1920x1080_7a88b3"
+    ],
+    "mapping_notice": "File columns matched."
+  },
+  {
+    "phase": "after",
+    "route": "/datasets/processing",
+    "route_name": "datasets-processing",
+    "state": "import-rejection-diagnostics",
+    "viewport": "2560x1440",
+    "browser_zoom_percent": 100,
+    "device_pixel_ratio": 1,
+    "path": "docs/17-evidence/images/issue-261-fe06-m1a3-data-import-diagnostics/after/routes/datasets-processing/modeling-data-import-rejected-2560x1440.png",
+    "sha256": "6adc0748c701d9d3c53bc226c656961e86dbd921100c7fbe6d57dbd206186599",
+    "layout": {
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "dpr": 1,
+      "visualScale": 1,
+      "document": {
+        "scrollWidth": 2560,
+        "clientWidth": 2560
+      }
+    },
+    "elements": {
+      "header": {
+        "box": {
+          "left": 0,
+          "right": 2560,
+          "top": 0,
+          "bottom": 50,
+          "width": 2560,
+          "height": 50
+        },
+        "scrollWidth": 2560,
+        "clientWidth": 2560,
+        "scrollHeight": 49,
+        "clientHeight": 49
+      },
+      "controls": {
+        "box": {
+          "left": 0,
+          "right": 2560,
+          "top": 155,
+          "bottom": 539,
+          "width": 2560,
+          "height": 384
+        },
+        "scrollWidth": 2560,
+        "clientWidth": 2560,
+        "scrollHeight": 384,
+        "clientHeight": 384
+      },
+      "diagnostics": {
+        "box": {
+          "left": 24,
+          "right": 2506,
+          "top": 275.78125,
+          "bottom": 480.78125,
+          "width": 2482,
+          "height": 205
+        },
+        "scrollWidth": 2479,
+        "clientWidth": 2479,
+        "scrollHeight": 205,
+        "clientHeight": 205
+      },
+      "graph": {
+        "box": {
+          "left": 0,
+          "right": 2560,
+          "top": 544,
+          "bottom": 1394,
+          "width": 2560,
+          "height": 850
+        },
+        "scrollWidth": 2560,
+        "clientWidth": 2560,
+        "scrollHeight": 850,
+        "clientHeight": 850
+      }
+    },
+    "navigator": {
+      "applicable": false,
+      "reason": "Unsaved rejected-import state renders no Test Data navigator or divider."
+    },
+    "computed": {
+      "values": {
+        "root": {
+          "selector": ".data-import-diagnostics",
+          "matched": true,
+          "tag": "div",
+          "className": "ux-workbench-message data-import-diagnostics",
+          "properties": {
+            "display": "grid",
+            "grid-column": "1 / -1",
+            "gap": "5px",
+            "min-width": "0px",
+            "padding": "7px 8px",
+            "border-left-width": "3px",
+            "border-left-style": "solid",
+            "border-left-color": "rgb(166, 41, 41)",
+            "background-color": "color(srgb 0.988235 0.909804 0.909804 / 0.58)"
+          },
+          "box": {
+            "left": 24,
+            "top": 275.78125,
+            "right": 2506,
+            "bottom": 480.78125,
+            "width": 2482,
+            "height": 205
+          },
+          "scrollWidth": 2479,
+          "clientWidth": 2479,
+          "scrollHeight": 205,
+          "clientHeight": 205
+        },
+        "header": {
+          "selector": ".data-import-diagnostics header",
+          "matched": false
+        },
+        "strong": {
+          "selector": ".data-import-diagnostics header strong",
+          "matched": false
+        },
+        "scrollport": {
+          "selector": ".data-import-diagnostics > div",
+          "matched": true,
+          "tag": "div",
+          "className": "ux-workbench-message-body",
+          "properties": {
+            "overflow-x": "auto",
+            "overflow-y": "auto"
+          },
+          "box": {
+            "left": 35,
+            "top": 305.78125,
+            "right": 2498,
+            "bottom": 473.78125,
+            "width": 2463,
+            "height": 168
+          },
+          "scrollWidth": 2463,
+          "clientWidth": 2463,
+          "scrollHeight": 168,
+          "clientHeight": 168
+        },
+        "table": {
+          "selector": ".data-import-diagnostics table",
+          "matched": true,
+          "tag": "table",
+          "className": "",
+          "properties": {
+            "width": "2463px",
+            "border-collapse": "collapse",
+            "font-size": "12px"
+          },
+          "box": {
+            "left": 35,
+            "top": 323.78125,
+            "right": 2498,
+            "bottom": 473.78125,
+            "width": 2463,
+            "height": 150
+          },
+          "scrollWidth": 2463,
+          "clientWidth": 2463,
+          "scrollHeight": 150,
+          "clientHeight": 150
+        },
+        "th": {
+          "selector": ".data-import-diagnostics th",
+          "matched": true,
+          "tag": "th",
+          "className": "",
+          "properties": {
+            "padding-top": "4px",
+            "padding-right": "6px",
+            "padding-bottom": "4px",
+            "padding-left": "6px",
+            "border-top-width": "1px",
+            "border-top-style": "solid",
+            "border-top-color": "rgb(203, 211, 218)",
+            "text-align": "left",
+            "vertical-align": "top"
+          },
+          "box": {
+            "left": 35,
+            "top": 324.28125,
+            "right": 136.84375,
+            "bottom": 349.28125,
+            "width": 101.84375,
+            "height": 25
+          },
+          "scrollWidth": 102,
+          "clientWidth": 102,
+          "scrollHeight": 24,
+          "clientHeight": 24
+        },
+        "td": {
+          "selector": ".data-import-diagnostics td",
+          "matched": true,
+          "tag": "td",
+          "className": "",
+          "properties": {
+            "padding-top": "4px",
+            "padding-right": "6px",
+            "padding-bottom": "4px",
+            "padding-left": "6px",
+            "border-top-width": "1px",
+            "border-top-style": "solid",
+            "border-top-color": "rgb(203, 211, 218)",
+            "text-align": "left",
+            "vertical-align": "top"
+          },
+          "box": {
+            "left": 35,
+            "top": 349.28125,
+            "right": 136.84375,
+            "bottom": 374.28125,
+            "width": 101.84375,
+            "height": 25
+          },
+          "scrollWidth": 102,
+          "clientWidth": 102,
+          "scrollHeight": 24,
+          "clientHeight": 24
+        }
+      },
+      "rules": [
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            137
+          ],
+          "selectorText": ".data-import-diagnostics",
+          "cssText": ".data-import-diagnostics { display: grid; grid-column: 1 / -1; gap: 5px; min-width: 0px; padding: 7px 8px; border-left: 3px solid var(--ux-danger); background: color-mix(in srgb, var(--ux-danger-soft, #fce8e8) 58%, transparent); }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            138
+          ],
+          "selectorText": ".data-import-diagnostics header",
+          "cssText": ".data-import-diagnostics header { display: grid; gap: 2px; color: var(--ux-text-muted); font-size: 11.5px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            139
+          ],
+          "selectorText": ".data-import-diagnostics header strong",
+          "cssText": ".data-import-diagnostics header strong { color: var(--ux-danger); font-size: 13px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            140
+          ],
+          "selectorText": ".data-import-diagnostics > div",
+          "cssText": ".data-import-diagnostics > div { overflow: auto; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            141
+          ],
+          "selectorText": ".data-import-diagnostics table",
+          "cssText": ".data-import-diagnostics table { width: 100%; border-collapse: collapse; font-size: 12px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            142
+          ],
+          "selectorText": ".data-import-diagnostics th, .data-import-diagnostics td",
+          "cssText": ".data-import-diagnostics th, .data-import-diagnostics td { padding: 4px 6px; border-top: 1px solid var(--ux-border); text-align: left; vertical-align: top; }"
+        }
+      ]
+    },
+    "diagnostic_codes": [
+      "frequency_not_positive",
+      "insufficient_valid_rows",
+      "missing_value",
+      "negative_dma_response",
+      "temperature_below_absolute_zero"
+    ],
+    "import_run_id": "ab19bab7-e4ed-48b8-a436-87e1dac76ce5",
+    "idempotency_key": "bad23ae8-691c-48c7-b1c2-d69d90c14fce",
+    "document_key": "ISSUE261-M1A3-D-2560X1440-7A88B3",
+    "source_file": "m1a3-d-2560x1440-7a88b3.csv",
+    "source_columns": [
+      "t_d_2560x1440_7a88b3",
+      "f_d_2560x1440_7a88b3",
+      "s_d_2560x1440_7a88b3",
+      "l_d_2560x1440_7a88b3"
+    ],
+    "mapping_notice": "File columns matched."
+  },
+  {
+    "phase": "after",
+    "route": "/datasets/processing",
+    "route_name": "datasets-processing",
+    "state": "import-rejection-diagnostics",
+    "viewport": "3840x2160",
+    "browser_zoom_percent": 100,
+    "device_pixel_ratio": 1,
+    "path": "docs/17-evidence/images/issue-261-fe06-m1a3-data-import-diagnostics/after/routes/datasets-processing/modeling-data-import-rejected-3840x2160.png",
+    "sha256": "c137306d5223c548eaa7159c1bc4010e8002a92d48accd0b4d1fad30e82affd2",
+    "layout": {
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "dpr": 1,
+      "visualScale": 1,
+      "document": {
+        "scrollWidth": 3840,
+        "clientWidth": 3840
+      }
+    },
+    "elements": {
+      "header": {
+        "box": {
+          "left": 0,
+          "right": 3840,
+          "top": 0,
+          "bottom": 50,
+          "width": 3840,
+          "height": 50
+        },
+        "scrollWidth": 3840,
+        "clientWidth": 3840,
+        "scrollHeight": 49,
+        "clientHeight": 49
+      },
+      "controls": {
+        "box": {
+          "left": 0,
+          "right": 3840,
+          "top": 155,
+          "bottom": 539,
+          "width": 3840,
+          "height": 384
+        },
+        "scrollWidth": 3840,
+        "clientWidth": 3840,
+        "scrollHeight": 384,
+        "clientHeight": 384
+      },
+      "diagnostics": {
+        "box": {
+          "left": 24,
+          "right": 3786,
+          "top": 275.78125,
+          "bottom": 480.78125,
+          "width": 3762,
+          "height": 205
+        },
+        "scrollWidth": 3759,
+        "clientWidth": 3759,
+        "scrollHeight": 205,
+        "clientHeight": 205
+      },
+      "graph": {
+        "box": {
+          "left": 0,
+          "right": 3840,
+          "top": 544,
+          "bottom": 2114,
+          "width": 3840,
+          "height": 1570
+        },
+        "scrollWidth": 3840,
+        "clientWidth": 3840,
+        "scrollHeight": 1570,
+        "clientHeight": 1570
+      }
+    },
+    "navigator": {
+      "applicable": false,
+      "reason": "Unsaved rejected-import state renders no Test Data navigator or divider."
+    },
+    "computed": {
+      "values": {
+        "root": {
+          "selector": ".data-import-diagnostics",
+          "matched": true,
+          "tag": "div",
+          "className": "ux-workbench-message data-import-diagnostics",
+          "properties": {
+            "display": "grid",
+            "grid-column": "1 / -1",
+            "gap": "5px",
+            "min-width": "0px",
+            "padding": "7px 8px",
+            "border-left-width": "3px",
+            "border-left-style": "solid",
+            "border-left-color": "rgb(166, 41, 41)",
+            "background-color": "color(srgb 0.988235 0.909804 0.909804 / 0.58)"
+          },
+          "box": {
+            "left": 24,
+            "top": 275.78125,
+            "right": 3786,
+            "bottom": 480.78125,
+            "width": 3762,
+            "height": 205
+          },
+          "scrollWidth": 3759,
+          "clientWidth": 3759,
+          "scrollHeight": 205,
+          "clientHeight": 205
+        },
+        "header": {
+          "selector": ".data-import-diagnostics header",
+          "matched": false
+        },
+        "strong": {
+          "selector": ".data-import-diagnostics header strong",
+          "matched": false
+        },
+        "scrollport": {
+          "selector": ".data-import-diagnostics > div",
+          "matched": true,
+          "tag": "div",
+          "className": "ux-workbench-message-body",
+          "properties": {
+            "overflow-x": "auto",
+            "overflow-y": "auto"
+          },
+          "box": {
+            "left": 35,
+            "top": 305.78125,
+            "right": 3778,
+            "bottom": 473.78125,
+            "width": 3743,
+            "height": 168
+          },
+          "scrollWidth": 3743,
+          "clientWidth": 3743,
+          "scrollHeight": 168,
+          "clientHeight": 168
+        },
+        "table": {
+          "selector": ".data-import-diagnostics table",
+          "matched": true,
+          "tag": "table",
+          "className": "",
+          "properties": {
+            "width": "3743px",
+            "border-collapse": "collapse",
+            "font-size": "12px"
+          },
+          "box": {
+            "left": 35,
+            "top": 323.78125,
+            "right": 3778,
+            "bottom": 473.78125,
+            "width": 3743,
+            "height": 150
+          },
+          "scrollWidth": 3743,
+          "clientWidth": 3743,
+          "scrollHeight": 150,
+          "clientHeight": 150
+        },
+        "th": {
+          "selector": ".data-import-diagnostics th",
+          "matched": true,
+          "tag": "th",
+          "className": "",
+          "properties": {
+            "padding-top": "4px",
+            "padding-right": "6px",
+            "padding-bottom": "4px",
+            "padding-left": "6px",
+            "border-top-width": "1px",
+            "border-top-style": "solid",
+            "border-top-color": "rgb(203, 211, 218)",
+            "text-align": "left",
+            "vertical-align": "top"
+          },
+          "box": {
+            "left": 35,
+            "top": 324.28125,
+            "right": 189.765625,
+            "bottom": 349.28125,
+            "width": 154.765625,
+            "height": 25
+          },
+          "scrollWidth": 155,
+          "clientWidth": 155,
+          "scrollHeight": 24,
+          "clientHeight": 24
+        },
+        "td": {
+          "selector": ".data-import-diagnostics td",
+          "matched": true,
+          "tag": "td",
+          "className": "",
+          "properties": {
+            "padding-top": "4px",
+            "padding-right": "6px",
+            "padding-bottom": "4px",
+            "padding-left": "6px",
+            "border-top-width": "1px",
+            "border-top-style": "solid",
+            "border-top-color": "rgb(203, 211, 218)",
+            "text-align": "left",
+            "vertical-align": "top"
+          },
+          "box": {
+            "left": 35,
+            "top": 349.28125,
+            "right": 189.765625,
+            "bottom": 374.28125,
+            "width": 154.765625,
+            "height": 25
+          },
+          "scrollWidth": 155,
+          "clientWidth": 155,
+          "scrollHeight": 24,
+          "clientHeight": 24
+        }
+      },
+      "rules": [
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            137
+          ],
+          "selectorText": ".data-import-diagnostics",
+          "cssText": ".data-import-diagnostics { display: grid; grid-column: 1 / -1; gap: 5px; min-width: 0px; padding: 7px 8px; border-left: 3px solid var(--ux-danger); background: color-mix(in srgb, var(--ux-danger-soft, #fce8e8) 58%, transparent); }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            138
+          ],
+          "selectorText": ".data-import-diagnostics header",
+          "cssText": ".data-import-diagnostics header { display: grid; gap: 2px; color: var(--ux-text-muted); font-size: 11.5px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            139
+          ],
+          "selectorText": ".data-import-diagnostics header strong",
+          "cssText": ".data-import-diagnostics header strong { color: var(--ux-danger); font-size: 13px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            140
+          ],
+          "selectorText": ".data-import-diagnostics > div",
+          "cssText": ".data-import-diagnostics > div { overflow: auto; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            141
+          ],
+          "selectorText": ".data-import-diagnostics table",
+          "cssText": ".data-import-diagnostics table { width: 100%; border-collapse: collapse; font-size: 12px; }"
+        },
+        {
+          "sheetIndex": 7,
+          "owner": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m1a3-data-import-diagnostics/apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+          "rulePath": [
+            142
+          ],
+          "selectorText": ".data-import-diagnostics th, .data-import-diagnostics td",
+          "cssText": ".data-import-diagnostics th, .data-import-diagnostics td { padding: 4px 6px; border-top: 1px solid var(--ux-border); text-align: left; vertical-align: top; }"
+        }
+      ]
+    },
+    "diagnostic_codes": [
+      "frequency_not_positive",
+      "insufficient_valid_rows",
+      "missing_value",
+      "negative_dma_response",
+      "temperature_below_absolute_zero"
+    ],
+    "import_run_id": "46064edf-aab6-42b6-9c8c-54d3639bfce1",
+    "idempotency_key": "57eee903-15ad-45c4-a4c8-7a846c8f5d5f",
+    "document_key": "ISSUE261-M1A3-D-3840X2160-7A88B3",
+    "source_file": "m1a3-d-3840x2160-7a88b3.csv",
+    "source_columns": [
+      "t_d_3840x2160_7a88b3",
+      "f_d_3840x2160_7a88b3",
+      "s_d_3840x2160_7a88b3",
+      "l_d_3840x2160_7a88b3"
+    ],
+    "mapping_notice": "File columns matched."
+  }
+]

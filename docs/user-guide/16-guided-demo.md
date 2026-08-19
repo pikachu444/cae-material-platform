@@ -66,6 +66,9 @@ docker compose -f deploy/compose/docker-compose.demo.yml up -d --build
    Processing Output, Material Model IR, Neutral Material과 두 Solver Card의 계보를 확인합니다.
 4. **Related / Workflow**에서 현재 revision의 양방향 링크와 immutable history를 확인합니다.
    링크를 누르면 해당 Datasheet 또는 실제 Modeling 작업공간으로 이동합니다.
+   DP780의 직접 연결에는 23 °C 기준, 80 °C, 저속, 고속의 인장 조건 네 개와 Nakajima,
+   Marciniak FLD 두 개가 있습니다. 이름 끝의 `synthetic reference`는 모두 비생산 합성 예제임을
+   뜻합니다.
 5. 중앙 **Overview**와 **Properties**에서 density, Young's modulus, Poisson's ratio와 yield stress를 확인합니다.
    원본 `g/cm^3`, `MPa` 값과 normalized `kg/m^3`, `Pa` 값이 함께 보여야 합니다.
 6. 상단에서 `DP780`을 검색하고 Material과 Material State의 **Compare**를 선택한 뒤 Layout
@@ -81,14 +84,25 @@ docker compose -f deploy/compose/docker-compose.demo.yml up -d --build
 
 1. Materials에서 `DP780`을 검색하고 결과를 선택합니다.
 2. **Overview / Properties / Curves**에서 Material, State, 주요 물성과 시험 curve를 확인합니다.
-3. **Modeling에서 사용**으로 이동해 **Data**에서 네 개의 독립 인장시험과 raw/normalized curve를 확인합니다.
-4. **Process / Fit**에서 탄성 구간, proof stress, true plastic strain, necking과 hardening
+3. **Related exact records**에서 23 °C 기준, 80 °C, 저속, 고속의 인장 Record 네 개를 확인합니다.
+   이 Record들은 대표 조건을 구분하는 예제입니다.
+4. **Modeling에서 사용**으로 이동해 **Data**에서 같은 합성 기준시험의 세 반복
+   (`CMP-DEMO-DP780-TEST-JSON`, `-02`, `-03`)과 raw/normalized curve를 확인합니다. Materials의
+   네 조건 Record와 Modeling의 세 반복을 합치거나 중복 데이터로 해석하지 마십시오.
+5. Materials로 돌아가 고속 인장 Record를 열고 exact r1 링크가
+   `selected tabulated model · synthetic reference`로
+   이어지는지 확인합니다. 이는 제품 선택 정책이 아니라 비생산 합성 흐름을 보여 주는 저장된
+   선택 예제입니다.
+6. **Process / Fit**에서 탄성 구간, proof stress, true plastic strain, necking과 hardening
    후보를 확인합니다. 처리 방법을 바꾸면 기존 결과를 덮어쓰지 않고 Recipe revision을 만듭니다.
-5. **Export**에서 exact Processing Output을 참조하는 tabulated-plasticity IR을 엽니다.
-6. Abaqus와 OpenRadioss의 전달 확인을 살핀 뒤 native preview를 엽니다. DP780 카드는 두 solver
+7. **Export**에서 exact Processing Output을 참조하는 tabulated-plasticity IR을 엽니다.
+8. Abaqus와 OpenRadioss의 전달 확인을 살핀 뒤 native preview를 엽니다. DP780 카드는 두 solver
    모두 **Preview card**를 열고 전달 안내를 확인한 다음 각각 `.inp` 또는 `.rad`를 내려받습니다.
    확인이 필요 없는 카드는 바로 내려받을 수 있습니다.
-7. Materials의 **CAE Cards** 탭에서 위 흐름을 실행한 뒤 **Activity**에서 선택 모델의 `Waiting for
+   Browse Tree의 **Solver Cards** 범주를 열면
+   `DP780 Abaqus native material card · synthetic reference`라는 별도 solver card Record도 찾을 수
+   있습니다. 이 예제는 solver 선택 정책이나 설계 승인값을 뜻하지 않습니다.
+9. Materials의 **CAE Cards** 탭에서 위 흐름을 실행한 뒤 **Activity**에서 선택 모델의 `Waiting for
    review` 항목을 확인하되 승인이나 release는 실행하지 않습니다.
 
 상세 조작은 [Steel 탄소성 가이드](02-steel-elastoplastic.md)를 따릅니다.
@@ -138,6 +152,8 @@ ZIP 안의 solver card는 JSON 문자열이 아니라 solver-native ASCII 파일
 - Material이 3개보다 적으면 `docker compose ... logs seed`에서 첫 실패를 확인합니다.
 - 로그인 화면이 계속되면 Docker 서비스 상태를 확인한 뒤 **Try again**을 누릅니다.
 - `make demo-verify`가 card 누락을 보고하면 mapping report와 Material Model revision을 확인합니다.
+- `meaningful Demo Test Data`, `meaningful Demo Simulation Data` 또는 `meaningful Demo Modeling
+  repeats` 오류가 나오면 메시지에 표시된 누락·중복 key와 해당 exact revision을 먼저 확인합니다.
 - 반복 seed 또는 domain binding이 실패하면 출력된 `repeat demo seed`와 Catalog projection 단계부터
   확인합니다. 이 검사는 영구 Demo DB를 수정하지 않습니다.
 - 포트 충돌, migration 또는 worker 문제는 [탐색·문제 해결 가이드](10-navigation-and-troubleshooting.md)를
