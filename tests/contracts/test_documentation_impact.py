@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+import json
 import subprocess
 from pathlib import Path
 from typing import TypedDict
@@ -277,6 +279,152 @@ export function View({ value }: { value: Shape }) {
         encoding="utf-8",
     )
     return view
+
+
+def _css_visual_preservation_fixture(
+    tmp_path: Path,
+    *,
+    viewports: tuple[str, ...] = (
+        "1366x768",
+        "1440x900",
+        "1920x1080",
+        "2560x1440",
+        "3840x2160",
+    ),
+) -> dict[str, Path | str]:
+    visual_files = (
+        "apps/web/src/design/layout.css",
+        "apps/web/src/features/modeling/ui/stages/data/data.css",
+    )
+    for path in visual_files:
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(".data-panel { display: grid; }\n", encoding="utf-8")
+
+    current_root = tmp_path / "docs/user-guide/images/current"
+    current_root.mkdir(parents=True)
+    for viewport in viewports:
+        (current_root / f"data-{viewport}.png").write_bytes(
+            b"\x89PNG\r\n\x1a\n" + viewport.encode("ascii")
+        )
+    screenshot_manifest = tmp_path / "docs/user-guide/screenshot-manifest.yaml"
+    screenshot_manifest.parent.mkdir(parents=True, exist_ok=True)
+    screenshot_manifest.write_text(
+        "captures:\n"
+        + "".join(f"  - image: images/current/data-{viewport}.png\n" for viewport in viewports)
+        + "allowed_duplicate_groups: []\n",
+        encoding="utf-8",
+    )
+
+    _git(tmp_path, "init", "-b", "main")
+    _git(tmp_path, "config", "user.email", "test@example.com")
+    _git(tmp_path, "config", "user.name", "Documentation Impact Tests")
+    _git(tmp_path, "add", ".")
+    _git(tmp_path, "commit", "-m", "base")
+    base_sha = _git(tmp_path, "rev-parse", "HEAD")
+    _git(tmp_path, "branch", "-M", "feature")
+    _git(tmp_path, "update-ref", "refs/remotes/origin/main", base_sha)
+
+    (tmp_path / visual_files[0]).write_text(".shared-panel { min-width: 0; }\n", encoding="utf-8")
+    (tmp_path / visual_files[1]).write_text(
+        ".data-panel { display: grid; min-width: 0; }\n", encoding="utf-8"
+    )
+    visual_file_sha256 = {
+        path: hashlib.sha256((tmp_path / path).read_bytes()).hexdigest() for path in visual_files
+    }
+
+    evidence_relative = "docs/17-evidence/images/issue-261-css-proof"
+    evidence_root = tmp_path / evidence_relative
+    images: list[dict[str, object]] = []
+    pairs: list[dict[str, object]] = []
+    current_matches: list[dict[str, str]] = []
+    duplicate_groups: list[str] = []
+    for viewport in viewports:
+        name = f"data-{viewport}.png"
+        current = f"docs/user-guide/images/current/{name}"
+        before = f"{evidence_relative}/before/originals/{name}"
+        after = f"{evidence_relative}/after/originals/{name}"
+        value = (tmp_path / current).read_bytes()
+        digest = hashlib.sha256(value).hexdigest()
+        for path in (before, after):
+            target = tmp_path / path
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(value)
+        images.extend(
+            (
+                {
+                    "phase": "before",
+                    "kind": "original",
+                    "state": "normal",
+                    "path": before,
+                    "viewport": viewport,
+                    "sha256": digest,
+                },
+                {
+                    "phase": "after",
+                    "kind": "original",
+                    "state": "normal",
+                    "path": after,
+                    "viewport": viewport,
+                    "sha256": digest,
+                },
+            )
+        )
+        pairs.append(
+            {
+                "name": name,
+                "before_sha256": digest,
+                "after_sha256": digest,
+                "byte_equal": True,
+            }
+        )
+        current_matches.append({"current": current, "before": before, "after": after})
+        duplicate_groups.append(
+            "  - rationale: byte-identical CSS migration evidence\n"
+            "    images:\n"
+            f"      - {current}\n"
+            f"      - {before}\n"
+            f"      - {after}\n"
+        )
+    screenshot_manifest.write_text(
+        "captures:\n"
+        + "".join(f"  - image: images/current/data-{viewport}.png\n" for viewport in viewports)
+        + "allowed_duplicate_groups:\n"
+        + "".join(duplicate_groups),
+        encoding="utf-8",
+    )
+    manifest = evidence_root / "manifest.json"
+    manifest.write_text(
+        json.dumps(
+            {
+                "implementation_base": base_sha,
+                "browser_zoom_percent": 100,
+                "device_pixel_ratio": 1,
+                "density": "standard",
+                "documentation_impact": {
+                    "schema_version": "cmp.documentation-impact.css-byte-identical.v1",
+                    "issue": "#261",
+                    "source_sha": base_sha,
+                    "classification": "behavior-preserving-css-migration",
+                    "visual_files": list(visual_files),
+                    "visual_file_sha256": visual_file_sha256,
+                    "current_matches": current_matches,
+                },
+                "original_pairs": pairs,
+                "images": images,
+            },
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    return {
+        "project": tmp_path,
+        "base_sha": base_sha,
+        "manifest": manifest,
+        "screenshot_manifest": screenshot_manifest,
+        "after": evidence_root / "after/originals" / f"data-{viewports[0]}.png",
+    }
 
 
 def _mutate_structural_fixture(fixture: _StructuralFixture, case: str) -> None:
@@ -797,6 +945,104 @@ def test_structural_extraction_rejects_invalid_variants(
 def test_visual_source_alone_is_rejected() -> None:
     with pytest.raises(DocumentationImpactError, match="current docs/user-guide"):
         evaluate_documentation_impact({"apps/web/src/material-library.tsx"})
+
+
+def test_byte_identical_css_migration_accepts_registered_five_viewport_evidence(
+    tmp_path: Path,
+) -> None:
+    _css_visual_preservation_fixture(tmp_path)
+
+    report = verify_documentation_impact(tmp_path, "worktree")
+
+    assert report.byte_identical_visual_files == (
+        "apps/web/src/design/layout.css",
+        "apps/web/src/features/modeling/ui/stages/data/data.css",
+    )
+    assert report.visual_preservation_issue == "#261"
+    assert report.exempted_visual_files == ()
+    _git(tmp_path, "add", ".")
+    assert verify_documentation_impact(tmp_path, "staged") == report
+
+
+def test_byte_identical_css_migration_rejects_actual_pixel_bytes_drift(tmp_path: Path) -> None:
+    fixture = _css_visual_preservation_fixture(tmp_path)
+    Path(fixture["after"]).write_bytes(Path(fixture["after"]).read_bytes() + b"drift")
+
+    with pytest.raises(DocumentationImpactError, match="bytes differ"):
+        verify_documentation_impact(tmp_path, "worktree")
+
+
+def test_byte_identical_css_migration_requires_all_five_viewports(tmp_path: Path) -> None:
+    _css_visual_preservation_fixture(
+        tmp_path,
+        viewports=("1366x768", "1440x900", "1920x1080", "2560x1440"),
+    )
+
+    with pytest.raises(DocumentationImpactError, match="missing mandatory viewports"):
+        verify_documentation_impact(tmp_path, "worktree")
+
+
+def test_byte_identical_css_migration_requires_exact_visual_source_coverage(
+    tmp_path: Path,
+) -> None:
+    fixture = _css_visual_preservation_fixture(tmp_path)
+    manifest = Path(fixture["manifest"])
+    data = json.loads(manifest.read_text(encoding="utf-8"))
+    data["documentation_impact"]["visual_files"].pop()
+    manifest.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+
+    with pytest.raises(DocumentationImpactError, match="must exactly match"):
+        verify_documentation_impact(tmp_path, "worktree")
+
+
+def test_byte_identical_css_migration_rejects_stale_css_hash(tmp_path: Path) -> None:
+    _css_visual_preservation_fixture(tmp_path)
+    css = tmp_path / "apps/web/src/features/modeling/ui/stages/data/data.css"
+    css.write_text(css.read_text(encoding="utf-8") + ".late-change { color: red; }\n")
+
+    with pytest.raises(DocumentationImpactError, match="CSS SHA-256 differs"):
+        verify_documentation_impact(tmp_path, "worktree")
+
+
+def test_byte_identical_css_migration_cannot_cover_a_tsx_change(tmp_path: Path) -> None:
+    fixture = _css_visual_preservation_fixture(tmp_path)
+    view = tmp_path / "apps/web/src/view.tsx"
+    view.write_text("export const View = () => <div />;\n", encoding="utf-8")
+    manifest = Path(fixture["manifest"])
+    data = json.loads(manifest.read_text(encoding="utf-8"))
+    data["documentation_impact"]["visual_files"].append("apps/web/src/view.tsx")
+    manifest.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+
+    with pytest.raises(DocumentationImpactError, match="only production CSS"):
+        verify_documentation_impact(tmp_path, "worktree")
+
+
+def test_byte_identical_css_migration_requires_registered_duplicate_provenance(
+    tmp_path: Path,
+) -> None:
+    fixture = _css_visual_preservation_fixture(tmp_path)
+    screenshot_manifest = Path(fixture["screenshot_manifest"])
+    content = screenshot_manifest.read_text(encoding="utf-8")
+    first_group = content.index("  - rationale: byte-identical CSS migration evidence")
+    second_group = content.index(
+        "  - rationale: byte-identical CSS migration evidence", first_group + 1
+    )
+    screenshot_manifest.write_text(content[:first_group] + content[second_group:], encoding="utf-8")
+
+    with pytest.raises(DocumentationImpactError, match="registered duplicate group"):
+        verify_documentation_impact(tmp_path, "worktree")
+
+
+def test_byte_identical_css_migration_requires_ancestor_source_sha(tmp_path: Path) -> None:
+    fixture = _css_visual_preservation_fixture(tmp_path)
+    manifest = Path(fixture["manifest"])
+    data = json.loads(manifest.read_text(encoding="utf-8"))
+    data["implementation_base"] = "b" * 40
+    data["documentation_impact"]["source_sha"] = "b" * 40
+    manifest.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+
+    with pytest.raises(DocumentationImpactError, match="not an ancestor"):
+        verify_documentation_impact(tmp_path, "worktree")
 
 
 def test_visual_source_and_guide_without_evidence_are_rejected() -> None:
