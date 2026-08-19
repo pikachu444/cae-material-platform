@@ -1,5 +1,5 @@
-/* Issue #260 owns every selector in this file. Shared shell, density and
-   primitive rules remain in the design layer. */
+/* Issues #260 and #261 own every selector in this file. Shared shell, density
+   and primitive rules remain in the design layer. */
 
 .modeling-data-workspace {
   --modeling-data-useful-ribbon-block-size:
@@ -317,6 +317,39 @@
   grid-template-rows: minmax(0, 1fr);
 }
 
+.data-source-tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.data-source-tabs button {
+  min-height: 25px;
+  padding: 2px 10px 4px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--ux-text-muted);
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.data-source-tabs button[aria-selected="true"] {
+  border-bottom-color: var(--ux-accent);
+  color: var(--ux-text);
+}
+
+.data-source-tabs button:hover {
+  color: var(--ux-accent);
+}
+
+.data-source-tabs button:focus-visible {
+  outline: 2px solid var(--ux-accent);
+  outline-offset: -2px;
+}
+
 .modeling-data-workspace .data-source-tabs {
   display: flex;
   align-items: stretch;
@@ -532,7 +565,10 @@
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
+  min-width: 0;
+  min-height: 240px;
   padding: 0;
+  overflow: hidden;
   background: var(--ux-surface);
 }
 
@@ -857,16 +893,50 @@
 }
 
 .data-source-decision-grid {
+  display: grid;
   grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 8px;
+  min-width: 0;
+  container-type: inline-size;
 }
 
 .data-mapping-resolved {
+  display: flex;
   align-items: center;
+  gap: 8px;
+  min-width: 0;
   padding-left: 0;
   border-left: 0;
 }
 
-.data-mapping-decision .data-mapping-table,
+.data-mapping-decision .data-mapping-table {
+  max-width: 100%;
+  overflow: auto;
+  padding-top: 2px;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.data-source-advanced {
+  border-top: 1px solid var(--ux-border);
+  padding-top: 4px;
+}
+
+.data-source-advanced > div {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 3px 8px;
+  max-width: 720px;
+  padding: 5px 0;
+  color: var(--ux-text-muted);
+}
+
+.data-source-advanced code {
+  overflow-wrap: anywhere;
+  color: var(--ux-text);
+}
+
 .data-source-advanced .data-source-advanced-table {
   max-width: 100%;
   overflow: auto;
@@ -876,6 +946,7 @@
 
 .data-mapping-decision .data-mapping-table table {
   min-width: 800px;
+  table-layout: fixed;
 }
 
 .data-mapping-decision .data-mapping-table th,
@@ -943,6 +1014,7 @@
 .data-source-advanced > summary {
   min-height: var(--ux-interactive-min-block-size);
   color: var(--ux-text-muted);
+  cursor: pointer;
   font-size: var(--ux-metadata-font-size);
 }
 
