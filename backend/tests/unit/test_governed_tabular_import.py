@@ -66,7 +66,7 @@ def _dma_profile(
     sheet_name: str | None = None,
     include_tan_delta: bool = False,
 ) -> GovernedImportProfileContent:
-    channels = (
+    channels: tuple[GovernedChannelMapping, ...] = (
         GovernedChannelMapping(
             0, "temperature", QuantityKind.TEMPERATURE, "degC", AxisRole.INDEPENDENT
         ),
