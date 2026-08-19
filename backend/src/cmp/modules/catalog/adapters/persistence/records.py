@@ -8,11 +8,12 @@ from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from hashlib import sha256
-from typing import Any
+from typing import Any, cast
 from uuid import UUID, uuid4
 
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
+from sqlalchemy.engine import CursorResult
 from sqlalchemy.orm import Session
 
 from cmp.modules.catalog.adapters.persistence.configurable import RlsContext
@@ -1016,17 +1017,20 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
         token: str,
     ) -> bool:
         with self._transaction(context, decision) as session:
-            result = session.execute(
-                sa.update(record_registration_preview)
-                .where(
-                    record_registration_preview.c.organization_id == context.organization_id,
-                    record_registration_preview.c.project_id == context.project_id,
-                    record_registration_preview.c.principal_id == context.principal.id,
-                    record_registration_preview.c.token_digest == self._preview_digest(token),
-                    record_registration_preview.c.consumed_at.is_(None),
-                    record_registration_preview.c.expires_at > datetime.now(UTC),
+            result = cast(
+                CursorResult[Any],
+                session.execute(
+                    sa.update(record_registration_preview)
+                    .where(
+                        record_registration_preview.c.organization_id == context.organization_id,
+                        record_registration_preview.c.project_id == context.project_id,
+                        record_registration_preview.c.principal_id == context.principal.id,
+                        record_registration_preview.c.token_digest == self._preview_digest(token),
+                        record_registration_preview.c.consumed_at.is_(None),
+                        record_registration_preview.c.expires_at > datetime.now(UTC),
+                    )
+                    .values(consumed_at=datetime.now(UTC), consumed_by=context.principal.id)
                 )
-                .values(consumed_at=datetime.now(UTC), consumed_by=context.principal.id)
             )
             return result.rowcount == 1
 
@@ -1165,13 +1169,16 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                     )
                 )
             if preview_id is not None:
-                consumed = session.execute(
-                    sa.update(record_registration_preview)
-                    .where(
-                        record_registration_preview.c.id == preview_id,
-                        record_registration_preview.c.consumed_at.is_(None),
+                consumed = cast(
+                    CursorResult[Any],
+                    session.execute(
+                        sa.update(record_registration_preview)
+                        .where(
+                            record_registration_preview.c.id == preview_id,
+                            record_registration_preview.c.consumed_at.is_(None),
+                        )
+                        .values(consumed_at=datetime.now(UTC), consumed_by=context.principal.id)
                     )
-                    .values(consumed_at=datetime.now(UTC), consumed_by=context.principal.id)
                 )
                 if consumed.rowcount != 1:
                     raise ConfigurableCatalogConflict("registration preview was already consumed")
