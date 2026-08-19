@@ -24,8 +24,8 @@ redesign, a new frontend dependency, or mixing broad structural and visual chang
 2. Find its target family in `docs/01-product/service-reference-inventory.yaml` with `rg`.
 3. Read only that family's entries in `docs/01-product/service-reference-manifest.yaml` and inspect
    every listed HTML, CSS and image at original resolution.
-4. Read Q-01 through Q-20 in `docs/01-product/visual-acceptance-matrix.md`, then only the affected
-   route-specific gate and the relevant product/UI-spec sections.
+4. `docs/01-product/visual-acceptance-matrix.md`의 20개 정성 판정 항목 (Q-01~Q-20)을
+   읽은 뒤 영향받는 route-specific gate와 관련 product/UI-spec 절만 읽는다.
 5. Inspect the affected React, API, state and test contracts.
 
 Do not bulk-read the complete product specs, manifest or incoming package. Use
@@ -87,7 +87,7 @@ may remain for #223; known geometry, clipping, overflow or interaction failures 
 
 After implementation and the packet's deterministic gates, the main orchestrator opens every target/state image
 at original resolution, repeats the region-by-region comparison, records resolved and unresolved
-differences, and completes Q-01 through Q-20 once. Judge the whole screen before an isolated control:
+differences, and completes the 20개 정성 판정 항목 (Q-01~Q-20) once. Judge the whole screen before an isolated control:
 engineering credibility, information density, hierarchy, graph/table/tree dominance, whitespace,
 typography, meaningful wide-screen use and responsive continuity. Numeric or existence checks are only
 supporting evidence.

@@ -178,10 +178,11 @@ OS/device scale과 구분할 수 없었으므로 자동 적용 code 없이 기�
 | Administration | 2 surfaces × 5 variants pass | pass | pass | pass | pass |
 
 각 칸의 full-screen 원본, 100% header/navigator/table-or-form/plot-or-preview crop, CSS viewport,
-workspace/pane/plot 측정과 Q-01~Q-20 disposition은
+workspace/pane/plot 측정과 20개 정성 판정 결과 (Q-01~Q-20)는
 [#221 decision packet](../17-evidence/issue-221-high-dpi-decision.md)과 그 structured measurement manifest를
 가리킨다. `pass`는 대표 geometry 비교가 완료됐다는 뜻이다. 제품 소유자 정책 승인은 PR #228에서
-별도로 이뤄졌으며 이 표만으로 #184의 product-wide Q-20 완료를 뜻하지 않는다.
+별도로 이뤄졌으며 이 표만으로 #184의 전체 화면 폭·고해상도 전 제품 구성 (Q-20)
+완료를 뜻하지 않는다.
 
 ### 8.2 #184 production 이식 측정
 
