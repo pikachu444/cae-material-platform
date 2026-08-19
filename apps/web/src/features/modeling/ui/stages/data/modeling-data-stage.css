@@ -937,6 +937,72 @@
   color: var(--ux-text);
 }
 
+.data-raw-table {
+  overflow-x: auto;
+}
+
+.data-raw-table table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 13px;
+}
+
+.data-raw-table th,
+.data-raw-table td {
+  border-bottom: 1px solid var(--ux-border);
+  padding: 4px 5px;
+  text-align: left;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.data-raw-table th {
+  color: var(--ux-text-muted);
+  font-size: 11.5px;
+  font-weight: 650;
+}
+
+.data-raw-table td {
+  color: var(--ux-text);
+  font-size: 13px;
+}
+
+.data-source-decision-grid .data-raw-table {
+  overflow: hidden;
+}
+
+.data-source-decision-grid .data-raw-table table {
+  table-layout: fixed;
+}
+
+.data-source-decision-grid .data-raw-table th,
+.data-source-decision-grid .data-raw-table td {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.modeling-main-surface.has-data-split .data-source-decision-grid .data-raw-table th,
+.modeling-main-surface.has-data-split .data-source-decision-grid .data-raw-table td {
+  padding-block: var(--ux-table-cell-padding-block);
+  padding-inline: var(--ux-table-cell-padding-inline);
+}
+
+.data-raw-table table,
+.data-raw-table td {
+  font-size: var(--ux-data-font-size);
+}
+
+.data-raw-table th {
+  font-size: var(--ux-metadata-font-size);
+}
+
+.data-raw-table th,
+.data-raw-table td {
+  padding: var(--ux-cell-padding-block) var(--ux-cell-padding-inline);
+}
+
 .data-source-advanced .data-source-advanced-table {
   max-width: 100%;
   overflow: auto;

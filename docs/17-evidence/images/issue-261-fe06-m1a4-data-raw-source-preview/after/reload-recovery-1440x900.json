@@ -1,0 +1,128 @@
+{
+  "route": "/modeling",
+  "viewport": "1440x900",
+  "beforeRawRuntime": {
+    "rawAssetId": "aa154feb-3ea3-4f00-b2e2-f978312c27bb",
+    "rawArtifactId": "bfef7c97-4c6d-4949-8908-91e7327e3e61",
+    "rawSha256": "28f7d79371212bd21cdabc051cea2e139e4d68009b177b7201dc5868a6d942d2",
+    "specimenId": "5834c866-4c85-488c-bd62-8089d0218b83",
+    "headers": [
+      "time_s",
+      "force_n",
+      "displacement_mm",
+      "engineering_strain",
+      "engineering_stress_pa"
+    ],
+    "rows": [
+      [
+        "0",
+        "0",
+        "0",
+        "0",
+        "0"
+      ],
+      [
+        "1",
+        "4200",
+        "0.45",
+        "0.003",
+        "420000000"
+      ],
+      [
+        "2",
+        "6350",
+        "1.10",
+        "0.009",
+        "635000000"
+      ]
+    ],
+    "testRunText": "CMP demo tensile replicate 1 · saved version 1 · performed 2026-01-15T10:00:00Z"
+  },
+  "afterRawRuntime": {
+    "rawAssetId": "aa154feb-3ea3-4f00-b2e2-f978312c27bb",
+    "rawArtifactId": "bfef7c97-4c6d-4949-8908-91e7327e3e61",
+    "rawSha256": "28f7d79371212bd21cdabc051cea2e139e4d68009b177b7201dc5868a6d942d2",
+    "specimenId": "5834c866-4c85-488c-bd62-8089d0218b83",
+    "headers": [
+      "time_s",
+      "force_n",
+      "displacement_mm",
+      "engineering_strain",
+      "engineering_stress_pa"
+    ],
+    "rows": [
+      [
+        "0",
+        "0",
+        "0",
+        "0",
+        "0"
+      ],
+      [
+        "1",
+        "4200",
+        "0.45",
+        "0.003",
+        "420000000"
+      ],
+      [
+        "2",
+        "6350",
+        "1.10",
+        "0.009",
+        "635000000"
+      ]
+    ],
+    "testRunText": "CMP demo tensile replicate 1 · saved version 1 · performed 2026-01-15T10:00:00Z"
+  },
+  "sameRawShaHeadersRowsAndTestRun": true,
+  "rawIdentifiersMayDifferBecauseReinspectionStagesNewImmutableEvidence": true,
+  "persistedSession": {
+    "material": {
+      "id": "20c1a71b-79e9-4fa3-9417-b2f09653dd4e",
+      "revisionId": "748210e9-147e-4e6b-a750-a18c5ecb3541",
+      "label": "DP780 synthetic reference steel",
+      "revisionNo": 1
+    },
+    "materialState": {
+      "id": "5027256f-b90e-4dee-91a9-7ac3f5506d65",
+      "revisionId": "3238b55e-a8db-4fc7-bda3-72b2f048ae3b",
+      "label": "As received · synthetic reference",
+      "revisionNo": 1
+    },
+    "testData": {
+      "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+      "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+      "label": "CMP-DEMO-DP780-TEST-JSON",
+      "revisionNo": 1
+    },
+    "workspace": {
+      "selectedTestDataRefs": [
+        {
+          "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+          "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+          "label": "CMP-DEMO-DP780-TEST-JSON",
+          "revisionNo": 1
+        }
+      ],
+      "selectedDocumentIds": [
+        "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc"
+      ],
+      "visibleTestDataKeys": [
+        "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc:d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+      ]
+    }
+  },
+  "persistedGraph": {
+    "heading": "Stress–strain curvesDP780 · Tensile test 0001",
+    "lines": [
+      null
+    ],
+    "legends": [
+      "Tensile test 0001"
+    ],
+    "selectedDocumentKey": "CMP-DEMO-DP780-TEST-JSON",
+    "selectedRevisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+  },
+  "componentLocalStateClearedThenRecreated": true
+}

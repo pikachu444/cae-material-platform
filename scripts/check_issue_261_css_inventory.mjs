@@ -106,6 +106,41 @@ const COMPLETED_M1A3 = {
   ],
 };
 
+const COMPLETED_M1A4 = {
+  id: "M1A4-modeling-data-raw-source-preview",
+  historicalMemberIds: [
+    "CSS-1009",
+    "CSS-1011",
+    "CSS-1013",
+    "CSS-1014",
+    "CSS-1017",
+    "CSS-1019",
+    "CSS-1044",
+    "CSS-1045",
+    "CSS-1046",
+    "CSS-1047",
+    "CSS-1504",
+    "CSS-1505",
+    "CSS-1615",
+    "CSS-1617",
+    "CSS-1624",
+    "CSS-1632",
+    "CSS-1633",
+  ],
+  exactLegacySelectors: [
+    ".data-raw-table",
+    ".data-raw-table table",
+    ".data-raw-table th",
+    ".data-raw-table td",
+    ".data-source-decision-grid .data-raw-table",
+    ".data-source-decision-grid .data-raw-table table",
+    ".data-source-decision-grid .data-raw-table th",
+    ".data-source-decision-grid .data-raw-table td",
+    ".modeling-main-surface.has-data-split .data-source-decision-grid .data-raw-table th",
+    ".modeling-main-surface.has-data-split .data-source-decision-grid .data-raw-table td",
+  ],
+};
+
 const MAIN_CSS_ORDER = [
   "apps/web/src/styles.css",
   "apps/web/src/design/tokens.css",
@@ -951,6 +986,10 @@ function makeInventory() {
       COMPLETED_M1A3.id,
       rows.filter((row) => COMPLETED_M1A3.exactLegacySelectors.includes(row.selector)),
     ],
+    [
+      COMPLETED_M1A4.id,
+      rows.filter((row) => COMPLETED_M1A4.exactLegacySelectors.includes(row.selector)),
+    ],
   ]);
   return {
     schemaVersion: "cmp.issue-261.css-selector-inventory.v1",
@@ -1046,6 +1085,23 @@ function makeInventory() {
             .get(COMPLETED_M1A3.id)
             .map((row) => row.id),
           actualAfter: {
+            cssRuleGroups: 2812,
+            selectorRows: 3558,
+            crossCssDuplicateRows: 13,
+          },
+        },
+        {
+          id: COMPLETED_M1A4.id,
+          historicalMemberIds: COMPLETED_M1A4.historicalMemberIds,
+          selectorRowsRemoved: 17,
+          touchedRuleGroups: 12,
+          fullyRemovedRuleGroups: 4,
+          partiallyShrunkRuleGroups: 8,
+          exactLegacySelectors: COMPLETED_M1A4.exactLegacySelectors,
+          residualExactSelectorRows: completedPacketResidualRows
+            .get(COMPLETED_M1A4.id)
+            .map((row) => row.id),
+          actualAfter: {
             cssRuleGroups: cssRuleGroupCount,
             selectorRows: rows.length,
             crossCssDuplicateRows: flagCounts.crossCssDuplicate,
@@ -1053,7 +1109,7 @@ function makeInventory() {
         },
       ],
       nextBoundedUnit: {
-        id: "M1A4-modeling-data-component-region",
+        id: "M1A5-modeling-data-component-region",
         status: "owner-packet-required",
         scope: "Select one remaining M1A Data component region from the regenerated inventory; do not migrate all remaining M1A rows together.",
       },
@@ -1167,6 +1223,27 @@ function validateInventory(inventory) {
         || completedM1A3.actualAfter.selectorRows !== 3558
         || completedM1A3.actualAfter.crossCssDuplicateRows !== 13) {
       errors.push(`completed M1A3 actual delta is ${JSON.stringify(completedM1A3.actualAfter)}`);
+    }
+  }
+  const completedM1A4 = inventory.migrationPlan.completedBoundedUnits.find(
+    (unit) => unit.id === COMPLETED_M1A4.id,
+  );
+  if (!completedM1A4) {
+    errors.push("completed M1A4 packet is missing");
+  } else {
+    if (completedM1A4.residualExactSelectorRows.length !== 0) {
+      errors.push(`completed M1A4 selectors remain in legacy CSS: ${completedM1A4.residualExactSelectorRows.join(", ")}`);
+    }
+    if (completedM1A4.selectorRowsRemoved !== 17
+        || completedM1A4.touchedRuleGroups !== 12
+        || completedM1A4.fullyRemovedRuleGroups !== 4
+        || completedM1A4.partiallyShrunkRuleGroups !== 8) {
+      errors.push("completed M1A4 structural delta does not match the approved 17/12/4/8 packet");
+    }
+    if (completedM1A4.actualAfter.cssRuleGroups !== 2808
+        || completedM1A4.actualAfter.selectorRows !== 3541
+        || completedM1A4.actualAfter.crossCssDuplicateRows !== 13) {
+      errors.push(`completed M1A4 actual delta is ${JSON.stringify(completedM1A4.actualAfter)}`);
     }
   }
   for (const group of inventory.cascadeGroups.exactSelector) {
