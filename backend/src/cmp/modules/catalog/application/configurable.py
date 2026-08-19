@@ -216,6 +216,17 @@ class ConfigurableCatalogRepository(Protocol):
         revision_id: UUID,
     ) -> bool: ...
 
+    def publish_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        aggregate_type: str,
+        aggregate_id: UUID,
+        revision_id: UUID,
+        published_by: UUID,
+    ) -> None: ...
+
     def is_published(
         self,
         *,
@@ -598,49 +609,49 @@ class ConfigurableCatalogService:
         errors: list[str] = []
         try:
             if command.aggregate_type == DATABASE_AGGREGATE_TYPE:
-                revision = self._repository.get_database(
+                database = self._repository.get_database(
                     context=context, decision=decision, database_id=command.aggregate_id
                 )
-                if revision.current.record.revision_id != command.revision_id:
+                if database.current.record.revision_id != command.revision_id:
                     errors.append("선택한 Database 버전이 현재 초안이 아닙니다.")
             elif command.aggregate_type == PROFILE_AGGREGATE_TYPE:
-                revision = self._repository.get_profile(
+                profile = self._repository.get_profile(
                     context=context, decision=decision, profile_id=command.aggregate_id
                 )
                 self._repository.get_database_revision(
                     context=context,
                     decision=decision,
-                    database_id=revision.current.content.database_id,
-                    revision_id=revision.current.content.database_revision_id,
+                    database_id=profile.current.content.database_id,
+                    revision_id=profile.current.content.database_revision_id,
                 )
-                if revision.current.record.revision_id != command.revision_id:
+                if profile.current.record.revision_id != command.revision_id:
                     errors.append("선택한 Profile 버전이 현재 초안이 아닙니다.")
             elif command.aggregate_type == TABLE_AGGREGATE_TYPE:
-                revision = self._repository.get_table(
+                table = self._repository.get_table(
                     context=context, decision=decision, table_id=command.aggregate_id
                 )
-                if revision.current.record.revision_id != command.revision_id:
+                if table.current.record.revision_id != command.revision_id:
                     errors.append("선택한 Table 버전이 현재 초안이 아닙니다.")
                 self._repository.list_attributes(
                     context=context, decision=decision, table_id=command.aggregate_id
                 )
             elif command.aggregate_type == ATTRIBUTE_AGGREGATE_TYPE:
-                revision = self._repository.get_attribute(
+                attribute = self._repository.get_attribute(
                     context=context, decision=decision, attribute_id=command.aggregate_id
                 )
-                if revision.current.record.revision_id != command.revision_id:
+                if attribute.current.record.revision_id != command.revision_id:
                     errors.append("선택한 Attribute 버전이 현재 초안이 아닙니다.")
             elif command.aggregate_type == LAYOUT_AGGREGATE_TYPE:
-                revision = self._repository.get_layout(
+                layout = self._repository.get_layout(
                     context=context, decision=decision, layout_id=command.aggregate_id
                 )
-                if revision.current.record.revision_id != command.revision_id:
+                if layout.current.record.revision_id != command.revision_id:
                     errors.append("선택한 Layout 버전이 현재 초안이 아닙니다.")
             elif command.aggregate_type == SUBSET_AGGREGATE_TYPE:
-                revision = self._repository.get_subset(
+                subset = self._repository.get_subset(
                     context=context, decision=decision, subset_id=command.aggregate_id
                 )
-                if revision.current.record.revision_id != command.revision_id:
+                if subset.current.record.revision_id != command.revision_id:
                     errors.append("선택한 Subset 버전이 현재 초안이 아닙니다.")
             elif command.aggregate_type in {
                 FOLDER_AGGREGATE_TYPE,
