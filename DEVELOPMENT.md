@@ -31,15 +31,34 @@ Production 시험 표준, 재료 모델, optimizer, solver mapping과 validation
 
 ## 2. 개발 환경
 
-- Python 3.12와 [uv](https://docs.astral.sh/uv/)
-- Node.js와 npm
+- Python `3.12.14`
+- [uv](https://docs.astral.sh/uv/) `0.12.5`
+- Node.js `24.19.0` LTS와 npm `11.17.0`
 - Docker Desktop/Engine과 Docker Compose
 - Windows에서는 WSL 2 기반 Linux container 권장
 
+`.python-version`과 `.node-version`이 로컬 개발 기준을 기록합니다. 먼저 설치된 도구 버전을
+확인한 뒤 잠금 파일을 바꾸지 않는 방식으로 환경을 준비합니다.
+
 ```powershell
-uv sync --all-groups
-npm ci
+uv --version
+node --version
+npm --version
+uv python install
+uv sync --all-groups --locked
+npm ci --workspaces --include-workspace-root
+uv run python scripts/check_development_environment.py
 ```
+
+`uv sync`는 저장소의 `.venv`를 자동으로 만들고 `uv.lock`의 패키지를 설치합니다. 별도로 가상환경을
+활성화하지 않아도 `uv run ...`이 이 환경을 사용합니다. `.venv`와 `node_modules`는 각 컴퓨터에만
+있고 Git에 저장하지 않습니다. Python 패키지는 `pyproject.toml + uv.lock`, 웹 패키지는
+`package.json + package-lock.json`이 기준이므로 중복되는 `requirements.txt`를 만들지 않습니다.
+
+버전을 올릴 때는 버전 파일, 프로젝트 설정, Dockerfile, lockfile과 개발환경 검사를 한 PR에서
+함께 갱신합니다. Docker image digest도 새 tag의 manifest를 확인한 뒤 함께 바꿉니다. 저장소가
+요구하는 버전과 현재 도구가 다르면 전역 설치를 자동으로 바꾸지 않고 검사에서 실제 값과 필요한
+값을 함께 보여 줍니다.
 
 ## 3. 전체 demo 실행
 

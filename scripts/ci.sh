@@ -7,6 +7,7 @@ export UV_PROJECT_ENVIRONMENT="${UV_PROJECT_ENVIRONMENT:-${TMPDIR:-/tmp}/cmp-cae
 export UV_LINK_MODE="${UV_LINK_MODE:-copy}"
 
 uv sync --all-groups --locked
+uv run python scripts/check_development_environment.py
 uv run ruff check .
 # Windows and WSL may share the checkout but use different Python/typeshed builds.
 # Never consume another platform's incremental cache in the authoritative CI gate.
