@@ -32,6 +32,35 @@ revision의 pending review request, JSON·두 ASCII card와 ZIP을 다시 내려
 Materials에서 Abaqus card preview의 전달 안내를 확인한 뒤 card를 내려받고 Activity의 읽을 수 있는
 review 대기 상태를 확인한 뒤 Exports 화면의 **Download ZIP**으로 같은 digest를 검사합니다.
 
+## 폐기 가능한 1,000건 Materials 검증
+
+검색 결과가 많은 상태는 영구 `cmp-local-demo`를 늘리지 않고 별도 disposable 환경에서만 확인합니다.
+
+```powershell
+make demo-scale-e2e
+```
+
+이 명령은 고유한 `cmp-demo-test-*` Compose project와 전용 PostgreSQL/object volume을 만들고, 기존
+소규모 full demo를 구성한 다음 `CMP-SCALE-0000`부터 `CMP-SCALE-0999`까지 metadata-only 합성
+Material/Catalog Record 1,000건을 추가합니다. scale record에는 curve, Material State, Test Data 또는
+모델을 복제하지 않습니다. 실제 곡선과 Modeling 연결은 기존 `CMP-DEMO-DP780` 대표 record를 그대로
+재사용해 확인합니다. 정확 조회 표본 `CMP-SCALE-0731` 한 건만 기존 review request와 승인 경로를
+거쳐 상세 화면에 노출하며, 나머지 999건은 검색·facet·목록 규모 검증용 metadata로만 둡니다.
+
+자동 수용 흐름은 Materials에서 다음 결과를 실제 서버와 브라우저로 확인합니다.
+
+- 검색 결과 1,000건과 페이지당 50행
+- Material class, Provider, Evidence source facet의 결정론적 count와 조합 필터
+- 결과 영역의 독립 스크롤과 다음/이전 페이지
+- `CMP-SCALE-0731` exact lookup과 exact-revision Material 상세
+- URL에 남은 검색·facet·offset의 reload 복원
+- 결과 없음 상태의 **Clear search** 복구
+
+성공하거나 중간에 실패해도 runner는 해당 disposable project의 컨테이너·로컬 이미지·volume만
+제거합니다. 실행 전후 `cmp-local-demo` volume identity와 실행 중인 영구 DB의 핵심 count를 비교하며,
+불일치하면 검증을 실패 처리합니다. scale seeder는 일치하는 disposable project 표식 없이는 실행을
+거부하므로 영구 demo seed 명령으로 사용하지 않습니다.
+
 ## 화면에서 내려받기
 
 1. [Activity](http://127.0.0.1:5173/activity)의 Advanced에서 **Bulk exports**를 누르거나
