@@ -1139,6 +1139,50 @@ function serialize(value) {
   return `${JSON.stringify(value, null, 2)}\n`;
 }
 
+function isAncestorCommit(sourceSha, currentHead) {
+  if (!/^[0-9a-f]{40}$/.test(sourceSha) || !/^[0-9a-f]{40}$/.test(currentHead)) {
+    return false;
+  }
+  try {
+    execFileSync(
+      "git",
+      ["merge-base", "--is-ancestor", sourceSha, currentHead],
+      { cwd: ROOT, stdio: "ignore" },
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function reconcileInventorySourceSha(currentText, renderedText) {
+  let current;
+  let rendered;
+  try {
+    current = JSON.parse(currentText);
+    rendered = JSON.parse(renderedText);
+  } catch {
+    return null;
+  }
+  if (!isAncestorCommit(current.sourceSha, rendered.sourceSha)) return null;
+
+  const sourceShaFields = [...currentText.matchAll(
+    /("sourceSha"\s*:\s*")([0-9a-f]{40})(")/g,
+  )];
+  if (sourceShaFields.length !== 1 || sourceShaFields[0][2] !== current.sourceSha) {
+    return null;
+  }
+  const [field] = sourceShaFields;
+  const replacement = `${field[1]}${rendered.sourceSha}${field[3]}`;
+  return `${currentText.slice(0, field.index)}${replacement}${currentText.slice(
+    field.index + field[0].length,
+  )}`;
+}
+
+export function inventoryMatchesRendered(currentText, renderedText) {
+  return reconcileInventorySourceSha(currentText, renderedText) === renderedText;
+}
+
 function runCli() {
   const inventory = makeInventory();
   validateInventory(inventory);
@@ -1154,7 +1198,7 @@ function runCli() {
     throw new Error(`MISSING ${posix(relative(ROOT, OUTPUT))}; run with --write`);
   }
   const current = readFileSync(OUTPUT, "utf8");
-  if (current !== rendered) {
+  if (!inventoryMatchesRendered(current, rendered)) {
     throw new Error(`STALE ${posix(relative(ROOT, OUTPUT))}; rerun with --write and inspect the source/candidate delta`);
   }
   console.log(`PASS ${posix(relative(ROOT, OUTPUT))}`);

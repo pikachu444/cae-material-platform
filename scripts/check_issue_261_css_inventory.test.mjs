@@ -1,15 +1,58 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 
 import {
+  inventoryMatchesRendered,
   isZeroProductionConsumerCandidate,
+  reconcileInventorySourceSha,
   sourceClassEvidence,
 } from "./check_issue_261_css_inventory.mjs";
+
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 function sorted(values) {
   return [...values].sort();
 }
+
+function gitHead(revision) {
+  return execFileSync("git", ["rev-parse", revision], { cwd: ROOT, encoding: "utf8" }).trim();
+}
+
+test("accepts a committed inventory whose sourceSha is a historical ancestor", () => {
+  const committed = readFileSync(
+    new URL("../docs/17-evidence/issue-261-css-selector-inventory.json", import.meta.url),
+    "utf8",
+  );
+  const currentHead = gitHead("HEAD");
+  const rendered = committed.replace(
+    /("sourceSha"\s*:\s*")[0-9a-f]{40}(")/,
+    `$1${currentHead}$2`,
+  );
+
+  assert.equal(reconcileInventorySourceSha(committed, rendered), rendered);
+});
+
+test("rejects malformed or non-ancestor sourceSha values", () => {
+  const currentHead = gitHead("HEAD");
+  const rendered = JSON.stringify({ sourceSha: currentHead, selectors: [] }, null, 2) + "\n";
+  const malformed = rendered.replace(currentHead, "not-a-git-sha");
+  const unknown = rendered.replace(currentHead, "f".repeat(40));
+
+  assert.equal(inventoryMatchesRendered(malformed, rendered), false);
+  assert.equal(inventoryMatchesRendered(unknown, rendered), false);
+});
+
+test("still rejects substantive stale inventory content", () => {
+  const currentHead = gitHead("HEAD");
+  const rendered = JSON.stringify({ sourceSha: currentHead, selectors: [] }, null, 2) + "\n";
+  const stale = JSON.stringify({ sourceSha: gitHead("HEAD~1"), selectors: [{ id: "stale" }] }, null, 2) + "\n";
+
+  assert.equal(inventoryMatchesRendered(stale, rendered), false);
+});
 
 test("extracts static, template, and conditional className producers", () => {
   const source = [
