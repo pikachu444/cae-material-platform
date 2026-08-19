@@ -284,6 +284,7 @@ export function View({ value }: { value: Shape }) {
 def _css_visual_preservation_fixture(
     tmp_path: Path,
     *,
+    evidence_name: str = "issue-261-css-proof-m1a0",
     viewports: tuple[str, ...] = (
         "1366x768",
         "1440x900",
@@ -333,7 +334,7 @@ def _css_visual_preservation_fixture(
         path: hashlib.sha256((tmp_path / path).read_bytes()).hexdigest() for path in visual_files
     }
 
-    evidence_relative = "docs/17-evidence/images/issue-261-css-proof"
+    evidence_relative = f"docs/17-evidence/images/{evidence_name}"
     evidence_root = tmp_path / evidence_relative
     images: list[dict[str, object]] = []
     pairs: list[dict[str, object]] = []
@@ -421,10 +422,69 @@ def _css_visual_preservation_fixture(
     return {
         "project": tmp_path,
         "base_sha": base_sha,
+        "evidence_relative": evidence_relative,
         "manifest": manifest,
         "screenshot_manifest": screenshot_manifest,
+        "visual_files": visual_files,
         "after": evidence_root / "after/originals" / f"data-{viewports[0]}.png",
     }
+
+
+def _add_followup_css_visual_preservation(
+    fixture: dict[str, Path | str | tuple[str, ...]],
+    *,
+    evidence_name: str = "issue-261-css-proof-m1a1",
+) -> Path:
+    project = Path(fixture["project"])
+    first_manifest = Path(fixture["manifest"])
+    first_relative = str(fixture["evidence_relative"])
+    visual_files = tuple(fixture["visual_files"])
+
+    _git(project, "add", ".")
+    _git(project, "commit", "-m", "record first CSS migration")
+    first_commit = _git(project, "rev-parse", "HEAD")
+
+    for index, path in enumerate(visual_files):
+        target = project / path
+        target.write_text(
+            target.read_text(encoding="utf-8")
+            + f".followup-{index} {{ min-height: {index + 1}px; }}\n",
+            encoding="utf-8",
+        )
+
+    followup_relative = f"docs/17-evidence/images/{evidence_name}"
+    followup_root = project / followup_relative
+    data = json.loads(first_manifest.read_text(encoding="utf-8"))
+    for image in data["images"]:
+        old_path = image["path"]
+        new_path = old_path.replace(first_relative, followup_relative)
+        target = project / new_path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((project / old_path).read_bytes())
+        image["path"] = new_path
+    for match in data["documentation_impact"]["current_matches"]:
+        match["before"] = match["before"].replace(first_relative, followup_relative)
+        match["after"] = match["after"].replace(first_relative, followup_relative)
+    data["implementation_base"] = first_commit
+    data["documentation_impact"]["source_sha"] = first_commit
+    data["documentation_impact"]["visual_file_sha256"] = {
+        path: hashlib.sha256((project / path).read_bytes()).hexdigest() for path in visual_files
+    }
+    followup_manifest = followup_root / "manifest.json"
+    followup_manifest.parent.mkdir(parents=True, exist_ok=True)
+    followup_manifest.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+
+    screenshot_manifest = Path(fixture["screenshot_manifest"])
+    content = screenshot_manifest.read_text(encoding="utf-8")
+    for match in data["documentation_impact"]["current_matches"]:
+        first_after = match["after"].replace(followup_relative, first_relative)
+        addition = f"      - {match['before']}\n      - {match['after']}\n"
+        content = content.replace(
+            f"      - {first_after}\n",
+            f"      - {first_after}\n{addition}",
+        )
+    screenshot_manifest.write_text(content, encoding="utf-8")
+    return followup_manifest
 
 
 def _mutate_structural_fixture(fixture: _StructuralFixture, case: str) -> None:
@@ -947,7 +1007,7 @@ def test_visual_source_alone_is_rejected() -> None:
         evaluate_documentation_impact({"apps/web/src/material-library.tsx"})
 
 
-def test_byte_identical_css_migration_accepts_registered_five_viewport_evidence(
+def test_byte_identical_css_migration_accepts_m1a0_only_registered_five_viewport_evidence(
     tmp_path: Path,
 ) -> None:
     _css_visual_preservation_fixture(tmp_path)
@@ -962,6 +1022,70 @@ def test_byte_identical_css_migration_accepts_registered_five_viewport_evidence(
     assert report.exempted_visual_files == ()
     _git(tmp_path, "add", ".")
     assert verify_documentation_impact(tmp_path, "staged") == report
+
+
+def test_byte_identical_css_migration_accepts_m1a1_only_registered_five_viewport_evidence(
+    tmp_path: Path,
+) -> None:
+    _css_visual_preservation_fixture(
+        tmp_path,
+        evidence_name="issue-261-css-proof-m1a1",
+    )
+
+    report = verify_documentation_impact(tmp_path, "worktree")
+
+    assert report.byte_identical_visual_files == (
+        "apps/web/src/design/layout.css",
+        "apps/web/src/features/modeling/ui/stages/data/data.css",
+    )
+    assert report.visual_preservation_issue == "#261"
+
+
+def test_byte_identical_css_migration_selects_sole_current_hash_proof_after_m1a0(
+    tmp_path: Path,
+) -> None:
+    fixture = _css_visual_preservation_fixture(tmp_path)
+    _add_followup_css_visual_preservation(fixture)
+
+    report = verify_documentation_impact(tmp_path, "worktree")
+
+    assert report.byte_identical_visual_files == (
+        "apps/web/src/design/layout.css",
+        "apps/web/src/features/modeling/ui/stages/data/data.css",
+    )
+    assert report.visual_preservation_issue == "#261"
+
+
+def test_byte_identical_css_migration_rejects_two_current_hash_proofs(tmp_path: Path) -> None:
+    fixture = _css_visual_preservation_fixture(tmp_path)
+    current_manifest = _add_followup_css_visual_preservation(fixture)
+    duplicate = (
+        tmp_path
+        / "docs/17-evidence/images/issue-261-css-proof-m1a1-duplicate/manifest.json"
+    )
+    duplicate.parent.mkdir(parents=True)
+    duplicate.write_bytes(current_manifest.read_bytes())
+
+    with pytest.raises(DocumentationImpactError, match="must match the current CSS hashes"):
+        verify_documentation_impact(tmp_path, "worktree")
+
+
+def test_byte_identical_css_migration_rejects_modified_stale_historical_proof(
+    tmp_path: Path,
+) -> None:
+    fixture = _css_visual_preservation_fixture(tmp_path)
+    _add_followup_css_visual_preservation(fixture)
+    historical = Path(fixture["manifest"])
+    historical.write_text(
+        historical.read_text(encoding="utf-8").replace(
+            '"density": "standard"',
+            '"density": "standard" ',
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(DocumentationImpactError, match="must be committed and unchanged"):
+        verify_documentation_impact(tmp_path, "worktree")
 
 
 def test_byte_identical_css_migration_rejects_actual_pixel_bytes_drift(tmp_path: Path) -> None:

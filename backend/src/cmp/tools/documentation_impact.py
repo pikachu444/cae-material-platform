@@ -447,9 +447,51 @@ def _load_changed_css_visual_preservation(
         if "documentation_impact" not in manifest:
             continue
         candidates.append(_parse_css_visual_preservation(path, manifest))
-    if len(candidates) > 1:
-        raise DocumentationImpactError("exactly one CSS visual-preservation manifest may change")
-    return candidates[0] if candidates else None
+    if len(candidates) <= 1:
+        return candidates[0] if candidates else None
+
+    current_hash_candidates = [
+        candidate
+        for candidate in candidates
+        if all(
+            (project / path).is_file()
+            and hashlib.sha256((project / path).read_bytes()).hexdigest() == expected_digest
+            for path, expected_digest in candidate.visual_file_sha256
+        )
+    ]
+    if len(current_hash_candidates) != 1:
+        raise DocumentationImpactError(
+            "exactly one CSS visual-preservation manifest must match the current CSS hashes"
+        )
+
+    current = current_hash_candidates[0]
+    current_visual_files = set(current.visual_files)
+    for historical in candidates:
+        if historical is current:
+            continue
+        committed = subprocess.run(
+            ["git", "cat-file", "-e", f"HEAD:{historical.path}"],
+            cwd=project,
+            check=False,
+            capture_output=True,
+        )
+        unchanged = subprocess.run(
+            ["git", "diff", "--quiet", "HEAD", "--", historical.path],
+            cwd=project,
+            check=False,
+            capture_output=True,
+        )
+        if committed.returncode != 0 or unchanged.returncode != 0:
+            raise DocumentationImpactError(
+                f"{historical.path} non-current CSS visual-preservation manifest must be "
+                "committed and unchanged"
+            )
+        if set(historical.visual_files) != current_visual_files:
+            raise DocumentationImpactError(
+                f"{historical.path} historical CSS visual-preservation manifest must cover "
+                "the same visual files as the current proof"
+            )
+    return current
 
 
 class _UniqueKeyLoader(yaml.SafeLoader):
