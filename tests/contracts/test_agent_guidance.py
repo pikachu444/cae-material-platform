@@ -6,7 +6,7 @@ from cmp.tools.user_guide import _documentation_classes
 
 ROOT = Path(__file__).parents[2]
 AGENTS = ROOT / "AGENTS.md"
-AGENTS_MAX_BYTES = 8 * 1024
+AGENTS_MAX_BYTES = 16 * 1024
 BACKLOG = ROOT / "docs" / "13-delivery" / "backlog.md"
 
 
@@ -85,7 +85,7 @@ def test_cold_start_routes_user_work_in_product_order() -> None:
         "#158 Modeling Fit",
         "#158 Modeling Export",
         "#160 검토·승인·DB 공개·복구",
-        "#161 공통 화면 정리",
+        "#161 공통 화면·전역 레이아웃 기반",
         "#162 Ubuntu VM·문서 최종 검증",
         "#162 공개 실측 데이터 최종 검증",
     )

@@ -85,7 +85,9 @@ def test_dma_governed_adapter_preserves_source_semantics_and_affine_normalizatio
     assert channels["temperature"].quantity_semantics == "physics.temperature"
     assert channels["temperature"].normalization_scale == Decimal("1.0")
     assert channels["temperature"].normalization_offset == Decimal("273.15")
-    assert float(channels["temperature"].normalized_values[0]) == pytest.approx(233.15)
+    normalized_temperature = channels["temperature"].normalized_values[0]
+    assert normalized_temperature is not None
+    assert float(normalized_temperature) == pytest.approx(233.15)
     assert channels["frequency"].quantity_semantics == "frequency.cyclic"
     assert channels["frequency"].axis_role is ChannelAxisRole.INDEPENDENT
     assert channels["storage_modulus"].quantity_semantics == "mechanics.modulus.storage"

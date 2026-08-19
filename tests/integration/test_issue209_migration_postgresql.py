@@ -57,13 +57,15 @@ def _column_nullable(
     table: str,
     column: str,
 ) -> str | None:
-    return connection.scalar(
+    value = connection.scalar(
         sa.text(
             "SELECT is_nullable FROM information_schema.columns "
             "WHERE table_schema=:schema AND table_name=:table AND column_name=:column"
         ),
         {"schema": schema, "table": table, "column": column},
     )
+    assert value is None or isinstance(value, str)
+    return value
 
 
 def test_issue209_upgrade_downgrade_reupgrade_and_direct_review_guard() -> None:

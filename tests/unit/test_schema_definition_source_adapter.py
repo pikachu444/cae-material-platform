@@ -16,6 +16,7 @@ from cmp.modules.catalog.domain.schema_sources import (
     SOURCE_SET_CONTRACT_ID,
     SOURCE_SET_MEDIA_TYPE,
     SOURCE_ZIP_MEDIA_TYPE,
+    NormalizedSchemaDefinitionSource,
     normalize_schema_definition_source,
 )
 from cmp.modules.identity_access.domain.authorization import DataClassification
@@ -51,7 +52,7 @@ def _envelope(files: dict[str, bytes]) -> bytes:
     return json.dumps(value, separators=(",", ":"), ensure_ascii=False).encode()
 
 
-def _normalize(raw: bytes, media_type: str):
+def _normalize(raw: bytes, media_type: str) -> NormalizedSchemaDefinitionSource:
     return normalize_schema_definition_source(
         raw,
         media_type=media_type,

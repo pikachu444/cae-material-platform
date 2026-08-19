@@ -1,3 +1,6 @@
+from collections.abc import Callable
+from typing import cast
+
 import sqlalchemy as sa
 from cmp.modules.modeling.adapters.persistence.linear_viscoelasticity_repository import (
     linear_viscoelastic_processing_evidence_table,
@@ -8,9 +11,11 @@ from cmp.modules.modeling.adapters.persistence.neutral_material_repository impor
 from cmp.modules.modeling.adapters.persistence.repository import material_model_revision_table
 from cmp.modules.processing.adapters.persistence.common_outputs import revision_table
 from sqlalchemy.dialects import postgresql
+from sqlalchemy.engine import Dialect
 
 
 def test_fit_decision_evidence_binds_python_none_as_sql_null() -> None:
+    dialect = cast(Callable[[], Dialect], postgresql.dialect)()
     columns = (
         material_model_revision_table.c.fit_decision_evidence,
         linear_viscoelastic_processing_evidence_table.c.fit_decision_evidence,
@@ -19,7 +24,7 @@ def test_fit_decision_evidence_binds_python_none_as_sql_null() -> None:
     )
 
     for column in columns:
-        processor = column.type.bind_processor(postgresql.dialect())
+        processor = column.type.bind_processor(dialect)
 
         assert processor is not None
         assert processor(None) is None

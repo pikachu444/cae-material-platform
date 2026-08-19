@@ -366,7 +366,6 @@ def _parse_exception(path: str, raw: object) -> DocumentationImpactException:
             raise DocumentationImpactError(
                 f"{path} verification.relocations must be a non-empty list"
             )
-        parsed_relocations: list[_Relocation] = []
         for index, raw_relocation in enumerate(raw_relocations):
             relocation = _mapping(raw_relocation, f"{path} verification.relocations[{index}]")
             if set(relocation) != {"source", "target", "declarations"}:
@@ -1040,7 +1039,9 @@ def _find_declarations(
     def record(declaration: _Declaration) -> bool:
         declarations.append(declaration)
         found_names.add(declaration.name)
-        return bool(required_names) and required_names <= found_names
+        if not required_names:
+            return False
+        return required_names <= found_names
 
     brace = paren = square = 0
     cursor = 0
@@ -1281,7 +1282,9 @@ def _static_imports(text: str) -> tuple[_StaticImport, ...]:
                 item = raw_item.strip()
                 if not item:
                     continue
-                item_type = "type" if type_only or re.match(r"type\s+", item) else "value"
+                item_type: Literal["type", "value"] = (
+                    "type" if type_only or re.match(r"type\s+", item) else "value"
+                )
                 if item_type == "type":
                     item = re.sub(r"^type\s+", "", item)
                 alias_parts = re.split(r"\s+as\s+", item)
@@ -1735,7 +1738,13 @@ def _direct_runtime_declarations(
         ):
             cursor += 1
             continue
-        declaration_kind = tokens[keyword_index].text
+        declaration_kind: Literal["class", "const", "function"]
+        if tokens[keyword_index].text == "class":
+            declaration_kind = "class"
+        elif tokens[keyword_index].text == "const":
+            declaration_kind = "const"
+        else:
+            declaration_kind = "function"
         name = tokens[keyword_index + 1].text
         runtime_tokens: tuple[_TsToken, ...]
         end_index: int | None = None

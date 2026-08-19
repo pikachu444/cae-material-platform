@@ -1,4 +1,5 @@
 import hashlib
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from types import SimpleNamespace
 from uuid import UUID
@@ -13,7 +14,21 @@ from cmp.modules.datasets.application.canonical_test_data import (
     GovernedTabularTestDataSource,
     GovernedTestDataSource,
 )
-from cmp.modules.datasets.domain.canonical_test_data import ChannelAxisRole
+from cmp.modules.datasets.domain.canonical_test_data import (
+    CanonicalTestDataDocument,
+    ChannelAxisRole,
+)
+from cmp.modules.datasets.domain.canonical_test_data import TestDataChannel as CanonicalChannel
+from cmp.modules.datasets.domain.canonical_test_data import TestDataSource as CanonicalSource
+from cmp.modules.datasets.domain.canonical_test_data import (
+    TestExecutionMetadata as ExecutionMetadata,
+)
+from cmp.modules.datasets.domain.canonical_test_data import (
+    TestMaterialMetadata as MaterialMetadata,
+)
+from cmp.modules.datasets.domain.canonical_test_data import (
+    TestSpecimenMetadata as SpecimenMetadata,
+)
 from cmp.modules.datasets.domain.governed_tabular import (
     AxisRole,
     GovernedChannelMapping,
@@ -25,7 +40,13 @@ from cmp.modules.datasets.domain.governed_tabular import (
     TabularDataSchema,
     normalized_parquet_bytes,
 )
-from cmp.modules.identity_access.domain.authorization import DataClassification
+from cmp.modules.identity_access.domain.authorization import (
+    AuthorizationDecision,
+    DataClassification,
+    Permission,
+    Role,
+)
+from cmp.modules.identity_access.domain.security import Principal, PrincipalType, SecurityContext
 
 MATERIAL = UUID("8b000000-0000-4000-8000-000000000001")
 MATERIAL_REVISION = UUID("8b000000-0000-4000-8000-000000000002")
@@ -44,6 +65,37 @@ RAW_DATASET = UUID("8b000000-0000-4000-8000-000000000016")
 RAW_DATASET_REVISION = UUID("8b000000-0000-4000-8000-000000000017")
 NORMALIZED_DATASET = UUID("8b000000-0000-4000-8000-000000000018")
 NORMALIZED_DATASET_REVISION = UUID("8b000000-0000-4000-8000-000000000019")
+ORGANIZATION = UUID("8b000000-0000-4000-8000-000000000020")
+PROJECT = UUID("8b000000-0000-4000-8000-000000000021")
+ACTOR = UUID("8b000000-0000-4000-8000-000000000022")
+REQUEST = UUID("8b000000-0000-4000-8000-000000000023")
+NOW = datetime(2026, 8, 19, 9, 0, tzinfo=UTC)
+CONTEXT = SecurityContext(
+    principal=Principal(ACTOR, PrincipalType.USER, "Test data verifier", True),
+    organization_id=ORGANIZATION,
+    project_id=PROJECT,
+    issuer="urn:cmp:test",
+    subject=str(ACTOR),
+    token_id="uxc06b-test-token",
+    groups=(),
+    scopes=(Permission.DATASET_WRITE.value,),
+    request_id=REQUEST,
+    trace_id="00-8b000000000040008000000000000023-0000000000000023-01",
+    authenticated_at=NOW,
+)
+DECISION = AuthorizationDecision(
+    principal_id=ACTOR,
+    organization_id=ORGANIZATION,
+    project_id=PROJECT,
+    permission=Permission.DATASET_WRITE,
+    roles=(Role.DATA_STEWARD,),
+    database_permissions=(Permission.DATASET_WRITE.value,),
+    max_classification=DataClassification.INTERNAL,
+    allow_export_controlled=False,
+    request_id=REQUEST,
+    trace_id=CONTEXT.trace_id,
+    decided_at=NOW,
+)
 
 
 def _source(**overrides: ExactRevisionRef) -> GovernedTestDataSource:
@@ -85,27 +137,48 @@ def _tabular_source() -> GovernedTestDataSource:
     )
 
 
-def _document(*, tampered: bool = False) -> object:
-    return SimpleNamespace(
+def _document(*, tampered: bool = False) -> CanonicalTestDataDocument:
+    major_values = (Decimal("0.3"), Decimal("0.41") if tampered else Decimal("0.4"))
+    return CanonicalTestDataDocument(
+        document_id="UXC06B-FLD-01",
+        material=MaterialMetadata("CMP Test", "Synthetic", None),
+        test=ExecutionMetadata(
+            date(2026, 8, 19),
+            "Test operator",
+            "CMP Test Laboratory",
+            "bounded synthetic forming-limit test",
+        ),
+        specimen=SpecimenMetadata("UXC06B-SPECIMEN", "bounded synthetic fixture"),
+        conditions=(),
         channels=(
-            SimpleNamespace(
+            CanonicalChannel(
                 key="minor_strain",
-                normalized_unit="1",
+                name="Minor strain",
+                quantity_semantics="mechanics.minor_strain",
                 axis_role=ChannelAxisRole.INDEPENDENT,
-                normalized_values=(Decimal("-0.1"), Decimal("0.1")),
-            ),
-            SimpleNamespace(
-                key="major_strain",
+                original_unit_string="1",
                 normalized_unit="1",
+                normalization_scale=Decimal("1"),
+                normalization_offset=Decimal("0"),
+                original_values=(Decimal("-0.1"), Decimal("0.1")),
+                normalized_values=(Decimal("-0.1"), Decimal("0.1")),
+                missing_reasons=(None, None),
+            ),
+            CanonicalChannel(
+                key="major_strain",
+                name="Major strain",
+                quantity_semantics="mechanics.major_strain",
                 axis_role=ChannelAxisRole.DEPENDENT,
-                normalized_values=(
-                    Decimal("0.3"),
-                    Decimal("0.41") if tampered else Decimal("0.4"),
-                ),
+                original_unit_string="1",
+                normalized_unit="1",
+                normalization_scale=Decimal("1"),
+                normalization_offset=Decimal("0"),
+                original_values=major_values,
+                normalized_values=major_values,
+                missing_reasons=(None, None),
             ),
         ),
-        source=SimpleNamespace(sha256=_RAW_SHA256),
-        point_count=2,
+        source=CanonicalSource("uxc06b-fld.csv", "text/csv", _RAW_SHA256),
     )
 
 
@@ -129,8 +202,8 @@ class _GovernedImports:
 
     def get_dataset_revision_for_test_data_source(
         self,
-        _context: object,
-        _decision: object,
+        _context: SecurityContext,
+        _decision: AuthorizationDecision,
         dataset_id: UUID,
         revision_id: UUID,
     ) -> object:
@@ -171,7 +244,11 @@ class _GovernedImports:
 
 class _Testing:
     def get_test_run_revision_for_processing(
-        self, context: object, decision: object, aggregate_id: UUID, revision_id: UUID
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        aggregate_id: UUID,
+        revision_id: UUID,
     ) -> object:
         del context, decision
         if aggregate_id != RUN or revision_id != RUN_REVISION:
@@ -185,7 +262,11 @@ class _Testing:
         )
 
     def get_specimen_revision_for_processing(
-        self, context: object, decision: object, aggregate_id: UUID, revision_id: UUID
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        aggregate_id: UUID,
+        revision_id: UUID,
     ) -> tuple[DataClassification, object]:
         del context, decision
         assert aggregate_id == SPECIMEN
@@ -203,7 +284,11 @@ class _Catalog:
         self._material_failure = material_failure
 
     def get_material_state_revision_for_calibration(
-        self, context: object, decision: object, aggregate_id: UUID, revision_id: UUID
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        aggregate_id: UUID,
+        revision_id: UUID,
     ) -> object:
         del context, decision
         if aggregate_id != STATE or revision_id != STATE_REVISION:
@@ -223,7 +308,11 @@ class _Catalog:
         )
 
     def get_material_revision_for_provenance(
-        self, context: object, decision: object, aggregate_id: UUID, revision_id: UUID
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        aggregate_id: UUID,
+        revision_id: UUID,
     ) -> object:
         del context, decision
         if self._material_failure is not None:
@@ -251,7 +340,7 @@ def _verifier(
 
 
 def test_exact_test_run_specimen_state_material_chain_is_accepted() -> None:
-    _verifier().verify(object(), object(), _source())  # type: ignore[arg-type]
+    _verifier().verify(CONTEXT, DECISION, _source())
 
 
 def test_exact_governed_tabular_run_datasets_and_canonical_values_are_verified() -> None:
@@ -261,13 +350,9 @@ def test_exact_governed_tabular_run_datasets_and_canonical_values_are_verified()
         governed_import=_GovernedImports(),  # type: ignore[arg-type]
     )
 
-    verifier.verify(  # type: ignore[arg-type]
-        object(), object(), _tabular_source(), _document()
-    )
+    verifier.verify(CONTEXT, DECISION, _tabular_source(), _document())
     with pytest.raises(GovernedImportConflict, match="differs from the pinned"):
-        verifier.verify(  # type: ignore[arg-type]
-            object(), object(), _tabular_source(), _document(tampered=True)
-        )
+        verifier.verify(CONTEXT, DECISION, _tabular_source(), _document(tampered=True))
 
 
 @pytest.mark.parametrize(
@@ -288,7 +373,7 @@ def test_any_declared_exact_source_mismatch_is_rejected(
     source: GovernedTestDataSource,
 ) -> None:
     with pytest.raises(GovernedImportConflict):
-        _verifier().verify(object(), object(), source)  # type: ignore[arg-type]
+        _verifier().verify(CONTEXT, DECISION, source)
 
 
 def test_zero_revision_pins_are_rejected_before_cross_module_reads() -> None:
@@ -306,9 +391,9 @@ def test_zero_revision_pins_are_rejected_before_cross_module_reads() -> None:
 def test_missing_or_restricted_exact_material_fails_closed(failure: Exception) -> None:
     with pytest.raises(GovernedImportConflict, match="could not be verified"):
         _verifier(_Catalog(material_failure=failure)).verify(
-            object(),
-            object(),
-            _source(),  # type: ignore[arg-type]
+            CONTEXT,
+            DECISION,
+            _source(),
         )
 
 
@@ -316,8 +401,8 @@ def test_material_and_state_cross_classification_is_rejected() -> None:
     class CrossClassificationCatalog(_Catalog):
         def get_material_revision_for_provenance(
             self,
-            context: object,
-            decision: object,
+            context: SecurityContext,
+            decision: AuthorizationDecision,
             aggregate_id: UUID,
             revision_id: UUID,
         ) -> object:
@@ -334,7 +419,7 @@ def test_material_and_state_cross_classification_is_rejected() -> None:
 
     with pytest.raises(GovernedImportConflict, match="scope differs"):
         _verifier(CrossClassificationCatalog()).verify(
-            object(),
-            object(),
-            _source(),  # type: ignore[arg-type]
+            CONTEXT,
+            DECISION,
+            _source(),
         )

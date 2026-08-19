@@ -755,8 +755,10 @@ def test_export_resolver_returns_the_one_stable_model_and_exact_revision() -> No
 
     assert resolved.material_model_id == MODEL
     assert resolved.revision.record.revision_id == match.revision.record.revision_id
-    assert resolved.revision.content.processing_output_id == PROCESSING_OUTPUT
-    assert resolved.revision.content.processing_output_revision_id == PROCESSING_OUTPUT_REVISION
+    content = resolved.revision.content
+    assert isinstance(content, ReferenceProcessedTabulatedPlasticityContent)
+    assert content.processing_output_id == PROCESSING_OUTPUT
+    assert content.processing_output_revision_id == PROCESSING_OUTPUT_REVISION
 
 
 @pytest.mark.parametrize("matches", [(), ("duplicate", "duplicate")])

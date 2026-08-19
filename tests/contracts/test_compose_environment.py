@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import sys
+from collections.abc import Sequence
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 from typing import Any
+
+import pytest
 
 ROOT = Path("/workspace")
 COMPOSE = ROOT / "deploy" / "compose" / "docker-compose.demo.yml"
@@ -158,7 +161,9 @@ def test_default_workdir_uses_compose_parent() -> None:
     assert validate_compose_environment(records, _images(), expected_compose_file=COMPOSE) == ()
 
 
-def test_run_preflight_default_cwd_is_compose_parent(tmp_path, monkeypatch) -> None:
+def test_run_preflight_default_cwd_is_compose_parent(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     compose_file = tmp_path / "deploy" / "compose" / "docker-compose.demo.yml"
     compose_file.parent.mkdir(parents=True)
     compose_file.write_text("name: cmp-local-demo\n", encoding="utf-8")
@@ -168,16 +173,25 @@ def test_run_preflight_default_cwd_is_compose_parent(tmp_path, monkeypatch) -> N
         _container(service, compose_file=compose_file, workdir=compose_file.parent)
         for service in REQUIRED_SERVICES
     ]
-    monkeypatch.setattr(
-        preflight,
-        "inspect_containers",
-        lambda **kwargs: inspect_cwds.append(kwargs["cwd"]) or records,
-    )
-    monkeypatch.setattr(
-        preflight,
-        "resolve_compose_image_ids",
-        lambda **kwargs: image_cwds.append(kwargs["cwd"]) or _images(),
-    )
+    def inspect_containers(*, docker_bin: str, cwd: Path) -> list[dict[str, Any]]:
+        del docker_bin
+        inspect_cwds.append(cwd)
+        return records
+
+    def resolve_compose_image_ids(
+        *,
+        compose_file: Path,
+        project: str,
+        services: Sequence[str],
+        cwd: Path,
+        docker_bin: str,
+    ) -> dict[str, str]:
+        del compose_file, project, services, docker_bin
+        image_cwds.append(cwd)
+        return _images()
+
+    monkeypatch.setattr(preflight, "inspect_containers", inspect_containers)
+    monkeypatch.setattr(preflight, "resolve_compose_image_ids", resolve_compose_image_ids)
 
     assert (
         preflight.run_preflight(
@@ -238,7 +252,9 @@ def test_image_id_mismatch_fails() -> None:
     assert any("web" in error and "image mismatch" in error for error in errors)
 
 
-def test_cli_reports_a_single_concise_failure_without_docker(monkeypatch, capsys) -> None:
+def test_cli_reports_a_single_concise_failure_without_docker(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
     monkeypatch.setattr(
         preflight,
         "run_preflight",

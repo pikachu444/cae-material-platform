@@ -1055,6 +1055,7 @@ def parse_governed_source_evidence(
                 recovery_hint="Correct the relaxation response or choose the matching test schema.",
             )
             continue
+        coordinate: tuple[float, ...]
         if profile.data_schema is TabularDataSchema.DMA_FREQUENCY_TEMPERATURE_SWEEP:
             if point[0] < 0:
                 add_diagnostic(
