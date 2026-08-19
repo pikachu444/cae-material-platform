@@ -64,7 +64,8 @@
   main `53e4a698235e4c7dad8c87e0156bc2627866989f`에서 병합했습니다. Task 2는
   [PR #224](https://github.com/pikachu444/cae-material-platform/pull/224)에서 병합해 `#160`을 [x]로
   완료했습니다. Reviewer Activity `Needs attention`의 2560×1440·3840×2160 고정 밀도 control/text
-  Q20 실패는 Task 2의 공통 compact token과 Activity layout/geometry 범위에서 보정했습니다. 2026-08-09
+  전체 화면 폭·고해상도 전 제품 구성 (Q-20) 실패는 Task 2의 공통 compact token과 Activity layout/geometry
+  범위에서 보정했습니다. 2026-08-09
   제품 소유자 disposition에 따라 실제 Windows 4K 100%·150%·200% 물리 가독성 최종 판정은
   [#223](https://github.com/pikachu444/cae-material-platform/issues/223)으로 이관하고 전체 순서의
   마지막에 둡니다. PR #224 병합과 delivery tracking을 동기화했으며,

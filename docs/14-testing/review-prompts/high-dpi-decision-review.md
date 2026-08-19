@@ -21,7 +21,7 @@ The review packet must embed or attach the exact version of:
 - the available-display record, including monitor size/resolution, Windows scale, browser zoom, CSS
   viewport and `devicePixelRatio`, plus an explicit `COMPLETE` or `DEFERRED_TO_223` physical status;
 - pane resize/collapse/reset/persistence, table sizing, plot resize and browser-zoom-200% results;
-- completed Q-01 through Q-20 results for every representative screen.
+- 모든 대표 화면에서 완료한 20개 정성 판정 결과 (Q-01~Q-20).
 
 Missing actual Windows 4K evidence does not block this provisional decision when the packet identifies
 the unavailable device condition and routes the exact physical matrix to #223. Playwright viewport
