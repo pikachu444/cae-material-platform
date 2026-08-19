@@ -139,11 +139,14 @@ Quick Tunnel에는 별도의 Cloudflare 접근 제한을 설정하지 않았으�
 
 ## 개발과 검증
 
-Python 3.12, `uv`, Node.js/npm을 사용합니다.
+개발 기준은 Python `3.12.14`, uv `0.12.5`, Node.js `24.19.0` LTS와 npm `11.17.0`입니다.
+저장소의 `.python-version`과 `.node-version`이 정확한 실행 버전을 기록합니다.
 
 ```powershell
-uv sync --all-groups
-npm ci
+uv python install
+uv sync --all-groups --locked
+npm ci --workspaces --include-workspace-root
+uv run python scripts/check_development_environment.py
 uv run pytest tests/contracts
 npm run build --workspace @cmp/web
 npm run test:web
@@ -153,6 +156,8 @@ uv run cmp-check-user-guide --root .
 전체 명령은 [개발 가이드](DEVELOPMENT.md), 사용자 화면 확인 방법은
 [사용자 가이드](docs/user-guide/index.md)를 따릅니다. 개발 변경 전에는 [AGENTS.md](AGENTS.md)와
 정확한 GitHub issue를 읽으십시오. 완료된 작업 이력은 Git과 병합된 issue/PR에서 확인합니다.
+Python 패키지는 `pyproject.toml + uv.lock`, 웹 패키지는 `package.json + package-lock.json`이
+기준입니다. 별도의 `requirements.txt`를 만들지 않습니다.
 
 ## 문서
 

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "cmp.frontend-guard-baseline.v1",
-  "sourceSha": "4f753deaeb4dae9dc48ea2c63fd313c6fe5e7b01",
+  "sourceSha": "6f0c991957b9245db5a79a336993294ce89780bb",
   "ownerIssue": "#256",
   "hotspots": [
     {
@@ -120,15 +120,6 @@
     }
   ],
   "exceptions": [
-    {
-      "ruleId": "CMP-FE-HOTSPOT-RESPONSIBILITY",
-      "path": "apps/web/src/common-processing-workbench.tsx",
-      "fingerprint": "de14114ce3d3c66b0f24b8ea535ec2b1bed53ba9ac1906b423b0401be80c30fc",
-      "maxOccurrences": 1,
-      "reason": "FE-05 uses the registered semantic pane primitives at the existing Data-stage composition boundary.",
-      "ownerIssue": "#260",
-      "removalCondition": "Remove when the remaining Data technical-details adapter moves to its owned stage module."
-    },
     {
       "ruleId": "CMP-FE-HOTSPOT-GROWTH",
       "path": "apps/web/src/common-processing-workbench.tsx",
