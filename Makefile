@@ -17,15 +17,14 @@ demo:
 	docker compose -f deploy/compose/docker-compose.demo.yml up --build
 
 demo-verify:
-	docker compose -f deploy/compose/docker-compose.demo.yml run --rm --no-deps seed \
-		python scripts/verify_full_demo.py --api-base-url http://api:8000/api/v1
+	$(UV) run python scripts/run_disposable_demo_test.py
 
 demo-e2e:
-	npx playwright install chromium
-	npm run test:e2e --workspace @cmp/web
+	npx --no-install playwright install chromium
+	$(UV) run python scripts/run_disposable_demo_test.py --e2e
 
 demo-down:
-	docker compose -f deploy/compose/docker-compose.demo.yml down -v
+	docker compose -f deploy/compose/docker-compose.demo.yml down
 
 compose-preflight:
 	$(UV) run python scripts/check_compose_environment.py

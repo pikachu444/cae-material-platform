@@ -16,28 +16,34 @@ make demo
 ```powershell
 docker compose -f deploy/compose/docker-compose.demo.yml up -d --build
 docker compose -f deploy/compose/docker-compose.demo.yml logs seed
-docker compose -f deploy/compose/docker-compose.demo.yml run --rm --no-deps seed python scripts/verify_full_demo.py --api-base-url http://api:8000/api/v1
-npx playwright install chromium
-npm run test:e2e --workspace @cmp/web
 ```
 
 `seed`는 금속·폴리머·엘라스토머 합성 시험 데이터와 reference 모델, Abaqus/OpenRadioss solver card를
 보호된 API로 생성합니다. 선택 모델 결정은 저장되며, DP780 hardening selected model revision에는 아직
-결정되지 않은 review request가 하나 생깁니다. 위 검증 명령(또는 Make가 설치된 환경의
-`make demo-verify`)이 세 Material과 필요한 card를 출력하면 준비가 끝난 것입니다.
-`npm run test:e2e --workspace @cmp/web`(또는 `make demo-e2e`)는 실제 브라우저에서 Materials 검색,
-Materials의 solver card preview·전달 확인·다운로드, Activity의 review request를 확인합니다.
-첫 실행에는 Chromium 설치가 포함될 수 있습니다.
+결정되지 않은 review request가 하나 생깁니다. `cmp-local-demo`는 이 상태를 이어서 살펴보는 영구
+Demo입니다. `seed` 로그가 0으로 끝나면 Web을 열어 준비 상태를 확인합니다.
 
-기존 합성 데모를 완전히 지우고 처음부터 재현해야 할 때만 다음 명령을 사용합니다.
+반복 자동 검증은 영구 Demo에 연결하지 않고 다음 명령으로 실행합니다.
+
+```powershell
+make demo-verify
+make demo-e2e
+```
+
+각 명령은 고유 `cmp-demo-test-*` project와 전용 DB/object-store volume에서 깨끗하게 시작하고,
+검증 후 해당 test volume만 제거합니다. `make demo-e2e`는 실제 브라우저에서 Materials 검색,
+solver card preview·전달 확인·다운로드, Activity의 review request를 확인하며 첫 실행에는 Chromium
+설치가 포함될 수 있습니다.
+
+영구 Demo를 멈췄다가 같은 데이터로 다시 실행하려면 다음 명령을 사용합니다.
 
 ```powershell
 make demo-down
 docker compose -f deploy/compose/docker-compose.demo.yml up -d --build
 ```
 
-`make demo-down`은 `cmp-local-demo`의 PostgreSQL과 object-store 볼륨을 삭제합니다. 회사 데이터나
-다른 Docker 프로젝트에 이 명령을 복사하지 마십시오.
+`make demo-down`은 컨테이너만 내리고 `cmp-local-demo`의 PostgreSQL과 object-store volume을
+보존합니다. 반복 검증 정리를 위해 이 영구 project에 `down -v`를 사용하지 마십시오.
 
 ## 2. 서비스에 연결하기
 

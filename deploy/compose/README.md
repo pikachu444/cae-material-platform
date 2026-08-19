@@ -64,7 +64,7 @@ docker compose -f deploy/compose/docker-compose.demo.yml up --build
 # or: make demo
 ```
 
-For verification and tests it is more convenient to run in the background:
+For continued manual inspection of the permanent demo, run it in the background:
 
 ```powershell
 docker compose -f deploy/compose/docker-compose.demo.yml config --quiet
@@ -84,6 +84,27 @@ uv run python scripts/check_compose_environment.py --include-postgres-test
 
 Rebuild and recreate the canonical project for the current work before accepting a preflight result;
 the command never stops, removes, or mutates containers or volumes.
+
+## Permanent demo and disposable verification
+
+`cmp-local-demo` is the persistent project for human demonstration. Automated demo verification must
+not call its API or mount its `cmp-local-demo_cmp_demo_postgres` and
+`cmp-local-demo_cmp_demo_objects` volumes. Run the isolated path instead:
+
+```powershell
+uv run python scripts/run_disposable_demo_test.py
+# or: make demo-verify
+```
+
+The runner validates the merged `docker-compose.demo.yml` and `docker-compose.demo-test.yml` config,
+chooses a unique `cmp-demo-test-*` project, removes fixed database/API host ports, and gives Web a
+random localhost port only when `--e2e` is selected. Its database and object-store volumes are named
+from that unique project. It runs migrate, one clean seed, and verification, then removes only that
+test project and its volumes even after a failed check. If a running permanent demo is available, the
+runner also prints and compares its volume identity and core record/revision counts before and after.
+
+Example-data second-run stability, the existing domain-binding 409, and the 1,000-record performance
+fixture are separate checks and are not hidden inside this isolation command.
 
 Wait until `postgres` and `api` are healthy. `migrate`, `reference-plugins`, and `seed` are one-shot
 services and must exit with code 0. Check the API independently:
@@ -156,17 +177,17 @@ docker compose -f deploy/compose/docker-compose.demo.yml logs --no-color postgre
 ```
 
 Common causes are Docker Desktop not running, WSL/virtualization not enabled, host ports `54329`,
-`8000`, or `5173` already in use, or a stale synthetic demo volume after a migration change. Only
-after saving useful logs, tear the disposable environment down with:
+`8000`, or `5173` already in use, or a stale synthetic demo volume after a migration change. Stop the
+persistent demo without deleting its volumes with:
 
 ```bash
-docker compose -f deploy/compose/docker-compose.demo.yml down -v
+docker compose -f deploy/compose/docker-compose.demo.yml down
 # or: make demo-down
 ```
 
-`down -v` deletes the Compose demo database and object-store volumes permanently. It is safe only
-for this synthetic local composition and must not be copied to a production or unrelated project
-context.
+No Make target removes the persistent `cmp-local-demo` volumes. Do not use `down -v` on that project
+for routine verification. The disposable runner applies `down -v` only to its validated, unique
+`cmp-demo-test-*` project.
 
 If another local process owns port `8000`, the browser workbench still reaches the API through the
 Compose-internal web proxy at `http://127.0.0.1:5173/api/v1`. Stop or reconfigure the unrelated
