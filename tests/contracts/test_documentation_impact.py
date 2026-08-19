@@ -40,6 +40,16 @@ class _StructuralFixture(TypedDict):
     target: Path
 
 
+class _CssVisualPreservationFixture(TypedDict):
+    project: Path
+    base_sha: str
+    evidence_relative: str
+    manifest: Path
+    screenshot_manifest: Path
+    visual_files: tuple[str, ...]
+    after: Path
+
+
 def _git(project: Path, *arguments: str) -> str:
     result = subprocess.run(
         ["git", *arguments],
@@ -292,7 +302,7 @@ def _css_visual_preservation_fixture(
         "2560x1440",
         "3840x2160",
     ),
-) -> dict[str, Path | str]:
+) -> _CssVisualPreservationFixture:
     visual_files = (
         "apps/web/src/design/layout.css",
         "apps/web/src/features/modeling/ui/stages/data/data.css",
@@ -431,7 +441,7 @@ def _css_visual_preservation_fixture(
 
 
 def _add_followup_css_visual_preservation(
-    fixture: dict[str, Path | str | tuple[str, ...]],
+    fixture: _CssVisualPreservationFixture,
     *,
     evidence_name: str = "issue-261-css-proof-m1a1",
 ) -> Path:

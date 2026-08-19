@@ -806,9 +806,9 @@ def _validate_css_visual_preservation(
     registered_current: set[str] = set()
     for index, raw_capture in enumerate(raw_captures):
         capture = _mapping(raw_capture, f"{_SCREENSHOT_MANIFEST} captures[{index}]")
-        image = capture.get("image")
-        if isinstance(image, str):
-            registered_current.add(f"{_GUIDE_PREFIX}{image}")
+        capture_image = capture.get("image")
+        if isinstance(capture_image, str):
+            registered_current.add(f"{_GUIDE_PREFIX}{capture_image}")
     raw_allowances = screenshot_manifest.get("allowed_duplicate_groups")
     if not isinstance(raw_allowances, list):
         raise DocumentationImpactError(
@@ -885,8 +885,8 @@ def _validate_css_visual_preservation(
             raise DocumentationImpactError(
                 f"{preservation.path} current/before/after filenames must match"
             )
-        pair = pairs_by_name.get(name)
-        if pair is None or pair.get("byte_equal") is not True:
+        matched_pair = pairs_by_name.get(name)
+        if matched_pair is None or matched_pair.get("byte_equal") is not True:
             raise DocumentationImpactError(
                 f"{preservation.path} match lacks a byte_equal original pair: {name}"
             )
@@ -904,8 +904,8 @@ def _validate_css_visual_preservation(
         if (
             before_entry.get("sha256") != digest
             or after_entry.get("sha256") != digest
-            or pair.get("before_sha256") != digest
-            or pair.get("after_sha256") != digest
+            or matched_pair.get("before_sha256") != digest
+            or matched_pair.get("after_sha256") != digest
         ):
             raise DocumentationImpactError(
                 f"{preservation.path} registered SHA-256 differs from actual bytes: {name}"

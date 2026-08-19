@@ -2,20 +2,20 @@
   "schema_version": 1,
   "issue": "#261",
   "unit": "M1A1 Data source-tabs component ownership",
-  "inventory_commit": "5148f6f9438549696e4ab357eaa273526b72a6c8",
-  "implementation_base": "5148f6f9438549696e4ab357eaa273526b72a6c8",
+  "inventory_commit": "e9cad946604bce23197382d206ccf286dd970d51",
+  "implementation_base": "e9cad946604bce23197382d206ccf286dd970d51",
   "documentation_impact": {
     "schema_version": "cmp.documentation-impact.css-byte-identical.v1",
     "issue": "#261",
-    "source_sha": "5148f6f9438549696e4ab357eaa273526b72a6c8",
+    "source_sha": "e9cad946604bce23197382d206ccf286dd970d51",
     "classification": "behavior-preserving-css-migration",
     "visual_files": [
       "apps/web/src/design/layout.css",
       "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css"
     ],
     "visual_file_sha256": {
-      "apps/web/src/design/layout.css": "d5afcb85e0557bf189fac9e97296af7cda8bc777b4b042465c4a5bdde096aad3",
-      "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css": "c05fab998d482012d89c56259a564215ec668c59346ae9384ec1edd8eccc5eb5"
+      "apps/web/src/design/layout.css": "3074c34c0f97f6652729183cf17feeaf591711b4359621cb31a7687e0bdbc47c",
+      "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css": "2e0632e66373766ea429b1861888872735d61250b4a28030dacff45d8413c2f0"
     },
     "current_matches": [
       {
@@ -74,7 +74,7 @@
     },
     {
       "route": "/datasets/processing?stage=data&family=metal",
-      "implementation_base": "5148f6f9438549696e4ab357eaa273526b72a6c8",
+      "implementation_base": "e9cad946604bce23197382d206ccf286dd970d51",
       "before_server": "clean M1A0 commit source on 127.0.0.1:5174",
       "after_server": "current M1A1 worktree on 127.0.0.1:5174",
       "browser_zoom_percent": 100,

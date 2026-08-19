@@ -2,20 +2,20 @@
   "schema_version": 1,
   "issue": "#261",
   "unit": "M1A0 Data same-selector overlap",
-  "inventory_commit": "3a5bf3858d3827f65699e7b39619895fb3befd53",
-  "implementation_base": "3a5bf3858d3827f65699e7b39619895fb3befd53",
+  "inventory_commit": "bb7a37d74d5f42e591a5043983a09efd61db689c",
+  "implementation_base": "bb7a37d74d5f42e591a5043983a09efd61db689c",
   "documentation_impact": {
     "schema_version": "cmp.documentation-impact.css-byte-identical.v1",
     "issue": "#261",
-    "source_sha": "3a5bf3858d3827f65699e7b39619895fb3befd53",
+    "source_sha": "bb7a37d74d5f42e591a5043983a09efd61db689c",
     "classification": "behavior-preserving-css-migration",
     "visual_files": [
       "apps/web/src/design/layout.css",
       "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css"
     ],
     "visual_file_sha256": {
-      "apps/web/src/design/layout.css": "0e1e5e444a8186abe17c0d6c782868bee0475ed8455b8fc78bcd3558383d37f0",
-      "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css": "5701075a1409a770e3f7cce3f1b0e6fb702b9c6d2efa9d1f841ed6359131e28d"
+      "apps/web/src/design/layout.css": "285aadb0091094f269f1e2e62e1018c4d0318ff6927774656766e7fa1ae75992",
+      "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css": "0f185c0c85193451d60f3b5b16f26e832a8cf634d1c74ce7b0fab0c2bce61874"
     },
     "current_matches": [
       {
@@ -74,7 +74,7 @@
     },
     {
       "route": "/datasets/processing?stage=data&family=metal",
-      "implementation_base": "3a5bf3858d3827f65699e7b39619895fb3befd53",
+      "implementation_base": "bb7a37d74d5f42e591a5043983a09efd61db689c",
       "before_server": "inventory commit git archive on 127.0.0.1:5175",
       "after_server": "current M1A0 worktree on 127.0.0.1:5174",
       "browser_zoom_percent": 100,

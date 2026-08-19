@@ -1,7 +1,7 @@
 {
   "schemaVersion": "cmp.issue-261.css-selector-inventory.v1",
-  "sourceSha": "789ebfc65205b63628635c71e660b0f835a43421",
-  "mergeBaseSha": "be4166d840280d5ff0e0a419815002f60b31eeab",
+  "sourceSha": "94e5449b343870157894eb19320b8f8b03a7902c",
+  "mergeBaseSha": "22bc9d81b3d9e0facf3ebd436b8a486c5bcbe070",
   "branch": "issue-261-fe06-css-inventory",
   "scope": {
     "legacyStylesheets": [
@@ -23,9 +23,9 @@
         "sha256": "38f41916e06a80fc08e849d2a3e2792cd57b23f045f1d1d50685737c9400e831"
       },
       "apps/web/src/design/layout.css": {
-        "bytes": 227617,
+        "bytes": 218718,
         "lines": 8922,
-        "sha256": "d92908d7bbcf8e52ed3861f6a05b17d1106675de966dd60f37bb55399b7e2ffe"
+        "sha256": "6ad3004109c53741085137265e28b94661b93b1794fdfdcba51103d1502f6d70"
       }
     },
     "allStylesheets": {
@@ -35,11 +35,11 @@
         "importers": [
           "apps/web/src/main.tsx"
         ],
-        "bytes": 227617,
+        "bytes": 218718,
         "lines": 8922,
         "cssRuleGroups": 1436,
         "selectorRows": 1893,
-        "sha256": "d92908d7bbcf8e52ed3861f6a05b17d1106675de966dd60f37bb55399b7e2ffe"
+        "sha256": "6ad3004109c53741085137265e28b94661b93b1794fdfdcba51103d1502f6d70"
       },
       "apps/web/src/design/primitives.css": {
         "legacyGlobal": false,
@@ -107,11 +107,11 @@
         "importers": [
           "apps/web/src/features/modeling/ui/stages/data/modeling-data-intake.tsx"
         ],
-        "bytes": 28746,
+        "bytes": 27730,
         "lines": 1129,
         "cssRuleGroups": 159,
         "selectorRows": 177,
-        "sha256": "e33209b62c42abdcf8dc1cd8f1c054a62aaefddff850862866ae206bf20f07b0"
+        "sha256": "bbe868370ee32ebd3f829b872a7596d66f66a9a50cb2ed28c8af7e8d2ab14242"
       },
       "apps/web/src/styles.css": {
         "legacyGlobal": true,

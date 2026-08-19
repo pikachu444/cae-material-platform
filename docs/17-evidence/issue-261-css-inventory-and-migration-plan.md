@@ -2,7 +2,7 @@
 
 상태: 첫 bounded unit 완료 후보 — inventory와 plan만 포함하며 production migration은 시작하지 않음
 
-기준: `main@be4166d840280d5ff0e0a419815002f60b31eeab`
+초기 inventory 기준: `main@be4166d840280d5ff0e0a419815002f60b31eeab`; 출판 rebase 기준: `main@22bc9d81b3d9e0facf3ebd436b8a486c5bcbe070`
 
 branch: `issue-261-fe06-css-inventory`
 
@@ -307,10 +307,10 @@ approved reference와 현재 owner direction의 충돌, 또는 lazy CSS load ord
 
 ## M1A0 실행 결과 — committed candidate
 
-승인된 inventory 단위는 `3a5bf3858d3827f65699e7b39619895fb3befd53`로 먼저 커밋했다. 문서 영향의
+승인된 inventory 단위는 `bb7a37d74d5f42e591a5043983a09efd61db689c`로 먼저 커밋했다. 문서 영향의
 byte-identical CSS migration proof correction은 별도 커밋
-`d19deede6199bcc18884bc2db4b2fddd472cc202`, M1A0는
-`5148f6f9438549696e4ab357eaa273526b72a6c8`로 커밋했다. M1A0는 React, DOM, API, route,
+`4500fe86a5af5f672eaf1eec6b760740cf55ed8a`, M1A0는
+`e9cad946604bce23197382d206ccf286dd970d51`로 커밋했다. M1A0는 React, DOM, API, route,
 state, token 또는 breakpoint를 변경하지 않고 아래 effective declaration만 Data owner로 이동했다.
 
 | Selector | Data owner에 남긴 effective declaration | 제거한 legacy dependency |
@@ -499,7 +499,7 @@ impact gate를 충족한다.
 
 ## M1A1 실행 결과 — Data source-tabs component ownership
 
-M1A1은 M1A0 commit `5148f6f9438549696e4ab357eaa273526b72a6c8`에서 남은 M1A 221행 중
+M1A1은 M1A0 commit `e9cad946604bce23197382d206ccf286dd970d51`에서 남은 M1A 221행 중
 Data source-tab component의 정확한 다섯 selector member만 선택했다. production React/DOM, route,
 state, token, breakpoint, current guide PNG와 guide Markdown은 바꾸지 않는다.
 
@@ -679,7 +679,7 @@ documents, 119 current captures, 937 local links와 2,446 images로 PASS했고 `
 validation 전에 함께 active candidate로 센 결정적 검증 결함이었다. 같은 독립 감사자의 첫 verdict도
 M1A1 CSS/evidence 자체는 sound하지만 이 blocker 때문에 `CHANGES_REQUESTED`였다.
 
-Owner가 별도 승인한 correction commit `506646173a9ff35fbb55bf353a3dc9dbfd4d6006`은
+Owner가 별도 승인한 correction commit `4db84aa2e0a40907efa92fcb9a3467e6fb3b89c0`은
 `backend/src/cmp/tools/documentation_impact.py`와 해당 contract tests만 소유한다. 모든 candidate를
 기존 strict schema로 먼저 파싱하고, 여러 proof가 있을 때 현재 CSS 전체의
 기록 SHA-256과 일치하는 proof가 정확히 하나인지 고른다. 나머지는 같은 visual CSS 집합을 다루며
@@ -701,7 +701,7 @@ selector 범위를 유지한다고 확인해 material finding 없이 `APPROVE`�
 
 ## M1A2 실행 결과 — Data source-advanced component ownership
 
-M1A2는 committed M1A1 `789ebfc65205b63628635c71e660b0f835a43421`을 implementation base로
+M1A2는 committed M1A1 `8361e85d80e254759e170c1ce7355b9fe49e56ce`을 implementation base로
 사용한다. React, DOM, route, API, session, copy, token 또는 breakpoint를 바꾸지 않고 Local file의
 `File details` 컴포넌트가 사용하는 세 legacy selector만 기존 Data stage stylesheet로 이동했다.
 
@@ -799,8 +799,8 @@ Windows 4K 물리 가독성이라고 주장하지 않으며 그 최종 판정은
 
 ## 이후 migration 순서
 
-1. M1A0 Data same-selector 12행은 commit `5148f6f...`에서 이동·검증되었다.
-2. M1A1 Data source-tabs 5행은 commit `789ebfc...`에서 이동·검증되었다.
+1. M1A0 Data same-selector 12행은 commit `e9cad946...`에서 이동·검증되었다.
+2. M1A1 Data source-tabs 5행은 commit `8361e85d...`에서 이동·검증되었다.
 3. M1A2 Data source-advanced 3행은 위 candidate에서 이동·검증되었다.
 4. 다음 단위 `M1A3-modeling-data-component-region`은 재생성 inventory의 남은 M1A 213행에서 한 component
    region만 새 owner packet으로 선택한다. owner 승인을 받기 전에는 전체 213행을 함께 이동하지 않는다.
