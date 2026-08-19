@@ -1,8 +1,8 @@
 version: 2
 policy:
-  current: "현재 코드, route, 화면 또는 운영 절차와 같은 변경 단위에서 유지"
-  authoritative: "구현과 검수의 규범; 변경 시 requirement/ADR/Task 추적"
-  reference: "외부 조사와 비교 입력; 제품 자체의 계약은 아님"
+  current: "현재 코드·경로·화면·운영 절차와 함께 갱신하는 문서"
+  authoritative: "구현과 검수의 규범; 변경 전에 관련 요구사항·ADR·작업 근거를 확인"
+  reference: "외부 조사·비교 입력과 범위가 정해진 이슈 증거; 제품 계약은 current·authoritative 문서와 활성 이슈에서 확인"
 rules:
   - status: reference
     include:
