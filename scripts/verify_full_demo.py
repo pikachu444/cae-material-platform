@@ -407,6 +407,64 @@ def _items(response: Mapping[str, Any]) -> list[dict[str, Any]]:
     return [item for item in value if isinstance(item, dict)]
 
 
+def _domain_binding_kinds(value: Mapping[str, Any]) -> tuple[str, ...]:
+    kinds: list[str] = []
+    bindings = value.get("domain_bindings")
+    if isinstance(bindings, list):
+        kinds.extend(
+            str(binding["kind"])
+            for binding in bindings
+            if isinstance(binding, Mapping) and isinstance(binding.get("kind"), str)
+        )
+    binding = value.get("domain_binding")
+    if isinstance(binding, Mapping) and isinstance(binding.get("kind"), str):
+        kinds.append(str(binding["kind"]))
+    return tuple(dict.fromkeys(kinds))
+
+
+def _domain_binding_kind(value: Mapping[str, Any]) -> str | None:
+    kinds = _domain_binding_kinds(value)
+    return kinds[0] if kinds else None
+
+
+def _exact_forward_link_target(
+    links: Sequence[Mapping[str, Any]],
+    *,
+    source_record_id: str,
+    source_record_revision_id: str,
+    link_type_key: str,
+    target_external_key: str,
+    stage: str,
+) -> Mapping[str, Any]:
+    matches = [
+        link
+        for link in links
+        if isinstance(link.get("current_revision"), Mapping)
+        and isinstance(link["current_revision"].get("content"), Mapping)
+        and link["current_revision"]["content"].get("active") is True
+        and link["current_revision"]["content"].get("source_record_id")
+        == source_record_id
+        and link["current_revision"]["content"].get("source_record_revision_id")
+        == source_record_revision_id
+        and isinstance(link.get("link_type_revision"), Mapping)
+        and isinstance(link["link_type_revision"].get("content"), Mapping)
+        and link["link_type_revision"]["content"].get("key") == link_type_key
+        and isinstance(link.get("target"), Mapping)
+        and link["target"].get("external_key") == target_external_key
+    ]
+    if len(matches) != 1:
+        raise RuntimeError(
+            f"{stage} requires exactly one active exact-revision {link_type_key} link "
+            f"to {target_external_key}; found={len(matches)}"
+        )
+    target = matches[0]["target"]
+    if not isinstance(target.get("record_id"), str) or not isinstance(
+        target.get("record_revision_id"), str
+    ):
+        raise RuntimeError(f"{stage} target does not expose an exact record revision")
+    return cast(Mapping[str, Any], target)
+
+
 def _content(value: Mapping[str, Any]) -> Mapping[str, Any]:
     revision = value.get("current_revision")
     content = revision.get("content") if isinstance(revision, Mapping) else None
@@ -1083,56 +1141,46 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
                 <= value_keys
             ):
                 raise RuntimeError(f"clean demo {expected_code} projection lacks evidence fields")
-        workflow = _json(
-            client.get(
-                f"/catalog/workflow-explorer/{catalog_record['record_id']}/revisions/"
-                f"{catalog_revision['id']}?depth=5"
+        material_links = _items(
+            _json(
+                client.get(
+                    f"/catalog/records/{catalog_record['record_id']}/links"
+                    f"?revision_id={catalog_revision['id']}"
+                )
             )
         )
-        workflow_nodes = workflow.get("nodes")
-        if not isinstance(workflow_nodes, list) or len(workflow_nodes) < 6:
-            raise RuntimeError("clean demo Workflow Explorer does not reach the Neutral revision")
-        workflow_kinds = {
-            item.get("domain_binding", {}).get("kind")
-            for item in workflow_nodes
-            if isinstance(item, Mapping)
-        }
-        if (
-            not {
-                "test_data",
-                "processing_output",
-                "material_model",
-                "neutral_material",
-            }
-            <= workflow_kinds
-        ):
-            raise RuntimeError("clean demo Workflow Explorer omits linked curve/model evidence")
-        neutral_record = next(
-            (
-                item
-                for item in workflow_nodes
-                if item.get("domain_binding", {}).get("kind") == "neutral_material"
-            ),
-            None,
+        fast_tensile = _exact_forward_link_target(
+            material_links,
+            source_record_id=str(catalog_record["record_id"]),
+            source_record_revision_id=str(catalog_revision["id"]),
+            link_type_key="technical_to_tensile",
+            target_external_key="CMP-246-TENSILE-FAST",
+            stage="DP780 Technical Data direct link",
         )
-        if not isinstance(neutral_record, Mapping):
-            raise RuntimeError("clean demo Workflow Explorer has no Neutral node")
-        card_graph = _json(
-            client.get(
-                f"/catalog/workflow-explorer/{neutral_record['record_id']}/revisions/"
-                f"{neutral_record['record_revision_id']}?depth=1"
+        if "test_data" not in _domain_binding_kinds(fast_tensile):
+            raise RuntimeError("DP780 fast Tensile link does not pin exact Test Data")
+        if fast_tensile.get("revision_no") != 1:
+            raise RuntimeError("DP780 fast Tensile example is not the clean r1 revision")
+        tensile_links = _items(
+            _json(
+                client.get(
+                    f"/catalog/records/{fast_tensile['record_id']}/links"
+                    f"?revision_id={fast_tensile['record_revision_id']}"
+                )
             )
         )
-        card_nodes = card_graph.get("nodes")
-        if not isinstance(card_nodes, list):
-            raise RuntimeError("clean demo card Workflow graph has no nodes")
-        card_bindings = [
-            item.get("domain_binding", {}).get("kind")
-            for item in card_nodes
-            if isinstance(item, Mapping)
-        ]
-        if card_bindings.count("neutral_solver_card") != 2:
-            raise RuntimeError("clean demo Workflow Explorer does not branch to both cards")
+        selected_model_record = _exact_forward_link_target(
+            tensile_links,
+            source_record_id=str(fast_tensile["record_id"]),
+            source_record_revision_id=str(fast_tensile["record_revision_id"]),
+            link_type_key="tensile_to_elastoplasticity",
+            target_external_key="CMP-246-EP-TABULATED",
+            stage="DP780 fast Tensile direct link",
+        )
+        if "material_model" not in _domain_binding_kinds(selected_model_record):
+            raise RuntimeError("DP780 selected model link does not pin exact Material Model")
+        if selected_model_record.get("revision_no") != 1:
+            raise RuntimeError("DP780 selected model example is not the clean r1 revision")
 
         documents = _items(_json(client.get("/test-data-documents")))
         metal_replicates = [
@@ -1584,7 +1632,11 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
         result["clean_product_journey"] = {
             "catalog_record_id": catalog_record["record_id"],
             "catalog_subset_id": workflow_subset["subset_id"],
-            "catalog_workflow_node_count": len(workflow_nodes) + 2,
+            "catalog_direct_link_path": [
+                _content(catalog_record).get("external_key"),
+                fast_tensile.get("external_key"),
+                selected_model_record.get("external_key"),
+            ],
             "test_data_document_id": document["test_data_document_id"],
             "metal_test_data_replicate_count": len(metal_replicates),
             "scalar_distribution_result_id": distribution_result["scalar_distribution_result_id"],

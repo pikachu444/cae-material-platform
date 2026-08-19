@@ -22,6 +22,9 @@ ProcessingContractExecutionIdentity: Any = vars(_VERIFY_FULL_DEMO)[
 ProcessingLineageError = _VERIFY_FULL_DEMO.ProcessingLineageError
 resolve_processing_projection_lineage = _VERIFY_FULL_DEMO.resolve_processing_projection_lineage
 model_and_pending_review = _VERIFY_FULL_DEMO._model_and_pending_review
+domain_binding_kind = _VERIFY_FULL_DEMO._domain_binding_kind
+domain_binding_kinds = _VERIFY_FULL_DEMO._domain_binding_kinds
+exact_forward_link_target = _VERIFY_FULL_DEMO._exact_forward_link_target
 
 RECIPE_SHA256 = "a" * 64
 OUTPUT_SHA256 = "b" * 64
@@ -247,3 +250,57 @@ def test_pending_review_selection_rejects_missing_or_ambiguous_identity() -> Non
         model_and_pending_review([model], [], label="metal selected model")
     with pytest.raises(RuntimeError, match="exactly one exact pending"):
         model_and_pending_review([model], [request, request], label="metal selected model")
+
+
+def test_workflow_binding_kind_tolerates_unbound_nodes_without_weakening_exact_matches() -> None:
+    assert domain_binding_kind({"domain_binding": None}) is None
+    assert domain_binding_kind({}) is None
+    assert domain_binding_kind({"domain_binding": {"kind": "neutral_material"}}) == (
+        "neutral_material"
+    )
+    assert domain_binding_kinds(
+        {
+            "domain_binding": None,
+            "domain_bindings": [
+                {"kind": "material_model"},
+                {"kind": "neutral_material"},
+            ],
+        }
+    ) == ("material_model", "neutral_material")
+
+
+def test_exact_forward_link_target_requires_the_pinned_active_revision() -> None:
+    link = {
+        "current_revision": {
+            "content": {
+                "active": True,
+                "source_record_id": "technical",
+                "source_record_revision_id": "technical-r1",
+            }
+        },
+        "link_type_revision": {"content": {"key": "technical_to_tensile"}},
+        "target": {
+            "record_id": "tensile",
+            "record_revision_id": "tensile-r1",
+            "external_key": "CMP-246-TENSILE-FAST",
+        },
+    }
+
+    assert exact_forward_link_target(
+        [link],
+        source_record_id="technical",
+        source_record_revision_id="technical-r1",
+        link_type_key="technical_to_tensile",
+        target_external_key="CMP-246-TENSILE-FAST",
+        stage="DP780 Technical Data direct link",
+    ) == link["target"]
+
+    with pytest.raises(RuntimeError, match="exactly one active exact-revision"):
+        exact_forward_link_target(
+            [link],
+            source_record_id="technical",
+            source_record_revision_id="technical-r2",
+            link_type_key="technical_to_tensile",
+            target_external_key="CMP-246-TENSILE-FAST",
+            stage="DP780 Technical Data direct link",
+        )

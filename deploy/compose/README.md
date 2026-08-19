@@ -99,12 +99,25 @@ uv run python scripts/run_disposable_demo_test.py
 The runner validates the merged `docker-compose.demo.yml` and `docker-compose.demo-test.yml` config,
 chooses a unique `cmp-demo-test-*` project, removes fixed database/API host ports, and gives Web a
 random localhost port only when `--e2e` is selected. Its database and object-store volumes are named
-from that unique project. It runs migrate, one clean seed, and verification, then removes only that
-test project and its volumes even after a failed check. If a running permanent demo is available, the
-runner also prints and compares its volume identity and core record/revision counts before and after.
+from that unique project. It runs migrate, seeds the same clean database twice, discovers every
+non-system product/domain table in that database, and verifies identical counts and content after both
+runs. Required coverage fails closed unless it includes Catalog State and direct links, Processing,
+Neutral revisions,
+solver cards, and review requests. It then runs API or browser verification and removes only that test
+project and its volumes even after a failed check. A repeat failure names the runner stage and the
+conflicting Catalog projection. If a running permanent demo is available, the runner also prints and
+compares its volume identity and core record/revision counts before and after.
 
-Example-data second-run stability, the existing domain-binding 409, and the 1,000-record performance
-fixture are separate checks and are not hidden inside this isolation command.
+The snapshot normalizes only `identity.external_identity.last_seen_at`, which authentication updates
+while obtaining the demo token. The external identity and every other field remain part of the exact
+comparison.
+
+The 1,000-record performance fixture remains a separate later check and is not hidden inside this
+repeat-seed command.
+
+For a bounded browser regression, combine `--e2e` with one or more
+`--e2e-spec e2e/<spec>.spec.ts` arguments. Omitting `--e2e-spec` keeps the existing full-suite
+behavior; either path uses the same disposable seed, snapshot, and cleanup boundary.
 
 Wait until `postgres` and `api` are healthy. `migrate`, `reference-plugins`, and `seed` are one-shot
 services and must exit with code 0. Check the API independently:

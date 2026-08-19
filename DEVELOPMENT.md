@@ -82,8 +82,13 @@ identity 식별자를 입력하는 화면은 현재 제품 계약이 아닙니�
 
 `cmp-local-demo`는 사람이 이어서 살펴보는 영구 Demo project입니다. 반복 자동 검증은 이 project의
 API나 volume을 사용하지 않습니다. 다음 명령은 매번 고유한 `cmp-demo-test-*` project와 전용 DB 및
-object-store volume을 만들고, migrate, seed 1회와 전체 확인을 실행한 뒤 성공·실패 모두 해당 test
-project만 `down -v`로 제거합니다.
+object-store volume을 만들고 migrate한 뒤, 같은 깨끗한 DB에서 seed를 두 번 실행합니다. 두 실행
+사이에 실제 DB에서 발견한 모든 non-system product/domain schema의 identity, revision, Catalog
+record, State, processing, Neutral, review, domain binding, direct link가 늘거나 달라지지 않아야
+전체 확인으로 넘어갑니다. 성공·실패 모두 해당 test project만 `down -v`로 제거합니다. 인증 토큰
+발급 시 갱신되는
+`identity.external_identity.last_seen_at`만 비교에서 정규화하며, 해당 identity와 나머지 열은 그대로
+검사합니다.
 
 ```powershell
 uv run python scripts/run_disposable_demo_test.py
@@ -91,8 +96,9 @@ uv run python scripts/run_disposable_demo_test.py
 ```
 
 브라우저 검증도 영구 Demo에 연결하지 않습니다. `make demo-e2e`는 같은 격리 runner에 `--e2e`를
-전달하고 Web만 임의 localhost port로 노출합니다. 예제 seed를 같은 환경에서 두 번 실행하는 검사는
-아직 이 명령의 범위가 아닙니다.
+전달하고 Web만 임의 localhost port로 노출합니다. 두 번째 seed나 domain binding이 실패하면 runner가
+`repeat demo seed`와 해당 Catalog projection 단계를 함께 표시합니다. bounded 회귀 확인은 `--e2e`와
+`--e2e-spec e2e/<spec>.spec.ts`를 함께 반복 지정할 수 있으며, 생략하면 전체 E2E suite를 실행합니다.
 
 종료:
 

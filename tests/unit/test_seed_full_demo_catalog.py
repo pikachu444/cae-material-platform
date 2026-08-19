@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import sys
+from collections.abc import Mapping
 from copy import deepcopy
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 from typing import Any
+
+import pytest
 
 _SCRIPTS = Path(__file__).parents[2] / "scripts"
 sys.path.insert(0, str(_SCRIPTS))
@@ -372,3 +375,143 @@ def test_nonmetal_material_copy_repair_is_single_revision_and_preserves_reason()
     assert api.revisions[0]["change_reason"] == "Preserve the existing change reason."
     assert len(api.revisions) == 1
     assert second["material"]["current_revision"]["id"] == "material-r2"
+
+
+class _CatalogBindingApi:
+    def __init__(
+        self,
+        bindings: list[dict[str, Any]],
+        *,
+        post_error: Exception | None = None,
+    ) -> None:
+        self.bindings = deepcopy(bindings)
+        self.post_error = post_error
+        self.posts: list[tuple[str, dict[str, Any]]] = []
+
+    def get(self, path: str) -> dict[str, Any]:
+        assert path == "/catalog/records/record-1/revisions/record-r1/domain-bindings"
+        return {"items": deepcopy(self.bindings)}
+
+    def post(self, path: str, payload: dict[str, Any]) -> dict[str, Any]:
+        if self.post_error is not None:
+            raise self.post_error
+        self.posts.append((path, deepcopy(payload)))
+        created = {"binding_id": "binding-1", **payload}
+        self.bindings.append(created)
+        return created
+
+
+def _ensure_test_binding(api: _CatalogBindingApi) -> dict[str, Any]:
+    return _SEED_FULL_DEMO._ensure_catalog_domain_binding(
+        api,
+        record_id="record-1",
+        record_revision_id="record-r1",
+        kind="neutral_material",
+        object_id="neutral-1",
+        revision_id="neutral-r1",
+        stage="Neutral Catalog projection",
+    )
+
+
+def test_catalog_domain_binding_repeat_run_reuses_the_exact_binding_without_post() -> None:
+    exact = {
+        "binding_id": "binding-1",
+        "kind": "neutral_material",
+        "object_id": "neutral-1",
+        "revision_id": "neutral-r1",
+    }
+    api = _CatalogBindingApi([exact])
+
+    assert _ensure_test_binding(api) == exact
+    assert api.posts == []
+
+
+def test_catalog_domain_binding_conflict_names_the_seed_stage() -> None:
+    api = _CatalogBindingApi(
+        [
+            {
+                "binding_id": "binding-old",
+                "kind": "neutral_material",
+                "object_id": "neutral-old",
+                "revision_id": "neutral-old-r1",
+            }
+        ]
+    )
+
+    with pytest.raises(
+        _SEED_FULL_DEMO.DemoSeedError,
+        match=r"Neutral Catalog projection.*conflicts with the expected exact target",
+    ):
+        _ensure_test_binding(api)
+
+
+def test_catalog_domain_binding_409_names_the_seed_stage() -> None:
+    api = _CatalogBindingApi(
+        [],
+        post_error=_SEED_FULL_DEMO.DemoSeedError("POST domain-binding returned 409"),
+    )
+
+    with pytest.raises(
+        _SEED_FULL_DEMO.DemoSeedError,
+        match=r"Neutral Catalog projection.*create failed.*409",
+    ):
+        _ensure_test_binding(api)
+
+
+def test_baseline_model_selection_skips_newer_promoted_models() -> None:
+    promoted = {
+        "material_model_id": "promoted-model",
+        "current_revision": {
+            "content": {
+                "property_set_revision_id": "property-r1",
+                "processing_promotion_evidence": {"output_id": "output-1"},
+            }
+        },
+    }
+    baseline = {
+        "material_model_id": "baseline-model",
+        "current_revision": {
+            "content": {
+                "property_set_revision_id": "property-r0",
+                "prony_promotion_evidence": None,
+                "processing_promotion_evidence": None,
+            }
+        },
+    }
+
+    selected = _SEED_FULL_DEMO._unpromoted_model(
+        [promoted, baseline],
+        promotion_fields=("prony_promotion_evidence", "processing_promotion_evidence"),
+    )
+
+    assert selected is baseline
+
+
+def test_ogden_repeat_seed_prefers_the_promoted_baseline_identity() -> None:
+    promoted = {
+        "material_model_id": "promoted-baseline-model",
+        "current_revision": {
+            "content": {"promotion_evidence": {"selection_id": "selection-1"}}
+        },
+    }
+    unpromoted = {
+        "material_model_id": "stale-unpromoted-model",
+        "current_revision": {"content": {"promotion_evidence": None}},
+    }
+    models = [promoted, unpromoted]
+
+    selected = next(
+        (
+            model
+            for model in models
+            if isinstance(
+                _SEED_FULL_DEMO._content(model).get("promotion_evidence"),
+                Mapping,
+            )
+        ),
+        None,
+    ) or _SEED_FULL_DEMO._unpromoted_model(
+        models, promotion_fields=("promotion_evidence",)
+    )
+
+    assert selected is promoted
