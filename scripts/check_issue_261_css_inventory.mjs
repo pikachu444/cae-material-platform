@@ -24,20 +24,33 @@ const LEGACY_CSS = [
   "apps/web/src/design/layout.css",
 ];
 
-const NEXT_PACKET_IDS = [
-  "CSS-0979",
-  "CSS-0997",
-  "CSS-0998",
-  "CSS-1041",
-  "CSS-1052",
-  "CSS-1053",
-  "CSS-1054",
-  "CSS-1055",
-  "CSS-1081",
-  "CSS-1207",
-  "CSS-1495",
-  "CSS-1499",
-];
+const COMPLETED_M1A0 = {
+  id: "M1A0-modeling-data-same-selector-overlap",
+  historicalMemberIds: [
+    "CSS-0979",
+    "CSS-0997",
+    "CSS-0998",
+    "CSS-1041",
+    "CSS-1052",
+    "CSS-1053",
+    "CSS-1054",
+    "CSS-1055",
+    "CSS-1081",
+    "CSS-1207",
+    "CSS-1495",
+    "CSS-1499",
+  ],
+  exactLegacySelectors: [
+    ".data-mapping-resolved",
+    ".data-source-decision-grid",
+    ".data-mapping-decision .data-mapping-table",
+    ".data-mapping-decision .data-mapping-table table",
+    ".data-mapping-decision .data-mapping-table th",
+    ".data-mapping-decision .data-mapping-table td",
+    ".data-source-advanced > summary",
+    ".modeling-data-plot-panel",
+  ],
+};
 
 const MAIN_CSS_ORDER = [
   "apps/web/src/styles.css",
@@ -863,18 +876,13 @@ function makeInventory() {
   );
   const sourceSha = execFileSync("git", ["rev-parse", "HEAD"], { cwd: ROOT, encoding: "utf8" }).trim();
   const mergeBaseSha = execFileSync("git", ["merge-base", "origin/main", "HEAD"], { cwd: ROOT, encoding: "utf8" }).trim();
-  const nextPacketRows = NEXT_PACKET_IDS.map((id) => rows[Number(id.slice(4)) - 1]);
-  const nextPacketGroupKeys = [...new Set(
-    nextPacketRows.map((row) => `${row.source.path}:${row.source.ruleIndex}`),
-  )];
-  const nextPacketRuleGroups = nextPacketGroupKeys.map((key) => {
-    const members = rows.filter((row) => `${row.source.path}:${row.source.ruleIndex}` === key);
-    const selectedMemberIds = members.filter((row) => NEXT_PACKET_IDS.includes(row.id)).map((row) => row.id);
-    const survivingMemberIds = members.filter((row) => !NEXT_PACKET_IDS.includes(row.id)).map((row) => row.id);
-    return { key, selectedMemberIds, survivingMemberIds };
-  });
-  const fullyRemovedRuleGroups = nextPacketRuleGroups.filter((group) => group.survivingMemberIds.length === 0);
-  const partiallyShrunkRuleGroups = nextPacketRuleGroups.filter((group) => group.survivingMemberIds.length > 0);
+  const cssRuleGroupCount = legacyRules.reduce(
+    (set, rule) => set.add(`${rule.path}:${rule.ruleIndex}`),
+    new Set(),
+  ).size;
+  const completedPacketResidualRows = rows.filter((row) => (
+    COMPLETED_M1A0.exactLegacySelectors.includes(row.selector)
+  ));
   return {
     schemaVersion: "cmp.issue-261.css-selector-inventory.v1",
     sourceSha,
@@ -889,7 +897,7 @@ function makeInventory() {
     },
     summary: {
       selectorRows: rows.length,
-      cssRuleGroups: legacyRules.reduce((set, rule) => set.add(`${rule.path}:${rule.ruleIndex}`), new Set()).size,
+      cssRuleGroups: cssRuleGroupCount,
       bySourceFile: countBy(rows, (row) => row.source.path),
       ruleGroupsBySourceFile: Object.fromEntries(LEGACY_CSS.map((path) => [path, allStylesheets[path].cssRuleGroups])),
       byOwner: countBy(rows, (row) => row.owner.category),
@@ -905,20 +913,25 @@ function makeInventory() {
       targetProperty: targetPropertyGroups,
     },
     migrationPlan: {
-      nextBoundedUnit: {
-        id: "M1A0-modeling-data-same-selector-overlap",
-        memberIds: NEXT_PACKET_IDS,
-        selectorRows: nextPacketRows.length,
-        touchedRuleGroups: nextPacketRuleGroups.length,
-        fullyRemovedRuleGroups: fullyRemovedRuleGroups.length,
-        partiallyShrunkRuleGroups,
-        expectedAfter: {
-          cssRuleGroups: legacyRules.reduce((set, rule) => set.add(`${rule.path}:${rule.ruleIndex}`), new Set()).size
-            - fullyRemovedRuleGroups.length,
-          selectorRows: rows.length - nextPacketRows.length,
-          crossCssDuplicateRows: flagCounts.crossCssDuplicate
-            - nextPacketRows.filter((row) => row.flags.crossCssDuplicate).length,
+      completedBoundedUnits: [{
+        id: COMPLETED_M1A0.id,
+        historicalMemberIds: COMPLETED_M1A0.historicalMemberIds,
+        selectorRowsRemoved: 12,
+        touchedRuleGroups: 11,
+        fullyRemovedRuleGroups: 8,
+        partiallyShrunkRuleGroups: 3,
+        exactLegacySelectors: COMPLETED_M1A0.exactLegacySelectors,
+        residualExactSelectorRows: completedPacketResidualRows.map((row) => row.id),
+        actualAfter: {
+          cssRuleGroups: cssRuleGroupCount,
+          selectorRows: rows.length,
+          crossCssDuplicateRows: flagCounts.crossCssDuplicate,
         },
+      }],
+      nextBoundedUnit: {
+        id: "M1A1-modeling-data-component-region",
+        status: "owner-packet-required",
+        scope: "Select one remaining M1A Data component region from the regenerated inventory; do not migrate all remaining M1A rows together.",
       },
     },
   };
@@ -948,17 +961,26 @@ function validateInventory(inventory) {
       errors.push(`${row.id} dead-candidate flag disagrees with migration batch`);
     }
   }
-  const packet = inventory.migrationPlan.nextBoundedUnit;
-  if (packet.memberIds.length !== packet.selectorRows || packet.memberIds.some((id) => !rowById.has(id))) {
-    errors.push("next-unit packet has missing or duplicate selector ids");
-  }
-  if (packet.touchedRuleGroups !== 11 || packet.fullyRemovedRuleGroups !== 8) {
-    errors.push(`next-unit rule-group delta is ${packet.touchedRuleGroups}/${packet.fullyRemovedRuleGroups}, expected 11/8`);
-  }
-  if (packet.expectedAfter.cssRuleGroups !== 2826
-      || packet.expectedAfter.selectorRows !== 3573
-      || packet.expectedAfter.crossCssDuplicateRows !== 13) {
-    errors.push(`next-unit expected delta is ${JSON.stringify(packet.expectedAfter)}`);
+  const completed = inventory.migrationPlan.completedBoundedUnits.find(
+    (unit) => unit.id === COMPLETED_M1A0.id,
+  );
+  if (!completed) {
+    errors.push("completed M1A0 packet is missing");
+  } else {
+    if (completed.residualExactSelectorRows.length !== 0) {
+      errors.push(`completed M1A0 selectors remain in legacy CSS: ${completed.residualExactSelectorRows.join(", ")}`);
+    }
+    if (completed.selectorRowsRemoved !== 12
+        || completed.touchedRuleGroups !== 11
+        || completed.fullyRemovedRuleGroups !== 8
+        || completed.partiallyShrunkRuleGroups !== 3) {
+      errors.push("completed M1A0 structural delta does not match the approved 12/11/8/3 packet");
+    }
+    if (completed.actualAfter.cssRuleGroups !== 2826
+        || completed.actualAfter.selectorRows !== 3573
+        || completed.actualAfter.crossCssDuplicateRows !== 13) {
+      errors.push(`completed M1A0 actual delta is ${JSON.stringify(completed.actualAfter)}`);
+    }
   }
   for (const group of inventory.cascadeGroups.exactSelector) {
     const members = group.memberIds.map((id) => rowById.get(id));

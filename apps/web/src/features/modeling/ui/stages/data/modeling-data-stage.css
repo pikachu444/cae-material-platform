@@ -532,7 +532,10 @@
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
+  min-width: 0;
+  min-height: 240px;
   padding: 0;
+  overflow: hidden;
   background: var(--ux-surface);
 }
 
@@ -857,16 +860,31 @@
 }
 
 .data-source-decision-grid {
+  display: grid;
   grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 8px;
+  min-width: 0;
+  container-type: inline-size;
 }
 
 .data-mapping-resolved {
+  display: flex;
   align-items: center;
+  gap: 8px;
+  min-width: 0;
   padding-left: 0;
   border-left: 0;
 }
 
-.data-mapping-decision .data-mapping-table,
+.data-mapping-decision .data-mapping-table {
+  max-width: 100%;
+  overflow: auto;
+  padding-top: 2px;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
 .data-source-advanced .data-source-advanced-table {
   max-width: 100%;
   overflow: auto;
@@ -876,6 +894,7 @@
 
 .data-mapping-decision .data-mapping-table table {
   min-width: 800px;
+  table-layout: fixed;
 }
 
 .data-mapping-decision .data-mapping-table th,
@@ -943,6 +962,7 @@
 .data-source-advanced > summary {
   min-height: var(--ux-interactive-min-block-size);
   color: var(--ux-text-muted);
+  cursor: pointer;
   font-size: var(--ux-metadata-font-size);
 }
 

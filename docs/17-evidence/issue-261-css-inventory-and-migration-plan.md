@@ -305,10 +305,201 @@ CSS가 두 selector의 owner이며, 다음 unit은 이 positive/negative branch�
 의도하지 않은 pixel/geometry 차이는 regression이다. DOM 변경, owner가 없는 shared dependency,
 approved reference와 현재 owner direction의 충돌, 또는 lazy CSS load order를 보존할 수 없는 경우 중단한다.
 
+## M1A0 실행 결과 — uncommitted candidate
+
+승인된 inventory 단위는 `3a5bf3858d3827f65699e7b39619895fb3befd53`로 먼저 커밋했다.
+그 커밋 이후 M1A0는 React, DOM, API, route, state, token 또는 breakpoint를 변경하지 않고 아래
+effective declaration만 Data owner로 이동했다.
+
+| Selector | Data owner에 남긴 effective declaration | 제거한 legacy dependency |
+| --- | --- | --- |
+| `.data-mapping-resolved` | `display:flex`, `align-items:center`, `gap:8px`, `min-width:0`, 기존 `padding-left:0`/`border-left:0` | 세 exact legacy member와 owned shorthand에 이미 가려진 warning/success border longhand |
+| `.data-source-decision-grid` | `display:grid`, one-column owned columns, `align-items:start`, `gap:8px`, `min-width:0`, `container-type:inline-size` | base two-column rule과 owned rule 뒤에서 효력이 없던 900 px member |
+| mapping table | mapping table에만 `padding-top:2px`, table에 `table-layout:fixed`; owned overflow/wrap/white-space 유지 | 네 exact legacy member |
+| `.data-source-advanced > summary` | 기존 owned color/font-size와 `cursor:pointer` | 중복 color/font-size와 legacy cursor provider |
+| `.modeling-data-plot-panel` | `min-width:0`, `min-height:240px`, `overflow:hidden`과 기존 flex/centering | Data-only split의 두 legacy member |
+
+전역 inventory의 실제 감소는 승인 예상치와 정확히 일치한다.
+
+| Metric | inventory baseline | M1A0 candidate | Delta |
+| --- | ---: | ---: | ---: |
+| global rule-groups / guard debt | 2,834 | 2,826 | -8 |
+| expanded global selector rows | 3,585 | 3,573 | -12 |
+| non-legacy same-selector rows | 25 | 13 | -12 |
+| M1A Data rows | 233 | 221 | -12 |
+| M1A0 exact legacy residual | 12 | 0 | -12 |
+
+### Visual 및 guide evidence
+
+- [M1A0 image manifest](images/issue-261-fe06-m1a0-data-same-selector-overlap/manifest.json)은 100% zoom,
+  DPR 1, Standard density에서 두 Data route의 normal 다섯 viewport와
+  empty/invalid/locally-scrolled 상태 before/after 원본 32개 및 `/modeling` 원본에서 직접 자른
+  100%-pixel crop 64개를 기록한다.
+- normal/state 원본 8쌍은 이름별 SHA-256과 bytes가 모두 동일하다. header, stage navigator,
+  table/form controls와 graph crop은 resize/resampling 없이 source pixel에서 잘랐다.
+- reload/session restore는 두 targeted capture run에서 모두 통과했다. 승인 범위를 넘는 session PNG는
+  영구 packet에 남기지 않았다.
+- 현재 user-guide Data 이미지 8개도 candidate after와 byte-identical하다. 현재 이미지는 바꾸지 않고
+  `docs/user-guide/screenshot-manifest.yaml`의 duplicate provenance에 #261 before/after를 추가했다.
+- 독립 감사 finding 뒤 `/datasets/processing?stage=data&family=metal`을 inventory commit의 읽기 전용
+  `git archive` baseline과 현재 candidate에서 별도로 캡처했다. 다섯 normal/mapping-resolved viewport와
+  empty/long-invalid/locally-scrolled 1440 상태 8쌍은 before/after뿐 아니라 대응하는 `/modeling` 원본과도
+  모두 byte-identical하다. 각 pair는 exact route, source SHA, server, SHA-256을 manifest에 보존한다.
+- Main original-resolution review는 #249 세 축을 각각 PASS로 판정했다: 현재 selection과 Data가 지배하는
+  정보 위계, Library/Local file → exact Test Data → graph → Process 작업 흐름, 1366–3840에서 explorer/form의
+  readable bound와 graph의 semantic elasticity가 모두 before와 동일하다.
+- automated 3840 capture는 geometry 증거이며 실제 Windows 4K readability를 주장하지 않는다.
+  물리 판정은 `DEFERRED_TO_223`이다.
+
+<details>
+<summary>Retained before/after originals and direct 100%-pixel crops</summary>
+
+- [before original normal 1366x768](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-1366x768.png)
+- [before header 1366x768](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1366x768-header-100pct.png)
+- [before navigator 1366x768](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1366x768-navigator-100pct.png)
+- [before controls 1366x768](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1366x768-controls-100pct.png)
+- [before graph 1366x768](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1366x768-graph-100pct.png)
+- [before original normal 1440x900](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-1440x900.png)
+- [before header 1440x900](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1440x900-header-100pct.png)
+- [before navigator 1440x900](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1440x900-navigator-100pct.png)
+- [before controls 1440x900](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1440x900-controls-100pct.png)
+- [before graph 1440x900](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1440x900-graph-100pct.png)
+- [before original normal 1920x1080](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-1920x1080.png)
+- [before header 1920x1080](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1920x1080-header-100pct.png)
+- [before navigator 1920x1080](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1920x1080-navigator-100pct.png)
+- [before controls 1920x1080](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1920x1080-controls-100pct.png)
+- [before graph 1920x1080](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1920x1080-graph-100pct.png)
+- [before original normal 2560x1440](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-2560x1440.png)
+- [before header 2560x1440](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-2560x1440-header-100pct.png)
+- [before navigator 2560x1440](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-2560x1440-navigator-100pct.png)
+- [before controls 2560x1440](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-2560x1440-controls-100pct.png)
+- [before graph 2560x1440](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-2560x1440-graph-100pct.png)
+- [before original normal 3840x2160](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-3840x2160.png)
+- [before header 3840x2160](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-3840x2160-header-100pct.png)
+- [before navigator 3840x2160](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-3840x2160-navigator-100pct.png)
+- [before controls 3840x2160](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-3840x2160-controls-100pct.png)
+- [before graph 3840x2160](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-3840x2160-graph-100pct.png)
+- [before original empty new session](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-empty-1440x900.png)
+- [before empty header](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-empty-1440x900-header-100pct.png)
+- [before empty navigator](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-empty-1440x900-navigator-100pct.png)
+- [before empty controls](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-empty-1440x900-controls-100pct.png)
+- [before empty graph](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-empty-1440x900-graph-100pct.png)
+- [before original invalid mapping](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-invalid-1440x900.png)
+- [before invalid header](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-invalid-1440x900-header-100pct.png)
+- [before invalid navigator](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-invalid-1440x900-navigator-100pct.png)
+- [before invalid controls](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-invalid-1440x900-controls-100pct.png)
+- [before invalid graph](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-invalid-1440x900-graph-100pct.png)
+- [before original invalid mapping locally scrolled](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-invalid-scrolled-1440x900.png)
+- [before invalid-scrolled header](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-invalid-scrolled-1440x900-header-100pct.png)
+- [before invalid-scrolled navigator](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-invalid-scrolled-1440x900-navigator-100pct.png)
+- [before invalid-scrolled controls](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-invalid-scrolled-1440x900-controls-100pct.png)
+- [before invalid-scrolled graph](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-invalid-scrolled-1440x900-graph-100pct.png)
+- [after original normal 1366x768](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-1366x768.png)
+- [after header 1366x768](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1366x768-header-100pct.png)
+- [after navigator 1366x768](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1366x768-navigator-100pct.png)
+- [after controls 1366x768](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1366x768-controls-100pct.png)
+- [after graph 1366x768](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1366x768-graph-100pct.png)
+- [after original normal 1440x900](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-1440x900.png)
+- [after header 1440x900](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1440x900-header-100pct.png)
+- [after navigator 1440x900](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1440x900-navigator-100pct.png)
+- [after controls 1440x900](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1440x900-controls-100pct.png)
+- [after graph 1440x900](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1440x900-graph-100pct.png)
+- [after original normal 1920x1080](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-1920x1080.png)
+- [after header 1920x1080](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1920x1080-header-100pct.png)
+- [after navigator 1920x1080](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1920x1080-navigator-100pct.png)
+- [after controls 1920x1080](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1920x1080-controls-100pct.png)
+- [after graph 1920x1080](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1920x1080-graph-100pct.png)
+- [after original normal 2560x1440](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-2560x1440.png)
+- [after header 2560x1440](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-2560x1440-header-100pct.png)
+- [after navigator 2560x1440](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-2560x1440-navigator-100pct.png)
+- [after controls 2560x1440](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-2560x1440-controls-100pct.png)
+- [after graph 2560x1440](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-2560x1440-graph-100pct.png)
+- [after original normal 3840x2160](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-3840x2160.png)
+- [after header 3840x2160](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-3840x2160-header-100pct.png)
+- [after navigator 3840x2160](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-3840x2160-navigator-100pct.png)
+- [after controls 3840x2160](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-3840x2160-controls-100pct.png)
+- [after graph 3840x2160](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-3840x2160-graph-100pct.png)
+- [after original empty new session](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-empty-1440x900.png)
+- [after empty header](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-empty-1440x900-header-100pct.png)
+- [after empty navigator](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-empty-1440x900-navigator-100pct.png)
+- [after empty controls](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-empty-1440x900-controls-100pct.png)
+- [after empty graph](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-empty-1440x900-graph-100pct.png)
+- [after original invalid mapping](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-invalid-1440x900.png)
+- [after invalid header](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-invalid-1440x900-header-100pct.png)
+- [after invalid navigator](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-invalid-1440x900-navigator-100pct.png)
+- [after invalid controls](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-invalid-1440x900-controls-100pct.png)
+- [after invalid graph](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-invalid-1440x900-graph-100pct.png)
+- [after original invalid mapping locally scrolled](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-invalid-scrolled-1440x900.png)
+- [after invalid-scrolled header](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-invalid-scrolled-1440x900-header-100pct.png)
+- [after invalid-scrolled navigator](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-invalid-scrolled-1440x900-navigator-100pct.png)
+- [after invalid-scrolled controls](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-invalid-scrolled-1440x900-controls-100pct.png)
+- [after invalid-scrolled graph](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-invalid-scrolled-1440x900-graph-100pct.png)
+
+</details>
+
+<details>
+<summary>Retained /datasets/processing route-identified before/after originals</summary>
+
+- 1366×768 normal/mapping-resolved: [before](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/routes/datasets-processing/modeling-data-1366x768.png) / [after](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/routes/datasets-processing/modeling-data-1366x768.png)
+- 1440×900 normal/mapping-resolved: [before](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/routes/datasets-processing/modeling-data-1440x900.png) / [after](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/routes/datasets-processing/modeling-data-1440x900.png)
+- 1920×1080 normal/mapping-resolved: [before](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/routes/datasets-processing/modeling-data-1920x1080.png) / [after](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/routes/datasets-processing/modeling-data-1920x1080.png)
+- 2560×1440 normal/mapping-resolved: [before](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/routes/datasets-processing/modeling-data-2560x1440.png) / [after](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/routes/datasets-processing/modeling-data-2560x1440.png)
+- 3840×2160 normal/mapping-resolved: [before](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/routes/datasets-processing/modeling-data-3840x2160.png) / [after](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/routes/datasets-processing/modeling-data-3840x2160.png)
+- 1440×900 empty-new-session: [before](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/routes/datasets-processing/modeling-data-empty-1440x900.png) / [after](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/routes/datasets-processing/modeling-data-empty-1440x900.png)
+- 1440×900 long-invalid-mapping-blocked: [before](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/routes/datasets-processing/modeling-data-invalid-1440x900.png) / [after](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/routes/datasets-processing/modeling-data-invalid-1440x900.png)
+- 1440×900 long-invalid locally scrolled: [before](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/routes/datasets-processing/modeling-data-invalid-scrolled-1440x900.png) / [after](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/routes/datasets-processing/modeling-data-invalid-scrolled-1440x900.png)
+
+</details>
+
+### 검증 상태
+
+Inventory regeneration은 2,826 groups / 3,573 rows / 13 cross-CSS duplicate rows와 M1A0 residual 0을
+확인했다. 최종 candidate에서 다음 검사를 실행했다.
+
+- `node --test scripts/check_issue_261_css_inventory.test.mjs`: 4 tests PASS.
+- `node scripts/check_issue_261_css_inventory.mjs`: PASS; expected/actual delta와 residual 0 일치.
+- Data intake/workspace, Modeling layout, common workbench focused Vitest: 4 files / 56 tests PASS.
+- `npm run test:frontend-guard`: 17 tests PASS. `npm run check:frontend-guard`: 0 violations,
+  기존 baseline warnings 15개만 유지. comma group 세 개는 살아 있는 legacy member의 새 fingerprint를
+  #261 owner exception으로 정확히 고정했다.
+- `npm run build`: TypeScript와 Vite production build PASS; Data lazy CSS boundary 유지.
+- `/modeling` before/after targeted browser capture: 각 11 state PASS. 독립 감사 correction으로
+  `/datasets/processing` before/after도 각각 다섯 normal viewport와 세 위험 상태가 PASS했다. bounded
+  packet은 두 route의 originals 32개와 `/modeling` 원본에서 직접 자른 100%-pixel crops 64개를 유지하며
+  manifest hash, dimensions, crop source pixels, primary original 8쌍과 alias original 8쌍의 byte equality를
+  다시 검증했다. alias 8쌍은 대응 primary route 원본과도 byte-identical하다.
+- `uv run cmp-check-user-guide --root .`: PASS; 20 guide documents, 119 current captures,
+  163 classified Markdown files, 840 local links, 2,350 images. orphan image 0이며 실제 27 crop hash group과
+  8 original group의 provenance가 exact path로 등록되어 있다.
+- `git diff --check`: PASS. M1A0는 unstaged이며 implementation server의 worktree-owned 5174 listener를
+  확인 후 종료했다.
+
+Owner-approved correction은 이 false blocker를 일반 exception으로 바꾸지 않았다. 변경된 evidence
+manifest의 `documentation_impact` block이 정확한 CSS visual source 두 개, migration 전 source SHA와
+등록된 original 전부의 current/before/after 경로를 선언한다. `cmp-check-doc-impact`는 이 block이 이번
+diff에 포함되고 다음 조건을 모두 실제 bytes에서 다시 증명할 때만 guide Markdown/current PNG diff를
+대신 인정한다.
+
+- visual source 전체가 production `.css`이고 선언 목록과 exact match하며 현재 CSS SHA-256도 proof와
+  일치한다.
+- source SHA는 current branch ancestor이며 각 CSS는 그 source에서 실제로 변경되었다.
+- browser zoom 100%, DPR 1, Standard와 mandatory five viewport normal originals가 모두 있다.
+- manifest의 모든 before/after original pair를 current guide capture와 1:1로 덮는다.
+- 세 파일의 actual bytes와 SHA-256가 같고 screenshot manifest의 한 duplicate group에 함께 등록된다.
+- current PNG 자체는 변경되지 않는다. TSX, 일부 CSS, wildcard 또는 선언만으로는 이 경로를 사용할 수
+  없다.
+
+Focused correction tests는 정상 pass와 image bytes drift, stale CSS hash, viewport 누락, visual source
+불일치, TSX 포함, duplicate provenance 누락, non-ancestor source SHA를 각각 거부한다. 실제
+`uv run cmp-check-doc-impact --root . --mode worktree`도 `2 byte-identical CSS visual sources by #261`로
+PASS한다. 따라서 PNG 재인코딩이나 무관한 current screenshot 없이 기존 M1A0 evidence가 documentation
+impact gate를 충족한다.
+
 ## 이후 migration 순서
 
-1. M1A0 Data same-selector 12행을 이동한다.
-2. 남은 M1A Data selector를 component region별로 bounded 이동한다.
+1. M1A0 Data same-selector 12행은 위 candidate에서 이동·검증되었다.
+2. 다음 단위 `M1A1-modeling-data-component-region`은 재생성 inventory의 남은 M1A 221행에서 한 component
+   region만 새 owner packet으로 선택한다. owner 승인을 받기 전에는 전체 221행을 함께 이동하지 않는다.
 3. M1B Process, M1C Fit, M1D Export, M1E Modeling shell/family를 각각 분리한다.
 4. M2 Materials를 search/tree/detail/card state와 함께 옮긴다.
 5. M3A Administration과 M3B Activity를 서로 다른 owner file로 옮긴다.

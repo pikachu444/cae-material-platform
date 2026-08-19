@@ -1,0 +1,1516 @@
+{
+  "schema_version": 1,
+  "issue": "#261",
+  "unit": "M1A0 Data same-selector overlap",
+  "inventory_commit": "3a5bf3858d3827f65699e7b39619895fb3befd53",
+  "implementation_base": "3a5bf3858d3827f65699e7b39619895fb3befd53",
+  "documentation_impact": {
+    "schema_version": "cmp.documentation-impact.css-byte-identical.v1",
+    "issue": "#261",
+    "source_sha": "3a5bf3858d3827f65699e7b39619895fb3befd53",
+    "classification": "behavior-preserving-css-migration",
+    "visual_files": [
+      "apps/web/src/design/layout.css",
+      "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css"
+    ],
+    "visual_file_sha256": {
+      "apps/web/src/design/layout.css": "0e1e5e444a8186abe17c0d6c782868bee0475ed8455b8fc78bcd3558383d37f0",
+      "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css": "5701075a1409a770e3f7cce3f1b0e6fb702b9c6d2efa9d1f841ed6359131e28d"
+    },
+    "current_matches": [
+      {
+        "current": "docs/user-guide/images/current/modeling-data-1366x768.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-1366x768.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-1366x768.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-1440x900.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-1440x900.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-1440x900.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-1920x1080.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-1920x1080.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-1920x1080.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-2560x1440.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-2560x1440.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-2560x1440.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-3840x2160.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-3840x2160.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-3840x2160.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-empty-1440x900.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-empty-1440x900.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-empty-1440x900.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-invalid-1440x900.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-invalid-1440x900.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-invalid-1440x900.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-invalid-scrolled-1440x900.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-invalid-scrolled-1440x900.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-invalid-scrolled-1440x900.png"
+      }
+    ]
+  },
+  "branch": "issue-261-fe06-css-inventory",
+  "browser_zoom_percent": 100,
+  "device_pixel_ratio": 1,
+  "density": "standard",
+  "capture": "the primary /modeling route used this worktree Vite on 127.0.0.1:5174; the audited /datasets/processing correction used the inventory commit git archive on 127.0.0.1:5175 for before and this worktree Vite on 127.0.0.1:5174 for after, both using the existing canonical 127.0.0.1:5173 API proxy; no Docker command was run; reload/session restore passed on the first normal viewport in both route capture runs",
+  "crop_policy": "direct 100-percent source-pixel crops; no resize or resampling",
+  "physical_4k_readability": "DEFERRED_TO_223",
+  "route_evidence": [
+    {
+      "route": "/modeling?stage=data&family=metal",
+      "coverage": "the originals, current_matches, original_pairs, and direct 100-percent crops registered below"
+    },
+    {
+      "route": "/datasets/processing?stage=data&family=metal",
+      "implementation_base": "3a5bf3858d3827f65699e7b39619895fb3befd53",
+      "before_server": "inventory commit git archive on 127.0.0.1:5175",
+      "after_server": "current M1A0 worktree on 127.0.0.1:5174",
+      "browser_zoom_percent": 100,
+      "device_pixel_ratio": 1,
+      "density": "standard",
+      "reload_session_restore": "passed on the first normal viewport in both before and after runs",
+      "pairs": [
+        {
+          "state": "normal-mapping-resolved",
+          "viewport": "1366x768",
+          "before": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/routes/datasets-processing/modeling-data-1366x768.png",
+          "after": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/routes/datasets-processing/modeling-data-1366x768.png",
+          "before_sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6",
+          "after_sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6",
+          "byte_equal": true,
+          "primary_route_byte_equal": true
+        },
+        {
+          "state": "normal-mapping-resolved",
+          "viewport": "1440x900",
+          "before": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/routes/datasets-processing/modeling-data-1440x900.png",
+          "after": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/routes/datasets-processing/modeling-data-1440x900.png",
+          "before_sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+          "after_sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+          "byte_equal": true,
+          "primary_route_byte_equal": true
+        },
+        {
+          "state": "normal-mapping-resolved",
+          "viewport": "1920x1080",
+          "before": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/routes/datasets-processing/modeling-data-1920x1080.png",
+          "after": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/routes/datasets-processing/modeling-data-1920x1080.png",
+          "before_sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+          "after_sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+          "byte_equal": true,
+          "primary_route_byte_equal": true
+        },
+        {
+          "state": "normal-mapping-resolved",
+          "viewport": "2560x1440",
+          "before": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/routes/datasets-processing/modeling-data-2560x1440.png",
+          "after": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/routes/datasets-processing/modeling-data-2560x1440.png",
+          "before_sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+          "after_sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+          "byte_equal": true,
+          "primary_route_byte_equal": true
+        },
+        {
+          "state": "normal-mapping-resolved",
+          "viewport": "3840x2160",
+          "before": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/routes/datasets-processing/modeling-data-3840x2160.png",
+          "after": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/routes/datasets-processing/modeling-data-3840x2160.png",
+          "before_sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+          "after_sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+          "byte_equal": true,
+          "primary_route_byte_equal": true
+        },
+        {
+          "state": "empty-new-session",
+          "viewport": "1440x900",
+          "before": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/routes/datasets-processing/modeling-data-empty-1440x900.png",
+          "after": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/routes/datasets-processing/modeling-data-empty-1440x900.png",
+          "before_sha256": "b02c28da6c6f88f0377f141175b34553b0b00e33c20b72d6fbebc8513af8860e",
+          "after_sha256": "b02c28da6c6f88f0377f141175b34553b0b00e33c20b72d6fbebc8513af8860e",
+          "byte_equal": true,
+          "primary_route_byte_equal": true
+        },
+        {
+          "state": "long-invalid-mapping-blocked",
+          "viewport": "1440x900",
+          "before": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/routes/datasets-processing/modeling-data-invalid-1440x900.png",
+          "after": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/routes/datasets-processing/modeling-data-invalid-1440x900.png",
+          "before_sha256": "265ee614efe31ba472ce5cbf2bc4b975c7e87ba408bcdddd58ac7284936e68c1",
+          "after_sha256": "265ee614efe31ba472ce5cbf2bc4b975c7e87ba408bcdddd58ac7284936e68c1",
+          "byte_equal": true,
+          "primary_route_byte_equal": true
+        },
+        {
+          "state": "long-invalid-mapping-blocked-locally-scrolled",
+          "viewport": "1440x900",
+          "before": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/routes/datasets-processing/modeling-data-invalid-scrolled-1440x900.png",
+          "after": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/routes/datasets-processing/modeling-data-invalid-scrolled-1440x900.png",
+          "before_sha256": "5554219e311eef97e7ebba850701ac8fe9d722c9dec56ad94c7844bd14a65b5e",
+          "after_sha256": "5554219e311eef97e7ebba850701ac8fe9d722c9dec56ad94c7844bd14a65b5e",
+          "byte_equal": true,
+          "primary_route_byte_equal": true
+        }
+      ]
+    }
+  ],
+  "original_pairs": [
+    {
+      "name": "modeling-data-1366x768.png",
+      "before_sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6",
+      "after_sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-1440x900.png",
+      "before_sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "after_sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-1920x1080.png",
+      "before_sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "after_sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-2560x1440.png",
+      "before_sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "after_sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-3840x2160.png",
+      "before_sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "after_sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-empty-1440x900.png",
+      "before_sha256": "b02c28da6c6f88f0377f141175b34553b0b00e33c20b72d6fbebc8513af8860e",
+      "after_sha256": "b02c28da6c6f88f0377f141175b34553b0b00e33c20b72d6fbebc8513af8860e",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-invalid-1440x900.png",
+      "before_sha256": "265ee614efe31ba472ce5cbf2bc4b975c7e87ba408bcdddd58ac7284936e68c1",
+      "after_sha256": "265ee614efe31ba472ce5cbf2bc4b975c7e87ba408bcdddd58ac7284936e68c1",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-invalid-scrolled-1440x900.png",
+      "before_sha256": "5554219e311eef97e7ebba850701ac8fe9d722c9dec56ad94c7844bd14a65b5e",
+      "after_sha256": "5554219e311eef97e7ebba850701ac8fe9d722c9dec56ad94c7844bd14a65b5e",
+      "byte_equal": true
+    }
+  ],
+  "images": [
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-1366x768.png",
+      "viewport": "1366x768",
+      "pixels": "1366x768",
+      "sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "normal",
+      "region": "header",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1366x768-header-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-1366x768.png",
+      "viewport": "1366x768",
+      "pixels": "1366x100",
+      "box": [
+        0,
+        0,
+        1366,
+        100
+      ],
+      "resampling": "none",
+      "sha256": "b186b52c468c6fb3d23025139a96f0848b8e945b71f881a688a9628154544a1b"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "normal",
+      "region": "navigator",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1366x768-navigator-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-1366x768.png",
+      "viewport": "1366x768",
+      "pixels": "1366x40",
+      "box": [
+        0,
+        95,
+        1366,
+        135
+      ],
+      "resampling": "none",
+      "sha256": "f1c8c8a3c44e7275ec0bb1474fe766a80b3d111917455398469b9f712f80bbbb"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "normal",
+      "region": "controls",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1366x768-controls-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-1366x768.png",
+      "viewport": "1366x768",
+      "pixels": "1078x310",
+      "box": [
+        288,
+        134,
+        1366,
+        444
+      ],
+      "resampling": "none",
+      "sha256": "8d23c7339b63f408672bf2f1b4c5b56554f895fe79480194a712c1fb279d3087"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "normal",
+      "region": "graph",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1366x768-graph-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-1366x768.png",
+      "viewport": "1366x768",
+      "pixels": "1078x328",
+      "box": [
+        288,
+        440,
+        1366,
+        768
+      ],
+      "resampling": "none",
+      "sha256": "551a96ac5e7245c865476bd04a0def0a2aa4bf71183583d97b6ccf3cd9d8ccaf"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1440x900",
+      "sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "normal",
+      "region": "header",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1440x900-header-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1440x100",
+      "box": [
+        0,
+        0,
+        1440,
+        100
+      ],
+      "resampling": "none",
+      "sha256": "2f924cc0baa041d3c34c3d1eb2ae1c9a1dc978872507e14f5003b509181d52e0"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "normal",
+      "region": "navigator",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1440x900-navigator-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1440x40",
+      "box": [
+        0,
+        95,
+        1440,
+        135
+      ],
+      "resampling": "none",
+      "sha256": "15305c3ffa0d23dc0989bd3143aef499cca47b7ad692508d81c46c309fe9b212"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "normal",
+      "region": "controls",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1440x900-controls-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1152x310",
+      "box": [
+        288,
+        134,
+        1440,
+        444
+      ],
+      "resampling": "none",
+      "sha256": "cc844643117c122efaf9b4eaf553366f1a5b44774aac1b23f7ae7b9a4418ccee"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "normal",
+      "region": "graph",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1440x900-graph-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1152x460",
+      "box": [
+        288,
+        440,
+        1440,
+        900
+      ],
+      "resampling": "none",
+      "sha256": "6de8045558a082d5c57d76be5bf5ae837690faa2998fa0e504777dfeb2360de1"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-1920x1080.png",
+      "viewport": "1920x1080",
+      "pixels": "1920x1080",
+      "sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "normal",
+      "region": "header",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1920x1080-header-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-1920x1080.png",
+      "viewport": "1920x1080",
+      "pixels": "1920x100",
+      "box": [
+        0,
+        0,
+        1920,
+        100
+      ],
+      "resampling": "none",
+      "sha256": "ba4cdc3874693cd96ddb7d469300e04f26fd45f657f4aa355fd1c71766d6ac34"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "normal",
+      "region": "navigator",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1920x1080-navigator-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-1920x1080.png",
+      "viewport": "1920x1080",
+      "pixels": "1920x40",
+      "box": [
+        0,
+        95,
+        1920,
+        135
+      ],
+      "resampling": "none",
+      "sha256": "a3db469c7fc63c73273619e1eb193cb95526ca62d535826664090a755b57086c"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "normal",
+      "region": "controls",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1920x1080-controls-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-1920x1080.png",
+      "viewport": "1920x1080",
+      "pixels": "1632x310",
+      "box": [
+        288,
+        134,
+        1920,
+        444
+      ],
+      "resampling": "none",
+      "sha256": "e8b2ff69ddadee4aa817f2fad542bf8ac8f39e66f30f54a4331ad90999d2091f"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "normal",
+      "region": "graph",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1920x1080-graph-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-1920x1080.png",
+      "viewport": "1920x1080",
+      "pixels": "1632x640",
+      "box": [
+        288,
+        440,
+        1920,
+        1080
+      ],
+      "resampling": "none",
+      "sha256": "4594a6625d1fa4c2bb40ae6487a2c89b56f737f18762b91cfe51b13d2ee2da24"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-2560x1440.png",
+      "viewport": "2560x1440",
+      "pixels": "2560x1440",
+      "sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "normal",
+      "region": "header",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-2560x1440-header-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-2560x1440.png",
+      "viewport": "2560x1440",
+      "pixels": "2560x100",
+      "box": [
+        0,
+        0,
+        2560,
+        100
+      ],
+      "resampling": "none",
+      "sha256": "3f32e5c1b5609954808afbe3cf2f3faddd1ae66f3036ce5a8468e9b0a8bb81ec"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "normal",
+      "region": "navigator",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-2560x1440-navigator-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-2560x1440.png",
+      "viewport": "2560x1440",
+      "pixels": "2560x40",
+      "box": [
+        0,
+        95,
+        2560,
+        135
+      ],
+      "resampling": "none",
+      "sha256": "6cc834fef76d3a6af6492dbf7f854f311abcee1eca4030394370fa561c363262"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "normal",
+      "region": "controls",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-2560x1440-controls-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-2560x1440.png",
+      "viewport": "2560x1440",
+      "pixels": "2272x310",
+      "box": [
+        288,
+        134,
+        2560,
+        444
+      ],
+      "resampling": "none",
+      "sha256": "ec3fd39f1fb4f6cebed2635c4f3fbab86d3ef564e3447438d90a8440b3913fd4"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "normal",
+      "region": "graph",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-2560x1440-graph-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-2560x1440.png",
+      "viewport": "2560x1440",
+      "pixels": "2272x1000",
+      "box": [
+        288,
+        440,
+        2560,
+        1440
+      ],
+      "resampling": "none",
+      "sha256": "575038627ad19663c620901d97d56b7600677219253199ae2901c756bf01165d"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-3840x2160.png",
+      "viewport": "3840x2160",
+      "pixels": "3840x2160",
+      "sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "normal",
+      "region": "header",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-3840x2160-header-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-3840x2160.png",
+      "viewport": "3840x2160",
+      "pixels": "3840x100",
+      "box": [
+        0,
+        0,
+        3840,
+        100
+      ],
+      "resampling": "none",
+      "sha256": "30a0bea06f9d1e6f4754117ba7101a24804b04b25f25e97eb741e01af15ae17e"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "normal",
+      "region": "navigator",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-3840x2160-navigator-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-3840x2160.png",
+      "viewport": "3840x2160",
+      "pixels": "3840x40",
+      "box": [
+        0,
+        95,
+        3840,
+        135
+      ],
+      "resampling": "none",
+      "sha256": "b78c7bc8749144600ce855e0a41c8d4857d31cb504bd65cc443343029715b1df"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "normal",
+      "region": "controls",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-3840x2160-controls-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-3840x2160.png",
+      "viewport": "3840x2160",
+      "pixels": "3552x310",
+      "box": [
+        288,
+        134,
+        3840,
+        444
+      ],
+      "resampling": "none",
+      "sha256": "dd3b5fa58b770397143a6942e6bf77ebd882f46a056da98420274fde2fd9e4b6"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "normal",
+      "region": "graph",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-3840x2160-graph-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-3840x2160.png",
+      "viewport": "3840x2160",
+      "pixels": "3552x1720",
+      "box": [
+        288,
+        440,
+        3840,
+        2160
+      ],
+      "resampling": "none",
+      "sha256": "423903b50f1e16b4a0fc7f580e3b4d9dccc690e7444800f7206dac4cdb5fc6b3"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "empty-new-session",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-empty-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1440x900",
+      "sha256": "b02c28da6c6f88f0377f141175b34553b0b00e33c20b72d6fbebc8513af8860e"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "empty-new-session",
+      "region": "header",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-empty-1440x900-header-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-empty-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1440x100",
+      "box": [
+        0,
+        0,
+        1440,
+        100
+      ],
+      "resampling": "none",
+      "sha256": "2f924cc0baa041d3c34c3d1eb2ae1c9a1dc978872507e14f5003b509181d52e0"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "empty-new-session",
+      "region": "navigator",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-empty-1440x900-navigator-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-empty-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1440x40",
+      "box": [
+        0,
+        95,
+        1440,
+        135
+      ],
+      "resampling": "none",
+      "sha256": "15305c3ffa0d23dc0989bd3143aef499cca47b7ad692508d81c46c309fe9b212"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "empty-new-session",
+      "region": "controls",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-empty-1440x900-controls-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-empty-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1152x310",
+      "box": [
+        288,
+        134,
+        1440,
+        444
+      ],
+      "resampling": "none",
+      "sha256": "f11e53df342231ddd89af168f9605bda5fc8ec653c84af3b81ff2c870c936d04"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "empty-new-session",
+      "region": "graph",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-empty-1440x900-graph-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-empty-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1152x460",
+      "box": [
+        288,
+        440,
+        1440,
+        900
+      ],
+      "resampling": "none",
+      "sha256": "13d529f36780890d82defaea4d3b5725ba7a1838c56392df3856ace6ba28ab50"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "long-invalid-mapping-blocked",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-invalid-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1440x900",
+      "sha256": "265ee614efe31ba472ce5cbf2bc4b975c7e87ba408bcdddd58ac7284936e68c1"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "long-invalid-mapping-blocked",
+      "region": "header",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-invalid-1440x900-header-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-invalid-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1440x100",
+      "box": [
+        0,
+        0,
+        1440,
+        100
+      ],
+      "resampling": "none",
+      "sha256": "2f924cc0baa041d3c34c3d1eb2ae1c9a1dc978872507e14f5003b509181d52e0"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "long-invalid-mapping-blocked",
+      "region": "navigator",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-invalid-1440x900-navigator-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-invalid-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1440x40",
+      "box": [
+        0,
+        95,
+        1440,
+        135
+      ],
+      "resampling": "none",
+      "sha256": "baf12f1559bf21109ed203bb91ddae720d72c4109ee8e5b2fa0beebc53a40dc3"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "long-invalid-mapping-blocked",
+      "region": "controls",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-invalid-1440x900-controls-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-invalid-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1152x310",
+      "box": [
+        288,
+        134,
+        1440,
+        444
+      ],
+      "resampling": "none",
+      "sha256": "6c547cd0fddb9e08914233d7900abdecc8c24b473a914caa349d3a26d786719c"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "long-invalid-mapping-blocked",
+      "region": "graph",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-invalid-1440x900-graph-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-invalid-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1152x460",
+      "box": [
+        288,
+        440,
+        1440,
+        900
+      ],
+      "resampling": "none",
+      "sha256": "264623c67c06f89f69446887d1a038070f9edb322ef79eb6270902dd72402abf"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "long-invalid-mapping-blocked-scrolled",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-invalid-scrolled-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1440x900",
+      "sha256": "5554219e311eef97e7ebba850701ac8fe9d722c9dec56ad94c7844bd14a65b5e"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "long-invalid-mapping-blocked-scrolled",
+      "region": "header",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-invalid-scrolled-1440x900-header-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-invalid-scrolled-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1440x100",
+      "box": [
+        0,
+        0,
+        1440,
+        100
+      ],
+      "resampling": "none",
+      "sha256": "2f924cc0baa041d3c34c3d1eb2ae1c9a1dc978872507e14f5003b509181d52e0"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "long-invalid-mapping-blocked-scrolled",
+      "region": "navigator",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-invalid-scrolled-1440x900-navigator-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-invalid-scrolled-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1440x40",
+      "box": [
+        0,
+        95,
+        1440,
+        135
+      ],
+      "resampling": "none",
+      "sha256": "baf12f1559bf21109ed203bb91ddae720d72c4109ee8e5b2fa0beebc53a40dc3"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "long-invalid-mapping-blocked-scrolled",
+      "region": "controls",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-invalid-scrolled-1440x900-controls-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-invalid-scrolled-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1152x310",
+      "box": [
+        288,
+        134,
+        1440,
+        444
+      ],
+      "resampling": "none",
+      "sha256": "42024a31a7ab434e96bcc8823325adf025405daa1d8949f1561a9d9b630e38e9"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "long-invalid-mapping-blocked-scrolled",
+      "region": "graph",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-invalid-scrolled-1440x900-graph-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-invalid-scrolled-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1152x460",
+      "box": [
+        288,
+        440,
+        1440,
+        900
+      ],
+      "resampling": "none",
+      "sha256": "12e93f605dfd3700d61214d3267ba55c92740e4c193c299b6cce4a8c9266d8d7"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-1366x768.png",
+      "viewport": "1366x768",
+      "pixels": "1366x768",
+      "sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "normal",
+      "region": "header",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1366x768-header-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-1366x768.png",
+      "viewport": "1366x768",
+      "pixels": "1366x100",
+      "box": [
+        0,
+        0,
+        1366,
+        100
+      ],
+      "resampling": "none",
+      "sha256": "b186b52c468c6fb3d23025139a96f0848b8e945b71f881a688a9628154544a1b"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "normal",
+      "region": "navigator",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1366x768-navigator-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-1366x768.png",
+      "viewport": "1366x768",
+      "pixels": "1366x40",
+      "box": [
+        0,
+        95,
+        1366,
+        135
+      ],
+      "resampling": "none",
+      "sha256": "f1c8c8a3c44e7275ec0bb1474fe766a80b3d111917455398469b9f712f80bbbb"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "normal",
+      "region": "controls",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1366x768-controls-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-1366x768.png",
+      "viewport": "1366x768",
+      "pixels": "1078x310",
+      "box": [
+        288,
+        134,
+        1366,
+        444
+      ],
+      "resampling": "none",
+      "sha256": "8d23c7339b63f408672bf2f1b4c5b56554f895fe79480194a712c1fb279d3087"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "normal",
+      "region": "graph",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1366x768-graph-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-1366x768.png",
+      "viewport": "1366x768",
+      "pixels": "1078x328",
+      "box": [
+        288,
+        440,
+        1366,
+        768
+      ],
+      "resampling": "none",
+      "sha256": "551a96ac5e7245c865476bd04a0def0a2aa4bf71183583d97b6ccf3cd9d8ccaf"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1440x900",
+      "sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "normal",
+      "region": "header",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1440x900-header-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1440x100",
+      "box": [
+        0,
+        0,
+        1440,
+        100
+      ],
+      "resampling": "none",
+      "sha256": "2f924cc0baa041d3c34c3d1eb2ae1c9a1dc978872507e14f5003b509181d52e0"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "normal",
+      "region": "navigator",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1440x900-navigator-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1440x40",
+      "box": [
+        0,
+        95,
+        1440,
+        135
+      ],
+      "resampling": "none",
+      "sha256": "15305c3ffa0d23dc0989bd3143aef499cca47b7ad692508d81c46c309fe9b212"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "normal",
+      "region": "controls",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1440x900-controls-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1152x310",
+      "box": [
+        288,
+        134,
+        1440,
+        444
+      ],
+      "resampling": "none",
+      "sha256": "cc844643117c122efaf9b4eaf553366f1a5b44774aac1b23f7ae7b9a4418ccee"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "normal",
+      "region": "graph",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1440x900-graph-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1152x460",
+      "box": [
+        288,
+        440,
+        1440,
+        900
+      ],
+      "resampling": "none",
+      "sha256": "6de8045558a082d5c57d76be5bf5ae837690faa2998fa0e504777dfeb2360de1"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-1920x1080.png",
+      "viewport": "1920x1080",
+      "pixels": "1920x1080",
+      "sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "normal",
+      "region": "header",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1920x1080-header-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-1920x1080.png",
+      "viewport": "1920x1080",
+      "pixels": "1920x100",
+      "box": [
+        0,
+        0,
+        1920,
+        100
+      ],
+      "resampling": "none",
+      "sha256": "ba4cdc3874693cd96ddb7d469300e04f26fd45f657f4aa355fd1c71766d6ac34"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "normal",
+      "region": "navigator",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1920x1080-navigator-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-1920x1080.png",
+      "viewport": "1920x1080",
+      "pixels": "1920x40",
+      "box": [
+        0,
+        95,
+        1920,
+        135
+      ],
+      "resampling": "none",
+      "sha256": "a3db469c7fc63c73273619e1eb193cb95526ca62d535826664090a755b57086c"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "normal",
+      "region": "controls",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1920x1080-controls-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-1920x1080.png",
+      "viewport": "1920x1080",
+      "pixels": "1632x310",
+      "box": [
+        288,
+        134,
+        1920,
+        444
+      ],
+      "resampling": "none",
+      "sha256": "e8b2ff69ddadee4aa817f2fad542bf8ac8f39e66f30f54a4331ad90999d2091f"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "normal",
+      "region": "graph",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1920x1080-graph-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-1920x1080.png",
+      "viewport": "1920x1080",
+      "pixels": "1632x640",
+      "box": [
+        288,
+        440,
+        1920,
+        1080
+      ],
+      "resampling": "none",
+      "sha256": "4594a6625d1fa4c2bb40ae6487a2c89b56f737f18762b91cfe51b13d2ee2da24"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-2560x1440.png",
+      "viewport": "2560x1440",
+      "pixels": "2560x1440",
+      "sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "normal",
+      "region": "header",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-2560x1440-header-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-2560x1440.png",
+      "viewport": "2560x1440",
+      "pixels": "2560x100",
+      "box": [
+        0,
+        0,
+        2560,
+        100
+      ],
+      "resampling": "none",
+      "sha256": "3f32e5c1b5609954808afbe3cf2f3faddd1ae66f3036ce5a8468e9b0a8bb81ec"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "normal",
+      "region": "navigator",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-2560x1440-navigator-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-2560x1440.png",
+      "viewport": "2560x1440",
+      "pixels": "2560x40",
+      "box": [
+        0,
+        95,
+        2560,
+        135
+      ],
+      "resampling": "none",
+      "sha256": "6cc834fef76d3a6af6492dbf7f854f311abcee1eca4030394370fa561c363262"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "normal",
+      "region": "controls",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-2560x1440-controls-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-2560x1440.png",
+      "viewport": "2560x1440",
+      "pixels": "2272x310",
+      "box": [
+        288,
+        134,
+        2560,
+        444
+      ],
+      "resampling": "none",
+      "sha256": "ec3fd39f1fb4f6cebed2635c4f3fbab86d3ef564e3447438d90a8440b3913fd4"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "normal",
+      "region": "graph",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-2560x1440-graph-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-2560x1440.png",
+      "viewport": "2560x1440",
+      "pixels": "2272x1000",
+      "box": [
+        288,
+        440,
+        2560,
+        1440
+      ],
+      "resampling": "none",
+      "sha256": "575038627ad19663c620901d97d56b7600677219253199ae2901c756bf01165d"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-3840x2160.png",
+      "viewport": "3840x2160",
+      "pixels": "3840x2160",
+      "sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "normal",
+      "region": "header",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-3840x2160-header-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-3840x2160.png",
+      "viewport": "3840x2160",
+      "pixels": "3840x100",
+      "box": [
+        0,
+        0,
+        3840,
+        100
+      ],
+      "resampling": "none",
+      "sha256": "30a0bea06f9d1e6f4754117ba7101a24804b04b25f25e97eb741e01af15ae17e"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "normal",
+      "region": "navigator",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-3840x2160-navigator-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-3840x2160.png",
+      "viewport": "3840x2160",
+      "pixels": "3840x40",
+      "box": [
+        0,
+        95,
+        3840,
+        135
+      ],
+      "resampling": "none",
+      "sha256": "b78c7bc8749144600ce855e0a41c8d4857d31cb504bd65cc443343029715b1df"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "normal",
+      "region": "controls",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-3840x2160-controls-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-3840x2160.png",
+      "viewport": "3840x2160",
+      "pixels": "3552x310",
+      "box": [
+        288,
+        134,
+        3840,
+        444
+      ],
+      "resampling": "none",
+      "sha256": "dd3b5fa58b770397143a6942e6bf77ebd882f46a056da98420274fde2fd9e4b6"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "normal",
+      "region": "graph",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-3840x2160-graph-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-3840x2160.png",
+      "viewport": "3840x2160",
+      "pixels": "3552x1720",
+      "box": [
+        288,
+        440,
+        3840,
+        2160
+      ],
+      "resampling": "none",
+      "sha256": "423903b50f1e16b4a0fc7f580e3b4d9dccc690e7444800f7206dac4cdb5fc6b3"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "empty-new-session",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-empty-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1440x900",
+      "sha256": "b02c28da6c6f88f0377f141175b34553b0b00e33c20b72d6fbebc8513af8860e"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "empty-new-session",
+      "region": "header",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-empty-1440x900-header-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-empty-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1440x100",
+      "box": [
+        0,
+        0,
+        1440,
+        100
+      ],
+      "resampling": "none",
+      "sha256": "2f924cc0baa041d3c34c3d1eb2ae1c9a1dc978872507e14f5003b509181d52e0"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "empty-new-session",
+      "region": "navigator",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-empty-1440x900-navigator-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-empty-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1440x40",
+      "box": [
+        0,
+        95,
+        1440,
+        135
+      ],
+      "resampling": "none",
+      "sha256": "15305c3ffa0d23dc0989bd3143aef499cca47b7ad692508d81c46c309fe9b212"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "empty-new-session",
+      "region": "controls",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-empty-1440x900-controls-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-empty-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1152x310",
+      "box": [
+        288,
+        134,
+        1440,
+        444
+      ],
+      "resampling": "none",
+      "sha256": "f11e53df342231ddd89af168f9605bda5fc8ec653c84af3b81ff2c870c936d04"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "empty-new-session",
+      "region": "graph",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-empty-1440x900-graph-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-empty-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1152x460",
+      "box": [
+        288,
+        440,
+        1440,
+        900
+      ],
+      "resampling": "none",
+      "sha256": "13d529f36780890d82defaea4d3b5725ba7a1838c56392df3856ace6ba28ab50"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "long-invalid-mapping-blocked",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-invalid-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1440x900",
+      "sha256": "265ee614efe31ba472ce5cbf2bc4b975c7e87ba408bcdddd58ac7284936e68c1"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "long-invalid-mapping-blocked",
+      "region": "header",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-invalid-1440x900-header-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-invalid-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1440x100",
+      "box": [
+        0,
+        0,
+        1440,
+        100
+      ],
+      "resampling": "none",
+      "sha256": "2f924cc0baa041d3c34c3d1eb2ae1c9a1dc978872507e14f5003b509181d52e0"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "long-invalid-mapping-blocked",
+      "region": "navigator",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-invalid-1440x900-navigator-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-invalid-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1440x40",
+      "box": [
+        0,
+        95,
+        1440,
+        135
+      ],
+      "resampling": "none",
+      "sha256": "baf12f1559bf21109ed203bb91ddae720d72c4109ee8e5b2fa0beebc53a40dc3"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "long-invalid-mapping-blocked",
+      "region": "controls",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-invalid-1440x900-controls-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-invalid-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1152x310",
+      "box": [
+        288,
+        134,
+        1440,
+        444
+      ],
+      "resampling": "none",
+      "sha256": "6c547cd0fddb9e08914233d7900abdecc8c24b473a914caa349d3a26d786719c"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "long-invalid-mapping-blocked",
+      "region": "graph",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-invalid-1440x900-graph-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-invalid-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1152x460",
+      "box": [
+        288,
+        440,
+        1440,
+        900
+      ],
+      "resampling": "none",
+      "sha256": "264623c67c06f89f69446887d1a038070f9edb322ef79eb6270902dd72402abf"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "long-invalid-mapping-blocked-scrolled",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-invalid-scrolled-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1440x900",
+      "sha256": "5554219e311eef97e7ebba850701ac8fe9d722c9dec56ad94c7844bd14a65b5e"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "long-invalid-mapping-blocked-scrolled",
+      "region": "header",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-invalid-scrolled-1440x900-header-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-invalid-scrolled-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1440x100",
+      "box": [
+        0,
+        0,
+        1440,
+        100
+      ],
+      "resampling": "none",
+      "sha256": "2f924cc0baa041d3c34c3d1eb2ae1c9a1dc978872507e14f5003b509181d52e0"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "long-invalid-mapping-blocked-scrolled",
+      "region": "navigator",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-invalid-scrolled-1440x900-navigator-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-invalid-scrolled-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1440x40",
+      "box": [
+        0,
+        95,
+        1440,
+        135
+      ],
+      "resampling": "none",
+      "sha256": "baf12f1559bf21109ed203bb91ddae720d72c4109ee8e5b2fa0beebc53a40dc3"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "long-invalid-mapping-blocked-scrolled",
+      "region": "controls",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-invalid-scrolled-1440x900-controls-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-invalid-scrolled-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1152x310",
+      "box": [
+        288,
+        134,
+        1440,
+        444
+      ],
+      "resampling": "none",
+      "sha256": "42024a31a7ab434e96bcc8823325adf025405daa1d8949f1561a9d9b630e38e9"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "long-invalid-mapping-blocked-scrolled",
+      "region": "graph",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-invalid-scrolled-1440x900-graph-100pct.png",
+      "source": "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-invalid-scrolled-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1152x460",
+      "box": [
+        288,
+        440,
+        1440,
+        900
+      ],
+      "resampling": "none",
+      "sha256": "12e93f605dfd3700d61214d3267ba55c92740e4c193c299b6cce4a8c9266d8d7"
+    }
+  ]
+}

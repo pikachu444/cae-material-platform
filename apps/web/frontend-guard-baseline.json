@@ -47,7 +47,7 @@
     },
     {
       "path": "apps/web/src/design/layout.css",
-      "baselineLines": 9021,
+      "baselineLines": 8975,
       "responsibilities": ["shared layout", "legacy route-specific layout selectors"],
       "followUpIssue": "#261",
       "removalCondition": "FE-06 separates shared layout primitives from feature-owned responsive composition."
@@ -65,7 +65,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "scope": "apps/web/src",
-      "count": 2834,
+      "count": 2826,
       "reason": "Existing feature and responsive selectors remain in the two registered legacy global stylesheets.",
       "followUpIssue": "#261",
       "removalCondition": "FE-06 moves feature selectors to owned styles and proves zero legacy consumers."
@@ -128,6 +128,33 @@
       "reason": "FE-05 adds the bounded Data workspace adapter and defers Saved outputs until Export so the preserved workflow remains usable.",
       "ownerIssue": "#260",
       "removalCondition": "Remove when the remaining Data adapter leaves the registered workbench hotspot."
+    },
+    {
+      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
+      "path": "apps/web/src/design/layout.css",
+      "fingerprint": "5a32bad2be381a401ebbf7c1f8376768ae215bf7f4405f1e95da70887381ce83",
+      "maxOccurrences": 1,
+      "reason": "FE-06 M1A0 removes the Data-owned member from this legacy comma group while preserving the three surviving intake selectors unchanged.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove when a later bounded FE-06 unit migrates the surviving intake selector group or the exact finding disappears."
+    },
+    {
+      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
+      "path": "apps/web/src/design/layout.css",
+      "fingerprint": "ccc26c8ed572ee8d6720344b06c7022ab2978245b60ace75a139b32a5c310da7",
+      "maxOccurrences": 1,
+      "reason": "FE-06 M1A0 removes the Data-owned member from this legacy comma group while preserving the surviving attention selector unchanged.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove when a later bounded FE-06 unit migrates the surviving attention selector or the exact finding disappears."
+    },
+    {
+      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
+      "path": "apps/web/src/design/layout.css",
+      "fingerprint": "cd33066bd53e0d1e88eff86b3fbc734f2acba96c7c0e74fecf6a2f74b341f7ec",
+      "maxOccurrences": 1,
+      "reason": "FE-06 M1A0 removes the Data plot member from this legacy comma group while preserving the ribbon selector unchanged.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove when a later bounded FE-06 unit migrates the surviving ribbon selector or the exact finding disappears."
     }
   ]
 }

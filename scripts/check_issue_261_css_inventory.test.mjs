@@ -84,20 +84,30 @@ test("keeps the audit regression selectors out of the generated dead batch", () 
     );
     assert.ok(row.consumers.productionProducerFiles.length > 0, `${id} records its producer file`);
   }
-  assert.deepEqual(inventory.migrationPlan.nextBoundedUnit.expectedAfter, {
+  const completed = inventory.migrationPlan.completedBoundedUnits.find(
+    (unit) => unit.id === "M1A0-modeling-data-same-selector-overlap",
+  );
+  assert.ok(completed);
+  assert.deepEqual(completed.actualAfter, {
     cssRuleGroups: 2826,
     selectorRows: 3573,
     crossCssDuplicateRows: 13,
   });
-  assert.equal(inventory.migrationPlan.nextBoundedUnit.fullyRemovedRuleGroups, 8);
-  assert.equal(inventory.migrationPlan.nextBoundedUnit.partiallyShrunkRuleGroups.length, 3);
-  for (const id of ["CSS-1495", "CSS-1499"]) {
-    const row = byId.get(id);
-    assert.deepEqual(row.consumers.routes, [
-      "/modeling?stage=data",
-      "/datasets/processing?stage=data",
-    ]);
-    assert.ok(row.consumers.states.includes("dataLayoutMode=compact|content-fit"));
-    assert.ok(row.consumers.states.includes("ResizeObserver available"));
+  assert.equal(completed.selectorRowsRemoved, 12);
+  assert.equal(completed.touchedRuleGroups, 11);
+  assert.equal(completed.fullyRemovedRuleGroups, 8);
+  assert.equal(completed.partiallyShrunkRuleGroups, 3);
+  assert.deepEqual(completed.residualExactSelectorRows, []);
+  for (const selector of completed.exactLegacySelectors) {
+    assert.equal(
+      inventory.selectors.some((row) => row.selector === selector),
+      false,
+      `${selector} no longer has exact legacy ownership`,
+    );
   }
+  assert.deepEqual(inventory.migrationPlan.nextBoundedUnit, {
+    id: "M1A1-modeling-data-component-region",
+    status: "owner-packet-required",
+    scope: "Select one remaining M1A Data component region from the regenerated inventory; do not migrate all remaining M1A rows together.",
+  });
 });

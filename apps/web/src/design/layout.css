@@ -4811,8 +4811,7 @@
 
 .data-intake-row,
 .data-intake-local,
-.data-intake-attention,
-.data-mapping-resolved {
+.data-intake-attention {
   min-width: 0;
 }
 
@@ -4876,17 +4875,12 @@
   flex: 1 1 150px;
 }
 
-.data-intake-attention,
-.data-mapping-resolved {
+.data-intake-attention {
   display: flex;
   align-items: end;
   gap: 8px;
   padding-left: 8px;
   border-left: 3px solid var(--ux-warning);
-}
-
-.data-mapping-resolved {
-  border-left-color: var(--ux-success);
 }
 
 .data-mapping-resolved > span {
@@ -5067,15 +5061,6 @@
   overflow: visible;
 }
 
-.data-source-decision-grid {
-  display: grid;
-  grid-template-columns: minmax(300px, .42fr) minmax(520px, 1fr);
-  align-items: start;
-  gap: 8px;
-  min-width: 0;
-  container-type: inline-size;
-}
-
 .data-mapping-decision {
   display: grid;
   align-content: start;
@@ -5150,21 +5135,6 @@
   min-height: 16px;
   height: 16px;
   margin: 0;
-}
-
-.data-mapping-decision .data-mapping-table {
-  overflow: visible;
-  padding-top: 2px;
-}
-
-.data-mapping-decision .data-mapping-table table {
-  table-layout: fixed;
-}
-
-.data-mapping-decision .data-mapping-table th,
-.data-mapping-decision .data-mapping-table td {
-  overflow-wrap: anywhere;
-  white-space: normal;
 }
 
 .data-mapping-decision .data-mapping-table select {
@@ -5306,12 +5276,6 @@
   border-top: 1px solid var(--ux-border);
   text-align: left;
   vertical-align: top;
-}
-
-.data-source-advanced > summary {
-  color: var(--ux-text-muted);
-  cursor: pointer;
-  font-size: 11.5px;
 }
 
 .data-source-advanced > div {
@@ -5958,10 +5922,6 @@
 }
 
 @media (max-width: 900px) {
-  .data-source-decision-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
   .engineering-curve-plot-empty-overlay {
     left: 18%;
     right: 18%;
@@ -7145,8 +7105,7 @@
   width: 100%;
 }
 
-.modeling-data-ribbon-panel,
-.modeling-data-plot-panel {
+.modeling-data-ribbon-panel {
   min-width: 0;
   min-height: 0;
 }
@@ -7171,11 +7130,6 @@
   overscroll-behavior: contain;
   scroll-padding-block: var(--ux-space-2);
   scrollbar-gutter: stable;
-}
-
-.modeling-data-plot-panel {
-  min-height: 240px;
-  overflow: hidden;
 }
 
 .modeling-data-plot-panel > .persistent-modeling-plot {
