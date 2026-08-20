@@ -1,5 +1,19 @@
 # ADR-0010: Reference import orchestration preserves an explicit human mapping boundary
 
+## 먼저 읽기
+
+- **무엇을 정했나요?** CSV header 탐지는 낮은 신뢰도의 제안만 만들고, 사용자가 column과 원래 unit을
+  확인한 Mapping revision을 저장한 뒤에야 Import Run이 normalized Dataset을 만듭니다.
+- **왜 중요한가요?** 파일 이름이나 header만 보고 물리량·단위를 조용히 추정하지 않고, 같은 원본을
+  어떤 해석으로 가져왔는지 재현할 수 있게 하기 위해서입니다.
+- **언제 읽나요?** 새 importer·format adapter, column mapping 화면, import 실행·재시도 또는 자동
+  감지 규칙을 추가할 때 읽습니다.
+- **용어를 쉽게 말하면:** `Detection Report`는 파일을 보고 찾은 단서와 불확실성을 적은 기록이고,
+  `Mapping revision`은 사용자가 확정한 column·unit 연결의 불변 버전입니다. `reference_inline`은
+  정식 production plugin 배포가 아니라 제한된 reference 실행 방식이라는 뜻입니다.
+- **상태 표기는?** `Accepted`는 사람이 mapping을 확정해야 한다는 경계를 채택했다는 뜻입니다.
+  production tensile standard·parser 또는 범용 plugin worker가 승인됐다는 뜻은 아닙니다.
+
 - Status: Accepted
 - Date: 2026-07-18
 - Decision owners: Product, Test Data, Software

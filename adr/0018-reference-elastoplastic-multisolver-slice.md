@@ -1,5 +1,19 @@
 # ADR-0018: Reference tensile-to-elastoplastic IR supports explicit OpenRadioss and Abaqus mappings
 
+## 먼저 읽기
+
+- **무엇을 정했나요?** exact tensile Dataset과 물성을 명시된 식으로 true stress·plastic strain curve로
+  바꿔 tabulated-plasticity IR을 만들고, 같은 IR에서 OpenRadioss와 Abaqus card를 생성합니다.
+- **왜 중요한가요?** smoothing·extrapolation·solver keyword를 숨기지 않고, necking 뒤 constant-stress
+  연장은 사용자가 확인한 근사로 남겨 두 solver의 차이를 mapping에서 드러내기 위해서입니다.
+- **언제 읽나요?** 금속 nonlinear model, tensile curve 변환, yield·necking 처리, LAW36·Abaqus plasticity
+  exporter 또는 mapping acknowledgement를 바꿀 때 읽습니다.
+- **용어를 쉽게 말하면:** `tabulated plasticity`는 식 하나 대신 plastic strain–stress 점 목록으로
+  hardening을 나타내는 방식입니다. `neutral IR`은 solver keyword가 없는 공통 표현이고,
+  `approximated`는 정확한 변환이 아니라 확인이 필요한 근사를 썼다는 mapping 상태입니다.
+- **상태 표기는?** 이 결정은 제한된 비운영 구현에 한해 채택됐습니다. 생성된 card가 production
+  model·solver 실행·failure 거동까지 검증됐다는 뜻은 아닙니다.
+
 - Status: Accepted for bounded non-production implementation
 - Date: 2026-07-14
 - Related tasks: T-19, T-22, T-25, T-26, T-D01, T-D03

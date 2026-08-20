@@ -1,5 +1,20 @@
 # ADR-0029: JSON exchange, mapping profiles and reusable processing recipes
 
+## 먼저 읽기
+
+- **무엇을 정했나요?** `cmp.test-data`를 사람과 도구가 교환할 표준 JSON으로 두고, exact Mapping Profile과
+  versioned Processing Recipe를 고정한 committed Run·Batch를 만듭니다. 큰 묶음은 manifest가 있는 ZIP을
+  사용합니다.
+- **왜 중요한가요?** CSV·XLSX 같은 입력 형식과 내부 저장 방식을 분리하면서, 어떤 channel mapping과
+  method version으로 결과가 만들어졌는지 반복 실행할 수 있게 하기 위해서입니다.
+- **언제 읽나요?** test data import/export, Mapping Profile, reusable Recipe·Batch, neutral material JSON,
+  package 크기나 solver card 전달 형식을 구현할 때 읽습니다.
+- **용어를 쉽게 말하면:** `canonical exchange`는 서로 다른 adapter가 공통으로 주고받는 표준 표현이고,
+  `Mapping Profile`은 record·channel을 계산 물리량에 연결한 revision입니다. `Recipe`는 순서가 있는
+  처리 단계의 불변 버전이며, preview는 저장된 실행 결과가 아닙니다.
+- **상태 표기는?** `Accepted`는 이 교환·재사용 계약을 채택했다는 뜻입니다. JSON이 database 권위가
+  되거나 모든 importer·processing method가 production 검증됐다는 뜻은 아닙니다.
+
 - Status: Accepted
 - Date: 2026-07-17
 - Related: ADR-0003, ADR-0007 through ADR-0012, ADR-0027; T-52 through T-58

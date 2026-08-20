@@ -1,5 +1,20 @@
 # ADR-0019: Near-term delivery waves start with a live PostgreSQL verification gate
 
+## 먼저 읽기
+
+- **무엇을 정했나요?** 작업 순서를 live PostgreSQL 검증, repeat-test 처리·통계, bounded nonlinear
+  calibration, production·solver 확장의 네 단계로 나눴습니다. 뒤의 update는 reference P0-2·P1 완료와
+  P2 잔여 범위를 기록합니다.
+- **왜 중요한가요?** skipped database test나 mock 화면을 실제 통합 검증으로 오해하지 않고, 검증된
+  기반 위에서 다음 기능을 확장하며 production 결정을 앞당기지 않기 위해서입니다.
+- **언제 읽나요?** 관련 기능의 선후 관계, PostgreSQL evidence 필요 여부, reference calibration의 완료
+  범위 또는 아직 남은 solver·production hardening을 판단할 때 읽습니다.
+- **용어를 쉽게 말하면:** `delivery wave`는 함께 검증할 작업 순서 묶음이고, `live PostgreSQL gate`는
+  disposable database에서 migration·RLS·통합 test가 실제로 통과해야 하는 조건입니다.
+  `solver-independent validation`은 solver 실행 없이 model response와 holdout data를 비교합니다.
+- **상태 표기는?** 이 ADR은 전달 순서 결정으로 채택됐습니다. 본문의 일부 reference wave 완료 기록이
+  P2 production model·threshold·solver qualification까지 완료됐다는 뜻은 아닙니다.
+
 - Status: Accepted for delivery sequencing
 - Date: 2026-07-14
 - Related requirements: FR-DAT-001~008, FR-CAL-001~007, FR-IR-001~005, FR-EXP-001~004,

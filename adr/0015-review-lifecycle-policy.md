@@ -1,5 +1,19 @@
 # ADR-015: Immutable review lifecycle for candidate revisions
 
+## 먼저 읽기
+
+- **무엇을 정했나요?** Review Request는 정확한 candidate revision과 manifest digest를 고정하고,
+  작성자와 다른 reviewer가 한 번의 불변 결정을 내립니다. 오래된 request는 승인할 수 없습니다.
+- **왜 중요한가요?** 수치 결과를 곧바로 사람의 승인으로 취급하지 않고, 검토 뒤 수정이 필요해도
+  거절된 revision과 판단 이력을 그대로 남기기 위해서입니다.
+- **언제 읽나요?** review request·decision, reviewer 권한, changes requested 재제출, lifecycle 상태 또는
+  승인된 Record publication을 구현할 때 읽습니다.
+- **용어를 쉽게 말하면:** `manifest digest`는 검토 대상 증거 묶음의 내용 hash이고, `lifecycle
+  projection`은 event 이력에서 계산한 현재 상태입니다. `separation of duties`는 요청자와 승인자를
+  분리하는 원칙입니다.
+- **상태 표기는?** `accepted`는 이 불변 review 경계를 채택했다는 뜻입니다. configurable 승인 행렬,
+  법적 서명, production release 전체가 구현됐다는 뜻은 아닙니다.
+
 Status: accepted
 
 ## Context

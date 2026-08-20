@@ -1,5 +1,19 @@
 # ADR-0009: Reference pair outlier candidates require explicit human scope decisions
 
+## 먼저 읽기
+
+- **무엇을 정했나요?** 두 시험값 차이가 기준을 넘으면 양쪽 모두를 검토 후보로 표시하고, 사람은
+  정해진 분석 범위에서 각각 유지할지 제외할지 새 Assessment 기록으로 결정합니다.
+- **왜 중요한가요?** 표본이 둘뿐인 상태에서는 어느 쪽이 진짜 outlier인지 통계적으로 고를 수 없으며,
+  검토 판단 때문에 원본 curve나 Dataset membership이 바뀌어서는 안 되기 때문입니다.
+- **언제 읽나요?** outlier 탐지식, 후보 표시, 사람의 판정, 분석별 제외 범위 또는 calibration 입력
+  선택을 구현할 때 읽습니다.
+- **용어를 쉽게 말하면:** `candidate`는 확인이 필요한 후보이지 확정된 outlier가 아닙니다.
+  `Assessment`는 근거와 담당자를 남긴 사람의 판단이고, `scope`는 그 판단이 적용되는 정확한
+  Statistical Plan revision 범위입니다.
+- **상태 표기는?** `Accepted`는 후보 탐지와 사람 판단을 분리한 reference 흐름을 채택했다는
+  뜻입니다. 자동 outlier 판정이나 원본 삭제 정책이 승인됐다는 뜻은 아닙니다.
+
 - Status: Accepted
 - Date: 2026-07-16
 - Decision owners: Product, Data/Statistics, Software

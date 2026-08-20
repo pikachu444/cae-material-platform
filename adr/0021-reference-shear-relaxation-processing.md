@@ -1,5 +1,19 @@
 # ADR-0021: Reference shear-relaxation processing creates a separate Dataset identity
 
+## 먼저 읽기
+
+- **무엇을 정했나요?** normalized shear-relaxation Dataset에서 관측된 시간 범위를 양 끝 포함해 자르고,
+  exact Recipe와 Run에 연결된 별도 processed Dataset과 Parquet Artifact를 만듭니다.
+- **왜 중요한가요?** calibration 입력 구간을 재현하면서 raw·normalized data를 바꾸거나 interpolation,
+  resampling, smoothing을 숨기는 일을 막기 위해서입니다.
+- **언제 읽나요?** shear-relaxation crop, Processing Recipe·Run, processed Dataset identity 또는 Prony
+  calibration 입력 조건을 구현할 때 읽습니다.
+- **용어를 쉽게 말하면:** `inclusive crop`은 선택한 시작·끝 관측점을 모두 포함해 범위를 자르는
+  방식입니다. `separate Dataset identity`는 처리 결과가 원본의 새 버전이 아니라 독립된 파생
+  Dataset이라는 뜻이고, provenance가 사용한 source와 Recipe를 연결합니다.
+- **상태 표기는?** `Accepted`는 이 observed-point crop 경계를 채택했다는 뜻입니다. production Prony
+  항 수·bounds·validation threshold나 solver qualification을 정했다는 뜻은 아닙니다.
+
 - Status: Accepted
 - Date: 2026-07-16
 - Related: ADR-0007, ADR-0019, ADR-0020; T-19; P2 item 3

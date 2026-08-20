@@ -1,5 +1,13 @@
 # ADR-0031: Reviewed polymer Processing Output promotion
 
+## 먼저 읽기
+
+- **무엇을 정했나요?** 저장된 `polymer.prony_fit_compare` 처리 결과를 사람이 검토한 뒤, 선택한 결과를 새 선형 점탄성 Material Model IR로 승격합니다. 서버가 원본 산출물을 다시 읽어 Test Data, Mapping Profile, Property Set과 근거를 정확히 연결하며, 클라이언트가 피팅 계수를 대신 제출할 수는 없습니다.
+- **왜 중요한가요?** 기존 모델을 덮어쓰거나 재료의 체적 거동을 추측하지 않고도, 검토된 결과를 Neutral Material JSON과 Abaqus 내보내기로 이어 갈 수 있습니다. 이때 순간 탄성률의 차이도 숨기지 않고 확인합니다.
+- **언제 읽나요?** Processing Output 승격, 1~10개 Prony 항 지원, 선택 근거 보존, Neutral Material JSON 또는 Abaqus 매핑을 다룰 때 읽습니다.
+- **용어를 쉽게 말하면:** Processing Output은 처리 작업이 저장한 변경 불가능한 결과이고, 승격은 그 결과로 새 모델 리비전을 만드는 일입니다. BIC는 후보의 적합도와 복잡도를 함께 비교하는 기준이며, `not_characterized`는 체적 거동을 알아내지 않았다는 뜻입니다.
+- **상태 표기는?** Accepted는 이 검토·승격 방식을 기준 결정으로 채택했다는 뜻입니다. 운영용 허용 오차나 재료 모델을 확정했다는 뜻도, OpenRadioss 지원이나 전체 구현 검증이 끝났다는 뜻도 아닙니다.
+
 - Status: Accepted
 - Date: 2026-07-19
 - Tasks: T-55P, T-56, T-57, T-67

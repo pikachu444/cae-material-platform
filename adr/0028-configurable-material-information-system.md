@@ -1,5 +1,20 @@
 # ADR-0028: configurable material information system and dual explorer
 
+## 먼저 읽기
+
+- **무엇을 정했나요?** 관리자가 versioned Table·Attribute·Layout·Link를 정의하고 typed value로 Record를
+  구성하며, Catalog tree와 Material workflow를 별도 explorer로 봅니다. Bundle apply는 서버가 다시
+  plan한 exact 변경을 한 transaction으로 적용합니다.
+- **왜 중요한가요?** 새 속성마다 database migration을 만들지 않으면서도 untyped EAV·opaque JSON을
+  피하고, stale plan이나 부분 적용이 Catalog를 망가뜨리지 않게 하기 위해서입니다.
+- **언제 읽나요?** configurable Catalog schema, Record value·search, explorer, Link Type, Definition Bundle
+  plan/apply/export 또는 schema administrator 권한을 구현할 때 읽습니다.
+- **용어를 쉽게 말하면:** `Attribute Definition`은 값의 type·unit·표시 규칙을 정한 버전이고,
+  `Link Type`은 어떤 Table끼리 어떤 방향·개수로 연결할지 정합니다. `plan_fingerprint`는 검토한 plan과
+  실행 시점 plan이 같은지 확인하는 hash이며, stale하면 전체 apply를 막습니다.
+- **상태 표기는?** `Accepted`는 typed configurable catalog와 atomic Bundle apply 경계를 채택했다는
+  뜻입니다. 모든 enterprise schema·migration·connector 요구가 완성됐다는 뜻은 아닙니다.
+
 - Status: Accepted
 - Date: 2026-07-17
 - Related: ADR-0006, ADR-0024, ADR-0025; T-48 through T-51; Issues #204, #207

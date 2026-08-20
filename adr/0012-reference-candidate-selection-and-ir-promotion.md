@@ -1,5 +1,19 @@
 # ADR-0012: Human Candidate Selection is versioned separately from numerical convergence and IR promotion
 
+## 먼저 읽기
+
+- **무엇을 정했나요?** 계산이 수렴한 Candidate 중 하나를 사람이 이유와 함께 선택하고, 그 선택과
+  원본 model head가 여전히 최신일 때만 새 IR revision으로 승격합니다.
+- **왜 중요한가요?** 수치 수렴을 사람의 승인으로 오해하거나, 오래된 계산 결과로 이미 바뀐 model을
+  덮어쓰는 일을 막으면서 선택 근거를 남기기 위해서입니다.
+- **언제 읽나요?** Candidate 비교·선택, promotion command, stale-head 충돌, IR revision 생성 또는
+  calibration 결과의 review 연결을 구현할 때 읽습니다.
+- **용어를 쉽게 말하면:** `Candidate Selection revision`은 어떤 후보를 왜 골랐는지 남긴 불변 기록이고,
+  `promotion`은 그 결과로 새 IR revision을 추가하는 작업입니다. `current head`는 현재 선택된 최신
+  revision을 뜻하며, 이전 card나 source IR은 바뀌지 않습니다.
+- **상태 표기는?** `Accepted`는 사람 선택과 IR 승격을 분리하는 reference 흐름을 채택했다는
+  뜻입니다. model 승인·release·불확실성 평가나 solver 검증이 완료됐다는 뜻은 아닙니다.
+
 - Status: Accepted
 - Date: 2026-07-20
 - Decision owners: Product, Material Modeling, Scientific Software

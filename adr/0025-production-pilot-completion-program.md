@@ -1,5 +1,19 @@
 # ADR-0025: complete the product as user-visible production-pilot verticals
 
+## 먼저 읽기
+
+- **무엇을 정했나요?** 기존 migration과 불변 data 기반을 보존하면서, test context부터 Processing,
+  Calibration, neutral IR, solver card, 개별·bulk download까지 사용자 흐름별로 완성합니다.
+- **왜 중요한가요?** 또 다른 기반 재작성보다 사용자가 실제로 끝낼 수 있는 작업을 먼저 제공하고,
+  reference 기능의 domain 승인 상태를 숨기지 않기 위해서입니다.
+- **언제 읽나요?** 새 foundation과 end-to-end 기능 중 우선순위를 정하거나, material family·importer·
+  calibration·export·connector의 제품 완료 범위를 판단할 때 읽습니다.
+- **용어를 쉽게 말하면:** `production-pilot vertical`은 실제 제품 흐름으로 연결됐지만 production
+  qualification은 별도로 남은 단계입니다. `domain sign-off`는 재료·solver 전문가가 사용 범위를
+  승인하는 일이며, `reference/unapproved`는 실행 가능해도 그 승인을 받지 않았다는 뜻입니다.
+- **상태 표기는?** `Accepted`는 이 사용자 흐름 중심 완성 전략을 채택했다는 뜻입니다. 세 reference
+  family나 Abaqus·OpenRadioss가 production 검증을 마쳤다는 뜻은 아닙니다.
+
 - Status: Accepted
 - Date: 2026-07-16
 - Related: ADR-0006, ADR-0019, ADR-0020, ADR-0024; T-39 through T-47

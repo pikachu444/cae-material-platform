@@ -1,5 +1,19 @@
 # ADR-0014: Reference Validation Result interpretation is explicit, immutable, and non-production
 
+## 먼저 읽기
+
+- **무엇을 정했나요?** 실행 응답 추출, 수치 건강 상태, 시험 곡선 비교를 서로 다른 불변 기록으로
+  남깁니다. 출력이 건강하고 calibration 입력과 독립적일 때만 정해진 reference profile로 비교합니다.
+- **왜 중요한가요?** solver가 끝났다는 사실만으로 pass를 만들거나, 잘못된 unit·손상된 출력·범위 밖
+  값을 조용히 고쳐 평가하는 일을 막기 위해서입니다.
+- **언제 읽나요?** validation response parser, health check, curve interpolation, metric·threshold,
+  holdout 독립성, 결과 상태나 비교 화면을 바꿀 때 읽습니다.
+- **용어를 쉽게 말하면:** `numerical health`는 출력이 평가 가능한 상태인지 먼저 확인하는 검사입니다.
+  `observed-grid interpolation`은 시험에서 관측한 strain 위치 안에서만 simulation 값을 구하는 방식이고,
+  `not_evaluated`는 실패 판정조차 낼 조건이 되지 않았다는 뜻입니다.
+- **상태 표기는?** `Accepted`는 문서에 적힌 비운영 reference 해석 profile을 채택했다는 뜻입니다.
+  `passed` 결과도 production solver·material model의 자격이나 release 승인을 뜻하지 않습니다.
+
 - Status: Accepted
 - Date: 2026-07-22
 - Decision owners: Product, CAE Domain, Scientific Software
