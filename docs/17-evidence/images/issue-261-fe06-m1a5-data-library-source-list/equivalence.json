@@ -1,0 +1,250 @@
+{
+  "schemaVersion": 1,
+  "imagePairs": 30,
+  "byteIdenticalPairs": 30,
+  "pixelIdenticalPairs": 30,
+  "measurementsEqual": true,
+  "recoveryStateEqual": true,
+  "pairs": [
+    {
+      "path": "crops/modeling-data-library-source-list-1366x768-graph-100pct.png",
+      "dimensions": "1073x332",
+      "beforeSha256": "bfa9acbbd4fbb9c436d3351b616e7e9aea704946b1d16a71f4660c40d9702adb",
+      "afterSha256": "bfa9acbbd4fbb9c436d3351b616e7e9aea704946b1d16a71f4660c40d9702adb",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "crops/modeling-data-library-source-list-1366x768-header-100pct.png",
+      "dimensions": "1366x50",
+      "beforeSha256": "2e471a99d568bf718b9dc411e2e9c68a1b2ab1a9c67c45b85a990c8960ce5ed6",
+      "afterSha256": "2e471a99d568bf718b9dc411e2e9c68a1b2ab1a9c67c45b85a990c8960ce5ed6",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "crops/modeling-data-library-source-list-1366x768-library-100pct.png",
+      "dimensions": "1045x219",
+      "beforeSha256": "4371e66e1e581135506bb4b666a4d8f36a0a7e595643a7ea00a37633cfbee137",
+      "afterSha256": "4371e66e1e581135506bb4b666a4d8f36a0a7e595643a7ea00a37633cfbee137",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "crops/modeling-data-library-source-list-1366x768-navigator-100pct.png",
+      "dimensions": "288x567",
+      "beforeSha256": "0b31bfc791e6a926ac14c3857de7c222ddc3d71acce5b8a6cb7afb6ada1e966c",
+      "afterSha256": "0b31bfc791e6a926ac14c3857de7c222ddc3d71acce5b8a6cb7afb6ada1e966c",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "crops/modeling-data-library-source-list-1440x900-graph-100pct.png",
+      "dimensions": "1147x464",
+      "beforeSha256": "576d2cf86bd7f612822ae71a031daddff0bc32f086b80f6e25584f831d1a3a7f",
+      "afterSha256": "576d2cf86bd7f612822ae71a031daddff0bc32f086b80f6e25584f831d1a3a7f",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "crops/modeling-data-library-source-list-1440x900-header-100pct.png",
+      "dimensions": "1440x50",
+      "beforeSha256": "948140dcc5a01c9264efad835c7ba1f56c1fd381c4e5ad003d45e01d6b8ffe56",
+      "afterSha256": "948140dcc5a01c9264efad835c7ba1f56c1fd381c4e5ad003d45e01d6b8ffe56",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "crops/modeling-data-library-source-list-1440x900-library-100pct.png",
+      "dimensions": "1119x219",
+      "beforeSha256": "4eedbe2db55157652ec771d7ee1765fd6165100e493fe83c325a400d0473b753",
+      "afterSha256": "4eedbe2db55157652ec771d7ee1765fd6165100e493fe83c325a400d0473b753",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "crops/modeling-data-library-source-list-1440x900-navigator-100pct.png",
+      "dimensions": "288x699",
+      "beforeSha256": "3b4eb4b570828a41c5a896d6d7c9ef93f9ae13d9064d2a834535bb5be10d3d0b",
+      "afterSha256": "3b4eb4b570828a41c5a896d6d7c9ef93f9ae13d9064d2a834535bb5be10d3d0b",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "crops/modeling-data-library-source-list-1920x1080-graph-100pct.png",
+      "dimensions": "1627x644",
+      "beforeSha256": "18b22a52e16e58163b0a64e990eb66ec162fcca66a4f4065902550cf606b8795",
+      "afterSha256": "18b22a52e16e58163b0a64e990eb66ec162fcca66a4f4065902550cf606b8795",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "crops/modeling-data-library-source-list-1920x1080-header-100pct.png",
+      "dimensions": "1920x50",
+      "beforeSha256": "53982ceec55fd9cb0a3867b1237c5115f7a4a66e20542d5b6b6db1b80b590d34",
+      "afterSha256": "53982ceec55fd9cb0a3867b1237c5115f7a4a66e20542d5b6b6db1b80b590d34",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "crops/modeling-data-library-source-list-1920x1080-library-100pct.png",
+      "dimensions": "1599x219",
+      "beforeSha256": "0842e255001b8d08707b9f6163cf6ca59a15e792c248cff181f2137d2f737b13",
+      "afterSha256": "0842e255001b8d08707b9f6163cf6ca59a15e792c248cff181f2137d2f737b13",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "crops/modeling-data-library-source-list-1920x1080-navigator-100pct.png",
+      "dimensions": "288x879",
+      "beforeSha256": "42e3736488716bc821704f3bde2c8027c631b71de4879e35710f04c1d059879a",
+      "afterSha256": "42e3736488716bc821704f3bde2c8027c631b71de4879e35710f04c1d059879a",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "crops/modeling-data-library-source-list-2560x1440-graph-100pct.png",
+      "dimensions": "2267x1004",
+      "beforeSha256": "a0c757a094154ec670603c87f6120357feee6b5cf12b474cadf57c474a59df0e",
+      "afterSha256": "a0c757a094154ec670603c87f6120357feee6b5cf12b474cadf57c474a59df0e",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "crops/modeling-data-library-source-list-2560x1440-header-100pct.png",
+      "dimensions": "2560x50",
+      "beforeSha256": "7b43341e067cc165c4d8b50186138b2979f400dc8776b041bb90c2c3a0291319",
+      "afterSha256": "7b43341e067cc165c4d8b50186138b2979f400dc8776b041bb90c2c3a0291319",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "crops/modeling-data-library-source-list-2560x1440-library-100pct.png",
+      "dimensions": "2239x219",
+      "beforeSha256": "d30709b75a7ecd5b35f1319fc2e2b52e0bfd17018cc18078a7bfd9f2165e407c",
+      "afterSha256": "d30709b75a7ecd5b35f1319fc2e2b52e0bfd17018cc18078a7bfd9f2165e407c",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "crops/modeling-data-library-source-list-2560x1440-navigator-100pct.png",
+      "dimensions": "288x1239",
+      "beforeSha256": "5c739d27b04967986b29861d049ff0a9da73da54736836bd4b9dc59d00ad8d01",
+      "afterSha256": "5c739d27b04967986b29861d049ff0a9da73da54736836bd4b9dc59d00ad8d01",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "crops/modeling-data-library-source-list-3840x2160-graph-100pct.png",
+      "dimensions": "2801x1200",
+      "beforeSha256": "e5b73ce3681327d86d96223e557f4440d3518264a76b8d2c63d9438e21430df2",
+      "afterSha256": "e5b73ce3681327d86d96223e557f4440d3518264a76b8d2c63d9438e21430df2",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "crops/modeling-data-library-source-list-3840x2160-header-100pct.png",
+      "dimensions": "3840x50",
+      "beforeSha256": "c79041e1ac05d3b30dffd3512ee2908c9ab14c3436c8456efb6e4333b04af631",
+      "afterSha256": "c79041e1ac05d3b30dffd3512ee2908c9ab14c3436c8456efb6e4333b04af631",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "crops/modeling-data-library-source-list-3840x2160-library-100pct.png",
+      "dimensions": "3519x219",
+      "beforeSha256": "03f592c1fdac489b47d31307ae3b065f49d5a2d8a6d347f1e045318f6f4dbdf5",
+      "afterSha256": "03f592c1fdac489b47d31307ae3b065f49d5a2d8a6d347f1e045318f6f4dbdf5",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "crops/modeling-data-library-source-list-3840x2160-navigator-100pct.png",
+      "dimensions": "289x1959",
+      "beforeSha256": "e3a60845a591431fe055981e18eecb53dac6082124d8d0adad991ccca7784908",
+      "afterSha256": "e3a60845a591431fe055981e18eecb53dac6082124d8d0adad991ccca7784908",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "originals/modeling-data-library-source-list-1366x768.png",
+      "dimensions": "1366x768",
+      "beforeSha256": "6068104ed4f3fe9a6fab16447bbd3445a4fc86d71793cc6cc16e2aca172f85ac",
+      "afterSha256": "6068104ed4f3fe9a6fab16447bbd3445a4fc86d71793cc6cc16e2aca172f85ac",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "originals/modeling-data-library-source-list-1440x900.png",
+      "dimensions": "1440x900",
+      "beforeSha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "afterSha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "originals/modeling-data-library-source-list-1920x1080.png",
+      "dimensions": "1920x1080",
+      "beforeSha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "afterSha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "originals/modeling-data-library-source-list-2560x1440.png",
+      "dimensions": "2560x1440",
+      "beforeSha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "afterSha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "originals/modeling-data-library-source-list-3840x2160.png",
+      "dimensions": "3840x2160",
+      "beforeSha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "afterSha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "routes/datasets-processing/modeling-data-library-source-list-1366x768.png",
+      "dimensions": "1366x768",
+      "beforeSha256": "6068104ed4f3fe9a6fab16447bbd3445a4fc86d71793cc6cc16e2aca172f85ac",
+      "afterSha256": "6068104ed4f3fe9a6fab16447bbd3445a4fc86d71793cc6cc16e2aca172f85ac",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "routes/datasets-processing/modeling-data-library-source-list-1440x900.png",
+      "dimensions": "1440x900",
+      "beforeSha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "afterSha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "routes/datasets-processing/modeling-data-library-source-list-1920x1080.png",
+      "dimensions": "1920x1080",
+      "beforeSha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "afterSha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "routes/datasets-processing/modeling-data-library-source-list-2560x1440.png",
+      "dimensions": "2560x1440",
+      "beforeSha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "afterSha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "path": "routes/datasets-processing/modeling-data-library-source-list-3840x2160.png",
+      "dimensions": "3840x2160",
+      "beforeSha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "afterSha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "byteEqual": true,
+      "pixelEqual": true
+    }
+  ]
+}

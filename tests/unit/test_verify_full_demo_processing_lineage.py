@@ -25,6 +25,10 @@ model_and_pending_review = _VERIFY_FULL_DEMO._model_and_pending_review
 domain_binding_kind = _VERIFY_FULL_DEMO._domain_binding_kind
 domain_binding_kinds = _VERIFY_FULL_DEMO._domain_binding_kinds
 exact_forward_link_target = _VERIFY_FULL_DEMO._exact_forward_link_target
+meaningful_demo_records = _VERIFY_FULL_DEMO._meaningful_demo_records
+meaningful_demo_test_names = _VERIFY_FULL_DEMO.MEANINGFUL_DEMO_TEST_RECORDS
+meaningful_demo_simulation_names = _VERIFY_FULL_DEMO.MEANINGFUL_DEMO_SIMULATION_RECORDS
+meaningful_demo_binding_kinds = _VERIFY_FULL_DEMO.MEANINGFUL_DEMO_BINDING_KINDS
 
 RECIPE_SHA256 = "a" * 64
 OUTPUT_SHA256 = "b" * 64
@@ -303,4 +307,78 @@ def test_exact_forward_link_target_requires_the_pinned_active_revision() -> None
             link_type_key="technical_to_tensile",
             target_external_key="CMP-246-TENSILE-FAST",
             stage="DP780 Technical Data direct link",
+        )
+
+
+def _meaningful_record(key: str, name: str) -> dict[str, object]:
+    binding_kind = meaningful_demo_binding_kinds[key]
+    record: dict[str, object] = {
+        "record_id": f"record-{key}",
+        "current_revision": {
+            "id": f"revision-{key}",
+            "revision_no": 1,
+            "content": {
+                "external_key": key,
+                "name": name,
+                "description": "Synthetic non-production representative Demo record.",
+            },
+        },
+    }
+    if binding_kind is not None:
+        record["domain_binding"] = {"kind": binding_kind}
+    return record
+
+
+def test_meaningful_demo_record_set_is_small_distinct_and_exactly_bound() -> None:
+    expected_names = {
+        **meaningful_demo_test_names,
+        **meaningful_demo_simulation_names,
+    }
+    records = [_meaningful_record(key, name) for key, name in expected_names.items()]
+
+    found = meaningful_demo_records(
+        records,
+        expected_names=expected_names,
+        stage="meaningful Demo story",
+    )
+
+    assert set(found) == set(expected_names)
+    assert len(found) == 13
+
+
+@pytest.mark.parametrize(
+    ("mutation", "message"),
+    [
+        ("duplicate", "duplicate external keys"),
+        ("missing", "record set differs"),
+        ("name", "name differs"),
+        ("description", "does not clearly identify"),
+        ("revision", "not the clean exact r1 revision"),
+        ("binding", "does not pin its expected test_data"),
+    ],
+)
+def test_meaningful_demo_record_failure_identifies_the_conflicting_stage(
+    mutation: str, message: str
+) -> None:
+    expected_names = dict(meaningful_demo_test_names)
+    records = [_meaningful_record(key, name) for key, name in expected_names.items()]
+    room = records[0]
+    if mutation == "duplicate":
+        records.append(deepcopy(room))
+    elif mutation == "missing":
+        records.pop()
+    elif mutation == "name":
+        room["current_revision"]["content"]["name"] = "Ambiguous name"  # type: ignore[index]
+    elif mutation == "description":
+        room["current_revision"]["content"]["description"] = "Reference data."  # type: ignore[index]
+    elif mutation == "revision":
+        room["current_revision"]["revision_no"] = 2  # type: ignore[index]
+    else:
+        room.pop("domain_binding")
+
+    with pytest.raises(RuntimeError, match=message):
+        meaningful_demo_records(
+            records,
+            expected_names=expected_names,
+            stage="meaningful Demo Test Data",
         )

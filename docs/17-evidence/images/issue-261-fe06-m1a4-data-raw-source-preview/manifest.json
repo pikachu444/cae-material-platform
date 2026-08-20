@@ -1,0 +1,346 @@
+{
+  "schema_version": 1,
+  "issue": "#261",
+  "unit": "M1A4-modeling-data-raw-source-preview",
+  "implementation_base": "6e48f612d71914e34f2dcd66990cb46ef7188b74",
+  "branch": "issue-261-m1a4-data-raw-source-preview",
+  "browser_zoom_percent": 100,
+  "device_pixel_ratio": 1,
+  "density": "standard",
+  "physical_4k_readability": "DEFERRED_TO_223",
+  "capture": "Primary /modeling and alias /datasets/processing used fresh final-size contexts against this worktree Vite server on 127.0.0.1:5175 and the already-running local API through 127.0.0.1:5173. Each selected exact DP780 Test Data r1, inspected the bounded synthetic CSV against exact Test Run r1, opened File details, and stayed alive across the CSS-only HMR move. No Docker command was run.",
+  "owned_selectors": [
+    ".data-raw-table",
+    ".data-raw-table table",
+    ".data-raw-table th",
+    ".data-raw-table td",
+    ".data-source-decision-grid .data-raw-table",
+    ".data-source-decision-grid .data-raw-table table",
+    ".data-source-decision-grid .data-raw-table th",
+    ".data-source-decision-grid .data-raw-table td",
+    ".modeling-main-surface.has-data-split .data-source-decision-grid .data-raw-table th",
+    ".modeling-main-surface.has-data-split .data-source-decision-grid .data-raw-table td"
+  ],
+  "historical_selector_rows": [
+    "CSS-1009",
+    "CSS-1011",
+    "CSS-1013",
+    "CSS-1014",
+    "CSS-1017",
+    "CSS-1019",
+    "CSS-1044",
+    "CSS-1045",
+    "CSS-1046",
+    "CSS-1047",
+    "CSS-1504",
+    "CSS-1505",
+    "CSS-1615",
+    "CSS-1617",
+    "CSS-1624",
+    "CSS-1632",
+    "CSS-1633"
+  ],
+  "structural_delta": {
+    "selectorRowsRemoved": 17,
+    "touchedRuleGroups": 12,
+    "fullyRemovedRuleGroups": 4,
+    "partiallyShrunkRuleGroups": 8,
+    "afterRuleGroups": 2808,
+    "afterSelectorRows": 3541,
+    "afterM1ARows": 189,
+    "crossCssDuplicateRows": 13,
+    "legacyResidual": 0
+  },
+  "preserved_contract": "No React, DOM, API, copy, route, token, breakpoint, Test Data/Test Run identity, graph, reload, local-file inspection state, scrolling, computed style or intended visual change.",
+  "forbidden_scope": "All adjacent Data selectors, mapping UI, source-advanced rules, other stages, shared tokens/primitives, React/DOM, APIs, routes and current guide PNGs remain unchanged.",
+  "runtime_identity": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/runtime-identity.json",
+  "reload_recovery": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/reload-recovery-1440x900.json",
+  "route_evidence": [
+    {
+      "route": "/modeling?stage=data&family=metal",
+      "state": "raw-source-preview-open",
+      "viewports": [
+        "1366x768",
+        "1440x900",
+        "1920x1080",
+        "2560x1440",
+        "3840x2160"
+      ]
+    },
+    {
+      "route": "/datasets/processing?stage=data&family=metal",
+      "state": "raw-source-preview-open",
+      "viewports": [
+        "1366x768",
+        "1440x900",
+        "1920x1080",
+        "2560x1440",
+        "3840x2160"
+      ]
+    }
+  ],
+  "image_pair_summary": {
+    "imagePairs": 30,
+    "byteIdenticalPairs": 23,
+    "pixelIdenticalPairs": 30,
+    "contextPairs": 10,
+    "fullyEquivalentContexts": 10
+  },
+  "equivalence": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/equivalence.json",
+  "visual_file_sha256": {
+    "apps/web/src/design/layout.css": "8df8c7d2d501f677558606489d0d58650f00c44a0a9f76f97b89ae375b644657",
+    "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css": "698ce16b1142ee5eac35a7e3d23cd062d82e208530258116e588c6e032a0401b"
+  },
+  "images": [
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/originals/modeling-data-1366x768.png",
+      "viewport": "1366x768",
+      "pixels": "1366x768",
+      "sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-1366x768.png",
+      "viewport": "1366x768",
+      "pixels": "1366x768",
+      "sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/originals/modeling-data-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1440x900",
+      "sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-1440x900.png",
+      "viewport": "1440x900",
+      "pixels": "1440x900",
+      "sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/originals/modeling-data-1920x1080.png",
+      "viewport": "1920x1080",
+      "pixels": "1920x1080",
+      "sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-1920x1080.png",
+      "viewport": "1920x1080",
+      "pixels": "1920x1080",
+      "sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/originals/modeling-data-2560x1440.png",
+      "viewport": "2560x1440",
+      "pixels": "2560x1440",
+      "sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-2560x1440.png",
+      "viewport": "2560x1440",
+      "pixels": "2560x1440",
+      "sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/originals/modeling-data-3840x2160.png",
+      "viewport": "3840x2160",
+      "pixels": "3840x2160",
+      "sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-3840x2160.png",
+      "viewport": "3840x2160",
+      "pixels": "3840x2160",
+      "sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2"
+    }
+  ],
+  "original_pairs": [
+    {
+      "name": "modeling-data-1366x768.png",
+      "before_sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6",
+      "after_sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-1440x900.png",
+      "before_sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "after_sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-1920x1080.png",
+      "before_sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "after_sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-2560x1440.png",
+      "before_sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "after_sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-3840x2160.png",
+      "before_sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "after_sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "byte_equal": true
+    }
+  ],
+  "visual_acceptance_matrix": {
+    "Q-01": {
+      "status": "not-applicable",
+      "reason": "Local file intake has no navigator tree."
+    },
+    "Q-02": {
+      "status": "not-applicable",
+      "reason": "The Local file state replaces the Library result list."
+    },
+    "Q-03": {
+      "status": "not-applicable",
+      "reason": "This is not a Materials navigator state."
+    },
+    "Q-04": {
+      "status": "not-applicable",
+      "reason": "This is Data, not Fit."
+    },
+    "Q-05": {
+      "status": "pass",
+      "reason": "Persistent stress-strain axes remain legible and pixel-identical."
+    },
+    "Q-06": {
+      "status": "pass",
+      "reason": "The one-curve legend remains compact and separate from Data decisions."
+    },
+    "Q-07": {
+      "status": "pass",
+      "reason": "Plot pixels and geometry are identical; no SVG scaling changed."
+    },
+    "Q-08": {
+      "status": "not-applicable",
+      "reason": "This is not a true-yield response."
+    },
+    "Q-09": {
+      "status": "pass",
+      "reason": "Raw source supports horizontal pointer wheel, Shift+wheel, keyboard End and far-right reachability."
+    },
+    "Q-10": {
+      "status": "not-applicable",
+      "reason": "This is not Fit legend placement."
+    },
+    "Q-11": {
+      "status": "not-applicable",
+      "reason": "The Local file state has no Fit rail."
+    },
+    "Q-12": {
+      "status": "not-applicable",
+      "reason": "This is not Export setup."
+    },
+    "Q-13": {
+      "status": "not-applicable",
+      "reason": "This is not Export row grammar."
+    },
+    "Q-14": {
+      "status": "not-applicable",
+      "reason": "This is not Export readiness."
+    },
+    "Q-15": {
+      "status": "pass",
+      "reason": "Tensile graph domain, axes and curve pixels remain identical."
+    },
+    "Q-16": {
+      "status": "not-applicable",
+      "reason": "This is not an Export native preview."
+    },
+    "Q-17": {
+      "status": "not-applicable",
+      "reason": "This is not Administration."
+    },
+    "Q-18": {
+      "status": "not-applicable",
+      "reason": "This is not Administration Add/save behavior."
+    },
+    "Q-19": {
+      "status": "not-applicable",
+      "reason": "This is not Administration Link Type."
+    },
+    "Q-20": {
+      "status": "pass",
+      "reason": "Full-width Data ribbon, raw preview and persistent graph retain identical five-viewport geometry."
+    }
+  },
+  "navigator_crop": {
+    "applicable": false,
+    "reason": "The Local file raw-preview state has no navigator tree or result rail in the DOM."
+  },
+  "crop_policy": "Direct 100-percent source-pixel screenshots; no resize or resampling.",
+  "documentation_impact": {
+    "schema_version": "cmp.documentation-impact.css-byte-identical.v1",
+    "issue": "#261",
+    "source_sha": "6e48f612d71914e34f2dcd66990cb46ef7188b74",
+    "classification": "behavior-preserving-css-migration",
+    "visual_files": [
+      "apps/web/src/design/layout.css",
+      "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css"
+    ],
+    "visual_file_sha256": {
+      "apps/web/src/design/layout.css": "8df8c7d2d501f677558606489d0d58650f00c44a0a9f76f97b89ae375b644657",
+      "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css": "698ce16b1142ee5eac35a7e3d23cd062d82e208530258116e588c6e032a0401b"
+    },
+    "current_matches": [
+      {
+        "current": "docs/user-guide/images/current/modeling-data-1366x768.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/originals/modeling-data-1366x768.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-1366x768.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-1440x900.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/originals/modeling-data-1440x900.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-1440x900.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-1920x1080.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/originals/modeling-data-1920x1080.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-1920x1080.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-2560x1440.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/originals/modeling-data-2560x1440.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-2560x1440.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-3840x2160.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/originals/modeling-data-3840x2160.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-3840x2160.png"
+      }
+    ]
+  }
+}

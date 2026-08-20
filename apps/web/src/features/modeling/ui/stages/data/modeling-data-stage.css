@@ -384,6 +384,165 @@
   color: var(--ux-text);
 }
 
+/* Library is a normal-state result surface, not a clipped 86px strip.  The
+   local rail remains keyboard reachable and becomes independently scrollable
+   only when more revisions than the working band can show. */
+.modeling-task-ribbon:has(.data-library-list) {
+  min-height: 178px;
+  max-height: 220px;
+  overflow: visible;
+}
+
+/* Modeling Data keeps long source material inside the ribbon/rail instead of
+   pushing the page; the graph remains the dominant workspace. */
+.data-library-list {
+  display: grid;
+  gap: 0;
+  min-width: min(100%, 560px);
+  min-height: 120px;
+  max-height: 154px;
+  overflow: auto;
+  scrollbar-gutter: stable;
+  border-top: 1px solid var(--ux-border);
+}
+
+.data-library-scroll-shell {
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+  border-top: 1px solid var(--ux-border);
+}
+
+.data-library-list:focus-visible {
+  outline: 2px solid var(--ux-focus);
+  outline-offset: -2px;
+}
+
+.data-library-list article {
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.data-library-list article.active {
+  background: var(--ux-accent-soft);
+}
+
+.data-library-row {
+  display: grid;
+  grid-template-columns: minmax(150px, .75fr) minmax(120px, .55fr) minmax(220px, 1fr);
+  gap: 8px;
+  width: 100%;
+  min-height: 42px;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 0;
+  color: var(--ux-text);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.data-library-row span,
+.data-library-row small {
+  overflow: hidden;
+  color: var(--ux-text-muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.data-library-row:hover,
+.data-library-row:focus-visible {
+  background: var(--ux-accent-soft);
+}
+
+.data-library-pane {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-width: 0;
+  min-height: 0;
+  gap: 0;
+}
+
+.data-library-pane .data-library-scroll-shell {
+  min-width: 0;
+  min-height: 0;
+}
+
+.data-library-pane .data-library-list {
+  min-width: 0;
+  min-height: 0;
+  max-height: 112px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: auto;
+  scrollbar-gutter: stable;
+}
+
+.data-library-pane .data-library-row {
+  grid-template-columns: minmax(130px, .75fr) minmax(110px, .55fr) minmax(160px, 1fr);
+  min-height: 32px;
+  row-gap: 0;
+  column-gap: 8px;
+  padding-block: 1px;
+  padding-inline: 6px;
+}
+
+.data-library-pane .data-library-row > strong {
+  font-size: 13px;
+  line-height: 17px;
+}
+
+.data-library-pane .data-library-warning {
+  grid-column: 1 / -1;
+  min-width: 0;
+  overflow: visible;
+  color: var(--ux-warning);
+  font-size: 11.5px;
+  line-height: 14px;
+  white-space: normal;
+}
+
+.data-library-pane .data-library-row > strong,
+.data-library-pane .data-library-row > span,
+.data-library-pane .data-library-row > small:not(.data-library-warning) {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.data-library-pane .data-library-row > span,
+.data-library-pane .data-library-row > small:not(.data-library-warning) {
+  font-size: 11.5px;
+  line-height: 14px;
+}
+
+.data-library-pane .data-library-list {
+  max-height: calc(
+    var(--ux-navigator-row-block-size)
+    + var(--ux-navigator-row-block-size)
+    + var(--ux-navigator-row-block-size)
+    + var(--ux-space-1)
+  );
+}
+
+.data-library-pane .data-library-row,
+.data-library-row {
+  min-height: var(--ux-navigator-row-block-size);
+  column-gap: var(--ux-space-2);
+  padding-inline: var(--ux-space-2);
+}
+
+.data-library-pane .data-library-row > strong,
+.data-library-row :is(strong, td) {
+  font-size: var(--ux-data-font-size);
+}
+
+.data-library-pane .data-library-row > :is(span, small),
+.data-library-row :is(span, small) {
+  font-size: var(--ux-metadata-font-size);
+}
+
 .modeling-data-results {
   display: grid;
   grid-template-rows: var(--ux-navigator-row-block-size) minmax(0, 1fr) var(--ux-navigator-row-block-size);
@@ -937,6 +1096,72 @@
   color: var(--ux-text);
 }
 
+.data-raw-table {
+  overflow-x: auto;
+}
+
+.data-raw-table table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 13px;
+}
+
+.data-raw-table th,
+.data-raw-table td {
+  border-bottom: 1px solid var(--ux-border);
+  padding: 4px 5px;
+  text-align: left;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.data-raw-table th {
+  color: var(--ux-text-muted);
+  font-size: 11.5px;
+  font-weight: 650;
+}
+
+.data-raw-table td {
+  color: var(--ux-text);
+  font-size: 13px;
+}
+
+.data-source-decision-grid .data-raw-table {
+  overflow: hidden;
+}
+
+.data-source-decision-grid .data-raw-table table {
+  table-layout: fixed;
+}
+
+.data-source-decision-grid .data-raw-table th,
+.data-source-decision-grid .data-raw-table td {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.modeling-main-surface.has-data-split .data-source-decision-grid .data-raw-table th,
+.modeling-main-surface.has-data-split .data-source-decision-grid .data-raw-table td {
+  padding-block: var(--ux-table-cell-padding-block);
+  padding-inline: var(--ux-table-cell-padding-inline);
+}
+
+.data-raw-table table,
+.data-raw-table td {
+  font-size: var(--ux-data-font-size);
+}
+
+.data-raw-table th {
+  font-size: var(--ux-metadata-font-size);
+}
+
+.data-raw-table th,
+.data-raw-table td {
+  padding: var(--ux-cell-padding-block) var(--ux-cell-padding-inline);
+}
+
 .data-source-advanced .data-source-advanced-table {
   max-width: 100%;
   overflow: auto;
@@ -980,6 +1205,46 @@
   min-width: 180px;
   overflow-wrap: normal;
   white-space: nowrap;
+}
+
+.data-import-diagnostics {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 5px;
+  min-width: 0;
+  padding: 7px 8px;
+  border-left: 3px solid var(--ux-danger);
+  background: color-mix(in srgb, var(--ux-danger-soft, #fce8e8) 58%, transparent);
+}
+
+.data-import-diagnostics header {
+  display: grid;
+  gap: 2px;
+  color: var(--ux-text-muted);
+  font-size: 11.5px;
+}
+
+.data-import-diagnostics header strong {
+  color: var(--ux-danger);
+  font-size: 13px;
+}
+
+.data-import-diagnostics > div {
+  overflow: auto;
+}
+
+.data-import-diagnostics table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.data-import-diagnostics th,
+.data-import-diagnostics td {
+  padding: 4px 6px;
+  border-top: 1px solid var(--ux-border);
+  text-align: left;
+  vertical-align: top;
 }
 
 .data-mapping-blockers .ux-workbench-message-body > span {

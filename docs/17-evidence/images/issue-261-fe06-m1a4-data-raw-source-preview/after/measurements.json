@@ -1,0 +1,3642 @@
+[
+  {
+    "route": "/modeling",
+    "viewport": "1366x768",
+    "original": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-raw-source-preview-1366x768.png",
+    "runtime": {
+      "rawAssetId": "aa154feb-3ea3-4f00-b2e2-f978312c27bb",
+      "rawArtifactId": "bfef7c97-4c6d-4949-8908-91e7327e3e61",
+      "rawSha256": "28f7d79371212bd21cdabc051cea2e139e4d68009b177b7201dc5868a6d942d2",
+      "specimenId": "5834c866-4c85-488c-bd62-8089d0218b83",
+      "headers": [
+        "time_s",
+        "force_n",
+        "displacement_mm",
+        "engineering_strain",
+        "engineering_stress_pa"
+      ],
+      "rows": [
+        [
+          "0",
+          "0",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "1",
+          "4200",
+          "0.45",
+          "0.003",
+          "420000000"
+        ],
+        [
+          "2",
+          "6350",
+          "1.10",
+          "0.009",
+          "635000000"
+        ]
+      ],
+      "testRunText": "CMP demo tensile replicate 1 · saved version 1 · performed 2026-01-15T10:00:00Z"
+    },
+    "session": {
+      "material": {
+        "id": "20c1a71b-79e9-4fa3-9417-b2f09653dd4e",
+        "revisionId": "748210e9-147e-4e6b-a750-a18c5ecb3541",
+        "label": "DP780 synthetic reference steel",
+        "revisionNo": 1
+      },
+      "materialState": {
+        "id": "5027256f-b90e-4dee-91a9-7ac3f5506d65",
+        "revisionId": "3238b55e-a8db-4fc7-bda3-72b2f048ae3b",
+        "label": "As received · synthetic reference",
+        "revisionNo": 1
+      },
+      "testData": {
+        "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+        "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+        "label": "CMP-DEMO-DP780-TEST-JSON",
+        "revisionNo": 1
+      },
+      "workspace": {
+        "selectedTestDataRefs": [
+          {
+            "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+            "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+            "label": "CMP-DEMO-DP780-TEST-JSON",
+            "revisionNo": 1
+          }
+        ],
+        "selectedDocumentIds": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc"
+        ],
+        "visibleTestDataKeys": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc:d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+        ]
+      }
+    },
+    "graph": {
+      "heading": "Stress–strain curvesDP780 · Tensile test 0001",
+      "lines": [
+        null
+      ],
+      "legends": [
+        "Tensile test 0001"
+      ],
+      "selectedDocumentKey": "CMP-DEMO-DP780-TEST-JSON",
+      "selectedRevisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+    },
+    "interaction": {
+      "pointerWheelScrollLeft": 188,
+      "shiftWheelScrollLeft": 188,
+      "keyboardScrollLeft": 29,
+      "keyboardTabSteps": 1,
+      "farRight": {
+        "text": "engineering_stress_pa",
+        "left": 556,
+        "right": 736,
+        "portLeft": 24,
+        "portRight": 736,
+        "reachable": true
+      }
+    },
+    "measurements": {
+      "viewport": {
+        "width": 1366,
+        "height": 768,
+        "dpr": 1,
+        "zoom": 100
+      },
+      "page": {
+        "documentScrollWidth": 1366,
+        "documentClientWidth": 1366,
+        "documentScrollHeight": 768,
+        "documentClientHeight": 768
+      },
+      "raw": {
+        "box": {
+          "x": 24,
+          "y": 282.59375,
+          "left": 24,
+          "right": 736,
+          "top": 282.59375,
+          "bottom": 424.578125,
+          "width": 712,
+          "height": 141.984375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 900,
+        "clientWidth": 697,
+        "scrollHeight": 142,
+        "clientHeight": 142,
+        "computed": {
+          "display": "block",
+          "width": "712px",
+          "minWidth": "auto",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "contain",
+          "scrollbarGutter": "stable",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(93, 104, 116)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "13px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "table": {
+        "box": {
+          "x": 24,
+          "y": 282.59375,
+          "left": 24,
+          "right": 924,
+          "top": 282.59375,
+          "bottom": 424.578125,
+          "width": 900,
+          "height": 141.984375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 900,
+        "clientWidth": 900,
+        "scrollHeight": 142,
+        "clientHeight": 142,
+        "computed": {
+          "display": "table",
+          "width": "900px",
+          "minWidth": "100%",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "0px none rgb(93, 104, 116)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "th": {
+        "box": {
+          "x": 24,
+          "y": 282.59375,
+          "left": 24,
+          "right": 204,
+          "top": 282.59375,
+          "bottom": 316.6875,
+          "width": 180,
+          "height": 34.09375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 180,
+        "clientWidth": 180,
+        "scrollHeight": 34,
+        "clientHeight": 34,
+        "computed": {
+          "display": "table-cell",
+          "width": "180px",
+          "minWidth": "180px",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "1px solid rgb(203, 211, 218)",
+          "padding": "9px 8px",
+          "paddingBlock": "9px",
+          "paddingInline": "8px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "13px",
+          "fontWeight": "650",
+          "lineHeight": "15.6px",
+          "overflowWrap": "normal",
+          "whiteSpace": "nowrap"
+        }
+      },
+      "td": {
+        "box": {
+          "x": 24,
+          "y": 316.6875,
+          "left": 24,
+          "right": 204,
+          "top": 316.6875,
+          "bottom": 352.484375,
+          "width": 180,
+          "height": 35.796875
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 180,
+        "clientWidth": 180,
+        "scrollHeight": 35,
+        "clientHeight": 35,
+        "computed": {
+          "display": "table-cell",
+          "width": "180px",
+          "minWidth": "180px",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "1px solid rgb(203, 211, 218)",
+          "padding": "9px 8px",
+          "paddingBlock": "9px",
+          "paddingInline": "8px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "16.8px",
+          "overflowWrap": "normal",
+          "whiteSpace": "nowrap"
+        }
+      },
+      "ribbon": {
+        "box": {
+          "x": 0,
+          "y": 155,
+          "left": 0,
+          "right": 1366,
+          "top": 155,
+          "bottom": 477,
+          "width": 1366,
+          "height": 322
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "scrollHeight": 322,
+        "clientHeight": 322,
+        "computed": {
+          "display": "block",
+          "width": "1366px",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(23, 33, 43)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "graph": {
+        "box": {
+          "x": 0,
+          "y": 482,
+          "left": 0,
+          "right": 1366,
+          "top": 482,
+          "bottom": 722,
+          "width": 1366,
+          "height": 240
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "scrollHeight": 240,
+        "clientHeight": 240,
+        "computed": {
+          "display": "flex",
+          "width": "1366px",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(23, 33, 43)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "matchedRules": {
+        "raw": [],
+        "table": [],
+        "th": [],
+        "td": []
+      }
+    },
+    "consoleErrors": []
+  },
+  {
+    "route": "/modeling",
+    "viewport": "1440x900",
+    "original": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-raw-source-preview-1440x900.png",
+    "runtime": {
+      "rawAssetId": "aa154feb-3ea3-4f00-b2e2-f978312c27bb",
+      "rawArtifactId": "bfef7c97-4c6d-4949-8908-91e7327e3e61",
+      "rawSha256": "28f7d79371212bd21cdabc051cea2e139e4d68009b177b7201dc5868a6d942d2",
+      "specimenId": "5834c866-4c85-488c-bd62-8089d0218b83",
+      "headers": [
+        "time_s",
+        "force_n",
+        "displacement_mm",
+        "engineering_strain",
+        "engineering_stress_pa"
+      ],
+      "rows": [
+        [
+          "0",
+          "0",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "1",
+          "4200",
+          "0.45",
+          "0.003",
+          "420000000"
+        ],
+        [
+          "2",
+          "6350",
+          "1.10",
+          "0.009",
+          "635000000"
+        ]
+      ],
+      "testRunText": "CMP demo tensile replicate 1 · saved version 1 · performed 2026-01-15T10:00:00Z"
+    },
+    "session": {
+      "material": {
+        "id": "20c1a71b-79e9-4fa3-9417-b2f09653dd4e",
+        "revisionId": "748210e9-147e-4e6b-a750-a18c5ecb3541",
+        "label": "DP780 synthetic reference steel",
+        "revisionNo": 1
+      },
+      "materialState": {
+        "id": "5027256f-b90e-4dee-91a9-7ac3f5506d65",
+        "revisionId": "3238b55e-a8db-4fc7-bda3-72b2f048ae3b",
+        "label": "As received · synthetic reference",
+        "revisionNo": 1
+      },
+      "testData": {
+        "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+        "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+        "label": "CMP-DEMO-DP780-TEST-JSON",
+        "revisionNo": 1
+      },
+      "workspace": {
+        "selectedTestDataRefs": [
+          {
+            "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+            "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+            "label": "CMP-DEMO-DP780-TEST-JSON",
+            "revisionNo": 1
+          }
+        ],
+        "selectedDocumentIds": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc"
+        ],
+        "visibleTestDataKeys": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc:d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+        ]
+      }
+    },
+    "graph": {
+      "heading": "Stress–strain curvesDP780 · Tensile test 0001",
+      "lines": [
+        null
+      ],
+      "legends": [
+        "Tensile test 0001"
+      ],
+      "selectedDocumentKey": "CMP-DEMO-DP780-TEST-JSON",
+      "selectedRevisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+    },
+    "interaction": {
+      "pointerWheelScrollLeft": 188,
+      "shiftWheelScrollLeft": 188,
+      "keyboardScrollLeft": 29,
+      "keyboardTabSteps": 1,
+      "farRight": {
+        "text": "engineering_stress_pa",
+        "left": 556,
+        "right": 736,
+        "portLeft": 24,
+        "portRight": 736,
+        "reachable": true
+      }
+    },
+    "measurements": {
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "dpr": 1,
+        "zoom": 100
+      },
+      "page": {
+        "documentScrollWidth": 1440,
+        "documentClientWidth": 1440,
+        "documentScrollHeight": 900,
+        "documentClientHeight": 900
+      },
+      "raw": {
+        "box": {
+          "x": 24,
+          "y": 344.59375,
+          "left": 24,
+          "right": 736,
+          "top": 344.59375,
+          "bottom": 486.578125,
+          "width": 712,
+          "height": 141.984375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 900,
+        "clientWidth": 697,
+        "scrollHeight": 142,
+        "clientHeight": 142,
+        "computed": {
+          "display": "block",
+          "width": "712px",
+          "minWidth": "auto",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "contain",
+          "scrollbarGutter": "stable",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(93, 104, 116)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "13px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "table": {
+        "box": {
+          "x": 24,
+          "y": 344.59375,
+          "left": 24,
+          "right": 924,
+          "top": 344.59375,
+          "bottom": 486.578125,
+          "width": 900,
+          "height": 141.984375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 900,
+        "clientWidth": 900,
+        "scrollHeight": 142,
+        "clientHeight": 142,
+        "computed": {
+          "display": "table",
+          "width": "900px",
+          "minWidth": "100%",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "0px none rgb(93, 104, 116)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "th": {
+        "box": {
+          "x": 24,
+          "y": 344.59375,
+          "left": 24,
+          "right": 204,
+          "top": 344.59375,
+          "bottom": 378.6875,
+          "width": 180,
+          "height": 34.09375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 180,
+        "clientWidth": 180,
+        "scrollHeight": 34,
+        "clientHeight": 34,
+        "computed": {
+          "display": "table-cell",
+          "width": "180px",
+          "minWidth": "180px",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "1px solid rgb(203, 211, 218)",
+          "padding": "9px 8px",
+          "paddingBlock": "9px",
+          "paddingInline": "8px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "13px",
+          "fontWeight": "650",
+          "lineHeight": "15.6px",
+          "overflowWrap": "normal",
+          "whiteSpace": "nowrap"
+        }
+      },
+      "td": {
+        "box": {
+          "x": 24,
+          "y": 378.6875,
+          "left": 24,
+          "right": 204,
+          "top": 378.6875,
+          "bottom": 414.484375,
+          "width": 180,
+          "height": 35.796875
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 180,
+        "clientWidth": 180,
+        "scrollHeight": 35,
+        "clientHeight": 35,
+        "computed": {
+          "display": "table-cell",
+          "width": "180px",
+          "minWidth": "180px",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "1px solid rgb(203, 211, 218)",
+          "padding": "9px 8px",
+          "paddingBlock": "9px",
+          "paddingInline": "8px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "16.8px",
+          "overflowWrap": "normal",
+          "whiteSpace": "nowrap"
+        }
+      },
+      "ribbon": {
+        "box": {
+          "x": 0,
+          "y": 155,
+          "left": 0,
+          "right": 1440,
+          "top": 155,
+          "bottom": 539,
+          "width": 1440,
+          "height": 384
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 384,
+        "clientHeight": 384,
+        "computed": {
+          "display": "block",
+          "width": "1440px",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(23, 33, 43)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "graph": {
+        "box": {
+          "x": 0,
+          "y": 544,
+          "left": 0,
+          "right": 1440,
+          "top": 544,
+          "bottom": 854,
+          "width": 1440,
+          "height": 310
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 310,
+        "clientHeight": 310,
+        "computed": {
+          "display": "flex",
+          "width": "1440px",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(23, 33, 43)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "matchedRules": {
+        "raw": [],
+        "table": [],
+        "th": [],
+        "td": []
+      }
+    },
+    "consoleErrors": []
+  },
+  {
+    "route": "/modeling",
+    "viewport": "1920x1080",
+    "original": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-raw-source-preview-1920x1080.png",
+    "runtime": {
+      "rawAssetId": "aa154feb-3ea3-4f00-b2e2-f978312c27bb",
+      "rawArtifactId": "bfef7c97-4c6d-4949-8908-91e7327e3e61",
+      "rawSha256": "28f7d79371212bd21cdabc051cea2e139e4d68009b177b7201dc5868a6d942d2",
+      "specimenId": "5834c866-4c85-488c-bd62-8089d0218b83",
+      "headers": [
+        "time_s",
+        "force_n",
+        "displacement_mm",
+        "engineering_strain",
+        "engineering_stress_pa"
+      ],
+      "rows": [
+        [
+          "0",
+          "0",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "1",
+          "4200",
+          "0.45",
+          "0.003",
+          "420000000"
+        ],
+        [
+          "2",
+          "6350",
+          "1.10",
+          "0.009",
+          "635000000"
+        ]
+      ],
+      "testRunText": "CMP demo tensile replicate 1 · saved version 1 · performed 2026-01-15T10:00:00Z"
+    },
+    "session": {
+      "material": {
+        "id": "20c1a71b-79e9-4fa3-9417-b2f09653dd4e",
+        "revisionId": "748210e9-147e-4e6b-a750-a18c5ecb3541",
+        "label": "DP780 synthetic reference steel",
+        "revisionNo": 1
+      },
+      "materialState": {
+        "id": "5027256f-b90e-4dee-91a9-7ac3f5506d65",
+        "revisionId": "3238b55e-a8db-4fc7-bda3-72b2f048ae3b",
+        "label": "As received · synthetic reference",
+        "revisionNo": 1
+      },
+      "testData": {
+        "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+        "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+        "label": "CMP-DEMO-DP780-TEST-JSON",
+        "revisionNo": 1
+      },
+      "workspace": {
+        "selectedTestDataRefs": [
+          {
+            "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+            "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+            "label": "CMP-DEMO-DP780-TEST-JSON",
+            "revisionNo": 1
+          }
+        ],
+        "selectedDocumentIds": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc"
+        ],
+        "visibleTestDataKeys": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc:d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+        ]
+      }
+    },
+    "graph": {
+      "heading": "Stress–strain curvesDP780 · Tensile test 0001",
+      "lines": [
+        null
+      ],
+      "legends": [
+        "Tensile test 0001"
+      ],
+      "selectedDocumentKey": "CMP-DEMO-DP780-TEST-JSON",
+      "selectedRevisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+    },
+    "interaction": {
+      "pointerWheelScrollLeft": 188,
+      "shiftWheelScrollLeft": 188,
+      "keyboardScrollLeft": 31,
+      "keyboardTabSteps": 1,
+      "farRight": {
+        "text": "engineering_stress_pa",
+        "left": 556,
+        "right": 736,
+        "portLeft": 24,
+        "portRight": 736,
+        "reachable": true
+      }
+    },
+    "measurements": {
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "dpr": 1,
+        "zoom": 100
+      },
+      "page": {
+        "documentScrollWidth": 1920,
+        "documentClientWidth": 1920,
+        "documentScrollHeight": 1080,
+        "documentClientHeight": 1080
+      },
+      "raw": {
+        "box": {
+          "x": 24,
+          "y": 344.59375,
+          "left": 24,
+          "right": 736,
+          "top": 344.59375,
+          "bottom": 486.578125,
+          "width": 712,
+          "height": 141.984375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 900,
+        "clientWidth": 697,
+        "scrollHeight": 142,
+        "clientHeight": 142,
+        "computed": {
+          "display": "block",
+          "width": "712px",
+          "minWidth": "auto",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "contain",
+          "scrollbarGutter": "stable",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(93, 104, 116)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "13px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "table": {
+        "box": {
+          "x": 24,
+          "y": 344.59375,
+          "left": 24,
+          "right": 924,
+          "top": 344.59375,
+          "bottom": 486.578125,
+          "width": 900,
+          "height": 141.984375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 900,
+        "clientWidth": 900,
+        "scrollHeight": 142,
+        "clientHeight": 142,
+        "computed": {
+          "display": "table",
+          "width": "900px",
+          "minWidth": "100%",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "0px none rgb(93, 104, 116)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "th": {
+        "box": {
+          "x": 24,
+          "y": 344.59375,
+          "left": 24,
+          "right": 204,
+          "top": 344.59375,
+          "bottom": 378.6875,
+          "width": 180,
+          "height": 34.09375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 180,
+        "clientWidth": 180,
+        "scrollHeight": 34,
+        "clientHeight": 34,
+        "computed": {
+          "display": "table-cell",
+          "width": "180px",
+          "minWidth": "180px",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "1px solid rgb(203, 211, 218)",
+          "padding": "9px 8px",
+          "paddingBlock": "9px",
+          "paddingInline": "8px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "13px",
+          "fontWeight": "650",
+          "lineHeight": "15.6px",
+          "overflowWrap": "normal",
+          "whiteSpace": "nowrap"
+        }
+      },
+      "td": {
+        "box": {
+          "x": 24,
+          "y": 378.6875,
+          "left": 24,
+          "right": 204,
+          "top": 378.6875,
+          "bottom": 414.484375,
+          "width": 180,
+          "height": 35.796875
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 180,
+        "clientWidth": 180,
+        "scrollHeight": 35,
+        "clientHeight": 35,
+        "computed": {
+          "display": "table-cell",
+          "width": "180px",
+          "minWidth": "180px",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "1px solid rgb(203, 211, 218)",
+          "padding": "9px 8px",
+          "paddingBlock": "9px",
+          "paddingInline": "8px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "16.8px",
+          "overflowWrap": "normal",
+          "whiteSpace": "nowrap"
+        }
+      },
+      "ribbon": {
+        "box": {
+          "x": 0,
+          "y": 155,
+          "left": 0,
+          "right": 1920,
+          "top": 155,
+          "bottom": 539,
+          "width": 1920,
+          "height": 384
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 1920,
+        "clientWidth": 1920,
+        "scrollHeight": 384,
+        "clientHeight": 384,
+        "computed": {
+          "display": "block",
+          "width": "1920px",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(23, 33, 43)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "graph": {
+        "box": {
+          "x": 0,
+          "y": 544,
+          "left": 0,
+          "right": 1920,
+          "top": 544,
+          "bottom": 1034,
+          "width": 1920,
+          "height": 490
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 1920,
+        "clientWidth": 1920,
+        "scrollHeight": 490,
+        "clientHeight": 490,
+        "computed": {
+          "display": "flex",
+          "width": "1920px",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(23, 33, 43)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "matchedRules": {
+        "raw": [],
+        "table": [],
+        "th": [],
+        "td": []
+      }
+    },
+    "consoleErrors": []
+  },
+  {
+    "route": "/modeling",
+    "viewport": "2560x1440",
+    "original": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-raw-source-preview-2560x1440.png",
+    "runtime": {
+      "rawAssetId": "aa154feb-3ea3-4f00-b2e2-f978312c27bb",
+      "rawArtifactId": "bfef7c97-4c6d-4949-8908-91e7327e3e61",
+      "rawSha256": "28f7d79371212bd21cdabc051cea2e139e4d68009b177b7201dc5868a6d942d2",
+      "specimenId": "5834c866-4c85-488c-bd62-8089d0218b83",
+      "headers": [
+        "time_s",
+        "force_n",
+        "displacement_mm",
+        "engineering_strain",
+        "engineering_stress_pa"
+      ],
+      "rows": [
+        [
+          "0",
+          "0",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "1",
+          "4200",
+          "0.45",
+          "0.003",
+          "420000000"
+        ],
+        [
+          "2",
+          "6350",
+          "1.10",
+          "0.009",
+          "635000000"
+        ]
+      ],
+      "testRunText": "CMP demo tensile replicate 1 · saved version 1 · performed 2026-01-15T10:00:00Z"
+    },
+    "session": {
+      "material": {
+        "id": "20c1a71b-79e9-4fa3-9417-b2f09653dd4e",
+        "revisionId": "748210e9-147e-4e6b-a750-a18c5ecb3541",
+        "label": "DP780 synthetic reference steel",
+        "revisionNo": 1
+      },
+      "materialState": {
+        "id": "5027256f-b90e-4dee-91a9-7ac3f5506d65",
+        "revisionId": "3238b55e-a8db-4fc7-bda3-72b2f048ae3b",
+        "label": "As received · synthetic reference",
+        "revisionNo": 1
+      },
+      "testData": {
+        "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+        "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+        "label": "CMP-DEMO-DP780-TEST-JSON",
+        "revisionNo": 1
+      },
+      "workspace": {
+        "selectedTestDataRefs": [
+          {
+            "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+            "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+            "label": "CMP-DEMO-DP780-TEST-JSON",
+            "revisionNo": 1
+          }
+        ],
+        "selectedDocumentIds": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc"
+        ],
+        "visibleTestDataKeys": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc:d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+        ]
+      }
+    },
+    "graph": {
+      "heading": "Stress–strain curvesDP780 · Tensile test 0001",
+      "lines": [
+        null
+      ],
+      "legends": [
+        "Tensile test 0001"
+      ],
+      "selectedDocumentKey": "CMP-DEMO-DP780-TEST-JSON",
+      "selectedRevisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+    },
+    "interaction": {
+      "pointerWheelScrollLeft": 188,
+      "shiftWheelScrollLeft": 188,
+      "keyboardScrollLeft": 33,
+      "keyboardTabSteps": 1,
+      "farRight": {
+        "text": "engineering_stress_pa",
+        "left": 556,
+        "right": 736,
+        "portLeft": 24,
+        "portRight": 736,
+        "reachable": true
+      }
+    },
+    "measurements": {
+      "viewport": {
+        "width": 2560,
+        "height": 1440,
+        "dpr": 1,
+        "zoom": 100
+      },
+      "page": {
+        "documentScrollWidth": 2560,
+        "documentClientWidth": 2560,
+        "documentScrollHeight": 1440,
+        "documentClientHeight": 1440
+      },
+      "raw": {
+        "box": {
+          "x": 24,
+          "y": 344.59375,
+          "left": 24,
+          "right": 736,
+          "top": 344.59375,
+          "bottom": 486.578125,
+          "width": 712,
+          "height": 141.984375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 900,
+        "clientWidth": 697,
+        "scrollHeight": 142,
+        "clientHeight": 142,
+        "computed": {
+          "display": "block",
+          "width": "712px",
+          "minWidth": "auto",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "contain",
+          "scrollbarGutter": "stable",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(93, 104, 116)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "13px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "table": {
+        "box": {
+          "x": 24,
+          "y": 344.59375,
+          "left": 24,
+          "right": 924,
+          "top": 344.59375,
+          "bottom": 486.578125,
+          "width": 900,
+          "height": 141.984375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 900,
+        "clientWidth": 900,
+        "scrollHeight": 142,
+        "clientHeight": 142,
+        "computed": {
+          "display": "table",
+          "width": "900px",
+          "minWidth": "100%",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "0px none rgb(93, 104, 116)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "th": {
+        "box": {
+          "x": 24,
+          "y": 344.59375,
+          "left": 24,
+          "right": 204,
+          "top": 344.59375,
+          "bottom": 378.6875,
+          "width": 180,
+          "height": 34.09375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 180,
+        "clientWidth": 180,
+        "scrollHeight": 34,
+        "clientHeight": 34,
+        "computed": {
+          "display": "table-cell",
+          "width": "180px",
+          "minWidth": "180px",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "1px solid rgb(203, 211, 218)",
+          "padding": "9px 8px",
+          "paddingBlock": "9px",
+          "paddingInline": "8px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "13px",
+          "fontWeight": "650",
+          "lineHeight": "15.6px",
+          "overflowWrap": "normal",
+          "whiteSpace": "nowrap"
+        }
+      },
+      "td": {
+        "box": {
+          "x": 24,
+          "y": 378.6875,
+          "left": 24,
+          "right": 204,
+          "top": 378.6875,
+          "bottom": 414.484375,
+          "width": 180,
+          "height": 35.796875
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 180,
+        "clientWidth": 180,
+        "scrollHeight": 35,
+        "clientHeight": 35,
+        "computed": {
+          "display": "table-cell",
+          "width": "180px",
+          "minWidth": "180px",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "1px solid rgb(203, 211, 218)",
+          "padding": "9px 8px",
+          "paddingBlock": "9px",
+          "paddingInline": "8px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "16.8px",
+          "overflowWrap": "normal",
+          "whiteSpace": "nowrap"
+        }
+      },
+      "ribbon": {
+        "box": {
+          "x": 0,
+          "y": 155,
+          "left": 0,
+          "right": 2560,
+          "top": 155,
+          "bottom": 539,
+          "width": 2560,
+          "height": 384
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 2560,
+        "clientWidth": 2560,
+        "scrollHeight": 384,
+        "clientHeight": 384,
+        "computed": {
+          "display": "block",
+          "width": "2560px",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(23, 33, 43)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "graph": {
+        "box": {
+          "x": 0,
+          "y": 544,
+          "left": 0,
+          "right": 2560,
+          "top": 544,
+          "bottom": 1394,
+          "width": 2560,
+          "height": 850
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 2560,
+        "clientWidth": 2560,
+        "scrollHeight": 850,
+        "clientHeight": 850,
+        "computed": {
+          "display": "flex",
+          "width": "2560px",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(23, 33, 43)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "matchedRules": {
+        "raw": [],
+        "table": [],
+        "th": [],
+        "td": []
+      }
+    },
+    "consoleErrors": []
+  },
+  {
+    "route": "/modeling",
+    "viewport": "3840x2160",
+    "original": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-raw-source-preview-3840x2160.png",
+    "runtime": {
+      "rawAssetId": "aa154feb-3ea3-4f00-b2e2-f978312c27bb",
+      "rawArtifactId": "bfef7c97-4c6d-4949-8908-91e7327e3e61",
+      "rawSha256": "28f7d79371212bd21cdabc051cea2e139e4d68009b177b7201dc5868a6d942d2",
+      "specimenId": "5834c866-4c85-488c-bd62-8089d0218b83",
+      "headers": [
+        "time_s",
+        "force_n",
+        "displacement_mm",
+        "engineering_strain",
+        "engineering_stress_pa"
+      ],
+      "rows": [
+        [
+          "0",
+          "0",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "1",
+          "4200",
+          "0.45",
+          "0.003",
+          "420000000"
+        ],
+        [
+          "2",
+          "6350",
+          "1.10",
+          "0.009",
+          "635000000"
+        ]
+      ],
+      "testRunText": "CMP demo tensile replicate 1 · saved version 1 · performed 2026-01-15T10:00:00Z"
+    },
+    "session": {
+      "material": {
+        "id": "20c1a71b-79e9-4fa3-9417-b2f09653dd4e",
+        "revisionId": "748210e9-147e-4e6b-a750-a18c5ecb3541",
+        "label": "DP780 synthetic reference steel",
+        "revisionNo": 1
+      },
+      "materialState": {
+        "id": "5027256f-b90e-4dee-91a9-7ac3f5506d65",
+        "revisionId": "3238b55e-a8db-4fc7-bda3-72b2f048ae3b",
+        "label": "As received · synthetic reference",
+        "revisionNo": 1
+      },
+      "testData": {
+        "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+        "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+        "label": "CMP-DEMO-DP780-TEST-JSON",
+        "revisionNo": 1
+      },
+      "workspace": {
+        "selectedTestDataRefs": [
+          {
+            "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+            "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+            "label": "CMP-DEMO-DP780-TEST-JSON",
+            "revisionNo": 1
+          }
+        ],
+        "selectedDocumentIds": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc"
+        ],
+        "visibleTestDataKeys": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc:d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+        ]
+      }
+    },
+    "graph": {
+      "heading": "Stress–strain curvesDP780 · Tensile test 0001",
+      "lines": [
+        null
+      ],
+      "legends": [
+        "Tensile test 0001"
+      ],
+      "selectedDocumentKey": "CMP-DEMO-DP780-TEST-JSON",
+      "selectedRevisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+    },
+    "interaction": {
+      "pointerWheelScrollLeft": 188,
+      "shiftWheelScrollLeft": 188,
+      "keyboardScrollLeft": 32,
+      "keyboardTabSteps": 1,
+      "farRight": {
+        "text": "engineering_stress_pa",
+        "left": 556,
+        "right": 736,
+        "portLeft": 24,
+        "portRight": 736,
+        "reachable": true
+      }
+    },
+    "measurements": {
+      "viewport": {
+        "width": 3840,
+        "height": 2160,
+        "dpr": 1,
+        "zoom": 100
+      },
+      "page": {
+        "documentScrollWidth": 3840,
+        "documentClientWidth": 3840,
+        "documentScrollHeight": 2160,
+        "documentClientHeight": 2160
+      },
+      "raw": {
+        "box": {
+          "x": 24,
+          "y": 344.59375,
+          "left": 24,
+          "right": 736,
+          "top": 344.59375,
+          "bottom": 486.578125,
+          "width": 712,
+          "height": 141.984375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 900,
+        "clientWidth": 697,
+        "scrollHeight": 142,
+        "clientHeight": 142,
+        "computed": {
+          "display": "block",
+          "width": "712px",
+          "minWidth": "auto",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "contain",
+          "scrollbarGutter": "stable",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(93, 104, 116)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "13px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "table": {
+        "box": {
+          "x": 24,
+          "y": 344.59375,
+          "left": 24,
+          "right": 924,
+          "top": 344.59375,
+          "bottom": 486.578125,
+          "width": 900,
+          "height": 141.984375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 900,
+        "clientWidth": 900,
+        "scrollHeight": 142,
+        "clientHeight": 142,
+        "computed": {
+          "display": "table",
+          "width": "900px",
+          "minWidth": "100%",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "0px none rgb(93, 104, 116)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "th": {
+        "box": {
+          "x": 24,
+          "y": 344.59375,
+          "left": 24,
+          "right": 204,
+          "top": 344.59375,
+          "bottom": 378.6875,
+          "width": 180,
+          "height": 34.09375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 180,
+        "clientWidth": 180,
+        "scrollHeight": 34,
+        "clientHeight": 34,
+        "computed": {
+          "display": "table-cell",
+          "width": "180px",
+          "minWidth": "180px",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "1px solid rgb(203, 211, 218)",
+          "padding": "9px 8px",
+          "paddingBlock": "9px",
+          "paddingInline": "8px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "13px",
+          "fontWeight": "650",
+          "lineHeight": "15.6px",
+          "overflowWrap": "normal",
+          "whiteSpace": "nowrap"
+        }
+      },
+      "td": {
+        "box": {
+          "x": 24,
+          "y": 378.6875,
+          "left": 24,
+          "right": 204,
+          "top": 378.6875,
+          "bottom": 414.484375,
+          "width": 180,
+          "height": 35.796875
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 180,
+        "clientWidth": 180,
+        "scrollHeight": 35,
+        "clientHeight": 35,
+        "computed": {
+          "display": "table-cell",
+          "width": "180px",
+          "minWidth": "180px",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "1px solid rgb(203, 211, 218)",
+          "padding": "9px 8px",
+          "paddingBlock": "9px",
+          "paddingInline": "8px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "16.8px",
+          "overflowWrap": "normal",
+          "whiteSpace": "nowrap"
+        }
+      },
+      "ribbon": {
+        "box": {
+          "x": 0,
+          "y": 155,
+          "left": 0,
+          "right": 3840,
+          "top": 155,
+          "bottom": 539,
+          "width": 3840,
+          "height": 384
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 3840,
+        "clientWidth": 3840,
+        "scrollHeight": 384,
+        "clientHeight": 384,
+        "computed": {
+          "display": "block",
+          "width": "3840px",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(23, 33, 43)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "graph": {
+        "box": {
+          "x": 0,
+          "y": 544,
+          "left": 0,
+          "right": 3840,
+          "top": 544,
+          "bottom": 2114,
+          "width": 3840,
+          "height": 1570
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 3840,
+        "clientWidth": 3840,
+        "scrollHeight": 1570,
+        "clientHeight": 1570,
+        "computed": {
+          "display": "flex",
+          "width": "3840px",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(23, 33, 43)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "matchedRules": {
+        "raw": [],
+        "table": [],
+        "th": [],
+        "td": []
+      }
+    },
+    "consoleErrors": []
+  },
+  {
+    "route": "/datasets/processing",
+    "viewport": "1366x768",
+    "original": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/routes/datasets-processing/modeling-data-raw-source-preview-1366x768.png",
+    "runtime": {
+      "rawAssetId": "aa154feb-3ea3-4f00-b2e2-f978312c27bb",
+      "rawArtifactId": "bfef7c97-4c6d-4949-8908-91e7327e3e61",
+      "rawSha256": "28f7d79371212bd21cdabc051cea2e139e4d68009b177b7201dc5868a6d942d2",
+      "specimenId": "5834c866-4c85-488c-bd62-8089d0218b83",
+      "headers": [
+        "time_s",
+        "force_n",
+        "displacement_mm",
+        "engineering_strain",
+        "engineering_stress_pa"
+      ],
+      "rows": [
+        [
+          "0",
+          "0",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "1",
+          "4200",
+          "0.45",
+          "0.003",
+          "420000000"
+        ],
+        [
+          "2",
+          "6350",
+          "1.10",
+          "0.009",
+          "635000000"
+        ]
+      ],
+      "testRunText": "CMP demo tensile replicate 1 · saved version 1 · performed 2026-01-15T10:00:00Z"
+    },
+    "session": {
+      "material": {
+        "id": "20c1a71b-79e9-4fa3-9417-b2f09653dd4e",
+        "revisionId": "748210e9-147e-4e6b-a750-a18c5ecb3541",
+        "label": "DP780 synthetic reference steel",
+        "revisionNo": 1
+      },
+      "materialState": {
+        "id": "5027256f-b90e-4dee-91a9-7ac3f5506d65",
+        "revisionId": "3238b55e-a8db-4fc7-bda3-72b2f048ae3b",
+        "label": "As received · synthetic reference",
+        "revisionNo": 1
+      },
+      "testData": {
+        "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+        "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+        "label": "CMP-DEMO-DP780-TEST-JSON",
+        "revisionNo": 1
+      },
+      "workspace": {
+        "selectedTestDataRefs": [
+          {
+            "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+            "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+            "label": "CMP-DEMO-DP780-TEST-JSON",
+            "revisionNo": 1
+          }
+        ],
+        "selectedDocumentIds": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc"
+        ],
+        "visibleTestDataKeys": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc:d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+        ]
+      }
+    },
+    "graph": {
+      "heading": "Stress–strain curvesDP780 · Tensile test 0001",
+      "lines": [
+        null
+      ],
+      "legends": [
+        "Tensile test 0001"
+      ],
+      "selectedDocumentKey": "CMP-DEMO-DP780-TEST-JSON",
+      "selectedRevisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+    },
+    "interaction": {
+      "pointerWheelScrollLeft": 188,
+      "shiftWheelScrollLeft": 188,
+      "keyboardScrollLeft": 31,
+      "keyboardTabSteps": 1,
+      "farRight": {
+        "text": "engineering_stress_pa",
+        "left": 556,
+        "right": 736,
+        "portLeft": 24,
+        "portRight": 736,
+        "reachable": true
+      }
+    },
+    "measurements": {
+      "viewport": {
+        "width": 1366,
+        "height": 768,
+        "dpr": 1,
+        "zoom": 100
+      },
+      "page": {
+        "documentScrollWidth": 1366,
+        "documentClientWidth": 1366,
+        "documentScrollHeight": 768,
+        "documentClientHeight": 768
+      },
+      "raw": {
+        "box": {
+          "x": 24,
+          "y": 282.59375,
+          "left": 24,
+          "right": 736,
+          "top": 282.59375,
+          "bottom": 424.578125,
+          "width": 712,
+          "height": 141.984375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 900,
+        "clientWidth": 697,
+        "scrollHeight": 142,
+        "clientHeight": 142,
+        "computed": {
+          "display": "block",
+          "width": "712px",
+          "minWidth": "auto",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "contain",
+          "scrollbarGutter": "stable",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(93, 104, 116)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "13px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "table": {
+        "box": {
+          "x": 24,
+          "y": 282.59375,
+          "left": 24,
+          "right": 924,
+          "top": 282.59375,
+          "bottom": 424.578125,
+          "width": 900,
+          "height": 141.984375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 900,
+        "clientWidth": 900,
+        "scrollHeight": 142,
+        "clientHeight": 142,
+        "computed": {
+          "display": "table",
+          "width": "900px",
+          "minWidth": "100%",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "0px none rgb(93, 104, 116)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "th": {
+        "box": {
+          "x": 24,
+          "y": 282.59375,
+          "left": 24,
+          "right": 204,
+          "top": 282.59375,
+          "bottom": 316.6875,
+          "width": 180,
+          "height": 34.09375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 180,
+        "clientWidth": 180,
+        "scrollHeight": 34,
+        "clientHeight": 34,
+        "computed": {
+          "display": "table-cell",
+          "width": "180px",
+          "minWidth": "180px",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "1px solid rgb(203, 211, 218)",
+          "padding": "9px 8px",
+          "paddingBlock": "9px",
+          "paddingInline": "8px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "13px",
+          "fontWeight": "650",
+          "lineHeight": "15.6px",
+          "overflowWrap": "normal",
+          "whiteSpace": "nowrap"
+        }
+      },
+      "td": {
+        "box": {
+          "x": 24,
+          "y": 316.6875,
+          "left": 24,
+          "right": 204,
+          "top": 316.6875,
+          "bottom": 352.484375,
+          "width": 180,
+          "height": 35.796875
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 180,
+        "clientWidth": 180,
+        "scrollHeight": 35,
+        "clientHeight": 35,
+        "computed": {
+          "display": "table-cell",
+          "width": "180px",
+          "minWidth": "180px",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "1px solid rgb(203, 211, 218)",
+          "padding": "9px 8px",
+          "paddingBlock": "9px",
+          "paddingInline": "8px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "16.8px",
+          "overflowWrap": "normal",
+          "whiteSpace": "nowrap"
+        }
+      },
+      "ribbon": {
+        "box": {
+          "x": 0,
+          "y": 155,
+          "left": 0,
+          "right": 1366,
+          "top": 155,
+          "bottom": 477,
+          "width": 1366,
+          "height": 322
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "scrollHeight": 322,
+        "clientHeight": 322,
+        "computed": {
+          "display": "block",
+          "width": "1366px",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(23, 33, 43)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "graph": {
+        "box": {
+          "x": 0,
+          "y": 482,
+          "left": 0,
+          "right": 1366,
+          "top": 482,
+          "bottom": 722,
+          "width": 1366,
+          "height": 240
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "scrollHeight": 240,
+        "clientHeight": 240,
+        "computed": {
+          "display": "flex",
+          "width": "1366px",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(23, 33, 43)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "matchedRules": {
+        "raw": [],
+        "table": [],
+        "th": [],
+        "td": []
+      }
+    },
+    "consoleErrors": []
+  },
+  {
+    "route": "/datasets/processing",
+    "viewport": "1440x900",
+    "original": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/routes/datasets-processing/modeling-data-raw-source-preview-1440x900.png",
+    "runtime": {
+      "rawAssetId": "aa154feb-3ea3-4f00-b2e2-f978312c27bb",
+      "rawArtifactId": "bfef7c97-4c6d-4949-8908-91e7327e3e61",
+      "rawSha256": "28f7d79371212bd21cdabc051cea2e139e4d68009b177b7201dc5868a6d942d2",
+      "specimenId": "5834c866-4c85-488c-bd62-8089d0218b83",
+      "headers": [
+        "time_s",
+        "force_n",
+        "displacement_mm",
+        "engineering_strain",
+        "engineering_stress_pa"
+      ],
+      "rows": [
+        [
+          "0",
+          "0",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "1",
+          "4200",
+          "0.45",
+          "0.003",
+          "420000000"
+        ],
+        [
+          "2",
+          "6350",
+          "1.10",
+          "0.009",
+          "635000000"
+        ]
+      ],
+      "testRunText": "CMP demo tensile replicate 1 · saved version 1 · performed 2026-01-15T10:00:00Z"
+    },
+    "session": {
+      "material": {
+        "id": "20c1a71b-79e9-4fa3-9417-b2f09653dd4e",
+        "revisionId": "748210e9-147e-4e6b-a750-a18c5ecb3541",
+        "label": "DP780 synthetic reference steel",
+        "revisionNo": 1
+      },
+      "materialState": {
+        "id": "5027256f-b90e-4dee-91a9-7ac3f5506d65",
+        "revisionId": "3238b55e-a8db-4fc7-bda3-72b2f048ae3b",
+        "label": "As received · synthetic reference",
+        "revisionNo": 1
+      },
+      "testData": {
+        "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+        "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+        "label": "CMP-DEMO-DP780-TEST-JSON",
+        "revisionNo": 1
+      },
+      "workspace": {
+        "selectedTestDataRefs": [
+          {
+            "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+            "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+            "label": "CMP-DEMO-DP780-TEST-JSON",
+            "revisionNo": 1
+          }
+        ],
+        "selectedDocumentIds": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc"
+        ],
+        "visibleTestDataKeys": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc:d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+        ]
+      }
+    },
+    "graph": {
+      "heading": "Stress–strain curvesDP780 · Tensile test 0001",
+      "lines": [
+        null
+      ],
+      "legends": [
+        "Tensile test 0001"
+      ],
+      "selectedDocumentKey": "CMP-DEMO-DP780-TEST-JSON",
+      "selectedRevisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+    },
+    "interaction": {
+      "pointerWheelScrollLeft": 188,
+      "shiftWheelScrollLeft": 188,
+      "keyboardScrollLeft": 31,
+      "keyboardTabSteps": 1,
+      "farRight": {
+        "text": "engineering_stress_pa",
+        "left": 556,
+        "right": 736,
+        "portLeft": 24,
+        "portRight": 736,
+        "reachable": true
+      }
+    },
+    "measurements": {
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "dpr": 1,
+        "zoom": 100
+      },
+      "page": {
+        "documentScrollWidth": 1440,
+        "documentClientWidth": 1440,
+        "documentScrollHeight": 900,
+        "documentClientHeight": 900
+      },
+      "raw": {
+        "box": {
+          "x": 24,
+          "y": 344.59375,
+          "left": 24,
+          "right": 736,
+          "top": 344.59375,
+          "bottom": 486.578125,
+          "width": 712,
+          "height": 141.984375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 900,
+        "clientWidth": 697,
+        "scrollHeight": 142,
+        "clientHeight": 142,
+        "computed": {
+          "display": "block",
+          "width": "712px",
+          "minWidth": "auto",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "contain",
+          "scrollbarGutter": "stable",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(93, 104, 116)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "13px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "table": {
+        "box": {
+          "x": 24,
+          "y": 344.59375,
+          "left": 24,
+          "right": 924,
+          "top": 344.59375,
+          "bottom": 486.578125,
+          "width": 900,
+          "height": 141.984375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 900,
+        "clientWidth": 900,
+        "scrollHeight": 142,
+        "clientHeight": 142,
+        "computed": {
+          "display": "table",
+          "width": "900px",
+          "minWidth": "100%",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "0px none rgb(93, 104, 116)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "th": {
+        "box": {
+          "x": 24,
+          "y": 344.59375,
+          "left": 24,
+          "right": 204,
+          "top": 344.59375,
+          "bottom": 378.6875,
+          "width": 180,
+          "height": 34.09375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 180,
+        "clientWidth": 180,
+        "scrollHeight": 34,
+        "clientHeight": 34,
+        "computed": {
+          "display": "table-cell",
+          "width": "180px",
+          "minWidth": "180px",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "1px solid rgb(203, 211, 218)",
+          "padding": "9px 8px",
+          "paddingBlock": "9px",
+          "paddingInline": "8px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "13px",
+          "fontWeight": "650",
+          "lineHeight": "15.6px",
+          "overflowWrap": "normal",
+          "whiteSpace": "nowrap"
+        }
+      },
+      "td": {
+        "box": {
+          "x": 24,
+          "y": 378.6875,
+          "left": 24,
+          "right": 204,
+          "top": 378.6875,
+          "bottom": 414.484375,
+          "width": 180,
+          "height": 35.796875
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 180,
+        "clientWidth": 180,
+        "scrollHeight": 35,
+        "clientHeight": 35,
+        "computed": {
+          "display": "table-cell",
+          "width": "180px",
+          "minWidth": "180px",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "1px solid rgb(203, 211, 218)",
+          "padding": "9px 8px",
+          "paddingBlock": "9px",
+          "paddingInline": "8px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "16.8px",
+          "overflowWrap": "normal",
+          "whiteSpace": "nowrap"
+        }
+      },
+      "ribbon": {
+        "box": {
+          "x": 0,
+          "y": 155,
+          "left": 0,
+          "right": 1440,
+          "top": 155,
+          "bottom": 539,
+          "width": 1440,
+          "height": 384
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 384,
+        "clientHeight": 384,
+        "computed": {
+          "display": "block",
+          "width": "1440px",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(23, 33, 43)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "graph": {
+        "box": {
+          "x": 0,
+          "y": 544,
+          "left": 0,
+          "right": 1440,
+          "top": 544,
+          "bottom": 854,
+          "width": 1440,
+          "height": 310
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 310,
+        "clientHeight": 310,
+        "computed": {
+          "display": "flex",
+          "width": "1440px",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(23, 33, 43)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "matchedRules": {
+        "raw": [],
+        "table": [],
+        "th": [],
+        "td": []
+      }
+    },
+    "consoleErrors": []
+  },
+  {
+    "route": "/datasets/processing",
+    "viewport": "1920x1080",
+    "original": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/routes/datasets-processing/modeling-data-raw-source-preview-1920x1080.png",
+    "runtime": {
+      "rawAssetId": "aa154feb-3ea3-4f00-b2e2-f978312c27bb",
+      "rawArtifactId": "bfef7c97-4c6d-4949-8908-91e7327e3e61",
+      "rawSha256": "28f7d79371212bd21cdabc051cea2e139e4d68009b177b7201dc5868a6d942d2",
+      "specimenId": "5834c866-4c85-488c-bd62-8089d0218b83",
+      "headers": [
+        "time_s",
+        "force_n",
+        "displacement_mm",
+        "engineering_strain",
+        "engineering_stress_pa"
+      ],
+      "rows": [
+        [
+          "0",
+          "0",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "1",
+          "4200",
+          "0.45",
+          "0.003",
+          "420000000"
+        ],
+        [
+          "2",
+          "6350",
+          "1.10",
+          "0.009",
+          "635000000"
+        ]
+      ],
+      "testRunText": "CMP demo tensile replicate 1 · saved version 1 · performed 2026-01-15T10:00:00Z"
+    },
+    "session": {
+      "material": {
+        "id": "20c1a71b-79e9-4fa3-9417-b2f09653dd4e",
+        "revisionId": "748210e9-147e-4e6b-a750-a18c5ecb3541",
+        "label": "DP780 synthetic reference steel",
+        "revisionNo": 1
+      },
+      "materialState": {
+        "id": "5027256f-b90e-4dee-91a9-7ac3f5506d65",
+        "revisionId": "3238b55e-a8db-4fc7-bda3-72b2f048ae3b",
+        "label": "As received · synthetic reference",
+        "revisionNo": 1
+      },
+      "testData": {
+        "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+        "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+        "label": "CMP-DEMO-DP780-TEST-JSON",
+        "revisionNo": 1
+      },
+      "workspace": {
+        "selectedTestDataRefs": [
+          {
+            "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+            "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+            "label": "CMP-DEMO-DP780-TEST-JSON",
+            "revisionNo": 1
+          }
+        ],
+        "selectedDocumentIds": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc"
+        ],
+        "visibleTestDataKeys": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc:d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+        ]
+      }
+    },
+    "graph": {
+      "heading": "Stress–strain curvesDP780 · Tensile test 0001",
+      "lines": [
+        null
+      ],
+      "legends": [
+        "Tensile test 0001"
+      ],
+      "selectedDocumentKey": "CMP-DEMO-DP780-TEST-JSON",
+      "selectedRevisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+    },
+    "interaction": {
+      "pointerWheelScrollLeft": 188,
+      "shiftWheelScrollLeft": 188,
+      "keyboardScrollLeft": 35,
+      "keyboardTabSteps": 1,
+      "farRight": {
+        "text": "engineering_stress_pa",
+        "left": 556,
+        "right": 736,
+        "portLeft": 24,
+        "portRight": 736,
+        "reachable": true
+      }
+    },
+    "measurements": {
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "dpr": 1,
+        "zoom": 100
+      },
+      "page": {
+        "documentScrollWidth": 1920,
+        "documentClientWidth": 1920,
+        "documentScrollHeight": 1080,
+        "documentClientHeight": 1080
+      },
+      "raw": {
+        "box": {
+          "x": 24,
+          "y": 344.59375,
+          "left": 24,
+          "right": 736,
+          "top": 344.59375,
+          "bottom": 486.578125,
+          "width": 712,
+          "height": 141.984375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 900,
+        "clientWidth": 697,
+        "scrollHeight": 142,
+        "clientHeight": 142,
+        "computed": {
+          "display": "block",
+          "width": "712px",
+          "minWidth": "auto",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "contain",
+          "scrollbarGutter": "stable",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(93, 104, 116)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "13px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "table": {
+        "box": {
+          "x": 24,
+          "y": 344.59375,
+          "left": 24,
+          "right": 924,
+          "top": 344.59375,
+          "bottom": 486.578125,
+          "width": 900,
+          "height": 141.984375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 900,
+        "clientWidth": 900,
+        "scrollHeight": 142,
+        "clientHeight": 142,
+        "computed": {
+          "display": "table",
+          "width": "900px",
+          "minWidth": "100%",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "0px none rgb(93, 104, 116)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "th": {
+        "box": {
+          "x": 24,
+          "y": 344.59375,
+          "left": 24,
+          "right": 204,
+          "top": 344.59375,
+          "bottom": 378.6875,
+          "width": 180,
+          "height": 34.09375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 180,
+        "clientWidth": 180,
+        "scrollHeight": 34,
+        "clientHeight": 34,
+        "computed": {
+          "display": "table-cell",
+          "width": "180px",
+          "minWidth": "180px",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "1px solid rgb(203, 211, 218)",
+          "padding": "9px 8px",
+          "paddingBlock": "9px",
+          "paddingInline": "8px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "13px",
+          "fontWeight": "650",
+          "lineHeight": "15.6px",
+          "overflowWrap": "normal",
+          "whiteSpace": "nowrap"
+        }
+      },
+      "td": {
+        "box": {
+          "x": 24,
+          "y": 378.6875,
+          "left": 24,
+          "right": 204,
+          "top": 378.6875,
+          "bottom": 414.484375,
+          "width": 180,
+          "height": 35.796875
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 180,
+        "clientWidth": 180,
+        "scrollHeight": 35,
+        "clientHeight": 35,
+        "computed": {
+          "display": "table-cell",
+          "width": "180px",
+          "minWidth": "180px",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "1px solid rgb(203, 211, 218)",
+          "padding": "9px 8px",
+          "paddingBlock": "9px",
+          "paddingInline": "8px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "16.8px",
+          "overflowWrap": "normal",
+          "whiteSpace": "nowrap"
+        }
+      },
+      "ribbon": {
+        "box": {
+          "x": 0,
+          "y": 155,
+          "left": 0,
+          "right": 1920,
+          "top": 155,
+          "bottom": 539,
+          "width": 1920,
+          "height": 384
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 1920,
+        "clientWidth": 1920,
+        "scrollHeight": 384,
+        "clientHeight": 384,
+        "computed": {
+          "display": "block",
+          "width": "1920px",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(23, 33, 43)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "graph": {
+        "box": {
+          "x": 0,
+          "y": 544,
+          "left": 0,
+          "right": 1920,
+          "top": 544,
+          "bottom": 1034,
+          "width": 1920,
+          "height": 490
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 1920,
+        "clientWidth": 1920,
+        "scrollHeight": 490,
+        "clientHeight": 490,
+        "computed": {
+          "display": "flex",
+          "width": "1920px",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(23, 33, 43)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "matchedRules": {
+        "raw": [],
+        "table": [],
+        "th": [],
+        "td": []
+      }
+    },
+    "consoleErrors": []
+  },
+  {
+    "route": "/datasets/processing",
+    "viewport": "2560x1440",
+    "original": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/routes/datasets-processing/modeling-data-raw-source-preview-2560x1440.png",
+    "runtime": {
+      "rawAssetId": "aa154feb-3ea3-4f00-b2e2-f978312c27bb",
+      "rawArtifactId": "bfef7c97-4c6d-4949-8908-91e7327e3e61",
+      "rawSha256": "28f7d79371212bd21cdabc051cea2e139e4d68009b177b7201dc5868a6d942d2",
+      "specimenId": "5834c866-4c85-488c-bd62-8089d0218b83",
+      "headers": [
+        "time_s",
+        "force_n",
+        "displacement_mm",
+        "engineering_strain",
+        "engineering_stress_pa"
+      ],
+      "rows": [
+        [
+          "0",
+          "0",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "1",
+          "4200",
+          "0.45",
+          "0.003",
+          "420000000"
+        ],
+        [
+          "2",
+          "6350",
+          "1.10",
+          "0.009",
+          "635000000"
+        ]
+      ],
+      "testRunText": "CMP demo tensile replicate 1 · saved version 1 · performed 2026-01-15T10:00:00Z"
+    },
+    "session": {
+      "material": {
+        "id": "20c1a71b-79e9-4fa3-9417-b2f09653dd4e",
+        "revisionId": "748210e9-147e-4e6b-a750-a18c5ecb3541",
+        "label": "DP780 synthetic reference steel",
+        "revisionNo": 1
+      },
+      "materialState": {
+        "id": "5027256f-b90e-4dee-91a9-7ac3f5506d65",
+        "revisionId": "3238b55e-a8db-4fc7-bda3-72b2f048ae3b",
+        "label": "As received · synthetic reference",
+        "revisionNo": 1
+      },
+      "testData": {
+        "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+        "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+        "label": "CMP-DEMO-DP780-TEST-JSON",
+        "revisionNo": 1
+      },
+      "workspace": {
+        "selectedTestDataRefs": [
+          {
+            "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+            "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+            "label": "CMP-DEMO-DP780-TEST-JSON",
+            "revisionNo": 1
+          }
+        ],
+        "selectedDocumentIds": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc"
+        ],
+        "visibleTestDataKeys": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc:d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+        ]
+      }
+    },
+    "graph": {
+      "heading": "Stress–strain curvesDP780 · Tensile test 0001",
+      "lines": [
+        null
+      ],
+      "legends": [
+        "Tensile test 0001"
+      ],
+      "selectedDocumentKey": "CMP-DEMO-DP780-TEST-JSON",
+      "selectedRevisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+    },
+    "interaction": {
+      "pointerWheelScrollLeft": 188,
+      "shiftWheelScrollLeft": 188,
+      "keyboardScrollLeft": 35,
+      "keyboardTabSteps": 1,
+      "farRight": {
+        "text": "engineering_stress_pa",
+        "left": 556,
+        "right": 736,
+        "portLeft": 24,
+        "portRight": 736,
+        "reachable": true
+      }
+    },
+    "measurements": {
+      "viewport": {
+        "width": 2560,
+        "height": 1440,
+        "dpr": 1,
+        "zoom": 100
+      },
+      "page": {
+        "documentScrollWidth": 2560,
+        "documentClientWidth": 2560,
+        "documentScrollHeight": 1440,
+        "documentClientHeight": 1440
+      },
+      "raw": {
+        "box": {
+          "x": 24,
+          "y": 344.59375,
+          "left": 24,
+          "right": 736,
+          "top": 344.59375,
+          "bottom": 486.578125,
+          "width": 712,
+          "height": 141.984375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 900,
+        "clientWidth": 697,
+        "scrollHeight": 142,
+        "clientHeight": 142,
+        "computed": {
+          "display": "block",
+          "width": "712px",
+          "minWidth": "auto",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "contain",
+          "scrollbarGutter": "stable",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(93, 104, 116)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "13px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "table": {
+        "box": {
+          "x": 24,
+          "y": 344.59375,
+          "left": 24,
+          "right": 924,
+          "top": 344.59375,
+          "bottom": 486.578125,
+          "width": 900,
+          "height": 141.984375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 900,
+        "clientWidth": 900,
+        "scrollHeight": 142,
+        "clientHeight": 142,
+        "computed": {
+          "display": "table",
+          "width": "900px",
+          "minWidth": "100%",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "0px none rgb(93, 104, 116)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "th": {
+        "box": {
+          "x": 24,
+          "y": 344.59375,
+          "left": 24,
+          "right": 204,
+          "top": 344.59375,
+          "bottom": 378.6875,
+          "width": 180,
+          "height": 34.09375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 180,
+        "clientWidth": 180,
+        "scrollHeight": 34,
+        "clientHeight": 34,
+        "computed": {
+          "display": "table-cell",
+          "width": "180px",
+          "minWidth": "180px",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "1px solid rgb(203, 211, 218)",
+          "padding": "9px 8px",
+          "paddingBlock": "9px",
+          "paddingInline": "8px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "13px",
+          "fontWeight": "650",
+          "lineHeight": "15.6px",
+          "overflowWrap": "normal",
+          "whiteSpace": "nowrap"
+        }
+      },
+      "td": {
+        "box": {
+          "x": 24,
+          "y": 378.6875,
+          "left": 24,
+          "right": 204,
+          "top": 378.6875,
+          "bottom": 414.484375,
+          "width": 180,
+          "height": 35.796875
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 180,
+        "clientWidth": 180,
+        "scrollHeight": 35,
+        "clientHeight": 35,
+        "computed": {
+          "display": "table-cell",
+          "width": "180px",
+          "minWidth": "180px",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "1px solid rgb(203, 211, 218)",
+          "padding": "9px 8px",
+          "paddingBlock": "9px",
+          "paddingInline": "8px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "16.8px",
+          "overflowWrap": "normal",
+          "whiteSpace": "nowrap"
+        }
+      },
+      "ribbon": {
+        "box": {
+          "x": 0,
+          "y": 155,
+          "left": 0,
+          "right": 2560,
+          "top": 155,
+          "bottom": 539,
+          "width": 2560,
+          "height": 384
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 2560,
+        "clientWidth": 2560,
+        "scrollHeight": 384,
+        "clientHeight": 384,
+        "computed": {
+          "display": "block",
+          "width": "2560px",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(23, 33, 43)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "graph": {
+        "box": {
+          "x": 0,
+          "y": 544,
+          "left": 0,
+          "right": 2560,
+          "top": 544,
+          "bottom": 1394,
+          "width": 2560,
+          "height": 850
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 2560,
+        "clientWidth": 2560,
+        "scrollHeight": 850,
+        "clientHeight": 850,
+        "computed": {
+          "display": "flex",
+          "width": "2560px",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(23, 33, 43)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "matchedRules": {
+        "raw": [],
+        "table": [],
+        "th": [],
+        "td": []
+      }
+    },
+    "consoleErrors": []
+  },
+  {
+    "route": "/datasets/processing",
+    "viewport": "3840x2160",
+    "original": "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/routes/datasets-processing/modeling-data-raw-source-preview-3840x2160.png",
+    "runtime": {
+      "rawAssetId": "aa154feb-3ea3-4f00-b2e2-f978312c27bb",
+      "rawArtifactId": "bfef7c97-4c6d-4949-8908-91e7327e3e61",
+      "rawSha256": "28f7d79371212bd21cdabc051cea2e139e4d68009b177b7201dc5868a6d942d2",
+      "specimenId": "5834c866-4c85-488c-bd62-8089d0218b83",
+      "headers": [
+        "time_s",
+        "force_n",
+        "displacement_mm",
+        "engineering_strain",
+        "engineering_stress_pa"
+      ],
+      "rows": [
+        [
+          "0",
+          "0",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "1",
+          "4200",
+          "0.45",
+          "0.003",
+          "420000000"
+        ],
+        [
+          "2",
+          "6350",
+          "1.10",
+          "0.009",
+          "635000000"
+        ]
+      ],
+      "testRunText": "CMP demo tensile replicate 1 · saved version 1 · performed 2026-01-15T10:00:00Z"
+    },
+    "session": {
+      "material": {
+        "id": "20c1a71b-79e9-4fa3-9417-b2f09653dd4e",
+        "revisionId": "748210e9-147e-4e6b-a750-a18c5ecb3541",
+        "label": "DP780 synthetic reference steel",
+        "revisionNo": 1
+      },
+      "materialState": {
+        "id": "5027256f-b90e-4dee-91a9-7ac3f5506d65",
+        "revisionId": "3238b55e-a8db-4fc7-bda3-72b2f048ae3b",
+        "label": "As received · synthetic reference",
+        "revisionNo": 1
+      },
+      "testData": {
+        "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+        "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+        "label": "CMP-DEMO-DP780-TEST-JSON",
+        "revisionNo": 1
+      },
+      "workspace": {
+        "selectedTestDataRefs": [
+          {
+            "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+            "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+            "label": "CMP-DEMO-DP780-TEST-JSON",
+            "revisionNo": 1
+          }
+        ],
+        "selectedDocumentIds": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc"
+        ],
+        "visibleTestDataKeys": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc:d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+        ]
+      }
+    },
+    "graph": {
+      "heading": "Stress–strain curvesDP780 · Tensile test 0001",
+      "lines": [
+        null
+      ],
+      "legends": [
+        "Tensile test 0001"
+      ],
+      "selectedDocumentKey": "CMP-DEMO-DP780-TEST-JSON",
+      "selectedRevisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+    },
+    "interaction": {
+      "pointerWheelScrollLeft": 188,
+      "shiftWheelScrollLeft": 188,
+      "keyboardScrollLeft": 34,
+      "keyboardTabSteps": 1,
+      "farRight": {
+        "text": "engineering_stress_pa",
+        "left": 556,
+        "right": 736,
+        "portLeft": 24,
+        "portRight": 736,
+        "reachable": true
+      }
+    },
+    "measurements": {
+      "viewport": {
+        "width": 3840,
+        "height": 2160,
+        "dpr": 1,
+        "zoom": 100
+      },
+      "page": {
+        "documentScrollWidth": 3840,
+        "documentClientWidth": 3840,
+        "documentScrollHeight": 2160,
+        "documentClientHeight": 2160
+      },
+      "raw": {
+        "box": {
+          "x": 24,
+          "y": 344.59375,
+          "left": 24,
+          "right": 736,
+          "top": 344.59375,
+          "bottom": 486.578125,
+          "width": 712,
+          "height": 141.984375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 900,
+        "clientWidth": 697,
+        "scrollHeight": 142,
+        "clientHeight": 142,
+        "computed": {
+          "display": "block",
+          "width": "712px",
+          "minWidth": "auto",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "contain",
+          "scrollbarGutter": "stable",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(93, 104, 116)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "13px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "table": {
+        "box": {
+          "x": 24,
+          "y": 344.59375,
+          "left": 24,
+          "right": 924,
+          "top": 344.59375,
+          "bottom": 486.578125,
+          "width": 900,
+          "height": 141.984375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 900,
+        "clientWidth": 900,
+        "scrollHeight": 142,
+        "clientHeight": 142,
+        "computed": {
+          "display": "table",
+          "width": "900px",
+          "minWidth": "100%",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "0px none rgb(93, 104, 116)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "th": {
+        "box": {
+          "x": 24,
+          "y": 344.59375,
+          "left": 24,
+          "right": 204,
+          "top": 344.59375,
+          "bottom": 378.6875,
+          "width": 180,
+          "height": 34.09375
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 180,
+        "clientWidth": 180,
+        "scrollHeight": 34,
+        "clientHeight": 34,
+        "computed": {
+          "display": "table-cell",
+          "width": "180px",
+          "minWidth": "180px",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "1px solid rgb(203, 211, 218)",
+          "padding": "9px 8px",
+          "paddingBlock": "9px",
+          "paddingInline": "8px",
+          "color": "rgb(93, 104, 116)",
+          "fontSize": "13px",
+          "fontWeight": "650",
+          "lineHeight": "15.6px",
+          "overflowWrap": "normal",
+          "whiteSpace": "nowrap"
+        }
+      },
+      "td": {
+        "box": {
+          "x": 24,
+          "y": 378.6875,
+          "left": 24,
+          "right": 204,
+          "top": 378.6875,
+          "bottom": 414.484375,
+          "width": 180,
+          "height": 35.796875
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 180,
+        "clientWidth": 180,
+        "scrollHeight": 35,
+        "clientHeight": 35,
+        "computed": {
+          "display": "table-cell",
+          "width": "180px",
+          "minWidth": "180px",
+          "maxWidth": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "collapse",
+          "borderBottom": "1px solid rgb(203, 211, 218)",
+          "padding": "9px 8px",
+          "paddingBlock": "9px",
+          "paddingInline": "8px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "16.8px",
+          "overflowWrap": "normal",
+          "whiteSpace": "nowrap"
+        }
+      },
+      "ribbon": {
+        "box": {
+          "x": 0,
+          "y": 155,
+          "left": 0,
+          "right": 3840,
+          "top": 155,
+          "bottom": 539,
+          "width": 3840,
+          "height": 384
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 3840,
+        "clientWidth": 3840,
+        "scrollHeight": 384,
+        "clientHeight": 384,
+        "computed": {
+          "display": "block",
+          "width": "3840px",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(23, 33, 43)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "graph": {
+        "box": {
+          "x": 0,
+          "y": 544,
+          "left": 0,
+          "right": 3840,
+          "top": 544,
+          "bottom": 2114,
+          "width": 3840,
+          "height": 1570
+        },
+        "scrollLeft": 0,
+        "scrollWidth": 3840,
+        "clientWidth": 3840,
+        "scrollHeight": 1570,
+        "clientHeight": 1570,
+        "computed": {
+          "display": "flex",
+          "width": "3840px",
+          "minWidth": "0px",
+          "maxWidth": "100%",
+          "overflow": "auto",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "overscrollBehavior": "auto",
+          "scrollbarGutter": "auto",
+          "tableLayout": "auto",
+          "borderCollapse": "separate",
+          "borderBottom": "0px none rgb(23, 33, 43)",
+          "padding": "0px",
+          "paddingBlock": "0px",
+          "paddingInline": "0px",
+          "color": "rgb(23, 33, 43)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "overflowWrap": "normal",
+          "whiteSpace": "normal"
+        }
+      },
+      "matchedRules": {
+        "raw": [],
+        "table": [],
+        "th": [],
+        "td": []
+      }
+    },
+    "consoleErrors": []
+  }
+]

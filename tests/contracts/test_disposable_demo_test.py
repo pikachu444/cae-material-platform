@@ -48,15 +48,27 @@ def test_make_routes_automation_to_disposable_runner_and_preserves_demo_volumes(
     makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
 
     verify = _make_target(makefile, "demo-verify", "demo-e2e")
-    e2e = _make_target(makefile, "demo-e2e", "demo-down")
+    e2e = _make_target(makefile, "demo-e2e", "demo-scale-e2e")
     down = _make_target(makefile, "demo-down", "compose-preflight")
 
     assert "scripts/run_disposable_demo_test.py" in verify
     assert "npx --no-install playwright install chromium" in e2e
     assert "scripts/run_disposable_demo_test.py --e2e" in e2e
+    assert "--scale-fixture" not in e2e
     assert "down" in down
     assert " -v" not in down
     assert "--volumes" not in down
+
+
+def test_make_exposes_one_owned_disposable_scale_browser_flow() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+
+    scale = _make_target(makefile, "demo-scale-e2e", "demo-down")
+
+    assert "scripts/run_disposable_demo_test.py" in scale
+    assert "--scale-fixture" in scale
+    assert "--e2e" in scale
+    assert "--e2e-spec e2e/disposable-scale-fixture.spec.ts" in scale
 
 
 def test_isolated_config_accepts_only_project_scoped_volumes_and_random_web_port() -> None:
@@ -196,6 +208,33 @@ def test_browser_verification_can_select_the_owned_specs_without_changing_the_de
         "e2e/guided-demo.spec.ts",
         "e2e/display-density.spec.ts",
     ]
+
+
+def test_scale_fixture_runs_inside_the_selected_disposable_project(
+    monkeypatch: MonkeyPatch,
+) -> None:
+    project = "cmp-demo-test-proof123"
+    commands: list[list[str]] = []
+
+    def run_command(args: list[str], **_kwargs: Any) -> subprocess.CompletedProcess[str]:
+        commands.append(list(args))
+        return subprocess.CompletedProcess(args, 0, "", "")
+
+    monkeypatch.setattr(demo_test, "_run_command", run_command)
+    monkeypatch.setattr(
+        demo_test, "_run_seed_twice_and_assert_stable", lambda *args, **kwargs: None
+    )
+
+    demo_test._run_verification(ROOT, project, e2e=False, scale_fixture=True)
+
+    scale = next(
+        command for command in commands if "scripts/seed_disposable_scale_fixture.py" in command
+    )
+    assert scale[scale.index("--project-name") + 1] == project
+    assert f"CMP_DISPOSABLE_PROJECT_NAME={project}" in scale
+    assert "scripts/verify_full_demo.py" in next(
+        command for command in commands if "scripts/verify_full_demo.py" in command
+    )
 
 
 def test_repeat_seed_runs_twice_and_requires_an_exact_protected_table_snapshot(
